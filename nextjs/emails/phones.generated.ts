@@ -5,7 +5,7 @@ export const PHONES_ART = {
   width: 420,
   height: 568,
   alt: {
-    de: 'Die Eat-This-App: die Map mit Must-Eat-Pins und ein Restaurant im Detail',
+    de: 'Die Eat-This-App: die Map mit Must Eat Pins und ein Restaurant im Detail',
     en: 'The Eat This app: the map with Must Eat pins and a restaurant up close',
   },
   version: '01f86426',

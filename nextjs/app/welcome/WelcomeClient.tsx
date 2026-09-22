@@ -17,6 +17,8 @@ import { STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
 import { handoffEvent } from '@/lib/analytics';
 import { welcomeLocale, type WelcomeLocale } from '@/lib/auth/welcomeLocale';
 import { WELCOME_COPY, type WelcomeCopy } from './copy';
+import { AVATAR_CHOICES, avatarSrc } from '@/app/components/avatarChoices';
+import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
 import styles from './auth-action.module.css';
 
 // /welcome lives under its own root layout (separate <html> tree); the
@@ -71,19 +73,6 @@ function hasPendingStarterCard(params: URLSearchParams): boolean {
     return false;
   }
 }
-
-type AvatarChoice = 1 | 2 | 3;
-
-// Named avatar tiles (mockup screen 14). The stored value is the number;
-// the label is just the picker caption.
-// Dieselben Namen wie im Avatar-Fenster der Seite (avatarChoice1–3 in
-// lib/i18n/translations.ts), in beiden Sprachen gleich. Bis zum 21.09.2026
-// hiessen sie nur hier anders.
-const AVATARS: { id: AvatarChoice; label: string }[] = [
-  { id: 1, label: 'Spot Scout' },
-  { id: 2, label: 'Spice Diva' },
-  { id: 3, label: 'Chef Slice' },
-];
 
 type State =
   | { kind: 'processing' }
@@ -361,9 +350,7 @@ function IdentityForm({ user, claimingCard, locale, preview = false }: IdentityP
       {/* Der Faden zurück zu der einen Karte, für die das hier alles passiert.
           Ohne ihn ist dieses Formular eine Unterbrechung ohne erkennbaren
           Grund. */}
-      {claimingCard && (
-        <p className={styles.sub}>{t.identityCardNote}</p>
-      )}
+      {claimingCard && <p className={styles.sub}>{t.identityCardNote}</p>}
 
       <form onSubmit={submit} className={styles.form}>
         <div>
@@ -384,7 +371,7 @@ function IdentityForm({ user, claimingCard, locale, preview = false }: IdentityP
         </div>
 
         <div className={styles.avatars} role="radiogroup" aria-label={t.avatarGroup}>
-          {AVATARS.map(({ id, label }) => (
+          {AVATAR_CHOICES.map(({ id, label }) => (
             <button
               key={id}
               type="button"
@@ -396,7 +383,7 @@ function IdentityForm({ user, claimingCard, locale, preview = false }: IdentityP
             >
               <span className={styles.avatarPh}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${id}.webp?v=4`} alt="" />
+                <img src={avatarSrc(id)} alt="" />
               </span>
               <span className={styles.avatarName}>{label}</span>
             </button>

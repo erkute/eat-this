@@ -173,7 +173,7 @@ const manifest = [
   `  width: ${DISPLAY_WIDTH},`,
   `  height: ${Math.round(CANVAS_H / SCALE)},`,
   '  alt: {',
-  "    de: 'Die Eat-This-App: die Map mit Must-Eat-Pins und ein Restaurant im Detail',",
+  "    de: 'Die Eat-This-App: die Map mit Must Eat Pins und ein Restaurant im Detail',",
   "    en: 'The Eat This app: the map with Must Eat pins and a restaurant up close',",
   '  },',
   `  version: '${version}',`,

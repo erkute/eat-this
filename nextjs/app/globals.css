@@ -717,8 +717,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 /* ── Zentrale Info-Karte (window.showNotification / window.showNotice) ──────
    Global montiert in app/[locale]/layout.tsx (NotificationToast.tsx). Hier
-   statt in style.css, weil /profile und /welcome das SPA-Stylesheet nicht
-   laden.
+   statt in style.css, weil /profile das SPA-Stylesheet nicht laden.
 
    Mitte statt unterer Kante, und im Zuschnitt des Onboarding-Panels (Ink-
    Grund, weisse Schrift, ein gelber Akzent — siehe

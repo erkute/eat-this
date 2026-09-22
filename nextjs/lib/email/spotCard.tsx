@@ -1,6 +1,6 @@
 // Server-composed email spot card — the JSX tree Satori (next/og ImageResponse)
 // renders into one flat 1072×804 image: restaurant photo, bottom scrim, name and
-// meta in the brand font.
+// district in the brand font, and the spot's open Must Eat card beside it.
 //
 // It is the `.hv-photo` card from home, flattened. Composing server-side is the
 // only way this survives email clients: Gmail strips position/transform/filter/
@@ -31,20 +31,32 @@ export function spotPhotoUrl(photo: string): string {
   return `${photo.split('?')[0]}?w=${SPOT_CARD_WIDTH}&h=${SPOT_CARD_HEIGHT}&fit=crop&fm=jpg&q=80`;
 }
 
-/** Was eine Karte zum Zeichnen braucht — genau die Felder aus emailSpotsQuery. */
+/** Was eine Karte zum Zeichnen braucht. */
 export interface SpotCardData {
   name: string;
   /** Bezirk, z. B. „Mitte". */
   area: string;
-  /** Küche, z. B. „Bakery". Nicht jedes Restaurant hat eine. */
-  cuisine?: string;
   /** Roh-URL aus dem Sanity-CDN, Query-String optional. */
   photo: string;
+  /** Die offene Must-Eat-Karte des Spots als PNG-Data-URI (Satori liest
+   *  kein WebP). Sie steht rechts neben dem Namen: die Mail soll zeigen,
+   *  dass zu jedem Spot eine Karte gehört (Betreiber, 22.09.2026). */
+  card: string;
 }
+
+/** Die Must-Eat-Karte oben rechts, wie `.mustPeek` auf der Restaurantliste
+ *  (dort 54–68 px auf rund 360 px Kartenbreite, 5° gekippt) — hier etwas
+ *  grösser, 120 px auf 536 px Anzeigebreite. Grösser deckte sie das Foto zu
+ *  (Betreiber, 22.09.2026). Breite im 2x-Bitmap; die Höhe folgt dem Format
+ *  der Karte (720×989). */
+const CARD_WIDTH = 240;
+const CARD_HEIGHT = Math.round((CARD_WIDTH * 989) / 720);
 
 // Satori subset: flexbox only, every multi-child element needs display:flex.
 export function SpotCardImage({ spot }: { spot: SpotCardData }) {
-  const meta = [spot.area, spot.cuisine].filter(Boolean).join(' · ');
+  /* Nur der Bezirk: „Mitte · Bakery" sagte, was die Karte ohnehin zeigt
+     (Betreiber, 22.09.2026). */
+  const meta = spot.area;
 
   return (
     <div
@@ -81,7 +93,23 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         }}
       />
 
-      {/* name + meta — bottom left, exactly as on the home rail */}
+      {/* die Must-Eat-Karte — oben rechts, gekippt wie auf der Restaurantliste.
+          Gmail entfernt `transform`, hier ist sie eingebacken. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={spot.card}
+        alt=""
+        width={CARD_WIDTH}
+        height={CARD_HEIGHT}
+        style={{
+          position: 'absolute',
+          right: 36,
+          top: 36,
+          transform: 'rotate(5deg)',
+        }}
+      />
+
+      {/* name + district — bottom left, exactly as on the home rail */}
       <div
         style={{
           position: 'absolute',

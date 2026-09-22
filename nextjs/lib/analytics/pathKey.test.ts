@@ -9,7 +9,6 @@ describe('pathKey', () => {
     ['/must-eats', '/must-eats'],
     ['/news', '/news'],
     ['/checkout/success', '/checkout/success'],
-    ['/welcome', '/welcome'],
     ['/restaurant/bari', '/restaurant/bari'],
     ['/kategorie/lunch', '/kategorie/lunch'],
     ['/bezirk/kreuzberg', '/bezirk/kreuzberg'],

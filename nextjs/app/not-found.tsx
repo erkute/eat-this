@@ -15,8 +15,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Root-level 404 — used when routes outside the [locale] tree (like
-// /welcome) hit notFound(). Provides its own html/body since the root
+// Root-level 404 — used when routes outside the [locale] tree hit
+// notFound(). Provides its own html/body since the root
 // layout is a pass-through.
 export default function NotFound() {
   return (

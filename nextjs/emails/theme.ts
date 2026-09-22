@@ -60,6 +60,3 @@ export const LAYOUT = {
  * seinem Cache aus — eine ersetzte Datei erreicht den Empfaenger dann nie.
  */
 export const EMAIL_ASSET_VERSION = '1';
-
-/** The yellow `hv-mk` square that precedes every section title on home. */
-export const MARKER_SIZE = 9;

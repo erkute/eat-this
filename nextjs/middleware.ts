@@ -230,8 +230,7 @@ export default async function middleware(req: NextRequest) {
   // App Hosting CDN refuses to store — every page, including the ~690
   // prerendered ones, was a `cdn-cache-status: miss`. The cookie also had no
   // reader on this path: `localeDetection` is off, so next-intl never consults
-  // it, and `/welcome`'s detectLocale() falls back to exactly this default when
-  // it is absent. The two branches that DO set it above (`?lang=`, `/de/…`)
+  // it. The two branches that DO set it above (`?lang=`, `/de/…`)
   // record an explicit choice on a redirect, which was never cacheable anyway.
   if (!pathname.startsWith('/en')) {
     const url = req.nextUrl.clone();
@@ -269,6 +268,6 @@ export const config = {
   // Was Staging wirklich schuetzt, sind die SEITEN, und die bleiben drin:
   // ohne sie ist ein Bild ohne Zusammenhang.
   matcher: [
-    '/((?!_next|_vercel|__|api/og|css|js|pics|fonts|welcome|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)',
+    '/((?!_next|_vercel|__|api/og|css|js|pics|fonts|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\..*).*)',
   ],
 };

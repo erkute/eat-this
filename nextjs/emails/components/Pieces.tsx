@@ -2,80 +2,57 @@
 // handful of constructs every email client renders the same way: tables,
 // inline styles, flat colour.
 
-import { Button, Column, Img, Row, Section, Text } from '@react-email/components';
+import { Button, Img, Section, Text } from '@react-email/components';
 import type { ArtAsset } from '../art.generated';
-import { COLOR, LAYOUT, MARKER_SIZE } from '../theme';
+import { COLOR, LAYOUT } from '../theme';
 
 /**
- * The ink CTA — `.hv-btn`. Live text, never an image: Outlook and a large
- * share of Gmail accounts block images by default, and an invisible button in
- * a login mail is a dead end. react-email's Button carries the mso padding
- * hack so the ink slab keeps its height in Outlook's Word engine.
+ * Der gelbe Knopf — `.action` aus der Tour.
+ *
+ * Der Knopf selbst ist ein echter Link mit gelber Fläche; nur sein Wort ist ein
+ * Bild in der Markenschrift (`art`), wie jede andere Zeile der Mail. Blockiert
+ * ein Client Bilder (Outlook, viele Gmail-Konten), steht der Alt-Text in Ink
+ * auf dem Gelb: der Knopf ist dann in Systemschrift beschriftet, aber nie
+ * leer — und der Ersatz-Link darunter ist ohnehin echter Text.
+ *
+ * react-email's Button carries the mso padding hack so the slab keeps its
+ * height in Outlook's Word engine.
  */
-export function CtaButton({ href, label }: { href: string; label: string }) {
+export function CtaButton({ href, art, appUrl }: { href: string; art: ArtAsset; appUrl: string }) {
   return (
     <Button
       href={href}
       className="et-cta"
       style={{
-        display: 'block',
+        /* So breit wie sein Wort plus Luft, nicht die ganze Spalte — ein
+           Balken über 536 px war zu viel (Betreiber, 22.09.2026). Mittig
+           steht er, weil der Block drumherum mittig gesetzt ist. */
+        display: 'inline-block',
+        minWidth: '200px',
+        boxSizing: 'border-box',
         backgroundColor: COLOR.accent,
         color: COLOR.onAccent,
         borderRadius: `${LAYOUT.radiusControl}px`,
-        fontSize: '17px',
-        fontWeight: 700,
-        letterSpacing: '0.01em',
         textAlign: 'center',
         textDecoration: 'none',
-        padding: '17px 24px',
+        padding: '10px 40px',
       }}
     >
-      {label}
+      <Img
+        src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`}
+        alt={art.alt}
+        width={art.width}
+        style={{
+          display: 'inline-block',
+          verticalAlign: 'middle',
+          border: 0,
+          height: 'auto',
+          color: COLOR.onAccent,
+          fontSize: '17px',
+          fontWeight: 700,
+        }}
+      />
     </Button>
-  );
-}
-
-/**
- * `.hv-kicker` — the small uppercase eyebrow above a hero headline. No yellow
- * square: on home the marker belongs to section heads, not to the hero.
- */
-/**
- * `.hv-head` — the yellow `.hv-mk` square followed by a red section title, on
- * one line. Two table cells rather than an inline-block: the 9px square must
- * not collapse, and a table cell is the one box model no client second-guesses.
- */
-export function SectionHead({
-  art,
-  appUrl,
-  style,
-}: {
-  art: ArtAsset;
-  appUrl: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <Row style={{ marginBottom: '10px', ...style }}>
-      <Column width={MARKER_SIZE + 11} style={{ verticalAlign: 'bottom' }}>
-        <div
-          style={{
-            width: `${MARKER_SIZE}px`,
-            height: `${MARKER_SIZE}px`,
-            backgroundColor: COLOR.accent,
-            fontSize: '1px',
-            lineHeight: '1px',
-          }}
-        >
-          &nbsp;
-        </div>
-      </Column>
-      <Column style={{ verticalAlign: 'bottom' }}>
-        <ArtImage
-          art={art}
-          appUrl={appUrl}
-          altStyle={{ color: COLOR.text, fontSize: '20px', fontWeight: 700 }}
-        />
-      </Column>
-    </Row>
   );
 }
 
@@ -120,31 +97,24 @@ export function ArtImage({
   );
 }
 
-/** Body copy — `.hv-sub` at reading size. */
-export function Lead({
-  children,
-  style,
-}: {
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <Text style={{ margin: 0, fontSize: '16px', lineHeight: 1.6, color: COLOR.muted, ...style }}>
-      {children}
-    </Text>
-  );
-}
-
 /** The fine print directly under the CTA. */
 export function Fineprint({ children }: { children: React.ReactNode }) {
   return (
-    <Text style={{ margin: '14px 0 0', fontSize: '13px', lineHeight: 1.55, color: COLOR.muted }}>
+    <Text
+      style={{
+        margin: '14px 0 0',
+        fontSize: '13px',
+        lineHeight: 1.55,
+        color: COLOR.muted,
+        textAlign: 'center',
+      }}
+    >
       {children}
     </Text>
   );
 }
 
-/** White page block with the card's horizontal rhythm. */
+/** Ein Block auf der Ink-Fläche, mittig gesetzt wie die ganze Mail. */
 export function Paper({
   children,
   padding = '38px 32px',
@@ -153,7 +123,10 @@ export function Paper({
   padding?: string;
 }) {
   return (
-    <Section className="et-pad" style={{ backgroundColor: COLOR.surface, padding }}>
+    <Section
+      className="et-pad"
+      style={{ backgroundColor: COLOR.surface, padding, textAlign: 'center' }}
+    >
       {children}
     </Section>
   );

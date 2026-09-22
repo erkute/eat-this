@@ -1,6 +1,7 @@
 'use client';
 
 import { readConsent } from '@/lib/consent';
+import { EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
 
 type AnalyticsParams = Record<string, string | number | boolean | undefined>;
 
@@ -12,14 +13,13 @@ interface AnalyticsWindow extends Window {
 }
 
 const GA_ID = 'G-8EWFYGPNTT';
-const HANDOFF_KEY = 'eatthis_analytics_handoff';
 /* Was niemals in einer Analytics-URL stehen darf. `session_id` kam von Stripe.
- * Der Rest ab hier ist der Firebase-Action-Link auf /welcome: `oobCode` ist ein
- * einlösbares Anmelde-Token — landete es im `page_location`, läge ein
- * Login-Code in Googles Berichten. Seit /welcome mitgezählt wird (28.08.2026)
- * ist das keine Theorie mehr. `continueUrl` trägt zusätzlich das Ziel des
- * Logins, inklusive beanspruchtem Spot. */
-const SENSITIVE_QUERY_PARAMS = ['session_id', 'oobCode', 'apiKey', 'continueUrl', 'email'];
+ * Der Rest ist der Link aus der Anmelde-Mail (lib/auth/emailLinkParams.ts):
+ * `oobCode` ist ein einlösbares Anmelde-Token, `e` die Mailadresse — beides
+ * landete sonst im `page_location`. EmailLinkSignIn räumt die Adresszeile
+ * sofort auf; das hier fängt ab, was davor schon gezählt wird.
+ * `continueUrl` und `email` sind Träger älterer Links. */
+const SENSITIVE_QUERY_PARAMS = ['session_id', ...EMAIL_LINK_PARAMS, 'continueUrl', 'email'];
 
 export function getAnalyticsPageLocation(href: string): {
   pageLocation: string;
@@ -278,48 +278,6 @@ export function flushAnalyticsQueue(): void {
   for (const event of pending) w.gtag('event', event.name, event.params ?? {});
 }
 
-function flushHandoffEvents(): void {
-  const w = analyticsWindow();
-  if (!w?.gtag || !gaEnabled()) return;
-  try {
-    const raw = window.sessionStorage.getItem(HANDOFF_KEY);
-    window.sessionStorage.removeItem(HANDOFF_KEY);
-    if (!raw) return;
-    const events = JSON.parse(raw) as Array<{ name: string; params?: AnalyticsParams }>;
-    for (const event of events) w.gtag('event', event.name, event.params ?? {});
-  } catch {
-    // Malformed/private storage: discard rather than blocking analytics init.
-  }
-}
-
-/** Persist a consented event across a hard navigation, then send it on the
- * destination route once analytics initializes.
- *
- * The consent-free counter fires FIRST and unconditionally, exactly as in
- * `trackEvent` — and it does NOT ride the handoff: `sendCount` uses
- * `sendBeacon`, which survives the hard navigation that follows, so the count
- * belongs on the page that produced it. Only the GA half needs the detour.
- *
- * Without this line the magic-link completion (`login` / `sign_up` from
- * welcome/page.tsx) was invisible to the counter: the `!gaEnabled()` guard sat
- * above everything, so the main way into an account was counted for consenters
- * only — the exact blind spot this counter exists to close. */
-export function handoffEvent(name: string, params?: AnalyticsParams): void {
-  if (typeof window === 'undefined') return;
-  countEventWithQualifier(name, params);
-  if (!gaEnabled()) return;
-  try {
-    const raw = window.sessionStorage.getItem(HANDOFF_KEY);
-    const events = raw
-      ? (JSON.parse(raw) as Array<{ name: string; params?: AnalyticsParams }>)
-      : [];
-    events.push({ name, params });
-    window.sessionStorage.setItem(HANDOFF_KEY, JSON.stringify(events.slice(-20)));
-  } catch {
-    // Private mode: the normal analytics flow remains available.
-  }
-}
-
 /** Load GA4 on any route when consent was granted earlier. Configuration does
  * not auto-send pageviews; AnalyticsPageViews owns initial + soft-nav views. */
 export function loadAnalytics(): void {
@@ -340,7 +298,6 @@ export function loadAnalytics(): void {
   w.gtag('js', new Date());
   w.gtag('config', GA_ID, { send_page_view: false });
   flushAnalyticsQueue();
-  flushHandoffEvents();
 }
 
 /** Session-scoped dedupe for events that may remount during App Router flows. */

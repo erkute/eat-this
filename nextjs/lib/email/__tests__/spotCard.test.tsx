@@ -35,21 +35,28 @@ describe('SpotCardImage', () => {
   const spot = {
     name: 'Sofi',
     area: 'Mitte',
-    cuisine: 'Bakery',
     photo: 'https://cdn.sanity.io/images/x/y/a.png',
+    card: 'data:image/png;base64,AAAA',
   };
 
   function flatten(node: unknown): string {
     return JSON.stringify(node);
   }
 
-  it('composes the public restaurant photo, name and meta line', () => {
+  it('composes the public restaurant photo, name and district', () => {
     const tree = flatten(SpotCardImage({ spot }));
     expect(tree).toContain('fm=jpg'); // photo layer
     expect(tree).toContain('Sofi'); // name in the brand face
-    expect(tree).toContain('Mitte · Bakery'); // meta under the name, as on home
+    expect(tree).toContain('Mitte'); // district under the name
+    expect(tree).not.toContain(' · '); // no cuisine — the photo shows it
     expect(tree).not.toContain('rotate(14deg)');
     expect(tree).not.toContain('fm=png');
+  });
+
+  /* Zu jedem Spot seine Must-Eat-Karte, damit man sieht, dass beides
+     zusammengehoert (Betreiber, 22.09.2026). */
+  it('legt die Must-Eat-Karte neben den Spot', () => {
+    expect(flatten(SpotCardImage({ spot }))).toContain('data:image/png;base64,AAAA');
   });
 
   it('sets every type layer in the brand face, never a system font', () => {
@@ -58,11 +65,5 @@ describe('SpotCardImage', () => {
     expect(tree).toContain('EatThisDisplay');
     expect(tree).not.toContain('Schoolbell');
     expect(tree).not.toContain('Saira');
-  });
-
-  it('handles a missing cuisine without a dangling separator', () => {
-    const tree = flatten(SpotCardImage({ spot: { ...spot, cuisine: undefined } }));
-    expect(tree).toContain('Mitte');
-    expect(tree).not.toContain('Mitte ·');
   });
 });

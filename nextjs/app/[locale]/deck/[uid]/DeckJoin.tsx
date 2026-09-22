@@ -151,7 +151,6 @@ export default function DeckJoin({ name }: { name: string | null }) {
         </div>
 
         <div className={starter.head}>
-          <span className={`hv-cap ${starter.kicker}`}>{t('joinKicker')}</span>
           <h2 className={`hv-title ${starter.title}`}>{t('joinTitle')}</h2>
         </div>
 

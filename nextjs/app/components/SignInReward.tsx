@@ -14,7 +14,7 @@ import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './Tour.module.css';
 
 /** Muss zur Laenge der Keyframes in SignInReward.module.css passen. */
-const PACK_OPEN_MS = 1900;
+const PACK_OPEN_MS = 2100;
 
 const copy = {
   de: {
@@ -39,17 +39,14 @@ const copy = {
     pack: {
       tag: 'Starter Pack',
       sealed: 'Öffne dein Starter Pack.',
-      opened: 'Deine ersten Karten.',
+      opened: 'Deine ersten 20 Karten.',
       lead: '20 Must-Eat-Karten für deinen Start.',
+      explain: 'Offene Karten kannst du direkt ansehen. Verdeckte Karten entdeckst du am Spot.',
+      openStack: '10 offen',
+      coveredStack: '10 verdeckt',
       open: 'Öffnen',
       opening: 'Öffnet …',
       packAlt: 'Eat This Starter Pack',
-      frontAlt: 'Eine offene Must-Eat-Karte',
-      backAlt: 'Eine noch verdeckte Must-Eat-Karte',
-      facts: [
-        { value: '10 offen', label: 'Direkt entdecken' },
-        { value: '10 verdeckt', label: 'Vor Ort aufdecken' },
-      ],
     },
     slides: [
       {
@@ -64,7 +61,7 @@ const copy = {
         tag: 'Must Eats',
         title: 'Wissen, was du bestellst.',
         body: 'Must Eats sind unsere Tipps für konkrete Gerichte. Jede Karte zeigt dir, was du bei einem Spot probieren solltest.',
-        hint: 'Offene Karten kannst du direkt ansehen. Verdeckte Karten entdeckst du am Spot.',
+        hint: '',
         image: '/pics/card-front.webp?v=3',
         alt: 'Eine Must-Eat-Sammelkarte',
       },
@@ -107,17 +104,14 @@ const copy = {
     pack: {
       tag: 'Starter Pack',
       sealed: 'Open your Starter Pack.',
-      opened: 'Your first cards.',
+      opened: 'Your first 20 cards.',
       lead: '20 Must Eat cards to get you started.',
+      explain: 'Open cards are ready to view. Discover covered cards at the spot.',
+      openStack: '10 open',
+      coveredStack: '10 covered',
       open: 'Open',
       opening: 'Opening …',
       packAlt: 'Eat This Starter Pack',
-      frontAlt: 'A revealed Must Eat card',
-      backAlt: 'A Must Eat card still face down',
-      facts: [
-        { value: '10 revealed', label: 'Ready to explore' },
-        { value: '10 face down', label: 'Reveal them at the spot' },
-      ],
     },
     slides: [
       {
@@ -132,7 +126,7 @@ const copy = {
         tag: 'Must Eats',
         title: 'Know what to order.',
         body: 'Must Eats are our picks for specific dishes. Each card shows you what to try at a spot.',
-        hint: 'Open cards are ready to view. Discover covered cards at the spot.',
+        hint: '',
         image: '/pics/card-front.webp?v=3',
         alt: 'A Must Eat collectible card',
       },
@@ -173,8 +167,8 @@ const IDENTITY_FORM = 'tour-identity';
  *  Charakter hat. */
 function pages(identity: Identity | null) {
   return identity
-    ? (['identity', 'pack', 0, 1, 2, 'go'] as const)
-    : (['pack', 0, 1, 2, 'go'] as const);
+    ? (['identity', 'pack', 'cards', 0, 1, 2, 'go'] as const)
+    : (['pack', 'cards', 0, 1, 2, 'go'] as const);
 }
 
 /** So lange liegt die Karte auf der Sammel-Seite verdeckt, bevor sie sich von
@@ -182,6 +176,18 @@ function pages(identity: Identity | null) {
 const FLIP_DELAY_MS = 800;
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_FRONT = '/pics/card-front.webp?v=3';
+
+/* Die 20 Karten des Starter Packs, in der Reihenfolge, in der sie aus dem Pack
+   kommen: abwechselnd auf den offenen (links) und den verdeckten Stapel
+   (rechts), damit beide gleichzeitig wachsen. `level` ist die Hoehe im Stapel,
+   `tilt` ein kleiner Versatz, damit der Stapel nach Karten aussieht. */
+const TILTS = [-1.5, 0.8, -0.4, 1.2, -1, 0.3, 1.5, -0.7, 0.6, -1.2];
+const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
+  const covered = order % 2 === 1;
+  const level = Math.floor(order / 2);
+  return { order, covered, level, tilt: TILTS[level] ?? 0 };
+});
 /* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
 const DECK_CARDS = [
   CARD_BACK,
@@ -303,7 +309,7 @@ export default function SignInReward() {
 
   useEffect(() => {
     if (open) titleRef.current?.focus({ preventScroll: true });
-  }, [open, step, pack === 'open']); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, step]);
 
   if (!open) return null;
 
@@ -397,28 +403,40 @@ export default function SignInReward() {
         {identity.busy ? t.identity.saving : t.next}
       </button>
     );
-  } else if (page === 'pack') {
-    const opened = pack === 'open';
+  } else if (page === 'pack' || page === 'cards') {
+    /* Zwei Schritte auf einer Buehne: erst oeffnen (der Text bleibt, bis
+       jemand weiterklickt), dann erklaeren, was die zwei Stapel sind. Die
+       Buehne bleibt dabei stehen, nur die Stapel bekommen ihre Namen. */
+    const explaining = page === 'cards';
     content = (
       <div className={styles.content}>
         <div className={styles.art}>
-          <div className={styles.packStage} data-phase={pack}>
+          <div
+            className={styles.packStage}
+            data-phase={pack}
+            data-labelled={explaining ? '' : undefined}
+          >
             {/* Alle Bilder liegen schon vor dem Klick im DOM — die Animation
                 wartet nie auf ein Bild. */}
             {/* eslint-disable @next/next/no-img-element */}
-            <img
-              className={`${styles.revealCard} ${styles.revealFront}`}
-              src="/pics/card-front.webp?v=3"
-              alt={opened ? t.pack.frontAlt : ''}
-              aria-hidden={!opened}
-            />
-            <img
-              className={`${styles.revealCard} ${styles.revealBack}`}
-              src={CARD_BACK}
-              alt={opened ? t.pack.backAlt : ''}
-              aria-hidden={!opened}
-            />
-            {!opened && (
+            {PACK_CARDS.map((card) => (
+              <img
+                key={card.order}
+                className={styles.revealCard}
+                src={card.covered ? CARD_BACK : CARD_FRONT}
+                alt=""
+                aria-hidden="true"
+                style={
+                  {
+                    '--side': card.covered ? 1 : -1,
+                    '--order': card.order,
+                    '--level': card.level,
+                    '--tilt': `${card.tilt}deg`,
+                  } as React.CSSProperties
+                }
+              />
+            ))}
+            {pack !== 'open' && (
               <div className={styles.packWrapper}>
                 <img
                   className={styles.packBody}
@@ -434,39 +452,37 @@ export default function SignInReward() {
               </div>
             )}
             {/* eslint-enable @next/next/no-img-element */}
+            <p className={styles.stackLabel} data-side="open" aria-hidden={!explaining}>
+              {t.pack.openStack}
+            </p>
+            <p className={styles.stackLabel} data-side="covered" aria-hidden={!explaining}>
+              {t.pack.coveredStack}
+            </p>
           </div>
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{t.pack.tag}</p>
-          {/* Beide Zustaende liegen uebereinander in derselben Zelle — die
-              Spalte ist von Anfang an so hoch wie der groessere. Sonst wuchs
-              sie beim Oeffnen (zweizeilige Ueberschrift, zwei Zahlen), und
-              der Text rutschte nach oben (Nutzer, 22.09.2026). */}
+          {/* Beide Texte liegen uebereinander in derselben Zelle — die Spalte
+              ist auf beiden Schritten gleich hoch, und die Buehne darueber
+              wird beim Weiterklicken nicht kleiner (Nutzer, 22.09.2026). */}
           <div className={styles.copyStack}>
-            <div className={opened ? styles.copyHidden : undefined} aria-hidden={opened}>
-              <h2 ref={opened ? undefined : titleRef} tabIndex={-1} className={styles.headline}>
+            <div className={explaining ? styles.copyHidden : undefined} aria-hidden={explaining}>
+              <h2 ref={explaining ? undefined : titleRef} tabIndex={-1} className={styles.headline}>
                 {t.pack.sealed}
               </h2>
               <p className={styles.body}>{t.pack.lead}</p>
             </div>
-            <div className={opened ? undefined : styles.copyHidden} aria-hidden={!opened}>
-              <h2 ref={opened ? titleRef : undefined} tabIndex={-1} className={styles.headline}>
+            <div className={explaining ? undefined : styles.copyHidden} aria-hidden={!explaining}>
+              <h2 ref={explaining ? titleRef : undefined} tabIndex={-1} className={styles.headline}>
                 {t.pack.opened}
               </h2>
-              <div className={styles.facts}>
-                {t.pack.facts.map((fact) => (
-                  <p key={fact.value}>
-                    <strong>{fact.value}</strong>
-                    <span>{fact.label}</span>
-                  </p>
-                ))}
-              </div>
+              <p className={styles.body}>{t.pack.explain}</p>
             </div>
           </div>
         </div>
       </div>
     );
-    if (!opened) {
+    if (page === 'pack' && pack !== 'open') {
       primary = (
         <button
           type="button"

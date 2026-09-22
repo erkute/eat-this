@@ -107,9 +107,16 @@ describe('Ankunft nach der Anmeldung', () => {
     expect((screen.getByRole('button', { name: 'Öffnet …' }) as HTMLButtonElement).disabled).toBe(
       true
     );
-    act(() => void vi.advanceTimersByTime(1900));
-    expect(screen.getByRole('heading').textContent).toBe('Deine ersten Karten.');
-    expect(screen.getByText('10 verdeckt')).toBeTruthy();
+    act(() => void vi.advanceTimersByTime(2100));
+    /* Der Text wartet auf den Klick — erst der naechste Schritt erklaert die
+       zwei Stapel. */
+    expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
+    expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
+    expect(screen.getByText('10 offen').getAttribute('aria-hidden')).toBe('false');
+    expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('false');
 
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     expect(screen.getByRole('heading').textContent).toBe('Die Berlin Food Map.');
@@ -132,8 +139,8 @@ describe('Ankunft nach der Anmeldung', () => {
     render(<SignInReward />);
     await arrive();
     fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
-    act(() => void vi.advanceTimersByTime(1900));
-    for (let step = 0; step < 3; step++)
+    act(() => void vi.advanceTimersByTime(2100));
+    for (let step = 0; step < 4; step++)
       fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
 
     expect(screen.getByRole('heading').textContent).toBe('Hingehen. Aufdecken. Sammeln.');
@@ -174,7 +181,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
     await arrive();
 
     expect(screen.getByRole('heading').textContent).toBe('Wer bist du?');
-    expect(screen.getByText('1 / 6')).toBeTruthy();
+    expect(screen.getByText('1 / 7')).toBeTruthy();
     const name = screen.getByLabelText('Dein Name') as HTMLInputElement;
     expect(name.value).toBe('Alex');
 
@@ -187,7 +194,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
 
     expect(identityStep.saveIdentity).toHaveBeenCalledWith('Alexa', 3);
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('2 / 6')).toBeTruthy();
+    expect(screen.getByText('2 / 7')).toBeTruthy();
   });
 
   it('laesst ohne Namen nicht weiter', async () => {
@@ -215,7 +222,7 @@ describe('Wer bist du? — fuer Konten ohne Charakter (Google)', () => {
     render(<SignInReward />);
     await arrive();
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('1 / 5')).toBeTruthy();
+    expect(screen.getByText('1 / 6')).toBeTruthy();
   });
 });
 

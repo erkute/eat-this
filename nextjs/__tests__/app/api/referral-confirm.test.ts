@@ -142,8 +142,7 @@ describe('/api/referral/confirm', () => {
   })
 
   // Alter aus der Konstante ableiten, nicht als Literal: das Fenster ist ein
-  // Produktwert (es umschliesst das Identitaets-Formular auf /welcome) und
-  // wurde schon einmal verschoben. Ein hartes "60 Minuten" stand danach genau
+  // Produktwert und wurde schon einmal verschoben. Ein hartes "60 Minuten" stand danach genau
   // auf der Grenze und behauptete das Gegenteil von dem, was es prueft.
   function agedFriend(ms: number) {
     mockGetUser.mockImplementation(async (uid: string) =>
@@ -161,9 +160,8 @@ describe('/api/referral/confirm', () => {
     expect(res.cookies.get('pending_referrer')?.value).toBe('')
   })
 
-  // Zwischen Kontoerstellung und Confirm liegt fuer jedes neue Konto das
-  // Identitaets-Formular auf /welcome. Wer dort das Telefon weglegt, darf die
-  // Einladung nicht verlieren — genau daran starb sie vorher still.
+  // Ein Confirm, der etwas spaeter kommt als die Kontoerstellung, darf die
+  // Einladung nicht verlieren — genau daran starb sie frueher still.
   it('account still inside the window → both sides written', async () => {
     primeHappyPath()
     agedFriend(ACCOUNT_FRESHNESS_MS - 60_000)

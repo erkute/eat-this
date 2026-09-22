@@ -63,8 +63,7 @@ function readCookie(header: string | null, name: string): string | null {
  *
  * Die Continue-URL ist der einzige Traeger, der den Posteingang ueberlebt.
  * Die Mailadresse (`e`, sendMagicLink) und der Spot-Claim (`claim`,
- * loginContinueUrl) fahren aus genau diesem Grund schon dort mit, und
- * postSignInTarget beschreibt den Browser-Sprung ausdruecklich — nur der
+ * loginContinueUrl) fahren aus genau diesem Grund schon dort mit — nur der
  * Einladende sass noch im Cookie fest.
  *
  * Der Parameter ist `ref`, derselbe, den die Einladung selbst benutzt: beim
@@ -124,10 +123,10 @@ export async function POST(request: Request) {
 
   const locale = mailLocale(body.locale);
 
-  // /welcome owns the post-sign-in destination (Home) — the continue URL is
-  // only Firebase's required link target plus the carrier params: `e` for the
-  // email address, `lang` for the language and `ref` for the inviter. Ohne
-  // eigene Continue-URL landet EN auf /en: `/` ist immer Deutsch.
+  // Die Continue-URL ist die Seite, auf der der Link aus der Mail landet und
+  // die Anmeldung bestaetigt wird (EmailLinkSignIn), plus `ref` fuer den
+  // Einladenden. Ohne eigene Continue-URL landet EN auf /en: `/` ist immer
+  // Deutsch.
   const continueUrl = withReferrer(
     sanitizeContinueUrl(body.continueUrl, origin, locale === 'en' ? `${origin}/en` : `${origin}/`),
     request.headers.get('cookie')

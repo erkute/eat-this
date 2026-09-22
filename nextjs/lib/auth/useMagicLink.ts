@@ -26,8 +26,8 @@ export function useMagicLink() {
   const [errorMessage, setErrorMessage] = useState('');
 
   /**
-   * `continueUrl` is where the mail's link lands the user after sign-in.
-   * Omit it and /welcome sends them home, which is right for a signup that
+   * `continueUrl` is where the mail's link lands the user — the sign-in is
+   * confirmed right there. Omit it and the link lands on home, which is right for a signup that
    * started on the home page and wrong for one that started somewhere the
    * user was in the middle of something — a locked spot on the map, say.
    * The server re-validates it against an own-origin allow-list, so an
@@ -43,7 +43,7 @@ export function useMagicLink() {
         const response = await fetch('/api/auth/send-magic-link', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Die Route waehlt damit die Mail und den /welcome-Screen.
+          // Die Route waehlt damit die Sprache der Mail.
           body: JSON.stringify(continueUrl ? { email, locale, continueUrl } : { email, locale }),
         });
         const data = await response.json().catch(() => ({}));

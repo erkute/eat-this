@@ -515,7 +515,7 @@ a.quiet {
   font-size: 13px;
   color: #ffffffa6;
 }
-/* Papier auf Ink liest sich von allein als Feld — wie auf /welcome. */
+/* Papier auf Ink liest sich von allein als Feld. */
 .nameInput {
   width: 100%;
   box-sizing: border-box;
@@ -538,6 +538,24 @@ a.quiet {
 }
 .nameInput:focus-visible {
   box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+}
+/* Die Adresse auf der Anmelde-Tafel (EmailLinkSignIn) — gross, weil der
+   Klick darauf die Frage beantwortet, als wer man sich anmeldet. */
+.signInLabel {
+  margin: 22px 0 6px;
+  font-size: 13px;
+  color: #ffffffa6;
+}
+.signInAs {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+/* Haelt auf der Anmelde-Tafel den Platz der Fortschrittszeile, damit der
+   Knopf dort steht, wo danach in der Tour „Weiter" steht. */
+.progressSpacer {
+  visibility: hidden;
 }
 .nameError {
   margin: 8px 0 0;
@@ -796,6 +814,9 @@ a.quiet {
   .nameLabel {
     margin-top: 14px;
     text-align: left;
+  }
+  .signInLabel {
+    margin-top: 14px;
   }
   .avatarName {
     font-size: 12px;

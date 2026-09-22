@@ -7,7 +7,6 @@ import {
   countEvent,
   countView,
   getAnalyticsPageLocation,
-  handoffEvent,
   isAnalyticsHost,
   loadAnalytics,
   flushAnalyticsQueue,
@@ -61,23 +60,6 @@ describe('analytics consent gate', () => {
     trackEventOnce('purchase_1', 'purchase', { value: 2.99 });
 
     expect(gtag).toHaveBeenCalledTimes(1);
-  });
-
-  it('hands an event across a hard navigation', () => {
-    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-    handoffEvent('sign_up', { method: 'email_link' });
-
-    const appendChild = vi.spyOn(document.head, 'appendChild');
-    loadAnalytics();
-    const gtag = (window as Window & { gtag?: ReturnType<typeof vi.fn> }).gtag;
-
-    expect(gtag).toBeDefined();
-    expect(sessionStorage.getItem('eatthis_analytics_handoff')).toBeNull();
-    expect(appendChild).toHaveBeenCalled();
-    // Ohne das Zuruecknehmen liefert ein spaeteres vi.spyOn auf dieselbe
-    // Methode denselben Mock zurueck — inklusive dieses Aufrufs. Ein Test, der
-    // "wurde nicht aufgerufen" prueft, schlaegt dann wegen dieser Zeile fehl.
-    appendChild.mockRestore();
   });
 });
 
@@ -152,22 +134,22 @@ describe('getAnalyticsPageLocation', () => {
     });
   });
 
-  /* /welcome wird seit 28.08.2026 mitgezaehlt, und die Route traegt den
-   * Firebase-Action-Link in der URL. `oobCode` ist ein einloesbares
-   * Anmelde-Token: stuende es im page_location, laege ein Login-Code in
-   * Googles Berichten. */
-  it('entfernt den Magic-Link-Code aus der /welcome-URL', () => {
+  /* Der Link aus der Anmelde-Mail landet auf der Zielseite und traegt dort
+   * einen einloesbaren Anmelde-Code (`oobCode`) und die Mailadresse (`e`).
+   * EmailLinkSignIn raeumt die Adresszeile sofort, aber was davor gezaehlt
+   * wird, darf beides nicht nach Google tragen. */
+  it('entfernt Code und Adresse aus der URL, auf der der Mail-Link landet', () => {
     const { pageLocation, pagePath } = getAnalyticsPageLocation(
-      'https://www.eatthisdot.com/welcome?mode=signIn&oobCode=AbC_secret123' +
-        '&apiKey=AIzaSyKEY&continueUrl=https%3A%2F%2Fwww.eatthisdot.com%2F%3Fme%3Dspot1&lang=de'
+      'https://www.eatthisdot.com/map?r=spot&mode=signIn&oobCode=AbC_secret123' +
+        '&apiKey=AIzaSyKEY&e=gast%40example.com'
     );
 
-    for (const secret of ['AbC_secret123', 'AIzaSyKEY', 'me%3Dspot1']) {
+    for (const secret of ['AbC_secret123', 'AIzaSyKEY', 'gast%40example.com']) {
       expect(pageLocation, `${secret} darf nicht zu Google`).not.toContain(secret);
       expect(pagePath, `${secret} darf nicht zu Google`).not.toContain(secret);
     }
     // Was harmlos ist, bleibt stehen — sonst verliert der Bericht den Kontext.
-    expect(pagePath).toBe('/welcome?mode=signIn&lang=de');
+    expect(pagePath).toBe('/map?r=spot');
   });
 });
 
@@ -353,36 +335,6 @@ describe('consent-free counting', () => {
     getItem.mockRestore();
   });
 
-  /* Der Magic-Link-Abschluss (welcome/page.tsx) laeuft ueber handoffEvent,
-   * weil danach eine harte Navigation folgt und GA erst auf der Zielseite
-   * laedt. Bis 29.08.2026 stand `!gaEnabled()` dort VOR allem anderen — der
-   * Hauptweg in ein Konto war damit nur fuer Zustimmende sichtbar, also fuer
-   * die Minderheit, deretwegen dieser Zaehler ueberhaupt existiert. */
-  it.each([
-    ['no answer yet', ''],
-    ['declined', `cookieConsent=declined.${CONSENT_VERSION}; Path=/`],
-  ])('counts a handed-off sign_up when consent is %s', async (_label, cookie) => {
-    if (cookie) document.cookie = cookie;
-
-    handoffEvent('sign_up', { method: 'email_link' });
-
-    expect(beacon).toHaveBeenCalledTimes(1);
-    expect(beacon.mock.calls[0][0]).toBe('/api/count');
-    expect((await sent()).event).toBe('sign_up');
-  });
-
-  /* Der Zaehler faehrt NICHT im Handoff mit: sendBeacon ueberlebt die
-   * Navigation, ein zweites Zaehlen auf der Zielseite waere eine Dopplung. */
-  it('does not put the count into the handoff storage', () => {
-    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
-
-    handoffEvent('login', { method: 'email_link' });
-
-    const stored = JSON.parse(sessionStorage.getItem('eatthis_analytics_handoff') ?? '[]');
-    expect(stored).toHaveLength(1);
-    expect(beacon).toHaveBeenCalledTimes(1);
-  });
-
   it('stays silent when the browser has no sendBeacon and no fetch', () => {
     vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: undefined });
     vi.stubGlobal('fetch', () => {
@@ -439,13 +391,6 @@ describe('countEvent — Auffaecherung nach Parameter', () => {
     expect(beacon).toHaveBeenCalledTimes(2);
     expect((await sent(0)).event).toBe('must_eat_reveal_attempt');
     expect((await sent(1)).event).toBe('must_eat_reveal_login_required');
-  });
-
-  it('faechert auch den Handoff auf', async () => {
-    handoffEvent('login_start', { method: 'email_link' });
-
-    expect(beacon).toHaveBeenCalledTimes(2);
-    expect((await sent(1)).event).toBe('login_start_email_link');
   });
 
   it('laesst Ereignisse ohne Regel bei einem Beacon', () => {

@@ -34,7 +34,7 @@ vi.mock('@/emails/magicLinkText', () => ({
   buildSignupText: () => 'text',
 }));
 
-import { rehostMagicLink, sendMagicLinkEmail } from './sendMagicLink';
+import { landingLink, sendMagicLinkEmail } from './sendMagicLink';
 
 beforeEach(() => {
   mocks.send.mockReset();
@@ -112,9 +112,11 @@ describe('sendMagicLinkEmail idempotency', () => {
 });
 
 describe('sendMagicLinkEmail Sprache', () => {
-  /* /welcome liegt ausserhalb von [locale]; die Sprache muss den Posteingang
-     ueberleben wie die Adresse — in der Continue-URL. */
-  it('legt lang in die Continue-URL und waehlt den EN-Betreff', async () => {
+  /* Die Sprache der Mail kommt aus der Seite, auf der angefordert wurde. Die
+     Seite, auf der der Link landet, traegt ihre Sprache im Pfad — ein
+     `lang`-Traeger ist nicht mehr noetig (und die Middleware beantwortete
+     ?lang= mit einem 308). */
+  it('waehlt den EN-Betreff und haengt keinen lang-Traeger an', async () => {
     await sendMagicLinkEmail({
       email: 'guest@example.com',
       continueUrl: 'https://eatthis.test/en/map?r=x',
@@ -122,68 +124,53 @@ describe('sendMagicLinkEmail Sprache', () => {
       locale: 'en',
     });
     const url = new URL(mocks.generateLink.mock.calls[0][1].url);
-    expect(url.searchParams.get('lang')).toBe('en');
-    expect(url.searchParams.get('e')).toBe('guest@example.com');
+    expect(url.toString()).toBe('https://eatthis.test/en/map?r=x');
     expect(mocks.send).toHaveBeenCalledWith(
       expect.objectContaining({ subject: 'login-en' }),
       undefined
     );
   });
-
-  it('setzt auch lang=de — ein alter EN-Cookie soll nicht gewinnen', async () => {
-    mocks.getUserByEmail.mockRejectedValueOnce(new Error('auth/user-not-found'));
-    await sendMagicLinkEmail({
-      email: 'guest@example.com',
-      continueUrl: 'https://eatthis.test/map?lang=en',
-      appUrl: 'https://eatthis.test',
-      locale: 'de',
-    });
-    const url = new URL(mocks.generateLink.mock.calls[0][1].url);
-    expect(url.searchParams.get('lang')).toBe('de');
-    expect(mocks.send).toHaveBeenCalledWith(
-      expect.objectContaining({ subject: 'signup' }),
-      undefined
-    );
-  });
 });
 
-describe('rehostMagicLink', () => {
+describe('landingLink', () => {
   const OOB =
-    '?mode=signIn&oobCode=abc123&apiKey=k&continueUrl=https%3A%2F%2Fstaging.example%2Fmap%3Fr%3Dspot%26claim%3D1&lang=de';
+    '?mode=signIn&oobCode=abc123&apiKey=k&continueUrl=https%3A%2F%2Fstaging.example%2Fmap%3Fr%3Dspot&lang=de';
 
-  it("lands the link on the deployment's own /welcome, whatever Firebase says", () => {
+  it('landet auf der Zielseite selbst, mit Code und Adresse', () => {
     /* Staging sass auf dem Firebase-Default (…firebaseapp.com/__/auth/action),
-       dessen Handler stumm zur Continue-URL weiterleitet, ohne je jemanden
-       anzumelden — "ich komme auf die Seite, werde aber nicht eingeloggt"
-       (User, 26.08.2026). Umstellen geht nicht: Console UND Admin-API lehnen
-       mit EMAIL_TEMPLATE_UPDATE_NOT_ALLOWED ab. Also gehört der Host dem
-       Server, nicht der Projekt-Einstellung. */
-    const out = rehostMagicLink(
-      `https://eat-this-staging-8a13b.firebaseapp.com/__/auth/action${OOB}`,
-      'https://staging.example/map?r=spot&claim=1'
+       dessen Handler stumm weiterleitet, ohne je jemanden anzumelden
+       (26.08.2026). Der Host gehoert deshalb der Continue-URL. */
+    const out = new URL(
+      landingLink(
+        `https://eat-this-staging-8a13b.firebaseapp.com/__/auth/action${OOB}`,
+        'https://staging.example/map?r=spot&starter=me-1',
+        'gast@example.com'
+      )
     );
-    const u = new URL(out);
-    expect(u.origin).toBe('https://staging.example');
-    expect(u.pathname).toBe('/welcome');
+    expect(out.origin).toBe('https://staging.example');
+    expect(out.pathname).toBe('/map');
+    expect(out.searchParams.get('r')).toBe('spot');
+    expect(out.searchParams.get('starter')).toBe('me-1');
+    expect(out.searchParams.get('mode')).toBe('signIn');
+    expect(out.searchParams.get('oobCode')).toBe('abc123');
+    expect(out.searchParams.get('apiKey')).toBe('k');
+    expect(out.searchParams.get('e')).toBe('gast@example.com');
   });
 
-  it('keeps the query untouched — the oobCode IS the sign-in', () => {
-    const out = rehostMagicLink(
-      `https://eat-this-staging-8a13b.firebaseapp.com/__/auth/action${OOB}`,
-      'https://staging.example/'
+  it('laesst continueUrl und Firebases lang weg', () => {
+    const out = new URL(
+      landingLink(
+        `https://x.firebaseapp.com/__/auth/action${OOB}`,
+        'https://staging.example/',
+        'a@b.c'
+      )
     );
-    expect(new URL(out).search).toBe(OOB);
+    expect(out.searchParams.has('continueUrl')).toBe(false);
+    expect(out.searchParams.has('lang')).toBe(false);
   });
 
-  it('would rather send the unrewritten link than no mail at all', () => {
-    // Nicht-absolute continueUrl — derselbe Legacy-Fallback, den der
-    // e-Param-Code schon toleriert.
+  it('schickt lieber den unveraenderten Link als gar keine Mail', () => {
     const raw = `https://x.firebaseapp.com/__/auth/action${OOB}`;
-    expect(rehostMagicLink(raw, '/map')).toBe(raw);
-  });
-
-  it('is a no-op on production, whose action URL already points home', () => {
-    const prodLink = `https://www.eatthisdot.com/welcome${OOB}`;
-    expect(rehostMagicLink(prodLink, 'https://www.eatthisdot.com/map?r=spot')).toBe(prodLink);
+    expect(landingLink(raw, '/map', 'a@b.c')).toBe(raw);
   });
 });

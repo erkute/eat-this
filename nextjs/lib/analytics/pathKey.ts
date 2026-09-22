@@ -55,9 +55,6 @@ const DECK_PATH = /^\/deck\/[A-Za-z0-9_-]{1,128}$/;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SLUG_MAX = 80;
 
-/** `/welcome` haengt nicht am Locale-Router (app/welcome/page.tsx). */
-const UNLOCALIZED_ROUTES = new Set(['/welcome']);
-
 /** Alles unter /en, /de/… ausser dem Default-Praefix. `localePrefix: 'as-needed'`
  *  heisst: DE ohne Praefix, EN mit. */
 const LOCALE_PREFIXES = new Set(
@@ -75,7 +72,6 @@ export function pathKey(raw: unknown): string | null {
   if (typeof raw !== 'string' || !raw.startsWith('/') || raw.length > 120) return null;
   // Trailing slash weg, damit `/map/` und `/map` nicht zwei Schluessel sind.
   const path = raw.length > 1 ? raw.replace(/\/+$/, '') : '';
-  if (UNLOCALIZED_ROUTES.has(path)) return path;
 
   const firstSlash = path.indexOf('/', 1);
   const head = firstSlash === -1 ? path : path.slice(0, firstSlash);

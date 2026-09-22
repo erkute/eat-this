@@ -7,6 +7,9 @@ import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import { subscribeStarterPackGranted } from '@/lib/auth/signInArrival';
+import { identityStepPrefill, saveIdentity } from '@/lib/auth/identityStep';
+import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
+import { AVATAR_CHOICES, avatarSrc } from './avatarChoices';
 import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './Tour.module.css';
 
@@ -23,6 +26,16 @@ const copy = {
     next: 'Weiter',
     step: 'Schritt',
     of: 'von',
+    identity: {
+      tag: 'Dein Profil',
+      title: 'Wer bist du?',
+      lead: 'Wähle deinen Charakter.',
+      name: 'Dein Name',
+      placeholder: 'Dein Name oder Spitzname',
+      avatars: 'Charakter auswählen',
+      saving: 'Speichert …',
+      error: 'Etwas ist schiefgelaufen. Versuch es nochmal.',
+    },
     pack: {
       tag: 'Starter Pack',
       sealed: 'Öffne dein Starter Pack.',
@@ -80,6 +93,16 @@ const copy = {
     next: 'Next',
     step: 'Step',
     of: 'of',
+    identity: {
+      tag: 'Your profile',
+      title: 'Who are you?',
+      lead: 'Pick your character.',
+      name: 'Your name',
+      placeholder: 'Your name or nickname',
+      avatars: 'Choose a character',
+      saving: 'Saving …',
+      error: 'Something went wrong. Please try again.',
+    },
     pack: {
       tag: 'Starter Pack',
       sealed: 'Open your Starter Pack.',
@@ -132,6 +155,18 @@ const copy = {
 
 type PackPhase = 'sealed' | 'opening' | 'open';
 
+/** Die Identitaetsseite, solange sie gebraucht wird. `preview` speichert
+ *  nichts — nur fuer die lokale Design-Durchsicht. */
+type Identity = {
+  name: string;
+  avatar: AvatarChoice;
+  busy: boolean;
+  error: boolean;
+  preview?: boolean;
+};
+
+const IDENTITY_FORM = 'tour-identity';
+
 const CARD_BACK = '/pics/card-back.webp?v=7';
 /* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
 const DECK_CARDS = [
@@ -156,6 +191,9 @@ export default function SignInReward() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [pack, setPack] = useState<PackPhase>('sealed');
+  /* Gesetzt, wenn das Konto noch keinen Charakter hat (Google — der
+     Magic-Link fragt auf /welcome). Dann ist sie die erste Seite. */
+  const [identity, setIdentity] = useState<Identity | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   /* Die Tour öffnet sich von selbst, es gibt keinen Auslöser, an den der
@@ -166,10 +204,23 @@ export default function SignInReward() {
 
   useEffect(() => {
     let stopWaiting: (() => void) | undefined;
-    const show = () => {
+    let alive = true;
+    const reveal = (prefill: { name: string; preview?: boolean } | null) => {
+      if (!alive) return;
+      setIdentity(
+        prefill
+          ? { name: prefill.name, avatar: 2, busy: false, error: false, preview: prefill.preview }
+          : null
+      );
       setStep(0);
       setPack('sealed');
       setOpen(true);
+    };
+    /* Erst wissen, ob gefragt werden muss, dann aufgehen — sonst schoebe
+       sich die Seite nachtraeglich vor das Pack. Scheitert die Abfrage,
+       bleibt es beim Google-Namen und die Tour laeuft ohne sie. */
+    const show = () => {
+      identityStepPrefill().then(reveal, () => reveal(null));
     };
     const unsubscribe = subscribeStarterPackGranted(() => {
       if (!authScreenActive()) return show();
@@ -183,9 +234,11 @@ export default function SignInReward() {
     });
     if (process.env.NODE_ENV === 'development') {
       const preview = new URLSearchParams(window.location.search).get('preview');
-      if (preview === 'welcome') show();
+      if (preview === 'welcome') reveal(null);
+      if (preview === 'welcome-google') reveal({ name: 'Alex', preview: true });
     }
     return () => {
+      alive = false;
       unsubscribe();
       stopWaiting?.();
     };
@@ -218,7 +271,9 @@ export default function SignInReward() {
 
   if (!open) return null;
 
-  const pages = ['pack', 0, 1, 2, 'go'] as const;
+  const pages = identity
+    ? (['identity', 'pack', 0, 1, 2, 'go'] as const)
+    : (['pack', 0, 1, 2, 'go'] as const);
   const page = pages[step];
   const last = step === pages.length - 1;
   const close = () => setOpen(false);
@@ -230,7 +285,85 @@ export default function SignInReward() {
     </button>
   );
 
-  if (page === 'pack') {
+  if (page === 'identity') {
+    /* Die Seite gibt es nur mit `identity` (siehe `pages`). */
+    if (!identity) return null;
+    const submit = async (event: React.FormEvent) => {
+      event.preventDefault();
+      const name = identity.name.trim();
+      if (!name || identity.busy) return;
+      if (identity.preview) return setStep(step + 1);
+      setIdentity({ ...identity, busy: true, error: false });
+      try {
+        await saveIdentity(name, identity.avatar);
+        setIdentity((current) => current && { ...current, busy: false });
+        setStep((current) => current + 1);
+      } catch {
+        setIdentity((current) => current && { ...current, busy: false, error: true });
+      }
+    };
+    content = (
+      <form id={IDENTITY_FORM} className={styles.content} onSubmit={submit}>
+        <div className={styles.art}>
+          <div className={styles.avatars} role="radiogroup" aria-label={t.identity.avatars}>
+            {AVATAR_CHOICES.map((choice) => {
+              const checked = choice.id === identity.avatar;
+              return (
+                <button
+                  key={choice.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={checked}
+                  className={checked ? `${styles.avatar} ${styles.avatarActive}` : styles.avatar}
+                  onClick={() => setIdentity({ ...identity, avatar: choice.id })}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className={styles.avatarImg} src={avatarSrc(choice.id)} alt="" />
+                  <span className={styles.avatarName}>{choice[locale === 'en' ? 'en' : 'de']}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className={styles.copy}>
+          <p className={styles.kicker}>{t.identity.tag}</p>
+          <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
+            {t.identity.title}
+          </h2>
+          <p className={styles.body}>{t.identity.lead}</p>
+          <label className={styles.nameLabel} htmlFor="tour-name">
+            {t.identity.name}
+          </label>
+          <input
+            id="tour-name"
+            className={styles.nameInput}
+            type="text"
+            autoComplete="given-name"
+            placeholder={t.identity.placeholder}
+            value={identity.name}
+            onChange={(event) => setIdentity({ ...identity, name: event.target.value })}
+            required
+            maxLength={40}
+          />
+          {identity.error && (
+            <p className={styles.nameError} role="alert">
+              {t.identity.error}
+            </p>
+          )}
+        </div>
+      </form>
+    );
+    primary = (
+      <button
+        type="submit"
+        form={IDENTITY_FORM}
+        className={styles.action}
+        disabled={identity.busy || !identity.name.trim()}
+      >
+        {identity.busy ? t.identity.saving : t.next}
+      </button>
+    );
+  } else if (page === 'pack') {
     const opened = pack === 'open';
     content = (
       <div className={styles.content}>

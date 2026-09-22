@@ -15,6 +15,8 @@ import { routing } from '@/i18n/routing';
 import { postSignInTarget } from '@/lib/auth/postSignInTarget';
 import { STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
 import { handoffEvent } from '@/lib/analytics';
+import { AVATAR_CHOICES, avatarSrc } from '@/app/components/avatarChoices';
+import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
 import styles from './auth-action.module.css';
 
 // /welcome lives under its own root layout (separate <html> tree); the
@@ -80,16 +82,6 @@ function hasPendingStarterCard(params: URLSearchParams): boolean {
     return false;
   }
 }
-
-type AvatarChoice = 1 | 2 | 3;
-
-// Named avatar tiles (mockup screen 14). The stored value is the number;
-// the label is just the picker caption.
-const AVATARS: { id: AvatarChoice; label: string }[] = [
-  { id: 1, label: 'Schnüffler' },
-  { id: 2, label: 'Nachtschwärmerin' },
-  { id: 3, label: 'Pizza-Pate' },
-];
 
 type State =
   | { kind: 'processing' }
@@ -386,7 +378,7 @@ function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
         </div>
 
         <div className={styles.avatars} role="radiogroup" aria-label="Avatar auswählen">
-          {AVATARS.map(({ id, label }) => (
+          {AVATAR_CHOICES.map(({ id, de: label }) => (
             <button
               key={id}
               type="button"
@@ -398,7 +390,7 @@ function IdentityForm({ user, claimingCard, preview = false }: IdentityProps) {
             >
               <span className={styles.avatarPh}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/pics/avatar/${id}.webp?v=4`} alt="" />
+                <img src={avatarSrc(id)} alt="" />
               </span>
               <span className={styles.avatarName}>{label}</span>
             </button>

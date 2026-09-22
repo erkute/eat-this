@@ -334,6 +334,98 @@ a.quiet {
   color: #ffffffa6;
 }
 
+/* ── Wer bist du? (Google-Konten, erste Seite) ─────────────────────────── */
+/* Die drei Charaktere stehen in der Bildflaeche und rechnen wie das Pack aus
+   ihr (cqw/cqh) — Name und Knopf behalten ihre Groesse. */
+.avatars {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: center;
+  gap: min(3cqw, 14px);
+}
+.avatar {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: min(4cqh, 16px) 6px min(3cqh, 12px);
+  border: 2px solid transparent;
+  border-radius: var(--et-radius-panel, 10px);
+  background: var(--et-home-ink, #15120e);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 140ms ease;
+}
+/* Gewaehlt: gelbe Kante und angehoben — nicht Farbe allein. */
+.avatarActive {
+  border-color: var(--et-home-accent, #ffc600);
+  transform: translateY(-4px);
+}
+@media (hover: hover) {
+  .avatar:hover {
+    transform: translateY(-3px);
+  }
+  .avatarActive:hover {
+    transform: translateY(-4px);
+  }
+}
+.avatar:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 3px;
+}
+.avatarImg {
+  width: min(100%, 44cqh, 120px);
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+.avatarName {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  hyphens: manual;
+}
+.nameLabel {
+  display: block;
+  margin: 22px 0 8px;
+  font-size: 13px;
+  color: #ffffffa6;
+}
+/* Papier auf Ink liest sich von allein als Feld — wie auf /welcome. */
+.nameInput {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  background: #fff;
+  color: var(--et-home-ink, #15120e);
+  font-family:
+    var(--font-sans),
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-size: 16px;
+  outline: none;
+}
+.nameInput::placeholder {
+  color: rgba(21, 18, 14, 0.48);
+}
+.nameInput:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+}
+.nameError {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--et-home-accent, #ffc600);
+}
+
 /* ── Letzte Seite: der Layer zweigeteilt, links Map, rechts Deck ──────── */
 .goContent {
   display: grid;
@@ -592,6 +684,13 @@ a.quiet {
   .action {
     min-width: 150px;
   }
+  .nameLabel {
+    margin-top: 14px;
+    text-align: left;
+  }
+  .avatarName {
+    font-size: 12px;
+  }
 }
 
 /* Sehr kurze Flaechen (kleine Telefone, Querformat): der Nebensatz faellt,
@@ -633,7 +732,8 @@ a.quiet {
     animation: none;
   }
   .halfArt,
-  .halfLabel {
+  .halfLabel,
+  .avatar {
     transition: none;
   }
   .packStage[data-phase='opening'] .packBody,

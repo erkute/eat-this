@@ -47,7 +47,7 @@ const copy = {
     kickerHero: 'Alles auf einmal · alle Packs',
     kickerUpsell: 'Lieber alles auf einmal',
     includes: [
-      'Jede Must-Eat-Karte, die es gibt',
+      'Jede Must Eat Karte, die es gibt',
       'Und jede weitere, die wir noch entdecken',
       'Alle sofort aufgedeckt',
     ],
@@ -63,7 +63,7 @@ const copy = {
     kickerHero: 'Everything at once · every pack',
     kickerUpsell: 'Rather everything at once',
     includes: [
-      'Every Must-Eat card there is',
+      'Every Must Eat card there is',
       'And every one we still discover',
       'All flipped right away',
     ],

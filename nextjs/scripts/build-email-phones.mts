@@ -172,7 +172,7 @@ const manifest = [
   "  id: 'phones',",
   `  width: ${DISPLAY_WIDTH},`,
   `  height: ${Math.round(CANVAS_H / SCALE)},`,
-  "  alt: 'Die Eat-This-App: die Map mit Must-Eat-Pins und ein Restaurant im Detail',",
+  "  alt: 'Die Eat-This-App: die Map mit Must Eat Pins und ein Restaurant im Detail',",
   `  version: '${version}',`,
   '} as const;',
   '',

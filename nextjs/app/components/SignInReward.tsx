@@ -404,21 +404,31 @@ export default function SignInReward() {
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{t.pack.tag}</p>
-          <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
-            {opened ? t.pack.opened : t.pack.sealed}
-          </h2>
-          {opened ? (
-            <div className={styles.facts}>
-              {t.pack.facts.map((fact) => (
-                <p key={fact.value}>
-                  <strong>{fact.value}</strong>
-                  <span>{fact.label}</span>
-                </p>
-              ))}
+          {/* Beide Zustaende liegen uebereinander in derselben Zelle — die
+              Spalte ist von Anfang an so hoch wie der groessere. Sonst wuchs
+              sie beim Oeffnen (zweizeilige Ueberschrift, zwei Zahlen), und
+              der Text rutschte nach oben (Nutzer, 22.09.2026). */}
+          <div className={styles.copyStack}>
+            <div className={opened ? styles.copyHidden : undefined} aria-hidden={opened}>
+              <h2 ref={opened ? undefined : titleRef} tabIndex={-1} className={styles.headline}>
+                {t.pack.sealed}
+              </h2>
+              <p className={styles.body}>{t.pack.lead}</p>
             </div>
-          ) : (
-            <p className={styles.body}>{t.pack.lead}</p>
-          )}
+            <div className={opened ? undefined : styles.copyHidden} aria-hidden={!opened}>
+              <h2 ref={opened ? titleRef : undefined} tabIndex={-1} className={styles.headline}>
+                {t.pack.opened}
+              </h2>
+              <div className={styles.facts}>
+                {t.pack.facts.map((fact) => (
+                  <p key={fact.value}>
+                    <strong>{fact.value}</strong>
+                    <span>{fact.label}</span>
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

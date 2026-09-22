@@ -313,6 +313,15 @@ a.quiet {
     transform: translate(calc(-50% + var(--fan)), -55%) rotate(var(--turn));
   }
 }
+.copyStack {
+  display: grid;
+}
+.copyStack > * {
+  grid-area: 1 / 1;
+}
+.copyHidden {
+  visibility: hidden;
+}
 .facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

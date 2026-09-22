@@ -3829,9 +3829,11 @@
   overflow: visible;
 }
 
+/* 1.18 statt 0.94: bricht „Hunger auf mehr?" um, hing die Schlaufe vom g
+   der Providence sonst im r von „mehr". */
 .detailV13:not(.detailV13MustEat) .packPromoTitle {
   font-size: clamp(26px, 6.6vw, 34px);
-  line-height: 0.94;
+  line-height: 1.18;
 }
 
 .detailV13:not(.detailV13MustEat) .packPromoBody {
@@ -5536,9 +5538,14 @@
   line-height: 1.6;
 }
 
-/* Full-size photo rail; title and restaurant controls stay in place. */
+/* Full-size photo rail; title and restaurant controls stay in place.
+   `pan-x pan-y`, nicht `pan-y`: der Streifen ist selbst der Scroll-Container
+   für die x-Achse, der Browser sperrt die Achse beim ersten Zug (senkrecht
+   scrollt das Sheet, waagerecht blättert das Foto) und zieht den Streifen auf
+   dem Compositor mit. Mit `pan-y` blieb die x-Achse JS überlassen — das
+   ruckelte auf iOS und brach bei jedem leicht schrägen Wisch ab. */
 .rdHeroPhotos {
-  touch-action: pan-y;
+  touch-action: pan-x pan-y;
   position: absolute;
   inset: 0;
   display: flex;
@@ -5547,6 +5554,11 @@
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
+  /* Blickdicht, Streifen wie Fotos: `.rdHero` trägt das erste Foto als
+     Hintergrund, damit es schon vor der Galerie steht. Durch durchsichtige
+     Flächen schien es beim Wischen durch — solange das nächste Foto lud und
+     im Gummiband am ersten und letzten Foto. */
+  background: var(--et-home-ink, #15120e);
 }
 .rdHeroPhotos::-webkit-scrollbar {
   display: none;
@@ -5557,7 +5569,7 @@
   min-width: 0;
   padding: 0;
   border: 0;
-  background: transparent;
+  background: var(--et-home-ink, #15120e);
   cursor: zoom-in;
   scroll-snap-align: start;
   scroll-snap-stop: always;

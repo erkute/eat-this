@@ -105,7 +105,7 @@ describe('GET /api/admin/stats', () => {
   it('weist Aufrufe ohne Token ab', async () => {
     const res = await GET(request());
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(404);
     expect(mocks.where).not.toHaveBeenCalled();
   });
 
@@ -114,7 +114,7 @@ describe('GET /api/admin/stats', () => {
 
     const res = await GET(request({ authorization: 'Bearer abc' }));
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(404);
     expect(mocks.where).not.toHaveBeenCalled();
   });
 

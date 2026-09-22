@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+'use client';
+
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Delta, ExitEntry, Mover } from '@/lib/admin/stats.server';
 import { NUMBER, direction, percent, shortDay } from './format';
 import styles from '../StatsDashboard.module.css';
@@ -34,16 +36,51 @@ interface LineChartProps {
   format?: (value: number) => string;
 }
 
-const W = 720;
+/** Breite, solange noch nicht gemessen ist (erster Render, jsdom). */
+const FALLBACK_W = 720;
 const PAD = { top: 12, right: 12, bottom: 26, left: 44 };
 
-function ticks(max: number): number[] {
+/**
+ * Die tatsächliche Pixelbreite des Diagramms. Vorher stand jedes Diagramm auf
+ * einer festen 720er-viewBox und wurde auf seine Karte skaliert — in der
+ * schmalen Spalte („Impressionen und Position", rund 240px) schrumpfte die
+ * 10,5px-Achsenschrift damit auf etwa 3,5px und war nicht mehr lesbar. Mit
+ * der echten Breite bleibt Schrift Schrift, und die Zahl der Datumsmarken
+ * richtet sich nach dem Platz.
+ */
+function useWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState<number | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) => {
+      const next = Math.round(entry.contentRect.width);
+      if (next > 0) setWidth(next);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width ?? FALLBACK_W] as const;
+}
+
+/**
+ * Die Striche der y-Achse. Der oberste liegt immer AUF oder ÜBER dem
+ * Maximum: vorher brach die Schleife beim letzten Strich unter dem Maximum
+ * ab, und bei 61 Besuchern auf einer 0–60-Achse lief die Linie oben aus dem
+ * Diagramm. `minStep` hält Zählwerte ganzzahlig — ohne ihn teilte eine
+ * Reihe mit Maximum 1 in Viertel, und die gerundete Achse las „0, 0, 1, 1, 1".
+ */
+export function ticks(max: number, minStep = 0): number[] {
   if (max <= 0) return [0];
   const raw = max / 4;
   const power = 10 ** Math.floor(Math.log10(raw));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * power).find((s) => s >= raw) ?? power;
-  const out: number[] = [];
-  for (let v = 0; v <= max + step * 0.001; v += step) out.push(Math.round(v * 1000) / 1000);
+  const nice = [1, 2, 2.5, 5, 10].map((m) => m * power).find((s) => s >= raw) ?? power;
+  const step = Math.max(nice, minStep);
+  const out: number[] = [0];
+  while ((out.at(-1) ?? 0) < max - step * 0.001) {
+    out.push(Math.round(out.length * step * 1000) / 1000);
+  }
   return out;
 }
 
@@ -54,22 +91,28 @@ export function LineChart({
   openIndex = null,
   format,
 }: LineChartProps) {
+  const [ref, W] = useWidth();
   const fmt = format ?? ((v: number) => NUMBER.format(Math.round(v)));
   const n = Math.max(days.length, ...series.map((s) => s.values.length));
   const max = Math.max(1, ...series.flatMap((s) => s.values));
-  const yTicks = ticks(max);
+  // Ohne eigenes Format sind es Zählwerte: keine Striche zwischen 0 und 1.
+  const yTicks = ticks(max, format ? 0 : 1);
   const top = yTicks.at(-1) ?? max;
   const innerW = W - PAD.left - PAD.right;
   const innerH = height - PAD.top - PAD.bottom;
   const x = (i: number) => PAD.left + (n <= 1 ? innerW / 2 : (i / (n - 1)) * innerW);
   const y = (v: number) => PAD.top + innerH - (v / top) * innerH;
-  const labelEvery = Math.max(1, Math.ceil(n / 9));
+  // Eine Datumsmarke („22.09.") braucht rund 34px, dazu Luft.
+  const maxLabels = Math.max(2, Math.floor(innerW / 52));
+  const labelEvery = Math.max(1, Math.ceil(n / maxLabels));
 
   if (n === 0) return <p className={styles.empty}>Keine Tage im Zeitraum.</p>;
 
   return (
-    <div className={styles.chart}>
+    <div className={styles.chart} ref={ref}>
       <svg
+        width={W}
+        height={height}
         viewBox={`0 0 ${W} ${height}`}
         role="img"
         aria-label="Verlauf"
@@ -89,13 +132,26 @@ export function LineChart({
             </text>
           </g>
         ))}
-        {days.map((day, i) =>
-          i % labelEvery === 0 || i === n - 1 ? (
-            <text key={day} x={x(i)} y={height - 8} textAnchor="middle" className={styles.axisText}>
+        {days.map((day, i) => {
+          // Der letzte Tag steht immer da; ein regulärer Strich zu dicht davor
+          // fällt weg, sonst liefen „21.09.22.09." ineinander.
+          const last = i === n - 1;
+          const regular = i % labelEvery === 0 && (last || n - 1 - i > labelEvery / 2);
+          if (!regular && !last) return null;
+          return (
+            <text
+              key={day}
+              x={x(i)}
+              y={height - 8}
+              // Am Rand bündig statt mittig — mittig ragte das letzte Datum
+              // über die 12px rechts hinaus und wurde abgeschnitten.
+              textAnchor={last && n > 1 ? 'end' : i === 0 && n > 1 ? 'start' : 'middle'}
+              className={styles.axisText}
+            >
               {shortDay(day)}
             </text>
-          ) : null
-        )}
+          );
+        })}
         {series.map((s, si) => {
           const points = s.values.map((v, i) => `${x(i)},${y(v)}`).join(' ');
           const cls = s.dashed ? styles.lineBefore : si === 0 ? styles.lineNow : styles.lineSecond;

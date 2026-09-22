@@ -166,11 +166,14 @@ async function loadDeck(): Promise<Deck | null> {
 }
 
 export async function GET(request: Request) {
+  // Bewusst 404 für jeden, der kein Admin ist — auch ohne oder mit
+  // ungültigem Token. Ein 401 verriete schon, dass es den Endpunkt gibt.
+  const notFound = () =>
+    NextResponse.json({ error: 'not found' }, { status: 404, headers: NO_STORE });
+
   const header = request.headers.get('authorization');
   const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) {
-    return NextResponse.json({ error: 'auth required' }, { status: 401, headers: NO_STORE });
-  }
+  if (!token) return notFound();
 
   let isAdmin = false;
   try {
@@ -181,14 +184,9 @@ export async function GET(request: Request) {
       admin: decoded.admin === true,
     });
   } catch {
-    return NextResponse.json({ error: 'invalid token' }, { status: 401, headers: NO_STORE });
+    return notFound();
   }
-
-  // Bewusst 404 statt 403: wer kein Admin ist, soll nicht erfahren, dass es
-  // den Endpunkt gibt.
-  if (!isAdmin) {
-    return NextResponse.json({ error: 'not found' }, { status: 404, headers: NO_STORE });
-  }
+  if (!isAdmin) return notFound();
 
   const today = berlinDay();
   const range = parseRange(new URL(request.url).searchParams, today);

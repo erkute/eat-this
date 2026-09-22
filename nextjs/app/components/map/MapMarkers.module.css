@@ -231,36 +231,6 @@
   height: 25px;
 }
 
-/* Group count -------------------------------------------------------------
-   Only on a zoomed-out map (lib/map/clusterMarkers.ts). The group keeps the
-   plain brand pin and carries its count on top, like a notification badge —
-   the pin is what makes the map, a neutral bubble would read as furniture.
-   Top-centre, so it never collides with the Must Eat card at the top-right.
-   Ink plate with a paper edge: on the near-black basemap the edge is what
-   separates it, on the yellow pin the ink does. */
-.pinCount {
-  position: absolute;
-  top: -11px;
-  left: 50%;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 5px;
-  box-sizing: border-box;
-  transform: translateX(-50%);
-  border: 2px solid var(--et-home-paper, #fff);
-  border-radius: 11px;
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-accent, #ffc600);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  pointer-events: none;
-}
-
 /* Informational user-location marker ----------------------------------- */
 
 .userLoc {

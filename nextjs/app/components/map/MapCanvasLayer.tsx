@@ -6,11 +6,8 @@ import type { MapRestaurant } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
 import MapCanvas from './MapCanvas';
 import RestaurantMarker from './RestaurantMarker';
-import ClusterMarker from './ClusterMarker';
 import UserLocationMarker from './UserLocationMarker';
 import TransitLayer from './TransitLayer';
-import { clusterSpots, clusterTarget, clusterZoomStep } from '@/lib/map/clusterMarkers';
-import { useTranslations } from 'next-intl';
 
 /* The pins are DOM, the basemap is WebGL, and the DOM wins the first frame —
    so on a cold load the yellow markers hung on white until the vector tiles
@@ -95,7 +92,6 @@ export default function MapCanvasLayer({
     return () => window.clearTimeout(id);
   }, [entering]);
 
-  const t = useTranslations('map');
   const selectedId = selectedRestaurant?._id ?? null;
 
   /* Steht eine Detailansicht offen, tritt alles zurück, was nicht der Spot
@@ -117,11 +113,6 @@ export default function MapCanvasLayer({
      listener never attaches. Kept as plain numbers rather than a LngLatBounds
      so the memos below can compare it by value. */
   const [bounds, setBounds] = useState<[number, number, number, number] | null>(null);
-  /* Zoom step the pins are grouped at, or null at the default view and closer
-     in — see lib/map/clusterMarkers.ts. Read on the same `moveend` as the
-     culling window, and snapped, so a pinch re-groups a few times, not per
-     frame. */
-  const [clusterZoom, setClusterZoom] = useState<number | null>(null);
 
   useEffect(() => {
     const map = mapRef.current?.getMap();
@@ -130,8 +121,12 @@ export default function MapCanvasLayer({
       const b = map.getBounds();
       const padX = (b.getEast() - b.getWest()) * VIEWPORT_MARGIN;
       const padY = (b.getNorth() - b.getSouth()) * VIEWPORT_MARGIN;
-      setBounds([b.getWest() - padX, b.getSouth() - padY, b.getEast() + padX, b.getNorth() + padY]);
-      setClusterZoom(clusterZoomStep(map.getZoom()));
+      setBounds([
+        b.getWest() - padX,
+        b.getSouth() - padY,
+        b.getEast() + padX,
+        b.getNorth() + padY,
+      ]);
     };
     read();
     /* `moveend`, not `move`: recomputing per frame of a drag would cost more
@@ -142,13 +137,13 @@ export default function MapCanvasLayer({
     };
   }, [mapRef, painted]);
 
-  /* At the default view and closer in, every spot is its own marker — but
-     only the ones near the viewport get a DOM node. Production carried 169 markers at the default
+  /* Every spot is its own marker — no grouping — but only the ones near the
+     viewport get a DOM node. Production carried 169 markers at the default
      camera before ungrouping; without this the same camera would mount 340.
      The open spot is filtered out here and re-added below, so it always paints
      last and over whatever sits beneath it. */
   const inView = useCallback(
-    (r: { lat: number; lng: number }) =>
+    (r: MapRestaurant) =>
       !bounds ||
       (r.lng >= bounds[0] && r.lng <= bounds[2] && r.lat >= bounds[1] && r.lat <= bounds[3]),
     [bounds]
@@ -159,67 +154,19 @@ export default function MapCanvasLayer({
     [displayedRestaurants, selectedId, inView]
   );
 
-  /* Zoomed out past the default view, neighbours merge into one pin with a
-     count. Grouped over the WHOLE set and culled afterwards by anchor: grouping
-     only what is in view would let a pan redraw the groups along the edges. */
-  const groups = useMemo(
-    () =>
-      clusterZoom === null
-        ? null
-        : clusterSpots(
-            displayedRestaurants.filter((r) => r._id !== selectedId),
-            clusterZoom
-          ).filter((g) => inView(g)),
-    [clusterZoom, displayedRestaurants, selectedId, inView]
-  );
-
-  const zoomIntoGroup = useCallback(
-    (members: MapRestaurant[]) => {
-      const map = mapRef.current?.getMap();
-      if (!map) return;
-      const target = clusterTarget(members, map.getZoom());
-      map.easeTo({
-        center: [target.lng, target.lat],
-        zoom: target.zoom,
-        /* No reduced-motion branch: MapLibre already jumps instead of easing
-           for non-`essential` moves when the user asks for less motion. */
-      });
-    },
-    [mapRef]
-  );
-
   return (
-    <MapCanvas ref={mapRef} onMapClick={onMapClick} onMoveEnd={onMoveEnd} onFirstPaint={reveal}>
+    <MapCanvas
+      ref={mapRef}
+      onMapClick={onMapClick}
+      onMoveEnd={onMoveEnd}
+      onFirstPaint={reveal}
+    >
       {/* Die U- und S-Bahnhöfe. Immer an, nicht erst bei offener
           Detailansicht: sie sind auch beim Stöbern die Antwort auf „wo ist
           das?", und ein Netz, das erst beim Auswählen erscheint, müsste bei
           jedem Auswählen neu gelesen werden. */}
       <TransitLayer />
       {painted &&
-        groups?.map((group) =>
-          group.members.length === 1 ? (
-            <RestaurantMarker
-              key={group.key}
-              restaurant={group.members[0]}
-              isSelected={false}
-              isDimmed={isDimmed(group.members[0])}
-              onClick={onRestaurantClick}
-            />
-          ) : (
-            <ClusterMarker
-              key={group.key}
-              lat={group.lat}
-              lng={group.lng}
-              count={group.members.length}
-              hasMustEat={group.members.some((m) => m.mustEatCount > 0)}
-              isDimmed={focusedRestaurantId !== null}
-              label={t('clusterLabel', { count: group.members.length })}
-              onClick={() => zoomIntoGroup(group.members)}
-            />
-          )
-        )}
-      {painted &&
-        !groups &&
         pins.map((restaurant, i) => (
           <RestaurantMarker
             key={restaurant._id}

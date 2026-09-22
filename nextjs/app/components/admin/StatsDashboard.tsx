@@ -157,7 +157,7 @@ export default function StatsDashboard() {
       const response = await fetch(`/api/admin/stats?${queryOf(current)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (response.status === 404 || response.status === 401) {
+      if (response.status === 404) {
         // Die Route antwortet Nicht-Admins bewusst mit 404. Hier heißt das
         // nicht „weg", sondern „nicht für dieses Konto".
         setError('Dieses Konto hat keinen Zugriff auf die Zahlen.');

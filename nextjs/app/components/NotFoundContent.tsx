@@ -62,15 +62,15 @@ function WrongTurn() {
       aria-hidden="true"
       focusable="false"
     >
-      <circle cx="14" cy="126" r="4.5" fill="#15120e" />
+      <circle cx="14" cy="126" r="4.5" fill="#fff" />
       <path
         d="M14 126C50 138 76 116 106 106c32-11 56-2 72 16"
-        stroke="#15120e"
+        stroke="#fff"
         strokeWidth="3"
         strokeLinecap="round"
         strokeDasharray="7 9"
       />
-      <ellipse cx="196" cy="123" rx="13" ry="3.5" fill="#15120e" opacity="0.16" />
+      <ellipse cx="196" cy="123" rx="13" ry="3.5" fill="#fff" opacity="0.16" />
       <g transform="rotate(-9 196 118)">
         <path
           d="M196 118s28-26 28-44a28 28 0 1 0-56 0c0 18 28 44 28 44Z"

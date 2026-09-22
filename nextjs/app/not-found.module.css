@@ -1,15 +1,20 @@
 /* 404 + 500 screen between the real app header and footer.
-   Same homeV2 vocabulary as the rest of the site: white paper, ink type,
-   one yellow accent, Providence 700 uppercase. Centred single column —
-   error.tsx renders the same .copy block without the .stage/.art. */
+   Seit 22.09.2026 auf Ink wie jede Inhaltsseite (seit 03.09.): weisse
+   Providence-Versalien, gelber Kicker, gelber Hauptknopf, Weiss-Stufen fuer
+   Text und Linien. Der Grund selbst liegt an html/body (globals.css,
+   `:has([data-page='not-found'|'error'])`) — ein `background` hier auf dem
+   `<main>` griffe nie. Centred single column — error.tsx renders the same
+   .copy block without the .stage/.art. */
 
 .page {
-  --nf-paper: var(--et-home-paper, #fff);
-  --nf-ink: var(--et-home-ink, #15120e);
-  --nf-muted: var(--et-home-muted, rgba(21, 18, 14, 0.64));
+  --nf-paper: var(--et-home-ink, #15120e);
+  --nf-ink: var(--et-home-inverse-text, #fff);
+  --nf-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   --nf-accent: var(--et-home-accent, #ffc600);
-  --nf-quiet: var(--et-home-quiet, #f2f1ef);
-  --nf-grid: rgba(21, 18, 14, 0.07);
+  --nf-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  --nf-ring: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  --nf-on-accent: var(--et-home-ink, #15120e);
+  --nf-grid: rgba(255, 255, 255, 0.07);
   --nf-display: var(--et-font-display, var(--font-providence), sans-serif);
   --nf-label: var(--et-font-label, var(--font-providence), sans-serif);
 
@@ -94,7 +99,7 @@
   align-items: center;
   gap: 8px;
   margin: 0;
-  color: var(--nf-ink);
+  color: var(--nf-accent);
   font-family: var(--nf-label);
   font-size: 11px;
   font-weight: 700;
@@ -158,8 +163,8 @@
   padding: 12px 22px;
   border: 0;
   border-radius: var(--et-radius-control, 7px);
-  background: var(--nf-ink);
-  color: var(--et-home-inverse-text, #fff);
+  background: var(--nf-accent);
+  color: var(--nf-on-accent);
   font-family: var(--nf-display);
   font-size: 14px;
   font-weight: 700;
@@ -171,11 +176,11 @@
 /* Zweiter Knopf, nicht zweiter Link: er steht gleichrangig neben dem
    primaeren und sah als unterstrichenes Wort daneben unfertig aus.
    Die 2px Rahmen kommen vom Innenabstand ab (10+2 = 12), damit beide
-   Knoepfe exakt gleich hoch stehen. */
+   Knoepfe exakt gleich hoch stehen. Auf Ink ein weisser Ring. */
 .secondaryCta {
   display: inline-block;
   padding: 10px 20px;
-  border: 2px solid var(--nf-ink);
+  border: 2px solid var(--nf-ring);
   border-radius: var(--et-radius-control, 7px);
   background: transparent;
   color: var(--nf-ink);
@@ -186,30 +191,34 @@
   text-transform: uppercase;
 }
 
+/* Gelb auf Gelb waere kein Zustand: der Hauptknopf wird beim Zeigen weiss,
+   der zweite gelb. */
 .primaryCta:focus-visible {
-  background: var(--nf-accent);
-  color: var(--nf-ink);
+  background: var(--nf-ink);
+  color: var(--nf-on-accent);
   outline: 0;
 }
 
 @media (hover: hover) {
   .primaryCta:hover {
-    background: var(--nf-accent);
-    color: var(--nf-ink);
+    background: var(--nf-ink);
+    color: var(--nf-on-accent);
     outline: 0;
   }
 }
 
 .secondaryCta:focus-visible {
   background: var(--nf-accent);
-  border-color: var(--nf-ink);
+  border-color: var(--nf-accent);
+  color: var(--nf-on-accent);
   outline: 0;
 }
 
 @media (hover: hover) {
   .secondaryCta:hover {
     background: var(--nf-accent);
-    border-color: var(--nf-ink);
+    border-color: var(--nf-accent);
+    color: var(--nf-on-accent);
     outline: 0;
   }
 }
@@ -266,12 +275,14 @@
 
 .moreLink:focus-visible {
   background: var(--nf-accent);
+  color: var(--nf-on-accent);
   outline: 0;
 }
 
 @media (hover: hover) {
   .moreLink:hover {
     background: var(--nf-accent);
+    color: var(--nf-on-accent);
     outline: 0;
   }
 }

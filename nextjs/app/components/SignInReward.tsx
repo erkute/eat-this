@@ -45,7 +45,7 @@ const copy = {
       opened: 'Deine ersten 20 Karten.',
       lead: '20 Must-Eat-Karten für deinen Start.',
       explain:
-        'Jede Karte steht für ein Must-Eat – unsere Empfehlung, was du am Spot bestellen solltest. Manche liegen schon offen in deinem Deck. Die anderen deckst du erst vor Ort auf.',
+        'Jede Karte steht für ein Must Eat – unsere Empfehlung, was du am Spot bestellen solltest. Manche liegen schon offen in deinem Deck. Die anderen deckst du erst vor Ort auf.',
       openStack: '10 offen',
       coveredStack: '10 verdeckt',
       open: 'Öffnen',

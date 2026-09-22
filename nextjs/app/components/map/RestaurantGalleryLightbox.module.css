@@ -9,7 +9,6 @@
   pointer-events: none;
 }
 .galleryLbStage {
-  overflow: hidden;
   cursor: default;
 }
 .galleryLbArrow {
@@ -94,15 +93,27 @@
 .galleryLbStage {
   z-index: 1;
 }
+/* Der Streifen, durch den man blättert: ein nativer Scroll-Container, eine
+   Seite pro Foto. `scroll-snap-stop: always` auf den Seiten lässt einen
+   kräftigen Wisch nicht über drei Fotos schießen. `overscroll-behavior`
+   hält das Durchreichen an den Rändern auf, sonst wippt die Seite darunter. */
 .galleryLbStage {
   position: fixed;
   inset: 0;
+  display: flex;
   width: 100vw;
-  min-width: 100vw;
-  max-width: 100vw;
   height: 100dvh;
   min-height: 100lvh;
   max-height: 100lvh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior: contain;
+  touch-action: pan-x pinch-zoom;
+  scrollbar-width: none;
+}
+.galleryLbStage::-webkit-scrollbar {
+  display: none;
 }
 .galleryLbClose {
   position: fixed;
@@ -140,8 +151,10 @@
   stroke-linecap: round;
 }
 .galleryLbSlide {
-  position: fixed;
-  inset: 0;
+  position: relative;
+  flex: 0 0 100vw;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
   display: flex;
   align-items: center;
   justify-content: center;

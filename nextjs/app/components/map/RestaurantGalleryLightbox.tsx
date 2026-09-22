@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
@@ -13,25 +13,6 @@ interface Props {
   onClose: () => void;
   restaurantName: string;
 }
-
-const SWIPE_THRESHOLD = 60;
-const preloadedImages = new Set<string>();
-
-function preloadImage(src: string | undefined) {
-  if (!src || preloadedImages.has(src)) return;
-  preloadedImages.add(src);
-  const image = new Image();
-  image.src = src;
-  void image.decode?.().catch(() => {});
-}
-
-// Slide between photos with a horizontal translate (project rule: motion is
-// translate, never an opacity fade). `dir` is +1 paging forward, -1 back.
-const slide = {
-  enter: (dir: number) => ({ x: dir >= 0 ? '100%' : '-100%' }),
-  center: { x: 0 },
-  exit: (dir: number) => ({ x: dir >= 0 ? '-100%' : '100%' }),
-};
 
 function Chevron({ dir }: { dir: 'left' | 'right' }) {
   return (
@@ -64,15 +45,30 @@ function Viewer({
   restaurantName: string;
 }) {
   const count = images.length;
-  const [[page, dir], setPage] = useState<[number, number]>([startIndex, 0]);
+  const [page, setPage] = useState(startIndex);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef(startIndex);
+  pageRef.current = page;
+
+  // Vor dem ersten Paint aufs angetippte Foto stellen, sonst blitzt Foto 1 auf.
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (track) track.scrollLeft = startIndex * track.clientWidth;
+  }, [startIndex]);
 
   const go = useCallback(
     (d: number) => {
-      setPage(([p]) => {
-        const next = p + d;
-        return next < 0 || next >= count ? [p, 0] : [next, d];
+      const track = trackRef.current;
+      if (!track) return;
+      const next = pageRef.current + d;
+      if (next < 0 || next >= count) return;
+      track.scrollTo({
+        left: next * track.clientWidth,
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'instant'
+          : 'smooth',
       });
     },
     [count]
@@ -104,16 +100,6 @@ function Viewer({
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose, go]);
-
-  const img = images[page];
-  const href = safeHttpUrl(img.creditUrl);
-  const credit = img.credit?.trim();
-
-  useEffect(() => {
-    preloadImage(images[page - 1]?.full);
-    preloadImage(images[page]?.full);
-    preloadImage(images[page + 1]?.full);
-  }, [images, page]);
 
   return (
     <motion.div
@@ -165,49 +151,62 @@ function Viewer({
         </svg>
       </button>
 
-      <div className={styles.galleryLbStage}>
-        <AnimatePresence custom={dir} initial={false} mode="sync">
-          <motion.div
-            key={page}
-            className={styles.galleryLbSlide}
-            custom={dir}
-            variants={slide}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ x: { type: 'spring', stiffness: 320, damping: 34 } }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.18}
-            onDragEnd={(_, info) => {
-              if (info.offset.x < -SWIPE_THRESHOLD) go(1);
-              else if (info.offset.x > SWIPE_THRESHOLD) go(-1);
-            }}
-          >
-            <div className={styles.galleryLbPrint} onClick={(e) => e.stopPropagation()}>
-              <img
-                src={img.full}
-                alt={img.alt ?? restaurantName}
-                className={styles.galleryLbImg}
-                draggable={false}
-                loading="eager"
-                decoding="sync"
-                fetchPriority="high"
-              />
-              {credit && (
-                <span className={styles.galleryLbCredit}>
-                  {href ? (
-                    <a href={href} target="_blank" rel="noopener noreferrer">
-                      {credit}
-                    </a>
-                  ) : (
-                    credit
-                  )}
-                </span>
-              )}
+      {/* Ein echter Scroll-Container statt framer-`drag`: das Foto folgt dem
+          Finger 1:1, das Nachbarfoto zieht sichtbar mit herein, und
+          `scroll-snap-stop: always` rastet pro Wisch genau ein Foto weiter —
+          wie bei Instagram. Die alte Fassung hielt das Bild mit
+          `dragElastic: 0.18` fest, es ging nur ein Fünftel des Fingerwegs
+          mit und klebte. Ein Wisch erzeugt keinen Klick, schließt also nie. */}
+      <div
+        ref={trackRef}
+        className={styles.galleryLbStage}
+        onScroll={(event) => {
+          const track = event.currentTarget;
+          if (!track.clientWidth) return;
+          const next = Math.round(track.scrollLeft / track.clientWidth);
+          setPage(Math.max(0, Math.min(count - 1, next)));
+        }}
+      >
+        {images.map((img, index) => {
+          const href = safeHttpUrl(img.creditUrl);
+          const credit = img.credit?.trim();
+          const near = Math.abs(index - page) <= 1;
+          return (
+            <div
+              key={img._key}
+              className={styles.galleryLbSlide}
+              aria-hidden={index !== page || undefined}
+            >
+              <div className={styles.galleryLbPrint} onClick={(e) => e.stopPropagation()}>
+                <img
+                  src={img.full}
+                  alt={img.alt ?? restaurantName}
+                  className={styles.galleryLbImg}
+                  draggable={false}
+                  loading={near ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchPriority={index === page ? 'high' : 'auto'}
+                />
+                {credit && (
+                  <span className={styles.galleryLbCredit}>
+                    {href ? (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        tabIndex={index === page ? undefined : -1}
+                      >
+                        {credit}
+                      </a>
+                    ) : (
+                      credit
+                    )}
+                  </span>
+                )}
+              </div>
             </div>
-          </motion.div>
-        </AnimatePresence>
+          );
+        })}
       </div>
 
       {/* Pfeile und Zählstand stehen als eine Leiste unter dem Abzug: seitliche

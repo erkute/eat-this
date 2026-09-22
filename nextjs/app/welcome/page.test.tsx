@@ -373,3 +373,19 @@ describe('/welcome auf Englisch', () => {
     expect(container.querySelector('a')?.getAttribute('href')).toBe('/en');
   });
 });
+
+describe('/welcome Tab-Titel', () => {
+  it('kommt serverseitig in der Sprache des Links', async () => {
+    vi.resetModules();
+    vi.doMock('next/headers', () => ({ cookies: async () => ({ toString: () => 'NEXT_LOCALE=de' }) }));
+    const { generateMetadata } = await import('./page');
+    const cu = 'https://x.test/en?e=a%40b.c&lang=en';
+    const en = await generateMetadata({
+      searchParams: Promise.resolve({ mode: 'signIn', lang: 'de', continueUrl: cu }),
+    });
+    expect(en.title).toBe('Sign in');
+    const de = await generateMetadata({ searchParams: Promise.resolve({}) });
+    expect(de.title).toBe('Anmeldung');
+    vi.doUnmock('next/headers');
+  });
+});

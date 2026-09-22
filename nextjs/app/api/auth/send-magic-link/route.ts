@@ -4,6 +4,7 @@ import { rateLimitKey } from '@/lib/rateLimitKey';
 import { sendMagicLinkEmail } from '@/lib/auth/sendMagicLink';
 import { isStaging } from '@/lib/env';
 import { REFERRER_COOKIE, UID_SHAPE } from '@/lib/referral/constants';
+import { mailLocale } from '@/emails/locale';
 
 export const runtime = 'nodejs';
 
@@ -121,11 +122,14 @@ export async function POST(request: Request) {
     request.headers.get('origin') ||
     'https://www.eatthisdot.com';
 
+  const locale = mailLocale(body.locale);
+
   // /welcome owns the post-sign-in destination (Home) — the continue URL is
   // only Firebase's required link target plus the carrier params: `e` for the
-  // email address and `ref` for the inviter.
+  // email address, `lang` for the language and `ref` for the inviter. Ohne
+  // eigene Continue-URL landet EN auf /en: `/` ist immer Deutsch.
   const continueUrl = withReferrer(
-    sanitizeContinueUrl(body.continueUrl, origin, `${origin}/`),
+    sanitizeContinueUrl(body.continueUrl, origin, locale === 'en' ? `${origin}/en` : `${origin}/`),
     request.headers.get('cookie')
   );
 
@@ -134,7 +138,12 @@ export async function POST(request: Request) {
   // production site from a staging request.
   const emailAssetBase = process.env.EMAIL_ASSET_BASE_URL || origin;
 
-  const result = await sendMagicLinkEmail({ email, continueUrl, appUrl: emailAssetBase });
+  const result = await sendMagicLinkEmail({
+    email,
+    continueUrl,
+    appUrl: emailAssetBase,
+    locale,
+  });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 500 });
   }

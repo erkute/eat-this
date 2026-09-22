@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { trackEvent } from '@/lib/analytics';
 
 type MagicLinkState = 'idle' | 'sending' | 'sent' | 'error';
@@ -21,6 +21,7 @@ const ERROR_KEYS: Record<string, string> = {
 
 export function useMagicLink() {
   const t = useTranslations('auth');
+  const locale = useLocale();
   const [state, setState] = useState<MagicLinkState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -42,7 +43,8 @@ export function useMagicLink() {
         const response = await fetch('/api/auth/send-magic-link', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(continueUrl ? { email, continueUrl } : { email }),
+          // Die Route waehlt damit die Mail und den /welcome-Screen.
+          body: JSON.stringify(continueUrl ? { email, locale, continueUrl } : { email, locale }),
         });
         const data = await response.json().catch(() => ({}));
 
@@ -62,7 +64,7 @@ export function useMagicLink() {
         setState('error');
       }
     },
-    [t]
+    [t, locale]
   );
 
   const reset = useCallback(() => {

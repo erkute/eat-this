@@ -53,6 +53,13 @@ interface ArtSpec {
    * shapes but never the layout of the mail around them.
    */
   width: number;
+  /**
+   * Übernimmt die Schriftgröße einer anderen Grafik, statt auf `width` zu
+   * strecken. Für Sprachfassungen: „WELCOME BACK" auf die Breite von
+   * „WILLKOMMEN ZURÜCK" gezogen, stünde eine Nummer größer in der Mail als
+   * das Original. `width` ist dann nur der Startwert für den Canvas.
+   */
+  sameSizeAs?: string;
 }
 
 // Headlines mirror home: red, uppercase, tight leading, slight negative
@@ -132,6 +139,52 @@ const ART: ArtSpec[] = [
     align: 'left',
     width: 290,
   },
+  // EN-Fassungen (21.09.2026). Gleiche Schriftgröße wie die DE-Grafik, die
+  // Breite ergibt sich aus dem Text. Alles Englische, das schon englisch war
+  // (Headline Anmeldung, Starter Pack, Slogan), wird in beiden Sprachen geteilt.
+  {
+    id: 'headline-login-en',
+    lines: ['WELCOME', 'BACK'],
+    color: COLOR.text,
+    size: 54,
+    lineHeight: 0.92,
+    letterSpacing: -1,
+    align: 'left',
+    width: 470,
+    sameSizeAs: 'headline-login',
+  },
+  {
+    id: 'kicker-signup-en',
+    lines: ["BERLIN'S MUST EATS"],
+    color: COLOR.accent,
+    bg: COLOR.surface,
+    size: 14,
+    letterSpacing: 1.2,
+    align: 'left',
+    width: 200,
+    sameSizeAs: 'kicker-signup',
+  },
+  {
+    id: 'kicker-login-en',
+    lines: ['GOOD TO SEE YOU AGAIN'],
+    color: COLOR.accent,
+    bg: COLOR.surface,
+    size: 14,
+    letterSpacing: 1.2,
+    align: 'left',
+    width: 276,
+    sameSizeAs: 'kicker-login',
+  },
+  {
+    id: 'title-spots-en',
+    lines: ['TAKE A PEEK'],
+    color: COLOR.text,
+    size: 26,
+    letterSpacing: -0.5,
+    align: 'left',
+    width: 290,
+    sameSizeAs: 'title-spots',
+  },
 ];
 
 const OUT_DIR = join(process.cwd(), 'public', 'pics', 'email');
@@ -182,16 +235,29 @@ async function rasterise(
     .toBuffer();
 }
 
-async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBrandFont>>['faces']) {
-  // Pass 1 measures how wide this face actually sets the copy…
-  const probe = await sharp(await rasterise(spec, spec.size, faces)).metadata();
-  const probeWidth = (probe.width ?? 1) / SCALE;
-  // …pass 2 re-renders at the size that lands on spec.width, so the bitmap is
-  // sharp rather than upscaled. The final resize only corrects rounding.
-  const corrected = (spec.size * spec.width) / probeWidth;
-  const art = await rasterise(spec, corrected, faces);
+/** Endgültige Schriftgröße je Grafik — Quelle für `sameSizeAs`. */
+const renderedSize = new Map<string, number>();
 
-  const sized = sharp(art).resize({ width: spec.width * SCALE });
+async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBrandFont>>['faces']) {
+  let art: Buffer;
+  let sized: sharp.Sharp;
+  if (spec.sameSizeAs) {
+    const size = renderedSize.get(spec.sameSizeAs);
+    if (size === undefined) throw new Error(`${spec.id}: ${spec.sameSizeAs} muss vorher stehen`);
+    renderedSize.set(spec.id, size);
+    art = await rasterise(spec, size, faces);
+    sized = sharp(art);
+  } else {
+    // Pass 1 measures how wide this face actually sets the copy…
+    const probe = await sharp(await rasterise(spec, spec.size, faces)).metadata();
+    const probeWidth = (probe.width ?? 1) / SCALE;
+    // …pass 2 re-renders at the size that lands on spec.width, so the bitmap is
+    // sharp rather than upscaled. The final resize only corrects rounding.
+    const corrected = (spec.size * spec.width) / probeWidth;
+    renderedSize.set(spec.id, corrected);
+    art = await rasterise(spec, corrected, faces);
+    sized = sharp(art).resize({ width: spec.width * SCALE });
+  }
   // Etwas Luft um die Schrift, sonst klebt die eingebackene Flaeche an den
   // Buchstaben. In hellem Modus ist sie ohnehin unsichtbar, weil sie die Farbe
   // des Untergrunds hat.

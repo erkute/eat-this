@@ -329,3 +329,47 @@ describe('local identity preview', () => {
     }
   );
 });
+
+/* EN seit 21.09.2026: bis dahin sprach /welcome nur Deutsch, auch mit einem
+   Link von /en. Die Sprache kommt aus der Continue-URL (`lang`, gesetzt von
+   sendMagicLinkEmail). */
+describe('/welcome auf Englisch', () => {
+  function arriveInEnglish() {
+    const cu = new URL(continueUrlFromTappedCard('must-eat-1'));
+    cu.pathname = '/en/map';
+    cu.searchParams.set('e', 'test@example.com');
+    cu.searchParams.set('lang', 'en');
+    arriveWithLink(cu.toString());
+  }
+
+  it('bestaetigt auf Englisch, mit einem Wort im Knopf', async () => {
+    arriveInEnglish();
+    const container = await mount();
+    expect(container.textContent).toContain('One more click');
+    expect(container.textContent).toContain('Signing in as');
+    expect(container.textContent).toContain('Your card is in the pack.');
+    expect(buttonWith(container, 'Sign in')).toBeTruthy();
+    expect(container.textContent).not.toContain('Anmelden');
+    expect(document.documentElement.lang).toBe('en');
+  });
+
+  it('fragt nach Name und Avatar auf Englisch', async () => {
+    arriveInEnglish();
+    fb.signInWithEmailLink.mockResolvedValue({ user: { displayName: null } });
+    const container = await mount();
+    await act(async () => {
+      buttonWith(container, 'Sign in').click();
+    });
+    expect(container.textContent).toContain('Who are you?');
+    expect(container.textContent).toContain('Spot Scout');
+    expect(container.textContent).not.toMatch(/Wer bist du|Weiter|Schnüffler/);
+  });
+
+  it('zeigt die Sackgasse auf Englisch, mit dem Weg nach /en', async () => {
+    arriveInEnglish();
+    fb.isSignInWithEmailLink.mockReturnValue(false);
+    const container = await mount();
+    expect(container.textContent).toContain('This link no longer works');
+    expect(container.querySelector('a')?.getAttribute('href')).toBe('/en');
+  });
+});

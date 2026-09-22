@@ -17,6 +17,7 @@ import {
   type EmailSpot,
 } from './spots.generated';
 import { COLOR, LAYOUT, EMAIL_ASSET_VERSION } from './theme';
+import type { MailLocale } from './locale';
 
 export type { EmailSpot };
 
@@ -25,6 +26,7 @@ export interface SignupEmailProps {
   magicLink: string;
   /** Absolute base URL for artwork (https://www.eatthisdot.com or http://localhost:3000). */
   appUrl: string;
+  locale: MailLocale;
   /**
    * Overrides the curated selection. Production passes nothing — the spots come
    * from `npm run build:email-spots`, which renders each card locally and drops
@@ -33,21 +35,60 @@ export interface SignupEmailProps {
   spots?: readonly EmailSpot[];
 }
 
-export const SIGNUP_SUBJECT = 'Willkommen bei Eat This — dein Link zum Anmelden';
+export const SIGNUP_SUBJECT: Record<MailLocale, string> = {
+  de: 'Willkommen bei Eat This — dein Link zum Anmelden',
+  en: 'Welcome to Eat This — your sign-up link',
+};
+
+/* Der Starter-Pack-Satz ist derselbe wie auf der Seite (starterPromoBody in
+   lib/i18n/translations.ts). Bis zum 21.09.2026 stand hier eine eigene
+   Fassung („20 neue Must Eats warten darauf …"). */
+const COPY = {
+  de: {
+    preview: 'Ein Klick und du siehst, was Berlin zu bieten hat.',
+    kicker: ART.kickerSignup,
+    lead: 'Gute Spots findest du überall. Wir sagen dir, was du dort bestellen solltest.',
+    cta: 'Anmelden',
+    fineprint:
+      'Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse. Falls der Button nicht reagiert:',
+    plainLink: 'hier ist er als normaler Link',
+    pill: 'Gratis',
+    starter: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+    spotsTitle: ART.titleSpots,
+  },
+  en: {
+    preview: 'One click and you’ll see what Berlin has to offer.',
+    kicker: ART.kickerSignupEn,
+    lead: 'Good spots are everywhere. We tell you what to order there.',
+    cta: 'Sign up',
+    fineprint:
+      'This link is valid for 1 hour and only for your email address. If the button doesn’t work,',
+    plainLink: 'here it is as a plain link',
+    pill: 'Free',
+    starter: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
+    spotsTitle: ART.titleSpotsEn,
+  },
+} as const;
 
 /** Home shows four in a rail; a mail that scrolls forever converts worse. */
 const MAX_SPOTS = 3;
 
-export default function SignupEmail({ magicLink, appUrl, spots: override }: SignupEmailProps) {
+export default function SignupEmail({
+  magicLink,
+  appUrl,
+  locale,
+  spots: override,
+}: SignupEmailProps) {
   const spots = (override ?? EMAIL_SPOTS).slice(0, MAX_SPOTS);
+  const copy = COPY[locale];
 
   return (
-    <Shell appUrl={appUrl} preview="Ein Klick und du siehst, was Berlin zu bieten hat.">
+    <Shell appUrl={appUrl} locale={locale} preview={copy.preview}>
       {/* HERO — the home hero, one column narrower: kicker, red Providence
           headline, the site's own lead sentence, ink CTA. */}
       <Paper padding="40px 32px 36px">
         <ArtImage
-          art={ART.kickerSignup}
+          art={copy.kicker}
           appUrl={appUrl}
           altStyle={{
             color: COLOR.accent,
@@ -66,15 +107,15 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
         />
 
         <Lead style={{ marginBottom: '28px' }}>
-          Gute Spots findest du überall. Wir sagen dir, was du dort bestellen solltest.
+          {copy.lead}
         </Lead>
 
-        <CtaButton href={magicLink} label="Anmelden" />
+        <CtaButton href={magicLink} label={copy.cta} />
 
         <Fineprint>
-          Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse. Falls der Button nicht reagiert:{' '}
+          {copy.fineprint}{' '}
           <Link href={magicLink} style={{ color: COLOR.text, textDecoration: 'underline' }}>
-            hier ist er als normaler Link
+            {copy.plainLink}
           </Link>
           .
         </Fineprint>
@@ -88,7 +129,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
       <Section style={{ backgroundColor: COLOR.surface, padding: '0 0 8px', textAlign: 'center' }}>
         <img
           src={`${appUrl}/pics/email/${PHONES_ART.id}.jpg?v=${PHONES_ART.version}`}
-          alt={PHONES_ART.alt}
+          alt={PHONES_ART.alt[locale]}
           width={PHONES_ART.width}
           style={{
             display: 'block',
@@ -146,7 +187,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               letterSpacing: '0.06em',
             }}
           >
-            Gratis
+            {copy.pill}
           </Text>
 
           <ArtImage
@@ -164,7 +205,7 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
               color: COLOR.text,
             }}
           >
-            20 neue Must Eats warten darauf, von dir entdeckt zu werden.
+            {copy.starter}
           </Text>
         </Section>
       </Section>
@@ -179,12 +220,12 @@ export default function SignupEmail({ magicLink, appUrl, spots: override }: Sign
           {/* Ohne Zwischenzeile (Betreiber, 07.09.2026): die Überschrift und
               die drei Karten sagen alles, der Satz dazwischen erklärte nur
               den Klick. */}
-          <SectionHead art={ART.titleSpots} appUrl={appUrl} />
+          <SectionHead art={copy.spotsTitle} appUrl={appUrl} />
 
           {spots.map((s) => (
             <Link
               key={s.slug}
-              href={`${appUrl}/map?r=${s.slug}`}
+              href={`${appUrl}${locale === 'en' ? '/en' : ''}/map?r=${s.slug}`}
               style={{ display: 'block', margin: '0 0 14px' }}
             >
               {/* next/image has no meaning in an inbox — the markup leaves this

@@ -36,10 +36,6 @@ export function CtaButton({ href, label }: { href: string; label: string }) {
 }
 
 /**
- * `.hv-kicker` — the small uppercase eyebrow above a hero headline. No yellow
- * square: on home the marker belongs to section heads, not to the hero.
- */
-/**
  * `.hv-head` — the yellow `.hv-mk` square followed by a red section title, on
  * one line. Two table cells rather than an inline-block: the 9px square must
  * not collapse, and a table cell is the one box model no client second-guesses.
@@ -117,21 +113,6 @@ export function ArtImage({
         ...style,
       }}
     />
-  );
-}
-
-/** Body copy — `.hv-sub` at reading size. */
-export function Lead({
-  children,
-  style,
-}: {
-  children: React.ReactNode;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <Text style={{ margin: 0, fontSize: '16px', lineHeight: 1.6, color: COLOR.muted, ...style }}>
-      {children}
-    </Text>
   );
 }
 

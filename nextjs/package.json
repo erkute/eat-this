@@ -14,7 +14,6 @@
     "build:transit-stations": "tsx scripts/build-transit-stations.mts",
     "build:email-art": "tsx scripts/build-email-art.mts",
     "build:email-spots": "tsx scripts/build-email-spots.mts",
-    "build:email-phones": "tsx scripts/build-email-phones.mts",
     "sync:brand-font": "tsx scripts/sync-brand-font.mts",
     "start": "next start",
     "import:restaurant": "tsx scripts/import-enriched.ts",

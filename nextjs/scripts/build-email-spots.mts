@@ -64,7 +64,6 @@ interface SanitySpot {
   name: string;
   slug: string;
   area: string;
-  cuisine?: string;
   photo: string;
 }
 
@@ -111,8 +110,8 @@ for (const spot of spots) {
 
   await writeFile(join(OUT_DIR, `${spot.slug}.jpg`), jpeg);
 
-  const meta = [spot.area, spot.cuisine].filter(Boolean).join(' · ');
-  // Inhalts-Hash fuer die URL — siehe build-email-phones.mts.
+  const meta = spot.area;
+  // Inhalts-Hash fuer die URL — ohne ihn cacht Gmails Bild-Proxy ewig.
   const version = createHash('sha1').update(jpeg).digest('hex').slice(0, 8);
   rendered.push({ slug: spot.slug, name: spot.name, meta, version });
   console.log(`  ${spot.slug}.jpg  ${Math.round(jpeg.length / 1024)} kB  —  ${spot.name}`);
@@ -144,7 +143,7 @@ await writeFile(
     '  slug: string;',
     '  /** Nur für den Alt-Text; im Bild steht der Name bereits gesetzt. */',
     '  name: string;',
-    '  /** „Bezirk · Küche" für den Alt-Text. */',
+    '  /** Der Bezirk, für den Alt-Text. */',
     '  meta: string;',
     '  /** Inhalts-Hash; haengt als ?v= an der Bild-URL, sonst cacht Gmail ewig. */',
     '  version: string;',

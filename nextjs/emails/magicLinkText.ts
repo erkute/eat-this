@@ -4,33 +4,32 @@
 
 import type { MailLocale } from './locale';
 
+/* Derselbe Wortlaut wie die HTML-Mail (SignupEmail, LoginEmail, Shell). */
 const TEXT = {
   de: {
-    signOff: [
-      '—',
-      'Du bekommst diese E-Mail, weil sich jemand mit dieser Adresse bei eatthisdot.com',
-      'angemeldet hat. Warst du das nicht, ignoriere sie einfach.',
-    ],
-    validity: 'Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse.',
-    loginIntro: 'Willkommen zurück. Hier ist dein Login-Link:',
-    signupLead: 'Gute Spots findest du überall. Wir sagen dir, was du dort bestellen solltest.',
-    signupIntro: 'Hier anmelden und deine Map öffnen:',
+    signOff: ['—', 'Du hast keine Anmeldung angefordert? Dann kannst du diese E-Mail ignorieren.'],
+    validity: 'Dein Anmeldelink ist eine Stunde gültig und gilt nur für deine E-Mail-Adresse.',
+    loginIntro: 'Willkommen zurück. Hier ist dein Anmeldelink:',
+    signupLead:
+      'Wir empfehlen dir gute Spots in Berlin – und mit unseren Must Eats die Gerichte, für die sich der Besuch lohnt.',
+    signupIntro: 'Bei Eat This anmelden:',
     signupAfter: [
-      'Danach: 20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt',
-      'zu werden.',
+      'Dein Starter Pack: 20 Must Eats. Geht auf uns. Jede Karte verrät dir, was du',
+      'an einem Spot bestellen solltest. Manche sind schon offen, andere deckst du',
+      'erst vor Ort auf.',
     ],
   },
   en: {
-    signOff: [
-      '—',
-      'You’re getting this email because someone signed in to eatthisdot.com',
-      'with this address. If that wasn’t you, just ignore it.',
-    ],
-    validity: 'This link is valid for 1 hour and only for your email address.',
+    signOff: ['—', 'Didn’t request a sign-in? Then you can ignore this email.'],
+    validity: 'Your sign-in link is valid for one hour and only works for your email address.',
     loginIntro: 'Welcome back. Here’s your sign-in link:',
-    signupLead: 'Good spots are everywhere. We tell you what to order there.',
-    signupIntro: 'Sign up here and open your map:',
-    signupAfter: ['Then: 20 Must Eats, spread all over Berlin. Waiting for you to discover them.'],
+    signupLead:
+      'We point you to great spots in Berlin – and with our Must Eats, to the dishes that make the visit worth it.',
+    signupIntro: 'Sign up for Eat This:',
+    signupAfter: [
+      'Your Starter Pack: 20 Must Eats. On us. Every card tells you what to order at',
+      'a spot. Some are already open, others you reveal on site.',
+    ],
   },
 } as const;
 
@@ -54,6 +53,7 @@ export function buildSignupText(magicLink: string, locale: MailLocale): string {
     magicLink,
     '',
     t.validity,
+    '',
     ...t.signupAfter,
     '',
     ...t.signOff,

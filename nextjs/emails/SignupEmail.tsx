@@ -1,15 +1,13 @@
 // Signup mail — first contact with an address that has no account yet.
 //
-// Carries the product where the login mail does not: the home hero, the Starter
-// Pack panel in its home shape (quiet grey, yellow pill, red title), and a few
-// composed spot cards. The link still comes first — someone who only wants in
-// never has to scroll.
+// Carries the product where the login mail does not: the home claim, the
+// Starter Pack panel from the tour, and a few composed spot cards. The link
+// still comes first — someone who only wants in never has to scroll.
 
-import { Link, Section, Text } from '@react-email/components';
+import { Link, Section } from '@react-email/components';
 import { Shell } from './components/Shell';
-import { ArtImage, CtaButton, Fineprint, Lead, Paper, SectionHead } from './components/Pieces';
+import { ArtImage, CtaButton, Fineprint, Paper, SectionHead } from './components/Pieces';
 import { ART } from './art.generated';
-import { PHONES_ART } from './phones.generated';
 import { EMAIL_SPOTS, SPOT_DISPLAY_WIDTH, type EmailSpot } from './spots.generated';
 import { COLOR, LAYOUT, EMAIL_ASSET_VERSION } from './theme';
 import type { MailLocale } from './locale';
@@ -31,36 +29,40 @@ export interface SignupEmailProps {
 }
 
 export const SIGNUP_SUBJECT: Record<MailLocale, string> = {
-  de: 'Willkommen bei Eat This — dein Link zum Anmelden',
-  en: 'Welcome to Eat This — your sign-up link',
+  de: 'Dein Anmeldelink für Eat This',
+  en: 'Your Eat This sign-in link',
 };
 
-/* Der Starter-Pack-Satz ist derselbe wie auf der Seite (starterPromoBody in
-   lib/i18n/translations.ts). Bis zum 21.09.2026 stand hier eine eigene
-   Fassung („20 neue Must Eats warten darauf …"). */
+/* Wortlaut vom Betreiber (22.09.2026): statt „Gute Spots findest du überall"
+   — das machte die eigene Auswahl kleiner, als sie ist — das konkretere
+   Versprechen: nicht nur wohin, sondern was bestellen. Die Absätze stehen in
+   emails/art.generated.ts, weil sie als Bild in der Markenschrift gesetzt
+   sind (scripts/build-email-art.mts); hier liegt nur, was echter Text bleibt. */
 const COPY = {
   de: {
-    preview: 'Ein Klick und du siehst, was Berlin zu bieten hat.',
+    preview: '20 Must Eats in Berlin. Kostenlos zum Start.',
     kicker: ART.kickerSignup,
-    lead: 'Gute Spots findest du überall. Wir sagen dir, was du dort bestellen solltest.',
+    lead: ART.leadSignup,
     cta: 'Anmelden',
     fineprint:
-      'Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse. Falls der Button nicht reagiert:',
-    plainLink: 'hier ist er als normaler Link',
-    pill: 'Gratis',
-    starter: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+      'Dein Anmeldelink ist eine Stunde gültig und gilt nur für deine E-Mail-Adresse. Der Button funktioniert nicht?',
+    plainLink: 'Anmeldelink öffnen',
+    starterKicker: ART.kickerStarter,
+    starterTitle: ART.titleStarter,
+    starterBody: ART.bodyStarter,
     spotsTitle: ART.titleSpots,
   },
   en: {
-    preview: 'One click and you’ll see what Berlin has to offer.',
+    preview: '20 Must Eats in Berlin. Free to start.',
     kicker: ART.kickerSignupEn,
-    lead: 'Good spots are everywhere. We tell you what to order there.',
+    lead: ART.leadSignupEn,
     cta: 'Sign up',
     fineprint:
-      'This link is valid for 1 hour and only for your email address. If the button doesn’t work,',
-    plainLink: 'here it is as a plain link',
-    pill: 'Free',
-    starter: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
+      'Your sign-in link is valid for one hour and only works for your email address. Button not working?',
+    plainLink: 'Open sign-in link',
+    starterKicker: ART.kickerStarterEn,
+    starterTitle: ART.titleStarterEn,
+    starterBody: ART.bodyStarterEn,
     spotsTitle: ART.titleSpotsEn,
   },
 } as const;
@@ -79,9 +81,10 @@ export default function SignupEmail({
 
   return (
     <Shell appUrl={appUrl} locale={locale} preview={copy.preview}>
-      {/* HERO — the home hero, one column narrower: kicker, red Providence
-          headline, the site's own lead sentence, ink CTA. */}
-      <Paper padding="40px 32px 36px">
+      {/* HERO — Kicker, Claim, der Satz, was Eat This ist, der Knopf. Der
+          Knopf ist die einzige Hauptaktion; alles darunter macht Lust, soll
+          ihn aber nicht zwischen Bildern verstecken. */}
+      <Paper padding="40px 32px 40px">
         <ArtImage
           art={copy.kicker}
           appUrl={appUrl}
@@ -98,12 +101,15 @@ export default function SignupEmail({
           art={ART.headlineSignup}
           appUrl={appUrl}
           altStyle={{ color: COLOR.text, fontSize: '30px', fontWeight: 700 }}
-          style={{ margin: '0 0 22px' }}
+          style={{ margin: '0 0 18px' }}
         />
 
-        <Lead style={{ marginBottom: '28px' }}>
-          {copy.lead}
-        </Lead>
+        <ArtImage
+          art={copy.lead}
+          appUrl={appUrl}
+          altStyle={{ color: COLOR.text, fontSize: '16px' }}
+          style={{ margin: '0 0 26px' }}
+        />
 
         <CtaButton href={magicLink} label={copy.cta} />
 
@@ -116,31 +122,10 @@ export default function SignupEmail({
         </Fineprint>
       </Paper>
 
-      {/* PHONES — auf home stehen die beiden Mockups neben der Hero-Copy,
-          gekippt und ueberlappt. In einer 600px-Spalte gibt es kein Neben-,
-          nur ein Darunter; und `transform` entfernt Gmail ohnehin. Deshalb
-          liegt das Paar als EIN vorkomponiertes Bild bei
-          (npm run build:email-phones), Kippung und Schatten eingebacken. */}
-      <Section style={{ backgroundColor: COLOR.surface, padding: '0 0 8px', textAlign: 'center' }}>
-        <img
-          src={`${appUrl}/pics/email/${PHONES_ART.id}.jpg?v=${PHONES_ART.version}`}
-          alt={PHONES_ART.alt[locale]}
-          width={PHONES_ART.width}
-          style={{
-            display: 'block',
-            border: 0,
-            margin: '0 auto',
-            height: 'auto',
-            maxWidth: '100%',
-            color: COLOR.text,
-            fontSize: '13px',
-            fontWeight: 700,
-          }}
-        />
-      </Section>
-
-      {/* STARTER PACK — the home section, rebuilt: quiet-grey panel, booster
-          artwork, yellow "Gratis" pill, red title. */}
+      {/* STARTER PACK — die Tafel aus der Tour: Pack, Kicker, Titel, Satz.
+          Bis 22.09.2026 stand davor noch das Bild mit den zwei Telefonen;
+          zwei grosse Bilder hintereinander wirkten wie ein Stapel Anhaenge
+          (Betreiber). Die Spots darunter zeigen die Map ohnehin. */}
       <Section
         className="et-pad"
         style={{ backgroundColor: COLOR.surface, padding: '0 32px 36px' }}
@@ -149,59 +134,40 @@ export default function SignupEmail({
           style={{
             backgroundColor: COLOR.raised,
             borderRadius: `${LAYOUT.radiusPhoto}px`,
-            padding: '30px 24px 32px',
+            padding: '30px 20px 30px',
             textAlign: 'center',
           }}
         >
           <ArtImage
             art={{
               id: 'booster_free',
-              width: 168,
-              height: 260,
+              width: 150,
+              height: 232,
               alt: 'Eat This Starter Pack',
               version: EMAIL_ASSET_VERSION,
             }}
             appUrl={appUrl}
             altStyle={{ color: COLOR.text, fontSize: '14px', fontWeight: 700 }}
-            style={{ margin: '0 auto 16px' }}
+            style={{ margin: '0 auto 18px' }}
           />
-
-          {/* The yellow pill from home — a padded inline anchor-free span reads
-              as a pill in every client that keeps background colours, and as
-              plain bold text in the few that don't. */}
-          <Text
-            style={{
-              margin: '0 0 12px',
-              display: 'inline-block',
-              backgroundColor: COLOR.accent,
-              color: COLOR.onAccent,
-              borderRadius: '999px',
-              padding: '5px 14px',
-              fontSize: '12px',
-              fontWeight: 700,
-              letterSpacing: '0.06em',
-            }}
-          >
-            {copy.pill}
-          </Text>
-
           <ArtImage
-            art={ART.titleStarterPack}
+            art={copy.starterKicker}
+            appUrl={appUrl}
+            altStyle={{ color: COLOR.accent, fontSize: '11px', fontWeight: 700 }}
+            style={{ margin: '0 auto 8px' }}
+          />
+          <ArtImage
+            art={copy.starterTitle}
             appUrl={appUrl}
             altStyle={{ color: COLOR.text, fontSize: '22px', fontWeight: 700 }}
-            style={{ margin: '0 auto 14px' }}
+            style={{ margin: '0 auto 12px' }}
           />
-
-          <Text
-            style={{
-              margin: 0,
-              fontSize: '15px',
-              lineHeight: 1.6,
-              color: COLOR.text,
-            }}
-          >
-            {copy.starter}
-          </Text>
+          <ArtImage
+            art={copy.starterBody}
+            appUrl={appUrl}
+            altStyle={{ color: COLOR.text, fontSize: '15px' }}
+            style={{ margin: '0 auto' }}
+          />
         </Section>
       </Section>
 

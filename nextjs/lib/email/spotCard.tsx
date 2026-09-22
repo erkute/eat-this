@@ -36,15 +36,15 @@ export interface SpotCardData {
   name: string;
   /** Bezirk, z. B. „Mitte". */
   area: string;
-  /** Küche, z. B. „Bakery". Nicht jedes Restaurant hat eine. */
-  cuisine?: string;
   /** Roh-URL aus dem Sanity-CDN, Query-String optional. */
   photo: string;
 }
 
 // Satori subset: flexbox only, every multi-child element needs display:flex.
 export function SpotCardImage({ spot }: { spot: SpotCardData }) {
-  const meta = [spot.area, spot.cuisine].filter(Boolean).join(' · ');
+  /* Nur der Bezirk: „Mitte · Bakery" sagte, was die Karte ohnehin zeigt
+     (Betreiber, 22.09.2026). */
+  const meta = spot.area;
 
   return (
     <div

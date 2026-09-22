@@ -13,7 +13,7 @@ import {
   Section,
   Text,
 } from '@react-email/components';
-import { ART } from '../art.generated';
+import { ART, type ArtAsset } from '../art.generated';
 import { BODY_FONT, COLOR, LAYOUT, EMAIL_ASSET_VERSION } from '../theme';
 import type { MailLocale } from '../locale';
 
@@ -28,39 +28,43 @@ interface ShellProps {
 /** White at ~64% over ink — the footer's muted tone, as a solid hex. */
 const FOOTER_MUTED = '#a6a09a';
 
-// Instagram steht auch im Website-Footer und ist der einzige Kanal dort, der
-// in einer Mail ueberhaupt funktioniert: "Frag Remy" ist ein Anker auf die
-// Startseite, die Cookie-Einstellungen sind ein JS-Button. Beide bleiben
-// draussen, dieser eine gehoert rein.
-// Die EN-Beschriftung folgt dem EN-Footer der Seite (footer.* in
-// lib/i18n/translations.ts): „Impressum" bleibt dort Impressum.
-const FOOTER_LINKS: Record<MailLocale, { label: string; path?: string; url?: string }[]> = {
+/* Die Links des Website-Footers, in derselben Reihenfolge und Schrift — als
+   Bilder, weil Gmail keine Webfonts laedt. Die Cookie-Einstellungen sind dort
+   ein JS-Knopf und fehlen hier; "Frag Remy" ist ein Anker auf die Startseite. */
+const FOOTER_LINKS: Record<MailLocale, { art: ArtAsset; path: string }[]> = {
   de: [
-    { label: 'Instagram', url: 'https://www.instagram.com/eatthisdotcom/' },
-    { label: 'Impressum', path: '/impressum' },
-    { label: 'Datenschutz', path: '/datenschutz' },
-    { label: 'AGB', path: '/agb' },
+    { art: ART.footerAbout, path: '/about' },
+    { art: ART.footerContact, path: '/contact' },
+    { art: ART.footerImpressum, path: '/impressum' },
+    { art: ART.footerDatenschutz, path: '/datenschutz' },
+    { art: ART.footerAgb, path: '/agb' },
   ],
   en: [
-    { label: 'Instagram', url: 'https://www.instagram.com/eatthisdotcom/' },
-    { label: 'Impressum', path: '/en/impressum' },
-    { label: 'Privacy', path: '/en/datenschutz' },
-    { label: 'Terms', path: '/en/agb' },
+    { art: ART.footerAboutEn, path: '/en/about' },
+    { art: ART.footerContactEn, path: '/en/contact' },
+    { art: ART.footerImpressum, path: '/en/impressum' },
+    { art: ART.footerDatenschutzEn, path: '/en/datenschutz' },
+    { art: ART.footerAgbEn, path: '/en/agb' },
   ],
 };
 
 const FOOTER_COPY = {
   de: {
-    reasonBefore: 'Du bekommst diese E-Mail, weil sich jemand mit dieser Adresse bei',
-    reasonAfter: 'angemeldet hat. Warst du das nicht, ignoriere sie einfach.',
-    copyright: '© 2026 Eat This. Alle Rechte vorbehalten.',
+    follow: ART.footerFollow,
+    copyright: ART.footerCopyright,
+    reason: 'Du hast keine Anmeldung angefordert? Dann kannst du diese E-Mail ignorieren.',
   },
   en: {
-    reasonBefore: 'You’re getting this email because someone signed in to',
-    reasonAfter: 'with this address. If that wasn’t you, just ignore it.',
-    copyright: '© 2026 Eat This. All rights reserved.',
+    follow: ART.footerFollowEn,
+    copyright: ART.footerCopyrightEn,
+    reason: 'Didn’t request a sign-in? Then you can ignore this email.',
   },
 } as const;
+
+const INSTAGRAM = 'https://www.instagram.com/eatthisdotcom/';
+
+/** Alt-Text einer Footer-Grafik bei blockierten Bildern: weiss, fett, klein. */
+const FOOTER_ALT = { color: COLOR.text, fontSize: '12px', fontWeight: 700 } as const;
 
 export function Shell({ preview, appUrl, locale, children }: ShellProps) {
   const footer = FOOTER_COPY[locale];
@@ -135,90 +139,117 @@ export function Shell({ preview, appUrl, locale, children }: ShellProps) {
 
           {children}
 
-          {/* FOOTER — ink block, cream wordmark, one yellow accent. Same shape
-              as SiteFooter on every route since 21.08.2026. */}
+          {/* FOOTER — wie SiteFooter: Wortmarke, Claim, „Folgen" gelb über
+              INSTAGRAM, die Links in einer Reihe, Copyright. Alles in der
+              Markenschrift, also als Bild; nur der Satz, warum diese Mail
+              kommt, bleibt echter Text. */}
           <Section
             style={{
               backgroundColor: COLOR.surface,
-              padding: '34px 24px 30px',
+              padding: '40px 24px 32px',
               textAlign: 'center',
             }}
           >
-            <Img
-              src={`${appUrl}/pics/email/eat-this-logo.png?v=${EMAIL_ASSET_VERSION}`}
-              alt="Eat This"
-              width="150"
-              style={{
-                display: 'block',
-                margin: '0 auto 12px',
-                height: 'auto',
-                border: 0,
-                color: COLOR.text,
-                fontSize: '22px',
-                fontWeight: 700,
-              }}
-            />
-            <Img
-              src={`${appUrl}/pics/email/${ART.sloganInverse.id}.png?v=${ART.sloganInverse.version}`}
-              alt={ART.sloganInverse.alt}
-              width={ART.sloganInverse.width}
-              style={{
-                display: 'block',
-                margin: '0 auto 26px',
-                height: 'auto',
-                border: 0,
-                color: COLOR.text,
-                fontSize: '11px',
-                letterSpacing: '0.16em',
-              }}
-            />
-
             <Text
+              className="et-pad"
               style={{
-                margin: '0 0 14px',
-                fontSize: '11px',
-                fontWeight: 700,
-                letterSpacing: '0.16em',
-                textTransform: 'uppercase',
-                color: COLOR.text,
-              }}
-            >
-              {FOOTER_LINKS[locale].map((l, i) => (
-                <span key={l.label}>
-                  {i > 0 && <span style={{ color: FOOTER_MUTED }}>{'  ·  '}</span>}
-                  <Link
-                    href={l.url ?? `${appUrl}${l.path}`}
-                    style={{ color: COLOR.text, textDecoration: 'none' }}
-                  >
-                    {l.label}
-                  </Link>
-                </span>
-              ))}
-            </Text>
-
-            <Text
-              style={{ margin: '0 0 6px', fontSize: '12px', lineHeight: 1.6, color: FOOTER_MUTED }}
-            >
-              {footer.reasonBefore}{' '}
-              <Link href={appUrl} style={{ color: COLOR.accent, textDecoration: 'none' }}>
-                eatthisdot.com
-              </Link>{' '}
-              {footer.reasonAfter}
-            </Text>
-            <Text
-              style={{
-                margin: 0,
-                fontSize: '10px',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
+                margin: '0 0 34px',
+                fontSize: '13px',
+                lineHeight: 1.55,
                 color: FOOTER_MUTED,
               }}
             >
-              {footer.copyright}
+              {footer.reason}
             </Text>
+            <Link href={appUrl}>
+              <Img
+                src={`${appUrl}/pics/email/eat-this-logo.png?v=${EMAIL_ASSET_VERSION}`}
+                alt="Eat This"
+                width="150"
+                style={{
+                  display: 'block',
+                  margin: '0 auto 10px',
+                  height: 'auto',
+                  border: 0,
+                  color: COLOR.text,
+                  fontSize: '22px',
+                  fontWeight: 700,
+                }}
+              />
+            </Link>
+            <FooterArt art={ART.sloganInverse} appUrl={appUrl} margin="0 auto 30px" />
+
+            <FooterArt art={footer.follow} appUrl={appUrl} margin="0 auto 6px" />
+            <Link href={INSTAGRAM}>
+              <FooterArt art={ART.footerInstagram} appUrl={appUrl} margin="0 auto 30px" />
+            </Link>
+
+            {/* Zwei Reihen Tabellenzellen statt einer umbrechenden Zeile: die
+                fünf Links sind zusammen breiter als ein Telefon, und ein
+                Bild bricht nicht um. Die Abstände und die Punkte dazwischen
+                hält in Tabellen jeder Client gleich. */}
+            {[FOOTER_LINKS[locale].slice(0, 2), FOOTER_LINKS[locale].slice(2)].map((row, r) => (
+              <table
+                key={r}
+                role="presentation"
+                cellPadding={0}
+                cellSpacing={0}
+                style={{ margin: '0 auto 10px', borderCollapse: 'collapse' }}
+              >
+                <tbody>
+                  <tr>
+                    {row.map(({ art, path }, i) => (
+                      <td key={art.id} style={{ verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                        {i > 0 && (
+                          <span style={{ color: FOOTER_MUTED, fontSize: '12px', padding: '0 1px' }}>
+                            ·
+                          </span>
+                        )}
+                        <Link href={`${appUrl}${path}`} style={{ display: 'inline-block' }}>
+                          <FooterArt art={art} appUrl={appUrl} inline />
+                        </Link>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            ))}
+
+            <FooterArt art={footer.copyright} appUrl={appUrl} margin="18px auto 0" />
           </Section>
         </Container>
       </Body>
     </Html>
+  );
+}
+
+/** Eine Footer-Zeile in der Markenschrift. Breite aus dem Manifest, keine
+ *  Höhe — bei blockierten Bildern steht dann nur der Alt-Text da. */
+function FooterArt({
+  art,
+  appUrl,
+  margin,
+  inline = false,
+}: {
+  art: ArtAsset;
+  appUrl: string;
+  margin?: string;
+  inline?: boolean;
+}) {
+  return (
+    <Img
+      src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`}
+      alt={art.alt}
+      width={art.width}
+      style={{
+        display: inline ? 'inline-block' : 'block',
+        verticalAlign: 'middle',
+        margin: inline ? 0 : margin,
+        height: 'auto',
+        maxWidth: '100%',
+        border: 0,
+        ...FOOTER_ALT,
+      }}
+    />
   );
 }

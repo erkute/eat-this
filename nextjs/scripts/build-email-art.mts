@@ -60,15 +60,49 @@ interface ArtSpec {
    * das Original. `width` ist dann nur der Startwert für den Canvas.
    */
   sameSizeAs?: string;
+  /** Schriftschnitt; Default 700 (Headlines). Fliesstext steht in 400. */
+  weight?: 400 | 700;
+  /**
+   * Fliesstext statt Zeile: feste Schriftgroesse (`size`), Umbruch bei dieser
+   * Breite in CSS-Pixeln. `width` wird dann nicht angefahren, sondern ist nur
+   * die Obergrenze — die Grafik ist so breit, wie der Text laeuft.
+   */
+  wrap?: number;
 }
 
-// Headlines mirror home: red, uppercase, tight leading, slight negative
-// tracking (--et-tracking-title). Section titles are the same voice one step
-// smaller, exactly like `.hv-title` next to its yellow marker square.
+// Headlines mirror home: uppercase, tight leading, slight negative tracking
+// (--et-tracking-title). Section titles are the same voice one step smaller.
+//
+// Seit 22.09.2026 steht ALLES Gestaltete der Mail in der Markenschrift, auch
+// Fliesstext und Footer — die Seite setzt beides in Providence, und die Mail
+// wirkte daneben wie ein Fremdkoerper (Betreiber: "da wird nicht ueberall
+// meine Font benutzt"). Live-Text bleiben nur der Knopf, der Ersatz-Link
+// darunter und der Satz, warum die Mail kommt: ohne Bilder muss sich die Mail
+// noch bedienen lassen, und Spamfilter misstrauen Mails ohne echten Text.
+const KICKER = { color: COLOR.accent, bg: COLOR.surface, size: 14, letterSpacing: 1.2 } as const;
+
+/** Fliesstext: feste Groesse, Umbruch bei `wrap`. 340 px statt der vollen
+ *  Spaltenbreite, weil ein Bild auf dem Telefon mitschrumpft — so bleibt die
+ *  Schrift dort bei ihrer Groesse, statt auf 11 px zu fallen. */
+const PARAGRAPH = { weight: 400, size: 17, lineHeight: 1.45, wrap: 340, width: 340 } as const;
+
+/** Footer-Zeilen wie im SiteFooter: Versalien, fett, leicht gesperrt. */
+const FOOTER_LINK = {
+  color: COLOR.text,
+  bg: COLOR.surface,
+  size: 13,
+  letterSpacing: 0.5,
+  // Mittig: dann hat jede Grafik links und rechts dieselbe Luft, und die
+  // Punkte zwischen den Links sitzen in der Mitte.
+  align: 'center',
+  wrap: 600,
+  width: 600,
+} as const;
+
 const ART: ArtSpec[] = [
   {
     id: 'headline-signup',
-    lines: ['WE TELL YOU', 'WHAT TO EAT'],
+    lines: ['WE TELL YOU', 'WHAT TO EAT.'],
     color: COLOR.text,
     size: 54,
     lineHeight: 0.92,
@@ -86,14 +120,70 @@ const ART: ArtSpec[] = [
     align: 'left',
     width: 470,
   },
+  { id: 'kicker-signup', lines: ['DEIN ZUGANG ZU EAT THIS'], ...KICKER, align: 'left', width: 220 },
   {
-    id: 'title-starter-pack',
-    lines: ['STARTER PACK'],
+    id: 'kicker-login',
+    lines: ['SCHÖN, DASS DU WIEDER DA BIST'],
+    ...KICKER,
+    align: 'left',
+    width: 276,
+  },
+  {
+    id: 'lead-signup',
+    lines: [
+      'Wir empfehlen dir gute Spots in Berlin – und mit unseren Must Eats die Gerichte, für die sich der Besuch lohnt.',
+    ],
+    ...PARAGRAPH,
+    color: COLOR.muted,
+    bg: COLOR.surface,
+    align: 'left',
+  },
+  {
+    id: 'lead-login',
+    lines: ['Ein Klick und deine Map ist offen — mit allem, was du schon freigeschaltet hast.'],
+    ...PARAGRAPH,
+    color: COLOR.muted,
+    bg: COLOR.surface,
+    align: 'left',
+  },
+  {
+    id: 'kicker-starter',
+    lines: ['DEIN STARTER PACK'],
+    ...KICKER,
+    bg: COLOR.raised,
+    align: 'center',
+    width: 170,
+    sameSizeAs: 'kicker-signup',
+  },
+  {
+    id: 'title-starter',
+    lines: ['20 MUST EATS.', 'GEHT AUF UNS.'],
     color: COLOR.text,
+    bg: COLOR.raised,
     size: 30,
+    lineHeight: 1,
     letterSpacing: -0.5,
     align: 'center',
-    width: 210,
+    width: 250,
+  },
+  {
+    id: 'body-starter',
+    lines: [
+      'Starte mit 20 Must Eat Empfehlungen in Berlin. Jede Karte verrät dir, was du an einem Spot bestellen solltest. Manche sind schon offen, andere deckst du erst vor Ort auf.',
+    ],
+    ...PARAGRAPH,
+    color: COLOR.text,
+    bg: COLOR.raised,
+    align: 'center',
+  },
+  {
+    id: 'title-spots',
+    lines: ['DEINE ERSTEN SPOTS'],
+    color: COLOR.text,
+    size: 26,
+    letterSpacing: -0.5,
+    align: 'left',
+    width: 260,
   },
   {
     id: 'slogan-inverse',
@@ -105,43 +195,32 @@ const ART: ArtSpec[] = [
     align: 'center',
     width: 172,
   },
-  // Kicker — auf home ist die Zeile ueber der Hero-Headline `--et-font-label`,
-  // also ebenfalls Providence. Als Live-Text konnte sie das nie sein; hier
-  // traegt sie dieselbe Schrift wie alles andere Markige in der Mail.
-  // Die Zielbreiten stehen im Verhaeltnis der Zeichenzahl (21 vs. 29), damit
-  // beide Kicker optisch gleich gross wirken.
+  // FOOTER — dieselben Zeilen wie SiteFooter, in derselben Schrift.
+  { id: 'footer-follow', lines: ['FOLGEN'], ...FOOTER_LINK, color: COLOR.accent },
   {
-    id: 'kicker-signup',
-    lines: ['WAS DU ESSEN SOLLTEST'],
-    color: COLOR.accent,
-    bg: COLOR.surface,
-    size: 14,
-    letterSpacing: 1.2,
-    align: 'left',
-    width: 200,
+    id: 'footer-instagram',
+    lines: ['INSTAGRAM'],
+    ...FOOTER_LINK,
+    weight: 400,
+    size: 30,
+    letterSpacing: 0,
   },
+  { id: 'footer-about', lines: ['ÜBER UNS'], ...FOOTER_LINK },
+  { id: 'footer-contact', lines: ['KONTAKT'], ...FOOTER_LINK },
+  { id: 'footer-impressum', lines: ['IMPRESSUM'], ...FOOTER_LINK },
+  { id: 'footer-datenschutz', lines: ['DATENSCHUTZ'], ...FOOTER_LINK },
+  { id: 'footer-agb', lines: ['AGB'], ...FOOTER_LINK },
   {
-    id: 'kicker-login',
-    lines: ['SCHÖN, DASS DU WIEDER DA BIST'],
-    color: COLOR.accent,
-    bg: COLOR.surface,
-    size: 14,
-    letterSpacing: 1.2,
-    align: 'left',
-    width: 276,
+    id: 'footer-copyright',
+    lines: ['© 2026 EAT THIS. ALLE RECHTE VORBEHALTEN.'],
+    ...FOOTER_LINK,
+    size: 11,
+    letterSpacing: 0.66,
   },
-  {
-    id: 'title-spots',
-    lines: ['SCHON MAL REINSCHAUEN'],
-    color: COLOR.text,
-    size: 26,
-    letterSpacing: -0.5,
-    align: 'left',
-    width: 290,
-  },
-  // EN-Fassungen (21.09.2026). Gleiche Schriftgröße wie die DE-Grafik, die
-  // Breite ergibt sich aus dem Text. Alles Englische, das schon englisch war
-  // (Headline Anmeldung, Starter Pack, Slogan), wird in beiden Sprachen geteilt.
+
+  // EN-Fassungen. Gleiche Schriftgröße wie die DE-Grafik, die Breite ergibt
+  // sich aus dem Text. Was in beiden Sprachen gleich lautet (Headline der
+  // Anmeldung, Slogan, Impressum), gibt es nur einmal.
   {
     id: 'headline-login-en',
     lines: ['WELCOME', 'BACK'],
@@ -155,35 +234,90 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'kicker-signup-en',
-    lines: ["BERLIN'S MUST EATS"],
-    color: COLOR.accent,
-    bg: COLOR.surface,
-    size: 14,
-    letterSpacing: 1.2,
+    lines: ['YOUR ACCESS TO EAT THIS'],
+    ...KICKER,
     align: 'left',
-    width: 200,
+    width: 220,
     sameSizeAs: 'kicker-signup',
   },
   {
     id: 'kicker-login-en',
     lines: ['GOOD TO SEE YOU AGAIN'],
-    color: COLOR.accent,
-    bg: COLOR.surface,
-    size: 14,
-    letterSpacing: 1.2,
+    ...KICKER,
     align: 'left',
     width: 276,
     sameSizeAs: 'kicker-login',
   },
   {
+    id: 'lead-signup-en',
+    lines: [
+      'We point you to great spots in Berlin – and with our Must Eats, to the dishes that make the visit worth it.',
+    ],
+    ...PARAGRAPH,
+    color: COLOR.muted,
+    bg: COLOR.surface,
+    align: 'left',
+  },
+  {
+    id: 'lead-login-en',
+    lines: ['One click and your map is open, with everything you’ve already unlocked.'],
+    ...PARAGRAPH,
+    color: COLOR.muted,
+    bg: COLOR.surface,
+    align: 'left',
+  },
+  {
+    id: 'kicker-starter-en',
+    lines: ['YOUR STARTER PACK'],
+    ...KICKER,
+    bg: COLOR.raised,
+    align: 'center',
+    width: 170,
+    sameSizeAs: 'kicker-signup',
+  },
+  {
+    id: 'title-starter-en',
+    lines: ['20 MUST EATS.', 'ON US.'],
+    color: COLOR.text,
+    bg: COLOR.raised,
+    size: 30,
+    lineHeight: 1,
+    letterSpacing: -0.5,
+    align: 'center',
+    width: 250,
+    sameSizeAs: 'title-starter',
+  },
+  {
+    id: 'body-starter-en',
+    lines: [
+      'Start with 20 Must Eat picks in Berlin. Every card tells you what to order at a spot. Some are already open, others you reveal on site.',
+    ],
+    ...PARAGRAPH,
+    color: COLOR.text,
+    bg: COLOR.raised,
+    align: 'center',
+  },
+  {
     id: 'title-spots-en',
-    lines: ['TAKE A PEEK'],
+    lines: ['YOUR FIRST SPOTS'],
     color: COLOR.text,
     size: 26,
     letterSpacing: -0.5,
     align: 'left',
-    width: 290,
+    width: 260,
     sameSizeAs: 'title-spots',
+  },
+  { id: 'footer-follow-en', lines: ['FOLLOW'], ...FOOTER_LINK, color: COLOR.accent },
+  { id: 'footer-about-en', lines: ['ABOUT'], ...FOOTER_LINK },
+  { id: 'footer-contact-en', lines: ['CONTACT'], ...FOOTER_LINK },
+  { id: 'footer-datenschutz-en', lines: ['PRIVACY'], ...FOOTER_LINK },
+  { id: 'footer-agb-en', lines: ['TERMS'], ...FOOTER_LINK },
+  {
+    id: 'footer-copyright-en',
+    lines: ['© 2026 EAT THIS. ALL RIGHTS RESERVED.'],
+    ...FOOTER_LINK,
+    size: 11,
+    letterSpacing: 0.66,
   },
 ];
 
@@ -198,8 +332,10 @@ async function rasterise(
   const size = fontSize1x * SCALE;
   // Generous canvas — the transparent surplus is trimmed off afterwards, so an
   // oversized canvas costs nothing but guarantees nothing is clipped.
-  const canvasW = Math.round(spec.width * SCALE * 3);
-  const canvasH = Math.round(size * spec.lines.length * (spec.lineHeight ?? 1.1) * 1.8) + 80;
+  const canvasW = spec.wrap ? spec.wrap * SCALE + 80 : Math.round(spec.width * SCALE * 3);
+  // Fliesstext bricht um: genug Hoehe fuer zehn Zeilen, der Rest wird getrimmt.
+  const rows = spec.wrap ? 10 : spec.lines.length;
+  const canvasH = Math.round(size * rows * (spec.lineHeight ?? 1.1) * 1.8) + 80;
 
   const png = new ImageResponse(
     React.createElement(
@@ -214,7 +350,7 @@ async function rasterise(
           alignItems: spec.align === 'center' ? 'center' : 'flex-start',
           padding: 40,
           fontFamily: BRAND_FONT_NAME,
-          fontWeight: 700,
+          fontWeight: spec.weight ?? 700,
           color: spec.color,
           fontSize: size,
           lineHeight: spec.lineHeight ?? 1.1,
@@ -222,7 +358,21 @@ async function rasterise(
         },
       },
       ...spec.lines.map((line, i) =>
-        React.createElement('div', { key: i, style: { display: 'flex' } }, line)
+        React.createElement(
+          'div',
+          {
+            key: i,
+            style: spec.wrap
+              ? {
+                  display: 'flex',
+                  width: spec.wrap * SCALE,
+                  justifyContent: spec.align === 'center' ? 'center' : 'flex-start',
+                  textAlign: spec.align ?? 'left',
+                }
+              : { display: 'flex' },
+          },
+          line
+        )
       )
     ),
     { width: canvasW, height: canvasH, fonts: faces }
@@ -241,7 +391,11 @@ const renderedSize = new Map<string, number>();
 async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBrandFont>>['faces']) {
   let art: Buffer;
   let sized: sharp.Sharp;
-  if (spec.sameSizeAs) {
+  if (spec.wrap) {
+    renderedSize.set(spec.id, spec.size);
+    art = await rasterise(spec, spec.size, faces);
+    sized = sharp(art);
+  } else if (spec.sameSizeAs) {
     const size = renderedSize.get(spec.sameSizeAs);
     if (size === undefined) throw new Error(`${spec.id}: ${spec.sameSizeAs} muss vorher stehen`);
     renderedSize.set(spec.id, size);
@@ -265,7 +419,10 @@ async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBra
     ? sized.extend({
         top: 6 * SCALE,
         bottom: 6 * SCALE,
-        left: 10 * SCALE,
+        // Linksbuendige Grafiken bekommen links keine Flaeche: sonst stuende
+        // der Kicker 10 px rechts der Headline, und ein negativer Rand zum
+        // Ausgleich ueberlebt Gmail nicht.
+        left: (spec.align === 'center' ? 10 : 0) * SCALE,
         right: 10 * SCALE,
         background: spec.bg,
       })

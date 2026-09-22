@@ -7,7 +7,7 @@
 
 import { Link } from '@react-email/components';
 import { Shell } from './components/Shell';
-import { ArtImage, CtaButton, Fineprint, Lead, Paper } from './components/Pieces';
+import { ArtImage, CtaButton, Fineprint, Paper } from './components/Pieces';
 import { ART } from './art.generated';
 import { COLOR } from './theme';
 import type { MailLocale } from './locale';
@@ -30,21 +30,21 @@ const COPY = {
     preview: 'Ein Klick und du bist drin — dein Login-Link.',
     kicker: ART.kickerLogin,
     headline: ART.headlineLogin,
-    lead: 'Ein Klick und deine Map ist offen — mit allem, was du schon freigeschaltet hast.',
-    cta: 'Einloggen',
+    lead: ART.leadLogin,
+    cta: 'Anmelden',
     fineprint:
-      'Der Link gilt 1 Stunde und nur für deine E-Mail-Adresse. Falls der Button nicht reagiert:',
-    plainLink: 'hier ist er als normaler Link',
+      'Dein Anmeldelink ist eine Stunde gültig und gilt nur für deine E-Mail-Adresse. Der Button funktioniert nicht?',
+    plainLink: 'Anmeldelink öffnen',
   },
   en: {
     preview: 'One click and you’re in — your sign-in link.',
     kicker: ART.kickerLoginEn,
     headline: ART.headlineLoginEn,
-    lead: 'One click and your map is open, with everything you’ve already unlocked.',
+    lead: ART.leadLoginEn,
     cta: 'Sign in',
     fineprint:
-      'This link is valid for 1 hour and only for your email address. If the button doesn’t work,',
-    plainLink: 'here it is as a plain link',
+      'Your sign-in link is valid for one hour and only works for your email address. Button not working?',
+    plainLink: 'Open sign-in link',
   },
 } as const;
 
@@ -75,9 +75,12 @@ export default function LoginEmail({ magicLink, appUrl, locale }: LoginEmailProp
           style={{ margin: '0 0 20px' }}
         />
 
-        <Lead style={{ marginBottom: '28px' }}>
-          {copy.lead}
-        </Lead>
+        <ArtImage
+          art={copy.lead}
+          appUrl={appUrl}
+          altStyle={{ color: COLOR.text, fontSize: '16px' }}
+          style={{ margin: '0 0 26px' }}
+        />
 
         <CtaButton href={magicLink} label={copy.cta} />
 

@@ -301,7 +301,6 @@ export const emailSpotsQuery = `
     name,
     "slug": slug.current,
     "area": coalesce(bezirkRef->name, district),
-    "cuisine": cuisineType,
     "photo": ${publishableRestaurantImageUrl('image', 'card')}
   }
 `;

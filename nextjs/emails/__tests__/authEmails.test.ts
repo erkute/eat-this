@@ -4,8 +4,8 @@ import SignupEmail, { SIGNUP_SUBJECT } from '../SignupEmail';
 import LoginEmail, { LOGIN_SUBJECT } from '../LoginEmail';
 
 const spots = [
-  { slug: 'sofi', name: 'SOFI', meta: 'Mitte · Bakery', version: 'aaaa1111' },
-  { slug: 'gemello', name: 'GEMELLO', meta: 'Prenzlauer Berg · Italian', version: 'bbbb2222' },
+  { slug: 'sofi', name: 'SOFI', meta: 'Mitte', version: 'aaaa1111' },
+  { slug: 'gemello', name: 'GEMELLO', meta: 'Prenzlauer Berg', version: 'bbbb2222' },
 ];
 
 const magicLink = 'https://x/verify?abc=1';
@@ -23,8 +23,8 @@ describe('shared shell', () => {
       expect(html.match(/\/pics\/email\/eat-this-logo\.png/g)?.length).toBe(2);
       expect(html).toContain('#15120e');
       expect(html).toContain('WE TELL YOU WHAT TO EAT');
-      expect(html).toContain('Impressum');
-      expect(html).toContain('Datenschutz');
+      expect(html).toContain('IMPRESSUM');
+      expect(html).toContain('DATENSCHUTZ');
     }
   });
 
@@ -105,9 +105,11 @@ describe('LoginEmail', () => {
   it('leads with the link and stays transactional', async () => {
     const html = await login();
     expect(html).toContain(magicLink);
-    expect(html).toContain('Einloggen');
+    // Ein Wort im Knopf, dasselbe wie überall in der App (CLAUDE.md).
+    expect(html).toContain('>Anmelden<');
+    expect(html).not.toContain('Einloggen');
     expect(html).toContain('WILLKOMMEN');
-    expect(html).toContain('1 Stunde');
+    expect(html).toContain('eine Stunde gültig');
     expect(LOGIN_SUBJECT.de).toContain('Login-Link');
   });
 
@@ -125,17 +127,26 @@ describe('SignupEmail', () => {
      — er ist das Einzige, was ein Postfach mit blockierten Bildern davon
      sieht. Was das Pack seit dem 06.09.2026 enthaelt, sind Must-Eat-Karten
      statt Spots; der Name ist geblieben. */
-  it('shows the home hero, the CTA and the starter pack panel', async () => {
+  it('shows the claim, the CTA and the starter pack panel', async () => {
     const html = await signup();
     expect(html).toContain(magicLink);
     expect(html).toContain('>Anmelden<');
-    expect(html).toContain('WE TELL YOU WHAT TO EAT');
-    expect(html).toContain('Gute Spots findest du überall.');
-    expect(html).toContain('STARTER PACK');
-    expect(html).toContain('Gratis');
+    expect(html).toContain('DEIN ZUGANG ZU EAT THIS');
+    expect(html).toContain('WE TELL YOU WHAT TO EAT.');
+    // Nicht nur wohin, sondern was bestellen (Betreiber, 22.09.2026).
+    expect(html).toContain('die Gerichte, für die sich der Besuch lohnt');
+    expect(html).not.toContain('Gute Spots findest du überall');
+    expect(html).toContain('DEIN STARTER PACK');
+    expect(html).toContain('20 MUST EATS. GEHT AUF UNS.');
     expect(html).toContain('/pics/email/booster_free.png');
-    expect(html).toContain('20 Must Eats, überall in Berlin verteilt.');
-    expect(SIGNUP_SUBJECT.de).toContain('Willkommen');
+    expect(html).toContain('Anmeldelink öffnen');
+    expect(SIGNUP_SUBJECT.de).toBe('Dein Anmeldelink für Eat This');
+  });
+
+  /* Zwei grosse Bilder hintereinander (Telefone, dann das Pack) wirkten wie
+     ein Stapel Anhaenge — die Telefone sind raus (Betreiber, 22.09.2026). */
+  it('zeigt die Telefone nicht mehr', async () => {
+    expect(await signup()).not.toContain('/pics/email/phones');
   });
 
   it('spots are pre-rendered static cards that deep-link onto the map', async () => {
@@ -149,7 +160,8 @@ describe('SignupEmail', () => {
     expect(html).toContain('/map?r=sofi');
     expect(html).toContain('/map?r=gemello');
     // Alt text carries the full wording for blocked-images clients.
-    expect(html).toContain('SOFI — Mitte · Bakery');
+    expect(html).toContain('SOFI — Mitte');
+    expect(html).not.toContain('Bakery');
   });
 
   it('never points at a runtime image endpoint', async () => {
@@ -220,6 +232,9 @@ describe('EN-Fassung', () => {
   const GERMAN = [
     'Anmelden',
     'Einloggen',
+    'Anmeldelink',
+    'GEHT AUF UNS',
+    'DEINE ERSTEN',
     'Stunde',
     'Gratis',
     'WILLKOMMEN',
@@ -228,7 +243,7 @@ describe('EN-Fassung', () => {
     'SCHON MAL',
     'Datenschutz',
     'AGB',
-    'Du bekommst',
+    'Du hast keine',
     'Alle Rechte',
     'Die Eat-This-App',
   ];
@@ -237,8 +252,8 @@ describe('EN-Fassung', () => {
     for (const html of [await signupEn(), await loginEn()]) {
       expect(html).toContain('lang="en"');
       for (const word of GERMAN) expect(html).not.toContain(word);
-      expect(html).toContain('1 hour');
-      expect(html).toContain('All rights reserved.');
+      expect(html).toContain('one hour');
+      expect(html).toContain('ALL RIGHTS RESERVED.');
       expect(html).toContain('/en/datenschutz');
     }
   });
@@ -246,12 +261,12 @@ describe('EN-Fassung', () => {
   it('Anmelde-Mail: ein Wort im Knopf, Starter-Pack-Satz der Seite, EN-Grafiken', async () => {
     const html = await signupEn();
     expect(html).toContain('>Sign up<');
-    expect(html).toContain('20 Must Eats, spread all over Berlin.');
-    expect(html).toContain('>Free<');
+    expect(html).toContain('20 MUST EATS. ON US.');
     expect(html).toContain('/pics/email/kicker-signup-en.png');
+    expect(html).toContain('/pics/email/body-starter-en.png');
     expect(html).toContain('/pics/email/title-spots-en.png');
     expect(html).toContain('/en/map?r=sofi');
-    expect(SIGNUP_SUBJECT.en).toBe('Welcome to Eat This — your sign-up link');
+    expect(SIGNUP_SUBJECT.en).toBe('Your Eat This sign-in link');
   });
 
   it('Login-Mail: Sign in, WELCOME BACK', async () => {

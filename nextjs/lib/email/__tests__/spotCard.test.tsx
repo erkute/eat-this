@@ -35,7 +35,6 @@ describe('SpotCardImage', () => {
   const spot = {
     name: 'Sofi',
     area: 'Mitte',
-    cuisine: 'Bakery',
     photo: 'https://cdn.sanity.io/images/x/y/a.png',
   };
 
@@ -43,11 +42,12 @@ describe('SpotCardImage', () => {
     return JSON.stringify(node);
   }
 
-  it('composes the public restaurant photo, name and meta line', () => {
+  it('composes the public restaurant photo, name and district', () => {
     const tree = flatten(SpotCardImage({ spot }));
     expect(tree).toContain('fm=jpg'); // photo layer
     expect(tree).toContain('Sofi'); // name in the brand face
-    expect(tree).toContain('Mitte · Bakery'); // meta under the name, as on home
+    expect(tree).toContain('Mitte'); // district under the name
+    expect(tree).not.toContain(' · '); // no cuisine — the photo shows it
     expect(tree).not.toContain('rotate(14deg)');
     expect(tree).not.toContain('fm=png');
   });
@@ -58,11 +58,5 @@ describe('SpotCardImage', () => {
     expect(tree).toContain('EatThisDisplay');
     expect(tree).not.toContain('Schoolbell');
     expect(tree).not.toContain('Saira');
-  });
-
-  it('handles a missing cuisine without a dangling separator', () => {
-    const tree = flatten(SpotCardImage({ spot: { ...spot, cuisine: undefined } }));
-    expect(tree).toContain('Mitte');
-    expect(tree).not.toContain('Mitte ·');
   });
 });

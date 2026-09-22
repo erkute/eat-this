@@ -13,7 +13,10 @@ import { AVATAR_CHOICES, avatarSrc } from './avatarChoices';
 import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './Tour.module.css';
 
-/** Muss zur Laenge der Keyframes in SignInReward.module.css passen. */
+/** So lange sieht man die gelandeten Stapel, bevor die Erklaerung kommt. */
+const STACKS_PAUSE_MS = 700;
+
+/** Muss zur Laenge der Keyframes in Tour.module.css passen (cardOut, wrapperDrop). */
 const PACK_OPEN_MS = 3600;
 
 const copy = {
@@ -42,7 +45,7 @@ const copy = {
       opened: 'Deine ersten 20 Karten.',
       lead: '20 Must-Eat-Karten für deinen Start.',
       explain:
-        'Auf jeder Karte steht ein Gericht. Die offenen siehst du schon in deinem Deck. Die verdeckten deckst du erst am Spot auf.',
+        'Jede Karte steht für ein Must-Eat – unsere Empfehlung, was du am Spot bestellen solltest. Manche liegen schon offen in deinem Deck. Die anderen deckst du erst vor Ort auf.',
       openStack: '10 offen',
       coveredStack: '10 verdeckt',
       open: 'Öffnen',
@@ -95,7 +98,7 @@ const copy = {
       opened: 'Your first 20 cards.',
       lead: '20 Must Eat cards to get you started.',
       explain:
-        'Every card is a dish. The open ones are already in your deck. You reveal the covered ones at the spot.',
+        'Every card stands for a Must Eat – our pick for what to order at the spot. Some are already open in your deck. You reveal the others on site.',
       openStack: '10 open',
       coveredStack: '10 covered',
       open: 'Open',
@@ -211,6 +214,9 @@ export default function SignInReward() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [pack, setPack] = useState<PackPhase>('sealed');
+  /* Die aktuelle Seite fuer Timer, die nach dem Rendern feuern. */
+  const pageRef = useRef<string | number>('');
+  const justOpened = useRef(false);
   /* Gesetzt, wenn das Konto noch keinen Charakter hat (Google — der
      Magic-Link fragt auf /welcome). Dann ist sie die erste Seite. */
   const [identity, setIdentity] = useState<Identity | null>(null);
@@ -347,7 +353,28 @@ export default function SignInReward() {
   useEffect(() => {
     if (pack !== 'opening') return;
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const timer = window.setTimeout(() => setPack('open'), reduced ? 0 : PACK_OPEN_MS);
+    const timer = window.setTimeout(
+      () => {
+        justOpened.current = true;
+        setPack('open');
+      },
+      reduced ? 0 : PACK_OPEN_MS
+    );
+    return () => window.clearTimeout(timer);
+  }, [pack]);
+
+  /* Liegen die Stapel, kommt die Erklaerung von selbst — nach einer kurzen
+     Pause, damit man die zwei Stapel erst sieht. Nur direkt nach dem Oeffnen
+     (nicht beim Zurueckblaettern) und nur, wenn noch niemand selbst
+     weitergeklickt hat; sonst uebersprang das einen Schritt. Ein eigener
+     Effekt: im Oeffnen-Effekt raeumte der Wechsel auf 'open' den Timer
+     gleich wieder ab. */
+  useEffect(() => {
+    if (pack !== 'open' || !justOpened.current) return;
+    justOpened.current = false;
+    const timer = window.setTimeout(() => {
+      setStep((current) => (pageRef.current === 'pack' ? current + 1 : current));
+    }, STACKS_PAUSE_MS);
     return () => window.clearTimeout(timer);
   }, [pack]);
 
@@ -359,6 +386,7 @@ export default function SignInReward() {
 
   const steps = pages(identity);
   const page = steps[step];
+  pageRef.current = page;
   const last = step === steps.length - 1;
   const close = () => setOpen(false);
 

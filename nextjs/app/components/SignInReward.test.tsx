@@ -107,13 +107,13 @@ describe('Ankunft nach der Anmeldung', () => {
     expect((screen.getByRole('button', { name: 'Öffnet …' }) as HTMLButtonElement).disabled).toBe(
       true
     );
+    /* Waehrend die Karten fliegen, bleibt der Text stehen ... */
     act(() => void vi.advanceTimersByTime(3600));
-    /* Der Text wartet auf den Klick — erst der naechste Schritt erklaert die
-       zwei Stapel. */
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
     expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('true');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    /* ... und kurz nachdem die Stapel liegen, kommt die Erklaerung von selbst. */
+    act(() => void vi.advanceTimersByTime(700));
     expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
     expect(screen.getByText('10 offen').getAttribute('aria-hidden')).toBe('false');
     expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('false');
@@ -161,7 +161,7 @@ describe('Ankunft nach der Anmeldung', () => {
     await arrive();
     fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
     act(() => void vi.advanceTimersByTime(3600));
-    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    act(() => void vi.advanceTimersByTime(700));
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
 
     expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
@@ -172,6 +172,16 @@ describe('Ankunft nach der Anmeldung', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Karte umdrehen' }));
     expect(flipper.className).toContain('flipped');
+  });
+
+  it('ueberspringt nichts, wenn jemand vor der Automatik selbst weiterklickt', async () => {
+    render(<SignInReward />);
+    await arrive();
+    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
+    act(() => void vi.advanceTimersByTime(3600));
+    fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
+    act(() => void vi.advanceTimersByTime(700));
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
   });
 
   it('startet nicht unter dem Wartescreen — der ist fast deckend', async () => {

@@ -13,7 +13,6 @@ const moduleNames = [
   'MapListEmpty.module.css',
   'MapIntro.module.css',
   'MapSeoFooter.module.css',
-  'MapViewToggle.module.css',
   'RestaurantList.module.css',
   'RestaurantGalleryLightbox.module.css',
   'MustEatImageLightbox.module.css',
@@ -55,28 +54,6 @@ function declarationsInMedia(name: string, selector: string, mediaParams: string
   });
 
   return matches;
-}
-
-function declarations(name: string, selector: string) {
-  const root = postcss.parse(readFileSync(modulePath(name), 'utf8'));
-  const found: Record<string, string> = {};
-  root.walkRules((rule) => {
-    if (rule.selector !== selector) return;
-    if (rule.parent?.type === 'atrule') return;
-    rule.walkDecls((declaration) => {
-      found[declaration.prop] = declaration.value;
-    });
-  });
-  return found;
-}
-
-/** Sum of the plain `Npx` terms in a calc() — the parts that do not depend on
- *  the device (safe area) or on runtime state (cookie bar). */
-function fixedPx(value: string) {
-  return [...value.matchAll(/(?:^|\+)\s*(\d+(?:\.\d+)?)px/g)].reduce(
-    (total, match) => total + Number(match[1]),
-    0
-  );
 }
 
 describe('Map CSS architecture', () => {
@@ -344,31 +321,6 @@ describe('Map CSS architecture', () => {
         );
       }
     }
-  });
-
-  /* The pill is `position: fixed` over the phone list, so nothing in the list
-     reserves space for it. Without a matching padding on the scroller the last
-     row sits underneath — which is how the All-Berlin banner's sign-in line
-     ended up covered. Both halves live in different modules, so assert them
-     against each other rather than against a magic number. */
-  it('keeps the end of the phone list clear of the map/list pill', () => {
-    const pill = declarations('MapViewToggle.module.css', '.toggle');
-    const [listScroll] = declarationsInMedia(
-      'MapSheet.module.css',
-      '.listScroll',
-      '(max-width: 767.98px)'
-    );
-
-    expect(pill.position).toBe('fixed');
-    const pillHeight = Number.parseFloat(pill['min-height']) + 2 * Number.parseFloat(pill.border);
-    expect(pillHeight).toBeGreaterThan(0);
-
-    const padding = listScroll['padding-bottom'].replaceAll(/\s+/g, ' ');
-    // The pill's own offset from the bottom edge, term for term.
-    expect(padding).toContain('max(18px, calc(env(safe-area-inset-bottom, 0px) + 14px))');
-    expect(padding).toContain('var(--consent-bar-h, 0px)');
-    // ... plus at least the pill itself.
-    expect(fixedPx(padding)).toBeGreaterThanOrEqual(pillHeight);
   });
 
   it('contains only the MapLibre controls that are actually mounted', () => {

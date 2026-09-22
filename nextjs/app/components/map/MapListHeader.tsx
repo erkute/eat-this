@@ -1,5 +1,14 @@
 'use client';
-import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type Ref } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type Ref,
+} from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
@@ -10,6 +19,10 @@ import styles from './MapFilters.module.css';
 
 interface Props {
   headerRef: Ref<HTMLDivElement | null>;
+  /** The sheet's drag handle. It sits in this bar because the bar sticks: deep
+   *  in the list the handle is the way back to the map (useHandleScrollDrag),
+   *  so it must never scroll away. */
+  grabber: ReactNode;
 
   categories: CategoryDef[];
   category: MapCategory;
@@ -40,6 +53,7 @@ type ChipKind = 'category' | 'bezirk' | 'price';
 
 export default function MapListHeader({
   headerRef,
+  grabber,
   categories,
   category,
   onCategoryChange,
@@ -115,6 +129,7 @@ export default function MapListHeader({
 
   return (
     <div ref={headerRef} className={styles.listHeader}>
+      {grabber}
       {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
       <div
         className={`${styles.filterChipRow} ${chipsPaused ? styles.filterChipRowPaused : ''}`}

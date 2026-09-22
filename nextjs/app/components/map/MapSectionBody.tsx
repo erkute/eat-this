@@ -33,7 +33,6 @@ import MapIntro from './MapIntro';
 import { SearchGlassIcon } from './icons';
 import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
-import MapViewToggle from './MapViewToggle';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './MapLayout.module.css';
@@ -234,13 +233,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     restaurantsListAriaLabel,
   } = props;
 
-  /* Every input that reorders or re-scopes the list, in one string. The map
-     toggle forgets its remembered scroll position whenever this changes. */
+  /* Every input that reorders or re-scopes the list, in one string. */
   const listFilterKey = `${category}|${bezirk ?? ''}|${price ?? ''}|${openOnly}|${search.trim()}`;
 
   /* Wie viele Listenzeilen gerendert werden. Der Stand liegt hier und nicht in
-     RestaurantList, weil ein Sprung ins Detail die Liste aushängt: der
-     View-Toggle stellt beim Zurück die alte Scroll-Position wieder her, und
+     RestaurantList, weil ein Sprung ins Detail die Liste aushängt: beim
+     Zurück wird die alte Scroll-Position wiederhergestellt, und
      eine in der Liste gehaltene Zahl wäre dann wieder bei INITIAL_LIST_ROWS —
      die Seite wäre kürzer als die Position, auf die zurückgesprungen wird.
      Ein neuer Filter ist dagegen eine neue Liste und fängt oben an. */
@@ -503,6 +501,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     io.observe(sentinel);
     return () => io.disconnect();
   }, [sheetView]);
+
+  const sheetHandle = (
+    <div ref={handleRef} className={sheetStyles.handle} data-sheet-handle="" aria-hidden="true" />
+  );
 
   return (
     <main
@@ -774,12 +776,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             aria-hidden={desktopPanelHidden || undefined}
             inert={desktopPanelHidden || undefined}
           >
-            <div
-              ref={handleRef}
-              className={sheetStyles.handle}
-              data-sheet-handle=""
-              aria-hidden="true"
-            />
+            {/* In the list the handle rides in the sticky filter bar instead
+                (see MapListHeader) — deep in the list it is the way back to
+                the map, so it has to stay on screen. */}
+            {sheetView === 'detail' && sheetHandle}
 
             {/* Stuck-detection sentinel for the floating map controls (phones).
                 Sits directly under the handle so it leaves the viewport the
@@ -840,6 +840,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <>
                 <MapListHeader
                   headerRef={setHeaderRef}
+                  grabber={sheetHandle}
                   categories={categories}
                   category={category}
                   onCategoryChange={setCategory}
@@ -873,11 +874,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               </>
             )}
           </aside>
-
-          {/* Phone list only. Mounted unconditionally so the list position it
-              remembers survives a trip into a detail and back — see the
-              component. */}
-          <MapViewToggle sheetView={sheetView} filterKey={listFilterKey} />
 
           <MapDataNotice
             loading={mapDataLoading}

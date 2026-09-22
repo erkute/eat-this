@@ -42,7 +42,7 @@ const copy = {
       opened: 'Deine ersten 20 Karten.',
       lead: '20 Must-Eat-Karten für deinen Start.',
       explain:
-        'Die offenen liegen schon in deinem Deck. Die verdeckten deckst du am Spot auf. Dann weißt du, was du dort bestellen musst.',
+        'Auf jeder Karte steht ein Gericht. Die offenen siehst du schon in deinem Deck. Die verdeckten gehen erst am Spot auf.',
       openStack: '10 offen',
       coveredStack: '10 verdeckt',
       open: 'Öffnen',
@@ -88,7 +88,7 @@ const copy = {
       opened: 'Your first 20 cards.',
       lead: '20 Must Eat cards to get you started.',
       explain:
-        'The open ones are already in your deck. You reveal the covered ones at the spot. Then you know what to order there.',
+        'Every card is a dish. The open ones are already in your deck. The covered ones open at the spot.',
       openStack: '10 open',
       coveredStack: '10 covered',
       open: 'Open',

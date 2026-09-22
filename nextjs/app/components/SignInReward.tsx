@@ -292,10 +292,26 @@ export default function SignInReward() {
     if (process.env.NODE_ENV === 'development') {
       const query = new URLSearchParams(window.location.search);
       const preview = query.get('preview');
-      /* `&cards=<id>,<id>` legt oeffentliche Must Eats ins Vorschau-Pack. */
-      const cards = query.get('cards')?.split(',').filter(Boolean) ?? [];
-      if (preview === 'welcome') reveal(null, cards);
-      if (preview === 'welcome-google') reveal({ name: 'Alex', preview: true }, cards);
+      /* Ohne Konto zieht niemand ein Pack — die Vorschau legt deshalb die
+         oeffentlichen Must Eats hinein (reihum, bis zehn Plaetze voll sind),
+         sonst laege zehnmal dieselbe Beispielkarte offen. `&cards=<id>,<id>`
+         gibt die Karten stattdessen vor. */
+      const previewCards = async () => {
+        const given = query.get('cards')?.split(',').filter(Boolean);
+        if (given?.length) return given;
+        const data = (await fetch('/api/map-data').then((res) => res.json())) as {
+          revealedMustEatIds?: string[];
+        };
+        const ids = data.revealedMustEatIds ?? [];
+        return ids.length ? Array.from({ length: 10 }, (_, i) => ids[i % ids.length]!) : [];
+      };
+      if (preview === 'welcome' || preview === 'welcome-google') {
+        const prefill = preview === 'welcome-google' ? { name: 'Alex', preview: true } : null;
+        previewCards().then(
+          (cards) => reveal(prefill, cards),
+          () => reveal(prefill)
+        );
+      }
     }
     return () => {
       alive = false;

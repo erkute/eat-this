@@ -135,6 +135,13 @@ export async function POST(req: Request) {
   /* Ihre Bilder sind nicht öffentlich — die Bild-Route liefert sie nur mit
      der Capability. Dieselbe Menge, die /api/map-data jetzt setzen würde:
      alles bisher Offene plus das Pack. */
-  setPremiumAccessCookie(res, [...surface.faceUpIds, ...mustEatIds], uid);
+  try {
+    setPremiumAccessCookie(res, [...surface.faceUpIds, ...mustEatIds], uid);
+  } catch (err) {
+    /* Das Pack liegt schon — ohne Cookie zeigt die Tour Beispielkarten, und
+       /api/map-data setzt die Capability beim naechsten Laden. Kein 500er
+       fuer ein vergebenes Pack. */
+    Sentry.captureException(err, { extra: { uid, source: 'starter-pack-capability' } });
+  }
   return res;
 }

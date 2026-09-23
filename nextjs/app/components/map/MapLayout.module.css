@@ -247,6 +247,11 @@
   outline-offset: 2px;
 }
 
+/* Phone only; see the phone block below. */
+.mapStrip {
+  display: none;
+}
+
 @media (max-width: 767.98px) {
   .shell {
     /* Resting stop of the three-stage sheet ("map"), mirrored in JS by
@@ -276,16 +281,10 @@
     height: auto;
     overflow: visible;
     position: relative;
-    /* The phone map lies UNDER the sheet at z-index -1 and rises over it for
-       the strip; the sheet's bars ride above both (z 8). A stacking context
-       of its own keeps the -1 above this body's background. */
+    /* The phone map lies UNDER the sheet at z-index -1, the map strip over
+       it (7), the sheet's bars over both (8). A stacking context of its own
+       keeps the -1 above this body's background. */
     isolation: isolate;
-    /* How much of the sheet's sticky bar the lifted map covers besides the
-       strip (see the strip rule below). */
-    --stuck-cover: 80px;
-  }
-  .body[data-map-view='detail'] {
-    --stuck-cover: 26px;
   }
   .mapWrap {
     position: sticky;
@@ -330,34 +329,44 @@
     visibility: hidden;
   }
 
-  /* The map strip. Once the sheet's bar sticks (below the strip), the map
-     rises OVER the sheet's rows — clipped to the strip plus the bar's height,
-     with the bar itself still above it (z 8) — so the rows scrolling past
-     vanish under a slice of map instead of showing above the bar. Covering
-     the bar's height too is what keeps the late "stuck" frames clean when
-     the list comes back DOWN: the bar is already moving away from the strip
-     line, and the map behind it is what shows (user, 23.09.2026: „oben leicht
-     schwarz").
+  /* The map strip: the map's top slice, copied frame by frame into a layer
+     fixed above the list (lib/map/mapStripMirror), so the rows scrolling up
+     vanish under map and the sticky bar rests below it. Over the map it is
+     pixel for pixel the map, so it can stay on at every depth — nothing
+     switches, nothing can come late (user, 23.09.2026). Search and burger
+     stand above it (MapControls.module.css). Ink, like .mapWrap: it touches
+     the top edge, and iOS 26 Safari tints its bar after such an element.
 
-     The phone sheet is no stacking context of its own (z-index auto), which
-     is what lets the map slide in between its rows and its bars. It lifts a
-     little before the sheet's top edge reaches the strip line and drops the
-     moment it leaves it (the stuck effect in MapSectionBody) — both while the
-     lifted map covers what is map anyway, so the flip is invisible. A tap on the strip takes you to the map
-     (MapSectionBody); the canvas is inert there, a strip of map is not for
-     panning — search and burger in it stay live. 72px so both fit above the
-     bar. Not in the must-eat takeover: its map is hidden. And not while the
-     grabber is moving the sheet (data-sheet-sliding, lib/map/sheetSlide):
-     then the map has to lie whole behind it. */
-  .body[data-header-stuck='true']:not([data-detail-kind='must-eat']):not([data-sheet-sliding])
-    .mapWrap {
-    /* Over the rows and the sheet's surface, under its bars (8). */
-    z-index: 5;
-    clip-path: inset(0 0 calc(100% - var(--map-strip) - var(--stuck-cover)) 0);
+     Inert over the map, where a finger means to pan the map under it; it
+     takes taps once the bar is stuck, and a tap goes to the map
+     (MapSectionBody). Not in the must-eat takeover: no map there. */
+  .mapStrip {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--map-strip);
+    z-index: 7;
+    overflow: hidden;
+    background-color: var(--et-home-ink, #15120e);
+    pointer-events: none;
+  }
+  .body[data-header-stuck='true'] .mapStrip {
+    pointer-events: auto;
     cursor: pointer;
   }
-  .body[data-header-stuck='true']:not([data-detail-kind='must-eat']):not([data-sheet-sliding])
-    .liveMapLayer {
+  .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapStrip {
+    display: none;
+  }
+  .mapStripCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .mapStripPins {
+    position: absolute;
+    inset: 0;
     pointer-events: none;
   }
 }

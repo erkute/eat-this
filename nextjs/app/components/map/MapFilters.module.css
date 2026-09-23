@@ -414,13 +414,11 @@
 @media (max-width: 767.98px) {
   .listHeader {
     position: sticky;
-    /* Liegt unter dem Statusleisten-Band. Das Band selbst deckt die Kappe in
-       MapSheet.module.css ab, und nur solange der Header wirklich klebt — den
-       Inset hier als Padding zu tragen reservierte den Platz bei jeder
-       Scrollposition und ließ über den Chips totes Weiß stehen. */
-    /* Below the map strip (MapLayout.module.css), not at the very top. */
+    /* Below the map strip (MapLayout.module.css), which also covers the
+       status-bar band — carrying the inset here as padding reserved the
+       space at every scroll position and left dead space above the chips. */
     top: var(--map-strip, env(safe-area-inset-top, 0px));
-    /* Above the lifted map strip (5, MapLayout.module.css). */
+    /* Above the map strip (7, MapLayout.module.css). */
     z-index: 8;
     background: var(--et-home-ink, #15120e);
     /* The sheet's edge lives here, not on the sheet (MapSheet.module.css:

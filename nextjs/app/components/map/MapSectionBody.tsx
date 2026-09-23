@@ -19,8 +19,7 @@ import {
 } from '@/lib/map/locationStatus';
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
-import { safeAreaInsetTop } from '@/lib/map/safeArea';
-import { mapStripLine, SHEET_COLLAPSE_EVENT, STUCK_LEAD_PX } from '@/lib/map/sheetSlide';
+import { mapStripLine, SHEET_COLLAPSE_EVENT } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
@@ -474,39 +473,26 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
   /* The must-eat detail is a takeover with its map hidden — no strip there. */
   const hasMapStrip = !(sheetView === 'detail' && selectedMustEat);
-  /* "The sheet's bar is stuck": drives the map strip (MapLayout.module.css)
-     and the status-band cap. Worked out from the scroll position on every
-     scroll event and written straight onto the DOM — not an
-     IntersectionObserver feeding React state. That route reported a frame or
-     two late on iOS (callback task, then a re-render of this whole body), and
-     on a fast flick the rows ran up out of the bar before the map covered
-     them; the re-render at that moment was also the small hitch while pushing
-     the list up (user, 23.09.2026).
-
-     Direction matters in a band just below the line. Going up, the map lifts
-     STUCK_LEAD before the sheet reaches the strip line — invisible, because
-     the lifted map also covers the bar's height (--stuck-cover) and the bar
-     stays on top of it — which buys a late frame that much room before any
-     row can show above the bar. Coming down, it drops the moment the sheet
-     leaves the line, so a late frame still has the lifted map reaching past
-     the sheet's edge. */
+  /* "The sheet's bar is stuck": the map strip takes taps then (a tap there
+     goes to the map), and not before, when it lies over the map itself and a
+     finger there means to pan. Nothing visible hangs on it any more — the
+     strip is always drawn (lib/map/mapStripMirror) — so a late frame is
+     harmless. Worked out from the scroll position and written straight onto
+     the DOM, not rendered: this whole body re-rendering on a flick was a
+     hitch of its own (user, 23.09.2026). */
   useEffect(() => {
     const body = document.querySelector<HTMLElement>('[data-map-body]');
     const sheet = document.querySelector<HTMLElement>('[data-map-sheet]');
     const mark = (on: boolean) => {
-      for (const el of [body, sheet]) {
-        if (!el) continue;
-        if (on) el.setAttribute('data-header-stuck', 'true');
-        else el.removeAttribute('data-header-stuck');
-      }
+      if (!body) return;
+      if (on) body.setAttribute('data-header-stuck', 'true');
+      else body.removeAttribute('data-header-stuck');
     };
-    if (!body || !sheet || !window.matchMedia('(max-width: 767.98px)').matches) {
+    if (!body || !sheet || !hasMapStrip || !window.matchMedia('(max-width: 767.98px)').matches) {
       mark(false);
       return;
     }
-    const line = hasMapStrip ? mapStripLine() : safeAreaInsetTop();
-    /* Never more than the lifted map covers below the strip line. */
-    const lead = hasMapStrip ? (sheetView === 'detail' ? 26 : STUCK_LEAD_PX) : 0;
+    const line = mapStripLine();
     /* The sheet's document offset, read through the offset chain: it ignores
        the transform the grabber puts on the sheet mid-gesture, and it does
        not force a layout on a scroll event. */
@@ -518,24 +504,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       return top;
     };
     let stuck = body.getAttribute('data-header-stuck') === 'true';
-    let lastEdge: number | null = null;
     const update = () => {
       /* The burger drawer pins the page (body position: fixed) and the window
-         reads scrollY 0 while it is open. Taken at face value that dropped the
-         strip under the drawer and lifted it again on close — a flash in the
-         map area (user, 23.09.2026). The page has not moved; neither does
-         "stuck". */
+         reads scrollY 0 while it is open. The page has not moved. */
       if (document.body.dataset.burgerLockMode) return;
-      const edge = sheetDocTop() - window.scrollY;
-      /* Above the line: stuck. Below the lead band: not. Inside the band the
-         direction decides — rising, lift early; sinking, drop at once. Both
-         are safe there, the lifted map reaches down past the band. */
-      let next = stuck;
-      if (edge <= line) next = true;
-      else if (edge >= line + lead) next = false;
-      else if (lastEdge !== null && edge < lastEdge) next = true;
-      else if (lastEdge !== null && edge > lastEdge) next = false;
-      lastEdge = edge;
+      /* A pixel of slack for the rounding of the sticky bar's position. */
+      const next = sheetDocTop() - window.scrollY <= line + 1;
       if (next === stuck) return;
       stuck = next;
       mark(next);
@@ -639,20 +613,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               : ({ '--locate-bottom': `${locateBottom}px` } as CSSProperties)
           }
         >
-          {/* A tap on the map strip (the stuck state only) takes you to the
-              map, like a tap on the grabber. A pointer shortcut on top of the
-              map it already is — no control of its own. */}
-          <div
-            className={styles.mapWrap}
-            data-map-canvas=""
-            onClick={(e) => {
-              const body = e.currentTarget.closest<HTMLElement>('[data-map-body]');
-              if (body?.getAttribute('data-header-stuck') !== 'true' || !hasMapStrip) return;
-              /* Search stands in the strip too; its own taps are its own. */
-              if ((e.target as Element).closest('button, input, a')) return;
-              window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
-            }}
-          >
+          <div className={styles.mapWrap} data-map-canvas="">
             {/* Die H1 der Seite — im HTML, aber visuell ausgeblendet (seit
                 23.09.2026, siehe MapIntro). Steht in der Kartenhülle, damit
                 sie im Must-Eat-Takeover mit der Karte verschwindet. */}
@@ -676,78 +637,96 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               />
             </div>
 
-            {/* Floating search — collapsed to a square icon button by
-                default (2026-06-04: the always-on toolbar read too loud over
-                the tiles). Tapping expands the full input; it stays open
-                while a query is active so the filter is never invisible. */}
-            {searchOpen || search ? (
-              <div
-                className={controlStyles.mapSearchToolbar}
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <SearchGlassIcon className={controlStyles.mapSearchIcon} />
-                <input
-                  ref={searchInputRef}
-                  type="search"
-                  name="map-search"
-                  value={search}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  onBlur={() => {
-                    if (!search) setSearchOpen(false);
-                  }}
-                  placeholder={locale === 'en' ? 'Spot, area, dish' : 'Spot, Kiez, Gericht'}
-                  className={controlStyles.mapSearchInput}
-                  aria-label={searchLabel}
-                  autoComplete="off"
-                />
-                <button
-                  type="button"
-                  className={controlStyles.mapSearchClear}
-                  onClick={() => {
-                    onSearchChange('');
-                    setSearchOpen(false);
-                  }}
-                  aria-label={locale === 'en' ? 'Clear search' : 'Suche zurücksetzen'}
-                >
-                  {/* Zwei Striche, ungleich lang und je eigen gekippt — dieselbe
-                      Handschrift wie die Lupe links daneben und die drei
-                      Burger-Balken (19/22/15px). Als exaktes, symmetrisches
-                      Kreuz war es das einzige konstruierte Zeichen in der
-                      Reihe. */}
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M6.6 6.2c3.6 3.9 7.4 7.6 11.2 11.4" strokeWidth="2.6" />
-                    <path d="M17.4 6.8c-3.3 3.4-6.8 6.8-10.3 10.1" strokeWidth="2.1" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className={controlStyles.mapSearchBtn}
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSearchOpen();
-                }}
-                aria-label={searchLabel}
-              >
-                <SearchGlassIcon className={controlStyles.mapSearchIcon} />
-              </button>
-            )}
-
             {/* Desktop floating modals removed — both mobile and desktop now
                 render the detail in the side panel / bottom sheet so the
                 selected marker stays visible on the map. */}
           </div>
+
+          {/* The phone map strip (lib/map/mapStripMirror): a copy of the map's
+              top slice, fixed above the list, so the rows run under map all
+              the way up. Always there, never switched — over the map it is
+              the map. A tap on it once the bar is stuck takes you to the map,
+              like a tap on the grabber. After the map wrapper in the DOM, so
+              the cloned pins never come first in a query. */}
+          <div
+            className={styles.mapStrip}
+            data-map-strip=""
+            aria-hidden="true"
+            onClick={() => window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT))}
+          >
+            <canvas className={styles.mapStripCanvas} />
+            <div className={styles.mapStripPins} data-map-strip-pins="" inert />
+          </div>
+
+          {/* Floating search — collapsed to a square icon button by
+              default (2026-06-04: the always-on toolbar read too loud over
+              the tiles). Tapping expands the full input; it stays open
+              while a query is active so the filter is never invisible.
+              Outside the map wrapper: that is a stacking context under the
+              list, and on phones the search has to stand above the strip. */}
+          {searchOpen || search ? (
+            <div
+              className={controlStyles.mapSearchToolbar}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <SearchGlassIcon className={controlStyles.mapSearchIcon} />
+              <input
+                ref={searchInputRef}
+                type="search"
+                name="map-search"
+                value={search}
+                onChange={(e) => onSearchChange(e.target.value)}
+                onBlur={() => {
+                  if (!search) setSearchOpen(false);
+                }}
+                placeholder={locale === 'en' ? 'Spot, area, dish' : 'Spot, Kiez, Gericht'}
+                className={controlStyles.mapSearchInput}
+                aria-label={searchLabel}
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                className={controlStyles.mapSearchClear}
+                onClick={() => {
+                  onSearchChange('');
+                  setSearchOpen(false);
+                }}
+                aria-label={locale === 'en' ? 'Clear search' : 'Suche zurücksetzen'}
+              >
+                {/* Zwei Striche, ungleich lang und je eigen gekippt — dieselbe
+                    Handschrift wie die Lupe links daneben und die drei
+                    Burger-Balken (19/22/15px). Als exaktes, symmetrisches
+                    Kreuz war es das einzige konstruierte Zeichen in der
+                    Reihe. */}
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6.6 6.2c3.6 3.9 7.4 7.6 11.2 11.4" strokeWidth="2.6" />
+                  <path d="M17.4 6.8c-3.3 3.4-6.8 6.8-10.3 10.1" strokeWidth="2.1" />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={controlStyles.mapSearchBtn}
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSearchOpen();
+              }}
+              aria-label={searchLabel}
+            >
+              <SearchGlassIcon className={controlStyles.mapSearchIcon} />
+            </button>
+          )}
 
           {/* Der Standort-Knopf steht bewusst AUSSERHALB von `.mapWrap`.
               Der Wrapper trägt `isolation: isolate` (damit der Standort-Marker

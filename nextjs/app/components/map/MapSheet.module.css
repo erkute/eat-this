@@ -187,10 +187,9 @@
 
      Why: once the bar sticks, the slot it leaves in the flow travels up with
      the sheet. With an ink sheet that slot was a dark band growing above the
-     bar — plus the hairline riding up past it — until the map strip lifted
-     over it, and "stuck" arrives a frame or two late on iOS. The
-     handle seemed to grow and snap back (user, 23.09.2026). A see-through slot
-     shows the map it sits on, so the late frames look like nothing at all. */
+     bar — plus the hairline riding up past it — and the handle seemed to grow
+     and snap back (user, 23.09.2026). A see-through slot shows the map it
+     sits on. */
   .list[data-view='list'] {
     background: transparent;
     border-top: 0;
@@ -203,28 +202,6 @@
      of it climbs over the map strip or the bars. */
   .list[data-view='detail'] > :not(.handle) {
     isolation: isolate;
-  }
-  /* Cap over the status-bar band, ONLY while the filter header is stuck.
-     Installed to the home screen the page owns that band, so rows would
-     otherwise scroll visibly through the strip above the header and the bar
-     would read as a loose stripe with content on both sides.
-
-     A pseudo-element rather than padding on the header: it takes no layout
-     space, so nothing shifts when it appears and the resting sheet has no
-     dead whitespace above the chips. In a browser tab the inset is 0, so
-     this collapses to nothing — which is why it can stay unconditional. */
-  /* List only: the detail's top edge is a photo hero, and a paper-coloured cap
-     over it would read as a stray white stripe. `data-header-stuck` itself is
-     shared by both views (it drives the floating controls). */
-  .list[data-view='list'][data-header-stuck='true']::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: env(safe-area-inset-top, 0px);
-    background: var(--et-home-ink, #15120e);
-    z-index: 5;
   }
   .handle {
     cursor: grab;
@@ -257,21 +234,21 @@
   .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
     position: sticky;
     top: var(--map-strip, env(safe-area-inset-top, 0px));
-    /* Above the lifted map strip (5). */
+    /* Above the map strip (7). */
     z-index: 8;
     background: var(--et-home-ink, #15120e);
     /* The sheet's edge rides on the handle here (see the sheet rule below),
        rounded like the list's filter bar. Never switched on "stuck": the
-       state arrives a frame late on iOS, so anything keyed to it changes
+       state arrives a frame late on iOS, so anything keyed to it would change
        visibly while the bar is already sitting there. */
     border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
     border-radius: 10px 10px 0 0;
     box-shadow: 0 1px 0 0 var(--et-home-ink, #15120e);
   }
   /* The slot the handle leaves when it sticks is see-through, the rest of the
-     sheet ink: same reason as the list (see `.list[data-view='list']`) — the
-     late "stuck" frames show map there instead of a dark band growing above
-     the bar. 27px = the handle's 26px plus its hairline. */
+     sheet ink: same reason as the list (see `.list[data-view='list']`) — map
+     there instead of a dark band growing above the bar. 27px = the handle's
+     26px plus its hairline. */
   .list[data-view='detail'][data-detail-kind='restaurant'] {
     background: linear-gradient(transparent 0 27px, var(--et-home-ink, #15120e) 27px);
     border-top: 0;

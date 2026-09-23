@@ -864,27 +864,32 @@
 }
 
 @media (max-width: 767.98px) {
-  /* Over the map strip, which lifts over the sheet at z-index 5 once the bar
-     sticks (MapLayout.module.css). The search button needs nothing: it lives
-     inside the map wrapper and rises with it. */
-  .mapBurger {
+  /* Over the map strip (z-index 7, MapLayout.module.css). Search stands
+     outside the map wrapper for this — inside it, it was locked into the
+     wrapper's stacking context under the list. */
+  .mapBurger,
+  .mapSearchBtn,
+  .mapSearchToolbar {
     z-index: 8;
   }
 }
 
 @media (max-width: 767.98px) {
   /* Phone + Must-Eat-Detail ist ein 100dvh-Takeover OHNE Karte dahinter:
-     MapLayout.module.css setzt dort `.mapWrap { visibility: hidden }`. Der
-     Suchen-Button und die Locate-FAB verschwinden damit von selbst, weil sie
-     IN .mapWrap liegen — der Burger nicht, der ist ein direktes Kind von
-     .body. Also stand er als einziges Control auf der weißen Fläche, 18px
-     über dem × des Panels, und hat die Ecke mit ihm geteilt.
+     MapLayout.module.css setzt dort `.mapWrap { visibility: hidden }`. Burger
+     und Suche liegen nicht in .mapWrap, sondern direkt in .body, und
+     verschwinden deshalb nicht von selbst. Der Burger stand sonst als
+     einziges Control auf der Fläche, 18px über dem × des Panels, und teilte
+     sich die Ecke mit ihm.
 
      Bewusst NUR must-eat: im Restaurant-Detail bleibt auf dem Phone der
      Kartenstreifen sichtbar (`.mapWrap` wird dort nur auf --detail-map-peek
      gekürzt), und darüber gehört der Burger hin. Ab 768px greift ohnehin der
      Rückzug weiter oben in dieser Datei für BEIDE Detail-Arten. */
-  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapBurger {
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapBurger,
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchBtn,
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat'])
+    .mapSearchToolbar {
     visibility: hidden;
     pointer-events: none;
   }

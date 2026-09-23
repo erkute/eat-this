@@ -8,6 +8,7 @@ import MapCanvas from './MapCanvas';
 import RestaurantMarker from './RestaurantMarker';
 import UserLocationMarker from './UserLocationMarker';
 import TransitLayer from './TransitLayer';
+import { mirrorMapStrip } from '@/lib/map/mapStripMirror';
 
 /* The pins are DOM, the basemap is WebGL, and the DOM wins the first frame —
    so on a cold load the yellow markers hung on white until the vector tiles
@@ -135,6 +136,16 @@ export default function MapCanvasLayer({
     return () => {
       map.off('moveend', read);
     };
+  }, [mapRef, painted]);
+
+  /* The phone map strip copies this map's top slice and pins frame by frame
+     (lib/map/mapStripMirror). Its host is rendered by MapSectionBody, outside
+     the map wrapper, so it can lie above the list. */
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    const host = document.querySelector<HTMLElement>('[data-map-strip]');
+    if (!map || !host) return;
+    return mirrorMapStrip(map, host);
   }, [mapRef, painted]);
 
   /* Every spot is its own marker — no grouping — but only the ones near the

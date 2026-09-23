@@ -137,45 +137,6 @@ describe('in the list', () => {
       expect(sheet().style.transform).toBe('');
     });
 
-    it('lays the whole map behind the sheet while it is being moved', async () => {
-      /* The "stuck" state keeps the map cut to the strip; deep in the list its
-       sentinel never comes back on screen during a pull, so the body is marked
-       for the gesture instead — otherwise everything below the strip was
-       black. */
-      window.scrollY = DEEP;
-      const body = document.querySelector('[data-map-body]')!;
-      const handle = document.querySelector('[data-sheet-handle]')!;
-      handle.dispatchEvent(pointer('pointerdown', 100, 0));
-      handle.dispatchEvent(pointer('pointermove', 200, 40));
-      expect(body.hasAttribute('data-sheet-sliding')).toBe(true);
-
-      handle.dispatchEvent(pointer('pointerup', 200, 80));
-      await settle();
-      expect(body.hasAttribute('data-sheet-sliding')).toBe(false);
-    });
-
-    it('keeps the map whole until the sentinel lets go of "stuck" — no black frame', async () => {
-      /* The sentinel reports a frame after the jump. Dropping the sliding mark
-       before that lifted the map and cut it to the strip for one frame, with
-       black below: the blink. */
-      vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) =>
-        window.setTimeout(() => cb(0), 16)
-      );
-      window.scrollY = DEEP;
-      const body = document.querySelector<HTMLElement>('[data-map-body]')!;
-      body.dataset.headerStuck = 'true';
-      drag(120);
-      await settle();
-
-      expect(window.scrollY).toBe(0);
-      expect(body.hasAttribute('data-sheet-sliding')).toBe(true);
-
-      delete body.dataset.headerStuck;
-      await new Promise((r) => setTimeout(r, 40));
-      expect(body.hasAttribute('data-sheet-sliding')).toBe(false);
-      vi.unstubAllGlobals();
-    });
-
     it('takes a short but fast flick as a decision', async () => {
       window.scrollY = DEEP;
       drag(40, { steps: 2, msPerStep: 16 });

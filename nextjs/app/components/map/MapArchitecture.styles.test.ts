@@ -76,6 +76,9 @@ describe('Map CSS architecture', () => {
       'body',
       'liveMapLayer',
       'mapLoading',
+      'mapStrip',
+      'mapStripCanvas',
+      'mapStripPins',
       'mapWrap',
       'shell',
     ]);
@@ -251,7 +254,7 @@ describe('Map CSS architecture', () => {
     expect(body).not.toContain('StaticDetailMapPeek');
   });
 
-  it('caps the phone status-bar band only while the filter header is stuck', () => {
+  it('rests the filter header below the map strip, which covers the status-bar band', () => {
     const mapPage = readFileSync(
       fileURLToPath(new URL('../../[locale]/(spa)/map/page.tsx', import.meta.url)),
       'utf8'
@@ -261,13 +264,9 @@ describe('Map CSS architecture', () => {
       '.listHeader',
       '(max-width: 767.98px)'
     );
-    /* Scoped to data-view='list': `data-header-stuck` is shared with the detail
-       now (it drives the floating search/burger in both views), but the detail's
-       top edge is a photo hero — a cap over it would read as a stray stripe in
-       the sheet colour, egal ob Papier oder Ink. */
-    const capRules = declarationsInMedia(
-      'MapSheet.module.css',
-      ".list[data-view='list'][data-header-stuck='true']::before",
+    const stripRules = declarationsInMedia(
+      'MapLayout.module.css',
+      '.mapStrip',
       '(max-width: 767.98px)'
     );
 
@@ -286,19 +285,15 @@ describe('Map CSS architecture', () => {
       }),
     ]);
 
-    /* The band is covered by a zero-layout pseudo-element, gated on the stuck
-       state — so nothing shifts when it appears, and the resting sheet keeps
-       no whitespace. Its height is the inset itself, which is 0 in a browser
-       tab: there the cap collapses to nothing and rows still reach the top. */
-    expect(capRules).toEqual([
+    /* The strip starts at the very top, so in an installed app it is what
+       the status-bar band shows — map, not a separate cap over rows. Ink
+       behind it, the colour iOS 26 Safari tints its bar with. */
+    expect(stripRules).toEqual([
       expect.objectContaining({
         position: 'fixed',
         top: '0',
-        height: 'env(safe-area-inset-top, 0px)',
-        /* Ink seit 04.09.2026, als die Map auf den durchgehenden Ink-Grund
-           gezogen ist. Die Kappe muss die Farbe des Sheets tragen, das sie
-           fortsetzt — vorher war beides Papier. */
-        background: 'var(--et-home-ink, #15120e)',
+        height: 'var(--map-strip)',
+        'background-color': 'var(--et-home-ink, #15120e)',
       }),
     ]);
   });

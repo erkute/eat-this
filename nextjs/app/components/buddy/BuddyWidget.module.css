@@ -30,11 +30,15 @@
   --buddy-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   --buddy-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
   --buddy-ring: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
-  --buddy-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   /* Die leise Stufe: alles, was ein eigenes OBJEKT ist (Spot, Artikel, Pack),
      steht eine Spur heller als der Grund. Fliesstext steht auf dem Grund. */
   --buddy-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
   --buddy-quiet-hi: rgba(255, 255, 255, 0.1);
+  /* Bedienelemente (Feld, Knöpfe, Chips) heben sich per FLÄCHE ab, nie per
+     Ring (Ansage 23.09.2026: „keine grauen Rahmen"). Eine Spur kräftiger als
+     die Karten-Stufe, weil sie auf dem helleren Kopf/Fuß stehen. */
+  --buddy-control: rgba(255, 255, 255, 0.08);
+  --buddy-control-hi: rgba(255, 255, 255, 0.14);
   /* #137b3f aus der hellen Fassung kam auf Ink auf 1.9:1. Dieses Gruen misst
      9.6:1 auf #15120e. */
   --buddy-open: #6fcf8b;
@@ -68,10 +72,8 @@
   background: var(--buddy-surface);
   border: none;
   border-radius: var(--et-radius-photo, 10px);
-  /* Die Kante als Outline statt als inset-Schatten: die Kinder tragen eigene
-     Flaechen und Bilder bis an den Rand und wuerden einen Schatten ueberdecken. */
-  outline: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  outline-offset: -1px;
+  /* Keine Kante: der Vorhang dahinter ist schwarz, die Fläche hebt sich von
+     selbst ab. */
   box-shadow:
     0 30px 90px rgba(0, 0, 0, 0.44),
     var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
@@ -96,7 +98,6 @@
   padding: 14px 16px 12px 18px;
   color: var(--buddy-paper);
   background: var(--buddy-surface);
-  border-bottom: 1px solid var(--buddy-line);
 }
 
 .avatarFrame {
@@ -131,9 +132,7 @@
   text-transform: uppercase;
 }
 
-/* Ring in Weiss 28 %, gelb bei Hover — dieselbe Taste wie der Standort-Chip
-   im Must-Eat-Sheet und der Kauf-Knopf auf /packs. Vorher ein schwarzer
-   Kasten mit dem Buchstaben „X" darin. */
+/* Flaechenstufe statt Ring, bei Hover eine Stufe heller mit gelber Schrift. */
 .close,
 .reset {
   display: inline-grid;
@@ -143,8 +142,8 @@
   flex: 0 0 auto;
   padding: 0;
   color: var(--buddy-paper);
-  background: transparent;
-  border: 2px solid var(--buddy-ring);
+  background: var(--buddy-control);
+  border: none;
   border-radius: var(--et-radius-control, 7px);
   cursor: pointer;
   font-size: 1.05rem;
@@ -152,7 +151,7 @@
   line-height: 1;
   font-family: var(--buddy-display);
   transition:
-    border-color var(--et-motion-fast, 140ms ease),
+    background var(--et-motion-fast, 140ms ease),
     color var(--et-motion-fast, 140ms ease);
 }
 
@@ -160,14 +159,15 @@
   .close:hover,
   .reset:hover {
     color: var(--buddy-accent);
-    border-color: var(--buddy-accent);
+    background: var(--buddy-control-hi);
   }
 }
 
 .close:focus-visible,
 .reset:focus-visible {
-  outline: 2px solid var(--buddy-accent);
-  outline-offset: 2px;
+  outline: none;
+  color: var(--buddy-accent);
+  background: var(--buddy-control-hi);
 }
 
 .close svg {
@@ -197,7 +197,9 @@
   scroll-behavior: auto;
   padding: 18px;
   color: var(--buddy-paper);
-  background: var(--buddy-surface);
+  /* Der Verlauf liegt eine Stufe TIEFER als Kopf und Eingabe — die Zonen
+     trennt die Farbe, keine Linie. */
+  background: var(--buddy-ink);
   font-family: var(--buddy-copy);
   font-size: var(--et-type-body, 16px);
 }
@@ -317,7 +319,7 @@
 
 .chip,
 .chipNear {
-  border: 2px solid var(--buddy-ring);
+  border: none;
   border-radius: var(--et-radius-control, 7px);
   font-family: var(--buddy-display);
   font-size: 0.86rem;
@@ -326,29 +328,28 @@
   cursor: pointer;
   box-shadow: none;
   transition:
-    border-color var(--et-motion-fast, 140ms ease),
     background var(--et-motion-fast, 140ms ease),
     color var(--et-motion-fast, 140ms ease);
 }
 
-/* Ring auf Ink — wie die Antwort-Chips der Remy-Buehne. */
+/* Flaeche statt Ring — wie die Antwort-Chips der Remy-Buehne. */
 .chip {
-  padding: 9px 12px;
+  padding: 11px 14px;
   color: var(--buddy-paper);
-  background: transparent;
+  background: var(--buddy-quiet-hi);
   text-align: left;
 }
 
 .chip:focus-visible {
   outline: none;
   color: var(--buddy-accent);
-  border-color: var(--buddy-accent);
+  background: var(--buddy-control-hi);
 }
 
 @media (hover: hover) {
   .chip:hover {
     color: var(--buddy-accent);
-    border-color: var(--buddy-accent);
+    background: var(--buddy-control-hi);
   }
 }
 
@@ -358,31 +359,27 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 9px 12px;
+  padding: 11px 14px;
   color: var(--buddy-ink);
   background: var(--buddy-accent);
-  border-color: var(--buddy-accent);
 }
 
 .chipNear:focus-visible {
   outline: none;
   color: var(--buddy-ink);
   background: var(--buddy-paper);
-  border-color: var(--buddy-paper);
 }
 
 @media (hover: hover) {
   .chipNear:hover {
     color: var(--buddy-ink);
     background: var(--buddy-paper);
-    border-color: var(--buddy-paper);
   }
 }
 
 .chipNear:disabled {
   color: var(--buddy-dim);
-  background: transparent;
-  border-color: var(--buddy-line);
+  background: var(--buddy-quiet);
   cursor: default;
 }
 
@@ -793,11 +790,10 @@
   gap: 10px;
   padding: 12px;
   background: var(--buddy-surface);
-  border-top: 1px solid var(--buddy-line);
   box-shadow: none;
 }
 
-/* Der Standort-Schalter links im Feld-Riegel: Ring wie jeder Chip, gelb
+/* Der Standort-Schalter links im Feld-Riegel: Flaeche wie jeder Knopf, gelb
    gefüllt sobald Remy weiß, wo du bist. Er ist Zustand und Schalter zugleich —
    vorher gab es die Freigabe nur als Chip im leeren Chat, ab der ersten Frage
    kam man nicht mehr heran. */
@@ -809,14 +805,13 @@
   flex: 0 0 auto;
   padding: 0;
   color: var(--buddy-paper);
-  background: transparent;
-  border: 2px solid var(--buddy-ring);
+  background: var(--buddy-control);
+  border: none;
   border-radius: var(--et-radius-control, 7px);
   cursor: pointer;
   transition:
     color var(--et-motion-fast, 140ms ease),
-    background var(--et-motion-fast, 140ms ease),
-    border-color var(--et-motion-fast, 140ms ease);
+    background var(--et-motion-fast, 140ms ease);
 }
 
 .geo svg {
@@ -828,19 +823,19 @@
 @media (hover: hover) {
   .geo:not(:disabled):hover {
     color: var(--buddy-accent);
-    border-color: var(--buddy-accent);
+    background: var(--buddy-control-hi);
   }
 }
 
 .geo:focus-visible {
-  outline: 2px solid var(--buddy-accent);
-  outline-offset: 2px;
+  outline: none;
+  color: var(--buddy-accent);
+  background: var(--buddy-control-hi);
 }
 
 .geo[data-on='true'] {
   color: var(--buddy-ink);
   background: var(--buddy-accent);
-  border-color: var(--buddy-accent);
   /* Er hat seinen Zweck erfüllt, aber er verschwindet nicht: die gelbe Nadel
      ist die Antwort auf „weiß er, wo ich bin?". */
   cursor: default;
@@ -848,33 +843,36 @@
 
 .geo[data-on='false']:disabled {
   color: var(--buddy-dim);
-  border-color: var(--buddy-line);
   cursor: wait;
 }
 
-/* Papier auf Ink, gelber Knopf daneben — Zeile fuer Zeile die Eingabe der
-   Remy-Buehne auf der Startseite. */
+/* Das Feld ist eine dunkle Flaeche mit weisser Schrift, ohne Ring — auch im
+   Fokus: dann wird es eine Stufe heller, der Cursor zeigt den Rest. Bis zum
+   23.09.2026 Papier mit gelbem Fokusring („gefällt mir nicht"). Zeile fuer
+   Zeile die Eingabe der Remy-Buehne auf der Startseite. */
 .input {
   flex: 1;
   min-width: 0;
   min-height: 52px;
   padding: 12px 15px;
-  color: var(--buddy-ink);
-  background: var(--buddy-paper);
+  color: var(--buddy-paper);
+  caret-color: var(--buddy-accent);
+  background: var(--buddy-control);
   border: none;
   border-radius: var(--et-radius-control, 7px);
   font-family: var(--buddy-copy);
   font-size: 1rem;
   font-weight: 700;
+  transition: background var(--et-motion-fast, 140ms ease);
 }
 
 .input::placeholder {
-  color: rgba(21, 18, 14, 0.55);
+  color: var(--buddy-dim);
 }
 
-.input:focus-visible {
-  outline: 2px solid var(--buddy-accent);
-  outline-offset: 2px;
+.input:focus {
+  outline: none;
+  background: var(--buddy-control-hi);
 }
 
 .send {
@@ -884,9 +882,11 @@
   min-height: 52px;
   flex: 0 0 auto;
   padding: 0 16px;
+  /* Papier, nicht Gelb: der Knopf leuchtet erst auf, wenn es etwas zu senden
+     gibt — leer steht er als dunkle Flaeche da wie das Feld. */
   color: var(--buddy-ink);
-  background: var(--buddy-accent);
-  border: 2px solid var(--buddy-accent);
+  background: var(--buddy-paper);
+  border: none;
   border-radius: var(--et-radius-control, 7px);
   cursor: pointer;
   font-family: var(--buddy-display);
@@ -895,44 +895,44 @@
   box-shadow: none;
   transition:
     background var(--et-motion-fast, 140ms ease),
-    border-color var(--et-motion-fast, 140ms ease),
     color var(--et-motion-fast, 140ms ease);
 }
 
 @media (hover: hover) {
   .send:hover:not(:disabled) {
     color: var(--buddy-ink);
-    background: var(--buddy-paper);
-    border-color: var(--buddy-paper);
+    background: var(--buddy-soft);
   }
 }
 
 .send:disabled {
   color: var(--buddy-dim);
-  background: transparent;
-  border-color: var(--buddy-line);
+  background: var(--buddy-control);
   cursor: default;
 }
 
 .send:focus-visible {
-  outline: 2px solid var(--buddy-accent);
-  outline-offset: 2px;
+  outline: none;
+  background: var(--buddy-soft);
 }
 
-/* Waehrend Remy schreibt, ist derselbe Knopf der Abbruch — ein Ring, kein
-   zweiter gefuellter Knopf daneben. */
+/* Waehrend Remy schreibt, ist derselbe Knopf der Abbruch — dunkle Flaeche,
+   kein zweiter heller Knopf daneben. */
 .stop {
   color: var(--buddy-paper);
-  background: transparent;
-  border-color: var(--buddy-ring);
+  background: var(--buddy-control);
 }
 
 @media (hover: hover) {
   .stop:hover:not(:disabled) {
     color: var(--buddy-accent);
-    background: transparent;
-    border-color: var(--buddy-accent);
+    background: var(--buddy-control-hi);
   }
+}
+
+.stop:focus-visible {
+  color: var(--buddy-accent);
+  background: var(--buddy-control-hi);
 }
 
 .panel:focus {
@@ -1020,7 +1020,9 @@
   }
 
   .close,
+  .reset,
   .geo,
+  .input,
   .chip,
   .chipNear,
   .spotCard,

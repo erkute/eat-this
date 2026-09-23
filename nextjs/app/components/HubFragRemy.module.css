@@ -14,7 +14,11 @@
   --remy-stage-paper: #fff;
   --remy-stage-accent: var(--et-home-accent, #ffc600);
   --remy-stage-soft: rgba(255, 255, 255, 0.76);
-  --remy-stage-ring: rgba(255, 255, 255, 0.28);
+  /* Chips, Feld und Knopf heben sich per Flaeche ab, nie per Ring (Ansage
+     23.09.2026: „keine grauen Rahmen"). */
+  --remy-stage-control: rgba(255, 255, 255, 0.08);
+  --remy-stage-control-hi: rgba(255, 255, 255, 0.14);
+  --remy-stage-dim: rgba(255, 255, 255, 0.55);
   position: relative;
   isolation: isolate;
   display: grid;
@@ -169,39 +173,34 @@
   gap: 8px;
 }
 
-/* Ringe, wie der Standort-Chip im Must-Eat-Sheet: weißer 28-%-Rand, bei
-   Hover gelb (state change, not motion — allowed). */
+/* Flaeche statt Ring, bei Hover eine Stufe heller mit gelber Schrift (state
+   change, not motion — allowed). */
 .body .chip:global(.hv-chip):focus-visible {
-  background: transparent;
-  border-color: var(--remy-stage-accent);
+  outline: none;
+  background: var(--remy-stage-control-hi);
   color: var(--remy-stage-accent);
+  box-shadow: none;
 }
 @media (hover: hover) {
   .body .chip:global(.hv-chip):hover {
-    background: transparent;
-    border-color: var(--remy-stage-accent);
+    background: var(--remy-stage-control-hi);
     color: var(--remy-stage-accent);
   }
 }
 
 .body .chip:global(.hv-chip) {
-  background: transparent;
+  background: var(--remy-stage-control);
   color: var(--remy-stage-paper);
-  border: 2px solid var(--remy-stage-ring);
+  border: none;
   border-radius: var(--et-radius-control, 7px);
   box-shadow: none;
 }
 
-.chip:focus-visible {
-  outline: 2px solid var(--remy-stage-accent);
-  outline-offset: 2px;
-  box-shadow: none;
-}
-
 /* ── free-text input row ──
-   Feld und Knopf nebeneinander wie auf der Starter-Pack-Tafel: weißes Feld,
-   gelber Knopf, beide gleich hoch und mit derselben Rundung. Vorher saß eine
-   runde Pille in einem weißen Kasten — „Button passt nicht zum Feld". */
+   Feld und Knopf nebeneinander, gleich hoch und mit derselben Rundung. Das
+   Feld ist eine dunkle Flaeche, der Knopf Papier — bis zum 23.09.2026 weißes
+   Feld und gelber Knopf („gefällt mir nicht"), davor eine runde Pille in einem
+   weißen Kasten. Dieselbe Zeile wie die Eingabe im Chat-Fenster. */
 .chatin {
   display: flex;
   gap: 10px;
@@ -211,7 +210,6 @@
   border: none;
 }
 
-/* Papier auf Ink: das weiße Feld liest sich als Eingabe. */
 .input {
   flex: 1;
   min-width: 0;
@@ -222,17 +220,20 @@
   font-family: var(--font-providence);
   font-size: 16px;
   font-weight: 700;
-  color: var(--remy-stage-ink);
-  background: var(--remy-stage-paper);
+  color: var(--remy-stage-paper);
+  caret-color: var(--remy-stage-accent);
+  background: var(--remy-stage-control);
+  transition: background var(--et-motion-fast, 140ms ease);
 }
 
 .input::placeholder {
-  color: rgba(21, 18, 14, 0.55);
+  color: var(--remy-stage-dim);
 }
 
-.input:focus-visible {
-  outline: 2px solid var(--remy-stage-accent);
-  outline-offset: 2px;
+/* Kein Ring, auch nicht gelb: im Fokus wird die Flaeche eine Stufe heller. */
+.input:focus {
+  outline: none;
+  background: var(--remy-stage-control-hi);
 }
 
 .body .send:global(.hv-btn) {
@@ -244,7 +245,7 @@
   min-height: 52px;
   padding: 0 22px;
   color: var(--remy-stage-ink);
-  background: var(--remy-stage-accent);
+  background: var(--remy-stage-paper);
   border: none;
   /* Eckig wie das Feld daneben und jeder Tafel-Knopf — die runde Pille
      gehört den weißen Abschnitten. */
@@ -253,17 +254,16 @@
   box-shadow: none;
 }
 
-/* Gelb auf Ink, Hover Papier — wie jeder Tafel-Knopf. */
 @media (hover: hover) {
   .body .send:global(.hv-btn):hover {
     color: var(--remy-stage-ink);
-    background: var(--remy-stage-paper);
+    background: var(--remy-stage-soft);
   }
 }
 
 .body .send:global(.hv-btn):focus-visible {
-  outline: 2px solid var(--remy-stage-accent);
-  outline-offset: 2px;
+  outline: none;
+  background: var(--remy-stage-soft);
   box-shadow: none;
 }
 

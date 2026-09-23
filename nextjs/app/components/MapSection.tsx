@@ -26,7 +26,7 @@ import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
-import { forgetSheetPosition } from '@/lib/map/sheetSlide';
+import { forgetSheetPosition, mapStripLine } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import {
@@ -416,6 +416,11 @@ export default function MapSection({
      below; null for selection changes that arrive WITHOUT a handler call
      (prev/next paging), which keep the current position. */
   const pendingDetailSnapRef = useRef<'full' | 'peek' | null>(null);
+  /* Phones: where the list's top edge stood on screen when a restaurant was
+     opened from it. The detail opens with its own top edge there — the sheet
+     keeps the height the user had pulled it to instead of dropping back to
+     its resting stop (user, 23.09.2026). Consumed once by the effect below. */
+  const detailOpenTopRef = useRef<number | null>(null);
   /* iOS safe-area inset, read once — feeds the pin-tap flyTo padding estimate. */
   const safeAreaBottomRef = useRef<number | null>(null);
   if (safeAreaBottomRef.current === null) {
@@ -523,7 +528,20 @@ export default function MapSection({
          hält. */
       const opened = pendingDetailSnapRef.current !== null;
       pendingDetailSnapRef.current = null;
-      if (opened) window.scrollTo(0, 0);
+      const keepTop = detailOpenTopRef.current;
+      detailOpenTopRef.current = null;
+      if (!opened) return;
+      /* A restaurant opened from the list starts at the list's height; its
+         top edge can not sit lower than at scroll 0, its resting stop. The
+         must-eat takeover has no map behind it and always starts at 0. The
+         phone fly below measures the sheet after this jump. */
+      const sheet = selectedMustEat?._id ? null : sheetElRef.current;
+      if (keepTop == null || !sheet) {
+        window.scrollTo(0, 0);
+        return;
+      }
+      const restTop = sheet.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: Math.max(0, Math.round(restTop - keepTop)), behavior: 'instant' });
       return;
     }
     const requested = pendingDetailSnapRef.current;
@@ -535,7 +553,7 @@ export default function MapSection({
     const target = requested ?? (snapRef.current === 'peek' ? 'peek' : 'full');
     setSnap(target);
     reapplySnap(target);
-  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
+  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap, sheetElRef]);
 
   /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
      restores it via the existing deep-link path instead of dropping the user
@@ -1047,6 +1065,13 @@ export default function MapSection({
           ? row.getBoundingClientRect().top -
             (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
           : null;
+        /* Deep in the list its top edge is far above the screen; the sticky
+           bar then stands at the strip line, and so shall the detail's. */
+        const sheet = sheetElRef.current;
+        detailOpenTopRef.current =
+          sheet && isPhoneViewport()
+            ? Math.max(mapStripLine(), sheet.getBoundingClientRect().top)
+            : null;
       }
       setDesktopPanelHidden(false);
       trackEvent('restaurant_opened', {
@@ -1125,6 +1150,7 @@ export default function MapSection({
       setSnap,
       sheetView,
       contentRef,
+      sheetElRef,
       displayedRestaurants.length,
       desktopPanelHidden,
     ]

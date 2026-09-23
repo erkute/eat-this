@@ -163,13 +163,18 @@
     bottom: auto;
     transform: none;
     height: auto;
-    margin-top: calc(0px - var(--phone-list-sheet-visible, 28dvh));
+    /* The map above is 100lvh tall (MapLayout.module.css); this puts the
+       resting edge at 100dvh − the visible share, as before. */
+    margin-top: calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 100lvh);
     /* At least a full viewport, otherwise the last stop ("sheet" — list
        covering the map entirely) is simply not reachable by scrolling. */
     min-height: calc(100dvh + var(--map-bar-overhang, 0px));
     transition: none;
     will-change: auto;
-    z-index: 4;
+    /* No stacking context: the map strip slides in between the rows and the
+       bars (MapLayout.module.css). Rows and detail content are contained
+       below instead, so their own z-indices stay theirs. */
+    z-index: auto;
     /* Base .list is overflow:hidden — that would make IT the sticky
        container for .listHeader (which must stick to the WINDOW here). */
     overflow: visible;
@@ -192,6 +197,12 @@
   }
   .list[data-view='list'] .listScroll {
     background: var(--et-home-ink, #15120e);
+    isolation: isolate;
+  }
+  /* Detail content keeps its own stacking (cards up to z 30 inside), so none
+     of it climbs over the map strip or the bars. */
+  .list[data-view='detail'] > :not(.handle):not(.stuckSentinel) {
+    isolation: isolate;
   }
   /* Cap over the status-bar band, ONLY while the filter header is stuck.
      Installed to the home screen the page owns that band, so rows would
@@ -249,7 +260,8 @@
   .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
     position: sticky;
     top: var(--map-strip, env(safe-area-inset-top, 0px));
-    z-index: 5;
+    /* Above the lifted map strip (5). */
+    z-index: 8;
     background: var(--et-home-ink, #15120e);
     /* The sheet's edge rides on the handle here (see the sheet rule below),
        rounded like the list's filter bar. Never switched on "stuck": the
@@ -287,7 +299,7 @@
     transform: none;
     transition: none;
     will-change: auto;
-    z-index: 6;
+    z-index: auto;
     border-radius: 0;
     border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
     overflow: visible;

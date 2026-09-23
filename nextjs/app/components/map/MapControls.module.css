@@ -864,7 +864,7 @@
 }
 
 @media (max-width: 767.98px) {
-  /* Over the map strip, which lifts over the sheet at z-index 7 once the bar
+  /* Over the map strip, which lifts over the sheet at z-index 5 once the bar
      sticks (MapLayout.module.css). The search button needs nothing: it lives
      inside the map wrapper and rises with it. */
   .mapBurger {
@@ -1012,14 +1012,16 @@
    Frames zu spaet an: er zitterte gegen die Liste und flog bei jedem schnellen
    Wisch seitlich raus und wieder rein.
 
-   Jetzt steht er ueber der Ruhekante der Liste und liegt UNTER ihr (die Liste
-   hat z-index 4): kommt sie hoch, schiebt sie sich einfach ueber ihn, zieht
+   Jetzt steht er ueber der Ruhekante der Liste und liegt UNTER ihr (er kommt
+   im DOM vor ihr, beide ohne z-index): kommt sie hoch, schiebt sie sich einfach ueber ihn, zieht
    man sie runter, ist er wieder da. Kein Rechnen, keine Bewegung. Im
    Restaurant-Detail steht die Kante tiefer im Bild, am Kartenstreifen. */
 @media (max-width: 767.98px) {
   .fab {
     bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
-    z-index: 3;
+    /* No z-index: painted in tree order, before the sheet, which then slides
+       over it. The sheet is no stacking context on phones any more. */
+    z-index: auto;
   }
 
   :global([data-map-body][data-map-view='detail']) .fab {

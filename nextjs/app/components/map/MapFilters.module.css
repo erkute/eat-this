@@ -420,7 +420,8 @@
        Scrollposition und ließ über den Chips totes Weiß stehen. */
     /* Below the map strip (MapLayout.module.css), not at the very top. */
     top: var(--map-strip, env(safe-area-inset-top, 0px));
-    z-index: 3;
+    /* Above the lifted map strip (5, MapLayout.module.css). */
+    z-index: 8;
     background: var(--et-home-ink, #15120e);
     /* The sheet's edge lives here, not on the sheet (MapSheet.module.css:
        the sheet is see-through on phones so the slot this bar leaves when it

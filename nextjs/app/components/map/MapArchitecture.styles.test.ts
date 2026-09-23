@@ -174,7 +174,9 @@ describe('Map CSS architecture', () => {
       expect.objectContaining({
         position: 'sticky',
         top: '0',
-        height: '100dvh',
+        /* lvh, not dvh: a dvh map resized with every step of Safari's
+           collapsing toolbar and slid under the list (23.09.2026). */
+        height: '100lvh',
         'background-color': 'var(--et-home-ink, #15120e)',
       }),
     ]);
@@ -218,7 +220,8 @@ describe('Map CSS architecture', () => {
     expect(rest, 'the resting stop must stay at 28dvh (= LIST_REST_VISIBLE_DVH)').toBe('28dvh');
     expect(listRules).toEqual([
       expect.objectContaining({
-        'margin-top': 'calc(0px - var(--phone-list-sheet-visible, 28dvh))',
+        /* The map above is 100lvh; the resting edge stays at 100dvh − 28dvh. */
+        'margin-top': 'calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 100lvh)',
         /* The last stop is only reachable if the list is at least a viewport
            tall — see phoneSheetSnaps.ts. */
         'min-height': 'calc(100dvh + var(--map-bar-overhang, 0px))',

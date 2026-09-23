@@ -273,12 +273,27 @@
     height: auto;
     overflow: visible;
     position: relative;
+    /* The phone map lies UNDER the sheet at z-index -1 and rises over it for
+       the strip; the sheet's bars ride above both (z 8). A stacking context
+       of its own keeps the -1 above this body's background. */
+    isolation: isolate;
+    /* How much of the sheet's sticky bar the lifted map covers besides the
+       strip (see the strip rule below). */
+    --stuck-cover: 80px;
+  }
+  .body[data-map-view='detail'] {
+    --stuck-cover: 26px;
   }
   .mapWrap {
     position: sticky;
     top: 0;
-    height: 100dvh;
-    z-index: 0;
+    /* The LARGEST viewport, not the dynamic one: 100dvh followed Safari's
+       toolbar as it collapsed and expanded during a scroll, the canvas
+       resized on every step and the map slid up and down under the list
+       (user, 23.09.2026). The list's resting edge is set against dvh on its
+       own (MapSheet.module.css). */
+    height: 100lvh;
+    z-index: -1;
     /* Deckend, nicht transparent: iOS 26 Safari ignoriert theme-color und
        faerbt seine Leisten nach der background-color des obersten fixierten
        oder sticky Elements, das eine Viewport-Kante beruehrt — auf dem
@@ -313,8 +328,16 @@
   }
 
   /* The map strip. Once the sheet's bar sticks (below the strip), the map
-     rises OVER the sheet — clipped to the strip — so the rows scrolling past
-     vanish under a slice of map instead of showing above the bar. It flips at
+     rises OVER the sheet's rows — clipped to the strip plus the bar's height,
+     with the bar itself still above it (z 8) — so the rows scrolling past
+     vanish under a slice of map instead of showing above the bar. Covering
+     the bar's height too is what keeps the late "stuck" frames clean when
+     the list comes back DOWN: the bar is already moving away from the strip
+     line, and the map behind it is what shows (user, 23.09.2026: „oben leicht
+     schwarz").
+
+     The phone sheet is no stacking context of its own (z-index auto), which
+     is what lets the map slide in between its rows and its bars. It flips at
      the moment the sheet's top edge crosses the strip line (the stuck
      sentinel's rootMargin), when nothing of the sheet is above that line yet,
      so the flip is invisible. A tap on the strip takes you to the map
@@ -325,9 +348,9 @@
      then the map has to lie whole behind it. */
   .body[data-header-stuck='true']:not([data-detail-kind='must-eat']):not([data-sheet-sliding])
     .mapWrap {
-    /* Over the sheet in both views: the list sits at 4, the detail at 6. */
-    z-index: 7;
-    clip-path: inset(0 0 calc(100% - var(--map-strip)) 0);
+    /* Over the rows and the sheet's surface, under its bars (8). */
+    z-index: 5;
+    clip-path: inset(0 0 calc(100% - var(--map-strip) - var(--stuck-cover)) 0);
     cursor: pointer;
   }
   .body[data-header-stuck='true']:not([data-detail-kind='must-eat']):not([data-sheet-sliding])

@@ -11,8 +11,9 @@ vi.mock('@sentry/nextjs', () => ({
 }));
 vi.mock('@/lib/rateLimitWindow', () => ({
   checkWindowedRateLimit: vi.fn(),
-  sessionLimitsFromEnv: () => ({ perMinute: 10, perDay: 100 }),
-  ipLimitsFromEnv: () => ({ perMinute: 30, perDay: 400 }),
+  sessionLimitsFromEnv: () => ({ perMinute: 5, perDay: 10 }),
+  ipLimitsFromEnv: () => ({ perMinute: 5, perDay: 10 }),
+  globalLimitsFromEnv: () => ({ perMinute: 20, perDay: 50 }),
 }));
 vi.mock('@/lib/buddy/orchestrator', () => ({
   createAnthropicLlmClient: () => ({ runTurn: () => ({}) }),
@@ -287,6 +288,35 @@ describe('POST /api/buddy', () => {
     expect(keys[0]).toMatch(/^ip:[a-f0-9]{40}$/);
     expect(keys[0]).not.toContain('203.0.113.7');
     expect(keys).toContain('s:s1');
+  });
+
+  it('checks the shared daily budget last, so requests a person limit rejects never spend it', async () => {
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
+      allowed: true,
+      state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
+    });
+    await POST(ipReq('203.0.113.7, 35.219.200.29, 66.102.6.195'));
+    const keys = vi.mocked(checkWindowedRateLimit).mock.calls.map((c) => c[0]);
+    expect(keys).toEqual([expect.stringMatching(/^ip:/), 's:s1', 'global']);
+  });
+
+  it('reports an exhausted shared budget as its own reason, without running Remy', async () => {
+    const allowed = {
+      allowed: true,
+      state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
+    };
+    vi.mocked(checkWindowedRateLimit)
+      .mockResolvedValueOnce(allowed)
+      .mockResolvedValueOnce(allowed)
+      .mockResolvedValueOnce({
+        allowed: false,
+        reason: 'per_day',
+        state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 51 },
+      });
+    const res = await POST(ipReq('203.0.113.7, 35.219.200.29, 66.102.6.195'));
+    expect(res.status).toBe(429);
+    expect(await res.json()).toEqual({ error: 'rate_limited', reason: 'global' });
+    expect(mocks.runBuddyTurn).not.toHaveBeenCalled();
   });
 
   it('buckets by the real client IP, ignoring spoofed leftmost values and rotating GFE hop', async () => {

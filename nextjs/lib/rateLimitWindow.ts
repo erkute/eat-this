@@ -72,21 +72,39 @@ const num = (v: string | undefined, d: number) => {
   return Number.isFinite(n) && n > 0 ? n : d;
 };
 
+// Remys Grenzen sind eine Geldfrage: jede Antwort kostet rund 1,4 Cent
+// Anthropic-Guthaben. Am 23.09.2026 war das Guthaben leer und Remy stumm;
+// danach auf Ansage gedeckelt — 10 Antworten am Tag pro Person, 50 für alle
+// zusammen, also höchstens rund 0,70 € am Tag. Bis dahin 100 pro Sitzung,
+// 400 pro IP und keine Gesamtgrenze: eine einzelne Person konnte ~5,60 € am
+// Tag verbrauchen. Die Umgebungsvariablen bleiben als Hebel ohne Deploy-Code.
+
 // Per-session limits: catch one user's UI spamming.
 export function sessionLimitsFromEnv(): RateLimits {
   return {
-    perMinute: num(process.env.BUDDY_RATE_LIMIT_PER_MIN, 10),
-    perDay: num(process.env.BUDDY_RATE_LIMIT_PER_DAY, 100),
+    perMinute: num(process.env.BUDDY_RATE_LIMIT_PER_MIN, 5),
+    perDay: num(process.env.BUDDY_RATE_LIMIT_PER_DAY, 10),
   };
 }
 
 // Per-IP limits: catch someone scripting the endpoint (sessionId is trivially
-// reset client-side, so this is the real abuse guard). Higher than the session
-// limits because several real users can share one IP (NAT / mobile carriers).
+// reset client-side, so this is the real abuse guard). Gleich hoch wie die
+// Sitzung: „pro Person 10". Der Preis dafür — Nutzer hinter derselben
+// Mobilfunk-NAT teilen sich die 10 — ist bewusst in Kauf genommen.
 export function ipLimitsFromEnv(): RateLimits {
   return {
-    perMinute: num(process.env.BUDDY_RATE_LIMIT_IP_PER_MIN, 30),
-    perDay: num(process.env.BUDDY_RATE_LIMIT_IP_PER_DAY, 400),
+    perMinute: num(process.env.BUDDY_RATE_LIMIT_IP_PER_MIN, 5),
+    perDay: num(process.env.BUDDY_RATE_LIMIT_IP_PER_DAY, 10),
+  };
+}
+
+// Die Gesamtgrenze über alle Besucher: der Deckel, den kein Wechsel von IP
+// oder Sitzung umgeht. Ein Dokument (`global`), zuletzt geprüft — was an einer
+// Personengrenze scheitert, soll nichts vom gemeinsamen Topf verbrauchen.
+export function globalLimitsFromEnv(): RateLimits {
+  return {
+    perMinute: num(process.env.BUDDY_RATE_LIMIT_GLOBAL_PER_MIN, 20),
+    perDay: num(process.env.BUDDY_RATE_LIMIT_GLOBAL_PER_DAY, 50),
   };
 }
 

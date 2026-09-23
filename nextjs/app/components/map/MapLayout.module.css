@@ -328,6 +328,16 @@
   .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapWrap {
     visibility: hidden;
   }
+  /* The takeover is 100dvh and lies over the map by the map's 100lvh
+     (MapSheet.module.css), so this body is 100dvh tall — but the sticky map
+     inside it stays 100lvh and stuck out below by a Safari-toolbar height.
+     That overflow made the page scroll by that much: a sideways swipe
+     through the must-eats moved it too, and map showed under the takeover
+     (user, 23.09.2026). `clip`, not `hidden`: no scroll container, the map
+     stays sticky. */
+  .body[data-map-view='detail'][data-detail-kind='must-eat'] {
+    overflow: clip;
+  }
 
   /* The map strip: the map's top slice, copied frame by frame into a layer
      fixed above the list (lib/map/mapStripMirror), so the rows scrolling up

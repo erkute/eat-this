@@ -861,9 +861,9 @@
     z-index: 3;
   }
 
-  :global([data-map-body][data-header-stuck='true']) .mapSearchToolbar,
-  :global([data-map-body][data-header-stuck='true']) .mapSearchBtn,
-  :global([data-map-body][data-header-stuck='true']) .mapBurger {
+  :global([data-map-body][data-header-stuck='true']:not([data-sheet-sliding])) .mapSearchToolbar,
+  :global([data-map-body][data-header-stuck='true']:not([data-sheet-sliding])) .mapSearchBtn,
+  :global([data-map-body][data-header-stuck='true']:not([data-sheet-sliding])) .mapBurger {
     transform: translateY(calc(-100% - 80px));
     pointer-events: none;
   }

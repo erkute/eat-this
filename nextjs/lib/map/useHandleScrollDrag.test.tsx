@@ -40,9 +40,11 @@ function Harness({
   const handleRef = useRef<HTMLDivElement | null>(null);
   useHandleScrollDrag(handleRef, view);
   return (
-    <aside data-map-sheet="" data-detail-kind={detailKind}>
-      <div ref={handleRef} data-sheet-handle="" />
-    </aside>
+    <div data-map-body="">
+      <aside data-map-sheet="" data-detail-kind={detailKind}>
+        <div ref={handleRef} data-sheet-handle="" />
+      </aside>
+    </div>
   );
 }
 
@@ -133,6 +135,23 @@ describe('in the list', () => {
       expect(window.scrollY).toBe(DEEP);
       expect(rememberedListPosition()).toBeNull();
       expect(sheet().style.transform).toBe('');
+    });
+
+    it('lays the whole map behind the sheet while it is being moved', async () => {
+      /* The "stuck" state keeps the map cut to the strip; deep in the list its
+       sentinel never comes back on screen during a pull, so the body is marked
+       for the gesture instead — otherwise everything below the strip was
+       black. */
+      window.scrollY = DEEP;
+      const body = document.querySelector('[data-map-body]')!;
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 100, 0));
+      handle.dispatchEvent(pointer('pointermove', 200, 40));
+      expect(body.hasAttribute('data-sheet-sliding')).toBe(true);
+
+      handle.dispatchEvent(pointer('pointerup', 200, 80));
+      await settle();
+      expect(body.hasAttribute('data-sheet-sliding')).toBe(false);
     });
 
     it('takes a short but fast flick as a decision', async () => {

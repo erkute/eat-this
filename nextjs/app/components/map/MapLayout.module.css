@@ -319,14 +319,19 @@
      sentinel's rootMargin), when nothing of the sheet is above that line yet,
      so the flip is invisible. A tap on the strip takes you to the map
      (MapSectionBody); the canvas is inert there, a 56px map is not for
-     panning. Not in the must-eat takeover: its map is hidden. */
-  .body[data-header-stuck='true']:not([data-detail-kind='must-eat']) .mapWrap {
+     panning. Not in the must-eat takeover: its map is hidden. And not while
+     the grabber is moving the sheet (data-sheet-sliding, lib/map/sheetSlide):
+     then the map has to lie whole behind it. */
+  .body[data-header-stuck='true']:not([data-detail-kind='must-eat']):not([data-sheet-sliding])
+    .mapWrap {
     /* Over the sheet in both views: the list sits at 4, the detail at 6. */
     z-index: 7;
     clip-path: inset(0 0 calc(100% - var(--map-strip)) 0);
     cursor: pointer;
   }
-  .body[data-header-stuck='true']:not([data-detail-kind='must-eat']) .mapWrap > * {
+  .body[data-header-stuck='true']:not([data-detail-kind='must-eat']):not([data-sheet-sliding])
+    .mapWrap
+    > * {
     pointer-events: none;
   }
 }

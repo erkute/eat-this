@@ -89,6 +89,22 @@ function clipAbove(sheet: HTMLElement) {
     hidden > 0 ? `inset(${Math.round(hidden)}px 0 0 0 round ${radius} ${radius} 0 0)` : '';
 }
 
+/**
+ * Marks the map body for the length of a gesture. The "bar is stuck" state
+ * comes from a sentinel at the sheet's top edge — deep in the list that edge
+ * is thousands of pixels above the screen, and moving the slab does not bring
+ * it back. So without this the map stayed lifted and cut to the strip while
+ * the slab slid down, and everything below the strip was black (user,
+ * 23.09.2026). While sliding, the map lies whole behind the sheet and the
+ * floating controls come back (MapLayout / MapControls / MapIntro).
+ */
+function markSliding(sheet: HTMLElement, on: boolean) {
+  const body = sheet.closest<HTMLElement>('[data-map-body]');
+  if (!body) return;
+  if (on) body.setAttribute('data-sheet-sliding', '');
+  else body.removeAttribute('data-sheet-sliding');
+}
+
 /** Put the sheet at an offset below its scroll position. */
 export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
   sheet.style.transform = offsetPx > 0 ? `translateY(${Math.round(offsetPx)}px)` : '';
@@ -97,6 +113,7 @@ export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
 function release(sheet: HTMLElement) {
   sheet.style.transform = '';
   sheet.style.clipPath = '';
+  markSliding(sheet, false);
 }
 
 function glide(sheet: HTMLElement, fromPx: number, toPx: number): Promise<void> {
@@ -119,6 +136,7 @@ function glide(sheet: HTMLElement, fromPx: number, toPx: number): Promise<void> 
  * on screen. Returns the offset the drag starts from.
  */
 export function grabFromList(sheet: HTMLElement): number {
+  markSliding(sheet, true);
   clipAbove(sheet);
   return 0;
 }
@@ -134,6 +152,7 @@ export function grabFromMap(sheet: HTMLElement, view: SlideView, restLinePx: num
   if (back == null) return false;
   /* The document can be shorter than when we left — clamp inside it. */
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  markSliding(sheet, true);
   window.scrollTo({ top: Math.min(back, maxY), behavior: 'instant' });
   holdSheetAt(sheet, restLinePx);
   clipAbove(sheet);

@@ -787,6 +787,33 @@ html[data-auth='1'] [data-guest-only] {
 .notification-layer {
   display: none;
 }
+
+/* Remy-Chat offen auf dem Telefon: die Seite dahinter tritt ganz ab. Beim
+   Fokus ins Feld schiebt iOS das Dokument hoch, damit das Feld über der
+   Tastatur steht — abschalten lässt sich das nicht, nur bestimmen, was dabei
+   zum Vorschein kommt. Mit unsichtbarer Seite und der Chat-Farbe als Grund ist
+   das nur noch Chat-Fläche, nie Startseite (Betreiber, 23.09.2026: „rutscht
+   nach oben und man sieht Inhalt von der Startseite"). `visibility` erbt, und
+   ein Kind darf sie zurücknehmen: Vorhang und Panel tun das in
+   BuddyWidget.module.css, die Info-Karte und die Vorlese-Region hier — egal,
+   wo das Layout der jeweiligen Seite den Chat eingehängt hat. Hier statt im
+   CSS-Modul, weil dort kein Selektor ohne eigene Klasse stehen darf. Die
+   Marke setzt BuddyWidget beim Öffnen. */
+@media (max-width: 480px) {
+  html[data-buddy-open],
+  html[data-buddy-open] body {
+    background: var(--et-ink-raised, #25231f);
+  }
+
+  html[data-buddy-open] body {
+    visibility: hidden;
+  }
+
+  html[data-buddy-open] .notification-layer,
+  html[data-buddy-open] .notification-live {
+    visibility: visible;
+  }
+}
 .notification-layer[data-open] {
   position: fixed;
   top: 50%;

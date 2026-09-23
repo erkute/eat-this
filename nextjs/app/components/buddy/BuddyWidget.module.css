@@ -1076,6 +1076,13 @@
     backdrop-filter: none;
   }
 
+  /* Die Seite dahinter ist bei offenem Chat unsichtbar (globals.css,
+     `html[data-buddy-open]`); Vorhang und Panel nehmen das für sich zurück. */
+  .scrim,
+  .panel {
+    visibility: visible;
+  }
+
   /* Vollbild, wie eine Chat-App: kein Rand, hinter dem die Seite hervorschaut.
      Oberkante und Höhe folgen dem sichtbaren Ausschnitt (BuddyWidget.tsx,
      `visualViewport`) — so sitzt das Feld bei offener Tastatur direkt auf ihr.

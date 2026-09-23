@@ -515,12 +515,6 @@
   will-change: transform, clip-path;
 }
 
-.mapSearchToolbar::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-}
-
 .mapSearchInput::placeholder {
   font-weight: 400;
 }
@@ -536,10 +530,6 @@
 .fab,
 .panelToggle {
   border-color: #15120e;
-}
-
-.mapSearchToolbar::before {
-  background: #ffc600;
 }
 
 .mapSearchBtn,
@@ -658,7 +648,9 @@
   height: 44px;
   gap: 8px;
   padding: 0 10px 0 13px;
-  background: var(--et-home-ink, #15120e);
+  /* Die Flaeche der Filter-Chips, eine Stufe heller als der Grund — ohne
+     Kontur (siehe unten). */
+  background: var(--et-ink-raised, #25231f);
   color: var(--et-home-paper, #fff);
   border: 0;
   border-radius: var(--et-radius-control, 7px);
@@ -670,10 +662,6 @@
   animation: none;
   clip-path: none;
   transform: none;
-}
-
-.mapSearchToolbar::before {
-  content: none;
 }
 
 .mapSearchToolbar .mapSearchIcon {
@@ -724,22 +712,15 @@
   outline: 0;
 }
 
-/* Weder Ring noch Rahmen, und kein Gelb: der Fokus ist ein Streifen an der
-   linken Innenkante in der Schriftfarbe der Leiste. Ganz weglassen geht nicht —
-   auf der Ink-Fläche ist der Fokus sonst unsichtbar, und die Leiste hebt die
-   generische Fokus-Kontur aus globals.css für ihr Eingabefeld selbst auf
-   (`.mapSearchToolbar .mapSearchInput:focus-visible { outline: 0 }`). */
-.mapSearchToolbar:has(.mapSearchInput:focus-visible) {
+/* Weder Kontur noch Fokus-Balken (User, 23.09.2026): der 5px-Balken an der
+   linken Innenkante gefiel nicht, ein Ring — weiss oder gelb — auch nicht,
+   Google Maps hat keinen. Die Leiste hebt sich mit ihrer Flaeche
+   (--et-ink-raised) von der Karte ab wie die Chips unter ihr. Einen eigenen
+   Fokus braucht sie nicht: sie steht nur offen, solange man darin schreibt
+   oder eine Suche gilt, und dann blinkt der Cursor. */
+.mapSearchToolbar:focus-within {
   outline: 0;
   box-shadow: none;
-}
-
-.mapSearchToolbar:has(.mapSearchInput:focus-visible)::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-  background: currentColor;
 }
 
 .mapSearchClear {
@@ -888,8 +869,7 @@
      Rückzug weiter oben in dieser Datei für BEIDE Detail-Arten. */
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapBurger,
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchBtn,
-  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat'])
-    .mapSearchToolbar {
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchToolbar {
     visibility: hidden;
     pointer-events: none;
   }

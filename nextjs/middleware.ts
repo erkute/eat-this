@@ -253,17 +253,17 @@ export const config = {
   //
   // `api/og` ist die eine bewusste Ausnahme davon. App Hosting streicht auf
   // JEDEM middleware-gematchten Pfad `public`/`s-maxage` und haengt `private`
-  // an (gemessen auf prod, 25.08.2026) — die drei OG-Routen hatten damit
+  // an (gemessen auf prod, 25.08.2026) — die OG-Routen hatten damit
   // keinen CDN-Cache und rechneten jede Karte neu, gemessen 1–2,4 s pro
   // Abruf. Das trifft ausgerechnet die Endpunkte, deren Publikum
   // ausschliesslich aus fremden Maschinen besteht: Vorschau-Abrufer der
-  // Messenger, und beim Badge fremde Restaurant-Webseiten. Fuer die ist ein
-  // Browser-Cache wertlos, jeder Abruf ist ein neuer Client.
+  // Messenger. Fuer die ist ein Browser-Cache wertlos, jeder Abruf ist ein
+  // neuer Client.
   //
-  // Der Preis: auf Staging liegen diese drei Bilder damit ohne Basic Auth
+  // Der Preis: auf Staging liegen diese Bilder damit ohne Basic Auth
   // offen. Vertretbar, weil ihr Inhalt entweder ohnehin oeffentlich ist
-  // (`badge` ist generisch, `restaurant` zeigt Name und Foto eines gelisteten
-  // Lokals) oder hinter einer nicht zu ratenden 28-Zeichen-uid steht
+  // (`restaurant` zeigt Name und Foto eines gelisteten Lokals) oder hinter
+  // einer nicht zu ratenden 28-Zeichen-uid steht
   // (`deck` — dieselbe Auskunft, die die Deck-Seite jedem Anonymen gibt).
   // Was Staging wirklich schuetzt, sind die SEITEN, und die bleiben drin:
   // ohne sie ist ein Bild ohne Zusammenhang.

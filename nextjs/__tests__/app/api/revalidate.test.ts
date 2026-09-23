@@ -180,11 +180,10 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/restaurant/gully-burger')
   })
 
-  it('frischt die Listen ueber ALLE Restaurants mit auf', async () => {
-    // `restaurants-lite` (Slug-Tabelle des Legacy-Redirects) und
-    // `badge-restaurants` hingen an eigenen Tags, die niemand invalidierte:
-    // ein umgezogener Slug lief bis zu 24 Stunden ins 404 statt in seinen
-    // Redirect.
+  it('frischt die Slug-Tabelle ueber ALLE Restaurants mit auf', async () => {
+    // `restaurants-lite` (Slug-Tabelle des Legacy-Redirects) hing an einem
+    // eigenen Tag, den niemand invalidierte: ein umgezogener Slug lief bis zu
+    // 24 Stunden ins 404 statt in seinen Redirect.
     const raw = JSON.stringify({ _type: 'restaurant', slug: 'umbenannt' })
     const ts = Date.now()
 
@@ -192,7 +191,6 @@ describe('/api/revalidate', () => {
 
     expect(res.status).toBe(200)
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurants-lite')
-    expect(mocks.revalidateTag).toHaveBeenCalledWith('badge-restaurants')
   })
 
   it('rendert die Sitemap auch bei Kategorie-Aenderungen neu', async () => {

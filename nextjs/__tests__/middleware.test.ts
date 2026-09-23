@@ -122,7 +122,6 @@ describe('middleware: Basic Auth + X-Robots-Tag', () => {
 
     expect(matches('/api/og/deck')).toBe(false)
     expect(matches('/api/og/restaurant')).toBe(false)
-    expect(matches('/api/og/badge')).toBe(false)
 
     // Alles andere bleibt hinter dem Staging-Tor.
     expect(matches('/api/friends')).toBe(true)

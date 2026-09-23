@@ -134,8 +134,15 @@ const Item = memo(
               /* 700 sitzt zwischen 600 und 900, weil genau dort die häufigste
                  Android-Klasse landet: 94vw auf 412px bei DPR 1.75 sind 677px
                  — ohne die Stufe griff der Browser zu 900w und lud rund ein
-                 Drittel zu viel. */
-              srcSet={[400, 600, 700, 900, 1200]
+                 Drittel zu viel.
+
+                 Oben ist bei 900 Schluss. Ein 3x-iPhone rechnet sich 1100px
+                 aus und nahm die 1200: im Schnitt 120 KB je Karte gegen 67 KB
+                 bei 900 (gemessen an 30 Katalogfotos, 23.09.2026), und beim
+                 Runterscrollen kamen die Fotos zu spaet (User). 900 sind auf
+                 der ~370px breiten Karte noch 2,4 Pixel pro Punkt — bei einem
+                 Foto nicht von 3 zu unterscheiden. */
+              srcSet={[400, 600, 700, 900]
                 .map((w) => `${sanityImageLoader({ src: restaurant.photo!, width: w })} ${w}w`)
                 .join(', ')}
               sizes="(max-width: 767.98px) 94vw, 280px"

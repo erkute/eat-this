@@ -546,7 +546,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                               src={art}
                               alt=""
                               width={96}
-                              height={134}
+                              height={144}
                               className={styles.packArt}
                             />
                           )}

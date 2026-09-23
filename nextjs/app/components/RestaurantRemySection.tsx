@@ -55,8 +55,10 @@ export default function RestaurantRemySection({ locale, name, bezirk }: Props) {
             className={styles.face}
             src="/buddy/buddy-smile.webp"
             alt=""
-            width={440}
-            height={440}
+            /* Die echten Maße der Datei: quadratisch angegeben reservierte der
+               Browser zu wenig Höhe, und Remy wuchs beim Laden um 10px. */
+            width={791}
+            height={876}
             sizes="(max-width: 700px) 132px, 190px"
             loading="lazy"
           />

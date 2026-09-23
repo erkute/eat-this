@@ -82,11 +82,7 @@ describe('Map CSS architecture', () => {
       'mapWrap',
       'shell',
     ]);
-    expect(localClasses('MapSheet.module.css')).toEqual([
-      'handle',
-      'list',
-      'listScroll',
-    ]);
+    expect(localClasses('MapSheet.module.css')).toEqual(['handle', 'list', 'listScroll']);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
       'markerRootActive',
@@ -149,10 +145,21 @@ describe('Map CSS architecture', () => {
         width: '100%',
         height: '100dvh',
         'min-height': '100dvh',
-        'margin-top': '-100dvh',
         overflow: 'hidden',
       }),
     ]);
+    /* The takeover lies over the sticky map by exactly the map's height. The
+       map moved from 100dvh to 100lvh and the margin stayed behind: on the
+       iPhone the takeover sat a toolbar height low and the page scrolled. */
+    const mapHeight = declarationsInMedia(
+      'MapLayout.module.css',
+      '.mapWrap',
+      '(max-width: 767.98px)'
+    )
+      .map((d) => d.height)
+      .find(Boolean);
+    expect(mapHeight).toBe('100lvh');
+    expect(mustEatRules[0]['margin-top']).toBe(`-${mapHeight}`);
     expect(layout).not.toContain("html:has(.shell [data-map-sheet][data-detail-kind='must-eat'])");
   });
 

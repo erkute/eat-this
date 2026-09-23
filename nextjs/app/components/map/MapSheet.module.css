@@ -176,7 +176,21 @@
     /* Edge styling (10px radius, hairline top, no shadow) comes from the
        html .list design-pass rules — unchanged from the drag-sheet look. */
   }
+  /* The sheet itself is see-through; its two parts carry the ink — the
+     filter bar (MapFilters.module.css, with the sheet's edge: hairline and
+     rounded top) and the rows below it.
+
+     Why: once the bar sticks, the slot it leaves in the flow travels up with
+     the sheet. With an ink sheet that slot was a dark band growing above the
+     bar — plus the hairline riding up past it — until the map strip lifted
+     over it, and the "stuck" sentinel reports a frame or two late on iOS. The
+     handle seemed to grow and snap back (user, 23.09.2026). A see-through slot
+     shows the map it sits on, so the late frames look like nothing at all. */
   .list[data-view='list'] {
+    background: transparent;
+    border-top: 0;
+  }
+  .list[data-view='list'] .listScroll {
     background: var(--et-home-ink, #15120e);
   }
   /* Cap over the status-bar band, ONLY while the filter header is stuck.
@@ -237,10 +251,21 @@
     top: var(--map-strip, env(safe-area-inset-top, 0px));
     z-index: 5;
     background: var(--et-home-ink, #15120e);
-    border-radius: inherit;
+    /* The sheet's edge rides on the handle here (see the sheet rule below),
+       rounded like the list's filter bar. Never switched on "stuck": the
+       sentinel reports a frame late on iOS, so anything keyed to it changes
+       visibly while the bar is already sitting there. */
+    border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 1px 0 0 var(--et-home-ink, #15120e);
   }
-  .list[data-view='detail'][data-detail-kind='restaurant'][data-header-stuck='true'] > .handle {
-    border-radius: 0;
+  /* The slot the handle leaves when it sticks is see-through, the rest of the
+     sheet ink: same reason as the list (see `.list[data-view='list']`) — the
+     late "stuck" frames show map there instead of a dark band growing above
+     the bar. 27px = the handle's 26px plus its hairline. */
+  .list[data-view='detail'][data-detail-kind='restaurant'] {
+    background: linear-gradient(transparent 0 27px, var(--et-home-ink, #15120e) 27px);
+    border-top: 0;
   }
   .listScroll {
     max-height: none;

@@ -463,8 +463,22 @@ export default function MapSection({
          own `top: 14px` left its client rect at -82, i.e. fully above the
          visible area. The phone controls add this back onto their `top`
          (MapControls.module.css). Kept off `transform`, which those three need
-         for their retreat animation. */
-      write('--map-visual-offset-top', `${Math.round(Math.max(0, visualOffsetTop))}px`);
+         for their retreat animation.
+
+         Only while a text field has focus, i.e. while there IS a keyboard.
+         Safari slides the visual viewport for other reasons too: the burger
+         drawer pins the page (body position: fixed), Safari unfolds its bars,
+         and the offset it reported pushed burger and search down while the
+         map stayed put (user, 23.09.2026). */
+      const active = document.activeElement;
+      const typing =
+        active instanceof HTMLTextAreaElement ||
+        (active instanceof HTMLInputElement && active.type !== 'button') ||
+        (active instanceof HTMLElement && active.isContentEditable);
+      write(
+        '--map-visual-offset-top',
+        `${typing ? Math.round(Math.max(0, visualOffsetTop)) : 0}px`
+      );
     };
 
     apply();
@@ -472,12 +486,17 @@ export default function MapSection({
     window.addEventListener('scroll', apply, { passive: true });
     window.visualViewport?.addEventListener('resize', apply, { passive: true });
     window.visualViewport?.addEventListener('scroll', apply, { passive: true });
+    /* The keyboard comes and goes with the focus. */
+    document.addEventListener('focusin', apply);
+    document.addEventListener('focusout', apply);
 
     return () => {
       window.removeEventListener('resize', apply);
       window.removeEventListener('scroll', apply);
       window.visualViewport?.removeEventListener('resize', apply);
       window.visualViewport?.removeEventListener('scroll', apply);
+      document.removeEventListener('focusin', apply);
+      document.removeEventListener('focusout', apply);
       root.style.removeProperty('--map-runtime-bar-overhang');
       root.style.removeProperty('--map-visual-offset-top');
     };

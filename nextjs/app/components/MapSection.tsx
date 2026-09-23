@@ -26,7 +26,7 @@ import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
-import { forgetSheetPosition } from '@/lib/map/sheetSlide';
+import { forgetSheetPosition, mapStripLine } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import {
@@ -63,9 +63,9 @@ const SEARCH_REFIT_DELAY_MS = 300;
 
 /* How long the list keeps re-aiming at the row a closed detail belongs to, and
    how many frames it has to sit still before that counts as arrived. ~1s is
-   long enough for a list of 340 content-visibility rows to measure the part it
-   scrolled through, short enough that a row which never settles gives up before
-   it turns into a fight. */
+   long enough for a list that is still settling (rows appended behind the
+   window, a re-sort) to stop moving, short enough that a row which never
+   settles gives up before it turns into a fight. */
 const ROW_REVEAL_MAX_FRAMES = 60;
 const ROW_REVEAL_SETTLED_FRAMES = 3;
 
@@ -281,13 +281,11 @@ export default function MapSection({
      raw scroll offset. A deep link never comes here: its row was never on
      screen, so closing lands at the top of the list instead.
 
-     Aimed for a few frames rather than once. The rows carry
-     `content-visibility: auto` (RestaurantList.module.css), so every row below
-     the fold is laid out from an ESTIMATE until it comes near the viewport: one
-     scrollTo aims into a document that has not measured itself yet and stops
-     short — the further down the row, the further short. Re-deriving the target
-     from the row itself until it stops moving is the same medicine
-     ScrollRestorer takes for the same illness on soft navs.
+     Aimed for a few frames rather than once. The list may still be settling
+     when the detail closes — rows appended behind the window, a re-sort after
+     a position fix — and one scrollTo aims into a document that has not
+     finished moving. Re-deriving the target from the row itself until it
+     stops moving is the same medicine ScrollRestorer takes on soft navs.
 
      Instant rather than smooth, for the same reason it is over there: with
      `scroll-behavior: smooth` document-wide, a smooth scroll re-issued every
@@ -416,6 +414,11 @@ export default function MapSection({
      below; null for selection changes that arrive WITHOUT a handler call
      (prev/next paging), which keep the current position. */
   const pendingDetailSnapRef = useRef<'full' | 'peek' | null>(null);
+  /* Phones: where the list's top edge stood on screen when a restaurant was
+     opened from it. The detail opens with its own top edge there — the sheet
+     keeps the height the user had pulled it to instead of dropping back to
+     its resting stop (user, 23.09.2026). Consumed once by the effect below. */
+  const detailOpenTopRef = useRef<number | null>(null);
   /* iOS safe-area inset, read once — feeds the pin-tap flyTo padding estimate. */
   const safeAreaBottomRef = useRef<number | null>(null);
   if (safeAreaBottomRef.current === null) {
@@ -523,7 +526,20 @@ export default function MapSection({
          hält. */
       const opened = pendingDetailSnapRef.current !== null;
       pendingDetailSnapRef.current = null;
-      if (opened) window.scrollTo(0, 0);
+      const keepTop = detailOpenTopRef.current;
+      detailOpenTopRef.current = null;
+      if (!opened) return;
+      /* A restaurant opened from the list starts at the list's height; its
+         top edge can not sit lower than at scroll 0, its resting stop. The
+         must-eat takeover has no map behind it and always starts at 0. The
+         phone fly below measures the sheet after this jump. */
+      const sheet = selectedMustEat?._id ? null : sheetElRef.current;
+      if (keepTop == null || !sheet) {
+        window.scrollTo(0, 0);
+        return;
+      }
+      const restTop = sheet.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: Math.max(0, Math.round(restTop - keepTop)), behavior: 'instant' });
       return;
     }
     const requested = pendingDetailSnapRef.current;
@@ -535,7 +551,7 @@ export default function MapSection({
     const target = requested ?? (snapRef.current === 'peek' ? 'peek' : 'full');
     setSnap(target);
     reapplySnap(target);
-  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
+  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap, sheetElRef]);
 
   /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
      restores it via the existing deep-link path instead of dropping the user
@@ -617,9 +633,8 @@ export default function MapSection({
   const listScrollRef = useRef(0);
   /* Where the tapped row sat on screen (viewport top on phones, port top on
      tablet/desktop) when its detail opened. The raw scroll offset alone is not
-     enough to put it back: rows below the fold carry `content-visibility:
-     auto` and are laid out from estimates until measured, and the list can be
-     re-sorted (a position fix arrives) while the detail is open — restoring
+     enough to put it back: the list can be re-sorted (a position fix
+     arrives) while the detail is open — restoring
      the old scrollY then lands somewhere else, often with the row clamped to
      the very bottom of the screen. The row itself is the anchor; this is only
      where on screen it belongs. */
@@ -1047,6 +1062,13 @@ export default function MapSection({
           ? row.getBoundingClientRect().top -
             (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
           : null;
+        /* Deep in the list its top edge is far above the screen; the sticky
+           bar then stands at the strip line, and so shall the detail's. */
+        const sheet = sheetElRef.current;
+        detailOpenTopRef.current =
+          sheet && isPhoneViewport()
+            ? Math.max(mapStripLine(), sheet.getBoundingClientRect().top)
+            : null;
       }
       setDesktopPanelHidden(false);
       trackEvent('restaurant_opened', {
@@ -1125,6 +1147,7 @@ export default function MapSection({
       setSnap,
       sheetView,
       contentRef,
+      sheetElRef,
       displayedRestaurants.length,
       desktopPanelHidden,
     ]

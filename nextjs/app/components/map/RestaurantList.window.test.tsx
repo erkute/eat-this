@@ -140,7 +140,7 @@ describe('RestaurantList card photos', () => {
     /* Native lazy-loading waited until a card was almost in view — in Safari
        especially close — and every photo popped in a beat late. The card's
        own observer reaches much further ahead and flips it to eager. */
-    const lead = ioOptions.filter((o) => o?.rootMargin?.startsWith('1600px'));
+    const lead = ioOptions.filter((o) => o?.rootMargin?.startsWith('3200px'));
     expect(lead.length).toBeGreaterThanOrEqual(2);
 
     const { act } = await import('@testing-library/react');

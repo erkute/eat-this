@@ -16,11 +16,14 @@ import { spotPhotoSrcSet } from '@/lib/map/spotPhoto';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { DAY_LABELS } from '@/lib/map/openingHours';
 import MapListEmpty from './MapListEmpty';
+import styles from './RestaurantList.module.css';
 
 /* How far ahead of the screen a card starts fetching its photo, and the list
-   appends its next rows. About two phone screens. */
-const PHOTO_LEAD_PX = 1600;
-import styles from './RestaurantList.module.css';
+   appends its next rows. About four phone screens: the Sanity CDN answers a
+   photo it has not served lately in 200–650 ms, and a quick flick covers
+   3000+ px a second. Measured on the production build (390px viewport, Fast
+   4G, 23.09.2026): at 3500 px/s 1600 left 10–15 of 75 cards empty, 3200 none. */
+const PHOTO_LEAD_PX = 3200;
 
 interface ItemProps {
   restaurant: MapRestaurant;

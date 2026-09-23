@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import styles from './RestaurantGalleryLightbox.module.css';
+import ZoomCurtain from './ZoomCurtain';
 
 interface Props {
   images: RestaurantGalleryImage[];
@@ -29,14 +30,6 @@ function Chevron({ dir }: { dir: 'left' | 'right' }) {
     </svg>
   );
 }
-
-const BACKDROP_PIECES = [
-  styles.galleryLbBgMain,
-  styles.galleryLbBgTopLeft,
-  styles.galleryLbBgTopRight,
-  styles.galleryLbBgBottomLeft,
-  styles.galleryLbBgBottomRight,
-];
 
 // Flat, swipeable photo viewer for the restaurant gallery. Unlike the
 // must-eat lightbox (a 3D-tilt "playing card"), this is a plain image you
@@ -82,17 +75,12 @@ function Viewer({
     [count]
   );
 
-  // Lock body scroll while open. `data-lightbox-open` also takes the map
-  // strip out of Safari's sight (MapLayout.module.css): Safari keeps tinting
-  // a bar after the last edge element it found for as long as that element
-  // stays visible, and the strip would hold the top bar dark.
+  // Lock body scroll while open.
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    document.body.dataset.lightboxOpen = '';
     return () => {
       document.body.style.overflow = prev;
-      delete document.body.dataset.lightboxOpen;
     };
   }, []);
 
@@ -141,19 +129,7 @@ function Viewer({
       aria-modal="true"
       aria-label={`${restaurantName} – Foto ${page + 1} von ${count}`}
     >
-      {/* Der Vorhang in fünf Stücken, damit Safari die Leisten durchsichtig
-          lässt und der Blur hinter Status- und URL-Leiste weiterläuft — siehe
-          `.galleryLbBg` im Stylesheet. */}
-      {BACKDROP_PIECES.map((piece) => (
-        <motion.div
-          key={piece}
-          className={`${styles.galleryLbBg} ${piece}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-        />
-      ))}
+      <ZoomCurtain className={styles.galleryLbCurtain} fade />
 
       <button
         ref={closeRef}

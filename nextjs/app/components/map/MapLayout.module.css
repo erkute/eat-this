@@ -339,14 +339,19 @@
 
      Inert over the map, where a finger means to pan the map under it; it
      takes taps once the bar is stuck, and a tap goes to the map
-     (MapSectionBody). Not in the must-eat takeover: no map there. */
+     (MapSectionBody). Not in the must-eat takeover: no map there.
+
+     It reaches a little past the strip line, under the stuck bar (z 8): the
+     bar's top corners are rounded (10px) and see-through, and the rows
+     scrolling under the bar showed in them — on the right mostly the yellow
+     must-eat card (user, 23.09.2026). 12px = the radius plus the hairline. */
   .mapStrip {
     display: block;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: var(--map-strip);
+    height: calc(var(--map-strip) + 12px);
     z-index: 7;
     overflow: hidden;
     background-color: var(--et-home-ink, #15120e);

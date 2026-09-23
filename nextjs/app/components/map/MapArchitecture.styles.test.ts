@@ -292,7 +292,9 @@ describe('Map CSS architecture', () => {
       expect.objectContaining({
         position: 'fixed',
         top: '0',
-        height: 'var(--map-strip)',
+        /* Past the strip line, under the stuck bar: fills its rounded,
+           see-through top corners with map instead of passing rows. */
+        height: 'calc(var(--map-strip) + 12px)',
         'background-color': 'var(--et-home-ink, #15120e)',
       }),
     ]);

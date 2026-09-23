@@ -46,40 +46,67 @@ function list(props: Partial<React.ComponentProps<typeof RestaurantList>> = {}) 
 
 describe('MapListEmpty', () => {
   it('says nothing was found and offers the way back', () => {
-    const onReset = vi.fn();
-    render(<MapListEmpty onReset={onReset} />);
+    const onResetFilters = vi.fn();
+    render(<MapListEmpty filtersActive onResetFilters={onResetFilters} />);
 
     expect(screen.getByRole('status').textContent).toContain('map.emptyTitle');
     screen.getByRole('button', { name: 'map.emptyReset' }).click();
-    expect(onReset).toHaveBeenCalled();
+    expect(onResetFilters).toHaveBeenCalled();
   });
 
-  /* Zwei Zustaende, zwei Texte. Wer nur etwas eingetippt hat, will seinen
-     Suchbegriff loswerden und nicht „Filter zuruecksetzen" angeboten
-     bekommen — und ohne die Anfrage im Text bleibt offen, ob man sich
-     vertippt hat oder ob es das wirklich nicht gibt. */
+  /* Wer nur etwas eingetippt hat, will seinen Suchbegriff loswerden und nicht
+     „Filter zuruecksetzen" angeboten bekommen — und ohne die Anfrage im Text
+     bleibt offen, ob man sich vertippt hat oder ob es das wirklich nicht gibt. */
   it('nennt die Suchanfrage beim Namen und bietet an, sie zu loeschen', () => {
-    render(<MapListEmpty onReset={vi.fn()} query="banh mi" />);
+    const onClearSearch = vi.fn();
+    const onResetFilters = vi.fn();
+    render(
+      <MapListEmpty query="banh mi" onClearSearch={onClearSearch} onResetFilters={onResetFilters} />
+    );
 
     const text = screen.getByRole('status').textContent ?? '';
     expect(text).toContain('map.emptyKickerSearch');
     expect(text).toContain('banh mi');
-    expect(screen.getByRole('button', { name: 'map.emptyResetSearch' })).toBeTruthy();
+    screen.getByRole('button', { name: 'map.emptyResetSearch' }).click();
+    expect(onClearSearch).toHaveBeenCalled();
+    expect(onResetFilters).not.toHaveBeenCalled();
   });
 
   it('spricht ohne Suchanfrage von den Filtern', () => {
-    render(<MapListEmpty onReset={vi.fn()} query="   " />);
+    render(<MapListEmpty query="   " filtersActive onResetFilters={vi.fn()} />);
 
     const text = screen.getByRole('status').textContent ?? '';
     expect(text).toContain('map.emptyKickerFilter');
     expect(screen.getByRole('button', { name: 'map.emptyReset' })).toBeTruthy();
   });
 
+  /* Suche und Filter zusammen: die Filter gehen, die Anfrage bleibt. Findet sie
+     auch allein nichts, steht man danach im Suchzustand. */
+  it('lockert bei Suche plus Filtern nur die Filter', () => {
+    const onClearSearch = vi.fn();
+    const onResetFilters = vi.fn();
+    render(
+      <MapListEmpty
+        query="pizza"
+        filtersActive
+        onClearSearch={onClearSearch}
+        onResetFilters={onResetFilters}
+      />
+    );
+
+    const text = screen.getByRole('status').textContent ?? '';
+    expect(text).toContain('map.emptyKickerBoth');
+    expect(text).toContain('pizza');
+    screen.getByRole('button', { name: 'map.emptyReset' }).click();
+    expect(onResetFilters).toHaveBeenCalled();
+    expect(onClearSearch).not.toHaveBeenCalled();
+  });
+
   it('sells nothing from an empty screen', () => {
     /* The locked variant is gone: the list carries the paywalled spots itself
        now, so an empty list means the catalogue has nothing — there is no
        count to name and no offer to make. */
-    render(<MapListEmpty onReset={vi.fn()} />);
+    render(<MapListEmpty filtersActive onResetFilters={vi.fn()} />);
     expect(screen.queryByRole('link')).toBeNull();
   });
 });

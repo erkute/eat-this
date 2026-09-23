@@ -40,13 +40,9 @@ interface Props {
   price: string | null;
   onPrice: (id: string | null) => void;
 
-  /** Hits behind every picker row, counted against the other chips. */
+  /** Hits behind every picker row, counted against the other chips and the
+   *  search query. */
   optionCounts: MapOptionCounts;
-
-  /** A non-empty search query overrides every chip below (see useMapFilters).
-   *  The chips stayed painted "live" while being ignored, so the row now
-   *  drops back to its inactive fill and says why. */
-  searchActive: boolean;
 }
 
 type ChipKind = 'category' | 'bezirk' | 'price';
@@ -66,7 +62,6 @@ export default function MapListHeader({
   price,
   onPrice,
   optionCounts,
-  searchActive,
 }: Props) {
   const { t, lang } = useTranslation();
   const loc = lang === 'de' ? 'de' : 'en';
@@ -123,18 +118,11 @@ export default function MapListHeader({
     return def ? localizedCategoryName(def, loc) : null;
   }, [category, categories, loc]);
 
-  /* Only worth saying when a chip actually holds a value — an untouched rail
-     has nothing for the query to override. */
-  const chipsPaused = searchActive && Boolean(activeCategoryLabel || bezirk || price || openOnly);
-
   return (
     <div ref={headerRef} className={styles.listHeader}>
       {grabber}
       {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
-      <div
-        className={`${styles.filterChipRow} ${chipsPaused ? styles.filterChipRowPaused : ''}`}
-        data-filter-chip-row=""
-      >
+      <div className={styles.filterChipRow} data-filter-chip-row="">
         <FilterChip
           ref={categoryBtnRef}
           label={activeCategoryLabel ?? t('map.filterChipCategory')}
@@ -175,10 +163,6 @@ export default function MapListHeader({
           <span className={styles.filterChipLabel}>{t('map.filterChipOpen')}</span>
         </button>
       </div>
-
-      {chipsPaused && (
-        <p className={styles.filterChipPausedNote}>{t('map.filterChipsPausedBySearch')}</p>
-      )}
 
       {openChip === 'category' && (
         <MapFilterPickerSheet

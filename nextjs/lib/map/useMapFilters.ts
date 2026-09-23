@@ -102,8 +102,7 @@ function searchRank(entry: SearchEntry, tokens: string[]): number {
 }
 
 /** The three pickable filters plus the open-now toggle — everything the chip
- *  rail holds. The search box is deliberately not part of it: a query replaces
- *  this whole predicate rather than narrowing it. */
+ *  rail holds. The search box narrows on top of it (see filterRestaurant). */
 export interface MapChipState {
   category: MapCategory;
   bezirk: string | null;
@@ -126,7 +125,11 @@ export interface MapOptionCounts {
   withoutDimension: Record<FilterDimension, number>;
 }
 
-function countOptions(list: MapRestaurant[], base: MapChipState): MapOptionCounts {
+function countOptions(
+  list: MapRestaurant[],
+  base: MapChipState,
+  matchesQuery: (r: MapRestaurant) => boolean
+): MapOptionCounts {
   const byValue: Record<FilterDimension, Map<string, number>> = {
     category: new Map(),
     bezirk: new Map(),
@@ -140,6 +143,7 @@ function countOptions(list: MapRestaurant[], base: MapChipState): MapOptionCount
   const bump = (into: Map<string, number>, key: string) => into.set(key, (into.get(key) ?? 0) + 1);
 
   for (const r of list) {
+    if (!matchesQuery(r)) continue;
     // Each dimension is counted with its own chip lifted — otherwise every
     // row but the active one reads 0.
     if (matchesChips(r, { ...base, category: 'All' })) {
@@ -258,18 +262,23 @@ export function useMapFilters({ restaurants, mustEats = [], location, listCenter
 
   const tokens = useMemo(() => searchTokens(search), [search]);
 
-  // A non-empty search query overrides all other filters: the user expects to
-  // find anything on the map regardless of the active bezirk/category/open
-  // selection.
-  const filterRestaurant = useCallback(
+  const matchesQuery = useCallback(
     (r: MapRestaurant): boolean => {
-      if (tokens.length) {
-        const entry = searchIndex.get(r._id);
-        return Boolean(entry && tokens.every((t) => entry.all.includes(t)));
-      }
-      return matchesChips(r, { category, bezirk, price, openOnly });
+      if (!tokens.length) return true;
+      const entry = searchIndex.get(r._id);
+      return Boolean(entry && tokens.every((t) => entry.all.includes(t)));
     },
-    [category, bezirk, price, openOnly, tokens, searchIndex]
+    [tokens, searchIndex]
+  );
+
+  /* Suche UND Chips. Bis zum 23.09.2026 hob eine Anfrage jeden Chip auf —
+     „pizza" in Neukölln zeigte Pizza aus ganz Berlin, die Chips standen
+     ausgegraut daneben. Wer einen Bezirk gewählt hat und dann tippt, sucht
+     IN diesem Bezirk (User, 23.09.2026). */
+  const filterRestaurant = useCallback(
+    (r: MapRestaurant): boolean =>
+      matchesQuery(r) && matchesChips(r, { category, bezirk, price, openOnly }),
+    [category, bezirk, price, openOnly, matchesQuery]
   );
 
   /* What every picker row would actually yield, counted against the OTHER
@@ -278,11 +287,11 @@ export function useMapFilters({ restaurants, mustEats = [], location, listCenter
      guaranteed zeroes with nothing saying so — you found out by tapping and
      landing on "Keine Spots".
 
-     Search is left out on purpose — a query overrides the chips (see above),
-     and these counts describe what the chips give once it is cleared. */
+     The query counts too: it narrows the list like any chip, so a row that
+     reads 12 under "pizza" has to yield 12 pizza spots. */
   const optionCounts = useMemo<MapOptionCounts>(
-    () => countOptions(catalogue, { category, bezirk, price, openOnly }),
-    [catalogue, category, bezirk, price, openOnly]
+    () => countOptions(catalogue, { category, bezirk, price, openOnly }, matchesQuery),
+    [catalogue, category, bezirk, price, openOnly, matchesQuery]
   );
 
   const nearestTo = useCallback(

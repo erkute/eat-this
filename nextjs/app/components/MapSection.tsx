@@ -63,9 +63,9 @@ const SEARCH_REFIT_DELAY_MS = 300;
 
 /* How long the list keeps re-aiming at the row a closed detail belongs to, and
    how many frames it has to sit still before that counts as arrived. ~1s is
-   long enough for a list of 340 content-visibility rows to measure the part it
-   scrolled through, short enough that a row which never settles gives up before
-   it turns into a fight. */
+   long enough for a list that is still settling (rows appended behind the
+   window, a re-sort) to stop moving, short enough that a row which never
+   settles gives up before it turns into a fight. */
 const ROW_REVEAL_MAX_FRAMES = 60;
 const ROW_REVEAL_SETTLED_FRAMES = 3;
 
@@ -281,13 +281,11 @@ export default function MapSection({
      raw scroll offset. A deep link never comes here: its row was never on
      screen, so closing lands at the top of the list instead.
 
-     Aimed for a few frames rather than once. The rows carry
-     `content-visibility: auto` (RestaurantList.module.css), so every row below
-     the fold is laid out from an ESTIMATE until it comes near the viewport: one
-     scrollTo aims into a document that has not measured itself yet and stops
-     short — the further down the row, the further short. Re-deriving the target
-     from the row itself until it stops moving is the same medicine
-     ScrollRestorer takes for the same illness on soft navs.
+     Aimed for a few frames rather than once. The list may still be settling
+     when the detail closes — rows appended behind the window, a re-sort after
+     a position fix — and one scrollTo aims into a document that has not
+     finished moving. Re-deriving the target from the row itself until it
+     stops moving is the same medicine ScrollRestorer takes on soft navs.
 
      Instant rather than smooth, for the same reason it is over there: with
      `scroll-behavior: smooth` document-wide, a smooth scroll re-issued every
@@ -635,9 +633,8 @@ export default function MapSection({
   const listScrollRef = useRef(0);
   /* Where the tapped row sat on screen (viewport top on phones, port top on
      tablet/desktop) when its detail opened. The raw scroll offset alone is not
-     enough to put it back: rows below the fold carry `content-visibility:
-     auto` and are laid out from estimates until measured, and the list can be
-     re-sorted (a position fix arrives) while the detail is open — restoring
+     enough to put it back: the list can be re-sorted (a position fix
+     arrives) while the detail is open — restoring
      the old scrollY then lands somewhere else, often with the row clamped to
      the very bottom of the screen. The row itself is the anchor; this is only
      where on screen it belongs. */

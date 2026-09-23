@@ -25,17 +25,6 @@ import styles from './RestaurantList.module.css';
    4G, 23.09.2026): at 3500 px/s 1600 left 10–15 of 75 cards empty, 3200 none. */
 const PHOTO_LEAD_PX = 3200;
 
-/* What the lead observers watch: the row's slot, not the card inside it. The
-   slot carries `content-visibility: auto`, and while it is off screen the
-   browser skips laying out what is inside — an observer on the card fired
-   only once the browser laid the slot out, well inside the lead, however far
-   the lead reached. Chrome does that some 1200px ahead; how close Safari
-   waits is not measured. On the production build at 3500 px/s this alone took
-   the cards that arrived empty from 33 of 75 to 12 (23.09.2026). */
-function observedSlot(card: HTMLElement | null): HTMLElement | null {
-  return card?.closest<HTMLElement>('[data-list-row]') ?? card;
-}
-
 interface ItemProps {
   restaurant: MapRestaurant;
   isSelected: boolean;
@@ -100,7 +89,7 @@ const Item = memo(
        server-rendered markup keeps plain lazy-loading. */
     const [photoNear, setPhotoNear] = useState(Boolean(priority));
     useEffect(() => {
-      const el = observedSlot(cardRef.current);
+      const el = cardRef.current;
       if (photoNear || !el || typeof IntersectionObserver === 'undefined') return;
       const io = new IntersectionObserver(
         (entries) => {
@@ -115,7 +104,7 @@ const Item = memo(
       return () => io.disconnect();
     }, [photoNear]);
     useEffect(() => {
-      const el = observedSlot(cardRef.current);
+      const el = cardRef.current;
       if (!el || typeof IntersectionObserver === 'undefined') return;
       const io = new IntersectionObserver(
         (entries) => {

@@ -21,24 +21,18 @@ import type { MapRestaurant } from '@/lib/types';
 type IoCallback = (entries: Array<Partial<IntersectionObserverEntry>>) => void;
 let ioCallbacks: IoCallback[] = [];
 let ioOptions: Array<IntersectionObserverInit | undefined> = [];
-let ioTargets: Element[][] = [];
 
 beforeEach(() => {
   ioCallbacks = [];
   ioOptions = [];
-  ioTargets = [];
   vi.stubGlobal(
     'IntersectionObserver',
     class {
-      private readonly targets: Element[] = [];
       constructor(cb: IoCallback, options?: IntersectionObserverInit) {
         ioCallbacks.push(cb);
         ioOptions.push(options);
-        ioTargets.push(this.targets);
       }
-      observe(el: Element) {
-        this.targets.push(el);
-      }
+      observe() {}
       disconnect() {}
     }
   );
@@ -146,13 +140,8 @@ describe('RestaurantList card photos', () => {
     /* Native lazy-loading waited until a card was almost in view — in Safari
        especially close — and every photo popped in a beat late. The card's
        own observer reaches much further ahead and flips it to eager. */
-    const lead = ioOptions.flatMap((o, i) => (o?.rootMargin?.startsWith('3200px') ? [i] : []));
+    const lead = ioOptions.filter((o) => o?.rootMargin?.startsWith('3200px'));
     expect(lead.length).toBeGreaterThanOrEqual(2);
-    /* It watches the row's slot: the slot is `content-visibility: auto`, and
-       the card inside it has no layout while the slot is far off screen. */
-    const cardLead = lead.filter((i) => !ioTargets[i][0]?.classList.contains('moreSentinel'));
-    expect(cardLead.length).toBeGreaterThanOrEqual(2);
-    for (const i of cardLead) expect(ioTargets[i][0]?.hasAttribute('data-list-row')).toBe(true);
 
     const { act } = await import('@testing-library/react');
     act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: true }])));

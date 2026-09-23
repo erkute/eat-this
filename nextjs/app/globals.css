@@ -299,6 +299,9 @@
   --et-scrim: rgba(0, 0, 0, 0.62);
   --et-zoom-scrim: var(--et-scrim);
   --et-zoom-scrim-blur: blur(12px) saturate(1);
+  /* Die deckenden Kappen des Zooms an Status- und URL-Leiste (ZoomCurtain):
+     exakt der Vorhang ueber Ink, damit der Uebergang nicht springt. */
+  --et-zoom-cap: #080705;
 
   --et-radius-photo: 10px;
   --et-radius-control: 7px;

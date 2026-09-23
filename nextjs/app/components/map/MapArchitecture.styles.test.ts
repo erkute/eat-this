@@ -17,6 +17,7 @@ const moduleNames = [
   'RestaurantGalleryLightbox.module.css',
   'MustEatImageLightbox.module.css',
   'MustEatRevealOverlay.module.css',
+  'ZoomCurtain.module.css',
 ] as const;
 
 function modulePath(name: string) {
@@ -73,25 +74,23 @@ function topLevelDeclarations(name: string, selector: string) {
 describe('Map CSS architecture', () => {
   /* iOS 26 Safari tints status and URL bar after the fixed element it finds
      4px inside the edge, mid-width, if that element spans >= 90% of the
-     width; a blur without a solid colour comes out system grey. The photo
-     zoom keeps every wide layer off both edges and fills the edge bands with
-     half-width pieces, so the bars stay see-through and show the blur
-     (user, 23.09.2026). */
-  it('keeps the photo zoom off the edges Safari tints its bars from', () => {
+     width; a blur without a solid colour comes out system grey, and so did
+     see-through bars over the blur (iPhone, 23.09.2026). Every zoom lays an
+     opaque full-width cap on both edges, and the gallery's transparent swipe
+     track stays off them so the probe hits the cap. */
+  it('caps both edges of every photo zoom with an opaque colour', () => {
+    for (const cap of ['.capTop', '.capBottom']) {
+      const decl = topLevelDeclarations('ZoomCurtain.module.css', cap);
+      expect(decl['background-color'], cap).toBe('var(--et-zoom-cap, #080705)');
+    }
+    const shared = topLevelDeclarations('ZoomCurtain.module.css', '.capTop');
+    expect(shared.position).toBe('fixed');
+    expect([shared.left, shared.right]).toEqual(['0', '0']);
+
     const lb = 'RestaurantGalleryLightbox.module.css';
     expect(topLevelDeclarations(lb, '.galleryLb').position).toBe('static');
-    for (const wide of ['.galleryLbBgMain', '.galleryLbStage']) {
-      expect(topLevelDeclarations(lb, wide).top, wide).toBe('6px');
-      expect(topLevelDeclarations(lb, wide).height, wide).toBe('calc(100dvh - 12px)');
-    }
-    for (const band of [
-      '.galleryLbBgTopLeft',
-      '.galleryLbBgTopRight',
-      '.galleryLbBgBottomLeft',
-      '.galleryLbBgBottomRight',
-    ]) {
-      expect(topLevelDeclarations(lb, band).width, band).toBe('50%');
-    }
+    expect(topLevelDeclarations(lb, '.galleryLbStage').top).toBe('6px');
+    expect(topLevelDeclarations(lb, '.galleryLbStage').height).toBe('calc(100dvh - 12px)');
   });
 
   it('keeps every map module free of !important', () => {

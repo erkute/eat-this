@@ -11,6 +11,7 @@ import {
 } from 'framer-motion';
 import { whenImageReady } from '@/lib/dom/imageReady';
 import styles from './MustEatImageLightbox.module.css';
+import ZoomCurtain from './ZoomCurtain';
 
 export interface MustEatImageLightboxProps {
   imageUrl: string | null;
@@ -369,7 +370,7 @@ const Inner = memo(function Inner({
         }
       }}
     >
-      <div className={styles.backdrop} aria-hidden="true" />
+      <ZoomCurtain className={styles.backdrop} />
       <button
         type="button"
         className={styles.close}

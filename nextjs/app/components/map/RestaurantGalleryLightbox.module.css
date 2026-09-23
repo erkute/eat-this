@@ -59,67 +59,17 @@
   background: #fff;
 }
 .galleryLb {
-  /* Kein eigener fixierter Rahmen — siehe den Vorhang gleich darunter. Die
-     Kinder stehen fixiert und tragen die Stapelhoehe selbst; die Lightbox
-     haengt per Portal direkt am body, dort begrenzt sie kein Kontext. */
+  /* Kein eigener fixierter Rahmen: die Kinder stehen fixiert und tragen die
+     Stapelhoehe selbst; die Lightbox haengt per Portal direkt am body, dort
+     begrenzt sie kein Kontext. */
   position: static;
 }
 
-/* Der Vorhang, und warum er aus fuenf Stuecken besteht.
-
-   Der Blur soll auch hinter Status- und URL-Leiste weiterlaufen (User,
-   23.09.2026). iOS 26 Safari faerbt beide Leisten nach dem fixierten Element,
-   das es 4px innerhalb der Kante, auf halber Breite, findet und das mindestens
-   90 % der Breite misst. Ein Vorhang, der nur einen Blur und keine deckende
-   Farbe hat, ergibt dabei Systemgrau. Findet Safari an der Kante gar keinen
-   solchen Container, bleibt die Leiste durchsichtig und zeigt, was darunter
-   liegt — den Blur.
-
-   Also liegt an keiner der beiden Kanten ein breites fixiertes Element: der
-   Hauptvorhang und die Wischflaeche enden 6px davor, und die Streifen an den
-   Kanten fuellen je zwei Haelften von 50 % — zu schmal, als dass Safari sie
-   als Container zaehlt. Die Stuecke stossen aneinander, statt sich zu
-   ueberlappen: zwei Blur-Schichten uebereinander ergaeben eine dunklere
-   Linie. Die Randhaelften reichen weit ueber die Kanten hinaus (siehe unten).
-
-   Werte in globals.css, damit die beiden Lightboxen nicht wieder
-   auseinanderlaufen. Der Blur animiert nie, darum traegt ihn auch iOS. */
-.galleryLbBg {
-  position: fixed;
+/* Vorhang und Kappen: ZoomCurtain. Die Wischflaeche bleibt 6px vor beiden
+   Kanten, sonst traefe Safaris Abtastung dort sie statt der Kappe — eine
+   durchsichtige Flaeche, die die Leisten grau faerbt. */
+.galleryLbCurtain {
   z-index: 2147483000;
-  background: var(--et-zoom-scrim, rgba(20, 19, 17, 0.62));
-  -webkit-backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
-  backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
-}
-.galleryLbBgMain {
-  left: 0;
-  right: 0;
-  top: 6px;
-  height: calc(100dvh - 12px);
-}
-/* The edge pieces reach far past the edges. Safari draws page content under
-   its see-through bars beyond the box `fixed` anchors to; pieces that
-   stopped at that box left the content there sharp (user, 23.09.2026).
-   What lies outside the screen costs nothing. */
-.galleryLbBgTopLeft,
-.galleryLbBgTopRight {
-  top: -50lvh;
-  height: calc(50lvh + 6px);
-  width: 50%;
-}
-.galleryLbBgBottomLeft,
-.galleryLbBgBottomRight {
-  top: calc(100dvh - 6px);
-  height: 100lvh;
-  width: 50%;
-}
-.galleryLbBgTopLeft,
-.galleryLbBgBottomLeft {
-  left: 0;
-}
-.galleryLbBgTopRight,
-.galleryLbBgBottomRight {
-  left: 50%;
 }
 .galleryLbStage {
   z-index: 2147483001;
@@ -130,7 +80,7 @@
    hält das Durchreichen an den Rändern auf, sonst wippt die Seite darunter. */
 .galleryLbStage {
   position: fixed;
-  /* 6px vor beiden Kanten, wie der Hauptvorhang (siehe `.galleryLbBg`). */
+  /* 6px vor beiden Kanten (siehe `.galleryLbCurtain`). */
   top: 6px;
   left: 0;
   display: flex;

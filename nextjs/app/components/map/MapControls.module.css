@@ -885,9 +885,9 @@
  *
  * Die Antwort ist kein zweites Element, das auf dieses zeigt, sondern dieses,
  * das seinen Namen sagt. Unter `data-invite` wächst der FAB zur beschrifteten
- * Pille — dieselbe Ink/Providence-Sprache wie die Filter-Chips ein paar Pixel
- * darunter, das Fadenkreuz in Markengelb, damit es als unseres liest und nicht
- * als System-Control. Sobald eine Position da ist, klappt es aufs blanke Icon
+ * Pille — dieselbe Fläche und Providence wie die Filter-Chips ein paar Pixel
+ * darunter, Fadenkreuz und Label in Weiß. Sobald eine Position da ist, klappt
+ * es aufs blanke Icon
  * zurück.
  *
  * Steht bewusst am DATEIENDE: `.fab` verteilt sich oben über zwei Dutzend
@@ -909,7 +909,8 @@
 .fab[data-invite] {
   gap: 7px;
   padding: 0 15px 0 11px;
-  background: var(--et-home-ink, #15120e);
+  /* Die Fläche von Suchleiste und Filter-Chips, ohne Kontur. */
+  background: var(--et-ink-raised, #25231f);
   color: var(--et-home-inverse-text, #fff);
   border-radius: var(--et-radius-control, 7px);
 }
@@ -960,7 +961,38 @@
    mapCascade.test.ts weiter genau den plattenlosen Zustand bewacht. */
 .fabIconOnPlate {
   filter: none;
-  color: var(--et-home-accent, #ffc600);
+}
+
+/* Der Standort-Knopf ist nie gelb (Betreiber, 23.09.2026: „mag das Gelb
+   nicht"). Bis dahin stand das Fadenkreuz der Pille in Markengelb, und Hover
+   und Fokus färbten ihn wie Lupe und Burger gelb. Jetzt bleibt er weiß; auf
+   Hover/Fokus tritt das nackte Icon eine Spur zurück, die Pille wird eine
+   Stufe heller. Steht hinter den gemeinsamen Hover-Regeln oben, damit die
+   Quellreihenfolge für ihn entscheidet. */
+.fab {
+  color: var(--et-home-inverse-text, #fff);
+}
+
+.fab:focus-visible {
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+}
+
+.fab[data-invite]:focus-visible {
+  color: var(--et-home-inverse-text, #fff);
+  background:
+    linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised, #25231f);
+}
+
+@media (hover: hover) {
+  .fab:hover {
+    color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  }
+
+  .fab[data-invite]:hover {
+    color: var(--et-home-inverse-text, #fff);
+    background:
+      linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised, #25231f);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

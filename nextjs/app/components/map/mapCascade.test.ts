@@ -131,8 +131,8 @@ describe('MapControls cascade', () => {
 
   it('drops the icon halo once the icon sits on its own plate', () => {
     /* The drop-shadow exists so the free-standing icon survives on top of a
-     * yellow pin. On the ink pill the same filter is a white glow around a
-     * yellow crosshair. Separate class on purpose, so the halo assertion above
+     * yellow pin. On the pill's own plate the same filter is only a glow
+     * around the crosshair. Separate class on purpose, so the halo assertion above
      * keeps guarding the plate-less state. */
     expect(effective(CONTROLS, 'fabIconOnPlate', 'filter')).toBe('none');
   });
@@ -322,10 +322,9 @@ describe('MapFilters cascade', () => {
 
     expect(long, '.filterChipLabelLong has no effective font-size').toBeDefined();
     expect(plain, '.filterChipLabel has no effective font-size').toBeDefined();
-    expect(
-      long,
-      'long labels are shrunk again — the chip grows now, so the type must not'
-    ).toBe(plain);
+    expect(long, 'long labels are shrunk again — the chip grows now, so the type must not').toBe(
+      plain
+    );
 
     expect(
       effective(FILTERS, 'filterChipActive', 'white-space'),

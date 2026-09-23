@@ -557,11 +557,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
             }}
           >
-            {/* Die H1 der Seite schwebt über der Karte, in derselben Sprache
-                wie Suche und Burger daneben: Ink-Type mit weißem Halo, keine
-                Fläche. Sie stand bis zum 01.09.2026 im Listen-Panel und war
-                dort auf dem Desktop dauerhaft sichtbar, ohne je wegzuscrollen
-                (User). Hier kostet sie der Liste keinen Pixel. */}
+            {/* Die H1 der Seite — im HTML, aber visuell ausgeblendet (seit
+                23.09.2026, siehe MapIntro). Steht in der Kartenhülle, damit
+                sie im Must-Eat-Takeover mit der Karte verschwindet. */}
             <MapIntro locale={locale} />
             <div className={styles.liveMapLayer} data-live-map-layer="">
               <MapCanvasLayer

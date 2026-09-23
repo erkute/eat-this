@@ -247,6 +247,11 @@
   outline-offset: 2px;
 }
 
+/* Phone only; see the phone block below. */
+.mapStrip {
+  display: none;
+}
+
 @media (max-width: 767.98px) {
   .shell {
     /* Resting stop of the three-stage sheet ("map"), mirrored in JS by
@@ -259,8 +264,15 @@
        no part of this edge. */
     --phone-list-sheet-visible: 28dvh;
     /* The detail's map strip. Sized so the sheet has the same three stops as
-       the list — a live, pannable map behind the sliding detail sheet. */
-    --detail-map-peek: 50dvh;
+       the list — a live, pannable map behind the sliding detail sheet. In lvh
+       for the same reason as the list's map: a dvh strip resized with every
+       step of Safari's collapsing toolbar and the map slid about while the
+       detail scrolled (user, 23.09.2026). */
+    --detail-map-peek: 50lvh;
+    /* Map left showing above the sheet when it is all the way up (user,
+       22.09.2026: „oben noch minimal die Map sehen"). The sticky bar stops
+       below it. Mirrored in JS by MAP_STRIP_PX in lib/map/sheetSlide.ts. */
+    --map-strip: calc(env(safe-area-inset-top, 0px) + 72px);
     height: auto;
     overflow: visible;
   }
@@ -269,12 +281,21 @@
     height: auto;
     overflow: visible;
     position: relative;
+    /* The phone map lies UNDER the sheet at z-index -1, the map strip over
+       it (7), the sheet's bars over both (8). A stacking context of its own
+       keeps the -1 above this body's background. */
+    isolation: isolate;
   }
   .mapWrap {
     position: sticky;
     top: 0;
-    height: 100dvh;
-    z-index: 0;
+    /* The LARGEST viewport, not the dynamic one: 100dvh followed Safari's
+       toolbar as it collapsed and expanded during a scroll, the canvas
+       resized on every step and the map slid up and down under the list
+       (user, 23.09.2026). The list's resting edge is set against dvh on its
+       own (MapSheet.module.css). */
+    height: 100lvh;
+    z-index: -1;
     /* Deckend, nicht transparent: iOS 26 Safari ignoriert theme-color und
        faerbt seine Leisten nach der background-color des obersten fixierten
        oder sticky Elements, das eine Viewport-Kante beruehrt — auf dem
@@ -306,6 +327,70 @@
   }
   .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapWrap {
     visibility: hidden;
+  }
+  /* The takeover is 100dvh and lies over the map by the map's 100lvh
+     (MapSheet.module.css), so this body is 100dvh tall — but the sticky map
+     inside it stays 100lvh and stuck out below by a Safari-toolbar height.
+     That overflow made the page scroll by that much: a sideways swipe
+     through the must-eats moved it too, and map showed under the takeover
+     (user, 23.09.2026). `clip`, not `hidden`: no scroll container, the map
+     stays sticky. */
+  .body[data-map-view='detail'][data-detail-kind='must-eat'] {
+    overflow: clip;
+  }
+
+  /* The map strip: the map's top slice, copied frame by frame into a layer
+     fixed above the list (lib/map/mapStripMirror), so the rows scrolling up
+     vanish under map and the sticky bar rests below it. Over the map it is
+     pixel for pixel the map, so it can stay on at every depth — nothing
+     switches, nothing can come late (user, 23.09.2026). Search and burger
+     stand above it (MapControls.module.css). Ink, like .mapWrap: it touches
+     the top edge, and iOS 26 Safari tints its bar after such an element.
+
+     Inert over the map, where a finger means to pan the map under it; it
+     takes taps once the bar is stuck, and a tap goes to the map
+     (MapSectionBody). Not in the must-eat takeover: no map there.
+
+     It reaches a little past the strip line, under the stuck bar (z 8): the
+     bar's top corners are rounded (10px) and see-through, and the rows
+     scrolling under the bar showed in them — on the right mostly the yellow
+     must-eat card (user, 23.09.2026). 12px = the radius plus the hairline. */
+  .mapStrip {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: calc(var(--map-strip) + 12px);
+    z-index: 7;
+    overflow: hidden;
+    background-color: var(--et-home-ink, #15120e);
+    pointer-events: none;
+  }
+  .body[data-header-stuck='true'] .mapStrip {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapStrip {
+    display: none;
+  }
+  /* Out of Safari's sight while a photo is zoomed: it keeps tinting the top
+     bar after the last edge element it found for as long as that element is
+     visible, and the strip would hold it dark instead of letting the zoom's
+     blur show through (RestaurantGalleryLightbox.module.css). Invisible
+     anyway — the strip is a copy of the map under it. */
+  :global(body[data-lightbox-open]) .mapStrip {
+    visibility: hidden;
+  }
+  .mapStripCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .mapStripPins {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
   }
 }
 

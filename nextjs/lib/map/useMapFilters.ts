@@ -4,7 +4,6 @@ import { getOpenStatus } from './openingHours';
 import { PRICE_BUCKETS, matchesPriceBucket, priceBucketOf } from './priceBuckets';
 import { byMustEatsThenName } from './listOrder';
 import { CUISINE_LABELS_DE } from '@/lib/cuisineLabels';
-import { abbreviateBezirk } from './abbreviateBezirk';
 
 /** Ab wie vielen Spots ein Bezirk im Filter erscheint. Zehn der zwanzig
  *  Bezirke lagen darunter, die Hälfte davon bei ein oder zwei Treffern. */
@@ -34,20 +33,72 @@ function districtOf(r: MapRestaurant): string | null {
  * Akzente raus. Das wirkt auf BEIDEN Seiten: „Türkisch" getippt findet
  * „Turkisch" geschrieben und umgekehrt. */
 export function normalizeForSearch(value: string | null | undefined): string {
-  return (value ?? '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    /* Apostrophe fliegen mit raus, in allen vier Schreibweisen, die im
+  return (
+    (value ?? '')
+      .toLowerCase()
+      /* NFD zerlegt ß nicht; alle Adressen schreiben „straße", getippt wird
+       „strasse". */
+      .replace(/ß/g, 'ss')
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      /* Apostrophe fliegen mit raus, in allen vier Schreibweisen, die im
        Bestand vorkommen. „KuchenRausch's", „EIVGI´S" und die Kurzform
        „P'berg" tippt niemand mit dem richtigen Zeichen — und welches das
        richtige ist, weiss man dem Namen nicht an. */
-    .replace(/['\u2019\u02bc\u00b4`]/g, '');
+      .replace(/['\u2019\u02bc\u00b4`]/g, '')
+      /* Ausgeschriebene Umlaute: „doener", „neukoelln" — so tippt man ohne
+       Umlaut-Taste. Nach dem Akzent-Abstreifen steht „ö" schon als „o", also
+       wird „oe" ebenfalls „o", auf BEIDEN Seiten. Dass dabei auch ein
+       „Blue" zu „blu" wird, schadet nicht: die Anfrage wird genauso gefaltet. */
+      .replace(/ae/g, 'a')
+      .replace(/oe/g, 'o')
+      .replace(/ue/g, 'u')
+  );
 }
 
-function includesQuery(value: string | null | undefined, q: string): boolean {
-  if (!value) return false;
-  return normalizeForSearch(value).includes(q);
+/* Die Kieze, wie sie im Alltag heissen. Greift auf die schon gefaltete
+   Anfrage — „P'berg" ist dort „pberg", „X-Berg" ist „x-berg". */
+const KIEZ_NAMES: [RegExp, string][] = [
+  [/(^|\s)x-?berg(?=\s|$)/g, '$1kreuzberg'],
+  [/(^|\s)f-?hain(?=\s|$)/g, '$1friedrichshain'],
+  [/(^|\s)p-?berg(?=\s|$)/g, '$1prenzlauer berg'],
+];
+
+/** Die Anfrage als Woerter. Jedes muss irgendwo am Spot stehen — nicht der
+ *  ganze Satz in einem Feld: „pizza neukölln" fand sonst nichts. */
+export function searchTokens(query: string): string[] {
+  let q = normalizeForSearch(query.trim());
+  /* Der volle Name wird gefaltet wie alles andere — „Prenzlauer" steht im
+     Index als „prenzlaur". */
+  for (const [pattern, name] of KIEZ_NAMES) q = q.replace(pattern, normalizeForSearch(name));
+  return q.split(/\s+/).filter(Boolean);
+}
+
+/** Steht `token` in `hay` am Anfang eines Wortes? */
+function startsWord(hay: string, token: string): boolean {
+  for (let i = hay.indexOf(token); i !== -1; i = hay.indexOf(token, i + 1)) {
+    if (i === 0 || !/[a-z0-9]/.test(hay[i - 1])) return true;
+  }
+  return false;
+}
+
+/** Was ein Spot fuer die Suche hergibt, einmal gefaltet. */
+interface SearchEntry {
+  name: string;
+  /** Alle durchsuchten Felder, durch „ | " getrennt, damit kein Wort ueber
+   *  eine Feldgrenze hinweg entsteht. */
+  all: string;
+}
+
+/**
+ * Wie gut ein Spot zur Anfrage passt, 0 am besten. Die Liste sortiert sonst
+ * nach Entfernung, und bei „eis" stand das „Speiselokal" um die Ecke vor der
+ * Eisdiele. Innerhalb einer Stufe bleibt die Entfernung.
+ */
+function searchRank(entry: SearchEntry, tokens: string[]): number {
+  if (tokens.every((t) => startsWord(entry.name, t))) return 0;
+  if (tokens.every((t) => startsWord(entry.all, t))) return 1;
+  return 2;
 }
 
 /** The three pickable filters plus the open-now toggle — everything the chip
@@ -123,12 +174,7 @@ function matchesChips(r: MapRestaurant, s: MapChipState): boolean {
   return true;
 }
 
-export function useMapFilters({
-  restaurants,
-  mustEats = [],
-  location,
-  listCenter = null,
-}: Args) {
+export function useMapFilters({ restaurants, mustEats = [], location, listCenter = null }: Args) {
   const [category, setCategory] = useState<MapCategory>('All');
   const [search, setSearch] = useState('');
   const [bezirk, setBezirk] = useState<string | null>(null);
@@ -175,51 +221,55 @@ export function useMapFilters({
     return PRICE_BUCKETS.map((b) => b.id).filter((id) => present.has(id));
   }, [catalogue]);
 
-  const dishIndexByRestaurantId = useMemo(() => {
-    const index = new Map<string, string>();
+  /* Jeder Spot einmal gefaltet, statt bei jedem Tastendruck jedes Feld neu. */
+  const searchIndex = useMemo(() => {
+    const dishes = new Map<string, string[]>();
     for (const mustEat of mustEats) {
       const restaurantId = mustEat.restaurant?._id;
       const dish = mustEat.dish?.trim();
       if (!restaurantId || !dish) continue;
-      index.set(restaurantId, `${index.get(restaurantId) ?? ''} ${normalizeForSearch(dish)}`);
+      dishes.set(restaurantId, [...(dishes.get(restaurantId) ?? []), dish]);
+    }
+    const index = new Map<string, SearchEntry>();
+    for (const r of restaurants) {
+      const fields = [
+        r.name,
+        districtOf(r),
+        /* Die Strasse. Sie liegt ohnehin im Kartenpayload, kostet hier also
+           nichts, und „Kastanienallee" ist eine Suche wie jede andere. */
+        r.address,
+        r.cuisineType,
+        /* Die Küche steht in Sanity ENGLISCH („Vietnamese"), auf den
+           deutschen Seiten liest man aber das Label („Vietnamesisch") — und
+           genau das tippt man dann auch. Ohne dieses Feld fand
+           „vietnamesisch" keinen der acht vietnamesischen Spots. Beide Formen
+           zählen, damit die Suche in beiden Sprachen dasselbe findet. */
+        r.cuisineType ? CUISINE_LABELS_DE[r.cuisineType] : null,
+        ...(dishes.get(r._id) ?? []),
+        ...(r.categories ?? []).flatMap((c) => [c.name, c.nameEn, c.slug]),
+      ];
+      index.set(r._id, {
+        name: normalizeForSearch(r.name),
+        all: fields.filter(Boolean).map(normalizeForSearch).join(' | '),
+      });
     }
     return index;
-  }, [mustEats]);
+  }, [restaurants, mustEats]);
+
+  const tokens = useMemo(() => searchTokens(search), [search]);
 
   // A non-empty search query overrides all other filters: the user expects to
   // find anything on the map regardless of the active bezirk/category/open
   // selection.
   const filterRestaurant = useCallback(
     (r: MapRestaurant): boolean => {
-      const q = normalizeForSearch(search.trim());
-      if (q) {
-        const dishIndex = dishIndexByRestaurantId.get(r._id) ?? '';
-        const hit =
-          includesQuery(r.name, q) ||
-          includesQuery(districtOf(r), q) ||
-          /* „P'berg" steht so auf den Aufklebern der Liste — wer es liest,
-             tippt es auch. */
-          includesQuery(abbreviateBezirk(districtOf(r)), q) ||
-          /* Die Strasse. Sie liegt ohnehin im Kartenpayload, kostet hier also
-             nichts, und „Kastanienallee" ist eine Suche wie jede andere. */
-          includesQuery(r.address, q) ||
-          includesQuery(r.cuisineType, q) ||
-          /* Die Küche steht in Sanity ENGLISCH („Vietnamese"), auf den
-             deutschen Seiten liest man aber das Label („Vietnamesisch") — und
-             genau das tippt man dann auch. Ohne diese Zeile fand „vietnamesisch"
-             keinen der acht vietnamesischen Spots. Beide Formen zählen, damit
-             die Suche in beiden Sprachen dasselbe findet. */
-          (r.cuisineType ? includesQuery(CUISINE_LABELS_DE[r.cuisineType], q) : false) ||
-          dishIndex.includes(q) ||
-          r.categories?.some(
-            (c) =>
-              includesQuery(c.name, q) || includesQuery(c.nameEn, q) || includesQuery(c.slug, q)
-          );
-        return Boolean(hit);
+      if (tokens.length) {
+        const entry = searchIndex.get(r._id);
+        return Boolean(entry && tokens.every((t) => entry.all.includes(t)));
       }
       return matchesChips(r, { category, bezirk, price, openOnly });
     },
-    [category, bezirk, price, openOnly, search, dishIndexByRestaurantId]
+    [category, bezirk, price, openOnly, tokens, searchIndex]
   );
 
   /* What every picker row would actually yield, counted against the OTHER
@@ -265,10 +315,20 @@ export function useMapFilters({
      byMustEatsThenName. */
   const listRestaurants = useMemo(() => {
     const anchor = listCenter ?? location;
-    return anchor
+    const ordered = anchor
       ? nearestTo(displayedRestaurants, anchor)
       : [...displayedRestaurants].sort(byMustEatsThenName);
-  }, [displayedRestaurants, listCenter, location, nearestTo]);
+    if (!tokens.length) return ordered;
+    /* Bei einer Suche zuerst, wie gut ein Spot passt; sort ist stabil, die
+       Ordnung darueber bleibt innerhalb einer Stufe stehen. */
+    const rank = new Map(
+      ordered.map((r) => {
+        const entry = searchIndex.get(r._id);
+        return [r._id, entry ? searchRank(entry, tokens) : 2] as const;
+      })
+    );
+    return ordered.sort((a, b) => rank.get(a._id)! - rank.get(b._id)!);
+  }, [displayedRestaurants, listCenter, location, nearestTo, tokens, searchIndex]);
 
   return {
     category,

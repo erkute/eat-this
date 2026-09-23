@@ -85,6 +85,16 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
         onMoveEnd={onMoveEnd}
         onLoad={() => onFirstPaint?.()}
         onError={() => onFirstPaint?.()}
+        /* Zooming fast in and out left patches of the map black (user,
+           23.09.2026). By default MapLibre drops every tile request still in
+           flight when a zoom starts, so on a quick pinch the tiles never
+           arrived; let them finish. And it keeps only about five zoom levels
+           of the viewport's tiles — on a phone ~30 tiles, gone after one
+           quick zoom out and back. Eight levels (~48 tiles) keeps them, at a
+           memory cost a phone can carry; the tiles themselves sit in the
+           HTTP cache for good (OpenFreeMap sends a ten-year max-age). */
+        cancelPendingTileRequestsWhileZooming={false}
+        maxTileCacheZoomLevels={8}
       >
         <AttributionControl position="bottom-left" compact />
         {children}

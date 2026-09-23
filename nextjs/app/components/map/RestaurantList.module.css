@@ -184,7 +184,10 @@
   inset: 0;
   aspect-ratio: auto;
   border-radius: 0;
-  background: #15120e;
+  /* Raised ink, not the page's own: until the photo is in, the card reads as
+     a card and not as a hole in the list (user, 23.09.2026: „da ist so
+     schwarz und dann kommen die Bilder"). */
+  background: var(--et-ink-raised, #25231f);
 }
 /* Der Name liegt direkt auf dem Foto, und welches Foto das ist, entscheidet
    die Redaktion — nicht das Layout. Auf einem hellen Bild (Tageslicht durch

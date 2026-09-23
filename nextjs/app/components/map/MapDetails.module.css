@@ -1779,7 +1779,14 @@
 .detailV13:not(.detailV13MustEat) .rdHero {
   margin: 0 0 12px;
   width: 100%;
-  min-height: clamp(300px, 48dvh, 430px);
+  /* svh, not dvh: dvh grows while Safari folds its bar away during a scroll,
+     so pushing the detail up resized the photo mid-gesture — it zoomed, the
+     gallery lagged a frame behind and a strip showed under it (user,
+     23.09.2026). The small viewport never changes. Rounded to whole pixels:
+     a fractional height left a one-device-pixel seam under the composited
+     gallery while it scrolled. */
+  min-height: clamp(300px, 48svh, 430px);
+  min-height: round(down, clamp(300px, 48svh, 430px), 1px);
   aspect-ratio: auto;
   background-color: var(--et-home-ink, #15120e);
   background-image: var(--rd-hero-image);

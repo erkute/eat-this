@@ -26,6 +26,7 @@ import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
+import { forgetSheetPosition } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import {
@@ -51,6 +52,8 @@ import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCent
             with env(safe-area-inset-top) added by the caller. */
 const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
+/* The pin card's height above its anchor (MapMarkers.module.css). */
+const PIN_HEIGHT_PX = 47;
 
 /* How long the search query has to hold still before the camera follows it.
    Long enough that typing "kreuzberg" flies once rather than once per letter,
@@ -462,8 +465,24 @@ export default function MapSection({
          own `top: 14px` left its client rect at -82, i.e. fully above the
          visible area. The phone controls add this back onto their `top`
          (MapControls.module.css). Kept off `transform`, which those three need
-         for their retreat animation. */
-      write('--map-visual-offset-top', `${Math.round(Math.max(0, visualOffsetTop))}px`);
+         for their retreat animation.
+
+         Only while a text field has focus, i.e. while there IS a keyboard.
+         Safari slides the visual viewport for other reasons too: the burger
+         drawer pins the page (body position: fixed), Safari unfolds its bars,
+         and the offset it reported pushed burger and search down while the
+         map stayed put (user, 23.09.2026). */
+      const active = document.activeElement;
+      /* Only fields that bring up the keyboard — not a focused checkbox. */
+      const typing =
+        active instanceof HTMLTextAreaElement ||
+        (active instanceof HTMLInputElement &&
+          ['text', 'search', 'email', 'url', 'tel', 'password', 'number'].includes(active.type)) ||
+        (active instanceof HTMLElement && active.isContentEditable);
+      write(
+        '--map-visual-offset-top',
+        `${typing ? Math.round(Math.max(0, visualOffsetTop)) : 0}px`
+      );
     };
 
     apply();
@@ -471,12 +490,17 @@ export default function MapSection({
     window.addEventListener('scroll', apply, { passive: true });
     window.visualViewport?.addEventListener('resize', apply, { passive: true });
     window.visualViewport?.addEventListener('scroll', apply, { passive: true });
+    /* The keyboard comes and goes with the focus. */
+    document.addEventListener('focusin', apply);
+    document.addEventListener('focusout', apply);
 
     return () => {
       window.removeEventListener('resize', apply);
       window.removeEventListener('scroll', apply);
       window.visualViewport?.removeEventListener('resize', apply);
       window.visualViewport?.removeEventListener('scroll', apply);
+      document.removeEventListener('focusin', apply);
+      document.removeEventListener('focusout', apply);
       root.style.removeProperty('--map-runtime-bar-overhang');
       root.style.removeProperty('--map-visual-offset-top');
     };
@@ -623,6 +647,14 @@ export default function MapSection({
   const [listFocusId, setListFocusId] = useState<string | null>(null);
   const listFocusIdRef = useRef(listFocusId);
   listFocusIdRef.current = listFocusId;
+  /* A remembered detail position (the grabber pulled the detail off the map)
+     belongs to one restaurant. Another one — or the same one opened afresh —
+     starts at its top. */
+  const openRestaurantId = selectedRestaurant?._id ?? null;
+  useEffect(() => {
+    forgetSheetPosition('detail');
+  }, [openRestaurantId]);
+
   const prevFiltersRef = useRef({ category, bezirk, price, openOnly, search });
   useEffect(() => {
     if (sheetView !== 'list') return;
@@ -637,6 +669,7 @@ export default function MapSection({
       prev.search !== next.search;
     if (!filtersChanged) return;
     listScrollRef.current = 0;
+    forgetSheetPosition('list');
     /* A different result set: the row that was worth pointing at may not even
        be in it any more. */
     setListFocusId(null);
@@ -753,18 +786,33 @@ export default function MapSection({
   // Padding the map should respect when centering on a point, so spots don't
   // land behind the bottom sheet (mobile) or side panel (desktop).
   /* Camera padding for the in-flow phone detail: the visible map is only the
-     top peek strip, so the target must center vertically inside it. Shared by
-     getFlyPadding (pager/late flyTos, sheetView already 'detail') and the
-     open-click handlers (whose closures still see sheetView 'list'). */
+     part of the detail's map strip the sheet leaves uncovered, so the target
+     must center vertically inside THAT. Shared by getFlyPadding (pager/late
+     flyTos, sheetView already 'detail') and the open-click handlers (whose
+     closures still see sheetView 'list').
+
+     Measured from the sheet's real top edge, not assumed at its resting
+     stop: paging to the next spot keeps the scroll position, and with the
+     sheet pushed halfway up the spot was centred in the whole strip — under
+     the sheet (user, 23.09.2026). */
   const phoneDetailFlyPadding = useCallback(() => {
     /* Mirrors --detail-map-peek in MapLayout.module.css. */
     const peek = (DETAIL_PEEK_DVH / 100) * window.innerHeight;
-    /* The phone detail gives MapLibre a real container exactly as tall as the
-       strip. Top-only padding puts the pin anchor at 60% of it, centering the
-       pin body at the resting stop without extending WebGL behind the detail. */
+    const canvasH = mapRef.current?.getContainer().clientHeight || peek;
+    const sheetTop = document
+      .querySelector<HTMLElement>('[data-map-sheet]')
+      ?.getBoundingClientRect().top;
+    /* How much map is on screen above the sheet. */
+    const visible = Math.min(canvasH, sheetTop != null && sheetTop > 0 ? sheetTop : peek);
+    /* Where the pin's anchor (its bottom tip) should land: at 60% of the
+       visible map, which centres the pin body above it — but never so high
+       that the pin, drawn upwards from its anchor, runs off the top. */
+    const anchor = Math.min(visible, Math.max(0.6 * visible, PIN_HEIGHT_PX + 8));
+    /* The padded area's centre is the anchor: bottom cuts away what the
+       sheet covers, top balances it. */
     return {
-      top: Math.round(peek * 0.2),
-      bottom: 0,
+      top: Math.max(0, Math.round(2 * anchor - visible)),
+      bottom: Math.max(0, Math.round(canvasH - visible)),
       left: 20,
       right: 20,
     };

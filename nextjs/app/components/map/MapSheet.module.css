@@ -163,43 +163,45 @@
     bottom: auto;
     transform: none;
     height: auto;
-    margin-top: calc(0px - var(--phone-list-sheet-visible, 28dvh));
+    /* The map above is 100lvh tall (MapLayout.module.css); this puts the
+       resting edge at 100dvh − the visible share, as before. */
+    margin-top: calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 100lvh);
     /* At least a full viewport, otherwise the last stop ("sheet" — list
        covering the map entirely) is simply not reachable by scrolling. */
     min-height: calc(100dvh + var(--map-bar-overhang, 0px));
     transition: none;
     will-change: auto;
-    z-index: 4;
+    /* No stacking context: the map strip slides in between the rows and the
+       bars (MapLayout.module.css). Rows and detail content are contained
+       below instead, so their own z-indices stay theirs. */
+    z-index: auto;
     /* Base .list is overflow:hidden — that would make IT the sticky
        container for .listHeader (which must stick to the WINDOW here). */
     overflow: visible;
     /* Edge styling (10px radius, hairline top, no shadow) comes from the
        html .list design-pass rules — unchanged from the drag-sheet look. */
   }
-  .list[data-view='list'] {
-    background: var(--et-home-ink, #15120e);
-  }
-  /* Cap over the status-bar band, ONLY while the filter header is stuck.
-     Installed to the home screen the page owns that band, so rows would
-     otherwise scroll visibly through the strip above the header and the bar
-     would read as a loose stripe with content on both sides.
+  /* The sheet itself is see-through; its two parts carry the ink — the
+     filter bar (MapFilters.module.css, with the sheet's edge: hairline and
+     rounded top) and the rows below it.
 
-     A pseudo-element rather than padding on the header: it takes no layout
-     space, so nothing shifts when it appears and the resting sheet has no
-     dead whitespace above the chips. In a browser tab the inset is 0, so
-     this collapses to nothing — which is why it can stay unconditional. */
-  /* List only: the detail's top edge is a photo hero, and a paper-coloured cap
-     over it would read as a stray white stripe. `data-header-stuck` itself is
-     shared by both views (it drives the floating controls). */
-  .list[data-view='list'][data-header-stuck='true']::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: env(safe-area-inset-top, 0px);
+     Why: once the bar sticks, the slot it leaves in the flow travels up with
+     the sheet. With an ink sheet that slot was a dark band growing above the
+     bar — plus the hairline riding up past it — and the handle seemed to grow
+     and snap back (user, 23.09.2026). A see-through slot shows the map it
+     sits on. */
+  .list[data-view='list'] {
+    background: transparent;
+    border-top: 0;
+  }
+  .list[data-view='list'] .listScroll {
     background: var(--et-home-ink, #15120e);
-    z-index: 5;
+    isolation: isolate;
+  }
+  /* Detail content keeps its own stacking (cards up to z 30 inside), so none
+     of it climbs over the map strip or the bars. */
+  .list[data-view='detail'] > :not(.handle) {
+    isolation: isolate;
   }
   .handle {
     cursor: grab;
@@ -226,23 +228,36 @@
   .handle:active {
     cursor: grabbing;
   }
-  .stuckSentinel {
-    height: 0;
+  /* In a restaurant detail the handle is the bar: it sticks below the map
+     strip like the list's filter bar, so the way back to the map is on screen
+     at any depth (useHandleScrollDrag). Ink, because rows pass under it. */
+  .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
+    position: sticky;
+    top: var(--map-strip, env(safe-area-inset-top, 0px));
+    /* Above the map strip (7). */
+    z-index: 8;
+    background: var(--et-home-ink, #15120e);
+    /* The sheet's edge rides on the handle here (see the sheet rule below),
+       rounded like the list's filter bar. Never switched on "stuck": the
+       state arrives a frame late on iOS, so anything keyed to it would change
+       visibly while the bar is already sitting there. */
+    border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 1px 0 0 var(--et-home-ink, #15120e);
+  }
+  /* The slot the handle leaves when it sticks is see-through, the rest of the
+     sheet ink: same reason as the list (see `.list[data-view='list']`) — map
+     there instead of a dark band growing above the bar. 27px = the handle's
+     26px plus its hairline. */
+  .list[data-view='detail'][data-detail-kind='restaurant'] {
+    background: linear-gradient(transparent 0 27px, var(--et-home-ink, #15120e) 27px);
+    border-top: 0;
   }
   .listScroll {
     max-height: none;
     overflow: visible;
-    /* Clearance for the map/list pill, which is `position: fixed` at
-       bottom-centre over this list (MapViewToggle). 24px was not enough: the
-       pill is 44px tall and parks max(18px, safe-area + 14px) above the edge —
-       plus the cookie bar while it is up — so the last thing in the list sat
-       underneath it. Today that is the All-Berlin banner's centred sign-in
-       line, which the pill covers exactly; before it, the last card.
-       Keep the two in step: the first two terms are the pill's own `bottom`,
-       then its height and a gap. */
-    padding-bottom: calc(
-      max(18px, calc(env(safe-area-inset-bottom, 0px) + 14px)) + var(--consent-bar-h, 0px) + 56px
-    );
+    /* The end of the list clears the home indicator. */
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
   }
   .list[data-view='detail'] {
     position: relative;
@@ -258,7 +273,7 @@
     transform: none;
     transition: none;
     will-change: auto;
-    z-index: 6;
+    z-index: auto;
     border-radius: 0;
     border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
     overflow: visible;
@@ -271,13 +286,18 @@
        samples that real page canvas behind its browser chrome; a fixed
        viewport layer leaves the URL bar with a stale/black backdrop after
        the detail switches or closes. The negative margin overlays the
-       preceding 100dvh sticky map without creating a fixed compositor. */
+       preceding sticky map without creating a fixed compositor.
+
+       The margin is the map's height, and the map is 100lvh (MapLayout).
+       With -100dvh here the takeover sat a Safari-toolbar height too low on
+       the iPhone and the page scrolled by that much (user, 23.09.2026) —
+       invisible in Chrome, where lvh and dvh are the same. */
     position: relative;
     inset: auto;
     width: 100%;
     height: 100dvh;
     min-height: 100dvh;
-    margin-top: -100dvh;
+    margin-top: -100lvh;
     border: 0;
     border-radius: 0;
     overflow: hidden;

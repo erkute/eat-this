@@ -136,7 +136,9 @@ describe('RestaurantList rows', () => {
       })
     );
 
-    expect(observed.length).toBe(2);
+    /* Each row is watched — twice for a non-first row, which also watches
+       for when to start fetching its photo. */
+    expect(new Set(observed).size).toBe(2);
     expect(prefetchRestaurantDetail).toHaveBeenCalledTimes(2);
     expect(prefetchRestaurantDetail).toHaveBeenCalledWith('f1');
     expect(prefetchRestaurantDetail).toHaveBeenCalledWith('l1');

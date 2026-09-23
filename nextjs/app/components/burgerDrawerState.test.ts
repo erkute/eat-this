@@ -59,7 +59,7 @@ describe('burger drawer mobile canvas state', () => {
     expect(document.body.style.position).toBe('');
     expect(document.documentElement.style.backgroundColor).toBe('');
     expect(document.body.style.backgroundColor).toBe('');
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 240);
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 240, behavior: 'instant' });
   });
 
   it('restores the original inline colors across repeated open-close cycles', () => {

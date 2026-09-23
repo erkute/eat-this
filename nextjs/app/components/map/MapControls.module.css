@@ -195,9 +195,10 @@
 
 /* Tablet keeps the view-driven retreat (its sheet is a transformed drag-sheet,
    so there is no scroll position to key off). PHONES are deliberately excluded:
-   there all three controls retreat on `data-header-stuck` alone — one trigger,
-   one direction, identical in the list and in the detail. Before, the detail
-   parked them off-screen outright and the list hid them at a different moment. */
+   there search and burger stay put at every depth — they stand in the map strip
+   the sheet leaves at the top (user, 23.09.2026: „kann die Suche und das
+   Burger-Menü bleiben?"). They used to retreat when the bar stuck and came
+   flying back on every pull of the grabber. */
 @media (min-width: 768px) {
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
   :global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
@@ -514,12 +515,6 @@
   will-change: transform, clip-path;
 }
 
-.mapSearchToolbar::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-}
-
 .mapSearchInput::placeholder {
   font-weight: 400;
 }
@@ -535,10 +530,6 @@
 .fab,
 .panelToggle {
   border-color: #15120e;
-}
-
-.mapSearchToolbar::before {
-  background: #ffc600;
 }
 
 .mapSearchBtn,
@@ -657,7 +648,9 @@
   height: 44px;
   gap: 8px;
   padding: 0 10px 0 13px;
-  background: var(--et-home-ink, #15120e);
+  /* Die Flaeche der Filter-Chips, eine Stufe heller als der Grund — ohne
+     Kontur (siehe unten). */
+  background: var(--et-ink-raised, #25231f);
   color: var(--et-home-paper, #fff);
   border: 0;
   border-radius: var(--et-radius-control, 7px);
@@ -669,10 +662,6 @@
   animation: none;
   clip-path: none;
   transform: none;
-}
-
-.mapSearchToolbar::before {
-  content: none;
 }
 
 .mapSearchToolbar .mapSearchIcon {
@@ -723,22 +712,15 @@
   outline: 0;
 }
 
-/* Weder Ring noch Rahmen, und kein Gelb: der Fokus ist ein Streifen an der
-   linken Innenkante in der Schriftfarbe der Leiste. Ganz weglassen geht nicht —
-   auf der Ink-Fläche ist der Fokus sonst unsichtbar, und die Leiste hebt die
-   generische Fokus-Kontur aus globals.css für ihr Eingabefeld selbst auf
-   (`.mapSearchToolbar .mapSearchInput:focus-visible { outline: 0 }`). */
-.mapSearchToolbar:has(.mapSearchInput:focus-visible) {
+/* Weder Kontur noch Fokus-Balken (User, 23.09.2026): der 5px-Balken an der
+   linken Innenkante gefiel nicht, ein Ring — weiss oder gelb — auch nicht,
+   Google Maps hat keinen. Die Leiste hebt sich mit ihrer Flaeche
+   (--et-ink-raised) von der Karte ab wie die Chips unter ihr. Einen eigenen
+   Fokus braucht sie nicht: sie steht nur offen, solange man darin schreibt
+   oder eine Suche gilt, und dann blinkt der Cursor. */
+.mapSearchToolbar:focus-within {
   outline: 0;
   box-shadow: none;
-}
-
-.mapSearchToolbar:has(.mapSearchInput:focus-visible)::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-  background: currentColor;
 }
 
 .mapSearchClear {
@@ -860,28 +842,34 @@
   .mapBurger {
     z-index: 3;
   }
+}
 
-  :global([data-map-body][data-header-stuck='true']) .mapSearchToolbar,
-  :global([data-map-body][data-header-stuck='true']) .mapSearchBtn,
-  :global([data-map-body][data-header-stuck='true']) .mapBurger {
-    transform: translateY(calc(-100% - 80px));
-    pointer-events: none;
+@media (max-width: 767.98px) {
+  /* Over the map strip (z-index 7, MapLayout.module.css). Search stands
+     outside the map wrapper for this — inside it, it was locked into the
+     wrapper's stacking context under the list. */
+  .mapBurger,
+  .mapSearchBtn,
+  .mapSearchToolbar {
+    z-index: 8;
   }
 }
 
 @media (max-width: 767.98px) {
   /* Phone + Must-Eat-Detail ist ein 100dvh-Takeover OHNE Karte dahinter:
-     MapLayout.module.css setzt dort `.mapWrap { visibility: hidden }`. Der
-     Suchen-Button und die Locate-FAB verschwinden damit von selbst, weil sie
-     IN .mapWrap liegen — der Burger nicht, der ist ein direktes Kind von
-     .body. Also stand er als einziges Control auf der weißen Fläche, 18px
-     über dem × des Panels, und hat die Ecke mit ihm geteilt.
+     MapLayout.module.css setzt dort `.mapWrap { visibility: hidden }`. Burger
+     und Suche liegen nicht in .mapWrap, sondern direkt in .body, und
+     verschwinden deshalb nicht von selbst. Der Burger stand sonst als
+     einziges Control auf der Fläche, 18px über dem × des Panels, und teilte
+     sich die Ecke mit ihm.
 
      Bewusst NUR must-eat: im Restaurant-Detail bleibt auf dem Phone der
      Kartenstreifen sichtbar (`.mapWrap` wird dort nur auf --detail-map-peek
      gekürzt), und darüber gehört der Burger hin. Ab 768px greift ohnehin der
      Rückzug weiter oben in dieser Datei für BEIDE Detail-Arten. */
-  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapBurger {
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapBurger,
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchBtn,
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchToolbar {
     visibility: hidden;
     pointer-events: none;
   }
@@ -981,31 +969,47 @@
   }
 }
 
-/* Der Standort-Knopf reitet auf der Oberkante der Liste: kommt sie hoch,
-   wandert er mit, statt sich darunter zu verstecken oder auf ihr zu liegen.
-   Den Wert rechnet MapSectionBody pro Frame (die Kante haengt auf Telefonen an
-   der Scrollposition, davon weiss CSS nichts) und legt ihn als
-   `--locate-bottom` an den Karten-Koerper. Die Transition ist der Unterschied
-   zwischen Mitwandern und Kleben: der Wert springt pro Frame, der Knopf zieht
-   weich hinterher. Steht am Dateiende, weil `bottom` fuer `.fab` weiter oben
-   mehrfach gesetzt wird und hier die Reihenfolge entscheidet. */
-@media (max-width: 1023.98px) {
+/* Tablets: der Standort-Knopf reitet auf der Oberkante des Drag-Sheets. Den
+   Wert rechnet MapSectionBody (`--locate-bottom`), weil die Kante dort an
+   einem transformierten Sheet haengt, von dem CSS nichts weiss. Steht am
+   Dateiende, weil `bottom` fuer `.fab` weiter oben mehrfach gesetzt wird und
+   hier die Reihenfolge entscheidet. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
   .fab {
     bottom: var(--locate-bottom, calc(var(--phone-list-sheet-visible, 28dvh) + 14px));
     /* KEINE Transition auf `bottom`: der Knopf soll exakt so schnell laufen wie
-       die Liste, an deren Kante er sitzt. Eine weiche Nachführung sah aus, als
-       würde er der Liste hinterherhinken — jeder Frame setzt den Wert neu, und
-       genau dieser Wert soll auch gelten. Das `transform` behält seine
-       Transition: das ist der Abgang, keine Fahrt. */
+       die Kante, an der er sitzt. Das `transform` behaelt seine Transition:
+       das ist der Abgang, keine Fahrt. */
     transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   /* Ganz oben ist Schluss: kurz bevor der Knopf den Burger erreicht, gleitet
-     er seitlich raus — dieselbe Geste, mit der er beim Wechsel in die
-     Detailansicht geht. Beim Herunterziehen der Liste kommt er auf demselben
-     Weg zurück. */
+     er seitlich raus. */
   :global([data-map-body][data-locate-gone='true']) .fab {
     transform: translateX(calc(100% + 18px));
     pointer-events: none;
+  }
+}
+
+/* Telefon: der Knopf steht STILL (User, 22.09.2026: „das darf nicht so hin-
+   und herschieben"). Bis dahin ritt er auf der Oberkante der Liste — der Wert
+   kam pro Frame aus JS, und auf iOS kommt die Scrollposition dort ein, zwei
+   Frames zu spaet an: er zitterte gegen die Liste und flog bei jedem schnellen
+   Wisch seitlich raus und wieder rein.
+
+   Jetzt steht er ueber der Ruhekante der Liste und liegt UNTER ihr (er kommt
+   im DOM vor ihr, beide ohne z-index): kommt sie hoch, schiebt sie sich einfach ueber ihn, zieht
+   man sie runter, ist er wieder da. Kein Rechnen, keine Bewegung. Im
+   Restaurant-Detail steht die Kante tiefer im Bild, am Kartenstreifen. */
+@media (max-width: 767.98px) {
+  .fab {
+    bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
+    /* No z-index: painted in tree order, before the sheet, which then slides
+       over it. The sheet is no stacking context on phones any more. */
+    z-index: auto;
+  }
+
+  :global([data-map-body][data-map-view='detail']) .fab {
+    bottom: calc(100dvh - var(--detail-map-peek, 50dvh) + 14px);
   }
 }

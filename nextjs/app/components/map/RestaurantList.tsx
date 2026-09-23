@@ -210,9 +210,12 @@ interface RestaurantListProps {
   unlockedIds: Set<string>;
   revealedMustEatIds: Set<string>;
   onResetFilters?: () => void;
+  onClearSearch?: () => void;
   /** Die laufende Suchanfrage. Nur fuer den Leerzustand: der nennt sie beim
    *  Namen, statt pauschal „nichts gefunden" zu sagen. */
   searchQuery?: string;
+  /** Hält ein Chip einen Wert? Nur fuer den Leerzustand. */
+  filtersActive?: boolean;
   /** Obergrenze der gerenderten Zeilen.
    *  Der Stand liegt bewusst im Elternteil: ein Sprung ins Detail hängt diese
    *  Liste aus, und der View-Toggle stellt beim Zurück die alte Scroll-Position
@@ -231,7 +234,9 @@ export default function RestaurantList({
   unlockedIds,
   revealedMustEatIds,
   onResetFilters,
+  onClearSearch,
   searchQuery,
+  filtersActive,
   visibleRows,
   onNeedMoreRows,
 }: RestaurantListProps) {
@@ -274,7 +279,14 @@ export default function RestaurantList({
      wirklich nichts. Keine Zahl zu nennen, kein Angebot zu machen: der Filter
      ist schlicht zu eng. */
   if (restaurants.length === 0)
-    return <MapListEmpty onReset={onResetFilters} query={searchQuery} />;
+    return (
+      <MapListEmpty
+        query={searchQuery}
+        filtersActive={filtersActive}
+        onResetFilters={onResetFilters}
+        onClearSearch={onClearSearch}
+      />
+    );
 
   return (
     <>

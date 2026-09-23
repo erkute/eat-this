@@ -40,11 +40,14 @@ export default function SiteNav() {
     let collapseTimer: number | undefined;
     let showFrame: number | undefined;
 
+    // `data-leaving` steht nur beim Wegfahren: dann lässt Safari die Farbe der
+    // Statusleiste mit Beginn der Bewegung los (SiteNav.module.css).
     const show = () => {
       if (collapseTimer !== undefined) {
         window.clearTimeout(collapseTimer);
         collapseTimer = undefined;
       }
+      delete navbar.dataset.leaving;
       if (showFrame !== undefined) return;
 
       const wasCollapsed = navbar.dataset.visibility === 'collapsed';
@@ -69,6 +72,7 @@ export default function SiteNav() {
       }
       if (navbar.dataset.visibility === 'collapsed') return;
       if (navbar.dataset.visibility !== 'hidden') {
+        navbar.dataset.leaving = '';
         navbar.dataset.visibility = 'hidden';
       }
       if (collapseTimer !== undefined) return;
@@ -77,6 +81,7 @@ export default function SiteNav() {
         collapseTimer = undefined;
         if (navbar.dataset.visibility === 'hidden') {
           navbar.dataset.visibility = 'collapsed';
+          delete navbar.dataset.leaving;
         }
       }, 280);
     };
@@ -123,6 +128,7 @@ export default function SiteNav() {
       if (collapseTimer !== undefined) window.clearTimeout(collapseTimer);
       if (showFrame !== undefined) window.cancelAnimationFrame(showFrame);
       navbar.dataset.visibility = 'visible';
+      delete navbar.dataset.leaving;
     };
   }, [activePage]);
 

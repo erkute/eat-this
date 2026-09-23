@@ -89,6 +89,18 @@
   }
 }
 
+/* Auf dem Telefon steigt der Vollbild-Chat von unten auf, wie ein Sheet. */
+@keyframes buddyPanelInPhone {
+  from {
+    transform: translate3d(0, 40px, 0);
+    clip-path: inset(40px 0 0 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
 .header {
   position: relative;
   display: flex;
@@ -833,11 +845,13 @@
   background: var(--buddy-control-hi);
 }
 
+/* Papier statt Gelb (Betreiber, 23.09.2026: „immer noch gelb, wenn Standort
+   aktiv"): weiß gefüllt wie der Senden-Knopf, sobald Remy weiß, wo du bist.
+   Er verschwindet nicht — die gefüllte Nadel ist die Antwort auf „weiß er,
+   wo ich bin?". */
 .geo[data-on='true'] {
   color: var(--buddy-ink);
-  background: var(--buddy-accent);
-  /* Er hat seinen Zweck erfüllt, aber er verschwindet nicht: die gelbe Nadel
-     ist die Antwort auf „weiß er, wo ich bin?". */
+  background: var(--buddy-paper);
   cursor: default;
 }
 
@@ -1056,16 +1070,34 @@
     backdrop-filter: none;
   }
 
+  /* Vollbild, wie eine Chat-App: kein Rand, hinter dem die Seite hervorschaut.
+     Oberkante und Höhe folgen dem sichtbaren Ausschnitt (BuddyWidget.tsx,
+     `visualViewport`) — so sitzt das Feld bei offener Tastatur direkt auf ihr.
+     Ohne die Variablen (vor dem ersten Messen) füllt `100dvh`. */
   .panel {
-    top: 8px;
-    right: 8px;
-    bottom: 8px;
-    left: 8px;
+    top: var(--buddy-vv-top, 0px);
+    right: 0;
+    bottom: auto;
+    left: 0;
     width: auto;
     max-width: none;
-    height: auto;
+    height: var(--buddy-vv-height, 100dvh);
     max-height: none;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+    border-radius: 0;
+    box-shadow: none;
+    animation: buddyPanelInPhone 0.26s cubic-bezier(0.2, 0.92, 0.22, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel {
+      animation: none;
+    }
+  }
+
+  /* Die Tastatur deckt den Home-Indikator — der Abstand dafür wäre über ihr
+     nur eine Lücke. */
+  .panel[data-keyboard] .form {
+    padding-bottom: 10px;
   }
 
   .header {

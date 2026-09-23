@@ -261,6 +261,10 @@
     /* The detail's map strip. Sized so the sheet has the same three stops as
        the list — a live, pannable map behind the sliding detail sheet. */
     --detail-map-peek: 50dvh;
+    /* Map left showing above the sheet when it is all the way up (user,
+       22.09.2026: „oben noch minimal die Map sehen"). The sticky bar stops
+       below it. Mirrored in JS by MAP_STRIP_PX in lib/map/sheetSlide.ts. */
+    --map-strip: calc(env(safe-area-inset-top, 0px) + 56px);
     height: auto;
     overflow: visible;
   }
@@ -306,6 +310,24 @@
   }
   .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapWrap {
     visibility: hidden;
+  }
+
+  /* The map strip. Once the sheet's bar sticks (below the strip), the map
+     rises OVER the sheet — clipped to the strip — so the rows scrolling past
+     vanish under a slice of map instead of showing above the bar. It flips at
+     the moment the sheet's top edge crosses the strip line (the stuck
+     sentinel's rootMargin), when nothing of the sheet is above that line yet,
+     so the flip is invisible. A tap on the strip takes you to the map
+     (MapSectionBody); the canvas is inert there, a 56px map is not for
+     panning. Not in the must-eat takeover: its map is hidden. */
+  .body[data-header-stuck='true']:not([data-detail-kind='must-eat']) .mapWrap {
+    /* Over the sheet in both views: the list sits at 4, the detail at 6. */
+    z-index: 7;
+    clip-path: inset(0 0 calc(100% - var(--map-strip)) 0);
+    cursor: pointer;
+  }
+  .body[data-header-stuck='true']:not([data-detail-kind='must-eat']) .mapWrap > * {
+    pointer-events: none;
   }
 }
 

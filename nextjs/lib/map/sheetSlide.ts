@@ -28,36 +28,59 @@
  * length of a gesture only.
  */
 
+import { safeAreaInsetTop } from './safeArea';
+
+/** Map left showing above the sheet when it is all the way up — the bar
+ *  sticks below it. Mirrors `--map-strip` in MapLayout.module.css (minus the
+ *  safe-area term, which mapStripLine adds). */
+export const MAP_STRIP_PX = 56;
+
+/** Where the strip ends on screen: the line the sticky bar rests on. */
+export function mapStripLine(): number {
+  return safeAreaInsetTop() + MAP_STRIP_PX;
+}
+
+/** Fired on window by a tap on the map strip: take the sheet to the map, the
+ *  same as a tap on the grabber (useHandleScrollDrag listens). */
+export const SHEET_COLLAPSE_EVENT = 'et:map-sheet-collapse';
+
 /* Decelerates into its stop. */
 const SETTLE_MS = 360;
 const SETTLE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 
-/* Where the list was when it was pulled off the map; null = nothing to return
-   to. Module state, because there is one map page and the filter effect in
-   MapSection has to be able to drop it (forgetListPosition). */
-let rememberedListY: number | null = null;
+/** The two phone views the gesture works in — the list, and a restaurant
+ *  detail (the must-eat detail is a takeover with no map behind it). */
+export type SlideView = 'list' | 'detail';
 
-export function rememberedListPosition(): number | null {
-  return rememberedListY;
+/* Where each view was when it was pulled off the map; null = nothing to return
+   to. Kept apart so a detail opened from the map and closed again does not
+   hand its offset to the list. Module state, because there is one map page and
+   MapSection has to be able to drop an entry (forgetSheetPosition). */
+const remembered: Record<SlideView, number | null> = { list: null, detail: null };
+
+export function rememberedSheetPosition(view: SlideView): number | null {
+  return remembered[view];
 }
 
-/** A different result set: an offset into the old list means nothing. */
-export function forgetListPosition(): void {
-  rememberedListY = null;
+/** A different result set or another restaurant: an offset into the old
+ *  content means nothing. */
+export function forgetSheetPosition(view: SlideView): void {
+  remembered[view] = null;
 }
 
 function reducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** Sheet content above the viewport top. It would slide INTO view as the
- *  sheet moves down, so it is clipped away while the sheet is moved.
- *  clip-path lives in the element's own coordinates and travels with it.
- *  Measured with the transform off, so it reads the scroll position alone. */
+/** Sheet content above the strip line — under the map strip while the sheet
+ *  rests at the top. It would slide INTO view as the sheet moves down, so it
+ *  is clipped away while the sheet is moved. clip-path lives in the element's
+ *  own coordinates and travels with it. Measured with the transform off, so it
+ *  reads the scroll position alone. */
 function clipAbove(sheet: HTMLElement) {
   const held = sheet.style.transform;
   sheet.style.transform = '';
-  const hidden = Math.max(0, -sheet.getBoundingClientRect().top);
+  const hidden = Math.max(0, mapStripLine() - sheet.getBoundingClientRect().top);
   sheet.style.transform = held;
   /* The cut edge becomes the slab's top edge on screen — round it like the
      sheet's own top so the pulled list still reads as the sheet. */
@@ -106,8 +129,8 @@ export function grabFromList(sheet: HTMLElement): number {
  * the pull brings up the rows you left, not the list top. The bar itself does
  * not move — it is at the top of the slab either way.
  */
-export function grabFromMap(sheet: HTMLElement, restLinePx: number): boolean {
-  const back = rememberedListY;
+export function grabFromMap(sheet: HTMLElement, view: SlideView, restLinePx: number): boolean {
+  const back = remembered[view];
   if (back == null) return false;
   /* The document can be shorter than when we left — clamp inside it. */
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
@@ -127,9 +150,9 @@ export async function settleOnMap(
   fromPx: number,
   restLinePx: number,
   mapY: number,
-  { remember }: { remember: boolean }
+  { remember }: { remember: SlideView | null }
 ): Promise<void> {
-  if (remember) rememberedListY = window.scrollY;
+  if (remember) remembered[remember] = window.scrollY;
   await glide(sheet, fromPx, restLinePx);
   /* `instant`, not `auto`: html carries scroll-behavior: smooth. The release
      runs in the same task as the jump, so no frame shows the sheet twice. */

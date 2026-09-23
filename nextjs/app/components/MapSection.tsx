@@ -26,7 +26,7 @@ import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
-import { forgetListPosition } from '@/lib/map/sheetSlide';
+import { forgetSheetPosition } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import {
@@ -624,6 +624,14 @@ export default function MapSection({
   const [listFocusId, setListFocusId] = useState<string | null>(null);
   const listFocusIdRef = useRef(listFocusId);
   listFocusIdRef.current = listFocusId;
+  /* A remembered detail position (the grabber pulled the detail off the map)
+     belongs to one restaurant. Another one — or the same one opened afresh —
+     starts at its top. */
+  const openRestaurantId = selectedRestaurant?._id ?? null;
+  useEffect(() => {
+    forgetSheetPosition('detail');
+  }, [openRestaurantId]);
+
   const prevFiltersRef = useRef({ category, bezirk, price, openOnly, search });
   useEffect(() => {
     if (sheetView !== 'list') return;
@@ -638,7 +646,7 @@ export default function MapSection({
       prev.search !== next.search;
     if (!filtersChanged) return;
     listScrollRef.current = 0;
-    forgetListPosition();
+    forgetSheetPosition('list');
     /* A different result set: the row that was worth pointing at may not even
        be in it any more. */
     setListFocusId(null);

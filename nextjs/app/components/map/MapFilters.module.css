@@ -418,7 +418,8 @@
        MapSheet.module.css ab, und nur solange der Header wirklich klebt — den
        Inset hier als Padding zu tragen reservierte den Platz bei jeder
        Scrollposition und ließ über den Chips totes Weiß stehen. */
-    top: env(safe-area-inset-top, 0px);
+    /* Below the map strip (MapLayout.module.css), not at the very top. */
+    top: var(--map-strip, env(safe-area-inset-top, 0px));
     z-index: 3;
     background: var(--et-home-ink, #15120e);
     will-change: transform;

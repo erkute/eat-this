@@ -271,13 +271,15 @@ describe('Map CSS architecture', () => {
     expect(mapPage).toContain('themeColor: null');
     expect(mapPage).not.toContain("themeColor: '#15120e'");
 
-    /* The header rests BELOW the band. Pinning it at 0 and carrying the inset
-       as padding instead reserves that space at every scroll position, which
-       shows up as dead whitespace above the chips at the resting stop. */
+    /* The header rests BELOW the band — and below the map strip under it
+       (--map-strip already carries the inset). Pinning it at 0 and carrying
+       the inset as padding instead reserves that space at every scroll
+       position, which shows up as dead whitespace above the chips at the
+       resting stop. */
     expect(headerRules).toEqual([
       expect.objectContaining({
         position: 'sticky',
-        top: 'env(safe-area-inset-top, 0px)',
+        top: 'var(--map-strip, env(safe-area-inset-top, 0px))',
       }),
     ]);
 

@@ -229,6 +229,19 @@
   .stuckSentinel {
     height: 0;
   }
+  /* In a restaurant detail the handle is the bar: it sticks below the map
+     strip like the list's filter bar, so the way back to the map is on screen
+     at any depth (useHandleScrollDrag). Ink, because rows pass under it. */
+  .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
+    position: sticky;
+    top: var(--map-strip, env(safe-area-inset-top, 0px));
+    z-index: 5;
+    background: var(--et-home-ink, #15120e);
+    border-radius: inherit;
+  }
+  .list[data-view='detail'][data-detail-kind='restaurant'][data-header-stuck='true'] > .handle {
+    border-radius: 0;
+  }
   .listScroll {
     max-height: none;
     overflow: visible;

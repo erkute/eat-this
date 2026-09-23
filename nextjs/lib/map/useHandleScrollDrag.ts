@@ -3,12 +3,14 @@ import { useEffect, type RefObject } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { measureSheetTop, resolveSnap, snapOffsets } from './phoneSheetSnaps';
 import {
-  forgetListPosition,
+  forgetSheetPosition,
   grabFromList,
+  mapStripLine,
+  SHEET_COLLAPSE_EVENT,
   grabFromMap,
   holdSheetAt,
   raiseToList,
-  rememberedListPosition,
+  rememberedSheetPosition,
   settleOnMap,
 } from './sheetSlide';
 
@@ -89,7 +91,38 @@ export function useHandleScrollDrag(
     let busy = false;
 
     const sheetEl = () => handle.closest<HTMLElement>('[data-map-sheet]');
-    const stops = () => snapOffsets(view, window.innerHeight, measureSheetTop());
+    /* The list, and a restaurant detail — both have the map behind them. The
+       must-eat detail is a takeover with the map hidden: nothing to reveal. */
+    const slides = (sheet: HTMLElement | null): sheet is HTMLElement =>
+      Boolean(sheet) && (view === 'list' || sheet?.dataset.detailKind === 'restaurant');
+    /* The stops, and where the bar rests over the map. Where the map strip
+       shows (list, restaurant detail), "all the way up" leaves the strip
+       uncovered: the last stop is the sheet's top edge on the strip line, not
+       on the viewport's top edge. */
+    const geometry = () => {
+      const sheet = sheetEl();
+      const measured = measureSheetTop();
+      const sheetTop = measured ?? 0;
+      const strip = slides(sheet) ? mapStripLine() : 0;
+      /* Unmeasurable (no sheet yet): snapOffsets falls back to its dvh estimate. */
+      const offsets = snapOffsets(
+        view,
+        window.innerHeight,
+        measured === undefined ? undefined : Math.max(0, sheetTop - strip)
+      );
+      const mapY = offsets[0];
+      return {
+        sheet,
+        offsets,
+        mapY,
+        sheetStop: offsets[offsets.length - 1],
+        /* Slab offset at which the bar stands where it stands at the map stop.
+           At rest the bar sits on the strip line, so that is what it moves
+           from. */
+        restLine: Math.max(0, sheetTop - mapY - strip),
+      };
+    };
+    const stops = () => geometry().offsets;
 
     const onDown = (e: PointerEvent) => {
       // Tablets/desktop still use the real transform sheet in useBottomSheet.
@@ -102,13 +135,7 @@ export function useHandleScrollDrag(
       // Claims ONLY the handle's gesture — the list keeps native scrolling.
       e.preventDefault();
 
-      const sheet = sheetEl();
-      const sheetTop = measureSheetTop();
-      const offsets = snapOffsets(view, window.innerHeight, sheetTop);
-      const sheetStop = offsets[offsets.length - 1];
-      const mapY = offsets[0];
-      /* The sheet's top edge on screen at the map stop. */
-      const restLine = Math.max(0, (sheetTop ?? 0) - mapY);
+      const { sheet, sheetStop, mapY, restLine } = geometry();
       const slab = (from: 'list' | 'map', base: number): Drag => ({
         kind: 'slab',
         from,
@@ -123,12 +150,12 @@ export function useHandleScrollDrag(
         v: 0,
       });
 
-      if (view === 'list' && sheet) {
+      if (slides(sheet)) {
         if (window.scrollY > sheetStop + AT_STOP_PX) {
           drag = slab('list', grabFromList(sheet));
           return;
         }
-        if (window.scrollY < sheetStop - AT_STOP_PX && grabFromMap(sheet, restLine)) {
+        if (window.scrollY < sheetStop - AT_STOP_PX && grabFromMap(sheet, view, restLine)) {
           drag = slab('map', restLine);
           return;
         }
@@ -183,14 +210,14 @@ export function useHandleScrollDrag(
           const toMap = tap || moved > INTENT_PX || d.v > FLICK_PX_PER_MS;
           if (toMap) trackEvent('map_view_toggle', { direction: 'to_map' });
           done = toMap
-            ? settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: true })
+            ? settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: view })
             : raiseToList(sheet, d.offset);
         } else {
           const toList = tap || moved < -INTENT_PX || d.v < -FLICK_PX_PER_MS;
           if (toList) trackEvent('map_view_toggle', { direction: 'to_list' });
           done = toList
             ? raiseToList(sheet, d.offset)
-            : settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: false });
+            : settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: null });
         }
         void done.finally(() => {
           busy = false;
@@ -207,12 +234,27 @@ export function useHandleScrollDrag(
       }
     };
 
+    /* A tap on the map strip: the same as a tap on the grabber, from deep in
+       the sheet. */
+    const onCollapse = () => {
+      if (!isPhone() || busy || drag) return;
+      const { sheet, sheetStop, mapY, restLine } = geometry();
+      if (!slides(sheet) || window.scrollY <= sheetStop + AT_STOP_PX) return;
+      busy = true;
+      trackEvent('map_view_toggle', { direction: 'to_map' });
+      void settleOnMap(sheet, grabFromList(sheet), restLine, mapY, { remember: view }).finally(
+        () => {
+          busy = false;
+        }
+      );
+    };
+
     /* A list position is only worth returning to while you are looking at the
        map. Scroll into the list by hand and that is the new place. */
     const onScroll = () => {
-      if (busy || drag || rememberedListPosition() === null) return;
+      if (busy || drag || rememberedSheetPosition(view) === null) return;
       const offsets = stops();
-      if (window.scrollY > offsets[offsets.length - 1] + AT_STOP_PX) forgetListPosition();
+      if (window.scrollY > offsets[offsets.length - 1] + AT_STOP_PX) forgetSheetPosition(view);
     };
 
     handle.addEventListener('pointerdown', onDown);
@@ -220,7 +262,9 @@ export function useHandleScrollDrag(
     handle.addEventListener('pointerup', onUp);
     handle.addEventListener('pointercancel', onUp);
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
     return () => {
+      window.removeEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
       handle.removeEventListener('pointerdown', onDown);
       handle.removeEventListener('pointermove', onMove);
       handle.removeEventListener('pointerup', onUp);

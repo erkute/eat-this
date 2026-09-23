@@ -20,6 +20,7 @@ import {
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
+import { MAP_STRIP_PX, SHEET_COLLAPSE_EVENT } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
@@ -473,6 +474,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     };
   }, [sheetView, snap]);
 
+  /* The must-eat detail is a takeover with its map hidden — no strip there. */
+  const hasMapStrip = !(sheetView === 'detail' && selectedMustEat);
   const stuckSentinelRef = useRef<HTMLDivElement | null>(null);
   const [headerStuck, setHeaderStuck] = useState(false);
   useEffect(() => {
@@ -482,14 +485,17 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     }
     const sentinel = stuckSentinelRef.current;
     if (!sentinel) return;
-    /* px value of env(safe-area-inset-top) — IO rootMargin can't use env(). */
+    /* px value of env(safe-area-inset-top) — IO rootMargin can't use env().
+       Where the map strip shows, the bar sticks below it, so "stuck" starts at
+       the strip line (MAP_STRIP_PX, mirrored from --map-strip). */
     const safeTop = safeAreaInsetTop();
+    const stripLine = hasMapStrip ? safeTop + MAP_STRIP_PX : safeTop;
     const io = new IntersectionObserver(([entry]) => setHeaderStuck(!entry.isIntersecting), {
-      rootMargin: `-${Math.ceil(safeTop) + 1}px 0px 0px 0px`,
+      rootMargin: `-${Math.ceil(stripLine) + 1}px 0px 0px 0px`,
     });
     io.observe(sentinel);
     return () => io.disconnect();
-  }, [sheetView]);
+  }, [sheetView, hasMapStrip]);
 
   const sheetHandle = (
     <div ref={handleRef} className={sheetStyles.handle} data-sheet-handle="" aria-hidden="true" />
@@ -538,7 +544,16 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               : ({ '--locate-bottom': `${locateBottom}px` } as CSSProperties)
           }
         >
-          <div className={styles.mapWrap} data-map-canvas="">
+          {/* A tap on the map strip (the stuck state only) takes you to the
+              map, like a tap on the grabber. A pointer shortcut on top of the
+              map it already is — no control of its own. */}
+          <div
+            className={styles.mapWrap}
+            data-map-canvas=""
+            onClick={() => {
+              if (headerStuck && hasMapStrip) window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
+            }}
+          >
             {/* Die H1 der Seite schwebt über der Karte, in derselben Sprache
                 wie Suche und Burger daneben: Ink-Type mit weißem Halo, keine
                 Fläche. Sie stand bis zum 01.09.2026 im Listen-Panel und war
@@ -765,16 +780,19 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             aria-hidden={desktopPanelHidden || undefined}
             inert={desktopPanelHidden || undefined}
           >
-            {/* In the list the handle rides in the sticky filter bar instead
-                (see MapListHeader) — deep in the list it is the way back to
-                the map, so it has to stay on screen. */}
-            {sheetView === 'detail' && sheetHandle}
-
-            {/* Stuck-detection sentinel for the floating map controls (phones).
-                Sits directly under the handle so it leaves the viewport the
-                moment the sheet reaches the top — in BOTH views, so search and
-                burger retreat at the same scroll position either way. */}
+            {/* Stuck-detection sentinel for the floating map controls and the
+                map strip (phones). The sheet's very first child, so it crosses
+                the strip line the moment the sheet's top edge does — in BOTH
+                views, so search and burger retreat at the same scroll position
+                either way, and the strip rises before any row could show
+                above the bar. */}
             <div ref={stuckSentinelRef} className={sheetStyles.stuckSentinel} aria-hidden="true" />
+
+            {/* In the list the handle rides in the sticky filter bar instead
+                (see MapListHeader); in a restaurant detail it sticks itself
+                (MapSheet.module.css). Either way it is the way back to the
+                map, so it has to stay on screen. */}
+            {sheetView === 'detail' && sheetHandle}
 
             {/* Restaurant detail's chrome now lives on the photo hero (back
                 pill + save bookmark, per the Chewy mockup) — no handle-bar

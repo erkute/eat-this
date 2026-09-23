@@ -56,7 +56,44 @@ function declarationsInMedia(name: string, selector: string, mediaParams: string
   return matches;
 }
 
+/** Every declaration of `selector` outside any at-rule, merged in source order. */
+function topLevelDeclarations(name: string, selector: string) {
+  const root = postcss.parse(readFileSync(modulePath(name), 'utf8'));
+  const declarations: Record<string, string> = {};
+  root.walkRules((rule) => {
+    if (rule.parent?.type !== 'root') return;
+    if (!rule.selector.split(',').some((part) => part.trim() === selector)) return;
+    rule.walkDecls((declaration) => {
+      declarations[declaration.prop] = declaration.value;
+    });
+  });
+  return declarations;
+}
+
 describe('Map CSS architecture', () => {
+  /* iOS 26 Safari tints status and URL bar after the fixed element it finds
+     4px inside the edge, mid-width, if that element spans >= 90% of the
+     width; a blur without a solid colour comes out system grey. The photo
+     zoom keeps every wide layer off both edges and fills the edge bands with
+     half-width pieces, so the bars stay see-through and show the blur
+     (user, 23.09.2026). */
+  it('keeps the photo zoom off the edges Safari tints its bars from', () => {
+    const lb = 'RestaurantGalleryLightbox.module.css';
+    expect(topLevelDeclarations(lb, '.galleryLb').position).toBe('static');
+    for (const wide of ['.galleryLbBgMain', '.galleryLbStage']) {
+      expect(topLevelDeclarations(lb, wide).top, wide).toBe('6px');
+      expect(topLevelDeclarations(lb, wide).height, wide).toBe('calc(100dvh - 12px)');
+    }
+    for (const band of [
+      '.galleryLbBgTopLeft',
+      '.galleryLbBgTopRight',
+      '.galleryLbBgBottomLeft',
+      '.galleryLbBgBottomRight',
+    ]) {
+      expect(topLevelDeclarations(lb, band).width, band).toBe('50%');
+    }
+  });
+
   it('keeps every map module free of !important', () => {
     const important: string[] = [];
 

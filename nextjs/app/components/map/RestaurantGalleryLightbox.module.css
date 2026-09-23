@@ -5,9 +5,6 @@
   justify-content: center;
   cursor: zoom-out;
 }
-.galleryLbBg {
-  pointer-events: none;
-}
 .galleryLbStage {
   cursor: default;
 }
@@ -31,10 +28,6 @@
 .galleryLbArrow:active {
   transform: translate(2px, 2px);
   box-shadow: none;
-}
-.galleryLbBg {
-  background-color: #201712;
-  background-image: none;
 }
 .galleryLbImg {
   user-select: none;
@@ -66,32 +59,66 @@
   background: #fff;
 }
 .galleryLb {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100dvh;
-  min-height: 100lvh;
-  z-index: 2147483000;
-  isolation: isolate;
-  overflow: hidden;
-  background: transparent;
+  /* Kein eigener fixierter Rahmen — siehe den Vorhang gleich darunter. Die
+     Kinder stehen fixiert und tragen die Stapelhoehe selbst; die Lightbox
+     haengt per Portal direkt am body, dort begrenzt sie kein Kontext. */
+  position: static;
 }
+
+/* Der Vorhang, und warum er aus fuenf Stuecken besteht.
+
+   Der Blur soll auch hinter Status- und URL-Leiste weiterlaufen (User,
+   23.09.2026). iOS 26 Safari faerbt beide Leisten nach dem fixierten Element,
+   das es 4px innerhalb der Kante, auf halber Breite, findet und das mindestens
+   90 % der Breite misst. Ein Vorhang, der nur einen Blur und keine deckende
+   Farbe hat, ergibt dabei Systemgrau. Findet Safari an der Kante gar keinen
+   solchen Container, bleibt die Leiste durchsichtig und zeigt, was darunter
+   liegt — den Blur.
+
+   Also liegt an keiner der beiden Kanten ein breites fixiertes Element: der
+   Hauptvorhang und die Wischflaeche enden 6px davor, und die Streifen an den
+   Kanten fuellen je zwei Haelften von 50 % — zu schmal, als dass Safari sie
+   als Container zaehlt. Die Stuecke stossen aneinander, statt sich zu
+   ueberlappen: zwei Blur-Schichten uebereinander ergaeben eine dunklere
+   Linie. Die unteren Haelften reichen bis 100lvh, unter die URL-Leiste.
+
+   Werte in globals.css, damit die beiden Lightboxen nicht wieder
+   auseinanderlaufen. Der Blur animiert nie, darum traegt ihn auch iOS. */
 .galleryLbBg {
   position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100dvh;
-  min-height: 100lvh;
-  z-index: 0;
-  /* Ein Vorhang fuer jeden Zoom — Werte in globals.css, damit die beiden
-     Lightboxen nicht wieder auseinanderlaufen. Der Backdrop steht, waehrend
-     er sichtbar ist; der Blur animiert nie, darum traegt ihn auch iOS. */
+  z-index: 2147483000;
   background: var(--et-zoom-scrim, rgba(20, 19, 17, 0.62));
   -webkit-backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
   backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
 }
+.galleryLbBgMain {
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: calc(100dvh - 12px);
+}
+.galleryLbBgTopLeft,
+.galleryLbBgTopRight {
+  top: 0;
+  height: 6px;
+  width: 50%;
+}
+.galleryLbBgBottomLeft,
+.galleryLbBgBottomRight {
+  top: calc(100dvh - 6px);
+  height: calc(100lvh - 100dvh + 6px);
+  width: 50%;
+}
+.galleryLbBgTopLeft,
+.galleryLbBgBottomLeft {
+  left: 0;
+}
+.galleryLbBgTopRight,
+.galleryLbBgBottomRight {
+  left: 50%;
+}
 .galleryLbStage {
-  z-index: 1;
+  z-index: 2147483001;
 }
 /* Der Streifen, durch den man blättert: ein nativer Scroll-Container, eine
    Seite pro Foto. `scroll-snap-stop: always` auf den Seiten lässt einen
@@ -99,12 +126,12 @@
    hält das Durchreichen an den Rändern auf, sonst wippt die Seite darunter. */
 .galleryLbStage {
   position: fixed;
-  inset: 0;
+  /* 6px vor beiden Kanten, wie der Hauptvorhang (siehe `.galleryLbBg`). */
+  top: 6px;
+  left: 0;
   display: flex;
   width: 100vw;
-  height: 100dvh;
-  min-height: 100lvh;
-  max-height: 100lvh;
+  height: calc(100dvh - 12px);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -119,7 +146,7 @@
   position: fixed;
   top: max(14px, env(safe-area-inset-top, 0px));
   right: max(14px, env(safe-area-inset-right, 0px));
-  z-index: 2;
+  z-index: 2147483002;
   width: 44px;
   height: 44px;
   display: grid;
@@ -161,9 +188,7 @@
   width: 100vw;
   min-width: 100vw;
   max-width: 100vw;
-  height: 100dvh;
-  min-height: 100lvh;
-  max-height: 100lvh;
+  height: 100%;
   box-sizing: border-box;
   padding: 34px 40px 96px;
 }
@@ -252,7 +277,7 @@
   position: fixed;
   left: 50%;
   bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px));
-  z-index: 2;
+  z-index: 2147483002;
   display: flex;
   align-items: center;
   gap: 2px;

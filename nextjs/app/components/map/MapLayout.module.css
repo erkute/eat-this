@@ -364,6 +364,14 @@
   .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapStrip {
     display: none;
   }
+  /* Out of Safari's sight while a photo is zoomed: it keeps tinting the top
+     bar after the last edge element it found for as long as that element is
+     visible, and the strip would hold it dark instead of letting the zoom's
+     blur show through (RestaurantGalleryLightbox.module.css). Invisible
+     anyway — the strip is a copy of the map under it. */
+  :global(body[data-lightbox-open]) .mapStrip {
+    visibility: hidden;
+  }
   .mapStripCanvas {
     display: block;
     width: 100%;

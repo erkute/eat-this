@@ -33,7 +33,7 @@ import { safeAreaInsetTop } from './safeArea';
 /** Map left showing above the sheet when it is all the way up — the bar
  *  sticks below it. Mirrors `--map-strip` in MapLayout.module.css (minus the
  *  safe-area term, which mapStripLine adds). */
-export const MAP_STRIP_PX = 56;
+export const MAP_STRIP_PX = 72;
 
 /** Where the strip ends on screen: the line the sticky bar rests on. */
 export function mapStripLine(): number {
@@ -96,7 +96,7 @@ function clipAbove(sheet: HTMLElement) {
  * it back. So without this the map stayed lifted and cut to the strip while
  * the slab slid down, and everything below the strip was black (user,
  * 23.09.2026). While sliding, the map lies whole behind the sheet and the
- * floating controls come back (MapLayout / MapControls / MapIntro).
+ * title comes back (MapLayout / MapIntro).
  */
 function markSliding(sheet: HTMLElement, on: boolean) {
   const body = sheet.closest<HTMLElement>('[data-map-body]');
@@ -110,10 +110,50 @@ export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
   sheet.style.transform = offsetPx > 0 ? `translateY(${Math.round(offsetPx)}px)` : '';
 }
 
-function release(sheet: HTMLElement) {
+/* Upper bound on waiting for the stuck sentinel after a gesture. It reports
+   within a frame or two; this only guards against it never reporting. */
+const STUCK_WAIT_FRAMES = 30;
+
+/**
+ * End a gesture. The transform comes off at once; the sliding mark stays until
+ * the stuck sentinel agrees with where the sheet now rests.
+ *
+ * Dropping them in the same task as the jump made the map blink: the page was
+ * already at the map stop, but the sentinel had not reported yet, so for one
+ * frame the body still read "stuck" — the map lifted and cut to the strip, and
+ * everything below it went black (user, 23.09.2026: „die Map blinkt einmal
+ * auf"). Waiting for the sentinel keeps every frame consistent.
+ */
+function release(sheet: HTMLElement): Promise<void> {
   sheet.style.transform = '';
-  sheet.style.clipPath = '';
-  markSliding(sheet, false);
+  const body = sheet.closest<HTMLElement>('[data-map-body]');
+  const finish = () => {
+    sheet.style.clipPath = '';
+    markSliding(sheet, false);
+  };
+  if (!body) {
+    finish();
+    return Promise.resolve();
+  }
+  const expectStuck = sheet.getBoundingClientRect().top < mapStripLine();
+  /* Landed on the map: the clip was cut for the old scroll position and would
+     now hide the whole sheet — it goes at once. Back in the list it still
+     fits, and it keeps the rows out of the strip until the map lifts. */
+  if (!expectStuck) sheet.style.clipPath = '';
+  return new Promise((resolve) => {
+    let frames = 0;
+    const check = () => {
+      const stuck = body.dataset.headerStuck === 'true';
+      if (stuck === expectStuck || frames >= STUCK_WAIT_FRAMES) {
+        finish();
+        resolve();
+        return;
+      }
+      frames += 1;
+      window.requestAnimationFrame(check);
+    };
+    check();
+  });
 }
 
 function glide(sheet: HTMLElement, fromPx: number, toPx: number): Promise<void> {
@@ -176,11 +216,11 @@ export async function settleOnMap(
   /* `instant`, not `auto`: html carries scroll-behavior: smooth. The release
      runs in the same task as the jump, so no frame shows the sheet twice. */
   window.scrollTo({ top: mapY, behavior: 'instant' });
-  release(sheet);
+  await release(sheet);
 }
 
 /** Let go towards the list: the slab rises until it covers the map. */
 export async function raiseToList(sheet: HTMLElement, fromPx: number): Promise<void> {
   await glide(sheet, fromPx, 0);
-  release(sheet);
+  await release(sheet);
 }

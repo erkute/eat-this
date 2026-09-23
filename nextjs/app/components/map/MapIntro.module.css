@@ -126,7 +126,7 @@
   /* Ein Auslöser, eine Richtung — derselbe wie bei den drei Knöpfen. Die
      Zentrierung muss mitgeschrieben werden, sonst springt der Titel beim
      Rückzug nach links. */
-  :global([data-map-body][data-header-stuck='true']:not([data-sheet-sliding])) .intro {
+  :global([data-map-body][data-header-stuck='true']) .intro {
     transform: translate(-50%, calc(-100% - 80px));
   }
 }

@@ -550,8 +550,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           <div
             className={styles.mapWrap}
             data-map-canvas=""
-            onClick={() => {
-              if (headerStuck && hasMapStrip) window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
+            onClick={(e) => {
+              if (!headerStuck || !hasMapStrip) return;
+              /* Search stands in the strip too; its own taps are its own. */
+              if ((e.target as Element).closest('button, input, a')) return;
+              window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
             }}
           >
             {/* Die H1 der Seite schwebt über der Karte, in derselben Sprache

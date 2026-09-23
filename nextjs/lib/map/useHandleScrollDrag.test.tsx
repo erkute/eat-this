@@ -21,8 +21,8 @@ const rememberedListPosition = () => rememberedSheetPosition('list');
  * The phone list's grabber — pull the list off the map and back.
  *
  * Geometry: an 800px viewport, the sheet's top edge at document offset 600.
- * All the way up, the sheet leaves the 56px map strip showing, so the stops
- * are 0 (map), ~151 (split) and 544 (sheet up to the strip); anything past
+ * All the way up, the sheet leaves the 72px map strip showing, so the stops
+ * are 0 (map), ~147 (split) and 528 (sheet up to the strip); anything past
  * that is "deep in the list". jsdom has no Web Animations, so every slide
  * lands instantly — these cases are about where things END.
  */
@@ -152,6 +152,28 @@ describe('in the list', () => {
       handle.dispatchEvent(pointer('pointerup', 200, 80));
       await settle();
       expect(body.hasAttribute('data-sheet-sliding')).toBe(false);
+    });
+
+    it('keeps the map whole until the sentinel lets go of "stuck" — no black frame', async () => {
+      /* The sentinel reports a frame after the jump. Dropping the sliding mark
+       before that lifted the map and cut it to the strip for one frame, with
+       black below: the blink. */
+      vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) =>
+        window.setTimeout(() => cb(0), 16)
+      );
+      window.scrollY = DEEP;
+      const body = document.querySelector<HTMLElement>('[data-map-body]')!;
+      body.dataset.headerStuck = 'true';
+      drag(120);
+      await settle();
+
+      expect(window.scrollY).toBe(0);
+      expect(body.hasAttribute('data-sheet-sliding')).toBe(true);
+
+      delete body.dataset.headerStuck;
+      await new Promise((r) => setTimeout(r, 40));
+      expect(body.hasAttribute('data-sheet-sliding')).toBe(false);
+      vi.unstubAllGlobals();
     });
 
     it('takes a short but fast flick as a decision', async () => {

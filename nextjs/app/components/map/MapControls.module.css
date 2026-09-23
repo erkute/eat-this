@@ -195,9 +195,10 @@
 
 /* Tablet keeps the view-driven retreat (its sheet is a transformed drag-sheet,
    so there is no scroll position to key off). PHONES are deliberately excluded:
-   there all three controls retreat on `data-header-stuck` alone — one trigger,
-   one direction, identical in the list and in the detail. Before, the detail
-   parked them off-screen outright and the list hid them at a different moment. */
+   there search and burger stay put at every depth — they stand in the map strip
+   the sheet leaves at the top (user, 23.09.2026: „kann die Suche und das
+   Burger-Menü bleiben?"). They used to retreat when the bar stuck and came
+   flying back on every pull of the grabber. */
 @media (min-width: 768px) {
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
   :global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
@@ -860,12 +861,14 @@
   .mapBurger {
     z-index: 3;
   }
+}
 
-  :global([data-map-body][data-header-stuck='true']:not([data-sheet-sliding])) .mapSearchToolbar,
-  :global([data-map-body][data-header-stuck='true']:not([data-sheet-sliding])) .mapSearchBtn,
-  :global([data-map-body][data-header-stuck='true']:not([data-sheet-sliding])) .mapBurger {
-    transform: translateY(calc(-100% - 80px));
-    pointer-events: none;
+@media (max-width: 767.98px) {
+  /* Over the map strip, which lifts over the sheet at z-index 7 once the bar
+     sticks (MapLayout.module.css). The search button needs nothing: it lives
+     inside the map wrapper and rises with it. */
+  .mapBurger {
+    z-index: 8;
   }
 }
 

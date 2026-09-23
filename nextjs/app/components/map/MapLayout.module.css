@@ -264,7 +264,7 @@
     /* Map left showing above the sheet when it is all the way up (user,
        22.09.2026: „oben noch minimal die Map sehen"). The sticky bar stops
        below it. Mirrored in JS by MAP_STRIP_PX in lib/map/sheetSlide.ts. */
-    --map-strip: calc(env(safe-area-inset-top, 0px) + 56px);
+    --map-strip: calc(env(safe-area-inset-top, 0px) + 72px);
     height: auto;
     overflow: visible;
   }
@@ -318,9 +318,10 @@
      the moment the sheet's top edge crosses the strip line (the stuck
      sentinel's rootMargin), when nothing of the sheet is above that line yet,
      so the flip is invisible. A tap on the strip takes you to the map
-     (MapSectionBody); the canvas is inert there, a 56px map is not for
-     panning. Not in the must-eat takeover: its map is hidden. And not while
-     the grabber is moving the sheet (data-sheet-sliding, lib/map/sheetSlide):
+     (MapSectionBody); the canvas is inert there, a strip of map is not for
+     panning — search and burger in it stay live. 72px so both fit above the
+     bar. Not in the must-eat takeover: its map is hidden. And not while the
+     grabber is moving the sheet (data-sheet-sliding, lib/map/sheetSlide):
      then the map has to lie whole behind it. */
   .body[data-header-stuck='true']:not([data-detail-kind='must-eat']):not([data-sheet-sliding])
     .mapWrap {
@@ -330,8 +331,7 @@
     cursor: pointer;
   }
   .body[data-header-stuck='true']:not([data-detail-kind='must-eat']):not([data-sheet-sliding])
-    .mapWrap
-    > * {
+    .liveMapLayer {
     pointer-events: none;
   }
 }

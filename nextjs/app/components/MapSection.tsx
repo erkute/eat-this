@@ -52,6 +52,8 @@ import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCent
             with env(safe-area-inset-top) added by the caller. */
 const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
+/* The pin card's height above its anchor (MapMarkers.module.css). */
+const PIN_HEIGHT_PX = 47;
 
 /* How long the search query has to hold still before the camera follows it.
    Long enough that typing "kreuzberg" flies once rather than once per letter,
@@ -782,18 +784,33 @@ export default function MapSection({
   // Padding the map should respect when centering on a point, so spots don't
   // land behind the bottom sheet (mobile) or side panel (desktop).
   /* Camera padding for the in-flow phone detail: the visible map is only the
-     top peek strip, so the target must center vertically inside it. Shared by
-     getFlyPadding (pager/late flyTos, sheetView already 'detail') and the
-     open-click handlers (whose closures still see sheetView 'list'). */
+     part of the detail's map strip the sheet leaves uncovered, so the target
+     must center vertically inside THAT. Shared by getFlyPadding (pager/late
+     flyTos, sheetView already 'detail') and the open-click handlers (whose
+     closures still see sheetView 'list').
+
+     Measured from the sheet's real top edge, not assumed at its resting
+     stop: paging to the next spot keeps the scroll position, and with the
+     sheet pushed halfway up the spot was centred in the whole strip — under
+     the sheet (user, 23.09.2026). */
   const phoneDetailFlyPadding = useCallback(() => {
     /* Mirrors --detail-map-peek in MapLayout.module.css. */
     const peek = (DETAIL_PEEK_DVH / 100) * window.innerHeight;
-    /* The phone detail gives MapLibre a real container exactly as tall as the
-       strip. Top-only padding puts the pin anchor at 60% of it, centering the
-       pin body at the resting stop without extending WebGL behind the detail. */
+    const canvasH = mapRef.current?.getContainer().clientHeight || peek;
+    const sheetTop = document
+      .querySelector<HTMLElement>('[data-map-sheet]')
+      ?.getBoundingClientRect().top;
+    /* How much map is on screen above the sheet. */
+    const visible = Math.min(canvasH, sheetTop != null && sheetTop > 0 ? sheetTop : peek);
+    /* Where the pin's anchor (its bottom tip) should land: at 60% of the
+       visible map, which centres the pin body above it — but never so high
+       that the pin, drawn upwards from its anchor, runs off the top. */
+    const anchor = Math.min(visible, Math.max(0.6 * visible, PIN_HEIGHT_PX + 8));
+    /* The padded area's centre is the anchor: bottom cuts away what the
+       sheet covers, top balances it. */
     return {
-      top: Math.round(peek * 0.2),
-      bottom: 0,
+      top: Math.max(0, Math.round(2 * anchor - visible)),
+      bottom: Math.max(0, Math.round(canvasH - visible)),
       left: 20,
       right: 20,
     };

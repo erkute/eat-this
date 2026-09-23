@@ -44,7 +44,15 @@ function setup() {
     container.appendChild(el);
     return el;
   };
-  return { map: map as unknown as MapLibreMap, host, render, pins, addMarker, drawImage, map_: map };
+  return {
+    map: map as unknown as MapLibreMap,
+    host,
+    render,
+    pins,
+    addMarker,
+    drawImage,
+    map_: map,
+  };
 }
 
 const flush = () => new Promise((r) => setTimeout(r, 0));
@@ -71,6 +79,20 @@ describe('mirrorMapStrip', () => {
     document.body.innerHTML = '';
   });
 
+  it('keeps no clones where the strip is not shown', () => {
+    vi.stubGlobal('matchMedia', () => ({
+      matches: false,
+      addEventListener() {},
+      removeEventListener() {},
+    }));
+    const s = setup();
+    s.addMarker('translate(10px, 20px)');
+    mirrorMapStrip(s.map, s.host);
+    s.render();
+    expect(s.pins()).toHaveLength(0);
+    expect(s.drawImage).not.toHaveBeenCalled();
+  });
+
   it("copies the map's top slice on every frame the map draws", () => {
     const s = setup();
     const stop = mirrorMapStrip(s.map, s.host);
@@ -79,17 +101,7 @@ describe('mirrorMapStrip', () => {
 
     s.render();
     /* 130 css px × pixel ratio 3, full width, from the very top. */
-    expect(s.drawImage).toHaveBeenCalledWith(
-      s.map.getCanvas(),
-      0,
-      0,
-      1170,
-      390,
-      0,
-      0,
-      1170,
-      390
-    );
+    expect(s.drawImage).toHaveBeenCalledWith(s.map.getCanvas(), 0, 0, 1170, 390, 0, 0, 1170, 390);
     const strip = s.host.querySelector('canvas')!;
     expect([strip.width, strip.height]).toEqual([1170, 390]);
     stop();

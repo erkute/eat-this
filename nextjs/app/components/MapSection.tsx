@@ -473,9 +473,11 @@ export default function MapSection({
          and the offset it reported pushed burger and search down while the
          map stayed put (user, 23.09.2026). */
       const active = document.activeElement;
+      /* Only fields that bring up the keyboard — not a focused checkbox. */
       const typing =
         active instanceof HTMLTextAreaElement ||
-        (active instanceof HTMLInputElement && active.type !== 'button') ||
+        (active instanceof HTMLInputElement &&
+          ['text', 'search', 'email', 'url', 'tel', 'password', 'number'].includes(active.type)) ||
         (active instanceof HTMLElement && active.isContentEditable);
       write(
         '--map-visual-offset-top',

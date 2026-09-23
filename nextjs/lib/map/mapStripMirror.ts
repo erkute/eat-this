@@ -67,8 +67,7 @@ export function mirrorMapStrip(map: MapLibreMap, host: HTMLElement): () => void 
   const place = (marker: HTMLElement, clone: HTMLElement) => {
     const transform = marker.style.transform;
     const y = anchorY(transform);
-    const inStrip =
-      y === null || (y > -PIN_REACH_DOWN_PX && y < hostHeight + PIN_REACH_UP_PX);
+    const inStrip = y === null || (y > -PIN_REACH_DOWN_PX && y < hostHeight + PIN_REACH_UP_PX);
     const display = inStrip ? '' : 'none';
     if (clone.style.display !== display) clone.style.display = display;
     if (inStrip) clone.style.transform = transform;
@@ -78,6 +77,15 @@ export function mirrorMapStrip(map: MapLibreMap, host: HTMLElement): () => void 
      ones (`dirty`) re-cloned, gone ones dropped, all in the markers' DOM
      order — MapLibre stacks markers by that order, so the copy must too. */
   const syncPins = (dirty: ReadonlySet<Element>) => {
+    /* The strip is phone-only; elsewhere it is display:none and hundreds of
+       clones would be kept up to date for nothing. */
+    if (!phone.matches) {
+      if (clones.size) {
+        clones.clear();
+        pins.replaceChildren();
+      }
+      return;
+    }
     const order: HTMLElement[] = [];
     const live = new Set<HTMLElement>();
     for (const child of markerRoot.children) {
@@ -141,9 +149,12 @@ export function mirrorMapStrip(map: MapLibreMap, host: HTMLElement): () => void 
   });
   resize.observe(host);
 
-  /* Back on a phone width after a resize: the strip holds whatever it last
-     copied, so ask for a fresh frame. */
-  const onPhoneChange = () => map.triggerRepaint();
+  /* Across the phone breakpoint: build or drop the clones, and ask for a
+     fresh frame — the strip holds whatever it last copied. */
+  const onPhoneChange = () => {
+    syncPins(new Set());
+    map.triggerRepaint();
+  };
   phone.addEventListener('change', onPhoneChange);
 
   syncPins(new Set());

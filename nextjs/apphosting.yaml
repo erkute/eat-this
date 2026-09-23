@@ -3,6 +3,13 @@ runConfig:
   maxInstances: 10
   minInstances: 0
   concurrency: 80
+  # 1 GiB statt der 512-MiB-Vorgabe (23.09.2026). Mit 512 riss jede zweite
+  # Instanz das Limit, 15–43 Mal am Tag seit mindestens 09.09., meist 5–30 min
+  # nach dem Start — und nahm laufende Anfragen mit. Kein einzelner Ausreißer:
+  # Prefetch-Stöße (viele `?_rsc=`-Renders gleichzeitig) plus `/_next/image`-
+  # Verkleinerung im selben Prozess. Kommt es mit 1 GiB wieder, ist es ein
+  # Leck — dann den Standalone-Build lokal unter Last messen.
+  memoryMiB: 1024
   # Live restaurant imports run Places + photo uploads + three LLM passes.
   timeoutSeconds: 120
 

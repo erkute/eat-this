@@ -665,15 +665,25 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               Outside the map wrapper: that is a stacking context under the
               list, and on phones the search has to stand above the strip. */}
           {searchOpen || search ? (
-            <div
+            /* Ein Formular, damit Enter bzw. „Suchen" auf der Handy-Tastatur
+               etwas tut: gefiltert wird schon beim Tippen, Bestätigen schließt
+               nur die Tastatur und gibt den Blick auf Liste und Karte frei.
+               Ohne <form> lief die Taste ins Leere (23.09.2026). */
+            <form
+              role="search"
               className={controlStyles.mapSearchToolbar}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
+              onSubmit={(e) => {
+                e.preventDefault();
+                searchInputRef.current?.blur();
+              }}
             >
               <SearchGlassIcon className={controlStyles.mapSearchIcon} />
               <input
                 ref={searchInputRef}
                 type="search"
+                enterKeyHint="search"
                 name="map-search"
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
@@ -712,7 +722,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   <path d="M17.4 6.8c-3.3 3.4-6.8 6.8-10.3 10.1" strokeWidth="2.1" />
                 </svg>
               </button>
-            </div>
+            </form>
           ) : (
             <button
               type="button"

@@ -27,7 +27,6 @@ const STATIC_ROUTES = new Set([
   '/kategorie',
   '/packs',
   '/profile',
-  '/badge',
   '/about',
   '/contact',
   '/impressum',

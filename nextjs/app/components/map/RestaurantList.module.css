@@ -1,9 +1,11 @@
-/* Restaurant List — isolated map subsystem. */
-.rcardSlot {
-  content-visibility: auto;
-  /* ≈ Karte (16:10 bei ~340px Panel-/Mobile-Breite) + 22px Slot-Padding —
-     minimiert Scrollbar-Drift, bis `auto` die gemessene Höhe übernimmt. */
-}
+/* Restaurant List — isolated map subsystem.
+
+   Kein `content-visibility: auto` auf den Zeilen (23.09.2026 entfernt).
+   Safari legt einen solchen Slot erst aus, wenn er schon im Bild steht (in
+   WebKit gemessen: Oberkante 13px über dem unteren Rand), und der Slot
+   springt dann von der geschätzten auf seine echte Höhe — beim Scrollen
+   ruckte die Liste am unteren Rand (Betreiber am iPhone). Die Liste rendert
+   ohnehin nur ein Fenster von Zeilen (lib/map/listWindow). */
 .rcardSlot .rcard {
   margin: 0;
 }
@@ -165,7 +167,6 @@
   background: transparent;
 }
 .rcardSlot {
-  contain-intrinsic-size: auto 248px;
   padding: 10px 14px 12px;
   margin: -10px -14px 8px;
 }
@@ -184,7 +185,10 @@
   inset: 0;
   aspect-ratio: auto;
   border-radius: 0;
-  background: #15120e;
+  /* Raised ink, not the page's own: until the photo is in, the card reads as
+     a card and not as a hole in the list (user, 23.09.2026: „da ist so
+     schwarz und dann kommen die Bilder"). */
+  background: var(--et-ink-raised, #25231f);
 }
 /* Der Name liegt direkt auf dem Foto, und welches Foto das ist, entscheidet
    die Redaktion — nicht das Layout. Auf einem hellen Bild (Tageslicht durch

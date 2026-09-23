@@ -645,6 +645,12 @@
 .packArt {
   width: 100%;
   height: auto;
+  /* Fester 2:3-Rahmen, nicht das Verhaeltnis der Datei: die Pack-Motive
+     weichen untereinander ab (1,46 bis 1,56), und die Hoehe, die der Browser
+     vor dem Laden reserviert, sprang beim Laden um bis zu 10px — mitten im
+     Bild, beim Scrollen (in Safari gemessen, 23.09.2026). */
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
   filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
   transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }

@@ -317,9 +317,7 @@ describe('useMapFilters Suche', () => {
     spot({ name: 'Osteria Numero 1', cuisineType: 'Italian', bezirk: { name: 'Neukölln' } }),
   ];
   const suche = (q: string) => {
-    const { result } = renderHook(() =>
-      useMapFilters({ restaurants: SUCHZEILEN, location: null })
-    );
+    const { result } = renderHook(() => useMapFilters({ restaurants: SUCHZEILEN, location: null }));
     act(() => result.current.setSearch(q));
     return result.current.displayedRestaurants.map((r) => r.name);
   };
@@ -363,5 +361,75 @@ describe('useMapFilters Suche', () => {
 
   it('erfindet nichts dazu', () => {
     expect(suche('koreanisch')).toEqual([]);
+  });
+});
+
+/**
+ * Nachgemessen am echten Katalog (23.09.2026), jeweils 0 Treffer:
+ * - „pizza neukölln" — der ganze Satz musste in EINEM Feld stehen.
+ * - „doener", „neukoelln", „fruehstueck" — Umlaute ausgeschrieben, wie man
+ *   sie auf einer Tastatur ohne Umlaute tippt.
+ * - „strasse" — alle Adressen schreiben „straße".
+ * - „x-berg", „f'hain" — so heissen die Kieze im Alltag.
+ * Und „eis" stellte „Speiselokal" und „Geist im Glas" vor die Eisdielen,
+ * weil die Liste nach Entfernung sortiert und nicht nach Treffer.
+ */
+describe('useMapFilters Suche, zweite Runde', () => {
+  const KATALOG: MapRestaurant[] = [
+    spot({
+      name: 'Gazzo',
+      cuisineType: 'Italian',
+      bezirk: { name: 'Neukölln' },
+      categories: [{ name: 'Pizza', slug: 'pizza' }],
+      address: 'Hobrechtstraße 57',
+    }),
+    spot({
+      name: 'Standard Serious Pizza',
+      cuisineType: 'Italian',
+      bezirk: { name: 'Prenzlauer Berg' },
+      categories: [{ name: 'Pizza', slug: 'pizza' }],
+    }),
+    spot({ name: 'Imren Grill', cuisineType: 'Döner', bezirk: { name: 'Neukölln' } }),
+    spot({
+      name: 'Café Kreuzberg',
+      bezirk: { name: 'Kreuzberg' },
+      categories: [{ name: 'Frühstück', slug: 'fruehstueck' }],
+    }),
+    spot({ name: 'Speiselokal Tulus Lotrek', bezirk: { name: 'Kreuzberg' } }),
+    spot({ name: 'Natur Eis', bezirk: { name: 'Friedrichshain' }, lat: 52.6, lng: 13.6 }),
+  ];
+  const liste = (q: string, location: { lat: number; lng: number } | null = null) => {
+    const { result } = renderHook(() => useMapFilters({ restaurants: KATALOG, location }));
+    act(() => result.current.setSearch(q));
+    return result.current.listRestaurants.map((r) => r.name);
+  };
+
+  it('verlangt jedes Wort irgendwo, nicht den ganzen Satz in einem Feld', () => {
+    expect(liste('pizza neukölln')).toEqual(['Gazzo']);
+    expect(liste('neukölln pizza')).toEqual(['Gazzo']);
+  });
+
+  it('versteht ausgeschriebene Umlaute', () => {
+    expect(liste('doener')).toEqual(['Imren Grill']);
+    expect(liste('neukoelln').sort()).toEqual(['Gazzo', 'Imren Grill']);
+    expect(liste('fruehstueck')).toEqual(['Café Kreuzberg']);
+  });
+
+  it('liest ss als ß', () => {
+    expect(liste('hobrechtstrasse')).toEqual(['Gazzo']);
+  });
+
+  it('kennt die Kiez-Namen', () => {
+    for (const q of ['x-berg', 'xberg', 'X-Berg']) {
+      expect(liste(q).sort(), q).toEqual(['Café Kreuzberg', 'Speiselokal Tulus Lotrek']);
+    }
+    expect(liste("f'hain")).toEqual(['Natur Eis']);
+    expect(liste('p-berg')).toEqual(['Standard Serious Pizza']);
+  });
+
+  it('stellt Namen, die mit dem Wort anfangen, vor Treffer mitten im Wort', () => {
+    /* Der Standort liegt am Speiselokal; nach Entfernung stuende es vorn. */
+    const amSpeiselokal = { lat: 52.5, lng: 13.4 };
+    expect(liste('eis', amSpeiselokal)).toEqual(['Natur Eis', 'Speiselokal Tulus Lotrek']);
   });
 });

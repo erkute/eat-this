@@ -1,6 +1,7 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import type { Metadata, Viewport } from 'next';
+import { preconnect } from 'react-dom';
 import { Saira_Condensed } from 'next/font/google';
 import { setRequestLocale } from 'next-intl/server';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
@@ -104,6 +105,10 @@ export async function generateViewport({ params }: PageProps): Promise<Viewport>
 export default async function MapPage({ params, searchParams }: PageProps) {
   const [{ locale }, query] = await Promise.all([params, searchParams]);
   setRequestLocale(locale);
+  /* The basemap tiles (MapCanvas: OpenFreeMap). The map canvas is a lazy
+     chunk, so without this the tile host's DNS + TLS only start once
+     MapLibre has loaded and asks for its first tile. */
+  preconnect('https://tiles.openfreemap.org', { crossOrigin: 'anonymous' });
 
   const [{ default: MapSection }, initialMapData] = await Promise.all([
     import('@/app/components/MapSection'),

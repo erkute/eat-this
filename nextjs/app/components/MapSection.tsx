@@ -26,6 +26,7 @@ import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
 import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
 import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
+import { forgetSheetPosition, mapStripLine } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import {
@@ -51,6 +52,8 @@ import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCent
             with env(safe-area-inset-top) added by the caller. */
 const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
+/* The pin card's height above its anchor (MapMarkers.module.css). */
+const PIN_HEIGHT_PX = 47;
 
 /* How long the search query has to hold still before the camera follows it.
    Long enough that typing "kreuzberg" flies once rather than once per letter,
@@ -60,9 +63,9 @@ const SEARCH_REFIT_DELAY_MS = 300;
 
 /* How long the list keeps re-aiming at the row a closed detail belongs to, and
    how many frames it has to sit still before that counts as arrived. ~1s is
-   long enough for a list of 340 content-visibility rows to measure the part it
-   scrolled through, short enough that a row which never settles gives up before
-   it turns into a fight. */
+   long enough for a list that is still settling (rows appended behind the
+   window, a re-sort) to stop moving, short enough that a row which never
+   settles gives up before it turns into a fight. */
 const ROW_REVEAL_MAX_FRAMES = 60;
 const ROW_REVEAL_SETTLED_FRAMES = 3;
 
@@ -278,13 +281,11 @@ export default function MapSection({
      raw scroll offset. A deep link never comes here: its row was never on
      screen, so closing lands at the top of the list instead.
 
-     Aimed for a few frames rather than once. The rows carry
-     `content-visibility: auto` (RestaurantList.module.css), so every row below
-     the fold is laid out from an ESTIMATE until it comes near the viewport: one
-     scrollTo aims into a document that has not measured itself yet and stops
-     short — the further down the row, the further short. Re-deriving the target
-     from the row itself until it stops moving is the same medicine
-     ScrollRestorer takes for the same illness on soft navs.
+     Aimed for a few frames rather than once. The list may still be settling
+     when the detail closes — rows appended behind the window, a re-sort after
+     a position fix — and one scrollTo aims into a document that has not
+     finished moving. Re-deriving the target from the row itself until it
+     stops moving is the same medicine ScrollRestorer takes on soft navs.
 
      Instant rather than smooth, for the same reason it is over there: with
      `scroll-behavior: smooth` document-wide, a smooth scroll re-issued every
@@ -413,6 +414,11 @@ export default function MapSection({
      below; null for selection changes that arrive WITHOUT a handler call
      (prev/next paging), which keep the current position. */
   const pendingDetailSnapRef = useRef<'full' | 'peek' | null>(null);
+  /* Phones: where the list's top edge stood on screen when a restaurant was
+     opened from it. The detail opens with its own top edge there — the sheet
+     keeps the height the user had pulled it to instead of dropping back to
+     its resting stop (user, 23.09.2026). Consumed once by the effect below. */
+  const detailOpenTopRef = useRef<number | null>(null);
   /* iOS safe-area inset, read once — feeds the pin-tap flyTo padding estimate. */
   const safeAreaBottomRef = useRef<number | null>(null);
   if (safeAreaBottomRef.current === null) {
@@ -462,8 +468,24 @@ export default function MapSection({
          own `top: 14px` left its client rect at -82, i.e. fully above the
          visible area. The phone controls add this back onto their `top`
          (MapControls.module.css). Kept off `transform`, which those three need
-         for their retreat animation. */
-      write('--map-visual-offset-top', `${Math.round(Math.max(0, visualOffsetTop))}px`);
+         for their retreat animation.
+
+         Only while a text field has focus, i.e. while there IS a keyboard.
+         Safari slides the visual viewport for other reasons too: the burger
+         drawer pins the page (body position: fixed), Safari unfolds its bars,
+         and the offset it reported pushed burger and search down while the
+         map stayed put (user, 23.09.2026). */
+      const active = document.activeElement;
+      /* Only fields that bring up the keyboard — not a focused checkbox. */
+      const typing =
+        active instanceof HTMLTextAreaElement ||
+        (active instanceof HTMLInputElement &&
+          ['text', 'search', 'email', 'url', 'tel', 'password', 'number'].includes(active.type)) ||
+        (active instanceof HTMLElement && active.isContentEditable);
+      write(
+        '--map-visual-offset-top',
+        `${typing ? Math.round(Math.max(0, visualOffsetTop)) : 0}px`
+      );
     };
 
     apply();
@@ -471,12 +493,17 @@ export default function MapSection({
     window.addEventListener('scroll', apply, { passive: true });
     window.visualViewport?.addEventListener('resize', apply, { passive: true });
     window.visualViewport?.addEventListener('scroll', apply, { passive: true });
+    /* The keyboard comes and goes with the focus. */
+    document.addEventListener('focusin', apply);
+    document.addEventListener('focusout', apply);
 
     return () => {
       window.removeEventListener('resize', apply);
       window.removeEventListener('scroll', apply);
       window.visualViewport?.removeEventListener('resize', apply);
       window.visualViewport?.removeEventListener('scroll', apply);
+      document.removeEventListener('focusin', apply);
+      document.removeEventListener('focusout', apply);
       root.style.removeProperty('--map-runtime-bar-overhang');
       root.style.removeProperty('--map-visual-offset-top');
     };
@@ -499,7 +526,20 @@ export default function MapSection({
          hält. */
       const opened = pendingDetailSnapRef.current !== null;
       pendingDetailSnapRef.current = null;
-      if (opened) window.scrollTo(0, 0);
+      const keepTop = detailOpenTopRef.current;
+      detailOpenTopRef.current = null;
+      if (!opened) return;
+      /* A restaurant opened from the list starts at the list's height; its
+         top edge can not sit lower than at scroll 0, its resting stop. The
+         must-eat takeover has no map behind it and always starts at 0. The
+         phone fly below measures the sheet after this jump. */
+      const sheet = selectedMustEat?._id ? null : sheetElRef.current;
+      if (keepTop == null || !sheet) {
+        window.scrollTo(0, 0);
+        return;
+      }
+      const restTop = sheet.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: Math.max(0, Math.round(restTop - keepTop)), behavior: 'instant' });
       return;
     }
     const requested = pendingDetailSnapRef.current;
@@ -511,7 +551,7 @@ export default function MapSection({
     const target = requested ?? (snapRef.current === 'peek' ? 'peek' : 'full');
     setSnap(target);
     reapplySnap(target);
-  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap]);
+  }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap, sheetElRef]);
 
   /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
      restores it via the existing deep-link path instead of dropping the user
@@ -593,9 +633,8 @@ export default function MapSection({
   const listScrollRef = useRef(0);
   /* Where the tapped row sat on screen (viewport top on phones, port top on
      tablet/desktop) when its detail opened. The raw scroll offset alone is not
-     enough to put it back: rows below the fold carry `content-visibility:
-     auto` and are laid out from estimates until measured, and the list can be
-     re-sorted (a position fix arrives) while the detail is open — restoring
+     enough to put it back: the list can be re-sorted (a position fix
+     arrives) while the detail is open — restoring
      the old scrollY then lands somewhere else, often with the row clamped to
      the very bottom of the screen. The row itself is the anchor; this is only
      where on screen it belongs. */
@@ -623,6 +662,14 @@ export default function MapSection({
   const [listFocusId, setListFocusId] = useState<string | null>(null);
   const listFocusIdRef = useRef(listFocusId);
   listFocusIdRef.current = listFocusId;
+  /* A remembered detail position (the grabber pulled the detail off the map)
+     belongs to one restaurant. Another one — or the same one opened afresh —
+     starts at its top. */
+  const openRestaurantId = selectedRestaurant?._id ?? null;
+  useEffect(() => {
+    forgetSheetPosition('detail');
+  }, [openRestaurantId]);
+
   const prevFiltersRef = useRef({ category, bezirk, price, openOnly, search });
   useEffect(() => {
     if (sheetView !== 'list') return;
@@ -637,6 +684,7 @@ export default function MapSection({
       prev.search !== next.search;
     if (!filtersChanged) return;
     listScrollRef.current = 0;
+    forgetSheetPosition('list');
     /* A different result set: the row that was worth pointing at may not even
        be in it any more. */
     setListFocusId(null);
@@ -753,18 +801,33 @@ export default function MapSection({
   // Padding the map should respect when centering on a point, so spots don't
   // land behind the bottom sheet (mobile) or side panel (desktop).
   /* Camera padding for the in-flow phone detail: the visible map is only the
-     top peek strip, so the target must center vertically inside it. Shared by
-     getFlyPadding (pager/late flyTos, sheetView already 'detail') and the
-     open-click handlers (whose closures still see sheetView 'list'). */
+     part of the detail's map strip the sheet leaves uncovered, so the target
+     must center vertically inside THAT. Shared by getFlyPadding (pager/late
+     flyTos, sheetView already 'detail') and the open-click handlers (whose
+     closures still see sheetView 'list').
+
+     Measured from the sheet's real top edge, not assumed at its resting
+     stop: paging to the next spot keeps the scroll position, and with the
+     sheet pushed halfway up the spot was centred in the whole strip — under
+     the sheet (user, 23.09.2026). */
   const phoneDetailFlyPadding = useCallback(() => {
     /* Mirrors --detail-map-peek in MapLayout.module.css. */
     const peek = (DETAIL_PEEK_DVH / 100) * window.innerHeight;
-    /* The phone detail gives MapLibre a real container exactly as tall as the
-       strip. Top-only padding puts the pin anchor at 60% of it, centering the
-       pin body at the resting stop without extending WebGL behind the detail. */
+    const canvasH = mapRef.current?.getContainer().clientHeight || peek;
+    const sheetTop = document
+      .querySelector<HTMLElement>('[data-map-sheet]')
+      ?.getBoundingClientRect().top;
+    /* How much map is on screen above the sheet. */
+    const visible = Math.min(canvasH, sheetTop != null && sheetTop > 0 ? sheetTop : peek);
+    /* Where the pin's anchor (its bottom tip) should land: at 60% of the
+       visible map, which centres the pin body above it — but never so high
+       that the pin, drawn upwards from its anchor, runs off the top. */
+    const anchor = Math.min(visible, Math.max(0.6 * visible, PIN_HEIGHT_PX + 8));
+    /* The padded area's centre is the anchor: bottom cuts away what the
+       sheet covers, top balances it. */
     return {
-      top: Math.round(peek * 0.2),
-      bottom: 0,
+      top: Math.max(0, Math.round(2 * anchor - visible)),
+      bottom: Math.max(0, Math.round(canvasH - visible)),
       left: 20,
       right: 20,
     };
@@ -999,6 +1062,13 @@ export default function MapSection({
           ? row.getBoundingClientRect().top -
             (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
           : null;
+        /* Deep in the list its top edge is far above the screen; the sticky
+           bar then stands at the strip line, and so shall the detail's. */
+        const sheet = sheetElRef.current;
+        detailOpenTopRef.current =
+          sheet && isPhoneViewport()
+            ? Math.max(mapStripLine(), sheet.getBoundingClientRect().top)
+            : null;
       }
       setDesktopPanelHidden(false);
       trackEvent('restaurant_opened', {
@@ -1077,6 +1147,7 @@ export default function MapSection({
       setSnap,
       sheetView,
       contentRef,
+      sheetElRef,
       displayedRestaurants.length,
       desktopPanelHidden,
     ]

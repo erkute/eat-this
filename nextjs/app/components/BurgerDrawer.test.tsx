@@ -92,6 +92,9 @@ describe('BurgerDrawer scroll handover', () => {
 
     fireEvent.click(document.getElementById('burgerClose') as HTMLButtonElement);
 
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 1500);
+    /* Sofort und im selben Takt: `scrollTo(0, y)` hätte das globale
+       scroll-behavior: smooth geerbt und die Seite von oben zurückgleiten
+       lassen (23.09.2026). */
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 1500, behavior: 'instant' });
   });
 });

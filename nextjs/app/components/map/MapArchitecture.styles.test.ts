@@ -13,11 +13,11 @@ const moduleNames = [
   'MapListEmpty.module.css',
   'MapIntro.module.css',
   'MapSeoFooter.module.css',
-  'MapViewToggle.module.css',
   'RestaurantList.module.css',
   'RestaurantGalleryLightbox.module.css',
   'MustEatImageLightbox.module.css',
   'MustEatRevealOverlay.module.css',
+  'ZoomCurtain.module.css',
 ] as const;
 
 function modulePath(name: string) {
@@ -57,29 +57,42 @@ function declarationsInMedia(name: string, selector: string, mediaParams: string
   return matches;
 }
 
-function declarations(name: string, selector: string) {
+/** Every declaration of `selector` outside any at-rule, merged in source order. */
+function topLevelDeclarations(name: string, selector: string) {
   const root = postcss.parse(readFileSync(modulePath(name), 'utf8'));
-  const found: Record<string, string> = {};
+  const declarations: Record<string, string> = {};
   root.walkRules((rule) => {
-    if (rule.selector !== selector) return;
-    if (rule.parent?.type === 'atrule') return;
+    if (rule.parent?.type !== 'root') return;
+    if (!rule.selector.split(',').some((part) => part.trim() === selector)) return;
     rule.walkDecls((declaration) => {
-      found[declaration.prop] = declaration.value;
+      declarations[declaration.prop] = declaration.value;
     });
   });
-  return found;
-}
-
-/** Sum of the plain `Npx` terms in a calc() — the parts that do not depend on
- *  the device (safe area) or on runtime state (cookie bar). */
-function fixedPx(value: string) {
-  return [...value.matchAll(/(?:^|\+)\s*(\d+(?:\.\d+)?)px/g)].reduce(
-    (total, match) => total + Number(match[1]),
-    0
-  );
+  return declarations;
 }
 
 describe('Map CSS architecture', () => {
+  /* iOS 26 Safari tints status and URL bar after the fixed element it finds
+     4px inside the edge, mid-width, if that element spans >= 90% of the
+     width; a blur without a solid colour comes out system grey, and so did
+     see-through bars over the blur (iPhone, 23.09.2026). Every zoom lays an
+     opaque full-width cap on both edges, and the gallery's transparent swipe
+     track stays off them so the probe hits the cap. */
+  it('caps both edges of every photo zoom with an opaque colour', () => {
+    for (const cap of ['.capTop', '.capBottom']) {
+      const decl = topLevelDeclarations('ZoomCurtain.module.css', cap);
+      expect(decl['background-color'], cap).toBe('var(--et-zoom-cap, #080705)');
+    }
+    const shared = topLevelDeclarations('ZoomCurtain.module.css', '.capTop');
+    expect(shared.position).toBe('fixed');
+    expect([shared.left, shared.right]).toEqual(['0', '0']);
+
+    const lb = 'RestaurantGalleryLightbox.module.css';
+    expect(topLevelDeclarations(lb, '.galleryLb').position).toBe('static');
+    expect(topLevelDeclarations(lb, '.galleryLbStage').top).toBe('6px');
+    expect(topLevelDeclarations(lb, '.galleryLbStage').height).toBe('calc(100dvh - 12px)');
+  });
+
   it('keeps every map module free of !important', () => {
     const important: string[] = [];
 
@@ -99,15 +112,13 @@ describe('Map CSS architecture', () => {
       'body',
       'liveMapLayer',
       'mapLoading',
+      'mapStrip',
+      'mapStripCanvas',
+      'mapStripPins',
       'mapWrap',
       'shell',
     ]);
-    expect(localClasses('MapSheet.module.css')).toEqual([
-      'handle',
-      'list',
-      'listScroll',
-      'stuckSentinel',
-    ]);
+    expect(localClasses('MapSheet.module.css')).toEqual(['handle', 'list', 'listScroll']);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
       'markerRootActive',
@@ -170,10 +181,21 @@ describe('Map CSS architecture', () => {
         width: '100%',
         height: '100dvh',
         'min-height': '100dvh',
-        'margin-top': '-100dvh',
         overflow: 'hidden',
       }),
     ]);
+    /* The takeover lies over the sticky map by exactly the map's height. The
+       map moved from 100dvh to 100lvh and the margin stayed behind: on the
+       iPhone the takeover sat a toolbar height low and the page scrolled. */
+    const mapHeight = declarationsInMedia(
+      'MapLayout.module.css',
+      '.mapWrap',
+      '(max-width: 767.98px)'
+    )
+      .map((d) => d.height)
+      .find(Boolean);
+    expect(mapHeight).toBe('100lvh');
+    expect(mustEatRules[0]['margin-top']).toBe(`-${mapHeight}`);
     expect(layout).not.toContain("html:has(.shell [data-map-sheet][data-detail-kind='must-eat'])");
   });
 
@@ -197,7 +219,9 @@ describe('Map CSS architecture', () => {
       expect.objectContaining({
         position: 'sticky',
         top: '0',
-        height: '100dvh',
+        /* lvh, not dvh: a dvh map resized with every step of Safari's
+           collapsing toolbar and slid under the list (23.09.2026). */
+        height: '100lvh',
         'background-color': 'var(--et-home-ink, #15120e)',
       }),
     ]);
@@ -228,7 +252,8 @@ describe('Map CSS architecture', () => {
 
     expect(shellRules).toEqual([
       expect.objectContaining({
-        '--detail-map-peek': '50dvh',
+        /* lvh: a dvh strip resized with Safari's toolbar (23.09.2026). */
+        '--detail-map-peek': '50lvh',
       }),
     ]);
     /* 28 is the number that has to stay in step with LIST_REST_VISIBLE_DVH in
@@ -241,7 +266,8 @@ describe('Map CSS architecture', () => {
     expect(rest, 'the resting stop must stay at 28dvh (= LIST_REST_VISIBLE_DVH)').toBe('28dvh');
     expect(listRules).toEqual([
       expect.objectContaining({
-        'margin-top': 'calc(0px - var(--phone-list-sheet-visible, 28dvh))',
+        /* The map above is 100lvh; the resting edge stays at 100dvh − 28dvh. */
+        'margin-top': 'calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 100lvh)',
         /* The last stop is only reachable if the list is at least a viewport
            tall — see phoneSheetSnaps.ts. */
         'min-height': 'calc(100dvh + var(--map-bar-overhang, 0px))',
@@ -271,7 +297,7 @@ describe('Map CSS architecture', () => {
     expect(body).not.toContain('StaticDetailMapPeek');
   });
 
-  it('caps the phone status-bar band only while the filter header is stuck', () => {
+  it('rests the filter header below the map strip, which covers the status-bar band', () => {
     const mapPage = readFileSync(
       fileURLToPath(new URL('../../[locale]/(spa)/map/page.tsx', import.meta.url)),
       'utf8'
@@ -281,42 +307,38 @@ describe('Map CSS architecture', () => {
       '.listHeader',
       '(max-width: 767.98px)'
     );
-    /* Scoped to data-view='list': `data-header-stuck` is shared with the detail
-       now (it drives the floating search/burger in both views), but the detail's
-       top edge is a photo hero — a cap over it would read as a stray stripe in
-       the sheet colour, egal ob Papier oder Ink. */
-    const capRules = declarationsInMedia(
-      'MapSheet.module.css',
-      ".list[data-view='list'][data-header-stuck='true']::before",
+    const stripRules = declarationsInMedia(
+      'MapLayout.module.css',
+      '.mapStrip',
       '(max-width: 767.98px)'
     );
 
     expect(mapPage).toContain('themeColor: null');
     expect(mapPage).not.toContain("themeColor: '#15120e'");
 
-    /* The header rests BELOW the band. Pinning it at 0 and carrying the inset
-       as padding instead reserves that space at every scroll position, which
-       shows up as dead whitespace above the chips at the resting stop. */
+    /* The header rests BELOW the band — and below the map strip under it
+       (--map-strip already carries the inset). Pinning it at 0 and carrying
+       the inset as padding instead reserves that space at every scroll
+       position, which shows up as dead whitespace above the chips at the
+       resting stop. */
     expect(headerRules).toEqual([
       expect.objectContaining({
         position: 'sticky',
-        top: 'env(safe-area-inset-top, 0px)',
+        top: 'var(--map-strip, env(safe-area-inset-top, 0px))',
       }),
     ]);
 
-    /* The band is covered by a zero-layout pseudo-element, gated on the stuck
-       state — so nothing shifts when it appears, and the resting sheet keeps
-       no whitespace. Its height is the inset itself, which is 0 in a browser
-       tab: there the cap collapses to nothing and rows still reach the top. */
-    expect(capRules).toEqual([
+    /* The strip starts at the very top, so in an installed app it is what
+       the status-bar band shows — map, not a separate cap over rows. Ink
+       behind it, the colour iOS 26 Safari tints its bar with. */
+    expect(stripRules).toEqual([
       expect.objectContaining({
         position: 'fixed',
         top: '0',
-        height: 'env(safe-area-inset-top, 0px)',
-        /* Ink seit 04.09.2026, als die Map auf den durchgehenden Ink-Grund
-           gezogen ist. Die Kappe muss die Farbe des Sheets tragen, das sie
-           fortsetzt — vorher war beides Papier. */
-        background: 'var(--et-home-ink, #15120e)',
+        /* Past the strip line, under the stuck bar: fills its rounded,
+           see-through top corners with map instead of passing rows. */
+        height: 'calc(var(--map-strip) + 12px)',
+        'background-color': 'var(--et-home-ink, #15120e)',
       }),
     ]);
   });
@@ -344,31 +366,6 @@ describe('Map CSS architecture', () => {
         );
       }
     }
-  });
-
-  /* The pill is `position: fixed` over the phone list, so nothing in the list
-     reserves space for it. Without a matching padding on the scroller the last
-     row sits underneath — which is how the All-Berlin banner's sign-in line
-     ended up covered. Both halves live in different modules, so assert them
-     against each other rather than against a magic number. */
-  it('keeps the end of the phone list clear of the map/list pill', () => {
-    const pill = declarations('MapViewToggle.module.css', '.toggle');
-    const [listScroll] = declarationsInMedia(
-      'MapSheet.module.css',
-      '.listScroll',
-      '(max-width: 767.98px)'
-    );
-
-    expect(pill.position).toBe('fixed');
-    const pillHeight = Number.parseFloat(pill['min-height']) + 2 * Number.parseFloat(pill.border);
-    expect(pillHeight).toBeGreaterThan(0);
-
-    const padding = listScroll['padding-bottom'].replaceAll(/\s+/g, ' ');
-    // The pill's own offset from the bottom edge, term for term.
-    expect(padding).toContain('max(18px, calc(env(safe-area-inset-bottom, 0px) + 14px))');
-    expect(padding).toContain('var(--consent-bar-h, 0px)');
-    // ... plus at least the pill itself.
-    expect(fixedPx(padding)).toBeGreaterThanOrEqual(pillHeight);
   });
 
   it('contains only the MapLibre controls that are actually mounted', () => {

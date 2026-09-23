@@ -12,10 +12,18 @@ import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName } from '@/lib/categories';
 import { normalizeName } from '@/lib/normalizeName';
 import sanityImageLoader from '@/lib/sanityImageLoader';
+import { spotPhotoSrcSet } from '@/lib/map/spotPhoto';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { DAY_LABELS } from '@/lib/map/openingHours';
 import MapListEmpty from './MapListEmpty';
 import styles from './RestaurantList.module.css';
+
+/* How far ahead of the screen a card starts fetching its photo, and the list
+   appends its next rows. About four phone screens: the Sanity CDN answers a
+   photo it has not served lately in 200–650 ms, and a quick flick covers
+   3000+ px a second. Measured on the production build (390px viewport, Fast
+   4G, 23.09.2026): at 3500 px/s 1600 left 10–15 of 75 cards empty, 3200 none. */
+const PHOTO_LEAD_PX = 3200;
 
 interface ItemProps {
   restaurant: MapRestaurant;
@@ -73,6 +81,28 @@ const Item = memo(
     // by the time the user taps it, the story text is already cached and the
     // detail opens complete (no skeleton).
     const cardRef = useRef<HTMLButtonElement>(null);
+    /* The photo starts loading well before the card reaches the screen.
+       Native lazy-loading waits until an image is almost in view — in Safari
+       especially close — so on a normal scroll every card arrived empty and
+       its photo popped in a beat later (user, 23.09.2026). Flipping `loading`
+       to eager at PHOTO_LEAD_PX makes the browser fetch it right then; the
+       server-rendered markup keeps plain lazy-loading. */
+    const [photoNear, setPhotoNear] = useState(Boolean(priority));
+    useEffect(() => {
+      const el = cardRef.current;
+      if (photoNear || !el || typeof IntersectionObserver === 'undefined') return;
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            setPhotoNear(true);
+            io.disconnect();
+          }
+        },
+        { rootMargin: `${PHOTO_LEAD_PX}px 0px` }
+      );
+      io.observe(el);
+      return () => io.disconnect();
+    }, [photoNear]);
     useEffect(() => {
       const el = cardRef.current;
       if (!el || typeof IntersectionObserver === 'undefined') return;
@@ -105,16 +135,13 @@ const Item = memo(
               /* One fixed 600px variant for every device was soft on a 3x
                  phone (the card is ~362 CSS px wide) and oversized for the
                  280px desktop column. */
-              /* 700 sitzt zwischen 600 und 900, weil genau dort die häufigste
-                 Android-Klasse landet: 94vw auf 412px bei DPR 1.75 sind 677px
-                 — ohne die Stufe griff der Browser zu 900w und lud rund ein
-                 Drittel zu viel. */
-              srcSet={[400, 600, 700, 900, 1200]
-                .map((w) => `${sanityImageLoader({ src: restaurant.photo!, width: w })} ${w}w`)
-                .join(', ')}
+              /* Dieselben Stufen wie die Fotos im Restaurant-Detail
+                 (lib/map/spotPhoto.ts) — so kommt dort das erste Foto aus dem
+                 Cache. */
+              srcSet={spotPhotoSrcSet(restaurant.photo)}
               sizes="(max-width: 767.98px) 94vw, 280px"
               alt=""
-              loading={priority ? 'eager' : 'lazy'}
+              loading={photoNear ? 'eager' : 'lazy'}
               fetchPriority={priority ? 'high' : undefined}
               decoding={priority ? 'sync' : 'async'}
               draggable={false}
@@ -234,8 +261,10 @@ export default function RestaurantList({
         if (entries.some((e) => e.isIntersecting)) onNeedMoreRows();
       },
       /* Vorlauf, damit die nächsten Karten stehen, bevor die letzte sichtbare
-         Zeile den unteren Rand erreicht — sonst sieht man das Nachladen. */
-      { rootMargin: '600px 0px' }
+         Zeile den unteren Rand erreicht — sonst sieht man das Nachladen. So
+         weit wie der Foto-Vorlauf: eine Zeile, die erst hier entsteht, soll
+         ihr Foto trotzdem rechtzeitig holen. */
+      { rootMargin: `${PHOTO_LEAD_PX}px 0px` }
     );
     io.observe(el);
     return () => io.disconnect();

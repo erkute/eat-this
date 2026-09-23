@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import styles from './RestaurantGalleryLightbox.module.css';
+import ZoomCurtain from './ZoomCurtain';
 
 interface Props {
   images: RestaurantGalleryImage[];
@@ -128,13 +129,7 @@ function Viewer({
       aria-modal="true"
       aria-label={`${restaurantName} – Foto ${page + 1} von ${count}`}
     >
-      <motion.div
-        className={styles.galleryLbBg}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-      />
+      <ZoomCurtain className={styles.galleryLbCurtain} fade />
 
       <button
         ref={closeRef}

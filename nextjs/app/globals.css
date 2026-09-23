@@ -299,6 +299,9 @@
   --et-scrim: rgba(0, 0, 0, 0.62);
   --et-zoom-scrim: var(--et-scrim);
   --et-zoom-scrim-blur: blur(12px) saturate(1);
+  /* Die deckenden Kappen des Zooms an Status- und URL-Leiste (ZoomCurtain):
+     exakt der Vorhang ueber Ink, damit der Uebergang nicht springt. */
+  --et-zoom-cap: #080705;
 
   --et-radius-photo: 10px;
   --et-radius-control: 7px;
@@ -569,6 +572,17 @@ html[data-active-page='map'] .app-pages,
 html[data-active-page='map'] main,
 html[data-active-page='map'] .app-page {
   background-color: transparent;
+}
+
+/* Phone map: no rubber band at the ends of the page. A fast flick that hit
+   the top of the list bounced the whole page, the sticky map included, and
+   the map seemed to be dragged down and snap back (user, 23.09.2026). The
+   viewport takes overscroll-behavior from the ROOT element — the
+   `body { overscroll-behavior: none }` in style.css never reached it. */
+@media (max-width: 767.98px) {
+  html[data-active-page='map'] {
+    overscroll-behavior-y: none;
+  }
 }
 
 @media (min-width: 768px) {

@@ -50,7 +50,12 @@ function unlockBody(restoreScroll: boolean) {
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.width = '';
-    if (restoreScroll) requestAnimationFrame(() => window.scrollTo(0, storedY));
+    /* Same task as lifting the lock, and `instant`: html carries
+       scroll-behavior: smooth, so the two-argument scrollTo was an animation
+       from the top back down — one rAF later, after a painted frame at y=0.
+       On the phone map that read as the page jumping away and gliding back
+       (user, 23.09.2026). */
+    if (restoreScroll) window.scrollTo({ top: storedY, behavior: 'instant' });
   } else if (lockMode === 'overflow') {
     document.body.style.overflow = document.body.dataset.burgerPrevOverflow || '';
   }

@@ -156,20 +156,17 @@ export async function POST(req: NextRequest) {
       // `featuredOnDate` bis zu einen Tag lang wirkungslos geblieben — der
       // Spot des Tages ist genau die Fläche, für die Redaktion kuratiert.
       revalidateTag('restaurant');
-      // Zwei Listen über ALLE Restaurants, die an eigenen Tags hängen und
-      // bisher an keiner Stelle invalidiert wurden: die Slug-Tabelle des
-      // Legacy-Redirects (getAllRestaurantsLite) und die Auswahl der
-      // Badge-Seite. Beide standen damit bis zu 24 Stunden auf altem Stand —
-      // ein umbenannter Slug lief so lange ins 404 statt in seinen Redirect.
+      // Die Slug-Tabelle des Legacy-Redirects (getAllRestaurantsLite) hängt
+      // an einem eigenen Tag, den bisher niemand invalidierte: sie stand bis
+      // zu 24 Stunden auf altem Stand — ein umbenannter Slug lief so lange
+      // ins 404 statt in seinen Redirect.
       revalidateTag('restaurants-lite');
-      revalidateTag('badge-restaurants');
       revalidated.push(
         'tag:bezirk',
         'tag:category-list',
         'tag:restaurant-siblings',
         'tag:restaurant',
-        'tag:restaurants-lite',
-        'tag:badge-restaurants'
+        'tag:restaurants-lite'
       );
       revalidateMapSurface(revalidated);
       revalidateMustEatSurface(revalidated);

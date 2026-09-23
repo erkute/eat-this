@@ -20,14 +20,17 @@ import type { MapRestaurant } from '@/lib/types';
 // Test den Sentinel von Hand ins Bild schieben kann.
 type IoCallback = (entries: Array<Partial<IntersectionObserverEntry>>) => void;
 let ioCallbacks: IoCallback[] = [];
+let ioOptions: Array<IntersectionObserverInit | undefined> = [];
 
 beforeEach(() => {
   ioCallbacks = [];
+  ioOptions = [];
   vi.stubGlobal(
     'IntersectionObserver',
     class {
-      constructor(cb: IoCallback) {
+      constructor(cb: IoCallback, options?: IntersectionObserverInit) {
         ioCallbacks.push(cb);
+        ioOptions.push(options);
       }
       observe() {}
       disconnect() {}
@@ -116,5 +119,32 @@ describe('RestaurantList windowing', () => {
 
     expect(rows()).toHaveLength(12);
     expect(rows().at(-1)).toBe('Spot 11');
+  });
+});
+
+describe('RestaurantList card photos', () => {
+  const photoSpots = () =>
+    spots(3).map((s, i) => ({ ...s, photo: `photo-${i}` })) as unknown as MapRestaurant[];
+  const photos = (container: HTMLElement) =>
+    [...container.querySelectorAll('[class*=rcardImg] img')] as HTMLImageElement[];
+
+  it('loads the first photo at once and leaves the others lazy until they come near', () => {
+    const { container } = render(list({ restaurants: photoSpots() }));
+
+    expect(photos(container).map((img) => img.getAttribute('loading'))).toEqual(['eager', 'lazy', 'lazy']);
+  });
+
+  it('starts fetching a photo well before its card reaches the screen', async () => {
+    const { container } = render(list({ restaurants: photoSpots() }));
+
+    /* Native lazy-loading waited until a card was almost in view — in Safari
+       especially close — and every photo popped in a beat late. The card's
+       own observer reaches much further ahead and flips it to eager. */
+    const lead = ioOptions.filter((o) => o?.rootMargin?.startsWith('3200px'));
+    expect(lead.length).toBeGreaterThanOrEqual(2);
+
+    const { act } = await import('@testing-library/react');
+    act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: true }])));
+    expect(photos(container).map((img) => img.getAttribute('loading'))).toEqual(['eager', 'eager', 'eager']);
   });
 });

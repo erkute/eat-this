@@ -137,6 +137,21 @@ describe('in the list', () => {
       expect(sheet().style.transform).toBe('');
     });
 
+    it('lifts the sheet over the map strip for the gesture, and only then', async () => {
+      /* A transform makes the sheet a stacking context, which put its bar
+       under the strip — and the strip reaches past its line, so the top of
+       the bar and its grip vanished while being pulled. */
+      window.scrollY = DEEP;
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 100, 0));
+      handle.dispatchEvent(pointer('pointermove', 105, 16));
+      expect(sheet().style.zIndex).toBe('7');
+
+      handle.dispatchEvent(pointer('pointerup', 105, 32));
+      await settle();
+      expect(sheet().style.zIndex).toBe('');
+    });
+
     it('takes a short but fast flick as a decision', async () => {
       window.scrollY = DEEP;
       drag(40, { steps: 2, msPerStep: 16 });

@@ -89,6 +89,19 @@ function clipAbove(sheet: HTMLElement) {
     hidden > 0 ? `inset(${Math.round(hidden)}px 0 0 0 round ${radius} ${radius} 0 0)` : '';
 }
 
+/**
+ * For the length of a gesture the sheet rises to the map strip's level.
+ * A transform makes the sheet a stacking context of its own, which puts its
+ * sticky bar (z 8 inside it) under the strip (z 7) — and the strip reaches
+ * 12px below its line to fill the bar's rounded corners. Pulling the bar down
+ * from the top, those 12px of it — the grip included — vanished under the
+ * strip (user, 23.09.2026). Level with the strip and after it in the DOM, the
+ * sheet paints over it; its clip keeps the rows above the line out of view.
+ */
+function lift(sheet: HTMLElement, on: boolean) {
+  sheet.style.zIndex = on ? '7' : '';
+}
+
 /** Put the sheet at an offset below its scroll position. */
 export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
   sheet.style.transform = offsetPx > 0 ? `translateY(${Math.round(offsetPx)}px)` : '';
@@ -99,6 +112,7 @@ export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
 function release(sheet: HTMLElement): void {
   sheet.style.transform = '';
   sheet.style.clipPath = '';
+  lift(sheet, false);
 }
 
 function glide(sheet: HTMLElement, fromPx: number, toPx: number): Promise<void> {
@@ -121,6 +135,7 @@ function glide(sheet: HTMLElement, fromPx: number, toPx: number): Promise<void> 
  * on screen. Returns the offset the drag starts from.
  */
 export function grabFromList(sheet: HTMLElement): number {
+  lift(sheet, true);
   clipAbove(sheet);
   return 0;
 }
@@ -136,6 +151,7 @@ export function grabFromMap(sheet: HTMLElement, view: SlideView, restLinePx: num
   if (back == null) return false;
   /* The document can be shorter than when we left — clamp inside it. */
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  lift(sheet, true);
   window.scrollTo({ top: Math.min(back, maxY), behavior: 'instant' });
   holdSheetAt(sheet, restLinePx);
   clipAbove(sheet);

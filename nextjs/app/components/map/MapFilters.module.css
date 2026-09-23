@@ -834,14 +834,24 @@
   opacity: 0.55;
 }
 
-/* ── Mobile: eingerücktes Bottom-Sheet ─────────────────────────────────────── */
+/* ── Mobile: Bottom-Sheet, bündig an Unterkante und Rändern ─────────────────
+   Kein Abstand zur URL-Leiste und keiner zu den Seiten: Fenster und Leiste
+   sollen eine Fläche sein (User, 23.09.2026). iOS 26 Safari färbt seine
+   untere Leiste nach einem deckenden fixierten Element, das die Kante
+   berührt und fast die ganze Breite hat — genau das ist dieses Sheet, also
+   steht die Leiste in seinem --et-ink-raised. Die Farbe klebt nicht nach:
+   Safari behält sie nur, solange das Element gerendert bleibt, und
+   MapListHeader hängt das Sheet beim Schließen ganz aus. Nur die oberen Ecken
+   sind rund; unten hält das Polster die Kacheln über dem Home-Balken. */
 @media (max-width: 1023.98px) {
   .pickerSheet {
-    left: 12px;
-    right: 12px;
-    bottom: max(14px, env(safe-area-inset-bottom, 0px));
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: auto;
     max-height: min(66dvh, 560px);
+    padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    border-radius: 10px 10px 0 0;
   }
 
   .pickerSheet::before {

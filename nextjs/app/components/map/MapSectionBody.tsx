@@ -263,7 +263,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onBezirkChange(null);
     setPrice(null);
     setOpenOnly(false);
+  };
+  const handleClearSearch = () => {
     onSearchChange('');
+    setSearchOpen(false);
   };
   const handleMapRestaurantClick = useCallback(
     (r: MapRestaurant) => onRestaurantClick(r, 'map'),
@@ -937,7 +940,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   price={price}
                   onPrice={setPrice}
                   optionCounts={optionCounts}
-                  searchActive={Boolean(search.trim())}
                 />
                 <div ref={setContentRef} className={sheetStyles.listScroll}>
                   <RestaurantList
@@ -949,7 +951,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     unlockedIds={unlockedIds}
                     revealedMustEatIds={revealedMustEatIds}
                     onResetFilters={handleResetFilters}
+                    onClearSearch={handleClearSearch}
                     searchQuery={search}
+                    filtersActive={category !== 'All' || Boolean(bezirk || price) || openOnly}
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}
                   />

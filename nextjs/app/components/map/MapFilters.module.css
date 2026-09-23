@@ -265,28 +265,6 @@
   }
 }
 
-/* ── Chips, die eine laufende Suche überstimmt ────────────────────────────────
-   Eine nicht-leere Query überspringt in useMapFilters jeden Chip. Vorher
-   behielten sie ihre Akzentfüllung und behaupteten damit einen Filter, der nicht
-   lief. Sie fallen auf die Fläche der inaktiven Chips zurück; die Schrift
-   bleibt gelb, damit die mit einem Wert auffindbar (und löschbar) bleiben —
-   ohne Kontur (User, 23.09.2026). */
-.filterChipRow.filterChipRowPaused .filterChipActive,
-.filterChipRow.filterChipRowPaused .filterChipActive:focus-visible,
-.filterChipRow.filterChipRowPaused .filterChipOpenActive,
-.filterChipRow.filterChipRowPaused .filterChip[aria-pressed='true'] {
-  background: var(--et-ink-raised, #25231f);
-  color: var(--et-home-accent, #ffc600);
-  border: 1px solid transparent;
-}
-@media (hover: hover) {
-  .filterChipRow.filterChipRowPaused .filterChipActive:hover {
-    background: var(--et-ink-raised, #25231f);
-    color: var(--et-home-accent, #ffc600);
-    border: 1px solid transparent;
-  }
-}
-
 /* ── Label ─────────────────────────────────────────────────────────────────────
    Erbt Farbe und Schnitt vom Chip; gesetzt wird hier nur, was der Chip nicht
    vererben kann. `overflow-wrap: anywhere` plus `hyphens: auto` hat aus
@@ -341,10 +319,7 @@
 .filterChipRow .filterChipActive .filterChipLabel,
 .filterChipRow .filterChipActive .filterChipLabelLong,
 .filterChipRow .filterChipOpenActive .filterChipLabel,
-.filterChipRow .filterChip[aria-pressed='true'] .filterChipLabel,
-.filterChipRow.filterChipRowPaused .filterChipActive .filterChipLabel,
-.filterChipRow.filterChipRowPaused .filterChipActive .filterChipLabelLong,
-.filterChipRow.filterChipRowPaused .filterChipOpenActive .filterChipLabel {
+.filterChipRow .filterChip[aria-pressed='true'] .filterChipLabel {
   color: inherit;
 }
 
@@ -410,17 +385,6 @@
   transform: translate(1px, 1px);
 }
 
-.filterChipPausedNote {
-  margin: 0;
-  padding: 0 14px 10px;
-  color: var(--et-home-ink, #15120e);
-  opacity: 0.62;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 11px;
-  line-height: 1.3;
-  text-align: center;
-}
-
 /* ── Telefon ──────────────────────────────────────────────────────────────────
    Die Leiste klebt oben, sobald die Liste darunter scrollt. Eigene
    Compositing-Ebene, weil der sticky Header sonst pro Scrollschritt neu
@@ -459,10 +423,6 @@
 @media (max-width: 1023px) {
   .filterChipRow .filterChip {
     gap: 0;
-  }
-
-  .filterChipPausedNote {
-    padding-inline: 12px;
   }
 }
 

@@ -141,14 +141,48 @@ describe('useMapFilters option counts', () => {
     expect(byValue.price.get('10')).toBe(1);
   });
 
-  it('ignores the search box, which overrides the chips rather than narrowing them', () => {
+  it('counts under the search query too, since it narrows like a chip', () => {
     const { result } = mount();
-    act(() => result.current.setSearch('zzz-nothing-matches'));
+    act(() => result.current.setSearch('pizza'));
 
-    // The list is empty under that query, but the counts describe what the
-    // chips give once it is cleared — which is what the paused chip rail says.
+    // Vier Pizza-Spots: drei in Mitte, einer in Neukölln, keiner in Wedding.
+    const { byValue, withoutDimension } = result.current.optionCounts;
+    expect(byValue.bezirk.get('Mitte')).toBe(3);
+    expect(byValue.bezirk.get('Neukölln')).toBe(1);
+    expect(byValue.bezirk.get('Wedding')).toBeUndefined();
+    expect(withoutDimension.bezirk).toBe(4);
+  });
+});
+
+/* Bis zum 23.09.2026 hob eine Suchanfrage jeden Chip auf: „pizza" mit
+   Bezirk Mitte zeigte Pizza aus ganz Berlin. Wer filtert und dann tippt, sucht
+   innerhalb dessen, was die Chips übrig lassen. */
+describe('useMapFilters Suche mit Chips', () => {
+  it('sucht nur in dem, was die Chips übrig lassen', () => {
+    const { result } = mount();
+    act(() => result.current.setBezirk('Mitte'));
+    act(() => result.current.setSearch('pizza'));
+
+    const treffer = result.current.displayedRestaurants;
+    expect(treffer).toHaveLength(3);
+    expect(treffer.every((r) => r.bezirk?.name === 'Mitte')).toBe(true);
+  });
+
+  it('bleibt leer, wenn Anfrage und Chips zusammen nichts treffen', () => {
+    const { result } = mount();
+    act(() => result.current.setBezirk('Wedding'));
+    act(() => result.current.setSearch('pizza'));
+
     expect(result.current.displayedRestaurants).toHaveLength(0);
-    expect(result.current.optionCounts.byValue.bezirk.get('Mitte')).toBe(5);
+  });
+
+  it('gibt die Chips wieder voll frei, sobald die Suche leer ist', () => {
+    const { result } = mount();
+    act(() => result.current.setBezirk('Mitte'));
+    act(() => result.current.setSearch('pizza'));
+    act(() => result.current.setSearch(''));
+
+    expect(result.current.displayedRestaurants).toHaveLength(5);
   });
 });
 

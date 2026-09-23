@@ -779,6 +779,46 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
     };
   }, [open]);
 
+  /* Telefon: das Panel deckt genau den SICHTBAREN Ausschnitt. iOS verkleinert
+     beim Öffnen der Tastatur nicht das Layout-Viewport, sondern schiebt das
+     visuelle darin nach oben — ein `fixed` Panel mit `inset` ritt mit, und
+     darüber und darunter stand die Startseite (Betreiber, 23.09.2026). Jetzt
+     folgt es `visualViewport`: Kopf oben, das Feld direkt auf der Tastatur,
+     der Verlauf dazwischen schrumpft. Wer am Ende des Verlaufs stand, bleibt
+     dort. `data-keyboard` nimmt den Home-Indikator-Abstand unter dem Feld
+     weg, der über der Tastatur nur eine Lücke wäre. */
+  useEffect(() => {
+    if (!open) return;
+    const vv = window.visualViewport;
+    const panel = panelRef.current;
+    if (!vv || !panel) return;
+    const phone = window.matchMedia('(max-width: 480px)');
+    const apply = () => {
+      if (!phone.matches) {
+        panel.style.removeProperty('--buddy-vv-top');
+        panel.style.removeProperty('--buddy-vv-height');
+        delete panel.dataset.keyboard;
+        return;
+      }
+      const log = logRef.current;
+      const atEnd = log ? log.scrollHeight - log.clientHeight - log.scrollTop < 4 : false;
+      panel.style.setProperty('--buddy-vv-top', `${vv.offsetTop}px`);
+      panel.style.setProperty('--buddy-vv-height', `${vv.height}px`);
+      if (window.innerHeight - vv.height > 120) panel.dataset.keyboard = '';
+      else delete panel.dataset.keyboard;
+      if (log && atEnd) log.scrollTop = log.scrollHeight;
+    };
+    apply();
+    vv.addEventListener('resize', apply);
+    vv.addEventListener('scroll', apply);
+    phone.addEventListener('change', apply);
+    return () => {
+      vv.removeEventListener('resize', apply);
+      vv.removeEventListener('scroll', apply);
+      phone.removeEventListener('change', apply);
+    };
+  }, [open]);
+
   // Escape closes the panel.
   useEffect(() => {
     if (!open) return;

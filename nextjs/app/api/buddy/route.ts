@@ -6,6 +6,7 @@ import {
   checkWindowedRateLimit,
   sessionLimitsFromEnv,
   ipLimitsFromEnv,
+  globalLimitsFromEnv,
 } from '@/lib/rateLimitWindow';
 import { createAnthropicLlmClient, runBuddyTurn, type OwnedPacks } from '@/lib/buddy/orchestrator';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
@@ -209,6 +210,14 @@ export async function POST(request: Request) {
   );
   if (!limit.allowed) {
     return NextResponse.json({ error: 'rate_limited', reason: limit.reason }, { status: 429 });
+  }
+  // Der gemeinsame Tagestopf zuletzt: wer schon an seiner eigenen Grenze
+  // scheitert, verbraucht nichts davon. Eigener Grund, damit der Chat „für
+  // heute ausgebucht" sagen kann statt „frag gleich nochmal".
+  const shared = await checkWindowedRateLimit('global', globalLimitsFromEnv(), 'deny');
+  if (!shared.allowed) {
+    const reason = shared.reason === 'per_day' ? 'global' : shared.reason;
+    return NextResponse.json({ error: 'rate_limited', reason }, { status: 429 });
   }
 
   const [page, viewer] = await Promise.all([

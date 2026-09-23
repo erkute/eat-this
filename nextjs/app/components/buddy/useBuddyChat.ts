@@ -37,6 +37,28 @@ export function parseNdjsonLines(buffer: string, onEvent: (e: BuddyStreamEvent) 
   return remainder;
 }
 
+/**
+ * Was Remy sagt, wenn /api/buddy ablehnt (429). Seit 23.09.2026 gibt es
+ * Tagesgrenzen (10 pro Person, 50 für alle) — „frag gleich nochmal" wäre dort
+ * gelogen, also je Grund ein eigener Satz.
+ */
+export function limitNotice(reason: string | undefined, locale: Locale): string {
+  const en = locale === 'en';
+  if (reason === 'global') {
+    return en
+      ? "I'm all booked up for today 😅 Back tomorrow."
+      : 'Ich bin für heute ausgebucht 😅 Morgen bin ich wieder da.';
+  }
+  if (reason === 'per_day') {
+    return en
+      ? "That's enough from me for today 😅 Ask me again tomorrow."
+      : 'Für heute hab ich dir genug erzählt 😅 Frag mich morgen wieder.';
+  }
+  return en
+    ? 'Easy 😅 give me a moment and ask again.'
+    : 'Sachte 😅 gib mir kurz und frag gleich nochmal.';
+}
+
 function getSessionId(): string {
   if (typeof window === 'undefined') return 'ssr';
   const KEY = 'buddySessionId';
@@ -240,11 +262,8 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
         });
         if (res.status === 429) {
           // Ein Hinweis, kein Vortrag: der steht sofort da, nicht getippt.
-          showAll(
-            locale === 'en'
-              ? 'Easy 😅 give me a moment and ask again.'
-              : 'Sachte 😅 gib mir kurz und frag gleich nochmal.'
-          );
+          const body = (await res.json().catch(() => null)) as { reason?: string } | null;
+          showAll(limitNotice(body?.reason, locale));
           return;
         }
         if (!res.ok || !res.body) throw new Error('request_failed');

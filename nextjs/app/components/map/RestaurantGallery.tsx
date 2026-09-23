@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import RestaurantGalleryLightbox from './RestaurantGalleryLightbox';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { useTranslation } from '@/lib/i18n';
+import { spotPhotoSrc, spotPhotoSrcSet } from '@/lib/map/spotPhoto';
 import styles from './MapDetails.module.css';
 
 interface Props {
@@ -114,7 +115,13 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
             aria-label={`${restaurantName}: ${t('map.photos')} ${index + 1}/${usable.length}`}
           >
             <img
-              src={img.full}
+              /* Dieselben Stufen wie die Listenkarte (lib/map/spotPhoto.ts):
+                 das erste Foto ist das der Karte und kommt aus dem Cache,
+                 statt als neue 1200/1600er-Datei nachgezogen zu werden. Die
+                 große Fassung (`full`) bekommt erst der Zoom. */
+              src={spotPhotoSrc(img.full)}
+              srcSet={spotPhotoSrcSet(img.full)}
+              sizes="(max-width: 1023.98px) 100vw, 430px"
               alt={img.alt ?? restaurantName}
               draggable={false}
               /* Die Nachbarbilder müssen schon da sein, wenn der Finger sie

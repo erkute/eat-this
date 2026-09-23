@@ -39,6 +39,7 @@ import RestaurantGallery from './RestaurantGallery';
 import { trackEvent } from '@/lib/analytics';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
+import { spotPhotoSrc } from '@/lib/map/spotPhoto';
 
 function MustEatMiniCard({
   mustEat,
@@ -275,8 +276,10 @@ export default function RestaurantDetail({
   const heroStyle =
     r.photo && heroCredit
       ? ({
-          '--rd-hero-image': `url(${JSON.stringify(r.photo)})`,
-          backgroundImage: `url(${r.photo})`,
+          /* The list card's own file (lib/map/spotPhoto.ts), so it stands
+             there from the cache before the gallery on top of it loads. */
+          '--rd-hero-image': `url(${JSON.stringify(spotPhotoSrc(r.photo))})`,
+          backgroundImage: `url(${JSON.stringify(spotPhotoSrc(r.photo))})`,
         } as CSSProperties)
       : undefined;
 

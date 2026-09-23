@@ -259,8 +259,11 @@
        no part of this edge. */
     --phone-list-sheet-visible: 28dvh;
     /* The detail's map strip. Sized so the sheet has the same three stops as
-       the list — a live, pannable map behind the sliding detail sheet. */
-    --detail-map-peek: 50dvh;
+       the list — a live, pannable map behind the sliding detail sheet. In lvh
+       for the same reason as the list's map: a dvh strip resized with every
+       step of Safari's collapsing toolbar and the map slid about while the
+       detail scrolled (user, 23.09.2026). */
+    --detail-map-peek: 50lvh;
     /* Map left showing above the sheet when it is all the way up (user,
        22.09.2026: „oben noch minimal die Map sehen"). The sticky bar stops
        below it. Mirrored in JS by MAP_STRIP_PX in lib/map/sheetSlide.ts. */
@@ -337,10 +340,10 @@
      schwarz").
 
      The phone sheet is no stacking context of its own (z-index auto), which
-     is what lets the map slide in between its rows and its bars. It flips at
-     the moment the sheet's top edge crosses the strip line (the stuck
-     sentinel's rootMargin), when nothing of the sheet is above that line yet,
-     so the flip is invisible. A tap on the strip takes you to the map
+     is what lets the map slide in between its rows and its bars. It lifts a
+     little before the sheet's top edge reaches the strip line and drops the
+     moment it leaves it (the stuck effect in MapSectionBody) — both while the
+     lifted map covers what is map anyway, so the flip is invisible. A tap on the strip takes you to the map
      (MapSectionBody); the canvas is inert there, a strip of map is not for
      panning — search and burger in it stay live. 72px so both fit above the
      bar. Not in the must-eat takeover: its map is hidden. And not while the

@@ -188,7 +188,7 @@
      Why: once the bar sticks, the slot it leaves in the flow travels up with
      the sheet. With an ink sheet that slot was a dark band growing above the
      bar — plus the hairline riding up past it — until the map strip lifted
-     over it, and the "stuck" sentinel reports a frame or two late on iOS. The
+     over it, and "stuck" arrives a frame or two late on iOS. The
      handle seemed to grow and snap back (user, 23.09.2026). A see-through slot
      shows the map it sits on, so the late frames look like nothing at all. */
   .list[data-view='list'] {
@@ -201,7 +201,7 @@
   }
   /* Detail content keeps its own stacking (cards up to z 30 inside), so none
      of it climbs over the map strip or the bars. */
-  .list[data-view='detail'] > :not(.handle):not(.stuckSentinel) {
+  .list[data-view='detail'] > :not(.handle) {
     isolation: isolate;
   }
   /* Cap over the status-bar band, ONLY while the filter header is stuck.
@@ -251,9 +251,6 @@
   .handle:active {
     cursor: grabbing;
   }
-  .stuckSentinel {
-    height: 0;
-  }
   /* In a restaurant detail the handle is the bar: it sticks below the map
      strip like the list's filter bar, so the way back to the map is on screen
      at any depth (useHandleScrollDrag). Ink, because rows pass under it. */
@@ -265,7 +262,7 @@
     background: var(--et-home-ink, #15120e);
     /* The sheet's edge rides on the handle here (see the sheet rule below),
        rounded like the list's filter bar. Never switched on "stuck": the
-       sentinel reports a frame late on iOS, so anything keyed to it changes
+       state arrives a frame late on iOS, so anything keyed to it changes
        visibly while the bar is already sitting there. */
     border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
     border-radius: 10px 10px 0 0;

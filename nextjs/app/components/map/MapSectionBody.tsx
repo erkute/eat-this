@@ -20,7 +20,7 @@ import {
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { safeAreaInsetTop } from '@/lib/map/safeArea';
-import { MAP_STRIP_PX, SHEET_COLLAPSE_EVENT } from '@/lib/map/sheetSlide';
+import { mapStripLine, SHEET_COLLAPSE_EVENT, STUCK_LEAD_PX } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
@@ -49,6 +49,12 @@ const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
 });
 
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
+
+/* How long iOS takes to bring the keyboard up or put it away — the window in
+   which a scroll without a finger on the screen is the keyboard's, not the
+   user's. */
+const KEYBOARD_SETTLE_MS = 700;
+
 interface MapBodyRefs {
   mapRef: RefObject<MapRef | null>;
   handleRef: Ref<HTMLDivElement | null>;
@@ -398,14 +404,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     handleDismissLocationStatus,
   ]);
 
-  /* In-flow phone sheet: the sticky header rests below the iOS status-bar/
-     notch zone (top: env(safe-area-inset-top), see MapFilters.module.css).
-     That zone deliberately stays uncapped so Safari can sample the scrolling
-     rows behind its translucent status bar. Stuck is still detected via a
-     0-height sentinel to move the floating map controls out of the way.
-
-     Runs in BOTH views. It used to be list-only, so search and burger left the
-     screen at a different scroll position in the detail than in the list. */
   /* Tablets: der Standort-Knopf reitet auf der Oberkante des Drag-Sheets —
      er wandert mit, wenn es hochkommt. Gerechnet wird hier, nicht in CSS: die
      Kante hängt an einem transformierten Sheet, davon weiß ein Stylesheet
@@ -476,26 +474,122 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
   /* The must-eat detail is a takeover with its map hidden — no strip there. */
   const hasMapStrip = !(sheetView === 'detail' && selectedMustEat);
-  const stuckSentinelRef = useRef<HTMLDivElement | null>(null);
-  const [headerStuck, setHeaderStuck] = useState(false);
+  /* "The sheet's bar is stuck": drives the map strip (MapLayout.module.css)
+     and the status-band cap. Worked out from the scroll position on every
+     scroll event and written straight onto the DOM — not an
+     IntersectionObserver feeding React state. That route reported a frame or
+     two late on iOS (callback task, then a re-render of this whole body), and
+     on a fast flick the rows ran up out of the bar before the map covered
+     them; the re-render at that moment was also the small hitch while pushing
+     the list up (user, 23.09.2026).
+
+     Direction matters in a band just below the line. Going up, the map lifts
+     STUCK_LEAD before the sheet reaches the strip line — invisible, because
+     the lifted map also covers the bar's height (--stuck-cover) and the bar
+     stays on top of it — which buys a late frame that much room before any
+     row can show above the bar. Coming down, it drops the moment the sheet
+     leaves the line, so a late frame still has the lifted map reaching past
+     the sheet's edge. */
   useEffect(() => {
-    if (!window.matchMedia('(max-width: 767.98px)').matches) {
-      setHeaderStuck(false);
+    const body = document.querySelector<HTMLElement>('[data-map-body]');
+    const sheet = document.querySelector<HTMLElement>('[data-map-sheet]');
+    const mark = (on: boolean) => {
+      for (const el of [body, sheet]) {
+        if (!el) continue;
+        if (on) el.setAttribute('data-header-stuck', 'true');
+        else el.removeAttribute('data-header-stuck');
+      }
+    };
+    if (!body || !sheet || !window.matchMedia('(max-width: 767.98px)').matches) {
+      mark(false);
       return;
     }
-    const sentinel = stuckSentinelRef.current;
-    if (!sentinel) return;
-    /* px value of env(safe-area-inset-top) — IO rootMargin can't use env().
-       Where the map strip shows, the bar sticks below it, so "stuck" starts at
-       the strip line (MAP_STRIP_PX, mirrored from --map-strip). */
-    const safeTop = safeAreaInsetTop();
-    const stripLine = hasMapStrip ? safeTop + MAP_STRIP_PX : safeTop;
-    const io = new IntersectionObserver(([entry]) => setHeaderStuck(!entry.isIntersecting), {
-      rootMargin: `-${Math.ceil(stripLine) + 1}px 0px 0px 0px`,
-    });
-    io.observe(sentinel);
-    return () => io.disconnect();
+    const line = hasMapStrip ? mapStripLine() : safeAreaInsetTop();
+    /* Never more than the lifted map covers below the strip line. */
+    const lead = hasMapStrip ? (sheetView === 'detail' ? 26 : STUCK_LEAD_PX) : 0;
+    /* The sheet's document offset, read through the offset chain: it ignores
+       the transform the grabber puts on the sheet mid-gesture, and it does
+       not force a layout on a scroll event. */
+    const sheetDocTop = () => {
+      let top = 0;
+      for (let el: HTMLElement | null = sheet; el; el = el.offsetParent as HTMLElement | null) {
+        top += el.offsetTop;
+      }
+      return top;
+    };
+    let stuck = body.getAttribute('data-header-stuck') === 'true';
+    let lastEdge: number | null = null;
+    const update = () => {
+      /* The burger drawer pins the page (body position: fixed) and the window
+         reads scrollY 0 while it is open. Taken at face value that dropped the
+         strip under the drawer and lifted it again on close — a flash in the
+         map area (user, 23.09.2026). The page has not moved; neither does
+         "stuck". */
+      if (document.body.dataset.burgerLockMode) return;
+      const edge = sheetDocTop() - window.scrollY;
+      /* Above the line: stuck. Below the lead band: not. Inside the band the
+         direction decides — rising, lift early; sinking, drop at once. Both
+         are safe there, the lifted map reaches down past the band. */
+      let next = stuck;
+      if (edge <= line) next = true;
+      else if (edge >= line + lead) next = false;
+      else if (lastEdge !== null && edge < lastEdge) next = true;
+      else if (lastEdge !== null && edge > lastEdge) next = false;
+      lastEdge = edge;
+      if (next === stuck) return;
+      stuck = next;
+      mark(next);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
   }, [sheetView, hasMapStrip]);
+
+  /* The search field takes focus without moving the page. `autoFocus` let
+     iOS Safari scroll the document to "reveal" the field — it sits in the
+     fixed map strip and never needed revealing — and the keyboard going away
+     moved it again, so every tap on the magnifier walked the list further
+     down (user, 23.09.2026). Focus with preventScroll, and for as long as the
+     keyboard takes to come and go, put back any scroll that happened without
+     a finger on the screen. */
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const searchVisible = searchOpen || Boolean(search);
+  /* Only an actual open or close holds the page — not the first render (nor
+     its strict-mode re-run). */
+  const searchWasVisibleRef = useRef(searchVisible);
+  useEffect(() => {
+    if (searchWasVisibleRef.current === searchVisible) return;
+    searchWasVisibleRef.current = searchVisible;
+    if (!window.matchMedia('(max-width: 767.98px)').matches) {
+      if (searchVisible && searchOpen) searchInputRef.current?.focus({ preventScroll: true });
+      return;
+    }
+    const heldY = window.scrollY;
+    let touching = false;
+    const onTouchStart = () => {
+      touching = true;
+    };
+    const onScroll = () => {
+      if (touching || Math.abs(window.scrollY - heldY) < 1) return;
+      window.scrollTo({ top: heldY, behavior: 'instant' });
+    };
+    if (searchVisible && searchOpen) searchInputRef.current?.focus({ preventScroll: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    const done = window.setTimeout(() => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('touchstart', onTouchStart);
+    }, KEYBOARD_SETTLE_MS);
+    return () => {
+      window.clearTimeout(done);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('touchstart', onTouchStart);
+    };
+  }, [searchVisible, searchOpen]);
 
   const sheetHandle = (
     <div ref={handleRef} className={sheetStyles.handle} data-sheet-handle="" aria-hidden="true" />
@@ -532,7 +626,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               : undefined
           }
           data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
-          data-header-stuck={headerStuck ? 'true' : undefined}
+          /* data-header-stuck is written by the stuck effect above, straight
+             onto the DOM — never rendered from here. */
           /* Die aufgeklappte Suchleiste liegt in derselben Zeile wie der
              Titel. Statt sie zu kürzen, bis sie irgendwo gerade so vorbeikommt,
              tritt der Titel zur Seite — siehe MapIntro.module.css. */
@@ -551,7 +646,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             className={styles.mapWrap}
             data-map-canvas=""
             onClick={(e) => {
-              if (!headerStuck || !hasMapStrip) return;
+              const body = e.currentTarget.closest<HTMLElement>('[data-map-body]');
+              if (body?.getAttribute('data-header-stuck') !== 'true' || !hasMapStrip) return;
               /* Search stands in the strip too; its own taps are its own. */
               if ((e.target as Element).closest('button, input, a')) return;
               window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
@@ -592,6 +688,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               >
                 <SearchGlassIcon className={controlStyles.mapSearchIcon} />
                 <input
+                  ref={searchInputRef}
                   type="search"
                   name="map-search"
                   value={search}
@@ -603,7 +700,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   className={controlStyles.mapSearchInput}
                   aria-label={searchLabel}
                   autoComplete="off"
-                  autoFocus
                 />
                 <button
                   type="button"
@@ -763,7 +859,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             data-snap={snap}
             data-view={sheetView}
             data-dragging={dragging ? 'true' : undefined}
-            data-header-stuck={headerStuck ? 'true' : undefined}
             /* Die aufgeklappte Suchleiste liegt in derselben Zeile wie der
              Titel. Statt sie zu kürzen, bis sie irgendwo gerade so vorbeikommt,
              tritt der Titel zur Seite — siehe MapIntro.module.css. */
@@ -781,14 +876,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             aria-hidden={desktopPanelHidden || undefined}
             inert={desktopPanelHidden || undefined}
           >
-            {/* Stuck-detection sentinel for the floating map controls and the
-                map strip (phones). The sheet's very first child, so it crosses
-                the strip line the moment the sheet's top edge does — in BOTH
-                views, so search and burger retreat at the same scroll position
-                either way, and the strip rises before any row could show
-                above the bar. */}
-            <div ref={stuckSentinelRef} className={sheetStyles.stuckSentinel} aria-hidden="true" />
-
             {/* In the list the handle rides in the sticky filter bar instead
                 (see MapListHeader); in a restaurant detail it sticks itself
                 (MapSheet.module.css). Either way it is the way back to the

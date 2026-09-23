@@ -83,7 +83,6 @@ describe('Map CSS architecture', () => {
       'handle',
       'list',
       'listScroll',
-      'stuckSentinel',
     ]);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
@@ -207,7 +206,8 @@ describe('Map CSS architecture', () => {
 
     expect(shellRules).toEqual([
       expect.objectContaining({
-        '--detail-map-peek': '50dvh',
+        /* lvh: a dvh strip resized with Safari's toolbar (23.09.2026). */
+        '--detail-map-peek': '50lvh',
       }),
     ]);
     /* 28 is the number that has to stay in step with LIST_REST_VISIBLE_DVH in

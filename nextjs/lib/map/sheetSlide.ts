@@ -40,6 +40,11 @@ export function mapStripLine(): number {
   return safeAreaInsetTop() + MAP_STRIP_PX;
 }
 
+/** How far below the strip line the map lifts on the way up (list) — at most
+ *  what the lifted map covers under the line (--stuck-cover in
+ *  MapLayout.module.css). See the stuck effect in MapSectionBody. */
+export const STUCK_LEAD_PX = 80;
+
 /** Fired on window by a tap on the map strip: take the sheet to the map, the
  *  same as a tap on the grabber (useHandleScrollDrag listens). */
 export const SHEET_COLLAPSE_EVENT = 'et:map-sheet-collapse';
@@ -91,9 +96,8 @@ function clipAbove(sheet: HTMLElement) {
 
 /**
  * Marks the map body for the length of a gesture. The "bar is stuck" state
- * comes from a sentinel at the sheet's top edge — deep in the list that edge
- * is thousands of pixels above the screen, and moving the slab does not bring
- * it back. So without this the map stayed lifted and cut to the strip while
+ * follows the scroll position — and a pull on the grabber moves the slab
+ * without scrolling, so deep in the list it stays "stuck" all the way down. So without this the map stayed lifted and cut to the strip while
  * the slab slid down, and everything below the strip was black (user,
  * 23.09.2026). While sliding, the map lies whole behind the sheet and the
  * title comes back (MapLayout / MapIntro).
@@ -110,19 +114,20 @@ export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
   sheet.style.transform = offsetPx > 0 ? `translateY(${Math.round(offsetPx)}px)` : '';
 }
 
-/* Upper bound on waiting for the stuck sentinel after a gesture. It reports
-   within a frame or two; this only guards against it never reporting. */
+/* Upper bound on waiting for "stuck" to catch up after a gesture. It follows
+   the scroll event of the jump within a frame or two; this only guards
+   against it never arriving. */
 const STUCK_WAIT_FRAMES = 30;
 
 /**
  * End a gesture. The transform comes off at once; the sliding mark stays until
- * the stuck sentinel agrees with where the sheet now rests.
+ * "stuck" agrees with where the sheet now rests.
  *
  * Dropping them in the same task as the jump made the map blink: the page was
- * already at the map stop, but the sentinel had not reported yet, so for one
+ * already at the map stop, but "stuck" had not caught up yet, so for one
  * frame the body still read "stuck" — the map lifted and cut to the strip, and
  * everything below it went black (user, 23.09.2026: „die Map blinkt einmal
- * auf"). Waiting for the sentinel keeps every frame consistent.
+ * auf"). Waiting for it keeps every frame consistent.
  */
 function release(sheet: HTMLElement): Promise<void> {
   sheet.style.transform = '';

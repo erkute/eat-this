@@ -1695,8 +1695,14 @@ export default function MapSection({
      permission, so watchPosition raises no dialog (the one thing the map is
      built to never do unprompted — see hasGeolocationPermission). Keyed on
      WHETHER there is a fix, not on the fix itself, so its own updates do not
-     restart it. */
-  const coveredMustEatOpen = !!selectedMustEat && !unlockedIds.has(selectedMustEat._id);
+     restart it.
+
+     The restaurant detail counts too: its covered cards start to shake once
+     the visitor is within reach (MustEatMiniCard), and whoever walks up with
+     that detail open needs the same fresh fix to see it happen. */
+  const coveredMustEatOpen =
+    (!!selectedMustEat && !unlockedIds.has(selectedMustEat._id)) ||
+    restaurantMustEats.some((m) => !unlockedIds.has(m._id));
   const hasLocationFix = location !== null;
   useEffect(() => {
     if (!isActive || !coveredMustEatOpen || !hasLocationFix) return;

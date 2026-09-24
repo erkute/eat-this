@@ -764,6 +764,20 @@
 .medish:active .medishPh img {
   transform: rotate(0deg) scale(0.98);
 }
+/* In Reichweite zittert die verdeckte Karte schon im Restaurant-Detail —
+   dasselbe Zittern wie im Must-Eat-Detail (fdRevealReadyShake), damit es
+   dasselbe heißt: tipp mich, hier gibt es etwas aufzudecken. Etwas leiser,
+   die Karte ist hier klein. */
+.medishReady .medishPh img {
+  --vibrate-intensity: 0.55;
+  animation: fdRevealReadyShake 0.42s linear infinite;
+  transform-origin: 50% 58%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .medishReady .medishPh img {
+    animation: none;
+  }
+}
 .detailV13,
 .detailV13Scroll {
   background-color: var(--map-collage-paper);

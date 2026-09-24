@@ -228,7 +228,6 @@ const en = {
       '{name} has flipped {done} of {total} cards. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
     deckHeadingNamed: "{name}'s deck",
     deckHeading: 'The deck',
-    sheetLabel: 'Eat This · Berlin Food Map',
     /* Der Stand als Herausforderung. */
     challenge:
       '{done, plural, =0 {{name} is just getting started.} one {{name} has 1 of {total} Must Eats.} other {{name} has # of {total} Must Eats.}}',
@@ -632,7 +631,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
     deckHeadingNamed: '{name}s Deck',
     deckHeading: 'Das Deck',
-    sheetLabel: 'Eat This \u00b7 Berlin Food Map',
     /* Der Stand als Herausforderung (Nutzer, 24.09.2026: „es muss wie eine
        Challenge klingen, so: Ersan hat 14 von … Must Eats"). */
     challenge:

@@ -184,14 +184,13 @@ export default async function DeckPage({ params }: PageProps) {
     <main className={`homeV2 ${styles.page} ${deck.page}`} data-menu>
       {/* Wie ein Layer (Nutzer, 24.09.2026: „sieht aus wie schlechte Ordnung
           und Design, mach mehr wie ein Layer"): dieselbe Huelle wie Onboarding
-          und Anmeldung (Tour.module.css) — Kopfzeile, Bild links bzw. oben,
+          und Anmeldung (Tour.module.css) — Bild links bzw. oben,
           Text rechts, der gelbe Knopf unten rechts. Nur liegt sie hier auf der
           Seite statt ueber ihr. */}
       <div className={`hv-wrap ${deck.stage}`}>
         <section className={`${tour.panel} ${deck.sheet}`} aria-labelledby="deck-title">
-          <header className={tour.header}>
-            <span>{t('sheetLabel')}</span>
-          </header>
+          {/* Ohne Kopfzeile: „Eat This · Berlin Food Map" stand direkt unter
+              dem Logo der Navigation (Nutzer, 24.09.2026: „das auch komisch"). */}
           <div className={tour.content}>
             <div className={tour.art}>
               <ul className={deck.fan}>
@@ -233,10 +232,9 @@ export default async function DeckPage({ params }: PageProps) {
                 })}
               </ul>
             </div>
-            <div className={tour.copy}>
-              <p className={tour.kicker}>
-                {data.name ? t('deckHeadingNamed', { name: data.name }) : t('deckHeading')}
-              </p>
+            {/* Kein Kicker „Ersans Deck" darueber (Nutzer, 24.09.2026): der Satz
+                nennt den Namen schon. */}
+            <div className={`${tour.copy} ${deck.copy}`}>
               <h1 id="deck-title" className={tour.headline}>
                 {challenge} <span className={deck.dare}>{dare}</span>
               </h1>

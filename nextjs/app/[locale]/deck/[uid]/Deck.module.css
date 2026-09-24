@@ -24,6 +24,8 @@
   width: min(860px, 100%);
   height: min(560px, calc(100svh - 150px));
   min-height: 480px;
+  /* Ohne Kopfzeile braucht der Rand oben die Luft, die sonst sie hielt. */
+  padding-top: clamp(20px, 3vw, 32px);
   animation: none;
 }
 
@@ -79,17 +81,28 @@
 
 /* ── Text ─────────────────────────────────────────────────── */
 
+/* Eine linke Kante fuer Ueberschrift, Punkte und Knoepfe — auch am
+   Telefon, wo die Tour ihren Text mittig setzt (Nutzer, 24.09.2026: „nicht
+   gut ausgerichtet"). */
+.copy.copy {
+  text-align: left;
+}
+
 /* Die Herausforderung ist laenger als eine Tour-Ueberschrift — eine Stufe
    kleiner, sonst lief sie am Desktop ueber fuenf Zeilen. */
 .sheet.sheet h1 {
   font-size: clamp(24px, 2.6vw, 32px);
-  text-wrap: balance;
+  text-wrap: pretty;
 }
 
-/* Die Frage hinter dem Stand, in Gelb auf eigener Zeile. */
+/* Die Frage hinter dem Stand, in Gelb auf eigener Zeile und in EINEM Stueck:
+   „Schaffst / du mehr?" zerfiel sonst in zwei Zeilen. */
 .dare {
   display: block;
+  margin-top: 6px;
   color: var(--et-home-accent, #ffc600);
+  font-size: 0.82em;
+  white-space: nowrap;
 }
 
 .points {
@@ -184,9 +197,28 @@
   }
 }
 
+/* Zwischen Telefon und Desktop war die Textspalte der Tour nur rund 250 px
+   breit — dort steht der Faecher ueber dem Text, wie am Telefon. */
+@media (min-width: 601px) and (max-width: 899px) {
+  .sheet.sheet {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      'art'
+      'copy'
+      'footer';
+    height: min(820px, calc(100svh - 150px));
+    min-height: 640px;
+    padding: 28px 34px 24px;
+  }
+
+  .copy.copy {
+    padding-top: 8px;
+  }
+}
+
 /* Telefon: die Tour stapelt Bild und Text; hier bekommt der Faecher etwas
-   mehr Hoehe, und die Punkte stehen linksbuendig unter der mittigen
-   Ueberschrift. */
+   mehr Hoehe. */
 @media (max-width: 600px) {
   .sheet.sheet {
     height: calc(100svh - 120px);

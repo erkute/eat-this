@@ -116,8 +116,7 @@ const articleContentProjection = `{
     }
   }`;
 
-export const articleBySlugQuery = `
-  *[_type == "newsArticle" && slug.current == $slug][0] {
+const articleProjection = `{
     _id,
     "slug": slug.current,
     "title": coalesce(title, titleDe),
@@ -140,7 +139,17 @@ export const articleBySlugQuery = `
       "ogImageUrl": ogImage.asset->url,
       noIndex
     }
-  }
+  }`;
+
+export const articleBySlugQuery = `
+  *[_type == "newsArticle" && slug.current == $slug][0] ${articleProjection}
+`;
+
+// Die Studio-Vorschau: nach Dokument-ID, weil ein Entwurf noch keinen Slug
+// haben muss. Gelesen mit der `drafts`-Perspektive — die legt den Entwurf
+// über die veröffentlichte Fassung.
+export const articleByIdQuery = `
+  *[_type == "newsArticle" && _id == $id][0] ${articleProjection}
 `;
 
 export const allArticleSlugsQuery = `

@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth, useLoginModal } from '@/lib/auth';
-import { normalizeName } from '@/lib/normalizeName';
 import { trackEvent } from '@/lib/analytics';
 import LoginBoard, { LoginSceneArt } from './LoginBoard';
 import styles from './LoginPanel.module.css';
@@ -32,10 +31,10 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
     trackEvent('login_view', { surface: 'modal', context: sceneKind });
   }, [sceneKind]);
 
-  /* Mit Anlass sagt der Kicker, wozu der Griff da war — „Decke deine Must
-     Eats auf", „Speichere deine Spots". Den Bezirk dort wollte der Betreiber
-     nicht (24.09.2026). */
-  let kicker: string | null = null;
+  /* Der Kicker sagt, wozu der Griff da war — „Decke deine Must Eats auf",
+     „Speichere deine Spots". Den Bezirk dort wollte der Betreiber nicht
+     (24.09.2026). */
+  let kicker = t('packKicker');
   let title = t('packTitle');
   let lead = t('packLead');
   if (reason?.kind === 'card') {
@@ -44,7 +43,7 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
     lead = t('cardLead');
   } else if (reason?.kind === 'heart') {
     kicker = t('heartKicker');
-    title = normalizeName(reason.name);
+    title = t('heartTitle');
     lead = t('heartLead');
   }
 

@@ -1,10 +1,11 @@
-/* Das geteilte Deck — kurz (24.09.2026). Grund, Schrift und die Seitenhuelle
-   kommen aus Profile.module.css (`.page`), die Spielerkarte aus
-   ProfileAlbum.module.css. Hier steht nur, was diese eine Seite hat: Kopf,
-   Kartenfaecher, zwei Saetze, der Weg auf die Map.
+/* Das geteilte Deck als Layer (24.09.2026). Die Huelle kommt aus
+   Tour.module.css — Kopfzeile, Bild, Text, gelber Knopf unten rechts —, wie
+   bei Onboarding und Anmeldung. Hier steht nur, was diese Seite anders macht:
+   sie liegt auf der Seite statt darueber, und ihre Bildflaeche ist ein
+   Faecher mit der Spielerkarte in der Mitte.
 
-   Auf dem Telefon untereinander in Lesereihenfolge — wessen Deck, die
-   Karten, was ein Must Eat ist, los. Ab 900 px Text links, Faecher rechts. */
+   Selektoren, die gegen die Tour gewinnen muessen, sind doppelt: gleicher
+   Rang waere sonst eine Frage der Ladereihenfolge der Module. */
 
 /* Die Seite haengt an keiner Anmeldung und hat keinen Ladezustand, der die
    Hoehe haelt: ohne das hier steht der Footer mitten im Bild. */
@@ -14,141 +15,95 @@
 
 .stage {
   display: grid;
-  gap: clamp(26px, 4vw, 40px);
-  /* Die gedrehten Randkarten des Faechers ragen ein paar Pixel ueber die
-     Spalte — ohne das waere die Seite am Telefon quer scrollbar. `clip`
-     statt `hidden`: kein neuer Scroll-Container. */
-  overflow-x: clip;
+  place-items: center;
 }
 
-/* Auf dem Telefon loest sich die Textspalte auf, damit der Faecher zwischen
-   Kopf und Erklaerung stehen kann. */
-.copy {
-  display: contents;
-}
-
-.owner {
-  order: 1;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  --album-player-w: clamp(84px, 22vw, 116px);
-}
-
-.ownerText {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-
-.stand {
-  max-width: 36ch;
-  margin: 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: clamp(14px, 1.2vw, 17px);
-  font-weight: 400;
-  line-height: 1.35;
-  text-wrap: pretty;
+/* Auf der Seite statt im Overlay: die Tour rechnet ihre Hoehe aus dem
+   ganzen Fenster, hier steht die Navigation darueber. */
+.sheet.sheet {
+  width: min(860px, 100%);
+  height: min(560px, calc(100svh - 150px));
+  min-height: 480px;
+  animation: none;
 }
 
 /* ── Der Faecher ──────────────────────────────────────────
-   Ein paar Karten wie eine hingehaltene Hand. Position und Drehung kommen je
-   Karte als `--fan-i` (Abstand zur Mitte, negativ links) aus page.tsx; der
-   Stapelrang als `z-index`, damit die Mitte oben liegt. */
+   Die Bildflaeche der Tour ist ein Groessen-Container (`cqw`/`cqh`). Jede
+   Karte steht mittig und wird ueber `--fan-i` (Abstand zur Mitte) versetzt
+   und gedreht, `--fan-d` laesst die Raender sinken. */
 .fan {
-  /* Sieben Karten mit halber Ueberdeckung sind vier Kartenbreiten; bei 20vw
-     bleiben am 390er Telefon rund 10 px Rand neben den gedrehten Randkarten. */
-  --fan-w: min(20vw, 132px);
-  order: 2;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  --fan-w: min(27cqw, 56cqh);
+  position: absolute;
+  inset: 0;
   margin: 0;
-  /* Unten Platz fuer den Bogen: die Randkarten sinken um bis zu 21 px und
-     kippen dabei nach aussen. */
-  padding: 12px 0 34px;
+  padding: 0;
   list-style: none;
 }
 
-.fanCard {
-  flex: 0 0 var(--fan-w);
-  aspect-ratio: 1539 / 2115;
-  margin-left: calc(var(--fan-w) * -0.5);
-  border-radius: 7px;
-  overflow: hidden;
-  transform: translateY(calc(var(--fan-d) * 7px)) rotate(calc(var(--fan-i) * 5deg));
+.fanItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--fan-w);
+  transform: translate(-50%, -50%) translateX(calc(var(--fan-i) * var(--fan-w) * 0.52))
+    translateY(calc(var(--fan-d) * var(--fan-w) * 0.08)) rotate(calc(var(--fan-i) * 9deg));
   transform-origin: 50% 100%;
-  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.5));
 }
 
-.fanCard:first-child {
-  margin-left: 0;
-}
-
-.fanCard img {
+.fanItem img {
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1539 / 2115;
   object-fit: cover;
+  border-radius: 6px;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
 }
 
-/* Zwei Rueckseiten, zwei Bedeutungen. Die gesammelte ist eine Karte des
-   Besitzers, die man nur nicht sehen darf — fast in voller Farbe. Die
-   fehlende ist noch nicht gesammelt und tritt deutlich zurueck. Statisch,
-   kein Ein-/Ausblenden — die Brand-Regel gegen Opacity-Fades betrifft
-   Bewegung, nicht Faerbung. */
-.cardBack {
-  filter: brightness(0.8) saturate(0.85);
+/* Die Spielerkarte rechnet ihre Breite aus einer geerbten Variable
+   (ProfileAlbum.module.css). */
+.fanPlayer {
+  --album-player-w: var(--fan-w);
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.55));
 }
 
-.cardMissing {
-  filter: brightness(0.34) saturate(0.4);
+/* Zwei Rueckseiten, zwei Bedeutungen: gesammelt, aber nicht fuer fremde
+   Augen — fast volle Farbe; noch nicht gesammelt — deutlich gedaempft.
+   Statisch, kein Ein-/Ausblenden. */
+.fanItem img.cardBack {
+  filter: brightness(0.8) saturate(0.85) drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
 }
 
-/* ── Eat This und das Sammeln ─────────────────────────────── */
-.pitch {
-  order: 3;
-  display: grid;
-  gap: 8px;
-  justify-items: start;
+.fanItem img.cardMissing {
+  filter: brightness(0.34) saturate(0.4) drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
 }
 
-.kicker {
-  color: var(--et-home-accent, #ffc600);
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
+/* ── Text ─────────────────────────────────────────────────── */
 
-.pitchTitle {
-  max-width: 18ch;
-  margin: 0;
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-display);
-  font-size: clamp(26px, 3.4vw, 44px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  /* Providence haengt unter die Grundlinie — enger als 1.2 kappt das g. */
-  line-height: 1.2;
-  text-transform: uppercase;
+/* Die Herausforderung ist laenger als eine Tour-Ueberschrift — eine Stufe
+   kleiner, sonst lief sie am Desktop ueber fuenf Zeilen. */
+.sheet.sheet h1 {
+  font-size: clamp(24px, 2.6vw, 32px);
   text-wrap: balance;
+}
+
+/* Die Frage hinter dem Stand, in Gelb auf eigener Zeile. */
+.dare {
+  display: block;
+  color: var(--et-home-accent, #ffc600);
 }
 
 .points {
   display: grid;
-  gap: 16px clamp(20px, 2.4vw, 32px);
-  margin: 8px 0 0;
+  gap: 14px;
+  margin: clamp(16px, 2vw, 22px) 0 0;
+  text-align: left;
 }
 
-/* Zwei gleich wichtige Gruende: die Map und das Sammeln. Jeder mit dem
-   gelben Marken-Quadrat vor dem Label, wie die Kicker der Startseite. */
+/* Zwei gleich wichtige Gruende: die Map und das Sammeln, jeder mit dem
+   gelben Marken-Quadrat vor dem Label. */
 .point {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   min-width: 0;
 }
 
@@ -156,9 +111,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-display);
-  font-size: 14px;
+  color: #fff;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta, 0.1em);
   line-height: 1.3;
@@ -174,126 +128,80 @@
 }
 
 .pointBody {
-  max-width: 40ch;
   margin: 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: clamp(15px, 1.25vw, 17px);
-  font-weight: 400;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
   line-height: 1.4;
   text-wrap: pretty;
 }
 
-@media (min-width: 560px) {
-  .points {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+/* ── Knoepfe ──────────────────────────────────────────────── */
 
-/* ── Der Ausgang ──────────────────────────────────────────── */
-.actions {
-  order: 4;
-  display: grid;
+/* Der gelbe Knopf steht rechts, der zweite links daneben — auch wenn der
+   zweite fuer Angemeldete verschwindet. */
+.actions.actions {
+  justify-content: flex-end;
   gap: 12px;
-  justify-items: start;
 }
 
-.actionRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px 22px;
-}
-
-.ownLine {
-  margin: 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: 14px;
-  line-height: 1.35;
-}
-
-/* Der eine gelbe Knopf der Seite. Gelbe Knoepfe gehen bei Hover auf
-   Papier, nie auf Ink. */
 .primary {
+  text-decoration: none;
+}
+
+/* Der zweite Knopf: Flaeche Weiss 10 %, kein Ring, keine Unterstreichung —
+   wie der Zweitknopf der Info-Karte. */
+.second {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 28px;
-  color: var(--et-home-ink, #15120e);
-  background: var(--et-home-accent, #ffc600);
+  min-height: 48px;
+  margin-right: auto;
+  padding: 12px 22px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
   border: 0;
   border-radius: var(--et-radius-control, 7px);
   cursor: pointer;
-  font-family: var(--et-font-display);
-  font-size: 15px;
+  font: inherit;
+  font-size: 16px;
   font-weight: 700;
   text-decoration: none;
-  white-space: nowrap;
-  transition: background-color var(--et-motion-fast, 140ms ease);
+  transition: background-color 140ms ease;
 }
 
-.primary:focus-visible {
-  background: var(--et-home-inverse-text, #fff);
+.second[hidden] {
+  display: none;
+}
+
+.second:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
   outline: 0;
 }
 
 @media (hover: hover) {
-  .primary:hover {
-    background: var(--et-home-inverse-text, #fff);
+  .second:hover {
+    background: rgba(255, 255, 255, 0.18);
   }
 }
 
-.primary:active {
-  transform: translateY(1px);
-}
-
-/* Der leise Weg daneben: unterstrichen, kein zweiter Knopf. */
-.quiet {
-  padding: 0 0 3px;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  background: none;
-  border: 0;
-  border-bottom: 2px solid var(--et-home-accent, #ffc600);
-  cursor: pointer;
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.3;
-  text-decoration: none;
-  transition: color var(--et-motion-fast, 140ms ease);
-}
-
-.quiet:focus-visible {
-  color: var(--et-home-inverse-text, #fff);
-  outline: 0;
-}
-
-@media (hover: hover) {
-  .quiet:hover {
-    color: var(--et-home-inverse-text, #fff);
-  }
-}
-
-@media (min-width: 900px) {
-  .stage {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-    align-items: center;
-    column-gap: clamp(32px, 5vw, 72px);
-    min-height: calc(100svh - 260px);
-  }
-
-  .copy {
-    display: grid;
-    gap: clamp(28px, 3vw, 40px);
-    align-content: center;
+/* Telefon: die Tour stapelt Bild und Text; hier bekommt der Faecher etwas
+   mehr Hoehe, und die Punkte stehen linksbuendig unter der mittigen
+   Ueberschrift. */
+@media (max-width: 600px) {
+  .sheet.sheet {
+    height: calc(100svh - 120px);
+    min-height: 620px;
+    max-height: 760px;
   }
 
   .fan {
-    --fan-w: clamp(110px, 10vw, 150px);
-    grid-column: 2;
-    grid-row: 1;
-    padding: 40px 0;
+    --fan-w: min(26cqw, 60cqh);
+  }
+
+  .second,
+  .actions :global(a),
+  .actions :global(button) {
+    min-width: 0;
+    flex: 1 1 0;
   }
 }

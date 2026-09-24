@@ -6,19 +6,20 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { rateLimitKey } from '@/lib/rateLimitKey';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getPublicDeck } from '@/lib/profile/publicDeck.server';
+import { getPublicDeck, type PublicDeckCard } from '@/lib/profile/publicDeck.server';
 import { SITE_URL } from '@/lib/constants';
 import { toOgLocale } from '@/lib/seo/metadata';
 import styles from '@/app/components/profile/Profile.module.css';
 import ProfilePlayerCard from '@/app/components/profile/ProfilePlayerCard';
 import DeckActions from './DeckActions';
+import tour from '@/app/components/Tour.module.css';
 import deck from './Deck.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 const FAN_ORDER = { shown: 0, held: 1, missing: 2 } as const;
-/* Sieben passen am Telefon als Faecher in 358 px, ohne dass eine Karte zur
-   Briefmarke wird. */
-const FAN_SIZE = 7;
+/* Vier Karten plus die Spielerkarte — mehr passt am Telefon nicht in die
+   Bildflaeche, ohne dass eine Karte zur Briefmarke wird. */
+const FAN_SIZE = 4;
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -160,99 +161,118 @@ export default async function DeckPage({ params }: PageProps) {
   const t = await getTranslations('deck');
 
   /* Ein paar Karten, keine Wand: offene zuerst, dann gesammelte, dann
-     fehlende — und die offenen in die Mitte des Faechers, dort, wo das Auge
-     hinfaellt. Die Sortierung nimmt den Karten ihre Position im Stapel, also
-     verraet der Faecher nicht, WELCHE Karte verdeckt gesammelt ist. */
+     fehlende. Die Sortierung nimmt den Karten ihre Position im Stapel, also
+     verraet der Faecher nicht, WELCHE Karte verdeckt gesammelt ist. In der
+     Mitte steht die Spielerkarte, die Karten liegen links und rechts. */
   const picked = [...data.cards]
     .sort((a, b) => FAN_ORDER[a.kind] - FAN_ORDER[b.kind])
     .slice(0, FAN_SIZE);
-  const fan = centerOut(picked);
   const name = data.name ?? t('anonymous');
+
+  /* Der Stand als Herausforderung (Nutzer, 24.09.2026: „es muss wie eine
+     Challenge klingen, so: Ersan hat 14 von … Must Eats"). */
+  const full = data.total > 0 && data.revealed === data.total;
+  const counts = { done: data.revealed, total: data.total };
+  const challenge = data.name
+    ? full
+      ? t('challengeFull', { name: data.name, total: data.total })
+      : t('challenge', { name: data.name, ...counts })
+    : t('challengeAnon', counts);
+  const dare = data.revealed === 0 ? t('dareStart') : full ? t('dareFull') : t('dare');
 
   return (
     <main className={`homeV2 ${styles.page} ${deck.page}`} data-menu>
-      <section className={`hv-section hv-wrap ${deck.stage}`}>
-        <div className={deck.copy}>
-          <div className={deck.owner}>
-            <ProfilePlayerCard name={name} avatarIdx={data.avatar} />
-            <div className={deck.ownerText}>
-              {/* Der Name gehoert in die Ueberschrift (Nutzer, 04.09.2026: „da
-                  muss halt der Name stehen"). */}
-              <h1 className="hv-title">
+      {/* Wie ein Layer (Nutzer, 24.09.2026: „sieht aus wie schlechte Ordnung
+          und Design, mach mehr wie ein Layer"): dieselbe Huelle wie Onboarding
+          und Anmeldung (Tour.module.css) — Kopfzeile, Bild links bzw. oben,
+          Text rechts, der gelbe Knopf unten rechts. Nur liegt sie hier auf der
+          Seite statt ueber ihr. */}
+      <div className={`hv-wrap ${deck.stage}`}>
+        <section className={`${tour.panel} ${deck.sheet}`} aria-labelledby="deck-title">
+          <header className={tour.header}>
+            <span>{t('sheetLabel')}</span>
+          </header>
+          <div className={tour.content}>
+            <div className={tour.art}>
+              <ul className={deck.fan}>
+                {fanSlots(picked).map((slot) => {
+                  const style = {
+                    '--fan-i': slot.at,
+                    '--fan-d': Math.abs(slot.at),
+                    zIndex: 10 - Math.abs(slot.at) * 2,
+                  } as CSSProperties;
+                  if (slot.kind === 'player') {
+                    return (
+                      <li
+                        key="player"
+                        className={`${deck.fanItem} ${deck.fanPlayer}`}
+                        style={style}
+                      >
+                        <ProfilePlayerCard name={name} avatarIdx={data.avatar} />
+                      </li>
+                    );
+                  }
+                  const card = slot.card;
+                  return (
+                    <li key={slot.at} className={deck.fanItem} style={style}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        className={
+                          card.kind === 'missing'
+                            ? deck.cardMissing
+                            : card.kind === 'held'
+                              ? deck.cardBack
+                              : undefined
+                        }
+                        src={card.kind === 'shown' ? card.image : CARD_BACK}
+                        alt=""
+                        decoding="async"
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <div className={tour.copy}>
+              <p className={tour.kicker}>
                 {data.name ? t('deckHeadingNamed', { name: data.name }) : t('deckHeading')}
-              </h1>
-              <p className={deck.stand}>
-                {data.name
-                  ? t('stand', { name: data.name, done: data.revealed, total: data.total })
-                  : t('standAnon', { done: data.revealed, total: data.total })}
               </p>
+              <h1 id="deck-title" className={tour.headline}>
+                {challenge} <span className={deck.dare}>{dare}</span>
+              </h1>
+              {/* Werbung fuer beides: Eat This selbst und das Sammeln. */}
+              <dl className={deck.points}>
+                <div className={deck.point}>
+                  <dt className={deck.pointLabel}>{t('mapLabel')}</dt>
+                  <dd className={deck.pointBody}>{t('mapBody')}</dd>
+                </div>
+                <div className={deck.point}>
+                  <dt className={deck.pointLabel}>{t('collectLabel')}</dt>
+                  <dd className={deck.pointBody}>{t('collectBody')}</dd>
+                </div>
+              </dl>
             </div>
           </div>
-
-          {/* Werbung fuer beides: Eat This selbst und das Sammeln. Der
-              Freund kennt das Produkt nicht — ein Deck ohne die Map dahinter
-              ist ein Kartenspiel ohne Tisch. */}
-          <div className={deck.pitch}>
-            <span className={deck.kicker}>{t('pitchKicker')}</span>
-            <h2 className={deck.pitchTitle}>{t('pitchTitle')}</h2>
-            <dl className={deck.points}>
-              <div className={deck.point}>
-                <dt className={deck.pointLabel}>{t('mapLabel')}</dt>
-                <dd className={deck.pointBody}>{t('mapBody')}</dd>
-              </div>
-              <div className={deck.point}>
-                <dt className={deck.pointLabel}>{t('collectLabel')}</dt>
-                <dd className={deck.pointBody}>{t('collectBody')}</dd>
-              </div>
-            </dl>
-          </div>
-
-          <DeckActions uid={uid} />
-        </div>
-
-        {fan.length > 0 && (
-          <ul className={deck.fan}>
-            {fan.map((card, i) => (
-              <li
-                className={deck.fanCard}
-                key={i}
-                style={
-                  {
-                    '--fan-i': i - (fan.length - 1) / 2,
-                    '--fan-d': Math.abs(i - (fan.length - 1) / 2),
-                    zIndex: fan.length - Math.ceil(Math.abs(i - (fan.length - 1) / 2)),
-                  } as CSSProperties
-                }
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className={
-                    card.kind === 'missing'
-                      ? deck.cardMissing
-                      : card.kind === 'held'
-                        ? deck.cardBack
-                        : undefined
-                  }
-                  src={card.kind === 'shown' ? card.image : CARD_BACK}
-                  alt=""
-                  decoding="async"
-                />
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          <footer className={tour.footer}>
+            <div className={`${tour.actions} ${deck.actions}`}>
+              <DeckActions uid={uid} />
+            </div>
+          </footer>
+        </section>
+      </div>
     </main>
   );
 }
 
-/** Ordnet so um, dass das erste Element in der Mitte liegt, das zweite links
- *  daneben, das dritte rechts daneben und so weiter. */
-function centerOut<T>(items: T[]): T[] {
-  const out: T[] = [];
-  items.forEach((item, i) => {
-    if (i % 2 === 0) out.push(item);
-    else out.unshift(item);
+type FanSlot = { kind: 'player'; at: 0 } | { kind: 'card'; at: number; card: PublicDeckCard };
+
+/** Die Spielerkarte in die Mitte, die Karten abwechselnd links und rechts
+ *  daneben — die erste (offene) direkt an die Figur. */
+function fanSlots(cards: PublicDeckCard[]): FanSlot[] {
+  const slots: FanSlot[] = [{ kind: 'player', at: 0 }];
+  cards.forEach((card, i) => {
+    const step = Math.floor(i / 2) + 1;
+    slots.push({ kind: 'card', at: i % 2 === 0 ? -step : step, card });
   });
-  return out;
+  return slots.sort((a, b) => a.at - b.at);
 }

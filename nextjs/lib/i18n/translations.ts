@@ -228,19 +228,16 @@ const en = {
       '{name} has flipped {done} of {total} cards. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
     deckHeadingNamed: "{name}'s deck",
     deckHeading: 'The deck',
-    /* Seit dem 24.09.2026 kurz: der Stand in einem Satz, ohne „liegen noch
-       verdeckt" — die Karten daneben zeigen es. */
-    stand:
-      '{done, plural, =0 {{name} is just getting started.} one {{name} has flipped one of {total} Must Eats.} other {{name} has flipped # of {total} Must Eats.}}',
-    /* Ohne Vornamen — Konten aus der Mail-Anmeldung haben keinen. */
-    standAnon:
-      '{done, plural, =0 {No card flipped yet.} one {One of {total} Must Eats flipped.} other {# of {total} Must Eats flipped.}}',
-    /* Werbung fuer beides, Eat This UND das Sammeln (Nutzer, 24.09.2026:
-       „nicht fuer die Must Eats nur … Lust auf Eat This und das Sammeln").
-       Keine neue Copy: der Claim der Startseite, der Map-Satz aus
-       MapPromoCTA, der Must-Eat-Satz aus MustEatsSection. */
-    pitchKicker: 'Eat This',
-    pitchTitle: 'We tell you what to eat',
+    sheetLabel: 'Eat This · Berlin Food Map',
+    /* Der Stand als Herausforderung. */
+    challenge:
+      '{done, plural, =0 {{name} is just getting started.} one {{name} has 1 of {total} Must Eats.} other {{name} has # of {total} Must Eats.}}',
+    challengeFull: '{name} has all {total} Must Eats.',
+    challengeAnon:
+      '{done, plural, =0 {This deck is just getting started.} other {# of {total} Must Eats flipped.}}',
+    dare: 'Can you beat that?',
+    dareFull: 'Can you match that?',
+    dareStart: 'Who gets there first?',
     mapLabel: 'The map',
     mapBody: 'Hand-picked restaurants, cafés and bars across Berlin — and what to order there.',
     collectLabel: 'Must Eats',
@@ -248,8 +245,6 @@ const en = {
       'The dishes you should not miss. Go there, flip them and collect them in your deck.',
     toMap: 'To the map',
     signIn: 'Sign up',
-    /* Der Besitzer auf seinem eigenen Deck. */
-    ownLine: 'This is what everyone with your link sees.',
   },
   profile: {
     heroKicker: 'Your profile',
@@ -637,19 +632,17 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
     deckHeadingNamed: '{name}s Deck',
     deckHeading: 'Das Deck',
-    /* Seit dem 24.09.2026 kurz: der Stand in einem Satz, ohne „liegen noch
-       verdeckt" — die Karten daneben zeigen es. */
-    stand:
-      '{done, plural, =0 {{name} f\u00e4ngt gerade an.} one {{name} hat ein Must Eat von {total} aufgedeckt.} other {{name} hat # von {total} Must Eats aufgedeckt.}}',
-    /* Ohne Vornamen — Konten aus der Mail-Anmeldung haben keinen. */
-    standAnon:
-      '{done, plural, =0 {Noch keine Karte aufgedeckt.} one {Ein Must Eat von {total} aufgedeckt.} other {# von {total} Must Eats aufgedeckt.}}',
-    /* Werbung fuer beides, Eat This UND das Sammeln (Nutzer, 24.09.2026:
-       „nicht fuer die Must Eats nur … Lust auf Eat This und das Sammeln").
-       Keine neue Copy: der Claim der Startseite, der Map-Satz aus
-       MapPromoCTA, der Must-Eat-Satz aus MustEatsSection. */
-    pitchKicker: 'Eat This',
-    pitchTitle: 'We tell you what to eat',
+    sheetLabel: 'Eat This \u00b7 Berlin Food Map',
+    /* Der Stand als Herausforderung (Nutzer, 24.09.2026: „es muss wie eine
+       Challenge klingen, so: Ersan hat 14 von … Must Eats"). */
+    challenge:
+      '{done, plural, =0 {{name} f\u00e4ngt gerade an.} one {{name} hat 1 von {total} Must Eats.} other {{name} hat # von {total} Must Eats.}}',
+    challengeFull: '{name} hat alle {total} Must Eats.',
+    challengeAnon:
+      '{done, plural, =0 {Dieses Deck f\u00e4ngt gerade an.} other {# von {total} Must Eats aufgedeckt.}}',
+    dare: 'Schaffst du mehr?',
+    dareFull: 'Schaffst du das auch?',
+    dareStart: 'Wer ist schneller?',
     mapLabel: 'Die Map',
     mapBody:
       'Handverlesene Restaurants, Caf\u00e9s und Bars in ganz Berlin \u2014 und was du dort bestellen solltest.',
@@ -658,8 +651,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       'Die Gerichte, die du nicht verpassen solltest. Geh hin, deck sie auf und sammle sie in deinem Deck.',
     toMap: 'Zur Map',
     signIn: 'Anmelden',
-    /* Der Besitzer auf seinem eigenen Deck. */
-    ownLine: 'So sieht es jeder, der deinen Link bekommt.',
   },
   profile: {
     heroKicker: 'Dein Profil',

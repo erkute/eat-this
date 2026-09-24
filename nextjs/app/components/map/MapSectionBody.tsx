@@ -140,6 +140,7 @@ interface MapBodyHandlers {
   mustEatPagerPrev: MapMustEat | null;
   mustEatPagerNext: MapMustEat | null;
   mustEatPagerPosition?: { index: number; count: number };
+  mustEatCollection?: { count: number; total: number };
   onPageMustEat: (dir: 'prev' | 'next') => void;
   onViewRestaurantFromMustEat: () => void;
   onUnlock: () => Promise<boolean>;
@@ -224,6 +225,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     mustEatPagerPrev,
     mustEatPagerNext,
     mustEatPagerPosition,
+    mustEatCollection,
     onPageMustEat,
     onViewRestaurantFromMustEat,
     onUnlock,
@@ -899,6 +901,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 prevMustEat={mustEatPagerPrev}
                 nextMustEat={mustEatPagerNext}
                 mustEatPosition={mustEatPagerPosition}
+                mustEatCollection={mustEatCollection}
                 onPagePrev={() => onPageMustEat('prev')}
                 onPageNext={() => onPageMustEat('next')}
               />

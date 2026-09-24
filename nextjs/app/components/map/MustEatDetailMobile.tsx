@@ -24,9 +24,9 @@ const SWIPE_HINT_DONE = 'done';
 interface Props {
   mustEat: MapMustEat;
   isUnlocked: boolean;
-  /** True for the brief window after the card lands: the "VERDECKT" stamp
-   *  burns away and the name un-blurs into view. */
-  nameBurning?: boolean;
+  /** Die Bühne des Aufdeckens deckt das Sheet gerade ganz ab — darunter darf
+   *  der offene Text schon stehen, die sich schließende Iris legt ihn frei. */
+  revealCovered?: boolean;
   onClose: () => void;
   onViewRestaurant?: () => void;
   /** Global must-eat pager — adjacent cards + page handlers. */
@@ -51,7 +51,7 @@ interface Props {
 export default function MustEatDetailMobile({
   mustEat,
   isUnlocked,
-  nameBurning,
+  revealCovered = false,
   onClose,
   onViewRestaurant,
   prevMustEat,
@@ -84,7 +84,13 @@ export default function MustEatDetailMobile({
   const { name: restaurantName } = mustEat.restaurant;
   const restaurantPhoto = mustEat.restaurant.photo;
   const open = isUnlocked && !revealOrigin;
-  const nameRevealed = open && !nameBurning;
+  /* Der Text wechselt nicht erst nach der Landung, sondern sobald die Bühne
+     ihn verdeckt: Gericht und Beschreibung stehen dann fertig da, wenn die
+     Iris sich um die heimkehrende Karte schließt. Vorher stand beim Heimflug
+     noch „Du bist da." im Sheet, und erst nach der Landung blendete der Name
+     ein — ein zweiter, schwächerer Auftritt nach der Beute (Betreiber,
+     24.09.2026). Die Karte selbst bleibt bis zur Landung verborgen. */
+  const textOpen = isUnlocked && (!revealOrigin || revealCovered);
   const dishName = mustEat.dish ? normalizeName(mustEat.dish) : t('mustEats.covered');
   const closeAction = onViewRestaurant ?? onClose;
   /* Verdeckte Nachbarn hießen beide "Verdeckt" — zwei gleich beschriftete
@@ -252,22 +258,24 @@ export default function MustEatDetailMobile({
      "Verdeckt"-Badge raus ist also eine leere Fläche von ~90px zwischen Karte
      und Text. Jetzt füllt die Kopfzeile sie, in der Größe des Gerichtsnamens,
      und beim Aufdecken wird sie schlicht vom Gericht ersetzt: gleicher Track,
-     gleiche Höhe, kein Sprung. Während der Reveal-Animation (nameBurning)
-     gehört der Track wieder dem Gericht, das dort aufscharft.
+     gleiche Höhe, kein Sprung.
 
      Der Track gehört dabei dem GERICHT — auch ohne Standort-Fix. „Wo bist du?"
      und „Standort blockiert" standen hier in Gerichtsgröße und lasen sich wie
      der Name eines Gerichts (Nutzer, 02.09.2026). Eine Browser-Berechtigung ist
      aber kein Produktmoment: die Zeile sagt jetzt in jedem verdeckten Zustand,
      was unter der Karte liegt, und der Standort steht darunter als eigener
-     Chip (siehe .fdLocation). */
-  const coverHead = unlocking
-    ? t('map.revealSaving')
-    : unlockError
-      ? t('map.revealError')
-      : canUnlock
-        ? tMap('proximityHere')
-        : tMap('proximityAway');
+     Chip (siehe .fdLocation).
+
+     Während gespeichert wird, steht hier nichts Eigenes mehr: die Karte ist
+     dann schon auf der Bühne des Aufdeckens (MustEatRevealOverlay), und was
+     sie in die Sammlung bringt, sagt die Bühne selbst — in Ruhe, nicht als
+     Aufblitzen im Feld des Gerichts (Betreiber, 24.09.2026). */
+  const coverHead = unlockError
+    ? t('map.revealError')
+    : canUnlock
+      ? tMap('proximityHere')
+      : tMap('proximityAway');
   /* Ohne Fix trägt die Copy-Zeile nur den Chip — ein Schritt pro Zustand.
      Der Satz, der die Karte erklärt („Ein Gericht, das du probieren musst …"),
      kommt, sobald die App weiß, wo der Besucher ist.
@@ -278,23 +286,21 @@ export default function MustEatDetailMobile({
      onLocationBlocked in MustEatDetail). Ein stiller „Standort blockiert"-Chip
      mit Hinweis darunter stand hier kurz und wurde als Fremdkörper abgelehnt
      (Nutzer, 02.09.2026). */
-  const coverSub = unlocking
-    ? t('map.revealSavingHint')
-    : unlockError
-      ? t('map.revealRetry')
-      : canUnlock
-        ? tMap('proximityTapReveal')
-        : needsLocation && !locationDenied
-          ? null
-          : tMap('proximityHint');
+  const coverSub = unlockError
+    ? t('map.revealRetry')
+    : canUnlock
+      ? tMap('proximityTapReveal')
+      : needsLocation && !locationDenied
+        ? null
+        : tMap('proximityHint');
   /* Ein Gast wird nicht nach seinem Standort gefragt — sein Weg zur Karte
      ist die Anmeldung, nicht die Naehe (siehe MustEatDetail). */
   const showLocationChip = !guest && needsLocation && !locationDenied && !unlocking && !unlockError;
-  const guestPitch = guest && !open;
+  const guestPitch = guest && !textOpen;
   const kicker = mustEat.restaurant.district
     ? `Must Eat · ${mustEat.restaurant.district}`
     : 'Must Eat';
-  const headInNameSlot = !open && !nameBurning;
+  const headInNameSlot = !textOpen;
   const slotText = headInNameSlot ? coverHead : dishName;
   const slotWeight = slotText.replace(/\s+/g, '').length;
   /* Die Stufe hängt auch am LÄNGSTEN WORT, nicht nur an der Zeichenzahl: ein
@@ -458,15 +464,13 @@ export default function MustEatDetailMobile({
                        der Knopf im Spot-Sheet. */
                     guestPitch
                       ? tMap('starterCta')
-                      : unlocking
-                        ? t('map.revealSaving')
-                        : canUnlock
-                          ? t('map.revealHere')
-                          : needsLocation
-                            ? locationDenied
-                              ? tMap('locationBlocked')
-                              : tMap('locationAllow')
-                            : t('map.tooFarToReveal')
+                      : canUnlock
+                        ? t('map.revealHere')
+                        : needsLocation
+                          ? locationDenied
+                            ? tMap('locationBlocked')
+                            : tMap('locationAllow')
+                          : t('map.tooFarToReveal')
                   }
                   /* Auch die verdeckte Karte verschwindet während des Zooms:
                      der Zoom blättert inzwischen weiter, und landet er auf einer
@@ -497,7 +501,7 @@ export default function MustEatDetailMobile({
         {/* Clip-sicherer Mittelteil: Gericht-Name + Beschreibung (open) bzw.
             Näherungs-Hinweis (locked) hängen direkt unter der Karte; läuft der
             Text über, klemmt fdMid statt den fixen Footer zu verdrängen. */}
-        <div className={`${styles.fdMid}${!open ? ` ${styles.fdMidLocked}` : ''}`}>
+        <div className={`${styles.fdMid}${!textOpen ? ` ${styles.fdMidLocked}` : ''}`}>
           {/* Ein Track für beides: verdeckt trägt er die Zustands-Kopfzeile,
               aufgedeckt den Gerichtsnamen — in derselben Größe, unten im
               2-Zeilen-Feld verankert, sodass eine zweite Zeile nach oben füllt
@@ -532,21 +536,14 @@ export default function MustEatDetailMobile({
               {headInNameSlot ? (
                 <span className={styles.fdNameText}>{slotText}</span>
               ) : (
-                <span
-                  className={`${styles.fdNameText}${nameBurning ? ` ${styles.fdNameUnblurring}` : ''}`}
-                  aria-hidden={nameRevealed ? undefined : true}
-                >
-                  {dishName}
-                </span>
+                <span className={styles.fdNameText}>{dishName}</span>
               )}
             </h2>
           </div>
 
           {/* Beschreibung — komplett (keine Klemmung), in der Marken-Schrift. */}
-          {open && localizedDescription && (
-            <p className={`${styles.fdText}${nameBurning ? ` ${styles.fdTextRevealing}` : ''}`}>
-              {localizedDescription}
-            </p>
+          {textOpen && localizedDescription && (
+            <p className={styles.fdText}>{localizedDescription}</p>
           )}
 
           {/* Locked: Näherungs-Hinweis statt Beschreibung. Ohne Konto liest
@@ -555,15 +552,12 @@ export default function MustEatDetailMobile({
               der Karte stand hier kurz und wurde als Fremdkoerper abgelehnt,
               eine Tafel als Layer danach als Klick zu viel (Betreiber,
               07.09.2026). */}
-          {!open && (
+          {!textOpen && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}
               role={unlockError ? 'alert' : 'status'}
               aria-live="polite"
             >
-              {/* Nur solange der Namens-Track dem aufscharfenden Gericht gehört
-                  — sonst steht die Kopfzeile oben im Track (siehe coverHead). */}
-              {!headInNameSlot && <p className={styles.fdProximityHead}>{coverHead}</p>}
               {/* Hier steht keine Entfernung mehr — weder als Balken (die
                   log-Skala von 10 km auf 50 m sagte niemandem etwas) noch als
                   Zahl. „Noch 8,2 km" ließ den Spot weit und mühsam wirken und

@@ -8,10 +8,8 @@ import { GUEST_SHAKE_MS, prefersReducedMotion } from '@/lib/guestCardShake';
 
 export const UNLOCK_RADIUS_METERS = 50;
 
-function vibrateRevealReady() {
-  if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
-  navigator.vibrate([55, 30, 75, 30, 95]);
-}
+/** What the server said about the reveal the stage is waiting on. */
+export type RevealStatus = 'pending' | 'ok' | 'failed';
 
 interface Args {
   mustEat: MapMustEat;
@@ -112,12 +110,20 @@ export function useMustEatDetailState({
   // While `revealOrigin` is set, the body-portaled overlay takes over the
   // unlock moment — the inline locked card is hidden so it visually morphs
   // into the overlay instead of duplicating it.
+  /* Die Bühne geht mit dem Tipp auf, nicht erst mit der Antwort des Servers:
+     die Wartezeit ist der Moment, in dem die Karte zittert und Licht unter ihr
+     hervorsickert. Vorher stand in dieser Zeit „Kommt in deine Sammlung …" im
+     Namensfeld — so lange wie der Request, also ein Aufblitzen, das man nur in
+     Zeitlupe lesen konnte (Betreiber, 24.09.2026). Die Bühne wartet auf
+     `revealStatus`: 'ok' dreht die Karte um, 'failed' legt sie verdeckt
+     zurück. */
   const [revealOrigin, setRevealOrigin] = useState<DOMRect | null>(null);
+  const [revealStatus, setRevealStatus] = useState<RevealStatus>('pending');
 
   const handleCardClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     // Demo: play the animation only, no unlock/persist side effects.
     if (demo) {
-      vibrateRevealReady();
+      setRevealStatus('ok');
       setRevealOrigin(e.currentTarget.getBoundingClientRect());
       return;
     }
@@ -159,23 +165,29 @@ export function useMustEatDetailState({
       const mustEatId = mustEat._id;
       setUnlockingId(mustEatId);
       setUnlockErrorId(null);
-      const rect = e.currentTarget.getBoundingClientRect();
+      setRevealStatus('pending');
+      setRevealOrigin(e.currentTarget.getBoundingClientRect());
       try {
         const persisted = await onUnlock();
         // Paging can replace the selected card while the request is in flight.
-        // Never animate the old card's origin onto a new detail.
-        if (currentMustEatIdRef.current !== mustEatId) return;
+        // Never flip the old card's stage onto a new detail.
+        if (currentMustEatIdRef.current !== mustEatId) {
+          setRevealOrigin(null);
+          return;
+        }
         if (!persisted) throw new Error('Must Eat unlock was not persisted');
-        vibrateRevealReady();
         trackEvent('must_eat_reveal_attempt', {
           must_eat_id: mustEatId,
           restaurant_id: mustEat.restaurant._id,
           result: 'unlocked',
           distance_meters: distance === null ? -1 : Math.round(distance),
         });
-        setRevealOrigin(rect);
+        setRevealStatus('ok');
       } catch {
-        if (currentMustEatIdRef.current !== mustEatId) return;
+        if (currentMustEatIdRef.current !== mustEatId) {
+          setRevealOrigin(null);
+          return;
+        }
         trackEvent('must_eat_reveal_attempt', {
           must_eat_id: mustEatId,
           restaurant_id: mustEat.restaurant._id,
@@ -183,6 +195,7 @@ export function useMustEatDetailState({
           distance_meters: distance === null ? -1 : Math.round(distance),
         });
         setUnlockErrorId(mustEatId);
+        setRevealStatus('failed');
       } finally {
         unlockingRef.current = false;
         setUnlockingId((activeId) => (activeId === mustEatId ? null : activeId));
@@ -242,6 +255,7 @@ export function useMustEatDetailState({
     unlocking,
     unlockError,
     revealOrigin,
+    revealStatus,
     zoomRect,
     zoomActive,
     handleCardClick,

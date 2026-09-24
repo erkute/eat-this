@@ -3,75 +3,117 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { whenImageReady } from '@/lib/dom/imageReady';
+import { normalizeName } from '@/lib/normalizeName';
+import type { RevealStatus } from './useMustEatDetailState';
 import styles from './MustEatRevealOverlay.module.css';
 
-type Phase = 'flyIn' | 'idle' | 'flipping' | 'revealed' | 'flyOut' | 'done';
+/* Aufdecken in drei Takten, wie ein Pack, das man aufreißt (Betreiber,
+   24.09.2026: „das muss befriedigender sein").
 
-interface Props {
-  imageUrl: string;
-  alt: string;
-  originRect: DOMRect;
-  onDone: () => void;
-  // Where the card flies on the way out. Defaults to the navbar profile icon
-  // (map behaviour). The profile deck passes the tapped slot so the card flies
-  // back to its place instead.
-  flyOutTarget?: { cx: number; cy: number; size: number };
-  // When true (deck "return to slot"), the card lands fully opaque at the
-  // target's exact size (no fade, no shrink-past) so the caller can reveal an
-  // identical card underneath for a seamless hand-off. Default false = map
-  // behaviour (shrink toward the profile icon + fade out).
-  landOpaque?: boolean;
-}
+   1. Spannung (`lift`, `charge`): die Karte hebt sich auf eine dunkle Bühne,
+      die sich aus ihr heraus öffnet, und zittert immer stärker, während Licht
+      hinter ihr hervorsickert. Diese Phase deckt die Wartezeit auf den Server
+      ab — sie dauert mindestens CHARGE_MIN_MS, auch wenn die Antwort sofort
+      da ist, sonst fehlt der Anlauf.
+   2. Knall (`flip`): kurz zurückholen, eine entschlossene Drehung, die Karte
+      schlägt mit dem Gericht nach oben auf — und genau dann Strahlen,
+      Schockwelle, Konfetti, Vibration.
+   3. Beute (`show`): unter der Karte, auf der Bühne und nicht im Namensfeld
+      des Sheets, steht, was man bekommen hat, und der Zähler der Sammlung
+      tickt eins hoch. Lange genug zum Lesen; ein Tipp geht früher weiter.
+      Dann fliegt die Karte in ihren Platz im Sheet und die Bühne schließt
+      sich um sie (`collect`).
 
-// Total choreography ~4 s end-to-end. Sum of all phase durations below.
-const FLY_IN_MS = 400;
-const IDLE_AUTO_FLIP_MS = 400;
-// Tornado spin: durchgehende monotone Mehrfach-Drehung (starr, kein Recoil)
-// + sanfter Zoom. Langsamer & flüssiger (User 2026-06-14).
-// Keep in sync with .flipperOpen CSS animation duration (2.4s).
-const FLIP_MS = 2400;
-// Dwell window where pointer/gyroscope tilt is live so the user can
-// move the card before it auto-flies to the profile icon.
-const REVEALED_MS = 900;
-const FLY_OUT_MS = 600;
+   Scheitert das Speichern, legt `abort` die Karte verdeckt zurück. */
+type Phase = 'lift' | 'charge' | 'flip' | 'show' | 'collect' | 'abort' | 'done';
+
+const LIFT_MS = 460;
+const CHARGE_MIN_MS = 1100;
+// Synchron halten mit .flipperFlip (Dauer, Aufschlag bei 88 %).
+const FLIP_MS = 1150;
+const SLAM_MS = 1010;
+const SHOW_MS = 3600;
+// Ein Tipp beendet die Beute erst, wenn die Zeilen stehen — sonst schluckt
+// ein nervöser Doppeltipp den ganzen Moment.
+const SKIP_AFTER_MS = 800;
+const COUNT_TICK_MS = 700;
+const COLLECT_MS = 640;
 // Match the freigestellt card art (1539×2115) so the contained card fills the
 // overlay box without letterbox margins — and is never cropped.
 const CARD_ASPECT = 2115 / 1539;
+// Platz unter der Karte für Kicker, Gericht und Zähler.
+const CAPTION_H = 150;
+const CAPTION_GAP = 26;
 
-// Locates the navbar profile icon. Falls back to the viewport top-right
-// corner so the fly-out still has a target if the icon is unmounted.
-function locateProfileTarget(): { cx: number; cy: number; size: number } {
-  const el = document.getElementById('navProfileBtn');
-  if (el) {
-    const r = el.getBoundingClientRect();
+/* Konfetti: feste Streuung statt Math.random — dieselbe Explosion bei jedem
+   Aufdecken, und Tests sehen dasselbe wie das Auge. Quadrate wie das gelbe
+   Marken-Quadrat vor jedem Titel. */
+const SPARKS = (() => {
+  let seed = 7;
+  const rnd = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  return Array.from({ length: 26 }, (_, i) => {
+    const angle = (i / 26) * Math.PI * 2 + (rnd() - 0.5) * 0.5;
+    const dist = 0.75 + rnd() * 0.95;
     return {
-      cx: r.left + r.width / 2,
-      cy: r.top + r.height / 2,
-      size: Math.min(r.width, r.height),
+      dx: Math.cos(angle) * dist,
+      dy: Math.sin(angle) * dist,
+      size: 6 + Math.round(rnd() * 7),
+      rot: Math.round((rnd() - 0.5) * 900),
+      delay: Math.round(rnd() * 90),
+      white: i % 3 === 0,
     };
-  }
-  return { cx: window.innerWidth - 28, cy: 28, size: 24 };
+  });
+})();
+
+function vibrate(pattern: number | number[]) {
+  if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
+  navigator.vibrate(pattern);
+}
+
+interface Props {
+  imageUrl: string;
+  dish: string;
+  originRect: DOMRect;
+  status: RevealStatus;
+  /** Stand der Sammlung MIT dieser Karte — der Zähler tickt von count − 1
+   *  auf count. Fehlt er, bleibt die Zeile weg. */
+  collection?: { count: number; total: number };
+  /** Die Bühne deckt das Sheet jetzt ganz ab — bis zum Heimflug. */
+  onCovered: () => void;
+  onDone: () => void;
+  onAbort: () => void;
 }
 
 export default function MustEatRevealOverlay({
   imageUrl,
-  alt,
+  dish,
   originRect,
+  status,
+  collection,
+  onCovered,
   onDone,
-  flyOutTarget,
-  landOpaque,
+  onAbort,
 }: Props) {
   const tMap = useTranslations('map');
   const [mounted, setMounted] = useState(false);
-  const [phase, setPhase] = useState<Phase>('flyIn');
-  const [target, setTarget] = useState<{ cx: number; cy: number; size: number } | null>(null);
+  const [phase, setPhase] = useState<Phase>('lift');
+  const [counted, setCounted] = useState(false);
   const reducedMotion = useReducedMotion();
-  const doneCalled = useRef(false);
+  const finished = useRef(false);
+  const chargeStartedAt = useRef(0);
+  const showStartedAt = useRef(0);
+  // Die Rückrufe kommen als Inline-Funktionen. In den Abhängigkeiten der
+  // Phasen-Uhr startete jedes Neu-Rendern des Sheets deren Timer neu.
+  const callbacks = useRef({ onCovered, onDone, onAbort });
+  callbacks.current = { onCovered, onDone, onAbort };
 
-  // Pointer + gyroscope tilt — only active during the revealed dwell so
-  // the user can move the card around before it auto-flies away. Same
-  // recipe as profile-deck's lightbox tilt: pointer/gyro feed the same
-  // motion values, both go through soft springs to rotateX / rotateY.
+  // Pointer + gyroscope tilt while the prize is on show — same recipe as the
+  // must-eat zoom: pointer/gyro feed the motion values, soft springs turn them
+  // into rotateX / rotateY.
   const tilterRef = useRef<HTMLDivElement>(null);
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
@@ -85,42 +127,30 @@ export default function MustEatRevealOverlay({
   });
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (phase !== 'revealed') return;
+    if (phase !== 'show') return;
     const el = tilterRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
     pointerX.set((e.clientX - rect.left) / rect.width - 0.5);
     pointerY.set((e.clientY - rect.top) / rect.height - 0.5);
   };
-  const handlePointerLeave = () => {
-    pointerX.set(0);
-    pointerY.set(0);
-  };
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Reset tilt at start of revealed so the card opens at neutral, then
-  // follows pointer/gyro from there.
+  // Tilt starts neutral on show and is levelled again for the flight home, so
+  // the card lands flat on the identical card in the sheet.
   useEffect(() => {
-    if (phase !== 'revealed') return;
+    if (phase !== 'show' && phase !== 'collect') return;
     pointerX.set(0);
     pointerY.set(0);
   }, [phase, pointerX, pointerY]);
 
-  // Reset tilt as the card flies back so it lands flat — matches the static
-  // slot card the deck reveals underneath for a seamless hand-off.
+  // Gyroscope tilt — only while on show. Calibrates the device's resting
+  // orientation on the first event so it reads as neutral.
   useEffect(() => {
-    if (phase !== 'flyOut') return;
-    pointerX.set(0);
-    pointerY.set(0);
-  }, [phase, pointerX, pointerY]);
-
-  // Gyroscope tilt — only while revealed. Calibrates the device's
-  // resting orientation on the first event so it reads as neutral.
-  useEffect(() => {
-    if (phase !== 'revealed') return;
+    if (phase !== 'show') return;
     let baseGamma: number | null = null;
     let baseBeta: number | null = null;
     const onOrientation = (e: DeviceOrientationEvent) => {
@@ -130,158 +160,247 @@ export default function MustEatRevealOverlay({
         baseBeta = e.beta;
         return;
       }
-      const dGamma = e.gamma - baseGamma;
-      const dBeta = e.beta - baseBeta;
-      pointerX.set(Math.max(-0.5, Math.min(0.5, dGamma / 20)));
-      pointerY.set(Math.max(-0.5, Math.min(0.5, dBeta / 20)));
+      pointerX.set(Math.max(-0.5, Math.min(0.5, (e.gamma - baseGamma) / 20)));
+      pointerY.set(Math.max(-0.5, Math.min(0.5, (e.beta - baseBeta) / 20)));
     };
     window.addEventListener('deviceorientation', onOrientation, true);
     return () => window.removeEventListener('deviceorientation', onOrientation, true);
   }, [phase, pointerX, pointerY]);
 
-  // Phase auto-advance for non-interactive phases. Auth-gating happens at
-  // the trigger (useMustEatDetailState.handleCardClick) so this component
-  // can assume the user is signed-in once it's mounted.
-  useEffect(() => {
-    if (phase === 'flyIn') {
-      const id = window.setTimeout(() => setPhase('idle'), reducedMotion ? 60 : FLY_IN_MS);
-      return () => window.clearTimeout(id);
-    }
-    if (phase === 'idle') {
-      // Auto-flip after a short dance window so the card opens itself.
-      // Tapping during idle still starts the flip immediately.
-      const id = window.setTimeout(
-        () => setPhase('flipping'),
-        reducedMotion ? 60 : IDLE_AUTO_FLIP_MS
-      );
-      return () => window.clearTimeout(id);
-    }
-    if (phase === 'flipping') {
-      const id = window.setTimeout(() => setPhase('revealed'), reducedMotion ? 60 : FLIP_MS);
-      return () => window.clearTimeout(id);
-    }
-    if (phase === 'revealed') {
-      // Capture the fly-out target now so it's stable. Defaults to the profile
-      // icon (map); the deck passes the tapped slot so it flies back home.
-      setTarget(flyOutTarget ?? locateProfileTarget());
-      const id = window.setTimeout(() => setPhase('flyOut'), reducedMotion ? 60 : REVEALED_MS);
-      return () => window.clearTimeout(id);
-    }
-    if (phase === 'flyOut') {
-      const id = window.setTimeout(
-        () => {
-          setPhase('done');
-          if (!doneCalled.current) {
-            doneCalled.current = true;
-            onDone();
-          }
-        },
-        reducedMotion ? 60 : FLY_OUT_MS
-      );
-      return () => window.clearTimeout(id);
-    }
-  }, [phase, reducedMotion, onDone, flyOutTarget]);
+  const fast = (ms: number) => (reducedMotion ? 0 : ms);
 
-  const handleTap = useCallback(() => {
-    if (phase === 'idle') {
-      setPhase('flipping');
-      return;
+  useEffect(() => {
+    if (phase === 'lift') {
+      const id = window.setTimeout(() => {
+        chargeStartedAt.current = performance.now();
+        // Ein anschwellendes Summen unter dem Daumen (Android; iOS kennt
+        // navigator.vibrate nicht).
+        if (!reducedMotion) vibrate([8, 110, 12, 90, 16, 70, 22, 50, 30, 30, 40]);
+        callbacks.current.onCovered();
+        setPhase('charge');
+      }, fast(LIFT_MS));
+      return () => window.clearTimeout(id);
     }
-    if (phase === 'revealed') {
-      setPhase('flyOut');
+    if (phase === 'charge') {
+      if (status === 'failed') {
+        vibrate(0);
+        setPhase('abort');
+        return;
+      }
+      if (status !== 'ok') return;
+      let cancelled = false;
+      const waited = performance.now() - chargeStartedAt.current;
+      const minLeft = new Promise<void>((resolve) =>
+        window.setTimeout(resolve, Math.max(0, fast(CHARGE_MIN_MS) - waited))
+      );
+      // Die Karte dreht sich erst um, wenn ihr Gesicht zeichenbar ist — sonst
+      // schlägt sie leer auf.
+      void Promise.all([whenImageReady(imageUrl), minLeft]).then(() => {
+        if (!cancelled) setPhase('flip');
+      });
+      return () => {
+        cancelled = true;
+      };
     }
+    if (phase === 'flip') {
+      const slam = window.setTimeout(() => vibrate([70, 40, 120]), fast(SLAM_MS));
+      const id = window.setTimeout(() => {
+        showStartedAt.current = performance.now();
+        setPhase('show');
+      }, fast(FLIP_MS));
+      return () => {
+        window.clearTimeout(slam);
+        window.clearTimeout(id);
+      };
+    }
+    if (phase === 'show') {
+      const tick = window.setTimeout(() => setCounted(true), fast(COUNT_TICK_MS));
+      const id = window.setTimeout(() => setPhase('collect'), SHOW_MS);
+      return () => {
+        window.clearTimeout(tick);
+        window.clearTimeout(id);
+      };
+    }
+    if (phase === 'collect' || phase === 'abort') {
+      const id = window.setTimeout(() => {
+        setPhase('done');
+        if (finished.current) return;
+        finished.current = true;
+        if (phase === 'collect') callbacks.current.onDone();
+        else callbacks.current.onAbort();
+      }, fast(COLLECT_MS));
+      return () => window.clearTimeout(id);
+    }
+    // `fast` reads reducedMotion, which is listed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, status, imageUrl, reducedMotion]);
+
+  const skip = useCallback(() => {
+    if (phase !== 'show') return;
+    if (performance.now() - showStartedAt.current < SKIP_AFTER_MS) return;
+    setCounted(true);
+    setPhase('collect');
   }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'show') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') skip();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [phase, skip]);
 
   if (!mounted || phase === 'done') return null;
 
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  // Stay comfortably away from the viewport edges and the bottom sheet
-  // grabber so the fully-visible card never feels clipped.
-  const cardW = Math.min(280, vw * 0.72, (vh * 0.42) / CARD_ASPECT);
+  // Karte und Beschriftung als ein Block, mittig auf der Bühne.
+  const cardW = Math.min(300, vw * 0.7, (vh - CAPTION_H - CAPTION_GAP - 96) / CARD_ASPECT);
   const cardH = cardW * CARD_ASPECT;
-  const centerX = vw / 2;
-  const centerY = vh / 2;
+  const blockTop = Math.max(48, (vh - (cardH + CAPTION_GAP + CAPTION_H)) / 2);
+  const stageCX = vw / 2;
+  const stageCY = blockTop + cardH / 2;
 
   const originCX = originRect.left + originRect.width / 2;
   const originCY = originRect.top + originRect.height / 2;
+  const home = phase === 'collect' || phase === 'abort';
 
-  let cx = centerX;
-  let cy = centerY;
-  let w = cardW;
-  let h = cardH;
+  const box = home
+    ? {
+        left: originRect.left,
+        top: originRect.top,
+        width: originRect.width,
+        height: originRect.height,
+      }
+    : { left: stageCX - cardW / 2, top: stageCY - cardH / 2, width: cardW, height: cardH };
 
-  if (phase === 'flyOut') {
-    const t = target ?? flyOutTarget ?? locateProfileTarget();
-    cx = t.cx;
-    cy = t.cy;
-    if (landOpaque) {
-      // Return to the origin slot: the flipper holds its 1.4 dwell-zoom, so
-      // size the wrap to t.size / 1.4 → the VISIBLE card lands at the slot's
-      // exact size. The caller reveals an identical card
-      // underneath in the same frame, so removing the overlay is seamless.
-      w = t.size / 1.4;
-      h = w * CARD_ASPECT;
-    } else {
-      // Shrink toward the icon while staying large enough to read until the
-      // last frame so the user can track where the card lands.
-      w = Math.max(28, t.size * 0.9);
-      h = w * CARD_ASPECT;
-    }
-  }
-
-  const flipperClass =
-    phase === 'flipping' || phase === 'revealed' || phase === 'flyOut'
-      ? `${styles.flipper} ${styles.flipperOpen}`
-      : styles.flipper;
-
-  const dancerExtraClass =
-    phase === 'idle'
-      ? styles.dancerIdle
-      : phase === 'revealed'
-        ? styles.dancerRevealed
-        : phase === 'flyOut'
-          ? styles.dancerFlyOut
-          : '';
+  const flipped = phase === 'flip' || phase === 'show' || phase === 'collect';
+  const burst = phase === 'flip' || phase === 'show';
+  const showCaption = phase === 'show' || phase === 'collect';
+  const cleanDish = normalizeName(dish);
+  const countFrom = collection ? Math.max(0, collection.count - 1) : 0;
 
   const overlay = (
-    <div className={styles.root} aria-live="polite">
-      <motion.button
-        type="button"
+    <div
+      className={styles.root}
+      data-phase={phase}
+      onClick={skip}
+      style={
+        {
+          '--ox': `${originCX}px`,
+          '--oy': `${originCY}px`,
+          '--r0': `${Math.hypot(originRect.width, originRect.height) / 2}px`,
+          '--r1': `${Math.hypot(Math.max(originCX, vw - originCX), Math.max(originCY, vh - originCY)) + 8}px`,
+          '--cx': `${stageCX}px`,
+          '--cy': `${stageCY}px`,
+          '--card-w': `${cardW}px`,
+          '--slam': `${SLAM_MS}ms`,
+        } as React.CSSProperties
+      }
+    >
+      {/* Licht und Beschriftung liegen IN der Bühne: die Iris schneidet sie
+          beim Heimflug mit weg, statt sie über dem Sheet hängen zu lassen. */}
+      <div className={`${styles.stage} ${home ? styles.stageClose : styles.stageOpen}`}>
+        <div className={styles.fx} aria-hidden="true">
+          <div
+            className={`${styles.glow} ${
+              home
+                ? styles.fxOut
+                : burst
+                  ? styles.glowBurst
+                  : phase === 'charge'
+                    ? styles.glowCharge
+                    : ''
+            }`}
+          />
+          <div
+            className={`${styles.rays} ${
+              home
+                ? styles.fxOut
+                : burst
+                  ? styles.raysBurst
+                  : phase === 'charge'
+                    ? styles.raysCharge
+                    : ''
+            }`}
+          >
+            <div className={styles.raysSpin} />
+          </div>
+          {burst && (
+            <>
+              <div className={styles.ring} />
+              {SPARKS.map((s, i) => (
+                <i
+                  key={i}
+                  className={`${styles.spark}${s.white ? ` ${styles.sparkWhite}` : ''}`}
+                  style={
+                    {
+                      '--dx': s.dx,
+                      '--dy': s.dy,
+                      '--size': `${s.size}px`,
+                      '--rot': `${s.rot}deg`,
+                      '--delay': `${s.delay}ms`,
+                    } as React.CSSProperties
+                  }
+                />
+              ))}
+            </>
+          )}
+        </div>
+        {showCaption && (
+          <div
+            className={`${styles.caption}${phase === 'collect' ? ` ${styles.captionOut}` : ''}`}
+            style={{ top: blockTop + cardH + CAPTION_GAP }}
+            aria-hidden="true"
+          >
+            <span className={styles.line}>
+              <span className={`${styles.lineIn} ${styles.kicker}`}>{tMap('revealCollected')}</span>
+            </span>
+            <span className={styles.line}>
+              <span className={`${styles.lineIn} ${styles.dish}`}>{cleanDish}</span>
+            </span>
+            {collection && (
+              <span className={styles.line}>
+                <span className={`${styles.lineIn} ${styles.count}`}>
+                  <span
+                    key={counted ? 'to' : 'from'}
+                    className={counted ? styles.countTick : undefined}
+                  >
+                    {counted ? collection.count : countFrom}
+                  </span>
+                  <span className={styles.countTotal}> / {collection.total}</span>
+                </span>
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      <motion.div
         className={styles.cardWrap}
-        onClick={handleTap}
-        disabled={phase !== 'idle' && phase !== 'revealed'}
-        aria-label={
-          phase === 'idle'
-            ? tMap('revealAria')
-            : phase === 'revealed'
-              ? tMap('addToDeckAria')
-              : 'Must Eat'
-        }
         initial={{
-          left: originCX - originRect.width / 2,
-          top: originCY - originRect.height / 2,
+          left: originRect.left,
+          top: originRect.top,
           width: originRect.width,
           height: originRect.height,
         }}
-        animate={{
-          left: cx - w / 2,
-          top: cy - h / 2,
-          width: w,
-          height: h,
-        }}
+        animate={box}
         transition={
-          phase === 'flyIn'
-            ? { type: 'spring', stiffness: 210, damping: 24, mass: 1 }
-            : phase === 'flyOut'
-              ? {
-                  duration: FLY_OUT_MS / 1000,
-                  ease: [0.45, 0, 0.2, 1],
-                }
-              : { duration: 0 }
+          reducedMotion
+            ? { duration: 0 }
+            : phase === 'lift'
+              ? { type: 'spring', stiffness: 230, damping: 24, mass: 1 }
+              : home
+                ? { duration: COLLECT_MS / 1000, ease: [0.45, 0, 0.2, 1] }
+                : { duration: 0 }
         }
       >
-        <div className={`${styles.dancer} ${dancerExtraClass}`}>
+        <div
+          className={`${styles.dancer} ${
+            phase === 'charge' ? styles.dancerCharge : home ? styles.dancerHome : ''
+          }`}
+        >
           <motion.div
             ref={tilterRef}
             className={styles.tilter}
@@ -290,21 +409,47 @@ export default function MustEatRevealOverlay({
               rotateY: rotateYSpring,
               transformStyle: 'preserve-3d',
             }}
-            onPointerMove={phase === 'revealed' ? handlePointerMove : undefined}
-            onPointerLeave={phase === 'revealed' ? handlePointerLeave : undefined}
+            onPointerMove={phase === 'show' ? handlePointerMove : undefined}
+            onPointerLeave={() => {
+              pointerX.set(0);
+              pointerY.set(0);
+            }}
           >
-            <div className={flipperClass}>
+            <div
+              className={`${styles.flipper} ${
+                flipped ? styles.flipperFlip : phase === 'charge' ? styles.flipperCharge : ''
+              }`}
+            >
               <img
                 className={styles.faceBack}
                 src="/pics/card-back.webp?v=7"
                 alt=""
                 aria-hidden="true"
               />
-              <img className={styles.faceFront} src={imageUrl} alt={alt} />
+              <div className={styles.faceFront}>
+                <img src={imageUrl} alt={cleanDish} />
+                {/* Glanz, der über das Gesicht streicht, sobald es aufschlägt —
+                    maskiert mit dem Kartenbild selbst, damit er nur auf der
+                    Karte liegt und nicht auf dem freigestellten Rand. */}
+                {burst && (
+                  <span
+                    className={styles.sheen}
+                    style={{
+                      WebkitMaskImage: `url("${imageUrl}")`,
+                      maskImage: `url("${imageUrl}")`,
+                    }}
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
             </div>
           </motion.div>
         </div>
-      </motion.button>
+      </motion.div>
+
+      <p className={styles.srOnly} aria-live="polite">
+        {phase === 'show' ? `${tMap('revealCollected')}: ${cleanDish}` : ''}
+      </p>
     </div>
   );
 

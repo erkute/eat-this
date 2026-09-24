@@ -187,12 +187,9 @@ const en = {
     // onboarding's "You gotta try this."
     proximityHint:
       'What to order here, you find out right at the spot. That is where you flip the card and add it to your deck.',
-    revealSaving: 'Going into your collection…',
-    revealSavingHint: 'It flips in a second.',
+    revealCollected: 'New in your collection',
     revealError: "That didn't work.",
     revealRetry: 'Tap the card again.',
-    revealAria: 'Reveal',
-    addToDeckAria: 'Add to your deck',
   },
   breadcrumb: {},
   footer: {
@@ -622,12 +619,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     // als die Beschreibung der Nachbarkarte.
     proximityHint:
       'Was du hier bestellen solltest, erfährst du direkt am Spot. Dort kannst du die Karte aufdecken und deinem Deck hinzufügen.',
-    revealSaving: 'Kommt in deine Sammlung …',
-    revealSavingHint: 'Gleich dreht sie sich um.',
+    revealCollected: 'Neu in deiner Sammlung',
     revealError: 'Hat nicht geklappt.',
     revealRetry: 'Tipp nochmal auf die Karte.',
-    revealAria: 'Aufdecken',
-    addToDeckAria: 'In dein Deck legen',
   },
   breadcrumb: {},
   footer: {

@@ -35,6 +35,8 @@ interface MustEatDetailProps {
   onPageNext?: () => void;
   /** Stand im globalen Stapel, 1-basiert — der Zoom zeigt ihn als Zähler. */
   position?: { index: number; count: number };
+  /** Offene Karten gegen alle — die Bühne des Aufdeckens zählt eins hoch. */
+  collection?: { count: number; total: number };
   uid?: string | null;
 }
 
@@ -54,6 +56,7 @@ export default function MustEatDetail({
   onPagePrev,
   onPageNext,
   position,
+  collection,
   uid,
 }: MustEatDetailProps) {
   const tMustEats = useTranslations('mustEats');
@@ -121,18 +124,17 @@ export default function MustEatDetail({
     onRequestLocation,
     onLocationBlocked: handleLocationBlocked,
   });
-  // In demo the card stays face-down until the reveal animation finishes, then
+  // True while the reveal stage covers the whole sheet — the open text may
+  // stand underneath then, so the closing iris uncovers it finished.
+  const [stageCovered, setStageCovered] = useState(false);
+  // In demo the card stays face-down until the stage covers the sheet, then
   // latches open in place. Real flow: the entitlement flips `isUnlocked`.
   const [demoRevealed, setDemoRevealed] = useState(false);
-  // Once the card has flown back onto its slot, the "VERDECKT" stamp burns
-  // away to expose the dish name underneath.
-  const [stampBurning, setStampBurning] = useState(false);
   const effectiveUnlocked = demo ? demoRevealed : isUnlocked;
 
   useEffect(() => {
-    if (!demo) return;
-    setDemoRevealed(false);
-    setStampBurning(false);
+    setStageCovered(false);
+    if (demo) setDemoRevealed(false);
   }, [demo, mustEat._id]);
 
   const r = state.revealOrigin;
@@ -145,7 +147,7 @@ export default function MustEatDetail({
       <MustEatDetailMobile
         mustEat={mustEat}
         isUnlocked={effectiveUnlocked}
-        nameBurning={stampBurning}
+        revealCovered={stageCovered}
         onClose={onClose}
         onViewRestaurant={onViewRestaurant}
         prevMustEat={prevMustEat}
@@ -161,23 +163,34 @@ export default function MustEatDetail({
       {r && (
         <MustEatRevealOverlay
           // Covered cards arrive stripped; the reveal response merges the real
-          // image in well before the ~800 ms flip exposes the card face. Until
-          // then the overlay shows the card-back it animates anyway.
+          // image in before the stage flips the card (it waits for the face to
+          // decode). Until then the stage holds the card-back it shakes anyway.
           imageUrl={mustEat.image ?? CARD_BACK}
-          alt={mustEat.dish ?? ''}
+          dish={mustEat.dish ?? ''}
           originRect={r}
-          // Fly back onto the card's own slot and land face-up there (instead
-          // of shrinking off toward the header) — the detail reveals in place.
-          flyOutTarget={{ cx: r.left + r.width / 2, cy: r.top + r.height / 2, size: r.width }}
-          landOpaque
+          status={state.revealStatus}
+          // Der Zähler zeigt den Stand MIT dieser Karte. Im echten Ablauf ist
+          // sie beim Umdrehen schon im Set; die Demo speichert nichts und
+          // spielt eine neue Karte vor.
+          collection={
+            collection && {
+              count: demo ? collection.count + 1 : collection.count,
+              total: collection.total,
+            }
+          }
+          onCovered={() => {
+            setStageCovered(true);
+            if (demo && state.revealStatus === 'ok') setDemoRevealed(true);
+          }}
           onDone={() => {
+            setStageCovered(false);
             state.handleRevealDone();
-            if (demo) setDemoRevealed(true);
-            // Card has landed → dish name and description fade in calmly
-            // (0.9s, the description 0.16s behind — see .fdNameUnblurring and
-            // .fdTextRevealing). The class comes off once both have settled.
-            setStampBurning(true);
-            window.setTimeout(() => setStampBurning(false), 1300);
+          }}
+          // Nicht gespeichert: die Karte liegt verdeckt wieder im Sheet, und
+          // dort steht „Hat nicht geklappt".
+          onAbort={() => {
+            setStageCovered(false);
+            state.handleRevealDone();
           }}
         />
       )}

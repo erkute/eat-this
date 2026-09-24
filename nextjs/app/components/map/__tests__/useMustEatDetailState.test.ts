@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterAll, beforeEach, describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
@@ -37,25 +37,12 @@ const mkEvent = () =>
   ({
     currentTarget: { getBoundingClientRect: () => fakeRect },
   }) as unknown as React.MouseEvent<HTMLButtonElement>;
-const originalVibrate = navigator.vibrate;
-const vibrate = vi.fn();
-
-Object.defineProperty(navigator, 'vibrate', { configurable: true, value: vibrate });
-afterAll(() => {
-  if (originalVibrate) {
-    Object.defineProperty(navigator, 'vibrate', { configurable: true, value: originalVibrate });
-  } else {
-    Reflect.deleteProperty(navigator, 'vibrate');
-  }
-});
-
 describe('useMustEatDetailState — handleCardClick auth gate', () => {
   beforeEach(() => {
     vi.mocked(trackEvent).mockClear();
-    vibrate.mockClear();
   });
 
-  it('waits for a persisted unlock before showing or tracking success', async () => {
+  it('opens the stage on the tap and flips only once the unlock is persisted', async () => {
     let resolveUnlock!: (persisted: boolean) => void;
     const onUnlock = vi.fn(
       () =>
@@ -80,8 +67,10 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
       click = result.current.handleCardClick(mkEvent());
     });
 
+    // The stage takes over at once — the wait is the build-up, not a caption.
     expect(result.current.unlocking).toBe(true);
-    expect(result.current.revealOrigin).toBeNull();
+    expect(result.current.revealOrigin).toBe(fakeRect);
+    expect(result.current.revealStatus).toBe('pending');
     expect(onUnlock).toHaveBeenCalledOnce();
     expect(trackEvent).not.toHaveBeenCalledWith(
       'must_eat_reveal_attempt',
@@ -96,14 +85,14 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     expect(result.current.unlocking).toBe(false);
     expect(result.current.unlockError).toBe(false);
     expect(result.current.revealOrigin).toBe(fakeRect);
+    expect(result.current.revealStatus).toBe('ok');
     expect(trackEvent).toHaveBeenCalledWith(
       'must_eat_reveal_attempt',
       expect.objectContaining({ result: 'unlocked' })
     );
-    expect(vibrate).toHaveBeenCalledWith([55, 30, 75, 30, 95]);
   });
 
-  it('keeps the card covered and exposes a retry state when persistence fails', async () => {
+  it('tells the stage to put the card back and exposes a retry state when persistence fails', async () => {
     const onUnlock = vi.fn().mockResolvedValue(false);
     const { result } = renderHook(() =>
       useMustEatDetailState({
@@ -120,7 +109,7 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
 
     expect(result.current.unlocking).toBe(false);
     expect(result.current.unlockError).toBe(true);
-    expect(result.current.revealOrigin).toBeNull();
+    expect(result.current.revealStatus).toBe('failed');
     expect(trackEvent).toHaveBeenCalledWith(
       'must_eat_reveal_attempt',
       expect.objectContaining({ result: 'failed' })
@@ -131,7 +120,7 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     );
   });
 
-  it('handles a rejected unlock request without starting the reveal', async () => {
+  it('handles a rejected unlock request without flipping the card', async () => {
     const onUnlock = vi.fn().mockRejectedValue(new Error('network down'));
     const { result } = renderHook(() =>
       useMustEatDetailState({
@@ -147,7 +136,7 @@ describe('useMustEatDetailState — handleCardClick auth gate', () => {
     });
 
     expect(result.current.unlockError).toBe(true);
-    expect(result.current.revealOrigin).toBeNull();
+    expect(result.current.revealStatus).toBe('failed');
   });
 
   it('within unlock radius but NOT authed: does NOT set revealOrigin or call onUnlock', () => {
@@ -389,6 +378,7 @@ describe('useMustEatDetailState — no position fix', () => {
 
     expect(onRequestLocation).not.toHaveBeenCalled();
     expect(result.current.revealOrigin).toBe(fakeRect);
+    expect(result.current.revealStatus).toBe('ok');
   });
 
   it('hands a granted position straight back to the unlock path', () => {

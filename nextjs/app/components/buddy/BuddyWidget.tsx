@@ -724,14 +724,25 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
   // and hand it back to whatever opened it on close.
   useEffect(() => {
     if (!open) return;
+    /* Auf Touch-Geräten holt ein Fokus im Feld sofort die Tastatur — sie fuhr
+       schon beim Tipp auf den Remy-Knopf aus und deckte den halben Chat
+       (Betreiber, 24.09.2026). Dort bekommt die Hülle den Fokus (Vorleser und
+       Tab landen trotzdem im Dialog), die Tastatur kommt erst mit dem Tipp
+       ins Feld. Mit Maus: das Feld, denn wer Remy öffnet, will schreiben. */
+    const touch =
+      typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
     const opener = document.activeElement;
-    returnFocusRef.current = opener instanceof HTMLElement ? opener : null;
-    // Das Feld, nicht die Hülle: wer Remy öffnet, will schreiben.
-    (inputRef.current ?? panelRef.current)?.focus();
+    // Zurück in ein Textfeld (die Frage kam aus der Remy-Bühne) hieße auf dem
+    // Telefon: Tastatur beim Schließen. Dann lieber nirgendwohin.
+    const backToText =
+      touch && (opener instanceof HTMLInputElement || opener instanceof HTMLTextAreaElement);
+    returnFocusRef.current = opener instanceof HTMLElement && !backToText ? opener : null;
+    if (touch) panelRef.current?.focus({ preventScroll: true });
+    else (inputRef.current ?? panelRef.current)?.focus();
     return () => {
       const back = returnFocusRef.current;
       returnFocusRef.current = null;
-      if (back?.isConnected) back.focus();
+      if (back?.isConnected) back.focus({ preventScroll: true });
     };
   }, [open]);
 

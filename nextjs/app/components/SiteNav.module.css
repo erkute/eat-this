@@ -167,9 +167,9 @@
 }
 
 @media (max-width: 767px) {
-  /* Verified previously on iPhone Safari: a translated fixed navbar can leave
-     the status bar black. Animate its clipped surface, then remove the rendered
-     layer with display:none once the transition has finished. */
+  /* Ein- und Ausfahren schiebt Fläche (::before) und Inhalt, nicht die Leiste
+     selbst; nach dem Ausfahren nimmt `collapsed` sie ganz aus dem Rendering.
+     Warum `data-leaving` unten nötig ist, steht dort. */
   .nav:not([data-nav-page='map']) {
     background: transparent;
     transform: none;
@@ -194,8 +194,28 @@
   }
 
   .nav[data-visibility='hidden']:not([data-nav-page='map']) {
-    clip-path: inset(calc(env(safe-area-inset-top, 0px) + 2px) 0 0 0);
     pointer-events: none;
+  }
+
+  /* Die Statusleiste um Uhrzeit und Akku färbt Safari nach der Leiste ein —
+     mitgleiten kann sie nicht: Safari zeigt dort nur eine feste Farbe oder
+     die Seite, die Leiste selbst zeichnet er nie hinein (im iOS-Simulator
+     gefilmt, 24.09.2026). Der Wechsel ist also immer ein Sprung, und er soll
+     mit der Bewegung beginnen statt ihr nachzuhinken: vorher fuhr die Leiste
+     weg und erst 280ms später, mit `collapsed`, sprang die Statusleiste um
+     (Betreiber, 23.09.2026).
+     Safari hält die Farbe, solange die Leiste sichtbar ist. `data-leaving`
+     macht sie beim Wegfahren sofort `visibility: hidden`; Fläche und Inhalt
+     holen sich ihre Sichtbarkeit zurück und fahren weiter sichtbar hinaus.
+     Beim Hereinfahren steht das Attribut nicht — dann wird die Statusleiste
+     gleich zu Beginn wieder dunkel. */
+  .nav[data-leaving]:not([data-nav-page='map']) {
+    visibility: hidden;
+  }
+
+  .nav[data-leaving]:not([data-nav-page='map'])::before,
+  .nav[data-leaving]:not([data-nav-page='map']) > * {
+    visibility: visible;
   }
 
   .nav[data-visibility='hidden']:not([data-nav-page='map'])::before {

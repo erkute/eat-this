@@ -108,6 +108,41 @@ describe('BuddyWidget compose row', () => {
     expect(reset).toHaveBeenCalledTimes(1);
   });
 
+  it('on touch screens focuses the panel, not the field, so no keyboard slides up', () => {
+    const coarse = vi.fn((q: string) => ({ matches: q === '(pointer: coarse)' }) as MediaQueryList);
+    vi.stubGlobal('matchMedia', coarse);
+    try {
+      renderOpenWidget();
+      expect(document.activeElement).toBe(document.querySelector('#buddy-panel'));
+      expect(document.activeElement).not.toBe(input());
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('on touch screens does not hand focus back to a text field on close', () => {
+    vi.stubGlobal(
+      'matchMedia',
+      (q: string) => ({ matches: q === '(pointer: coarse)' }) as MediaQueryList
+    );
+    const stageInput = document.createElement('input');
+    document.body.appendChild(stageInput);
+    stageInput.focus();
+    try {
+      const { rerender } = renderOpenWidget();
+      fireEvent.click(document.querySelector('#buddy-panel button[aria-label="Schließen"]')!);
+      rerender(
+        <NextIntlClientProvider locale="de" messages={{}}>
+          <BuddyWidget />
+        </NextIntlClientProvider>
+      );
+      expect(document.activeElement).not.toBe(stageInput);
+    } finally {
+      stageInput.remove();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('gives focus back to whatever opened it', () => {
     const opener = document.createElement('button');
     document.body.appendChild(opener);

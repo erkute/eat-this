@@ -261,20 +261,12 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-/* Locked: Näherungs-Hinweis statt Beschreibung — großes „Du bist da!"
-   bzw. Entfernung + Sub-Hinweis. */
+/* Locked: Näherungs-Hinweis statt Beschreibung. Die Überschrift dazu
+   („Du bist da!" usw.) steht im Feld des Gerichts (.fdName), hier nur der
+   Sub-Hinweis. */
 .fdProximity {
   padding: clamp(8px, 1.4svh, 14px) 0 0;
   text-align: left;
-}
-.fdProximityHead {
-  font-size: clamp(30px, 8.6vw, 46px);
-  line-height: 0.88;
-  text-transform: uppercase;
-}
-.fdProximityAway .fdProximityHead {
-  font-size: clamp(22px, 6.2vw, 31px);
-  line-height: 0.96;
 }
 .fdProximitySub {
   margin-top: 7px;
@@ -889,7 +881,6 @@
   box-shadow: none;
 }
 .fdName,
-.fdProximityHead,
 .fdClose {
   color: var(--brand-ink);
 }
@@ -1093,10 +1084,6 @@
 .detailV13MustEat .fdText,
 .detailV13MustEat .fdProximitySub {
   font-size: clamp(12px, 3.1vw, 14px);
-}
-.fdProximityHead {
-  font-family: var(--menu-condensed, var(--font-display), Impact, sans-serif);
-  font-weight: 400;
 }
 .detailV13MustEat .fdRest .fdK {
   font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
@@ -1741,9 +1728,6 @@
 .fdProximitySub {
   color: var(--et-home-muted);
 }
-.fdProximityReady .fdProximityHead {
-  color: var(--et-home-red);
-}
 .rdHero,
 .fdHero,
 .fdStackCard,
@@ -2036,7 +2020,6 @@
 .detailV13MustEat .fdText {
   padding-top: 10px;
 }
-.detailV13MustEat .fdProximityHead,
 .detailV13MustEat .fdName,
 .detailV13MustEat .fdNameText {
   line-height: 0.92;
@@ -2442,8 +2425,7 @@
   margin-top: clamp(8px, 1.5dvh, 14px);
 }
 .detailV13MustEat .fdName,
-.detailV13MustEat .fdNameText,
-.detailV13MustEat .fdProximityHead {
+.detailV13MustEat .fdNameText {
   color: var(--me-ink);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 750;
@@ -2490,29 +2472,6 @@
   background: transparent;
   border: 0;
   box-shadow: none;
-}
-.detailV13MustEat .fdProximityHead {
-  margin: 0;
-  font-size: clamp(30px, 7.4vw, 46px);
-  line-height: 0.88;
-}
-/* Der verdeckte Zustand eine Stufe leiser, auf JEDER Breite — die Basisregel
-   dafür (.fdProximityAway .fdProximityHead) wurde von der Zeile darüber
-   geschlagen, die eine Klasse mehr hat. In voller Größe brach "Noch nicht
-   aufgedeckt." auf zwei Zeilen: der Copy-Block maß 94px statt der reservierten
-   68px (Phone) bzw. 119px statt 105px (Desktop) und stand damit höher als die
-   Beschreibung der aufgedeckten Nachbarkarte — beim Blättern sprang der Text.
-   Das große Maß bleibt dem "Du bist da."-Moment, der es tragen soll. */
-.detailV13MustEat .fdProximityAway .fdProximityHead {
-  font-size: clamp(20px, 6.2vw, 31px);
-}
-/* Die Standort-Zustände ("Standort freigeben"/"Standort blockiert") sind eine
-   Browser-Berechtigung, kein Produktmoment — in Dish-Name-Größe schrien sie
-   wie das Gericht selbst. Eine Stufe leiser: groß bleibt dem Gericht und der
-   Distanz vorbehalten. Gilt über [data-location-needed] auf jeder Breite. */
-.detailV13MustEat .fdProximity[data-location-needed] .fdProximityHead {
-  font-size: clamp(20px, 4.8vw, 27px);
-  line-height: 1.05;
 }
 .detailV13MustEat .fdProximitySub {
   margin: clamp(5px, 0.8dvh, 7px) 0 0;
@@ -2621,10 +2580,6 @@
 
   .detailV13MustEat .fdText {
     padding-top: 10px;
-  }
-
-  .detailV13MustEat .fdProximityHead {
-    font-size: clamp(34px, 3.4vw, 44px);
   }
 
   .detailV13MustEat .fdProximitySub {
@@ -3278,38 +3233,8 @@
   max-height: 100%;
   overflow: hidden;
 }
-.detailV13MustEat .fdProximityReady .fdProximityHead {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  max-width: 100%;
-  min-height: 0;
-  margin: 0;
-  padding: 5px 9px 6px;
-  color: var(--me-ink);
-  background: color-mix(in srgb, var(--me-accent) 76%, #fff 24%);
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(12px, 1.05vw, 14px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-}
 .detailV13MustEat .fdProximityReady .fdProximitySub {
   margin-top: 8px;
-}
-.detailV13MustEat .fdProximityError .fdProximityHead {
-  display: inline-flex;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0;
-  padding: 5px 9px 6px;
-  color: #fff;
-  background: var(--et-home-red, #d9382a);
-  border-radius: var(--et-radius-control, 7px);
-  font-weight: 700;
-  line-height: 1;
 }
 .detailV13MustEat .fdProximityError .fdProximitySub {
   margin-top: 8px;
@@ -4639,8 +4564,8 @@
    Umgesetzt über die Tokens des Blocks bei 2372: --me-ink ist die Schriftfarbe,
    --me-paper der Grund, --me-muted der Fließtext, --me-soft die Fläche der
    Restaurant-Zeile. Rund vierzig Regeln hängen daran und kippen mit — nur die
-   Stellen mit fest verdrahtetem Ink (Label und Knopf der Restaurant-Zeile,
-   der gelbe Kopf des „Du bist da."-Moments) stehen darunter einzeln. Steht am
+   Stellen mit fest verdrahtetem Ink (Label und Knopf der Restaurant-Zeile)
+   stehen darunter einzeln. Steht am
    Dateiende: die Papier-Fassung ist über die ganze Datei verteilt, nur von
    hier gewinnt sie ohne !important. */
 .detailV13MustEat,
@@ -4721,8 +4646,7 @@
 
 /* Titel und Fließtext in der Fassung des Onboardings (.title / .text). */
 .detailV13MustEat .fdName,
-.detailV13MustEat .fdNameText,
-.detailV13MustEat .fdProximityHead {
+.detailV13MustEat .fdNameText {
   color: var(--me-ink);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -4740,12 +4664,6 @@
 .detailV13MustEat .fdProximity {
   width: 100%;
   text-align: center;
-}
-
-/* Der gelbe Kopf des „Du bist da."-Moments (Block bei 3584) las seine
-   Schriftfarbe aus --me-ink — das ist jetzt Weiß, auf Gelb unlesbar. */
-.detailV13MustEat .fdProximityReady .fdProximityHead {
-  color: var(--et-home-ink, #15120e);
 }
 
 /* Mittig wie das Onboarding: Karte, Kicker, Titel, Text auf einer Achse. Die

@@ -159,7 +159,7 @@ describe('MapDetails CSS contracts', () => {
      *
      * Effektive Werte, nicht Einzelblöcke: `.fdText` allein wird in mehreren
      * Blöcken deklariert, einige davon in Media-Queries. */
-    for (const brand of ['fdName', 'fdProximityHead', 'fdProximitySub', 'fdText']) {
+    for (const brand of ['fdName', 'fdProximitySub', 'fdText']) {
       const family = effective(brand, 'font-family');
       expect(family, `.${brand} hat keine effektive font-family`).toBeDefined();
       expect(

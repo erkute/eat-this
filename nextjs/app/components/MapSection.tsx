@@ -1230,6 +1230,15 @@ export default function MapSection({
         : undefined,
     [mustEatPagerAdjacent.index, mustEats.length]
   );
+  /* Stand der Sammlung für die Bühne des Aufdeckens („12 / 25") — offene
+     gegen alle Karten, wie der „Alle"-Reiter im Profil zählt. */
+  const mustEatCollection = useMemo(
+    () => ({
+      count: mustEats.reduce((n, m) => (unlockedIds.has(m._id) ? n + 1 : n), 0),
+      total: mustEats.length,
+    }),
+    [mustEats, unlockedIds]
+  );
 
   const handlePageMustEat = useCallback(
     (dir: 'prev' | 'next') => {
@@ -2045,6 +2054,7 @@ export default function MapSection({
       mustEatPagerPrev={mustEatPagerAdjacent.prev}
       mustEatPagerNext={mustEatPagerAdjacent.next}
       mustEatPagerPosition={mustEatPagerPosition}
+      mustEatCollection={mustEatCollection}
       onPageMustEat={handlePageMustEat}
       onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
       onUnlock={handleUnlock}

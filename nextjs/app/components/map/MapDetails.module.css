@@ -244,11 +244,6 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
 }
-/* Reveal: der Name blendet ruhig ein (siehe fdNameCalmReveal im Must-Eat-Block). */
-.fdNameUnblurring {
-  filter: none;
-  animation: fdNameCalmReveal 0.9s ease-out both;
-}
 /* Beschreibung — kompakt geklemmt, damit die Detailkarte nicht scrollen muss. */
 .fdText {
   margin: 0;
@@ -3268,38 +3263,6 @@
   display: block;
   max-height: 100%;
   overflow: hidden;
-}
-/* Nach dem Aufdecken: Name und Beschreibung blenden ruhig ein. Vorher lief
-   hier ein Wisch von links (clip-path mit Drehung) plus ein gelb-weißer
-   Glanzstreifen über den Namen — „gib dem eine ruhige Anblendung" (Nutzer,
-   03.09.2026). Jetzt: Deckkraft von 0 auf 1 mit 6px Hub aus der Tiefe, ohne
-   Schleifen, ohne Glanz; die Beschreibung folgt dem Namen um 160ms. Bewusst
-   eine Ausnahme von „keine Opacity-Fades auf Brand-Flächen": hier ist die
-   Ruhe das Ziel, deshalb Deckkraft plus Hub statt Deckkraft allein. */
-.detailV13MustEat .fdNameText.fdNameUnblurring {
-  position: relative;
-  color: var(--me-ink);
-  filter: none;
-  animation: fdNameCalmReveal 0.9s ease-out both;
-}
-.detailV13MustEat .fdText.fdTextRevealing {
-  animation: fdNameCalmReveal 0.9s ease-out 0.16s both;
-}
-@keyframes fdNameCalmReveal {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .detailV13MustEat .fdNameText.fdNameUnblurring,
-  .detailV13MustEat .fdText.fdTextRevealing {
-    animation: none;
-  }
 }
 .detailV13MustEat .fdProximityReady .fdProximityHead {
   display: inline-flex;

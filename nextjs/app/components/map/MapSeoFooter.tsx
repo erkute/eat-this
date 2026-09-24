@@ -19,14 +19,23 @@ interface Props {
  * `HubFaq` auf der Startseite, und der Text steht auch zugeklappt im HTML.
  * Der Wortlaut liegt in `lib/map/mapSeoCopy.ts`, weil das FAQPage-JSON-LD der
  * Seite dieselben Sätze führen muss.
+ *
+ * Seit 24.09.2026 ist der ganze Block zugeklappt: eine leise Zeile unter der
+ * Liste, der Text dahinter (Betreiber: „der ganze Text ist SEO und Google und
+ * kann versteckt werden"). Zugeklappt, nicht unsichtbar — `display: none` oder
+ * ein visuell versteckter Text fiele unter Googles Regel gegen versteckten
+ * Text, und das FAQPage-JSON-LD verlangt Fragen, die man auf der Seite
+ * erreichen kann. Inhalt in einem geschlossenen `<details>` wertet Google voll.
  */
 export default function MapSeoFooter({ locale }: Props) {
   const copy = getMapSeoCopy(locale);
   return (
-    <section className={styles.block} aria-labelledby="map-seo-heading">
-      <h2 id="map-seo-heading" className={styles.heading}>
-        {copy.outroHeading}
-      </h2>
+    <details className={styles.block}>
+      <summary className={styles.toggle}>
+        <h2 id="map-seo-heading" className={styles.heading}>
+          {copy.outroHeading}
+        </h2>
+      </summary>
       {copy.outroParagraphs.map((paragraph) => (
         <p key={paragraph} className={styles.text}>
           {paragraph}
@@ -42,6 +51,6 @@ export default function MapSeoFooter({ locale }: Props) {
           </details>
         ))}
       </div>
-    </section>
+    </details>
   );
 }

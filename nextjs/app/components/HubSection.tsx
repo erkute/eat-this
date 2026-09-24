@@ -98,11 +98,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               für "Berlin Food Map" — sie braucht diesen Link. Die
               PARAMETRISIERTEN Deep-Links (`?r=`, `?bezirk=`, `?cat=`) behalten
               ihr nofollow, siehe MapPromoCTA. */}
-            <MapIntentLink
-              href="/map"
-              className={styles.heroPhones}
-              aria-label={t.heroPhonesLabel}
-            >
+            <MapIntentLink href="/map" className={styles.heroPhones} aria-label={t.heroPhonesLabel}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.phoneBack}
@@ -203,7 +199,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           page. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
         <HubMustEatsTeaser />
-        <StarterPackSignup locale={locale} />
+        <StarterPackSignup />
       </HomeMapDataProvider>
       <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HubFragRemy />

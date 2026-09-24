@@ -65,7 +65,7 @@ describe('DeckJoin', () => {
     render(<DeckJoin name="Ersan" />);
 
     fireEvent.change(screen.getByRole('textbox'), { target: { value: ' hallo@example.com ' } });
-    fireEvent.click(screen.getByRole('button', { name: 'joinCta' }));
+    fireEvent.click(screen.getByRole('button', { name: 'sendLinkBtn' }));
 
     expect(sendLink).toHaveBeenCalledWith('hallo@example.com', expect.any(String));
   });
@@ -78,7 +78,7 @@ describe('DeckJoin', () => {
     render(<DeckJoin name="Ersan" />);
 
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'hallo@example.com' } });
-    fireEvent.click(screen.getByRole('button', { name: 'joinCta' }));
+    fireEvent.click(screen.getByRole('button', { name: 'sendLinkBtn' }));
 
     expect(sendLink).toHaveBeenCalledWith(
       'hallo@example.com',
@@ -92,10 +92,10 @@ describe('DeckJoin', () => {
     render(<DeckJoin name="Ersan" />);
 
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'hallo' } });
-    fireEvent.click(screen.getByRole('button', { name: 'joinCta' }));
+    fireEvent.click(screen.getByRole('button', { name: 'sendLinkBtn' }));
 
     expect(sendLink).not.toHaveBeenCalled();
-    expect(screen.getByRole('alert').textContent).toBe('joinInvalidEmail');
+    expect(screen.getByRole('alert').textContent).toBe('invalidEmail');
   });
 
   it('nennt den Namen des Decks, wenn es einen hat', () => {
@@ -123,6 +123,7 @@ describe('DeckJoin', () => {
     render(<DeckJoin name="Ersan" />);
 
     expect(screen.getByRole('link', { name: 'ctaIn' }).getAttribute('href')).toBe('/profile');
+    // Die Tafel bleibt fuer den Wartescreen gemountet — aber verborgen.
     expect(screen.queryByRole('textbox')).toBeNull();
   });
 
@@ -146,7 +147,7 @@ describe('DeckJoin', () => {
     render(<DeckJoin name="Ersan" />);
     expect(googleState.prepare).not.toHaveBeenCalled();
 
-    const button = screen.getByRole('button', { name: 'joinGoogle' });
+    const button = screen.getByRole('button', { name: 'googleBtn' });
     fireEvent.pointerEnter(button);
     expect(googleState.prepare).toHaveBeenCalledTimes(1);
     expect(googleState.start).not.toHaveBeenCalled();
@@ -158,7 +159,7 @@ describe('DeckJoin', () => {
   it('nimmt den Google-Knopf weg, sobald der Link verschickt ist', () => {
     magicState.state = 'sent';
     render(<DeckJoin name="Ersan" />);
-    expect(screen.queryByRole('button', { name: 'joinGoogle' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'googleBtn' })).toBeNull();
   });
 
   /* Firebase meldet den Nutzer, waehrend die Haltezeit noch laeuft — die
@@ -168,9 +169,9 @@ describe('DeckJoin', () => {
     googleState.phase = 'busy';
     render(<DeckJoin name="Ersan" />);
     expect(screen.getByTestId('auth-screen')).toBeTruthy();
-    expect(
-      screen.getByRole<HTMLButtonElement>('button', { name: 'joinGoogle' }).disabled
-    ).toBe(true);
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'googleBtn' }).disabled).toBe(
+      true
+    );
 
     cleanup();
     googleState.phase = 'done';
@@ -191,7 +192,7 @@ describe('DeckJoin', () => {
     expect(showNotification).not.toHaveBeenCalled();
 
     announceSignIn.mock.calls[0][0]();
-    expect(showNotification).toHaveBeenCalledWith('joinSignedIn');
+    expect(showNotification).toHaveBeenCalledWith('signedIn');
   });
 
   it('sagt ein selbst zugeklicktes Google-Fenster leise an, ein geblocktes laut', () => {

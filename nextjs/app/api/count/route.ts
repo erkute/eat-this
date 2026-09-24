@@ -69,8 +69,12 @@ const EVENTS = new Set([
   // Karte im Startseiten-Teaser, die Starter-Pack-Tafel im Karten-Sheet.
   'login_start_home_covered_card',
   'login_start_starter_pack_banner',
-  'login_start_starter_pack_existing_user',
   'login_view',
+  // `login_view`, aufgefaechert nach dem Anlass, den das Formular zeigt
+  // (LoginPanel): Starter Pack, angetippte Karte, Herz auf einem Spot.
+  'login_view_pack',
+  'login_view_card',
+  'login_view_heart',
   'map_location_invite_accepted',
   'map_location_invite_shown',
   'map_opened',

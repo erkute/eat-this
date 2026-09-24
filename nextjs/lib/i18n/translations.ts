@@ -146,7 +146,6 @@ const en = {
     walkMinutes: 'on foot',
     starterPromoTitle: 'Starter Pack',
     starterPromoBody: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
-    starterPromoLogin: 'Already in? Sign in',
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
        "Reset filters" was wrong for someone who had only typed something. */
@@ -156,7 +155,8 @@ const en = {
     emptyKickerBoth: 'Your search and filters',
     emptyBodySearch: 'Nothing matches “{query}”. Try a name, a cuisine or a district.',
     emptyBodyFilter: 'Together these leave nothing. Loosen one — or start over.',
-    emptyBodyBoth: 'With these filters nothing matches “{query}”. Loosen one — or search without them.',
+    emptyBodyBoth:
+      'With these filters nothing matches “{query}”. Loosen one — or search without them.',
     emptyReset: 'Reset filters',
     emptyResetSearch: 'Clear search',
     // Card metaphor, matching the reveal mechanic. The map list no longer has a
@@ -258,24 +258,10 @@ const en = {
     /* Dieselbe Tafel wie der Starter-Pack-Abschnitt der Startseite, also auch
        dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier steht
        ein Freund daneben. */
-    joinTitle: 'Starter Pack',
     joinLead:
       '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there.',
     joinLeadAnon:
       '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there.',
-    joinSentLead: "We've sent your link. One click and you're in.",
-    joinHint: 'We send you a sign-in link.',
-    joinEmailLabel: 'Email address',
-    joinEmailPlaceholder: 'your@email.com',
-    joinCta: 'Sign up',
-    joinSending: 'Sending\u2026',
-    joinSent: 'Check your mail',
-    joinEmptyEmail: 'Add your email first.',
-    joinInvalidEmail: 'That does not look like an email yet.',
-    joinArtAlt: 'Eat This Starter Pack',
-    joinOr: 'or',
-    joinGoogle: 'Sign in with Google',
-    joinSignedIn: "You're signed in",
     browse: 'Just looking? Open the Berlin Food Map',
     ctaHeadingIn: 'Back to your own deck',
     ctaLineIn: 'Your cards are waiting all over Berlin.',
@@ -385,27 +371,26 @@ const en = {
     login: {
       emailPlaceholder: 'your@email.com',
       googleBtn: 'Sign in with Google',
-      signinGoogleBtn: 'Sign in with Google',
       googleSigningIn: 'Signing you in',
       termsLink: 'Terms',
       privacyLink: 'Privacy Policy',
       sendLinkBtn: 'Sign in',
-      signinSendLinkBtn: 'Sign in',
       heroHeadline: 'Sign in',
-      signinHeroHeadline: 'Sign in',
       dividerOr: 'or',
       resendBtn: 'Resend',
       backBtn: 'Back',
-      heroH1: 'Starter Pack',
-      heroSub: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
-      modalBenefitLead: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
-      signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
-      signinBoosterLead: 'Your deck is waiting. Pick up where you left off.',
-      modalTagline: 'Sign in',
-      signinModalTagline: 'Sign in',
+      packTitle: 'Starter Pack',
+      packLead: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
+      cardKicker: 'Reveal your Must Eats',
+      cardTitle: 'Look underneath',
+      cardLead: 'Your card. Your Starter Pack. 20 Must Eats from all over Berlin.',
+      heartKicker: 'Save your spots',
+      heartLead: 'Your spot. Your Starter Pack. 20 Must Eats from all over Berlin.',
       emailLabel: 'Email',
+      emptyEmail: 'Add your email first.',
+      invalidEmail: 'That does not look like an email yet.',
+      signedIn: "You're signed in",
       legalLead: 'By signing in you accept our',
-      signinLegalLead: 'By signing in you accept our',
       legalAnd: 'and our',
       sentH1: 'Mail’s out',
       sentToLabel: 'Sent to',
@@ -572,7 +557,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     starterPromoTitle: 'Starter Pack',
     starterPromoBody:
       '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
-    starterPromoLogin: 'Schon dabei? Einloggen',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
        bot „Filter zurücksetzen" auch dem an, der gar keinen Filter gesetzt,
@@ -709,24 +693,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     /* Der Ausgang. Kein Knopf mehr, der irgendwohin fuehrt: das Feld steht
        auf der Seite (Nutzer, 06.09.2026). Was es verspricht, ist dasselbe wie
        auf der Startseite — das Starter Pack. */
-    joinTitle: 'Starter Pack',
     joinLead:
       '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen.',
     joinLeadAnon:
       '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen.',
-    joinSentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
-    joinHint: 'Wir schicken dir einen Link zum Einloggen.',
-    joinEmailLabel: 'E-Mail Adresse',
-    joinEmailPlaceholder: 'deine@email.com',
-    joinCta: 'Anmelden',
-    joinSending: 'Sende\u2026',
-    joinSent: 'Check deine Mail',
-    joinEmptyEmail: 'Bitte gib deine E-Mail ein.',
-    joinInvalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
-    joinArtAlt: 'Eat This Starter Pack',
-    joinOr: 'oder',
-    joinGoogle: 'Mit Google anmelden',
-    joinSignedIn: 'Du bist angemeldet',
     /* Der leise Weg fuer alle, die sich noch nicht anmelden wollen — statt
        einer Sackgasse. */
     browse: 'Erst mal umsehen? Zur Berlin Food Map',
@@ -854,28 +824,26 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     login: {
       emailPlaceholder: 'deine@email.com',
       googleBtn: 'Mit Google anmelden',
-      signinGoogleBtn: 'Mit Google einloggen',
       googleSigningIn: 'Du wirst angemeldet',
       termsLink: 'AGB',
       privacyLink: 'Datenschutzerkl\u00e4rung',
       sendLinkBtn: 'Anmelden',
-      signinSendLinkBtn: 'Einloggen',
       heroHeadline: 'Anmelden',
-      signinHeroHeadline: 'Einloggen',
       dividerOr: 'oder',
       resendBtn: 'Nochmal',
       backBtn: 'Zur\u00fcck',
-      heroH1: 'Starter Pack',
-      heroSub: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
-      modalBenefitLead:
-        '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
-      signinBoosterHeadline: 'WE TELL YOU WHAT TO EAT',
-      signinBoosterLead: 'Dein Deck wartet. Mach da weiter, wo du aufgehört hast.',
-      modalTagline: 'Anmelden',
-      signinModalTagline: 'Einloggen',
+      packTitle: 'Starter Pack',
+      packLead: '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+      cardKicker: 'Decke deine Must Eats auf',
+      cardTitle: 'Schau drunter',
+      cardLead: 'Deine Karte. Dein Starter Pack. 20 Must Eats aus ganz Berlin.',
+      heartKicker: 'Speichere deine Spots',
+      heartLead: 'Dein Spot. Dein Starter Pack. 20 Must Eats aus ganz Berlin.',
       emailLabel: 'E-Mail',
+      emptyEmail: 'Bitte gib deine E-Mail ein.',
+      invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
+      signedIn: 'Du bist angemeldet',
       legalLead: 'Mit deiner Anmeldung akzeptierst du unsere',
-      signinLegalLead: 'Mit dem Einloggen akzeptierst du unsere',
       legalAnd: 'und die',
       sentH1: 'Mail ist raus',
       sentToLabel: 'Gesendet an',

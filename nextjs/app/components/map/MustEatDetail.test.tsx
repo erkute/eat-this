@@ -79,7 +79,7 @@ describe('MustEatDetail login gate', () => {
          sie garantiert offen hinein (/api/starter-pack, pendingStarterCard). */
       expect(showNotice).not.toHaveBeenCalled();
       expect(openLoginModal).toHaveBeenCalledOnce();
-      expect(openLoginModal).toHaveBeenCalledWith('starter', { starterMustEatId: 'must-eat-1' });
+      expect(openLoginModal).toHaveBeenCalledWith({ kind: 'card', mustEatId: 'must-eat-1' });
       expect(sessionStorage.getItem('eatthis_pending_starter_card')).toContain('"must-eat-1"');
       expect(onUnlock).not.toHaveBeenCalled();
     } finally {

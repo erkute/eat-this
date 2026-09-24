@@ -104,7 +104,7 @@ describe('HubMustEatsTeaser — Zittern vor der Anmeldung', () => {
     expect(openLoginModal).toHaveBeenCalledOnce();
     // Die angetippte Karte reist als Absicht mit — das Starter Pack legt sie
     // garantiert offen hinein (/api/starter-pack, pendingStarterCard).
-    expect(openLoginModal).toHaveBeenCalledWith('starter', { starterMustEatId: 'm2' });
+    expect(openLoginModal).toHaveBeenCalledWith({ kind: 'card', mustEatId: 'm2' });
     expect(sessionStorage.getItem('eatthis_pending_starter_card')).toContain('"m2"');
   });
 
@@ -134,7 +134,7 @@ describe('HubMustEatsTeaser — Zittern vor der Anmeldung', () => {
 
       fireEvent.click(coveredCard());
 
-      expect(openLoginModal).toHaveBeenCalledWith('starter', { starterMustEatId: 'm2' });
+      expect(openLoginModal).toHaveBeenCalledWith({ kind: 'card', mustEatId: 'm2' });
       expect(container.querySelector('[class*="photoTapping"]')).toBeNull();
     } finally {
       if (original) {

@@ -3,20 +3,20 @@
 /**
  * Renders the login modal portal and synchronizes the resolved auth state.
  * Modal open/close state lives in LoginModalContext; this component only
- * consumes it. Triggers call useLoginModal().open(mode), where mode defaults
- * to 'starter':
+ * consumes it. Triggers call useLoginModal().open(reason?) — the reason is
+ * what the guest reached for, and the panel shows exactly that:
  *
- *   BurgerDrawer      login button, only while signed out (default 'starter')
- *   MustEatDetail     reveal flow hits the login wall ('starter')
- *   RestaurantDetail  starter-pack banner ('starter'); existing user ('signin')
- *   RestaurantList    end-of-list promo, rendered only when signed out ('signin')
- *   useFavorites      heart toggle with no signed-in user ('signin')
+ *   BurgerDrawer, MustEatsOnboarding,
+ *   RestaurantDetail (starter-pack banner)   no reason → the Starter Pack
+ *   MustEatDetail, HubMustEatsTeaser         { kind: 'card' } → the tapped card
+ *   useFavorites                             { kind: 'heart' } → the spot
  *
  * SiteNav does not open the modal — it has no login affordance at all.
  *
- * useFavorites reicht zusaetzlich eine Absicht mit (`heartRestaurantId`): das
- * Herz, das der Tap vergeben wollte. LoginPanel haengt sie an die
- * Continue-URL des Magic-Links, pendingHeart loest sie ein.
+ * Aus dem Grund folgt die Absicht (`intent`): das Herz, das der Tap vergeben
+ * wollte, oder die Karte, die offen im Pack liegen soll. LoginPanel haengt sie
+ * an die Continue-URL des Magic-Links, pendingHeart/pendingStarterCard loesen
+ * sie ein.
  *
  * - localStorage._authHint: read by the inline CRITICAL_BOOTSTRAP in
  *   [locale]/layout.tsx only to set html[data-auth] before paint. The
@@ -28,7 +28,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
-import { useLocale } from 'next-intl';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
@@ -41,13 +40,7 @@ const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: f
 export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
-  const {
-    isOpen: loginOpen,
-    mode: loginMode,
-    intent: loginIntent,
-    close: closeLogin,
-  } = useLoginModal();
-  const locale = useLocale();
+  const { isOpen: loginOpen, intent: loginIntent, close: closeLogin } = useLoginModal();
 
   // Ein Login, der waehrend des offenen Modals durchgeht (Google-Popup),
   // bleibt jetzt auf der Seite stehen, auf der er angefangen hat. Vorher
@@ -75,13 +68,11 @@ export default function BridgeAuth() {
          diese Zeile sagen wuerde, und mehr. Sie faellt also aus, sobald ein
          Pack unterwegs ist — und kommt, wenn keins kommt (Wiederkehrer). */
       if (!heartPending) {
-        announceSignIn(() =>
-          window.showNotification?.(locale === 'de' ? 'Du bist angemeldet' : "You're signed in")
-        );
+        announceSignIn(() => window.showNotification?.(t('modals.login.signedIn')));
       }
     }, AUTH_SCREEN_HOLD_MS);
     return () => window.clearTimeout(timer);
-  }, [user, loading, loginOpen, locale, closeLogin, heartPending]);
+  }, [user, loading, loginOpen, t, closeLogin, heartPending]);
 
   // Scroll lock + iOS bar recolor live in <LoginModalBarLock /> inside the
   // overlay (single owner — a second snapshot-restore lock here raced with
@@ -139,7 +130,7 @@ export default function BridgeAuth() {
         >
           {/* Recolors the iOS bottom-URL-bar zone while the modal is open. */}
           <LoginModalBarLock />
-          <LoginPanel onBack={closeLogin} mode={loginMode} />
+          <LoginPanel onBack={closeLogin} />
         </div>,
         document.body
       )

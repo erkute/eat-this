@@ -102,7 +102,7 @@ describe('MustEatsOnboarding', () => {
 
     // „Anmelden" öffnet das Anmelde-Fenster im Starter-Modus und schließt die Erklärung.
     fireEvent.click(screen.getByText('mustEats.onbStarterCta'));
-    expect(openLogin).toHaveBeenCalledWith('starter');
+    expect(openLogin).toHaveBeenCalledWith();
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 

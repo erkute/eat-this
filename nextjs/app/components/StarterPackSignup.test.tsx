@@ -1,212 +1,97 @@
 // @vitest-environment jsdom
 import { renderToStaticMarkup } from 'react-dom/server';
-import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
+import { translations } from '@/lib/i18n/translations';
 
-const magicLinkState = vi.hoisted(() => ({
-  sendLink: vi.fn(),
-  reset: vi.fn(),
-  state: 'idle',
-  errorMessage: '',
-}));
-
-/** Der Google-Weg, auf das reduziert, was die Tafel davon zeigt. */
-const googleState = vi.hoisted(() => ({
+/* Das Formular selbst prueft LoginBoard.test.tsx — hier nur, was die Tafel der
+   Startseite anders macht. */
+const google = vi.hoisted(() => ({
   start: vi.fn(),
   prepare: vi.fn(),
-  phase: 'idle' as 'idle' | 'busy' | 'done' | 'leaving',
-  note: null as 'cancelled' | 'blocked' | 'failed' | null,
-  noteKey: null as string | null,
+  phase: 'idle',
+  note: null,
+  noteKey: null,
+  onSettled: undefined as (() => void) | undefined,
 }));
+const announceSignIn = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/auth', () => ({
-  useMagicLink: () => ({
-    sendLink: magicLinkState.sendLink,
-    state: magicLinkState.state,
-    errorMessage: magicLinkState.errorMessage,
-    reset: magicLinkState.reset,
-  }),
-  useGoogleSignIn: () => ({
-    start: googleState.start,
-    prepare: googleState.prepare,
-    phase: googleState.phase,
-    note: googleState.note,
-    noteKey: googleState.noteKey,
-  }),
+  useMagicLink: () => ({ sendLink: vi.fn(), reset: vi.fn(), state: 'idle', errorMessage: '' }),
+  useGoogleSignIn: (options: { onSettled?: () => void } = {}) => {
+    google.onSettled = options.onSettled;
+    return google;
+  },
 }));
-/* next-intl braucht einen Provider; hier reicht der Schluessel als Text. */
-vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => `[${key}]`,
-}));
-vi.mock('next/image', () => ({
-  default: ({ src, alt }: { src: string; alt: string }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} />
-  ),
-}));
-/* Der Wartescreen braucht next-intl; hier zaehlt nur, ob er da ist. */
-vi.mock('./AuthScreen', () => ({
-  default: ({ leaving }: { leaving?: boolean }) => (
-    <div data-testid="auth-screen" data-leaving={leaving ? '1' : '0'} />
-  ),
-}));
+vi.mock('@/lib/auth/signInArrival', () => ({ announceSignIn }));
 
 import StarterPackSignup from './StarterPackSignup';
 
+function tafel(locale: 'de' | 'en' = 'de') {
+  return (
+    <NextIntlClientProvider
+      locale={locale}
+      messages={translations[locale]}
+      timeZone="Europe/Berlin"
+    >
+      <StarterPackSignup />
+    </NextIntlClientProvider>
+  );
+}
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
 describe('StarterPackSignup', () => {
-  beforeEach(() => {
-    magicLinkState.sendLink.mockReset();
-    magicLinkState.reset.mockReset();
-    magicLinkState.state = 'idle';
-    magicLinkState.errorMessage = '';
-    googleState.start.mockReset();
-    googleState.prepare.mockReset();
-    googleState.phase = 'idle';
-    googleState.note = null;
-    googleState.noteKey = null;
+  it('steht unter dem Anker, den das Must-Eats-Onboarding anspringt', () => {
+    const html = renderToStaticMarkup(tafel());
+    expect(html).toContain('id="hub-starter"');
   });
 
-  afterEach(() => {
-    cleanup();
+  it('versteckt sich vor dem ersten Bild fuer Angemeldete', () => {
+    expect(renderToStaticMarkup(tafel())).toContain('data-guest-only');
   });
 
-  it('names the offer and the magic-link step', () => {
-    const html = renderToStaticMarkup(<StarterPackSignup locale="de" />);
-    expect(html).toContain('Starter Pack');
-    // Kein „Gratis"-Kicker: Geschenk-Wording will der Betreiber nicht (22.09.2026).
-    expect(html).not.toContain('Gratis');
-    expect(html).toContain('placeholder="deine@email.com"');
-    expect(html).toContain('Anmelden');
-    // The mail that follows must not come as a surprise.
-    expect(html).toContain('Wir schicken dir einen Link zum Einloggen.');
-  });
-
-  it('hides itself pre-paint for signed-in visitors', () => {
-    const html = renderToStaticMarkup(<StarterPackSignup locale="de" />);
-    expect(html).toContain('data-guest-only');
-  });
-
-  it('shows the pack, so the free thing is visible and not just named', () => {
-    const html = renderToStaticMarkup(<StarterPackSignup locale="de" />);
+  /* Derselbe Aufbau wie das Modal: das Pack, eine Ueberschrift, das Formular. */
+  it('zeigt das Pack und traegt die Ueberschrift des Modals', () => {
+    const html = renderToStaticMarkup(tafel());
     expect(html).toContain('booster_free.webp');
+    expect(html).toContain('>Starter Pack</h2>');
+    expect(html).toContain('20 Must Eats, überall in Berlin verteilt.');
+    // Kein „Gratis"-Kicker: Geschenk-Wording will der Betreiber nicht (22.09.2026).
+    expect(html).not.toMatch(/gratis|kostenlos/i);
   });
 
-  it('keeps the submit hoverable before an email is entered', () => {
-    render(<StarterPackSignup locale="de" />);
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Anmelden' }).disabled).toBe(
-      false
-    );
+  it('spricht Englisch unter /en', () => {
+    const html = renderToStaticMarkup(tafel('en'));
+    expect(html).toContain('Sign in with Google');
+    expect(html).toContain('20 Must Eats, spread all over Berlin.');
   });
 
-  it('shows a local error when the email is empty', () => {
-    render(<StarterPackSignup locale="de" />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
-
-    expect(screen.getByRole('alert').textContent).toBe('Bitte gib deine E-Mail ein.');
-    expect(magicLinkState.sendLink).not.toHaveBeenCalled();
+  /* Die Tafel steht auf jeder Startseite; der Cookie-Hinweis verspricht,
+     Google Sign-In lade „nur wenn du es nutzt". */
+  it('waermt Google nicht an, nur weil die Seite steht', () => {
+    render(tafel());
+    expect(google.prepare).not.toHaveBeenCalled();
+    fireEvent.pointerEnter(screen.getByRole('button', { name: 'Mit Google anmelden' }));
+    expect(google.prepare).toHaveBeenCalledTimes(1);
   });
 
-  it('shows a local error when the email is invalid', () => {
-    render(<StarterPackSignup locale="de" />);
+  /* Nie Toast UND Pack-Einblendung: was gesagt wird, entscheidet
+     signInArrival, nicht diese Tafel. */
+  it('meldet die Anmeldung ueber announceSignIn, nicht direkt als Toast', () => {
+    const showNotification = vi.fn();
+    window.showNotification = showNotification;
+    render(tafel());
 
-    fireEvent.change(screen.getByLabelText('E-Mail Adresse'), { target: { value: 'nope' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+    google.onSettled?.();
+    expect(announceSignIn).toHaveBeenCalledTimes(1);
+    expect(showNotification).not.toHaveBeenCalled();
 
-    expect(screen.getByRole('alert').textContent).toBe(
-      'Das sieht noch nicht nach einer E-Mail aus.'
-    );
-    expect(magicLinkState.sendLink).not.toHaveBeenCalled();
-  });
-
-  it('sends the magic link for a valid email', () => {
-    render(<StarterPackSignup locale="de" />);
-
-    fireEvent.change(screen.getByLabelText('E-Mail Adresse'), {
-      target: { value: ' test@example.com ' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
-
-    /* Mit Rueckweg auf DIESE Seite: ohne ihn nimmt die Route ihren Fallback
-       und schickt den englischen Besucher auf die deutsche Startseite. */
-    expect(magicLinkState.sendLink).toHaveBeenCalledWith(
-      'test@example.com',
-      `${window.location.origin}${window.location.pathname}`
-    );
-  });
-
-  it('confirms in place once the link is sent', () => {
-    magicLinkState.state = 'sent';
-    render(<StarterPackSignup locale="de" />);
-
-    expect(screen.getByRole('button', { name: 'Check deine Mail' })).toBeTruthy();
-    expect(
-      screen.getByText('Wir haben dir den Link geschickt. Ein Klick und du bist drin.')
-    ).toBeTruthy();
-  });
-
-  /* Der Google-Weg — bis 07.09.2026 fehlte er hier, das Login-Modal hatte
-     ihn (Nutzer: „das Anmeldeformular auf der Startseite hat nicht die
-     Google-Anmeldung"). */
-  it('offers Google next to the email, in both languages', () => {
-    const de = renderToStaticMarkup(<StarterPackSignup locale="de" />);
-    expect(de).toContain('Mit Google anmelden');
-    expect(de).toContain('>oder<');
-    const en = renderToStaticMarkup(<StarterPackSignup locale="en" />);
-    expect(en).toContain('Sign in with Google');
-  });
-
-  it('starts the Google sign-in on click and warms the popup when the hand reaches the button', () => {
-    render(<StarterPackSignup locale="de" />);
-    const button = screen.getByRole('button', { name: 'Mit Google anmelden' });
-
-    fireEvent.pointerEnter(button);
-    expect(googleState.prepare).toHaveBeenCalledTimes(1);
-    expect(googleState.start).not.toHaveBeenCalled();
-
-    fireEvent.click(button);
-    expect(googleState.start).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not warm the Google popup just because the page rendered', () => {
-    render(<StarterPackSignup locale="de" />);
-    expect(googleState.prepare).not.toHaveBeenCalled();
-  });
-
-  it('holds the button and shows the wait screen while Google is open', () => {
-    googleState.phase = 'busy';
-    render(<StarterPackSignup locale="de" />);
-
-    expect(
-      screen.getByRole<HTMLButtonElement>('button', { name: 'Mit Google anmelden' }).disabled
-    ).toBe(true);
-    expect(screen.getByTestId('auth-screen').getAttribute('data-leaving')).toBe('0');
-  });
-
-  it('tells the reader quietly when they closed the Google window themselves', () => {
-    googleState.note = 'cancelled';
-    googleState.noteKey = 'auth.googleCancelled';
-    render(<StarterPackSignup locale="de" />);
-
-    expect(screen.queryByRole('alert')).toBeNull();
-    expect(screen.getByRole('status').textContent).toBe('[auth.googleCancelled]');
-  });
-
-  it('raises an alert when the browser blocked the Google window', () => {
-    googleState.note = 'blocked';
-    googleState.noteKey = 'auth.errGooglePopupBlocked';
-    render(<StarterPackSignup locale="de" />);
-
-    expect(screen.getByRole('alert').textContent).toBe('[auth.errGooglePopupBlocked]');
-  });
-
-  it('drops the Google button and its note once the mail link is out', () => {
-    magicLinkState.state = 'sent';
-    googleState.note = 'failed';
-    googleState.noteKey = 'auth.errGooglePopup';
-    render(<StarterPackSignup locale="de" />);
-
-    expect(screen.queryByRole('button', { name: 'Mit Google anmelden' })).toBeNull();
-    expect(screen.queryByRole('alert')).toBeNull();
+    announceSignIn.mock.calls[0][0]();
+    expect(showNotification).toHaveBeenCalledWith('Du bist angemeldet');
   });
 });

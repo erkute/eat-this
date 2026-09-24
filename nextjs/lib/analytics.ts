@@ -232,6 +232,7 @@ export function countEvent(name: string): void {
 const QUALIFIED_BY: Record<string, string> = {
   must_eat_reveal_attempt: 'result',
   login_start: 'method',
+  login_view: 'context',
 };
 
 export function qualifiedCountName(name: string, params?: AnalyticsParams): string | null {

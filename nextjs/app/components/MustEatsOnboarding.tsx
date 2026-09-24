@@ -375,7 +375,7 @@ export default function MustEatsOnboarding({
                         className={tour.action}
                         onClick={() => {
                           close();
-                          openLogin('starter');
+                          openLogin();
                         }}
                       >
                         {t('mustEats.onbStarterCta')}

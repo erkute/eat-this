@@ -2,28 +2,27 @@
 import { useEffect } from 'react';
 import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 
-const LOGIN_MOBILE_CANVAS_COLOR = '#15120e';
+/** Dasselbe Schwarz wie der Vorhang (LoginModalOverlay.module.css). */
+const LOGIN_CANVAS_COLOR = '#000';
 
 /**
- * iOS bottom-URL-bar fix for the login modal (mobile only).
+ * Scroll-Sperre und Leistenfarbe, solange das Login-Modal offen ist.
  *
- * Safari never composites position:fixed layers into the translucent
- * bottom-bar backdrop — with the modal open the bar keeps showing the page
- * behind it. Locking html/body scroll makes Safari sample document content
- * again; while the modal is mounted we blur the app canvas and place a
- * document-side backdrop layer over the current viewport.
+ * Die Leisten faerbt auf iOS 26 der deckend schwarze Vorhang selbst — ein
+ * fixiertes Vollbild-Element mit voller Deckkraft gibt Status- und URL-Leiste
+ * seine Farbe. Hier kommt nur der Rueckfall dazu: html/body schwarz (die
+ * Farbe, auf die Safari ohne fixiertes Randelement zurueckgreift) und
+ * `theme-color` fuer aeltere Safaris. Der Weichzeichner auf der Seite und die
+ * Schleier-Schuerze sind weg: hinter einem deckenden Vorhang sieht sie keiner.
  *
- * Inline styles on purpose — a `:has(.login-modal-overlay)` stylesheet rule
- * computed correctly but did not recolor the bar on the actual device; the
- * probe's inline-style variant did.
+ * Inline-Stile mit Absicht — eine `:has()`-Regel im Stylesheet rechnete
+ * richtig, faerbte die Leiste am Geraet aber nicht um.
  */
 export default function LoginModalBarLock() {
   useEffect(() => {
     const de = document.documentElement;
     const b = document.body;
     const mobile = window.matchMedia('(max-width: 1023.98px)').matches;
-    const blurTarget = document.getElementById('appPages');
-    const blurApron = document.createElement('div');
     const scrollY = window.scrollY || window.pageYOffset || 0;
     const prevBodyPosition = b.style.position;
     const prevBodyTop = b.style.top;
@@ -37,15 +36,6 @@ export default function LoginModalBarLock() {
     const activeThemeMeta = themeMeta ?? document.createElement('meta');
     const prevThemeColor = activeThemeMeta.getAttribute('content');
 
-    de.setAttribute('data-login-modal-open', '1');
-    if (blurTarget) {
-      blurTarget.dataset.loginPrevFilter = blurTarget.style.filter;
-      blurTarget.dataset.loginPrevTransform = blurTarget.style.transform;
-      blurTarget.style.filter = mobile
-        ? 'blur(14px) saturate(0.9) brightness(0.55)'
-        : 'blur(14px) saturate(0.95)';
-      blurTarget.style.transform = 'translateZ(0)';
-    }
     // Scroll lock (all viewports) — single source of truth for the login
     // modal; BridgeAuth's old snapshot-restore lock raced with the closing
     // burger drawer and could re-apply its stale overflow:hidden.
@@ -53,11 +43,10 @@ export default function LoginModalBarLock() {
     b.style.overflow = 'hidden';
     b.style.touchAction = 'none';
     if (mobile) {
-      const color = LOGIN_MOBILE_CANVAS_COLOR;
-      de.style.setProperty('background', color, 'important');
-      de.style.setProperty('background-color', color, 'important');
-      b.style.setProperty('background', color, 'important');
-      b.style.setProperty('background-color', color, 'important');
+      de.style.setProperty('background', LOGIN_CANVAS_COLOR, 'important');
+      de.style.setProperty('background-color', LOGIN_CANVAS_COLOR, 'important');
+      b.style.setProperty('background', LOGIN_CANVAS_COLOR, 'important');
+      b.style.setProperty('background-color', LOGIN_CANVAS_COLOR, 'important');
       b.style.position = 'fixed';
       b.style.top = `-${scrollY}px`;
       b.style.width = '100%';
@@ -65,25 +54,10 @@ export default function LoginModalBarLock() {
         activeThemeMeta.setAttribute('name', 'theme-color');
         document.head.appendChild(activeThemeMeta);
       }
-      activeThemeMeta.setAttribute('content', color);
-      blurApron.setAttribute('aria-hidden', 'true');
-      blurApron.dataset.loginBlurApron = 'true';
-      blurApron.style.cssText =
-        `position:absolute;left:0;right:0;top:${scrollY}px;height:100dvh;min-height:100vh;` +
-        'z-index:10003;pointer-events:none;background:rgba(21,18,14,0.72);' +
-        '-webkit-backdrop-filter:blur(14px) saturate(.9) brightness(.55);backdrop-filter:blur(14px) saturate(.9) brightness(.55);';
-      b.appendChild(blurApron);
+      activeThemeMeta.setAttribute('content', LOGIN_CANVAS_COLOR);
     }
     return () => {
       // Clear instead of restore-previous (see race note above).
-      de.removeAttribute('data-login-modal-open');
-      if (blurTarget) {
-        blurTarget.style.filter = blurTarget.dataset.loginPrevFilter || '';
-        blurTarget.style.transform = blurTarget.dataset.loginPrevTransform || '';
-        delete blurTarget.dataset.loginPrevFilter;
-        delete blurTarget.dataset.loginPrevTransform;
-      }
-      blurApron.remove();
       de.style.overflow = '';
       b.style.overflow = '';
       b.style.touchAction = '';

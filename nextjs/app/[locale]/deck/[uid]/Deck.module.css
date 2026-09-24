@@ -341,24 +341,9 @@
 }
 
 /* ── Mach mit ──────────────────────────────────────────────
-   Die Tafel selbst kommt aus StarterPackSignup.module.css — es ist dasselbe
-   Objekt wie auf der Startseite, nicht ein zweites, das ihm aehnelt. Hier
-   steht nur, was diese Seite anders macht: die Tuete liegt als schlichtes
-   `img` statt als `next/image` mit `fill` (die Deck-Seite ist
-   `force-dynamic` und laedt sonst nichts ueber den Optimierer), und darunter
-   haengt der leise Weg zur Map. */
-.joinArt {
-  width: clamp(150px, 15vw, 220px);
-  margin-bottom: clamp(14px, 1.6vw, 20px);
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45));
-  transform: rotate(-5deg);
-}
-
-.joinArt img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
+   Die Tafel kommt aus StarterPackSignup.module.css, ihr Inhalt aus
+   LoginBoard — dasselbe Objekt wie auf der Startseite. Hier steht nur, was
+   diese Seite anders macht: darunter haengt der leise Weg zur Map. */
 
 /* Wer sich noch nicht anmelden will, soll nicht in einer Sackgasse stehen —
    aber auch nicht zwischen zwei gleich lauten Knoepfen waehlen muessen. Eine

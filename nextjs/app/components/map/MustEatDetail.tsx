@@ -1,12 +1,14 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useLoginModal } from '@/lib/auth';
 import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import type { MapMustEat } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
-import { LOCATION_ERROR_VISIBLE_MS, getLocationNoticeCopy } from '@/lib/map/locationStatus';
+import { LOCATION_ERROR_VISIBLE_MS } from '@/lib/map/locationStatus';
+import { notify } from '@/lib/notice';
+import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import MustEatRevealOverlay from './MustEatRevealOverlay';
 import LazyMustEatImageLightbox from './LazyMustEatImageLightbox';
 import MustEatDetailMobile from './MustEatDetailMobile';
@@ -67,18 +69,43 @@ export default function MustEatDetail({
      sein wie auf der Startseite"). Der Automat der Map schweigt im Detail
      (MapSectionBody: sheetView !== 'detail'), also spricht hier der Tipp auf
      die Karte. Selbstabgang wie dort; „Alles klar" räumt früher ab. */
+  const blockedNoticeRef = useRef<(() => void) | void>(undefined);
   const handleLocationBlocked = useCallback(() => {
-    const copy = getLocationNoticeCopy(locale, 'denied', false);
-    if (!copy) return;
-    window.showNotice?.({
-      tone: 'warning',
-      icon: 'pin',
-      ...copy,
+    blockedNoticeRef.current = notify('locationBlocked', locale, locationBlockedOptions(locale));
+  }, [locale]);
+  /* Kommt die Freigabe zurueck, waehrend die Meldung noch steht (der
+     Besucher kommt aus den Einstellungen, siehe locationHelp), geht sie mit:
+     sie hat sich erledigt. */
+  useEffect(() => {
+    if (locationError === 'denied') return;
+    blockedNoticeRef.current?.();
+    blockedNoticeRef.current = undefined;
+  }, [locationError]);
+  /* Die Abfrage, die die Karte selbst ausloest (Tipp auf den Ruecken oder den
+     Chip), beantwortet sie auch selbst. Bis 24.09.2026 blieb ein Fehlschlag
+     im Detail stumm: der Map-Automat schweigt dort, und wer die Freigabe
+     ablehnte oder keinen Fix bekam, sah — nichts. `request()` setzt den
+     Fehler vor jeder Abfrage auf null, jeder Fehlschlag ist also eine neue
+     Aenderung. Nur nach einer eigenen Frage: ein Fehler, der beim Oeffnen des
+     Details schon stand, gehoert dem Tipp (handleLocationBlocked). */
+  const askedRef = useRef(false);
+  const handleRequestLocation = useCallback(() => {
+    askedRef.current = true;
+    onRequestLocation?.();
+  }, [onRequestLocation]);
+  useEffect(() => {
+    if (!askedRef.current || !locationError) return;
+    askedRef.current = false;
+    if (locationError === 'denied') {
+      handleLocationBlocked();
+      return;
+    }
+    notify('locationNotFound', locale, {
+      action: { label: locale === 'en' ? 'Retry' : 'Nochmal', onClick: handleRequestLocation },
       onDismiss: () => {},
       duration: LOCATION_ERROR_VISIBLE_MS,
-      layer: true,
     });
-  }, [locale]);
+  }, [locationError, locale, handleLocationBlocked, handleRequestLocation]);
   // Demo flag (?revealdemo): show the card face-down and let a tap play the
   // reveal fly-animation regardless of distance/auth. Loading the map once
   // with ?revealdemo latches it into sessionStorage so it survives in-app
@@ -127,7 +154,7 @@ export default function MustEatDetail({
     onRequireLogin: handleRequireLogin,
     demo,
     locationError,
-    onRequestLocation,
+    onRequestLocation: onRequestLocation ? handleRequestLocation : undefined,
     onLocationBlocked: handleLocationBlocked,
   });
   // True while the reveal stage covers the whole sheet — the open text may

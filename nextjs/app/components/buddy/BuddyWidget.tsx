@@ -17,6 +17,7 @@ import {
 import { useAuth } from '@/lib/auth';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
+import { notify } from '@/lib/notice';
 import { CloseIcon, HeartIcon, PinIcon } from '@/app/components/map/icons';
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
@@ -541,12 +542,7 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
   }, [location, setGeo]);
 
   const notifyLocationFailure = useCallback(() => {
-    if (typeof window === 'undefined') return;
-    window.showNotification?.(
-      locale === 'en'
-        ? "Couldn't get your location — tell me your district instead."
-        : 'Standort ließ sich nicht ermitteln — sag mir einfach deinen Bezirk.'
-    );
+    notify('remyLocation', locale);
   }, [locale]);
 
   const sendWithLocationIfNeeded = useCallback(

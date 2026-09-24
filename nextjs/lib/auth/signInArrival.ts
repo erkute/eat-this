@@ -1,78 +1,34 @@
 'use client';
 
 /**
- * Was nach einer Anmeldung gesagt wird — an EINER Stelle entschieden.
- *
- * Vorher hing das an zwei Bedingungen, die beide den Hauptweg verfehlten:
- *
- *   Die Einblendung „Starter Pack eingelöst" (SignInReward) hing an einem
- *   Zustandswechsel IM SELBEN Dokument (MapSection: erst kein `uid`, dann
- *   einer). Den gibt es nur beim Google-Popup. Der Magic-Link lädt über
- *   /welcome hart neu, der Google-Redirect-Ausweichweg ebenso — dort meldet
- *   Firebase den Nutzer beim ersten Auflösen, es gibt kein „vorher
- *   abgemeldet". Beide Wege, also alles außer dem Desktop-Popup, kamen
- *   wortlos an. Dazu grüßte die Einblendung jeden Wiederkehrer mit einem
- *   Pack, das er längst hat.
- *
- *   Der Toast „Du bist angemeldet" hing am offenen Login-Modal (BridgeAuth) —
- *   nach einem Seitenwechsel ist keins mehr offen.
+ * Die Starter-Pack-Einblendung nach einer Anmeldung (SignInReward).
  *
  * Der verlässliche Auslöser ist die Vergabe selbst: `/api/starter-pack`
  * antwortet `granted: true` GENAU EINMAL pro Konto, egal über welchen Weg die
- * Anmeldung lief und auf welcher Seite sie herauskommt. Daran hängt die
- * Einblendung jetzt — und der Toast ist das, was gesagt wird, wenn kein Pack
- * kommt (Wiederkehrer). Nie beides.
+ * Anmeldung lief und auf welcher Seite sie herauskommt. Ein Zustandswechsel
+ * im selben Dokument (erst kein `uid`, dann einer) gibt es nur beim
+ * Google-Popup — Magic-Link und Redirect laden hart neu und kamen früher
+ * wortlos an.
+ *
+ * Bis 24.09.2026 entschied dieses Modul auch über die Info-Karte „Du bist
+ * drin" für Wiederkehrer (announceSignIn). Die ist gestrichen: der
+ * Wartescreen davor sagt schon „Du wirst angemeldet".
  */
 
-type Listener = () => void;
 /** Bekommt die offenen Karten des frisch vergebenen Packs (Must-Eat-IDs). */
 type GrantedListener = (faceUpIds: string[]) => void;
 
-/** Eine Pack-Abfrage läuft: der Toast wartet ihre Antwort ab. */
-let checkPending = false;
-/** In diesem Seitenleben wurde ein Pack gemeldet — dann schweigt der Toast. */
-let packAnnounced = false;
 /** Die Meldung kam, bevor jemand zuhörte; der erste Abonnent bekommt sie. */
 let grantedLatched: string[] | null = null;
 const listeners = new Set<GrantedListener>();
-/** Der Toast, den `announceSignIn` zurückgestellt hat, bis die Abfrage steht. */
-let heldFallback: Listener | null = null;
 
-/** Vor dem Aufruf von `/api/starter-pack`. */
-export function startStarterPackCheck(): void {
-  checkPending = true;
-}
-
-/** Nach der Antwort — auch nach einem Netzwerkfehler, sonst wartet der
- *  zurückgestellte Toast für immer. */
-export function finishStarterPackCheck(granted: boolean, faceUpIds: string[] = []): void {
-  checkPending = false;
-  if (granted) {
-    packAnnounced = true;
-    heldFallback = null;
-    if (listeners.size === 0) {
-      grantedLatched = faceUpIds;
-      return;
-    }
-    for (const listener of listeners) listener(faceUpIds);
+/** Nach einer Antwort `granted: true` von `/api/starter-pack`. */
+export function announceStarterPackGranted(faceUpIds: string[] = []): void {
+  if (listeners.size === 0) {
+    grantedLatched = faceUpIds;
     return;
   }
-  const fallback = heldFallback;
-  heldFallback = null;
-  fallback?.();
-}
-
-/**
- * „Hier ist gerade eine Anmeldung durchgegangen — sag das, falls kein Pack
- * kommt." Läuft die Abfrage noch, wartet die Zeile auf ihr Ergebnis.
- */
-export function announceSignIn(fallback: Listener): void {
-  if (packAnnounced) return;
-  if (checkPending) {
-    heldFallback = fallback;
-    return;
-  }
-  fallback();
+  for (const listener of listeners) listener(faceUpIds);
 }
 
 export function subscribeStarterPackGranted(listener: GrantedListener): () => void {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
 import {
@@ -10,7 +10,6 @@ import {
   type AvatarChoice,
 } from '@/lib/firebase/useUserProfile';
 import { FALLBACK_DISTRICT } from '@/lib/profile/nextMove';
-import { TOAST_HANDOFF_KEY } from '../NotificationToast';
 import MapDataNotice from '../map/MapDataNotice';
 import ProfileSpots from './ProfileSpots';
 import ProfileAlbum from './ProfileAlbum';
@@ -42,7 +41,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   /* Das Abmelden hatte bisher keinen sichtbaren Zustand: das Profil verschwand
      wortlos, und der Toast meldete es erst nach dem Reload nach. */
   const [signingOut, setSigningOut] = useState(false);
-  const locale = useLocale();
   const t = useTranslations('profile');
   const [pickerOpen, setPickerOpen] = useState(false);
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
@@ -159,37 +157,18 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     setSigningOut(true);
     /* Der Timer wird beim Unmount bewusst nicht abgeraeumt: wer waehrend der
        Haltezeit per Back-Taste rausgeht, hat das Abmelden trotzdem verlangt. */
+    /* Keine Bestaetigung danach: der Wartescreen sagt „Du wirst abgemeldet",
+       und die Startseite danach zeigt es. Bis 24.09.2026 kam zusaetzlich
+       „Abgemeldet" als Info-Karte, ueber sessionStorage durch das Neuladen
+       gerettet — dieselbe Nachricht zweimal. */
     window.setTimeout(() => {
-      /* Sign-out hard-navigates to '/' (ProfileAuthGuard) — park the
-         confirmation so the toast shows after the reload. Erst hier, nicht
-         schon beim Klick: sonst laege sie die ganze Haltezeit ueber bereit und
-         ein zwischendurch geschlossener Tab meldete beim naechsten Aufruf
-         "Du bist abgemeldet", waehrend die Anmeldung steht. */
-      try {
-        sessionStorage.setItem(
-          TOAST_HANDOFF_KEY,
-          locale === 'de' ? 'Du bist abgemeldet' : "You're signed out"
-        );
-      } catch {
-        /* private mode */
-      }
       void signOut().catch(() => {
         /* clearPremiumAccess wirft bei einem fehlgeschlagenen Request —
            AuthContext reicht den Fehler bewusst an den Aufrufer durch.
            Ohne diesen Zweig bliebe der Wartescreen als fixed-Layer ueber
            der Seite stehen, ohne Schliessweg: angemeldet, aber vom
-           eigenen Profil ausgesperrt.
-
-           Die geparkte Bestaetigung muss mit weg. Sie wurde eben fuer
-           den Reload hinterlegt, der jetzt nicht kommt — sonst meldet
-           der naechste Seitenaufruf "Du bist abgemeldet", waehrend die
-           Anmeldung steht. */
+           eigenen Profil ausgesperrt. */
         setSigningOut(false);
-        try {
-          sessionStorage.removeItem(TOAST_HANDOFF_KEY);
-        } catch {
-          /* private mode */
-        }
       });
     }, AUTH_SCREEN_HOLD_MS);
   }
@@ -214,7 +193,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             oben seine eigene Seite, und dort IST die Meldung der Inhalt, kein
             Balken ueber einem. */}
         <MapDataNotice
-          loading={mapDataLoading}
           error={mapDataError}
           hasData={hasMapData}
           onRetry={refetchMapData}

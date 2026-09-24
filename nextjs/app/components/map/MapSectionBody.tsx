@@ -10,7 +10,6 @@ import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
   getLocatingCopy,
-  getLocationNoticeCopy,
   getLocationStatus,
   LOCATING_MIN_VISIBLE_MS,
   LOCATING_SHOW_DELAY_MS,
@@ -18,6 +17,8 @@ import {
   type LocationStatus,
 } from '@/lib/map/locationStatus';
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
+import { notify, type NoticeKind } from '@/lib/notice';
+import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { mapStripLine, SHEET_COLLAPSE_EVENT } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
@@ -335,13 +336,16 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      let it retire on its own. The "searching" copy is excluded — it clears
      itself the moment the request settles. */
   useEffect(() => {
+    /* Blockiert bleibt stehen: die Meldung traegt „So geht's", und wer die
+       Schritte sucht, braucht laenger als eine Frist (locationHelp). */
     if (!showLocationStatus || !locationStatus.isError || !locationStatusKey) return;
+    if (locationError === 'denied') return;
     const id = window.setTimeout(
       () => setDismissedLocationStatusKey(locationStatusKey),
       LOCATION_ERROR_VISIBLE_MS
     );
     return () => window.clearTimeout(id);
-  }, [showLocationStatus, locationStatus.isError, locationStatusKey]);
+  }, [showLocationStatus, locationStatus.isError, locationStatusKey, locationError]);
   const handleLocationRetry = useCallback(() => {
     setDismissedLocationStatusKey(null);
     onLocateMe();
@@ -363,44 +367,36 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      Zustandsautomat bleibt hier — er kennt die Nachfrist, den Selbstabgang
      und das Weggeklickte; die Karte zeigt nur.
      `duration: 0`, weil genau dieser Automat das Abraeumen besitzt. */
-  const noticeCopy =
+  const noticeKind: NoticeKind | null =
     showLocationStatus && !mapDataLoading && !mapDataError
-      ? getLocationNoticeCopy(locale, locatingVisible ? null : locationError, locatingVisible)
+      ? locatingVisible
+        ? 'locating'
+        : locationError === 'denied'
+          ? 'locationBlocked'
+          : locationError
+            ? 'locationNotFound'
+            : null
       : null;
-  /* Ueber die einzelnen Zeilen statt ueber das Objekt: das entsteht bei jedem
-     Rendern neu und wuerde die Meldung sonst dauernd neu aufziehen. */
-  const noticeEyebrow = noticeCopy?.eyebrow ?? null;
-  const noticeTitle = noticeCopy?.title ?? null;
-  const noticeDetail = noticeCopy?.detail ?? null;
   const noticeIsError = locationStatus.isError;
   const noticeCanRetry = locationStatus.canRetry;
   useEffect(() => {
-    if (!noticeTitle || !noticeEyebrow) return;
+    if (!noticeKind) return;
     /* Der Rueckgabewert raeumt genau diese Meldung ab und laesst eine
-       inzwischen nachgerueckte stehen. */
-    return window.showNotice?.({
-      tone: noticeIsError ? 'warning' : 'info',
-      icon: 'pin',
-      eyebrow: noticeEyebrow,
-      title: noticeTitle,
-      detail: noticeDetail ?? undefined,
+       inzwischen nachgerueckte stehen. Nur die Fehler tragen Knoepfe und
+       liegen damit als Layer ueber der Karte; das Suchen geht von allein,
+       sobald der Standort da ist. */
+    if (noticeKind === 'locationBlocked') {
+      return notify(noticeKind, locale, locationBlockedOptions(locale, handleDismissLocationStatus));
+    }
+    return notify(noticeKind, locale, {
       action: noticeCanRetry
         ? { label: locale === 'en' ? 'Retry' : 'Nochmal', onClick: handleLocationRetry }
         : undefined,
-      /* Nur die Fehler bekommen einen Wegklick-Knopf. Das Suchen raeumt sich
-         selbst ab, sobald der Standort da ist. */
       onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
       duration: 0,
-      /* Scrim nur, wo eine Antwort faellig ist: die Fehler tragen Knoepfe und
-         warten. Das Suchen geht von allein — die Karte laeuft unter ihm
-         weiter, und iOS 26 faerbt seine Leisten nach dem Scrim (globals.css,
-         .notification-layer). */
-      layer: noticeIsError,
     });
   }, [
-    noticeEyebrow,
-    noticeTitle,
-    noticeDetail,
+    noticeKind,
     noticeIsError,
     noticeCanRetry,
     locale,
@@ -967,7 +963,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           </aside>
 
           <MapDataNotice
-            loading={mapDataLoading}
             error={mapDataError}
             hasData={mapDataHasContent}
             onRetry={onRetryMapData}

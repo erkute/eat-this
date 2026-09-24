@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { normalizeName } from '@/lib/normalizeName';
+import { notify } from '@/lib/notice';
 import styles from './Profile.module.css';
 
 // Saved spots (Firestore favorites) as full-image cards → tap opens the map.
@@ -94,14 +95,12 @@ export default function ProfileSpots({
               ariaLabel={t(f.visited ? 'spotUnmarkVisited' : 'spotMarkVisited', {
                 name: normalizeName(f.name),
               })}
-              saveError={t('spotVisitedError')}
               onToggle={(next) => setVisited(f.restaurantId, next)}
             />
             <SpotNote
               initialNote={f.note ?? ''}
               label={t('spotNoteLabel', { name: normalizeName(f.name) })}
               placeholder={t('spotNotePlaceholder')}
-              saveError={t('spotNoteError')}
               onSave={(note) => updateNote(f.restaurantId, note)}
             />
           </div>
@@ -130,15 +129,14 @@ function VisitedToggle({
   visited,
   label,
   ariaLabel,
-  saveError,
   onToggle,
 }: {
   visited: boolean;
   label: string;
   ariaLabel: string;
-  saveError: string;
   onToggle: (next: boolean) => Promise<void>;
 }) {
+  const locale = useLocale();
   const [busy, setBusy] = useState(false);
 
   return (
@@ -153,7 +151,7 @@ function VisitedToggle({
         try {
           await onToggle(!visited);
         } catch {
-          window.showNotification?.(saveError);
+          notify('actionFailed', locale);
         } finally {
           setBusy(false);
         }
@@ -193,15 +191,14 @@ function SpotNote({
   initialNote,
   label,
   placeholder,
-  saveError,
   onSave,
 }: {
   initialNote: string;
   label: string;
   placeholder: string;
-  saveError: string;
   onSave: (note: string) => Promise<void>;
 }) {
+  const locale = useLocale();
   const [value, setValue] = useState(initialNote);
   const [lastSaved, setLastSaved] = useState(initialNote);
   const [saving, setSaving] = useState(false);
@@ -233,7 +230,7 @@ function SpotNote({
       setValue(next);
       setLastSaved(next);
     } catch {
-      window.showNotification?.(saveError);
+      notify('actionFailed', locale);
     } finally {
       setSaving(false);
     }

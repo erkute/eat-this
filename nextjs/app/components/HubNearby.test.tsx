@@ -177,10 +177,9 @@ describe('HubNearby', () => {
     expect(html).toContain('data-hub-nearby');
   });
 
-  /* Die Meldung hat keine eigene Fläche mehr: sie geht durch die zentrale
-     Info-Karte (window.showNotice), wie die Standort-Meldung der Karte auch.
-     Der Test greift deshalb den Aufruf ab, nicht das Markup. */
-  it('sends the success notice through the central card', async () => {
+  /* Ein gefundener Standort meldet sich nicht mehr: die Liste sortiert sich
+     sichtbar um, und der Knopf hat die Suche selbst angesagt (24.09.2026). */
+  it('stays quiet when the position is found', async () => {
     locationState.request = vi.fn(() => Promise.resolve({ lat: 52.5, lng: 13.4 }));
     const showNotice = vi.fn();
     window.showNotice = showNotice;
@@ -189,14 +188,23 @@ describe('HubNearby', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Mein Standort verwenden' }));
 
-    await waitFor(() => {
-      expect(showNotice).toHaveBeenCalledWith(
-        expect.objectContaining({
-          tone: 'success',
-          title: 'Standort sitzt',
-          detail: 'Berlin sortiert sich um dich herum.',
-        })
-      );
-    });
+    await waitFor(() => expect(locationState.request).toHaveBeenCalledOnce());
+    expect(showNotice).not.toHaveBeenCalled();
+  });
+
+  /* Die Fehler gehen durch die zentrale Info-Karte, wie auf der Map. */
+  it('sends a failed lookup through the central card, with a retry', () => {
+    locationState.error = 'unavailable';
+    const showNotice = vi.fn();
+    window.showNotice = showNotice;
+
+    renderLive(mapData([restaurant()]));
+
+    expect(showNotice).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Nicht gefunden',
+        action: expect.objectContaining({ label: 'Nochmal' }),
+      })
+    );
   });
 });

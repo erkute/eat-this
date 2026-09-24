@@ -3,7 +3,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocale } from 'next-intl';
 import { auth, getDb } from '@/lib/firebase/config';
 import { useLoginModal } from '@/lib/auth';
-import { rememberPendingHeart, settlePendingHeart } from './pendingHeart';
+import { claimPendingHeartNotice, rememberPendingHeart, settlePendingHeart } from './pendingHeart';
+import { notify } from '@/lib/notice';
 
 interface FavoriteEntry {
   restaurantId: string;
@@ -132,12 +133,13 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
     // 2) Live read — show as soon as it lands.
     //    Firestore SDK is code-split (see getDb) so it stays out of first-load.
     let active = true;
+    let hearted = false;
     void (async () => {
       try {
         /* Erst das Herz von vor dem Login einloesen, dann lesen: umgekehrt
            kaeme die Liste vom Stand vor dem Schreiben zurueck, und der gerade
            vergebene Spot waere im ersten Bild wieder leer. */
-        await settlePendingHeart(uid, localeRef.current);
+        hearted = await settlePendingHeart(uid, localeRef.current);
         if (!active) return;
         const [{ collection, getDocs }, db] = await Promise.all([
           import('firebase/firestore'),
@@ -156,6 +158,14 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           favorites: entries,
           loading: false,
         });
+        /* Laenger als die Standardmeldung: beim Google-Weg liegt bis kurz
+           vorher noch der Wartescreen (AUTH_SCREEN_HOLD_MS) darueber, und die
+           Bestaetigung soll danach noch zu lesen sein. */
+        if (hearted && claimPendingHeartNotice(uid)) {
+          notify(entries.length > 1 ? 'spotSaved' : 'spotSavedFirst', localeRef.current, {
+            duration: 5000,
+          });
+        }
         try {
           window.localStorage.setItem(key, JSON.stringify(entries));
         } catch {
@@ -166,6 +176,11 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           setState((current) =>
             current.ownerUid === uid ? { ...current, loading: false } : current
           );
+          /* Gespeichert ist das Herz trotzdem — nur die Liste kam nicht.
+             Direkt nach dem Anmelden ist es fast immer der erste Spot. */
+          if (hearted && claimPendingHeartNotice(uid)) {
+            notify('spotSavedFirst', localeRef.current, { duration: 5000 });
+          }
         }
       }
     })();
@@ -199,6 +214,10 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       // (Replaces the old client-side setDoc/deleteDoc + the removed Cloud
       // Function trigger.) Local state + cache update only after the call lands.
       const adding = !favoriteIds.has(r._id);
+      /* Der erste Spot bekommt die Meldung mit dem Weg ins Profil. Solange die
+         Liste noch laedt, ist leer nicht dasselbe wie keine — dann die kurze
+         Fassung, ein falsches „Dein erster Spot" waere schlimmer. */
+      const firstSpot = !loading && favoriteIds.size === 0;
       const writeCache = (next: FavoriteEntry[]) => {
         try {
           window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify(next));
@@ -218,9 +237,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
         });
         if (!res.ok) throw new Error(`heart ${res.status}`);
       } catch {
-        window.showNotification?.(
-          locale === 'en' ? 'Something went wrong' : 'Etwas ist schiefgelaufen'
-        );
+        notify('actionFailed', locale);
         return;
       }
       if (adding) {
@@ -243,7 +260,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
             favorites: next,
           };
         });
-        window.showNotification?.(locale === 'en' ? 'Spot saved' : 'Spot gespeichert');
+        notify(firstSpot ? 'spotSavedFirst' : 'spotSaved', locale);
       } else {
         setState((current) => {
           if (current.ownerUid !== uid) return current;
@@ -253,10 +270,9 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           writeCache(next);
           return { ...current, favoriteIds: nextIds, favorites: next };
         });
-        window.showNotification?.(locale === 'en' ? 'Spot removed' : 'Spot entfernt');
       }
     },
-    [uid, favoriteIds, locale, openLoginModal]
+    [uid, favoriteIds, loading, locale, openLoginModal]
   );
 
   const updateNote = useCallback(

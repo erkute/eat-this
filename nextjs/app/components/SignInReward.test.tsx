@@ -36,14 +36,10 @@ vi.mock('@/lib/auth/identityStep', () => identityStep);
 
 import SignInReward from './SignInReward';
 import AuthScreen from './AuthScreen';
-import {
-  announceSignIn,
-  finishStarterPackCheck,
-  startStarterPackCheck,
-} from '@/lib/auth/signInArrival';
+import { announceStarterPackGranted } from '@/lib/auth/signInArrival';
 
 /* Das Modul haelt seinen Zustand pro Seitenleben — zwischen zwei Faellen muss
-   es frisch sein, sonst schweigt der Toast im zweiten Fall wegen des ersten. */
+   es frisch sein, sonst liegt im zweiten Fall noch die Meldung des ersten. */
 async function freshModule() {
   vi.resetModules();
   return import('@/lib/auth/signInArrival');
@@ -58,7 +54,7 @@ beforeEach(() => {
 /* Die Tour geht erst auf, wenn feststeht, ob sie nach Name und Charakter
    fragt — das ist ein Promise, also asynchron warten. */
 async function arrive() {
-  await act(async () => finishStarterPackCheck(true));
+  await act(async () => announceStarterPackGranted());
 }
 
 afterEach(() => {
@@ -74,20 +70,10 @@ describe('Ankunft nach der Anmeldung', () => {
     /* Genau das, was nach einem Magic-Link passiert: frisch geladene Seite,
        niemand war hier je abgemeldet, die Vergabe meldet sich. */
     await act(async () => {
-      startStarterPackCheck();
-      finishStarterPackCheck(true);
+      announceStarterPackGranted();
     });
 
     expect(screen.getByText(/Willkommen bei Eat This/)).toBeTruthy();
-  });
-
-  it('bleibt bei einem Wiederkehrer aus — `already_claimed` ist keine Ankunft', () => {
-    render(<SignInReward />);
-    act(() => {
-      startStarterPackCheck();
-      finishStarterPackCheck(false);
-    });
-    expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
   });
 
   it('bleibt sichtbar, bis der Nutzer selbst weitergeht', async () => {
@@ -146,7 +132,7 @@ describe('Ankunft nach der Anmeldung', () => {
     vi.stubGlobal('Image', LoadingImage);
     render(<SignInReward />);
     const faceUp = Array.from({ length: 10 }, (_, i) => `me-${i}`);
-    await act(async () => finishStarterPackCheck(true, faceUp));
+    await act(async () => announceStarterPackGranted(faceUp));
     await act(async () => {});
     vi.unstubAllGlobals();
 
@@ -257,51 +243,10 @@ describe('Wer bist du? — fuer jedes Konto ohne Charakter, Magic-Link wie Googl
   });
 });
 
-describe('Einblendung und Toast schliessen einander aus', () => {
-  it('haelt die Anmelde-Zeile zurueck, solange die Vergabe laeuft, und verwirft sie beim Pack', async () => {
-    const arrival = await freshModule();
-    const toast = vi.fn();
-
-    arrival.startStarterPackCheck();
-    arrival.announceSignIn(toast);
-    expect(toast).not.toHaveBeenCalled();
-
-    arrival.finishStarterPackCheck(true);
-    expect(toast).not.toHaveBeenCalled();
-  });
-
-  it('holt die Anmelde-Zeile nach, wenn kein Pack kommt', async () => {
-    const arrival = await freshModule();
-    const toast = vi.fn();
-
-    arrival.startStarterPackCheck();
-    arrival.announceSignIn(toast);
-    arrival.finishStarterPackCheck(false);
-
-    expect(toast).toHaveBeenCalledTimes(1);
-  });
-
-  it('sagt sofort Bescheid, wenn gar keine Vergabe laeuft', async () => {
-    const arrival = await freshModule();
-    const toast = vi.fn();
-    arrival.announceSignIn(toast);
-    expect(toast).toHaveBeenCalledTimes(1);
-  });
-
-  it('schweigt, wenn das Pack schon gemeldet wurde, bevor die Zeile drankam', async () => {
-    const arrival = await freshModule();
-    const toast = vi.fn();
-
-    arrival.startStarterPackCheck();
-    arrival.finishStarterPackCheck(true);
-    arrival.announceSignIn(toast);
-
-    expect(toast).not.toHaveBeenCalled();
-  });
-
+describe('Meldung der Vergabe', () => {
   it('verliert die Meldung nicht, wenn sie vor dem ersten Zuhoerer kommt', async () => {
     const arrival = await freshModule();
-    arrival.finishStarterPackCheck(true);
+    arrival.announceStarterPackGranted();
 
     const seen = vi.fn();
     arrival.subscribeStarterPackGranted(seen);
@@ -310,12 +255,9 @@ describe('Einblendung und Toast schliessen einander aus', () => {
 
   it('reicht die offenen Karten auch an einen spaeten Zuhoerer weiter', async () => {
     const arrival = await freshModule();
-    arrival.finishStarterPackCheck(true, ['a', 'b']);
+    arrival.announceStarterPackGranted(['a', 'b']);
     const seen = vi.fn();
     arrival.subscribeStarterPackGranted(seen);
     expect(seen).toHaveBeenCalledWith(['a', 'b']);
   });
 });
-
-/* Referenz auf die Importe oben, damit der Linter sie nicht fuer tot haelt. */
-void announceSignIn;

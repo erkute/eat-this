@@ -4954,7 +4954,12 @@
 
    Die Winkel messen ab Kartenkante (--me-arrow-gap, Tastenrand zur Karte;
    rechts plus den Fächerüberhang), damit sie im Tablet-Sheet und im Rail
-   gleich weit von der Silhouette stehen. */
+   gleich weit von der Silhouette stehen.
+
+   Die Taste ist die ganze Spur, nicht der Winkel: Kartenhöhe mal 59px, der
+   Glyph sitzt darin, wo er vorher stand. Als 44×36-Kasten traf nur, wer genau
+   auf den 22px-Winkel zielte — die 15px zur Karte und alles über und unter
+   ihm waren tot („lassen sich schwer drücken auf Desktop", 24.09.2026). */
 .detailV13MustEat .fdKickerRow {
   display: flex;
   flex: 0 0 auto;
@@ -4979,9 +4984,7 @@
   color: var(--me-ink);
   opacity: 0.72;
   cursor: pointer;
-  transition:
-    opacity 0.15s ease-out,
-    transform 0.15s ease-out;
+  transition: opacity 0.15s ease-out;
 }
 
 .detailV13MustEat .fdPagerPrev svg,
@@ -4989,6 +4992,7 @@
   display: block;
   width: 22px;
   height: 22px;
+  transition: translate 0.15s ease-out;
 }
 
 .detailV13MustEat .fdPagerNext svg {
@@ -5009,23 +5013,30 @@
     --me-fan-overhang: 42px;
   }
 
+  /* Spur = Luft zur Karte + die alte 44px-Taste; der Glyph steht 11px vom
+     äußeren Rand, also weiter 26px vor der Silhouette. */
   .detailV13MustEat .fdPagerPrev,
   .detailV13MustEat .fdPagerNext {
     position: absolute;
-    top: 50%;
-    /* `translate` statt `transform`: den nutzt der Hover-Schub (±2px). */
-    translate: 0 -50%;
+    top: 0;
+    bottom: 0;
+    width: calc(var(--me-arrow-gap) + 44px);
+    height: auto;
     /* Über den Fächerkarten (absolut, ohne z-index) — die Taste darf nicht
        unter einer schräg hängenden Karte liegen. */
     z-index: 2;
   }
 
   .detailV13MustEat .fdPagerPrev {
-    right: calc(100% + var(--me-arrow-gap));
+    right: 100%;
+    justify-items: start;
+    padding-left: 11px;
   }
 
   .detailV13MustEat .fdPagerNext {
-    left: calc(100% + var(--me-fan-overhang) + var(--me-arrow-gap));
+    left: calc(100% + var(--me-fan-overhang));
+    justify-items: end;
+    padding-right: 11px;
   }
 }
 
@@ -5043,35 +5054,47 @@
   }
 }
 
+/* Der Fokusring gehört an den Winkel, nicht an die kartenhohe Spur. */
 .detailV13MustEat .fdPagerPrev:focus-visible,
 .detailV13MustEat .fdPagerNext:focus-visible {
   opacity: 1;
-  outline: 2px solid var(--me-accent);
-  outline-offset: 2px;
+  outline: none;
 }
 
-@media (hover: hover) {
-  .detailV13MustEat .fdPagerPrev:hover {
-    opacity: 1;
-    transform: translateX(-2px);
-  }
+.detailV13MustEat .fdPagerPrev:focus-visible svg,
+.detailV13MustEat .fdPagerNext:focus-visible svg {
+  outline: 2px solid var(--me-accent);
+  outline-offset: 6px;
+}
 
+/* Der Hover-Schub bewegt nur den Winkel — die Spur bleibt unter dem Zeiger. */
+@media (hover: hover) {
+  .detailV13MustEat .fdPagerPrev:hover,
   .detailV13MustEat .fdPagerNext:hover {
     opacity: 1;
-    transform: translateX(2px);
+  }
+
+  .detailV13MustEat .fdPagerPrev:hover svg {
+    translate: -2px 0;
+  }
+
+  .detailV13MustEat .fdPagerNext:hover svg {
+    translate: 2px 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .detailV13MustEat .fdPagerPrev,
-  .detailV13MustEat .fdPagerNext {
+  .detailV13MustEat .fdPagerNext,
+  .detailV13MustEat .fdPagerPrev svg,
+  .detailV13MustEat .fdPagerNext svg {
     transition: none;
   }
 
   @media (hover: hover) {
-    .detailV13MustEat .fdPagerPrev:hover,
-    .detailV13MustEat .fdPagerNext:hover {
-      transform: none;
+    .detailV13MustEat .fdPagerPrev:hover svg,
+    .detailV13MustEat .fdPagerNext:hover svg {
+      translate: none;
     }
   }
 }

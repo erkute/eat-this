@@ -94,6 +94,7 @@ describe('MapDetails CSS contracts', () => {
     expect(hasAnimationNone('.fdHeroLocked')).toBe(true);
     expect(hasAnimationNone('.fdHeroLocked.mustEatCardTapping')).toBe(true);
     expect(hasAnimationNone('.fdHeroLocked.mustEatCardCanUnlock')).toBe(true);
+    expect(hasAnimationNone('.medishReady .medishPh img')).toBe(true);
     expect(hasAnimationNone('.rdBodySkel span')).toBe(true);
     // Der einmalige Wisch-Nudge ersetzt auf dem Phone die Pager-Tasten. Bei
     // reduzierter Bewegung darf er nicht laufen — dort tritt die Textfassung

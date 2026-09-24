@@ -83,7 +83,7 @@ export default function MustEatDetail({
   // reveal fly-animation regardless of distance/auth. Loading the map once
   // with ?revealdemo latches it into sessionStorage so it survives in-app
   // navigation for the whole session (no need to keep the param in the URL).
-  const [demo] = useState(() => {
+  const [demoSession] = useState(() => {
     if (typeof window === 'undefined') return false;
     if (new URLSearchParams(window.location.search).has('revealdemo')) {
       try {
@@ -99,6 +99,12 @@ export default function MustEatDetail({
       return false;
     }
   });
+  /* Vorgespielt wird nur eine Karte, die schon offen ist. Eine verdeckte kommt
+     ohne Bild und Gericht vom Server (stripCoveredMustEats) — die Demo drehte
+     sie um und zeigte wieder den Rücken, mit leerem Namen darunter (Betreiber,
+     24.09.2026: „ist es normal, dass die Karte sich nicht aufdeckt?"). Eine
+     verdeckte Karte verhält sich deshalb auch mit ?revealdemo wie immer. */
+  const demo = demoSession && isUnlocked && Boolean(mustEat.image);
   // Keep the map in place and use the shared login layer. The previous
   // standalone route made this reveal flow leave the map entirely.
   const { open: openLoginModal } = useLoginModal();

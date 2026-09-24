@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
 import type { MustEatDetailState } from './useMustEatDetailState';
 import { GUEST_SHAKE_MS } from '@/lib/guestCardShake';
@@ -87,6 +87,59 @@ describe('MustEatDetail login gate', () => {
       delete window.showNotice;
       sessionStorage.clear();
     }
+  });
+});
+
+/* ?revealdemo spielt nur Karten vor, die schon offen sind. Eine verdeckte
+   kommt ohne Bild vom Server — umgedreht zeigte sie wieder den Rücken
+   (Betreiber, 24.09.2026). */
+describe('MustEatDetail reveal demo', () => {
+  beforeEach(() => {
+    openLoginModal.mockClear();
+    sessionStorage.setItem('revealdemo', '1');
+  });
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('leaves a covered card to its normal path instead of flipping an empty face', () => {
+    vi.useFakeTimers();
+    try {
+      render(
+        <MustEatDetail
+          mustEat={mustEat}
+          userLocation={null}
+          isUnlocked={false}
+          onUnlock={vi.fn()}
+          onClose={vi.fn()}
+          uid={null}
+        />
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Reveal Must Eat' }));
+      act(() => {
+        vi.advanceTimersByTime(GUEST_SHAKE_MS);
+      });
+      // Ohne Demo: ein Gast landet bei der Anmeldung.
+      expect(openLoginModal).toHaveBeenCalledOnce();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('replays an open card face-down, without the login detour', () => {
+    const open: MapMustEat = { ...mustEat, dish: 'Croissant', image: '/card.webp' };
+    render(
+      <MustEatDetail
+        mustEat={open}
+        userLocation={null}
+        isUnlocked
+        onUnlock={vi.fn()}
+        onClose={vi.fn()}
+        uid={null}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Reveal Must Eat' }));
+    expect(openLoginModal).not.toHaveBeenCalled();
   });
 });
 

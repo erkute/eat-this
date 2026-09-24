@@ -554,7 +554,7 @@ export default function MustEatDetailMobile({
               07.09.2026). */}
           {!textOpen && (
             <div
-              className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ` ${styles.fdProximityAway}`}`}
+              className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ''}`}
               role={unlockError ? 'alert' : 'status'}
               aria-live="polite"
             >

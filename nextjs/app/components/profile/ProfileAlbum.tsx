@@ -147,29 +147,33 @@ export default function ProfileAlbum({
 
   return (
     <div className={styles.panel}>
-      {/* Der Kopf als Tafel (24.09.2026, Nutzer: „der Kopfbereich mit Bild
-          und ‚Dein Deck' muss moderner aussehen, wirkt so leer"). Links die
-          Spielerkarte, dahinter aufgefaechert ein paar offene Karten — das
-          Deck zeigt sich, bevor man scrollt. Rechts der Gruss wie auf der
-          Startseite, der Titel und der naechste Zug, der vorher als enge
-          eigene Zeile darunter stand.
+      {/* Der Kopf als Buehne (24.09.2026, Nutzer waehlte aus drei Varianten
+          „1"): die Spielerkarte in der Mitte eines Faechers aus offenen
+          Karten, darunter Gruss und Titel — mittig, ohne Kasten, dieselbe
+          Buehne wie der Kopf des geteilten Decks. Zwei Anlaeufe davor (Tafel
+          mit Karte links, dann rechts) wirkten „leer" bzw. „gefaellt mir
+          nicht".
 
-          Kein Zaehler hier: der Stand steht auf dem „Alle"-Reiter (Nutzer,
-          04.09.2026: „macht das dort oben Sinn, neben dem Profil?"). */}
+          Kein Zaehler sichtbar: der Stand steht auf dem „Alle"-Reiter
+          (Nutzer, 04.09.2026: „macht das dort oben Sinn, neben dem
+          Profil?"). */}
       <div className={styles.masthead}>
         <div className={styles.art}>
-          {heroCards.map((src, i) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={`${src}-${i}`}
-              className={styles.artCard}
-              style={{ '--art-i': i } as CSSProperties}
-              src={src}
-              alt=""
-              aria-hidden="true"
-              decoding="async"
-            />
-          ))}
+          {heroCards.map((src, i) => {
+            const at = i - (heroCards.length - 1) / 2;
+            return (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={`${src}-${i}`}
+                className={styles.artCard}
+                style={{ '--art-i': at, zIndex: 2 - Math.abs(at) } as CSSProperties}
+                src={src}
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+              />
+            );
+          })}
           <ProfilePlayerCard
             name={player.name}
             avatarIdx={player.avatarIdx}
@@ -186,12 +190,12 @@ export default function ProfileAlbum({
             </span>
           )}
         </div>
-
-        {/* Am Telefon eine Zeile ueber die volle Tafelbreite, nicht in der
-            schmalen Spalte (Nutzer, 05.09.2026: „als eine Zeile auf
-            mobile"); ab 641 px unter dem Titel. */}
-        {nextMove && <div className={styles.albumMove}>{nextMove}</div>}
       </div>
+
+      {/* Der naechste Zug als eigene Zeile UNTER dem Kopf, nicht an der
+          Spielerkarte (Nutzer, 24.09.2026: „Standort … nicht zu nah am
+          Profilbild, eventuell gehoert es drunter"). */}
+      {nextMove && <div className={styles.albumMove}>{nextMove}</div>}
 
       {/* Eine eigene Zeile ueber dem Raster, ueber die volle Breite — nicht
           mehr in der Spalte neben der Spielerkarte (Nutzer, 05.09.2026: „die

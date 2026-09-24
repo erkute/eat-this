@@ -281,7 +281,7 @@ const en = {
     albumGroupProgress: '{group}: {done} of {total} revealed',
     albumFilterLabel: 'Filter your collection',
     albumFilterAll: 'All',
-    albumFilterMissing: 'Missing',
+    albumFilterMissing: 'Face-down',
     albumFilterComplete: 'Nothing missing here — this part is complete.',
     albumToSpot: 'To {name}',
     albumShare: 'Send this card',
@@ -700,7 +700,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     albumFilterLabel: 'Sammlung filtern',
     albumFilterAll: 'Alle',
-    albumFilterMissing: 'Fehlende',
+    /* „Verdeckte", nicht „Fehlende" (Nutzer, 24.09.2026) — die Karte ist
+       da, nur noch nicht umgedreht. */
+    albumFilterMissing: 'Verdeckte',
     albumFilterComplete: 'Hier fehlt nichts mehr — der Teil ist voll.',
     albumToSpot: 'Zu {name}',
     /* Der Weg aus einer OFFENEN Karte: weitersagen. Geteilt wird die

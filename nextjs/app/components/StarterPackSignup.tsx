@@ -45,6 +45,7 @@ export default function StarterPackSignup() {
       <div className={styles.inner}>
         <LoginBoard
           art={<LoginSceneArt reason={null} />}
+          kicker={t('packKicker')}
           title={t('packTitle')}
           lead={t('packLead')}
           googleWarmup="intent"

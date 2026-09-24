@@ -159,7 +159,10 @@ describe('ProfileAlbum', () => {
       />
     );
 
-    const image = container.querySelector<HTMLImageElement>('img[src="/api/must-eat-image/m1"]');
+    // Die Karte im Raster (ein Knopf) — nicht die Kopie im Faecher des Kopfes.
+    const image = container.querySelector<HTMLImageElement>(
+      'button img[src="/api/must-eat-image/m1"]'
+    );
     expect(image).not.toBeNull();
     expect(image?.getAttribute('loading')).toBe('lazy');
   });

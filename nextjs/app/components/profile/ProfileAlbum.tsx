@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLightbox';
 import lightboxStyles from '@/app/components/map/MustEatImageLightbox.module.css';
@@ -113,6 +113,16 @@ export default function ProfileAlbum({
 
   const missingTotal = allSlots.length - collected;
 
+  /* Bis zu fuenf offene Karten fuer den Faecher hinter der Spielerkarte (am
+     Telefon zeigt das CSS drei). Wer noch keine hat, haelt Rueckseiten hin —
+     auch das ist ein Deck. */
+  const heroCards = useMemo(() => {
+    const open = allSlots.flatMap((slot) =>
+      slot.collected && slot.mustEat?.image ? [slot.mustEat.image] : []
+    );
+    return [...open, ...Array<string>(5).fill(CARD_BACK)].slice(0, 5);
+  }, [allSlots]);
+
   /* Abzeichen — was das Deck ueber den Stand hinaus hergibt. Rechnet sich
      aus dem Album aus, das hier ohnehin steht: kein Firestore-Feld, nichts
      nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts).
@@ -137,53 +147,51 @@ export default function ProfileAlbum({
 
   return (
     <div className={styles.panel}>
-      {/* Ein Raster aus vier Feldern statt einer Spalte mit Unterspalte: auf
-          dem Telefon muss die Reiterleiste unter dem Paar aus Karte und Titel
-          durchlaufen, und das geht nur, wenn sie im selben Raster liegt. */}
+      {/* Der Kopf als Tafel (24.09.2026, Nutzer: „der Kopfbereich mit Bild
+          und ‚Dein Deck' muss moderner aussehen, wirkt so leer"). Links die
+          Spielerkarte, dahinter aufgefaechert ein paar offene Karten — das
+          Deck zeigt sich, bevor man scrollt. Rechts der Gruss wie auf der
+          Startseite, der Titel und der naechste Zug, der vorher als enge
+          eigene Zeile darunter stand.
+
+          Kein Zaehler hier: der Stand steht auf dem „Alle"-Reiter (Nutzer,
+          04.09.2026: „macht das dort oben Sinn, neben dem Profil?"). */}
       <div className={styles.masthead}>
-        <ProfilePlayerCard name={player.name} avatarIdx={player.avatarIdx} onPick={player.onPick} />
+        <div className={styles.art}>
+          {heroCards.map((src, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={`${src}-${i}`}
+              className={styles.artCard}
+              style={{ '--art-i': i } as CSSProperties}
+              src={src}
+              alt=""
+              aria-hidden="true"
+              decoding="async"
+            />
+          ))}
+          <ProfilePlayerCard
+            name={player.name}
+            avatarIdx={player.avatarIdx}
+            onPick={player.onPick}
+          />
+        </div>
 
-        <div className={`hv-head ${styles.head}`}>
-          {/* Das h1 der Seite. Bisher hiess es „Ersan" und stand in der
-              Ink-Bank; mit deren Wegfall ist die Sammlung der Seitenanfang,
-              und sie ist auch das ehrlichere Thema: die Seite handelt vom
-              Deck, nicht vom Vornamen.
-
-              Ohne Zaehler daneben (Nutzer, 04.09.2026: „macht das dort oben
-              Sinn, neben dem Profil?"). Er stand am rechten Rand, zwei
-              Spalten von der Karte entfernt, und sagte dasselbe wie die
-              Reiter darunter. Seit dem 06.09.2026 steht er nur noch dort —
-              auf „Alle", dem Reiter, der genau diese Menge schaltet. */}
+        <div className={styles.head}>
+          <span className={styles.hello}>{t('albumHello', { name: player.name })}</span>
           <h1 className="hv-title">{t('albumHeading')}</h1>
-          {/* Kein Erklaersatz mehr daneben (Nutzer, 24.09.2026: „diese ganzen
-              Infos neben dem Foto, braucht es das?"). Was ein leerer Platz
-              heisst, sagt der Platz selbst: die gedaempfte Rueckseite mit dem
-              Spot darauf, in dem die Karte liegt. */}
-          {/* Sichtbar steht der Stand auf dem „Alle"-Reiter, und der ist ein
-              Zahlenpaar in einem Knopf. Hier bleibt er als Satz — und zwar
-              auch dann, wenn die Reiterleiste gar nicht rendert (ein einziger
-              Bezirk). */}
           {allSlots.length > 0 && (
             <span className={styles.srOnly}>
               {collected} {t('albumCount', { total: allSlots.length })}
             </span>
           )}
         </div>
+
+        {/* Am Telefon eine Zeile ueber die volle Tafelbreite, nicht in der
+            schmalen Spalte (Nutzer, 05.09.2026: „als eine Zeile auf
+            mobile"); ab 641 px unter dem Titel. */}
+        {nextMove && <div className={styles.albumMove}>{nextMove}</div>}
       </div>
-
-      {/* Eigene Zeile ueber die volle Breite, zwischen Kopfzeile und Reitern.
-          In der Spalte neben der Spielerkarte fing sein Text bei 380 px an —
-          die Ueberschrift bei 322, Karte, Reiter und Raster bei 96. Drei
-          linke Kanten auf einer Seite, und die dritte gehoerte ausgerechnet
-          der Zeile, die dazwischen lag (Nutzer, 05.09.2026: „nicht schoen
-          ausgerichtet zu dem Rest"). Jetzt sind es zwei: der Block aus Karte
-          und Titel, und darunter alles an derselben Kante — dieselbe
-          Anordnung, die auf dem Telefon ohnehin schon steht.
-
-          Weiterhin NICHT zwischen Reitern und Raster (Nutzer, 04.09.2026):
-          die Bezirke filtern das Raster, und was dazwischen steht, trennt
-          einen Schalter von dem, was er schaltet. */}
-      {nextMove && <div className={styles.albumMove}>{nextMove}</div>}
 
       {/* Eine eigene Zeile ueber dem Raster, ueber die volle Breite — nicht
           mehr in der Spalte neben der Spielerkarte (Nutzer, 05.09.2026: „die

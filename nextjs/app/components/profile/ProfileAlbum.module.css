@@ -27,53 +27,132 @@
 
 /* ── Kopfzeile: Spielerkarte + Titel + Reiter ─────────────── */
 
-/* Zwei Felder, mehr nicht: Spielerkarte links, Ueberschrift + Slogan +
-   naechster Zug rechts. Die Reiterleiste ist am 05.09.2026 aus diesem Raster
-   ausgezogen und steht als eigene Zeile ueber dem Kartenraster (Nutzer: „die
-   Filter muessen auf Desktop eine Zeile runter, ueber die Must Eats, dann
-   hast du mehr Platz fuer den Slogan und fuer das naechste Must Eat"). */
+/* Der Kopf ist eine Tafel eine Stufe ueber dem Grund (24.09.2026, „wirkt so
+   leer"): links Spielerkarte mit Kartenfaecher, rechts Gruss, Titel und der
+   naechste Zug. Die Reiterleiste steht weiter als eigene Zeile darunter
+   (Nutzer, 05.09.2026: „die Filter muessen auf Desktop eine Zeile runter"). */
 .masthead {
+  --album-player-w: clamp(92px, 11vw, 150px);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: 'card head';
-  /* Titel und Slogan mittig zur Figur: die Karte ist 256 px hoch, das Paar
-     rund 90 — oben angeschlagen liess es 160 px Loch unter sich, unten
-     angeschlagen ebenso viel darueber. Auf der Mittelachse liest sich das
-     Paar als Beschriftung der Karte neben sich. */
+  grid-template-areas:
+    'art head'
+    'art move';
   align-items: center;
-  margin-bottom: clamp(8px, 1vw, 12px);
-  gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
+  column-gap: clamp(18px, 3vw, 44px);
+  margin-bottom: clamp(4px, 0.6vw, 8px);
+  padding: clamp(18px, 2.6vw, 32px) clamp(16px, 2.6vw, 36px);
+  background: var(--profile-raised, #25231f);
+  border-radius: var(--et-radius-photo, 10px);
+  /* Die gedrehten Faecherkarten ragen nicht aus der Tafel. */
+  overflow: hidden;
 }
 
-.masthead > .player {
-  grid-area: card;
+/* Spielerkarte vorn, dahinter drei offene Karten, nach rechts aufgefaechert.
+   Die Breite reserviert den Faecher, damit der Text daneben nicht darunter
+   rutscht. */
+.art {
+  grid-area: art;
+  position: relative;
+  /* Gemessen mit Drehung: die dritte Karte ragt bis 1,75 Kartenbreiten —
+     bei 1,62 lag sie auf dem „D" des Titels. */
+  width: calc(var(--album-player-w) * 1.8);
+  padding: 6px 0;
 }
 
-/* Die Spielerkarte ist das Titelblatt, nicht der Star — seit dem 24.09.2026
-   eine Stufe kleiner, damit die erste Kartenreihe naeher an den Kopf rueckt. */
-.masthead {
-  --album-player-w: clamp(96px, 10vw, 140px);
+.art > .player {
+  position: relative;
+  z-index: 3;
+  transform: rotate(-4deg);
 }
 
+.artCard {
+  position: absolute;
+  top: 6px;
+  left: calc(var(--album-player-w) * (0.2 + var(--art-i) * 0.21));
+  z-index: calc(2 - var(--art-i));
+  display: block;
+  width: calc(var(--album-player-w) * 0.92);
+  aspect-ratio: 1539 / 2115;
+  object-fit: cover;
+  border-radius: 6px;
+  transform: rotate(calc(4deg + var(--art-i) * 7deg));
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5));
+}
+
+/* Oben links in der Tafel (Nutzer, 24.09.2026: „das nach links oben"),
+   nicht auf der Unterkante der Spielerkarte. */
 .masthead > .head {
   grid-area: head;
+  align-self: start;
   min-width: 0;
+  padding-top: 4px;
 }
 
-/* Der naechste Zug steht nicht mehr IM Kopfraster, sondern als eigene Zeile
-   darunter — siehe ProfileAlbum.tsx. Was bleibt, ist sein Abstand nach unten:
-   darunter folgt die Reiterleiste, und die soll als eigenes Bedienelement
-   lesbar bleiben. */
+.hello {
+  color: var(--album-accent);
+  font-family: var(--album-display);
+  font-size: clamp(12px, 1vw, 14px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* Am Telefon drei Karten im Faecher, ab 900 px fuenf. */
+.artCard:nth-of-type(n + 4) {
+  display: none;
+}
+
+/* Ab 900 px dreht sich die Tafel um: Text links, gross, und rechts die
+   Spielerkarte mit einem breiten Faecher — wie der Kopf des geteilten Decks.
+   Links neben einer kleinen Karte blieb sonst die halbe Tafel leer. */
+@media (min-width: 900px) {
+  .masthead {
+    --album-player-w: clamp(128px, 11vw, 156px);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'head art'
+      'move art';
+    padding-right: clamp(40px, 5vw, 80px);
+  }
+
+  .art {
+    width: calc(var(--album-player-w) * 2.1);
+  }
+
+  .artCard {
+    left: calc(var(--album-player-w) * (0.22 + var(--art-i) * 0.22));
+    transform: rotate(calc(4deg + var(--art-i) * 5deg));
+  }
+
+  .artCard:nth-of-type(n + 4) {
+    display: block;
+  }
+
+  /* Mit `main` qualifiziert: `.homeV2 .hv-title` aus style.css hat denselben
+     Rang und laedt in Produktion nach den Modulen. */
+  main .masthead :global(.hv-title) {
+    font-size: clamp(40px, 5vw, 76px);
+  }
+}
+
+/* Der naechste Zug steht im Kopf, unter dem Titel. */
 .albumMove {
+  grid-area: move;
+  align-self: start;
   min-width: 0;
-  margin-bottom: clamp(8px, 1vw, 12px);
+  margin-top: clamp(12px, 1.4vw, 18px);
 }
 
 /* `hv-head` ist eine Zeile mit zwei Enden; hier stapeln sich Titel und
    Slogan, also eine Spalte. */
 .head {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 4px;
 }
 
 /* ── Die Spielerkarte ─────────────────────────────────────
@@ -595,17 +674,10 @@ div.player {
      war er vier Zeilen hoch, und genau das war zu viel Text an der falschen
      Stelle („das muss doch irgendwie darunter, als eine Zeile auf mobile"). */
   .masthead {
-    gap: 14px 16px;
-  }
-
-  /* Unten buendig mit der Spielerkarte, oben Luft (Nutzer, 05.09.2026: „das
-     soll ein bisschen weiter unten stehen und mit dem Profilbild unten
-     abschliessen, dass oben ein bisschen Raum ist"). Am oberen Rand
-     ausgerichtet fing der Titel auf Kopfhoehe der Figur an und der Slogan
-     endete auf halber Karte — zwei Spalten, die nirgends zusammenkamen.
-     An der Unterkante teilen sie sich eine Linie. */
-  .masthead > .head {
-    align-self: end;
+    grid-template-areas:
+      'art head'
+      'move move';
+    column-gap: 14px;
   }
 
   .player {

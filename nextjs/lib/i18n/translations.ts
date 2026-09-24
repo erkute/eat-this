@@ -275,6 +275,7 @@ const en = {
     emptyMustEats:
       'Your deck is still empty. Must Eats are out in Berlin and in the Booster Packs.',
     albumHeading: 'Your deck',
+    albumHello: 'Hey {name}',
     albumCount: 'of {total} Must Eats',
     albumStamped: 'Been there',
     albumGroupProgress: '{group}: {done} of {total} revealed',
@@ -305,7 +306,6 @@ const en = {
     inviteLine: 'Send it to someone you like eating with. You both get a card for it.',
     inviteJoinedOne: '1 friend joined through your link',
     inviteJoinedMany: '{count} friends joined through your link',
-    invitePreview: 'Preview',
     friendsHeading: 'Your crew',
     friendsLine: 'They started through your link. Tap a character to see their deck.',
     friendAnonymous: 'No name',
@@ -314,8 +314,12 @@ const en = {
     inviteShareTitle: 'My deck on the Eat This map',
     changeAvatar: 'Change character',
     changeAvatarShort: 'Change',
-    avatarModalTitle: 'Choose your character',
-    avatarModalSub: 'Who are you on the map?',
+    avatarModalTitle: 'Your character',
+    /* Dieselben Worte wie der Schritt „Wer bist du?" der Tour (SignInReward). */
+    avatarModalKicker: 'Your profile',
+    avatarModalHeadline: 'Who are you?',
+    avatarModalSub: 'Pick your character.',
+    avatarModalClose: 'Close',
     avatarApply: 'Apply',
     signOut: 'Sign out',
     dataLoading: 'Loading your profile…',
@@ -685,6 +689,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyMustEats:
       'Dein Deck ist noch leer. Must Eats findest du drau\u00dfen in Berlin und in den Booster Packs.',
     albumHeading: 'Dein Deck',
+    /* Der Gruss wie im Hero der Startseite (angemeldet). */
+    albumHello: 'Hey {name}',
     albumCount: 'von {total} Must Eats',
     /* Der Stempel auf einer Karte, die vor Ort umgedreht wurde. Kurz, weil er
        quer über eine Karte läuft — und Vergangenheit, weil er eine Tat
@@ -726,7 +732,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       'Schick es jemandem, mit dem du gern essen gehst. Ihr bekommt beide eine Karte dafür.',
     inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
     inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
-    invitePreview: 'Ansehen',
     /* Die Reihe unter dem Einladen-Kasten. Der Referral-Weg laeuft seit Tag
        eins, sichtbar war davon nur eine Zahl — wen man geworben hat, stand
        nirgends. */
@@ -739,8 +744,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     inviteShareTitle: 'Mein Deck auf der Eat This Map',
     changeAvatar: 'Charakter \u00e4ndern',
     changeAvatarShort: '\u00c4ndern',
-    avatarModalTitle: 'Charakter w\u00e4hlen',
-    avatarModalSub: 'Wer bist du auf der Map?',
+    avatarModalTitle: 'Dein Charakter',
+    /* Dieselben Worte wie der Schritt „Wer bist du?" der Tour (SignInReward). */
+    avatarModalKicker: 'Dein Profil',
+    avatarModalHeadline: 'Wer bist du?',
+    avatarModalSub: 'W\u00e4hle deinen Charakter.',
+    avatarModalClose: 'Schlie\u00dfen',
     avatarApply: '\u00dcbernehmen',
     signOut: 'Abmelden',
     dataLoading: 'Dein Profil wird geladen …',

@@ -743,7 +743,7 @@ html[data-auth='1'] [data-guest-only] {
 .user-loc-marker {
   z-index: 1000;
 }
-/* ── Zentrale Info-Karte (window.showNotification / window.showNotice) ──────
+/* ── Zentrale Info-Karte (lib/notice.ts → window.showNotice) ────────────────
    Global montiert in app/[locale]/layout.tsx (NotificationToast.tsx). Hier
    statt in style.css, weil /profile das SPA-Stylesheet nicht laden.
 
@@ -755,21 +755,19 @@ html[data-auth='1'] [data-guest-only] {
    beide waren halb verdeckt, und beide sagten dasselbe auf zwei Arten. Jetzt
    gibt es eine Flaeche, und sie steht da, wo hingeschaut wird.
 
-   Bewegung ohne Opacity (Brand-Regel), und dieselbe wie im Onboarding: die
-   Karte steigt von unten auf. Weil ohne Scrim nichts sie verdecken kann,
-   kommt sie aus einem Schlitz an ihrer eigenen Unterkante — sie faehrt um
-   ihre Hoehe nach oben, und der clip-path gibt genau so viel frei, wie sie
-   schon heraus ist. Beim Gehen sinkt sie in denselben Schlitz zurueck. Bis
-   22.09.2026 klappte sie stattdessen aus einem waagerechten Strich in ihrer
-   Mitte auf und schrumpfte beim Gehen dorthin zurueck — wie ein
-   Roehrenfernseher, der ausgeht (Betreiber: „zu digital"). Die Karte selbst nimmt keine
-   Klicks (pointer-events: none) — nur ihre Knoepfe holen sie sich zurueck,
-   sonst laege sie als unsichtbare Platte ueber der Karte. */
+   Bewegung wie Onboarding und Anmelde-Layer (Tour.module.css `arrive`): die
+   Karte steht sofort da und hebt sich 14 px an ihren Platz; sie geht ohne
+   Bewegung. Keine Opacity (Brand-Regel). Vorher, verworfen: bis 22.09.2026
+   ein Aufklappen aus einem Strich in der Mitte („zu digital"), bis 24.09.2026
+   ein Auf- und Abtauchen durch einen Schlitz um die ganze Kartenhoehe
+   (Ausblenden nach unten „nicht passend", nach oben „zu verspielt"). Die
+   Karte selbst nimmt keine Klicks (pointer-events: none) — nur offen holt sie
+   sie sich zurueck, sonst laege sie als unsichtbare Platte ueber der Seite. */
 /* Die Huelle zentriert die Karte im Viewport. Ohne `data-layer` ist sie
    durchlaessig — nur die Karte faengt Tipps — damit die kurzen Bestaetigungen
-   die Seite nicht anhalten. Mit `data-layer` (Standort) liegt ein Scrim
-   darunter, der jeden Tipp neben der Karte schluckt; der faerbt sich ueber
-   background-color ein, nicht ueber Opacity (Markenregel).
+   die Seite nicht anhalten. Mit `data-layer` (jede Meldung mit Knoepfen) liegt ein Scrim
+   darunter, der jeden Tipp neben der Karte schluckt. Er kommt und geht ohne
+   Uebergang, wie der Grund von Onboarding und Anmelde-Layer.
 
    Zugeklappt ist die Huelle `display: none`, nicht bloss unsichtbar oder
    unfixiert. iOS 26 Safari faerbt seine Leisten nach dem obersten fixierten
@@ -779,10 +777,10 @@ html[data-auth='1'] [data-guest-only] {
    ist. Nach dem Standort-Layer mit Scrim blieb die untere URL-Leiste deshalb
    grau, obwohl die Huelle laengst nicht mehr fixiert war (am iPhone
    03.09.2026). Ohne Renderer faellt die Farbe weg. Fixiert und sichtbar wird
-   die Huelle erst mit `data-open`, das NotificationToast beim Oeffnen setzt
-   und 400 ms nach dem Ausfahren wieder nimmt. Den Uebergang aus dem
-   zugeklappten Zustand liefert @starting-style (unten), weil es vor dem
-   Oeffnen keinen gerenderten Ausgangszustand mehr gibt. Die aria-live-Region
+   die Huelle erst mit `data-open`, das NotificationToast genau so lange
+   setzt, wie die Karte steht. Den Uebergang aus dem zugeklappten Zustand
+   liefert @starting-style (unten), weil es vor dem Oeffnen keinen
+   gerenderten Ausgangszustand gibt. Die aria-live-Region
    liegt getrennt in .notification-live, damit sie nie display: none ist.
 
    Offen ohne Scrim ist die Huelle eine Linie ohne Hoehe auf halber
@@ -832,7 +830,7 @@ html[data-auth='1'] [data-guest-only] {
   padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px));
   pointer-events: none;
 }
-.notification-layer.show[data-layer] {
+.notification-layer[data-layer] {
   --notification-layer-pad-y: max(
     20px,
     env(safe-area-inset-top, 0px),
@@ -858,13 +856,9 @@ html[data-auth='1'] [data-guest-only] {
 .notification-scrim {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: var(--et-scrim, rgba(0, 0, 0, 0.62));
   /* Kein Scrollen der Seite durch den Scrim hindurch (iOS Safari). */
   touch-action: none;
-  transition: background-color 0.34s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.notification-layer.show[data-layer] .notification-scrim {
-  background-color: rgba(0, 0, 0, 0.5);
 }
 .notification {
   --toast-surface: var(--et-ink-raised, #25231f);
@@ -872,181 +866,189 @@ html[data-auth='1'] [data-guest-only] {
   --toast-muted: rgba(255, 255, 255, 0.76);
   --toast-accent: var(--et-home-accent, #ffc600);
   position: relative;
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  align-items: start;
-  gap: 14px;
-  width: min(332px, 100%);
-  padding: 20px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  /* Feste Breite, am Viewport gemessen: `100%` loeste im zentrierten Grid
+     der Huelle gegen den Inhalt auf, und jede Meldung war so breit wie ihr
+     Text — „Noch einer fuer deine Liste." stand schmaler als der Rest. Die
+     40 px sind das Seitenpolster der Huelle. */
+  width: min(360px, calc(100vw - 40px));
+  padding: 22px 22px 22px;
   color: var(--toast-ink);
   text-align: left;
   background: var(--toast-surface);
   border: 0;
-  border-radius: var(--et-radius-photo, 10px);
-  /* Nur die Kante: clip-path (unten) schneidet jeden aeusseren Schatten weg. */
-  box-shadow: var(--et-ink-raised-edge);
+  /* Derselbe Radius wie Anmelde-Layer und Onboarding. */
+  border-radius: var(--et-radius-panel, 10px);
+  /* Keine Kante, wie der Anmelde-Layer — die Flaechenstufe traegt, dazu der
+     Schatten des Onboarding-Fensters (Tour.module.css .panel). Bis 24.09.2026
+     stand hier nur eine 1-px-Kante: der clip-path des damaligen Schlitzes
+     schnitt jeden aeusseren Schatten weg. */
+  box-shadow: 0 24px 80px #0008;
   pointer-events: none;
-  /* Beide Werte in Prozent der Kartenhoehe und gleich gross: dann steht die
-     Schnittkante im Viewport still, und die Karte gleitet durch sie hindurch
-     statt mitzuwandern. Kein `round` im clip-path — die Ecken rundet der
-     border-radius, eine gerundete Schnittkante saehe wie ein Pillenboden aus. */
-  transform: translateY(100%);
-  clip-path: inset(0 0 100% 0);
-  transition:
-    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-    clip-path 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.26s ease-out;
 }
 /* Offen faengt die Karte selbst jeden Tipp — vorher lief nur die Knopfzeile
    auf pointer-events:auto, und ein Tipp auf die Kartenflaeche landete auf dem
    Hero-Knopf dahinter. */
 .notification.show {
   pointer-events: auto;
-  transform: translateY(0);
-  clip-path: inset(0 0 0 0);
 }
-/* Der Ausgangszustand des Aufziehens: die Huelle kommt aus display: none,
-   also gibt es keinen gerenderten Vorher-Wert, von dem der Uebergang starten
+/* Der Ausgangszustand des Hebens: die Huelle kommt aus display: none, also
+   gibt es keinen gerenderten Vorher-Wert, von dem der Uebergang starten
    koennte. */
 @starting-style {
   .notification.show {
-    transform: translateY(100%);
-    clip-path: inset(0 0 100% 0);
+    transform: translateY(14px);
   }
 }
-/* Rot ist im Brand die Farbe fuer "kaputt" und sonst nichts — Warnungen
-   (Standort nicht gefunden) bleiben deshalb beim gelben Akzent. */
+/* Dieselbe Sprache wie der Anmelde-Layer (LoginBoard): gelber Kicker in
+   Providence-Versalien, weisser Versalien-Titel, eine Zeile in Weiss 76 %,
+   gefuellte Knoepfe ohne Kontur. Vor dem Kicker das gelbe Marken-Quadrat
+   (wie `hv-mk` und der Insider-Tipp); nur bei „kaputt" ist es rot. Rot als
+   Schrift waere auf Ink zu schwach (rund 2,9:1), das Quadrat traegt die
+   Farbe allein. Icons gibt es seit dem 24.09.2026 keine mehr — der Kicker
+   sagt, worum es geht. */
 .notification[data-tone='error'] {
-  --toast-accent: var(--et-home-red, #d9382a);
-}
-.notification-mark {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  color: var(--toast-accent);
-  background: transparent;
-}
-.notification-mark svg {
-  display: block;
-  width: 24px;
-  height: 24px;
-  fill: currentColor;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.notification-mark svg circle,
-.notification-mark svg path:not(:first-child) {
-  fill: none;
-}
-.notification-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  --toast-mark: var(--et-home-red, #d9382a);
 }
 .notification-eyebrow {
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  line-height: 1;
+  line-height: 1.2;
   text-transform: uppercase;
   color: var(--toast-accent);
 }
+.notification-eyebrow::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  background: var(--toast-mark, var(--toast-accent));
+}
 .notification-title {
+  margin-top: 2px;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 0.96;
+  letter-spacing: 0;
+  line-height: 1.02;
   text-transform: uppercase;
+  text-wrap: balance;
   color: var(--toast-ink);
   overflow-wrap: anywhere;
 }
 .notification-detail {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 15px;
-  font-weight: 400;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 16px;
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.35;
+  /* Providence traegt lange Unterlaengen: bei 1.2 stiess das g von „liegt"
+     an die Zeile darunter (24.09.2026). 1.4 wie der Fliesstext des
+     Onboardings (Tour.module.css, 1.45). */
+  line-height: 1.4;
+  text-wrap: pretty;
   color: var(--toast-muted);
 }
-/* Knoepfe nur, wo es welche gibt — der Standard-Hinweis geht von allein.
-   Rechtsbuendig, „Alles klar" vor dem gelben Primaerknopf ganz rechts. */
-.notification-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
+/* Die Schritte der Standort-Anleitung: gelbe Ziffern in Providence, der Text
+   in der Detailfarbe. Eigene Zaehlung statt `list-style`, damit die Ziffer
+   die Markenfarbe traegt und buendig mit dem Kicker-Quadrat steht. */
+.notification-steps {
+  display: grid;
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: notice-step;
 }
-.notification-action,
-.notification-dismiss {
+.notification-steps li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--toast-muted);
+  counter-increment: notice-step;
+}
+.notification-steps li::before {
+  content: counter(notice-step);
+  color: var(--toast-accent);
+}
+/* Knoepfe nur, wo es welche gibt — dann ist die Karte ein Layer. Gleich
+   breit nebeneinander, der gelbe rechts; allein nimmt er die ganze Breite. */
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.notification-primary,
+.notification-quiet {
+  flex: 1 1 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 10px 18px 11px;
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.12;
+  white-space: nowrap;
   cursor: pointer;
-  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    background-color 0.16s ease,
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.notification-action {
+.notification-primary {
   background: var(--et-home-accent, #ffc600);
   color: var(--et-home-ink, #15120e);
-  border: 2px solid var(--et-home-accent, #ffc600);
 }
-.notification-dismiss {
-  background: transparent;
+.notification-quiet {
+  background: rgba(255, 255, 255, 0.1);
   color: var(--toast-ink);
-  border: 2px solid rgba(255, 255, 255, 0.28);
 }
-.notification-action:focus-visible,
-.notification-dismiss:focus-visible {
-  transform: translateY(-2px);
-}
+/* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink. */
 @media (hover: hover) {
-  .notification-action:hover,
-  .notification-dismiss:hover {
-    transform: translateY(-2px);
+  .notification-primary:hover {
+    background: #fff;
+  }
+  .notification-quiet:hover {
+    background: rgba(255, 255, 255, 0.16);
   }
 }
-.notification-dismiss:focus-visible {
-  border-color: var(--et-home-accent, #ffc600);
+.notification-primary:focus-visible,
+.notification-quiet:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 3px;
 }
-@media (hover: hover) {
-  .notification-dismiss:hover {
-    border-color: var(--et-home-accent, #ffc600);
-  }
-}
-.notification-action:active,
-.notification-dismiss:active {
+.notification-primary:active,
+.notification-quiet:active {
   transform: translateY(1px);
 }
 @media (max-width: 420px) {
   .notification {
-    grid-template-columns: 26px minmax(0, 1fr);
-    gap: 12px;
-    padding: 18px 18px 20px;
-  }
-  .notification-mark {
-    width: 26px;
-    height: 26px;
-  }
-  .notification-mark svg {
-    width: 22px;
-    height: 22px;
+    padding: 20px 18px 18px;
   }
   .notification-title {
-    font-size: 22px;
+    font-size: 24px;
+  }
+}
+/* Ohne Bewegung: die Karte steht sofort da und ist sofort weg. */
+@media (prefers-reduced-motion: reduce) {
+  .notification {
+    transition: none;
   }
 }
 

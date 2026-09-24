@@ -13,7 +13,7 @@ vi.mock('@/lib/firebase/config', () => ({
 
 import { rememberPendingHeart } from '../pendingHeart';
 
-const showNotification = vi.fn();
+const showNotice = vi.fn();
 
 function reload(url = 'https://eatthis.test/map') {
   window.history.replaceState({}, '', new URL(url).pathname + new URL(url).search);
@@ -22,8 +22,8 @@ function reload(url = 'https://eatthis.test/map') {
 beforeEach(() => {
   vi.resetModules();
   mocks.fetch.mockReset().mockResolvedValue({ ok: true });
-  showNotification.mockClear();
-  window.showNotification = showNotification;
+  showNotice.mockClear();
+  window.showNotice = showNotice;
   vi.stubGlobal('fetch', mocks.fetch);
   sessionStorage.clear();
   reload();
@@ -39,7 +39,7 @@ async function freshSettle(uid: string) {
 describe('pendingHeart', () => {
   it('loest das gemerkte Herz ein, sobald ein Konto da ist', async () => {
     rememberPendingHeart('rest-1');
-    await freshSettle('user-1');
+    await expect(freshSettle('user-1')).resolves.toBe(true);
 
     expect(mocks.fetch).toHaveBeenCalledWith(
       '/api/heart',
@@ -48,7 +48,6 @@ describe('pendingHeart', () => {
         body: JSON.stringify({ restaurantId: 'rest-1', action: 'add' }),
       })
     );
-    expect(showNotification).toHaveBeenCalledWith('Spot gespeichert', 5000);
     expect(sessionStorage.getItem('eatthis_pending_heart')).toBeNull();
   });
 
@@ -74,7 +73,7 @@ describe('pendingHeart', () => {
     await freshSettle('user-1');
 
     expect(mocks.fetch).not.toHaveBeenCalled();
-    expect(showNotification).not.toHaveBeenCalled();
+    expect(showNotice).not.toHaveBeenCalled();
   });
 
   it('loest einmal ein, egal wie viele Listen gleichzeitig lesen', async () => {
@@ -85,16 +84,33 @@ describe('pendingHeart', () => {
     expect(mocks.fetch).toHaveBeenCalledTimes(1);
   });
 
+  /* Die Bestaetigung zeigt useFavorites nach dem Lesen der Liste (erst die
+     sagt, ob es der erste Spot war). Mehrere Listen auf einer Seite duerfen
+     sie nur einmal zeigen. */
+  it('laesst genau eine Liste die Bestaetigung zeigen', async () => {
+    rememberPendingHeart('rest-6');
+    const { settlePendingHeart: settle, claimPendingHeartNotice: claim } =
+      await import('../pendingHeart');
+    await settle('user-1', 'de');
+
+    expect(showNotice).not.toHaveBeenCalled();
+    expect(claim('user-1')).toBe(true);
+    expect(claim('user-1')).toBe(false);
+    expect(claim('user-2')).toBe(false);
+  });
+
   it('sagt Bescheid, wenn das Einloesen scheitert', async () => {
     mocks.fetch.mockResolvedValue({ ok: false, status: 500 });
     rememberPendingHeart('rest-5');
     await freshSettle('user-1');
 
-    expect(showNotification).toHaveBeenCalledWith('Etwas ist schiefgelaufen');
+    expect(showNotice).toHaveBeenCalledWith(
+      expect.objectContaining({ tone: 'error', title: 'Hat nicht geklappt' })
+    );
   });
 
   it('tut nichts, wenn niemand etwas herzen wollte', async () => {
-    await freshSettle('user-1');
+    await expect(freshSettle('user-1')).resolves.toBe(false);
     expect(mocks.fetch).not.toHaveBeenCalled();
   });
 });

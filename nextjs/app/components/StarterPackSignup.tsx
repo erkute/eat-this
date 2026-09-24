@@ -1,8 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { announceSignIn } from '@/lib/auth/signInArrival';
 import LoginBoard, { LoginSceneArt } from './LoginBoard';
 import styles from './StarterPackSignup.module.css';
 
@@ -19,18 +17,12 @@ import styles from './StarterPackSignup.module.css';
  * zwischen Kaufprodukten — 1 Anmeldung in 14 Tagen.
  *
  * Nach der Anmeldung versteckt `data-guest-only` diese Tafel (globals.css);
- * der Wartescreen liegt als Portal darueber und bleibt die Haltezeit stehen,
- * dann kommt der Toast, den sonst BridgeAuth nach dem Modal zeigt — es sei
- * denn, ein Starter Pack ist unterwegs, dann spricht dessen Einblendung
- * (siehe signInArrival).
+ * der Wartescreen liegt als Portal darueber und bleibt die Haltezeit stehen.
+ * Ein neues Konto bekommt danach die Starter-Pack-Einblendung (siehe
+ * signInArrival).
  */
 export default function StarterPackSignup() {
   const t = useTranslations('modals.login');
-  const signedIn = t('signedIn');
-  const onSignedIn = useCallback(
-    () => announceSignIn(() => window.showNotification?.(signedIn)),
-    [signedIn]
-  );
 
   return (
     <section
@@ -48,7 +40,6 @@ export default function StarterPackSignup() {
           title={t('packTitle')}
           lead={t('packLead')}
           googleWarmup="intent"
-          onGoogleSettled={onSignedIn}
         />
       </div>
     </section>

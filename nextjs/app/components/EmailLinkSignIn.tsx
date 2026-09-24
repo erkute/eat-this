@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import { useDialogFocus } from '@/lib/useDialogFocus';
-import { announceSignIn } from '@/lib/auth/signInArrival';
 import { EMAIL_LINK_EMAIL_PARAM, EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
 import { STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
 import { trackEvent } from '@/lib/analytics';
@@ -32,7 +31,6 @@ const copy = {
     expiredTitle: 'Dieser Link geht nicht mehr',
     expiredBody:
       'Er ist abgelaufen oder wurde schon benutzt. Über „Anmelden“ bekommst du einfach einen neuen.',
-    signedIn: 'Du bist angemeldet',
     packAlt: 'Eat This Starter Pack',
   },
   en: {
@@ -55,7 +53,6 @@ const copy = {
     expiredKicker: 'Dead end',
     expiredTitle: 'This link no longer works',
     expiredBody: 'It has expired or has already been used. “Sign in” gets you a new one.',
-    signedIn: "You're signed in",
     packAlt: 'Eat This Starter Pack',
   },
 } as const;
@@ -171,7 +168,6 @@ export default function EmailLinkSignIn() {
     } catch {}
     trackEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
     setState(null);
-    announceSignIn(() => window.showNotification?.(t.signedIn));
   };
 
   const codeOf = (err: unknown) => (err as { code?: string } | null)?.code ?? '';

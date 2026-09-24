@@ -38,8 +38,6 @@ interface LoginBoardProps {
    * es nutzt", also erst, wenn die Hand zum Knopf geht.
    */
   googleWarmup: 'mount' | 'intent';
-  /** Nach der Haltezeit des Wartescreens eines Google-Logins. */
-  onGoogleSettled?: () => void;
   /** Wartescreen stehen lassen, auch wenn Google ihn nicht ausgeloest hat. */
   holdScreen?: boolean;
 }
@@ -63,7 +61,6 @@ export default function LoginBoard({
   lead,
   intent = null,
   googleWarmup,
-  onGoogleSettled,
   holdScreen = false,
 }: LoginBoardProps) {
   const t = useTranslations('modals.login');
@@ -71,7 +68,7 @@ export default function LoginBoard({
   const locale = useLocale();
   const { sendLink, state, errorMessage, reset } = useMagicLink();
   /* Phasen, Abbruch-Zeile und Ereignisse des Google-Knopfs: lib/auth/useGoogleSignIn.ts. */
-  const google = useGoogleSignIn({ onSettled: onGoogleSettled });
+  const google = useGoogleSignIn();
   const { prepare: prepareGoogle } = google;
   useEffect(() => {
     if (googleWarmup === 'mount') prepareGoogle();

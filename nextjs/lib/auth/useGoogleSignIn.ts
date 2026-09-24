@@ -22,7 +22,7 @@ import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
  *   liegt über der Seite.
  * - `done`: Firebase hat geantwortet. Der Wartescreen bleibt noch die
  *   Haltezeit stehen (AUTH_SCREEN_HOLD_MS), sonst ist er weg, bevor man ihn
- *   gelesen hat; danach meldet sich `onSettled`.
+ *   gelesen hat.
  * - `leaving`: Abbruch oder Fehler — der Wartescreen fährt zurück und räumt
  *   sich nach der Rückfahrt selbst ab. Eine eigene Phase statt eines
  *   Schalters, weil das Panel vorher auf einen Schlag wegsprang und ein
@@ -42,7 +42,7 @@ const NOTE_KEY: Record<NonNullable<GoogleSignInNote>, string> = {
   failed: 'auth.errGooglePopup',
 };
 
-export function useGoogleSignIn(options: { onSettled?: () => void } = {}): {
+export function useGoogleSignIn(): {
   phase: GoogleSignInPhase;
   note: GoogleSignInNote;
   /** Übersetzungsschlüssel zur Note, für `t()` — null ohne Note. */
@@ -55,8 +55,6 @@ export function useGoogleSignIn(options: { onSettled?: () => void } = {}): {
   const [phase, setPhase] = useState<GoogleSignInPhase>('idle');
   const [note, setNote] = useState<GoogleSignInNote>(null);
   const viaGoogle = useRef(false);
-  const onSettled = useRef(options.onSettled);
-  onSettled.current = options.onSettled;
 
   useEffect(() => {
     if (!user || !viaGoogle.current) return;
@@ -90,10 +88,7 @@ export function useGoogleSignIn(options: { onSettled?: () => void } = {}): {
   useEffect(() => {
     if (phase !== 'leaving' && phase !== 'done') return;
     const timer = window.setTimeout(
-      () => {
-        setPhase('idle');
-        if (phase === 'done') onSettled.current?.();
-      },
+      () => setPhase('idle'),
       phase === 'done' ? AUTH_SCREEN_HOLD_MS : LEAVE_MS
     );
     return () => window.clearTimeout(timer);

@@ -109,7 +109,7 @@ export default async function LocaleLayout({
               Anmeldung begann — hier geht die Bestätigung auf. Vor
               AnalyticsPageViews: sie räumt Code und Adresse aus der URL. */}
           <EmailLinkSignIn />
-          {/* Global toast (window.showNotification) — mounted here, not in the
+          {/* Zentrale Info-Karte (lib/notice.ts) — mounted here, not in the
               SPA layout, so /profile and /login get feedback too. Styled in
               globals.css (those routes don't load the SPA stylesheet). */}
           <NotificationToast />

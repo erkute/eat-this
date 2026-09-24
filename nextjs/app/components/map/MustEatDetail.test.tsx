@@ -146,7 +146,7 @@ describe('MustEatDetail reveal demo', () => {
 /* Verweigert ist kein Zustand der Karte, sondern eine Meldung: der Tipp auf die
    verdeckte Karte ruft dieselbe Info-Karte, die Map und Startseite für eine
    verweigerte Berechtigung zeigen — mit denselben Worten aus
-   lib/map/locationStatus.ts (Nutzer, 02.09.2026: „soll eine Meldung sein wie
+   lib/notice.ts (Nutzer, 02.09.2026: „soll eine Meldung sein wie
    auf der Startseite"). */
 describe('MustEatDetail blocked location', () => {
   it('raises the shared location notice when the covered card is tapped', () => {
@@ -172,12 +172,62 @@ describe('MustEatDetail blocked location', () => {
 
     expect(showNotice).toHaveBeenCalledOnce();
     expect(showNotice.mock.calls[0][0]).toMatchObject({
-      tone: 'warning',
-      icon: 'pin',
       eyebrow: 'Standort',
       title: 'Blockiert',
       detail: 'Im Browser erlauben, dann nochmal tippen.',
     });
+    delete window.showNotice;
+  });
+
+  /* Die Karte fragt selbst nach dem Standort — und sagt dann auch, wenn das
+     nichts wurde. Vorher blieb ein Fehlschlag im Detail stumm. */
+  it('answers its own failed location request', () => {
+    const showNotice = vi.fn();
+    window.showNotice = showNotice;
+    const onRequestLocation = vi.fn();
+    const props = {
+      mustEat,
+      userLocation: null,
+      onRequestLocation,
+      isUnlocked: false,
+      onUnlock: vi.fn(),
+      onClose: vi.fn(),
+      uid: 'u1',
+    };
+    const { rerender } = render(<MustEatDetail {...props} locationError={null} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reveal Must Eat' }));
+    expect(onRequestLocation).toHaveBeenCalledOnce();
+    expect(showNotice).not.toHaveBeenCalled();
+
+    rerender(<MustEatDetail {...props} locationError="timeout" />);
+
+    expect(showNotice).toHaveBeenCalledOnce();
+    const notice = showNotice.mock.calls[0][0];
+    expect(notice).toMatchObject({ eyebrow: 'Standort', title: 'Nicht gefunden' });
+    notice.action.onClick();
+    expect(onRequestLocation).toHaveBeenCalledTimes(2);
+    delete window.showNotice;
+  });
+
+  it('stays quiet about an error it did not ask for', () => {
+    const showNotice = vi.fn();
+    window.showNotice = showNotice;
+
+    render(
+      <MustEatDetail
+        mustEat={mustEat}
+        userLocation={null}
+        locationError="timeout"
+        onRequestLocation={vi.fn()}
+        isUnlocked={false}
+        onUnlock={vi.fn()}
+        onClose={vi.fn()}
+        uid="u1"
+      />
+    );
+
+    expect(showNotice).not.toHaveBeenCalled();
     delete window.showNotice;
   });
 });

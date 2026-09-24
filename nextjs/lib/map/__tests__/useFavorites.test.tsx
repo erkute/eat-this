@@ -157,3 +157,72 @@ describe('useFavorites uid isolation', () => {
     expect(result.current.favorites).toEqual([]);
   });
 });
+
+/* Die Bestaetigung unterscheidet den ersten Spot vom zehnten (lib/notice:
+   spotSavedFirst sagt, wo er landet; spotSaved nickt nur). */
+describe('useFavorites — Bestaetigung beim Speichern', () => {
+  const showNotice = vi.fn();
+  const fetchMock = vi.fn(() => Promise.resolve({ ok: true }));
+  const detail = () => showNotice.mock.calls.at(-1)?.[0]?.detail;
+
+  /* Eigene Konten je Test: pendingHeart merkt sich das eingeloeste Herz pro
+     Seite und uid, und ein frueherer Test dieser Datei hinterlaesst eines
+     fuer user-a. */
+  beforeEach(() => {
+    vi.clearAllMocks();
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+    window.showNotice = showNotice;
+    vi.stubGlobal('fetch', fetchMock);
+    mocks.getDb.mockResolvedValue({});
+  });
+
+  it('erklaert beim ersten Spot, wo er landet', async () => {
+    mocks.getDocs.mockResolvedValue({ docs: [] });
+    const { result } = renderHook(() => useFavorites('user-first'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.toggle({ _id: 'r-1', name: 'Spot 1' });
+    });
+
+    expect(detail()).toBe('Dein erster Spot. Du findest ihn in deinem Profil.');
+  });
+
+  it('nickt ab dem zweiten Spot nur', async () => {
+    mocks.getDocs.mockResolvedValue({
+      docs: [{ id: 'r-0', data: () => ({ name: 'Spot 0' }) }],
+    });
+    const { result } = renderHook(() => useFavorites('user-more'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.toggle({ _id: 'r-1', name: 'Spot 1' });
+    });
+
+    expect(detail()).toBe('Noch einer für deine Liste.');
+  });
+
+  /* Das Herz von vor dem Login: erst nach dem Lesen der Liste steht fest, ob
+     es der erste Spot war. */
+  it('zaehlt beim Herz von vor dem Login die gelesene Liste', async () => {
+    window.sessionStorage.setItem(
+      'eatthis_pending_heart',
+      JSON.stringify({ id: 'r-9', at: Date.now() })
+    );
+    mocks.getDocs.mockResolvedValue({
+      docs: [
+        { id: 'r-0', data: () => ({ name: 'Spot 0' }) },
+        { id: 'r-9', data: () => ({ name: 'Spot 9' }) },
+      ],
+    });
+
+    renderHook(() => useFavorites('user-pending'));
+
+    await waitFor(() => expect(showNotice).toHaveBeenCalledOnce());
+    expect(showNotice.mock.calls[0][0]).toMatchObject({
+      detail: 'Noch einer für deine Liste.',
+      duration: 5000,
+    });
+  });
+});

@@ -1,10 +1,8 @@
 'use client';
 
-import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
-import { announceSignIn } from '@/lib/auth/signInArrival';
 import LoginBoard, { LoginSceneArt } from '@/app/components/LoginBoard';
 import styles from '@/app/components/profile/Profile.module.css';
 import starter from '@/app/components/StarterPackSignup.module.css';
@@ -55,14 +53,6 @@ export default function DeckJoin({ name }: { name: string | null }) {
   const t = useTranslations('deck');
   const tLogin = useTranslations('modals.login');
   const { user } = useAuth();
-  /* Nach der Haltezeit des Wartescreens kommt der Toast — es sei denn, ein
-     Starter Pack wird vergeben, dann spricht dessen Einblendung (siehe
-     signInArrival). */
-  const signedInLine = tLogin('signedIn');
-  const onSignedIn = useCallback(
-    () => announceSignIn(() => window.showNotification?.(signedInLine)),
-    [signedInLine]
-  );
 
   /* Der Weg zur Map steht IMMER da, in beiden Zustaenden. Er hing zuerst nur
      am Anmeldeblock — und damit sah ein Angemeldeter eine Seite ohne
@@ -107,7 +97,6 @@ export default function DeckJoin({ name }: { name: string | null }) {
           title={tLogin('packTitle')}
           lead={name ? t('joinLead', { name }) : t('joinLeadAnon')}
           googleWarmup="intent"
-          onGoogleSettled={onSignedIn}
         />
       </div>
 

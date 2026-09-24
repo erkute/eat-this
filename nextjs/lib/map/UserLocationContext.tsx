@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 
 import { hasGeolocationPermission, mapGeoError, type UserLocationError } from './useUserLocation';
+import { watchLocationUnblock } from './locationHelp';
 import { armGhostClickGuard } from './ghostClickGuard';
 
 interface UserLocation {
@@ -109,6 +110,16 @@ export function UserLocationProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, [request]);
+
+  /* Wie useUserLocation: kommt eine verweigerte Freigabe zurueck, geht es
+     ohne erneuten Tipp weiter (siehe locationHelp). */
+  useEffect(() => {
+    if (error !== 'denied') return;
+    return watchLocationUnblock((state) => {
+      if (state === 'granted') void request();
+      else setError(null);
+    });
+  }, [error, request]);
 
   return (
     <UserLocationContext.Provider value={{ location, loading, error, request }}>

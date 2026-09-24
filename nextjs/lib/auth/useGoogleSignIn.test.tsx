@@ -39,10 +39,9 @@ describe('useGoogleSignIn', () => {
     vi.useRealTimers();
   });
 
-  it('holds the wait screen after the answer, then settles and reports', async () => {
+  it('holds the wait screen after the answer, then settles', async () => {
     authState.signInWithGoogle.mockResolvedValue(undefined);
-    const onSettled = vi.fn();
-    const { result } = renderHook(() => useGoogleSignIn({ onSettled }));
+    const { result } = renderHook(() => useGoogleSignIn());
 
     await act(async () => {
       await result.current.start();
@@ -52,11 +51,9 @@ describe('useGoogleSignIn', () => {
 
     act(() => vi.advanceTimersByTime(2199));
     expect(result.current.phase).toBe('done');
-    expect(onSettled).not.toHaveBeenCalled();
 
     act(() => vi.advanceTimersByTime(1));
     expect(result.current.phase).toBe('idle');
-    expect(onSettled).toHaveBeenCalledTimes(1);
   });
 
   it('treats a closed window as a decision: quiet note, short retreat', async () => {

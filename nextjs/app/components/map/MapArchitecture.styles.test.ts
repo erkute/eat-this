@@ -86,6 +86,14 @@ describe('Map CSS architecture', () => {
     const shared = topLevelDeclarations('ZoomCurtain.module.css', '.capTop');
     expect(shared.position).toBe('fixed');
     expect([shared.left, shared.right]).toEqual(['0', '0']);
+    /* Flush with the edge, not reaching past it: a bottom cap running 100lvh
+       beyond the viewport was not taken as an edge container, and the URL bar
+       showed the page (iOS simulator, 24.09.2026). */
+    expect(topLevelDeclarations('ZoomCurtain.module.css', '.capTop').top).toBe('0');
+    expect(topLevelDeclarations('ZoomCurtain.module.css', '.capBottom').bottom).toBe('0');
+    for (const cap of ['.capTop', '.capBottom']) {
+      expect(topLevelDeclarations('ZoomCurtain.module.css', cap).height, cap).toBe('var(--cap)');
+    }
 
     const lb = 'RestaurantGalleryLightbox.module.css';
     expect(topLevelDeclarations(lb, '.galleryLb').position).toBe('static');

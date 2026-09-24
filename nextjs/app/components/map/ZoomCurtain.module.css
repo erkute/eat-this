@@ -10,8 +10,10 @@
 
    Die Kappen sind Geschwister des Vorhangs, nicht seine Kinder:
    `backdrop-filter` macht ein Element zum Bezugsrahmen fuer fixierte
-   Nachfahren. Sie reichen weit ueber die Kanten hinaus — Safari zeichnet
-   unter seinen Leisten auch Seite jenseits der Box, an der `fixed` haengt.
+   Nachfahren. Sie enden genau an der Kante: eine Kappe, die weit darueber
+   hinausragte, erkannte Safari unten nicht als Randelement und zeigte unter
+   der URL-Leiste die Seite (iOS-Simulator, 24.09.2026). In die Leisten selbst
+   zeichnet Safari ohnehin nur die gefundene Farbe, nie das Element.
    Die Stapelhoehe setzt die jeweilige Lightbox ueber ihre eigene Klasse. */
 .curtain,
 .capTop,
@@ -35,13 +37,13 @@
 }
 .capTop {
   --cap: max(6px, env(safe-area-inset-top, 0px));
-  top: -50lvh;
-  height: calc(50lvh + var(--cap));
+  top: 0;
+  height: var(--cap);
 }
 .capBottom {
   --cap: max(6px, env(safe-area-inset-bottom, 0px));
-  top: calc(100dvh - var(--cap));
-  height: calc(100lvh + var(--cap));
+  bottom: 0;
+  height: var(--cap);
 }
 .capTop::after,
 .capBottom::after {

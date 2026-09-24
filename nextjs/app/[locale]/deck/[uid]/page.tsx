@@ -189,12 +189,22 @@ export default async function DeckPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Was ein Must Eat ist — dieselben zwei Saetze wie auf /must-eats
-              (MustEatsSection), nicht eine dritte Fassung. */}
+          {/* Werbung fuer beides: Eat This selbst und das Sammeln. Der
+              Freund kennt das Produkt nicht — ein Deck ohne die Map dahinter
+              ist ein Kartenspiel ohne Tisch. */}
           <div className={deck.pitch}>
             <span className={deck.kicker}>{t('pitchKicker')}</span>
             <h2 className={deck.pitchTitle}>{t('pitchTitle')}</h2>
-            <p className={deck.pitchBody}>{t('pitchBody')}</p>
+            <dl className={deck.points}>
+              <div className={deck.point}>
+                <dt className={deck.pointLabel}>{t('mapLabel')}</dt>
+                <dd className={deck.pointBody}>{t('mapBody')}</dd>
+              </div>
+              <div className={deck.point}>
+                <dt className={deck.pointLabel}>{t('collectLabel')}</dt>
+                <dd className={deck.pointBody}>{t('collectBody')}</dd>
+              </div>
+            </dl>
           </div>
 
           <DeckActions uid={uid} />

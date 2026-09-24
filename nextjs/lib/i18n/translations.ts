@@ -232,15 +232,20 @@ const en = {
        verdeckt" — die Karten daneben zeigen es. */
     stand:
       '{done, plural, =0 {{name} is just getting started.} one {{name} has flipped one of {total} Must Eats.} other {{name} has flipped # of {total} Must Eats.}}',
-    /* Dieselben zwei Saetze wie auf /must-eats (MustEatsSection) — keine
-       dritte Fassung derselben Erklaerung. */
     /* Ohne Vornamen — Konten aus der Mail-Anmeldung haben keinen. */
     standAnon:
       '{done, plural, =0 {No card flipped yet.} one {One of {total} Must Eats flipped.} other {# of {total} Must Eats flipped.}}',
-    pitchKicker: 'Must Eat?',
-    pitchTitle: 'Not just where you eat. What.',
-    pitchBody:
-      'Must Eats are the dishes you should not miss. Go there, flip them and collect them.',
+    /* Werbung fuer beides, Eat This UND das Sammeln (Nutzer, 24.09.2026:
+       „nicht fuer die Must Eats nur … Lust auf Eat This und das Sammeln").
+       Keine neue Copy: der Claim der Startseite, der Map-Satz aus
+       MapPromoCTA, der Must-Eat-Satz aus MustEatsSection. */
+    pitchKicker: 'Eat This',
+    pitchTitle: 'We tell you what to eat',
+    mapLabel: 'The map',
+    mapBody: 'Hand-picked restaurants, cafés and bars across Berlin — and what to order there.',
+    collectLabel: 'Must Eats',
+    collectBody:
+      'The dishes you should not miss. Go there, flip them and collect them in your deck.',
     toMap: 'To the map',
     signIn: 'Sign up',
     /* Der Besitzer auf seinem eigenen Deck. */
@@ -633,15 +638,21 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        verdeckt" — die Karten daneben zeigen es. */
     stand:
       '{done, plural, =0 {{name} f\u00e4ngt gerade an.} one {{name} hat ein Must Eat von {total} aufgedeckt.} other {{name} hat # von {total} Must Eats aufgedeckt.}}',
-    /* Dieselben zwei Saetze wie auf /must-eats (MustEatsSection) — keine
-       dritte Fassung derselben Erklaerung. */
     /* Ohne Vornamen — Konten aus der Mail-Anmeldung haben keinen. */
     standAnon:
       '{done, plural, =0 {Noch keine Karte aufgedeckt.} one {Ein Must Eat von {total} aufgedeckt.} other {# von {total} Must Eats aufgedeckt.}}',
-    pitchKicker: 'Must Eat?',
-    pitchTitle: 'Nicht nur wissen, wo du essen sollst. Sondern was.',
-    pitchBody:
-      'Must Eats sind die Gerichte, die du nicht verpassen solltest. Geh hin, deck sie auf und sammle sie.',
+    /* Werbung fuer beides, Eat This UND das Sammeln (Nutzer, 24.09.2026:
+       „nicht fuer die Must Eats nur … Lust auf Eat This und das Sammeln").
+       Keine neue Copy: der Claim der Startseite, der Map-Satz aus
+       MapPromoCTA, der Must-Eat-Satz aus MustEatsSection. */
+    pitchKicker: 'Eat This',
+    pitchTitle: 'We tell you what to eat',
+    mapLabel: 'Die Map',
+    mapBody:
+      'Handverlesene Restaurants, Caf\u00e9s und Bars in ganz Berlin \u2014 und was du dort bestellen solltest.',
+    collectLabel: 'Must Eats',
+    collectBody:
+      'Die Gerichte, die du nicht verpassen solltest. Geh hin, deck sie auf und sammle sie in deinem Deck.',
     toMap: 'Zur Map',
     signIn: 'Anmelden',
     /* Der Besitzer auf seinem eigenen Deck. */

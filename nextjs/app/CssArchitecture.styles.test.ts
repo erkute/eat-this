@@ -187,15 +187,13 @@ describe('CSS architecture contracts', () => {
 
     for (const className of [
       'fieldLabel',
-      'kicker',
       'menuWord',
       'modalBenefitNote',
       'modalEyebrow',
       'slogan',
     ])
       expect(localClasses.has(className), className).toBe(false);
-    expect(declarationsFor(root, '.frameSent').get('--login-accent')).toBeTruthy();
-    expect(declarationsFor(root, '.headlineSr').get('position')).toContain('absolute');
-    expect(declarationsFor(root, '.fieldLabelSr').get('position')).toContain('absolute');
+    expect(declarationsFor(root, '.frame').get('--login-accent')).toBeTruthy();
+    expect(declarationsFor(root, '.srOnly').get('position')).toContain('absolute');
   });
 });

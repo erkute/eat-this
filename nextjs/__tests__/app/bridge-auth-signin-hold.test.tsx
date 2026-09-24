@@ -11,13 +11,12 @@ const state = vi.hoisted(() => ({
   useRouter: vi.fn(() => ({ replace: vi.fn(), push: vi.fn() })),
 }));
 
-vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
 vi.mock('@/i18n/navigation', () => ({ useRouter: state.useRouter }));
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: state.user, loading: state.loading }),
   useLoginModal: () => ({
     isOpen: state.loginOpen,
-    mode: 'starter',
+    reason: null,
     intent: state.intent,
     close: state.close,
   }),
@@ -73,7 +72,7 @@ describe('BridgeAuth — Haltezeit nach dem Anmelden', () => {
       vi.advanceTimersByTime(1);
     });
     expect(state.close).toHaveBeenCalledOnce();
-    expect(showNotification).toHaveBeenCalledWith('Du bist angemeldet');
+    expect(showNotification).toHaveBeenCalledWith('modals.login.signedIn');
   });
 
   /* Wer auf einem Spot stand und sich dort anmeldete, landete vorher auf der

@@ -1,19 +1,14 @@
 'use client';
 
-import { useCallback, useId, useState, type FormEvent } from 'react';
+import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { useAuth, useGoogleSignIn, useMagicLink } from '@/lib/auth';
-import { isEmailish } from '@/lib/auth/emailShape';
-import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
+import { useAuth } from '@/lib/auth';
 import { announceSignIn } from '@/lib/auth/signInArrival';
-import AuthScreen from '@/app/components/AuthScreen';
-import { GoogleMark } from '@/app/components/GoogleMark';
+import LoginBoard, { LoginSceneArt } from '@/app/components/LoginBoard';
 import styles from '@/app/components/profile/Profile.module.css';
 import starter from '@/app/components/StarterPackSignup.module.css';
 import deck from './Deck.module.css';
-
-const STARTER_ART = '/pics/booster/booster_free.webp';
 
 /**
  * Der Ausgang des geteilten Decks — die einzige Handlung, die die Seite
@@ -27,8 +22,8 @@ const STARTER_ART = '/pics/booster/booster_free.webp';
  * folgen."
  *
  * Also steht sie hier: dieselbe Ink-Tafel wie der Starter-Pack-Abschnitt der
- * Startseite (deren Stile diese Datei mitliest, damit es EIN Objekt bleibt
- * und nicht zwei, die sich ähneln), ein Feld, ein Knopf, Magic Link.
+ * Startseite, mit demselben Inhalt wie das Anmelde-Modal (LoginBoard) — nur
+ * die Zeile unter der Ueberschrift nennt, wessen Deck man gerade sieht.
  *
  * Mit `continueUrl` zurueck auf genau diese Seite. Sie stand hier zuerst
  * bewusst NICHT — die Annahme war, wer sich vom Deck eines Freundes aus
@@ -58,32 +53,16 @@ const STARTER_ART = '/pics/booster/booster_free.webp';
  */
 export default function DeckJoin({ name }: { name: string | null }) {
   const t = useTranslations('deck');
+  const tLogin = useTranslations('modals.login');
   const { user } = useAuth();
-  const { sendLink, state, errorMessage, reset } = useMagicLink();
-  /* Der Google-Weg, wie im Starter-Pack-Formular der Startseite (seit
-     07.09.2026 dort, hier bis 21.09. nur die Mail). Nach der Haltezeit des
-     Wartescreens kommt der Toast — es sei denn, ein Starter Pack wird
-     vergeben, dann spricht dessen Einblendung (siehe signInArrival). */
-  const signedInLine = t('joinSignedIn');
+  /* Nach der Haltezeit des Wartescreens kommt der Toast — es sei denn, ein
+     Starter Pack wird vergeben, dann spricht dessen Einblendung (siehe
+     signInArrival). */
+  const signedInLine = tLogin('signedIn');
   const onSignedIn = useCallback(
     () => announceSignIn(() => window.showNotification?.(signedInLine)),
     [signedInLine]
   );
-  const google = useGoogleSignIn({ onSettled: onSignedIn });
-  const tr = useTranslations();
-  const googleNote = google.noteKey ? tr(google.noteKey) : '';
-  /* Der Wartescreen steht in BEIDEN Zweigen: sobald Firebase den Nutzer
-     meldet, springt diese Komponente in den Angemeldet-Zweig, noch während
-     die Haltezeit läuft. Auf der Startseite bleibt die Tafel per
-     `data-guest-only` nur versteckt gemountet — hier wäre der Screen mit dem
-     Gast-Zweig schlagartig weg. */
-  const authScreen = google.phase !== 'idle' && (
-    <AuthScreen mode="in" leaving={google.phase === 'leaving'} />
-  );
-  const emailId = useId();
-  const errorId = `${emailId}-error`;
-  const [email, setEmail] = useState('');
-  const [invalid, setInvalid] = useState('');
 
   /* Der Weg zur Map steht IMMER da, in beiden Zustaenden. Er hing zuerst nur
      am Anmeldeblock — und damit sah ein Angemeldeter eine Seite ohne
@@ -99,9 +78,9 @@ export default function DeckJoin({ name }: { name: string | null }) {
     </Link>
   );
 
-  if (user) {
-    return (
-      <>
+  return (
+    <>
+      {user && (
         <div className={styles.invite}>
           <div className={styles.inviteCopy}>
             <h2 className={styles.inviteTitle}>{t('ctaHeadingIn')}</h2>
@@ -113,112 +92,24 @@ export default function DeckJoin({ name }: { name: string | null }) {
             </Link>
           </div>
         </div>
-        {toMap}
-        {authScreen}
-      </>
-    );
-  }
+      )}
 
-  const sent = state === 'sent';
-  // Nach dem verschickten Link ist die Google-Zeile Geschichte.
-  const feedback = invalid || errorMessage || (sent ? '' : googleNote);
-  // Ein Abbruch ist eine Entscheidung, kein Fehler: keine Alarm-Ansage dafür.
-  const feedbackRole = feedback === googleNote && google.note === 'cancelled' ? 'status' : 'alert';
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (state === 'sending') return;
-    const trimmed = email.trim();
-    const shape = isEmailish(trimmed);
-    if (shape !== 'ok') {
-      setInvalid(t(shape === 'empty' ? 'joinEmptyEmail' : 'joinInvalidEmail'));
-      return;
-    }
-    setInvalid('');
-    void sendLink(trimmed, buildLoginContinueUrl(window.location));
-  };
-
-  return (
-    <>
-      {/* `data-guest-only`: der Vorab-Bootstrap blendet die Tafel schon vor
-          dem ersten Bild aus, wenn das Konto bekannt ist — sonst blitzt für
-          einen Angemeldeten eine Sekunde lang „Melde dich an" auf, bis
-          Firebase geantwortet hat. */}
-      <div className={starter.inner} data-guest-only="">
-        <div className={deck.joinArt}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={STARTER_ART} alt={t('joinArtAlt')} loading="lazy" decoding="async" />
-        </div>
-
-        <div className={starter.head}>
-          <h2 className={`hv-title ${starter.title}`}>{t('joinTitle')}</h2>
-        </div>
-
-        <div className={starter.body}>
-          <p className={starter.lead}>
-            {sent ? t('joinSentLead') : name ? t('joinLead', { name }) : t('joinLeadAnon')}
-          </p>
-
-          <form className={starter.form} onSubmit={handleSubmit} noValidate>
-            <label className={starter.srOnly} htmlFor={emailId}>
-              {t('joinEmailLabel')}
-            </label>
-            <input
-              id={emailId}
-              className={starter.input}
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder={t('joinEmailPlaceholder')}
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value);
-                setInvalid('');
-                if (state !== 'idle') reset();
-              }}
-              aria-invalid={Boolean(feedback)}
-              aria-describedby={feedback ? errorId : undefined}
-              required
-            />
-            <button className={starter.button} type="submit" disabled={state === 'sending'}>
-              {sent ? t('joinSent') : state === 'sending' ? t('joinSending') : t('joinCta')}
-            </button>
-          </form>
-
-          {feedback ? (
-            <span id={errorId} className={starter.error} role={feedbackRole}>
-              {feedback}
-            </span>
-          ) : (
-            !sent && <span className={starter.hint}>{t('joinHint')}</span>
-          )}
-
-          {!sent && (
-            <>
-              <div className={starter.or} aria-hidden="true">
-                <span>{t('joinOr')}</span>
-              </div>
-              {/* Vorgewärmt erst, wenn die Hand zum Knopf geht — der
-                  Cookie-Hinweis verspricht, Google Sign-In lade nur bei
-                  Nutzung (siehe StarterPackSignup). */}
-              <button
-                type="button"
-                className={starter.google}
-                onClick={google.start}
-                onPointerEnter={google.prepare}
-                onPointerDown={google.prepare}
-                onFocus={google.prepare}
-                disabled={google.phase === 'busy'}
-              >
-                <GoogleMark />
-                <span>{t('joinGoogle')}</span>
-              </button>
-            </>
-          )}
-        </div>
+      {/* Die Tafel bleibt gemountet, auch wenn Firebase den Nutzer schon
+          meldet: an ihr haengt der Wartescreen eines Google-Logins, und der
+          muss seine Haltezeit zu Ende stehen (er liegt als Portal am `body`,
+          `hidden` nimmt ihn also nicht mit). `data-guest-only`: der
+          Vorab-Bootstrap blendet sie schon vor dem ersten Bild aus, wenn das
+          Konto bekannt ist — sonst blitzt fuer einen Angemeldeten eine
+          Sekunde lang die Anmeldung auf. */}
+      <div className={starter.inner} data-guest-only="" hidden={Boolean(user)}>
+        <LoginBoard
+          art={<LoginSceneArt reason={null} />}
+          title={tLogin('packTitle')}
+          lead={name ? t('joinLead', { name }) : t('joinLeadAnon')}
+          googleWarmup="intent"
+          onGoogleSettled={onSignedIn}
+        />
       </div>
-
-      {authScreen}
 
       {/* Kein zweiter Knopf: ein gleich lauter Ausgang neben der Anmeldung
           wäre eine Abzweigung, keine Alternative. */}

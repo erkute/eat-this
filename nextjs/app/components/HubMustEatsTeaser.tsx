@@ -130,7 +130,7 @@ export default function HubMustEatsTeaser() {
     if (shakeTimer.current !== null) return;
     trackEvent('login_start', { method: 'home_covered_card' });
     rememberPendingStarterCard(mustEatId);
-    const open = () => openLoginModal('starter', { starterMustEatId: mustEatId });
+    const open = () => openLoginModal({ kind: 'card', mustEatId });
     // Ohne Bewegung waere die Wartezeit ein toter Moment.
     if (prefersReducedMotion()) {
       open();

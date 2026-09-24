@@ -114,8 +114,10 @@ describe('useFavorites uid isolation', () => {
       await result.current.toggle({ _id: 'restaurant-a', name: 'Spot A' });
     });
 
-    expect(mocks.openLoginModal).toHaveBeenCalledWith('signin', {
-      heartRestaurantId: 'restaurant-a',
+    expect(mocks.openLoginModal).toHaveBeenCalledWith({
+      kind: 'heart',
+      restaurantId: 'restaurant-a',
+      name: 'Spot A',
     });
     expect(JSON.parse(window.sessionStorage.getItem('eatthis_pending_heart') ?? '{}').id).toBe(
       'restaurant-a'

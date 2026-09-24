@@ -1,130 +1,36 @@
 'use client';
 
-import { useCallback, useId, useState, type FormEvent } from 'react';
-import Image from 'next/image';
+import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { useGoogleSignIn, useMagicLink } from '@/lib/auth';
-import { isEmailish } from '@/lib/auth/emailShape';
-import { buildLoginContinueUrl } from '@/lib/auth/loginContinueUrl';
 import { announceSignIn } from '@/lib/auth/signInArrival';
-import AuthScreen from './AuthScreen';
-import { GoogleMark } from './GoogleMark';
+import LoginBoard, { LoginSceneArt } from './LoginBoard';
 import styles from './StarterPackSignup.module.css';
 
 /**
- * Email capture for the free Starter Pack. Previously this lived as the first
- * tile inside the categories rail, where it read as one more purchasable pack
- * next to "Fine Dining Pack — Öffnen" (1 signup in 14 days). It is now its own
- * section: the offer is named, the price is stated, and the magic-link step is
- * announced up front so the mail that follows isn't a surprise.
+ * Die Anmeldung auf der Startseite, direkt unter dem Hero — derselbe Aufbau
+ * wie das Anmelde-Modal (LoginBoard): das Pack, eine Ueberschrift, dasselbe
+ * Formular. Bis zum 24.09.2026 war das ein eigener Nachbau mit eigenem Text,
+ * Knopf neben dem Feld und eigener Bestaetigung.
  *
- * One placement only, directly under the hero. A second copy lower down was
- * tried and dropped: once it carried the same pack and panel as this one it
- * read as repetition, and at this page's traffic the difference could never
- * be measured either way.
+ * Nur EINE Stelle, direkt unter dem Hero. Eine zweite Kopie weiter unten war
+ * probiert und flog wieder raus: mit demselben Pack und derselben Tafel las
+ * sie sich als Wiederholung, und bei dem Verkehr hier war ein Unterschied nie
+ * messbar. Davor stand das Formular als erste Kachel im Kategorie-Karussell
+ * zwischen Kaufprodukten — 1 Anmeldung in 14 Tagen.
+ *
+ * Nach der Anmeldung versteckt `data-guest-only` diese Tafel (globals.css);
+ * der Wartescreen liegt als Portal darueber und bleibt die Haltezeit stehen,
+ * dann kommt der Toast, den sonst BridgeAuth nach dem Modal zeigt — es sei
+ * denn, ein Starter Pack ist unterwegs, dann spricht dessen Einblendung
+ * (siehe signInArrival).
  */
-interface Props {
-  locale: 'de' | 'en';
-}
-
-/**
- * Das Starter Pack heisst weiter Starter Pack — nur sein Inhalt hat sich am
- * 06.09.2026 geaendert. Es versprach Spots, und die gibt es seither gratis;
- * jetzt legt es Must-Eat-Karten ins Album (siehe app/api/starter-pack).
- *
- * Die Zwanzig steht bewusst DA (Betreiber, 06.09.2026): sie ist das Angebot,
- * und ein Gratis-Angebot ohne Größe ist keins. Die gekauften Packs
- * verschweigen ihre Zahl weiterhin — dort ist die Überraschung Teil der Ware,
- * hier ist die Zahl der Grund, das Formular auszufüllen.
- *
- * Und sie zerfällt in zwei Hälften, weil nur eine davon ein Geschenk ist: zehn
- * hat man, zehn liegen draußen. Der Satz muss beides tragen — das Sofortige
- * und die Jagd —, sonst klingt er wie eine Zugabe statt wie ein Anfang.
- */
-const copy = {
-  de: {
-    title: 'Starter Pack',
-    lead: '20 neue Must Eats warten darauf, von dir entdeckt zu werden.',
-    hint: 'Wir schicken dir einen Link zum Einloggen.',
-    emailAria: 'E-Mail Adresse',
-    emailPlaceholder: 'deine@email.com',
-    submit: 'Anmelden',
-    sending: 'Sende…',
-    sent: 'Check deine Mail',
-    sentLead: 'Wir haben dir den Link geschickt. Ein Klick und du bist drin.',
-    emptyEmail: 'Bitte gib deine E-Mail ein.',
-    invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
-    or: 'oder',
-    google: 'Mit Google anmelden',
-    signedIn: 'Du bist angemeldet',
-    imgAlt: 'Eat This Starter Pack',
-  },
-  en: {
-    title: 'Starter Pack',
-    lead: '20 new Must Eats, waiting for you to discover them.',
-    hint: 'We send you a sign-in link.',
-    emailAria: 'Email address',
-    emailPlaceholder: 'your@email.com',
-    submit: 'Sign up',
-    sending: 'Sending…',
-    sent: 'Check your mail',
-    sentLead: "We've sent your link. One click and you're in.",
-    emptyEmail: 'Add your email first.',
-    invalidEmail: 'That does not look like an email yet.',
-    or: 'or',
-    google: 'Sign in with Google',
-    signedIn: "You're signed in",
-    imgAlt: 'Eat This Starter Pack',
-  },
-} as const;
-
-export default function StarterPackSignup({ locale }: Props) {
-  const t = copy[locale];
-  const { sendLink, state, errorMessage, reset } = useMagicLink();
-  /* Der Google-Weg — bis 07.09.2026 gab es ihn nur im Login-Modal, und das
-     Formular hier bot allein die Mail an („das Anmeldeformular auf der
-     Startseite hat nicht die Google-Anmeldung"). Nach der Antwort versteckt
-     `data-guest-only` diese Tafel (globals.css); der Wartescreen liegt als
-     Portal darüber und bleibt die Haltezeit stehen, dann kommt der Toast,
-     den sonst BridgeAuth nach dem Modal zeigt — es sei denn, ein Starter Pack
-     ist unterwegs, dann spricht dessen Einblendung (siehe signInArrival). */
+export default function StarterPackSignup() {
+  const t = useTranslations('modals.login');
+  const signedIn = t('signedIn');
   const onSignedIn = useCallback(
-    () => announceSignIn(() => window.showNotification?.(t.signedIn)),
-    [t.signedIn]
+    () => announceSignIn(() => window.showNotification?.(signedIn)),
+    [signedIn]
   );
-  const google = useGoogleSignIn({ onSettled: onSignedIn });
-  const emailId = useId();
-  const errorId = `${emailId}-error`;
-  const [email, setEmail] = useState('');
-  const [validationError, setValidationError] = useState('');
-  /* Die Zeilen zu Abbruch, geblocktem Fenster und Fehler teilt sich das
-     Formular mit dem Login-Modal (translations.ts, `auth.*`) — sonst
-     liefen zwei Fassungen auseinander, ohne dass ein Test es merkt. */
-  const tr = useTranslations();
-  const googleNote = google.noteKey ? tr(google.noteKey) : '';
-  const sent = state === 'sent';
-  // Nach dem verschickten Link ist die Google-Zeile Geschichte — sie darf
-  // nicht unter „Check deine Mail" stehen bleiben.
-  const feedback = validationError || errorMessage || (sent ? '' : googleNote);
-  // Ein Abbruch ist eine Entscheidung, kein Fehler: keine Alarm-Ansage dafür.
-  const feedbackRole = feedback === googleNote && google.note === 'cancelled' ? 'status' : 'alert';
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (state === 'sending') return;
-    const trimmed = email.trim();
-    const shape = isEmailish(trimmed);
-    if (shape !== 'ok') {
-      setValidationError(shape === 'empty' ? t.emptyEmail : t.invalidEmail);
-      return;
-    }
-    setValidationError('');
-    /* Zurueck auf DIESE Seite, nicht auf den Fallback der Route (die
-       Startseite): auf `/en/` ist das der Unterschied zwischen der
-       englischen und der deutschen Fassung, und ein Aufruf aus dem
-       Must-Eats-Onboarding kommt mit Query im Gepaeck. */
-    void sendLink(trimmed, buildLoginContinueUrl(window.location));
-  };
 
   return (
     <section
@@ -134,89 +40,17 @@ export default function StarterPackSignup({ locale }: Props) {
       className="homeV2 hv-section hv-wrap"
       data-hub-starter=""
       data-guest-only=""
-      aria-label={t.title}
+      aria-label={t('packTitle')}
     >
       <div className={styles.inner}>
-        <div className={styles.art}>
-          <Image
-            src="/pics/booster/booster_free.webp"
-            alt={t.imgAlt}
-            fill
-            sizes="(max-width: 760px) 168px, 220px"
-            priority={false}
-          />
-        </div>
-
-        <div className={styles.head}>
-          <h2 className={`hv-title ${styles.title}`}>{t.title}</h2>
-        </div>
-
-        <div className={styles.body}>
-          <p className={styles.lead}>{sent ? t.sentLead : t.lead}</p>
-
-          <form className={styles.form} onSubmit={handleSubmit} noValidate>
-            <label className={styles.srOnly} htmlFor={emailId}>
-              {t.emailAria}
-            </label>
-            <input
-              id={emailId}
-              className={styles.input}
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder={t.emailPlaceholder}
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value);
-                setValidationError('');
-                if (state !== 'idle') reset();
-              }}
-              aria-invalid={Boolean(feedback)}
-              aria-describedby={feedback ? errorId : undefined}
-              required
-            />
-            <button className={styles.button} type="submit" disabled={state === 'sending'}>
-              {sent ? t.sent : state === 'sending' ? t.sending : t.submit}
-            </button>
-          </form>
-
-          {feedback ? (
-            <span id={errorId} className={styles.error} role={feedbackRole}>
-              {feedback}
-            </span>
-          ) : (
-            !sent && <span className={styles.hint}>{t.hint}</span>
-          )}
-
-          {!sent && (
-            <>
-              <div className={styles.or} aria-hidden="true">
-                <span>{t.or}</span>
-              </div>
-              {/* Vorgewärmt wird erst, wenn die Hand zum Knopf geht — nicht
-                  beim Laden der Startseite. Der Cookie-Hinweis verspricht,
-                  Google Sign-In lade „nur wenn du es nutzt"; das Modal darf
-                  beim Öffnen laden, diese Tafel steht aber auf jeder
-                  Startseite. Reicht der Vorlauf am Telefon nicht, schaltet
-                  AuthContext von selbst auf den Redirect um. */}
-              <button
-                type="button"
-                className={styles.google}
-                onClick={google.start}
-                onPointerEnter={google.prepare}
-                onPointerDown={google.prepare}
-                onFocus={google.prepare}
-                disabled={google.phase === 'busy'}
-              >
-                <GoogleMark />
-                <span>{t.google}</span>
-              </button>
-            </>
-          )}
-        </div>
+        <LoginBoard
+          art={<LoginSceneArt reason={null} />}
+          title={t('packTitle')}
+          lead={t('packLead')}
+          googleWarmup="intent"
+          onGoogleSettled={onSignedIn}
+        />
       </div>
-
-      {google.phase !== 'idle' && <AuthScreen mode="in" leaving={google.phase === 'leaving'} />}
     </section>
   );
 }

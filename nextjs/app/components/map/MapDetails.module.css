@@ -396,25 +396,6 @@
   /* Keep the short action label on one line inside the narrow side panel. */
   white-space: nowrap;
 }
-.linkPromo {
-  /* Saira Condensed instead of the global Inter body face. */
-  font-family: var(--font-saira-condensed), 'Saira Condensed', sans-serif;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding-bottom: 1px;
-  transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    gap 160ms ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-@media (hover: hover) {
-  .linkPromo:hover {
-    gap: 9px;
-  }
-}
 /* Desktop sized-ups (rail variant) */
 @media (min-width: 1024px) {
   /* Desktop has no iOS URL bar, so the --map-bar-overhang apron (80px) would
@@ -941,18 +922,6 @@
   font-size: 15px;
   font-weight: 400;
   letter-spacing: 0.035em;
-}
-.linkPromo {
-  border-bottom: 0;
-  text-decoration: none;
-  font-size: 11.5px;
-  font-weight: 900;
-}
-@media (hover: hover) {
-  .linkPromo:hover {
-    color: var(--brand-action);
-    border-bottom-color: transparent;
-  }
 }
 @media (max-width: 380px) {
   .packPromo {
@@ -1674,8 +1643,7 @@
 .packPromoTitle {
   color: #fff;
 }
-.packPromoBody,
-.linkPromo {
+.packPromoBody {
   color: rgba(255, 255, 255, 0.72);
 }
 .btnPackPromo {
@@ -2143,16 +2111,6 @@
   font: inherit;
   letter-spacing: 0;
   text-transform: inherit;
-}
-.detailV13:not(.detailV13MustEat) .linkPromo {
-  color: #15120e;
-  font-family: var(--font-body, var(--font-sans, system-ui, sans-serif));
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.25;
-  text-decoration: none;
-  text-transform: none;
 }
 @media (max-width: 380px) {
   .detailV13:not(.detailV13MustEat) .packPromo {
@@ -3780,28 +3738,6 @@
   outline-offset: 2px;
 }
 
-/* Sits under the filled CTA as the quiet second option — same face as the
-   pitch above it, just smaller and underlined, so the two never read as
-   competing buttons. nowrap because the desktop rail leaves this column
-   ~167px and a wrapped underlined link there looks like a broken sentence. */
-.detailV13:not(.detailV13MustEat) .linkPromo {
-  color: var(--et-home-ink, #15120e);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  white-space: nowrap;
-}
-
-@media (hover: hover) {
-  .detailV13:not(.detailV13MustEat) .linkPromo:hover {
-    color: var(--et-home-red, #d9382a);
-  }
-}
-
 /* ── Must-Eat-Detail: elastisch statt fest verplant ─────────────────────────
  *
  * Das Panel war ein festes Pixelbudget: `.detailV13Scroll` stand auf
@@ -5352,12 +5288,6 @@
   color: var(--et-home-ink, #15120e);
 }
 
-/* Der Zweitweg unter dem Knopf: Papier, nicht Gelb. Auf der roten Flaeche ist
-   Gelb die Farbe des KNOPFS — ein gelber Link daneben nimmt ihm die Rolle. */
-.detailV13:not(.detailV13MustEat) .linkPromo {
-  color: rgba(255, 255, 255, 0.82);
-}
-
 /* Der Grund des Sheets selbst. Drei Regeln haben ihn vorher hell gemalt:
    `.detailV13, .detailV13Scroll` (Zeile ~1772), der Redesign-Block
    (~1849) und — mit Abstand am schwersten — der Phone-Block bei
@@ -5407,10 +5337,6 @@
   .detailV13:not(.detailV13MustEat) .btnPackPromo:hover {
     background: var(--et-home-paper, #fff);
     color: var(--et-home-ink, #15120e);
-  }
-
-  .detailV13:not(.detailV13MustEat) .linkPromo:hover {
-    color: var(--et-home-accent, #ffc600);
   }
 }
 

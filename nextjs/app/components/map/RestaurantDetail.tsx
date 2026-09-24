@@ -273,11 +273,7 @@ export default function RestaurantDetail({
   const boosterHref = locale === routing.defaultLocale ? '/packs' : `/${locale}/packs`;
   const openStarterLogin = () => {
     trackEvent('login_start', { method: 'starter_pack_banner' });
-    openLoginModal('starter');
-  };
-  const openSigninLogin = () => {
-    trackEvent('login_start', { method: 'starter_pack_existing_user' });
-    openLoginModal('signin');
+    openLoginModal();
   };
 
   const heroCredit = r.photo ? r.photoCredit?.trim() : undefined;
@@ -704,11 +700,6 @@ export default function RestaurantDetail({
                   <a href={boosterHref} className={styles.btnPackPromo}>
                     <span className={styles.btnPackPromoLbl}>{t('map.boosterCta')}</span>
                   </a>
-                )}
-                {isAnon && (
-                  <button type="button" className={styles.linkPromo} onClick={openSigninLogin}>
-                    {t('map.starterPromoLogin')}
-                  </button>
                 )}
               </div>
             </div>

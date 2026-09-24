@@ -117,7 +117,7 @@ export default function MustEatDetail({
      garantiert offen enthaelt. */
   const handleRequireLogin = useCallback(() => {
     rememberPendingStarterCard(mustEat._id);
-    openLoginModal('starter', { starterMustEatId: mustEat._id });
+    openLoginModal({ kind: 'card', mustEatId: mustEat._id });
   }, [openLoginModal, mustEat._id]);
   const state = useMustEatDetailState({
     mustEat,

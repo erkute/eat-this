@@ -185,7 +185,12 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
            bekommt dieselbe Absicht mit, damit sie auch den Umweg ueber den
            Posteingang uebersteht. */
         rememberPendingHeart(r._id);
-        openLoginModal('signin', { heartRestaurantId: r._id });
+        openLoginModal({
+          kind: 'heart',
+          restaurantId: r._id,
+          name: r.name,
+          photo: r.photo,
+        });
         return;
       }
       // The heart write goes through /api/heart (Admin SDK), which is the single
@@ -303,10 +308,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
 
       apply(visited);
       try {
-        const [{ doc, updateDoc }, db] = await Promise.all([
-          import('firebase/firestore'),
-          getDb(),
-        ]);
+        const [{ doc, updateDoc }, db] = await Promise.all([import('firebase/firestore'), getDb()]);
         await updateDoc(doc(db, 'users', uid, 'favorites', restaurantId), { visited });
       } catch (err) {
         apply(!visited);

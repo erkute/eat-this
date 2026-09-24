@@ -373,7 +373,7 @@ export default function CookieConsent() {
                 aria-controls="cookieInfoPanel"
                 onClick={() => setExpanded((e) => !e)}
               >
-                {t('cookie.moreInfo')}
+                {t(expanded ? 'cookie.lessInfo' : 'cookie.moreInfo')}
                 <svg
                   className="cookie-info-chevron"
                   width={10}

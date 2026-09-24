@@ -40,26 +40,34 @@ import { trackEvent } from '@/lib/analytics';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import { spotPhotoSrc } from '@/lib/map/spotPhoto';
+import { UNLOCK_RADIUS_METERS } from './useMustEatDetailState';
 
 function MustEatMiniCard({
   mustEat,
   unlocked,
+  inReach,
   onClick,
 }: {
   mustEat: MapMustEat;
   unlocked: boolean;
+  /** Innerhalb des Aufdeck-Radius. Eine verdeckte Karte zittert dann schon
+   *  hier, wie im Must-Eat-Detail — wer im Lokal steht, sieht, dass es etwas
+   *  aufzudecken gibt, bevor er die Karte antippt (Betreiber, 24.09.2026). */
+  inReach: boolean;
   onClick: () => void;
 }) {
   const { t } = useTranslation();
   const dish = mustEat.dish ?? 'Must Eat';
+  const ready = !unlocked && inReach;
 
   return (
     <li>
       <button
         type="button"
-        className={styles.medish}
+        className={`${styles.medish}${ready ? ` ${styles.medishReady}` : ''}`}
         onClick={onClick}
-        aria-label={unlocked ? dish : t('map.hiddenMustEatAria')}
+        aria-label={unlocked ? dish : ready ? t('map.revealHere') : t('map.hiddenMustEatAria')}
+        data-reveal-ready={ready ? '' : undefined}
       >
         <div className={styles.medishPh}>
           <img
@@ -478,6 +486,7 @@ export default function RestaurantDetail({
                   key={m._id}
                   mustEat={m}
                   unlocked={unlockedIds.has(m._id) || revealedMustEatIds.has(m._id)}
+                  inReach={meters !== null && meters <= UNLOCK_RADIUS_METERS}
                   onClick={() => onMustEatClick(m)}
                 />
               ))}

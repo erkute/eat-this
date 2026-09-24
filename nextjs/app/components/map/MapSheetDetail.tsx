@@ -32,6 +32,8 @@ type MustEatProps = CommonProps & {
   onPageNext: () => void;
   /** Stand im globalen Must-Eat-Stapel, 1-basiert — für den Zähler im Zoom. */
   mustEatPosition?: { index: number; count: number };
+  /** Offene Karten gegen alle — für den Zähler beim Aufdecken. */
+  mustEatCollection?: { count: number; total: number };
 };
 
 type RestaurantProps = CommonProps & {
@@ -81,6 +83,7 @@ export default function MapSheetDetail(props: Props) {
           onPagePrev={props.onPagePrev}
           onPageNext={props.onPageNext}
           position={props.mustEatPosition}
+          collection={props.mustEatCollection}
           uid={props.uid}
         />
       ) : (

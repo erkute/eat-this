@@ -75,6 +75,7 @@ function makeState(overrides: Partial<MustEatDetailState> = {}): MustEatDetailSt
     unlocking: false,
     unlockError: false,
     revealOrigin: null,
+    revealStatus: 'pending',
     zoomRect: null,
     zoomActive: false,
     handleCardClick: vi.fn(async () => undefined),
@@ -305,5 +306,37 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(screen.getByText('Du bist da.')).toBeTruthy();
     expect(screen.getByText('Tipp drauf und sieh, was du hier bestellen musst.')).toBeTruthy();
     expect(container.querySelector('[data-reveal-ready]')).not.toBeNull();
+  });
+
+  /* Nach der Beute schließt sich die Bühne um die heimkehrende Karte. Das
+     Sheet darunter trägt dann schon das Gericht — kein „Du bist da." beim
+     Heimflug, kein Einblenden nach der Landung (Betreiber, 24.09.2026). */
+  it('stands open under the reveal stage once the stage covers the sheet', () => {
+    const revealed: MapMustEat = {
+      ...mustEat,
+      dish: 'Rinder Schaufel',
+      image: '/card.webp',
+      description: 'Zwölf Stunden geschmort.',
+    };
+    const reveal = makeState({ canUnlock: true, revealOrigin: {} as DOMRect });
+    const { rerender } = render(
+      <MustEatDetailMobile mustEat={revealed} isUnlocked onClose={vi.fn()} state={reveal} />
+    );
+    // Die Iris geht noch auf: nichts verraten, was außerhalb von ihr steht.
+    expect(screen.queryByText('Rinder Schaufel')).toBeNull();
+    expect(screen.getByText('Du bist da.')).toBeTruthy();
+
+    rerender(
+      <MustEatDetailMobile
+        mustEat={revealed}
+        isUnlocked
+        revealCovered
+        onClose={vi.fn()}
+        state={reveal}
+      />
+    );
+    expect(screen.getByText('Rinder Schaufel')).toBeTruthy();
+    expect(screen.getByText('Zwölf Stunden geschmort.')).toBeTruthy();
+    expect(screen.queryByText('Du bist da.')).toBeNull();
   });
 });

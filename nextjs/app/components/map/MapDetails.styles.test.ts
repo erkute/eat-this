@@ -68,13 +68,7 @@ describe('MapDetails CSS contracts', () => {
   });
 
   it('defines and references every detail animation exactly once', () => {
-    const expected = [
-      'mustEatTapShake',
-      'rdSkelShimmer',
-      'fdNameCalmReveal',
-      'fdRevealReadyShake',
-      'fdSwipeNudge',
-    ];
+    const expected = ['mustEatTapShake', 'rdSkelShimmer', 'fdRevealReadyShake', 'fdSwipeNudge'];
     const definitions = new Map<string, number>();
     const references = new Map<string, number>();
 
@@ -100,8 +94,7 @@ describe('MapDetails CSS contracts', () => {
     expect(hasAnimationNone('.fdHeroLocked')).toBe(true);
     expect(hasAnimationNone('.fdHeroLocked.mustEatCardTapping')).toBe(true);
     expect(hasAnimationNone('.fdHeroLocked.mustEatCardCanUnlock')).toBe(true);
-    expect(hasAnimationNone('.fdNameText.fdNameUnblurring')).toBe(true);
-    expect(hasAnimationNone('.fdText.fdTextRevealing')).toBe(true);
+    expect(hasAnimationNone('.medishReady .medishPh img')).toBe(true);
     expect(hasAnimationNone('.rdBodySkel span')).toBe(true);
     // Der einmalige Wisch-Nudge ersetzt auf dem Phone die Pager-Tasten. Bei
     // reduzierter Bewegung darf er nicht laufen — dort tritt die Textfassung
@@ -287,4 +280,3 @@ describe('MapDetails CSS contracts', () => {
     expect(supports.has('(-webkit-touch-callout: none)')).toBe(true);
   });
 });
-

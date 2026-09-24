@@ -226,54 +226,24 @@ const en = {
       '{done} of {total} cards flipped. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
     metaDescriptionNamed:
       '{name} has flipped {done} of {total} cards. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
-    /* Ueber dem Deck: was das hier ist, in einem Atemzug. Der Rest steht
-       unter dem Deck. */
-    intro:
-      'Every spot on the map is hand-picked. At selected spots we also show you which dish to order. These Must Eats you can flip and collect in your deck.',
-    explainKicker: 'New here?',
-    explainTitle: 'What is Eat This?',
-    /* Nicht noch einmal „handverlesen": der Satz ueber dem Deck (`intro`)
-       faengt genauso an, und die Seite sagte ihn zweimal. */
-    explainLead:
-      'A food map for Berlin, from the starred restaurant to the place around the corner.',
-    step1Kicker: 'Must Eat',
-    step1Title: 'You have to try this.',
-    step1Body:
-      'Every card is a dish we swear by \u2014 our clear recommendation for that one restaurant.',
-    step2Kicker: 'How it works',
-    step2Title: 'Go. Tap. Open.',
-    step2Body:
-      'Every card belongs to a spot in Berlin. Go there, open the card and tap it \u2014 it flips over, and now you know what to order.',
-    step3Kicker: 'Your deck',
-    step3Title: "And then it's yours.",
-    step3Body:
-      'The card you flipped joins your deck and stays there. That is how the deck above was built.',
-    cardsAlt: 'Two Eat This cards side by side, one face down and one face up',
     deckHeadingNamed: "{name}'s deck",
     deckHeading: 'The deck',
-    /* Der Stand als Satz, nicht als Punktestand auf der Figur. */
-    standNamed:
-      '{name} has flipped {done} of {total} cards. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
+    /* Seit dem 24.09.2026 kurz: der Stand in einem Satz, ohne „liegen noch
+       verdeckt" — die Karten daneben zeigen es. */
     stand:
-      '{done} of {total} cards are flipped. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
-    /* Unter der Wand, sobald Karten gesammelt, aber nicht zu sehen sind —
-       sonst steht „26 von 26" ueber lauter Rueckseiten und liest sich wie ein
-       Fehler. */
-    heldNote: 'Only the cards anyone may see lie face up. The rest you flip yourself.',
-    empty: 'No cards on this map yet.',
-    /* Dieselbe Tafel wie der Starter-Pack-Abschnitt der Startseite, also auch
-       dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier steht
-       ein Freund daneben. */
-    joinLead:
-      '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there.',
-    joinLeadAnon:
-      '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there.',
-    browse: 'Just looking? Open the Berlin Food Map',
-    ctaHeadingIn: 'Back to your own deck',
-    ctaLineIn: 'Your cards are waiting all over Berlin.',
-    ctaIn: 'Open my deck',
-    /* Der Besitzer auf seinem eigenen Deck: keine Anmeldung, kein „zurueck". */
-    ownHeading: 'This is your deck',
+      '{done, plural, =0 {{name} is just getting started.} one {{name} has flipped one of {total} Must Eats.} other {{name} has flipped # of {total} Must Eats.}}',
+    /* Dieselben zwei Saetze wie auf /must-eats (MustEatsSection) — keine
+       dritte Fassung derselben Erklaerung. */
+    /* Ohne Vornamen — Konten aus der Mail-Anmeldung haben keinen. */
+    standAnon:
+      '{done, plural, =0 {No card flipped yet.} one {One of {total} Must Eats flipped.} other {# of {total} Must Eats flipped.}}',
+    pitchKicker: 'Must Eat?',
+    pitchTitle: 'Not just where you eat. What.',
+    pitchBody:
+      'Must Eats are the dishes you should not miss. Go there, flip them and collect them.',
+    toMap: 'To the map',
+    signIn: 'Sign up',
+    /* Der Besitzer auf seinem eigenen Deck. */
     ownLine: 'This is what everyone with your link sees.',
   },
   profile: {
@@ -300,8 +270,6 @@ const en = {
     emptyMustEats:
       'Your deck is still empty. Must Eats are out in Berlin and in the Booster Packs.',
     albumHeading: 'Your deck',
-    howTo:
-      'Every Must Eat you have flipped lands here. Whatever is missing is waiting out in Berlin and in the Booster Packs.',
     albumCount: 'of {total} Must Eats',
     albumStamped: 'Been there',
     albumGroupProgress: '{group}: {done} of {total} revealed',
@@ -659,71 +627,24 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
     metaDescriptionNamed:
       '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
-    /* Ueber dem Deck: was das hier ist, in einem Atemzug — mehr braucht es
-       nicht, um die Kartenwand darunter zu verstehen. Der ausfuehrliche Teil
-       steht UNTER dem Deck (Nutzer, 06.09.2026: „was ist Eat This muss unter
-       dem Deck, oder etwas ueber und etwas unter dem Deck an Infos").
-
-       Davor stand die ganze Erklaerung ueber dem Deck und schob es aus dem
-       ersten Bildschirm; davor stand sie ganz unten und wurde nie gelesen.
-       Beides war zu viel von einer Seite. */
-    intro:
-      'Jeder Spot auf der Map ist handverlesen. Bei ausgew\u00e4hlten Spots zeigen wir dir au\u00dferdem, welches Gericht du dort bestellen solltest. Diese Must Eats kannst du aufdecken und in deinem Deck sammeln.',
-    explainKicker: 'Neu hier?',
-    explainTitle: 'Was ist Eat This?',
-    /* Nicht noch einmal „handverlesen": der Satz ueber dem Deck (`intro`)
-       faengt genauso an, und die Seite sagte ihn zweimal. */
-    explainLead: 'Eine Food Map f\u00fcr Berlin, vom Sterne-Restaurant bis zum Laden um die Ecke.',
-    step1Kicker: 'Must Eat',
-    step1Title: 'Musst du probieren.',
-    step1Body:
-      'Jede Karte ist ein Gericht, das wir dir ans Herz legen \u2014 unsere klare Empfehlung f\u00fcr genau dieses Restaurant.',
-    step2Kicker: "So geht's",
-    step2Title: 'Hin. Tap. Offen.',
-    /* Der ganze Handgriff, nicht die Kurzfassung (Nutzer, 06.09.2026: „mehr
-       Details … geh hin, oeffne die Karte, tipp sie an — und sie dreht sich
-       um, du weißt was du probieren musst und die Karte kommt in dein
-       Deck"). Kuerzer steht er im Must-Eats-Onboarding (`mustEats.onb2Body`),
-       und das darf so bleiben: dort dreht sich waehrenddessen eine echte
-       Karte, hier steht keine. */
-    step2Body:
-      'Jede Karte geh\u00f6rt zu einem Spot in Berlin. Geh hin, \u00f6ffne die Karte und tipp sie an \u2014 sie dreht sich um, und du wei\u00dft, was du dort bestellen musst.',
-    step3Kicker: 'Dein Deck',
-    step3Title: 'Und sie geh\u00f6rt dir.',
-    step3Body:
-      'Die aufgedeckte Karte wandert in dein Deck und bleibt dort. Genau so ist das Deck hier oben entstanden.',
-    cardsAlt:
-      'Zwei Eat-This-Sammelkarten nebeneinander, eine mit der R\u00fcckseite nach oben, eine aufgedeckt',
     deckHeadingNamed: '{name}s Deck',
     deckHeading: 'Das Deck',
-    /* Der Stand als Satz. Als Zahlenpaar stand er bis zum 06.09.2026 auf der
-       Spielerkarte und sagte einem Fremden „10/25", bevor er wusste, wovon
-       (Nutzer: „das braucht es nicht"). Als Satz sagt er, was er meint — und
-       er sagt es an der Stelle, an der es um den Freund geht. */
-    standNamed:
-      '{name} hat {done} von {total} Karten umgedreht. {missing, plural, =0 {Das Deck ist voll.} one {Eine liegt noch verdeckt.} other {# liegen noch verdeckt.}}',
+    /* Seit dem 24.09.2026 kurz: der Stand in einem Satz, ohne „liegen noch
+       verdeckt" — die Karten daneben zeigen es. */
     stand:
-      '{done} von {total} Karten sind umgedreht. {missing, plural, =0 {Das Deck ist voll.} one {Eine liegt noch verdeckt.} other {# liegen noch verdeckt.}}',
-    /* Unter der Wand, sobald Karten gesammelt, aber nicht zu sehen sind —
-       sonst steht „26 von 26" ueber lauter Rueckseiten und liest sich wie ein
-       Fehler. */
-    heldNote: 'Offen liegen nur die Karten, die jeder sehen darf. Den Rest deckst du selbst auf.',
-    empty: 'Auf dieser Map liegen noch keine Karten.',
-    /* Der Ausgang. Kein Knopf mehr, der irgendwohin fuehrt: das Feld steht
-       auf der Seite (Nutzer, 06.09.2026). Was es verspricht, ist dasselbe wie
-       auf der Startseite — das Starter Pack. */
-    joinLead:
-      '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen.',
-    joinLeadAnon:
-      '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen.',
-    /* Der leise Weg fuer alle, die sich noch nicht anmelden wollen — statt
-       einer Sackgasse. */
-    browse: 'Erst mal umsehen? Zur Berlin Food Map',
-    ctaHeadingIn: 'Zur\u00fcck zu deinem eigenen Deck',
-    ctaLineIn: 'Deine Karten warten \u00fcberall in Berlin.',
-    ctaIn: 'Mein Deck',
-    /* Der Besitzer auf seinem eigenen Deck: keine Anmeldung, kein „zurueck". */
-    ownHeading: 'Das ist dein Deck',
+      '{done, plural, =0 {{name} f\u00e4ngt gerade an.} one {{name} hat ein Must Eat von {total} aufgedeckt.} other {{name} hat # von {total} Must Eats aufgedeckt.}}',
+    /* Dieselben zwei Saetze wie auf /must-eats (MustEatsSection) — keine
+       dritte Fassung derselben Erklaerung. */
+    /* Ohne Vornamen — Konten aus der Mail-Anmeldung haben keinen. */
+    standAnon:
+      '{done, plural, =0 {Noch keine Karte aufgedeckt.} one {Ein Must Eat von {total} aufgedeckt.} other {# von {total} Must Eats aufgedeckt.}}',
+    pitchKicker: 'Must Eat?',
+    pitchTitle: 'Nicht nur wissen, wo du essen sollst. Sondern was.',
+    pitchBody:
+      'Must Eats sind die Gerichte, die du nicht verpassen solltest. Geh hin, deck sie auf und sammle sie.',
+    toMap: 'Zur Map',
+    signIn: 'Anmelden',
+    /* Der Besitzer auf seinem eigenen Deck. */
     ownLine: 'So sieht es jeder, der deinen Link bekommt.',
   },
   profile: {
@@ -753,11 +674,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyMustEats:
       'Dein Deck ist noch leer. Must Eats findest du drau\u00dfen in Berlin und in den Booster Packs.',
     albumHeading: 'Dein Deck',
-    /* Der Handgriff in einem Satz. Bis zum 06.09.2026 hatte `deck.howTo`
-       einen Zwilling davon; auf dem geteilten Deck tragen ihn jetzt die drei
-       Schritte, hier steht er allein. */
-    howTo:
-      'Hier landen alle Must Eats, die du aufgedeckt hast. Was noch fehlt, wartet drau\u00dfen in Berlin und in den Booster Packs.',
     albumCount: 'von {total} Must Eats',
     /* Der Stempel auf einer Karte, die vor Ort umgedreht wurde. Kurz, weil er
        quer über eine Karte läuft — und Vergangenheit, weil er eine Tat

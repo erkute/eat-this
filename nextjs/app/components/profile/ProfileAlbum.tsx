@@ -141,11 +141,7 @@ export default function ProfileAlbum({
           dem Telefon muss die Reiterleiste unter dem Paar aus Karte und Titel
           durchlaufen, und das geht nur, wenn sie im selben Raster liegt. */}
       <div className={styles.masthead}>
-        <ProfilePlayerCard
-          name={player.name}
-          avatarIdx={player.avatarIdx}
-          onPick={player.onPick}
-        />
+        <ProfilePlayerCard name={player.name} avatarIdx={player.avatarIdx} onPick={player.onPick} />
 
         <div className={`hv-head ${styles.head}`}>
           {/* Das h1 der Seite. Bisher hiess es „Ersan" und stand in der
@@ -159,13 +155,10 @@ export default function ProfileAlbum({
               Reiter darunter. Seit dem 06.09.2026 steht er nur noch dort —
               auf „Alle", dem Reiter, der genau diese Menge schaltet. */}
           <h1 className="hv-title">{t('albumHeading')}</h1>
-          {/* Wie das Spiel geht, in einem Satz — derselbe, der seit dem
-              04.09.2026 auf dem geteilten Deck steht (Nutzer, 05.09.2026:
-              „das ist eine sehr gute Info, die brauch ich auf jeden Fall auch
-              fuers normale Profil"). Er nimmt dem naechsten Zug darunter die
-              Erklaerarbeit ab: der sagt jetzt nur noch, WO die naechste Karte
-              liegt. */}
-          <p className={styles.howTo}>{t('howTo')}</p>
+          {/* Kein Erklaersatz mehr daneben (Nutzer, 24.09.2026: „diese ganzen
+              Infos neben dem Foto, braucht es das?"). Was ein leerer Platz
+              heisst, sagt der Platz selbst: die gedaempfte Rueckseite mit dem
+              Spot darauf, in dem die Karte liegt. */}
           {/* Sichtbar steht der Stand auf dem „Alle"-Reiter, und der ist ein
               Zahlenpaar in einem Knopf. Hier bleibt er als Satz — und zwar
               auch dann, wenn die Reiterleiste gar nicht rendert (ein einziger
@@ -325,22 +318,16 @@ export default function ProfileAlbum({
                     )}
                   </>
                 ) : (
-                  /* Der leere Platz zeigt, was dorthin gehoert: die Nummer
-                     der Karte und das Lokal, in dem sie liegt. Ein Album-
-                     Feld ohne Beschriftung waere nur ein Loch — mit ihr ist
-                     es eine Aufgabe. Die Rueckseite bleibt als Wasserzeichen
-                     darunter, damit der Platz zur Marke gehoert.
-
-                     Die Nummer ist die der KARTE (`order`), dreistellig wie
-                     im Druck — nicht mehr die laufende Position im Album. */
+                  /* Der leere Platz: dieselbe gedaempfte Rueckseite, mit der
+                     das geteilte Deck eine noch fehlende Karte zeigt — eine
+                     Sprache fuer „noch nicht gesammelt" auf beiden Seiten.
+                     Darauf der Spot, in dem die Karte liegt: das ist die
+                     Aufgabe. Bis zum 24.09.2026 stand hier ein gestricheltes
+                     Feld mit Nummer und Wasserzeichen — drei Angaben fuer eine,
+                     und die Nummer beantwortete keine Frage. */
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img className={styles.backImg} src={CARD_BACK} alt="" loading="lazy" />
-                    {slot.no && (
-                      <span className={styles.slotNo} aria-hidden="true">
-                        {slot.no}
-                      </span>
-                    )}
                     {where && (
                       <span className={styles.slotWhere} aria-hidden="true">
                         {where}

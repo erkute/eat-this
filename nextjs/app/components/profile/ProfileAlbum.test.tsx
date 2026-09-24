@@ -209,8 +209,9 @@ describe('ProfileAlbum', () => {
 
   /* Ein leerer Platz ohne Beschriftung ist ein Loch; mit dem Lokal darauf ist
      er eine Aufgabe. Der Name kommt aus der Huelle der verdeckten Karte —
-     die traegt kein Gericht und kein Bild, aber sehr wohl ihren Spot. */
-  it('beschriftet den leeren Platz mit Nummer und Lokal', () => {
+     die traegt kein Gericht und kein Bild, aber sehr wohl ihren Spot. Die
+     Nummer steht seit dem 24.09.2026 nur noch im Namen fuer Vorleser. */
+  it('beschriftet den leeren Platz mit dem Lokal, die Nummer nur fuer Vorleser', () => {
     const covered: MapMustEat = {
       _id: 'm2',
       order: 26,
@@ -228,8 +229,7 @@ describe('ProfileAlbum', () => {
     );
 
     const slot = screen.getByLabelText('lockedSubhead — 026');
-    expect(slot.textContent).toContain('026');
-    expect(slot.textContent).toContain('Cafe Kranzler');
+    expect(slot.textContent).toBe('Cafe Kranzler');
     /* Und weiterhin kein Gericht, kein Bild der Karte: nur die Rueckseite. */
     expect(container.querySelector('img[src^="/api/must-eat-image"]')).toBeNull();
   });

@@ -49,6 +49,12 @@
   grid-area: card;
 }
 
+/* Die Spielerkarte ist das Titelblatt, nicht der Star — seit dem 24.09.2026
+   eine Stufe kleiner, damit die erste Kartenreihe naeher an den Kopf rueckt. */
+.masthead {
+  --album-player-w: clamp(96px, 10vw, 140px);
+}
+
 .masthead > .head {
   grid-area: head;
   min-width: 0;
@@ -61,22 +67,6 @@
 .albumMove {
   min-width: 0;
   margin-bottom: clamp(8px, 1vw, 12px);
-}
-
-/* Der Slogan: wie das Spiel geht, in einem Satz. Derselbe, der auf dem
-   geteilten Deck steht — er nimmt dem naechsten Zug darunter die
-   Erklaerarbeit ab. */
-.howTo {
-  max-width: 46ch;
-  /* Ohne das blieb auf 390 px ein einzelnes „dir." als vierte Zeile stehen.
-     Wo der Browser es nicht kennt, aendert sich nichts. */
-  text-wrap: pretty;
-  margin: 10px 0 0;
-  color: var(--album-muted);
-  font-family: var(--album-display);
-  font-size: clamp(14px, 1.2vw, 17px);
-  font-weight: 400;
-  line-height: 1.35;
 }
 
 /* `hv-head` ist eine Zeile mit zwei Enden; hier stapeln sich Titel und
@@ -517,69 +507,57 @@ div.player {
     drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-accent) 70%, transparent));
 }
 
-/* Der leere Platz liegt IM Album: eingelassener Schatten statt Schlagschatten,
-   gestrichelte Kante, und er hebt sich beim Anfassen NICHT — da liegt nichts,
-   was man anheben koennte. */
+/* Der leere Platz — seit dem 24.09.2026 die gedaempfte Rueckseite, dieselbe
+   wie fuer eine fehlende Karte auf dem geteilten Deck. Keine gestrichelte
+   Kante, keine Nummer, kein eingelassener Schatten: die Karte ist schon da,
+   nur noch nicht umgedreht. Sie hebt sich beim Anfassen nicht, sie hellt
+   sich auf — Faerbung, keine Bewegung. */
 .empty {
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px dashed rgba(255, 255, 255, 0.22);
-  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.55);
+  background: var(--profile-raised, #25231f);
 }
 
-@media (hover: hover) {
-  .empty:hover {
-    border-color: rgba(255, 255, 255, 0.4);
-  }
-}
-
-.empty:focus-visible {
-  outline: 3px solid var(--album-accent);
-  outline-offset: 2px;
-}
-
-/* Die Rueckseite bleibt als Wasserzeichen: der Platz gehoert zur Marke,
-   ist aber sichtbar leer. Bei 0.28 lag der Markenschriftzug genau hinter der
-   Platznummer und schluckte sie — 0.13 laesst das Muster stehen und die
-   Zahl lesbar werden. */
 .empty .backImg {
-  position: absolute;
-  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  opacity: 0.13;
+  filter: brightness(0.34) saturate(0.4);
+  transition: filter 180ms ease;
 }
 
-/* Die Nummer ist die Beschriftung des Platzes, wie im Panini-Album. */
-.slotNo {
-  position: relative;
-  color: var(--album-ink);
-  font-family: var(--album-display);
-  font-size: clamp(26px, 3vw, 38px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.72;
+@media (hover: hover) {
+  .empty:hover .backImg {
+    filter: brightness(0.5) saturate(0.55);
+  }
 }
 
+/* Kein gelber Ring (Nutzer, 23.09.2026) — Fokus hellt auf wie Hover. */
+.empty:focus-visible {
+  outline: 0;
+}
+
+.empty:focus-visible .backImg {
+  filter: brightness(0.5) saturate(0.55);
+}
+
+/* Der Spot, in dem die Karte liegt — unten auf der Karte, wo auf einer
+   offenen Karte die Beschreibung steht. */
 .slotWhere {
   position: absolute;
   right: 8px;
-  bottom: 7px;
+  bottom: 9px;
   left: 8px;
   color: var(--album-ink);
-  font-family: var(--et-font-label, sans-serif);
-  font-size: 9px;
+  font-family: var(--album-display);
+  font-size: clamp(10px, 0.9vw, 12px);
   font-weight: 700;
-  letter-spacing: 0.1em;
-  line-height: 1.25;
+  letter-spacing: 0.06em;
+  /* Providence haengt unter die Grundlinie — mit Zeilenklemme braucht sie
+     Luft, sonst kappt `overflow` das g. */
+  line-height: 1.35;
   text-align: center;
   text-transform: uppercase;
-  opacity: 0.62;
+  text-wrap: balance;
   /* Zwei Zeilen genuegen fuer „Restaurant Tim Raue" — was laenger ist,
      bricht sauber ab statt den Platz zu sprengen. */
   display: -webkit-box;
@@ -631,16 +609,11 @@ div.player {
   }
 
   .player {
-    width: clamp(108px, 30vw, 132px);
+    width: var(--album-player-w, clamp(108px, 30vw, 132px));
   }
 
   .head {
     gap: 0;
-  }
-
-  .howTo {
-    margin-top: 8px;
-    font-size: 13px;
   }
 
   /* Eine Zeile, die seitlich laeuft: sieben Bezirke umgebrochen waeren auf

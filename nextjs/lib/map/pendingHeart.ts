@@ -1,6 +1,7 @@
 'use client';
 import { auth } from '@/lib/firebase/config';
 import { HEART_PARAM } from '@/lib/auth/loginContinueUrl';
+import { notify } from '@/lib/notice';
 
 /**
  * Das Herz, das jemand vergeben wollte, bevor der Login dazwischenkam.
@@ -71,9 +72,9 @@ function takeFromUrl(): string | null {
   return id;
 }
 
-async function applyPendingHeart(restaurantId: string, locale: string): Promise<void> {
+async function applyPendingHeart(restaurantId: string, locale: string): Promise<boolean> {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) return false;
   try {
     const token = await user.getIdToken();
     /* Immer 'add', nie ein Toggle: der Tap von vorhin galt einem leeren Herz,
@@ -85,32 +86,43 @@ async function applyPendingHeart(restaurantId: string, locale: string): Promise<
     });
     if (!res.ok) throw new Error(`heart ${res.status}`);
   } catch {
-    window.showNotification?.(
-      locale === 'en' ? 'Something went wrong' : 'Etwas ist schiefgelaufen'
-    );
-    return;
+    notify('actionFailed', locale);
+    return false;
   }
-  /* Laenger als die Standardmeldung: beim Google-Weg liegt bis zu diesem
-     Moment noch der Wartescreen (AUTH_SCREEN_HOLD_MS) darueber, und die
-     Bestaetigung soll danach noch zu lesen sein. */
-  window.showNotification?.(locale === 'en' ? 'Spot saved' : 'Spot gespeichert', 5000);
+  return true;
 }
 
-let settling: { uid: string; promise: Promise<void> } | null = null;
+let settling: { uid: string; promise: Promise<boolean>; announced: boolean } | null = null;
 
 /**
- * Loest ein ausstehendes Herz ein und meldet, wann das erledigt ist.
+ * Loest ein ausstehendes Herz ein und meldet, ob dabei ein Spot gespeichert
+ * wurde.
  *
  * useFavorites wartet darauf, BEVOR es die Favoriten liest — sonst laeuft die
  * Leseanfrage gegen den Stand von vor dem Schreiben, und das gerade vergebene
  * Herz waere im ersten Bild wieder leer. Mehrere useFavorites auf einer Seite
  * (Karte und Buddy-Widget) teilen sich dieselbe Zusage: eingeloest wird einmal.
+ *
+ * Die Bestaetigung kommt nicht von hier, sondern von useFavorites nach dem
+ * Lesen: erst die gelesene Liste sagt, ob das der erste Spot war (lib/notice:
+ * spotSavedFirst gegen spotSaved). Nur ein Fehlschlag meldet sich hier.
  */
-export function settlePendingHeart(uid: string, locale: string): Promise<void> {
+export function settlePendingHeart(uid: string, locale: string): Promise<boolean> {
   if (settling?.uid === uid) return settling.promise;
   const restaurantId = takeFromUrl() ?? takeFromStorage();
-  if (!restaurantId) return Promise.resolve();
+  if (!restaurantId) return Promise.resolve(false);
   const promise = applyPendingHeart(restaurantId, locale);
-  settling = { uid, promise };
+  settling = { uid, promise, announced: false };
   return promise;
+}
+
+/**
+ * Ob diese Liste die Bestaetigung des eingeloesten Herzens zeigen soll. Genau
+ * eine darf — die erste, die fragt —, sonst stuende dieselbe Meldung einmal
+ * pro useFavorites auf der Seite an.
+ */
+export function claimPendingHeartNotice(uid: string): boolean {
+  if (!settling || settling.uid !== uid || settling.announced) return false;
+  settling.announced = true;
+  return true;
 }

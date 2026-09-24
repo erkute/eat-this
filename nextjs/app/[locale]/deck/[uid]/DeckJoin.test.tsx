@@ -11,19 +11,13 @@ const googleState = vi.hoisted(() => ({
   phase: 'idle' as 'idle' | 'busy' | 'done' | 'leaving',
   note: null as 'cancelled' | 'blocked' | 'failed' | null,
   noteKey: null as string | null,
-  onSettled: undefined as (() => void) | undefined,
 }));
-const announceSignIn = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/auth', () => ({
   useAuth: () => authState,
   useMagicLink: () => ({ sendLink, reset: vi.fn(), ...magicState }),
-  useGoogleSignIn: (options: { onSettled?: () => void } = {}) => {
-    googleState.onSettled = options.onSettled;
-    return googleState;
-  },
+  useGoogleSignIn: () => googleState,
 }));
-vi.mock('@/lib/auth/signInArrival', () => ({ announceSignIn }));
 /* Der Wartescreen braucht next-intl; hier zaehlt nur, ob er da ist. */
 vi.mock('@/app/components/AuthScreen', () => ({
   default: ({ leaving }: { leaving?: boolean }) => (
@@ -58,7 +52,6 @@ describe('DeckJoin', () => {
     googleState.phase = 'idle';
     googleState.note = null;
     googleState.noteKey = null;
-    announceSignIn.mockReset();
   });
 
   it('schickt den Magic Link von der Seite aus, ohne Umweg', () => {
@@ -178,21 +171,6 @@ describe('DeckJoin', () => {
     authState.user = { uid: 'Z2IJ8CJsEeQVlV5X4TiwhaOE7423' };
     render(<DeckJoin name="Ersan" />);
     expect(screen.getByTestId('auth-screen')).toBeTruthy();
-  });
-
-  /* Nie Toast UND Pack-Einblendung: was gesagt wird, entscheidet
-     signInArrival, nicht diese Tafel. */
-  it('meldet die Anmeldung ueber announceSignIn, nicht direkt als Toast', () => {
-    const showNotification = vi.fn();
-    window.showNotification = showNotification;
-    render(<DeckJoin name="Ersan" />);
-
-    googleState.onSettled?.();
-    expect(announceSignIn).toHaveBeenCalledTimes(1);
-    expect(showNotification).not.toHaveBeenCalled();
-
-    announceSignIn.mock.calls[0][0]();
-    expect(showNotification).toHaveBeenCalledWith('signedIn');
   });
 
   it('sagt ein selbst zugeklicktes Google-Fenster leise an, ein geblocktes laut', () => {

@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { haversineDistance, formatWalkingTime } from '@/lib/map/distance';
-import { getLocationNoticeCopy, getLocationStatus } from '@/lib/map/locationStatus';
+import { LOCATION_ERROR_VISIBLE_MS, getLocationStatus } from '@/lib/map/locationStatus';
+import { notify, type NoticeKind } from '@/lib/notice';
+import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { normalizeName } from '@/lib/normalizeName';
 import { nearestRestaurants, rotatingRestaurants } from '@/lib/home/nearby';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
@@ -32,11 +34,6 @@ export default function HubNearby({ locale = 'de', today }: Props) {
     locationError: locError,
     locateLoading: locating,
   });
-  const locationStatusKey = locationStatus.copy
-    ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locating ? 'loading' : 'idle'}`
-    : null;
-  const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null);
-  const [locationSuccessKey, setLocationSuccessKey] = useState(0);
   // The first client render must match SSR (anon initialMapData + Mitte). Only
   // after mount switch to live data (which may be the cached signed-in payload)
   // + the resolved geolocation — otherwise the nearby list/distances mismatch
@@ -45,93 +42,47 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   useEffect(() => {
     setMounted(true);
   }, []);
-  useEffect(() => {
-    if (!locationSuccessKey) return;
-    const timeout = window.setTimeout(() => setLocationSuccessKey(0), 3600);
-    return () => window.clearTimeout(timeout);
-  }, [locationSuccessKey]);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
   const count = 4;
 
-  const showLocationStatus = Boolean(
-    mounted && locationStatus.copy && locationStatusKey !== dismissedLocationStatusKey
-  );
-  const showLocationSuccess = Boolean(mounted && locationSuccessKey && !showLocationStatus);
+  /* Nur die Fehler laufen durch die zentrale Info-Karte. „Wir suchen dich"
+     sagt der Knopf selbst, und ein gefundener Standort zeigt sich daran, dass
+     die Liste sich umsortiert — beide Meldungen sind am 24.09.2026 raus. Der
+     Schluessel ist der Fehlersatz: ein anderer Fehler kommt wieder, derselbe
+     weggeklickte nicht. */
+  const errorKey = mounted && locationStatus.isError ? locationStatus.copy : null;
+  const [dismissedErrorKey, setDismissedErrorKey] = useState<string | null>(null);
   const handleLocate = useCallback(async () => {
-    setDismissedLocationStatusKey(null);
-    setLocationSuccessKey(0);
-    const nextLocation = await request();
-    if (nextLocation) setLocationSuccessKey(Date.now());
+    setDismissedErrorKey(null);
+    await request();
   }, [request]);
-  const handleDismissLocationStatus = useCallback(() => {
-    if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
-  }, [locationStatusKey]);
-
-  /* Die Standort-Meldung laeuft durch die zentrale Info-Karte, genau wie die
-     der Karte (MapSectionBody). Vorher stand hier eine eigene Leiste am
-     unteren Bildrand — auf der langen Startseite lag sie meist ausserhalb des
-     Blicks, waehrend der Knopf, den sie beantwortet, oben im Aufmacher sitzt.
-     Der Zustandsautomat bleibt hier, die Karte zeigt nur; `duration: 0`, weil
-     dieser Automat das Abraeumen besitzt. */
-  const successCopy =
-    locale === 'en'
-      ? {
-          eyebrow: 'Location',
-          title: 'Location locked',
-          detail: 'Berlin is sorting around you.',
-        }
-      : {
-          eyebrow: 'Standort',
-          title: 'Standort sitzt',
-          detail: 'Berlin sortiert sich um dich herum.',
-        };
-  const noticeCopy = showLocationSuccess
-    ? successCopy
-    : showLocationStatus
-      ? getLocationNoticeCopy(locale, locating ? null : locError, locating)
+  const errorKind: NoticeKind | null =
+    errorKey && errorKey !== dismissedErrorKey
+      ? locError === 'denied'
+        ? 'locationBlocked'
+        : 'locationNotFound'
       : null;
-  /* Ueber die einzelnen Zeilen statt ueber das Objekt: das entsteht bei jedem
-     Rendern neu und wuerde die Meldung sonst dauernd neu aufziehen. */
-  const noticeEyebrow = noticeCopy?.eyebrow ?? null;
-  const noticeTitle = noticeCopy?.title ?? null;
-  const noticeDetail = noticeCopy?.detail ?? null;
-  const noticeIsError = Boolean(locationStatus.isError && !showLocationSuccess);
-  const noticeCanRetry = Boolean(locationStatus.canRetry && !showLocationSuccess);
+  const canRetry = locationStatus.canRetry;
   useEffect(() => {
-    if (!noticeTitle || !noticeEyebrow) return;
+    if (!errorKind) return;
     /* Der Rueckgabewert raeumt genau diese Meldung ab und laesst eine
        inzwischen nachgerueckte stehen. */
-    return window.showNotice?.({
-      tone: noticeIsError ? 'warning' : showLocationSuccess ? 'success' : 'info',
-      icon: noticeIsError ? 'pin' : showLocationSuccess ? 'check' : 'pin',
-      eyebrow: noticeEyebrow,
-      title: noticeTitle,
-      detail: noticeDetail ?? undefined,
-      action: noticeCanRetry
+    if (errorKind === 'locationBlocked') {
+      return notify(
+        errorKind,
+        locale,
+        locationBlockedOptions(locale, () => setDismissedErrorKey(errorKey))
+      );
+    }
+    return notify(errorKind, locale, {
+      action: canRetry
         ? { label: locale === 'en' ? 'Retry' : 'Nochmal', onClick: handleLocate }
         : undefined,
-      /* Nur die Fehler bekommen einen Wegklick-Knopf; der Erfolg raeumt sich
-         nach seiner eigenen Frist selbst ab. */
-      onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
-      duration: 0,
-      /* Scrim nur, wo eine Antwort faellig ist: die Fehler tragen Knoepfe und
-         warten. „Wir suchen dich" und „Standort sitzt" gehen von allein — die
-         Seite laeuft unter ihnen weiter, und iOS 26 faerbt seine Leisten nach
-         dem Scrim (globals.css, .notification-layer). */
-      layer: noticeIsError,
+      onDismiss: () => setDismissedErrorKey(errorKey),
+      duration: LOCATION_ERROR_VISIBLE_MS,
     });
-  }, [
-    noticeEyebrow,
-    noticeTitle,
-    noticeDetail,
-    noticeIsError,
-    noticeCanRetry,
-    showLocationSuccess,
-    locale,
-    handleLocate,
-    handleDismissLocationStatus,
-  ]);
+  }, [errorKind, errorKey, canRetry, locale, handleLocate]);
 
   // With a grant: genuinely nearest. Without: a daily rotation across Berlin
   // rather than the same four spots around a Mitte centroid the visitor never

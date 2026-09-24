@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
+import { notify } from '@/lib/notice';
 
 interface Props {
-  loading: boolean;
   error: string | null;
   hasData: boolean;
   onRetry: () => void;
@@ -16,38 +16,29 @@ interface Props {
  * A successful background refresh stays silent.
  *
  * Die Meldung hat keine eigene Fläche: sie läuft durch die zentrale Info-Karte
- * (NotificationToast, mittig im Onboarding-Zuschnitt), wie die Standort-Meldung
- * von Karte und Startseite auch. Vorher war das eine kleine Leiste am unteren
- * Bildrand — auf dem Telefon unter dem Sheet, und die dritte Infofläche auf
- * einem Schirm. `duration: 0`: die Meldung steht, solange der Zustand steht,
- * und der Rückgabewert räumt genau sie wieder ab.
+ * (NotificationToast), wie die Standort-Meldung von Karte und Startseite auch.
+ * `duration: 0`: die Meldung steht, solange der Zustand steht, und der
+ * Rückgabewert räumt genau sie wieder ab.
+ *
+ * Nur Fehler melden sich. Einen Ladezustand gab es bis 24.09.2026 auch („Wird
+ * geladen"), aber die Map kommt mit Server-Daten, und wo sie fehlen, sagt
+ * eine leere Karte dasselbe. Ein Zustand „aktualisiert im Hintergrund" fehlt
+ * mit Absicht: die Meldung sprang bei jedem Besuch von Deck und Map auf und
+ * gleich wieder zu (bis 22.09.2026). Geht die Aktualisierung schief, meldet
+ * sich `stale`.
  */
-export default function MapDataNotice({ loading, error, hasData, onRetry }: Props) {
-  const t = useTranslations('map');
-  /* Kein Zustand fuer „aktualisiert im Hintergrund": die Daten stehen dann
-     schon da, und die Meldung sagte nur, dass gleich dasselbe noch einmal
-     kommt. Sie sprang bei jedem Besuch von Deck und Map auf und gleich wieder
-     zu (bis 22.09.2026). Geht die Aktualisierung schief, meldet sich `stale`. */
-  const state = error ? (hasData ? 'stale' : 'error') : loading && !hasData ? 'loading' : null;
+export default function MapDataNotice({ error, hasData, onRetry }: Props) {
+  const locale = useLocale();
+  const state = error ? (hasData ? 'mapDataStale' : 'mapDataError') : null;
 
   useEffect(() => {
     if (!state) return;
-    const isError = state === 'error' || state === 'stale';
-    const key = {
-      loading: 'dataLoading',
-      error: 'dataError',
-      stale: 'dataStale',
-    }[state];
-    return window.showNotice?.({
-      tone: isError ? 'warning' : 'info',
-      icon: isError ? 'alert' : 'spark',
-      eyebrow: t('dataEyebrow'),
-      title: t(`${key}Title`),
-      detail: t(`${key}Detail`),
-      action: isError ? { label: t('dataRetry'), onClick: onRetry } : undefined,
+    return notify(state, locale, {
+      action: { label: locale === 'en' ? 'Retry' : 'Nochmal', onClick: onRetry },
+      onDismiss: () => {},
       duration: 0,
     });
-  }, [state, onRetry, t]);
+  }, [state, onRetry, locale]);
 
   return null;
 }

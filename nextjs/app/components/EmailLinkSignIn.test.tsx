@@ -15,8 +15,6 @@ vi.mock('@/lib/firebase/config', () => ({ auth: {} }));
 const analytics = vi.hoisted(() => ({ trackEvent: vi.fn() }));
 vi.mock('@/lib/analytics', () => analytics);
 
-const arrival = vi.hoisted(() => ({ announceSignIn: vi.fn() }));
-vi.mock('@/lib/auth/signInArrival', () => arrival);
 
 import EmailLinkSignIn from './EmailLinkSignIn';
 
@@ -79,8 +77,6 @@ describe('Link aus der Anmelde-Mail', () => {
     expect(fb.signInWithEmailLink.mock.calls[0][2]).toContain('oobCode=abc');
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(analytics.trackEvent).toHaveBeenCalledWith('sign_up', { method: 'email_link' });
-    // Wiederkehrer bekommen die Zeile, neue Konten die Tour — das entscheidet signInArrival.
-    expect(arrival.announceSignIn).toHaveBeenCalledTimes(1);
   });
 
   it('zaehlt einen Wiederkehrer als login', async () => {

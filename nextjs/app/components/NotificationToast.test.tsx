@@ -7,10 +7,10 @@ vi.mock('@/lib/i18n', () => ({
 }));
 
 import NotificationToast from './NotificationToast';
+import { notify } from '@/lib/notice';
 
 beforeEach(() => {
   vi.useFakeTimers();
-  sessionStorage.clear();
 });
 
 afterEach(() => {
@@ -23,24 +23,40 @@ function card() {
 }
 
 describe('NotificationToast — die eine Infoflaeche', () => {
-  it('uebersetzt eine fertige Zeile in Augenbraue, Titel und Detail', () => {
+  it('zeigt eine Meldung aus dem Katalog mit Kicker, Titel und Zeile', () => {
     render(<NotificationToast />);
 
     act(() => {
-      window.showNotification?.('Spot gespeichert');
+      notify('spotSaved', 'de');
     });
 
     expect(card().className).toContain('show');
-    expect(card().dataset.tone).toBe('success');
+    expect(card().dataset.tone).toBeUndefined();
     expect(screen.getByText('Spot')).toBeTruthy();
     expect(screen.getByText('Gespeichert')).toBeTruthy();
+    expect(screen.getByText('Noch einer für deine Liste.')).toBeTruthy();
+  });
+
+  /* Bis 24.09.2026 las die Karte freie Saetze nach Stichworten: „Konnte
+     nicht gespeichert werden." enthielt „gespeichert" und kam als
+     Erfolgsmeldung an. Ein Fehler ist jetzt eine eigene Meldung. */
+  it('zeigt einen Fehler als Fehler, nie als Bestaetigung', () => {
+    render(<NotificationToast />);
+
+    act(() => {
+      notify('actionFailed', 'de');
+    });
+
+    expect(card().dataset.tone).toBe('error');
+    expect(screen.getByText('Hat nicht geklappt')).toBeTruthy();
+    expect(screen.queryByText('Gespeichert')).toBeNull();
   });
 
   it('faehrt nach der Standzeit wieder zu, bleibt aber im Dokument', () => {
     render(<NotificationToast />);
 
     act(() => {
-      window.showNotification?.('Spot gespeichert');
+      notify('spotSaved', 'de');
     });
     act(() => {
       vi.advanceTimersByTime(3000);
@@ -54,29 +70,23 @@ describe('NotificationToast — die eine Infoflaeche', () => {
 
   /* iOS 26 Safari faerbt seine Leisten nach jeder fixierten Huelle an der
      Viewport-Kante, auch einer unsichtbaren. Fixiert (data-open) ist die
-     Huelle deshalb nur, solange eine Karte offen ist oder gerade ausfaehrt. */
-  it('fixiert die Huelle nur, solange die Karte offen ist oder ausfaehrt', () => {
+     Huelle deshalb nur, solange eine Karte steht — sie geht ohne Ausfahren,
+     wie Onboarding und Anmelde-Layer. */
+  it('fixiert die Huelle nur, solange die Karte steht', () => {
     render(<NotificationToast />);
     const layer = () => document.querySelector('.notification-layer') as HTMLElement;
 
     expect(layer().hasAttribute('data-open')).toBe(false);
 
     act(() => {
-      window.showNotification?.('Spot gespeichert');
+      notify('spotSaved', 'de');
     });
     expect(layer().hasAttribute('data-open')).toBe(true);
 
     act(() => {
       vi.advanceTimersByTime(3000);
     });
-    // Ausgefahren wird noch: die Huelle bleibt fixiert, bis der Uebergang
-    // durch ist, sonst spraenge die Karte in den Dokumentfluss.
     expect(card().className).not.toContain('show');
-    expect(layer().hasAttribute('data-open')).toBe(true);
-
-    act(() => {
-      vi.advanceTimersByTime(400);
-    });
     expect(layer().hasAttribute('data-open')).toBe(false);
   });
 
@@ -91,7 +101,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(card().hasAttribute('aria-live')).toBe(false);
 
     act(() => {
-      window.showNotification?.('Spot gespeichert');
+      notify('spotSaved', 'de');
     });
     expect(live().textContent).toContain('Gespeichert');
 
@@ -107,8 +117,6 @@ describe('NotificationToast — die eine Infoflaeche', () => {
 
     act(() => {
       window.showNotice?.({
-        tone: 'warning',
-        icon: 'pin',
         eyebrow: 'Standort',
         title: 'Standort nicht gefunden',
         action: { label: 'Nochmal', onClick: retry },
@@ -137,15 +145,13 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     let release: (() => void) | void;
     act(() => {
       release = window.showNotice?.({
-        tone: 'warning',
-        icon: 'pin',
         eyebrow: 'Standort',
         title: 'Standort nicht gefunden',
         duration: 0,
       });
     });
     act(() => {
-      window.showNotification?.('Spot gespeichert');
+      notify('spotSaved', 'de');
     });
     act(() => {
       release?.();
@@ -155,21 +161,19 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(screen.getByText('Gespeichert')).toBeTruthy();
   });
 
-  /* Standort-Meldungen liegen als Layer ueber der Seite: ein Tipp daneben
-     darf nichts in der Seite ausloesen, sondern raeumt die Karte weg. */
-  it('legt der Layer-Meldung einen Scrim unter, der sie beim Tipp abraeumt', () => {
+  /* Eine Meldung mit Knoepfen wartet auf eine Antwort und liegt als Layer
+     ueber der Seite: ein Tipp daneben darf nichts in der Seite ausloesen,
+     sondern raeumt die Karte weg. */
+  it('legt einer Meldung mit Knoepfen einen Scrim unter, der sie beim Tipp abraeumt', () => {
     render(<NotificationToast />);
     const onDismiss = vi.fn();
 
     act(() => {
       window.showNotice?.({
-        tone: 'warning',
-        icon: 'pin',
         eyebrow: 'Standort',
         title: 'Blockiert',
         onDismiss,
         duration: 0,
-        layer: true,
       });
     });
 
@@ -184,33 +188,31 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(onDismiss).toHaveBeenCalledOnce();
     expect(card().className).not.toContain('show');
     expect(layer.hasAttribute('data-layer')).toBe(false);
+    expect(document.querySelector('.notification-scrim')).toBeNull();
   });
 
   it('laesst die kurze Bestaetigung ohne Scrim durch', () => {
     render(<NotificationToast />);
 
     act(() => {
-      window.showNotification?.('Spot gespeichert');
+      notify('spotSaved', 'de');
     });
 
     expect(document.querySelector('.notification-scrim')).toBeNull();
     expect(document.querySelector('.notification-layer')?.hasAttribute('data-layer')).toBe(false);
   });
 
-  /* Rechtsbuendig sitzt der Primaerknopf ganz rechts — also als letzter. */
-  it('stellt „Alles klar" vor die Aktion', () => {
+  /* Der gelbe Knopf sitzt rechts — also als letzter. */
+  it('stellt „Alles klar" vor die Aktion und macht die Aktion gelb', () => {
     render(<NotificationToast />);
 
     act(() => {
       window.showNotice?.({
-        tone: 'warning',
-        icon: 'pin',
         eyebrow: 'Standort',
         title: 'Blockiert',
         action: { label: 'Nochmal', onClick: vi.fn() },
         onDismiss: vi.fn(),
         duration: 0,
-        layer: true,
       });
     });
 
@@ -218,6 +220,20 @@ describe('NotificationToast — die eine Infoflaeche', () => {
       (b) => b.textContent
     );
     expect(labels).toEqual(['Alles klar', 'Nochmal']);
+    expect(document.querySelector('.notification-primary')?.textContent).toBe('Nochmal');
+  });
+
+  it('macht „Alles klar" gelb, wenn es die einzige Antwort ist', () => {
+    render(<NotificationToast />);
+
+    act(() => {
+      notify('locationBlocked', 'de', { onDismiss: vi.fn(), duration: 0 });
+    });
+
+    const buttons = document.querySelectorAll('.notification-actions button');
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0].className).toBe('notification-primary');
+    expect(buttons[0].textContent).toBe('Alles klar');
   });
 
   it('raeumt den Layer mit Escape ab', () => {
@@ -226,13 +242,10 @@ describe('NotificationToast — die eine Infoflaeche', () => {
 
     act(() => {
       window.showNotice?.({
-        tone: 'info',
-        icon: 'pin',
         eyebrow: 'Standort',
-        title: 'Wir suchen dich',
+        title: 'Blockiert',
         onDismiss,
         duration: 0,
-        layer: true,
       });
     });
     act(() => {
@@ -241,18 +254,5 @@ describe('NotificationToast — die eine Infoflaeche', () => {
 
     expect(onDismiss).toHaveBeenCalledOnce();
     expect(card().className).not.toContain('show');
-  });
-
-  it('reicht eine ueber den Seitenwechsel hinterlegte Meldung nach', () => {
-    sessionStorage.setItem('eatthis_toast', 'Du bist angemeldet');
-    render(<NotificationToast />);
-
-    act(() => {
-      vi.advanceTimersByTime(600);
-    });
-
-    expect(card().className).toContain('show');
-    expect(screen.getByText('Du bist drin')).toBeTruthy();
-    expect(sessionStorage.getItem('eatthis_toast')).toBeNull();
   });
 });

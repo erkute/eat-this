@@ -32,7 +32,7 @@ vi.mock('next/dynamic', () => ({ default: () => () => <div>Login panel</div> }))
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
 import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
 
-const showNotification = vi.fn();
+const showNotice = vi.fn();
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -42,8 +42,8 @@ beforeEach(() => {
   state.intent = null;
   state.close.mockClear();
   state.useRouter.mockClear();
-  showNotification.mockClear();
-  window.showNotification = showNotification;
+  showNotice.mockClear();
+  window.showNotice = showNotice;
 });
 
 afterEach(() => {
@@ -56,23 +56,25 @@ afterEach(() => {
    Screen weg, bevor er gelesen war — beim Google-Popup bekommt er ueberhaupt
    erst nach dem Popup-Fenster seinen Auftritt (Nutzer, 29.08.2026). */
 describe('BridgeAuth — Haltezeit nach dem Anmelden', () => {
-  it('laesst Modal und Bestaetigung die Haltezeit des Wartescreens abwarten', () => {
+  it('laesst das Modal die Haltezeit des Wartescreens abwarten', () => {
     render(<BridgeAuth />);
 
     expect(state.close).not.toHaveBeenCalled();
-    expect(showNotification).not.toHaveBeenCalled();
+    expect(showNotice).not.toHaveBeenCalled();
 
     act(() => {
       vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS - 1);
     });
     expect(state.close).not.toHaveBeenCalled();
-    expect(showNotification).not.toHaveBeenCalled();
+    expect(showNotice).not.toHaveBeenCalled();
 
     act(() => {
       vi.advanceTimersByTime(1);
     });
     expect(state.close).toHaveBeenCalledOnce();
-    expect(showNotification).toHaveBeenCalledWith('modals.login.signedIn');
+    /* Keine Bestaetigung danach: der Wartescreen hat es schon gesagt
+       (24.09.2026 gestrichen). */
+    expect(showNotice).not.toHaveBeenCalled();
   });
 
   /* Wer auf einem Spot stand und sich dort anmeldete, landete vorher auf der
@@ -89,21 +91,7 @@ describe('BridgeAuth — Haltezeit nach dem Anmelden', () => {
     expect(state.useRouter).not.toHaveBeenCalled();
   });
 
-  /* Wartet ein Herz auf den Login, sagt dessen eigene Bestaetigung mehr — zwei
-     Meldungen hintereinander wuerden einander wegdruecken. */
-  it('ueberlaesst die Meldung dem eingeloesten Herz', () => {
-    state.intent = { heartRestaurantId: 'restaurant-1' };
-    render(<BridgeAuth />);
-
-    act(() => {
-      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS);
-    });
-
-    expect(state.close).toHaveBeenCalledOnce();
-    expect(showNotification).not.toHaveBeenCalled();
-  });
-
-  it('meldet nicht, wenn das Modal waehrend der Haltezeit zugeht', () => {
+  it('schliesst nicht nach, wenn das Modal waehrend der Haltezeit zugeht', () => {
     const { rerender } = render(<BridgeAuth />);
 
     state.loginOpen = false;
@@ -112,6 +100,6 @@ describe('BridgeAuth — Haltezeit nach dem Anmelden', () => {
     act(() => {
       vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS * 2);
     });
-    expect(showNotification).not.toHaveBeenCalled();
+    expect(state.close).not.toHaveBeenCalled();
   });
 });

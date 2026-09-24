@@ -5,8 +5,9 @@ import { auth, getDb } from '@/lib/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from '@/lib/i18n';
 import { takePendingStarterCard } from '@/lib/auth/pendingStarterCard';
-import { finishStarterPackCheck, startStarterPackCheck } from '@/lib/auth/signInArrival';
+import { announceStarterPackGranted } from '@/lib/auth/signInArrival';
 import { trackEvent } from '@/lib/analytics';
+import { notify } from '@/lib/notice';
 
 // Einmal pro Browser-Session UND Konto — gesetzt erst, wenn der Server
 // geantwortet hat (siehe unten).
@@ -71,42 +72,34 @@ export default function ReferralToastListener() {
              die Anmelde-Tafel hat „diese ist dabei" versprochen, und die
              Route legt sie offen ins Pack (siehe pendingStarterCard). */
           const mustEatId = takePendingStarterCard();
-          /* Diese Antwort entscheidet, was der Leser von seiner Anmeldung zu
-             sehen bekommt: `granted` heisst Einblendung, alles andere heisst
-             Toast. Deshalb wird die Abfrage angemeldet, BEVOR sie laeuft —
-             sonst redet der Toast dazwischen (siehe signInArrival). */
-          startStarterPackCheck();
-          let granted = false;
-          let faceUpIds: string[] = [];
-          try {
-            const res = await fetch('/api/starter-pack', {
-              method: 'POST',
-              headers: {
-                authorization: `Bearer ${idToken}`,
-                'content-type': 'application/json',
-              },
-              body: JSON.stringify(mustEatId ? { mustEatId } : {}),
-            });
-            if (res.ok) {
-              starter.mark();
-              /* Nur die echte Vergabe zaehlt — `already_claimed` ist ein
-                 Wiederkehrer, kein Schritt im Trichter. Das ist die Stufe
-                 „Konto → 20 Karten"; ohne sie endet der gezaehlte Weg bei
-                 `sign_up`, und ob das Pack ankam, wuesste niemand. */
-              const outcome = (await res.json().catch(() => null)) as {
-                granted?: boolean;
-                faceUpIds?: unknown;
-              } | null;
-              granted = outcome?.granted === true;
-              if (Array.isArray(outcome?.faceUpIds)) {
-                faceUpIds = outcome.faceUpIds.filter((id): id is string => typeof id === 'string');
-              }
-              if (granted) trackEvent('starter_pack_granted');
+          /* `granted` heisst: frisches Konto, die Einblendung geht auf
+             (SignInReward ueber signInArrival). */
+          const res = await fetch('/api/starter-pack', {
+            method: 'POST',
+            headers: {
+              authorization: `Bearer ${idToken}`,
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify(mustEatId ? { mustEatId } : {}),
+          });
+          if (res.ok) {
+            starter.mark();
+            /* Nur die echte Vergabe zaehlt — `already_claimed` ist ein
+               Wiederkehrer, kein Schritt im Trichter. Das ist die Stufe
+               „Konto → 20 Karten"; ohne sie endet der gezaehlte Weg bei
+               `sign_up`, und ob das Pack ankam, wuesste niemand. */
+            const outcome = (await res.json().catch(() => null)) as {
+              granted?: boolean;
+              faceUpIds?: unknown;
+            } | null;
+            if (outcome?.granted === true) {
+              trackEvent('starter_pack_granted');
+              announceStarterPackGranted(
+                Array.isArray(outcome.faceUpIds)
+                  ? outcome.faceUpIds.filter((id): id is string => typeof id === 'string')
+                  : []
+              );
             }
-          } finally {
-            /* Auch nach einem Netzwerkfehler: sonst wartet die
-               zurueckgestellte Anmelde-Zeile fuer immer auf eine Antwort. */
-            finishStarterPackCheck(granted, faceUpIds);
           }
         }
         if (flag.seen) return;
@@ -168,13 +161,8 @@ export default function ReferralToastListener() {
             if (chg.doc.data().source === 'invited') {
               /* Eine Karte, keine Spots: seit dem 06.09.2026 zahlt die
                  Einladung in Must-Eat-Karten, die Spots liegen fuer jeden
-                 frei. NotificationToast erkennt die Zeile an „deinen Link" /
-                 „your link" und setzt Augenbraue und Titel dazu. */
-              const msg =
-                langRef.current === 'en'
-                  ? 'Someone joined through your link — a new card is in your deck.'
-                  : 'Jemand ist über deinen Link gestartet — eine neue Karte liegt in deinem Deck.';
-              window.showNotification?.(msg, 5000);
+                 frei. */
+              notify('inviteCard', langRef.current, { duration: 5000 });
             }
           });
         });

@@ -92,3 +92,69 @@ describe('useUserLocation.watch', () => {
     expect(geo.watchPosition).not.toHaveBeenCalled();
   });
 });
+
+/* Blockiert ist nicht fuer immer: gibt der Browser die Freigabe zurueck
+   (Chrome meldet das sofort), holt der Hook den Standort selbst — der
+   Besucher wollte ihn ja eben. Steht sie nur wieder auf „fragen", faellt der
+   Fehler weg, und die naechste Geste darf fragen (siehe locationHelp). */
+describe('useUserLocation — Rueckkehr aus der Sperre', () => {
+  let setPermission: (state: PermissionState) => void = () => {};
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    Object.defineProperty(navigator, 'geolocation', { value: geo, configurable: true });
+    const listeners = new Set<() => void>();
+    const status = {
+      state: 'denied' as PermissionState,
+      addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+      removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
+    };
+    Object.defineProperty(navigator, 'permissions', {
+      configurable: true,
+      value: { query: vi.fn(() => Promise.resolve(status)) },
+    });
+    setPermission = (state) => {
+      status.state = state;
+      listeners.forEach((fn) => fn());
+    };
+  });
+  afterEach(() => {
+    Reflect.deleteProperty(navigator, 'geolocation');
+    Reflect.deleteProperty(navigator, 'permissions');
+  });
+
+  async function deniedHook() {
+    geo.getCurrentPosition.mockImplementationOnce((_ok: unknown, fail: (e: { code: number }) => void) =>
+      fail({ code: 1 })
+    );
+    const hook = renderHook(() => useUserLocation());
+    await act(async () => {
+      await hook.result.current.request();
+    });
+    expect(hook.result.current.error).toBe('denied');
+    // Der Waechter haengt sich an, sobald die Abfrage der Berechtigung steht.
+    await act(async () => {});
+    return hook;
+  }
+
+  it('holt den Standort selbst, sobald er freigegeben ist', async () => {
+    const { result } = await deniedHook();
+    geo.getCurrentPosition.mockImplementationOnce((ok: PositionCallback) => ok(fix(52.52, 13.405)));
+
+    await act(async () => setPermission('granted'));
+
+    expect(geo.getCurrentPosition).toHaveBeenCalledTimes(2);
+    expect(result.current.location).toEqual({ lat: 52.52, lng: 13.405 });
+    expect(result.current.error).toBeNull();
+  });
+
+  it('nimmt den Fehler weg, wenn wieder gefragt werden darf', async () => {
+    const { result } = await deniedHook();
+
+    await act(async () => setPermission('prompt'));
+
+    expect(result.current.error).toBeNull();
+    // Gefragt wird erst mit der naechsten Geste, nicht von selbst.
+    expect(geo.getCurrentPosition).toHaveBeenCalledTimes(1);
+  });
+});

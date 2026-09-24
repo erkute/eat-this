@@ -32,7 +32,6 @@ import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
 import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
-import { announceSignIn } from '@/lib/auth/signInArrival';
 import modalStyles from '@/app/components/LoginModalOverlay.module.css';
 
 const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: false });
@@ -40,7 +39,7 @@ const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: f
 export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
-  const { isOpen: loginOpen, intent: loginIntent, close: closeLogin } = useLoginModal();
+  const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
 
   // Ein Login, der waehrend des offenen Modals durchgeht (Google-Popup),
   // bleibt jetzt auf der Seite stehen, auf der er angefangen hat. Vorher
@@ -55,24 +54,15 @@ export default function BridgeAuth() {
   // den Nutzer meldet, ist der Screen weg, bevor er gelesen ist — beim
   // Google-Popup bekommt er sowieso erst nach dem Popup-Fenster seinen
   // Auftritt. Deshalb raeumt erst dieser Timer ab.
-  const heartPending = Boolean(loginIntent?.heartRestaurantId);
+  //
+  // Danach kommt keine Bestaetigung mehr: der Wartescreen hat „Du wirst
+  // angemeldet" gesagt. Bis 24.09.2026 folgte „Du bist drin" als Info-Karte —
+  // dieselbe Nachricht zweimal.
   useEffect(() => {
     if (loading || !user || !loginOpen) return;
-    const timer = window.setTimeout(() => {
-      closeLogin();
-      /* Wartete hier ein Herz, sagt dessen eigene Bestaetigung ("Spot
-         gespeichert", siehe pendingHeart) mehr als "Du bist angemeldet" —
-         und zwei Meldungen hintereinander wuerden einander wegdruecken.
-         Aus demselben Grund geht die Zeile durch `announceSignIn`: ein neues
-         Konto bekommt die Starter-Pack-Einblendung, und die sagt alles, was
-         diese Zeile sagen wuerde, und mehr. Sie faellt also aus, sobald ein
-         Pack unterwegs ist — und kommt, wenn keins kommt (Wiederkehrer). */
-      if (!heartPending) {
-        announceSignIn(() => window.showNotification?.(t('modals.login.signedIn')));
-      }
-    }, AUTH_SCREEN_HOLD_MS);
+    const timer = window.setTimeout(closeLogin, AUTH_SCREEN_HOLD_MS);
     return () => window.clearTimeout(timer);
-  }, [user, loading, loginOpen, t, closeLogin, heartPending]);
+  }, [user, loading, loginOpen, closeLogin]);
 
   // Scroll lock + iOS bar recolor live in <LoginModalBarLock /> inside the
   // overlay (single owner — a second snapshot-restore lock here raced with

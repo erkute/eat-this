@@ -11,7 +11,8 @@ import { spotPhotoSrc, spotPhotoSrcSet } from '@/lib/map/spotPhoto';
 import { routing } from '@/i18n/routing';
 import { GoogleMark } from './GoogleMark';
 import { HeartIcon } from './map/icons';
-import AuthScreen from './AuthScreen';
+import AuthScreen, { AUTH_SCREEN_HOLD_MS } from './AuthScreen';
+import { announceSignedIn } from '@/lib/auth/afterSignIn';
 import styles from './LoginBoard.module.css';
 
 const PACK_ART = '/pics/booster/booster_free.webp';
@@ -74,6 +75,20 @@ export default function LoginBoard({
     if (googleWarmup === 'mount') prepareGoogle();
   }, [googleWarmup, prepareGoogle]);
   const warmOnIntent = googleWarmup === 'intent' ? prepareGoogle : undefined;
+
+  /* Nach der Google-Anmeldung melden, wer angekommen ist — nach der
+     Haltezeit des Wartescreens. Ob es danach ins Profil geht, entscheidet
+     EmailLinkSignIn (afterSignIn.ts). Ohne Aufraeumen beim Unmount: das Modal
+     schliesst sich, sobald das Konto da ist, die Meldung soll trotzdem raus. */
+  const hasIntent = Boolean(intent?.heartRestaurantId || intent?.starterMustEatId);
+  const { outcome } = google;
+  useEffect(() => {
+    if (!outcome) return;
+    window.setTimeout(
+      () => announceSignedIn({ isNewUser: outcome === 'sign_up', hasIntent }),
+      AUTH_SCREEN_HOLD_MS
+    );
+  }, [outcome, hasIntent]);
 
   /* Der Link fuehrt dorthin zurueck, wo die Anmeldung angefangen hat — nicht
      auf die Startseite. Wird erst beim Absenden gelesen, damit `window` nicht

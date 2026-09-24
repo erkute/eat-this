@@ -28,6 +28,7 @@ vi.mock('@/lib/i18n', () => ({
         'cookie.title': 'Cookies',
         'cookie.text': 'Cookie-Text',
         'cookie.moreInfo': 'Details anzeigen',
+        'cookie.lessInfo': 'Details ausblenden',
         'cookie.decline': 'Ablehnen',
         'cookie.accept': 'Akzeptieren',
         'footer.datenschutz': 'Datenschutz',
@@ -150,13 +151,14 @@ describe('CookieConsent', () => {
     render(<CookieConsent />);
     await openGate();
 
-    const trigger = () => screen.getByRole('button', { name: 'Details anzeigen' });
-    fireEvent.click(trigger());
-    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Details anzeigen' }));
+    const open = screen.getByRole('button', { name: 'Details ausblenden' });
+    expect(open.getAttribute('aria-expanded')).toBe('true');
 
     fireEvent.keyDown(document, { key: 'Escape' });
 
-    expect(trigger().getAttribute('aria-expanded')).toBe('false');
+    const closed = screen.getByRole('button', { name: 'Details anzeigen' });
+    expect(closed.getAttribute('aria-expanded')).toBe('false');
     expect(gate()).not.toBeNull();
   });
 

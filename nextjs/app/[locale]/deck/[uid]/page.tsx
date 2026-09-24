@@ -15,6 +15,7 @@ import deck from './Deck.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 const CARD_FRONT = '/pics/card-front.webp?v=3';
+const WALL_ORDER = { shown: 0, held: 1, missing: 2 } as const;
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -169,6 +170,8 @@ export default async function DeckPage({ params }: PageProps) {
     { kicker: t('step2Kicker'), title: t('step2Title'), body: t('step2Body') },
     { kicker: t('step3Kicker'), title: t('step3Title'), body: t('step3Body') },
   ];
+  const wall = [...data.cards].sort((a, b) => WALL_ORDER[a.kind] - WALL_ORDER[b.kind]);
+  const held = data.cards.filter((c) => c.kind === 'held').length;
   const stand = {
     done: data.revealed,
     total: data.total,
@@ -182,9 +185,7 @@ export default async function DeckPage({ params }: PageProps) {
           ist jetzt ein Satz und steht da, wo er hingehoert: neben der Person,
           um die es geht — hinter dem einen Satz, der sagt, worum es
           ueberhaupt geht. */}
-      <section
-        className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}
-      >
+      <section className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}>
         {/* Ganz oben, ueber der Figur und ueber die volle Breite: der eine
             Satz, was Eat This ist. Er stand erst in der Spalte NEBEN der
             Spielerkarte und war dort eine Bildunterschrift zum Charakter —
@@ -217,27 +218,32 @@ export default async function DeckPage({ params }: PageProps) {
           <p className={styles.emptyLine}>{t('empty')}</p>
         ) : (
           <>
-            {/* Die Kartenwand: Vorderseiten und Rueckseiten, sonst nichts.
-                Bis zum 06.09.2026 war das ein Panini-Album — gestrichelte
-                leere Felder mit dreistelliger Nummer neben den aufgedeckten
-                Karten. Im eigenen Profil ist das genau richtig, dort SIND die
-                Luecken die Aufgabe. Beim Teilen nicht (Nutzer: „es soll nicht
-                wie ein Panini-Album sein beim Deckteilen, ohne diese Zahlen
-                drauf und ohne diese dumme Linie, sondern wirklich nur die
-                verdeckte Karte und die offenen Karten zeigen").
+            {/* Die Kartenwand: Vorderseiten und Rueckseiten, sonst nichts —
+                kein Panini-Album mit Nummern und gestrichelten Feldern
+                (Nutzer, 06.09.2026: „wirklich nur die verdeckte Karte und die
+                offenen Karten zeigen").
 
-                Eine Rueckseite heisst hier „nicht fuer dich sichtbar" — sie
-                deckt die noch nicht umgedrehten Karten ab UND die, die der
-                Besitzer hat, aber nicht herzeigen darf. Der Unterschied geht
-                den Besucher nichts an, und die Zeile darueber sagt ohnehin,
-                wie viele umgedreht sind. */}
+                Nach Zustand sortiert: erst die offenen, dann die gesammelten
+                Rueckseiten, zuletzt die noch fehlenden. Bis zum 24.09.2026
+                lag die Wand in Kartenreihenfolge und jede Rueckseite sah
+                gleich aus — ueber 21 Rueckseiten stand „hat 26 von 26
+                umgedreht". Jetzt ist eine gesammelte Karte eine volle
+                Rueckseite und eine fehlende eine gedaempfte, und die
+                Sortierung nimmt der Wand die Position, an der man eine
+                Karte wiedererkennen koennte. */}
             <ul className={deck.cards}>
-              {data.cards.map((image, i) => (
+              {wall.map((card, i) => (
                 <li className={deck.card} key={i}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    className={image ? undefined : deck.cardBack}
-                    src={image ?? CARD_BACK}
+                    className={
+                      card.kind === 'missing'
+                        ? deck.cardMissing
+                        : card.kind === 'held'
+                          ? deck.cardBack
+                          : undefined
+                    }
+                    src={card.kind === 'shown' ? card.image : CARD_BACK}
                     alt=""
                     loading="lazy"
                     decoding="async"
@@ -245,6 +251,7 @@ export default async function DeckPage({ params }: PageProps) {
                 </li>
               ))}
             </ul>
+            {held > 0 && <p className={deck.heldNote}>{t('heldNote')}</p>}
 
             <ul className={deck.groups}>
               {data.groups.map((group) => (
@@ -319,7 +326,7 @@ export default async function DeckPage({ params }: PageProps) {
           Ohne `?ref` — wer schon hier ist, hat das Cookie von der Middleware
           bekommen. */}
       <section className={`hv-section hv-wrap ${styles.section}`}>
-        <DeckJoin name={data.name} />
+        <DeckJoin uid={uid} name={data.name} />
       </section>
     </main>
   );

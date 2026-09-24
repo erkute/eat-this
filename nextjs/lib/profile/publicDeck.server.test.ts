@@ -162,10 +162,14 @@ describe('getPublicDeck', () => {
       'revealed',
       'total',
     ]);
-    // Und je Karte genau eine Angabe: eine Bild-URL oder nichts. Seit dem
-    // 06.09.2026 traegt der Platz weder Nummer noch Stand — die Seite zeigt
-    // Vorderseiten und Rueckseiten, kein Panini-Album.
-    expect(deck?.cards.every((c) => c === null || typeof c === 'string')).toBe(true);
+    // Und je Karte nur der Zustand, beim offenen dazu das Bild. Keine Nummer,
+    // kein Gericht, keine Id — die Seite zeigt Vorderseiten und Rueckseiten,
+    // kein Panini-Album.
+    for (const card of deck?.cards ?? []) {
+      expect(Object.keys(card).sort()).toEqual(
+        card.kind === 'shown' ? ['image', 'kind'] : ['kind']
+      );
+    }
   });
 
   it('traegt weder E-Mail noch Foto-URL noch ein Gericht nach draussen', async () => {
@@ -199,10 +203,12 @@ describe('getPublicDeck', () => {
 
     const deck = await getPublicDeck(OK_UID);
 
-    expect(deck?.cards.filter(Boolean)).toEqual(['/api/must-eat-image/m1']);
-    // m2 ist aufgedeckt und bleibt trotzdem eine Rueckseite — von aussen
-    // nicht von einer nie umgedrehten Karte zu unterscheiden.
-    expect(deck?.cards.filter((c) => c === null).length).toBe(3);
+    expect(deck?.cards.filter((c) => c.kind === 'shown')).toEqual([
+      { kind: 'shown', image: '/api/must-eat-image/m1' },
+    ]);
+    // m2 ist aufgedeckt und bleibt trotzdem eine Rueckseite, ohne Bild.
+    expect(deck?.cards.filter((c) => c.kind === 'held')).toEqual([{ kind: 'held' }]);
+    expect(deck?.cards.filter((c) => c.kind === 'missing').length).toBe(2);
     // Der Zaehler weiss es trotzdem: er speist den Satz ueber der Wand.
     expect(deck?.revealed).toBe(2);
   });
@@ -218,7 +224,7 @@ describe('getPublicDeck', () => {
 
     const deck = await getPublicDeck(OK_UID);
 
-    expect(deck?.cards.every((c) => c === null)).toBe(true);
+    expect(deck?.cards.every((c) => c.kind === 'missing')).toBe(true);
   });
 
   /* Die Nummern stehen hier nicht mehr, die Reihenfolge schon: dieselbe wie
@@ -236,7 +242,10 @@ describe('getPublicDeck', () => {
     const deck = await getPublicDeck(OK_UID);
 
     // m1 traegt order 3, m4 die 12 — also kommt m1 zuerst.
-    expect(deck?.cards).toEqual(['/api/must-eat-image/m1', '/api/must-eat-image/m4']);
+    expect(deck?.cards).toEqual([
+      { kind: 'shown', image: '/api/must-eat-image/m1' },
+      { kind: 'shown', image: '/api/must-eat-image/m4' },
+    ]);
   });
 
   /* Das eigene Profil faellt fuer den Vornamen auf die E-Mail zurueck

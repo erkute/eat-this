@@ -102,15 +102,38 @@
   object-fit: cover;
 }
 
-/* Eine Wand aus Rueckseiten in voller Leuchtkraft uebertoent die Gerichte
-   daneben, um die es geht — die Rueckseite ist knallgelb, und meistens sind
-   es die meisten. Eine Stufe dunkler, mehr nicht: sie bleibt eine Karte,
-   fuehrt aber nicht.
+/* Zwei Rueckseiten, zwei Bedeutungen. Die gesammelte ist eine Karte des
+   Besitzers, die man nur nicht sehen darf — sie steht fast in voller Farbe,
+   eine Spur gedaempft, damit zwanzig gelbe Rueckseiten die paar offenen
+   Gerichte davor nicht uebertoenen. Die fehlende ist noch nicht gesammelt
+   und tritt deutlich zurueck: sie bleibt eine Karte (kein leeres Feld, siehe
+   oben), fuehrt aber nicht.
+
+   Bis zum 24.09.2026 trugen alle Rueckseiten denselben Filter, und der Satz
+   „hat 26 von 26 umgedreht" stand ueber einer Wand, die nach dem Gegenteil
+   aussah.
 
    Statisch, kein Ein-/Ausblenden — die Brand-Regel gegen Opacity-Fades
    betrifft Bewegung, nicht Faerbung. */
 .cardBack {
-  filter: brightness(0.62) saturate(0.85);
+  filter: brightness(0.8) saturate(0.85);
+}
+
+.cardMissing {
+  filter: brightness(0.34) saturate(0.4);
+}
+
+/* Warum ueber gesammelten Karten keine Gerichte liegen — eine Zeile, leise,
+   direkt unter der Wand. */
+.heldNote {
+  max-width: 58ch;
+  margin: calc(-1 * clamp(14px, 2vw, 30px)) 0 clamp(30px, 4vw, 52px);
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  font-family: var(--et-font-display);
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 400;
+  line-height: 1.4;
+  text-wrap: pretty;
 }
 
 /* Der Stempel „War da" — Ink auf Gelb, leicht schief wie ein echter. Er sagt
@@ -179,7 +202,7 @@
    Weiss-Stufe des Ink-Grunds. */
 .groupBar {
   display: block;
-  height: 6px;
+  height: 4px;
   margin-top: 10px;
   background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   border-radius: 999px;
@@ -381,14 +404,17 @@
     gap: 16px;
   }
 
+  /* Vier statt drei: bei drei Spalten waren 26 Karten auf 390 px rund
+     1500 px hoch, und „Was ist Eat This?" begann erst nach zwei Bildschirmen
+     Rueckseiten. Die Karte ist hier ein Zeichen, kein Lesestueck. */
   .cards {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
   }
 }
 
 @media (max-width: 360px) {
   .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

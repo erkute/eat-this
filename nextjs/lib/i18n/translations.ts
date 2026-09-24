@@ -232,8 +232,10 @@ const en = {
       'Every spot on the map is hand-picked. At selected spots we also show you which dish to order. These Must Eats you can flip and collect in your deck.',
     explainKicker: 'New here?',
     explainTitle: 'What is Eat This?',
+    /* Nicht noch einmal „handverlesen": der Satz ueber dem Deck (`intro`)
+       faengt genauso an, und die Seite sagte ihn zweimal. */
     explainLead:
-      'Every spot on the map is hand-picked. From the starred restaurant to the place around the corner.',
+      'A food map for Berlin, from the starred restaurant to the place around the corner.',
     step1Kicker: 'Must Eat',
     step1Title: 'You have to try this.',
     step1Body:
@@ -254,6 +256,10 @@ const en = {
       '{name} has flipped {done} of {total} cards. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
     stand:
       '{done} of {total} cards are flipped. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
+    /* Unter der Wand, sobald Karten gesammelt, aber nicht zu sehen sind —
+       sonst steht „26 von 26" ueber lauter Rueckseiten und liest sich wie ein
+       Fehler. */
+    heldNote: 'Only the cards anyone may see lie face up. The rest you flip yourself.',
     empty: 'No cards on this map yet.',
     /* Dieselbe Tafel wie der Starter-Pack-Abschnitt der Startseite, also auch
        dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier steht
@@ -266,6 +272,9 @@ const en = {
     ctaHeadingIn: 'Back to your own deck',
     ctaLineIn: 'Your cards are waiting all over Berlin.',
     ctaIn: 'Open my deck',
+    /* Der Besitzer auf seinem eigenen Deck: keine Anmeldung, kein „zurueck". */
+    ownHeading: 'This is your deck',
+    ownLine: 'This is what everyone with your link sees.',
   },
   profile: {
     heroKicker: 'Your profile',
@@ -381,7 +390,8 @@ const en = {
       backBtn: 'Back',
       packKicker: 'Start your collection',
       packTitle: 'Starter Pack',
-      packLead: '20 Must Eats from all over Berlin. Discover our picks and collect them in your deck.',
+      packLead:
+        '20 Must Eats from all over Berlin. Discover our picks and collect them in your deck.',
       cardKicker: 'Reveal your Must Eats',
       cardTitle: 'Look underneath',
       cardLead:
@@ -661,8 +671,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       'Jeder Spot auf der Map ist handverlesen. Bei ausgew\u00e4hlten Spots zeigen wir dir au\u00dferdem, welches Gericht du dort bestellen solltest. Diese Must Eats kannst du aufdecken und in deinem Deck sammeln.',
     explainKicker: 'Neu hier?',
     explainTitle: 'Was ist Eat This?',
-    explainLead:
-      'Jeder Spot auf der Map ist handverlesen. Vom Sterne-Restaurant bis zum Laden um die Ecke.',
+    /* Nicht noch einmal „handverlesen": der Satz ueber dem Deck (`intro`)
+       faengt genauso an, und die Seite sagte ihn zweimal. */
+    explainLead: 'Eine Food Map f\u00fcr Berlin, vom Sterne-Restaurant bis zum Laden um die Ecke.',
     step1Kicker: 'Must Eat',
     step1Title: 'Musst du probieren.',
     step1Body:
@@ -693,6 +704,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{name} hat {done} von {total} Karten umgedreht. {missing, plural, =0 {Das Deck ist voll.} one {Eine liegt noch verdeckt.} other {# liegen noch verdeckt.}}',
     stand:
       '{done} von {total} Karten sind umgedreht. {missing, plural, =0 {Das Deck ist voll.} one {Eine liegt noch verdeckt.} other {# liegen noch verdeckt.}}',
+    /* Unter der Wand, sobald Karten gesammelt, aber nicht zu sehen sind —
+       sonst steht „26 von 26" ueber lauter Rueckseiten und liest sich wie ein
+       Fehler. */
+    heldNote: 'Offen liegen nur die Karten, die jeder sehen darf. Den Rest deckst du selbst auf.',
     empty: 'Auf dieser Map liegen noch keine Karten.',
     /* Der Ausgang. Kein Knopf mehr, der irgendwohin fuehrt: das Feld steht
        auf der Seite (Nutzer, 06.09.2026). Was es verspricht, ist dasselbe wie
@@ -707,6 +722,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     ctaHeadingIn: 'Zur\u00fcck zu deinem eigenen Deck',
     ctaLineIn: 'Deine Karten warten \u00fcberall in Berlin.',
     ctaIn: 'Mein Deck',
+    /* Der Besitzer auf seinem eigenen Deck: keine Anmeldung, kein „zurueck". */
+    ownHeading: 'Das ist dein Deck',
+    ownLine: 'So sieht es jeder, der deinen Link bekommt.',
   },
   profile: {
     heroKicker: 'Dein Profil',

@@ -4,8 +4,14 @@
    stay one system instead of two that resemble each other.
    Seit 03.09.2026 auf demselben durchgehenden Ink-Grund wie die Startseite:
    `--profile-ink` bleibt die dunkle Farbe und ist der GRUND, `--profile-fg`
-   die Schrift darauf, Muted und Linien sind Weiss-Stufen. Das Einladen-Feld
-   ist die eine gelbe Flaeche. Die geteilte Deck-Seite (/deck) liest diese
+   die Schrift darauf, Muted und Linien sind Weiss-Stufen.
+
+   Bedienelemente heben sich seit dem 24.09.2026 per Flaeche ab, nicht per
+   Ring — wie auf der Map (`--et-ink-raised`, darueber `--et-ink-quiet` fuer
+   Hover und Fokus). Nutzer, 23.09.2026: „Nimm diese ganzen Linien drumherum
+   weg … lieber eine andere Farbe, ganz leicht abgewandt von der
+   darunterliegenden." `--profile-raised-on` ist die hellere Stufe als
+   fertiger Hintergrund-Stapel. Die geteilte Deck-Seite (/deck) liest diese
    Regeln mit — was nur sie braucht, steht in ihrem eigenen Deck.module.css. */
 
 .page {
@@ -16,6 +22,13 @@
   --profile-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   --profile-ring: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
   --profile-accent: var(--et-home-accent, #ffc600);
+  --profile-raised: var(--et-ink-raised, #25231f);
+  --profile-raised-on:
+    linear-gradient(
+      var(--et-ink-quiet, rgba(255, 255, 255, 0.055)),
+      var(--et-ink-quiet, rgba(255, 255, 255, 0.055))
+    ),
+    var(--profile-raised);
   --profile-red: var(--et-home-red, #d9382a);
   --profile-inverse: var(--et-home-inverse-text, #fff);
   --profile-radius: var(--et-radius-control, 7px);
@@ -161,8 +174,8 @@ main.page .head {
   min-height: 36px;
   padding: 7px 11px;
   color: inherit;
-  background: transparent;
-  border: 2px solid currentColor;
+  background: rgba(21, 18, 14, 0.28);
+  border: 0;
   border-radius: var(--profile-radius);
   font-family: var(--et-font-display);
   font-size: 14px;
@@ -316,8 +329,9 @@ main.page .head {
 
 /* Eine Pille in der Groesse der Bezirks-Reiter darunter, kein gefuellter
    44-px-Knopf mehr: er war der lauteste Knopf der Seite fuer den leisesten
-   Schritt. Gelber Rand statt gelber Flaeche — gefuellt saehe er aus wie ein
-   aktiver Reiter. */
+   Schritt. Gelbe Schrift auf der angehobenen Flaeche statt gelber Rand
+   (24.09.2026, keine Konturen) — gefuellt saehe er aus wie ein aktiver
+   Reiter. */
 .moveCta {
   flex: 0 0 auto;
   display: inline-flex;
@@ -326,8 +340,8 @@ main.page .head {
   min-height: 34px;
   padding: 0 14px;
   color: var(--profile-accent);
-  background: transparent;
-  border: 1px solid var(--profile-accent);
+  background: var(--profile-raised);
+  border: 1px solid transparent;
   border-radius: 999px;
   cursor: pointer;
   text-decoration: none;
@@ -632,7 +646,7 @@ main.page .head {
    Scrollbalken weg, den es damit nicht mehr braucht; die 2 px unten sind
    Platz fuer die Unterlaengen der letzten Zeile, die eine auf scrollHeight
    gesetzte Hoehe sonst knapp abschneidet. */
-/* „War da" / „will hin". Ungedrueckt ein Ring auf dem Grund, gedrueckt eine
+/* „War da" / „will hin". Ungedrueckt die angehobene Flaeche, gedrueckt eine
    gelbe Flaeche mit Haken — derselbe Unterschied wie zwischen leerem und
    gefuelltem Album-Platz, und dieselbe Farbe wie jeder volle Balken auf
    dieser Seite. Der Haken ist ungedrueckt blass statt weg: sonst springt die
@@ -645,8 +659,8 @@ main.page .head {
   margin-top: 10px;
   padding: 6px 12px 5px;
   color: var(--profile-muted);
-  background: transparent;
-  border: 1px solid var(--profile-line);
+  background: var(--profile-raised);
+  border: 1px solid transparent;
   border-radius: 999px;
   cursor: pointer;
   font-family: var(--et-font-display);
@@ -657,8 +671,7 @@ main.page .head {
   text-transform: uppercase;
   transition:
     color var(--profile-motion),
-    background-color var(--profile-motion),
-    border-color var(--profile-motion);
+    background-color var(--profile-motion);
 }
 
 .spotVisited svg {
@@ -673,20 +686,19 @@ main.page .head {
 
 .spotVisited:focus-visible {
   color: var(--profile-fg);
-  border-color: var(--profile-ring);
+  background: var(--profile-raised-on);
 }
 
 @media (hover: hover) {
   .spotVisited:hover:not(:disabled) {
     color: var(--profile-fg);
-    border-color: var(--profile-ring);
+    background: var(--profile-raised-on);
   }
 }
 
 .spotVisitedOn {
   color: var(--profile-ink);
   background: var(--profile-accent);
-  border-color: var(--profile-accent);
 }
 
 .spotVisitedOn svg {
@@ -697,7 +709,6 @@ main.page .head {
   .spotVisitedOn:hover:not(:disabled) {
     color: var(--profile-ink);
     background: var(--profile-inverse);
-    border-color: var(--profile-inverse);
   }
 }
 
@@ -796,8 +807,9 @@ main.page .head {
 }
 
 /* Der eine Knopf, der vom Laden uebrig bleibt — in derselben Form wie
-   „Abmelden": ein Ring in Weiss 28 %, gelb gefuellt beim Hover. Ring und
-   nicht Flaeche, weil der Laden hier ein Angebot ist und keine Aufforderung;
+   „Abmelden": die angehobene Flaeche, gelb gefuellt beim Hover. Leise
+   Flaeche und nicht Gelb, weil der Laden hier ein Angebot ist und keine
+   Aufforderung;
    das Profil zeigt Besitz. */
 .packsMore {
   display: inline-flex;
@@ -807,8 +819,8 @@ main.page .head {
   margin-top: clamp(20px, 2.4vw, 28px);
   padding: 0 20px;
   color: var(--profile-fg);
-  background: transparent;
-  border: 2px solid var(--profile-ring);
+  background: var(--profile-raised);
+  border: 0;
   border-radius: var(--profile-radius);
   text-decoration: none;
   font-family: var(--et-font-display);
@@ -816,21 +828,18 @@ main.page .head {
   font-weight: 700;
   transition:
     color var(--profile-motion),
-    border-color var(--profile-motion),
     background-color var(--profile-motion);
 }
 
 .packsMore:focus-visible {
   color: var(--profile-ink);
   background: var(--profile-accent);
-  border-color: var(--profile-accent);
 }
 
 @media (hover: hover) {
   .packsMore:hover {
     color: var(--profile-ink);
     background: var(--profile-accent);
-    border-color: var(--profile-accent);
   }
 }
 
@@ -864,18 +873,14 @@ main.page .head {
 
 /* ── invite ─────────────────────────────────────────────── */
 
-/* The one yellow field on the page. Everything else earns attention from
-   photography, so the single thing with no picture gets the accent.
-
-   Seit dem Abend des 04.09.2026 steht sie DIREKT unter dem Deck und ist
-   dabei auf eine Zeile zusammengezogen (Nutzer: „ist der Knopf da unten
+/* Seit dem Abend des 04.09.2026 steht der Kasten DIREKT unter dem Deck und
+   ist auf eine Zeile zusammengezogen (Nutzer: „ist der Knopf da unten
    irgendwie versteckt? Vielleicht muss der kleiner sein, unter dem Deck").
-   Als voller Block am Seitenende war sie beides zugleich — zu laut fuer
-   ihren Platz und zu weit weg von dem, was sie teilt.
 
-   Eine Zeile, kein Kasten: Titel und Satz links, die Vorschau und der Knopf
-   rechts. Die Flaeche bleibt gelb, weil sie die einzige Handlung der Seite
-   ist, die nach aussen geht. */
+   Bis zum 24.09.2026 war er eine gelbe Vollflaeche — und damit lauter als das
+   Deck, das er teilt. Jetzt spricht er wie jedes Angebot der Seite: Ink-Tafel
+   eine Stufe ueber dem Grund, weisse Versalien, der eine gelbe Knopf. Das
+   Gelb gehoert der Handlung, nicht dem Kasten. */
 .invite {
   display: flex;
   flex-wrap: wrap;
@@ -886,11 +891,11 @@ main.page .head {
      ein Kartenfaecher darin, und der braucht Rand, sonst stossen die
      gedrehten Ecken an die Kanten. */
   padding: clamp(18px, 2vw, 26px) clamp(16px, 1.8vw, 24px);
-  background: var(--profile-accent);
+  background: var(--profile-raised);
   border-radius: var(--et-radius-photo, 10px);
 }
 
-/* Der Faecher: drei Karten, leicht gedreht, mit Schlagschatten auf dem Gelb.
+/* Der Faecher: drei Karten, leicht gedreht, mit Schlagschatten auf der Tafel.
    Sie ueberlappen wie eine Hand, die man jemandem hinhaelt — das ist die
    Geste, um die es in dem Kasten geht. */
 .inviteFan {
@@ -906,7 +911,7 @@ main.page .head {
   aspect-ratio: 1539 / 2115;
   object-fit: cover;
   border-radius: 5px;
-  filter: drop-shadow(0 8px 14px rgba(21, 18, 14, 0.34));
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
 }
 
 .inviteFan img:first-child {
@@ -930,7 +935,7 @@ main.page .head {
 
 .inviteTitle {
   margin: 0;
-  color: var(--profile-ink);
+  color: var(--profile-fg);
   font-family: var(--et-font-display);
   font-size: clamp(19px, 1.9vw, 26px);
   font-weight: 700;
@@ -942,19 +947,18 @@ main.page .head {
 .inviteLine {
   max-width: 48ch;
   margin: 7px 0 0;
-  color: var(--profile-ink);
+  color: var(--profile-muted);
   font-family: var(--et-font-display);
   font-size: clamp(13px, 1.15vw, 16px);
   font-weight: 400;
   line-height: 1.3;
 }
 
-/* Der Beleg, dass der Link je etwas bewirkt hat. Ink auf Gelb wie die
-   Auszeichnung darueber, nur eine Stufe kleiner und fett — er soll gelesen,
-   nicht gerufen werden. */
+/* Der Beleg, dass der Link je etwas bewirkt hat. Gelb wie die Kicker der
+   Tafeln, klein und fett — er soll gelesen, nicht gerufen werden. */
 .inviteJoined {
   margin: 7px 0 0;
-  color: var(--profile-ink);
+  color: var(--profile-accent);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -977,7 +981,7 @@ main.page .head {
    — sie beantwortete die eine Frage nicht, die vor dem Teilen aufkommt: was
    sieht der ueberhaupt? */
 .invitePreview {
-  color: color-mix(in srgb, var(--profile-ink) 76%, transparent);
+  color: var(--profile-muted);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -991,7 +995,7 @@ main.page .head {
 
 @media (hover: hover) {
   .invitePreview:hover {
-    color: var(--profile-ink);
+    color: var(--profile-fg);
   }
 }
 
@@ -1001,8 +1005,8 @@ main.page .head {
   justify-content: center;
   min-height: 42px;
   padding: 0 20px;
-  color: var(--profile-inverse);
-  background: var(--profile-ink);
+  color: var(--profile-ink);
+  background: var(--profile-accent);
   border: 0;
   border-radius: var(--profile-radius);
   cursor: pointer;
@@ -1013,14 +1017,20 @@ main.page .head {
   transition: background-color var(--profile-motion);
 }
 
+/* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink — auf dem dunklen
+   Grund verschwaenden sie. */
 .inviteButton:focus-visible {
-  background: var(--profile-red);
+  background: var(--profile-inverse);
 }
 
 @media (hover: hover) {
   .inviteButton:hover {
-    background: var(--profile-red);
+    background: var(--profile-inverse);
   }
+}
+
+.inviteButton:active {
+  transform: translateY(1px);
 }
 
 /* ── foot ───────────────────────────────────────────────── */
@@ -1039,7 +1049,7 @@ main.page .head {
    traegt den seitlichen Rand, ein Shorthand hier wuerde ihn mitnehmen.
 
    Kein voller Abschnitts-Abstand mehr. Mit 116 px darueber und 104 px
-   darunter stand die Konto-Zeile freischwebend zwischen der gelben Flaeche
+   darunter stand die Konto-Zeile freischwebend zwischen der Einladen-Tafel
    und dem schwarzen Footer und las sich als eigener Abschnitt, den sie nicht
    ist. Jetzt haengt sie unter dem letzten Inhalt und setzt sich auf den
    Footer — das Leiseste der Seite an ihrer leisesten Stelle. */
@@ -1059,8 +1069,8 @@ main.page .foot {
 /* Wieder ein umrandeter Knopf (Nutzer, 31.08.2026). Als unterstrichener Text
    war er leiser, aber inzwischen fuehrt die Seite drei Wege in genau dieser
    Knopfform — „Zur Map", der naechste Zug, „Deck teilen" —, und das Abmelden
-   war das einzige, was wie ein Link aussah. Dieselbe Logik wie auf der Tafel:
-   ein Ring in Weiss 28 %, gelb gefuellt beim Hover.
+   war das einzige, was wie ein Link aussah. Seit dem 24.09.2026 ohne Ring:
+   die angehobene Flaeche, gelb gefuellt beim Hover.
 
    44 statt der frueheren 40 px: damit stimmt die Trefferflaeche aus dem
    Polster selbst, und der ::after-Trick, den der Textlink dafuer brauchte,
@@ -1072,8 +1082,8 @@ main.page .foot {
   min-height: 44px;
   padding: 0 20px;
   color: var(--profile-fg);
-  background: transparent;
-  border: 2px solid var(--profile-ring);
+  background: var(--profile-raised);
+  border: 0;
   border-radius: var(--profile-radius);
   cursor: pointer;
   font-family: var(--et-font-display);
@@ -1081,21 +1091,18 @@ main.page .foot {
   font-weight: 700;
   transition:
     color var(--profile-motion),
-    border-color var(--profile-motion),
     background-color var(--profile-motion);
 }
 
 .logout:focus-visible {
   color: var(--profile-ink);
   background: var(--profile-accent);
-  border-color: var(--profile-accent);
 }
 
 @media (hover: hover) {
   .logout:hover {
     color: var(--profile-ink);
     background: var(--profile-accent);
-    border-color: var(--profile-accent);
   }
 }
 

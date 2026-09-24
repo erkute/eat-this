@@ -1,11 +1,13 @@
 'use client';
 
-import { useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import { announceSignIn } from '@/lib/auth/signInArrival';
 import LoginBoard, { LoginSceneArt } from '@/app/components/LoginBoard';
+import ShareButton from '@/app/components/ShareButton';
+import { SITE_URL } from '@/lib/constants';
 import styles from '@/app/components/profile/Profile.module.css';
 import starter from '@/app/components/StarterPackSignup.module.css';
 import deck from './Deck.module.css';
@@ -49,12 +51,22 @@ import deck from './Deck.module.css';
  * auf einem anderen Gerät geöffnet werden kann (send-magic-link).
  *
  * Angemeldet gibt es nichts anzumelden — dann führt dieselbe Fläche zum
- * eigenen Deck.
+ * eigenen Deck. Und wer sein EIGENES Deck ansieht (der „Ansehen"-Link im
+ * Profil), bekommt keine Aufforderung, zu sich selbst „zurück" zu gehen,
+ * sondern das, weswegen er hier ist: die Vorschau bestätigt und den
+ * Teilen-Knopf daneben.
  */
-export default function DeckJoin({ name }: { name: string | null }) {
+export default function DeckJoin({ uid, name }: { uid: string; name: string | null }) {
   const t = useTranslations('deck');
+  const tProfile = useTranslations('profile');
   const tLogin = useTranslations('modals.login');
+  const locale = useLocale();
   const { user } = useAuth();
+  const isOwner = user?.uid === uid;
+  /* Dieselbe Adresse, die das Profil teilt — siehe ProfileInvite. */
+  const [origin, setOrigin] = useState(SITE_URL);
+  useEffect(() => setOrigin(window.location.origin), []);
+  const inviteUrl = `${origin}${locale === 'en' ? '/en' : ''}/deck/${uid}?ref=${uid}`;
   /* Nach der Haltezeit des Wartescreens kommt der Toast — es sei denn, ein
      Starter Pack wird vergeben, dann spricht dessen Einblendung (siehe
      signInArrival). */
@@ -80,7 +92,27 @@ export default function DeckJoin({ name }: { name: string | null }) {
 
   return (
     <>
-      {user && (
+      {isOwner && (
+        <div className={styles.invite}>
+          <div className={styles.inviteCopy}>
+            <h2 className={styles.inviteTitle}>{t('ownHeading')}</h2>
+            <p className={styles.inviteLine}>{t('ownLine')}</p>
+          </div>
+          <div className={styles.inviteAction}>
+            <ShareButton
+              className={styles.inviteButton}
+              url={inviteUrl}
+              title={tProfile('inviteShareTitle')}
+              slug={uid}
+              contentType="referral_invite"
+              label={tProfile('inviteCta')}
+              copiedLabel={tProfile('inviteCopied')}
+            />
+          </div>
+        </div>
+      )}
+
+      {user && !isOwner && (
         <div className={styles.invite}>
           <div className={styles.inviteCopy}>
             <h2 className={styles.inviteTitle}>{t('ctaHeadingIn')}</h2>

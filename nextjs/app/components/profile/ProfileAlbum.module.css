@@ -311,8 +311,10 @@ div.player {
   min-height: 34px;
   padding: 5px 14px;
   color: var(--album-muted);
-  background: transparent;
-  border: 1px solid var(--profile-line, rgba(255, 255, 255, 0.14));
+  /* Flaeche statt Ring, wie die Filter-Chips der Map (24.09.2026). Der
+     transparente Rand bleibt, damit kein Zustand die Groesse aendert. */
+  background: var(--profile-raised, #25231f);
+  border: 1px solid transparent;
   border-radius: 999px;
   cursor: pointer;
   font-family: var(--album-display);
@@ -323,8 +325,7 @@ div.player {
   text-transform: uppercase;
   transition:
     color 140ms ease,
-    background-color 140ms ease,
-    border-color 140ms ease;
+    background-color 140ms ease;
 }
 
 /* Der Name traegt, der Zaehler erklaert — dieselbe Rollenteilung wie beim
@@ -345,13 +346,16 @@ div.player {
 @media (hover: hover) {
   .chip:hover {
     color: var(--album-ink);
-    border-color: var(--profile-ring, rgba(255, 255, 255, 0.28));
+    background: var(--profile-raised-on, #2d2b27);
   }
 }
 
+/* Kein gelber Ring (Nutzer, 23.09.2026) — Fokus hellt die Flaeche auf wie
+   Hover, und die Schrift wird voll. */
 .chip:focus-visible {
-  outline: 3px solid var(--album-accent);
-  outline-offset: 2px;
+  color: var(--album-ink);
+  background: var(--profile-raised-on, #2d2b27);
+  outline: 0;
 }
 
 /* Der gewaehlte Reiter ist gelb gefuellt — dieselbe Umkehr wie jeder
@@ -359,7 +363,6 @@ div.player {
 .chip[aria-pressed='true'] {
   color: var(--profile-ink, #15120e);
   background: var(--album-accent);
-  border-color: var(--album-accent);
 }
 
 .chip[aria-pressed='true'] .chipCount {
@@ -388,7 +391,6 @@ div.player {
 .chipMissing[aria-pressed='true'] {
   color: var(--album-ink);
   background: var(--album-red);
-  border-color: var(--album-red);
 }
 
 /* ── Das Raster ───────────────────────────────────────────── */

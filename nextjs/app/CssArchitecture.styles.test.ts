@@ -119,7 +119,7 @@ describe('CSS architecture contracts', () => {
     const mapPage = declarationsFor(root, ".app-page[data-page='map']");
     const noticeLayer = declarationsFor(root, '.notification-layer');
     const noticeLayerOpen = declarationsFor(root, '.notification-layer[data-open]');
-    const noticeLayerScrim = declarationsFor(root, '.notification-layer.show[data-layer]');
+    const noticeLayerScrim = declarationsFor(root, '.notification-layer[data-layer]');
     const source = root.toString();
 
     expect(html.get('background-color')).toBeTruthy();

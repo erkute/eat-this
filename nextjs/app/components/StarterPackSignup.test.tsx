@@ -13,18 +13,12 @@ const google = vi.hoisted(() => ({
   phase: 'idle',
   note: null,
   noteKey: null,
-  onSettled: undefined as (() => void) | undefined,
 }));
-const announceSignIn = vi.hoisted(() => vi.fn());
 
 vi.mock('@/lib/auth', () => ({
   useMagicLink: () => ({ sendLink: vi.fn(), reset: vi.fn(), state: 'idle', errorMessage: '' }),
-  useGoogleSignIn: (options: { onSettled?: () => void } = {}) => {
-    google.onSettled = options.onSettled;
-    return google;
-  },
+  useGoogleSignIn: () => google,
 }));
-vi.mock('@/lib/auth/signInArrival', () => ({ announceSignIn }));
 
 import StarterPackSignup from './StarterPackSignup';
 
@@ -79,20 +73,5 @@ describe('StarterPackSignup', () => {
     expect(google.prepare).not.toHaveBeenCalled();
     fireEvent.pointerEnter(screen.getByRole('button', { name: 'Mit Google anmelden' }));
     expect(google.prepare).toHaveBeenCalledTimes(1);
-  });
-
-  /* Nie Toast UND Pack-Einblendung: was gesagt wird, entscheidet
-     signInArrival, nicht diese Tafel. */
-  it('meldet die Anmeldung ueber announceSignIn, nicht direkt als Toast', () => {
-    const showNotification = vi.fn();
-    window.showNotification = showNotification;
-    render(tafel());
-
-    google.onSettled?.();
-    expect(announceSignIn).toHaveBeenCalledTimes(1);
-    expect(showNotification).not.toHaveBeenCalled();
-
-    announceSignIn.mock.calls[0][0]();
-    expect(showNotification).toHaveBeenCalledWith('Du bist angemeldet');
   });
 });

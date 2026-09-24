@@ -134,7 +134,9 @@ describe('ProfileShell map-data states', () => {
 
     expect(showNotice).toHaveBeenCalledOnce();
     const notice = showNotice.mock.calls[0][0];
-    expect(notice.tone).toBe('warning');
+    /* Veraltet ist nicht kaputt: gelb, nicht rot. */
+    expect(notice.tone).toBeUndefined();
+    expect(notice.onDismiss).toBeTypeOf('function');
     /* Sie bleibt stehen, solange der Zustand steht — und traegt den Weg
        heraus. */
     expect(notice.duration).toBe(0);

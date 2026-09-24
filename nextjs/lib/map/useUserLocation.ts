@@ -1,5 +1,6 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { watchLocationUnblock } from './locationHelp';
 
 export interface UserLocation {
   lat: number;
@@ -162,6 +163,18 @@ export function useUserLocation(): UseUserLocationResult {
       );
     });
   }, []);
+
+  /* Blockiert ist nicht fuer immer: kommt die Freigabe zurueck (meist aus den
+     Einstellungen, siehe locationHelp), holt die Map den Standort selbst —
+     der Besucher hat ihn ja eben erst gewollt. Steht sie nur wieder auf
+     „fragen", faellt der Fehler weg, und die naechste Geste darf fragen. */
+  useEffect(() => {
+    if (error !== 'denied') return;
+    return watchLocationUnblock((state) => {
+      if (state === 'granted') void request();
+      else setError(null);
+    });
+  }, [error, request]);
 
   return { location, loading, error, request, watch };
 }

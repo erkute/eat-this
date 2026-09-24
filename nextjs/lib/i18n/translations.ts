@@ -103,14 +103,6 @@ const en = {
     maps: 'Maps',
     opens: 'Opens',
     closes: 'Closes',
-    dataEyebrow: 'Map',
-    dataLoadingTitle: 'Loading',
-    dataLoadingDetail: 'One moment — the spots are on their way.',
-    dataErrorTitle: 'Not loaded',
-    dataErrorDetail: 'Check your connection and try again.',
-    dataStaleTitle: 'Update failed',
-    dataStaleDetail: 'You are looking at older map data.',
-    dataRetry: 'Retry',
     // Accessible names for the covered card itself — the only thing a screen
     // reader gets, so they name the state and the action rather than repeating
     // the visible copy.
@@ -178,7 +170,7 @@ const en = {
     // browser permission. Without a fix the chip is the button that asks.
     locationAllow: 'Allow location',
     // Screen-reader name of the covered card only: visibly, a denied permission
-    // is a notice in the central toast (lib/map/locationStatus.ts), the same
+    // is a notice in the central toast (lib/notice.ts), the same
     // one the map and the home page show.
     locationBlocked: 'Location blocked',
     proximityTapReveal: 'Tap it and see what to order here.',
@@ -259,12 +251,10 @@ const en = {
     removeSaved: 'Remove {name} from saved',
     spotNoteLabel: 'Note on {name}',
     spotNotePlaceholder: 'Add a note …',
-    spotNoteError: 'Could not save note.',
     spotWantTo: 'Want to go',
     spotWasThere: 'Been there',
     spotMarkVisited: '{name}: mark as visited',
     spotUnmarkVisited: '{name}: mark as not visited yet',
-    spotVisitedError: 'Could not be saved.',
     lockedSubhead: 'Still face-down',
     emptyMustEats:
       'Your deck is still empty. Must Eats are out in Berlin and in the Booster Packs.',
@@ -337,6 +327,7 @@ const en = {
     title: 'Cookies',
     text: 'We use Google Analytics to understand how our site is used. This sets a cookie and sends data to Google.',
     moreInfo: 'Show details',
+    lessInfo: 'Hide details',
     accept: 'Accept',
     decline: 'Decline',
   },
@@ -373,7 +364,6 @@ const en = {
       emailLabel: 'Email',
       emptyEmail: 'Add your email first.',
       invalidEmail: 'That does not look like an email yet.',
-      signedIn: "You're signed in",
       legalLead: 'By signing in you accept our',
       legalAnd: 'and our',
       sentH1: 'Mail’s out',
@@ -496,14 +486,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     maps: 'Maps',
     opens: '\u00d6ffnet',
     closes: 'Schlie\u00dft',
-    dataEyebrow: 'Karte',
-    dataLoadingTitle: 'Wird geladen',
-    dataLoadingDetail: 'Einen Moment — die Spots kommen gleich.',
-    dataErrorTitle: 'Nicht geladen',
-    dataErrorDetail: 'Prüf deine Verbindung und versuch es nochmal.',
-    dataStaleTitle: 'Aktualisierung fehlgeschlagen',
-    dataStaleDetail: 'Du siehst ältere Kartendaten.',
-    dataRetry: 'Nochmal',
     tooFarToReveal: 'Zu weit weg',
     revealHere: 'Jetzt aufdecken. Tipp auf die Karte.',
     unitsMin: 'Min',
@@ -579,7 +561,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     locationAllow: 'Standort freigeben',
     // Nur noch der Name der verdeckten Karte fürs Screenreader-Ohr: sichtbar
     // ist der verweigerte Standort eine Meldung der zentralen Info-Karte
-    // (lib/map/locationStatus.ts), wie auf Map und Startseite.
+    // (lib/notice.ts), wie auf Map und Startseite.
     locationBlocked: 'Standort blockiert',
     proximityTapReveal: 'Tipp drauf und sieh, was du hier bestellen musst.',
     // Muss in den reservierten Copy-Slot passen (--me-mid-slot, 105px für den
@@ -618,6 +600,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     title: 'Cookies',
     text: 'Wir nutzen Google Analytics, um zu verstehen, wie unsere Seite genutzt wird. Dafür wird ein Cookie gesetzt und Daten an Google übermittelt.',
     moreInfo: 'Details anzeigen',
+    lessInfo: 'Details ausblenden',
     accept: 'Akzeptieren',
     decline: 'Ablehnen',
   },
@@ -665,14 +648,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     removeSaved: '{name} aus Gespeicherten entfernen',
     spotNoteLabel: 'Notiz zu {name}',
     spotNotePlaceholder: 'Notiz hinzuf\u00fcgen …',
-    spotNoteError: 'Notiz konnte nicht gespeichert werden.',
     /* Zwei Zustaende, ein Schalter: „will hin" ist der Normalfall — deshalb
        ist der Spot ueberhaupt gespeichert —, „war da" der gedrueckte. */
     spotWantTo: 'Will hin',
     spotWasThere: 'War da',
     spotMarkVisited: '{name}: als besucht markieren',
     spotUnmarkVisited: '{name}: doch noch nicht da gewesen',
-    spotVisitedError: 'Konnte nicht gespeichert werden.',
     lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
       'Dein Deck ist noch leer. Must Eats findest du drau\u00dfen in Berlin und in den Booster Packs.',
@@ -794,7 +775,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       emailLabel: 'E-Mail',
       emptyEmail: 'Bitte gib deine E-Mail ein.',
       invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
-      signedIn: 'Du bist angemeldet',
       legalLead: 'Mit deiner Anmeldung akzeptierst du unsere',
       legalAnd: 'und die',
       sentH1: 'Mail ist raus',

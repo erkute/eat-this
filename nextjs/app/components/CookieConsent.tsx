@@ -178,8 +178,8 @@ function ModalBody({ sections }: { sections: ModalBodySection[] }) {
  * button. The only way past it is one of the two answers — which is what the
  * GDPR permits and no more than that.
  *
- * "Accept" is the primary button and comes first; "decline" is the outlined
- * secondary next to it. That is as far as the emphasis may go: both answers
+ * "Accept" is the primary button and comes first; "decline" is the quieter
+ * filled secondary next to it. That is as far as the emphasis may go: both answers
  * keep the same box, the same type, the same weight and the same single
  * click, and the decline label stays full-contrast white. Forcing the
  * decision is legal; making the refusal cost more than the yes is not — and
@@ -357,9 +357,9 @@ export default function CookieConsent() {
       >
         <div className="cookie-content">
           <div className="cookie-copy">
-            <span className="cookie-mark" aria-hidden="true" />
             <div className="cookie-copy-main">
               <h2 className="cookie-title" id="cookieTitle">
+                <span className="cookie-mark" aria-hidden="true" />
                 {t('cookie.title')}
               </h2>
               <p className="cookie-text" id="cookieText">
@@ -373,7 +373,7 @@ export default function CookieConsent() {
                 aria-controls="cookieInfoPanel"
                 onClick={() => setExpanded((e) => !e)}
               >
-                {t('cookie.moreInfo')}
+                {t(expanded ? 'cookie.lessInfo' : 'cookie.moreInfo')}
                 <svg
                   className="cookie-info-chevron"
                   width={10}

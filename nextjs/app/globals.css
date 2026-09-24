@@ -743,7 +743,7 @@ html[data-auth='1'] [data-guest-only] {
 .user-loc-marker {
   z-index: 1000;
 }
-/* ── Zentrale Info-Karte (window.showNotification / window.showNotice) ──────
+/* ── Zentrale Info-Karte (lib/notice.ts → window.showNotice) ────────────────
    Global montiert in app/[locale]/layout.tsx (NotificationToast.tsx). Hier
    statt in style.css, weil /profile das SPA-Stylesheet nicht laden.
 
@@ -755,21 +755,19 @@ html[data-auth='1'] [data-guest-only] {
    beide waren halb verdeckt, und beide sagten dasselbe auf zwei Arten. Jetzt
    gibt es eine Flaeche, und sie steht da, wo hingeschaut wird.
 
-   Bewegung ohne Opacity (Brand-Regel), und dieselbe wie im Onboarding: die
-   Karte steigt von unten auf. Weil ohne Scrim nichts sie verdecken kann,
-   kommt sie aus einem Schlitz an ihrer eigenen Unterkante — sie faehrt um
-   ihre Hoehe nach oben, und der clip-path gibt genau so viel frei, wie sie
-   schon heraus ist. Beim Gehen sinkt sie in denselben Schlitz zurueck. Bis
-   22.09.2026 klappte sie stattdessen aus einem waagerechten Strich in ihrer
-   Mitte auf und schrumpfte beim Gehen dorthin zurueck — wie ein
-   Roehrenfernseher, der ausgeht (Betreiber: „zu digital"). Die Karte selbst nimmt keine
-   Klicks (pointer-events: none) — nur ihre Knoepfe holen sie sich zurueck,
-   sonst laege sie als unsichtbare Platte ueber der Karte. */
+   Bewegung wie Onboarding und Anmelde-Layer (Tour.module.css `arrive`): die
+   Karte steht sofort da und hebt sich 14 px an ihren Platz; sie geht ohne
+   Bewegung. Keine Opacity (Brand-Regel). Vorher, verworfen: bis 22.09.2026
+   ein Aufklappen aus einem Strich in der Mitte („zu digital"), bis 24.09.2026
+   ein Auf- und Abtauchen durch einen Schlitz um die ganze Kartenhoehe
+   (Ausblenden nach unten „nicht passend", nach oben „zu verspielt"). Die
+   Karte selbst nimmt keine Klicks (pointer-events: none) — nur offen holt sie
+   sie sich zurueck, sonst laege sie als unsichtbare Platte ueber der Seite. */
 /* Die Huelle zentriert die Karte im Viewport. Ohne `data-layer` ist sie
    durchlaessig — nur die Karte faengt Tipps — damit die kurzen Bestaetigungen
-   die Seite nicht anhalten. Mit `data-layer` (Standort) liegt ein Scrim
-   darunter, der jeden Tipp neben der Karte schluckt; der faerbt sich ueber
-   background-color ein, nicht ueber Opacity (Markenregel).
+   die Seite nicht anhalten. Mit `data-layer` (jede Meldung mit Knoepfen) liegt ein Scrim
+   darunter, der jeden Tipp neben der Karte schluckt. Er kommt und geht ohne
+   Uebergang, wie der Grund von Onboarding und Anmelde-Layer.
 
    Zugeklappt ist die Huelle `display: none`, nicht bloss unsichtbar oder
    unfixiert. iOS 26 Safari faerbt seine Leisten nach dem obersten fixierten
@@ -779,10 +777,10 @@ html[data-auth='1'] [data-guest-only] {
    ist. Nach dem Standort-Layer mit Scrim blieb die untere URL-Leiste deshalb
    grau, obwohl die Huelle laengst nicht mehr fixiert war (am iPhone
    03.09.2026). Ohne Renderer faellt die Farbe weg. Fixiert und sichtbar wird
-   die Huelle erst mit `data-open`, das NotificationToast beim Oeffnen setzt
-   und 400 ms nach dem Ausfahren wieder nimmt. Den Uebergang aus dem
-   zugeklappten Zustand liefert @starting-style (unten), weil es vor dem
-   Oeffnen keinen gerenderten Ausgangszustand mehr gibt. Die aria-live-Region
+   die Huelle erst mit `data-open`, das NotificationToast genau so lange
+   setzt, wie die Karte steht. Den Uebergang aus dem zugeklappten Zustand
+   liefert @starting-style (unten), weil es vor dem Oeffnen keinen
+   gerenderten Ausgangszustand gibt. Die aria-live-Region
    liegt getrennt in .notification-live, damit sie nie display: none ist.
 
    Offen ohne Scrim ist die Huelle eine Linie ohne Hoehe auf halber
@@ -832,7 +830,7 @@ html[data-auth='1'] [data-guest-only] {
   padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px));
   pointer-events: none;
 }
-.notification-layer.show[data-layer] {
+.notification-layer[data-layer] {
   --notification-layer-pad-y: max(
     20px,
     env(safe-area-inset-top, 0px),
@@ -858,13 +856,9 @@ html[data-auth='1'] [data-guest-only] {
 .notification-scrim {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: var(--et-scrim, rgba(0, 0, 0, 0.62));
   /* Kein Scrollen der Seite durch den Scrim hindurch (iOS Safari). */
   touch-action: none;
-  transition: background-color 0.34s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.notification-layer.show[data-layer] .notification-scrim {
-  background-color: rgba(0, 0, 0, 0.5);
 }
 .notification {
   --toast-surface: var(--et-ink-raised, #25231f);
@@ -872,181 +866,189 @@ html[data-auth='1'] [data-guest-only] {
   --toast-muted: rgba(255, 255, 255, 0.76);
   --toast-accent: var(--et-home-accent, #ffc600);
   position: relative;
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  align-items: start;
-  gap: 14px;
-  width: min(332px, 100%);
-  padding: 20px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  /* Feste Breite, am Viewport gemessen: `100%` loeste im zentrierten Grid
+     der Huelle gegen den Inhalt auf, und jede Meldung war so breit wie ihr
+     Text — „Noch einer fuer deine Liste." stand schmaler als der Rest. Die
+     40 px sind das Seitenpolster der Huelle. */
+  width: min(360px, calc(100vw - 40px));
+  padding: 22px 22px 22px;
   color: var(--toast-ink);
   text-align: left;
   background: var(--toast-surface);
   border: 0;
-  border-radius: var(--et-radius-photo, 10px);
-  /* Nur die Kante: clip-path (unten) schneidet jeden aeusseren Schatten weg. */
-  box-shadow: var(--et-ink-raised-edge);
+  /* Derselbe Radius wie Anmelde-Layer und Onboarding. */
+  border-radius: var(--et-radius-panel, 10px);
+  /* Keine Kante, wie der Anmelde-Layer — die Flaechenstufe traegt, dazu der
+     Schatten des Onboarding-Fensters (Tour.module.css .panel). Bis 24.09.2026
+     stand hier nur eine 1-px-Kante: der clip-path des damaligen Schlitzes
+     schnitt jeden aeusseren Schatten weg. */
+  box-shadow: 0 24px 80px #0008;
   pointer-events: none;
-  /* Beide Werte in Prozent der Kartenhoehe und gleich gross: dann steht die
-     Schnittkante im Viewport still, und die Karte gleitet durch sie hindurch
-     statt mitzuwandern. Kein `round` im clip-path — die Ecken rundet der
-     border-radius, eine gerundete Schnittkante saehe wie ein Pillenboden aus. */
-  transform: translateY(100%);
-  clip-path: inset(0 0 100% 0);
-  transition:
-    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-    clip-path 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.26s ease-out;
 }
 /* Offen faengt die Karte selbst jeden Tipp — vorher lief nur die Knopfzeile
    auf pointer-events:auto, und ein Tipp auf die Kartenflaeche landete auf dem
    Hero-Knopf dahinter. */
 .notification.show {
   pointer-events: auto;
-  transform: translateY(0);
-  clip-path: inset(0 0 0 0);
 }
-/* Der Ausgangszustand des Aufziehens: die Huelle kommt aus display: none,
-   also gibt es keinen gerenderten Vorher-Wert, von dem der Uebergang starten
+/* Der Ausgangszustand des Hebens: die Huelle kommt aus display: none, also
+   gibt es keinen gerenderten Vorher-Wert, von dem der Uebergang starten
    koennte. */
 @starting-style {
   .notification.show {
-    transform: translateY(100%);
-    clip-path: inset(0 0 100% 0);
+    transform: translateY(14px);
   }
 }
-/* Rot ist im Brand die Farbe fuer "kaputt" und sonst nichts — Warnungen
-   (Standort nicht gefunden) bleiben deshalb beim gelben Akzent. */
+/* Dieselbe Sprache wie der Anmelde-Layer (LoginBoard): gelber Kicker in
+   Providence-Versalien, weisser Versalien-Titel, eine Zeile in Weiss 76 %,
+   gefuellte Knoepfe ohne Kontur. Vor dem Kicker das gelbe Marken-Quadrat
+   (wie `hv-mk` und der Insider-Tipp); nur bei „kaputt" ist es rot. Rot als
+   Schrift waere auf Ink zu schwach (rund 2,9:1), das Quadrat traegt die
+   Farbe allein. Icons gibt es seit dem 24.09.2026 keine mehr — der Kicker
+   sagt, worum es geht. */
 .notification[data-tone='error'] {
-  --toast-accent: var(--et-home-red, #d9382a);
-}
-.notification-mark {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  color: var(--toast-accent);
-  background: transparent;
-}
-.notification-mark svg {
-  display: block;
-  width: 24px;
-  height: 24px;
-  fill: currentColor;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.notification-mark svg circle,
-.notification-mark svg path:not(:first-child) {
-  fill: none;
-}
-.notification-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  --toast-mark: var(--et-home-red, #d9382a);
 }
 .notification-eyebrow {
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  line-height: 1;
+  line-height: 1.2;
   text-transform: uppercase;
   color: var(--toast-accent);
 }
+.notification-eyebrow::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  background: var(--toast-mark, var(--toast-accent));
+}
 .notification-title {
+  margin-top: 2px;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 0.96;
+  letter-spacing: 0;
+  line-height: 1.02;
   text-transform: uppercase;
+  text-wrap: balance;
   color: var(--toast-ink);
   overflow-wrap: anywhere;
 }
 .notification-detail {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 15px;
-  font-weight: 400;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 16px;
+  font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.35;
+  /* Providence traegt lange Unterlaengen: bei 1.2 stiess das g von „liegt"
+     an die Zeile darunter (24.09.2026). 1.4 wie der Fliesstext des
+     Onboardings (Tour.module.css, 1.45). */
+  line-height: 1.4;
+  text-wrap: pretty;
   color: var(--toast-muted);
 }
-/* Knoepfe nur, wo es welche gibt — der Standard-Hinweis geht von allein.
-   Rechtsbuendig, „Alles klar" vor dem gelben Primaerknopf ganz rechts. */
-.notification-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
+/* Die Schritte der Standort-Anleitung: gelbe Ziffern in Providence, der Text
+   in der Detailfarbe. Eigene Zaehlung statt `list-style`, damit die Ziffer
+   die Markenfarbe traegt und buendig mit dem Kicker-Quadrat steht. */
+.notification-steps {
+  display: grid;
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: notice-step;
 }
-.notification-action,
-.notification-dismiss {
+.notification-steps li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--toast-muted);
+  counter-increment: notice-step;
+}
+.notification-steps li::before {
+  content: counter(notice-step);
+  color: var(--toast-accent);
+}
+/* Knoepfe nur, wo es welche gibt — dann ist die Karte ein Layer. Gleich
+   breit nebeneinander, der gelbe rechts; allein nimmt er die ganze Breite. */
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.notification-primary,
+.notification-quiet {
+  flex: 1 1 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 10px 18px 11px;
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.12;
+  white-space: nowrap;
   cursor: pointer;
-  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    background-color 0.16s ease,
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.notification-action {
+.notification-primary {
   background: var(--et-home-accent, #ffc600);
   color: var(--et-home-ink, #15120e);
-  border: 2px solid var(--et-home-accent, #ffc600);
 }
-.notification-dismiss {
-  background: transparent;
+.notification-quiet {
+  background: rgba(255, 255, 255, 0.1);
   color: var(--toast-ink);
-  border: 2px solid rgba(255, 255, 255, 0.28);
 }
-.notification-action:focus-visible,
-.notification-dismiss:focus-visible {
-  transform: translateY(-2px);
-}
+/* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink. */
 @media (hover: hover) {
-  .notification-action:hover,
-  .notification-dismiss:hover {
-    transform: translateY(-2px);
+  .notification-primary:hover {
+    background: #fff;
+  }
+  .notification-quiet:hover {
+    background: rgba(255, 255, 255, 0.16);
   }
 }
-.notification-dismiss:focus-visible {
-  border-color: var(--et-home-accent, #ffc600);
+.notification-primary:focus-visible,
+.notification-quiet:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline-offset: 3px;
 }
-@media (hover: hover) {
-  .notification-dismiss:hover {
-    border-color: var(--et-home-accent, #ffc600);
-  }
-}
-.notification-action:active,
-.notification-dismiss:active {
+.notification-primary:active,
+.notification-quiet:active {
   transform: translateY(1px);
 }
 @media (max-width: 420px) {
   .notification {
-    grid-template-columns: 26px minmax(0, 1fr);
-    gap: 12px;
-    padding: 18px 18px 20px;
-  }
-  .notification-mark {
-    width: 26px;
-    height: 26px;
-  }
-  .notification-mark svg {
-    width: 22px;
-    height: 22px;
+    padding: 20px 18px 18px;
   }
   .notification-title {
-    font-size: 22px;
+    font-size: 24px;
+  }
+}
+/* Ohne Bewegung: die Karte steht sofort da und ist sofort weg. */
+@media (prefers-reduced-motion: reduce) {
+  .notification {
+    transition: none;
   }
 }
 
@@ -1082,10 +1084,18 @@ html[data-auth='1'] [data-guest-only] {
    Motion is translate/scale only (brand rule: no opacity fades on brand
    surfaces). The scrim transitions its background-COLOR rather than opacity —
    it is a veil over the page, not a surface of its own. */
+/* Seit 24.09.2026 in der Sprache des Anmelde-Layers (LoginBoard/LoginPanel):
+   Fenster eine Stufe ueber Ink ohne Kontur, gelbes Marken-Quadrat vor der
+   Providence-Versalie, alles in Providence, Knoepfe gefuellt wie dort — der
+   gelbe hovert auf Papier, der zweite ist eine Weiss-Stufe und hovert gelb.
+   Kein Ring um "Ablehnen" (keine Konturen auf Ink), kein Rot. */
 .cookie-gate {
-  --cookie-panel-w: 560px;
-  --cookie-panel-w-wide: 940px;
-  --cookie-on-ink: rgba(255, 255, 255, 0.72);
+  --cookie-panel-w: 520px;
+  --cookie-panel-w-wide: 900px;
+  --cookie-accent: var(--et-home-accent, #ffc600);
+  --cookie-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --cookie-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  --cookie-font: var(--font-providence, var(--et-font-display), sans-serif);
   position: fixed;
   inset: 0;
   z-index: 10002;
@@ -1112,19 +1122,19 @@ html[data-auth='1'] [data-guest-only] {
 }
 .cookie-consent {
   position: relative;
+  box-sizing: border-box;
   width: min(100%, var(--cookie-panel-w));
   max-height: min(88dvh, 780px);
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding: clamp(22px, 3vw, 34px);
-  color: var(--et-home-paper, #fff);
+  padding: clamp(28px, 3.4vw, 40px);
+  color: #fff;
   background: var(--et-ink-raised, #25231f);
   border: 0;
-  border-radius: var(--et-radius-photo, 10px);
-  box-shadow:
-    var(--et-ink-raised-edge),
-    0 30px 70px rgba(21, 18, 14, 0.45);
+  border-radius: var(--et-radius-panel, 10px);
+  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
+  font-family: var(--cookie-font);
   transform: translateY(22px) scale(0.97);
   transition:
     transform 0.46s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1143,176 +1153,154 @@ html[data-auth='1'] [data-guest-only] {
 }
 .cookie-content {
   display: grid;
-  gap: clamp(16px, 2.2vw, 22px);
+  gap: 22px;
   width: 100%;
 }
-.cookie-copy {
-  display: grid;
-  grid-template-columns: 12px minmax(0, 1fr);
-  column-gap: 13px;
-  row-gap: 0;
-  min-width: 0;
-  align-items: start;
-}
-.cookie-mark {
-  width: 12px;
-  height: 12px;
-  margin-top: 0.3em;
-  background: var(--et-home-red, #d9382a);
-}
+.cookie-copy,
 .cookie-copy-main {
   min-width: 0;
 }
 .cookie-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin: 0;
-  color: var(--et-home-paper, #fff);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(30px, 3.4vw, 42px);
+  color: #fff;
+  font-family: var(--cookie-font);
+  font-size: clamp(32px, 3.4vw, 42px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title, 0);
-  line-height: 0.9;
+  letter-spacing: 0;
+  line-height: 1.02;
   text-transform: uppercase;
-  text-wrap: balance;
+}
+/* Dasselbe Zeichen wie `hv-mk` vor den Abschnittstiteln und vor dem
+   Insider-Tipp — gelb, nicht rot: Rot ist auf Ink raus. */
+.cookie-mark {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  /* Providence-Versalien stehen hoch in der Zeile; ohne den Zug sitzt das
+     Quadrat unter ihrer Mitte. */
+  translate: 0 -0.08em;
+  background: var(--cookie-accent);
 }
 .cookie-text {
-  max-width: 54ch;
-  margin: 10px 0 0;
-  color: var(--cookie-on-ink);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(14px, 1.05vw, 16px);
+  max-width: 44ch;
+  margin: 12px 0 0;
+  color: var(--cookie-soft);
+  font-family: var(--cookie-font);
+  font-size: clamp(16px, 1.25vw, 18px);
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 1.4;
+  text-wrap: pretty;
 }
 .cookie-info-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  padding: 0 0 2px;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 2px 0;
   cursor: pointer;
+  color: var(--cookie-accent);
   background: none;
   border: 0;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 14px;
+  font-family: var(--cookie-font);
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1;
-  color: var(--et-home-paper, #fff);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-thickness: 2px;
-  text-decoration-color: var(--et-home-accent, #ffc600);
+  line-height: 1.2;
   text-transform: none;
 }
 .cookie-info-trigger:focus-visible {
-  color: var(--et-home-accent, #ffc600);
+  color: #fff;
+  outline: 0;
 }
 @media (hover: hover) {
   .cookie-info-trigger:hover {
-    color: var(--et-home-accent, #ffc600);
+    color: #fff;
   }
 }
-/* Accept is the primary answer, decline the secondary one: filled against
-   outlined. What must NOT differ is everything the law looks at — same box,
-   same type, same weight, same single click, and decline keeps full-white
-   label text so it stays as readable as accept. Do not shrink it, grey the
-   label down or push it behind another click: a refusal that costs more than
-   a yes makes the consent invalid, and invalid consent makes the analytics it
-   buys unusable. */
+/* Accept is the primary answer, decline the secondary one: yellow against a
+   white step, both filled. What must NOT differ is everything the law looks
+   at — same box, same type, same weight, same single click, and decline keeps
+   full-white label text so it stays as readable as accept. Do not shrink it,
+   grey the label down or push it behind another click: a refusal that costs
+   more than a yes makes the consent invalid, and invalid consent makes the
+   analytics it buys unusable. Den Druck (1px) setzt die globale :active-Regel
+   weiter unten. */
 .cookie-buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  align-items: stretch;
   width: 100%;
 }
 .cookie-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   min-height: 52px;
-  padding: 0 16px;
-  border: 1.5px solid transparent;
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: 16px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--cookie-font);
+  font-size: clamp(17px, 1.45vw, 19px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-  cursor: pointer;
+  line-height: 1.12;
+  text-transform: uppercase;
   white-space: nowrap;
+  cursor: pointer;
   transition:
-    transform 140ms ease,
     background-color 140ms ease,
-    border-color 140ms ease,
     color 140ms ease;
 }
 .cookie-btn-accept {
   color: var(--et-home-ink, #15120e);
-  background: var(--et-home-accent, #ffc600);
-  box-shadow: 0 8px 22px rgba(255, 198, 0, 0.26);
+  background: var(--cookie-accent);
+}
+.cookie-btn-decline {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
 }
 .cookie-btn-accept:focus-visible {
-  color: var(--et-home-inverse-text, #fff);
-  background: var(--et-home-red, #d9382a);
-  box-shadow: 0 8px 22px rgba(217, 56, 42, 0.3);
-  transform: translateY(-1px);
+  background: #fff;
+  outline: 0;
+}
+.cookie-btn-decline:focus-visible {
+  color: var(--et-home-ink, #15120e);
+  background: var(--cookie-accent);
+  outline: 0;
 }
 @media (hover: hover) {
   .cookie-btn-accept:hover {
-    color: var(--et-home-inverse-text, #fff);
-    background: var(--et-home-red, #d9382a);
-    box-shadow: 0 8px 22px rgba(217, 56, 42, 0.3);
-    transform: translateY(-1px);
+    background: #fff;
   }
-}
-.cookie-btn-accept:active {
-  transform: translateY(0);
-}
-.cookie-btn-decline {
-  color: var(--et-home-paper, #fff);
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.38);
-}
-.cookie-btn-decline:focus-visible {
-  color: var(--et-home-paper, #fff);
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.62);
-  transform: translateY(-1px);
-}
-@media (hover: hover) {
   .cookie-btn-decline:hover {
-    color: var(--et-home-paper, #fff);
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.62);
-    transform: translateY(-1px);
+    color: var(--et-home-ink, #15120e);
+    background: var(--cookie-accent);
   }
-}
-.cookie-btn-decline:active {
-  transform: translateY(0);
 }
 .cookie-legal {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-top: -6px;
-  color: rgba(255, 255, 255, 0.45);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: 13px;
+  justify-content: center;
+  gap: 10px;
+  margin-top: -8px;
+  color: var(--cookie-dim);
+  font-family: var(--cookie-font);
+  font-size: 14px;
 }
 .cookie-legal a {
-  color: var(--cookie-on-ink);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
+  color: var(--cookie-dim);
+  text-decoration: none;
 }
 .cookie-legal a:focus-visible {
-  color: var(--et-home-accent, #ffc600);
+  color: var(--cookie-accent);
+  outline: 0;
 }
 @media (hover: hover) {
   .cookie-legal a:hover {
-    color: var(--et-home-accent, #ffc600);
+    color: var(--cookie-accent);
   }
 }
 @media (max-width: 640px) {
@@ -1321,48 +1309,36 @@ html[data-auth='1'] [data-guest-only] {
      be mistaken for the page's own footer. */
   .cookie-gate {
     align-items: end;
-    padding: 16px max(12px, env(safe-area-inset-right, 0px))
-      calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+    padding: 16px max(10px, env(safe-area-inset-right, 0px))
+      calc(10px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
   }
-  .cookie-consent {
-    width: 100%;
-    max-height: calc(100dvh - 28px - env(safe-area-inset-bottom, 0px));
-    padding: 20px 18px;
-  }
+  .cookie-consent,
   .cookie-consent.expanded {
     width: 100%;
+    max-height: calc(100dvh - 26px - env(safe-area-inset-bottom, 0px));
+    padding: 26px 20px 20px;
   }
   .cookie-content {
-    gap: 16px;
-  }
-  .cookie-copy {
-    grid-template-columns: 10px minmax(0, 1fr);
-    column-gap: 11px;
-  }
-  .cookie-mark {
-    width: 10px;
-    height: 10px;
+    gap: 18px;
   }
   .cookie-title {
-    font-size: clamp(27px, 8vw, 34px);
-    line-height: 0.92;
+    gap: 10px;
+    font-size: clamp(28px, 8vw, 34px);
   }
   .cookie-text {
-    margin-top: 8px;
-    font-size: 14px;
-    line-height: 1.4;
+    margin-top: 10px;
+    font-size: 16px;
   }
   .cookie-info-trigger {
-    margin-top: 10px;
-    font-size: 14px;
+    margin-top: 12px;
   }
+  /* Untereinander, gleich breit — keine Antwort rutscht in eine Ecke. */
   .cookie-buttons {
     grid-template-columns: 1fr;
     gap: 8px;
   }
   .cookie-btn {
-    min-height: 50px;
-    font-size: 16px;
+    min-height: 52px;
   }
 }
 
@@ -1377,9 +1353,6 @@ html[data-auth='1'] [data-guest-only] {
   width: 100%;
   margin: 0;
   padding: 0;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
   max-height: min(46dvh, 420px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -1401,40 +1374,40 @@ html[data-auth='1'] [data-guest-only] {
       bottom / 100% 13px no-repeat scroll;
   background-color: var(--et-ink-raised, #25231f);
 }
-/* Each section sits in its own card inside .cookie-info-body — give them
-   strong separation so heading↔text grouping is obvious. */
+/* Die Abschnitte als leise Felder im Fenster — Ueberschrift als gelbes
+   Kreide-Label in Versalien, wie die Labels der Fakten-Tafel. */
 .cookie-expand .cookie-info-body {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   align-items: start;
   gap: 8px;
 }
 .cookie-info-card {
   min-width: 0;
-  padding: 13px;
+  margin: 0;
+  padding: 14px 15px 15px;
   background: rgba(255, 255, 255, 0.07);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  margin: 0;
+  border-radius: var(--home-radius-btn, 8px);
 }
 .cookie-expand .cookie-info-body h3 {
-  margin: 0 0 6px;
-  color: var(--et-home-paper, #fff);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(17px, 1.5vw, 20px);
+  margin: 0 0 7px;
+  color: var(--cookie-accent);
+  font-family: var(--cookie-font);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title, 0);
-  line-height: 0.98;
-  text-transform: none;
-  text-wrap: balance;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
 }
-.cookie-expand .cookie-info-body p {
+.cookie-expand .cookie-info-body p,
+.cookie-expand .cookie-info-body ul li {
   margin: 0;
-  color: var(--cookie-on-ink, rgba(255, 255, 255, 0.72));
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: 13px;
+  color: var(--cookie-soft);
+  font-family: var(--cookie-font);
+  font-size: 14px;
   font-weight: 400;
-  line-height: 1.34;
+  line-height: 1.42;
 }
 .cookie-expand .cookie-info-body ul {
   margin: 8px 0 0;
@@ -1443,55 +1416,38 @@ html[data-auth='1'] [data-guest-only] {
 }
 .cookie-expand .cookie-info-body ul li {
   position: relative;
+  margin-bottom: 5px;
   padding-left: 13px;
-  color: var(--cookie-on-ink, rgba(255, 255, 255, 0.72));
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.34;
-  margin-bottom: 4px;
 }
 /* Square bullet — brand is square/sticker, no circles. */
 .cookie-expand .cookie-info-body ul li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.7em;
+  top: 0.62em;
   width: 4px;
   height: 4px;
-  background: var(--et-home-accent, #ffc600);
+  background: var(--cookie-accent);
 }
 .cookie-expand .cookie-info-body strong {
-  color: var(--et-home-paper, #fff);
-  font-weight: 800;
+  color: #fff;
+  font-weight: 700;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--et-home-accent, #ffc600);
-  font-weight: 800;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
+  color: var(--cookie-accent);
+  font-weight: 700;
+  text-decoration: none;
 }
 
 @media (max-width: 640px) {
   .cookie-expand {
-    max-height: min(34dvh, 300px);
-    overflow-y: auto;
+    max-height: min(36dvh, 320px);
   }
   .cookie-expand .cookie-info-body {
     grid-template-columns: 1fr;
-    gap: 8px;
   }
   .cookie-info-card {
-    padding: 12px;
-  }
-  .cookie-expand .cookie-info-body h3 {
-    font-size: 18px;
-  }
-  .cookie-expand .cookie-info-body p,
-  .cookie-expand .cookie-info-body ul li {
-    font-size: 13px;
-    line-height: 1.35;
+    padding: 13px 14px 14px;
   }
 }
 

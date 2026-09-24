@@ -213,7 +213,12 @@
   --et-home-ink: #15120e;
   --et-home-accent: #ffc600;
   --et-home-red: #d9382a;
-  --et-home-photo-rest: #eceae6;
+  /* Grund unter jedem Foto auf der Startseite (`.hv-photo`). Früher Hellgrau
+     vom weißen Papier; auf der Ink-Tafel blitzte es als weiße Fläche, bis ein
+     Foto geladen war, und als Haarlinie an der Unterkante jedes Teller-Bilds —
+     das Foto deckt den gerundeten Kasten dort nicht ganz (Betreiber,
+     24.09.2026). Dunkel fällt beides weg. */
+  --et-home-photo-rest: var(--et-ink-raised);
   --et-home-quiet: #f2f1ef;
   --et-home-rule: #e4e1dc;
   --et-home-muted: rgba(21, 18, 14, 0.64);

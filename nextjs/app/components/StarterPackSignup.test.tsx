@@ -54,7 +54,8 @@ describe('StarterPackSignup', () => {
     const html = renderToStaticMarkup(tafel());
     expect(html).toContain('booster_free.webp');
     expect(html).toContain('>Starter Pack</h2>');
-    expect(html).toContain('20 Must Eats, überall in Berlin verteilt.');
+    expect(html).toContain('Starte deine Sammlung');
+    expect(html).toContain('20 Must Eats aus ganz Berlin. Entdecke unsere Empfehlungen');
     // Kein „Gratis"-Kicker: Geschenk-Wording will der Betreiber nicht (22.09.2026).
     expect(html).not.toMatch(/gratis|kostenlos/i);
   });
@@ -62,7 +63,7 @@ describe('StarterPackSignup', () => {
   it('spricht Englisch unter /en', () => {
     const html = renderToStaticMarkup(tafel('en'));
     expect(html).toContain('Sign in with Google');
-    expect(html).toContain('20 Must Eats, spread all over Berlin.');
+    expect(html).toContain('20 Must Eats from all over Berlin. Discover our picks');
   });
 
   /* Die Tafel steht auf jeder Startseite; der Cookie-Hinweis verspricht,

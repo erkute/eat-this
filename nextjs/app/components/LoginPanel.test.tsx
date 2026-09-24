@@ -52,7 +52,12 @@ describe('LoginPanel — die Szene zeigt, wonach der Gast gegriffen hat', () => 
   it('zeigt ohne Anlass das Starter Pack', () => {
     const { container } = panel();
     expect(title(container)).toBe('Starter Pack');
-    expect(container.textContent).toContain('20 Must Eats');
+    expect(container.querySelector('h2')?.previousElementSibling?.textContent).toBe(
+      'Starte deine Sammlung'
+    );
+    expect(container.textContent).toContain(
+      '20 Must Eats aus ganz Berlin. Entdecke unsere Empfehlungen und sammle sie in deinem Deck.'
+    );
   });
 
   /* Kein Spot-Name: im Startseiten-Teaser ist er Teil der Überraschung. */
@@ -64,7 +69,7 @@ describe('LoginPanel — die Szene zeigt, wonach der Gast gegriffen hat', () => 
       'Decke deine Must Eats auf'
     );
     expect(container.textContent).toContain(
-      'Deine Karte. Dein Starter Pack. 20 Must Eats aus ganz Berlin.'
+      'Hinter jeder Karte steckt eine Empfehlung. Dein Starter Pack bringt dir 20 Must Eats aus ganz Berlin.'
     );
     expect(container.innerHTML).toContain('card-back.webp');
   });
@@ -79,13 +84,13 @@ describe('LoginPanel — die Szene zeigt, wonach der Gast gegriffen hat', () => 
       photo: 'https://cdn.sanity.io/images/p/d/a.jpg',
     };
     const { container } = panel();
-    expect(title(container)).toBe('Sofi');
+    expect(title(container)).toBe('Für später');
     // Der Kicker sagt, wozu das Herz da ist — nicht den Bezirk (Betreiber, 24.09.2026).
     expect(container.querySelector('h2')?.previousElementSibling?.textContent).toBe(
       'Speichere deine Spots'
     );
     expect(container.textContent).toContain(
-      'Dein Spot. Dein Starter Pack. 20 Must Eats aus ganz Berlin.'
+      'Deine gespeicherten Spots an einem Ort. Dazu dein Starter Pack mit 20 Must Eats aus ganz Berlin.'
     );
     expect(container.textContent).not.toMatch(/Deck|Profil/);
     expect(container.innerHTML).toContain('booster_free.webp');

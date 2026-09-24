@@ -264,6 +264,38 @@ describe('POST /api/buddy', () => {
     consoleError.mockRestore();
   });
 
+  it('tells the chat when the Anthropic balance is empty, and logs only the finding', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mocks.runBuddyTurn.mockImplementation(async function* () {
+      throw Object.assign(new Error('400 credit'), {
+        status: 400,
+        error: {
+          error: {
+            type: 'invalid_request_error',
+            message: 'Your credit balance is too low to access the Anthropic API.',
+          },
+        },
+      });
+    });
+    vi.mocked(checkWindowedRateLimit).mockResolvedValue({
+      allowed: true,
+      state: { minuteStart: 0, minuteCount: 1, dayStart: 0, dayCount: 1 },
+    });
+
+    const res = await POST(
+      req({ sessionId: 's1', messages: [{ role: 'user', content: 'hi' }], locale: 'de' })
+    );
+    const text = await res.text();
+
+    expect(text).toContain('"value":"buddy_out_of_credit"');
+    expect(consoleError).toHaveBeenCalledWith(
+      'Buddy stream failed',
+      expect.objectContaining({ reason: 'out_of_credit' })
+    );
+    expect(JSON.stringify(consoleError.mock.calls[0])).not.toContain('credit balance');
+    consoleError.mockRestore();
+  });
+
   function ipReq(xff: string): Request {
     return new Request('http://localhost/api/buddy', {
       method: 'POST',

@@ -9,6 +9,7 @@ import {
   globalLimitsFromEnv,
 } from '@/lib/rateLimitWindow';
 import { createAnthropicLlmClient, runBuddyTurn, type OwnedPacks } from '@/lib/buddy/orchestrator';
+import { isOutOfCredit } from '@/lib/buddy/outOfCredit';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { resolveEntitlements } from '@/lib/firebase/entitlements';
 import {
@@ -251,6 +252,7 @@ export async function POST(request: Request) {
         }
       } catch (error: unknown) {
         if (!abortController.signal.aborted) {
+          const outOfCredit = isOutOfCredit(error);
           const eventId = Sentry.captureException(error, {
             tags: { source: 'buddy-stream' },
             extra: {
@@ -266,10 +268,18 @@ export async function POST(request: Request) {
             locale: parsed.locale,
             messageCount: parsed.messages.length,
             hasGeo: parsed.geo !== undefined,
+            // Nur der Befund, nicht der Anbietertext: macht den leeren
+            // Guthaben-Topf in Cloud Logging auf einen Blick sichtbar.
+            ...(outOfCredit ? { reason: 'out_of_credit' } : {}),
             sentryEventId: eventId,
           });
           controller.enqueue(
-            encoder.encode(encodeBuddyEvent({ type: 'error', value: 'buddy_failed' }))
+            encoder.encode(
+              encodeBuddyEvent({
+                type: 'error',
+                value: outOfCredit ? 'buddy_out_of_credit' : 'buddy_failed',
+              })
+            )
           );
         }
       } finally {

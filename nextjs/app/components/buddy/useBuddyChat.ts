@@ -297,10 +297,14 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
                 m.pack = e.value;
               });
             } else if (e.type === 'error') {
+              // Leeres Guthaben klingt nach außen wie die Tagesgrenze für
+              // alle — „Nochmal?" liefe bis zum Aufladen ins Leere.
               showAll(
-                locale === 'en'
-                  ? 'Sorry — something went wrong. Try again?'
-                  : 'Sorry — da ist was schiefgelaufen. Nochmal?'
+                e.value === 'buddy_out_of_credit'
+                  ? limitNotice('global', locale)
+                  : locale === 'en'
+                    ? 'Sorry — something went wrong. Try again?'
+                    : 'Sorry — da ist was schiefgelaufen. Nochmal?'
               );
             }
           });

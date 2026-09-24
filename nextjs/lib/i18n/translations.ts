@@ -318,7 +318,6 @@ const en = {
     /* Dieselben Worte wie der Schritt „Wer bist du?" der Tour (SignInReward). */
     avatarModalKicker: 'Your profile',
     avatarModalHeadline: 'Who are you?',
-    avatarModalSub: 'Pick your character.',
     avatarModalClose: 'Close',
     avatarApply: 'Apply',
     signOut: 'Sign out',
@@ -750,7 +749,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     /* Dieselben Worte wie der Schritt „Wer bist du?" der Tour (SignInReward). */
     avatarModalKicker: 'Dein Profil',
     avatarModalHeadline: 'Wer bist du?',
-    avatarModalSub: 'W\u00e4hle deinen Charakter.',
     avatarModalClose: 'Schlie\u00dfen',
     avatarApply: '\u00dcbernehmen',
     signOut: 'Abmelden',

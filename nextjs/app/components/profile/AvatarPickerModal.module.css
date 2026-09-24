@@ -1,0 +1,59 @@
+/* Was die Charakterwahl anders macht als die Tour, deren Huelle sie traegt
+   (Tour.module.css): sie ist ein einzelner Schritt und deshalb so hoch wie
+   ihr Inhalt, nicht bildschirmhoch (Nutzer, 24.09.2026: „zu gross"). Die
+   Selektoren sind doppelt, damit sie gegen `.panel` der Tour gewinnen, egal
+   in welcher Reihenfolge die beiden Module laden. */
+.picker.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(540px, 100%);
+  height: auto;
+  max-height: none;
+  padding: 10px 22px 22px;
+}
+
+/* Ein X statt „Schliessen" — ohne Ring, eine Flaeche erst bei Hover. */
+.close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-right: -10px;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.76);
+  background: none;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  cursor: pointer;
+}
+
+.close:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  outline: 0;
+}
+
+@media (hover: hover) {
+  .close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.intro {
+  text-align: center;
+}
+
+/* Die Bildflaeche der Tour ist ein Groessen-Container (`cqh`); hier bekommt
+   sie eine feste Hoehe statt „was vom Fenster uebrig bleibt". */
+.choices {
+  position: relative;
+  height: clamp(150px, 38vw, 190px);
+  container-type: size;
+}
+
+.actions.actions {
+  justify-content: flex-end;
+  margin-top: 0;
+}

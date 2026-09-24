@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import styles from '../Tour.module.css';
+import own from './AvatarPickerModal.module.css';
 
 interface Props {
   current: AvatarChoice;
@@ -22,8 +23,9 @@ const CHOICES: AvatarChoice[] = [1, 2, 3];
  * nicht mehr als eigenes weisses Modal (Nutzer: „waehle deinen Charakter muss
  * in meinem Layout-Design"). Es ist derselbe Schritt wie „Wer bist du?" in der
  * Tour nach der Anmeldung (SignInReward): dieselben drei Figuren auf Ink,
- * dieselbe gelbe Kante fuer die Wahl, derselbe Knopf an derselben Stelle —
- * nur ohne Namensfeld und ohne Fortschritt.
+ * dieselbe gelbe Kante fuer die Wahl, derselbe gelbe Knopf — aber kompakt,
+ * so hoch wie der Inhalt, mit einem X statt „Schliessen" (Nutzer: „zu gross
+ * und X, nicht Schliessen").
  */
 export default function AvatarPickerModal({ current, onApply, onClose }: Props) {
   const t = useTranslations('profile');
@@ -72,7 +74,7 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
     >
       <div
         ref={panelRef}
-        className={styles.panel}
+        className={`${styles.panel} ${own.picker}`}
         role="dialog"
         aria-modal="true"
         aria-label={t('avatarModalTitle')}
@@ -83,60 +85,59 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
       >
         <header className={styles.header}>
           <span>{t('avatarModalTitle')}</span>
-          <button type="button" className={styles.quiet} onClick={onClose}>
-            {t('avatarModalClose')}
+          <button
+            type="button"
+            className={own.close}
+            aria-label={t('avatarModalClose')}
+            onClick={onClose}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+              <path
+                d="M3 3l12 12M15 3L3 15"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
         </header>
-        <div className={styles.content}>
-          <div className={styles.art}>
-            <div className={styles.avatars} role="radiogroup" aria-label={t('avatarModalTitle')}>
-              {CHOICES.map((c) => {
-                const checked = selected === c;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    role="radio"
-                    aria-checked={checked}
-                    className={checked ? `${styles.avatar} ${styles.avatarActive}` : styles.avatar}
-                    onClick={() => setSelected(c)}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className={styles.avatarImg} src={`/pics/avatar/${c}.webp?v=4`} alt="" />
-                    <span className={styles.avatarName}>{t(`avatarChoice${c}`)}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className={styles.copy}>
-            <p className={styles.kicker}>{t('avatarModalKicker')}</p>
-            <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
-              {t('avatarModalHeadline')}
-            </h2>
-            <p className={styles.body}>{t('avatarModalSub')}</p>
+        <div className={own.intro}>
+          <p className={styles.kicker}>{t('avatarModalKicker')}</p>
+          <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
+            {t('avatarModalHeadline')}
+          </h2>
+        </div>
+        <div className={own.choices}>
+          <div className={styles.avatars} role="radiogroup" aria-label={t('avatarModalTitle')}>
+            {CHOICES.map((c) => {
+              const checked = selected === c;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  role="radio"
+                  aria-checked={checked}
+                  className={checked ? `${styles.avatar} ${styles.avatarActive}` : styles.avatar}
+                  onClick={() => setSelected(c)}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className={styles.avatarImg} src={`/pics/avatar/${c}.webp?v=4`} alt="" />
+                  <span className={styles.avatarName}>{t(`avatarChoice${c}`)}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
-        {/* Dieselbe Leiste wie in der Tour, damit der gelbe Knopf dort steht,
-            wo er in jedem Layer steht. Die Fortschrittszeile haelt nur den
-            Platz — dies ist kein Schritt der Tour. */}
-        <footer className={styles.footer}>
-          <div className={`${styles.progress} ${styles.progressSpacer}`} aria-hidden="true">
-            <span>1 / 1</span>
-            <div className={styles.segments} />
-          </div>
-          <div className={styles.actions}>
-            <span />
-            <button
-              type="button"
-              className={styles.action}
-              disabled={saving}
-              onClick={() => void apply()}
-            >
-              {t('avatarApply')}
-            </button>
-          </div>
-        </footer>
+        <div className={`${styles.actions} ${own.actions}`}>
+          <button
+            type="button"
+            className={styles.action}
+            disabled={saving}
+            onClick={() => void apply()}
+          >
+            {t('avatarApply')}
+          </button>
+        </div>
       </div>
     </div>,
     document.body

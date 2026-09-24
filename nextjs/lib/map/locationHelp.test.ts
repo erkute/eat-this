@@ -124,3 +124,40 @@ describe('watchLocationUnblock', () => {
     expect(seen).not.toHaveBeenCalled();
   });
 });
+
+/* In echtem Chrome gemessen: gibt der Browser die Freigabe ohne Neuladen
+   zurueck, ortet die Map selbst — die Anleitung stand danach aber weiter
+   ueber der Karte. Sie geht jetzt mit. */
+describe('Anleitung raeumt sich ab, wenn der Standort zurueckkommt', () => {
+  afterEach(() => {
+    delete window.showNotice;
+    Reflect.deleteProperty(navigator, 'permissions');
+  });
+
+  it('nimmt die Anleitung weg, sobald die Freigabe da ist', async () => {
+    const listeners = new Set<() => void>();
+    const status = {
+      state: 'denied' as PermissionState,
+      addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+      removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
+    };
+    Object.defineProperty(navigator, 'permissions', {
+      configurable: true,
+      value: { query: vi.fn(() => Promise.resolve(status)) },
+    });
+    const release = vi.fn();
+    window.showNotice = vi.fn(() => release);
+
+    locationBlockedOptions('de').action?.onClick();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(release).not.toHaveBeenCalled();
+
+    status.state = 'granted';
+    listeners.forEach((fn) => fn());
+
+    expect(release).toHaveBeenCalledOnce();
+    expect(listeners.size).toBe(0);
+  });
+});
+

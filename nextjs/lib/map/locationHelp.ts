@@ -166,8 +166,13 @@ export function locationBlockedOptions(
   return {
     action: {
       label: locale === 'en' ? 'How to' : 'So geht’s',
-      onClick: () =>
-        notify('locationHowTo', locale, {
+      onClick: () => {
+        /* Wo der Browser die Freigabe sofort wirken laesst (Chrome, auch auf
+           Android), holt die Map den Standort selbst (useUserLocation) — dann
+           hat sich die Anleitung erledigt und geht mit. Gemessen in echtem
+           Chrome: ohne das blieb sie ueber der schon geortenen Karte stehen. */
+        let stopWatching = () => {};
+        const release = notify('locationHowTo', locale, {
           steps: locationHowToSteps(currentPlatform(), locale),
           /* Ohne Neuladen bleibt Safari blockiert, auch nach der Freigabe in
              den Einstellungen — der Knopf erspart das Suchen des Reload-Pfeils. */
@@ -175,9 +180,15 @@ export function locationBlockedOptions(
             label: locale === 'en' ? 'Reload' : 'Neu laden',
             onClick: () => window.location.reload(),
           },
-          onDismiss: () => {},
+          onDismiss: () => stopWatching(),
           duration: 0,
-        }),
+        });
+        stopWatching = watchLocationUnblock((state) => {
+          if (state !== 'granted') return;
+          stopWatching();
+          release?.();
+        });
+      },
     },
     onDismiss,
     duration: 0,

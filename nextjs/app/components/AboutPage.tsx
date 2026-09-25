@@ -34,12 +34,9 @@ type Figure = {
    *  plate's width it shouted down the section it belongs to. */
   renderWidth: number;
   tilt: number;
-  /** Objects that arrive with their own cast shadow opt out of the CSS one —
-   *  two shadows on one picture reads as a printing error. */
-  shadow?: false;
-  /** `rail` hangs the object in the right column beside the copy. `band`
-   *  takes the section out of the white page entirely — full-bleed ink, one
-   *  dark chapter in the middle of the read. */
+  /** `rail` hangs the object in the column beside the copy. `band` takes the
+   *  section off the ink entirely — full-bleed paper, the one white chapter
+   *  in the middle of the read. */
   layout: 'rail' | 'band';
   caption: { de: string; en: string };
   alt: { de: string; en: string };
@@ -49,9 +46,10 @@ type Figure = {
    and its headings get rewritten, so matching on heading text would break the
    first time a word changes. Order is the stable part.
 
-   Still shorter than the section list: the closing "write to us" section
-   carries no picture. A figure per paragraph turned the page into a contact
-   sheet. */
+   Shorter than the section list on purpose: whatever follows the last figure
+   ("Berlin ist der Anfang", "Schreib mir") is gathered into the coda instead
+   of getting a picture each. A figure per paragraph turned the page into a
+   contact sheet. */
 const FIGURES: (Figure | null)[] = [
   {
     src: '/pics/home-phones/phone-map-ink-600.webp',
@@ -89,9 +87,9 @@ const FIGURES: (Figure | null)[] = [
     width: 760,
     height: 1044,
     partner: { src: '/pics/card-front.webp?v=3', width: 760, height: 1044, tilt: 7 },
-    // The pair spans the rail; each card lands near 62% of it. On the dark
-    // ground the cards are the brightest thing on the page, and brightness
-    // reads as size — hence narrower than the plate on white.
+    // The pair spans the rail; each card lands near 62% of it. Two overlapping
+    // cards carry more weight than one plate, hence narrower than the 290 the
+    // galette gets.
     renderWidth: 260,
     tilt: -8,
     layout: 'band',
@@ -106,10 +104,11 @@ const FIGURES: (Figure | null)[] = [
   },
 ];
 
-/* Remy follows the dark chapter, because the last paragraph of that section is
-   already about him — "frag einfach Remy". He was named once
-   in passing and never reachable; now the sentence has a door next to it.
-   The page speaks as Eat This, not as one person, so this does too. */
+/* Remy follows the white chapter, because the last paragraph of that section
+   is already about him — "frag einfach Remy". He was named once in passing
+   and never reachable; now the sentence has a door next to it.
+   The Sanity copy speaks in the first person; these lines describe the app,
+   not the person, so they stay out of the "ich". */
 const COPY = {
   de: {
     remyTitle: 'Frag Remy',
@@ -117,7 +116,7 @@ const COPY = {
     remyCta: 'Remy fragen',
     ctaTitle: 'Hungrig geworden?',
     ctaText: 'Die Map kennt über hundert Spots in Berlin. Such dir einen aus.',
-    ctaMap: 'Zur Berlin Food Map',
+    ctaMap: 'Zur Map',
   },
   en: {
     remyTitle: 'Ask Remy',
@@ -125,7 +124,7 @@ const COPY = {
     remyCta: 'Ask Remy',
     ctaTitle: 'Hungry yet?',
     ctaText: 'The map holds a hundred-plus spots in Berlin. Go pick one.',
-    ctaMap: 'Open the Berlin food map',
+    ctaMap: 'Open map',
   },
 } as const;
 
@@ -161,6 +160,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
   const [lede, ...restIntro] = intro;
   const ledeText = lede && (lede as Block).style !== 'blockquote' ? blockText(lede as Block) : '';
   const introRest = ledeText ? restIntro : intro;
+  const story = sections.slice(0, FIGURES.length);
+  const coda = sections.slice(FIGURES.length);
 
   return (
     <main className={styles.page} data-page="about" id="staticPageAbout">
@@ -214,10 +215,10 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           </div>
         )}
 
-        {sections.map((section, index) => {
+        {story.map((section, index) => {
           const figure = FIGURES[index] ?? null;
           /* Sides alternate down the page: masthead right, then left, right,
-             left, and the closer left again. Five figures all hanging in the
+             left, Remy right, the closer left. Every figure hanging in the
              same rail was even and, by the third one, wallpaper.
 
              Only sections that actually carry a figure flip — moving the text
@@ -275,12 +276,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                       sizes={`${figure.renderWidth}px`}
                       loading="lazy"
                       className={styles.figureImg}
-                      style={
-                        {
-                          '--tilt': `${figure.tilt}deg`,
-                          ...(figure.shadow === false ? { '--fig-shadow': 'none' } : null),
-                        } as CSSProperties
-                      }
+                      style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
                     />
                   )}
                   <figcaption className={styles.caption}>
@@ -293,10 +289,10 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
           if (figure?.layout === 'band') {
             return (
-              /* The dark chapter holds the card argument and nothing else.
-                 Remy used to be tacked under it, inside the ink; a door out
+              /* The white chapter holds the card argument and nothing else.
+                 Remy used to be tacked under it, inside the band; a door out
                  of the page does not belong at the bottom of a closed room.
-                 It follows immediately after, back on paper. */
+                 It follows immediately after, back on the ink. */
               <Fragment key={section.title || index}>
                 <section className={styles.band}>
                   <div className={styles.bandInner}>
@@ -344,10 +340,26 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           );
         })}
 
-        {/* The one object on this page that hangs left. Everything above it
-            sits in the right rail, which is even and, five figures in, dull;
-            the text column cannot move without breaking the spine, so the
-            closer moves instead.
+        {/* The coda: the short, picture-less sections after the last figure.
+            Stacked one under the other they ran as a wall of text straight
+            into the closer, and the page lost its pace right at the end. Side
+            by side they read as what they are — two short notes, not two more
+            chapters. The copy still decides how many there are. */}
+        {coda.length > 0 && (
+          <div className={styles.coda}>
+            {coda.map((section, index) => (
+              <section key={section.title || index} className={styles.codaSection}>
+                <h2 className={styles.sectionTitle}>{section.title}</h2>
+                <div className={styles.body}>
+                  <PortableTextRenderer blocks={section.blocks} />
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+
+        {/* Object left, copy right — the last beat of the alternation, after
+            Remy's panel hung right.
 
             A booster pack was tried here once and pulled the eye away — it is
             something you buy, sitting next to a button that leads to a free

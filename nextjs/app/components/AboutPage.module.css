@@ -4,8 +4,9 @@
    photos on the ground, no borders, structure from whitespace.
    Seit 03.09.2026 auf durchgehendem Ink wie die Startseite: `--about-ink`
    ist der GRUND, `--about-fg` die Schrift darauf, Muted/Linien/stille Flaeche
-   sind Weiss-Stufen. Was ein eigenes Objekt ist (das dunkle Kapitel, Remy,
-   der Schluss), traegt die leise Stufe; Rot ist auf Ink als Schriftfarbe raus. */
+   sind Weiss-Stufen. Remy und der Schluss sind Objekte und tragen die leise
+   Stufe. Das Kapitel ueber die Karten ist die eine Ausnahme: volles Papier,
+   Ink-Schrift, Rot nur dort als Hover. */
 .page {
   --about-ink: var(--et-home-ink, #15120e);
   --about-fg: var(--et-home-inverse-text, #fff);
@@ -16,6 +17,9 @@
   --about-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   --about-text: rgba(255, 255, 255, 0.84);
   --about-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  /* Schrift-Stufen auf dem Papier-Kapitel — dieselbe Ink, nur leiser. */
+  --about-paper-text: rgba(21, 18, 14, 0.8);
+  --about-paper-muted: rgba(21, 18, 14, 0.6);
   /* Fill exactly what .app-pages leaves us — it offsets the fixed navbar by
      64px below 768px and by a 74px margin above it. A plain 100dvh overshot
      that offset and left a strip of dead scroll under the footer. */
@@ -36,8 +40,8 @@
   /* .inner already carries the closing whitespace; a second block margin here
      stacked on top of it and left a dead band above the footer. */
   margin-inline: calc(50% - 50vw);
-  /* Sticky-footer: short filings (imprint, contact) used to end mid-page and
-     leave white paper below the ink band. */
+  /* Sticky footer: on a tall screen the page would otherwise end mid-way and
+     leave a strip of bare ground under the footer. */
   margin-top: auto;
 }
 
@@ -236,8 +240,8 @@
   }
 }
 
-/* The taped red sticker stays — it is the one loud thing on the page and it
-   carries the founding line. */
+/* The taped yellow sticker stays — it is the one loud thing in the copy and
+   it carries the founding line. */
 .body blockquote {
   position: relative;
   width: min(100%, 20ch);
@@ -266,21 +270,23 @@
   transform: translateX(-50%) rotate(3deg);
 }
 
-/* ---------- the lifted chapter ----------
+/* ---------- the white chapter ----------
 
-   Every section in the right rail made the page even but monotonous — one
-   picture, one place, five times over. This one steps out of the ground
-   instead: a full-bleed band one step lighter than the page, roughly at the
-   middle of the read, carrying the section the whole collectible idea hangs
-   on. The text column keeps its position inside, so the spine survives the
-   change of ground. (Ink auf Ink waere unsichtbar gewesen.) */
+   One section steps out of the ground: a full-bleed band of paper roughly at
+   the middle of the read, carrying the section the whole collectible idea
+   hangs on. It used to be the page's one dark chapter on white; since the
+   page went ink it was the quiet 5.5% step instead — the same fill as Remy's
+   panel right below it and the closer, so the three ran together and the
+   chapter no longer read as one. Papier ist die Umkehrung des alten Kontrasts,
+   nicht ein vierter Grauton. The text column keeps its position inside, so the
+   spine survives the change of ground. */
 
 .band {
   margin-top: clamp(56px, 8vw, 96px);
   margin-inline: calc(50% - 50vw);
   padding: clamp(44px, 6vw, 80px) clamp(18px, 4vw, 54px);
-  background: var(--about-quiet);
-  color: var(--about-paper);
+  background: var(--about-paper);
+  color: var(--about-ink);
 }
 
 .bandInner {
@@ -310,40 +316,46 @@
 }
 
 .band .sectionTitle {
-  color: var(--about-accent);
+  color: var(--about-ink);
 }
 
 .band .body {
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--about-paper-text);
 }
 
 .band .body strong,
 .band .body b {
-  color: var(--about-paper);
+  color: var(--about-ink);
 }
 
+/* Gelb auf Papier ist unlesbar: der Link bleibt Ink, nur die Unterstreichung
+   traegt das Gelb. */
 .band .body a {
-  color: var(--about-accent);
+  color: var(--about-ink);
+  text-decoration-color: var(--about-accent);
 }
 
 .band .body a:focus-visible {
-  color: var(--about-paper);
+  color: var(--about-red);
 }
 
 @media (hover: hover) {
   .band .body a:hover {
-    color: var(--about-paper);
+    color: var(--about-red);
   }
 }
 
 .band .caption {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--about-paper-muted);
 }
 
 /* The pair. Two cards overlapping inside one rail measure — the back tucked
    left and low, the revealed one over it to the right and a little higher.
    The revealed card is the thing the section argues for, so it sits on top;
-   a dead-level, evenly-spaced pair read as two catalogue shots. */
+   a dead-level, evenly-spaced pair read as two catalogue shots.
+
+   The only drop-shadow on the page, because it is the only object on paper:
+   on ink a dark shadow disappears, here it lifts the cards off the table. */
 .pair {
   position: relative;
   width: var(--fig-w, 260px);
@@ -363,7 +375,7 @@
   width: 62%;
   height: auto;
   transform: rotate(var(--tilt, 0deg));
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 14px 22px rgba(21, 18, 14, 0.3));
 }
 
 .pairBack {
@@ -387,7 +399,7 @@
 
 /* ---------- Frag Remy ----------
 
-   Out of the ink band and back onto paper. Inside the dark chapter this was a
+   Out of the paper band and back onto the ink. Inside the chapter this was a
    link tacked below a closed argument; as its own section it reads as what it
    is — the one door on the page that leads somewhere before the closer. It
    borrows the section grid so the text column stays on the same spine. */
@@ -436,6 +448,8 @@
   }
 }
 
+/* Same rank as every section title, so the same face: versal sind auf dieser
+   Seite nur die zwei Rahmen-Headlines, der Titel oben und der Schluss. */
 .remyTitle {
   margin: 0;
   color: var(--about-fg);
@@ -444,7 +458,8 @@
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 0.98;
-  text-transform: uppercase;
+  text-transform: none;
+  text-wrap: balance;
 }
 
 .remyText {
@@ -536,10 +551,9 @@
   /* Centred so the caption below has something to be centred *on*. Left-hung
      objects put the 185px card 57px off its own caption's axis. */
   margin-inline: auto;
+  /* No drop-shadow: on ink a dark shadow is invisible, and the objects read as
+     lifted by being the brightest thing in their row. */
   transform: rotate(var(--tilt, 0deg));
-  /* Overridable per figure: an object that was drawn with its own cast shadow
-     sets `--fig-shadow: none` rather than wearing a second one. */
-  filter: var(--fig-shadow, drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45)));
 }
 
 .caption {
@@ -555,6 +569,32 @@
   /* Measure still comes from the column, not the object: at the card's 185px
      a six-word caption breaks in two. Centred text, column-wide box. */
   text-wrap: balance;
+}
+
+/* ---------- coda ----------
+
+   The short sections after the last figure, side by side from 760px. A rule
+   above marks the change of pace — the story is told, these are the notes
+   underneath it. Stacked below 760px, in the copy's own order. */
+
+.coda {
+  display: grid;
+  gap: clamp(34px, 5vw, 64px);
+  margin-top: clamp(46px, 6.5vw, 84px);
+  padding-top: clamp(34px, 5vw, 56px);
+  border-top: 1px solid var(--about-line);
+}
+
+@media (min-width: 760px) {
+  .coda {
+    /* One equal column per section, however many the copy holds. */
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+  }
+}
+
+.codaSection {
+  min-width: 0;
 }
 
 /* ---------- closer ---------- */

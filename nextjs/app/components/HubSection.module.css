@@ -387,7 +387,11 @@
 }
 
 .page .spotHead:global(.hv-head) {
-  column-gap: clamp(12px, 2vw, 28px);
+  /* Das Datum gehört zum Titel, nicht an die rechte Kante der Tafel: dort
+     stand es über 700px von „Spot des Tages" entfernt und las sich als
+     Fremdkörper. */
+  justify-content: flex-start;
+  column-gap: clamp(14px, 1.4vw, 20px);
   margin-bottom: clamp(20px, 2.2vw, 30px);
 }
 
@@ -402,7 +406,7 @@
   }
 }
 
-/* On the title's baseline at the far end of the head row. Without it nothing
+/* On the title's baseline, right after it. Without it nothing
    on the page said the pick is new today; the heading alone claims a daily
    rhythm the visitor has no way to see. Muted, not a second red thing. */
 .spotDate {

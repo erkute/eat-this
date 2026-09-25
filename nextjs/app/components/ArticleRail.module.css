@@ -65,10 +65,13 @@
   counter-reset: none;
 }
 
+/* Keine Kapitelnummern — der Betreiber will sie nie wieder (25.09.2026).
+   Die Reihenfolge der Liste trägt die Orientierung allein. */
 .item {
+  /* Einspaltiges Grid statt block: `.text` braucht einen Block-Kontext für
+     das Ellipsis. */
   display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
   padding: 3px 0;
   color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   text-decoration: none;
@@ -77,20 +80,12 @@
     transform 140ms ease;
 }
 
-.num {
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  line-height: 1.5;
-  padding-top: 2px;
-}
-
 .text {
   min-width: 0;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
   /* Durchgehend 15px, keine Staffelung nach Fensterhöhe mehr: die Spalte ist
-     216px breit, davon 188 für den Text. Bei 16px scheiterten „Companion Tea &
+     216px breit, seit die Nummern weg sind (25.09.) ganz für den Text; die
+     Rechnung stammt aus der Zeit mit 188px. Bei 16px scheiterten „Companion Tea &
      Coffee" (193px) und „Five Elephant Kreuzberg" (195px) um acht bzw. zehn
      Pixel am Ellipsis, bei 15px passen beide. „Five Elephant Neue
      Nationalgalerie" braucht 264px und wird gekürzt — dafür ist keine Spalte
@@ -104,8 +99,8 @@
   line-height: 1.35;
   /* Eine Zeile statt zwei geklammerter: zwei Zeilen mal 18 Kapitel waren der
      Grund für den zweiten Scrollbalken. Was nicht passt, endet im Ellipsis —
-     die Nummer davor und die Reihenfolge tragen die Orientierung mit, und der
-     volle Titel steht im title-Attribut. Der ältere Grundsatz gilt weiter: die
+     die Reihenfolge trägt die Orientierung mit, und der volle Titel steht im
+     title-Attribut. Der ältere Grundsatz gilt weiter: die
      Leiste ist ein Griff zum Überfliegen, sie darf den Artikel nicht
      überschreien. */
   overflow: hidden;
@@ -114,10 +109,6 @@
 }
 
 .itemActive {
-  color: var(--et-home-accent, #ffc600);
-}
-
-.itemActive .num {
   color: var(--et-home-accent, #ffc600);
 }
 

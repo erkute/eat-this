@@ -11,8 +11,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key, lang: 'de', setLang: vi.fn() }),
 }));
+const authState = vi.hoisted(() => ({ isAdmin: false }));
 vi.mock('@/lib/auth', () => ({
-  useAuth: () => ({ user: null }),
+  useAuth: () => ({ user: null, isAdmin: authState.isAdmin }),
   useLoginModal: () => ({ open: vi.fn() }),
 }));
 vi.mock('@/i18n/navigation', () => {
@@ -96,5 +97,23 @@ describe('BurgerDrawer scroll handover', () => {
        scroll-behavior: smooth geerbt und die Seite von oben zurückgleiten
        lassen (23.09.2026). */
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 1500, behavior: 'instant' });
+  });
+});
+
+describe('BurgerDrawer — Stats-Eingang', () => {
+  beforeEach(() => {
+    authState.isAdmin = false;
+  });
+
+  /* Fremde bekommen unter /admin die 404; ein sichtbarer Link verriete, dass
+     dort etwas liegt. */
+  it('zeigt Stats nur Admins', () => {
+    const { unmount } = render(<BurgerDrawer />);
+    expect(screen.queryByText('Stats')).toBeNull();
+    unmount();
+
+    authState.isAdmin = true;
+    render(<BurgerDrawer />);
+    expect(screen.getByText('Stats').getAttribute('href')).toBe('/admin/stats');
   });
 });

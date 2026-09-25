@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { getAdminAuth } from '@/lib/firebase/admin';
+import { isAdminToken } from '@/lib/firebase/entitlements';
 import { clearPremiumAccessCookie } from '@/lib/must-eat/premium-access';
 import { clearPremiumSessionCookie, setPremiumSessionCookie } from '@/lib/must-eat/premium-session';
 
@@ -15,8 +16,16 @@ export async function POST(request: Request) {
   }
 
   try {
-    await getAdminAuth().verifyIdToken(idToken);
-    const response = NextResponse.json({ ok: true });
+    const decoded = await getAdminAuth().verifyIdToken(idToken);
+    // Ob der Client den Admin-Eingang (Stats im Burger) zeigen darf. Die
+    // Admin-Liste ist server-only; die Seiten unter /admin prüfen selbst
+    // noch einmal, das hier schaltet nur die Sichtbarkeit des Links.
+    const admin = isAdminToken({
+      email: decoded.email ?? null,
+      emailVerified: decoded.email_verified === true,
+      admin: decoded.admin === true,
+    });
+    const response = NextResponse.json({ ok: true, admin });
     response.headers.set('Cache-Control', 'private, no-store');
     // Identity transition is atomic from the browser's perspective: remove
     // the prior user's capability while replacing the verified session.

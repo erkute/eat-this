@@ -26,6 +26,11 @@ interface AuthContextValue {
   /** True while the initial auth state is being resolved from Firebase. */
   loading: boolean;
   /**
+   * Ob der Server das Konto als Admin kennt (ADMIN_EMAILS bzw. Claim). Nur für
+   * die Sichtbarkeit von Admin-Eingängen — geschützt wird serverseitig.
+   */
+  isAdmin: boolean;
+  /**
    * Lädt den Popup-Helfer vor. Aufrufen, sobald eine Anmelde-Oberfläche
    * sichtbar wird — ohne das frisst der Popup-Blocker den ersten Klick
    * (siehe googlePopupWarmup.ts).
@@ -57,14 +62,20 @@ async function clearPremiumAccess(): Promise<void> {
   if (!response.ok) throw new Error('Failed to clear premium access');
 }
 
-async function synchronizePremiumAccess(user: User | null): Promise<void> {
-  if (!user) return clearPremiumAccess();
+/** Liefert, ob der Server das Konto als Admin kennt. */
+async function synchronizePremiumAccess(user: User | null): Promise<boolean> {
+  if (!user) {
+    await clearPremiumAccess();
+    return false;
+  }
   const idToken = await user.getIdToken();
   const response = await fetch('/api/auth/premium-access', {
     method: 'POST',
     headers: { Authorization: `Bearer ${idToken}` },
   });
   if (!response.ok) throw new Error('Failed to synchronize premium access');
+  const body = (await response.json().catch(() => null)) as { admin?: unknown } | null;
+  return body?.admin === true;
 }
 
 /* Ein Versuch reicht nicht. Der Aufruf faellt typischerweise genau dann aus,
@@ -73,14 +84,13 @@ async function synchronizePremiumAccess(user: User | null): Promise<void> {
    Aussetzer darf keine Anmeldung kosten. */
 const SYNC_RETRY_DELAY_MS = 600;
 
-async function synchronizePremiumAccessWithRetry(user: User | null): Promise<void> {
+async function synchronizePremiumAccessWithRetry(user: User | null): Promise<boolean> {
   try {
-    await synchronizePremiumAccess(user);
-    return;
+    return await synchronizePremiumAccess(user);
   } catch {
     await new Promise((resolve) => setTimeout(resolve, SYNC_RETRY_DELAY_MS));
   }
-  await synchronizePremiumAccess(user);
+  return synchronizePremiumAccess(user);
 }
 
 // ─── Provider ──────────────────────────────────────────────────────────────
@@ -88,6 +98,7 @@ async function synchronizePremiumAccessWithRetry(user: User | null): Promise<voi
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Synchronize the server-verifiable image session before exposing a Firebase
   // identity to the app. onIdTokenChanged also refreshes the session when the
@@ -99,7 +110,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const currentGeneration = ++generation;
       setLoading(true);
       reconcileMapDataCacheIdentity(firebaseUser?.uid ?? null);
+      let admin = false;
       void synchronizePremiumAccessWithRetry(firebaseUser)
+        .then((result) => {
+          admin = result;
+        })
         .catch(async (error: unknown) => {
           /* Die Bild-Sitzung ist ein Nebenaufruf. Faellt sie aus, fehlen
              signierte Bilder — die Anmeldung selbst haelt Firebase, und genau
@@ -121,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .finally(() => {
           if (!active || currentGeneration !== generation) return;
           setUser(firebaseUser);
+          setIsAdmin(admin);
           setLoading(false);
         });
     });
@@ -254,6 +270,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       loading,
+      isAdmin,
       prepareGoogleSignIn,
       signInWithGoogle,
       signOut,
@@ -263,6 +280,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [
       user,
       loading,
+      isAdmin,
       prepareGoogleSignIn,
       signInWithGoogle,
       signOut,

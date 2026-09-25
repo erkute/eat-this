@@ -45,7 +45,7 @@ function DrawerLink({ href, children, ...props }: ComponentProps<typeof Link>) {
 
 export default function BurgerDrawer() {
   const { t, lang, setLang } = useTranslation();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { open: openLogin } = useLoginModal();
   const pathname = usePathname();
   const router = useRouter();
@@ -254,6 +254,14 @@ export default function BurgerDrawer() {
             <DrawerLink href="/about" className="bd-nav-item">
               {t('burger.about')}
             </DrawerLink>
+            {/* Nur für Admins, sonst verriete der Link, dass unter /admin
+                etwas liegt — Fremde bekommen dort die 404. Ohne Übersetzung:
+                die Seite hat genau einen Leser. */}
+            {isAdmin && (
+              <DrawerLink href="/admin/stats" className="bd-nav-item">
+                Stats
+              </DrawerLink>
+            )}
           </nav>
 
           <div className="bd-foot bd-legal-dock">

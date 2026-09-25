@@ -143,10 +143,11 @@ function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): bo
   );
 }
 
-// Article detail — Chewy magazine feature. On desktop the piece runs as a
-// reading column with a sticky chapter rail beside it; inline must-eat and spot
-// cards break out wider than the prose. Inline cards are driven by mustEatCard
-// / spotCard reference blocks in the body.
+// Article detail — magazine feature. On desktop the header splits like
+// Highsnobiety's: title, byline and lede on the left, the lead photo on the
+// right; below, the piece runs as a reading column with a sticky chapter rail
+// beside it. Inline must-eat and spot cards are driven by mustEatCard /
+// spotCard reference blocks in the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -305,14 +306,19 @@ export default function NewsArticleShell({
   // out here instead of rendering an empty frame.
   const renderImage = (block: ArticleImageBlock) => {
     if (!block.imageUrl) return null;
+    const width = block.imageWidth || 1440;
+    const height = block.imageHeight || 1080;
     return (
-      <figure className={styles.inlineImage}>
+      <figure
+        className={styles.inlineImage}
+        style={{ '--img-ratio': width / height } as React.CSSProperties}
+      >
         <Image
           src={block.imageUrl}
           alt={block.alt || ''}
-          width={block.imageWidth || 1440}
-          height={block.imageHeight || 1080}
-          sizes="(max-width: 760px) 100vw, 720px"
+          width={width}
+          height={height}
+          sizes="(max-width: 760px) 100vw, 660px"
         />
         {block.caption && <figcaption>{block.caption}</figcaption>}
       </figure>
@@ -341,7 +347,7 @@ export default function NewsArticleShell({
     >
       <main className={styles.article}>
         <article>
-          <header className={styles.header}>
+          <header className={`${styles.header}${article.imageUrl ? ` ${styles.headerSplit}` : ''}`}>
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
                 brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
                 — „/" und „/news" stehen im Burger, der auf jeder Seite
@@ -349,27 +355,29 @@ export default function NewsArticleShell({
                 `news/[slug]/page.tsx` bleibt davon unberührt, die SERP-Krume
                 also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
                 ohne. */}
-            {article.imageUrl ? (
-              <figure className={styles.heroWrap}>
+            {article.imageUrl && (
+              <div className={styles.heroMedia}>
                 <Image
                   src={article.imageUrl}
                   alt={article.alt || title}
                   fill
                   priority
-                  sizes="(max-width: 760px) 100vw, 1180px"
+                  sizes="(max-width: 1079px) 100vw, 580px"
                   className={styles.hero}
                 />
-                <figcaption className={styles.introCopy}>
-                  <h1 className={styles.heroTitle}>{title}</h1>
-                </figcaption>
-              </figure>
-            ) : (
-              <div className={styles.heroGridPlain}>
-                <div className={styles.introCopy}>
-                  <h1 className={styles.heroTitle}>{title}</h1>
-                </div>
               </div>
             )}
+            <div className={styles.introCopy}>
+              <h1 className={styles.heroTitle}>{title}</h1>
+            </div>
+            {/* Byline und Vorspann gehören zum Kopf, nicht zur Lesespalte: ab
+                Desktop stehen sie links neben dem Aufmacher unter dem Titel,
+                wie bei Highsnobiety. Auf dem Telefon laufen sie wie bisher
+                direkt unter dem Foto. */}
+            <div className={styles.headerMeta}>
+              {byline}
+              {showLede && <p className={styles.lede}>{excerpt}</p>}
+            </div>
           </header>
 
           <div className={styles.body}>
@@ -383,9 +391,6 @@ export default function NewsArticleShell({
             />
 
             <div className={styles.column}>
-              {byline}
-              {showLede && <p className={styles.lede}>{excerpt}</p>}
-
               <div className={styles.content}>
                 <PortableTextRenderer
                   blocks={content}

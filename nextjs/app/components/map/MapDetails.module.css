@@ -5435,24 +5435,75 @@
   outline: 3px solid #fff;
   outline-offset: -5px;
 }
-.rdHeroPhotoCount {
+/* Punkte auf Ink-Fläche, senkrecht mittig zu Herz und X (beide 44px ab
+   12px, Mitte bei 34px). Fläche wie die Chips unten, ohne Kontur. Das aktive
+   Foto ist ein gestreckter Punkt — die Breite trägt den Zustand, nicht nur
+   die Helligkeit. */
+.rdHeroPhotoDots {
   position: absolute;
-  top: 18px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
-  padding: 4px 9px;
-  border-radius: 0;
-  background: transparent;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 9px;
+  border-radius: var(--et-radius-control, 7px);
+  background: rgba(21, 18, 14, 0.72);
   pointer-events: none;
+}
+.rdHeroPhotoDot,
+.rdHeroPhotoDotOn {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.45);
+  transition:
+    width 0.2s ease,
+    background-color 0.2s ease;
+}
+.rdHeroPhotoDotOn {
+  width: 16px;
+  background: #fff;
+}
+.rdHeroPhotoLive {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Wisch-Stups: ein Zug nach links, das zweite Foto blitzt herein, dann
+   gleitet alles zurück. Kein Überschwingen nach rechts — links vom ersten Foto
+   läge die Ink-Fläche des Streifens frei. Die Verzögerung lässt das Sheet
+   erst ankommen. */
+@keyframes rdPhotoNudge {
+  0% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+  }
+  38% {
+    transform: translateX(-56px);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.rdHeroPhotosHint .rdHeroPhoto {
+  animation: rdPhotoNudge 1.1s 0.9s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rdHeroPhotoDot,
+  .rdHeroPhotoDotOn {
+    transition: none;
+  }
+  .rdHeroPhotosHint .rdHeroPhoto {
+    animation: none;
+  }
 }
 .detailV13:not(.detailV13MustEat) .rdHero::after,
 .detailV13:not(.detailV13MustEat) .rdOverlay {

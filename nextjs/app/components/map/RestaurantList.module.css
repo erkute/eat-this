@@ -523,40 +523,55 @@
 /* Name, Chips und Öffnungs-Pille liegen über dem Streifen. Ohne das hier
    finge ein Wisch, der auf dem Namen beginnt, nicht beim Foto an. Der Tipp
    landet trotzdem bei der Karte: er geht durch auf den Streifen, und der
-   liegt im Knopf. */
+   liegt in der Karte. */
 .rcardBody,
 .openPill {
   pointer-events: none;
 }
-/* Punkte wie im Detail, aber ohne eigene Fläche: sie sitzen am unteren Rand,
-   unter den Chips, wo der Ink-Verlauf (`.rcard::after`) am dichtesten ist.
-   Oben wäre kein Platz — links die Öffnungs-Pille, rechts die Must-Eat-Karte,
-   und in der 280px-Spalte am Desktop reicht die Mitte nicht für beide. */
+/* Punkte wie im Detail (`.rdHeroPhotoDots`): oben mittig auf einer
+   Ink-Fläche, die sie auf hellen Fotos lesbar hält. Senkrecht mittig zur
+   Öffnungs-Pille (top 14px, 26px hoch). */
 .rcardDots {
   position: absolute;
-  bottom: 6px;
+  top: 17px;
   left: 50%;
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  padding: 7px 9px;
+  border-radius: var(--et-radius-control, 7px);
+  background: rgba(21, 18, 14, 0.72);
   transform: translateX(-50%);
   pointer-events: none;
 }
 .rcardDot,
 .rcardDotOn {
   flex: 0 0 auto;
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.45);
   transition:
     width 0.2s ease,
     background-color 0.2s ease;
 }
 .rcardDotOn {
-  width: 13px;
+  width: 16px;
   background: #fff;
+}
+/* Kein Druckzustand auf der Karte. Die globale Regel in globals.css
+   (`[role='button']:active { translate: 0 1px }`) verschob beim Aufsetzen des
+   Fingers die ganze Karte — und damit den Foto-Streifen, der in ihr liegt.
+   WebKit (Safari und jeder Browser auf dem iPhone) verliert dabei die
+   waagerechte Geste: der Streifen stand unter dem Finger still (25.09.2026,
+   im Simulator eingegrenzt). Im Detail liegt der Druck auf den Fotos, also
+   IM Streifen, deshalb wischt es dort. Auf das Tippen antwortet die Karte
+   ohnehin sofort mit dem Detail. Vier Selektor-Teile, damit die Regel gegen
+   die globale (0,3,0) gewinnt, egal in welcher Reihenfolge die Dateien
+   laden. */
+.rcardSlot > .rcard[role='button']:active {
+  translate: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .rcardDot,

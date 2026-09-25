@@ -1,7 +1,9 @@
 /* MustEatTeaserSection — die verdeckten Karten auf der Spot-Seite.
  *
- * Kopf wie die übrigen Module der Seite (HubPage.module.css): Abschnittstitel
- * mit gelbem Marken-Quadrat, darunter die Ansage als Unterzeile. Den Abstand
+ * Kopf wie die übrigen Module der Seite: der Abschnittstitel ist
+ * `sectionTitle` aus HubPage.module.css, darunter die Ansage als Unterzeile.
+ * Alles in der Markenschrift (der Mono-Kicker war der Fremdkörper, Nutzer-
+ * Review 28.08.) und in Papier statt Rot — Rot kommt auf Ink auf rund 2,9:1. Den Abstand
  * zu den Nachbarn setzt der Seitenrhythmus (`gap` auf der Seite) — die
  * Section bringt keinen eigenen mehr mit.
  */
@@ -15,31 +17,8 @@
   max-width: 46ch;
 }
 
-.eyebrow {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin: 0 0 12px;
-  color: var(--hub-paper, #fff);
-  font-family: var(--hub-display, var(--font-providence), sans-serif);
-  font-size: clamp(24px, 3vw, 34px);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-  text-transform: uppercase;
-}
-
-.eyebrow::before {
-  content: '';
-  flex: none;
-  width: 0.34em;
-  height: 0.34em;
-  background: var(--hub-accent, #ffc600);
-  transform: translateY(-0.08em);
-}
-
 .heading {
-  margin: 0 0 4px;
+  margin: 12px 0 4px;
   color: var(--hub-paper, #fff);
   font-family: var(--hub-display, var(--font-providence), sans-serif);
   font-size: clamp(18px, 1.7vw, 22px);

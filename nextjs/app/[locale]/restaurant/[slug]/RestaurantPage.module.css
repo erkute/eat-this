@@ -66,18 +66,6 @@
   }
 }
 
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .cover {
   object-fit: cover;
 }
@@ -137,9 +125,12 @@
   font-family: var(--hub-display);
   font-size: 16px;
   font-weight: 700;
-  /* Providence hängt tief: unter 1.4 schneidet `overflow: hidden` am Label
-     die Unterlängen ab. Die Knopfhöhe kommt aus min-height. */
-  line-height: 1.45;
+  /* 1.55 statt 1: die Label-Spans tragen `overflow: hidden`, und Providence
+     haengt tief — bei 18px fehlten einer Unterlaenge 3,71px. 1.3 reicht nicht
+     (gemessen: immer noch -0,81px), 1.55 laesst 1,4px stehen. Gemessen
+     30.08.2026 auf der alten Spot-Seite, gleiche Ursache wie im Karten-Sheet.
+     Die Knopfhoehe kommt aus min-height, die Zeile aendert sie nicht. */
+  line-height: 1.55;
   text-decoration: none;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
@@ -334,7 +325,10 @@
   text-transform: uppercase;
   text-wrap: balance;
   /* `anywhere`, nicht `break-word`: nur `anywhere` zählt in die
-     min-content-Breite — „NATIONALGALERIE" liefe sonst aus der Spalte. */
+     min-content-Breite — „NATIONALGALERIE" liefe sonst aus der Spalte.
+     Kein `hyphens: auto`: das trennte „Five Elephant" zu „FIVE ELE-PHANT" —
+     einen Eigennamen, den kein Wörterbuch trennen sollte, in Versalien, wo die
+     Fuge doppelt auffällt. */
   overflow-wrap: anywhere;
 }
 
@@ -414,6 +408,8 @@
     grid-column: 1 / -1;
   }
 
+  /* `auto-fit` statt fester Spalten, weil jede Angabe einzeln fehlen darf —
+     bei zwei gepflegten Fakten werden es zwei Spalten, ohne leeres Feld. */
   .body > .info:only-child .facts {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px 48px;
@@ -759,7 +755,10 @@
 }
 
 /* Der Map-Block bringt seine eigene Fläche mit; hier steht nur, wie er in
-   dieser Seite sitzt. */
-.promo > * {
+   dieser Seite sitzt. `> section` statt `> *`: MapPromoCTA setzt
+   `.promo { margin: 40px 0 0 }` mit derselben Spezifität (0,1,0), und welches
+   der beiden CSS-Module später lädt, ist nicht festgelegt. (0,1,1) gewinnt
+   unabhängig davon. */
+.promo > section {
   margin: 0;
 }

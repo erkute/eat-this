@@ -244,8 +244,10 @@ export default async function RestaurantPage({ params }: PageProps) {
   const heroAlt = cuisineLabel
     ? `${displayName} – ${cuisineLabel} in ${districtName ? `Berlin-${districtName}` : 'Berlin'}`
     : displayName;
-  // Kategorien sind Discovery-Hubs (Frühstück, Süßes …) — „Mehr davon" ist der
-  // Weg von einem Spot zu seinen Hubs.
+  // Kategorien sind Discovery-Hubs (Frühstück, Süßes …). Seit die
+  // Kategorie-Karten-Zeile am Seitenende weg ist (874c330), wäre das der
+  // einzige Seitentyp ohne Weg zu seinen Hubs — „Mehr davon" stellt den Link
+  // wieder her, als Eigenschaft des Spots statt als Karten-Stapel.
   const categoryLinks = (r.categories ?? []).filter(
     (c): c is typeof c & { slug: string; name: string } => Boolean(c?.slug && c?.name)
   );
@@ -422,7 +424,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                 Text, damit Adresse und Zeiten beim Lesen sichtbar bleiben. */}
             {hasInfo && (
               <aside className={styles.info} aria-labelledby="spot-info">
-                <h2 id="spot-info" className={styles.srOnly}>
+                <h2 id="spot-info" className={hubStyles.srOnly}>
                   {de ? 'Adresse und Öffnungszeiten' : 'Address and hours'}
                 </h2>
                 <dl className={styles.facts}>
@@ -555,7 +557,13 @@ export default async function RestaurantPage({ params }: PageProps) {
 
         {/* Das Regal der Bezirks-Index-Seite, Name und Metazeile UNTER dem
             Foto. Hier standen sie früher auf dem Bild unter einem Verlauf, und
-            die Zeilenbegrenzung schnitt die Namen oben an. */}
+            die Zeilenbegrenzung schnitt die Namen oben an.
+
+            Nur die Bezirks-Zeile: eine Kategorie-Zeile schickte von einer
+            Kreuzberg-Seite nach Schöneberg, Prenzlauer Berg und Mitte — vier
+            Karten, deren gemeinsamer Nenner „auch Lunch" war. Deshalb steht
+            unter den Karten auch kein Bezirk (das Regal zeigt ihn ohne
+            `showDistrict` nicht): die Überschrift nennt ihn schon. */}
         {siblings.length > 0 && siblingHeading && bezirkSlug && (
           <section className={styles.module} aria-labelledby="spot-siblings">
             <div className={hubStyles.shelfHead}>
@@ -579,7 +587,9 @@ export default async function RestaurantPage({ params }: PageProps) {
         {/* Die Booster-Packs der Kategorien — dieselbe Art wie auf /packs. Der
             Name steht unter dem Bild, damit eine Kategorie ohne Art
             (unbekannter Slug) dieselbe Zeile ergibt, nur ohne Karte. „Mehr
-            davon" sagt, was der Klick bringt: weitere Spots dieser Art. */}
+            davon" sagt, was der Klick bringt: weitere Spots dieser Art. Weder
+            „Gut für" (Ratgeber-Floskel) noch „Läuft unter" (Archiv-Ton) —
+            beide vom Nutzer verworfen. */}
         {categoryLinks.length > 0 && (
           <section className={styles.module} aria-labelledby="spot-more">
             <h2 id="spot-more" className={hubStyles.sectionTitle}>

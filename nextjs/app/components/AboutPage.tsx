@@ -163,11 +163,11 @@ function isPlainParagraph(block: PortableTextBlock | undefined): boolean {
    copy, a line away from the picture it describes. */
 const LEDE_PARAGRAPHS = 2;
 
-/* A short plain paragraph in the intro is a line, not a paragraph — "Also habe
-   ich Eat This gebaut.", "Das Problem ist, den Überblick zu behalten." Set as
-   body copy they drowned between the long paragraphs around them; set in the
-   brand face they carry the story's turns. Length is the only signal the copy
-   gives: Sanity has no style for it, and the lines move when the text does. */
+/* A short plain paragraph in the intro is a line, not a paragraph — "Das
+   Problem ist, den Überblick zu behalten." Set as body copy it drowned under
+   the long paragraph before it; set in the brand face it carries the story's
+   turn. Length is the only signal the copy gives: Sanity has no style for
+   it, and the lines move when the text does. */
 const ONE_LINER_MAX = 60;
 
 function isOneLiner(block: PortableTextBlock): boolean {

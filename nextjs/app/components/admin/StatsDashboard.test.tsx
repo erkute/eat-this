@@ -14,6 +14,15 @@ vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: state.user, loading: state.loading }),
 }));
 
+// Der Sprach-Link braucht sonst den next-intl-Router; hier zählt nur das Ziel.
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock('@/lib/firebase/config', () => ({
   auth: {
     get currentUser() {
@@ -390,6 +399,17 @@ describe('StatsDashboard', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/admin/stats?days=30', {
       headers: { Authorization: `Bearer token-123` },
     });
+  });
+
+  /* Die Stats-Seite hat keine Seitenleiste der App — ohne diesen Link war sie
+     eine Sackgasse. */
+  it('führt über die Wortmarke zurück zur Startseite', async () => {
+    vi.stubGlobal('fetch', respondWith(summary()));
+
+    render(<StatsDashboard />);
+
+    const home = await screen.findByRole('link', { name: 'Eat This — Startseite' });
+    expect(home.getAttribute('href')).toBe('/');
   });
 
   it('erklärt die 404 der Route als fehlenden Zugriff, nicht als Fehler', async () => {

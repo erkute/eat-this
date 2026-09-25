@@ -137,7 +137,19 @@ function isHeading(block: PortableTextBlock): boolean {
   return b._type === 'block' && !b.listItem && (b.style === 'h2' || b.style === 'h3');
 }
 
-/** Everything before the first heading is the lede; each heading opens a
+function isPlainParagraph(block: PortableTextBlock | undefined): boolean {
+  if (!block) return false;
+  const b = block as Block;
+  return b._type === 'block' && !b.listItem && (b.style ?? 'normal') === 'normal';
+}
+
+/* The opening paragraphs that belong to the hero, beside the person. Two, by
+   order like the figures: the first says why the page exists, the second who
+   is speaking — and the second used to fall under the hero rule as small body
+   copy, a line away from the picture it describes. */
+const LEDE_PARAGRAPHS = 2;
+
+/** Everything before the first heading is the intro; each heading opens a
  *  section that runs until the next one. */
 function splitSections(blocks: PortableTextBlock[]) {
   const intro: PortableTextBlock[] = [];
@@ -157,9 +169,16 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
   const de = locale === 'de';
   const copy = de ? COPY.de : COPY.en;
   const { intro, sections } = splitSections(doc.body ?? []);
-  const [lede, ...restIntro] = intro;
-  const ledeText = lede && (lede as Block).style !== 'blockquote' ? blockText(lede as Block) : '';
-  const introRest = ledeText ? restIntro : intro;
+  let ledeCount = 0;
+  while (ledeCount < LEDE_PARAGRAPHS && isPlainParagraph(intro[ledeCount])) ledeCount += 1;
+  const ledes = intro.slice(0, ledeCount).map((block) => blockText(block as Block));
+  /* The rest of the intro bridges into the first chapter. Its last paragraph is
+     the turn the whole story hangs on ("Das Problem ist, den Überblick zu
+     behalten."); as the last line of body copy it drowned, so it gets set in
+     the brand face. Only when there is copy before it to turn from. */
+  const bridge = intro.slice(ledeCount);
+  const turn = bridge.length > 1 && isPlainParagraph(bridge.at(-1)) ? bridge.at(-1) : undefined;
+  const bridgeBody = turn ? bridge.slice(0, -1) : bridge;
   const story = sections.slice(0, FIGURES.length);
   const coda = sections.slice(FIGURES.length);
 
@@ -175,7 +194,11 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
             <h1 className={styles.title} id="staticPageAbout-title">
               {doc.title || ''}
             </h1>
-            {ledeText && <p className={styles.lede}>{ledeText}</p>}
+            {ledes.map((text, index) => (
+              <p key={index} className={index === 0 ? styles.lede : styles.ledeAside}>
+                {text}
+              </p>
+            ))}
           </div>
 
           {/* The page speaks in the first person; this is that person as an
@@ -202,16 +225,21 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               }
               width={760}
               height={1327}
-              sizes="(min-width: 900px) 320px, 62vw"
+              sizes="(min-width: 900px) 290px, 62vw"
               priority
               className={styles.heroFigure}
             />
           </div>
         </header>
 
-        {introRest.length > 0 && (
-          <div className={`${styles.body} ${styles.intro}`}>
-            <PortableTextRenderer blocks={introRest} />
+        {bridge.length > 0 && (
+          <div className={styles.bridge}>
+            {bridgeBody.length > 0 && (
+              <div className={styles.body}>
+                <PortableTextRenderer blocks={bridgeBody} />
+              </div>
+            )}
+            {turn && <p className={styles.bridgeTurn}>{blockText(turn as Block)}</p>}
           </div>
         )}
 

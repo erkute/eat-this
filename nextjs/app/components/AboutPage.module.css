@@ -63,13 +63,17 @@
   display: grid;
   gap: clamp(28px, 4vw, 40px);
   align-items: center;
-  padding-bottom: clamp(34px, 5vw, 56px);
+  padding-bottom: clamp(28px, 4vw, 44px);
   border-bottom: 1px solid var(--about-line);
 }
 
+/* The figure column is sized to the copy, not the other way round: at 320px
+   the portrait stood ~560 tall beside a title and one sentence, and the copy
+   floated in the middle of a lot of ink. Two lede paragraphs and a 290 figure
+   meet at roughly the same height. */
 @media (min-width: 900px) {
   .hero {
-    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-columns: minmax(0, 1fr) 300px;
     gap: clamp(40px, 5vw, 64px);
   }
 }
@@ -102,6 +106,19 @@
   text-wrap: pretty;
 }
 
+/* The second opening paragraph — who is speaking. Same face, one step
+   quieter, so the first sentence keeps the lead. */
+.ledeAside {
+  max-width: 34ch;
+  margin: clamp(12px, 1.6vw, 18px) 0 0;
+  color: var(--about-muted);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(17px, 1.5vw, 20px);
+  font-weight: 400;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
 /* One object, centred under nothing — the hero art is a single freigestellte
    figure now, so the absolutely-positioned stack that held a phone and two
    cards is gone with it. Kept as a box rather than a bare <img> so the column
@@ -116,7 +133,7 @@
    drop-shadow. A CSS shadow under a picture that already casts one reads as
    a printing error. */
 .heroFigure {
-  width: min(100%, 320px);
+  width: min(100%, 290px);
   height: auto;
 }
 
@@ -180,8 +197,25 @@
   scroll-margin-top: 96px;
 }
 
-.intro {
+/* The bridge between hero and first chapter: body copy, then the turn in the
+   brand face. Yellow because it is the one line of the intro the reader
+   should carry into the story; Providence 700 like the section titles, but
+   smaller, so it reads as a line, not as a heading without a section. */
+.bridge {
   margin-top: clamp(30px, 4vw, 44px);
+}
+
+.bridgeTurn {
+  max-width: 24ch;
+  margin: clamp(18px, 2.4vw, 26px) 0 0;
+  color: var(--about-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  /* Nicht unter 1.2: darunter kappt Providence die Unterlaengen. */
+  line-height: 1.2;
+  text-wrap: balance;
 }
 
 .body {

@@ -61,10 +61,10 @@ export default function SpotGallery({ images, name, locale, creditClassName }: P
                 src={img.full}
                 alt={alt}
                 fill
-                /* Telefon: zwei Spalten (allein volle Breite). Ab Tablet vier,
-                   ab 1100px fünf feste Spuren in der 1240er-Spalte — eine
-                   Kachel ist dort höchstens 232px breit. */
-                sizes="(max-width: 699px) 50vw, (max-width: 1099px) 25vw, 240px"
+                /* Telefon: zwei Spalten (allein volle Breite). Tablet: vier
+                   Spuren über die volle Breite. Ab 960px drei Spuren in der
+                   Textspalte neben der Info-Karte — höchstens rund 250px. */
+                sizes="(max-width: 699px) 50vw, (max-width: 959px) 25vw, 260px"
                 quality={85}
                 className={styles.img}
               />

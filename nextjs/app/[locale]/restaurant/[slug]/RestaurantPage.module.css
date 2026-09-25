@@ -466,10 +466,11 @@
   line-height: 1.25;
 }
 
+/* Volle Spaltenbreite wie die Bildstrecke darüber — mit der 68ch-Grenze des
+   Fließtexts endete der Kasten rechts vor der Kante der Kacheln. */
 .tip {
   display: grid;
   gap: 12px;
-  max-width: 68ch;
   padding: clamp(20px, 2.6vw, 28px) clamp(20px, 2.6vw, 32px);
   border-left: 4px solid var(--hub-accent);
   border-radius: 0 var(--hub-radius) var(--hub-radius) 0;

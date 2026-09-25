@@ -223,6 +223,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     )
     .filter((img) => imageAssetKey(img.full) !== heroAssetKey);
   const heroCreditHref = safeHttpUrl(r.photoCreditUrl);
+  const hasMain = Boolean(description || tipText || galleryImages.length > 0);
 
   const priceLabel = formatPriceLabel(r, loc);
   const websiteInfo = classifyWebsite(r.website);
@@ -384,9 +385,9 @@ export default async function RestaurantPage({ params }: PageProps) {
           </div>
         </header>
 
-        {(description || tipText || hasInfo) && (
+        {(hasMain || hasInfo) && (
           <div className={styles.body}>
-            {(description || tipText) && (
+            {hasMain && (
               <div className={styles.main}>
                 {description && (
                   <article className={styles.story}>
@@ -401,6 +402,18 @@ export default async function RestaurantPage({ params }: PageProps) {
                       <p key={`af-${i}`}>{p}</p>
                     ))}
                   </article>
+                )}
+
+                {/* Die Bilder gehören zur Beschreibung und stehen direkt unter
+                    ihr, in derselben Spalte — nicht als eigenes Modul über die
+                    volle Seitenbreite (Nutzer, 25.09.2026). */}
+                {galleryImages.length > 0 && (
+                  <SpotGallery
+                    images={galleryImages}
+                    name={displayName}
+                    locale={loc}
+                    creditClassName={styles.credit}
+                  />
                 )}
 
                 {/* Der Tipp der Redaktion: gelbe Kante, gelbes Label, der Satz
@@ -494,15 +507,6 @@ export default async function RestaurantPage({ params }: PageProps) {
               </aside>
             )}
           </div>
-        )}
-
-        {galleryImages.length > 0 && (
-          <SpotGallery
-            images={galleryImages}
-            name={displayName}
-            locale={loc}
-            creditClassName={styles.credit}
-          />
         )}
 
         {/* Must Eats vor Remy: beide beantworten „und jetzt?", aber die Karten

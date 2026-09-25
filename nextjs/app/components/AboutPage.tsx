@@ -3,6 +3,7 @@ import Image from '@/app/components/SiteImage';
 import { Link } from '@/i18n/navigation';
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
+import RemyAskPanel from './RemyAskPanel';
 import SiteFooter from './SiteFooter';
 import styles from './AboutPage.module.css';
 
@@ -101,28 +102,45 @@ const FIGURES: (Figure | null)[] = [
 ];
 
 /* Remy follows the card chapter, because the last paragraph of that section
-   is already about him — "frag einfach Remy". He was named once in passing
-   and never reachable; now the sentence has a door next to it.
+   is already about him — "frag einfach Remy". He used to get a title "Frag
+   Remy" and a link "Remy fragen" under it: the same two words twice, and a
+   door that led off the page to the home hub. Now the chat starts right here.
+   The first chip is the question the page itself opens with.
    The Sanity copy speaks in the first person; these lines describe the app,
    not the person, so they stay out of the "ich". */
 const COPY = {
   de: {
-    remyTitle: 'Frag Remy',
-    remyText: 'Remy kennt jeden Spot auf der Map. Sag ihm, worauf du Lust hast.',
-    remyCta: 'Remy fragen',
+    remyTitle: ['Keine Idee?', 'Frag Remy.'] as [string, string],
+    remyLead: 'Remy kennt jeden Spot auf der Map. Sag ihm, worauf du Lust hast.',
+    remyChips: [
+      'Wo gehen wir heute essen?',
+      'Ein Hidden Place in Neukölln?',
+      'Schönes Dinner für zwei',
+    ],
+    remyPlaceholder: 'Worauf hast du Lust?',
     ctaTitle: 'Hungrig geworden?',
-    ctaText: 'Die Map kennt über hundert Spots in Berlin. Such dir einen aus.',
+    /* Closes the loop the sticker opened ("Geh hierhin, das ist gut, und es
+       ist um die Ecke"): the page ends on the promise it started from, not on
+       a spot count. */
+    ctaText:
+      'Geh hierhin, das ist gut, und es ist um die Ecke. Genau das sagt dir jetzt die Map – für über hundert handverlesene Spots in Berlin.',
     ctaMap: 'Zur Map',
   },
   en: {
-    remyTitle: 'Ask Remy',
-    remyText: "Remy knows every spot on the map. Tell him what you're in the mood for.",
-    remyCta: 'Ask Remy',
+    remyTitle: ['No idea?', 'Ask Remy.'] as [string, string],
+    remyLead: "Remy knows every spot on the map. Tell him what you're in the mood for.",
+    remyChips: [
+      'Where should we eat today?',
+      'A hidden place in Neukölln?',
+      'A nice dinner for two',
+    ],
+    remyPlaceholder: 'What are you in the mood for?',
     ctaTitle: 'Hungry yet?',
-    ctaText: 'The map holds a hundred-plus spots in Berlin. Go pick one.',
+    ctaText:
+      "Go here, it's good, and it's around the corner. That's what the map tells you now – for a hundred-plus hand-picked spots in Berlin.",
     ctaMap: 'Open map',
   },
-} as const;
+};
 
 function blockText(block: Block): string {
   return (block.children ?? []).map((c) => c.text ?? '').join('');
@@ -144,6 +162,35 @@ function isPlainParagraph(block: PortableTextBlock | undefined): boolean {
    is speaking — and the second used to fall under the hero rule as small body
    copy, a line away from the picture it describes. */
 const LEDE_PARAGRAPHS = 2;
+
+/* A short plain paragraph in the intro is a line, not a paragraph — "Also habe
+   ich Eat This gebaut.", "Das Problem ist, den Überblick zu behalten." Set as
+   body copy they drowned between the long paragraphs around them; set in the
+   brand face they carry the story's turns. Length is the only signal the copy
+   gives: Sanity has no style for it, and the lines move when the text does. */
+const ONE_LINER_MAX = 60;
+
+function isOneLiner(block: PortableTextBlock): boolean {
+  return isPlainParagraph(block) && blockText(block as Block).length <= ONE_LINER_MAX;
+}
+
+type BridgePart = { line: string } | { blocks: PortableTextBlock[] };
+
+/** Runs of body paragraphs stay together for the renderer; each one-liner
+ *  breaks out on its own. */
+function splitBridge(blocks: PortableTextBlock[]): BridgePart[] {
+  const parts: BridgePart[] = [];
+  for (const block of blocks) {
+    if (isOneLiner(block)) {
+      parts.push({ line: blockText(block as Block) });
+      continue;
+    }
+    const last = parts.at(-1);
+    if (last && 'blocks' in last) last.blocks.push(block);
+    else parts.push({ blocks: [block] });
+  }
+  return parts;
+}
 
 /** Everything before the first heading is the intro; each heading opens a
  *  section that runs until the next one. */
@@ -168,13 +215,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
   let ledeCount = 0;
   while (ledeCount < LEDE_PARAGRAPHS && isPlainParagraph(intro[ledeCount])) ledeCount += 1;
   const ledes = intro.slice(0, ledeCount).map((block) => blockText(block as Block));
-  /* The rest of the intro bridges into the first chapter. Its last paragraph is
-     the turn the whole story hangs on ("Das Problem ist, den Überblick zu
-     behalten."); as the last line of body copy it drowned, so it gets set in
-     the brand face. Only when there is copy before it to turn from. */
-  const bridge = intro.slice(ledeCount);
-  const turn = bridge.length > 1 && isPlainParagraph(bridge.at(-1)) ? bridge.at(-1) : undefined;
-  const bridgeBody = turn ? bridge.slice(0, -1) : bridge;
+  // The rest of the intro bridges into the first chapter.
+  const bridge = splitBridge(intro.slice(ledeCount));
   const story = sections.slice(0, FIGURES.length);
   const coda = sections.slice(FIGURES.length);
 
@@ -230,12 +272,17 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
         {bridge.length > 0 && (
           <div className={styles.bridge}>
-            {bridgeBody.length > 0 && (
-              <div className={styles.body}>
-                <PortableTextRenderer blocks={bridgeBody} />
-              </div>
+            {bridge.map((part, index) =>
+              'line' in part ? (
+                <p key={index} className={styles.oneLiner}>
+                  {part.line}
+                </p>
+              ) : (
+                <div key={index} className={styles.body}>
+                  <PortableTextRenderer blocks={part.blocks} />
+                </div>
+              )
             )}
-            {turn && <p className={styles.bridgeTurn}>{blockText(turn as Block)}</p>}
           </div>
         )}
 
@@ -316,30 +363,14 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                   bottom of a closed room. It follows immediately after, as
                   its own panel. */}
               {figure?.remyAfter && (
-                <section className={styles.remySection}>
-                  <div className={styles.remyCopy}>
-                    <h2 className={styles.remyTitle}>{copy.remyTitle}</h2>
-                    <p className={styles.remyText}>{copy.remyText}</p>
-                    <Link href="/#hub-fragremy" className={styles.remyCta}>
-                      {copy.remyCta}
-                    </Link>
-                  </div>
-
-                  {/* Remy on his own. He shared this column with a phone for
-                      one revision and lost: at any size that let the screen be
-                      read, he ended up standing on top of the very spot he is
-                      supposed to be handing you. The phone closes the page
-                      instead, where it has room. */}
-                  <Image
-                    src="/buddy/buddy-smile.webp"
-                    alt=""
-                    width={791}
-                    height={876}
-                    sizes="170px"
-                    loading="lazy"
-                    className={styles.remyArt}
-                  />
-                </section>
+                <RemyAskPanel
+                  locale={locale}
+                  className={styles.remy}
+                  titleLines={copy.remyTitle}
+                  lead={copy.remyLead}
+                  chips={copy.remyChips}
+                  placeholder={copy.remyPlaceholder}
+                />
               )}
             </Fragment>
           );

@@ -1,12 +1,15 @@
 /* Bildstrecke der Spot-Seite (SpotGallery.tsx). Tokens (--hub-*) setzt die
    Seite.
 
+   Die Strecke steht in der Textspalte unter der Beschreibung (neben der
+   Info-Karte), nicht über die volle Seitenbreite.
+
    Feste Kachelgröße, linksbündig — wie viele Bilder ein Spot hat, ändert die
    Größe nicht. Bis 25.09.2026 streckten sich die Kacheln auf die Spalte: ein
    einzelnes Bild (109 von 221 Spots mit Galerie) stand dann 1240×531px groß
-   da, zwei Bilder je 610×458px — größer als das Titelfoto. Fünf Spuren ab
-   Desktop, weil kein Spot mehr als fünf Bilder hat: die Strecke bleibt dort
-   eine Zeile. */
+   da, zwei Bilder je 610×458px — größer als das Titelfoto. Spuren je Breite:
+   Telefon 2; Tablet 4, weil die Textspalte dort die volle Breite hat; ab
+   960px 3, weil daneben die Info-Karte steht (rund 250px je Kachel). */
 
 .gallery {
   display: grid;
@@ -28,11 +31,10 @@
   }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 960px) {
   .gallery,
   .gallery[data-count='1'] {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

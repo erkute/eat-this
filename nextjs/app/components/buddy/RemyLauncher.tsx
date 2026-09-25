@@ -17,6 +17,7 @@
 // Remy gehört dort eher in die Such-Leiste als in die Ecke.
 
 import { useCallback, useState } from 'react';
+import Image from '@/app/components/SiteImage';
 import { useLocale } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
@@ -69,13 +70,17 @@ export default function RemyLauncher() {
         onFocus={() => void preloadBuddyWidget()}
         onClick={() => dispatchBuddyAsk()}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        {/* Über den Optimierer statt als rohes <img>: das Original ist
+            791×876 und 107 KB und lud auf JEDER Seite neben dem LCP-Foto. Die
+            58er-Kachel zoomt 1,45-fach (siehe .face), sichtbar sind also rund
+            84 CSS-px — daraus wählt next/image die 256er-Stufe, ~13 KB. */}
+        <Image
           className={styles.face}
           src="/buddy/buddy-smile.webp"
           alt=""
-          width={116}
-          height={116}
+          width={791}
+          height={876}
+          sizes="84px"
         />
       </button>
       {/* Eigener Knopf neben dem großen, nicht darin: ein <button> im <button>

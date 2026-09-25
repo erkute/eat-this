@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Image from '@/app/components/SiteImage';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -411,10 +412,16 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                       : de
                         ? 'Kuratiert von '
                         : 'Curated by '}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    {/* Höchstens ~25px hoch, also ~62px breit. Als rohes <img>
+                        kam die 1660er-Vorlage mit 50 KB; `sizes` trifft
+                        dieselbe 256er-Stufe wie das Logo in der SiteNav, die
+                        schon im Cache liegt. */}
+                    <Image
                       src="/pics/eat-this-logo.webp?v=6"
                       alt="Eat This"
+                      width={1660}
+                      height={667}
+                      sizes="64px"
                       className={styles.inlineLogo}
                     />
                   </p>

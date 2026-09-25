@@ -455,6 +455,7 @@
   }
 
   .cta .ctaTitle,
+  .cta .ctaQuote,
   .cta .ctaText {
     margin-inline: 0;
   }
@@ -497,12 +498,27 @@
   text-wrap: balance;
 }
 
+/* The wish from the sticker, quoted back. Its own line in Providence 700 and
+   white, so it reads as a quote and not as the start of the sentence after
+   it; the quotation marks are in the copy, not generated, so they stay
+   typographic per language („…“ / “…”). */
+.ctaQuote {
+  max-width: 30ch;
+  margin: clamp(14px, 1.8vw, 18px) 0 0;
+  color: var(--about-fg);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(19px, 1.9vw, 24px);
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
 /* In the brand face like the lede — the closer speaks in the page's voice,
    not in body copy. 400, because 700 at this length shouts. */
 .ctaText {
   max-width: 36ch;
   text-wrap: pretty;
-  margin: clamp(14px, 1.8vw, 18px) 0 0;
+  margin: clamp(8px, 1vw, 12px) 0 0;
   color: rgba(255, 255, 255, 0.86);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: clamp(18px, 1.7vw, 22px);

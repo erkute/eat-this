@@ -119,11 +119,13 @@ const COPY = {
     ],
     remyPlaceholder: 'Worauf hast du Lust?',
     ctaTitle: 'Hungrig geworden?',
-    /* Closes the loop the sticker opened ("Geh hierhin, das ist gut, und es
-       ist um die Ecke"): the page ends on the promise it started from, not on
-       a spot count. */
-    ctaText:
-      'Geh hierhin, das ist gut, und es ist um die Ecke. Genau das sagt dir jetzt die Map – für über hundert handverlesene Spots in Berlin.',
+    /* Closes the loop the sticker opened: the page ends on the wish it
+       started from, quoted as the wish it was, then what the map does with it.
+       „Über 400" rather than the exact count (464 live on 25.09.2026): a
+       floor stays true while the map grows, a number would be stale by the
+       next import. */
+    ctaQuote: '„Geh hierhin, das ist gut, und es ist um die Ecke.“',
+    ctaText: 'Genau das sagt dir jetzt die Map – für über\u00a0400 handverlesene Spots in Berlin.',
     ctaMap: 'Zur Map',
   },
   en: {
@@ -136,8 +138,8 @@ const COPY = {
     ],
     remyPlaceholder: 'What are you in the mood for?',
     ctaTitle: 'Hungry yet?',
-    ctaText:
-      "Go here, it's good, and it's around the corner. That's what the map tells you now – for a hundred-plus hand-picked spots in Berlin.",
+    ctaQuote: '“Go here, it’s good, and it’s around the corner.”',
+    ctaText: 'That’s what the map tells you now – for over\u00a0400 hand-picked spots in Berlin.',
     ctaMap: 'Open map',
   },
 };
@@ -419,6 +421,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               ohne eigenen Stil. */}
           <div>
             <h2 className={styles.ctaTitle}>{copy.ctaTitle}</h2>
+            <blockquote className={styles.ctaQuote}>{copy.ctaQuote}</blockquote>
             <p className={styles.ctaText}>{copy.ctaText}</p>
             <div className={styles.ctaRow}>
               <Link href="/map" className={styles.ctaPrimary}>

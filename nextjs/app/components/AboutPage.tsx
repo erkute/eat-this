@@ -34,10 +34,8 @@ type Figure = {
    *  plate's width it shouted down the section it belongs to. */
   renderWidth: number;
   tilt: number;
-  /** `rail` hangs the object in the column beside the copy. `band` takes the
-   *  section off the ink entirely — full-bleed paper, the one white chapter
-   *  in the middle of the read. */
-  layout: 'rail' | 'band';
+  /** Remy's panel follows this section — see COPY. */
+  remyAfter?: true;
   caption: { de: string; en: string };
   alt: { de: string; en: string };
 };
@@ -59,7 +57,6 @@ const FIGURES: (Figure | null)[] = [
     // past the copy beside it.
     renderWidth: 225,
     tilt: -2,
-    layout: 'rail',
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
       de: 'Die Eat-This-App zeigt Berliner Spots als gelbe Pins auf der Karte',
@@ -72,7 +69,6 @@ const FIGURES: (Figure | null)[] = [
     height: 856,
     renderWidth: 290,
     tilt: 1.5,
-    layout: 'rail',
     caption: { de: 'Galette bei Bubar.', en: 'Galette at Bubar.' },
     alt: {
       de: 'Eine Buchweizen-Galette mit Eigelb auf einem Pappteller',
@@ -92,7 +88,7 @@ const FIGURES: (Figure | null)[] = [
     // galette gets.
     renderWidth: 260,
     tilt: -8,
-    layout: 'band',
+    remyAfter: true,
     caption: {
       de: 'Manche liegen offen, manche verdeckt.',
       en: 'Some lie face up, some face down.',
@@ -104,7 +100,7 @@ const FIGURES: (Figure | null)[] = [
   },
 ];
 
-/* Remy follows the white chapter, because the last paragraph of that section
+/* Remy follows the card chapter, because the last paragraph of that section
    is already about him — "frag einfach Remy". He was named once in passing
    and never reachable; now the sentence has a door next to it.
    The Sanity copy speaks in the first person; these lines describe the app,
@@ -255,25 +251,48 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
              the copy stays first in the DOM so the single-column stack and
              the reading order never zigzag. */
           const flipped = Boolean(figure) && index % 2 === 0;
-          const body = (
-            <>
-              <div className={styles.sectionCopy}>
-                <h2 className={styles.sectionTitle}>{section.title}</h2>
-                <div className={styles.body}>
-                  <PortableTextRenderer blocks={section.blocks} />
+          return (
+            <Fragment key={section.title || index}>
+              <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}>
+                <div className={styles.sectionCopy}>
+                  <h2 className={styles.sectionTitle}>{section.title}</h2>
+                  <div className={styles.body}>
+                    <PortableTextRenderer blocks={section.blocks} />
+                  </div>
                 </div>
-              </div>
 
-              {figure && (
-                <figure
-                  className={styles.figure}
-                  style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
-                >
-                  {figure.partner ? (
-                    /* Two objects, one measure. They overlap on purpose: a
-                       pair set side by side with a gap reads as two products
-                       in a catalogue, not as one deck you are holding. */
-                    <div className={styles.pair}>
+                {figure && (
+                  <figure
+                    className={styles.figure}
+                    style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
+                  >
+                    {figure.partner ? (
+                      /* Two objects, one measure. They overlap on purpose: a
+                         pair set side by side with a gap reads as two products
+                         in a catalogue, not as one deck you are holding. */
+                      <div className={styles.pair}>
+                        <Image
+                          src={figure.src}
+                          alt={de ? figure.alt.de : figure.alt.en}
+                          width={figure.width}
+                          height={figure.height}
+                          sizes={`${figure.renderWidth}px`}
+                          loading="lazy"
+                          className={styles.pairBack}
+                          style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
+                        />
+                        <Image
+                          src={figure.partner.src}
+                          alt=""
+                          width={figure.partner.width}
+                          height={figure.partner.height}
+                          sizes={`${figure.renderWidth}px`}
+                          loading="lazy"
+                          className={styles.pairFront}
+                          style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
+                        />
+                      </div>
+                    ) : (
                       <Image
                         src={figure.src}
                         alt={de ? figure.alt.de : figure.alt.en}
@@ -281,55 +300,22 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                         height={figure.height}
                         sizes={`${figure.renderWidth}px`}
                         loading="lazy"
-                        className={styles.pairBack}
+                        className={styles.figureImg}
                         style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
                       />
-                      <Image
-                        src={figure.partner.src}
-                        alt=""
-                        width={figure.partner.width}
-                        height={figure.partner.height}
-                        sizes={`${figure.renderWidth}px`}
-                        loading="lazy"
-                        className={styles.pairFront}
-                        style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
-                      />
-                    </div>
-                  ) : (
-                    <Image
-                      src={figure.src}
-                      alt={de ? figure.alt.de : figure.alt.en}
-                      width={figure.width}
-                      height={figure.height}
-                      sizes={`${figure.renderWidth}px`}
-                      loading="lazy"
-                      className={styles.figureImg}
-                      style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
-                    />
-                  )}
-                  <figcaption className={styles.caption}>
-                    {de ? figure.caption.de : figure.caption.en}
-                  </figcaption>
-                </figure>
-              )}
-            </>
-          );
+                    )}
+                    <figcaption className={styles.caption}>
+                      {de ? figure.caption.de : figure.caption.en}
+                    </figcaption>
+                  </figure>
+                )}
+              </section>
 
-          if (figure?.layout === 'band') {
-            return (
-              /* The white chapter holds the card argument and nothing else.
-                 Remy used to be tacked under it, inside the band; a door out
-                 of the page does not belong at the bottom of a closed room.
-                 It follows immediately after, back on the ink. */
-              <Fragment key={section.title || index}>
-                <section className={styles.band}>
-                  <div className={styles.bandInner}>
-                    <div className={`${styles.bandGrid}${flipped ? ` ${styles.flip}` : ''}`}>
-                      {body}
-                    </div>
-                  </div>
-                </section>
-
+              {/* Remy used to be tacked under the card argument, inside the
+                  same section; a door out of the page does not belong at the
+                  bottom of a closed room. It follows immediately after, as
+                  its own panel. */}
+              {figure?.remyAfter && (
                 <section className={styles.remySection}>
                   <div className={styles.remyCopy}>
                     <h2 className={styles.remyTitle}>{copy.remyTitle}</h2>
@@ -354,17 +340,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                     className={styles.remyArt}
                   />
                 </section>
-              </Fragment>
-            );
-          }
-
-          return (
-            <section
-              key={section.title || index}
-              className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}
-            >
-              {body}
-            </section>
+              )}
+            </Fragment>
           );
         })}
 

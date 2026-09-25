@@ -4,22 +4,19 @@
    photos on the ground, no borders, structure from whitespace.
    Seit 03.09.2026 auf durchgehendem Ink wie die Startseite: `--about-ink`
    ist der GRUND, `--about-fg` die Schrift darauf, Muted/Linien/stille Flaeche
-   sind Weiss-Stufen. Remy und der Schluss sind Objekte und tragen die leise
-   Stufe. Das Kapitel ueber die Karten ist die eine Ausnahme: volles Papier,
-   Ink-Schrift, Rot nur dort als Hover. */
+   sind Weiss-Stufen. Nur was ein eigenes Objekt ist (Remy, der Schluss),
+   traegt die leise Stufe — keine Kapitel-Flaeche, kein Papier: eine weisse
+   Flaeche gibt es sonst nirgends auf der Seite. Rot ist auf Ink als
+   Schriftfarbe raus. */
 .page {
   --about-ink: var(--et-home-ink, #15120e);
   --about-fg: var(--et-home-inverse-text, #fff);
-  --about-red: var(--et-home-red, #d9382a);
   --about-accent: var(--et-home-accent, #ffc600);
   --about-paper: var(--et-home-paper, #fff);
   --about-quiet: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   --about-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   --about-text: rgba(255, 255, 255, 0.84);
   --about-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  /* Schrift-Stufen auf dem Papier-Kapitel — dieselbe Ink, nur leiser. */
-  --about-paper-text: rgba(21, 18, 14, 0.8);
-  --about-paper-muted: rgba(21, 18, 14, 0.6);
   /* Fill exactly what .app-pages leaves us — it offsets the fixed navbar by
      64px below 768px and by a 74px margin above it. A plain 100dvh overshot
      that offset and left a strip of dead scroll under the footer. */
@@ -304,92 +301,13 @@
   transform: translateX(-50%) rotate(3deg);
 }
 
-/* ---------- the white chapter ----------
-
-   One section steps out of the ground: a full-bleed band of paper roughly at
-   the middle of the read, carrying the section the whole collectible idea
-   hangs on. It used to be the page's one dark chapter on white; since the
-   page went ink it was the quiet 5.5% step instead — the same fill as Remy's
-   panel right below it and the closer, so the three ran together and the
-   chapter no longer read as one. Papier ist die Umkehrung des alten Kontrasts,
-   nicht ein vierter Grauton. The text column keeps its position inside, so the
-   spine survives the change of ground. */
-
-.band {
-  margin-top: clamp(56px, 8vw, 96px);
-  margin-inline: calc(50% - 50vw);
-  padding: clamp(44px, 6vw, 80px) clamp(18px, 4vw, 54px);
-  background: var(--about-paper);
-  color: var(--about-ink);
-}
-
-.bandInner {
-  width: min(100%, 960px);
-  margin: 0 auto;
-}
-
-.bandGrid {
-  display: grid;
-  gap: clamp(24px, 3.4vw, 36px);
-  align-items: start;
-}
-
-@media (min-width: 900px) {
-  .bandGrid {
-    grid-template-columns: minmax(0, 60ch) 300px;
-    justify-content: space-between;
-    gap: clamp(40px, 5vw, 72px);
-  }
-
-  /* Spelled out rather than left to the shared `.flip`: this block sits later
-     in the file at the same specificity, so the plain rule would have quietly
-     won and the dark chapter alone would have stayed unmirrored. */
-  .bandGrid.flip {
-    grid-template-columns: 300px minmax(0, 60ch);
-  }
-}
-
-.band .sectionTitle {
-  color: var(--about-ink);
-}
-
-.band .body {
-  color: var(--about-paper-text);
-}
-
-.band .body strong,
-.band .body b {
-  color: var(--about-ink);
-}
-
-/* Gelb auf Papier ist unlesbar: der Link bleibt Ink, nur die Unterstreichung
-   traegt das Gelb. */
-.band .body a {
-  color: var(--about-ink);
-  text-decoration-color: var(--about-accent);
-}
-
-.band .body a:focus-visible {
-  color: var(--about-red);
-}
-
-@media (hover: hover) {
-  .band .body a:hover {
-    color: var(--about-red);
-  }
-}
-
-.band .caption {
-  color: var(--about-paper-muted);
-}
-
 /* The pair. Two cards overlapping inside one rail measure — the back tucked
    left and low, the revealed one over it to the right and a little higher.
    The revealed card is the thing the section argues for, so it sits on top;
    a dead-level, evenly-spaced pair read as two catalogue shots.
 
-   The only drop-shadow on the page, because it is the only object on paper:
-   on ink a dark shadow disappears, here it lifts the cards off the table. */
+   No drop-shadow, like every object on the ink: a dark shadow disappears on
+   it, and the yellow card back is the brightest thing in its row anyway. */
 .pair {
   position: relative;
   width: var(--fig-w, 260px);
@@ -409,7 +327,6 @@
   width: 62%;
   height: auto;
   transform: rotate(var(--tilt, 0deg));
-  filter: drop-shadow(0 14px 22px rgba(21, 18, 14, 0.3));
 }
 
 .pairBack {
@@ -433,7 +350,7 @@
 
 /* ---------- Frag Remy ----------
 
-   Out of the paper band and back onto the ink. Inside the chapter this was a
+   Its own panel right after the card chapter. Inside that section this was a
    link tacked below a closed argument; as its own section it reads as what it
    is — the one door on the page that leads somewhere before the closer. It
    borrows the section grid so the text column stays on the same spine. */

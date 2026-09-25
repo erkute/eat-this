@@ -23,7 +23,7 @@
      (zwei Tafeln = 112px eingebaute Luft). Jetzt zaehlt nur noch die Fuge. */
   --home-section-gap: clamp(72px, 7vw, 104px);
   /* Der Stern vom Pack-Etikett („PIZZA PACK", „20 MUST EATS") als Zeichen der
-     Startseite: Abschnittsmarke, Kategorie-Zeilen, Klebeband, Tages-Sticker.
+     Startseite: Abschnittsmarke, Kategorie-Zeilen, Tages-Sticker.
      Als Token, weil CategoriesRail ihn über die Vererbung mitliest. */
   --home-burst: polygon(
     50% 0%,
@@ -257,26 +257,23 @@
   transform: translateY(1px);
 }
 
-/* Die Seitentür als Ring, wie der Standort-Chip im Must-Eat-Sheet: weißer
-   28-%-Rand, bei Hover gelb. */
+/* Die Seitentür als leise Fläche ohne Rahmen — Weiß 10 %, wie „Ablehnen" im
+   Cookie-Dialog; bei Hover gelb mit Ink-Schrift. */
 .page .heroActions .heroSecondaryBtn:global(.hv-btn) {
   color: var(--et-home-inverse-text);
-  background: transparent;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
   text-decoration: none;
 }
 
 .page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
-  color: var(--et-home-accent);
-  background: transparent;
-  box-shadow: inset 0 0 0 2px var(--et-home-accent);
+  color: var(--et-home-ink);
+  background: var(--et-home-accent);
 }
 
 @media (hover: hover) {
   .page .heroActions .heroSecondaryBtn:global(.hv-btn):hover {
-    color: var(--et-home-accent);
-    background: transparent;
-    box-shadow: inset 0 0 0 2px var(--et-home-accent);
+    color: var(--et-home-ink);
+    background: var(--et-home-accent);
   }
 }
 
@@ -379,73 +376,6 @@
    Gruppe. Siehe `--et-press-tile` in globals.css. */
 .heroPhones:active {
   scale: var(--et-press-tile, 0.985);
-}
-
-/* ── Klebeband unter dem Aufmacher ──────────────────────────────────────────
-   Unter dem Aufmacher war die Seite bis zum Footer eine Folge gleich gebauter
-   Abschnitte auf demselben Schwarz. Das Band ist die eine laute Stelle
-   dazwischen: gelb, schräg angeklebt, der Slogan vom Pack. Es läuft von Kante
-   zu Kante; der Rahmen schneidet die schräg überstehenden Enden ab, damit die
-   Seite seitlich nicht schiebt. Bewegung nur per translate, nie per Opacity. */
-.tape {
-  overflow: hidden;
-  /* Platz für die Schräge: 2° heben die Enden auf 1440px um je ~25px an. */
-  padding: clamp(14px, 2.4vw, 36px) 0;
-}
-
-.tapeBand {
-  width: calc(100% + 80px);
-  margin-left: -40px;
-  padding: clamp(10px, 1vw, 14px) 0;
-  background: var(--et-home-accent);
-  color: var(--home-ink);
-  rotate: -2deg;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
-}
-
-.tapeTrack {
-  display: flex;
-  width: max-content;
-  animation: hubTape 48s linear infinite;
-}
-
-.tapeRun {
-  display: flex;
-  flex: none;
-}
-
-.tapeItem {
-  display: inline-flex;
-  align-items: center;
-  gap: clamp(14px, 1.6vw, 22px);
-  padding-right: clamp(14px, 1.6vw, 22px);
-  font-family: var(--font-providence);
-  font-size: clamp(17px, 1.9vw, 26px);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.tapeBurst {
-  flex: none;
-  width: 0.9em;
-  height: 0.9em;
-  background: var(--et-home-red);
-  clip-path: var(--home-burst);
-}
-
-@keyframes hubTape {
-  to {
-    translate: -50% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tapeTrack {
-    animation: none;
-  }
 }
 
 /* ── Spot des Tages ─────────────────────────────────────────────────────────

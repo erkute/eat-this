@@ -73,12 +73,6 @@ function dayLabel(today: string, locale: 'de' | 'en'): string {
   }).format(new Date(`${today}T12:00:00Z`));
 }
 
-// Der Slogan von Pack und Kartenrücken als Klebeband unter dem Aufmacher.
-// Acht Durchläufe pro Hälfte, damit eine Hälfte auch auf 2560px breiter ist
-// als das Fenster — die Schleife verschiebt um genau eine Hälfte.
-const TAPE_REPEATS = 8;
-const TAPE_SLOGAN = 'We tell you what to eat';
-
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
   const t = copy[locale];
   const spot = initialData.spotOfDay;
@@ -138,25 +132,6 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </div>
       </section>
       <HeroMarkFlight />
-
-      {/* Reine Zier, für Screenreader stumm: der Slogan steht schon als
-          Headline im Aufmacher. */}
-      <div className={styles.tape} aria-hidden="true">
-        <div className={styles.tapeBand}>
-          <div className={styles.tapeTrack}>
-            {[0, 1].map((half) => (
-              <span className={styles.tapeRun} key={half}>
-                {Array.from({ length: TAPE_REPEATS }, (_, i) => (
-                  <span className={styles.tapeItem} key={i}>
-                    {TAPE_SLOGAN}
-                    <span className={styles.tapeBurst} />
-                  </span>
-                ))}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
 
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor

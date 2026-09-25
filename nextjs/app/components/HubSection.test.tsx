@@ -142,17 +142,6 @@ describe('HubSection home', () => {
     expect(time).toBeLessThan(html.indexOf('/map?r=gazzo'));
   });
 
-  it('keeps the slogan tape silent for screen readers', () => {
-    const html = renderHome();
-    // The hero headline carries the same words, so look from the end.
-    const tape = html.lastIndexOf('We tell you what to eat');
-    expect(tape).toBeGreaterThan(html.indexOf('</h1>'));
-    // The hidden wrapper opens a few nested spans before the slogans.
-    const hidden = html.lastIndexOf('aria-hidden="true"', tape);
-    expect(hidden).toBeGreaterThan(-1);
-    expect(html.slice(hidden, tape)).not.toContain('</div>');
-  });
-
   it("keeps the pick's name off the photo, where a bright image swallows it", () => {
     const html = renderHome();
     const photo = html.indexOf('hv-photo');

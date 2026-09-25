@@ -47,4 +47,16 @@ describe('GET /api/restaurant-detail/[slug]', () => {
     expect(res.status).toBe(404);
     expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
+
+  // Das Sheet trägt den „Im Magazin"-Block: ein neuer Artikel muss ihn über den
+  // Webhook-Tag `news` auffrischen, und das Limit ist dasselbe wie auf der
+  // Restaurant-Seite.
+  it('asks for the articles with the page limit and listens to the news tag', async () => {
+    fetchMock.mockResolvedValue({ description: 'x', articles: [] });
+    await call('kolo-coffee');
+
+    const [, params, options] = fetchMock.mock.calls[0];
+    expect(params).toEqual({ slug: 'kolo-coffee', articleLimit: 3 });
+    expect(options.next.tags).toEqual(['restaurant:kolo-coffee', 'news']);
+  });
 });

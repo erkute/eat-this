@@ -1,6 +1,7 @@
 import Image from '@/app/components/SiteImage';
 import { Link } from '@/i18n/navigation';
 import type { RestaurantArticleCard } from '@/lib/types';
+import { articleCardText } from '@/lib/articleCard';
 import styles from './RestaurantArticlesSection.module.css';
 
 interface Props {
@@ -25,16 +26,6 @@ export default function RestaurantArticlesSection({ articles, locale }: Props) {
   const de = locale === 'de';
 
   const heading = de ? 'Im Magazin' : 'In the magazine';
-  const formatDate = (iso: string | undefined) => {
-    if (!iso) return '';
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return '';
-    return d.toLocaleDateString(de ? 'de-DE' : 'en-US', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
 
   return (
     <section className={styles.row} aria-label={heading}>
@@ -45,9 +36,7 @@ export default function RestaurantArticlesSection({ articles, locale }: Props) {
       </h2>
       <div className={styles.cards} data-count={articles.length}>
         {articles.map((a) => {
-          const title = (de && a.titleDe ? a.titleDe : a.title) || '';
-          const kicker = (de ? a.categoryLabelDe : a.categoryLabel) || a.categoryLabel || '';
-          const date = formatDate(a.date);
+          const { title, kicker, date } = articleCardText(a, locale);
           return (
             <Link key={a._id} href={`/news/${a.slug}`} className={styles.card}>
               {a.imageUrl && (

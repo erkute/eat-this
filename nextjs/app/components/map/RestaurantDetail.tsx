@@ -36,6 +36,7 @@ import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
 import ShareButton from '../ShareButton';
 import RestaurantGallery from './RestaurantGallery';
+import RestaurantDetailArticles from './RestaurantDetailArticles';
 import { trackEvent } from '@/lib/analytics';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
@@ -667,6 +668,13 @@ export default function RestaurantDetail({
             )}
           </div>
         </div>
+
+        {/* IM MAGAZIN — die Artikel, in denen der Spot vorkommt; derselbe Block
+            wie auf der Restaurant-Seite. Nach den Fakten: erst, was man zum
+            Hingehen braucht, dann, was man darüber lesen kann. Kommt mit dem
+            Detail-Fetch, also erst nach dem Öffnen — kein Platzhalter, der
+            Block steht ganz unten und schiebt nichts. */}
+        <RestaurantDetailArticles articles={detail?.articles ?? []} locale={loc} />
 
         {/* PACK PROMO — anon + starter only, qualitative (no counts/prices).
             Set apart by colour, not by an outline: the ink board right above

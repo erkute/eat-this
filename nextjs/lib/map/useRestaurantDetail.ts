@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import type { RestaurantArticleCard } from '@/lib/types';
 
 // The detail-only fields the map sheet lazy-loads (the map list payload no
 // longer carries these — see mapRestaurantsQuery / /api/restaurant-detail).
@@ -30,6 +31,9 @@ interface RestaurantMapDetail {
   photoCredit?: string;
   photoCreditUrl?: string;
   gallery?: RestaurantGalleryImage[];
+  /** Die Artikel, in denen der Spot vorkommt — derselbe Block wie auf der
+   *  Restaurant-Seite (articlesAboutRestaurant). */
+  articles?: RestaurantArticleCard[];
 }
 
 // Module-level cache so re-opening or paging back to a spot is instant and

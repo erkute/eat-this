@@ -119,16 +119,11 @@ describe('getRestaurantPageData', () => {
     expect(options).toMatchObject({
       next: {
         revalidate: SANITY_REVALIDATE_SECONDS,
-        // `newsArticle` gehört dazu, seit die Seite den „Im Magazin"-Block
-        // trägt: ein neuer Artikel ändert ihn auf jeder darin verlinkten
-        // Restaurant-Seite, ohne dass das Restaurant selbst angefasst wird.
-        tags: [
-          'restaurant:ramen-place',
-          'restaurant',
-          'mustEat',
-          'newsArticle',
-          'restaurant-siblings',
-        ],
+        // `news` gehört dazu, seit die Seite den „Im Magazin"-Block trägt: ein
+        // neuer Artikel ändert ihn auf jeder darin verlinkten Restaurant-Seite,
+        // ohne dass das Restaurant selbst angefasst wird. Es muss der Tag sein,
+        // den der Webhook für `newsArticle` feuert (api/revalidate/route.ts).
+        tags: ['restaurant:ramen-place', 'restaurant', 'mustEat', 'news', 'restaurant-siblings'],
       },
     });
   });
@@ -154,7 +149,9 @@ describe('getRestaurantPageData', () => {
     ]);
     const [query] = mockFetch.mock.calls[0];
     // Je weniger Spots ein Artikel nennt, desto mehr handelt er von diesem.
-    expect(query).toContain('order(count(coalesce(contentDe, content)[defined(restaurantRef)]) asc');
+    expect(query).toContain(
+      'order(count(coalesce(contentDe, content)[defined(restaurantRef)]) asc'
+    );
   });
 
   it('falls back to an empty article list', async () => {

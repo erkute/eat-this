@@ -3,19 +3,19 @@
    hands the reader back to the map. Same vocabulary as the home rails —
    photos on the ground, no borders, structure from whitespace.
    Seit 03.09.2026 auf durchgehendem Ink wie die Startseite: `--about-ink`
-   ist der GRUND, `--about-fg` die Schrift darauf, Muted/Linien/stille Flaeche
-   sind Weiss-Stufen. Was ein eigenes Objekt ist (das dunkle Kapitel, Remy,
-   der Schluss), traegt die leise Stufe; Rot ist auf Ink als Schriftfarbe raus. */
+   ist der GRUND, `--about-fg` die Schrift darauf, Muted und stille Flaeche
+   sind Weiss-Stufen; Trennlinien gibt es keine. Nur was ein eigenes Objekt
+   ist (Remy, der Schluss), traegt die leise Stufe — keine Kapitel-Flaeche,
+   kein Papier: eine weisse Flaeche gibt es sonst nirgends auf der Seite. Rot
+   ist auf Ink als Schriftfarbe raus. */
 .page {
   --about-ink: var(--et-home-ink, #15120e);
   --about-fg: var(--et-home-inverse-text, #fff);
-  --about-red: var(--et-home-red, #d9382a);
   --about-accent: var(--et-home-accent, #ffc600);
   --about-paper: var(--et-home-paper, #fff);
   --about-quiet: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   --about-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   --about-text: rgba(255, 255, 255, 0.84);
-  --about-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   /* Fill exactly what .app-pages leaves us — it offsets the fixed navbar by
      64px below 768px and by a 74px margin above it. A plain 100dvh overshot
      that offset and left a strip of dead scroll under the footer. */
@@ -36,8 +36,8 @@
   /* .inner already carries the closing whitespace; a second block margin here
      stacked on top of it and left a dead band above the footer. */
   margin-inline: calc(50% - 50vw);
-  /* Sticky-footer: short filings (imprint, contact) used to end mid-page and
-     leave white paper below the ink band. */
+  /* Sticky footer: on a tall screen the page would otherwise end mid-way and
+     leave a strip of bare ground under the footer. */
   margin-top: auto;
 }
 
@@ -59,13 +59,15 @@
   display: grid;
   gap: clamp(28px, 4vw, 40px);
   align-items: center;
-  padding-bottom: clamp(34px, 5vw, 56px);
-  border-bottom: 1px solid var(--about-line);
 }
 
+/* The figure column is sized to the copy, not the other way round: at 320px
+   the portrait stood ~560 tall beside a title and one sentence, and the copy
+   floated in the middle of a lot of ink. Two lede paragraphs and a 290 figure
+   meet at roughly the same height. */
 @media (min-width: 900px) {
   .hero {
-    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-columns: minmax(0, 1fr) 300px;
     gap: clamp(40px, 5vw, 64px);
   }
 }
@@ -98,6 +100,19 @@
   text-wrap: pretty;
 }
 
+/* The second opening paragraph — who is speaking. Same face, one step
+   quieter, so the first sentence keeps the lead. */
+.ledeAside {
+  max-width: 34ch;
+  margin: clamp(12px, 1.6vw, 18px) 0 0;
+  color: var(--about-muted);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(17px, 1.5vw, 20px);
+  font-weight: 400;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
 /* One object, centred under nothing — the hero art is a single freigestellte
    figure now, so the absolutely-positioned stack that held a phone and two
    cards is gone with it. Kept as a box rather than a bare <img> so the column
@@ -112,7 +127,7 @@
    drop-shadow. A CSS shadow under a picture that already casts one reads as
    a printing error. */
 .heroFigure {
-  width: min(100%, 320px);
+  width: min(100%, 290px);
   height: auto;
 }
 
@@ -176,8 +191,32 @@
   scroll-margin-top: 96px;
 }
 
-.intro {
-  margin-top: clamp(30px, 4vw, 44px);
+/* The bridge between hero and first chapter. No rule above it any more: the
+   line under the portrait cut the intro in two, and the bridge is still the
+   intro — it reads on from the lede, one step quieter. */
+.bridge {
+  margin-top: clamp(34px, 5vw, 56px);
+}
+
+/* Two classes deep on purpose: `.oneLiner` resets its own margin further
+   down, and at equal weight the later rule would take the gap away again. */
+.bridge > :not(:first-child) {
+  margin-top: clamp(16px, 2vw, 22px);
+}
+
+/* The story's short turns, in the brand face and yellow — one line each, not
+   a headline: Providence 700 at a size just above the body copy. */
+.oneLiner {
+  /* No measure of its own: the point is one line. The column caps it. */
+  margin: 0;
+  color: var(--about-accent);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(19px, 1.8vw, 22px);
+  font-weight: 700;
+  letter-spacing: 0;
+  /* Nicht unter 1.2: darunter kappt Providence die Unterlaengen. */
+  line-height: 1.25;
+  text-wrap: balance;
 }
 
 .body {
@@ -236,8 +275,8 @@
   }
 }
 
-/* The taped red sticker stays — it is the one loud thing on the page and it
-   carries the founding line. */
+/* The taped yellow sticker stays — it is the one loud thing in the copy and
+   it carries the founding line. */
 .body blockquote {
   position: relative;
   width: min(100%, 20ch);
@@ -266,84 +305,13 @@
   transform: translateX(-50%) rotate(3deg);
 }
 
-/* ---------- the lifted chapter ----------
-
-   Every section in the right rail made the page even but monotonous — one
-   picture, one place, five times over. This one steps out of the ground
-   instead: a full-bleed band one step lighter than the page, roughly at the
-   middle of the read, carrying the section the whole collectible idea hangs
-   on. The text column keeps its position inside, so the spine survives the
-   change of ground. (Ink auf Ink waere unsichtbar gewesen.) */
-
-.band {
-  margin-top: clamp(56px, 8vw, 96px);
-  margin-inline: calc(50% - 50vw);
-  padding: clamp(44px, 6vw, 80px) clamp(18px, 4vw, 54px);
-  background: var(--about-quiet);
-  color: var(--about-paper);
-}
-
-.bandInner {
-  width: min(100%, 960px);
-  margin: 0 auto;
-}
-
-.bandGrid {
-  display: grid;
-  gap: clamp(24px, 3.4vw, 36px);
-  align-items: start;
-}
-
-@media (min-width: 900px) {
-  .bandGrid {
-    grid-template-columns: minmax(0, 60ch) 300px;
-    justify-content: space-between;
-    gap: clamp(40px, 5vw, 72px);
-  }
-
-  /* Spelled out rather than left to the shared `.flip`: this block sits later
-     in the file at the same specificity, so the plain rule would have quietly
-     won and the dark chapter alone would have stayed unmirrored. */
-  .bandGrid.flip {
-    grid-template-columns: 300px minmax(0, 60ch);
-  }
-}
-
-.band .sectionTitle {
-  color: var(--about-accent);
-}
-
-.band .body {
-  color: rgba(255, 255, 255, 0.76);
-}
-
-.band .body strong,
-.band .body b {
-  color: var(--about-paper);
-}
-
-.band .body a {
-  color: var(--about-accent);
-}
-
-.band .body a:focus-visible {
-  color: var(--about-paper);
-}
-
-@media (hover: hover) {
-  .band .body a:hover {
-    color: var(--about-paper);
-  }
-}
-
-.band .caption {
-  color: rgba(255, 255, 255, 0.6);
-}
-
 /* The pair. Two cards overlapping inside one rail measure — the back tucked
    left and low, the revealed one over it to the right and a little higher.
    The revealed card is the thing the section argues for, so it sits on top;
-   a dead-level, evenly-spaced pair read as two catalogue shots. */
+   a dead-level, evenly-spaced pair read as two catalogue shots.
+
+   No drop-shadow, like every object on the ink: a dark shadow disappears on
+   it, and the yellow card back is the brightest thing in its row anyway. */
 .pair {
   position: relative;
   width: var(--fig-w, 260px);
@@ -363,7 +331,6 @@
   width: 62%;
   height: auto;
   transform: rotate(var(--tilt, 0deg));
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
 .pairBack {
@@ -387,131 +354,10 @@
 
 /* ---------- Frag Remy ----------
 
-   Out of the ink band and back onto paper. Inside the dark chapter this was a
-   link tacked below a closed argument; as its own section it reads as what it
-   is — the one door on the page that leads somewhere before the closer. It
-   borrows the section grid so the text column stays on the same spine. */
-
-/* Eine eigene Fläche statt Text auf dem Grund. Vorher stand der Abschnitt als
-   nackter Stapel zwischen den Fließtext-Blöcken und las sich wie deren
-   Fortsetzung — obwohl er das Einzige auf der Seite ist, das etwas von einem
-   will. Die leise Stufe, wie Remy auf der Startseite: er ist ein Gegenüber,
-   kein Inhalt.
-
-   `overflow: hidden` ist tragend, nicht kosmetisch — Remys Illustration endet
-   unten mit einer harten, geraden Kante (es ist eine Büste). Frei schwebend
-   sah das nach einem Ladefehler aus. An der Panelkante angeschnitten liest es
-   sich, als lehnte er sich von unten herein. */
-.remySection {
-  position: relative;
-  display: grid;
-  gap: clamp(14px, 2vw, 20px);
+   The chat panel itself is RemyAskPanel, shared with the restaurant page; the
+   page only gives it its place on the spine. */
+.remy {
   margin-top: clamp(46px, 6.5vw, 84px);
-  padding: clamp(24px, 3.4vw, 40px) clamp(20px, 3vw, 40px);
-  padding-bottom: clamp(96px, 26vw, 120px);
-  overflow: hidden;
-  background: var(--about-quiet);
-  border-radius: var(--et-radius-panel, 10px);
-}
-
-/* Ab 900px nebeneinander: dann trägt die Spalte den Text, und Remy braucht
-   keinen reservierten Streifen mehr unter der Kopie. */
-@media (min-width: 900px) {
-  .remySection {
-    grid-template-columns: minmax(0, 58ch) 260px;
-    align-items: end;
-    justify-content: space-between;
-    gap: clamp(40px, 5vw, 72px);
-    padding-bottom: 0;
-  }
-}
-
-.remyCopy {
-  min-width: 0;
-}
-
-@media (min-width: 900px) {
-  .remyCopy {
-    padding-bottom: clamp(24px, 3.4vw, 40px);
-  }
-}
-
-.remyTitle {
-  margin: 0;
-  color: var(--about-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(26px, 3.2vw, 38px);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 0.98;
-  text-transform: uppercase;
-}
-
-.remyText {
-  max-width: 46ch;
-  margin: clamp(12px, 1.6vw, 16px) 0 0;
-  color: var(--about-text);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(16px, 1.15vw, 17.5px);
-  line-height: 1.65;
-  text-wrap: pretty;
-}
-
-/* A link, not a button: the yellow button at the foot of the page is the one
-   the reader is being pushed toward, and two filled buttons on one page split
-   that push in half. */
-.remyCta {
-  display: inline-block;
-  margin-top: clamp(14px, 1.8vw, 18px);
-  color: var(--about-accent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(17px, 1.5vw, 20px);
-  font-weight: 700;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-  text-transform: uppercase;
-  transition: color 140ms ease;
-}
-
-.remyCta:focus-visible {
-  color: var(--about-fg);
-}
-
-@media (hover: hover) {
-  .remyCta:hover {
-    color: var(--about-fg);
-  }
-}
-
-/* Alone in the rail now, and bigger for it — beside a phone he had to stay
-   small enough not to cover the screen, which left him looking like a
-   footnote to his own section. */
-.remyArt {
-  position: absolute;
-  right: clamp(10px, 3vw, 26px);
-  bottom: -14px;
-  display: block;
-  width: min(34vw, 132px);
-  height: auto;
-  transform: rotate(-3deg);
-  transform-origin: bottom center;
-  transition: transform 140ms ease;
-}
-
-@media (min-width: 900px) {
-  .remyArt {
-    position: static;
-    width: min(100%, 200px);
-    margin-inline: auto;
-    margin-bottom: -18px;
-  }
-}
-
-@media (hover: hover) {
-  .remySection:hover .remyArt {
-    transform: translateY(-6px) rotate(-5deg);
-  }
 }
 
 /* ---------- figures ---------- */
@@ -536,10 +382,9 @@
   /* Centred so the caption below has something to be centred *on*. Left-hung
      objects put the 185px card 57px off its own caption's axis. */
   margin-inline: auto;
+  /* No drop-shadow: on ink a dark shadow is invisible, and the objects read as
+     lifted by being the brightest thing in their row. */
   transform: rotate(var(--tilt, 0deg));
-  /* Overridable per figure: an object that was drawn with its own cast shadow
-     sets `--fig-shadow: none` rather than wearing a second one. */
-  filter: var(--fig-shadow, drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45)));
 }
 
 .caption {
@@ -555,6 +400,29 @@
   /* Measure still comes from the column, not the object: at the card's 185px
      a six-word caption breaks in two. Centred text, column-wide box. */
   text-wrap: balance;
+}
+
+/* ---------- coda ----------
+
+   The short sections after the last figure. They stood side by side for one
+   revision, and in half the column the mail address and everything around it
+   was cramped. Stacked on the text spine instead, with a section's air
+   between them — no rule: the page has no lines left. */
+
+.coda {
+  display: grid;
+  gap: clamp(40px, 5.5vw, 64px);
+  margin-top: clamp(46px, 6.5vw, 84px);
+}
+
+.codaSection {
+  min-width: 0;
+}
+
+/* The address is the one thing in the section you act on: never split across
+   a line break. */
+.codaSection a[href^='mailto:'] {
+  white-space: nowrap;
 }
 
 /* ---------- closer ---------- */
@@ -587,6 +455,7 @@
   }
 
   .cta .ctaTitle,
+  .cta .ctaQuote,
   .cta .ctaText {
     margin-inline: 0;
   }
@@ -629,14 +498,32 @@
   text-wrap: balance;
 }
 
+/* The wish from the sticker, quoted back. Its own line in Providence 700 and
+   white, so it reads as a quote and not as the start of the sentence after
+   it; the quotation marks are in the copy, not generated, so they stay
+   typographic per language („…“ / “…”). */
+.ctaQuote {
+  max-width: 30ch;
+  margin: clamp(14px, 1.8vw, 18px) 0 0;
+  color: var(--about-fg);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(19px, 1.9vw, 24px);
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+/* In the brand face like the lede — the closer speaks in the page's voice,
+   not in body copy. 400, because 700 at this length shouts. */
 .ctaText {
-  max-width: 46ch;
+  max-width: 36ch;
   text-wrap: pretty;
-  margin: clamp(12px, 1.6vw, 16px) 0 0;
-  color: rgba(255, 255, 255, 0.78);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
-  font-size: clamp(15px, 1.1vw, 17px);
-  line-height: 1.55;
+  margin: clamp(8px, 1vw, 12px) 0 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(18px, 1.7vw, 22px);
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 .ctaRow {

@@ -3,6 +3,7 @@ import Image from '@/app/components/SiteImage';
 import { Link } from '@/i18n/navigation';
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
+import RemyAskPanel from './RemyAskPanel';
 import SiteFooter from './SiteFooter';
 import styles from './AboutPage.module.css';
 
@@ -34,13 +35,8 @@ type Figure = {
    *  plate's width it shouted down the section it belongs to. */
   renderWidth: number;
   tilt: number;
-  /** Objects that arrive with their own cast shadow opt out of the CSS one —
-   *  two shadows on one picture reads as a printing error. */
-  shadow?: false;
-  /** `rail` hangs the object in the right column beside the copy. `band`
-   *  takes the section out of the white page entirely — full-bleed ink, one
-   *  dark chapter in the middle of the read. */
-  layout: 'rail' | 'band';
+  /** Remy's panel follows this section — see COPY. */
+  remyAfter?: true;
   caption: { de: string; en: string };
   alt: { de: string; en: string };
 };
@@ -49,9 +45,10 @@ type Figure = {
    and its headings get rewritten, so matching on heading text would break the
    first time a word changes. Order is the stable part.
 
-   Still shorter than the section list: the closing "write to us" section
-   carries no picture. A figure per paragraph turned the page into a contact
-   sheet. */
+   Shorter than the section list on purpose: whatever follows the last figure
+   ("Berlin ist der Anfang", "Schreib mir") is gathered into the coda instead
+   of getting a picture each. A figure per paragraph turned the page into a
+   contact sheet. */
 const FIGURES: (Figure | null)[] = [
   {
     src: '/pics/home-phones/phone-map-ink-600.webp',
@@ -61,7 +58,6 @@ const FIGURES: (Figure | null)[] = [
     // past the copy beside it.
     renderWidth: 225,
     tilt: -2,
-    layout: 'rail',
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
       de: 'Die Eat-This-App zeigt Berliner Spots als gelbe Pins auf der Karte',
@@ -74,7 +70,6 @@ const FIGURES: (Figure | null)[] = [
     height: 856,
     renderWidth: 290,
     tilt: 1.5,
-    layout: 'rail',
     caption: { de: 'Galette bei Bubar.', en: 'Galette at Bubar.' },
     alt: {
       de: 'Eine Buchweizen-Galette mit Eigelb auf einem Pappteller',
@@ -89,12 +84,12 @@ const FIGURES: (Figure | null)[] = [
     width: 760,
     height: 1044,
     partner: { src: '/pics/card-front.webp?v=3', width: 760, height: 1044, tilt: 7 },
-    // The pair spans the rail; each card lands near 62% of it. On the dark
-    // ground the cards are the brightest thing on the page, and brightness
-    // reads as size — hence narrower than the plate on white.
+    // The pair spans the rail; each card lands near 62% of it. Two overlapping
+    // cards carry more weight than one plate, hence narrower than the 290 the
+    // galette gets.
     renderWidth: 260,
     tilt: -8,
-    layout: 'band',
+    remyAfter: true,
     caption: {
       de: 'Manche liegen offen, manche verdeckt.',
       en: 'Some lie face up, some face down.',
@@ -106,28 +101,48 @@ const FIGURES: (Figure | null)[] = [
   },
 ];
 
-/* Remy follows the dark chapter, because the last paragraph of that section is
-   already about him — "frag einfach Remy". He was named once
-   in passing and never reachable; now the sentence has a door next to it.
-   The page speaks as Eat This, not as one person, so this does too. */
+/* Remy follows the card chapter, because the last paragraph of that section
+   is already about him — "frag einfach Remy". He used to get a title "Frag
+   Remy" and a link "Remy fragen" under it: the same two words twice, and a
+   door that led off the page to the home hub. Now the chat starts right here.
+   The first chip is the question the page itself opens with.
+   The Sanity copy speaks in the first person; these lines describe the app,
+   not the person, so they stay out of the "ich". */
 const COPY = {
   de: {
-    remyTitle: 'Frag Remy',
-    remyText: 'Remy kennt jeden Spot auf der Map. Sag ihm, worauf du Lust hast.',
-    remyCta: 'Remy fragen',
+    remyTitle: ['Keine Idee?', 'Frag Remy.'] as [string, string],
+    remyLead: 'Remy kennt jeden Spot auf der Map. Sag ihm, worauf du Lust hast.',
+    remyChips: [
+      'Wo gehen wir heute essen?',
+      'Ein Hidden Place in Neukölln?',
+      'Schönes Dinner für zwei',
+    ],
+    remyPlaceholder: 'Worauf hast du Lust?',
     ctaTitle: 'Hungrig geworden?',
-    ctaText: 'Die Map kennt über hundert Spots in Berlin. Such dir einen aus.',
-    ctaMap: 'Zur Berlin Food Map',
+    /* Closes the loop the sticker opened: the page ends on the wish it
+       started from, quoted as the wish it was, then what the map does with it.
+       „Über 400" rather than the exact count (464 live on 25.09.2026): a
+       floor stays true while the map grows, a number would be stale by the
+       next import. */
+    ctaQuote: '„Geh hierhin, das ist gut, und es ist um die Ecke.“',
+    ctaText: 'Genau das sagt dir jetzt die Map – für über\u00a0400 handverlesene Spots in Berlin.',
+    ctaMap: 'Zur Map',
   },
   en: {
-    remyTitle: 'Ask Remy',
-    remyText: "Remy knows every spot on the map. Tell him what you're in the mood for.",
-    remyCta: 'Ask Remy',
+    remyTitle: ['No idea?', 'Ask Remy.'] as [string, string],
+    remyLead: "Remy knows every spot on the map. Tell him what you're in the mood for.",
+    remyChips: [
+      'Where should we eat today?',
+      'A hidden place in Neukölln?',
+      'A nice dinner for two',
+    ],
+    remyPlaceholder: 'What are you in the mood for?',
     ctaTitle: 'Hungry yet?',
-    ctaText: 'The map holds a hundred-plus spots in Berlin. Go pick one.',
-    ctaMap: 'Open the Berlin food map',
+    ctaQuote: '“Go here, it’s good, and it’s around the corner.”',
+    ctaText: 'That’s what the map tells you now – for over\u00a0400 hand-picked spots in Berlin.',
+    ctaMap: 'Open map',
   },
-} as const;
+};
 
 function blockText(block: Block): string {
   return (block.children ?? []).map((c) => c.text ?? '').join('');
@@ -138,7 +153,48 @@ function isHeading(block: PortableTextBlock): boolean {
   return b._type === 'block' && !b.listItem && (b.style === 'h2' || b.style === 'h3');
 }
 
-/** Everything before the first heading is the lede; each heading opens a
+function isPlainParagraph(block: PortableTextBlock | undefined): boolean {
+  if (!block) return false;
+  const b = block as Block;
+  return b._type === 'block' && !b.listItem && (b.style ?? 'normal') === 'normal';
+}
+
+/* The opening paragraphs that belong to the hero, beside the person. Two, by
+   order like the figures: the first says why the page exists, the second who
+   is speaking — and the second used to fall under the hero rule as small body
+   copy, a line away from the picture it describes. */
+const LEDE_PARAGRAPHS = 2;
+
+/* A short plain paragraph in the intro is a line, not a paragraph — "Das
+   Problem ist, den Überblick zu behalten." Set as body copy it drowned under
+   the long paragraph before it; set in the brand face it carries the story's
+   turn. Length is the only signal the copy gives: Sanity has no style for
+   it, and the lines move when the text does. */
+const ONE_LINER_MAX = 60;
+
+function isOneLiner(block: PortableTextBlock): boolean {
+  return isPlainParagraph(block) && blockText(block as Block).length <= ONE_LINER_MAX;
+}
+
+type BridgePart = { line: string } | { blocks: PortableTextBlock[] };
+
+/** Runs of body paragraphs stay together for the renderer; each one-liner
+ *  breaks out on its own. */
+function splitBridge(blocks: PortableTextBlock[]): BridgePart[] {
+  const parts: BridgePart[] = [];
+  for (const block of blocks) {
+    if (isOneLiner(block)) {
+      parts.push({ line: blockText(block as Block) });
+      continue;
+    }
+    const last = parts.at(-1);
+    if (last && 'blocks' in last) last.blocks.push(block);
+    else parts.push({ blocks: [block] });
+  }
+  return parts;
+}
+
+/** Everything before the first heading is the intro; each heading opens a
  *  section that runs until the next one. */
 function splitSections(blocks: PortableTextBlock[]) {
   const intro: PortableTextBlock[] = [];
@@ -158,9 +214,13 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
   const de = locale === 'de';
   const copy = de ? COPY.de : COPY.en;
   const { intro, sections } = splitSections(doc.body ?? []);
-  const [lede, ...restIntro] = intro;
-  const ledeText = lede && (lede as Block).style !== 'blockquote' ? blockText(lede as Block) : '';
-  const introRest = ledeText ? restIntro : intro;
+  let ledeCount = 0;
+  while (ledeCount < LEDE_PARAGRAPHS && isPlainParagraph(intro[ledeCount])) ledeCount += 1;
+  const ledes = intro.slice(0, ledeCount).map((block) => blockText(block as Block));
+  // The rest of the intro bridges into the first chapter.
+  const bridge = splitBridge(intro.slice(ledeCount));
+  const story = sections.slice(0, FIGURES.length);
+  const coda = sections.slice(FIGURES.length);
 
   return (
     <main className={styles.page} data-page="about" id="staticPageAbout">
@@ -174,7 +234,11 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
             <h1 className={styles.title} id="staticPageAbout-title">
               {doc.title || ''}
             </h1>
-            {ledeText && <p className={styles.lede}>{ledeText}</p>}
+            {ledes.map((text, index) => (
+              <p key={index} className={index === 0 ? styles.lede : styles.ledeAside}>
+                {text}
+              </p>
+            ))}
           </div>
 
           {/* The page speaks in the first person; this is that person as an
@@ -201,23 +265,33 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               }
               width={760}
               height={1327}
-              sizes="(min-width: 900px) 320px, 62vw"
+              sizes="(min-width: 900px) 290px, 62vw"
               priority
               className={styles.heroFigure}
             />
           </div>
         </header>
 
-        {introRest.length > 0 && (
-          <div className={`${styles.body} ${styles.intro}`}>
-            <PortableTextRenderer blocks={introRest} />
+        {bridge.length > 0 && (
+          <div className={styles.bridge}>
+            {bridge.map((part, index) =>
+              'line' in part ? (
+                <p key={index} className={styles.oneLiner}>
+                  {part.line}
+                </p>
+              ) : (
+                <div key={index} className={styles.body}>
+                  <PortableTextRenderer blocks={part.blocks} />
+                </div>
+              )
+            )}
           </div>
         )}
 
-        {sections.map((section, index) => {
+        {story.map((section, index) => {
           const figure = FIGURES[index] ?? null;
           /* Sides alternate down the page: masthead right, then left, right,
-             left, and the closer left again. Five figures all hanging in the
+             left, Remy right, the closer left. Every figure hanging in the
              same rail was even and, by the third one, wallpaper.
 
              Only sections that actually carry a figure flip — moving the text
@@ -226,25 +300,48 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
              the copy stays first in the DOM so the single-column stack and
              the reading order never zigzag. */
           const flipped = Boolean(figure) && index % 2 === 0;
-          const body = (
-            <>
-              <div className={styles.sectionCopy}>
-                <h2 className={styles.sectionTitle}>{section.title}</h2>
-                <div className={styles.body}>
-                  <PortableTextRenderer blocks={section.blocks} />
+          return (
+            <Fragment key={section.title || index}>
+              <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}>
+                <div className={styles.sectionCopy}>
+                  <h2 className={styles.sectionTitle}>{section.title}</h2>
+                  <div className={styles.body}>
+                    <PortableTextRenderer blocks={section.blocks} />
+                  </div>
                 </div>
-              </div>
 
-              {figure && (
-                <figure
-                  className={styles.figure}
-                  style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
-                >
-                  {figure.partner ? (
-                    /* Two objects, one measure. They overlap on purpose: a
-                       pair set side by side with a gap reads as two products
-                       in a catalogue, not as one deck you are holding. */
-                    <div className={styles.pair}>
+                {figure && (
+                  <figure
+                    className={styles.figure}
+                    style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
+                  >
+                    {figure.partner ? (
+                      /* Two objects, one measure. They overlap on purpose: a
+                         pair set side by side with a gap reads as two products
+                         in a catalogue, not as one deck you are holding. */
+                      <div className={styles.pair}>
+                        <Image
+                          src={figure.src}
+                          alt={de ? figure.alt.de : figure.alt.en}
+                          width={figure.width}
+                          height={figure.height}
+                          sizes={`${figure.renderWidth}px`}
+                          loading="lazy"
+                          className={styles.pairBack}
+                          style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
+                        />
+                        <Image
+                          src={figure.partner.src}
+                          alt=""
+                          width={figure.partner.width}
+                          height={figure.partner.height}
+                          sizes={`${figure.renderWidth}px`}
+                          loading="lazy"
+                          className={styles.pairFront}
+                          style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
+                        />
+                      </div>
+                    ) : (
                       <Image
                         src={figure.src}
                         alt={de ? figure.alt.de : figure.alt.en}
@@ -252,102 +349,55 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                         height={figure.height}
                         sizes={`${figure.renderWidth}px`}
                         loading="lazy"
-                        className={styles.pairBack}
+                        className={styles.figureImg}
                         style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
                       />
-                      <Image
-                        src={figure.partner.src}
-                        alt=""
-                        width={figure.partner.width}
-                        height={figure.partner.height}
-                        sizes={`${figure.renderWidth}px`}
-                        loading="lazy"
-                        className={styles.pairFront}
-                        style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
-                      />
-                    </div>
-                  ) : (
-                    <Image
-                      src={figure.src}
-                      alt={de ? figure.alt.de : figure.alt.en}
-                      width={figure.width}
-                      height={figure.height}
-                      sizes={`${figure.renderWidth}px`}
-                      loading="lazy"
-                      className={styles.figureImg}
-                      style={
-                        {
-                          '--tilt': `${figure.tilt}deg`,
-                          ...(figure.shadow === false ? { '--fig-shadow': 'none' } : null),
-                        } as CSSProperties
-                      }
-                    />
-                  )}
-                  <figcaption className={styles.caption}>
-                    {de ? figure.caption.de : figure.caption.en}
-                  </figcaption>
-                </figure>
+                    )}
+                    <figcaption className={styles.caption}>
+                      {de ? figure.caption.de : figure.caption.en}
+                    </figcaption>
+                  </figure>
+                )}
+              </section>
+
+              {/* Remy used to be tacked under the card argument, inside the
+                  same section; a door out of the page does not belong at the
+                  bottom of a closed room. It follows immediately after, as
+                  its own panel. */}
+              {figure?.remyAfter && (
+                <RemyAskPanel
+                  locale={locale}
+                  className={styles.remy}
+                  titleLines={copy.remyTitle}
+                  lead={copy.remyLead}
+                  chips={copy.remyChips}
+                  placeholder={copy.remyPlaceholder}
+                />
               )}
-            </>
-          );
-
-          if (figure?.layout === 'band') {
-            return (
-              /* The dark chapter holds the card argument and nothing else.
-                 Remy used to be tacked under it, inside the ink; a door out
-                 of the page does not belong at the bottom of a closed room.
-                 It follows immediately after, back on paper. */
-              <Fragment key={section.title || index}>
-                <section className={styles.band}>
-                  <div className={styles.bandInner}>
-                    <div className={`${styles.bandGrid}${flipped ? ` ${styles.flip}` : ''}`}>
-                      {body}
-                    </div>
-                  </div>
-                </section>
-
-                <section className={styles.remySection}>
-                  <div className={styles.remyCopy}>
-                    <h2 className={styles.remyTitle}>{copy.remyTitle}</h2>
-                    <p className={styles.remyText}>{copy.remyText}</p>
-                    <Link href="/#hub-fragremy" className={styles.remyCta}>
-                      {copy.remyCta}
-                    </Link>
-                  </div>
-
-                  {/* Remy on his own. He shared this column with a phone for
-                      one revision and lost: at any size that let the screen be
-                      read, he ended up standing on top of the very spot he is
-                      supposed to be handing you. The phone closes the page
-                      instead, where it has room. */}
-                  <Image
-                    src="/buddy/buddy-smile.webp"
-                    alt=""
-                    width={791}
-                    height={876}
-                    sizes="170px"
-                    loading="lazy"
-                    className={styles.remyArt}
-                  />
-                </section>
-              </Fragment>
-            );
-          }
-
-          return (
-            <section
-              key={section.title || index}
-              className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}
-            >
-              {body}
-            </section>
+            </Fragment>
           );
         })}
 
-        {/* The one object on this page that hangs left. Everything above it
-            sits in the right rail, which is even and, five figures in, dull;
-            the text column cannot move without breaking the spine, so the
-            closer moves instead.
+        {/* The coda: the short, picture-less sections after the last figure.
+            Stacked one under the other they ran as a wall of text straight
+            into the closer, and the page lost its pace right at the end. Side
+            by side they read as what they are — two short notes, not two more
+            chapters. The copy still decides how many there are. */}
+        {coda.length > 0 && (
+          <div className={styles.coda}>
+            {coda.map((section, index) => (
+              <section key={section.title || index} className={styles.codaSection}>
+                <h2 className={styles.sectionTitle}>{section.title}</h2>
+                <div className={styles.body}>
+                  <PortableTextRenderer blocks={section.blocks} />
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+
+        {/* Object left, copy right — the last beat of the alternation, after
+            Remy's panel hung right.
 
             A booster pack was tried here once and pulled the eye away — it is
             something you buy, sitting next to a button that leads to a free
@@ -371,6 +421,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               ohne eigenen Stil. */}
           <div>
             <h2 className={styles.ctaTitle}>{copy.ctaTitle}</h2>
+            <blockquote className={styles.ctaQuote}>{copy.ctaQuote}</blockquote>
             <p className={styles.ctaText}>{copy.ctaText}</p>
             <div className={styles.ctaRow}>
               <Link href="/map" className={styles.ctaPrimary}>

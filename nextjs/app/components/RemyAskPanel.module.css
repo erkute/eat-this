@@ -1,6 +1,6 @@
 /* "Frag Remy" als Chat-Einstieg — geteilt von der Restaurant- und der
    Über-uns-Seite. Dieselbe Tafel wie die Bühne auf der Startseite:
-   leise Fläche mit Radius, weiße Versalien, Fragen als Ringe, ein gelber
+   leise Fläche mit Radius, weiße Versalien, Fragen als Flächen, ein gelber
    Senden-Knopf. Breite und Abstand nach außen bestimmt die Seite über
    `className` — hier steht nur die Tafel selbst. */
 
@@ -12,7 +12,7 @@
   --remy-paper: #fff;
   --remy-accent: var(--et-home-accent, #ffc600);
   --remy-soft: rgba(255, 255, 255, 0.76);
-  --remy-ring: rgba(255, 255, 255, 0.28);
+  --remy-chip: rgba(255, 255, 255, 0.09);
 
   position: relative;
   isolation: isolate;
@@ -86,33 +86,31 @@
   gap: 8px;
 }
 
-/* Ringe, wie der Standort-Chip im Must-Eat-Sheet: weißer 28-%-Rand, bei
-   Hover gelb. */
+/* Fläche statt Ring, wie die Chips und Knöpfe der Hub- und Spot-Seiten
+   (Bedienelemente als Fläche, nicht als Kontur). Bis 25.09.2026 trugen die
+   Fragen einen weißen 28-%-Rand — „remy hat rahmen": neben den flächigen
+   Knöpfen der neuen Spot-Seite waren sie die einzigen Konturen. Eine Stufe
+   heller als die Tafel, bei Hover gelb mit Ink wie „Alle" in den Regalen. */
 .chip {
   appearance: none;
-  border: 2px solid var(--remy-ring);
+  border: 0;
   border-radius: var(--et-radius-control, 999px);
-  background: transparent;
+  background: var(--remy-chip);
   color: var(--remy-paper);
   font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-weight: 700;
   font-size: 14px;
-  padding: 9px 15px;
+  padding: 11px 17px;
   cursor: pointer;
   transition:
     background-color 120ms ease,
     color 120ms ease;
 }
 
-.chip:focus-visible {
-  border-color: var(--remy-accent);
-  color: var(--remy-accent);
-}
-
 @media (hover: hover) {
   .chip:hover {
-    border-color: var(--remy-accent);
-    color: var(--remy-accent);
+    background: var(--remy-accent);
+    color: var(--remy-ink);
   }
 }
 

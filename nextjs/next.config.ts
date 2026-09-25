@@ -81,16 +81,22 @@ const nextConfig: NextConfig = {
     // in `headers()`. Der Optimierer erbt deren Spanne und nimmt diesen Wert
     // als Untergrenze: ein Tag, statt bei jedem Abruf neu zu rechnen.
     minimumCacheTTL: 86400,
-    // Local assets receive real responsive variants. Sanity URLs are valid
-    // remote sources and are cached by the same optimizer; raw <img> call
-    // sites use sanityImageLoader directly.
+    // Sanity-Bilder gehen direkt an die Sanity-CDN (app/components/SiteImage.tsx
+    // setzt für sie `sanityNextImageLoader`), nur eigene Bilder laufen über den
+    // Optimierer. Gemessen am 25.09.2026 (Standalone-Build, lokal): 510
+    // Sanity-Varianten über den Optimierer kosteten +95 MiB Prozessspeicher,
+    // die auch im Leerlauf blieben, und 30 MiB Bild-Cache — auf Cloud Run
+    // beides RAM. Mit ~550 MiB Last-RSS und neu geschriebenen ISR-Seiten ergab
+    // das den 1-GiB-Überlauf vom 25.09. Kein globaler `loaderFile`: der schaltet
+    // `/_next/image` ganz ab. Kein `remotePatterns` mehr: der Optimierer nimmt
+    // keine Sanity-URL an, also kann niemand die Instanz als Verkleinerer
+    // für sie benutzen.
     // Local next/image assets live below /pics and /buddy. The checkout logo
     // set is gone from here on purpose: the payment marks are inline SVG now
     // (app/components/PaymentMarks.tsx), which the optimizer never sees.
     // Omitting `search` keeps cache-bust queries such as card-back.webp?v=6
     // valid.
     localPatterns: [{ pathname: '/pics/**' }, { pathname: '/buddy/**' }],
-    remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }],
   },
 
   async headers() {

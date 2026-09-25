@@ -6,8 +6,8 @@
 // and lets next/image build a real responsive `srcset` against the same
 // CDN that other images already hit.
 //
-// Use this only for raw Sanity <img> call sites. next/image keeps its default
-// optimizer so local browser assets receive real responsive variants too.
+// Direkt benutzt von den rohen Sanity-<img>-Stellen. next/image kommt über
+// lib/imageLoader.ts hierher, der eigene Bilder weiter an den Optimierer gibt.
 
 const DEFAULT_QUALITY = 80;
 

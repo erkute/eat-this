@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
 import {
   getRestaurantPageData,

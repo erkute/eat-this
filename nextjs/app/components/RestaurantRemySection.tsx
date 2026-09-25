@@ -14,7 +14,7 @@
 // der Nutzer gerade liest — ohne Rückfrage.
 
 import { useState } from 'react';
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import { preloadBuddyWidget } from '@/app/components/buddy/RemyDock';
 import styles from './RestaurantRemySection.module.css';

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
 import {

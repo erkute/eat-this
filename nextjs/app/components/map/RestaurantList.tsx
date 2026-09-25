@@ -85,7 +85,7 @@ const Item = memo(
     // Warm the on-demand detail fields once a card scrolls near the viewport —
     // by the time the user taps it, the story text is already cached and the
     // detail opens complete (no skeleton).
-    const cardRef = useRef<HTMLButtonElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
     /* The photo starts loading well before the card reaches the screen.
        Native lazy-loading waits until an image is almost in view — in Safari
        especially close — so on a normal scroll every card arrived empty and
@@ -151,11 +151,21 @@ const Item = memo(
     });
 
     return (
-      <button
+      /* Ein div mit Knopf-Rolle statt <button>: im Knopf liegt der
+         Foto-Streifen, und ein Scroll-Bereich gehört nicht in einen <button>.
+         Enter und Leertaste ersetzen, was der Knopf von selbst konnte. */
+      <div
         ref={cardRef}
-        type="button"
+        role="button"
+        tabIndex={0}
         className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''}`}
         onClick={() => onClick(restaurant)}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          event.preventDefault();
+          onClick(restaurant);
+        }}
       >
         {/* Real <img> instead of a CSS background so the browser can natively
           lazy-load off-screen card photos (backgrounds always fetch eagerly). */}
@@ -247,7 +257,7 @@ const Item = memo(
             )}
           </p>
         </div>
-      </button>
+      </div>
     );
   },
   (prev, next) =>

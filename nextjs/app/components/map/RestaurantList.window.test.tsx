@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
@@ -199,5 +199,22 @@ describe('RestaurantList card photos', () => {
     const second = container.querySelectorAll<HTMLElement>('[data-list-row]')[1];
     expect(second.querySelectorAll('img')).toHaveLength(1);
     expect(second.querySelector('[class*=rcardDots]')).toBeNull();
+  });
+});
+
+describe('RestaurantList card', () => {
+  /* Die Karte ist ein div mit Knopf-Rolle, weil der Foto-Streifen in ihr
+     liegt — Tastatur und Klick müssen trotzdem gehen wie beim Knopf. */
+  it('opens the spot on click, Enter and Space', () => {
+    const onSelect = vi.fn();
+    render(list({ restaurants: spots(1), onSelect }));
+    const card = screen.getByRole('button');
+
+    expect(card.getAttribute('tabindex')).toBe('0');
+    fireEvent.click(card);
+    fireEvent.keyDown(card, { key: 'Enter' });
+    fireEvent.keyDown(card, { key: ' ' });
+    fireEvent.keyDown(card, { key: 'a' });
+    expect(onSelect).toHaveBeenCalledTimes(3);
   });
 });

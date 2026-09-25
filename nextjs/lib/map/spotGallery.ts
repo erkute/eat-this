@@ -22,7 +22,7 @@ export function spotGallery(
   const add = (img: RestaurantGalleryImage | null, trusted: boolean) => {
     if (!img?.thumb || !img.full) return;
     if (!trusted && !hasLinkedCredit(img)) return;
-    const key = img.full.split('?')[0];
+    const key = photoAssetKey(img.full);
     if (seen.has(key)) return;
     seen.add(key);
     images.push(img);
@@ -34,4 +34,28 @@ export function spotGallery(
 
 function hasLinkedCredit(img: Pick<RestaurantGalleryImage, 'credit' | 'creditUrl'>) {
   return !!img.credit?.trim() && !!safeHttpUrl(img.creditUrl);
+}
+
+/* Dasselbe Asset kommt mit verschiedenen Bild-Parametern (Karte, Detail,
+   Galerie) — verglichen wird ohne Query. */
+function photoAssetKey(url: string) {
+  return url.split('?')[0];
+}
+
+/* Welches Foto eines Spots zuletzt zu sehen war, über Liste und Detail
+   hinweg: wer in der Liste auf Foto 3 wischt und tippt, landet im Detail auf
+   Foto 3, und zurück in der Liste steht die Karte auf dem Foto, auf dem man
+   das Detail verlassen hat. Gemerkt wird das Asset, nicht die Nummer — die
+   Liste zeigt ihr Titelbild auch ohne Credit, das Detail nicht, die Nummern
+   können also auseinanderliegen. Nur für die Sitzung, pro Slug. */
+const lastPhoto = new Map<string, string>();
+
+export function rememberSpotPhoto(slug: string, photo: RestaurantGalleryImage | undefined) {
+  if (photo) lastPhoto.set(slug, photoAssetKey(photo.full));
+}
+
+export function rememberedSpotPhotoIndex(slug: string, photos: RestaurantGalleryImage[]): number {
+  const key = lastPhoto.get(slug);
+  if (!key) return 0;
+  return Math.max(0, photos.findIndex((img) => photoAssetKey(img.full) === key));
 }

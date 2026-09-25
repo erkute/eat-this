@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import RestaurantGalleryLightbox from './RestaurantGalleryLightbox';
 import { usePhotoRail } from './usePhotoRail';
+import { rememberedSpotPhotoIndex, rememberSpotPhoto } from '@/lib/map/spotGallery';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { useTranslation } from '@/lib/i18n';
 import { spotPhotoSrc, spotPhotoSrcSet } from '@/lib/map/spotPhoto';
@@ -14,21 +15,27 @@ const SWIPE_HINT_MAX_PLAYS = 3;
 interface Props {
   images: RestaurantGalleryImage[];
   restaurantName: string;
+  slug: string;
 }
 
 /* Blättern wie bei Instagram und Google Maps — die Mechanik steht in
    usePhotoRail, dieselbe wie auf der Listenkarte. Der Parent setzt `key` pro
    Restaurant, damit jeder Spot bei Foto 1 beginnt. */
-export default function RestaurantGallery({ images, restaurantName }: Props) {
+export default function RestaurantGallery({ images, restaurantName, slug }: Props) {
   const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const usable = images.filter((img) => img.thumb && img.full);
   const multiple = usable.length > 1;
-  const { railRef, page, scrollToPage, handlers } = usePhotoRail(usable.length, (next) => {
-    if (next > 0) {
-      setSwipeHint(false);
-      writeHint(SWIPE_HINT_DONE);
-    }
+  const { railRef, page, scrollToPage, handlers } = usePhotoRail(usable.length, {
+    // Das Foto, das zuletzt in der Liste (oder hier) zu sehen war.
+    startPage: rememberedSpotPhotoIndex(slug, usable),
+    onPage: (next) => {
+      rememberSpotPhoto(slug, usable[next]);
+      if (next > 0) {
+        setSwipeHint(false);
+        writeHint(SWIPE_HINT_DONE);
+      }
+    },
   });
 
   /* Wisch-Hinweis: kurz nach dem Öffnen rutschen die Fotos ein Stück nach

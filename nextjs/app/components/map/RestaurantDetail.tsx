@@ -277,7 +277,12 @@ export default function RestaurantDetail({
       <div className={styles.detailV13Scroll} data-detail-scroll>
         {/* HERO — full-bleed photo, save bookmark, name. */}
         <header className={styles.rdHero} data-detail-hero style={heroStyle}>
-          <RestaurantGallery key={r._id} images={galleryImages} restaurantName={displayName} />
+          <RestaurantGallery
+            key={r._id}
+            images={galleryImages}
+            restaurantName={displayName}
+            slug={r.slug}
+          />
           <button
             type="button"
             className={styles.rdCloseGlass}

@@ -17,7 +17,7 @@ import {
   prefetchRestaurantDetail,
   useCachedRestaurantDetail,
 } from '@/lib/map/useRestaurantDetail';
-import { spotGallery } from '@/lib/map/spotGallery';
+import { rememberedSpotPhotoIndex, rememberSpotPhoto, spotGallery } from '@/lib/map/spotGallery';
 import { DAY_LABELS } from '@/lib/map/openingHours';
 import MapListEmpty from './MapListEmpty';
 import { usePhotoRail } from './usePhotoRail';
@@ -143,7 +143,12 @@ const Item = memo(
         ),
       [restaurant.photo, detail?.gallery]
     );
-    const { railRef, page, handlers } = usePhotoRail(photos.length);
+    const { railRef, page, handlers } = usePhotoRail(photos.length, {
+      // Zurück aus dem Detail steht die Karte auf dem Foto, das dort zuletzt
+      // zu sehen war — und das Detail öffnet auf dem aus der Liste.
+      startPage: rememberedSpotPhotoIndex(restaurant.slug, photos),
+      onPage: (next) => rememberSpotPhoto(restaurant.slug, photos[next]),
+    });
 
     return (
       <button

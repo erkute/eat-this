@@ -1,28 +1,40 @@
 /* Internes Zahlenbrett im Stil eines Analytics-Werkzeugs: Seitenleiste mit
- * Berichten, Kopfzeile mit Zeitraum, darunter Kacheln und Karten auf einer
- * ruhigen Fläche. Marke nur in der Leiste (Providence, Ink, Gelb) — darunter
- * zählt Lesbarkeit: Systemschrift, viel Weiß, tabellarische Ziffern.
- * Light-only wie die ganze App, kein prefers-color-scheme. */
+ * Berichten, Kopfzeile mit Zeitraum, darunter Kacheln und Karten.
+ *
+ * Seit 25.09.2026 in der Sprache der Seite: Ink-Grund, Providence durchweg,
+ * Gelb als einziger Akzent. Keine Rahmen — Karten heben sich per Fläche ab
+ * (--et-ink-raised), was IN einer Karte ein eigenes Feld ist, eine Stufe
+ * heller darüber (--et-ink-quiet). Haarlinien nur noch dort, wo sie Daten
+ * lesbar machen: Diagrammraster und Tabellenzeilen.
+ *
+ * Die Farbnamen unten sind Rollen: --ink ist die SCHRIFT, --ground der Grund.
+ * Light-only gilt weiter für die App — das hier ist kein Dark Mode, sondern
+ * dieselbe Ink-Fläche wie auf jeder Inhaltsseite. */
 
 .app {
-  --ink: #15120e;
-  --paper: #fff;
-  --ground: #f4f2ee;
-  --hair: #e6e2db;
-  --muted: #6b655d;
-  --faint: #9a938a;
-  --yellow: #ffc600;
-  --yellow-soft: #fff1b8;
-  --red: #d9382a;
-  --green: #1e7f4f;
-  --blue: #2b5fd9;
+  --ground: var(--et-home-ink, #15120e);
+  --raised: var(--et-ink-raised, #25231f);
+  --quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  --ink: var(--et-home-inverse-text, #fff);
+  --on-accent: var(--et-home-ink, #15120e);
+  --muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --faint: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  --hair: rgba(255, 255, 255, 0.08);
+  --field: #f7f5f1;
+  --yellow: var(--et-home-accent, #ffc600);
+  /* Auf Ink gemessen: das alte Rot #d9382a und Grün #1e7f4f lagen unter 3:1.
+     Grün wie im Remy-Chat („Offen"), Rot und Blau auf dieselbe Helligkeit. */
+  --red: #ff7a6b;
+  --green: #6fcf8b;
+  --blue: #8fb0ff;
+  --display: var(--font-providence), sans-serif;
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-columns: 236px minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--ground);
   color: var(--ink);
-  font-family: var(--font), sans-serif;
-  font-size: 14px;
+  font-family: var(--display);
+  font-size: 15px;
 }
 
 /* ── Seitenleiste ─────────────────────────────────────────────────────── */
@@ -34,16 +46,14 @@
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--paper);
-  border-right: 1px solid var(--hair);
+  background: var(--ground);
 }
 
 .brand {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 20px 20px 14px;
-  border-bottom: 1px solid var(--hair);
+  align-items: center;
+  gap: 10px;
+  padding: 22px 22px 12px;
 }
 
 .brandMark {
@@ -51,14 +61,14 @@
   height: 10px;
   background: var(--yellow);
   flex: none;
-  transform: translateY(-2px);
 }
 
 .brandName {
   margin: 0;
-  font-family: var(--font-providence), var(--font), sans-serif;
-  font-size: 26px;
+  font-family: var(--display);
+  font-size: 28px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   /* Großzügig, damit Providence die Unterlängen behält. */
   line-height: 1.32;
@@ -68,17 +78,17 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 10px 10px;
+  padding: 6px 12px 12px;
   overflow-y: auto;
 }
 
 .navGroup {
-  margin: 12px 10px 4px;
+  margin: 14px 10px 6px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--faint);
+  color: var(--yellow);
 }
 
 .navItem,
@@ -87,41 +97,47 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 8px 10px 8px 14px;
+  padding: 9px 12px;
   border: 0;
-  border-left: 3px solid transparent;
-  border-radius: 0 8px 8px 0;
+  border-radius: var(--et-radius-control, 7px);
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.3;
   text-align: left;
   cursor: pointer;
 }
 
+/* Gewählt = gelb gefüllt, wie ein gesetzter Filter-Chip. Kein Balken. */
 .navItemOn {
-  border-left-color: var(--yellow);
-  background: var(--yellow-soft);
+  background: var(--yellow);
+  color: var(--on-accent);
   font-weight: 700;
+}
+
+.navItemOn .navCount {
+  color: var(--on-accent);
 }
 
 @media (hover: hover) {
   .navItem:hover {
-    background: var(--ground);
+    background: var(--raised);
   }
 }
 
 .navCount {
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-  color: var(--muted);
+  color: var(--faint);
 }
 
 .sideFoot {
-  margin-top: auto;
-  padding: 14px 16px 18px;
-  border-top: 1px solid var(--hair);
-  font-size: 12px;
+  margin: auto 12px 14px;
+  padding: 12px 14px 14px;
+  border-radius: var(--et-radius-photo, 10px);
+  background: var(--raised);
+  font-size: 13px;
   line-height: 1.5;
   color: var(--muted);
 }
@@ -130,7 +146,7 @@
 
 .main {
   min-width: 0;
-  padding: 18px 26px 80px;
+  padding: 22px 28px 80px;
 }
 
 .topbar {
@@ -139,21 +155,22 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 14px 22px;
-  margin-bottom: 18px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--hair);
+  margin-bottom: 22px;
 }
 
 .title {
   margin: 0;
-  font-size: 22px;
+  font-family: var(--display);
+  font-size: clamp(28px, 3vw, 40px);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 .titleSub {
-  margin: 3px 0 0;
-  font-size: 13px;
+  margin: 4px 0 0;
+  font-size: 15px;
   color: var(--muted);
 }
 
@@ -164,81 +181,107 @@
   gap: 8px;
 }
 
+/* Zeitraum-Wahl: eine Fläche, der gesetzte Wert gelb darin. Keine
+   Trennstriche zwischen den Knöpfen. */
 .seg {
   display: inline-flex;
-  border: 1px solid var(--hair);
-  border-radius: 8px;
-  background: var(--paper);
-  overflow: hidden;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--raised);
 }
 
 .segBtn,
 .segBtnOn {
   padding: 7px 12px;
   border: 0;
-  border-right: 1px solid var(--hair);
+  border-radius: 6px;
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.2;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.segBtn:last-child,
-.segBtnOn:last-child {
-  border-right: 0;
-}
-
 .segBtnOn {
-  background: var(--ink);
-  color: #fff;
-  font-weight: 600;
+  background: var(--yellow);
+  color: var(--on-accent);
+  font-weight: 700;
 }
 
 @media (hover: hover) {
   .segBtn:hover {
-    background: var(--yellow-soft);
+    background: var(--quiet);
   }
 }
 
+/* Eingabefelder auf Ink sind papierhell mit Ink-Schrift — sonst erkennt man
+   nicht, dass man etwas eingeben kann. Das Kalender-Symbol des Browsers
+   bleibt so auch lesbar. */
 .dateInput {
-  padding: 6px 8px;
-  border: 1px solid var(--hair);
-  border-radius: 8px;
-  background: var(--paper);
-  color: var(--ink);
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  background: var(--field);
+  color: var(--on-accent);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .btn,
 .btnGhost {
-  padding: 7px 12px;
-  border: 1px solid var(--ink);
-  border-radius: 8px;
-  background: var(--ink);
-  color: #fff;
+  min-height: 38px;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  background: var(--yellow);
+  color: var(--on-accent);
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
 .btnGhost {
-  background: var(--paper);
+  background: var(--raised);
   color: var(--ink);
-  border-color: var(--hair);
+}
+
+/* Gelb geht beim Zeigen auf Papier, die leise Fläche auf Gelb. */
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--on-accent);
+  }
+
+  .btnGhost:hover:not(:disabled) {
+    background: var(--yellow);
+    color: var(--on-accent);
+  }
+}
+
+.btn:active:not(:disabled),
+.btnGhost:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .btn:disabled,
 .btnGhost:disabled {
-  opacity: 0.5;
+  color: var(--faint);
+  background: var(--raised);
   cursor: default;
 }
 
 .meta {
-  font-size: 12px;
-  color: var(--muted);
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 13px;
+  color: var(--faint);
 }
 
 /* ── Raster ───────────────────────────────────────────────────────────── */
@@ -246,7 +289,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .card,
@@ -254,10 +297,9 @@
 .cardSpan3 {
   grid-column: span 4;
   min-width: 0;
-  padding: 16px 18px 18px;
-  border: 1px solid var(--hair);
-  border-radius: 10px;
-  background: var(--paper);
+  padding: 18px 20px 20px;
+  border-radius: var(--et-radius-photo, 10px);
+  background: var(--raised);
 }
 
 .cardSpan2 {
@@ -288,21 +330,35 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
+/* Kreide-Label wie auf den Tafeln: gelbe Versalien mit Marken-Quadrat. */
 .cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
+  color: var(--yellow);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.14em;
+  line-height: 1.3;
   text-transform: uppercase;
 }
 
+.cardTitle::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--yellow);
+}
+
 .cardSub {
-  margin: 4px 0 0;
-  font-size: 12.5px;
-  line-height: 1.45;
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
   color: var(--muted);
 }
 
@@ -314,13 +370,14 @@
 }
 
 .select {
-  padding: 5px 8px;
-  border: 1px solid var(--hair);
-  border-radius: 7px;
-  background: var(--paper);
-  color: var(--ink);
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  background: var(--field);
+  color: var(--on-accent);
   font: inherit;
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 /* ── Kennzahlen ───────────────────────────────────────────────────────── */
@@ -328,7 +385,7 @@
 .kpis {
   grid-column: span 12;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
@@ -337,15 +394,14 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-  padding: 14px 16px 12px;
-  border: 1px solid var(--hair);
-  border-radius: 10px;
-  background: var(--paper);
+  padding: 16px 18px 14px;
+  border-radius: var(--et-radius-photo, 10px);
+  background: var(--raised);
 }
 
 .kpiLabel {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -353,11 +409,11 @@
 }
 
 .kpiValue {
-  font-size: 26px;
+  font-size: 34px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  line-height: 1.1;
   letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
 .kpiFoot {
@@ -366,7 +422,7 @@
   align-items: baseline;
   gap: 6px;
   min-height: 16px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .kpiHint {
@@ -376,49 +432,50 @@
 .spark {
   width: 100%;
   height: 28px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .sparkLine {
   fill: none;
-  stroke: var(--ink);
-  stroke-width: 1.5;
+  stroke: var(--yellow);
+  stroke-width: 1.75;
   stroke-linejoin: round;
 }
 
 .big {
   margin: 0;
-  font-size: 40px;
+  font-size: 48px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  line-height: 1.05;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
 }
 
 .bigUnit {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--muted);
   margin-left: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
 }
 
 .note {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   max-width: 78ch;
-  font-size: 12.5px;
-  line-height: 1.5;
+  font-size: 13.5px;
+  line-height: 1.55;
   color: var(--muted);
 }
 
 .empty {
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--faint);
 }
 
 .deltaUp,
 .deltaDown,
 .deltaFlat {
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -444,8 +501,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px 18px;
-  margin-top: 8px;
-  font-size: 13px;
+  margin-top: 10px;
+  font-size: 14px;
 }
 
 /* ── Diagramme ────────────────────────────────────────────────────────── */
@@ -467,7 +524,8 @@
 
 .axisText {
   fill: var(--faint);
-  font-size: 10.5px;
+  font-family: var(--display);
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -475,13 +533,14 @@
 .lineSecond,
 .lineBefore {
   fill: none;
-  stroke-width: 2;
+  stroke-width: 2.25;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 
+/* Die laufende Reihe trägt den Akzent, alles andere tritt zurück. */
 .lineNow {
-  stroke: var(--ink);
+  stroke: var(--yellow);
 }
 
 .lineSecond {
@@ -496,11 +555,11 @@
 
 .areaNow {
   fill: var(--yellow);
-  fill-opacity: 0.28;
+  fill-opacity: 0.12;
 }
 
 .dotNow {
-  fill: var(--ink);
+  fill: var(--yellow);
 }
 
 .dotSecond {
@@ -512,8 +571,8 @@
 }
 
 .dotOpen {
-  fill: var(--paper);
-  stroke: var(--ink);
+  fill: var(--raised);
+  stroke: var(--yellow);
   stroke-width: 2;
 }
 
@@ -521,8 +580,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px 16px;
-  margin-top: 8px;
-  font-size: 12px;
+  margin-top: 10px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -537,7 +596,7 @@
 .swatchBefore {
   width: 14px;
   height: 0;
-  border-top: 2px solid var(--ink);
+  border-top: 2px solid var(--yellow);
 }
 
 .swatchSecond {
@@ -569,7 +628,7 @@
 }
 
 .columnValue {
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
@@ -585,12 +644,12 @@
   display: block;
   width: 100%;
   min-height: 2px;
-  background: var(--ink);
-  border-radius: 3px 3px 0 0;
+  background: var(--yellow);
+  border-radius: 4px 4px 0 0;
 }
 
 .columnLabel {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 
@@ -601,7 +660,7 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 5px;
+  gap: 7px;
 }
 
 .rankRow {
@@ -609,7 +668,7 @@
   grid-template-columns: minmax(0, 1.3fr) minmax(60px, 1fr) auto auto;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .rankKey {
@@ -620,7 +679,7 @@
 
 .rankBarWrap {
   height: 8px;
-  background: var(--ground);
+  background: var(--quiet);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -628,23 +687,22 @@
 .rankBar {
   display: block;
   height: 100%;
-  background: var(--yellow);
-  border-right: 2px solid var(--ink);
-  border-radius: 4px;
   min-width: 2px;
+  background: var(--yellow);
+  border-radius: 4px;
 }
 
 .rankValue {
   min-width: 3.5ch;
   text-align: right;
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .rankShare {
   min-width: 5ch;
   text-align: right;
-  font-size: 12px;
+  font-size: 12.5px;
   font-variant-numeric: tabular-nums;
   color: var(--faint);
 }
@@ -658,19 +716,18 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
 
 .table th {
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--ink);
+  padding: 7px 8px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   text-align: right;
-  color: var(--muted);
+  color: var(--yellow);
   white-space: nowrap;
 }
 
@@ -678,9 +735,11 @@
   text-align: left;
 }
 
+/* Die einzige Linie im Brett, die bleibt: lange Zahlenzeilen brauchen eine
+   Führung fürs Auge. So leise wie das Diagrammraster. */
 .table td {
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--hair);
+  padding: 7px 8px;
+  border-top: 1px solid var(--hair);
   vertical-align: top;
 }
 
@@ -700,14 +759,14 @@
   color: var(--green);
   text-align: right;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cellNeg {
   color: var(--red);
   text-align: right;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* ── Trichter ─────────────────────────────────────────────────────────── */
@@ -715,14 +774,13 @@
 .stages {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .stage {
   padding: 14px 14px 12px;
-  border: 1px solid var(--hair);
-  border-radius: 10px;
-  background: var(--ground);
+  border-radius: var(--et-radius-photo, 10px);
+  background: var(--quiet);
 }
 
 .stageHead {
@@ -735,25 +793,26 @@
 .stageNo {
   display: inline-grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: var(--ink);
-  color: var(--yellow);
-  font-size: 12px;
+  background: var(--yellow);
+  color: var(--on-accent);
+  font-size: 13px;
   font-weight: 700;
   flex: none;
 }
 
 .stageTitle {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
+  text-transform: uppercase;
 }
 
 .stageOffer {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -763,19 +822,19 @@
   align-items: center;
   gap: 8px;
   padding: 4px 0;
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 
 .stepLabel {
   /* Zwei Zeilen statt „Anmeldeform…": vier Stufen nebeneinander lassen einer
      Beschriftung kaum 100 px, und abgeschnitten ist sie wertlos. */
-  line-height: 1.25;
+  line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
 .stepBarWrap {
   height: 7px;
-  background: var(--paper);
+  background: var(--quiet);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -784,7 +843,7 @@
   display: block;
   height: 100%;
   min-width: 2px;
-  background: var(--ink);
+  background: var(--yellow);
   border-radius: 4px;
 }
 
@@ -797,14 +856,14 @@
 .stepValue {
   min-width: 3ch;
   text-align: right;
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .stepShare {
   min-width: 3.5ch;
   text-align: right;
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   color: var(--faint);
 }
@@ -816,24 +875,25 @@
 }
 
 .rate {
-  padding: 10px 12px;
-  border-left: 3px solid var(--yellow);
-  background: var(--ground);
-  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  border-radius: var(--et-radius-photo, 10px);
+  background: var(--quiet);
 }
 
 .rateValue {
   display: block;
-  font-size: 20px;
+  color: var(--yellow);
+  font-size: 24px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  line-height: 1.2;
 }
 
 .rateLabel {
   display: block;
   margin-top: 2px;
-  font-size: 11.5px;
-  line-height: 1.35;
+  font-size: 12.5px;
+  line-height: 1.4;
   color: var(--muted);
 }
 
@@ -843,16 +903,15 @@
   grid-column: span 12;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .dayCol {
   display: grid;
-  gap: 14px;
-  padding: 18px 20px 20px;
-  border: 1px solid var(--hair);
-  border-radius: 10px;
-  background: var(--paper);
+  gap: 16px;
+  padding: 20px 22px 22px;
+  border-radius: var(--et-radius-photo, 10px);
+  background: var(--raised);
 }
 
 .dayHead {
@@ -860,14 +919,14 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--ink);
 }
 
 .dayName {
   margin: 0;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 700;
+  line-height: 1.25;
+  text-transform: uppercase;
 }
 
 .dayTiles {
@@ -877,23 +936,23 @@
 }
 
 .dayTile {
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 8px;
-  background: var(--ground);
+  background: var(--quiet);
 }
 
 .dayTileValue {
   display: block;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .dayTileLabel {
   display: block;
   margin-top: 2px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -901,12 +960,12 @@
 }
 
 .subTitle {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
+  color: var(--yellow);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--muted);
 }
 
 .stack {
@@ -922,46 +981,47 @@
 
 /* ── Pillen und Zustände ──────────────────────────────────────────────── */
 
+/* Gefüllt, nie umrandet. Rot und Grün tragen die Farbe in der Schrift,
+   die Fläche ist nur ein Hauch davon. */
 .pill,
 .pillYellow,
 .pillRed,
 .pillGreen {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 3px 9px;
   border-radius: 999px;
-  border: 1px solid var(--hair);
-  font-size: 11px;
-  font-weight: 600;
+  background: var(--quiet);
+  font-size: 12px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .pillYellow {
   background: var(--yellow);
-  border-color: var(--yellow);
+  color: var(--on-accent);
 }
 
 .pillRed {
+  background: rgba(255, 122, 107, 0.14);
   color: var(--red);
-  border-color: var(--red);
 }
 
 .pillGreen {
+  background: rgba(111, 207, 139, 0.14);
   color: var(--green);
-  border-color: var(--green);
 }
 
 .notice,
 .error {
   grid-column: span 12;
-  padding: 12px 16px;
-  border: 1px solid var(--hair);
-  border-radius: 10px;
-  background: var(--paper);
-  font-size: 14px;
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: var(--et-radius-photo, 10px);
+  background: var(--raised);
+  font-size: 15px;
 }
 
 .error {
-  border-color: var(--red);
   color: var(--red);
 }
 
@@ -972,19 +1032,21 @@
 }
 
 .gate {
+  --ground: var(--et-home-ink, #15120e);
+  --raised: var(--et-ink-raised, #25231f);
   display: grid;
   place-items: center;
   min-height: 100dvh;
   padding: 40px 20px;
   background: var(--ground);
-  color: var(--ink);
-  font-family: var(--font), sans-serif;
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--font-providence), sans-serif;
 }
 
 .code {
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 4px;
-  background: var(--ground);
+  background: var(--quiet);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
 }
@@ -993,10 +1055,11 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--ink);
+  color: var(--yellow);
   font: inherit;
   font-weight: 700;
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 
@@ -1014,20 +1077,19 @@
   .side {
     position: static;
     height: auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--hair);
   }
 
   .brand {
-    padding: 14px 16px 10px;
+    padding: 16px 16px 8px;
   }
 
   .nav {
     flex-direction: row;
     flex-wrap: nowrap;
     overflow-x: auto;
-    padding: 8px 10px;
+    padding: 6px 12px 10px;
     gap: 4px;
+    scrollbar-width: none;
   }
 
   .navGroup {
@@ -1037,15 +1099,12 @@
   .navItem,
   .navItemOn {
     flex: none;
-    border-left: 0;
-    border-bottom: 3px solid transparent;
-    border-radius: 8px 8px 0 0;
-    padding: 6px 10px;
+    padding: 7px 12px;
+    background: var(--raised);
   }
 
   .navItemOn {
-    border-bottom-color: var(--yellow);
-    background: transparent;
+    background: var(--yellow);
   }
 
   .navCount {
@@ -1060,7 +1119,24 @@
     padding: 14px 14px 60px;
   }
 
+  /* Fünf Zeiträume auf 347 px: einzeilig nur mit schmalerem Innenabstand. */
+  .seg {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .segBtn,
+  .segBtnOn {
+    padding: 7px 9px;
+    font-size: 13px;
+  }
+
   .dayCols {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Häkchen im Akzent statt Browser-Blau. */
+.app input[type='checkbox'] {
+  accent-color: var(--yellow);
 }

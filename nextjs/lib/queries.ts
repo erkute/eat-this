@@ -252,9 +252,14 @@ const siblingWindow = (cmp: '>' | '<') => `*[
  * query cost one request, whereas two different queries for the same
  * document would cost two.
  */
+// Drei reichen: darüber wiederholen sich die Hub-Guides, in denen der Spot nur
+// einer von vielen ist — siehe die Sortierung in `articlesAboutRestaurant`.
+// Geht als GROQ-Variable `$articleLimit` in die Query.
+export const RESTAURANT_ARTICLE_LIMIT = 3;
+
 /**
- * Die Artikel, in denen dieser Spot vorkommt — für den „Wir waren da"-Block
- * auf der Restaurant-Seite.
+ * Die Artikel, in denen dieser Spot vorkommt — für den „Im Magazin"-Block
+ * auf der Restaurant-Seite und im Map-Sheet.
  *
  * Die Verbindung liegt schon in den Daten und braucht kein neues Feld: ein
  * `spotCard`-Block im Artikel trägt eine `restaurantRef`. Deshalb wird sie
@@ -269,8 +274,12 @@ const siblingWindow = (cmp: '>' | '<') => `*[
  * nennt, desto mehr handelt er von diesem hier. Für Kolo heißt das Porträt (1
  * Spot) vor Mitte-Guide (10) vor Café-Guide (17) — nach Datum stünde der Guide
  * oben, der den Laden in einer Liste von siebzehn abhandelt.
+ *
+ * Zwei Leser: die Restaurant-Seite und das Detail-Sheet der Map
+ * (restaurantMapDetailQuery). Beide zeigen denselben Block, also dieselbe
+ * Auswahl in derselben Reihenfolge.
  */
-const articlesAboutRestaurant = `"articles": *[_type == "newsArticle" && defined(slug.current)
+export const articlesAboutRestaurant = `"articles": *[_type == "newsArticle" && defined(slug.current)
     && (^._id in content[].restaurantRef._ref || ^._id in contentDe[].restaurantRef._ref)]
     | order(count(coalesce(contentDe, content)[defined(restaurantRef)]) asc, date desc)[0...$articleLimit] {
       _id,

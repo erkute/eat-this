@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { restaurantPageQuery } from '../queries';
+import { articlesAboutRestaurant, restaurantPageQuery } from '../queries';
 import { restaurantMapDetailQuery } from '../map/queries';
 
 /**
@@ -30,5 +30,14 @@ describe('restaurant contact fields', () => {
 
   it.each(CONTACT_FIELDS)('the map detail query selects %s', (field) => {
     expect(restaurantMapDetailQuery).toMatch(new RegExp(`^\\s*${field},?\\s*$`, 'm'));
+  });
+});
+
+describe('„Im Magazin" on both surfaces', () => {
+  // Restaurant-Seite und Map-Sheet zeigen denselben Artikel-Block — dieselbe
+  // Projektion, nicht zwei, die auseinanderlaufen können.
+  it('both queries carry the same article projection', () => {
+    expect(restaurantPageQuery).toContain(articlesAboutRestaurant);
+    expect(restaurantMapDetailQuery).toContain(articlesAboutRestaurant);
   });
 });

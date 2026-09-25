@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { client } from '@/lib/sanity';
 import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { restaurantMapDetailQuery } from '@/lib/map/queries';
+import { RESTAURANT_ARTICLE_LIMIT } from '@/lib/queries';
 
 // On-demand detail fields for the map detail sheet (address, phone, tip,
 // description, …). Same editorial/contact fields the public /restaurant/[slug]
@@ -21,8 +22,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const detail = await client.fetch(
     restaurantMapDetailQuery,
-    { slug },
-    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`restaurant:${slug}`] } }
+    { slug, articleLimit: RESTAURANT_ARTICLE_LIMIT },
+    // `news`: das Sheet trägt den „Im Magazin"-Block — ein neuer Artikel
+    // ändert ihn, ohne dass das Restaurant selbst angefasst wird.
+    { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: [`restaurant:${slug}`, 'news'] } }
   );
   // Never let a 404 stick in the CDN/browser: a slug that isn't published yet
   // would otherwise be cached as "not found" for up to s-maxage+SWR, so the

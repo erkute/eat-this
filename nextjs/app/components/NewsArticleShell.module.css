@@ -158,7 +158,9 @@ div.page {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px 14px;
-  margin-bottom: clamp(14px, 1.8vw, 20px);
+  /* Derselbe Takt wie unter dem Vorspann: mit 14-20px klebte der erste Satz
+     an Datum und Lesezeit (User, 25.09.). */
+  margin-bottom: clamp(22px, 3vw, 34px);
 }
 
 /* Yellow chip, same as the magazine eyebrow on the home page — which frees red

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import { auth } from '@/lib/firebase/config';
 import type { StatsSummary } from '@/lib/admin/stats.server';
@@ -200,10 +201,13 @@ export default function StatsDashboard() {
   return (
     <div className={styles.app} data-page="admin">
       <aside className={styles.side}>
-        <div className={styles.brand}>
-          <span className={styles.brandMark} aria-hidden="true" />
-          <h1 className={styles.brandName}>Stats</h1>
-        </div>
+        {/* Der Weg zurück auf die Seite: dieselbe Wortmarke, die im Burger
+            zur Startseite führt. Die Stats-Seite hat sonst keine Leiste. */}
+        <Link href="/" className={styles.home} aria-label="Eat This — Startseite">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/pics/eat-this-logo.webp?v=6" alt="Eat This" width={660} height={265} />
+        </Link>
+        <h1 className={styles.brand}>Stats</h1>
         <nav className={styles.nav} aria-label="Berichte">
           {REPORTS.map((r) => (
             <NavEntry key={r.key} report={r} active={r.key === report} data={data} onOpen={open} />

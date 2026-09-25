@@ -112,26 +112,28 @@ export default function HubNearby({ locale = 'de', today }: Props) {
             {title}
           </h2>
           <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
-          <button
-            type="button"
-            className={styles.locBtn}
-            data-primary={activeLocation ? undefined : ''}
-            onClick={handleLocate}
-            disabled={locating}
-            aria-label={t('locationAria')}
-          >
-            <svg className={styles.locIcon} viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="8" />
-              <line x1="12" y1="2" x2="12" y2="5" />
-              <line x1="12" y1="19" x2="12" y2="22" />
-              <line x1="2" y1="12" x2="5" y2="12" />
-              <line x1="19" y1="12" x2="22" y2="12" />
-              <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
-            </svg>
-            <span>
-              {locating ? t('locating') : activeLocation ? t('location') : t('locationRequest')}
-            </span>
-          </button>
+          {/* Ist der Standort da, hat der Knopf seine Arbeit getan: die Liste
+              ist nach Nähe sortiert und zeigt Gehzeiten. Ein zweiter Druck
+              holte nur dieselbe Position noch einmal. */}
+          {!activeLocation && (
+            <button
+              type="button"
+              className={styles.locBtn}
+              onClick={handleLocate}
+              disabled={locating}
+              aria-label={t('locationAria')}
+            >
+              <svg className={styles.locIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="8" />
+                <line x1="12" y1="2" x2="12" y2="5" />
+                <line x1="12" y1="19" x2="12" y2="22" />
+                <line x1="2" y1="12" x2="5" y2="12" />
+                <line x1="19" y1="12" x2="22" y2="12" />
+                <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
+              </svg>
+              <span>{locating ? t('locating') : t('locationRequest')}</span>
+            </button>
+          )}
         </div>
 
         <div className={`hv-rail ${styles.rail}`}>

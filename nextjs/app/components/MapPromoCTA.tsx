@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import MapIntentLink from './MapIntentLink';
 import styles from './MapPromoCTA.module.css';
 

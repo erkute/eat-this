@@ -3,9 +3,10 @@
 // these helpers return — change a width/quality here instead of grepping eight
 // projections across three files.
 //
-// next/image uses Next's default optimizer. Raw Sanity <img> call sites use
-// `sanityImageLoader`/`sanitySrcSet`; these presets define the initial URL a
-// projection ships.
+// next/image schickt Sanity-URLs über lib/imageLoader.ts direkt an die
+// Sanity-CDN (Breite pro srcset-Stufe, Zuschnitt mitskaliert). Raw Sanity
+// <img> call sites use `sanityImageLoader`/`sanitySrcSet`; these presets
+// define the initial URL a projection ships.
 
 interface Preset {
   w: number;

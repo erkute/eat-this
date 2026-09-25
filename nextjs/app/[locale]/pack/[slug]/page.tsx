@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { getCategoryBySlug, getPackContents } from '@/lib/sanity.server';

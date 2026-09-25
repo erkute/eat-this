@@ -270,7 +270,9 @@
   font-size: clamp(17px, 1.7vw, 24px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.92;
+  /* Versalien mit Akzenten („CRISPY PORK / BÁNH MÌ"): bei 0.92 stiess der
+     Akzent der zweiten Zeile in die erste. */
+  line-height: 1.12;
   text-transform: uppercase;
   /* Erst trennen, wo die Sprache es erlaubt („Rinder-gulasch"), und nur wenn
      auch das nicht reicht irgendwo. */
@@ -414,7 +416,7 @@
 
   .dish {
     font-size: 13px;
-    line-height: 0.95;
+    line-height: 1.15;
   }
 
   .restaurantLink :global(.hv-sub) {

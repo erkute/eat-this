@@ -25,7 +25,10 @@
   grid-template-areas:
     'ask'
     'avatar';
-  grid-template-columns: 1fr;
+  /* `minmax(0, 1fr)`, nicht `1fr`: sonst wuchs die Spalte auf die
+     Mindestbreite des Remy-Bilds (340px) und schob Satz, Chips und
+     „Senden" am Telefon über die rechte Kante der Tafel. */
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(12px, 2.4vw, 24px);
   align-items: start;
   overflow: hidden;
@@ -59,7 +62,8 @@
   max-width: 790px;
   color: var(--remy-stage-paper);
   font-size: clamp(44px, 8vw, 96px);
-  line-height: 0.88;
+  /* Zwei Zeilen Versalien: bei 0.88 standen „?" und „R" fast aufeinander. */
+  line-height: 0.98;
 }
 
 .titleLine {
@@ -301,6 +305,15 @@
 @media (max-width: 520px) {
   .body .send:global(.hv-btn) {
     min-width: 78px;
+  }
+}
+
+/* Die Titelzeilen brechen nicht um (einzeilige Titel am Telefon, siehe
+   HubSection). Bei 44px Mindestgroesse lief „KEINE IDEE?" auf 320px ueber
+   die Tafel; unter 420px waechst die Schrift mit der Breite. */
+@media (max-width: 420px) {
+  .body .panelHead :global(.hv-title) {
+    font-size: 11vw;
   }
 }
 

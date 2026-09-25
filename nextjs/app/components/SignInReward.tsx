@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useDialogFocus } from '@/lib/useDialogFocus';

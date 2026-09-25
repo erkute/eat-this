@@ -137,9 +137,21 @@ describe('HubNearby', () => {
     expect(html).not.toContain('Um dich herum');
   });
 
-  it('promotes the locate button while the position is unknown', () => {
+  it('offers the locate button while the position is unknown', () => {
     const html = render(mapData([restaurant()]));
-    expect(html).toContain('data-primary=""');
+    expect(html).toContain('Freigeben');
+  });
+
+  /* Mit Standort hat der Knopf nichts mehr zu tun: die Liste ist nach Nähe
+     sortiert und zeigt Gehzeiten. */
+  it('drops the locate button once the position is known', async () => {
+    locationState.location = { lat: 52.52, lng: 13.405 };
+    renderLive(mapData([restaurant()]));
+
+    await waitFor(() => {
+      expect(screen.getByText('Um dich herum')).toBeTruthy();
+    });
+    expect(screen.queryByRole('button', { name: 'Mein Standort verwenden' })).toBeNull();
   });
 
   it('omits walking times while the position is unknown', () => {

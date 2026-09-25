@@ -71,13 +71,17 @@
     transform 160ms ease;
 }
 
-/* Dasselbe gelbe Marken-Quadrat wie vor jedem Abschnittstitel. */
+/* Dasselbe gelbe Marken-Quadrat wie vor jedem Abschnittstitel.
+   `align-items: center` setzt es auf die Mitte der Zeilenbox, nicht der
+   Schrift: Providence hat 0.51em Unterlänge, die Mitte ihrer Versalien liegt
+   bei `line-height: 1` rund 0.14em höher. Um genau das hebt es sich. */
 .chip::before {
   content: '';
   flex: 0 0 auto;
   width: 9px;
   height: 9px;
   background: var(--board-accent, #ffc600);
+  translate: 0 -0.14em;
   transition: transform 160ms ease;
 }
 

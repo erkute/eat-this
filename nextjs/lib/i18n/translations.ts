@@ -218,46 +218,24 @@ const en = {
       '{done} of {total} cards flipped. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
     metaDescriptionNamed:
       '{name} has flipped {done} of {total} cards. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
-    /* Ueber dem Deck: was das hier ist, in einem Atemzug. Der Rest steht
-       unter dem Deck. */
-    intro:
-      'Every spot on the map is hand-picked. At selected spots we also show you which dish to order. These Must Eats you can flip and collect in your deck.',
-    explainKicker: 'New here?',
-    explainTitle: 'What is Eat This?',
-    explainLead:
-      'Every spot on the map is hand-picked. From the starred restaurant to the place around the corner.',
-    step1Kicker: 'Must Eat',
-    step1Title: 'You have to try this.',
-    step1Body:
-      'Every card is a dish we swear by \u2014 our clear recommendation for that one restaurant.',
-    step2Kicker: 'How it works',
-    step2Title: 'Go. Tap. Open.',
-    step2Body:
-      'Every card belongs to a spot in Berlin. Go there, open the card and tap it \u2014 it flips over, and now you know what to order.',
-    step3Kicker: 'Your deck',
-    step3Title: "And then it's yours.",
-    step3Body:
-      'The card you flipped joins your deck and stays there. That is how the deck above was built.',
-    cardsAlt: 'Two Eat This cards side by side, one face down and one face up',
     deckHeadingNamed: "{name}'s deck",
     deckHeading: 'The deck',
-    /* Der Stand als Satz, nicht als Punktestand auf der Figur. */
-    standNamed:
-      '{name} has flipped {done} of {total} cards. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
-    stand:
-      '{done} of {total} cards are flipped. {missing, plural, =0 {The deck is full.} one {One is still face down.} other {# are still face down.}}',
-    empty: 'No cards on this map yet.',
-    /* Dieselbe Tafel wie der Starter-Pack-Abschnitt der Startseite, also auch
-       dieselben Worte. Was sich unterscheidet, ist der erste Satz: hier steht
-       ein Freund daneben. */
-    joinLead:
-      '{name} is already collecting. 20 cards to start your own\u00a0\u2014 ten in the deck, ten out there.',
-    joinLeadAnon:
-      '20 cards to start a deck of your own\u00a0\u2014 ten in the deck, ten out there.',
-    browse: 'Just looking? Open the Berlin Food Map',
-    ctaHeadingIn: 'Back to your own deck',
-    ctaLineIn: 'Your cards are waiting all over Berlin.',
-    ctaIn: 'Open my deck',
+    /* Der Stand als Herausforderung. */
+    challenge:
+      '{done, plural, =0 {{name} is just getting started.} one {{name} has 1 of {total} Must Eats.} other {{name} has # of {total} Must Eats.}}',
+    challengeFull: '{name} has all {total} Must Eats.',
+    challengeAnon:
+      '{done, plural, =0 {This deck is just getting started.} other {# of {total} Must Eats flipped.}}',
+    dare: 'Can you beat that?',
+    dareFull: 'Can you match that?',
+    dareStart: 'Who gets there first?',
+    mapLabel: 'The map',
+    mapBody: 'Hand-picked restaurants, cafés and bars across Berlin — and what to order there.',
+    collectLabel: 'Must Eats',
+    collectBody:
+      'The dishes you should not miss. Go there, flip them and collect them in your deck.',
+    toMap: 'To the map',
+    signIn: 'Sign up',
   },
   profile: {
     heroKicker: 'Your profile',
@@ -280,15 +258,18 @@ const en = {
     lockedSubhead: 'Still face-down',
     emptyMustEats:
       'Your deck is still empty. Must Eats are out in Berlin and in the Booster Packs.',
+    tabsLabel: 'Profile sections',
+    tab_deck: 'Deck',
+    tab_spots: 'Spots',
+    tab_packs: 'Packs',
     albumHeading: 'Your deck',
-    howTo:
-      'Every Must Eat you have flipped lands here. Whatever is missing is waiting out in Berlin and in the Booster Packs.',
+    albumHello: 'Hey {name}',
     albumCount: 'of {total} Must Eats',
     albumStamped: 'Been there',
     albumGroupProgress: '{group}: {done} of {total} revealed',
     albumFilterLabel: 'Filter your collection',
     albumFilterAll: 'All',
-    albumFilterMissing: 'Missing',
+    albumFilterMissing: 'Face-down',
     albumFilterComplete: 'Nothing missing here — this part is complete.',
     albumToSpot: 'To {name}',
     albumShare: 'Send this card',
@@ -313,7 +294,6 @@ const en = {
     inviteLine: 'Send it to someone you like eating with. You both get a card for it.',
     inviteJoinedOne: '1 friend joined through your link',
     inviteJoinedMany: '{count} friends joined through your link',
-    invitePreview: 'Preview',
     friendsHeading: 'Your crew',
     friendsLine: 'They started through your link. Tap a character to see their deck.',
     friendAnonymous: 'No name',
@@ -322,8 +302,11 @@ const en = {
     inviteShareTitle: 'My deck on the Eat This map',
     changeAvatar: 'Change character',
     changeAvatarShort: 'Change',
-    avatarModalTitle: 'Choose your character',
-    avatarModalSub: 'Who are you on the map?',
+    avatarModalTitle: 'Your character',
+    /* Dieselben Worte wie der Schritt „Wer bist du?" der Tour (SignInReward). */
+    avatarModalKicker: 'Your profile',
+    avatarModalHeadline: 'Who are you?',
+    avatarModalClose: 'Close',
     avatarApply: 'Apply',
     signOut: 'Sign out',
     dataLoading: 'Loading your profile…',
@@ -372,7 +355,8 @@ const en = {
       backBtn: 'Back',
       packKicker: 'Start your collection',
       packTitle: 'Starter Pack',
-      packLead: '20 Must Eats from all over Berlin. Discover our picks and collect them in your deck.',
+      packLead:
+        '20 Must Eats from all over Berlin. Discover our picks and collect them in your deck.',
       cardKicker: 'Reveal your Must Eats',
       cardTitle: 'Look underneath',
       cardLead:
@@ -632,64 +616,26 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
     metaDescriptionNamed:
       '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
-    /* Ueber dem Deck: was das hier ist, in einem Atemzug — mehr braucht es
-       nicht, um die Kartenwand darunter zu verstehen. Der ausfuehrliche Teil
-       steht UNTER dem Deck (Nutzer, 06.09.2026: „was ist Eat This muss unter
-       dem Deck, oder etwas ueber und etwas unter dem Deck an Infos").
-
-       Davor stand die ganze Erklaerung ueber dem Deck und schob es aus dem
-       ersten Bildschirm; davor stand sie ganz unten und wurde nie gelesen.
-       Beides war zu viel von einer Seite. */
-    intro:
-      'Jeder Spot auf der Map ist handverlesen. Bei ausgew\u00e4hlten Spots zeigen wir dir au\u00dferdem, welches Gericht du dort bestellen solltest. Diese Must Eats kannst du aufdecken und in deinem Deck sammeln.',
-    explainKicker: 'Neu hier?',
-    explainTitle: 'Was ist Eat This?',
-    explainLead:
-      'Jeder Spot auf der Map ist handverlesen. Vom Sterne-Restaurant bis zum Laden um die Ecke.',
-    step1Kicker: 'Must Eat',
-    step1Title: 'Musst du probieren.',
-    step1Body:
-      'Jede Karte ist ein Gericht, das wir dir ans Herz legen \u2014 unsere klare Empfehlung f\u00fcr genau dieses Restaurant.',
-    step2Kicker: "So geht's",
-    step2Title: 'Hin. Tap. Offen.',
-    /* Der ganze Handgriff, nicht die Kurzfassung (Nutzer, 06.09.2026: „mehr
-       Details … geh hin, oeffne die Karte, tipp sie an — und sie dreht sich
-       um, du weißt was du probieren musst und die Karte kommt in dein
-       Deck"). Kuerzer steht er im Must-Eats-Onboarding (`mustEats.onb2Body`),
-       und das darf so bleiben: dort dreht sich waehrenddessen eine echte
-       Karte, hier steht keine. */
-    step2Body:
-      'Jede Karte geh\u00f6rt zu einem Spot in Berlin. Geh hin, \u00f6ffne die Karte und tipp sie an \u2014 sie dreht sich um, und du wei\u00dft, was du dort bestellen musst.',
-    step3Kicker: 'Dein Deck',
-    step3Title: 'Und sie geh\u00f6rt dir.',
-    step3Body:
-      'Die aufgedeckte Karte wandert in dein Deck und bleibt dort. Genau so ist das Deck hier oben entstanden.',
-    cardsAlt:
-      'Zwei Eat-This-Sammelkarten nebeneinander, eine mit der R\u00fcckseite nach oben, eine aufgedeckt',
     deckHeadingNamed: '{name}s Deck',
     deckHeading: 'Das Deck',
-    /* Der Stand als Satz. Als Zahlenpaar stand er bis zum 06.09.2026 auf der
-       Spielerkarte und sagte einem Fremden „10/25", bevor er wusste, wovon
-       (Nutzer: „das braucht es nicht"). Als Satz sagt er, was er meint — und
-       er sagt es an der Stelle, an der es um den Freund geht. */
-    standNamed:
-      '{name} hat {done} von {total} Karten umgedreht. {missing, plural, =0 {Das Deck ist voll.} one {Eine liegt noch verdeckt.} other {# liegen noch verdeckt.}}',
-    stand:
-      '{done} von {total} Karten sind umgedreht. {missing, plural, =0 {Das Deck ist voll.} one {Eine liegt noch verdeckt.} other {# liegen noch verdeckt.}}',
-    empty: 'Auf dieser Map liegen noch keine Karten.',
-    /* Der Ausgang. Kein Knopf mehr, der irgendwohin fuehrt: das Feld steht
-       auf der Seite (Nutzer, 06.09.2026). Was es verspricht, ist dasselbe wie
-       auf der Startseite — das Starter Pack. */
-    joinLead:
-      '{name} sammelt schon. 20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen.',
-    joinLeadAnon:
-      '20 Karten f\u00fcr dein eigenes Deck\u00a0\u2014 zehn liegen drin, zehn liegen drau\u00dfen.',
-    /* Der leise Weg fuer alle, die sich noch nicht anmelden wollen — statt
-       einer Sackgasse. */
-    browse: 'Erst mal umsehen? Zur Berlin Food Map',
-    ctaHeadingIn: 'Zur\u00fcck zu deinem eigenen Deck',
-    ctaLineIn: 'Deine Karten warten \u00fcberall in Berlin.',
-    ctaIn: 'Mein Deck',
+    /* Der Stand als Herausforderung (Nutzer, 24.09.2026: „es muss wie eine
+       Challenge klingen, so: Ersan hat 14 von … Must Eats"). */
+    challenge:
+      '{done, plural, =0 {{name} f\u00e4ngt gerade an.} one {{name} hat 1 von {total} Must Eats.} other {{name} hat # von {total} Must Eats.}}',
+    challengeFull: '{name} hat alle {total} Must Eats.',
+    challengeAnon:
+      '{done, plural, =0 {Dieses Deck f\u00e4ngt gerade an.} other {# von {total} Must Eats aufgedeckt.}}',
+    dare: 'Schaffst du mehr?',
+    dareFull: 'Schaffst du das auch?',
+    dareStart: 'Wer ist schneller?',
+    mapLabel: 'Die Map',
+    mapBody:
+      'Handverlesene Restaurants, Caf\u00e9s und Bars in ganz Berlin \u2014 und was du dort bestellen solltest.',
+    collectLabel: 'Must Eats',
+    collectBody:
+      'Die Gerichte, die du nicht verpassen solltest. Geh hin, deck sie auf und sammle sie in deinem Deck.',
+    toMap: 'Zur Map',
+    signIn: 'Anmelden',
   },
   profile: {
     heroKicker: 'Dein Profil',
@@ -715,12 +661,13 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
       'Dein Deck ist noch leer. Must Eats findest du drau\u00dfen in Berlin und in den Booster Packs.',
+    tabsLabel: 'Bereiche des Profils',
+    tab_deck: 'Deck',
+    tab_spots: 'Spots',
+    tab_packs: 'Packs',
     albumHeading: 'Dein Deck',
-    /* Der Handgriff in einem Satz. Bis zum 06.09.2026 hatte `deck.howTo`
-       einen Zwilling davon; auf dem geteilten Deck tragen ihn jetzt die drei
-       Schritte, hier steht er allein. */
-    howTo:
-      'Hier landen alle Must Eats, die du aufgedeckt hast. Was noch fehlt, wartet drau\u00dfen in Berlin und in den Booster Packs.',
+    /* Der Gruss wie im Hero der Startseite (angemeldet). */
+    albumHello: 'Hey {name}',
     albumCount: 'von {total} Must Eats',
     /* Der Stempel auf einer Karte, die vor Ort umgedreht wurde. Kurz, weil er
        quer über eine Karte läuft — und Vergangenheit, weil er eine Tat
@@ -730,7 +677,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumGroupProgress: '{group}: {done} von {total} aufgedeckt',
     albumFilterLabel: 'Sammlung filtern',
     albumFilterAll: 'Alle',
-    albumFilterMissing: 'Fehlende',
+    /* „Verdeckte", nicht „Fehlende" (Nutzer, 24.09.2026) — die Karte ist
+       da, nur noch nicht umgedreht. */
+    albumFilterMissing: 'Verdeckte',
     albumFilterComplete: 'Hier fehlt nichts mehr — der Teil ist voll.',
     albumToSpot: 'Zu {name}',
     /* Der Weg aus einer OFFENEN Karte: weitersagen. Geteilt wird die
@@ -762,7 +711,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       'Schick es jemandem, mit dem du gern essen gehst. Ihr bekommt beide eine Karte dafür.',
     inviteJoinedOne: '1 Freund ist \u00fcber deinen Link gestartet',
     inviteJoinedMany: '{count} Freunde sind \u00fcber deinen Link gestartet',
-    invitePreview: 'Ansehen',
     /* Die Reihe unter dem Einladen-Kasten. Der Referral-Weg laeuft seit Tag
        eins, sichtbar war davon nur eine Zahl — wen man geworben hat, stand
        nirgends. */
@@ -775,8 +723,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     inviteShareTitle: 'Mein Deck auf der Eat This Map',
     changeAvatar: 'Charakter \u00e4ndern',
     changeAvatarShort: '\u00c4ndern',
-    avatarModalTitle: 'Charakter w\u00e4hlen',
-    avatarModalSub: 'Wer bist du auf der Map?',
+    avatarModalTitle: 'Dein Charakter',
+    /* Dieselben Worte wie der Schritt „Wer bist du?" der Tour (SignInReward). */
+    avatarModalKicker: 'Dein Profil',
+    avatarModalHeadline: 'Wer bist du?',
+    avatarModalClose: 'Schlie\u00dfen',
     avatarApply: '\u00dcbernehmen',
     signOut: 'Abmelden',
     dataLoading: 'Dein Profil wird geladen …',

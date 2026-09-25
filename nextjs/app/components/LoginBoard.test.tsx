@@ -18,7 +18,11 @@ const google = vi.hoisted(() => ({
   phase: 'idle' as 'idle' | 'busy' | 'done' | 'leaving',
   note: null as 'cancelled' | 'blocked' | 'failed' | null,
   noteKey: null as string | null,
+  outcome: null as 'sign_up' | 'login' | null,
 }));
+
+const arrived = vi.hoisted(() => ({ announce: vi.fn() }));
+vi.mock('@/lib/auth/afterSignIn', () => ({ announceSignedIn: arrived.announce }));
 
 vi.mock('@/lib/auth', () => ({
   useMagicLink: () => ({
@@ -31,6 +35,7 @@ vi.mock('@/lib/auth', () => ({
 }));
 /* Der Wartescreen hat seine eigenen Tests; hier zaehlt nur, ob er da ist. */
 vi.mock('./AuthScreen', () => ({
+  AUTH_SCREEN_HOLD_MS: 900,
   default: ({ leaving }: { leaving?: boolean }) => (
     <div data-testid="auth-screen" data-leaving={leaving ? '1' : '0'} />
   ),
@@ -70,6 +75,7 @@ beforeEach(() => {
   google.phase = 'idle';
   google.note = null;
   google.noteKey = null;
+  google.outcome = null;
   window.history.replaceState(null, '', '/map?r=sofi');
 });
 
@@ -244,6 +250,36 @@ describe('LoginBoard — Google', () => {
     google.noteKey = 'auth.errGooglePopupBlocked';
     board();
     expect(screen.getByRole('alert').textContent).toBe(translations.de.auth.errGooglePopupBlocked);
+  });
+});
+
+/* Nutzer, 24.09.2026: „kann man nicht einfach ins Profil nach dem
+   Einloggen". Die Tafel meldet nur, wer angekommen ist — weiter schickt
+   EmailLinkSignIn (afterSignIn.ts). */
+describe('LoginBoard — nach der Google-Anmeldung', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it('meldet einen Wiederkehrer nach dem Wartescreen', () => {
+    google.outcome = 'login';
+    board();
+    expect(arrived.announce).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(900);
+    expect(arrived.announce).toHaveBeenCalledWith({ isNewUser: false, hasIntent: false });
+  });
+
+  it('meldet ein neues Konto als neu', () => {
+    google.outcome = 'sign_up';
+    board();
+    vi.advanceTimersByTime(900);
+    expect(arrived.announce).toHaveBeenCalledWith({ isNewUser: true, hasIntent: false });
+  });
+
+  it('gibt den Anlass mit, wenn eine Karte oder ein Herz dahinter steht', () => {
+    google.outcome = 'login';
+    board({ intent: { starterMustEatId: 'me-1' } });
+    vi.advanceTimersByTime(900);
+    expect(arrived.announce).toHaveBeenCalledWith({ isNewUser: false, hasIntent: true });
   });
 });
 

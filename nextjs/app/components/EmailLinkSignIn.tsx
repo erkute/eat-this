@@ -5,7 +5,14 @@ import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import { EMAIL_LINK_EMAIL_PARAM, EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
-import { STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
+import { HEART_PARAM, STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
+import {
+  PROFILE_PATH,
+  SIGNED_IN_EVENT,
+  shouldGoToProfile,
+  type SignedInDetail,
+} from '@/lib/auth/afterSignIn';
+import { usePathname, useRouter } from '@/i18n/navigation';
 import { trackEvent } from '@/lib/analytics';
 import styles from './Tour.module.css';
 
@@ -92,6 +99,22 @@ export default function EmailLinkSignIn() {
   const [state, setState] = useState<State | null>(null);
   /* Der Link, wie er ankam — die Adresszeile ist da schon aufgeräumt. */
   const linkRef = useRef('');
+  /* Kam der Link mit einem Anlass (Karte, Herz)? Dann bleibt die Anmeldung
+     auf dieser Seite — siehe afterSignIn.ts. */
+  const hadIntentRef = useRef(false);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  /* Auch die Google-Anmeldung endet hier: die Anmelde-Tafel hat keinen
+     eigenen Router und meldet nur, wer angekommen ist (afterSignIn.ts). */
+  useEffect(() => {
+    const onSignedIn = (event: Event) => {
+      const detail = (event as CustomEvent<SignedInDetail>).detail;
+      if (shouldGoToProfile({ ...detail, pathname })) router.push(PROFILE_PATH);
+    };
+    window.addEventListener(SIGNED_IN_EVENT, onSignedIn);
+    return () => window.removeEventListener(SIGNED_IN_EVENT, onSignedIn);
+  }, [pathname, router]);
   const [claimingCard, setClaimingCard] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -103,6 +126,7 @@ export default function EmailLinkSignIn() {
     const url = new URL(window.location.href);
     if (url.searchParams.get('mode') !== 'signIn' || !url.searchParams.get('oobCode')) return;
     linkRef.current = url.toString();
+    hadIntentRef.current = url.searchParams.has(STARTER_PARAM) || url.searchParams.has(HEART_PARAM);
     /* Die Adresse hat eine Mailadresse und einen einlösbaren Code in der
        Adresszeile — beides raus, bevor jemand den Link teilt oder ein
        Seitenaufruf ihn mitzählt. `starter` bleibt: den löst die Pack-Vergabe
@@ -158,16 +182,21 @@ export default function EmailLinkSignIn() {
   const close = () => setState(null);
 
   const signIn = async (email: string) => {
-    const [{ auth }, { signInWithEmailLink }] = await Promise.all([
+    const [{ auth }, { signInWithEmailLink, getAdditionalUserInfo }] = await Promise.all([
       import('@/lib/firebase/config'),
       import('firebase/auth'),
     ]);
-    const { user } = await signInWithEmailLink(auth, email, linkRef.current);
+    const credential = await signInWithEmailLink(auth, email, linkRef.current);
+    const { user } = credential;
     try {
       localStorage.removeItem('emailForSignIn');
     } catch {}
     trackEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
     setState(null);
+    const isNewUser = getAdditionalUserInfo(credential)?.isNewUser ?? false;
+    if (shouldGoToProfile({ isNewUser, hasIntent: hadIntentRef.current, pathname })) {
+      router.push(PROFILE_PATH);
+    }
   };
 
   const codeOf = (err: unknown) => (err as { code?: string } | null)?.code ?? '';

@@ -64,7 +64,22 @@ describe('GuideCrossLinks', () => {
     expect(render([guide('x', { noIndex: true })])).toBe('');
   });
 
-  it('follows the page language in the kicker', () => {
+  // Eine Artikel-Vorschau: Rubrik und Datum über der Headline, das Foto ist
+  // Schmuck (die Headline benennt den Link).
+  it('shows rubric, date and a decorative photo', () => {
+    const html = render([
+      guide('a', {
+        kicker: 'Guide',
+        date: '2026-09-01',
+        imageUrl: 'https://cdn.sanity.io/images/x/y/abc.jpg?w=800',
+      }),
+    ]);
+    expect(html).toContain('>Guide<');
+    expect(html).toContain('1. September 2026');
+    expect(html).toContain('alt=""');
+  });
+
+  it('follows the page language in the heading', () => {
     expect(render([guide('a')], 'de')).toContain('Ausführlich im Magazin');
     expect(render([guide('a')], 'en')).toContain('In depth in the magazine');
   });

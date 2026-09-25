@@ -8,10 +8,16 @@
   --footer-accent: #ffc600;
   --footer-shadow: #15120e;
   --footer-hover: var(--footer-accent);
-  --footer-bg: #15120e;
+  /* Eine Flaeche statt eines Strichs: der Footer steht eine Stufe ueber dem
+     Ink-Grund (--et-ink-raised, dieselbe Stufe wie Info-Karte und
+     Anmelde-Layer) und setzt sich so von der Seite ab. Bis 25.09.2026 trennte
+     ihn eine 1-px-Linie in Weiss 12 % (Betreiber: „mach die Linie beim
+     Footer weg, ueberleg dir was anderes") — Flaeche statt Rahmen, siehe die
+     Ink-Bedienelemente. Der Ink-Schatten der Instagram-Zeile steht auf der
+     helleren Flaeche jetzt sogar deutlicher. */
+  --footer-bg: var(--et-ink-raised, #25231f);
   background: var(--footer-bg);
   color: var(--footer-ink);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
   padding: clamp(32px, 5vw, 72px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
   /* Markenschrift im ganzen Footer — Mono und die Impact-Kondensierte waren
      zwei Fremdschriften in einem Block (Nutzer-Markierungen 28.08.). */

@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import RestaurantGalleryLightbox from './RestaurantGalleryLightbox';
+import { usePhotoRail } from './usePhotoRail';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { useTranslation } from '@/lib/i18n';
 import { spotPhotoSrc, spotPhotoSrcSet } from '@/lib/map/spotPhoto';
@@ -15,25 +16,20 @@ interface Props {
   restaurantName: string;
 }
 
-/* Blättern wie bei Instagram und Google Maps: der Finger bewegt einen echten
-   Scroll-Container, `scroll-snap-stop: always` rastet pro Wisch genau ein Bild
-   weiter, Schwung und Achsensperre kommen vom Browser. Die Vorgängerin zog
-   `scrollLeft` per pointermove selbst nach, auf `touch-action: pan-y` —
-   dadurch hing das Bild auf iOS einen Frame hinter dem Finger, ein schneller
-   kurzer Wisch blätterte nicht, und sobald ein Wisch leicht schräg lief,
-   übernahm iOS ihn als vertikalen Scroll, schickte pointercancel, und das Bild
-   sprang ohne Bewegung zurück. Ziehen per JS bleibt nur für die Maus, die
-   keinen nativen Wisch hat. Der Parent setzt `key` pro Restaurant, damit jeder
-   Spot bei Foto 1 beginnt. */
+/* Blättern wie bei Instagram und Google Maps — die Mechanik steht in
+   usePhotoRail, dieselbe wie auf der Listenkarte. Der Parent setzt `key` pro
+   Restaurant, damit jeder Spot bei Foto 1 beginnt. */
 export default function RestaurantGallery({ images, restaurantName }: Props) {
   const { t } = useTranslation();
-  const railRef = useRef<HTMLDivElement>(null);
-  const mouseDrag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
-  const suppressClick = useRef(false);
-  const [page, setPage] = useState(0);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const usable = images.filter((img) => img.thumb && img.full);
   const multiple = usable.length > 1;
+  const { railRef, page, scrollToPage, handlers } = usePhotoRail(usable.length, (next) => {
+    if (next > 0) {
+      setSwipeHint(false);
+      writeHint(SWIPE_HINT_DONE);
+    }
+  });
 
   /* Wisch-Hinweis: kurz nach dem Öffnen rutschen die Fotos ein Stück nach
      links und federn zurück, das zweite blitzt am rechten Rand herein. Die
@@ -80,15 +76,6 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
 
   if (!usable.length) return null;
 
-  const clampPage = (n: number) => Math.max(0, Math.min(usable.length - 1, n));
-  const scrollToPage = (rail: HTMLElement, n: number) =>
-    rail.scrollTo({
-      left: clampPage(n) * rail.clientWidth,
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 'instant'
-        : 'smooth',
-    });
-
   return (
     <>
       <div
@@ -97,61 +84,11 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
         data-h-scroll
         role="region"
         aria-label={`${restaurantName}: ${t('map.photos')}`}
+        {...handlers}
         onPointerDown={(event) => {
           // Der Finger übernimmt, ein laufender Stups darf nicht gegenhalten.
           setSwipeHint(false);
-          if (event.pointerType !== 'mouse' || event.button !== 0) return;
-          suppressClick.current = false;
-          mouseDrag.current = {
-            x: event.clientX,
-            left: event.currentTarget.scrollLeft,
-            moved: false,
-          };
-        }}
-        onPointerMove={(event) => {
-          const drag = mouseDrag.current;
-          if (!drag) return;
-          const dx = event.clientX - drag.x;
-          if (!drag.moved) {
-            if (Math.abs(dx) < 6) return;
-            drag.moved = true;
-            event.currentTarget.setPointerCapture(event.pointerId);
-            // Snap würde jeden Zwischenstand sofort zurückziehen.
-            event.currentTarget.style.scrollSnapType = 'none';
-          }
-          event.currentTarget.scrollLeft = drag.left - dx;
-        }}
-        onPointerUp={(event) => {
-          const drag = mouseDrag.current;
-          mouseDrag.current = null;
-          if (!drag?.moved) return;
-          suppressClick.current = true;
-          const rail = event.currentTarget;
-          const dx = event.clientX - drag.x;
-          const from = Math.round(drag.left / rail.clientWidth);
-          rail.style.removeProperty('scroll-snap-type');
-          scrollToPage(rail, from + (Math.abs(dx) > 40 ? (dx < 0 ? 1 : -1) : 0));
-        }}
-        onPointerCancel={(event) => {
-          if (!mouseDrag.current) return;
-          mouseDrag.current = null;
-          event.currentTarget.style.removeProperty('scroll-snap-type');
-        }}
-        onClickCapture={(event) => {
-          if (!suppressClick.current) return;
-          suppressClick.current = false;
-          event.preventDefault();
-          event.stopPropagation();
-        }}
-        onScroll={(event) => {
-          const rail = event.currentTarget;
-          if (!rail.clientWidth) return;
-          const next = clampPage(Math.round(rail.scrollLeft / rail.clientWidth));
-          setPage(next);
-          if (next > 0) {
-            setSwipeHint(false);
-            writeHint(SWIPE_HINT_DONE);
-          }
+          handlers.onPointerDown(event);
         }}
         onAnimationEnd={(event) => {
           if (event.target === event.currentTarget.firstElementChild) countHintPlay();
@@ -159,11 +96,13 @@ export default function RestaurantGallery({ images, restaurantName }: Props) {
         onKeyDown={(event) => {
           if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
           event.preventDefault();
-          const next = clampPage(page + (event.key === 'ArrowRight' ? 1 : -1));
-          const rail = railRef.current;
-          if (!rail) return;
-          scrollToPage(rail, next);
-          rail.querySelectorAll<HTMLButtonElement>('button')[next]?.focus({ preventScroll: true });
+          const next = Math.max(
+            0,
+            Math.min(usable.length - 1, page + (event.key === 'ArrowRight' ? 1 : -1))
+          );
+          scrollToPage(next);
+          railRef.current
+            ?.querySelectorAll<HTMLButtonElement>('button')[next]?.focus({ preventScroll: true });
         }}
       >
         {usable.map((img, index) => (

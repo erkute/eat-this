@@ -16,7 +16,10 @@ vi.mock('@/lib/map', () => ({
   resolvePeek: () => ({ kind: 'none' }),
 }));
 vi.mock('@/lib/sanityImageLoader', () => ({ default: ({ src }: { src: string }) => src }));
-vi.mock('@/lib/map/useRestaurantDetail', () => ({ prefetchRestaurantDetail: vi.fn() }));
+vi.mock('@/lib/map/useRestaurantDetail', () => ({
+  prefetchRestaurantDetail: vi.fn(),
+  useCachedRestaurantDetail: () => null,
+}));
 
 import RestaurantList from './RestaurantList';
 import type { MapRestaurant } from '@/lib/types';

@@ -36,9 +36,9 @@ import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
 import ShareButton from '../ShareButton';
 import RestaurantGallery from './RestaurantGallery';
+import { spotGallery } from '@/lib/map/spotGallery';
 import RestaurantDetailArticles from './RestaurantDetailArticles';
 import { trackEvent } from '@/lib/analytics';
-import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import { spotPhotoSrc } from '@/lib/map/spotPhoto';
 import { UNLOCK_RADIUS_METERS } from './useMustEatDetailState';
@@ -80,14 +80,6 @@ function MustEatMiniCard({
       </button>
     </li>
   );
-}
-
-function galleryAssetKey(url: string) {
-  return url.split('?')[0];
-}
-
-function hasLinkedCredit(img: Pick<RestaurantGalleryImage, 'credit' | 'creditUrl'>) {
-  return !!img.credit?.trim() && !!safeHttpUrl(img.creditUrl);
 }
 
 interface RestaurantDetailProps {
@@ -163,19 +155,7 @@ export default function RestaurantDetail({
   const nameMaxPx = Math.max(26, Math.min(56, Math.round(311 / (Math.max(longestWord, 1) * 0.62))));
   const galleryImages = useMemo<RestaurantGalleryImage[]>(() => {
     if (!detail) return [];
-
-    const images: RestaurantGalleryImage[] = [];
-    const seen = new Set<string>();
-    const add = (img: RestaurantGalleryImage | null) => {
-      if (!img?.thumb || !img.full) return;
-      if (!hasLinkedCredit(img)) return;
-      const key = galleryAssetKey(img.full);
-      if (seen.has(key)) return;
-      seen.add(key);
-      images.push(img);
-    };
-
-    add(
+    return spotGallery(
       r.photo
         ? {
             _key: `${r._id}-hero`,
@@ -185,10 +165,9 @@ export default function RestaurantDetail({
             credit: r.photoCredit,
             creditUrl: r.photoCreditUrl,
           }
-        : null
+        : null,
+      detail.gallery
     );
-    detail.gallery?.forEach(add);
-    return images;
   }, [detail, displayName, r._id, r.photo, r.photoCredit, r.photoCreditUrl, restaurant.photo]);
 
   const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);

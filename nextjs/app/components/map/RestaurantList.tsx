@@ -1,5 +1,5 @@
 'use client';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types';
 import {
   abbreviateBezirk,
@@ -13,9 +13,14 @@ import { localizedCategoryName } from '@/lib/categories';
 import { normalizeName } from '@/lib/normalizeName';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import { spotPhotoSrcSet } from '@/lib/map/spotPhoto';
-import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
+import {
+  prefetchRestaurantDetail,
+  useCachedRestaurantDetail,
+} from '@/lib/map/useRestaurantDetail';
+import { spotGallery } from '@/lib/map/spotGallery';
 import { DAY_LABELS } from '@/lib/map/openingHours';
 import MapListEmpty from './MapListEmpty';
+import { usePhotoRail } from './usePhotoRail';
 import styles from './RestaurantList.module.css';
 
 /* How far ahead of the screen a card starts fetching its photo, and the list
@@ -103,6 +108,7 @@ const Item = memo(
       io.observe(el);
       return () => io.disconnect();
     }, [photoNear]);
+    const [detailNear, setDetailNear] = useState(false);
     useEffect(() => {
       const el = cardRef.current;
       if (!el || typeof IntersectionObserver === 'undefined') return;
@@ -110,6 +116,7 @@ const Item = memo(
         (entries) => {
           if (entries.some((e) => e.isIntersecting)) {
             prefetchRestaurantDetail(restaurant.slug);
+            setDetailNear(true);
             io.disconnect();
           }
         },
@@ -118,6 +125,25 @@ const Item = memo(
       io.observe(el);
       return () => io.disconnect();
     }, [restaurant.slug]);
+
+    /* Die Fotos lassen sich schon in der Liste durchwischen, wie im Detail
+       (dieselbe Mechanik: usePhotoRail). Die Galerie kommt mit dem
+       Detail-Vorabruf oben — die Karte liest nur, was der Cache schon hat,
+       statt pro Zeile selbst zu laden. Bis dahin ist es ein Foto, dann
+       wachsen rechts die übrigen an, ohne dass sich sichtbar etwas bewegt. */
+    const detail = useCachedRestaurantDetail(restaurant.slug);
+    const photos = useMemo(
+      () =>
+        spotGallery(
+          restaurant.photo
+            ? { _key: 'hero', thumb: restaurant.photo, full: restaurant.photo }
+            : null,
+          detail?.gallery,
+          { trustHero: true }
+        ),
+      [restaurant.photo, detail?.gallery]
+    );
+    const { railRef, page, handlers } = usePhotoRail(photos.length);
 
     return (
       <button
@@ -129,23 +155,49 @@ const Item = memo(
         {/* Real <img> instead of a CSS background so the browser can natively
           lazy-load off-screen card photos (backgrounds always fetch eagerly). */}
         <div className={styles.rcardImg}>
-          {restaurant.photo && (
-            <img
-              src={sanityImageLoader({ src: restaurant.photo, width: 600 })}
-              /* One fixed 600px variant for every device was soft on a 3x
-                 phone (the card is ~362 CSS px wide) and oversized for the
-                 280px desktop column. */
-              /* Dieselben Stufen wie die Fotos im Restaurant-Detail
-                 (lib/map/spotPhoto.ts) — so kommt dort das erste Foto aus dem
-                 Cache. */
-              srcSet={spotPhotoSrcSet(restaurant.photo)}
-              sizes="(max-width: 767.98px) 94vw, 280px"
-              alt=""
-              loading={photoNear ? 'eager' : 'lazy'}
-              fetchPriority={priority ? 'high' : undefined}
-              decoding={priority ? 'sync' : 'async'}
-              draggable={false}
-            />
+          {photos.length > 0 && (
+            <div ref={railRef} className={styles.rcardPhotos} {...handlers}>
+              {photos.map((img, index) => (
+                <span key={img._key} className={styles.rcardPhoto}>
+                  <img
+                    src={sanityImageLoader({ src: img.full, width: 600 })}
+                    /* One fixed 600px variant for every device was soft on a 3x
+                       phone (the card is ~362 CSS px wide) and oversized for the
+                       280px desktop column. */
+                    /* Dieselben Stufen wie die Fotos im Restaurant-Detail
+                       (lib/map/spotPhoto.ts) — so kommt dort das erste Foto aus
+                       dem Cache. */
+                    srcSet={spotPhotoSrcSet(img.full)}
+                    sizes="(max-width: 767.98px) 94vw, 280px"
+                    alt=""
+                    /* Das Nachbarfoto muss schon da sein, wenn der Finger es
+                       hereinzieht — `lazy` lädt im Querstreifen erst, wenn es
+                       sichtbar wird. Aber erst, wenn die Karte wirklich nah
+                       ist (300px, der Detail-Vorlauf), nicht beim weiten
+                       Foto-Vorlauf: sonst holt jede Karte zwei Fotos, auch die,
+                       an denen man nur vorbeiscrollt. */
+                    loading={
+                      (index === 0 ? photoNear : detailNear && Math.abs(index - page) <= 1)
+                        ? 'eager'
+                        : 'lazy'
+                    }
+                    fetchPriority={priority && index === 0 ? 'high' : undefined}
+                    decoding={priority && index === 0 ? 'sync' : 'async'}
+                    draggable={false}
+                  />
+                </span>
+              ))}
+            </div>
+          )}
+          {photos.length > 1 && (
+            <span className={styles.rcardDots} aria-hidden="true">
+              {photos.map((img, index) => (
+                <span
+                  key={img._key}
+                  className={index === page ? styles.rcardDotOn : styles.rcardDot}
+                />
+              ))}
+            </span>
           )}
         </div>
 

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { RestaurantArticleCard } from '@/lib/types';
 
 // The detail-only fields the map sheet lazy-loads (the map list payload no
@@ -40,6 +40,7 @@ interface RestaurantMapDetail {
 // doesn't refetch. Keyed by slug; survives sheet open/close within a session.
 const cache = new Map<string, RestaurantMapDetail>();
 const inflight = new Map<string, Promise<RestaurantMapDetail | null>>();
+const listeners = new Map<string, Set<() => void>>();
 
 async function load(slug: string): Promise<RestaurantMapDetail | null> {
   const cached = cache.get(slug);
@@ -49,7 +50,10 @@ async function load(slug: string): Promise<RestaurantMapDetail | null> {
     p = fetch(`/api/restaurant-detail/${encodeURIComponent(slug)}`)
       .then((r) => (r.ok ? (r.json() as Promise<RestaurantMapDetail>) : null))
       .then((d) => {
-        if (d) cache.set(slug, d);
+        if (d) {
+          cache.set(slug, d);
+          listeners.get(slug)?.forEach((notify) => notify());
+        }
         return d;
       })
       .catch(() => null)
@@ -63,6 +67,27 @@ async function load(slug: string): Promise<RestaurantMapDetail | null> {
  *  sheet has them ready before the open animation finishes. */
 export function prefetchRestaurantDetail(slug: string): void {
   if (slug && !cache.has(slug)) void load(slug);
+}
+
+/** Reads the detail fields for a slug WITHOUT fetching them — the list card
+ *  wants the gallery once `prefetchRestaurantDetail` has it, but must not
+ *  send one request per rendered row on mount. Re-renders when the prefetch
+ *  lands. The server snapshot is null, so hydration never sees a cache hit. */
+export function useCachedRestaurantDetail(slug: string | undefined): RestaurantMapDetail | null {
+  return useSyncExternalStore(
+    (notify) => {
+      if (!slug) return () => {};
+      const set = listeners.get(slug) ?? new Set<() => void>();
+      listeners.set(slug, set);
+      set.add(notify);
+      return () => {
+        set.delete(notify);
+        if (!set.size) listeners.delete(slug);
+      };
+    },
+    () => (slug ? (cache.get(slug) ?? null) : null),
+    () => null
+  );
 }
 
 /** Lazy-loads the detail-only fields for a slug. Returns the cached object

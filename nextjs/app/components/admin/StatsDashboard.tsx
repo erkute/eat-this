@@ -186,7 +186,7 @@ export default function StatsDashboard() {
 
   if (!user) {
     return (
-      <main className={styles.gate}>
+      <main className={styles.gate} data-page="admin">
         <p className={styles.notice}>Zum Ansehen der Zahlen bitte anmelden.</p>
       </main>
     );
@@ -198,11 +198,11 @@ export default function StatsDashboard() {
   };
 
   return (
-    <div className={styles.app}>
+    <div className={styles.app} data-page="admin">
       <aside className={styles.side}>
         <div className={styles.brand}>
           <span className={styles.brandMark} aria-hidden="true" />
-          <h1 className={styles.brandName}>Zahlen</h1>
+          <h1 className={styles.brandName}>Stats</h1>
         </div>
         <nav className={styles.nav} aria-label="Berichte">
           {REPORTS.map((r) => (

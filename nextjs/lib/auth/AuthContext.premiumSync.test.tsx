@@ -48,7 +48,7 @@ const signedIn = {
 } as unknown as User;
 
 /** Sammelt die Aufrufe an /api/auth/premium-access nach Methode. */
-function stubPremiumAccess(outcomes: ('ok' | 'fail')[]) {
+function stubPremiumAccess(outcomes: ('ok' | 'fail')[], { admin = false } = {}) {
   const calls: string[] = [];
   const queue = [...outcomes];
   const fetchMock = vi.fn((_url: string, init?: RequestInit) => {
@@ -59,7 +59,10 @@ function stubPremiumAccess(outcomes: ('ok' | 'fail')[]) {
     if (method === 'DELETE') return Promise.resolve({ ok: true } as Response);
     const next = queue.shift() ?? 'ok';
     if (next === 'fail') return Promise.reject(new Error('network blip'));
-    return Promise.resolve({ ok: true } as Response);
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ ok: true, admin }),
+    } as unknown as Response);
   });
   global.fetch = fetchMock as unknown as typeof fetch;
   return { calls, fetchMock };
@@ -151,5 +154,59 @@ describe('AuthContext — Sync der Bild-Sitzung', () => {
     expect(result.current.user).toBeNull();
     await waitFor(() => expect(mocks.captureException).toHaveBeenCalled());
     expect(mocks.captureException.mock.calls[0][1].tags.auth_sync_target).toBe('signed_out');
+  });
+});
+
+describe('AuthContext — Admin-Kennung aus dem Sync', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.emitIdToken = null;
+    mocks.getRedirectResult.mockResolvedValue(null);
+  });
+
+  /* Die Admin-Liste kennt nur der Server. Der Sync meldet sie mit, damit der
+     Burger den Stats-Eingang zeigen kann — geschützt wird /admin trotzdem
+     serverseitig. */
+  it('übernimmt admin: true aus der Antwort', async () => {
+    stubPremiumAccess(['ok'], { admin: true });
+    const { result } = mountAuth();
+    await waitFor(() => expect(mocks.emitIdToken).toBeTypeOf('function'));
+
+    await act(async () => {
+      mocks.emitIdToken!(signedIn);
+    });
+
+    await waitFor(() => expect(result.current.user).toBe(signedIn));
+    expect(result.current.isAdmin).toBe(true);
+  });
+
+  it('ist kein Admin, wenn der Sync scheitert', async () => {
+    stubPremiumAccess(['fail', 'fail'], { admin: true });
+    const { result } = mountAuth();
+    await waitFor(() => expect(mocks.emitIdToken).toBeTypeOf('function'));
+
+    await act(async () => {
+      mocks.emitIdToken!(signedIn);
+    });
+
+    await waitFor(() => expect(result.current.user).toBe(signedIn));
+    expect(result.current.isAdmin).toBe(false);
+  });
+
+  it('verliert die Kennung beim Abmelden', async () => {
+    stubPremiumAccess(['ok'], { admin: true });
+    const { result } = mountAuth();
+    await waitFor(() => expect(mocks.emitIdToken).toBeTypeOf('function'));
+
+    await act(async () => {
+      mocks.emitIdToken!(signedIn);
+    });
+    await waitFor(() => expect(result.current.isAdmin).toBe(true));
+
+    await act(async () => {
+      mocks.emitIdToken!(null);
+    });
+    await waitFor(() => expect(result.current.user).toBeNull());
+    expect(result.current.isAdmin).toBe(false);
   });
 });

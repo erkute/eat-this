@@ -536,11 +536,15 @@ html[data-active-page='map'] .app-pages {
 }
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
    erste Pfadsegment der falschen Adresse, und auf einem gestreamten
-   notFound() laeuft der Bootstrap gar nicht erst. Also am Inhalt erkennen. */
+   notFound() laeuft der Bootstrap gar nicht erst. Also am Inhalt erkennen.
+   Das Zahlenbrett (/admin/stats) hat kein SPA-Geruest und haengt deshalb
+   ebenfalls hier. */
 html:has(main[data-page='not-found']),
 html:has(main[data-page='not-found']) body,
 html:has(main[data-page='error']),
-html:has(main[data-page='error']) body {
+html:has(main[data-page='error']) body,
+html:has([data-page='admin']),
+html:has([data-page='admin']) body {
   background: var(--et-home-ink);
 }
 /* Auf dem Ink-Grund loest sich jede Tafel auf: der Grund IST die Tafel.

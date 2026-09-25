@@ -28,10 +28,8 @@ const en = {
       // headline claims a place the visitor probably isn't. Ask instead.
       titleFallback: "What's near you?",
       locationAria: 'Use my location',
-      // Two labels, not one: before a grant the button is the section's whole
-      // ask and has to name the action, afterwards it is the quiet way to
-      // re-read a location that already exists.
-      location: 'Locate',
+      // The button only exists before a grant — once the list is sorted by
+      // distance it has nothing left to do.
       // Short on purpose: the button sits under its own explaining line, and
       // a full sentence made it the widest thing in the column.
       locationRequest: 'Share',
@@ -434,7 +432,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       title: 'Um dich herum',
       titleFallback: 'Was ist um dich?',
       locationAria: 'Mein Standort verwenden',
-      location: 'Standort',
       // Kurz mit Absicht — siehe den englischen Zwilling.
       locationRequest: 'Freigeben',
       locating: 'Ortet …',

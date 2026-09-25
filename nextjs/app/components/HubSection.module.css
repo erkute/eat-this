@@ -15,6 +15,9 @@
      mobile headings sat barely above the 19px lead and nothing announced that
      a new section had started. Above ~880px this resolves identically. */
   --et-type-section-title: clamp(30px, 3.4vw, 42px);
+  /* Global 0.92: bricht ein Titel um, stehen Providence-Versalien aneinander.
+     Die Startseite gibt ihnen Luft. */
+  --et-leading-title: 1.05;
   /* Eine Fuge fuer jede Grenze der Seite, bis hinunter zum Footer (HubFaq
      traegt sie als margin-bottom). Seit jeder Abschnitt eine Tafel ist, ist
      die Kante die Grenze — und Kanten stehen enger als lose Textbloecke.
@@ -38,6 +41,17 @@
 :global(.homeV2).page {
   color: var(--et-home-inverse-text);
   background: var(--home-ink);
+}
+
+/* Das gelbe Quadrat auf die Mitte der Versalien daneben. Mit `vertical-align:
+   1px` sass es auf der Grundlinie, also sichtbar unter der Schriftmitte:
+   Providence-Versalien stehen rund 0.72em hoch, ihre Mitte liegt 0.36em über
+   der Grundlinie. Ein leerer Inline-Block steht mit seiner Unterkante auf
+   der Grundlinie plus `vertical-align` — also Unterkante = Mitte minus halbe
+   Kante (4.5px). In em, damit es bei jeder Titelgröße stimmt. Rang (0,3,0),
+   weil `.homeV2 .hv-mk` in css/style.css (0,2,0) später geladen wird. */
+:global(.homeV2).page :global(.hv-mk) {
+  vertical-align: calc(0.36em - 4.5px);
 }
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
@@ -214,26 +228,23 @@
   transform: translateY(1px);
 }
 
-/* Die Seitentür als Ring, wie der Standort-Chip im Must-Eat-Sheet: weißer
-   28-%-Rand, bei Hover gelb. */
+/* Die Seitentür als leise Fläche ohne Rahmen — Weiß 10 %, wie „Ablehnen" im
+   Cookie-Dialog; bei Hover gelb mit Ink-Schrift. */
 .page .heroActions .heroSecondaryBtn:global(.hv-btn) {
   color: var(--et-home-inverse-text);
-  background: transparent;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
   text-decoration: none;
 }
 
 .page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
-  color: var(--et-home-accent);
-  background: transparent;
-  box-shadow: inset 0 0 0 2px var(--et-home-accent);
+  color: var(--et-home-ink);
+  background: var(--et-home-accent);
 }
 
 @media (hover: hover) {
   .page .heroActions .heroSecondaryBtn:global(.hv-btn):hover {
-    color: var(--et-home-accent);
-    background: transparent;
-    box-shadow: inset 0 0 0 2px var(--et-home-accent);
+    color: var(--et-home-ink);
+    background: var(--et-home-accent);
   }
 }
 
@@ -347,14 +358,28 @@
    Kicker, weiße Versalien, weicher Text, gelber Knopf — dasselbe Objekt wie
    der Insider-Tipp auf der Spot-Seite und die Tafeln der Booster-Seiten. */
 .spot {
-  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
-  background: var(--et-board-bg, var(--home-ink));
+  /* Die leise Stufe wie Starter Pack und Remy: der Spot des Tages ist ein
+     eigenes Objekt auf dem Grund. Nur `--et-board-quiet-pad` lesen, nie
+     `--et-board-pad` — das ist auf dem Ink-Grund `0px`. */
+  padding: var(--et-board-quiet-pad, clamp(24px, 4vw, 56px));
+  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   color: var(--et-home-inverse-text);
-  border-radius: var(--et-board-radius, var(--et-radius-photo));
+  border-radius: var(--et-radius-photo);
   /* Kein Anschnitt mehr: das Foto liegt IN der Tafel, ihre Kante ist der
      Rand. Frueher lief es auf dem Telefon bis zur Blattkante, weil nichts
-     sonst den Aufmacher von der Kartenreihe darunter trennte. */
-  --spot-bleed: 0px;
+     sonst den Aufmacher von der Kartenreihe darunter trennte. (Die Variable
+     `--spot-bleed`, die das steuerte, stand seitdem fest auf 0 und ist raus.) */
+}
+
+/* Am Telefon randlos wie die Starter-Pack-Tafel: ein Kasten 16px vor der
+   Bildschirmkante liest sich als Rahmen. Die negative Rinne ist exakt die
+   von `hv-wrap` — der Inhalt steht auf derselben Satzkante wie der Rest. */
+@media (max-width: 760px) {
+  .spot {
+    margin-inline: calc(-1 * var(--et-wrap-pad-mobile, 16px));
+    padding: 28px var(--et-wrap-pad-mobile, 16px) 30px;
+    border-radius: 0;
+  }
 }
 
 .page .spot :global(.hv-title) {
@@ -362,7 +387,11 @@
 }
 
 .page .spotHead:global(.hv-head) {
-  column-gap: clamp(12px, 2vw, 28px);
+  /* Das Datum gehört zum Titel, nicht an die rechte Kante der Tafel: dort
+     stand es über 700px von „Spot des Tages" entfernt und las sich als
+     Fremdkörper. */
+  justify-content: flex-start;
+  column-gap: clamp(14px, 1.4vw, 20px);
   margin-bottom: clamp(20px, 2.2vw, 30px);
 }
 
@@ -377,7 +406,7 @@
   }
 }
 
-/* On the title's baseline at the far end of the head row. Without it nothing
+/* On the title's baseline, right after it. Without it nothing
    on the page said the pick is new today; the heading alone claims a daily
    rhythm the visitor has no way to see. Muted, not a second red thing. */
 .spotDate {
@@ -411,17 +440,17 @@
    together or not at all: at (0,3,0) here and (0,2,0) below, the base rule
    would outrank its own media override and take the stacked bleed with it. */
 .page .spotCard .spotPhoto {
-  grid-column: 1 / 8;
+  /* Fünf von zwölf Spalten bei 3/2: bei sieben Spalten und 4/3 war das Foto
+     auf 1440px über 700px breit und über 500px hoch — mehr Aufmacher als
+     der Aufmacher. */
+  grid-column: 1 / 6;
   grid-row: 1;
   position: relative;
   display: block;
-  /* Flush left with the rest of the page (--spot-bleed is 0 here); the bleed
-     only opens up once the card stacks. Rounded on all four corners for the
-     same reason: a square edge said "this continues off the page", and sitting
-     inside the column it has nothing to continue into. */
-  width: calc(100% + var(--spot-bleed));
-  margin-left: calc(-1 * var(--spot-bleed));
-  aspect-ratio: 4 / 3;
+  /* Flush left with the rest of the board, rounded on all four corners: a
+     square edge said "this continues off the page", and sitting inside the
+     column it has nothing to continue into. */
+  aspect-ratio: 3 / 2;
   border-radius: var(--et-radius-photo);
   overflow: hidden;
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
@@ -453,7 +482,7 @@
 }
 
 .spotBody {
-  grid-column: 8 / 13;
+  grid-column: 6 / 13;
   grid-row: 1;
   display: flex;
   flex-direction: column;
@@ -480,9 +509,11 @@
   color: var(--et-home-inverse-text);
   font-family: var(--font-providence);
   font-weight: 700;
-  font-size: clamp(34px, 3.4vw, 54px);
+  font-size: clamp(30px, 2.6vw, 42px);
   letter-spacing: -0.015em;
-  line-height: 0.95;
+  /* 0.95 liess zwei Zeilen („Five Elephant / Neue Nationalgalerie")
+     ineinanderlaufen. */
+  line-height: 1.1;
   /* Same rule the restaurant hero needed: `anywhere`, not `break-word` — only
      `anywhere` counts towards min-content, so "Nationalgalerie" at 54px cannot
      push the text column past its grid track. No `hyphens: auto`; it split
@@ -575,7 +606,12 @@
   .heroCopy {
     align-items: flex-start;
   }
+}
 
+/* Der Spot des Tages stapelt erst am Telefon. Bis 920px gestapelt lief das
+   Foto am Tablet über die volle Breite und füllte allein den Bildschirm;
+   nebeneinander passt es bis 761px (Foto ~290px, Text daneben). */
+@media (max-width: 760px) {
   .spotCard {
     grid-template-columns: minmax(0, 1fr);
     gap: clamp(16px, 3vw, 24px);
@@ -584,7 +620,7 @@
   .page .spotCard .spotPhoto {
     grid-column: 1;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 10;
   }
 
   .spotBody {

@@ -95,9 +95,9 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
-  gap: clamp(34px, 3.4vw, 48px) clamp(20px, 2.2vw, 32px);
+  gap: clamp(18px, 2vw, 28px) clamp(28px, 3.4vw, 48px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -182,7 +182,7 @@
   font-size: clamp(19px, 1.5vw, 23px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.05;
+  line-height: 1.15;
 }
 
 /* Rubrik und Datum als eine Zeile über der Headline. Das gelbe Label führt,
@@ -235,9 +235,49 @@
   scale: var(--et-press-tile, 0.985);
 }
 
-@media (max-width: 960px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+/* ── Aufmacher und Liste ──
+   Drei gleiche Kacheln nebeneinander waren ein Regal, keine Titelseite; ein
+   Aufmacher über zwei Zeilen war dagegen ein Plakat — auf 1440px ein Foto
+   von 800x600. Jetzt führt die neueste Story auf halber Breite (16/10), die
+   nächsten drei stehen daneben als Liste mit kleinem Bild. Die Zeilen der
+   Liste teilen sich die Höhe des Aufmachers, jede Story sitzt mittig in
+   ihrer. Unter 761px bleibt es die Wischreihe. */
+@media (min-width: 761px) {
+  .grid > li:first-child {
+    grid-row: span 3;
+  }
+
+  .grid > li:first-child .photo:global(.hv-photo) {
+    aspect-ratio: 16 / 10;
+  }
+
+  .grid > li:first-child .title {
+    font-size: clamp(22px, 1.9vw, 28px);
+    line-height: 1.12;
+  }
+
+  .grid > li:not(:first-child) {
+    align-self: center;
+  }
+
+  /* Liste: Bild links, Text daneben. */
+  .grid > li:not(:first-child) .card {
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(14px, 1.4vw, 20px);
+  }
+
+  .grid > li:not(:first-child) .photo:global(.hv-photo) {
+    flex: 0 0 clamp(120px, 11vw, 168px);
+    aspect-ratio: 4 / 3;
+  }
+
+  .grid > li:not(:first-child) .text {
+    padding: 0;
+  }
+
+  .grid > li:not(:first-child) .title {
+    font-size: clamp(17px, 1.3vw, 20px);
   }
 }
 
@@ -291,7 +331,7 @@
 
   .title {
     font-size: 20px;
-    line-height: 1.05;
+    line-height: 1.15;
   }
 }
 

@@ -245,6 +245,12 @@
    mehr Hoehe. */
 @media (max-width: 600px) {
   .sheet.sheet {
+    /* Die Tour rechnet mit drei Zeilen (Kopf, Inhalt, Fuss). Ohne Kopfzeile
+       rutschte der Inhalt in die `auto`-Zeile, die Bildflaeche (ein
+       Groessen-Container) bekam 0 px Hoehe und der Faecher schrumpfte auf
+       einen weissen Punkt (Nutzer, 25.09.2026: „das Bild oben wird nicht
+       geladen"). */
+    grid-template-rows: minmax(0, 1fr) auto;
     height: calc(100svh - 120px);
     min-height: 620px;
     max-height: 760px;

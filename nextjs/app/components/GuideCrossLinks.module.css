@@ -1,8 +1,8 @@
 /* ============================================================
    Hub → Magazin-Guide.
 
-   Die Linie oben zitiert .faq (Bezirk.module.css) — beide sind Nachspann,
-   nicht Inhalt, und sollen sich als dieselbe Sorte Block lesen. Tokens direkt
+   Die Linie oben trennt den Block als Nachspann vom Verzeichnis darüber.
+   Abstand wie zwischen den Abschnitten der Hub-Seite. Tokens direkt
    aus --et-home-* / --et-ink-*, wie in HubSiblings: der Block hängt an zwei
    Seiten mit unterschiedlichen lokalen Variablennamen. Auf dem Ink-Grund
    (seit 03.09.2026) ist die Linie Weiss 14 %, der Titel Papier mit gelber
@@ -10,7 +10,7 @@
    ============================================================ */
 .wrap {
   border-top: 2px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  margin-top: clamp(28px, 4vw, 44px);
+  margin-top: clamp(48px, 6vw, 88px);
   padding-top: clamp(16px, 2vw, 22px);
 }
 

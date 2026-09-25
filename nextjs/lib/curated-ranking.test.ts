@@ -7,7 +7,7 @@ function r(slug: string, name = slug): RestaurantCard {
   return { _id: `id-${slug}`, slug, name };
 }
 
-/** Wie GROQ liefert: alphabetisch nach Name. */
+/** Wie GROQ liefert: nach Name, Codepunkt-Reihenfolge. */
 const alphabetical = [
   r('136-berlin', '136 Berlin Restaurant'),
   r('1811', '1811'),
@@ -34,14 +34,24 @@ describe('rankCurated', () => {
     expect(rest.map((x) => x.name)).toEqual(['jaja', '136 Berlin Restaurant', '1811']);
   });
 
-  it('preserves the incoming alphabetical order within each group', () => {
-    // GROQ-Collation darf nicht durch einen JS-Re-Sort verschoben werden.
-    const { rest } = rankCurated(alphabetical, []);
+  it('sorts the directory the way readers read an alphabet', () => {
+    // GROQ sortiert nach Codepunkten: Kleinbuchstaben und Umlaute kamen hinter Z.
+    const groq = [
+      r('aviv', 'AVIV 030'),
+      r('barra', 'Barra'),
+      r('zola', 'Zola'),
+      r('barlevain', 'barlevain'),
+      r('oesterelli', 'Österelli'),
+      r('1811', '1811'),
+      r('136-berlin', '136 Berlin Restaurant'),
+    ];
+    const { rest } = rankCurated(groq, []);
     expect(rest.map((x) => x.name)).toEqual([
       'AVIV 030',
+      'barlevain',
       'Barra',
-      'Estelle',
-      'jaja',
+      'Österelli',
+      'Zola',
       '136 Berlin Restaurant',
       '1811',
     ]);

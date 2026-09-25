@@ -2,7 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from 'react';
 import { useHubFilter, type HubFilter as HubFilterState } from '@/lib/useHubFilter';
-import styles from '@/app/[locale]/bezirk/Bezirk.module.css';
+import styles from './HubPage.module.css';
 
 /**
  * Chip-Filter über einer Spot-Liste. Beide Hub-Typen benutzen ihn, jeweils mit
@@ -62,7 +62,7 @@ export function HubFilterProvider({
 
   // `data-hub-filtered` hängt am Wrapper, damit CSS auf den gefilterten Zustand
   // reagieren kann, ohne dass jede Karte davon wissen muss — konkret nehmen die
-  // Regeln in Bezirk.module.css den Platzziffern die Sichtbarkeit. `contents`
+  // Regeln in HubPage.module.css den Platzziffern die Sichtbarkeit. `contents`
   // löst die Box wieder auf: der Provider steht als direktes Kind im Seiten-
   // Grid, ein echtes div dazwischen würde dessen Abstände verschieben.
   return (
@@ -91,10 +91,10 @@ export function HubFilterUnfiltered({ children }: { children: ReactNode }) {
 }
 
 /**
- * Zähl- und Chip-Leiste. Bewusst im Fluss statt sticky: sie steht mitten auf
- * der Seite, und ein Band, das sich beim Scrollen über den Hero legt, wäre hier
- * Chrome ohne Anlass. Ab 761px bricht das Rail um (siehe .filterRail), darunter
- * scrollt es waagerecht.
+ * Zähl- und Chip-Leiste. Klebt seit 25.09.2026 auf dem Telefon unter der
+ * Navigation: das Verzeichnis einer Bezirksseite ist lang, und wer mittendrin
+ * die Kategorie wechseln will, soll nicht erst zurück nach oben. Ab 700px
+ * steht sie im Fluss und bricht um. Die Zählzeile ist nur für Vorleser da.
  */
 export function HubFilterBar({
   facets,
@@ -112,33 +112,37 @@ export function HubFilterBar({
   const { active, select } = useContext(HubFilterContext);
   const current = facets.find((f) => f.slug === active) ?? null;
 
+  // Statuszeile und Leiste als Geschwister: die Leiste klebt (`sticky`) und
+  // muss dafür direktes Kind des hohen Seitenblocks sein.
   return (
-    <div className={styles.categoryFilter}>
+    <>
       <p className={styles.filterStatus} role="status">
         {current ? current.status : allStatus}
       </p>
-      <div className={styles.filterRail} role="group" aria-label={groupLabel}>
-        <button
-          type="button"
-          className={styles.filterChip}
-          aria-pressed={active === null}
-          onClick={() => select(null)}
-        >
-          {allLabel}
-        </button>
-        {facets.map((f) => (
+      <div className={styles.filterBar}>
+        <div className={styles.filterRail} role="group" aria-label={groupLabel}>
           <button
-            key={f.slug}
             type="button"
             className={styles.filterChip}
-            aria-pressed={active === f.slug}
-            onClick={() => select(active === f.slug ? null : f.slug)}
+            aria-pressed={active === null}
+            onClick={() => select(null)}
           >
-            {f.label}
+            {allLabel}
           </button>
-        ))}
+          {facets.map((f) => (
+            <button
+              key={f.slug}
+              type="button"
+              className={styles.filterChip}
+              aria-pressed={active === f.slug}
+              onClick={() => select(active === f.slug ? null : f.slug)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -150,7 +154,7 @@ export function HubFilterBar({
  *
  * `display: contents` in der Hülle, damit die Karte ihr eigenes Grid-Item
  * bleibt — sonst säße zwischen Raster und Karte eine Box, die Spalten und
- * Seitenverhältnis umwirft (siehe .cardSlot in Bezirk.module.css).
+ * Seitenverhältnis umwirft (siehe .cardSlot in HubPage.module.css).
  */
 export function HubFilterCard({ slugs, children }: { slugs: string[]; children: ReactNode }) {
   const { active } = useContext(HubFilterContext);

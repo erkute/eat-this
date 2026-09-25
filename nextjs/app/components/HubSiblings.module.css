@@ -1,24 +1,20 @@
-/* Nachbar-Hubs am Seitenfuß. Textlinks in Pillenform, keine Karten: die Zeile
-   ist ein Ausgang, kein zweites Angebot — eine Kartenreihe am Seitenende hat
-   auf den Restaurantseiten schon einmal 500px für vier Bilder verbraucht, die
-   niemand wollte.
-   Auf dem Ink-Grund, den seit 03.09.2026 alle drei Seiten tragen, die den
-   Block rendern (Spot, Bezirk, Kategorie): Papier als Versalienfarbe, die
-   Links als Ringe in Weiss 28 %, gedrückt Gelb. Rot kommt auf Ink auf rund
-   2,9:1 und ist als Überschrift nicht lesbar. */
+/* Nachbar-Hubs am Seitenfuß der Bezirks- und Kategorieseiten. Textlinks, keine
+   Karten: die Zeile ist ein Ausgang, kein zweites Angebot.
+   Seit 25.09.2026 Flächen statt Ringe — dieselben Knöpfe wie die Filterleiste
+   oben auf der Seite (--et-ink-raised, Gelb unter dem Finger), wie auf der Map
+   („keine Linien drumherum"). */
 .wrap {
-  width: min(100%, 900px);
-  margin: clamp(44px, 7vw, 84px) auto clamp(40px, 6vw, 72px);
+  padding-top: clamp(48px, 6vw, 88px);
 }
 
 .heading {
-  margin: 0 0 14px;
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-label, var(--font-label), sans-serif);
+  margin: 0 0 16px;
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-label, 0.16em);
-  line-height: 1;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
@@ -32,39 +28,33 @@
 }
 
 .link {
-  display: inline-block;
-  padding: 6px 12px 7px;
-  border: 1.5px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: var(--et-radius-control, 7px);
+  background: var(--et-ink-raised, #25231f);
   color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  line-height: 1.16;
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
   text-decoration: none;
-  text-transform: uppercase;
   transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
+    background-color 0.15s ease,
     color 0.15s ease;
-}
-
-.link:focus-visible {
-  background: var(--et-home-accent, #ffc600);
-  border-color: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
 }
 
 @media (hover: hover) {
   .link:hover {
     background: var(--et-home-accent, #ffc600);
-    border-color: var(--et-home-accent, #ffc600);
     color: var(--et-home-ink, #15120e);
   }
 }
 
 .link:focus-visible {
   outline: 2px solid var(--et-home-accent, #ffc600);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

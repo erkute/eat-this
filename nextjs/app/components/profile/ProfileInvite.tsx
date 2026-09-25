@@ -40,8 +40,7 @@ export default function ProfileInvite({ uid, cards }: Props) {
   // staging. SSR has no origin; the canonical host is the honest fallback.
   const [origin, setOrigin] = useState(SITE_URL);
   useEffect(() => setOrigin(window.location.origin), []);
-  const deckUrl = `${origin}${locale === 'en' ? '/en' : ''}/deck/${uid}`;
-  const inviteUrl = `${deckUrl}?ref=${uid}`;
+  const inviteUrl = `${origin}${locale === 'en' ? '/en' : ''}/deck/${uid}?ref=${uid}`;
 
   /* Immer drei, egal wie viel schon aufgedeckt ist: ein Faecher aus zwei
      Karten sieht aus wie ein Fehler, und wer noch nichts hat, haelt eben drei
@@ -76,23 +75,9 @@ export default function ProfileInvite({ uid, cards }: Props) {
         )}
       </div>
       <div className={styles.inviteAction}>
-        {/* Statt der nackten URL, die hier als abgeschnittene Zeile stand:
-            der Weg auf die Seite selbst. Wer sein Deck herumschickt, will
-            vorher wissen, was der andere zu sehen bekommt — und diese Seite
-            ist der Grund, dass es sich zu teilen lohnt. Ohne `?ref`: sich
-            selbst wirbt niemand.
-
-            Ein einfaches `a`, kein `Link`: /deck/<uid> ist `force-dynamic`
-            und traegt fuer den Besitzer nichts, was ein Prefetch ersparen
-            wuerde. */}
-        <a
-          className={styles.invitePreview}
-          href={deckUrl}
-          target="_blank"
-          rel="noreferrer nofollow"
-        >
-          {t('invitePreview')}
-        </a>
+        {/* Kein „Ansehen" mehr daneben (Nutzer, 24.09.2026: „ansehen braucht
+            man nicht"). Die Vorschau des eigenen Decks war ein zweiter,
+            leiserer Ausgang neben dem einen, um den es geht. */}
         <ShareButton
           className={styles.inviteButton}
           url={inviteUrl}

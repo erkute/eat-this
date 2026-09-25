@@ -50,11 +50,16 @@ export function useGoogleSignIn(): {
   /** Lädt Firebases Popup-Helfer vor — siehe googlePopupWarmup.ts. */
   prepare: () => void;
   start: () => Promise<void>;
+  /** Wie die Google-Anmeldung ausging: neues Konto oder Wiederkehr — null,
+   *  solange keine durch ist. Entscheidet mit, ob es danach ins Profil geht
+   *  (afterSignIn.ts). */
+  outcome: 'sign_up' | 'login' | null;
 } {
   const { user, signInWithGoogle, prepareGoogleSignIn } = useAuth();
   const [phase, setPhase] = useState<GoogleSignInPhase>('idle');
   const [note, setNote] = useState<GoogleSignInNote>(null);
   const viaGoogle = useRef(false);
+  const [outcome, setOutcome] = useState<'sign_up' | 'login' | null>(null);
 
   useEffect(() => {
     if (!user || !viaGoogle.current) return;
@@ -63,6 +68,7 @@ export function useGoogleSignIn(): {
     const signedIn = new Date(user.metadata.lastSignInTime ?? 0).getTime();
     const event = Math.abs(signedIn - created) < 10_000 ? 'sign_up' : 'login';
     trackEvent(event, { method: 'google' });
+    setOutcome(event);
   }, [user]);
 
   const start = useCallback(async () => {
@@ -100,5 +106,6 @@ export function useGoogleSignIn(): {
     noteKey: note ? NOTE_KEY[note] : null,
     prepare: prepareGoogleSignIn,
     start,
+    outcome,
   };
 }

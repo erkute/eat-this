@@ -27,63 +27,92 @@
 
 /* ── Kopfzeile: Spielerkarte + Titel + Reiter ─────────────── */
 
-/* Zwei Felder, mehr nicht: Spielerkarte links, Ueberschrift + Slogan +
-   naechster Zug rechts. Die Reiterleiste ist am 05.09.2026 aus diesem Raster
-   ausgezogen und steht als eigene Zeile ueber dem Kartenraster (Nutzer: „die
-   Filter muessen auf Desktop eine Zeile runter, ueber die Must Eats, dann
-   hast du mehr Platz fuer den Slogan und fuer das naechste Must Eat"). */
+/* ── Kopf: die Buehne ─────────────────────────────────────
+   Spielerkarte in der Mitte, dahinter offene Karten nach beiden Seiten
+   gefaechert, darunter Gruss und Titel. Mittig und ohne Kasten — dieselbe
+   Buehne wie der Kopf des geteilten Decks. */
 .masthead {
+  --album-player-w: clamp(96px, 26vw, 140px);
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: 'card head';
-  /* Titel und Slogan mittig zur Figur: die Karte ist 256 px hoch, das Paar
-     rund 90 — oben angeschlagen liess es 160 px Loch unter sich, unten
-     angeschlagen ebenso viel darueber. Auf der Mittelachse liest sich das
-     Paar als Beschriftung der Karte neben sich. */
-  align-items: center;
-  margin-bottom: clamp(8px, 1vw, 12px);
-  gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
+  justify-items: center;
+  gap: clamp(14px, 2vw, 22px);
+  min-width: 0;
+  padding-top: 8px;
+  text-align: center;
 }
 
-.masthead > .player {
-  grid-area: card;
+.art {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: min(100%, calc(var(--album-player-w) * 3.3));
+  padding: 10px 0 14px;
+}
+
+.art > .player {
+  position: relative;
+  z-index: 5;
+}
+
+/* Position und Drehung je Karte ueber `--art-i` (Abstand zur Mitte) aus
+   ProfileAlbum.tsx; der Stapelrang als `z-index`, die Mitte liegt oben. */
+.artCard {
+  position: absolute;
+  top: 16px;
+  left: calc(50% - var(--album-player-w) * 0.44 + var(--art-i) * var(--album-player-w) * 0.52);
+  display: block;
+  width: calc(var(--album-player-w) * 0.88);
+  aspect-ratio: 1539 / 2115;
+  object-fit: cover;
+  border-radius: 6px;
+  transform: rotate(calc(var(--art-i) * 9deg));
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5));
 }
 
 .masthead > .head {
-  grid-area: head;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   min-width: 0;
 }
 
-/* Der naechste Zug steht nicht mehr IM Kopfraster, sondern als eigene Zeile
-   darunter — siehe ProfileAlbum.tsx. Was bleibt, ist sein Abstand nach unten:
-   darunter folgt die Reiterleiste, und die soll als eigenes Bedienelement
-   lesbar bleiben. */
+.hello {
+  color: var(--album-accent);
+  font-family: var(--album-display);
+  font-size: clamp(12px, 1vw, 14px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+@media (min-width: 900px) {
+  .masthead {
+    --album-player-w: clamp(130px, 11vw, 160px);
+  }
+
+  /* Mit `main` qualifiziert: `.homeV2 .hv-title` aus style.css hat denselben
+     Rang und laedt in Produktion nach den Modulen. */
+  main .masthead :global(.hv-title) {
+    font-size: clamp(40px, 5vw, 72px);
+  }
+}
+
+/* Der naechste Zug: eigene Zeile unter dem Kopf. */
 .albumMove {
   min-width: 0;
-  margin-bottom: clamp(8px, 1vw, 12px);
-}
-
-/* Der Slogan: wie das Spiel geht, in einem Satz. Derselbe, der auf dem
-   geteilten Deck steht — er nimmt dem naechsten Zug darunter die
-   Erklaerarbeit ab. */
-.howTo {
-  max-width: 46ch;
-  /* Ohne das blieb auf 390 px ein einzelnes „dir." als vierte Zeile stehen.
-     Wo der Browser es nicht kennt, aendert sich nichts. */
-  text-wrap: pretty;
-  margin: 10px 0 0;
-  color: var(--album-muted);
-  font-family: var(--album-display);
-  font-size: clamp(14px, 1.2vw, 17px);
-  font-weight: 400;
-  line-height: 1.35;
+  margin-top: clamp(6px, 1vw, 12px);
 }
 
 /* `hv-head` ist eine Zeile mit zwei Enden; hier stapeln sich Titel und
    Slogan, also eine Spalte. */
 .head {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 4px;
 }
 
 /* ── Die Spielerkarte ─────────────────────────────────────
@@ -311,8 +340,10 @@ div.player {
   min-height: 34px;
   padding: 5px 14px;
   color: var(--album-muted);
-  background: transparent;
-  border: 1px solid var(--profile-line, rgba(255, 255, 255, 0.14));
+  /* Flaeche statt Ring, wie die Filter-Chips der Map (24.09.2026). Der
+     transparente Rand bleibt, damit kein Zustand die Groesse aendert. */
+  background: var(--profile-raised, #25231f);
+  border: 1px solid transparent;
   border-radius: 999px;
   cursor: pointer;
   font-family: var(--album-display);
@@ -323,8 +354,7 @@ div.player {
   text-transform: uppercase;
   transition:
     color 140ms ease,
-    background-color 140ms ease,
-    border-color 140ms ease;
+    background-color 140ms ease;
 }
 
 /* Der Name traegt, der Zaehler erklaert — dieselbe Rollenteilung wie beim
@@ -345,13 +375,16 @@ div.player {
 @media (hover: hover) {
   .chip:hover {
     color: var(--album-ink);
-    border-color: var(--profile-ring, rgba(255, 255, 255, 0.28));
+    background: var(--profile-raised-on, #2d2b27);
   }
 }
 
+/* Kein gelber Ring (Nutzer, 23.09.2026) — Fokus hellt die Flaeche auf wie
+   Hover, und die Schrift wird voll. */
 .chip:focus-visible {
-  outline: 3px solid var(--album-accent);
-  outline-offset: 2px;
+  color: var(--album-ink);
+  background: var(--profile-raised-on, #2d2b27);
+  outline: 0;
 }
 
 /* Der gewaehlte Reiter ist gelb gefuellt — dieselbe Umkehr wie jeder
@@ -359,7 +392,6 @@ div.player {
 .chip[aria-pressed='true'] {
   color: var(--profile-ink, #15120e);
   background: var(--album-accent);
-  border-color: var(--album-accent);
 }
 
 .chip[aria-pressed='true'] .chipCount {
@@ -388,7 +420,6 @@ div.player {
 .chipMissing[aria-pressed='true'] {
   color: var(--album-ink);
   background: var(--album-red);
-  border-color: var(--album-red);
 }
 
 /* ── Das Raster ───────────────────────────────────────────── */
@@ -515,69 +546,57 @@ div.player {
     drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-accent) 70%, transparent));
 }
 
-/* Der leere Platz liegt IM Album: eingelassener Schatten statt Schlagschatten,
-   gestrichelte Kante, und er hebt sich beim Anfassen NICHT — da liegt nichts,
-   was man anheben koennte. */
+/* Der leere Platz — seit dem 24.09.2026 die gedaempfte Rueckseite, dieselbe
+   wie fuer eine fehlende Karte auf dem geteilten Deck. Keine gestrichelte
+   Kante, keine Nummer, kein eingelassener Schatten: die Karte ist schon da,
+   nur noch nicht umgedreht. Sie hebt sich beim Anfassen nicht, sie hellt
+   sich auf — Faerbung, keine Bewegung. */
 .empty {
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px dashed rgba(255, 255, 255, 0.22);
-  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.55);
+  background: var(--profile-raised, #25231f);
 }
 
-@media (hover: hover) {
-  .empty:hover {
-    border-color: rgba(255, 255, 255, 0.4);
-  }
-}
-
-.empty:focus-visible {
-  outline: 3px solid var(--album-accent);
-  outline-offset: 2px;
-}
-
-/* Die Rueckseite bleibt als Wasserzeichen: der Platz gehoert zur Marke,
-   ist aber sichtbar leer. Bei 0.28 lag der Markenschriftzug genau hinter der
-   Platznummer und schluckte sie — 0.13 laesst das Muster stehen und die
-   Zahl lesbar werden. */
 .empty .backImg {
-  position: absolute;
-  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  opacity: 0.13;
+  filter: brightness(0.34) saturate(0.4);
+  transition: filter 180ms ease;
 }
 
-/* Die Nummer ist die Beschriftung des Platzes, wie im Panini-Album. */
-.slotNo {
-  position: relative;
-  color: var(--album-ink);
-  font-family: var(--album-display);
-  font-size: clamp(26px, 3vw, 38px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.72;
+@media (hover: hover) {
+  .empty:hover .backImg {
+    filter: brightness(0.5) saturate(0.55);
+  }
 }
 
+/* Kein gelber Ring (Nutzer, 23.09.2026) — Fokus hellt auf wie Hover. */
+.empty:focus-visible {
+  outline: 0;
+}
+
+.empty:focus-visible .backImg {
+  filter: brightness(0.5) saturate(0.55);
+}
+
+/* Der Spot, in dem die Karte liegt — unten auf der Karte, wo auf einer
+   offenen Karte die Beschreibung steht. */
 .slotWhere {
   position: absolute;
   right: 8px;
-  bottom: 7px;
+  bottom: 9px;
   left: 8px;
   color: var(--album-ink);
-  font-family: var(--et-font-label, sans-serif);
-  font-size: 9px;
+  font-family: var(--album-display);
+  font-size: clamp(10px, 0.9vw, 12px);
   font-weight: 700;
-  letter-spacing: 0.1em;
-  line-height: 1.25;
+  letter-spacing: 0.06em;
+  /* Providence haengt unter die Grundlinie — mit Zeilenklemme braucht sie
+     Luft, sonst kappt `overflow` das g. */
+  line-height: 1.35;
   text-align: center;
   text-transform: uppercase;
-  opacity: 0.62;
+  text-wrap: balance;
   /* Zwei Zeilen genuegen fuer „Restaurant Tim Raue" — was laenger ist,
      bricht sauber ab statt den Platz zu sprengen. */
   display: -webkit-box;
@@ -605,40 +624,8 @@ div.player {
 }
 
 @media (max-width: 640px) {
-  /* Auf dem Telefon steht die Spielerkarte neben dem Titel, nicht darueber:
-     nebeneinander kostet der Kopf rund 200 px statt 380, und die erste
-     Kartenreihe liegt wieder ueber der Falz.
-
-     Neben der Karte stehen Ueberschrift und Slogan — der fuellt die Spalte,
-     die vorher schwarz war (Nutzer, 05.09.2026). Der naechste Zug laeuft
-     darunter ueber die volle Breite, als EINE Zeile: in der schmalen Spalte
-     war er vier Zeilen hoch, und genau das war zu viel Text an der falschen
-     Stelle („das muss doch irgendwie darunter, als eine Zeile auf mobile"). */
-  .masthead {
-    gap: 14px 16px;
-  }
-
-  /* Unten buendig mit der Spielerkarte, oben Luft (Nutzer, 05.09.2026: „das
-     soll ein bisschen weiter unten stehen und mit dem Profilbild unten
-     abschliessen, dass oben ein bisschen Raum ist"). Am oberen Rand
-     ausgerichtet fing der Titel auf Kopfhoehe der Figur an und der Slogan
-     endete auf halber Karte — zwei Spalten, die nirgends zusammenkamen.
-     An der Unterkante teilen sie sich eine Linie. */
-  .masthead > .head {
-    align-self: end;
-  }
-
   .player {
-    width: clamp(108px, 30vw, 132px);
-  }
-
-  .head {
-    gap: 0;
-  }
-
-  .howTo {
-    margin-top: 8px;
-    font-size: 13px;
+    width: var(--album-player-w, clamp(108px, 30vw, 132px));
   }
 
   /* Eine Zeile, die seitlich laeuft: sieben Bezirke umgebrochen waeren auf

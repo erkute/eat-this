@@ -17,6 +17,12 @@ export interface PublicDeckGroup {
   total: number;
 }
 
+/** Eine Karte der oeffentlichen Wand — siehe `PublicDeck.cards`. */
+export type PublicDeckCard =
+  | { kind: 'shown'; image: string }
+  | { kind: 'held' }
+  | { kind: 'missing' };
+
 /**
  * Was von einem Deck oeffentlich sichtbar ist.
  *
@@ -37,26 +43,27 @@ export interface PublicDeck {
   total: number;
   /**
    * Eine Karte je Platz, in Kartenreihenfolge (001, 002, 003 …, wie im
-   * eigenen Deck): die Bild-URL, wenn die Karte offen liegen darf, sonst
-   * `null` fuer die Rueckseite.
+   * eigenen Deck), in einem von drei Zustaenden:
    *
-   * Ein Bild bekommen NUR Karten, die ohnehin jedem anonymen Besucher offen
-   * liegen — dieselbe Menge, die `/api/must-eat-image` ohne Cookie
-   * ausliefert (`getPublicMustEatIds`, der kuratierte Anon-Satz plus Spot des
-   * Tages). Jede andere Karte ist hier `null`, ob aufgedeckt oder nicht. Wer
-   * diese Grenze verschiebt, verschenkt den bezahlten Teil des Produkts an
-   * jeden, der einen geteilten Link hat.
+   * - `shown` — offen, mit Bild. Das bekommen NUR Karten, die ohnehin jedem
+   *   anonymen Besucher offen liegen: dieselbe Menge, die
+   *   `/api/must-eat-image` ohne Cookie ausliefert (`getPublicMustEatIds`,
+   *   der kuratierte Anon-Satz plus Spot des Tages). Wer diese Grenze
+   *   verschiebt, verschenkt den bezahlten Teil des Produkts an jeden, der
+   *   einen geteilten Link hat.
+   * - `held` — gesammelt, aber nicht fuer fremde Augen. Rueckseite, kein Bild.
+   * - `missing` — noch nicht gesammelt.
    *
-   * Bis zum 06.09.2026 stand hier ein Objekt je Platz — Nummer, Stand, Bild.
-   * Das Raster sah damit aus wie ein Panini-Album: gestrichelte leere Felder
-   * mit Nummer neben aufgedeckten Karten. Beim Teilen ist das die falsche
-   * Form (Nutzer: „wirklich nur die verdeckte Karte und die offenen Karten
-   * zeigen") — also weiss die Seite jetzt auch nichts mehr davon. Dass eine
-   * Rueckseite „noch nicht umgedreht" oder „umgedreht, aber nicht fuer dich"
-   * heisst, ist damit von aussen nicht zu unterscheiden, und genau so ist es
-   * gemeint.
+   * Bis zum 24.09.2026 waren `held` und `missing` beide `null` und von aussen
+   * nicht zu unterscheiden — mit Absicht. Nur stand darueber der Satz „hat 26
+   * von 26 umgedreht", und darunter lagen 21 Rueckseiten: die Seite
+   * widersprach sich selbst. Die Unterscheidung verraet nichts, was der Satz
+   * nicht schon sagt — die Seite sortiert die Wand nach Zustand, die Position
+   * einer Karte (und damit, welche es ist) geht also nicht mit hinaus.
+   *
+   * Kein Gericht, keine Nummer, kein Spot: auch `held` traegt nur den Zustand.
    */
-  cards: (string | null)[];
+  cards: PublicDeckCard[];
   groups: PublicDeckGroup[];
 }
 
@@ -158,10 +165,8 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   /* Dieselbe Funktion wie im eigenen Deck, nicht eine zweite Rechnung
      daneben: Reihenfolge und Nummerierung muessen zwischen /profile und
      /deck/<uid> uebereinstimmen, sonst traegt dieselbe Karte zwei Zahlen. */
-  /* Ohne Stempel-Menge: das geteilte Deck unterscheidet bewusst NICHT, ob eine
-     Rueckseite „noch nicht umgedreht" oder „umgedreht, aber nicht fuer dich"
-     heisst (siehe PublicDeck.cards). Ein Stempel waere genau diese
-     Unterscheidung — er bleibt dem eigenen Album vorbehalten. */
+  /* Ohne Stempel-Menge: ob eine Karte vor Ort umgedreht oder gekauft wurde,
+     bleibt dem eigenen Album vorbehalten. */
   const album = buildAlbum(
     ownedMustEats,
     surface.faceUpIds,
@@ -170,11 +175,11 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   );
 
   /* Nur der oeffentliche Satz bekommt ein Bild — siehe PublicDeck.cards. */
-  const cards = album.slots.map((slot) =>
-    slot.collected && publicMustEatIds.has(slot.id)
-      ? `/api/must-eat-image/${encodeURIComponent(slot.id)}`
-      : null
-  );
+  const cards = album.slots.map((slot): PublicDeckCard => {
+    if (!slot.collected) return { kind: 'missing' };
+    if (!publicMustEatIds.has(slot.id)) return { kind: 'held' };
+    return { kind: 'shown', image: `/api/must-eat-image/${encodeURIComponent(slot.id)}` };
+  });
 
   const groups = album.groups.map((g) => ({
     district: g.group,

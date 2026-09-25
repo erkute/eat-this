@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLightbox';
 import lightboxStyles from '@/app/components/map/MustEatImageLightbox.module.css';
@@ -29,6 +29,11 @@ interface Props {
   player: { name: string; avatarIdx: number; onPick: () => void };
   /** Der naechste Zug, zwischen Kopfzeile und Reiterleiste. */
   nextMove?: React.ReactNode;
+  /** Die Reiter der Profilseite (Deck · Spots · Packs), direkt unter dem Kopf. */
+  tabs?: React.ReactNode;
+  /** Falsch, wenn ein anderer Reiter als „Deck" offen ist: dann steht nur der
+   *  Kopf mit den Reitern da. */
+  showCollection?: boolean;
 }
 
 // Die Sammlung — Prototyp, 04.09.2026: ein Album statt sieben Abschnitte.
@@ -57,6 +62,8 @@ export default function ProfileAlbum({
   groupOf,
   player,
   nextMove,
+  tabs,
+  showCollection = true,
 }: Props) {
   const t = useTranslations('profile');
   const locale = useLocale();
@@ -113,6 +120,16 @@ export default function ProfileAlbum({
 
   const missingTotal = allSlots.length - collected;
 
+  /* Bis zu fuenf offene Karten fuer den Faecher hinter der Spielerkarte (am
+     Telefon zeigt das CSS drei). Wer noch keine hat, haelt Rueckseiten hin —
+     auch das ist ein Deck. */
+  const heroCards = useMemo(() => {
+    const open = allSlots.flatMap((slot) =>
+      slot.collected && slot.mustEat?.image ? [slot.mustEat.image] : []
+    );
+    return [...open, ...Array<string>(5).fill(CARD_BACK)].slice(0, 5);
+  }, [allSlots]);
+
   /* Abzeichen — was das Deck ueber den Stand hinaus hergibt. Rechnet sich
      aus dem Album aus, das hier ohnehin steht: kein Firestore-Feld, nichts
      nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts).
@@ -137,39 +154,43 @@ export default function ProfileAlbum({
 
   return (
     <div className={styles.panel}>
-      {/* Ein Raster aus vier Feldern statt einer Spalte mit Unterspalte: auf
-          dem Telefon muss die Reiterleiste unter dem Paar aus Karte und Titel
-          durchlaufen, und das geht nur, wenn sie im selben Raster liegt. */}
+      {/* Der Kopf als Buehne (24.09.2026, Nutzer waehlte aus drei Varianten
+          „1"): die Spielerkarte in der Mitte eines Faechers aus offenen
+          Karten, darunter Gruss und Titel — mittig, ohne Kasten, dieselbe
+          Buehne wie der Kopf des geteilten Decks. Zwei Anlaeufe davor (Tafel
+          mit Karte links, dann rechts) wirkten „leer" bzw. „gefaellt mir
+          nicht".
+
+          Kein Zaehler sichtbar: der Stand steht auf dem „Alle"-Reiter
+          (Nutzer, 04.09.2026: „macht das dort oben Sinn, neben dem
+          Profil?"). */}
       <div className={styles.masthead}>
-        <ProfilePlayerCard
-          name={player.name}
-          avatarIdx={player.avatarIdx}
-          onPick={player.onPick}
-        />
+        <div className={styles.art}>
+          {heroCards.map((src, i) => {
+            const at = i - (heroCards.length - 1) / 2;
+            return (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={`${src}-${i}`}
+                className={styles.artCard}
+                style={{ '--art-i': at, zIndex: 2 - Math.abs(at) } as CSSProperties}
+                src={src}
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+              />
+            );
+          })}
+          <ProfilePlayerCard
+            name={player.name}
+            avatarIdx={player.avatarIdx}
+            onPick={player.onPick}
+          />
+        </div>
 
-        <div className={`hv-head ${styles.head}`}>
-          {/* Das h1 der Seite. Bisher hiess es „Ersan" und stand in der
-              Ink-Bank; mit deren Wegfall ist die Sammlung der Seitenanfang,
-              und sie ist auch das ehrlichere Thema: die Seite handelt vom
-              Deck, nicht vom Vornamen.
-
-              Ohne Zaehler daneben (Nutzer, 04.09.2026: „macht das dort oben
-              Sinn, neben dem Profil?"). Er stand am rechten Rand, zwei
-              Spalten von der Karte entfernt, und sagte dasselbe wie die
-              Reiter darunter. Seit dem 06.09.2026 steht er nur noch dort —
-              auf „Alle", dem Reiter, der genau diese Menge schaltet. */}
+        <div className={styles.head}>
+          <span className={styles.hello}>{t('albumHello', { name: player.name })}</span>
           <h1 className="hv-title">{t('albumHeading')}</h1>
-          {/* Wie das Spiel geht, in einem Satz — derselbe, der seit dem
-              04.09.2026 auf dem geteilten Deck steht (Nutzer, 05.09.2026:
-              „das ist eine sehr gute Info, die brauch ich auf jeden Fall auch
-              fuers normale Profil"). Er nimmt dem naechsten Zug darunter die
-              Erklaerarbeit ab: der sagt jetzt nur noch, WO die naechste Karte
-              liegt. */}
-          <p className={styles.howTo}>{t('howTo')}</p>
-          {/* Sichtbar steht der Stand auf dem „Alle"-Reiter, und der ist ein
-              Zahlenpaar in einem Knopf. Hier bleibt er als Satz — und zwar
-              auch dann, wenn die Reiterleiste gar nicht rendert (ein einziger
-              Bezirk). */}
           {allSlots.length > 0 && (
             <span className={styles.srOnly}>
               {collected} {t('albumCount', { total: allSlots.length })}
@@ -178,21 +199,16 @@ export default function ProfileAlbum({
         </div>
       </div>
 
-      {/* Eigene Zeile ueber die volle Breite, zwischen Kopfzeile und Reitern.
-          In der Spalte neben der Spielerkarte fing sein Text bei 380 px an —
-          die Ueberschrift bei 322, Karte, Reiter und Raster bei 96. Drei
-          linke Kanten auf einer Seite, und die dritte gehoerte ausgerechnet
-          der Zeile, die dazwischen lag (Nutzer, 05.09.2026: „nicht schoen
-          ausgerichtet zu dem Rest"). Jetzt sind es zwei: der Block aus Karte
-          und Titel, und darunter alles an derselben Kante — dieselbe
-          Anordnung, die auf dem Telefon ohnehin schon steht.
+      {tabs}
 
-          Weiterhin NICHT zwischen Reitern und Raster (Nutzer, 04.09.2026):
-          die Bezirke filtern das Raster, und was dazwischen steht, trennt
-          einen Schalter von dem, was er schaltet. */}
-      {nextMove && <div className={styles.albumMove}>{nextMove}</div>}
+      {showCollection && (
+        <>
+          {/* Der naechste Zug als eigene Zeile UNTER dem Kopf, nicht an der
+          Spielerkarte (Nutzer, 24.09.2026: „Standort … nicht zu nah am
+          Profilbild, eventuell gehoert es drunter"). */}
+          {nextMove && <div className={styles.albumMove}>{nextMove}</div>}
 
-      {/* Eine eigene Zeile ueber dem Raster, ueber die volle Breite — nicht
+          {/* Eine eigene Zeile ueber dem Raster, ueber die volle Breite — nicht
           mehr in der Spalte neben der Spielerkarte (Nutzer, 05.09.2026: „die
           Filter muessen auf Desktop eine Zeile runter, ueber die Must Eats,
           dann hast du mehr Platz fuer den Slogan und fuer das naechste Must
@@ -203,181 +219,177 @@ export default function ProfileAlbum({
           vollstaendig nebeneinander und tragen ihren Zaehler mit. „Fehlende"
           ist ein Schalter und kein achter Reiter — er schneidet quer durch
           jeden Bezirk. */}
-      {groups.length > 1 && (
-        <div className={styles.filters} role="group" aria-label={t('albumFilterLabel')}>
-          {/* „Alle" traegt seit dem 06.09.2026 denselben Zaehler wie die
+          {groups.length > 1 && (
+            <div className={styles.filters} role="group" aria-label={t('albumFilterLabel')}>
+              {/* „Alle" traegt seit dem 06.09.2026 denselben Zaehler wie die
               Bezirke daneben: aufgedeckt von wie vielen. Vorher stand dort
               die nackte Gesamtzahl, und der Stand stand als Punktestand auf
               der Spielerkarte — an einer Figur, die eigentlich ein Knopf zum
               Charakterwechsel ist (Nutzer: „die Zahl 10 von 25 muss weg, das
               koennte halt bei ‚Alle' stehen"). Hier gehoert er hin: es ist
               der Reiter, der genau diese Menge schaltet. */}
-          <button
-            type="button"
-            className={styles.chip}
-            aria-pressed={active === ALL}
-            aria-label={t('albumGroupProgress', {
-              group: t('albumFilterAll'),
-              done: collected,
-              total: allSlots.length,
-            })}
-            onClick={() => setFilter(ALL)}
-          >
-            <span className={styles.chipName}>{t('albumFilterAll')}</span>
-            <span className={styles.chipCount} aria-hidden="true">
-              {collected}/{allSlots.length}
-            </span>
-          </button>
-          {missingTotal > 0 && (
-            <button
-              type="button"
-              className={`${styles.chip} ${styles.chipMissing}`}
-              aria-pressed={missingOnly}
-              onClick={() => setMissingOnly((v) => !v)}
-            >
-              <span className={styles.chipName}>{t('albumFilterMissing')}</span>
-              <span className={styles.chipCount}>{missingTotal}</span>
-            </button>
-          )}
-          {groups.map((g) => {
-            const done = g.slots.filter((s) => s.collected).length;
-            return (
               <button
-                key={g.group}
                 type="button"
                 className={styles.chip}
-                aria-pressed={active === g.group}
+                aria-pressed={active === ALL}
                 aria-label={t('albumGroupProgress', {
-                  group: g.group,
-                  done,
-                  total: g.slots.length,
+                  group: t('albumFilterAll'),
+                  done: collected,
+                  total: allSlots.length,
                 })}
-                onClick={() => setFilter(g.group)}
+                onClick={() => setFilter(ALL)}
               >
-                <span className={styles.chipName}>{g.group}</span>
+                <span className={styles.chipName}>{t('albumFilterAll')}</span>
                 <span className={styles.chipCount} aria-hidden="true">
-                  {done}/{g.slots.length}
+                  {collected}/{allSlots.length}
                 </span>
               </button>
-            );
-          })}
-        </div>
-      )}
+              {missingTotal > 0 && (
+                <button
+                  type="button"
+                  className={`${styles.chip} ${styles.chipMissing}`}
+                  aria-pressed={missingOnly}
+                  onClick={() => setMissingOnly((v) => !v)}
+                >
+                  <span className={styles.chipName}>{t('albumFilterMissing')}</span>
+                  <span className={styles.chipCount}>{missingTotal}</span>
+                </button>
+              )}
+              {groups.map((g) => {
+                const done = g.slots.filter((s) => s.collected).length;
+                return (
+                  <button
+                    key={g.group}
+                    type="button"
+                    className={styles.chip}
+                    aria-pressed={active === g.group}
+                    aria-label={t('albumGroupProgress', {
+                      group: g.group,
+                      done,
+                      total: g.slots.length,
+                    })}
+                    onClick={() => setFilter(g.group)}
+                  >
+                    <span className={styles.chipName}>{g.group}</span>
+                    <span className={styles.chipCount} aria-hidden="true">
+                      {done}/{g.slots.length}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
-      {allSlots.length === 0 ? (
-        <p className={styles.emptyText}>{t('emptyMustEats')}</p>
-      ) : slots.length === 0 ? (
-        /* Nur erreichbar mit „Fehlende" auf einem vollen Bezirk — und genau
+          {allSlots.length === 0 ? (
+            <p className={styles.emptyText}>{t('emptyMustEats')}</p>
+          ) : slots.length === 0 ? (
+            /* Nur erreichbar mit „Fehlende" auf einem vollen Bezirk — und genau
            dann ist das keine Panne, sondern die beste Nachricht der Seite. */
-        <p className={styles.emptyText}>{t('albumFilterComplete')}</p>
-      ) : (
-        <div className={styles.grid}>
-          {slots.map((slot) => {
-            const open = slot.collected && !!slot.mustEat?.image;
-            const imageUrl = (open && slot.mustEat?.image) || CARD_BACK;
-            const alt = (open ? slot.mustEat?.dish : undefined) ?? '';
-            const where = slot.where ? normalizeName(slot.where) : null;
-            return (
-              <button
-                key={slot.id}
-                type="button"
-                aria-label={
-                  open
-                    ? slot.stamped
-                      ? `${alt} — ${t('albumStamped')}`
-                      : alt
-                    : `${t('lockedSubhead')}${slot.no ? ` — ${slot.no}` : ''}`
-                }
-                className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
-                style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
-                onClick={(e) => {
-                  setExpanded({
-                    imageUrl,
-                    alt,
-                    rect: e.currentTarget.getBoundingClientRect(),
-                    id: slot.id,
-                    spot: slot.slug && where ? { slug: slot.slug, name: where } : null,
-                    open,
-                  });
-                }}
-              >
-                {open && slot.mustEat?.image ? (
-                  <>
-                    {/* The protected image route authorizes the browser's
+            <p className={styles.emptyText}>{t('albumFilterComplete')}</p>
+          ) : (
+            <div className={styles.grid}>
+              {slots.map((slot) => {
+                const open = slot.collected && !!slot.mustEat?.image;
+                const imageUrl = (open && slot.mustEat?.image) || CARD_BACK;
+                const alt = (open ? slot.mustEat?.dish : undefined) ?? '';
+                const where = slot.where ? normalizeName(slot.where) : null;
+                return (
+                  <button
+                    key={slot.id}
+                    type="button"
+                    aria-label={
+                      open
+                        ? slot.stamped
+                          ? `${alt} — ${t('albumStamped')}`
+                          : alt
+                        : `${t('lockedSubhead')}${slot.no ? ` — ${slot.no}` : ''}`
+                    }
+                    className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
+                    style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
+                    onClick={(e) => {
+                      setExpanded({
+                        imageUrl,
+                        alt,
+                        rect: e.currentTarget.getBoundingClientRect(),
+                        id: slot.id,
+                        spot: slot.slug && where ? { slug: slot.slug, name: where } : null,
+                        open,
+                      });
+                    }}
+                  >
+                    {open && slot.mustEat?.image ? (
+                      <>
+                        {/* The protected image route authorizes the browser's
                         HttpOnly capability cookie. next/image's internal
                         optimizer does not forward that cookie, so private
                         album art must load directly. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={slot.mustEat.image}
-                      alt=""
-                      className={styles.img}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    {/* Der Stempel. Er sitzt auf der Karte, leicht schief wie
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={slot.mustEat.image}
+                          alt=""
+                          className={styles.img}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {/* Der Stempel. Er sitzt auf der Karte, leicht schief wie
                         ein echter, und sagt das Einzige, was ein Kauf nicht
                         kann: da war jemand. */}
-                    {slot.stamped && (
-                      <span className={styles.stamp} aria-hidden="true">
-                        {t('albumStamped')}
-                      </span>
+                        {slot.stamped && (
+                          <span className={styles.stamp} aria-hidden="true">
+                            {t('albumStamped')}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      /* Der leere Platz: dieselbe gedaempfte Rueckseite, mit der
+                     das geteilte Deck eine noch fehlende Karte zeigt — eine
+                     Sprache fuer „noch nicht gesammelt" auf beiden Seiten.
+                     Darauf der Spot, in dem die Karte liegt: das ist die
+                     Aufgabe. Bis zum 24.09.2026 stand hier ein gestricheltes
+                     Feld mit Nummer und Wasserzeichen — drei Angaben fuer eine,
+                     und die Nummer beantwortete keine Frage. */
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img className={styles.backImg} src={CARD_BACK} alt="" loading="lazy" />
+                        {where && (
+                          <span className={styles.slotWhere} aria-hidden="true">
+                            {where}
+                          </span>
+                        )}
+                      </>
                     )}
-                  </>
-                ) : (
-                  /* Der leere Platz zeigt, was dorthin gehoert: die Nummer
-                     der Karte und das Lokal, in dem sie liegt. Ein Album-
-                     Feld ohne Beschriftung waere nur ein Loch — mit ihr ist
-                     es eine Aufgabe. Die Rueckseite bleibt als Wasserzeichen
-                     darunter, damit der Platz zur Marke gehoert.
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
-                     Die Nummer ist die der KARTE (`order`), dreistellig wie
-                     im Druck — nicht mehr die laufende Position im Album. */
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className={styles.backImg} src={CARD_BACK} alt="" loading="lazy" />
-                    {slot.no && (
-                      <span className={styles.slotNo} aria-hidden="true">
-                        {slot.no}
-                      </span>
-                    )}
-                    {where && (
-                      <span className={styles.slotWhere} aria-hidden="true">
-                        {where}
-                      </span>
-                    )}
-                  </>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Unter dem Raster, nicht darueber: ein Abzeichen ist das Ergebnis
+          {/* Unter dem Raster, nicht darueber: ein Abzeichen ist das Ergebnis
           der Karten, nicht ihre Ueberschrift. Leer rendert die Zeile gar
           nichts — eine Reihe verschlossener Abzeichen waere eine Liste
           dessen, was fehlt, und die steht auf dieser Seite schon zweimal. */}
-      {badges.length > 0 && (
-        <div className={styles.badges}>
-          <span className={styles.badgesLabel}>{t('badgesHeading')}</span>
-          <ul className={styles.badgeList}>
-            {badges.map((badge) => (
-              <li
-                className={styles.badge}
-                key={badge.kind === 'district' ? `d:${badge.value}` : badge.kind}
-              >
-                {badge.kind === 'cards'
-                  ? badge.value === 1
-                    ? t('badgeFirstCard')
-                    : t('badgeCards', { count: badge.value })
-                  : badge.kind === 'district'
-                    ? t('badgeDistrict', { district: badge.value })
-                    : t('badgeAllBerlin')}
-              </li>
-            ))}
-          </ul>
-        </div>
+          {badges.length > 0 && (
+            <div className={styles.badges}>
+              <span className={styles.badgesLabel}>{t('badgesHeading')}</span>
+              <ul className={styles.badgeList}>
+                {badges.map((badge) => (
+                  <li
+                    className={styles.badge}
+                    key={badge.kind === 'district' ? `d:${badge.value}` : badge.kind}
+                  >
+                    {badge.kind === 'cards'
+                      ? badge.value === 1
+                        ? t('badgeFirstCard')
+                        : t('badgeCards', { count: badge.value })
+                      : badge.kind === 'district'
+                        ? t('badgeDistrict', { district: badge.value })
+                        : t('badgeAllBerlin')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
       )}
 
       <LazyMustEatImageLightbox

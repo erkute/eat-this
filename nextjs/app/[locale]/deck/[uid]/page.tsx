@@ -1,20 +1,25 @@
 import type { Metadata } from 'next';
+import type { CSSProperties } from 'react';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { rateLimitKey } from '@/lib/rateLimitKey';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getPublicDeck } from '@/lib/profile/publicDeck.server';
+import { getPublicDeck, type PublicDeckCard } from '@/lib/profile/publicDeck.server';
 import { SITE_URL } from '@/lib/constants';
 import { toOgLocale } from '@/lib/seo/metadata';
 import styles from '@/app/components/profile/Profile.module.css';
 import ProfilePlayerCard from '@/app/components/profile/ProfilePlayerCard';
-import DeckJoin from './DeckJoin';
+import DeckActions from './DeckActions';
+import tour from '@/app/components/Tour.module.css';
 import deck from './Deck.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
-const CARD_FRONT = '/pics/card-front.webp?v=3';
+const FAN_ORDER = { shown: 0, held: 1, missing: 2 } as const;
+/* Vier Karten plus die Spielerkarte — mehr passt am Telefon nicht in die
+   Bildflaeche, ohne dass eine Karte zur Briefmarke wird. */
+const FAN_SIZE = 4;
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -124,31 +129,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 /**
  * Ein Deck, oeffentlich und verkuerzt — die Seite, die man herumschickt.
  *
- * Sie zeigt Umfang und Verteilung: wie viel von Berlin auf dieser Map liegt
- * und wie weit die Karten je Bezirk aufgedeckt sind. Sie zeigt keine
- * Gerichte, keine Bilder, keine Spot-Namen und keine Notizen — was hier
- * steht, ist in `PublicDeck` aufgezaehlt, und was dort fehlt, verlaesst den
- * Server nicht (siehe publicDeck.server.ts).
+ * Sie zeigt keine Gerichte ausser dem oeffentlichen Satz, keine Spot-Namen
+ * und keine Notizen — was hier steht, ist in `PublicDeck` aufgezaehlt, und
+ * was dort fehlt, verlaesst den Server nicht (siehe publicDeck.server.ts).
  *
- * DIE ERKLAERUNG STEHT ZWEIMAL, und das ist der Punkt (06.09.2026):
+ * KURZ, mit Absicht (Nutzer, 24.09.2026: „kurz, knapp und geil muss es sein
+ * fuer den Freund, der das bekommt … es muss Bock auf die Map machen. Mehr
+ * brauche ich nicht."). Bis dahin trug die Seite eine Kartenwand ueber zwei
+ * Bildschirme, Bezirks-Balken, eine Erklaer-Tafel mit Kartenpaar und drei
+ * Schritten und darunter das ganze Anmeldeformular. Jetzt: wessen Deck, ein
+ * Faecher aus ein paar Karten, zwei Saetze, was ein Must Eat ist, und der
+ * Weg auf die Map.
  *
- *   1. Das Deck. Ueberschrift, EIN Satz, was Eat This ist, der Stand des
- *      Besitzers — dann sofort die Karten. Wer den Link bekommt, will
- *      zuerst sehen, was ihm geschickt wurde.
- *   2. Was Eat This ist, ausfuehrlich: Kartenpaar und die drei Schritte.
- *   3. Mach mit. Die Anmeldung steht auf der Seite, nicht hinter einem Knopf,
- *      der woandershin fuehrt.
- *
- * Zwei Anlaeufe waren falsch, und zwar in beide Richtungen: die Erklaerung
- * ganz unten wurde nie gelesen, die ganze Erklaerung ganz oben schob das Deck
- * aus dem ersten Bildschirm. Nutzer: „was ist Eat This muss unter dem Deck,
- * oder etwas ueber und etwas unter dem Deck an Infos."
- *
- * Die Einladung braucht dafuer keine eigene Mechanik: der Link, den das
- * Profil teilt, traegt `?ref=<uid>`, und die Middleware nimmt den Parameter
- * auf jeder Route entgegen — sie setzt das Cookie und leitet auf die saubere
- * URL um. Wer das Deck ansieht und sich danach anmeldet, ist geworben, ohne
- * dass irgendwer eine Einladung verschickt haette.
+ * Das Anmeldeformular braucht die Seite dafuer nicht mehr: der Link, den das
+ * Profil teilt, traegt `?ref=<uid>`, die Middleware setzt daraus das Cookie,
+ * und sowohl die Google-Anmeldung als auch `send-magic-link` lesen es — egal,
+ * ob sich jemand hier, auf der Map oder eine Woche spaeter anmeldet.
  */
 export default async function DeckPage({ params }: PageProps) {
   const { locale, uid } = await params;
@@ -164,163 +160,117 @@ export default async function DeckPage({ params }: PageProps) {
 
   const t = await getTranslations('deck');
 
-  const steps = [
-    { kicker: t('step1Kicker'), title: t('step1Title'), body: t('step1Body') },
-    { kicker: t('step2Kicker'), title: t('step2Title'), body: t('step2Body') },
-    { kicker: t('step3Kicker'), title: t('step3Title'), body: t('step3Body') },
-  ];
-  const stand = {
-    done: data.revealed,
-    total: data.total,
-    missing: data.total - data.revealed,
-  };
+  /* Ein paar Karten, keine Wand: offene zuerst, dann gesammelte, dann
+     fehlende. Die Sortierung nimmt den Karten ihre Position im Stapel, also
+     verraet der Faecher nicht, WELCHE Karte verdeckt gesammelt ist. In der
+     Mitte steht die Spielerkarte, die Karten liegen links und rechts. */
+  const picked = [...data.cards]
+    .sort((a, b) => FAN_ORDER[a.kind] - FAN_ORDER[b.kind])
+    .slice(0, FAN_SIZE);
+  const name = data.name ?? t('anonymous');
+
+  /* Der Stand als Herausforderung (Nutzer, 24.09.2026: „es muss wie eine
+     Challenge klingen, so: Ersan hat 14 von … Must Eats"). */
+  const full = data.total > 0 && data.revealed === data.total;
+  const counts = { done: data.revealed, total: data.total };
+  const challenge = data.name
+    ? full
+      ? t('challengeFull', { name: data.name, total: data.total })
+      : t('challenge', { name: data.name, ...counts })
+    : t('challengeAnon', counts);
+  const dare = data.revealed === 0 ? t('dareStart') : full ? t('dareFull') : t('dare');
 
   return (
     <main className={`homeV2 ${styles.page} ${deck.page}`} data-menu>
-      {/* ── 1. Das Deck ─────────────────────────────────────────
-          Der Punktestand „10/25" stand bis zum 06.09.2026 auf der Figur. Er
-          ist jetzt ein Satz und steht da, wo er hingehoert: neben der Person,
-          um die es geht — hinter dem einen Satz, der sagt, worum es
-          ueberhaupt geht. */}
-      <section
-        className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}
-      >
-        {/* Ganz oben, ueber der Figur und ueber die volle Breite: der eine
-            Satz, was Eat This ist. Er stand erst in der Spalte NEBEN der
-            Spielerkarte und war dort eine Bildunterschrift zum Charakter —
-            gemeint ist er als Ansage der Seite (Nutzer, 06.09.2026: „die
-            Eat-This-Info ueber dem Deck, und dann kommt der Avatar und das
-            Wording: Ersan hat 10 von 25 Karten umgedreht"). Alles Weitere
-            steht in der Tafel unter dem Deck. */}
-        <p className={deck.intro}>{t('intro')}</p>
-
-        <div className={deck.masthead}>
-          <ProfilePlayerCard name={data.name ?? t('anonymous')} avatarIdx={data.avatar} />
-
-          {/* Kein `hv-head`: das Vokabular stellt Titel und Zaehler auf die
-              beiden Enden einer Zeile, und hier stuende die Ueberschrift damit
-              am rechten Bildrand, der Kicker 1000 px daneben. */}
-          <div className={deck.headCopy}>
-            {/* Der Name gehoert in die Ueberschrift (Nutzer, 04.09.2026: „da
-                muss halt der Name stehen"). Wer einen geteilten Link oeffnet,
-                will zuerst wissen, WESSEN Deck er ansieht. */}
-            <h1 className="hv-title">
-              {data.name ? t('deckHeadingNamed', { name: data.name }) : t('deckHeading')}
-            </h1>
-            <p className={deck.howTo}>
-              {data.name ? t('standNamed', { name: data.name, ...stand }) : t('stand', stand)}
-            </p>
+      {/* Wie ein Layer (Nutzer, 24.09.2026: „sieht aus wie schlechte Ordnung
+          und Design, mach mehr wie ein Layer"): dieselbe Huelle wie Onboarding
+          und Anmeldung (Tour.module.css) — Bild links bzw. oben,
+          Text rechts, der gelbe Knopf unten rechts. Nur liegt sie hier auf der
+          Seite statt ueber ihr. */}
+      <div className={`hv-wrap ${deck.stage}`}>
+        <section className={`${tour.panel} ${deck.sheet}`} aria-labelledby="deck-title">
+          {/* Ohne Kopfzeile: „Eat This · Berlin Food Map" stand direkt unter
+              dem Logo der Navigation (Nutzer, 24.09.2026: „das auch komisch"). */}
+          <div className={tour.content}>
+            <div className={tour.art}>
+              <ul className={deck.fan}>
+                {fanSlots(picked).map((slot) => {
+                  const style = {
+                    '--fan-i': slot.at,
+                    '--fan-d': Math.abs(slot.at),
+                    zIndex: 10 - Math.abs(slot.at) * 2,
+                  } as CSSProperties;
+                  if (slot.kind === 'player') {
+                    return (
+                      <li
+                        key="player"
+                        className={`${deck.fanItem} ${deck.fanPlayer}`}
+                        style={style}
+                      >
+                        <ProfilePlayerCard name={name} avatarIdx={data.avatar} />
+                      </li>
+                    );
+                  }
+                  const card = slot.card;
+                  return (
+                    <li key={slot.at} className={deck.fanItem} style={style}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        className={
+                          card.kind === 'missing'
+                            ? deck.cardMissing
+                            : card.kind === 'held'
+                              ? deck.cardBack
+                              : undefined
+                        }
+                        src={card.kind === 'shown' ? card.image : CARD_BACK}
+                        alt=""
+                        decoding="async"
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            {/* Kein Kicker „Ersans Deck" darueber (Nutzer, 24.09.2026): der Satz
+                nennt den Namen schon. */}
+            <div className={`${tour.copy} ${deck.copy}`}>
+              <h1 id="deck-title" className={tour.headline}>
+                {challenge} <span className={deck.dare}>{dare}</span>
+              </h1>
+              {/* Werbung fuer beides: Eat This selbst und das Sammeln. */}
+              <dl className={deck.points}>
+                <div className={deck.point}>
+                  <dt className={deck.pointLabel}>{t('mapLabel')}</dt>
+                  <dd className={deck.pointBody}>{t('mapBody')}</dd>
+                </div>
+                <div className={deck.point}>
+                  <dt className={deck.pointLabel}>{t('collectLabel')}</dt>
+                  <dd className={deck.pointBody}>{t('collectBody')}</dd>
+                </div>
+              </dl>
+            </div>
           </div>
-        </div>
-
-        {data.cards.length === 0 ? (
-          <p className={styles.emptyLine}>{t('empty')}</p>
-        ) : (
-          <>
-            {/* Die Kartenwand: Vorderseiten und Rueckseiten, sonst nichts.
-                Bis zum 06.09.2026 war das ein Panini-Album — gestrichelte
-                leere Felder mit dreistelliger Nummer neben den aufgedeckten
-                Karten. Im eigenen Profil ist das genau richtig, dort SIND die
-                Luecken die Aufgabe. Beim Teilen nicht (Nutzer: „es soll nicht
-                wie ein Panini-Album sein beim Deckteilen, ohne diese Zahlen
-                drauf und ohne diese dumme Linie, sondern wirklich nur die
-                verdeckte Karte und die offenen Karten zeigen").
-
-                Eine Rueckseite heisst hier „nicht fuer dich sichtbar" — sie
-                deckt die noch nicht umgedrehten Karten ab UND die, die der
-                Besitzer hat, aber nicht herzeigen darf. Der Unterschied geht
-                den Besucher nichts an, und die Zeile darueber sagt ohnehin,
-                wie viele umgedreht sind. */}
-            <ul className={deck.cards}>
-              {data.cards.map((image, i) => (
-                <li className={deck.card} key={i}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className={image ? undefined : deck.cardBack}
-                    src={image ?? CARD_BACK}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </li>
-              ))}
-            </ul>
-
-            <ul className={deck.groups}>
-              {data.groups.map((group) => (
-                <li className={deck.group} key={group.district}>
-                  {/* Wo noch etwas fehlt — die Karten oben sagen wie viel,
-                      die Bezirke sagen wo. */}
-                  <span className={deck.groupHead}>
-                    <span className={deck.groupName}>{group.district}</span>
-                    <span className={deck.groupCount}>
-                      <strong>{group.done}</strong>/{group.total}
-                    </span>
-                  </span>
-                  <span className={deck.groupBar} aria-hidden="true">
-                    <span
-                      className={deck.groupBarFill}
-                      style={{ width: `${Math.round((group.done / group.total) * 100)}%` }}
-                    />
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </section>
-
-      {/* ── 2. Was Eat This ist, ausfuehrlich ────────────────
-          Kartenpaar und die drei Schritte. Die Worte kommen aus dem
-          Must-Eats-Onboarding (mustEats.onb*) und von /about — nicht eine
-          dritte Fassung derselben Erklaerung. */}
-      <section className={`hv-section hv-wrap ${styles.section} ${deck.explain}`}>
-        <div className={deck.explainHead}>
-          <span className={deck.label}>{t('explainKicker')}</span>
-          <h2 className="hv-title">{t('explainTitle')}</h2>
-          <p className={deck.explainLead}>{t('explainLead')}</p>
-        </div>
-
-        {/* Das Paar sagt den Satz, den kein Einzelbild sagen kann: manche
-            liegen offen, manche verdeckt. Dieselben zwei Karten stehen aus
-            demselben Grund auf /about. */}
-        <div className={deck.pair}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className={deck.pairBack}
-            src={CARD_BACK}
-            alt={t('cardsAlt')}
-            loading="lazy"
-            decoding="async"
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className={deck.pairFront}
-            src={CARD_FRONT}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-
-        <ol className={deck.steps}>
-          {steps.map((step) => (
-            <li className={deck.step} key={step.kicker}>
-              <span className={deck.label}>{step.kicker}</span>
-              <span className={deck.stepTitle}>{step.title}</span>
-              <span className={deck.stepBody}>{step.body}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* ── 3. Mach mit ─────────────────────────────────────────
-          Ohne `?ref` — wer schon hier ist, hat das Cookie von der Middleware
-          bekommen. */}
-      <section className={`hv-section hv-wrap ${styles.section}`}>
-        <DeckJoin name={data.name} />
-      </section>
+          <footer className={tour.footer}>
+            <div className={`${tour.actions} ${deck.actions}`}>
+              <DeckActions uid={uid} />
+            </div>
+          </footer>
+        </section>
+      </div>
     </main>
   );
+}
+
+type FanSlot = { kind: 'player'; at: 0 } | { kind: 'card'; at: number; card: PublicDeckCard };
+
+/** Die Spielerkarte in die Mitte, die Karten abwechselnd links und rechts
+ *  daneben — die erste (offene) direkt an die Figur. */
+function fanSlots(cards: PublicDeckCard[]): FanSlot[] {
+  const slots: FanSlot[] = [{ kind: 'player', at: 0 }];
+  cards.forEach((card, i) => {
+    const step = Math.floor(i / 2) + 1;
+    slots.push({ kind: 'card', at: i % 2 === 0 ? -step : step, card });
+  });
+  return slots.sort((a, b) => a.at - b.at);
 }

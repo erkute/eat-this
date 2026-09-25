@@ -1,394 +1,263 @@
-/* Das geteilte Deck. Nur was die Profilseite nicht schon hat — Tafel,
-   Abschnitte und die gelbe Flaeche kommen aus Profile.module.css, damit die
-   beiden Seiten eine Sprache sprechen und nicht zwei, die sich aehneln. */
+/* Das geteilte Deck als Layer (24.09.2026). Die Huelle kommt aus
+   Tour.module.css — Kopfzeile, Bild, Text, gelber Knopf unten rechts —, wie
+   bei Onboarding und Anmeldung. Hier steht nur, was diese Seite anders macht:
+   sie liegt auf der Seite statt darueber, und ihre Bildflaeche ist ein
+   Faecher mit der Spielerkarte in der Mitte.
 
-/* Die Seite haengt an keiner Anmeldung und hat deshalb keinen Ladezustand,
-   der die Hoehe haelt: ohne das hier steht der Footer auf kurzen Decks
-   mitten im Bild. */
+   Selektoren, die gegen die Tour gewinnen muessen, sind doppelt: gleicher
+   Rang waere sonst eine Frage der Ladereihenfolge der Module. */
+
+/* Die Seite haengt an keiner Anmeldung und hat keinen Ladezustand, der die
+   Hoehe haelt: ohne das hier steht der Footer mitten im Bild. */
 .page {
   min-height: 100svh;
 }
 
-/* Der Kopf: Spielerkarte, Ueberschrift, Berlin-Zahl — dasselbe Raster wie im
-   eigenen Profil (ProfileAlbum.module.css .masthead), damit die beiden Seiten
-   eine Sprache sprechen und nicht zwei, die sich aehneln. Hier ohne
-   Reiterleiste und ohne naechsten Zug: beides gehoert dem Besitzer. */
-.masthead {
+.stage {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: 'card head';
-  align-items: center;
-  gap: clamp(14px, 1.8vw, 20px) clamp(20px, 3vw, 40px);
-  margin-bottom: clamp(26px, 3.4vw, 44px);
+  place-items: center;
+  /* Das Fenster steht mittig im Bildschirm unter der Navigation, nicht oben
+     angeschlagen mit einem Loch darunter (Nutzer, 24.09.2026). */
+  min-height: calc(100svh - 200px);
 }
 
-.masthead > :first-child {
-  grid-area: card;
+/* Auf der Seite statt im Overlay: die Tour rechnet ihre Hoehe aus dem
+   ganzen Fenster, hier steht die Navigation darueber. */
+.sheet.sheet {
+  width: min(860px, 100%);
+  height: min(560px, calc(100svh - 150px));
+  min-height: 480px;
+  /* Ohne Kopfzeile braucht der Rand oben die Luft, die sonst sie hielt. */
+  padding-top: clamp(20px, 3vw, 32px);
+  animation: none;
 }
 
-.masthead > .headCopy {
-  grid-area: head;
-  min-width: 0;
-}
-
-.headCopy {
-  display: grid;
-  gap: 2px;
-  justify-items: start;
-}
-
-/* Der eine Satz Produkt, ganz oben ueber die volle Breite — die Ansage der
-   Seite, nicht die Bildunterschrift zur Figur. Er fuehrt, der Stand neben der
-   Karte darunter folgt: also Papier hier, Weiss-Stufe dort. */
-.intro {
-  max-width: 62ch;
-  text-wrap: pretty;
-  margin: 0 0 clamp(20px, 2.6vw, 30px);
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-display);
-  font-size: clamp(17px, 1.6vw, 22px);
-  font-weight: 400;
-  line-height: 1.35;
-}
-
-/* Der Stand des Besitzers, eine Zeile unter dem Satz darueber. */
-.howTo {
-  max-width: 46ch;
-  /* Ohne das blieb auf 390 px ein einzelnes „dir." als vierte Zeile stehen.
-     Wo der Browser es nicht kennt, aendert sich nichts. */
-  text-wrap: pretty;
-  margin: 8px 0 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: clamp(14px, 1.2vw, 17px);
-  font-weight: 400;
-  line-height: 1.35;
-}
-
-/* Die Kartenwand: Vorderseiten und Rueckseiten, sonst nichts.
-
-   Bis zum 06.09.2026 war das ein Panini-Album — gestrichelte leere Felder mit
-   dreistelliger Nummer, aufgedeckte Karten mit Schlagschatten darueber. Im
-   eigenen Profil ist das genau richtig: dort sind die Luecken die Aufgabe.
-   Beim Teilen war es die falsche Form (Nutzer, 06.09.2026: „es soll nicht wie
-   ein Panini-Album sein beim Deckteilen, ohne diese Zahlen drauf und ohne
-   diese dumme Linie"). Mit den Zustaenden sind `.slotEmpty`, `.slotBack` und
-   `.slotNo` weg — und `PublicDeckSlot` gleich mit, die Seite bekommt die
-   Angaben gar nicht mehr geliefert. */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
-  gap: clamp(12px, 1.6vw, 20px);
-  align-items: start;
-  margin: 0 0 clamp(30px, 4vw, 52px);
+/* ── Der Faecher ──────────────────────────────────────────
+   Die Bildflaeche der Tour ist ein Groessen-Container (`cqw`/`cqh`). Jede
+   Karte steht mittig und wird ueber `--fan-i` (Abstand zur Mitte) versetzt
+   und gedreht, `--fan-d` laesst die Raender sinken. */
+.fan {
+  --fan-w: min(27cqw, 56cqh);
+  --fan-step: 0.52;
+  position: absolute;
+  inset: 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.card {
-  position: relative;
-  aspect-ratio: 1539 / 2115;
-  overflow: hidden;
-  border-radius: 7px;
-  /* Jede Karte liegt AUF dem Album, auch die verdeckte: es ist ein Stapel,
-     kein Album mit Loechern. */
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+.fanItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--fan-w);
+  transform: translate(-50%, -50%) translateX(calc(var(--fan-i) * var(--fan-w) * var(--fan-step)))
+    translateY(calc(var(--fan-d) * var(--fan-w) * 0.08)) rotate(calc(var(--fan-i) * 9deg));
+  transform-origin: 50% 100%;
 }
 
-.card img {
+.fanItem img {
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1539 / 2115;
   object-fit: cover;
+  border-radius: 6px;
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
 }
 
-/* Eine Wand aus Rueckseiten in voller Leuchtkraft uebertoent die Gerichte
-   daneben, um die es geht — die Rueckseite ist knallgelb, und meistens sind
-   es die meisten. Eine Stufe dunkler, mehr nicht: sie bleibt eine Karte,
-   fuehrt aber nicht.
-
-   Statisch, kein Ein-/Ausblenden — die Brand-Regel gegen Opacity-Fades
-   betrifft Bewegung, nicht Faerbung. */
-.cardBack {
-  filter: brightness(0.62) saturate(0.85);
+/* Die Spielerkarte rechnet ihre Breite aus einer geerbten Variable
+   (ProfileAlbum.module.css). */
+.fanPlayer {
+  --album-player-w: var(--fan-w);
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.55));
 }
 
-/* Der Stempel „War da" — Ink auf Gelb, leicht schief wie ein echter. Er sagt
-   das Einzige, was ein Kauf nicht kann. */
-.stamp {
-  position: absolute;
-  right: 6%;
-  bottom: 8%;
-  z-index: 2;
-  padding: 3px 8px;
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  border-radius: 3px;
-  font-family: var(--et-font-label, sans-serif);
-  font-size: clamp(8px, 1vw, 11px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  line-height: 1;
-  text-transform: uppercase;
-  transform: rotate(-7deg);
+/* Zwei Rueckseiten, zwei Bedeutungen: gesammelt, aber nicht fuer fremde
+   Augen — fast volle Farbe; noch nicht gesammelt — deutlich gedaempft.
+   Statisch, kein Ein-/Ausblenden. */
+.fanItem img.cardBack {
+  filter: brightness(0.8) saturate(0.85) drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
 }
 
-.groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-  gap: clamp(18px, 2.4vw, 30px) clamp(24px, 3vw, 48px);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.fanItem img.cardMissing {
+  filter: brightness(0.34) saturate(0.4) drop-shadow(0 12px 20px rgba(0, 0, 0, 0.5));
 }
 
-.group {
-  min-width: 0;
+/* ── Text ─────────────────────────────────────────────────── */
+
+/* Eine linke Kante fuer Ueberschrift, Punkte und Knoepfe — auch am
+   Telefon, wo die Tour ihren Text mittig setzt (Nutzer, 24.09.2026: „nicht
+   gut ausgerichtet"). */
+.copy.copy {
+  text-align: left;
 }
 
-.groupHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.groupName {
-  font-family: var(--et-font-display);
-  font-size: clamp(14px, 1.2vw, 17px);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.groupCount {
-  flex: 0 0 auto;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-}
-
-.groupCount strong {
-  color: var(--et-home-inverse-text, #fff);
-  font-weight: 700;
-}
-
-/* Derselbe Balken wie der Berlin-Fortschritt auf der Tafel: Gelb auf einer
-   Weiss-Stufe des Ink-Grunds. */
-.groupBar {
-  display: block;
-  height: 6px;
-  margin-top: 10px;
-  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.groupBarFill {
-  display: block;
-  height: 100%;
-  background: var(--et-home-accent, #ffc600);
-  border-radius: inherit;
-}
-
-/* ── Was Eat This ist ──────────────────────────────────────
-   Die Tafel UNTER dem Deck. Ueber dem Deck steht nur der eine Satz (.intro);
-   hier steht, wie das Spiel geht. Kopf und Kartenpaar nebeneinander, die drei
-   Schritte darunter ueber die volle Breite; auf dem Telefon untereinander in
-   derselben Reihenfolge. */
-.explain {
-  display: grid;
-  gap: clamp(22px, 3vw, 36px);
-}
-
-.explainHead {
-  display: grid;
-  gap: 4px;
-  justify-items: start;
-}
-
-/* Ein Label fuer den Abschnitt und fuer jeden Schritt — dieselbe Zeile, also
-   dieselbe Klasse. Ohne `hv-kicker`: das Haus-Vokabular faerbt seinen Kicker
-   auf Ink-Grund muted (Profile.module.css, `main.page .hv-kicker`, 0,2,1),
-   und ein Modul-Selektor daneben verliert dagegen still — in dev sichtbar
-   gleich, in Produktion nicht. Wer diesen Weg noch einmal geht, muss mit dem
-   Element qualifizieren; hier ist keiner noetig, weil nichts ueberschrieben
-   wird. */
-.label {
-  color: var(--et-home-accent, #ffc600);
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.explainLead {
-  max-width: 58ch;
-  margin: 6px 0 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: clamp(15px, 1.3vw, 18px);
-  font-weight: 400;
-  line-height: 1.4;
+/* Die Herausforderung ist laenger als eine Tour-Ueberschrift — eine Stufe
+   kleiner, sonst lief sie am Desktop ueber fuenf Zeilen. */
+.sheet.sheet h1 {
+  font-size: clamp(24px, 2.6vw, 32px);
   text-wrap: pretty;
 }
 
-/* Das Paar sagt den Satz, den kein Einzelbild sagen kann: manche liegen
-   offen, manche verdeckt. Die Drehung bleibt klein und die Karten schmal —
-   gekippte Bilder blaehen auf dem Telefon das Dokument in die Breite, und
-   diese Seite hat keinen Container, der das wegklippt. */
-.pair {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-}
-
-.pair img {
+/* Die Frage hinter dem Stand, in Gelb auf eigener Zeile und in EINEM Stueck:
+   „Schaffst / du mehr?" zerfiel sonst in zwei Zeilen. */
+.dare {
   display: block;
-  width: clamp(112px, 13vw, 168px);
-  height: auto;
-  border-radius: 8px;
-  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.5));
+  margin-top: 6px;
+  color: var(--et-home-accent, #ffc600);
+  font-size: 0.82em;
+  white-space: nowrap;
 }
 
-.pairBack {
-  transform: rotate(-5deg);
-}
-
-.pairFront {
-  margin-left: clamp(-26px, -2vw, -16px);
-  transform: rotate(5deg);
-}
-
-.steps {
+.points {
   display: grid;
-  gap: clamp(18px, 2.2vw, 26px);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: 14px;
+  margin: clamp(16px, 2vw, 22px) 0 0;
+  text-align: left;
 }
 
-.step {
+/* Zwei gleich wichtige Gruende: die Map und das Sammeln, jeder mit dem
+   gelben Marken-Quadrat vor dem Label. */
+.point {
   display: grid;
   gap: 3px;
   min-width: 0;
 }
 
-.stepTitle {
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--et-font-display);
-  font-size: clamp(18px, 1.7vw, 23px);
+.pointLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  /* Providence haengt unter die Grundlinie: „probieren" verliert sein p,
-     sobald die Zeile enger als 1.2 steht. */
-  line-height: 1.2;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1.3;
+  text-transform: uppercase;
 }
 
-.stepBody {
-  max-width: 46ch;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: clamp(14px, 1.2vw, 16px);
-  font-weight: 400;
+.pointLabel::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  background: var(--et-home-accent, #ffc600);
+}
+
+.pointBody {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
   line-height: 1.4;
   text-wrap: pretty;
 }
 
-/* Ab Desktop steht das Paar neben dem Kopf und die drei Schritte laufen
-   darunter nebeneinander — die Reihenfolge, in der sie gelesen werden
-   sollen, ist dann auch die Richtung, in der man liest. Auf dem Telefon
-   bleibt alles untereinander: Kopf, Paar, Schritte. */
-@media (min-width: 860px) {
-  .explain {
-    grid-template-columns: minmax(0, 1fr) clamp(230px, 24vw, 310px);
-    column-gap: clamp(34px, 4.5vw, 64px);
-    align-items: center;
-  }
+/* ── Knoepfe ──────────────────────────────────────────────── */
 
-  .explainHead {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .pair {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  /* Drei Spalten, aber EIN Raster: die Schritte teilen sich die drei
-     Zeilen (Label, Titel, Text), statt jeder fuer sich zu wachsen. Ohne das
-     rutscht die dritte Spalte ab, sobald ihr Titel eine Zeile mehr braucht
-     oder auch nur ein „oe" enthaelt — Providence holt den Umlaut aus einer
-     anderen Datei, und die Zeile wird 7 px hoeher. Wo `subgrid` fehlt, faellt
-     die Regel weg und es steht wieder wie vorher. */
-  .steps {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: auto auto auto;
-    column-gap: clamp(24px, 3vw, 48px);
-  }
-
-  .step {
-    grid-row: span 3;
-    grid-template-rows: subgrid;
-  }
+/* Der gelbe Knopf steht rechts, der zweite links daneben — auch wenn der
+   zweite fuer Angemeldete verschwindet. */
+.actions.actions {
+  justify-content: flex-end;
+  gap: 12px;
 }
 
-/* ── Mach mit ──────────────────────────────────────────────
-   Die Tafel kommt aus StarterPackSignup.module.css, ihr Inhalt aus
-   LoginBoard — dasselbe Objekt wie auf der Startseite. Hier steht nur, was
-   diese Seite anders macht: darunter haengt der leise Weg zur Map. */
+.primary {
+  text-decoration: none;
+}
 
-/* Wer sich noch nicht anmelden will, soll nicht in einer Sackgasse stehen —
-   aber auch nicht zwischen zwei gleich lauten Knoepfen waehlen muessen. Eine
-   Zeile, unterstrichen, mittig unter der Tafel. */
-.browse {
-  display: block;
-  width: fit-content;
-  margin: clamp(16px, 2vw, 24px) auto 0;
-  padding-bottom: 3px;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  border-bottom: 2px solid var(--et-home-accent, #ffc600);
-  font-family: var(--et-font-display);
-  font-size: clamp(14px, 1.2vw, 16px);
+/* Der zweite Knopf: Flaeche Weiss 10 %, kein Ring, keine Unterstreichung —
+   wie der Zweitknopf der Info-Karte. */
+.second {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-right: auto;
+  padding: 12px 22px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0;
+  border-radius: var(--et-radius-control, 7px);
+  cursor: pointer;
+  font: inherit;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.3;
-  text-align: center;
-  transition: color var(--et-motion-fast, 140ms ease);
+  text-decoration: none;
+  transition: background-color 140ms ease;
 }
 
-.browse:focus-visible {
-  color: var(--et-home-inverse-text, #fff);
+.second[hidden] {
+  display: none;
+}
+
+.second:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+  outline: 0;
 }
 
 @media (hover: hover) {
-  .browse:hover {
-    color: var(--et-home-inverse-text, #fff);
+  .second:hover {
+    background: rgba(255, 255, 255, 0.18);
   }
 }
 
-/* Wie im eigenen Deck: auf dem Telefon steht die Spielerkarte neben der
-   Ueberschrift, die Berlin-Zahl laeuft darunter ueber die volle Breite. */
-@media (max-width: 640px) {
-  .masthead {
-    align-items: start;
-    gap: 16px;
+/* Desktop: das Fenster so hoch wie sein Inhalt, die Bildspalte breiter und
+   der Faecher enger und groesser — vorher stand ein kleiner Faecher in einer
+   hohen Spalte, darueber und darunter je 150 px Leere („viel zu viel
+   Freiflaeche"). */
+@media (min-width: 900px) {
+  .sheet.sheet {
+    width: min(920px, 100%);
+    height: 440px;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    column-gap: 44px;
+    padding: 28px 36px 28px 20px;
   }
 
-  .cards {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+  .fan {
+    --fan-w: min(28cqw, 64cqh);
+    --fan-step: 0.44;
   }
 }
 
-@media (max-width: 360px) {
-  .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+/* Zwischen Telefon und Desktop war die Textspalte der Tour nur rund 250 px
+   breit — dort steht der Faecher ueber dem Text, wie am Telefon. */
+@media (min-width: 601px) and (max-width: 899px) {
+  .sheet.sheet {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      'art'
+      'copy'
+      'footer';
+    height: min(820px, calc(100svh - 150px));
+    min-height: 640px;
+    padding: 28px 34px 24px;
+  }
+
+  .copy.copy {
+    padding-top: 8px;
+  }
+}
+
+/* Telefon: die Tour stapelt Bild und Text; hier bekommt der Faecher etwas
+   mehr Hoehe. */
+@media (max-width: 600px) {
+  .sheet.sheet {
+    height: calc(100svh - 120px);
+    min-height: 620px;
+    max-height: 760px;
+  }
+
+  .fan {
+    --fan-w: min(26cqw, 60cqh);
+  }
+
+  .second,
+  .actions :global(a),
+  .actions :global(button) {
+    min-width: 0;
+    flex: 1 1 0;
   }
 }

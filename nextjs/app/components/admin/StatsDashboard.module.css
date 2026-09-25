@@ -49,29 +49,49 @@
   background: var(--ground);
 }
 
+/* Wortmarke oben links, führt zur Startseite. Hover hebt sie an wie die
+   Wörter im Burger — Bewegung statt Opacity. */
+.home {
+  display: block;
+  width: 132px;
+  margin: 22px 22px 14px;
+  border-radius: var(--et-radius-control, 7px);
+  transition: transform 160ms ease;
+}
+
+.home img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (hover: hover) {
+  .home:hover {
+    transform: translateY(-2px) rotate(-1.5deg);
+  }
+}
+
+/* Kein Ring (siehe Kontur-Regel), der Fokus zeigt sich wie der Hover. */
+.home:focus-visible {
+  outline: 0;
+  transform: translateY(-2px) rotate(-1.5deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home {
+    transition: none;
+  }
+}
+
+/* Die Seite trägt keinen eigenen Namen mehr (Ansage: „nimm Stats weg"),
+   die Wortmarke ist der Kopf. Die Überschrift bleibt für Vorleser. */
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 22px 22px 12px;
-}
-
-.brandMark {
-  width: 10px;
-  height: 10px;
-  background: var(--yellow);
-  flex: none;
-}
-
-.brandName {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-  /* Großzügig, damit Providence die Unterlängen behält. */
-  line-height: 1.32;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .nav {
@@ -179,6 +199,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  /* Sonst wächst die Leiste auf die Breite der fünf Zeitraum-Knöpfe, statt
+     sie in ihrer eigenen Fläche scrollen zu lassen (320 px: 347 px breit). */
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Zeitraum-Wahl: eine Fläche, der gesetzte Wert gelb darin. Keine
@@ -327,6 +351,7 @@
 
 .cardHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
@@ -362,14 +387,18 @@
   color: var(--muted);
 }
 
+/* Darf unter den Titel umbrechen — auf dem Telefon schob die Zeile aus
+   Auswahlfeld und Häkchen die Seite auf 586 px. */
 .cardTools {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  flex: none;
+  gap: 6px 10px;
+  max-width: 100%;
 }
 
 .select {
+  max-width: 100%;
   min-height: 32px;
   padding: 4px 8px;
   border: 0;
@@ -385,7 +414,7 @@
 .kpis {
   grid-column: span 12;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
   gap: 12px;
 }
 
@@ -773,7 +802,7 @@
 
 .stages {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 12px;
 }
 
@@ -870,7 +899,7 @@
 
 .rates {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
   gap: 10px;
 }
 
@@ -902,12 +931,17 @@
 .dayCols {
   grid-column: span 12;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 14px;
 }
 
 .dayCol {
   display: grid;
+  /* Feste Spur: ohne sie wuchs die implizite Spalte auf die breiteste Zeile
+     darin (gemessen 485 px in einer 347-px-Spalte am Telefon), und die Seite
+     ließ sich seitlich schieben. */
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 16px;
   padding: 20px 22px 22px;
   border-radius: var(--et-radius-photo, 10px);
@@ -931,7 +965,7 @@
 
 .dayTiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(110px, 100%), 1fr));
   gap: 8px;
 }
 
@@ -970,12 +1004,16 @@
 
 .stack {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
+/* Alle auto-fit-Raster deckeln ihre Mindestspalte mit min(…, 100%): eine
+   Karte bei 320 px ist innen rund 250 px breit, weniger als die 260–320 px,
+   die die Spalten verlangten — die Seite ließ sich seitlich schieben. */
 .split {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 18px;
 }
 
@@ -1079,8 +1117,9 @@
     height: auto;
   }
 
-  .brand {
-    padding: 16px 16px 8px;
+  .home {
+    width: 112px;
+    margin: 16px 16px 8px;
   }
 
   .nav {
@@ -1121,8 +1160,10 @@
 
   /* Fünf Zeiträume auf 347 px: einzeilig nur mit schmalerem Innenabstand. */
   .seg {
+    min-width: 0;
     max-width: 100%;
     overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .segBtn,

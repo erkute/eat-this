@@ -75,7 +75,14 @@ vi.mock('./ProfileSpots', () => ({ default: () => <div>Profile spots</div> }));
 /* Zieht sonst den echten UserLocationContext mit — der wirft ausserhalb
    seines Providers, und dieser Test rendert die Shell blank. */
 vi.mock('./ProfileNextMove', () => ({ default: () => <div>Next move</div> }));
-vi.mock('./ProfileAlbum', () => ({ default: () => <div>Profile album</div> }));
+vi.mock('./ProfileAlbum', () => ({
+  default: ({ tabs }: { tabs?: React.ReactNode }) => (
+    <div>
+      Profile album
+      {tabs}
+    </div>
+  ),
+}));
 vi.mock('./ProfilePacks', () => ({ default: () => <div>Profile packs</div> }));
 vi.mock('./AvatarPickerModal', () => ({ default: () => null }));
 vi.mock('../SiteFooter', () => ({ default: () => <footer>Footer</footer> }));
@@ -145,7 +152,40 @@ describe('ProfileShell map-data states', () => {
     expect(state.refetch).toHaveBeenCalledOnce();
 
     expect(screen.queryByRole('alert')).toBeNull();
-    expect(screen.getByText('Saved Spots')).toBeTruthy();
+    // Die Seite steht trotzdem — der Deck-Reiter mit dem Album.
+    expect(screen.getByText('Profile album')).toBeTruthy();
+  });
+});
+
+/* Nutzer, 24.09.2026: „sollte man oben noch die Moeglichkeit haben, Tabs zu
+   wechseln?" — die Seite war vier Bildschirme lang. */
+describe('ProfileShell tabs', () => {
+  afterEach(() => window.history.replaceState(null, '', '/'));
+
+  it('zeigt je Reiter nur seinen Teil und merkt ihn sich im Anker', () => {
+    render(<ProfileShell publicFaceUpIds={[]} />);
+    expect(screen.queryByText('Profile spots')).toBeNull();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'tab_spots' }));
+    expect(screen.getByText('Profile spots')).toBeTruthy();
+    expect(screen.queryByText('Profile packs')).toBeNull();
+    expect(screen.getByRole('tab', { name: 'tab_spots' }).getAttribute('aria-selected')).toBe(
+      'true'
+    );
+    expect(window.location.hash).toBe('#spots');
+
+    fireEvent.click(screen.getByRole('tab', { name: 'tab_packs' }));
+    expect(screen.getByText('Profile packs')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'tab_deck' }));
+    expect(screen.queryByText('Profile packs')).toBeNull();
+    expect(window.location.hash).toBe('');
+  });
+
+  it('oeffnet den Reiter aus dem Anker', () => {
+    window.history.replaceState(null, '', '/profile#packs');
+    render(<ProfileShell publicFaceUpIds={[]} />);
+    expect(screen.getByText('Profile packs')).toBeTruthy();
   });
 });
 

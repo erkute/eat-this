@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { useHubFilter, type HubFilter } from '@/lib/useHubFilter';
-import styles from './Bezirk.module.css';
+import styles from '@/app/components/HubPage.module.css';
 
 /**
  * Bezirks-Filter für den /bezirk-Index.
@@ -10,8 +10,8 @@ import styles from './Bezirk.module.css';
  * Der Index listet siebzehn Bezirke mit je vier Karten — rund zehn
  * Bildschirme, durch die man sich zum eigenen Kiez scrollen musste. Die
  * Chip-Leiste holt jeden Bezirk samt Spot-Zahl über die Falz und blendet auf
- * Klick alles andere aus; auf Mobil klebt sie zusätzlich unter der
- * Navigation (siehe .filterSticky).
+ * Klick alles andere aus; auf dem Telefon klebt sie unter der Navigation
+ * (siehe .filterBar in HubPage.module.css).
  *
  * Bewusst in Provider / Leiste / Zeilen-Hülle geteilt statt als eine große
  * Client-Komponente: die Karten bleiben Server-Markup, der Client schaltet nur
@@ -78,7 +78,7 @@ export function BezirkFilterBar({
   // sonst weit rechts außerhalb und der gefilterte Zustand hat gar keine
   // sichtbare Bestätigung. Bewusst `scrollLeft` statt `scrollIntoView` — das
   // würde auch vertikal korrigieren und sich mit dem Listen-Scroll des
-  // Providers beißen. Ab 761px umbricht das Rail, dann ist es ein No-op.
+  // Providers beißen. Ab 700px umbricht das Rail, dann ist es ein No-op.
   useEffect(() => {
     const rail = railRef.current;
     const chip = rail?.querySelector<HTMLElement>('[aria-pressed="true"]');
@@ -101,7 +101,7 @@ export function BezirkFilterBar({
       <p className={styles.filterStatus} role="status">
         {status}
       </p>
-      <div className={styles.filterSticky}>
+      <div className={styles.filterBar}>
         <div
           ref={railRef}
           className={styles.filterRail}
@@ -140,7 +140,7 @@ export function BezirkRow({ slug, children }: { slug: string; children: ReactNod
   return (
     <section
       id={`bezirk-${slug}`}
-      className={styles.districtRow}
+      className={styles.shelfSection}
       aria-labelledby={`bezirk-${slug}-title`}
       hidden={active !== null && active !== slug}
     >

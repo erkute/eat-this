@@ -45,8 +45,7 @@
   --flow-mod: clamp(48px, 7.2vw, 96px);
   min-height: 100vh;
   min-height: 100dvh;
-  /* Shared page frame — same max-width, top offset and gutter as
-     /bezirk and /bezirk/[slug]. See Bezirk.module.css .page. */
+  /* Page frame: max-width, top offset (fixed SiteNav) and gutter. */
   --page-pad: 22px;
   max-width: 1180px;
   margin-inline: auto;

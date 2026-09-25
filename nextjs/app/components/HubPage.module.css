@@ -1,0 +1,962 @@
+/* ============================================================
+   Hub-Seiten: /bezirk, /kategorie und ihre Detailseiten.
+
+   Neu gesetzt am 25.09.2026 („in meinem neuen Look, Lesbarkeit und
+   Orientierung"). Vorher trugen Bezirk.module.css und Kategorie.module.css
+   zusammen rund 2.300 Zeilen, die meisten davon Endblöcke, die frühere Endblöcke
+   überschrieben. Diese Datei ersetzt beide.
+
+   Der Aufbau folgt dem, was Listenseiten überall tun:
+   - ein knapper Kopf (Einordnung, Titel, ein Satz, ein Knopf) — die Liste
+     beginnt auf dem Telefon noch im ersten Bildschirm;
+   - eine klebende Filterleiste, die man beim Scrollen nicht verliert;
+   - große Karten nur für die kuratierte Bestenliste, das Verzeichnis als
+     kompakte Zeilen (Kreuzberg mobil: ~42.000px → ein Bruchteil);
+   - Index-Seiten als Regale: Kopf mit „Alle", vier Spots, auf dem Telefon
+     wischbar.
+
+   Vokabular wie auf Map und Spot-Seite: Ink-Grund, Providence für alles
+   Gesetzte, Inter für Fließtext, Gelb als einziger Akzent, Bedienelemente als
+   Fläche (--et-ink-raised) statt Kontur.
+   ============================================================ */
+
+.page {
+  --hub-paper: var(--et-home-inverse-text, #fff);
+  --hub-ink: var(--et-home-ink, #15120e);
+  --hub-accent: var(--et-home-accent, #ffc600);
+  --hub-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --hub-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  --hub-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  --hub-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  --hub-raised: var(--et-ink-raised, #25231f);
+  --hub-display: var(--font-providence, var(--et-font-display), sans-serif);
+  --hub-body: var(--font-body, var(--font), system-ui, sans-serif);
+  --hub-radius: var(--et-radius-photo, 10px);
+  --hub-radius-control: var(--et-radius-control, 7px);
+  --hub-gutter: 16px;
+  --hub-section-gap: 48px;
+
+  /* Die Navigation ist fixiert, klappt aber unter 768px beim Scrollen weg
+     (SiteNav, data-visibility). Die Filterleiste folgt dem Zustand, statt eine
+     Höhe anzunehmen — sonst entsteht ein leeres Band oder sie steckt dahinter. */
+  --hub-sticky-top: var(--staging-banner-h, 0px);
+  display: flow-root;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(1240px + 2 * var(--hub-gutter));
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding: 0 var(--hub-gutter) 72px;
+  overflow-x: clip;
+  color: var(--hub-paper);
+  font-family: var(--hub-body);
+}
+
+body:has(:global(#navbar[data-visibility='visible'])) .page {
+  --hub-sticky-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
+}
+
+@media (min-width: 700px) {
+  .page {
+    --hub-gutter: clamp(24px, 4vw, 48px);
+    --hub-section-gap: clamp(56px, 6vw, 88px);
+  }
+}
+
+/* `hidden` am Filter-Slot: dessen `display: contents` hebelte das Attribut
+   sonst aus. Attribut plus Klasse schlägt die Klasse allein. */
+.cardSlot[hidden] {
+  display: none;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   KOPF
+   ============================================================ */
+
+.hero {
+  display: grid;
+  gap: 24px;
+  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + clamp(20px, 4vw, 52px));
+  padding-bottom: clamp(20px, 3vw, 36px);
+}
+
+@media (min-width: 900px) {
+  .heroWithMedia {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: end;
+    gap: clamp(32px, 5vw, 72px);
+  }
+}
+
+/* Container für die Titelgröße: `--title-fit` rechnet in cqi, damit auch
+   „Friedrichshain" auf dem Telefon in eine Zeile passt. */
+.heroCopy {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.kicker {
+  display: block;
+  margin: 0 0 14px;
+  color: var(--hub-accent);
+  font-family: var(--hub-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--hub-paper);
+  font-family: var(--hub-display);
+  font-size: clamp(28px, var(--title-fit, 12cqi), 92px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  /* Providence hängt weit unter die Grundlinie — unter 1.0 stößt das g einer
+     Zeile an die Versalien der nächsten. */
+  line-height: 1;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+
+/* „in Berlin" unter dem Kategorienamen: Teil der H1 (Suchphrase), optisch die
+   gelbe Unterzeile. */
+.titleSuffix {
+  display: block;
+  /* Negativ: die Titelzeile trägt unten den Unterlängen-Raum von Providence
+     (rund ein Drittel der Schriftgröße), der Abstand stand sonst doppelt. */
+  margin-top: -0.35em;
+  color: var(--hub-accent);
+  font-size: max(15px, 0.3em);
+  letter-spacing: 0.08em;
+}
+
+.lede {
+  max-width: 46ch;
+  margin: 18px 0 0;
+  color: var(--hub-soft);
+  font-family: var(--hub-display);
+  font-size: clamp(18px, 1.7vw, 22px);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* Der Map-Knopf (MapPromoCTA, Variante „band") in Kopf-Größe: dieselbe Höhe
+   wie die Filter-Chips darunter plus ein Stück, auf dem Telefon volle Breite.
+   Element plus Klasse, damit die Regel unabhängig von der Ladereihenfolge der
+   beiden Module gewinnt. */
+.heroActions > a {
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 22px;
+  font-size: 16px;
+}
+
+@media (max-width: 699px) {
+  .heroActions > a {
+    flex: 1 1 100%;
+  }
+}
+
+/* Der Knopf ist gelb — ein gelber Ring verschwände an ihm, der rote aus der
+   Komponente steht auf Ink bei rund 2,9:1. */
+.heroActions > a:focus-visible {
+  outline: 2px solid var(--hub-paper);
+  outline-offset: 3px;
+}
+
+.heroMedia {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: var(--hub-radius);
+  background: var(--hub-raised);
+}
+
+.heroMedia img {
+  object-fit: cover;
+}
+
+/* ============================================================
+   FILTERLEISTE (Detailseiten und Bezirks-Index)
+   ============================================================ */
+
+.filterStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Die Provider-Hülle löst sich auf: die Leiste muss direktes Kind eines
+   hohen Blocks sein, sonst klebt `sticky` nur so lange, wie ihr eigener
+   Elternteil hoch ist — also gar nicht. */
+.filterScope {
+  display: contents;
+}
+
+.filterBar {
+  position: sticky;
+  top: var(--hub-sticky-top);
+  z-index: 20;
+  margin-inline: calc(-1 * var(--hub-gutter));
+  padding: 10px var(--hub-gutter);
+  background: var(--hub-ink);
+  transition: top 0.2s ease;
+}
+
+.filterRail {
+  display: flex;
+  gap: 8px;
+  margin-inline: calc(-1 * var(--hub-gutter));
+  padding-inline: var(--hub-gutter);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--hub-gutter);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filterRail::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  flex: none;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--hub-radius-control);
+  background: var(--hub-raised);
+  color: var(--hub-paper);
+  cursor: pointer;
+  font-family: var(--hub-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
+}
+
+.filterChip[aria-pressed='true'] {
+  background: var(--hub-accent);
+  color: var(--hub-ink);
+}
+
+@media (hover: hover) {
+  .filterChip:not([aria-pressed='true']):hover {
+    background: linear-gradient(var(--hub-quiet), var(--hub-quiet)), var(--hub-raised);
+  }
+}
+
+.filterChip:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 2px;
+}
+
+/* Ab Tablet umbrechen statt wischen: ein waagerechtes Rail hätte am Desktop
+   keine Affordanz. */
+/* Ab Tablet steht die Leiste im Fluss: mit 19 Bezirken bricht sie dort auf
+   zwei Zeilen um, klebend frässe sie über 100px jedes Bildschirms. Wer am
+   Desktop zurück will, scrollt ohne Mühe; auf dem Telefon klebt sie. */
+@media (min-width: 700px) {
+  .filterBar {
+    position: static;
+    padding-block: 12px;
+  }
+
+  .filterRail {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+}
+
+/* ============================================================
+   ABSCHNITTE
+   ============================================================ */
+
+/* Sprungziel nach einem Filterwechsel: hält Navigation plus Filterleiste
+   frei. Beim Hochscrollen kommt die Navigation zurück, deshalb immer ihre
+   volle Höhe. */
+.spotList {
+  scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 64px);
+}
+
+/* Ab Tablet klebt die Leiste nicht; der Sprung lässt sie (bis zwei Zeilen)
+   über der Liste stehen, damit man nach dem Tippen sieht, was gewählt ist. */
+@media (min-width: 700px) {
+  .spotList {
+    scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 136px);
+  }
+}
+
+.section {
+  padding-top: clamp(24px, 3.5vw, 44px);
+}
+
+/* Jeder weitere Abschnitt nach dem ersten — die Abschnitte stecken in
+   Filtergruppen, ein Geschwister-Selektor griffe nicht. */
+.sectionGap {
+  padding-top: var(--hub-section-gap);
+}
+
+/* Hat der Filter die Bestenliste davor ganz ausgeblendet, ist das Verzeichnis
+   der erste Abschnitt und rückt an die Leiste heran. */
+.spotList > [hidden] + div > .sectionGap {
+  padding-top: clamp(24px, 3.5vw, 44px);
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-bottom: clamp(18px, 2.2vw, 28px);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0;
+  color: var(--hub-paper);
+  font-family: var(--hub-display);
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* Das gelbe Marken-Quadrat vor jedem Abschnittstitel — dasselbe Zeichen wie
+   `hv-mk` auf der Startseite. */
+.sectionTitle::before {
+  content: '';
+  flex: none;
+  width: 0.34em;
+  height: 0.34em;
+  background: var(--hub-accent);
+  transform: translateY(-0.08em);
+}
+
+.sectionNote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--hub-dim);
+  font-family: var(--hub-body);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.inlineLogo {
+  display: inline-block;
+  width: auto;
+  height: 18px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   BESTENLISTE — große Karten
+   ============================================================ */
+
+.cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px 20px;
+}
+
+@media (min-width: 700px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px 24px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 48px 28px;
+  }
+}
+
+.cardSlot {
+  display: contents;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--hub-paper);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cardPhoto,
+.rowThumb,
+.shelfPhoto {
+  position: relative;
+  overflow: hidden;
+  background: var(--hub-raised);
+}
+
+.cardPhoto {
+  aspect-ratio: 3 / 2;
+  border-radius: var(--hub-radius);
+  container-type: inline-size;
+}
+
+.cardPhoto img,
+.rowThumb img,
+.shelfPhoto img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.initial {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--hub-dim);
+  font-family: var(--hub-display);
+  font-size: clamp(28px, 30cqi, 64px);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rank {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--hub-accent);
+  color: var(--hub-ink);
+  font-family: var(--hub-display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* Eine Platzziffer auf einer gefilterten Teilliste behauptet eine Rangfolge,
+   die nicht gilt (Rang 2 und 5, aber kein Rang 1). */
+[data-hub-filtered] .rank {
+  display: none;
+}
+
+.cardName {
+  margin: 16px 0 0;
+  color: inherit;
+  font-family: var(--hub-display);
+  font-size: clamp(20px, 1.7vw, 24px);
+  font-weight: 700;
+  line-height: 1.15;
+  transition: color var(--et-motion-fast, 140ms ease);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 6px 0 0;
+  color: var(--hub-soft);
+  font-family: var(--hub-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+/* Der Punkt hängt am Ende des vorigen Werts, nicht am Anfang des nächsten:
+   bricht die Zeile um, bleibt er oben stehen statt die zweite Zeile zu
+   eröffnen („· 30–70 €"). */
+.meta > span:not(:last-child)::after {
+  content: '·';
+  margin: 0 7px;
+  color: var(--hub-dim);
+}
+
+.metaCuisine {
+  color: var(--hub-accent);
+}
+
+.cardText {
+  display: -webkit-box;
+  margin: 10px 0 0;
+  overflow: hidden;
+  color: var(--hub-soft);
+  font-family: var(--hub-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+@media (hover: hover) {
+  .card:hover .cardPhoto img,
+  .row:hover .rowThumb img,
+  .shelfCard:hover .shelfPhoto img {
+    transform: scale(1.04);
+  }
+
+  .card:hover .cardName,
+  .row:hover .rowName,
+  .shelfCard:hover .shelfName {
+    color: var(--hub-accent);
+  }
+}
+
+.card:focus-visible,
+.row:focus-visible,
+.shelfCard:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 4px;
+  border-radius: var(--hub-radius);
+}
+
+/* ============================================================
+   VERZEICHNIS — kompakte Zeilen
+   ============================================================ */
+
+.rows {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+
+@media (min-width: 700px) {
+  .rows {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 32px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .rows {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  margin-inline: -10px;
+  padding: 10px;
+  border-radius: var(--hub-radius);
+  color: var(--hub-paper);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--et-motion-fast, 140ms ease);
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background: var(--hub-quiet);
+  }
+}
+
+.rowThumb {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  container-type: inline-size;
+}
+
+@media (min-width: 700px) {
+  .row {
+    grid-template-columns: 88px minmax(0, 1fr);
+  }
+}
+
+.rowBody {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.rowName {
+  margin: 0;
+  color: inherit;
+  font-family: var(--hub-display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  transition: color var(--et-motion-fast, 140ms ease);
+}
+
+.row .meta {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.rowText {
+  display: -webkit-box;
+  margin: 6px 0 0;
+  overflow: hidden;
+  color: var(--hub-soft);
+  font-family: var(--hub-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* Buchstaben-Marken langer Verzeichnisse: auf dem Telefon über der Gruppe,
+   ab Desktop in einer eigenen Spalte links wie in einem Register. */
+.letterGroups {
+  display: grid;
+  gap: 8px;
+}
+
+.letterGroup {
+  display: grid;
+  gap: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hub-line);
+}
+
+.letter {
+  margin: 0;
+  color: var(--hub-accent);
+  font-family: var(--hub-display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+@media (min-width: 1100px) {
+  .letterGroup {
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 0 20px;
+    padding-top: 16px;
+  }
+
+  .letter {
+    padding-top: 8px;
+    font-size: 32px;
+  }
+}
+
+/* ============================================================
+   INDEX — Regale
+   ============================================================ */
+
+.shelfSection {
+  padding-top: clamp(32px, 4vw, 52px);
+  scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 72px);
+}
+
+.shelfSection + .shelfSection {
+  margin-top: clamp(8px, 1vw, 12px);
+  border-top: 1px solid var(--hub-line);
+}
+
+.shelfHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.shelfPack {
+  flex: none;
+  width: 38px;
+  height: auto;
+  transform: rotate(-4deg);
+}
+
+.shelfTitle {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--hub-display);
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* Das Marken-Quadrat wie vor den Abschnittstiteln — nur wo kein Pack davor
+   steht (Bezirke), sonst stünden zwei Zeichen vor dem Namen. */
+.shelfTitle::before {
+  content: '';
+  flex: none;
+  width: 0.34em;
+  height: 0.34em;
+  background: var(--hub-accent);
+  transform: translateY(-0.08em);
+}
+
+.shelfPack + .shelfTitle::before {
+  display: none;
+}
+
+.shelfTitle a {
+  color: var(--hub-paper);
+  text-decoration: none;
+  transition: color var(--et-motion-fast, 140ms ease);
+}
+
+@media (hover: hover) {
+  .shelfTitle a:hover {
+    color: var(--hub-accent);
+  }
+}
+
+.shelfTitle a:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 3px;
+}
+
+/* „Alle" — der Ausgang eines Regals, oben rechts wie überall, wo Regale stehen.
+   Fläche statt Kontur, Gelb erst unter dem Finger. */
+.shelfAll {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--hub-radius-control);
+  background: var(--hub-raised);
+  color: var(--hub-paper);
+  font-family: var(--hub-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
+}
+
+@media (hover: hover) {
+  .shelfAll:hover {
+    background: var(--hub-accent);
+    color: var(--hub-ink);
+  }
+}
+
+.shelfAll:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 2px;
+}
+
+.shelfBlurb {
+  max-width: 64ch;
+  margin: 10px 0 0;
+  color: var(--hub-soft);
+  font-family: var(--hub-body);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Telefon: ein wischbares Rail mit Anschnitt der nächsten Karte — so sieht
+   man, dass es weitergeht. Ab Tablet ein Raster mit allen vier. */
+.shelf {
+  display: grid;
+  grid-auto-columns: min(62vw, 250px);
+  grid-auto-flow: column;
+  gap: 12px;
+  margin: 18px calc(-1 * var(--hub-gutter)) 0;
+  padding: 0 var(--hub-gutter) 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  list-style: none;
+  scroll-padding-inline: var(--hub-gutter);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.shelf::-webkit-scrollbar {
+  display: none;
+}
+
+.shelfItem {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 700px) {
+  .shelf {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin-inline: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+}
+
+.shelfCard {
+  display: block;
+  color: var(--hub-paper);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.shelfPhoto {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--hub-radius);
+  container-type: inline-size;
+}
+
+.shelfName {
+  margin: 12px 0 0;
+  color: inherit;
+  font-family: var(--hub-display);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+  transition: color var(--et-motion-fast, 140ms ease);
+}
+
+.shelfCard .meta {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/* ============================================================
+   NACHSPANN — Pack, Map, FAQ
+   ============================================================ */
+
+.boost {
+  padding-top: var(--hub-section-gap);
+}
+
+.boost > * {
+  margin: 0;
+}
+
+.promo {
+  padding-top: var(--hub-section-gap);
+}
+
+.promo > * {
+  margin-top: 0;
+}
+
+.faq {
+  max-width: 880px;
+  padding-top: var(--hub-section-gap);
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.faqRow {
+  border-radius: var(--hub-radius-control);
+  transition: background-color 160ms ease;
+}
+
+.faqRow[open] {
+  background: var(--hub-quiet);
+}
+
+@media (hover: hover) {
+  .faqRow:hover:not([open]) {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.faqRow summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 56px;
+  padding: 12px clamp(12px, 1.4vw, 18px);
+  color: var(--hub-paper);
+  cursor: pointer;
+  font-family: var(--hub-display);
+  font-size: clamp(16px, 1.5vw, 18px);
+  font-weight: 700;
+  line-height: 1.3;
+  list-style: none;
+}
+
+.faqRow summary::-webkit-details-marker {
+  display: none;
+}
+
+.faqRow summary::after {
+  content: '+';
+  color: var(--hub-accent);
+  font-family: var(--hub-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.faqRow[open] summary::after {
+  content: '−';
+}
+
+.faqRow summary:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: -2px;
+  border-radius: var(--hub-radius-control);
+}
+
+.faqAnswer {
+  max-width: 68ch;
+  margin: 0;
+  padding: 2px clamp(12px, 1.4vw, 18px) 18px;
+  color: var(--hub-soft);
+  font-family: var(--hub-body);
+  font-size: 16px;
+  line-height: 1.6;
+}

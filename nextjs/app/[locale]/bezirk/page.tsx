@@ -1,17 +1,13 @@
 import type { Metadata } from 'next';
-import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getAllBezirkeWithStats } from '@/lib/sanity.server';
-import { normalizeName } from '@/lib/normalizeName';
-import { localizedCuisine } from '@/lib/cuisineLabels';
 import { pickShelf } from '@/lib/curated-ranking';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
-import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import {
   BEZIRK_LIST_ID,
   BezirkFilterBar,
@@ -19,7 +15,8 @@ import {
   BezirkRow,
   type BezirkChip,
 } from './BezirkFilter';
-import styles from './Bezirk.module.css';
+import styles from '@/app/components/HubPage.module.css';
+import { HubSpotShelf, hubTitleStyle } from '@/app/components/HubSpots';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -30,19 +27,6 @@ interface PageProps {
 // Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
 // statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
 export const revalidate = 86400;
-
-/**
- * „Alle 45 Spots ansehen" — die Zahl gehört auf den Knopf, nicht daneben.
- * Friedenau hat genau einen Spot, deshalb die eigene Einzahl-Variante statt
- * eines „Alle 1 Spots".
- */
-function moreLabel(count: number, de: boolean): string {
-  if (count === 1) return de ? 'Zum Spot' : 'See the spot';
-  // Keine Zahl im Label mehr („keine Zahlen") — der Parameter bleibt, damit
-  // der Aufruf mit dem Kategorie-Index gleich bleibt.
-  void count;
-  return de ? 'Alle Spots ansehen' : 'See all spots';
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -79,6 +63,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   setRequestLocale(locale);
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
+  const title = de ? 'Berlin nach Bezirk' : 'Berlin by district';
   // Empty districts (no open spots) are hidden — an empty grid page is a
   // dead end for users and thin content for Google. Same rule as the Hub chips.
   const bezirke = (await getAllBezirkeWithStats()).filter((b) => (b.restaurantCount ?? 0) > 0);
@@ -129,31 +114,30 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <header className={`${styles.hero} ${styles.indexHero}`}>
-          <h1 className={styles.h1}>{de ? 'Berlin nach Bezirk' : 'Berlin by district'}</h1>
-          <p className={styles.sub}>
-            {de
-              ? 'Jeder Bezirk isst anders. Such dir einen aus – wir haben überall die Adressen gesammelt, für die wir geradestehen.'
-              : "Every district eats differently. Pick one – we've gathered the addresses we vouch for, right across the city."}
-          </p>
+        <header className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <h1 className={styles.title} style={hubTitleStyle(title)}>
+              {title}
+            </h1>
+            <p className={styles.lede}>
+              {de
+                ? 'Jeder Bezirk isst anders. Such dir einen aus – wir haben überall die Adressen gesammelt, für die wir geradestehen.'
+                : "Every district eats differently. Pick one – we've gathered the addresses we vouch for, right across the city."}
+            </p>
+          </div>
         </header>
 
-        <section
-          className={styles.districtsBlock}
-          aria-label={de ? 'Alle Bezirke' : 'All districts'}
-        >
+        <section aria-label={de ? 'Alle Bezirke' : 'All districts'}>
           <BezirkFilterProvider slugs={chips.map((c) => c.slug)}>
-            {/* Keine Zwischenüberschrift „Bezirk wählen" mehr: die H1 sagt
-                „Berlin nach Bezirk", und die Chips darunter SIND die Wahl —
-                „da steht zweimal Bezirk". */}
+            {/* Keine Zwischenüberschrift „Bezirk wählen": die H1 sagt „Berlin
+                nach Bezirk", die Chips darunter SIND die Wahl. */}
             <BezirkFilterBar districts={chips} locale={loc} />
 
-            <div className={styles.districtRows} id={BEZIRK_LIST_ID}>
+            <div id={BEZIRK_LIST_ID} className={styles.spotList}>
               {bezirke.map((b) => {
                 // Kuratierte Spots führen das Regal an; aufgefüllt wird mit der
-                // alphabetischen Auswahl. Die Karte ist ganz Foto, also fliegt
-                // raus, was kein publizierbares Bild hat — sonst stünde da ein
-                // schwarzes Rechteck.
+                // alphabetischen Auswahl. Ohne publizierbares Bild fliegt ein
+                // Spot raus — die Regal-Karte ist ganz Foto.
                 const curated = (b.topSpotCards ?? []).filter((r) => r.photo);
                 const spots = pickShelf(curated, b.exampleRestaurants, 4);
                 const count = b.restaurantCount ?? 0;
@@ -161,68 +145,27 @@ export default async function BezirkIndexPage({ params }: PageProps) {
 
                 return (
                   <BezirkRow key={b._id} slug={b.slug}>
-                    <h3 id={`bezirk-${b.slug}-title`} className={styles.districtName}>
-                      <Link href={`/bezirk/${b.slug}`} className={styles.districtLink}>
-                        {b.name}
+                    <div className={styles.shelfHead}>
+                      <h2 id={`bezirk-${b.slug}-title`} className={styles.shelfTitle}>
+                        <Link href={`/bezirk/${b.slug}`}>{b.name}</Link>
+                      </h2>
+                      <Link
+                        href={`/bezirk/${b.slug}`}
+                        className={styles.shelfAll}
+                        aria-label={de ? `Alle Spots in ${b.name}` : `All spots in ${b.name}`}
+                      >
+                        {/* Friedenau hat genau einen Spot — dort kein „Alle". */}
+                        {count === 1 ? (de ? 'Zum Spot' : 'Open') : de ? 'Alle' : 'All'}
                       </Link>
-                    </h3>
-
-                    {/* Die Bezirksbeschreibung stand bisher nur auf der
-                        Detailseite. Auf dem Index erklärt sie, warum man den
-                        Bezirk anklicken sollte — vier Restaurantnamen tun das
-                        nicht. */}
-                    {blurb && <p className={styles.districtBlurb}>{blurb}</p>}
-
-                    {spots.length > 0 && (
-                      <div className={styles.spotGrid}>
-                        {spots.map((restaurant) => {
-                          // Gleiche Zeile wie auf der Detailseite: Küche als
-                          // Chip, Preisspanne daneben. Rund ein Viertel der
-                          // Spots hat keine gepflegte Spanne — dort fällt sie
-                          // weg statt als leere Hülse dazustehen.
-                          const priceLabel = formatPriceLabel(restaurant, locale);
-                          return (
-                            <Link
-                              key={restaurant._id}
-                              href={`/restaurant/${restaurant.slug}`}
-                              className={styles.card}
-                            >
-                              {restaurant.photo && (
-                                <div className={styles.cardPhoto}>
-                                  <Image
-                                    src={restaurant.photo}
-                                    alt=""
-                                    fill
-                                    sizes="(max-width: 1099px) 46vw, 248px"
-                                  />
-                                </div>
-                              )}
-                              <div className={styles.cardBody}>
-                                <h4 className={styles.cardName}>
-                                  {normalizeName(restaurant.name)}
-                                </h4>
-                                {(restaurant.cuisineType || priceLabel) && (
-                                  <div className={styles.cardMeta}>
-                                    {restaurant.cuisineType && (
-                                      <span className={styles.chipYellow}>
-                                        {localizedCuisine(restaurant.cuisineType, loc)}
-                                      </span>
-                                    )}
-                                    {priceLabel && (
-                                      <span className={styles.price}>{priceLabel}</span>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    <Link href={`/bezirk/${b.slug}`} className={styles.districtMore}>
-                      {moreLabel(count, de)}
-                    </Link>
+                    </div>
+                    {/* Die Beschreibung erklärt, warum man den Bezirk anklicken
+                        sollte — vier Restaurantnamen tun das nicht. */}
+                    {blurb && <p className={styles.shelfBlurb}>{blurb}</p>}
+                    <HubSpotShelf
+                      restaurants={spots}
+                      locale={loc}
+                      label={de ? `Spots in ${b.name}` : `Spots in ${b.name}`}
+                    />
                   </BezirkRow>
                 );
               })}

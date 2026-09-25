@@ -351,9 +351,17 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onLocateMe();
   }, [onLocateMe]);
   /* One control, one path into geolocation — the label only changes what it
-     says, never what it does. */
+     says, never what it does.
+
+     Jeder Tipp ist eine neue Frage und bekommt eine neue Antwort: der Merker
+     fuer eine weggeklickte (oder abgelaufene) Meldung faellt hier, wie bei
+     „Nochmal". Bis 25.09.2026 blieb er stehen — der zweite Tipp endete im
+     selben Fehler, der galt als schon gesehen, und der Knopf tat sichtbar
+     nichts (Betreiber: „wenn ich wieder auf Icon klicke kommt keine
+     Meldung"). */
   const handleLocateMe = useCallback(() => {
     if (isRealInvite) trackEvent('map_location_invite_accepted');
+    setDismissedLocationStatusKey(null);
     onLocateMe();
   }, [isRealInvite, onLocateMe]);
   const handleDismissLocationStatus = useCallback(() => {

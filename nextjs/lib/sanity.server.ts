@@ -258,11 +258,16 @@ export interface GuideTeaser {
   slug: string;
   title: string;
   excerpt?: string;
+  /** Rubrik in der Sprache der Seite („Guide", „Kiez"). */
+  kicker?: string;
+  date?: string;
+  imageUrl?: string;
   noIndex: boolean;
 }
 
 /**
- * Überschrift und Anrisstext eines Guides, ohne seinen Fließtext. Der
+ * Überschrift, Anrisstext, Rubrik, Datum und Kartenbild eines Guides — alles,
+ * was eine Artikel-Vorschau braucht, ohne seinen Fließtext. Der
  * Revalidate-Tag ist derselbe, den /api/revalidate beim Publish eines Artikels
  * feuert (`article:<slug>`) — der Querverweis auf der Kategorieseite zieht die
  * neue Überschrift damit im selben Moment nach wie der Artikel selbst.

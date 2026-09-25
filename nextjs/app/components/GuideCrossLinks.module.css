@@ -1,71 +1,210 @@
 /* ============================================================
-   Hub → Magazin-Guide.
+   Hub → Magazin-Guide, als Artikel-Vorschau.
 
-   Die Linie oben trennt den Block als Nachspann vom Verzeichnis darüber.
-   Abstand wie zwischen den Abschnitten der Hub-Seite. Tokens direkt
-   aus --et-home-* / --et-ink-*, wie in HubSiblings: der Block hängt an zwei
-   Seiten mit unterschiedlichen lokalen Variablennamen. Auf dem Ink-Grund
-   (seit 03.09.2026) ist die Linie Weiss 14 %, der Titel Papier mit gelber
-   Unterstreichung.
+   Seit 25.09.2026 dieselbe Karte wie „Auf dem Teller" auf der Startseite:
+   Foto mit Radius und Schatten, Rubrik gelb und Datum als Meta-Zeile ÜBER der
+   Headline, Anriss darunter. Vorher unterstrichene Textlinks unter einer
+   grauen Mono-Zeile — „muss besser aussehen, wie Artikel-Vorschauen halt".
+
+   Der Block hängt auf zwei Seiten (Bezirk, Kategorie), deshalb Tokens direkt
+   aus --et-home-* / --et-ink-* statt aus seitenlokalen Variablen. Überschrift
+   im Format der Abschnittstitel der Hub-Seite (HubPage.module.css).
    ============================================================ */
 .wrap {
-  border-top: 2px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  margin-top: clamp(48px, 6vw, 88px);
-  padding-top: clamp(16px, 2vw, 22px);
+  padding-top: clamp(48px, 6vw, 88px);
 }
 
-.kicker {
-  margin: 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--font-body, var(--font), sans-serif);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+.heading {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 clamp(18px, 2.2vw, 28px);
+  color: var(--et-home-inverse-text, #fff);
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
   text-transform: uppercase;
 }
 
-/* Mehrere Guides je Hub sind der Normalfall — `sweets` hat drei. Der Abstand
-   trennt sie, ohne dass jeder eine eigene Linie braucht: die gehört dem Block. */
-.item + .item {
-  margin-top: clamp(16px, 2vw, 22px);
+.heading::before {
+  content: '';
+  flex: none;
+  width: 0.34em;
+  height: 0.34em;
+  background: var(--et-home-accent, #ffc600);
+  transform: translateY(-0.08em);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 36px;
+}
+
+/* Telefon, mehrere Guides: ein wischbares Rail wie „Auf dem Teller" auf der
+   Startseite, mit Anschnitt der nächsten Karte. Untereinander standen die
+   drei Süßes-Guides rund 1.300px hoch. */
+@media (max-width: 699px) {
+  .cards:not([data-count='1']) {
+    grid-auto-columns: min(80vw, 320px);
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    gap: 14px;
+    /* Unten Luft für den Fotoschatten — ein Scroll-Container schneidet
+       sonst auch senkrecht ab; der negative Rand holt sie wieder herein. */
+    margin: 0 -16px -28px;
+    padding: 0 16px 28px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 16px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .cards::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cards:not([data-count='1']) .card {
+    scroll-snap-align: start;
+  }
+}
+
+@media (min-width: 700px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px 24px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 48px 28px;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--et-home-inverse-text, #fff);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.photo {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--et-radius-photo, 10px);
+  background: var(--et-ink-raised, #25231f);
+  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.text {
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 16px 0 0;
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.meta > :not(:last-child)::after {
+  content: '·';
+  margin: 0 7px;
+  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+}
+
+.kicker {
+  color: var(--et-home-accent, #ffc600);
 }
 
 .title {
   margin: 8px 0 0;
+  color: inherit;
   font-family: var(--font-providence, var(--et-font-display), sans-serif);
-  font-size: clamp(22px, 3vw, 30px);
-  line-height: 1.15;
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 700;
+  /* Providence-Unterlängen: unter 1.2 stößt das g an die nächste Zeile. */
+  line-height: 1.2;
+  transition: color var(--et-motion-fast, 140ms ease);
 }
 
-/* `text-decoration: underline` ausgeschrieben, nicht nur -color/-thickness:
-   der globale Reset setzt jeden Link auf `none`, und ohne die Linie war der
-   Titel von normalem Text nicht zu unterscheiden — bei einem Block, der
-   ausschließlich existiert, um auf den Guide zu zeigen, der ganze Zweck. */
-.title a {
-  color: var(--et-home-inverse-text, #fff);
-  text-decoration: underline;
-  text-decoration-color: var(--et-home-accent, #ffc600);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-  transition: color var(--et-motion-fast);
+.excerpt {
+  display: -webkit-box;
+  margin: 10px 0 0;
+  overflow: hidden;
+  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  font-family: var(--font-body, var(--font), sans-serif);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 @media (hover: hover) {
-  .title a:hover {
+  .card:hover .photo img {
+    transform: scale(1.04);
+  }
+
+  .card:hover .title {
     color: var(--et-home-accent, #ffc600);
   }
 }
 
-.title a:focus-visible {
-  outline: 3px solid var(--et-home-accent, #ffc600);
+.card:focus-visible {
+  outline: 2px solid var(--et-home-accent, #ffc600);
   outline-offset: 4px;
+  border-radius: var(--et-radius-photo, 10px);
 }
 
-.excerpt {
-  max-width: 58ch;
-  margin: 10px 0 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--font-body, var(--font), sans-serif);
-  font-size: clamp(15px, 1.6vw, 17px);
-  line-height: 1.5;
+/* Ein einzelner Guide (die Bezirke) liegt ab Tablet quer: Foto links, Text
+   rechts — allein in einem Dreier-Raster stünde er verloren in der Ecke. */
+@media (min-width: 700px) {
+  .cards[data-count='1'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cards[data-count='1'] .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(24px, 4vw, 56px);
+  }
+
+  .cards[data-count='1'] .meta {
+    margin-top: 0;
+  }
+
+  .cards[data-count='1'] .title {
+    font-size: clamp(24px, 2.6vw, 34px);
+  }
+
+  .cards[data-count='1'] .excerpt {
+    font-size: 16px;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
 }

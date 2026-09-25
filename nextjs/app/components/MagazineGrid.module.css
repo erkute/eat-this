@@ -329,7 +329,13 @@
     scroll-snap-align: start;
   }
 
+  /* Die Wischreihe ist ein Scroll-Container (`overflow-x: auto` zieht
+     `overflow-y` mit), und die Headline ist ihr letztes Element. Providence
+     schiebt die Unterlänge weit unter die enge Zeile — ohne Polster schnitt
+     die Unterkante der Reihe das g der längsten Headline ab. Dasselbe Polster
+     wie bei „Bagel Bro" in HubNearby. */
   .title {
+    padding-bottom: 0.3em;
     font-size: 20px;
     line-height: 1.15;
   }

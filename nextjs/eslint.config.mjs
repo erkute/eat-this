@@ -20,6 +20,28 @@ const eslintConfig = [
     rules: { '@next/next/no-img-element': 'off' },
   },
   {
+    // next/image nur über app/components/SiteImage.tsx: dort bekommen
+    // Sanity-URLs den Sanity-Loader und gehen direkt an die CDN. Ein direkter
+    // Import schickte sie wieder durch den Optimierer der Instanz — Speicher,
+    // der auf Cloud Run fehlt (25.09.2026, siehe lib/imageLoader.ts).
+    files: ['app/**/*.{ts,tsx}', 'lib/**/*.{ts,tsx}'],
+    ignores: ['app/components/SiteImage.tsx', '**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'next/image',
+              message:
+                "Bilder über '@/app/components/SiteImage' einbinden, nicht direkt über next/image.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // Test fixtures and Firebase/Stripe mocks intentionally cast partial
     // objects into SDK shapes. Requiring complete SDK object types here adds
     // noise without improving production type safety.

@@ -5,7 +5,7 @@
 // Behavior unchanged: daypart greeting, IntersectionObserver "talk" effect,
 // and chat/quick-ask dispatch via dispatchBuddyAsk.
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
 import { stageFor } from '@/lib/buddy/greeting';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';

@@ -32,9 +32,8 @@ export default async function KategorieBoost({ categorySlug, categoryName, local
             alt={`${categoryName} Pack`}
             width={420}
             height={630}
-            sizes="(max-width: 540px) 150px, (max-width: 839px) 220px, 150px"
+            sizes="(max-width: 540px) 92px, (max-width: 839px) 220px, 240px"
             className={styles.posterImg}
-            priority
           />
         </div>
       )}

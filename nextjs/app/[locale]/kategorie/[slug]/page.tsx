@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import {
   getRestaurantsByCategory,
   getCategoryBySlug,
@@ -9,7 +8,6 @@ import {
   getGuideTeaser,
 } from '@/lib/sanity.server';
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories';
-import { localizedCuisine } from '@/lib/cuisineLabels';
 import {
   buildCategoryTitle,
   buildCategoryDescription,
@@ -29,16 +27,13 @@ import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { metadataSource } from '@/lib/seo/metadataSource';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { routing } from '@/i18n/routing';
-import { pickLocale } from '@/lib/i18n/pickLocale';
-import { sanitySrcSet } from '@/lib/sanity-image-presets';
-import sharedStyles from '../../bezirk/Bezirk.module.css';
-import styles from '../Kategorie.module.css';
+import styles from '@/app/components/HubPage.module.css';
+import { HubSpotCards, HubSpotRows, hubTitleStyle } from '@/app/components/HubSpots';
 import HubSiblings from '@/app/components/HubSiblings';
 import GuideCrossLinks from '@/app/components/GuideCrossLinks';
 import {
   HubFilterProvider,
   HubFilterBar,
-  HubFilterCard,
   HubFilterGroup,
   HubFilterUnfiltered,
   SPOT_LIST_ID,
@@ -85,85 +80,12 @@ function categorySocialImage(slug: string): string {
     : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 }
 
-/**
- * Ein Kartenraster. `ranked` blendet die Platzziffer ein — nur die kuratierte
- * Bestenliste trägt sie, das A–Z-Verzeichnis darunter nicht. `eagerFirst`
- * nimmt dem ersten Foto das Lazy-Loading: auf einer Seite ohne eigenes
- * Bannerbild ist es das Leitbild, und ein Bild, das erst beim Scrollen lädt,
- * liest sich weder für den LCP noch für Googles Thumbnail-Wahl als eines.
- */
-function RestaurantGrid({
-  restaurants,
-  locale,
-  ranked = false,
-  eagerFirst = false,
-}: {
-  restaurants: RestaurantCard[];
-  locale: 'de' | 'en';
-  ranked?: boolean;
-  eagerFirst?: boolean;
-}) {
-  // Not simply index 0: the first spot may have no publishable photo, and
-  // then the lead picture is the next card that does have one.
-  const leadPhotoIndex = eagerFirst ? restaurants.findIndex((r) => r.photo) : -1;
-  return (
-    <div
-      className={`${sharedStyles.grid} ${restaurants.length <= 2 ? sharedStyles.gridCompact : ''}`}
-    >
-      {restaurants.map((r, i) => {
-        const priceLabel = formatPriceLabel(r, locale);
-        const cardLine =
-          pickLocale(r.shortDescription, r.shortDescriptionEn, locale) ||
-          pickLocale(r.tip, r.tipEn, locale);
-        return (
-          <HubFilterCard key={r._id} slugs={r.bezirk?.slug ? [r.bezirk.slug] : []}>
-            <Link href={`/restaurant/${r.slug}`} className={sharedStyles.card}>
-              {r.photo && (
-                <div className={sharedStyles.cardPhoto}>
-                  {/* Sanity already serves transformed WebP/AVIF. A compact
-                      three-width srcset avoids Next serialising its large
-                      global candidate list for every card on long pages. */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={r.photo}
-                    alt={r.name}
-                    srcSet={sanitySrcSet(r.photo, [480, 800, 1200])}
-                    sizes="(max-width: 719px) 100vw, (max-width: 959px) 50vw, 34vw"
-                    loading={i === leadPhotoIndex ? 'eager' : 'lazy'}
-                    fetchPriority={i === leadPhotoIndex ? 'high' : undefined}
-                    decoding="async"
-                  />
-                  {ranked && (
-                    <span className={sharedStyles.rankBadge} aria-hidden="true">
-                      {i + 1}
-                    </span>
-                  )}
-                </div>
-              )}
-              <div className={sharedStyles.cardBody}>
-                <h3 className={sharedStyles.cardName}>
-                  {/* Ohne Foto gibt es keinen Badge — dann trägt die Ziffer der Name. */}
-                  {ranked && !r.photo && <span className={sharedStyles.rankInline}>{i + 1}.</span>}
-                  {r.name}
-                </h3>
-                <div className={sharedStyles.cardMeta}>
-                  {r.cuisineType && (
-                    <span className={sharedStyles.chipYellow}>
-                      {localizedCuisine(r.cuisineType, locale)}
-                    </span>
-                  )}
-                  {r.district && <span className={styles.districtLabel}>{r.district}</span>}
-                  {priceLabel && <span className={sharedStyles.price}>{priceLabel}</span>}
-                </div>
-                {cardLine && <p className={sharedStyles.cardTip}>{cardLine}</p>}
-              </div>
-            </Link>
-          </HubFilterCard>
-        );
-      })}
-    </div>
-  );
-}
+/** Der Bezirks-Slug eines Spots — seine Facette im Chip-Filter. */
+/** Siehe CARD_LIMIT auf der Bezirksseite: ohne Bestenliste Karten nur bis zu
+ *  so vielen Spots, darüber Zeilen. */
+const CARD_LIMIT = 12;
+
+const districtSlugsOf = (r: RestaurantCard) => (r.bezirk?.slug ? [r.bezirk.slug] : []);
 
 export async function generateStaticParams() {
   const cats = await getAllCategories();
@@ -253,9 +175,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   }));
   /** Die Bezirks-Slugs einer Teilliste — entscheidet, ob ihre Sektion beim
    *  aktiven Filter überhaupt noch etwas zeigt. */
-  const districtSlugsIn = (list: RestaurantCard[]) => [
-    ...new Set(list.map((r) => r.bezirk?.slug).filter((s): s is string => Boolean(s))),
-  ];
+  const districtSlugsIn = (list: RestaurantCard[]) => [...new Set(list.flatMap(districtSlugsOf))];
+  const lead = top.length > 0 ? top : rest;
+  const titleStyle = hubTitleStyle(label);
   // `curated: top` statt der Slugs: die FAQ nennt damit exakt die Namen der
   // Bestenliste über ihr — auseinanderlaufen können sie nicht mehr.
   const faqEntries = buildKategorieFAQEntries({
@@ -352,30 +274,36 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className={`${sharedStyles.page} ${sharedStyles.bezirkDetail} ${styles.detailPage}`}>
-        <header className={styles.detailHero}>
-          <div className={styles.detailHeroCopy}>
-            <div className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</div>
-            {/* "Lunch" alone was no match for "lunch berlin" / "mittagessen
-                berlin". The suffix rides inside the h1 so the heading reads
-                "Lunch in Berlin" while the label stays the big display word. */}
-            <h1 className={styles.detailTitle}>
+      <main className={styles.page}>
+        <header className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <p className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</p>
+            {/* „Lunch" allein trifft weder „lunch berlin" noch „mittagessen
+                berlin". Der Zusatz steht in der H1, optisch als gelbe
+                Unterzeile unter dem Display-Wort. */}
+            <h1 className={styles.title} style={titleStyle}>
               {label}
-              <span className={styles.detailTitleSuffix}>in Berlin</span>
+              <span className={styles.titleSuffix}>in Berlin</span>
             </h1>
-            <p className={styles.detailLead}>
+            <p className={styles.lede}>
               {blurb || (de ? 'Die besten Spots in Berlin.' : 'The best spots in Berlin.')}
             </p>
+            <div className={styles.heroActions}>
+              <MapPromoCTA
+                variant="band"
+                kind="kategorie"
+                name={label}
+                mapHref={`/map?cat=${slug}`}
+                locale={loc}
+              />
+            </div>
           </div>
         </header>
-
-        <KategorieBoost categorySlug={c.slug} categoryName={label} locale={loc} />
 
         <HubFilterProvider queryKey="bezirk" slugs={districtFilters.map((b) => b.slug)}>
           {/* Spiegelbild der Kategorie-Leiste auf den Bezirksseiten. Bis
               25.08.2026 stand hier eine Reihe Links auf die Bezirks-Hubs — sie
-              versprach „Frühstück in Mitte" und lieferte „alle Spots in Mitte",
-              von wo aus die Kategorie-Leiste wieder hierher zurückwies. */}
+              versprach „Frühstück in Mitte" und lieferte „alle Spots in Mitte". */}
           {districtFilters.length > 1 && (
             <HubFilterBar
               facets={districtFilters}
@@ -389,103 +317,127 @@ export default async function KategorieDetailPage({ params }: PageProps) {
             />
           )}
 
-          <HubFilterGroup slugs={districtSlugsIn(top.length > 0 ? top : rest)}>
-            <section id={SPOT_LIST_ID} className={sharedStyles.restaurantSection}>
-              <div className={sharedStyles.sectionHead}>
-                {/* Trägt die Ziel-Query im Klartext — die H1 darüber ist auf ein
-                    einzelnes Display-Wort designt („LUNCH") und kann das nicht. */}
-                <h2>{buildCategorySectionHeading(slug, label, loc)}</h2>
-                {/* Die Marke steht hier als Logo, nicht als gesetzter Text — die
-                    Wortmarke ist gezeichnet, jede Nachbildung in Providence bleibt
-                    eine Näherung. `alt` trägt den Namen weiter, Vorleser und
-                    Suchmaschinen lesen den Satz also unverändert. */}
-                {/* „Die 6 besten" zählt die ganze Kategorie. Sobald ein
-                    Bezirksfilter davon zwei übrig lässt, stimmt die Zahl nicht
-                    mehr — die Zeile fällt dann weg statt zu lügen. */}
-                <HubFilterUnfiltered>
-                  <p>
-                    {top.length > 0
-                      ? de
-                        ? `Die ${top.length} besten, ausgewählt von `
-                        : `The top ${top.length}, picked by `
-                      : de
-                        ? 'Kuratiert von '
-                        : 'Curated by '}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/pics/eat-this-logo.webp?v=6"
-                      alt="Eat This"
-                      className={styles.inlineLogo}
-                    />
-                  </p>
-                </HubFilterUnfiltered>
-              </div>
-
-              <RestaurantGrid
-                restaurants={top.length > 0 ? top : rest}
-                locale={loc}
-                ranked={top.length > 0}
-                // Die Kategorieseite hat kein Bannerbild — das erste Kartenfoto
-                // ist das größte Bild im ersten Viewport und damit der LCP-
-                // Kandidat. (Das Seitenbild im JSON-LD ist es nicht, das ist die
-                // Pack-Card.)
-                eagerFirst
-              />
-            </section>
-          </HubFilterGroup>
-
-          {/* Vollständiges Verzeichnis — nur als eigene Sektion, wenn oben eine
-              Bestenliste steht. Bewusst nicht paginiert: die internen Links sind
-              der Crawl-Pfad zu den Restaurant-Detailseiten. */}
-          {top.length > 0 && rest.length > 0 && (
-            <HubFilterGroup slugs={districtSlugsIn(rest)}>
-              <section
-                id="alle"
-                className={`${sharedStyles.restaurantSection} ${sharedStyles.directorySection}`}
-              >
-                <div className={sharedStyles.sectionHead}>
-                  {/* Kein Unterzeilen-Text: Linie und Abstand darüber machen den
-                      Schnitt schon deutlich, und die Zeile stand rechts oben in
-                      der Luft. */}
-                  <h2>{buildCategoryDirectoryHeading(loc)}</h2>
+          {/* Der Sprunganker nach einem Filterwechsel sitzt auf dieser Hülle,
+              nicht auf einer Sektion: die Bestenliste kann komplett
+              wegfiltern, und ein Anker in einer versteckten Gruppe scrollt
+              nirgendwohin. */}
+          <div id={SPOT_LIST_ID} className={styles.spotList}>
+            <HubFilterGroup slugs={districtSlugsIn(lead)}>
+              <section className={styles.section}>
+                <div className={styles.sectionHead}>
+                  {/* Trägt die Ziel-Query im Klartext — die H1 ist auf ein
+                    einzelnes Display-Wort gebaut und kann das nicht. */}
+                  <h2 className={styles.sectionTitle}>
+                    {buildCategorySectionHeading(slug, label, loc)}
+                  </h2>
+                  {/* „Die 6 besten" zählt die ganze Kategorie. Sobald ein
+                    Bezirksfilter zwei davon übrig lässt, stimmt die Zahl nicht
+                    mehr — die Zeile fällt dann weg statt zu lügen. Die Marke
+                    als Logo, nicht als gesetzter Text; `alt` trägt den Namen. */}
+                  <HubFilterUnfiltered>
+                    <p className={styles.sectionNote}>
+                      {top.length > 0
+                        ? de
+                          ? `Die ${top.length} besten, ausgewählt von`
+                          : `The top ${top.length}, picked by`
+                        : de
+                          ? 'Kuratiert von'
+                          : 'Curated by'}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/pics/eat-this-logo.webp?v=6"
+                        alt="Eat This"
+                        className={styles.inlineLogo}
+                      />
+                    </p>
+                  </HubFilterUnfiltered>
                 </div>
-
-                <RestaurantGrid restaurants={rest} locale={loc} />
+                {top.length > 0 || rest.length <= CARD_LIMIT ? (
+                  <HubSpotCards
+                    restaurants={lead}
+                    locale={loc}
+                    facetsOf={districtSlugsOf}
+                    showDistrict
+                    ranked={top.length > 0}
+                    // Die Kategorieseite hat kein Bannerbild — das erste Kartenfoto
+                    // ist der LCP-Kandidat. (Das Seitenbild im JSON-LD ist die
+                    // Pack-Card.)
+                    eagerFirst
+                  />
+                ) : (
+                  <HubSpotRows
+                    restaurants={lead}
+                    locale={loc}
+                    facetsOf={districtSlugsOf}
+                    showDistrict
+                  />
+                )}
               </section>
             </HubFilterGroup>
-          )}
+
+            {/* Das Pack NACH der Bestenliste, nicht davor: auf dem Telefon schob
+              es den ersten Spot bis 25.09.2026 unter die Falz — die Seite
+              begann mit einer Werbung statt mit ihrer Antwort. Gefiltert tritt
+              es ab: dann zählen nur die Treffer. */}
+            <HubFilterUnfiltered>
+              <div className={styles.boost}>
+                <KategorieBoost categorySlug={c.slug} categoryName={label} locale={loc} />
+              </div>
+            </HubFilterUnfiltered>
+
+            {/* Vollständiges Verzeichnis — nur als eigene Sektion, wenn oben eine
+              Bestenliste steht. Bewusst nicht paginiert: die internen Links sind
+              der Crawl-Pfad zu den Restaurant-Detailseiten. */}
+            {top.length > 0 && rest.length > 0 && (
+              <HubFilterGroup slugs={districtSlugsIn(rest)}>
+                <section id="alle" className={`${styles.section} ${styles.sectionGap}`}>
+                  <div className={styles.sectionHead}>
+                    <h2 className={styles.sectionTitle}>{buildCategoryDirectoryHeading(loc)}</h2>
+                  </div>
+                  <HubSpotRows
+                    restaurants={rest}
+                    locale={loc}
+                    facetsOf={districtSlugsOf}
+                    showDistrict
+                  />
+                </section>
+              </HubFilterGroup>
+            )}
+          </div>
         </HubFilterProvider>
 
         {/* Siehe categoryGuideSlugs — die Zuordnung Hub → Guide. */}
         <GuideCrossLinks guides={guides} locale={loc} />
 
-        <div className={sharedStyles.detailMapCta}>
+        <div className={styles.promo}>
           <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
         </div>
 
+        {faqEntries.length > 0 && (
+          <section className={styles.faq} aria-labelledby="faq-title">
+            <div className={styles.sectionHead}>
+              <h2 id="faq-title" className={styles.sectionTitle}>
+                {de ? 'Häufige Fragen' : 'Frequently asked'}
+              </h2>
+            </div>
+            <div className={styles.faqList}>
+              {faqEntries.map((entry, i) => (
+                <details key={i} className={styles.faqRow}>
+                  <summary>{entry.question}</summary>
+                  <p className={styles.faqAnswer}>{entry.answer}</p>
+                </details>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und was noch?". */}
         <HubSiblings
           items={nachbarKategorien}
           base="/kategorie"
           heading={de ? 'Andere Kategorien' : 'Other categories'}
           ariaLabel={de ? 'Weitere Kategorien' : 'More categories'}
         />
-
-        {faqEntries.length > 0 && (
-          <section className={sharedStyles.faq} aria-label={de ? 'Häufige Fragen' : 'FAQ'}>
-            <h2 className={sharedStyles.faqTitle}>{de ? 'Häufige Fragen' : 'Frequently asked'}</h2>
-            <div className={sharedStyles.faqList}>
-              {faqEntries.map((entry, i) => (
-                <details key={i} className={sharedStyles.faqRow}>
-                  <summary>
-                    <span className={sharedStyles.faqQ}>{entry.question}</span>
-                    <span className={sharedStyles.faqPlus} aria-hidden="true" />
-                  </summary>
-                  <p className={sharedStyles.faqA}>{entry.answer}</p>
-                </details>
-              ))}
-            </div>
-          </section>
-        )}
       </main>
     </>
   );

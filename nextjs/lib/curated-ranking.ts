@@ -36,17 +36,25 @@ function startsWithLetter(name: string): boolean {
 }
 
 /**
- * Alphabetisch, aber Ziffern-Namen ans Ende.
+ * Wie ein Leser das Alphabet erwartet: Groß- und Kleinschreibung zählen nicht,
+ * Umlaute stehen bei ihrem Grundbuchstaben, „Restaurant 2" vor „Restaurant 10".
+ */
+const directoryCollator = new Intl.Collator('de', { sensitivity: 'base', numeric: true });
+
+/**
+ * Alphabetisch, Ziffern-Namen ans Ende.
  *
- * Die Eingabe kommt bereits sortiert aus GROQ (`order(name asc)`), und
- * `Array.prototype.sort` ist seit ES2019 stabil — die Alphabet-Reihenfolge
- * innerhalb beider Gruppen bleibt also erhalten. Bewusst wird hier *nicht* neu
- * nach Namen sortiert: JS-Collation (`localeCompare`) ordnet Umlaute anders als
- * GROQ, ein Re-Sort würde die Liste gegenüber der Datenbank verschieben.
+ * Bis 25.09.2026 blieb hier die GROQ-Reihenfolge stehen (`order(name asc)`).
+ * Die sortiert aber nach Codepunkten: jeder kleingeschriebene Name („barlevain",
+ * „jaja", „otto") und jeder Umlaut („Österelli") landete HINTER Z — im
+ * Dinner-Verzeichnis elf Spots, die dort niemand sucht. Seit das Verzeichnis
+ * Buchstaben-Marken trägt, wäre das ein zweites „B" nach dem „Z" gewesen.
  */
 function directoryOrder(restaurants: RestaurantCard[]): RestaurantCard[] {
   return [...restaurants].sort(
-    (a, b) => Number(startsWithLetter(b.name)) - Number(startsWithLetter(a.name))
+    (a, b) =>
+      Number(startsWithLetter(b.name)) - Number(startsWithLetter(a.name)) ||
+      directoryCollator.compare(a.name, b.name)
   );
 }
 

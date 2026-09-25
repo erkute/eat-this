@@ -5,17 +5,14 @@ import { Link } from '@/i18n/navigation';
 import { getAllCategoriesWithStats } from '@/lib/sanity.server';
 import { localizedCategoryBlurb, localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
-import { localizedCuisine } from '@/lib/cuisineLabels';
-import { normalizeName } from '@/lib/normalizeName';
 import { pickShelf } from '@/lib/curated-ranking';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
-import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
-import sharedStyles from '../bezirk/Bezirk.module.css';
-import styles from './Kategorie.module.css';
+import styles from '@/app/components/HubPage.module.css';
+import { HubSpotShelf, hubTitleStyle } from '@/app/components/HubSpots';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -26,18 +23,6 @@ interface PageProps {
 // Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
 // statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
 export const revalidate = 86400;
-
-/**
- * Bewusst ohne Zahl — anders als auf dem Bezirks-Index. Neun Knöpfe
- * untereinander, die von „Alle 9" bis „Alle 224" springen, lesen sich als
- * Rangliste: die große Kategorie gewinnt, obwohl die Zahl nur sagt, wie breit
- * Berlin dort isst. Die Einzahl-Variante bleibt für den Fall, dass eine
- * Kategorie auf einen Spot zusammenschrumpft.
- */
-function moreLabel(count: number, de: boolean): string {
-  if (count === 1) return de ? 'Zum Spot' : 'See the spot';
-  return de ? 'Alle Spots ansehen' : 'See all spots';
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -74,6 +59,7 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   setRequestLocale(locale);
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
+  const title = de ? 'Wonach ist dir?' : 'What are you craving?';
   // Leere Kategorien fliegen raus — dieselbe Regel wie auf dem Bezirks-Index:
   // eine Zeile ohne Spots ist eine Sackgasse für Leser und dünner Inhalt für
   // Google.
@@ -120,126 +106,81 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className={`${sharedStyles.page} ${styles.indexPage}`}>
-        {/* Der Hero war bis 24.08.2026 drei Booster-Pack-Tüten. Die sind
-            Produktfotos, keine Kategoriebilder — genau die Lesart „Shop", die
-            auf der Startseite schon aus der Kategorien-Rail geflogen ist (siehe
-            CategoriesRail.tsx). Hier trägt jetzt ebenfalls die Type. */}
-        <header className={styles.indexHero}>
-          <h1 className={styles.indexTitle}>{de ? 'Wonach ist dir?' : 'What are you craving?'}</h1>
-          {/* Die Zahl kommt aus der Liste, nicht aus der Copy: sobald im Studio
-              eine Kategorie dazukommt oder leerläuft, stand hier sonst eine
-              falsche Behauptung. */}
-          <p className={styles.indexLead}>
-            {de
-              ? `${categories.length} Richtungen, ein Prinzip: nur Adressen, für die wir geradestehen. Such dir eine aus.`
-              : `${categories.length} directions, one rule: only addresses we vouch for. Take your pick.`}
-          </p>
+      <main className={styles.page}>
+        {/* Der Hero war bis 24.08.2026 drei Booster-Pack-Tüten — Produktfotos,
+            keine Kategoriebilder. Hier trägt die Type. */}
+        <header className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <h1 className={styles.title} style={hubTitleStyle(title)}>
+              {title}
+            </h1>
+            {/* Die Zahl kommt aus der Liste, nicht aus der Copy: sobald im Studio
+                eine Kategorie dazukommt oder leerläuft, stand hier sonst eine
+                falsche Behauptung. */}
+            <p className={styles.lede}>
+              {de
+                ? `${categories.length} Richtungen, ein Prinzip: nur Adressen, für die wir geradestehen. Such dir eine aus.`
+                : `${categories.length} directions, one rule: only addresses we vouch for. Take your pick.`}
+            </p>
+          </div>
         </header>
 
-        <section className={styles.categoriesBlock} aria-labelledby="category-catalog-title">
-          <div className={styles.categoriesIntro}>
-            <h2 id="category-catalog-title">{de ? 'Kategorie wählen' : 'Choose a category'}</h2>
-          </div>
+        {/* Keine Zwischenüberschrift „Kategorie wählen": die H1 fragt schon,
+            die Regale darunter sind die Antwort. */}
+        <div aria-label={de ? 'Alle Kategorien' : 'All categories'} role="region">
+          {categories.map((c) => {
+            // Kuratierte Spots führen das Regal an, aufgefüllt wird mit der
+            // alphabetischen Auswahl.
+            const curated = (c.topSpotCards ?? []).filter((r) => r.photo);
+            const spots = pickShelf(curated, c.exampleRestaurants, 4);
+            const label = localizedCategoryName(c, loc);
+            const blurb = localizedCategoryBlurb(c, loc);
+            /* Das Pack der Kategorie als Marke neben dem Namen — nur Bild, kein
+               Link (User, 2026-08-27): die Packs liegen unter /packs, ein
+               zweites Ziel in derselben Zeile machte zwei Versprechen. */
+            const pack = categoryArt(c.slug);
 
-          <div className={styles.categoryRows}>
-            {categories.map((c) => {
-              // Kuratierte Spots führen das Regal an, aufgefüllt wird mit der
-              // alphabetischen Auswahl. Vier von neun Kategorien sind im Studio
-              // kuratiert; für die übrigen ist das Ergebnis exakt die
-              // alphabetische Auswahl.
-              const curated = (c.topSpotCards ?? []).filter((r) => r.photo);
-              const spots = pickShelf(curated, c.exampleRestaurants, 4);
-              const count = c.restaurantCount ?? 0;
-              const label = localizedCategoryName(c, loc);
-              const blurb = localizedCategoryBlurb(c, loc);
-              /* Das Pack der Kategorie als Marke neben dem Namen — nur Bild,
-                 kein Link (User, 2026-08-27): die Packs liegen unter /packs,
-                 und ein zweites Ziel in derselben Zeile würde zwei
-                 verschiedene Versprechen machen. Zuordnung aus categoryArt,
-                 der kanonischen Quelle, die auch /packs, das Profil und die
-                 gesperrte Sheet lesen. */
-              const pack = categoryArt(c.slug);
-
-              return (
-                <article key={c._id ?? c.slug} className={styles.categoryRow}>
-                  <div className={styles.categoryHead}>
-                    {pack && (
-                      <Image
-                        className={styles.categoryPack}
-                        src={pack}
-                        alt=""
-                        width={96}
-                        height={145}
-                        aria-hidden="true"
-                      />
-                    )}
-                    <div className={styles.categoryHeadText}>
-                      <h3 className={styles.categoryName}>
-                        <Link href={`/kategorie/${c.slug}`} className={styles.categoryLink}>
-                          {label}
-                        </Link>
-                      </h3>
-
-                      {blurb && <p className={styles.categoryBlurb}>{blurb}</p>}
-                    </div>
-                  </div>
-
-                  {spots.length > 0 && (
-                    <div className={sharedStyles.spotGrid}>
-                      {spots.map((restaurant) => {
-                        // Gleiche Karte wie auf dem Bezirks-Index: Küche als
-                        // Chip, Preisspanne daneben. Rund ein Viertel der Spots
-                        // hat keine gepflegte Spanne — dort fällt sie weg statt
-                        // als leere Hülse dazustehen.
-                        const priceLabel = formatPriceLabel(restaurant, locale);
-                        return (
-                          <Link
-                            key={restaurant._id}
-                            href={`/restaurant/${restaurant.slug}`}
-                            className={sharedStyles.card}
-                          >
-                            {restaurant.photo && (
-                              <div className={sharedStyles.cardPhoto}>
-                                <Image
-                                  src={restaurant.photo}
-                                  alt=""
-                                  fill
-                                  sizes="(max-width: 1099px) 46vw, 248px"
-                                />
-                              </div>
-                            )}
-                            <div className={sharedStyles.cardBody}>
-                              <h4 className={sharedStyles.cardName}>
-                                {normalizeName(restaurant.name)}
-                              </h4>
-                              {(restaurant.cuisineType || priceLabel) && (
-                                <div className={sharedStyles.cardMeta}>
-                                  {restaurant.cuisineType && (
-                                    <span className={sharedStyles.chipYellow}>
-                                      {localizedCuisine(restaurant.cuisineType, loc)}
-                                    </span>
-                                  )}
-                                  {priceLabel && (
-                                    <span className={sharedStyles.price}>{priceLabel}</span>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
+            return (
+              <section
+                key={c._id ?? c.slug}
+                className={styles.shelfSection}
+                aria-labelledby={`kategorie-${c.slug}-title`}
+              >
+                <div className={styles.shelfHead}>
+                  {pack && (
+                    <Image
+                      className={styles.shelfPack}
+                      src={pack}
+                      alt=""
+                      width={96}
+                      height={145}
+                      aria-hidden="true"
+                    />
                   )}
-
-                  <Link href={`/kategorie/${c.slug}`} className={styles.categoryMore}>
-                    {moreLabel(count, de)}
+                  <h2 id={`kategorie-${c.slug}-title`} className={styles.shelfTitle}>
+                    <Link href={`/kategorie/${c.slug}`}>{label}</Link>
+                  </h2>
+                  {/* Ohne Zahl: neun Knöpfe von „Alle 9" bis „Alle 224" lesen
+                      sich als Rangliste, obwohl die Zahl nur sagt, wie breit
+                      Berlin dort isst. */}
+                  <Link
+                    href={`/kategorie/${c.slug}`}
+                    className={styles.shelfAll}
+                    aria-label={de ? `Alle Spots: ${label}` : `All spots: ${label}`}
+                  >
+                    {de ? 'Alle' : 'All'}
                   </Link>
-                </article>
-              );
-            })}
-          </div>
-        </section>
+                </div>
+                {blurb && <p className={styles.shelfBlurb}>{blurb}</p>}
+                <HubSpotShelf
+                  restaurants={spots}
+                  locale={loc}
+                  label={de ? `Spots für ${label}` : `${label} spots`}
+                />
+              </section>
+            );
+          })}
+        </div>
       </main>
     </>
   );

@@ -5374,7 +5374,7 @@
    `.rdBody` stand auf `font-weight: 560` — eine halbfette Stufe, die den
    Absatz auf der schmalen Sheet-Spalte kompakt aussehen liess, aber schwerer
    zu lesen ist als der normale Schnitt. Die Bezirks-Beschreibung
-   (`Bezirk.module.css .districtBlurb`) laesst die Stärke offen, steht also
+   (`HubPage.module.css .shelfBlurb`) laesst die Stärke offen, steht also
    auf 400, und nimmt Zeilenhoehe 1.6.
 
    Die Groesse dort ist `clamp(15px, 1.4vw, 17px)` und wird NICHT uebernommen:

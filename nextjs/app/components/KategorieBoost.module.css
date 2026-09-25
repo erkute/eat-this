@@ -17,7 +17,7 @@
   align-items: center;
   gap: clamp(22px, 4vw, 52px);
   min-width: 0;
-  margin: 0 0 clamp(28px, 5vw, 54px);
+  margin: 0;
   padding: clamp(22px, 3.2vw, 40px);
   overflow: hidden;
   border-radius: var(--et-radius-photo);
@@ -140,18 +140,31 @@
   }
 }
 
+/* Telefon: Pack links, Text rechts — gestapelt nahm die Tafel mit dem großen
+   Pack fast einen ganzen Bildschirm ein. */
 @media (max-width: 540px) {
   .boost {
-    grid-template-columns: 1fr;
-    padding: 22px 18px 24px;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 18px;
+    padding: 20px 18px;
   }
 
   .posterImg {
-    width: min(56vw, 200px);
+    width: 100%;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .spectrum {
+    font-size: 14px;
   }
 
   .cta {
-    width: 100%;
+    min-height: 46px;
+    padding: 0 18px;
+    font-size: 15px;
   }
 }
 

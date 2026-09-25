@@ -258,6 +258,10 @@ const en = {
     lockedSubhead: 'Still face-down',
     emptyMustEats:
       'Your deck is still empty. Must Eats are out in Berlin and in the Booster Packs.',
+    tabsLabel: 'Profile sections',
+    tab_deck: 'Deck',
+    tab_spots: 'Spots',
+    tab_packs: 'Packs',
     albumHeading: 'Your deck',
     albumHello: 'Hey {name}',
     albumCount: 'of {total} Must Eats',
@@ -657,6 +661,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
       'Dein Deck ist noch leer. Must Eats findest du drau\u00dfen in Berlin und in den Booster Packs.',
+    tabsLabel: 'Bereiche des Profils',
+    tab_deck: 'Deck',
+    tab_spots: 'Spots',
+    tab_packs: 'Packs',
     albumHeading: 'Dein Deck',
     /* Der Gruss wie im Hero der Startseite (angemeldet). */
     albumHello: 'Hey {name}',

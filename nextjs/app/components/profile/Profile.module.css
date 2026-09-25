@@ -871,6 +871,56 @@ main.page .head {
   text-wrap: pretty;
 }
 
+/* ── Reiter: Deck · Spots · Packs ─────────────────────────
+   Unter dem Kopf, mittig wie er. Eine angehobene Spur mit drei Feldern, das
+   gewaehlte gelb gefuellt — dieselbe Umkehr wie jeder aktive Zustand auf
+   Ink. Keine Ringe (23.09.2026). */
+.tabs {
+  display: flex;
+  justify-self: center;
+  gap: 4px;
+  margin-top: clamp(4px, 1vw, 10px);
+  padding: 4px;
+  background: var(--profile-raised);
+  border-radius: 999px;
+}
+
+.tab {
+  min-height: 40px;
+  padding: 0 clamp(18px, 3vw, 28px);
+  color: var(--profile-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--et-font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta, 0.1em);
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    color var(--profile-motion),
+    background-color var(--profile-motion);
+}
+
+.tab:focus-visible {
+  color: var(--profile-fg);
+  background: rgba(255, 255, 255, 0.08);
+  outline: 0;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--profile-fg);
+  }
+}
+
+.tab[aria-selected='true'] {
+  color: var(--profile-ink);
+  background: var(--profile-accent);
+}
+
 /* ── invite ─────────────────────────────────────────────── */
 
 /* Seit dem Abend des 04.09.2026 steht der Kasten DIREKT unter dem Deck und

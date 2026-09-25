@@ -16,6 +16,9 @@
 .stage {
   display: grid;
   place-items: center;
+  /* Das Fenster steht mittig im Bildschirm unter der Navigation, nicht oben
+     angeschlagen mit einem Loch darunter (Nutzer, 24.09.2026). */
+  min-height: calc(100svh - 200px);
 }
 
 /* Auf der Seite statt im Overlay: die Tour rechnet ihre Hoehe aus dem
@@ -35,6 +38,7 @@
    und gedreht, `--fan-d` laesst die Raender sinken. */
 .fan {
   --fan-w: min(27cqw, 56cqh);
+  --fan-step: 0.52;
   position: absolute;
   inset: 0;
   margin: 0;
@@ -47,7 +51,7 @@
   top: 50%;
   left: 50%;
   width: var(--fan-w);
-  transform: translate(-50%, -50%) translateX(calc(var(--fan-i) * var(--fan-w) * 0.52))
+  transform: translate(-50%, -50%) translateX(calc(var(--fan-i) * var(--fan-w) * var(--fan-step)))
     translateY(calc(var(--fan-d) * var(--fan-w) * 0.08)) rotate(calc(var(--fan-i) * 9deg));
   transform-origin: 50% 100%;
 }
@@ -194,6 +198,26 @@
 @media (hover: hover) {
   .second:hover {
     background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+/* Desktop: das Fenster so hoch wie sein Inhalt, die Bildspalte breiter und
+   der Faecher enger und groesser — vorher stand ein kleiner Faecher in einer
+   hohen Spalte, darueber und darunter je 150 px Leere („viel zu viel
+   Freiflaeche"). */
+@media (min-width: 900px) {
+  .sheet.sheet {
+    width: min(920px, 100%);
+    height: 440px;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    column-gap: 44px;
+    padding: 28px 36px 28px 20px;
+  }
+
+  .fan {
+    --fan-w: min(28cqw, 64cqh);
+    --fan-step: 0.44;
   }
 }
 

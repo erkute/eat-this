@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
@@ -36,6 +36,12 @@ interface Props {
 //
 // Order follows why someone opens this page: the deck first, then what they
 // just turned over, then their spots, their packs, and the invite.
+/* Die drei Reiter der Seite (Nutzer, 24.09.2026: „sollte man oben noch die
+   Moeglichkeit haben, Tabs zu wechseln?"). Die Seite war vier Bildschirme
+   lang: Deck, Einladen, gespeicherte Spots, Packs untereinander. */
+const TABS = ['deck', 'spots', 'packs'] as const;
+type Tab = (typeof TABS)[number];
+
 export default function ProfileShell({ publicFaceUpIds }: Props) {
   const { user, loading: authLoading, signOut } = useAuth();
   /* Das Abmelden hatte bisher keinen sichtbaren Zustand: das Profil verschwand
@@ -43,6 +49,22 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const [signingOut, setSigningOut] = useState(false);
   const t = useTranslations('profile');
   const [pickerOpen, setPickerOpen] = useState(false);
+  /* Der Reiter steht im Anker (#spots, #packs), damit ein Neuladen und der
+     Zurueck-Weg aus einem Spot dort landen, wo man war. */
+  const [tab, setTab] = useState<Tab>('deck');
+  useEffect(() => {
+    const fromHash = window.location.hash.slice(1);
+    if (fromHash === 'spots' || fromHash === 'packs') setTab(fromHash);
+  }, []);
+  const pickTab = (next: Tab) => {
+    setTab(next);
+    const { pathname, search } = window.location;
+    window.history.replaceState(
+      window.history.state,
+      '',
+      next === 'deck' ? `${pathname}${search}` : `${pathname}${search}#${next}`
+    );
+  };
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
   // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
   // is open in the collection too, even right after first signup.
@@ -192,11 +214,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             Nur im Normalfall: der Zweig ganz ohne Kartendaten rendert weiter
             oben seine eigene Seite, und dort IST die Meldung der Inhalt, kein
             Balken ueber einem. */}
-        <MapDataNotice
-          error={mapDataError}
-          hasData={hasMapData}
-          onRetry={refetchMapData}
-        />
+        <MapDataNotice error={mapDataError} hasData={hasMapData} onRetry={refetchMapData} />
 
         {/* No counters here on purpose: a raw spot tally is a receipt, not a
             profile — and the product deliberately doesn't state its numbers.
@@ -229,6 +247,23 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             /* Der einzige Zug nach vorn auf dieser Seite — und er handelt vom
                Deck, steht also im Deck. In der Ink-Tafel des Kopfes war er ein
                Untermieter zwischen Name und Berlin-Zahl. */
+            tabs={
+              <div className={styles.tabs} role="tablist" aria-label={t('tabsLabel')}>
+                {TABS.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={tab === id}
+                    className={styles.tab}
+                    onClick={() => pickTab(id)}
+                  >
+                    {t(`tab_${id}`)}
+                  </button>
+                ))}
+              </div>
+            }
+            showCollection={tab === 'deck'}
             nextMove={
               <ProfileNextMove
                 mustEats={ownedMustEats}
@@ -239,33 +274,41 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           />
         </section>
 
-        {/* Direkt unter dem Deck, nicht am Seitenende (Nutzer, 04.09.2026:
+        {tab === 'deck' && (
+          <>
+            {/* Direkt unter dem Deck, nicht am Seitenende (Nutzer, 04.09.2026:
             „ist der Knopf da unten irgendwie versteckt? Vielleicht muss der
             kleiner sein, unter dem Deck"). Geteilt wird das Deck — die
             Aufforderung dazu stand vier Bildschirme davon entfernt, hinter
             den gespeicherten Spots und den Packs, und war der letzte Block
             vor dem Fuss. */}
-        <section className={`hv-section hv-wrap ${styles.section}`}>
-          <ProfileInvite uid={user.uid} cards={inviteCards} />
-        </section>
+            <section className={`hv-section hv-wrap ${styles.section}`}>
+              <ProfileInvite uid={user.uid} cards={inviteCards} />
+            </section>
 
-        {/* Direkt darunter, weil es die Antwort auf den Kasten darueber ist:
+            {/* Direkt darunter, weil es die Antwort auf den Kasten darueber ist:
             dort wird gebeten, hier stehen die, die gekommen sind. Rendert
             nichts, solange niemand da ist. */}
-        <ProfileFriends uid={user.uid} />
+            <ProfileFriends uid={user.uid} />
 
-        <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
+            <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
+          </>
+        )}
 
-        <section className={`hv-section hv-wrap ${styles.section}`}>
-          <div className={`hv-head ${styles.head}`}>
-            <h2 className="hv-title">{t('savedHeading')}</h2>
-          </div>
-          <ProfileSpots uid={user.uid} restaurantSlugs={ownedRestaurantSlugs} />
-        </section>
+        {tab === 'spots' && (
+          <section className={`hv-section hv-wrap ${styles.section}`}>
+            <div className={`hv-head ${styles.head}`}>
+              <h2 className="hv-title">{t('savedHeading')}</h2>
+            </div>
+            <ProfileSpots uid={user.uid} restaurantSlugs={ownedRestaurantSlugs} />
+          </section>
+        )}
 
-        <section className={`hv-section hv-wrap ${styles.section}`}>
-          <ProfilePacks uid={user.uid} fullCatalog={fullCatalog} />
-        </section>
+        {tab === 'packs' && (
+          <section className={`hv-section hv-wrap ${styles.section}`}>
+            <ProfilePacks uid={user.uid} fullCatalog={fullCatalog} />
+          </section>
+        )}
 
         {/* Account chrome belongs at the bottom, quiet: it is the one thing
             nobody comes to this page for. */}

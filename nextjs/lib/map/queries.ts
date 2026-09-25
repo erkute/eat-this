@@ -5,6 +5,7 @@ import {
   restaurantPhotoCreditUrl,
 } from '@/lib/sanity-image-presets';
 import { liveRestaurant } from '../sanity-filters';
+import { articlesAboutRestaurant } from '../queries';
 // Category projection — only resolves reference entries. See lib/queries.ts.
 const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   "slug": slug.current,
@@ -69,7 +70,8 @@ export const restaurantMapDetailQuery = `
       alt,
       credit,
       creditUrl
-    }
+    },
+    ${articlesAboutRestaurant}
   }
 `;
 

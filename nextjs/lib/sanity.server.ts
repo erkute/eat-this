@@ -2,6 +2,7 @@ import { client } from './sanity';
 import { SANITY_REVALIDATE_SECONDS } from './constants';
 import {
   restaurantPageQuery,
+  RESTAURANT_ARTICLE_LIMIT,
   allRestaurantSlugsQuery,
   articleBySlugQuery,
   allArticleSlugsQuery,
@@ -107,9 +108,6 @@ export interface MustEatPreview {
  * Anfragen statt einer, und der ganze Sinn der Zusammenlegung wäre weg.
  */
 const RESTAURANT_SIBLING_LIMIT = 4;
-// Drei reichen: darüber wiederholen sich die Hub-Guides, in denen der Spot nur
-// einer von vielen ist — siehe die Sortierung in `articlesAboutRestaurant`.
-const RESTAURANT_ARTICLE_LIMIT = 3;
 
 interface RestaurantPageRow extends Restaurant {
   mustEats?: MustEatPreview[];
@@ -149,10 +147,12 @@ export async function getRestaurantPageData(slug: string): Promise<RestaurantPag
     {
       next: {
         revalidate: SANITY_REVALIDATE_SECONDS,
-        // `newsArticle`, weil ein neuer oder umgeschriebener Artikel den
-        // „Wir waren da"-Block auf JEDER darin verlinkten Restaurant-Seite
+        // `news`, weil ein neuer oder umgeschriebener Artikel den
+        // „Im Magazin"-Block auf JEDER darin verlinkten Restaurant-Seite
         // ändert — ohne den Tag bliebe er bis zum Revalidate-Intervall leer.
-        tags: [`restaurant:${slug}`, 'restaurant', 'mustEat', 'newsArticle', 'restaurant-siblings'],
+        // Es ist der Tag, den der Webhook bei `newsArticle` feuert; hier stand
+        // bis 25.09.2026 `newsArticle`, den niemand feuert.
+        tags: [`restaurant:${slug}`, 'restaurant', 'mustEat', 'news', 'restaurant-siblings'],
       },
     }
   );

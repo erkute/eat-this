@@ -5,6 +5,7 @@ import {DownloadIcon} from '@sanity/icons'
 import {schemaTypes} from './schemaTypes'
 import RestaurantImporter from './tools/RestaurantImporter'
 import GenerateNewsArticleAction from './actions/GenerateNewsArticleAction'
+import NewsPreviewAction from './actions/NewsPreviewAction'
 import {sanityTarget} from './sanity-target.mjs'
 
 export default defineConfig({
@@ -168,7 +169,9 @@ export default defineConfig({
 
   document: {
     actions: (prev, {schemaType}) =>
-      schemaType === 'newsArticle' ? [...prev, GenerateNewsArticleAction] : prev,
+      schemaType === 'newsArticle'
+        ? [...prev, NewsPreviewAction, GenerateNewsArticleAction]
+        : prev,
   },
 
   schema: {

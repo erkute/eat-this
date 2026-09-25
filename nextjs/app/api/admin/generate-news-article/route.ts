@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto';
 import * as Sentry from '@sentry/nextjs';
-import type { CurrentSanityUser } from '@sanity/client';
 import { NextResponse } from 'next/server';
 import {
   generateNewsArticle,
@@ -10,15 +9,17 @@ import {
 } from '@/lib/admin/generate-news-article.server';
 import { isStaging } from '@/lib/env';
 import { checkRateLimitFailClosed } from '@/lib/rateLimit';
-import { client as baseSanityClient } from '@/lib/sanity';
+import {
+  authenticateStudioUser,
+  studioCorsHeaders as corsHeaders,
+  studioJson as json,
+} from '@/lib/admin/studioRequest.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const maxDuration = 120;
 
-const LIVE_STUDIO_ORIGINS = new Set(['https://eat-this.sanity.studio', 'https://www.sanity.io']);
-const WRITER_ROLES = new Set(['administrator', 'developer', 'editor']);
 const CATEGORIES = new Set<NewsCategory>(['openings', 'guides', 'culture']);
 const LENGTHS = new Set<NewsArticleLength>(['short', 'standard', 'long']);
 
@@ -30,27 +31,6 @@ interface RequestBody {
   includeEnglish?: unknown;
   length?: unknown;
   sourceUrls?: unknown;
-}
-
-function corsHeaders(origin: string | null): Record<string, string> | null {
-  const isLocalStudio =
-    process.env.NODE_ENV === 'development' &&
-    typeof origin === 'string' &&
-    /^http:\/\/localhost:\d+$/.test(origin);
-  if (!origin || (!LIVE_STUDIO_ORIGINS.has(origin) && !isLocalStudio)) return null;
-
-  return {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-    'Access-Control-Max-Age': '600',
-    'Cache-Control': 'no-store',
-    Vary: 'Origin',
-  };
-}
-
-function json(body: unknown, status: number, headers: Record<string, string>) {
-  return NextResponse.json(body, { status, headers });
 }
 
 function parseSourceUrls(value: unknown): string[] | null {
@@ -132,40 +112,13 @@ export async function POST(request: Request) {
   const cors = corsHeaders(request.headers.get('origin'));
   if (!cors) return NextResponse.json({ error: 'origin_forbidden' }, { status: 403 });
 
-  const authHeader = request.headers.get('authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-  if (!token) {
-    return json(
-      { error: 'missing_token', message: 'Sanity neu laden und erneut anmelden.' },
-      401,
-      cors
-    );
-  }
-
-  const sanity = baseSanityClient.withConfig({
-    token,
-    useCdn: false,
-    perspective: 'raw',
-  });
-
-  let user: CurrentSanityUser;
-  try {
-    user = await sanity.users.getById('me');
-  } catch {
-    return json(
-      { error: 'invalid_token', message: 'Deine Sanity-Sitzung ist nicht mehr gültig.' },
-      401,
-      cors
-    );
-  }
-
-  if (!WRITER_ROLES.has(user.role)) {
-    return json(
-      { error: 'insufficient_role', message: 'Deine Sanity-Rolle darf keine Artikel erzeugen.' },
-      403,
-      cors
-    );
-  }
+  const auth = await authenticateStudioUser(
+    request,
+    cors,
+    'Deine Sanity-Rolle darf keine Artikel erzeugen.'
+  );
+  if ('response' in auth) return auth.response;
+  const { user } = auth;
 
   if (!process.env.ANTHROPIC_API_KEY) {
     Sentry.captureMessage('AI news writer is missing Anthropic configuration', 'error');

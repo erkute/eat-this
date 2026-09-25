@@ -53,7 +53,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
         </div>
 
         <ul className={styles.grid} role="list">
-          {list.map((a) => (
+          {list.map((a, i) => (
             <li key={a.slug}>
               <Link href={`/news/${a.slug}`} className={styles.card}>
                 <span className={`hv-photo ${styles.photo}`}>
@@ -65,11 +65,17 @@ export default function MagazineGrid({ articles, locale }: Props) {
                     <img
                       className={styles.photoImg}
                       src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
-                      srcSet={sanitySrcSet(a.image, [480, 800, 1200])}
+                      srcSet={sanitySrcSet(a.image, [480, 800, 1200, 1600])}
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:760px) 92vw, 33vw"
+                      // Die erste Story ist ab 761px der Aufmacher und
+                      // doppelt so breit wie die beiden daneben.
+                      sizes={
+                        i === 0
+                          ? '(max-width:760px) 92vw, (max-width:960px) 100vw, 66vw'
+                          : '(max-width:760px) 92vw, 33vw'
+                      }
                     />
                   )}
                 </span>

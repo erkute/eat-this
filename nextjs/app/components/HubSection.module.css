@@ -22,6 +22,35 @@
      zwischen 104 und 206px, weil das Polster der Tafeln unsichtbar mitzaehlte
      (zwei Tafeln = 112px eingebaute Luft). Jetzt zaehlt nur noch die Fuge. */
   --home-section-gap: clamp(72px, 7vw, 104px);
+  /* Der Stern vom Pack-Etikett („PIZZA PACK", „20 MUST EATS") als Zeichen der
+     Startseite: Abschnittsmarke, Kategorie-Zeilen, Klebeband, Tages-Sticker.
+     Als Token, weil CategoriesRail ihn über die Vererbung mitliest. */
+  --home-burst: polygon(
+    50% 0%,
+    59.8% 13.3%,
+    75% 6.7%,
+    76.9% 23.1%,
+    93.3% 25%,
+    86.7% 40.2%,
+    100% 50%,
+    86.7% 59.8%,
+    93.3% 75%,
+    76.9% 76.9%,
+    75% 93.3%,
+    59.8% 86.7%,
+    50% 100%,
+    40.2% 86.7%,
+    25% 93.3%,
+    23.1% 76.9%,
+    6.7% 75%,
+    13.3% 59.8%,
+    0% 50%,
+    13.3% 40.2%,
+    6.7% 25%,
+    23.1% 23.1%,
+    25% 6.7%,
+    40.2% 13.3%
+  );
   width: 100%;
   min-height: 100svh;
   /* Kein Kopfpolster mehr: der Aufmacher ist eine randlose Farbfläche und
@@ -38,6 +67,20 @@
 :global(.homeV2).page {
   color: var(--et-home-inverse-text);
   background: var(--home-ink);
+}
+
+/* Die Abschnittsmarke: Stern statt Quadrat. Das 9px-Quadrat war das Zeichen
+   eines Rasters, der Stern ist das der Marke — derselbe wie auf den Packs.
+   In em, damit er mit dem Titel wächst; kostet auf dem Telefon nicht mehr
+   Breite als das Quadrat samt Abstand (17px). Rang (0,3,0), weil
+   `.homeV2 .hv-mk` in css/style.css (0,2,0) später geladen wird. */
+:global(.homeV2).page :global(.hv-mk) {
+  width: 0.56em;
+  height: 0.56em;
+  margin-right: 0.26em;
+  vertical-align: 0.04em;
+  clip-path: var(--home-burst);
+  rotate: -12deg;
 }
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
@@ -338,6 +381,73 @@
   scale: var(--et-press-tile, 0.985);
 }
 
+/* ── Klebeband unter dem Aufmacher ──────────────────────────────────────────
+   Unter dem Aufmacher war die Seite bis zum Footer eine Folge gleich gebauter
+   Abschnitte auf demselben Schwarz. Das Band ist die eine laute Stelle
+   dazwischen: gelb, schräg angeklebt, der Slogan vom Pack. Es läuft von Kante
+   zu Kante; der Rahmen schneidet die schräg überstehenden Enden ab, damit die
+   Seite seitlich nicht schiebt. Bewegung nur per translate, nie per Opacity. */
+.tape {
+  overflow: hidden;
+  /* Platz für die Schräge: 2° heben die Enden auf 1440px um je ~25px an. */
+  padding: clamp(14px, 2.4vw, 36px) 0;
+}
+
+.tapeBand {
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  padding: clamp(10px, 1vw, 14px) 0;
+  background: var(--et-home-accent);
+  color: var(--home-ink);
+  rotate: -2deg;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
+}
+
+.tapeTrack {
+  display: flex;
+  width: max-content;
+  animation: hubTape 48s linear infinite;
+}
+
+.tapeRun {
+  display: flex;
+  flex: none;
+}
+
+.tapeItem {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(14px, 1.6vw, 22px);
+  padding-right: clamp(14px, 1.6vw, 22px);
+  font-family: var(--font-providence);
+  font-size: clamp(17px, 1.9vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tapeBurst {
+  flex: none;
+  width: 0.9em;
+  height: 0.9em;
+  background: var(--et-home-red);
+  clip-path: var(--home-burst);
+}
+
+@keyframes hubTape {
+  to {
+    translate: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tapeTrack {
+    animation: none;
+  }
+}
+
 /* ── Spot des Tages ─────────────────────────────────────────────────────────
    The pick used to be a rounded 16/9 box with a text column parked next to it:
    two floating objects on white, and visibly less designed than the four cards
@@ -362,33 +472,96 @@
 }
 
 .page .spotHead:global(.hv-head) {
-  column-gap: clamp(12px, 2vw, 28px);
-  margin-bottom: clamp(20px, 2.2vw, 30px);
+  /* Luft für den Sticker, der über die obere Ecke des Fotos ragt. */
+  margin-bottom: clamp(34px, 3.4vw, 46px);
 }
 
-/* Under ~560px the 30px title and the date stop fitting on one line and end up
-   touching. Stacked they read as headline and dateline, which is what they
-   are, and no width can make them collide. */
-@media (max-width: 560px) {
-  .page .spotHead:global(.hv-head) {
-    flex-direction: column;
-    align-items: flex-start;
-    row-gap: 7px;
-  }
+.spotStage {
+  position: relative;
 }
 
-/* On the title's baseline at the far end of the head row. Without it nothing
-   on the page said the pick is new today; the heading alone claims a daily
-   rhythm the visitor has no way to see. Muted, not a second red thing. */
-.spotDate {
-  flex: none;
+/* Der Tag als Stern-Sticker auf der Ecke der Karte, schräg angeklebt wie das
+   Etikett auf den Packs. Ohne ihn sagte nichts, dass die Wahl heute neu ist;
+   als graue Datumszeile am Ende der Kopfzeile las ihn keiner. */
+.spotBurst {
+  position: absolute;
+  z-index: 2;
+  top: clamp(-30px, -2.2vw, -20px);
+  left: clamp(-26px, -1.8vw, -14px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: clamp(96px, 8.4vw, 120px);
+  aspect-ratio: 1;
+  background: var(--et-home-accent);
+  color: var(--home-ink);
+  clip-path: polygon(
+    50% 0%,
+    57.5% 7.7%,
+    67.1% 3%,
+    71.5% 12.8%,
+    82.1% 11.7%,
+    82.9% 22.4%,
+    93.3% 25%,
+    90.4% 35.3%,
+    99.2% 41.3%,
+    93% 50%,
+    99.2% 58.7%,
+    90.4% 64.7%,
+    93.3% 75%,
+    82.9% 77.6%,
+    82.1% 88.3%,
+    71.5% 87.2%,
+    67.1% 97%,
+    57.5% 92.3%,
+    50% 100%,
+    42.5% 92.3%,
+    32.9% 97%,
+    28.5% 87.2%,
+    17.9% 88.3%,
+    17.1% 77.6%,
+    6.7% 75%,
+    9.6% 64.7%,
+    0.8% 58.7%,
+    7% 50%,
+    0.8% 41.3%,
+    9.6% 35.3%,
+    6.7% 25%,
+    17.1% 22.4%,
+    17.9% 11.7%,
+    28.5% 12.8%,
+    32.9% 3%,
+    42.5% 7.7%
+  );
+  rotate: -12deg;
   font-family: var(--font-providence);
   font-weight: 700;
-  font-size: clamp(14px, 1.15vw, 17px);
-  letter-spacing: 0;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  pointer-events: none;
+}
+
+.spotBurstToday {
+  font-size: clamp(20px, 1.8vw, 26px);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.spotBurstDate {
+  font-size: clamp(12px, 0.95vw, 14px);
+  letter-spacing: 0;
   white-space: nowrap;
+}
+
+/* Ohne Foto gibt es keine Ecke zum Bekleben: der Sticker steht dann über dem
+   Namen im Fluss. */
+.spotStageTextOnly .spotBurst {
+  position: relative;
+  top: auto;
+  left: auto;
+  margin-bottom: 18px;
 }
 
 .spotCard {
@@ -424,7 +597,31 @@
   aspect-ratio: 4 / 3;
   border-radius: var(--et-radius-photo);
   overflow: hidden;
-  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+  /* Der gelbe Kartenrand der Must-Eat-Karten: die Wahl des Tages ist die
+     Karte, die heute oben liegt — leicht schräg hingelegt, beim Berühren
+     gerade gerückt. Ring als Schatten, damit er dem Radius folgt und das
+     Foto nicht verkleinert. */
+  box-shadow:
+    0 0 0 clamp(5px, 0.5vw, 7px) var(--et-home-accent),
+    0 18px 30px rgba(0, 0, 0, 0.5);
+  rotate: -1.5deg;
+  transition: rotate 260ms ease;
+}
+
+.spotCard:focus-visible .spotPhoto {
+  rotate: 0deg;
+}
+
+@media (hover: hover) {
+  .spotCard:hover .spotPhoto {
+    rotate: 0deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page .spotCard .spotPhoto {
+    transition: none;
+  }
 }
 
 .spotImage {
@@ -585,6 +782,18 @@
     grid-column: 1;
     width: 100%;
     aspect-ratio: 4 / 3;
+    /* Randbreit gekippt ragt der Ring sonst bis an die Bildschirmkante. */
+    rotate: -1deg;
+  }
+
+  .spotCard:focus-visible .spotPhoto {
+    rotate: 0deg;
+  }
+
+  @media (hover: hover) {
+    .spotCard:hover .spotPhoto {
+      rotate: 0deg;
+    }
   }
 
   .spotBody {

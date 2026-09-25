@@ -32,6 +32,7 @@ interface Props {
 const copy = {
   de: {
     spotDay: 'Spot des Tages',
+    spotToday: 'Heute',
     spotCta: 'Zur Map',
     heroLabel: 'Eat This — die Food-Map für Berlin',
     heroPhonesLabel: 'Berlin Food Map öffnen',
@@ -39,6 +40,7 @@ const copy = {
   },
   en: {
     spotDay: 'Spot of the day',
+    spotToday: 'Today',
     spotCta: 'To the map',
     heroLabel: 'Eat This — the food map for Berlin',
     heroPhonesLabel: 'Open the Berlin food map',
@@ -70,6 +72,12 @@ function dayLabel(today: string, locale: 'de' | 'en'): string {
     timeZone: 'UTC',
   }).format(new Date(`${today}T12:00:00Z`));
 }
+
+// Der Slogan von Pack und Kartenrücken als Klebeband unter dem Aufmacher.
+// Acht Durchläufe pro Hälfte, damit eine Hälfte auch auf 2560px breiter ist
+// als das Fenster — die Schleife verschiebt um genau eine Hälfte.
+const TAPE_REPEATS = 8;
+const TAPE_SLOGAN = 'We tell you what to eat';
 
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
   const t = copy[locale];
@@ -131,6 +139,25 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
       <HeroMarkFlight />
 
+      {/* Reine Zier, für Screenreader stumm: der Slogan steht schon als
+          Headline im Aufmacher. */}
+      <div className={styles.tape} aria-hidden="true">
+        <div className={styles.tapeBand}>
+          <div className={styles.tapeTrack}>
+            {[0, 1].map((half) => (
+              <span className={styles.tapeRun} key={half}>
+                {Array.from({ length: TAPE_REPEATS }, (_, i) => (
+                  <span className={styles.tapeItem} key={i}>
+                    {TAPE_SLOGAN}
+                    <span className={styles.tapeBurst} />
+                  </span>
+                ))}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor
           but a tap, and it answers "what do I eat now" with their own street.
@@ -148,46 +175,52 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                   <span className="hv-mk" aria-hidden="true" />
                   {t.spotDay}
                 </h2>
-                <time className={styles.spotDate} dateTime={today}>
-                  {dayLabel(today, locale)}
-                </time>
               </div>
-              {/* Name and reason sit beside the photo, not on it: the pick is a
+              {/* Der Tag als Sticker auf der Ecke der Karte, wie das Etikett auf
+                den Packs — vorher stand das Datum grau am rechten Ende der
+                Kopfzeile, wo es niemand las. Außerhalb des Links, damit es
+                nicht mit in dessen Namen rutscht. */}
+              <div className={`${styles.spotStage} ${spot.image ? '' : styles.spotStageTextOnly}`}>
+                <time className={styles.spotBurst} dateTime={today}>
+                  <span className={styles.spotBurstToday}>{t.spotToday}</span>
+                  <span className={styles.spotBurstDate}>{dayLabel(today, locale)}</span>
+                </time>
+                {/* Name and reason sit beside the photo, not on it: the pick is a
                 different restaurant every day and half the images are bright
-                enough to swallow white type. The photo runs out to the page
-                edge instead, which is what makes this read as the lead. */}
-              <MapIntentLink
-                href={`/map?r=${spot.slug}`}
-                rel="nofollow"
-                className={`${styles.spotCard} ${spot.image ? '' : styles.spotCardTextOnly}`}
-              >
-                {spot.image && (
-                  <span className={`hv-photo ${styles.spotPhoto}`}>
-                    {/* Deliberately bypass the App Hosting image proxy: Sanity
+                enough to swallow white type. */}
+                <MapIntentLink
+                  href={`/map?r=${spot.slug}`}
+                  rel="nofollow"
+                  className={`${styles.spotCard} ${spot.image ? '' : styles.spotCardTextOnly}`}
+                >
+                  {spot.image && (
+                    <span className={`hv-photo ${styles.spotPhoto}`}>
+                      {/* Deliberately bypass the App Hosting image proxy: Sanity
                       serves the responsive, format-negotiated variants directly. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className={styles.spotImage}
-                      src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
-                      srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      sizes="(max-width:920px) 100vw, (max-width:1200px) 60vw, 780px"
-                    />
-                  </span>
-                )}
-                <span className={styles.spotBody}>
-                  {spot.district && (
-                    <span className={`hv-kicker ${styles.spotKicker}`}>{spot.district}</span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        className={styles.spotImage}
+                        src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
+                        srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(max-width:920px) 100vw, (max-width:1200px) 60vw, 780px"
+                      />
+                    </span>
                   )}
-                  <span className={styles.spotName}>{normalizeName(spot.name)}</span>
-                  {/* Loaded from Sanity all along and never rendered — it is the
+                  <span className={styles.spotBody}>
+                    {spot.district && (
+                      <span className={`hv-kicker ${styles.spotKicker}`}>{spot.district}</span>
+                    )}
+                    <span className={styles.spotName}>{normalizeName(spot.name)}</span>
+                    {/* Loaded from Sanity all along and never rendered — it is the
                     reason this spot is today's pick, so it belongs here. */}
-                  {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
-                  <span className={styles.spotCta}>{t.spotCta}</span>
-                </span>
-              </MapIntentLink>
+                    {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
+                    <span className={styles.spotCta}>{t.spotCta}</span>
+                  </span>
+                </MapIntentLink>
+              </div>
             </article>
           </section>
         )}

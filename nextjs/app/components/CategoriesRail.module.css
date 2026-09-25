@@ -71,13 +71,17 @@
     transform 160ms ease;
 }
 
-/* Dasselbe gelbe Marken-Quadrat wie vor jedem Abschnittstitel. */
+/* Dasselbe gelbe Zeichen wie vor jedem Abschnittstitel: der Stern, den die
+   Startseite als `--home-burst` vererbt. Fehlt das Token, ist `clip-path`
+   ungültig und es bleibt beim Quadrat. */
 .chip::before {
   content: '';
   flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
+  width: 0.5em;
+  height: 0.5em;
   background: var(--board-accent, #ffc600);
+  clip-path: var(--home-burst);
+  rotate: -12deg;
   transition: transform 160ms ease;
 }
 
@@ -96,12 +100,12 @@
 }
 
 .chip:focus-visible::before {
-  transform: scale(1.35);
+  transform: scale(1.3) rotate(45deg);
 }
 
 @media (hover: hover) {
   .chip:hover::before {
-    transform: scale(1.35);
+    transform: scale(1.3) rotate(45deg);
   }
 }
 

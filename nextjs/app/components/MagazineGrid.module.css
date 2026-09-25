@@ -235,9 +235,61 @@
   scale: var(--et-press-tile, 0.985);
 }
 
-@media (max-width: 960px) {
+/* ── Aufmacher ──
+   Drei gleiche Kacheln nebeneinander waren ein Regal, keine Titelseite. Die
+   neueste Story führt jetzt: doppelt so breit, über zwei Zeilen, größere
+   Headline; die beiden anderen stehen rechts daneben. Dieselben drei Stories,
+   kaum mehr Höhe. Unter 761px bleibt es die Wischreihe. */
+@media (min-width: 761px) {
+  .grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    row-gap: clamp(24px, 2.6vw, 36px);
+  }
+
+  .grid > li:first-child {
+    grid-row: span 2;
+  }
+
+  /* Das Foto des Aufmachers füllt die Höhe der rechten Spalte, statt bei 4/3
+     darunter ein Loch zu lassen. */
+  .grid > li:first-child .photo:global(.hv-photo) {
+    flex: 1 1 auto;
+    aspect-ratio: auto;
+    min-height: 320px;
+  }
+
+  /* Sonst teilt sich der Text den freien Platz mit dem Foto und schiebt ein
+     Loch unter die Headline. */
+  .grid > li:first-child .text {
+    flex: 0 0 auto;
+  }
+
+  .grid > li:first-child .title {
+    max-width: 24em;
+    font-size: clamp(26px, 2.4vw, 36px);
+    line-height: 1;
+  }
+
+  .grid > li:not(:first-child) .photo:global(.hv-photo) {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+/* Zwischen Tablet und Desktop ist die rechte Spalte zu schmal: der Aufmacher
+   läuft dann über die volle Breite, die beiden anderen stehen darunter. */
+@media (min-width: 761px) and (max-width: 960px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid > li:first-child {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  .grid > li:first-child .photo:global(.hv-photo) {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
   }
 }
 

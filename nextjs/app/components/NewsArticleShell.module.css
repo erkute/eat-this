@@ -23,7 +23,7 @@
      Oben 0: die 34px trugen die Brotkrume. Ohne sie klemmte ein weißer
      Streifen zwischen der schwarzen SiteNav und dem dunklen Aufmacherfoto und
      las sich als Fuge, nicht als Rand. Das Foto dockt jetzt an die Leiste an;
-     wer kein Foto hat, bekommt seinen Abstand an `.heroGridPlain`. */
+     wer kein Foto hat, bekommt seinen Abstand an `.introCopy`. */
   padding: 0 clamp(18px, 4vw, 54px) 0;
   background: var(--article-ink);
   color: var(--article-fg);
@@ -49,21 +49,27 @@ div.page {
   margin: 0 auto;
 }
 
+/* Drei Geschwister im Kopf: Aufmacher, Titel, Byline mit Vorspann. Bis
+   1079px liegen Foto und Titel in derselben Rasterzelle — der Titel steht
+   unten auf dem Foto —, die Byline läuft darunter. Ab Desktop teilt sich der
+   Kopf (`.headerSplit`, unten im Layout-Block). */
 .header {
   display: grid;
-  gap: clamp(16px, 2.4vw, 26px);
-  margin-bottom: clamp(28px, 4vw, 52px);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.headerMeta {
+  width: 100%;
+  max-width: 720px;
+  margin: clamp(28px, 4vw, 52px) auto 0;
 }
 
 /* ---------------------------------------------------------------- hero --- */
 
-.heroWrap {
+.heroMedia {
   position: relative;
-  display: grid;
-  align-items: end;
-  width: 100%;
+  grid-area: 1 / 1;
   min-height: clamp(400px, 44vw, 600px);
-  margin: 0;
   overflow: hidden;
   background: var(--article-ink);
   /* Oben eckig, weil das Foto an der SiteNav sitzt: eine runde Ecke direkt
@@ -72,7 +78,7 @@ div.page {
   border-radius: 0 0 var(--et-radius-photo, 10px) var(--et-radius-photo, 10px);
 }
 
-.heroWrap::after {
+.heroMedia::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -91,32 +97,24 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-.heroGridPlain {
-  display: grid;
-  align-items: flex-end;
-  /* Ohne Foto gibt es nichts zum Andocken — die Überschrift braucht den
-     Abstand zur Leiste, den `.page` oben abgegeben hat. Dieselben zwei Werte,
-     die dort standen: 34px ab Desktop, 24px darunter. */
-  margin-top: 34px;
-  max-width: var(--article-measure);
-}
-
 .introCopy {
   position: relative;
   z-index: 1;
   min-width: 0;
-  display: grid;
-  gap: clamp(12px, 1.8vw, 20px);
+  /* Ohne Foto gibt es nichts zum Andocken — die Überschrift braucht den
+     Abstand zur Leiste, den `.page` oben abgegeben hat: 34px ab Desktop,
+     24px darunter. */
+  margin-top: 34px;
+  max-width: var(--article-measure);
 }
 
-.heroWrap .introCopy {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  align-content: end;
+.headerSplit .introCopy {
+  grid-area: 1 / 1;
+  align-self: end;
   box-sizing: border-box;
   width: min(100%, 980px);
+  max-width: none;
+  margin-top: 0;
   padding: clamp(22px, 4vw, 52px);
 }
 
@@ -135,7 +133,7 @@ div.page {
   text-transform: uppercase;
 }
 
-.heroWrap .heroTitle {
+.headerSplit .heroTitle {
   max-width: 17ch;
   color: #fff;
   text-wrap: balance;
@@ -205,8 +203,8 @@ div.page {
   /* Keine eigene Lesebreite: die 46ch waren bei 1000px 516px breit, waehrend
      Byline und Fliesstext daneben die vollen 720px der Spalte nutzten — 204px
      Versatz, der als Fehlausrichtung gelesen wird (User, 28.08.), genau wie
-     seinerzeit bei `.story` auf der Spot-Seite. Ab 1080px setzt der Block
-     weiter unten ohnehin `--article-measure` fuer alle Textknoten. */
+     seinerzeit bei `.story` auf der Spot-Seite. Ab 1080px steht der Vorspann
+     im geteilten Kopf und nimmt dort dessen linke Haelfte. */
   max-width: none;
   margin: 0 0 clamp(22px, 3vw, 34px);
   color: var(--article-fg);
@@ -448,8 +446,19 @@ div.page {
 /* Inline editorial photo — same radius as the spot card, caption in the same
    muted meta voice as the byline. The img keeps its intrinsic ratio; next/image
    ships width/height so the column doesn't jump while it loads. */
+/* Die Höhe ist gedeckelt, nicht die Breite: ein Hochformat lief über die
+   volle Spalte und stand auf Desktop 660 × 920px da — höher als der
+   Bildschirm (Betreiber, 25.09.2026: „die Bilder wirken so riesig"). Jetzt
+   wird es schmaler und steht mittig über dem Text; ein Querformat füllt die
+   Spalte weiter. `--img-ratio` setzt die Komponente aus den Asset-Maßen,
+   `--img-frame` ist die Breite, in der mittig gerechnet wird — ab Desktop die
+   Lesebreite statt der ganzen Spalte. */
 .inlineImage {
+  --img-max-h: min(70vh, 600px);
+  --img-w: min(var(--img-frame, 100%), calc(var(--img-max-h) * var(--img-ratio, 1.5)));
+  width: var(--img-w);
   margin: clamp(30px, 5vw, 60px) 0;
+  margin-left: calc((var(--img-frame, 100%) - var(--img-w)) / 2);
 }
 
 .inlineImage img {
@@ -899,8 +908,6 @@ div.page {
      Spalte, während der Text daneben bei 660px endete — gemessen 236px
      Überhang nach rechts (User, 28.08.). Als `> *` erbt jeder künftige Block
      die Breite, statt dass jemand daran denken muss. */
-  .byline,
-  .lede,
   .content > *,
   .hubLink,
   .shareRow {
@@ -910,6 +917,58 @@ div.page {
   .content > h2,
   .content > h3 {
     max-width: min(24ch, var(--article-measure));
+  }
+
+  .inlineImage {
+    --img-frame: min(100%, var(--article-measure));
+  }
+
+  .inlineSpot {
+    min-height: 380px;
+  }
+
+  /* Der geteilte Kopf, wie bei Highsnobiety: links Titel, Byline und
+     Vorspann, rechts der Aufmacher als Hochformat-Ausschnitt. Vorher lag der
+     Titel auf einem 1180 × 600px großen Foto über die volle Breite — das Bild
+     war das Erste und Größte der Seite, der Text kam erst danach. */
+  .headerSplit {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
+    column-gap: clamp(40px, 5vw, 80px);
+    padding-top: clamp(32px, 3.4vw, 48px);
+    margin-bottom: clamp(48px, 5vw, 80px);
+  }
+
+  .headerSplit .heroMedia {
+    grid-area: 1 / 2 / -1 / 3;
+    height: clamp(420px, calc(100vh - 220px), 620px);
+    min-height: 0;
+    border-radius: var(--et-radius-photo, 10px);
+  }
+
+  .headerSplit .heroMedia::after {
+    content: none;
+  }
+
+  .headerSplit .introCopy {
+    grid-area: 2 / 1;
+    align-self: end;
+    width: auto;
+    padding: 0;
+  }
+
+  .headerSplit .heroTitle {
+    max-width: none;
+  }
+
+  .headerSplit .headerMeta {
+    grid-area: 3 / 1;
+    max-width: none;
+    margin: clamp(22px, 2.4vw, 32px) 0 0;
+  }
+
+  .headerSplit .lede {
+    margin-bottom: 0;
   }
 
   /* Der Katalog-Ausgang als Tafel, nicht als Zeile. Auf 660px Lesebreite
@@ -979,15 +1038,11 @@ div.page {
 }
 
 @media (max-width: 900px) {
-  .heroGridPlain {
+  .introCopy {
     margin-top: 24px;
   }
 
-  .header {
-    gap: 12px;
-  }
-
-  .heroWrap {
+  .heroMedia {
     min-height: clamp(380px, 62vw, 520px);
   }
 }
@@ -997,19 +1052,19 @@ div.page {
     padding-inline: 16px;
   }
 
-  .header {
-    gap: 10px;
-    margin-bottom: 26px;
+  .headerMeta {
+    margin-top: 26px;
   }
 
-  .heroWrap {
+  .heroMedia {
     margin-inline: -16px;
-    width: calc(100% + 32px);
     min-height: clamp(360px, 104vw, 500px);
     border-radius: 0;
   }
 
-  .heroWrap .introCopy {
+  .headerSplit .introCopy {
+    width: calc(100% + 32px);
+    margin-inline: -16px;
     padding: 22px 16px 24px;
   }
 
@@ -1018,7 +1073,7 @@ div.page {
     font-size: clamp(30px, 8.6vw, 46px);
   }
 
-  .heroWrap .heroTitle {
+  .headerSplit .heroTitle {
     max-width: 15ch;
   }
 

@@ -5,6 +5,7 @@ import Image from '@/app/components/SiteImage';
 import type { MustEatPreview } from '@/lib/sanity.server';
 import { useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
+import hubStyles from './HubPage.module.css';
 import styles from './MustEatTeaserSection.module.css';
 
 interface Props {
@@ -83,7 +84,7 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
       <header className={styles.head}>
         {/* Die H2 trägt jetzt den Abschnittsnamen (vorher stand er als
             blindes <p> davor und die Outline bestand aus dem Rätsel-Satz). */}
-        <h2 className={styles.eyebrow}>{t.eyebrow}</h2>
+        <h2 className={hubStyles.sectionTitle}>{t.eyebrow}</h2>
         <p className={styles.heading}>{heading}</p>
         <p className={styles.body}>{t.body}</p>
       </header>

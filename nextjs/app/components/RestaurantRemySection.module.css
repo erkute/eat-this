@@ -1,7 +1,6 @@
-/* Gleiche Breite wie .story/.facts/.siblings auf der Restaurantseite (900px).
-   Die Tafel selbst liegt in RemyAskPanel.module.css. */
+/* Die Tafel selbst liegt in RemyAskPanel.module.css. Breite und Abstand setzt
+   die Spot-Seite (eine Spalte, `gap` als Rhythmus) — hier steht nichts
+   Eigenes mehr, außer dass die Tafel keinen Außenabstand mitbringt. */
 .section {
-  width: min(100%, 900px);
-  margin-inline: auto;
-  margin-block: clamp(36px, 5.5vw, 64px);
+  margin: 0;
 }

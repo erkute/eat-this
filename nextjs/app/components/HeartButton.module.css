@@ -50,7 +50,7 @@
    photo (ice cream, white tiles) all but disappears. Own shadow, a touch
    deeper than the button's, so a thin Providence "1" holds on a light photo. */
 .count {
-  font-family: var(--f-display);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
   font-size: 18px;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -59,12 +59,12 @@
 }
 
 .btnActive {
-  color: var(--detail-red, #ef3108);
+  color: var(--et-home-red, #d9382a);
 }
 
 @media (hover: hover) {
   .btn:hover {
-    color: var(--detail-red, #ef3108);
+    color: var(--et-home-red, #d9382a);
     transform: translateY(-2px);
   }
 }

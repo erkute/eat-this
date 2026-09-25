@@ -1,14 +1,13 @@
 'use client';
 
-// Zustands-Chip im Aufmacher der Restaurant-Seite: „Geöffnet · bis 18:30"
-// (grün) oder „Geschlossen · öffnet 12:00" (rot) — dieselbe Farbcodierung wie
-// die rdTagOpen/rdTagClosed-Chips auf dem Map-Sheet, damit der Zustand überall
-// gleich aussieht.
+// Zustands-Chip im Kopf der Restaurant-Seite: „Geöffnet · bis 18:30"
+// (grüner Punkt) oder „Geschlossen · öffnet 12:00" (roter Punkt) — dieselbe
+// Farbcodierung wie die rdTagOpen/rdTagClosed-Chips auf dem Map-Sheet, damit
+// der Zustand überall gleich aussieht.
 //
 // Client-Komponente, weil die Seite statisch vorgerendert wird (revalidate:
 // 24 h) — ein serverseitig gerendertes „Geöffnet" wäre je nach Build-Zeitpunkt
-// tagelang falsch. Der Chip erscheint deshalb erst nach dem Mount neben den
-// statischen Bezirk/Küche-Chips.
+// tagelang falsch. Der Chip erscheint deshalb erst nach dem Mount.
 
 import { useEffect, useState } from 'react';
 import { formatOpenStateChip } from '@/lib/map/openingHours';

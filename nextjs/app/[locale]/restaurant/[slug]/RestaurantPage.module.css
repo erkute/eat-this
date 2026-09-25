@@ -1,0 +1,765 @@
+/* ============================================================
+   Spot-Seite /restaurant/[slug].
+
+   Neu gesetzt am 25.09.2026 („ausrichtungsprobleme … die Spotnamen fast nicht
+   mehr zu sehen, brauch ein komplett neues design"). Ersetzt
+   RestaurantDetail.module.css (1.235 Zeilen, die meisten davon Korrekturen
+   früherer Korrekturen).
+
+   Dieselbe Sprache wie die Hub-Seiten (HubPage.module.css): Ink-Grund,
+   Providence für alles Gesetzte, Inter für Fließtext, Gelb als einziger
+   Akzent, Bedienelemente als Fläche (--et-ink-raised) statt Kontur. Kein Text
+   auf Fotos — jeder Name, jede Zeile steht unter oder neben ihrem Bild.
+
+   Eine Spalte, eine Kante: alles hängt an derselben 1240er-Spalte mit dem
+   Rand der Hub-Seiten. Die alte Seite mischte 900px-Blöcke in einem
+   1180px-Rahmen mit randlosen Ausreißern — daher die schiefen Kanten.
+   ============================================================ */
+
+.page {
+  /* Die Hub-Tokens — `HubSpotShelf` und die Kopfzeilen aus HubPage.module.css
+     lesen sie, die Seite selbst auch. */
+  --hub-paper: var(--et-home-inverse-text, #fff);
+  --hub-ink: var(--et-home-ink, #15120e);
+  --hub-accent: var(--et-home-accent, #ffc600);
+  --hub-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --hub-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  --hub-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
+  --hub-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  --hub-raised: var(--et-ink-raised, #25231f);
+  --hub-display: var(--font-providence, var(--et-font-display), sans-serif);
+  --hub-body: var(--font-body, var(--font), system-ui, sans-serif);
+  --hub-radius: var(--et-radius-photo, 10px);
+  --hub-radius-control: var(--et-radius-control, 7px);
+  --hub-gutter: 16px;
+  --hub-section-gap: 56px;
+  --nav-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
+
+  /* Der Seitenrhythmus als `gap`, nicht als Margins: die eingebundenen
+     Module (Must Eats, Remy, Magazin, Map) brachten eigene Außenabstände mit,
+     und welche Regel bei gleicher Spezifität gewinnt, hing an der
+     Ladereihenfolge der CSS-Module. `gap` addiert sich mit nichts. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--hub-section-gap);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(1240px + 2 * var(--hub-gutter));
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding: 0 var(--hub-gutter) 72px;
+  overflow-x: clip;
+  background: var(--hub-ink);
+  color: var(--hub-paper);
+  font-family: var(--hub-body);
+}
+
+.page > * {
+  min-width: 0;
+}
+
+@media (min-width: 700px) {
+  .page {
+    --hub-gutter: clamp(24px, 4vw, 48px);
+    --hub-section-gap: clamp(64px, 7vw, 104px);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cover {
+  object-fit: cover;
+}
+
+/* Foto-Nachweis unter dem Bild, rechtsbündig und leise. */
+.credit {
+  margin: 8px 0 0;
+  color: var(--hub-dim);
+  font-family: var(--hub-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.credit a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .credit a:hover {
+    color: var(--hub-soft);
+  }
+}
+
+/* Gelbe Labels — Info-Karte und Tipp. */
+.label {
+  margin: 0;
+  color: var(--hub-accent);
+  font-family: var(--hub-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   KNÖPFE — eine Form für Kopf und Info-Karte
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 50px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--hub-radius-control);
+  background: var(--hub-raised);
+  color: var(--hub-paper);
+  cursor: pointer;
+  font-family: var(--hub-display);
+  font-size: 16px;
+  font-weight: 700;
+  /* Providence hängt tief: unter 1.4 schneidet `overflow: hidden` am Label
+     die Unterlängen ab. Die Knopfhöhe kommt aus min-height. */
+  line-height: 1.45;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--et-motion-fast, 140ms ease),
+    color var(--et-motion-fast, 140ms ease);
+}
+
+.btn svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+.btn span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btnPrimary {
+  background: var(--hub-accent);
+  color: var(--hub-ink);
+}
+
+@media (hover: hover) {
+  .btn:hover {
+    background: linear-gradient(var(--hub-quiet), var(--hub-quiet)), var(--hub-raised);
+  }
+
+  .btnPrimary:hover {
+    background: var(--hub-paper);
+  }
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 2px;
+}
+
+/* Am gelben Knopf verschwände ein gelber Ring. */
+.btnPrimary:focus-visible {
+  outline-color: var(--hub-paper);
+}
+
+/* ============================================================
+   KOPF
+   ============================================================ */
+
+.hero {
+  display: grid;
+  gap: 20px;
+  padding-top: var(--nav-offset);
+}
+
+/* Telefon: das Foto randlos direkt unter der Leiste, der Steckbrief darunter. */
+.heroMedia {
+  margin: 0 calc(-1 * var(--hub-gutter));
+}
+
+.heroFrame {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--hub-raised);
+}
+
+.heroMedia .credit {
+  padding-inline: var(--hub-gutter);
+}
+
+.heroCopy {
+  min-width: 0;
+  /* Container für `--word-fit` am Titel. */
+  container-type: inline-size;
+}
+
+.heroNoPhoto .heroCopy {
+  max-width: 980px;
+}
+
+/* Ohne Foto rückt der Steckbrief von der Leiste ab. */
+.hero.heroNoPhoto {
+  padding-top: calc(var(--nav-offset) + clamp(28px, 5vw, 64px));
+}
+
+@media (min-width: 700px) {
+  .hero {
+    padding-top: calc(var(--nav-offset) + clamp(20px, 3vw, 36px));
+  }
+
+  .heroMedia {
+    margin-inline: 0;
+  }
+
+  .heroFrame {
+    border-radius: var(--hub-radius);
+  }
+
+  .heroMedia .credit {
+    padding-inline: 0;
+  }
+}
+
+/* Ab 900px nebeneinander: Steckbrief links, Foto rechts — wie der Kopf der
+   Hub-Seiten, nur mit dem Foto als größerer Hälfte. Der Steckbrief sitzt
+   unten, auf einer Linie mit der Bildkante. */
+@media (min-width: 900px) {
+  .hero:not(.heroNoPhoto) {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: end;
+    gap: clamp(32px, 5vw, 72px);
+  }
+
+  .heroMedia {
+    order: 2;
+  }
+
+  /* Die Bildunterschrift steht unter dem Foto; ohne diesen Ausgleich endete
+     der Steckbrief über ihr statt auf der Bildkante. */
+  .heroCopy {
+    padding-bottom: 26px;
+  }
+
+  .heroFrame {
+    aspect-ratio: 5 / 4;
+  }
+}
+
+.kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 0 0 12px;
+  color: var(--hub-soft);
+  font-family: var(--hub-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Der Punkt hängt am Ende des vorigen Werts — bricht die Zeile um, eröffnet
+   er nicht die nächste. */
+.kicker > span:not(:last-child)::after {
+  content: '·';
+  margin: 0 8px;
+  color: var(--hub-dim);
+}
+
+.kickerCuisine {
+  color: var(--hub-accent);
+}
+
+.kickerLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .kickerLink:hover {
+    color: var(--hub-paper);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+}
+
+.kickerLink:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 2px;
+}
+
+.title {
+  margin: 0;
+  color: var(--hub-paper);
+  font-family: var(--hub-display);
+  /* Der Grad deckelt sich am längsten Wort (`--word-fit`, gesetzt im TSX):
+     ein Eigenname wie „NATIONALGALERIE" soll ganz in die Spalte passen, statt
+     mitten im Wort umzubrechen. `overflow-wrap` bleibt die Notbremse. */
+  font-size: max(24px, min(clamp(38px, 6.4vw, 84px), var(--word-fit, 100cqi)));
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  /* Providence hängt weit unter die Grundlinie — unter 1.0 stößt das g einer
+     Zeile an die Versalien der nächsten. */
+  line-height: 1;
+  text-transform: uppercase;
+  text-wrap: balance;
+  /* `anywhere`, nicht `break-word`: nur `anywhere` zählt in die
+     min-content-Breite — „NATIONALGALERIE" liefe sonst aus der Spalte. */
+  overflow-wrap: anywhere;
+}
+
+/* Neben dem Foto ist die Spalte halb so breit — der Grad folgt ihr. */
+@media (min-width: 900px) {
+  .hero:not(.heroNoPhoto) .title {
+    font-size: max(24px, min(clamp(40px, 4.6vw, 72px), var(--word-fit, 100cqi)));
+  }
+}
+
+.lede {
+  max-width: 46ch;
+  margin: 16px 0 0;
+  color: var(--hub-soft);
+  font-family: var(--hub-display);
+  font-size: clamp(18px, 1.6vw, 21px);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* Der Zustands-Chip erscheint erst nach dem Mount; bis dahin hält die leere
+   Zeile nichts auf. */
+.status:empty {
+  display: none;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* Telefon: die Map in voller Breite, die übrigen teilen sich die Zeile
+   darunter — ein einzelner Rest nimmt sie ganz. */
+.heroActions > * {
+  flex: 1 1 calc(50% - 5px);
+}
+
+.heroActions > .btnPrimary {
+  flex-basis: 100%;
+}
+
+@media (min-width: 700px) {
+  .heroActions > *,
+  .heroActions > .btnPrimary {
+    flex: 0 0 auto;
+  }
+}
+
+/* ============================================================
+   RUMPF — Text links, Info-Karte rechts
+   ============================================================ */
+
+.body {
+  display: grid;
+  gap: 40px;
+}
+
+@media (min-width: 960px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    align-items: start;
+    gap: clamp(48px, 6vw, 96px);
+  }
+
+  /* Ohne Text steht die Karte allein — in voller Breite statt als schmale
+     Spalte rechts neben einem Loch. */
+  .body > .info:only-child {
+    grid-column: 1 / -1;
+  }
+
+  .body > .info:only-child .facts {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px 48px;
+  }
+
+  .body > .info:only-child .contact {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+.main {
+  display: grid;
+  gap: 40px;
+  min-width: 0;
+}
+
+.story {
+  max-width: 68ch;
+  color: var(--hub-soft);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.story p {
+  margin: 0 0 1.1em;
+}
+
+.story p:last-child {
+  margin-bottom: 0;
+}
+
+.story .storyLede {
+  color: var(--hub-paper);
+  font-family: var(--hub-display);
+  font-size: clamp(21px, 2vw, 26px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+@media (min-width: 700px) {
+  .story {
+    font-size: 18px;
+  }
+}
+
+.pullQuote {
+  margin: 1.6em 0;
+  padding: 2px 0 2px 20px;
+  border-left: 4px solid var(--hub-accent);
+  color: var(--hub-paper);
+  font-family: var(--hub-display);
+  font-size: clamp(24px, 2.6vw, 32px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.tip {
+  display: grid;
+  gap: 12px;
+  max-width: 68ch;
+  padding: clamp(20px, 2.6vw, 28px) clamp(20px, 2.6vw, 32px);
+  border-left: 4px solid var(--hub-accent);
+  border-radius: 0 var(--hub-radius) var(--hub-radius) 0;
+  background: var(--hub-raised);
+}
+
+.tipText {
+  margin: 0;
+  color: var(--hub-paper);
+  font-family: var(--hub-display);
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 700;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+/* Die Info-Karte. */
+.info {
+  display: grid;
+  gap: 24px;
+  padding: clamp(20px, 2.4vw, 28px);
+  border-radius: var(--hub-radius);
+  background: var(--hub-raised);
+}
+
+/* Klebt nur, wenn sie in den Bildschirm passt — eine klebende Karte, die
+   höher ist als das Fenster, ließe sich nie zu Ende lesen. */
+@media (min-width: 960px) and (min-height: 760px) {
+  .info {
+    position: sticky;
+    top: calc(var(--nav-offset) + 24px);
+  }
+}
+
+.facts {
+  display: grid;
+  gap: 20px;
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.fact dd {
+  margin: 0;
+  color: var(--hub-paper);
+  font-family: var(--hub-display);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.address {
+  display: inline-grid;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--hub-dim);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  transition: color var(--et-motion-fast, 140ms ease);
+}
+
+@media (hover: hover) {
+  .address:hover {
+    color: var(--hub-accent);
+    text-decoration-color: currentColor;
+  }
+}
+
+.address:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 3px;
+}
+
+.fact .hours {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 20px;
+  align-items: baseline;
+}
+
+.hoursDay {
+  color: var(--hub-dim);
+}
+
+.contact {
+  display: grid;
+  gap: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hub-line);
+}
+
+/* In der Karte linksbündig und eine Stufe heller als die Karte selbst. */
+.contact .btn {
+  justify-content: flex-start;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+@media (hover: hover) {
+  .contact .btn:hover {
+    background: rgba(255, 255, 255, 0.13);
+  }
+}
+
+/* Ab Tablet, solange die Karte die volle Breite hat, nebeneinander. */
+@media (min-width: 700px) and (max-width: 959px) {
+  .contact {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+/* ============================================================
+   BILDSTRECKE
+   ============================================================ */
+
+/* Telefon: ein wischbares Rail mit Anschnitt der nächsten Kachel. */
+.gallery {
+  display: grid;
+  grid-auto-columns: 78%;
+  grid-auto-flow: column;
+  gap: 12px;
+  margin-inline: calc(-1 * var(--hub-gutter));
+  padding-inline: var(--hub-gutter);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--hub-gutter);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.gallery::-webkit-scrollbar {
+  display: none;
+}
+
+.galleryItem {
+  min-width: 0;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.gallery[data-count='1'] {
+  grid-auto-columns: 100%;
+}
+
+.galleryFrame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--hub-radius);
+  background: var(--hub-raised);
+}
+
+.gallery[data-count='1'] .galleryFrame {
+  aspect-ratio: 4 / 3;
+}
+
+/* Ab Tablet ein Raster ohne Löcher. Bis vier Bilder stehen in einer Reihe;
+   ab fünf in Dreierreihen auf einem Sechser-Raster, und eine unvollständige
+   letzte Reihe teilt sich die Breite (zwei Kacheln je halb, eine allein über
+   alles). Die alte Galerie ließ neben einem hohen Aufmacher regelmäßig ein
+   leeres Feld stehen. */
+@media (min-width: 700px) {
+  .gallery {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr));
+    gap: 20px;
+    margin-inline: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .gallery[data-count='1'] {
+    --cols: 1;
+  }
+
+  .gallery[data-count='2'] {
+    --cols: 2;
+  }
+
+  .gallery[data-count='3'] {
+    --cols: 3;
+  }
+
+  .gallery[data-count='4'] {
+    --cols: 4;
+  }
+
+  .gallery[data-count='many'] .galleryItem {
+    grid-column: span 2;
+  }
+
+  .gallery[data-count='many'] .galleryItem:nth-child(3n + 1):nth-last-child(2),
+  .gallery[data-count='many'] .galleryItem:nth-child(3n + 1):nth-last-child(2) + .galleryItem {
+    grid-column: span 3;
+  }
+
+  .gallery[data-count='many'] .galleryItem:nth-child(3n + 1):last-child {
+    grid-column: 1 / -1;
+  }
+
+  .gallery[data-count='2'] .galleryFrame,
+  .gallery[data-count='many'] .galleryItem:nth-child(3n + 1):nth-last-child(2) .galleryFrame,
+  .gallery[data-count='many']
+    .galleryItem:nth-child(3n + 1):nth-last-child(2)
+    + .galleryItem
+    .galleryFrame {
+    aspect-ratio: 4 / 3;
+  }
+
+  .gallery[data-count='1'] .galleryFrame,
+  .gallery[data-count='many'] .galleryItem:nth-child(3n + 1):last-child .galleryFrame {
+    aspect-ratio: 21 / 9;
+  }
+}
+
+/* ============================================================
+   MODULE — Weitere im Bezirk, Mehr davon, Map
+   ============================================================ */
+
+/* Die Kopfzeilen kommen aus HubPage.module.css (shelfHead, sectionTitle). */
+.module > h2 {
+  margin-bottom: clamp(18px, 2.2vw, 28px);
+}
+
+.packs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(16px, 2.4vw, 32px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pack {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 104px;
+  color: var(--hub-paper);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.packArt {
+  width: 100%;
+  height: auto;
+  /* Fester 2:3-Rahmen, nicht das Verhältnis der Datei: die Pack-Motive
+     weichen untereinander ab (1,46 bis 1,56), und die reservierte Höhe sprang
+     beim Laden um bis zu 10px (in Safari gemessen, 23.09.2026). */
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.packName {
+  font-family: var(--hub-display);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  transition: color var(--et-motion-fast, 140ms ease);
+}
+
+@media (hover: hover) {
+  .pack:hover .packArt {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+
+  .pack:hover .packName {
+    color: var(--hub-accent);
+  }
+}
+
+.pack:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 4px;
+  border-radius: var(--hub-radius-control);
+}
+
+/* Der Map-Block bringt seine eigene Fläche mit; hier steht nur, wie er in
+   dieser Seite sitzt. */
+.promo > * {
+  margin: 0;
+}

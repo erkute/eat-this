@@ -1,80 +1,61 @@
-/* MustEatTeaserSection — locked card-back stack on restaurant detail page.
+/* MustEatTeaserSection — die verdeckten Karten auf der Spot-Seite.
  *
- * Header uses the page display font (Chewy) + Inter body, ink-on-cream, so the
- * section reads as part of the cream/Chewy SEO surface.
+ * Kopf wie die übrigen Module der Seite (HubPage.module.css): Abschnittstitel
+ * mit gelbem Marken-Quadrat, darunter die Ansage als Unterzeile. Den Abstand
+ * zu den Nachbarn setzt der Seitenrhythmus (`gap` auf der Seite) — die
+ * Section bringt keinen eigenen mehr mit.
  */
 
 .section {
-  /* Horizontal margin matches sibling restaurant-detail blocks (.tipp,
-     .facts, .siblings = 16px) so the header lockup and card grid sit
-     flush with the rest of the page, not 16px further out. */
-  margin: 56px 0 0;
+  margin: 0;
 }
 
-/* No side margin at any width: the page wraps this in .rail, which already
-   holds it to the same column as .facts and .siblings. */
-@media (min-width: 720px) {
-  .section {
-    margin: 80px 0 0;
-  }
-}
-
-/* ── Header ──────────────────────────────────────────────────────────── */
-
-/* Gleicher Kopf-zu-Inhalt-Abstand wie „Im Magazin" und „Weitere in {Bezirk}"
-   (clamp(18px, 3vw, 30px)) — die 28px hier waren ein eigener Wert ohne
-   Grund. */
 .head {
-  margin: 0 0 clamp(18px, 3vw, 30px);
-  max-width: 38em;
+  margin: 0 0 clamp(14px, 2vw, 22px);
+  max-width: 46ch;
 }
 
-/* Markenschrift statt Mono, und größer — der Mono-Kicker war der
-   Fremdkörper über der Providence-Headline (Nutzer-Review 28.08.). */
 .eyebrow {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: 15px;
-  color: var(--text-primary, #000);
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 12px;
+  color: var(--hub-paper, #fff);
+  font-family: var(--hub-display, var(--font-providence), sans-serif);
+  font-size: clamp(24px, 3vw, 34px);
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
   text-transform: uppercase;
-  margin: 0 0 10px;
-  line-height: 1;
+}
+
+.eyebrow::before {
+  content: '';
+  flex: none;
+  width: 0.34em;
+  height: 0.34em;
+  background: var(--hub-accent, #ffc600);
+  transform: translateY(-0.08em);
 }
 
 .heading {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  margin: 0 0 4px;
+  color: var(--hub-paper, #fff);
+  font-family: var(--hub-display, var(--font-providence), sans-serif);
+  font-size: clamp(18px, 1.7vw, 22px);
   font-weight: 700;
-  font-size: clamp(26px, 5.6vw, 38px);
-  line-height: var(--et-leading-title, 0.9);
-  letter-spacing: -0.025em;
-  text-transform: uppercase;
-  /* Papier, nicht Rot: die Spot-Seite steht auf Ink, und Rot kommt dort auf
-     rund 2,9:1. */
-  color: var(--et-home-inverse-text, #fff);
-  margin: 0 0 12px;
+  line-height: 1.35;
   text-wrap: balance;
 }
 
-/* Die Handlungsaufforderung in der Markenschrift, nicht im Body-Font — sie
-   gehört zur Ansage darüber, nicht zum Fließtext der Seite. */
+/* Die Handlungsaufforderung — leiser als die Ansage darüber. */
 .body {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: clamp(17px, 1.6vw, 20px);
-  line-height: 1.3;
-  font-weight: 700;
-  color: var(--text-secondary, #2a2218);
   margin: 0;
-  max-width: 36ch;
-}
-
-@media (min-width: 1024px) {
-  .eyebrow {
-    font-size: 14px;
-  }
-  .heading {
-    font-size: clamp(30px, 3.2vw, 44px);
-  }
+  color: var(--hub-soft, rgba(255, 255, 255, 0.76));
+  font-family: var(--hub-display, var(--font-providence), sans-serif);
+  font-size: clamp(16px, 1.4vw, 18px);
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 /* ── Card grid — trading-card scatter ────────────────────────────────── */

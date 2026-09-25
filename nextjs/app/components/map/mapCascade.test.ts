@@ -360,3 +360,23 @@ describe('MapFilters cascade', () => {
     expect(effective(FILTERS, 'filterChipLabel', 'hyphens')).not.toBe('auto');
   });
 });
+
+describe('MapControls press state', () => {
+  it('gives the bare icon controls no surface while pressed', () => {
+    /* `.mapSearchBtn:active, .fab:active` still carried the paper-era
+     * `background: var(--brand-action-deep)` — #15120e on Ink. Both controls
+     * are plateless and square, so every tap flashed a black box around the
+     * icon. The press is the 1px shift, nothing else. */
+    const offenders: string[] = [];
+    cssRoot(CONTROLS).walkRules((rule) => {
+      const pressed = rule.selectors.filter((sel) =>
+        /\.(fab|mapSearchBtn)(?![\w-])[^\s]*:active/.test(sel)
+      );
+      if (pressed.length === 0) return;
+      rule.walkDecls(/^background/, (decl) => {
+        offenders.push(`${pressed.join(', ')} { ${decl.prop}: ${decl.value} }`);
+      });
+    });
+    expect(offenders).toEqual([]);
+  });
+});

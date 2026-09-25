@@ -328,17 +328,12 @@
   }
 }
 
+/* Der Druck ist nur die Verschiebung, keine Fläche. Hier stand noch ein
+   `background: var(--brand-action-deep)` aus der Papier-Zeit — auf Ink ist
+   das #15120e, und weil Lupe und Standort-Knopf seither plattenlos und eckig
+   sind, blitzte bei jedem Tippen ein schwarzes Viereck um das Icon auf. */
 .mapSearchBtn:active,
-.fab:active {
-  background: var(--brand-action-deep);
-  color: var(--brand-paper);
-  transform: translate(1px, 1px);
-  box-shadow: none;
-}
-
-/* Burger und Panel-Griff waren die letzten Flächen der Karte ohne Antwort auf
-   den Druck — Lupe und Standort-Knopf daneben hatten sie längst. Dieselbe
-   Verschiebung, damit die Reihe sich gleich anfühlt. */
+.fab:active,
 .mapBurger:active,
 .panelToggle:active {
   transform: translate(1px, 1px);

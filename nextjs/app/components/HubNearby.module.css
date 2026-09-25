@@ -232,18 +232,6 @@
   }
 }
 
-/* Die leise Fläche hat keine Kante zum Einsinken: sie geht deutlich runter
-   und hellt ohne Hover beim Tippen auf. */
-.locBtn[data-primary]:active:not(:disabled) {
-  translate: 0 3px;
-}
-
-@media (hover: none) {
-  .locBtn[data-primary]:active:not(:disabled) {
-    background: rgba(255, 255, 255, 0.2);
-  }
-}
-
 .locBtn:focus-visible:not(:disabled) {
   color: var(--board-accent, #ffc600);
   outline: 0;

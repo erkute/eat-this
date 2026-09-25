@@ -72,14 +72,6 @@
     transform: translateY(-2px);
   }
 }
-.howInk:active {
-  transform: translateY(3px);
-}
-@media (hover: none) {
-  .howInk:active {
-    background: rgba(255, 255, 255, 0.2);
-  }
-}
 .howInk:focus-visible {
   outline: 2px solid var(--et-home-accent, #ffc600);
   outline-offset: 3px;

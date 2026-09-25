@@ -67,12 +67,10 @@
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge, #b38b00);
   transition:
     color 160ms ease,
     background 160ms ease,
-    box-shadow 90ms ease,
-    translate 90ms ease;
+    transform 160ms ease;
 }
 
 /* Hover geht auf Papier, nicht auf Ink: auf dem dunklen Grund verschwand der
@@ -81,20 +79,18 @@
 .allLink:focus-visible {
   color: var(--et-home-ink);
   background: var(--mag-paper);
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
+  transform: translateY(-2px);
 }
 @media (hover: hover) {
   .allLink:hover {
     color: var(--et-home-ink);
     background: var(--mag-paper);
-    box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
+    transform: translateY(-2px);
   }
 }
 
-/* Sinkt auf seine Kante ein, siehe `--et-key-depth` in globals.css. */
 .allLink:active {
-  translate: 0 var(--et-key-depth, 4px);
-  box-shadow: 0 0 0 var(--et-key-edge, #b38b00);
+  transform: translateY(1px);
 }
 
 .grid {
@@ -186,9 +182,6 @@
   font-size: clamp(19px, 1.5vw, 23px);
   font-weight: 700;
   letter-spacing: 0;
-  /* Zweizeilig mit Unterlängen („Bäckereien / Berlin – und was du dort
-     bestellst"): unter 1.15 traf das g der ersten Zeile die Akzente der
-     zweiten. */
   line-height: 1.15;
 }
 
@@ -242,61 +235,54 @@
   scale: var(--et-press-tile, 0.985);
 }
 
-/* ── Aufmacher ──
-   Drei gleiche Kacheln nebeneinander waren ein Regal, keine Titelseite. Die
-   neueste Story führt jetzt: doppelt so breit, über zwei Zeilen, größere
-   Headline; die beiden anderen stehen rechts daneben. Dieselben drei Stories,
-   kaum mehr Höhe. Unter 761px bleibt es die Wischreihe. */
+/* ── Aufmacher und Liste ──
+   Drei gleiche Kacheln nebeneinander waren ein Regal, keine Titelseite; ein
+   Aufmacher über zwei Zeilen war dagegen ein Plakat — auf 1440px ein Foto
+   von 800x600. Jetzt führt die neueste Story auf halber Breite (16/10), die
+   nächsten drei stehen daneben als Liste mit kleinem Bild. Die Zeilen der
+   Liste teilen sich die Höhe des Aufmachers, jede Story sitzt mittig in
+   ihrer. Unter 761px bleibt es die Wischreihe. */
 @media (min-width: 761px) {
   .grid {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    row-gap: clamp(24px, 2.6vw, 36px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(18px, 2vw, 28px) clamp(28px, 3.4vw, 48px);
   }
 
   .grid > li:first-child {
-    grid-row: span 2;
+    grid-row: span 3;
   }
 
-  /* Das Foto des Aufmachers füllt die Höhe der rechten Spalte, statt bei 4/3
-     darunter ein Loch zu lassen. */
   .grid > li:first-child .photo:global(.hv-photo) {
-    flex: 1 1 auto;
-    aspect-ratio: auto;
-    min-height: 320px;
-  }
-
-  /* Sonst teilt sich der Text den freien Platz mit dem Foto und schiebt ein
-     Loch unter die Headline. */
-  .grid > li:first-child .text {
-    flex: 0 0 auto;
+    aspect-ratio: 16 / 10;
   }
 
   .grid > li:first-child .title {
-    max-width: 24em;
-    font-size: clamp(26px, 2.4vw, 36px);
+    font-size: clamp(22px, 1.9vw, 28px);
     line-height: 1.12;
   }
 
+  .grid > li:not(:first-child) {
+    align-self: center;
+  }
+
+  /* Liste: Bild links, Text daneben. */
+  .grid > li:not(:first-child) .card {
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(14px, 1.4vw, 20px);
+  }
+
   .grid > li:not(:first-child) .photo:global(.hv-photo) {
-    aspect-ratio: 16 / 10;
-  }
-}
-
-/* Zwischen Tablet und Desktop ist die rechte Spalte zu schmal: der Aufmacher
-   läuft dann über die volle Breite, die beiden anderen stehen darunter. */
-@media (min-width: 761px) and (max-width: 960px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex: 0 0 clamp(120px, 11vw, 168px);
+    aspect-ratio: 4 / 3;
   }
 
-  .grid > li:first-child {
-    grid-column: 1 / -1;
-    grid-row: auto;
+  .grid > li:not(:first-child) .text {
+    padding: 0;
   }
 
-  .grid > li:first-child .photo:global(.hv-photo) {
-    aspect-ratio: 16 / 9;
-    min-height: 0;
+  .grid > li:not(:first-child) .title {
+    font-size: clamp(17px, 1.3vw, 20px);
   }
 }
 

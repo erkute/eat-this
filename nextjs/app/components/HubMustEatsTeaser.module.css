@@ -353,25 +353,17 @@
   color: var(--teaser-ink);
   font-size: clamp(16px, 1.4vw, 19px);
   line-height: 1;
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge, #b38b00);
-  transition:
-    background 160ms ease,
-    color 160ms ease,
-    box-shadow 90ms ease,
-    translate 90ms ease;
 }
 
 :global(.homeV2) .foot .cta:global(.hv-btn):focus-visible {
   color: var(--teaser-ink);
   background: var(--teaser-paper);
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
 }
 
 @media (hover: hover) {
   :global(.homeV2) .foot .cta:global(.hv-btn):hover {
     color: var(--teaser-ink);
     background: var(--teaser-paper);
-    box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
   }
 }
 
@@ -381,8 +373,7 @@
 }
 
 :global(.homeV2) .foot .cta:global(.hv-btn):active {
-  translate: 0 var(--et-key-depth, 4px);
-  box-shadow: 0 0 0 var(--et-key-edge, #b38b00);
+  transform: translateY(1px);
 }
 
 /* ── Mobile: the same set, three across ──────────────────────────────────────

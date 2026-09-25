@@ -9,11 +9,11 @@ interface Props {
   locale: 'de' | 'en';
 }
 
-// Three stories, not six. Stacked full-width on mobile the old six-card grid
+// Four stories, not six. Stacked full-width on mobile the old six-card grid
 // ran 3218px — 41% of the entire home page — for the section readers reach
-// last. Three cards in a swipeable rail carry the same "we know this city"
-// signal at a fifth of the height.
-const CARD_COUNT = 3;
+// last. On the phone they sit in a swipeable rail; on desktop the newest
+// leads and the other three stand beside it as a list.
+const CARD_COUNT = 4;
 
 // Dasselbe Format wie der Magazin-Index (NewsSection): „1. September 2026".
 function formatDate(iso: string | null | undefined, locale: 'de' | 'en'): string {
@@ -69,12 +69,10 @@ export default function MagazineGrid({ articles, locale }: Props) {
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      // Die erste Story ist ab 761px der Aufmacher und
-                      // doppelt so breit wie die beiden daneben.
+                      // Ab 761px ist die erste Story der Aufmacher, die
+                      // anderen sind kleine Listenbilder.
                       sizes={
-                        i === 0
-                          ? '(max-width:760px) 92vw, (max-width:960px) 100vw, 66vw'
-                          : '(max-width:760px) 92vw, 33vw'
+                        i === 0 ? '(max-width:760px) 92vw, 46vw' : '(max-width:760px) 92vw, 168px'
                       }
                     />
                   )}

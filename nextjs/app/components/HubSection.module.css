@@ -43,6 +43,17 @@
   background: var(--home-ink);
 }
 
+/* Das gelbe Quadrat auf die Mitte der Versalien daneben. Mit `vertical-align:
+   1px` sass es auf der Grundlinie, also sichtbar unter der Schriftmitte:
+   Providence-Versalien stehen rund 0.72em hoch, ihre Mitte liegt 0.36em über
+   der Grundlinie. Ein leerer Inline-Block steht mit seiner Unterkante auf
+   der Grundlinie plus `vertical-align` — also Unterkante = Mitte minus halbe
+   Kante (4.5px). In em, damit es bei jeder Titelgröße stimmt. Rang (0,3,0),
+   weil `.homeV2 .hv-mk` in css/style.css (0,2,0) später geladen wird. */
+:global(.homeV2).page :global(.hv-mk) {
+  vertical-align: calc(0.36em - 4.5px);
+}
+
 /* ── homeV2 hero ─────────────────────────────────────────── */
 /* Der Aufmacher ist eine Ink-Fläche über die volle Breite — „komplett
    schwarz": sie schließt ohne Rand und Rundung an die Ink-Navigation an, der
@@ -194,25 +205,17 @@
   color: var(--et-home-ink);
   font-size: clamp(16px, 1.4vw, 19px);
   line-height: 1;
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge, #b38b00);
-  transition:
-    background 160ms ease,
-    color 160ms ease,
-    box-shadow 90ms ease,
-    translate 90ms ease;
 }
 
 .page .heroActions :global(.hv-btn):focus-visible {
   color: var(--et-home-ink);
   background: var(--et-home-inverse-text);
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
 }
 
 @media (hover: hover) {
   .page .heroActions :global(.hv-btn):hover {
     color: var(--et-home-ink);
     background: var(--et-home-inverse-text);
-    box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
   }
 }
 
@@ -222,8 +225,7 @@
 }
 
 .page .heroActions :global(.hv-btn):active {
-  translate: 0 var(--et-key-depth, 4px);
-  box-shadow: 0 0 0 var(--et-key-edge, #b38b00);
+  transform: translateY(1px);
 }
 
 /* Die Seitentür als leise Fläche ohne Rahmen — Weiß 10 %, wie „Ablehnen" im
@@ -231,33 +233,18 @@
 .page .heroActions .heroSecondaryBtn:global(.hv-btn) {
   color: var(--et-home-inverse-text);
   background: rgba(255, 255, 255, 0.1);
-  box-shadow: none;
   text-decoration: none;
 }
 
 .page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
   color: var(--et-home-ink);
   background: var(--et-home-accent);
-  box-shadow: none;
 }
 
 @media (hover: hover) {
   .page .heroActions .heroSecondaryBtn:global(.hv-btn):hover {
     color: var(--et-home-ink);
     background: var(--et-home-accent);
-    box-shadow: none;
-  }
-}
-
-.page .heroActions .heroSecondaryBtn:global(.hv-btn):active {
-  translate: 0 3px;
-  box-shadow: none;
-}
-
-/* Ohne Hover gibt es sonst nur die Bewegung: die Fläche hellt beim Tippen auf. */
-@media (hover: none) {
-  .page .heroActions .heroSecondaryBtn:global(.hv-btn):active {
-    background: rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -372,8 +359,8 @@
    der Insider-Tipp auf der Spot-Seite und die Tafeln der Booster-Seiten. */
 .spot {
   /* Die leise Stufe wie Starter Pack und Remy: der Spot des Tages ist ein
-     eigenes Objekt auf dem Grund, kein loser Block. Nur `--et-board-quiet-pad`
-     lesen, nie `--et-board-pad` — das ist auf dem Ink-Grund `0px`. */
+     eigenes Objekt auf dem Grund. Nur `--et-board-quiet-pad` lesen, nie
+     `--et-board-pad` — das ist auf dem Ink-Grund `0px`. */
   padding: var(--et-board-quiet-pad, clamp(24px, 4vw, 56px));
   background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   color: var(--et-home-inverse-text);
@@ -390,7 +377,7 @@
 @media (max-width: 760px) {
   .spot {
     margin-inline: calc(-1 * var(--et-wrap-pad-mobile, 16px));
-    padding: 30px var(--et-wrap-pad-mobile, 16px) 32px;
+    padding: 28px var(--et-wrap-pad-mobile, 16px) 30px;
     border-radius: 0;
   }
 }
@@ -400,96 +387,33 @@
 }
 
 .page .spotHead:global(.hv-head) {
-  /* Luft für den Sticker, der über die obere Ecke des Fotos ragt. */
-  margin-bottom: clamp(34px, 3.4vw, 46px);
+  column-gap: clamp(12px, 2vw, 28px);
+  margin-bottom: clamp(20px, 2.2vw, 30px);
 }
 
-.spotStage {
-  position: relative;
+/* Under ~560px the 30px title and the date stop fitting on one line and end up
+   touching. Stacked they read as headline and dateline, which is what they
+   are, and no width can make them collide. */
+@media (max-width: 560px) {
+  .page .spotHead:global(.hv-head) {
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 7px;
+  }
 }
 
-/* Der Tag als Stern-Sticker auf der Ecke der Karte, schräg angeklebt wie das
-   Etikett auf den Packs. Ohne ihn sagte nichts, dass die Wahl heute neu ist;
-   als graue Datumszeile am Ende der Kopfzeile las ihn keiner. */
-.spotBurst {
-  position: absolute;
-  z-index: 2;
-  top: clamp(-30px, -2.2vw, -20px);
-  left: clamp(-26px, -1.8vw, -14px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  width: clamp(96px, 8.4vw, 120px);
-  aspect-ratio: 1;
-  background: var(--et-home-accent);
-  color: var(--home-ink);
-  clip-path: polygon(
-    50% 0%,
-    57.5% 7.7%,
-    67.1% 3%,
-    71.5% 12.8%,
-    82.1% 11.7%,
-    82.9% 22.4%,
-    93.3% 25%,
-    90.4% 35.3%,
-    99.2% 41.3%,
-    93% 50%,
-    99.2% 58.7%,
-    90.4% 64.7%,
-    93.3% 75%,
-    82.9% 77.6%,
-    82.1% 88.3%,
-    71.5% 87.2%,
-    67.1% 97%,
-    57.5% 92.3%,
-    50% 100%,
-    42.5% 92.3%,
-    32.9% 97%,
-    28.5% 87.2%,
-    17.9% 88.3%,
-    17.1% 77.6%,
-    6.7% 75%,
-    9.6% 64.7%,
-    0.8% 58.7%,
-    7% 50%,
-    0.8% 41.3%,
-    9.6% 35.3%,
-    6.7% 25%,
-    17.1% 22.4%,
-    17.9% 11.7%,
-    28.5% 12.8%,
-    32.9% 3%,
-    42.5% 7.7%
-  );
-  rotate: -12deg;
+/* On the title's baseline at the far end of the head row. Without it nothing
+   on the page said the pick is new today; the heading alone claims a daily
+   rhythm the visitor has no way to see. Muted, not a second red thing. */
+.spotDate {
+  flex: none;
   font-family: var(--font-providence);
   font-weight: 700;
-  line-height: 1;
-  text-align: center;
-  pointer-events: none;
-}
-
-.spotBurstToday {
-  font-size: clamp(20px, 1.8vw, 26px);
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-}
-
-.spotBurstDate {
-  font-size: clamp(12px, 0.95vw, 14px);
+  font-size: clamp(14px, 1.15vw, 17px);
   letter-spacing: 0;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.55);
   white-space: nowrap;
-}
-
-/* Ohne Foto gibt es keine Ecke zum Bekleben: der Sticker steht dann über dem
-   Namen im Fluss. */
-.spotStageTextOnly .spotBurst {
-  position: relative;
-  top: auto;
-  left: auto;
-  margin-bottom: 18px;
 }
 
 .spotCard {
@@ -512,7 +436,10 @@
    together or not at all: at (0,3,0) here and (0,2,0) below, the base rule
    would outrank its own media override and take the stacked bleed with it. */
 .page .spotCard .spotPhoto {
-  grid-column: 1 / 8;
+  /* Fünf von zwölf Spalten bei 3/2: bei sieben Spalten und 4/3 war das Foto
+     auf 1440px über 700px breit und über 500px hoch — mehr Aufmacher als
+     der Aufmacher. */
+  grid-column: 1 / 6;
   grid-row: 1;
   position: relative;
   display: block;
@@ -522,7 +449,7 @@
      inside the column it has nothing to continue into. */
   width: calc(100% + var(--spot-bleed));
   margin-left: calc(-1 * var(--spot-bleed));
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
   border-radius: var(--et-radius-photo);
   overflow: hidden;
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
@@ -554,7 +481,7 @@
 }
 
 .spotBody {
-  grid-column: 8 / 13;
+  grid-column: 6 / 13;
   grid-row: 1;
   display: flex;
   flex-direction: column;
@@ -581,10 +508,10 @@
   color: var(--et-home-inverse-text);
   font-family: var(--font-providence);
   font-weight: 700;
-  font-size: clamp(34px, 3.4vw, 54px);
+  font-size: clamp(30px, 2.6vw, 42px);
   letter-spacing: -0.015em;
   /* 0.95 liess zwei Zeilen („Five Elephant / Neue Nationalgalerie")
-     ineinanderlaufen — Unterlängen oben trafen Akzente unten. */
+     ineinanderlaufen. */
   line-height: 1.1;
   /* Same rule the restaurant hero needed: `anywhere`, not `break-word` — only
      `anywhere` counts towards min-content, so "Nationalgalerie" at 54px cannot
@@ -626,36 +553,28 @@
   letter-spacing: 0;
   line-height: 1;
   text-transform: none;
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge, #b38b00);
-  transition:
-    background 160ms ease,
-    box-shadow 90ms ease,
-    translate 90ms ease;
+  transition: background 160ms ease;
 }
 
 .spotCard:focus-visible .spotCta {
   background: var(--et-home-inverse-text);
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
 }
 
 @media (hover: hover) {
   .spotCard:hover .spotCta {
     background: var(--et-home-inverse-text);
-    box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
   }
 }
 
 /* Der Knopf allein reichte nicht: er sitzt am unteren Ende einer 358x533-Kachel
    und bewegt sich um 1px — wer die Kachel oben am Foto antippt, sah nichts.
-   Jetzt drückt sich die Kachel, und der Knopf sinkt ganz auf seine Kante —
-   egal, wo auf der Kachel der Finger liegt. */
+   Jetzt drückt sich die Kachel, der Knopf nickt weiter mit. */
 .spotCard:active {
   scale: var(--et-press-tile, 0.985);
 }
 
 .spotCard:active .spotCta {
-  translate: 0 var(--et-key-depth, 4px);
-  box-shadow: 0 0 0 var(--et-key-edge, #b38b00);
+  transform: translateY(1px);
 }
 
 @media (max-width: 920px) {
@@ -686,7 +605,12 @@
   .heroCopy {
     align-items: flex-start;
   }
+}
 
+/* Der Spot des Tages stapelt erst am Telefon. Bis 920px gestapelt lief das
+   Foto am Tablet über die volle Breite und füllte allein den Bildschirm;
+   nebeneinander passt es bis 761px (Foto ~290px, Text daneben). */
+@media (max-width: 760px) {
   .spotCard {
     grid-template-columns: minmax(0, 1fr);
     gap: clamp(16px, 3vw, 24px);
@@ -695,7 +619,7 @@
   .page .spotCard .spotPhoto {
     grid-column: 1;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 10;
   }
 
   .spotBody {

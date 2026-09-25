@@ -134,14 +134,6 @@ describe('HubSection home', () => {
     expect(html).toMatch(/<time[^>]+datetime="\d{4}-\d{2}-\d{2}"/i);
   });
 
-  it("stickers the pick with 'Heute', outside the link so its name stays short", () => {
-    const html = renderHome();
-    const time = html.search(/<time[^>]+datetime=/i);
-    expect(html.slice(time, html.indexOf('</time>', time))).toContain('Heute');
-    // The sticker sits before the link opens, not inside it.
-    expect(time).toBeLessThan(html.indexOf('/map?r=gazzo'));
-  });
-
   it("keeps the pick's name off the photo, where a bright image swallows it", () => {
     const html = renderHome();
     const photo = html.indexOf('hv-photo');

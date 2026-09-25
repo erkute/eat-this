@@ -195,6 +195,7 @@
   font-size: clamp(32px, 3.6vw, 46px);
   font-weight: 700;
   letter-spacing: 0;
+  /* Zweizeilig liefen die Versalien bei 1.02 ineinander. */
   line-height: 1.1;
   text-transform: uppercase;
   text-wrap: balance;
@@ -290,12 +291,6 @@
 .ctaPrimary {
   color: var(--home-ink, #15120e);
   background: var(--login-accent);
-  /* Die gelbe Taste, siehe `--et-key-depth` in globals.css. */
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge, #b38b00);
-  transition:
-    background 160ms ease,
-    box-shadow 90ms ease,
-    translate 90ms ease;
 }
 
 .ctaGoogle,
@@ -312,7 +307,6 @@
 
 .ctaPrimary:focus-visible {
   background: #fff;
-  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
   outline: 0;
 }
 
@@ -324,34 +318,14 @@
 }
 
 @media (hover: hover) {
-  .ctaPrimary:hover:not(:disabled) {
+  .ctaPrimary:hover {
     background: #fff;
-    box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
   }
 
   .ctaGoogle:hover,
   .textlink:hover {
     color: var(--home-ink, #15120e);
     background: var(--login-accent);
-  }
-}
-
-.ctaPrimary:active:not(:disabled) {
-  translate: 0 var(--et-key-depth, 4px);
-  box-shadow: 0 0 0 var(--et-key-edge, #b38b00);
-}
-
-/* Die leise Fläche hat keine Kante: sie geht deutlich runter und hellt ohne
-   Hover beim Tippen auf. */
-.ctaGoogle:active:not(:disabled),
-.textlink:active {
-  translate: 0 3px;
-}
-
-@media (hover: none) {
-  .ctaGoogle:active:not(:disabled),
-  .textlink:active {
-    background: rgba(255, 255, 255, 0.2);
   }
 }
 

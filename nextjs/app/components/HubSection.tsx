@@ -32,7 +32,6 @@ interface Props {
 const copy = {
   de: {
     spotDay: 'Spot des Tages',
-    spotToday: 'Heute',
     spotCta: 'Zur Map',
     heroLabel: 'Eat This — die Food-Map für Berlin',
     heroPhonesLabel: 'Berlin Food Map öffnen',
@@ -40,7 +39,6 @@ const copy = {
   },
   en: {
     spotDay: 'Spot of the day',
-    spotToday: 'Today',
     spotCta: 'To the map',
     heroLabel: 'Eat This — the food map for Berlin',
     heroPhonesLabel: 'Open the Berlin food map',
@@ -150,52 +148,46 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                   <span className="hv-mk" aria-hidden="true" />
                   {t.spotDay}
                 </h2>
-              </div>
-              {/* Der Tag als Sticker auf der Ecke der Karte, wie das Etikett auf
-                den Packs — vorher stand das Datum grau am rechten Ende der
-                Kopfzeile, wo es niemand las. Außerhalb des Links, damit es
-                nicht mit in dessen Namen rutscht. */}
-              <div className={`${styles.spotStage} ${spot.image ? '' : styles.spotStageTextOnly}`}>
-                <time className={styles.spotBurst} dateTime={today}>
-                  <span className={styles.spotBurstToday}>{t.spotToday}</span>
-                  <span className={styles.spotBurstDate}>{dayLabel(today, locale)}</span>
+                <time className={styles.spotDate} dateTime={today}>
+                  {dayLabel(today, locale)}
                 </time>
-                {/* Name and reason sit beside the photo, not on it: the pick is a
-                different restaurant every day and half the images are bright
-                enough to swallow white type. */}
-                <MapIntentLink
-                  href={`/map?r=${spot.slug}`}
-                  rel="nofollow"
-                  className={`${styles.spotCard} ${spot.image ? '' : styles.spotCardTextOnly}`}
-                >
-                  {spot.image && (
-                    <span className={`hv-photo ${styles.spotPhoto}`}>
-                      {/* Deliberately bypass the App Hosting image proxy: Sanity
-                      serves the responsive, format-negotiated variants directly. */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        className={styles.spotImage}
-                        src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
-                        srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        sizes="(max-width:920px) 100vw, (max-width:1200px) 60vw, 780px"
-                      />
-                    </span>
-                  )}
-                  <span className={styles.spotBody}>
-                    {spot.district && (
-                      <span className={`hv-kicker ${styles.spotKicker}`}>{spot.district}</span>
-                    )}
-                    <span className={styles.spotName}>{normalizeName(spot.name)}</span>
-                    {/* Loaded from Sanity all along and never rendered — it is the
-                    reason this spot is today's pick, so it belongs here. */}
-                    {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
-                    <span className={styles.spotCta}>{t.spotCta}</span>
-                  </span>
-                </MapIntentLink>
               </div>
+              {/* Name and reason sit beside the photo, not on it: the pick is a
+                different restaurant every day and half the images are bright
+                enough to swallow white type. The photo runs out to the page
+                edge instead, which is what makes this read as the lead. */}
+              <MapIntentLink
+                href={`/map?r=${spot.slug}`}
+                rel="nofollow"
+                className={`${styles.spotCard} ${spot.image ? '' : styles.spotCardTextOnly}`}
+              >
+                {spot.image && (
+                  <span className={`hv-photo ${styles.spotPhoto}`}>
+                    {/* Deliberately bypass the App Hosting image proxy: Sanity
+                      serves the responsive, format-negotiated variants directly. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      className={styles.spotImage}
+                      src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
+                      srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      sizes="(max-width:760px) 100vw, 520px"
+                    />
+                  </span>
+                )}
+                <span className={styles.spotBody}>
+                  {spot.district && (
+                    <span className={`hv-kicker ${styles.spotKicker}`}>{spot.district}</span>
+                  )}
+                  <span className={styles.spotName}>{normalizeName(spot.name)}</span>
+                  {/* Loaded from Sanity all along and never rendered — it is the
+                    reason this spot is today's pick, so it belongs here. */}
+                  {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
+                  <span className={styles.spotCta}>{t.spotCta}</span>
+                </span>
+              </MapIntentLink>
             </article>
           </section>
         )}

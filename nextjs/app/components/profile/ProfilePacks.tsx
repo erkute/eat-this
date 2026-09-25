@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';

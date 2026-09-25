@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useId, useState, type ReactNode } from 'react';
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
 import { useGoogleSignIn, useMagicLink } from '@/lib/auth';
 import type { LoginReason } from '@/lib/auth';

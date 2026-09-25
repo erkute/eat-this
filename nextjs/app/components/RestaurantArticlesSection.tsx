@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { Link } from '@/i18n/navigation';
 import type { RestaurantArticleCard } from '@/lib/types';
 import styles from './RestaurantArticlesSection.module.css';

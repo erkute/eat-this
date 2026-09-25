@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/app/components/SiteImage';
 import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import { Link } from '@/i18n/navigation';
 import type {

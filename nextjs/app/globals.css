@@ -1509,4 +1509,12 @@ summary:active,
    liest sich als Fehler. */
 :root {
   --et-press-tile: 0.985;
+  /* Die gelbe Taste: 1px sieht an einem 56px hohen Knopf niemand („Klicks
+     sollen wie Klicks aussehen", 25.09.2026). Die gelben Hauptknöpfe stehen
+     deshalb auf einer dunkelgelben Kante und sinken beim Drücken um genau
+     deren Höhe ein — die Kante verschwindet, der Knopf sitzt. Auf Papier
+     (Hover) wird die Kante grau. */
+  --et-key-depth: 4px;
+  --et-key-edge: #b38b00;
+  --et-key-edge-paper: #b9b4ab;
 }

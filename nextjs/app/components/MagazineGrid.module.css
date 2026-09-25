@@ -67,10 +67,12 @@
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge, #b38b00);
   transition:
     color 160ms ease,
     background 160ms ease,
-    transform 160ms ease;
+    box-shadow 90ms ease,
+    translate 90ms ease;
 }
 
 /* Hover geht auf Papier, nicht auf Ink: auf dem dunklen Grund verschwand der
@@ -79,18 +81,20 @@
 .allLink:focus-visible {
   color: var(--et-home-ink);
   background: var(--mag-paper);
-  transform: translateY(-2px);
+  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
 }
 @media (hover: hover) {
   .allLink:hover {
     color: var(--et-home-ink);
     background: var(--mag-paper);
-    transform: translateY(-2px);
+    box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
   }
 }
 
+/* Sinkt auf seine Kante ein, siehe `--et-key-depth` in globals.css. */
 .allLink:active {
-  transform: translateY(1px);
+  translate: 0 var(--et-key-depth, 4px);
+  box-shadow: 0 0 0 var(--et-key-edge, #b38b00);
 }
 
 .grid {
@@ -182,7 +186,10 @@
   font-size: clamp(19px, 1.5vw, 23px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.05;
+  /* Zweizeilig mit Unterlängen („Bäckereien / Berlin – und was du dort
+     bestellst"): unter 1.15 traf das g der ersten Zeile die Akzente der
+     zweiten. */
+  line-height: 1.15;
 }
 
 /* Rubrik und Datum als eine Zeile über der Headline. Das gelbe Label führt,
@@ -267,7 +274,7 @@
   .grid > li:first-child .title {
     max-width: 24em;
     font-size: clamp(26px, 2.4vw, 36px);
-    line-height: 1;
+    line-height: 1.12;
   }
 
   .grid > li:not(:first-child) .photo:global(.hv-photo) {
@@ -343,7 +350,7 @@
 
   .title {
     font-size: 20px;
-    line-height: 1.05;
+    line-height: 1.15;
   }
 }
 

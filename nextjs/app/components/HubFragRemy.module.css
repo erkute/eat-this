@@ -59,7 +59,8 @@
   max-width: 790px;
   color: var(--remy-stage-paper);
   font-size: clamp(44px, 8vw, 96px);
-  line-height: 0.88;
+  /* Zwei Zeilen Versalien: bei 0.88 standen „?" und „R" fast aufeinander. */
+  line-height: 0.98;
 }
 
 .titleLine {

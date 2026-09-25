@@ -270,7 +270,9 @@
   font-size: clamp(17px, 1.7vw, 24px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 0.92;
+  /* Versalien mit Akzenten („CRISPY PORK / BÁNH MÌ"): bei 0.92 stiess der
+     Akzent der zweiten Zeile in die erste. */
+  line-height: 1.12;
   text-transform: uppercase;
   /* Erst trennen, wo die Sprache es erlaubt („Rinder-gulasch"), und nur wenn
      auch das nicht reicht irgendwo. */
@@ -351,17 +353,25 @@
   color: var(--teaser-ink);
   font-size: clamp(16px, 1.4vw, 19px);
   line-height: 1;
+  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge, #b38b00);
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    box-shadow 90ms ease,
+    translate 90ms ease;
 }
 
 :global(.homeV2) .foot .cta:global(.hv-btn):focus-visible {
   color: var(--teaser-ink);
   background: var(--teaser-paper);
+  box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
 }
 
 @media (hover: hover) {
   :global(.homeV2) .foot .cta:global(.hv-btn):hover {
     color: var(--teaser-ink);
     background: var(--teaser-paper);
+    box-shadow: 0 var(--et-key-depth, 4px) 0 var(--et-key-edge-paper, #b9b4ab);
   }
 }
 
@@ -371,7 +381,8 @@
 }
 
 :global(.homeV2) .foot .cta:global(.hv-btn):active {
-  transform: translateY(1px);
+  translate: 0 var(--et-key-depth, 4px);
+  box-shadow: 0 0 0 var(--et-key-edge, #b38b00);
 }
 
 /* ── Mobile: the same set, three across ──────────────────────────────────────
@@ -414,7 +425,7 @@
 
   .dish {
     font-size: 13px;
-    line-height: 0.95;
+    line-height: 1.15;
   }
 
   .restaurantLink :global(.hv-sub) {

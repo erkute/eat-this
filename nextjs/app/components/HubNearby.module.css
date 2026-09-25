@@ -146,7 +146,7 @@
   padding: 14px 0 0.3em;
   color: var(--board-paper, #fff);
   font-size: clamp(18px, 1.6vw, 22px);
-  line-height: 1.05;
+  line-height: 1.15;
 }
 
 /* Die Zeile in Gelb, wie die Kreide-Labels auf jeder Tafel. */
@@ -229,6 +229,18 @@
   .locBtn[data-primary]:hover:not(:disabled) {
     color: var(--et-home-ink);
     background: var(--board-accent, #ffc600);
+  }
+}
+
+/* Die leise Fläche hat keine Kante zum Einsinken: sie geht deutlich runter
+   und hellt ohne Hover beim Tippen auf. */
+.locBtn[data-primary]:active:not(:disabled) {
+  translate: 0 3px;
+}
+
+@media (hover: none) {
+  .locBtn[data-primary]:active:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
   }
 }
 

@@ -1,0 +1,250 @@
+/* "Frag Remy" als Chat-Einstieg — geteilt von der Restaurant- und der
+   Über-uns-Seite. Dieselbe Tafel wie die Bühne auf der Startseite:
+   leise Fläche mit Radius, weiße Versalien, Fragen als Ringe, ein gelber
+   Senden-Knopf. Breite und Abstand nach außen bestimmt die Seite über
+   `className` — hier steht nur die Tafel selbst. */
+
+/* Remy links, seine Ansage rechts daneben, die klickbaren Fragen darunter
+   über die volle Breite. Remy spannt über Überschrift UND Fliesstext, damit
+   die rechte Spalte gefüllt ist statt neben dem Kopf halb leer zu stehen. */
+.panel {
+  --remy-ink: #15120e;
+  --remy-paper: #fff;
+  --remy-accent: var(--et-home-accent, #ffc600);
+  --remy-soft: rgba(255, 255, 255, 0.76);
+  --remy-ring: rgba(255, 255, 255, 0.28);
+
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'avatar title'
+    'avatar copy'
+    'actions actions';
+  align-content: start;
+  gap: clamp(12px, 2.2vw, 20px) clamp(16px, 3vw, 30px);
+  padding: clamp(20px, 3.4vw, 36px);
+  border-radius: var(--et-radius-photo, 10px);
+  /* Eine Stufe heller als der Grund, seit die Seite selbst Ink ist: als
+     Ink-Flaeche war Remy vom Grund nicht zu unterscheiden. */
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--remy-paper);
+}
+
+.copy {
+  grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  align-self: start;
+}
+
+.actions {
+  grid-area: actions;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.title {
+  grid-area: title;
+  align-self: end;
+  margin: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: clamp(26px, 4.6vw, 46px);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+  color: var(--remy-paper);
+  text-transform: uppercase;
+}
+
+/* Eigene Zeile pro Halbsatz, wie auf der Startseite — „Noch was offen? Frag"
+   / „Remy." wäre ein Umbruch mitten im Satz. */
+.titleLine {
+  display: block;
+}
+
+/* Markenschrift, nicht Fliesstext: der Satz ist Remys Ansage, kein Beipack —
+   in Providence steht er auf einer Ebene mit der Überschrift darüber. */
+.lead {
+  margin: 0;
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: clamp(17px, 1.5vw, 20px);
+  font-weight: 700;
+  line-height: 1.32;
+  max-width: 34ch;
+  color: var(--remy-soft);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Ringe, wie der Standort-Chip im Must-Eat-Sheet: weißer 28-%-Rand, bei
+   Hover gelb. */
+.chip {
+  appearance: none;
+  border: 2px solid var(--remy-ring);
+  border-radius: var(--et-radius-control, 999px);
+  background: transparent;
+  color: var(--remy-paper);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.chip:focus-visible {
+  border-color: var(--remy-accent);
+  color: var(--remy-accent);
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--remy-accent);
+    color: var(--remy-accent);
+  }
+}
+
+.form {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  border-radius: var(--et-radius-control, 12px);
+  /* Papier auf Ink: das weiße Feld liest sich als Eingabe. */
+  background: var(--remy-paper);
+  color: var(--remy-ink);
+  /* Markenschrift wie Chips und Senden-Knopf daneben — der Body-Font war
+     der einzige Fremdkörper in der Remy-Zeile. */
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-size: 15px;
+  font-weight: 600;
+  min-height: 52px;
+  padding: 0 14px;
+}
+
+.input::placeholder {
+  color: rgba(21, 18, 14, 0.45);
+}
+
+.send {
+  appearance: none;
+  border: none;
+  border-radius: var(--et-radius-control, 12px);
+  background: var(--remy-accent);
+  color: var(--remy-ink);
+  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-weight: 700;
+  font-size: 15px;
+  min-height: 52px;
+  padding: 0 22px;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+/* Gelb auf Ink, Hover Papier — wie jeder Tafel-Knopf. */
+.send:focus-visible {
+  background: var(--remy-paper);
+}
+@media (hover: hover) {
+  .send:hover {
+    background: var(--remy-paper);
+  }
+}
+
+.chip:focus-visible,
+.input:focus-visible,
+.send:focus-visible {
+  outline: 2px solid var(--remy-accent);
+  outline-offset: 2px;
+}
+
+/* Remy steht links neben seiner Ansage — freigestellt auf der Ink-Fläche,
+   ohne Kasten und ohne Überstand: beide Seiten sind redaktionell, der
+   Kopf soll den Text begleiten, nicht über die Kante kippen. */
+.avatarWrap {
+  grid-area: avatar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+
+.face {
+  width: clamp(120px, 15vw, 190px);
+  height: auto;
+}
+
+@media (max-width: 700px) {
+  /* Auf dem Telefon steht neben Remy nur die Überschrift — der Fliesstext
+     bekommt die volle Breite, statt sich in einer 180px-Spalte auf acht
+     Zeilen zu strecken. */
+  .panel {
+    grid-template-areas:
+      'avatar title'
+      'copy copy'
+      'actions actions';
+    align-items: center;
+    gap: 14px;
+    padding: 20px 18px 22px;
+  }
+
+  .title {
+    align-self: center;
+    font-size: clamp(24px, 7.4vw, 34px);
+  }
+
+  .face {
+    width: clamp(96px, 25vw, 128px);
+  }
+
+  .lead {
+    font-size: 17px;
+    max-width: none;
+  }
+
+  /* Volle Zeilenbreite pro Frage: nebeneinander gequetscht brechen die
+     Fragen mitten im Satz um und die Tippfläche wird schmal. Untereinander
+     liest sich die Liste wie ein Menü — und jede Zeile ist sicher zu treffen. */
+  .chips {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+  }
+
+  .chip {
+    width: 100%;
+    min-height: 44px;
+    text-align: left;
+    padding: 11px 14px;
+  }
+
+  .form {
+    flex-wrap: wrap;
+  }
+
+  .input,
+  .send {
+    min-height: 46px;
+  }
+
+  .send {
+    flex: 1 1 auto;
+  }
+}

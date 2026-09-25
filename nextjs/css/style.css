@@ -512,6 +512,13 @@ body {
   animation-delay: 0.245s;
   --bd-fly-rot: -1.3deg;
 }
+/* Der zehnte Platz ist „Stats", nur fuer Admins sichtbar. Ohne eigene Stufe
+   erbte er den Versatz 0 von oben und stand schon, waehrend die Welle noch
+   lief. */
+.burger-drawer.active .bd-nav-item:nth-child(10) {
+  animation-delay: 0.28s;
+  --bd-fly-rot: 1.4deg;
+}
 @keyframes bdWordDeal {
   from {
     transform: translateX(108%) rotate(var(--bd-fly-rot, 1.5deg));

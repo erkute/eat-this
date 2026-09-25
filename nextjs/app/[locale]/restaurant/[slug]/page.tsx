@@ -35,6 +35,8 @@ import MapIntentLink from '@/app/components/MapIntentLink';
 import RestaurantRemySection from '@/app/components/RestaurantRemySection';
 import RemyDock from '@/app/components/buddy/RemyDock';
 import ShareButton from '@/app/components/ShareButton';
+import SpotGallery from '@/app/components/SpotGallery';
+import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import { HubSpotShelf } from '@/app/components/HubSpots';
 import hubStyles from '@/app/components/HubPage.module.css';
 import { Link as IntlLink } from '@/i18n/navigation';
@@ -50,16 +52,6 @@ import styles from './RestaurantPage.module.css';
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
-}
-
-function safeCreditUrl(url: string | undefined): string | null {
-  if (!url) return null;
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? url : null;
-  } catch {
-    return null;
-  }
 }
 
 function imageAssetKey(url: string | undefined): string {
@@ -226,9 +218,12 @@ export default async function RestaurantPage({ params }: PageProps) {
   // showed the same picture twice on every spot that has no extra gallery
   // images (Bari et al.) — header photo, then the identical "gallery".
   const galleryImages = (r.gallery ?? [])
-    .filter((img) => img?.thumb && img?.full)
+    .filter((img): img is typeof img & { thumb: string; full: string } =>
+      Boolean(img?.thumb && img?.full)
+    )
     .filter((img) => imageAssetKey(img.full) !== heroAssetKey);
-  const heroCreditHref = safeCreditUrl(r.photoCreditUrl);
+  const heroCreditHref = safeHttpUrl(r.photoCreditUrl);
+  const hasMain = Boolean(description || tipText || galleryImages.length > 0);
 
   const priceLabel = formatPriceLabel(r, loc);
   const websiteInfo = classifyWebsite(r.website);
@@ -390,9 +385,9 @@ export default async function RestaurantPage({ params }: PageProps) {
           </div>
         </header>
 
-        {(description || tipText || hasInfo) && (
+        {(hasMain || hasInfo) && (
           <div className={styles.body}>
-            {(description || tipText) && (
+            {hasMain && (
               <div className={styles.main}>
                 {description && (
                   <article className={styles.story}>
@@ -407,6 +402,18 @@ export default async function RestaurantPage({ params }: PageProps) {
                       <p key={`af-${i}`}>{p}</p>
                     ))}
                   </article>
+                )}
+
+                {/* Die Bilder gehören zur Beschreibung und stehen direkt unter
+                    ihr, in derselben Spalte — nicht als eigenes Modul über die
+                    volle Seitenbreite (Nutzer, 25.09.2026). */}
+                {galleryImages.length > 0 && (
+                  <SpotGallery
+                    images={galleryImages}
+                    name={displayName}
+                    locale={loc}
+                    creditClassName={styles.credit}
+                  />
                 )}
 
                 {/* Der Tipp der Redaktion: gelbe Kante, gelbes Label, der Satz
@@ -500,45 +507,6 @@ export default async function RestaurantPage({ params }: PageProps) {
               </aside>
             )}
           </div>
-        )}
-
-        {galleryImages.length > 0 && (
-          <section
-            className={styles.gallery}
-            data-count={galleryImages.length <= 4 ? galleryImages.length : 'many'}
-            aria-label={de ? 'Bilder' : 'Photos'}
-          >
-            {galleryImages.map((img, i) => (
-              <figure key={img._key} className={styles.galleryItem}>
-                <div className={styles.galleryFrame}>
-                  <Image
-                    /* `thumb` ist der 400x300-Streifen des Map-Sheets — hier
-                       zu klein. `full` (1600px) kommt in derselben Projektion
-                       mit und kostet keine Abfrage. */
-                    src={img.full ?? img.thumb ?? ''}
-                    alt={img.alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 1}`}
-                    fill
-                    /* Telefon: Rail mit 78% breiten Kacheln. Ab Tablet ein
-                       Raster mit bis zu vier Spalten in der 1240er-Spalte;
-                       einzelne Kacheln einer Restzeile werden breiter. */
-                    sizes="(max-width: 699px) 78vw, (max-width: 1099px) 50vw, 620px"
-                    /* Laedt lazy und steht unter dem Falz — hier zaehlt das
-                       Bild mehr als die Ladezeit, also der obere Punkt der
-                       Kurve (siehe Hero). */
-                    quality={85}
-                    className={styles.cover}
-                  />
-                </div>
-                {img.credit && (
-                  <Credit
-                    text={img.credit}
-                    href={safeCreditUrl(img.creditUrl)}
-                    className={styles.credit}
-                  />
-                )}
-              </figure>
-            ))}
-          </section>
         )}
 
         {/* Must Eats vor Remy: beide beantworten „und jetzt?", aber die Karten

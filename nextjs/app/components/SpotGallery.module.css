@@ -1,0 +1,73 @@
+/* Bildstrecke der Spot-Seite (SpotGallery.tsx). Tokens (--hub-*) setzt die
+   Seite.
+
+   Die Strecke steht in der Textspalte unter der Beschreibung (neben der
+   Info-Karte), nicht über die volle Seitenbreite.
+
+   Feste Kachelgröße, linksbündig — wie viele Bilder ein Spot hat, ändert die
+   Größe nicht. Bis 25.09.2026 streckten sich die Kacheln auf die Spalte: ein
+   einzelnes Bild (109 von 221 Spots mit Galerie) stand dann 1240×531px groß
+   da, zwei Bilder je 610×458px — größer als das Titelfoto. Spuren je Breite:
+   Telefon 2; Tablet 4, weil die Textspalte dort die volle Breite hat; ab
+   960px 3, weil daneben die Info-Karte steht (rund 250px je Kachel). */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Telefon, ein einzelnes Bild: volle Breite statt einer halben Kachel mit
+   Loch daneben. */
+.gallery[data-count='1'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 700px) {
+  .gallery,
+  .gallery[data-count='1'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 960px) {
+  .gallery,
+  .gallery[data-count='1'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.item {
+  min-width: 0;
+  margin: 0;
+}
+
+.frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--hub-radius, 10px);
+  background: var(--hub-raised, #25231f);
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 699px) {
+  .gallery[data-count='1'] .frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.img {
+  object-fit: cover;
+}
+
+.frame:focus-visible {
+  outline: 2px solid var(--hub-accent, #ffc600);
+  outline-offset: 3px;
+}

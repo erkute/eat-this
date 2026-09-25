@@ -441,11 +441,23 @@ div.page {
    `--img-frame` ist die Breite, in der mittig gerechnet wird — ab Desktop die
    Lesebreite statt der ganzen Spalte. */
 .inlineImage {
-  --img-max-h: min(70vh, 600px);
+  --img-max-h: 600px;
   --img-w: min(var(--img-frame, 100%), calc(var(--img-max-h) * var(--img-ratio, 1.5)));
   width: var(--img-w);
   margin: clamp(30px, 5vw, 60px) 0;
   margin-left: calc(var(--img-offset, 0px) + (var(--img-frame, 100%) - var(--img-w)) / 2);
+}
+
+/* Die Fensterhöhe zählt erst ab Desktop-Breite mit. Chrome auf dem iPhone
+   ändert `vh`, während es beim Scrollen seine Leisten ein- und ausblendet —
+   ein Hochformat, dessen Breite an `70vh` hing, wurde beim Hoch- und
+   Runterscrollen breiter und schmaler und sah aus wie gezoomt (Betreiber,
+   26.09.2026, Crapulix-Artikel). Am Telefon deckelt die feste Höhe; auf dem
+   Desktop steht `vh` beim Scrollen still. */
+@media (min-width: 1024px) {
+  .inlineImage {
+    --img-max-h: min(70vh, 600px);
+  }
 }
 
 .inlineImage img {

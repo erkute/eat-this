@@ -499,6 +499,12 @@ export const guideTeaserBySlugQuery = `
       $locale == "de" => coalesce(excerptDe, excerpt),
       coalesce(excerpt, excerptDe)
     ),
+    "kicker": select(
+      $locale == "de" => coalesce(categoryLabelDe, categoryLabel),
+      coalesce(categoryLabel, categoryLabelDe)
+    ),
+    date,
+    "imageUrl": ${groqImageUrl('image', 'card')},
     "noIndex": seo.noIndex == true
   }
 `;

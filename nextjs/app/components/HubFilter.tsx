@@ -62,9 +62,8 @@ export function HubFilterProvider({
 
   // `data-hub-filtered` hängt am Wrapper, damit CSS auf den gefilterten Zustand
   // reagieren kann, ohne dass jede Karte davon wissen muss — konkret nehmen die
-  // Regeln in HubPage.module.css den Platzziffern die Sichtbarkeit. `contents`
-  // löst die Box wieder auf: der Provider steht als direktes Kind im Seiten-
-  // Grid, ein echtes div dazwischen würde dessen Abstände verschieben.
+  // Regeln in HubPage.module.css den Platzziffern die Sichtbarkeit. Der Wrapper
+  // ist zugleich der Bereich, in dem die Leiste klebt: sie endet mit der Liste.
   return (
     <HubFilterContext.Provider value={value}>
       <div className={styles.filterScope} data-hub-filtered={value.active ? 'true' : undefined}>

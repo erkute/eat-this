@@ -19,31 +19,30 @@ function effective(selectorPart: string, prop: string): string | undefined {
   return winner;
 }
 
-describe('GuideCrossLinks.module.css — Querverweis auf den Magazin-Guide', () => {
-  // Der Block hat genau eine Aufgabe: sichtbar auf den Guide zeigen. Beim
-  // ersten Anlauf standen hier nur text-decoration-color und -thickness — der
-  // globale Link-Reset setzt `none`, beides lief ins Leere, und der Titel war
-  // von Fließtext nicht zu unterscheiden. Die Kurzform allein reicht nicht.
-  it('underlines the guide title link', () => {
-    expect(effective('.title a', 'text-decoration')).toBe('underline');
+describe('GuideCrossLinks.module.css — Artikel-Vorschau zum Magazin-Guide', () => {
+  // Die ganze Karte ist der Link; ohne sichtbaren Fokus wüsste eine
+  // Tastatur-Nutzerin nicht, welcher Guide gewählt ist.
+  it('keeps a visible focus ring on the card', () => {
+    expect(effective('.card:focus-visible', 'outline')).toContain('solid');
   });
 
-  it('keeps a visible focus ring on the guide title link', () => {
-    expect(effective('.title a:focus-visible', 'outline')).toContain('solid');
+  // Der Link muss auch ohne Unterstreichung als Link lesbar sein: Hover hebt
+  // die Headline gelb hervor und zoomt das Foto.
+  it('marks the card on hover', () => {
+    expect(effective('.card:hover .title', 'color')).toContain('--et-home-accent');
   });
 
-  // Die Linie darüber ist das, was den Block als Nachspann liest — dieselbe
-  // Behandlung wie .faq auf den Bezirksseiten.
-  it('separates the block with a rule above it', () => {
-    expect(effective('.wrap', 'border-top')).toContain('2px solid');
+  // Ein einzelner Guide stünde im Dreier-Raster verloren in der Ecke.
+  it('lays a single guide out side by side from tablet up', () => {
+    expect(effective("[data-count='1'] .card", 'grid-template-columns')).toBeDefined();
   });
 
-  // Der Block hängt an zwei Seiten mit verschiedenen lokalen Variablennamen
-  // (--category-* gegen die des Bezirks). Griffe er auf eine davon zurück,
-  // fiele die Farbe auf der anderen Seite auf den Default zurück.
+  // Der Block hängt an zwei Seiten mit verschiedenen lokalen Variablennamen.
+  // Griffe er auf eine davon zurück, fiele die Farbe auf der anderen Seite auf
+  // den Default zurück.
   it('draws its colours from the shared home tokens, not a page-local set', () => {
     const css = readFileSync(cssPath, 'utf8');
-    expect(css).not.toMatch(/var\(--category-/);
+    expect(css).not.toMatch(/var\(--(category|hub)-/);
     expect(css).toMatch(/var\(--et-home-/);
     expect(css).toMatch(/var\(--et-ink-/);
   });

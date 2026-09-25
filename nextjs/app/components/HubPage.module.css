@@ -214,11 +214,12 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   white-space: nowrap;
 }
 
-/* Die Provider-Hülle löst sich auf: die Leiste muss direktes Kind eines
-   hohen Blocks sein, sonst klebt `sticky` nur so lange, wie ihr eigener
-   Elternteil hoch ist — also gar nicht. */
+/* Die Provider-Hülle ist der Bereich, in dem die Leiste klebt: Leiste plus
+   Listen. Bis 25.09.2026 löste sie sich per `display: contents` auf — die
+   Leiste klebte dann an `main` und lief über Magazin, Map-Tafel und FAQ bis
+   zum Seitenende mit, obwohl sie dort nichts mehr filtert. */
 .filterScope {
-  display: contents;
+  display: block;
 }
 
 .filterBar {

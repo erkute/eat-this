@@ -205,10 +205,8 @@
 }
 
 /* The story's short turns, in the brand face and yellow — one line each, not
-   a headline: Providence 700 at a size just above the body copy. Shared with
-   the one-line answer under the sticker below. */
-.oneLiner,
-.body blockquote + p:last-child {
+   a headline: Providence 700 at a size just above the body copy. */
+.oneLiner {
   /* No measure of its own: the point is one line. The column caps it. */
   margin: 0;
   color: var(--about-accent);
@@ -278,9 +276,7 @@
 }
 
 /* The taped yellow sticker stays — it is the one loud thing in the copy and
-   it carries the founding line. A one-line answer right after it ("Aus diesem
-   Wunsch ist Eat This entstanden.") stood alone a full sticker margin below;
-   it is pulled up under the sticker and set as a one-liner (see .oneLiner). */
+   it carries the founding line. */
 .body blockquote {
   position: relative;
   width: min(100%, 20ch);
@@ -295,10 +291,6 @@
   line-height: 0.96;
   text-transform: none;
   transform: rotate(-1.4deg);
-}
-
-.body blockquote:has(+ p:last-child) {
-  margin-bottom: clamp(20px, 2.6vw, 28px);
 }
 
 .body blockquote::before {

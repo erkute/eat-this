@@ -132,7 +132,7 @@ export default function ArticleRail({
       <div className={styles.sticky}>
         <span className={styles.label}>{label}</span>
         <ol className={styles.list}>
-          {chapters.map((c, i) => {
+          {chapters.map((c) => {
             const isActive = c.id === activeId;
             return (
               <li key={c.id}>
@@ -142,7 +142,6 @@ export default function ArticleRail({
                   aria-current={isActive ? 'true' : undefined}
                   onClick={(e) => jump(e, c.id)}
                 >
-                  <span className={styles.num}>{String(i + 1).padStart(2, '0')}</span>
                   {/* Der volle Titel bleibt im title-Attribut: die Leiste zeigt
                       den Namen, der Hover die ganze Überschrift. */}
                   <span className={styles.text} title={c.text}>

@@ -367,8 +367,8 @@
   border-radius: var(--et-radius-photo);
   /* Kein Anschnitt mehr: das Foto liegt IN der Tafel, ihre Kante ist der
      Rand. Frueher lief es auf dem Telefon bis zur Blattkante, weil nichts
-     sonst den Aufmacher von der Kartenreihe darunter trennte. */
-  --spot-bleed: 0px;
+     sonst den Aufmacher von der Kartenreihe darunter trennte. (Die Variable
+     `--spot-bleed`, die das steuerte, stand seitdem fest auf 0 und ist raus.) */
 }
 
 /* Am Telefon randlos wie die Starter-Pack-Tafel: ein Kasten 16px vor der
@@ -447,12 +447,9 @@
   grid-row: 1;
   position: relative;
   display: block;
-  /* Flush left with the rest of the page (--spot-bleed is 0 here); the bleed
-     only opens up once the card stacks. Rounded on all four corners for the
-     same reason: a square edge said "this continues off the page", and sitting
-     inside the column it has nothing to continue into. */
-  width: calc(100% + var(--spot-bleed));
-  margin-left: calc(-1 * var(--spot-bleed));
+  /* Flush left with the rest of the board, rounded on all four corners: a
+     square edge said "this continues off the page", and sitting inside the
+     column it has nothing to continue into. */
   aspect-ratio: 3 / 2;
   border-radius: var(--et-radius-photo);
   overflow: hidden;

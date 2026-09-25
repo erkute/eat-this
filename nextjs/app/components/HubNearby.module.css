@@ -28,11 +28,6 @@
   }
 }
 
-.title {
-  display: inline-flex;
-  align-items: center;
-}
-
 /* Some spots carry their tagline in the name field ("der Weinlobbyist -
    Restaurant&Weinbar"). Cap it so one long record cannot push the card's
    meta row around.
@@ -97,11 +92,6 @@
     align-items: start;
     row-gap: 12px;
   }
-}
-
-.title :global(.hv-mk) {
-  flex: 0 0 auto;
-  vertical-align: 0;
 }
 
 /* ── Rail card ──

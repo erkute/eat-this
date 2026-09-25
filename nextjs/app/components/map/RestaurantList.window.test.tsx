@@ -11,9 +11,13 @@ vi.mock('@/lib/map', () => ({
   resolvePeek: () => ({ kind: 'none' }),
 }));
 vi.mock('@/lib/sanityImageLoader', () => ({ default: ({ src }: { src: string }) => src }));
-vi.mock('@/lib/map/useRestaurantDetail', () => ({ prefetchRestaurantDetail: vi.fn() }));
+vi.mock('@/lib/map/useRestaurantDetail', () => ({
+  prefetchRestaurantDetail: vi.fn(),
+  useCachedRestaurantDetail: vi.fn(() => null),
+}));
 
 import RestaurantList from './RestaurantList';
+import { useCachedRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant } from '@/lib/types';
 
 // jsdom hat keinen IntersectionObserver — den Callback festhalten, damit der
@@ -41,6 +45,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.mocked(useCachedRestaurantDetail).mockImplementation(() => null);
 });
 
 function spots(n: number): MapRestaurant[] {
@@ -146,5 +151,53 @@ describe('RestaurantList card photos', () => {
     const { act } = await import('@testing-library/react');
     act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: true }])));
     expect(photos(container).map((img) => img.getAttribute('loading'))).toEqual(['eager', 'eager', 'eager']);
+  });
+
+  it('lets the card photos be swiped once the prefetched gallery is in', async () => {
+    const credited = (full: string) => ({
+      _key: full,
+      thumb: full,
+      full,
+      credit: 'Foto',
+      creditUrl: 'https://example.com',
+    });
+    vi.mocked(useCachedRestaurantDetail).mockImplementation((slug) =>
+      slug === 'r-0'
+        ? {
+            gallery: [
+              // Dasselbe Asset wie das Kartenfoto, nur mit anderer Query.
+              credited('photo-0?crop=1'),
+              credited('gallery-a'),
+              { _key: 'no-credit', thumb: 'gallery-x', full: 'gallery-x' },
+              credited('gallery-b'),
+            ],
+          }
+        : null
+    );
+    const { container } = render(list({ restaurants: photoSpots() }));
+    const firstCard = container.querySelector<HTMLElement>('[data-list-row]')!;
+    const cardPhotos = () =>
+      [...firstCard.querySelectorAll('[class*=rcardPhotos] img')].map((img) => [
+        img.getAttribute('src'),
+        img.getAttribute('loading'),
+      ]);
+
+    // Kartenfoto vorn, Dublette und Foto ohne Credit fallen raus. Das
+    // Nachbarfoto wartet, bis die Karte wirklich nah ist.
+    expect(cardPhotos()).toEqual([
+      ['photo-0', 'eager'],
+      ['gallery-a', 'lazy'],
+      ['gallery-b', 'lazy'],
+    ]);
+    expect(firstCard.querySelectorAll('[class*=rcardDots] > span')).toHaveLength(3);
+
+    const { act } = await import('@testing-library/react');
+    act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: true }])));
+    expect(cardPhotos().map(([, loading]) => loading)).toEqual(['eager', 'eager', 'lazy']);
+
+    // Ein Spot ohne Galerie bleibt ein Foto ohne Punkte.
+    const second = container.querySelectorAll<HTMLElement>('[data-list-row]')[1];
+    expect(second.querySelectorAll('img')).toHaveLength(1);
+    expect(second.querySelector('[class*=rcardDots]')).toBeNull();
   });
 });

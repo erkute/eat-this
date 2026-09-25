@@ -490,3 +490,77 @@
   padding: 0;
   pointer-events: none;
 }
+
+/* Der Foto-Streifen der Karte: dieselbe Mechanik wie im Detail
+   (`.rdHeroPhotos`, usePhotoRail) — nativer Scroll mit Snap, ein Wisch ein
+   Foto. `pan-x pan-y`: senkrecht scrollt weiter die Liste, der Browser sperrt
+   die Achse. Jedes Foto steckt in einem eigenen Rahmen mit `overflow:
+   hidden`, weil `.rcardImg img` leicht vergrößert (und beim Hover mehr) —
+   sonst ragte das Foto in den Nachbarn. */
+.rcardPhotos {
+  touch-action: pan-x pan-y;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.rcardPhotos::-webkit-scrollbar {
+  display: none;
+}
+.rcardPhoto {
+  display: block;
+  flex: 0 0 100%;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+/* Name, Chips und Öffnungs-Pille liegen über dem Streifen. Ohne das hier
+   finge ein Wisch, der auf dem Namen beginnt, nicht beim Foto an. Der Tipp
+   landet trotzdem bei der Karte: er geht durch auf den Streifen, und der
+   liegt im Knopf. */
+.rcardBody,
+.openPill {
+  pointer-events: none;
+}
+/* Punkte wie im Detail, aber ohne eigene Fläche: sie sitzen am unteren Rand,
+   unter den Chips, wo der Ink-Verlauf (`.rcard::after`) am dichtesten ist.
+   Oben wäre kein Platz — links die Öffnungs-Pille, rechts die Must-Eat-Karte,
+   und in der 280px-Spalte am Desktop reicht die Mitte nicht für beide. */
+.rcardDots {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.rcardDot,
+.rcardDotOn {
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.5);
+  transition:
+    width 0.2s ease,
+    background-color 0.2s ease;
+}
+.rcardDotOn {
+  width: 13px;
+  background: #fff;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rcardDot,
+  .rcardDotOn {
+    transition: none;
+  }
+}

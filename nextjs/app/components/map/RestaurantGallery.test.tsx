@@ -12,6 +12,7 @@ vi.mock('./RestaurantGalleryLightbox', () => ({ default: () => null }));
 
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import RestaurantGallery from './RestaurantGallery';
+import { rememberSpotPhoto } from '@/lib/map/spotGallery';
 
 const HINT_KEY = 'et:photo-swipe-hint';
 const photos = (n: number): RestaurantGalleryImage[] =>
@@ -45,7 +46,7 @@ describe('RestaurantGallery', () => {
 
   it('zeigt einen Punkt pro Foto, den aktuellen hervorgehoben', () => {
     const { container, getByText } = render(
-      <RestaurantGallery images={photos(4)} restaurantName="Volk" />,
+      <RestaurantGallery images={photos(4)} restaurantName="Volk" slug="volk" />,
     );
     const all = dots(container);
     expect(all).toHaveLength(4);
@@ -55,13 +56,13 @@ describe('RestaurantGallery', () => {
   });
 
   it('zeigt bei einem Foto weder Punkte noch Hinweis', () => {
-    const { container } = render(<RestaurantGallery images={photos(1)} restaurantName="Volk" />);
+    const { container } = render(<RestaurantGallery images={photos(1)} restaurantName="Volk" slug="volk" />);
     expect(dots(container)).toHaveLength(0);
     expect(rail(container).className).not.toContain('rdHeroPhotosHint');
   });
 
   it('stupst beim ersten Besuch, sobald Foto 1 und 2 geladen sind, und zählt den Durchlauf', () => {
-    const { container } = render(<RestaurantGallery images={photos(3)} restaurantName="Volk" />);
+    const { container } = render(<RestaurantGallery images={photos(3)} restaurantName="Volk" slug="volk" />);
     const el = rail(container);
     expect(el.className).not.toContain('rdHeroPhotosHint');
     fireEvent.load(container.querySelector('img')!);
@@ -75,14 +76,14 @@ describe('RestaurantGallery', () => {
 
   it('stupst nach drei Durchläufen nicht mehr', () => {
     window.localStorage.setItem(HINT_KEY, '3');
-    const { container } = render(<RestaurantGallery images={photos(3)} restaurantName="Volk" />);
+    const { container } = render(<RestaurantGallery images={photos(3)} restaurantName="Volk" slug="volk" />);
     loadFirstTwo(container);
     expect(rail(container).className).not.toContain('rdHeroPhotosHint');
   });
 
   it('stupst nie wieder, sobald selbst geblättert wurde', () => {
     const { container, unmount } = render(
-      <RestaurantGallery images={photos(3)} restaurantName="Volk" />,
+      <RestaurantGallery images={photos(3)} restaurantName="Volk" slug="volk" />,
     );
     const el = rail(container);
     loadFirstTwo(container);
@@ -95,15 +96,30 @@ describe('RestaurantGallery', () => {
     expect(dots(container)[1].className).toContain('rdHeroPhotoDotOn');
     unmount();
 
-    const again = render(<RestaurantGallery images={photos(3)} restaurantName="Volk" />);
+    const again = render(<RestaurantGallery images={photos(3)} restaurantName="Volk" slug="volk" />);
     loadFirstTwo(again.container);
     expect(rail(again.container).className).not.toContain('rdHeroPhotosHint');
   });
 
   it('stupst bei reduzierter Bewegung nicht', () => {
     mockReducedMotion(true);
-    const { container } = render(<RestaurantGallery images={photos(3)} restaurantName="Volk" />);
+    const { container } = render(<RestaurantGallery images={photos(3)} restaurantName="Volk" slug="volk" />);
     loadFirstTwo(container);
     expect(rail(container).className).not.toContain('rdHeroPhotosHint');
+  });
+
+  it('öffnet auf dem Foto, das zuletzt in der Liste zu sehen war', () => {
+    const width = vi
+      .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+      .mockReturnValue(300);
+    // Die Liste hatte dasselbe Asset mit anderen Bild-Parametern.
+    rememberSpotPhoto('mitte-spot', { _key: 'x', thumb: 'x', full: 'https://img/2?w=600' });
+    const { container, getByText } = render(
+      <RestaurantGallery images={photos(4)} restaurantName="Volk" slug="mitte-spot" />,
+    );
+    expect(rail(container).scrollLeft).toBe(600);
+    expect(dots(container)[2].className).toContain('rdHeroPhotoDotOn');
+    expect(getByText('map.photos 3/4')).toBeTruthy();
+    width.mockRestore();
   });
 });

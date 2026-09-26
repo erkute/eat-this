@@ -14,6 +14,11 @@ export interface MapFilterState {
   openOnly: boolean;
 }
 
+/** Kein Sanity-Slug, sondern ein fester Eintrag, den nur die Karte kennt: alle
+ *  Spots mit mindestens einer Must-Eat-Karte. Er steht im Kategorie-Picker
+ *  ganz oben und reist als `?cat=must-eats` durch die URL wie jede Kategorie. */
+export const MUST_EATS_CATEGORY = 'must-eats';
+
 export const MAP_FILTER_DEFAULTS: MapFilterState = {
   category: 'All',
   bezirk: null,
@@ -99,7 +104,9 @@ export function resolveMapFilterState(search: string, index: MapFilterIndex): Ma
 
   const cat = params.get('cat');
   if (cat) {
-    const canonical = index.categorySlugByLower.get(cat.toLowerCase());
+    const lower = cat.toLowerCase();
+    const canonical =
+      lower === MUST_EATS_CATEGORY ? MUST_EATS_CATEGORY : index.categorySlugByLower.get(lower);
     if (canonical) state.category = canonical;
   }
 

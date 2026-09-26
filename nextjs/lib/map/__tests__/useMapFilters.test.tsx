@@ -3,6 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { MapRestaurant } from '@/lib/types';
 import { useMapFilters } from '../useMapFilters';
+import { MUST_EATS_CATEGORY } from '../mapFilterParams';
 
 /**
  * The picker counts. Before them both lists were built from the whole
@@ -151,6 +152,41 @@ describe('useMapFilters option counts', () => {
     expect(byValue.bezirk.get('Neukölln')).toBe(1);
     expect(byValue.bezirk.get('Wedding')).toBeUndefined();
     expect(withoutDimension.bezirk).toBe(4);
+  });
+});
+
+/* „Must Eats" im Kategorie-Picker: kein Sanity-Slug, sondern jeder Spot mit
+   mindestens einer Must-Eat-Karte. */
+describe('useMapFilters Must Eats', () => {
+  const rows = [
+    spot({
+      bezirk: { name: 'Mitte' },
+      mustEatCount: 2,
+      categories: [{ name: 'Pizza', slug: 'pizza' }],
+    }),
+    spot({
+      bezirk: { name: 'Mitte' },
+      mustEatCount: 0,
+      categories: [{ name: 'Pizza', slug: 'pizza' }],
+    }),
+    spot({ bezirk: { name: 'Wedding' }, mustEatCount: 1 }),
+  ];
+  const mountRows = () => renderHook(() => useMapFilters({ restaurants: rows, location: null }));
+
+  it('zeigt nur Spots mit Must-Eat-Karte', () => {
+    const { result } = mountRows();
+    act(() => result.current.setCategory(MUST_EATS_CATEGORY));
+    expect(result.current.displayedRestaurants.map((r) => r._id)).toEqual([
+      rows[0]._id,
+      rows[2]._id,
+    ]);
+  });
+
+  it('zählt die Zeile wie jede Kategorie, gegen die anderen Chips', () => {
+    const { result } = mountRows();
+    expect(result.current.optionCounts.byValue.category.get(MUST_EATS_CATEGORY)).toBe(2);
+    act(() => result.current.setBezirk('Mitte'));
+    expect(result.current.optionCounts.byValue.category.get(MUST_EATS_CATEGORY)).toBe(1);
   });
 });
 

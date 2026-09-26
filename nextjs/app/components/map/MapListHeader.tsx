@@ -13,6 +13,7 @@ import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
 import { priceBucketLabelKey } from '@/lib/map/priceBuckets';
+import { MUST_EATS_CATEGORY } from '@/lib/map/mapFilterParams';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 import styles from './MapFilters.module.css';
@@ -97,9 +98,17 @@ export default function MapListHeader({
     [optionCounts]
   );
 
+  /* „Must Eats" steht ganz oben: kein Sanity-Slug, sondern alle Spots mit
+     Must-Eat-Karte — das, wofür die Karte da ist. Nur hier, nicht auf den
+     Kategorie-Seiten. */
   const categoryItems: PickerItem[] = useMemo(
-    () => categories.map((c) => withCount(c.slug, localizedCategoryName(c, loc), 'category')),
-    [categories, loc, withCount]
+    () => [
+      withCount(MUST_EATS_CATEGORY, t('map.filterMustEats'), 'category'),
+      ...categories
+        .filter((c) => c.slug !== MUST_EATS_CATEGORY)
+        .map((c) => withCount(c.slug, localizedCategoryName(c, loc), 'category')),
+    ],
+    [categories, loc, t, withCount]
   );
   const bezirkItems: PickerItem[] = useMemo(
     () => bezirkNames.map((n) => withCount(n, n, 'bezirk')),
@@ -114,9 +123,10 @@ export default function MapListHeader({
 
   const activeCategoryLabel = useMemo(() => {
     if (category === 'All') return null;
+    if (category === MUST_EATS_CATEGORY) return t('map.filterMustEats');
     const def = categories.find((c) => c.slug === category);
     return def ? localizedCategoryName(def, loc) : null;
-  }, [category, categories, loc]);
+  }, [category, categories, loc, t]);
 
   return (
     /* The whole bar drags the sheet, Google Maps style — not just the pill

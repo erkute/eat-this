@@ -136,6 +136,7 @@ export default function MapSection({
     error: locationError,
     request: requestLocation,
     watch: watchLocation,
+    permitted: locationPermitted,
   } = useUserLocation();
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid);
   // Free-and-open map: anon visitors see exactly the server-revealed set
@@ -1687,16 +1688,17 @@ export default function MapSection({
      (MustEatMiniCard). Whoever stood in the doorway was still "too far"
      against the stale point. The watcher keeps it current and stops when
      the map goes inactive.
-     Gated on an existing fix: that is the proof the origin holds the
-     permission, so watchPosition raises no dialog (the one thing the map is
-     built to never do unprompted — see hasGeolocationPermission). Keyed on
-     WHETHER there is a fix, not on the fix itself, so its own updates do not
-     restart it. */
-  const hasLocationFix = location !== null;
+     Gated on `locationPermitted`: the proof the origin holds the permission,
+     so watchPosition raises no dialog (the one thing the map is built to
+     never do unprompted — see hasGeolocationPermission). A FIX is not
+     required: underground the first request times out, and the watcher is
+     what picks up the position once the phone finds one again (see
+     useUserLocation.permitted). Keyed on the grant, not on the fix, so its
+     own updates do not restart it. */
   useEffect(() => {
-    if (!isActive || !hasLocationFix) return;
+    if (!isActive || !locationPermitted) return;
     return watchLocation();
-  }, [isActive, hasLocationFix, watchLocation]);
+  }, [isActive, locationPermitted, watchLocation]);
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;

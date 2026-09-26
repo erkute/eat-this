@@ -104,17 +104,30 @@ interface UseUserLocationResult {
    *
    * Silent by design: a watcher error must not raise the status toast — the
    * visitor did not ask right now — and it never touches `loading`. Only
-   * start it once this origin already holds the permission (a `location` on
-   * hand proves that); watchPosition would otherwise raise the system dialog
-   * out of nowhere, see hasGeolocationPermission.
+   * start it once `permitted` says this origin holds the permission;
+   * watchPosition would otherwise raise the system dialog out of nowhere,
+   * see hasGeolocationPermission.
    */
   watch: () => () => void;
+  /**
+   * True once a request proved the permission is granted — by a fix, OR by a
+   * timeout/unavailable error: the browser only starts looking (and can only
+   * fail at it) after the visitor said yes.
+   *
+   * The error half is the U-Bahn case. Underground the first request runs
+   * into its timeout, and gating the watcher on a fix meant it never started:
+   * back above ground, at a station with Wi-Fi, the map still had no
+   * position until the visitor tapped again. Watching from the grant on
+   * hands over the first fix the phone finds, whenever that is.
+   */
+  permitted: boolean;
 }
 
 export function useUserLocation(): UseUserLocationResult {
   const [location, setLocation] = useState<UserLocation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<UserLocationError | null>(null);
+  const [permitted, setPermitted] = useState(false);
 
   const watch = useCallback((): (() => void) => {
     if (typeof navigator === 'undefined' || !navigator.geolocation?.watchPosition) {
@@ -132,11 +145,17 @@ export function useUserLocation(): UseUserLocationResult {
             ? prev
             : next
         );
+        /* Ein Fix beantwortet einen alten Timeout — sonst stuende „nicht
+           gefunden" noch im Zustand, waehrend der Avatar laengst da ist. */
+        setError((prev) => (prev === 'denied' ? prev : null));
       },
-      () => {
+      (err) => {
         /* A denial that arrives here is only possible when the grant was
            revoked in the meantime; keep the last fix, the next deliberate
-           request will report the error itself. */
+           request will report the error itself. Dropping `permitted` stops
+           the watcher. Timeouts are the tunnel and just wait for the next
+           fix. */
+        if (err.code === 1) setPermitted(false);
       },
       { enableHighAccuracy: true, maximumAge: 0 }
     );
@@ -159,11 +178,13 @@ export function useUserLocation(): UseUserLocationResult {
         (pos) => {
           const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setLocation(loc);
+          setPermitted(true);
           if (!silent) setLoading(false);
           resolve({ location: loc, error: null });
         },
         (err) => {
           const typed = mapGeoError(err.code);
+          setPermitted(typed !== 'denied');
           if (!silent) {
             setError(typed);
             setLoading(false);
@@ -189,5 +210,5 @@ export function useUserLocation(): UseUserLocationResult {
     });
   }, [error, request]);
 
-  return { location, loading, error, request, watch };
+  return { location, loading, error, request, watch, permitted };
 }

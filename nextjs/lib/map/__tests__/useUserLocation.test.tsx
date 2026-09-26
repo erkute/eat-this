@@ -56,6 +56,31 @@ describe('useUserLocation.watch', () => {
     expect(geo.clearWatch).toHaveBeenCalledWith(7);
   });
 
+  /* Im Stehen zittert GPS um ein paar Meter. Solche Fixe duerfen `location`
+     nicht ersetzen, sonst rendert die Map im Sekundentakt neu. */
+  it('ignores jitter of a metre or two but follows real movement', () => {
+    let deliver: PositionCallback = () => {};
+    geo.watchPosition.mockImplementation((onFix: PositionCallback) => {
+      deliver = onFix;
+      return 3;
+    });
+    const { result } = renderHook(() => useUserLocation());
+    act(() => {
+      result.current.watch();
+    });
+
+    act(() => deliver(fix(52.52, 13.405)));
+    const first = result.current.location;
+
+    // ~1 m nach Norden
+    act(() => deliver(fix(52.52001, 13.405)));
+    expect(result.current.location).toBe(first);
+
+    // ~11 m nach Norden
+    act(() => deliver(fix(52.5201, 13.405)));
+    expect(result.current.location).toEqual({ lat: 52.5201, lng: 13.405 });
+  });
+
   /* Der Beobachter ist still: er hat nie jemand gefragt, also darf er weder
      den Ladezustand noch den Fehler-Toast anfassen — und der letzte Fix
      bleibt stehen. */

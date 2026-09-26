@@ -1678,30 +1678,21 @@ export default function MapSection({
     return false;
   }, [selectedMustEat, uid, unlock, mergeMustEat]);
 
-  /* Follow the visitor while a COVERED card is open. The 50 m gate compares
-     against `location`, and `location` was one fix, taken when the map came
-     up — on the way there, from a cold cell estimate. Whoever then stood in
-     the doorway was still "too far" against that stale point, with nothing
-     on the card that would take a new one. The watcher keeps the fix current
-     for exactly as long as it matters: it starts when a covered detail is
-     selected and stops when the card opens, closes, or the map goes inactive.
+  /* Follow the visitor for as long as the map is on screen. `location` used
+     to be one fix, taken when the map came up, and the avatar marker stood
+     on that point no matter how far the visitor walked — and the 50 m gate
+     of a covered card measured against the same stale point. The watcher
+     keeps it current and stops when the map goes inactive.
      Gated on an existing fix: that is the proof the origin holds the
      permission, so watchPosition raises no dialog (the one thing the map is
      built to never do unprompted — see hasGeolocationPermission). Keyed on
      WHETHER there is a fix, not on the fix itself, so its own updates do not
-     restart it.
-
-     The restaurant detail counts too: its covered cards start to shake once
-     the visitor is within reach (MustEatMiniCard), and whoever walks up with
-     that detail open needs the same fresh fix to see it happen. */
-  const coveredMustEatOpen =
-    (!!selectedMustEat && !unlockedIds.has(selectedMustEat._id)) ||
-    restaurantMustEats.some((m) => !unlockedIds.has(m._id));
+     restart it. */
   const hasLocationFix = location !== null;
   useEffect(() => {
-    if (!isActive || !coveredMustEatOpen || !hasLocationFix) return;
+    if (!isActive || !hasLocationFix) return;
     return watchLocation();
-  }, [isActive, coveredMustEatOpen, hasLocationFix, watchLocation]);
+  }, [isActive, hasLocationFix, watchLocation]);
 
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;

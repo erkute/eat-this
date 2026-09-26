@@ -148,6 +148,37 @@
      Der schmale Wert steht in der Media Query weiter unten. */
   --site-nav-h: max(78px, calc(72px + env(safe-area-inset-top, 0px)));
 
+  /* Ebenen der Seite, von unten nach oben. Nur, was seitenweit konkurriert
+     (fixiert am body oder per Portal); Stapel innerhalb einer Komponente
+     bleiben lokale kleine Zahlen. Die Werte sind die historischen, damit sich
+     an der Reihenfolge nichts verschiebt. Teilen sich zwei Stellen ein Token
+     (oder einen Wert), liegen sie auf derselben Ebene, und bei Gleichstand
+     entscheidet die DOM-Reihenfolge.
+     Die Foto-Galerie liegt über dem Cookie-Dialog. Heute folgenlos: der
+     Dialog geht beim ersten Laden auf und deckt alles, und wieder öffnen
+     lässt er sich nur über den Footer, an den man bei offener Galerie nicht
+     kommt. Ihn ganz nach oben zu legen hätte ihn über das Must-Eats-
+     Onboarding und das Login-Modal gehoben, die bei neuen Besuchern
+     gleichzeitig mit ihm aufgehen können (Betreiber, 26.09.2026: so lassen). */
+  --et-z-map-phone: 9990; /* Kartenseite am Telefon */
+  --et-z-map-phone-active: 9995;
+  --et-z-below-nav: 9998; /* Remy-Knopf, zurückfliegende Must-Eat-Karte */
+  --et-z-nav: 9999;
+  --et-z-above-nav: 10000; /* Wortmarken-Flug, Remy-Vorhang, Info-Karte, Skip-Link */
+  --et-z-remy: 10001; /* Remy-Fenster, über seinem Vorhang */
+  --et-z-drawer: 10002; /* Burger-Menü */
+  --et-z-consent: 10002; /* Cookie-Dialog; nie zugleich mit dem Menü offen */
+  --et-z-login: 10004;
+  --et-z-reveal: 10010; /* Must-Eat-Aufdecken */
+  --et-z-sheet: 10020; /* Vollbild-Layer: AllBerlin-Sheet, Must-Eat-Zoom */
+  --et-z-tour: 10025; /* Einführungs-Layer (Tour, Must-Eats-Onboarding) */
+  --et-z-auth: 10030; /* Wartescreen beim An- und Abmelden */
+  --et-z-picker: 11000; /* Filter-Picker der Karte: Vorhang … */
+  --et-z-picker-sheet: 11010; /* … und Blatt */
+  --et-z-gallery: 2147483000; /* Foto-Galerie im Spot-Detail: Vorhang, */
+  --et-z-gallery-stage: 2147483001; /* Bildstreifen, */
+  --et-z-gallery-controls: 2147483002; /* Schließen und Blättern */
+
   /* Das gefüllte Herz, überall dasselbe: Spot-Seite, Karten-Detail,
      Anmelde-Layer (Betreiber, 26.09.2026). Eigenes Token, weil es vom
      Marken-Rot abweicht und an drei Modulen hängt. */
@@ -517,7 +548,7 @@ html[data-auth='1'] [data-guest-only] {
   .app-page[data-page='map'] {
     height: auto;
     min-height: calc(100dvh + var(--map-runtime-bar-overhang, calc(100lvh - 100dvh + 80px)));
-    z-index: 9990;
+    z-index: var(--et-z-map-phone);
     overflow: visible;
   }
 
@@ -547,7 +578,7 @@ html[data-auth='1'] [data-guest-only] {
   }
 
   .app-page[data-page='map'].active {
-    z-index: 9995;
+    z-index: var(--et-z-map-phone-active);
   }
 
   /* Ink seit 04.09.2026. Diese beiden Blocks faerben auf dem Telefon die
@@ -664,7 +695,7 @@ html[data-auth='1'] [data-guest-only] {
   top: 50%;
   right: 0;
   left: 0;
-  z-index: 10000;
+  z-index: var(--et-z-above-nav);
   display: grid;
   place-content: center;
   place-items: center;
@@ -936,7 +967,7 @@ html[data-auth='1'] [data-guest-only] {
   --cookie-font: var(--et-font-display);
   position: fixed;
   inset: 0;
-  z-index: 10002;
+  z-index: var(--et-z-consent);
   display: grid;
   /* A definite track, not `auto`: the card's width is a percentage, and against
      an auto track that percentage resolves back against the card's own content
@@ -1354,7 +1385,7 @@ summary:active,
   position: absolute;
   left: -9999px;
   top: 0;
-  z-index: 10000;
+  z-index: var(--et-z-above-nav);
   background: #000;
   color: #fff;
   padding: 12px 18px;
@@ -1420,7 +1451,7 @@ ol {
   min-height: calc(100vh - 64px);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   /* Match kino.de/familie.de: html+body need zero CSS constraints for
      Safari to use window scroll and auto-hide the URL bar on scroll. */
   html {
@@ -1434,14 +1465,18 @@ ol {
   }
   /* Natural window scroll so Safari URL bar auto-hides on scroll. */
   .app-pages {
-    /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px).
+    /* Navbar height incl. safe-area-inset-top (notch/Dynamic Island ~47px):
+       64px up to 520px, 78px above. A flat 64px left the top 14px of every
+       page under the 78px bar between 521 and 767px — on /must-eats it cut
+       the corners off the card fan.
        Padding, not margin: body has no overflow here (see above, Safari URL
        bar), so a top margin collapses out through body — and the moment the
        consent gate sets `overflow: hidden` on body it stops collapsing, the
-       body box jumps up by these 64px and Chrome books it as a 0.08 layout
-       shift. Padding never collapses, so the box stays put. `.app-pages` is
-       transparent and the fixed navbar covers the strip: same picture. */
-    padding-top: calc(64px + env(safe-area-inset-top, 0px));
+       body box jumps up by the navbar height and Chrome books it as a 0.08
+       layout shift. Padding never collapses, so the box stays put.
+       `.app-pages` is transparent and the fixed navbar covers the strip: same
+       picture. */
+    padding-top: var(--site-nav-h);
     height: auto;
     overflow: visible;
   }
@@ -1633,7 +1668,7 @@ ol {
 .homeV2 .hv-chip:active {
   transform: translateY(1px);
 }
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .homeV2 .hv-wrap {
     padding: 0 var(--et-wrap-pad-mobile);
   }

@@ -170,7 +170,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
                       alt={normalizeName(r.name)}
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:760px) 78vw, 280px"
+                      sizes="(max-width:767.98px) 78vw, 280px"
                     />
                   )}
                 </span>

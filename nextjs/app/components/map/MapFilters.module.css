@@ -456,8 +456,8 @@
 .pickerBackdrop {
   position: fixed;
   inset: 0;
-  /* Die Navbar liegt auf z-index 9999; Modals müssen darüber, um sie zu decken. */
-  z-index: 11000;
+  /* Modals müssen über die Navbar (--et-z-nav), um sie zu decken. */
+  z-index: var(--et-z-picker);
   /* Schwarz, nicht Ink: der Vorhang liegt auf einer Ink-Seite, und
      rgba(21,18,14,…) IST diese Seite — jede Deckkraft aendert dort exakt
      nichts. Siehe --et-scrim in globals.css. */
@@ -470,7 +470,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 11010;
+  z-index: var(--et-z-picker-sheet);
   display: flex;
   flex-direction: column;
   overflow: visible;

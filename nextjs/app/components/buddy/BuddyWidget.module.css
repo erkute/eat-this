@@ -12,7 +12,7 @@
 .scrim {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: var(--et-z-above-nav);
   /* Der eine Vorhang der Site — dieselben Tokens wie hinter jedem Zoom. */
   background: var(--et-scrim);
   -webkit-backdrop-filter: var(--et-zoom-scrim-blur);
@@ -61,7 +61,7 @@
   position: fixed;
   right: 28px;
   bottom: 28px;
-  z-index: 10001;
+  z-index: var(--et-z-remy);
   width: 540px;
   max-width: calc(100vw - 40px);
   height: min(760px, calc(100dvh - 56px));

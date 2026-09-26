@@ -112,8 +112,8 @@ describe('Aufmacher der Startseite', () => {
    * komplette erste Seite Farbe, bevor ein Spot zu sehen ist.
    */
   it('füllt auf dem Telefon bewusst nicht den Bildschirm', () => {
-    expect(inMedia('max-width: 767px', 'hero', 'min-height')).toBe('0');
-    expect(inMedia('max-width: 767px', 'heroCopy', 'align-items')).toBe('center');
+    expect(inMedia('max-width: 767.98px', 'hero', 'min-height')).toBe('0');
+    expect(inMedia('max-width: 767.98px', 'heroCopy', 'align-items')).toBe('center');
     // Der Höhendeckel fällt schon eine Stufe früher: ab 920px ist der
     // Aufmacher gestapelt, und gestapelt bestimmt die Breite die Größe.
     expect(inMedia('max-width: 920px', 'heroPhones', 'height')).toBe('auto');

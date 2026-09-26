@@ -9,7 +9,7 @@
 .veil {
   position: fixed;
   inset: 0;
-  z-index: 10030; /* ueber dem Onboarding (10020), das hier nie gleichzeitig laeuft */
+  z-index: var(--et-z-auth); /* ueber dem Onboarding, das hier nie gleichzeitig laeuft */
   display: flex;
   align-items: center;
   justify-content: center;

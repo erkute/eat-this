@@ -24,7 +24,7 @@
   min-height: calc(100vh - 64px);
   min-height: calc(100dvh - 64px);
   /* Kein safe-area-inset hier: `.app-pages` reserviert unter 768px bereits
-     `64px + env(safe-area-inset-top)` für die fixe SiteNav (globals.css).
+     `--site-nav-h` (inkl. safe-area-inset-top) für die fixe SiteNav (globals.css).
      Ein zweiter Inset schob den Kicker auf Notch-Geräten um weitere ~59px
      nach unten. */
   padding: 24px clamp(18px, 4vw, 54px) 0;
@@ -442,10 +442,10 @@
 }
 
 /* Object left, copy right — the one place on the page where it goes that way
-   round. Only from 760px: stacked, a picture above a headline above a button
+   round. Only from 768px: stacked, a picture above a headline above a button
    is a queue, and putting the picture at the front of it delays the sentence
    that does the asking. */
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   .cta {
     grid-template-columns: auto minmax(0, 1fr);
     justify-items: start;
@@ -476,7 +476,7 @@
   transform: rotate(-2deg);
 }
 
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   .ctaPhone {
     width: 210px;
     /* Let it sit deeper than the copy: the panel is short and a phone this

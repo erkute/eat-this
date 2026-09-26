@@ -343,7 +343,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .card {
     grid-column: span 12;
   }

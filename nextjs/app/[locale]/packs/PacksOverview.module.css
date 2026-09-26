@@ -15,8 +15,7 @@
   --packs-rule: var(--et-ink-line);
   min-height: 100%;
   overflow-x: clip;
-  padding: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px)) 0
-    clamp(64px, 8vw, 120px);
+  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) 0 clamp(64px, 8vw, 120px);
   background: var(--packs-ink);
   color: var(--packs-fg);
   font-family: var(--et-font-display);

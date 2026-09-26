@@ -1,7 +1,7 @@
 .wrapper {
   position: fixed;
   inset: 0;
-  z-index: 10020;
+  z-index: var(--et-z-sheet);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,7 +17,7 @@
 
 /* Keep the returning card above the map sheet but below the fixed navbar. */
 .closing {
-  z-index: 9998;
+  z-index: var(--et-z-below-nav);
 }
 
 .backdrop {

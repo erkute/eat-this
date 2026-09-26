@@ -1,10 +1,10 @@
 /* Die Bühne des Aufdeckens (MustEatRevealOverlay.tsx erklärt die drei Takte).
    Sie fängt jeden Tipp ab — der Tipp beendet die Beute früher, und die Karte
-   darunter soll während des Moments nicht blättern. Über der Navbar (z 9999). */
+   darunter soll während des Moments nicht blättern. Über der Navbar (--et-z-nav). */
 .root {
   position: fixed;
   inset: 0;
-  z-index: 10010;
+  z-index: var(--et-z-reveal);
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }

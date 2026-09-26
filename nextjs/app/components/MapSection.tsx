@@ -13,7 +13,6 @@ import {
   useMapDeepLinks,
   useMapFilterUrl,
   useUserTier,
-  freshestMustEat,
   buildPeekMustEatMap,
   resolveUnlockedMustEatIds,
 } from '@/lib/map';
@@ -21,7 +20,6 @@ import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
 import MapSectionBody from './map/MapSectionBody';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
-import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { forgetSheetPosition, mapStripLine } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
@@ -32,12 +30,11 @@ import {
   rowRevealTop,
   type DetailOrigin,
 } from '@/lib/map/phoneSheetSnaps';
-import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
-import { resolveDetailHistory } from '@/lib/map/detailHistory';
 import { spotsCameraTarget, hasRoomToFit, fitPadding } from '@/lib/map/cameraFit';
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
 import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
 import { useMapCamera } from '@/lib/map/useMapCamera';
+import { useDetailSelection, type DetailOpeners } from '@/lib/map/useDetailSelection';
 
 /* How long the search query has to hold still before the camera follows it.
    Long enough that typing "kreuzberg" flies once rather than once per letter,
@@ -98,14 +95,6 @@ export default function MapSection({
       null
     );
   }, [initialMapData, initialRestaurantSlug]);
-  /* Derive the deep-linked selection in the lazy state initializer so the
-     server HTML and the first hydration render are both detail-first. Safari
-     therefore receives the compact document geometry before its status-bar
-     backdrop is established. */
-  const [selectedRestaurant, setSelectedRestaurant] = useState<MapRestaurant | null>(
-    () => initialRestaurant
-  );
-  const [selectedMustEat, setSelectedMustEat] = useState<MapMustEat | null>(null);
   const {
     location,
     loading: locating,
@@ -356,16 +345,34 @@ export default function MapSection({
   } = useMapFilters({ restaurants, mustEats, location, listCenter });
 
   const [searchOpen, setSearchOpen] = useState(false);
-  /* Die Liste, aus der ein Detail geöffnet wurde, eingefroren für den Pager.
-     Das Öffnen leert die Suche (siehe handleRestaurantClick), und damit
-     sprang `listRestaurants` sofort auf den vollen Datensatz zurück: wer
-     „Pizza" suchte, das erste Ergebnis öffnete und weiterblätterte, landete
-     beim Nachbarn aus der ungefilterten Liste statt beim zweiten Treffer.
-     Jeder Öffnungsweg läuft durch handleRestaurantClick und setzt den
-     Schnappschuss neu; Blättern lässt ihn stehen. */
-  const [pagerList, setPagerList] = useState<MapRestaurant[] | null>(null);
-  const listRestaurantsRef = useRef(listRestaurants);
-  listRestaurantsRef.current = listRestaurants;
+  /* MapSection's open handlers, for the back/forward gestures that reopen a
+     detail — assigned below, once the handlers exist. */
+  const detailOpenersRef = useRef<DetailOpeners>({ restaurant: () => {}, mustEat: () => {} });
+  const {
+    selectedRestaurant,
+    setSelectedRestaurant,
+    selectedMustEat,
+    setSelectedMustEat,
+    freezePager,
+    pagerAdjacent,
+    mustEatPagerAdjacent,
+    mustEatPagerPosition,
+    mustEatCollection,
+    detailEntryPushedRef,
+    detailClosedBySearchRef,
+    listAnchorPendingRef,
+  } = useDetailSelection({
+    isActive,
+    initialRestaurant,
+    sheetView,
+    restaurants,
+    mustEats,
+    listRestaurants,
+    unlockedIds,
+    scrollListToAnchor,
+    dismissDetailRef,
+    openRef: detailOpenersRef,
+  });
   // Desktop-only: lets the user collapse the side panel off to the right so
   // the map fills the viewport (Google-Maps-style toggle).
   const [desktopPanelHidden, setDesktopPanelHidden] = useState(false);
@@ -519,76 +526,6 @@ export default function MapSection({
     reapplySnap(target);
   }, [sheetView, selectedRestaurant?._id, selectedMustEat?._id, setSnap, reapplySnap, sheetElRef]);
 
-  /* Keep the open detail in the URL (?r=<slug> / ?me=<id>) so pull-to-refresh
-     restores it via the existing deep-link path instead of dropping the user
-     back to the list — and open details become shareable for free. The
-     deep-link consumer (useMapDeepLinks) no longer strips the params; its
-     consumed-guards prevent same-session re-triggers.
-
-     Which history operation each change takes lives in resolveDetailHistory;
-     detailEntryPushedRef is the one bit of state it needs — whether the entry
-     on top of the stack is ours to unwind. */
-  const detailEntryPushedRef = useRef(false);
-  /* Gesetzt, wenn eine Sucheingabe das Detail schließt (siehe
-     handleSearchChange). Der normale Schließweg poppt unseren History-Eintrag,
-     und der popstate wendet den ALTEN Filterzustand wieder an — die gerade
-     getippte Query wäre damit im selben Moment weg, in dem sie die Liste
-     zurückholt. In diesem einen Fall wird der Eintrag deshalb ersetzt statt
-     gepoppt. */
-  const detailClosedBySearchRef = useRef(false);
-  const prevSheetViewRef = useRef<'list' | 'detail'>(initialRestaurant ? 'detail' : 'list');
-  useEffect(() => {
-    if (!isActive || typeof window === 'undefined') return;
-    const wasDetail = prevSheetViewRef.current === 'detail';
-    prevSheetViewRef.current = sheetView;
-    const params = new URLSearchParams(window.location.search);
-    const hasPendingDetailParam = params.has('r') || params.has('me');
-    /* List view + a detail param + nothing selected is ambiguous: either a
-       soft-navigated deep link useMapDeepLinks hasn't consumed yet (leave the
-       param alone) or a detail the user just closed (strip it). wasDetail is
-       what tells them apart — without it the close path bailed out here and
-       left a stale ?r= behind, pointing at a spot that is no longer open. */
-    if (
-      sheetView !== 'detail' &&
-      !wasDetail &&
-      hasPendingDetailParam &&
-      !selectedRestaurant?.slug &&
-      !selectedMustEat?._id
-    ) {
-      return;
-    }
-    params.delete('r');
-    params.delete('me');
-    if (sheetView === 'detail') {
-      if (selectedMustEat?._id) params.set('me', selectedMustEat._id);
-      else if (selectedRestaurant?.slug) params.set('r', selectedRestaurant.slug);
-    }
-    const next = urlWithParams(params);
-    const current = currentUrl();
-    const closedBySearch = detailClosedBySearchRef.current;
-    const action = resolveDetailHistory({
-      detailOpen: sheetView === 'detail',
-      wasOpen: wasDetail,
-      urlChanged: next !== current,
-      pushed: detailEntryPushedRef.current,
-      closedBySearch,
-    });
-
-    if (sheetView !== 'detail') {
-      detailEntryPushedRef.current = false;
-      detailClosedBySearchRef.current = false;
-      /* Only a real traversal can undo the trip to the list — see the popstate
-         handler, which is where the scroll then happens. */
-      if (action !== 'back') listAnchorPendingRef.current = false;
-    } else if (action === 'push') {
-      detailEntryPushedRef.current = true;
-    }
-
-    if (action === 'push') window.history.pushState(window.history.state, '', next);
-    else if (action === 'replace') window.history.replaceState(window.history.state, '', next);
-    else if (action === 'back') window.history.back();
-  }, [isActive, sheetView, selectedRestaurant?.slug, selectedMustEat?._id]);
-
   /* Scroll-restore for back-nav (list → detail → list):
      - listScrollRef captures the list's scrollTop just before a detail opens
        (in handleRestaurantClick / handleMustEatClick).
@@ -669,9 +606,6 @@ export default function MapSection({
      list — the map's own first paint (list peeking under the map) and every
      later re-run must leave the scroll exactly where it is. */
   const listReturnFromRef = useRef<'list' | 'detail'>(initialRestaurant ? 'detail' : 'list');
-  /* Set when the trip to the list still has to survive a history traversal —
-     consumed by the popstate handler further down. */
-  const listAnchorPendingRef = useRef(false);
 
   useLayoutEffect(() => {
     const cameFromDetail = listReturnFromRef.current === 'detail';
@@ -745,7 +679,15 @@ export default function MapSection({
     if (scrollListToRow(listFocusIdRef.current, listRowTopRef.current)) return;
     if (!el) return;
     el.scrollTop = listScrollRef.current;
-  }, [sheetView, contentRef, scrollListToAnchor, scrollListToRow]);
+  }, [
+    sheetView,
+    contentRef,
+    scrollListToAnchor,
+    scrollListToRow,
+    detailEntryPushedRef,
+    detailClosedBySearchRef,
+    listAnchorPendingRef,
+  ]);
 
   const restaurantMustEats = useMemo(() => {
     if (!selectedRestaurant) return [];
@@ -776,16 +718,6 @@ export default function MapSection({
     selectedRestaurant,
     initialRestaurantId: initialRestaurant?._id,
   });
-
-  /* Die offene Sheet hält ein Objekt aus der Payload, die beim Öffnen da war.
-     Kommt eine neue herein — Refetch nach der Anmeldung, geänderte Sanity-Daten
-     —, wird das Objekt ausgetauscht, statt bis zum Schließen und Wiederöffnen
-     auf dem alten Stand zu stehen. */
-  useEffect(() => {
-    if (!selectedRestaurant) return;
-    const fresh = restaurants.find((r) => r._id === selectedRestaurant._id);
-    if (fresh && fresh !== selectedRestaurant) setSelectedRestaurant(fresh);
-  }, [restaurants, selectedRestaurant]);
 
   /* A detail opening over the list: note where it came from, so closing it
      can hand back exactly that — the list at the tapped row (its scroll
@@ -850,7 +782,7 @@ export default function MapSection({
       const isPhone = isPhoneViewport();
       // Freeze the list the user is browsing before the query is cleared —
       // the pager walks this snapshot, not the refilled full list.
-      setPagerList(listRestaurantsRef.current);
+      freezePager();
       // Selecting a search result implicitly accepts it — clear the query so
       // when the user later goes back to "alle Must Eats" or the list, they
       // see the full data set, not the still-filtered subset.
@@ -888,6 +820,9 @@ export default function MapSection({
       mapTapOnlyDismisses,
       collapseSheetToPeek,
       rememberListOrigin,
+      freezePager,
+      setSelectedRestaurant,
+      setSelectedMustEat,
       flyToSpot,
       getFlyPadding,
       pinTapFlyPadding,
@@ -900,28 +835,6 @@ export default function MapSection({
       displayedRestaurants.length,
     ]
   );
-
-  // Pager: neighbours of the open restaurant within the list the user was
-  // browsing when the detail opened (same order as the list view). Falls
-  // back to the live list only if the snapshot doesn't hold the spot (it
-  // was refetched away, or the detail opened without a click). Paging swaps
-  // the selection in place — no list↔detail view switch (already in detail).
-  const pagerAdjacent = useMemo(
-    () =>
-      selectedRestaurant
-        ? resolvePagerAdjacent(pagerList, listRestaurants, selectedRestaurant._id)
-        : { index: -1, prev: null, next: null },
-    [pagerList, listRestaurants, selectedRestaurant]
-  );
-
-  // Warm the neighbours' detail fields while a detail pane is open, so a
-  // pager swipe lands on fully-populated content instead of popping the
-  // story text in after the transition.
-  useEffect(() => {
-    if (!selectedRestaurant) return;
-    if (pagerAdjacent.prev) prefetchRestaurantDetail(pagerAdjacent.prev.slug);
-    if (pagerAdjacent.next) prefetchRestaurantDetail(pagerAdjacent.next.slug);
-  }, [selectedRestaurant, pagerAdjacent]);
 
   const handlePageRestaurant = useCallback(
     (dir: 'prev' | 'next') => {
@@ -939,46 +852,7 @@ export default function MapSection({
       const sc = document.querySelector('[data-detail-scroll]');
       if (sc) (sc as HTMLElement).scrollTop = 0;
     },
-    [pagerAdjacent, flyToSpot, detailFlyPadding]
-  );
-
-  /* Das geöffnete Must Eat folgt der frischesten Payload. Der Deep-Link greift
-     den Datensatz, den die Seite beim ersten Effekt-Durchlauf hat — und der
-     führt verdeckte Karten gestrippt. Ohne diesen Abgleich blieb das Detail
-     bei „Verdeckt" mit Kartenrücken, während `isUnlocked` längst offen sagte
-     (siehe freshestMustEat). */
-  useEffect(() => {
-    if (!selectedMustEat) return;
-    const fresh = freshestMustEat(mustEats, selectedMustEat);
-    if (fresh !== selectedMustEat) setSelectedMustEat(fresh);
-  }, [mustEats, selectedMustEat]);
-
-  // Global must-eat pager: neighbours within the FULL must-eat list (no
-  // filtering — the layer/list is gone). Paging swaps the selection in place.
-  const mustEatPagerAdjacent = useMemo(
-    () =>
-      selectedMustEat
-        ? resolveAdjacent(mustEats, selectedMustEat._id)
-        : { index: -1, prev: null, next: null },
-    [mustEats, selectedMustEat]
-  );
-  /* Zählstand für den Zoom („3 / 25") — memoisiert, weil die Lightbox ihn als
-     Objekt bekommt und ihr Inneres darauf memoisiert ist. */
-  const mustEatPagerPosition = useMemo(
-    () =>
-      mustEatPagerAdjacent.index >= 0
-        ? { index: mustEatPagerAdjacent.index + 1, count: mustEats.length }
-        : undefined,
-    [mustEatPagerAdjacent.index, mustEats.length]
-  );
-  /* Stand der Sammlung für die Bühne des Aufdeckens („12 / 25") — offene
-     gegen alle Karten, wie der „Alle"-Reiter im Profil zählt. */
-  const mustEatCollection = useMemo(
-    () => ({
-      count: mustEats.reduce((n, m) => (unlockedIds.has(m._id) ? n + 1 : n), 0),
-      total: mustEats.length,
-    }),
-    [mustEats, unlockedIds]
+    [pagerAdjacent, setSelectedRestaurant, flyToSpot, detailFlyPadding]
   );
 
   const handlePageMustEat = useCallback(
@@ -998,7 +872,7 @@ export default function MapSection({
       const sc = document.querySelector('[data-detail-scroll]');
       if (sc) (sc as HTMLElement).scrollTop = 0;
     },
-    [mustEatPagerAdjacent, flyToSpot, detailFlyPadding, unlockedIds]
+    [mustEatPagerAdjacent, setSelectedMustEat, flyToSpot, detailFlyPadding, unlockedIds]
   );
 
   const handleMustEatClick = useCallback(
@@ -1033,6 +907,8 @@ export default function MapSection({
     [
       unlockedIds,
       rememberListOrigin,
+      setSelectedRestaurant,
+      setSelectedMustEat,
       flyToSpot,
       detailFlyPadding,
       selectedRestaurant,
@@ -1079,6 +955,7 @@ export default function MapSection({
     if (r) flyToSpot(r, { duration: 350, padding: getFlyPadding(nextSnap) });
   }, [
     selectedRestaurant,
+    setSelectedRestaurant,
     handBackCamera,
     flyToSpot,
     getFlyPadding,
@@ -1094,7 +971,7 @@ export default function MapSection({
     if (!restaurant) return;
     setSelectedMustEat(null);
     handleRestaurantClick(restaurant);
-  }, [selectedMustEat, restaurants, handleRestaurantClick]);
+  }, [selectedMustEat, setSelectedMustEat, restaurants, handleRestaurantClick]);
 
   const handleMustEatClose = useCallback(() => {
     const m = selectedMustEat;
@@ -1116,7 +993,16 @@ export default function MapSection({
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
     if (m) flyToSpot(m.restaurant, { duration: 350, padding: getFlyPadding(nextSnap) });
-  }, [selectedMustEat, selectedRestaurant, flyToSpot, getFlyPadding, setSheetView, snap, setSnap]);
+  }, [
+    selectedMustEat,
+    setSelectedMustEat,
+    selectedRestaurant,
+    flyToSpot,
+    getFlyPadding,
+    setSheetView,
+    snap,
+    setSnap,
+  ]);
 
   // Point the sheet's swipe-down-dismiss at the right close handler for
   // whichever detail is open (must-eat stacked on a restaurant, or plain).
@@ -1127,57 +1013,10 @@ export default function MapSection({
     };
   }, [selectedMustEat, handleMustEatClose, handleRestaurantClose]);
 
-  /* The other half of the pushed detail entry: a back gesture / back button
-     lands on the list URL, and the open detail has to follow it shut. Clearing
-     detailEntryPushedRef first is what stops the URL-sync effect from calling
-     history.back() a second time on the state change we're reacting to.
-     Going forward again re-opens the spot the URL names — useMapDeepLinks
-     only fires once per session, so it can't do this for us. */
-  const popStateHandlersRef = useRef({ restaurants, mustEats });
-  popStateHandlersRef.current = { restaurants, mustEats };
-  const openFromUrlRef = useRef<(slug: string | null, mustEatId: string | null) => void>(() => {});
-  openFromUrlRef.current = (slug, mustEatId) => {
-    const { restaurants: rows, mustEats: mes } = popStateHandlersRef.current;
-    if (mustEatId) {
-      const target = mes.find((m) => m._id === mustEatId);
-      if (target) handleMustEatClick(target);
-      return;
-    }
-    if (!slug) return;
-    const target = rows.find((r) => r.slug === slug);
-    if (target) handleRestaurantClick(target);
+  detailOpenersRef.current = {
+    restaurant: (r) => handleRestaurantClick(r),
+    mustEat: handleMustEatClick,
   };
-
-  useEffect(() => {
-    if (!isActive || typeof window === 'undefined') return;
-    const onPopState = () => {
-      const params = new URLSearchParams(window.location.search);
-      const slug = params.get('r');
-      const mustEatId = params.get('me');
-      const detailOpen = sheetViewRef.current === 'detail';
-      if (!slug && !mustEatId) {
-        if (!detailOpen) {
-          /* Tail end of a close we already ran: the list is on screen and this
-             is the detail entry being popped behind it. ScrollRestorer
-             (app/components/ScrollRestorer.tsx) restores the popped-to entry's
-             saved position inside this same dispatch — the map stop, for a spot
-             opened from a marker. rAF puts the trip to the list after it. */
-          if (listAnchorPendingRef.current) {
-            listAnchorPendingRef.current = false;
-            requestAnimationFrame(() => scrollListToAnchor('mid'));
-          }
-          return;
-        }
-        detailEntryPushedRef.current = false;
-        dismissDetailRef.current();
-        return;
-      }
-      if (detailOpen) return;
-      openFromUrlRef.current(slug, mustEatId);
-    };
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, [isActive, scrollListToAnchor]);
 
   /* The camera came to rest. Decide whether the list re-anchors to where the
      map now looks — a user gesture always does, a flight only once the list
@@ -1260,7 +1099,16 @@ export default function MapSection({
       const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
       if (nextSnap !== snap) setSnap(nextSnap);
     },
-    [setSearch, sheetView, setSheetView, snap, setSnap]
+    [
+      setSearch,
+      sheetView,
+      setSheetView,
+      snap,
+      setSnap,
+      detailClosedBySearchRef,
+      setSelectedMustEat,
+      setSelectedRestaurant,
+    ]
   );
 
   const handleSearchOpen = useCallback(() => {
@@ -1342,7 +1190,7 @@ export default function MapSection({
       return true;
     }
     return false;
-  }, [selectedMustEat, uid, unlock, mergeMustEat]);
+  }, [selectedMustEat, setSelectedMustEat, uid, unlock, mergeMustEat]);
 
   /* Follow the visitor while a COVERED card is open. The 50 m gate compares
      against `location`, and `location` was one fix, taken when the map came

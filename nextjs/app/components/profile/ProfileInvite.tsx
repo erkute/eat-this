@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import ShareButton from '../ShareButton';
 import { useReferralCount } from '@/lib/firebase/useReferralCount';
 import { SITE_URL } from '@/lib/constants';
+import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import styles from './Profile.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
@@ -60,7 +61,15 @@ export default function ProfileInvite({ uid, cards }: Props) {
       <span className={styles.inviteFan} aria-hidden="true">
         {fan.map((src, i) => (
           // eslint-disable-next-line @next/next/no-img-element
-          <img key={`${src}-${i}`} src={src} alt="" loading="lazy" decoding="async" />
+          <img
+            key={`${src}-${i}`}
+            src={mustEatCardSrc(src, 180)}
+            srcSet={mustEatCardSrcSet(src)}
+            sizes="68px"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
         ))}
       </span>
       <div className={styles.inviteCopy}>

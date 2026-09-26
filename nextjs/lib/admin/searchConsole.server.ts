@@ -18,7 +18,7 @@ import { summarizeSearch, type ApiRow, type SearchResult } from '@/lib/admin/sea
  * 03.09.2026); die Zahlen hinken dem Tag um zwei bis drei Tage nach.
  */
 
-export const SEARCH_CONSOLE_PROPERTY = 'sc-domain:eatthisdot.com';
+const SEARCH_CONSOLE_PROPERTY = 'sc-domain:eatthisdot.com';
 const SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly';
 const ENDPOINT = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(
   SEARCH_CONSOLE_PROPERTY

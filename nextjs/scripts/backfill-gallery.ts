@@ -1,20 +1,21 @@
 /**
  * Backfills the `gallery` field for existing restaurants from Google Places
- * photos, curated via Haiku vision scoring (see scripts/lib/photo-curation).
+ * photos — only the restaurant's own uploads (isOwnerPhoto in
+ * scripts/lib/photo-curation), at most three.
  *
  * Run from `nextjs/`:
- *   npx tsx scripts/backfill-gallery.ts --dry-run            # count Google candidates only, no curation, no writes
+ *   npx tsx scripts/backfill-gallery.ts --dry-run            # count Google candidates only, no uploads, no writes
  *   npx tsx scripts/backfill-gallery.ts --limit 5            # first 5 restaurants only
  *   npx tsx scripts/backfill-gallery.ts --slug cafe-a --slug cafe-b
  *   npx tsx scripts/backfill-gallery.ts                      # full run (fills gaps only)
- *   npx tsx scripts/backfill-gallery.ts --force             # re-curate ALL, overwriting existing galleries
+ *   npx tsx scripts/backfill-gallery.ts --force             # re-import ALL, overwriting existing galleries
  *
  * Without --force, restaurants with a non-empty gallery are skipped. Costs per
- * restaurant: 1 Place-Details call + up to 9 preview photo calls + up to 4
- * full-size photo calls (~7 USD / 1000 photo calls) + <1 ct Haiku.
+ * restaurant: 1 Place-Details call + up to 3 full-size photo calls
+ * (~7 USD / 1000 photo calls).
  *
  * Required env (nextjs/.env.local):
- *   SANITY_API_WRITE_TOKEN, GOOGLE_API_KEY, ANTHROPIC_API_KEY
+ *   SANITY_API_WRITE_TOKEN, GOOGLE_API_KEY
  *
  * katalog-ausnahme: Bestandspflege, nicht Empfehlung. Die Galerie hängt an der
  * Detailseite, die ein geschlossener Spot behält (noindex,follow) — und ein Lauf
@@ -24,7 +25,6 @@ import { config as loadEnv } from 'dotenv';
 import { createClient } from '@sanity/client';
 import { randomUUID } from 'node:crypto';
 import { importGalleryPhotos } from './import-from-url';
-import { HaikuUnavailableError } from './lib/photo-curation';
 import { filterBySlugs } from './lib/content-backlog';
 
 loadEnv({ path: '.env.local' });
@@ -114,7 +114,6 @@ async function main() {
 
   let attempted = 0;
   let written = 0;
-  let under4 = 0;
   for (const target of targets) {
     if (attempted >= limit) break;
     attempted++;
@@ -126,19 +125,19 @@ async function main() {
       if (!place) continue;
 
       if (dryRun) {
-        // Candidate count only — curation (Haiku) and uploads are the
-        // expensive part and stay off in dry-run.
+        // Candidate count only — the photo uploads are the expensive part
+        // and stay off in dry-run.
         const count = place.photos?.length ?? 0;
         console.log(
-          `  candidates: ${Math.max(0, count - 1)} (photos minus hero) — would curate & upload`
+          `  candidates: ${Math.max(0, count - 1)} (photos minus hero) — would upload owner photos`
         );
         continue;
       }
 
       const assets = await importGalleryPhotos(place, target.slug, target.name);
       if (!assets.length) {
-        // Re-curation can legitimately empty a gallery (e.g. a place with only
-        // menu/exterior photos under the new rules) — clear the stale one.
+        // Re-importing can legitimately empty a gallery (a place with no owner
+        // photos left) — clear the stale one.
         if (force) {
           await sanity.patch(target._id).unset(['gallery']).commit();
           console.log('  gallery:  nothing usable — cleared');
@@ -157,20 +156,9 @@ async function main() {
       }));
       await sanity.patch(target._id).set({ gallery: items }).commit();
       written++;
-      if (items.length < 4) under4++;
-      console.log(
-        `  gallery:  ${items.length} photos written${items.length < 4 ? ' (under 4 — few food/interior photos)' : ''}`
-      );
+      console.log(`  gallery:  ${items.length} photos written`);
       await sleep(500); // be polite to both APIs
     } catch (err) {
-      if (err instanceof HaikuUnavailableError) {
-        console.error(`\n⛔ Anthropic API unavailable (credits/billing): ${err.message}`);
-        console.error(
-          `Aborted at "${target.name}" — no fallback gallery written. Top up credits, then resume:`
-        );
-        console.error(`   npx tsx scripts/backfill-gallery.ts --force --from "${target.name}"`);
-        break;
-      }
       console.error(
         `  ✗ ${target.name} (${target._id}):`,
         err instanceof Error ? err.message : err
@@ -178,7 +166,7 @@ async function main() {
     }
   }
   console.log(
-    `\nDone: ${attempted} attempted, ${written} galleries written (${under4} with fewer than 4), ${attempted - written} skipped.`
+    `\nDone: ${attempted} attempted, ${written} galleries written, ${attempted - written} skipped.`
   );
 }
 

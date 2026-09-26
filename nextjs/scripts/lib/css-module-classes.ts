@@ -34,7 +34,7 @@ const IGNORED_SUFFIXES = ['.test.ts', '.test.tsx', '.d.ts'];
 
 const IGNORED_DIRECTORIES = new Set(['node_modules', '.git', '.next', '.next-verify', 'public']);
 
-export function sourceFiles(directory: string): string[] {
+function sourceFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = resolve(directory, entry.name);
     if (entry.isDirectory()) return IGNORED_DIRECTORIES.has(entry.name) ? [] : sourceFiles(path);
@@ -190,7 +190,7 @@ export function stripComments(source: string): string {
 }
 
 /** Prüft eine einzelne Quelldatei gegen die Stylesheets, die sie importiert. */
-export function auditSource(sourcePath: string, rootDir: string): Finding[] {
+function auditSource(sourcePath: string, rootDir: string): Finding[] {
   const raw = readFileSync(sourcePath, 'utf8');
   if (!raw.includes('.module.css')) return [];
   const source = stripComments(raw);

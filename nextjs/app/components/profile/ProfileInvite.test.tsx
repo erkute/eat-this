@@ -37,12 +37,16 @@ describe('ProfileInvite', () => {
 
     cleanup();
     state.joined = 0;
-    expect(render(<ProfileInvite uid={UID} cards={[]} />).container.textContent).not.toContain('inviteJoined');
+    expect(render(<ProfileInvite uid={UID} cards={[]} />).container.textContent).not.toContain(
+      'inviteJoined'
+    );
   });
 
   it('names the count once there is one', () => {
     state.joined = 1;
-    expect(render(<ProfileInvite uid={UID} cards={[]} />).container.textContent).toContain('inviteJoinedOne');
+    expect(render(<ProfileInvite uid={UID} cards={[]} />).container.textContent).toContain(
+      'inviteJoinedOne'
+    );
 
     cleanup();
     state.joined = 4;
@@ -82,8 +86,8 @@ describe('ProfileInvite', () => {
 
     const srcs = [...container.querySelectorAll('img')].map((i) => i.getAttribute('src'));
     expect(srcs).toEqual([
-      '/api/must-eat-image/m1',
-      '/api/must-eat-image/m2',
+      '/api/must-eat-image/m1?w=180&auto=format&q=80',
+      '/api/must-eat-image/m2?w=180&auto=format&q=80',
       '/pics/card-back.webp?v=7',
     ]);
   });

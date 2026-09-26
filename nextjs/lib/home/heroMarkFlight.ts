@@ -23,7 +23,7 @@ export interface FlightGeo {
 /* Sanft an beiden Enden. easeOutCubic war zu kopflastig: bei halbem Scrollweg
    stand die Marke schon zu 87 % oben und der Rest der Strecke passierte
    sichtbar nichts mehr. */
-export function ease(t: number): number {
+function ease(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 

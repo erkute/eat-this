@@ -12,8 +12,6 @@ import { EMAIL_SPOTS, SPOT_DISPLAY_WIDTH, type EmailSpot } from './spots.generat
 import { COLOR, LAYOUT, EMAIL_ASSET_VERSION } from './theme';
 import type { MailLocale } from './locale';
 
-export type { EmailSpot };
-
 export interface SignupEmailProps {
   /** The Firebase sign-in link the recipient clicks to authenticate. */
   magicLink: string;

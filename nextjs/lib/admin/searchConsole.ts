@@ -30,7 +30,7 @@ export interface SearchTotals {
   position: number;
 }
 
-export interface SearchDay {
+interface SearchDay {
   day: string;
   clicks: number;
   impressions: number;
@@ -126,7 +126,7 @@ function num(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : 0;
 }
 
-export function toRow(row: ApiRow, keyIndex = 0): SearchRow {
+function toRow(row: ApiRow, keyIndex = 0): SearchRow {
   return {
     key: row.keys?.[keyIndex] ?? '',
     clicks: num(row.clicks),

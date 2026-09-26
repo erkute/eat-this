@@ -111,7 +111,7 @@
   font-style: normal;
   font-weight: 400;
 }
-/* Design tokens — keep in sync with ../css/style.css */
+/* Design tokens */
 :root {
   /* Tatsächliche Höhe der fixierten SiteNav — einzige Quelle für die Navbar
      selbst UND für den Abstand, den die Seiten darunter freihalten.
@@ -123,22 +123,16 @@
   --black: #15120e;
   --white: #fff;
   --gray-100: #15120e;
-  --gray-400: #15120e;
-  --gray-600: #15120e;
 
-  /* Eat This print palette: 6 colors from the theater-program reference. */
+  /* Eat This print palette, from the theater-program reference. */
   --et-poster-red: #d9382a;
   --et-print-black: #15120e;
   --et-program-paper: #fff;
-  --et-ticket-grey: #15120e;
   --et-offset-grey: #15120e;
-  --et-pressed-red: #15120e;
 
   /* Legacy aliases. Keep names stable while the visual system pivots from
      yellow/cream to red/black/program-paper. */
   --et-red: var(--et-poster-red);
-  --et-red-hot: var(--et-poster-red);
-  --et-red-deep: var(--et-pressed-red);
   --et-yellow: var(--et-program-paper);
   --et-cream: var(--et-program-paper);
   --et-black: var(--et-print-black);
@@ -147,8 +141,6 @@
      semantic/component names below. Existing --et/--surface/--font tokens stay
      as compatibility aliases while the CSS modules migrate gradually. */
   --et-raw-red: var(--et-red);
-  --et-raw-red-hot: var(--et-red-hot);
-  --et-raw-red-deep: var(--et-red-deep);
   --et-raw-cream: var(--et-cream);
   --et-raw-ink: var(--et-black);
 
@@ -159,11 +151,8 @@
      Ink = contrast, structure, and trust. */
   --brand-stage: var(--et-raw-cream);
   --brand-action: var(--et-raw-red);
-  --brand-action-hot: var(--et-raw-red-hot);
-  --brand-action-deep: var(--et-raw-red-deep);
   --brand-paper: var(--et-raw-cream);
   --brand-ink: var(--et-raw-ink);
-  --brand-rule: var(--et-ticket-grey);
   --brand-muted: var(--et-offset-grey);
 
   /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
@@ -178,33 +167,18 @@
      einfachen Rollback. */
 
   --c-coral: var(--brand-action);
-  --brand-red: var(--brand-action);
-  --brand-red-hover: var(--brand-action-deep);
-  --collage-red: var(--brand-action-hot);
   --collage-paper: var(--brand-stage);
-  --collage-shadow: none;
 
+  /* Inter ist die Brot-und-Butter-Schrift für Fließtext und Eyebrows — sie
+     hat DM Sans am 27.08.2026 abgelöst: höhere x-Höhe, engere Laufweite. */
   --font: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-providence:
     'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
     sans-serif;
   --font-chewy:
     'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
-  /* 2026 EAT THIS-direction: ALL display + section-headline tokens collapsed
-     onto Moonblossom sitewide as the brand display family. Section
-     heads read as a continuation of the brand wordmark, not as a separate
-     display type. Moonblossom and FF Providence Sans Pro are served through the Adobe Fonts web
-     project; Saira Condensed is loaded via next/font for the map. The legacy
-     display families (Bungee/Ranchers/Knewave/Slackey/
-     Archivo Black) were removed — their var names resolve via the html:root
-     remap below. Inter ist die Brot-und-Butter-Schrift für Fließtext und
-     Eyebrows — sie hat DM Sans am 27.08.2026 abgelöst: dieselbe Rolle, aber
-     eine höhere x-Höhe und engere Laufweite, also ruhiger im Absatz. */
-  --font-display: var(--font-chewy, 'moonblossom'), sans-serif;
-  --font-poster: var(--font-chewy, 'moonblossom'), sans-serif;
-  --font-ranchers: var(--font-chewy, 'moonblossom'), sans-serif;
   --font-body: var(--font);
-  --font-label: var(--font-poster, var(--font-display));
+  --font-label: var(--font-chewy, 'moonblossom'), sans-serif;
 
   /* Home-derived design contract. Home remains the visual source of truth:
      white paper, almost-black ink, yellow accent, flat surfaces, Providence
@@ -213,6 +187,10 @@
   --et-home-ink: #15120e;
   --et-home-accent: #ffc600;
   --et-home-red: #d9382a;
+  /* Das gefüllte Herz, überall dasselbe: Spot-Seite, Karten-Detail,
+     Anmelde-Layer (Betreiber, 26.09.2026). Eigenes Token, weil es vom
+     Marken-Rot abweicht und an drei Modulen hängt. */
+  --et-heart: #ef3108;
   /* Grund unter jedem Foto auf der Startseite (`.hv-photo`). Früher Hellgrau
      vom weißen Papier; auf der Ink-Tafel blitzte es als weiße Fläche, bis ein
      Foto geladen war, und als Haarlinie an der Unterkante jedes Teller-Bilds —
@@ -220,10 +198,7 @@
      24.09.2026). Dunkel fällt beides weg. */
   --et-home-photo-rest: var(--et-ink-raised);
   --et-home-quiet: #f2f1ef;
-  --et-home-rule: #e4e1dc;
   --et-home-muted: rgba(21, 18, 14, 0.64);
-  --et-home-muted-soft: rgba(21, 18, 14, 0.55);
-  --et-home-line: rgba(21, 18, 14, 0.2);
   --et-home-inverse-text: #fff;
   --et-home-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
   --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
@@ -259,8 +234,6 @@
 
   /* Gemessen gegen Eater (40), Mit Vergnügen (40) und The Infatuation (64)
      auf 1280px. 80 lag über allen dreien. */
-  --et-type-hero: clamp(40px, 4.8vw, 62px);
-  --et-type-hero-compact: clamp(42px, 6vw, 68px);
   --et-type-section-title: clamp(24px, 3.4vw, 42px);
   --et-type-kicker: 10px;
   /* 12–14px war unter dem Band der Wettbewerber (15–18). */
@@ -280,14 +253,12 @@
   --et-tracking-label: 0.16em;
   --et-tracking-meta: 0.1em;
 
-  --et-page-top: clamp(40px, 5vw, 72px);
   --et-wrap-max: 1360px;
   --et-wrap-pad: clamp(24px, 4vw, 56px);
   --et-wrap-pad-mobile: 16px;
   --et-section-gap: clamp(72px, 8vw, 128px);
   --et-section-gap-mobile: 64px;
   --et-head-gap: clamp(16px, 2vw, 28px);
-  --et-grid-gap: clamp(24px, 4vw, 56px);
   --et-rail-gap: 14px;
   --et-control-gap: 8px;
 
@@ -311,7 +282,6 @@
   --et-radius-photo: 10px;
   --et-radius-control: 7px;
   --et-radius-pill: 999px;
-  --et-shadow-none: none;
   --et-shadow-text-photo: var(--et-home-photo-text-shadow);
   --et-motion-fast: 140ms ease;
   --et-motion-base: 160ms ease;
@@ -319,7 +289,6 @@
   --et-hover-lift-sm: translateY(-2px);
 
   --et-img-photo-fit: cover;
-  --et-img-restaurant-ratio: 4 / 3;
 
   /* ── Editorial "menu" design system (home + login) ──
      Bold orange + cool-white panels on a near-black page, condensed Chauncy
@@ -340,12 +309,7 @@
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* Semantic surface/text tokens — used by the map UI and newer React components. */
-  --surface-card: var(--white);
-  --surface-overlay: rgba(255, 255, 255, 0.95);
   --border-subtle: var(--gray-100);
-  --text-primary: var(--black);
-  --text-secondary: var(--gray-600);
-  --text-muted: var(--gray-400);
 
   /* Landing-page-spezifische Fläche: wärmeres Papier statt der kühlen
      Grundfläche. 9 von 12 Sektionen sitzen auf --surface-canvas, zwei
@@ -353,15 +317,6 @@
   --surface-canvas: var(--brand-stage);
 
   /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
-}
-/* The Ranchers/Bungee/Knewave/Slackey/Archivo Black font files are no longer
-   loaded via next/font — these definitions are what keeps components that
-   reference the variable names directly (e.g. the Hub headlines use
-   var(--font-ranchers)) resolving to Moonblossom. Kept at html:root (specificity
-   0,1,1) from the era when next/font's hashed <html> class competed with a
-   plain :root re-point; harmless now and still wins any future collision. */
-html:root {
-  --font-ranchers: var(--font-chewy, 'moonblossom'), sans-serif;
 }
 *,
 *::before,
@@ -387,9 +342,9 @@ html:root {
 }
 /* A11y: a visible keyboard focus ring everywhere (WCAG 2.4.7). :focus-visible
    only fires for keyboard / non-pointer focus, so mouse clicks stay ring-free.
-   Profile/login don't load style.css, so this generic rule must live here too;
-   style.css re-asserts it (and adds input-specific overrides) for SPA pages
-   whose `outline:none` resets would otherwise win the cascade. */
+   /checkout and /admin don't load style.css, so the rule must live here too;
+   style.css re-asserts it for pages whose `outline:none` resets would
+   otherwise win the cascade. */
 :focus-visible {
   outline: 2px solid var(--c-coral, #ef3528);
   outline-offset: 2px;
@@ -432,16 +387,12 @@ html[data-active-page='start'] body {
   --food-tomato: var(--et-poster-red);
 
   --et-red: var(--food-tomato);
-  --et-red-hot: var(--food-tomato);
-  --et-red-deep: var(--food-ink);
   --et-yellow: var(--food-cream);
   --et-cream: var(--food-paper);
   --et-black: var(--food-ink);
   --surface-canvas: var(--food-paper);
   --c-coral: var(--food-tomato);
-  --brand-red: var(--food-tomato);
   --collage-paper: var(--food-paper);
-  --collage-shadow: none;
   background-image: none;
   background-color: var(--food-paper);
   color-scheme: light;

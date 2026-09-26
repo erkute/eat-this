@@ -1,7 +1,7 @@
 export const METADATA_TITLE_MAX = 60;
 export const METADATA_DESCRIPTION_MAX = 155;
-export const METADATA_BRAND_SUFFIX = ' | EAT THIS';
-export const METADATA_TITLE_TEXT_MAX = METADATA_TITLE_MAX - METADATA_BRAND_SUFFIX.length;
+const METADATA_BRAND_SUFFIX = ' | EAT THIS';
+const METADATA_TITLE_TEXT_MAX = METADATA_TITLE_MAX - METADATA_BRAND_SUFFIX.length;
 
 const TRAILING_BRAND = /\s*(?:\||[·—–-])\s*eat this(?: berlin)?$/i;
 

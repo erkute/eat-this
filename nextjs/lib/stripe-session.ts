@@ -4,7 +4,7 @@ import { getPack, type PackDef } from './stripe-catalog';
 import { resolvePriceId } from './stripe-price';
 
 export type CheckoutMode = 'auth' | 'guest';
-export type CheckoutLocale = 'de' | 'en';
+type CheckoutLocale = 'de' | 'en';
 
 export interface VerifiedCheckoutSession {
   session: Stripe.Checkout.Session;

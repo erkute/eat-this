@@ -6,7 +6,6 @@
   --news-ink: var(--et-home-ink, #15120e);
   --news-fg: var(--et-home-inverse-text, #fff);
   --news-soft: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  --news-red: var(--et-home-red, #d9382a);
   --news-yellow: var(--et-home-accent, #ffc600);
   --news-muted: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
   --news-copy: var(--et-ink-soft, rgba(255, 255, 255, 0.76));

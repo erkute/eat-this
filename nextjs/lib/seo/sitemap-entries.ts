@@ -7,7 +7,7 @@ import { GONE_SLUGS } from '@/lib/seo/legacyRedirects';
 import { SANITY_REVALIDATE_SECONDS, TEMPLATE_REVISED } from '@/lib/constants';
 import { liveRestaurant } from '@/lib/sanity-filters';
 
-export type ChangeFrequency = 'daily' | 'weekly' | 'monthly';
+type ChangeFrequency = 'daily' | 'weekly' | 'monthly';
 
 /** One `<url>` block. Narrower than Next's `MetadataRoute.Sitemap`: every
  *  entry here carries a `lastModified`, and it is always an ISO string —

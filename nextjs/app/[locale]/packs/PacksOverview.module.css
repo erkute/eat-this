@@ -8,12 +8,10 @@
    ist das eine Objekt der Seite und traegt die leise Stufe (AllBerlinBoard). */
 
 .page {
-  --packs-paper: var(--et-home-paper, #fff);
   --packs-ink: var(--et-home-ink, #15120e);
   --packs-fg: var(--et-home-inverse-text, #fff);
   --packs-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   --packs-accent: var(--et-home-accent, #ffc600);
-  --packs-red: var(--et-home-red, #d9382a);
   --packs-rule: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   min-height: 100%;
   overflow-x: clip;

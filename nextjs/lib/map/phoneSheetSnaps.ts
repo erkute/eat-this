@@ -11,11 +11,8 @@
  *           must never become a full-viewport compositor — that is what broke
  *           Safari's URL-bar backdrop (bisected on-device 2026-07-06).
  */
-export type PhoneSnap = 'map' | 'split' | 'sheet';
 
-export const PHONE_SNAPS: PhoneSnap[] = ['map', 'split', 'sheet'];
-
-/* Map left uncovered at each stop, in dvh. Index matches PHONE_SNAPS. */
+/* Map left uncovered at each stop, in dvh. Index order: map, split, sheet. */
 const LIST_MAP_DVH = [72, 50, 0];
 const DETAIL_MAP_DVH = [50, 27, 0];
 
@@ -204,7 +201,7 @@ export function rowRevealOffset(
    it", but it reads as the list having lost your place (user, 03.09.2026). */
 export const ROW_RETURN_MAX_TOP_RATIO = 0.62;
 /* Where a row lands when nothing is remembered: a little above the middle. */
-export const ROW_REVEAL_TOP_RATIO = 0.38;
+const ROW_REVEAL_TOP_RATIO = 0.38;
 
 /**
  * How far from the top of the viewport (or the panel's port) the returning row

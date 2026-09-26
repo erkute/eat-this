@@ -11,12 +11,7 @@
 export { buildPeekMustEatMap, resolvePeek } from './mustEatPeek';
 export type { Peek } from './mustEatPeek';
 export { resolveUnlockedMustEatIds } from './unlockedMustEats';
-export {
-  haversineDistance,
-  formatDistance,
-  formatLocalizedDistance,
-  formatWalkingTime,
-} from './distance';
+export { haversineDistance, formatWalkingTime } from './distance';
 export { formatOpenStateChip, getOpenStatus } from './openingHours';
 export { abbreviateBezirk } from './abbreviateBezirk';
 
@@ -41,6 +36,6 @@ export type { SheetView } from './useMapSheet';
 export { useMapDeepLinks } from './useMapDeepLinks';
 
 // Entitlement tier (drives anon/starter/all-Berlin promotion surfaces)
-export { useUserTier, resolveUserTier, showsPackPromos } from './useUserTier';
-export type { UserTier, MapSurface } from './useUserTier';
+export { useUserTier, showsPackPromos } from './useUserTier';
+export type { UserTier } from './useUserTier';
 export { freshestMustEat } from './freshestMustEat';

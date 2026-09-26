@@ -2,7 +2,7 @@
 // Die Maße stammen aus den fertig zugeschnittenen PNGs, damit die Templates
 // nie eine Breite hardcoden, die bei neuem Text auseinanderläuft.
 
-/** False, solange die echte Markenschrift fehlt und Schoolbell einspringt. */
+/** False, solange die echte Markenschrift fehlt und Schoolbell einspringt. @public */
 export const BRAND_FACE_AVAILABLE = true;
 
 export interface ArtAsset {

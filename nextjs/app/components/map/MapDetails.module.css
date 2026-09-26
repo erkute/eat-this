@@ -73,11 +73,8 @@
    v13 Restaurant-Detail — MULTI editorial layout
    Utility bar / coral hero / photo strip / info strip /
    tabs / story+tipp panels / must-eats / pack-promo / actions.
-   Self-contained color tokens so the rest of the map UI is
-   unaffected.
    ========================================================== */
 .detailV13 {
-  --d-text-3: rgba(28, 37, 32, 0.48);
   font-family: var(--font);
   display: flex;
   flex-direction: column;
@@ -494,9 +491,7 @@
   width: 16px;
   height: 16px;
 }
-/* filled coral when hearted */
 .rdHeartToggleCount {
-  font-family: var(--f-display);
   font-size: 15px;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -795,7 +790,7 @@
 }
 .rdHeartToggle svg,
 .rdHeartToggleOn svg {
-  color: #ef3108;
+  color: var(--et-heart);
 }
 .rdHeartToggleCount {
   color: #14100c;
@@ -815,7 +810,7 @@
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.42)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.28));
 }
 .rdHero .rdHeartToggleOn svg {
-  fill: #ef3108;
+  fill: var(--et-heart);
   stroke: #fff8ea;
   transform: none;
 }
@@ -827,18 +822,6 @@
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   text-shadow: none;
-}
-.detailV13,
-.detailV13Scroll {
-  --d-bg: var(--brand-paper);
-  --d-ink: var(--brand-ink);
-  --d-text: var(--brand-ink);
-  --d-text-2: var(--brand-muted);
-  --d-text-3: color-mix(in srgb, var(--brand-muted) 72%, transparent);
-  --d-rule: var(--brand-rule);
-  --d-hero-bg: var(--brand-action);
-  --d-hero-text: var(--brand-paper);
-  --d-hero-accent: var(--brand-paper);
 }
 .btnPackPromo {
   background: var(--brand-paper);
@@ -1968,9 +1951,6 @@
   overflow-y: auto;
 }
 .detailV13MustEat .fdCardStack {
-  --fd-stack-pad-x: 22px;
-  --fd-stack-pad-y: 16px;
-  --fd-stack-offset: 12px;
   margin-inline: auto;
 }
 .detailV13MustEat .fdTopCard {

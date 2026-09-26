@@ -76,7 +76,7 @@ export function localizeOpeningDays(days: string | undefined, locale: string): s
  * A slot that names a rest day rather than a time range. Editors type this in
  * either language, hence the three spellings.
  */
-export function isClosedSlot(hours: string | undefined): boolean {
+function isClosedSlot(hours: string | undefined): boolean {
   return /closed|ruhetag|geschlossen/i.test(hours ?? '');
 }
 

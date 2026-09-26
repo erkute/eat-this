@@ -109,7 +109,7 @@ export function buildCategoryDescription({
  * ein Lokaltyp steht allein („die besten Cafés“). Ohne die Unterscheidung
  * kommt „Wo gibt es Café in Berlin“ heraus.
  */
-export type CategoryTermKind = 'meal' | 'venue';
+type CategoryTermKind = 'meal' | 'venue';
 
 export interface CategorySearchTerm {
   term: string;

@@ -7,7 +7,6 @@
   --mag-ink: var(--et-home-ink, #15120e);
   --mag-paper: var(--et-home-inverse-text, #fff);
   --mag-accent: var(--et-home-accent, #ffc600);
-  --mag-soft: rgba(255, 255, 255, 0.76);
 
   padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
   background: var(--et-board-bg, var(--mag-ink));

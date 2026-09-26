@@ -434,9 +434,9 @@
 }
 
 /* ══ Picker ═══════════════════════════════════════════════════════════════════
-   Die Auswahl-Liste hinter jedem Chip. Mobile ein eingerücktes Bottom-Sheet,
-   Desktop ein am Chip verankertes Popover — dieselbe Komponente, die Aufteilung
-   macht die Media Query.
+   Die Auswahl-Liste hinter jedem Chip. Unter 1024px ein Bottom-Sheet, ab
+   1024px klappt sie in der Kopfzeile auf (`.pickerSheetInline`) — dieselbe
+   Komponente, den Modus wählt MapListHeader per matchMedia.
 
    Diese Sektion ist bewusst konfliktfrei geschrieben: ein Block pro Element und
    Zustand, Zustände über sich ausschließende Selektoren getrennt. Vorher lag
@@ -463,20 +463,11 @@
   }
 }
 
-@keyframes pickerPopoverIn {
-  from {
-    transform: translateY(-6px);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
 /* Gerade genug, um den Rest des Bildschirms als inaktiv zu markieren, nicht
    genug, um wie eine Milchglasscheibe über der Karte zu wirken. 8 % war
    unsichtbar, 42 % (29.07.2026 probiert) sah aus, als hätte jemand die Karte
-   vernebelt. Desktop bleibt transparent — das Popover hängt am Chip, da braucht
-   es keine Abdunklung. */
+   vernebelt. Nur das Bottom-Sheet hat einen Backdrop; aufgeklappt gibt es
+   keinen. */
 .pickerBackdrop {
   position: fixed;
   inset: 0;
@@ -510,19 +501,6 @@
   border-radius: var(--et-radius-control, 7px);
   box-shadow: var(--et-ink-shadow, 0 18px 38px rgba(0, 0, 0, 0.45));
   animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
-}
-
-/* Das Dreieck, das das Popover am Chip festmacht. Mobile abgeschaltet — dort
-   ist es kein Popover, sondern ein Sheet. */
-.pickerSheet::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: clamp(22px, var(--picker-caret-left, 28px), calc(100% - 34px));
-  width: 14px;
-  height: 14px;
-  background: var(--et-ink-raised, #25231f);
-  transform: rotate(45deg);
 }
 
 .pickerHead {
@@ -814,10 +792,6 @@
     border-radius: 10px 10px 0 0;
   }
 
-  .pickerSheet::before {
-    content: none;
-  }
-
   /* Zwei Spalten, wie im aufgeklappten Panel und aus demselben Grund: die elf
      Bezirke plus "Alle" brauchten einspaltig 591px in einer 470px hohen Liste,
      drei Zeilen standen also unter der Kante (User, 29.08.2026). Zweispaltig
@@ -835,51 +809,10 @@
   }
 }
 
-/* ── Desktop: am Chip verankertes Popover ──────────────────────────────────── */
-@media (min-width: 1024px) {
-  .pickerBackdrop {
-    background: transparent;
-    animation: none;
-  }
-
-  .pickerSheet {
-    left: var(--picker-anchor-left, 0);
-    top: var(--picker-anchor-top, 0);
-    right: auto;
-    bottom: auto;
-    /* Breiter als die 520px von vorher, damit drei Spalten hineinpassen —
-       siehe .pickerList unten. */
-    width: min(600px, calc(100vw - 24px));
-    /* JS setzt --picker-anchor-top aus dem Rect des Chips. */
-    max-height: calc(100vh - var(--picker-anchor-top, 80px) - 16px);
-    animation: pickerPopoverIn 0.18s ease-out;
-  }
-
-  /* Der Deckel des Sheets oben ist die echte Grenze; die Liste nimmt sich, was
-     davon übrig ist, und scrollt darüber hinaus. Vorher stand hier
-     `max-height: none` MIT `overflow: visible`, und das Sheet kappt auch nicht —
-     die Zeilen liefen also schlicht über die Panel-Kante hinaus. Bei 722px
-     Fensterhöhe rendeten die letzten fünf Küchen rund 200px unter dem Fold: nicht
-     scrollbar, nicht abgeschnitten, einfach weg. */
-  /* Drei Spalten statt zwei: mit 28 Küchen füllten zwei Spalten 14 Zeilen und
-     damit 689px — auf einem 800px-Fenster blieben 667px für die Liste, also
-     scrollte sie um 22px. Ein Filter, den man scrollen muss, um seine letzte
-     Zeile zu sehen, ist auf dem Desktop keiner (User, 2026-08-24). Drei
-     Spalten sind zehn Zeilen, rund 500px — das passt auch auf kurze Fenster.
-     `overflow-y: auto` bleibt als Ventil für den Fall, dass die Küchenliste
-     doch einmal über das Fenster hinauswächst. */
-  .pickerList {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    max-height: none;
-    overflow-y: auto;
-  }
-}
-
 /* ── Aufgeklappt statt schwebend ────────────────────────────────────────────
    Die Auswahl steht in der Leiste und schiebt die Ergebnisse nach unten
-   (User, 2026-08-27), statt als Popover darüber zu hängen. Alles, was das
-   Popover ausmacht, fällt weg: feste Position samt Ankerrechnung, Schatten,
-   Dreieck, Einflug.
+   (User, 2026-08-27), statt darüber zu schweben. Alles, was das Bottom-Sheet
+   ausmacht, fällt weg: feste Position, Fläche, Schatten, Einflug.
 
    Bewusst OHNE Media Query, obwohl nur der Desktop so aufklappt: über den
    Modus entscheidet `matchMedia` in MapListHeader, und wenn die Styles an
@@ -888,8 +821,8 @@
    `role="group"` im Bottom-Sheet-Layout ohne Backdrop. Die Klasse kommt jetzt
    nur, wenn der Modus gilt, und bringt ihr Aussehen selbst mit.
 
-   Steht am Ende der Sektion, also nach `.pickerSheet` und seiner
-   Desktop-Fassung: gleiche Spezifität, die Reihenfolge entscheidet. */
+   Steht am Ende der Sektion, also nach `.pickerSheet`: gleiche Spezifität,
+   die Reihenfolge entscheidet. */
 .pickerSheetInline {
   position: static;
   width: auto;
@@ -912,20 +845,16 @@
   animation: none;
 }
 
-/* Titelzeile bündig zu den Knöpfen darunter — das 8px-Polster stammte vom
-   Popover, das eine eigene Fläche hat. */
+/* Titelzeile bündig zu den Knöpfen darunter — das 8px-Polster gehört dem
+   Bottom-Sheet, das eine eigene Fläche hat. */
 .pickerSheetInline .pickerHead {
   padding-left: 0;
   padding-right: 0;
 }
 
-.pickerSheetInline::before {
-  content: none;
-}
-
-/* Zwei Spalten, nicht drei: die drei gelten dem 600px breiten Popover, die
-   aufgeklappte Liste ist so breit wie das Panel (379px). Bei drei Spalten
-   blieben ~115px pro Zeile, und „unter 10 €" brach zu „unter 1…" ab. */
+/* Zwei Spalten: die aufgeklappte Liste ist so breit wie das Panel (379px).
+   Bei drei Spalten blieben ~115px pro Zeile, und „unter 10 €" brach zu
+   „unter 1…" ab. */
 .pickerSheetInline .pickerList {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   max-height: none;

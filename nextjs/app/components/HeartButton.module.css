@@ -59,12 +59,12 @@
 }
 
 .btnActive {
-  color: var(--et-home-red, #d9382a);
+  color: var(--et-heart);
 }
 
 @media (hover: hover) {
   .btn:hover {
-    color: var(--et-home-red, #d9382a);
+    color: var(--et-heart);
     transform: translateY(-2px);
   }
 }

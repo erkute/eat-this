@@ -22,10 +22,10 @@
   margin: 14px 14px 22px;
   padding: 22px 18px 18px;
   overflow: hidden;
-  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  color: var(--et-home-paper, #fff);
-  border: 1.5px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
-  border-radius: var(--et-radius-control, 7px);
+  background: var(--et-ink-quiet);
+  color: var(--et-white);
+  border: 1.5px solid var(--et-ink-ring);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
   text-align: left;
 }
@@ -44,12 +44,12 @@
   /* War Ink auf einer Ink-Flaeche: gemessen Kontrast 1,14, also unsichtbar.
      Ein Rest aus der Zeit, als dieser Block auf Papier stand. Gelb ist die
      Farbe, die jeder andere Kicker auf einer Ink-Tafel traegt. */
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
   border: 0;
-  font-family: var(--et-font-label, var(--font-label), sans-serif);
-  font-size: var(--et-type-kicker, 10px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-kicker);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-label, 0.16em);
+  letter-spacing: var(--et-tracking-label);
   line-height: 1;
   text-transform: uppercase;
 }
@@ -58,7 +58,7 @@
   display: inline-block;
   width: 9px;
   height: 9px;
-  background: var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
   flex: 0 0 auto;
 }
 .esHeading {
@@ -66,8 +66,8 @@
   /* Ebenfalls Ink auf Ink, Kontrast 1,14 — die Ueberschrift war schlicht nicht
      da. Sichtbar blieben nur Unterzeile und Knopf, und deshalb konnte man
      diesen Zustand benutzen, ohne je gelesen zu haben, wie er heisst. */
-  color: var(--et-home-paper, #fff);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  color: var(--et-white);
+  font-family: var(--et-font-display);
   font-size: 32px;
   font-weight: 700;
   letter-spacing: 0;
@@ -77,8 +77,8 @@
 .esSub {
   max-width: 30ch;
   margin: 0 0 6px;
-  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  color: var(--et-muted);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 400;
   letter-spacing: 0;
@@ -98,31 +98,31 @@
   justify-content: center;
   text-align: center;
   text-decoration: none;
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
+  background: var(--et-accent);
+  color: var(--et-ink);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.05;
   text-transform: uppercase;
   transition:
-    transform var(--et-motion-fast, 140ms ease),
-    background-color var(--et-motion-fast, 140ms ease),
-    color var(--et-motion-fast, 140ms ease);
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
 .esBtnPrimary:focus-visible {
-  color: var(--et-home-ink, #15120e);
-  background: var(--et-home-paper, #fff);
+  color: var(--et-ink);
+  background: var(--et-white);
   transform: translateX(-3px);
 }
 @media (hover: hover) {
   .esBtnPrimary:hover {
-    color: var(--et-home-ink, #15120e);
-    background: var(--et-home-paper, #fff);
+    color: var(--et-ink);
+    background: var(--et-white);
     transform: translateX(-3px);
   }
 }

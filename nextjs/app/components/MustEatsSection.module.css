@@ -18,13 +18,13 @@
  */
 
 .page {
-  --must-ink: var(--et-home-ink, #15120e);
+  --must-ink: var(--et-ink);
   --must-paper: #fff;
-  --must-red: var(--et-home-red, #d9382a);
-  --must-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --must-red: var(--et-red);
+  --must-muted: var(--et-ink-soft);
   /* Papier, Gelb und die weiche Weiß-Stufe auf dem Ink-Grund. */
-  --must-white: var(--et-home-inverse-text, #fff);
-  --must-accent: var(--et-home-accent, #ffc600);
+  --must-white: var(--et-white);
+  --must-accent: var(--et-accent);
   --must-soft: rgba(255, 255, 255, 0.76);
   /* Der Abschnittsabstand: seit die Tafeln aufgeloest sind, trennt nur noch
      Raum — dieselbe Fuge wie zwischen den Abschnitten der Startseite. */
@@ -35,7 +35,7 @@
   overflow-x: clip;
   background: var(--must-ink);
   color: var(--must-white);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
 }
 
 /* `.page` carries no global rule today, but this surface has been bitten by
@@ -43,13 +43,13 @@
    a production build than in dev. The doubled selector keeps the font decision
    here regardless of which sheet lands last. */
 :global(.page).page {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
 }
 
 .head,
 .band,
 .close {
-  width: min(100% - clamp(28px, 5vw, 72px), var(--et-wrap-max, 1360px));
+  width: min(100% - clamp(28px, 5vw, 72px), var(--et-wrap-max));
   margin-inline: auto;
 }
 
@@ -66,10 +66,10 @@
   align-items: center;
   gap: clamp(16px, 4vw, 56px);
   margin-top: clamp(16px, 2.5vw, 32px);
-  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
-  background: var(--et-board-bg, var(--must-ink));
+  padding: var(--et-board-pad);
+  background: var(--et-board-bg);
   color: var(--must-white);
-  border-radius: var(--et-board-radius, var(--et-radius-photo, 10px));
+  border-radius: var(--et-board-radius);
 }
 
 .headCopy {
@@ -83,10 +83,10 @@
 .bandKicker {
   margin: 0 0 clamp(14px, 1.6vw, 22px);
   color: var(--must-accent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.3;
   text-transform: uppercase;
 }
@@ -96,7 +96,7 @@
 .closeTitle {
   margin: 0;
   color: var(--must-red);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   letter-spacing: -0.025em;
   text-transform: uppercase;
@@ -113,11 +113,11 @@
 .bandBody,
 .closeBody {
   color: var(--must-muted);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-lead);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: var(--et-leading-copy, 1.5);
+  line-height: var(--et-leading-copy);
 }
 
 .sub {
@@ -147,7 +147,7 @@
 .statValue {
   margin: 0;
   color: var(--must-white);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(30px, 3.6vw, 46px);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -156,10 +156,10 @@
 
 .statLabel {
   color: var(--must-accent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1;
   text-transform: uppercase;
 }
@@ -288,10 +288,10 @@
    Kasten-Optik als Fallback bereit. */
 .band {
   margin-top: var(--must-gutter);
-  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
-  background: var(--et-board-bg, var(--must-ink));
+  padding: var(--et-board-pad);
+  background: var(--et-board-bg);
   color: var(--must-white);
-  border-radius: var(--et-board-radius, var(--et-radius-photo, 10px));
+  border-radius: var(--et-board-radius);
 }
 
 .bandHead {
@@ -301,8 +301,8 @@
 
 .bandTitle {
   color: var(--must-white);
-  font-size: var(--et-type-section-title, clamp(24px, 3.4vw, 42px));
-  line-height: var(--et-leading-title, 0.92);
+  font-size: var(--et-type-section-title);
+  line-height: var(--et-leading-title);
 }
 
 .bandBody {
@@ -425,9 +425,9 @@
   padding: clamp(24px, 4vw, 56px);
   /* Der weiche Schatten der Tüte endet an der Tafelkante. */
   overflow: hidden;
-  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
+  background: var(--et-ink-quiet);
   color: var(--close-paper);
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
 }
 
 .closeCopy {
@@ -440,10 +440,10 @@
 .closeK {
   margin: 0 0 clamp(14px, 1.6vw, 22px);
   color: var(--close-accent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.3;
   text-transform: uppercase;
 }
@@ -458,7 +458,7 @@
   max-width: 42ch;
   margin: clamp(12px, 1.6vw, 18px) 0 0;
   color: var(--close-soft);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-size: var(--et-type-lead);
 }
 
 .closeActions {
@@ -477,17 +477,17 @@
   justify-content: center;
   min-height: 56px;
   padding: 0 26px;
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-display);
   font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
   line-height: 1;
   text-decoration: none;
   transition:
-    background-color var(--et-motion-fast, 140ms ease),
-    border-color var(--et-motion-fast, 140ms ease),
-    color var(--et-motion-fast, 140ms ease),
-    transform var(--et-motion-fast, 140ms ease);
+    background-color var(--et-motion-fast),
+    border-color var(--et-motion-fast),
+    color var(--et-motion-fast),
+    transform var(--et-motion-fast);
 }
 
 /* Auf Ink wird der Hauptknopf gelb — Ink auf Ink verschwände. Hover: Papier.
@@ -615,7 +615,7 @@
 
   .head,
   .band {
-    padding: var(--et-board-pad, 22px 18px 24px);
+    padding: var(--et-board-pad);
   }
 
   .sub {

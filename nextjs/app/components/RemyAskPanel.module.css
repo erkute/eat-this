@@ -10,7 +10,7 @@
 .panel {
   --remy-ink: #15120e;
   --remy-paper: #fff;
-  --remy-accent: var(--et-home-accent, #ffc600);
+  --remy-accent: var(--et-accent);
   --remy-soft: rgba(255, 255, 255, 0.76);
   --remy-chip: rgba(255, 255, 255, 0.09);
 
@@ -25,7 +25,7 @@
   align-content: start;
   gap: clamp(12px, 2.2vw, 20px) clamp(16px, 3vw, 30px);
   padding: clamp(20px, 3.4vw, 36px);
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   /* Eine Stufe heller als der Grund, seit die Seite selbst Ink ist: als
      Ink-Flaeche war Remy vom Grund nicht zu unterscheiden. */
   background: rgba(255, 255, 255, 0.055);
@@ -53,7 +53,7 @@
   grid-area: title;
   align-self: end;
   margin: 0;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   font-size: clamp(26px, 4.6vw, 46px);
   line-height: 0.92;
@@ -72,7 +72,7 @@
    in Providence steht er auf einer Ebene mit der Überschrift darüber. */
 .lead {
   margin: 0;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(17px, 1.5vw, 20px);
   font-weight: 700;
   line-height: 1.32;
@@ -94,10 +94,10 @@
 .chip {
   appearance: none;
   border: 0;
-  border-radius: var(--et-radius-control, 999px);
+  border-radius: var(--et-radius-control);
   background: var(--remy-chip);
   color: var(--remy-paper);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   font-size: 14px;
   padding: 11px 17px;
@@ -124,13 +124,13 @@
   flex: 1 1 auto;
   min-width: 0;
   border: none;
-  border-radius: var(--et-radius-control, 12px);
+  border-radius: var(--et-radius-control);
   /* Papier auf Ink: das weiße Feld liest sich als Eingabe. */
   background: var(--remy-paper);
   color: var(--remy-ink);
   /* Markenschrift wie Chips und Senden-Knopf daneben — der Body-Font war
      der einzige Fremdkörper in der Remy-Zeile. */
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 600;
   min-height: 52px;
@@ -144,10 +144,10 @@
 .send {
   appearance: none;
   border: none;
-  border-radius: var(--et-radius-control, 12px);
+  border-radius: var(--et-radius-control);
   background: var(--remy-accent);
   color: var(--remy-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   font-size: 15px;
   min-height: 52px;

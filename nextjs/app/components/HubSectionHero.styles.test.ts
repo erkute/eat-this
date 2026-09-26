@@ -72,7 +72,7 @@ describe('Aufmacher der Startseite', () => {
         pageBackground = declaration.value;
       });
     });
-    expect(pageBackground).toBe('var(--home-ink)');
+    expect(pageBackground).toBe('var(--et-ink)');
   });
 
   /**
@@ -80,7 +80,7 @@ describe('Aufmacher der Startseite', () => {
    * unten stehen auf Weiß und dürfen rot bleiben — diese eine Headline nicht.
    */
   it('setzt die Headline in Papier, nicht in Rot', () => {
-    expect(base('heroHeadline', 'color')).toBe('var(--et-home-inverse-text)');
+    expect(base('heroHeadline', 'color')).toBe('var(--et-white)');
   });
 
   /**

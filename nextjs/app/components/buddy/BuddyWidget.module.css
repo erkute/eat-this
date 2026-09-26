@@ -14,25 +14,25 @@
   inset: 0;
   z-index: 10000;
   /* Der eine Vorhang der Site — dieselben Tokens wie hinter jedem Zoom. */
-  background: var(--et-zoom-scrim, rgba(20, 19, 17, 0.62));
-  -webkit-backdrop-filter: var(--et-zoom-scrim-blur, blur(12px) saturate(1));
-  backdrop-filter: var(--et-zoom-scrim-blur, blur(12px) saturate(1));
+  background: var(--et-scrim);
+  -webkit-backdrop-filter: var(--et-zoom-scrim-blur);
+  backdrop-filter: var(--et-zoom-scrim-blur);
 }
 
 .panel {
-  --buddy-ink: var(--et-home-ink, #15120e);
+  --buddy-ink: var(--et-ink);
   /* Die Flaeche des Panels: eine Stufe ueber dem Grund (--et-ink-raised in
      globals.css) — auf den Ink-Seiten hatte der Chat sonst keine Kante.
      --buddy-ink bleibt die Schriftfarbe auf Gelb und Papier. */
-  --buddy-surface: var(--et-ink-raised, #25231f);
-  --buddy-paper: var(--et-home-inverse-text, #fff);
-  --buddy-accent: var(--et-home-accent, #ffc600);
-  --buddy-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  --buddy-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
-  --buddy-ring: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  --buddy-surface: var(--et-ink-raised);
+  --buddy-paper: var(--et-white);
+  --buddy-accent: var(--et-accent);
+  --buddy-soft: var(--et-ink-soft);
+  --buddy-dim: var(--et-ink-dim);
+  --buddy-ring: var(--et-ink-ring);
   /* Die leise Stufe: alles, was ein eigenes OBJEKT ist (Spot, Artikel, Pack),
      steht eine Spur heller als der Grund. Fliesstext steht auf dem Grund. */
-  --buddy-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
+  --buddy-quiet: var(--et-ink-quiet);
   --buddy-quiet-hi: rgba(255, 255, 255, 0.1);
   /* Bedienelemente (Feld, Knöpfe, Chips) heben sich per FLÄCHE ab, nie per
      Ring (Ansage 23.09.2026: „keine grauen Rahmen"). Eine Spur kräftiger als
@@ -56,8 +56,8 @@
   --buddy-gap-cut: 36px;
   --buddy-gap-close: 20px;
   --buddy-gap-turn: 28px;
-  --buddy-display: var(--et-font-display, var(--font-providence), sans-serif);
-  --buddy-copy: var(--et-font-display, var(--font-providence), sans-serif);
+  --buddy-display: var(--et-font-display);
+  --buddy-copy: var(--et-font-display);
   position: fixed;
   right: 28px;
   bottom: 28px;
@@ -71,12 +71,12 @@
   color: var(--buddy-paper);
   background: var(--buddy-surface);
   border: none;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   /* Keine Kante: der Vorhang dahinter ist schwarz, die Fläche hebt sich von
      selbst ab. */
   box-shadow:
     0 30px 90px rgba(0, 0, 0, 0.44),
-    var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
+    var(--et-ink-shadow);
   animation: buddyPanelIn 0.22s cubic-bezier(0.2, 0.92, 0.22, 1);
 }
 
@@ -121,7 +121,7 @@
   overflow: hidden;
   background: transparent;
   border: none;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   box-shadow: none;
 }
 
@@ -139,7 +139,7 @@
   font-family: var(--buddy-display);
   font-size: 2.95rem;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title, -0.02em);
+  letter-spacing: var(--et-tracking-title);
   line-height: 0.82;
   text-transform: uppercase;
 }
@@ -156,15 +156,15 @@
   color: var(--buddy-paper);
   background: var(--buddy-control);
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   cursor: pointer;
   font-size: 1.05rem;
   font-weight: 700;
   line-height: 1;
   font-family: var(--buddy-display);
   transition:
-    background var(--et-motion-fast, 140ms ease),
-    color var(--et-motion-fast, 140ms ease);
+    background var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
 
 @media (hover: hover) {
@@ -195,7 +195,7 @@
 .reset {
   padding: 0 12px;
   font-size: 0.82rem;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   text-transform: uppercase;
 }
 
@@ -213,7 +213,7 @@
      trennt die Farbe, keine Linie. */
   background: var(--buddy-ink);
   font-family: var(--buddy-copy);
-  font-size: var(--et-type-body, 16px);
+  font-size: var(--et-type-body);
 }
 
 /* Der Inhalt in eigener Hülle: sie trägt `--buddy-anchor-min`, und an ihr
@@ -231,7 +231,7 @@
 
 .log::-webkit-scrollbar-thumb {
   background: var(--buddy-ring);
-  border-radius: var(--et-radius-pill, 999px);
+  border-radius: var(--et-radius-pill);
 }
 
 .intro {
@@ -249,7 +249,7 @@
   color: var(--buddy-ink);
   background: var(--buddy-paper);
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   font-family: var(--buddy-display);
   font-weight: 700;
   line-height: 1.34;
@@ -264,7 +264,7 @@
   background: transparent;
   border: none;
   font-weight: 700;
-  line-height: var(--et-leading-copy, 1.55);
+  line-height: var(--et-leading-copy);
 }
 
 /* Die Antwort auf die eben gestellte Frage hält das Fenster voll, damit die
@@ -316,7 +316,7 @@
 }
 
 .botList li {
-  line-height: var(--et-leading-copy, 1.55);
+  line-height: var(--et-leading-copy);
 }
 
 .botList li::marker {
@@ -332,7 +332,7 @@
 .chip,
 .chipNear {
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   font-family: var(--buddy-display);
   font-size: 0.86rem;
   font-weight: 700;
@@ -340,8 +340,8 @@
   cursor: pointer;
   box-shadow: none;
   transition:
-    background var(--et-motion-fast, 140ms ease),
-    color var(--et-motion-fast, 140ms ease);
+    background var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
 
 /* Flaeche statt Ring — wie die Antwort-Chips der Remy-Buehne. */
@@ -442,10 +442,10 @@
   color: var(--buddy-paper);
   background: var(--buddy-quiet);
   border: none;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   text-decoration: none;
   box-shadow: none;
-  transition: background var(--et-motion-card, 180ms ease);
+  transition: background var(--et-motion-card);
 }
 
 /* Karten, Pack und Chips: einhängen und einblenden, mit einem Hauch Weg nach
@@ -536,7 +536,7 @@
   color: var(--buddy-paper);
   background: transparent;
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   cursor: pointer;
 }
 
@@ -554,7 +554,7 @@
 }
 
 .spotSave[data-saved='true'] {
-  color: var(--et-home-red, #d9382a);
+  color: var(--et-red);
 }
 
 .spotSave:focus-visible {
@@ -572,7 +572,7 @@
   flex-shrink: 0;
   /* Ruhefarbe statt des roten Blocks, den ein fehlendes Foto vorher zeigte. */
   background: var(--buddy-quiet-hi);
-  border-radius: var(--et-radius-photo, 10px) 0 0 var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo) 0 0 var(--et-radius-photo);
   overflow: hidden;
 }
 
@@ -618,9 +618,9 @@
   font-weight: 700;
   font-size: 1.18rem;
   line-height: 1.02;
-  letter-spacing: var(--et-tracking-title, -0.02em);
+  letter-spacing: var(--et-tracking-title);
   text-transform: uppercase;
-  transition: color var(--et-motion-fast, 140ms ease);
+  transition: color var(--et-motion-fast);
 }
 
 @media (hover: hover) {
@@ -652,7 +652,7 @@
   font-family: var(--buddy-display);
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -727,7 +727,7 @@
   color: var(--buddy-paper);
   font-size: 0.96em;
   font-weight: 700;
-  line-height: var(--et-leading-copy, 1.55);
+  line-height: var(--et-leading-copy);
 }
 
 .packArt {
@@ -737,7 +737,7 @@
   object-fit: contain;
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
   transform: rotate(-3deg);
-  transition: transform var(--et-motion-card, 180ms ease);
+  transition: transform var(--et-motion-card);
 }
 
 @media (hover: hover) {
@@ -776,7 +776,7 @@
   font-family: var(--buddy-display);
   font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1;
   text-transform: uppercase;
 }
@@ -819,11 +819,11 @@
   color: var(--buddy-paper);
   background: var(--buddy-control);
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   cursor: pointer;
   transition:
-    color var(--et-motion-fast, 140ms ease),
-    background var(--et-motion-fast, 140ms ease);
+    color var(--et-motion-fast),
+    background var(--et-motion-fast);
 }
 
 .geo svg {
@@ -873,11 +873,11 @@
   caret-color: var(--buddy-accent);
   background: var(--buddy-control);
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   font-family: var(--buddy-copy);
   font-size: 1rem;
   font-weight: 700;
-  transition: background var(--et-motion-fast, 140ms ease);
+  transition: background var(--et-motion-fast);
 }
 
 .input::placeholder {
@@ -901,15 +901,15 @@
   color: var(--buddy-ink);
   background: var(--buddy-paper);
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   cursor: pointer;
   font-family: var(--buddy-display);
   font-size: 0.9rem;
   font-weight: 700;
   box-shadow: none;
   transition:
-    background var(--et-motion-fast, 140ms ease),
-    color var(--et-motion-fast, 140ms ease);
+    background var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
 
 @media (hover: hover) {
@@ -966,7 +966,7 @@
   font-family: var(--buddy-display);
   font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   text-transform: uppercase;
 }
 
@@ -982,7 +982,7 @@
   width: 5px;
   height: 5px;
   background: var(--buddy-accent);
-  border-radius: var(--et-radius-pill, 999px);
+  border-radius: var(--et-radius-pill);
   animation: buddyDot 0.9s ease-in-out infinite;
 }
 
@@ -1071,7 +1071,7 @@
      23.09.2026). Der Vorhang liegt über dem ganzen Layout-Viewport — unter
      dem Glas steht jetzt die Chat-Fläche, das Feld läuft nahtlos weiter. */
   .scrim {
-    background: var(--et-ink-raised, #25231f);
+    background: var(--et-ink-raised);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }

@@ -8,8 +8,8 @@
 }
 
 .list {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-paper, #fff);
+  background: var(--et-ink);
+  color: var(--et-white);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -19,7 +19,7 @@
 @media (min-width: 1024px) {
   .list {
     height: 100%;
-    border-left: 1px solid var(--border-subtle);
+    border-left: 1px solid var(--et-rule);
   }
 }
 
@@ -117,7 +117,7 @@
     /* Die Kante, an der das Sheet auf die Karte trifft. Sie stand auf der
        Papier-Linie (dunkel auf hell); auf dem Ink-Grund war sie mit dL* 0,34
        nicht mehr da. Dieselbe Linie wie beim Detail-Sheet weiter unten. */
-    border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+    border-top: 1px solid var(--et-ink-line);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     box-shadow: none;
@@ -145,7 +145,7 @@
 
 /* One colour for both views — list and detail read as the same control. */
 .handle::before {
-  background: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
+  background: var(--et-ink-ring);
 }
 
 @media (max-width: 1023.98px) {
@@ -195,7 +195,7 @@
     border-top: 0;
   }
   .list[data-view='list'] .listScroll {
-    background: var(--et-home-ink, #15120e);
+    background: var(--et-ink);
     isolation: isolate;
   }
   /* Detail content keeps its own stacking (cards up to z 30 inside), so none
@@ -236,21 +236,21 @@
     top: var(--map-strip, env(safe-area-inset-top, 0px));
     /* Above the map strip (7). */
     z-index: 8;
-    background: var(--et-home-ink, #15120e);
+    background: var(--et-ink);
     /* The sheet's edge rides on the handle here (see the sheet rule below),
        rounded like the list's filter bar. Never switched on "stuck": the
        state arrives a frame late on iOS, so anything keyed to it would change
        visibly while the bar is already sitting there. */
-    border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+    border-top: 1px solid var(--et-ink-line);
     border-radius: 10px 10px 0 0;
-    box-shadow: 0 1px 0 0 var(--et-home-ink, #15120e);
+    box-shadow: 0 1px 0 0 var(--et-ink);
   }
   /* The slot the handle leaves when it sticks is see-through, the rest of the
      sheet ink: same reason as the list (see `.list[data-view='list']`) — map
      there instead of a dark band growing above the bar. 27px = the handle's
      26px plus its hairline. */
   .list[data-view='detail'][data-detail-kind='restaurant'] {
-    background: linear-gradient(transparent 0 27px, var(--et-home-ink, #15120e) 27px);
+    background: linear-gradient(transparent 0 27px, var(--et-ink) 27px);
     border-top: 0;
   }
   .listScroll {
@@ -275,9 +275,9 @@
     will-change: auto;
     z-index: auto;
     border-radius: 0;
-    border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+    border-top: 1px solid var(--et-ink-line);
     overflow: visible;
-    background: var(--et-home-ink, #15120e);
+    background: var(--et-ink);
     display: block;
     padding-bottom: 0;
   }

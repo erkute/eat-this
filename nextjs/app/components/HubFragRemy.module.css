@@ -12,7 +12,7 @@
 .body {
   --remy-stage-ink: #15120e;
   --remy-stage-paper: #fff;
-  --remy-stage-accent: var(--et-home-accent, #ffc600);
+  --remy-stage-accent: var(--et-accent);
   --remy-stage-soft: rgba(255, 255, 255, 0.76);
   /* Chips, Feld und Knopf heben sich per Flaeche ab, nie per Ring (Ansage
      23.09.2026: „keine grauen Rahmen"). */
@@ -36,11 +36,11 @@
      Seite gesetzt. Remy ist kein Inhalt, sondern ein Gegenueber; auf dem
      durchgehenden Grund ging er unter (Ansage 03.09.2026). Eine Stufe heller
      als der Grund reicht: es liest sich als Layer, ohne ein Kasten zu sein. */
-  padding: var(--et-board-quiet-pad, clamp(22px, 4vw, 46px));
+  padding: var(--et-board-quiet-pad);
   color: var(--remy-stage-paper);
-  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
+  background: var(--et-ink-quiet);
   border: none;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
 }
 
 .ask {
@@ -156,7 +156,7 @@
 .lead {
   max-width: 660px;
   margin: 0 0 clamp(14px, 1.8vw, 22px);
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: clamp(19px, 1.85vw, 27px);
   font-weight: 700;
   line-height: 1.16;
@@ -196,7 +196,7 @@
   background: var(--remy-stage-control);
   color: var(--remy-stage-paper);
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
 }
 
@@ -219,15 +219,15 @@
   min-width: 0;
   min-height: 52px;
   border: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   padding: 0 14px;
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: 16px;
   font-weight: 700;
   color: var(--remy-stage-paper);
   caret-color: var(--remy-stage-accent);
   background: var(--remy-stage-control);
-  transition: background var(--et-motion-fast, 140ms ease);
+  transition: background var(--et-motion-fast);
 }
 
 .input::placeholder {
@@ -253,7 +253,7 @@
   border: none;
   /* Eckig wie das Feld daneben und jeder Tafel-Knopf — die runde Pille
      gehört den weißen Abschnitten. */
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   text-align: center;
   box-shadow: none;
 }

@@ -39,7 +39,7 @@
   position: relative;
   width: min(100vw, 460px);
   height: 100dvh;
-  background: var(--home-ink, #15120e);
+  background: var(--et-ink);
   color: #fff;
   box-shadow: -26px 0 64px rgba(0, 0, 0, 0.32);
   backface-visibility: hidden;
@@ -73,7 +73,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -95,14 +95,14 @@
 }
 .langBtn.langBtnOn,
 .langBtn:focus-visible {
-  color: var(--home-accent, #ffc600);
+  color: var(--et-accent);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
 @media (hover: hover) {
   .langBtn:hover {
-    color: var(--home-accent, #ffc600);
+    color: var(--et-accent);
     text-decoration: underline;
     text-decoration-thickness: 2px;
     text-underline-offset: 3px;
@@ -128,7 +128,7 @@
   color: #fff;
   border: 0;
   border-radius: 50%;
-  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-family: var(--et-font-condensed);
   font-size: 30px;
   line-height: 1;
   cursor: pointer;
@@ -137,14 +137,14 @@
     color 0.15s ease;
 }
 .close:focus-visible {
-  background: var(--home-accent, #ffc600);
-  color: var(--home-ink, #15120e);
+  background: var(--et-accent);
+  color: var(--et-ink);
   outline: 0;
 }
 @media (hover: hover) {
   .close:hover {
-    background: var(--home-accent, #ffc600);
-    color: var(--home-ink, #15120e);
+    background: var(--et-accent);
+    color: var(--et-ink);
     outline: 0;
   }
 }
@@ -191,8 +191,8 @@
   background: transparent;
   color: #fff;
   border: 0;
-  border-radius: var(--home-radius-btn, 8px);
-  font-family: var(--font-providence);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-display);
   font-size: clamp(28px, min(4.6dvh, 8vw), 40px);
   font-weight: 700;
   line-height: 0.82;
@@ -208,14 +208,14 @@
 }
 .navItem:focus-visible {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--home-accent, #ffc600);
+  color: var(--et-accent);
   outline: 0;
   transform: translateX(-6px);
 }
 @media (hover: hover) {
   .navItem:hover {
     background: rgba(255, 255, 255, 0.08);
-    color: var(--home-accent, #ffc600);
+    color: var(--et-accent);
     outline: 0;
     transform: translateX(-6px);
   }
@@ -224,18 +224,18 @@
 .navItem.cta {
   order: -1;
   margin-bottom: clamp(14px, 2dvh, 22px);
-  background: var(--home-accent, #ffc600);
-  color: var(--home-ink, #15120e);
+  background: var(--et-accent);
+  color: var(--et-ink);
 }
 .navItem.cta:focus-visible {
   background: #fff;
-  color: var(--home-ink, #15120e);
+  color: var(--et-ink);
   transform: translateX(-6px);
 }
 @media (hover: hover) {
   .navItem.cta:hover {
     background: #fff;
-    color: var(--home-ink, #15120e);
+    color: var(--et-ink);
     transform: translateX(-6px);
   }
 }
@@ -256,7 +256,7 @@
   border: 0;
   cursor: pointer;
   color: rgba(255, 255, 255, 0.55);
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -267,7 +267,7 @@
 .footLink:focus-visible {
   color: #fff;
   text-decoration: underline;
-  text-decoration-color: var(--home-accent, #ffc600);
+  text-decoration-color: var(--et-accent);
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
@@ -275,7 +275,7 @@
   .footLink:hover {
     color: #fff;
     text-decoration: underline;
-    text-decoration-color: var(--home-accent, #ffc600);
+    text-decoration-color: var(--et-accent);
     text-decoration-thickness: 2px;
     text-underline-offset: 3px;
   }

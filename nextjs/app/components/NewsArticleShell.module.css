@@ -5,12 +5,12 @@
    Stufe; Rot ist auf Ink als Schriftfarbe raus (rund 2,9:1) — die Initiale
    und die aktive Kapitelmarke sind Gelb. */
 .page {
-  --article-ink: var(--et-home-ink, #15120e);
-  --article-fg: var(--et-home-inverse-text, #fff);
-  --article-accent: var(--et-home-accent, #ffc600);
-  --article-paper: var(--et-home-paper, #fff);
-  --article-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  --article-quiet: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
+  --article-ink: var(--et-ink);
+  --article-fg: var(--et-white);
+  --article-accent: var(--et-accent);
+  --article-paper: var(--et-white);
+  --article-muted: var(--et-ink-soft);
+  --article-quiet: var(--et-ink-quiet);
   /* The reading measure. 680px at 18-19px lands around 68 characters — the
      old full-width 900px column ran ~95, which is why desktop read worse than
      mobile despite all the extra room. */
@@ -79,7 +79,7 @@ div.page {
   /* Oben eckig, weil das Foto an der SiteNav sitzt: eine runde Ecke direkt
      unter der Leiste lässt dort Weiß durchblitzen — genau den Rest, den das
      Andocken beseitigen soll. Unten bleibt der Radius. */
-  border-radius: 0 0 var(--et-radius-photo, 10px) var(--et-radius-photo, 10px);
+  border-radius: 0 0 var(--et-radius-photo) var(--et-radius-photo);
 }
 
 .hero {
@@ -108,14 +108,14 @@ div.page {
   max-width: 16ch;
   margin: 0;
   color: var(--article-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   /* Gemessen gegen Eater und Mit Vergnügen (beide 40px auf 1512) und The
      Infatuation (68px, die display-freudigste der vier): 76px lagen fast beim
      Doppelten der Norm. 56px hält Markenpräsenz, ohne zu schreien. */
   font-size: clamp(38px, 4.4vw, 56px);
   letter-spacing: -0.025em;
-  line-height: var(--et-leading-title, 0.9);
+  line-height: var(--et-leading-title);
   text-transform: uppercase;
 }
 
@@ -153,8 +153,8 @@ div.page {
   padding: 6px 9px 7px;
   color: var(--article-ink);
   background: var(--article-accent);
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-display);
   font-size: clamp(14px, 1.15vw, 16px);
   font-weight: 700;
   letter-spacing: 0;
@@ -166,7 +166,7 @@ div.page {
   flex-wrap: wrap;
   gap: 4px 12px;
   color: var(--article-muted);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(13px, 1.05vw, 15px);
   font-weight: 700;
   letter-spacing: 0;
@@ -193,7 +193,7 @@ div.page {
   max-width: none;
   margin: 0 0 clamp(22px, 3vw, 34px);
   color: var(--article-fg);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-family: var(--et-font-body);
   font-size: clamp(17px, 1.45vw, 21px);
   font-weight: 600;
   line-height: 1.55;
@@ -203,7 +203,7 @@ div.page {
 
 .content {
   color: var(--article-fg);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-family: var(--et-font-body);
   /* Untergrenze 18 statt 17: bei genau 1280px Fensterbreite fiel der Lauftext
      auf 17px und die Zeile auf 80 Zeichen — beides am Rand. Die Wettbewerber
      liegen alle bei 18px. */
@@ -219,7 +219,7 @@ div.page {
   float: left;
   margin: 0.04em 0.1em 0 0;
   color: var(--article-accent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   font-size: 3.6em;
   line-height: 0.74;
@@ -248,7 +248,7 @@ div.page {
   padding: 7px 12px 8px;
   background: var(--article-accent);
   color: var(--article-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
   line-height: 1;
@@ -265,7 +265,7 @@ div.page {
   max-width: 24ch;
   margin: clamp(38px, 5vw, 66px) 0 14px;
   color: var(--article-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   font-size: clamp(27px, 3.2vw, 44px);
   letter-spacing: -0.02em;
@@ -319,7 +319,7 @@ div.page {
   margin: clamp(34px, 5vw, 64px) 0;
   padding: clamp(20px, 2.8vw, 32px) clamp(22px, 3.2vw, 36px);
   color: var(--article-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(26px, 3vw, 40px);
   font-weight: 700;
   letter-spacing: 0;
@@ -357,7 +357,7 @@ div.page {
   margin: clamp(30px, 4.5vw, 56px) 0;
   padding: clamp(16px, 2vw, 22px);
   background: var(--article-quiet);
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   color: var(--article-fg);
   text-align: left;
   text-decoration: none;
@@ -394,7 +394,7 @@ div.page {
   color: var(--article-ink);
   background: var(--article-accent);
   border-radius: 5px;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -406,7 +406,7 @@ div.page {
   max-width: 18ch;
   margin: 0;
   color: var(--article-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(22px, 2.1vw, 30px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -420,7 +420,7 @@ div.page {
   max-width: 34ch;
   margin: 0;
   color: var(--article-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(15px, 1.2vw, 17px);
   font-weight: 700;
   line-height: 1.3;
@@ -461,13 +461,13 @@ div.page {
 .inlineImage img {
   width: 100%;
   height: auto;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
 }
 
 .inlineImage figcaption {
   margin-top: 8px;
   color: var(--article-muted);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(13px, 1.05vw, 15px);
   font-weight: 700;
   line-height: 1.2;
@@ -484,7 +484,7 @@ div.page {
   background-color: var(--article-ink);
   background-position: center;
   background-size: cover;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   color: #fff;
   text-decoration: none;
 }
@@ -520,7 +520,7 @@ div.page {
    die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
 .inlineSpotMeta {
   color: #fff;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -564,12 +564,12 @@ div.page {
   max-width: 16ch;
   margin-bottom: 2px;
   color: #fff;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(26px, 3vw, 42px);
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 0.98;
-  text-shadow: var(--et-shadow-text-photo, 0 2px 14px rgba(0, 0, 0, 0.38));
+  text-shadow: var(--et-photo-text-shadow);
   text-transform: none;
 }
 
@@ -607,9 +607,9 @@ div.page {
   padding: 10px 15px 11px;
   background: var(--article-paper);
   color: var(--article-ink);
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
@@ -638,8 +638,8 @@ div.page {
   margin: clamp(26px, 4vw, 44px) 0 0;
   padding: clamp(16px, 2vw, 22px) clamp(18px, 2.2vw, 26px);
   background: var(--article-quiet);
-  border-radius: var(--et-radius-photo, 10px);
-  color: var(--et-home-inverse-text, #fff);
+  border-radius: var(--et-radius-photo);
+  color: var(--et-white);
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
@@ -654,8 +654,8 @@ div.page {
 
 .hubLinkKicker {
   grid-column: 2;
-  color: var(--et-home-accent, #ffc600);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  color: var(--et-accent);
+  font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -665,7 +665,7 @@ div.page {
 
 .hubLinkLabel {
   grid-column: 2;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   font-size: clamp(1.05rem, 1.8vw, 1.35rem);
   line-height: 1.15;
@@ -703,10 +703,10 @@ div.page {
   min-height: 38px;
   padding: 8px 13px 9px;
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: rgba(255, 255, 255, 0.12);
   color: var(--article-fg);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0;
@@ -757,7 +757,7 @@ div.page {
 .relatedHeading {
   margin: 0;
   color: var(--article-fg);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(28px, 3.4vw, 42px);
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -794,8 +794,8 @@ div.page {
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--article-quiet);
-  border-radius: var(--et-radius-photo, 10px);
-  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
+  border-radius: var(--et-radius-photo);
+  box-shadow: var(--et-ink-shadow);
 }
 
 .relatedPhoto img {
@@ -826,7 +826,7 @@ div.page {
 .relatedCategory {
   display: block;
   color: var(--article-accent);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(15px, 1.2vw, 19px);
   font-weight: 700;
   letter-spacing: 0;
@@ -838,12 +838,12 @@ div.page {
   display: block;
   margin: 0;
   color: #fff;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(19px, 1.5vw, 24px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.04;
-  text-shadow: var(--et-shadow-text-photo, 0 1px 8px rgba(0, 0, 0, 0.5));
+  text-shadow: var(--et-photo-text-shadow);
   text-transform: none;
 }
 
@@ -941,7 +941,7 @@ div.page {
     aspect-ratio: auto;
     height: clamp(420px, calc(100vh - 220px), 620px);
     max-height: none;
-    border-radius: var(--et-radius-photo, 10px);
+    border-radius: var(--et-radius-photo);
   }
 
   .headerSplit .introCopy {
@@ -999,10 +999,10 @@ div.page {
     align-self: center;
     min-height: 48px;
     padding: 0 22px;
-    border-radius: var(--et-radius-control, 7px);
-    background: var(--et-home-accent, #ffc600);
-    color: var(--et-home-ink, #15120e);
-    font-family: var(--et-font-display, var(--font-providence), sans-serif);
+    border-radius: var(--et-radius-control);
+    background: var(--et-accent);
+    color: var(--et-ink);
+    font-family: var(--et-font-display);
     font-size: 17px;
     font-weight: 700;
     line-height: 1;
@@ -1011,12 +1011,12 @@ div.page {
   }
 
   .hubLink:focus-visible .hubLinkCta {
-    background: var(--et-home-inverse-text, #fff);
+    background: var(--et-white);
   }
 
   @media (hover: hover) {
     .hubLink:hover .hubLinkCta {
-      background: var(--et-home-inverse-text, #fff);
+      background: var(--et-white);
     }
   }
 

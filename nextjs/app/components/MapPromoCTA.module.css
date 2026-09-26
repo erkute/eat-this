@@ -12,7 +12,7 @@
   color: var(--promo-fg);
   margin: 40px 0 0;
   padding: 44px 22px 0;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
@@ -139,9 +139,9 @@
   white-space: nowrap;
 }
 .sub {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
-  line-height: var(--et-leading-copy, 1.5);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-lead);
+  line-height: var(--et-leading-copy);
   margin: 0;
   max-width: 40ch;
   color: var(--promo-soft);
@@ -155,8 +155,8 @@
   min-height: 56px;
   margin-top: 6px;
   padding: 0 26px;
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-display);
   font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
   letter-spacing: 0;
@@ -250,8 +250,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--et-home-red);
-  color: var(--et-home-inverse-text);
+  background: var(--et-red);
+  color: var(--et-white);
   font-family: var(--et-font-display);
   font-size: 15px;
   letter-spacing: 0.04em;
@@ -275,9 +275,9 @@
    Poster ist ein Angebot, also ein Objekt — und Objekte heben sich eine
    Spur vom Grund ab. */
 .promo {
-  --promo-bg: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
-  --promo-fg: var(--et-home-inverse-text, #fff);
-  --promo-accent: var(--et-home-accent);
+  --promo-bg: var(--et-ink-quiet);
+  --promo-fg: var(--et-white);
+  --promo-accent: var(--et-accent);
   --promo-soft: rgba(255, 255, 255, 0.76);
 
   border: 0;
@@ -285,7 +285,7 @@
 
 .cta {
   background: var(--promo-accent);
-  color: var(--et-home-ink);
+  color: var(--et-ink);
   border: 0;
 }
 
@@ -313,14 +313,14 @@
   align-items: center;
   gap: 8px;
   padding: 11px 18px;
-  background: var(--et-home-accent);
-  color: var(--et-home-ink);
+  background: var(--et-accent);
+  color: var(--et-ink);
   font-family: var(--et-font-display);
   font-weight: 700;
-  font-size: var(--et-type-button, 13px);
+  font-size: var(--et-type-button);
   line-height: 1.1;
   text-decoration: none;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   transition:
     background-color var(--et-motion-fast),
     transform var(--et-motion-fast);
@@ -329,7 +329,7 @@
 .bandMark {
   flex: 0 0 auto;
   display: inline-flex;
-  color: var(--et-home-red);
+  color: var(--et-red);
   transition: color var(--et-motion-fast);
 }
 
@@ -342,12 +342,12 @@
    der Pin geht mit. */
 @media (hover: hover) {
   .band:hover {
-    background: var(--et-home-ink);
-    color: var(--et-home-inverse-text);
+    background: var(--et-ink);
+    color: var(--et-white);
     transform: var(--et-hover-lift-sm);
   }
 
   .band:hover .bandMark {
-    color: var(--et-home-accent);
+    color: var(--et-accent);
   }
 }

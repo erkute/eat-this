@@ -47,7 +47,7 @@
   z-index: 6;
   appearance: none;
   -webkit-tap-highlight-color: transparent;
-  transition: right var(--motion-slow, 280ms) var(--ease-standard, cubic-bezier(0.2, 0.8, 0.2, 1));
+  transition: right var(--motion-slow) var(--ease-standard);
 }
 
 .panelToggle svg {
@@ -290,9 +290,9 @@
      .mapBurger so the pair leaves together. */
   transition:
     transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    background-color 150ms var(--ease-standard, ease),
-    border-color 150ms var(--ease-standard, ease),
-    color 150ms var(--ease-standard, ease);
+    background-color 150ms var(--ease-standard),
+    border-color 150ms var(--ease-standard),
+    color 150ms var(--ease-standard);
 }
 
 .mapSearchIcon,
@@ -324,7 +324,7 @@
 @media (hover: hover) {
   .mapSearchBtn:hover,
   .fab:hover {
-    border-color: var(--brand-ink);
+    border-color: var(--et-ink);
   }
 }
 
@@ -467,7 +467,7 @@
 
 .mapSearchBtn {
   gap: 0;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(24px, 6vw, 31px);
   font-weight: 700;
   letter-spacing: 0;
@@ -536,7 +536,7 @@
   /* Papier seit 04.09.2026: die Glyphen stehen auf der dunklen Karte. Vorher
      Ink mit weissem Halo — beides musste zusammen kippen, sonst steht entweder
      Ink auf Ink oder Weiss leuchtet auf Weiss. */
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -552,7 +552,7 @@
 .mapSearchClear:focus-visible {
   background: transparent;
   /* Gelb statt Rot: derselbe Hover wie ueberall auf dem Ink-Grund. */
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
   border: 0;
   box-shadow: none;
 }
@@ -565,7 +565,7 @@
   .mapSearchClear:hover {
     background: transparent;
     /* Gelb statt Rot: derselbe Hover wie ueberall auf dem Ink-Grund. */
-    color: var(--et-home-accent, #ffc600);
+    color: var(--et-accent);
     border: 0;
     box-shadow: none;
   }
@@ -600,8 +600,8 @@
 .mapSearchBtn .mapSearchIcon,
 .mapBurgerLines,
 .fabIcon {
-  filter: drop-shadow(0 0 1.5px var(--et-home-ink, #15120e))
-    drop-shadow(0 0 3px var(--et-home-ink, #15120e)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 0 1.5px var(--et-ink)) drop-shadow(0 0 3px var(--et-ink))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
 }
 
 @media (min-width: 1024px) {
@@ -645,10 +645,10 @@
   padding: 0 10px 0 13px;
   /* Die Flaeche der Filter-Chips, eine Stufe heller als der Grund — ohne
      Kontur (siehe unten). */
-  background: var(--et-ink-raised, #25231f);
-  color: var(--et-home-paper, #fff);
+  background: var(--et-ink-raised);
+  color: var(--et-white);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
   overflow: hidden;
   filter: none;
@@ -678,7 +678,7 @@
   outline: 0;
   color: currentColor;
   caret-color: currentColor;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0;
@@ -767,7 +767,7 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -786,7 +786,7 @@
 
 .mapSearchBtn:focus-visible {
   background: transparent;
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
   border: 0;
   box-shadow: none;
 }
@@ -794,7 +794,7 @@
 @media (hover: hover) {
   .mapSearchBtn:hover {
     background: transparent;
-    color: var(--et-home-accent, #ffc600);
+    color: var(--et-accent);
     border: 0;
     box-shadow: none;
   }
@@ -905,9 +905,9 @@
   gap: 7px;
   padding: 0 15px 0 11px;
   /* Die Fläche von Suchleiste und Filter-Chips, ohne Kontur. */
-  background: var(--et-ink-raised, #25231f);
-  color: var(--et-home-inverse-text, #fff);
-  border-radius: var(--et-radius-control, 7px);
+  background: var(--et-ink-raised);
+  color: var(--et-white);
+  border-radius: var(--et-radius-control);
 }
 
 /* Das Label klappt AUS dem Icon heraus statt als Kasten daneben zu erscheinen.
@@ -933,7 +933,7 @@
   max-width: 0;
   overflow: hidden;
   transition: max-width 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0;
@@ -965,28 +965,26 @@
    Stufe heller. Steht hinter den gemeinsamen Hover-Regeln oben, damit die
    Quellreihenfolge für ihn entscheidet. */
 .fab {
-  color: var(--et-home-inverse-text, #fff);
+  color: var(--et-white);
 }
 
 .fab:focus-visible {
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  color: var(--et-ink-soft);
 }
 
 .fab[data-invite]:focus-visible {
-  color: var(--et-home-inverse-text, #fff);
-  background:
-    linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised, #25231f);
+  color: var(--et-white);
+  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
 }
 
 @media (hover: hover) {
   .fab:hover {
-    color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+    color: var(--et-ink-soft);
   }
 
   .fab[data-invite]:hover {
-    color: var(--et-home-inverse-text, #fff);
-    background:
-      linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised, #25231f);
+    color: var(--et-white);
+    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
   }
 }
 

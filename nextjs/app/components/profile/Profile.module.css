@@ -15,24 +15,20 @@
    Regeln mit — was nur sie braucht, steht in ihrem eigenen Deck.module.css. */
 
 .page {
-  --profile-ink: var(--et-home-ink, #15120e);
-  --profile-fg: var(--et-home-inverse-text, #fff);
-  --profile-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --profile-ink: var(--et-ink);
+  --profile-fg: var(--et-white);
+  --profile-muted: var(--et-ink-soft);
   --profile-quiet: rgba(255, 255, 255, 0.12);
-  --profile-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  --profile-ring: var(--et-ink-ring, rgba(255, 255, 255, 0.28));
-  --profile-accent: var(--et-home-accent, #ffc600);
-  --profile-raised: var(--et-ink-raised, #25231f);
+  --profile-line: var(--et-ink-line);
+  --profile-ring: var(--et-ink-ring);
+  --profile-accent: var(--et-accent);
+  --profile-raised: var(--et-ink-raised);
   --profile-raised-on:
-    linear-gradient(
-      var(--et-ink-quiet, rgba(255, 255, 255, 0.055)),
-      var(--et-ink-quiet, rgba(255, 255, 255, 0.055))
-    ),
-    var(--profile-raised);
-  --profile-red: var(--et-home-red, #d9382a);
-  --profile-inverse: var(--et-home-inverse-text, #fff);
-  --profile-radius: var(--et-radius-control, 7px);
-  --profile-motion: var(--et-motion-card, 180ms ease);
+    linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--profile-raised);
+  --profile-red: var(--et-red);
+  --profile-inverse: var(--et-white);
+  --profile-radius: var(--et-radius-control);
+  --profile-motion: var(--et-motion-card);
   min-height: 100svh;
   padding: calc(72px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + 24px) 0
     clamp(56px, 8vw, 104px);
@@ -214,7 +210,7 @@ main.page .head {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px clamp(10px, 1.2vw, 14px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
 }
 
 /* Klein genug, dass sie den Satz begleitet statt ihn anzufuehren: die Karten
@@ -289,7 +285,7 @@ main.page .head {
 .moveLabel {
   margin-right: 9px;
   color: var(--profile-accent);
-  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -343,7 +339,7 @@ main.page .head {
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   text-transform: uppercase;
   white-space: nowrap;
   transition:
@@ -436,10 +432,10 @@ main.page .head {
 .recentWhen {
   margin: 0 0 8px;
   color: var(--profile-muted);
-  font-family: var(--et-font-label);
-  font-size: var(--et-type-kicker, 10px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-kicker);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-label, 0.16em);
+  letter-spacing: var(--et-tracking-label);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -567,10 +563,7 @@ main.page .head {
   content: '';
   position: absolute;
   inset: 40% 0 0;
-  background: var(
-    --et-home-photo-overlay,
-    linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent)
-  );
+  background: var(--et-photo-overlay);
 }
 
 .spotBody {
@@ -579,7 +572,7 @@ main.page .head {
   bottom: 12px;
   left: 12px;
   z-index: 1;
-  text-shadow: var(--et-shadow-text-photo);
+  text-shadow: var(--et-photo-text-shadow);
 }
 
 .spotName {
@@ -661,7 +654,7 @@ main.page .head {
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
   transition:
@@ -753,7 +746,7 @@ main.page .head {
   margin: 0;
   color: var(--profile-muted);
   font-family: var(--et-font-display);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-size: var(--et-type-lead);
   font-weight: 400;
   line-height: 1.3;
 }
@@ -819,7 +812,7 @@ main.page .head {
   border-radius: var(--profile-radius);
   text-decoration: none;
   font-family: var(--et-font-display);
-  font-size: var(--et-type-button, 13px);
+  font-size: var(--et-type-button);
   font-weight: 700;
   transition:
     color var(--profile-motion),
@@ -891,7 +884,7 @@ main.page .head {
   font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1;
   text-transform: uppercase;
   transition:
@@ -940,7 +933,7 @@ main.page .head {
      und der braucht Rand, sonst stossen die gedrehten Ecken an die Kanten. */
   padding: clamp(18px, 2vw, 26px) clamp(16px, 1.8vw, 24px);
   background: var(--profile-raised);
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
 }
 
 /* Der Faecher: drei Karten, leicht gedreht, mit Schlagschatten auf der Tafel.
@@ -991,7 +984,7 @@ main.page .head {
   font-size: clamp(19px, 1.9vw, 26px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: var(--et-leading-title, 0.92);
+  line-height: var(--et-leading-title);
   text-transform: uppercase;
 }
 
@@ -1035,7 +1028,7 @@ main.page .head {
   border-radius: var(--profile-radius);
   cursor: pointer;
   font-family: var(--et-font-display);
-  font-size: var(--et-type-button, 13px);
+  font-size: var(--et-type-button);
   font-weight: 700;
   white-space: nowrap;
   transition: background-color var(--profile-motion);
@@ -1086,7 +1079,7 @@ main.page .foot {
 .footAccount {
   color: var(--profile-muted);
   font-family: var(--et-font-display);
-  font-size: var(--et-type-body, clamp(12px, 1.1vw, 14px));
+  font-size: var(--et-type-body);
   overflow-wrap: anywhere;
 }
 
@@ -1111,7 +1104,7 @@ main.page .foot {
   border-radius: var(--profile-radius);
   cursor: pointer;
   font-family: var(--et-font-display);
-  font-size: var(--et-type-button, 13px);
+  font-size: var(--et-type-button);
   font-weight: 700;
   transition:
     color var(--profile-motion),

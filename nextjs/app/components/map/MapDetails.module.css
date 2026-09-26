@@ -75,7 +75,7 @@
    tabs / story+tipp panels / must-eats / pack-promo / actions.
    ========================================================== */
 .detailV13 {
-  font-family: var(--font);
+  font-family: var(--et-font-body);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -245,7 +245,7 @@
 .fdText {
   margin: 0;
   padding: clamp(8px, 1.4svh, 14px) 0 0;
-  font-family: var(--font-saira-condensed), 'Saira Condensed', var(--font);
+  font-family: var(--font-saira-condensed), 'Saira Condensed', var(--et-font-body);
   font-size: clamp(15px, 3.8vw, 18px);
   font-weight: 800;
   line-height: 1.16;
@@ -267,7 +267,7 @@
 }
 .fdProximitySub {
   margin-top: 7px;
-  font-family: var(--font);
+  font-family: var(--et-font-body);
   font-size: clamp(13px, 3.5vw, 15px);
   font-weight: 800;
   line-height: 1.42;
@@ -293,7 +293,7 @@
   padding-bottom: 0;
 }
 .fdK {
-  font-family: var(--font);
+  font-family: var(--et-font-body);
   font-size: 10px;
   font-weight: 950;
   letter-spacing: 0.14em;
@@ -367,7 +367,7 @@
 }
 .packPromoBody {
   margin: 0 0 12px;
-  font-family: var(--font);
+  font-family: var(--et-font-body);
 }
 .packPromoActions {
   display: flex;
@@ -535,7 +535,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  font-family: var(--font-chewy);
+  font-family: var(--et-font-moonblossom);
   font-size: 13px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -567,7 +567,7 @@
   }
 }
 .rdBody {
-  font-family: var(--font);
+  font-family: var(--et-font-body);
 }
 .rdBody p {
   margin: 0 0 12px;
@@ -628,12 +628,12 @@
 }
 .rdTippText {
   /* Providence wie jeder andere Wert der Ink-Tafel. Der Tipp lief als
-     EINZIGES Feld darin auf Inter (`var(--font)`) — Label gezeichnet, Text
+     EINZIGES Feld darin auf Inter (`var(--et-font-body)`) — Label gezeichnet, Text
      gesetzt, und der Bruch fiel genau dort auf, wo der Blick hängen bleibt.
      Die Größe steht NICHT hier — `.detailV13:not(.detailV13MustEat)
      .rdTippText` weiter unten ist spezifischer und gewinnt jeden Wert an
      dieser Stelle. */
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
 }
 /* Eine Öffnungsspanne bricht nie in sich selbst. Die Zelle trägt
    `overflow-wrap: anywhere` (gegen überlange Freitexte aus Sanity), und das
@@ -654,7 +654,7 @@
   text-transform: uppercase;
 }
 .rdV {
-  font-family: var(--font);
+  font-family: var(--et-font-body);
 }
 .rdVHandle {
   font-size: 13px;
@@ -675,7 +675,7 @@
   text-transform: uppercase;
 }
 .rdHoursT {
-  font-family: var(--font);
+  font-family: var(--et-font-body);
 }
 .rdAddrLine {
   display: block;
@@ -824,29 +824,29 @@
   text-shadow: none;
 }
 .btnPackPromo {
-  background: var(--brand-paper);
-  color: var(--brand-ink);
-  border-radius: var(--radius-sm, 4px);
+  background: var(--et-white);
+  color: var(--et-ink);
+  border-radius: var(--radius-sm);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 @media (hover: hover) {
   .btnPackPromo:hover {
-    background: var(--brand-action);
-    color: var(--brand-paper);
-    border-color: var(--brand-ink);
+    background: var(--et-red);
+    color: var(--et-white);
+    border-color: var(--et-ink);
     transform: translate(-1px, -1px);
     box-shadow: none;
   }
 }
 .fdMid {
-  color: var(--brand-ink);
+  color: var(--et-ink);
   border-radius: 0;
   box-shadow: none;
 }
 .fdName,
 .fdClose {
-  color: var(--brand-ink);
+  color: var(--et-ink);
 }
 .rdCloseGlass,
 .rdPagerBtn,
@@ -897,11 +897,11 @@
 }
 @media (hover: hover) {
   .btnPackPromo:hover {
-    border-color: var(--brand-ink);
+    border-color: var(--et-ink);
   }
 }
 .btnPackPromoLbl {
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 400;
   letter-spacing: 0.035em;
@@ -945,7 +945,7 @@
 }
 .rdVMeta {
   margin-top: 6px;
-  color: var(--brand-muted);
+  color: var(--et-ink);
   font-size: 12px;
   opacity: 1;
 }
@@ -971,12 +971,12 @@
   }
 }
 .rdNameOv {
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   letter-spacing: 0.004em;
 }
 .rdTagsOv {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-body);
   font-size: 9.5px;
   font-weight: 900;
   letter-spacing: 0.09em;
@@ -986,7 +986,7 @@
   border-bottom: 1px solid currentColor;
 }
 .rdPagerBtn {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-body);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -996,14 +996,14 @@
   padding-left: 10px;
 }
 .rdStoryLead::first-letter {
-  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-family: var(--et-font-condensed);
   font-weight: 400;
 }
 .rdSecH {
   margin: 24px 20px 10px;
   padding-top: 12px;
   border-top: 1px solid currentColor;
-  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-family: var(--et-font-condensed);
   font-size: 44px;
   font-weight: 400;
   line-height: 0.86;
@@ -1013,7 +1013,7 @@
   backdrop-filter: none;
 }
 .rdHoursD {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-body);
 }
 .rdHoursT {
   justify-self: start;
@@ -1025,20 +1025,20 @@
   backdrop-filter: none;
 }
 .packPromoTitle {
-  font-family: var(--menu-condensed, var(--font-label), Impact, sans-serif);
+  font-family: var(--et-font-condensed);
   font-weight: 400;
 }
 .detailV13MustEat .fdMid {
   margin-top: clamp(18px, 3dvh, 30px);
-  border-top: 1.5px solid var(--brand-ink);
-  border-bottom: 1.5px solid var(--brand-ink);
+  border-top: 1.5px solid var(--et-ink);
+  border-bottom: 1.5px solid var(--et-ink);
 }
 .detailV13MustEat .fdText,
 .detailV13MustEat .fdProximitySub {
   font-size: clamp(12px, 3.1vw, 14px);
 }
 .detailV13MustEat .fdRest .fdK {
-  font-family: var(--menu-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-body);
   color: rgba(255, 255, 255, 0.66);
 }
 /* Restaurant detail refresh — bolder map sheet, sharper controls, clearer info hierarchy. */
@@ -1091,7 +1091,7 @@
   border-top: 2px solid currentColor;
 }
 .rdRowHours > .rdK {
-  border-bottom: 2px solid var(--brand-ink);
+  border-bottom: 2px solid var(--et-ink);
 }
 .rdHoursD {
   opacity: 1;
@@ -1126,7 +1126,7 @@
   margin: 14px 14px 0;
   border: 0;
   overflow: hidden;
-  background-color: color-mix(in srgb, var(--brand-ink) 10%, var(--brand-paper));
+  background-color: color-mix(in srgb, var(--et-ink) 10%, var(--et-white));
   transform: none;
 }
 .rdHero .rdHeartToggle,
@@ -1142,7 +1142,7 @@
 }
 .rdHero .rdHeartToggleCount {
   min-width: auto;
-  font-family: var(--font, system-ui, sans-serif);
+  font-family: var(--et-font-body);
   line-height: 1;
 }
 .rdHero .rdHeartToggle:active,
@@ -1158,7 +1158,7 @@
 }
 .rdNameOv {
   max-width: 100%;
-  color: var(--brand-paper);
+  color: var(--et-white);
   font-size: clamp(36px, 14vw, var(--rd-name-max, 62px));
   line-height: 0.86;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.42);
@@ -1172,8 +1172,8 @@
   padding: 6px 9px;
   border: 0;
   background: rgba(255, 248, 232, 0.9);
-  color: var(--brand-ink);
-  font-family: var(--font, system-ui, sans-serif);
+  color: var(--et-ink);
+  font-family: var(--et-font-body);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.06em;
@@ -1211,13 +1211,13 @@
 }
 .rdBody {
   padding: 18px 18px 6px;
-  color: var(--brand-ink);
+  color: var(--et-ink);
   font-size: 15.5px;
   font-weight: 560;
   line-height: 1.56;
 }
 .rdStoryLead::first-letter {
-  color: var(--brand-ink);
+  color: var(--et-ink);
   font-size: 68px;
   padding: 7px 9px 0 0;
 }
@@ -1226,7 +1226,7 @@
   gap: 8px;
 }
 .rdTippLabel {
-  font-family: var(--font, system-ui, sans-serif);
+  font-family: var(--et-font-body);
   font-size: 10px;
   font-weight: 950;
   letter-spacing: 0.09em;
@@ -1248,7 +1248,7 @@
 .rdRow,
 .rdRowHours {
   border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--brand-ink) 13%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--et-ink) 13%, transparent);
   align-items: start;
 }
 .rdFacts > :last-child {
@@ -1258,13 +1258,13 @@
   padding: 0;
   background: transparent;
   border: 0;
-  color: color-mix(in srgb, var(--brand-ink) 58%, transparent);
+  color: color-mix(in srgb, var(--et-ink) 58%, transparent);
 }
 .rdRowHours > .rdHours {
   padding: 0;
 }
 .rdK {
-  font-family: var(--font, system-ui, sans-serif);
+  font-family: var(--et-font-body);
   font-size: 10px;
   font-weight: 950;
   letter-spacing: 0.09em;
@@ -1273,7 +1273,7 @@
 .rdV,
 .rdV a,
 .rdHoursT {
-  color: var(--brand-ink);
+  color: var(--et-ink);
   font-size: 14px;
   font-weight: 650;
   line-height: 1.42;
@@ -1284,7 +1284,7 @@
   row-gap: 6px;
 }
 .rdHoursD {
-  color: color-mix(in srgb, var(--brand-ink) 54%, transparent);
+  color: color-mix(in srgb, var(--et-ink) 54%, transparent);
   font-size: 10px;
 }
 .rdMustSection {
@@ -1296,7 +1296,7 @@
 }
 .rdMustHead .rdSecH {
   margin: 0;
-  color: var(--brand-ink);
+  color: var(--et-ink);
   font-size: 30px;
   line-height: 0.9;
 }
@@ -1308,8 +1308,8 @@
 .rdMustSub {
   max-width: 34ch;
   margin: 6px 0 0;
-  color: var(--et-home-muted, rgba(21, 18, 14, 0.64));
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  color: var(--et-muted);
+  font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 400;
   /* Nicht unter 1.3 — sonst kappt Providence ihre Unterlängen. */
@@ -1331,7 +1331,7 @@
 .medish {
   min-height: 0;
   border: 0;
-  color: var(--brand-ink);
+  color: var(--et-ink);
 }
 .medishPh {
   min-height: 0;
@@ -1395,7 +1395,7 @@
   transform: none;
 }
 .fdRest .fdK {
-  color: color-mix(in srgb, var(--brand-ink) 58%, transparent);
+  color: color-mix(in srgb, var(--et-ink) 58%, transparent);
 }
 @media (max-width: 420px) {
   .rdMustGrid {
@@ -1471,7 +1471,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--font, system-ui, sans-serif);
+  font-family: var(--et-font-body);
   font-size: 13px;
   font-weight: 850;
   letter-spacing: 0.01em;
@@ -1643,31 +1643,31 @@
 }
 .detailV13,
 .detailV13Scroll {
-  background: var(--et-home-paper);
-  color: var(--et-home-ink);
+  background: var(--et-white);
+  color: var(--et-ink);
 }
 .btnPackPromo,
 .fdClose {
   border-radius: var(--et-radius-control);
   box-shadow: none;
-  font-family: var(--et-font-mono);
+  font-family: var(--et-font-body);
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .fdClose {
-  background: var(--et-home-paper);
-  color: var(--et-home-ink);
-  border: 2px solid var(--et-home-ink);
+  background: var(--et-white);
+  color: var(--et-ink);
+  border: 2px solid var(--et-ink);
 }
 .btnPackPromo {
-  background: var(--et-home-ink);
-  color: var(--et-home-paper);
-  border-color: var(--et-home-ink);
+  background: var(--et-ink);
+  color: var(--et-white);
+  border-color: var(--et-ink);
 }
 .fdName,
 .fdNameText {
-  color: var(--et-home-ink);
+  color: var(--et-ink);
   font-family: var(--et-font-condensed);
   letter-spacing: 0;
   text-shadow: none;
@@ -1677,7 +1677,7 @@
 .fdK,
 .fdText,
 .fdProximitySub {
-  color: var(--et-home-muted);
+  color: var(--et-muted);
 }
 .rdHero,
 .fdHero,
@@ -1687,10 +1687,10 @@
   box-shadow: none;
 }
 .rdHero {
-  background: var(--et-home-red);
+  background: var(--et-red);
 }
 .rdHero::after {
-  background: var(--et-home-photo-overlay);
+  background: var(--et-photo-overlay);
 }
 .rdFacts,
 .rdTipp,
@@ -1698,17 +1698,17 @@
 .fdRest,
 .fdProximity,
 .packPromo {
-  background: var(--et-home-paper);
-  color: var(--et-home-ink);
-  border: 3px solid var(--et-home-ink);
+  background: var(--et-white);
+  color: var(--et-ink);
+  border: 3px solid var(--et-ink);
   border-radius: var(--et-radius-photo);
   box-shadow: none;
 }
 .rdTipp,
 .fdProximityReady {
-  background: var(--et-home-red);
-  color: var(--et-home-paper);
-  border-color: var(--et-home-red);
+  background: var(--et-red);
+  color: var(--et-white);
+  border-color: var(--et-red);
 }
 .rdTipp *,
 .fdProximityReady * {
@@ -1718,7 +1718,7 @@
 .detailV13:not(.detailV13MustEat),
 .detailV13:not(.detailV13MustEat) .detailV13Scroll {
   background: #fff;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-ink);
 }
 .detailV13:not(.detailV13MustEat) .rdHero {
   margin: 0 0 12px;
@@ -1732,7 +1732,7 @@
   min-height: clamp(300px, 48svh, 430px);
   min-height: round(down, clamp(300px, 48svh, 430px), 1px);
   aspect-ratio: auto;
-  background-color: var(--et-home-ink, #15120e);
+  background-color: var(--et-ink);
   background-image: var(--rd-hero-image);
   background-size: cover;
   background-position: center;
@@ -1755,7 +1755,7 @@
    den Tintenraum als Marge dazu; die Grundlinie bleibt, wo sie ist. */
 .detailV13:not(.detailV13MustEat) .rdNameOv {
   color: #fff;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(30px, 10vw, var(--rd-name-max, 54px));
   font-weight: 800;
   line-height: 0.95;
@@ -1766,8 +1766,8 @@
 }
 .detailV13:not(.detailV13MustEat) .rdTagsOv {
   gap: 7px;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
@@ -1779,9 +1779,9 @@
   align-items: center;
   padding: 6px 10px;
   background: #fff;
-  color: var(--et-home-ink, #15120e);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
@@ -1852,13 +1852,13 @@
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
 }
 .detailV13:not(.detailV13MustEat) .rdHero .rdHeartToggleOn svg {
-  color: var(--brand-action, #d9382a);
+  color: var(--et-red);
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
 }
 .detailV13:not(.detailV13MustEat) .rdHeartToggleCount {
   color: currentColor;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 800;
 }
@@ -1870,7 +1870,7 @@
   margin-left: 14px;
   margin-right: 14px;
   background: #fff;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-ink);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -1891,10 +1891,10 @@
   min-height: 40px;
   border: 0;
   border-radius: 0;
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink);
   color: #fff;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
@@ -1902,7 +1902,7 @@
 }
 .detailV13:not(.detailV13MustEat) .rdBody {
   padding: 18px 16px 6px;
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-ink);
   font-family: var(--font-sans, system-ui, sans-serif);
   font-size: 15px;
   line-height: 1.55;
@@ -1920,15 +1920,15 @@
 .detailV13:not(.detailV13MustEat) .rdSecH,
 .detailV13MustEat .fdName,
 .detailV13MustEat .fdNameText {
-  color: var(--et-home-ink, #15120e);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
   font-weight: 800;
   letter-spacing: 0;
   text-transform: none;
 }
 .detailV13:not(.detailV13MustEat) .rdTipp {
   padding: 16px;
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink);
   color: #fff;
 }
 .detailV13:not(.detailV13MustEat) .rdTipp * {
@@ -1974,7 +1974,7 @@
 }
 .detailV13MustEat .fdText,
 .detailV13MustEat .fdProximitySub {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 500;
   letter-spacing: 0;
   line-height: 1.3;
@@ -2043,7 +2043,7 @@
   display: block;
   margin: 0;
   color: #15120e;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(28px, 7.5vw, 42px);
   font-weight: 800;
   letter-spacing: 0;
@@ -2080,8 +2080,8 @@
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
@@ -2192,7 +2192,7 @@
    negativ. 1.55 laesst 1,4px stehen. Die Zeile ist einzeilig und
    flex-zentriert, die Hoehe aendert sich dadurch nicht. */
 .detailV13:not(.detailV13MustEat) .rdPagerName {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(13px, 2.8vw, 14px);
   font-weight: 800;
   letter-spacing: 0;
@@ -2208,9 +2208,9 @@
 .detailV13MustEat .detailV13Scroll {
   --me-ink: #15120e;
   --me-paper: #fff;
-  --me-soft: var(--et-home-quiet, #f2f1ef);
+  --me-soft: var(--et-quiet);
   --me-muted: rgba(21, 18, 14, 0.62);
-  --me-accent: var(--et-home-accent, #ffc600);
+  --me-accent: var(--et-accent);
   --me-card-w: min(64vw, 262px);
   --me-card-ratio: 1539 / 2115;
   box-sizing: border-box;
@@ -2365,7 +2365,7 @@
 .detailV13MustEat .fdName,
 .detailV13MustEat .fdNameText {
   color: var(--me-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 750;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -2414,7 +2414,7 @@
 .detailV13MustEat .fdProximitySub {
   margin: clamp(5px, 0.8dvh, 7px) 0 0;
   color: var(--me-muted);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(14px, 3.5vw, 17px);
   font-weight: 450;
   letter-spacing: 0;
@@ -2433,21 +2433,13 @@
   color: var(--me-ink);
   background: var(--me-soft);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
   transform: none;
 }
 .detailV13MustEat .fdK {
   color: var(--me-muted);
-  font-family: var(
-    --et-font-mono,
-    var(--menu-mono),
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Consolas,
-    monospace
-  );
+  font-family: var(--et-font-body);
   font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.08em;
@@ -2628,7 +2620,7 @@
 .detailV13:not(.detailV13MustEat) .rdV a,
 .detailV13:not(.detailV13MustEat) .rdHoursT {
   color: #15120e;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 19px;
   font-weight: 700;
   line-height: 1.18;
@@ -2696,7 +2688,7 @@
   .detailV13:not(.detailV13MustEat) .rdV a,
   .detailV13:not(.detailV13MustEat) .rdHoursT {
     color: #15120e;
-    font-family: var(--et-font-display, var(--font-providence), sans-serif);
+    font-family: var(--et-font-display);
     font-size: 19px;
     font-weight: 700;
     line-height: 1.18;
@@ -2736,7 +2728,7 @@
   [data-map-sheet][data-view='detail'] .detailMount,
   [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
   [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    background: var(--et-home-paper, #fff);
+    background: var(--et-white);
   }
 
   [data-map-sheet][data-view='detail'] .detailMount {
@@ -2870,7 +2862,7 @@
 
   .detailV13MustEat .fdText {
     box-sizing: border-box;
-    font-family: var(--et-font-display, var(--font-providence), sans-serif);
+    font-family: var(--et-font-display);
     font-size: 15px;
     font-weight: 500;
     line-height: 1.28;
@@ -2956,7 +2948,7 @@
   width: 54px;
   height: 54px;
   overflow: hidden;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   object-fit: cover;
 }
 @media (max-width: 1023.98px) {
@@ -3035,7 +3027,7 @@
 
   .detailV13MustEat .fdText {
     box-sizing: border-box;
-    font-family: var(--et-font-display, var(--font-providence), sans-serif);
+    font-family: var(--et-font-display);
     font-size: 15px;
     font-weight: 500;
     line-height: 1.28;
@@ -3363,7 +3355,7 @@
   height: auto;
   min-height: 0;
   max-height: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;
@@ -3424,7 +3416,7 @@
    card treatment. The current restaurant strip is light, so keep the small
    label on the canonical ink color in every responsive variant. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
-  color: var(--et-home-ink);
+  color: var(--et-ink);
 }
 
 /* The desktop map rail can be narrower than the 1024px component breakpoint
@@ -3497,14 +3489,14 @@
   justify-content: center;
   gap: 7px;
   padding: 0 12px;
-  background: var(--et-home-paper, #fff);
-  color: var(--et-home-ink, #15120e);
+  background: var(--et-white);
+  color: var(--et-ink);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  border-radius: var(--et-radius-control);
+  box-shadow: inset 0 0 0 2px var(--et-ink);
   cursor: pointer;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
-  font-size: var(--et-type-button, 13px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   /* 1.55 statt 1: das Label traegt `overflow: hidden` (Ellipse), und darunter
@@ -3539,18 +3531,18 @@
 
 /* "Go there" — the one thing a hungry visitor does next. */
 .detailV13:not(.detailV13MustEat) .rdActPrimary {
-  background: var(--et-home-red, #d9382a);
-  color: var(--et-home-paper, #fff);
-  box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
+  background: var(--et-red);
+  color: var(--et-white);
+  box-shadow: inset 0 0 0 2px var(--et-red);
 }
 
 /* "Reservieren" — committal, volle Breite. Gelb, nicht Ink: die Zeile steht
    auf der Ink-Tafel, dort waere Ink auf Ink unsichtbar geblieben (gleiche
    Entscheidung wie `.actStrong` auf der Tafel der Spot-Seite). */
 .detailV13:not(.detailV13MustEat) .rdActStrong {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
+  color: var(--et-ink);
+  box-shadow: inset 0 0 0 2px var(--et-accent);
 }
 
 .rdActReserve {
@@ -3600,7 +3592,7 @@
 }
 
 .rdActProviderWord {
-  font-family: var(--font-sans, var(--font), system-ui, sans-serif);
+  font-family: var(--font-sans, var(--et-font-body), system-ui, sans-serif);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;
@@ -3616,17 +3608,17 @@
      der Spot-Seite). */
   .detailV13:not(.detailV13MustEat) .rdActBtn:hover {
     transform: translateY(-1px);
-    background: var(--et-home-ink, #15120e);
-    color: var(--et-home-paper, #fff);
-    box-shadow: inset 0 0 0 2px var(--et-home-paper, #fff);
+    background: var(--et-ink);
+    color: var(--et-white);
+    box-shadow: inset 0 0 0 2px var(--et-white);
   }
 
   /* Der gelbe Knopf ist schon gefuellt — er wechselt auf Rot, sonst haette er
      ausser dem Lift keine Hover-Antwort. */
   .detailV13:not(.detailV13MustEat) .rdActStrong:hover {
-    background: var(--et-home-red, #d9382a);
-    color: var(--et-home-paper, #fff);
-    box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
+    background: var(--et-red);
+    color: var(--et-white);
+    box-shadow: inset 0 0 0 2px var(--et-red);
   }
 }
 
@@ -3636,7 +3628,7 @@
 
 /* Gelb statt Rot: der rote Ring saeuft auf der Ink-Tafel ab. */
 .detailV13:not(.detailV13MustEat) .rdActBtn:focus-visible {
-  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline: 2px solid var(--et-accent);
   outline-offset: 2px;
 }
 
@@ -3670,9 +3662,9 @@
   position: relative;
   margin: 30px 14px 32px;
   padding: clamp(22px, 5vw, 24px) clamp(14px, 4vw, 18px) clamp(20px, 4.5vw, 22px);
-  background: var(--et-home-quiet, #f2f1ef);
+  background: var(--et-quiet);
   border: 0;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   overflow: visible;
 }
 
@@ -3685,8 +3677,8 @@
 
 .detailV13:not(.detailV13MustEat) .packPromoBody {
   max-width: 27ch;
-  color: var(--et-home-ink, #15120e);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
   font-size: clamp(13.5px, 3.6vw, 14px);
   font-weight: 500;
   line-height: 1.34;
@@ -3696,8 +3688,8 @@
 .detailV13:not(.detailV13MustEat) .btnPackPromo {
   min-height: 42px;
   padding: 0 15px;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: inset 0 0 0 2px var(--et-home-ink, #15120e);
+  border-radius: var(--et-radius-control);
+  box-shadow: inset 0 0 0 2px var(--et-ink);
   text-transform: uppercase;
   transition:
     transform var(--map-motion),
@@ -3708,13 +3700,13 @@
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .btnPackPromo:hover {
     transform: translateY(-1px);
-    background: var(--et-home-red, #d9382a);
-    box-shadow: inset 0 0 0 2px var(--et-home-red, #d9382a);
+    background: var(--et-red);
+    box-shadow: inset 0 0 0 2px var(--et-red);
   }
 }
 
 .detailV13:not(.detailV13MustEat) .btnPackPromo:focus-visible {
-  outline: 2px solid var(--et-home-red, #d9382a);
+  outline: 2px solid var(--et-red);
   outline-offset: 2px;
 }
 
@@ -4065,7 +4057,7 @@
   display: none;
   margin: 0;
   color: var(--me-muted);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 500;
   line-height: 1;
@@ -4094,7 +4086,7 @@
    DM-Sans-Block mittendrin wirkte wie ein Fremdkörper im Panel. Die
    Zeilenhöhe bleibt auf Providence gerechnet (1.24 aus den Blöcken oben). */
 .detailV13MustEat .fdText {
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 450;
   letter-spacing: 0;
   line-height: 1.28;
@@ -4222,7 +4214,7 @@
 }
 
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
-  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -4257,7 +4249,7 @@
   max-height: calc(2 * 1.16em + 0.3em);
   padding-bottom: 0.3em;
   text-overflow: ellipsis;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(17px, 4.4vw, 20px);
   font-weight: 700;
   letter-spacing: 0;
@@ -4332,10 +4324,10 @@
      Text sprang gegenüber allem anderen um zwei Pixel ein. */
   margin: 30px 14px 32px;
   padding: 24px 18px 26px;
-  background: var(--et-ink-raised, #25231f);
+  background: var(--et-ink-raised);
   border: 0;
-  border-radius: var(--et-radius-photo, 10px);
-  color: var(--et-home-paper, #fff);
+  border-radius: var(--et-radius-photo);
+  color: var(--et-white);
 }
 
 /* Zeilen trennt jetzt der Abstand, nicht mehr eine Linie: die Ink-Linien der
@@ -4352,8 +4344,8 @@
 /* Gelbe Kreide-Labels — Markenschrift statt der grauen Mono-Eyebrow, gleiche
    Fassung wie `.factsKey` auf der Spot-Seite. */
 .detailV13:not(.detailV13MustEat) .rdK {
-  color: var(--et-home-accent, #ffc600);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  color: var(--et-accent);
+  font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -4365,7 +4357,7 @@
 .detailV13:not(.detailV13MustEat) .rdV,
 .detailV13:not(.detailV13MustEat) .rdV a,
 .detailV13:not(.detailV13MustEat) .rdHoursT {
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
 }
 
 /* Der Tag ist auf der Tafel kein Label mehr, sondern die ruhige Hälfte des
@@ -4374,7 +4366,7 @@
    sonst als dritte Schriftgröße in einer Zeile mit zwei. */
 .detailV13:not(.detailV13MustEat) .rdHoursD {
   color: rgba(255, 255, 255, 0.55);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 19px;
   font-weight: 700;
   letter-spacing: 0;
@@ -4394,20 +4386,20 @@
    Typ-Selektor-Gewicht verliert die Unterstreichung. */
 .detailV13:not(.detailV13MustEat) .rdV a.rdContactPlainLink {
   border-bottom: 0;
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
   text-decoration: underline;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
 }
 
 .detailV13:not(.detailV13MustEat) .rdV a.rdContactPlainLink:focus-visible {
-  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline: 2px solid var(--et-accent);
   outline-offset: 3px;
 }
 
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .rdV a.rdContactPlainLink:hover {
-    color: var(--et-home-accent, #ffc600);
+    color: var(--et-accent);
   }
 }
 
@@ -4432,16 +4424,16 @@
   display: grid;
   gap: 10px;
   padding: 18px 18px 20px;
-  background: var(--et-ink-raised, #25231f);
-  border-radius: var(--et-radius-photo, 10px);
+  background: var(--et-ink-raised);
+  border-radius: var(--et-radius-photo);
 }
 
 .detailV13:not(.detailV13MustEat) .rdTippLabel {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--et-home-accent, #ffc600);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  color: var(--et-accent);
+  font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -4456,11 +4448,11 @@
   flex: 0 0 auto;
   width: 9px;
   height: 9px;
-  background: var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
 }
 
 .detailV13:not(.detailV13MustEat) .rdTippText {
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
   /* 14, nicht 13: seit der Tipp auf Providence läuft statt auf Inter, baut
      dieselbe Zahl optisch kleiner. Randnotiz soll er bleiben (siehe den
      13px-Kommentar oben) — Kleingedrucktes nicht. */
@@ -4486,8 +4478,8 @@
    hier gewinnt sie ohne !important. */
 .detailV13MustEat,
 .detailV13MustEat .detailV13Scroll {
-  --me-ink: var(--et-home-inverse-text, #fff);
-  --me-paper: var(--et-home-ink, #15120e);
+  --me-ink: var(--et-white);
+  --me-paper: var(--et-ink);
   --me-muted: rgba(255, 255, 255, 0.76);
   --me-soft: rgba(255, 255, 255, 0.07);
   background: var(--me-paper);
@@ -4542,8 +4534,8 @@
   flex: 0 0 auto;
   margin: 0;
   color: var(--me-accent);
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-kicker);
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;
@@ -4676,7 +4668,7 @@
   appearance: none;
   border: 0;
   border-top: 0;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   color: var(--me-ink);
   background: var(--me-soft);
   box-shadow: none;
@@ -4711,8 +4703,8 @@
 
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
   color: var(--me-accent);
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-kicker);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4793,11 +4785,11 @@
   padding: 0 16px 0 13px;
   appearance: none;
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: transparent;
   color: var(--me-ink);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0;
@@ -5107,7 +5099,7 @@
   flex: 0 0 auto;
   margin: 0 0 6px;
   color: rgba(255, 255, 255, 0.55);
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
+  font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -5154,14 +5146,14 @@
   gap: 10px;
   padding: 0 16px;
   background: rgba(255, 255, 255, 0.065);
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
   box-shadow: none;
 }
 
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .rdActBtn:hover {
     background: rgba(255, 255, 255, 0.11);
-    color: var(--et-home-accent, #ffc600);
+    color: var(--et-accent);
     box-shadow: none;
   }
 }
@@ -5169,16 +5161,16 @@
 /* „Hinbringen" bleibt der eine gefuellte Knopf, nur gelb statt rot: Rot traegt
    auf Ink rund 2,9:1 und faellt als Flaeche mit Schrift durch. */
 .detailV13:not(.detailV13MustEat) .rdActPrimary {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  box-shadow: inset 0 0 0 2px var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
+  color: var(--et-ink);
+  box-shadow: inset 0 0 0 2px var(--et-accent);
 }
 
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .rdActPrimary:hover {
-    background: var(--et-home-paper, #fff);
-    color: var(--et-home-ink, #15120e);
-    box-shadow: inset 0 0 0 2px var(--et-home-paper, #fff);
+    background: var(--et-white);
+    color: var(--et-ink);
+    box-shadow: inset 0 0 0 2px var(--et-white);
   }
 }
 
@@ -5194,9 +5186,9 @@
 .detailV13:not(.detailV13MustEat) .rdTagAlt {
   padding: 4px 9px;
   background: rgba(21, 18, 14, 0.72);
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   line-height: 1.55;
 }
 
@@ -5223,7 +5215,7 @@
    Grund braucht er keine — eine Haarlinie haelt ihn ab. */
 .detailV13:not(.detailV13MustEat) .rdPager {
   background: transparent;
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
 }
 
 /* Fliesstext und Zwischentitel. Die Initiale und die Titel sind gelb (ueber
@@ -5232,16 +5224,16 @@
 .detailV13:not(.detailV13MustEat) .rdStoryLead,
 .detailV13:not(.detailV13MustEat) .rdStory,
 .detailV13:not(.detailV13MustEat) .rdStory p {
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
 }
 
 .detailV13:not(.detailV13MustEat) .rdSecH,
 .detailV13:not(.detailV13MustEat) .rdMustHead .rdSecH {
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
 }
 
 .detailV13:not(.detailV13MustEat) .rdMustSub {
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  color: var(--et-ink-soft);
 }
 
 /* Das Pack-Angebot traegt die Farbe des Produkts, nicht die leise Stufe
@@ -5255,17 +5247,17 @@
 }
 
 .detailV13:not(.detailV13MustEat) .packPromoTitle {
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
 }
 
 .detailV13:not(.detailV13MustEat) .packPromoBody {
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  color: var(--et-ink-soft);
 }
 
 /* Der Knopf im Angebot war Ink auf hellem Angebot — auf Ink unsichtbar. */
 .detailV13:not(.detailV13MustEat) .btnPackPromo {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
+  background: var(--et-accent);
+  color: var(--et-ink);
 }
 
 /* Der Grund des Sheets selbst. Drei Regeln haben ihn vorher hell gemalt:
@@ -5276,38 +5268,38 @@
    attributgefuehrte fuer das Telefon. Gleiches Gewicht, spaetere Zeile. */
 .detailV13:not(.detailV13MustEat),
 .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-paper, #fff);
+  background: var(--et-ink);
+  color: var(--et-white);
 }
 
 [data-map-sheet][data-view='detail'] .detailMount,
 [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
 [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink);
 }
 
 .detailV13:not(.detailV13MustEat) .rdBody {
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
 }
 
 /* Restaurantwechsel und Aktionen teilen Flaeche, Kante und Hover. */
 .detailV13:not(.detailV13MustEat) .rdPagerBtn {
   background: rgba(255, 255, 255, 0.065);
-  color: var(--et-home-paper, #fff);
-  border-radius: var(--et-radius-control, 7px);
+  color: var(--et-white);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
 }
 
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .rdPagerBtn:hover {
     background: rgba(255, 255, 255, 0.11);
-    color: var(--et-home-accent, #ffc600);
+    color: var(--et-accent);
     box-shadow: none;
   }
 }
 
 .detailV13:not(.detailV13MustEat) .rdPagerBtn:focus-visible {
-  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline: 2px solid var(--et-accent);
   outline-offset: 2px;
 }
 
@@ -5315,8 +5307,8 @@
    aber nicht dort, wo im selben Moment Schrift darauf steht. */
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .btnPackPromo:hover {
-    background: var(--et-home-paper, #fff);
-    color: var(--et-home-ink, #15120e);
+    background: var(--et-white);
+    color: var(--et-ink);
   }
 }
 
@@ -5327,7 +5319,7 @@
    `.rdStoryLeadPlain` bleibt ausgenommen: dort ist der Anfangsbuchstabe ein
    blosser Strich und erbt bewusst die Textfarbe (siehe lib/dropCap.ts). */
 .detailV13:not(.detailV13MustEat) .rdStoryLead::first-letter {
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
 }
 
 .detailV13:not(.detailV13MustEat) .rdStoryLead.rdStoryLeadPlain::first-letter {
@@ -5344,7 +5336,7 @@
 .detailV13:not(.detailV13MustEat) .rdMustGrid li,
 .detailV13:not(.detailV13MustEat) .medish,
 .detailV13:not(.detailV13MustEat) .medishPh {
-  color: var(--et-home-paper, #fff);
+  color: var(--et-white);
 }
 
 /* Der Fliesstext liest sich wie die Bezirks-Beschreibung (User, 04.09.2026:
@@ -5364,7 +5356,7 @@
 .detailV13:not(.detailV13MustEat) .rdBody,
 .detailV13:not(.detailV13MustEat) .rdBody p,
 .detailV13:not(.detailV13MustEat) .rdStoryLead {
-  font-family: var(--font-body, var(--font), sans-serif);
+  font-family: var(--et-font-body);
   font-weight: 400;
   line-height: 1.6;
 }
@@ -5389,7 +5381,7 @@
      Hintergrund, damit es schon vor der Galerie steht. Durch durchsichtige
      Flächen schien es beim Wischen durch — solange das nächste Foto lud und
      im Gummiband am ersten und letzten Foto. */
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink);
 }
 .rdHeroPhotos::-webkit-scrollbar {
   display: none;
@@ -5400,7 +5392,7 @@
   min-width: 0;
   padding: 0;
   border: 0;
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink);
   cursor: zoom-in;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -5429,7 +5421,7 @@
   align-items: center;
   gap: 5px;
   padding: 7px 9px;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: rgba(21, 18, 14, 0.72);
   pointer-events: none;
 }

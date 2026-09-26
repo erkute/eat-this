@@ -11,9 +11,9 @@
    Telefon kam dazu, dass die Fläche nur 16px vom Bildschirmrand entfernt saß
    und als Rahmen um die Karten gelesen wurde. */
 .board {
-  --teaser-ink: var(--et-home-ink, #15120e);
-  --teaser-paper: var(--et-home-inverse-text, #fff);
-  --teaser-accent: var(--et-home-accent, #ffc600);
+  --teaser-ink: var(--et-ink);
+  --teaser-paper: var(--et-white);
+  --teaser-accent: var(--et-accent);
   --teaser-soft: rgba(255, 255, 255, 0.76);
 
   color: var(--teaser-paper);
@@ -32,7 +32,7 @@
 .lead {
   max-width: 52ch;
   margin: 0;
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: clamp(16px, 1.35vw, 19px);
   font-weight: 400;
   letter-spacing: 0;
@@ -266,7 +266,7 @@
    lief in die Nachbarkarte — „Rindergulasch mit Knödel" und „Chorizo" standen
    ineinander. Nur `anywhere` zählt zur Mindestbreite und hält die Spalte. */
 .dish {
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: clamp(17px, 1.7vw, 24px);
   font-weight: 700;
   letter-spacing: 0;
@@ -309,7 +309,7 @@
 
 .restaurantLink :global(.hv-sub) {
   color: rgba(255, 255, 255, 0.62);
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: clamp(13px, 1.15vw, 15px);
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -348,7 +348,7 @@
   justify-content: center;
   min-height: 56px;
   padding: 0 26px;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: var(--teaser-accent);
   color: var(--teaser-ink);
   font-size: clamp(16px, 1.4vw, 19px);

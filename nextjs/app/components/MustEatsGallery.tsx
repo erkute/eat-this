@@ -7,6 +7,7 @@ import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLight
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import type { MapMustEat } from '@/lib/types';
 import styles from './MustEatsSection.module.css';
+import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 
@@ -93,6 +94,7 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
   // (the card-back). Tapping the zoomed card flies it back to its slot.
   const [expanded, setExpanded] = useState<{
     imageUrl: string;
+    placeholderUrl?: string | null;
     alt: string;
     rect: DOMRect;
     id: string;
@@ -165,6 +167,9 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
         onClick={(e) => {
           setExpanded({
             imageUrl,
+            // Das Raster laedt nur Daumennaegel — der Zoom fliegt mit dem, was
+            // schon auf dem Schirm liegt, und holt das Original nach.
+            placeholderUrl: e.currentTarget.querySelector('img')?.currentSrc || null,
             alt,
             rect: e.currentTarget.getBoundingClientRect(),
             id: m._id,
@@ -172,8 +177,21 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
         }}
       >
         <div className={styles.ph}>
+          {/* Daumennagel statt Original: die fuenf offenen Karten waren
+              446 kB (gemessen 26.09.2026). Hoechstens ~260 px breit, unter
+              560 px zwei Spalten (MustEatsSection.module.css). Die Rueckseite
+              aus public/ laeuft unveraendert durch. `key` je Motiv, damit
+              Safari beim Wechsel Rueckseite → Karte nicht zwei Varianten
+              laedt (siehe ProfileAlbum.tsx). */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={imageUrl} alt={alt} loading="lazy" />
+          <img
+            key={imageUrl}
+            sizes="(max-width: 559px) 50vw, 260px"
+            srcSet={mustEatCardSrcSet(imageUrl)}
+            src={mustEatCardSrc(imageUrl, 360)}
+            alt={alt}
+            loading="lazy"
+          />
         </div>
       </button>
     );
@@ -216,6 +234,7 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
       <LazyMustEatImageLightbox
         active={Boolean(expanded || hiddenId)}
         imageUrl={expanded?.imageUrl ?? null}
+        placeholderUrl={expanded?.placeholderUrl ?? null}
         alt={expanded?.alt ?? ''}
         originRect={expanded?.rect ?? null}
         onClose={closeExpanded}

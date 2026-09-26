@@ -10,7 +10,6 @@
   --boost-ink: var(--et-home-ink, #15120e);
   --boost-paper: var(--et-home-inverse-text, #fff);
   --boost-accent: var(--et-home-accent, #ffc600);
-  --boost-soft: rgba(255, 255, 255, 0.76);
 
   display: grid;
   grid-template-columns: minmax(140px, 240px) minmax(0, 1fr);

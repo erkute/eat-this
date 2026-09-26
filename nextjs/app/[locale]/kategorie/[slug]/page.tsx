@@ -81,11 +81,11 @@ function categorySocialImage(slug: string): string {
     : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 }
 
-/** Der Bezirks-Slug eines Spots — seine Facette im Chip-Filter. */
 /** Siehe CARD_LIMIT auf der Bezirksseite: ohne Bestenliste Karten nur bis zu
  *  so vielen Spots, darüber Zeilen. */
 const CARD_LIMIT = 12;
 
+/** Der Bezirks-Slug eines Spots — seine Facette im Chip-Filter. */
 const districtSlugsOf = (r: RestaurantCard) => (r.bezirk?.slug ? [r.bezirk.slug] : []);
 
 export async function generateStaticParams() {

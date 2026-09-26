@@ -32,7 +32,7 @@ function districtOf(r: MapRestaurant): string | null {
  * NFD zerlegt jeden Buchstaben in Grundzeichen plus Akzent, danach fliegen die
  * Akzente raus. Das wirkt auf BEIDEN Seiten: „Türkisch" getippt findet
  * „Turkisch" geschrieben und umgekehrt. */
-export function normalizeForSearch(value: string | null | undefined): string {
+function normalizeForSearch(value: string | null | undefined): string {
   return (
     (value ?? '')
       .toLowerCase()
@@ -66,7 +66,7 @@ const KIEZ_NAMES: [RegExp, string][] = [
 
 /** Die Anfrage als Woerter. Jedes muss irgendwo am Spot stehen — nicht der
  *  ganze Satz in einem Feld: „pizza neukölln" fand sonst nichts. */
-export function searchTokens(query: string): string[] {
+function searchTokens(query: string): string[] {
   let q = normalizeForSearch(query.trim());
   /* Der volle Name wird gefaltet wie alles andere — „Prenzlauer" steht im
      Index als „prenzlaur". */
@@ -103,7 +103,7 @@ function searchRank(entry: SearchEntry, tokens: string[]): number {
 
 /** The three pickable filters plus the open-now toggle — everything the chip
  *  rail holds. The search box narrows on top of it (see filterRestaurant). */
-export interface MapChipState {
+interface MapChipState {
   category: MapCategory;
   bezirk: string | null;
   /** Eine Preisstufen-ID aus PRICE_BUCKETS, nicht der Preis selbst. */

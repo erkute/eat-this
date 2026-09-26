@@ -11,7 +11,7 @@ import { buildAlbum } from './mustEatAlbum';
 import { FALLBACK_DISTRICT } from './nextMove';
 
 /** Ein Bezirk der oeffentlichen Ansicht — Name und Staende, sonst nichts. */
-export interface PublicDeckGroup {
+interface PublicDeckGroup {
   district: string;
   done: number;
   total: number;

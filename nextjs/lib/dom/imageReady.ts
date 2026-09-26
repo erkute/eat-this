@@ -11,7 +11,7 @@
    trotzdem weiter — die Karte kommt leer herein und füllt sich, statt eine
    falsche zu zeigen. Wer dieses Versprechen einlöst, muss sein <img> pro
    Bild neu mounten (`key={src}`), sonst hängt der alte Rahmen wieder drin. */
-export const IMAGE_READY_CAP_MS = 700;
+const IMAGE_READY_CAP_MS = 700;
 
 /** Erfüllt sich, sobald `src` dekodiert im Speicher liegt — spätestens nach
  *  `capMs`. Ein bereits geladenes Bild löst noch im selben Microtask aus. */

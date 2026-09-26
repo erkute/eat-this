@@ -10,9 +10,7 @@
 .page {
   --legal-ink: var(--et-home-ink, #15120e);
   --legal-fg: var(--et-home-inverse-text, #fff);
-  --legal-red: var(--et-home-red, #d9382a);
   --legal-accent: var(--et-home-accent, #ffc600);
-  --legal-paper: var(--et-home-paper, #fff);
   --legal-quiet: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
   --legal-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
   --legal-text: rgba(255, 255, 255, 0.84);

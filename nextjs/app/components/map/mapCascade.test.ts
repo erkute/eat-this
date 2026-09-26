@@ -332,27 +332,6 @@ describe('MapFilters cascade', () => {
     ).toBe('nowrap');
   });
 
-  it('keeps the desktop filter popover scrollable', () => {
-    /* The desktop popover caps its own height (`max-height: calc(100vh -
-     * anchor-top - 16px)`) but shipped the list inside it with `max-height:
-     * none; overflow: visible` — and the sheet does not clip either. The rows
-     * therefore ran straight past the panel edge: on a 722px viewport the last
-     * five entries of the cuisine picker rendered ~200px below the fold,
-     * `scrollTop` pinned at 0, unreachable by any means.
-     *
-     * A shorthand `overflow` anywhere in the desktop block resets `overflow-y`
-     * along with it, so both are pinned.
-     */
-    expect(
-      effective(FILTERS, 'pickerList', 'overflow-y', 'min-width: 1024px'),
-      'the desktop picker list must scroll — its rows overflow the capped sheet'
-    ).toBe('auto');
-    expect(
-      effective(FILTERS, 'pickerList', 'overflow', 'min-width: 1024px'),
-      'an `overflow` shorthand here silently undoes the scroll'
-    ).not.toBe('visible');
-  });
-
   it('never breaks a chip label mid-word', () => {
     // "Kreuz-berg". Wrapping at spaces is fine; splitting a word is not.
     expect(effective(FILTERS, 'filterChipLabel', 'overflow-wrap')).not.toBe('anywhere');

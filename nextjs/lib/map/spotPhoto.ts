@@ -16,10 +16,10 @@ import sanityImageLoader from '@/lib/sanityImageLoader';
  * ~1100px and took 1200 — 120 KB a photo against 67 KB at 900 (30 catalogue
  * photos, 23.09.2026) — and 900 on a ~370px card is still 2.4 pixels a point.
  */
-export const SPOT_PHOTO_WIDTHS = [400, 600, 700, 900] as const;
+const SPOT_PHOTO_WIDTHS = [400, 600, 700, 900] as const;
 
 /** The largest width, for a plain `src` or a CSS background. */
-export const SPOT_PHOTO_MAX_WIDTH = SPOT_PHOTO_WIDTHS[SPOT_PHOTO_WIDTHS.length - 1];
+const SPOT_PHOTO_MAX_WIDTH = SPOT_PHOTO_WIDTHS[SPOT_PHOTO_WIDTHS.length - 1];
 
 export function spotPhotoSrc(src: string): string {
   return sanityImageLoader({ src, width: SPOT_PHOTO_MAX_WIDTH });

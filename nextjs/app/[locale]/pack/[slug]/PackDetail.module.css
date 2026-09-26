@@ -13,11 +13,7 @@
   --pack-ink: var(--et-home-ink, #15120e);
   --pack-fg: var(--et-home-inverse-text, #fff);
   --pack-accent: var(--et-home-accent, #ffc600);
-  --pack-red: var(--et-home-red, #d9382a);
   --pack-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  --pack-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
-  --pack-quiet: rgba(255, 255, 255, 0.12);
-  --pack-rule: var(--et-ink-line, rgba(255, 255, 255, 0.14));
   --pack-soft: rgba(255, 255, 255, 0.76);
   display: flow-root;
   min-height: 100svh;

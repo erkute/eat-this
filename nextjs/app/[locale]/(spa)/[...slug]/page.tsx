@@ -130,8 +130,8 @@ export async function generateViewport({ params }: PageProps): Promise<Viewport>
   };
 }
 
-// Catch-all for SPA routes: /map, /news, /about, etc. Each top-slug renders
-// only its own section. More-specific routes (/news/[slug], /restaurant/[slug])
+// Catch-all for /news and the static pages in VALID_SLUGS. Each top-slug
+// renders only its own section. More-specific routes (/map, /news/[slug], …)
 // take priority via Next.js routing precedence.
 export default async function SPACatchAllPage({ params }: PageProps) {
   const { locale, slug } = await params;

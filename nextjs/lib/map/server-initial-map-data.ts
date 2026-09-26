@@ -41,8 +41,8 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
   // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL sieht ein Besucher
   // ohne Konto seit dem 07.09.2026 jede Karte, aber offen nur das Schaufenster
   // plus den Spot des Tages, und der ist flüchtig: pro Anfrage aus `today`
-  // gerechnet, morgen steht ein anderer da. Dieselbe Regel wie der Gast-Zweig
-  // in composeAccountSurface — die SSR-Nutzlast und der spätere Fetch müssen
+  // gerechnet, morgen steht ein anderer da. Dieselbe Regel wie
+  // composeAccountSurface für ein Konto ohne alles — die SSR-Nutzlast und der spätere Fetch müssen
   // dasselbe meinen, sonst springt die Karte beim Hydrieren. Die Rücken sind
   // der Anlass zur Anmeldung; was darunter liegt, bleibt auf dem Server
   // (getInitialAnonMapData strippt).

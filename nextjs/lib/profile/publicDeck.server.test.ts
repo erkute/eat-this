@@ -20,7 +20,8 @@ const state = vi.hoisted(() => ({
     categorySlugs: new Set<string>(),
   },
   visibleRestaurants: [] as MapRestaurant[],
-  visibleMustEats: [] as MapMustEat[],
+  /** Der Stapel aus Sanity — seit 27.09.2026 fuer jedes Konto derselbe. */
+  mustEats: [] as MapMustEat[],
   revealed: new Set<string>(),
   /* Der kuratierte Anon-Satz plus Spot des Tages — genau die Karten, die
      /api/must-eat-image ohne Cookie ausliefert. */
@@ -48,7 +49,7 @@ vi.mock('@/lib/firebase/unlockedMustEats.server', () => ({
   getUnlockedMustEatIds: async () => state.unlocked,
 }));
 vi.mock('@/lib/map/cached-sanity', () => ({
-  getCachedMapData: async () => ({ restaurants: ALL_RESTAURANTS, mustEats: ALL_MUST_EATS }),
+  getCachedMapData: async () => ({ restaurants: ALL_RESTAURANTS, mustEats: state.mustEats }),
 }));
 vi.mock('@/lib/map/free-surface', () => ({
   getFreeSurfaceData: async () => ({ restaurantIds: new Set<string>() }),
@@ -66,8 +67,6 @@ vi.mock('@/lib/map/server-initial-map-data', () => ({
 vi.mock('@/lib/map/visible-restaurants.server', () => ({
   composeAccountSurface: async () => ({
     restaurants: state.visibleRestaurants,
-    lockedRestaurants: [],
-    mustEats: state.visibleMustEats,
     faceUpIds: new Set([...state.revealed, ...state.unlocked, ...state.ent.mustEatIds]),
     fullCatalog: state.ent.isAdmin || state.ent.hasAllBerlin,
   }),
@@ -136,7 +135,7 @@ afterEach(() => {
     categorySlugs: new Set(),
   };
   state.visibleRestaurants = [];
-  state.visibleMustEats = [];
+  state.mustEats = [];
   state.revealed = new Set();
   state.publicMustEatIds = new Set();
 });
@@ -150,7 +149,7 @@ describe('getPublicDeck', () => {
      versehentlich mitfliegen; dieser Test ist die Liste. */
   it('gibt nur die vereinbarten Felder heraus', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = ALL_MUST_EATS;
+    state.mustEats = ALL_MUST_EATS;
 
     const deck = await getPublicDeck(OK_UID);
 
@@ -174,7 +173,7 @@ describe('getPublicDeck', () => {
 
   it('traegt weder E-Mail noch Foto-URL noch ein Gericht nach draussen', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = [mustEat('m1', 'r1', true), mustEat('m2', 'r1')];
+    state.mustEats = [mustEat('m1', 'r1', true), mustEat('m2', 'r1')];
     state.revealed = new Set(['m1']);
 
     const serialized = JSON.stringify(await getPublicDeck(OK_UID), (_k, v) =>
@@ -196,7 +195,7 @@ describe('getPublicDeck', () => {
      mit einem geteilten Link. */
   it('zeigt ein Bild nur fuer Karten, die auch ohne Anmeldung offen liegen', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = ALL_MUST_EATS;
+    state.mustEats = ALL_MUST_EATS;
     // m1 und m2 sind aufgedeckt, aber nur m1 gehoert zum oeffentlichen Satz.
     state.revealed = new Set(['m1', 'm2']);
     state.publicMustEatIds = new Set(['m1']);
@@ -218,13 +217,15 @@ describe('getPublicDeck', () => {
      umgedreht hat. */
   it('gibt einer verdeckten Karte kein Bild, auch aus dem oeffentlichen Satz', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = ALL_MUST_EATS;
+    state.mustEats = ALL_MUST_EATS;
     state.revealed = new Set();
     state.publicMustEatIds = new Set(['m1', 'm2', 'm3', 'm4']);
 
     const deck = await getPublicDeck(OK_UID);
 
     expect(deck?.cards.every((c) => c.kind === 'missing')).toBe(true);
+    // Der Zaehler nennt trotzdem den ganzen Stapel: „0 von 4", nicht „0 von 0".
+    expect(deck?.total).toBe(4);
   });
 
   /* Die Nummern stehen hier nicht mehr, die Reihenfolge schon: dieselbe wie
@@ -232,7 +233,7 @@ describe('getPublicDeck', () => {
      Karte auf zwei Seiten an zwei Stellen. */
   it('legt die Karten in dieselbe Reihenfolge wie das eigene Deck', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = [
+    state.mustEats = [
       { ...mustEat('m4', 'r3'), order: 12 },
       { ...mustEat('m1', 'r1'), order: 3 },
     ];
@@ -254,7 +255,7 @@ describe('getPublicDeck', () => {
   it('leitet den Namen nie aus der E-Mail-Adresse ab', async () => {
     state.account = { ...(state.account as object), displayName: null } as Record<string, unknown>;
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = ALL_MUST_EATS;
+    state.mustEats = ALL_MUST_EATS;
 
     const deck = await getPublicDeck(OK_UID);
 
@@ -263,14 +264,14 @@ describe('getPublicDeck', () => {
 
   it('nimmt nur den Vornamen', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = ALL_MUST_EATS;
+    state.mustEats = ALL_MUST_EATS;
 
     expect((await getPublicDeck(OK_UID))?.name).toBe('Ersan');
   });
 
   it('zaehlt je Bezirk, was dort aufgedeckt ist', async () => {
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = ALL_MUST_EATS;
+    state.mustEats = ALL_MUST_EATS;
     state.revealed = new Set(['m1']);
     state.unlocked = new Set(['m4']);
 
@@ -293,7 +294,7 @@ describe('getPublicDeck', () => {
     state.ent = { ...state.ent, isAdmin: true, hasAllBerlin: true };
     // Was composeAccountSurface im Admin-Zweig liefert: ganzer Katalog, alles offen.
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = ALL_MUST_EATS;
+    state.mustEats = ALL_MUST_EATS;
     state.revealed = new Set(ALL_MUST_EATS.map((m) => m._id));
 
     const deck = await getPublicDeck(OK_UID);
@@ -315,7 +316,7 @@ describe('getPublicDeck', () => {
   it('faellt bei einem kaputten Avatar-Wert auf die erste Figur zurueck', async () => {
     state.avatar = 99;
     state.visibleRestaurants = ALL_RESTAURANTS;
-    state.visibleMustEats = ALL_MUST_EATS;
+    state.mustEats = ALL_MUST_EATS;
 
     expect((await getPublicDeck(OK_UID))?.avatar).toBe(1);
   });

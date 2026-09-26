@@ -79,39 +79,25 @@ describe('composeAccountSurface', () => {
     expect(s.fullCatalog).toBe(false);
   });
 
-  /* Ein Konto ohne alles (frisch, das Starter Pack noch nicht da) sieht das
-     Schaufenster und sonst nichts — das Deck zeigt, was einem gehoert. */
-  it('zeigt einem Konto ohne alles nur das Schaufenster, und das ganz offen', async () => {
+  /* Ein Konto ohne alles (frisch, das Starter Pack noch nicht da) hat offen
+     nur das Schaufenster — der Stapel selbst liegt ihm trotzdem ganz vor,
+     als Ruecken (siehe den Kommentar am Ende von composeAccountSurface). */
+  it('oeffnet einem Konto ohne alles nur das Schaufenster', async () => {
     const s = await compose();
 
     expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
-    expect(s.mustEats).toHaveLength(REVEALED_TARGET);
     for (const id of COVERED) expect(s.faceUpIds.has(id)).toBe(false);
   });
 
-  /* Ein GAST dagegen sieht jeden Ruecken (Betreiber, 07.09.2026): jeder ist
-     die Frage „was liegt darunter?", und die Antwort ist die Anmeldung. Offen
-     bleibt trotzdem nur das Schaufenster. */
-  it('zeigt einem Gast den ganzen Stapel, offen aber nur das Schaufenster', async () => {
-    const s = await compose({ guest: true });
-
-    expect(s.mustEats).toHaveLength(ALL_MUST_EATS.length);
-    expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
-    for (const id of COVERED) expect(s.faceUpIds.has(id)).toBe(false);
-    expect(s.fullCatalog).toBe(false);
-  });
-
-  /* Das Starter Pack: was es verdeckt vergibt, ist SICHTBAR (Ruecken im
-     Album), aber nicht offen. Genau dieser Unterschied traegt die halbe
-     Mechanik — ohne ihn waere die verdeckte Haelfte unsichtbar und wertlos. */
-  it('zeigt verdeckt vergebene Karten als Ruecken, nicht als offen', async () => {
+  /* Das Starter Pack: was es verdeckt vergibt, bleibt ein Ruecken, bis man
+     vor Ort ist. */
+  it('legt verdeckt vergebene Karten nicht offen', async () => {
     const s = await compose({
       ent: { ...EMPTY_ENT, coveredMustEatIds: new Set(['m11', 'm12']) },
     });
 
-    expect(s.mustEats.map((m) => m._id)).toContain('m11');
     expect(s.faceUpIds.has('m11')).toBe(false);
-    expect(s.mustEats).toHaveLength(REVEALED_TARGET + 2);
+    expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
   });
 
   it('gibt dem Admin den ganzen Katalog, und zwar offen', async () => {

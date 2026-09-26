@@ -91,7 +91,6 @@ beforeEach(() => {
   });
   vi.mocked(composeAccountSurface).mockResolvedValue({
     restaurants: [{ _id: 'r1' }] as never[],
-    mustEats: [MUST_EAT] as never[],
     faceUpIds: new Set(),
     fullCatalog: false,
   });
@@ -129,7 +128,6 @@ describe('/api/must-eat-reveal', () => {
   it('deckt auch an einem Spot auf, der sonst nirgends im Konto vorkommt', async () => {
     vi.mocked(composeAccountSurface).mockResolvedValueOnce({
       restaurants: [{ _id: 'other-restaurant' }] as never[],
-      mustEats: [],
       faceUpIds: new Set(),
       fullCatalog: false,
     });

@@ -9,7 +9,6 @@
   --news-yellow: var(--et-home-accent, #ffc600);
   --news-muted: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
   --news-copy: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  min-height: 100%;
   background: var(--news-ink);
   color: var(--news-fg);
 }

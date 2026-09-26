@@ -1,4 +1,4 @@
-import { CSS_VERSION, TYPEKIT_STYLESHEET } from '@/lib/constants';
+import { TYPEKIT_STYLESHEET } from '@/lib/constants';
 import { AuthProvider, LoginModalProvider } from '@/lib/auth';
 import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
@@ -9,7 +9,6 @@ import SiteNav from './SiteNav';
 export default function NotFoundAppFrame({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <link rel="stylesheet" href={`/css/style.min.css?v=${CSS_VERSION}`} precedence="default" />
       {/* The layout's bootstrap script never runs on a streamed notFound()
           render, so the Adobe kit would stay off and the shared chrome (nav,
           footer) would fall back to Impact. Link it here instead. */}

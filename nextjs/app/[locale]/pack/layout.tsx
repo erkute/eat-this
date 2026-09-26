@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
-import { CSS_VERSION } from '@/lib/constants';
 import { AuthProvider, LoginModalProvider } from '@/lib/auth';
 import { UserLocationProvider } from '@/lib/map/UserLocationContext';
 import SiteNav from '@/app/components/SiteNav';
@@ -26,12 +25,6 @@ export default async function PackLayout({
     <AuthProvider>
       <LoginModalProvider>
         <UserLocationProvider>
-          {/* Full SPA stylesheet — needed for SiteNav/burger styling on this non-(spa) route */}
-          <link
-            rel="stylesheet"
-            href={`/css/style.min.css?v=${CSS_VERSION}`}
-            precedence="default"
-          />
           <BridgeAuth />
           <SiteNav />
           <BurgerDrawer />

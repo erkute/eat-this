@@ -30,7 +30,7 @@
 
      Die 74 sind der App-Rahmen: nicht das Fenster scrollt hier, sondern
      `.app-pages`, das ab 768px auf `height: calc(100dvh - 74px)` steht
-     (css/style.css, DESKTOP APP FRAME). NICHT `--site-nav-h` nehmen — die
+     (globals.css, Desktop app frame). NICHT `--site-nav-h` nehmen — die
      Variable steht auf 78px, der Rahmen rechnet mit 74.
 
      Falls hier je wieder ein innerer Scroll einzieht, zwei Befunde vom

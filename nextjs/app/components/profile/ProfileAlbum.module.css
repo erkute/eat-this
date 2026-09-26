@@ -93,8 +93,8 @@
     --album-player-w: clamp(130px, 11vw, 160px);
   }
 
-  /* Mit `main` qualifiziert: `.homeV2 .hv-title` aus style.css hat denselben
-     Rang und laedt in Produktion nach den Modulen. */
+  /* Mit `main` qualifiziert: `.homeV2 .hv-title` aus globals.css hat denselben
+     Rang (0,2,0). */
   main .masthead :global(.hv-title) {
     font-size: clamp(40px, 5vw, 72px);
   }

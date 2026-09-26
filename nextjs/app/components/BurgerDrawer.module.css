@@ -1,0 +1,391 @@
+/* ══════════════════════════════════════════════════════════════════════
+   BURGER DRAWER  —  single source of truth
+   Full-screen slide-in menu. Ink sheet · white type · ONE yellow accent ·
+   Providence display caps · borderless · modest radius. Mirrors the home
+   masthead (SiteNav.module.css) and the ink home footer so header, menu
+   and footer read as one system.
+   Motion: panel + items TRANSLATE in (never opacity — brand rule); the
+   container's opacity only tints the backdrop.
+   ══════════════════════════════════════════════════════════════════════ */
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+  opacity: 0;
+  transition: none;
+}
+.drawer[hidden] {
+  display: none;
+  pointer-events: none;
+}
+.drawer:global(.active) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px) saturate(1.1);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  border: 0;
+}
+
+.panel {
+  position: relative;
+  width: min(100vw, 460px);
+  height: 100dvh;
+  background: var(--home-ink, #15120e);
+  color: #fff;
+  box-shadow: -26px 0 64px rgba(0, 0, 0, 0.32);
+  backface-visibility: hidden;
+  contain: layout paint style;
+  transform: translate3d(100%, 0, 0);
+  transition: transform 0.34s cubic-bezier(0.18, 0.86, 0.26, 1);
+  will-change: transform;
+}
+.drawer:global(.active) .panel {
+  transform: translate3d(0, 0, 0);
+}
+
+.scroller {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  row-gap: clamp(12px, 2dvh, 22px);
+  padding: max(20px, calc(env(safe-area-inset-top, 0px) + 16px)) clamp(22px, 3vw, 34px)
+    max(18px, env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
+
+/* Top bar — language toggle (left); close sits absolutely top-right */
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  min-height: 30px;
+  padding-right: 52px;
+}
+.lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-providence);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.langBtn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+}
+.langBtn.langBtnOn,
+.langBtn:focus-visible {
+  color: var(--home-accent, #ffc600);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+@media (hover: hover) {
+  .langBtn:hover {
+    color: var(--home-accent, #ffc600);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+}
+.langSep {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Close — white glyph on a faint disc, yellow on hover (matches masthead) */
+.close {
+  position: absolute;
+  top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px));
+  right: clamp(18px, 2.4vw, 26px);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 3px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 0;
+  border-radius: 50%;
+  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.close:focus-visible {
+  background: var(--home-accent, #ffc600);
+  color: var(--home-ink, #15120e);
+  outline: 0;
+}
+@media (hover: hover) {
+  .close:hover {
+    background: var(--home-accent, #ffc600);
+    color: var(--home-ink, #15120e);
+    outline: 0;
+  }
+}
+
+/* Logo — cream wordmark, centered on the ink sheet */
+.logo {
+  display: block;
+  width: clamp(150px, 46vw, 220px);
+  margin: 0 auto;
+  justify-self: center;
+  text-decoration: none;
+  transform: translateY(-4px);
+  transition: transform 0.15s ease;
+}
+.logo:focus-visible {
+  outline: 0;
+  transform: translateY(-7px);
+}
+@media (hover: hover) {
+  .logo:hover {
+    outline: 0;
+    transform: translateY(-7px);
+  }
+}
+.logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Nav — big white Providence caps as bare words; hover = yellow + slide */
+.nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(2px, 0.7dvh, 8px);
+}
+.navItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: clamp(40px, 5.3dvh, 54px);
+  padding: 7px 12px 8px;
+  background: transparent;
+  color: #fff;
+  border: 0;
+  border-radius: var(--home-radius-btn, 8px);
+  font-family: var(--font-providence);
+  font-size: clamp(28px, min(4.6dvh, 8vw), 40px);
+  font-weight: 700;
+  line-height: 0.82;
+  text-align: left;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+.navItem:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--home-accent, #ffc600);
+  outline: 0;
+  transform: translateX(-6px);
+}
+@media (hover: hover) {
+  .navItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--home-accent, #ffc600);
+    outline: 0;
+    transform: translateX(-6px);
+  }
+}
+/* Anmelden / Profil — THE single accent button, pinned above the nav */
+.navItem.cta {
+  order: -1;
+  margin-bottom: clamp(14px, 2dvh, 22px);
+  background: var(--home-accent, #ffc600);
+  color: var(--home-ink, #15120e);
+}
+.navItem.cta:focus-visible {
+  background: #fff;
+  color: var(--home-ink, #15120e);
+  transform: translateX(-6px);
+}
+@media (hover: hover) {
+  .navItem.cta:hover {
+    background: #fff;
+    color: var(--home-ink, #15120e);
+    transform: translateX(-6px);
+  }
+}
+
+/* Legal dock — quiet centered text links, yellow underline on hover */
+.foot {
+  width: min(100%, 560px);
+  margin: clamp(8px, 1.6dvh, 18px) auto 0;
+  padding-top: clamp(12px, 1.8dvh, 18px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.footLink {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-providence);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.footLink:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: var(--home-accent, #ffc600);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+@media (hover: hover) {
+  .footLink:hover {
+    color: #fff;
+    text-decoration: underline;
+    text-decoration-color: var(--home-accent, #ffc600);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+}
+
+/* Entrance — die Wörter werden auf die Tafel GEWORFEN (no opacity fades,
+   per brand rule: reine transform-Bewegung).
+
+   Choreografie: die Tür kommt LEER an (CTA, Logo und Footer stehen schon),
+   dann schießt Wort für Wort von rechts durch die Panelkante herein — die
+   `contain: paint`-Klammer des Panels clippt, die Kante ist also eine
+   Gratis-Maske ohne overflow-Wrapper (und ohne die Unterlängen-Falle
+   vertikaler Masken). Jedes Wort fliegt mit leichtem Dreh um seine
+   Lesekante und federt über die Ruhelage minimal hinaus (Bezier-Overshoot).
+
+   Alles startet im KLICK-Frame — kein Warten auf die gelandete Tür, das
+   fühlte sich zäh an. Bezahlbar ist das, weil burgerDrawerState.ts die
+   teure Arbeit dieses Frames (lockBody = Seiten-Reflow, Canvas-Tint) um
+   einen Frame nach HINTEN schiebt, und weil die Drawer-Links kein
+   Prefetch mehr auslösen (siehe Trace-Notiz im Commit). `backwards` statt
+   `both`: nach der Landung gilt wieder der Basiszustand (transform: none),
+   damit der Hover-Slide der Wörter nicht von einer ewigen Fill-Mode
+   überdeckt wird; während des Versatzes hält `backwards` den Off-Panel-
+   Zustand, ein statischer Startzustand ist dafür nicht nötig. */
+.drawer:global(.active) .navItem:not(.cta) {
+  transform-origin: left center;
+  animation: wordDeal 0.38s cubic-bezier(0.18, 0.9, 0.22, 1.06) backwards;
+  animation-delay: 0s; /* Map fliegt im Klick-Frame los */
+  --bd-fly-rot: 1.6deg;
+}
+/* Die Drehung wechselt die Seite, damit der Stapel organisch fällt statt
+   uniform zu klappen; die Delays takten die Welle. */
+.drawer:global(.active) .navItem:nth-child(3) {
+  animation-delay: 0.035s;
+  --bd-fly-rot: -1.4deg;
+}
+.drawer:global(.active) .navItem:nth-child(4) {
+  animation-delay: 0.07s;
+  --bd-fly-rot: 1.2deg;
+}
+.drawer:global(.active) .navItem:nth-child(5) {
+  animation-delay: 0.105s;
+  --bd-fly-rot: -1.6deg;
+}
+.drawer:global(.active) .navItem:nth-child(6) {
+  animation-delay: 0.14s;
+  --bd-fly-rot: 1.3deg;
+}
+.drawer:global(.active) .navItem:nth-child(7) {
+  animation-delay: 0.175s;
+  --bd-fly-rot: -1.2deg;
+}
+.drawer:global(.active) .navItem:nth-child(8) {
+  animation-delay: 0.21s;
+  --bd-fly-rot: 1.5deg;
+}
+.drawer:global(.active) .navItem:nth-child(9) {
+  animation-delay: 0.245s;
+  --bd-fly-rot: -1.3deg;
+}
+/* Der zehnte Platz ist „Stats", nur fuer Admins sichtbar. Ohne eigene Stufe
+   erbte er den Versatz 0 von oben und stand schon, waehrend die Welle noch
+   lief. */
+.drawer:global(.active) .navItem:nth-child(10) {
+  animation-delay: 0.28s;
+  --bd-fly-rot: 1.4deg;
+}
+@keyframes wordDeal {
+  from {
+    transform: translateX(108%) rotate(var(--bd-fly-rot, 1.5deg));
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .panel {
+    width: 100vw;
+    box-shadow: none;
+  }
+  .scroller {
+    padding: max(46px, calc(env(safe-area-inset-top, 0px) + 42px)) 16px
+      max(14px, env(safe-area-inset-bottom, 0px));
+    row-gap: clamp(8px, 1.2dvh, 14px);
+  }
+  .logo {
+    width: clamp(156px, 56vw, 232px);
+  }
+  .navItem,
+  .navItem.cta {
+    min-height: clamp(38px, 5.2dvh, 50px);
+    font-size: clamp(24px, min(5.2dvh, 8.4vw), 37px);
+    white-space: nowrap;
+  }
+}
+@media (max-height: 700px) {
+  .scroller {
+    row-gap: 8px;
+  }
+  .logo {
+    width: clamp(120px, 20dvh, 160px);
+  }
+  .navItem,
+  .navItem.cta {
+    min-height: 36px;
+    font-size: clamp(24px, 4.6dvh, 34px);
+  }
+}

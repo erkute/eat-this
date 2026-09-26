@@ -124,13 +124,6 @@ const nextConfig: NextConfig = {
       "worker-src 'self' blob:",
       "form-action 'self' https://checkout.stripe.com",
     ].join('; ');
-    // Nur fuer Dateien, deren URL sich aendert, wenn sich ihr Inhalt aendert:
-    // `/css/` haengt `CSS_VERSION` als Query an, Schriften werden nicht
-    // ersetzt, sondern kommen unter neuem Namen dazu.
-    const immutableAssetHeaders = [
-      { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-    ];
-
     // Bilder, die unter GLEICHEM Namen ersetzt werden. Dieselbe Rechnung wie
     // beim Kartenstyle unten, und sie ist am 05.09.2026 teuer gelernt worden:
     // die Telefone im Hero der Startseite wurden ausgetauscht, lagen als neue
@@ -153,10 +146,6 @@ const nextConfig: NextConfig = {
     ];
 
     return [
-      {
-        source: '/css/:path*',
-        headers: immutableAssetHeaders,
-      },
       {
         source: '/pics/:path*',
         headers: replaceableAssetHeaders,

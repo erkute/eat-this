@@ -17,7 +17,6 @@
   /* 660 statt 680: bei 18px Lauftext sind das ~73 Zeichen pro Zeile und damit
      innerhalb der 45–75, die als angenehm gelten. Mit 680 waren es 76. */
   --article-measure: 660px;
-  min-height: 100%;
   /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert.
      Oben 0: die 34px trugen die Brotkrume. Ohne sie klemmte ein weißer
      Streifen zwischen der schwarzen SiteNav und dem dunklen Aufmacherfoto und
@@ -28,12 +27,12 @@
   color: var(--article-fg);
 }
 
-/* `.app-page` (css/style.css) pairs overflow-x:hidden with overflow-y:visible
+/* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
    from 768px up — a combination CSS computes to overflow-y:auto, i.e. a
    scrollport that never scrolls. That silently kills `position: sticky` in the
    chapter rail. `clip` contains the same horizontal overflow without creating a
-   scroll container. Qualified with the element (0,1,1) so it also outranks
-   `.app-page` in the production load order, where style.css wins ties. */
+   scroll container. Qualified with the element (0,1,1) so it outranks
+   `.app-page` regardless of load order. */
 div.page {
   overflow-x: clip;
   overflow-y: visible;

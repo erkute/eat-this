@@ -14,8 +14,8 @@ import { OG_PACK_VERSION } from '@/lib/constants';
  * stands for whatever emits them next.
  *
  * Social crawlers cache these hard, so a route left on a stale version keeps
- * serving the old card long after the file changed. Same contract as
- * CSS_VERSION: one constant, bumped whenever a file in public/pics/og/ does. */
+ * serving the old card long after the file changed. One constant, bumped
+ * whenever a file in public/pics/og/ does. */
 
 const ROUTES_EMITTING_OG_CARDS = ['app/[locale]/kategorie/[slug]/page.tsx'];
 

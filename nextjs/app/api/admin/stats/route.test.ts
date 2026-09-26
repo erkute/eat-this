@@ -96,10 +96,12 @@ describe('GET /api/admin/stats', () => {
     mocks.collectionGroup.mockReset().mockResolvedValue(snapshot([]));
     mocks.mapData.mockReset().mockResolvedValue({ restaurants: [], mustEats: [], categories: [] });
     delete process.env.ADMIN_EMAILS;
+    delete process.env.STATS_EXCLUDE_EMAILS;
   });
 
   afterEach(() => {
     delete process.env.ADMIN_EMAILS;
+    delete process.env.STATS_EXCLUDE_EMAILS;
   });
 
   it('weist Aufrufe ohne Token ab', async () => {
@@ -368,6 +370,48 @@ describe('GET /api/admin/stats', () => {
       checkouts: { inWindow: 1, open: 1, completed: 0 },
       people: { accounts: 2, withStarterPack: 1, withReveal: 1, withReferral: 1, buyers: 1 },
     });
+  });
+
+  it('lässt Test-Konten aus STATS_EXCLUDE_EMAILS weg — samt ihrer Karten und Käufe', async () => {
+    process.env.STATS_EXCLUDE_EMAILS = ' Test@Example.com , ';
+    mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
+    mocks.listUsers.mockResolvedValue({
+      users: [
+        authUser('test@example.com', '2026-08-29T10:00:00Z', '2026-08-30T10:00:00Z'),
+        authUser('a@example.com', '2026-08-29T10:00:00Z', '2026-08-30T10:00:00Z'),
+      ],
+      pageToken: undefined,
+    });
+    mocks.collectionGroup.mockImplementation((name: string) =>
+      snapshot(
+        name === 'entitlements'
+          ? [
+              {
+                id: 'starter',
+                data: { purchasedAt: ts('2026-08-30T12:00:00Z'), type: 'starter' },
+                uid: 'uid-test@example.com',
+              },
+            ]
+          : []
+      )
+    );
+
+    const body = await (await GET(request({ authorization: 'Bearer abc' }, '?days=7'))).json();
+
+    expect(body.accounts).toMatchObject({ total: 1, starterPacks: { total: 0 } });
+  });
+
+  it('macht ein Test-Konto nicht zum Admin', async () => {
+    process.env.STATS_EXCLUDE_EMAILS = 'test@example.com';
+    mocks.verifyIdToken.mockResolvedValue({
+      uid: 'u1',
+      email: 'test@example.com',
+      email_verified: true,
+    });
+
+    const res = await GET(request({ authorization: 'Bearer abc' }));
+
+    expect(res.status).toBe(404);
   });
 
   it('liefert den Katalog aus Sanity — und null, wenn Sanity nicht antwortet', async () => {

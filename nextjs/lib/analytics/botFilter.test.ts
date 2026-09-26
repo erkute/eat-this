@@ -35,6 +35,16 @@ describe('isAutomated', () => {
     expect(isAutomated(ua)).toBe(true);
   });
 
+  /* Seen 26.09.2026 in the Claude desktop app's browser pane. It has its own
+   * cookie jar, so the /admin/stats opt-out cookie never covers it. */
+  it('drops the Claude desktop app browser', () => {
+    expect(
+      isAutomated(
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Claude/2.9939.2 Chrome/152.0.7977.130 Safari/537.36'
+      )
+    ).toBe(true);
+  });
+
   it('drops an empty user agent', () => {
     expect(isAutomated('')).toBe(true);
     expect(isAutomated(null)).toBe(true);

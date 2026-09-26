@@ -57,7 +57,7 @@ function ownerOf(doc: { ref: { parent: { parent: { id: string } | null } } }): s
 
 /**
  * Konten aus Firebase Auth, nicht aus `users/`: dort liegen Seed-Dokumente
- * vom Mai 2026, die nie ein Konto waren. Admin-Konten fallen raus, sonst ist
+ * vom Mai 2026, die nie ein Konto waren. Admin- und Test-Konten fallen raus (`isOwnAccount`), sonst ist
  * der Betreiber jeden Tag das aktive Konto — und seine Testkaeufe waeren
  * Umsatz. Alles Weitere — Starter Packs,
  * Käufe, Aufdeckungen vor Ort, Einladungen, Checkout-Versuche — kommt aus den
@@ -67,6 +67,24 @@ function ownerOf(doc: { ref: { parent: { parent: { id: string } | null } } }): s
  * Alles hier ist klein (zweistellige Kontenzahl, dreistellige Dokumente) und
  * wird bei jedem Aufruf frisch gelesen; ein Cache waere mehr Code als Nutzen.
  */
+/**
+ * Konten, die nicht in die Zahlen gehören: der Admin und die Test-Konten des
+ * Betreibers. Lokales `next dev` meldet sich gegen das PRODUKTIONS-Firebase
+ * an — jedes Konto, das beim Testen entsteht, stand sonst als Anmeldung,
+ * Starter Pack oder Aufdeckung im Brett. `STATS_EXCLUDE_EMAILS` ist bewusst
+ * nicht `ADMIN_EMAILS`: dort einzutragen hiesse, dem Test-Konto Admin-Rechte
+ * zu geben.
+ */
+function isOwnAccount(email: string | null): boolean {
+  if (isAdminEmail(email)) return true;
+  if (!email) return false;
+  return (process.env.STATS_EXCLUDE_EMAILS ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(email.toLowerCase());
+}
+
 async function loadAccounts(
   auth: Auth,
   db: Firestore,
@@ -78,7 +96,7 @@ async function loadAccounts(
   do {
     const page = await auth.listUsers(1000, pageToken);
     for (const user of page.users) {
-      if (isAdminEmail(user.email ?? null)) continue;
+      if (isOwnAccount(user.email ?? null)) continue;
       accountByUid.set(user.uid, {
         createdDay: dayOf(user.metadata.creationTime) ?? '',
         lastActiveDay: dayOf(user.metadata.lastRefreshTime ?? user.metadata.lastSignInTime),

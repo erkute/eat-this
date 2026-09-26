@@ -42,6 +42,7 @@ import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
 import { resolveDetailHistory } from '@/lib/map/detailHistory';
 import { spotsCameraTarget, hasRoomToFit, fitPadding } from '@/lib/map/cameraFit';
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
+import { isPhoneViewport, isSheetViewport, isTabletViewport } from '@/lib/map/viewport';
 
 /* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
    ~24px either side of the anchor and ~47px above it (MapMarkers.module.css).
@@ -74,14 +75,6 @@ interface Props {
   initialMapData?: InitialMapData;
   initialRestaurantSlug?: string | null;
   fontClassName?: string;
-}
-
-/* Phones (≤767.98px) render the map list as a window-scrolled in-flow
-   document so its rows frost through iOS Safari's bottom URL bar (see the
-   in-flow block in MapSheet.module.css). Tablets/desktop keep the drag sheet /
-   side panel — must match PHONE_MAX in useBottomSheet.ts. */
-function isPhoneViewport(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(max-width: 767.98px)').matches;
 }
 
 export default function MapSection({
@@ -266,11 +259,7 @@ export default function MapSection({
      origin === 'list'. */
   const mapTapOnlyDismisses = useCallback(
     (origin: DetailOrigin) =>
-      origin === 'map' &&
-      sheetView === 'detail' &&
-      snap !== 'peek' &&
-      typeof window !== 'undefined' &&
-      window.matchMedia('(max-width: 1023.98px)').matches,
+      origin === 'map' && sheetView === 'detail' && snap !== 'peek' && isSheetViewport(),
     [sheetView, snap]
   );
 
@@ -511,8 +500,7 @@ export default function MapSection({
 
   useLayoutEffect(() => {
     if (sheetView !== 'detail') return;
-    if (typeof window === 'undefined') return;
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
+    if (!isSheetViewport()) return;
     if (isPhoneViewport()) {
       /* In-flow detail takeover: ein frisch GEÖFFNETES Detail startet oben im
          fensterscrollenden Dokument. Snap state is meaningless here — the hook
@@ -900,7 +888,7 @@ export default function MapSection({
   const getFlyPadding = useCallback(
     (targetSnap?: 'peek' | 'mid' | 'full', visiblePxOverride?: number) => {
       if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 };
-      const isMobile = window.matchMedia('(max-width: 1023.98px)').matches;
+      const isMobile = isSheetViewport();
       if (!isMobile) {
         // Desktop: the map canvas IS the left grid cell — the side panel is
         // outside the canvas. Reserve room at top (toolbar + burger stacked
@@ -1004,7 +992,7 @@ export default function MapSection({
       onReady: (map) => {
         initialCameraConsumedRef.current = true;
         map.resize();
-        const isTablet = window.matchMedia('(min-width: 768px) and (max-width: 1023.98px)').matches;
+        const isTablet = isTabletViewport();
         map.flyTo({
           center: [selectedRestaurantLng, selectedRestaurantLat],
           zoom: 15,
@@ -1081,8 +1069,7 @@ export default function MapSection({
       // Locked spots need it too since 2026-08-23: their sheet opens with the
       // spot's own shortDescription above the offer.
       prefetchRestaurantDetail(r.slug);
-      const isMobile =
-        typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
+      const isMobile = isSheetViewport();
       const isPhone = isPhoneViewport();
       // Capture the list scroll *before* the view switches and the content
       // element unmounts — useLayoutEffect on return restores it. Phones
@@ -1186,8 +1173,7 @@ export default function MapSection({
         origin: 'pager',
         direction: dir,
       });
-      const isMobile =
-        typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
+      const isMobile = isSheetViewport();
       setSelectedRestaurant(target);
       mapRef.current?.flyTo({
         center: [target.lng, target.lat],
@@ -1252,8 +1238,7 @@ export default function MapSection({
         direction: dir,
         unlocked: unlockedIds.has(target._id),
       });
-      const isMobile =
-        typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
+      const isMobile = isSheetViewport();
       setSelectedMustEat(target);
       mapRef.current?.flyTo({
         center: [target.restaurant.lng, target.restaurant.lat],
@@ -1277,8 +1262,7 @@ export default function MapSection({
         origin: selectedRestaurant ? 'restaurant_detail' : 'map',
         unlocked: unlockedIds.has(m._id),
       });
-      const isMobile =
-        typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
+      const isMobile = isSheetViewport();
       // Capture the list scroll before the view switches (mirrors handleRestaurantClick).
       if (sheetView === 'list') {
         listScrollRef.current = isPhoneViewport()
@@ -1546,8 +1530,7 @@ export default function MapSection({
   }, [listCenter, contentRef]);
 
   const handleMapClick = useCallback(() => {
-    const isMobile =
-      typeof window !== 'undefined' && window.matchMedia('(max-width: 1023.98px)').matches;
+    const isMobile = isSheetViewport();
     if (!isMobile) return;
     /* Tap on the map = collapse whatever sheet is currently open to peek so
        the map gets the focus. For a detail view, peek shows name + 3 round
@@ -1932,7 +1915,7 @@ export default function MapSection({
      so the map doesn't open half-scrolled from a previous visit. */
   useEffect(() => {
     if (!isActive) return;
-    if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
+    if (!isSheetViewport()) return;
     if (isPhoneViewport()) {
       window.scrollTo(0, 0);
       return;

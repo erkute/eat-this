@@ -15,7 +15,7 @@
 .stage {
   position: absolute;
   inset: 0;
-  background-color: var(--et-zoom-cap, #080705);
+  background-color: var(--et-zoom-cap);
 }
 .stageOpen {
   animation: irisOpen 0.46s cubic-bezier(0.3, 0, 0.2, 1) both;
@@ -436,7 +436,7 @@
   gap: 4px;
   text-align: center;
   color: #fff;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   pointer-events: none;
 }
 .line {

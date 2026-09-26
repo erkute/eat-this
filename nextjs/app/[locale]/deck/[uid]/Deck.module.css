@@ -104,7 +104,7 @@
 .dare {
   display: block;
   margin-top: 6px;
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
   font-size: 0.82em;
   white-space: nowrap;
 }
@@ -131,7 +131,7 @@
   color: #fff;
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.3;
   text-transform: uppercase;
 }
@@ -141,7 +141,7 @@
   flex: 0 0 auto;
   width: 9px;
   height: 9px;
-  background: var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
 }
 
 .pointBody {
@@ -177,7 +177,7 @@
   color: #fff;
   background: rgba(255, 255, 255, 0.1);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   cursor: pointer;
   font: inherit;
   font-size: 16px;

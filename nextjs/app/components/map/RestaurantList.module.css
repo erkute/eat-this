@@ -151,7 +151,7 @@
 }
 .rcardMetaChip + .rcardMetaChip::before {
   margin: 0 7px;
-  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  color: var(--et-ink-dim);
 }
 .openPill {
   box-shadow: none;
@@ -160,7 +160,7 @@
   transform-origin: 58% 72%;
 }
 .rcard {
-  border-bottom: 3px solid var(--et-home-ink);
+  border-bottom: 3px solid var(--et-ink);
   transform: none;
 }
 .rcardBody {
@@ -188,7 +188,7 @@
   /* Raised ink, not the page's own: until the photo is in, the card reads as
      a card and not as a hole in the list (user, 23.09.2026: „da ist so
      schwarz und dann kommen die Bilder"). */
-  background: var(--et-ink-raised, #25231f);
+  background: var(--et-ink-raised);
 }
 /* Der Name liegt direkt auf dem Foto, und welches Foto das ist, entscheidet
    die Redaktion — nicht das Layout. Auf einem hellen Bild (Tageslicht durch
@@ -267,7 +267,7 @@
      des Namens, und der Name skaliert ueber drei Stufen (clamp, Desktop,
      380px). Gemessen bleiben damit 8,1px bis zu den Chips. */
   padding-bottom: 0.12em;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   /* Kleiner seit 04.09.2026 (User: „mach die font der spots kleiner"). Die
      Stufen sind gemeinsam runter, damit das Verhaeltnis zwischen Telefon,
      Rail und Desktop bleibt. Nebeneffekt, der hilft: der Name hat kein
@@ -285,7 +285,7 @@
   align-items: center;
   margin: 9px 0 0;
   color: #fff;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-body);
   font-size: 9px;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -324,7 +324,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--et-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--et-font-body);
   font-size: 9px;
   font-weight: 950;
   letter-spacing: 0.09em;
@@ -425,10 +425,10 @@
 .rcardMetaCategory {
   background: transparent;
   color: #fff;
-  border: 1px solid var(--et-ink-ring, rgba(255, 255, 255, 0.28));
-  border-radius: var(--et-radius-control, 7px);
+  border: 1px solid var(--et-ink-ring);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
@@ -459,7 +459,7 @@
 .openPillClosed {
   min-height: 26px;
   padding: 0 10px;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0;
@@ -540,7 +540,7 @@
   align-items: center;
   gap: 5px;
   padding: 7px 9px;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: rgba(21, 18, 14, 0.72);
   transform: translateX(-50%);
   pointer-events: none;

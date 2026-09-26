@@ -19,8 +19,8 @@
   align-items: baseline;
   gap: 12px;
   margin: 0 0 clamp(18px, 2.2vw, 28px);
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  color: var(--et-white);
+  font-family: var(--et-font-display);
   font-size: clamp(24px, 3vw, 36px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -33,7 +33,7 @@
   flex: none;
   width: 0.34em;
   height: 0.34em;
-  background: var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
   transform: translateY(-0.08em);
 }
 
@@ -90,7 +90,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  color: var(--et-home-inverse-text, #fff);
+  color: var(--et-white);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -99,9 +99,9 @@
   position: relative;
   aspect-ratio: 3 / 2;
   overflow: hidden;
-  border-radius: var(--et-radius-photo, 10px);
-  background: var(--et-ink-raised, #25231f);
-  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
+  border-radius: var(--et-radius-photo);
+  background: var(--et-ink-raised);
+  box-shadow: var(--et-ink-shadow);
 }
 
 .photo img {
@@ -121,8 +121,8 @@
   flex-wrap: wrap;
   align-items: baseline;
   margin: 16px 0 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  color: var(--et-ink-soft);
+  font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -133,30 +133,30 @@
 .meta > :not(:last-child)::after {
   content: '·';
   margin: 0 7px;
-  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  color: var(--et-ink-dim);
 }
 
 .kicker {
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
 }
 
 .title {
   margin: 8px 0 0;
   color: inherit;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(20px, 1.8vw, 24px);
   font-weight: 700;
   /* Providence-Unterlängen: unter 1.2 stößt das g an die nächste Zeile. */
   line-height: 1.2;
-  transition: color var(--et-motion-fast, 140ms ease);
+  transition: color var(--et-motion-fast);
 }
 
 .excerpt {
   display: -webkit-box;
   margin: 10px 0 0;
   overflow: hidden;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--font-body, var(--font), sans-serif);
+  color: var(--et-ink-soft);
+  font-family: var(--et-font-body);
   font-size: 15px;
   line-height: 1.55;
   -webkit-box-orient: vertical;
@@ -170,14 +170,14 @@
   }
 
   .card:hover .title {
-    color: var(--et-home-accent, #ffc600);
+    color: var(--et-accent);
   }
 }
 
 .card:focus-visible {
-  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline: 2px solid var(--et-accent);
   outline-offset: 4px;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
 }
 
 /* Ein einzelner Guide (die Bezirke) liegt ab Tablet quer: Foto links, Text

@@ -9,11 +9,11 @@
       Platz liegt IM Album, die Karte DARAUF. */
 
 .panel {
-  --album-ink: var(--profile-fg, var(--et-home-inverse-text, #fff));
+  --album-ink: var(--profile-fg, var(--et-white));
   --album-muted: var(--profile-muted, rgba(255, 255, 255, 0.76));
-  --album-red: var(--profile-red, var(--et-home-red, #d9382a));
-  --album-accent: var(--profile-accent, var(--et-home-accent, #ffc600));
-  --album-display: var(--et-font-display, sans-serif);
+  --album-red: var(--profile-red, var(--et-red));
+  --album-accent: var(--profile-accent, var(--et-accent));
+  --album-display: var(--et-font-display);
   position: relative;
   z-index: 1;
   display: grid;
@@ -83,7 +83,7 @@
   font-family: var(--album-display);
   font-size: clamp(12px, 1vw, 14px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -125,8 +125,8 @@
      Deck (/deck/<uid>), und dort gibt es kein `.panel` darum herum, das
      diese Token setzt. Ein `var()` ohne Wert waere dort ungueltig — die
      gelbe Zahl faerbte sich still nicht mehr. */
-  --album-accent: var(--profile-accent, var(--et-home-accent, #ffc600));
-  --album-display: var(--et-font-display, sans-serif);
+  --album-accent: var(--profile-accent, var(--et-accent));
+  --album-display: var(--et-font-display);
   display: grid;
   /* Ueber eine Variable, damit die Freundesreihe kleinere Karten stellen
      kann, ohne von einem anderen CSS-Modul aus gegen diesen Selektor
@@ -180,7 +180,7 @@ div.player {
      Grund gezeichnet — auf der Startseite steht sie genauso. Der Rahmen
      liegt jetzt INNEN um das Bildfeld statt bunt aussen herum: das ist der
      Griff jeder gedruckten Sammelkarte, und er kostet keine Signalfarbe. */
-  background: var(--et-home-paper, #fff);
+  background: var(--et-white);
   border-radius: 7px;
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
@@ -204,7 +204,7 @@ div.player {
   overflow: hidden;
   min-height: 0;
   background: color-mix(in srgb, #c8a06a 13%, #fff);
-  border: 1.5px solid color-mix(in srgb, var(--et-home-ink, #15120e) 55%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--et-ink) 55%, transparent);
   border-radius: 4px;
 }
 
@@ -302,7 +302,7 @@ div.player {
 }
 
 .playerScoreTotal {
-  color: color-mix(in srgb, var(--et-home-inverse-text, #fff) 62%, transparent);
+  color: color-mix(in srgb, var(--et-white) 62%, transparent);
   font-weight: 400;
 }
 
@@ -349,7 +349,7 @@ div.player {
   font-family: var(--album-display);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
   transition:
@@ -443,7 +443,7 @@ div.player {
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -465,7 +465,7 @@ div.player {
   font-family: var(--album-display, var(--et-font-display));
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -509,12 +509,12 @@ div.player {
   /* NICHT --album-ink: das ist auf dieser Fläche die SCHRIFTfarbe (weiß auf
      Ink), und weiß auf Gelb wäre unleserlich. Auf einer gelben Fläche ist die
      Tinte die Tinte. */
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-ink);
   border-radius: 3px;
-  font-family: var(--et-font-label, sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(8px, 1vw, 11px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1;
   text-transform: uppercase;
   transform: rotate(-7deg);
@@ -610,9 +610,9 @@ div.player {
   margin: 0;
   color: var(--album-muted);
   font-family: var(--album-display);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-size: var(--et-type-lead);
   font-weight: 400;
-  line-height: var(--et-leading-copy, 1.5);
+  line-height: var(--et-leading-copy);
 }
 
 /* ── schmal ───────────────────────────────────────────────── */
@@ -642,8 +642,8 @@ div.player {
   .filters {
     flex-wrap: nowrap;
     overflow-x: auto;
-    margin: 0 calc(var(--et-wrap-pad-mobile, 16px) * -1);
-    padding: 2px var(--et-wrap-pad-mobile, 16px);
+    margin: 0 calc(var(--et-wrap-pad-mobile) * -1);
+    padding: 2px var(--et-wrap-pad-mobile);
     scrollbar-width: none;
     scroll-snap-type: x proximity;
   }

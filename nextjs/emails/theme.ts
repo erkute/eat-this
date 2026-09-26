@@ -16,17 +16,17 @@
 //   * Es gibt keine durchscheinenden Haarlinien; `rule` ist eine feste Farbe.
 
 export const COLOR = {
-  /** --et-home-ink — die Flaeche, auf der die Mail steht. */
+  /** --et-ink — die Flaeche, auf der die Mail steht. */
   surface: '#15120e',
   /** --et-ink-raised — eine Stufe darueber: die Starter-Pack-Tafel. */
   raised: '#25231f',
-  /** --et-home-inverse-text — Schrift auf der Flaeche. */
+  /** --et-white — Schrift auf der Flaeche. */
   text: '#ffffff',
   /** Fliesstext: rgba(255,255,255,.76) flach ueber `surface` gerechnet. */
   muted: '#c7c6c5',
-  /** --et-home-accent — der eine Akzent: Kicker, Marker, Knopf. */
+  /** --et-accent — der eine Akzent: Kicker, Marker, Knopf. */
   accent: '#ffc600',
-  /** --et-home-ink — Schrift AUF dem gelben Knopf. */
+  /** --et-ink — Schrift AUF dem gelben Knopf. */
   onAccent: '#15120e',
   /** Haarlinie: rgba(255,255,255,.14) flach ueber `surface` gerechnet. */
   rule: '#363330',

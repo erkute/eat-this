@@ -26,7 +26,7 @@
   width: 100%;
   max-width: 100%;
   padding: 12px 12px 8px;
-  background: var(--et-home-ink, #15120e);
+  background: var(--et-ink);
   overflow-x: hidden;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
@@ -114,10 +114,10 @@
   max-width: none;
   min-height: 44px;
   padding: 8px;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
   overflow: hidden;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;
@@ -164,31 +164,21 @@
    Der Rand bleibt als 1px in Transparent stehen, damit kein Zustand die
    Groesse des Chips aendert. */
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
-  background: var(--et-ink-raised, #25231f);
-  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-ink-raised);
+  color: var(--et-white);
   border: 1px solid transparent;
 }
 
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):focus-visible,
 .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive)[aria-expanded='true'] {
-  background:
-    linear-gradient(
-      var(--et-ink-quiet, rgba(255, 255, 255, 0.055)),
-      var(--et-ink-quiet, rgba(255, 255, 255, 0.055))
-    ),
-    var(--et-ink-raised, #25231f);
-  color: var(--et-home-inverse-text, #fff);
+  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
+  color: var(--et-white);
 }
 
 @media (hover: hover) {
   .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):hover {
-    background:
-      linear-gradient(
-        var(--et-ink-quiet, rgba(255, 255, 255, 0.055)),
-        var(--et-ink-quiet, rgba(255, 255, 255, 0.055))
-      ),
-      var(--et-ink-raised, #25231f);
-    color: var(--et-home-inverse-text, #fff);
+    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
+    color: var(--et-white);
   }
 }
 
@@ -209,16 +199,16 @@
 .filterChipRow .filterChipActive,
 .filterChipRow .filterChipActive:focus-visible {
   padding-inline: 20px;
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  border: 1px solid var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
+  color: var(--et-ink);
+  border: 1px solid var(--et-accent);
 }
 @media (hover: hover) {
   .filterChipRow .filterChipActive:hover {
     padding-inline: 20px;
-    background: var(--et-home-accent, #ffc600);
-    color: var(--et-home-ink, #15120e);
-    border: 1px solid var(--et-home-accent, #ffc600);
+    background: var(--et-accent);
+    color: var(--et-ink);
+    border: 1px solid var(--et-accent);
   }
 }
 
@@ -228,13 +218,8 @@
    wird dabei durchsichtig: beim aktiven Chip stand sonst eine gelbe Kontur um
    die dunkle Flaeche, und Konturen gibt es hier nicht mehr (User, 23.09.2026). */
 .filterChipRow .filterChip[aria-expanded='true'] {
-  background:
-    linear-gradient(
-      var(--et-ink-quiet, rgba(255, 255, 255, 0.055)),
-      var(--et-ink-quiet, rgba(255, 255, 255, 0.055))
-    ),
-    var(--et-ink-raised, #25231f);
-  color: var(--et-home-inverse-text, #fff);
+  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
+  color: var(--et-white);
   border-color: transparent;
 }
 
@@ -341,8 +326,8 @@
   width: 22px;
   height: 22px;
   padding: 0;
-  background: var(--et-home-ink, #15120e);
-  color: var(--et-home-accent, #ffc600);
+  background: var(--et-ink);
+  color: var(--et-accent);
   border: 0;
   border-radius: 999px;
   box-shadow: none;
@@ -368,14 +353,14 @@
 }
 
 .filterChipClear:focus-visible {
-  background: var(--et-home-red, #d9382a);
+  background: var(--et-red);
   color: #fff;
   outline: 0;
 }
 
 @media (hover: hover) {
   .filterChipClear:hover {
-    background: var(--et-home-red, #d9382a);
+    background: var(--et-red);
     color: #fff;
     outline: 0;
   }
@@ -399,16 +384,16 @@
     top: var(--map-strip, env(safe-area-inset-top, 0px));
     /* Above the map strip (7, MapLayout.module.css). */
     z-index: 8;
-    background: var(--et-home-ink, #15120e);
+    background: var(--et-ink);
     /* The sheet's edge lives here, not on the sheet (MapSheet.module.css:
        the sheet is see-through on phones so the slot this bar leaves when it
        sticks shows map, not a dark band). */
-    border-top: 1px solid var(--et-ink-line, rgba(255, 255, 255, 0.14));
+    border-top: 1px solid var(--et-ink-line);
     border-radius: 10px 10px 0 0;
     /* Seals the seam to the rows below. The sheet sits on fractional pixels,
        and with the see-through sheet behind the antialiased edge let a hair
        of map through between bar and rows. */
-    box-shadow: 0 1px 0 0 var(--et-home-ink, #15120e);
+    box-shadow: 0 1px 0 0 var(--et-ink);
     will-change: transform;
     transform: translateZ(0);
   }
@@ -494,12 +479,12 @@
   padding: 8px;
   /* Eine Stufe ueber dem Grund (--et-ink-raised in globals.css): das Sheet
      oeffnet auf der Karte, und die ist genauso dunkel. */
-  background: var(--et-ink-raised, #25231f);
-  color: var(--et-home-paper, #fff);
+  background: var(--et-ink-raised);
+  color: var(--et-white);
   /* Keine Haarlinie drumherum — die Flaeche traegt (User, 23.09.2026). */
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
-  box-shadow: var(--et-ink-shadow, 0 18px 38px rgba(0, 0, 0, 0.45));
+  border-radius: var(--et-radius-control);
+  box-shadow: var(--et-ink-shadow);
   animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
 }
 
@@ -522,7 +507,7 @@
 .pickerTitle {
   min-width: 0;
   overflow: hidden;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0;
@@ -543,7 +528,7 @@
   color: inherit;
   border: 0;
   border-radius: 50%;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 22px;
   font-weight: 800;
   line-height: 1;
@@ -551,15 +536,15 @@
 }
 
 .pickerClose:focus-visible {
-  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  color: var(--et-home-accent, #ffc600);
+  background: var(--et-ink-quiet);
+  color: var(--et-accent);
   outline: 0;
 }
 
 @media (hover: hover) {
   .pickerClose:hover {
-    background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-    color: var(--et-home-accent, #ffc600);
+    background: var(--et-ink-quiet);
+    color: var(--et-accent);
     outline: 0;
   }
 }
@@ -600,13 +585,13 @@
   /* Die Fuellung traegt, kein Ring — wie die Chips, aus denen diese Liste
      aufklappt (User, 23.09.2026: keine Rahmen). Eine Spur heller als das
      Fenster (--et-ink-raised), auf dem sie liegt. */
-  background: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-ink-quiet);
+  color: var(--et-white);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
   appearance: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0;
@@ -626,16 +611,16 @@
    nichts. Fokus und Hover waren damit seit dem Umbau unsichtbar, und der
    Druckzustand hat den Fehler zuerst geerbt. Weiss 14 % ergibt ΔL* 15,9. */
 .pickerItem:focus-visible {
-  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-ink-line);
+  color: var(--et-white);
   outline: 0;
   transform: none;
 }
 
 @media (hover: hover) {
   .pickerItem:hover {
-    background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-    color: var(--et-home-inverse-text, #fff);
+    background: var(--et-ink-line);
+    color: var(--et-white);
     outline: 0;
     transform: none;
   }
@@ -646,8 +631,8 @@
    1px Absenkung aus globals.css gehen darin unter. Ungesperrt, denn genau auf
    dem Telefon ist sie die einzige, die es gibt. */
 .pickerItem:active {
-  background: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-ink-line);
+  color: var(--et-white);
   outline: 0;
 }
 
@@ -658,9 +643,9 @@
    hatte. */
 .pickerItemActive,
 .pickerItemActive:focus-visible {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  border-color: var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
+  color: var(--et-ink);
+  border-color: var(--et-accent);
   box-shadow: none;
   filter: none;
   text-shadow: none;
@@ -668,9 +653,9 @@
 }
 @media (hover: hover) {
   .pickerItemActive:hover {
-    background: var(--et-home-accent, #ffc600);
-    color: var(--et-home-ink, #15120e);
-    border-color: var(--et-home-accent, #ffc600);
+    background: var(--et-accent);
+    color: var(--et-ink);
+    border-color: var(--et-accent);
     box-shadow: none;
     filter: none;
     text-shadow: none;
@@ -682,9 +667,9 @@
    oben durch (`.pickerItem:active` ist spezifischer als `.pickerItemActive`)
    und die Auswahl sähe für einen Moment aus wie eine gewöhnliche Zeile. */
 .pickerItemActive:active {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
-  border-color: var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
+  color: var(--et-ink);
+  border-color: var(--et-accent);
   box-shadow: none;
   filter: none;
   text-shadow: none;
@@ -710,20 +695,20 @@
    oben oder einen anderen Chip — beide bleiben immer wählbar. */
 .pickerItemDead {
   background: transparent;
-  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  color: var(--et-ink-dim);
   box-shadow: none;
   cursor: default;
 }
 
 .pickerItemDead:focus-visible {
   background: transparent;
-  color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  color: var(--et-ink-dim);
 }
 
 @media (hover: hover) {
   .pickerItemDead:hover {
     background: transparent;
-    color: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+    color: var(--et-ink-dim);
   }
 }
 
@@ -741,7 +726,7 @@
   min-width: 0;
   overflow: hidden;
   color: inherit;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0;
@@ -755,7 +740,7 @@
   flex-shrink: 0;
   color: inherit;
   opacity: 0.62;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;

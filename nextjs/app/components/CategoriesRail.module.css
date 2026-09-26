@@ -5,15 +5,15 @@
    206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
    der Tafeln zaehlte unsichtbar mit. */
 .board {
-  --board-ink: var(--et-home-ink, #15120e);
-  --board-paper: var(--et-home-inverse-text, #fff);
-  --board-accent: var(--et-home-accent, #ffc600);
+  --board-ink: var(--et-ink);
+  --board-paper: var(--et-white);
+  --board-accent: var(--et-accent);
   --board-soft: rgba(255, 255, 255, 0.76);
 
-  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
-  background: var(--et-board-bg, var(--board-ink));
+  padding: var(--et-board-pad);
+  background: var(--et-board-bg);
   color: var(--board-paper);
-  border-radius: var(--et-board-radius, var(--et-radius-photo));
+  border-radius: var(--et-board-radius);
 }
 
 :global(.homeV2) .board :global(.hv-title) {
@@ -22,7 +22,7 @@
 
 @media (max-width: 760px) {
   .board {
-    padding: var(--et-board-pad, 22px 18px 24px);
+    padding: var(--et-board-pad);
   }
 }
 /* Neun Kategorien als typografischer Index, nicht als Kaestchen-Raster: auf
@@ -59,7 +59,7 @@
   padding: 0;
   color: var(--board-paper, #fff);
   background: transparent;
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: clamp(20px, 2.4vw, 32px);
   font-weight: 700;
   letter-spacing: -0.02em;

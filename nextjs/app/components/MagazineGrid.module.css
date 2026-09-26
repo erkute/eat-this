@@ -4,14 +4,14 @@
 
 /* Die Tafel — dieselbe Fläche wie Starter Pack, Must Eats und Remy. */
 .board {
-  --mag-ink: var(--et-home-ink, #15120e);
-  --mag-paper: var(--et-home-inverse-text, #fff);
-  --mag-accent: var(--et-home-accent, #ffc600);
+  --mag-ink: var(--et-ink);
+  --mag-paper: var(--et-white);
+  --mag-accent: var(--et-accent);
 
-  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
-  background: var(--et-board-bg, var(--mag-ink));
+  padding: var(--et-board-pad);
+  background: var(--et-board-bg);
   color: var(--mag-paper);
-  border-radius: var(--et-board-radius, var(--et-radius-photo));
+  border-radius: var(--et-board-radius);
 }
 
 /* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier. */
@@ -56,10 +56,10 @@
   justify-content: center;
   min-height: 52px;
   padding: 0 24px;
-  color: var(--et-home-ink);
-  background: var(--et-home-accent);
+  color: var(--et-ink);
+  background: var(--et-accent);
   border-radius: var(--et-radius-control);
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: clamp(15px, 1.2vw, 17px);
   font-weight: 700;
   letter-spacing: 0;
@@ -76,13 +76,13 @@
    Knopf beim Beruehren im Hintergrund. Gilt fuer jeden gelben Knopf der
    Seite. Der Druck sitzt tiefer, damit sich der Klick anfuehlt. */
 .allLink:focus-visible {
-  color: var(--et-home-ink);
+  color: var(--et-ink);
   background: var(--mag-paper);
   transform: translateY(-2px);
 }
 @media (hover: hover) {
   .allLink:hover {
-    color: var(--et-home-ink);
+    color: var(--et-ink);
     background: var(--mag-paper);
     transform: translateY(-2px);
   }
@@ -126,7 +126,7 @@
   aspect-ratio: 4 / 3;
   border: 0;
   border-radius: var(--et-radius-photo);
-  background: var(--et-home-photo-rest);
+  background: var(--et-ink-raised);
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
 }
 
@@ -166,10 +166,10 @@
 .kicker {
   display: block;
   color: var(--mag-accent);
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -177,7 +177,7 @@
 .title {
   display: block;
   color: var(--mag-paper);
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: clamp(19px, 1.5vw, 23px);
   font-weight: 700;
   letter-spacing: 0;
@@ -195,7 +195,7 @@
 
 .date {
   color: rgba(255, 255, 255, 0.55);
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;
@@ -231,7 +231,7 @@
 /* Druckzustand: die Kachel ist ein Link, die pauschale Knopf-Regel in
    globals.css trifft sie also nicht. Siehe `--et-press-tile`. */
 .card:active {
-  scale: var(--et-press-tile, 0.985);
+  scale: var(--et-press-tile);
 }
 
 /* ── Aufmacher und Liste ──
@@ -297,7 +297,7 @@
   }
 
   .board {
-    padding: var(--et-board-pad, 22px 18px 24px);
+    padding: var(--et-board-pad);
   }
 
   /* Swipeable rail instead of a full-width stack — same cards, a fifth of

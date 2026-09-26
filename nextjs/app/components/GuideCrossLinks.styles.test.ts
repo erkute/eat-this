@@ -29,7 +29,7 @@ describe('GuideCrossLinks.module.css — Artikel-Vorschau zum Magazin-Guide', ()
   // Der Link muss auch ohne Unterstreichung als Link lesbar sein: Hover hebt
   // die Headline gelb hervor und zoomt das Foto.
   it('marks the card on hover', () => {
-    expect(effective('.card:hover .title', 'color')).toContain('--et-home-accent');
+    expect(effective('.card:hover .title', 'color')).toContain('--et-accent');
   });
 
   // Ein einzelner Guide stünde im Dreier-Raster verloren in der Ecke.
@@ -43,7 +43,7 @@ describe('GuideCrossLinks.module.css — Artikel-Vorschau zum Magazin-Guide', ()
   it('draws its colours from the shared home tokens, not a page-local set', () => {
     const css = readFileSync(cssPath, 'utf8');
     expect(css).not.toMatch(/var\(--(category|hub)-/);
-    expect(css).toMatch(/var\(--et-home-/);
+    expect(css).toMatch(/var\(--et-(white|ink|accent)\)/);
     expect(css).toMatch(/var\(--et-ink-/);
   });
 });

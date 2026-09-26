@@ -71,7 +71,7 @@
   font-weight: 700;
   line-height: 1.2;
   text-wrap: balance;
-  transition: color var(--et-motion-fast, 140ms ease);
+  transition: color var(--et-motion-fast);
 }
 
 .date {

@@ -13,7 +13,7 @@
   border-radius: 999px;
   background: var(--hub-raised, #25231f);
   color: var(--hub-paper, #fff);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 700;
   line-height: 1.3;

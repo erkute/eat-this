@@ -27,10 +27,10 @@
   gap: 22px;
   width: min(94vw, 560px);
   padding: clamp(26px, 4vw, 40px);
-  color: var(--et-home-inverse-text, #fff);
+  color: var(--et-white);
   /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. */
-  background: var(--et-ink-raised, #25231f);
-  box-shadow: var(--et-ink-raised-edge, inset 0 0 0 1px rgba(255, 255, 255, 0.14));
+  background: var(--et-ink-raised);
+  box-shadow: var(--et-ink-raised-edge);
   border-radius: 10px;
   text-align: left;
   /* Bewegung, nie ein Opacity-Fade — Brand-Regel fuer Markenflaechen. */
@@ -86,12 +86,12 @@
 
 .kicker {
   margin: 0 0 10px;
-  font-family: var(--et-font-label, var(--et-font-mono), monospace);
-  font-size: var(--et-type-kicker, 10px);
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-kicker);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
 }
 
 /* Drei Punkte am Kicker — die einzige Bewegung in der Schrift, und zwar an
@@ -141,7 +141,7 @@
 
 .title {
   margin: 0;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(30px, 6vw, 42px);
   font-weight: 700;
   letter-spacing: -0.02em;

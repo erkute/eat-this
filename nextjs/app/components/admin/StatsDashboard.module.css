@@ -12,22 +12,22 @@
  * dieselbe Ink-Fläche wie auf jeder Inhaltsseite. */
 
 .app {
-  --ground: var(--et-home-ink, #15120e);
-  --raised: var(--et-ink-raised, #25231f);
-  --quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  --ink: var(--et-home-inverse-text, #fff);
-  --on-accent: var(--et-home-ink, #15120e);
-  --muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  --faint: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
+  --ground: var(--et-ink);
+  --raised: var(--et-ink-raised);
+  --quiet: var(--et-ink-quiet);
+  --ink: var(--et-white);
+  --on-accent: var(--et-ink);
+  --muted: var(--et-ink-soft);
+  --faint: var(--et-ink-dim);
   --hair: rgba(255, 255, 255, 0.08);
   --field: #f7f5f1;
-  --yellow: var(--et-home-accent, #ffc600);
+  --yellow: var(--et-accent);
   /* Auf Ink gemessen: das alte Rot #d9382a und Grün #1e7f4f lagen unter 3:1.
      Grün wie im Remy-Chat („Offen"), Rot und Blau auf dieselbe Helligkeit. */
   --red: #ff7a6b;
   --green: #6fcf8b;
   --blue: #8fb0ff;
-  --display: var(--font-providence), sans-serif;
+  --display: var(--et-font-display), sans-serif;
   display: grid;
   grid-template-columns: 236px minmax(0, 1fr);
   min-height: 100dvh;
@@ -55,7 +55,7 @@
   display: block;
   width: 132px;
   margin: 22px 22px 14px;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   transition: transform 160ms ease;
 }
 
@@ -119,7 +119,7 @@
   gap: 10px;
   padding: 9px 12px;
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: transparent;
   color: var(--ink);
   font: inherit;
@@ -155,7 +155,7 @@
 .sideFoot {
   margin: auto 12px 14px;
   padding: 12px 14px 14px;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   background: var(--raised);
   font-size: 13px;
   line-height: 1.5;
@@ -248,7 +248,7 @@
   min-height: 38px;
   padding: 6px 10px;
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: var(--field);
   color: var(--on-accent);
   font: inherit;
@@ -260,7 +260,7 @@
   min-height: 38px;
   padding: 7px 14px;
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: var(--yellow);
   color: var(--on-accent);
   font: inherit;
@@ -322,7 +322,7 @@
   grid-column: span 4;
   min-width: 0;
   padding: 18px 20px 20px;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   background: var(--raised);
 }
 
@@ -402,7 +402,7 @@
   min-height: 32px;
   padding: 4px 8px;
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: var(--field);
   color: var(--on-accent);
   font: inherit;
@@ -424,7 +424,7 @@
   gap: 4px;
   min-width: 0;
   padding: 16px 18px 14px;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   background: var(--raised);
 }
 
@@ -808,7 +808,7 @@
 
 .stage {
   padding: 14px 14px 12px;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   background: var(--quiet);
 }
 
@@ -905,7 +905,7 @@
 
 .rate {
   padding: 12px 14px;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   background: var(--quiet);
 }
 
@@ -944,7 +944,7 @@
   min-width: 0;
   gap: 16px;
   padding: 20px 22px 22px;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   background: var(--raised);
 }
 
@@ -1054,7 +1054,7 @@
   grid-column: span 12;
   margin: 0;
   padding: 14px 18px;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   background: var(--raised);
   font-size: 15px;
 }
@@ -1070,15 +1070,15 @@
 }
 
 .gate {
-  --ground: var(--et-home-ink, #15120e);
-  --raised: var(--et-ink-raised, #25231f);
+  --ground: var(--et-ink);
+  --raised: var(--et-ink-raised);
   display: grid;
   place-items: center;
   min-height: 100dvh;
   padding: 40px 20px;
   background: var(--ground);
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--font-providence), sans-serif;
+  color: var(--et-white);
+  font-family: var(--et-font-display), sans-serif;
 }
 
 .code {

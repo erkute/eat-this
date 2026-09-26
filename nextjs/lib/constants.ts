@@ -51,11 +51,6 @@ export const OG_CARD_VERSION = 5;
  */
 export const TEMPLATE_REVISED = '2026-08-25';
 
-// Adobe Fonts kit (Providence, chauncy, salted, moonblossom). [locale]/layout
-// loads it non-blocking via CRITICAL_BOOTSTRAP, but that script never runs on
-// a streamed notFound()/error render — those screens link it themselves.
-export const TYPEKIT_STYLESHEET = 'https://use.typekit.net/kgb1lmh.css';
-
 export function getAppUrl(): string {
   const configured = process.env.NEXT_PUBLIC_APP_URL;
   if (!configured) return SITE_URL;

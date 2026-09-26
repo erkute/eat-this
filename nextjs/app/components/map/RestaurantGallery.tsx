@@ -6,7 +6,7 @@ import { rememberedSpotPhotoIndex, rememberSpotPhoto } from '@/lib/map/spotGalle
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { useTranslation } from '@/lib/i18n';
 import { spotPhotoSrc, spotPhotoSrcSet } from '@/lib/map/spotPhoto';
-import styles from './MapDetails.module.css';
+import styles from './RestaurantDetail.module.css';
 
 const SWIPE_HINT_KEY = 'et:photo-swipe-hint';
 const SWIPE_HINT_DONE = 'done';

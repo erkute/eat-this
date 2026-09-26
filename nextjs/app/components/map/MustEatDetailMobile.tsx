@@ -8,7 +8,7 @@ import { useTranslation } from '@/lib/i18n';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { normalizeName } from '@/lib/normalizeName';
 import { whenImageReady } from '@/lib/dom/imageReady';
-import styles from './MapDetails.module.css';
+import styles from './MustEatDetail.module.css';
 import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
 import { CloseIcon, PagerArrowIcon, PinIcon } from './icons';
@@ -153,7 +153,7 @@ export default function MustEatDetailMobile({
       });
     }
   }, [mustEat._id]);
-  /* Auf dem Phone gibt es keine Pager-Tasten mehr (siehe MapDetails.module.css,
+  /* Auf dem Phone gibt es keine Pager-Tasten mehr (siehe MustEatDetail.module.css,
      "Phone: gewischt wird, nicht getippt") — die Geste muss sich selbst zeigen:
      die oberste Karte ruckt zur Seite und federt zurück, wodurch die Karten
      darunter kurz sichtbar werden.
@@ -331,7 +331,7 @@ export default function MustEatDetailMobile({
   return (
     <div
       ref={rootRef}
-      className={`${styles.detailV13} ${styles.detailV13MustEat}`}
+      className={styles.detail}
       data-detail-root="must-eat"
       role="dialog"
       aria-label={tMap('mustEatAtAria', { name: restaurantName })}
@@ -347,7 +347,7 @@ export default function MustEatDetailMobile({
       )}
       {/* Der Schließen-Glyph hängt am Panel-Root, NICHT im Scrollport: seit der
           Scrollport bei Überlauf wirklich scrollt (siehe „Slots als Mindestmaß"
-          in MapDetails.module.css) würde ein Kind darin mit dem Inhalt
+          in MustEatDetail.module.css) würde ein Kind darin mit dem Inhalt
           wegwandern. Am Root — der ist position: relative und scrollt nie —
           bleibt er, wo das Auge ihn erwartet. */}
       <button
@@ -358,13 +358,13 @@ export default function MustEatDetailMobile({
       >
         <CloseIcon />
       </button>
-      <div className={styles.detailV13Scroll} data-detail-scroll>
+      <div className={styles.scroll} data-detail-scroll>
         {/* HERO — freigestellte Karte mit Glow-Halo. Open: dish card (3D-Tilt
             via CSS, tap-to-zoom). Locked: card-back (flach + Wackeln, tap to
             reveal in range — flach bleibt wichtig für die Reveal-Fly-Origin). */}
         <div className={styles.fdHeroWrap} data-detail-hero>
           {/* Die Blätter-Winkel gehören zum Stapel: ab 768px stehen sie neben
-              der Karte (absolut an ihren Kanten, siehe MapDetails.module.css
+              der Karte (absolut an ihren Kanten, siehe MustEatDetail.module.css
               „Blättern an der Karte"), auf dem Telefon gibt es keine — dort
               wird gewischt. Der Stapel ist deshalb die Gruppe fürs
               Screenreader-Ohr; die Namen der Nachbarn tragen die aria-Labels. */}

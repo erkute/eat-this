@@ -123,7 +123,7 @@
 /* Tipp auf einen Rücken ohne Konto: die Karte zittert einmal, dann geht das
    Anmeldeformular auf (Betreiber, 07.09.2026: „auf der Startseite eigentlich
    genau das Gleiche"). Gleiche Dauer und gleicher Rhythmus wie der Tap-Shake
-   im Map-Detail (.mustEatCardTapping in MapDetails.module.css) — die Dauer
+   im Map-Detail (.mustEatCardTapping in MustEatDetail.module.css) — die Dauer
    hält lib/guestCardShake.ts mit dem Timer zusammen.
 
    Zwei Unterschiede, beide notwendig: Die Keyframes liegen doppelt vor, weil

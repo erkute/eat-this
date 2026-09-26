@@ -8,7 +8,9 @@ const moduleNames = [
   'MapSheet.module.css',
   'MapControls.module.css',
   'MapMarkers.module.css',
-  'MapDetails.module.css',
+  'MapSheetDetail.module.css',
+  'RestaurantDetail.module.css',
+  'MustEatDetail.module.css',
   'MapFilters.module.css',
   'MapListEmpty.module.css',
   'MapIntro.module.css',
@@ -240,6 +242,10 @@ describe('Map CSS architecture', () => {
       fileURLToPath(new URL('../MapSection.tsx', import.meta.url)),
       'utf8'
     );
+    const camera = readFileSync(
+      fileURLToPath(new URL('../../../lib/map/useMapCamera.ts', import.meta.url)),
+      'utf8'
+    );
     const body = readFileSync(modulePath('MapSectionBody.tsx'), 'utf8');
     const shellRules = declarationsInMedia(
       'MapLayout.module.css',
@@ -300,7 +306,8 @@ describe('Map CSS architecture', () => {
       }),
     ]);
     expect(section).not.toContain("mapWrap.style.visibility = 'hidden'");
-    expect(section).toMatch(/map\.resize\(\);\s+map\.flyTo\(\{\s+center:/);
+    /* The camera measures the compact canvas before it flies (useMapCamera). */
+    expect(camera).toMatch(/map\.resize\(\);\s+flyToSpot\(/);
     expect(body).toContain("? 'restaurant'");
     expect(body).not.toContain('StaticDetailMapPeek');
   });
@@ -362,10 +369,8 @@ describe('Map CSS architecture', () => {
       '(min-width: 768px) and (max-width: 1023.98px)',
       '(min-width: 1024px)',
     ]) {
-      const lockedMidRules = declarationsInMedia(
-        'MapDetails.module.css',
-        '.detailV13MustEat .fdMid.fdMidLocked',
-        media
+      const lockedMidRules = ['.fdMid.fdMidLocked', '.detail .fdMid.fdMidLocked'].flatMap(
+        (selector) => declarationsInMedia('MustEatDetail.module.css', selector, media)
       );
 
       for (const rule of lockedMidRules) {

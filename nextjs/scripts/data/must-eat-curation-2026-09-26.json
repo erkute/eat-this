@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "note": "Eine Karte vom 26.09.2026, Nummer 027 — der Stapel waechst von 26 auf 27. descriptionEn ist der Wortlaut von der Karte, description die Uebersetzung davon; Preis kennt die Karte nicht, leer wie bei den Bestandskarten. revealedForAnon bleibt false: neue Karten liegen verdeckt. `retire` ist leer, es faellt nichts weg.",
+  "add": [
+    {
+      "id": "must-eat-cocolo-ramen-mitte-tonkotsu",
+      "order": 27,
+      "restaurantId": "restaurant-cocolo-ramen-mitte",
+      "revealedForAnon": false,
+      "file": "Main-27.png",
+      "dish": "Tonkotsu",
+      "description": "Kräftige Ramen mit zartem Schweinefleisch, glasiertem Schweinebauch, einem weich gekochten Ei und erdigen Mu-Err-Pilzen.",
+      "descriptionEn": "Rich ramen topped with tender pork, glazed pork belly, a soft-boiled egg and earthy mu-err mushrooms.",
+      "price": ""
+    }
+  ],
+  "retire": []
+}

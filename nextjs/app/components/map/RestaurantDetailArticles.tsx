@@ -2,7 +2,7 @@
 import { Link } from '@/i18n/navigation';
 import type { RestaurantArticleCard } from '@/lib/types';
 import { articleCardText } from '@/lib/articleCard';
-import detail from './MapDetails.module.css';
+import detail from './RestaurantDetail.module.css';
 import styles from './RestaurantDetailArticles.module.css';
 
 interface Props {

@@ -1,5 +1,5 @@
 /* „Im Magazin" im Map-Sheet. Steht auf dem Ink-Grund des Spot-Details; der
-   Abschnittsrahmen (Abstand, Kopf, Unterzeile) kommt aus MapDetails —
+   Abschnittsrahmen (Abstand, Kopf, Unterzeile) kommt aus RestaurantDetail.module.css —
    `.rdMustSection`, `.rdMustHead`, `.rdSecH`, `.rdMustSub` —, hier liegt nur,
    was der Block selbst mitbringt.
 

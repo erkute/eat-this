@@ -6,7 +6,7 @@
 .layer {
   position: fixed;
   inset: 0;
-  z-index: 10025;
+  z-index: var(--et-z-tour);
   display: grid;
   place-items: center;
   padding: 24px;

@@ -1,7 +1,7 @@
 .nav {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 9999;
+  z-index: var(--et-z-nav);
   box-sizing: border-box;
   display: flex;
   align-items: center;

@@ -37,7 +37,7 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: 10020; /* über der fixen Navigation (9999) — dieselbe Ebene wie Lightbox und Onboarding */
+  z-index: var(--et-z-sheet); /* dieselbe Ebene wie der Must-Eat-Zoom */
   display: flex;
   align-items: center;
   justify-content: center;

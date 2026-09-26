@@ -23,7 +23,7 @@ function PackArt({ src }: { src: string }) {
       alt=""
       width={96}
       height={139}
-      sizes="(max-width: 760px) 72px, 96px"
+      sizes="(max-width: 767.98px) 72px, 96px"
       loading="lazy"
     />
   );

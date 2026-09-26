@@ -370,7 +370,7 @@
 /* Am Telefon randlos wie die Starter-Pack-Tafel: ein Kasten 16px vor der
    Bildschirmkante liest sich als Rahmen. Die negative Rinne ist exakt die
    von `hv-wrap` — der Inhalt steht auf derselben Satzkante wie der Rest. */
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .spot {
     margin-inline: calc(-1 * var(--et-wrap-pad-mobile));
     padding: 28px var(--et-wrap-pad-mobile) 30px;
@@ -607,8 +607,8 @@
 
 /* Der Spot des Tages stapelt erst am Telefon. Bis 920px gestapelt lief das
    Foto am Tablet über die volle Breite und füllte allein den Bildschirm;
-   nebeneinander passt es bis 761px (Foto ~290px, Text daneben). */
-@media (max-width: 760px) {
+   nebeneinander passt es ab 768px (Foto ~290px, Text daneben). */
+@media (max-width: 767.98px) {
   .spotCard {
     grid-template-columns: minmax(0, 1fr);
     gap: clamp(16px, 3vw, 24px);
@@ -658,7 +658,7 @@
    die Navigation schon frei — die Tafel startet also unter der Leiste und
    füllt bewusst *nicht* den Bildschirm. Bildschirmhoch wäre hier die komplette
    erste Seite Ink, bevor ein einziger Spot zu sehen ist. */
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   .hero {
     display: block;
     min-height: 0;

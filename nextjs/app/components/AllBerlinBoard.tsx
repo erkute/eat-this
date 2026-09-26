@@ -161,7 +161,7 @@ export default function AllBerlinBoard({
                 alt=""
                 width={420}
                 height={656}
-                sizes="(max-width: 759px) 34vw, 200px"
+                sizes="(max-width: 767.98px) 34vw, 200px"
                 priority={priority}
                 className={styles.fanPack}
               />

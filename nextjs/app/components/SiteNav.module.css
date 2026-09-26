@@ -166,7 +166,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   /* Ein- und Ausfahren schiebt Fläche (::before) und Inhalt, nicht die Leiste
      selbst; nach dem Ausfahren nimmt `collapsed` sie ganz aus dem Rendering.
      Warum `data-leaving` unten nötig ist, steht dort. */

@@ -15,9 +15,9 @@
 /* Am Telefon eine randlose Bahn statt eines gerundeten Kastens. Ein Kasten,
    der nur 16px vom Bildschirmrand entfernt steht, liest sich als Rahmen und
    nimmt dem Formular noch einmal 2x22px. Die negative Rinne ist exakt die von
-   `hv-wrap` (`--et-wrap-pad-mobile`, dieselbe 760px-Grenze) — der Inhalt
+   `hv-wrap` (`--et-wrap-pad-mobile`, dieselbe 768px-Grenze wie die Navigation) — der Inhalt
    steht damit auf derselben Satzkante wie der Rest der Seite. */
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .inner {
     margin-inline: calc(-1 * var(--et-wrap-pad-mobile));
     padding: 30px var(--et-wrap-pad-mobile) 32px;

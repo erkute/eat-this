@@ -1420,7 +1420,7 @@ ol {
   min-height: calc(100vh - 64px);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767.98px) {
   /* Match kino.de/familie.de: html+body need zero CSS constraints for
      Safari to use window scroll and auto-hide the URL bar on scroll. */
   html {
@@ -1633,7 +1633,7 @@ ol {
 .homeV2 .hv-chip:active {
   transform: translateY(1px);
 }
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .homeV2 .hv-wrap {
     padding: 0 var(--et-wrap-pad-mobile);
   }

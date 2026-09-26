@@ -34,7 +34,7 @@ export default function SiteNav() {
     if (navbar) navbar.dataset.visibility = 'visible';
     if (!navbar || activePage === 'map') return;
 
-    const media = window.matchMedia('(max-width: 767px)');
+    const media = window.matchMedia('(max-width: 767.98px)');
     let lastY = window.scrollY || window.pageYOffset || 0;
     let ticking = false;
     let collapseTimer: number | undefined;

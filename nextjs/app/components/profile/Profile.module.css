@@ -454,10 +454,10 @@ main.page .head {
    Hover-Lift der Karte oben ab. Ab Tablet deshalb umbrechendes Grid.
    main.page (0,2,1) schlaegt .homeV2 .hv-rail (0,2,0) unabhaengig von der
    Ladereihenfolge; Mobile bleibt Rail. */
-@media (min-width: 761px) {
+@media (min-width: 768px) {
   main.page .recentRail {
     display: grid;
-    /* 160er Spur, nicht 176: bei 176 passen zwischen 761 und ~1100 px nur drei
+    /* 160er Spur, nicht 176: bei 176 passen zwischen 768 und ~1100 px nur drei
        bis vier Spalten, der Rest der Zeile verteilt sich als 63 px Luft
        zwischen die Karten. Mit 160 fuellen die Spalten die Zeile aus - Karte
        163-176 px, Abstand bleibt der deklarierte. */
@@ -1131,7 +1131,7 @@ main.page .foot {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .page {
     padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px) + 20px);
   }

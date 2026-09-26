@@ -1,6 +1,10 @@
 'use client';
 import { useState, useCallback, useEffect } from 'react';
 import { watchLocationUnblock } from './locationHelp';
+import { haversineDistance } from './distance';
+
+/** Below this, a watched fix counts as jitter and does not replace `location`. */
+const WATCH_MIN_MOVE_M = 3;
 
 export interface UserLocation {
   lat: number;
@@ -118,7 +122,16 @@ export function useUserLocation(): UseUserLocationResult {
     }
     const id = navigator.geolocation.watchPosition(
       (pos) => {
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        /* GPS zittert auch im Stehen um ein paar Meter und liefert dabei im
+           Sekundentakt. Jeder neue Fix rendert die ganze Map neu und sortiert
+           die Liste nach Entfernung — unterhalb von WATCH_MIN_MOVE_M bleibt
+           deshalb das alte Objekt stehen. */
+        setLocation((prev) =>
+          prev && haversineDistance(prev.lat, prev.lng, next.lat, next.lng) < WATCH_MIN_MOVE_M
+            ? prev
+            : next
+        );
       },
       () => {
         /* A denial that arrives here is only possible when the grant was

@@ -88,10 +88,11 @@ function Chevron({ dir }: { dir: 'left' | 'right' }) {
 
 const SWIPE_PX = 60;
 
-// Mirrors profile/ProfileDeck.ExpandedOverlay almost line-for-line so the
-// two zoom interactions feel identical: open from origin → settle in centre
-// with Apple-style ease-out, pointer-driven 3D-tilt, sheen drifts with
-// rotateY, body scroll/touch locked. Click anywhere closes.
+// Open from origin → settle in centre with Apple-style ease-out,
+// pointer-driven 3D-tilt, body scroll/touch locked. Click anywhere closes.
+// Kein Glanz-Overlay auf der Karte: ein weisser Verlauf im Overlay-Modus hat
+// das Foto beim Kippen stellenweise ausgebleicht — die Farben bleiben, wie
+// sie sind, nur die Karte bewegt sich.
 const Inner = memo(function Inner({
   imageUrl,
   alt,
@@ -133,7 +134,6 @@ const Inner = memo(function Inner({
     stiffness: 220,
     damping: 18,
   });
-  const sheenX = useTransform(rotateYSpring, [-14, 14], ['-30%', '30%']);
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = cardRef.current;
@@ -447,9 +447,7 @@ const Inner = memo(function Inner({
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
-        {/* Inner clip wrapper keeps the sheen's drifting gradient inside
-            the card's rounded shape — without it the sheen leaks past
-            the right edge at strong rotateY tilts. */}
+        {/* Inner clip wrapper keeps the card's rounded shape while it deals. */}
         <motion.div className={styles.clip} style={{ width: overlayW }} animate={dealControls}>
           {/* Ein eigenes <img> pro Karte — ein wiederverwendetes zeigt nach dem
               `src`-Wechsel weiter das alte Bild. */}
@@ -459,7 +457,6 @@ const Inner = memo(function Inner({
             alt={shown.alt}
             className={styles.image}
           />
-          <motion.div className={styles.sheen} style={{ x: sheenX }} aria-hidden="true" />
         </motion.div>
       </motion.div>
 

@@ -92,21 +92,6 @@
   -webkit-user-drag: none;
 }
 
-.sheen {
-  position: absolute;
-  inset: 0;
-  border-radius: 6%;
-  pointer-events: none;
-  background: linear-gradient(
-    105deg,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.18) 50%,
-    rgba(255, 255, 255, 0) 70%
-  );
-  mix-blend-mode: overlay;
-  transform: translateZ(2px);
-}
-
 /* Avoid rectangular alpha-WebP shadow layers on touch WebKit. */
 @supports (-webkit-touch-callout: none) {
   @media (pointer: coarse) {

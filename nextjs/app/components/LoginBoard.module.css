@@ -108,7 +108,7 @@
   bottom: 10px;
   width: 22px;
   height: 22px;
-  color: #ef3108;
+  color: var(--et-heart);
   /* Auf einem hellen Foto braucht das Herz denselben Halt wie am Spot selbst
      (HeartButton: text-shadow auf weissem Grund). */
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));

@@ -1049,9 +1049,16 @@ div.page {
     margin-top: 26px;
   }
 
-  /* Hochformat und randlos, wie das Aufmacherfoto bei Highsnobiety. */
+  /* Hochformat und randlos, wie das Aufmacherfoto bei Highsnobiety.
+
+     Ohne die `70vh`-Grenze der Grundregel: Chrome auf dem iPhone ändert `vh`,
+     während es beim Scrollen seine Leisten ein- und ausblendet, und das Foto
+     wurde dabei höher und niedriger — es sah aus wie gezoomt (Betreiber,
+     26.09.2026). Volle Breite × 4:5 steht still und ist am Telefon nie höher
+     als der Bildschirm. Dasselbe wie bei `.inlineImage`. */
   .heroMedia {
     aspect-ratio: 4 / 5;
+    max-height: none;
     margin-inline: -16px;
     border-radius: 0;
   }

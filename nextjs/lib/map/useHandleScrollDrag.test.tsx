@@ -70,6 +70,13 @@ function drag(dy: number, { steps = 4, msPerStep = 40 } = {}) {
 }
 
 const settle = () => new Promise((r) => setTimeout(r, 0));
+/* The hook moves the sheet once per frame; this runs the frame by hand. */
+let frames: FrameRequestCallback[] = [];
+function nextFrame() {
+  const due = frames;
+  frames = [];
+  due.forEach((cb) => cb(0));
+}
 const sheet = () => document.querySelector<HTMLElement>('[data-map-sheet]')!;
 
 beforeEach(() => {
@@ -87,6 +94,11 @@ beforeEach(() => {
     configurable: true,
   });
   window.scrollY = 0;
+  frames = [];
+  window.requestAnimationFrame = (cb: FrameRequestCallback) => frames.push(cb);
+  window.cancelAnimationFrame = (id: number) => {
+    delete frames[id - 1];
+  };
   vi.spyOn(window, 'scrollTo').mockImplementation(((opts: ScrollToOptions) => {
     window.scrollY = opts.top ?? 0;
   }) as typeof window.scrollTo);
@@ -122,6 +134,7 @@ describe('in the list', () => {
       const handle = document.querySelector('[data-sheet-handle]')!;
       handle.dispatchEvent(pointer('pointerdown', 100, 0));
       handle.dispatchEvent(pointer('pointermove', 1500, 40));
+      nextFrame();
 
       expect(sheet().style.transform).toBe(`translateY(${REST_OFFSET}px)`);
       handle.dispatchEvent(pointer('pointerup', 1500, 80));

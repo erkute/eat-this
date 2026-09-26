@@ -115,7 +115,6 @@
   --fd-card-h: clamp(226px, 38svh, 340px);
   --fd-title-size: clamp(32px, 9.2vw, 52px);
   align-content: stretch;
-  overflow-x: hidden;
   padding: 0 18px calc(12px + env(safe-area-inset-bottom, 0px));
 }
 .detailV13MustEat .detailV13Scroll::after {
@@ -317,17 +316,11 @@
   .detailV13MustEat .detailV13Scroll {
     flex: none;
   }
-  .detailV13MustEat .fdHeroWrap {
-    flex: 0 0 auto;
-    margin: 0;
-  }
   .detailV13MustEat .fdCardStack {
     max-height: 100%;
   }
   .detailV13MustEat .fdRest {
-    align-items: center;
     flex-direction: row;
-    gap: 12px;
   }
 }
 @media (max-height: 740px) {
@@ -339,7 +332,6 @@
 /* Pack Promo — compact unlock panel in the restaurant detail sheet. */
 .packPromo {
   display: grid;
-  grid-template-columns: 74px 1fr;
   align-items: center;
 }
 .packPromoCardWrap {
@@ -406,7 +398,6 @@
      panel. The mobile composition clamps copy to keep the card/CTA/pager in
      one viewport, but on desktop that clips real dish descriptions. */
   .detailV13MustEat .detailV13Scroll {
-    overflow-y: auto;
     padding-bottom: 20px;
   }
 
@@ -438,7 +429,6 @@
   }
 
   .detailV13MustEat .fdText {
-    width: 100%;
     max-width: 100%;
     min-width: 0;
     overflow-wrap: break-word;
@@ -510,7 +500,6 @@
   /* Upper bound (--rd-name-max) is computed per-name from the longest word so
      a long single word like "Schlüsseldienst" shrinks to fit on one line
      instead of breaking mid-word. */
-  font-size: clamp(24px, 12vw, var(--rd-name-max, 56px));
   /* ≥1 so a two-word name that wraps ("Gorilla Bäckerei") doesn't overlap —
      at .92 the caps of line 1 collided with line 2 (and the uppercase Ä dots
      need top clearance). */
@@ -644,11 +633,7 @@
 
 .rdRow {
   display: grid;
-  grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
   border-bottom: 1.5px solid #0a0a0a;
-}
-.rdRowHours {
-  grid-template-columns: minmax(0, 1fr);
 }
 .rdK {
   text-transform: uppercase;
@@ -668,7 +653,6 @@
 }
 .rdHours {
   display: grid;
-  grid-template-columns: minmax(72px, auto) minmax(0, 1fr);
   font-variant-numeric: tabular-nums;
 }
 .rdHoursD {
@@ -688,7 +672,6 @@
   text-transform: uppercase;
 }
 .rdMustGrid {
-  grid-template-columns: 1fr 1fr;
   margin: 0;
   list-style: none;
 }
@@ -824,29 +807,13 @@
   text-shadow: none;
 }
 .btnPackPromo {
-  background: var(--et-white);
-  color: var(--et-ink);
-  border-radius: var(--radius-sm);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-}
-@media (hover: hover) {
-  .btnPackPromo:hover {
-    background: var(--et-red);
-    color: var(--et-white);
-    border-color: var(--et-ink);
-    transform: translate(-1px, -1px);
-    box-shadow: none;
-  }
 }
 .fdMid {
   color: var(--et-ink);
   border-radius: 0;
   box-shadow: none;
-}
-.fdName,
-.fdClose {
-  color: var(--et-ink);
 }
 .rdCloseGlass,
 .rdPagerBtn,
@@ -873,12 +840,6 @@
 }
 .packPromo::before {
   content: none;
-}
-@media (hover: hover) {
-  .packPromo:hover .packPromoSingleCard {
-    transform: rotate(-2deg) translateY(-2px);
-    filter: none;
-  }
 }
 .packPromoTitle {
   margin-bottom: 8px;
@@ -912,11 +873,6 @@
     padding-inline: 12px;
   }
 }
-/* Restaurant detail facts: calmer rows with softer rhythm and lighter rules. */
-.rdFacts .rdRow:last-child,
-.rdFacts .rdRowHours:last-child {
-  border-bottom: 0;
-}
 .rdV {
   min-width: 0;
   max-width: 100%;
@@ -930,9 +886,6 @@
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-}
-.rdV a.rdContactPlainLink {
-  text-decoration: none;
 }
 .rdVHandle,
 .rdVHandle a {
@@ -1032,10 +985,6 @@
   margin-top: clamp(18px, 3dvh, 30px);
   border-top: 1.5px solid var(--et-ink);
   border-bottom: 1.5px solid var(--et-ink);
-}
-.detailV13MustEat .fdText,
-.detailV13MustEat .fdProximitySub {
-  font-size: clamp(12px, 3.1vw, 14px);
 }
 .detailV13MustEat .fdRest .fdK {
   font-family: var(--et-font-body);
@@ -1493,8 +1442,6 @@
   padding-right: 8px;
 }
 .btnPackPromo {
-  min-height: 48px;
-  border: 0;
   text-decoration: none;
 }
 @media (hover: hover) {
@@ -1564,8 +1511,6 @@
 .btnPackPromo {
   min-height: 54px;
   padding: 0 48px 0 18px;
-  background: #f3ead8;
-  color: #15120e;
   font-size: 11px;
   line-height: 1.05;
   position: relative;
@@ -1715,11 +1660,6 @@
   color: inherit;
 }
 /* Final detail redesign: photo-led restaurant sheet + cleaner Must-Eat sheet. */
-.detailV13:not(.detailV13MustEat),
-.detailV13:not(.detailV13MustEat) .detailV13Scroll {
-  background: #fff;
-  color: var(--et-ink);
-}
 .detailV13:not(.detailV13MustEat) .rdHero {
   margin: 0 0 12px;
   width: 100%;
@@ -1777,17 +1717,11 @@
   min-height: 28px;
   display: inline-flex;
   align-items: center;
-  padding: 6px 10px;
-  background: #fff;
-  color: var(--et-ink);
   font-family: var(--et-font-display);
   font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.1;
   text-transform: none;
-  border: 0;
-  border-radius: 0;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -1804,16 +1738,12 @@
 .detailV13MustEat .fdClose {
   top: 12px;
   min-width: 36px;
-  width: 36px;
-  height: 36px;
   padding: 0;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  background: transparent;
   color: #fff;
   border: 0;
-  border-radius: 0;
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
@@ -1869,8 +1799,6 @@
 .detailV13:not(.detailV13MustEat) .packPromo {
   margin-left: 14px;
   margin-right: 14px;
-  background: #fff;
-  color: var(--et-ink);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -1890,22 +1818,15 @@
 .detailV13:not(.detailV13MustEat) .btnPackPromo {
   min-height: 40px;
   border: 0;
-  border-radius: 0;
-  background: var(--et-ink);
-  color: #fff;
   font-family: var(--et-font-display);
   font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
-  box-shadow: none;
 }
 .detailV13:not(.detailV13MustEat) .rdBody {
   padding: 18px 16px 6px;
-  color: var(--et-ink);
-  font-family: var(--font-sans, system-ui, sans-serif);
   font-size: 15px;
-  line-height: 1.55;
 }
 /* Im gesperrten Sheet bringt LockedDetail seine 18px Seitenrand schon mit; die
    16px hier kamen obendrauf und rückten die Geschichte gegen Kicker und
@@ -1920,15 +1841,12 @@
 .detailV13:not(.detailV13MustEat) .rdSecH,
 .detailV13MustEat .fdName,
 .detailV13MustEat .fdNameText {
-  color: var(--et-ink);
   font-family: var(--et-font-display);
   font-weight: 800;
   letter-spacing: 0;
   text-transform: none;
 }
 .detailV13:not(.detailV13MustEat) .rdTipp {
-  padding: 16px;
-  background: var(--et-ink);
   color: #fff;
 }
 .detailV13:not(.detailV13MustEat) .rdTipp * {
@@ -1972,13 +1890,6 @@
 .detailV13MustEat .fdNameText {
   line-height: 0.92;
 }
-.detailV13MustEat .fdText,
-.detailV13MustEat .fdProximitySub {
-  font-family: var(--et-font-display);
-  font-weight: 500;
-  letter-spacing: 0;
-  line-height: 1.3;
-}
 @media (min-width: 1024px) {
   /* Am Fenster gemessen, nicht fix: 360px waren hier hart gesetzt und haben die
      dvh-Regel der Basis überstimmt. Auf einem 1512×780-Fenster (MacBook mit
@@ -1997,9 +1908,6 @@
     border: 0;
     box-shadow: none;
   }
-}
-.detailV13:not(.detailV13MustEat) .btnPackPromo {
-  padding: 0 18px;
 }
 .detailV13:not(.detailV13MustEat) .packPromo {
   display: grid;
@@ -2042,24 +1950,15 @@
 .detailV13:not(.detailV13MustEat) .packPromoTitle {
   display: block;
   margin: 0;
-  color: #15120e;
   font-family: var(--et-font-display);
-  font-size: clamp(28px, 7.5vw, 42px);
   font-weight: 800;
   letter-spacing: 0;
-  line-height: 0.95;
   text-transform: none;
 }
 .detailV13:not(.detailV13MustEat) .packPromoBody {
   display: block;
   margin: 0;
-  max-width: 30ch;
-  color: rgba(21, 18, 14, 0.72);
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 14px;
-  font-weight: 650;
   letter-spacing: 0;
-  line-height: 1.3;
   text-transform: none;
 }
 .detailV13:not(.detailV13MustEat) .packPromoActions {
@@ -2070,22 +1969,16 @@
   margin-top: 6px;
 }
 .detailV13:not(.detailV13MustEat) .btnPackPromo {
-  min-height: 42px;
   width: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #15120e;
-  color: #fff;
   border: 0;
-  border-radius: 0;
-  box-shadow: none;
   font-family: var(--et-font-display);
   font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
-  text-transform: none;
 }
 .detailV13:not(.detailV13MustEat) .btnPackPromoLbl {
   font: inherit;
@@ -2108,7 +2001,6 @@
   }
 }
 .detailV13:not(.detailV13MustEat) .rdFacts {
-  color: #15120e;
   border-top: 1px solid rgba(21, 18, 14, 0.16);
   border-bottom: 1px solid rgba(21, 18, 14, 0.16);
 }
@@ -2120,15 +2012,11 @@
 .detailV13:not(.detailV13MustEat) .rdRowHours {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 7px;
   align-items: start;
   min-height: 0;
   margin: 0;
-  padding: 15px 2px;
   background: transparent;
-  border: 0;
   border-bottom: 1px solid rgba(21, 18, 14, 0.14);
-  color: #15120e;
 }
 .detailV13:not(.detailV13MustEat) .rdFacts > :last-child {
   border-bottom: 0;
@@ -2158,9 +2046,6 @@
 }
 .detailV13:not(.detailV13MustEat) .rdVMeta {
   margin-top: 6px;
-  color: rgba(21, 18, 14, 0.56);
-  font-size: 12px;
-  font-weight: 600;
 }
 .detailV13:not(.detailV13MustEat) .rdHours {
   display: grid;
@@ -2180,8 +2065,6 @@
   .detailV13:not(.detailV13MustEat) .rdRow,
   .detailV13:not(.detailV13MustEat) .rdRowHours {
     grid-template-columns: 1fr;
-    gap: 7px;
-    padding: 14px 0;
   }
 }
 /* line-height 1.55, nicht 1: der Name traegt `overflow: hidden` fuer die
@@ -2206,24 +2089,15 @@
    current card sitting above identical back cards. Kept late in the file to
    own the many historic Must-Eat overrides above. */
 .detailV13MustEat .detailV13Scroll {
-  --me-ink: #15120e;
-  --me-paper: #fff;
-  --me-soft: var(--et-quiet);
-  --me-muted: rgba(21, 18, 14, 0.62);
   --me-accent: var(--et-accent);
   --me-card-w: min(64vw, 262px);
   --me-card-ratio: 1539 / 2115;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
   width: 100%;
   height: 100%;
   min-height: 0;
   overflow: hidden;
   padding: clamp(56px, 7.5dvh, 74px) 16px calc(12px + env(safe-area-inset-bottom, 0px));
-  background: var(--me-paper);
-  color: var(--me-ink);
 }
 .detailV13MustEat .fdClose {
   top: 12px;
@@ -2236,13 +2110,11 @@
   border-radius: 0;
 }
 .detailV13MustEat .fdClose:focus-visible {
-  color: var(--me-ink);
   background: transparent;
   transform: translateY(-1px);
 }
 @media (hover: hover) {
   .detailV13MustEat .fdClose:hover {
-    color: var(--me-ink);
     background: transparent;
     transform: translateY(-1px);
   }
@@ -2252,8 +2124,6 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  min-height: 0;
-  margin: 0;
   /* Die Luft unter der Karte muss den Fächerüberhang mittragen: die unterste
      Stapelkarte sitzt --me-fan-drop tiefer als die oberste (translate plus
      Rotation, siehe .fdStackCardOne), das Padding misst aber ab .fdCardStack
@@ -2304,7 +2174,6 @@
   filter: none;
   opacity: 1;
   pointer-events: none;
-  box-shadow: none;
 }
 .detailV13MustEat .fdStackCardOne {
   z-index: 0;
@@ -2336,7 +2205,6 @@
   border: 0;
   cursor: zoom-in;
   transform: translateY(-8px) rotate(-2.2deg) rotateY(-4deg) rotateX(1deg);
-  box-shadow: none;
 }
 .detailV13MustEat .fdHeroLocked {
   cursor: pointer;
@@ -2351,9 +2219,6 @@
 .detailV13MustEat .fdMid {
   position: relative;
   z-index: 2;
-  flex: 0 1 auto;
-  min-height: 0;
-  margin: 0;
   padding: 0;
   background: transparent;
   border: 0;
@@ -2364,16 +2229,12 @@
 }
 .detailV13MustEat .fdName,
 .detailV13MustEat .fdNameText {
-  color: var(--me-ink);
   font-family: var(--et-font-display);
-  font-weight: 750;
-  letter-spacing: 0;
   text-transform: uppercase;
 }
 .detailV13MustEat .fdName {
   font-size: clamp(38px, 10.2vw, 64px);
   line-height: 0.88;
-  text-align: left;
 }
 .detailV13MustEat .fdNameText {
   min-width: 0;
@@ -2394,31 +2255,18 @@
   line-height: 0.92;
 }
 .detailV13MustEat .fdText {
-  display: -webkit-box;
-  color: var(--me-muted);
-  font-family: var(--font-sans, system-ui, sans-serif);
   font-size: clamp(13px, 3.45vw, 16px);
-  font-weight: 650;
-  letter-spacing: 0;
-  line-height: 1.32;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
 }
 .detailV13MustEat .fdProximity {
-  flex: 0 0 auto;
   background: transparent;
   border: 0;
   box-shadow: none;
 }
 .detailV13MustEat .fdProximitySub {
   margin: clamp(5px, 0.8dvh, 7px) 0 0;
-  color: var(--me-muted);
   font-family: var(--et-font-display);
   font-size: clamp(14px, 3.5vw, 17px);
-  font-weight: 450;
   letter-spacing: 0;
-  line-height: 1.24;
 }
 .detailV13MustEat .fdRest {
   position: relative;
@@ -2503,8 +2351,6 @@
   }
 
   .detailV13MustEat .fdNameCompact {
-    font-size: clamp(27px, 2.4vw, 34px);
-    line-height: 1.1;
     overflow: visible;
   }
 
@@ -2514,7 +2360,6 @@
 
   .detailV13MustEat .fdProximitySub {
     font-size: 16px;
-    line-height: 1.22;
   }
 }
 /* ══════════════════════════════════════════════════════════════════════
@@ -2597,29 +2442,12 @@
 .detailV13:not(.detailV13MustEat) .rdFacts {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0;
-  margin: 30px 22px 32px;
-  padding: 18px 18px 20px;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
   box-shadow: none;
   overflow: visible;
-}
-.detailV13:not(.detailV13MustEat) .rdK,
-.detailV13:not(.detailV13MustEat) .rdHoursD {
-  color: rgba(21, 18, 14, 0.5);
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  line-height: 1;
-  text-transform: uppercase;
 }
 .detailV13:not(.detailV13MustEat) .rdV,
 .detailV13:not(.detailV13MustEat) .rdV a,
 .detailV13:not(.detailV13MustEat) .rdHoursT {
-  color: #15120e;
   font-family: var(--et-font-display);
   font-size: 19px;
   font-weight: 700;
@@ -2644,12 +2472,9 @@
     display: grid;
     grid-template-columns: 1fr;
     align-content: start;
-    gap: 7px;
     min-height: 0;
     margin: 0;
-    padding: 0 0 22px;
     background: transparent;
-    border: 0;
     border-radius: 0;
     box-shadow: none;
   }
@@ -2673,32 +2498,14 @@
     row-gap: 8px;
   }
 
-  .detailV13:not(.detailV13MustEat) .rdK,
-  .detailV13:not(.detailV13MustEat) .rdHoursD {
-    color: rgba(21, 18, 14, 0.5);
-    font-family: var(--font-sans, system-ui, sans-serif);
-    font-size: 11px;
-    font-weight: 850;
-    letter-spacing: 0.1em;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-
   .detailV13:not(.detailV13MustEat) .rdV,
   .detailV13:not(.detailV13MustEat) .rdV a,
   .detailV13:not(.detailV13MustEat) .rdHoursT {
-    color: #15120e;
     font-family: var(--et-font-display);
     font-size: 19px;
     font-weight: 700;
     line-height: 1.18;
     overflow-wrap: anywhere;
-  }
-
-  .detailV13:not(.detailV13MustEat) .rdVMeta {
-    color: rgba(21, 18, 14, 0.52);
-    font-size: 11.5px;
-    font-weight: 700;
   }
 
   .detailV13:not(.detailV13MustEat) .rdContactPlainLink {
@@ -2723,12 +2530,6 @@
     overflow-x: clip;
     overflow-y: visible;
     -webkit-overflow-scrolling: auto;
-  }
-
-  [data-map-sheet][data-view='detail'] .detailMount,
-  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat),
-  [data-map-sheet][data-view='detail'] .detailV13:not(.detailV13MustEat) .detailV13Scroll {
-    background: var(--et-white);
   }
 
   [data-map-sheet][data-view='detail'] .detailMount {
@@ -2792,7 +2593,6 @@
     --me-card-h: min(calc(100% - var(--me-card-air)), 316px);
     --me-flow-gap: 16px;
     --me-content-gap: var(--me-flow-gap);
-    display: grid;
     /* Keine Pager-Zeile mehr: geblättert wird an der Karte selbst (Pfeile
        auf den Kartenkanten), die Leiste unter dem Panel ist weg. */
     grid-template-rows:
@@ -2801,80 +2601,36 @@
       var(--me-content-gap)
       var(--me-rest-slot);
     align-content: stretch;
-    gap: 0;
     overflow: hidden;
   }
 
   .detailV13MustEat .fdHeroWrap {
     grid-row: 1;
     align-items: flex-end;
-    height: 100%;
-    min-height: 0;
-    max-height: none;
     padding-bottom: var(--me-card-air);
     overflow: visible;
   }
 
-  .detailV13MustEat .fdCardStack {
-    width: min(calc(var(--me-card-h) * 1539 / 2115), 68%);
-    max-width: min(calc(var(--me-card-h) * 1539 / 2115), 68%);
-    height: var(--me-card-h);
-    max-height: var(--me-card-h);
-  }
-
   .detailV13MustEat .fdMid {
     grid-row: 2;
-    display: grid;
-    align-content: start;
-    height: var(--me-mid-slot);
-    min-height: var(--me-mid-slot);
-    max-height: var(--me-mid-slot);
-    margin: 0;
     padding: 0;
   }
 
   .detailV13MustEat .fdName {
-    display: flex;
-    align-items: flex-end;
     padding-top: 0.08em;
-    font-size: clamp(34px, 3.4vw, 44px);
-    line-height: 1.14;
-  }
-
-  .detailV13MustEat .fdNameLong {
-    font-size: clamp(33px, 3.1vw, 42px);
-    line-height: 1.1;
   }
 
   .detailV13MustEat .fdNameText {
-    display: block;
     min-height: 1.05em;
     line-height: inherit;
   }
 
-  .detailV13MustEat .fdText,
-  .detailV13MustEat .fdProximity {
-    height: auto;
-    min-height: 0;
-    max-height: 5.12em;
-    overflow: hidden;
-  }
-
   .detailV13MustEat .fdText {
     box-sizing: border-box;
-    font-family: var(--et-font-display);
     font-size: 15px;
-    font-weight: 500;
-    line-height: 1.28;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
   }
 
   .detailV13MustEat .fdMidLocked {
-    overflow: hidden;
-  }
-
-  .detailV13MustEat .fdMidLocked .fdProximity {
     overflow: hidden;
   }
 
@@ -2907,7 +2663,6 @@
 @media (min-width: 1024px) and (max-height: 760px) {
   .detailV13MustEat .detailV13Scroll {
     --me-card-air: calc(clamp(28px, 4dvh, 36px) + var(--me-fan-drop));
-    --me-mid-slot: clamp(112px, 16dvh, 132px);
     --me-flow-gap: 14px;
     --me-content-gap: var(--me-flow-gap);
   }
@@ -2924,9 +2679,6 @@
 
   .detailV13MustEat .fdText {
     font-size: 14px;
-    line-height: 1.22;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
   }
 
   .detailV13MustEat .fdRestInline {
@@ -2961,14 +2713,12 @@
     --me-card-w: min(60vw, 242px);
     --me-card-gap: clamp(30px, 4dvh, 38px);
     --me-flow-gap: 14px;
-    display: grid;
     grid-template-rows:
       minmax(0, 1fr)
       var(--me-mid-slot)
       var(--me-content-gap)
       var(--me-rest-slot);
     align-content: stretch;
-    gap: 0;
     padding-top: clamp(68px, 8dvh, 84px);
     padding-bottom: 18px;
   }
@@ -2976,9 +2726,6 @@
   .detailV13MustEat .fdHeroWrap {
     grid-row: 1;
     align-items: flex-end;
-    height: 100%;
-    min-height: 0;
-    max-height: none;
     padding-bottom: calc(var(--me-card-gap) + var(--me-fan-drop));
     overflow: visible;
   }
@@ -2990,21 +2737,12 @@
 
   .detailV13MustEat .fdMid {
     grid-row: 2;
-    display: grid;
-    align-content: start;
-    height: var(--me-mid-slot);
-    min-height: var(--me-mid-slot);
-    max-height: var(--me-mid-slot);
-    margin: 0;
     padding: 0;
-    overflow: hidden;
   }
 
   .detailV13MustEat .fdName {
     font-size: clamp(34px, 9.4vw, 46px);
     line-height: 0.98;
-    display: flex;
-    align-items: flex-end;
   }
 
   .detailV13MustEat .fdNameLong {
@@ -3017,48 +2755,19 @@
     line-height: 1;
   }
 
-  .detailV13MustEat .fdText,
-  .detailV13MustEat .fdProximity {
-    height: auto;
-    min-height: 0;
-    max-height: 5.12em;
-    overflow: hidden;
-  }
-
   .detailV13MustEat .fdText {
     box-sizing: border-box;
-    font-family: var(--et-font-display);
     font-size: 15px;
-    font-weight: 500;
-    line-height: 1.28;
   }
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline {
-    display: grid;
     grid-row: 4;
-    height: var(--me-rest-slot);
-    min-height: var(--me-rest-slot);
-    max-height: var(--me-rest-slot);
-    margin: 0;
-    overflow: hidden;
     transform: none;
-    transition: none;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
-    grid-column: 1;
   }
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestName {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-content: start;
     align-items: start;
-    gap: 5px;
-    min-width: 0;
-    min-height: 0;
     padding: 0;
-    overflow: hidden;
   }
 
   .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) .fdRestName {
@@ -3072,9 +2781,6 @@
     margin: 0;
     place-self: start stretch;
     overflow: hidden;
-    line-height: 1;
-    text-align: left;
-    text-transform: uppercase;
   }
 
   [data-map-sheet][data-view='detail'] .detailMountMustEat .detailV13MustEat .detailV13Scroll {
@@ -3124,7 +2830,6 @@
   .detailV13MustEat .fdText,
   .detailV13MustEat .fdProximitySub {
     font-size: clamp(13px, 3.5vw, 15px);
-    line-height: 1.2;
     -webkit-line-clamp: 3;
     line-clamp: 3;
   }
@@ -3140,28 +2845,20 @@
      Track-Höhe und ragt in den Kartenfächer. svh statt dvh, damit die
      Browserleiste nichts verschiebt. */
   --me-name-slot: clamp(100px, 13svh, 108px);
-  display: grid;
   grid-template-rows:
     var(--me-name-slot)
     minmax(0, calc(var(--me-mid-slot) - var(--me-name-slot) - var(--me-name-copy-gap)));
   align-content: start;
   row-gap: var(--me-name-copy-gap);
-  overflow: hidden;
 }
 .detailV13MustEat .fdName {
   display: flex;
   align-items: flex-end;
-  height: var(--me-name-slot);
-  min-height: var(--me-name-slot);
-  max-height: var(--me-name-slot);
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 .detailV13MustEat .fdNameText {
   display: block;
-  max-height: 100%;
-  overflow: hidden;
 }
 .detailV13MustEat .fdProximityReady .fdProximitySub {
   margin-top: 8px;
@@ -3171,12 +2868,8 @@
 }
 .detailV13MustEat .fdText,
 .detailV13MustEat .fdProximity {
-  height: 100%;
-  min-height: 0;
-  max-height: none;
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 @media (min-width: 1024px) {
   .detailV13MustEat .detailV13Scroll {
@@ -3294,11 +2987,6 @@
     animation: none;
   }
 }
-@media (max-width: 1023.98px) {
-  .detailV13MustEat .detailV13Scroll {
-    --me-content-gap: clamp(22px, 2.8dvh, 28px);
-  }
-}
 @media (max-width: 380px), (max-height: 740px) {
   .detailV13MustEat .detailV13Scroll {
     --me-content-gap: 18px;
@@ -3309,15 +2997,6 @@
 }
 .detailV13MustEat .detailV13Scroll > .fdRestInline {
   display: grid;
-  grid-template-columns: 86px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) 38px;
-  column-gap: 12px;
-  row-gap: 10px;
-  align-items: stretch;
-  padding: 14px;
-}
-.detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
-  grid-template-columns: 86px minmax(0, 1fr);
 }
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
   grid-column: 1;
@@ -3334,17 +3013,11 @@
   grid-row: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr);
-  align-content: start;
   justify-content: start;
   justify-items: stretch;
   gap: 5px;
   width: 100%;
   min-width: 0;
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  overflow: hidden;
   justify-self: stretch;
   place-self: stretch;
   inline-size: 100%;
@@ -3355,11 +3028,6 @@
   height: auto;
   min-height: 0;
   max-height: none;
-  font-family: var(--et-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
   text-align: left;
 }
 /* Nur Breite und Ausrichtung — Schriftgrößen, Zeilenhöhe, Tintenraum und der
@@ -3378,15 +3046,6 @@
     --me-rest-slot: 116px;
   }
 
-  .detailV13MustEat .detailV13Scroll > .fdRestInline,
-  .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
-    grid-template-columns: 80px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) 36px;
-    column-gap: 11px;
-    row-gap: 9px;
-    padding: 12px;
-  }
-
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
     width: 80px;
     height: 80px;
@@ -3397,26 +3056,10 @@
     --me-rest-slot: 104px;
   }
 
-  .detailV13MustEat .detailV13Scroll > .fdRestInline,
-  .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
-    grid-template-columns: 66px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) 34px;
-    column-gap: 10px;
-    row-gap: 8px;
-    padding: 10px;
-  }
-
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
     width: 66px;
     height: 66px;
   }
-}
-
-/* The legacy Must-Eat kicker used translucent white from the former dark
-   card treatment. The current restaurant strip is light, so keep the small
-   label on the canonical ink color in every responsive variant. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
-  color: var(--et-ink);
 }
 
 /* The desktop map rail can be narrower than the 1024px component breakpoint
@@ -3442,9 +3085,8 @@
 }
 
 /* No drop cap when the lede's initial is a bare stroke — see lib/dropCap.ts.
-   Two selectors because .rdStoryLead::first-letter is styled both bare and
-   under .detailV13; each reset has to out-specify its own variant. */
-.rdStoryLead.rdStoryLeadPlain::first-letter,
+   .rdStoryLead::first-letter is styled both bare and under .detailV13; this
+   one selector out-specifies every variant. */
 .detailV13:not(.detailV13MustEat) .rdStoryLead.rdStoryLeadPlain::first-letter {
   float: none;
   padding: 0;
@@ -3483,17 +3125,10 @@
 
 .detailV13:not(.detailV13MustEat) .rdActBtn {
   min-width: 0;
-  min-height: 46px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 0 12px;
-  background: var(--et-white);
-  color: var(--et-ink);
   border: 0;
   border-radius: var(--et-radius-control);
-  box-shadow: inset 0 0 0 2px var(--et-ink);
   cursor: pointer;
   font-family: var(--et-font-display);
   font-size: var(--et-type-button);
@@ -3527,13 +3162,6 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* "Go there" — the one thing a hungry visitor does next. */
-.detailV13:not(.detailV13MustEat) .rdActPrimary {
-  background: var(--et-red);
-  color: var(--et-white);
-  box-shadow: inset 0 0 0 2px var(--et-red);
 }
 
 /* "Reservieren" — committal, volle Breite. Gelb, nicht Ink: die Zeile steht
@@ -3608,9 +3236,6 @@
      der Spot-Seite). */
   .detailV13:not(.detailV13MustEat) .rdActBtn:hover {
     transform: translateY(-1px);
-    background: var(--et-ink);
-    color: var(--et-white);
-    box-shadow: inset 0 0 0 2px var(--et-white);
   }
 
   /* Der gelbe Knopf ist schon gefuellt — er wechselt auf Rot, sonst haette er
@@ -3640,11 +3265,6 @@
   .rdActs {
     gap: 7px;
   }
-
-  .detailV13:not(.detailV13MustEat) .rdActBtn {
-    gap: 6px;
-    padding: 0 9px;
-  }
 }
 
 /* ============ Pack promo — the "extra" panel ============
@@ -3662,7 +3282,6 @@
   position: relative;
   margin: 30px 14px 32px;
   padding: clamp(22px, 5vw, 24px) clamp(14px, 4vw, 18px) clamp(20px, 4.5vw, 22px);
-  background: var(--et-quiet);
   border: 0;
   border-radius: var(--et-radius-photo);
   overflow: visible;
@@ -3677,7 +3296,6 @@
 
 .detailV13:not(.detailV13MustEat) .packPromoBody {
   max-width: 27ch;
-  color: var(--et-ink);
   font-family: var(--et-font-display);
   font-size: clamp(13.5px, 3.6vw, 14px);
   font-weight: 500;
@@ -3700,7 +3318,6 @@
 @media (hover: hover) {
   .detailV13:not(.detailV13MustEat) .btnPackPromo:hover {
     transform: translateY(-1px);
-    background: var(--et-red);
     box-shadow: inset 0 0 0 2px var(--et-red);
   }
 }
@@ -3825,10 +3442,6 @@
    wanderte damit beim Blättern die halbe Ansicht. Fest plus sichtbar
    überstehend: Unterlängen ragen heraus, das Layout steht. */
 .detailV13MustEat .fdName {
-  flex: 0 0 auto;
-  height: var(--me-name-slot);
-  min-height: var(--me-name-slot);
-  max-height: var(--me-name-slot);
   overflow: visible;
 }
 
@@ -3883,10 +3496,6 @@
    ein eigener Grid-Track und ist jetzt ein margin. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline {
   flex: 0 0 auto;
-  height: auto;
-  min-height: var(--me-rest-slot);
-  max-height: none;
-  margin: var(--me-content-gap) 0 0;
   overflow: visible;
 }
 
@@ -3919,11 +3528,6 @@
        gemessen bis 15px ÜBER die Unterkante des Schließen-X. Was hier an Höhe
        fehlt, wird oben zu Luft. */
     --me-card-h: min(39svh, 390px);
-  }
-
-  .detailV13MustEat .fdCardStack {
-    width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
-    max-width: min(calc(var(--me-card-h) * 1539 / 2115), 84%);
   }
 }
 
@@ -4087,9 +3691,7 @@
    Zeilenhöhe bleibt auf Providence gerechnet (1.24 aus den Blöcken oben). */
 .detailV13MustEat .fdText {
   font-family: var(--et-font-display);
-  font-weight: 450;
   letter-spacing: 0;
-  line-height: 1.28;
 }
 
 /* Der Namens-Block wird an seinem Inhalt gemessen, nicht am Platz: sein
@@ -4112,21 +3714,12 @@
    bleibt unten — nur das Foto wird kleiner, damit der Streifen dem
    Kartenstapel Platz zurückgibt. */
 @media (min-width: 1024px) {
-  .detailV13MustEat .detailV13Scroll > .fdRestInline {
-    padding: 12px;
-    row-gap: 8px;
-  }
-
   /* Der Platz, den die Bezirks-Bildunterschrift belegt hat, geht ans Foto. */
   .detailV13MustEat .detailV13Scroll > .fdRestInline .fdRestPhoto {
     width: 96px;
     min-width: 96px;
     height: 96px;
     min-height: 96px;
-  }
-
-  .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto) {
-    grid-template-columns: 96px minmax(0, 1fr);
   }
 
   /* Die konstante Streifenhöhe gehört auf den STREIFEN, nicht auf den Namen:
@@ -4165,24 +3758,13 @@
  * hier steht nur, wie das Grid aussieht. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline:has(.fdRestPhoto),
 .detailV13MustEat .detailV13Scroll > .fdRestInline {
-  grid-template-columns: 56px minmax(0, 1fr) auto;
   grid-template-rows: auto;
   align-items: center;
   column-gap: 14px;
   row-gap: 0;
-  min-height: 92px;
   height: auto;
   max-height: none;
   margin: 0;
-  padding: 14px 0 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.detailV13MustEat .detailV13Scroll > .fdRestInline:not(:has(.fdRestPhoto)) {
-  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 /* Alles auf eine Zeile — die alten Regeln legten die Pille in eine zweite. */
@@ -4214,13 +3796,7 @@
 }
 
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdK {
-  font-family: var(--et-font-display);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
   line-height: 1;
-  text-transform: uppercase;
-  color: var(--me-muted);
 }
 
 /* Zwei Zeilen sind die Grenze, danach wird geklemmt — sonst trägt der Streifen
@@ -4240,35 +3816,15 @@
    Die max-height muss mitwandern, sonst frisst der Deckel den Raum wieder auf.
    Der Streifen hält seine 92px trotzdem — die Luft dafür steht im Foto. */
 .detailV13MustEat .detailV13Scroll > .fdRestInline .fdV {
-  display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
-  overflow: hidden;
   min-height: 0;
-  max-height: calc(2 * 1.16em + 0.3em);
-  padding-bottom: 0.3em;
-  text-overflow: ellipsis;
   font-family: var(--et-font-display);
-  font-size: clamp(17px, 4.4vw, 20px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.16;
-  color: var(--me-ink);
 }
 
-/* Längenstufen für den Restaurantnamen — dieselbe Mechanik wie beim
-   Gerichtsnamen darüber, kein Sonderfall pro Lokal. Die Namensspalte ist rund
-   175px breit; in EINE Zeile passt "Saveur de Bánh Mì Schöneberg" auch klein
-   nicht. Die Stufen sorgen dafür, dass lange Namen in die zwei reservierten
-   Zeilen passen, statt vom line-clamp abgeschnitten zu werden. */
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVLong {
-  font-size: clamp(15px, 3.9vw, 18px);
-}
-
-.detailV13MustEat .detailV13Scroll > .fdRestInline .fdV.fdVCompact {
-  font-size: clamp(13.5px, 3.5vw, 16px);
-}
 /* ── Desktop-Panel: Maße fürs 379px-Panel, nicht fürs 1440px-Fenster ──────────
    Auf dem Desktop ist diese Sheet keine Seite, sondern eine 379px breite
    Spalte — Telefonbreite. Alles, was hier an vw hing, lief in seinen Deckel
@@ -4290,12 +3846,6 @@
   .detailV13:not(.detailV13MustEat) .rdV a,
   .detailV13:not(.detailV13MustEat) .rdHoursT {
     font-size: 17px;
-  }
-
-  /* Eine CTA-Höhe für die ganze Sheet: der Aktionsknopf lag bei 46, das
-     Pack-Angebot direkt darunter bei 42. */
-  .detailV13:not(.detailV13MustEat) .rdActBtn {
-    min-height: 42px;
   }
 
   .detailV13:not(.detailV13MustEat) .packPromoTitle {
@@ -4382,8 +3932,8 @@
 
 /* Der einzige Link auf der Tafel — die Adresse ist hier, anders als auf der
    Spot-Seite, keiner. Er trägt `.rdV a` in der Klammer, weil die Papier-Fassung
-   ihre `text-decoration: none` über genau diesen Selektor setzt: ohne das
-   Typ-Selektor-Gewicht verliert die Unterstreichung. */
+   am Telefon `text-decoration: none` auf `.rdContactPlainLink` setzt: ohne das
+   zusätzliche Gewicht verliert die Unterstreichung. */
 .detailV13:not(.detailV13MustEat) .rdV a.rdContactPlainLink {
   border-bottom: 0;
   color: var(--et-white);

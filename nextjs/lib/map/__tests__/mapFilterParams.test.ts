@@ -4,6 +4,7 @@ import {
   buildMapFilterIndex,
   isDefaultFilterState,
   MAP_FILTER_DEFAULTS,
+  MUST_EATS_CATEGORY,
   resolveMapFilterState,
   writeMapFilterParams,
 } from '../mapFilterParams';
@@ -59,6 +60,11 @@ describe('resolveMapFilterState', () => {
     expect(resolveMapFilterState('?price=20', index).price).toBe('20');
     // Eine Stufe, die es nicht gibt, fällt weg statt durchzurutschen.
     expect(resolveMapFilterState('?price=teuer', index).price).toBeNull();
+  });
+
+  it('kennt ?cat=must-eats, obwohl keine Sanity-Kategorie so heisst', () => {
+    expect(resolveMapFilterState('?cat=must-eats', index).category).toBe(MUST_EATS_CATEGORY);
+    expect(urlFor({ ...MAP_FILTER_DEFAULTS, category: MUST_EATS_CATEGORY })).toBe('cat=must-eats');
   });
 
   it('reads q verbatim and open only as 1', () => {

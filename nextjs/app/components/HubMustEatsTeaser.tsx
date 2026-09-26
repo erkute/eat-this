@@ -193,8 +193,14 @@ export default function HubMustEatsTeaser() {
                     card wait for the JS bundle and hydration first, on the
                     section furthest down the page. */}
                 {isFaceUp && m.image ? (
+                  // Eigener `key`: deckt sich eine Karte nach dem Mount auf
+                  // (angemeldet, Standort), baut React ein neues <img>, statt
+                  // das der Rueckseite umzuschreiben — sonst waehlt Safari bei
+                  // src, srcset und sizes einzeln neu und laedt zwei Varianten.
+                  // Grund und Beleg in ProfileAlbum.tsx.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
+                    key="card"
                     className={styles.card}
                     src={`${m.image}?w=360&auto=format&q=80`}
                     srcSet={cardSrcSet(m.image)}
@@ -214,6 +220,7 @@ export default function HubMustEatsTeaser() {
                   // card art, which keeps the tiles the same height.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
+                    key="back"
                     className={styles.card}
                     src={CARD_BACK}
                     alt=""

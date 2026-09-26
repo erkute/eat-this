@@ -170,6 +170,47 @@ describe('ProfileAlbum', () => {
     expect(image?.getAttribute('srcset')).toContain('/api/must-eat-image/m1?w=720');
   });
 
+  /* Safari waehlt die srcset-Variante bei JEDER Attributaenderung neu. Deckte
+     sich eine Karte auf, verwendete React das <img> der Rueckseite weiter und
+     setzte nacheinander `src`, `srcset`, `sizes` — WebKit holte dabei die 360er
+     UND (srcset ohne sizes = 100vw) die 720er. Prod-Log 26.09.2026: ein iPhone
+     lud so jede Karte doppelt. Ein neues Element setzt React in der richtigen
+     Reihenfolge (sizes, srcset, src). */
+  it('baut beim Aufdecken ein neues <img>, statt das der Rueckseite umzuschreiben', () => {
+    // Verdeckt kommt die Karte ohne Bild (die Nutzlast streift es ab), offen mit.
+    const card = (image?: string): MapMustEat[] => [
+      {
+        _id: 'm1',
+        dish: 'Ramen',
+        ...(image ? { image } : {}),
+        restaurant: { _id: 'r1', name: 'Restaurant', slug: 'restaurant', lat: 52.5, lng: 13.4 },
+      },
+    ];
+    const props = {
+      faceUpIds: new Set<string>(),
+      stampedIds: new Set<string>(),
+      groupOf: () => 'Mitte',
+      player,
+    };
+    // Der Platz im Raster — nicht die Spielerkarte, die ebenfalls ein Knopf ist.
+    const slotImage = () =>
+      [...container.querySelectorAll<HTMLImageElement>('button img')].find((img) =>
+        /card-back|must-eat-image/.test(img.getAttribute('src') ?? '')
+      );
+
+    const { container, rerender } = render(<ProfileAlbum {...props} mustEats={card()} />);
+    const back = slotImage();
+    expect(back?.getAttribute('src')).toContain('card-back');
+    rerender(<ProfileAlbum {...props} mustEats={card('/api/must-eat-image/m1')} />);
+    const open = slotImage();
+
+    expect(open?.getAttribute('src')).toContain('/api/must-eat-image/m1');
+    expect(open).not.toBe(back);
+    const order = [...open!.attributes].map((a) => a.name);
+    expect(order.indexOf('sizes')).toBeLessThan(order.indexOf('srcset'));
+    expect(order.indexOf('srcset')).toBeLessThan(order.indexOf('src'));
+  });
+
   /* Die Bezirke gab es hier immer; bis zum 04.09.2026 brachen sie das Raster
      in sieben angebrochene Zeilen. Jetzt sind sie Reiter — die Gruppierung
      lebt in der Filterleiste weiter, nicht mehr im Rost. */

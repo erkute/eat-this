@@ -278,7 +278,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     openBurgerDrawer();
   }, []);
-  const rawLocationStatus = getLocationStatus({ locale, location, locationError, locateLoading });
+  const rawLocationStatus = getLocationStatus({
+    locale,
+    location,
+    locationError,
+    locateLoading,
+    whileLocated: true,
+  });
   /* The only non-error copy is the "searching" one, so this is exactly the
      transient state that used to flash. Errors stay immediate — they are the
      messages the user actually needs to read. */
@@ -394,7 +400,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
        liegen damit als Layer ueber der Karte; das Suchen geht von allein,
        sobald der Standort da ist. */
     if (noticeKind === 'locationBlocked') {
-      return notify(noticeKind, locale, locationBlockedOptions(locale, handleDismissLocationStatus));
+      return notify(
+        noticeKind,
+        locale,
+        locationBlockedOptions(locale, handleDismissLocationStatus)
+      );
     }
     return notify(noticeKind, locale, {
       action: noticeCanRetry

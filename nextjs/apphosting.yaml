@@ -100,6 +100,14 @@ env:
     availability:
       - RUNTIME
 
+  # Test-Konten des Betreibers, die nicht in /admin/stats zählen (Konten,
+  # Starter Packs, Aufdeckungen, Umsatz). Getrennt von ADMIN_EMAILS, damit ein
+  # Test-Konto keine Admin-Rechte bekommt. Die ADMIN_EMAILS fallen ohnehin raus.
+  - variable: STATS_EXCLUDE_EMAILS
+    value: e.erkut@icloud.com
+    availability:
+      - RUNTIME
+
   # Public App URL (used as fallback for image asset base URL in emails)
   - variable: NEXT_PUBLIC_APP_URL
     value: https://www.eatthisdot.com

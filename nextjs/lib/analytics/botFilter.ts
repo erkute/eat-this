@@ -27,7 +27,13 @@
  *     living person can send "moto g power (2022)" from a current browser.
  *     Lighthouse's constant is the only source of that string.
  *
- *  3. Vulnerability scanners send an ordinary browser UA - in the logs they
+ *  3. The browser pane of the Claude desktop app. It is ordinary Chrome with
+ *     "Claude/<version>" in the UA and keeps its own cookie jar, so the
+ *     /admin/stats opt-out never reaches it - every smoke test run against
+ *     production from there stood in the numbers as a visit (26.09.2026).
+ *     `claudebot` in the list below is the crawler; this is the app.
+ *
+ *  4. Vulnerability scanners send an ordinary browser UA - in the logs they
  *     show up as /wp-admin/install.php, /ip, /contact. No UA filter sees them.
  *     What catches them there is the response status; here it is the path
  *     allowlist in the route, since a 404 never reaches this endpoint at all.
@@ -39,10 +45,13 @@ const DECLARED =
 /** Lighthouse's emulated phone (lighthouse-core/config/constants.js). */
 const LIGHTHOUSE_UA = /moto g power \(2022\)/i;
 
+/** The Claude desktop app's built-in browser, e.g. "… Claude/2.9939.2 Chrome/152…". */
+const CLAUDE_APP_UA = /\bClaude\/\d/;
+
 /** True for traffic that must not appear in any count. */
 export function isAutomated(userAgent: string | null): boolean {
   const ua = userAgent ?? '';
   // An empty UA is not a browser. Every real one sends something.
   if (!ua.trim()) return true;
-  return DECLARED.test(ua) || LIGHTHOUSE_UA.test(ua);
+  return DECLARED.test(ua) || LIGHTHOUSE_UA.test(ua) || CLAUDE_APP_UA.test(ua);
 }

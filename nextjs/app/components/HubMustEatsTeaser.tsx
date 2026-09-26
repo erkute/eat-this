@@ -12,6 +12,7 @@ import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { composeTeaserCards } from '@/lib/home/mustEatsGallery';
+import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubMustEatsTeaser.module.css';
 
@@ -38,7 +39,7 @@ const CARD_BACK = '/pics/card-back.webp?v=7';
 const CARD_WIDTHS = [180, 360, 440] as const;
 
 function cardSrcSet(url: string): string {
-  return CARD_WIDTHS.map((w) => `${url}?w=${w}&auto=format&q=80 ${w}w`).join(', ');
+  return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
 export default function HubMustEatsTeaser() {
@@ -202,7 +203,7 @@ export default function HubMustEatsTeaser() {
                   <img
                     key="card"
                     className={styles.card}
-                    src={`${m.image}?w=360&auto=format&q=80`}
+                    src={mustEatCardSrc(m.image, 360)}
                     srcSet={cardSrcSet(m.image)}
                     // The card is capped at 178px (see .card in the CSS
                     // module). Below the cap it fills its grid column:

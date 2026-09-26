@@ -3,6 +3,8 @@ import 'server-only';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { MapMustEat } from '@/lib/types';
 
+import { mustEatImageUrl } from './cardImage';
+
 // Exportiert fuer lib/must-eat/warmup, das die Karten-IDs beim Instanzstart listet.
 export const PRIVATE_MUST_EATS_COLLECTION = 'privateMustEats';
 const PRIVATE_MUST_EAT_OBJECT_PREFIX = 'premium/must-eats/';
@@ -152,7 +154,7 @@ export async function hydrateAuthorizedMustEats(
       description: content.description,
       descriptionEn: content.descriptionEn,
       price: content.price,
-      image: `/api/must-eat-image/${encodeURIComponent(mustEat._id)}`,
+      image: mustEatImageUrl(mustEat._id, content.imageObjectPath),
     };
   });
 }

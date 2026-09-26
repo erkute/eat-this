@@ -7,17 +7,34 @@
 
 const ROUTE_PREFIX = '/api/must-eat-image/';
 const CARD_WIDTHS = [180, 360, 440, 720] as const;
+const VERSION_LENGTH = 12;
 
 export type MustEatCardWidth = (typeof CARD_WIDTHS)[number];
 
+/** Die Adresse eines Kartenbilds, versioniert mit dem Hash des Motivs.
+ *  Die Route antwortet mit bis zu `max-age=1800` — ohne `?v=` zeigte ein
+ *  Browser ein getauschtes Motiv bis dahin weiter alt. Der Hash steht ohnehin
+ *  im Objektpfad (`premium/must-eats/<id>/<sha256>.webp`); die Route liest
+ *  `v` nicht, es trennt nur die Cache-Einträge. */
+export function mustEatImageUrl(id: string, imageObjectPath: string): string {
+  const version = imageObjectPath
+    .slice(imageObjectPath.lastIndexOf('/') + 1)
+    .replace(/\.[^.]+$/, '')
+    .slice(0, VERSION_LENGTH);
+  const base = `${ROUTE_PREFIX}${encodeURIComponent(id)}`;
+  return version ? `${base}?v=${encodeURIComponent(version)}` : base;
+}
+
 /** Nur Bilder der Route bekommen eine Breite — die Kartenrückseite aus
- *  `public/pics` läuft unverändert durch. */
+ *  `public/pics` läuft unverändert durch, eine schon skalierte URL auch. */
 export function isMustEatRouteImage(url: string | undefined): url is string {
-  return !!url && url.startsWith(ROUTE_PREFIX) && !url.includes('?');
+  return !!url && url.startsWith(ROUTE_PREFIX) && !/[?&]w=/.test(url);
 }
 
 export function mustEatCardSrc<T extends string | undefined>(url: T, width: MustEatCardWidth): T {
-  return (isMustEatRouteImage(url) ? `${url}?w=${width}&auto=format&q=80` : url) as T;
+  if (!isMustEatRouteImage(url)) return url;
+  const joiner = url.includes('?') ? '&' : '?';
+  return `${url}${joiner}w=${width}&auto=format&q=80` as T;
 }
 
 export function mustEatCardSrcSet(url: string | undefined): string | undefined {

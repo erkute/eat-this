@@ -11,11 +11,21 @@ import { normalizeName } from '@/lib/normalizeName';
 import type { MapMustEat } from '@/lib/types';
 import { buildAlbum } from '@/lib/profile/mustEatAlbum';
 import { computeBadges } from '@/lib/profile/badges';
+import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import ProfilePlayerCard from './ProfilePlayerCard';
 import styles from './ProfileAlbum.module.css';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 const ALL = '__all__';
+// Spaltenbreite des Rasters, wie ProfileAlbum.module.css sie setzt: zwei
+// Spalten bis 360 px, drei bis 640 px (gemessen 113 px bei 390 px Breite — die
+// Abzuege sind Seitenrand und Luecken), darueber `auto-fill` ab 116/126 px —
+// dort bleibt jede Karte unter ~170 px (gemessen 139 px bei 1440 px, acht
+// Spalten). Mit `33vw` bzw. `240px` griffen iPhone und Retina zur 720er.
+const GRID_SIZES =
+  '(max-width: 360px) calc((100vw - 42px) / 2), (max-width: 640px) calc((100vw - 51px) / 3), 170px';
+// Faecherkarte: 0.88 × --album-player-w (26vw, ab 900 px hoechstens 160 px).
+const ART_SIZES = '(min-width: 900px) 141px, 23vw';
 
 interface Props {
   mustEats: MapMustEat[];
@@ -95,6 +105,7 @@ export default function ProfileAlbum({
 
   const [expanded, setExpanded] = useState<{
     imageUrl: string;
+    placeholderUrl: string | null;
     alt: string;
     rect: DOMRect;
     id: string;
@@ -174,7 +185,9 @@ export default function ProfileAlbum({
                 key={`${src}-${i}`}
                 className={styles.artCard}
                 style={{ '--art-i': at, zIndex: 2 - Math.abs(at) } as CSSProperties}
-                src={src}
+                src={mustEatCardSrc(src, 180)}
+                srcSet={mustEatCardSrcSet(src)}
+                sizes={ART_SIZES}
                 alt=""
                 aria-hidden="true"
                 decoding="async"
@@ -309,6 +322,10 @@ export default function ProfileAlbum({
                     onClick={(e) => {
                       setExpanded({
                         imageUrl,
+                        /* Das Raster laedt nur Daumennaegel — der Zoom fliegt
+                           mit dem, was schon auf dem Schirm liegt, und holt
+                           das Original nach. */
+                        placeholderUrl: e.currentTarget.querySelector('img')?.currentSrc || null,
                         alt,
                         rect: e.currentTarget.getBoundingClientRect(),
                         id: slot.id,
@@ -325,7 +342,9 @@ export default function ProfileAlbum({
                         album art must load directly. */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={slot.mustEat.image}
+                          src={mustEatCardSrc(slot.mustEat.image, 360)}
+                          srcSet={mustEatCardSrcSet(slot.mustEat.image)}
+                          sizes={GRID_SIZES}
                           alt=""
                           className={styles.img}
                           loading="lazy"
@@ -396,6 +415,7 @@ export default function ProfileAlbum({
         active={Boolean(expanded || hiddenId)}
         imageUrl={expanded?.imageUrl ?? null}
         alt={expanded?.alt ?? ''}
+        placeholderUrl={expanded?.placeholderUrl ?? null}
         originRect={expanded?.rect ?? null}
         /* Zwei Wege aus dem Zoom, je nachdem, was da liegt.
  

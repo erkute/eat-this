@@ -16,6 +16,13 @@ import ZoomCurtain from './ZoomCurtain';
 export interface MustEatImageLightboxProps {
   imageUrl: string | null;
   alt: string;
+  /* Was die Karte im Raster gerade zeigt (`currentSrc` des Slot-Bilds). Ein
+     Raster aus Daumennaegeln hat das grosse `imageUrl` nie geladen — ohne
+     Platzhalter flog die Karte leer heraus und fuellte sich erst nach dem
+     Download. Mit ihm fliegt der Daumennagel, und das grosse Bild loest ihn
+     ab, sobald es dekodiert ist. Gilt nur fuer die erste Karte, nicht fuers
+     Blaettern. */
+  placeholderUrl?: string | null;
   // null = closed; setting it to a DOMRect opens the lightbox and the
   // card flies out from that rect. Reverting to null triggers exit which
   // animates back to the same origin rect.
@@ -50,6 +57,7 @@ export interface MustEatImageLightboxProps {
 interface InnerProps {
   imageUrl: string;
   alt: string;
+  placeholderUrl?: string | null;
   originRect: DOMRect;
   open: boolean;
   onClose: () => void;
@@ -87,6 +95,7 @@ const SWIPE_PX = 60;
 const Inner = memo(function Inner({
   imageUrl,
   alt,
+  placeholderUrl,
   originRect,
   open,
   onClose,
@@ -318,6 +327,23 @@ const Inner = memo(function Inner({
       cancelled = true;
     };
   }, [pageKey, imageUrl, alt, shown.key, dealControls, reducedMotion]);
+  /* Der Platzhalter haelt nur fuer das Bild, mit dem der Zoom aufging. Der
+     Deckel ist grosszuegig: laeuft er ab, stuende sonst ein leeres <img> da,
+     wo eben noch der Daumennagel lag. */
+  const [placeholderFor] = useState(placeholderUrl ? imageUrl : null);
+  const [sharpUrl, setSharpUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!placeholderFor) return;
+    let cancelled = false;
+    void whenImageReady(placeholderFor, 20_000).then(() => {
+      if (!cancelled) setSharpUrl(placeholderFor);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [placeholderFor]);
+  const showPlaceholder =
+    placeholderUrl && shown.imageUrl === placeholderFor && sharpUrl !== placeholderFor;
   /* Beim Zumachen fliegt die KARTE zurück in ihren Slot — ein Wurf, der genau
      dann noch unterwegs ist, würde sie schräg und versetzt landen lassen. */
   useEffect(() => {
@@ -427,7 +453,12 @@ const Inner = memo(function Inner({
         <motion.div className={styles.clip} style={{ width: overlayW }} animate={dealControls}>
           {/* Ein eigenes <img> pro Karte — ein wiederverwendetes zeigt nach dem
               `src`-Wechsel weiter das alte Bild. */}
-          <img key={shown.key} src={shown.imageUrl} alt={shown.alt} className={styles.image} />
+          <img
+            key={showPlaceholder ? `${shown.key}:placeholder` : shown.key}
+            src={showPlaceholder ? placeholderUrl : shown.imageUrl}
+            alt={shown.alt}
+            className={styles.image}
+          />
           <motion.div className={styles.sheen} style={{ x: sheenX }} aria-hidden="true" />
         </motion.div>
       </motion.div>
@@ -493,6 +524,7 @@ const Inner = memo(function Inner({
 export default function MustEatImageLightbox({
   imageUrl,
   alt,
+  placeholderUrl,
   originRect,
   onClose,
   onExitComplete,
@@ -510,6 +542,7 @@ export default function MustEatImageLightbox({
   const [rendered, setRendered] = useState<{
     imageUrl: string;
     alt: string;
+    placeholderUrl?: string | null;
     originRect: DOMRect;
     open: boolean;
   } | null>(null);
@@ -530,7 +563,7 @@ export default function MustEatImageLightbox({
           document.activeElement instanceof HTMLElement ? document.activeElement : null;
         openingRef.current = true;
       }
-      setRendered({ imageUrl, alt, originRect, open: true });
+      setRendered({ imageUrl, alt, placeholderUrl, originRect, open: true });
       onOpenReady?.();
       return;
     }
@@ -538,7 +571,7 @@ export default function MustEatImageLightbox({
     // map data refreshes. Never create an image clone without a real source.
     if (originRect) return;
     setRendered((current) => (current ? { ...current, open: false } : null));
-  }, [alt, imageUrl, mounted, onOpenReady, originRect]);
+  }, [alt, imageUrl, placeholderUrl, mounted, onOpenReady, originRect]);
 
   if (!mounted) return null;
 
@@ -548,6 +581,7 @@ export default function MustEatImageLightbox({
         key="must-eat-lightbox"
         imageUrl={rendered.imageUrl}
         alt={rendered.alt}
+        placeholderUrl={rendered.placeholderUrl}
         originRect={rendered.originRect}
         open={rendered.open}
         onPrev={onPrev}

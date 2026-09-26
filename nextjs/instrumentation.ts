@@ -3,6 +3,15 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     await import('./sentry.server.config');
+    // Nur im laufenden Produktionsserver — nicht in `next dev`, nicht in den
+    // Workern von `next build`.
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.NEXT_PHASE !== 'phase-production-build'
+    ) {
+      const { scheduleSelfWarmup } = await import('./lib/warmup/selfWarmup');
+      scheduleSelfWarmup();
+    }
   }
   if (process.env.NEXT_RUNTIME === 'edge') {
     await import('./sentry.edge.config');

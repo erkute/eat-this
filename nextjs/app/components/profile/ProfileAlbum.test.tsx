@@ -160,11 +160,14 @@ describe('ProfileAlbum', () => {
     );
 
     // Die Karte im Raster (ein Knopf) — nicht die Kopie im Faecher des Kopfes.
+    // Ein Daumennagel aus der Routen-Leiter, nicht das Original (~100 kB):
+    // das Raster zog sonst rund 2,5 MB (Prod-Log 25./26.09.2026).
     const image = container.querySelector<HTMLImageElement>(
-      'button img[src="/api/must-eat-image/m1"]'
+      'button img[src="/api/must-eat-image/m1?w=360&auto=format&q=80"]'
     );
     expect(image).not.toBeNull();
     expect(image?.getAttribute('loading')).toBe('lazy');
+    expect(image?.getAttribute('srcset')).toContain('/api/must-eat-image/m1?w=720');
   });
 
   /* Die Bezirke gab es hier immer; bis zum 04.09.2026 brachen sie das Raster

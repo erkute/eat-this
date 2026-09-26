@@ -3,7 +3,8 @@ import 'server-only';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { MapMustEat } from '@/lib/types';
 
-const PRIVATE_MUST_EATS_COLLECTION = 'privateMustEats';
+// Exportiert fuer lib/must-eat/warmup, das die Karten-IDs beim Instanzstart listet.
+export const PRIVATE_MUST_EATS_COLLECTION = 'privateMustEats';
 const PRIVATE_MUST_EAT_OBJECT_PREFIX = 'premium/must-eats/';
 
 export interface PrivateMustEatContent {

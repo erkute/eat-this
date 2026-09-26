@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import { normalizeName } from '@/lib/normalizeName';
+import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import type { MapMustEat } from '@/lib/types';
 import styles from './Profile.module.css';
 
@@ -83,7 +84,14 @@ export default function ProfileRecentReveals({
               {/* Private album art loads straight from the protected route —
                   next/image's optimizer would drop the capability cookie. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={mustEat.image} alt="" loading="lazy" decoding="async" />
+              <img
+                src={mustEatCardSrc(mustEat.image, 360)}
+                srcSet={mustEatCardSrcSet(mustEat.image)}
+                sizes="176px"
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
             </MapIntentLink>
             <p className={styles.recentDish}>{mustEat.dish}</p>
             <p className={styles.recentMeta}>{normalizeName(mustEat.restaurant.name)}</p>

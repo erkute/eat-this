@@ -23,15 +23,23 @@ const INTENT_PX = 64;
 const FLICK_PX_PER_MS = 0.5;
 /* Below this much movement a release is a tap. */
 const TAP_PX = 6;
+/* After a drag that began on a chip, the click the browser may still send
+   there is the drag's, not a tap's. */
+const CLICK_AFTER_DRAG_MS = 400;
 
 function isPhone(): boolean {
   if (typeof window === 'undefined') return false;
   return window.matchMedia(`(max-width: ${PHONE_MAX}px)`).matches;
 }
 
+/* A press on the grab zone outside the grabber itself (the list's filter
+   chips): a drag only once the finger clearly moves up or down, otherwise it
+   stays the chip's tap. */
+type Pending = { pointerId: number; startX: number; startY: number; timeStamp: number };
+
 type Drag =
   /* Between the stops: the finger drives the window scroller 1:1. */
-  | { kind: 'scroll'; pointerId: number; startY: number; startScrollY: number }
+  | { kind: 'scroll'; pointerId: number; startY: number; startScrollY: number; fingerY: number }
   /* Deep in the list, or pulling a remembered list back up from the map: the
      finger drives the slab on screen (see sheetSlide.ts). */
   | {
@@ -73,6 +81,16 @@ type Drag =
  * returns the list to where it was left. The transform lives only for the
  * gesture; see sheetSlide.ts.
  *
+ * In the list the whole filter bar is the grab zone, as in Google Maps: a
+ * press on a chip turns into a drag once it moves vertically, and is the
+ * chip's tap otherwise. The zone is the nearest `[data-sheet-grab-zone]`
+ * around the handle; without one it is the handle alone.
+ *
+ * The finger's position is applied once per frame, not per pointermove: iOS
+ * samples touches faster than a 60 Hz screen draws, and every extra
+ * `scrollTo` between two frames was a main-thread scroll plus a round of
+ * scroll listeners, landing the sheet in uneven steps.
+ *
  * `dragMode: 'all'` was rejected upstream because binding touchmove on the
  * CONTENT would swallow the page's own scrolling. That objection does not apply
  * here: only the handle strip claims its gesture, so the rows keep native
@@ -87,8 +105,16 @@ export function useHandleScrollDrag(
     const handle = handleRef.current;
     if (!handle) return;
 
+    const zone = handle.closest<HTMLElement>('[data-sheet-grab-zone]') ?? handle;
     let drag: Drag | null = null;
+    let pending: Pending | null = null;
+    /* The current drag began on a chip: its release is never a tap, and the
+       click the chip may still get is swallowed (see onClick). */
+    let claimedLate = false;
+    let suppressClickUntil = 0;
     let busy = false;
+    /* The finger's latest position waits here for the next frame. */
+    let frame = 0;
 
     const sheetEl = () => handle.closest<HTMLElement>('[data-map-sheet]');
     /* The list, and a restaurant detail — both have the map behind them. The
@@ -124,29 +150,25 @@ export function useHandleScrollDrag(
     };
     const stops = () => geometry().offsets;
 
-    const onDown = (e: PointerEvent) => {
-      // Tablets/desktop still use the real transform sheet in useBottomSheet.
-      if (!isPhone() || busy) return;
+    const begin = (pointerId: number, startY: number, timeStamp: number) => {
       try {
-        handle.setPointerCapture(e.pointerId);
+        zone.setPointerCapture(pointerId);
       } catch {
         /* capture is best-effort; the window listeners below still track. */
       }
-      // Claims ONLY the handle's gesture — the list keeps native scrolling.
-      e.preventDefault();
 
       const { sheet, sheetStop, mapY, restLine } = geometry();
       const slab = (from: 'list' | 'map', base: number): Drag => ({
         kind: 'slab',
         from,
-        pointerId: e.pointerId,
-        startY: e.clientY,
+        pointerId,
+        startY,
         base,
         offset: base,
         restLine,
         mapY,
-        lastY: e.clientY,
-        lastT: e.timeStamp,
+        lastY: startY,
+        lastT: timeStamp,
         v: 0,
       });
 
@@ -162,37 +184,99 @@ export function useHandleScrollDrag(
       }
       drag = {
         kind: 'scroll',
-        pointerId: e.pointerId,
-        startY: e.clientY,
+        pointerId,
+        startY,
         startScrollY: window.scrollY,
+        fingerY: startY,
       };
     };
 
-    const onMove = (e: PointerEvent) => {
-      if (!drag || e.pointerId !== drag.pointerId) return;
+    const onDown = (e: PointerEvent) => {
+      // Tablets/desktop still use the real transform sheet in useBottomSheet.
+      if (!isPhone() || busy || drag || pending) return;
+      if (!(e.target instanceof Node && handle.contains(e.target))) {
+        /* Not claimed yet: the press may still be a tap on a chip. */
+        pending = {
+          pointerId: e.pointerId,
+          startX: e.clientX,
+          startY: e.clientY,
+          timeStamp: e.timeStamp,
+        };
+        return;
+      }
+      // Claims ONLY the grab zone's gesture — the list keeps native scrolling.
+      e.preventDefault();
+      claimedLate = false;
+      begin(e.pointerId, e.clientY, e.timeStamp);
+    };
+
+    /* Put the sheet where the finger is — at most once per frame. */
+    const apply = () => {
+      frame = 0;
+      if (!drag) return;
       if (drag.kind === 'slab') {
         const sheet = sheetEl();
-        if (!sheet) return;
+        if (sheet) holdSheetAt(sheet, drag.offset);
+        return;
+      }
+      // Finger up ⇒ clientY shrinks ⇒ scroll further down ⇒ sheet rises over
+      // the map, matching what the hand is doing.
+      const next = Math.max(0, drag.startScrollY + (drag.startY - drag.fingerY));
+      // globals.css sets `scroll-behavior: smooth` document-wide; without an
+      // explicit instant the sheet would ease along behind the finger.
+      if (next !== window.scrollY) {
+        window.scrollTo({ top: next, behavior: 'instant' as ScrollBehavior });
+      }
+    };
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(apply);
+    };
+    /* Land the last position now, before the release decides anything. */
+    const flush = () => {
+      if (!frame) return;
+      window.cancelAnimationFrame(frame);
+      apply();
+    };
+
+    const onMove = (e: PointerEvent) => {
+      if (pending && e.pointerId === pending.pointerId) {
+        const dx = Math.abs(e.clientX - pending.startX);
+        const dy = Math.abs(e.clientY - pending.startY);
+        if (dy > TAP_PX && dy > dx) {
+          const p = pending;
+          pending = null;
+          claimedLate = true;
+          begin(p.pointerId, p.startY, p.timeStamp);
+        } else if (dx > TAP_PX) {
+          pending = null;
+          return;
+        } else {
+          return;
+        }
+      }
+      if (!drag || e.pointerId !== drag.pointerId) return;
+      if (drag.kind === 'slab') {
         drag.offset = Math.min(drag.restLine, Math.max(0, drag.base + (e.clientY - drag.startY)));
         const dt = e.timeStamp - drag.lastT;
         if (dt > 0) drag.v = (e.clientY - drag.lastY) / dt;
         drag.lastY = e.clientY;
         drag.lastT = e.timeStamp;
-        holdSheetAt(sheet, drag.offset);
-        return;
+      } else {
+        drag.fingerY = e.clientY;
       }
-      // Finger up ⇒ clientY shrinks ⇒ scroll further down ⇒ sheet rises over
-      // the map, matching what the hand is doing.
-      const next = Math.max(0, drag.startScrollY + (drag.startY - e.clientY));
-      // globals.css sets `scroll-behavior: smooth` document-wide; without an
-      // explicit instant the sheet would ease along behind the finger.
-      window.scrollTo({ top: next, behavior: 'instant' as ScrollBehavior });
+      schedule();
     };
 
     const onUp = (e: PointerEvent) => {
+      if (pending && e.pointerId === pending.pointerId) {
+        pending = null;
+        return;
+      }
       if (!drag || e.pointerId !== drag.pointerId) return;
+      flush();
+      if (claimedLate) suppressClickUntil = e.timeStamp + CLICK_AFTER_DRAG_MS;
       try {
-        handle.releasePointerCapture(drag.pointerId);
+        zone.releasePointerCapture(drag.pointerId);
       } catch {
         /* already released (pointercancel) — nothing to undo. */
       }
@@ -203,7 +287,8 @@ export function useHandleScrollDrag(
         const sheet = sheetEl();
         if (!sheet) return;
         const moved = d.offset - d.base;
-        const tap = Math.abs(e.clientY - d.startY) < TAP_PX && e.type === 'pointerup';
+        const tap =
+          !claimedLate && Math.abs(e.clientY - d.startY) < TAP_PX && e.type === 'pointerup';
         busy = true;
         let done: Promise<void>;
         if (d.from === 'list') {
@@ -257,18 +342,28 @@ export function useHandleScrollDrag(
       if (window.scrollY > offsets[offsets.length - 1] + AT_STOP_PX) forgetSheetPosition(view);
     };
 
-    handle.addEventListener('pointerdown', onDown);
-    handle.addEventListener('pointermove', onMove);
-    handle.addEventListener('pointerup', onUp);
-    handle.addEventListener('pointercancel', onUp);
+    const onClick = (e: MouseEvent) => {
+      if (e.timeStamp > suppressClickUntil) return;
+      suppressClickUntil = 0;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    zone.addEventListener('pointerdown', onDown);
+    zone.addEventListener('pointermove', onMove);
+    zone.addEventListener('pointerup', onUp);
+    zone.addEventListener('pointercancel', onUp);
+    zone.addEventListener('click', onClick, true);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
     return () => {
       window.removeEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
-      handle.removeEventListener('pointerdown', onDown);
-      handle.removeEventListener('pointermove', onMove);
-      handle.removeEventListener('pointerup', onUp);
-      handle.removeEventListener('pointercancel', onUp);
+      if (frame) window.cancelAnimationFrame(frame);
+      zone.removeEventListener('pointerdown', onDown);
+      zone.removeEventListener('pointermove', onMove);
+      zone.removeEventListener('pointerup', onUp);
+      zone.removeEventListener('pointercancel', onUp);
+      zone.removeEventListener('click', onClick, true);
       window.removeEventListener('scroll', onScroll);
     };
   }, [handleRef, view]);

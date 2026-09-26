@@ -119,7 +119,9 @@ export default function MapListHeader({
   }, [category, categories, loc]);
 
   return (
-    <div ref={headerRef} className={styles.listHeader}>
+    /* The whole bar drags the sheet, Google Maps style — not just the pill
+       (useHandleScrollDrag). A chip stays a chip until the finger moves. */
+    <div ref={headerRef} className={styles.listHeader} data-sheet-grab-zone="">
       {grabber}
       {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
       <div className={styles.filterChipRow} data-filter-chip-row="">

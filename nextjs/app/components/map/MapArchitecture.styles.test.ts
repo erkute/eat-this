@@ -242,6 +242,10 @@ describe('Map CSS architecture', () => {
       fileURLToPath(new URL('../MapSection.tsx', import.meta.url)),
       'utf8'
     );
+    const camera = readFileSync(
+      fileURLToPath(new URL('../../../lib/map/useMapCamera.ts', import.meta.url)),
+      'utf8'
+    );
     const body = readFileSync(modulePath('MapSectionBody.tsx'), 'utf8');
     const shellRules = declarationsInMedia(
       'MapLayout.module.css',
@@ -302,7 +306,8 @@ describe('Map CSS architecture', () => {
       }),
     ]);
     expect(section).not.toContain("mapWrap.style.visibility = 'hidden'");
-    expect(section).toMatch(/map\.resize\(\);\s+map\.flyTo\(\{\s+center:/);
+    /* The camera measures the compact canvas before it flies (useMapCamera). */
+    expect(camera).toMatch(/map\.resize\(\);\s+flyToSpot\(/);
     expect(body).toContain("? 'restaurant'");
     expect(body).not.toContain('StaticDetailMapPeek');
   });

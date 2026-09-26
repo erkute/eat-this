@@ -1,6 +1,5 @@
 'use client';
 import { useRef, useState, useMemo, useCallback, useEffect, useLayoutEffect } from 'react';
-import type { PaddingOptions } from 'maplibre-gl';
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import {
@@ -23,38 +22,22 @@ import { useAuth } from '@/lib/auth';
 import MapSectionBody from './map/MapSectionBody';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import { resolveAdjacent, resolvePagerAdjacent } from '@/lib/map/pager';
-import { estimateDetailMidVisiblePx } from '@/lib/map/detailSnap';
-import { readSafeAreaBottom } from '@/lib/map/useMapSheet';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { forgetSheetPosition, mapStripLine } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import {
-  DETAIL_PEEK_DVH,
-  LIST_REST_VISIBLE_DVH,
   resolveListReturn,
   rowRevealOffset,
   rowRevealTop,
   type DetailOrigin,
 } from '@/lib/map/phoneSheetSnaps';
-import { safeAreaInsetTop } from '@/lib/map/safeArea';
 import { currentUrl, urlWithParams } from '@/lib/map/mapFilterParams';
 import { resolveDetailHistory } from '@/lib/map/detailHistory';
 import { spotsCameraTarget, hasRoomToFit, fitPadding } from '@/lib/map/cameraFit';
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
-import { isPhoneViewport, isSheetViewport, isTabletViewport } from '@/lib/map/viewport';
-
-/* A pin is a 47x47 card anchored bottom-centre on its coordinate, so it spans
-   ~24px either side of the anchor and ~47px above it (MapMarkers.module.css).
-   Camera padding is expressed against the ANCHOR, so it has to carry the pin's
-   own extent plus whatever chrome sits there:
-   - sides: 24px of pin + 10px of air.
-   - top:   47px of pin + the 14px-inset, 44px-tall search/burger row + 10px,
-            with env(safe-area-inset-top) added by the caller. */
-const PIN_SAFE_SIDE = 34;
-const PIN_SAFE_TOP = 115;
-/* The pin card's height above its anchor (MapMarkers.module.css). */
-const PIN_HEIGHT_PX = 47;
+import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
+import { useMapCamera } from '@/lib/map/useMapCamera';
 
 /* How long the search query has to hold still before the camera follows it.
    Long enough that typing "kreuzberg" flies once rather than once per letter,
@@ -408,11 +391,6 @@ export default function MapSection({
      keeps the height the user had pulled it to instead of dropping back to
      its resting stop (user, 23.09.2026). Consumed once by the effect below. */
   const detailOpenTopRef = useRef<number | null>(null);
-  /* iOS safe-area inset, read once — feeds the pin-tap flyTo padding estimate. */
-  const safeAreaBottomRef = useRef<number | null>(null);
-  if (safeAreaBottomRef.current === null) {
-    safeAreaBottomRef.current = typeof document !== 'undefined' ? readSafeAreaBottom() : 0;
-  }
 
   useEffect(() => {
     if (!isActive) return;
@@ -632,12 +610,6 @@ export default function MapSection({
      paging inside the detail and the must-eat ↔ restaurant hop keep the origin
      of the detail they grew out of. */
   const detailOriginRef = useRef<DetailOrigin>('list');
-  /* The camera a marker tap interrupted, restored when that detail closes. */
-  const cameraBeforeDetailRef = useRef<{
-    center: { lng: number; lat: number };
-    zoom: number;
-    padding: PaddingOptions;
-  } | null>(null);
   /* Desktop: a marker tap unfolds a hidden panel to show the detail. Closing
      it folds the panel back, so the map is as it was. */
   const panelHiddenBeforeDetailRef = useRef(false);
@@ -786,230 +758,24 @@ export default function MapSection({
   );
 
   /* ---------- Handlers ---------- */
-  // Padding the map should respect when centering on a point, so spots don't
-  // land behind the bottom sheet (mobile) or side panel (desktop).
-  /* Camera padding for the in-flow phone detail: the visible map is only the
-     part of the detail's map strip the sheet leaves uncovered, so the target
-     must center vertically inside THAT. Shared by getFlyPadding (pager/late
-     flyTos, sheetView already 'detail') and the open-click handlers (whose
-     closures still see sheetView 'list').
-
-     Measured from the sheet's real top edge, not assumed at its resting
-     stop: paging to the next spot keeps the scroll position, and with the
-     sheet pushed halfway up the spot was centred in the whole strip — under
-     the sheet (user, 23.09.2026). */
-  const phoneDetailFlyPadding = useCallback(() => {
-    /* Mirrors --detail-map-peek in MapLayout.module.css. */
-    const peek = (DETAIL_PEEK_DVH / 100) * window.innerHeight;
-    const canvasH = mapRef.current?.getContainer().clientHeight || peek;
-    const sheetTop = document
-      .querySelector<HTMLElement>('[data-map-sheet]')
-      ?.getBoundingClientRect().top;
-    /* How much map is on screen above the sheet. */
-    const visible = Math.min(canvasH, sheetTop != null && sheetTop > 0 ? sheetTop : peek);
-    /* Where the pin's anchor (its bottom tip) should land: at 60% of the
-       visible map, which centres the pin body above it — but never so high
-       that the pin, drawn upwards from its anchor, runs off the top. */
-    const anchor = Math.min(visible, Math.max(0.6 * visible, PIN_HEIGHT_PX + 8));
-    /* The padded area's centre is the anchor: bottom cuts away what the
-       sheet covers, top balances it. */
-    return {
-      top: Math.max(0, Math.round(2 * anchor - visible)),
-      bottom: Math.max(0, Math.round(canvasH - visible)),
-      left: 20,
-      right: 20,
-    };
-  }, []);
-
-  /* Camera a marker-opened detail hands back on close — consumed by the
-     effect below once the phone canvas is back to full height. */
-  const pendingCameraRestoreRef = useRef<{
-    center: { lng: number; lat: number };
-    zoom: number;
-    padding?: PaddingOptions;
-  } | null>(null);
-  useLayoutEffect(() => {
-    if (!isActive || sheetView !== 'list') return;
-    const camera = pendingCameraRestoreRef.current;
-    if (!camera) return;
-    pendingCameraRestoreRef.current = null;
-    return pollUntilMapReady({
-      mapRef,
-      onReady: (map) => {
-        /* Measure the restored 100dvh canvas first, or the flight is planned
-           against the detail strip's transform. */
-        map.resize();
-        map.flyTo({
-          center: [camera.center.lng, camera.center.lat],
-          zoom: camera.zoom,
-          padding: camera.padding ?? getFlyPaddingRef.current('peek'),
-          duration: 350,
-        });
-      },
-    });
-  }, [isActive, sheetView]);
-
-  const selectedRestaurantId = selectedRestaurant?._id;
-  const selectedRestaurantLng = selectedRestaurant?.lng;
-  const selectedRestaurantLat = selectedRestaurant?.lat;
-  useLayoutEffect(() => {
-    if (!isActive || sheetView !== 'detail' || !selectedRestaurantId) return;
-    if (selectedRestaurantLng == null || selectedRestaurantLat == null) return;
-    if (!isPhoneViewport()) return;
-
-    /* React has now committed the compact detail height. Force MapLibre to
-       measure that real canvas before flying; otherwise it keeps the former
-       100dvh transform and places the selected pin far below the visible
-       peek. Polling also covers a fast tap before the lazy map has mounted. */
-    return pollUntilMapReady({
-      mapRef,
-      onReady: (map) => {
-        map.resize();
-        map.flyTo({
-          center: [selectedRestaurantLng, selectedRestaurantLat],
-          zoom: 15,
-          duration: 400,
-          padding: phoneDetailFlyPadding(),
-        });
-      },
-    });
-  }, [
-    isActive,
-    sheetView,
-    selectedRestaurantId,
-    selectedRestaurantLng,
-    selectedRestaurantLat,
-    phoneDetailFlyPadding,
-  ]);
-
-  // We derive the mobile bottom from the snap STATE rather than the DOM
-  // CSS variable so flyTo always uses the up-to-date target — reading from
-  // the DOM races the sheet's transform/animation tick.
-  const getFlyPadding = useCallback(
-    (targetSnap?: 'peek' | 'mid' | 'full', visiblePxOverride?: number) => {
-      if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 };
-      const isMobile = isSheetViewport();
-      if (!isMobile) {
-        // Desktop: the map canvas IS the left grid cell — the side panel is
-        // outside the canvas. Reserve room at top (toolbar + burger stacked
-        // beneath it) and bottom (zoom controls + FAB); horizontal stays
-        // symmetric so the marker lands at the column's geometric center.
-        return {
-          top: PIN_SAFE_TOP,
-          bottom: 100,
-          left: PIN_SAFE_SIDE,
-          right: PIN_SAFE_SIDE,
-        };
-      }
-      // When the caller specifies a target snap, use known pixel heights for
-      // that snap (or an explicit visible-height override — the detail middle
-      // stage is content-sized, not a fixed constant). Otherwise read the
-      // *actual* current sheet height from the CSS var the bottom-sheet hook
-      // sets — the only source of truth that handles drag in-progress AND the
-      // content-fit detail snap.
-      /* In-flow phone list: 'peek' rests at the three-stage sheet's first stop,
-         where the list only peeks in at the bottom (LIST_REST_VISIBLE_DVH, see
-         phoneSheetSnaps.ts) — not the drag-sheet's 28px pip strip. */
-      const phoneListPeek = Math.round(window.innerHeight * (LIST_REST_VISIBLE_DVH / 100));
-      const phoneInflowList = isPhoneViewport() && sheetView === 'list';
-      /* In-flow phone DETAIL: the only visible map is the top peek strip
-         (--detail-map-peek = 50dvh) — center the spot inside that strip,
-         not in the drag-sheet-era "upper 42%" band. Applies to pager swaps
-         and any flyTo while the detail is open; the open-click itself uses
-         phoneDetailFlyPadding() because sheetView is still 'list' in its
-         closure at that moment. */
-      if (isPhoneViewport() && sheetView === 'detail') {
-        return phoneDetailFlyPadding();
-      }
-      let visible: number;
-      if (visiblePxOverride != null) {
-        visible = visiblePxOverride;
-      } else if (targetSnap) {
-        visible =
-          targetSnap === 'peek'
-            ? phoneInflowList
-              ? phoneListPeek
-              : 28
-            : targetSnap === 'mid'
-              ? 440
-              : Math.round(window.innerHeight * 0.58);
-      } else if (phoneInflowList && sheetElRef.current) {
-        // Window-scrolled list: the visible strip is whatever part of the
-        // list is on screen — measure it instead of reading the (inert)
-        // --sheet-visible-px var.
-        visible = Math.max(
-          0,
-          Math.round(window.innerHeight - sheetElRef.current.getBoundingClientRect().top)
-        );
-      } else {
-        const cssVar = sheetElRef.current?.style.getPropertyValue('--sheet-visible-px');
-        const parsed = cssVar ? parseFloat(cssVar) : NaN;
-        visible =
-          Number.isFinite(parsed) && parsed > 0
-            ? parsed
-            : snap === 'peek'
-              ? 28
-              : snap === 'mid'
-                ? 440
-                : Math.round(window.innerHeight * 0.58);
-      }
-      // The mobile canvas extends (100lvh − 100dvh) + 80px past the visual
-      // viewport (iOS-bar apron, see --map-bar-overhang in MapLayout.module.css).
-      // flyTo padding is in CANVAS coordinates, so without this correction the
-      // centre lands ~overhang/2 too low on screen. Measure the real container
-      // height so lvh/dvh bar states are handled for free.
-      const canvasH = mapRef.current?.getContainer().clientHeight ?? window.innerHeight;
-      const overhang = Math.max(0, canvasH - window.innerHeight);
-      /* MapLibre applies padding to the marker's ANCHOR COORDINATE, but the pin
-         is a 47px card drawn bottom-anchored ABOVE that point (see
-         MapMarkers.module.css). Padding that only clears the anchor let pins
-         hang off the left/right edge and slide under the burger after a filter
-         refit, so reserve the pin's own extent on top of the chrome. */
-      return {
-        top: PIN_SAFE_TOP + safeAreaInsetTop(),
-        bottom: Math.round(visible + overhang) + 20,
-        left: PIN_SAFE_SIDE,
-        right: PIN_SAFE_SIDE,
-      };
-    },
-    [snap, sheetView, sheetElRef, phoneDetailFlyPadding]
-  );
-
-  const initialCameraRestaurantId = initialRestaurant?._id;
-  const initialCameraConsumedRef = useRef(false);
-  useEffect(() => {
-    if (initialCameraConsumedRef.current) return;
-    if (!isActive || sheetView !== 'detail' || isPhoneViewport()) return;
-    if (!initialCameraRestaurantId || selectedRestaurantId !== initialCameraRestaurantId) return;
-    if (selectedRestaurantLng == null || selectedRestaurantLat == null) return;
-
-    /* A server-selected ?r= detail is already open before the client
-       deep-link hook runs. Phones are centered by the compact-canvas layout
-       effect above; tablets and desktop still need their own bounded wait for
-       the lazy MapLibre ref because no click handler ran on this reload. */
-    return pollUntilMapReady({
-      mapRef,
-      onReady: (map) => {
-        initialCameraConsumedRef.current = true;
-        map.resize();
-        const isTablet = isTabletViewport();
-        map.flyTo({
-          center: [selectedRestaurantLng, selectedRestaurantLat],
-          zoom: 15,
-          duration: 400,
-          padding: getFlyPadding(isTablet ? 'full' : undefined),
-        });
-      },
-    });
-  }, [
+  const {
+    flyToSpot,
     getFlyPadding,
-    initialCameraRestaurantId,
+    getFlyPaddingRef,
+    detailFlyPadding,
+    pinTapFlyPadding,
+    phoneDetailFlyPadding,
+    rememberCamera,
+    handBackCamera,
+  } = useMapCamera({
     isActive,
-    selectedRestaurantId,
-    selectedRestaurantLat,
-    selectedRestaurantLng,
+    mapRef,
+    snap,
     sheetView,
-  ]);
+    sheetElRef,
+    selectedRestaurant,
+    initialRestaurantId: initialRestaurant?._id,
+  });
 
   /* Die offene Sheet hält ein Objekt aus der Payload, die beim Öffnen da war.
      Kommt eine neue herein — Refetch nach der Anmeldung, geänderte Sanity-Daten
@@ -1036,12 +802,8 @@ export default function MapSection({
         detailOriginRef.current = origin;
         panelHiddenBeforeDetailRef.current = desktopPanelHidden;
         /* The camera as the user left it, before any open-fly or the phone
-           canvas resize moves it. Padding is part of it: MapLibre's centre is
-           the centre of the padded viewport. */
-        const map = origin === 'map' ? mapRef.current : null;
-        cameraBeforeDetailRef.current = map
-          ? { center: map.getCenter(), zoom: map.getZoom(), padding: map.getPadding() }
-          : null;
+           canvas resize moves it. */
+        rememberCamera(origin === 'map');
         const row =
           origin === 'list' && typeof document !== 'undefined'
             ? document.querySelector<HTMLElement>(`[data-list-row="${r._id}"]`)
@@ -1106,19 +868,10 @@ export default function MapSection({
       /* Phones fly in the layout effect above, after the canvas has its real
          compact height. Larger viewports do not resize the map on open. */
       if (!isPhone) {
-        mapRef.current?.flyTo({
-          center: [r.lng, r.lat],
-          zoom: 15,
+        flyToSpot(r, {
           duration: 500,
           padding: openAtPeek
-            ? getFlyPadding(
-                'peek',
-                estimateDetailMidVisiblePx(
-                  window.innerWidth,
-                  displayedRestaurants.length > 1,
-                  safeAreaBottomRef.current ?? 0
-                )
-              )
+            ? pinTapFlyPadding(displayedRestaurants.length > 1)
             : getFlyPadding(isMobile ? 'full' : undefined),
         });
       }
@@ -1127,7 +880,10 @@ export default function MapSection({
     [
       mapTapOnlyDismisses,
       collapseSheetToPeek,
+      rememberCamera,
+      flyToSpot,
       getFlyPadding,
+      pinTapFlyPadding,
       phoneDetailFlyPadding,
       setSearch,
       setSheetView,
@@ -1173,18 +929,12 @@ export default function MapSection({
         origin: 'pager',
         direction: dir,
       });
-      const isMobile = isSheetViewport();
       setSelectedRestaurant(target);
-      mapRef.current?.flyTo({
-        center: [target.lng, target.lat],
-        zoom: 15,
-        duration: 400,
-        padding: getFlyPadding(isMobile ? 'full' : undefined),
-      });
+      flyToSpot(target, { duration: 400, padding: detailFlyPadding() });
       const sc = document.querySelector('[data-detail-scroll]');
       if (sc) (sc as HTMLElement).scrollTop = 0;
     },
-    [pagerAdjacent, getFlyPadding]
+    [pagerAdjacent, flyToSpot, detailFlyPadding]
   );
 
   /* Das geöffnete Must Eat folgt der frischesten Payload. Der Deep-Link greift
@@ -1238,18 +988,12 @@ export default function MapSection({
         direction: dir,
         unlocked: unlockedIds.has(target._id),
       });
-      const isMobile = isSheetViewport();
       setSelectedMustEat(target);
-      mapRef.current?.flyTo({
-        center: [target.restaurant.lng, target.restaurant.lat],
-        zoom: 15,
-        duration: 400,
-        padding: getFlyPadding(isMobile ? 'full' : undefined),
-      });
+      flyToSpot(target.restaurant, { duration: 400, padding: detailFlyPadding() });
       const sc = document.querySelector('[data-detail-scroll]');
       if (sc) (sc as HTMLElement).scrollTop = 0;
     },
-    [mustEatPagerAdjacent, getFlyPadding, unlockedIds]
+    [mustEatPagerAdjacent, flyToSpot, detailFlyPadding, unlockedIds]
   );
 
   const handleMustEatClick = useCallback(
@@ -1272,7 +1016,7 @@ export default function MapSection({
            row of the restaurant the dish belongs to. */
         detailOriginRef.current = 'list';
         panelHiddenBeforeDetailRef.current = desktopPanelHidden;
-        cameraBeforeDetailRef.current = null;
+        rememberCamera(false);
         const row =
           typeof document !== 'undefined'
             ? document.querySelector<HTMLElement>(`[data-list-row="${m.restaurant._id}"]`)
@@ -1296,12 +1040,7 @@ export default function MapSection({
         // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
         pendingDetailSnapRef.current = 'full';
         if (isMobile) setSnap('full');
-        mapRef.current?.flyTo({
-          center: [m.restaurant.lng, m.restaurant.lat],
-          zoom: 15,
-          duration: 500,
-          padding: getFlyPadding(isMobile ? 'full' : undefined),
-        });
+        flyToSpot(m.restaurant, { duration: 500, padding: detailFlyPadding() });
         return;
       }
       setSelectedMustEat(m);
@@ -1309,16 +1048,13 @@ export default function MapSection({
       // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
       pendingDetailSnapRef.current = 'full';
       if (isMobile) setSnap('full');
-      mapRef.current?.flyTo({
-        center: [m.restaurant.lng, m.restaurant.lat],
-        zoom: 15,
-        duration: 500,
-        padding: getFlyPadding(isMobile ? 'full' : undefined),
-      });
+      flyToSpot(m.restaurant, { duration: 500, padding: detailFlyPadding() });
     },
     [
       unlockedIds,
-      getFlyPadding,
+      rememberCamera,
+      flyToSpot,
+      detailFlyPadding,
       selectedRestaurant,
       setSearch,
       setSheetView,
@@ -1350,28 +1086,7 @@ export default function MapSection({
       if (nextSnap !== snap) setSnap(nextSnap);
       if (!isPhone) reapplySnap(nextSnap);
       setDesktopPanelHidden(panelHiddenBeforeDetailRef.current);
-      const camera = cameraBeforeDetailRef.current;
-      cameraBeforeDetailRef.current = null;
-      if (isPhone) {
-        /* The phone canvas is still the 50dvh detail strip at this point —
-           a flight with the full-height padding on it overshoots to a
-           Brandenburg-wide zoom. The layout effect below flies once the
-           canvas has its list height back (same choreography as opening). */
-        pendingCameraRestoreRef.current = camera ?? (r ? { center: r, zoom: 15 } : null);
-        return;
-      }
-      if (mapRef.current) {
-        if (camera) {
-          mapRef.current.flyTo({ ...camera, duration: 350 });
-        } else if (r) {
-          mapRef.current.flyTo({
-            center: [r.lng, r.lat],
-            zoom: 15,
-            duration: 350,
-            padding: getFlyPadding(nextSnap),
-          });
-        }
-      }
+      handBackCamera(r, nextSnap, isPhone);
       return;
     }
     // If the user pushed the detail down to peek before tapping X, snap the
@@ -1383,15 +1098,17 @@ export default function MapSection({
     // viewport bottom over the rows).
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
-    if (r && mapRef.current) {
-      mapRef.current.flyTo({
-        center: [r.lng, r.lat],
-        zoom: 15,
-        duration: 350,
-        padding: getFlyPadding(nextSnap),
-      });
-    }
-  }, [selectedRestaurant, getFlyPadding, setSheetView, snap, setSnap, reapplySnap]);
+    if (r) flyToSpot(r, { duration: 350, padding: getFlyPadding(nextSnap) });
+  }, [
+    selectedRestaurant,
+    handBackCamera,
+    flyToSpot,
+    getFlyPadding,
+    setSheetView,
+    snap,
+    setSnap,
+    reapplySnap,
+  ]);
 
   const handleViewRestaurantFromMustEat = useCallback(() => {
     if (!selectedMustEat) return;
@@ -1406,12 +1123,7 @@ export default function MapSection({
     setSelectedMustEat(null);
     // If we were stacked on a restaurant detail, fall back to it instead of the list.
     if (selectedRestaurant) {
-      mapRef.current?.flyTo({
-        center: [selectedRestaurant.lng, selectedRestaurant.lat],
-        zoom: 15,
-        duration: 400,
-        padding: getFlyPadding(),
-      });
+      flyToSpot(selectedRestaurant, { duration: 400, padding: getFlyPadding() });
       return;
     }
     // Closing a must-eat detail (reached from a restaurant detail or deep
@@ -1425,15 +1137,8 @@ export default function MapSection({
     // phones always reset (stale 'full' would keep the full-snap UI state active).
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
-    if (m && mapRef.current) {
-      mapRef.current.flyTo({
-        center: [m.restaurant.lng, m.restaurant.lat],
-        zoom: 15,
-        duration: 350,
-        padding: getFlyPadding(nextSnap),
-      });
-    }
-  }, [selectedMustEat, selectedRestaurant, getFlyPadding, setSheetView, snap, setSnap]);
+    if (m) flyToSpot(m.restaurant, { duration: 350, padding: getFlyPadding(nextSnap) });
+  }, [selectedMustEat, selectedRestaurant, flyToSpot, getFlyPadding, setSheetView, snap, setSnap]);
 
   // Point the sheet's swipe-down-dismiss at the right close handler for
   // whichever detail is open (must-eat stacked on a restaurant, or plain).
@@ -1689,24 +1394,12 @@ export default function MapSection({
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;
     if (location) {
-      mapRef.current?.flyTo({
-        center: [location.lng, location.lat],
-        zoom: 14,
-        duration: 600,
-        padding: getFlyPadding(),
-      });
+      flyToSpot(location, { zoom: 14, duration: 600, padding: getFlyPadding() });
       return;
     }
     const { location: loc } = await requestLocation();
-    if (loc) {
-      mapRef.current?.flyTo({
-        center: [loc.lng, loc.lat],
-        zoom: 14,
-        duration: 600,
-        padding: getFlyPadding(),
-      });
-    }
-  }, [location, requestLocation, getFlyPadding]);
+    if (loc) flyToSpot(loc, { zoom: 14, duration: 600, padding: getFlyPadding() });
+  }, [location, requestLocation, flyToSpot, getFlyPadding]);
 
   /* Default camera = the user's position. Request it once on mount and, as
      soon as it resolves, centre the map there — unless the user already
@@ -1716,8 +1409,6 @@ export default function MapSection({
      location is denied/unavailable the canvas default stays: Berlin Mitte,
      zoomed (see BERLIN in MapCanvas). Polls mapRef like the deep-link
      effects — a granted permission can resolve before the canvas mounts. */
-  const getFlyPaddingRef = useRef(getFlyPadding);
-  getFlyPaddingRef.current = getFlyPadding;
   const autoLocatedRef = useRef(false);
   useEffect(() => {
     if (!isActive) return;
@@ -1762,14 +1453,9 @@ export default function MapSection({
           onTimeout: () => {
             completed = true;
           },
-          onReady: (map) => {
+          onReady: () => {
             completed = true;
-            map.flyTo({
-              center: [loc.lng, loc.lat],
-              zoom: 14,
-              duration: 600,
-              padding: getFlyPaddingRef.current(),
-            });
+            flyToSpot(loc, { zoom: 14, duration: 600, padding: getFlyPaddingRef.current() });
           },
         });
       });
@@ -1780,7 +1466,7 @@ export default function MapSection({
       // one-shot attempt. A later activation may safely request/centre again.
       if (!completed) autoLocatedRef.current = false;
     };
-  }, [isActive, requestLocation]);
+  }, [isActive, requestLocation, flyToSpot, getFlyPaddingRef]);
 
   /* Move the camera onto a match set. Shared by the structured-filter refit
      and the search refit below. */
@@ -1802,12 +1488,7 @@ export default function MapSection({
            `map.getPadding()` und rückt die Mitte beim Zeichnen entsprechend.
            Hier gibt es also weder die Doppelrechnung unten noch die Division,
            aus der der NaN-Wurf kam. */
-        map.flyTo({
-          center: [target.lng, target.lat],
-          zoom: 14,
-          duration: 500,
-          padding,
-        });
+        flyToSpot(target, { zoom: 14, duration: 500, padding });
         return;
       }
       /* MapLibre zieht beim Einpassen den Rand des Aufrufs UND den ab, den die
@@ -1837,7 +1518,7 @@ export default function MapSection({
         maxZoom: 14,
       });
     },
-    [getFlyPaddingRef]
+    [flyToSpot, getFlyPaddingRef]
   );
 
   /* Refit the map whenever a structured filter narrows or widens the visible
@@ -1935,13 +1616,8 @@ export default function MapSection({
     if (!justActivated) return;
     if (selectedRestaurant || selectedMustEat) return;
     if (!location) return;
-    mapRef.current?.flyTo({
-      center: [location.lng, location.lat],
-      zoom: 14,
-      duration: 400,
-      padding: getFlyPadding(),
-    });
-  }, [isActive, selectedRestaurant, selectedMustEat, location, getFlyPadding]);
+    flyToSpot(location, { zoom: 14, duration: 400, padding: getFlyPadding() });
+  }, [isActive, selectedRestaurant, selectedMustEat, location, flyToSpot, getFlyPadding]);
 
   // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> also moves
   // the camera onto that district. Both poll mapRef so the camera moves don't

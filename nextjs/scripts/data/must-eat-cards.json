@@ -157,6 +157,12 @@
       "file": "Main-24.png",
       "spot": "Zur Bratpfanne",
       "dish": "Currywurst"
+    },
+    {
+      "order": 27,
+      "file": "Main-27.png",
+      "spot": "Cocolo Ramen Mitte",
+      "dish": "Tonkotsu"
     }
   ]
 }

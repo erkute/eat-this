@@ -16,7 +16,7 @@ export const SPOT_CARD_HEIGHT = 804;
 const PALETTE = {
   ink: '#15120e',
   paper: '#ffffff',
-  /** --et-home-photo-rest: what shows while a photo is missing. */
+  /** --et-ink-raised: what shows while a photo is missing. */
   photoRest: '#eceae6',
 };
 
@@ -77,7 +77,7 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         style={{ objectFit: 'cover' }}
       />
 
-      {/* scrim — --et-home-photo-overlay, so the type stays readable on any photo */}
+      {/* scrim — --et-photo-overlay, so the type stays readable on any photo */}
       <div
         style={{
           position: 'absolute',

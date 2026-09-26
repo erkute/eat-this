@@ -6,6 +6,7 @@ import { useAuth, useLoginModal } from '@/lib/auth';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { closeBurgerDrawer } from './burgerDrawerState';
+import styles from './BurgerDrawer.module.css';
 
 /* Ein Menü-Link, der erst auf Absicht lädt.
  *
@@ -134,19 +135,19 @@ export default function BurgerDrawer() {
   );
 
   return (
-    <div ref={drawerRef} className="burger-drawer" id="burgerDrawer" aria-hidden="true" hidden>
+    <div ref={drawerRef} className={styles.drawer} id="burgerDrawer" aria-hidden="true" hidden>
       <button
-        className="burger-drawer-backdrop"
+        className={styles.backdrop}
         id="burgerBackdrop"
         type="button"
         tabIndex={-1}
         aria-label="Close menu"
         onClick={() => closeBurger(true)}
       ></button>
-      <div className="burger-drawer-panel" onClick={onPanelClick}>
+      <div className={styles.panel} onClick={onPanelClick}>
         <button
           type="button"
-          className="burger-drawer-close"
+          className={styles.close}
           id="burgerClose"
           aria-label="Close"
           onClick={() => closeBurger(true)}
@@ -154,25 +155,25 @@ export default function BurgerDrawer() {
           ×
         </button>
 
-        <div className="bd-scroller">
+        <div className={styles.scroller}>
           {/* In-flow (not pinned): scrolls with the menu so it never collides
               with the logo when the drawer content scrolls. */}
-          <div className="bd-topbar">
-            <div className="bd-lang" role="group" aria-label="Language / Sprache">
+          <div className={styles.topbar}>
+            <div className={styles.lang} role="group" aria-label="Language / Sprache">
               <button
                 type="button"
-                className={`bd-lang-btn${lang === 'de' ? ' on' : ''}`}
+                className={`${styles.langBtn}${lang === 'de' ? ` ${styles.langBtnOn}` : ''}`}
                 aria-label="Deutsch"
                 onClick={() => setLang('de')}
               >
                 DE
               </button>
-              <span className="bd-lang-sep" aria-hidden="true">
+              <span className={styles.langSep} aria-hidden="true">
                 /
               </span>
               <button
                 type="button"
-                className={`bd-lang-btn${lang === 'en' ? ' on' : ''}`}
+                className={`${styles.langBtn}${lang === 'en' ? ` ${styles.langBtnOn}` : ''}`}
                 aria-label="English"
                 onClick={() => setLang('en')}
               >
@@ -183,7 +184,7 @@ export default function BurgerDrawer() {
 
           <DrawerLink
             href="/"
-            className="bd-logo"
+            className={styles.logo}
             aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}
           >
             {/* The drawer sits translated off-screen until opened, so lazy here
@@ -203,15 +204,15 @@ export default function BurgerDrawer() {
           {/* Alle Einträge sind DrawerLinks: kein Prefetch beim Sichtbarwerden
               (das war der Sturm während der Tür-Animation), dafür einer, sobald
               der Finger auf dem Wort liegt — siehe DrawerLink oben. */}
-          <nav className="bd-nav" aria-label="Primary">
-            <MapIntentLink prefetch={false} href="/map" className="bd-nav-item">
+          <nav className={styles.nav} aria-label="Primary">
+            <MapIntentLink prefetch={false} href="/map" className={styles.navItem}>
               {t('burger.map')}
             </MapIntentLink>
             {/* Profile/login is a primary action, not footer furniture. Keep it
                 high in the stack so signed-in users can reach their deck fast. */}
             <button
               type="button"
-              className="bd-nav-item bd-cta"
+              className={`${styles.navItem} ${styles.cta}`}
               id="loginBtn"
               onClick={handleLoginBtn}
               suppressHydrationWarning
@@ -220,7 +221,7 @@ export default function BurgerDrawer() {
                 {user ? t('burger.profile') : t('burger.signIn')}
               </span>
             </button>
-            <DrawerLink href="/must-eats" className="bd-nav-item">
+            <DrawerLink href="/must-eats" className={styles.navItem}>
               {t('burger.mustEats')}
             </DrawerLink>
             {/* Der Kategorie-Hub stand bis 24.08.2026 in keinem Menü, keinem
@@ -228,7 +229,7 @@ export default function BurgerDrawer() {
                 Brotkrume einer Kategorieseite, also erst, wenn man schon drin
                 war. Ergebnis: drei Aufrufe in vier Tagen, null Impressionen.
                 Hier ist der Eingang. */}
-            <DrawerLink href="/kategorie" className="bd-nav-item">
+            <DrawerLink href="/kategorie" className={styles.navItem}>
               {t('burger.categories')}
             </DrawerLink>
             {/* Dasselbe für den Bezirks-Hub, gleiche Ursache, gleicher Tag: 20
@@ -236,45 +237,49 @@ export default function BurgerDrawer() {
                 den Kategorien gibt es auf der Startseite keine Bezirks-Rail, an
                 deren Ende ein Chip passen würde — dieser Eintrag ist der ganze
                 Eingang. */}
-            <DrawerLink href="/bezirk" className="bd-nav-item">
+            <DrawerLink href="/bezirk" className={styles.navItem}>
               {t('burger.districts')}
             </DrawerLink>
             {/* Remy lives in the home hub now. From other pages the burger
                 sends users back to
                 his "Frag Remy" section via HubHashScroll. */}
-            <DrawerLink href="/#hub-fragremy" className="bd-nav-item">
+            <DrawerLink href="/#hub-fragremy" className={styles.navItem}>
               {t('burger.fragRemy')}
             </DrawerLink>
-            <DrawerLink href="/news" className="bd-nav-item">
+            <DrawerLink href="/news" className={styles.navItem}>
               {t('burger.aufDemTeller')}
             </DrawerLink>
-            <DrawerLink href="/packs" className="bd-nav-item">
+            <DrawerLink href="/packs" className={styles.navItem}>
               {t('burger.boosterPacks')}
             </DrawerLink>
-            <DrawerLink href="/about" className="bd-nav-item">
+            <DrawerLink href="/about" className={styles.navItem}>
               {t('burger.about')}
             </DrawerLink>
             {/* Nur für Admins, sonst verriete der Link, dass unter /admin
                 etwas liegt — Fremde bekommen dort die 404. Ohne Übersetzung:
                 die Seite hat genau einen Leser. */}
             {isAdmin && (
-              <DrawerLink href="/admin/stats" className="bd-nav-item">
+              <DrawerLink href="/admin/stats" className={styles.navItem}>
                 Stats
               </DrawerLink>
             )}
           </nav>
 
-          <div className="bd-foot bd-legal-dock">
-            <DrawerLink href="/impressum" className="bd-foot-link" id="openImpressum">
+          <div className={styles.foot}>
+            <DrawerLink href="/impressum" className={styles.footLink} id="openImpressum">
               {t('burger.impressum')}
             </DrawerLink>
-            <DrawerLink href="/datenschutz" className="bd-foot-link" id="openDatenschutzFromBurger">
+            <DrawerLink
+              href="/datenschutz"
+              className={styles.footLink}
+              id="openDatenschutzFromBurger"
+            >
               {t('modals.datenschutz.title')}
             </DrawerLink>
-            <DrawerLink href="/agb" className="bd-foot-link" id="openAgbFromBurger">
+            <DrawerLink href="/agb" className={styles.footLink} id="openAgbFromBurger">
               {t('modals.agb.title')}
             </DrawerLink>
-            <DrawerLink href="/contact" className="bd-foot-link" id="openContact">
+            <DrawerLink href="/contact" className={styles.footLink} id="openContact">
               {t('burger.contact')}
             </DrawerLink>
           </div>

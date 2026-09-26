@@ -26,14 +26,14 @@
 .curtain {
   top: 0;
   bottom: 0;
-  background: var(--et-zoom-scrim, rgba(0, 0, 0, 0.62));
-  -webkit-backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
-  backdrop-filter: var(--et-zoom-scrim-blur, blur(12px));
+  background: var(--et-scrim);
+  -webkit-backdrop-filter: var(--et-zoom-scrim-blur);
+  backdrop-filter: var(--et-zoom-scrim-blur);
 }
 .capTop,
 .capBottom {
   --cap-fade: 48px;
-  background-color: var(--et-zoom-cap, #080705);
+  background-color: var(--et-zoom-cap);
 }
 .capTop {
   --cap: max(6px, env(safe-area-inset-top, 0px));
@@ -55,9 +55,9 @@
 }
 .capTop::after {
   top: 100%;
-  background: linear-gradient(var(--et-zoom-cap, #080705), transparent);
+  background: linear-gradient(var(--et-zoom-cap), transparent);
 }
 .capBottom::after {
   bottom: 100%;
-  background: linear-gradient(transparent, var(--et-zoom-cap, #080705));
+  background: linear-gradient(transparent, var(--et-zoom-cap));
 }

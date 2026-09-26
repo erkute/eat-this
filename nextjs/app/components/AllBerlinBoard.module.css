@@ -5,9 +5,9 @@
    Grund abheben — als Ink auf Ink wäre nur der Fächer geblieben. */
 
 .board {
-  --board-ink: var(--et-home-ink, #15120e);
-  --board-paper: var(--et-home-inverse-text, #fff);
-  --board-accent: var(--et-home-accent, #ffc600);
+  --board-ink: var(--et-ink);
+  --board-paper: var(--et-white);
+  --board-accent: var(--et-accent);
   --board-soft: rgba(255, 255, 255, 0.76);
   --board-quiet: rgba(255, 255, 255, 0.55);
   position: relative;
@@ -16,10 +16,10 @@
   align-items: center;
   gap: clamp(20px, 4vw, 48px);
   padding: clamp(24px, 4vw, 56px);
-  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
+  background: var(--et-ink-quiet);
   color: var(--board-paper);
-  border-radius: var(--et-radius-photo, 10px);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  border-radius: var(--et-radius-photo);
+  font-family: var(--et-font-display);
 }
 
 .copy {
@@ -31,7 +31,7 @@
   color: var(--board-accent);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.3;
   text-transform: uppercase;
 }
@@ -50,9 +50,9 @@
   max-width: 44ch;
   margin: clamp(12px, 1.6vw, 18px) 0 0;
   color: var(--board-soft);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-size: var(--et-type-lead);
   font-weight: 400;
-  line-height: var(--et-leading-copy, 1.5);
+  line-height: var(--et-leading-copy);
 }
 
 .boardUpsell .lead {
@@ -106,9 +106,9 @@
   background: var(--board-accent);
   color: var(--board-ink);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
   letter-spacing: 0;
@@ -118,8 +118,8 @@
   text-transform: none;
   cursor: pointer;
   transition:
-    transform var(--et-motion-fast, 140ms ease),
-    background-color var(--et-motion-fast, 140ms ease);
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast);
 }
 
 .cta:focus-visible {

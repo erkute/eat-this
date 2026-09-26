@@ -9,15 +9,15 @@
    diese Datei: Klassen nicht umbenennen, ohne beide anzufassen. */
 
 .page {
-  --nf-paper: var(--et-home-ink, #15120e);
-  --nf-ink: var(--et-home-inverse-text, #fff);
-  --nf-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  --nf-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
-  --nf-accent: var(--et-home-accent, #ffc600);
-  --nf-raised: var(--et-ink-raised, #25231f);
-  --nf-on-accent: var(--et-home-ink, #15120e);
-  --nf-display: var(--et-font-display, var(--font-providence), sans-serif);
-  --nf-label: var(--et-font-label, var(--font-providence), sans-serif);
+  --nf-paper: var(--et-ink);
+  --nf-ink: var(--et-white);
+  --nf-muted: var(--et-ink-soft);
+  --nf-dim: var(--et-ink-dim);
+  --nf-accent: var(--et-accent);
+  --nf-raised: var(--et-ink-raised);
+  --nf-on-accent: var(--et-ink);
+  --nf-display: var(--et-font-display);
+  --nf-label: var(--et-font-display);
 
   box-sizing: border-box;
   display: grid;
@@ -198,7 +198,7 @@
   min-height: 50px;
   padding: 0 24px;
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   font-family: var(--nf-display);
   font-size: 15px;
   font-weight: 700;

@@ -1,4 +1,4 @@
-// The home element vocabulary (`.hv-*` in css/style.css), rebuilt with the
+// The home element vocabulary (`.hv-*` in app/globals.css), rebuilt with the
 // handful of constructs every email client renders the same way: tables,
 // inline styles, flat colour.
 

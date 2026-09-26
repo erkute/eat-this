@@ -3,13 +3,12 @@
    Kacheln sind Foto mit Sheet-Schatten und Text direkt auf dem Grund —
    dasselbe Objekt wie die Magazin-Kacheln der Startseite (MagazineGrid). */
 .page {
-  --news-ink: var(--et-home-ink, #15120e);
-  --news-fg: var(--et-home-inverse-text, #fff);
-  --news-soft: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  --news-yellow: var(--et-home-accent, #ffc600);
-  --news-muted: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
-  --news-copy: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  min-height: 100%;
+  --news-ink: var(--et-ink);
+  --news-fg: var(--et-white);
+  --news-soft: var(--et-ink-quiet);
+  --news-yellow: var(--et-accent);
+  --news-muted: var(--et-ink-dim);
+  --news-copy: var(--et-ink-soft);
   background: var(--news-ink);
   color: var(--news-fg);
 }
@@ -42,7 +41,7 @@
   max-width: 9ch;
   margin: 0;
   color: var(--news-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(40px, 5vw, 64px);
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -55,7 +54,7 @@
   max-width: 52ch;
   margin: 0;
   color: var(--news-copy);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-family: var(--et-font-body);
   font-size: clamp(17px, 1.45vw, 20px);
   font-weight: 400;
   line-height: 1.6;
@@ -80,7 +79,7 @@
 .sectionHead h2 {
   margin: 0;
   color: var(--news-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(28px, 3.4vw, 42px);
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -118,10 +117,10 @@
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--news-soft);
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   /* Das Foto liegt mit dem Sheet-Schatten auf dem Grund — wie die Kacheln der
      Startseite. */
-  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
+  box-shadow: var(--et-ink-shadow);
 }
 
 .photoFallback {
@@ -158,10 +157,10 @@
   display: block;
   align-self: flex-start;
   color: var(--news-yellow);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -169,7 +168,7 @@
 .title {
   display: block;
   color: var(--news-fg);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(16px, 1.5vw, 24px);
   font-weight: 700;
   letter-spacing: 0;
@@ -183,7 +182,7 @@
   display: block;
   margin-top: 2px;
   color: var(--news-muted);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(12px, 0.95vw, 14px);
   font-weight: 700;
   letter-spacing: 0;
@@ -193,7 +192,7 @@
 .empty {
   margin: 28px 0 0;
   color: var(--news-fg);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-family: var(--et-font-body);
   font-size: clamp(17px, 1.35vw, 19px);
   font-weight: 400;
   line-height: 1.38;

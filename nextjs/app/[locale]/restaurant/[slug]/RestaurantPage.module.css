@@ -19,18 +19,18 @@
 .page {
   /* Die Hub-Tokens — `HubSpotShelf` und die Kopfzeilen aus HubPage.module.css
      lesen sie, die Seite selbst auch. */
-  --hub-paper: var(--et-home-inverse-text, #fff);
-  --hub-ink: var(--et-home-ink, #15120e);
-  --hub-accent: var(--et-home-accent, #ffc600);
-  --hub-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  --hub-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
-  --hub-line: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  --hub-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  --hub-raised: var(--et-ink-raised, #25231f);
-  --hub-display: var(--font-providence, var(--et-font-display), sans-serif);
-  --hub-body: var(--font-body, var(--font), system-ui, sans-serif);
-  --hub-radius: var(--et-radius-photo, 10px);
-  --hub-radius-control: var(--et-radius-control, 7px);
+  --hub-paper: var(--et-white);
+  --hub-ink: var(--et-ink);
+  --hub-accent: var(--et-accent);
+  --hub-soft: var(--et-ink-soft);
+  --hub-dim: var(--et-ink-dim);
+  --hub-line: var(--et-ink-line);
+  --hub-quiet: var(--et-ink-quiet);
+  --hub-raised: var(--et-ink-raised);
+  --hub-display: var(--et-font-display);
+  --hub-body: var(--et-font-body);
+  --hub-radius: var(--et-radius-photo);
+  --hub-radius-control: var(--et-radius-control);
   --hub-gutter: 16px;
   --hub-section-gap: 56px;
   --nav-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
@@ -135,8 +135,8 @@
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
   transition:
-    background-color var(--et-motion-fast, 140ms ease),
-    color var(--et-motion-fast, 140ms ease);
+    background-color var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
 
 .btn svg {
@@ -533,7 +533,7 @@
   text-decoration-color: var(--hub-dim);
   text-decoration-thickness: 1.5px;
   text-underline-offset: 4px;
-  transition: color var(--et-motion-fast, 140ms ease);
+  transition: color var(--et-motion-fast);
 }
 
 @media (hover: hover) {
@@ -631,7 +631,7 @@
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
-  transition: color var(--et-motion-fast, 140ms ease);
+  transition: color var(--et-motion-fast);
 }
 
 @media (hover: hover) {

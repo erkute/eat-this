@@ -30,7 +30,7 @@
 
      Die 74 sind der App-Rahmen: nicht das Fenster scrollt hier, sondern
      `.app-pages`, das ab 768px auf `height: calc(100dvh - 74px)` steht
-     (css/style.css, DESKTOP APP FRAME). NICHT `--site-nav-h` nehmen — die
+     (globals.css, Desktop app frame). NICHT `--site-nav-h` nehmen — die
      Variable steht auf 78px, der Rahmen rechnet mit 74.
 
      Falls hier je wieder ein innerer Scroll einzieht, zwei Befunde vom
@@ -46,10 +46,10 @@
 .label {
   display: inline-block;
   padding: 6px 9px 7px;
-  color: var(--et-home-ink, #15120e);
-  background: var(--et-home-accent, #ffc600);
-  border-radius: var(--et-radius-control, 7px);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  color: var(--et-ink);
+  background: var(--et-accent);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0;
@@ -73,7 +73,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   padding: 3px 0;
-  color: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  color: var(--et-ink-soft);
   text-decoration: none;
   transition:
     color 140ms ease,
@@ -82,7 +82,7 @@
 
 .text {
   min-width: 0;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   /* Durchgehend 15px, keine Staffelung nach Fensterhöhe mehr: die Spalte ist
      216px breit, seit die Nummern weg sind (25.09.) ganz für den Text; die
      Rechnung stammt aus der Zeit mit 188px. Bei 16px scheiterten „Companion Tea &
@@ -109,7 +109,7 @@
 }
 
 .itemActive {
-  color: var(--et-home-accent, #ffc600);
+  color: var(--et-accent);
 }
 
 .share {
@@ -120,10 +120,10 @@
   margin-top: 4px;
   padding: 6px 10px 7px;
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   background: rgba(255, 255, 255, 0.12);
-  color: var(--et-home-inverse-text, #fff);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  color: var(--et-white);
+  font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0;
@@ -148,19 +148,19 @@
 
 .item:focus-visible,
 .share:focus-visible {
-  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline: 2px solid var(--et-accent);
   outline-offset: 3px;
 }
 
 @media (hover: hover) {
   .item:hover {
-    color: var(--et-home-inverse-text, #fff);
+    color: var(--et-white);
     transform: translateX(2px);
   }
 
   .share:hover {
-    background: var(--et-home-accent, #ffc600);
-    color: var(--et-home-ink, #15120e);
+    background: var(--et-accent);
+    color: var(--et-ink);
   }
 }
 

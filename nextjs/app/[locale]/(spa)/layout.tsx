@@ -3,13 +3,8 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
-import { CSS_VERSION, OG_CARD_VERSION } from '@/lib/constants';
-import { AuthProvider, LoginModalProvider } from '@/lib/auth';
-import { UserLocationProvider } from '@/lib/map/UserLocationContext';
-import SiteNav from '@/app/components/SiteNav';
-import BurgerDrawer from '@/app/components/BurgerDrawer';
-import RemyDock from '@/app/components/buddy/RemyDock';
-import BridgeAuth from './BridgeAuth';
+import { OG_CARD_VERSION } from '@/lib/constants';
+import SiteChrome from '@/app/components/SiteChrome';
 
 const SITE_URL = 'https://www.eatthisdot.com';
 
@@ -61,9 +56,6 @@ export default async function SPALayout({
 
   return (
     <>
-      {/* Full SPA stylesheet — hoisted to <head> by Next.js */}
-      <link rel="stylesheet" href={`/css/style.min.css?v=${CSS_VERSION}`} precedence="default" />
-
       {/* Sanity image CDN only — map/search data flows through same-origin
           /api/map-data, so the browser (almost) never talks to apicdn. */}
       <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
@@ -72,20 +64,10 @@ export default async function SPALayout({
       <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=7" />
       <link rel="apple-touch-icon" sizes="192x192" href="/pics/favicon-192.png?v=7" />
 
-      <AuthProvider>
-        <LoginModalProvider>
-          <UserLocationProvider>
-            <BridgeAuth />
-            <SiteNav />
-            <BurgerDrawer />
-            <div className="app-pages" id="appPages">
-              <span id="main-content" tabIndex={-1} />
-              {children}
-            </div>
-            <RemyDock />
-          </UserLocationProvider>
-        </LoginModalProvider>
-      </AuthProvider>
+      {/* Den Fuß bringen die Seiten selbst mit, im Scroll-Container. */}
+      <SiteChrome appPages footer={false}>
+        {children}
+      </SiteChrome>
     </>
   );
 }

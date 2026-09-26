@@ -81,7 +81,7 @@ describe('Map CSS architecture', () => {
   it('caps both edges of every photo zoom with an opaque colour', () => {
     for (const cap of ['.capTop', '.capBottom']) {
       const decl = topLevelDeclarations('ZoomCurtain.module.css', cap);
-      expect(decl['background-color'], cap).toBe('var(--et-zoom-cap, #080705)');
+      expect(decl['background-color'], cap).toBe('var(--et-zoom-cap)');
     }
     const shared = topLevelDeclarations('ZoomCurtain.module.css', '.capTop');
     expect(shared.position).toBe('fixed');
@@ -230,7 +230,7 @@ describe('Map CSS architecture', () => {
         /* lvh, not dvh: a dvh map resized with every step of Safari's
            collapsing toolbar and slid under the list (23.09.2026). */
         height: '100lvh',
-        'background-color': 'var(--et-home-ink, #15120e)',
+        'background-color': 'var(--et-ink)',
       }),
     ]);
   });
@@ -346,7 +346,7 @@ describe('Map CSS architecture', () => {
         /* Past the strip line, under the stuck bar: fills its rounded,
            see-through top corners with map instead of passing rows. */
         height: 'calc(var(--map-strip) + 12px)',
-        'background-color': 'var(--et-home-ink, #15120e)',
+        'background-color': 'var(--et-ink)',
       }),
     ]);
   });

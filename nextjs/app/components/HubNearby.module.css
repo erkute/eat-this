@@ -7,15 +7,15 @@
    206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
    der Tafeln zaehlte unsichtbar mit. */
 .board {
-  --board-ink: var(--et-home-ink, #15120e);
-  --board-paper: var(--et-home-inverse-text, #fff);
-  --board-accent: var(--et-home-accent, #ffc600);
+  --board-ink: var(--et-ink);
+  --board-paper: var(--et-white);
+  --board-accent: var(--et-accent);
   --board-soft: rgba(255, 255, 255, 0.76);
 
-  padding: var(--et-board-pad, clamp(24px, 4vw, 56px));
-  background: var(--et-board-bg, var(--board-ink));
+  padding: var(--et-board-pad);
+  background: var(--et-board-bg);
   color: var(--board-paper);
-  border-radius: var(--et-board-radius, var(--et-radius-photo));
+  border-radius: var(--et-board-radius);
 }
 
 :global(.homeV2) .board :global(.hv-title) {
@@ -24,7 +24,7 @@
 
 @media (max-width: 760px) {
   .board {
-    padding: var(--et-board-pad, 22px 18px 24px);
+    padding: var(--et-board-pad);
   }
 }
 
@@ -117,7 +117,7 @@
 }
 
 :global(.homeV2) .card:focus-visible {
-  outline: 3px solid var(--et-home-accent);
+  outline: 3px solid var(--et-accent);
   outline-offset: 3px;
 }
 
@@ -125,7 +125,7 @@
    globals.css trifft sie also nicht — auf dem Telefon war ein Tippen auf ein
    Restaurant ohne jede Antwort. Siehe `--et-press-tile`. */
 .card:active {
-  scale: var(--et-press-tile, 0.985);
+  scale: var(--et-press-tile);
 }
 
 /* Providence's descender reaches far below a tight line, and the two-line
@@ -144,10 +144,10 @@
   margin: 0;
   padding: 4px 0 0;
   color: var(--board-accent, #ffc600);
-  font-family: var(--font-providence);
+  font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -188,7 +188,7 @@
   background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0;
@@ -201,15 +201,15 @@
 }
 
 .locBtn:focus-visible:not(:disabled) {
-  color: var(--et-home-ink);
+  color: var(--et-ink);
   background: var(--board-accent, #ffc600);
-  outline: 2px solid var(--et-home-accent);
+  outline: 2px solid var(--et-accent);
   outline-offset: 3px;
 }
 
 @media (hover: hover) {
   .locBtn:hover:not(:disabled) {
-    color: var(--et-home-ink);
+    color: var(--et-ink);
     background: var(--board-accent, #ffc600);
   }
 }
@@ -227,11 +227,11 @@
 /* ── Sub / fallback line ───────────────────────────────────────────────────── */
 .sub {
   margin: 0;
-  font-family: var(--font-providence);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-family: var(--et-font-display);
+  font-size: var(--et-type-lead);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: var(--et-leading-copy, 1.5);
+  line-height: var(--et-leading-copy);
   text-transform: none;
   color: var(--board-soft, rgba(255, 255, 255, 0.76));
 }

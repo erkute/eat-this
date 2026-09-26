@@ -19,14 +19,14 @@
   height: 58px;
   padding: 0;
   overflow: hidden;
-  background: var(--et-home-accent, #ffc600);
+  background: var(--et-accent);
   border: none;
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
   cursor: pointer;
-  box-shadow: var(--et-ink-shadow, 0 14px 24px rgba(0, 0, 0, 0.45));
+  box-shadow: var(--et-ink-shadow);
   transition:
-    transform var(--et-motion-base, 160ms ease),
-    background var(--et-motion-base, 160ms ease);
+    transform var(--et-motion-base),
+    background var(--et-motion-base);
 }
 
 /* Sein Kopf füllt die Kachel wie ein Passfoto — gerechnet, nicht geraten.
@@ -55,7 +55,7 @@
 }
 
 .launcher:focus-visible {
-  outline: 3px solid var(--et-home-ink, #15120e);
+  outline: 3px solid var(--et-ink);
   outline-offset: 3px;
 }
 
@@ -71,12 +71,12 @@
   width: 18px;
   height: 18px;
   padding: 0;
-  color: var(--et-home-inverse-text, #fff);
-  background: var(--et-home-ink, #15120e);
-  border: 2px solid var(--et-home-accent, #ffc600);
-  border-radius: var(--et-radius-pill, 999px);
+  color: var(--et-white);
+  background: var(--et-ink);
+  border: 2px solid var(--et-accent);
+  border-radius: var(--et-radius-pill);
   cursor: pointer;
-  transition: background var(--et-motion-fast, 140ms ease);
+  transition: background var(--et-motion-fast);
 }
 
 .dismiss::before {
@@ -93,12 +93,12 @@
 
 @media (hover: hover) {
   .dismiss:hover {
-    background: var(--et-home-red, #d9382a);
+    background: var(--et-red);
   }
 }
 
 .dismiss:focus-visible {
-  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline: 2px solid var(--et-accent);
   outline-offset: 2px;
 }
 

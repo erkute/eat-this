@@ -3,7 +3,7 @@
    steht, gehoert LoginBoard. */
 
 .frame {
-  --login-accent: var(--home-accent, #ffc600);
+  --login-accent: var(--et-accent);
 
   position: relative;
   isolation: isolate;
@@ -12,7 +12,7 @@
   max-height: calc(100svh - 28px);
   padding: clamp(40px, 5vw, 60px) clamp(32px, 4.4vw, 60px);
   overflow: hidden;
-  background: var(--et-ink-raised, #25231f);
+  background: var(--et-ink-raised);
   /* Derselbe Radius wie das Onboarding-Fenster (Tour.module.css .panel). */
   border-radius: var(--et-radius-panel, 10px);
   box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
@@ -44,7 +44,7 @@
   color: #fff;
   background: transparent;
   border: 0;
-  font-family: var(--menu-condensed, Impact, sans-serif);
+  font-family: var(--et-font-condensed);
   font-size: 30px;
   font-weight: 700;
   line-height: 1;

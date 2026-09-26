@@ -109,7 +109,7 @@ export default async function LocaleLayout({
           <EmailLinkSignIn />
           {/* Zentrale Info-Karte (lib/notice.ts) — hier und nicht im
               SPA-Layout, damit sie auf jeder Locale-Route erscheint. Styles in
-              globals.css, weil /checkout und /admin style.css nicht laden. */}
+              globals.css. */}
           <NotificationToast />
           <ScrollRestorer />
           <AnalyticsPageViews />

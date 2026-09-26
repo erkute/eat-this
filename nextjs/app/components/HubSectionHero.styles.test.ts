@@ -39,7 +39,7 @@ describe('Aufmacher der Startseite', () => {
   /**
    * Die Fläche muss gegen `100dvh - 74px` rechnen, nicht gegen volle dvh: ab
    * 768px scrollt `.app-pages`, und das sitzt 74px unter der Oberkante
-   * (css/style.css, DESKTOP APP FRAME). Mit vollem dvh ist der Aufmacher um
+   * (globals.css, Desktop app frame). Mit vollem dvh ist der Aufmacher um
    * genau eine Navhöhe zu hoch und läuft unten aus dem Bild — sichtbar wird
    * das erst im Browser, nicht im Stylesheet.
    */
@@ -62,7 +62,7 @@ describe('Aufmacher der Startseite', () => {
     expect(base('hero', 'align-items')).toBe('center');
     // Den Grund trägt die Seite selbst — nur Regeln, deren Selektor AUF
     // `.page` endet, meinen sie; `base()` fände sonst auch die Knöpfe darin.
-    // Die Doppelklasse schlägt `.homeV2` aus css/style.css, das sonst Papier
+    // Die Doppelklasse schlägt `.homeV2` aus globals.css, das sonst Papier
     // malen würde.
     let pageBackground: string | undefined;
     root.walkRules((rule) => {
@@ -72,7 +72,7 @@ describe('Aufmacher der Startseite', () => {
         pageBackground = declaration.value;
       });
     });
-    expect(pageBackground).toBe('var(--home-ink)');
+    expect(pageBackground).toBe('var(--et-ink)');
   });
 
   /**
@@ -80,7 +80,7 @@ describe('Aufmacher der Startseite', () => {
    * unten stehen auf Weiß und dürfen rot bleiben — diese eine Headline nicht.
    */
   it('setzt die Headline in Papier, nicht in Rot', () => {
-    expect(base('heroHeadline', 'color')).toBe('var(--et-home-inverse-text)');
+    expect(base('heroHeadline', 'color')).toBe('var(--et-white)');
   });
 
   /**

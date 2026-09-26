@@ -5,10 +5,10 @@
   /* Nur `--et-board-quiet-pad` lesen, nie `--et-board-pad`: das zweite Token
      ist seit dem Ink-Umbau `0px` und löst die Tafeln auf, die auf dem Grund
      stehen. */
-  padding: var(--et-board-quiet-pad, clamp(24px, 4vw, 56px));
+  padding: var(--et-board-quiet-pad);
   overflow: hidden;
-  background: var(--et-board-quiet, var(--et-board-bg, var(--et-home-ink, #15120e)));
-  color: var(--et-home-inverse-text, #fff);
+  background: var(--et-ink-quiet);
+  color: var(--et-white);
   border-radius: var(--et-radius-photo);
 }
 
@@ -19,8 +19,8 @@
    steht damit auf derselben Satzkante wie der Rest der Seite. */
 @media (max-width: 760px) {
   .inner {
-    margin-inline: calc(-1 * var(--et-wrap-pad-mobile, 16px));
-    padding: 30px var(--et-wrap-pad-mobile, 16px) 32px;
+    margin-inline: calc(-1 * var(--et-wrap-pad-mobile));
+    padding: 30px var(--et-wrap-pad-mobile) 32px;
     border-radius: 0;
   }
 }

@@ -129,7 +129,7 @@
 .mapWord,
 .menuWord {
   display: inline-block;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(17px, 1.7vw, 22px);
   font-weight: 700;
   line-height: 0.9;

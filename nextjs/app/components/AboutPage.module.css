@@ -9,12 +9,12 @@
    kein Papier: eine weisse Flaeche gibt es sonst nirgends auf der Seite. Rot
    ist auf Ink als Schriftfarbe raus. */
 .page {
-  --about-ink: var(--et-home-ink, #15120e);
-  --about-fg: var(--et-home-inverse-text, #fff);
-  --about-accent: var(--et-home-accent, #ffc600);
-  --about-paper: var(--et-home-paper, #fff);
-  --about-quiet: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
-  --about-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --about-ink: var(--et-ink);
+  --about-fg: var(--et-white);
+  --about-accent: var(--et-accent);
+  --about-paper: var(--et-white);
+  --about-quiet: var(--et-ink-quiet);
+  --about-muted: var(--et-ink-soft);
   --about-text: rgba(255, 255, 255, 0.84);
   /* Fill exactly what .app-pages leaves us — it offsets the fixed navbar by
      64px below 768px and by a 74px margin above it. A plain 100dvh overshot
@@ -24,7 +24,7 @@
   min-height: calc(100vh - 64px);
   min-height: calc(100dvh - 64px);
   /* Kein safe-area-inset hier: `.app-pages` reserviert unter 768px bereits
-     `64px + env(safe-area-inset-top)` für die fixe SiteNav (css/style.css).
+     `64px + env(safe-area-inset-top)` für die fixe SiteNav (globals.css).
      Ein zweiter Inset schob den Kicker auf Notch-Geräten um weitere ~59px
      nach unten. */
   padding: 24px clamp(18px, 4vw, 54px) 0;
@@ -76,11 +76,11 @@
   max-width: 12ch;
   margin: 0;
   color: var(--about-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(36px, 4.8vw, 60px);
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: var(--et-leading-title, 0.86);
+  line-height: var(--et-leading-title);
   text-transform: uppercase;
   text-wrap: balance;
 }
@@ -93,7 +93,7 @@
   max-width: 30ch;
   margin: clamp(20px, 2.6vw, 28px) 0 0;
   color: var(--about-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(21px, 2vw, 26px);
   font-weight: 400;
   line-height: 1.42;
@@ -106,7 +106,7 @@
   max-width: 34ch;
   margin: clamp(12px, 1.6vw, 18px) 0 0;
   color: var(--about-muted);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(17px, 1.5vw, 20px);
   font-weight: 400;
   line-height: 1.45;
@@ -181,7 +181,7 @@
 .sectionTitle {
   margin: 0 0 clamp(14px, 1.8vw, 18px);
   color: var(--about-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(26px, 3.2vw, 38px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -210,7 +210,7 @@
   /* No measure of its own: the point is one line. The column caps it. */
   margin: 0;
   color: var(--about-accent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(19px, 1.8vw, 22px);
   font-weight: 700;
   letter-spacing: 0;
@@ -222,7 +222,7 @@
 .body {
   max-width: 60ch;
   color: var(--about-text);
-  font-family: var(--font-body, var(--font, system-ui, sans-serif));
+  font-family: var(--et-font-body);
   font-size: clamp(16px, 1.15vw, 17.5px);
   line-height: 1.65;
 }
@@ -285,7 +285,7 @@
   background: var(--about-accent);
   border: 0;
   color: var(--about-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(24px, 3vw, 34px);
   font-weight: 700;
   line-height: 0.96;
@@ -390,7 +390,7 @@
 .caption {
   margin-top: clamp(12px, 1.6vw, 16px);
   color: var(--about-muted);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(15px, 1.2vw, 17px);
   font-weight: 700;
   letter-spacing: 0;
@@ -489,7 +489,7 @@
   margin: 0;
   max-width: 20ch;
   color: var(--about-accent);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(32px, 4.4vw, 54px);
   font-weight: 700;
   letter-spacing: -0.015em;
@@ -506,7 +506,7 @@
   max-width: 30ch;
   margin: clamp(14px, 1.8vw, 18px) 0 0;
   color: var(--about-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(19px, 1.9vw, 24px);
   font-weight: 700;
   line-height: 1.25;
@@ -520,7 +520,7 @@
   text-wrap: pretty;
   margin: clamp(8px, 1vw, 12px) 0 0;
   color: rgba(255, 255, 255, 0.86);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(18px, 1.7vw, 22px);
   font-weight: 400;
   line-height: 1.4;
@@ -541,9 +541,9 @@
   padding: 0 24px;
   background: var(--about-accent);
   border: 1px solid var(--about-accent);
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   color: var(--about-ink);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(18px, 1.7vw, 21px);
   font-weight: 700;
   letter-spacing: 0.01em;

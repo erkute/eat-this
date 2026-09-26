@@ -9,24 +9,24 @@
    Objekte — und tragen die leise Stufe; die Liste steht auf dem Grund. */
 
 .page {
-  --pack-paper: var(--et-home-paper, #fff);
-  --pack-ink: var(--et-home-ink, #15120e);
-  --pack-fg: var(--et-home-inverse-text, #fff);
-  --pack-accent: var(--et-home-accent, #ffc600);
-  --pack-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
+  --pack-paper: var(--et-white);
+  --pack-ink: var(--et-ink);
+  --pack-fg: var(--et-white);
+  --pack-accent: var(--et-accent);
+  --pack-muted: var(--et-ink-soft);
   --pack-soft: rgba(255, 255, 255, 0.76);
   display: flow-root;
   min-height: 100svh;
   overflow-x: clip;
   padding: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px))
-    var(--et-wrap-pad-mobile, 16px) clamp(48px, 7vw, 96px);
+    var(--et-wrap-pad-mobile) clamp(48px, 7vw, 96px);
   background: var(--pack-ink);
   color: var(--pack-fg);
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
 }
 
 .inner {
-  width: min(100%, var(--et-wrap-max, 1360px));
+  width: min(100%, var(--et-wrap-max));
   margin: 0 auto;
   padding-top: clamp(16px, 3vw, 40px);
 }
@@ -39,9 +39,9 @@
   align-items: center;
   gap: clamp(16px, 4vw, 56px);
   padding: clamp(24px, 4vw, 56px);
-  background: var(--et-board-quiet, rgba(255, 255, 255, 0.055));
+  background: var(--et-ink-quiet);
   color: var(--pack-paper);
-  border-radius: var(--et-radius-photo, 10px);
+  border-radius: var(--et-radius-photo);
 }
 
 .copy {
@@ -54,7 +54,7 @@
   color: var(--pack-accent);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   line-height: 1.3;
   text-transform: uppercase;
 }
@@ -77,9 +77,9 @@
   min-height: 48px;
   margin: 0;
   color: var(--pack-muted);
-  font-size: var(--et-type-button, 14px);
+  font-size: var(--et-type-button);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta, 0.1em);
+  letter-spacing: var(--et-tracking-meta);
   text-transform: uppercase;
 }
 
@@ -98,9 +98,9 @@
   max-width: 42ch;
   margin: clamp(12px, 1.6vw, 18px) 0 0;
   color: var(--pack-soft);
-  font-size: var(--et-type-lead, clamp(16px, 1.5vw, 21px));
+  font-size: var(--et-type-lead);
   font-weight: 400;
-  line-height: var(--et-leading-copy, 1.5);
+  line-height: var(--et-leading-copy);
 }
 
 .actions {
@@ -121,9 +121,9 @@
   background: var(--pack-accent);
   color: var(--pack-ink);
   border: 0;
-  border-radius: var(--et-radius-control, 7px);
+  border-radius: var(--et-radius-control);
   box-shadow: none;
-  font-family: var(--et-font-display, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
   letter-spacing: 0;
@@ -133,8 +133,8 @@
   text-transform: none;
   cursor: pointer;
   transition:
-    transform var(--et-motion-fast, 140ms ease),
-    background-color var(--et-motion-fast, 140ms ease);
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast);
 }
 
 .cta:focus-visible {
@@ -202,7 +202,7 @@
 
 @media (min-width: 760px) {
   .page {
-    padding-inline: var(--et-wrap-pad, clamp(24px, 4vw, 56px));
+    padding-inline: var(--et-wrap-pad);
   }
 
   .hero {

@@ -50,7 +50,7 @@
   line-gap-override: 0%;
 }
 
-/* chauncy-pro-1 (--menu-condensed) and moonblossom-1 (--font-chewy) used to
+/* chauncy-pro-1 (--et-font-condensed) and moonblossom-1 (--et-font-moonblossom) used to
    arrive via Adobe's kit stylesheet, use.typekit.net/kgb1lmh.css. That kit CSS
    @imports p.typekit.net/p.css — Adobe's usage beacon, not a font — which fired
    for every visitor on every page before the consent dialog was answered.
@@ -113,6 +113,33 @@
 }
 /* Design tokens */
 :root {
+  /* ── Farben ── Eine Farbe, ein Name. Bis 26.09.2026 hatte Ink zwölf Namen
+     (darunter --gray-100 und --brand-muted), Weiss dreizehn (darunter
+     --et-yellow), verbunden über bis zu fünf Alias-Ebenen. Home bleibt die
+     Vorlage: weisses Papier, fast schwarzes Ink, gelber Akzent, flache
+     Flächen, Providence. */
+  --et-ink: #15120e;
+  --et-white: #fff;
+  --et-red: #d9382a;
+  --et-accent: #ffc600;
+  /* Rollen, die die Karte auf Ink umdeutet (MapLayout.module.css): gedämpfte
+     Schrift, leise Fläche, Trennlinie. Hier die Werte für hellen Grund. */
+  --et-muted: rgba(21, 18, 14, 0.64);
+  --et-quiet: #f2f1ef;
+  --et-rule: #15120e;
+  --et-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  --et-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+
+  /* ── Schriften ── */
+  --et-font-display:
+    'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
+    sans-serif;
+  /* Inter ist die Brot-und-Butter-Schrift für Fließtext und Eyebrows — sie
+     hat DM Sans am 27.08.2026 abgelöst: höhere x-Höhe, engere Laufweite. */
+  --et-font-body: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  --et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
+  --et-font-moonblossom:
+    'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
   /* Tatsächliche Höhe der fixierten SiteNav — einzige Quelle für die Navbar
      selbst UND für den Abstand, den die Seiten darunter freihalten.
      Die Detailseiten rechneten vorher mit einer festen 64px-Konstante. Auf dem
@@ -120,88 +147,12 @@
      fehlten 14px, und die Brotkrumen rückten der Navkante auf die Pelle.
      Der schmale Wert steht in der Media Query weiter unten. */
   --site-nav-h: max(78px, calc(72px + env(safe-area-inset-top, 0px)));
-  --black: #15120e;
-  --white: #fff;
-  --gray-100: #15120e;
 
-  /* Eat This print palette, from the theater-program reference. */
-  --et-poster-red: #d9382a;
-  --et-print-black: #15120e;
-  --et-program-paper: #fff;
-  --et-offset-grey: #15120e;
-
-  /* Legacy aliases. Keep names stable while the visual system pivots from
-     yellow/cream to red/black/program-paper. */
-  --et-red: var(--et-poster-red);
-  --et-yellow: var(--et-program-paper);
-  --et-cream: var(--et-program-paper);
-  --et-black: var(--et-print-black);
-
-  /* Foundation token aliases (EAT-15) — new component work should use the
-     semantic/component names below. Existing --et/--surface/--font tokens stay
-     as compatibility aliases while the CSS modules migrate gradually. */
-  --et-raw-red: var(--et-red);
-  --et-raw-cream: var(--et-cream);
-  --et-raw-ink: var(--et-black);
-
-  /* Brand color roles:
-     Red = brand impact and action.
-     Paper = readable program surface.
-     Grey = rules, hierarchy, and secondary information.
-     Ink = contrast, structure, and trust. */
-  --brand-stage: var(--et-raw-cream);
-  --brand-action: var(--et-raw-red);
-  --brand-paper: var(--et-raw-cream);
-  --brand-ink: var(--et-raw-ink);
-  --brand-muted: var(--et-offset-grey);
-
-  /* Brand palette — Bar-Basta inspired. Coral-warm red is the primary brand
-     mark (CTAs, eyebrows, accents). Pastel pink + sunny yellow are secondary
-     accents. Navy is the script-accent color (matches the "Lunch"
-     handwritten overlay on the BASTA LUNCH menu). Replaced the previous
-     brick-red #E32831 brand. */
-  /* ── 2026-05 Black/White/Red/Yellow pivot ──
-     Palette beschränkt auf: schwarz, weiß, dunkles Rot, mustard-yellow.
-     Keine Grautöne mehr. Cream/Paper bleiben als warm-neutrale Surfaces
-     (das ist sticker-paper, kein Grau). Token-Namen unverändert für
-     einfachen Rollback. */
-
-  --c-coral: var(--brand-action);
-  --collage-paper: var(--brand-stage);
-
-  /* Inter ist die Brot-und-Butter-Schrift für Fließtext und Eyebrows — sie
-     hat DM Sans am 27.08.2026 abgelöst: höhere x-Höhe, engere Laufweite. */
-  --font: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-providence:
-    'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
-    sans-serif;
-  --font-chewy:
-    'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
-  --font-body: var(--font);
-  --font-label: var(--font-chewy, 'moonblossom'), sans-serif;
-
-  /* Home-derived design contract. Home remains the visual source of truth:
-     white paper, almost-black ink, yellow accent, flat surfaces, Providence
-     display type, and restrained image treatment. */
-  --et-home-paper: #fff;
-  --et-home-ink: #15120e;
-  --et-home-accent: #ffc600;
-  --et-home-red: #d9382a;
   /* Das gefüllte Herz, überall dasselbe: Spot-Seite, Karten-Detail,
      Anmelde-Layer (Betreiber, 26.09.2026). Eigenes Token, weil es vom
      Marken-Rot abweicht und an drei Modulen hängt. */
   --et-heart: #ef3108;
-  /* Grund unter jedem Foto auf der Startseite (`.hv-photo`). Früher Hellgrau
-     vom weißen Papier; auf der Ink-Tafel blitzte es als weiße Fläche, bis ein
-     Foto geladen war, und als Haarlinie an der Unterkante jedes Teller-Bilds —
-     das Foto deckt den gerundeten Kasten dort nicht ganz (Betreiber,
-     24.09.2026). Dunkel fällt beides weg. */
-  --et-home-photo-rest: var(--et-ink-raised);
-  --et-home-quiet: #f2f1ef;
-  --et-home-muted: rgba(21, 18, 14, 0.64);
-  --et-home-inverse-text: #fff;
-  --et-home-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
-  --et-home-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   /* Die Weiss-Stufen auf dem Ink-Grund. Seit 03.09.2026 stehen alle
      Inhaltsseiten auf durchgehendem Ink (siehe die Rahmen-Regel weiter
      unten); Text, Linien und die eine Flaeche, die sich abheben darf, sind
@@ -226,11 +177,6 @@
      ist exakt `color-mix(in srgb, #fff 7%, #15120e)`. */
   --et-ink-raised: #25231f;
   --et-ink-raised-edge: inset 0 0 0 1px var(--et-ink-line);
-
-  --et-font-display: var(--font-providence);
-  --et-font-label: var(--font-providence);
-  --et-font-mono: var(--menu-mono, var(--font));
-  --et-font-condensed: var(--menu-condensed, Impact, sans-serif);
 
   /* Gemessen gegen Eater (40), Mit Vergnügen (40) und The Infatuation (64)
      auf 1280px. 80 lag über allen dreien. */
@@ -262,18 +208,15 @@
   --et-rail-gap: 14px;
   --et-control-gap: 8px;
 
-  /* Der Vorhang hinter JEDEM Zoom (Must-Eat-Karte, Galerie-Foto). Als Token,
-     weil die beiden Lightboxen genau hier auseinandergelaufen waren — 0.22
-     gegen 0.44 — und der Nutzer die Regel als EINE gemeint hat: „wenn ich
-     was zoome, muss der Hintergrund verdeckt sein" (30.08.2026). */
-  /* Der Vorhang hinter einem Fenster. Er MUSS schwarz sein, nicht Ink: seit
+  /* Der Vorhang hinter einem Fenster und hinter JEDEM Zoom (Must-Eat-Karte,
+     Galerie-Foto) — die beiden Lightboxen waren auseinandergelaufen, 0.22
+     gegen 0.44, gemeint war EINE Regel (30.08.2026). Er MUSS schwarz sein, nicht Ink: seit
      alle Seiten auf Ink stehen, war `rgba(21,18,14,…)` exakt die Farbe der
      Seite darunter — dieselbe Farbe ueber sich selbst ist bei jeder Deckkraft
      unsichtbar, der Vorhang verdunkelte also nichts und die Seite trat nie
      zurueck. Schwarz auf Ink dunkelt sichtbar ab (#15120e → #080705 bei
      62 %). Die Deckkraft bleibt je Ebene, wie sie war — sie ist ausgemessen. */
   --et-scrim: rgba(0, 0, 0, 0.62);
-  --et-zoom-scrim: var(--et-scrim);
   --et-zoom-scrim-blur: blur(12px) saturate(1);
   /* Die deckenden Kappen des Zooms an Status- und URL-Leiste (ZoomCurtain):
      exakt der Vorhang ueber Ink, damit der Uebergang nicht springt. */
@@ -282,7 +225,6 @@
   --et-radius-photo: 10px;
   --et-radius-control: 7px;
   --et-radius-pill: 999px;
-  --et-shadow-text-photo: var(--et-home-photo-text-shadow);
   --et-motion-fast: 140ms ease;
   --et-motion-base: 160ms ease;
   --et-motion-card: 180ms ease;
@@ -290,33 +232,9 @@
 
   --et-img-photo-fit: cover;
 
-  /* ── Editorial "menu" design system (home + login) ──
-     Bold orange + cool-white panels on a near-black page, condensed Chauncy
-     headings, monospace dotted-leader lists, handwritten brush accents,
-     FLAT (no shadows/gradients). Mirrors the orange/white/black references. */
-  /* Kein Monospace mehr. Die Schrift saß auf rund dreißig Label- und
-     Meta-Zeilen (Spot-Karten, Kicker, Fußzeile, Must-Eat-Augenbraue) und war
-     dort schlecht lesbar — 11px, versal, mit Sperrung. Ausgetauscht wird an
-     der Definition statt an den Fundstellen: die Variablennamen bleiben, damit
-     der Eingriff eine Stelle groß ist und nicht dreißig. Echtes Monospace
-     braucht die Seite nirgends — kein Code, keine Tabellenziffern hängen
-     daran. */
-  --menu-mono: var(--font);
-  --menu-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
-
   --radius-sm: 4px;
   --motion-slow: 320ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
-
-  /* Semantic surface/text tokens — used by the map UI and newer React components. */
-  --border-subtle: var(--gray-100);
-
-  /* Landing-page-spezifische Fläche: wärmeres Papier statt der kühlen
-     Grundfläche. 9 von 12 Sektionen sitzen auf --surface-canvas, zwei
-     Vertrauens-Momente bekommen den Papierton. */
-  --surface-canvas: var(--brand-stage);
-
-  /* ── 2026 Editorial accents — black/white/red/yellow pivot ── */
 }
 *,
 *::before,
@@ -328,7 +246,7 @@
 /* A11y: honour the OS "reduce motion" setting site-wide (WCAG 2.3.3). Lives in
    the inline-critical sheet with `!important` so it neutralises every CSS/JS
    transition+animation regardless of which stylesheet declared them, on first
-   paint, before style.min.css loads. Movement-based brand reveals degrade to a
+   paint. Movement-based brand reveals degrade to a
    near-instant cut rather than vestibular-triggering motion. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -342,11 +260,10 @@
 }
 /* A11y: a visible keyboard focus ring everywhere (WCAG 2.4.7). :focus-visible
    only fires for keyboard / non-pointer focus, so mouse clicks stay ring-free.
-   /checkout and /admin don't load style.css, so the rule must live here too;
-   style.css re-asserts it for pages whose `outline:none` resets would
-   otherwise win the cascade. */
+   A module rule of equal rank (one class, `outline: none`) wins over it — use
+   that only where the element carries its own focus state. */
 :focus-visible {
-  outline: 2px solid var(--c-coral, #ef3528);
+  outline: 2px solid var(--et-red);
   outline-offset: 2px;
 }
 /* Unter 520px ist die Navbar flacher (siehe SiteNav.module.css) — der Wert
@@ -363,56 +280,35 @@ html {
   font-synthesis-weight: none;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Cream universal — matches the SEO-page surface (var(--et-yellow)) so the side
-     strips that appear on Desktop when .page is centered with max-width
-     blend into the page bg instead of showing grey/white body underneath.
-     iOS rubber-band overscroll also picks up cream. */
-  background-color: var(--et-yellow);
+  /* Matches the page surface so the side strips that appear on Desktop when
+     .page is centered with max-width blend in, and iOS rubber-band overscroll
+     picks it up too. */
+  background-color: var(--et-white);
 }
 body {
-  font-family: var(--font);
-  background-color: var(--collage-paper);
+  font-family: var(--et-font-body);
+  background-color: var(--et-white);
   background-image: none;
   background-size: auto;
-  color: var(--black);
+  color: var(--et-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
-html[data-active-page='start'],
-html[data-active-page='start'] body {
-  --food-ink: #15120e;
-  --food-paper: #fff;
-  --food-cream: #fff;
-  --food-tomato: var(--et-poster-red);
-
-  --et-red: var(--food-tomato);
-  --et-yellow: var(--food-cream);
-  --et-cream: var(--food-paper);
-  --et-black: var(--food-ink);
-  --surface-canvas: var(--food-paper);
-  --c-coral: var(--food-tomato);
-  --collage-paper: var(--food-paper);
-  background-image: none;
-  background-color: var(--food-paper);
-  color-scheme: light;
-}
-
 /* Hub wrapper surface. The section stack has intentional gaps between some
-   sections; without a wrapper background those gaps expose the body, which
-   style.css paints with --surface-canvas (#fff) — producing a cream→white seam
-   between sections. Fill the hub so the gaps read as the cream page surface. */
+   sections; without a wrapper background those gaps expose the body. Fill
+   the hub so the gaps read as one surface. */
 [data-hub] {
-  background: var(--et-yellow);
+  background: var(--et-white);
 }
 /* Die Startseite steht seit 03.09.2026 auf durchgehendem Ink: der Grund ist
    die Flaeche, getrennt wird durch Raum, Type und die Fotos. Die Regel gehoert
    hierher und nicht ins Modul — sie traegt (0,3,1) und schlaegt jede
    Modul-Klasse. */
 html[data-active-page='start'] [data-hub] {
-  background: var(--et-home-ink);
+  background: var(--et-ink);
 }
-/* Jeder Abschnitt traegt selbst `homeV2`, und die Klasse malt in style.css
+/* Jeder Abschnitt traegt selbst `homeV2`, und die Klasse malt (weiter unten)
    Papier — auf dem Ink-Grund waeren das weisse Baender quer durch die Seite,
    mit weisser Schrift darauf. Die Abschnitte holen sich Grund und Farbe
    deshalb vom Elternteil. */
@@ -483,7 +379,7 @@ html[data-active-page='checkout'] .app-pages,
 html[data-active-page='map'],
 html[data-active-page='map'] body,
 html[data-active-page='map'] .app-pages {
-  background: var(--et-home-ink);
+  background: var(--et-ink);
 }
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
    erste Pfadsegment der falschen Adresse, und auf einem gestreamten
@@ -496,11 +392,11 @@ html:has(main[data-page='error']),
 html:has(main[data-page='error']) body,
 html:has([data-page='admin']),
 html:has([data-page='admin']) body {
-  background: var(--et-home-ink);
+  background: var(--et-ink);
 }
 /* Auf dem Ink-Grund loest sich jede Tafel auf: der Grund IST die Tafel.
    Die Module lesen die drei Tokens mit Fallback auf ihre Tafel-Werte
-   (`padding: var(--et-board-pad, …)`), die Kasten-Optik ist also eine Zeile
+   (`padding: var(--et-board-pad)`), die Kasten-Optik ist also eine Zeile
    weit entfernt. Was ein eigenes OBJEKT ist — Angebote, Formulare, Remy,
    Fakten mit Knoepfen — bekommt stattdessen die leise Stufe, eine Spur
    heller als der Grund; Inhalt steht auf dem Grund. Beides gilt fuer die
@@ -509,7 +405,6 @@ html:has([data-page='admin']) body {
   --et-board-pad: 0px;
   --et-board-bg: transparent;
   --et-board-radius: 0;
-  --et-board-quiet: var(--et-ink-quiet);
   --et-board-quiet-pad: clamp(22px, 3.4vw, 44px);
 }
 /* Sitewide Providence collage language. */
@@ -520,14 +415,13 @@ html:not([data-active-page='map']) .app-page {
 }
 /* Die Map war von der Regel darueber ausgenommen, weil sie als Werkzeug ihren
    eigenen hellen Grund trug. Seit 04.09.2026 steht sie auf Ink, also muss
-   `main` auch dort durchlaessig sein — sonst bleibt das weisse Blatt aus
-   style.css zwischen dem Ink von html/body und der Shell stehen und blitzt an
+   `main` auch dort durchlaessig sein — sonst bleibt das weisse Blatt der
+   App-Seite zwischen dem Ink von html/body und der Shell stehen und blitzt an
    jeder Kante durch, die die Shell nicht deckt.
    Eigener Block statt Streichung des `:not(...)`: die Ausgangsregel wiegt
-   (0,1,2), ohne den Guard waere sie auf (0,0,1) gefallen und haette gegen
-   `main` aus style.css nur noch ueber die Ladereihenfolge gewonnen — die im
-   Dev-Server anders ausfaellt als in Produktion. Dieser Block wiegt genauso
-   viel wie der erste. */
+   (0,1,2), ohne den Guard waere sie auf (0,0,1) gefallen und haette nur noch
+   ueber die Reihenfolge gewonnen. Dieser Block wiegt genauso viel wie der
+   erste. */
 html[data-active-page='map'] .app-pages,
 html[data-active-page='map'] main,
 html[data-active-page='map'] .app-page {
@@ -538,7 +432,7 @@ html[data-active-page='map'] .app-page {
    the top of the list bounced the whole page, the sticky map included, and
    the map seemed to be dragged down and snap back (user, 23.09.2026). The
    viewport takes overscroll-behavior from the ROOT element — the
-   `body { overscroll-behavior: none }` in style.css never reached it. */
+   `body { overscroll-behavior: none }` further down never reached it. */
 @media (max-width: 767.98px) {
   html[data-active-page='map'] {
     overscroll-behavior-y: none;
@@ -553,7 +447,7 @@ html[data-active-page='map'] .app-page {
     inset: 74px 0 0;
     height: auto;
     margin: 0;
-    background-color: var(--food-paper);
+    background-color: var(--et-white);
     overscroll-behavior-y: none;
   }
 }
@@ -566,12 +460,6 @@ img {
 a {
   text-decoration: none;
   color: inherit;
-}
-/* Keep the closed burger out of rendering on first paint. In particular, iOS
-   Safari must not retain its full-screen ink layer behind the browser bars. */
-.burger-drawer[hidden] {
-  display: none;
-  pointer-events: none;
 }
 /* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
    because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
@@ -605,7 +493,7 @@ html[data-auth='1'] [data-guest-only] {
 @media (max-width: 1023.98px) {
   [data-active-page='map'] .app-pages {
     /* Both spellings of the navbar offset have to go: tablets still get
-       `margin-top` from style.css, phones get `padding-top` since 46789c54
+       `margin-top` from the app frame, phones get `padding-top` since 46789c54
        moved it (a top margin collapsed out through body and Chrome booked the
        jump as a layout shift). The map hides the navbar outright, so either
        one leaves a white strip across the top of the canvas — with the fixed
@@ -667,14 +555,14 @@ html[data-auth='1'] [data-guest-only] {
      theme-color) — sie waren Papier, solange die Map hell war. */
   html:has(.app-page[data-page='map'].active),
   body:has(.app-page[data-page='map'].active) {
-    background: var(--et-home-ink, #15120e);
+    background: var(--et-ink);
   }
 
   html:has(.app-page[data-page='map'][data-map-view='detail']),
   body:has(.app-page[data-page='map'][data-map-view='detail']),
   html:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'],
   body:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'] {
-    background: var(--et-home-ink, #15120e);
+    background: var(--et-ink);
   }
 }
 
@@ -699,8 +587,7 @@ html[data-auth='1'] [data-guest-only] {
   z-index: 1000;
 }
 /* ── Zentrale Info-Karte (lib/notice.ts → window.showNotice) ────────────────
-   Global montiert in app/[locale]/layout.tsx (NotificationToast.tsx). Hier
-   statt in style.css, weil /profile das SPA-Stylesheet nicht laden.
+   Global montiert in app/[locale]/layout.tsx (NotificationToast.tsx).
 
    Mitte statt unterer Kante, und im Zuschnitt des Onboarding-Panels (Ink-
    Grund, weisse Schrift, ein gelber Akzent — siehe
@@ -760,7 +647,7 @@ html[data-auth='1'] [data-guest-only] {
 @media (max-width: 480px) {
   html[data-buddy-open],
   html[data-buddy-open] body {
-    background: var(--et-ink-raised, #25231f);
+    background: var(--et-ink-raised);
   }
 
   html[data-buddy-open] body {
@@ -811,15 +698,15 @@ html[data-auth='1'] [data-guest-only] {
 .notification-scrim {
   position: absolute;
   inset: 0;
-  background-color: var(--et-scrim, rgba(0, 0, 0, 0.62));
+  background-color: var(--et-scrim);
   /* Kein Scrollen der Seite durch den Scrim hindurch (iOS Safari). */
   touch-action: none;
 }
 .notification {
-  --toast-surface: var(--et-ink-raised, #25231f);
-  --toast-ink: var(--et-home-inverse-text, #fff);
+  --toast-surface: var(--et-ink-raised);
+  --toast-ink: var(--et-white);
   --toast-muted: rgba(255, 255, 255, 0.76);
-  --toast-accent: var(--et-home-accent, #ffc600);
+  --toast-accent: var(--et-accent);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -867,13 +754,13 @@ html[data-auth='1'] [data-guest-only] {
    Farbe allein. Icons gibt es seit dem 24.09.2026 keine mehr — der Kicker
    sagt, worum es geht. */
 .notification[data-tone='error'] {
-  --toast-mark: var(--et-home-red, #d9382a);
+  --toast-mark: var(--et-red);
 }
 .notification-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--et-font-label, var(--font-providence), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -890,7 +777,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 .notification-title {
   margin-top: 2px;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 26px;
   font-weight: 700;
   letter-spacing: 0;
@@ -901,7 +788,7 @@ html[data-auth='1'] [data-guest-only] {
   overflow-wrap: anywhere;
 }
 .notification-detail {
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0;
@@ -927,7 +814,7 @@ html[data-auth='1'] [data-guest-only] {
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
   gap: 8px;
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 700;
   line-height: 1.4;
@@ -954,8 +841,8 @@ html[data-auth='1'] [data-guest-only] {
   min-height: 48px;
   padding: 12px 16px;
   border: 0;
-  border-radius: var(--home-radius-btn, 8px);
-  font-family: var(--font-providence, var(--et-font-display), sans-serif);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-display);
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 0;
@@ -967,8 +854,8 @@ html[data-auth='1'] [data-guest-only] {
     transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .notification-primary {
-  background: var(--et-home-accent, #ffc600);
-  color: var(--et-home-ink, #15120e);
+  background: var(--et-accent);
+  color: var(--et-ink);
 }
 .notification-quiet {
   background: rgba(255, 255, 255, 0.1);
@@ -985,7 +872,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 .notification-primary:focus-visible,
 .notification-quiet:focus-visible {
-  outline: 2px solid var(--et-home-accent, #ffc600);
+  outline: 2px solid var(--et-accent);
   outline-offset: 3px;
 }
 .notification-primary:active,
@@ -1019,13 +906,9 @@ html[data-auth='1'] [data-guest-only] {
 }
 
 /* ── Consent gate: das Aussehen des Dialogs ──────────────────────
-   Lag bis 28.08.2026 in css/style.css und damit nur auf den (spa)-Routen. Der
-   Dialog haengt seit demselben Tag in app/[locale]/layout.tsx, also auf JEDER
-   Route — auf /restaurant, /kategorie und /bezirk wurde vorher nie gefragt,
-   und genau dort landet die Suche. Ohne diese Regeln haette der Dialog dort
-   unformatiert gerendert: style.min.css laedt nur das SPA-Layout. Gleiches
-   Muster wie .notification-toast weiter oben.
-   --ease traegt einen Fallback, weil die Variable in style.css definiert ist. */
+   Der Dialog haengt seit 28.08.2026 in app/[locale]/layout.tsx, also auf JEDER
+   Route — vorher nur auf den (spa)-Routen, auf /restaurant, /kategorie und
+   /bezirk wurde nie gefragt, und genau dort landet die Suche. */
 /* Consent gate — a blocking dialog, not a bottom bar.
    The bar this replaced sat on the bottom edge, paper-white on a paper-white
    page, and could be ignored indefinitely; almost nobody ever answered, and an
@@ -1047,10 +930,10 @@ html[data-auth='1'] [data-guest-only] {
 .cookie-gate {
   --cookie-panel-w: 520px;
   --cookie-panel-w-wide: 900px;
-  --cookie-accent: var(--et-home-accent, #ffc600);
-  --cookie-soft: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  --cookie-dim: var(--et-ink-dim, rgba(255, 255, 255, 0.55));
-  --cookie-font: var(--font-providence, var(--et-font-display), sans-serif);
+  --cookie-accent: var(--et-accent);
+  --cookie-soft: var(--et-ink-soft);
+  --cookie-dim: var(--et-ink-dim);
+  --cookie-font: var(--et-font-display);
   position: fixed;
   inset: 0;
   z-index: 10002;
@@ -1073,7 +956,7 @@ html[data-auth='1'] [data-guest-only] {
   transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cookie-gate.show .cookie-scrim {
-  background-color: var(--et-scrim, rgba(0, 0, 0, 0.62));
+  background-color: var(--et-scrim);
 }
 .cookie-consent {
   position: relative;
@@ -1085,7 +968,7 @@ html[data-auth='1'] [data-guest-only] {
   -webkit-overflow-scrolling: touch;
   padding: clamp(28px, 3.4vw, 40px);
   color: #fff;
-  background: var(--et-ink-raised, #25231f);
+  background: var(--et-ink-raised);
   border: 0;
   border-radius: var(--et-radius-panel, 10px);
   box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
@@ -1195,7 +1078,7 @@ html[data-auth='1'] [data-guest-only] {
   min-height: 52px;
   padding: 12px 18px;
   border: 0;
-  border-radius: var(--home-radius-btn, 8px);
+  border-radius: var(--et-radius-control);
   font-family: var(--cookie-font);
   font-size: clamp(17px, 1.45vw, 19px);
   font-weight: 700;
@@ -1209,7 +1092,7 @@ html[data-auth='1'] [data-guest-only] {
     color 140ms ease;
 }
 .cookie-btn-accept {
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-ink);
   background: var(--cookie-accent);
 }
 .cookie-btn-decline {
@@ -1221,7 +1104,7 @@ html[data-auth='1'] [data-guest-only] {
   outline: 0;
 }
 .cookie-btn-decline:focus-visible {
-  color: var(--et-home-ink, #15120e);
+  color: var(--et-ink);
   background: var(--cookie-accent);
   outline: 0;
 }
@@ -1230,7 +1113,7 @@ html[data-auth='1'] [data-guest-only] {
     background: #fff;
   }
   .cookie-btn-decline:hover {
-    color: var(--et-home-ink, #15120e);
+    color: var(--et-ink);
     background: var(--cookie-accent);
   }
 }
@@ -1299,7 +1182,7 @@ html[data-auth='1'] [data-guest-only] {
 
 /* Cookie banner inline expand. */
 .cookie-info-chevron {
-  transition: transform 0.22s var(--ease, cubic-bezier(0.25, 0.46, 0.45, 0.94));
+  transition: transform 0.22s var(--ease);
 }
 .cookie-consent.expanded .cookie-info-chevron {
   transform: rotate(180deg);
@@ -1320,14 +1203,13 @@ html[data-auth='1'] [data-guest-only] {
      mask the `scroll` layers once an end is reached, so the hint appears only
      where there is actually more to see. No JS, no listener. */
   background:
-    linear-gradient(var(--et-ink-raised, #25231f) 30%, transparent) top / 100% 22px no-repeat local,
-    linear-gradient(transparent, var(--et-ink-raised, #25231f) 72%) bottom / 100% 26px no-repeat
-      local,
+    linear-gradient(var(--et-ink-raised) 30%, transparent) top / 100% 22px no-repeat local,
+    linear-gradient(transparent, var(--et-ink-raised) 72%) bottom / 100% 26px no-repeat local,
     radial-gradient(farthest-side at 50% 0, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)) top /
       100% 11px no-repeat scroll,
     radial-gradient(farthest-side at 50% 100%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0))
       bottom / 100% 13px no-repeat scroll;
-  background-color: var(--et-ink-raised, #25231f);
+  background-color: var(--et-ink-raised);
 }
 /* Die Abschnitte als leise Felder im Fenster — Ueberschrift als gelbes
    Kreide-Label in Versalien, wie die Labels der Fakten-Tafel. */
@@ -1343,7 +1225,7 @@ html[data-auth='1'] [data-guest-only] {
   padding: 14px 15px 15px;
   background: rgba(255, 255, 255, 0.07);
   border: 0;
-  border-radius: var(--home-radius-btn, 8px);
+  border-radius: var(--et-radius-control);
 }
 .cookie-expand .cookie-info-body h3 {
   margin: 0 0 7px;
@@ -1460,4 +1342,302 @@ summary:active,
    liest sich als Fehler. */
 :root {
   --et-press-tile: 0.985;
+}
+
+/* ══ Früher css/style.css ═════════════════════════════════════════════════
+   Bis 26.09.2026 eine eigene, von Hand versionierte Datei, die jedes Layout
+   per <link> nachlud. Die Regeln stehen hier in ihrer alten Reihenfolge am
+   Ende — dort, wo die nachgeladene Datei in der Kaskade stand. */
+
+/* A11Y: skip-to-content — hidden off-screen until keyboard focus */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  background: #000;
+  color: #fff;
+  padding: 12px 18px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 0 0 8px 0;
+}
+.skip-link:focus {
+  left: 0;
+  outline: 3px solid #ff0;
+  outline-offset: 2px;
+}
+
+/* overflow-x:hidden + position:relative on <html> caused Chrome desktop to
+   drop wheel-scroll on /profile (Safari and mobile worked fine). Both are
+   redundant — body already has overflow-x:hidden and overscroll-behavior:none.
+   Don't move them back. */
+body {
+  max-width: 100%;
+  overscroll-behavior: none;
+  background: var(--et-white);
+  overflow-x: hidden;
+}
+iframe {
+  max-width: 100%;
+}
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+a,
+button,
+input,
+select,
+textarea,
+label {
+  touch-action: manipulation;
+}
+ul,
+ol {
+  list-style: none;
+}
+
+/* Prevent browser scroll-anchoring from holding position when content swaps */
+.app-page[data-page='news-article'] {
+  overflow-anchor: none;
+}
+
+/* ── App pages container ── */
+.app-pages {
+  display: block;
+  height: 100%;
+}
+.app-page {
+  width: 100%;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.app-page[data-page='start'] {
+  min-height: calc(100vh - 64px);
+}
+
+@media (max-width: 767px) {
+  /* Match kino.de/familie.de: html+body need zero CSS constraints for
+     Safari to use window scroll and auto-hide the URL bar on scroll. */
+  html {
+    overflow-x: unset;
+    position: static;
+    overscroll-behavior: contain;
+  }
+  body {
+    overflow-x: unset;
+    overscroll-behavior: contain;
+  }
+  /* Natural window scroll so Safari URL bar auto-hides on scroll. */
+  .app-pages {
+    /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px).
+       Padding, not margin: body has no overflow here (see above, Safari URL
+       bar), so a top margin collapses out through body — and the moment the
+       consent gate sets `overflow: hidden` on body it stops collapsing, the
+       body box jumps up by these 64px and Chrome books it as a 0.08 layout
+       shift. Padding never collapses, so the box stays put. `.app-pages` is
+       transparent and the fixed navbar covers the strip: same picture. */
+    padding-top: calc(64px + env(safe-area-inset-top, 0px));
+    height: auto;
+    overflow: visible;
+  }
+  .app-page {
+    position: relative;
+    height: auto;
+    /* Fill viewport at minimum so short pages don't show body bg below */
+    min-height: calc(100dvh - 48px);
+    /* Pad for fixed app-footer + safe-area-inset-bottom so last content is reachable */
+    padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
+    overflow: visible;
+    background: var(--et-white);
+    overscroll-behavior: none;
+  }
+  /* Pages ending with the site footer let the footer own bottom clearance. */
+  .app-page:has([data-site-footer]) {
+    padding-bottom: 0;
+  }
+  .app-page[data-page='start'] {
+    background: var(--et-white);
+  }
+}
+
+/* ── Desktop app frame (≥ 768px) ── */
+@media (min-width: 768px) {
+  .app-pages {
+    max-width: none;
+    margin: 74px 0 0;
+    box-shadow: none;
+    height: calc(100dvh - 74px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  /* SPA scroll-chain lock: on routes that mount .app-pages (the SPA group:
+     start/news/map/static), .app-pages is the page scroll container. Lock
+     html+body to the viewport so wheel/keyboard scroll past .app-pages's
+     bottom can't bubble to the window — otherwise body slides off-screen
+     and a strip of html bg appears below the footer. Non-SPA routes
+     (restaurant/bezirk/kategorie/profile) have no .app-pages and keep
+     natural body scroll. */
+  html:has(.app-pages),
+  html:has(.app-pages) body {
+    height: 100vh;
+    overflow: hidden;
+  }
+  /* App pages: natural height so footer follows content */
+  .app-page {
+    height: auto;
+    min-height: calc(100dvh - 48px);
+    padding-bottom: 0;
+    background: var(--et-white);
+    overflow-y: visible;
+    overflow-x: hidden;
+  }
+  .app-page[data-page='start'] {
+    background: var(--et-white);
+  }
+}
+
+/* ── Home vocabulary (scoped to .homeV2) ── */
+.homeV2 {
+  background: var(--et-white);
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
+}
+.homeV2 .hv-wrap {
+  max-width: var(--et-wrap-max);
+  margin: 0 auto;
+  padding: 0 var(--et-wrap-pad);
+}
+.homeV2 .hv-section {
+  margin-top: var(--et-section-gap);
+}
+.homeV2 .hv-kicker {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: var(--et-type-kicker);
+  letter-spacing: var(--et-tracking-label);
+  text-transform: uppercase;
+  color: var(--et-ink);
+}
+.homeV2 .hv-mk {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  background: var(--et-accent);
+  margin-right: var(--et-control-gap);
+  vertical-align: 1px;
+}
+.homeV2 .hv-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--et-head-gap);
+}
+.homeV2 .hv-title {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  color: var(--et-red);
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title);
+  font-size: var(--et-type-section-title);
+}
+.homeV2 .hv-rail {
+  display: flex;
+  gap: var(--et-rail-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+.homeV2 .hv-rail::-webkit-scrollbar {
+  display: none;
+}
+.homeV2 .hv-rail > * {
+  scroll-snap-align: start;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+/* Grund unter jedem Foto auf der Startseite (`.hv-photo`). Früher Hellgrau
+   vom weißen Papier; auf der Ink-Tafel blitzte es als weiße Fläche, bis ein
+   Foto geladen war, und als Haarlinie an der Unterkante jedes Teller-Bilds —
+   das Foto deckt den gerundeten Kasten dort nicht ganz (Betreiber,
+   24.09.2026). Dunkel fällt beides weg. */
+.homeV2 .hv-photo {
+  background: var(--et-ink-raised);
+  border-radius: var(--et-radius-photo);
+  overflow: hidden;
+  position: relative;
+  display: block;
+}
+.homeV2 .hv-photo img {
+  object-fit: var(--et-img-photo-fit);
+}
+.homeV2 .hv-cap {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: clamp(14px, 1.1vw, 16px);
+  margin-top: var(--et-control-gap);
+  color: var(--et-ink);
+}
+.homeV2 .hv-sub {
+  font-family: var(--et-font-display);
+  font-weight: 400;
+  font-size: var(--et-type-caption);
+  color: var(--et-muted);
+}
+.homeV2 .hv-btn {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: var(--et-type-button);
+  padding: 11px 24px;
+  border-radius: 999px;
+  display: inline-block;
+  background: var(--et-ink);
+  color: var(--et-white);
+  border: none;
+  cursor: pointer;
+  transition:
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast);
+}
+.homeV2 .hv-btn:focus-visible {
+  transform: translateY(-2px);
+}
+@media (hover: hover) {
+  .homeV2 .hv-btn:hover {
+    transform: translateY(-2px);
+  }
+}
+.homeV2 .hv-btn:active {
+  transform: translateY(1px);
+}
+.homeV2 .hv-chip {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: var(--et-type-chip);
+  padding: 9px 15px;
+  border-radius: var(--et-radius-control);
+  background: var(--et-quiet);
+  color: var(--et-ink);
+  border: none;
+  cursor: pointer;
+  transition:
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast);
+}
+.homeV2 .hv-chip:active {
+  transform: translateY(1px);
+}
+@media (max-width: 760px) {
+  .homeV2 .hv-wrap {
+    padding: 0 var(--et-wrap-pad-mobile);
+  }
+  .homeV2 .hv-section {
+    margin-top: var(--et-section-gap-mobile);
+  }
 }

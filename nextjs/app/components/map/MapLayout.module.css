@@ -10,19 +10,19 @@
      Rot kommt auf Ink auf rund 2,9:1 und ist als Text nicht lesbar — dieselbe
      Entscheidung wie site-weit am 03.09.2026. Rot bleibt der Marke als
      FLAECHE erhalten, etwa am gesperrten Pin. */
-  --map-collage-red: var(--et-home-accent, #ffc600);
+  --map-collage-red: var(--et-accent);
   /* War #f8f6f1 und traegt die Flaeche des Detail-Sheets. */
-  --map-collage-paper: var(--et-home-ink, #15120e);
+  --map-collage-paper: var(--et-ink);
   /* War #2b211c und umrandet die aktive Karte in der Liste. Ein dunkler Ring
      auf dunklem Grund ist unsichtbar, also Papier. */
-  --map-collage-ink: var(--et-home-paper, #fff);
+  --map-collage-ink: var(--et-white);
   /* Der Grund, auf dem die Kacheln landen. Exakt die Hintergrundfarbe des
      Basemap-Styles (Dark Matter, `background-color: #0e0e0e`), damit beim
      Laden nichts aufblitzt. Eine Spur dunkler als der Seiten-Ink #15120e —
      das ist Absicht: die Karte ist eine eigene Flaeche, kein Blatt. */
   --map-basemap-ground: #0e0e0e;
   /* Fokusring. Gelb statt Rot, aus demselben Kontrastgrund. */
-  --map-action: var(--et-home-accent, #ffc600);
+  --map-action: var(--et-accent);
   /* Die Flaeche des Starter-Pack-Angebots — an ZWEI Stellen: im Sheet eines
      verdeckten Spots (LockedDetail `.starter`) und als Hinweis im Detail eines
      freien Spots (MapDetails `.packPromo`). Beide zeigen dasselbe Produkt, also
@@ -34,27 +34,27 @@
      blendet dasselbe Rot (L* 49,2 gegen L* 5,6 des Grundes). 60 % bringen es
      auf L* 32 und den Weisstext darauf auf 8,6:1. Zum Nachjustieren nur diese
      Zahl drehen — 74 % waere L* 38, 46 % waere L* 26. */
-  --et-offer-red: color-mix(in srgb, var(--et-home-red, #d9382a) 60%, #15120e);
+  --et-offer-red: color-mix(in srgb, var(--et-red) 60%, #15120e);
   /* Drei Site-Tokens, hier auf die Ink-Seite gedreht. Sie sind semantisch —
      „leise Flaeche", „gedaempfte Schrift", „leise Linie" — und kippen deshalb
      mit dem Grund, statt an jeder der zehn Stellen in vier Modulen einzeln zu
      stehen (MapDetails, LockedDetail, MapListEmpty, MapSeoFooter).
-     NICHT dasselbe mit --et-home-ink/-paper machen: die beiden benennen
+     NICHT dasselbe mit --et-ink/--et-white machen: die beiden benennen
      konkrete Farben, keine Rollen, und werden auf der Map in beiden
      Richtungen gelesen.
 
-     --border-subtle kam am 04.09.2026 dazu: es zeigt site-weit auf
-     --gray-100, und das ist #15120e — auf dem Ink-Grund also exakt der Grund
+     --et-rule (bis 26.09.2026 --border-subtle) kam am 04.09.2026 dazu: es
+     ist site-weit #15120e — auf dem Ink-Grund also exakt der Grund
      selbst (dL* 0,00). Live betroffen war die linke Kante des Desktop-Panels
      (MapSheet), die damit schlicht nicht da war. Die zweite Fundstelle,
      .pickerFooter in MapFilters, wird derzeit nie gerendert (kein Aufrufer
      gibt dem Picker-Sheet ein `footer`-Prop) — sie ist mitrepariert, aber
      ungeprueft. */
-  --et-home-quiet: var(--et-ink-quiet, rgba(255, 255, 255, 0.055));
-  --et-home-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));
-  --border-subtle: var(--et-ink-line, rgba(255, 255, 255, 0.14));
-  background: var(--et-home-ink);
-  color: var(--et-home-paper);
+  --et-quiet: var(--et-ink-quiet);
+  --et-muted: var(--et-ink-soft);
+  --et-rule: var(--et-ink-line);
+  background: var(--et-ink);
+  color: var(--et-white);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -304,7 +304,7 @@
        statt ihres frueheren Papiers: die Leisten sollen jetzt dunkel sein,
        nicht hell. Sichtbar ist die Farbe nie, die Karte deckt den Wrapper —
        sie faerbt ausschliesslich die Safari-Leisten. */
-    background-color: var(--et-home-ink, #15120e);
+    background-color: var(--et-ink);
   }
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
     /* Same anchoring as the list: the map stays put and the sheet slides over
@@ -364,7 +364,7 @@
     height: calc(var(--map-strip) + 12px);
     z-index: 7;
     overflow: hidden;
-    background-color: var(--et-home-ink, #15120e);
+    background-color: var(--et-ink);
     pointer-events: none;
   }
   .body[data-header-stuck='true'] .mapStrip {
@@ -389,13 +389,13 @@
 @media (max-width: 767.98px) {
   .shell[data-map-view='detail'],
   .shell[data-map-view='detail'] .body[data-map-view='detail'] {
-    background: var(--et-home-ink, #15120e);
+    background: var(--et-ink);
   }
 
   html:has(.body[data-map-view='detail']),
   body:has(.body[data-map-view='detail']),
   html:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']),
   body:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']) {
-    background: var(--et-home-ink, #15120e);
+    background: var(--et-ink);
   }
 }

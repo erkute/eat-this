@@ -20,9 +20,13 @@ describe('critical auth bootstrap', () => {
    * answered. The @font-face rules now live in app/globals.css and only the
    * font files are fetched. Do not put a third-party stylesheet back in a head:
    * a stylesheet is a request the visitor never agreed to. */
+  // Die 404 bekommt ihre Hülle aus NotFoundAppFrame / SiteChrome – dort stand
+  // der Kit-Link bis 26.09.2026 noch, eine Ebene unter app/not-found.tsx.
   it.each([
     'app/[locale]/layout.tsx',
     'app/not-found.tsx',
+    'app/components/NotFoundAppFrame.tsx',
+    'app/components/SiteChrome.tsx',
   ])('links no third-party stylesheet from %s', (file) => {
     const source = readFileSync(join(process.cwd(), file), 'utf8')
     const sheets = source.match(/<link[^>]*rel="stylesheet"[^>]*>/g) ?? []

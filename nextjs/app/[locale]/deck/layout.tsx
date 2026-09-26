@@ -1,37 +1,3 @@
-import { notFound } from 'next/navigation';
-import { hasLocale } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
-import { routing } from '@/i18n/routing';
-import { AuthProvider, LoginModalProvider } from '@/lib/auth';
-import SiteNav from '@/app/components/SiteNav';
-import BurgerDrawer from '@/app/components/BurgerDrawer';
-import SiteFooter from '@/app/components/SiteFooter';
-import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
+import { siteLayout } from '@/app/components/SiteChrome';
 
-/* Kein UserLocationProvider: das geteilte Deck fragt niemanden nach seinem
-   Standort. Der Anlass, hier zu landen, ist ein fremder Link — die erste
-   Handlung darf kein Systemdialog sein. */
-export default async function DeckLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  if (!hasLocale(routing.locales, locale)) notFound();
-  setRequestLocale(locale);
-
-  return (
-    <AuthProvider>
-      <LoginModalProvider>
-        <BridgeAuth />
-        <SiteNav />
-        <BurgerDrawer />
-        <span id="main-content" tabIndex={-1} />
-        {children}
-        <SiteFooter />
-      </LoginModalProvider>
-    </AuthProvider>
-  );
-}
+export default siteLayout({ location: false, remy: false });

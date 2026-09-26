@@ -166,10 +166,6 @@ const nextConfig: NextConfig = {
         headers: replaceableAssetHeaders,
       },
       {
-        source: '/fonts/:path*',
-        headers: immutableAssetHeaders,
-      },
-      {
         // Der Kartenstyle (siehe scripts/build-basemap-style.mts).
         // Die Middleware fasst ihn nicht an — ihr Matcher schliesst alles mit
         // Punkt im Pfad aus —, die CDN-Antwort bleibt also cachebar.

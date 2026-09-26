@@ -23,7 +23,7 @@ interface Props {
   /** Receives the picked value, or `null` for the reset row. */
   onSelect: (value: string | null) => void;
   onClose: () => void;
-  /** Anchor element so desktop renders as anchored popover (instead of bottom sheet). */
+  /** The chip that opened the picker — a click on it is not an outside click. */
   anchorEl?: HTMLElement | null;
   /** Desktop: die Liste klappt IN der Kopfzeile auf und schiebt die Ergebnisse
    *  nach unten, statt als Popover darüber zu schweben (User, 2026-08-27).
@@ -42,10 +42,9 @@ interface Props {
 
 /**
  * Mobile: full-width bottom sheet that slides up over the map list-sheet.
- * Desktop: small anchored popover beneath the chip that opened it.
+ * Desktop (`inline`): the list opens inside the header row.
  *
- * The same component handles both modes via `anchorEl`. CSS media-query
- * picks the right layout. Closes on outside-click and on Escape.
+ * Closes on Escape, on the backdrop (sheet) or on an outside click (inline).
  */
 export default function MapFilterPickerSheet({
   title,
@@ -59,11 +58,8 @@ export default function MapFilterPickerSheet({
   allSub,
   closeAriaLabel,
 }: Props) {
-  // Callback-ref into state so position + touchmove effects re-run the moment
-  // the sheet element actually attaches. The previous useState('mounted') +
-  // useRef pattern raced: effects ran on the first pass when the portal
-  // returned null, sheetRef.current was still null, and the position effect
-  // never re-ran after mounted flipped — leaving the desktop popover at 0,0.
+  // Callback-ref into state so the touchmove and focus effects re-run the
+  // moment the sheet element actually attaches.
   const [sheetEl, setSheetEl] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -167,39 +163,6 @@ export default function MapFilterPickerSheet({
       if (sheetEl.contains(document.activeElement)) opener.focus({ preventScroll: true });
     };
   }, [inline, sheetEl]);
-
-  // Desktop popover positioning relative to the anchor chip.
-  useEffect(() => {
-    if (inline || !sheetEl || !anchorEl) return;
-    const apply = () => {
-      const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
-      if (!isDesktop) {
-        sheetEl.style.removeProperty('--picker-anchor-top');
-        sheetEl.style.removeProperty('--picker-anchor-left');
-        return;
-      }
-      const rect = anchorEl.getBoundingClientRect();
-      // Clamp horizontally so the 280px popover never spills past the viewport
-      // edge — the filter chips live in the right-hand rail, so a left-aligned
-      // sheet would overflow the right edge for every chip but the first.
-      const margin = 12;
-      const sheetW = sheetEl.offsetWidth || 280;
-      const left = Math.max(margin, Math.min(rect.left, window.innerWidth - sheetW - margin));
-      sheetEl.style.setProperty('--picker-anchor-top', `${rect.bottom + 6}px`);
-      sheetEl.style.setProperty('--picker-anchor-left', `${left}px`);
-      sheetEl.style.setProperty(
-        '--picker-caret-left',
-        `${Math.max(22, Math.min(rect.left + rect.width / 2 - left, sheetW - 22))}px`
-      );
-    };
-    apply();
-    window.addEventListener('resize', apply);
-    window.addEventListener('scroll', apply, true);
-    return () => {
-      window.removeEventListener('resize', apply);
-      window.removeEventListener('scroll', apply, true);
-    };
-  }, [anchorEl, inline, sheetEl]);
 
   if (typeof document === 'undefined') return null;
 

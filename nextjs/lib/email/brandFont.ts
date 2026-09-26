@@ -16,7 +16,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-export const FONT_DIR = join(process.cwd(), 'assets', 'fonts');
+const FONT_DIR = join(process.cwd(), 'assets', 'fonts');
 
 /** Satori font name used by every brand-font surface. */
 export const BRAND_FONT_NAME = 'EatThisDisplay';

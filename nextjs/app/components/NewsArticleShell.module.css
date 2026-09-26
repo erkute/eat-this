@@ -7,7 +7,6 @@
 .page {
   --article-ink: var(--et-home-ink, #15120e);
   --article-fg: var(--et-home-inverse-text, #fff);
-  --article-red: var(--et-home-red, #d9382a);
   --article-accent: var(--et-home-accent, #ffc600);
   --article-paper: var(--et-home-paper, #fff);
   --article-muted: var(--et-ink-soft, rgba(255, 255, 255, 0.76));

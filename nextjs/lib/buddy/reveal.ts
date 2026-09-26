@@ -52,14 +52,14 @@
  * ein und ist 2–3 s nach Stromende aufgeholt; die Werkzeugpause mitten in der
  * Antwort leert ihn ohnehin. Ein 4000-Zeichen-Schub fährt mit ~2000 los.
  */
-export const REVEAL_MAX_CPS = 100;
-export const REVEAL_END_MAX_CPS = 140;
-export const REVEAL_RELIEF_FROM = 300;
-export const REVEAL_RELIEF_CPS_PER_CHAR = 0.5;
-export const REVEAL_TAU_MS = 400;
-export const REVEAL_PACE_TAU_MS = 200;
-export const REVEAL_END_TAU_MS = 160;
-export const REVEAL_FLOOR_CPS = 25;
+const REVEAL_MAX_CPS = 100;
+const REVEAL_END_MAX_CPS = 140;
+const REVEAL_RELIEF_FROM = 300;
+const REVEAL_RELIEF_CPS_PER_CHAR = 0.5;
+const REVEAL_TAU_MS = 400;
+const REVEAL_PACE_TAU_MS = 200;
+const REVEAL_END_TAU_MS = 160;
+const REVEAL_FLOOR_CPS = 25;
 /** Ein Bild bei 60 fps — was ein ungültiger Takt zählt. */
 export const FRAME_MS = 1000 / 60;
 
@@ -207,7 +207,7 @@ export function closeOpenEmphasis(text: string): string {
  * Eingeschwungen legt sie ~9 % des Abstands pro 60-fps-Bild zurück; weil der
  * Weg an der verstrichenen Zeit hängt, gilt das bei jeder Framerate.
  */
-export const STICK_SPRING = { damping: 0.7, stiffness: 0.05, mass: 1.25 } as const;
+const STICK_SPRING = { damping: 0.7, stiffness: 0.05, mass: 1.25 } as const;
 
 export function stickStep(
   velocity: number,
@@ -215,7 +215,8 @@ export function stickStep(
   dtMs: number = FRAME_MS
 ): { velocity: number; move: number } {
   const dt = Number.isFinite(dtMs) && dtMs > 0 ? dtMs : FRAME_MS;
-  const v = (STICK_SPRING.damping * velocity + STICK_SPRING.stiffness * distance) / STICK_SPRING.mass;
+  const v =
+    (STICK_SPRING.damping * velocity + STICK_SPRING.stiffness * distance) / STICK_SPRING.mass;
   // Nie übers Ziel: ein langer Takt (2 fps, Hintergrund-Tab) landet genau unten.
   const move = distance > 0 ? Math.min(distance, (v * dt) / FRAME_MS) : distance;
   return { velocity: v, move };

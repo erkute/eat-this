@@ -1320,23 +1320,17 @@ export default function MapSection({
         });
         return;
       }
-      const isLocked = !unlockedIds.has(m._id);
-      const open = () => {
-        setSelectedMustEat(m);
-        setSheetView('detail');
-        // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
-        pendingDetailSnapRef.current = 'full';
-        if (isMobile) setSnap('full');
-        mapRef.current?.flyTo({
-          center: [m.restaurant.lng, m.restaurant.lat],
-          zoom: 15,
-          duration: 500,
-          padding: getFlyPadding(isMobile ? 'full' : undefined),
-        });
-      };
-      // Let the back-card wiggle animation play before the detail modal covers it.
-      if (isLocked) setTimeout(open, 420);
-      else open();
+      setSelectedMustEat(m);
+      setSheetView('detail');
+      // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
+      pendingDetailSnapRef.current = 'full';
+      if (isMobile) setSnap('full');
+      mapRef.current?.flyTo({
+        center: [m.restaurant.lng, m.restaurant.lat],
+        zoom: 15,
+        duration: 500,
+        padding: getFlyPadding(isMobile ? 'full' : undefined),
+      });
     },
     [
       unlockedIds,

@@ -37,7 +37,7 @@ export interface DailyDoc {
   events?: Record<string, number>;
 }
 
-export interface DayPoint {
+interface DayPoint {
   day: string;
   pageviews: number;
   visitors: number;
@@ -45,12 +45,12 @@ export interface DayPoint {
 
 /** Alle Ereignisse eines Tages — damit das Brett jede Reihe zeichnen kann,
  *  nicht nur die, die beim Bauen wichtig schienen. */
-export interface EventDay {
+interface EventDay {
   day: string;
   counts: Record<string, number>;
 }
 
-export interface Entry {
+interface Entry {
   key: string;
   count: number;
 }
@@ -82,7 +82,7 @@ export interface Mover {
   diff: number;
 }
 
-export interface Weekday {
+interface Weekday {
   /** 0 = Sonntag, wie Date.getUTCDay(). */
   index: number;
   visitors: number;
@@ -90,7 +90,7 @@ export interface Weekday {
   days: number;
 }
 
-export interface FunnelStep {
+interface FunnelStep {
   key: string;
   count: number;
   /** Anteil an den Besuchern des Zeitraums (0–1) — der einzige Nenner, der
@@ -115,7 +115,7 @@ export interface FunnelStage {
  * eine Quote „je Vorstufe" für jeden Schritt hätte Werte wie 4.500 %
  * produziert (siehe `view_item`, das je Pack-Angebot feuert).
  */
-export interface FunnelRate {
+interface FunnelRate {
   key: string;
   from: string;
   to: string;
@@ -207,7 +207,7 @@ export interface PeopleFunnel {
   buyers: number;
 }
 
-export interface AccountsDay {
+interface AccountsDay {
   day: string;
   newAccounts: number;
   starterPacks: number;
@@ -218,7 +218,7 @@ export interface AccountsDay {
   revenueCents: number;
 }
 
-export interface PackSales {
+interface PackSales {
   packId: string;
   name: string;
   count: number;
@@ -258,7 +258,7 @@ export interface Accounts {
   byDay: AccountsDay[];
 }
 
-export interface DeckCategory {
+interface DeckCategory {
   slug: string;
   name: string;
   cards: number;
@@ -315,7 +315,7 @@ export interface DaySummary {
  * und jeden Besucher zum Nicht-Antworter — darum faellt er raus, obwohl er die
  * Felder traegt.
  */
-export const FULL_DAY_FIELDS_SINCE = '2026-08-29';
+const FULL_DAY_FIELDS_SINCE = '2026-08-29';
 
 export interface StatsSummary {
   /** Das gewählte Fenster. `includesToday` sagt, ob der laufende Tag drinliegt. */

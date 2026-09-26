@@ -42,21 +42,21 @@ interface RawNewsArticle {
   sources?: unknown;
 }
 
-export interface PortableTextSpan {
+interface PortableTextSpan {
   _key: string;
   _type: 'span';
   marks: string[];
   text: string;
 }
 
-export interface PortableTextMarkDefinition {
+interface PortableTextMarkDefinition {
   _key: string;
   _type: 'link';
   blank: true;
   href: string;
 }
 
-export interface GeneratedPortableTextBlock {
+interface GeneratedPortableTextBlock {
   _key: string;
   _type: 'block';
   children: PortableTextSpan[];

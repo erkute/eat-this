@@ -52,11 +52,9 @@ const GLOBAL_JSON_LD = {
 
 export default async function LocaleLayout({
   children,
-  modal,
   params,
 }: {
   children: React.ReactNode;
-  modal: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
@@ -109,9 +107,9 @@ export default async function LocaleLayout({
               Anmeldung begann — hier geht die Bestätigung auf. Vor
               AnalyticsPageViews: sie räumt Code und Adresse aus der URL. */}
           <EmailLinkSignIn />
-          {/* Zentrale Info-Karte (lib/notice.ts) — mounted here, not in the
-              SPA layout, so /profile and /login get feedback too. Styled in
-              globals.css (those routes don't load the SPA stylesheet). */}
+          {/* Zentrale Info-Karte (lib/notice.ts) — hier und nicht im
+              SPA-Layout, damit sie auf jeder Locale-Route erscheint. Styles in
+              globals.css, weil /checkout und /admin style.css nicht laden. */}
           <NotificationToast />
           <ScrollRestorer />
           <AnalyticsPageViews />
@@ -124,7 +122,6 @@ export default async function LocaleLayout({
               zieht seine Texte über next-intl. Styles dazu in globals.css. */}
           <CookieConsent />
           {children}
-          {modal}
         </ClientIntlProvider>
       </body>
     </html>

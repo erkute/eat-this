@@ -3,6 +3,7 @@ import MustEatsGallery from './MustEatsGallery';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import SiteFooter from './SiteFooter';
 import styles from './MustEatsSection.module.css';
+import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
 interface Props {
   initialMapData: InitialMustEatsData;
@@ -124,8 +125,17 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         <div className={styles.heroDeck} aria-hidden="true">
           {heroCards.map((m, index) => (
             <div key={m._id} className={`${styles.heroCard} ${styles[`heroCard${index + 1}`]}`}>
+              {/* Daumennagel statt Original: der Faecher ist am Telefon ~150 px,
+                  am Desktop ~270 px breit (gemessen 26.09.2026). */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={m.image ?? CARD_BACK} alt="" loading={index === 0 ? 'eager' : 'lazy'} />
+              <img
+                key={m.image ?? 'back'}
+                sizes="(max-width: 759px) 150px, 270px"
+                srcSet={mustEatCardSrcSet(m.image)}
+                src={mustEatCardSrc(m.image, 360) ?? CARD_BACK}
+                alt=""
+                loading={index === 0 ? 'eager' : 'lazy'}
+              />
             </div>
           ))}
         </div>

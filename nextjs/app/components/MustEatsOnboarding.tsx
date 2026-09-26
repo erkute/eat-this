@@ -10,6 +10,7 @@ import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import styles from './MustEatsOnboarding.module.css';
 import tour from './Tour.module.css';
+import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 // Slide 3 replaces the demo card with the pack art — the thing that brings new
@@ -196,8 +197,19 @@ export default function MustEatsOnboarding({
       data-testid="onb-flipper"
       className={showBack ? `${tour.flipper} ${tour.flipped}` : tour.flipper}
     >
+      {/* 242 px breit — am Retina-Bildschirm dieselbe 720er, die das Raster
+          darunter schon geladen hat, statt eines zweiten Originals. Eigener
+          `key` je Motiv: sonst schreibt React das vorhandene <img> um, und
+          Safari laedt dabei zwei Varianten (siehe ProfileAlbum.tsx). */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className={tour.face} src={demo?.image ?? CARD_BACK} alt={demo?.dish ?? ''} />
+      <img
+        key={demo?.image ?? 'back'}
+        className={tour.face}
+        sizes="242px"
+        srcSet={mustEatCardSrcSet(demo?.image)}
+        src={mustEatCardSrc(demo?.image, 360) ?? CARD_BACK}
+        alt={demo?.dish ?? ''}
+      />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className={`${tour.face} ${tour.back}`} src={CARD_BACK} alt="" aria-hidden="true" />
     </div>

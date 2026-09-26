@@ -28,7 +28,7 @@ import { describe, expect, it } from 'vitest';
 
 const CONTROLS = 'MapControls.module.css';
 const FILTERS = 'MapFilters.module.css';
-const DETAILS = 'MapDetails.module.css';
+const DETAILS = 'RestaurantDetail.module.css';
 
 function cssRoot(moduleName: string) {
   return postcss.parse(
@@ -253,11 +253,11 @@ function groupedDeclarationServes(
   return serves;
 }
 
-describe('MapDetails cascade', () => {
-  /* Three declarations in this file are reported dead by
+describe('RestaurantDetail cascade', () => {
+  /* Declarations in this file that are reported dead by
    * scripts/audit-css-cascade.mjs and are NOT: each is shared by several
    * classes and only overridden later for some of them. A bulk prune deletes
-   * all three. Each case below names the class that has no other source for the
+   * them. Each case below names the class that has no other source for the
    * value, which is what makes the declaration load-bearing.
    *
    * scripts/cascade/triage.mjs is the tool that tells these apart — it asks
@@ -271,21 +271,10 @@ describe('MapDetails cascade', () => {
       'rdHeartToggle',
       'the reset after it only covers .rdCloseGlass',
     ],
-    // .fdClose is deliberately NOT pinned here: it declares its own width
-    // earlier in the file, so the grouped one is not its only source.
-    ['width', '36px', 'rdCloseGlass', 'only .rdHeartToggle gets a later width in that context'],
-    [
-      'background',
-      '#fff',
-      'rdPager',
-      'the later transparent only covers .rdFacts and .rdMustSection',
-    ],
-    [
-      'background',
-      '#fff',
-      'packPromo',
-      'the later transparent only covers .rdFacts and .rdMustSection',
-    ],
+    /* Here stood three more: `width: 36px` for .rdCloseGlass and
+       `background: #fff` for .rdPager and .packPromo. The Ink layers at the
+       end of the file re-declare all three under the identical selector, so
+       they became dead for every class after all and went out (26.09.2026). */
   ];
 
   for (const [prop, fragment, className, why] of KEEPS) {

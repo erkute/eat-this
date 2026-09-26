@@ -1,4 +1,6 @@
-// MapDetails sweep — read sweep-controls.js's header first for the timing traps.
+// Map sheet detail sweep (RestaurantDetail, MustEatDetail and MapSheetDetail
+// modules, until 26.09.2026 one file: MapDetails.module.css) — read
+// sweep-controls.js's header first for the timing traps.
 //
 // Three things are specific to this module:
 //   1. It is the only map module with HEIGHT-gated rules (max-height 740/760,
@@ -15,7 +17,7 @@
 // It does NOT hover anything — see hover-details.js for the pseudo-class pass.
 
 async (page) => {
-  const PREFIX = "MapDetails_";
+  const PREFIX = "(?:RestaurantDetail|MustEatDetail|MapSheetDetail)_";
   const PROPS = ["--d-bg","--d-hero-accent","--d-hero-bg","--d-hero-text","--d-ink","--d-rule","--d-text","--d-text-2","--d-text-3","--fd-card-h","--fd-stack-offset","--fd-stack-pad-x","--fd-stack-pad-y","--fd-title-size","--me-accent","--me-card-air","--me-card-gap","--me-card-h","--me-card-ratio","--me-card-w","--me-content-gap","--me-flow-gap","--me-footer-gap","--me-ink","--me-mid-slot","--me-muted","--me-name-copy-gap","--me-name-slot","--me-pager-slot","--me-paper","--me-rest-slot","--me-soft","--vibrate-duration","-webkit-box-orient","-webkit-line-clamp","align-items","align-self","aspect-ratio","background","border","bottom","color","column-gap","content","display","filter","flex","font","font-family","font-size","font-style","font-weight","gap","grid-auto-rows","grid-column","grid-row","grid-template-columns","grid-template-rows","height","hyphens","inset","justify-content","justify-items","justify-self","left","letter-spacing","line-clamp","line-height","margin","margin-top","max-height","max-width","min-height","min-width","opacity","overflow","overflow-wrap","overflow-x","overflow-y","padding","place-self","position","right","row-gap","text-align","text-transform","text-wrap","top","transform","visibility","white-space","width","word-break","z-index"];
   // width x height pairs: MapDetails is the only map module with HEIGHT-gated
   // rules (max-height 740/760, min-height 741), so both axes have to move.
@@ -55,7 +57,7 @@ async (page) => {
     for (const h of [...hashed].sort()) {
       const el = document.querySelector("." + CSS.escape(h));
       if (!el) continue;
-      targets.push({ cls: h.slice(prefix.length).replace(/__.*$/, ""), el });
+      targets.push({ cls: h.replace(/^[A-Za-z]+_/, "").replace(/__.*$/, ""), el });
     }
 
     const before = {

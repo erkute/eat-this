@@ -1,0 +1,131 @@
+/* Der Mount im Map-Sheet, in dem Restaurant- und Must-Eat-Detail sitzen
+   (MapSheetDetail.tsx). Die Details selbst stehen in RestaurantDetail.module.css
+   und MustEatDetail.module.css; hier nur, was den Rahmen um sie betrifft.
+
+   Restaurant detail in-sheet: own scroll. Mounted via .detailMount in
+   MapSectionBody (overflow:hidden flex column). */
+.detailMount {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Lock to vertical only — block any horizontal swipe gesture that could
+     pan the sheet sideways or hand-off to the OS back-swipe. */
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+/* Cap the mount to the *visible* sheet slice on mobile so the inner
+   scroller's height matches what the user can actually see. Without this
+   the aside extends past the viewport (its height is the full body grid
+   cell, only translated down), and the scroller — a flex:1 child — uses
+   that full height as its scroll-port. Result: max scrollTop equals
+   (content - full-aside-height) which lets the user only reach a fraction
+   of the body at mid-snap. Capping at --sheet-visible-px makes the
+   scroll-port equal to the visible slice, so the user can read everything
+   at any snap. */
+@media (max-width: 1023.98px) {
+  .detailMount {
+    /* Keyed to --sheet-y for live tracking during drag (see .listScroll).
+       + overhang: the detail scroll-port extends into the URL-bar zone;
+       the detail's .scroll bottom padding compensates. */
+    max-height: calc(100dvh - var(--sheet-y, 0px) - 24px + var(--map-bar-overhang, 0px));
+  }
+  /* Must-Eat-Detail: KEIN URL-Bar-Apron. Das Layout ist fix (Karte + Text,
+     kein Scrollen) — der Overhang stünde als toter Weißraum unterm Pager
+     (Screenshots User 2026-06-11). Mount endet an der sichtbaren
+     Viewport-Unterkante; 36px = Detail-Handle überm Mount. */
+  .detailMountMustEat {
+    max-height: calc(100dvh - var(--sheet-y, 0px) - 36px);
+  }
+}
+/* ══════════════════════════════════════════════════════════════════════
+   IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow
+   content that OVERLAYS a sticky full-screen map, so its rows composite into
+   iOS Safari's translucent bottom URL bar ("frosting" — proven on device in
+   spike #127; the drag-sheet cannot do this, see revert #129). The map is a
+   position:sticky 100dvh background; the list is pulled up over its lower
+   part (peek) and rises over it as the window scrolls — the Google-Maps
+   sheet feel, driven by scroll instead of drag. useBottomSheet is inert for
+   the phone list view (SheetConfig.inflow) so no touchmove preventDefault
+   swallows the window scroll. The DETAIL view stays a fixed drag-sheet with
+   the full snap/dismiss behavior. Appended last + scoped ≤767.98px so it
+   wins over the ≤1023.98px sheet rules without touching tablet or desktop.
+   Snap→scroll anchors live in MapSection (scrollListToAnchor).
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 767.98px) {
+  /* Open the inner detail ports — the WINDOW scrolls the content now (an
+     inner overflow:auto would re-break the frosting). This later phone-only
+     block resets the ≤1023.98px --sheet-y-keyed caps by source order.
+     overflow-x: clip (NOT visible) contains the pager's translateX preview:
+     the fixed drag-sheet's overflow:hidden used to clip it, but in-flow the
+     whole hero shifted sideways past the viewport edge and the document
+     went horizontally scrollable ("das Bild lässt sich nach links/rechts
+     bewegen", User 2026-07-04). clip + overflow-y:visible is a valid pair
+     that clips horizontally while the vertical content still flows into the
+     window scroll (frosting intact). The gallery keeps its own overflow-x
+     auto for internal scrolling. */
+  .detailMount {
+    max-height: none;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+  [data-map-sheet][data-view='detail'] .detailMountMustEat {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+}
+/* Phone restaurant detail must be real document flow, like the restaurant
+   list. If any older sheet rule leaves the detail as a flex/auto scroll-port,
+   iOS Safari samples the page background instead of the detail surface behind
+   the translucent bottom URL bar. Keep Must-Eat detail out of this: it owns a
+   fixed card/pager composition above. */
+@media (max-width: 767.98px) {
+  [data-map-sheet][data-view='detail'] .detailMount {
+    display: block;
+    flex: none;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow-x: clip;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: auto;
+    min-height: calc(100dvh - var(--detail-map-peek, 190px) + var(--map-bar-overhang, 0px));
+  }
+
+  /* `overflow: visible` als Kurzform stand hier einmal und hat die x-Achse der
+     Regel weiter oben mitgerissen. Das Blaettern schiebt den Hero per
+     translateX um eine volle Viewport-Breite — ohne Klemme in x wuchs damit
+     das DOKUMENT auf 750px (gemessen bei 375px Viewport), und mit ihm die
+     Layout-Viewport-Breite: `innerWidth` sprang 375 -> 750, iOS Safari zog die
+     Seite auf Bildschirmbreite zusammen und beim Loslassen wieder auf. Genau
+     das "klein ziehen und wieder gross werden" waehrend des Wisches. Die
+     y-Achse bleibt `visible` — der Telefon-Detailfluss ist Absicht (siehe
+     Kommentar am Blockanfang), nur `clip` in x hält den Fluss und macht keinen
+     Scroll-Container auf (anders als `hidden`). */
+
+  [data-map-sheet][data-view='detail'] .detailMount:not(.detailMountMustEat) {
+    width: auto;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+}
+@media (min-width: 700px) and (max-width: 1023.98px) {
+  [data-map-shell][data-map-view='detail']
+    [data-map-body][data-map-view='detail']
+    [data-map-sheet][data-detail-kind='must-eat']
+    .detailMountMustEat,
+  [data-map-sheet][data-detail-kind='must-eat'] .detailMountMustEat {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+}
+[data-map-sheet][data-view='detail'] .detailMount {
+  background: var(--et-ink);
+}

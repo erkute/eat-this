@@ -7,7 +7,7 @@ const cssPath = fileURLToPath(new URL('./GuideCrossLinks.module.css', import.met
 const root = postcss.parse(readFileSync(cssPath, 'utf8'), { from: cssPath });
 
 /** Letzter gewinnender Wert einer Eigenschaft für einen Selektor, Media-Blöcke
- *  eingeschlossen — dasselbe Instrument wie in MapDetails.styles.test.ts. */
+ *  eingeschlossen — dasselbe Instrument wie in MapSheetDetail.styles.test.ts. */
 function effective(selectorPart: string, prop: string): string | undefined {
   let winner: string | undefined;
   root.walkRules((rule: Rule) => {

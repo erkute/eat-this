@@ -787,6 +787,33 @@ export default function MapSection({
     if (fresh && fresh !== selectedRestaurant) setSelectedRestaurant(fresh);
   }, [restaurants, selectedRestaurant]);
 
+  /* A detail opening over the list: note where it came from, so closing it
+     can hand back exactly that — the list at the tapped row (its scroll
+     offset, and where on screen the row sat), or the map with the camera the
+     marker tap interrupted, and the desktop panel folded as it was. Read
+     before the view switches and the list's content element unmounts. Phones
+     scroll the window (in-flow list), tablets and desktop the panel's port.
+     `rowId` is the row the detail belongs to; null when there is none to come
+     back to (a marker tap). */
+  const rememberListOrigin = useCallback(
+    (origin: DetailOrigin, rowId: string | null) => {
+      detailOriginRef.current = origin;
+      panelHiddenBeforeDetailRef.current = desktopPanelHidden;
+      /* The camera as the user left it, before any open-fly or the phone
+         canvas resize moves it. */
+      rememberCamera(origin === 'map');
+      listScrollRef.current = isPhoneViewport()
+        ? window.scrollY
+        : (contentRef.current?.scrollTop ?? 0);
+      const row = rowId ? document.querySelector<HTMLElement>(`[data-list-row="${rowId}"]`) : null;
+      listRowTopRef.current = row
+        ? row.getBoundingClientRect().top -
+          (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
+        : null;
+    },
+    [desktopPanelHidden, rememberCamera, contentRef]
+  );
+
   const handleRestaurantClick = useCallback(
     (r: MapRestaurant, origin: DetailOrigin = 'list') => {
       if (mapTapOnlyDismisses(origin)) {
@@ -799,19 +826,7 @@ export default function MapSection({
          first sorts it around the spot (see handleMapMoveEnd). */
       if (origin === 'map') listFollowsMapRef.current = true;
       if (sheetView === 'list') {
-        detailOriginRef.current = origin;
-        panelHiddenBeforeDetailRef.current = desktopPanelHidden;
-        /* The camera as the user left it, before any open-fly or the phone
-           canvas resize moves it. */
-        rememberCamera(origin === 'map');
-        const row =
-          origin === 'list' && typeof document !== 'undefined'
-            ? document.querySelector<HTMLElement>(`[data-list-row="${r._id}"]`)
-            : null;
-        listRowTopRef.current = row
-          ? row.getBoundingClientRect().top -
-            (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
-          : null;
+        rememberListOrigin(origin, origin === 'list' ? r._id : null);
         /* Deep in the list its top edge is far above the screen; the sticky
            bar then stands at the strip line, and so shall the detail's. */
         const sheet = sheetElRef.current;
@@ -833,14 +848,6 @@ export default function MapSection({
       prefetchRestaurantDetail(r.slug);
       const isMobile = isSheetViewport();
       const isPhone = isPhoneViewport();
-      // Capture the list scroll *before* the view switches and the content
-      // element unmounts — useLayoutEffect on return restores it. Phones
-      // scroll the window (in-flow list), tablets the inner port.
-      if (sheetView === 'list') {
-        listScrollRef.current = isPhoneViewport()
-          ? window.scrollY
-          : (contentRef.current?.scrollTop ?? 0);
-      }
       // Freeze the list the user is browsing before the query is cleared —
       // the pager walks this snapshot, not the refilled full list.
       setPagerList(listRestaurantsRef.current);
@@ -880,7 +887,7 @@ export default function MapSection({
     [
       mapTapOnlyDismisses,
       collapseSheetToPeek,
-      rememberCamera,
+      rememberListOrigin,
       flyToSpot,
       getFlyPadding,
       pinTapFlyPadding,
@@ -889,10 +896,8 @@ export default function MapSection({
       setSheetView,
       setSnap,
       sheetView,
-      contentRef,
       sheetElRef,
       displayedRestaurants.length,
-      desktopPanelHidden,
     ]
   );
 
@@ -1007,42 +1012,17 @@ export default function MapSection({
         unlocked: unlockedIds.has(m._id),
       });
       const isMobile = isSheetViewport();
-      // Capture the list scroll before the view switches (mirrors handleRestaurantClick).
-      if (sheetView === 'list') {
-        listScrollRef.current = isPhoneViewport()
-          ? window.scrollY
-          : (contentRef.current?.scrollTop ?? 0);
-        /* A must-eat opens from a list row's peek — closing it lands on the
-           row of the restaurant the dish belongs to. */
-        detailOriginRef.current = 'list';
-        panelHiddenBeforeDetailRef.current = desktopPanelHidden;
-        rememberCamera(false);
-        const row =
-          typeof document !== 'undefined'
-            ? document.querySelector<HTMLElement>(`[data-list-row="${m.restaurant._id}"]`)
-            : null;
-        listRowTopRef.current = row
-          ? row.getBoundingClientRect().top -
-            (isPhoneViewport() ? 0 : (contentRef.current?.getBoundingClientRect().top ?? 0))
-          : null;
-      }
+      /* A must-eat opens from a list row's peek — closing it lands on the
+         row of the restaurant the dish belongs to. */
+      if (sheetView === 'list') rememberListOrigin('list', m.restaurant._id);
       // Selecting a search result accepts it — clear the query so the list
       // shows the full result set again when the user returns to it.
       setSearch('');
       setSearchOpen(false);
-      // Coming from a restaurant detail (mobile sheet OR desktop floating modal)
-      // → open the must-eat detail, fly to the must-eat. Same flow on both
-      // platforms.
-      if (selectedRestaurant) {
-        setSelectedRestaurant(null);
-        setSelectedMustEat(m);
-        setSheetView('detail');
-        // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
-        pendingDetailSnapRef.current = 'full';
-        if (isMobile) setSnap('full');
-        flyToSpot(m.restaurant, { duration: 500, padding: detailFlyPadding() });
-        return;
-      }
+      // Coming from a restaurant detail (mobile sheet OR desktop panel), the
+      // must-eat detail takes its place; otherwise it opens over the list.
+      // Either way: open it and fly to the must-eat.
+      if (selectedRestaurant) setSelectedRestaurant(null);
       setSelectedMustEat(m);
       setSheetView('detail');
       // Must-Eat-Detail Mobile = viewport-füllend → immer full snap.
@@ -1052,7 +1032,7 @@ export default function MapSection({
     },
     [
       unlockedIds,
-      rememberCamera,
+      rememberListOrigin,
       flyToSpot,
       detailFlyPadding,
       selectedRestaurant,
@@ -1060,8 +1040,6 @@ export default function MapSection({
       setSheetView,
       setSnap,
       sheetView,
-      contentRef,
-      desktopPanelHidden,
     ]
   );
 

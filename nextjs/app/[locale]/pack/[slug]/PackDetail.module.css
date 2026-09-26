@@ -18,8 +18,8 @@
   display: flow-root;
   min-height: 100svh;
   overflow-x: clip;
-  padding: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px))
-    var(--et-wrap-pad-mobile) clamp(48px, 7vw, 96px);
+  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) var(--et-wrap-pad-mobile)
+    clamp(48px, 7vw, 96px);
   background: var(--pack-ink);
   color: var(--pack-fg);
   font-family: var(--et-font-display);

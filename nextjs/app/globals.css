@@ -1434,14 +1434,18 @@ ol {
   }
   /* Natural window scroll so Safari URL bar auto-hides on scroll. */
   .app-pages {
-    /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px).
+    /* Navbar height incl. safe-area-inset-top (notch/Dynamic Island ~47px):
+       64px up to 520px, 78px above. A flat 64px left the top 14px of every
+       page under the 78px bar between 521 and 767px — on /must-eats it cut
+       the corners off the card fan.
        Padding, not margin: body has no overflow here (see above, Safari URL
        bar), so a top margin collapses out through body — and the moment the
        consent gate sets `overflow: hidden` on body it stops collapsing, the
-       body box jumps up by these 64px and Chrome books it as a 0.08 layout
-       shift. Padding never collapses, so the box stays put. `.app-pages` is
-       transparent and the fixed navbar covers the strip: same picture. */
-    padding-top: calc(64px + env(safe-area-inset-top, 0px));
+       body box jumps up by the navbar height and Chrome books it as a 0.08
+       layout shift. Padding never collapses, so the box stays put.
+       `.app-pages` is transparent and the fixed navbar covers the strip: same
+       picture. */
+    padding-top: var(--site-nav-h);
     height: auto;
     overflow: visible;
   }

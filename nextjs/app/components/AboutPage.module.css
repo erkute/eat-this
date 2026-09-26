@@ -24,7 +24,7 @@
   min-height: calc(100vh - 64px);
   min-height: calc(100dvh - 64px);
   /* Kein safe-area-inset hier: `.app-pages` reserviert unter 768px bereits
-     `64px + env(safe-area-inset-top)` für die fixe SiteNav (globals.css).
+     `--site-nav-h` (inkl. safe-area-inset-top) für die fixe SiteNav (globals.css).
      Ein zweiter Inset schob den Kicker auf Notch-Geräten um weitere ~59px
      nach unten. */
   padding: 24px clamp(18px, 4vw, 54px) 0;

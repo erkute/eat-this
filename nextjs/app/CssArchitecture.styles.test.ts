@@ -8,7 +8,7 @@ import { auditCssModules, formatFinding } from '../scripts/lib/css-module-classe
 const appDir = fileURLToPath(new URL('./', import.meta.url));
 const nextDir = resolve(appDir, '..');
 const globalsPath = resolve(appDir, 'globals.css');
-const stylePath = resolve(nextDir, 'css/style.css');
+const burgerPath = resolve(appDir, 'components/BurgerDrawer.module.css');
 const siteNavPath = resolve(appDir, 'components/SiteNav.module.css');
 const siteNavComponentPath = resolve(appDir, 'components/SiteNav.tsx');
 const siteFooterPath = resolve(appDir, 'components/SiteFooter.tsx');
@@ -86,7 +86,7 @@ describe('CSS architecture contracts', () => {
   it('allows !important only for the documented reduced-motion override', () => {
     const important: string[] = [];
 
-    for (const path of [...cssFiles(appDir), stylePath]) {
+    for (const path of cssFiles(appDir)) {
       const root = postcss.parse(readFileSync(path, 'utf8'), { from: path });
       root.walkDecls((declaration) => {
         if (!declaration.important || declaration.parent?.type !== 'rule') return;
@@ -115,7 +115,10 @@ describe('CSS architecture contracts', () => {
     const root = postcss.parse(readFileSync(globalsPath, 'utf8'), { from: globalsPath });
     const html = declarationsFor(root, 'html');
     const body = declarationsFor(root, 'body');
-    const burger = declarationsFor(root, '.burger-drawer[hidden]');
+    const burger = declarationsFor(
+      postcss.parse(readFileSync(burgerPath, 'utf8'), { from: burgerPath }),
+      '.drawer[hidden]'
+    );
     const mapPage = declarationsFor(root, ".app-page[data-page='map']");
     const noticeLayer = declarationsFor(root, '.notification-layer');
     const noticeLayerOpen = declarationsFor(root, '.notification-layer[data-open]');
@@ -142,7 +145,7 @@ describe('CSS architecture contracts', () => {
     expect(noticeLayerOpen.get('bottom')).toBeUndefined();
     expect(noticeLayerScrim.get('inset')).toEqual(['0']);
 
-    expect(readFileSync(stylePath, 'utf8')).toContain('.app-page:has([data-site-footer])');
+    expect(source).toContain('.app-page:has([data-site-footer])');
     expect(readFileSync(siteFooterPath, 'utf8')).toContain('data-site-footer');
   });
 
@@ -150,13 +153,13 @@ describe('CSS architecture contracts', () => {
     const legacyNavigationSelectors: string[] = [];
     const generatedClassSelectors: string[] = [];
 
-    for (const path of [...cssFiles(appDir), stylePath]) {
+    for (const path of cssFiles(appDir)) {
       const root = postcss.parse(readFileSync(path, 'utf8'), { from: path });
       root.walkRules((rule) => {
         if (rule.selector.includes('[class*='))
           generatedClassSelectors.push(`${sourceName(path)}: ${rule.selector}`);
         if (
-          (path === globalsPath || path === stylePath) &&
+          path === globalsPath &&
           postcss.list
             .comma(rule.selector)
             .some((selector) => /\.(?:navbar(?:[-_]|\b)|burger-btn\b)/.test(selector))

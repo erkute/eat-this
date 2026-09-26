@@ -306,7 +306,7 @@
    13px, 11/18 Polster, 7px Radius — aber in Markengelb statt Schwarz: auf
    dieser Seite ist Gelb die Farbe der Map (siehe `.promo`), und Schwarz wäre
    der dritte dunkle Block unter einem dunklen Foto. Die Werte stehen hier
-   nachgebaut statt geteilt, weil `.hv-btn` in style.css auf `.homeV2` hängt
+   nachgebaut statt geteilt, weil `.hv-btn` in globals.css auf `.homeV2` hängt
    und nur auf der Startseite gilt. */
 .band {
   display: inline-flex;

@@ -1,6 +1,6 @@
 /* Profile — the home's page, logged in.
    Layout only: the element vocabulary (hv-wrap/-section/-head/-title/-rail/
-   -photo/-btn) comes from the homeV2 block in css/style.css, so the two pages
+   -photo/-btn) comes from the homeV2 block in globals.css, so the two pages
    stay one system instead of two that resemble each other.
    Seit 03.09.2026 auf demselben durchgehenden Ink-Grund wie die Startseite:
    `--profile-ink` bleibt die dunkle Farbe und ist der GRUND, `--profile-fg`
@@ -38,9 +38,9 @@
     clamp(56px, 8vw, 104px);
 }
 
-/* Grund und Schrift mit dem Element qualifiziert: `.homeV2` (css/style.css)
-   malt Papier mit demselben Rang (0,1,0), und in Produktion laedt das
-   Stylesheet NACH den Modulen — mit `.page` allein gewaenne dort das Weiss. */
+/* Grund und Schrift mit dem Element qualifiziert: `.homeV2` (globals.css)
+   malt Papier mit demselben Rang (0,1,0) — der Rang entscheidet, nicht die
+   Ladereihenfolge. */
 main.page {
   color: var(--profile-fg);
   background: var(--profile-ink);
@@ -99,18 +99,13 @@ main.page:has(.foot) {
    Ink-Bank. `hv-section` bringt 115 px Abstand mit, gedacht als Luft ZWISCHEN
    zwei Abschnitten; ueber dem ersten kamen sie zu den 96 px Kopfpolster der
    Seite dazu, und die Spielerkarte fing bei 211 px an. Element-qualifiziert,
-   weil `.homeV2 .hv-section` (css/style.css) denselben Rang hat und in
-   Produktion NACH den Modulen laedt. */
+   weil `.homeV2 .hv-section` (globals.css) denselben Rang hat. */
 main.page .firstSection {
   margin-top: clamp(8px, 1.4vw, 18px);
 }
 
-/* hv-head/hv-wrap/hv-rail are two-class selectors (.homeV2 .hv-*). Matching
-   that weight with `.page .foo` is NOT enough: at equal specificity the later
-   stylesheet wins, and the order differs between dev and production — in the
-   production build style.min.css loads AFTER the CSS modules, so the shared
-   vocabulary silently won and these overrides computed to nothing. Qualifying
-   with the element (main.page = 0,2,1) beats 0,2,0 whatever the order. */
+/* hv-head/hv-wrap/hv-rail are two-class selectors (.homeV2 .hv-*). Qualifying
+   with the element (main.page = 0,2,1) beats 0,2,0 whatever the load order. */
 main.page .head {
   align-items: flex-end;
 }

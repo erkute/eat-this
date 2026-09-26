@@ -7,7 +7,6 @@ Frühes Stadium, praktisch keine echten User: alten/toten Code ersatzlos raussch
 
 ```
 npm test          npm run lint          npm run typecheck
-npm run build:css                 # Pflicht nach jeder Änderung an css/ – dev baut nicht neu
 npm run build:isolated            # statt `build`, wenn `next dev` läuft (sonst 500er)
 npm run sync:brand-font           # holt die aktivierte Providence aus Creative Cloud
 npm run build:email-art           # Pflicht nach jeder Textänderung in scripts/build-email-art.mts
@@ -29,7 +28,7 @@ Der `.githooks/pre-push`-Hook baut voll durch (~30-60 s) – nie mit `--no-verif
 
 ## Was sonst kaputtgeht
 
-- **CSS:** Quelle `nextjs/css/`, minifiziert `nextjs/public/css/` (nie direkt editieren). Nach jeder `style.css`-Änderung `CSS_VERSION` in `lib/constants.ts` hochzählen – neun Stellen hängen dran (sieben Layouts, die 404-Hülle, ein Test).
+- **CSS:** `app/globals.css` plus CSS-Module. In Produktion lädt `globals.css` vor den Modulen – überschreibt ein Modul eine globale Regel mit gleicher Spezifität, gewinnt das Modul (in dev genauso). Zwischen zwei Modulen ist die Reihenfolge nicht festgelegt: nie mit gleicher Spezifität überschreiben.
 - **Auth-Mails:** `emails/SignupEmail.tsx` (neue Adresse) und `emails/LoginEmail.tsx` (bestehendes Konto) – zwei getrennte Mails, kein Flag. Der CTA bleibt ein echter Link mit gelber Fläche; nur sein Wort ist ein Providence-Bild, mit Alt-Text in Ink – so ist er bei blockierten Bildern beschriftet statt leer. Nie den ganzen Knopf als Bild.
 - **Alles Gestaltete in Mails wird lokal zu Bildern gerendert.** Gmail lädt keine Webfonts (und die Typekit-Lizenz deckt E-Mail nicht ab), entfernt `position:absolute` und `transform`. Deshalb: jeder Text in Markenschrift – Headlines, Fließtext, Footer – über `build:email-art` (Maße in `emails/art.generated.ts`), Spot-Cards über `build:email-spots` (`emails/spots.generated.ts`). Echter Text bleiben nur der Ersatz-Link und der Satz, warum die Mail kommt. FF Providence Sans Pro liegt per `.gitignore` nur lokal – sie darf nicht ins Repo und nicht auf den Server; fehlt sie, rendern die Skripte sichtbar gewarnt mit Schoolbell. Nie eine Laufzeit-Route bauen, die Mail-Bilder rendert: die hing auf Staging hinter der Basic Auth und hätte die Schrift aufs Deployment gezwungen.
 - **Bilder unter `public/`:** vor dem Commit zu WebP (`cwebp -q 80`). Ausnahmen, die PNG bleiben: `favicon.ico`, `apple-touch-icon.png`, PWA-Icons, OG-/Twitter-Bilder.

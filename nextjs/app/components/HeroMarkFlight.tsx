@@ -52,8 +52,8 @@ export default function HeroMarkFlight() {
     const mobile = window.matchMedia('(max-width: 767px)');
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    /* Ab 768px scrollt nicht das Fenster, sondern `.app-pages` (css/style.css,
-       DESKTOP APP FRAME). Der Container wird gesucht statt angenommen: auf dem
+    /* Ab 768px scrollt nicht das Fenster, sondern `.app-pages` (globals.css,
+       Desktop app frame). Der Container wird gesucht statt angenommen: auf dem
        Telefon steht er im Fluss und scrollt gar nicht, dann bleibt das
        Fenster. */
     const scroller = (): HTMLElement | null => {

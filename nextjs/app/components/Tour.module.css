@@ -95,7 +95,7 @@
 }
 /* Die Ueberschrift bekommt den Fokus nur, damit Screenreader den neuen Schritt
    ansagen — sie ist kein Bedienelement. Die globale :focus-visible-Regel
-   (style.css laedt nach den Modulen) haengte ihr sonst einen roten Rahmen um. */
+   haengte ihr sonst einen roten Rahmen um. */
 .headline:focus-visible {
   outline: none;
 }

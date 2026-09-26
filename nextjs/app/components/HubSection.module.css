@@ -33,9 +33,8 @@
   letter-spacing: var(--et-tracking-none);
 }
 
-/* Doppelte Klasse, weil `.homeV2` in css/style.css denselben Rang hat (0,1,0)
-   und spaeter geladen wird — mit einfacher Klasse gewinnt dort das Weiss.
-   Siehe die Notiz zu Modul-vs-Stylesheet-Reihenfolge. */
+/* Doppelte Klasse gegen `.homeV2` (globals.css, Rang 0,1,0), das Papier
+   malt — so entscheidet der Rang, nicht die Ladereihenfolge. */
 :global(.homeV2).page {
   color: var(--et-home-inverse-text);
   background: var(--home-ink);
@@ -46,8 +45,8 @@
    Providence-Versalien stehen rund 0.72em hoch, ihre Mitte liegt 0.36em über
    der Grundlinie. Ein leerer Inline-Block steht mit seiner Unterkante auf
    der Grundlinie plus `vertical-align` — also Unterkante = Mitte minus halbe
-   Kante (4.5px). In em, damit es bei jeder Titelgröße stimmt. Rang (0,3,0),
-   weil `.homeV2 .hv-mk` in css/style.css (0,2,0) später geladen wird. */
+   Kante (4.5px). In em, damit es bei jeder Titelgröße stimmt. Rang (0,3,0)
+   über `.homeV2 .hv-mk` (globals.css, 0,2,0). */
 :global(.homeV2).page :global(.hv-mk) {
   vertical-align: calc(0.36em - 4.5px);
 }
@@ -61,7 +60,7 @@
    die letzte gelbe Vollfläche.
    Die Höhe rechnet gegen 74px und nicht gegen volle dvh: ab 768px scrollt
    nicht das Fenster, sondern `.app-pages`, und das sitzt 74px unter der
-   Oberkante (css/style.css, DESKTOP APP FRAME). Mit vollem dvh wäre die
+   Oberkante (globals.css, Desktop app frame). Mit vollem dvh wäre die
    Fläche um genau diese Navhöhe zu hoch und liefe unten aus dem Bild. */
 .hero {
   margin-top: 0;
@@ -431,8 +430,9 @@
 }
 
 /* The `.page` prefix is load-bearing, here and on the stacked override below.
-   Without it the selector ties with `.homeV2 .hv-photo` (0,2,0) — and since
-   style.css loads after the modules, that rule decided the radius. This block
+   Without it the selector ties with `.homeV2 .hv-photo` (0,2,0) — and while
+   that rule lived in the late-loading style.css (bis 26.09.2026), it decided
+   the radius. This block
    claimed a square left edge and the stacked one claimed square corners; on
    production both photos were rounded all round the whole time. Raise the two
    together or not at all: at (0,3,0) here and (0,2,0) below, the base rule

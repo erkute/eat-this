@@ -191,6 +191,11 @@
      Anmelde-Layer (Betreiber, 26.09.2026). Eigenes Token, weil es vom
      Marken-Rot abweicht und an drei Modulen hängt. */
   --et-heart: #ef3108;
+  /* Kurznamen, die Burger, Anmelde-Layer und Karte lesen. */
+  --home-ink: var(--et-home-ink);
+  --home-accent: var(--et-home-accent);
+  --home-radius-btn: var(--et-radius-control);
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   /* Grund unter jedem Foto auf der Startseite (`.hv-photo`). Früher Hellgrau
      vom weißen Papier; auf der Ink-Tafel blitzte es als weiße Fläche, bis ein
      Foto geladen war, und als Haarlinie an der Unterkante jedes Teller-Bilds —
@@ -566,12 +571,6 @@ img {
 a {
   text-decoration: none;
   color: inherit;
-}
-/* Keep the closed burger out of rendering on first paint. In particular, iOS
-   Safari must not retain its full-screen ink layer behind the browser bars. */
-.burger-drawer[hidden] {
-  display: none;
-  pointer-events: none;
 }
 /* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
    because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
@@ -1460,4 +1459,297 @@ summary:active,
    liest sich als Fehler. */
 :root {
   --et-press-tile: 0.985;
+}
+
+/* ══ Früher css/style.css ═════════════════════════════════════════════════
+   Bis 26.09.2026 eine eigene, von Hand versionierte Datei, die jedes Layout
+   per <link> nachlud. Die Regeln stehen hier in ihrer alten Reihenfolge am
+   Ende — dort, wo die nachgeladene Datei in der Kaskade stand. */
+
+/* A11Y: skip-to-content — hidden off-screen until keyboard focus */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  background: #000;
+  color: #fff;
+  padding: 12px 18px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 0 0 8px 0;
+}
+.skip-link:focus {
+  left: 0;
+  outline: 3px solid #ff0;
+  outline-offset: 2px;
+}
+
+/* overflow-x:hidden + position:relative on <html> caused Chrome desktop to
+   drop wheel-scroll on /profile (Safari and mobile worked fine). Both are
+   redundant — body already has overflow-x:hidden and overscroll-behavior:none.
+   Don't move them back. */
+body {
+  max-width: 100%;
+  overscroll-behavior: none;
+  background: var(--surface-canvas);
+  overflow-x: hidden;
+}
+iframe {
+  max-width: 100%;
+}
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+a,
+button,
+input,
+select,
+textarea,
+label {
+  touch-action: manipulation;
+}
+ul,
+ol {
+  list-style: none;
+}
+
+/* Prevent browser scroll-anchoring from holding position when content swaps */
+.app-page[data-page='news-article'] {
+  overflow-anchor: none;
+}
+
+/* ── App pages container ── */
+.app-pages {
+  display: block;
+  height: 100%;
+}
+.app-page {
+  width: 100%;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.app-page[data-page='start'] {
+  min-height: calc(100vh - 64px);
+}
+
+@media (max-width: 767px) {
+  /* Match kino.de/familie.de: html+body need zero CSS constraints for
+     Safari to use window scroll and auto-hide the URL bar on scroll. */
+  html {
+    overflow-x: unset;
+    position: static;
+    overscroll-behavior: contain;
+  }
+  body {
+    overflow-x: unset;
+    overscroll-behavior: contain;
+  }
+  /* Natural window scroll so Safari URL bar auto-hides on scroll. */
+  .app-pages {
+    /* 64px navbar + safe-area-inset-top (notch/Dynamic Island ~47px).
+       Padding, not margin: body has no overflow here (see above, Safari URL
+       bar), so a top margin collapses out through body — and the moment the
+       consent gate sets `overflow: hidden` on body it stops collapsing, the
+       body box jumps up by these 64px and Chrome books it as a 0.08 layout
+       shift. Padding never collapses, so the box stays put. `.app-pages` is
+       transparent and the fixed navbar covers the strip: same picture. */
+    padding-top: calc(64px + env(safe-area-inset-top, 0px));
+    height: auto;
+    overflow: visible;
+  }
+  .app-page {
+    position: relative;
+    height: auto;
+    /* Fill viewport at minimum so short pages don't show body bg below */
+    min-height: calc(100dvh - 48px);
+    /* Pad for fixed app-footer + safe-area-inset-bottom so last content is reachable */
+    padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
+    overflow: visible;
+    background: var(--white);
+    overscroll-behavior: none;
+  }
+  /* Pages ending with the site footer let the footer own bottom clearance. */
+  .app-page:has([data-site-footer]) {
+    padding-bottom: 0;
+  }
+  .app-page[data-page='start'] {
+    background: var(--white);
+  }
+}
+
+/* ── Desktop app frame (≥ 768px) ── */
+@media (min-width: 768px) {
+  .app-pages {
+    max-width: none;
+    margin: 74px 0 0;
+    box-shadow: none;
+    height: calc(100dvh - 74px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  /* SPA scroll-chain lock: on routes that mount .app-pages (the SPA group:
+     start/news/map/static), .app-pages is the page scroll container. Lock
+     html+body to the viewport so wheel/keyboard scroll past .app-pages's
+     bottom can't bubble to the window — otherwise body slides off-screen
+     and a strip of html bg appears below the footer. Non-SPA routes
+     (restaurant/bezirk/kategorie/profile) have no .app-pages and keep
+     natural body scroll. */
+  html:has(.app-pages),
+  html:has(.app-pages) body {
+    height: 100vh;
+    overflow: hidden;
+  }
+  /* App pages: natural height so footer follows content */
+  .app-page {
+    height: auto;
+    min-height: calc(100dvh - 48px);
+    padding-bottom: 0;
+    background: var(--white);
+    overflow-y: visible;
+    overflow-x: hidden;
+  }
+  .app-page[data-page='start'] {
+    background: var(--white);
+  }
+}
+
+/* ── Home vocabulary (scoped to .homeV2) ── */
+.homeV2 {
+  background: var(--et-home-paper);
+  color: var(--et-home-ink);
+  font-family: var(--et-font-display);
+}
+.homeV2 .hv-wrap {
+  max-width: var(--et-wrap-max);
+  margin: 0 auto;
+  padding: 0 var(--et-wrap-pad);
+}
+.homeV2 .hv-section {
+  margin-top: var(--et-section-gap);
+}
+.homeV2 .hv-kicker {
+  font-family: var(--et-font-label);
+  font-weight: 700;
+  font-size: var(--et-type-kicker);
+  letter-spacing: var(--et-tracking-label);
+  text-transform: uppercase;
+  color: var(--et-home-ink);
+}
+.homeV2 .hv-mk {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  background: var(--et-home-accent);
+  margin-right: var(--et-control-gap);
+  vertical-align: 1px;
+}
+.homeV2 .hv-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--et-head-gap);
+}
+.homeV2 .hv-title {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  color: var(--et-home-red);
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title);
+  font-size: var(--et-type-section-title);
+}
+.homeV2 .hv-rail {
+  display: flex;
+  gap: var(--et-rail-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+.homeV2 .hv-rail::-webkit-scrollbar {
+  display: none;
+}
+.homeV2 .hv-rail > * {
+  scroll-snap-align: start;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+.homeV2 .hv-photo {
+  background: var(--et-home-photo-rest);
+  border-radius: var(--et-radius-photo);
+  overflow: hidden;
+  position: relative;
+  display: block;
+}
+.homeV2 .hv-photo img {
+  object-fit: var(--et-img-photo-fit);
+}
+.homeV2 .hv-cap {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: clamp(14px, 1.1vw, 16px);
+  margin-top: var(--et-control-gap);
+  color: var(--et-home-ink);
+}
+.homeV2 .hv-sub {
+  font-family: var(--et-font-display);
+  font-weight: 400;
+  font-size: var(--et-type-caption);
+  color: var(--et-home-muted);
+}
+.homeV2 .hv-btn {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: var(--et-type-button);
+  padding: 11px 24px;
+  border-radius: 999px;
+  display: inline-block;
+  background: var(--et-home-ink);
+  color: var(--et-home-inverse-text);
+  border: none;
+  cursor: pointer;
+  transition:
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast);
+}
+.homeV2 .hv-btn:focus-visible {
+  transform: translateY(-2px);
+}
+@media (hover: hover) {
+  .homeV2 .hv-btn:hover {
+    transform: translateY(-2px);
+  }
+}
+.homeV2 .hv-btn:active {
+  transform: translateY(1px);
+}
+.homeV2 .hv-chip {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: var(--et-type-chip);
+  padding: 9px 15px;
+  border-radius: var(--et-radius-control);
+  background: var(--et-home-quiet);
+  color: var(--et-home-ink);
+  border: none;
+  cursor: pointer;
+  transition:
+    transform var(--et-motion-fast),
+    background-color var(--et-motion-fast);
+}
+.homeV2 .hv-chip:active {
+  transform: translateY(1px);
+}
+@media (max-width: 760px) {
+  .homeV2 .hv-wrap {
+    padding: 0 var(--et-wrap-pad-mobile);
+  }
+  .homeV2 .hv-section {
+    margin-top: var(--et-section-gap-mobile);
+  }
 }

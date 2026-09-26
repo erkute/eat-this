@@ -47,8 +47,8 @@
       "file": "Main-23.png",
       "spot": "Romeo's Sandwiches",
       "dish": "Szechuan Tofu Sandwich",
-      "descriptionEn": "Chili crisp, and coriander mayo on our fluffy potato bread",
-      "description": "Chili-Crisp und Koriander-Mayo auf unserem fluffigen Kartoffelbrot"
+      "descriptionEn": "Chili crisp, and coriander mayo on fluffy potato bread",
+      "description": "Chili-Crisp und Koriander-Mayo auf fluffigem Kartoffelbrot"
     },
     {
       "order": 7,
@@ -111,8 +111,8 @@
       "file": "Main-16.png",
       "spot": "Gazzo",
       "dish": "Pizza Aubergine",
-      "descriptionEn": "Roasted aubergines, parmesan, garlic, mozzarella, basil, tomato sauce",
-      "description": "Geröstete Auberginen, Parmesan, Knoblauch, Mozzarella, Basilikum, Tomatensauce"
+      "descriptionEn": "Roasted aubergines, Parmesan, garlic, mozzarella, basil, tomato sauce.",
+      "description": "Geröstete Auberginen, Parmesan, Knoblauch, Mozzarella, Basilikum, Tomatensauce."
     },
     {
       "order": 15,

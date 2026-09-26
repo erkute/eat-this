@@ -56,6 +56,31 @@ describe('useUserLocation.watch', () => {
     expect(geo.clearWatch).toHaveBeenCalledWith(7);
   });
 
+  /* Im Stehen zittert GPS um ein paar Meter. Solche Fixe duerfen `location`
+     nicht ersetzen, sonst rendert die Map im Sekundentakt neu. */
+  it('ignores jitter of a metre or two but follows real movement', () => {
+    let deliver: PositionCallback = () => {};
+    geo.watchPosition.mockImplementation((onFix: PositionCallback) => {
+      deliver = onFix;
+      return 3;
+    });
+    const { result } = renderHook(() => useUserLocation());
+    act(() => {
+      result.current.watch();
+    });
+
+    act(() => deliver(fix(52.52, 13.405)));
+    const first = result.current.location;
+
+    // ~1 m nach Norden
+    act(() => deliver(fix(52.52001, 13.405)));
+    expect(result.current.location).toBe(first);
+
+    // ~11 m nach Norden
+    act(() => deliver(fix(52.5201, 13.405)));
+    expect(result.current.location).toEqual({ lat: 52.5201, lng: 13.405 });
+  });
+
   /* Der Beobachter ist still: er hat nie jemand gefragt, also darf er weder
      den Ladezustand noch den Fehler-Toast anfassen — und der letzte Fix
      bleibt stehen. */
@@ -79,6 +104,78 @@ describe('useUserLocation.watch', () => {
     expect(result.current.location).toEqual({ lat: 52.5, lng: 13.4 });
     expect(result.current.error).toBeNull();
     expect(result.current.loading).toBe(false);
+  });
+
+  /* U-Bahn: der erste Versuch laeuft ins Timeout. Das beweist die Freigabe
+     trotzdem — der Beobachter darf starten und holt den Fix, sobald das
+     Telefon wieder einen findet. Eine Ablehnung beweist das Gegenteil. */
+  it('counts a timeout as granted, a denial not', async () => {
+    const { result } = renderHook(() => useUserLocation());
+    expect(result.current.permitted).toBe(false);
+
+    geo.getCurrentPosition.mockImplementationOnce(
+      (_ok: unknown, fail: (e: { code: number }) => void) => fail({ code: 3 })
+    );
+    await act(async () => {
+      await result.current.request({ silent: true });
+    });
+    expect(result.current.permitted).toBe(true);
+
+    geo.getCurrentPosition.mockImplementationOnce(
+      (_ok: unknown, fail: (e: { code: number }) => void) => fail({ code: 1 })
+    );
+    await act(async () => {
+      await result.current.request({ silent: true });
+    });
+    expect(result.current.permitted).toBe(false);
+  });
+
+  it('clears a timeout error once the watcher finds the visitor', async () => {
+    let deliver: PositionCallback = () => {};
+    geo.watchPosition.mockImplementation((onFix: PositionCallback) => {
+      deliver = onFix;
+      return 5;
+    });
+    geo.getCurrentPosition.mockImplementationOnce(
+      (_ok: unknown, fail: (e: { code: number }) => void) => fail({ code: 3 })
+    );
+    const { result } = renderHook(() => useUserLocation());
+    await act(async () => {
+      await result.current.request();
+    });
+    expect(result.current.error).toBe('timeout');
+
+    act(() => {
+      result.current.watch();
+    });
+    act(() => deliver(fix(52.52, 13.405)));
+
+    expect(result.current.location).toEqual({ lat: 52.52, lng: 13.405 });
+    expect(result.current.error).toBeNull();
+  });
+
+  it('drops the grant when the watcher is denied', () => {
+    let fail: (err: { code: number }) => void = () => {};
+    geo.watchPosition.mockImplementation(
+      (_ok: PositionCallback, onError: (err: { code: number }) => void) => {
+        fail = onError;
+        return 6;
+      }
+    );
+    geo.getCurrentPosition.mockImplementationOnce((ok: PositionCallback) => ok(fix(52.5, 13.4)));
+    const { result } = renderHook(() => useUserLocation());
+    act(() => {
+      void result.current.request({ silent: true });
+    });
+    expect(result.current.permitted).toBe(true);
+
+    act(() => {
+      result.current.watch();
+    });
+    act(() => fail({ code: 3 }));
+    expect(result.current.permitted).toBe(true);
+    act(() => fail({ code: 1 }));
+    expect(result.current.permitted).toBe(false);
   });
 
   it('is a no-op without geolocation support', () => {
@@ -124,8 +221,8 @@ describe('useUserLocation — Rueckkehr aus der Sperre', () => {
   });
 
   async function deniedHook() {
-    geo.getCurrentPosition.mockImplementationOnce((_ok: unknown, fail: (e: { code: number }) => void) =>
-      fail({ code: 1 })
+    geo.getCurrentPosition.mockImplementationOnce(
+      (_ok: unknown, fail: (e: { code: number }) => void) => fail({ code: 1 })
     );
     const hook = renderHook(() => useUserLocation());
     await act(async () => {

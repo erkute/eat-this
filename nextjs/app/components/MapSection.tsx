@@ -15,6 +15,7 @@ import {
   useUserTier,
   buildPeekMustEatMap,
   resolveUnlockedMustEatIds,
+  haversineDistance,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -101,6 +102,7 @@ export default function MapSection({
     error: locationError,
     request: requestLocation,
     watch: watchLocation,
+    permitted: locationPermitted,
   } = useUserLocation();
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid);
   // Free-and-open map: anon visitors see exactly the server-revealed set
@@ -1192,39 +1194,56 @@ export default function MapSection({
     return false;
   }, [selectedMustEat, setSelectedMustEat, uid, unlock, mergeMustEat]);
 
-  /* Follow the visitor while a COVERED card is open. The 50 m gate compares
-     against `location`, and `location` was one fix, taken when the map came
-     up — on the way there, from a cold cell estimate. Whoever then stood in
-     the doorway was still "too far" against that stale point, with nothing
-     on the card that would take a new one. The watcher keeps the fix current
-     for exactly as long as it matters: it starts when a covered detail is
-     selected and stops when the card opens, closes, or the map goes inactive.
-     Gated on an existing fix: that is the proof the origin holds the
-     permission, so watchPosition raises no dialog (the one thing the map is
-     built to never do unprompted — see hasGeolocationPermission). Keyed on
-     WHETHER there is a fix, not on the fix itself, so its own updates do not
-     restart it.
-
-     The restaurant detail counts too: its covered cards start to shake once
-     the visitor is within reach (MustEatMiniCard), and whoever walks up with
-     that detail open needs the same fresh fix to see it happen. */
-  const coveredMustEatOpen =
-    (!!selectedMustEat && !unlockedIds.has(selectedMustEat._id)) ||
-    restaurantMustEats.some((m) => !unlockedIds.has(m._id));
-  const hasLocationFix = location !== null;
+  /* Follow the visitor for as long as the map is on screen. `location` used
+     to be one fix, taken when the map came up — often on the way there,
+     from a cold cell estimate — and the avatar marker stood on that point
+     no matter how far the visitor walked. The covered cards measure against
+     it too: the 50 m gate of the must-eat detail, and the shake of the
+     covered cards in the restaurant detail once the visitor is within reach
+     (MustEatMiniCard). Whoever stood in the doorway was still "too far"
+     against the stale point. The watcher keeps it current and stops when
+     the map goes inactive.
+     Gated on `locationPermitted`: the proof the origin holds the permission,
+     so watchPosition raises no dialog (the one thing the map is built to
+     never do unprompted — see hasGeolocationPermission). A FIX is not
+     required: underground the first request times out, and the watcher is
+     what picks up the position once the phone finds one again (see
+     useUserLocation.permitted). Keyed on the grant, not on the fix, so its
+     own updates do not restart it. */
   useEffect(() => {
-    if (!isActive || !coveredMustEatOpen || !hasLocationFix) return;
-    return watchLocation();
-  }, [isActive, coveredMustEatOpen, hasLocationFix, watchLocation]);
+    if (!isActive || !locationPermitted) return;
+    let stop = watchLocation();
+    /* iOS Safari haelt einen Beobachter nach Bildschirmsperre oder
+       App-Wechsel oft still, ohne Fehler: er liefert einfach nichts mehr.
+       Zurueck im Vordergrund startet er deshalb neu. */
+    const onVisibility = () => {
+      if (document.visibilityState !== 'visible') return;
+      stop();
+      stop = watchLocation();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      stop();
+    };
+  }, [isActive, locationPermitted, watchLocation]);
 
+  /* Jeder Tipp fragt neu. Bis 26.09.2026 flog der Knopf mit einem Fix nur
+     zu dem zurueck, den es schon gab — kam der aus der U-Bahn und lieferte
+     der Beobachter seitdem nichts, stand der Avatar fest, und der Knopf tat
+     sichtbar nichts (Betreiber: „keine neuer Abruf. Ist eingefroren").
+     Die Kamera geht sofort zum bekannten Punkt; der neue Fix holt sie nur
+     nach, wenn er spuerbar woanders liegt. */
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;
-    if (location) {
-      flyToSpot(location, { zoom: 14, duration: 600, padding: getFlyPadding() });
-      return;
-    }
+    const flyTo = (loc: { lat: number; lng: number }) =>
+      flyToSpot(loc, { zoom: 14, duration: 600, padding: getFlyPadding() });
+    if (location) flyTo(location);
     const { location: loc } = await requestLocation();
-    if (loc) flyToSpot(loc, { zoom: 14, duration: 600, padding: getFlyPadding() });
+    if (!loc) return;
+    if (!location || haversineDistance(location.lat, location.lng, loc.lat, loc.lng) > 10) {
+      flyTo(loc);
+    }
   }, [location, requestLocation, flyToSpot, getFlyPadding]);
 
   /* Default camera = the user's position. Request it once on mount and, as

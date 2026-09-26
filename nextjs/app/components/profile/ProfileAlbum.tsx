@@ -340,8 +340,16 @@ export default function ProfileAlbum({
                         HttpOnly capability cookie. next/image's internal
                         optimizer does not forward that cookie, so private
                         album art must load directly. */}
+                        {/* Eigener `key`, damit React beim Aufdecken ein NEUES
+                        <img> baut, statt das der Rueckseite umzuschreiben: dann
+                        setzt es nacheinander src, srcset, sizes, und Safari
+                        waehlt bei jedem Schritt neu — erst die 360er, dann
+                        (srcset ohne sizes = 100vw) die 720er. Ein iPhone lud so
+                        jede Karte doppelt (Prod-Log 26.09.2026). Chrome waehlt
+                        einmal und zeigt es nicht. */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
+                          key="card"
                           src={mustEatCardSrc(slot.mustEat.image, 360)}
                           srcSet={mustEatCardSrcSet(slot.mustEat.image)}
                           sizes={GRID_SIZES}
@@ -369,7 +377,13 @@ export default function ProfileAlbum({
                      und die Nummer beantwortete keine Frage. */
                       <>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img className={styles.backImg} src={CARD_BACK} alt="" loading="lazy" />
+                        <img
+                          key="back"
+                          className={styles.backImg}
+                          src={CARD_BACK}
+                          alt=""
+                          loading="lazy"
+                        />
                         {where && (
                           <span className={styles.slotWhere} aria-hidden="true">
                             {where}

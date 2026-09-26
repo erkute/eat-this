@@ -17,6 +17,7 @@ import {
   freshestMustEat,
   buildPeekMustEatMap,
   resolveUnlockedMustEatIds,
+  haversineDistance,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -1697,28 +1698,42 @@ export default function MapSection({
      own updates do not restart it. */
   useEffect(() => {
     if (!isActive || !locationPermitted) return;
-    return watchLocation();
+    let stop = watchLocation();
+    /* iOS Safari haelt einen Beobachter nach Bildschirmsperre oder
+       App-Wechsel oft still, ohne Fehler: er liefert einfach nichts mehr.
+       Zurueck im Vordergrund startet er deshalb neu. */
+    const onVisibility = () => {
+      if (document.visibilityState !== 'visible') return;
+      stop();
+      stop = watchLocation();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      stop();
+    };
   }, [isActive, locationPermitted, watchLocation]);
 
+  /* Jeder Tipp fragt neu. Bis 26.09.2026 flog der Knopf mit einem Fix nur
+     zu dem zurueck, den es schon gab — kam der aus der U-Bahn und lieferte
+     der Beobachter seitdem nichts, stand der Avatar fest, und der Knopf tat
+     sichtbar nichts (Betreiber: „keine neuer Abruf. Ist eingefroren").
+     Die Kamera geht sofort zum bekannten Punkt; der neue Fix holt sie nur
+     nach, wenn er spuerbar woanders liegt. */
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;
-    if (location) {
-      mapRef.current?.flyTo({
-        center: [location.lng, location.lat],
-        zoom: 14,
-        duration: 600,
-        padding: getFlyPadding(),
-      });
-      return;
-    }
-    const { location: loc } = await requestLocation();
-    if (loc) {
+    const flyTo = (loc: { lat: number; lng: number }) =>
       mapRef.current?.flyTo({
         center: [loc.lng, loc.lat],
         zoom: 14,
         duration: 600,
         padding: getFlyPadding(),
       });
+    if (location) flyTo(location);
+    const { location: loc } = await requestLocation();
+    if (!loc) return;
+    if (!location || haversineDistance(location.lat, location.lng, loc.lat, loc.lng) > 10) {
+      flyTo(loc);
     }
   }, [location, requestLocation, getFlyPadding]);
 

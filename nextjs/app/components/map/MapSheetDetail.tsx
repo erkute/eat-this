@@ -6,7 +6,7 @@ import type { UserLocationError } from '@/lib/map/useUserLocation';
 import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import RestaurantDetail from './RestaurantDetail';
 import MustEatDetail from './MustEatDetail';
-import styles from './MapDetails.module.css';
+import styles from './MapSheetDetail.module.css';
 
 type CommonProps = {
   contentRef: Ref<HTMLDivElement | null>;

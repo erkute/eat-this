@@ -1,4 +1,4 @@
-// Pseudo-class pass for MapDetails: CDP-forced :hover / :focus-visible /
+// Pseudo-class pass for the map sheet details (until 26.09.2026 MapDetails): CDP-forced :hover / :focus-visible /
 // :active on the interactive detail controls, which the viewport sweep cannot
 // reach. Three of MapDetails' dead declarations sat behind
 // `@media (hover: hover) { .rdActBtn:hover }` and were only provable here.
@@ -24,7 +24,7 @@ async (page) => {
     const { root } = await cdp.send('DOM.getDocument', { depth: -1 });
     for (const pseudo of ['none', 'hover', 'focus-visible', 'active']) {
       for (const t of TARGETS) {
-        const sel = `[class*="MapDetails_${t}__"]`;
+        const sel = `[class*="RestaurantDetail_${t}__"], [class*="MustEatDetail_${t}__"]`;
         let nodeId = 0;
         try { ({ nodeId } = await cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: sel })); } catch { nodeId = 0; }
         const key = `${w}x${h}|${pseudo}|${t}`;

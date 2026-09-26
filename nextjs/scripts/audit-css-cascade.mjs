@@ -1,7 +1,7 @@
 /* Audit a CSS module for the failure class documented in MapControls.module.css:
    a later rule silently voiding an earlier one for the SAME class.
  *
- *   node scripts/audit-css-cascade.mjs app/components/map/MapDetails.module.css
+ *   node scripts/audit-css-cascade.mjs app/components/map/RestaurantDetail.module.css
  *
  * A declaration only kills another when it matches in the SAME context and
  * state (same descendant prefix, same :hover/:active/...) and wins the cascade.

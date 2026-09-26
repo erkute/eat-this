@@ -25,7 +25,7 @@
   --map-action: var(--et-accent);
   /* Die Flaeche des Starter-Pack-Angebots — an ZWEI Stellen: im Sheet eines
      verdeckten Spots (LockedDetail `.starter`) und als Hinweis im Detail eines
-     freien Spots (MapDetails `.packPromo`). Beide zeigen dasselbe Produkt, also
+     freien Spots (RestaurantDetail `.packPromo`). Beide zeigen dasselbe Produkt, also
      tragen sie dieselbe Farbe, und die steht deshalb hier statt zweimal dort.
 
      Abgeleitet vom Marken-Rot, nicht daneben erfunden: der Farbton ist exakt
@@ -38,7 +38,7 @@
   /* Drei Site-Tokens, hier auf die Ink-Seite gedreht. Sie sind semantisch —
      „leise Flaeche", „gedaempfte Schrift", „leise Linie" — und kippen deshalb
      mit dem Grund, statt an jeder der zehn Stellen in vier Modulen einzeln zu
-     stehen (MapDetails, LockedDetail, MapListEmpty, MapSeoFooter).
+     stehen (RestaurantDetail, LockedDetail, MapListEmpty, MapSeoFooter).
      NICHT dasselbe mit --et-ink/--et-white machen: die beiden benennen
      konkrete Farben, keine Rollen, und werden auf der Map in beiden
      Richtungen gelesen.

@@ -28,7 +28,7 @@ import { describe, expect, it } from 'vitest';
 
 const CONTROLS = 'MapControls.module.css';
 const FILTERS = 'MapFilters.module.css';
-const DETAILS = 'MapDetails.module.css';
+const DETAILS = 'RestaurantDetail.module.css';
 
 function cssRoot(moduleName: string) {
   return postcss.parse(
@@ -253,7 +253,7 @@ function groupedDeclarationServes(
   return serves;
 }
 
-describe('MapDetails cascade', () => {
+describe('RestaurantDetail cascade', () => {
   /* Declarations in this file that are reported dead by
    * scripts/audit-css-cascade.mjs and are NOT: each is shared by several
    * classes and only overridden later for some of them. A bulk prune deletes

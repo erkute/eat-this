@@ -8,7 +8,9 @@ const moduleNames = [
   'MapSheet.module.css',
   'MapControls.module.css',
   'MapMarkers.module.css',
-  'MapDetails.module.css',
+  'MapSheetDetail.module.css',
+  'RestaurantDetail.module.css',
+  'MustEatDetail.module.css',
   'MapFilters.module.css',
   'MapListEmpty.module.css',
   'MapIntro.module.css',
@@ -362,10 +364,8 @@ describe('Map CSS architecture', () => {
       '(min-width: 768px) and (max-width: 1023.98px)',
       '(min-width: 1024px)',
     ]) {
-      const lockedMidRules = declarationsInMedia(
-        'MapDetails.module.css',
-        '.detailV13MustEat .fdMid.fdMidLocked',
-        media
+      const lockedMidRules = ['.fdMid.fdMidLocked', '.detail .fdMid.fdMidLocked'].flatMap(
+        (selector) => declarationsInMedia('MustEatDetail.module.css', selector, media)
       );
 
       for (const rule of lockedMidRules) {

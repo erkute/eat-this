@@ -17,7 +17,7 @@ import { useTranslation } from '@/lib/i18n';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
-import styles from './MapDetails.module.css';
+import styles from './RestaurantDetail.module.css';
 import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import { HeartIcon, CloseIcon } from './icons';
 import {
@@ -268,13 +268,8 @@ export default function RestaurantDetail({
       : undefined;
 
   return (
-    <div
-      className={styles.detailV13}
-      data-detail-root="restaurant"
-      role="dialog"
-      aria-label={r.name}
-    >
-      <div className={styles.detailV13Scroll} data-detail-scroll>
+    <div className={styles.detail} data-detail-root="restaurant" role="dialog" aria-label={r.name}>
+      <div className={styles.scroll} data-detail-scroll>
         {/* HERO — full-bleed photo, save bookmark, name. */}
         <header className={styles.rdHero} data-detail-hero style={heroStyle}>
           <RestaurantGallery

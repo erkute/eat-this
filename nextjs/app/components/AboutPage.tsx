@@ -413,7 +413,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
             }
             width={600}
             height={1219}
-            sizes="(min-width: 760px) 210px, 170px"
+            sizes="(min-width: 768px) 210px, 170px"
             loading="lazy"
             className={styles.ctaPhone}
           />

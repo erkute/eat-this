@@ -52,7 +52,7 @@
    :global(.hv-rail).rail (0,3,0 with .homeV2) beats .homeV2 .hv-rail (0,2,0)
    so we can also drop overflow-x:auto — otherwise overflow-y computes to auto
    and the card hover-lift is clipped at the rail's top edge. */
-@media (min-width: 761px) {
+@media (min-width: 768px) {
   :global(.homeV2) :global(.hv-rail).rail {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -384,7 +384,7 @@
    must not be: the point is the mix, two face-up among four still covered, and
    that there is a set to complete. A grid shows all six at once, the way the
    desktop row already does and the way /must-eats lays its catalog out. */
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   /* Same compound-selector trick as the desktop block above — it has to beat
      .homeV2 .hv-rail (0,2,0), and overflow must land on `visible` or
      overflow-y computes to auto and clips the card lift. */

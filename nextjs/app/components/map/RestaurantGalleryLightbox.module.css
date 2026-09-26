@@ -69,10 +69,10 @@
    Kanten, sonst traefe Safaris Abtastung dort sie statt der Kappe — eine
    durchsichtige Flaeche, die die Leisten grau faerbt. */
 .galleryLbCurtain {
-  z-index: 2147483000;
+  z-index: var(--et-z-gallery);
 }
 .galleryLbStage {
-  z-index: 2147483001;
+  z-index: var(--et-z-gallery-stage);
 }
 /* Der Streifen, durch den man blättert: ein nativer Scroll-Container, eine
    Seite pro Foto. `scroll-snap-stop: always` auf den Seiten lässt einen
@@ -100,7 +100,7 @@
   position: fixed;
   top: max(14px, env(safe-area-inset-top, 0px));
   right: max(14px, env(safe-area-inset-right, 0px));
-  z-index: 2147483002;
+  z-index: var(--et-z-gallery-controls);
   width: 44px;
   height: 44px;
   display: grid;
@@ -231,7 +231,7 @@
   position: fixed;
   left: 50%;
   bottom: max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px));
-  z-index: 2147483002;
+  z-index: var(--et-z-gallery-controls);
   display: flex;
   align-items: center;
   gap: 2px;

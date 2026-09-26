@@ -18,8 +18,8 @@
   display: flow-root;
   min-height: 100svh;
   overflow-x: clip;
-  padding: calc(64px + env(safe-area-inset-top, 0px) + var(--staging-banner-h, 0px))
-    var(--et-wrap-pad-mobile) clamp(48px, 7vw, 96px);
+  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) var(--et-wrap-pad-mobile)
+    clamp(48px, 7vw, 96px);
   background: var(--pack-ink);
   color: var(--pack-fg);
   font-family: var(--et-font-display);
@@ -200,7 +200,7 @@
   padding-top: clamp(56px, 7vw, 104px);
 }
 
-@media (min-width: 760px) {
+@media (min-width: 768px) {
   .page {
     padding-inline: var(--et-wrap-pad);
   }
@@ -210,7 +210,7 @@
   }
 }
 
-@media (max-width: 759px) {
+@media (max-width: 767.98px) {
   .copy {
     max-width: none;
   }

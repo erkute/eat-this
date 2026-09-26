@@ -1679,10 +1679,14 @@ export default function MapSection({
   }, [selectedMustEat, uid, unlock, mergeMustEat]);
 
   /* Follow the visitor for as long as the map is on screen. `location` used
-     to be one fix, taken when the map came up, and the avatar marker stood
-     on that point no matter how far the visitor walked — and the 50 m gate
-     of a covered card measured against the same stale point. The watcher
-     keeps it current and stops when the map goes inactive.
+     to be one fix, taken when the map came up — often on the way there,
+     from a cold cell estimate — and the avatar marker stood on that point
+     no matter how far the visitor walked. The covered cards measure against
+     it too: the 50 m gate of the must-eat detail, and the shake of the
+     covered cards in the restaurant detail once the visitor is within reach
+     (MustEatMiniCard). Whoever stood in the doorway was still "too far"
+     against the stale point. The watcher keeps it current and stops when
+     the map goes inactive.
      Gated on an existing fix: that is the proof the origin holds the
      permission, so watchPosition raises no dialog (the one thing the map is
      built to never do unprompted — see hasGeolocationPermission). Keyed on

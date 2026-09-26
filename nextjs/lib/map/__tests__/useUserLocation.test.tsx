@@ -149,8 +149,8 @@ describe('useUserLocation — Rueckkehr aus der Sperre', () => {
   });
 
   async function deniedHook() {
-    geo.getCurrentPosition.mockImplementationOnce((_ok: unknown, fail: (e: { code: number }) => void) =>
-      fail({ code: 1 })
+    geo.getCurrentPosition.mockImplementationOnce(
+      (_ok: unknown, fail: (e: { code: number }) => void) => fail({ code: 1 })
     );
     const hook = renderHook(() => useUserLocation());
     await act(async () => {

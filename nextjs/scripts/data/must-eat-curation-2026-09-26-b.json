@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "note": "Zweite Karte vom 26.09.2026, Nummer 028 — der Stapel waechst von 27 auf 28. descriptionEn ist der Wortlaut von der Karte, description die Uebersetzung davon; Preis kennt die Karte nicht. revealedForAnon bleibt false. `retire` ist leer.",
+  "add": [
+    {
+      "id": "must-eat-sardinen-bar-fish-and-chips",
+      "order": 28,
+      "restaurantId": "restaurant-sardinen-bar",
+      "revealedForAnon": false,
+      "file": "Main-28.png",
+      "dish": "Fish & Chips",
+      "description": "Knusprig ausgebackener Fisch, goldene Pommes, Zitrone und drei Dips.",
+      "descriptionEn": "Crispy battered fish, golden fries, lemon and three dips.",
+      "price": ""
+    }
+  ],
+  "retire": []
+}

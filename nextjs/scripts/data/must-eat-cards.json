@@ -163,6 +163,12 @@
       "file": "Main-27.png",
       "spot": "Cocolo Ramen Mitte",
       "dish": "Tonkotsu"
+    },
+    {
+      "order": 28,
+      "file": "Main-28.png",
+      "spot": "Sardinen Bar",
+      "dish": "Fish & Chips"
     }
   ]
 }

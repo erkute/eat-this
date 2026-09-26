@@ -1,5 +1,6 @@
 /**
- * Tauscht die Kartenbilder der Premium-Must-Eats gegen ein neues Set aus.
+ * Gleicht die Premium-Must-Eats mit einem neuen Kartensatz ab: Bild, Gericht
+ * und Beschreibungen.
  *
  *   npx tsx scripts/replace-must-eat-cards.ts --cards ../CARDS --dry-run
  *   npx tsx scripts/replace-must-eat-cards.ts --cards ../CARDS --apply
@@ -8,9 +9,10 @@
  * --manifest <json> (schreibt die getauschten Einträge im Migrations-Manifest
  * fort, damit migrate-must-eats-private.ts verify weiter durchläuft).
  *
- * Nur das Bild wird angefasst. Gericht, Beschreibungen und Preis bleiben
- * unberührt — die stehen nicht auf der Karte zur Debatte, sondern im
- * Firestore-Dokument. Das alte Objekt im Bucket bleibt liegen: der neue Pfad
+ * Die Karte ist die Quelle: `dish`, `description` und `descriptionEn` aus der
+ * Mapping-Datei landen so in Firestore, wie sie dort stehen. Der Preis steht
+ * auf keiner Karte und bleibt unberührt. Das alte Objekt im Bucket bleibt
+ * liegen: der neue Pfad
  * traegt den Hash des neuen Bildes, ein Rueckweg kostet also nur ein Update
  * des Feldes. Aufraeumen ist ein eigener, spaeterer Schritt.
  */
@@ -38,7 +40,11 @@ interface CardMapEntry {
   file: string;
   spot: string;
   dish: string;
+  description: string;
+  descriptionEn: string;
 }
+
+const TEXT_FIELDS = ['dish', 'description', 'descriptionEn'] as const;
 
 interface SanityMustEat {
   _id: string;
@@ -190,26 +196,35 @@ async function main() {
       throw new Error(`Firestore-Dokument ${mustEat._id} hat kein restaurantId`);
     }
     const label = `${String(card.order).padStart(3, '0')} ${card.spot} — ${card.dish}`;
-    if (data.imageObjectPath === objectPath) {
+    const textChanges = TEXT_FIELDS.filter((field) => data[field] !== card[field]);
+    const imageChanged = data.imageObjectPath !== objectPath;
+    if (!imageChanged && textChanges.length === 0) {
       console.log(`unveraendert  ${label} (${mustEat._id})`);
       continue;
     }
 
+    const text = Object.fromEntries(TEXT_FIELDS.map((field) => [field, card[field]]));
     const next = {
       ...data,
+      ...text,
       imageObjectPath: objectPath,
       imageContentType: 'image/webp',
       imageSha256,
     };
     const nextRecordSha256 = recordSha256(next);
-    console.log(
-      `${apply ? 'tausche     ' : 'wuerde tauschen'} ${label} (${mustEat._id}, ${Math.round(image.length / 1024)} kB)`
-    );
+    const what = [imageChanged && 'Bild', ...textChanges].filter(Boolean).join(', ');
+    console.log(`${apply ? 'tausche     ' : 'wuerde tauschen'} ${label} (${mustEat._id}): ${what}`);
+    for (const field of textChanges) {
+      console.log(
+        `      ${field}: ${JSON.stringify(data[field])} -> ${JSON.stringify(card[field])}`
+      );
+    }
+    swapped.push({ id: mustEat._id, objectPath, imageSha256, recordSha256: nextRecordSha256 });
     if (!apply) continue;
 
     const file = bucket.file(objectPath);
     const [exists] = await file.exists();
-    if (!exists) {
+    if (imageChanged && !exists) {
       await file.save(image, {
         resumable: false,
         validation: 'crc32c',
@@ -222,19 +237,17 @@ async function main() {
         },
       });
     }
-    await db.collection(COLLECTION).doc(mustEat._id).update({
-      imageObjectPath: objectPath,
-      imageContentType: 'image/webp',
-      imageSha256,
-      recordSha256: nextRecordSha256,
-      updatedAt: FieldValue.serverTimestamp(),
-    });
-    swapped.push({
-      id: mustEat._id,
-      objectPath,
-      imageSha256,
-      recordSha256: nextRecordSha256,
-    });
+    await db
+      .collection(COLLECTION)
+      .doc(mustEat._id)
+      .update({
+        ...text,
+        imageObjectPath: objectPath,
+        imageContentType: 'image/webp',
+        imageSha256,
+        recordSha256: nextRecordSha256,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
   }
 
   const manifestPath = arg('--manifest');
@@ -261,7 +274,7 @@ async function main() {
     JSON.stringify({
       status: apply ? 'applied' : 'dry-run',
       project: projectId,
-      swapped: apply ? swapped.length : planned.length,
+      changed: swapped.length,
       cardsWithoutMustEat: cardsWithoutMustEat.map((card) => card.order),
       mustEatsWithoutCard: mustEatsWithoutCard.map((mustEat) => mustEat._id),
     })

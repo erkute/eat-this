@@ -60,20 +60,15 @@ export function mirrorMapStrip(map: MapLibreMap, host: HTMLElement): () => void 
   const clones = new Map<HTMLElement, HTMLElement>();
   let hostHeight = host.clientHeight;
 
-  /* Follow the marker, or step out of the way. The map carries hundreds of
-     pins and each is a compositing layer (will-change: transform); only the
-     few in the strip are shown here, the rest are display:none and cost no
-     layer. */
-  const place = (marker: HTMLElement, clone: HTMLElement) => {
-    const transform = marker.style.transform;
-    const y = anchorY(transform);
-    const inStrip = y === null || (y > -PIN_REACH_DOWN_PX && y < hostHeight + PIN_REACH_UP_PX);
-    const display = inStrip ? '' : 'none';
-    if (clone.style.display !== display) clone.style.display = display;
-    if (inStrip) clone.style.transform = transform;
+  // Test the anchor without a layout read. Only markers which can contribute
+  // pixels to the strip need a second DOM tree; display:none still duplicated
+  // hundreds of buttons/images and invalidated their styles on state changes.
+  const inStrip = (marker: HTMLElement) => {
+    const y = anchorY(marker.style.transform);
+    return y === null || (y > -PIN_REACH_DOWN_PX && y < hostHeight + PIN_REACH_UP_PX);
   };
 
-  /* Bring the clone layer in line with the markers: new ones cloned, changed
+  /* Bring the clone layer in line with the visible markers: new ones cloned, changed
      ones (`dirty`) re-cloned, gone ones dropped, all in the markers' DOM
      order — MapLibre stacks markers by that order, so the copy must too. */
   const syncPins = (dirty: ReadonlySet<Element>) => {
@@ -89,13 +84,16 @@ export function mirrorMapStrip(map: MapLibreMap, host: HTMLElement): () => void 
     const order: HTMLElement[] = [];
     const live = new Set<HTMLElement>();
     for (const child of markerRoot.children) {
-      if (!isMarker(child)) continue;
+      if (!isMarker(child) || !inStrip(child)) continue;
       live.add(child);
       let clone = clones.get(child);
       if (!clone || dirty.has(child)) {
         clone = child.cloneNode(true) as HTMLElement;
         clones.set(child, clone);
-        place(child, clone);
+
+      }
+      if (clone.style.transform !== child.style.transform) {
+        clone.style.transform = child.style.transform;
       }
       order.push(clone);
     }
@@ -121,7 +119,7 @@ export function mirrorMapStrip(map: MapLibreMap, host: HTMLElement): () => void 
     ctx.drawImage(source, 0, 0, width, height, 0, 0, width, height);
     /* MapLibre writes marker transforms on `move`, before the frame is drawn;
        copied here they land on the same frame as the map under them. */
-    for (const [marker, clone] of clones) place(marker, clone);
+    syncPins(new Set());
   };
 
   const observer = new MutationObserver((records) => {

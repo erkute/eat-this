@@ -26,19 +26,30 @@
    at any snap. */
 @media (max-width: 1023.98px) {
   .detailMount {
-    /* Keyed to --sheet-y for live tracking during drag (see .listScroll).
+    /* The resting scroll port uses the settled visible height.
        + overhang: the detail scroll-port extends into the URL-bar zone;
        the detail's .scroll bottom padding compensates. */
-    max-height: calc(100dvh - var(--sheet-y, 0px) - 24px + var(--map-bar-overhang, 0px));
+    max-height: calc(var(--sheet-visible-px, 100dvh) - 24px + var(--map-bar-overhang, 0px));
   }
   /* Must-Eat-Detail: KEIN URL-Bar-Apron. Das Layout ist fix (Karte + Text,
      kein Scrollen) — der Overhang stünde als toter Weißraum unterm Pager
      (Screenshots User 2026-06-11). Mount endet an der sichtbaren
      Viewport-Unterkante; 36px = Detail-Handle überm Mount. */
   .detailMountMustEat {
-    max-height: calc(100dvh - var(--sheet-y, 0px) - 36px);
+    max-height: calc(var(--sheet-visible-px, 100dvh) - 36px);
   }
 }
+/* A moving tablet sheet only translates; its contents have full height for
+   the gesture. Attribute scope outranks the resting rule within this module. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  :global([data-map-sheet][data-dragging='true']) .detailMount {
+    max-height: calc(100dvh - 24px + var(--map-bar-overhang, 0px));
+  }
+  :global([data-map-sheet][data-dragging='true']) .detailMountMustEat {
+    max-height: calc(100dvh - 36px);
+  }
+}
+
 /* ══════════════════════════════════════════════════════════════════════
    IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow
    content that OVERLAYS a sticky full-screen map, so its rows composite into

@@ -59,6 +59,36 @@ describe('useHandleScrollDrag', () => {
     vi.unstubAllGlobals();
   });
 
+  it.each(['list', 'detail'] as const)('leaves touch scrolling native in %s, without snapping on release', (view) => {
+    mount(view);
+    const touch = (type: string, y: number) => {
+      const event = pointerEvent(type, y);
+      Object.defineProperty(event, 'pointerType', { value: 'touch' });
+      return event;
+    };
+    const down = touch('pointerdown', 500);
+    handle.dispatchEvent(down);
+    handle.dispatchEvent(touch('pointermove', 440));
+    // The browser owns the displacement, including any intermediate position.
+    window.scrollY = 60;
+    handle.dispatchEvent(touch('pointerup', 440));
+    nextFrame();
+    expect(down.defaultPrevented).toBe(false);
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(window.scrollY).toBe(60);
+  });
+
+  it('does not settle a native gesture when the browser takes over via pointercancel', () => {
+    mount();
+    for (const [type, y] of [['pointerdown', 500], ['pointermove', 460], ['pointercancel', 460]] as const) {
+      const event = pointerEvent(type, y);
+      Object.defineProperty(event, 'pointerType', { value: 'touch' });
+      handle.dispatchEvent(event);
+    }
+    nextFrame();
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
   it('maps an upward drag onto downward document scroll', () => {
     mount();
     handle.dispatchEvent(pointerEvent('pointerdown', 500));

@@ -51,9 +51,9 @@ function Harness({
 /* Where the bar stands at the map stop, as a slab offset from the strip line. */
 const REST_OFFSET = SHEET_DOC_TOP - MAP_STRIP_PX;
 
-function pointer(type: string, clientY: number, timeStamp = 0) {
+function pointer(type: string, clientY: number, timeStamp = 0, pointerType = 'mouse') {
   const e = new Event(type, { bubbles: true, cancelable: true });
-  Object.assign(e, { pointerId: 1, clientY });
+  Object.assign(e, { pointerId: 1, clientX: 0, clientY, pointerType });
   Object.defineProperty(e, 'timeStamp', { value: timeStamp });
   return e;
 }
@@ -108,12 +108,13 @@ beforeEach(() => {
   };
 });
 
+afterEach(() => vi.restoreAllMocks());
+
 describe('in the list', () => {
   beforeEach(() => {
     render(<Harness />);
   });
 
-  afterEach(() => vi.restoreAllMocks());
 
   describe('pulling the list off the map', () => {
     it('drops the list to the map on a deliberate pull, and remembers where it was', async () => {
@@ -281,5 +282,39 @@ describe('in a detail', () => {
     /* Plain 1:1 scroll drag: 120px back up the page, no trip to the map. */
     expect(window.scrollY).toBe(DEEP - 120);
     expect(rememberedSheetPosition('detail')).toBeNull();
+  });
+});
+
+
+describe('native phone touch gestures', () => {
+  it.each(['list', 'detail'] as const)('does not turn a deep %s swipe into a transformed slab', (view) => {
+    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+    window.scrollY = DEEP;
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 100, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 220, 40, 'touch'));
+    nextFrame();
+    expect(sheet().style.transform).toBe('');
+    expect(sheet().style.clipPath).toBe('');
+    handle.dispatchEvent(pointer('pointercancel', 220, 60, 'touch'));
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(rememberedSheetPosition(view)).toBeNull();
+  });
+
+  it.each(['list', 'detail'] as const)('retains the touch tap shortcut and reading position in %s', async (view) => {
+    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+    window.scrollY = DEEP;
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    const tap = () => {
+      handle.dispatchEvent(pointer('pointerdown', 100, 0, 'touch'));
+      handle.dispatchEvent(pointer('pointerup', 100, 80, 'touch'));
+    };
+    tap();
+    await settle();
+    expect(window.scrollY).toBe(0);
+    expect(rememberedSheetPosition(view)).toBe(DEEP);
+    tap();
+    await settle();
+    expect(window.scrollY).toBe(DEEP);
   });
 });

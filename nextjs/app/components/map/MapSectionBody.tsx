@@ -586,7 +586,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     };
   }, [searchVisible, searchOpen]);
 
-  const renderLocateControl = (onSheet: boolean) => (
+  const renderLocateControl = () => (
     <button
       type="button"
       onClick={handleLocateMe}
@@ -595,8 +595,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                anything else leaves a screen reader hearing one control and
                everyone else reading another. */
       aria-label={showLocateInvite ? locateInviteLabel : myLocationAriaLabel}
-      className={`${controlStyles.fab}${onSheet ? ` ${controlStyles.listLocate}` : ''}`}
-      data-locate-fab={onSheet ? undefined : ''}
+      className={controlStyles.fab}
+      data-locate-fab=""
       data-invite={showLocateInvite ? '' : undefined}
     >
       <svg
@@ -818,7 +818,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               z-index nach draußen wirken, und die Liste (z-index 4) legte sich
               über den Knopf, sobald sie auch nur ein Stück hochkam. Als
               Geschwister der Liste gewinnt seine 6 gegen ihre 4. */}
-          {renderLocateControl(false)}
+          {/* The dock is the button's frame on phones: fixed above the sheet's
+              resting edge, it rides up with the sheet and then stays while
+              the sheet slides over it (MapControls.module.css). Elsewhere it
+              has no box. */}
+          <div className={controlStyles.locateDock} data-locate-dock="">
+            {renderLocateControl()}
+          </div>
 
           <button
             type="button"
@@ -891,20 +897,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             inert={desktopPanelHidden || undefined}
           >
             {/* In the list the handle rides in the sticky filter bar instead
-                (see MapListHeader); in a restaurant detail its own bar sticks
-                (MapSheet.module.css `.detailBar`). Either way it is the way back to the
+                (see MapListHeader); in a restaurant detail it sticks itself
+                (MapSheet.module.css). Either way it is the way back to the
                 map, so it has to stay on screen. */}
-            {sheetView === 'detail' &&
-              (selectedRestaurant ? (
-                /* The grab zone around the handle, as in the list: it carries
-                   the locate button, which then rides the sheet natively. */
-                <div className={sheetStyles.detailBar} data-sheet-grab-zone="">
-                  {sheetHandle}
-                  {renderLocateControl(true)}
-                </div>
-              ) : (
-                sheetHandle
-              ))}
+            {sheetView === 'detail' && sheetHandle}
 
             {/* Restaurant detail's chrome now lives on the photo hero (back
                 pill + save bookmark, per the Chewy mockup) — no handle-bar
@@ -961,7 +957,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 <MapListHeader
                   headerRef={setHeaderRef}
                   grabber={sheetHandle}
-                  locationControl={renderLocateControl(true)}
                   categories={categories}
                   category={category}
                   onCategoryChange={setCategory}

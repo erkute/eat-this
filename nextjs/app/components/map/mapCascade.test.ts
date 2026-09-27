@@ -207,7 +207,9 @@ describe('MapControls cascade', () => {
        nicht mehr treffen. Was zu sichern bleibt, ist die Lage der FAB. */
     const phone = '(max-width: 767.98px)';
 
-    expect(effective(CONTROLS, 'fab', 'bottom', phone)).toContain('14px');
+    /* On phones the dock carries the position; the button rides inside it. */
+    expect(effective(CONTROLS, 'locateDock', 'bottom', phone)).toContain('14px');
+    expect(effective(CONTROLS, 'locateDock', 'position', phone)).toBe('fixed');
   });
 });
 

@@ -60,10 +60,9 @@ export const LOWERED_GAP_PX = 24;
    same reason the strip line is: there is one map page. */
 let lowered: HTMLElement | null = null;
 
-/* What stands on the sheet's resting edge over the map without riding the
-   sheet: the map credit (ODbL wants it on the map). The locate button rides
-   the sheet's bar on phones (MapSectionBody). */
-const FOLLOWERS = '.maplibregl-ctrl-bottom-left';
+/* What stands on the sheet's resting edge over the map: the locate button's
+   dock and the map credit (ODbL wants it on the map). */
+const FOLLOWERS = '[data-locate-dock], .maplibregl-ctrl-bottom-left';
 let followed = 0;
 
 /** How far the sheet stands below its resting edge; the followers go along.

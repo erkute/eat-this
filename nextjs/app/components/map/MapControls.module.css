@@ -455,9 +455,7 @@
 }
 
 /* ── Locate button ─────────────────────────────────────────────────────
-   Phone: it rides the sheet's bar — the list header or the restaurant
-   detail's bar (`.listLocate`, see MapSectionBody) — so native scrolling
-   carries it, no per-frame JS; the free-standing one is hidden there.
+   Phone: in its dock, see `.locateDock` below.
    Tablet: it rides the drag sheet's edge (--locate-bottom from
    MapSectionBody) and steps aside before the burger. Desktop: bottom right
    of the map. */
@@ -584,77 +582,63 @@
   }
 }
 
-/* The copy on a sheet bar exists on phones only. */
-.fab.listLocate {
-  display: none;
+/* Phone: the Google Maps way. The dock stands fixed above the sheet's
+   resting edge; the button rides up with the sheet 1:1 on a document scroll
+   timeline (compositor — a scroll handler lagged a frame or two on iOS and
+   the list overtook it), stops where its top is 104px below the safe area,
+   clear of search and burger, and the sheet slides over it (dock before the
+   sheet in the DOM, no z-index). --locate-ride is that distance from rest.
+   A sheet pulled below its rest takes the dock along (sheetSlide.ts
+   followSheet). Elsewhere the dock has no box. */
+.locateDock {
+  display: contents;
+}
+
+@keyframes locateRide {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 calc(-1 * var(--locate-ride));
+  }
 }
 
 @media (max-width: 767.98px) {
-  .fab {
+  .locateDock {
+    --locate-ride: max(
+      0px,
+      calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
+    );
+    position: fixed;
+    right: 14px;
     bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
+    display: block;
   }
 
-  :global([data-map-body][data-map-view='list']) .fab:not(.listLocate),
-  :global([data-map-body][data-map-view='detail']) .fab:not(.listLocate) {
+  /* The restaurant detail rests lower, its top edge at --detail-map-peek. */
+  :global([data-map-body][data-map-view='detail']) .locateDock {
+    --locate-ride: max(0px, calc(var(--detail-map-peek, 50lvh) - 162px - env(safe-area-inset-top, 0px)));
+    bottom: calc(100dvh - var(--detail-map-peek, 50lvh) + 14px);
+  }
+
+  /* The must-eat detail is a takeover with no map behind it. */
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .locateDock {
     display: none;
   }
 
-  .fab.listLocate {
-    position: absolute;
+  .fab {
+    position: relative;
     top: auto;
-    right: 14px;
-    bottom: calc(100% + 14px);
-    left: auto;
-    z-index: 1;
-    display: flex;
+    right: auto;
+    bottom: auto;
+    z-index: auto;
   }
-}
 
-/* Riding the bar, the button would run into the burger (same column) just
-   before the bar docks under the map strip. It slides out sideways first, on
-   the compositor: a scroll handler lags a frame or two on iOS. A document
-   scroll timeline, not view() — a view timeline counts the sticky bar's whole
-   travel (measured -293px to 10787px) and never left 0%. The range runs while
-   the button's top travels from 104px to 60px below the safe area (burger
-   bottom at 59px); the button sits 58px above the sheet's edge. */
-@keyframes listLocateRetreat {
-  0% {
-    translate: 0 0;
-    visibility: visible;
-  }
-  99% {
-    translate: calc(100% + 18px) 0;
-    visibility: visible;
-  }
-  100% {
-    translate: calc(100% + 18px) 0;
-    visibility: hidden;
-  }
-}
-
-@media (max-width: 767.98px) {
   @supports (animation-timeline: scroll()) {
-    .fab.listLocate {
-      animation: listLocateRetreat linear both;
+    .fab {
+      animation: locateRide linear both;
       animation-timeline: scroll(root block);
-      animation-range:
-        calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
-        calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 118px - env(safe-area-inset-top, 0px));
-    }
-
-    /* The restaurant detail rests lower, its top edge at --detail-map-peek. */
-    :global([data-map-body][data-map-view='detail']) .fab.listLocate {
-      animation-range:
-        calc(var(--detail-map-peek, 50lvh) - 162px - env(safe-area-inset-top, 0px))
-        calc(var(--detail-map-peek, 50lvh) - 118px - env(safe-area-inset-top, 0px));
-    }
-  }
-
-  /* Without scroll-driven animations it steps aside once the bar has docked. */
-  @supports not (animation-timeline: scroll()) {
-    :global([data-map-body][data-header-stuck='true']) .fab.listLocate {
-      translate: calc(100% + 18px) 0;
-      visibility: hidden;
+      animation-range: 0 var(--locate-ride);
     }
   }
 }

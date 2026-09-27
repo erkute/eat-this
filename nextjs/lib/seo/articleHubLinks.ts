@@ -30,6 +30,21 @@ const BEZIRK = (slug: string, name: string): ArticleHubLink => ({
 });
 
 const HUB_BY_ARTICLE: Record<string, ArticleHubLink> = {
+  'beste-pizzerien-berlin': CATEGORY(
+    'pizza',
+    'Alle Pizza-Spots in Berlin',
+    'All pizza spots in Berlin'
+  ),
+  'restaurant-date-berlin': CATEGORY(
+    'dinner',
+    'Alle Restaurants zum Abendessen in Berlin',
+    'All dinner spots in Berlin'
+  ),
+  'beste-italiener-berlin': CATEGORY(
+    'dinner',
+    'Alle Restaurants zum Abendessen in Berlin',
+    'All dinner spots in Berlin'
+  ),
   'fine-dining-berlin': CATEGORY(
     'fine-dining',
     'Alle Fine-Dining-Spots in Berlin',
@@ -89,7 +104,7 @@ const HUB_BY_ARTICLE: Record<string, ArticleHubLink> = {
 };
 
 export function articleHubLink(articleSlug: string): ArticleHubLink | null {
-  return HUB_BY_ARTICLE[articleSlug] ?? null;
+  return Object.hasOwn(HUB_BY_ARTICLE, articleSlug) ? HUB_BY_ARTICLE[articleSlug] : null;
 }
 
 export function articleHubLabel(link: ArticleHubLink, locale: 'de' | 'en'): string {

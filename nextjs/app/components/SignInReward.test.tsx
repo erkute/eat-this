@@ -154,6 +154,10 @@ describe('Ankunft nach der Anmeldung', () => {
     const flipper = screen.getByTestId('tour-flipper');
     expect(flipper.className).toContain('flipped');
     act(() => void vi.advanceTimersByTime(800));
+    expect(screen.getByTestId('tour-tap-cue')).toBeTruthy();
+    expect(flipper.className).toContain('flipped');
+    act(() => void vi.advanceTimersByTime(650));
+    expect(screen.queryByTestId('tour-tap-cue')).toBeNull();
     expect(flipper.className).not.toContain('flipped');
 
     fireEvent.click(screen.getByRole('button', { name: 'Karte umdrehen' }));

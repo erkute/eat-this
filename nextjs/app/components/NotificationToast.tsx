@@ -99,7 +99,7 @@ export default function NotificationToast() {
           .filter(Boolean)
           .join('. ')
       : '';
-  const dismissLabel = lang === 'en' ? 'Got it' : 'Alles klar';
+  const dismissLabel = notice?.dismissLabel ?? (lang === 'en' ? 'Got it' : 'Alles klar');
   return (
     <>
       <div className="notification-live" aria-live="polite" aria-atomic="true">

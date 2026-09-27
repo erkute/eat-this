@@ -385,7 +385,16 @@ export default function ProfileAlbum({
                           loading="lazy"
                         />
                         {where && (
-                          <span className={styles.slotWhere} aria-hidden="true">
+                          <span
+                            className={styles.slotWhere}
+                            style={
+                              {
+                                '--slot-name-units':
+                                  Math.max(...where.split(/\s+/).map((word) => word.length)) * 0.78,
+                              } as CSSProperties
+                            }
+                            aria-hidden="true"
+                          >
                             {where}
                           </span>
                         )}

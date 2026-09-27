@@ -7,7 +7,6 @@ import { localizedCuisine } from '@/lib/cuisineLabels';
 import {
   abbreviateBezirk,
   formatWalkingTime,
-  formatOpenStateChip,
   haversineDistance,
   type UserLocation,
   showsPackPromos,
@@ -35,6 +34,7 @@ import { normalizeName } from '@/lib/normalizeName';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
 import ShareButton from '../ShareButton';
+import OpenStateChip from '../OpenStateChip';
 import RestaurantGallery from './RestaurantGallery';
 import { spotGallery } from '@/lib/map/spotGallery';
 import RestaurantDetailArticles from './RestaurantDetailArticles';
@@ -136,13 +136,7 @@ export default function RestaurantDetail({
     [restaurant, detail]
   );
 
-  // Gleiche Kurzform wie der Zustands-Chip der Spot-Seite. Vorher stand hier
-  // ein getOpenStatus-Aufruf mit sechs übersetzten Labels, dessen Ergebnis nur
-  // noch zerlegt wurde, um die Uhrzeit per Regex zurückzuholen — Formulierung
-  // und Griff wären auf der Spot-Seite ein zweites Mal entstanden.
-  const openState = formatOpenStateChip(r.openingHours, locale === 'en' ? 'en' : 'de');
-  const hasHours = !!(r.openingHours && r.openingHours.length > 0);
-  const openTag = openState?.text ?? t('map.closed');
+  const hasHours = !!r.openingHours?.length;
 
   // Scale the hero name down for long single words so they fit on one line
   // (no ugly mid-word break). Upper bound ≈ usableWidth / (longestWord · 0.62).
@@ -331,13 +325,6 @@ export default function RestaurantDetail({
             <div className={styles.rdTagsOv}>
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
-              {hasHours && (
-                <span
-                  className={`${styles.rdTagAlt} ${openState?.isOpen ? styles.rdTagOpen : styles.rdTagClosed}`}
-                >
-                  {openTag}
-                </span>
-              )}
             </div>
           </div>
         </header>
@@ -398,6 +385,12 @@ export default function RestaurantDetail({
               )}
             </button>
           </nav>
+        )}
+
+        {!!r.openingHours?.length && (
+          <div className={styles.rdOpenState}>
+            <OpenStateChip openingHours={r.openingHours} locale={locale === 'en' ? 'en' : 'de'} />
+          </div>
         )}
 
         {/* BODY — story prose with drop cap. While the on-demand detail fetch

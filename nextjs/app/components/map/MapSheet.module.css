@@ -150,8 +150,17 @@
 
 @media (max-width: 1023.98px) {
   .listScroll {
-    max-height: calc(100dvh - var(--sheet-y, 40px) - 92px);
+    max-height: calc(var(--sheet-visible-px, calc(100dvh - 40px)) - 92px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* During a tablet drag, reveal the already-laid-out content instead of
+   resizing its scroll port for every --sheet-y update. At rest the measured
+   visible height above keeps the last row reachable at any snap. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .list[data-dragging='true'] .listScroll {
+    max-height: calc(100dvh - 92px);
   }
 }
 
@@ -205,13 +214,9 @@
   }
   .handle {
     cursor: grab;
-    /* The handle drags the window scroller (useHandleScrollDrag). Claiming its
-       gesture is safe precisely because it is only this strip — the rows around
-       it keep native scrolling, which is what ruled out binding the whole
-       sheet. */
+    /* The browser owns phone swipes, including on the grip. */
     position: relative;
-    touch-action: none;
-    -ms-touch-action: none;
+    touch-action: pan-y pinch-zoom;
   }
 
   /* Grab zone 26px → ~45px WITHOUT padding: extra padding here pushes the

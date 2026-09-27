@@ -396,11 +396,8 @@
     box-shadow: 0 1px 0 0 var(--et-ink);
     will-change: transform;
     transform: translateZ(0);
-    /* The whole bar is the sheet's grab zone (useHandleScrollDrag): a vertical
-       drag on a chip moves the sheet, a tap stays the chip's. `none` so iOS
-       hands the gesture to the hook instead of scrolling the page natively —
-       it outranks the chip row's own pan-x pan-y, which sits inside it. */
-    touch-action: none;
+    /* Native swipes also work when they start on a filter chip. */
+    touch-action: pan-y pinch-zoom;
     -webkit-user-select: none;
     user-select: none;
   }

@@ -202,6 +202,14 @@ interface SheetConfig {
 export function useBottomSheet(initial: SheetSnap = 'peek') {
   const [snap, setSnap] = useState<SheetSnap>(initial);
   const [dragging, setDragging] = useState(false);
+  const [phoneLayout, setPhoneLayout] = useState(isPhone);
+  useEffect(() => {
+    const media = window.matchMedia(`(max-width: ${PHONE_MAX}px)`);
+    const sync = () => setPhoneLayout(media.matches);
+    sync();
+    media.addEventListener('change', sync);
+    return () => media.removeEventListener('change', sync);
+  }, []);
   const [sheetMounted, setSheetMounted] = useState(false);
   // Bumped whenever the content element re-mounts (sheetView list ↔ detail
   // toggles). The touch-drag effect uses this as a useEffect dep so it
@@ -266,7 +274,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   }, []);
 
   /* Two-mode applyY:
-     - 'drag'  → write only the transform CSS var. No layout reads, no
+     - 'drag'  → write only the element's transform. No layout reads, no
                  querySelectorAll, no setTimeouts. Runs 60×/s during a swipe
                  and must stay sub-millisecond or the sheet feels janky.
      - 'snap'  → full path: also writes --sheet-visible-px on the sheet and
@@ -297,7 +305,9 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (target === null) return;
       const el = sheetNode.current;
       if (!el) return;
-      el.style.setProperty('--sheet-y', `${target}px`);
+      // Keep the hot path on this element only. An inherited CSS variable
+      // invalidates the whole sheet subtree, even with stable content height.
+      el.style.transform = `translateY(${target}px)`;
     });
   }, []);
 
@@ -313,6 +323,14 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     rafPxRef.current = null;
   }, []);
 
+  useEffect(() => {
+    if (!phoneLayout || !configRef.current.inflow) return;
+    cancelDragRaf();
+    dragRef.current = null;
+    sheetNode.current?.style.removeProperty('transform');
+    setDragging(false);
+  }, [phoneLayout, cancelDragRaf]);
+
   const applyY = useCallback(
     (px: number) => {
       const el = sheetNode.current;
@@ -321,6 +339,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
          CSS in-flow block, not the hook. Writing --sheet-y / control offsets
          here would fight the static phone positioning. */
       if (configRef.current.inflow && isPhone()) return;
+      el.style.removeProperty('transform');
       el.style.setProperty('--sheet-y', `${px}px`);
       const h = visibleViewportH();
       sheetHRef.current = h;
@@ -431,6 +450,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const handle = handleRef.current;
     const sheet = sheetNode.current;
     if (!handle || !sheet) return;
+    if (configRef.current.inflow && phoneLayout) return;
 
     const onDown = (e: PointerEvent) => {
       if (!isMobile() || configRef.current.dragMode === 'none') return;
@@ -520,7 +540,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       handle.removeEventListener('pointerup', onUp);
       handle.removeEventListener('pointercancel', onUp);
     };
-  }, [snap, applyYDrag, cancelDragRaf, sheetMounted]);
+  }, [snap, applyYDrag, cancelDragRaf, sheetMounted, phoneLayout]);
 
   // Content-area drag.
   //   - At 'peek': drag in any direction (sheet handle is small, this is the
@@ -535,6 +555,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const sheet = sheetNode.current;
     if (!content || !sheet) return;
     if (!isMobile()) return;
+    if (configRef.current.inflow && phoneLayout) return;
 
     let touchState: {
       startY: number;
@@ -660,7 +681,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       content.removeEventListener('touchend', onTouchEnd);
       content.removeEventListener('touchcancel', onTouchEnd);
     };
-  }, [applyYDrag, cancelDragRaf, snap, contentTick]);
+  }, [applyYDrag, cancelDragRaf, snap, contentTick, phoneLayout]);
 
   // Header-area drag (count row + filter / search buttons + tabs).
   // Like Google Maps, lets the user drag the sheet from anywhere up there,
@@ -673,6 +694,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (!header || !sheet) return;
     if (!isMobile()) return;
     if (configRef.current.dragMode !== 'all') return;
+    if (configRef.current.inflow && phoneLayout) return;
 
     let touchState: {
       startY: number;
@@ -770,7 +792,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       header.removeEventListener('touchend', onTouchEnd);
       header.removeEventListener('touchcancel', onTouchEnd);
     };
-  }, [applyYDrag, cancelDragRaf, snap, headerTick]);
+  }, [applyYDrag, cancelDragRaf, snap, headerTick, phoneLayout]);
 
   const collapse = useCallback(() => setSnap('peek'), []);
   const expand = useCallback(() => setSnap('mid'), []);

@@ -478,6 +478,7 @@ div.player {
 }
 
 .slot {
+  container-type: inline-size;
   position: relative;
   aspect-ratio: 1539 / 2115;
   overflow: hidden;
@@ -588,21 +589,20 @@ div.player {
   left: 8px;
   color: var(--album-ink);
   font-family: var(--album-display);
-  font-size: clamp(10px, 0.9vw, 12px);
+  /* Fit long words to the card, including letter spacing and side insets. */
+  font-size: min(
+    clamp(10px, 0.9vw, 12px),
+    max(8px, calc((100cqw - 20px) / var(--slot-name-units, 1)))
+  );
   font-weight: 700;
   letter-spacing: 0.06em;
-  /* Providence haengt unter die Grundlinie — mit Zeilenklemme braucht sie
-     Luft, sonst kappt `overflow` das g. */
+  /* Providence needs room below the baseline. */
   line-height: 1.35;
   text-align: center;
   text-transform: uppercase;
   text-wrap: balance;
-  /* Zwei Zeilen genuegen fuer „Restaurant Tim Raue" — was laenger ist,
-     bricht sauber ab statt den Platz zu sprengen. */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
+  /* Keep every name visible, even beyond two lines or at the minimum size. */
+  overflow-wrap: anywhere;
 }
 
 .emptyText {

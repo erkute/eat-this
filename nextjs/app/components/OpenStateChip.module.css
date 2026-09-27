@@ -1,6 +1,5 @@
-/* Zustands-Chip im Kopf der Spot-Seite. Fläche wie die Knöpfe daneben
- * (--hub-raised), der Zustand als Farbpunkt — grün geöffnet, rot geschlossen,
- * dieselbe Codierung wie die rdTagOpen/rdTagClosed-Chips des Map-Sheets. Eine
+/* Gemeinsamer Zustands-Chip fuer Spot-Seite und Map-Detail. Fläche wie die Knöpfe daneben
+ * (--hub-raised), der Zustand als Farbpunkt — grün geöffnet, rot geschlossen. Eine
  * volle grüne oder rote Fläche war neben dem gelben Map-Knopf die lauteste
  * Stelle der Seite. */
 

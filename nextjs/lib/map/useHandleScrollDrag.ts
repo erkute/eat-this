@@ -60,41 +60,13 @@ type Drag =
     };
 
 /**
- * Give the phone sheet a grabbable handle WITHOUT turning it back into a
- * transformed layer.
+ * Phone touch gestures use native document scrolling on the handle, chips and
+ * content alike. No preventDefault, pointer capture, per-frame scrollTo or
+ * release snap: Safari can scroll asynchronously and retain its own momentum.
+ * A handle tap still reveals the map / restores the remembered reading place.
  *
- * The phone list/detail are window-scrolled in-flow documents on purpose: only
- * document scroll makes iOS Safari collapse its bottom URL bar and sample real
- * content behind the translucent chrome (see useBottomSheet's inflow gates). A
- * classic drag sheet would need `position: fixed` + `transform`, which kills
- * both — and a composited layer is exactly what broke the bar backdrop before.
- *
- * So between the stops the handle drives the native scroller: the finger maps
- * 1:1 onto window.scrollY, which keeps every Safari behaviour intact while
- * still feeling like you are moving the sheet.
- *
- * In the list the handle sits in the sticky filter bar, so it is on screen at
- * any depth. From deep in the list, scrolling back through every row is not
- * what a pull on the bar means — there the finger moves the visible slab
- * instead, the way the Google Maps and Airbnb sheets let you pull the list off
- * the map. A tap on the bar does the same. Back on the map, pulling the bar up
- * returns the list to where it was left. The transform lives only for the
- * gesture; see sheetSlide.ts.
- *
- * In the list the whole filter bar is the grab zone, as in Google Maps: a
- * press on a chip turns into a drag once it moves vertically, and is the
- * chip's tap otherwise. The zone is the nearest `[data-sheet-grab-zone]`
- * around the handle; without one it is the handle alone.
- *
- * The finger's position is applied once per frame, not per pointermove: iOS
- * samples touches faster than a 60 Hz screen draws, and every extra
- * `scrollTo` between two frames was a main-thread scroll plus a round of
- * scroll listeners, landing the sheet in uneven steps.
- *
- * `dragMode: 'all'` was rejected upstream because binding touchmove on the
- * CONTENT would swallow the page's own scrolling. That objection does not apply
- * here: only the handle strip claims its gesture, so the rows keep native
- * scroll untouched.
+ * Mouse dragging in a narrow window keeps the custom drag path below; a mouse
+ * does not provide native drag-to-scroll. Tablets use useBottomSheet instead.
  */
 export function useHandleScrollDrag(
   handleRef: RefObject<HTMLDivElement | null>,
@@ -108,6 +80,9 @@ export function useHandleScrollDrag(
     const zone = handle.closest<HTMLElement>('[data-sheet-grab-zone]') ?? handle;
     let drag: Drag | null = null;
     let pending: Pending | null = null;
+    // Touch scrolling belongs to the browser, including momentum and arbitrary
+    // resting positions. Only remember a possible tap on the handle.
+    let touchTap: { pointerId: number; x: number; y: number; moved: boolean } | null = null;
     /* The current drag began on a chip: its release is never a tap, and the
        click the chip may still get is swallowed (see onClick). */
     let claimedLate = false;
@@ -194,6 +169,12 @@ export function useHandleScrollDrag(
     const onDown = (e: PointerEvent) => {
       // Tablets/desktop still use the real transform sheet in useBottomSheet.
       if (!isPhone() || busy || drag || pending) return;
+      if (e.pointerType === 'touch') {
+        touchTap = e.isPrimary !== false && e.target instanceof Node && handle.contains(e.target)
+          ? { pointerId: e.pointerId, x: e.clientX, y: e.clientY, moved: false }
+          : null;
+        return;
+      }
       if (!(e.target instanceof Node && handle.contains(e.target))) {
         /* Not claimed yet: the press may still be a tap on a chip. */
         pending = {
@@ -239,6 +220,12 @@ export function useHandleScrollDrag(
     };
 
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') {
+        if (touchTap && touchTap.pointerId === e.pointerId) {
+          touchTap.moved ||= Math.hypot(e.clientX - touchTap.x, e.clientY - touchTap.y) >= TAP_PX;
+        }
+        return;
+      }
       if (pending && e.pointerId === pending.pointerId) {
         const dx = Math.abs(e.clientX - pending.startX);
         const dy = Math.abs(e.clientY - pending.startY);
@@ -268,6 +255,24 @@ export function useHandleScrollDrag(
     };
 
     const onUp = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') {
+        const tap = touchTap;
+        touchTap = null;
+        if (!tap || tap.pointerId !== e.pointerId || tap.moved || e.type !== 'pointerup' ||
+            Math.hypot(e.clientX - tap.x, e.clientY - tap.y) >= TAP_PX) return;
+        // A tap keeps the shortcut to the map / remembered row. Swipes never
+        // enter the transform-and-snap path used for mouse dragging below.
+        const { sheet, sheetStop, restLine } = geometry();
+        if (!slides(sheet)) return;
+        if (window.scrollY > sheetStop + AT_STOP_PX) {
+          onCollapse();
+        } else if (window.scrollY < sheetStop - AT_STOP_PX && grabFromMap(sheet, view, restLine)) {
+          busy = true;
+          trackEvent('map_view_toggle', { direction: 'to_list' });
+          void raiseToList(sheet, restLine).finally(() => { busy = false; });
+        }
+        return;
+      }
       if (pending && e.pointerId === pending.pointerId) {
         pending = null;
         return;

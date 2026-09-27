@@ -208,7 +208,11 @@ describe('MapControls cascade', () => {
     const phone = '(max-width: 767.98px)';
 
     /* On phones the dock carries the position; the button rides inside it. */
-    expect(effective(CONTROLS, 'locateDock', 'bottom', phone)).toContain('14px');
+    expect(effective(CONTROLS, 'locateDock', 'bottom', phone)).toBe('var(--edge-bottom)');
+    /* The edge line, shared with the map credit: 14px above the resting edge. */
+    const layout = readFileSync(fileURLToPath(new URL('./MapLayout.module.css', import.meta.url)), 'utf8');
+    expect(layout).toMatch(/--edge-bottom: calc\(var\(--phone-list-sheet-visible, 28dvh\) \+ 14px\)/);
+    expect(layout).toContain('bottom: calc(100lvh - 100dvh + var(--edge-bottom))');
     expect(effective(CONTROLS, 'locateDock', 'position', phone)).toBe('fixed');
   });
 });

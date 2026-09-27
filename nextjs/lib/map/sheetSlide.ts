@@ -61,8 +61,9 @@ export const LOWERED_GAP_PX = 24;
 let lowered: HTMLElement | null = null;
 
 /* What stands on the sheet's resting edge over the map: the locate button's
-   dock and the map credit (ODbL wants it on the map). */
-const FOLLOWERS = '[data-locate-dock], .maplibregl-ctrl-bottom-left';
+   dock and the map credit (ODbL wants it on the map) — its control, since the
+   credit's container carries the scroll ride on the same property. */
+const FOLLOWERS = '[data-locate-dock], .maplibregl-ctrl-bottom-left > .maplibregl-ctrl';
 let followed = 0;
 
 /** How far the sheet stands below its resting edge; the followers go along.

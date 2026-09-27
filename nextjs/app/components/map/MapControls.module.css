@@ -587,7 +587,7 @@
    timeline (compositor — a scroll handler lagged a frame or two on iOS and
    the list overtook it), stops where its top is 104px below the safe area,
    clear of search and burger, and the sheet slides over it (dock before the
-   sheet in the DOM, no z-index). --locate-ride is that distance from rest.
+   sheet in the DOM, no z-index). --edge-ride is that distance from rest.
    A sheet pulled below its rest takes the dock along (sheetSlide.ts
    followSheet). Elsewhere the dock has no box. */
 .locateDock {
@@ -599,26 +599,18 @@
     translate: 0 0;
   }
   to {
-    translate: 0 calc(-1 * var(--locate-ride));
+    translate: 0 calc(-1 * var(--edge-ride));
   }
 }
 
 @media (max-width: 767.98px) {
+  /* On the edge line the map credit shares (--edge-bottom/--edge-ride,
+     MapLayout.module.css). */
   .locateDock {
-    --locate-ride: max(
-      0px,
-      calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
-    );
     position: fixed;
     right: 14px;
-    bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
+    bottom: var(--edge-bottom);
     display: block;
-  }
-
-  /* The restaurant detail rests lower, its top edge at --detail-map-peek. */
-  :global([data-map-body][data-map-view='detail']) .locateDock {
-    --locate-ride: max(0px, calc(var(--detail-map-peek, 50lvh) - 162px - env(safe-area-inset-top, 0px)));
-    bottom: calc(100dvh - var(--detail-map-peek, 50lvh) + 14px);
   }
 
   /* The must-eat detail is a takeover with no map behind it. */
@@ -638,7 +630,7 @@
     .fab {
       animation: locateRide linear both;
       animation-timeline: scroll(root block);
-      animation-range: 0 var(--locate-ride);
+      animation-range: 0 var(--edge-ride);
     }
   }
 }

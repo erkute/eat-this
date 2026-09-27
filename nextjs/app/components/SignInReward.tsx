@@ -230,13 +230,15 @@ export default function SignInReward() {
   /* Der Aufdeck-Schritt fuehrt vor, was am Spot passiert: verdeckt rein,
      nach kurzem Moment dreht sich die Karte. Antippen dreht sie selbst —
      und nimmt der Automatik die Karte ab. */
-  const [cardDown, setCardDown] = useState(false);
+  // Mount the reveal card already covered; changing it in an effect would
+  // first animate the visible front back into hiding.
+  const [cardDown, setCardDown] = useState(true);
   const [showTapCue, setShowTapCue] = useState(false);
   const flipTimer = useRef<number | null>(null);
   const flipping = open && pages(identity)[step] === 'reveal';
   useEffect(() => {
     if (!flipping) {
-      setCardDown(false);
+      setCardDown(true);
       setShowTapCue(false);
       return;
     }

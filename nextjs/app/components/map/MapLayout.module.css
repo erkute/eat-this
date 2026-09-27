@@ -307,22 +307,28 @@
     background-color: var(--et-ink);
   }
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
-    /* Same anchoring as the list: the map stays put and the sheet slides over
-       it, so the three stops uncover it instead of dragging it off-screen.
-       Only the HEIGHT differs — bounded to the strip. */
+    /* Same anchoring and height as the list: the map stays put and the sheet
+       slides over it. It used to be bounded to --detail-map-peek, which left
+       only the page's ink below that line once the sheet could be pulled
+       lower than its resting edge (user, 27.09.2026). The sheet rests at the
+       peek through its own margin (MapSheet.module.css). */
     position: sticky;
     top: 0;
-    height: var(--detail-map-peek);
+    height: 100lvh;
     overflow: hidden;
   }
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
     bottom: calc(var(--phone-list-sheet-visible) + 10px);
+    /* Goes down with a sheet pulled below its resting edge, like the locate
+       button (lib/map/sheetSlide.ts followSheet). The credit stays: ODbL
+       wants it on the map. */
   }
   .body[data-map-view='detail'][data-detail-kind='restaurant']
     .mapWrap
     :global(.maplibregl-ctrl-bottom-left) {
     display: block;
-    bottom: 6px;
+    /* Just above the sheet's resting edge, as when the map ended there. */
+    bottom: calc(100lvh - var(--detail-map-peek) + 6px);
     left: 8px;
   }
   .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapWrap {

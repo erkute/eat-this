@@ -209,7 +209,7 @@
   }
   /* Detail content keeps its own stacking (cards up to z 30 inside), so none
      of it climbs over the map strip or the bars. */
-  .list[data-view='detail'] > :not(.handle) {
+  .list[data-view='detail'] > :not(.handle):not(.detailBar) {
     isolation: isolate;
   }
   .handle {
@@ -238,8 +238,11 @@
   }
   /* In a restaurant detail the handle is the bar: it sticks below the map
      strip like the list's filter bar, so the way back to the map is on screen
-     at any depth (useHandleScrollDrag). Ink, because rows pass under it. */
-  .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
+     at any depth (useHandleScrollDrag). Ink, because rows pass under it. It
+     carries the locate button above its right edge, like the list's bar
+     (MapControls.module.css `.listLocate`), so the button moves with the
+     sheet natively. */
+  .list[data-view='detail'][data-detail-kind='restaurant'] > .detailBar {
     position: sticky;
     top: var(--map-strip, env(safe-area-inset-top, 0px));
     /* Above the map strip (7). */
@@ -260,6 +263,10 @@
   .list[data-view='detail'][data-detail-kind='restaurant'] {
     background: linear-gradient(transparent 0 27px, var(--et-ink) 27px);
     border-top: 0;
+    /* The map behind is a full 100lvh like the list's (MapLayout.module.css),
+       so the sheet can be pulled below its resting edge onto more map. The
+       resting edge stays at --detail-map-peek. */
+    margin-top: calc(var(--detail-map-peek) - 100lvh);
   }
   .listScroll {
     max-height: none;
@@ -337,13 +344,11 @@
   }
 }
 
-/* Preserve the reading excerpt even while collapsed. Clip only the moving
-   content, so the sticky grip/filters stay visible and native page scrolling
-   remains available. The hook removes this offset at the full-height stop. */
+/* Held at the lowest stop (lib/map/sheetSlide.ts): the whole sheet is the
+   grip, so a swipe on a chip or a row moves the sheet instead of scrolling
+   the page under its transform. */
 @media (max-width: 767.98px) {
-  .list[style*="--sheet-reading-offset"] > .listScroll,
-  .list[style*="--sheet-reading-offset"] > [data-detail-mount] {
-    transform: translateY(calc(-1 * var(--sheet-reading-offset)));
-    clip-path: inset(var(--sheet-reading-offset) 0 0);
+  .list[data-sheet-lowered] {
+    touch-action: none;
   }
 }

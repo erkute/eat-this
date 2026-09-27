@@ -3,15 +3,15 @@ import { useEffect, type RefObject } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { measureSheetTop, resolveSnap, snapOffsets } from './phoneSheetSnaps';
 import {
-  resumeSheetReading,
-  scrollCollapsedReading,
+  dropLowered,
+  followSheet,
   grabFromList,
-  mapStripLine,
-  SHEET_COLLAPSE_EVENT,
-  grabFromMap,
+  heldOffset,
   holdSheetAt,
+  LOWERED_GAP_PX,
+  mapStripLine,
   raiseToList,
-  rememberedSheetPosition,
+  SHEET_COLLAPSE_EVENT,
   settleOnMap,
 } from './sheetSlide';
 
@@ -24,8 +24,8 @@ const INTENT_PX = 64;
 const FLICK_PX_PER_MS = 0.5;
 /* Below this much movement a release is a tap. */
 const TAP_PX = 6;
-/* After a drag that began on a chip, the click the browser may still send
-   there is the drag's, not a tap's. */
+/* After a gesture of the grip, the click the browser may still send is the
+   gesture's, not a tap's. */
 const CLICK_AFTER_DRAG_MS = 400;
 
 function isPhone(): boolean {
@@ -39,21 +39,32 @@ function isPhone(): boolean {
 type Pending = { pointerId: number; startX: number; startY: number; timeStamp: number };
 
 type Drag =
-  /* Between the stops: the finger drives the window scroller 1:1. */
-  | { kind: 'scroll'; pointerId: number; startY: number; startScrollY: number; fingerY: number }
-  /* Deep in the list, or pulling a remembered list back up from the map: the
-     finger drives the slab on screen (see sheetSlide.ts). */
+  /* At and between the stops. `pos` is the scroll position the finger asks
+     for; below 0 the page stays at the map stop and the sheet is held that
+     far down instead — the lowest stop lies there. */
   | {
-      kind: 'slab';
-      from: 'list' | 'map';
+      kind: 'scroll';
       pointerId: number;
       startY: number;
-      base: number;
+      startPos: number;
+      pos: number;
+      mapY: number;
+      /* The lowest stop, as a scroll position (mapY when there is none). */
+      floor: number;
+    }
+  /* Deep in the list: the finger drives the slab on screen (see
+     sheetSlide.ts). */
+  | {
+      kind: 'slab';
+      pointerId: number;
+      startY: number;
       offset: number;
-      /* Where the bar rests over the map, in slab offset. The finger cannot
-         take it lower: past that line the sticky bar would reach the bottom
-         edge, and iOS Safari tints its URL bar after it (see sheetSlide.ts). */
+      /* Where the bar rests over the map, in slab offset. */
       restLine: number;
+      /* The lowest stop, in slab offset: the finger cannot take the bar
+         lower. Past it the sticky bar would near the bottom edge, and iOS
+         Safari tints its URL bar after it (see sheetSlide.ts). */
+      lowLine: number;
       mapY: number;
       lastY: number;
       lastT: number;
@@ -61,10 +72,14 @@ type Drag =
     };
 
 /**
+ * The phone sheet's grip. Four stops: lowered (only the bar above the bottom),
+ * map, split and sheet; past the last one the list reads natively.
+ *
  * Content and filter touches keep native document scrolling. The grip alone
- * owns its drag: from deep in a list/detail it lowers the visible sheet and
- * remembers the reading position, instead of scrolling through every row.
- * Movement is applied once per frame. Tablets use useBottomSheet instead.
+ * owns its drag: from deep in a list/detail it lowers the visible sheet
+ * instead of scrolling through every row, and the sheet comes back at its
+ * top. Lowered, the whole sheet is the grip. Movement is applied once per
+ * frame. Tablets use useBottomSheet instead.
  */
 export function useHandleScrollDrag(
   handleRef: RefObject<HTMLDivElement | null>,
@@ -76,21 +91,24 @@ export function useHandleScrollDrag(
     if (!handle) return;
 
     const zone = handle.closest<HTMLElement>('[data-sheet-grab-zone]') ?? handle;
+    const sheetEl = () => handle.closest<HTMLElement>('[data-map-sheet]');
+    /* Presses land on the sheet: lowered, all of it is the grip. */
+    const press = sheetEl() ?? zone;
     let drag: Drag | null = null;
     let pending: Pending | null = null;
-    /* The current drag began on a chip: its release is never a tap, and the
-       click the chip may still get is swallowed (see onClick). */
+    /* The current drag began on a chip or on a lowered sheet, not on the grip
+       itself: a tap there is not the grip's tap (which opens or closes). */
     let claimedLate = false;
     let suppressClickUntil = 0;
     let busy = false;
     /* The finger's latest position waits here for the next frame. */
     let frame = 0;
 
-    const sheetEl = () => handle.closest<HTMLElement>('[data-map-sheet]');
     /* The list, and a restaurant detail — both have the map behind them. The
        must-eat detail is a takeover with the map hidden: nothing to reveal. */
     const slides = (sheet: HTMLElement | null): sheet is HTMLElement =>
       Boolean(sheet) && (view === 'list' || sheet?.dataset.detailKind === 'restaurant');
+    const isLowered = () => sheetEl()?.dataset.sheetLowered !== undefined;
     /* The stops, and where the bar rests over the map. Where the map strip
        shows (list, restaurant detail), "all the way up" leaves the strip
        uncovered: the last stop is the sheet's top edge on the strip line, not
@@ -98,7 +116,8 @@ export function useHandleScrollDrag(
     const geometry = () => {
       const sheet = sheetEl();
       const measured = measureSheetTop();
-      const sheetTop = measured ?? 0;
+      /* Measured without the transform the sheet may be held at. */
+      const sheetTop = (measured ?? 0) - (sheet ? heldOffset(sheet) : 0);
       const strip = slides(sheet) ? mapStripLine() : 0;
       /* Unmeasurable (no sheet yet): snapOffsets falls back to its dvh estimate. */
       const offsets = snapOffsets(
@@ -116,9 +135,18 @@ export function useHandleScrollDrag(
            At rest the bar sits on the strip line, so that is what it moves
            from. */
         restLine: Math.max(0, sheetTop - mapY - strip),
+        /* How far below the map stop the sheet may go: down to the bar and a
+           sliver of rows above the bottom edge. */
+        lowBy: slides(sheet)
+          ? Math.max(
+              0,
+              Math.round(
+                window.innerHeight - zone.offsetHeight - LOWERED_GAP_PX - (sheetTop - mapY)
+              )
+            )
+          : 0,
       };
     };
-    const stops = () => geometry().offsets;
 
     const begin = (pointerId: number, startY: number, timeStamp: number) => {
       try {
@@ -127,45 +155,41 @@ export function useHandleScrollDrag(
         /* capture is best-effort; the window listeners below still track. */
       }
 
-      const { sheet, sheetStop, mapY, restLine } = geometry();
-      const slab = (from: 'list' | 'map', base: number): Drag => ({
-        kind: 'slab',
-        from,
-        pointerId,
-        startY,
-        base,
-        offset: base,
-        restLine,
-        mapY,
-        lastY: startY,
-        lastT: timeStamp,
-        v: 0,
-      });
-
-      if (slides(sheet)) {
-        if (window.scrollY > sheetStop + AT_STOP_PX) {
-          drag = slab('list', grabFromList(sheet));
-          return;
-        }
-        const visibleOffset = Math.max(0, restLine - (window.scrollY - mapY));
-        if (window.scrollY < sheetStop && grabFromMap(sheet, view, visibleOffset)) {
-          drag = slab('map', visibleOffset);
-          return;
-        }
+      const { sheet, sheetStop, mapY, restLine, lowBy } = geometry();
+      if (slides(sheet) && window.scrollY > sheetStop + AT_STOP_PX) {
+        drag = {
+          kind: 'slab',
+          pointerId,
+          startY,
+          offset: grabFromList(sheet),
+          restLine,
+          lowLine: restLine + lowBy,
+          mapY,
+          lastY: startY,
+          lastT: timeStamp,
+          v: 0,
+        };
+        return;
       }
+      const startPos = sheet && isLowered() ? mapY - heldOffset(sheet) : window.scrollY;
       drag = {
         kind: 'scroll',
         pointerId,
         startY,
-        startScrollY: window.scrollY,
-        fingerY: startY,
+        startPos,
+        pos: startPos,
+        mapY,
+        floor: mapY - lowBy,
       };
     };
 
     const onDown = (e: PointerEvent) => {
       // Tablets/desktop still use the real transform sheet in useBottomSheet.
       if (!isPhone() || busy || drag || pending) return;
-      if (!(e.target instanceof Node && handle.contains(e.target))) {
+      const onGrip = e.target instanceof Node && handle.contains(e.target);
+      const inZone = e.target instanceof Node && zone.contains(e.target);
+      if (!onGrip && !isLowered()) {
+        if (!inZone) return;
         // Only the grip claims touch; filter chips retain native scrolling.
         if (e.pointerType === 'touch') return;
         /* Not claimed yet: the press may still be a tap on a chip. */
@@ -177,24 +201,28 @@ export function useHandleScrollDrag(
         };
         return;
       }
-      // Claims ONLY the grab zone's gesture — the list keeps native scrolling.
+      // Claims ONLY this gesture — the list keeps native scrolling.
       e.preventDefault();
-      claimedLate = false;
+      /* Lowered, a press on a row is the sheet's, not the row's. */
+      claimedLate = !onGrip;
       begin(e.pointerId, e.clientY, e.timeStamp);
     };
 
     /* Put the sheet where the finger is — at most once per frame. */
     const apply = () => {
       frame = 0;
+      const sheet = sheetEl();
       if (!drag) return;
       if (drag.kind === 'slab') {
-        const sheet = sheetEl();
         if (sheet) holdSheetAt(sheet, drag.offset);
+        followSheet(drag.offset - drag.restLine);
         return;
       }
+      if (sheet) holdSheetAt(sheet, Math.max(0, drag.mapY - drag.pos));
+      followSheet(drag.mapY - drag.pos);
       // Finger up ⇒ clientY shrinks ⇒ scroll further down ⇒ sheet rises over
       // the map, matching what the hand is doing.
-      const next = Math.max(0, drag.startScrollY + (drag.startY - drag.fingerY));
+      const next = Math.max(drag.mapY, drag.pos);
       // globals.css sets `scroll-behavior: smooth` document-wide; without an
       // explicit instant the sheet would ease along behind the finger.
       if (next !== window.scrollY) {
@@ -229,15 +257,29 @@ export function useHandleScrollDrag(
       }
       if (!drag || e.pointerId !== drag.pointerId) return;
       if (drag.kind === 'slab') {
-        drag.offset = Math.min(drag.restLine, Math.max(0, drag.base + (e.clientY - drag.startY)));
+        drag.offset = Math.min(drag.lowLine, Math.max(0, e.clientY - drag.startY));
         const dt = e.timeStamp - drag.lastT;
         if (dt > 0) drag.v = (e.clientY - drag.lastY) / dt;
         drag.lastY = e.clientY;
         drag.lastT = e.timeStamp;
       } else {
-        drag.fingerY = e.clientY;
+        drag.pos = Math.max(drag.floor, drag.startPos + (drag.startY - e.clientY));
       }
       schedule();
+    };
+
+    /* Glide a sheet held below the map stop to `target` (a scroll position;
+       below the map stop = lowered). */
+    const settleBelow = (sheet: HTMLElement, from: number, target: number, mapY: number) => {
+      busy = true;
+      const done =
+        target < mapY
+          ? settleOnMap(sheet, mapY - from, mapY - target, { restLinePx: 0, mapY })
+          : raiseToList(sheet, mapY - from);
+      void done.finally(() => {
+        busy = false;
+        if (target > mapY) window.scrollTo({ top: target, behavior: 'smooth' });
+      });
     };
 
     const onUp = (e: PointerEvent) => {
@@ -247,7 +289,10 @@ export function useHandleScrollDrag(
       }
       if (!drag || e.pointerId !== drag.pointerId) return;
       flush();
-      if (claimedLate) suppressClickUntil = e.timeStamp + CLICK_AFTER_DRAG_MS;
+      /* Whatever the grip did moved the sheet, and the click that follows is
+         hit-tested where the sheet now is: a tap that raised a lowered detail
+         opened the photo that came to lie under the finger. */
+      suppressClickUntil = e.timeStamp + CLICK_AFTER_DRAG_MS;
       const d = drag;
       drag = null;
       try {
@@ -256,55 +301,67 @@ export function useHandleScrollDrag(
         /* already released (pointercancel) — nothing to undo. */
       }
       const cancelled = e.type !== 'pointerup';
+      const tap = Math.abs(e.clientY - d.startY) < TAP_PX && e.type === 'pointerup';
+      const sheet = sheetEl();
 
       if (d.kind === 'slab') {
-        const sheet = sheetEl();
         if (!sheet) return;
-        const moved = d.offset - d.base;
-        const tap =
-          !claimedLate && Math.abs(e.clientY - d.startY) < TAP_PX && e.type === 'pointerup';
+        const moved = d.offset;
+        const toMap = !cancelled && ((tap && !claimedLate) || moved > INTENT_PX || d.v > FLICK_PX_PER_MS);
+        if (toMap) trackEvent('map_view_toggle', { direction: 'to_map' });
+        /* Past the resting line, a pull that clearly goes on takes the sheet
+           to the lowest stop. */
+        const lower = d.lowLine > d.restLine && d.offset > d.restLine + Math.min(INTENT_PX, (d.lowLine - d.restLine) / 2);
         busy = true;
-        let done: Promise<void>;
-        if (d.from === 'list') {
-          const toMap = !cancelled && (tap || moved > INTENT_PX || d.v > FLICK_PX_PER_MS);
-          if (toMap) trackEvent('map_view_toggle', { direction: 'to_map' });
-          done = toMap
-            ? settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: view })
-            : raiseToList(sheet, d.offset);
-        } else {
-          const toList = !cancelled && (tap || moved < -INTENT_PX || d.v < -FLICK_PX_PER_MS);
-          if (toList) trackEvent('map_view_toggle', { direction: 'to_list' });
-          done = toList
-            ? raiseToList(sheet, d.offset)
-            : settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: view });
-        }
+        const done = toMap
+          ? settleOnMap(sheet, d.offset, lower ? d.lowLine : d.restLine, {
+              restLinePx: d.restLine,
+              mapY: d.mapY,
+            })
+          : raiseToList(sheet, d.offset);
         void done.finally(() => {
           busy = false;
         });
         return;
       }
 
+      const { offsets, sheetStop } = geometry();
+      const { mapY } = d;
+      const stops = d.floor < mapY ? [d.floor, ...offsets] : offsets;
+
       if (cancelled) {
-        window.scrollTo({ top: d.startScrollY, behavior: 'instant' });
+        if (sheet && (d.startPos < mapY || d.pos < mapY)) settleBelow(sheet, d.pos, Math.min(mapY, d.startPos), mapY);
+        else window.scrollTo({ top: d.startPos, behavior: 'instant' });
         return;
       }
 
-      // A fresh sheet has no remembered row yet. A grip tap must still open
-      // it, and a tap at its top must close it (the slab path handles deep taps).
-      if (!claimedLate && Math.abs(e.clientY - d.startY) < TAP_PX && e.type === 'pointerup') {
-        const { sheet, sheetStop, mapY } = geometry();
-        if (slides(sheet)) {
-          const toMap = window.scrollY >= sheetStop - AT_STOP_PX;
-          trackEvent('map_view_toggle', { direction: toMap ? 'to_map' : 'to_list' });
-          window.scrollTo({ top: toMap ? mapY : sheetStop, behavior: 'smooth' });
-          return;
-        }
+      if (tap && !claimedLate && slides(sheet)) {
+        /* Lowered: back onto the map stop. On the map or between: the list
+           comes up. At the top: the map. */
+        let target: number;
+        if (d.startPos < mapY - AT_STOP_PX) target = mapY;
+        else target = window.scrollY >= sheetStop - AT_STOP_PX ? mapY : sheetStop;
+        trackEvent('map_view_toggle', { direction: target === mapY ? 'to_map' : 'to_list' });
+        if (d.startPos < mapY) settleBelow(sheet, d.pos, target, mapY);
+        else window.scrollTo({ top: target, behavior: 'smooth' });
+        return;
+      }
+      if (tap && claimedLate && sheet && d.startPos < mapY) {
+        /* A tap on a lowered sheet brings it back onto the map stop. */
+        settleBelow(sheet, d.pos, mapY, mapY);
+        return;
       }
 
-      /* Settle on one of the three stops. Deliberately only on RELEASE of the
+      /* Settle on one of the stops. Deliberately only on RELEASE of the
          handle: CSS scroll-snap applies to the whole document and would tug at
          the rows while reading further down the list. */
-      const target = resolveSnap(stops(), window.scrollY, d.startScrollY);
+      const target = resolveSnap(stops, d.pos, d.startPos);
+      if (sheet && (d.pos < mapY || target < mapY)) {
+        settleBelow(sheet, d.pos, target, mapY);
+        return;
+      }
+      /* Off the lowest stop, if it came from there. */
+      if (sheet) void raiseToList(sheet, 0);
       if (target !== window.scrollY) {
         window.scrollTo({ top: target, behavior: 'smooth' });
       }
@@ -318,19 +375,18 @@ export function useHandleScrollDrag(
       if (!slides(sheet) || window.scrollY <= sheetStop + AT_STOP_PX) return;
       busy = true;
       trackEvent('map_view_toggle', { direction: 'to_map' });
-      void settleOnMap(sheet, grabFromList(sheet), restLine, mapY, { remember: view }).finally(
+      void settleOnMap(sheet, grabFromList(sheet), restLine, { restLinePx: restLine, mapY }).finally(
         () => {
           busy = false;
         }
       );
     };
 
-    /* Raising the collapsed excerpt by native scroll keeps the same rows.
-       At the top stop transfer its offset back to the document scroller. */
+    /* Lowered sits at the map stop; anything that scrolls the page away from
+       it (a filter, a returning detail) takes the sheet back up first. */
     const onScroll = () => {
-      if (busy || drag || rememberedSheetPosition(view) === null) return;
-      const offsets = stops();
-      if (window.scrollY >= offsets[offsets.length - 1]) resumeSheetReading(view);
+      if (busy || drag || !isLowered()) return;
+      if (Math.abs(window.scrollY - geometry().mapY) > 1) dropLowered();
     };
 
     const onClick = (e: MouseEvent) => {
@@ -340,63 +396,28 @@ export function useHandleScrollDrag(
       e.stopPropagation();
     };
 
-    const content = sheetEl()?.querySelector<HTMLElement>('[data-sheet-content]');
-    let contentTouch: { x: number; y: number } | null = null;
-    const onContentStart = (e: TouchEvent) => {
-      contentTouch = e.touches.length === 1
-        ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
-        : null;
-    };
-    const onContentMove = (e: TouchEvent) => {
-      if (!contentTouch || e.touches.length !== 1) return;
-      const touch = e.touches[0];
-      const dy = touch.clientY - contentTouch.y;
-      const dx = touch.clientX - contentTouch.x;
-      contentTouch = { x: touch.clientX, y: touch.clientY };
-      // Only the otherwise dead downward gesture at the document's top is
-      // handled here. Upward scrolling, galleries and pinch zoom stay native.
-      if (!isPhone() || busy || drag || !e.cancelable || window.scrollY > 1 || Math.abs(dx) >= Math.abs(dy)) return;
-      if (scrollCollapsedReading(view, dy)) e.preventDefault();
-    };
-    const onContentEnd = () => { contentTouch = null; };
-    const onContentWheel = (e: WheelEvent) => {
-      if (!isPhone() || busy || drag || e.ctrlKey || window.scrollY > 1 || e.deltaY >= 0 || Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return;
-      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
-      // WebKit marks later events in a wheel sequence non-cancelable. The
-      // document is already at its top; still consume their reading offset.
-      if (scrollCollapsedReading(view, -e.deltaY * unit) && e.cancelable) e.preventDefault();
-    };
-    content?.addEventListener('touchstart', onContentStart, { passive: true });
-    content?.addEventListener('touchmove', onContentMove, { passive: false });
-    content?.addEventListener('touchend', onContentEnd);
-    content?.addEventListener('touchcancel', onContentEnd);
-    content?.addEventListener('wheel', onContentWheel, { passive: false });
-
-    zone.addEventListener('pointerdown', onDown);
+    press.addEventListener('pointerdown', onDown);
     // Capture is best-effort in mobile browsers. Finish even when the pointer
     // leaves the moving grip, or native scrolling takes its capture away.
     window.addEventListener('pointermove', onMove, true);
     window.addEventListener('pointerup', onUp, true);
     window.addEventListener('pointercancel', onUp, true);
     zone.addEventListener('lostpointercapture', onUp);
-    zone.addEventListener('click', onClick, true);
+    press.addEventListener('click', onClick, true);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
     return () => {
-      content?.removeEventListener('touchstart', onContentStart);
-      content?.removeEventListener('touchmove', onContentMove);
-      content?.removeEventListener('touchend', onContentEnd);
-      content?.removeEventListener('touchcancel', onContentEnd);
-      content?.removeEventListener('wheel', onContentWheel);
       window.removeEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
       if (frame) window.cancelAnimationFrame(frame);
-      zone.removeEventListener('pointerdown', onDown);
+      press.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onMove, true);
       window.removeEventListener('pointerup', onUp, true);
       window.removeEventListener('pointercancel', onUp, true);
       zone.removeEventListener('lostpointercapture', onUp);
-      zone.removeEventListener('click', onClick, true);
+      press.removeEventListener('click', onClick, true);
       window.removeEventListener('scroll', onScroll);
+      /* Another view (a detail opening, closing): it starts on its own stops. */
+      dropLowered();
     };
   }, [handleRef, view]);
 }

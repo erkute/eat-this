@@ -128,7 +128,12 @@ describe('Map CSS architecture', () => {
       'mapWrap',
       'shell',
     ]);
-    expect(localClasses('MapSheet.module.css')).toEqual(['handle', 'list', 'listScroll']);
+    expect(localClasses('MapSheet.module.css')).toEqual([
+      'detailBar',
+      'handle',
+      'list',
+      'listScroll',
+    ]);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
       'markerRootActive',
@@ -237,7 +242,7 @@ describe('Map CSS architecture', () => {
     ]);
   });
 
-  it('keeps the phone detail map live but bounded to the visible peek', () => {
+  it('keeps the phone detail map live, full height behind the resting peek', () => {
     const section = readFileSync(
       fileURLToPath(new URL('../MapSection.tsx', import.meta.url)),
       'utf8'
@@ -289,13 +294,11 @@ describe('Map CSS architecture', () => {
     ]);
     expect(layoutRules).toEqual([
       expect.objectContaining({
-        /* Anchored like the list so the sheet uncovers the map instead of
-           dragging it off-screen — but bounded in height, so the GL layer
-           never becomes the full-viewport compositor that broke Safari's
-           bottom-bar backdrop. */
+        /* Anchored and sized like the list, so the sheet pulled below its
+           resting edge uncovers map, not the page's ink (27.09.2026). */
         position: 'sticky',
         top: '0',
-        height: 'var(--detail-map-peek)',
+        height: '100lvh',
         overflow: 'hidden',
       }),
     ]);

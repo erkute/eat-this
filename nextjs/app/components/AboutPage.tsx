@@ -121,11 +121,12 @@ const COPY = {
     ctaTitle: 'Hungrig geworden?',
     /* Closes the loop the sticker opened: the page ends on the wish it
        started from, quoted as the wish it was, then what the map does with it.
-       „Über 400" rather than the exact count (464 live on 25.09.2026): a
-       floor stays true while the map grows, a number would be stale by the
-       next import. */
+       „Über 200" rather than the exact count: a floor survives imports and
+       curation, a number would be stale by the next one. It read „über 400"
+       until the curation on 27.09.2026 cut the map from 464 to 237 spots —
+       check it whenever the catalog shrinks. */
     ctaQuote: '„Geh hierhin, das ist gut, und es ist um die Ecke.“',
-    ctaText: 'Genau das sagt dir jetzt die Map – für über\u00a0400 handverlesene Spots in Berlin.',
+    ctaText: 'Genau das sagt dir jetzt die Map – für über\u00a0200 handverlesene Spots in Berlin.',
     ctaMap: 'Zur Map',
   },
   en: {
@@ -139,7 +140,7 @@ const COPY = {
     remyPlaceholder: 'What are you in the mood for?',
     ctaTitle: 'Hungry yet?',
     ctaQuote: '“Go here, it’s good, and it’s around the corner.”',
-    ctaText: 'That’s what the map tells you now – for over\u00a0400 hand-picked spots in Berlin.',
+    ctaText: 'That’s what the map tells you now – for over\u00a0200 hand-picked spots in Berlin.',
     ctaMap: 'Open map',
   },
 };

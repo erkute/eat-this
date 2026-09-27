@@ -154,16 +154,16 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: min(100%, 520px);
-  padding: 4% 6% 3%;
+  padding: 8% 12% 6%;
 }
 
 .fanPack {
   position: relative;
-  width: 118%;
+  width: 124%;
   max-width: none;
   height: auto;
-  margin: 0 -9%;
-  transform-origin: 50% 90%;
+  margin: 0 -12%;
+  transform-origin: 50% 70%;
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
@@ -171,44 +171,44 @@
    dem Ladentisch, nicht in einem Raster. Coffee links und Sweets unten
    liegen vor Drinks in der Mitte. */
 .fanPack:nth-child(n + 4) {
-  margin-top: -22%;
+  margin-top: -42%;
 }
 
 .fanPack:nth-child(1) {
   z-index: 2;
-  transform: rotate(-10deg) translateY(4%);
+  transform: translate(-8%, 8%) rotate(-19deg);
 }
 .fanPack:nth-child(2) {
   z-index: 3;
-  transform: rotate(0deg) translateY(-2%);
+  transform: translate(0, -5%) rotate(-3deg);
 }
 .fanPack:nth-child(3) {
   z-index: 2;
-  transform: rotate(10deg) translateY(4%);
+  transform: translate(7%, 5%) rotate(17deg);
 }
 .fanPack:nth-child(4) {
   z-index: 5;
-  transform: rotate(-7deg) translateY(2%);
+  transform: translate(-16%, 2%) rotate(-13deg);
 }
 .fanPack:nth-child(5) {
   z-index: 4;
-  transform: rotate(2deg) translateY(-3%) scale(1.06);
+  transform: translate(0, 2%) rotate(5deg) scale(1.04);
 }
 .fanPack:nth-child(6) {
   z-index: 4;
-  transform: rotate(8deg) translateY(2%);
+  transform: translate(16%, 0) rotate(12deg);
 }
 .fanPack:nth-child(7) {
   z-index: 5;
-  transform: rotate(-9deg) translateY(3%);
+  transform: translate(-5%, 4%) rotate(-10deg);
 }
 .fanPack:nth-child(8) {
   z-index: 8;
-  transform: rotate(1deg);
+  transform: translate(0, -2%) rotate(2deg);
 }
 .fanPack:nth-child(9) {
   z-index: 5;
-  transform: rotate(9deg) translateY(3%);
+  transform: translate(6%, 6%) rotate(11deg);
 }
 
 @media (min-width: 768px) {
@@ -223,7 +223,7 @@
   }
 
   .fan {
-    width: min(64%, 210px);
+    width: min(78%, 240px);
   }
 
   .title {

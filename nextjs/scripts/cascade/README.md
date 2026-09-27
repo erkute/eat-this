@@ -123,3 +123,13 @@ module probably will too:
   stores U+0001-joined value lists and `diff-details.mjs` maps an index back to
   a name via `props-details.json`. `selftest-diff.mjs` proves that diff can
   still fail.
+
+## Layer mechanics: `sweep-layout.js`
+
+MapLayout, MapSheet, MapStrip and the list header depend on real states —
+the sheet's view, the detail kind, the scroll position — which the attribute
+flips of the other sweeps cannot fake. `sweep-layout.js` navigates to each
+(list at rest and deep, restaurant detail at rest and deep, must-eat) at 390,
+800 and 1280px and records computed styles plus rects. Its output is a
+different shape: compare two runs by element label and property, not with
+diff.mjs.

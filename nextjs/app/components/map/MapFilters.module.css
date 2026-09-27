@@ -444,11 +444,6 @@
   text-shadow: none;
 }
 
-.pickerItemActive::after {
-  content: none;
-  display: none;
-}
-
 /* Zeilen, hinter denen wirklich nichts steht — weder frei noch gesperrt. Sie
    bleiben stehen (Weglassen sortiert den Picker zwischen zwei Öffnungen um,
    und „Peruanisch: 0" ist eine echte Antwort), sind aber nicht mehr wählbar:
@@ -517,11 +512,6 @@
   text-transform: none;
 }
 
-.pickerItemActive .pickerItemLabel,
-.pickerItemActive .pickerItemSub {
-  color: inherit;
-}
-
 .pickerItemActive .pickerItemSub {
   opacity: 0.55;
 }
@@ -537,9 +527,6 @@
    sind rund; unten hält das Polster die Kacheln über dem Home-Balken. */
 @media (max-width: 1023.98px) {
   .pickerSheet {
-    left: 0;
-    right: 0;
-    bottom: 0;
     width: auto;
     max-height: min(66dvh, 560px);
     padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 0px));

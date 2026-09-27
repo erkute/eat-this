@@ -1,57 +1,17 @@
-/* Map result sheet: desktop rail, tablet drag sheet and phone document flow. */
-
-@media (min-width: 1024px) {
-  :global([data-map-body][data-panel-hidden='true']) .list {
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-  }
-}
+/* Map result sheet: desktop rail, tablet drag sheet, phone document flow.
+ *
+ * By breakpoint: base, desktop (≥1024px), everything below desktop (the
+ * tablet drag sheet — phones start from it and override), tablet only
+ * (768–1023.98px), phone (≤767.98px).
+ */
 
 .list {
-  background: var(--et-ink);
-  color: var(--et-white);
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-}
-
-@media (min-width: 1024px) {
-  .list {
-    height: 100%;
-    border-left: 1px solid var(--et-rule);
-  }
-}
-
-@media (max-width: 1023.98px) {
-  .list {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 100%;
-    /* Border radius scales with --sheet-y so corners go flat the moment the
-       sheet hugs the global header (--sheet-y = 0). Below ~4px sheet-y
-       (multiplied by 4 = 16) the radius caps at the regular 16px. */
-    /* Snap-settle: kürzere Dauer + festere standard-easing curve damit das
-       Sheet nicht „spring-bounced" sondern mechanisch in die Snap-Position
-       rastet. Drag selbst läuft transition-none für 1:1 Finger-Response. */
-    transition:
-      transform 0.26s cubic-bezier(0.4, 0, 0.2, 1),
-      border-radius 0.22s ease;
-    transform: translateY(var(--sheet-y, calc(100% - 68px)));
-    z-index: 4;
-    /* Force the GPU layer up-front so the first drag frame doesn't paint a
-       repaint hitch — same trick the iOS bottom sheet uses. */
-    will-change: transform;
-  }
-  .list[data-dragging='true'] {
-    transition: none;
-    /* Lock the radius during drag so the browser doesn't recompute the
-       calc()-based corners on every frame — corner paint invalidation is
-       a real cost on iOS. Snap-settle re-enables the transition and the
-       corners glide back to their computed value. */
-  }
+  background: var(--et-ink);
+  color: var(--et-white);
 }
 
 .handle {
@@ -59,12 +19,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Tight chrome by default — extra space made the sheet look top-heavy at
-     peek/mid. At `full` we add a touch more (see below). The whole strip is
-     the touch zone, so this is still finger-friendly. Phones widen it to a
-     proper drag target in the block below without changing the visual pill. */
-  padding: 9px 0 7px;
+  /* Tight chrome — more made the sheet look top-heavy. The whole strip is
+     the touch zone; phones widen it without moving the pill (::after). */
   min-height: 24px;
+  padding: 9px 0 7px;
   cursor: grab;
   touch-action: none;
   -ms-touch-action: none;
@@ -72,259 +30,105 @@
   user-select: none;
 }
 
+/* The pill. One colour for both views — list and detail read as the same
+   control. */
 .handle::before {
   content: '';
-}
-
-@media (min-width: 1024px) {
-  .handle {
-    display: none;
-  }
-}
-
-@media (min-width: 1024px) {
-  .listScroll {
-    max-height: none;
-  }
+  background: var(--et-ink-ring);
 }
 
 .listScroll {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  /* Inset cards 14px each side so the mustPeek (-8px box + ~6px Ink-Überhang
-     durch die 11°-Rotation) and 4px box-shadow sit inside the padding box —
-     nothing overflows, no horizontal swipe/scroll on mobile or desktop. Top
-     padding gives the first card's upward peek room to clear the filter bar. */
+  /* 14px each side keeps the must-eat peek (rotated 11°, reaching ~6px out)
+     and card shadows inside the padding box: no horizontal scroll. The top
+     gives the first card's peek room below the filter bar. */
   padding: 18px 14px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
-  /* The map page is 100lvh tall, so the window CAN scroll by a bar-height —
-     keep list overscroll from chaining into it. */
   overscroll-behavior: contain;
   /* Vertical only — no native diagonal panning inside the rows. */
   touch-action: pan-y;
 }
 
+/* ── Desktop: the rail ─────────────────────────────────────────────────── */
 @media (min-width: 1024px) {
+  .list {
+    height: 100%;
+    border-left: 1px solid var(--et-rule);
+  }
+
+  :global([data-map-body][data-panel-hidden='true']) .list {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .handle {
+    display: none;
+  }
+
   .listScroll {
+    max-height: none;
     padding-bottom: 0;
   }
 }
 
+/* ── Below desktop: the drag sheet (useBottomSheet) ───────────────────── */
 @media (max-width: 1023.98px) {
   .list {
-    /* Die Kante, an der das Sheet auf die Karte trifft. Sie stand auf der
-       Papier-Linie (dunkel auf hell); auf dem Ink-Grund war sie mit dL* 0,34
-       nicht mehr da. Dieselbe Linie wie beim Detail-Sheet weiter unten. */
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    height: 100%;
+    /* The edge where the sheet meets the map. */
     border-top: 1px solid var(--et-ink-line);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     box-shadow: none;
+    transform: translateY(var(--sheet-y, calc(100% - 68px)));
+    /* Snaps mechanically into place rather than bouncing; the drag itself
+       runs without a transition for 1:1 finger response. */
+    transition:
+      transform 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+      border-radius 0.22s ease;
+    /* The GPU layer up front, so the first drag frame does not hitch. */
+    will-change: transform;
   }
 
-  .handle,
-  .list[data-view='detail'] .handle {
+  .list[data-dragging='true'] {
+    transition: none;
+  }
+
+  .handle {
     min-height: 26px;
     padding: 8px 0 6px;
     background: transparent;
   }
 
-  /* Geometry only. The colour is deliberately NOT set here: this selector
-     outranks the plain `.handle::before` below (attribute selector), so a
-     background here would apply to the detail alone and the two views would
-     drift apart — which is exactly how the detail ended up with a washed-out
-     22% pill while the list had a solid one. */
-  .handle::before,
-  .list[data-view='detail'] .handle::before {
+  .handle::before {
     width: 42px;
     height: 3px;
     border-radius: 999px;
   }
-}
 
-/* One colour for both views — list and detail read as the same control. */
-.handle::before {
-  background: var(--et-ink-ring);
-}
-
-@media (max-width: 1023.98px) {
   .listScroll {
     max-height: calc(var(--sheet-visible-px, calc(100dvh - 40px)) - 92px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 
-/* During a tablet drag, reveal the already-laid-out content instead of
-   resizing its scroll port for every --sheet-y update. At rest the measured
-   visible height above keeps the last row reachable at any snap. */
+/* ── Tablet ────────────────────────────────────────────────────────────── */
 @media (min-width: 768px) and (max-width: 1023.98px) {
+  /* During a drag, reveal the already-laid-out content instead of resizing
+     its scroll port for every --sheet-y update. At rest the measured visible
+     height above keeps the last row reachable at any snap. */
   .list[data-dragging='true'] .listScroll {
     max-height: calc(100dvh - 92px);
   }
-}
 
-@media (max-width: 767.98px) {
-  .list {
-    position: relative;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    transform: none;
-    height: auto;
-    /* The map above is 100lvh tall (MapLayout.module.css); this puts the
-       resting edge at 100dvh − the visible share, as before. */
-    margin-top: calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 100lvh);
-    /* At least a full viewport, otherwise the last stop ("sheet" — list
-       covering the map entirely) is simply not reachable by scrolling. */
-    min-height: calc(100dvh + var(--map-bar-overhang, 0px));
-    transition: none;
-    will-change: auto;
-    /* No stacking context: the map strip slides in between the rows and the
-       bars (MapLayout.module.css). Rows and detail content are contained
-       below instead, so their own z-indices stay theirs. */
-    z-index: auto;
-    /* Base .list is overflow:hidden — that would make IT the sticky
-       container for .listHeader (which must stick to the WINDOW here). */
-    overflow: visible;
-    /* Edge styling (10px radius, hairline top, no shadow) comes from the
-       html .list design-pass rules — unchanged from the drag-sheet look. */
-  }
-  /* The sheet itself is see-through; its two parts carry the ink — the
-     filter bar (MapFilters.module.css, with the sheet's edge: hairline and
-     rounded top) and the rows below it.
-
-     Why: once the bar sticks, the slot it leaves in the flow travels up with
-     the sheet. With an ink sheet that slot was a dark band growing above the
-     bar — plus the hairline riding up past it — and the handle seemed to grow
-     and snap back (user, 23.09.2026). A see-through slot shows the map it
-     sits on. */
-  .list[data-view='list'] {
-    background: transparent;
-    border-top: 0;
-  }
-  .list[data-view='list'] .listScroll {
-    background: var(--et-ink);
-    isolation: isolate;
-  }
-  /* Detail content keeps its own stacking (cards up to z 30 inside), so none
-     of it climbs over the map strip or the bars. */
-  .list[data-view='detail'] > :not(.handle):not(.detailBar) {
-    isolation: isolate;
-  }
-  .handle {
-    cursor: grab;
-    /* Only the grip owns dragging; list/detail content keeps native scrolling. */
-    position: relative;
-    touch-action: none;
-  }
-
-  /* Grab zone 26px → ~45px WITHOUT padding: extra padding here pushes the
-     whole sheet down and is exactly the top-heavy look the tight chrome above
-     was chosen to avoid. A pseudo-element takes no layout space, so the pill
-     stays put while a thumb landing slightly high or low still drags the sheet
-     instead of scrolling the rows under it. It reaches further up than down:
-     above the edge is map, and a thumb aiming at a pill that thin lands high
-     (Google Maps takes the same band). Pointer events on ::after target the
-     handle itself, which is what useHandleScrollDrag binds. In the list the
-     whole filter bar drags as well (MapFilters.module.css). */
-  .handle::after {
-    content: '';
-    position: absolute;
-    inset: -12px 0 -7px;
-  }
-  .handle:active {
-    cursor: grabbing;
-  }
-  /* In a restaurant detail the handle is the bar: it sticks below the map
-     strip like the list's filter bar, so the way back to the map is on screen
-     at any depth (useHandleScrollDrag). Ink, because rows pass under it. It
-     carries the locate button above its right edge, like the list's bar
-     (MapControls.module.css `.listLocate`), so the button moves with the
-     sheet natively. */
-  .list[data-view='detail'][data-detail-kind='restaurant'] > .detailBar {
-    position: sticky;
-    top: var(--map-strip, env(safe-area-inset-top, 0px));
-    /* Above the map strip (7). */
-    z-index: 8;
-    background: var(--et-ink);
-    /* The sheet's edge rides on the handle here (see the sheet rule below),
-       rounded like the list's filter bar. Never switched on "stuck": the
-       state arrives a frame late on iOS, so anything keyed to it would change
-       visibly while the bar is already sitting there. */
-    border-top: 1px solid var(--et-ink-line);
-    border-radius: 10px 10px 0 0;
-    box-shadow: 0 1px 0 0 var(--et-ink);
-  }
-  /* The slot the handle leaves when it sticks is see-through, the rest of the
-     sheet ink: same reason as the list (see `.list[data-view='list']`) — map
-     there instead of a dark band growing above the bar. 27px = the handle's
-     26px plus its hairline. */
-  .list[data-view='detail'][data-detail-kind='restaurant'] {
-    background: linear-gradient(transparent 0 27px, var(--et-ink) 27px);
-    border-top: 0;
-    /* The map behind is a full 100lvh like the list's (MapLayout.module.css),
-       so the sheet can be pulled below its resting edge onto more map. The
-       resting edge stays at --detail-map-peek. */
-    margin-top: calc(var(--detail-map-peek) - 100lvh);
-  }
-  .listScroll {
-    max-height: none;
-    overflow: visible;
-    /* The end of the list clears the home indicator. */
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
-  }
-  .list[data-view='detail'] {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    height: auto;
-    margin-top: 0;
-    /* Same rule as the list: at least a viewport, or the last stop (sheet
-       fully covering the map) cannot be reached by scrolling. */
-    min-height: calc(100dvh + var(--map-bar-overhang, 0px));
-    transform: none;
-    transition: none;
-    will-change: auto;
-    z-index: auto;
-    border-radius: 0;
-    border-top: 1px solid var(--et-ink-line);
-    overflow: visible;
-    background: var(--et-ink);
-    display: block;
-    padding-bottom: 0;
-  }
-  .list[data-view='detail'][data-detail-kind='must-eat'] {
-    /* Keep the full-screen Must Eat takeover in document flow. iOS Safari
-       samples that real page canvas behind its browser chrome; a fixed
-       viewport layer leaves the URL bar with a stale/black backdrop after
-       the detail switches or closes. The negative margin overlays the
-       preceding sticky map without creating a fixed compositor.
-
-       The margin is the map's height, and the map is 100lvh (MapLayout).
-       With -100dvh here the takeover sat a Safari-toolbar height too low on
-       the iPhone and the page scrolled by that much (user, 23.09.2026) —
-       invisible in Chrome, where lvh and dvh are the same. */
-    position: relative;
-    inset: auto;
-    width: 100%;
-    height: 100dvh;
-    min-height: 100dvh;
-    margin-top: -100lvh;
-    border: 0;
-    border-radius: 0;
-    overflow: hidden;
-    transform: none;
-  }
-
-  .list[data-view='detail'][data-detail-kind='must-eat'] .handle {
-    display: none;
-  }
-}
-
-@media (min-width: 700px) and (max-width: 1023.98px) {
   .list[data-detail-kind='must-eat'] {
     position: fixed;
     inset: 0;
@@ -344,10 +148,131 @@
   }
 }
 
-/* Held at the lowest stop (lib/map/sheetSlide.ts): the whole sheet is the
-   grip, so a swipe on a chip or a row moves the sheet instead of scrolling
-   the page under its transform. */
+/* ── Phone: the sheet is the window-scrolled document ─────────────────────
+   The map lies behind it, sticky and 100lvh (MapLayout.module.css); the
+   stops are scroll positions (lib/map/phoneSheetSnaps.ts). */
 @media (max-width: 767.98px) {
+  .list {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    /* No stacking context: the map strip slides in between the rows and the
+       bars. Rows and detail content are contained below instead, so their
+       own z-indices stay theirs. */
+    z-index: auto;
+    height: auto;
+    /* The map above is 100lvh; this puts the resting edge at 100dvh − the
+       visible share. */
+    margin-top: calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 100lvh);
+    /* At least a viewport, or the last stop (sheet covering the map) cannot
+       be reached by scrolling. */
+    min-height: calc(100dvh + var(--map-bar-overhang, 0px));
+    /* Not the sticky container of the bar, which sticks to the window. */
+    overflow: visible;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  /* The list sheet is see-through; its two parts carry the ink — the filter
+     bar (MapFilters.module.css, with the sheet's edge) and the rows. Once the
+     bar sticks, the slot it leaves travels up with the sheet: with an ink
+     sheet that was a dark band growing above the bar (user, 23.09.2026). A
+     see-through slot shows the map it sits on. */
+  .list[data-view='list'] {
+    background: transparent;
+    border-top: 0;
+  }
+
+  .list[data-view='list'] .listScroll {
+    background: var(--et-ink);
+    isolation: isolate;
+  }
+
+  .list[data-view='detail'] {
+    display: block;
+    margin-top: 0;
+    border-radius: 0;
+  }
+
+  /* Detail content keeps its own stacking (cards up to z 30 inside), so none
+     of it climbs over the map strip or the bars. */
+  .list[data-view='detail'] > :not(.handle) {
+    isolation: isolate;
+  }
+
+  /* The restaurant detail rests at --detail-map-peek over the full-height
+     map, so it can be pulled below its resting edge onto more map. Its slot
+     above the stuck handle is see-through like the list's: 27px = the
+     handle's 26px plus its hairline. */
+  .list[data-view='detail'][data-detail-kind='restaurant'] {
+    margin-top: calc(var(--detail-map-peek) - 100lvh);
+    background: linear-gradient(transparent 0 27px, var(--et-ink) 27px);
+    border-top: 0;
+  }
+
+  /* There the handle is the bar: it sticks below the map strip like the
+     list's filter bar, so the way back to the map is on screen at any depth.
+     Its edge is never switched on "stuck" — the state arrives a frame late
+     on iOS. */
+  .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
+    position: sticky;
+    top: var(--map-strip, env(safe-area-inset-top, 0px));
+    /* Above the map strip (7). */
+    z-index: 8;
+    background: var(--et-ink);
+    border-top: 1px solid var(--et-ink-line);
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 1px 0 0 var(--et-ink);
+  }
+
+  /* The must-eat takeover stays in document flow: iOS Safari samples the
+     real page behind its chrome, and a fixed viewport layer left the URL bar
+     with a stale backdrop. The negative margin is the map's height (100lvh);
+     -100dvh put it a toolbar height too low on the iPhone (23.09.2026). */
+  .list[data-view='detail'][data-detail-kind='must-eat'] {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    margin-top: -100lvh;
+    border: 0;
+    overflow: hidden;
+  }
+
+  .list[data-view='detail'][data-detail-kind='must-eat'] .handle {
+    display: none;
+  }
+
+  .handle {
+    position: relative;
+  }
+
+  /* Grab zone 26px → ~45px without padding, which would push the sheet
+     down. It reaches further up than down: above the edge is map, and a
+     thumb aiming at a thin pill lands high (Google Maps takes the same
+     band). Pointer events on ::after target the handle. In the list the
+     whole filter bar drags as well (MapFilters.module.css). */
+  .handle::after {
+    content: '';
+    position: absolute;
+    inset: -12px 0 -7px;
+  }
+
+  .handle:active {
+    cursor: grabbing;
+  }
+
+  .listScroll {
+    max-height: none;
+    overflow: visible;
+    /* The end of the list clears the home indicator. */
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  }
+
+  /* Held at the lowest stop (lib/map/sheetSlide.ts): the whole sheet is the
+     grip, so a swipe on a chip or a row moves the sheet instead of scrolling
+     the page under its transform. */
   .list[data-sheet-lowered] {
     touch-action: none;
   }

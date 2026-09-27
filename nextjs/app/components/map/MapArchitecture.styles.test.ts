@@ -122,18 +122,10 @@ describe('Map CSS architecture', () => {
       'body',
       'liveMapLayer',
       'mapLoading',
-      'mapStrip',
-      'mapStripCanvas',
-      'mapStripPins',
       'mapWrap',
       'shell',
     ]);
-    expect(localClasses('MapSheet.module.css')).toEqual([
-      'detailBar',
-      'handle',
-      'list',
-      'listScroll',
-    ]);
+    expect(localClasses('MapSheet.module.css')).toEqual(['handle', 'list', 'listScroll']);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
       'markerRootActive',
@@ -191,14 +183,17 @@ describe('Map CSS architecture', () => {
 
     expect(mustEatRules).toEqual([
       expect.objectContaining({
-        position: 'relative',
-        inset: 'auto',
         width: '100%',
         height: '100dvh',
         'min-height': '100dvh',
         overflow: 'hidden',
       }),
     ]);
+    /* In flow: the phone sheet is `position: relative` and nothing fixes the
+       takeover on phones. */
+    const phoneList = declarationsInMedia('MapSheet.module.css', '.list', '(max-width: 767.98px)');
+    expect(phoneList).toEqual([expect.objectContaining({ position: 'relative' })]);
+    expect(mustEatRules[0]).not.toHaveProperty('position');
     /* The takeover lies over the sticky map by exactly the map's height. The
        map moved from 100dvh to 100lvh and the margin stayed behind: on the
        iPhone the takeover sat a toolbar height low and the page scrolled. */
@@ -294,19 +289,21 @@ describe('Map CSS architecture', () => {
     ]);
     expect(layoutRules).toEqual([
       expect.objectContaining({
-        /* Anchored and sized like the list, so the sheet pulled below its
+        /* The list's sticky 100lvh map, clipped: the sheet pulled below its
            resting edge uncovers map, not the page's ink (27.09.2026). */
-        position: 'sticky',
-        top: '0',
-        height: '100lvh',
         overflow: 'hidden',
       }),
     ]);
-    expect(sheetRules).toEqual([
-      expect.objectContaining({
-        'margin-top': '0',
-        'min-height': 'calc(100dvh + var(--map-bar-overhang, 0px))',
-      }),
+    /* The viewport-tall minimum comes from the phone `.list` (above). */
+    expect(sheetRules).toEqual([expect.objectContaining({ 'margin-top': '0' })]);
+    expect(
+      declarationsInMedia(
+        'MapSheet.module.css',
+        ".list[data-view='detail'][data-detail-kind='restaurant']",
+        '(max-width: 767.98px)'
+      )
+    ).toEqual([
+      expect.objectContaining({ 'margin-top': 'calc(var(--detail-map-peek) - 100lvh)' }),
     ]);
     expect(section).not.toContain("mapWrap.style.visibility = 'hidden'");
     /* The camera measures the compact canvas before it flies (useMapCamera). */
@@ -325,11 +322,7 @@ describe('Map CSS architecture', () => {
       '.listHeader',
       '(max-width: 767.98px)'
     );
-    const stripRules = declarationsInMedia(
-      'MapLayout.module.css',
-      '.mapStrip',
-      '(max-width: 767.98px)'
-    );
+    const stripRules = declarationsInMedia('MapStrip.module.css', '.strip', '(max-width: 767.98px)');
 
     expect(mapPage).toContain('themeColor: null');
     expect(mapPage).not.toContain("themeColor: '#15120e'");

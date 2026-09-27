@@ -4,26 +4,16 @@ import postcss from 'postcss';
 import { describe, expect, it } from 'vitest';
 
 /**
- * MapControls.module.css spreads a single control over many blocks —
- * `.mapSearchBtn` alone appears in 15 of them, most inside grouped selectors
- * that also serve `.mapBurger`, `.fab` or `.panelToggle`. That grouping is
- * deliberate and mostly load-bearing, so the file cannot simply be flattened:
- * an attempt to merge same-selector blocks at their last position silently
- * flipped `.mapSearchToolbar { gap }` from 8px to 10px, because a
- * `@media (max-width: 520px)` block sits BEFORE the media-less one in source
- * order and loses the tie until it is moved.
- *
- * What the spread does cost is visibility: you cannot see, at any one place,
- * what a control ends up with. Two real bugs came out of exactly that —
+ * MapControls.module.css used to spread a single control over up to 15
+ * grouped blocks, and two real bugs came out of not seeing, at any one place,
+ * what a control ends up with:
  *   1. `.mapSearchBtn`'s `transition` shorthand listed only colour properties,
  *      so it JUMPED off-screen on the same trigger that made `.mapBurger`,
  *      which keeps its own `transition: transform`, glide.
- *   2. The white icon halo was killed by a `filter: none` declared later in
- *      the file for an overlapping selector.
- *
- * These tests pin the *effective* values instead of any single block, so the
- * next well-meaning edit somewhere in those 900 lines fails here rather than
- * on someone's phone.
+ *   2. The icon halo was killed by a `filter: none` declared later in the
+ *      file for an overlapping selector.
+ * The file is one section per control now (27.09.2026), but these tests keep
+ * pinning the *effective* values rather than any single block.
  */
 
 const CONTROLS = 'MapControls.module.css';
@@ -217,7 +207,9 @@ describe('MapControls cascade', () => {
        nicht mehr treffen. Was zu sichern bleibt, ist die Lage der FAB. */
     const phone = '(max-width: 767.98px)';
 
-    expect(effective(CONTROLS, 'fab', 'bottom', phone)).toContain('14px');
+    /* On phones the dock carries the position; the button rides inside it. */
+    expect(effective(CONTROLS, 'locateDock', 'bottom', phone)).toContain('14px');
+    expect(effective(CONTROLS, 'locateDock', 'position', phone)).toBe('fixed');
   });
 });
 

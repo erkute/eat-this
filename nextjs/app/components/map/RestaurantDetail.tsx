@@ -416,11 +416,9 @@ export default function RestaurantDetail({
                 <p
                   key={idx}
                   className={`${styles.rdStoryLead} ${
-                    /^[^\p{L}\p{N}]*I/u.test(para)
-                      ? styles.rdStoryLeadInitialI
-                      : hasAmbiguousDropCap(para)
-                        ? styles.rdStoryLeadPlain
-                        : ''
+                    hasAmbiguousDropCap(para) && !/^[^\p{L}\p{N}]*I/u.test(para)
+                      ? styles.rdStoryLeadPlain
+                      : ''
                   }`}
                 >
                   {para}

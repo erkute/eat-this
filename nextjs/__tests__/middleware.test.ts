@@ -180,6 +180,16 @@ describe('middleware: legacy 404 cleanup (post-rebuild re-slug)', () => {
     expect((await middleware(makeReq('/en/restaurant/phantom-bar'))).status).toBe(410)
   })
 
+  it('confirmed restaurant rename returns one early Location in either locale', async () => {
+    const middleware = await mw()
+    for (const prefix of ['', '/en']) {
+      const res = await middleware(makeReq(`${prefix}/restaurant/der-weinlobbyist-restaurant-weinbar?utm_source=test`))
+      expect(res.status).toBe(308)
+      expect(res.headers.get('location')).toBe(`https://staging.example.com${prefix}/restaurant/der-weinlobbyist`)
+      expect(res.headers.get('x-middleware-rewrite')).toBeNull()
+    }
+  })
+
   it('removed news article → 308 to /news, locale preserved', async () => {
     const middleware = await mw()
     const de = await middleware(makeReq('/news/bun-society'))

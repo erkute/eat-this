@@ -37,18 +37,22 @@ function withAlternates(
   path: string,
   lastModified: string,
   priority = 0.5,
-  changeFrequency: ChangeFrequency = 'monthly'
-): SitemapEntry {
-  return {
-    url: localeUrl('de', path),
+  changeFrequency: ChangeFrequency = 'monthly',
+  locales: readonly ('de' | 'en')[] = routing.locales
+): SitemapEntry[] {
+  // Each translated URL needs its own <loc>, with the same reciprocal
+  // hreflang set. x-default aliases DE and must not create a duplicate URL.
+  const alternates = {
+    ...Object.fromEntries(locales.map((loc) => [loc, localeUrl(loc, path)])),
+    'x-default': localeUrl(locales.includes('de') ? 'de' : 'en', path),
+  };
+  return locales.map((locale) => ({
+    url: localeUrl(locale, path),
     lastModified,
     priority,
     changeFrequency,
-    alternates: {
-      ...Object.fromEntries(routing.locales.map((loc) => [loc, localeUrl(loc, path)])),
-      'x-default': localeUrl('de', path),
-    },
-  };
+    alternates,
+  }));
 }
 
 // DE-only entries: same content has no per-locale variant in Sanity (e.g.
@@ -90,8 +94,17 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
     ),
-    client.fetch<{ slug: string; updatedAt: string; hasEnContent: boolean }[]>(
-      `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**")) && seo.noIndex != true] { "slug": slug.current, "updatedAt": _updatedAt, "hasEnContent": defined(title) && count(content) > 0 }`,
+    client.fetch<
+      {
+        slug: string;
+        updatedAt: string;
+        title?: string;
+        titleDe?: string;
+        hasDeContent: boolean;
+        hasEnContent: boolean;
+      }[]
+    >(
+      `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**")) && seo.noIndex != true] { "slug": slug.current, "updatedAt": _updatedAt, title, titleDe, "hasDeContent": count(contentDe) > 0, "hasEnContent": count(content) > 0 }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-articles'] } }
     ),
@@ -117,7 +130,7 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
     ),
   ]);
 
-  const staticEntries = STATIC_PATHS.map((p) => {
+  const staticEntries = STATIC_PATHS.flatMap((p) => {
     const priority =
       p === '' || p === '/map'
         ? 1.0
@@ -136,7 +149,7 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
   // actually changed, which is a claim we can stand behind.
   const restaurantEntries = restaurants
     .filter(({ slug }) => !GONE_SLUGS.has(slug))
-    .map(({ slug, descriptionEn }) =>
+    .flatMap(({ slug, descriptionEn }) =>
       hasEnContent({ descriptionEn })
         ? withAlternates(`/restaurant/${slug}`, TEMPLATE_REVISED, 0.8, 'monthly')
         : deOnly(`/restaurant/${slug}`, TEMPLATE_REVISED, 0.8, 'monthly')
@@ -145,20 +158,29 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
   // News articles are individually edited by humans, so `_updatedAt` is a
   // meaningful signal — but the template changed under them too. The page
   // changed on whichever came last.
-  const articleEntries = articles.map(({ slug, updatedAt, hasEnContent: hasEnglishArticle }) => {
-    const lastModified = laterOf(updatedAt, TEMPLATE_REVISED);
-    return hasEnglishArticle
-      ? withAlternates(`/news/${slug}`, lastModified, 0.7, 'monthly')
-      : deOnly(`/news/${slug}`, lastModified, 0.7, 'monthly');
+  const articleEntries = articles.flatMap((article) => {
+    const { slug, updatedAt, title, titleDe, hasDeContent, hasEnContent } = article;
+    const locales: ('de' | 'en')[] = [];
+    if (titleDe?.trim() && hasDeContent) locales.push('de');
+    if (title?.trim() && hasEnContent) locales.push('en');
+    // Match the article page's canonical and hreflang gates. An untranslated
+    // fallback URL is not an additional indexable page.
+    return withAlternates(
+      `/news/${slug}`,
+      laterOf(updatedAt, TEMPLATE_REVISED),
+      0.7,
+      'monthly',
+      locales
+    );
   });
 
-  const bezirkEntries = bezirke.map(({ slug, descriptionEn }) =>
+  const bezirkEntries = bezirke.flatMap(({ slug, descriptionEn }) =>
     hasEnContent({ descriptionEn })
       ? withAlternates(`/bezirk/${slug}`, TEMPLATE_REVISED, 0.7, 'monthly')
       : deOnly(`/bezirk/${slug}`, TEMPLATE_REVISED, 0.7, 'monthly')
   );
 
-  const kategorieEntries = categorySlugs.map(({ slug }) =>
+  const kategorieEntries = categorySlugs.flatMap(({ slug }) =>
     withAlternates(`/kategorie/${slug}`, TEMPLATE_REVISED, 0.7, 'weekly')
   );
 

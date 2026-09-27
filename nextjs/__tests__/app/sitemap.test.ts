@@ -29,11 +29,40 @@ describe('sitemap entries', () => {
     mocks.fetch
       .mockResolvedValueOnce([
         { slug: 'live-spot', descriptionEn: 'English copy' },
+        { slug: 'german-only', descriptionEn: '   ' },
         { slug: 'phantom-bar', descriptionEn: 'English copy' },
       ])
       .mockResolvedValueOnce([
-        { slug: 'nur-deutsch', updatedAt: '2026-07-13T10:00:00Z', hasEnContent: false },
-        { slug: 'translated', updatedAt: '2026-07-14T10:00:00Z', hasEnContent: true },
+        {
+          slug: 'nur-deutsch',
+          updatedAt: '2026-07-13T10:00:00Z',
+          hasEnContent: false,
+          hasDeContent: true,
+          titleDe: 'Deutsch',
+        },
+        {
+          slug: 'english-only',
+          updatedAt: '2026-07-14',
+          title: 'English',
+          hasEnContent: true,
+          hasDeContent: false,
+        },
+        {
+          slug: 'blank-title',
+          updatedAt: '2026-07-14',
+          title: '  ',
+          titleDe: '  ',
+          hasEnContent: true,
+          hasDeContent: true,
+        },
+        {
+          slug: 'translated',
+          updatedAt: '2026-07-14T10:00:00Z',
+          hasEnContent: true,
+          hasDeContent: true,
+          title: 'English',
+          titleDe: 'Deutsch',
+        },
       ])
       .mockResolvedValueOnce([{ slug: 'mitte', descriptionEn: 'Mitte in English' }])
       .mockResolvedValueOnce([{ slug: 'pizza' }]);
@@ -52,8 +81,26 @@ describe('sitemap entries', () => {
 
     const germanOnly = result.find((entry) => entry.url.endsWith('/news/nur-deutsch'));
     const translated = result.find((entry) => entry.url.endsWith('/news/translated'));
-    expect(germanOnly?.alternates).toBeUndefined();
+    expect(germanOnly?.alternates?.en).toBeUndefined();
     expect(translated?.alternates?.en).toMatch(/\/en\/news\/translated$/);
+    expect(urls).toContain('https://www.eatthisdot.com/en/news/translated');
+    expect(urls).toContain('https://www.eatthisdot.com/en/restaurant/live-spot');
+    expect(urls).toContain('https://www.eatthisdot.com/en/bezirk/mitte');
+    expect(urls).toContain('https://www.eatthisdot.com/en/kategorie/pizza');
+    expect(urls).toContain('https://www.eatthisdot.com/en');
+    expect(urls).not.toContain('https://www.eatthisdot.com/en/news/nur-deutsch');
+    expect(urls).not.toContain('https://www.eatthisdot.com/en/restaurant/german-only');
+    expect(urls).toContain('https://www.eatthisdot.com/en/news/english-only');
+    expect(urls).not.toContain('https://www.eatthisdot.com/news/english-only');
+    expect(urls.some((url) => url.includes('blank-title'))).toBe(false);
+    expect(new Set(urls).size).toBe(urls.length);
+    for (const entry of result) {
+      for (const alternate of Object.values(entry.alternates ?? {})) {
+        const sibling = result.find((candidate) => candidate.url === alternate);
+        expect(sibling?.alternates).toEqual(entry.alternates);
+        expect(sibling?.lastModified).toBe(entry.lastModified);
+      }
+    }
 
     expect(mocks.fetch.mock.calls[0]?.[0]).toContain('isOpen != false');
     expect(mocks.fetch.mock.calls[0]?.[0]).toContain('isClosed != true');
@@ -87,9 +134,21 @@ describe('sitemap entries', () => {
       .mockResolvedValueOnce([
         // Older than the template revision — the template change is what
         // last touched this page, so that date wins.
-        { slug: 'alt', updatedAt: '2026-07-13T10:00:00Z', hasEnContent: false },
+        {
+          slug: 'alt',
+          updatedAt: '2026-07-13T10:00:00Z',
+          hasEnContent: false,
+          hasDeContent: true,
+          titleDe: 'Deutsch',
+        },
         // Edited after it — the human edit is the later change.
-        { slug: 'frisch', updatedAt: '2099-01-01T10:00:00Z', hasEnContent: false },
+        {
+          slug: 'frisch',
+          updatedAt: '2099-01-01T10:00:00Z',
+          hasEnContent: false,
+          hasDeContent: true,
+          titleDe: 'Deutsch',
+        },
       ])
       .mockResolvedValueOnce([{ slug: 'mitte' }])
       .mockResolvedValueOnce([{ slug: 'pizza' }]);

@@ -353,6 +353,9 @@ const en = {
       dividerOr: 'or',
       resendBtn: 'Resend',
       backBtn: 'Back',
+      promptTitle: 'Your Berlin Starter Pack.',
+      promptLead:
+        '20 Must Eats from all over Berlin. Sign up for free, open your pack and save your favourite spots.',
       packKicker: 'Start your collection',
       packTitle: 'Starter Pack',
       packLead:
@@ -769,6 +772,9 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       dividerOr: 'oder',
       resendBtn: 'Nochmal',
       backBtn: 'Zur\u00fcck',
+      promptTitle: 'Dein Berlin Starter Pack.',
+      promptLead:
+        '20 Must Eats aus ganz Berlin. Kostenlos anmelden, Pack öffnen und deine Lieblingsspots speichern.',
       packKicker: 'Starte deine Sammlung',
       packTitle: 'Starter Pack',
       packLead:

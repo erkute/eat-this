@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { pauseStarterPrompt } from './starterPromptCooldown';
 import type { LoginIntent } from './loginContinueUrl';
 
 /**
@@ -17,6 +18,7 @@ import type { LoginIntent } from './loginContinueUrl';
  * haben.
  */
 export type LoginReason =
+  | { kind: 'map-prompt' }
   | { kind: 'card'; mustEatId: string }
   | {
       kind: 'heart';
@@ -49,12 +51,14 @@ export function LoginModalProvider({ children }: { children: React.ReactNode }) 
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState<LoginReason | null>(null);
   const open = useCallback((nextReason?: LoginReason) => {
+    pauseStarterPrompt();
     setReason(nextReason ?? null);
     setIsOpen(true);
   }, []);
   /* Der Grund geht mit dem Modal: wer abbricht und spaeter ueber das
      Burger-Menue hereinkommt, soll nicht den Spot von vorhin geherzt bekommen. */
   const close = useCallback(() => {
+    pauseStarterPrompt();
     setIsOpen(false);
     setReason(null);
   }, []);

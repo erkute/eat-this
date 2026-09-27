@@ -36,6 +36,7 @@ import { spotsCameraTarget, hasRoomToFit, fitPadding } from '@/lib/map/cameraFit
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
 import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
 import { useMapCamera, USER_LOCATION_ZOOM } from '@/lib/map/useMapCamera';
+import { useMapStarterPrompt } from '@/lib/map/useMapStarterPrompt';
 import { useDetailSelection, type DetailOpeners } from '@/lib/map/useDetailSelection';
 
 /* How long the search query has to hold still before the camera follows it.
@@ -377,6 +378,13 @@ export default function MapSection({
     dismissDetailRef,
     openRef: detailOpenersRef,
   });
+  useMapStarterPrompt({
+    active: isActive,
+    guest: !authLoading && !user,
+    spotId: selectedRestaurant?._id ?? selectedMustEat?.restaurant._id ?? null,
+    detailOpen: sheetView === 'detail',
+  });
+
   // Desktop-only: lets the user collapse the side panel off to the right so
   // the map fills the viewport (Google-Maps-style toggle).
   const [desktopPanelHidden, setDesktopPanelHidden] = useState(false);

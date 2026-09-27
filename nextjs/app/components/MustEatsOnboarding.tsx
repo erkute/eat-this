@@ -10,6 +10,7 @@ import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import styles from './MustEatsOnboarding.module.css';
 import tour from './Tour.module.css';
+import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
@@ -121,6 +122,7 @@ export default function MustEatsOnboarding({
   // Slide 2 choreography: card turns face-down on entry, then auto-flips
   // open after a short dwell — demonstrating the on-site reveal.
   const [showBack, setShowBack] = useState(false);
+  const [showTapCue, setShowTapCue] = useState(false);
   const flipTimer = useRef<number | null>(null);
 
   const clearFlipTimer = () => {
@@ -130,14 +132,19 @@ export default function MustEatsOnboarding({
   };
 
   useEffect(() => {
+    setShowTapCue(false);
     if (!open || step !== 1) {
       setShowBack(false);
       return;
     }
     setShowBack(true);
     flipTimer.current = window.setTimeout(() => {
-      flipTimer.current = null;
-      setShowBack(false);
+      setShowTapCue(true);
+      flipTimer.current = window.setTimeout(() => {
+        flipTimer.current = null;
+        setShowTapCue(false);
+        setShowBack(false);
+      }, CARD_TAP_CUE_MS);
     }, STEP2_FLIP_DELAY_MS);
     return clearFlipTimer;
   }, [open, step]);
@@ -148,6 +155,7 @@ export default function MustEatsOnboarding({
   // which would otherwise fight the visitor for the card's state.
   const handleFlipTap = () => {
     clearFlipTimer();
+    setShowTapCue(false);
     setShowBack((back) => !back);
   };
 
@@ -294,10 +302,12 @@ export default function MustEatsOnboarding({
                         <button
                           type="button"
                           className={tour.flipTap}
+                          data-tapping={showTapCue ? '' : undefined}
                           onClick={handleFlipTap}
                           aria-label={t('mustEats.onbFlipAria')}
                         >
                           {flipper}
+                          {showTapCue && <CardTapCue />}
                         </button>
                       ) : (
                         flipper

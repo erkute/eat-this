@@ -54,7 +54,7 @@ const copy = {
     reveal: {
       tag: 'Am Spot',
       title: 'Antippen. Aufdecken.',
-      body: 'Bist du am Spot, tippst du die verdeckte Karte an. Dann weißt du, was du bestellen musst, und die Karte landet in deinem Deck.',
+      body: 'Bist du am Spot, tippe auf die verdeckte Karte. Sie zeigt dir unsere Empfehlung und wird in deinem Deck aufgedeckt.',
       flip: 'Karte umdrehen',
       alt: 'Eine aufgedeckte Must Eat Karte',
     },
@@ -106,7 +106,7 @@ const copy = {
     reveal: {
       tag: 'At the spot',
       title: 'Tap. Reveal.',
-      body: 'At the spot, tap the covered card. Now you know what to order, and the card joins your deck.',
+      body: 'At the spot, tap the covered card. It reveals our recommendation and is uncovered in your deck.',
       flip: 'Flip the card',
       alt: 'A revealed Must Eat card',
     },

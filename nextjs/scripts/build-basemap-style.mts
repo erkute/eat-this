@@ -255,6 +255,55 @@ for (const layer of style.layers) {
   }
 }
 
+/* Gebäude stehen in 3D. Die Vorlage zeichnet sie als zwei flache Flächen —
+   einen unsichtbaren Grundriss und ein um 2 px versetztes „Dach", das bei
+   Draufsicht einen Hauch Tiefe andeutet. Bei gekippter Kamera (MapCanvas)
+   liest sich das als verrutschte Pappe. Beide fliegen raus; an ihre Stelle
+   tritt eine Extrusion auf die Höhe, die OpenMapTiles pro Gebäude mitliefert
+   (`render_height`, `render_min_height` für Aufbauten und Brücken).
+   Die Häuser wachsen zwischen Zoom 14 und 15.5 aus dem Boden, statt bei
+   einem Schwellwert aufzuploppen. Farbe: das Dach der Vorlage, damit die
+   Helligkeitsordnung zu Straßen und Grund bleibt; die Seitenwände schattiert
+   MapLibre selbst über `light`. */
+const BUILDING_LAYERS = ['building', 'building-top'];
+const buildingAt = style.layers.findIndex(
+  (layer: { id: string }) => layer.id === BUILDING_LAYERS[0]
+);
+if (buildingAt < 0) throw new Error('Gebäude-Layer der Vorlage nicht gefunden');
+const buildingTop = style.layers.find((layer: { id: string }) => layer.id === 'building-top');
+style.layers = style.layers.filter((layer: { id: string }) => !BUILDING_LAYERS.includes(layer.id));
+style.layers.splice(buildingAt, 0, {
+  id: 'building-3d',
+  type: 'fill-extrusion',
+  source: buildingTop.source,
+  'source-layer': 'building',
+  minzoom: 14,
+  paint: {
+    'fill-extrusion-color': buildingTop.paint['fill-color'],
+    'fill-extrusion-height': [
+      'interpolate',
+      ['linear'],
+      ['zoom'],
+      14,
+      0,
+      15.5,
+      ['coalesce', ['get', 'render_height'], 10],
+    ],
+    'fill-extrusion-base': [
+      'interpolate',
+      ['linear'],
+      ['zoom'],
+      14,
+      0,
+      15.5,
+      ['coalesce', ['get', 'render_min_height'], 0],
+    ],
+    'fill-extrusion-opacity': 0.92,
+    'fill-extrusion-vertical-gradient': true,
+  },
+});
+style.light = { anchor: 'viewport', color: '#ffffff', intensity: 0.35, position: [1.15, 210, 30] };
+
 /* Alle drei Fremdadressen der Vorlage umhängen. Der Quellname `carto` bleibt
    stehen: jede der 93 Layer-Definitionen verweist darauf, und ein Umbenennen
    brächte nichts ausser einem grösseren Diff. */
@@ -270,5 +319,7 @@ const uniq = new Map<string, string>();
 for (const c of changes) uniq.set(c.from, c.to);
 console.log(`${OUT.split('/nextjs/')[1]}: ${changes.length} Farbwerte umgefärbt`);
 console.log(`Kacheln ${TILES_URL}\nSchriften ${GLYPHS_URL}\nSprite: keins (Icons entfernt)`);
-console.log(`Ink-Winkel ${((INK_HUE * 180) / Math.PI).toFixed(1)}°, Straßen ×${ROAD_CHROMA}, Wasser ×${WATER_CHROMA}\n`);
+console.log(
+  `Ink-Winkel ${((INK_HUE * 180) / Math.PI).toFixed(1)}°, Straßen ×${ROAD_CHROMA}, Wasser ×${WATER_CHROMA}\n`
+);
 for (const [from, to] of uniq) console.log(`  ${from.padEnd(24)} → ${to}`);

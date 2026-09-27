@@ -9,7 +9,6 @@ import { categoryArt } from '@/lib/categoryArt';
 import { formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail';
 import { getPackContents } from '@/lib/sanity.server';
 import { hreflangAlternates } from '@/lib/seo/metadata';
-import { routing } from '@/i18n/routing';
 import PackBuyButton from '../pack/[slug]/PackBuyButton';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
 import styles from './PacksOverview.module.css';
@@ -18,15 +17,10 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-// 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
-// der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
-// Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
-// statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
-export const revalidate = 86400;
-
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
-}
+// Public card previews use Firebase's runtime identity, unavailable in CI.
+// Match the home and Must-Eats routes: hydrate public content at request time.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;

@@ -340,9 +340,6 @@
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-.rdTagOpen {
-  border-color: #fff;
-}
 .rdBody p {
   margin: 0 0 12px;
   margin-bottom: 14px;
@@ -671,14 +668,6 @@
   text-transform: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-}
-.detail .rdTagOpen {
-  background: #1f8f4d;
-  color: #fff;
-}
-.detail .rdTagClosed {
-  background: #d9382a;
-  color: #fff;
 }
 /* Freie Symbole auf dem Foto, mit grosser unsichtbarer Trefferflaeche. */
 .detail .rdHero .rdHeartToggle,
@@ -1768,25 +1757,6 @@
   line-height: 1.55;
 }
 
-.rdTagOpen,
-.rdTagClosed {
-  gap: 6px;
-}
-
-.rdTagOpen::before,
-.rdTagClosed::before {
-  content: '';
-  flex: 0 0 5px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.55);
-}
-
-.rdTagOpen::before {
-  background: #79d69b;
-}
-
 /* Der Blaetterbalken unter dem Kopf trug eine eigene Papierflaeche. Auf dem
    Grund braucht er keine — eine Haarlinie haelt ihn ab. */
 
@@ -2061,4 +2031,8 @@
 .rdHero::after,
 .rdOverlay {
   pointer-events: none;
+}
+
+.rdOpenState {
+  padding: 18px 16px 0;
 }

@@ -1,17 +1,5 @@
-/* Map Filters — isolated map subsystem. */
-
-/* ══ Chip-Leiste ══════════════════════════════════════════════════════════════
-   Vier Chips über der Liste: Kategorie · Bezirk · Küche · Geöffnet. Die ersten
-   drei öffnen einen Picker und sitzen in einem `.filterChipWrap` (der den
-   Zurücksetzen-Punkt trägt), „Geöffnet" ist ein nackter Toggle-Button direkt in
-   der Reihe.
-
-   Ein Block pro Element und Zustand, Zustände über sich ausschließende
-   Selektoren getrennt. Vorher lag `.filterChipRow` in sechs Blöcken über die
-   Datei verteilt und `.filterChip` in vier, dazwischen Media-Regeln, die von
-   späteren Basisregeln wieder überschrieben wurden — mehrere davon waren
-   wirkungslos, sahen aber aus, als täten sie etwas. */
-
+/* Four filters always visible, aligned to the restaurant cards.
+   Selected values may shorten with ellipsis; the row never scrolls or wraps. */
 .listHeader {
   position: relative;
   flex-shrink: 0;
@@ -19,303 +7,86 @@
 
 .filterChipRow {
   display: flex;
-  box-sizing: border-box;
   align-items: stretch;
-  justify-content: stretch;
   gap: 8px;
   width: 100%;
-  max-width: 100%;
-  padding: 12px 12px 8px;
+  min-width: 0;
+  padding: 8px 14px 12px;
+  box-sizing: border-box;
   background: var(--et-ink);
-  overflow-x: hidden;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  touch-action: pan-x pan-y;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  /* Reste der früheren Grid-Fassung. Sie wirken auf einem Flex-Container nicht,
-     stehen aber im berechneten Stil — bis die Reihe wirklich wieder ein Grid
-     wird, bleiben sie hier stehen statt verstreut über die Datei. */
-  grid-template-columns: none;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
 }
 
-.filterChipRow::-webkit-scrollbar {
-  display: none;
-}
-
-/* Der Wrap trägt den Zurücksetzen-Punkt (siehe unten) und ist deshalb der
-   Positionsanker. Er selbst ist unsichtbar. */
 .filterChipWrap {
   position: relative;
-  display: inline-flex;
-  align-items: stretch;
-  width: auto;
-  max-width: none;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
+  display: flex;
+  flex: 1 1 0;
+  min-width: min-content;
+  border-radius: var(--et-radius-control);
   overflow: visible;
 }
-
-/* Breitenverteilung. Ein inaktiver Chip trägt ein festes Wort ("Bezirk") und
-   teilt sich die Reihe zu gleichen Teilen; ein aktiver trägt den gewählten Wert
-   und wächst auf dessen Breite.
-
-   Der Boden ist die eigene Beschriftung, nicht mehr 44px: bei "Bezirk:
-   Friedrichshain" blieben "Kategorie" 46px Textbreite von 57 gebrauchten, und
-   der Chip las sich als "Kategori" (User, 29.08.2026). Ein Chip, dessen Wort
-   nicht mehr hineinpasst, ist kein Filter mehr, sondern ein Rätsel — deshalb
-   gibt keiner sein Wort her. Was die Reihe darüber hinaus schuldet, tragen
-   jetzt die aktiven Chips: sie dürfen bis auf null schrumpfen und enden im
-   Ellipsis (siehe Label-Block). Wer „Friedrichshain" gewählt hat, erkennt es
-   auch als „Friedrichsh…"; „Kategori" dagegen war nichts mehr.
-
-   Kein `flex-wrap`: eine zweite Zeile probiert (29.08.2026) sah aus wie ein
-   Fehler — der Umbruch schob „Geöffnet" allein auf eine volle Breite von
-   355px, und die Leiste sprang beim Filtern um 50px in der Höhe. */
-.filterChipRow .filterChipWrap:not(:has(.filterChipActive)):not(:has(.filterChipOpenActive)) {
-  flex: 1 1 0;
-  min-width: min-content;
-}
-
-/* ABSICHTLICH BEIBEHALTEN: der Geoeffnet-Toggle behaelt sein Viertel der Reihe
-   in JEDEM Zustand — er waechst als einziger Chip nicht mit seinem Inhalt.
-   Heute unsichtbar, weil auf ihm immer dasselbe Wort steht. Frueher ergab sich
-   das aus einem Spezifitaets-Unfall; jetzt steht es als Entscheidung da. Wer
-   ihm einmal einen variablen Wert gibt, faengt hier an. */
-.filterChipRow.filterChipRow > button.filterChip.filterChip {
-  flex: 1 1 0;
-}
-
-.filterChipRow.filterChipRow
-  > button.filterChip.filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
-  min-width: min-content;
-}
-
-.filterChipRow .filterChipWrap:has(.filterChipActive),
-.filterChipRow .filterChipWrap:has(.filterChipOpenActive) {
-  flex: 0 1 auto;
-  width: auto;
+.filterChipWrapActive {
   min-width: 0;
-  max-width: 100%;
+  background: var(--et-accent);
 }
 
-/* ── Chip: gemeinsame Form ─────────────────────────────────────────────────── */
 .filterChipRow .filterChip {
   display: inline-flex;
   align-items: center;
-  align-content: center;
   justify-content: center;
-  gap: 5px;
-  width: 100%;
+  flex: 1 1 auto;
+  gap: 4px;
   min-width: 0;
-  max-width: none;
   min-height: 44px;
-  padding: 8px;
+  padding: 8px 7px;
+  background: var(--et-ink-raised);
+  color: var(--et-white);
+  border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;
-  overflow: hidden;
   font-family: var(--et-font-display);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1.35;
   letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  text-decoration: none;
   text-transform: none;
   white-space: nowrap;
-  transform: none;
   cursor: pointer;
   appearance: none;
+  transform: none;
   filter: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   text-shadow: none;
-  grid-template-columns: minmax(0, 1fr);
 }
-
-/* Der Chip im Wrap ist Flex-Item DES WRAPS, nicht der Reihe, und behaelt seine
-   Inhaltsbreite. Die Verteilung passiert eine Ebene hoeher, am Wrap. */
-.filterChipRow .filterChipWrap .filterChip {
-  flex: 0 0 auto;
-}
-
-.filterChipRow > .filterChip {
-  margin-left: 0;
-}
-
-/* ABSICHTLICH BEIBEHALTEN: der nackte Toggle traegt anderes Padding als die
-   drei Chips im Wrap (10px statt 8px oben und unten) und schneidet nicht ab.
-   Das war frueher ein Ergebnis der Spezifitaet, kein Entwurf. */
-.filterChipRow > .filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
-  padding: 10px 8px;
-  overflow: visible;
-}
-
-/* ── Chip: inaktiv ───────────────────────────────────────────────────────────
-   Auf dem Ink-Grund ist ein Ink-Chip unsichtbar. Er setzt sich mit seiner
-   FLAECHE ab, eine Stufe heller als der Grund (--et-ink-raised), nicht mit
-   einer Kontur: die Ringe in Weiss 28 % sahen um jeden Knopf herum unruhig
-   aus, Google Maps hat keine (User, 23.09.2026). Beim Zeigen und Aufklappen
-   wird die Flaeche noch eine Spur heller (--et-ink-quiet darueber gelegt).
-
-   Der Rand bleibt als 1px in Transparent stehen, damit kein Zustand die
-   Groesse des Chips aendert. */
-.filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive) {
-  background: var(--et-ink-raised);
-  color: var(--et-white);
-  border: 1px solid transparent;
-}
-
-.filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):focus-visible,
-.filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive)[aria-expanded='true'] {
-  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
-  color: var(--et-white);
-}
-
-@media (hover: hover) {
-  .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):hover {
-    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
-    color: var(--et-white);
-  }
-}
-
-.filterChip:active {
-  transform: translateX(-2px);
-}
-
-/* ── Chip: aktiv (trägt einen gewählten Wert) ──────────────────────────────────
-   Akzentfüllung mit Ink-Text — die Kombination, die die Marke ohnehin für „das
-   hier ist an" benutzt. Vorher rendete der aktive Chip mit byte-identischen
-   Werten wie ein inaktiver: `.filterChipActive` setzte denselben Ink-Hintergrund
-   ein paar Regeln weiter unten nochmal. Man konnte nicht sehen, welcher Filter
-   lief.
-
-   Das Padding ist symmetrisch 20px, damit das Label am Zurücksetzen-Punkt
-   vorbeikommt statt darunter durchzulaufen — der Chip wächst um dieselben 20px
-   mit, weil er sich nach seinem Inhalt bemisst. */
-.filterChipRow .filterChipActive,
-.filterChipRow .filterChipActive:focus-visible {
-  padding-inline: 20px;
-  background: var(--et-accent);
+.filterChipRow .filterChipActive {
+  background: transparent;
   color: var(--et-ink);
-  border: 1px solid var(--et-accent);
+  padding-inline: 8px 16px;
+  border-radius: var(--et-radius-control);
 }
-@media (hover: hover) {
-  .filterChipRow .filterChipActive:hover {
-    padding-inline: 20px;
-    background: var(--et-accent);
-    color: var(--et-ink);
-    border: 1px solid var(--et-accent);
-  }
-}
-
-/* ABSICHTLICH BEIBEHALTEN: solange seine Auswahlliste offen ist, faellt ein
-   Chip auf die dunkle Flaeche zurueck — er sieht dann gedrueckt aus statt
-   gesetzt. Gilt bewusst fuer JEDEN Chip, auch den gruenen Toggle. Der Rand
-   wird dabei durchsichtig: beim aktiven Chip stand sonst eine gelbe Kontur um
-   die dunkle Flaeche, und Konturen gibt es hier nicht mehr (User, 23.09.2026). */
-.filterChipRow .filterChip[aria-expanded='true'] {
-  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
-  color: var(--et-white);
-  border-color: transparent;
-}
-
-/* ── Chip: „Geöffnet"-Toggle ──────────────────────────────────────────────────
-   Der einzige echte Umschalter in der Reihe, deshalb Grün statt Akzent — sonst
-   sähe er aus wie ein gesetzter Filterwert. `aria-pressed` ist der Zustand, den
-   der Screenreader liest; die Klasse ist nur das visuelle Gegenstück. */
-.filterChipRow .filterChipOpenActive,
-.filterChipRow .filterChip[aria-pressed='true'] {
-  background: #1f8f4d;
-  color: #fff;
-  border: 0;
-}
-
-.filterChipRow .filterChipOpenActive:focus-visible,
-.filterChipRow .filterChip[aria-pressed='true']:focus-visible {
-  background: #176f3c;
-  color: #fff;
-  border: 0;
-}
-
-@media (hover: hover) {
-  .filterChipRow .filterChipOpenActive:hover,
-  .filterChipRow .filterChip[aria-pressed='true']:hover {
-    background: #176f3c;
-    color: #fff;
-    border: 0;
-  }
-}
-
-/* ── Label ─────────────────────────────────────────────────────────────────────
-   Erbt Farbe und Schnitt vom Chip; gesetzt wird hier nur, was der Chip nicht
-   vererben kann. `overflow-wrap: anywhere` plus `hyphens: auto` hat aus
-   Bezirksnamen "Kreuz-berg" gemacht — deshalb wird ausschließlich an Leerzeichen
-   umbrochen. */
-.filterChipRow .filterChipLabel,
-.filterChipRow .filterChipLabelLong {
+.filterChipRow .filterChipLabel {
   display: block;
-  width: 100%;
   min-width: 0;
-  max-width: 100%;
-  padding-block: 1px;
   overflow: hidden;
-  color: inherit;
-  font-family: inherit;
-  font-weight: inherit;
-  font-size: 12px;
-  letter-spacing: inherit;
-  line-height: 16px;
-  text-align: center;
-  text-transform: inherit;
-  text-overflow: clip;
-  white-space: normal;
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: none;
-}
-
-/* Einzelne Wörter, die bei 12px selbst in einem gewachsenen Chip nicht passen
-   ("Charlottenburg" braucht 88px in einem 68px-Slot) — nur im inaktiven Chip,
-   denn ein aktiver bemisst sich nach seinem Inhalt und braucht das nicht. */
-.filterChipRow .filterChipLabelLong {
-  font-size: 9px;
-  line-height: 12px;
-}
-
-/* Ein aktiver Chip wächst mit seinem Wert, also darf das Label auf voller Größe
-   einzeilig bleiben. Ellipsis ist der Rückfall, wenn mehrere lange Werte sich
-   die Reihe teilen. */
-.filterChipRow .filterChipActive .filterChipLabel,
-.filterChipRow .filterChipActive .filterChipLabelLong,
-.filterChipRow .filterChipOpenActive .filterChipLabel,
-.filterChipRow .filterChipOpenActive .filterChipLabelLong {
-  width: 100%;
-  font-size: 12px;
-  line-height: 16px;
+  font: inherit;
+  /* Providence needs its descenders even in a clipped, single-line label. */
+  line-height: 1.4;
   white-space: nowrap;
   text-overflow: ellipsis;
-  hyphens: none;
-}
-
-.filterChipRow .filterChipActive .filterChipLabel,
-.filterChipRow .filterChipActive .filterChipLabelLong,
-.filterChipRow .filterChipOpenActive .filterChipLabel,
-.filterChipRow .filterChip[aria-pressed='true'] .filterChipLabel {
   color: inherit;
 }
+.filterChevron {
+  display: flex;
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+  transform: rotate(-90deg);
+}
+.filterChevron svg { width: 100%; height: 100%; }
+.filterChip[aria-expanded='true'] .filterChevron { transform: rotate(90deg); }
 
-/* ── Zurücksetzen-Punkt ────────────────────────────────────────────────────────
-   Sitzt im Wrap NEBEN dem Chip-Button, nie darin — ein Button im Button ist
-   ungültiges Markup und meldet sich beim Screenreader doppelt. Er überlappt die
-   obere rechte Ecke; das Label ist zentriert, sie treffen sich also kaum.
-
-   Die Trefferfläche wächst über ein ::before, ohne den 22px-Punkt zu bewegen.
-   Rechts bewusst 0: jeder Überstand dort landet auf dem Nachbar-Chip, und einem
-   Nachbarn den Tap zu stehlen ist schlimmer als ein etwas schmaleres Ziel. */
+/* Small corner badge as requested. A separate sibling keeps button markup
+   valid; its hit area grows inward, never over the neighbouring filter. */
 .filterChipClear {
   position: absolute;
   top: -5px;
@@ -329,46 +100,57 @@
   background: var(--et-ink);
   color: var(--et-accent);
   border: 0;
-  border-radius: 999px;
+  border-radius: 50%;
   box-shadow: none;
-  appearance: none;
   cursor: pointer;
+  appearance: none;
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
+  transform: none;
 }
-
 .filterChipClear::before {
   content: '';
   position: absolute;
-  inset: -9px 0 -9px -9px;
+  inset: -4px 0 -14px -9px;
 }
+.filterChipClear svg { width: 11px; height: 11px; }
 
-.filterChipClear svg {
-  width: 11px;
-  height: 11px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 3;
-  stroke-linecap: round;
+.filterChipRow .filterOpenToggle {
+  flex: 0 0 auto;
+  gap: 5px;
+  padding-inline: 9px;
 }
-
-.filterChipClear:focus-visible {
-  background: var(--et-red);
+.filterOpenToggle::before {
+  content: '';
+  flex: 0 0 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #79d69b;
+}
+.filterChipRow .filterChipOpenActive {
+  background: #1f8f4d;
   color: #fff;
-  outline: 0;
 }
+.filterChipOpenActive::before { background: currentColor; }
 
+.filterChipRow .filterChip:focus-visible,
+.filterChipClear:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
+}
+.filterChipRow .filterChip[aria-expanded='true'] {
+  box-shadow: inset 0 -2px 0 currentColor;
+}
 @media (hover: hover) {
-  .filterChipClear:hover {
-    background: var(--et-red);
-    color: #fff;
-    outline: 0;
+  .filterChipRow .filterChip:hover {
+    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
   }
+  .filterChipRow .filterChipActive:hover { background: rgba(21, 18, 14, 0.08); }
+  .filterChipClear:hover { background: var(--et-red); color: var(--et-white); }
+  .filterChipRow .filterChipOpenActive:hover { background: #176f3c; }
 }
-
-.filterChipClear:active {
-  transform: translate(1px, 1px);
-}
+.filterChipRow .filterChip:active,
+.filterChipClear:active { transform: none; }
 
 /* ── Telefon ──────────────────────────────────────────────────────────────────
    Die Leiste klebt oben, sobald die Liste darunter scrollt. Eigene
@@ -402,24 +184,7 @@
     user-select: none;
   }
 
-  .filterChipRow {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
-    padding-inline: 10px;
-  }
-}
-
-@media (max-width: 1023px) {
-  .filterChipRow .filterChip {
-    gap: 0;
-  }
-}
-
-@media (min-width: 1024px) {
-  .filterChipRow .filterChipLabel,
-  .filterChipRow .filterChipLabelLong {
-    letter-spacing: 0.01em;
-  }
+  .filterChipRow { gap: 6px; }
 }
 
 /* ══ Picker ═══════════════════════════════════════════════════════════════════
@@ -524,9 +289,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 30px;
-  width: 30px;
-  height: 30px;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: transparent;
   color: inherit;

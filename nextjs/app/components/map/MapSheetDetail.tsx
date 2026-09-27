@@ -64,6 +64,7 @@ export default function MapSheetDetail(props: Props) {
       // toter Weißraum unterm Pager. Siehe .detailMountMustEat.
       className={`${styles.detailMount}${props.kind === 'mustEat' ? ` ${styles.detailMountMustEat}` : ''}`}
       data-detail-mount=""
+      data-sheet-content=""
       data-detail-kind={props.kind === 'mustEat' ? 'must-eat' : 'restaurant'}
     >
       {props.kind === 'mustEat' ? (

@@ -958,7 +958,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   onPrice={setPrice}
                   optionCounts={optionCounts}
                 />
-                <div ref={setContentRef} className={sheetStyles.listScroll}>
+                <div ref={setContentRef} className={sheetStyles.listScroll} data-sheet-content="">
                   <RestaurantList
                     restaurants={listRestaurants}
                     userLocation={location}

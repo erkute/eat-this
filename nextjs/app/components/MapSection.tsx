@@ -29,12 +29,13 @@ import {
   resolveListReturn,
   rowRevealOffset,
   rowRevealTop,
+  phoneListMidVisiblePx,
   type DetailOrigin,
 } from '@/lib/map/phoneSheetSnaps';
 import { spotsCameraTarget, hasRoomToFit, fitPadding } from '@/lib/map/cameraFit';
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
 import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
-import { useMapCamera } from '@/lib/map/useMapCamera';
+import { useMapCamera, USER_LOCATION_ZOOM } from '@/lib/map/useMapCamera';
 import { useDetailSelection, type DetailOpeners } from '@/lib/map/useDetailSelection';
 
 /* How long the search query has to hold still before the camera follows it.
@@ -173,7 +174,7 @@ export default function MapSection({
   sheetViewRef.current = sheetView;
 
   /* In-flow phone list: the sheet's snap vocabulary maps onto window-scroll
-     anchors. peek = the list's CSS resting overlap (scroll 0), mid ≈ 440px of
+     anchors. peek = the list's CSS resting overlap (scroll 0), mid = up to half a viewport of
      list visible, full = list top parked 40px below the viewport top — same
      constants the tablet drag-sheet uses (MID_VISIBLE_PX / FULL_TOP_PX). */
   const listAnchorY = useCallback(
@@ -183,7 +184,8 @@ export default function MapSection({
       const listTopDoc = el.getBoundingClientRect().top + window.scrollY;
       const h = window.innerHeight;
       // peek: desiredTop = h ⇒ target scroll ≤ 0 ⇒ clamps to 0 (CSS overlap).
-      const desiredTop = target === 'peek' ? h : target === 'mid' ? Math.max(40, h - 440) : 40;
+      const desiredTop =
+        target === 'peek' ? h : target === 'mid' ? Math.max(40, h - phoneListMidVisiblePx(h)) : 40;
       return Math.max(0, Math.round(listTopDoc - desiredTop));
     },
     [sheetElRef]
@@ -1136,7 +1138,10 @@ export default function MapSection({
     if (sheetView !== 'list') return;
     if (isPhoneViewport()) {
       const el = sheetElRef.current;
-      if (el && window.innerHeight - el.getBoundingClientRect().top < 440) {
+      if (
+        el &&
+        window.innerHeight - el.getBoundingClientRect().top < phoneListMidVisiblePx(window.innerHeight)
+      ) {
         scrollListToAnchor('mid');
       }
       return;
@@ -1250,7 +1255,7 @@ export default function MapSection({
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;
     const flyTo = (loc: { lat: number; lng: number }) =>
-      flyToSpot(loc, { zoom: 14, duration: 600, padding: getFlyPadding() });
+      flyToSpot(loc, { zoom: USER_LOCATION_ZOOM, duration: 600, padding: getFlyPadding() });
     if (location) flyTo(location);
     if (location && locationPermitted) {
       followFixRef.current = { from: location, until: Date.now() + 10_000 };
@@ -1273,7 +1278,7 @@ export default function MapSection({
     followFixRef.current = null;
     if (Date.now() > pending.until) return;
     if (haversineDistance(pending.from.lat, pending.from.lng, location.lat, location.lng) > 10) {
-      flyToSpot(location, { zoom: 14, duration: 600, padding: getFlyPadding() });
+      flyToSpot(location, { zoom: USER_LOCATION_ZOOM, duration: 600, padding: getFlyPadding() });
     }
   }, [location, flyToSpot, getFlyPadding]);
 
@@ -1331,7 +1336,7 @@ export default function MapSection({
           },
           onReady: () => {
             completed = true;
-            flyToSpot(loc, { zoom: 14, duration: 600, padding: getFlyPaddingRef.current() });
+            flyToSpot(loc, { zoom: USER_LOCATION_ZOOM, duration: 600, padding: getFlyPaddingRef.current() });
           },
         });
       });
@@ -1357,7 +1362,10 @@ export default function MapSection({
       map.resize();
       const target = spotsCameraTarget(list);
       if (!target) return;
-      const padding = getFlyPaddingRef.current();
+      // Filter chips can be used while the list covers the map or the picker
+      // is restoring document scroll. Fit the result set for the stable phone
+      // middle stop, not those transient/fully covered DOM coordinates.
+      const padding = getFlyPaddingRef.current(isPhoneViewport() ? 'mid' : undefined);
       if (target.kind === 'point') {
         /* Ein einzelner Treffer braucht keine Einpassung: der Zoom steht fest,
            und `flyTo` zieht den Rand genau einmal ab — es setzt ihn als neuen
@@ -1492,7 +1500,7 @@ export default function MapSection({
     if (!justActivated) return;
     if (selectedRestaurant || selectedMustEat) return;
     if (!location) return;
-    flyToSpot(location, { zoom: 14, duration: 400, padding: getFlyPadding() });
+    flyToSpot(location, { zoom: USER_LOCATION_ZOOM, duration: 400, padding: getFlyPadding() });
   }, [isActive, selectedRestaurant, selectedMustEat, location, flyToSpot, getFlyPadding]);
 
   // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> also moves

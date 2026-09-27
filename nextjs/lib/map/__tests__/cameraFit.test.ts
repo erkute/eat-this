@@ -6,6 +6,7 @@ import {
   MIN_FIT_SPACE_PX,
   type Insets,
 } from '../cameraFit';
+import { phoneListMidVisiblePx } from '../phoneSheetSnaps';
 import type { MapRestaurant } from '@/lib/types';
 
 const NONE: Insets = { top: 0, bottom: 0, left: 0, right: 0 };
@@ -193,5 +194,14 @@ describe('spotsCameraTarget', () => {
     expect(
       spotsCameraTarget([spot('a', 52.4, 13.5), spot('b', 52.6, 13.2), spot('c', 52.5, 13.3)])
     ).toEqual({ kind: 'bounds', sw: [13.2, 52.4], ne: [13.5, 52.6] });
+  });
+});
+
+
+describe('phone filter viewport', () => {
+  it.each([568, 667, 844, 896])('leaves fitting room at %i px height even after a padded flight', (height) => {
+    const desired = { top: 115, bottom: phoneListMidVisiblePx(height) + 20, left: 34, right: 34 };
+    const previous = { top: 80, bottom: 200, left: 20, right: 20 };
+    expect(hasRoomToFit({ width: 360, height }, fitPadding(desired, previous), previous)).toBe(true);
   });
 });

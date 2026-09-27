@@ -3,7 +3,8 @@ import { useEffect, type RefObject } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { measureSheetTop, resolveSnap, snapOffsets } from './phoneSheetSnaps';
 import {
-  forgetSheetPosition,
+  resumeSheetReading,
+  scrollCollapsedReading,
   grabFromList,
   mapStripLine,
   SHEET_COLLAPSE_EVENT,
@@ -146,8 +147,9 @@ export function useHandleScrollDrag(
           drag = slab('list', grabFromList(sheet));
           return;
         }
-        if (window.scrollY < sheetStop - AT_STOP_PX && grabFromMap(sheet, view, restLine)) {
-          drag = slab('map', restLine);
+        const visibleOffset = Math.max(0, restLine - (window.scrollY - mapY));
+        if (window.scrollY < sheetStop && grabFromMap(sheet, view, visibleOffset)) {
+          drag = slab('map', visibleOffset);
           return;
         }
       }
@@ -246,13 +248,14 @@ export function useHandleScrollDrag(
       if (!drag || e.pointerId !== drag.pointerId) return;
       flush();
       if (claimedLate) suppressClickUntil = e.timeStamp + CLICK_AFTER_DRAG_MS;
+      const d = drag;
+      drag = null;
       try {
-        zone.releasePointerCapture(drag.pointerId);
+        zone.releasePointerCapture(d.pointerId);
       } catch {
         /* already released (pointercancel) — nothing to undo. */
       }
-      const d = drag;
-      drag = null;
+      const cancelled = e.type !== 'pointerup';
 
       if (d.kind === 'slab') {
         const sheet = sheetEl();
@@ -263,21 +266,26 @@ export function useHandleScrollDrag(
         busy = true;
         let done: Promise<void>;
         if (d.from === 'list') {
-          const toMap = tap || moved > INTENT_PX || d.v > FLICK_PX_PER_MS;
+          const toMap = !cancelled && (tap || moved > INTENT_PX || d.v > FLICK_PX_PER_MS);
           if (toMap) trackEvent('map_view_toggle', { direction: 'to_map' });
           done = toMap
             ? settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: view })
             : raiseToList(sheet, d.offset);
         } else {
-          const toList = tap || moved < -INTENT_PX || d.v < -FLICK_PX_PER_MS;
+          const toList = !cancelled && (tap || moved < -INTENT_PX || d.v < -FLICK_PX_PER_MS);
           if (toList) trackEvent('map_view_toggle', { direction: 'to_list' });
           done = toList
             ? raiseToList(sheet, d.offset)
-            : settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: null });
+            : settleOnMap(sheet, d.offset, d.restLine, d.mapY, { remember: view });
         }
         void done.finally(() => {
           busy = false;
         });
+        return;
+      }
+
+      if (cancelled) {
+        window.scrollTo({ top: d.startScrollY, behavior: 'instant' });
         return;
       }
 
@@ -317,12 +325,12 @@ export function useHandleScrollDrag(
       );
     };
 
-    /* A list position is only worth returning to while you are looking at the
-       map. Scroll into the list by hand and that is the new place. */
+    /* Raising the collapsed excerpt by native scroll keeps the same rows.
+       At the top stop transfer its offset back to the document scroller. */
     const onScroll = () => {
       if (busy || drag || rememberedSheetPosition(view) === null) return;
       const offsets = stops();
-      if (window.scrollY > offsets[offsets.length - 1] + AT_STOP_PX) forgetSheetPosition(view);
+      if (window.scrollY >= offsets[offsets.length - 1]) resumeSheetReading(view);
     };
 
     const onClick = (e: MouseEvent) => {
@@ -332,20 +340,61 @@ export function useHandleScrollDrag(
       e.stopPropagation();
     };
 
+    const content = sheetEl()?.querySelector<HTMLElement>('[data-sheet-content]');
+    let contentTouch: { x: number; y: number } | null = null;
+    const onContentStart = (e: TouchEvent) => {
+      contentTouch = e.touches.length === 1
+        ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+        : null;
+    };
+    const onContentMove = (e: TouchEvent) => {
+      if (!contentTouch || e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      const dy = touch.clientY - contentTouch.y;
+      const dx = touch.clientX - contentTouch.x;
+      contentTouch = { x: touch.clientX, y: touch.clientY };
+      // Only the otherwise dead downward gesture at the document's top is
+      // handled here. Upward scrolling, galleries and pinch zoom stay native.
+      if (!isPhone() || busy || drag || !e.cancelable || window.scrollY > 1 || Math.abs(dx) >= Math.abs(dy)) return;
+      if (scrollCollapsedReading(view, dy)) e.preventDefault();
+    };
+    const onContentEnd = () => { contentTouch = null; };
+    const onContentWheel = (e: WheelEvent) => {
+      if (!isPhone() || busy || drag || e.ctrlKey || window.scrollY > 1 || e.deltaY >= 0 || Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return;
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+      // WebKit marks later events in a wheel sequence non-cancelable. The
+      // document is already at its top; still consume their reading offset.
+      if (scrollCollapsedReading(view, -e.deltaY * unit) && e.cancelable) e.preventDefault();
+    };
+    content?.addEventListener('touchstart', onContentStart, { passive: true });
+    content?.addEventListener('touchmove', onContentMove, { passive: false });
+    content?.addEventListener('touchend', onContentEnd);
+    content?.addEventListener('touchcancel', onContentEnd);
+    content?.addEventListener('wheel', onContentWheel, { passive: false });
+
     zone.addEventListener('pointerdown', onDown);
-    zone.addEventListener('pointermove', onMove);
-    zone.addEventListener('pointerup', onUp);
-    zone.addEventListener('pointercancel', onUp);
+    // Capture is best-effort in mobile browsers. Finish even when the pointer
+    // leaves the moving grip, or native scrolling takes its capture away.
+    window.addEventListener('pointermove', onMove, true);
+    window.addEventListener('pointerup', onUp, true);
+    window.addEventListener('pointercancel', onUp, true);
+    zone.addEventListener('lostpointercapture', onUp);
     zone.addEventListener('click', onClick, true);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
     return () => {
+      content?.removeEventListener('touchstart', onContentStart);
+      content?.removeEventListener('touchmove', onContentMove);
+      content?.removeEventListener('touchend', onContentEnd);
+      content?.removeEventListener('touchcancel', onContentEnd);
+      content?.removeEventListener('wheel', onContentWheel);
       window.removeEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
       if (frame) window.cancelAnimationFrame(frame);
       zone.removeEventListener('pointerdown', onDown);
-      zone.removeEventListener('pointermove', onMove);
-      zone.removeEventListener('pointerup', onUp);
-      zone.removeEventListener('pointercancel', onUp);
+      window.removeEventListener('pointermove', onMove, true);
+      window.removeEventListener('pointerup', onUp, true);
+      window.removeEventListener('pointercancel', onUp, true);
+      zone.removeEventListener('lostpointercapture', onUp);
       zone.removeEventListener('click', onClick, true);
       window.removeEventListener('scroll', onScroll);
     };

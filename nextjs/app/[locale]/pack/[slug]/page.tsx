@@ -1,16 +1,16 @@
+import PackPreview from '@/app/components/PackPreview';
 import { notFound } from 'next/navigation';
+import { PackOwnershipProvider } from '@/app/components/PackOwnership';
 import type { Metadata } from 'next';
 import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
-import { CATALOG } from '@/lib/stripe-catalog';
 import { getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
 import { localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
 import { hreflangAlternates } from '@/lib/seo/metadata';
 import { metadataSource } from '@/lib/seo/metadataSource';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
-import { routing } from '@/i18n/routing';
-import { resolvePackByUrlSlug, packUrlSlug, formatPackPrice } from '@/lib/pack/packDetail';
+import { resolvePackByUrlSlug, formatPackPrice } from '@/lib/pack/packDetail';
 import PackBuyButton from './PackBuyButton';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from '@/app/components/PaymentMarks';
@@ -20,21 +20,13 @@ interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
-// 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
-// der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
-// Zahl: SANITY_REVALIDATE_SECONDS in lib/constants.ts. Next verlangt hier einen
-// statisch lesbaren Wert, deshalb die Zahl statt der Konstante.
-export const revalidate = 86400;
+// Public card previews use Firebase's runtime identity, unavailable in CI.
+// Match the home and Must-Eats routes: hydrate public content at request time.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Nur die Kategorie-Packs haben eine Seite. All Berlin ist die Tafel auf
 // /packs plus die „Was drin ist"-Sheet — /pack/all-berlin gibt es nicht mehr.
-const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category');
-
-export async function generateStaticParams() {
-  return routing.locales.flatMap((locale) =>
-    categoryPacks.map((p) => ({ locale, slug: packUrlSlug(p) }))
-  );
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -64,7 +56,7 @@ const copy = {
   de: {
     kicker: 'Booster Pack',
     pack: 'Pack',
-    cta: 'Jetzt freischalten',
+    cta: 'Freischalten',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
@@ -75,13 +67,13 @@ const copy = {
   en: {
     kicker: 'Booster Pack',
     pack: 'Pack',
-    cta: 'Unlock now',
+    cta: 'Unlock',
     pending: 'Going to Stripe …',
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
     payment: 'Payment methods',
     soon: 'Coming soon',
-    map: '/en/map',
+    map: '/map',
   },
 } as const;
 
@@ -108,69 +100,84 @@ export default async function PackDetailPage({ params }: PageProps) {
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
 
   return (
-    <main className={styles.page}>
-      <div className={styles.inner}>
-        <section className={styles.hero}>
-          <div className={styles.copy}>
-            <p className={styles.kicker}>{t.kicker}</p>
-            <h1 className={styles.name}>
-              {heroName}
-              <br />
-              {t.pack}
-            </h1>
-            <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
-            <p className={styles.sub}>{pack.description[loc]}</p>
+    <PackOwnershipProvider>
+      <main className={styles.page}>
+        <div className={styles.inner}>
+          <section className={styles.hero}>
+            <div className={styles.copy}>
+              <p className={styles.kicker}>{t.kicker}</p>
+              <h1 className={styles.name}>
+                {heroName}
+                <br />
+                {t.pack}
+              </h1>
+              <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
+              <p className={styles.sub}>
+                {loc === 'de'
+                  ? 'Was du wo bestellen solltest. Mit diesem Pack liegen die Must Eats dieser Kategorie auf deiner Map offen.'
+                  : 'What to order and where. This pack reveals the Must Eats in this category on your map.'}
+              </p>
 
-            <div className={styles.actions}>
-              {empty ? (
-                <p className={styles.soon}>{t.soon}</p>
-              ) : (
-                <PackBuyButton
-                  packId={pack.packId}
-                  packName={pack.displayName}
-                  amountCents={pack.amountCents}
-                  locale={loc}
-                  className={styles.cta}
-                  errorClassName={styles.ctaError}
-                  label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
-                  pendingLabel={t.pending}
-                  ownedLabel={t.owned}
-                  ownedHref={t.map}
-                  errorLabel={t.error}
+              <div className={styles.actions}>
+                {empty ? (
+                  <p className={styles.soon}>{t.soon}</p>
+                ) : (
+                  <PackBuyButton
+                    packId={pack.packId}
+                    packName={pack.displayName}
+                    amountCents={pack.amountCents}
+                    locale={loc}
+                    className={styles.cta}
+                    errorClassName={styles.ctaError}
+                    label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
+                    pendingLabel={t.pending}
+                    ownedLabel={t.owned}
+                    ownedHref={t.map}
+                    errorLabel={t.error}
+                  />
+                )}
+                {!empty && (
+                  <p className={styles.paymentNote}>
+                    {loc === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
+                  </p>
+                )}
+                {!empty && (
+                  <PaymentMarks
+                    height={24}
+                    label={`${t.payment}: ${PAYMENT_MARK_NAMES.join(', ')}`}
+                    className={styles.paymentLogos}
+                  />
+                )}
+              </div>
+            </div>
+
+            {art && (
+              <div className={styles.stage}>
+                <Image
+                  src={art}
+                  alt={`${heroName} ${t.pack}`}
+                  width={420}
+                  height={656}
+                  sizes="(max-width: 767.98px) 160px, 400px"
+                  priority
+                  className={styles.packArt}
                 />
-              )}
-              {!empty && (
-                <p className={styles.paymentNote}>
-                  {loc === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
-                </p>
-              )}
-              <PaymentMarks
-                height={24}
-                label={`${t.payment}: ${PAYMENT_MARK_NAMES.join(', ')}`}
-                className={styles.paymentLogos}
-              />
-            </div>
+              </div>
+            )}
+          </section>
+
+          {!empty && <PackPreview locale={loc} category={categorySlug} />}
+
+          <div className={styles.upsell}>
+            <AllBerlinBoard
+              contents={packContents}
+              locale={loc}
+              variant="upsell"
+              headingLevel="h2"
+            />
           </div>
-
-          {art && (
-            <div className={styles.stage}>
-              <Image
-                src={art}
-                alt={`${heroName} ${t.pack}`}
-                width={420}
-                height={656}
-                sizes="(max-width: 767.98px) 66vw, 400px"
-                priority
-                className={styles.packArt}
-              />
-            </div>
-          )}
-        </section>
-
-        <div className={styles.upsell}>
-          <AllBerlinBoard contents={packContents} locale={loc} variant="upsell" headingLevel="h2" />
         </div>
-      </div>
-    </main>
+      </main>
+    </PackOwnershipProvider>
   );
 }

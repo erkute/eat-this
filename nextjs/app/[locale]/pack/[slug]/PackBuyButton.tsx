@@ -1,5 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from '@/i18n/navigation';
+import { usePackOwnership } from '@/app/components/PackOwnership';
 import { useAuth } from '@/lib/auth';
 import { trackEvent } from '@/lib/analytics';
 import styles from './PackDetail.module.css';
@@ -36,6 +38,9 @@ export default function PackBuyButton({
   errorClassName,
 }: Props) {
   const { user } = useAuth();
+  const owned = usePackOwnership();
+  const alreadyOwned = owned?.has(packId) || owned?.has('all-berlin');
+  const [conflictUid, setConflictUid] = useState<string | null>(null);
   const [state, setState] = useState<'idle' | 'pending' | 'owned' | 'error'>('idle');
 
   useEffect(() => {
@@ -69,6 +74,7 @@ export default function PackBuyButton({
 
       if (res.status === 409) {
         trackEvent('checkout_already_owned', { item_id: packId });
+        setConflictUid(user?.uid ?? null);
         setState('owned');
         return;
       }
@@ -89,11 +95,11 @@ export default function PackBuyButton({
     }
   }, [user, packId, packName, amountCents, locale, state]);
 
-  if (state === 'owned') {
+  if (alreadyOwned || (state === 'owned' && conflictUid === (user?.uid ?? null))) {
     return (
-      <a className={className ?? styles.cta} href={ownedHref}>
+      <Link className={className ?? styles.cta} href={ownedHref}>
         {ownedLabel}
-      </a>
+      </Link>
     );
   }
 
@@ -103,9 +109,11 @@ export default function PackBuyButton({
         type="button"
         className={className ?? styles.cta}
         onClick={onBuy}
-        disabled={state === 'pending'}
+        disabled={state === 'pending' || owned === null}
+        aria-busy={state === 'pending' || owned === null}
+        aria-label={owned === null ? (locale === 'de' ? 'Wird geladen' : 'Loading') : undefined}
       >
-        {state === 'pending' ? pendingLabel : label}
+        {state === 'pending' ? pendingLabel : owned === null ? '…' : label}
       </button>
       {state === 'error' && <p className={errorClassName ?? styles.ctaError}>{errorLabel}</p>}
     </>

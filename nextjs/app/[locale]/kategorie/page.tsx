@@ -114,13 +114,10 @@ export default async function KategorieIndexPage({ params }: PageProps) {
             <h1 className={styles.title} style={hubTitleStyle(title)}>
               {title}
             </h1>
-            {/* Die Zahl kommt aus der Liste, nicht aus der Copy: sobald im Studio
-                eine Kategorie dazukommt oder leerläuft, stand hier sonst eine
-                falsche Behauptung. */}
             <p className={styles.lede}>
               {de
-                ? `${categories.length} Richtungen, ein Prinzip: nur Adressen, für die wir geradestehen. Such dir eine aus.`
-                : `${categories.length} directions, one rule: only addresses we vouch for. Take your pick.`}
+                ? 'Frühstück, Pizza oder Drinks – such dir aus, worauf du Lust hast.'
+                : 'Breakfast, pizza or drinks – pick what you’re in the mood for.'}
             </p>
           </div>
         </header>

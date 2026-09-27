@@ -52,6 +52,8 @@ export default function RemyLauncher() {
   }, []);
 
   if (hidden) return null;
+  // Keep purchase controls unobstructed on pack pages.
+  if (pathname === '/packs' || pathname.startsWith('/pack/')) return null;
   if (pathname === '/map' || pathname.startsWith('/map/')) return null;
 
   const label = locale === 'en' ? 'Ask Remy' : 'Frag Remy';

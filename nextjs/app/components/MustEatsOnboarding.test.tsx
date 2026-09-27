@@ -208,6 +208,12 @@ describe('MustEatsOnboarding', () => {
       act(() => {
         vi.advanceTimersByTime(800);
       });
+      expect(flipper.className).toContain('flipped');
+      expect(screen.getByTestId('tour-tap-cue')).toBeTruthy();
+      act(() => {
+        vi.advanceTimersByTime(650);
+      });
+      expect(screen.queryByTestId('tour-tap-cue')).toBeNull();
       expect(flipper.className).not.toContain('flipped');
     } finally {
       vi.useRealTimers();

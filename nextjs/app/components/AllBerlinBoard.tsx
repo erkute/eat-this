@@ -107,9 +107,9 @@ export default function AllBerlinBoard({
               </>
             )
           ) : locale === 'de' ? (
-            'Alle Kategorie-Packs. Neue Must-Eat-Karten ohne weiteren Kauf.'
+            'Alle Must-Eat-Karten für Berlin. Einmal zahlen – neu hinzugefügte Karten sind inklusive.'
           ) : (
-            'Every category pack. New Must Eat cards without another purchase.'
+            'Every Must Eat card for Berlin. Pay once – newly added cards are included.'
           )}
         </p>
 

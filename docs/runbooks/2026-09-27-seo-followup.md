@@ -56,14 +56,18 @@ copy. Its normal ISR interval is 24 hours. A local cache-refresh credential
 was unavailable; automatic approval review rejected access to the production
 Secret Manager key. No secret was retrieved and no manual refresh occurred.
 
-Already-existing district drafts were preserved, with only their SEO titles
-and descriptions updated to match their newer, concrete restaurant selections:
+Already-existing district drafts were preserved while updating their SEO
+titles and descriptions to match their newer, concrete restaurant selections:
 
 - Mitte: `drafts.43309b8f-1475-4dd4-891b-8da8d03d5438`
 - Neukölln: `drafts.c3a8c2cb-9229-44f2-ae4c-30c742ae9318`
 
-These drafts include work predating this session and were not published as
-part of this change. Publishing them requires reviewing their complete diff.
+Their complete draft-to-published diff was subsequently reviewed: only the
+DE/EN introductions and SEO fields changed, with no removed fields. All ten
+named venues were verified as open in the corresponding district in Sanity.
+Both documents were then published with revision guards. The updated Mitte
+title and description were verified in live HTML; Neukölln EN still showed
+the old cached copy on the first follow-up request.
 
 Bari's putative `bari.berlin` domain returned a parking page; no verified
 original menu URL was found. The Instagram website link was retained and no

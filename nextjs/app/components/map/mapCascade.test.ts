@@ -289,36 +289,11 @@ describe('RestaurantDetail cascade', () => {
 
 describe('MapFilters cascade', () => {
   it('lets an active chip keep full-size type on one line', () => {
-    /* The chip rail used to be four equal tracks, so an active chip holding a
-     * value ("Prenzlauer Berg") got the same quarter as one holding a word
-     * ("Bezirk"). `.filterChipLabelLong` existed to shrink what did not fit —
-     * and spent a long while doing nothing, because two media-scoped attempts
-     * (`clamp(8.8px, 2.55vw, 10px)` and `clamp(7.5px, 2.35vw, 9px)`) both lost
-     * to a later media-less `font-size: 12px` shared with the plain label.
-     *
-     * Once it finally landed at 9px the result was worse, not better: the
-     * value wrapped to two lines, rendered a quarter smaller than its
-     * neighbours, and still passed under the clear dot. The fix was to let an
-     * active chip size to its content instead — which only works while the
-     * label stays on ONE line at the SAME size as the plain one.
-     *
-     * So the relationship to pin is now equality, not "smaller". A reinstated
-     * shrink, or a `white-space` that allows wrapping, puts the two-line chip
-     * straight back.
-     */
-    const long = effective(FILTERS, 'filterChipLabelLong', 'font-size');
-    const plain = effective(FILTERS, 'filterChipLabel', 'font-size');
-
-    expect(long, '.filterChipLabelLong has no effective font-size').toBeDefined();
-    expect(plain, '.filterChipLabel has no effective font-size').toBeDefined();
-    expect(long, 'long labels are shrunk again — the chip grows now, so the type must not').toBe(
-      plain
-    );
-
-    expect(
-      effective(FILTERS, 'filterChipActive', 'white-space'),
-      'an active chip label must stay on one line — wrapping is what produced "Prenzlaue|r / Berg"'
-    ).toBe('nowrap');
+    // Long values must use the same readable type as every other filter.
+    // The native rail now provides space; shrinking text is never the fallback.
+    expect(effective(FILTERS, 'filterChipLabel', 'font')).toBe('inherit');
+    expect(effective(FILTERS, 'filterChipLabel', 'white-space')).toBe('nowrap');
+    expect(effective(FILTERS, 'filterPickerRail', 'overflow-x')).toBe('auto');
   });
 
   it('never breaks a chip label mid-word', () => {

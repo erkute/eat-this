@@ -17,6 +17,7 @@ import { MUST_EATS_CATEGORY } from '@/lib/map/mapFilterParams';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 import styles from './MapFilters.module.css';
+import { CloseIcon, PagerArrowIcon } from './icons';
 
 interface Props {
   headerRef: Ref<HTMLDivElement | null>;
@@ -129,46 +130,48 @@ export default function MapListHeader({
   }, [category, categories, loc, t]);
 
   return (
-    /* The whole bar drags the sheet, Google Maps style — not just the pill
-       (useHandleScrollDrag). A chip stays a chip until the finger moves. */
+    /* The grip stays reachable while reading. Touches on the filters keep
+       native scrolling; only the grip owns the sheet-drag gesture. */
     <div ref={headerRef} className={styles.listHeader} data-sheet-grab-zone="">
       {grabber}
       {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
       <div className={styles.filterChipRow} data-filter-chip-row="">
-        <FilterChip
-          ref={categoryBtnRef}
-          label={activeCategoryLabel ?? t('map.filterChipCategory')}
-          active={!!activeCategoryLabel}
-          expanded={openChip === 'category'}
-          onClick={() => setOpenChip((prev) => (prev === 'category' ? null : 'category'))}
-          clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipCategory')}`}
-          onClear={() => onCategoryChange('All' as MapCategory)}
-        />
-        <FilterChip
-          ref={bezirkBtnRef}
-          /* "Prenzlauer Berg" is the one district name the rail cannot hold;
-             the list stickers already shorten it the same way. */
-          label={abbreviateBezirk(bezirk) ?? t('map.filterChipBezirk')}
-          active={!!bezirk}
-          expanded={openChip === 'bezirk'}
-          onClick={() => setOpenChip((prev) => (prev === 'bezirk' ? null : 'bezirk'))}
-          clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipBezirk')}`}
-          onClear={() => onBezirk(null)}
-        />
-        {priceBucketIds.length > 0 && (
+        <div className={styles.filterPickerRail} data-filter-picker-rail="">
           <FilterChip
-            ref={priceBtnRef}
-            label={price ? t(priceBucketLabelKey(price)) : t('map.filterChipPrice')}
-            active={!!price}
-            expanded={openChip === 'price'}
-            onClick={() => setOpenChip((prev) => (prev === 'price' ? null : 'price'))}
-            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipPrice')}`}
-            onClear={() => onPrice(null)}
+            ref={categoryBtnRef}
+            label={activeCategoryLabel ?? t('map.filterChipCategory')}
+            active={!!activeCategoryLabel}
+            expanded={openChip === 'category'}
+            onClick={() => setOpenChip((prev) => (prev === 'category' ? null : 'category'))}
+            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipCategory')}`}
+            onClear={() => onCategoryChange('All' as MapCategory)}
           />
-        )}
+          <FilterChip
+            ref={bezirkBtnRef}
+            /* "Prenzlauer Berg" is the one district name the rail cannot hold;
+               the list stickers already shorten it the same way. */
+            label={abbreviateBezirk(bezirk) ?? t('map.filterChipBezirk')}
+            active={!!bezirk}
+            expanded={openChip === 'bezirk'}
+            onClick={() => setOpenChip((prev) => (prev === 'bezirk' ? null : 'bezirk'))}
+            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipBezirk')}`}
+            onClear={() => onBezirk(null)}
+          />
+          {priceBucketIds.length > 0 && (
+            <FilterChip
+              ref={priceBtnRef}
+              label={price ? t(priceBucketLabelKey(price)) : t('map.filterChipPrice')}
+              active={!!price}
+              expanded={openChip === 'price'}
+              onClick={() => setOpenChip((prev) => (prev === 'price' ? null : 'price'))}
+              clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipPrice')}`}
+              onClear={() => onPrice(null)}
+            />
+          )}
+        </div>
         <button
           type="button"
-          className={`${styles.filterChip} ${openOnly ? styles.filterChipOpenActive : ''}`}
+          className={`${styles.filterChip} ${styles.filterOpenToggle} ${openOnly ? styles.filterChipOpenActive : ''}`}
           onClick={() => onOpenOnly(!openOnly)}
           aria-pressed={openOnly}
         >
@@ -187,7 +190,7 @@ export default function MapListHeader({
           onClose={() => setOpenChip(null)}
           anchorEl={categoryBtnRef.current}
           inline={inlinePicker}
-          closeAriaLabel={t('map.searchClose')}
+          closeAriaLabel={t('map.pickerClose')}
         />
       )}
       {openChip === 'bezirk' && (
@@ -201,7 +204,7 @@ export default function MapListHeader({
           onClose={() => setOpenChip(null)}
           anchorEl={bezirkBtnRef.current}
           inline={inlinePicker}
-          closeAriaLabel={t('map.searchClose')}
+          closeAriaLabel={t('map.pickerClose')}
         />
       )}
       {openChip === 'price' && (
@@ -215,7 +218,7 @@ export default function MapListHeader({
           onClose={() => setOpenChip(null)}
           anchorEl={priceBtnRef.current}
           inline={inlinePicker}
-          closeAriaLabel={t('map.searchClose')}
+          closeAriaLabel={t('map.pickerClose')}
         />
       )}
     </div>
@@ -238,7 +241,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
   ref
 ) {
   return (
-    <span className={styles.filterChipWrap}>
+    <span className={`${styles.filterChipWrap} ${active ? styles.filterChipWrapActive : ''}`}>
       <button
         ref={ref}
         type="button"
@@ -251,11 +254,10 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
            and correctly stays on aria-pressed. */
         aria-haspopup="dialog"
       >
-        <span
-          className={`${styles.filterChipLabel} ${label.length > 9 ? styles.filterChipLabelLong : ''}`}
-        >
+        <span className={styles.filterChipLabel}>
           {label}
         </span>
+        {!active && <span className={styles.filterChevron}><PagerArrowIcon /></span>}
       </button>
       {/* Sibling, not a child: a button inside a button is invalid markup and
             makes screen readers announce two controls for one chip. Clearing a
@@ -267,9 +269,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
           onClick={onClear}
           aria-label={clearLabel}
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M6 6l12 12M18 6 6 18" />
-          </svg>
+          <CloseIcon />
         </button>
       )}
     </span>

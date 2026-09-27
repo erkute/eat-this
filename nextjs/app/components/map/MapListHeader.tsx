@@ -25,6 +25,7 @@ interface Props {
    *  in the list the handle is the way back to the map (useHandleScrollDrag),
    *  so it must never scroll away. */
   grabber: ReactNode;
+  locationControl: ReactNode;
 
   categories: CategoryDef[];
   category: MapCategory;
@@ -52,6 +53,7 @@ type ChipKind = 'category' | 'bezirk' | 'price';
 export default function MapListHeader({
   headerRef,
   grabber,
+  locationControl,
   categories,
   category,
   onCategoryChange,
@@ -134,6 +136,7 @@ export default function MapListHeader({
        native scrolling; only the grip owns the sheet-drag gesture. */
     <div ref={headerRef} className={styles.listHeader} data-sheet-grab-zone="">
       {grabber}
+      {locationControl}
       {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
       <div className={styles.filterChipRow} data-filter-chip-row="">
         <FilterChip
@@ -255,10 +258,12 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
            and correctly stays on aria-pressed. */
         aria-haspopup="dialog"
       >
-        <span className={styles.filterChipLabel}>
-          {label}
-        </span>
-        {!active && <span className={styles.filterChevron}><PagerArrowIcon /></span>}
+        <span className={styles.filterChipLabel}>{label}</span>
+        {!active && (
+          <span className={styles.filterChevron}>
+            <PagerArrowIcon />
+          </span>
+        )}
       </button>
       {/* Sibling, not a child: a button inside a button is invalid markup and
             makes screen readers announce two controls for one chip. Clearing a

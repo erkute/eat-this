@@ -17,6 +17,7 @@ import {
   type LocationStatus,
 } from '@/lib/map/locationStatus';
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
+import { useLocationWelcome } from '@/lib/map/useLocationWelcome';
 import { notify, type NoticeKind } from '@/lib/notice';
 import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
@@ -370,6 +371,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setDismissedLocationStatusKey(null);
     onLocateMe();
   }, [isRealInvite, onLocateMe]);
+  useLocationWelcome(isRealInvite && !mapDataLoading && !mapDataError, locale, handleLocateMe);
+
   const handleDismissLocationStatus = useCallback(() => {
     if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
   }, [locationStatusKey]);
@@ -427,9 +430,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      Kante hängt an einem transformierten Sheet, davon weiß ein Stylesheet
      nichts. Nach oben gedeckelt, damit er nicht in Lupe und Burger läuft.
 
-     Telefone rechnen nichts: dort steht der Knopf still und die Liste schiebt
-     sich über ihn (MapControls.module.css). Pro Frame nachgeführt zitterte er
-     auf iOS gegen die Liste und flog bei jedem schnellen Wisch raus und rein. */
+     On phones the sticky list header carries its own control above the edge.
+     Native scrolling keeps both together without per-frame measurements. */
   const [locateBottom, setLocateBottom] = useState<number | null>(null);
   const [locateGone, setLocateGone] = useState(false);
   useEffect(() => {
@@ -583,6 +585,59 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       window.removeEventListener('touchstart', onTouchStart);
     };
   }, [searchVisible, searchOpen]);
+
+  const renderLocateControl = (inList: boolean) => (
+    <button
+      type="button"
+      onClick={handleLocateMe}
+      disabled={locateLoading}
+      /* In the invite state the accessible name IS the visible label —
+               anything else leaves a screen reader hearing one control and
+               everyone else reading another. */
+      aria-label={showLocateInvite ? locateInviteLabel : myLocationAriaLabel}
+      className={`${controlStyles.fab}${inList ? ` ${controlStyles.listLocate}` : ''}`}
+      data-locate-fab={inList ? undefined : ''}
+      data-invite={showLocateInvite ? '' : undefined}
+    >
+      <svg
+        className={`${controlStyles.fabIcon}${showLocateInvite ? ` ${controlStyles.fabIconOnPlate}` : ''}`}
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        {/* Dasselbe Handwerk wie bei Lupe und Burger: geschlossener Ring,
+                  dicker Punkt, vier kurze Striche mit runden Enden — und wie
+                  dort von Hand geführt statt konstruiert (siehe die Lupe oben).
+                  Der Ring läuft am Schluss über seinen Anfang, der Punkt ist
+                  keine exakte Scheibe, und die vier Striche sind
+                  unterschiedlich lang: ein perfektes Fadenkreuz stand als
+                  einziges technisches Zeichen zwischen lauter gezeichneten. */}
+        <path
+          d="M7.1 15.4C5.4 13.1 5.8 9.6 8.2 7.8c2.4-1.8 6-1.4 7.7.9 1.7 2.3 1.2 5.8-1.3 7.4-2.1 1.4-5.1 1-6.9-.7"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+        />
+        <path
+          d="M10.9 10.9c1.2-.9 3-.2 3.1 1.2.1 1.4-1.4 2.3-2.6 1.7-1.1-.6-1.4-2.2-.5-2.9Z"
+          fill="currentColor"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M12.2 2.4 12 5M11.7 19.2l.2 2.3M2.5 11.6l2.7.3M19 12.3l2.4-.3"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+        />
+      </svg>
+      {/* Always mounted so the label can collapse back out on the way
+                down, not just unfold on the way in. */}
+      <span className={controlStyles.fabLabel} aria-hidden="true">
+        <span>{locateInviteLabel}</span>
+      </span>
+    </button>
+  );
 
   const sheetHandle = (
     <div ref={handleRef} className={sheetStyles.handle} data-sheet-handle="" aria-hidden="true" />
@@ -763,56 +818,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               z-index nach draußen wirken, und die Liste (z-index 4) legte sich
               über den Knopf, sobald sie auch nur ein Stück hochkam. Als
               Geschwister der Liste gewinnt seine 6 gegen ihre 4. */}
-          <button
-            type="button"
-            onClick={handleLocateMe}
-            disabled={locateLoading}
-            /* In the invite state the accessible name IS the visible label —
-               anything else leaves a screen reader hearing one control and
-               everyone else reading another. */
-            aria-label={showLocateInvite ? locateInviteLabel : myLocationAriaLabel}
-            className={controlStyles.fab}
-            data-locate-fab=""
-            data-invite={showLocateInvite ? '' : undefined}
-          >
-            <svg
-              className={`${controlStyles.fabIcon}${showLocateInvite ? ` ${controlStyles.fabIconOnPlate}` : ''}`}
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              {/* Dasselbe Handwerk wie bei Lupe und Burger: geschlossener Ring,
-                  dicker Punkt, vier kurze Striche mit runden Enden — und wie
-                  dort von Hand geführt statt konstruiert (siehe die Lupe oben).
-                  Der Ring läuft am Schluss über seinen Anfang, der Punkt ist
-                  keine exakte Scheibe, und die vier Striche sind
-                  unterschiedlich lang: ein perfektes Fadenkreuz stand als
-                  einziges technisches Zeichen zwischen lauter gezeichneten. */}
-              <path
-                d="M7.1 15.4C5.4 13.1 5.8 9.6 8.2 7.8c2.4-1.8 6-1.4 7.7.9 1.7 2.3 1.2 5.8-1.3 7.4-2.1 1.4-5.1 1-6.9-.7"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-              />
-              <path
-                d="M10.9 10.9c1.2-.9 3-.2 3.1 1.2.1 1.4-1.4 2.3-2.6 1.7-1.1-.6-1.4-2.2-.5-2.9Z"
-                fill="currentColor"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12.2 2.4 12 5M11.7 19.2l.2 2.3M2.5 11.6l2.7.3M19 12.3l2.4-.3"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-              />
-            </svg>
-            {/* Always mounted so the label can collapse back out on the way
-                down, not just unfold on the way in. */}
-            <span className={controlStyles.fabLabel} aria-hidden="true">
-              <span>{locateInviteLabel}</span>
-            </span>
-          </button>
+          {renderLocateControl(false)}
 
           <button
             type="button"
@@ -945,6 +951,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 <MapListHeader
                   headerRef={setHeaderRef}
                   grabber={sheetHandle}
+                  locationControl={renderLocateControl(true)}
                   categories={categories}
                   category={category}
                   onCategoryChange={setCategory}

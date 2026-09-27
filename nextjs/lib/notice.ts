@@ -16,6 +16,7 @@
  */
 
 export type NoticeKind =
+  | 'locationWelcome'
   | 'locating'
   | 'locationBlocked'
   | 'locationNotFound'
@@ -41,6 +42,7 @@ export interface Notice {
   action?: { label: string; onClick: () => void };
   /** „Alles klar". Gesetzt heißt: die Meldung wartet auf eine Antwort. */
   onDismiss?: () => void;
+  dismissLabel?: string;
   /** Millisekunden bis zum Selbstabgang; 0 lässt sie stehen. */
   duration?: number;
 }
@@ -59,6 +61,18 @@ declare global {
 type Copy = Pick<Notice, 'tone' | 'eyebrow' | 'title' | 'detail'>;
 
 const COPY: Record<NoticeKind, { de: Copy; en: Copy }> = {
+  locationWelcome: {
+    de: {
+      eyebrow: 'Standort',
+      title: 'Wo bist du?',
+      detail: 'Gib deinen Standort frei und entdecke Spots in deiner Nähe.',
+    },
+    en: {
+      eyebrow: 'Location',
+      title: 'Where are you?',
+      detail: 'Share your location to discover spots near you.',
+    },
+  },
   locating: {
     de: {
       eyebrow: 'Standort',
@@ -72,8 +86,16 @@ const COPY: Record<NoticeKind, { de: Copy; en: Copy }> = {
     },
   },
   locationBlocked: {
-    de: { eyebrow: 'Standort', title: 'Blockiert', detail: 'Im Browser erlauben, dann nochmal tippen.' },
-    en: { eyebrow: 'Location', title: 'Blocked', detail: 'Allow it in your browser, then tap again.' },
+    de: {
+      eyebrow: 'Standort',
+      title: 'Blockiert',
+      detail: 'Im Browser erlauben, dann nochmal tippen.',
+    },
+    en: {
+      eyebrow: 'Location',
+      title: 'Blocked',
+      detail: 'Allow it in your browser, then tap again.',
+    },
   },
   locationNotFound: {
     de: {
@@ -169,7 +191,7 @@ function noticeCopy(kind: NoticeKind, locale: string): Copy {
 export function notify(
   kind: NoticeKind,
   locale: string,
-  options: Pick<Notice, 'action' | 'onDismiss' | 'duration' | 'steps'> = {}
+  options: Pick<Notice, 'action' | 'onDismiss' | 'dismissLabel' | 'duration' | 'steps'> = {}
 ): (() => void) | void {
   if (typeof window === 'undefined') return;
   return window.showNotice?.({ ...noticeCopy(kind, locale), ...options });

@@ -128,7 +128,12 @@ describe('Map CSS architecture', () => {
       'mapWrap',
       'shell',
     ]);
-    expect(localClasses('MapSheet.module.css')).toEqual(['handle', 'list', 'listScroll']);
+    expect(localClasses('MapSheet.module.css')).toEqual([
+      'detailBar',
+      'handle',
+      'list',
+      'listScroll',
+    ]);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
       'markerRootActive',

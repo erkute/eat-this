@@ -209,7 +209,7 @@
   }
   /* Detail content keeps its own stacking (cards up to z 30 inside), so none
      of it climbs over the map strip or the bars. */
-  .list[data-view='detail'] > :not(.handle) {
+  .list[data-view='detail'] > :not(.handle):not(.detailBar) {
     isolation: isolate;
   }
   .handle {
@@ -238,8 +238,11 @@
   }
   /* In a restaurant detail the handle is the bar: it sticks below the map
      strip like the list's filter bar, so the way back to the map is on screen
-     at any depth (useHandleScrollDrag). Ink, because rows pass under it. */
-  .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
+     at any depth (useHandleScrollDrag). Ink, because rows pass under it. It
+     carries the locate button above its right edge, like the list's bar
+     (MapControls.module.css `.listLocate`), so the button moves with the
+     sheet natively. */
+  .list[data-view='detail'][data-detail-kind='restaurant'] > .detailBar {
     position: sticky;
     top: var(--map-strip, env(safe-area-inset-top, 0px));
     /* Above the map strip (7). */

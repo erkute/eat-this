@@ -1024,7 +1024,10 @@
 }
 
 @media (max-width: 767.98px) {
-  :global([data-map-body][data-map-view='list']) .fab:not(.listLocate) {
+  /* The bars carry it (list header, restaurant detail bar); the free-standing
+     one is for tablets and desktop. */
+  :global([data-map-body][data-map-view='list']) .fab:not(.listLocate),
+  :global([data-map-body][data-map-view='detail']) .fab:not(.listLocate) {
     display: none;
   }
 
@@ -1038,11 +1041,6 @@
     z-index: 1;
   }
 
-  :global([data-map-body][data-map-view='detail']) .fab {
-    bottom: calc(100dvh - var(--detail-map-peek, 50dvh) + 14px);
-  }
-  /* Pulled below its resting edge, the sheet takes the button along:
-     lib/map/sheetSlide.ts followSheet sets `translate` on it. */
 }
 
 /* Riding the header, the button would run into the burger (same column, top
@@ -1079,6 +1077,12 @@
       animation-range:
         calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
         calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 118px - env(safe-area-inset-top, 0px));
+    }
+    /* The restaurant detail rests lower, its top edge at --detail-map-peek. */
+    :global([data-map-body][data-map-view='detail']) .fab.listLocate {
+      animation-range:
+        calc(var(--detail-map-peek, 50lvh) - 162px - env(safe-area-inset-top, 0px))
+        calc(var(--detail-map-peek, 50lvh) - 118px - env(safe-area-inset-top, 0px));
     }
   }
 

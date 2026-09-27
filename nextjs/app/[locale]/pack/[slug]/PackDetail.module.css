@@ -1,12 +1,4 @@
-/* Pack-Detailseiten. Der Hero ist die Tafel mit dem Pack als Star — dasselbe
-   Objekt wie die All-Berlin-Tafel: gelber Kicker, weiße Versalien, gelber
-   Knopf. Darunter die Liste „Drin im Pack" und die All-Berlin-Tafel
-   (AllBerlinBoard). Die Pack-Bilder sind Ausschnitte und stehen nie auf einer
-   eckigen Fläche.
-   Seit 03.09.2026 steht die Seite auf durchgehendem Ink: `--pack-ink` ist
-   der GRUND, `--pack-fg` die Schrift darauf, Muted/Linien/stille Fläche sind
-   Weiss-Stufen. Die beiden Tafeln (Hero, All Berlin) sind Angebote — also
-   Objekte — und tragen die leise Stufe; die Liste steht auf dem Grund. */
+/* Category pack hero, public card example and compact All Berlin upgrade. */
 
 .page {
   --pack-paper: var(--et-white);
@@ -221,7 +213,7 @@
   }
 
   .packArt {
-    width: min(66vw, 300px);
+    width: min(38vw, 160px);
   }
 
   .name {
@@ -230,22 +222,6 @@
 
   .cta {
     width: 100%;
-  }
-
-  .row {
-    grid-template-columns: 36px minmax(0, 1fr);
-    gap: 6px 14px;
-  }
-
-  .num {
-    grid-row: 1 / span 2;
-    align-self: start;
-    margin-top: 2px;
-  }
-
-  .mn {
-    grid-column: 2;
-    text-align: left;
   }
 }
 

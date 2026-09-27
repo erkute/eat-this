@@ -1,4 +1,6 @@
+import PackPreview from '@/app/components/PackPreview';
 import { notFound } from 'next/navigation';
+import { PackOwnershipProvider } from '@/app/components/PackOwnership';
 import type { Metadata } from 'next';
 import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
@@ -64,7 +66,7 @@ const copy = {
   de: {
     kicker: 'Booster Pack',
     pack: 'Pack',
-    cta: 'Jetzt freischalten',
+    cta: 'Freischalten',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
@@ -75,13 +77,13 @@ const copy = {
   en: {
     kicker: 'Booster Pack',
     pack: 'Pack',
-    cta: 'Unlock now',
+    cta: 'Unlock',
     pending: 'Going to Stripe …',
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
     payment: 'Payment methods',
     soon: 'Coming soon',
-    map: '/en/map',
+    map: '/map',
   },
 } as const;
 
@@ -108,69 +110,84 @@ export default async function PackDetailPage({ params }: PageProps) {
   const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
 
   return (
-    <main className={styles.page}>
-      <div className={styles.inner}>
-        <section className={styles.hero}>
-          <div className={styles.copy}>
-            <p className={styles.kicker}>{t.kicker}</p>
-            <h1 className={styles.name}>
-              {heroName}
-              <br />
-              {t.pack}
-            </h1>
-            <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
-            <p className={styles.sub}>{pack.description[loc]}</p>
+    <PackOwnershipProvider>
+      <main className={styles.page}>
+        <div className={styles.inner}>
+          <section className={styles.hero}>
+            <div className={styles.copy}>
+              <p className={styles.kicker}>{t.kicker}</p>
+              <h1 className={styles.name}>
+                {heroName}
+                <br />
+                {t.pack}
+              </h1>
+              <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
+              <p className={styles.sub}>
+                {loc === 'de'
+                  ? 'Was du wo bestellen solltest. Mit diesem Pack liegen die Must Eats dieser Kategorie auf deiner Map offen.'
+                  : 'What to order and where. This pack reveals the Must Eats in this category on your map.'}
+              </p>
 
-            <div className={styles.actions}>
-              {empty ? (
-                <p className={styles.soon}>{t.soon}</p>
-              ) : (
-                <PackBuyButton
-                  packId={pack.packId}
-                  packName={pack.displayName}
-                  amountCents={pack.amountCents}
-                  locale={loc}
-                  className={styles.cta}
-                  errorClassName={styles.ctaError}
-                  label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
-                  pendingLabel={t.pending}
-                  ownedLabel={t.owned}
-                  ownedHref={t.map}
-                  errorLabel={t.error}
+              <div className={styles.actions}>
+                {empty ? (
+                  <p className={styles.soon}>{t.soon}</p>
+                ) : (
+                  <PackBuyButton
+                    packId={pack.packId}
+                    packName={pack.displayName}
+                    amountCents={pack.amountCents}
+                    locale={loc}
+                    className={styles.cta}
+                    errorClassName={styles.ctaError}
+                    label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
+                    pendingLabel={t.pending}
+                    ownedLabel={t.owned}
+                    ownedHref={t.map}
+                    errorLabel={t.error}
+                  />
+                )}
+                {!empty && (
+                  <p className={styles.paymentNote}>
+                    {loc === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
+                  </p>
+                )}
+                {!empty && (
+                  <PaymentMarks
+                    height={24}
+                    label={`${t.payment}: ${PAYMENT_MARK_NAMES.join(', ')}`}
+                    className={styles.paymentLogos}
+                  />
+                )}
+              </div>
+            </div>
+
+            {art && (
+              <div className={styles.stage}>
+                <Image
+                  src={art}
+                  alt={`${heroName} ${t.pack}`}
+                  width={420}
+                  height={656}
+                  sizes="(max-width: 767.98px) 160px, 400px"
+                  priority
+                  className={styles.packArt}
                 />
-              )}
-              {!empty && (
-                <p className={styles.paymentNote}>
-                  {loc === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
-                </p>
-              )}
-              <PaymentMarks
-                height={24}
-                label={`${t.payment}: ${PAYMENT_MARK_NAMES.join(', ')}`}
-                className={styles.paymentLogos}
-              />
-            </div>
+              </div>
+            )}
+          </section>
+
+          {!empty && <PackPreview locale={loc} category={categorySlug} />}
+
+          <div className={styles.upsell}>
+            <AllBerlinBoard
+              contents={packContents}
+              locale={loc}
+              variant="upsell"
+              headingLevel="h2"
+            />
           </div>
-
-          {art && (
-            <div className={styles.stage}>
-              <Image
-                src={art}
-                alt={`${heroName} ${t.pack}`}
-                width={420}
-                height={656}
-                sizes="(max-width: 767.98px) 66vw, 400px"
-                priority
-                className={styles.packArt}
-              />
-            </div>
-          )}
-        </section>
-
-        <div className={styles.upsell}>
-          <AllBerlinBoard contents={packContents} locale={loc} variant="upsell" headingLevel="h2" />
         </div>
-      </div>
-    </main>
+      </main>
+    </PackOwnershipProvider>
   );
 }

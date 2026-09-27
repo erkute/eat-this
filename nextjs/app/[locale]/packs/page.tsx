@@ -1,3 +1,5 @@
+import PackPreview from '@/app/components/PackPreview';
+import { PackOwnershipProvider } from '@/app/components/PackOwnership';
 import type { Metadata } from 'next';
 import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
@@ -32,8 +34,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: de ? 'Booster Packs kaufen' : 'Buy Booster Packs',
     description: de
-      ? 'Alle Eat This Booster Packs auf einen Blick: All Berlin vorne, danach Kategorie-Packs fuer deine Map.'
-      : 'All Eat This Booster Packs in one place: All Berlin first, then category packs for your map.',
+      ? 'Entdecke deine nächsten Must Eats in Berlin. Wähle dein Lieblings-Pack oder schalte mit All Berlin alle Empfehlungen frei.'
+      : 'Discover your next Must Eats in Berlin. Pick your favourite pack or unlock every recommendation with All Berlin.',
     robots: { index: false, follow: true },
     alternates: hreflangAlternates('/packs', de ? 'de' : 'en'),
   };
@@ -60,7 +62,7 @@ const copy = {
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
     soon: 'Coming soon',
-    map: '/en/map',
+    map: '/map',
   },
 } as const;
 
@@ -72,80 +74,84 @@ export default async function PacksOverviewPage({ params }: PageProps) {
   const packContents = await getPackContents();
 
   return (
-    <main className={styles.page}>
-      <div className={styles.wrap}>
-        <AllBerlinBoard
-          contents={packContents}
-          locale={loc}
-          variant="hero"
-          headingLevel="h1"
-          priority
-        />
+    <PackOwnershipProvider>
+      <main className={styles.page}>
+        <div className={styles.wrap}>
+          <AllBerlinBoard
+            contents={packContents}
+            locale={loc}
+            variant="hero"
+            headingLevel="h1"
+            priority
+          />
 
-        <section className={styles.catalog} aria-labelledby="packs-catalog-title">
-          <div className={styles.catalogHead}>
-            <h2 id="packs-catalog-title" className={styles.sectionTitle}>
-              <span className={styles.mk} aria-hidden="true" />
-              {t.categoryTitle}
-            </h2>
-            <p className={styles.sectionLead}>{t.categoryLead}</p>
-          </div>
+          <section className={styles.catalog} aria-labelledby="packs-catalog-title">
+            <div className={styles.catalogHead}>
+              <h2 id="packs-catalog-title" className={styles.sectionTitle}>
+                <span className={styles.mk} aria-hidden="true" />
+                {t.categoryTitle}
+              </h2>
+              <p className={styles.sectionLead}>{t.categoryLead}</p>
+            </div>
 
-          <ul className={styles.grid} role="list">
-            {categoryPacks.map((pack) => {
-              const art = pack.slug ? categoryArt(pack.slug) : null;
-              const href = `/pack/${packUrlSlug(pack)}`;
-              /* Ein Pack ohne Karte ist kein Produkt, sondern eine leere
+            <ul className={styles.grid} role="list">
+              {categoryPacks.map((pack) => {
+                const art = pack.slug ? categoryArt(pack.slug) : null;
+                const href = `/pack/${packUrlSlug(pack)}`;
+                /* Ein Pack ohne Karte ist kein Produkt, sondern eine leere
                  Schachtel — Fine Dining stand am 06.09.2026 auf null. Es bleibt
                  sichtbar (die Kategorie kommt ja), aber es ist nicht käuflich.
                  Wie viele Karten drin sind, steht nirgends: das Produkt nennt
                  seine Zahlen nicht. Umso mehr haengt der Fehlkauf an diesem
                  Riegel — er ist das Einzige, was ihn noch verhindert. */
-              const empty =
-                (pack.slug ? (packContents.byCategory[pack.slug]?.mustEats ?? 0) : 1) === 0;
+                const empty =
+                  (pack.slug ? (packContents.byCategory[pack.slug]?.mustEats ?? 0) : 1) === 0;
 
-              return (
-                <li key={pack.packId} className={styles.tile}>
-                  <Link href={href} className={styles.tileLink}>
-                    {art && (
-                      <Image
-                        src={art}
-                        alt=""
-                        width={420}
-                        height={656}
-                        // Deckel 220px (PacksOverview.module.css .art), auf
-                        // dem Telefon 150px.
-                        sizes="(max-width: 559px) 150px, 220px"
-                        className={styles.art}
+                return (
+                  <li key={pack.packId} className={styles.tile}>
+                    <Link href={href} className={styles.tileLink}>
+                      {art && (
+                        <Image
+                          src={art}
+                          alt=""
+                          width={420}
+                          height={656}
+                          // Deckel 220px (PacksOverview.module.css .art), auf
+                          // dem Telefon 150px.
+                          sizes="(max-width: 559px) 150px, 220px"
+                          className={styles.art}
+                        />
+                      )}
+                      <span className={styles.tileName}>{pack.displayName}</span>
+                      <span className={styles.spectrum}>{pack.spectrum[loc]}</span>
+                    </Link>
+
+                    {empty ? (
+                      <span className={styles.soon}>{t.soon}</span>
+                    ) : (
+                      <PackBuyButton
+                        packId={pack.packId}
+                        packName={pack.displayName}
+                        amountCents={pack.amountCents}
+                        locale={loc}
+                        className={styles.buy}
+                        errorClassName={styles.buyError}
+                        label={`${t.buy} · ${formatPackPrice(pack.amountCents)}`}
+                        pendingLabel={t.pending}
+                        ownedLabel={t.owned}
+                        ownedHref={t.map}
+                        errorLabel={t.error}
                       />
                     )}
-                    <span className={styles.tileName}>{pack.displayName}</span>
-                    <span className={styles.spectrum}>{pack.spectrum[loc]}</span>
-                  </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
 
-                  {empty ? (
-                    <span className={styles.soon}>{t.soon}</span>
-                  ) : (
-                    <PackBuyButton
-                      packId={pack.packId}
-                      packName={pack.displayName}
-                      amountCents={pack.amountCents}
-                      locale={loc}
-                      className={styles.buy}
-                      errorClassName={styles.buyError}
-                      label={`${t.buy} · ${formatPackPrice(pack.amountCents)}`}
-                      pendingLabel={t.pending}
-                      ownedLabel={t.owned}
-                      ownedHref={t.map}
-                      errorLabel={t.error}
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      </div>
-    </main>
+          <PackPreview locale={loc} />
+        </div>
+      </main>
+    </PackOwnershipProvider>
   );
 }

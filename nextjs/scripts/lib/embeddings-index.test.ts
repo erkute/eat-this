@@ -111,7 +111,9 @@ describe.each(ALL_INDEXES.map((spec) => [spec.label, spec] as const))(
       // Kein Abgleich mit Sanity, nur die Untergrenze: fiele eine Datei auf
       // eine Handvoll Eintraege zusammen, ränge Remy fast alles ans Ende.
       // Bei den Artikeln entscheidet der Index sogar die Treffermenge.
-      const floor = spec.label === 'Spots' ? 300 : 20;
+      // Spots: nach der Kuration vom 27.09.2026 gut 230 statt rund 470 —
+      // die Grenze laesst Platz fuer weiteres Aussortieren.
+      const floor = spec.label === 'Spots' ? 150 : 20;
       expect(index.count).toBeGreaterThan(floor);
     });
   }

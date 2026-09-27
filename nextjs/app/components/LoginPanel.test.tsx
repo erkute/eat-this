@@ -124,3 +124,13 @@ describe('LoginPanel — Rahmen', () => {
     expect(getByTestId('auth-screen')).toBeTruthy();
   });
 });
+
+it('offers the automatic pack invitation with a working close button', () => {
+  modal.reason = { kind: 'map-prompt' };
+  const { container, getByRole } = panel();
+  expect(modal.prepare).not.toHaveBeenCalled();
+  expect(title(container)).toBe('Dein Berlin Starter Pack.');
+  expect(container.textContent).toContain('Kostenlos anmelden');
+  fireEvent.click(getByRole('button', { name: 'Zurück' }));
+  expect(onBack).toHaveBeenCalledOnce();
+});

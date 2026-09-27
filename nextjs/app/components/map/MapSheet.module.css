@@ -214,9 +214,9 @@
   }
   .handle {
     cursor: grab;
-    /* The browser owns phone swipes, including on the grip. */
+    /* Only the grip owns dragging; list/detail content keeps native scrolling. */
     position: relative;
-    touch-action: pan-y pinch-zoom;
+    touch-action: none;
   }
 
   /* Grab zone 26px → ~45px WITHOUT padding: extra padding here pushes the

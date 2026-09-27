@@ -34,7 +34,7 @@ async (page) => {
     const seen = new Map();
     const label = (el) => {
       const cls = [...el.classList]
-        .map((c) => c.match(/^(MapLayout|MapSheet|MapFilters)_([A-Za-z0-9]+)__/))
+        .map((c) => c.match(/^(MapLayout|MapSheet|MapFilters|MapStrip)_([A-Za-z0-9]+)__/))
         .filter(Boolean)
         .map((m) => `${m[1]}.${m[2]}`);
       const base = cls.length ? cls.join('+') : el.getAttribute('data-sweep');
@@ -55,7 +55,7 @@ async (page) => {
     }
     const els = [
       ...document.querySelectorAll(
-        '[class*="MapLayout_"], [class*="MapSheet_"], [class*="MapFilters_listHeader"], [data-sweep]'
+        '[class*="MapLayout_"], [class*="MapSheet_"], [class*="MapStrip_"], [class*="MapFilters_listHeader"], [data-sweep]'
       ),
     ];
     for (const el of els) {

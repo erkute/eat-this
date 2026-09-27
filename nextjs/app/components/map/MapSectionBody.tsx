@@ -21,7 +21,7 @@ import { useLocationWelcome } from '@/lib/map/useLocationWelcome';
 import { notify, type NoticeKind } from '@/lib/notice';
 import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
-import { mapStripLine, SHEET_COLLAPSE_EVENT } from '@/lib/map/sheetSlide';
+import { mapStripLine } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
@@ -34,6 +34,7 @@ import MapIntro from './MapIntro';
 import { SearchGlassIcon } from './icons';
 import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
+import MapStrip from './MapStrip';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './MapLayout.module.css';
@@ -716,21 +717,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
           </div>
 
-          {/* The phone map strip (lib/map/mapStripMirror): a copy of the map's
-              top slice, fixed above the list, so the rows run under map all
-              the way up. Always there, never switched — over the map it is
-              the map. A tap on it once the bar is stuck takes you to the map,
-              like a tap on the grabber. After the map wrapper in the DOM, so
-              the cloned pins never come first in a query. */}
-          <div
-            className={styles.mapStrip}
-            data-map-strip=""
-            aria-hidden="true"
-            onClick={() => window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT))}
-          >
-            <canvas className={styles.mapStripCanvas} />
-            <div className={styles.mapStripPins} data-map-strip-pins="" inert />
-          </div>
+          <MapStrip />
 
           {/* Floating search — collapsed to a square icon button by
               default (2026-06-04: the always-on toolbar read too loud over

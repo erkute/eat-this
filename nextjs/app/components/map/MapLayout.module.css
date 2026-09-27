@@ -247,11 +247,6 @@
   outline-offset: 2px;
 }
 
-/* Phone only; see the phone block below. */
-.mapStrip {
-  display: none;
-}
-
 @media (max-width: 767.98px) {
   .shell {
     /* Resting stop of the three-stage sheet ("map"), mirrored in JS by
@@ -280,7 +275,6 @@
     display: block;
     height: auto;
     overflow: visible;
-    position: relative;
     /* The phone map lies UNDER the sheet at z-index -1, the map strip over
        it (7), the sheet's bars over both (8). A stacking context of its own
        keeps the -1 above this body's background. */
@@ -306,15 +300,11 @@
        sie faerbt ausschliesslich die Safari-Leisten. */
     background-color: var(--et-ink);
   }
+  /* The restaurant detail keeps the list's full-height map (the sheet rests
+     at --detail-map-peek through its own margin, MapSheet.module.css) — a map
+     bounded to the peek left black below it once the sheet was pulled lower
+     (user, 27.09.2026). */
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
-    /* Same anchoring and height as the list: the map stays put and the sheet
-       slides over it. It used to be bounded to --detail-map-peek, which left
-       only the page's ink below that line once the sheet could be pulled
-       lower than its resting edge (user, 27.09.2026). The sheet rests at the
-       peek through its own margin (MapSheet.module.css). */
-    position: sticky;
-    top: 0;
-    height: 100lvh;
     overflow: hidden;
   }
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
@@ -345,54 +335,7 @@
     overflow: clip;
   }
 
-  /* The map strip: the map's top slice, copied frame by frame into a layer
-     fixed above the list (lib/map/mapStripMirror), so the rows scrolling up
-     vanish under map and the sticky bar rests below it. Over the map it is
-     pixel for pixel the map, so it can stay on at every depth — nothing
-     switches, nothing can come late (user, 23.09.2026). Search and burger
-     stand above it (MapControls.module.css). Ink, like .mapWrap: it touches
-     the top edge, and iOS 26 Safari tints its bar after such an element.
-
-     Inert over the map, where a finger means to pan the map under it; it
-     takes taps once the bar is stuck, and a tap goes to the map
-     (MapSectionBody). Not in the must-eat takeover: no map there.
-
-     It reaches a little past the strip line, under the stuck bar (z 8): the
-     bar's top corners are rounded (10px) and see-through, and the rows
-     scrolling under the bar showed in them — on the right mostly the yellow
-     must-eat card (user, 23.09.2026). 12px = the radius plus the hairline. */
-  .mapStrip {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: calc(var(--map-strip) + 12px);
-    z-index: 7;
-    overflow: hidden;
-    background-color: var(--et-ink);
-    pointer-events: none;
-  }
-  .body[data-header-stuck='true'] .mapStrip {
-    pointer-events: auto;
-    cursor: pointer;
-  }
-  .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapStrip {
-    display: none;
-  }
-  .mapStripCanvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-  .mapStripPins {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-}
-
-@media (max-width: 767.98px) {
+  /* The detail's page ground is ink, up to html and body. */
   .shell[data-map-view='detail'],
   .shell[data-map-view='detail'] .body[data-map-view='detail'] {
     background: var(--et-ink);

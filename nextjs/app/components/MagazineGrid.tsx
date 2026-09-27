@@ -69,10 +69,10 @@ export default function MagazineGrid({ articles, locale }: Props) {
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      // Ab 761px ist die erste Story der Aufmacher, die
+                      // Ab 768px ist die erste Story der Aufmacher, die
                       // anderen sind kleine Listenbilder.
                       sizes={
-                        i === 0 ? '(max-width:760px) 92vw, 46vw' : '(max-width:760px) 92vw, 168px'
+                        i === 0 ? '(max-width:767.98px) 92vw, 46vw' : '(max-width:767.98px) 92vw, 168px'
                       }
                     />
                   )}

@@ -37,7 +37,7 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: 10020; /* über der fixen Navigation (9999) — dieselbe Ebene wie Lightbox und Onboarding */
+  z-index: var(--et-z-sheet); /* dieselbe Ebene wie der Must-Eat-Zoom */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -272,7 +272,7 @@
    drei Reihen samt Kopf und Knopf ohne Scrollen stehen und den Platz dabei
    ausfüllen (10dvh × 1.56 ≈ 15.6dvh je Pack, drei Reihen rund 50dvh; Kopf
    und Knopf brauchen die übrigen ~45dvh). Gemessen auf 375×812: Panel 753px. */
-@media (max-width: 759px) {
+@media (max-width: 767.98px) {
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px 12px;
@@ -330,7 +330,7 @@
 
 /* Kurze Bildschirme (iPhone SE, 667px): die Erklärzeile kostet die 40px, die
    dem Panel zum scrollfreien Stand fehlen. Gemessen: 683 gegen 643 verfügbar. */
-@media (max-width: 759px) and (max-height: 700px) {
+@media (max-width: 767.98px) and (max-height: 700px) {
   .lead {
     display: none;
   }

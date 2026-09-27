@@ -1,162 +1,262 @@
 {
-  "version": 1,
-  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Restaurant und Gericht stehen nur hier, damit die Zuordnung ohne Sanity nachpruefbar bleibt. 025 und 026 sind die Karten vom 31.08.2026 — sie stehen hier, sobald ihr Motiv im Ordner liegt, auch solange ihr Sanity-Dokument noch Draft ist.",
+  "version": 2,
+  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet.",
   "cards": [
     {
       "order": 1,
       "file": "Main.png",
       "spot": "Saveur de Bánh Mì",
-      "dish": "Banh Mi Vegan"
+      "dish": "Banh Mi Vegan",
+      "descriptionEn": "Baguette, tofu, vegan pâté, mayonnaise, pickled radish, carrots, cucumber",
+      "description": "Baguette, Tofu, veganes Pâté, Mayonnaise, eingelegter Rettich, Karotten, Gurke"
     },
     {
       "order": 2,
-      "file": "Main-22.png",
+      "file": "Main-27.png",
       "spot": "SOFI",
-      "dish": "Breakfast Plate"
+      "dish": "Breakfast Plate",
+      "descriptionEn": "Sourdough bread with whipped butter, sea salt, cheese and a soft-boiled egg",
+      "description": "Sauerteigbrot mit aufgeschlagener Butter, Meersalz, Käse und einem wachsweichen Ei"
     },
     {
       "order": 3,
-      "file": "Main-21.png",
+      "file": "Main-26.png",
       "spot": "ALL IN.",
-      "dish": "Single Burger"
+      "dish": "Single Burger",
+      "descriptionEn": "Beef patty, american cheese, grilled onions, pickles, secret sauce",
+      "description": "Rinder-Patty, American Cheese, gegrillte Zwiebeln, Essiggurken, Secret Sauce"
     },
     {
       "order": 4,
-      "file": "Main-20.png",
+      "file": "Main-25.png",
       "spot": "Atelier Dough",
-      "dish": "Donut"
+      "dish": "Not So Plain Donut",
+      "descriptionEn": "Yeast dough, lime, vanilla glaze.",
+      "description": "Hefeteig, Limette, Vanilleglasur."
     },
     {
       "order": 5,
-      "file": "Main-19.png",
+      "file": "Main-24.png",
       "spot": "AERA Charlottenburg",
-      "dish": "Grilled Cheese"
+      "dish": "Grilled Cheese",
+      "descriptionEn": "Fresh bread, with butter, cheese and egg",
+      "description": "Frisches Brot, mit Butter, Käse und Ei"
     },
     {
       "order": 6,
-      "file": "Main-18.png",
+      "file": "Main-23.png",
       "spot": "Romeo's Sandwiches",
-      "dish": "Sandwich"
+      "dish": "Szechuan Tofu Sandwich",
+      "descriptionEn": "Chili crisp, and coriander mayo on fluffy potato bread",
+      "description": "Chili-Crisp und Koriander-Mayo auf fluffigem Kartoffelbrot"
     },
     {
       "order": 7,
-      "file": "Main-17.png",
+      "file": "Main-22.png",
       "spot": "Kitten Deli",
-      "dish": "Sabich"
+      "dish": "Sabich",
+      "descriptionEn": "Roasted eggplant with tahini, soft-boiled egg, potatoes, mango chutney, and harissa",
+      "description": "Geröstete Aubergine mit Tahini, wachsweichem Ei, Kartoffeln, Mango-Chutney und Harissa"
     },
     {
       "order": 8,
-      "file": "Main-16.png",
+      "file": "Main-21.png",
       "spot": "Schüsseldienst",
-      "dish": "Rinder Schaufel"
+      "dish": "Rinder Schaufel",
+      "descriptionEn": "18hr slow-cooked | Potato-leek mash, sesame-soy zucchini, chili pearls, napa",
+      "description": "18 Std. langsam gegart | Kartoffel-Lauch-Püree, Sesam-Soja-Zucchini, Chili-Perlen, Chinakohl"
     },
     {
       "order": 9,
-      "file": "Main-15.png",
+      "file": "Main-20.png",
       "spot": "Hasir",
-      "dish": "Döner"
+      "dish": "Classic Döner",
+      "descriptionEn": "Juicy veal, fresh salad, and signature sauces in crispy bread.",
+      "description": "Saftiges Kalbfleisch, frischer Salat und hauseigene Saucen im knusprigen Brot."
     },
     {
       "order": 10,
-      "file": "Main-14.png",
+      "file": "Main-19.png",
       "spot": "Jones Ice Cream",
-      "dish": "Cookies"
+      "dish": "Choco Chip Pecan Cookies",
+      "descriptionEn": "Big, flat, and soft at heart – baked with golden edges and a chewy center",
+      "description": "Groß, flach und innen weich – mit goldenen Rändern und zähem Kern gebacken"
     },
     {
       "order": 11,
-      "file": "Main-1.png",
+      "file": "Main-6.png",
       "spot": "Bar Basta",
-      "dish": "ODB Sandwich"
+      "dish": "ODB Sandwich",
+      "descriptionEn": "Meatball, melting onions, kale and ricotta salata in a milk bun",
+      "description": "Fleischbällchen, geschmolzene Zwiebeln, Grünkohl und Ricotta Salata im Milchbrötchen"
     },
     {
       "order": 12,
-      "file": "Main-13.png",
+      "file": "Main-18.png",
       "spot": "Jules Geisberg",
-      "dish": "Cappuccino"
+      "dish": "Cappuccino",
+      "descriptionEn": "Not your average coffee",
+      "description": "Kein gewöhnlicher Kaffee"
     },
     {
       "order": 13,
-      "file": "Main-12.png",
+      "file": "Main-17.png",
       "spot": "SOFI",
-      "dish": "Morning Bun"
+      "dish": "Morning Bun",
+      "descriptionEn": "Croissant dough infused with aromatic cardamom and zesty orange",
+      "description": "Croissant-Teig mit aromatischem Kardamom und spritziger Orange"
     },
     {
       "order": 14,
-      "file": "Main-11.png",
+      "file": "Main-16.png",
       "spot": "Gazzo",
-      "dish": "Pizza Aubergine"
+      "dish": "Pizza Aubergine",
+      "descriptionEn": "Roasted aubergines, Parmesan, garlic, mozzarella, basil, tomato sauce.",
+      "description": "Geröstete Auberginen, Parmesan, Knoblauch, Mozzarella, Basilikum, Tomatensauce."
     },
     {
       "order": 15,
-      "file": "Main-10.png",
+      "file": "Main-15.png",
       "spot": "Slice Society",
-      "dish": "Tomate Slice"
+      "dish": "Tomate Slice",
+      "descriptionEn": "Tomato Sauce, Garlic Butter Breadcrumbs, Chili Oil, Olive Oil",
+      "description": "Tomatensauce, Knoblauchbutter-Brösel, Chiliöl, Olivenöl"
     },
     {
       "order": 16,
-      "file": "Main-9.png",
+      "file": "Main-14.png",
       "spot": "Hokey Pokey Stargarder",
-      "dish": "Ice Cream"
+      "dish": "Rocky Road",
+      "descriptionEn": "A masterpiece of textures and flavors.",
+      "description": "Ein Meisterwerk aus Texturen und Aromen."
     },
     {
       "order": 17,
-      "file": "Main-8.png",
+      "file": "Main-13.png",
       "spot": "Bubar Crepes und Galettes",
-      "dish": "Galette"
+      "dish": "Galette",
+      "descriptionEn": "Authentic Breton buckwheat galette with a fried egg – crispy and handmade",
+      "description": "Authentische bretonische Buchweizen-Galette mit Spiegelei – knusprig und handgemacht"
     },
     {
       "order": 18,
-      "file": "Main-7.png",
+      "file": "Main-12.png",
       "spot": "GEMELLO",
-      "dish": "Pizza"
+      "dish": "Pizza",
+      "descriptionEn": "Pumpkin cream, vegan Salsicia, mushrooms & sauteed parsley stems, chestnut crunch",
+      "description": "Kürbiscreme, vegane Salsiccia, Pilze & sautierte Petersilienstiele, Maronen-Crunch"
     },
     {
       "order": 19,
-      "file": "Main-6.png",
+      "file": "Main-11.png",
       "spot": "Wen Cheng 1",
-      "dish": "Biang Biang Lamb"
+      "dish": "Biang Biang Lamb",
+      "descriptionEn": "Lamb, Wencheng sauce, cumin, scallions, red bell pepper, garlic, cilantro, and mint",
+      "description": "Lamm, Wencheng-Sauce, Kreuzkümmel, Frühlingszwiebeln, rote Paprika, Knoblauch, Koriander und Minze"
     },
     {
       "order": 20,
-      "file": "Main-5.png",
+      "file": "Main-10.png",
       "spot": "Bar Basta",
-      "dish": "Spicy Thai Sausage"
+      "dish": "Spicy Thai Sausage",
+      "descriptionEn": "With mashed potatoes & ginger jus",
+      "description": "Mit Kartoffelpüree & Ingwer-Jus"
     },
     {
       "order": 21,
-      "file": "Main-4.png",
+      "file": "Main-9.png",
       "spot": "Bursa Uludağ Kebapçısı",
-      "dish": "Döner"
+      "dish": "Special Döner",
+      "descriptionEn": "Juicy meat, fresh salad, and toasted pita",
+      "description": "Saftiges Fleisch, frischer Salat und getoastetes Pita"
     },
     {
       "order": 22,
-      "file": "Main-3.png",
+      "file": "Main-8.png",
       "spot": "Crapulix",
-      "dish": "Croissant"
+      "dish": "Croissant",
+      "descriptionEn": "A classic, buttery croissant crafted by hand with premium ingredients",
+      "description": "Ein klassisches, butterzartes Croissant, von Hand aus hochwertigen Zutaten gemacht"
     },
     {
       "order": 23,
-      "file": "Main-2.png",
+      "file": "Main-7.png",
       "spot": "Tacos el Rey",
-      "dish": "Chorizo Verde"
+      "dish": "Chorizo Verde",
+      "descriptionEn": "Homemade green chorizo (pork), caramelized onions",
+      "description": "Hausgemachte grüne Chorizo (Schwein), karamellisierte Zwiebeln"
     },
     {
       "order": 24,
-      "file": "Main-23.png",
+      "file": "Main-28.png",
       "spot": "EIVGI´S",
-      "dish": "Falafel Teller"
+      "dish": "Falafel Teller",
+      "descriptionEn": "Falafel, hummus, chickpeas, lettuce, cucumber, red cabbage, tahini, fresh herbs",
+      "description": "Falafel, Hummus, Kichererbsen, Salat, Gurke, Rotkohl, Tahini, frische Kräuter"
     },
     {
       "order": 25,
-      "file": "Main1-25.png",
+      "file": "Main-29.png",
       "spot": "Knödelwirtschaft SÜD",
-      "dish": "Rindergulasch mit Knödel"
+      "dish": "Rindergulasch mit Knödel",
+      "descriptionEn": "Beef Goulash with two dumplings of your choice and a small side salad.",
+      "description": "Rindergulasch mit zwei Knödeln nach Wahl und einem kleinen Beilagensalat."
     },
     {
       "order": 26,
-      "file": "Main-24.png",
+      "file": "Main-5.png",
       "spot": "Zur Bratpfanne",
-      "dish": "Currywurst"
+      "dish": "Currywurst mit Darm",
+      "descriptionEn": "Berlin-style currywurst with house-made ketchup and curry powder. Best with fries and mayo.",
+      "description": "Currywurst auf Berliner Art mit hausgemachtem Ketchup und Currypulver. Am besten mit Pommes und Mayo."
+    },
+    {
+      "order": 27,
+      "file": "Main-4.png",
+      "spot": "Cocolo Ramen Mitte",
+      "dish": "Tonkotsu",
+      "descriptionEn": "Rich ramen topped with tender pork, glazed pork belly, a soft-boiled egg and earthy mu-err mushrooms.",
+      "description": "Kräftige Ramen mit zartem Schweinefleisch, glasiertem Schweinebauch, einem weich gekochten Ei und erdigen Mu-Err-Pilzen."
+    },
+    {
+      "order": 28,
+      "file": "Main-3.png",
+      "spot": "Sardinen Bar",
+      "dish": "Fish & Chips",
+      "descriptionEn": "Crispy battered fish, golden fries, lemon and three dips.",
+      "description": "Knusprig ausgebackener Fisch, goldene Pommes, Zitrone und drei Dips."
+    },
+    {
+      "order": 29,
+      "file": "Main-30.png",
+      "spot": "Sword Master Noodle",
+      "dish": "Galbi Kalguksu",
+      "descriptionEn": "Slow-braised beef with noodles, potato and carrot in a rich beef broth.",
+      "description": "Langsam geschmortes Rindfleisch mit Nudeln, Kartoffel und Karotte in kräftiger Rinderbrühe."
+    },
+    {
+      "order": 30,
+      "file": "Main-2.png",
+      "spot": "Jones Ice Cream",
+      "dish": "Carrot Cake",
+      "descriptionEn": "Served in a handmade waffle cone.",
+      "description": "Serviert in einer handgemachten Waffeltüte."
+    },
+    {
+      "order": 31,
+      "file": "Main-1.png",
+      "spot": "Trio",
+      "dish": "Königsberger Klopse",
+      "descriptionEn": "In caper sauce with creamy potato purée and beetroot salad on the side.",
+      "description": "In Kapernsauce mit cremigem Kartoffelpüree und Rote-Bete-Salat als Beilage."
+    },
+    {
+      "order": 32,
+      "file": "Main-31.png",
+      "spot": "Trio",
+      "dish": "Szegediner Wildgulasch",
+      "descriptionEn": "Szegediner game goulash with bread dumplings and sour cream.",
+      "description": "Szegediner Wildgulasch mit Semmelknödeln und saurer Sahne."
     }
   ]
 }

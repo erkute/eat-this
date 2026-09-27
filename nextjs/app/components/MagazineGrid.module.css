@@ -240,8 +240,8 @@
    von 800x600. Jetzt führt die neueste Story auf halber Breite (16/10), die
    nächsten drei stehen daneben als Liste mit kleinem Bild. Die Zeilen der
    Liste teilen sich die Höhe des Aufmachers, jede Story sitzt mittig in
-   ihrer. Unter 761px bleibt es die Wischreihe. */
-@media (min-width: 761px) {
+   ihrer. Unter 768px bleibt es die Wischreihe. */
+@media (min-width: 768px) {
   .grid > li:first-child {
     grid-row: span 3;
   }
@@ -280,7 +280,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .section .head:global(.hv-head) {
     grid-template-columns: 1fr;
     align-items: start;

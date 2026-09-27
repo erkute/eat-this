@@ -160,7 +160,7 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
     surface.restaurants.map((r) => [r._id, r.bezirk?.name ?? r.district ?? FALLBACK_DISTRICT])
   );
   const ownedIds = new Set(surface.restaurants.map((r) => r._id));
-  const ownedMustEats = surface.mustEats.filter((m) => ownedIds.has(m.restaurant._id));
+  const ownedMustEats = allMustEats.filter((m) => ownedIds.has(m.restaurant._id));
 
   /* Dieselbe Funktion wie im eigenen Deck, nicht eine zweite Rechnung
      daneben: Reihenfolge und Nummerierung muessen zwischen /profile und

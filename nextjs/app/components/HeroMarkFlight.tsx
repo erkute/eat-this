@@ -49,7 +49,7 @@ const KEYFRAMES_NAME = 'et-hero-mark-flight';
 
 export default function HeroMarkFlight() {
   useEffect(() => {
-    const mobile = window.matchMedia('(max-width: 767px)');
+    const mobile = window.matchMedia('(max-width: 767.98px)');
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     /* Ab 768px scrollt nicht das Fenster, sondern `.app-pages` (globals.css,

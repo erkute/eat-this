@@ -9,8 +9,8 @@ type Entitlements = Awaited<ReturnType<typeof resolveEntitlements>>;
 /** Was ein Konto sieht — die eine Ableitung, die alle Aufrufer teilen. */
 export interface AccountSurface {
   restaurants: MapRestaurant[];
-  mustEats: MapMustEat[];
-  /** Die Karten, die für dieses Konto offen liegen. Teilmenge von `mustEats`. */
+  /** Die Karten, die für dieses Konto offen liegen. Der Stapel selbst ist für
+   *  jeden derselbe — `allMustEats` des Aufrufers. */
   faceUpIds: Set<string>;
   /** Admin oder All-Berlin: jede Karte offen. */
   fullCatalog: boolean;
@@ -22,8 +22,6 @@ interface ComposeAccountSurfaceArgs {
   ent: Entitlements;
   /** Aufdeckungen vor Ort aus users/{uid}/unlockedMustEats. */
   unlockedIds: ReadonlySet<string>;
-  /** Kein Konto. Ein Gast sieht den ganzen Stapel als Rücken — siehe unten. */
-  guest?: boolean;
   today?: string;
 }
 
@@ -51,7 +49,6 @@ export async function composeAccountSurface({
   allMustEats,
   ent,
   unlockedIds,
-  guest = false,
   today = new Date().toISOString().slice(0, 10),
 }: ComposeAccountSurfaceArgs): Promise<AccountSurface> {
   /* Admin und All-Berlin sehen jede Karte offen. Ein leeres Face-up-Set wäre
@@ -60,7 +57,6 @@ export async function composeAccountSurface({
   if (ent.isAdmin || ent.hasAllBerlin) {
     return {
       restaurants: all,
-      mustEats: allMustEats,
       faceUpIds: new Set(allMustEats.map((m) => m._id)),
       fullCatalog: true,
     };
@@ -88,30 +84,16 @@ export async function composeAccountSurface({
     for (const m of allMustEats) if (owned.has(m.restaurant._id)) faceUpIds.add(m._id);
   }
 
-  /* Das Deck ist gestaffelt (Betreiber, 06.09.2026): ohne Konto fünf Karten,
-     mit Konto zwanzig — zehn offen, zehn als Rücken —, der Rest gegen Geld.
-     Sichtbar heißt „liegt im Stapel", nicht „liegt offen": die verdeckten
-     Karten des Starter Packs stehen mit Nummer und Lokal im Album und gehen
-     vor Ort auf.
+  /* Jeder sieht den ganzen Stapel — gestaffelt ist nur, was davon OFFEN
+     liegt. Gericht, Bild und Beschreibung verdeckter Karten bleiben auf dem
+     Server (stripCoveredMustEats); was der Rücken preisgibt, ist der Spot,
+     und der steht ohnehin frei auf der Map.
 
-     Die Spots sind davon unberührt, die liegen für jeden frei. Gestaffelt ist
-     nur, wie viel vom KARTENSTAPEL jemand überhaupt sieht.
-
-     Ein GAST sieht den ganzen Stapel — als Rücken (Betreiber, 07.09.2026:
-     „mehr Anmeldungen, nicht mehr Verkauf"). Jeder Rücken an einem Spot ist
-     die Frage „was liegt darunter?", und die Antwort darauf ist die
-     Anmeldung: gratis, zwanzig Karten, diese dabei. Ein Gast, der nur fünf
-     offene Karten sah, hatte auf der Map keinen einzigen Anlass, sich ein
-     Konto zu holen. Was der Rücken preisgibt, ist der Spot — und der steht
-     ohnehin frei auf der Map. Gericht, Bild und Beschreibung bleiben auf dem
-     Server (stripCoveredMustEats). Mit Konto gilt weiter die Staffelung: das
-     Deck zeigt, was einem gehört, nicht, was es gibt. */
-  const visibleIds = new Set<string>([...faceUpIds, ...ent.coveredMustEatIds]);
-
-  return {
-    restaurants: all,
-    mustEats: guest ? allMustEats : allMustEats.filter((m) => visibleIds.has(m._id)),
-    faceUpIds,
-    fullCatalog: false,
-  };
+     Bis zum 27.09.2026 sah ein Konto nur seine eigenen Karten: Starter Pack
+     plus die offenen. Damit schrumpfte das Deck beim Anmelden (Gast 28,
+     Konto 25), das Profil schrieb „von 25 Must Eats", als gäbe es nicht
+     mehr — und jede neue Karte blieb für jedes bestehende Konto unsichtbar
+     (Betreiber: „es werden immer neue Karten nach und nach kommen, daher
+     sollte das immer zu sehen sein, das x von …"). */
+  return { restaurants: all, faceUpIds, fullCatalog: false };
 }

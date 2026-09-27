@@ -16,7 +16,11 @@ import Map, {
    aufblitzt. Wer den Style tauscht, zieht die Farbe mit. */
 const BASEMAP_STYLE = '/basemap/style.json';
 
-const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12 };
+/* Gekippt und leicht gedreht: die Karte steht schräg wie eine Isometrie, und
+   die Gebäude (Extrusion im Style, build:basemap) bekommen Seitenwände.
+   Kameraflüge setzen nur Mitte und Zoom — Neigung und Drehung bleiben, bis
+   jemand sie mit zwei Fingern ändert. */
+const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12, pitch: 50, bearing: -15 };
 
 interface MapCanvasProps {
   onMapClick?: () => void;

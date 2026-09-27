@@ -44,9 +44,9 @@ export async function GET(req: Request) {
 
   // Welche KARTEN offen liegen, entscheidet composeAccountSurface — dieselbe
   // Ableitung, die auch die oeffentliche Deck-Seite benutzt. Die Spots selbst
-  // sind fuer jeden dieselben. Diese Route formt daraus nur noch die Antwort.
-  // Ohne Konto liegt der ganze Stapel als Rücken da (siehe composeAccountSurface).
-  const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds, guest: !uid });
+  // sind fuer jeden dieselben, der Stapel auch — mit und ohne Konto. Diese
+  // Route formt daraus nur noch die Antwort.
+  const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds });
 
   // Admin / all-berlin: full catalog, no filter, no reveal signal (signed
   // & paid users get individual reveals via Firestore unlockedMustEats).
@@ -54,7 +54,7 @@ export async function GET(req: Request) {
     if (!uid) {
       return NextResponse.json({ error: 'auth required' }, { status: 401 });
     }
-    const hydratedMustEats = await hydrateAuthorizedMustEats(surface.mustEats, surface.faceUpIds);
+    const hydratedMustEats = await hydrateAuthorizedMustEats(allMustEats, surface.faceUpIds);
     const res = await compressedJson(req, {
       restaurants: surface.restaurants,
       mustEats: hydratedMustEats,
@@ -79,7 +79,7 @@ export async function GET(req: Request) {
   // Alles, was nicht offen liegt, geht gestrippt raus — verdeckte Karten
   // rendern nur den Kartenruecken, die bezahlten Felder duerfen den Server
   // nicht verlassen.
-  const hydratedMustEats = await hydrateAuthorizedMustEats(surface.mustEats, surface.faceUpIds);
+  const hydratedMustEats = await hydrateAuthorizedMustEats(allMustEats, surface.faceUpIds);
 
   const res = await compressedJson(req, {
     restaurants: surface.restaurants,

@@ -35,7 +35,7 @@ import { HomeMapDataProvider } from '@/app/components/HomeMapDataContext';
 const me = (o: Partial<MapMustEat> = {}): MapMustEat => ({
   _id: 'm1',
   dish: 'Smash Burger',
-  image: 'https://cdn.sanity.io/i.png',
+  image: '/api/must-eat-image/m1?v=0123456789ab',
   restaurant: { _id: 'r1', name: 'Bar Basta', slug: 'bar-basta', lat: 52.5, lng: 13.4 },
   ...o,
 });
@@ -139,7 +139,7 @@ describe('HubMustEatsTeaser', () => {
     // every card on the page's furthest-down section. `loading="lazy"` keeps it
     // off the initial payload without that dependency.
     expect(html).toContain('loading="lazy"');
-    expect(html).toContain('src="https://cdn.sanity.io/i.png?w=360');
+    expect(html).toContain('src="/api/must-eat-image/m1?v=0123456789ab&amp;w=360');
   });
 
   it('asks the image route for a card-sized variant, not the original', () => {
@@ -206,7 +206,7 @@ describe('HubMustEatsTeaser', () => {
     const html = render(data([me(), covered('m2', 'Ora'), covered('m3', 'Otto')], ['m1']));
 
     const backFirst = html.indexOf('/pics/card-back.webp');
-    const artFirst = html.indexOf('https://cdn.sanity.io/i.png');
+    const artFirst = html.indexOf('/api/must-eat-image/m1');
     expect(backFirst).toBeGreaterThan(-1);
     expect(artFirst).toBeGreaterThan(backFirst);
   });

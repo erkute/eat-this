@@ -100,7 +100,7 @@ describe('Ankunft nach der Anmeldung', () => {
 
     /* ... und kurz nachdem die Stapel liegen, kommt die Erklaerung von selbst. */
     act(() => void vi.advanceTimersByTime(700));
-    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Must Eats.');
     expect(screen.getByText('10 offen').getAttribute('aria-hidden')).toBe('false');
     expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('false');
 
@@ -154,6 +154,10 @@ describe('Ankunft nach der Anmeldung', () => {
     const flipper = screen.getByTestId('tour-flipper');
     expect(flipper.className).toContain('flipped');
     act(() => void vi.advanceTimersByTime(800));
+    expect(screen.getByTestId('tour-tap-cue')).toBeTruthy();
+    expect(flipper.className).toContain('flipped');
+    act(() => void vi.advanceTimersByTime(650));
+    expect(screen.queryByTestId('tour-tap-cue')).toBeNull();
     expect(flipper.className).not.toContain('flipped');
 
     fireEvent.click(screen.getByRole('button', { name: 'Karte umdrehen' }));
@@ -167,7 +171,7 @@ describe('Ankunft nach der Anmeldung', () => {
     act(() => void vi.advanceTimersByTime(3600));
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     act(() => void vi.advanceTimersByTime(700));
-    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Karten.');
+    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Must Eats.');
   });
 
   it('startet nicht unter dem Wartescreen — der ist fast deckend', async () => {

@@ -173,7 +173,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:760px) 100vw, 520px"
+                      sizes="(max-width:767.98px) 100vw, 520px"
                     />
                   </span>
                 )}

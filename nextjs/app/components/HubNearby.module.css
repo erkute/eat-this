@@ -22,7 +22,7 @@
   color: var(--board-paper);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .board {
     padding: var(--et-board-pad);
   }
@@ -239,7 +239,7 @@
 /* ── Desktop: wrap into rows instead of horizontal swipe ───────────────────── */
 /* Compound :global(.hv-rail).rail (0,3,0 with .homeV2) beats .homeV2 .hv-rail
    (0,2,0), so overflow can go visible — nothing overflows once it wraps. */
-@media (min-width: 761px) {
+@media (min-width: 768px) {
   :global(.homeV2) :global(.hv-rail).rail {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -254,7 +254,7 @@
 }
 
 /* ── Mobile ────────────────────────────────────────────────────────────────── */
-@media (max-width: 760px) {
+@media (max-width: 767.98px) {
   .rail {
     --rail-mobile-safe: var(--et-wrap-pad-mobile);
     margin-left: calc(var(--et-wrap-pad-mobile) * -1);

@@ -214,16 +214,19 @@
     -ms-touch-action: none;
   }
 
-  /* Grab zone 26px → ~40px WITHOUT padding: extra padding here pushes the
+  /* Grab zone 26px → ~45px WITHOUT padding: extra padding here pushes the
      whole sheet down and is exactly the top-heavy look the tight chrome above
      was chosen to avoid. A pseudo-element takes no layout space, so the pill
      stays put while a thumb landing slightly high or low still drags the sheet
-     instead of scrolling the rows under it. Pointer events on ::after target
-     the handle itself, which is what useHandleScrollDrag binds. */
+     instead of scrolling the rows under it. It reaches further up than down:
+     above the edge is map, and a thumb aiming at a pill that thin lands high
+     (Google Maps takes the same band). Pointer events on ::after target the
+     handle itself, which is what useHandleScrollDrag binds. In the list the
+     whole filter bar drags as well (MapFilters.module.css). */
   .handle::after {
     content: '';
     position: absolute;
-    inset: -7px 0;
+    inset: -12px 0 -7px;
   }
   .handle:active {
     cursor: grabbing;

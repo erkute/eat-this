@@ -132,7 +132,7 @@ export function useMustEatDetailState({
        Bis zum 07.09.2026 fragte die Karte einen Gast erst nach seiner
        Position und schickte ihn nur im 50-m-Radius zum Login; die Ruecken
        liegen fuer Gaeste aber seither ueberall auf der Map, als Anlass, sich
-       ein Konto zu holen (siehe composeAccountSurface, `guest`). */
+       ein Konto zu holen (siehe composeAccountSurface). */
     if (!isAuthed && onRequireLogin) {
       trackEvent('must_eat_reveal_attempt', {
         must_eat_id: mustEat._id,

@@ -45,7 +45,7 @@ describe('private Must-Eat hydration', () => {
     expect(hydrated).toMatchObject({
       dish: 'Dish',
       description: 'Beschreibung',
-      image: '/api/must-eat-image/m1',
+      image: '/api/must-eat-image/m1?v=hash',
     });
     expect(JSON.stringify(hydrated)).not.toContain('premium/must-eats/');
     expect(JSON.stringify(hydrated)).not.toContain('storage.googleapis.com');

@@ -43,13 +43,14 @@ dead as soon as it is dead for one of them.
 go:
 
 ```bash
-node nextjs/scripts/cascade/triage.mjs app/components/map/MapDetails.module.css
+node nextjs/scripts/cascade/triage.mjs app/components/map/RestaurantDetail.module.css
 ```
 
 It splits the audit's findings into REMOVABLE (dead for every class **and**
 context) and KEEP, printing which class each survivor is still live for. It
 reproduces the hand triage of MapControls (19 removable, 2 keep) and
-RestaurantList (19, 0) exactly, and found 5 keeps in MapDetails' 104 findings.
+RestaurantList (19, 0) exactly, and found 5 keeps in MapDetails' 104 findings (that module was split into
+RestaurantDetail, MustEatDetail and MapSheetDetail on 26.09.2026).
 
 `prune.mjs` applies that verdict — declarations out, then rules and at-rules
 left empty out too — and refuses nothing on its own:
@@ -103,7 +104,7 @@ delete what the diff does not cover.
 
 One sweep per module, because the property list and the probes are
 module-specific: `sweep-controls.js` (MapControls), `sweep-filters.js`
-(MapFilters), `sweep-list.js` (RestaurantList), `sweep-details.js` (MapDetails).
+(MapFilters), `sweep-list.js` (RestaurantList), `sweep-details.js` (the three map sheet detail modules).
 Copy the closest one for the next module, swap `PREFIX`, regenerate `PROPS` from
 the stylesheet, and set the viewports to both sides of every breakpoint the file
 actually uses — **including height**, if it has `max-height`/`min-height` rules

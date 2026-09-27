@@ -10,11 +10,17 @@
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 10004;
+  z-index: var(--et-z-login);
   display: grid;
   place-items: center;
   padding: 18px;
   background: #000;
+  /* Ausdruecklich, nicht geerbt: bei offenem Remy-Chat steht `body` am
+     Telefon auf `visibility: hidden` (globals.css, `html[data-buddy-open]`),
+     und das Modal haengt per Portal in `body`. Ein Herz auf Remys Spot-Karte
+     oeffnete es deshalb unsichtbar — der Tipp schien ins Leere zu gehen
+     (Betreiber, 26.09.2026). */
+  visibility: visible;
 }
 
 :global(body[data-env='staging']) .overlay {

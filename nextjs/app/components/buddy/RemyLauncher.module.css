@@ -7,9 +7,9 @@
   position: fixed;
   right: 20px;
   bottom: 20px;
-  /* Unter dem Panel (10001) und unter dem Vorhang (10000): solange der Chat
-     offen ist, deckt ihn der Vorhang mit ab. */
-  z-index: 9998;
+  /* Unter dem Panel (--et-z-remy) und unter dem Vorhang (--et-z-above-nav):
+     solange der Chat offen ist, deckt ihn der Vorhang mit ab. */
+  z-index: var(--et-z-below-nav);
 }
 
 .launcher {

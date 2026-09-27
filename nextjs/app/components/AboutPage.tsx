@@ -83,7 +83,7 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/card-back.webp',
     width: 760,
     height: 1044,
-    partner: { src: '/pics/card-front.webp?v=3', width: 760, height: 1044, tilt: 7 },
+    partner: { src: '/pics/card-front.webp?v=4', width: 760, height: 1044, tilt: 7 },
     // The pair spans the rail; each card lands near 62% of it. Two overlapping
     // cards carry more weight than one plate, hence narrower than the 290 the
     // galette gets.
@@ -413,7 +413,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
             }
             width={600}
             height={1219}
-            sizes="(min-width: 760px) 210px, 170px"
+            sizes="(min-width: 768px) 210px, 170px"
             loading="lazy"
             className={styles.ctaPhone}
           />

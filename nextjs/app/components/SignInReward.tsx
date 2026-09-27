@@ -42,10 +42,9 @@ const copy = {
     pack: {
       tag: 'Starter Pack',
       sealed: 'Öffne dein Starter Pack.',
-      opened: 'Deine ersten 20 Karten.',
-      lead: '20 Must Eat Karten für deinen Start.',
-      explain:
-        'Jede Karte steht für ein Must Eat – unsere Empfehlung, was du am Spot bestellen solltest. Manche liegen schon offen in deinem Deck. Die anderen deckst du erst vor Ort auf.',
+      opened: 'Deine ersten 20 Must Eats.',
+      lead: '20 Must Eats aus ganz Berlin.',
+      explain: 'Hinter jeder Karte steckt eine Empfehlung.',
       openStack: '10 offen',
       coveredStack: '10 verdeckt',
       open: 'Öffnen',
@@ -55,7 +54,7 @@ const copy = {
     reveal: {
       tag: 'Am Spot',
       title: 'Antippen. Aufdecken.',
-      body: 'Bist du am Spot, tippst du die verdeckte Karte an. Dann weißt du, was du bestellen musst, und die Karte landet in deinem Deck.',
+      body: 'Bist du am Spot, tippe auf die verdeckte Karte. Sie zeigt dir unsere Empfehlung und landet dann in deinem Deck.',
       flip: 'Karte umdrehen',
       alt: 'Eine aufgedeckte Must Eat Karte',
     },
@@ -95,10 +94,9 @@ const copy = {
     pack: {
       tag: 'Starter Pack',
       sealed: 'Open your Starter Pack.',
-      opened: 'Your first 20 cards.',
-      lead: '20 Must Eat cards to get you started.',
-      explain:
-        'Every card stands for a Must Eat – our pick for what to order at the spot. Some are already open in your deck. You reveal the others on site.',
+      opened: 'Your first 20 Must Eats.',
+      lead: '20 Must Eats from all over Berlin.',
+      explain: 'Behind every card there’s a pick.',
       openStack: '10 open',
       coveredStack: '10 covered',
       open: 'Open',
@@ -108,7 +106,7 @@ const copy = {
     reveal: {
       tag: 'At the spot',
       title: 'Tap. Reveal.',
-      body: 'At the spot, tap the covered card. Now you know what to order, and the card joins your deck.',
+      body: 'At the spot, tap the covered card. It shows you our recommendation and then joins your deck.',
       flip: 'Flip the card',
       alt: 'A revealed Must Eat card',
     },
@@ -151,13 +149,14 @@ function pages(identity: Identity | null) {
 }
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
-const CARD_FRONT = '/pics/card-front.webp?v=3';
+const CARD_FRONT = '/pics/card-front.webp?v=4';
 
 /** Das Kartenbild eines Must Eats — die Bild-Route, die auch Deck und Map
  *  benutzen; 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
 /** So lange liegt die Karte auf dem Aufdeck-Schritt verdeckt, bevor sie sich
  *  von selbst umdreht — wie in der Must-Eats-Erklaerung. */
 const FLIP_DELAY_MS = 800;
+const TAP_CUE_MS = 650;
 
 const mustEatCard = (id: string) =>
   `/api/must-eat-image/${encodeURIComponent(id)}?w=440&auto=format&q=80`;
@@ -192,8 +191,8 @@ const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
 const DECK_CARDS = [
   CARD_BACK,
   CARD_BACK,
-  '/pics/card-front.webp?v=3',
-  '/pics/card-front-sabich.webp',
+  '/pics/card-front.webp?v=4',
+  '/pics/card-front-sabich.webp?v=2',
 ] as const;
 
 /**
@@ -231,18 +230,27 @@ export default function SignInReward() {
   /* Der Aufdeck-Schritt fuehrt vor, was am Spot passiert: verdeckt rein,
      nach kurzem Moment dreht sich die Karte. Antippen dreht sie selbst —
      und nimmt der Automatik die Karte ab. */
-  const [cardDown, setCardDown] = useState(false);
+  // Mount the reveal card already covered; changing it in an effect would
+  // first animate the visible front back into hiding.
+  const [cardDown, setCardDown] = useState(true);
+  const [showTapCue, setShowTapCue] = useState(false);
   const flipTimer = useRef<number | null>(null);
   const flipping = open && pages(identity)[step] === 'reveal';
   useEffect(() => {
     if (!flipping) {
-      setCardDown(false);
+      setCardDown(true);
+      setShowTapCue(false);
       return;
     }
     setCardDown(true);
+    setShowTapCue(false);
     flipTimer.current = window.setTimeout(() => {
-      flipTimer.current = null;
-      setCardDown(false);
+      setShowTapCue(true);
+      flipTimer.current = window.setTimeout(() => {
+        flipTimer.current = null;
+        setShowTapCue(false);
+        setCardDown(false);
+      }, TAP_CUE_MS);
     }, FLIP_DELAY_MS);
     return () => {
       if (flipTimer.current !== null) window.clearTimeout(flipTimer.current);
@@ -636,6 +644,7 @@ export default function SignInReward() {
     const flipTap = () => {
       if (flipTimer.current !== null) window.clearTimeout(flipTimer.current);
       flipTimer.current = null;
+      setShowTapCue(false);
       setCardDown((down) => !down);
     };
     content = (
@@ -645,6 +654,7 @@ export default function SignInReward() {
             <button
               type="button"
               className={styles.flipTap}
+              data-tapping={showTapCue ? '' : undefined}
               onClick={flipTap}
               aria-label={t.reveal.flip}
             >
@@ -655,7 +665,7 @@ export default function SignInReward() {
                 {/* eslint-disable @next/next/no-img-element */}
                 <img
                   className={styles.face}
-                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp'}
+                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp?v=2'}
                   alt={t.reveal.alt}
                 />
                 <img
@@ -666,6 +676,20 @@ export default function SignInReward() {
                 />
                 {/* eslint-enable @next/next/no-img-element */}
               </div>
+              {showTapCue && (
+                <span className={styles.tapCue} aria-hidden="true" data-testid="tour-tap-cue">
+                  <span className={styles.tapRing} />
+                  <svg viewBox="0 0 48 56" fill="none">
+                    <path
+                      d="M17 29V8a5 5 0 0 1 10 0v15l3-1c2-1 5 0 6 2 4-1 7 1 7 5v10c0 8-5 13-13 13h-3c-5 0-9-3-12-7L5 32c-3-5 3-9 6-6l6 6"
+                      fill="currentColor"
+                      stroke="#15120e"
+                      strokeWidth="3"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              )}
             </button>
           </div>
         </div>

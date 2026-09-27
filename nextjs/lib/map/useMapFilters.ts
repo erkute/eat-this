@@ -4,6 +4,7 @@ import { getOpenStatus } from './openingHours';
 import { PRICE_BUCKETS, matchesPriceBucket, priceBucketOf } from './priceBuckets';
 import { byMustEatsThenName } from './listOrder';
 import { CUISINE_LABELS_DE } from '@/lib/cuisineLabels';
+import { MUST_EATS_CATEGORY } from './mapFilterParams';
 
 /** Ab wie vielen Spots ein Bezirk im Filter erscheint. Zehn der zwanzig
  *  Bezirke lagen darunter, die Hälfte davon bei ein oder zwei Treffern. */
@@ -149,6 +150,7 @@ function countOptions(
     if (matchesChips(r, { ...base, category: 'All' })) {
       withoutDimension.category += 1;
       for (const c of r.categories ?? []) if (c.slug) bump(byValue.category, c.slug);
+      if (r.mustEatCount > 0) bump(byValue.category, MUST_EATS_CATEGORY);
     }
     if (matchesChips(r, { ...base, bezirk: null })) {
       withoutDimension.bezirk += 1;
@@ -168,7 +170,11 @@ function countOptions(
  *  hypothetical — "how many spots if the Bezirk were Neukölln instead" — which
  *  is what puts a count on every picker row. */
 function matchesChips(r: MapRestaurant, s: MapChipState): boolean {
-  if (s.category !== 'All' && !r.categories?.some((c) => c.slug === s.category)) return false;
+  if (s.category === MUST_EATS_CATEGORY) {
+    if (!(r.mustEatCount > 0)) return false;
+  } else if (s.category !== 'All' && !r.categories?.some((c) => c.slug === s.category)) {
+    return false;
+  }
   if (s.bezirk && districtOf(r) !== s.bezirk) return false;
   if (s.price && !matchesPriceBucket(r, s.price)) return false;
   if (s.openOnly) {

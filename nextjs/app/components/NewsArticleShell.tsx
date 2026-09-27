@@ -318,7 +318,7 @@ export default function NewsArticleShell({
           alt={block.alt || ''}
           width={width}
           height={height}
-          sizes="(max-width: 760px) 100vw, 660px"
+          sizes="(max-width: 767.98px) 100vw, 660px"
         />
         {block.caption && <figcaption>{block.caption}</figcaption>}
       </figure>
@@ -470,7 +470,7 @@ export default function NewsArticleShell({
                               src={rec.imageUrl}
                               alt=""
                               fill
-                              sizes="(max-width: 760px) 76vw, 33vw"
+                              sizes="(max-width: 767.98px) 76vw, 33vw"
                             />
                           )}
                         </span>

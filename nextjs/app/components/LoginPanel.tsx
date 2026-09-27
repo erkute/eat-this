@@ -37,7 +37,10 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
   let kicker = t('packKicker');
   let title = t('packTitle');
   let lead = t('packLead');
-  if (reason?.kind === 'card') {
+  if (reason?.kind === 'map-prompt') {
+    title = t('promptTitle');
+    lead = t('promptLead');
+  } else if (reason?.kind === 'card') {
     kicker = t('cardKicker');
     title = t('cardTitle');
     lead = t('cardLead');
@@ -61,7 +64,7 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
         title={title}
         lead={lead}
         intent={intent}
-        googleWarmup="mount"
+        googleWarmup={reason?.kind === 'map-prompt' ? 'intent' : 'mount'}
         /* Ein Login, der waehrend des offenen Modals durchgeht, haelt den
            Wartescreen, bis BridgeAuth das Modal nach der Haltezeit schliesst. */
         holdScreen={!loading && Boolean(user)}

@@ -90,13 +90,27 @@ export default function AllBerlinBoard({
           </p>
         )}
         <p className={styles.lead}>
-          {hero
-            ? locale === 'de'
-              ? 'Schalte alle Must-Eat-Karten für Berlin frei: konkrete Gerichte, die passenden Restaurants und ihre Standorte auf deiner Map. Alle Kategorie-Packs sind enthalten. Neue Karten bekommst du ohne weiteren Kauf dazu.'
-              : 'Unlock every Must Eat card for Berlin: specific dishes, the restaurants serving them and their locations on your map. Every category pack is included. New cards are added without another purchase.'
-            : locale === 'de'
-              ? 'Alle Kategorie-Packs. Neue Must-Eat-Karten ohne weiteren Kauf.'
-              : 'Every category pack. New Must Eat cards without another purchase.'}
+          {hero ? (
+            locale === 'de' ? (
+              <>
+                Schalte <strong>alle Must-Eat-Karten</strong> für Berlin frei: konkrete Gerichte,
+                die passenden Restaurants und ihre Standorte auf deiner Map.{' '}
+                <strong>Alle Kategorie-Packs</strong> sind enthalten. Neue Karten bekommst du{' '}
+                <strong>ohne weiteren Kauf</strong> dazu.
+              </>
+            ) : (
+              <>
+                Unlock <strong>every Must Eat card</strong> for Berlin: specific dishes, the
+                restaurants serving them and their locations on your map.{' '}
+                <strong>Every category pack</strong> is included. New cards are added{' '}
+                <strong>without another purchase</strong>.
+              </>
+            )
+          ) : locale === 'de' ? (
+            'Alle Kategorie-Packs. Neue Must-Eat-Karten ohne weiteren Kauf.'
+          ) : (
+            'Every category pack. New Must Eat cards without another purchase.'
+          )}
         </p>
 
         <div className={styles.actions}>

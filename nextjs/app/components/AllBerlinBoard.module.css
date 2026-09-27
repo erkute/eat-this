@@ -61,6 +61,11 @@
   line-height: var(--et-leading-copy);
 }
 
+.lead strong {
+  color: var(--board-paper);
+  font-weight: 700;
+}
+
 .boardUpsell .lead {
   color: var(--board-paper);
   line-height: 1.3;

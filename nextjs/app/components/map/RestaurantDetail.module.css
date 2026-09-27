@@ -1899,13 +1899,16 @@
   }
 }
 
-/* No drop cap when the lede's initial is a bare stroke — see lib/dropCap.ts.
-   Out-specifies every `.rdStoryLead::first-letter` rule in this file. */
+/* Capital I keeps the full drop cap, with bars that make it recognizable.
+   Other ambiguous initials still use normal text size (see lib/dropCap.ts). */
+
+.rdStoryLead.rdStoryLeadInitialI::first-letter {
+  font-family: 'Eat This Initial I', var(--et-font-body);
+}
 
 .rdStoryLead.rdStoryLeadPlain::first-letter {
   float: none;
   padding: 0;
-  font-family: 'Eat This Initial I', var(--et-font-body);
   font-size: inherit;
   font-weight: inherit;
   line-height: inherit;

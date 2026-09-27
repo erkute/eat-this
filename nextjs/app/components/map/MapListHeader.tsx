@@ -12,11 +12,12 @@ import {
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
-import { priceBucketLabelKey } from '@/lib/map/priceBuckets';
+import { priceBucketLabelKey, priceBucketChipLabel } from '@/lib/map/priceBuckets';
 import { MUST_EATS_CATEGORY } from '@/lib/map/mapFilterParams';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 import styles from './MapFilters.module.css';
+import { CloseIcon, PagerArrowIcon } from './icons';
 
 interface Props {
   headerRef: Ref<HTMLDivElement | null>;
@@ -129,8 +130,8 @@ export default function MapListHeader({
   }, [category, categories, loc, t]);
 
   return (
-    /* The whole bar drags the sheet, Google Maps style — not just the pill
-       (useHandleScrollDrag). A chip stays a chip until the finger moves. */
+    /* The grip stays reachable while reading. Touches on the filters keep
+       native scrolling; only the grip owns the sheet-drag gesture. */
     <div ref={headerRef} className={styles.listHeader} data-sheet-grab-zone="">
       {grabber}
       {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
@@ -158,7 +159,8 @@ export default function MapListHeader({
         {priceBucketIds.length > 0 && (
           <FilterChip
             ref={priceBtnRef}
-            label={price ? t(priceBucketLabelKey(price)) : t('map.filterChipPrice')}
+            label={price ? priceBucketChipLabel(price) : t('map.filterChipPrice')}
+            ariaLabel={price ? t(priceBucketLabelKey(price)) : undefined}
             active={!!price}
             expanded={openChip === 'price'}
             onClick={() => setOpenChip((prev) => (prev === 'price' ? null : 'price'))}
@@ -168,7 +170,7 @@ export default function MapListHeader({
         )}
         <button
           type="button"
-          className={`${styles.filterChip} ${openOnly ? styles.filterChipOpenActive : ''}`}
+          className={`${styles.filterChip} ${styles.filterOpenToggle} ${openOnly ? styles.filterChipOpenActive : ''}`}
           onClick={() => onOpenOnly(!openOnly)}
           aria-pressed={openOnly}
         >
@@ -187,7 +189,7 @@ export default function MapListHeader({
           onClose={() => setOpenChip(null)}
           anchorEl={categoryBtnRef.current}
           inline={inlinePicker}
-          closeAriaLabel={t('map.searchClose')}
+          closeAriaLabel={t('map.pickerClose')}
         />
       )}
       {openChip === 'bezirk' && (
@@ -201,7 +203,7 @@ export default function MapListHeader({
           onClose={() => setOpenChip(null)}
           anchorEl={bezirkBtnRef.current}
           inline={inlinePicker}
-          closeAriaLabel={t('map.searchClose')}
+          closeAriaLabel={t('map.pickerClose')}
         />
       )}
       {openChip === 'price' && (
@@ -215,7 +217,7 @@ export default function MapListHeader({
           onClose={() => setOpenChip(null)}
           anchorEl={priceBtnRef.current}
           inline={inlinePicker}
-          closeAriaLabel={t('map.searchClose')}
+          closeAriaLabel={t('map.pickerClose')}
         />
       )}
     </div>
@@ -224,6 +226,7 @@ export default function MapListHeader({
 
 interface FilterChipProps {
   label: string;
+  ariaLabel?: string;
   active: boolean;
   expanded: boolean;
   onClick: () => void;
@@ -234,16 +237,17 @@ interface FilterChipProps {
 }
 
 const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function FilterChip(
-  { label, active, expanded, onClick, clearLabel, onClear },
+  { label, ariaLabel, active, expanded, onClick, clearLabel, onClear },
   ref
 ) {
   return (
-    <span className={styles.filterChipWrap}>
+    <span className={`${styles.filterChipWrap} ${active ? styles.filterChipWrapActive : ''}`}>
       <button
         ref={ref}
         type="button"
         className={`${styles.filterChip} ${active ? styles.filterChipActive : ''}`}
         onClick={onClick}
+        aria-label={ariaLabel}
         aria-expanded={expanded}
         /* Without this, `aria-expanded` alone says the chip expands in place —
            it actually opens MapFilterPickerSheet, which is role="dialog"
@@ -251,11 +255,10 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
            and correctly stays on aria-pressed. */
         aria-haspopup="dialog"
       >
-        <span
-          className={`${styles.filterChipLabel} ${label.length > 9 ? styles.filterChipLabelLong : ''}`}
-        >
+        <span className={styles.filterChipLabel}>
           {label}
         </span>
+        {!active && <span className={styles.filterChevron}><PagerArrowIcon /></span>}
       </button>
       {/* Sibling, not a child: a button inside a button is invalid markup and
             makes screen readers announce two controls for one chip. Clearing a
@@ -267,9 +270,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
           onClick={onClear}
           aria-label={clearLabel}
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M6 6l12 12M18 6 6 18" />
-          </svg>
+          <CloseIcon />
         </button>
       )}
     </span>

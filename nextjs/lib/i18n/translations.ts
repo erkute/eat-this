@@ -113,6 +113,7 @@ const en = {
     boosterCta: 'Unlock more',
     starterCta: 'Sign up',
     searchClose: 'Close search',
+    pickerClose: 'Close filters',
     filterChipCategory: 'Category',
     filterMustEats: 'Must Eats',
     filterChipBezirk: 'District',
@@ -501,6 +502,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        Karte ohne Konto als Namen (MustEatDetailMobile). */
     starterCta: 'Anmelden',
     searchClose: 'Suche schließen',
+    pickerClose: 'Filter schließen',
     filterChipCategory: 'Kategorie',
     filterMustEats: 'Must Eats',
     filterChipBezirk: 'Bezirk',

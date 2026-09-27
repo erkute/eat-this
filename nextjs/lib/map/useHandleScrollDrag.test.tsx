@@ -43,6 +43,7 @@ function Harness({
     <div data-map-body="">
       <aside data-map-sheet="" data-detail-kind={detailKind}>
         <div ref={handleRef} data-sheet-handle="" />
+        <div data-sheet-content="" />
       </aside>
     </div>
   );
@@ -124,8 +125,23 @@ describe('in the list', () => {
 
       expect(window.scrollY).toBe(0);
       expect(rememberedListPosition()).toBe(DEEP);
+      expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe(`${DEEP - REST_OFFSET}px`);
       expect(sheet().style.transform).toBe('');
       expect(sheet().style.clipPath).toBe('');
+    });
+
+    it('clips moving content below the grip and clears the temporary cut on release', async () => {
+      window.scrollY = DEEP;
+      const handle = document.querySelector<HTMLElement>('[data-sheet-handle]')!;
+      const content = sheet().querySelector<HTMLElement>('[data-sheet-content]')!;
+      vi.spyOn(handle, 'getBoundingClientRect').mockReturnValue({ bottom: 162.5 } as DOMRect);
+      vi.spyOn(content, 'getBoundingClientRect').mockReturnValue({ top: -500.25 } as DOMRect);
+      handle.dispatchEvent(pointer('pointerdown', 100));
+      expect(content.style.clipPath).toBe('inset(663px 0 0)');
+      handle.dispatchEvent(pointer('pointerup', 100));
+      await settle();
+      expect(content.style.clipPath).toBe('');
+      expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe(`${DEEP - REST_OFFSET}px`);
     });
 
     it('never takes the bar below its resting line over the map', () => {
@@ -205,6 +221,17 @@ describe('in the list', () => {
       expect(window.scrollY).toBe(DEEP);
     });
 
+    it('does not jump down when grabbing a partly raised collapsed sheet', async () => {
+      window.scrollY = 120;
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 300));
+      expect(sheet().style.transform).toBe(`translateY(${REST_OFFSET - 120}px)`);
+      handle.dispatchEvent(pointer('pointerup', 300));
+      await settle();
+      expect(window.scrollY).toBe(DEEP);
+      expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe('');
+    });
+
     it('returns to the map when the pull was not meant', async () => {
       drag(-20, { steps: 4, msPerStep: 80 });
       await settle();
@@ -213,11 +240,13 @@ describe('in the list', () => {
       expect(sheet().style.transform).toBe('');
     });
 
-    it('forgets the row once you scroll back into the list yourself', () => {
+    it('transfers the reading excerpt into native scroll when opening without the grip', () => {
       window.scrollY = 1400;
       window.dispatchEvent(new Event('scroll'));
 
       expect(rememberedListPosition()).toBeNull();
+      expect(window.scrollY).toBe(1400 + DEEP - REST_OFFSET);
+      expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe('');
     });
 
     it('falls back to plain dragging once the position is forgotten (new filter)', async () => {
@@ -346,5 +375,78 @@ describe.each(['touch', 'mouse'])('phone handle %s taps', (pointerType) => {
     tap();
     await settle();
     expect(window.scrollY).toBe(REST_OFFSET);
+  });
+});
+
+
+describe('interrupted restaurant handle gestures', () => {
+  it('finishes outside the handle when pointer capture is unavailable', async () => {
+    render(<Harness view="detail" detailKind="restaurant" />);
+    window.scrollY = DEEP;
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 100));
+    window.dispatchEvent(pointer('pointermove', 240, 100));
+    window.dispatchEvent(pointer('pointerup', 240, 120));
+    await settle();
+    expect(window.scrollY).toBe(0);
+    drag(-120);
+    await settle();
+    expect(window.scrollY).toBe(DEEP);
+  });
+
+  it.each(['pointercancel', 'lostpointercapture'])('recovers after %s and accepts the next drag', async (event) => {
+    render(<Harness view="detail" detailKind="restaurant" />);
+    window.scrollY = DEEP;
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 100));
+    handle.dispatchEvent(pointer('pointermove', 240, 100));
+    handle.dispatchEvent(pointer(event, 240, 120));
+    await settle();
+    expect(window.scrollY).toBe(DEEP);
+    expect(sheet().style.transform).toBe('');
+    drag(120);
+    await settle();
+    expect(window.scrollY).toBe(0);
+  });
+});
+
+
+describe.each(['list', 'detail'] as const)('scrolling collapsed %s content back to its beginning', (view) => {
+  it('consumes the saved reading offset without expanding the panel', async () => {
+    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+    window.scrollY = DEEP;
+    drag(120);
+    await settle();
+    const content = sheet().querySelector('[data-sheet-content]')!;
+    const wheel = new WheelEvent('wheel', { deltaY: -150, bubbles: true, cancelable: true });
+    content.dispatchEvent(wheel);
+    expect(wheel.defaultPrevented).toBe(true);
+    expect(window.scrollY).toBe(0);
+    expect(rememberedSheetPosition(view)).toBe(DEEP - 150);
+    content.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true, cancelable: false }));
+    expect(rememberedSheetPosition(view)).toBe(DEEP - 270);
+    content.dispatchEvent(new WheelEvent('wheel', { deltaY: -10000, bubbles: true, cancelable: true }));
+    expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe('0px');
+    drag(-120);
+    await settle();
+    expect(window.scrollY).toBe(REST_OFFSET);
+  });
+
+  it('allows a downward touch on content while collapsed', async () => {
+    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+    window.scrollY = DEEP;
+    drag(120);
+    await settle();
+    const content = sheet().querySelector('[data-sheet-content]')!;
+    const touch = (type: string, y: number) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.assign(event, { touches: [{ clientX: 100, clientY: y }] });
+      content.dispatchEvent(event);
+      return event;
+    };
+    touch('touchstart', 500);
+    expect(touch('touchmove', 620).defaultPrevented).toBe(true);
+    expect(rememberedSheetPosition(view)).toBe(DEEP - 120);
+    expect(window.scrollY).toBe(0);
   });
 });

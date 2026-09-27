@@ -7,7 +7,7 @@ import type { SheetSnap } from './useBottomSheet';
 import { readSafeAreaBottom, type SheetView } from './useMapSheet';
 import { estimateDetailMidVisiblePx } from './detailSnap';
 import { pollUntilMapReady } from './pollUntilMapReady';
-import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH } from './phoneSheetSnaps';
+import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH, phoneListMidVisiblePx } from './phoneSheetSnaps';
 import { safeAreaInsetTop } from './safeArea';
 import { isPhoneViewport, isSheetViewport, isTabletViewport } from './viewport';
 
@@ -22,6 +22,7 @@ const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
 /* The pin card's height above its anchor (MapMarkers.module.css). */
 const PIN_HEIGHT_PX = 47;
+export const USER_LOCATION_ZOOM = 16;
 
 type LngLat = { lng: number; lat: number };
 type Camera = { center: LngLat; zoom: number; padding?: PaddingOptions };
@@ -211,7 +212,9 @@ export function useMapCamera({
               ? phoneListPeek
               : 28
             : targetSnap === 'mid'
-              ? 440
+              ? phoneInflowList
+                ? phoneListMidVisiblePx(window.innerHeight)
+                : 440
               : Math.round(window.innerHeight * 0.58);
       } else if (phoneInflowList && sheetElRef.current) {
         // Window-scrolled list: the visible strip is whatever part of the

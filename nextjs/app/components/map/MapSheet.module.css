@@ -336,3 +336,14 @@
     display: none;
   }
 }
+
+/* Preserve the reading excerpt even while collapsed. Clip only the moving
+   content, so the sticky grip/filters stay visible and native page scrolling
+   remains available. The hook removes this offset at the full-height stop. */
+@media (max-width: 767.98px) {
+  .list[style*="--sheet-reading-offset"] > .listScroll,
+  .list[style*="--sheet-reading-offset"] > [data-detail-mount] {
+    transform: translateY(calc(-1 * var(--sheet-reading-offset)));
+    clip-path: inset(var(--sheet-reading-offset) 0 0);
+  }
+}

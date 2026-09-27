@@ -34,7 +34,7 @@ const copy = {
     kicker: 'All Berlin',
     title: 'Diese Packs sind dabei',
     lead: 'Alle verfügbaren Packs sofort. Kommende Packs und neue Must Eats sind bei Veröffentlichung ebenfalls enthalten.',
-    cta: 'All Berlin freischalten',
+    cta: 'Freischalten',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
@@ -46,11 +46,11 @@ const copy = {
     kicker: 'All Berlin',
     title: 'Included packs',
     lead: 'All available packs right away. Upcoming packs and new Must Eats are included when published.',
-    cta: 'Unlock All Berlin',
+    cta: 'Unlock',
     pending: 'Going to Stripe …',
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
-    map: '/en/map',
+    map: '/map',
   },
 } as const;
 

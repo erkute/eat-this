@@ -3,7 +3,8 @@
    Bewegung über translate, nie über Opacity — Markenregel. */
 
 .trigger {
-  padding: 0;
+  min-height: 44px;
+  padding: 8px 0;
   background: none;
   border: 0;
   color: var(--et-white);

@@ -94,3 +94,12 @@ describe('RemyDock', () => {
     expect(queryByTestId('buddy-widget')).not.toBeNull();
   });
 });
+
+it.each(['/packs', '/pack/pizza', '/pack/coffee'])(
+  'keeps purchase controls clear on %s',
+  (pathname) => {
+    route.pathname = pathname;
+    renderDock();
+    expect(launcher()).toBeNull();
+  }
+);

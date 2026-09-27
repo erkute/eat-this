@@ -121,8 +121,8 @@ export default async function BezirkIndexPage({ params }: PageProps) {
             </h1>
             <p className={styles.lede}>
               {de
-                ? 'Jeder Bezirk isst anders. Such dir einen aus – wir haben überall die Adressen gesammelt, für die wir geradestehen.'
-                : "Every district eats differently. Pick one – we've gathered the addresses we vouch for, right across the city."}
+                ? 'Entdecke Restaurants, Cafés und Bars in deinem Bezirk.'
+                : 'Discover restaurants, cafés and bars in your neighbourhood.'}
             </p>
           </div>
         </header>

@@ -1,6 +1,5 @@
-/* Map filters: one stable row, aligned to the 14px restaurant-card inset.
-   Long selected values scroll in their own native rail instead of squeezing
-   labels or growing a second row. The open-only toggle remains reachable. */
+/* Four filters always visible, aligned to the restaurant cards.
+   Selected values may shorten with ellipsis; the row never scrolls or wraps. */
 .listHeader {
   position: relative;
   flex-shrink: 0;
@@ -17,34 +16,16 @@
   background: var(--et-ink);
 }
 
-.filterPickerRail {
-  display: flex;
-  flex: 1 1 0;
-  min-width: 0;
-  gap: 6px;
-  /* Reserve room for the small corner reset badge within the scroll port. */
-  padding-block: 5px;
-  margin-block: -5px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  touch-action: pan-x pan-y pinch-zoom;
-  scrollbar-width: none;
-  scroll-padding-inline: 2px;
-}
-.filterPickerRail::-webkit-scrollbar { display: none; }
-
 .filterChipWrap {
   position: relative;
   display: flex;
-  flex: 1 0 auto;
+  flex: 1 1 0;
   min-width: min-content;
-  max-width: 184px;
   border-radius: var(--et-radius-control);
   overflow: visible;
 }
 .filterChipWrapActive {
-  flex: 0 0 auto;
-  min-width: 120px;
+  min-width: 0;
   background: var(--et-accent);
 }
 
@@ -80,7 +61,7 @@
 .filterChipRow .filterChipActive {
   background: transparent;
   color: var(--et-ink);
-  padding-inline: 16px 24px;
+  padding-inline: 8px 16px;
   border-radius: var(--et-radius-control);
 }
 .filterChipRow .filterChipLabel {
@@ -198,7 +179,7 @@
     will-change: transform;
     transform: translateZ(0);
     /* Native swipes also work when they start on a filter chip. */
-    touch-action: pan-x pan-y pinch-zoom;
+    touch-action: pan-y pinch-zoom;
     -webkit-user-select: none;
     user-select: none;
   }

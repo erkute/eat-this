@@ -290,10 +290,9 @@ describe('RestaurantDetail cascade', () => {
 describe('MapFilters cascade', () => {
   it('lets an active chip keep full-size type on one line', () => {
     // Long values must use the same readable type as every other filter.
-    // The native rail now provides space; shrinking text is never the fallback.
+    // A single-line label may truncate; shrinking text is never the fallback.
     expect(effective(FILTERS, 'filterChipLabel', 'font')).toBe('inherit');
     expect(effective(FILTERS, 'filterChipLabel', 'white-space')).toBe('nowrap');
-    expect(effective(FILTERS, 'filterPickerRail', 'overflow-x')).toBe('auto');
   });
 
   it('never breaks a chip label mid-word', () => {

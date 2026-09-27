@@ -63,6 +63,16 @@ export function priceBucketLabelKey(id: string): string {
   return BY_ID.get(id)?.labelKey ?? id;
 }
 
+/** Compact chip text: leaves all four filters visible on narrow phones.
+ *  The picker and accessible button name retain the full translated label. */
+export function priceBucketChipLabel(id: string): string {
+  const bucket = BY_ID.get(id);
+  if (!bucket) return id;
+  if (bucket.max === null) return `${bucket.min}+ €`;
+  if (bucket.min === 0) return `<${bucket.max} €`;
+  return `${bucket.min}–${bucket.max} €`;
+}
+
 /** Die Stufe, in die ein Spot fällt — `null`, wenn kein Preis gepflegt ist.
  *  Ohne Preis fällt ein Spot in keine Stufe: er taucht nur unter „Alle" auf,
  *  statt eine Stufe zu verwässern, in die ihn niemand gesteckt hat. */

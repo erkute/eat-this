@@ -12,7 +12,7 @@ import {
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
 import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
-import { priceBucketLabelKey } from '@/lib/map/priceBuckets';
+import { priceBucketLabelKey, priceBucketChipLabel } from '@/lib/map/priceBuckets';
 import { MUST_EATS_CATEGORY } from '@/lib/map/mapFilterParams';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
@@ -136,39 +136,38 @@ export default function MapListHeader({
       {grabber}
       {/* Chip rail — Kategorie · Bezirk · Preis · Jetzt offen. */}
       <div className={styles.filterChipRow} data-filter-chip-row="">
-        <div className={styles.filterPickerRail} data-filter-picker-rail="">
+        <FilterChip
+          ref={categoryBtnRef}
+          label={activeCategoryLabel ?? t('map.filterChipCategory')}
+          active={!!activeCategoryLabel}
+          expanded={openChip === 'category'}
+          onClick={() => setOpenChip((prev) => (prev === 'category' ? null : 'category'))}
+          clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipCategory')}`}
+          onClear={() => onCategoryChange('All' as MapCategory)}
+        />
+        <FilterChip
+          ref={bezirkBtnRef}
+          /* "Prenzlauer Berg" is the one district name the rail cannot hold;
+             the list stickers already shorten it the same way. */
+          label={abbreviateBezirk(bezirk) ?? t('map.filterChipBezirk')}
+          active={!!bezirk}
+          expanded={openChip === 'bezirk'}
+          onClick={() => setOpenChip((prev) => (prev === 'bezirk' ? null : 'bezirk'))}
+          clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipBezirk')}`}
+          onClear={() => onBezirk(null)}
+        />
+        {priceBucketIds.length > 0 && (
           <FilterChip
-            ref={categoryBtnRef}
-            label={activeCategoryLabel ?? t('map.filterChipCategory')}
-            active={!!activeCategoryLabel}
-            expanded={openChip === 'category'}
-            onClick={() => setOpenChip((prev) => (prev === 'category' ? null : 'category'))}
-            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipCategory')}`}
-            onClear={() => onCategoryChange('All' as MapCategory)}
+            ref={priceBtnRef}
+            label={price ? priceBucketChipLabel(price) : t('map.filterChipPrice')}
+            ariaLabel={price ? t(priceBucketLabelKey(price)) : undefined}
+            active={!!price}
+            expanded={openChip === 'price'}
+            onClick={() => setOpenChip((prev) => (prev === 'price' ? null : 'price'))}
+            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipPrice')}`}
+            onClear={() => onPrice(null)}
           />
-          <FilterChip
-            ref={bezirkBtnRef}
-            /* "Prenzlauer Berg" is the one district name the rail cannot hold;
-               the list stickers already shorten it the same way. */
-            label={abbreviateBezirk(bezirk) ?? t('map.filterChipBezirk')}
-            active={!!bezirk}
-            expanded={openChip === 'bezirk'}
-            onClick={() => setOpenChip((prev) => (prev === 'bezirk' ? null : 'bezirk'))}
-            clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipBezirk')}`}
-            onClear={() => onBezirk(null)}
-          />
-          {priceBucketIds.length > 0 && (
-            <FilterChip
-              ref={priceBtnRef}
-              label={price ? t(priceBucketLabelKey(price)) : t('map.filterChipPrice')}
-              active={!!price}
-              expanded={openChip === 'price'}
-              onClick={() => setOpenChip((prev) => (prev === 'price' ? null : 'price'))}
-              clearLabel={`${t('map.filterChipClear')}: ${t('map.filterChipPrice')}`}
-              onClear={() => onPrice(null)}
-            />
-          )}
-        </div>
+        )}
         <button
           type="button"
           className={`${styles.filterChip} ${styles.filterOpenToggle} ${openOnly ? styles.filterChipOpenActive : ''}`}
@@ -227,6 +226,7 @@ export default function MapListHeader({
 
 interface FilterChipProps {
   label: string;
+  ariaLabel?: string;
   active: boolean;
   expanded: boolean;
   onClick: () => void;
@@ -237,7 +237,7 @@ interface FilterChipProps {
 }
 
 const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function FilterChip(
-  { label, active, expanded, onClick, clearLabel, onClear },
+  { label, ariaLabel, active, expanded, onClick, clearLabel, onClear },
   ref
 ) {
   return (
@@ -247,6 +247,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
         type="button"
         className={`${styles.filterChip} ${active ? styles.filterChipActive : ''}`}
         onClick={onClick}
+        aria-label={ariaLabel}
         aria-expanded={expanded}
         /* Without this, `aria-expanded` alone says the chip expands in place —
            it actually opens MapFilterPickerSheet, which is role="dialog"

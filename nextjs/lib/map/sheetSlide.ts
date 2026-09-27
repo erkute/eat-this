@@ -25,7 +25,8 @@
  * The document itself is never frozen, fixed or overflow-locked: it stays the
  * window-scrolled page it always was, which keeps it flowing behind Safari's
  * and Chrome's toolbars (and lets them collapse). The transform exists for the
- * length of a gesture only.
+ * length of a gesture only. While collapsed, only the content keeps a
+ * clipped reading offset; the map and grabber remain in their normal flow.
  */
 
 import { safeAreaInsetTop } from './safeArea';
@@ -57,6 +58,35 @@ export type SlideView = 'list' | 'detail';
    hand its offset to the list. Module state, because there is one map page and
    MapSection has to be able to drop an entry (forgetSheetPosition). */
 const remembered: Record<SlideView, number | null> = { list: null, detail: null };
+const parked: Partial<Record<SlideView, { sheet: HTMLElement; offset: number }>> = {};
+
+function clearParked(view: SlideView): void {
+  parked[view]?.sheet.style.removeProperty('--sheet-reading-offset');
+  delete parked[view];
+}
+
+/** Native scrolling can raise a collapsed sheet too. Transfer the content
+ * offset back into the document scroll at the top stop, without changing
+ * which row is visible. */
+export function resumeSheetReading(view: SlideView): void {
+  const offset = parked[view]?.offset ?? 0;
+  clearParked(view);
+  remembered[view] = null;
+  if (offset) window.scrollTo({ top: window.scrollY + offset, behavior: 'instant' });
+}
+
+/** At the map stop the document cannot scroll any farther towards its top.
+ * Let a downward content gesture consume the retained reading offset instead.
+ * Keep the remembered destination in sync so the grip reopens the new place. */
+export function scrollCollapsedReading(view: SlideView, distance: number): boolean {
+  const state = parked[view];
+  if (!state || distance <= 0 || state.offset <= 0) return false;
+  const consumed = Math.min(distance, state.offset);
+  state.offset -= consumed;
+  if (remembered[view] !== null) remembered[view] -= consumed;
+  state.sheet.style.setProperty('--sheet-reading-offset', `${state.offset}px`);
+  return true;
+}
 
 export function rememberedSheetPosition(view: SlideView): number | null {
   return remembered[view];
@@ -65,6 +95,7 @@ export function rememberedSheetPosition(view: SlideView): number | null {
 /** A different result set or another restaurant: an offset into the old
  *  content means nothing. */
 export function forgetSheetPosition(view: SlideView): void {
+  clearParked(view);
   remembered[view] = null;
 }
 
@@ -81,6 +112,16 @@ function clipAbove(sheet: HTMLElement) {
   const held = sheet.style.transform;
   sheet.style.transform = '';
   const hidden = Math.max(0, mapStripLine() - sheet.getBoundingClientRect().top);
+  const content = sheet.querySelector<HTMLElement>('[data-sheet-content]');
+  const bar = sheet.querySelector<HTMLElement>('[data-sheet-grab-zone]') ??
+    sheet.querySelector<HTMLElement>('[data-sheet-handle]');
+  if (content && bar) {
+    // The outer rounded cut alone leaves rows painted behind the sticky bar.
+    // Clip the content at the bar's actual bottom as well, including fractional
+    // pixels, so no image/text can peek over the grip while it is moving.
+    const covered = Math.max(0, bar.getBoundingClientRect().bottom - content.getBoundingClientRect().top);
+    content.style.clipPath = `inset(${Math.ceil(covered)}px 0 0)`;
+  }
   sheet.style.transform = held;
   /* The cut edge becomes the slab's top edge on screen — round it like the
      sheet's own top so the pulled list still reads as the sheet. */
@@ -112,6 +153,7 @@ export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
 function release(sheet: HTMLElement): void {
   sheet.style.transform = '';
   sheet.style.clipPath = '';
+  sheet.querySelector<HTMLElement>('[data-sheet-content]')?.style.removeProperty('clip-path');
   lift(sheet, false);
 }
 
@@ -151,6 +193,7 @@ export function grabFromMap(sheet: HTMLElement, view: SlideView, restLinePx: num
   if (back == null) return false;
   /* The document can be shorter than when we left — clamp inside it. */
   const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  clearParked(view);
   lift(sheet, true);
   window.scrollTo({ top: Math.min(back, maxY), behavior: 'instant' });
   holdSheetAt(sheet, restLinePx);
@@ -161,7 +204,8 @@ export function grabFromMap(sheet: HTMLElement, view: SlideView, restLinePx: num
 /**
  * Let go towards the map: the slab glides down to the resting line, and the
  * page returns to the map stop underneath it — the bar stands in the same place
- * before and after, only the rows below it change back to the list top.
+ * before and after. The visible content keeps its reading offset while
+ * collapsed; reopening transfers it back into native document scrolling.
  */
 export async function settleOnMap(
   sheet: HTMLElement,
@@ -174,6 +218,11 @@ export async function settleOnMap(
   await glide(sheet, fromPx, restLinePx);
   /* `instant`, not `auto`: html carries scroll-behavior: smooth. The release
      runs in the same task as the jump, so no frame shows the sheet twice. */
+  if (remember) {
+    const offset = Math.max(0, window.scrollY - (restLinePx + mapY));
+    sheet.style.setProperty('--sheet-reading-offset', `${offset}px`);
+    parked[remember] = { sheet, offset };
+  }
   window.scrollTo({ top: mapY, behavior: 'instant' });
   release(sheet);
 }

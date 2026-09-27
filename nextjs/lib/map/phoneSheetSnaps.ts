@@ -21,6 +21,11 @@ export const LIST_REST_VISIBLE_DVH = 100 - LIST_MAP_DVH[0];
 /** Total height of the detail's map strip — its widest stop. */
 export const DETAIL_PEEK_DVH = DETAIL_MAP_DVH[0];
 
+/** Filters leave half the phone plus a 16px gutter for the map, including short screens. */
+export function phoneListMidVisiblePx(viewportHeight: number): number {
+  return Math.min(440, Math.max(0, Math.round(viewportHeight / 2) - 16));
+}
+
 /**
  * Scroll offsets of the three stops, largest map first.
  *

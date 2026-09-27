@@ -22,7 +22,7 @@ import { useAuth } from '@/lib/auth';
 import MapSectionBody from './map/MapSectionBody';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
-import { forgetSheetPosition, mapStripLine } from '@/lib/map/sheetSlide';
+import { dropLowered, mapStripLine } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
 import {
@@ -514,6 +514,11 @@ export default function MapSection({
       const keepTop = detailOpenTopRef.current;
       detailOpenTopRef.current = null;
       if (!opened) return;
+      /* A spot opened while the sheet was pulled down to its lowest stop
+         (another pin tapped from a detail): its photo, name and district
+         belong on screen, not 24px of it. The jump below cannot do that
+         alone — at scroll 0 already, it fires no scroll. */
+      dropLowered();
       /* A restaurant opened from the list starts at the list's height; its
          top edge can not sit lower than at scroll 0, its resting stop. The
          must-eat takeover has no map behind it and always starts at 0. The
@@ -571,14 +576,6 @@ export default function MapSection({
   const [listFocusId, setListFocusId] = useState<string | null>(null);
   const listFocusIdRef = useRef(listFocusId);
   listFocusIdRef.current = listFocusId;
-  /* A remembered detail position (the grabber pulled the detail off the map)
-     belongs to one restaurant. Another one — or the same one opened afresh —
-     starts at its top. */
-  const openRestaurantId = selectedRestaurant?._id ?? null;
-  useEffect(() => {
-    forgetSheetPosition('detail');
-  }, [openRestaurantId]);
-
   const prevFiltersRef = useRef({ category, bezirk, price, openOnly, search });
   useEffect(() => {
     if (sheetView !== 'list') return;
@@ -593,7 +590,6 @@ export default function MapSection({
       prev.search !== next.search;
     if (!filtersChanged) return;
     listScrollRef.current = 0;
-    forgetSheetPosition('list');
     /* A different result set: the row that was worth pointing at may not even
        be in it any more. */
     setListFocusId(null);
@@ -802,9 +798,8 @@ export default function MapSection({
       setSearchOpen(false);
       setSelectedRestaurant(r);
       setSelectedMustEat(null);
-      /* The phone canvas shrinks from 100dvh to the compact detail peek on the
-         next render. Apply its small padding before that resize so MapLibre
-         never has to fit the old list padding into a 170–215px canvas. */
+      /* Apply the detail's padding before the detail renders, so MapLibre
+         never eases from the list padding into it. */
       if (isPhone) mapRef.current?.jumpTo({ padding: phoneDetailFlyPadding() });
       // Both mobile sheet AND desktop sidebar render the detail inline now —
       // desktop no longer uses a centered floating modal that hid the marker.

@@ -1037,4 +1037,6 @@
   :global([data-map-body][data-map-view='detail']) .fab {
     bottom: calc(100dvh - var(--detail-map-peek, 50dvh) + 14px);
   }
+  /* Pulled below its resting edge, the sheet takes the button along:
+     lib/map/sheetSlide.ts followSheet sets `translate` on it. */
 }

@@ -260,6 +260,10 @@
   .list[data-view='detail'][data-detail-kind='restaurant'] {
     background: linear-gradient(transparent 0 27px, var(--et-ink) 27px);
     border-top: 0;
+    /* The map behind is a full 100lvh like the list's (MapLayout.module.css),
+       so the sheet can be pulled below its resting edge onto more map. The
+       resting edge stays at --detail-map-peek. */
+    margin-top: calc(var(--detail-map-peek) - 100lvh);
   }
   .listScroll {
     max-height: none;
@@ -337,13 +341,11 @@
   }
 }
 
-/* Preserve the reading excerpt even while collapsed. Clip only the moving
-   content, so the sticky grip/filters stay visible and native page scrolling
-   remains available. The hook removes this offset at the full-height stop. */
+/* Held at the lowest stop (lib/map/sheetSlide.ts): the whole sheet is the
+   grip, so a swipe on a chip or a row moves the sheet instead of scrolling
+   the page under its transform. */
 @media (max-width: 767.98px) {
-  .list[style*="--sheet-reading-offset"] > .listScroll,
-  .list[style*="--sheet-reading-offset"] > [data-detail-mount] {
-    transform: translateY(calc(-1 * var(--sheet-reading-offset)));
-    clip-path: inset(var(--sheet-reading-offset) 0 0);
+  .list[data-sheet-lowered] {
+    touch-action: none;
   }
 }

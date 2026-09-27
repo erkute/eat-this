@@ -6,10 +6,9 @@
  * Each stop is defined by how much MAP is left uncovered there, which keeps
  * the two views comparable even though their map layers differ:
  *
- * - list:   the map is a sticky 100dvh layer and the list slides over it.
- * - detail: the map is a bounded strip in normal flow that scrolls away. It
- *           must never become a full-viewport compositor — that is what broke
- *           Safari's URL-bar backdrop (bisected on-device 2026-07-06).
+ * - list:   the map is a sticky 100lvh layer and the list slides over it.
+ * - detail: the same sticky 100lvh map; the detail sheet rests lower in it
+ *           (its margin, MapSheet.module.css), so its stops differ.
  */
 
 /* Map left uncovered at each stop, in dvh. Index order: map, split, sheet. */

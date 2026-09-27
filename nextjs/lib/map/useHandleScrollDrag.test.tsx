@@ -7,15 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
 
 import { useHandleScrollDrag } from './useHandleScrollDrag';
-import {
-  forgetSheetPosition,
-  MAP_STRIP_PX,
-  rememberedSheetPosition,
-  SHEET_COLLAPSE_EVENT,
-} from './sheetSlide';
-
-const forgetListPosition = () => forgetSheetPosition('list');
-const rememberedListPosition = () => rememberedSheetPosition('list');
+import { snapOffsets } from './phoneSheetSnaps';
+import { LOWERED_GAP_PX, MAP_STRIP_PX, SHEET_COLLAPSE_EVENT } from './sheetSlide';
 
 /**
  * The phone list's grabber — pull the list off the map and back.
@@ -51,6 +44,10 @@ function Harness({
 
 /* Where the bar stands at the map stop, as a slab offset from the strip line. */
 const REST_OFFSET = SHEET_DOC_TOP - MAP_STRIP_PX;
+/* How far the lowest stop lies below the map stop: the bar (0px tall in
+   jsdom) and the gap left above the bottom of the 800px viewport. */
+const LOW_BY = 800 - LOWERED_GAP_PX - SHEET_DOC_TOP;
+const splitStop = (view: 'list' | 'detail') => snapOffsets(view, 800, REST_OFFSET)[1];
 
 function pointer(type: string, clientY: number, timeStamp = 0, pointerType = 'mouse') {
   const e = new Event(type, { bubbles: true, cancelable: true });
@@ -81,8 +78,6 @@ function nextFrame() {
 const sheet = () => document.querySelector<HTMLElement>('[data-map-sheet]')!;
 
 beforeEach(() => {
-  forgetSheetPosition('list');
-  forgetSheetPosition('detail');
   window.matchMedia = ((query: string) => ({
     matches: query.includes('max-width: 767.98px'),
     media: query,
@@ -104,30 +99,37 @@ beforeEach(() => {
     window.scrollY = opts.top ?? 0;
   }) as typeof window.scrollTo);
   HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
-    const top = this.hasAttribute('data-map-sheet') ? SHEET_DOC_TOP - window.scrollY : 0;
+    /* Like a browser: the rect includes the sheet's transform. */
+    const held = Number(/translateY\((-?[\d.]+)px\)/.exec(this.style.transform)?.[1] ?? 0);
+    const top = this.hasAttribute('data-map-sheet') ? SHEET_DOC_TOP - window.scrollY + held : 0;
     return { top, bottom: top, left: 0, right: 0, width: 0, height: 0 } as DOMRect;
   };
 });
 
 afterEach(() => vi.restoreAllMocks());
 
+const lowered = () => sheet().dataset.sheetLowered !== undefined;
+/* Nothing of the deep rows is kept over the map: the sheet shows its top. */
+function expectRestingAtTop() {
+  expect(window.scrollY).toBe(0);
+  expect(sheet().style.transform).toBe('');
+  expect(sheet().style.clipPath).toBe('');
+  expect(sheet().getAttribute('style') ?? '').not.toContain('--sheet-reading-offset');
+  expect(lowered()).toBe(false);
+}
+
 describe('in the list', () => {
   beforeEach(() => {
     render(<Harness />);
   });
 
-
   describe('pulling the list off the map', () => {
-    it('drops the list to the map on a deliberate pull, and remembers where it was', async () => {
+    it('drops the list to the map on a deliberate pull, back at its top', async () => {
       window.scrollY = DEEP;
       drag(120);
       await settle();
 
-      expect(window.scrollY).toBe(0);
-      expect(rememberedListPosition()).toBe(DEEP);
-      expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe(`${DEEP - REST_OFFSET}px`);
-      expect(sheet().style.transform).toBe('');
-      expect(sheet().style.clipPath).toBe('');
+      expectRestingAtTop();
     });
 
     it('clips moving content below the grip and clears the temporary cut on release', async () => {
@@ -141,20 +143,30 @@ describe('in the list', () => {
       handle.dispatchEvent(pointer('pointerup', 100));
       await settle();
       expect(content.style.clipPath).toBe('');
-      expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe(`${DEEP - REST_OFFSET}px`);
     });
 
-    it('never takes the bar below its resting line over the map', () => {
-      /* Past that line the sticky bar would reach the bottom edge, and iOS
-       Safari tints its URL bar after it — black, and it stays black. */
+    it('never takes the bar below the lowest stop', () => {
+      /* Past it the sticky bar would reach the bottom edge, and iOS Safari
+       tints its URL bar after it — black, and it stays black. */
       window.scrollY = DEEP;
       const handle = document.querySelector('[data-sheet-handle]')!;
       handle.dispatchEvent(pointer('pointerdown', 100, 0));
       handle.dispatchEvent(pointer('pointermove', 1500, 40));
       nextFrame();
 
-      expect(sheet().style.transform).toBe(`translateY(${REST_OFFSET}px)`);
+      expect(sheet().style.transform).toBe(`translateY(${REST_OFFSET + LOW_BY}px)`);
       handle.dispatchEvent(pointer('pointerup', 1500, 80));
+    });
+
+    it('goes on to the lowest stop when pulled past the resting line', async () => {
+      window.scrollY = DEEP;
+      drag(REST_OFFSET + 100);
+      await settle();
+
+      expect(window.scrollY).toBe(0);
+      expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
+      expect(sheet().style.clipPath).toBe('');
+      expect(lowered()).toBe(true);
     });
 
     it('springs back on a short, slow pull — the list stays where it was', async () => {
@@ -163,7 +175,6 @@ describe('in the list', () => {
       await settle();
 
       expect(window.scrollY).toBe(DEEP);
-      expect(rememberedListPosition()).toBeNull();
       expect(sheet().style.transform).toBe('');
     });
 
@@ -195,7 +206,7 @@ describe('in the list', () => {
       drag(0, { steps: 0 });
       await settle();
 
-      expect(window.scrollY).toBe(0);
+      expectRestingAtTop();
     });
   });
 
@@ -206,57 +217,98 @@ describe('in the list', () => {
       await settle();
     });
 
-    it('brings the list back to the remembered row', async () => {
+    it('drags from the top of the list, not back to the row it left', async () => {
       drag(-120);
       await settle();
 
-      expect(window.scrollY).toBe(DEEP);
+      expect(window.scrollY).toBe(splitStop('list'));
       expect(sheet().style.transform).toBe('');
     });
 
-    it('brings it back on a tap as well', async () => {
+    it('opens the whole sheet on a tap', async () => {
       drag(0, { steps: 0 });
       await settle();
 
-      expect(window.scrollY).toBe(DEEP);
+      expect(window.scrollY).toBe(REST_OFFSET);
+    });
+  });
+
+  describe('the lowest stop', () => {
+    beforeEach(async () => {
+      drag(100);
+      await settle();
     });
 
-    it('does not jump down when grabbing a partly raised collapsed sheet', async () => {
-      window.scrollY = 120;
+    it('is reached from the map stop by pulling the bar down', () => {
+      expect(window.scrollY).toBe(0);
+      expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
+      expect(lowered()).toBe(true);
+    });
+
+    it('goes back onto the map stop on a tap of the grip', async () => {
+      drag(0, { steps: 0 });
+      await settle();
+
+      expectRestingAtTop();
+    });
+
+    it('swallows the click after a grip tap — it lands on whatever rose under the finger', async () => {
+      const content = sheet().querySelector<HTMLElement>('[data-sheet-content]')!;
+      const onClick = vi.fn();
+      content.addEventListener('click', onClick);
       const handle = document.querySelector('[data-sheet-handle]')!;
-      handle.dispatchEvent(pointer('pointerdown', 300));
-      expect(sheet().style.transform).toBe(`translateY(${REST_OFFSET - 120}px)`);
-      handle.dispatchEvent(pointer('pointerup', 300));
+      handle.dispatchEvent(pointer('pointerdown', 780, 0, 'touch'));
+      handle.dispatchEvent(pointer('pointerup', 780, 60, 'touch'));
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+      Object.defineProperty(click, 'timeStamp', { value: 100 });
+      content.dispatchEvent(click);
       await settle();
-      expect(window.scrollY).toBe(DEEP);
-      expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe('');
+
+      expect(onClick).not.toHaveBeenCalled();
+      expectRestingAtTop();
     });
 
-    it('returns to the map when the pull was not meant', async () => {
-      drag(-20, { steps: 4, msPerStep: 80 });
+    it('takes a press anywhere on the sheet as the grip, and swallows its click', async () => {
+      const content = sheet().querySelector<HTMLElement>('[data-sheet-content]')!;
+      const onClick = vi.fn();
+      content.addEventListener('click', onClick);
+      content.dispatchEvent(pointer('pointerdown', 780, 0, 'touch'));
+      content.dispatchEvent(pointer('pointerup', 780, 60, 'touch'));
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+      Object.defineProperty(click, 'timeStamp', { value: 100 });
+      content.dispatchEvent(click);
       await settle();
+
+      expect(onClick).not.toHaveBeenCalled();
+      expectRestingAtTop();
+    });
+
+    it('goes straight on into the list on a long pull up', async () => {
+      drag(-(LOW_BY + 200));
+      await settle();
+
+      expect(window.scrollY).toBe(splitStop('list'));
+      expect(sheet().style.transform).toBe('');
+      expect(lowered()).toBe(false);
+    });
+
+    it('never scrolls the page above the map stop', () => {
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 100, 0));
+      handle.dispatchEvent(pointer('pointermove', 900, 40));
+      nextFrame();
 
       expect(window.scrollY).toBe(0);
-      expect(sheet().style.transform).toBe('');
+      expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
+      handle.dispatchEvent(pointer('pointerup', 900, 80));
     });
 
-    it('transfers the reading excerpt into native scroll when opening without the grip', () => {
-      window.scrollY = 1400;
+    it('lets go of the sheet when something else scrolls the page', () => {
+      window.scrollY = 300;
       window.dispatchEvent(new Event('scroll'));
 
-      expect(rememberedListPosition()).toBeNull();
-      expect(window.scrollY).toBe(1400 + DEEP - REST_OFFSET);
-      expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe('');
-    });
-
-    it('falls back to plain dragging once the position is forgotten (new filter)', async () => {
-      forgetListPosition();
-      drag(-40, { steps: 4, msPerStep: 80 });
-      await settle();
-
-      /* Native 1:1 drag from the map stop, then snapped to the next stop up. */
-      expect(window.scrollY).not.toBe(DEEP);
-      expect(window.scrollY).toBeGreaterThan(0);
+      expect(sheet().style.transform).toBe('');
+      expect(lowered()).toBe(false);
     });
   });
 });
@@ -276,30 +328,38 @@ describe('the map strip', () => {
     expect(window.scrollY).toBe(SHEET_DOC_TOP - MAP_STRIP_PX);
   });
 
-  it('takes a tap on the strip to the map, like a tap on the grabber', async () => {
+  it('takes a tap on the strip to the map, with the list at its top', async () => {
     window.scrollY = DEEP;
     window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
     await settle();
 
-    expect(window.scrollY).toBe(0);
-    expect(rememberedListPosition()).toBe(DEEP);
+    expectRestingAtTop();
   });
 });
 
 describe('in a detail', () => {
-  it('pulls a restaurant detail off the map and back, remembered apart from the list', async () => {
+  it('pulls a restaurant detail off the map, back at its top', async () => {
     render(<Harness view="detail" detailKind="restaurant" />);
     window.scrollY = DEEP;
     drag(120);
     await settle();
 
-    expect(window.scrollY).toBe(0);
-    expect(rememberedSheetPosition('detail')).toBe(DEEP);
-    expect(rememberedListPosition()).toBeNull();
+    expectRestingAtTop();
 
     drag(-120);
     await settle();
-    expect(window.scrollY).toBe(DEEP);
+    expect(window.scrollY).toBe(splitStop('detail'));
+  });
+
+  it('lowers a restaurant detail as well, and lets go when the view changes', async () => {
+    const { rerender } = render(<Harness view="detail" detailKind="restaurant" />);
+    drag(100);
+    await settle();
+    expect(lowered()).toBe(true);
+
+    rerender(<Harness view="list" />);
+    expect(sheet().style.transform).toBe('');
+    expect(lowered()).toBe(false);
   });
 
   it('leaves the must-eat takeover alone — there is no map behind it', async () => {
@@ -310,13 +370,17 @@ describe('in a detail', () => {
 
     /* Plain 1:1 scroll drag: 120px back up the page, no trip to the map. */
     expect(window.scrollY).toBe(DEEP - 120);
-    expect(rememberedSheetPosition('detail')).toBeNull();
+
+    window.scrollY = 0;
+    drag(100);
+    await settle();
+    expect(sheet().style.transform).toBe('');
+    expect(lowered()).toBe(false);
   });
 });
 
-
-describe('phone touch grip gestures', () => {
-  it.each(['list', 'detail'] as const)('collapses a scrolled %s with a touch grip drag and restores its place', async (view) => {
+describe.each(['list', 'detail'] as const)('phone touch grip gestures in a %s', (view) => {
+  it('collapses a scrolled sheet with a touch grip drag', async () => {
     render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
     window.scrollY = DEEP;
     const handle = document.querySelector('[data-sheet-handle]')!;
@@ -328,18 +392,10 @@ describe('phone touch grip gestures', () => {
     expect(window.scrollTo).not.toHaveBeenCalled();
     handle.dispatchEvent(pointer('pointerup', 220, 160, 'touch'));
     await settle();
-    expect(window.scrollY).toBe(0);
-    expect(rememberedSheetPosition(view)).toBe(DEEP);
-    handle.dispatchEvent(pointer('pointerdown', 500, 200, 'touch'));
-    handle.dispatchEvent(pointer('pointermove', 380, 280, 'touch'));
-    nextFrame();
-    handle.dispatchEvent(pointer('pointerup', 380, 360, 'touch'));
-    await settle();
-    expect(window.scrollY).toBe(DEEP);
-    expect(sheet().style.transform).toBe('');
+    expectRestingAtTop();
   });
 
-  it.each(['list', 'detail'] as const)('retains the touch tap shortcut and reading position in %s', async (view) => {
+  it('keeps the touch tap shortcut', async () => {
     render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
     window.scrollY = DEEP;
     const handle = document.querySelector('[data-sheet-handle]')!;
@@ -349,14 +405,12 @@ describe('phone touch grip gestures', () => {
     };
     tap();
     await settle();
-    expect(window.scrollY).toBe(0);
-    expect(rememberedSheetPosition(view)).toBe(DEEP);
+    expectRestingAtTop();
     tap();
     await settle();
-    expect(window.scrollY).toBe(DEEP);
+    expect(window.scrollY).toBe(REST_OFFSET);
   });
 });
-
 
 describe.each(['touch', 'mouse'])('phone handle %s taps', (pointerType) => {
   it.each(['list', 'detail'] as const)('opens a fresh %s and closes it again at the top', async (view) => {
@@ -378,7 +432,6 @@ describe.each(['touch', 'mouse'])('phone handle %s taps', (pointerType) => {
   });
 });
 
-
 describe('interrupted restaurant handle gestures', () => {
   it('finishes outside the handle when pointer capture is unavailable', async () => {
     render(<Harness view="detail" detailKind="restaurant" />);
@@ -388,10 +441,7 @@ describe('interrupted restaurant handle gestures', () => {
     window.dispatchEvent(pointer('pointermove', 240, 100));
     window.dispatchEvent(pointer('pointerup', 240, 120));
     await settle();
-    expect(window.scrollY).toBe(0);
-    drag(-120);
-    await settle();
-    expect(window.scrollY).toBe(DEEP);
+    expectRestingAtTop();
   });
 
   it.each(['pointercancel', 'lostpointercapture'])('recovers after %s and accepts the next drag', async (event) => {
@@ -408,45 +458,17 @@ describe('interrupted restaurant handle gestures', () => {
     await settle();
     expect(window.scrollY).toBe(0);
   });
-});
 
-
-describe.each(['list', 'detail'] as const)('scrolling collapsed %s content back to its beginning', (view) => {
-  it('consumes the saved reading offset without expanding the panel', async () => {
-    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
-    window.scrollY = DEEP;
-    drag(120);
+  it('puts a lowered sheet back where it was when the pull is cancelled', async () => {
+    render(<Harness />);
+    drag(100);
     await settle();
-    const content = sheet().querySelector('[data-sheet-content]')!;
-    const wheel = new WheelEvent('wheel', { deltaY: -150, bubbles: true, cancelable: true });
-    content.dispatchEvent(wheel);
-    expect(wheel.defaultPrevented).toBe(true);
-    expect(window.scrollY).toBe(0);
-    expect(rememberedSheetPosition(view)).toBe(DEEP - 150);
-    content.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true, cancelable: false }));
-    expect(rememberedSheetPosition(view)).toBe(DEEP - 270);
-    content.dispatchEvent(new WheelEvent('wheel', { deltaY: -10000, bubbles: true, cancelable: true }));
-    expect(sheet().style.getPropertyValue('--sheet-reading-offset')).toBe('0px');
-    drag(-120);
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 100));
+    handle.dispatchEvent(pointer('pointermove', 20, 100));
+    handle.dispatchEvent(pointer('pointercancel', 20, 120));
     await settle();
-    expect(window.scrollY).toBe(REST_OFFSET);
-  });
-
-  it('allows a downward touch on content while collapsed', async () => {
-    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
-    window.scrollY = DEEP;
-    drag(120);
-    await settle();
-    const content = sheet().querySelector('[data-sheet-content]')!;
-    const touch = (type: string, y: number) => {
-      const event = new Event(type, { bubbles: true, cancelable: true });
-      Object.assign(event, { touches: [{ clientX: 100, clientY: y }] });
-      content.dispatchEvent(event);
-      return event;
-    };
-    touch('touchstart', 500);
-    expect(touch('touchmove', 620).defaultPrevented).toBe(true);
-    expect(rememberedSheetPosition(view)).toBe(DEEP - 120);
-    expect(window.scrollY).toBe(0);
+    expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
+    expect(lowered()).toBe(true);
   });
 });

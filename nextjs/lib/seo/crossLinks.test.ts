@@ -1,3 +1,4 @@
+import { articleHubLink } from './articleHubLinks';
 import { describe, it, expect } from 'vitest';
 import {
   bezirkCategoryLinks,
@@ -97,7 +98,7 @@ describe('categoryGuideSlugs', () => {
   });
 
   it('returns nothing for categories without a guide', () => {
-    expect(categoryGuideSlugs('pizza')).toEqual([]);
+    expect(categoryGuideSlugs('unknown')).toEqual([]);
     expect(categoryGuideSlugs('lunch')).toEqual([]);
     expect(categoryGuideSlugs('')).toEqual([]);
   });
@@ -127,5 +128,25 @@ describe('bezirkGuideSlugs', () => {
   it('returns nothing for districts without a guide', () => {
     expect(bezirkGuideSlugs('lichtenberg')).toEqual([]);
     expect(bezirkGuideSlugs('constructor')).toEqual([]);
+  });
+});
+
+describe('guide and hub navigation', () => {
+  it('links the pizza and dinner guides in both directions', () => {
+    for (const [hub, guides] of Object.entries({
+      pizza: ['beste-pizzerien-berlin'],
+      dinner: ['restaurant-date-berlin', 'beste-italiener-berlin'],
+    })) {
+      expect(categoryGuideSlugs(hub)).toEqual(guides);
+      for (const guide of guides) {
+        expect(articleHubLink(guide)?.href).toBe(`/kategorie/${hub}`);
+      }
+    }
+  });
+
+  it('does not invent article links for unknown or inherited keys', () => {
+    for (const slug of ['constructor', 'toString', 'unknown']) {
+      expect(articleHubLink(slug)).toBeNull();
+    }
   });
 });

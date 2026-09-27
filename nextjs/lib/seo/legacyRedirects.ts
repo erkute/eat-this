@@ -38,6 +38,9 @@ const EXPLICIT_RESTAURANT_REDIRECTS: Record<string, string> = {
   // eine Seite gezeigt, die es noch nicht gab (und mit dem Akzent-Fallback
   // eine Schleife gebildet).
   'Der-weinlobbyist': 'der-weinlobbyist',
+  // GSC still crawls this former long slug (15.09.2026); the same spot
+  // is published under the shorter name. Both locales use this map.
+  'der-weinlobbyist-restaurant-weinbar': 'der-weinlobbyist',
 };
 
 // Permanently closed spots — return 410 Gone so Google drops them cleanly.

@@ -99,6 +99,8 @@ export function bezirkCategoryLinks(
  */
 const CATEGORY_GUIDES: Record<string, readonly string[]> = {
   coffee: ['beste-cafes-berlin'],
+  pizza: ['beste-pizzerien-berlin'],
+  dinner: ['restaurant-date-berlin', 'beste-italiener-berlin'],
   'fine-dining': ['fine-dining-berlin'],
   breakfast: ['bester-brunch-berlin'],
   drinks: ['beste-cocktailbars-berlin', 'beste-weinbars-berlin'],

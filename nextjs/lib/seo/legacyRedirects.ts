@@ -15,10 +15,18 @@ export interface LegacyRestaurant {
   bezirk?: string | null;
 }
 
+// Confirmed renames that can run before rendering. App Hosting duplicated
+// the page-level Location header for the long Weinlobbyist slug; the early
+// middleware redirect delivers one Location, like the existing news redirects.
+export const EARLY_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
+  'der-weinlobbyist-restaurant-weinbar': 'der-weinlobbyist',
+};
+
 // Irregular, curated old→new restaurant slug map (locale-agnostic).
 // Splits point at the flagship/original branch; renames + dropped-suffix
 // variants point at the surviving spot.
 const EXPLICIT_RESTAURANT_REDIRECTS: Record<string, string> = {
+  ...EARLY_RESTAURANT_REDIRECTS,
   // single → branch splits (flagship branch)
   'five-elephant': 'five-elephant-kreuzberg',
   'the-barn-cafe': 'the-barn-cafe-mitte',
@@ -38,9 +46,6 @@ const EXPLICIT_RESTAURANT_REDIRECTS: Record<string, string> = {
   // eine Seite gezeigt, die es noch nicht gab (und mit dem Akzent-Fallback
   // eine Schleife gebildet).
   'Der-weinlobbyist': 'der-weinlobbyist',
-  // GSC still crawls this former long slug (15.09.2026); the same spot
-  // is published under the shorter name. Both locales use this map.
-  'der-weinlobbyist-restaurant-weinbar': 'der-weinlobbyist',
 };
 
 // Permanently closed spots — return 410 Gone so Google drops them cleanly.

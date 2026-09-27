@@ -129,8 +129,11 @@ it('offers the automatic pack invitation with a working close button', () => {
   modal.reason = { kind: 'map-prompt' };
   const { container, getByRole } = panel();
   expect(modal.prepare).not.toHaveBeenCalled();
-  expect(title(container)).toBe('Dein Berlin Starter Pack.');
-  expect(container.textContent).toContain('Kostenlos anmelden');
+  /* Die Pack-Texte, einzeilig im Titel — kein eigener, der auf dem Telefon
+     ueberlief, und kein „kostenlos". */
+  expect(title(container)).toBe('Starter Pack');
+  expect(container.textContent).toContain('Starte deine Sammlung');
+  expect(container.textContent).not.toMatch(/kostenlos/i);
   fireEvent.click(getByRole('button', { name: 'Zurück' }));
   expect(onBack).toHaveBeenCalledOnce();
 });

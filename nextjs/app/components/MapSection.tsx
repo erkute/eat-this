@@ -1210,6 +1210,7 @@ export default function MapSection({
      what picks up the position once the phone finds one again (see
      useUserLocation.permitted). Keyed on the grant, not on the fix, so its
      own updates do not restart it. */
+  const [watchRound, setWatchRound] = useState(0);
   useEffect(() => {
     if (!isActive || !locationPermitted) return;
     let stop = watchLocation();
@@ -1226,25 +1227,55 @@ export default function MapSection({
       document.removeEventListener('visibilitychange', onVisibility);
       stop();
     };
-  }, [isActive, locationPermitted, watchLocation]);
+    // watchRound: der Standort-Knopf startet den Beobachter neu (handleLocateMe).
+  }, [isActive, locationPermitted, watchLocation, watchRound]);
 
-  /* Jeder Tipp fragt neu. Bis 26.09.2026 flog der Knopf mit einem Fix nur
-     zu dem zurueck, den es schon gab — kam der aus der U-Bahn und lieferte
-     der Beobachter seitdem nichts, stand der Avatar fest, und der Knopf tat
-     sichtbar nichts (Betreiber: „keine neuer Abruf. Ist eingefroren").
-     Die Kamera geht sofort zum bekannten Punkt; der neue Fix holt sie nur
-     nach, wenn er spuerbar woanders liegt. */
+  /* Jeder Tipp holt einen frischen Fix. Bis 26.09.2026 flog der Knopf mit
+     einem Fix nur zu dem zurueck, den es schon gab — kam der aus der U-Bahn
+     und lieferte der Beobachter seitdem nichts, stand der Avatar fest, und
+     der Knopf tat sichtbar nichts (Betreiber: „keine neuer Abruf. Ist
+     eingefroren"). Die Kamera geht sofort zum bekannten Punkt; der neue Fix
+     holt sie nur nach, wenn er spuerbar woanders liegt.
+
+     Laeuft der Beobachter schon, fragt der Knopf NICHT per
+     getCurrentPosition. WebKit beantwortet eine Einzelabfrage neben einem
+     laufenden watchPosition nicht, sie laeuft in ihren Timeout (im
+     iOS-Simulator gemessen, 27.09.2026) — auf dem iPhone kam sie als
+     „blockiert" zurueck, waehrend der Avatar laengst dastand. Stattdessen
+     startet der Tipp den Beobachter neu: ein frischer watchPosition liefert
+     in WebKit sofort die aktuelle Position. Die Einzelabfrage bleibt fuer
+     den Fall ohne Freigabe (sie stellt die Frage) und ohne Fix (sie meldet,
+     dass keiner kommt). */
+  const followFixRef = useRef<{ from: { lat: number; lng: number }; until: number } | null>(null);
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;
     const flyTo = (loc: { lat: number; lng: number }) =>
       flyToSpot(loc, { zoom: 14, duration: 600, padding: getFlyPadding() });
     if (location) flyTo(location);
+    if (location && locationPermitted) {
+      followFixRef.current = { from: location, until: Date.now() + 10_000 };
+      setWatchRound((round) => round + 1);
+      return;
+    }
     const { location: loc } = await requestLocation();
     if (!loc) return;
     if (!location || haversineDistance(location.lat, location.lng, loc.lat, loc.lng) > 10) {
       flyTo(loc);
     }
-  }, [location, requestLocation, flyToSpot, getFlyPadding]);
+  }, [location, locationPermitted, requestLocation, flyToSpot, getFlyPadding]);
+  /* Der frische Fix nach einem Tipp — die Kamera folgt nur, wenn er spuerbar
+     woanders liegt und der Tipp keine zehn Sekunden her ist. Spaeter
+     gelieferte Fixe sind Gehen, nicht Antwort, und duerfen die Kamera nicht
+     unter der Hand wegziehen. */
+  useEffect(() => {
+    const pending = followFixRef.current;
+    if (!pending || !location || location === pending.from) return;
+    followFixRef.current = null;
+    if (Date.now() > pending.until) return;
+    if (haversineDistance(pending.from.lat, pending.from.lng, location.lat, location.lng) > 10) {
+      flyToSpot(location, { zoom: 14, duration: 600, padding: getFlyPadding() });
+    }
+  }, [location, flyToSpot, getFlyPadding]);
 
   /* Default camera = the user's position. Request it once on mount and, as
      soon as it resolves, centre the map there — unless the user already

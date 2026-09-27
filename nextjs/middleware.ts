@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
 import { isStaging } from '@/lib/env';
 import { REFERRER_COOKIE, COOKIE_MAX_AGE, UID_SHAPE } from '@/lib/referral/constants';
-import { GONE_SLUGS, NEWS_REDIRECTS } from '@/lib/seo/legacyRedirects';
+import { GONE_SLUGS, NEWS_REDIRECTS, EARLY_RESTAURANT_REDIRECTS } from '@/lib/seo/legacyRedirects';
 
 const intlMiddleware = createMiddleware(routing);
 const INTERNAL_LOCALE_HEADER = 'x-eat-this-internal-locale';
@@ -202,6 +202,13 @@ export default async function middleware(req: NextRequest) {
           headers: { 'content-type': 'text/html; charset=utf-8' },
         })
       );
+    }
+
+    if (gone && Object.hasOwn(EARLY_RESTAURANT_REDIRECTS, gone[1])) {
+      const url = req.nextUrl.clone();
+      url.search = '';
+      url.pathname = `${prefix}/restaurant/${EARLY_RESTAURANT_REDIRECTS[gone[1]]}`;
+      return finalizeResponse(NextResponse.redirect(url, 308));
     }
 
     const news = rest.match(/^\/news\/([^/]+)\/?$/);

@@ -129,6 +129,15 @@ describe('mirrorMapStrip', () => {
     ]);
   });
 
+  it('does not duplicate off-strip markers into the DOM', () => {
+    const s = setup();
+    for (let i = 0; i < 300; i++) s.addMarker(`translate(${i}px, 800px)`);
+    s.addMarker('translate(30px, 40px)');
+    mirrorMapStrip(s.map, s.host);
+    s.render();
+    expect(s.pins()).toHaveLength(1);
+  });
+
   it('shows only the pins in the strip', () => {
     const s = setup();
     /* 130px strip: a pin anchored at 150 still reaches up into it, one at
@@ -138,12 +147,15 @@ describe('mirrorMapStrip', () => {
     s.addMarker('translate(-50%, -100%) translate(10px, -20px)');
     mirrorMapStrip(s.map, s.host);
     s.render();
-    expect(s.pins().map((p) => p.style.display)).toEqual(['', 'none', 'none']);
+    expect(s.pins()).toHaveLength(1);
 
     far.style.transform = 'translate(-50%, -100%) translate(10px, 60px)';
     s.render();
-    expect(s.pins()[1].style.display).toBe('');
+    expect(s.pins()).toHaveLength(2);
     expect(s.pins()[1].style.transform).toBe(far.style.transform);
+    far.style.transform = 'translate(10px, 600px)';
+    s.render();
+    expect(s.pins()).toHaveLength(1);
   });
 
   it('re-clones a pin whose state changes and drops one that goes', async () => {

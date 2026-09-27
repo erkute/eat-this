@@ -1,9 +1,7 @@
 'use client';
 
-// Zustands-Chip im Kopf der Restaurant-Seite: „Geöffnet · bis 18:30"
-// (grüner Punkt) oder „Geschlossen · öffnet 12:00" (roter Punkt) — dieselbe
-// Farbcodierung wie die rdTagOpen/rdTagClosed-Chips auf dem Map-Sheet, damit
-// der Zustand überall gleich aussieht.
+// Gemeinsamer Zustands-Chip fuer Restaurant-Seite und Map-Detail: „Geöffnet · bis 18:30"
+// (grüner Punkt) oder „Geschlossen · öffnet 12:00" (roter Punkt).
 //
 // Client-Komponente, weil die Seite statisch vorgerendert wird (revalidate:
 // 24 h) — ein serverseitig gerendertes „Geöffnet" wäre je nach Build-Zeitpunkt

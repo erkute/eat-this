@@ -42,10 +42,9 @@ const copy = {
     pack: {
       tag: 'Starter Pack',
       sealed: 'Öffne dein Starter Pack.',
-      opened: 'Deine ersten 20 Karten.',
-      lead: '20 Must Eat Karten für deinen Start.',
-      explain:
-        'Jede Karte steht für ein Must Eat – unsere Empfehlung, was du am Spot bestellen solltest. Manche liegen schon offen in deinem Deck. Die anderen deckst du erst vor Ort auf.',
+      opened: 'Deine ersten 20 Must Eats.',
+      lead: '20 Must Eats aus ganz Berlin.',
+      explain: 'Hinter jeder Karte steckt eine Empfehlung.',
       openStack: '10 offen',
       coveredStack: '10 verdeckt',
       open: 'Öffnen',
@@ -95,10 +94,9 @@ const copy = {
     pack: {
       tag: 'Starter Pack',
       sealed: 'Open your Starter Pack.',
-      opened: 'Your first 20 cards.',
-      lead: '20 Must Eat cards to get you started.',
-      explain:
-        'Every card stands for a Must Eat – our pick for what to order at the spot. Some are already open in your deck. You reveal the others on site.',
+      opened: 'Your first 20 Must Eats.',
+      lead: '20 Must Eats from all over Berlin.',
+      explain: 'Behind every card there’s a pick.',
       openStack: '10 open',
       coveredStack: '10 covered',
       open: 'Open',

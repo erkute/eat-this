@@ -84,10 +84,19 @@ export default function AllBerlinBoard({
           All{hero ? <br /> : ' '}Berlin
         </Heading>
 
+        {hero && (
+          <p className={styles.benefitTitle}>
+            {locale === 'de' ? 'Was bestellen? Und wo?' : 'What to order? And where?'}
+          </p>
+        )}
         <p className={styles.lead}>
-          {locale === 'de'
-            ? 'Alle Must Eats in Berlin. Alles Weitere kommt dazu.'
-            : 'Every Must Eat in Berlin. New discoveries included.'}
+          {hero
+            ? locale === 'de'
+              ? 'Schalte alle Must-Eat-Karten für Berlin frei: konkrete Gerichte, die passenden Restaurants und ihre Standorte auf deiner Map. Alle Kategorie-Packs sind enthalten. Neue Karten bekommst du ohne weiteren Kauf dazu.'
+              : 'Unlock every Must Eat card for Berlin: specific dishes, the restaurants serving them and their locations on your map. Every category pack is included. New cards are added without another purchase.'
+            : locale === 'de'
+              ? 'Alle Kategorie-Packs. Neue Must-Eat-Karten ohne weiteren Kauf.'
+              : 'Every category pack. New Must Eat cards without another purchase.'}
         </p>
 
         <div className={styles.actions}>

@@ -60,8 +60,8 @@ export default async function PackPreview({
         <p className={styles.kicker}>
           {de ? 'Ein Blick in die Karten' : 'A look inside the cards'}
         </p>
-        <h2 className={styles.title}>{card.dish}</h2>
         <p className={styles.spot}>{card.restaurant.name}</p>
+        <h2 className={styles.title}>{card.dish}</h2>
         {description && <p className={styles.description}>{description}</p>}
         <p className={styles.note}>
           {de

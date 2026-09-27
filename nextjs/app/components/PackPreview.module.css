@@ -33,8 +33,10 @@
   line-height: 1.1;
 }
 .spot {
-  margin: 10px 0 0;
-  font-size: var(--et-type-body);
+  margin: 0 0 6px;
+  color: var(--et-ink-soft);
+  font-size: 13px;
+  line-height: 1.4;
 }
 .description {
   margin: 16px 0 0;

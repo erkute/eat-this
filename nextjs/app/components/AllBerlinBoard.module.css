@@ -1,4 +1,6 @@
-/* All Berlin: pack fan on the overview, compact upgrade on category pages. */
+/* All Berlin: pack fan on the overview, compact upgrade on category pages.
+   Die leise Ink-Stufe hebt das Angebot vom Ink-Seitengrund ab; bei identischer
+   Farbe bliebe nur der Fächer sichtbar. */
 
 .board {
   --board-ink: var(--et-ink);
@@ -166,8 +168,8 @@
 }
 
 /* Die Reihen zwei und drei rücken hoch: die Packs liegen aufeinander wie auf
-   dem Ladentisch, nicht in einem Raster. Der mittlere Pack jeder Reihe steht
-   vorn, die Mitte des Fächers ganz vorn. */
+   dem Ladentisch, nicht in einem Raster. Coffee links und Sweets unten
+   liegen vor Drinks in der Mitte. */
 .fanPack:nth-child(n + 4) {
   margin-top: -22%;
 }
@@ -185,11 +187,11 @@
   transform: rotate(10deg) translateY(4%);
 }
 .fanPack:nth-child(4) {
-  z-index: 4;
+  z-index: 5;
   transform: rotate(-7deg) translateY(2%);
 }
 .fanPack:nth-child(5) {
-  z-index: 9;
+  z-index: 4;
   transform: rotate(2deg) translateY(-3%) scale(1.06);
 }
 .fanPack:nth-child(6) {

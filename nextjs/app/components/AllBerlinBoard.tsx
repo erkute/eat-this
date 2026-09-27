@@ -86,7 +86,7 @@ export default function AllBerlinBoard({
 
         <p className={styles.lead}>
           {locale === 'de'
-            ? 'Alle Must Eats in Berlin. Alles Neue kommt dazu.'
+            ? 'Alle Must Eats in Berlin. Alles Weitere kommt dazu.'
             : 'Every Must Eat in Berlin. New discoveries included.'}
         </p>
 

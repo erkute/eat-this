@@ -1,4 +1,6 @@
-/* Category pack hero, public card example and compact All Berlin upgrade. */
+/* Category pack hero, public card example and compact All Berlin upgrade.
+   Die Angebote stehen auf der leisen Ink-Stufe: Ink auf Ink würde ihre
+   Fläche verschwinden lassen. Pack-Art bleibt freigestellt, ohne Bildkasten. */
 
 .page {
   --pack-paper: var(--et-white);

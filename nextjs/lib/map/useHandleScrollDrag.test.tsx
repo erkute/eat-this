@@ -286,19 +286,28 @@ describe('in a detail', () => {
 });
 
 
-describe('native phone touch gestures', () => {
-  it.each(['list', 'detail'] as const)('does not turn a deep %s swipe into a transformed slab', (view) => {
+describe('phone touch grip gestures', () => {
+  it.each(['list', 'detail'] as const)('collapses a scrolled %s with a touch grip drag and restores its place', async (view) => {
     render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
     window.scrollY = DEEP;
     const handle = document.querySelector('[data-sheet-handle]')!;
     handle.dispatchEvent(pointer('pointerdown', 100, 0, 'touch'));
-    handle.dispatchEvent(pointer('pointermove', 220, 40, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 220, 80, 'touch'));
     nextFrame();
-    expect(sheet().style.transform).toBe('');
-    expect(sheet().style.clipPath).toBe('');
-    handle.dispatchEvent(pointer('pointercancel', 220, 60, 'touch'));
+    expect(sheet().style.transform).toBe('translateY(120px)');
+    // No document scroll or layout changes while the grip is moving.
     expect(window.scrollTo).not.toHaveBeenCalled();
-    expect(rememberedSheetPosition(view)).toBeNull();
+    handle.dispatchEvent(pointer('pointerup', 220, 160, 'touch'));
+    await settle();
+    expect(window.scrollY).toBe(0);
+    expect(rememberedSheetPosition(view)).toBe(DEEP);
+    handle.dispatchEvent(pointer('pointerdown', 500, 200, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 380, 280, 'touch'));
+    nextFrame();
+    handle.dispatchEvent(pointer('pointerup', 380, 360, 'touch'));
+    await settle();
+    expect(window.scrollY).toBe(DEEP);
+    expect(sheet().style.transform).toBe('');
   });
 
   it.each(['list', 'detail'] as const)('retains the touch tap shortcut and reading position in %s', async (view) => {
@@ -316,5 +325,26 @@ describe('native phone touch gestures', () => {
     tap();
     await settle();
     expect(window.scrollY).toBe(DEEP);
+  });
+});
+
+
+describe.each(['touch', 'mouse'])('phone handle %s taps', (pointerType) => {
+  it.each(['list', 'detail'] as const)('opens a fresh %s and closes it again at the top', async (view) => {
+    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    const tap = () => {
+      handle.dispatchEvent(pointer('pointerdown', 100, 0, pointerType));
+      handle.dispatchEvent(pointer('pointerup', 100, 80, pointerType));
+    };
+    tap();
+    await settle();
+    expect(window.scrollY).toBe(REST_OFFSET);
+    tap();
+    await settle();
+    expect(window.scrollY).toBe(0);
+    tap();
+    await settle();
+    expect(window.scrollY).toBe(REST_OFFSET);
   });
 });

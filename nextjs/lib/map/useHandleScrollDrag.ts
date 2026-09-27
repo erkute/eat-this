@@ -60,13 +60,10 @@ type Drag =
     };
 
 /**
- * Phone touch gestures use native document scrolling on the handle, chips and
- * content alike. No preventDefault, pointer capture, per-frame scrollTo or
- * release snap: Safari can scroll asynchronously and retain its own momentum.
- * A handle tap still reveals the map / restores the remembered reading place.
- *
- * Mouse dragging in a narrow window keeps the custom drag path below; a mouse
- * does not provide native drag-to-scroll. Tablets use useBottomSheet instead.
+ * Content and filter touches keep native document scrolling. The grip alone
+ * owns its drag: from deep in a list/detail it lowers the visible sheet and
+ * remembers the reading position, instead of scrolling through every row.
+ * Movement is applied once per frame. Tablets use useBottomSheet instead.
  */
 export function useHandleScrollDrag(
   handleRef: RefObject<HTMLDivElement | null>,
@@ -80,9 +77,6 @@ export function useHandleScrollDrag(
     const zone = handle.closest<HTMLElement>('[data-sheet-grab-zone]') ?? handle;
     let drag: Drag | null = null;
     let pending: Pending | null = null;
-    // Touch scrolling belongs to the browser, including momentum and arbitrary
-    // resting positions. Only remember a possible tap on the handle.
-    let touchTap: { pointerId: number; x: number; y: number; moved: boolean } | null = null;
     /* The current drag began on a chip: its release is never a tap, and the
        click the chip may still get is swallowed (see onClick). */
     let claimedLate = false;
@@ -169,13 +163,9 @@ export function useHandleScrollDrag(
     const onDown = (e: PointerEvent) => {
       // Tablets/desktop still use the real transform sheet in useBottomSheet.
       if (!isPhone() || busy || drag || pending) return;
-      if (e.pointerType === 'touch') {
-        touchTap = e.isPrimary !== false && e.target instanceof Node && handle.contains(e.target)
-          ? { pointerId: e.pointerId, x: e.clientX, y: e.clientY, moved: false }
-          : null;
-        return;
-      }
       if (!(e.target instanceof Node && handle.contains(e.target))) {
+        // Only the grip claims touch; filter chips retain native scrolling.
+        if (e.pointerType === 'touch') return;
         /* Not claimed yet: the press may still be a tap on a chip. */
         pending = {
           pointerId: e.pointerId,
@@ -220,12 +210,6 @@ export function useHandleScrollDrag(
     };
 
     const onMove = (e: PointerEvent) => {
-      if (e.pointerType === 'touch') {
-        if (touchTap && touchTap.pointerId === e.pointerId) {
-          touchTap.moved ||= Math.hypot(e.clientX - touchTap.x, e.clientY - touchTap.y) >= TAP_PX;
-        }
-        return;
-      }
       if (pending && e.pointerId === pending.pointerId) {
         const dx = Math.abs(e.clientX - pending.startX);
         const dy = Math.abs(e.clientY - pending.startY);
@@ -255,24 +239,6 @@ export function useHandleScrollDrag(
     };
 
     const onUp = (e: PointerEvent) => {
-      if (e.pointerType === 'touch') {
-        const tap = touchTap;
-        touchTap = null;
-        if (!tap || tap.pointerId !== e.pointerId || tap.moved || e.type !== 'pointerup' ||
-            Math.hypot(e.clientX - tap.x, e.clientY - tap.y) >= TAP_PX) return;
-        // A tap keeps the shortcut to the map / remembered row. Swipes never
-        // enter the transform-and-snap path used for mouse dragging below.
-        const { sheet, sheetStop, restLine } = geometry();
-        if (!slides(sheet)) return;
-        if (window.scrollY > sheetStop + AT_STOP_PX) {
-          onCollapse();
-        } else if (window.scrollY < sheetStop - AT_STOP_PX && grabFromMap(sheet, view, restLine)) {
-          busy = true;
-          trackEvent('map_view_toggle', { direction: 'to_list' });
-          void raiseToList(sheet, restLine).finally(() => { busy = false; });
-        }
-        return;
-      }
       if (pending && e.pointerId === pending.pointerId) {
         pending = null;
         return;
@@ -313,6 +279,18 @@ export function useHandleScrollDrag(
           busy = false;
         });
         return;
+      }
+
+      // A fresh sheet has no remembered row yet. A grip tap must still open
+      // it, and a tap at its top must close it (the slab path handles deep taps).
+      if (!claimedLate && Math.abs(e.clientY - d.startY) < TAP_PX && e.type === 'pointerup') {
+        const { sheet, sheetStop, mapY } = geometry();
+        if (slides(sheet)) {
+          const toMap = window.scrollY >= sheetStop - AT_STOP_PX;
+          trackEvent('map_view_toggle', { direction: toMap ? 'to_map' : 'to_list' });
+          window.scrollTo({ top: toMap ? mapY : sheetStop, behavior: 'smooth' });
+          return;
+        }
       }
 
       /* Settle on one of the three stops. Deliberately only on RELEASE of the

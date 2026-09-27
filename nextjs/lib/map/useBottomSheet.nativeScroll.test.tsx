@@ -6,7 +6,7 @@ import { useBottomSheet } from './useBottomSheet';
 function Harness() {
   const sheet = useBottomSheet();
   sheet.configure({ inflow: true });
-  return <div ref={sheet.sheetRef} data-test-sheet> 
+  return <div ref={sheet.sheetRef} data-test-sheet data-snap={sheet.snap}>
     <div ref={sheet.handleRef} data-test-handle />
     <div ref={sheet.setHeaderRef} />
     <div ref={sheet.setContentRef} />
@@ -66,4 +66,28 @@ it('moves only the tablet sheet transform and releases it on a phone breakpoint 
   // A phone uses document scroll: the inline tablet transform must not leak.
   act(() => { phone = true; resize?.(); });
   expect(sheet.style.transform).toBe('');
+});
+
+
+it('toggles a tablet handle open and closed, but never on cancellation', () => {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: !query.includes('767.98'),
+    addEventListener: vi.fn(), removeEventListener: vi.fn(),
+  }));
+  const { container } = render(<Harness />);
+  const sheet = container.querySelector<HTMLElement>('[data-test-sheet]')!;
+  const handle = container.querySelector<HTMLElement>('[data-test-handle]')!;
+  handle.setPointerCapture = vi.fn();
+  handle.releasePointerCapture = vi.fn();
+  const send = (type: string) => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { pointerId: 1, clientY: 500 });
+    act(() => { handle.dispatchEvent(event); });
+  };
+  send('pointerdown'); send('pointercancel');
+  expect(sheet.dataset.snap).toBe('peek');
+  send('pointerdown'); send('pointerup');
+  expect(sheet.dataset.snap).toBe('mid');
+  send('pointerdown'); send('pointerup');
+  expect(sheet.dataset.snap).toBe('peek');
 });

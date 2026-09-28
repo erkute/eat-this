@@ -34,7 +34,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
  * 3. **Scroll und Maus, nur ab 768px** (auf dem iPhone läuft Scroll-JS ein bis
  *    zwei Frames hinterher, siehe HeroMarkFlight — das zittert):
  *    - die Telefone driften beim Herausscrollen auseinander (`--phones-drift`),
- *    - das Laufband (HubMarquee) wird beim Scrollen gegeneinander geschoben,
+ *    - das Laufband (HubMarquee) wird beim Scrollen zusätzlich weitergeschoben,
  *    - mit echtem Zeiger kippen die Telefone in 3D zur Maus und trennen sich
  *      in der Tiefe, der Knopf im Aufmacher zieht magnetisch (armHeroPointer),
  *    - ab 1024px werden die Must Eats zur gepinnten Sequenz: Stapel,
@@ -413,8 +413,8 @@ function armHeroPointer(): () => void {
   };
 }
 
-/** Das Laufband läuft von allein (CSS); Scrollen schiebt die Bänder dazu
- *  gegeneinander — ein Band pro Richtung (`data-marquee-row`). */
+/** Das Laufband läuft von allein (CSS); Scrollen schiebt es zusätzlich
+ *  weiter, in der Richtung aus `data-marquee-row`. */
 function armMarqueePush(scroller: HTMLElement | Window): void {
   const band = document.querySelector<HTMLElement>('[data-hub-marquee]');
   if (!band) return;

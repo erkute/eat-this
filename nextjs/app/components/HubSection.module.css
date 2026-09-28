@@ -349,9 +349,52 @@
 }
 
 /* Der Knopf im Aufmacher zieht zur Maus (HubMotion schreibt `--mx/--my` in
-   px). Über `translate`, damit `:active` seinen `transform` behält. */
+   px) und wird kurz nach dem Laden gedrückt: `--press` lässt ihn einsinken
+   und schrumpfen, beim Loslassen federt er knapp über seine Größe zurück
+   (negativer Wert). Keine Hand, kein Ring — nur der Knopf (Ansage
+   28.09.2026). Drei Mal im Abstand von 7s, der erste Druck, wenn er gerade
+   aufgestiegen ist. Alles über `translate`/`scale`, damit `:active` seinen
+   `transform` behält; nie per GSAP-`transform`, das setzte beides inline auf
+   `none`. */
+@property --press {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
 .heroActions [data-magnetic] {
-  translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px);
+  translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px + var(--press) * 5px);
+  scale: calc(1 - var(--press) * 0.07);
+  animation: ctaPress 7s linear 2s 3 both;
+}
+
+@keyframes ctaPress {
+  0% {
+    --press: 0;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  }
+  2.2% {
+    --press: 1;
+    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  5% {
+    --press: -0.35;
+    animation-timing-function: ease-in-out;
+  }
+  7.5% {
+    --press: 0.08;
+    animation-timing-function: ease-out;
+  }
+  9.5%,
+  100% {
+    --press: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroActions [data-magnetic] {
+    animation: none;
+  }
 }
 
 /* ── Auftritt beim Laden ────────────────────────────────────────────────────

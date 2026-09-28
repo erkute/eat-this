@@ -138,7 +138,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
       <HeroMarkFlight />
       <HubMotion />
-      <HubMarquee locale={locale} />
+      <HubMarquee />
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor
           but a tap, and it answers "what do I eat now" with their own street.

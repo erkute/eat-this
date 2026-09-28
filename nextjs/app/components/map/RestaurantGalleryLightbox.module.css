@@ -58,6 +58,13 @@
 .galleryLbCredit {
   background: #fff;
 }
+/* Beim Schliessen geht alles ausser dem Vorhang sofort (siehe Viewer). */
+.galleryLb[data-leaving] .galleryLbClose,
+.galleryLb[data-leaving] .galleryLbStage,
+.galleryLb[data-leaving] .galleryLbNav {
+  visibility: hidden;
+}
+
 .galleryLb {
   /* Kein eigener fixierter Rahmen: die Kinder stehen fixiert und tragen die
      Stapelhoehe selbst; die Lightbox haengt per Portal direkt am body, dort

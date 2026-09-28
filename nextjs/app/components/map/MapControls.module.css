@@ -423,6 +423,10 @@
 }
 
 /* ── Panel disclosure (desktop) ────────────────────────────────────────── */
+/* Der Griff an der Kante des Desktop-Panels. Bis 28.09.2026 ein 11-px-Pfeil
+   ohne Fläche am Kartenrand — kaum zu finden, und eingeklappt stand nirgends,
+   dass es eine Liste gibt. Jetzt eine Ink-Lasche an der Panelkante (Fläche,
+   kein Rand), eingeklappt mit „Liste" daneben. */
 .panelToggle {
   position: absolute;
   top: 50%;
@@ -431,20 +435,47 @@
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 16px 7px 16px 8px;
-  filter: drop-shadow(0 6px 5px rgba(43, 33, 28, 0.3));
-  clip-path: polygon(0 8%, 100% 0, 92% 100%, 0 91%);
-  transform: translateY(-50%) rotate(-2deg);
+  gap: 6px;
+  min-height: 64px;
+  padding: 0 9px 0 10px;
+  background: var(--et-ink-raised);
+  color: var(--et-white);
+  border-radius: var(--et-radius-control) 0 0 var(--et-radius-control);
+  filter: none;
+  clip-path: none;
+  transform: translateY(-50%);
   transition: right var(--motion-slow) var(--ease-standard);
 }
 
+/* Nach den gemeinsamen transparenten Zuständen oben: die Lasche behält ihre
+   Fläche und hebt sich beim Hover um eine Stufe. */
+.panelToggle:focus-visible {
+  background: var(--et-ink-raised);
+  color: var(--et-accent);
+}
+@media (hover: hover) {
+  .panelToggle:hover {
+    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
+    color: var(--et-accent);
+  }
+}
+
+/* Nur die Verschiebung — ohne das -50% sprang die Lasche beim Druck nach
+   unten. */
 .panelToggle:active {
-  transform: translate(1px, 1px);
+  transform: translateY(calc(-50% + 1px));
+}
+
+.panelToggleLabel {
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .panelToggle svg {
-  width: 11px;
-  height: 11px;
+  width: 15px;
+  height: 15px;
   fill: none;
   color: currentColor;
   stroke: currentColor;
@@ -505,6 +536,23 @@
    flashed a black square around the bare icon on every tap. */
 .fab:active {
   transform: translate(1px, 1px);
+}
+
+/* Eine Ink-Scheibe hinter dem Fadenkreuz, nur hier. Der Knopf steht über der
+   Karte, wo sich die gelben Pins ballen — das weisse Zeichen verschwand auf
+   ihnen (Audit 28.09.2026). Suche und Burger stehen im Kartenstreifen am
+   Rand und bleiben nackt. Die Scheibe ist fest, keine Druckfläche: sie liegt
+   in jedem Zustand gleich da, also blitzt beim Tippen nichts auf. */
+.fab {
+  isolation: isolate;
+}
+.fab::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  border-radius: 50%;
+  background: var(--et-ink-raised);
 }
 
 @media (hover: hover) {

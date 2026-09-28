@@ -24,7 +24,8 @@
   overflow: hidden;
   background: var(--et-ink-quiet);
   color: var(--et-white);
-  border: 1.5px solid var(--et-ink-ring);
+  /* Fläche statt Rahmen, wie jede Tafel auf der Karte. */
+  border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;
   text-align: left;

@@ -847,6 +847,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             >
               <polyline points={desktopPanelHidden ? '15 6 9 12 15 18' : '9 6 15 12 9 18'} />
             </svg>
+            {desktopPanelHidden && (
+              <span className={controlStyles.panelToggleLabel} aria-hidden="true">
+                {locale === 'en' ? 'List' : 'Liste'}
+              </span>
+            )}
           </button>
 
           <aside

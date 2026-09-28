@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useId, useRef } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import type { Notice } from '@/lib/notice';
 
@@ -79,6 +79,22 @@ export default function NotificationToast() {
   const hasButtons = Boolean(notice && (notice.action || notice.onDismiss));
   const isLayer = visible && hasButtons;
 
+  /* Ein Layer ist ein Dialog: er wartet auf eine Antwort. Der Fokus geht auf
+     den gelben Knopf, wie bei jedem modalen Fenster; nach dem Schliessen
+     zurück, wo er vorher stand. `preventScroll`, weil der Knopf mittig steht
+     und iOS sonst die Seite dorthin schiebt. */
+  const titleId = useId();
+  const detailId = useId();
+  const primaryRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!isLayer) return;
+    const before = document.activeElement as HTMLElement | null;
+    primaryRef.current?.focus({ preventScroll: true });
+    return () => {
+      if (before?.isConnected) before.focus({ preventScroll: true });
+    };
+  }, [isLayer, notice]);
+
   /* Escape raeumt den Layer ab wie ein Tipp daneben. Nur den Layer: eine
      Bestaetigung ohne Scrim geht von allein und faengt keine Tasten ab. */
   useEffect(() => {
@@ -94,7 +110,7 @@ export default function NotificationToast() {
      globals.css). Deshalb liegt der aria-live-Bereich getrennt daneben, immer
      gerendert; die Karte selbst ist nur noch Bild. */
   const liveText =
-    visible && notice
+    visible && notice && !isLayer
       ? [notice.eyebrow, notice.title, notice.detail, ...(notice.steps ?? [])]
           .filter(Boolean)
           .join('. ')
@@ -119,10 +135,20 @@ export default function NotificationToast() {
           className={`notification${visible ? ' show' : ''}`}
           data-tone={notice?.tone}
           data-buttons={hasButtons ? '' : undefined}
+          role={isLayer ? 'dialog' : undefined}
+          aria-modal={isLayer ? true : undefined}
+          aria-labelledby={isLayer ? titleId : undefined}
+          aria-describedby={isLayer && notice?.detail ? detailId : undefined}
         >
           <span className="notification-eyebrow">{notice?.eyebrow ?? ''}</span>
-          <span className="notification-title">{notice?.title ?? ''}</span>
-          {notice?.detail && <span className="notification-detail">{notice.detail}</span>}
+          <span className="notification-title" id={titleId}>
+            {notice?.title ?? ''}
+          </span>
+          {notice?.detail && (
+            <span className="notification-detail" id={detailId}>
+              {notice.detail}
+            </span>
+          )}
           {notice?.steps && notice.steps.length > 0 && (
             <ol className="notification-steps">
               {notice.steps.map((step) => (
@@ -141,6 +167,7 @@ export default function NotificationToast() {
                     {dismissLabel}
                   </button>
                   <button
+                    ref={primaryRef}
                     type="button"
                     className="notification-primary"
                     onClick={() => {
@@ -153,7 +180,12 @@ export default function NotificationToast() {
                   </button>
                 </>
               ) : (
-                <button type="button" className="notification-primary" onClick={dismiss}>
+                <button
+                  ref={primaryRef}
+                  type="button"
+                  className="notification-primary"
+                  onClick={dismiss}
+                >
                   {dismissLabel}
                 </button>
               )}

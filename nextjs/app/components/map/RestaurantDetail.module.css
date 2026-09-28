@@ -472,8 +472,8 @@
 }
 .rdPagerBtn {
   min-width: 0;
-  height: 46px;
-  padding: 0 11px;
+  min-height: 46px;
+  padding: 6px 11px;
   overflow: hidden;
 }
 .rdPagerCopy {
@@ -719,10 +719,19 @@
 }
 .detail .rdHeartToggleCount {
   color: currentColor;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-shadow: none;
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 800;
+}
+/* Die Zahl stand weiß mit Schatten direkt auf dem Foto — auf einem hellen
+   Bild (Bonanza, Tresen) war die „1" nicht zu lesen. Eine kleine Ink-Fläche,
+   ohne Rand. */
+.detail .rdHero .rdHeartToggleCount {
+  padding: 3px 6px 2px;
+  border-radius: 999px;
+  background: var(--et-ink);
+  color: var(--et-white);
 }
 .rdPager,
 .rdFacts,
@@ -889,7 +898,8 @@
   min-height: 42px;
   padding: 0 15px;
   border-radius: var(--et-radius-control);
-  box-shadow: inset 0 0 0 2px var(--et-ink);
+  /* Kein Ring: der Knopf ist gelbe Fläche auf Ink, das trägt allein. */
+  box-shadow: none;
   text-transform: uppercase;
   transition:
     transform var(--map-motion),
@@ -1021,6 +1031,22 @@
   text-transform: none;
 }
 .rdPagerBtnRight .rdPagerName {
+  text-align: right;
+}
+.rdPagerSub {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--et-font-display);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.62;
+}
+.rdPagerBtnRight .rdPagerSub {
   text-align: right;
 }
 /* ══════════════════════════════════════════════════════════════════════
@@ -1854,6 +1880,8 @@
   .detail .btnPackPromo:hover {
     background: var(--et-white);
     color: var(--et-ink);
+    /* Sonst gewann `.btnPackPromo:hover` weiter oben mit seinem roten Ring. */
+    box-shadow: none;
   }
 }
 

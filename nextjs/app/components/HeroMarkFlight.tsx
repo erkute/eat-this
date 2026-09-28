@@ -71,12 +71,17 @@ export default function HeroMarkFlight() {
     /** Steht die Seite ganz oben? Dann zeigt der Aufmacher sein Original. */
     let resting: boolean | null = null;
     let geo: FlightGeo | null = null;
+    /** Der Fall beim Laden, solange ihn der Flieger statt des Originals zeigt. */
+    let drop: Animation | null = null;
 
     const heroMark = () => document.querySelector<HTMLImageElement>('[data-hero-mark]');
     const navLogo = () => document.querySelector<HTMLElement>('[data-nav-logo]');
 
     /** Alles zurück auf Anfang: Marke im Aufmacher, Logo im Header, kein Flieger. */
     const teardown = () => {
+      drop?.cancel();
+      drop = null;
+      document.documentElement.removeAttribute('data-hero-drop');
       flyer?.remove();
       flyer = null;
       keyframes?.remove();
@@ -137,6 +142,54 @@ export default function HeroMarkFlight() {
       flyer.style.transform = flightTransform(geo, Math.min(1, y / travel()), travel());
     };
 
+    /** Ruhend oder gelandet zeigt das echte Bild, nicht der Flieger — ausser
+        während er beim Laden herunterfällt. */
+    const showFlyer = () => {
+      if (flyer) flyer.style.visibility = (resting || landed) && !drop ? 'hidden' : '';
+    };
+
+    /* Beim Laden fällt die Marke von ganz oben herein, über den Header hinweg
+       (Ansage 28.09.2026). Das Original im Aufmacher kann das nicht: ab 768px
+       schneidet es `.app-pages` unter dem Header ab. Der Flieger hängt am body
+       und liegt über der Navigation — also übernimmt er den Fall, sobald es
+       ihn gibt: dieselbe Bahn und Kurve wie der CSS-Fall des Originals
+       (`inMark`, HubSection.module.css) und dieselbe Startzeit, damit er genau
+       dort weitermacht, wo das Original gerade ist. */
+    const startDrop = () => {
+      const html = document.documentElement;
+      if (!flyer || !html.hasAttribute('data-hero-intro')) return;
+      const fall = document
+        .querySelector('[data-hub-hero]')
+        ?.getAnimations()
+        .find((a) => a instanceof CSSAnimation && a.animationName.includes('inMark'));
+      const effect = fall?.effect;
+      if (!fall || !(effect instanceof KeyframeEffect) || fall.startTime === null) return;
+      if (fall.playState === 'finished') return;
+      const { duration, delay } = effect.getTiming();
+      drop = flyer.animate(
+        [
+          { translate: '0 -100vh', easing: effect.getKeyframes()[0]?.easing ?? 'linear' },
+          { translate: '0 0' },
+        ],
+        { duration, delay, fill: 'both' }
+      );
+      drop.startTime = fall.startTime;
+      drop.playbackRate = fall.playbackRate;
+      html.setAttribute('data-hero-drop', '');
+      showFlyer();
+      const current = drop;
+      current.finished
+        .then(() => {
+          if (drop !== current) return;
+          drop = null;
+          current.cancel();
+          html.removeAttribute('data-hero-drop');
+          showFlyer();
+        })
+        // Abgebrochen (teardown) — dort ist schon aufgeräumt.
+        .catch(() => {});
+    };
+
     const draw = () => {
       ticking = false;
       if (!geo || !flyer) return;
@@ -160,7 +213,7 @@ export default function HeroMarkFlight() {
       if (p <= 0 !== resting || p >= 1 !== landed) {
         resting = p <= 0;
         landed = p >= 1;
-        flyer.style.visibility = resting || landed ? 'hidden' : '';
+        showFlyer();
         document.documentElement.toggleAttribute('data-hero-rest', resting);
         document.documentElement.toggleAttribute('data-hero-landed', landed);
       }
@@ -170,6 +223,9 @@ export default function HeroMarkFlight() {
     };
 
     const onScroll = () => {
+      // Wer während des Auftritts scrollt, spult ihn vierfach ab (HubMotion,
+      // `finishIntro`) — der Fall des Fliegers hält denselben Takt.
+      if (drop) drop.playbackRate = 4;
       if (ticking) return;
       ticking = true;
       window.requestAnimationFrame(draw);
@@ -218,6 +274,7 @@ export default function HeroMarkFlight() {
       // und React schreibt `className` dabei frisch.
       document.documentElement.setAttribute('data-hero-flight', 'on');
       draw();
+      startDrop();
     };
 
     /* Erst wenn das Logo wirklich geladen ist, stimmt seine gemessene Breite —

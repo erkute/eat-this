@@ -12,12 +12,10 @@
 .tape {
   width: 130vw;
   margin-left: -15vw;
-  /* Drei Bewegungen, drei Eigenschaften, keine überschreibt die andere: der
-     Scrollschub auf `translate` (`--push`, siehe unten), die feste Schräge
-     auf `rotate`, das Tempo auf `transform` — HubMotion schreibt `--skew`
-     aus der Scrollgeschwindigkeit, schnelles Scrollen legt die Schrift schräg
-     wie auf gsap.com, in Ruhe steht sie gerade. */
-  translate: calc(var(--push, 0) * 260px) 0;
+  /* Zwei Bewegungen, zwei Eigenschaften: die feste Schräge auf `rotate`, das
+     Tempo auf `transform` — HubMotion schreibt `--skew` aus der
+     Scrollgeschwindigkeit, schnelles Scrollen legt die Schrift schräg wie auf
+     gsap.com, in Ruhe steht sie gerade. */
   rotate: -3deg;
   transform: skewX(calc(var(--skew, 0) * 1deg));
   background: var(--et-accent);
@@ -32,9 +30,17 @@
   animation: marquee 38s linear infinite;
 }
 
+/* Immer von links nach rechts (Ansage 28.09.2026: „soll bleiben von links
+   nach rechts"). Scrollen macht das Band nur schneller, in beide Richtungen,
+   und kehrt es nie um — HubMotion dreht dafür am Tempo dieser Animation
+   (`armMarqueeSkew`). Bis dahin lief es nach links und hing zusätzlich als
+   Scroll-Timeline an der Position: Hochscrollen schob es zurück. */
 @keyframes marquee {
-  to {
+  from {
     transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 
@@ -68,35 +74,6 @@
   height: 0.22em;
   margin-inline: 0.45em;
   background: var(--et-ink);
-}
-
-/* Scrollschub: Scrollen schiebt das Band zusätzlich weiter, solange es im
-   Bild ist — als Scroll-Timeline des Browsers, nicht aus JS. So läuft es im
-   selben Takt wie das Scrollen, auch auf dem iPhone (dort zittert Scroll-JS,
-   siehe HeroMarkFlight). Browser ohne Scroll-Timeline treibt HubMotion über
-   `data-scrub` mit GSAP an. */
-@property --push {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
-}
-
-@keyframes push {
-  from {
-    --push: 1;
-  }
-  to {
-    --push: -1;
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .tape {
-      animation: push linear both;
-      animation-timeline: view();
-    }
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

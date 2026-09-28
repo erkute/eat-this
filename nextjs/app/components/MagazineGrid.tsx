@@ -52,7 +52,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
           </h2>
         </div>
 
-        <ul className={styles.grid} role="list" data-reveal="stagger">
+        <ul className={styles.grid} role="list" data-stamp="stagger">
           {list.map((a, i) => (
             <li key={a.slug}>
               <Link href={`/news/${a.slug}`} className={styles.card}>
@@ -72,7 +72,9 @@ export default function MagazineGrid({ articles, locale }: Props) {
                       // Ab 768px ist die erste Story der Aufmacher, die
                       // anderen sind kleine Listenbilder.
                       sizes={
-                        i === 0 ? '(max-width:767.98px) 92vw, 46vw' : '(max-width:767.98px) 92vw, 168px'
+                        i === 0
+                          ? '(max-width:767.98px) 92vw, 46vw'
+                          : '(max-width:767.98px) 92vw, 168px'
                       }
                     />
                   )}

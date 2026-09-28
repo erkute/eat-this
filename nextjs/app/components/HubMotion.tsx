@@ -17,8 +17,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
  *    HubSection.module.css). Hier nur das Aufräumen, siehe `finishIntro`.
  *
- * 2. **Am Scrollweg** — und damit umkehrbar — hängen Laufband-Schub,
- *    Must-Eat-Stapel, Spot des Tages, die Magazin-Fotos (Parallaxe) und die
+ * 2. **Am Scrollweg** — und damit umkehrbar — hängen Must-Eat-Stapel, Spot des Tages, die Magazin-Fotos (Parallaxe) und die
  *    Quadrate vor den Titeln. Das sind Scroll-Timelines des Browsers in den CSS-Modulen,
  *    kein JS: sie laufen im Takt des Scrollens, auch auf dem iPhone, wo
  *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
@@ -35,8 +34,10 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *    schiebt JS seine Scrollposition mit (`armNearbyBand`).
  *
  * 3. **Beim Hereinkommen:**
- *    - `data-reveal="stagger"` (Magazin, Kategorien): Kacheln rücken
- *      gestaffelt nach, als ganze Kacheln — einmal.
+ *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
+ *      als ganze Kacheln — einmal.
+ *    - `data-stamp`: der Titel „Must Eats" und die Magazin-Artikel schlagen
+ *      wie Stempel ein, umkehrbar (`armStamps`).
  *    - Frag Remy: das Fragezeichen fliegt von links ein, „Frag Remy." schlägt
  *      ein, Remy schießt von unten hoch und redet, mehrmals. Wer den
  *      Abschnitt verlässt, sieht alles rückwärts gehen; wer zurückkommt, sieht
@@ -47,8 +48,9 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *      wird gedrückt, das Feld leert sich (`armSignupDemo`).
  *
  * 4. **Immer:** Remy redet, solange gescrollt wird — der große im Frag-Remy-
- *    Abschnitt und der schwebende unten rechts (`armScrollTalk`). Schnelles
- *    Scrollen legt das Laufband schräg (`armMarqueeSkew`).
+ *    Abschnitt und der schwebende unten rechts (`armScrollTalk`). Scrollen
+ *    treibt das Laufband schneller nach rechts und legt es schräg
+ *    (`armMarqueeSkew`).
  *
  * 5. **Nur ab 768px:** die Telefone driften beim Herausscrollen auseinander;
  *    mit echtem Zeiger kippen sie zur Maus, der Knopf zieht magnetisch.
@@ -301,6 +303,85 @@ function armFragRemy(scroller: HTMLElement | Window): () => void {
 }
 
 /**
+ * Stempel wie „Frag Remy." (Ansage 28.09.2026): gross, gedreht und etwas zu
+ * hoch, dann mit anziehendem Tempo flach auf seinen Platz, ein kurzer
+ * Aufprall. `data-stamp` am Element — der Titel „Must Eats" —, oder
+ * `data-stamp="stagger"` an einer Liste, dann schlagen ihre Einträge
+ * nacheinander ein (die Artikel unter „Auf dem Teller"). Wie Frag Remy
+ * umkehrbar: wer die Section verlässt, sieht den Stempel rückwärts abheben,
+ * wer zurückkommt, sieht ihn neu. Bis zum Einschlag ist nichts da
+ * (`visibility`, kein Ausblenden). Jeder Eintrag hat genau einen Tween auf
+ * seinem `transform` — zwei liessen bei Frag Remy den Rückweg fallen.
+ *
+ * Die Artikel stempeln kleiner, langsamer und erst, wenn die Liste gut im
+ * Bild ist: mit Titel-Werten (2,4-fach, ab Section-Oberkante bei 70 %) war
+ * der Einschlag am Handy vorbei, bevor die Karten zu sehen waren, und die
+ * Wischreihe schnitt die grossen Karten ab („man sieht nicht richtig was").
+ */
+const STAMP = {
+  single: { scale: 2.4, duration: 0.34, stagger: 0, start: 'top 70%', end: 'bottom 30%' },
+  group: { scale: 1.5, duration: 0.45, stagger: 0.22, start: 'top 55%', end: 'bottom 25%' },
+};
+
+function armStamps(scroller: HTMLElement | Window): () => void {
+  const root = document.querySelector<HTMLElement>('[data-hub]');
+  if (!root) return () => {};
+  const stops: Array<() => void> = [];
+  for (const el of root.querySelectorAll<HTMLElement>('[data-stamp]')) {
+    const group = el.dataset.stamp === 'stagger';
+    const how = group ? STAMP.group : STAMP.single;
+    const targets = group ? (Array.from(el.children) as HTMLElement[]) : [el];
+    if (!targets.length) continue;
+    gsap.set(targets, { visibility: 'hidden' });
+    const stamp = gsap.timeline({ paused: true });
+    targets.forEach((target, i) => {
+      // Nicht bei 0: ein `set` ganz am Anfang einer Zeitleiste greift sofort.
+      const at = 0.01 + i * how.stagger;
+      stamp
+        .set(
+          target,
+          {
+            visibility: 'visible',
+            scale: how.scale,
+            rotation: i % 2 ? 6 : -7,
+            y: -24,
+            transformOrigin: group ? '50% 60%' : '0% 60%',
+          },
+          at
+        )
+        .to(
+          target,
+          {
+            keyframes: [
+              { scale: 1, rotation: 0, y: 0, duration: how.duration, ease: 'power4.in' },
+              { y: 6, duration: 0.07, ease: 'power1.out' },
+              { y: 0, duration: 0.5, ease: 'elastic.out(1, 0.35)' },
+            ],
+          },
+          at
+        );
+    });
+    const st = ScrollTrigger.create({
+      // Der Titel hängt an seiner Section, eine Liste an sich selbst.
+      trigger: group ? el : (el.closest('section') ?? el),
+      scroller,
+      start: how.start,
+      end: how.end,
+      onEnter: () => stamp.timeScale(1).play(),
+      onEnterBack: () => stamp.timeScale(1).play(),
+      onLeave: () => stamp.timeScale(1.6).reverse(),
+      onLeaveBack: () => stamp.timeScale(1.6).reverse(),
+    });
+    stops.push(() => {
+      st.kill();
+      stamp.kill();
+      gsap.set(targets, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility` });
+    });
+  }
+  return () => stops.forEach((stop) => stop());
+}
+
+/**
  * `data-in-view` an jeder Section mit einem Knopf, der gedrückt werden soll
  * (`data-press`), und am Aufmacher: `1` im Bild, `0` draussen. Das CSS dazu
  * (HubSection.module.css) startet den Druck neu, sobald es auf `1` springt:
@@ -412,8 +493,7 @@ function armSignupDemo(): () => void {
   const isField = (el: EventTarget | null): el is HTMLInputElement =>
     el instanceof HTMLInputElement && el.type === 'email';
   // Die Knoten des laufenden Durchgangs, damit `reset` genau sie zurücksetzt.
-  let shown: { input: HTMLInputElement; submit: HTMLButtonElement; original: string } | null =
-    null;
+  let shown: { input: HTMLInputElement; submit: HTMLButtonElement; original: string } | null = null;
   let timers: number[] = [];
   let lastRun = -Infinity;
   const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
@@ -495,18 +575,24 @@ function armScrollTalk(scroller: HTMLElement | Window): () => void {
 }
 
 /**
- * Tempo als Form: schnelles Scrollen legt die Schrift im Laufband schräg, in
- * Ruhe richtet sie sich wieder auf. Nur die Spitze zählt — wird schneller
- * gescrollt als die Schräge gerade steht, springt sie mit, sonst klingt sie
- * aus. Das hängt am Tempo, nicht an der Position: auf dem iPhone ist ein
- * Frame Verzug hier unsichtbar.
+ * Tempo als Form: schnelles Scrollen legt die Schrift im Laufband schräg und
+ * treibt sie schneller nach rechts, in Ruhe richtet sie sich wieder auf und
+ * läuft im Grundtakt. Das Tempo zählt in beide Richtungen gleich — das Band
+ * läuft immer von links nach rechts, Hochscrollen kehrt es nicht um (Ansage
+ * 28.09.2026). Nur die Spitze zählt — wird schneller gescrollt als gerade
+ * eingestellt, springt es mit, sonst klingt es aus. Das hängt am Tempo, nicht
+ * an der Position: auf dem iPhone ist ein Frame Verzug hier unsichtbar.
  */
-function armMarqueeSkew(scroller: HTMLElement | Window): void {
+function armMarqueeSkew(scroller: HTMLElement | Window): () => void {
   const tape = document.querySelector<HTMLElement>('[data-marquee-tape]');
-  if (!tape) return;
-  const proxy = { skew: 0 };
+  if (!tape) return () => {};
+  const run = tape.firstElementChild?.getAnimations()[0];
+  const proxy = { skew: 0, rate: 1 };
   const write = () => tape.style.setProperty('--skew', proxy.skew.toFixed(2));
   const rest = () => tape.style.removeProperty('--skew');
+  const writeRate = () => {
+    if (run) run.playbackRate = proxy.rate;
+  };
   const clamp = gsap.utils.clamp(-12, 12);
   ScrollTrigger.create({
     trigger: tape,
@@ -514,19 +600,34 @@ function armMarqueeSkew(scroller: HTMLElement | Window): void {
     start: 'top bottom',
     end: 'bottom top',
     onUpdate: (self) => {
-      const skew = clamp(self.getVelocity() / -260);
+      const v = self.getVelocity();
+      const rate = 1 + Math.min(12, Math.abs(v) / 120);
+      if (rate > proxy.rate) {
+        proxy.rate = rate;
+        gsap.to(proxy, {
+          rate: 1,
+          duration: 1.4,
+          ease: 'power2.out',
+          overwrite: 'auto',
+          onUpdate: writeRate,
+        });
+      }
+      const skew = clamp(v / -260);
       if (Math.abs(skew) <= Math.abs(proxy.skew)) return;
       proxy.skew = skew;
       gsap.to(proxy, {
         skew: 0,
         duration: 0.9,
         ease: 'power3',
-        overwrite: true,
+        overwrite: 'auto',
         onUpdate: write,
         onComplete: rest,
       });
     },
   });
+  return () => {
+    if (run) run.playbackRate = 1;
+  };
 }
 
 /**
@@ -698,11 +799,12 @@ export default function HubMotion() {
         armScrubFallback(scroller);
         stops.push(armStaggers(safe!));
         stops.push(armFragRemy(scroller));
+        stops.push(armStamps(scroller));
         stops.push(armInView());
         stops.push(armNearbyBand(scroller));
         stops.push(armSignupDemo());
         stops.push(armScrollTalk(scroller));
-        armMarqueeSkew(scroller);
+        stops.push(armMarqueeSkew(scroller));
         // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein
         // bis zwei Frames hinterher (siehe HeroMarkFlight) und zittert.
         if (desk) armPhonesDrift(scroller);

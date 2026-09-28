@@ -4,10 +4,9 @@ const CLAIM = 'We tell you what to eat';
 
 /**
  * Das gelbe Band mit dem Claim zwischen Aufmacher und erstem Abschnitt, schräg
- * über die volle Breite. Es läuft endlos (CSS, auf dem Compositor — kein
- * Zittern beim Scrollen), Scrollen schiebt es zusätzlich weiter (Scroll-
- * Timeline, Fallback über `data-scrub` in HubMotion), und schnelles Scrollen
- * legt es schräg (`--skew`, HubMotion). Ein zweites Band mit weiteren Begriffen darunter ist
+ * über die volle Breite. Es läuft endlos von links nach rechts (CSS, auf dem
+ * Compositor — kein Zittern beim Scrollen), Scrollen macht es schneller und
+ * legt es schräg (beides HubMotion, `armMarqueeSkew`). Ein zweites Band mit weiteren Begriffen darunter ist
  * wieder raus (Ansage 28.09.2026): nur der Claim.
  *
  * Reine Deko aus dem Claim, der oben schon als Headline steht: für
@@ -27,13 +26,7 @@ export default function HubMarquee() {
   );
   return (
     <section className={styles.band} aria-hidden="true">
-      <div
-        className={styles.tape}
-        data-marquee-tape=""
-        data-scrub="--push 1 -1"
-        data-scrub-start="top bottom"
-        data-scrub-end="bottom top"
-      >
+      <div className={styles.tape} data-marquee-tape="">
         <div className={styles.track}>
           {run}
           {run}

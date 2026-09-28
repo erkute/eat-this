@@ -200,6 +200,9 @@
   display: flex;
   gap: var(--et-rail-gap);
   align-items: center;
+  /* So breit wie die Knöpfe, nicht wie die Spalte: der Stempel beim Laden
+     (siehe unten) setzt in ihrer Mitte auf, nicht in der Mitte der Spalte. */
+  width: fit-content;
   margin-top: clamp(26px, 3vw, 38px);
 }
 
@@ -532,7 +535,7 @@
     inBack 1.8s var(--expo-out) 0.15s both,
     inFront 1.7s var(--expo-out) 0.27s both,
     inCopy 1.05s var(--swing) 0.3s both,
-    inCta 0.9s var(--swing) 0.62s both;
+    inCta 0.34s cubic-bezier(0.5, 0, 0.75, 0) 1.05s both;
 }
 
 /* Die Wortmarke fällt als Ganzes von oben herein und federt beim Aufsetzen
@@ -543,6 +546,29 @@
    deshalb heraus. */
 :global(html[data-hero-intro]) .heroMark {
   translate: 0 calc((1 - var(--in-mark, 1)) * -100vh);
+}
+
+/* Von ganz oben, über den Header hinweg (Ansage 28.09.2026). Sobald
+   HeroMarkFlight steht, fällt sein Flieger über der Navigation weiter und
+   das Original tritt zurück (`data-hero-drop`). Bis dahin fällt das
+   Original selbst: am Telefon scrollt das Fenster, dort darf der Aufmacher
+   es oben nicht abschneiden, und es liegt über dem Header. Seitlich schneidet
+   er weiter ab — Headline und Lead kommen von links. Ab 768px schneidet
+   ohnehin `.app-pages` unter dem Header ab, dort bleibt es beim Flieger. */
+:global(html[data-hero-drop]) .heroMark {
+  visibility: hidden;
+}
+
+@media (max-width: 767.98px) {
+  :global(html[data-hero-intro]) .hero {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  :global(html[data-hero-intro]) .heroMark {
+    position: relative;
+    z-index: var(--et-z-above-nav);
+  }
 }
 
 /* Gruß, Headline und Lead kommen als EIN Block von links herein, nicht Zeile
@@ -558,12 +584,16 @@
   transform-origin: 0 100%;
 }
 
-/* Die Knöpfe folgen als eigener Block, gleiche Bewegung. `translate` liegt
-   hier auf der Reihe, nicht auf dem Knopf: der trägt Magnet und Druck. */
+/* Die Knöpfe knallen danach wie ein Stempel auf ihren Platz — dieselbe
+   Bewegung wie „Frag Remy." (Ansage 28.09.2026): gross, gedreht und etwas zu
+   hoch, dann mit anziehendem Tempo (power4.in) flach auf. Bis dahin sind sie
+   nicht da: bei genau 0 steht die Skalierung auf 0 — kein Ausblenden, sie
+   schlagen ein. Die Bewegung liegt auf der Reihe, nicht auf dem Knopf: der
+   trägt Magnet und Druck. */
 :global(html[data-hero-intro]) .heroCopy > .heroActions {
-  translate: calc((1 - var(--in-cta, 1)) * -100vw) 0;
-  transform: skewX(calc((1 - var(--in-cta, 1)) * 28deg));
-  transform-origin: 0 100%;
+  translate: 0 calc((1 - var(--in-cta, 1)) * -24px);
+  rotate: calc((1 - var(--in-cta, 1)) * -7deg);
+  scale: calc((1 + (1 - var(--in-cta, 1)) * 1.8) * min(1, var(--in-cta, 1) * 1000));
 }
 
 .heroPhones:focus-visible .phoneFront {

@@ -11,6 +11,7 @@ import { GUEST_SHAKE_MS, prefersReducedMotion } from '@/lib/guestCardShake';
 import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
+import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
 import { composeTeaserCards } from '@/lib/home/mustEatsGallery';
 import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
 import { useHomeMapData } from './HomeMapDataContext';
@@ -157,7 +158,7 @@ export default function HubMustEatsTeaser() {
           mit Schatten auf Ink, der Titel ist weiß, die Knöpfe gelb und Ring. */}
       <div className={styles.board}>
         <div className="hv-head">
-          <h2 className="hv-title">
+          <h2 className="hv-title" data-stamp="">
             <span className="hv-mk" aria-hidden="true" />
             {t('mustEats.teaserTitle')}
           </h2>
@@ -179,7 +180,11 @@ export default function HubMustEatsTeaser() {
           data-scrub-end="top 15%"
         >
           {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
-            const restaurant = normalizeName(m.restaurant.name);
+            // Ohne Bezirk: „AERA Charlottenburg“ heisst unter dem Gericht nur „AERA“.
+            const restaurant = spotNameWithoutDistrict(
+              normalizeName(m.restaurant.name),
+              m.restaurant.district
+            );
             const dish = isFaceUp ? normalizeName(m.dish ?? '') : '';
             // Eine verdeckte Karte aus dem Stapel kennt ihren Spot nicht
             // (trimCoveredSpot): welches Lokal die Karte hält, ist Teil der

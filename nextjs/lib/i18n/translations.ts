@@ -144,7 +144,7 @@ const en = {
     emptyKickerSearch: 'Your search',
     emptyKickerFilter: 'Your filters',
     emptyKickerBoth: 'Your search and filters',
-    emptyBodySearch: 'Nothing matches “{query}”. Try a name, a cuisine or a district.',
+    emptyBodySearch: 'Nothing matches “{query}”. Try a name, a cuisine, a district or a street.',
     emptyBodyFilter: 'Together these leave nothing. Loosen one — or start over.',
     emptyBodyBoth:
       'With these filters nothing matches “{query}”. Loosen one — or search without them.',
@@ -537,7 +537,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyKickerFilter: 'Deine Filter',
     emptyKickerBoth: 'Deine Suche und Filter',
     emptyBodySearch:
-      'Zu „{query}" haben wir nichts. Probier einen Namen, eine Küche oder einen Bezirk.',
+      'Zu „{query}" haben wir nichts. Probier einen Namen, eine Küche, einen Bezirk oder eine Straße.',
     emptyBodyFilter: 'Zusammen lassen sie nichts übrig. Lockere einen — oder fang neu an.',
     emptyBodyBoth:
       'Mit diesen Filtern haben wir zu „{query}" nichts. Lockere einen — oder such ohne sie.',

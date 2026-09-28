@@ -503,3 +503,90 @@ describe('useMapFilters Suche, zweite Runde', () => {
     expect(liste('eis', amSpeiselokal)).toEqual(['Natur Eis', 'Speiselokal Tulus Lotrek']);
   });
 });
+
+/**
+ * Nachgemessen auf Produktion (28.09.2026), jeweils 0 Treffer:
+ * - „kastanienallee", „weserstr" — die Adresse fehlte im Kartenpayload.
+ * - „brunch", „kebab", „nkln" — kein Synonym, keine Schreibvariante.
+ * - „piza" — ein Buchstabe daneben, und nichts kam.
+ */
+describe('useMapFilters Suche, dritte Runde', () => {
+  const KATALOG: MapRestaurant[] = [
+    spot({
+      name: 'Gazzo',
+      cuisineType: 'Italian',
+      bezirk: { name: 'Neukölln' },
+      categories: [{ name: 'Pizza', slug: 'pizza' }],
+      address: 'Hobrechtstraße 57, 12047 Berlin, Deutschland',
+    }),
+    spot({
+      name: 'Bursa Uludag Kebapcisi',
+      cuisineType: 'Turkish',
+      bezirk: { name: 'Schöneberg' },
+      address: 'Weserstr. 208, 12047 Berlin, Deutschland',
+    }),
+    spot({
+      name: 'Café Frieda',
+      cuisineType: 'Café',
+      bezirk: { name: 'Prenzlauer Berg' },
+      categories: [{ name: 'Frühstück', slug: 'fruehstueck', nameEn: 'Breakfast' }],
+    }),
+    spot({ name: 'Jones Ice Cream', cuisineType: 'Ice Cream', bezirk: { name: 'Schöneberg' } }),
+    spot({ name: 'Reisbar', cuisineType: 'Japanese', bezirk: { name: 'Mitte' } }),
+    spot({ name: 'Crapulix', cuisineType: 'Bakery', bezirk: { name: 'Steglitz' } }),
+    spot({ name: 'Rutz', cuisineType: 'Wine Bar', bezirk: { name: 'Mitte' } }),
+  ];
+  const liste = (q: string) => {
+    const { result } = renderHook(() => useMapFilters({ restaurants: KATALOG, location: null }));
+    act(() => result.current.setSearch(q));
+    return result.current.listRestaurants.map((r) => r.name).sort();
+  };
+
+  it('findet die Strasse in beiden Schreibweisen', () => {
+    expect(liste('weserstr')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('weserstrasse')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('weserstraße')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('hobrechtstr')).toEqual(['Gazzo']);
+    expect(liste('hobrechtstr.')).toEqual(['Gazzo']);
+  });
+
+  it('kennt Synonyme', () => {
+    expect(liste('brunch')).toEqual(['Café Frieda']);
+    expect(liste('kebab')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('döner')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('nkln')).toEqual(['Gazzo']);
+    expect(liste('gelato')).toEqual(['Jones Ice Cream']);
+    expect(liste('wein')).toEqual(['Rutz']);
+    expect(liste('pasta')).toEqual(['Gazzo']);
+    expect(liste('brot')).toEqual(['Crapulix']);
+  });
+
+  it('verlangt auch mit Synonym jedes Wort', () => {
+    expect(liste('pasta nkln')).toEqual(['Gazzo']);
+    expect(liste('kebab nkln')).toEqual([]);
+  });
+
+  it('verzeiht einen Buchstaben daneben, wenn sonst nichts kaeme', () => {
+    expect(liste('piza')).toEqual(['Gazzo']);
+    expect(liste('pizzza')).toEqual(['Gazzo']);
+    expect(liste('krapulix')).toEqual(['Crapulix']);
+  });
+
+  it('bleibt exakt, solange es exakte Treffer gibt', () => {
+    // „eis" steht mitten in „Reisbar" (wie „Speiselokal" in Runde zwei) —
+    // das ist die exakte Suche, nicht der Tippfehler-Durchgang.
+    expect(liste('reisbar')).toEqual(['Reisbar']);
+    // „rutz" hat einen exakten Treffer; „ruts"/„putz" darf der Rückfall nicht
+    // dazuholen, weil die exakte Suche schon liefert.
+    expect(liste('rutz')).toEqual(['Rutz']);
+  });
+
+  it('raet bei kurzen Woertern nicht', () => {
+    expect(liste('ruz')).toEqual([]);
+  });
+
+  it('erfindet weiterhin nichts', () => {
+    expect(liste('koreanisch')).toEqual([]);
+    expect(liste('sushi')).toEqual([]);
+  });
+});

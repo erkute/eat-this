@@ -125,7 +125,14 @@ describe('Map CSS architecture', () => {
       'mapWrap',
       'shell',
     ]);
-    expect(localClasses('MapSheet.module.css')).toEqual(['handle', 'list', 'listScroll']);
+    expect(localClasses('MapSheet.module.css')).toEqual([
+      'handle',
+      'list',
+      'listScroll',
+      'stripClip',
+      'stripInner',
+      'stripWindow',
+    ]);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
       'markerRootActive',
@@ -337,33 +344,41 @@ describe('Map CSS architecture', () => {
         top: 'var(--map-strip, env(safe-area-inset-top, 0px))',
       }),
     ]);
-
   });
 
-  /* The map strip is the real map: the phone sheet cuts itself off at the
-     strip line on a scroll timeline (MapSheet.module.css). The cut has to
-     move 1:1 with the scroll — a span of N px of scroll moving the inset by
-     anything but N px puts the edge above the line (rows in the strip) or
-     below it (the bar's top cut off). */
-  it('cuts the phone sheet at the strip line, 1:1 with the scroll', () => {
+  /* The map strip is the real map: on the phone the rows sit in a window whose
+     top edge is held at the stuck bar by a transform on a scroll timeline
+     (MapSheet.module.css, "The map strip"). WebKit runs only transform-like
+     properties in step with the scroll; a clip-path cut lagged and let rows
+     run up through the strip on a flick (28.09.2026). The window has to ride
+     down exactly as far as the page scrolls, and the rows inside back up by
+     the same amount — any other ratio moves the edge or the rows. */
+  it('holds the phone rows below the bar with transforms, 1:1 with the scroll', () => {
     const css = readFileSync(
       fileURLToPath(new URL('./MapSheet.module.css', import.meta.url)),
       'utf8'
     );
-    const px = (v: string) => Number(/(-?\d+)px/.exec(v)![1]);
-    const range = /animation-range:\s*calc\(var\(--strip-cut-from\) - (\d+)px\)\s*calc\(var\(--strip-cut-from\) \+ (\d+)px\)/.exec(css);
-    const frames = /@keyframes stripCut\s*{\s*from\s*{\s*clip-path:\s*inset\(([^)]*)\);\s*}\s*to\s*{\s*clip-path:\s*inset\(([^)]*)\);/.exec(css);
-    expect(range, 'stripCut range').not.toBeNull();
-    expect(frames, 'stripCut keyframes').not.toBeNull();
+    const px = (v: string) => parseFloat(v);
+    const range =
+      /animation-range:\s*var\(--strip-cut-from\)\s*calc\(var\(--strip-cut-from\) \+ (\d+)px\)/.exec(
+        css
+      );
+    const frames = (name: string) =>
+      new RegExp(
+        `@keyframes ${name}\\s*{\\s*from\\s*{\\s*transform:\\s*translateY\\(([^)]*)\\);\\s*}\\s*to\\s*{\\s*transform:\\s*translateY\\(([^)]*)\\);`
+      ).exec(css);
+    const win = frames('stripWindow');
+    const inner = frames('stripInner');
+    expect(range, 'strip range').not.toBeNull();
+    expect(win, 'stripWindow keyframes').not.toBeNull();
+    expect(inner, 'stripInner keyframes').not.toBeNull();
 
-    const early = Number(range![1]);
-    const span = early + Number(range![2]);
-    const from = px(frames![1]);
-    const to = px(frames![2]);
-    // Starts `early` px before the line at −early, so it is 0 at the line.
-    expect(from).toBe(-early);
-    expect(to - from).toBe(span);
+    const span = Number(range![1]);
+    expect(px(win![2]) - px(win![1])).toBe(span);
+    expect(px(inner![2]) - px(inner![1])).toBe(-span);
     expect(css).toMatch(/animation-timeline:\s*scroll\(root block\)/);
+    // No property the compositor cannot run may carry the cut again.
+    expect(css).not.toMatch(/@keyframes[^{]*{[^}]*clip-path/);
   });
 
   /* Der verdeckte Zustand hatte einen eigenen, kompakten Namens-Slot, damit

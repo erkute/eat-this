@@ -910,23 +910,33 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   onPrice={setPrice}
                   optionCounts={optionCounts}
                 />
-                <div ref={setContentRef} className={sheetStyles.listScroll} data-sheet-content="">
-                  <RestaurantList
-                    restaurants={listRestaurants}
-                    userLocation={location}
-                    selectedId={selectedRestaurant?._id ?? listFocusId}
-                    onSelect={onRestaurantClick}
-                    primaryMustEats={primaryMustEats}
-                    unlockedIds={unlockedIds}
-                    revealedMustEatIds={revealedMustEatIds}
-                    onResetFilters={handleResetFilters}
-                    onClearSearch={handleClearSearch}
-                    searchQuery={search}
-                    filtersActive={category !== 'All' || Boolean(bezirk || price) || openOnly}
-                    visibleRows={listRows}
-                    onNeedMoreRows={showMoreRows}
-                  />
-                  <MapSeoFooter locale={locale} />
+                {/* Window and counter-shift keep the rows below the stuck
+                    bar on the phone (MapSheet.module.css, "The map strip"). */}
+                <div className={sheetStyles.stripClip}>
+                  <div
+                    ref={setContentRef}
+                    className={`${sheetStyles.listScroll} ${sheetStyles.stripWindow}`}
+                    data-sheet-content=""
+                  >
+                    <div className={sheetStyles.stripInner}>
+                      <RestaurantList
+                        restaurants={listRestaurants}
+                        userLocation={location}
+                        selectedId={selectedRestaurant?._id ?? listFocusId}
+                        onSelect={onRestaurantClick}
+                        primaryMustEats={primaryMustEats}
+                        unlockedIds={unlockedIds}
+                        revealedMustEatIds={revealedMustEatIds}
+                        onResetFilters={handleResetFilters}
+                        onClearSearch={handleClearSearch}
+                        searchQuery={search}
+                        filtersActive={category !== 'All' || Boolean(bezirk || price) || openOnly}
+                        visibleRows={listRows}
+                        onNeedMoreRows={showMoreRows}
+                      />
+                      <MapSeoFooter locale={locale} />
+                    </div>
+                  </div>
                 </div>
               </>
             )}

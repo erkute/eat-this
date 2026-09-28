@@ -1,4 +1,5 @@
 import type { MapRestaurant } from '@/lib/types';
+import { getOpenStatus } from './openingHours';
 
 /**
  * The list's order when there is no location to sort by.
@@ -27,4 +28,22 @@ export function byMustEatsThenName(a: MapRestaurant, b: MapRestaurant): number {
   const mustEats = (b.mustEatCount ?? 0) - (a.mustEatCount ?? 0);
   if (mustEats !== 0) return mustEats;
   return a.name.localeCompare(b.name, 'de');
+}
+
+/**
+ * Geöffnet vor geschlossen, sonst unverändert (stabil). Montag 09:00 standen
+ * zehn der ersten zwölf Zeilen auf „Geschlossen" (Audit 28.09.2026): die
+ * Liste empfahl, was man gerade nicht haben kann. Ein Spot ohne gepflegte
+ * Öffnungszeiten zählt zu den geschlossenen — offen ist er nur, wenn wir es
+ * wissen.
+ *
+ * `now` ist Berliner Wanduhrzeit (berlinNow), wie getOpenStatus sie liest.
+ * Die Karte übergibt den Zeitpunkt, zu dem der Server die Seite gerendert
+ * hat: so sortieren Server und Browser gleich, und die Liste sortiert nicht
+ * unter dem Finger um, wenn um zwölf ein Laden aufmacht.
+ */
+export function openFirst(list: MapRestaurant[], now: Date): MapRestaurant[] {
+  const isOpen = (r: MapRestaurant) =>
+    Boolean(r.openingHours?.length && getOpenStatus(r.openingHours, now).isOpen);
+  return [...list.filter(isOpen), ...list.filter((r) => !isOpen(r))];
 }

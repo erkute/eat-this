@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { MapRestaurant, MapCategory, MapMustEat } from '@/lib/types';
-import { getOpenStatus } from './openingHours';
+import { berlinNow, getOpenStatus } from './openingHours';
 import { PRICE_BUCKETS, matchesPriceBucket, priceBucketOf } from './priceBuckets';
-import { byMustEatsThenName } from './listOrder';
+import { byMustEatsThenName, openFirst } from './listOrder';
 import { MUST_EATS_CATEGORY } from './mapFilterParams';
 import { buildSearchIndex, matchesSearch, parseQuery, searchRank } from './spotSearch';
 
@@ -19,6 +19,10 @@ interface Args {
    *  Orders the LIST only — the markers and the camera fits keep working from
    *  the visitor's position. */
   listCenter?: { lat: number; lng: number } | null;
+  /** Die Berliner Uhrzeit, nach der die Liste Geöffnetes nach vorn stellt
+   *  (openFirst). Fest für den Besuch, damit nichts unter dem Finger umsortiert;
+   *  ohne Angabe zählt die Zeit beim ersten Rendern. */
+  orderedAt?: Date;
 }
 
 function districtOf(r: MapRestaurant): string | null {
@@ -107,7 +111,15 @@ function matchesChips(r: MapRestaurant, s: MapChipState): boolean {
   return true;
 }
 
-export function useMapFilters({ restaurants, mustEats = [], location, listCenter = null }: Args) {
+export function useMapFilters({
+  restaurants,
+  mustEats = [],
+  location,
+  listCenter = null,
+  orderedAt,
+}: Args) {
+  const [fallbackOrderedAt] = useState(() => berlinNow());
+  const orderTime = orderedAt ?? fallbackOrderedAt;
   const [category, setCategory] = useState<MapCategory>('All');
   const [search, setSearch] = useState('');
   const [bezirk, setBezirk] = useState<string | null>(null);
@@ -229,12 +241,17 @@ export function useMapFilters({ restaurants, mustEats = [], location, listCenter
      alles — das ist der ganze Anspruch einer Karte: das sind die Spots um HIER
      herum. „Hier" ist die Kartenmitte, sobald jemand die Karte bewegt hat
      (listCenter), und bis dahin die eigene Position. Ohne beides entscheidet
-     byMustEatsThenName. */
+     byMustEatsThenName. Darüber steht, was gerade geöffnet hat (openFirst). */
   const listRestaurants = useMemo(() => {
     const anchor = listCenter ?? location;
-    const ordered = anchor
-      ? nearestTo(displayedRestaurants, anchor)
-      : [...displayedRestaurants].sort(byMustEatsThenName);
+    /* Geöffnet vor geschlossen — über der Entfernung, auch mit Standort: der
+       nächste Laden hilft nicht, wenn er zu hat. */
+    const ordered = openFirst(
+      anchor
+        ? nearestTo(displayedRestaurants, anchor)
+        : [...displayedRestaurants].sort(byMustEatsThenName),
+      orderTime
+    );
     if (!tokens.length) return ordered;
     /* Bei einer Suche zuerst, wie gut ein Spot passt; sort ist stabil, die
        Ordnung darueber bleibt innerhalb einer Stufe stehen. */
@@ -245,7 +262,7 @@ export function useMapFilters({ restaurants, mustEats = [], location, listCenter
       })
     );
     return ordered.sort((a, b) => rank.get(a._id)! - rank.get(b._id)!);
-  }, [displayedRestaurants, listCenter, location, nearestTo, tokens, searchIndex]);
+  }, [displayedRestaurants, listCenter, location, nearestTo, orderTime, tokens, searchIndex]);
 
   return {
     category,

@@ -8,7 +8,8 @@ import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data';
 import { getMapSeoCopy } from '@/lib/map/mapSeoCopy';
-import { byMustEatsThenName } from '@/lib/map/listOrder';
+import { byMustEatsThenName, openFirst } from '@/lib/map/listOrder';
+import { berlinNow } from '@/lib/map/openingHours';
 import { buildMapJsonLd } from '@/lib/json-ld';
 import { INITIAL_LIST_ROWS } from '@/lib/map/listWindow';
 
@@ -125,9 +126,13 @@ export default async function MapPage({ params, searchParams }: PageProps) {
   // Genau die Zeilen, die im ausgelieferten HTML stehen: dieselbe Menge und
   // dieselbe Reihenfolge, aus der `useMapFilters` ohne Standort und ohne Filter
   // startet, auf `INITIAL_LIST_ROWS` geschnitten wie RestaurantList selbst.
-  const listedRestaurants = [...initialMapData.restaurants]
-    .sort(byMustEatsThenName)
-    .slice(0, INITIAL_LIST_ROWS);
+  // Geöffnet zuerst, nach der Uhrzeit dieses Renderns — dieselbe, die
+  // MapSection als `renderedAt` bekommt (siehe openFirst).
+  const renderedAt = Date.now();
+  const listedRestaurants = openFirst(
+    [...initialMapData.restaurants].sort(byMustEatsThenName),
+    berlinNow(new Date(renderedAt))
+  ).slice(0, INITIAL_LIST_ROWS);
   const jsonLd = buildMapJsonLd({
     locale: loc,
     faqs: copy.faqs,
@@ -146,6 +151,7 @@ export default async function MapPage({ params, searchParams }: PageProps) {
       <MapSection
         isActive
         initialMapData={initialMapData}
+        renderedAt={renderedAt}
         initialRestaurantSlug={initialRestaurantSlug}
         fontClassName={sairaCondensed.variable}
       />

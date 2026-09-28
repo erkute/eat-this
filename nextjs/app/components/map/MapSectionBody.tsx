@@ -35,6 +35,7 @@ import { SearchGlassIcon } from './icons';
 import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
 import MapStrip from './MapStrip';
+import type { InitialCamera } from '@/lib/map/useMapCamera';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './MapLayout.module.css';
@@ -75,6 +76,8 @@ interface MapBodyState {
   dragging: boolean;
   desktopPanelHidden: boolean;
   displayedRestaurants: MapRestaurant[];
+  /** Die Kamera, auf der die Karte aufgeht (useMapCamera.initialCamera). */
+  getInitialCamera: () => InitialCamera | null;
   /** Was die Liste zeigt: dieselben Treffer, nach Nähe statt nach Karte. */
   listRestaurants: MapRestaurant[];
   restaurantMustEats: MapMustEat[];
@@ -181,6 +184,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     snap,
     dragging,
     displayedRestaurants,
+    getInitialCamera,
     listRestaurants,
     restaurantMustEats,
     pagerPrev,
@@ -676,6 +680,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             <div className={styles.liveMapLayer} data-live-map-layer="">
               <MapCanvasLayer
                 mapRef={mapRef}
+                getInitialCamera={getInitialCamera}
                 onMapClick={onMapClick}
                 onMoveEnd={onMapMoveEnd}
                 displayedRestaurants={displayedRestaurants}

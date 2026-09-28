@@ -47,6 +47,12 @@ export function mapStripLine(): number {
  *  same as a tap on the grabber (useHandleScrollDrag listens). */
 export const SHEET_COLLAPSE_EVENT = 'et:map-sheet-collapse';
 
+/** Fired on window when a grip gesture has come to rest — at the lowest stop,
+ *  the map stop or back on the list. The lowest stop moves the sheet by
+ *  transform, which no scroll event reports (useMapCamera listens). */
+export const SHEET_SETTLED_EVENT = 'et:map-sheet-settled';
+const announceSettled = () => window.dispatchEvent(new Event(SHEET_SETTLED_EVENT));
+
 /* Decelerates into its stop. */
 const SETTLE_MS = 360;
 const SETTLE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
@@ -224,6 +230,7 @@ export async function settleOnMap(
      runs in the same task as the jump, so no frame shows the sheet twice. */
   window.scrollTo({ top: mapY, behavior: 'instant' });
   hold(sheet, toPx - restLinePx);
+  announceSettled();
 }
 
 /** Let go towards the list, or back onto the map stop from below it: the
@@ -231,4 +238,5 @@ export async function settleOnMap(
 export async function raiseToList(sheet: HTMLElement, fromPx: number): Promise<void> {
   await glide(sheet, fromPx, 0, 0);
   release(sheet);
+  announceSettled();
 }

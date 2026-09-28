@@ -32,7 +32,7 @@ import {
   phoneListMidVisiblePx,
   type DetailOrigin,
 } from '@/lib/map/phoneSheetSnaps';
-import { spotsCameraTarget, hasRoomToFit, fitPadding } from '@/lib/map/cameraFit';
+import { flyToSpots } from '@/lib/map/cameraFit';
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
 import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
 import { useMapCamera, USER_LOCATION_ZOOM } from '@/lib/map/useMapCamera';
@@ -712,6 +712,7 @@ export default function MapSection({
     flyToSpot,
     getFlyPadding,
     getFlyPaddingRef,
+    initialCamera,
     detailFlyPadding,
     pinTapFlyPadding,
     phoneDetailFlyPadding,
@@ -1290,9 +1291,10 @@ export default function MapSection({
      interacted, a deep-link is steering the camera (?r/?me/?bezirk/?cat all
      set userInteractedRef, but they may consume AFTER the location resolves,
      so check the URL too), or the position is outside Berlin. When the
-     location is denied/unavailable the canvas default stays: Berlin Mitte,
-     zoomed (see BERLIN in MapCanvas). Polls mapRef like the deep-link
-     effects — a granted permission can resolve before the canvas mounts. */
+     location is denied/unavailable the canvas default stays: every spot,
+     framed (see initialCamera in useMapCamera). Polls mapRef like the
+     deep-link effects — a granted permission can resolve before the canvas
+     mounts. */
   const autoLocatedRef = useRef(false);
   useEffect(() => {
     if (!isActive) return;
@@ -1306,7 +1308,7 @@ export default function MapSection({
     /* Only for an EXISTING grant — otherwise this fires the system permission
        dialog on first paint with no context (see hasGeolocationPermission).
        Silent on top of that, so even a grant that later fails (GPS off, indoors)
-       cannot raise a toast nobody asked for; the canvas default, Berlin Mitte,
+       cannot raise a toast nobody asked for; the canvas default, every spot,
        simply stands. Asking is the locate button's job. */
     void hasGeolocationPermission()
       .then((granted) => {
@@ -1363,49 +1365,13 @@ export default function MapSection({
          MapLibre's ResizeObserver otherwise updates one tick later and briefly
          tries to fit the large list bounds into the old 170–215px transform. */
       map.resize();
-      const target = spotsCameraTarget(list);
-      if (!target) return;
       // Filter chips can be used while the list covers the map or the picker
       // is restoring document scroll. Fit the result set for the stable phone
       // middle stop, not those transient/fully covered DOM coordinates.
       const padding = getFlyPaddingRef.current(isPhoneViewport() ? 'mid' : undefined);
-      if (target.kind === 'point') {
-        /* Ein einzelner Treffer braucht keine Einpassung: der Zoom steht fest,
-           und `flyTo` zieht den Rand genau einmal ab — es setzt ihn als neuen
-           `map.getPadding()` und rückt die Mitte beim Zeichnen entsprechend.
-           Hier gibt es also weder die Doppelrechnung unten noch die Division,
-           aus der der NaN-Wurf kam. */
-        flyToSpot(target, { zoom: 14, duration: 500, padding });
-        return;
-      }
-      /* MapLibre zieht beim Einpassen den Rand des Aufrufs UND den ab, den die
-         Karte von der letzten `flyTo`-Fahrt noch hält. Der Ausgleich (siehe
-         fitPadding) macht aus beiden zusammen wieder genau `padding`. Ohne ihn
-         zoomte jede Einpassung nach einem geöffneten Detail zu weit raus — und
-         sobald die doppelte Summe die Leinwand überstieg, unterband der Check
-         unten die Kamerafahrt ganz. */
-      const mapPadding = map.getPadding();
-      const boundsPadding = fitPadding(padding, mapPadding);
-      /* Bleibt hinter den Rändern kaum Karte übrig, bleibt die Kamera stehen.
-         Einpassen hätte dort bestenfalls auf Kontinent-Zoom gesprungen und bei
-         genau 0 px die Karte in die Fehlerseite gerissen (siehe hasRoomToFit). */
-      const container = map.getContainer();
-      if (
-        !hasRoomToFit(
-          { width: container.clientWidth, height: container.clientHeight },
-          boundsPadding,
-          mapPadding
-        )
-      ) {
-        return;
-      }
-      map.fitBounds([target.sw, target.ne], {
-        padding: boundsPadding,
-        duration: 500,
-        maxZoom: 14,
-      });
+      flyToSpots(map, list, padding, { duration: 500 });
     },
-    [flyToSpot, getFlyPaddingRef]
+    [getFlyPaddingRef]
   );
 
   /* Refit the map whenever a structured filter narrows or widens the visible
@@ -1424,6 +1390,18 @@ export default function MapSection({
      to an averaged centroid. */
   const displayedRestaurantsRef = useRef(displayedRestaurants);
   displayedRestaurantsRef.current = displayedRestaurants;
+
+  /* Asked once by MapCanvas before its first frame: frame the spots on the
+     canvas as laid out. mapRef is empty then, so measure the layer the
+     canvas fills. */
+  const getInitialCamera = useCallback(() => {
+    const layer = document.querySelector<HTMLElement>('[data-live-map-layer]');
+    if (!layer) return null;
+    return initialCamera(displayedRestaurantsRef.current, {
+      width: layer.clientWidth,
+      height: layer.clientHeight,
+    });
+  }, [initialCamera]);
   /* The filter set the camera was last fitted to. The effect also re-runs when
      a detail opens or closes (it has to, to skip the open one), and until
      03.09.2026 every CLOSE counted as a filter change: the whole catalogue was
@@ -1519,6 +1497,7 @@ export default function MapSection({
     onRestaurantSlugMatch: handleRestaurantClick,
     onMustEatIdMatch: handleMustEatClick,
     initialRestaurant,
+    fitCameraToSpots,
   });
 
   // The five filters live in the query string, both directions — so a filtered
@@ -1554,6 +1533,7 @@ export default function MapSection({
       snap={snap}
       dragging={dragging}
       displayedRestaurants={displayedRestaurants}
+      getInitialCamera={getInitialCamera}
       listRestaurants={listRestaurants}
       pagerPrev={pagerAdjacent.prev}
       pagerNext={pagerAdjacent.next}

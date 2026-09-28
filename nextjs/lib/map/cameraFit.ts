@@ -1,29 +1,5 @@
-import type { MapRestaurant } from '@/lib/types';
-
-/** Where the camera should go for a set of matches. `null` = stay put. */
-export type CameraTarget =
-  | { kind: 'point'; lat: number; lng: number }
-  | { kind: 'bounds'; sw: [number, number]; ne: [number, number] };
-
-/**
- * Camera target for a match set: nothing for an empty set, a centred point for
- * a single spot (bounds of one coordinate are degenerate — MapLibre fits them
- * at max zoom), a bounding box for the rest.
- */
-export function spotsCameraTarget(list: MapRestaurant[]): CameraTarget | null {
-  if (!list.length) return null;
-  if (list.length === 1) {
-    const [r] = list;
-    return { kind: 'point', lat: r.lat, lng: r.lng };
-  }
-  const lngs = list.map((r) => r.lng);
-  const lats = list.map((r) => r.lat);
-  return {
-    kind: 'bounds',
-    sw: [Math.min(...lngs), Math.min(...lats)],
-    ne: [Math.max(...lngs), Math.max(...lats)],
-  };
-}
+import type { FlyToOptions } from 'maplibre-gl';
+import { pitchedCameraForPoints, type LngLat } from './pitchedFit';
 
 export interface Insets {
   top: number;
@@ -32,78 +8,76 @@ export interface Insets {
   right: number;
 }
 
+/** Näher als das rückt eine Einpassung nicht heran — auch nicht für einen einzelnen Treffer. */
+export const SPOT_SET_MAX_ZOOM = 14;
+
 /**
  * Unter dieser Höhe (oder Breite) wird gar nicht erst eingepasst.
  *
  * Gemessen am 16.09.2026 mit MapLibres eigenem `cameraForBoxAndBearing`
  * (390 px breite Karte, Seitenrand 40 px): der ganze Katalog landet bei 30 px
  * Platz auf Zoom 5,4, bei 100 px auf 7,2, bei 150 px auf 7,7 — und ab ~300 px,
- * wo die Breite begrenzt, auf 8,4. Ein Bezirk entsprechend 8,7 / 10,5 / 11,1 /
- * 11,6. Ab 150 px liegt die Kamera also gut einen halben Zoomschritt am
- * Ergebnis mit vollem Platz, darunter zoomt sie zunehmend sinnlos raus.
+ * wo die Breite begrenzt, auf 8,4. Ab 150 px liegt die Kamera also gut einen
+ * halben Zoomschritt am Ergebnis mit vollem Platz, darunter zoomt sie
+ * zunehmend sinnlos raus. Bei genau 0 px warf MapLibre damals
+ * `Invalid LngLat object: (NaN, -90)` (Sentry JAVASCRIPT-9B) und kippte /map
+ * in die Fehlerseite.
  */
 export const MIN_FIT_SPACE_PX = 150;
 
-/**
- * Bleibt nach Abzug aller Ränder genug Karte, um Treffer einzupassen?
- *
- * Zählt BEIDE Ränder, die MapLibre abzieht: den des Aufrufs und den, den die
- * Karte von einer früheren Kamerafahrt noch hält (`map.getPadding()`). Seit
- * der Aufruf über `fitPadding` läuft, ergibt die Summe genau den gewünschten
- * Rand — der Check rechnet trotzdem beide, weil er MapLibres Formel nachbildet
- * und nicht das, was der Aufrufer gemeint hat.
- *
- * Der Grund, warum das mehr ist als Kosmetik: bei GENAU 0 px verfügbarer Höhe
- * wirft MapLibre `Invalid LngLat object: (NaN, -90)` (Sentry JAVASCRIPT-9B).
- * Der Zoom wird −∞, der Padding-Versatz x ist bei links = rechts 0, und
- * `0 × ∞` ergibt NaN; sein Schutz prüft nur `< 0`, nicht `<= 0`. Der Wurf kam
- * aus dem Filter-Refit-Effekt und kippte /map in die Fehlerseite — auf dem
- * Telefon, wenn die Liste auf den Pixel genau so weit hochgeschoben war.
- */
-export function hasRoomToFit(
-  canvas: { width: number; height: number },
-  padding: Partial<Insets>,
-  mapPadding: Partial<Insets>
-): boolean {
-  // MapLibres PaddingOptions darf Seiten weglassen; es rechnet sie selbst als 0.
-  const sum = (a?: number, b?: number, c?: number, d?: number) =>
-    (a ?? 0) + (b ?? 0) + (c ?? 0) + (d ?? 0);
-  const height =
-    canvas.height - sum(padding.top, padding.bottom, mapPadding.top, mapPadding.bottom);
-  const width =
-    canvas.width - sum(padding.left, padding.right, mapPadding.left, mapPadding.right);
+/** Bleibt innerhalb der Ränder genug Karte, um Treffer einzupassen? */
+export function hasRoomToFit(canvas: { width: number; height: number }, padding: Insets): boolean {
+  const height = canvas.height - padding.top - padding.bottom;
+  const width = canvas.width - padding.left - padding.right;
   return height >= MIN_FIT_SPACE_PX && width >= MIN_FIT_SPACE_PX;
 }
 
+/** Was die Kamerafahrt von der Karte braucht — `MapRef` und MapLibres `Map` erfüllen es. */
+export interface FittableMap {
+  getContainer(): HTMLElement;
+  getPitch(): number;
+  getBearing(): number;
+  flyTo(options: FlyToOptions): unknown;
+}
+
 /**
- * Der Rand, den `fitBounds` bekommen muss, damit MapLibre am Ende genau
- * `desired` abzieht.
+ * Fliegt so, dass alle `spots` innerhalb von `padding` im Bild stehen.
  *
- * MapLibre zieht beim Einpassen ZWEI Ränder ab (`camera_helper.ts`):
+ * Eingepasst wird mit der geneigten Perspektive (pitchedFit), nicht mit
+ * MapLibres `fitBounds`, das flach rechnet und die Drehung auf 0 setzt. Der
+ * Rand geht direkt an `flyTo` und ersetzt den, den die Karte von der letzten
+ * Fahrt noch hält — er wird also genau einmal abgezogen.
  *
- *     availableHeight = tr.height - (edgePadding.top + edgePadding.bottom
- *                                    + padding.top + padding.bottom)
- *
- * `padding` ist der des Aufrufs, `edgePadding` ist `map.getPadding()` — der
- * Rand, den die letzte `flyTo`-Kamerafahrt dauerhaft gesetzt hat. `fitBounds`
- * selbst lässt ihn stehen (`_fitInternal` löscht `options.padding`, bevor es
- * fliegt), er überlebt also jede Einpassung. Wer beide Male den vollen Rand
- * schickt, bekommt ihn doppelt abgezogen: gemessen zoomte die Karte einen
- * halben Schritt zu weit raus, und sobald die Summe die Leinwand überstieg,
- * passte `hasRoomToFit` gar nicht mehr ein.
- *
- * Die Differenz darf negativ werden und MUSS es dürfen. Hält die Karte mehr
- * Rand, als der Aufruf will, ist das Minus der einzige Weg zurück auf den
- * Ausschnitt, den eine frische Karte zeigen würde; bei 0 geklemmt landet er
- * sichtbar daneben (20.09.2026 gegen MapLibres eigene Rechnung gemessen:
- * geklemmt 164 px Luft oben statt der gewünschten 202). MapLibre prüft
- * Ränder nicht auf ihr Vorzeichen, negative Werte gehen glatt durch.
+ * Ein einzelner Treffer bekommt den festen Zoom statt einer Einpassung: die
+ * Box eines Punkts ist entartet.
  */
-export function fitPadding(desired: Insets, mapPadding: Partial<Insets>): Insets {
-  return {
-    top: desired.top - (mapPadding.top ?? 0),
-    bottom: desired.bottom - (mapPadding.bottom ?? 0),
-    left: desired.left - (mapPadding.left ?? 0),
-    right: desired.right - (mapPadding.right ?? 0),
-  };
+export function flyToSpots(
+  map: FittableMap,
+  spots: LngLat[],
+  padding: Insets,
+  { duration }: { duration: number }
+): void {
+  if (!spots.length) return;
+  if (spots.length === 1) {
+    const [spot] = spots;
+    map.flyTo({ center: [spot.lng, spot.lat], zoom: SPOT_SET_MAX_ZOOM, padding, duration });
+    return;
+  }
+  const container = map.getContainer();
+  const canvas = { width: container.clientWidth, height: container.clientHeight };
+  if (!hasRoomToFit(canvas, padding)) return;
+  const camera = pitchedCameraForPoints(spots, {
+    ...canvas,
+    padding,
+    pitch: map.getPitch(),
+    bearing: map.getBearing(),
+    maxZoom: SPOT_SET_MAX_ZOOM,
+  });
+  if (!camera) return;
+  map.flyTo({
+    center: [camera.center.lng, camera.center.lat],
+    zoom: camera.zoom,
+    padding,
+    duration,
+  });
 }

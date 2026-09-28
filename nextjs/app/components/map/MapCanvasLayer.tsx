@@ -4,6 +4,7 @@ import type { RefObject } from 'react';
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
+import type { InitialCamera } from '@/lib/map/useMapCamera';
 import MapCanvas from './MapCanvas';
 import RestaurantMarker from './RestaurantMarker';
 import UserLocationMarker from './UserLocationMarker';
@@ -45,6 +46,7 @@ const VIEWPORT_MARGIN = 0.6;
    the client, instead of blocking hydration of the SSR'd list/sheet. */
 interface MapCanvasLayerProps {
   mapRef: RefObject<MapRef | null>;
+  getInitialCamera: () => InitialCamera | null;
   onMapClick: () => void;
   onMoveEnd: (e: ViewStateChangeEvent) => void;
   displayedRestaurants: MapRestaurant[];
@@ -60,6 +62,7 @@ interface MapCanvasLayerProps {
 
 export default function MapCanvasLayer({
   mapRef,
+  getInitialCamera,
   onMapClick,
   onMoveEnd,
   displayedRestaurants,
@@ -161,6 +164,7 @@ export default function MapCanvasLayer({
   return (
     <MapCanvas
       ref={mapRef}
+      getInitialCamera={getInitialCamera}
       onMapClick={onMapClick}
       onMoveEnd={onMoveEnd}
       onFirstPaint={reveal}

@@ -271,7 +271,10 @@
    Aufmacher gerade aufgezogen — HeroMarkFlight steht da oft noch gar nicht,
    es wartet auf die Hydrierung. Ohne diese Regel stünde oben die zweite Marke
    daneben und verschwände dann mitten im Auftritt. Danach übernimmt die Regel
-   darüber. */
-:global(html[data-hero-intro]) .logoImg {
+   darüber.
+   Nur auf der Startseite: verlässt jemand sie mitten im Auftritt, bleibt das
+   Attribut stehen (das Aufräumen in HubMotion läuft dann nicht mehr), und ohne
+   die Seitenbedingung fehlte das Logo auf jeder weiteren Seite. */
+:global(html[data-hero-intro][data-active-page='start']) .logoImg {
   visibility: hidden;
 }

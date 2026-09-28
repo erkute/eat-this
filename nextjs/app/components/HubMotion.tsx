@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
+import { appScroller } from '@/lib/dom/appScroller';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -39,13 +40,6 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
  *    - ab 1024px werden die Must Eats zur gepinnten Sequenz: Stapel,
  *      Fächer, ausgelegt — am Scrollweg statt an der Uhr (armDeckPin).
  */
-
-function appScroller(): HTMLElement | null {
-  /* Ab 768px scrollt nicht das Fenster, sondern `.app-pages` (globals.css,
-     Desktop app frame) — gesucht statt angenommen, wie in HeroMarkFlight. */
-  const el = document.querySelector<HTMLElement>('.app-pages');
-  return el && el.scrollHeight > el.clientHeight + 1 ? el : null;
-}
 
 /**
  * Der Ladeauftritt selbst ist CSS (HubSection.module.css) und läuft ab dem
@@ -111,6 +105,22 @@ function hidePhoto(item: Element) {
   const photo = item.querySelector<HTMLElement>('.hv-photo');
   if (photo) gsap.set(photo, { clipPath: 'inset(100% 0% 0% 0%)' });
 }
+
+/** Die Teile eines Kartenstapels (Must Eats): nur die Karte fliegt, die
+ *  Beschriftung darunter wächst erst nach der Landung aus ihrer Maske — im
+ *  Stapel läge sie sonst als Textsalat übereinander. Geteilt vom Austeilen
+ *  (armReveals) und der gepinnten Sequenz (armDeckPin). */
+function deckParts(list: Element) {
+  const items = Array.from(list.children) as HTMLElement[];
+  return {
+    items,
+    cards: items.map((item) => item.querySelector<HTMLElement>('[data-deal-card]') ?? item),
+    captions: items.map((item) => item.querySelector<HTMLElement>('[data-deal-caption]')),
+  };
+}
+// Nur als Kopie weitergeben — GSAP darf die vars-Objekte verändern.
+const CAPTION_HIDDEN = { y: 28, clipPath: 'inset(-10% -5% 100% -5%)' };
+const CAPTION_SHOWN = { y: 0, clipPath: 'inset(-10% -5% -10% -5%)' };
 
 function armReveals(safe: gsap.ContextSafeFunc, { pinnedDeck }: { pinnedDeck: boolean }): () => void {
   const root = document.querySelector<HTMLElement>('[data-hub]');
@@ -208,8 +218,7 @@ function armReveals(safe: gsap.ContextSafeFunc, { pinnedDeck }: { pinnedDeck: bo
     if (kind === 'deal') {
       // Ab 1024px gehört der Stapel der gepinnten Sequenz (armDeckPin).
       if (pinnedDeck) continue;
-      const cards = items.map((item) => item.querySelector<HTMLElement>('[data-deal-card]') ?? item);
-      const captions = items.map((item) => item.querySelector<HTMLElement>('[data-deal-caption]'));
+      const { cards, captions } = deckParts(group);
       const home = cards[0].getBoundingClientRect();
       const deck = cards.map((card, i) => {
         const r = card.getBoundingClientRect();
@@ -226,7 +235,7 @@ function armReveals(safe: gsap.ContextSafeFunc, { pinnedDeck }: { pinnedDeck: bo
         transition: 'none',
       });
       const shown = captions.filter((c): c is HTMLElement => !!c);
-      gsap.set(shown, { y: 28, clipPath: 'inset(-10% -5% 100% -5%)' });
+      gsap.set(shown, { ...CAPTION_HIDDEN });
       plays.set(
         group,
         later(() => {
@@ -251,8 +260,7 @@ function armReveals(safe: gsap.ContextSafeFunc, { pinnedDeck }: { pinnedDeck: bo
               tl.to(
                 caption,
                 {
-                  y: 0,
-                  clipPath: 'inset(-10% -5% -10% -5%)',
+                  ...CAPTION_SHOWN,
                   duration: 0.8,
                   ease: 'expo.out',
                   clearProps: 'transform,clipPath',
@@ -438,11 +446,9 @@ function armDeckPin(scroller: HTMLElement | Window): void {
   const section = document.querySelector<HTMLElement>('[data-hub-must-eats]');
   const list = section?.querySelector<HTMLElement>('[data-reveal="deal"]');
   if (!section || !list) return;
-  const items = Array.from(list.children) as HTMLElement[];
-  const cards = items.map((item) => item.querySelector<HTMLElement>('[data-deal-card]') ?? item);
-  const captions = items
-    .map((item) => item.querySelector<HTMLElement>('[data-deal-caption]'))
-    .filter((c): c is HTMLElement => !!c);
+  const parts = deckParts(list);
+  const cards = parts.cards;
+  const captions = parts.captions.filter((c): c is HTMLElement => !!c);
   if (cards.length < 2) return;
 
   // Geometrie, solange alles noch an seinem Platz liegt.
@@ -463,7 +469,7 @@ function armDeckPin(scroller: HTMLElement | Window): void {
     zIndex: (i: number) => n - i,
     transition: 'none',
   });
-  gsap.set(captions, { y: 28, clipPath: 'inset(-10% -5% 100% -5%)' });
+  gsap.set(captions, { ...CAPTION_HIDDEN });
 
   gsap
     .timeline({
@@ -495,11 +501,39 @@ function armDeckPin(scroller: HTMLElement | Window): void {
     )
     .to(
       captions,
-      { y: 0, clipPath: 'inset(-10% -5% -10% -5%)', duration: 0.5, ease: 'power2.out', stagger: 0.05 },
+      { ...CAPTION_SHOWN, duration: 0.5, ease: 'power2.out', stagger: 0.05 },
       '-=0.35'
     )
     // Kurz liegen lassen, bevor der Pin loslässt.
     .to({}, { duration: 0.3 });
+}
+
+/**
+ * ScrollTrigger misst Start und Ende einmal und dann nur bei Resize/Load neu.
+ * Wächst die Seite oberhalb eines Triggers danach — die Markenschrift von
+ * Typekit kommt nach, Bilder ohne feste Höhe, die Nearby-Karten nach der
+ * Standortfreigabe —, griffe der Must-Eat-Pin an der alten Stelle: gemessen
+ * 300px zu früh bei 300px Zuwachs. Also bei jeder Höhenänderung der Seite neu
+ * messen, gebündelt auf eine Messung pro Ruhephase.
+ */
+function refreshOnReflow(): () => void {
+  const root = document.querySelector<HTMLElement>('[data-hub]');
+  if (!root || typeof ResizeObserver === 'undefined') return () => {};
+  let timer = 0;
+  let last = root.offsetHeight;
+  const ro = new ResizeObserver(() => {
+    // Der Pin-Abstandhalter ändert die Höhe selbst nicht mehr, sobald er steht;
+    // nur echte Änderungen zählen, sonst misst es sich im Kreis.
+    if (root.offsetHeight === last) return;
+    last = root.offsetHeight;
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => ScrollTrigger.refresh(), 150);
+  });
+  ro.observe(root);
+  return () => {
+    ro.disconnect();
+    window.clearTimeout(timer);
+  };
 }
 
 export default function HubMotion() {
@@ -527,6 +561,7 @@ export default function HubMotion() {
         if (desk) {
           armPhonesDrift(scroller);
           armMarqueePush(scroller);
+          stops.push(refreshOnReflow());
         }
         if (desk && pointer) stops.push(armHeroPointer());
         return () => stops.forEach((stop) => stop());

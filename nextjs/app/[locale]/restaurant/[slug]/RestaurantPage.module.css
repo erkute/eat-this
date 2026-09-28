@@ -548,6 +548,12 @@
   outline-offset: 3px;
 }
 
+/* Adresse eines vorübergehend geschlossenen Spots: kein Map-Link, also auch
+   nicht wie einer aussehen. */
+.addressPlain {
+  display: inline-grid;
+}
+
 .fact .hours {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);

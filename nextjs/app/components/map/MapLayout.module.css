@@ -279,6 +279,32 @@
        it (7), the sheet's bars over both (8). A stacking context of its own
        keeps the -1 above this body's background. */
     isolation: isolate;
+    /* The line the edge controls stand on — map credit left, locate button
+       right (MapControls.module.css), 44px tall, 14px above the sheet's
+       resting edge — and how far they ride up with the sheet before it
+       slides over them: to the middle stop (phoneSheetSnaps.ts: the list
+       rests at 72dvh of map, the middle stop leaves 50dvh), never past 104px
+       below the safe area, where search and burger begin. Like Google Maps. */
+    --edge-bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
+    --edge-ride: max(
+      0px,
+      min(
+        22dvh,
+        calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
+      )
+    );
+  }
+  /* The restaurant detail rests lower, its top edge at --detail-map-peek; its
+     middle stop leaves 27 of its 50 parts of map (46 % of the way up). */
+  .body[data-map-view='detail'] {
+    --edge-bottom: calc(100dvh - var(--detail-map-peek, 50lvh) + 14px);
+    --edge-ride: max(
+      0px,
+      min(
+        calc(var(--detail-map-peek, 50lvh) * 0.46),
+        calc(var(--detail-map-peek, 50lvh) - 162px - env(safe-area-inset-top, 0px))
+      )
+    );
   }
   .mapWrap {
     position: sticky;
@@ -307,19 +333,34 @@
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
     overflow: hidden;
   }
+  /* The map credit stands on the edge line, centred on the locate button's
+     44px: the credit stays (ODbL wants it on the map), the two just agree.
+     It sits in the 100lvh map, the button's dock in the viewport, hence the
+     lvh − dvh. It rides up and stops with the button (same timeline, same
+     range) and follows a sheet pulled below its rest through its child
+     (lib/map/sheetSlide.ts followSheet — this element's translate belongs to
+     the ride). */
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
-    bottom: calc(var(--phone-list-sheet-visible) + 10px);
-    /* Goes down with a sheet pulled below its resting edge, like the locate
-       button (lib/map/sheetSlide.ts followSheet). The credit stays: ODbL
-       wants it on the map. */
+    left: 14px;
+    bottom: calc(100lvh - 100dvh + var(--edge-bottom));
+    display: flex;
+    align-items: center;
+    height: 44px;
+  }
+  .mapWrap :global(.maplibregl-ctrl-bottom-left .maplibregl-ctrl) {
+    margin: 0;
+  }
+  @supports (animation-timeline: scroll()) {
+    .mapWrap :global(.maplibregl-ctrl-bottom-left) {
+      animation: edgeRide linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 var(--edge-ride);
+    }
   }
   .body[data-map-view='detail'][data-detail-kind='restaurant']
     .mapWrap
     :global(.maplibregl-ctrl-bottom-left) {
-    display: block;
-    /* Just above the sheet's resting edge, as when the map ended there. */
-    bottom: calc(100lvh - var(--detail-map-peek) + 6px);
-    left: 8px;
+    display: flex;
   }
   .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapWrap {
     visibility: hidden;
@@ -346,5 +387,15 @@
   html:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']),
   body:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']) {
     background: var(--et-ink);
+  }
+}
+
+/* The edge controls' ride up with the sheet (phone; see --edge-ride). */
+@keyframes edgeRide {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 calc(-1 * var(--edge-ride));
   }
 }

@@ -132,10 +132,10 @@ describe('Map CSS architecture', () => {
       'markerRootFree',
       'pinLogo',
       'pinLogoActive',
-      'pinLogoDim',
       'pinLogoEnter',
       'pinLogoHasMust',
       'pinLogoShape',
+      'pinLogoSmall',
       'userLoc',
       'userLocAvatar',
     ]);

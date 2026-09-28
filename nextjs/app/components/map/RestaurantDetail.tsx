@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { Fragment, useMemo } from 'react';
+import { Fragment, useLayoutEffect, useMemo, useRef } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
@@ -136,6 +136,16 @@ export default function RestaurantDetail({
     [restaurant, detail]
   );
 
+  /* Ein anderer Spot beginnt oben. Das Detail bleibt beim Wechsel gemountet
+     (Pager, Pin-Klick auf der Karte, Suche) und damit auch sein Scroller — auf
+     Desktop stand der neue Spot sonst dort, wo man im alten hingescrollt hatte
+     (Nutzer, 28.09.2026). Hier statt in jedem Aufrufer, damit kein Weg in ein
+     anderes Detail es vergisst. Vor dem Paint, sonst blitzt die alte Position. */
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [restaurant._id]);
+
   const hasHours = !!r.openingHours?.length;
 
   // Scale the hero name down for long single words so they fit on one line
@@ -268,7 +278,7 @@ export default function RestaurantDetail({
 
   return (
     <div className={styles.detail} data-detail-root="restaurant" role="dialog" aria-label={r.name}>
-      <div className={styles.scroll} data-detail-scroll>
+      <div ref={scrollRef} className={styles.scroll} data-detail-scroll>
         {/* HERO — full-bleed photo, save bookmark, name. */}
         <header className={styles.rdHero} data-detail-hero style={heroStyle}>
           <RestaurantGallery

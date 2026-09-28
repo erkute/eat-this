@@ -102,12 +102,9 @@ export default function MapCanvasLayer({
      darin ist. Der Zweck ist nicht Dekoration: sobald 400 gleich helle Pins
      im Bild stehen, ist der eine, um den es geht, nicht mehr zu finden — und
      genau das braucht man, um auf der Karte herumzuschauen, wo er liegt.
-     Sichtbar bleiben sie trotzdem, und anklickbar auch; sie sind nur leiser.
-
-     Die Ausnahme zur Opacity-Regel aus CLAUDE.md gilt hier: verboten sind
-     Opacity-Fades als Ein- und Ausblend-BEWEGUNG. Das hier ist ein Zustand
-     wie ein Hover-State — die Pins verschwinden nicht, sie treten zurück. */
-  const isDimmed = useCallback(
+     Sichtbar bleiben sie trotzdem, und anklickbar auch; sie sind nur kleiner
+     (`pinLogoSmall` in MapMarkers.module.css). */
+  const isRecessed = useCallback(
     (r: MapRestaurant) => focusedRestaurantId !== null && r._id !== focusedRestaurantId,
     [focusedRestaurantId]
   );
@@ -180,7 +177,7 @@ export default function MapCanvasLayer({
             key={restaurant._id}
             restaurant={restaurant}
             isSelected={false}
-            isDimmed={isDimmed(restaurant)}
+            isRecessed={isRecessed(restaurant)}
             onClick={onRestaurantClick}
             enterDelayMs={entering ? Math.min(i, ENTER_STAGGER_CAP) * ENTER_STAGGER_MS : null}
           />

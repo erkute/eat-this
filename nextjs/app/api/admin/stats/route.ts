@@ -18,6 +18,7 @@ import {
   type ReferralRecord,
   type RevealRecord,
 } from '@/lib/admin/stats.server';
+import { loadGa, loadGaRealtime } from '@/lib/admin/googleAnalytics.server';
 import { loadSearch } from '@/lib/admin/searchConsole.server';
 import { berlinDay } from '@/lib/analytics/visitorHash';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
@@ -26,8 +27,8 @@ import { getCachedMapData } from '@/lib/map/cached-sanity';
 
 /**
  * Die Leseseite des einwilligungsfreien Zählers (app/api/count/route.ts),
- * plus Konten, Karten, Umsatz (Firebase Auth, Firestore), der Katalog (Sanity)
- * und die Google-Suche (Search Console).
+ * plus Konten, Karten, Umsatz (Firebase Auth, Firestore), der Katalog (Sanity),
+ * die Google-Suche (Search Console) und die GA4-Nutzer daneben.
  *
  * Nur Admins: die Tagesdokumente tragen zwar keine personenbezogenen Daten
  * (der Besucher-Hash liegt in `analytics_seen` und wird hier nie angefasst),
@@ -184,20 +185,24 @@ const ACTIVE_WINDOW_MINUTES = 30;
  * app/api/count/route.ts). Eine Zaehl-Abfrage, kein Dokument wird gelesen —
  * der Pruefwert verlaesst Firestore nie.
  *
- * Anders als GA4 zaehlt das alle Besucher, nicht nur die Zustimmenden; der
- * Pruefwert wechselt um Mitternacht, kurz danach steht dieselbe Person fuer
- * bis zu 30 Minuten doppelt drin.
+ * Anders als GA4 zaehlt das alle Besucher, nicht nur die Zustimmenden — GAs
+ * eigene Zahl steht als `ga` daneben. Der Pruefwert wechselt um Mitternacht,
+ * kurz danach steht dieselbe Person fuer bis zu 30 Minuten doppelt drin.
  */
 async function loadLive(db: Firestore): Promise<Live | null> {
   try {
     const since = Date.now() - ACTIVE_WINDOW_MINUTES * 60_000;
-    const snapshot = await db
-      .collection('analytics_seen')
-      .where('lastSeenAt', '>=', Timestamp.fromMillis(since))
-      .count()
-      .get();
+    const [snapshot, ga] = await Promise.all([
+      db
+        .collection('analytics_seen')
+        .where('lastSeenAt', '>=', Timestamp.fromMillis(since))
+        .count()
+        .get(),
+      loadGaRealtime(),
+    ]);
     return {
       activeNow: snapshot.data().count,
+      ga,
       minutes: ACTIVE_WINDOW_MINUTES,
       at: new Date().toISOString(),
     };
@@ -261,7 +266,7 @@ export async function GET(request: Request) {
   //
   // Search Console und Katalog laufen nebenher und dürfen scheitern: ihre
   // Antwort ist entweder Zahlen oder der Grund, nie ein 500 fürs ganze Brett.
-  const [snapshot, accounts, search, deck, live] = await Promise.all([
+  const [snapshot, accounts, search, deck, live, ga] = await Promise.all([
     db
       .collection('analytics_daily')
       .where(FieldPath.documentId(), '>=', sinceDay(range.days * 2, range.end))
@@ -271,6 +276,7 @@ export async function GET(request: Request) {
     loadSearch(range),
     loadDeck(),
     loadLive(db),
+    loadGa(range),
   ]);
 
   const all: DailyDoc[] = snapshot.docs.map((doc) => ({
@@ -292,6 +298,7 @@ export async function GET(request: Request) {
       search,
       deck,
       live,
+      ga,
     }),
     { headers: NO_STORE }
   );

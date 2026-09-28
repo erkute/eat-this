@@ -51,6 +51,11 @@ vi.mock('@/lib/admin/searchConsole.server', () => ({
     Promise.resolve({ ok: false, reason: 'no-access', identity: 'sa@test', message: '403' }),
 }));
 
+vi.mock('@/lib/admin/googleAnalytics.server', () => ({
+  loadGa: () => Promise.resolve({ ok: true, users: 12, days: [{ day: '2026-08-31', users: 12 }] }),
+  loadGaRealtime: () => Promise.resolve(2),
+}));
+
 vi.mock('@/lib/map/cached-sanity', () => ({
   getCachedMapData: () => mocks.mapData(),
 }));
@@ -464,7 +469,8 @@ describe('GET /api/admin/stats — gerade aktiv', () => {
     const res = await GET(request({ authorization: 'Bearer abc' }));
     const body = await res.json();
 
-    expect(body.live).toMatchObject({ activeNow: 7, minutes: 30 });
+    expect(body.live).toMatchObject({ activeNow: 7, ga: 2, minutes: 30 });
+    expect(body.ga).toMatchObject({ ok: true, users: 12 });
     const since = mocks.activeSince.mock.calls[0][0] as number;
     expect(before - since).toBeGreaterThanOrEqual(30 * 60_000);
     expect(before - since).toBeLessThan(31 * 60_000);

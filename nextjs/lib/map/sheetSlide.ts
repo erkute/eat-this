@@ -34,7 +34,8 @@
 import { safeAreaInsetTop } from './safeArea';
 
 /** Map left showing above the sheet when it is all the way up — the bar
- *  sticks below it. Mirrors `--map-strip` in MapLayout.module.css (minus the
+ *  sticks below it and the sheet cuts itself off there (MapSheet.module.css,
+ *  `stripCut`). Mirrors `--map-strip` in MapLayout.module.css (minus the
  *  safe-area term, which mapStripLine adds). */
 export const MAP_STRIP_PX = 72;
 
@@ -42,10 +43,6 @@ export const MAP_STRIP_PX = 72;
 export function mapStripLine(): number {
   return safeAreaInsetTop() + MAP_STRIP_PX;
 }
-
-/** Fired on window by a tap on the map strip: take the sheet to the map, the
- *  same as a tap on the grabber (useHandleScrollDrag listens). */
-export const SHEET_COLLAPSE_EVENT = 'et:map-sheet-collapse';
 
 /** Fired on window when a grip gesture has come to rest — at the lowest stop,
  *  the map stop or back on the list. The lowest stop moves the sheet by
@@ -88,11 +85,13 @@ function reducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** Sheet content above the strip line — under the map strip while the sheet
- *  rests at the top. It would slide INTO view as the sheet moves down, so it
- *  is clipped away while the sheet is moved. clip-path lives in the element's
- *  own coordinates and travels with it. Measured with the transform off, so it
- *  reads the scroll position alone. */
+/** Sheet content above the strip line — cut off while the sheet rests at the
+ *  top. It would slide INTO view as the sheet moves down, so it stays clipped
+ *  while the sheet is moved. clip-path lives in the element's own coordinates
+ *  and travels with it. Measured with the transform off, so it reads the
+ *  scroll position alone. Where the browser runs scroll timelines, the
+ *  sheet's own `stripCut` (MapSheet.module.css) already cuts at the same line
+ *  and wins over this inline value; this one covers the rest. */
 function clipAbove(sheet: HTMLElement) {
   const held = sheet.style.transform;
   sheet.style.transform = '';
@@ -115,19 +114,6 @@ function clipAbove(sheet: HTMLElement) {
     hidden > 0 ? `inset(${Math.round(hidden)}px 0 0 0 round ${radius} ${radius} 0 0)` : '';
 }
 
-/**
- * For the length of a gesture the sheet rises to the map strip's level.
- * A transform makes the sheet a stacking context of its own, which puts its
- * sticky bar (z 8 inside it) under the strip (z 7) — and the strip reaches
- * 12px below its line to fill the bar's rounded corners. Pulling the bar down
- * from the top, those 12px of it — the grip included — vanished under the
- * strip (user, 23.09.2026). Level with the strip and after it in the DOM, the
- * sheet paints over it; its clip keeps the rows above the line out of view.
- */
-function lift(sheet: HTMLElement, on: boolean) {
-  sheet.style.zIndex = on ? '7' : '';
-}
-
 /** Put the sheet at an offset below its scroll position. */
 export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
   sheet.style.transform = offsetPx !== 0 ? `translateY(${Math.round(offsetPx)}px)` : '';
@@ -139,14 +125,12 @@ function release(sheet: HTMLElement): void {
   sheet.style.transform = '';
   sheet.style.clipPath = '';
   sheet.querySelector<HTMLElement>('[data-sheet-content]')?.style.removeProperty('clip-path');
-  lift(sheet, false);
   if (lowered === sheet) lowered = null;
   delete sheet.dataset.sheetLowered;
   followSheet(0);
 }
 
-/** Leave the sheet held at the lowest stop. Far from the strip, it needs no
- *  lift. `data-sheet-lowered` hands every touch on it to the grip
+/** Leave the sheet held at the lowest stop. `data-sheet-lowered` hands every touch on it to the grip
  *  (MapSheet.module.css, useHandleScrollDrag). */
 function hold(sheet: HTMLElement, offsetPx: number): void {
   release(sheet);
@@ -207,7 +191,6 @@ function glide(
  * on screen. Returns the offset the drag starts from.
  */
 export function grabFromList(sheet: HTMLElement): number {
-  lift(sheet, true);
   clipAbove(sheet);
   return 0;
 }

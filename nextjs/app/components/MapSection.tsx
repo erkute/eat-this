@@ -222,11 +222,19 @@ export default function MapSection({
       scrollListToAnchor('peek');
       return;
     }
+    /* The phone restaurant detail is window-scrolled like the list, its map
+       stop is scroll 0 (phoneSheetSnaps.ts), and the snap below moves nothing
+       there (useBottomSheet leaves in-flow phone sheets alone). A tap on the
+       map above a pushed-up detail used to change the state and leave the
+       page where it was (user, 28.09.2026). */
+    if (isPhoneViewport() && sheetElRef.current?.dataset.detailKind === 'restaurant') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     if (snap !== 'peek') {
       setSnap('peek');
       reapplySnap('peek');
     }
-  }, [sheetView, snap, setSnap, reapplySnap, scrollListToAnchor]);
+  }, [sheetView, snap, setSnap, reapplySnap, scrollListToAnchor, sheetElRef]);
 
   /* Der erste Tipp auf die Karte räumt nur weg (User, 04.09.2026).
      Steht eine Detailansicht offen und liegt sie noch über der Karte, dann

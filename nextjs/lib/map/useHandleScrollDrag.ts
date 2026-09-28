@@ -11,7 +11,6 @@ import {
   LOWERED_GAP_PX,
   mapStripLine,
   raiseToList,
-  SHEET_COLLAPSE_EVENT,
   settleOnMap,
 } from './sheetSlide';
 
@@ -367,21 +366,6 @@ export function useHandleScrollDrag(
       }
     };
 
-    /* A tap on the map strip: the same as a tap on the grabber, from deep in
-       the sheet. */
-    const onCollapse = () => {
-      if (!isPhone() || busy || drag) return;
-      const { sheet, sheetStop, mapY, restLine } = geometry();
-      if (!slides(sheet) || window.scrollY <= sheetStop + AT_STOP_PX) return;
-      busy = true;
-      trackEvent('map_view_toggle', { direction: 'to_map' });
-      void settleOnMap(sheet, grabFromList(sheet), restLine, { restLinePx: restLine, mapY }).finally(
-        () => {
-          busy = false;
-        }
-      );
-    };
-
     /* Lowered sits at the map stop; anything that scrolls the page away from
        it (a filter, a returning detail) takes the sheet back up first. */
     const onScroll = () => {
@@ -405,9 +389,7 @@ export function useHandleScrollDrag(
     zone.addEventListener('lostpointercapture', onUp);
     press.addEventListener('click', onClick, true);
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
     return () => {
-      window.removeEventListener(SHEET_COLLAPSE_EVENT, onCollapse);
       if (frame) window.cancelAnimationFrame(frame);
       press.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointermove', onMove, true);

@@ -9,7 +9,6 @@ import MapCanvas from './MapCanvas';
 import RestaurantMarker from './RestaurantMarker';
 import UserLocationMarker from './UserLocationMarker';
 import TransitLayer from './TransitLayer';
-import { useMapStripMirror } from './MapStrip';
 
 /* The pins are DOM, the basemap is WebGL, and the DOM wins the first frame —
    so on a cold load the yellow markers hung on white until the vector tiles
@@ -137,9 +136,6 @@ export default function MapCanvasLayer({
       map.off('moveend', read);
     };
   }, [mapRef, painted]);
-
-  /* The phone map strip (MapStrip) copies this map frame by frame. */
-  useMapStripMirror(mapRef, painted);
 
   /* Every spot is its own marker — no grouping — but only the ones near the
      viewport get a DOM node. Production carried 169 markers at the default

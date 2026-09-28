@@ -8,7 +8,7 @@ vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
 
 import { useHandleScrollDrag } from './useHandleScrollDrag';
 import { snapOffsets } from './phoneSheetSnaps';
-import { LOWERED_GAP_PX, MAP_STRIP_PX, SHEET_COLLAPSE_EVENT } from './sheetSlide';
+import { LOWERED_GAP_PX, MAP_STRIP_PX } from './sheetSlide';
 
 /**
  * The phone list's grabber — pull the list off the map and back.
@@ -178,21 +178,6 @@ describe('in the list', () => {
       expect(sheet().style.transform).toBe('');
     });
 
-    it('lifts the sheet over the map strip for the gesture, and only then', async () => {
-      /* A transform makes the sheet a stacking context, which put its bar
-       under the strip — and the strip reaches past its line, so the top of
-       the bar and its grip vanished while being pulled. */
-      window.scrollY = DEEP;
-      const handle = document.querySelector('[data-sheet-handle]')!;
-      handle.dispatchEvent(pointer('pointerdown', 100, 0));
-      handle.dispatchEvent(pointer('pointermove', 105, 16));
-      expect(sheet().style.zIndex).toBe('7');
-
-      handle.dispatchEvent(pointer('pointerup', 105, 32));
-      await settle();
-      expect(sheet().style.zIndex).toBe('');
-    });
-
     it('takes a short but fast flick as a decision', async () => {
       window.scrollY = DEEP;
       drag(40, { steps: 2, msPerStep: 16 });
@@ -326,14 +311,6 @@ describe('the map strip', () => {
     await settle();
 
     expect(window.scrollY).toBe(SHEET_DOC_TOP - MAP_STRIP_PX);
-  });
-
-  it('takes a tap on the strip to the map, with the list at its top', async () => {
-    window.scrollY = DEEP;
-    window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
-    await settle();
-
-    expectRestingAtTop();
   });
 });
 

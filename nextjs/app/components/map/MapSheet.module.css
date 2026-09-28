@@ -274,33 +274,40 @@
   }
 
   /* The map strip: all the way up, --map-strip of the real map stays above
-     the sheet (user, 22.09.2026). The sheet cuts itself off at that line —
-     whatever scrolls above it is clipped, and the map that lies behind the
-     page anyway shows there, pans there and takes taps there.
+     the sheet (user, 22.09.2026). Whatever scrolls above the stuck bar is
+     cut away there, and the map that lies behind the page anyway shows,
+     pans and takes taps.
 
      Until 28.09.2026 the strip was a COPY of the map in a fixed layer, drawn
      frame by frame, because lifting the map over the rows from a scroll
      handler came a frame or two late on iOS and rows flashed through on a
-     flick (23.09.2026). A scroll timeline does not wait for the main thread:
-     it runs in step with the scroll itself, like the locate button's ride
-     (MapControls.module.css).
+     flick (23.09.2026). A scroll timeline does not wait for the main thread
+     — but in WebKit only for the properties the compositor animates
+     (transform, opacity, filter). A `clip-path` cut on the sheet stood
+     right at rest and lagged in motion: on a flick the rows ran up through
+     the strip (user on iOS 26.4+, reproduced in the iOS 27 simulator,
+     28.09.2026). So the cut is made of transforms only:
 
-     The cut is `scroll − start` below the sheet's top, i.e. exactly at the
-     line — linear, over a span longer than any list. It starts 12px early at
-     −12px, so the grab band above the handle (.handle::after reaches 12px
-     up) stays reachable while the sheet rests over the map. Rounded like the
-     bars' own top corners, so the rows never show in them either — the copy
-     reached 12px below the line for that. Same geometry as the clip a grip
-     gesture puts on the sheet (sheetSlide.ts clipAbove), which this matches
-     while the scroll holds still under the gesture.
+     - .stripWindow is the rows' box. It rides down 1:1 with the scroll once
+       the bar sticks, so its top edge stays at the bar's lower edge, and it
+       clips (overflow: clip). No row ever passes above the bar.
+     - .stripInner rides back up by the same amount, so the rows themselves
+       scroll as they always did.
+     - .stripClip stays in flow and clips the window's tail — a box moved
+       down by a transform would otherwise stretch the document, and the page
+       would scroll on into nothing.
 
-     `clip-path` makes the sheet a stacking context. At z auto it paints
-     where the sheet always painted — after the locate dock, under search and
-     burger (8) — and its bars stay above its rows inside it.
+     The range starts when the sheet's top reaches the strip line: that is
+     when the bar sticks and the rows' top meets its lower edge. The bars
+     themselves are not in the window; they stick on their own.
 
-     Without scroll timelines (iOS before 26.4) there is no cut: the rows run
-     up under the top edge. The must-eat takeover has no map behind it and
-     is left alone. */
+     Without scroll timelines there is no cut: the rows run up under the top
+     edge. The must-eat takeover has no map behind it and is left alone. */
+  .stripClip {
+    display: block;
+    overflow: clip;
+  }
+
   @supports (animation-timeline: scroll()) {
     .list[data-view='list'] {
       --strip-cut-from: calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - var(--map-strip));
@@ -308,22 +315,92 @@
 
     .list[data-view='detail'][data-detail-kind='restaurant'] {
       --strip-cut-from: calc(var(--detail-map-peek) - var(--map-strip));
+      /* The ink rides in the window instead: the sheet's own background
+         scrolls with the page and would fill the strip. */
+      background: transparent;
     }
 
-    .list[data-view='list'],
-    .list[data-view='detail'][data-detail-kind='restaurant'] {
-      animation: stripCut linear both;
+    .list[data-view='list'] .stripWindow,
+    .list[data-view='detail'][data-detail-kind='restaurant'] .stripWindow,
+    .list[data-view='list'] .stripInner,
+    .list[data-view='detail'][data-detail-kind='restaurant'] .stripInner {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
       animation-timeline: scroll(root block);
-      animation-range: calc(var(--strip-cut-from) - 12px) calc(var(--strip-cut-from) + 99988px);
+      animation-range: var(--strip-cut-from) calc(var(--strip-cut-from) + 99999px);
+    }
+
+    .list[data-view='list'] .stripWindow,
+    .list[data-view='detail'][data-detail-kind='restaurant'] .stripWindow {
+      animation-name: stripWindow;
+      overflow: clip;
+    }
+
+    .list[data-view='list'] .stripInner,
+    .list[data-view='detail'][data-detail-kind='restaurant'] .stripInner {
+      animation-name: stripInner;
+    }
+
+    /* Taps in the strip belong to the map. The sheet and the clip around
+       the window reach up there as empty boxes and would catch them — the
+       clip-path cut used to take their hit area with it. Only the bars and
+       the window take taps. */
+    .list[data-view='list'],
+    .list[data-view='detail'][data-detail-kind='restaurant'],
+    .list[data-view='list'] .stripClip,
+    .list[data-map-sheet][data-view='detail'][data-detail-kind='restaurant'] > [data-detail-mount] {
+      pointer-events: none;
+    }
+
+    .list[data-view='list'] > :not(.stripClip),
+    .list[data-view='detail'][data-detail-kind='restaurant'] > .handle,
+    .list[data-view='list'] .stripWindow,
+    .list[data-view='detail'][data-detail-kind='restaurant'] .stripWindow {
+      pointer-events: auto;
+    }
+
+    .list[data-view='detail'][data-detail-kind='restaurant'] .stripWindow {
+      background: var(--et-ink);
+      isolation: isolate;
+      min-height: calc(100dvh - var(--detail-map-peek, 190px) + var(--map-bar-overhang, 0px));
+    }
+
+    /* The detail mount is the detail's .stripClip, and its ink moves into
+       the window like the sheet's. One attribute more than the mount's own
+       rules (MapSheetDetail.module.css: overflow-y visible, ink background)
+       — between two modules only specificity decides. */
+    .list[data-map-sheet][data-view='detail'][data-detail-kind='restaurant'] > [data-detail-mount] {
+      overflow: clip;
+      background: transparent;
     }
   }
 }
 
-@keyframes stripCut {
+/* Outside the phone the wrappers step aside: the rail and the tablet sheet
+   scroll their own port — .listScroll in the list, the detail's own flex
+   child in a restaurant — and an extra box around it would take its height. */
+@media (min-width: 768px) {
+  .stripClip,
+  .list[data-view='detail'] .stripWindow,
+  .list[data-view='detail'] .stripInner {
+    display: contents;
+  }
+}
+
+@keyframes stripWindow {
   from {
-    clip-path: inset(-12px 0 0 0 round 10px 10px 0 0);
+    transform: translateY(0);
   }
   to {
-    clip-path: inset(99988px 0 0 0 round 10px 10px 0 0);
+    transform: translateY(99999px);
+  }
+}
+
+@keyframes stripInner {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-99999px);
   }
 }

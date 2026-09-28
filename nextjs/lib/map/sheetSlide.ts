@@ -34,9 +34,9 @@
 import { safeAreaInsetTop } from './safeArea';
 
 /** Map left showing above the sheet when it is all the way up — the bar
- *  sticks below it and the sheet cuts itself off there (MapSheet.module.css,
- *  `stripCut`). Mirrors `--map-strip` in MapLayout.module.css (minus the
- *  safe-area term, which mapStripLine adds). */
+ *  sticks below it, and nothing of the sheet shows above the bar
+ *  (MapSheet.module.css, "The map strip"). Mirrors `--map-strip` in
+ *  MapLayout.module.css (minus the safe-area term, which mapStripLine adds). */
 export const MAP_STRIP_PX = 72;
 
 /** Where the strip ends on screen: the line the sticky bar rests on. */
@@ -89,9 +89,10 @@ function reducedMotion(): boolean {
  *  top. It would slide INTO view as the sheet moves down, so it stays clipped
  *  while the sheet is moved. clip-path lives in the element's own coordinates
  *  and travels with it. Measured with the transform off, so it reads the
- *  scroll position alone. Where the browser runs scroll timelines, the
- *  sheet's own `stripCut` (MapSheet.module.css) already cuts at the same line
- *  and wins over this inline value; this one covers the rest. */
+ *  scroll position alone. Where the browser runs scroll timelines, the rows
+ *  already sit in a window that ends at the bar (MapSheet.module.css, "The
+ *  map strip"), so the content clip below measures 0 there; the sheet clip
+ *  still cuts the bars' slot above the line while the sheet moves. */
 function clipAbove(sheet: HTMLElement) {
   const held = sheet.style.transform;
   sheet.style.transform = '';

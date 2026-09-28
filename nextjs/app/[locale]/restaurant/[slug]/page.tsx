@@ -9,6 +9,7 @@ import {
   getAllRestaurantsLite,
 } from '@/lib/sanity.server';
 import { resolveLegacyRestaurantSlug } from '@/lib/seo/legacyRedirects';
+import { DELISTED_RESTAURANT_REDIRECTS } from '@/lib/seo/delistedSpots';
 import { buildRestaurantJsonLd } from '@/lib/json-ld';
 import {
   buildCuratedRestaurantTitle,
@@ -201,6 +202,9 @@ export default async function RestaurantPage({ params }: PageProps) {
     if (dest && dest !== slug) {
       permanentRedirect(locale === 'de' ? `/restaurant/${dest}` : `/${locale}/restaurant/${dest}`);
     }
+    // Spots taken off the map keep their search traffic on the nearest hub.
+    const hub = DELISTED_RESTAURANT_REDIRECTS[slug];
+    if (hub) permanentRedirect(locale === 'de' ? hub : `/${locale}${hub}`);
     notFound();
   }
   const { restaurant: r, mustEats, articles, siblings } = page;

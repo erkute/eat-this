@@ -7,12 +7,23 @@ const mocks = vi.hoisted(() => ({
   listUsers: vi.fn(),
   collectionGroup: vi.fn(),
   mapData: vi.fn(),
+  activeCount: vi.fn(),
+  activeSince: vi.fn(),
 }));
 
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminAuth: () => ({ verifyIdToken: mocks.verifyIdToken, listUsers: mocks.listUsers }),
   getAdminFirestore: () => ({
-    collection: () => {
+    collection: (name: string) => {
+      if (name === 'analytics_seen') {
+        // „Gerade aktiv": ein Filter auf lastSeenAt, dann eine Zaehl-Abfrage.
+        return {
+          where: (_field: string, _op: string, value: { __ts: number }) => {
+            mocks.activeSince(value.__ts);
+            return { count: () => ({ get: () => mocks.activeCount() }) };
+          },
+        };
+      }
       // Zwei Bereichsfilter auf der Dokument-ID, dann `get`.
       const query = {
         where: (field: unknown, op: string, value: string) => {
@@ -32,6 +43,7 @@ vi.mock('@/lib/firebase/admin', () => ({
 
 vi.mock('firebase-admin/firestore', () => ({
   FieldPath: { documentId: () => '__name__' },
+  Timestamp: { fromMillis: (ms: number) => ({ __ts: ms }) },
 }));
 
 vi.mock('@/lib/admin/searchConsole.server', () => ({
@@ -95,6 +107,8 @@ describe('GET /api/admin/stats', () => {
     mocks.listUsers.mockReset().mockResolvedValue({ users: [], pageToken: undefined });
     mocks.collectionGroup.mockReset().mockResolvedValue(snapshot([]));
     mocks.mapData.mockReset().mockResolvedValue({ restaurants: [], mustEats: [], categories: [] });
+    mocks.activeCount.mockReset().mockResolvedValue({ data: () => ({ count: 0 }) });
+    mocks.activeSince.mockReset();
     delete process.env.ADMIN_EMAILS;
     delete process.env.STATS_EXCLUDE_EMAILS;
   });
@@ -430,6 +444,58 @@ describe('GET /api/admin/stats', () => {
     body = await (await GET(request({ authorization: 'Bearer abc' }))).json();
     expect(body.deck).toBeNull();
     expect(body.totals).toBeDefined();
+  });
+});
+
+describe('GET /api/admin/stats — gerade aktiv', () => {
+  beforeEach(() => {
+    mocks.verifyIdToken.mockReset().mockResolvedValue({ uid: 'u1', admin: true });
+    mocks.where.mockReset();
+    mocks.get.mockReset().mockResolvedValue(snapshot([]));
+    mocks.listUsers.mockReset().mockResolvedValue({ users: [], pageToken: undefined });
+    mocks.collectionGroup.mockReset().mockResolvedValue(snapshot([]));
+    mocks.mapData.mockReset().mockResolvedValue({ restaurants: [], mustEats: [], categories: [] });
+    mocks.activeCount.mockReset().mockResolvedValue({ data: () => ({ count: 7 }) });
+    mocks.activeSince.mockReset();
+  });
+
+  it('zählt Prüfwerte mit Aktivität in den letzten 30 Minuten', async () => {
+    const before = Date.now();
+    const res = await GET(request({ authorization: 'Bearer abc' }));
+    const body = await res.json();
+
+    expect(body.live).toMatchObject({ activeNow: 7, minutes: 30 });
+    const since = mocks.activeSince.mock.calls[0][0] as number;
+    expect(before - since).toBeGreaterThanOrEqual(30 * 60_000);
+    expect(before - since).toBeLessThan(31 * 60_000);
+  });
+
+  it('liefert mit ?only=live nur die Live-Zahl, ohne das Fenster zu rechnen', async () => {
+    const res = await GET(request({ authorization: 'Bearer abc' }, '?only=live'));
+    const body = await res.json();
+
+    expect(body).toEqual({ live: expect.objectContaining({ activeNow: 7 }) });
+    expect(mocks.where).not.toHaveBeenCalled();
+    expect(mocks.listUsers).not.toHaveBeenCalled();
+    expect(res.headers.get('cache-control')).toBe('no-store');
+  });
+
+  it('verrät die Live-Zahl keinem Nicht-Admin', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', email: 'gast@example.com' });
+
+    const res = await GET(request({ authorization: 'Bearer abc' }, '?only=live'));
+
+    expect(res.status).toBe(404);
+    expect(mocks.activeCount).not.toHaveBeenCalled();
+  });
+
+  it('reißt das Brett nicht, wenn die Zählabfrage scheitert', async () => {
+    mocks.activeCount.mockRejectedValue(new Error('FAILED_PRECONDITION'));
+
+    const res = await GET(request({ authorization: 'Bearer abc' }));
+
+    expect(res.status).toBe(200);
+    expect((await res.json()).live).toBeNull();
   });
 });
 

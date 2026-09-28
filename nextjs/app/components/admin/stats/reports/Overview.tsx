@@ -93,6 +93,13 @@ export default function Overview({
   return (
     <>
       <div className={styles.kpis}>
+        {data.live && (
+          <Kpi
+            label="Gerade aktiv"
+            value={NUMBER.format(data.live.activeNow)}
+            hint={`letzte ${data.live.minutes} Min · Stand ${new Date(data.live.at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`}
+          />
+        )}
         <Kpi
           label="Besucher"
           value={NUMBER.format(totals.visitors)}

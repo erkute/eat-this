@@ -1,5 +1,5 @@
 import type { Auth } from 'firebase-admin/auth';
-import { FieldPath, type Firestore, type Timestamp } from 'firebase-admin/firestore';
+import { FieldPath, Timestamp, type Firestore } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
 import {
   parseRange,
@@ -12,6 +12,7 @@ import {
   type CheckoutRecord,
   type DailyDoc,
   type Deck,
+  type Live,
   type PurchaseRecord,
   type Range,
   type ReferralRecord,
@@ -174,6 +175,37 @@ async function loadAccounts(
   );
 }
 
+/** „Gerade aktiv" — dasselbe Fenster wie der Echtzeitbericht von GA4. */
+const ACTIVE_WINDOW_MINUTES = 30;
+
+/**
+ * Besucher mit einem Beacon in den letzten 30 Minuten: Pruefwerte in
+ * `analytics_seen`, deren `lastSeenAt` im Fenster liegt (gesetzt von
+ * app/api/count/route.ts). Eine Zaehl-Abfrage, kein Dokument wird gelesen —
+ * der Pruefwert verlaesst Firestore nie.
+ *
+ * Anders als GA4 zaehlt das alle Besucher, nicht nur die Zustimmenden; der
+ * Pruefwert wechselt um Mitternacht, kurz danach steht dieselbe Person fuer
+ * bis zu 30 Minuten doppelt drin.
+ */
+async function loadLive(db: Firestore): Promise<Live | null> {
+  try {
+    const since = Date.now() - ACTIVE_WINDOW_MINUTES * 60_000;
+    const snapshot = await db
+      .collection('analytics_seen')
+      .where('lastSeenAt', '>=', Timestamp.fromMillis(since))
+      .count()
+      .get();
+    return {
+      activeNow: snapshot.data().count,
+      minutes: ACTIVE_WINDOW_MINUTES,
+      at: new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** Der Katalog aus Sanity — darf fehlen, ohne das Brett zu reissen. */
 async function loadDeck(): Promise<Deck | null> {
   try {
@@ -206,8 +238,16 @@ export async function GET(request: Request) {
   }
   if (!isAdmin) return notFound();
 
+  const db = getAdminFirestore();
+  const params = new URL(request.url).searchParams;
+  // Nur die Live-Zahl — das Brett fragt sie jede Minute nach, ohne das ganze
+  // Fenster neu zu rechnen.
+  if (params.get('only') === 'live') {
+    return NextResponse.json({ live: await loadLive(db) }, { headers: NO_STORE });
+  }
+
   const today = berlinDay();
-  const range = parseRange(new URL(request.url).searchParams, today);
+  const range = parseRange(params, today);
 
   // Doppelt so weit zurück wie angefragt: die zweite Hälfte ist der gewählte
   // Zeitraum, die erste die gleich lange Periode davor, gegen die verglichen
@@ -221,8 +261,7 @@ export async function GET(request: Request) {
   //
   // Search Console und Katalog laufen nebenher und dürfen scheitern: ihre
   // Antwort ist entweder Zahlen oder der Grund, nie ein 500 fürs ganze Brett.
-  const db = getAdminFirestore();
-  const [snapshot, accounts, search, deck] = await Promise.all([
+  const [snapshot, accounts, search, deck, live] = await Promise.all([
     db
       .collection('analytics_daily')
       .where(FieldPath.documentId(), '>=', sinceDay(range.days * 2, range.end))
@@ -231,6 +270,7 @@ export async function GET(request: Request) {
     loadAccounts(getAdminAuth(), db, range, today),
     loadSearch(range),
     loadDeck(),
+    loadLive(db),
   ]);
 
   const all: DailyDoc[] = snapshot.docs.map((doc) => ({
@@ -251,6 +291,7 @@ export async function GET(request: Request) {
       accounts,
       search,
       deck,
+      live,
     }),
     { headers: NO_STORE }
   );

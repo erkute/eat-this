@@ -444,7 +444,8 @@ a.quiet {
   left: 50%;
   width: 48px;
   height: 56px;
-  color: var(--et-accent);
+  /* Weiß, nicht Gelb — Hand und Ring (Betreiber, 28.09.2026). */
+  color: var(--et-white);
   pointer-events: none;
   animation: tapApproach 650ms ease-in-out both;
 }
@@ -459,7 +460,7 @@ a.quiet {
   left: 6px;
   width: 30px;
   height: 30px;
-  border: 3px solid var(--et-accent);
+  border: 3px solid var(--et-white);
   border-radius: 50%;
   animation: tapRipple 650ms ease-out both;
 }

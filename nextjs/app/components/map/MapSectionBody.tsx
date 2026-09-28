@@ -155,9 +155,6 @@ interface MapBodyHandlers {
 /* Host-locale-aware aria copy passed in from the server-rendered shell. */
 interface MapBodyAria {
   myLocationAriaLabel: string;
-  /** Visible on the locate control until a position is shared — see
-   *  `.fab[data-invite]`. Doubles as its accessible name there. */
-  locateInviteLabel: string;
   restaurantsListAriaLabel: string;
 }
 
@@ -239,7 +236,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onToggleDesktopPanel,
     onRetryMapData,
     myLocationAriaLabel,
-    locateInviteLabel,
     restaurantsListAriaLabel,
   } = props;
 
@@ -302,23 +298,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       ? { copy: null, isError: false, canRetry: false }
       : rawLocationStatus;
 
-  /* The locate FAB is a bare icon on a halo — nothing on screen says the map
-     could centre on you, so nobody presses it. It introduces itself instead.
-     The hook owns WHEN, because the two cases differ: an unanswered permission
-     gets a standing invitation, a granted one a short greeting that ends when
-     the position lands (useLocationInvite). Note it is NOT gated on `location`
-     here any more — that would collapse the greeting the instant the fix
-     arrives, which for a cached fix is a frame or two. */
-  const locateLabel = useLocationInvite(location !== null);
-  /* Im Detail bleibt der Knopf das nackte Icon: die Plakette war für die Karte
-     ohne Standortfreigabe gedacht, im 50dvh-Streifen über dem Detail nimmt sie
-     ein Drittel der Kartenbreite (User, 03.09.2026). */
-  const showLocateInvite =
-    locateLabel !== null && isActive && !locationError && !locateLoading && sheetView !== 'detail';
-  /* Only an unanswered permission is a funnel step. A greeting is shown to
-     someone who has nothing left to decide, so counting it would pad the
-     denominator with returning visitors. */
-  const isRealInvite = showLocateInvite && locateLabel === 'invite';
+  /* A first visit with the location question still open: the map asks once,
+     through the info card (useLocationWelcome), never over a detail. That is
+     also the funnel step — a visitor who already answered has nothing to
+     decide, and counting them would pad the denominator. */
+  const invited = useLocationInvite(location !== null);
+  const isRealInvite =
+    invited && isActive && !locationError && !locateLoading && sheetView !== 'detail';
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locatingVisible ? 'loading' : 'idle'}`
     : null;
@@ -595,13 +581,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       /* In the invite state the accessible name IS the visible label —
                anything else leaves a screen reader hearing one control and
                everyone else reading another. */
-      aria-label={showLocateInvite ? locateInviteLabel : myLocationAriaLabel}
+      aria-label={myLocationAriaLabel}
       className={controlStyles.fab}
       data-locate-fab=""
-      data-invite={showLocateInvite ? '' : undefined}
     >
       <svg
-        className={`${controlStyles.fabIcon}${showLocateInvite ? ` ${controlStyles.fabIconOnPlate}` : ''}`}
+        className={controlStyles.fabIcon}
         viewBox="0 0 24 24"
         aria-hidden="true"
       >
@@ -632,11 +617,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
           strokeLinecap="round"
         />
       </svg>
-      {/* Always mounted so the label can collapse back out on the way
-                down, not just unfold on the way in. */}
-      <span className={controlStyles.fabLabel} aria-hidden="true">
-        <span>{locateInviteLabel}</span>
-      </span>
     </button>
   );
 

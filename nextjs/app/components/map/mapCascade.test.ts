@@ -92,41 +92,6 @@ describe('MapControls cascade', () => {
     }
   });
 
-  it('unfolds the locate label by geometry, never by fading it in', () => {
-    /* A brand surface appearing on the map moves — it does not materialise
-     * (CLAUDE.md). It must also actually MOVE: this shipped once as a
-     * `0fr → 1fr` grid column, the usual animate-to-content-width trick, and
-     * Chrome refused to create a transition for it at all in an auto-width
-     * flex item — `getAnimations()` on the label came back empty on
-     * production and the track stayed pinned at 0px, so the label was clipped
-     * to nothing. `max-width` is the mechanism that survives; the fr trick is
-     * documented for HEIGHTS, where the container has a definite inline size.
-     * Assert the property by name so a well-meaning "cleanup" back to fr
-     * fails here instead of on someone's phone. */
-    const transition = effective(CONTROLS, 'fabLabel', 'transition');
-    expect(transition, '.fabLabel has no effective transition').toBeDefined();
-    expect(
-      transition!.includes('max-width'),
-      `.fabLabel must animate max-width — an fr track does not transition here. Got: ${transition}`
-    ).toBe(true);
-    expect(
-      transition!.includes('grid-template-columns'),
-      `.fabLabel must NOT go back to an fr track — Chrome creates no transition for it. Got: ${transition}`
-    ).toBe(false);
-    expect(
-      transition!.includes('opacity'),
-      `.fabLabel must not fade — brand surfaces move. Got: ${transition}`
-    ).toBe(false);
-  });
-
-  it('drops the icon halo once the icon sits on its own plate', () => {
-    /* The drop-shadow exists so the free-standing icon survives on top of a
-     * yellow pin. On the pill's own plate the same filter is only a glow
-     * around the crosshair. Separate class on purpose, so the halo assertion above
-     * keeps guarding the plate-less state. */
-    expect(effective(CONTROLS, 'fabIconOnPlate', 'filter')).toBe('none');
-  });
-
   it('pins the phone controls to the VISUAL viewport, not just the layout one', () => {
     /* iOS does not shrink the layout viewport when the keyboard opens — it
      * slides the visual viewport down inside it. `position: fixed` anchors to

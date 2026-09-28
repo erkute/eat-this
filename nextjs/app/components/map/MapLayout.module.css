@@ -282,18 +282,29 @@
     /* The line the edge controls stand on — map credit left, locate button
        right (MapControls.module.css), 44px tall, 14px above the sheet's
        resting edge — and how far they ride up with the sheet before it
-       slides over them: until their top is 104px below the safe area, clear
-       of search and burger. Like Google Maps. */
+       slides over them: to the middle stop (phoneSheetSnaps.ts: the list
+       rests at 72dvh of map, the middle stop leaves 50dvh), never past 104px
+       below the safe area, where search and burger begin. Like Google Maps. */
     --edge-bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
     --edge-ride: max(
       0px,
-      calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
+      min(
+        22dvh,
+        calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
+      )
     );
   }
-  /* The restaurant detail rests lower, its top edge at --detail-map-peek. */
+  /* The restaurant detail rests lower, its top edge at --detail-map-peek; its
+     middle stop leaves 27 of its 50 parts of map (46 % of the way up). */
   .body[data-map-view='detail'] {
     --edge-bottom: calc(100dvh - var(--detail-map-peek, 50lvh) + 14px);
-    --edge-ride: max(0px, calc(var(--detail-map-peek, 50lvh) - 162px - env(safe-area-inset-top, 0px)));
+    --edge-ride: max(
+      0px,
+      min(
+        calc(var(--detail-map-peek, 50lvh) * 0.46),
+        calc(var(--detail-map-peek, 50lvh) - 162px - env(safe-area-inset-top, 0px))
+      )
+    );
   }
   .mapWrap {
     position: sticky;

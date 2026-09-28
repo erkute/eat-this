@@ -85,7 +85,6 @@ const en = {
     // way the rest of the map does ("You're here.", "Tap the card.") — a bare
     // "Locate" would be a system control, not ours. The covered card's
     // no-location state says the same thing, deliberately.
-    locateInvite: 'Where are you?',
     restaurantsListAriaLabel: 'Restaurants nearby',
     open: 'Open',
     closed: 'Closed',
@@ -472,7 +471,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   map: {
     filterAll: 'Alle',
     myLocationAriaLabel: 'Mein Standort',
-    locateInvite: 'Wo bist du?',
     restaurantsListAriaLabel: 'Restaurants in der N\u00e4he',
     openNow: 'Offen',
     open: 'Ge\u00f6ffnet',

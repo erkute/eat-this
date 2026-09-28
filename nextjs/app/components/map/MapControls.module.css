@@ -66,7 +66,7 @@
    refit would otherwise swallow them. Tight stacked shadows read as a cut-out,
    a wide blur as a glow. Ink since the map went dark (04.09.2026) — a white
    halo around a white glyph glowed. Not on the open search toolbar's icon,
-   which has its own surface, nor on the locate icon on its invite plate. */
+   which has its own surface. */
 .mapSearchBtn .mapSearchIcon,
 .mapBurgerLines,
 .fabIcon {
@@ -402,6 +402,17 @@
     z-index: 8;
   }
 
+  /* The glyphs, not the 44px buttons, stand 14px from the sides — the same
+     inset as the map credit and the locate crosshair below. The tap area
+     reaches almost to the edge. */
+  .mapSearchBtn {
+    left: 3px;
+  }
+
+  .mapBurger {
+    right: 3px;
+  }
+
   /* The must-eat detail is a takeover with no map behind it. */
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchBtn,
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchToolbar,
@@ -467,11 +478,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* The width follows the content in both states: 44px bare, the pill when
-     the label is out. `auto` does not interpolate, so only the label's
-     max-width animates. Anchored right, it grows away from the edge. */
-  width: auto;
-  min-width: 44px;
+  width: 44px;
   height: 44px;
   /* Never yellow (Betreiber, 23.09.2026: „mag das Gelb nicht"). */
   color: var(--et-white);
@@ -522,66 +529,6 @@
   transform: rotate(3deg);
 }
 
-/* Invite state: the button says its name. It grows into a labelled pill on
-   the chips' surface until a position arrives, then folds back to the icon. */
-.fab[data-invite] {
-  gap: 7px;
-  padding: 0 15px 0 11px;
-  background: var(--et-ink-raised);
-  color: var(--et-white);
-  border-radius: var(--et-radius-control);
-}
-
-.fab[data-invite]:focus-visible {
-  color: var(--et-white);
-  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
-}
-
-@media (hover: hover) {
-  .fab[data-invite]:hover {
-    color: var(--et-white);
-    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
-  }
-}
-
-/* On its own plate the halo is a glow, not legibility. */
-.fabIconOnPlate {
-  filter: none;
-}
-
-/* The label folds OUT of the icon, by max-width — never by fading.
-   A 0fr → 1fr grid column does not animate here: Chrome creates no
-   transition for grid-template-columns in an auto-width flex item (measured
-   on eatthisdot.com, getAnimations() → []). 7rem sits just above the longest
-   label (EN „Where are you?" ~85px). */
-.fabLabel {
-  display: block;
-  max-width: 0;
-  overflow: hidden;
-  font-family: var(--et-font-display);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-  transition: max-width 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.fab[data-invite] .fabLabel {
-  max-width: 7rem;
-}
-
-.fabLabel > span {
-  display: block;
-  white-space: nowrap;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fabLabel {
-    transition: none;
-  }
-}
-
 /* Phone: the Google Maps way. The dock stands fixed above the sheet's
    resting edge; the button rides up with the sheet 1:1 on a document scroll
    timeline (compositor — a scroll handler lagged a frame or two on iOS and
@@ -605,10 +552,11 @@
 
 @media (max-width: 767.98px) {
   /* On the edge line the map credit shares (--edge-bottom/--edge-ride,
-     MapLayout.module.css). */
+     MapLayout.module.css). 2.5px: the crosshair's ink then stands 14px from
+     the edge, like the credit, the magnifier and the burger. */
   .locateDock {
     position: fixed;
-    right: 14px;
+    right: 2.5px;
     bottom: var(--edge-bottom);
     display: block;
   }

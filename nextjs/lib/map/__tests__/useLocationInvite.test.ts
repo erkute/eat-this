@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 
-import { GREETING_MIN_VISIBLE_MS, isLabelStillOwed, useLocationInvite } from '../useLocationInvite';
+import { isInviteOpen, useLocationInvite } from '../useLocationInvite';
 
 /**
- * The gate in front of the locate control's label. Two ways to get it wrong
- * and both are bad: keep nudging someone who already said no, or stay mute —
- * which is where the map started, with a bare icon nobody presses.
+ * The gate in front of the map's one-time location question (the info card,
+ * useLocationWelcome) and the invite funnel. Two ways to get it wrong: keep
+ * nudging someone who already answered, or never ask at all.
  */
 function stubPermissions(state: string | null) {
   Object.defineProperty(navigator, 'permissions', {
@@ -24,112 +24,63 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('isLabelStillOwed', () => {
-  it('keeps an unanswered permission asking until a position turns up', () => {
-    // Nothing arrives on its own to end an invitation — only the visitor does.
+describe('isInviteOpen', () => {
+  it('asks an unanswered permission until a position turns up', () => {
     for (const state of ['prompt', 'unknown'] as const) {
-      expect(isLabelStillOwed(state, false, false)).toBe('invite');
-      expect(isLabelStillOwed(state, false, true)).toBe('invite');
+      expect(isInviteOpen(state, false)).toBe(true);
+      /* The permission is read once at mount, so someone who grants
+         mid-session stays 'prompt' here: the position ends it. */
+      expect(isInviteOpen(state, true)).toBe(false);
     }
   });
 
-  it('retires the invitation once the visitor has actually been located', () => {
-    /* The permission is read once at mount, so someone who grants mid-session
-       stays 'prompt' here forever. Without this the pill would come back after
-       the map centred on them and ask where they are — while showing it. */
-    for (const state of ['prompt', 'unknown'] as const) {
-      expect(isLabelStillOwed(state, true, false)).toBeNull();
-      expect(isLabelStillOwed(state, true, true)).toBeNull();
+  it('asks nobody who already answered', () => {
+    for (const located of [false, true]) {
+      expect(isInviteOpen('denied', located)).toBe(false);
+      expect(isInviteOpen('granted', located)).toBe(false);
     }
-  });
-
-  it('never shows a denial anything', () => {
-    expect(isLabelStillOwed('denied', false, false)).toBeNull();
-    expect(isLabelStillOwed('denied', true, true)).toBeNull();
-  });
-
-  it('holds the greeting past a fix that lands too fast to read', () => {
-    // The whole point of the floor: a cached fix resolves in tens of ms.
-    expect(isLabelStillOwed('granted', true, false)).toBe('greeting');
-  });
-
-  it('holds the greeting past the floor while the fix is still out', () => {
-    expect(isLabelStillOwed('granted', false, true)).toBe('greeting');
-  });
-
-  it('ends the greeting only once BOTH are true', () => {
-    expect(isLabelStillOwed('granted', true, true)).toBeNull();
   });
 });
 
 describe('useLocationInvite', () => {
-  it('starts closed so the label is never server-rendered', () => {
+  it('starts closed, so nothing is server-rendered', () => {
     stubPermissions('prompt');
     const { result } = renderHook(() => useLocationInvite(false));
-    expect(result.current).toBeNull();
+    expect(result.current).toBe(false);
   });
 
   it('opens after mount for an unanswered permission and stays open', async () => {
     stubPermissions('prompt');
     const { result } = renderHook(() => useLocationInvite(false));
-    await waitFor(() => expect(result.current).toBe('invite'));
+    await waitFor(() => expect(result.current).toBe(true));
   });
 
   it('stays shut for a standing denial', async () => {
     stubPermissions('denied');
     const { result } = renderHook(() => useLocationInvite(false));
     await waitFor(() => expect(navigator.permissions.query).toHaveBeenCalled());
-    expect(result.current).toBeNull();
+    expect(result.current).toBe(false);
   });
 
-  it('greets a granted visitor and retires once the fix is in', async () => {
-    vi.useFakeTimers();
-    stubPermissions('granted');
-    const { result, rerender } = renderHook(({ located }) => useLocationInvite(located), {
-      initialProps: { located: false },
-    });
-
-    // Let the permission read resolve without letting the floor expire.
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(0);
-    });
-    expect(result.current).toBe('greeting');
-
-    // A cached fix lands almost immediately — the greeting must survive it.
-    rerender({ located: true });
-    expect(result.current).toBe('greeting');
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(GREETING_MIN_VISIBLE_MS);
-    });
-    expect(result.current).toBeNull();
-  });
-
-  it('keeps greeting a granted visitor whose position never arrives', async () => {
-    vi.useFakeTimers();
+  it('stays shut for a granted visitor', async () => {
     stubPermissions('granted');
     const { result } = renderHook(() => useLocationInvite(false));
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(GREETING_MIN_VISIBLE_MS * 3);
-    });
-
-    // Deliberate: a tap now runs a loud request that surfaces the real error.
-    expect(result.current).toBe('greeting');
+    await waitFor(() => expect(navigator.permissions.query).toHaveBeenCalled());
+    expect(result.current).toBe(false);
   });
 
-  /* The cookie gate locks the page and asks first. A label unfolding under a
-     modal is motion nobody can act on. */
+  /* The cookie gate locks the page and asks first. A question under a modal
+     is one nobody can answer. */
   it('waits behind the cookie gate and opens when it closes', async () => {
     document.documentElement.setAttribute('data-consent-gate', 'open');
     stubPermissions('prompt');
 
     const { result } = renderHook(() => useLocationInvite(false));
     await waitFor(() => expect(navigator.permissions.query).toHaveBeenCalled());
-    expect(result.current).toBeNull();
+    expect(result.current).toBe(false);
 
     document.documentElement.removeAttribute('data-consent-gate');
-    await waitFor(() => expect(result.current).toBe('invite'));
+    await waitFor(() => expect(result.current).toBe(true));
   });
 
   it('never touches geolocation — deciding whether to ask must not itself ask', async () => {
@@ -141,7 +92,7 @@ describe('useLocationInvite', () => {
     stubPermissions('prompt');
 
     const { result } = renderHook(() => useLocationInvite(false));
-    await waitFor(() => expect(result.current).toBe('invite'));
+    await waitFor(() => expect(result.current).toBe(true));
 
     expect(getCurrentPosition).not.toHaveBeenCalled();
   });

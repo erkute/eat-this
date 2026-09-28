@@ -376,22 +376,22 @@
   transform: scale(0.94);
   box-shadow: none;
 }
+/* Ein <button> zentriert seinen Text von Haus aus (UA `text-align: center`).
+   Der Bezirk stand deshalb im linken Knopf mittig unter dem Namen statt
+   buendig an der Kante (Nutzer, 28.09.2026). Links buendig links, rechts
+   buendig rechts — fuer Name und Bezirk zugleich, hier am Knopf. */
 .rdPagerBtn {
-  gap: 8px;
+  gap: 5px;
+  text-align: left;
 }
 .rdPagerBtnRight {
   justify-content: flex-end;
-  border-left: 1px solid currentColor;
-  padding-left: 10px;
-  border-left-width: 0;
-}
-.rdPagerBtnRight .rdPagerCopy {
-  justify-items: end;
+  text-align: right;
 }
 .rdPagerArrow {
   flex: 0 0 auto;
-  width: 19px;
-  height: 19px;
+  width: 16px;
+  height: 16px;
 }
 .rdTippText {
   /* Providence wie jeder andere Wert der Ink-Tafel. Der Tipp lief als
@@ -473,7 +473,7 @@
 .rdPagerBtn {
   min-width: 0;
   min-height: 46px;
-  padding: 6px 11px;
+  padding: 6px 8px;
   overflow: hidden;
 }
 .rdPagerCopy {
@@ -1024,14 +1024,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--et-font-display);
-  font-size: clamp(13px, 2.8vw, 14px);
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1.55;
   text-transform: none;
-}
-.rdPagerBtnRight .rdPagerName {
-  text-align: right;
 }
 .rdPagerSub {
   display: block;
@@ -1040,14 +1037,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--et-font-display);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
   opacity: 0.62;
-}
-.rdPagerBtnRight .rdPagerSub {
-  text-align: right;
 }
 /* ══════════════════════════════════════════════════════════════════════
    IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow

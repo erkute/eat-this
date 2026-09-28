@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useIsPresent } from 'framer-motion';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import styles from './RestaurantGalleryLightbox.module.css';
@@ -46,6 +46,11 @@ function Viewer({
   restaurantName: string;
 }) {
   const count = images.length;
+  /* Beim Schliessen blendet der Vorhang 200 ms aus (ZoomCurtain). Foto,
+     Schliessen und Blättern standen in der Zeit voll deckend weiter — das X
+     lag sichtbar neben dem Burger, das Foto frei über der Seite (iOS-Audit
+     28.09.2026). Sie gehen jetzt sofort, nur der Vorhang läuft aus. */
+  const leaving = !useIsPresent();
   const [page, setPage] = useState(startIndex);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -106,6 +111,7 @@ function Viewer({
     <motion.div
       ref={dialogRef}
       className={styles.galleryLb}
+      data-leaving={leaving ? '' : undefined}
       onClick={onClose}
       onKeyDown={(event) => {
         if (event.key !== 'Tab') return;

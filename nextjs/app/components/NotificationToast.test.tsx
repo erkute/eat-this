@@ -255,4 +255,39 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(onDismiss).toHaveBeenCalledOnce();
     expect(card().className).not.toContain('show');
   });
+
+  /* Eine Meldung mit Knöpfen wartet auf eine Antwort und legt einen Scrim
+     über die Seite — für einen Screenreader ist sie ein Dialog, kein
+     vorbeihuschender Hinweis. Die Live-Region schweigt dann, sonst hört man
+     alles zweimal. */
+  it('macht die Meldung mit Knoepfen zum Dialog und setzt den Fokus hinein', () => {
+    render(<NotificationToast />);
+    act(() => {
+      window.showNotice?.({
+        eyebrow: 'Standort',
+        title: 'Wo bist du?',
+        detail: 'Gib deinen Standort frei.',
+        action: { label: 'Freigeben', onClick: vi.fn() },
+        dismissLabel: 'Später',
+        duration: 0,
+      });
+    });
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog).toBe(card());
+    const labelId = dialog.getAttribute('aria-labelledby')!;
+    expect(document.getElementById(labelId)?.textContent).toBe('Wo bist du?');
+    const descId = dialog.getAttribute('aria-describedby')!;
+    expect(document.getElementById(descId)?.textContent).toBe('Gib deinen Standort frei.');
+    expect(document.activeElement?.textContent).toBe('Freigeben');
+    expect((document.querySelector('.notification-live') as HTMLElement).textContent).toBe('');
+  });
+
+  it('laesst die kurze Bestaetigung ohne Dialog-Rolle', () => {
+    render(<NotificationToast />);
+    act(() => {
+      notify('spotSaved', 'de');
+    });
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
 });

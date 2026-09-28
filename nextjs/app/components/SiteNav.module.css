@@ -266,3 +266,12 @@
 :global(html[data-hero-flight='on']:not([data-hero-landed])) .logoImg {
   visibility: hidden;
 }
+
+/* Während des Ladeauftritts (HubSection.module.css) wird die Wortmarke im
+   Aufmacher gerade aufgezogen — HeroMarkFlight steht da oft noch gar nicht,
+   es wartet auf die Hydrierung. Ohne diese Regel stünde oben die zweite Marke
+   daneben und verschwände dann mitten im Auftritt. Danach übernimmt die Regel
+   darüber. */
+:global(html[data-hero-intro]) .logoImg {
+  visibility: hidden;
+}

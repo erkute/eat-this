@@ -2,53 +2,75 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 /**
- * Bewegung auf der Startseite, mit GSAP.
+ * Bewegung auf der Startseite, mit GSAP. Alles nur ohne `prefers-reduced-motion`
+ * und nie als Opacity-Fade (Hausregel für Brand-Flächen): Dinge wachsen aus
+ * Masken, fliegen ein, werden aufgedeckt — sie sind nie halb durchsichtig.
  *
- * Zwei Dinge, beide nur ohne `prefers-reduced-motion`:
+ * 1. **Auftritt beim Laden.** Wortmarke wird aufgezogen, die Headline steigt
+ *    Zeile für Zeile aus ihrer Maske, Lead und Knopf folgen, die Telefone
+ *    schwingen von unten ins Bild. Das ist bewusst CSS, nicht GSAP: es muss ab
+ *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
+ *    HubSection.module.css). Hier nur das Aufräumen, siehe `finishIntro`.
  *
- * 1. **Auftritte unterhalb des Aufmachers.** Die Abschnittstitel werden wie mit
- *    Kreide von links nach rechts auf die Tafel geschrieben (clip-path), die
- *    Karten darunter rücken gestaffelt an ihren Platz, die Must Eats werden
- *    ausgeteilt wie ein Kartenspiel. Wer mitmacht, markiert das im Markup:
- *    `data-reveal="stagger"` (die Kinder rücken nach), `"deal"` (die Kinder
- *    werden ausgeteilt), `"rise"` (das Element selbst steigt auf). Titel
- *    brauchen nichts, das sind alle `.hv-title` der Seite.
- *    Kein Opacity-Fade (Hausregel für Brand-Flächen): alles ist die ganze Zeit
- *    voll deckend und nur verschoben oder angeschnitten.
+ * 2. **Auftritte unterhalb des Aufmachers**, sobald sie ins Bild kommen:
+ *    - Abschnittstitel Buchstabe für Buchstabe aus der Zeilenmaske (SplitText),
+ *      das gelbe Quadrat davor dreht sich hinein.
+ *    - `data-reveal="stagger"`: Karten steigen gestaffelt auf, ihre Fotos
+ *      werden von unten aufgedeckt und zoomen dabei auf ihren Platz zurück.
+ *    - `data-reveal="rise"`: dasselbe für einen einzelnen Block (Spot des
+ *      Tages), der Text darin rückt danach Zeile für Zeile nach.
+ *    - `data-reveal="deal"`: die Must Eats liegen erst als Stapel auf der
+ *      ersten Karte und werden von dort an ihre Plätze ausgeteilt.
+ *    Versteckt wird nur, was beim Mount unterhalb des Bildschirms liegt —
+ *    was schon zu sehen ist (gemerkte Scrollposition), bleibt stehen.
  *
- * 2. **Die Telefone im Aufmacher driften beim Scrollen auseinander** —
- *    ScrollTrigger schiebt `--phones-drift` von 0 auf 1, die Bahn steht in
- *    HubSection.module.css. Nur ab 768px: dort scrollt `.app-pages` und die
- *    Wortmarke fliegt ohnehin aus JS. Auf dem iPhone läuft Scroll-JS ein bis
- *    zwei Frames hinterher (siehe HeroMarkFlight) — für ein Detail, das dort
- *    unter dem Text steht, lohnt das Zittern nicht.
- *
- * Der Aufmacher selbst bekommt keinen Auftritt beim Laden: er ist schon da,
- * bevor React hydriert. Ein `from()` ließe ihn fertig aufblitzen, zurückspringen
- * und dann erst einfliegen; das Telefon vorne ist außerdem das LCP-Element, und
- * HubHeroCopy baut Headline und Knöpfe neu, sobald `useAuth` steht — mitten in
- * einem Auftritt.
- *
- * Deshalb verstecken die Auftritte auch nur, was beim Mount unterhalb des
- * Bildschirms liegt. Was schon zu sehen ist (zurück-Navigation mit gemerkter
- * Scrollposition), bleibt stehen, wie es ist.
+ * 3. **Die Telefone driften beim Herausscrollen auseinander** (ScrollTrigger,
+ *    `--phones-drift`). Nur ab 768px: auf dem iPhone läuft Scroll-JS ein bis
+ *    zwei Frames hinterher (siehe HeroMarkFlight), das zittert.
  */
 
-/** Sprung beim Nachrücken, in px. */
-const STAGGER_SHIFT = 56;
-const RISE_SHIFT = 72;
-const DEAL_SHIFT = 140;
-
-function appScroller(): HTMLElement | Window {
+function appScroller(): HTMLElement | null {
   /* Ab 768px scrollt nicht das Fenster, sondern `.app-pages` (globals.css,
      Desktop app frame) — gesucht statt angenommen, wie in HeroMarkFlight. */
   const el = document.querySelector<HTMLElement>('.app-pages');
-  return el && el.scrollHeight > el.clientHeight + 1 ? el : window;
+  return el && el.scrollHeight > el.clientHeight + 1 ? el : null;
+}
+
+/**
+ * Der Ladeauftritt selbst ist CSS (HubSection.module.css) und läuft ab dem
+ * ersten Paint. Hier nur: wer scrollt, bevor er fertig ist, spult ihn vierfach
+ * ab — und am Ende fällt `data-hero-intro`, damit die Masken nicht dauerhaft
+ * an Tinte schneiden, die über die Zeilenbox ragt.
+ */
+function finishIntro(): (() => void) | void {
+  const html = document.documentElement;
+  if (!html.hasAttribute('data-hero-intro')) return;
+  const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
+  const running = hero?.getAnimations() ?? [];
+  const done = () => html.removeAttribute('data-hero-intro');
+  if (!running.length) {
+    done();
+    return;
+  }
+  let cancelled = false;
+  Promise.all(running.map((a) => a.finished))
+    .then(() => !cancelled && done())
+    // Abgebrochen (Attribut schon weg, Seite verlassen) — nichts mehr zu tun.
+    .catch(() => {});
+
+  const hurry = () => running.forEach((a) => (a.playbackRate = 4));
+  const scroller = appScroller() ?? window;
+  scroller.addEventListener('scroll', hurry, { passive: true, once: true });
+  return () => {
+    cancelled = true;
+    scroller.removeEventListener('scroll', hurry);
+  };
 }
 
 /** Scrollt der Container seitwärts? Dann rücken die Karten von rechts nach. */
@@ -56,24 +78,33 @@ function sideways(el: Element): boolean {
   return /auto|scroll/.test(getComputedStyle(el).overflowX);
 }
 
-/**
- * Kreide-Anschnitt eines Titels in px. Gemessen wird der Text, nicht die Box:
- * `.hv-title` ist ein Block über die volle Tafelbreite, der Wisch wäre sonst
- * bei kurzen Titeln nach einem Drittel der Zeit fertig und stünde den Rest
- * still. Das Polster hält Providence-Tinte frei, die über die Zeilenbox ragt.
- */
-function chalkInsets(title: HTMLElement): { hidden: string; shown: string } {
-  const box = title.getBoundingClientRect();
-  const range = document.createRange();
-  range.selectNodeContents(title);
-  const text = range.getBoundingClientRect();
-  const pad = Math.round(parseFloat(getComputedStyle(title).fontSize) * 0.4);
-  const tail = Math.max(0, box.right - text.right) - pad;
-  const lead = Math.max(0, text.left - box.left);
-  return {
-    hidden: `inset(${-pad}px ${box.width - lead + pad}px ${-pad}px ${-pad}px)`,
-    shown: `inset(${-pad}px ${tail}px ${-pad}px ${-pad}px)`,
-  };
+/** Foto aufdecken: die Maske fährt von unten auf, das Bild zoomt zurück. */
+function photoReveal(item: Element, tl: gsap.core.Timeline, at: number | string) {
+  const photo = item.querySelector<HTMLElement>('.hv-photo');
+  if (!photo) return;
+  const r = getComputedStyle(photo).borderTopLeftRadius || '0px';
+  tl.fromTo(
+    photo,
+    { clipPath: `inset(100% 0% 0% 0% round ${r})` },
+    { clipPath: `inset(0% 0% 0% 0% round ${r})`, duration: 1.3, ease: 'expo.inOut', clearProps: 'clipPath' },
+    at
+  );
+  const img = photo.querySelector('img');
+  if (img) {
+    tl.fromTo(
+      img,
+      // Die Hover-Transition auf `transform` würde jeden Frame nachziehen.
+      { scale: 1.35, transition: 'none' },
+      { scale: 1, duration: 1.8, ease: 'expo.out', clearProps: 'transform,transition' },
+      at
+    );
+  }
+}
+
+/** Versteckt ein Foto schon beim Mount — sonst stünde es kurz fertig da. */
+function hidePhoto(item: Element) {
+  const photo = item.querySelector<HTMLElement>('.hv-photo');
+  if (photo) gsap.set(photo, { clipPath: 'inset(100% 0% 0% 0%)' });
 }
 
 function armReveals(safe: gsap.ContextSafeFunc): () => void {
@@ -87,20 +118,50 @@ function armReveals(safe: gsap.ContextSafeFunc): () => void {
   // sonst räumt ihn ein Wechsel auf reduced motion nicht mit ab.
   const later = (play: () => void) => safe(play) as () => void;
 
+  /* ── Titel ── Bis zum Auftritt ganz angeschnitten; erst beim Auftritt
+     zerlegt SplitText den Titel und setzt ihn danach zurück. Früher zerlegen
+     hiesse, React-eigene Textknoten lange Zeit durch fremde zu ersetzen. */
   for (const title of root.querySelectorAll<HTMLElement>('.hv-title')) {
     if (!unseen(title)) continue;
-    const { hidden, shown } = chalkInsets(title);
-    gsap.set(title, { clipPath: hidden });
+    gsap.set(title, { clipPath: 'inset(0% 0% 100% 0%)' });
     plays.set(
       title,
-      later(() =>
-        gsap.to(title, {
-          clipPath: shown,
-          duration: 0.9,
-          ease: 'power1.inOut',
-          clearProps: 'clipPath',
-        })
-      )
+      later(() => {
+        // SplitText leert beim Zerlegen die Original-Textknoten und stellt
+        // beim `revert()` per innerHTML wieder her — mit neuen Knoten. React
+        // schriebe danach in die alten, geleerten (der Nearby-Titel wechselt
+        // mit dem Standort) und der Titel bliebe leer. Also die Originale samt
+        // Text merken und am Ende genau die zurückhängen. Hat React während
+        // des Auftritts schon neuen Text in einen geschrieben, bleibt der.
+        const original = Array.from(title.childNodes);
+        const text = original.map((n) => (n instanceof Text ? n.data : null));
+        const split = SplitText.create(title, { type: 'lines,chars', mask: 'lines' });
+        gsap.set(title, { clearProps: 'clipPath' });
+        const tl = gsap.timeline({
+          onComplete: () => {
+            split.revert();
+            original.forEach((n, i) => {
+              if (n instanceof Text && n.data === '' && text[i]) n.data = text[i];
+            });
+            title.replaceChildren(...original);
+          },
+        });
+        tl.from(split.chars, {
+          yPercent: 120,
+          rotation: 10,
+          duration: 1.05,
+          ease: 'expo.out',
+          stagger: Math.min(0.035, 0.6 / split.chars.length),
+        });
+        const mark = title.querySelector('.hv-mk');
+        if (mark) {
+          tl.from(
+            mark,
+            { scale: 0, rotation: -180, duration: 0.9, ease: 'back.out(2)', clearProps: 'transform' },
+            0.05
+          );
+        }
+      })
     );
   }
 
@@ -108,47 +169,119 @@ function armReveals(safe: gsap.ContextSafeFunc): () => void {
     if (!unseen(group)) continue;
     const kind = group.dataset.reveal;
 
+    /* ── Ein Block (Spot des Tages) ── */
     if (kind === 'rise') {
-      gsap.set(group, { y: RISE_SHIFT });
+      const lines = Array.from(group.querySelectorAll<HTMLElement>('[data-reveal-line]'));
+      gsap.set(group, { y: 90 });
+      hidePhoto(group);
+      gsap.set(lines, { y: 36 });
       plays.set(
         group,
-        later(() =>
-          gsap.to(group, { y: 0, duration: 1, ease: 'power3.out', clearProps: 'transform' })
-        )
+        later(() => {
+          const tl = gsap.timeline();
+          tl.to(group, { y: 0, duration: 1.4, ease: 'expo.out', clearProps: 'transform' }, 0);
+          photoReveal(group, tl, 0.05);
+          tl.to(
+            lines,
+            { y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.07, clearProps: 'transform' },
+            0.35
+          );
+        })
       );
       continue;
     }
 
     const items = Array.from(group.children) as HTMLElement[];
     if (!items.length) continue;
-    const across = sideways(group);
-    const deal = kind === 'deal';
-    const shift = deal ? DEAL_SHIFT : STAGGER_SHIFT;
 
-    gsap.set(items, {
-      x: across ? shift : 0,
-      y: across ? 0 : shift,
-      // Ausgeteilt liegt keine Karte gerade: abwechselnd gekippt, sie
-      // richten sich beim Landen auf. Die Schräglage der Karte selbst
-      // (HubMustEatsTeaser.module.css) sitzt eine Ebene tiefer und bleibt.
-      rotation: deal ? (i: number) => (i % 2 ? 9 : -7) : 0,
-      // Hover-Transitions auf `transform` würden jeden Frame nachziehen.
-      transition: 'none',
-    });
+    /* ── Kartenstapel (Must Eats) ── Die Karten (`data-deal-card`) liegen erst
+       alle auf dem Platz der ersten, leicht versetzt wie ein echter Stapel,
+       oberste vorn. Beim Auftritt steigt der Stapel auf, dann fliegt eine nach
+       der anderen an ihren Platz. Die Beschriftung (`data-deal-caption`) fliegt
+       nicht mit — im Stapel läge sie als Textsalat übereinander —, sondern
+       wächst an ihrem Platz aus der Maske, sobald ihre Karte landet. */
+    if (kind === 'deal') {
+      const cards = items.map((item) => item.querySelector<HTMLElement>('[data-deal-card]') ?? item);
+      const captions = items.map((item) => item.querySelector<HTMLElement>('[data-deal-caption]'));
+      const home = cards[0].getBoundingClientRect();
+      const deck = cards.map((card, i) => {
+        const r = card.getBoundingClientRect();
+        return { x: home.left - r.left + i * 2, y: home.top - r.top - i * 3 };
+      });
+      gsap.set(cards, {
+        x: (i: number) => deck[i].x,
+        y: (i: number) => deck[i].y + 160,
+        rotation: (i: number) => (i % 2 ? 1 : -1) * (2 + i * 1.5),
+        // Stapelreihenfolge über die Listenelemente hinweg; ohne `position`
+        // greift z-index an einem normalen Block nicht.
+        position: 'relative',
+        zIndex: (i: number) => cards.length - i,
+        transition: 'none',
+      });
+      const shown = captions.filter((c): c is HTMLElement => !!c);
+      gsap.set(shown, { y: 28, clipPath: 'inset(-10% -5% 100% -5%)' });
+      plays.set(
+        group,
+        later(() => {
+          const tl = gsap.timeline();
+          tl.to(cards, { y: (i: number) => deck[i].y, duration: 0.7, ease: 'expo.out' }, 0);
+          cards.forEach((card, i) => {
+            const at = 0.45 + i * 0.11;
+            tl.to(
+              card,
+              {
+                x: 0,
+                y: 0,
+                rotation: 0,
+                duration: 0.95,
+                ease: 'power4.inOut',
+                clearProps: 'transform,position,zIndex,transition',
+              },
+              at
+            );
+            const caption = captions[i];
+            if (caption) {
+              tl.to(
+                caption,
+                {
+                  y: 0,
+                  clipPath: 'inset(-10% -5% -10% -5%)',
+                  duration: 0.8,
+                  ease: 'expo.out',
+                  clearProps: 'transform,clipPath',
+                },
+                at + 0.75
+              );
+            }
+          });
+        })
+      );
+      continue;
+    }
+
+    /* ── Gestaffelte Karten ── */
+    const across = sideways(group);
+    gsap.set(items, { x: across ? 90 : 0, y: across ? 0 : 70, transition: 'none' });
+    items.forEach(hidePhoto);
     plays.set(
       group,
-      later(() =>
-        gsap.to(items, {
-          x: 0,
-          y: 0,
-          rotation: 0,
-          duration: deal ? 0.95 : 0.8,
-          ease: deal ? 'back.out(1.3)' : 'power3.out',
-          // Lange Listen (Kategorien) sollen nicht ewig nachtröpfeln.
-          stagger: Math.min(deal ? 0.1 : 0.07, 0.6 / items.length),
-          clearProps: 'transform,transition',
-        })
-      )
+      later(() => {
+        const each = Math.min(0.09, 0.7 / items.length);
+        const tl = gsap.timeline();
+        tl.to(
+          items,
+          {
+            x: 0,
+            y: 0,
+            duration: 1.3,
+            ease: 'expo.out',
+            stagger: each,
+            clearProps: 'transform,transition',
+          },
+          0
+        );
+        items.forEach((item, i) => photoReveal(item, tl, i * each));
+      })
     );
   }
 
@@ -165,7 +298,7 @@ function armReveals(safe: gsap.ContextSafeFunc): () => void {
     },
     // Erst wenn es ein Stück im Bild ist — sonst läuft der Auftritt unter der
     // Bildschirmkante ab, ohne dass ihn jemand sieht.
-    { rootMargin: '0px 0px -12% 0px' }
+    { rootMargin: '0px 0px -15% 0px' }
   );
   plays.forEach((_, el) => io.observe(el));
   return () => io.disconnect();
@@ -182,7 +315,7 @@ function armPhonesDrift(): void {
       ease: 'none',
       scrollTrigger: {
         trigger: hero,
-        scroller: appScroller(),
+        scroller: appScroller() ?? window,
         start: 'top top',
         end: 'bottom top',
         // Ein halber Takt Nachlauf: liest sich als Trägheit, nicht als Ruckeln.
@@ -194,12 +327,18 @@ function armPhonesDrift(): void {
 
 export default function HubMotion() {
   useGSAP(() => {
+    // Ausserhalb von matchMedia: aufräumen muss es auch, wenn jemand während
+    // des Auftritts auf reduced motion umschaltet.
+    const stopIntro = finishIntro();
     const mm = gsap.matchMedia();
     mm.add('(prefers-reduced-motion: no-preference)', (_ctx, safe) => armReveals(safe!));
     mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
       armPhonesDrift();
     });
-    return () => mm.revert();
+    return () => {
+      stopIntro?.();
+      mm.revert();
+    };
   });
 
   return null;

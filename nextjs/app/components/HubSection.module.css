@@ -299,13 +299,151 @@
    `translate`/`rotate`, nicht über `transform`: die gehört dem Hover und
    ihrer Transition, und beide addieren sich, statt sich zu überschreiben. */
 .phoneFront {
-  translate: 0 calc(var(--phones-drift, 0) * -84px);
-  rotate: calc(var(--phones-drift, 0) * 3deg);
+  translate: 0 calc(var(--phones-drift, 0) * -84px + (1 - var(--in-front, 1)) * 58vh);
+  rotate: calc(var(--phones-drift, 0) * 3deg - (1 - var(--in-front, 1)) * 16deg);
 }
 
 .phoneBack {
-  translate: 0 calc(var(--phones-drift, 0) * -24px);
-  rotate: calc(var(--phones-drift, 0) * 4deg);
+  translate: 0 calc(var(--phones-drift, 0) * -24px + (1 - var(--in-back, 1)) * 52vh);
+  rotate: calc(var(--phones-drift, 0) * 4deg + (1 - var(--in-back, 1)) * 22deg);
+}
+
+/* ── Auftritt beim Laden ────────────────────────────────────────────────────
+   Reines CSS, kein JS: das Bootstrap-Skript im Layout setzt `data-hero-intro`
+   vor dem ersten Paint, und die Animationen laufen ab diesem Paint — nicht
+   erst nach der Hydrierung. Aus JS (GSAP) stand der Aufmacher im Dev-Build
+   zwei Sekunden leer in der Startpose, bis React so weit war; auf einem
+   langsamen Telefon in Produktion wäre es kaum besser.
+   Animiert werden nur die Zahlen `--in-*` auf der Section. Die Elemente
+   lesen sie: HubHeroCopy baut Headline und Knöpfe neu, sobald `useAuth`
+   steht — die neuen Knoten stehen damit sofort an der richtigen Stelle der
+   Bewegung, statt mittendrin fertig aufzutauchen.
+   `@property` macht die Zahlen interpolierbar; ohne springt ein Browser in
+   der Mitte auf den Endwert — auch dann steht am Ende alles. HubMotion nimmt
+   das Attribut ab, sobald alle Animationen durch sind, damit die Masken
+   nicht dauerhaft an Tinte schneiden, die über die Zeilenbox ragt. */
+@property --in-mark {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-l1 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-l2 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-lead {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-cta {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-front {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-back {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+@keyframes inMark {
+  from {
+    --in-mark: 0;
+  }
+}
+@keyframes inL1 {
+  from {
+    --in-l1: 0;
+  }
+}
+@keyframes inL2 {
+  from {
+    --in-l2: 0;
+  }
+}
+@keyframes inLead {
+  from {
+    --in-lead: 0;
+  }
+}
+@keyframes inCta {
+  from {
+    --in-cta: 0;
+  }
+}
+@keyframes inFront {
+  from {
+    --in-front: 0;
+  }
+}
+@keyframes inBack {
+  from {
+    --in-back: 0;
+  }
+}
+
+/* Die Kurven: expo.out und power3.inOut, wie GSAP sie nennt. `both` hält die
+   Startpose schon während der Verzögerung. */
+:global(html[data-hero-intro]) .hero {
+  --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+  animation:
+    inMark 0.95s cubic-bezier(0.65, 0, 0.35, 1) 0.05s both,
+    inBack 1.8s var(--expo-out) 0.15s both,
+    inFront 1.7s var(--expo-out) 0.27s both,
+    inL1 1.15s var(--expo-out) 0.43s both,
+    inL2 1.15s var(--expo-out) 0.55s both,
+    inLead 1.1s var(--expo-out) 0.71s both,
+    inCta 1.1s var(--expo-out) 0.83s both;
+}
+
+/* Die Wortmarke wird nur angeschnitten, nie verschoben — HeroMarkFlight misst
+   ihre Lage, während das hier noch läuft. */
+:global(html[data-hero-intro]) .heroMark {
+  clip-path: inset(-10% calc((1 - var(--in-mark, 1)) * 100%) -10% -2%);
+}
+
+/* Zeilen und Absätze wachsen aus einer Maske an ihrer eigenen Unterkante.
+   Der Anschnitt ist im Koordinatensystem des Elements, wandert also mit:
+   unten genau so tief wie die Verschiebung heisst, die Kante steht auf der
+   Seite still. Die Verschiebung muss über Zeilenhöhe plus Polster hinaus,
+   sonst schaut in der Startpose die Oberkante der Tinte heraus. */
+:global(html[data-hero-intro]) .heroHeadline [data-line] {
+  --shift: calc((1 - var(--p, 1)) * 150%);
+  translate: 0 var(--shift);
+  clip-path: inset(-0.4em -0.3em calc(var(--shift) - 0.25em) -0.3em);
+}
+
+:global(html[data-hero-intro]) .heroHeadline [data-line='1'] {
+  --p: var(--in-l1, 1);
+}
+
+:global(html[data-hero-intro]) .heroHeadline [data-line='2'] {
+  --p: var(--in-l2, 1);
+}
+
+:global(html[data-hero-intro]) .heroCopy > .heroKicker,
+:global(html[data-hero-intro]) .heroCopy > .heroLead {
+  --shift: calc((1 - var(--in-lead, 1)) * (100% + 0.5em));
+  translate: 0 var(--shift);
+  clip-path: inset(-0.4em -0.3em var(--shift) -0.3em);
+}
+
+:global(html[data-hero-intro]) .heroCopy > .heroActions {
+  --shift: calc((1 - var(--in-cta, 1)) * (100% + 16px));
+  translate: 0 var(--shift);
+  clip-path: inset(-12px -12px var(--shift) -12px);
 }
 
 .heroPhones:focus-visible .phoneFront {

@@ -138,8 +138,11 @@
   outline: 2px solid currentColor;
   outline-offset: -3px;
 }
-.filterChipRow .filterChip[aria-expanded='true'] {
-  box-shadow: inset 0 -2px 0 currentColor;
+/* Aufgeklappt: eine Flächenstufe wie beim Hover, kein Unterstrich — auf der
+   Karte hebt sich nichts per Linie ab (keine-Konturen-Regel, 23.09.2026).
+   Ein gesetzter (gelber) Chip bleibt gelb. */
+.filterChipRow .filterChip[aria-expanded='true']:not(.filterChipActive):not(.filterChipOpenActive) {
+  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
 }
 @media (hover: hover) {
   .filterChipRow .filterChip:hover {

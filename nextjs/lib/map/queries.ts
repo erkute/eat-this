@@ -14,12 +14,16 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
 }`;
 
 // Map list/marker payload — deliberately WITHOUT the detail-only fields
-// (address, phone, website, menuUrl, reservationUrl, mapsUrl, instagramHandle, tip,
+// (phone, website, menuUrl, reservationUrl, mapsUrl, instagramHandle, tip,
 // description, photoCredit*). Those are fetched on demand when the detail
-// sheet opens (restaurantMapDetailQuery / /api/restaurant-detail). Two wins:
-// the anon map payload shrinks (description is the bulk), and the whole
-// catalog's contact data no longer ships up-front for every locked spot.
+// sheet opens (restaurantMapDetailQuery / /api/restaurant-detail), which keeps
+// the map payload small (description is the bulk).
 // `openingHours` MUST stay — the list + marker render the open-now badge.
+// `address` stays too: the search finds a spot by its street (spotSearch).
+// Dropped with the detail fields, "kastanienallee" found nothing for weeks
+// while the search code still read the field (audit 28.09.2026). ~9 KB raw
+// for the whole catalogue; it is public anyway, and no spot is locked since
+// the map went free.
 export const mapRestaurantsQuery = `
   *[_type == "restaurant" && ${liveRestaurant()}] {
     _id,
@@ -28,6 +32,7 @@ export const mapRestaurantsQuery = `
     "slug": slug.current,
     district,
     "bezirk": bezirkRef->{ name, "slug": slug.current },
+    address,
     ${CATEGORY_PROJECTION},
     cuisineType,
     priceRange,

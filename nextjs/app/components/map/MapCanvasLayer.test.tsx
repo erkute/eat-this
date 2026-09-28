@@ -65,6 +65,7 @@ function layer(
   return (
     <MapCanvasLayer
       mapRef={{ current: null }}
+      getInitialCamera={() => null}
       onMapClick={vi.fn()}
       onMoveEnd={vi.fn()}
       displayedRestaurants={spots}
@@ -97,6 +98,7 @@ function layerWithRef(spots: MapRestaurant[], ref: never) {
   return (
     <MapCanvasLayer
       mapRef={ref}
+      getInitialCamera={() => null}
       onMapClick={vi.fn()}
       onMoveEnd={vi.fn()}
       displayedRestaurants={spots}

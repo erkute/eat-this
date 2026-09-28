@@ -165,6 +165,11 @@ export default function RestaurantDetail({
   }, [detail, displayName, r._id, r.photo, r.photoCredit, r.photoCreditUrl, restaurant.photo]);
 
   const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);
+  /* Unter dem Namen im Blätterknopf der Bezirk: bei Ketten stand sonst
+     „‹ Bonanza Coffee…" neben „Bonanza Coffee… ›", und welcher welcher war,
+     sah man erst nach dem Tippen. */
+  const pagerDistrict = (spot: MapRestaurant) =>
+    abbreviateBezirk(spot.bezirk?.name ?? spot.district ?? null);
 
   const meters = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, r.lat, r.lng)
@@ -354,6 +359,9 @@ export default function RestaurantDetail({
                   </svg>
                   <span className={styles.rdPagerCopy}>
                     <span className={styles.rdPagerName}>{normalizeName(prevRestaurant.name)}</span>
+                    {pagerDistrict(prevRestaurant) && (
+                      <span className={styles.rdPagerSub}>{pagerDistrict(prevRestaurant)}</span>
+                    )}
                   </span>
                 </>
               )}
@@ -368,6 +376,9 @@ export default function RestaurantDetail({
                 <>
                   <span className={styles.rdPagerCopy}>
                     <span className={styles.rdPagerName}>{normalizeName(nextRestaurant.name)}</span>
+                    {pagerDistrict(nextRestaurant) && (
+                      <span className={styles.rdPagerSub}>{pagerDistrict(nextRestaurant)}</span>
+                    )}
                   </span>
                   <svg
                     className={styles.rdPagerArrow}

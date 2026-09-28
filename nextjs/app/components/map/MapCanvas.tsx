@@ -1,10 +1,12 @@
 'use client';
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import Map, {
   AttributionControl,
   type MapRef,
   type ViewStateChangeEvent,
 } from 'react-map-gl/maplibre';
+import { BERLIN_VIEW } from '@/lib/map/defaultView';
+import type { InitialCamera } from '@/lib/map/useMapCamera';
 
 /* Der eigene Style: `public/basemap/style.json` wird von `npm run build:basemap`
    aus CARTOs Dark-Matter-Vorlage erzeugt — entblaut (das Straßennetz stand in
@@ -16,13 +18,10 @@ import Map, {
    aufblitzt. Wer den Style tauscht, zieht die Farbe mit. */
 const BASEMAP_STYLE = '/basemap/style.json';
 
-/* Gekippt und leicht gedreht: die Karte steht schräg wie eine Isometrie, und
-   die Gebäude (Extrusion im Style, build:basemap) bekommen Seitenwände.
-   Kameraflüge setzen nur Mitte und Zoom — Neigung und Drehung bleiben, bis
-   jemand sie mit zwei Fingern ändert. */
-const BERLIN = { longitude: 13.405, latitude: 52.52, zoom: 12, pitch: 50, bearing: -15 };
-
 interface MapCanvasProps {
+  /** Asked once, on mount: the camera that frames the spots on this canvas.
+   *  `null` keeps the Berlin fallback. */
+  getInitialCamera?: () => InitialCamera | null;
   onMapClick?: () => void;
   /* Fires once the basemap has actually painted. MapLibre's `load` is defined
      as "all necessary resources downloaded and the first visually complete
@@ -38,7 +37,14 @@ interface MapCanvasProps {
 }
 
 const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
-  ({ onMapClick, onFirstPaint, onMoveEnd, children }, ref) => {
+  ({ getInitialCamera, onMapClick, onFirstPaint, onMoveEnd, children }, ref) => {
+    /* Before the first frame, so the map opens on the spots instead of
+       flying there from somewhere else. The canvas container already has its
+       size — MapCanvasLayer mounts into the laid-out map wrap. */
+    const [initialViewState] = useState(() => ({
+      ...BERLIN_VIEW,
+      ...getInitialCamera?.(),
+    }));
     // MapLibre opens the compact attribution by default on mount. Collapse it
     // so only the small ⓘ button stays visible until the user taps it. Then
     // observe attribute changes for ~3 s after we find the element, undoing
@@ -81,7 +87,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
     return (
       <Map
         ref={ref}
-        initialViewState={BERLIN}
+        initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
         mapStyle={BASEMAP_STYLE}
         attributionControl={false}

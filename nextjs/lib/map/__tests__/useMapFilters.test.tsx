@@ -310,6 +310,52 @@ describe('useMapFilters list order', () => {
     expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Zola', 'Mustafa']);
   });
 
+  /* Montag 09:00: im Audit waren zehn der ersten zwölf Zeilen geschlossen. */
+  const MON_9AM = new Date('2026-04-20T09:00:00');
+  const MORNING = [{ days: 'Mo–Sa', hours: '07:00–18:00' }];
+  const EVENING = [{ days: 'Mo–Sa', hours: '18:00–23:00' }];
+
+  it('stellt geöffnete Spots vor geschlossene, darunter bleibt die Ordnung', () => {
+    const closedMust = spot({ name: 'Bunker', mustEatCount: 3, openingHours: EVENING });
+    const openPlain = spot({ name: 'Zola', mustEatCount: 0, openingHours: MORNING });
+    const openMust = spot({ name: 'Mustafa', mustEatCount: 1, openingHours: MORNING });
+    const { result } = renderHook(() =>
+      useMapFilters({
+        restaurants: [closedMust, openPlain, openMust],
+        location: null,
+        orderedAt: MON_9AM,
+      })
+    );
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual([
+      'Mustafa',
+      'Zola',
+      'Bunker',
+    ]);
+  });
+
+  it('stellt auch mit Standort das Geöffnete vor das Nähere', () => {
+    const nearClosed = spot({ name: 'Nah', lat: 52.5, lng: 13.4, openingHours: EVENING });
+    const farOpen = spot({ name: 'Weit', lat: 52.6, lng: 13.62, openingHours: MORNING });
+    const { result } = renderHook(() =>
+      useMapFilters({
+        restaurants: [nearClosed, farOpen],
+        location: { lat: 52.5, lng: 13.4 },
+        orderedAt: MON_9AM,
+      })
+    );
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Weit', 'Nah']);
+  });
+
+  it('lässt bei einer Suche die Treffergüte vor offen/geschlossen', () => {
+    const nameHit = spot({ name: 'Eisbar', openingHours: EVENING });
+    const midWord = spot({ name: 'Speiselokal', openingHours: MORNING });
+    const { result } = renderHook(() =>
+      useMapFilters({ restaurants: [midWord, nameHit], location: null, orderedAt: MON_9AM })
+    );
+    act(() => result.current.setSearch('eis'));
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Eisbar', 'Speiselokal']);
+  });
+
   it('lets the map centre outrank the visitor once the map has been moved', () => {
     const nearMe = spot({ name: 'Zola', lat: 52.5, lng: 13.4, mustEatCount: 0 });
     const nearMap = spot({ name: 'Mustafa', lat: 52.6, lng: 13.62, mustEatCount: 0 });
@@ -501,5 +547,92 @@ describe('useMapFilters Suche, zweite Runde', () => {
     /* Der Standort liegt am Speiselokal; nach Entfernung stuende es vorn. */
     const amSpeiselokal = { lat: 52.5, lng: 13.4 };
     expect(liste('eis', amSpeiselokal)).toEqual(['Natur Eis', 'Speiselokal Tulus Lotrek']);
+  });
+});
+
+/**
+ * Nachgemessen auf Produktion (28.09.2026), jeweils 0 Treffer:
+ * - „kastanienallee", „weserstr" — die Adresse fehlte im Kartenpayload.
+ * - „brunch", „kebab", „nkln" — kein Synonym, keine Schreibvariante.
+ * - „piza" — ein Buchstabe daneben, und nichts kam.
+ */
+describe('useMapFilters Suche, dritte Runde', () => {
+  const KATALOG: MapRestaurant[] = [
+    spot({
+      name: 'Gazzo',
+      cuisineType: 'Italian',
+      bezirk: { name: 'Neukölln' },
+      categories: [{ name: 'Pizza', slug: 'pizza' }],
+      address: 'Hobrechtstraße 57, 12047 Berlin, Deutschland',
+    }),
+    spot({
+      name: 'Bursa Uludag Kebapcisi',
+      cuisineType: 'Turkish',
+      bezirk: { name: 'Schöneberg' },
+      address: 'Weserstr. 208, 12047 Berlin, Deutschland',
+    }),
+    spot({
+      name: 'Café Frieda',
+      cuisineType: 'Café',
+      bezirk: { name: 'Prenzlauer Berg' },
+      categories: [{ name: 'Frühstück', slug: 'fruehstueck', nameEn: 'Breakfast' }],
+    }),
+    spot({ name: 'Jones Ice Cream', cuisineType: 'Ice Cream', bezirk: { name: 'Schöneberg' } }),
+    spot({ name: 'Reisbar', cuisineType: 'Japanese', bezirk: { name: 'Mitte' } }),
+    spot({ name: 'Crapulix', cuisineType: 'Bakery', bezirk: { name: 'Steglitz' } }),
+    spot({ name: 'Rutz', cuisineType: 'Wine Bar', bezirk: { name: 'Mitte' } }),
+  ];
+  const liste = (q: string) => {
+    const { result } = renderHook(() => useMapFilters({ restaurants: KATALOG, location: null }));
+    act(() => result.current.setSearch(q));
+    return result.current.listRestaurants.map((r) => r.name).sort();
+  };
+
+  it('findet die Strasse in beiden Schreibweisen', () => {
+    expect(liste('weserstr')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('weserstrasse')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('weserstraße')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('hobrechtstr')).toEqual(['Gazzo']);
+    expect(liste('hobrechtstr.')).toEqual(['Gazzo']);
+  });
+
+  it('kennt Synonyme', () => {
+    expect(liste('brunch')).toEqual(['Café Frieda']);
+    expect(liste('kebab')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('döner')).toEqual(['Bursa Uludag Kebapcisi']);
+    expect(liste('nkln')).toEqual(['Gazzo']);
+    expect(liste('gelato')).toEqual(['Jones Ice Cream']);
+    expect(liste('wein')).toEqual(['Rutz']);
+    expect(liste('pasta')).toEqual(['Gazzo']);
+    expect(liste('brot')).toEqual(['Crapulix']);
+  });
+
+  it('verlangt auch mit Synonym jedes Wort', () => {
+    expect(liste('pasta nkln')).toEqual(['Gazzo']);
+    expect(liste('kebab nkln')).toEqual([]);
+  });
+
+  it('verzeiht einen Buchstaben daneben, wenn sonst nichts kaeme', () => {
+    expect(liste('piza')).toEqual(['Gazzo']);
+    expect(liste('pizzza')).toEqual(['Gazzo']);
+    expect(liste('krapulix')).toEqual(['Crapulix']);
+  });
+
+  it('bleibt exakt, solange es exakte Treffer gibt', () => {
+    // „eis" steht mitten in „Reisbar" (wie „Speiselokal" in Runde zwei) —
+    // das ist die exakte Suche, nicht der Tippfehler-Durchgang.
+    expect(liste('reisbar')).toEqual(['Reisbar']);
+    // „rutz" hat einen exakten Treffer; „ruts"/„putz" darf der Rückfall nicht
+    // dazuholen, weil die exakte Suche schon liefert.
+    expect(liste('rutz')).toEqual(['Rutz']);
+  });
+
+  it('raet bei kurzen Woertern nicht', () => {
+    expect(liste('ruz')).toEqual([]);
+  });
+
+  it('erfindet weiterhin nichts', () => {
+    expect(liste('koreanisch')).toEqual([]);
+    expect(liste('sushi')).toEqual([]);
   });
 });

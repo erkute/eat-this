@@ -18,6 +18,7 @@ import {
 } from '@/lib/map/locationStatus';
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
 import { useLocationWelcome } from '@/lib/map/useLocationWelcome';
+import { useExplorationSettled } from '@/lib/map/useExplorationSettled';
 import { notify, type NoticeKind } from '@/lib/notice';
 import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
@@ -35,6 +36,7 @@ import { SearchGlassIcon } from './icons';
 import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
 import MapStrip from './MapStrip';
+import type { InitialCamera } from '@/lib/map/useMapCamera';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './MapLayout.module.css';
@@ -75,6 +77,8 @@ interface MapBodyState {
   dragging: boolean;
   desktopPanelHidden: boolean;
   displayedRestaurants: MapRestaurant[];
+  /** Die Kamera, auf der die Karte aufgeht (useMapCamera.initialCamera). */
+  getInitialCamera: () => InitialCamera | null;
   /** Was die Liste zeigt: dieselben Treffer, nach Nähe statt nach Karte. */
   listRestaurants: MapRestaurant[];
   restaurantMustEats: MapMustEat[];
@@ -181,6 +185,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     snap,
     dragging,
     displayedRestaurants,
+    getInitialCamera,
     listRestaurants,
     restaurantMustEats,
     pagerPrev,
@@ -301,10 +306,15 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   /* A first visit with the location question still open: the map asks once,
      through the info card (useLocationWelcome), never over a detail. That is
      also the funnel step — a visitor who already answered has nothing to
-     decide, and counting them would pad the denominator. */
+     decide, and counting them would pad the denominator; neither would one
+     who never touched the map and so was never asked. */
   const invited = useLocationInvite(location !== null);
+  /* Not straight after the cookie answer: only once the visitor has moved the
+     map or the list and let go (useExplorationSettled). Before that the map
+     had not even been looked at, and the question came as a second dialog. */
+  const explored = useExplorationSettled();
   const isRealInvite =
-    invited && isActive && !locationError && !locateLoading && sheetView !== 'detail';
+    invited && explored && isActive && !locationError && !locateLoading && sheetView !== 'detail';
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locatingVisible ? 'loading' : 'idle'}`
     : null;
@@ -676,6 +686,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             <div className={styles.liveMapLayer} data-live-map-layer="">
               <MapCanvasLayer
                 mapRef={mapRef}
+                getInitialCamera={getInitialCamera}
                 onMapClick={onMapClick}
                 onMoveEnd={onMapMoveEnd}
                 displayedRestaurants={displayedRestaurants}
@@ -836,6 +847,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             >
               <polyline points={desktopPanelHidden ? '15 6 9 12 15 18' : '9 6 15 12 9 18'} />
             </svg>
+            {desktopPanelHidden && (
+              <span className={controlStyles.panelToggleLabel} aria-hidden="true">
+                {locale === 'en' ? 'List' : 'Liste'}
+              </span>
+            )}
           </button>
 
           <aside

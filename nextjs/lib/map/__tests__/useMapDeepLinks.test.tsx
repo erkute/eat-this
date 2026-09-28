@@ -33,6 +33,7 @@ function createHarness(mapRef: RefObject<MapRef | null>) {
   const onRestaurantSlugMatch = vi.fn();
   const onMustEatIdMatch = vi.fn();
   const userInteractedRef = { current: false };
+  const fitCameraToSpots = vi.fn();
   const stableArgs = {
     mapRef,
     restaurants: [restaurant],
@@ -40,9 +41,10 @@ function createHarness(mapRef: RefObject<MapRef | null>) {
     userInteractedRef,
     onRestaurantSlugMatch,
     onMustEatIdMatch,
+    fitCameraToSpots,
   };
 
-  return { stableArgs, onRestaurantSlugMatch, onMustEatIdMatch, userInteractedRef };
+  return { stableArgs, onRestaurantSlugMatch, onMustEatIdMatch, userInteractedRef, fitCameraToSpots };
 }
 
 describe('useMapDeepLinks bounded map polling', () => {
@@ -144,5 +146,14 @@ describe('useMapDeepLinks bounded map polling', () => {
 
     act(() => vi.advanceTimersByTime(15_000));
     expect(vi.getTimerCount()).toBe(0);
+  });
+  it('frames the district through the same camera move as the Bezirk chip', () => {
+    window.history.replaceState({}, '', '/map?bezirk=mitte');
+    const mapRef = { current: {} as MapRef } as RefObject<MapRef | null>;
+    const { stableArgs, fitCameraToSpots } = createHarness(mapRef);
+    renderHook(() => useMapDeepLinks({ ...stableArgs, isActive: true }));
+
+    expect(fitCameraToSpots).toHaveBeenCalledOnce();
+    expect(fitCameraToSpots).toHaveBeenCalledWith([restaurant]);
   });
 });

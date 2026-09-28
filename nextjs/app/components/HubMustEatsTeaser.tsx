@@ -161,7 +161,7 @@ export default function HubMustEatsTeaser() {
           <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
         </div>
 
-        <ul className={`hv-rail ${styles.rail}`} role="list">
+        <ul className={`hv-rail ${styles.rail}`} role="list" data-reveal="deal">
           {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
             const restaurant = normalizeName(m.restaurant.name);
             const dish = isFaceUp ? normalizeName(m.dish ?? '') : '';

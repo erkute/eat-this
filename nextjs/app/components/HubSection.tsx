@@ -8,6 +8,7 @@ import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
 import HeroMarkFlight from './HeroMarkFlight';
 import HubHashScroll from './HubHashScroll';
+import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
@@ -86,7 +87,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       {/* Die gelbe Fläche läuft von Kante zu Kante, der Inhalt bleibt im
           Satzspiegel — deshalb sitzt `hv-wrap` innen und nicht auf der
           Section. */}
-      <section className={styles.hero} aria-label={t.heroLabel}>
+      <section className={styles.hero} aria-label={t.heroLabel} data-hub-hero="">
         <div className={`hv-wrap ${styles.heroInner}`}>
           <div className={styles.heroGrid}>
             <HubHeroCopy locale={locale} />
@@ -130,7 +131,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </div>
       </section>
       <HeroMarkFlight />
-
+      <HubMotion />
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor
           but a tap, and it answers "what do I eat now" with their own street.
@@ -142,7 +143,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
 
         {spot && (
           <section className="homeV2 hv-section hv-wrap">
-            <article className={styles.spot}>
+            <article className={styles.spot} data-reveal="rise">
               <div className={`hv-head ${styles.spotHead}`}>
                 <h2 className="hv-title">
                   <span className="hv-mk" aria-hidden="true" />

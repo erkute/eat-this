@@ -291,6 +291,23 @@
   filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45));
 }
 
+/* Beim Herausscrollen driften die Telefone auseinander: das vordere steigt
+   schneller und richtet sich auf, das hintere kippt weiter weg — Tiefe statt
+   einer flachen Bildstrecke. `--phones-drift` läuft 0 → 1 über die Höhe des
+   Aufmachers und kommt von HubMotion (GSAP ScrollTrigger, nur ab 768px und
+   ohne reduced motion); ohne JS bleibt es 0. Über die Einzel-Eigenschaften
+   `translate`/`rotate`, nicht über `transform`: die gehört dem Hover und
+   ihrer Transition, und beide addieren sich, statt sich zu überschreiben. */
+.phoneFront {
+  translate: 0 calc(var(--phones-drift, 0) * -84px);
+  rotate: calc(var(--phones-drift, 0) * 3deg);
+}
+
+.phoneBack {
+  translate: 0 calc(var(--phones-drift, 0) * -24px);
+  rotate: calc(var(--phones-drift, 0) * 4deg);
+}
+
 .heroPhones:focus-visible .phoneFront {
   transform: rotate(-3deg) translateY(-8px);
 }

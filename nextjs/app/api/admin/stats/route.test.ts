@@ -471,9 +471,11 @@ describe('GET /api/admin/stats — gerade aktiv', () => {
 
     expect(body.live).toMatchObject({ activeNow: 7, ga: 2, minutes: 30 });
     expect(body.ga).toMatchObject({ ok: true, users: 12 });
+    const after = Date.now();
+    // Die Route nimmt „jetzt" irgendwann zwischen before und after.
     const since = mocks.activeSince.mock.calls[0][0] as number;
-    expect(before - since).toBeGreaterThanOrEqual(30 * 60_000);
-    expect(before - since).toBeLessThan(31 * 60_000);
+    expect(since).toBeGreaterThanOrEqual(before - 30 * 60_000);
+    expect(since).toBeLessThanOrEqual(after - 30 * 60_000);
   });
 
   it('liefert mit ?only=live nur die Live-Zahl, ohne das Fenster zu rechnen', async () => {

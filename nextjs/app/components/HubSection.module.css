@@ -50,6 +50,27 @@
   vertical-align: calc(0.36em - 4.5px);
 }
 
+/* Das Quadrat dreht sich beim Hereinscrollen auf seinen Platz — am
+   Scrollweg, nicht an der Uhr: zurückscrollen dreht es wieder heraus. Der
+   Titel daneben steht still (keine Buchstaben, die sich aufbauen — Ansage
+   28.09.2026). */
+@keyframes mkSpin {
+  from {
+    rotate: -270deg;
+    scale: 0;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.homeV2).page :global(.hv-mk) {
+      animation: mkSpin linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+  }
+}
+
 /* ── homeV2 hero ─────────────────────────────────────────── */
 /* Der Aufmacher ist eine Ink-Fläche über die volle Breite — „komplett
    schwarz": sie schließt ohne Rand und Rundung an die Ink-Navigation an, der
@@ -409,24 +430,13 @@
    Bewegung, statt mittendrin fertig aufzutauchen.
    `@property` macht die Zahlen interpolierbar; ohne springt ein Browser in
    der Mitte auf den Endwert — auch dann steht am Ende alles. HubMotion nimmt
-   das Attribut ab, sobald alle Animationen durch sind, damit die Masken
-   nicht dauerhaft an Tinte schneiden, die über die Zeilenbox ragt. */
+   das Attribut ab, sobald alle Animationen durch sind. */
 @property --in-mark {
   syntax: '<number>';
   inherits: true;
   initial-value: 1;
 }
-@property --in-l1 {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-l2 {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-lead {
+@property --in-copy {
   syntax: '<number>';
   inherits: true;
   initial-value: 1;
@@ -452,19 +462,9 @@
     --in-mark: 0;
   }
 }
-@keyframes inL1 {
+@keyframes inCopy {
   from {
-    --in-l1: 0;
-  }
-}
-@keyframes inL2 {
-  from {
-    --in-l2: 0;
-  }
-}
-@keyframes inLead {
-  from {
-    --in-lead: 0;
+    --in-copy: 0;
   }
 }
 @keyframes inCta {
@@ -483,18 +483,19 @@
   }
 }
 
-/* Die Kurven: expo.out und power3.inOut, wie GSAP sie nennt. `both` hält die
-   Startpose schon während der Verzögerung. */
+/* Die Kurven: expo.out und power3.inOut, wie GSAP sie nennt; der Text dazu
+   mit Überschwinger (back.out) — er kommt mit Schwung an, schießt eine Spur
+   über seinen Platz und setzt sich. `both` hält die Startpose schon während
+   der Verzögerung. */
 :global(html[data-hero-intro]) .hero {
   --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --swing: cubic-bezier(0.2, 1.28, 0.32, 1);
   animation:
     inMark 0.95s cubic-bezier(0.65, 0, 0.35, 1) 0.05s both,
     inBack 1.8s var(--expo-out) 0.15s both,
     inFront 1.7s var(--expo-out) 0.27s both,
-    inL1 1.15s var(--expo-out) 0.43s both,
-    inL2 1.15s var(--expo-out) 0.55s both,
-    inLead 1.1s var(--expo-out) 0.71s both,
-    inCta 1.1s var(--expo-out) 0.83s both;
+    inCopy 1.05s var(--swing) 0.3s both,
+    inCta 0.9s var(--swing) 0.62s both;
 }
 
 /* Die Wortmarke wird nur angeschnitten, nie verschoben — HeroMarkFlight misst
@@ -503,36 +504,25 @@
   clip-path: inset(-10% calc((1 - var(--in-mark, 1)) * 100%) -10% -2%);
 }
 
-/* Zeilen und Absätze wachsen aus einer Maske an ihrer eigenen Unterkante.
-   Der Anschnitt ist im Koordinatensystem des Elements, wandert also mit:
-   unten genau so tief wie die Verschiebung heisst, die Kante steht auf der
-   Seite still. Die Verschiebung muss über Zeilenhöhe plus Polster hinaus,
-   sonst schaut in der Startpose die Oberkante der Tinte heraus. */
-:global(html[data-hero-intro]) .heroHeadline [data-line] {
-  --shift: calc((1 - var(--p, 1)) * 150%);
-  translate: 0 var(--shift);
-  clip-path: inset(-0.4em -0.3em calc(var(--shift) - 0.25em) -0.3em);
+/* Gruß, Headline und Lead kommen als EIN Block von links herein, nicht Zeile
+   für Zeile aus Masken von unten (Ansage 28.09.2026: „das von unten kommen
+   gefällt mir nicht"). Die Schräge hängt an derselben Zahl wie der Weg: am
+   Anfang, wo er am schnellsten ist, liegt der Block am stärksten schräg,
+   beim Überschwingen kippt er kurz gegen und steht dann gerade — Tempo als
+   Form, wie die Laufbänder auf gsap.com. Der Aufmacher schneidet mit
+   `overflow: hidden` ab, was noch links vor dem Bild steht. */
+:global(html[data-hero-intro]) .heroCopy > :not(.heroActions, .heroMark) {
+  translate: calc((1 - var(--in-copy, 1)) * -100vw) 0;
+  transform: skewX(calc((1 - var(--in-copy, 1)) * 28deg));
+  transform-origin: 0 100%;
 }
 
-:global(html[data-hero-intro]) .heroHeadline [data-line='1'] {
-  --p: var(--in-l1, 1);
-}
-
-:global(html[data-hero-intro]) .heroHeadline [data-line='2'] {
-  --p: var(--in-l2, 1);
-}
-
-:global(html[data-hero-intro]) .heroCopy > .heroKicker,
-:global(html[data-hero-intro]) .heroCopy > .heroLead {
-  --shift: calc((1 - var(--in-lead, 1)) * (100% + 0.5em));
-  translate: 0 var(--shift);
-  clip-path: inset(-0.4em -0.3em var(--shift) -0.3em);
-}
-
+/* Die Knöpfe folgen als eigener Block, gleiche Bewegung. `translate` liegt
+   hier auf der Reihe, nicht auf dem Knopf: der trägt Magnet und Druck. */
 :global(html[data-hero-intro]) .heroCopy > .heroActions {
-  --shift: calc((1 - var(--in-cta, 1)) * (100% + 16px));
-  translate: 0 var(--shift);
-  clip-path: inset(-12px -12px var(--shift) -12px);
+  translate: calc((1 - var(--in-cta, 1)) * -100vw) 0;
+  transform: skewX(calc((1 - var(--in-cta, 1)) * 28deg));
+  transform-origin: 0 100%;
 }
 
 .heroPhones:focus-visible .phoneFront {
@@ -597,7 +587,43 @@
    oversized card. Seit 03.09.2026 ist die Ebene eine Ink-Tafel: gelber
    Kicker, weiße Versalien, weicher Text, gelber Knopf — dasselbe Objekt wie
    der Insider-Tipp auf der Spot-Seite und die Tafeln der Booster-Seiten. */
+/* Der Spot des Tages kommt als EIN Stück (Ansage 28.09.2026: „nicht in
+   Einzelteilen"): die ganze Tafel liegt erst nach hinten gekippt, tiefer und
+   etwas kleiner, und richtet sich beim Scrollen auf, wie eine Karte, die man
+   vom Tisch hochnimmt. Zurückscrollen legt sie wieder hin. `--spot` (0 → 1)
+   ist eine Scroll-Timeline des Browsers; ohne sie schreibt HubMotion den
+   Wert per GSAP (`data-scrub`), bei reduced motion bleibt er 1. */
+@property --spot {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@keyframes spotUp {
+  from {
+    --spot: 0;
+  }
+  to {
+    --spot: 1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .spot {
+      animation: spotUp linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 38%;
+    }
+  }
+}
+
 .spot {
+  /* power2.out über den Scrollweg: schnell hoch, weich angekommen. */
+  --spot-rest: calc((1 - var(--spot)) * (1 - var(--spot)));
+  transform: perspective(1400px) translateY(calc(var(--spot-rest) * 160px))
+    rotateX(calc(var(--spot-rest) * 42deg)) scale(calc(1 - var(--spot-rest) * 0.14));
+  transform-origin: 50% 100%;
   /* Die leise Stufe wie Starter Pack und Remy: der Spot des Tages ist ein
      eigenes Objekt auf dem Grund. Nur `--et-board-quiet-pad` lesen, nie
      `--et-board-pad` — das ist auf dem Ink-Grund `0px`. */

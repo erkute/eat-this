@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 // nextjs/app/components/HubFragRemy.test.tsx
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { act } from 'react';
+import { describe, it, expect, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT, type BuddyAskDetail } from '@/lib/buddy/homeStage';
@@ -17,30 +16,8 @@ const messages = {
   },
 };
 
-// jsdom has no IntersectionObserver — capture the callback so tests can drive
-// stage visibility by hand.
-type IoCallback = (entries: Array<Partial<IntersectionObserverEntry>>) => void;
-let ioCallback: IoCallback | null = null;
-const ioDisconnect = vi.fn();
-
-beforeEach(() => {
-  ioCallback = null;
-  ioDisconnect.mockClear();
-  vi.stubGlobal(
-    'IntersectionObserver',
-    class {
-      constructor(cb: IoCallback) {
-        ioCallback = cb;
-      }
-      observe() {}
-      disconnect = ioDisconnect;
-    }
-  );
-});
-
 afterEach(() => {
   cleanup();
-  vi.unstubAllGlobals();
 });
 
 function renderSection() {
@@ -50,11 +27,6 @@ function renderSection() {
     </NextIntlClientProvider>
   );
 }
-
-const fakeEntry = (visible: boolean): Partial<IntersectionObserverEntry> => ({
-  isIntersecting: visible,
-  boundingClientRect: { left: 10, top: 20, width: 132, height: 132 } as DOMRect,
-});
 
 describe('HubFragRemy', () => {
   it('renders the homeV2 section header with hv-title', () => {
@@ -104,17 +76,12 @@ describe('HubFragRemy', () => {
     expect(got).toEqual({ question: 'Gute Ramen' });
   });
 
-  it('animates Remy briefly when the section enters', () => {
+  it('gibt HubMotion die Haken für den Auftritt: Fragezeichen, „Frag Remy.", Remy', () => {
     renderSection();
-    act(() => {
-      ioCallback!([fakeEntry(true)]);
-    });
-    expect(document.querySelector('[data-talking]')).not.toBeNull();
-  });
-
-  it('disconnects the observer on unmount', () => {
-    const { unmount } = renderSection();
-    unmount();
-    expect(ioDisconnect).toHaveBeenCalled();
+    const title = document.querySelector('h2')!;
+    expect(title.textContent).toBe('Keine Idee?Frag Remy.');
+    expect(document.querySelector('[data-fragremy-q]')!.textContent).toBe('?');
+    expect(document.querySelector('[data-fragremy-ask]')!.textContent).toBe('Frag Remy.');
+    expect(document.querySelector('[data-fragremy-avatar]')).not.toBeNull();
   });
 });

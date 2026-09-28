@@ -62,7 +62,7 @@ async (page) => {
       bodyEl.appendChild(mk("h3", ["rcardName"], "Romeo's Sandwiches"));
       const meta = mk("div", ["rcardMeta"]);
       meta.appendChild(mk("span", ["rcardMetaChip", "rcardMetaDistrict"], "Kreuzberg"));
-      meta.appendChild(mk("span", ["rcardMetaChip", "rcardMetaCategory"], "Fast Food"));
+      meta.appendChild(mk("span", ["rcardMetaChip", "rcardMetaCuisine"], "Sandwiches"));
       bodyEl.appendChild(meta);
       probe.appendChild(bodyEl);
       realCard.parentElement.appendChild(probe);

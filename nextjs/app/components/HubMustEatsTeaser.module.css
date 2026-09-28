@@ -67,11 +67,12 @@
     padding: 0;
   }
 
-  /* 15px statt 17: „Rindergulasch" passt so ohne Trennung in die
-     160px-Spalte, der Name bleibt zweizeilig („nur 2 Zeilen, also Font
-     kleiner"). */
-  .dish {
-    font-size: clamp(13px, 1.1vw, 15px);
+  /* Höchstens 15px statt 24: die Sechser-Spalte ist nur rund 160–190px
+     breit. `.meta .dish` statt `.dish`: die Grundregel steht weiter unten in
+     der Datei und überstimmte die gleich spezifische Regel hier — gemessen
+     standen am Desktop 24px, und „Rinderschaufel" brach um. */
+  .meta .dish {
+    --dish-max: clamp(13px, 1.1vw, 15px);
   }
 
   .restaurantLink :global(.hv-sub) {
@@ -358,6 +359,8 @@
   align-content: start;
   gap: 4px;
   padding: 14px 2px 0;
+  /* Maß für die Gerichtzeile darunter (`100cqi`). */
+  container-type: inline-size;
 }
 
 .dishLink,
@@ -370,23 +373,26 @@
   text-decoration: none;
 }
 
-/* `overflow-wrap: anywhere`: ein Wort wie „Rindergulasch" ist breiter als
-   eine Sechser-Spalte (und erst recht als eine Dreier-Spalte am Telefon) und
-   lief in die Nachbarkarte — „Rindergulasch mit Knödel" und „Chorizo" standen
-   ineinander. Nur `anywhere` zählt zur Mindestbreite und hält die Spalte. */
+/* Das Gericht steht in EINER Zeile, auf jeder Breite (Ansage 28.09.2026:
+   „Rinderschaufel eine Zeile natürlich"): die Schrift schrumpft auf
+   Spaltenbreite ÷ Zeichenzahl (`--chars` setzt die Komponente), höchstens
+   `--dish-max`. Versalien der Markenschrift laufen rund 0,66em breit. Unter
+   10px liest es niemand mehr: ein sehr langes Gericht („Crispy Pork Bánh Mì")
+   bleibt dort stehen und endet mit Auslassung — nie läuft es in die
+   Nachbarkarte, wie früher „Rindergulasch mit Knödel" in „Chorizo". */
 .dish {
+  display: block;
   font-family: var(--et-font-display);
-  font-size: clamp(17px, 1.7vw, 24px);
+  font-size: clamp(10px, calc(100cqi / (var(--chars, 10) * 0.66)), var(--dish-max, 24px));
   font-weight: 700;
   letter-spacing: 0;
-  /* Versalien mit Akzenten („CRISPY PORK / BÁNH MÌ"): bei 0.92 stiess der
-     Akzent der zweiten Zeile in die erste. */
-  line-height: 1.12;
+  /* Akzente auf Versalien („BÁNH MÌ") brauchen Luft über der Zeile, sonst
+     schneidet `overflow: hidden` sie an. */
+  line-height: 1.2;
   text-transform: uppercase;
-  /* Erst trennen, wo die Sprache es erlaubt („Rinder-gulasch"), und nur wenn
-     auch das nicht reicht irgendwo. */
-  hyphens: auto;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .restaurantLink :global(.hv-sub) {
@@ -525,9 +531,8 @@
     gap: 2px;
   }
 
-  .dish {
-    font-size: 13px;
-    line-height: 1.15;
+  .meta .dish {
+    --dish-max: 13px;
   }
 
   .restaurantLink :global(.hv-sub) {

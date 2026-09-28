@@ -35,7 +35,6 @@ import MapPromoCTA from '@/app/components/MapPromoCTA';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import RestaurantRemySection from '@/app/components/RestaurantRemySection';
 import RemyDock from '@/app/components/buddy/RemyDock';
-import ShareButton from '@/app/components/ShareButton';
 import SpotGallery from '@/app/components/SpotGallery';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import { HubSpotShelf } from '@/app/components/HubSpots';
@@ -47,7 +46,6 @@ import {
   PhoneIcon,
   WebsiteIcon,
   MenuCardIcon,
-  ShareIcon,
 } from '@/app/components/actionIcons';
 import styles from './RestaurantPage.module.css';
 
@@ -360,42 +358,35 @@ export default async function RestaurantPage({ params }: PageProps) {
                 />
               </div>
             )}
-            <div className={styles.heroActions}>
-              {/* Führt auf die Eat-This-Map statt zu Google Maps: den Weg gibt
+            {(onMap || r.reservationUrl) && (
+              <div className={styles.heroActions}>
+                {/* Führt auf die Eat-This-Map statt zu Google Maps: den Weg gibt
                   die Map selbst her. nofollow wie am Map-Block — `mapHref`
                   trägt eine Query, und jede Variante würde sonst einzeln
                   gecrawlt. */}
-              {onMap && (
-                <MapIntentLink
-                  href={mapHref}
-                  rel="nofollow"
-                  className={`${styles.btn} ${styles.btnPrimary}`}
-                >
-                  <RouteIcon />
-                  <span>{de ? 'Zur Map' : 'On the map'}</span>
-                </MapIntentLink>
-              )}
-              {r.reservationUrl && (
-                <a
-                  className={styles.btn}
-                  href={r.reservationUrl}
-                  target="_blank"
-                  rel="noopener nofollow noreferrer"
-                >
-                  <ReserveIcon />
-                  <span>{de ? 'Reservieren' : 'Reserve'}</span>
-                </a>
-              )}
-              <ShareButton
-                title={r.name}
-                slug={slug}
-                contentType="restaurant"
-                className={styles.btn}
-                label={de ? 'Teilen' : 'Share'}
-                copiedLabel={de ? 'Kopiert' : 'Copied'}
-                icon={<ShareIcon />}
-              />
-            </div>
+                {onMap && (
+                  <MapIntentLink
+                    href={mapHref}
+                    rel="nofollow"
+                    className={`${styles.btn} ${styles.btnPrimary}`}
+                  >
+                    <RouteIcon />
+                    <span>{de ? 'Zur Map' : 'On the map'}</span>
+                  </MapIntentLink>
+                )}
+                {r.reservationUrl && (
+                  <a
+                    className={styles.btn}
+                    href={r.reservationUrl}
+                    target="_blank"
+                    rel="noopener nofollow noreferrer"
+                  >
+                    <ReserveIcon />
+                    <span>{de ? 'Reservieren' : 'Reserve'}</span>
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </header>
 

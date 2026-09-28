@@ -30,9 +30,14 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
  *    Versteckt wird nur, was beim Mount unterhalb des Bildschirms liegt —
  *    was schon zu sehen ist (gemerkte Scrollposition), bleibt stehen.
  *
- * 3. **Die Telefone driften beim Herausscrollen auseinander** (ScrollTrigger,
- *    `--phones-drift`). Nur ab 768px: auf dem iPhone läuft Scroll-JS ein bis
- *    zwei Frames hinterher (siehe HeroMarkFlight), das zittert.
+ * 3. **Scroll und Maus, nur ab 768px** (auf dem iPhone läuft Scroll-JS ein bis
+ *    zwei Frames hinterher, siehe HeroMarkFlight — das zittert):
+ *    - die Telefone driften beim Herausscrollen auseinander (`--phones-drift`),
+ *    - das Laufband (HubMarquee) wird beim Scrollen gegeneinander geschoben,
+ *    - mit echtem Zeiger kippen die Telefone in 3D zur Maus und trennen sich
+ *      in der Tiefe, der Knopf im Aufmacher zieht magnetisch (armHeroPointer),
+ *    - ab 1024px werden die Must Eats zur gepinnten Sequenz: Stapel,
+ *      Fächer, ausgelegt — am Scrollweg statt an der Uhr (armDeckPin).
  */
 
 function appScroller(): HTMLElement | null {
@@ -107,7 +112,7 @@ function hidePhoto(item: Element) {
   if (photo) gsap.set(photo, { clipPath: 'inset(100% 0% 0% 0%)' });
 }
 
-function armReveals(safe: gsap.ContextSafeFunc): () => void {
+function armReveals(safe: gsap.ContextSafeFunc, { pinnedDeck }: { pinnedDeck: boolean }): () => void {
   const root = document.querySelector<HTMLElement>('[data-hub]');
   if (!root || typeof IntersectionObserver === 'undefined') return () => {};
 
@@ -201,6 +206,8 @@ function armReveals(safe: gsap.ContextSafeFunc): () => void {
        nicht mit — im Stapel läge sie als Textsalat übereinander —, sondern
        wächst an ihrem Platz aus der Maske, sobald ihre Karte landet. */
     if (kind === 'deal') {
+      // Ab 1024px gehört der Stapel der gepinnten Sequenz (armDeckPin).
+      if (pinnedDeck) continue;
       const cards = items.map((item) => item.querySelector<HTMLElement>('[data-deal-card]') ?? item);
       const captions = items.map((item) => item.querySelector<HTMLElement>('[data-deal-caption]'));
       const home = cards[0].getBoundingClientRect();
@@ -304,7 +311,7 @@ function armReveals(safe: gsap.ContextSafeFunc): () => void {
   return () => io.disconnect();
 }
 
-function armPhonesDrift(): void {
+function armPhonesDrift(scroller: HTMLElement | Window): void {
   const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
   if (!hero) return;
   gsap.fromTo(
@@ -315,7 +322,7 @@ function armPhonesDrift(): void {
       ease: 'none',
       scrollTrigger: {
         trigger: hero,
-        scroller: appScroller() ?? window,
+        scroller,
         start: 'top top',
         end: 'bottom top',
         // Ein halber Takt Nachlauf: liest sich als Trägheit, nicht als Ruckeln.
@@ -325,16 +332,206 @@ function armPhonesDrift(): void {
   );
 }
 
+/**
+ * Maus über dem Aufmacher (nur Desktop mit echtem Zeiger): die Telefone
+ * kippen in 3D zur Maus und trennen sich in der Tiefe (`--px/--py`, die Bahn
+ * steht in HubSection.module.css), der Knopf zieht magnetisch zum Zeiger.
+ * Die Knöpfe werden bei jeder Bewegung neu gesucht: HubHeroCopy tauscht sie
+ * aus, sobald `useAuth` steht.
+ */
+function armHeroPointer(): () => void {
+  const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
+  const phones = hero?.querySelector<HTMLElement>('[data-hub-phones]');
+  if (!hero || !phones) return () => {};
+
+  gsap.set(phones, { transformPerspective: 1100 });
+  const follow = { duration: 0.9, ease: 'power3' };
+  const px = gsap.quickTo(hero, '--px', follow);
+  const py = gsap.quickTo(hero, '--py', follow);
+  const tiltX = gsap.quickTo(phones, 'rotationX', follow);
+  const tiltY = gsap.quickTo(phones, 'rotationY', follow);
+
+  type Pull = { x: (v: number) => void; y: (v: number) => void };
+  const pulls = new WeakMap<HTMLElement, Pull>();
+  const pull = (el: HTMLElement): Pull => {
+    let p = pulls.get(el);
+    if (!p) {
+      const snap = { duration: 0.5, ease: 'power3' };
+      p = { x: gsap.quickTo(el, '--mx', snap), y: gsap.quickTo(el, '--my', snap) };
+      pulls.set(el, p);
+    }
+    return p;
+  };
+  const magnets = () => hero.querySelectorAll<HTMLElement>('[data-magnetic]');
+
+  const onMove = (e: PointerEvent) => {
+    const r = hero.getBoundingClientRect();
+    const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+    const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+    px(nx);
+    py(ny);
+    tiltY(nx * 12);
+    tiltX(ny * -8);
+    magnets().forEach((el) => {
+      const b = el.getBoundingClientRect();
+      const dx = e.clientX - (b.left + b.width / 2);
+      const dy = e.clientY - (b.top + b.height / 2);
+      // Fängt knapp vor dem Knopf an zu ziehen, nicht erst darauf — und nie
+      // weiter als ein paar Pixel: ein Knopf, der wegläuft, ist keiner.
+      const near = Math.hypot(dx, dy) < Math.max(b.width, b.height) * 0.8;
+      pull(el).x(near ? gsap.utils.clamp(-16, 16, dx * 0.25) : 0);
+      pull(el).y(near ? gsap.utils.clamp(-10, 10, dy * 0.3) : 0);
+    });
+  };
+  const onLeave = () => {
+    px(0);
+    py(0);
+    tiltX(0);
+    tiltY(0);
+    magnets().forEach((el) => {
+      pull(el).x(0);
+      pull(el).y(0);
+    });
+  };
+
+  hero.addEventListener('pointermove', onMove);
+  hero.addEventListener('pointerleave', onLeave);
+  return () => {
+    hero.removeEventListener('pointermove', onMove);
+    hero.removeEventListener('pointerleave', onLeave);
+    gsap.set(phones, { clearProps: 'transform' });
+    gsap.set(hero, { clearProps: '--px,--py' });
+    magnets().forEach((el) => gsap.set(el, { clearProps: '--mx,--my' }));
+  };
+}
+
+/** Das Laufband läuft von allein (CSS); Scrollen schiebt die Bänder dazu
+ *  gegeneinander — ein Band pro Richtung (`data-marquee-row`). */
+function armMarqueePush(scroller: HTMLElement | Window): void {
+  const band = document.querySelector<HTMLElement>('[data-hub-marquee]');
+  if (!band) return;
+  band.querySelectorAll<HTMLElement>('[data-marquee-row]').forEach((row) => {
+    const dir = Number(row.dataset.marqueeRow) || 1;
+    gsap.fromTo(
+      row,
+      { '--push': dir * 260 },
+      {
+        '--push': dir * -260,
+        ease: 'none',
+        scrollTrigger: { trigger: band, scroller, start: 'top bottom', end: 'bottom top', scrub: 0.6 },
+      }
+    );
+  });
+}
+
+/**
+ * Must Eats als gepinnte Sequenz (ab 1024px): die Section bleibt stehen, und
+ * der Scrollweg spielt das Kartenspiel — Stapel in der Mitte, auffächern wie
+ * eine Hand Karten, auslegen auf die Plätze. Scrub statt Zeit: wer
+ * zurückscrollt, sammelt die Karten wieder ein. Nur die Karten
+ * (`data-deal-card`) fliegen; die Beschriftung (`data-deal-caption`) wächst
+ * am Ende aus ihrer Maske.
+ * Gepinnt wird `fixed`, auch im `.app-pages`-Container: ein Transform-Pin
+ * liefe dem Scrollen dort genauso hinterher wie Scroll-JS auf dem iPhone.
+ */
+function armDeckPin(scroller: HTMLElement | Window): void {
+  const section = document.querySelector<HTMLElement>('[data-hub-must-eats]');
+  const list = section?.querySelector<HTMLElement>('[data-reveal="deal"]');
+  if (!section || !list) return;
+  const items = Array.from(list.children) as HTMLElement[];
+  const cards = items.map((item) => item.querySelector<HTMLElement>('[data-deal-card]') ?? item);
+  const captions = items
+    .map((item) => item.querySelector<HTMLElement>('[data-deal-caption]'))
+    .filter((c): c is HTMLElement => !!c);
+  if (cards.length < 2) return;
+
+  // Geometrie, solange alles noch an seinem Platz liegt.
+  const rects = cards.map((c) => c.getBoundingClientRect());
+  const box = list.getBoundingClientRect();
+  const cx = box.left + box.width / 2;
+  const top = rects[0].top;
+  const n = cards.length;
+  const mid = (i: number) => rects[i].left + rects[i].width / 2;
+  const angle = (i: number) => (i - (n - 1) / 2) * 8;
+  const R = 1000;
+
+  gsap.set(cards, {
+    x: (i: number) => cx - mid(i) + i * 1.5,
+    y: (i: number) => top - rects[i].top - i * 2.5,
+    rotation: (i: number) => (i % 2 ? 1 : -1) * (1.5 + i),
+    position: 'relative',
+    zIndex: (i: number) => n - i,
+    transition: 'none',
+  });
+  gsap.set(captions, { y: 28, clipPath: 'inset(-10% -5% 100% -5%)' });
+
+  gsap
+    .timeline({
+      scrollTrigger: {
+        trigger: section,
+        scroller,
+        pin: true,
+        pinType: 'fixed',
+        start: 'center center',
+        end: () => `+=${Math.round(window.innerHeight * 1.4)}`,
+        scrub: 0.8,
+        anticipatePin: 1,
+      },
+    })
+    // Auffächern: auf einem Kreisbogen um einen Punkt weit unter dem Stapel.
+    .to(cards, {
+      x: (i: number) => cx + Math.sin((angle(i) * Math.PI) / 180) * R - mid(i),
+      y: (i: number) => top - rects[i].top + (1 - Math.cos((angle(i) * Math.PI) / 180)) * R,
+      rotation: (i: number) => angle(i),
+      duration: 1,
+      ease: 'power2.inOut',
+      stagger: { each: 0.04, from: 'center' },
+    })
+    // Auslegen.
+    .to(
+      cards,
+      { x: 0, y: 0, rotation: 0, duration: 1.2, ease: 'power3.inOut', stagger: { each: 0.06, from: 'center' } },
+      '+=0.2'
+    )
+    .to(
+      captions,
+      { y: 0, clipPath: 'inset(-10% -5% -10% -5%)', duration: 0.5, ease: 'power2.out', stagger: 0.05 },
+      '-=0.35'
+    )
+    // Kurz liegen lassen, bevor der Pin loslässt.
+    .to({}, { duration: 0.3 });
+}
+
 export default function HubMotion() {
   useGSAP(() => {
     // Ausserhalb von matchMedia: aufräumen muss es auch, wenn jemand während
     // des Auftritts auf reduced motion umschaltet.
     const stopIntro = finishIntro();
     const mm = gsap.matchMedia();
-    mm.add('(prefers-reduced-motion: no-preference)', (_ctx, safe) => armReveals(safe!));
-    mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
-      armPhonesDrift();
-    });
+    mm.add(
+      {
+        motion: '(prefers-reduced-motion: no-preference)',
+        desk: '(min-width: 768px)',
+        wide: '(min-width: 1024px)',
+        pointer: '(hover: hover) and (pointer: fine)',
+      },
+      (ctx, safe) => {
+        const { motion, desk, wide, pointer } = ctx.conditions as Record<string, boolean>;
+        if (!motion) return;
+        const scroller = appScroller() ?? window;
+        const stops: Array<() => void> = [];
+        if (wide) armDeckPin(scroller);
+        stops.push(armReveals(safe!, { pinnedDeck: wide }));
+        // Scroll-JS nur ab 768px: auf dem iPhone läuft es ein bis zwei Frames
+        // hinterher (siehe HeroMarkFlight) und zittert gegen die Seite.
+        if (desk) {
+          armPhonesDrift(scroller);
+          armMarqueePush(scroller);
+        }
+        if (desk && pointer) stops.push(armHeroPointer());
+        return () => stops.forEach((stop) => stop());
+      }
+    );
     return () => {
       stopIntro?.();
       mm.revert();

@@ -298,14 +298,60 @@
    ohne reduced motion); ohne JS bleibt es 0. Über die Einzel-Eigenschaften
    `translate`/`rotate`, nicht über `transform`: die gehört dem Hover und
    ihrer Transition, und beide addieren sich, statt sich zu überschreiben. */
+/* Dazu zwei Eingänge mehr: `--px/--py` (-1…1) folgen auf dem Desktop der
+   Maus über dem Aufmacher (HubMotion) — das vordere Telefon wandert weiter
+   als das hintere, die beiden trennen sich in der Tiefe. `--float` lässt sie
+   im Leerlauf gegeneinander schweben. */
 .phoneFront {
-  translate: 0 calc(var(--phones-drift, 0) * -84px + (1 - var(--in-front, 1)) * 58vh);
-  rotate: calc(var(--phones-drift, 0) * 3deg - (1 - var(--in-front, 1)) * 16deg);
+  translate: calc(var(--px, 0) * 26px)
+    calc(
+      var(--phones-drift, 0) * -84px + (1 - var(--in-front, 1)) * 58vh + var(--py, 0) * 18px +
+        var(--float, 0) * -9px
+    );
+  rotate: calc(
+    var(--phones-drift, 0) * 3deg - (1 - var(--in-front, 1)) * 16deg + var(--px, 0) * 2deg
+  );
 }
 
 .phoneBack {
-  translate: 0 calc(var(--phones-drift, 0) * -24px + (1 - var(--in-back, 1)) * 52vh);
-  rotate: calc(var(--phones-drift, 0) * 4deg + (1 - var(--in-back, 1)) * 22deg);
+  translate: calc(var(--px, 0) * -12px)
+    calc(
+      var(--phones-drift, 0) * -24px + (1 - var(--in-back, 1)) * 52vh + var(--py, 0) * -8px +
+        var(--float, 0) * 7px
+    );
+  rotate: calc(
+    var(--phones-drift, 0) * 4deg + (1 - var(--in-back, 1)) * 22deg - var(--px, 0) * 1.5deg
+  );
+}
+
+@property --float {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@keyframes phonesFloat {
+  50% {
+    --float: 1;
+  }
+}
+
+/* Auf der Section, nicht auf den Telefonen: dort liegt schon `transform`
+   samt Hover-Transition. Ein Wert für beide, gegenläufig verrechnet. */
+.heroPhones {
+  animation: phonesFloat 6.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroPhones {
+    animation: none;
+  }
+}
+
+/* Der Knopf im Aufmacher zieht zur Maus (HubMotion schreibt `--mx/--my` in
+   px). Über `translate`, damit `:active` seinen `transform` behält. */
+.heroActions [data-magnetic] {
+  translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px);
 }
 
 /* ── Auftritt beim Laden ────────────────────────────────────────────────────

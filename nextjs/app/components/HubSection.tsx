@@ -8,6 +8,7 @@ import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
 import HeroMarkFlight from './HeroMarkFlight';
 import HubHashScroll from './HubHashScroll';
+import HubMarquee from './HubMarquee';
 import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
@@ -99,7 +100,12 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               für "Berlin Food Map" — sie braucht diesen Link. Die
               PARAMETRISIERTEN Deep-Links (`?r=`, `?bezirk=`, `?cat=`) behalten
               ihr nofollow, siehe MapPromoCTA. */}
-            <MapIntentLink href="/map" className={styles.heroPhones} aria-label={t.heroPhonesLabel}>
+            <MapIntentLink
+              href="/map"
+              className={styles.heroPhones}
+              aria-label={t.heroPhonesLabel}
+              data-hub-phones=""
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.phoneBack}
@@ -132,6 +138,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
       <HeroMarkFlight />
       <HubMotion />
+      <HubMarquee locale={locale} />
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor
           but a tap, and it answers "what do I eat now" with their own street.

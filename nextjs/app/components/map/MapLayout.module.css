@@ -268,6 +268,9 @@
        22.09.2026: „oben noch minimal die Map sehen"). The sticky bar stops
        below it. Mirrored in JS by MAP_STRIP_PX in lib/map/sheetSlide.ts. */
     --map-strip: calc(env(safe-area-inset-top, 0px) + 72px);
+    /* How far the map stands off the top edge — see .mapWrap below. The
+       sheet's scroll-driven cut (MapSheet.module.css) adds it back. */
+    --map-top-gap: 1px;
     height: auto;
     overflow: visible;
   }
@@ -308,7 +311,16 @@
   }
   .mapWrap {
     position: sticky;
-    top: 0;
+    /* One pixel off the top edge (Betreiber, 28.09.2026: „die Map komplett
+       hinter der Statusleiste"). iOS 26 Safari fills its top bar with the
+       background of a fixed or sticky element that TOUCHES the top edge —
+       here that was this wrapper's ink, a dark band where the status bar
+       is. Standing 1px clear, it no longer touches, and Safari shows the
+       page under the status bar: the map. The bottom edge it still touches,
+       so the URL bar keeps the ink (below). EXPERIMENT on staging — if the
+       top bar turns grey instead, this goes. */
+    top: var(--map-top-gap, 0px);
+    margin-top: var(--map-top-gap, 0px);
     /* The LARGEST viewport, not the dynamic one: 100dvh followed Safari's
        toolbar as it collapsed and expanded during a scroll, the canvas
        resized on every step and the map slid up and down under the list

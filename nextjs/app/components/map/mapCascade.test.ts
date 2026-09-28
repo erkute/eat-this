@@ -167,12 +167,16 @@ describe('MapControls cascade', () => {
     const phone = '(max-width: 767.98px)';
 
     /* On phones the dock carries the position; the button rides inside it. */
-    expect(effective(CONTROLS, 'locateDock', 'bottom', phone)).toBe('var(--edge-bottom)');
+    /* Sticky in the page, from the top: the bottom edge moves with Safari's
+       toolbar, and a scroll timeline twitched when it did. */
+    expect(effective(CONTROLS, 'locateDock', 'top', phone)).toBe('calc(var(--edge-top) - var(--edge-ride))');
     /* The edge line, shared with the map credit: 14px above the resting edge. */
     const layout = readFileSync(fileURLToPath(new URL('./MapLayout.module.css', import.meta.url)), 'utf8');
-    expect(layout).toMatch(/--edge-bottom: calc\(var\(--phone-list-sheet-visible, 28dvh\) \+ 14px\)/);
-    expect(layout).toContain('bottom: calc(100lvh - 100dvh + var(--edge-bottom))');
-    expect(effective(CONTROLS, 'locateDock', 'position', phone)).toBe('fixed');
+    expect(layout).toContain('--edge-top: calc(var(--frame-edge) - 58px)');
+    expect(layout).toContain('--frame-edge: calc(100dvh - var(--phone-list-sheet-visible))');
+    expect(layout).toContain('--frame-edge: var(--detail-map-peek)');
+    expect(layout).not.toContain('--edge-bottom');
+    expect(effective(CONTROLS, 'locateDock', 'position', phone)).toBe('sticky');
   });
 });
 

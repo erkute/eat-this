@@ -3,7 +3,6 @@ import {
   DETAIL_PEEK_DVH,
   LIST_REST_VISIBLE_DVH,
   resolveListReturn,
-  resolveSnap,
   rowRevealOffset,
   rowRevealTop,
   ROW_RETURN_MAX_TOP_RATIO,
@@ -57,47 +56,6 @@ describe('snapOffsets', () => {
     const small = snapOffsets('list', 600);
     const large = snapOffsets('list', 1000);
     expect(large[2]).toBeGreaterThan(small[2]);
-  });
-});
-
-describe('resolveSnap', () => {
-  const offsets = snapOffsets('list', VH); // [0, 179, 585]
-
-  it('advances one stop on a deliberate short drag', () => {
-    // Dragged 60px up from rest — not near stop 2, but clearly intentional.
-    expect(resolveSnap(offsets, 60, 0)).toBe(offsets[1]);
-  });
-
-  it('goes back a stop when dragged the other way', () => {
-    expect(resolveSnap(offsets, offsets[1] - 60, offsets[1])).toBe(offsets[0]);
-  });
-
-  it('honours a long drag that crosses more than one stop', () => {
-    // From rest all the way past the middle stop — must not stop short at it.
-    expect(resolveSnap(offsets, 500, 0)).toBe(offsets[2]);
-  });
-
-  it('parks at the nearest stop when the movement was only a wobble', () => {
-    expect(resolveSnap(offsets, 8, 0)).toBe(offsets[0]);
-    expect(resolveSnap(offsets, offsets[1] + 5, offsets[1])).toBe(offsets[1]);
-  });
-
-  it('leaves the scroll alone once the sheet is fully up', () => {
-    // Reading down the list: snapping back to a stop would fight the user.
-    const deep = offsets[2] + 900;
-    expect(resolveSnap(offsets, deep, offsets[2] + 400)).toBe(deep);
-  });
-
-  it('never returns an offset outside the defined stops', () => {
-    for (const [y, start] of [
-      [-200, 0],
-      [40, 0],
-      [300, 179],
-      [584, 585],
-    ]) {
-      const got = resolveSnap(offsets, y, start);
-      expect(offsets).toContain(got);
-    }
   });
 });
 

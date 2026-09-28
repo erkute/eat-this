@@ -8,7 +8,6 @@ import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import RestaurantDetail from './RestaurantDetail';
 import MustEatDetail from './MustEatDetail';
 import styles from './MapSheetDetail.module.css';
-import sheetStyles from './MapSheet.module.css';
 
 type CommonProps = {
   contentRef: Ref<HTMLDivElement | null>;
@@ -93,30 +92,24 @@ export default function MapSheetDetail(props: Props) {
           onboardingData={props.onboardingData}
         />
       ) : (
-        /* Window and counter-shift keep the content below the stuck handle
-           on the phone (MapSheet.module.css, "The map strip"). */
-        <div className={sheetStyles.stripWindow}>
-          <div className={sheetStyles.stripInner}>
-            <RestaurantDetail
-              restaurant={props.restaurant}
-              mustEats={props.mustEats}
-              unlockedIds={props.unlockedIds}
-              revealedMustEatIds={props.revealedMustEatIds}
-              userLocation={props.userLocation}
-              uid={props.uid}
-              userTier={props.userTier}
-              onClose={props.onClose}
-              closeTarget={props.closeTarget}
-              onMustEatClick={props.onMustEatClick}
-              isFavorite={props.isFavorite}
-              onToggleFavorite={props.onToggleFavorite}
-              prevRestaurant={props.prevRestaurant}
-              nextRestaurant={props.nextRestaurant}
-              onPagePrev={props.onPagePrev}
-              onPageNext={props.onPageNext}
-            />
-          </div>
-        </div>
+        <RestaurantDetail
+          restaurant={props.restaurant}
+          mustEats={props.mustEats}
+          unlockedIds={props.unlockedIds}
+          revealedMustEatIds={props.revealedMustEatIds}
+          userLocation={props.userLocation}
+          uid={props.uid}
+          userTier={props.userTier}
+          onClose={props.onClose}
+          closeTarget={props.closeTarget}
+          onMustEatClick={props.onMustEatClick}
+          isFavorite={props.isFavorite}
+          onToggleFavorite={props.onToggleFavorite}
+          prevRestaurant={props.prevRestaurant}
+          nextRestaurant={props.nextRestaurant}
+          onPagePrev={props.onPagePrev}
+          onPageNext={props.onPageNext}
+        />
       )}
     </div>
   );

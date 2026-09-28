@@ -1,26 +1,26 @@
 'use client';
 import { useEffect, type RefObject } from 'react';
 import { trackEvent } from '@/lib/analytics';
-import { measureSheetTop, resolveSnap, snapOffsets } from './phoneSheetSnaps';
+import { measureSheetTop, snapOffsets } from './phoneSheetSnaps';
 import {
+  clearBottom,
   dropLowered,
   followSheet,
   grabFromList,
   heldOffset,
   holdSheetAt,
+  leaveSlabAt,
   LOWERED_GAP_PX,
   mapStripLine,
   raiseToList,
+  restAt,
   settleOnMap,
 } from './sheetSlide';
 
 const PHONE_MAX = 767.98;
-/* Slack around a stop — rounded offsets and iOS rubber-banding land a few px
-   off the exact value. */
+/* Slack around the ends — rounded offsets and iOS rubber-banding land a few
+   px off the exact value. */
 const AT_STOP_PX = 24;
-/* A pull this far, or a flick this fast, is a decision; less springs back. */
-const INTENT_PX = 64;
-const FLICK_PX_PER_MS = 0.5;
 /* Below this much movement a release is a tap. */
 const TAP_PX = 6;
 /* After a gesture of the grip, the click the browser may still send is the
@@ -35,12 +35,12 @@ function isPhone(): boolean {
 /* A press on the grab zone outside the grabber itself (the list's filter
    chips): a drag only once the finger clearly moves up or down, otherwise it
    stays the chip's tap. */
-type Pending = { pointerId: number; startX: number; startY: number; timeStamp: number };
+type Pending = { pointerId: number; startX: number; startY: number };
 
 type Drag =
-  /* At and between the stops. `pos` is the scroll position the finger asks
-     for; below 0 the page stays at the map stop and the sheet is held that
-     far down instead — the lowest stop lies there. */
+  /* Between the map stop and the strip line. `pos` is the scroll position the
+     finger asks for; below the map stop the page stays there and the sheet
+     is held that far down instead. */
   | {
       kind: 'scroll';
       pointerId: number;
@@ -48,8 +48,11 @@ type Drag =
       startPos: number;
       pos: number;
       mapY: number;
-      /* The lowest stop, as a scroll position (mapY when there is none). */
+      /* The lowest the bar may go, as a scroll position (mapY when the sheet
+         has no map behind it). */
       floor: number;
+      /* The highest: the bar on the strip line. */
+      ceil: number;
     }
   /* Deep in the list: the finger drives the slab on screen (see
      sheetSlide.ts). */
@@ -60,19 +63,22 @@ type Drag =
       offset: number;
       /* Where the bar rests over the map, in slab offset. */
       restLine: number;
-      /* The lowest stop, in slab offset: the finger cannot take the bar
-         lower. Past it the sticky bar would near the bottom edge, and iOS
-         Safari tints its URL bar after it (see sheetSlide.ts). */
+      /* The lowest the bar may go, in slab offset. Past it the sticky bar
+         would near the bottom edge — under Safari's URL bar, which also
+         tints itself after it (see sheetSlide.ts). */
       lowLine: number;
       mapY: number;
-      lastY: number;
-      lastT: number;
-      v: number;
     };
 
 /**
- * The phone sheet's grip. Four stops: lowered (only the bar above the bottom),
- * map, split and sheet; past the last one the list reads natively.
+ * The phone sheet's grip. It moves the sheet with the finger and leaves it
+ * where the finger lets go — nothing snaps (user, 28.09.2026). Two bounds:
+ * the bar never goes above the strip line, so the map strip stays, and never
+ * below clearBottom(), so it stays clear of Safari's URL bar. Above the map
+ * stop the sheet is the scrolled page; below it the page rests at the map
+ * stop and the sheet is held down by a transform. A tap on the grip still
+ * toggles: from the map the sheet comes up to the strip line, from there it
+ * goes back to the map. Past the strip line the list reads natively.
  *
  * Content and filter touches keep native document scrolling. The grip alone
  * owns its drag: from deep in a list/detail it lowers the visible sheet
@@ -135,19 +141,17 @@ export function useHandleScrollDrag(
            from. */
         restLine: Math.max(0, sheetTop - mapY - strip),
         /* How far below the map stop the sheet may go: down to the bar and a
-           sliver of rows above the bottom edge. */
+           sliver of rows above the bottom that Safari's bars leave clear. */
         lowBy: slides(sheet)
           ? Math.max(
               0,
-              Math.round(
-                window.innerHeight - zone.offsetHeight - LOWERED_GAP_PX - (sheetTop - mapY)
-              )
+              Math.round(clearBottom() - zone.offsetHeight - LOWERED_GAP_PX - (sheetTop - mapY))
             )
           : 0,
       };
     };
 
-    const begin = (pointerId: number, startY: number, timeStamp: number) => {
+    const begin = (pointerId: number, startY: number) => {
       try {
         zone.setPointerCapture(pointerId);
       } catch {
@@ -164,9 +168,6 @@ export function useHandleScrollDrag(
           restLine,
           lowLine: restLine + lowBy,
           mapY,
-          lastY: startY,
-          lastT: timeStamp,
-          v: 0,
         };
         return;
       }
@@ -179,6 +180,8 @@ export function useHandleScrollDrag(
         pos: startPos,
         mapY,
         floor: mapY - lowBy,
+        /* The must-eat takeover has no strip: its grip scrolls it freely. */
+        ceil: slides(sheet) ? Math.max(sheetStop, startPos) : Infinity,
       };
     };
 
@@ -196,7 +199,6 @@ export function useHandleScrollDrag(
           pointerId: e.pointerId,
           startX: e.clientX,
           startY: e.clientY,
-          timeStamp: e.timeStamp,
         };
         return;
       }
@@ -204,7 +206,7 @@ export function useHandleScrollDrag(
       e.preventDefault();
       /* Lowered, a press on a row is the sheet's, not the row's. */
       claimedLate = !onGrip;
-      begin(e.pointerId, e.clientY, e.timeStamp);
+      begin(e.pointerId, e.clientY);
     };
 
     /* Put the sheet where the finger is — at most once per frame. */
@@ -214,7 +216,7 @@ export function useHandleScrollDrag(
       if (!drag) return;
       if (drag.kind === 'slab') {
         if (sheet) holdSheetAt(sheet, drag.offset);
-        followSheet(drag.offset - drag.restLine);
+        followSheet(drag.offset, drag.offset - drag.restLine);
         return;
       }
       if (sheet) holdSheetAt(sheet, Math.max(0, drag.mapY - drag.pos));
@@ -246,7 +248,7 @@ export function useHandleScrollDrag(
           const p = pending;
           pending = null;
           claimedLate = true;
-          begin(p.pointerId, p.startY, p.timeStamp);
+          begin(p.pointerId, p.startY);
         } else if (dx > TAP_PX) {
           pending = null;
           return;
@@ -257,12 +259,11 @@ export function useHandleScrollDrag(
       if (!drag || e.pointerId !== drag.pointerId) return;
       if (drag.kind === 'slab') {
         drag.offset = Math.min(drag.lowLine, Math.max(0, e.clientY - drag.startY));
-        const dt = e.timeStamp - drag.lastT;
-        if (dt > 0) drag.v = (e.clientY - drag.lastY) / dt;
-        drag.lastY = e.clientY;
-        drag.lastT = e.timeStamp;
       } else {
-        drag.pos = Math.max(drag.floor, drag.startPos + (drag.startY - e.clientY));
+        drag.pos = Math.min(
+          drag.ceil,
+          Math.max(drag.floor, drag.startPos + (drag.startY - e.clientY))
+        );
       }
       schedule();
     };
@@ -305,28 +306,30 @@ export function useHandleScrollDrag(
 
       if (d.kind === 'slab') {
         if (!sheet) return;
-        const moved = d.offset;
-        const toMap = !cancelled && ((tap && !claimedLate) || moved > INTENT_PX || d.v > FLICK_PX_PER_MS);
-        if (toMap) trackEvent('map_view_toggle', { direction: 'to_map' });
-        /* Past the resting line, a pull that clearly goes on takes the sheet
-           to the lowest stop. */
-        const lower = d.lowLine > d.restLine && d.offset > d.restLine + Math.min(INTENT_PX, (d.lowLine - d.restLine) / 2);
         busy = true;
-        const done = toMap
-          ? settleOnMap(sheet, d.offset, lower ? d.lowLine : d.restLine, {
-              restLinePx: d.restLine,
-              mapY: d.mapY,
-            })
-          : raiseToList(sheet, d.offset);
+        let done: Promise<void> = Promise.resolve();
+        if (!cancelled && tap && !claimedLate) {
+          /* A tap on the bar: over to the map. */
+          trackEvent('map_view_toggle', { direction: 'to_map' });
+          done = settleOnMap(sheet, d.offset, d.restLine, {
+            restLinePx: d.restLine,
+            mapY: d.mapY,
+          });
+        } else if (!cancelled && d.offset >= TAP_PX) {
+          /* Where the finger let go. */
+          leaveSlabAt(sheet, d.offset, { restLinePx: d.restLine, mapY: d.mapY });
+        } else {
+          /* Cancelled, or not pulled at all: the list stays where it was. */
+          done = raiseToList(sheet, d.offset);
+        }
         void done.finally(() => {
           busy = false;
         });
         return;
       }
 
-      const { offsets, sheetStop } = geometry();
+      const { sheetStop } = geometry();
       const { mapY } = d;
-      const stops = d.floor < mapY ? [d.floor, ...offsets] : offsets;
 
       if (cancelled) {
         if (sheet && (d.startPos < mapY || d.pos < mapY)) settleBelow(sheet, d.pos, Math.min(mapY, d.startPos), mapY);
@@ -335,8 +338,8 @@ export function useHandleScrollDrag(
       }
 
       if (tap && !claimedLate && slides(sheet)) {
-        /* Lowered: back onto the map stop. On the map or between: the list
-           comes up. At the top: the map. */
+        /* Held below the map stop: back onto it. At the strip line: the map.
+           Anywhere else: the sheet comes up to the strip line. */
         let target: number;
         if (d.startPos < mapY - AT_STOP_PX) target = mapY;
         else target = window.scrollY >= sheetStop - AT_STOP_PX ? mapY : sheetStop;
@@ -351,19 +354,10 @@ export function useHandleScrollDrag(
         return;
       }
 
-      /* Settle on one of the stops. Deliberately only on RELEASE of the
-         handle: CSS scroll-snap applies to the whole document and would tug at
-         the rows while reading further down the list. */
-      const target = resolveSnap(stops, d.pos, d.startPos);
-      if (sheet && (d.pos < mapY || target < mapY)) {
-        settleBelow(sheet, d.pos, target, mapY);
-        return;
-      }
-      /* Off the lowest stop, if it came from there. */
-      if (sheet) void raiseToList(sheet, 0);
-      if (target !== window.scrollY) {
-        window.scrollTo({ top: target, behavior: 'smooth' });
-      }
+      /* Where the finger let go: the page is already there (apply), and
+         below the map stop the sheet stays held. No snapping, and no CSS
+         scroll-snap either — it would tug at the rows while reading. */
+      if (sheet && (d.startPos < mapY || d.pos < mapY)) restAt(sheet, mapY - d.pos);
     };
 
     /* Lowered sits at the map stop; anything that scrolls the page away from

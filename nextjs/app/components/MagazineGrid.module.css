@@ -146,7 +146,12 @@
    (Parallaxe) — damit bei den Artikeln etwas passiert, ohne dass ein Bild
    aus einer Maske fährt (Ansage 28.09.2026). Am Scrollweg, als Scroll-
    Timeline des Browsers; über `translate`/`scale`, `transform` gehört dem
-   Hover. Die Vergrößerung deckt den Weg: 20 % Rand für ±7 %. */
+   Hover. Die Vergrößerung deckt den Weg: 20 % Rand für ±7 %.
+   Die Zeitleiste gehört der Artikel-Liste, nicht dem Foto: `view()` am Foto
+   hängt am nächsten Scroll-Container, und das ist sein Rahmen (`overflow:
+   hidden` macht ihn zu einem) — am Handy sonst die seitliche Wischreihe.
+   Beide scrollen nie senkrecht, die Parallaxe stand fest in der Mitte
+   (gemessen). Die Liste selbst misst gegen die Seite. */
 @keyframes photoDrift {
   from {
     scale: 1.2;
@@ -160,9 +165,13 @@
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
+    .section .grid {
+      view-timeline: --magazine-drift block;
+    }
+
     .section .photo:global(.hv-photo) :global(img) {
       animation: photoDrift linear both;
-      animation-timeline: view();
+      animation-timeline: --magazine-drift;
     }
   }
 }

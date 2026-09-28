@@ -307,6 +307,10 @@ function armFragRemy(scroller: HTMLElement | Window): () => void {
  * wer zurückscrollt, sieht den Knopf wieder gedrückt. Beobachtet wird die
  * Section, nicht der Knopf: HubHeroCopy baut die Knöpfe neu, sobald `useAuth`
  * steht.
+ * Der Aufmacher bekommt die `1` erst, nachdem er einmal draussen war: beim
+ * Laden ist er schon im Bild, und die `1` gleich beim Mount verkürzte nur die
+ * Verzögerung des laufenden Drucks — ab Seitenstart gerechnet, der Knopf
+ * drückte dann mitten in seinem Einflug.
  */
 function armInView(): () => void {
   if (typeof IntersectionObserver === 'undefined') return () => {};
@@ -321,7 +325,10 @@ function armInView(): () => void {
     (entries) => {
       for (const entry of entries) {
         const el = entry.target as HTMLElement;
-        el.setAttribute('data-in-view', entry.isIntersecting ? '1' : '0');
+        if (!entry.isIntersecting) el.setAttribute('data-in-view', '0');
+        else if (el !== hero || el.hasAttribute('data-in-view')) {
+          el.setAttribute('data-in-view', '1');
+        }
       }
     },
     { rootMargin: '0px 0px -20% 0px' }
@@ -393,32 +400,42 @@ function armNearbyBand(scroller: HTMLElement | Window): () => void {
  * 28.09.2026). Getippt wird in den Platzhalter, nie in den Wert — es wird
  * nichts abgeschickt, nichts validiert, und wer selbst ins Feld tippt, bricht
  * die Vorführung sofort ab. Jedes Mal beim Hereinkommen, höchstens alle 12s.
+ * Feld und Knopf werden bei jedem Lauf neu gesucht, Fokus und Eingabe an der
+ * Section abgefangen: nach einem Absenden baut LoginBoard das Formular über
+ * die „Mail gesendet"-Ansicht neu, gemerkte Knoten wären dann tot.
  */
 const DEMO_ADDRESS = 'hunger@eatthisdot.com';
 
 function armSignupDemo(): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-starter]');
-  const input = section?.querySelector<HTMLInputElement>('input[type="email"]');
-  const submit = section?.querySelector<HTMLButtonElement>('button[type="submit"]');
-  if (!section || !input || !submit || typeof IntersectionObserver === 'undefined') {
-    return () => {};
-  }
-  const original = input.placeholder;
+  if (!section || typeof IntersectionObserver === 'undefined') return () => {};
+  const isField = (el: EventTarget | null): el is HTMLInputElement =>
+    el instanceof HTMLInputElement && el.type === 'email';
+  // Die Knoten des laufenden Durchgangs, damit `reset` genau sie zurücksetzt.
+  let shown: { input: HTMLInputElement; submit: HTMLButtonElement; original: string } | null =
+    null;
   let timers: number[] = [];
   let lastRun = -Infinity;
   const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
   const reset = () => {
     timers.forEach(clearTimeout);
     timers = [];
-    input.placeholder = original;
-    input.removeAttribute('data-demo-typing');
-    submit.removeAttribute('data-pressing');
+    if (!shown) return;
+    shown.input.placeholder = shown.original;
+    shown.input.removeAttribute('data-demo-typing');
+    shown.submit.removeAttribute('data-pressing');
+    shown = null;
   };
   const run = () => {
+    const input = section.querySelector<HTMLInputElement>('input[type="email"]');
+    const submit = section.querySelector<HTMLButtonElement>('button[type="submit"]');
+    // Kein Formular (gerade „Mail gesendet") — nichts vorzuführen.
+    if (!input || !submit) return;
     if (input.value || document.activeElement === input) return;
     if (performance.now() - lastRun < 12000) return;
     lastRun = performance.now();
     reset();
+    shown = { input, submit, original: input.placeholder };
     input.setAttribute('data-demo-typing', '');
     input.placeholder = '';
     let t = 400;
@@ -439,12 +456,15 @@ function armSignupDemo(): () => void {
     { rootMargin: '0px 0px -30% 0px' }
   );
   io.observe(section);
-  input.addEventListener('focus', reset);
-  input.addEventListener('input', reset);
+  const interrupt = (e: Event) => {
+    if (isField(e.target)) reset();
+  };
+  section.addEventListener('focusin', interrupt);
+  section.addEventListener('input', interrupt);
   return () => {
     io.disconnect();
-    input.removeEventListener('focus', reset);
-    input.removeEventListener('input', reset);
+    section.removeEventListener('focusin', interrupt);
+    section.removeEventListener('input', interrupt);
     reset();
   };
 }

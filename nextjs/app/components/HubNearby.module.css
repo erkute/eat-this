@@ -236,38 +236,89 @@
   color: var(--board-soft, rgba(255, 255, 255, 0.76));
 }
 
-/* ── Desktop: wrap into rows instead of horizontal swipe ───────────────────── */
-/* Compound :global(.hv-rail).rail (0,3,0 with .homeV2) beats .homeV2 .hv-rail
-   (0,2,0), so overflow can go visible — nothing overflows once it wraps. */
-@media (min-width: 768px) {
-  :global(.homeV2) :global(.hv-rail).rail {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(14px, 1.6vw, 22px);
-    overflow: visible;
-  }
+/* ── Band ───────────────────────────────────────────────────────────────────
+   Die Spots laufen beim Scrollen als Band von links nach rechts durchs Bild
+   (Ansage 28.09.2026), auf jeder Breite: eine Reihe, breiter als der
+   Bildschirm, die an den Rand der Seitenspalte reicht und dort abschneidet.
+   Kein Wischen mehr: der Weg hängt am Scrollen, jede Kachel kommt einmal
+   ganz durchs Bild.
+   Ein Wert treibt es: `--band` (0 → 1) auf der Reihe, als Scroll-Timeline
+   des Browsers über die ganze Zeit, die das Band im Bild ist — im Takt des
+   Scrollens, auch auf dem iPhone. Ohne Scroll-Timeline schreibt HubMotion
+   ihn per GSAP (`data-scrub`), bei reduced motion bleibt er 1: das Band steht
+   am Anfang, die nächsten Spots vorn.
+   Wie weit es läuft, rechnet jede Kachel selbst: Breite der ganzen Reihe
+   (`--n` Kacheln, aus HubNearby) minus sichtbare Breite (`100cqw`, die Reihe
+   ist Container). Passt alles hinein, läuft nichts. */
+@property --band {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
 
-  .card {
-    min-width: 0;
-    flex: none;
+@keyframes band {
+  from {
+    --band: 0;
   }
+  to {
+    --band: 1;
+  }
+}
+
+:global(.homeV2) :global(.hv-rail).rail {
+  --w: clamp(240px, 24vw, 300px);
+  --g: var(--et-rail-gap);
+  --bleed: var(--et-wrap-pad);
+  container-type: inline-size;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--g);
+  margin-inline: calc(var(--bleed) * -1);
+  padding-inline: var(--bleed);
+  /* `clip` statt `hidden`: schneidet seitlich ab, ohne ein Scroll-Container
+     zu werden, und lässt nach unten den Schatten der Fotos stehen. */
+  overflow-x: clip;
+  overflow-y: visible;
+  scroll-snap-type: none;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.homeV2) :global(.hv-rail).rail {
+      animation: band linear both;
+      animation-timeline: view();
+    }
+  }
+}
+
+.rail > .card {
+  flex: 0 0 var(--w);
+  min-width: 0;
+  translate: calc(
+      (1 - var(--band)) * -1 *
+        max(0px, var(--n, 4) * var(--w) + (var(--n, 4) - 1) * var(--g) - 100cqw)
+    )
+    0;
 }
 
 /* ── Mobile ────────────────────────────────────────────────────────────────── */
 @media (max-width: 767.98px) {
-  .rail {
-    --rail-mobile-safe: var(--et-wrap-pad-mobile);
-    margin-left: calc(var(--et-wrap-pad-mobile) * -1);
-    margin-right: calc(var(--et-wrap-pad-mobile) * -1);
-    padding-left: var(--rail-mobile-safe);
-    padding-right: var(--rail-mobile-safe);
-    scroll-padding-inline: var(--rail-mobile-safe);
+  :global(.homeV2) :global(.hv-rail).rail {
+    --w: min(78vw, 200px);
+    --bleed: var(--et-wrap-pad-mobile);
   }
 
-  .card {
-    flex-basis: min(78vw, 200px);
-  }
   .photo {
     height: 140px;
+  }
+}
+
+/* Wer keine Bewegung will, bekommt das Band als Reihe zum Wischen zurück —
+   sonst lägen die hinteren Spots unerreichbar hinter der Kante. */
+@media (prefers-reduced-motion: reduce) {
+  :global(.homeV2) :global(.hv-rail).rail {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--bleed);
   }
 }

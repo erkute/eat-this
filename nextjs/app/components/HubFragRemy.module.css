@@ -71,8 +71,22 @@
   white-space: nowrap;
 }
 
+/* Das Fragezeichen fliegt beim Auftritt einzeln herein (HubMotion) — dafür
+   braucht es eine eigene Box, die sich drehen und verschieben lässt. */
+.titleMark {
+  display: inline-block;
+}
+
 /* ── Remy stage — freigestellt, no background sun ── */
+/* Sein Auftritt: HubMotion hält ihn erst unter der Kante der Tafel
+   (`--remy-y` in Prozent seiner Höhe; `.body` schneidet ab) und lässt ihn
+   dann hochschießen, beim Reden wackelt er (`--remy-r`). Über Variablen auf
+   den Einzel-Eigenschaften — `transform` gehört auf dem Desktop dem
+   Versatz weiter unten und würde von GSAP überschrieben. */
 .avatarWrap {
+  translate: 0 calc(var(--remy-y, 0) * 1%);
+  rotate: calc(var(--remy-r, 0) * 1deg);
+  transform-origin: 50% 100%;
   grid-area: avatar;
   position: relative;
   z-index: 1;
@@ -113,7 +127,11 @@
   opacity: 0;
 }
 
-.avatar[data-talking] .faceOpen {
+/* Zwei Anlässe für den Mund: sein Auftritt (`data-speaking`, HubMotion) und
+   Scrollen über die Startseite (`data-remy-talk` am <html>, HubMotion —
+   solange gescrollt wird). */
+.avatarWrap[data-speaking] .faceOpen,
+:global(html[data-remy-talk]) .faceOpen {
   animation: remyFlap 0.46s steps(1) infinite;
 }
 
@@ -323,7 +341,8 @@
     animation: none;
   }
 
-  .avatar[data-talking] .faceOpen {
+  .avatarWrap[data-speaking] .faceOpen,
+  :global(html[data-remy-talk]) .faceOpen {
     animation: none;
   }
 }

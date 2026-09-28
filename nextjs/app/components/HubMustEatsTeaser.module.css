@@ -56,7 +56,9 @@
   :global(.homeV2) :global(.hv-rail).rail {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: clamp(16px, 1.8vw, 26px);
+    --gx: clamp(16px, 1.8vw, 26px);
+    --gy: var(--gx);
+    gap: var(--gy) var(--gx);
     overflow: visible;
   }
 
@@ -75,6 +77,113 @@
   .restaurantLink :global(.hv-sub) {
     font-size: clamp(12px, 1vw, 14px);
   }
+}
+
+/* ── Austeilen ────────────────────────────────────────────────────────────
+   Die sechs Karten liegen erst als Stapel in der Mitte der Reihe und gehen
+   beim Scrollen eine nach der anderen an ihre Plätze; wer zurückscrollt,
+   sammelt sie wieder ein (Ansage 28.09.2026, auf jeder Breite).
+   Ein Wert treibt alles: `--deal` (0 = Stapel, 1 = ausgelegt) auf der Liste,
+   als Scroll-Timeline des Browsers. Das läuft im Takt des Scrollens, auch auf
+   dem iPhone, wo Scroll-JS hinterherzittert; ohne Scroll-Timeline schreibt
+   HubMotion denselben Wert per GSAP (`data-scrub`). Ohne beides, bei reduced
+   motion und ohne JS bleibt er 1: die Karten liegen einfach.
+   Jede Karte rechnet ihren Weg selbst aus Spalte, Zeile und Rang
+   (`--c/--r/--i`). Die Prozente in `translate` beziehen sich auf die eigene
+   Kachel, eine Spalte weiter ist also `100% + Fuge` — damit stimmt der Weg
+   auf jeder Breite, ohne dass JS etwas misst, und eine Karte, die React nach
+   dem Anmelden neu baut, steht sofort an der richtigen Stelle. */
+@property --deal {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+@keyframes deal {
+  from {
+    --deal: 0;
+  }
+  to {
+    --deal: 1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .rail {
+      animation: deal linear both;
+      animation-timeline: view();
+      animation-range: cover 20% cover 58%;
+    }
+  }
+}
+
+.item {
+  /* Mitte der Reihe, in Spalten und Zeilen gezählt: dort liegt der Stapel. */
+  --cc: 2.5;
+  --rc: 0;
+  --c: var(--i);
+  --r: 0;
+  /* Gestaffelt: jede Karte startet ein Stück nach der vorigen. */
+  --t: clamp(0, var(--deal) * 1.5 - var(--i) * 0.1, 1);
+  /* power3.out, von Hand: schnell vom Stapel, weich am Platz. */
+  --rest: calc((1 - var(--t)) * (1 - var(--t)) * (1 - var(--t)));
+  position: relative;
+  /* Oberste Karte zuerst: die erste liegt oben und geht als erste. */
+  z-index: calc(10 - var(--i));
+  translate: calc(var(--rest) * ((var(--cc) - var(--c)) * (100% + var(--gx, 0px)) + var(--i) * 2px))
+    calc(var(--rest) * ((var(--rc) - var(--r)) * (100% + var(--gy, 0px)) - var(--i) * 3px));
+  rotate: calc(var(--rest) * var(--tilt, 0deg));
+  /* Im Flug hebt sie sich kurz an, wie eine Karte, die über den Tisch geht. */
+  scale: calc(1 + 0.1 * sin(var(--t) * 3.14159));
+}
+
+.item:nth-child(1) {
+  --i: 0;
+  --tilt: -4deg;
+}
+.item:nth-child(2) {
+  --i: 1;
+  --tilt: 5deg;
+}
+.item:nth-child(3) {
+  --i: 2;
+  --tilt: -7deg;
+}
+.item:nth-child(4) {
+  --i: 3;
+  --tilt: 8deg;
+}
+.item:nth-child(5) {
+  --i: 4;
+  --tilt: -10deg;
+}
+.item:nth-child(6) {
+  --i: 5;
+  --tilt: 11deg;
+}
+
+/* Am Telefon 3×2: der Stapel liegt zwischen den beiden Reihen. */
+@media (max-width: 767.98px) {
+  .item {
+    --cc: 1;
+    --rc: 0.5;
+  }
+  .item:nth-child(n + 4) {
+    --c: calc(var(--i) - 3);
+    --r: 1;
+  }
+}
+
+/* Die Beschriftung steckt unter ihrer Karte, solange die unterwegs ist — im
+   Stapel läge sie sonst als Textsalat übereinander —, und rutscht erst beim
+   Landen darunter hervor. `z-index: -1` innerhalb der Kachel (die ist mit
+   ihrem `z-index` ein eigener Stapelkontext): unter der Karte, nicht unter
+   der Tafel. */
+.item .meta {
+  position: relative;
+  z-index: -1;
+  translate: 0 calc((1 - clamp(0, (var(--t) - 0.7) * 3.4, 1)) * -110%);
 }
 
 /* ── Card shell ────────────────────────────────────────────────────────────── */
@@ -394,7 +503,9 @@
        leave a ragged second row of two. Past ~582px the columns outgrow the
        card cap and the artwork stays desktop-sized, centred in its column. */
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px 8px;
+    --gx: 8px;
+    --gy: 20px;
+    gap: var(--gy) var(--gx);
     overflow: visible;
     scroll-snap-type: none;
   }

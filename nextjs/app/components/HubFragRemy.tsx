@@ -2,9 +2,11 @@
 // Home-hub section for Remy, the KI buddy — restyled into the homeV2 white
 // vocabulary. Yellow is kept as Remy's accent (avatar circle, chip hover),
 // NOT as a full-section background band.
-// Behavior unchanged: daypart greeting, IntersectionObserver "talk" effect,
-// and chat/quick-ask dispatch via dispatchBuddyAsk.
-import { useEffect, useRef, useState } from 'react';
+// Daypart greeting and chat/quick-ask dispatch via dispatchBuddyAsk. Der
+// Auftritt (Fragezeichen, „Frag Remy.", Remy schießt hoch und redet) und das
+// Reden beim Scrollen gehören HubMotion — über `data-fragremy-*`-Haken und
+// Attribute, die React nicht verwaltet.
+import { useEffect, useState } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
 import { stageFor } from '@/lib/buddy/greeting';
@@ -15,44 +17,18 @@ import styles from './HubFragRemy.module.css';
 export default function HubFragRemy() {
   const locale = useLocale() as Locale;
   const t = useTranslations('hub.fragRemy');
-  const stageRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState<{
     line: string;
     lead: string;
     answers: [string, string];
   } | null>(null);
-  const [talking, setTalking] = useState(false);
   const [draft, setDraft] = useState('');
-  const spoke = useRef(false);
-  const moodTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Daypart copy is client-only (the server's clock isn't the user's): SSR shows
   // the generic sub, the daypart lead + answers land after hydration.
   useEffect(() => {
     setStage(stageFor(new Date().getHours(), locale));
   }, [locale]);
-
-  useEffect(() => {
-    const el = stageRef.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[entries.length - 1];
-        // First appearance: Remy's mouth flaps briefly, as if he greets you.
-        if (entry.isIntersecting && !spoke.current) {
-          spoke.current = true;
-          setTalking(true);
-          moodTimer.current = setTimeout(() => setTalking(false), 2500);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      clearTimeout(moodTimer.current);
-    };
-  }, []);
 
   const lead = stage ? stage.lead : t('sub');
   const fallbackAnswers: [string, string] =
@@ -80,9 +56,12 @@ export default function HubFragRemy() {
           <div className={`hv-head ${styles.panelHead}`}>
             <h2 className="hv-title">
               <span className={styles.titleLine}>
-                {locale === 'de' ? 'Keine Idee?' : 'No idea?'}
+                {locale === 'de' ? 'Keine Idee' : 'No idea'}
+                <span className={styles.titleMark} data-fragremy-q="">
+                  ?
+                </span>
               </span>
-              <span className={styles.titleLine}>
+              <span className={styles.titleLine} data-fragremy-ask="">
                 {locale === 'de' ? 'Frag Remy.' : 'Ask Remy.'}
               </span>
             </h2>
@@ -136,8 +115,8 @@ export default function HubFragRemy() {
         </div>
 
         {/* Remy avatar */}
-        <div className={styles.avatarWrap} ref={stageRef} data-fragremy-avatar="">
-          <div className={styles.avatar} data-talking={talking ? '' : undefined}>
+        <div className={styles.avatarWrap} data-fragremy-avatar="">
+          <div className={styles.avatar}>
             <Image
               className={styles.face}
               src="/buddy/buddy.webp"

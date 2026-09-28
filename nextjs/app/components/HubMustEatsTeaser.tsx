@@ -146,7 +146,7 @@ export default function HubMustEatsTeaser() {
   };
 
   return (
-    <section className="homeV2 hv-section hv-wrap" data-hub-must-eats="">
+    <section className="homeV2 hv-section hv-wrap">
       {/* Eine Ink-Tafel wie die Kartenbänder auf /must-eats: die Karten liegen
           mit Schatten auf Ink, der Titel ist weiß, die Knöpfe gelb und Ring. */}
       <div className={styles.board}>
@@ -161,7 +161,17 @@ export default function HubMustEatsTeaser() {
           <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
         </div>
 
-        <ul className={`hv-rail ${styles.rail}`} role="list" data-reveal="deal">
+        {/* Die Karten werden beim Scrollen aus einem Stapel ausgeteilt und beim
+            Zurückscrollen wieder eingesammelt — ganz in CSS (`--deal`, siehe
+            das Modul), `data-scrub` ist nur der GSAP-Weg für Browser ohne
+            Scroll-Timeline. */}
+        <ul
+          className={`hv-rail ${styles.rail}`}
+          role="list"
+          data-scrub="--deal 0 1"
+          data-scrub-start="top 70%"
+          data-scrub-end="top 15%"
+        >
           {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
             const restaurant = normalizeName(m.restaurant.name);
             const dish = isFaceUp ? normalizeName(m.dish ?? '') : '';
@@ -242,7 +252,6 @@ export default function HubMustEatsTeaser() {
                       type="button"
                       className={`${styles.cardLink} ${styles.cardButton}`}
                       aria-label={cardAria}
-                      data-deal-card=""
                       onClick={() => openStarterLogin(m._id)}
                     >
                       {photo}
@@ -254,12 +263,11 @@ export default function HubMustEatsTeaser() {
                       href={`/map?me=${m._id}`}
                       className={styles.cardLink}
                       aria-label={cardAria}
-                      data-deal-card=""
                     >
                       {photo}
                     </MapIntentLink>
                   )}
-                  <span className={styles.meta} data-deal-caption="">
+                  <span className={styles.meta}>
                     {isFaceUp ? (
                       <MapIntentLink
                         href={`/map?me=${m._id}`}

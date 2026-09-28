@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { haversineDistance, formatWalkingTime } from '@/lib/map/distance';
@@ -44,7 +44,9 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   }, []);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
-  const count = 4;
+  // Acht statt vier: das Band (siehe .rail) muss breiter sein als der
+  // Bildschirm, sonst läuft auf dem Desktop nichts.
+  const count = 8;
 
   /* Nur die Fehler laufen durch die zentrale Info-Karte. „Wir suchen dich"
      sagt der Knopf selbst, und ein gefundener Standort zeigt sich daran, dass
@@ -136,7 +138,13 @@ export default function HubNearby({ locale = 'de', today }: Props) {
           )}
         </div>
 
-        <div className={`hv-rail ${styles.rail}`} data-reveal="stagger">
+        <div
+          className={`hv-rail ${styles.rail}`}
+          style={{ '--n': cards.length } as CSSProperties}
+          data-scrub="--band 0 1"
+          data-scrub-start="top bottom"
+          data-scrub-end="bottom top"
+        >
           {cards.map((r) => {
             const walk = activeLocation
               ? formatWalkingTime(
@@ -170,7 +178,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
                       alt={normalizeName(r.name)}
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:767.98px) 78vw, 280px"
+                      sizes="(max-width:767.98px) 200px, 300px"
                     />
                   )}
                 </span>

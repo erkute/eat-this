@@ -2,50 +2,54 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 
-gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 /**
- * Bewegung auf der Startseite, mit GSAP. Alles nur ohne `prefers-reduced-motion`
- * und nie als Opacity-Fade (Hausregel für Brand-Flächen): Dinge wachsen aus
- * Masken, fliegen ein, werden aufgedeckt — sie sind nie halb durchsichtig.
+ * Bewegung auf der Startseite. Alles nur ohne `prefers-reduced-motion` und nie
+ * als Opacity-Fade (Hausregel für Brand-Flächen). Kein Text, der sich
+ * Buchstabe für Buchstabe oder Zeile für Zeile aufbaut, keine Fotos, die aus
+ * Masken ausfahren (Ansage 28.09.2026) — Dinge bewegen sich als Ganzes.
  *
- * 1. **Auftritt beim Laden.** Wortmarke wird aufgezogen, die Headline steigt
- *    Zeile für Zeile aus ihrer Maske, Lead und Knopf folgen, die Telefone
- *    schwingen von unten ins Bild. Das ist bewusst CSS, nicht GSAP: es muss ab
+ * 1. **Auftritt beim Laden** (Aufmacher). Bewusst CSS, nicht GSAP: er muss ab
  *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
  *    HubSection.module.css). Hier nur das Aufräumen, siehe `finishIntro`.
  *
- * 2. **Auftritte unterhalb des Aufmachers**, sobald sie ins Bild kommen:
- *    - Abschnittstitel Buchstabe für Buchstabe aus der Zeilenmaske (SplitText),
- *      das gelbe Quadrat davor dreht sich hinein.
- *    - `data-reveal="stagger"`: Karten steigen gestaffelt auf, ihre Fotos
- *      werden von unten aufgedeckt und zoomen dabei auf ihren Platz zurück.
- *    - `data-reveal="rise"`: dasselbe für einen einzelnen Block (Spot des
- *      Tages), der Text darin rückt danach Zeile für Zeile nach.
- *    - `data-reveal="deal"`: die Must Eats liegen erst als Stapel auf der
- *      ersten Karte und werden von dort an ihre Plätze ausgeteilt.
- *    Versteckt wird nur, was beim Mount unterhalb des Bildschirms liegt —
- *    was schon zu sehen ist (gemerkte Scrollposition), bleibt stehen.
+ * 2. **Am Scrollweg** — und damit umkehrbar — hängen Laufband-Schub,
+ *    Must-Eat-Stapel, Spot des Tages, das Nearby-Band und die Quadrate vor
+ *    den Titeln. Das sind Scroll-Timelines des Browsers in den CSS-Modulen,
+ *    kein JS: sie laufen im Takt des Scrollens, auch auf dem iPhone, wo
+ *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
+ *    Nur wo der Browser keine Scroll-Timeline kann, treibt `armScrubFallback`
+ *    dieselben Werte per GSAP (`data-scrub`).
+ *    Der Stapel ist bewusst nicht mehr gepinnt (bis 28.09.2026 ab 1024px eine
+ *    Sequenz mit ScrollTrigger-Pin): ein Pin braucht im `.app-pages`-Container
+ *    `pinType: 'fixed'` — ein Transform-Pin liefe dem Scrollen dort hinterher
+ *    wie Scroll-JS auf dem iPhone — und nach jeder Höhenänderung darüber ein
+ *    Neumessen, sonst greift er an der alten Stelle. Ohne Pin fällt beides weg,
+ *    und Telefon und Desktop teilen denselben Weg.
  *
- * 3. **Scroll und Maus, nur ab 768px** (auf dem iPhone läuft Scroll-JS ein bis
- *    zwei Frames hinterher, siehe HeroMarkFlight — das zittert):
- *    - die Telefone driften beim Herausscrollen auseinander (`--phones-drift`),
- *    - das Laufband (HubMarquee) wird beim Scrollen zusätzlich weitergeschoben,
- *    - mit echtem Zeiger kippen die Telefone in 3D zur Maus und trennen sich
- *      in der Tiefe, der Knopf im Aufmacher zieht magnetisch (armHeroPointer),
- *    - ab 1024px werden die Must Eats zur gepinnten Sequenz: Stapel,
- *      Fächer, ausgelegt — am Scrollweg statt an der Uhr (armDeckPin).
+ * 3. **Einmalig beim Hereinkommen:**
+ *    - `data-reveal="stagger"` (Magazin, Kategorien): Kacheln rücken
+ *      gestaffelt nach, als ganze Kacheln.
+ *    - Frag Remy: das Fragezeichen fliegt von links ein, „Frag Remy." schlägt
+ *      ein, Remy schießt von unten hoch und redet, mehrmals (`armFragRemy`).
+ *
+ * 4. **Immer:** Remy redet, solange gescrollt wird — der große im Frag-Remy-
+ *    Abschnitt und der schwebende unten rechts (`armScrollTalk`). Schnelles
+ *    Scrollen legt das Laufband schräg (`armMarqueeSkew`).
+ *
+ * 5. **Nur ab 768px:** die Telefone driften beim Herausscrollen auseinander;
+ *    mit echtem Zeiger kippen sie zur Maus, der Knopf zieht magnetisch.
  */
 
 /**
  * Der Ladeauftritt selbst ist CSS (HubSection.module.css) und läuft ab dem
  * ersten Paint. Hier nur: wer scrollt, bevor er fertig ist, spult ihn vierfach
- * ab — und am Ende fällt `data-hero-intro`, damit die Masken nicht dauerhaft
- * an Tinte schneiden, die über die Zeilenbox ragt.
+ * ab — und am Ende fällt `data-hero-intro`, damit nichts dauerhaft an den
+ * Auftrittsregeln hängt.
  */
 function finishIntro(): (() => void) | void {
   const html = document.documentElement;
@@ -72,236 +76,22 @@ function finishIntro(): (() => void) | void {
   };
 }
 
+/** GSAP setzt beim Animieren von `transform` die CSS-Eigenschaften
+ *  `translate/rotate/scale` inline auf `none` — am Ende alles wieder frei
+ *  geben, sonst bleiben Druckzustände (`--et-press-tile`) tot. */
+const CLEAR_TRANSFORMS = 'transform,translate,rotate,scale';
+
 /** Scrollt der Container seitwärts? Dann rücken die Karten von rechts nach. */
 function sideways(el: Element): boolean {
   return /auto|scroll/.test(getComputedStyle(el).overflowX);
 }
 
-/** Foto aufdecken: die Maske fährt von unten auf, das Bild zoomt zurück. */
-function photoReveal(item: Element, tl: gsap.core.Timeline, at: number | string) {
-  const photo = item.querySelector<HTMLElement>('.hv-photo');
-  if (!photo) return;
-  const r = getComputedStyle(photo).borderTopLeftRadius || '0px';
-  tl.fromTo(
-    photo,
-    { clipPath: `inset(100% 0% 0% 0% round ${r})` },
-    { clipPath: `inset(0% 0% 0% 0% round ${r})`, duration: 1.3, ease: 'expo.inOut', clearProps: 'clipPath' },
-    at
-  );
-  const img = photo.querySelector('img');
-  if (img) {
-    tl.fromTo(
-      img,
-      // Die Hover-Transition auf `transform` würde jeden Frame nachziehen.
-      { scale: 1.35, transition: 'none' },
-      { scale: 1, duration: 1.8, ease: 'expo.out', clearProps: 'transform,transition' },
-      at
-    );
-  }
-}
-
-/** Versteckt ein Foto schon beim Mount — sonst stünde es kurz fertig da. */
-function hidePhoto(item: Element) {
-  const photo = item.querySelector<HTMLElement>('.hv-photo');
-  if (photo) gsap.set(photo, { clipPath: 'inset(100% 0% 0% 0%)' });
-}
-
-/** Die Teile eines Kartenstapels (Must Eats): nur die Karte fliegt, die
- *  Beschriftung darunter wächst erst nach der Landung aus ihrer Maske — im
- *  Stapel läge sie sonst als Textsalat übereinander. Geteilt vom Austeilen
- *  (armReveals) und der gepinnten Sequenz (armDeckPin). */
-function deckParts(list: Element) {
-  const items = Array.from(list.children) as HTMLElement[];
-  return {
-    items,
-    cards: items.map((item) => item.querySelector<HTMLElement>('[data-deal-card]') ?? item),
-    captions: items.map((item) => item.querySelector<HTMLElement>('[data-deal-caption]')),
-  };
-}
-// Nur als Kopie weitergeben — GSAP darf die vars-Objekte verändern.
-const CAPTION_HIDDEN = { y: 28, clipPath: 'inset(-10% -5% 100% -5%)' };
-const CAPTION_SHOWN = { y: 0, clipPath: 'inset(-10% -5% -10% -5%)' };
-
-function armReveals(safe: gsap.ContextSafeFunc, { pinnedDeck }: { pinnedDeck: boolean }): () => void {
-  const root = document.querySelector<HTMLElement>('[data-hub]');
-  if (!root || typeof IntersectionObserver === 'undefined') return () => {};
-
-  const fold = window.innerHeight;
-  const unseen = (el: Element) => el.getBoundingClientRect().top > fold;
-  const plays = new Map<Element, () => void>();
-  // Später gestartete Tweens gehören trotzdem in den matchMedia-Kontext —
-  // sonst räumt ihn ein Wechsel auf reduced motion nicht mit ab.
-  const later = (play: () => void) => safe(play) as () => void;
-
-  /* ── Titel ── Bis zum Auftritt ganz angeschnitten; erst beim Auftritt
-     zerlegt SplitText den Titel und setzt ihn danach zurück. Früher zerlegen
-     hiesse, React-eigene Textknoten lange Zeit durch fremde zu ersetzen. */
-  for (const title of root.querySelectorAll<HTMLElement>('.hv-title')) {
-    if (!unseen(title)) continue;
-    gsap.set(title, { clipPath: 'inset(0% 0% 100% 0%)' });
-    plays.set(
-      title,
-      later(() => {
-        // SplitText leert beim Zerlegen die Original-Textknoten und stellt
-        // beim `revert()` per innerHTML wieder her — mit neuen Knoten. React
-        // schriebe danach in die alten, geleerten (der Nearby-Titel wechselt
-        // mit dem Standort) und der Titel bliebe leer. Also die Originale samt
-        // Text merken und am Ende genau die zurückhängen. Hat React während
-        // des Auftritts schon neuen Text in einen geschrieben, bleibt der.
-        const original = Array.from(title.childNodes);
-        const text = original.map((n) => (n instanceof Text ? n.data : null));
-        const split = SplitText.create(title, { type: 'lines,chars', mask: 'lines' });
-        gsap.set(title, { clearProps: 'clipPath' });
-        const tl = gsap.timeline({
-          onComplete: () => {
-            split.revert();
-            original.forEach((n, i) => {
-              if (n instanceof Text && n.data === '' && text[i]) n.data = text[i];
-            });
-            title.replaceChildren(...original);
-          },
-        });
-        tl.from(split.chars, {
-          yPercent: 120,
-          rotation: 10,
-          duration: 1.05,
-          ease: 'expo.out',
-          stagger: Math.min(0.035, 0.6 / split.chars.length),
-        });
-        const mark = title.querySelector('.hv-mk');
-        if (mark) {
-          tl.from(
-            mark,
-            { scale: 0, rotation: -180, duration: 0.9, ease: 'back.out(2)', clearProps: 'transform' },
-            0.05
-          );
-        }
-      })
-    );
-  }
-
-  for (const group of root.querySelectorAll<HTMLElement>('[data-reveal]')) {
-    if (!unseen(group)) continue;
-    const kind = group.dataset.reveal;
-
-    /* ── Ein Block (Spot des Tages) ── */
-    if (kind === 'rise') {
-      const lines = Array.from(group.querySelectorAll<HTMLElement>('[data-reveal-line]'));
-      gsap.set(group, { y: 90 });
-      hidePhoto(group);
-      gsap.set(lines, { y: 36 });
-      plays.set(
-        group,
-        later(() => {
-          const tl = gsap.timeline();
-          tl.to(group, { y: 0, duration: 1.4, ease: 'expo.out', clearProps: 'transform' }, 0);
-          photoReveal(group, tl, 0.05);
-          tl.to(
-            lines,
-            { y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.07, clearProps: 'transform' },
-            0.35
-          );
-        })
-      );
-      continue;
-    }
-
-    const items = Array.from(group.children) as HTMLElement[];
-    if (!items.length) continue;
-
-    /* ── Kartenstapel (Must Eats) ── Die Karten (`data-deal-card`) liegen erst
-       alle auf dem Platz der ersten, leicht versetzt wie ein echter Stapel,
-       oberste vorn. Beim Auftritt steigt der Stapel auf, dann fliegt eine nach
-       der anderen an ihren Platz. Die Beschriftung (`data-deal-caption`) fliegt
-       nicht mit — im Stapel läge sie als Textsalat übereinander —, sondern
-       wächst an ihrem Platz aus der Maske, sobald ihre Karte landet. */
-    if (kind === 'deal') {
-      // Ab 1024px gehört der Stapel der gepinnten Sequenz (armDeckPin).
-      if (pinnedDeck) continue;
-      const { cards, captions } = deckParts(group);
-      const home = cards[0].getBoundingClientRect();
-      const deck = cards.map((card, i) => {
-        const r = card.getBoundingClientRect();
-        return { x: home.left - r.left + i * 2, y: home.top - r.top - i * 3 };
-      });
-      gsap.set(cards, {
-        x: (i: number) => deck[i].x,
-        y: (i: number) => deck[i].y + 160,
-        rotation: (i: number) => (i % 2 ? 1 : -1) * (2 + i * 1.5),
-        // Stapelreihenfolge über die Listenelemente hinweg; ohne `position`
-        // greift z-index an einem normalen Block nicht.
-        position: 'relative',
-        zIndex: (i: number) => cards.length - i,
-        transition: 'none',
-      });
-      const shown = captions.filter((c): c is HTMLElement => !!c);
-      gsap.set(shown, { ...CAPTION_HIDDEN });
-      plays.set(
-        group,
-        later(() => {
-          const tl = gsap.timeline();
-          tl.to(cards, { y: (i: number) => deck[i].y, duration: 0.7, ease: 'expo.out' }, 0);
-          cards.forEach((card, i) => {
-            const at = 0.45 + i * 0.11;
-            tl.to(
-              card,
-              {
-                x: 0,
-                y: 0,
-                rotation: 0,
-                duration: 0.95,
-                ease: 'power4.inOut',
-                clearProps: 'transform,position,zIndex,transition',
-              },
-              at
-            );
-            const caption = captions[i];
-            if (caption) {
-              tl.to(
-                caption,
-                {
-                  ...CAPTION_SHOWN,
-                  duration: 0.8,
-                  ease: 'expo.out',
-                  clearProps: 'transform,clipPath',
-                },
-                at + 0.75
-              );
-            }
-          });
-        })
-      );
-      continue;
-    }
-
-    /* ── Gestaffelte Karten ── */
-    const across = sideways(group);
-    gsap.set(items, { x: across ? 90 : 0, y: across ? 0 : 70, transition: 'none' });
-    items.forEach(hidePhoto);
-    plays.set(
-      group,
-      later(() => {
-        const each = Math.min(0.09, 0.7 / items.length);
-        const tl = gsap.timeline();
-        tl.to(
-          items,
-          {
-            x: 0,
-            y: 0,
-            duration: 1.3,
-            ease: 'expo.out',
-            stagger: each,
-            clearProps: 'transform,transition',
-          },
-          0
-        );
-        items.forEach((item, i) => photoReveal(item, tl, i * each));
-      })
-    );
-  }
-
-  if (!plays.size) return () => {};
-
+/** Beobachtet Elemente und spielt ihren Auftritt einmal, sobald sie ein Stück
+ *  im Bild sind — nicht schon unter der Bildschirmkante, wo ihn niemand sieht.
+ *  Beobachtet werden nur ruhende Elemente: IntersectionObserver misst die
+ *  verschobene Box, ein seitlich weggeschobenes Element meldete sich nie. */
+function onceInView(plays: Map<Element, () => void>, bottomMargin = '-15%'): () => void {
+  if (!plays.size || typeof IntersectionObserver === 'undefined') return () => {};
   const io = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
@@ -311,12 +101,230 @@ function armReveals(safe: gsap.ContextSafeFunc, { pinnedDeck }: { pinnedDeck: bo
         plays.delete(entry.target);
       }
     },
-    // Erst wenn es ein Stück im Bild ist — sonst läuft der Auftritt unter der
-    // Bildschirmkante ab, ohne dass ihn jemand sieht.
-    { rootMargin: '0px 0px -15% 0px' }
+    { rootMargin: `0px 0px ${bottomMargin} 0px` }
   );
   plays.forEach((_, el) => io.observe(el));
   return () => io.disconnect();
+}
+
+/** Gestaffelte Kacheln (Magazin, Kategorien): versteckt wird nur, was beim
+ *  Mount unterhalb des Bildschirms liegt — was schon zu sehen ist (gemerkte
+ *  Scrollposition), bleibt stehen. */
+function armStaggers(safe: gsap.ContextSafeFunc): () => void {
+  const root = document.querySelector<HTMLElement>('[data-hub]');
+  if (!root) return () => {};
+  const fold = window.innerHeight;
+  const plays = new Map<Element, () => void>();
+
+  for (const group of root.querySelectorAll<HTMLElement>('[data-reveal="stagger"]')) {
+    if (group.getBoundingClientRect().top <= fold) continue;
+    const items = Array.from(group.children) as HTMLElement[];
+    if (!items.length) continue;
+    const across = sideways(group);
+    gsap.set(items, {
+      x: across ? 120 : 0,
+      y: across ? 0 : 90,
+      rotation: across ? 0 : (i: number) => (i % 2 ? 3 : -3),
+      transition: 'none',
+    });
+    // Später gestartete Tweens gehören trotzdem in den matchMedia-Kontext —
+    // sonst räumt ihn ein Wechsel auf reduced motion nicht mit ab.
+    plays.set(
+      group,
+      safe(() => {
+        gsap.to(items, {
+          x: 0,
+          y: 0,
+          rotation: 0,
+          duration: 1.2,
+          ease: 'expo.out',
+          stagger: Math.min(0.08, 0.6 / items.length),
+          clearProps: `${CLEAR_TRANSFORMS},transition`,
+        });
+      }) as () => void
+    );
+  }
+  return onceInView(plays);
+}
+
+/**
+ * „Keine Idee? Frag Remy." mit Wucht: das Fragezeichen fliegt drehend von
+ * links herein und schlägt ein, die Zeile davor zuckt vom Aufprall; dann
+ * knallt „Frag Remy." von groß auf seine Größe wie ein Stempel. Remy steht
+ * bis dahin unter der Kante der Tafel und schießt jetzt hoch, dann redet er
+ * und wackelt dabei — dreimal, mit Pausen.
+ * Getrieben wird Remy über `--remy-y/--remy-r` (siehe HubFragRemy.module.css),
+ * der Mund über `data-speaking`; beides verwaltet React nicht.
+ * Ist der Abschnitt beim Mount schon im Bild (gemerkte Scrollposition), wird
+ * nichts versteckt — Remy redet nur.
+ */
+function armFragRemy(safe: gsap.ContextSafeFunc): () => void {
+  const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
+  const q = section?.querySelector<HTMLElement>('[data-fragremy-q]');
+  const ask = section?.querySelector<HTMLElement>('[data-fragremy-ask]');
+  const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
+  const title = q?.closest<HTMLElement>('h2');
+  const line = q?.parentElement;
+  if (!section || !q || !ask || !avatar || !title || !line) return () => {};
+
+  const entrance = section.getBoundingClientRect().top > window.innerHeight;
+  // Bis links hinter die Kante der Tafel (`.body` schneidet ab).
+  const offLeft = () => {
+    const board = section.getBoundingClientRect();
+    const box = q.getBoundingClientRect();
+    return -(box.right - board.left + 40);
+  };
+  if (entrance) {
+    gsap.set(q, { x: offLeft, rotation: -540 });
+    gsap.set(ask, { visibility: 'hidden' });
+    gsap.set(avatar, { '--remy-y': 118 });
+  }
+
+  const talk = (tl: gsap.core.Timeline, at: number | string, seconds: number) => {
+    tl.call(() => avatar.setAttribute('data-speaking', ''), undefined, at);
+    tl.to(
+      avatar,
+      {
+        keyframes: {
+          '--remy-r': [0, -3.5, 3, -2.5, 2, -1, 0],
+          '--remy-y': [0, -2.5, 0, -2, 0, -1, 0],
+        },
+        duration: seconds,
+        ease: 'sine.inOut',
+      },
+      '<'
+    );
+    tl.call(() => avatar.removeAttribute('data-speaking'));
+  };
+
+  const plays = new Map<Element, () => void>();
+  plays.set(
+    section,
+    safe(() => {
+      const tl = gsap.timeline();
+      if (entrance) {
+        tl.to(q, { x: 0, rotation: 0, duration: 0.55, ease: 'power3.in' })
+          // Aufprall: das Zeichen staucht, die Zeile davor zuckt weg.
+          .fromTo(
+            q,
+            { scaleX: 1.35, scaleY: 0.7 },
+            { scaleX: 1, scaleY: 1, duration: 0.7, ease: 'elastic.out(1.1, 0.35)' }
+          )
+          .fromTo(line, { x: 16 }, { x: 0, duration: 0.7, ease: 'elastic.out(1, 0.3)' }, '<')
+          .set(ask, { visibility: 'visible', transformOrigin: '0% 60%' }, '-=0.45')
+          .fromTo(
+            ask,
+            { scale: 2.8, rotation: -7, y: -24 },
+            { scale: 1, rotation: 0, y: 0, duration: 0.34, ease: 'power4.in' },
+            '<'
+          )
+          .fromTo(title, { y: 8 }, { y: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)' })
+          .to(avatar, { '--remy-y': 0, duration: 0.7, ease: 'back.out(1.7)' }, '-=0.5')
+          .set([q, ask, title, line], {
+            clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility`,
+          });
+      }
+      talk(tl, entrance ? '-=0.15' : 0, 2.2);
+      talk(tl, '+=3.2', 1.8);
+      talk(tl, '+=3.6', 2);
+      tl.set(avatar, { clearProps: '--remy-y,--remy-r' });
+    }) as () => void
+  );
+  const stop = onceInView(plays, '-30%');
+  return () => {
+    stop();
+    avatar.removeAttribute('data-speaking');
+    gsap.set(avatar, { clearProps: '--remy-y,--remy-r' });
+  };
+}
+
+/**
+ * Remy redet, solange gescrollt wird: `data-remy-talk` am <html>, bis eine
+ * Viertelsekunde Ruhe ist. Den Mund bewegen die Stylesheets (RemyLauncher,
+ * HubFragRemy) — hier nur das Signal, darum auch auf dem Telefon: es hängt
+ * nicht an der Scrollposition und kann nicht nachzittern.
+ */
+function armScrollTalk(scroller: HTMLElement | Window): () => void {
+  const html = document.documentElement;
+  let quiet = 0;
+  const onScroll = () => {
+    if (!quiet) html.setAttribute('data-remy-talk', '');
+    window.clearTimeout(quiet);
+    quiet = window.setTimeout(() => {
+      quiet = 0;
+      html.removeAttribute('data-remy-talk');
+    }, 260);
+  };
+  scroller.addEventListener('scroll', onScroll, { passive: true });
+  return () => {
+    scroller.removeEventListener('scroll', onScroll);
+    window.clearTimeout(quiet);
+    html.removeAttribute('data-remy-talk');
+  };
+}
+
+/**
+ * Tempo als Form: schnelles Scrollen legt die Schrift im Laufband schräg, in
+ * Ruhe richtet sie sich wieder auf. Nur die Spitze zählt — wird schneller
+ * gescrollt als die Schräge gerade steht, springt sie mit, sonst klingt sie
+ * aus. Das hängt am Tempo, nicht an der Position: auf dem iPhone ist ein
+ * Frame Verzug hier unsichtbar.
+ */
+function armMarqueeSkew(scroller: HTMLElement | Window): void {
+  const tape = document.querySelector<HTMLElement>('[data-marquee-tape]');
+  if (!tape) return;
+  const proxy = { skew: 0 };
+  const write = () => tape.style.setProperty('--skew', proxy.skew.toFixed(2));
+  const rest = () => tape.style.removeProperty('--skew');
+  const clamp = gsap.utils.clamp(-12, 12);
+  ScrollTrigger.create({
+    trigger: tape,
+    scroller,
+    start: 'top bottom',
+    end: 'bottom top',
+    onUpdate: (self) => {
+      const skew = clamp(self.getVelocity() / -260);
+      if (Math.abs(skew) <= Math.abs(proxy.skew)) return;
+      proxy.skew = skew;
+      gsap.to(proxy, {
+        skew: 0,
+        duration: 0.9,
+        ease: 'power3',
+        overwrite: true,
+        onUpdate: write,
+        onComplete: rest,
+      });
+    },
+  });
+}
+
+/**
+ * Für Browser ohne Scroll-Timeline (`animation-timeline: view()`): dieselben
+ * Werte, die sonst CSS am Scrollweg treibt, per ScrollTrigger. Jedes Element
+ * sagt selbst, welche Variable von wo nach wo läuft (`data-scrub="--deal 0 1"`)
+ * und über welche Strecke (`data-scrub-start/-end`, ScrollTrigger-Notation).
+ */
+function armScrubFallback(scroller: HTMLElement | Window): void {
+  if (typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()')) return;
+  for (const el of document.querySelectorAll<HTMLElement>('[data-hub] [data-scrub]')) {
+    const [prop, from, to] = (el.dataset.scrub ?? '').split(' ');
+    if (!prop?.startsWith('--')) continue;
+    gsap.fromTo(
+      el,
+      { [prop]: Number(from) },
+      {
+        [prop]: Number(to),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: el,
+          scroller,
+          start: el.dataset.scrubStart ?? 'top bottom',
+          end: el.dataset.scrubEnd ?? 'bottom top',
+          scrub: 0.3,
+        },
+      }
+    );
+  }
 }
 
 function armPhonesDrift(scroller: HTMLElement | Window): void {
@@ -407,114 +415,19 @@ function armHeroPointer(): () => void {
   return () => {
     hero.removeEventListener('pointermove', onMove);
     hero.removeEventListener('pointerleave', onLeave);
-    gsap.set(phones, { clearProps: 'transform' });
+    gsap.set(phones, { clearProps: CLEAR_TRANSFORMS });
     gsap.set(hero, { clearProps: '--px,--py' });
     magnets().forEach((el) => gsap.set(el, { clearProps: '--mx,--my' }));
   };
-}
-
-/** Das Laufband läuft von allein (CSS); Scrollen schiebt es zusätzlich
- *  weiter, in der Richtung aus `data-marquee-row`. */
-function armMarqueePush(scroller: HTMLElement | Window): void {
-  const band = document.querySelector<HTMLElement>('[data-hub-marquee]');
-  if (!band) return;
-  band.querySelectorAll<HTMLElement>('[data-marquee-row]').forEach((row) => {
-    const dir = Number(row.dataset.marqueeRow) || 1;
-    gsap.fromTo(
-      row,
-      { '--push': dir * 260 },
-      {
-        '--push': dir * -260,
-        ease: 'none',
-        scrollTrigger: { trigger: band, scroller, start: 'top bottom', end: 'bottom top', scrub: 0.6 },
-      }
-    );
-  });
-}
-
-/**
- * Must Eats als gepinnte Sequenz (ab 1024px): die Section bleibt stehen, und
- * der Scrollweg spielt das Kartenspiel — Stapel in der Mitte, auffächern wie
- * eine Hand Karten, auslegen auf die Plätze. Scrub statt Zeit: wer
- * zurückscrollt, sammelt die Karten wieder ein. Nur die Karten
- * (`data-deal-card`) fliegen; die Beschriftung (`data-deal-caption`) wächst
- * am Ende aus ihrer Maske.
- * Gepinnt wird `fixed`, auch im `.app-pages`-Container: ein Transform-Pin
- * liefe dem Scrollen dort genauso hinterher wie Scroll-JS auf dem iPhone.
- */
-function armDeckPin(scroller: HTMLElement | Window): void {
-  const section = document.querySelector<HTMLElement>('[data-hub-must-eats]');
-  const list = section?.querySelector<HTMLElement>('[data-reveal="deal"]');
-  if (!section || !list) return;
-  const parts = deckParts(list);
-  const cards = parts.cards;
-  const captions = parts.captions.filter((c): c is HTMLElement => !!c);
-  if (cards.length < 2) return;
-
-  // Geometrie, solange alles noch an seinem Platz liegt.
-  const rects = cards.map((c) => c.getBoundingClientRect());
-  const box = list.getBoundingClientRect();
-  const cx = box.left + box.width / 2;
-  const top = rects[0].top;
-  const n = cards.length;
-  const mid = (i: number) => rects[i].left + rects[i].width / 2;
-  const angle = (i: number) => (i - (n - 1) / 2) * 8;
-  const R = 1000;
-
-  gsap.set(cards, {
-    x: (i: number) => cx - mid(i) + i * 1.5,
-    y: (i: number) => top - rects[i].top - i * 2.5,
-    rotation: (i: number) => (i % 2 ? 1 : -1) * (1.5 + i),
-    position: 'relative',
-    zIndex: (i: number) => n - i,
-    transition: 'none',
-  });
-  gsap.set(captions, { ...CAPTION_HIDDEN });
-
-  gsap
-    .timeline({
-      scrollTrigger: {
-        trigger: section,
-        scroller,
-        pin: true,
-        pinType: 'fixed',
-        start: 'center center',
-        end: () => `+=${Math.round(window.innerHeight * 1.4)}`,
-        scrub: 0.8,
-        anticipatePin: 1,
-      },
-    })
-    // Auffächern: auf einem Kreisbogen um einen Punkt weit unter dem Stapel.
-    .to(cards, {
-      x: (i: number) => cx + Math.sin((angle(i) * Math.PI) / 180) * R - mid(i),
-      y: (i: number) => top - rects[i].top + (1 - Math.cos((angle(i) * Math.PI) / 180)) * R,
-      rotation: (i: number) => angle(i),
-      duration: 1,
-      ease: 'power2.inOut',
-      stagger: { each: 0.04, from: 'center' },
-    })
-    // Auslegen.
-    .to(
-      cards,
-      { x: 0, y: 0, rotation: 0, duration: 1.2, ease: 'power3.inOut', stagger: { each: 0.06, from: 'center' } },
-      '+=0.2'
-    )
-    .to(
-      captions,
-      { ...CAPTION_SHOWN, duration: 0.5, ease: 'power2.out', stagger: 0.05 },
-      '-=0.35'
-    )
-    // Kurz liegen lassen, bevor der Pin loslässt.
-    .to({}, { duration: 0.3 });
 }
 
 /**
  * ScrollTrigger misst Start und Ende einmal und dann nur bei Resize/Load neu.
  * Wächst die Seite oberhalb eines Triggers danach — die Markenschrift von
  * Typekit kommt nach, Bilder ohne feste Höhe, die Nearby-Karten nach der
- * Standortfreigabe —, griffe der Must-Eat-Pin an der alten Stelle: gemessen
- * 300px zu früh bei 300px Zuwachs. Also bei jeder Höhenänderung der Seite neu
- * messen, gebündelt auf eine Messung pro Ruhephase.
+ * Standortfreigabe —, griffe er an der alten Stelle. Also bei jeder
+ * Höhenänderung der Seite neu messen, gebündelt auf eine Messung pro
+ * Ruhephase.
  */
 function refreshOnReflow(): () => void {
   const root = document.querySelector<HTMLElement>('[data-hub]');
@@ -522,8 +435,6 @@ function refreshOnReflow(): () => void {
   let timer = 0;
   let last = root.offsetHeight;
   const ro = new ResizeObserver(() => {
-    // Der Pin-Abstandhalter ändert die Höhe selbst nicht mehr, sobald er steht;
-    // nur echte Änderungen zählen, sonst misst es sich im Kreis.
     if (root.offsetHeight === last) return;
     last = root.offsetHeight;
     window.clearTimeout(timer);
@@ -546,24 +457,23 @@ export default function HubMotion() {
       {
         motion: '(prefers-reduced-motion: no-preference)',
         desk: '(min-width: 768px)',
-        wide: '(min-width: 1024px)',
         pointer: '(hover: hover) and (pointer: fine)',
       },
       (ctx, safe) => {
-        const { motion, desk, wide, pointer } = ctx.conditions as Record<string, boolean>;
+        const { motion, desk, pointer } = ctx.conditions as Record<string, boolean>;
         if (!motion) return;
         const scroller = appScroller() ?? window;
         const stops: Array<() => void> = [];
-        if (wide) armDeckPin(scroller);
-        stops.push(armReveals(safe!, { pinnedDeck: wide }));
-        // Scroll-JS nur ab 768px: auf dem iPhone läuft es ein bis zwei Frames
-        // hinterher (siehe HeroMarkFlight) und zittert gegen die Seite.
-        if (desk) {
-          armPhonesDrift(scroller);
-          armMarqueePush(scroller);
-          stops.push(refreshOnReflow());
-        }
+        armScrubFallback(scroller);
+        stops.push(armStaggers(safe!));
+        stops.push(armFragRemy(safe!));
+        stops.push(armScrollTalk(scroller));
+        armMarqueeSkew(scroller);
+        // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein
+        // bis zwei Frames hinterher (siehe HeroMarkFlight) und zittert.
+        if (desk) armPhonesDrift(scroller);
         if (desk && pointer) stops.push(armHeroPointer());
+        stops.push(refreshOnReflow());
         return () => stops.forEach((stop) => stop());
       }
     );

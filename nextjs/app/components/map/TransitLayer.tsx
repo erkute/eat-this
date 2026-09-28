@@ -6,7 +6,7 @@ import type { LayerProps } from 'react-map-gl/maplibre';
 /* Die U- und S-Bahnhöfe Berlins als Orientierungshilfe unter den Pins.
  *
  * Warum es sie braucht: sobald eine Detailansicht offen ist, treten alle
- * anderen Spots zurück (siehe `pinLogoDim` in MapMarkers.module.css) — und
+ * anderen Spots zurück (siehe `pinLogoSmall` in MapMarkers.module.css) — und
  * dann steht ein einzelner Pin auf einer Karte ohne Bezugspunkte. Das
  * Straßennetz allein beantwortet „wo ist das?" nicht; „am U Görlitzer
  * Bahnhof" beantwortet es sofort.

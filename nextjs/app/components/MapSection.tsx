@@ -867,8 +867,6 @@ export default function MapSection({
       });
       setSelectedRestaurant(target);
       flyToSpot(target, { duration: 400, padding: detailFlyPadding() });
-      const sc = document.querySelector('[data-detail-scroll]');
-      if (sc) (sc as HTMLElement).scrollTop = 0;
     },
     [pagerAdjacent, setSelectedRestaurant, flyToSpot, detailFlyPadding]
   );

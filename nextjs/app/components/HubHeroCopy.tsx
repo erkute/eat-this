@@ -35,28 +35,6 @@ const MARK = { src: '/pics/eat-this-logo.webp?v=6', width: 1660, height: 667 } a
    drei Stellen, an denen der Hero sie rendert (Gast, geladen, FOUC-Variante). */
 const HERO_MAP_LABEL = 'Berlin Food Map';
 
-/* Die Hand, die im Aufmacher auf den Knopf tippt (HubSection.module.css,
-   `.tapHand`). Gezeichnet wie der Rest der Seite: Papierweiss mit dicker
-   Ink-Kontur. Reine Deko im Link — ohne Zeiger-Ereignisse, damit sie die
-   Klickfläche nicht vergrössert. */
-function TapHand() {
-  return (
-    <span className={styles.tapHand} aria-hidden="true">
-      <svg viewBox="0 0 64 82" width="64" height="82">
-        <g stroke="var(--et-ink)" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round">
-          {/* Eine geschlossene Kontur: Zeigefinger, zwei eingerollte Finger,
-              Handballen, Daumen. */}
-          <path
-            fill="var(--et-white)"
-            d="M22 46V11a6 6 0 0 1 12 0v22a5 5 0 0 1 10 0v2a5 5 0 0 1 10 1v20c0 13-8 21-20 21h-4c-8 0-14-4-18-11l-7-13a5 5 0 0 1 8-6l9 9z"
-          />
-          <path fill="none" d="M34 33v8M44 35v7" />
-        </g>
-      </svg>
-    </span>
-  );
-}
-
 function HeroMark() {
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -123,7 +101,6 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
       <div className={styles.heroActions}>
         <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
           {HERO_MAP_LABEL}
-          <TapHand />
         </MapIntentLink>
         {signedIn ? (
           <Link
@@ -175,13 +152,11 @@ function LoadingHeroCopy({ locale }: Props) {
         <span className={styles.heroActionVariant} data-guest-only="">
           <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
             {HERO_MAP_LABEL}
-            <TapHand />
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
           <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
             {HERO_MAP_LABEL}
-            <TapHand />
           </MapIntentLink>
           <Link
             href="/profile"

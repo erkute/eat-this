@@ -12,28 +12,6 @@ import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import type { Locale } from '@/lib/buddy/types';
 import styles from './HubFragRemy.module.css';
 
-/* Remys Hand — im Bild ist er nur Büste, die Hand ist dazugezeichnet: dieselbe
-   Hautfarbe wie im Asset (#ffbb90, aus buddy.webp gemessen), dieselbe dicke
-   schwarze Kontur. Erst die Finger, dann der Handballen darüber — seine
-   Kontur zieht die Knöchellinie quer über die Fingerwurzeln, wie gezeichnet.
-   Sie kommt von unten ins Bild, winkt und zeigt dann zum Chat (HubMotion);
-   ohne Bewegung steht sie schon zum Chat gedreht da. */
-function RemyHand() {
-  return (
-    <svg viewBox="0 0 100 210" width="100" height="210">
-      <g fill="#ffbb90" stroke="#111" strokeWidth="5" strokeLinejoin="round">
-        <rect x="29" y="20" width="15" height="58" rx="7.5" />
-        <rect x="44" y="9" width="15" height="68" rx="7.5" />
-        <rect x="59" y="15" width="15" height="62" rx="7.5" />
-        <rect x="73" y="30" width="13" height="50" rx="6.5" transform="rotate(8 79 55)" />
-        <rect x="16" y="60" width="16" height="44" rx="8" transform="rotate(-34 30 100)" />
-        <path d="M26 66h62v26c0 16-12 26-28 26h-6c-16 0-28-10-28-26z" />
-        <path d="M40 112h36v100H40z" />
-      </g>
-    </svg>
-  );
-}
-
 export default function HubFragRemy() {
   const locale = useLocale() as Locale;
   const t = useTranslations('hub.fragRemy');
@@ -159,9 +137,6 @@ export default function HubFragRemy() {
 
         {/* Remy avatar */}
         <div className={styles.avatarWrap} ref={stageRef} data-fragremy-avatar="">
-          <span className={styles.hand} data-fragremy-hand="" aria-hidden="true">
-            <RemyHand />
-          </span>
           <div className={styles.avatar} data-talking={talking ? '' : undefined}>
             <Image
               className={styles.face}

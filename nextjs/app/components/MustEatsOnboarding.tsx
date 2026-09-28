@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import { useTranslation } from '@/lib/i18n';
 import { useLoginModal } from '@/lib/auth';
+import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import { resolveUnlockedMustEatIds } from '@/lib/map';
 import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
@@ -44,8 +45,15 @@ interface Props {
    *  explain it again. */
   autoOpen?: boolean;
   /** `ink`: der Auslöser steht auf einer Ink-Tafel (Kopf der Must-Eats-Seite)
-   *  und wird zum Ring — Ink auf Ink verschwände. Default: Ink-Knopf auf Weiß. */
-  tone?: 'paper' | 'ink';
+   *  und wird zur hellen Fläche — Ink auf Ink verschwände. `sheet`: dieselbe
+   *  Fläche in Chip-Größe, für das Must-Eat-Detail der Karte, wo er im
+   *  knappen Text-Slot unter der verdeckten Karte steht. Default: Ink-Knopf
+   *  auf Weiß. */
+  tone?: 'paper' | 'ink' | 'sheet';
+  /** Die verdeckte Karte, von der aus ein Gast die Erklärung sieht (Must-Eat-
+   *  Detail der Karte). „Anmelden" auf der letzten Folie nimmt sie dann als
+   *  Absicht mit ins Starter Pack — wie der Tipp auf die Karte selbst. */
+  starterMustEatId?: string;
 }
 
 // First-visit onboarding for the Must-Eats page: 3 steps around a demo card
@@ -57,6 +65,7 @@ export default function MustEatsOnboarding({
   initialMapData,
   autoOpen = true,
   tone = 'paper',
+  starterMustEatId,
 }: Props) {
   const { lang, t } = useTranslation();
   const { open: openLogin } = useLoginModal();
@@ -240,7 +249,13 @@ export default function MustEatsOnboarding({
         ref={triggerRef}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className={tone === 'ink' ? `${styles.how} ${styles.howInk}` : styles.how}
+        className={
+          tone === 'ink'
+            ? `${styles.how} ${styles.howInk}`
+            : tone === 'sheet'
+              ? `${styles.how} ${styles.howSheet}`
+              : styles.how
+        }
         onClick={reopen}
       >
         <span className={styles.howBadge} aria-hidden="true">
@@ -397,7 +412,12 @@ export default function MustEatsOnboarding({
                         className={tour.action}
                         onClick={() => {
                           close();
-                          openLogin();
+                          if (starterMustEatId) {
+                            rememberPendingStarterCard(starterMustEatId);
+                            openLogin({ kind: 'card', mustEatId: starterMustEatId });
+                          } else {
+                            openLogin();
+                          }
                         }}
                       >
                         {t('mustEats.onbStarterCta')}

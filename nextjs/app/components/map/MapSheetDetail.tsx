@@ -4,6 +4,7 @@ import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import type { UserLocation, UserTier } from '@/lib/map';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
+import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import RestaurantDetail from './RestaurantDetail';
 import MustEatDetail from './MustEatDetail';
 import styles from './MapSheetDetail.module.css';
@@ -34,6 +35,8 @@ type MustEatProps = CommonProps & {
   mustEatPosition?: { index: number; count: number };
   /** Offene Karten gegen alle — für den Zähler beim Aufdecken. */
   mustEatCollection?: { count: number; total: number };
+  /** Stapel für die Must-Eats-Erklärung, die ein Gast im Detail bekommt. */
+  onboardingData?: InitialMustEatsData;
 };
 
 type RestaurantProps = CommonProps & {
@@ -86,6 +89,7 @@ export default function MapSheetDetail(props: Props) {
           position={props.mustEatPosition}
           collection={props.mustEatCollection}
           uid={props.uid}
+          onboardingData={props.onboardingData}
         />
       ) : (
         <RestaurantDetail

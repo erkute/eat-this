@@ -8,6 +8,8 @@ import { useTranslation } from '@/lib/i18n';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { normalizeName } from '@/lib/normalizeName';
 import { whenImageReady } from '@/lib/dom/imageReady';
+import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
+import MustEatsOnboarding from '../MustEatsOnboarding';
 import styles from './MustEatDetail.module.css';
 import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
@@ -44,6 +46,9 @@ interface Props {
   /** Kein Konto: die verdeckte Karte fragt nicht nach dem Standort — der Tipp
    *  auf den Ruecken oeffnet sofort das Anmeldeformular (MustEatDetail). */
   guest?: boolean;
+  /** Stapel für die Must-Eats-Erklärung, die ein Gast unter der verdeckten
+   *  Karte bekommt (die Demo-Karte der Folien ist eine offene daraus). */
+  onboardingData?: InitialMustEatsData;
 }
 
 // Poster sheet: card hero → huge dish name → prose → spot action. Horizontal
@@ -63,6 +68,7 @@ export default function MustEatDetailMobile({
   position,
   state,
   guest = false,
+  onboardingData,
 }: Props) {
   const { t, lang } = useTranslation();
   // Legacy t() can't interpolate ICU values — parametrized keys go through next-intl directly.
@@ -286,11 +292,15 @@ export default function MustEatDetailMobile({
      onLocationBlocked in MustEatDetail). Ein stiller „Standort blockiert"-Chip
      mit Hinweis darunter stand hier kurz und wurde als Fremdkörper abgelehnt
      (Nutzer, 02.09.2026). */
+  const explainerData = guest ? onboardingData : undefined;
+  /* Einem Gast erklärt der Knopf „Wie funktioniert's?" die Karte (siehe
+     unten) — der Näherungs-Hinweis sagte dasselbe noch einmal, und beide
+     zusammen sprengten den Text-Slot: die Karte darüber schrumpfte. */
   const coverSub = unlockError
     ? t('map.revealRetry')
     : canUnlock
       ? tMap('proximityTapReveal')
-      : needsLocation && !locationDenied
+      : (needsLocation && !locationDenied) || explainerData
         ? null
         : tMap('proximityHint');
   /* Ein Gast wird nicht nach seinem Standort gefragt — sein Weg zur Karte
@@ -546,12 +556,13 @@ export default function MustEatDetailMobile({
             <p className={styles.fdText}>{localizedDescription}</p>
           )}
 
-          {/* Locked: Näherungs-Hinweis statt Beschreibung. Ohne Konto liest
-              sich die Karte genauso — der Tipp auf den Ruecken oeffnet dann
-              sofort das Anmeldeformular (MustEatDetail). Ein Anmelde-Block in
-              der Karte stand hier kurz und wurde als Fremdkoerper abgelehnt,
-              eine Tafel als Layer danach als Klick zu viel (Betreiber,
-              07.09.2026). */}
+          {/* Locked: Näherungs-Hinweis statt Beschreibung. Ohne Konto steht
+              hier statt des Hinweises „Wie funktioniert's?" (siehe unten) —
+              der Tipp auf den Ruecken oeffnet weiterhin sofort das
+              Anmeldeformular (MustEatDetail). Ein Anmelde-Block in der Karte
+              stand hier kurz und wurde als Fremdkoerper abgelehnt, eine Tafel
+              als Layer zwischen Tipp und Formular als Klick zu viel
+              (Betreiber, 07.09.2026). */}
           {!textOpen && (
             <div
               className={`${styles.fdProximity}${unlockError ? ` ${styles.fdProximityError}` : canUnlock ? ` ${styles.fdProximityReady}` : ''}`}
@@ -568,6 +579,23 @@ export default function MustEatDetailMobile({
               {/* Der Standort als eigenes Objekt: eine Taste, solange man den
                   Browser noch fragen darf. Der Kartentipp fragt weiterhin mit —
                   die Taste macht nur sichtbar, dass es etwas zu tun gibt. */}
+              {/* Ein Gast weiß nicht, was eine verdeckte Karte ist — der
+                  Tipp darauf führt ihn direkt zur Anmeldung. Erklärt wird
+                  deshalb hier, mit den Folien der Must-Eats-Seite: beim ersten
+                  Mal legen sie sich von selbst über das Detail (derselbe
+                  „gesehen"-Merker wie auf /must-eats), danach holt dieser
+                  Knopf sie zurück. Er steht, wo ein angemeldeter Besucher den
+                  Standort-Chip hat — den bekommt ein Gast nie (Betreiber,
+                  28.09.2026). */}
+              {explainerData && (
+                <div className={styles.fdLocation}>
+                  <MustEatsOnboarding
+                    initialMapData={explainerData}
+                    tone="sheet"
+                    starterMustEatId={mustEat._id}
+                  />
+                </div>
+              )}
               {showLocationChip && (
                 <div className={styles.fdLocation} data-location-needed="ask">
                   <button

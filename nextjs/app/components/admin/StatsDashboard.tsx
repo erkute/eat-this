@@ -120,6 +120,9 @@ export const BOT_FILTER_LIVE_SINCE = '02.09.2026';
  */
 export const LIGHTHOUSE_FILTER_LIVE_SINCE = '04.09.2026';
 
+/** Wie oft „Gerade aktiv" nachgefragt wird. */
+const LIVE_REFRESH_MS = 60_000;
+
 function readHash(): ReportKey {
   if (typeof window === 'undefined') return 'overview';
   const key = window.location.hash.replace('#', '');
@@ -180,6 +183,33 @@ export default function StatsDashboard() {
     if (authLoading || !user) return;
     void load(range);
   }, [authLoading, user, range, load]);
+
+  // „Gerade aktiv" altert in Minuten, der Rest in Stunden: nur die eine Zahl
+  // wird jede Minute nachgefragt, und nur, solange der Tab sichtbar ist.
+  const hasData = data !== null;
+  useEffect(() => {
+    if (!user || !hasData) return;
+    const refresh = async () => {
+      if (document.visibilityState !== 'visible' || !auth.currentUser) return;
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const response = await fetch('/api/admin/stats?only=live', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) return;
+        const { live } = (await response.json()) as Pick<StatsSummary, 'live'>;
+        setData((current) => (current ? { ...current, live } : current));
+      } catch {
+        // Die letzte Zahl bleibt stehen; ihr „Stand" zeigt, wie alt sie ist.
+      }
+    };
+    const timer = window.setInterval(() => void refresh(), LIVE_REFRESH_MS);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [user, hasData]);
 
   const current = useMemo(() => REPORTS.find((r) => r.key === report) ?? REPORTS[0], [report]);
 

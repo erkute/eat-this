@@ -19,6 +19,7 @@
  * Der Trichter folgt genau diesen vier Stufen.
  */
 
+import type { GaResult } from '@/lib/admin/googleAnalytics.server';
 import type { SearchResult } from '@/lib/admin/searchConsole';
 import { REVEALED_TARGET } from '@/lib/map/revealed-must-eats';
 import { STARTER_PACK_CARDS, STARTER_PACK_FACE_UP } from '@/lib/starter-pack';
@@ -317,6 +318,15 @@ export interface DaySummary {
  */
 const FULL_DAY_FIELDS_SINCE = '2026-08-29';
 
+/** Besucher mit einem Beacon in den letzten `minutes` Minuten, Stand `at`. */
+export interface Live {
+  activeNow: number;
+  /** Dieselbe Frage an GA — nur Zustimmende; null, wenn GA nicht antwortete. */
+  ga: number | null;
+  minutes: number;
+  at: string;
+}
+
 export interface StatsSummary {
   /** Das gewählte Fenster. `includesToday` sagt, ob der laufende Tag drinliegt. */
   range: { start: string; end: string; days: number; today: string; includesToday: boolean };
@@ -337,6 +347,10 @@ export interface StatsSummary {
   accounts: Accounts | null;
   /** Der Katalog — null, wenn Sanity nicht antwortete. */
   deck: Deck | null;
+  /** „Gerade aktiv" — unabhaengig vom Zeitraum; null, wenn die Abfrage scheiterte. */
+  live: Live | null;
+  /** GA4-Nutzer im Fenster (lib/admin/googleAnalytics.server.ts); null, wenn nicht angefragt. */
+  ga: GaResult | null;
   /**
    * Der jüngste abgeschlossene Tag — beim Morgenkaffee die Zahl, die zählt.
    * `today` steht getrennt daneben, weil ein laufender Tag naturgemäß niedrig
@@ -778,6 +792,8 @@ export interface SummarizeOptions {
   accounts?: Accounts | null;
   search?: SearchResult | null;
   deck?: Deck | null;
+  live?: Live | null;
+  ga?: GaResult | null;
 }
 
 /**
@@ -790,7 +806,14 @@ export function summarize(
   before: DailyDoc[] = [],
   options: SummarizeOptions = {}
 ): StatsSummary {
-  const { today = '', accounts = null, search = null, deck = null } = options;
+  const {
+    today = '',
+    accounts = null,
+    search = null,
+    deck = null,
+    live = null,
+    ga = null,
+  } = options;
   const sorted = [...docs].sort((a, b) => a.day.localeCompare(b.day));
   const sortedBefore = [...before].sort((a, b) => a.day.localeCompare(b.day));
   const start = options.range?.start ?? sorted[0]?.day ?? today;
@@ -906,6 +929,8 @@ export function summarize(
     totals: { pageviews, visitors, days: sorted.length, closedDays: closed.length },
     accounts,
     deck,
+    live,
+    ga,
     latest: {
       day: latestDay,
       vsPrevDay: compare(latestDay, latestDay ? docAt(dayBefore(latestDay.day)) : undefined),

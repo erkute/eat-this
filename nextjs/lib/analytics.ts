@@ -2,6 +2,8 @@
 
 import { readConsent } from '@/lib/consent';
 import { EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
+import { isAutomated } from '@/lib/analytics/botFilter';
+import { hasNoCountCookie } from '@/lib/analytics/noCount';
 
 type AnalyticsParams = Record<string, string | number | boolean | undefined>;
 
@@ -68,12 +70,25 @@ export function isAnalyticsHost(hostname: string): boolean {
   return ANALYTICS_HOSTS.has(hostname);
 }
 
+/* Wer auch mit Zustimmung nicht in GA gehoert — dieselben Riegel, die der
+ * Zaehler hat (app/api/count/route.ts). GA hatte sie nicht: im Abgleich vom
+ * 28.09.2026 standen /admin/stats (64 Aufrufe) und /profile (97 von 4
+ * Nutzern) in den Top 5 der Seiten, desktop Chrome aus Berlin trug 172 der
+ * 281 Aufrufe der Startseite — der Betreiber, sein Test-Konto und der
+ * Browser der Claude-App, der bei jedem Smoke-Test zustimmt. */
+function isOwnOrAutomated(): boolean {
+  if (hasNoCountCookie(document.cookie)) return true;
+  if (isAutomated(navigator.userAgent)) return true;
+  return /^\/(en\/)?admin(\/|$)/.test(window.location.pathname);
+}
+
 /* Die Bedingung fuer ALLES, was Richtung Google geht — nicht nur fuers Laden.
  * Sonst fuellt sich auf Staging die Warteschlange in trackEvent unbegrenzt:
  * Zustimmung liegt vor, gtag kommt aber nie. */
 function gaEnabled(): boolean {
   if (!hasConsent()) return false;
-  return typeof window !== 'undefined' && isAnalyticsHost(window.location.hostname);
+  if (typeof window === 'undefined' || !isAnalyticsHost(window.location.hostname)) return false;
+  return !isOwnOrAutomated();
 }
 
 /* ── Consent-free counting ───────────────────────────────────────────────────
@@ -280,7 +295,14 @@ export function flushAnalyticsQueue(): void {
 }
 
 /** Load GA4 on any route when consent was granted earlier. Configuration does
- * not auto-send pageviews; AnalyticsPageViews owns initial + soft-nav views. */
+ * not auto-send pageviews; AnalyticsPageViews owns initial + soft-nav views.
+ *
+ * Dafuer muss im Web-Stream „Seitenaufrufe bei Browserverlaufs-Ereignissen"
+ * AUS sein (Admin → Datenstreams → Erweiterte Messung). Es stand bis
+ * 28.09.2026 an: jeder Seitenwechsel kam doppelt an, und jedes `?r=`/`?q=`,
+ * das die Karte in die Adresse schreibt, zaehlte als eigener Aufruf — /map
+ * hatte 378 Aufrufe von 26 Nutzern. `send_page_view: false` schaltet nur den
+ * ersten Aufruf ab, nicht diesen Mechanismus. */
 export function loadAnalytics(): void {
   const w = analyticsWindow();
   if (!w || !gaEnabled() || w.__gaLoaded) return;

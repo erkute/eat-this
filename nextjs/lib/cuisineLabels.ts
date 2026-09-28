@@ -1,4 +1,4 @@
-// DE-Labels für die 33 kanonischen cuisineType-Werte (EN-Seiten nutzen den
+// DE-Labels für die kanonischen cuisineType-Werte (EN-Seiten nutzen den
 // rohen Sanity-Wert). Venue-Typen als Nomen, Küchen als Adjektiv-Tag —
 // kurz genug fürs 62-Zeichen-Title-Budget. Unbekannte Werte fallen auf den
 // Rohwert zurück.
@@ -22,6 +22,8 @@ export const CUISINE_LABELS_DE: Record<string, string> = {
   European: 'Europäisch',
   'Fine Dining': 'Fine Dining',
   French: 'Französisch',
+  // Que (Asian-Latino, 28.09.2026) — auf Deutsch dasselbe Wort.
+  Fusion: 'Fusion',
   German: 'Deutsche Küche',
   'German / Fast Food': 'Imbiss',
   Greek: 'Griechisch',

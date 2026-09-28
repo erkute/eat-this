@@ -75,6 +75,12 @@
    braucht es eine eigene Box, die sich drehen und verschieben lässt. */
 .titleMark {
   display: inline-block;
+  /* Weg, Drehung und Stauchung als Variablen (HubMotion): zwei GSAP-Tweens
+     auf demselben `transform` — Flug und Aufprall — liessen beim
+     Rückwärtslaufen den Weg nach links fallen (gemessen). */
+  translate: calc(var(--q-x, 0) * 1px) 0;
+  rotate: calc(var(--q-r, 0) * 1deg);
+  scale: var(--q-sx, 1) var(--q-sy, 1);
 }
 
 /* ── Remy stage — freigestellt, no background sun ── */

@@ -391,10 +391,16 @@
 
 /* Immer wieder, nicht nur beim Laden (Ansage 28.09.2026: „wenn ich von unten
    wieder hochscrolle, soll er noch mal gedrückt werden"): HubMotion setzt
-   `data-in-view` an die Section, solange sie im Bild ist. Eine neue
-   `animation`-Angabe startet die Animation neu — wer zurück nach oben kommt,
-   sieht den Druck nach einer halben Sekunde, danach alle 7s. */
-:global([data-in-view]) .heroActions [data-magnetic] {
+   `data-in-view` an die Section — `1` im Bild, `0` draussen. Draussen steht
+   die Animation still (`none`), und erst das Zurückschalten startet sie neu:
+   eine bloss andere Verzögerung startete Chrome nicht neu (gemessen). Wer
+   zurück nach oben kommt, sieht den Druck nach einer halben Sekunde, danach
+   alle 7s. Ohne JS gilt die Regel darüber. */
+:global([data-in-view='0']) .heroActions [data-magnetic] {
+  animation: none;
+}
+
+:global([data-in-view='1']) .heroActions [data-magnetic] {
   animation: ctaPress 7s linear 0.5s infinite both;
 }
 
@@ -403,17 +409,17 @@
    Bild kommt. Und einmalig auf Zuruf (`data-pressing`, die Anmelde-Demo in
    HubMotion). Über `translate`/`scale`, nie über `transform` — den tragen
    die `:active`-Zustände. */
-:global([data-press]),
-:global([data-pressing]) {
+.page :global([data-press]),
+.page :global([data-pressing]) {
   translate: 0 calc(var(--press) * 5px);
   scale: calc(1 - var(--press) * 0.07);
 }
 
-:global([data-in-view]) :global([data-press]) {
+.page :global([data-in-view='1']) :global([data-press]) {
   animation: ctaPress 7s linear 0.7s 1 both;
 }
 
-:global([data-pressing]) {
+.page :global([data-pressing]) {
   animation: ctaPress 7s linear -0.1s 1 both;
 }
 
@@ -442,9 +448,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .heroActions [data-magnetic],
-  :global([data-in-view]) .heroActions [data-magnetic],
-  :global([data-in-view]) :global([data-press]),
-  :global([data-pressing]) {
+  :global([data-in-view='1']) .heroActions [data-magnetic],
+  .page :global([data-in-view='1']) :global([data-press]),
+  .page :global([data-pressing]) {
     animation: none;
   }
 }

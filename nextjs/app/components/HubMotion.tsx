@@ -185,23 +185,37 @@ function armFragRemy(scroller: HTMLElement | Window): () => void {
     const box = q.getBoundingClientRect();
     return -(box.right - board.left + 40);
   };
-  const texts = [q, ask, title, line];
-  const settle = () => gsap.set(texts, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin` });
+  const texts = [ask, title, line];
+  // Aufgeräumt wird erst beim Abbauen: die Rückwärtsfahrt braucht die Werte,
+  // nach einem `clearProps` kam das Fragezeichen gedreht, aber ohne seinen
+  // Weg nach links zurück (gemessen). Keiner der Texte trägt eigene
+  // `translate/rotate/scale`, die GSAP hier überschreiben könnte.
+  const settle = () => {
+    gsap.set(texts, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility` });
+    gsap.set(q, { clearProps: '--q-x,--q-r,--q-sx,--q-sy' });
+  };
 
+  // Ausgangswerte ausdrücklich: eine nie gesetzte Variable merkt sich GSAP
+  // als 0 — rückwärts gelaufen stand das Fragezeichen sonst auf Grösse 0 und
+  // flog beim nächsten Auftritt unsichtbar ein (gemessen).
+  gsap.set(q, { '--q-sx': 1, '--q-sy': 1 });
   const entrance = gsap
-    .timeline({ paused: true, onComplete: settle, onStart: () => stopTalk() })
+    .timeline({ paused: true, onStart: () => stopTalk() })
+    // Das Fragezeichen über Variablen (HubFragRemy.module.css): zwei Tweens
+    // auf seinem `transform` liessen beim Rückwärtslaufen den Weg nach links
+    // fallen — es kam gedreht, aber an seinem Platz zurück (gemessen).
     .fromTo(
       q,
-      { x: offLeft, rotation: -540 },
-      { x: 0, rotation: 0, duration: 0.55, ease: 'power3.in' }
+      { '--q-x': offLeft, '--q-r': -540 },
+      { '--q-x': 0, '--q-r': 0, duration: 0.55, ease: 'power3.in' }
     )
     // Aufprall: das Zeichen staucht, die Zeile davor zuckt weg.
     .fromTo(
       q,
-      { scaleX: 1.35, scaleY: 0.7 },
+      { '--q-sx': 1.35, '--q-sy': 0.7 },
       {
-        scaleX: 1,
-        scaleY: 1,
+        '--q-sx': 1,
+        '--q-sy': 1,
         duration: 0.7,
         ease: 'elastic.out(1.1, 0.35)',
         immediateRender: false,
@@ -262,14 +276,9 @@ function armFragRemy(scroller: HTMLElement | Window): () => void {
     });
   };
 
-  const show = () => {
-    // Rückwärts gestoppt heisst: die Texte tragen wieder ihre Startpose.
-    entrance.timeScale(1).play();
-  };
+  const show = () => entrance.timeScale(1).play();
   const hide = () => {
     stopTalk();
-    // Ist er schon durch, tragen die Texte keine Inline-Werte mehr — die
-    // Rückwärtsfahrt setzt sie aus den gemerkten Werten neu.
     entrance.timeScale(1.6).reverse();
   };
   const st = ScrollTrigger.create({
@@ -293,8 +302,8 @@ function armFragRemy(scroller: HTMLElement | Window): () => void {
 
 /**
  * `data-in-view` an jeder Section mit einem Knopf, der gedrückt werden soll
- * (`data-press`), und am Aufmacher — solange sie im Bild ist. Das CSS dazu
- * (HubSection.module.css) startet den Druck neu, sobald das Attribut kommt:
+ * (`data-press`), und am Aufmacher: `1` im Bild, `0` draussen. Das CSS dazu
+ * (HubSection.module.css) startet den Druck neu, sobald es auf `1` springt:
  * wer zurückscrollt, sieht den Knopf wieder gedrückt. Beobachtet wird die
  * Section, nicht der Knopf: HubHeroCopy baut die Knöpfe neu, sobald `useAuth`
  * steht.
@@ -312,8 +321,7 @@ function armInView(): () => void {
     (entries) => {
       for (const entry of entries) {
         const el = entry.target as HTMLElement;
-        if (entry.isIntersecting) el.setAttribute('data-in-view', '');
-        else el.removeAttribute('data-in-view');
+        el.setAttribute('data-in-view', entry.isIntersecting ? '1' : '0');
       }
     },
     { rootMargin: '0px 0px -20% 0px' }

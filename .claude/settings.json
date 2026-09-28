@@ -16,8 +16,7 @@
       "Bash(git push * --force*)",
       "Bash(git push -f*)",
       "Bash(git push * -f*)",
-      "Bash(* --no-verify*)",
-      "mcp__github__merge_pull_request"
+      "Bash(* --no-verify*)"
     ]
   }
 }

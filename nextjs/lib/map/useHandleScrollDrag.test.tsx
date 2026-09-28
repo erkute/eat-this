@@ -335,6 +335,17 @@ describe('the map strip', () => {
 
     expectRestingAtTop();
   });
+
+  /* Hochgeschoben bis zum letzten Stopp, aber nicht hineingescrollt: der
+     Balken steht auf der Strip-Linie, der Strip nimmt den Tipp an — und er
+     muss dann auch zur Karte führen, nicht ins Leere (Nutzer, 28.09.2026). */
+  it('takes a tap on the strip to the map from the last stop too', async () => {
+    window.scrollY = SHEET_DOC_TOP - MAP_STRIP_PX;
+    window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
+    await settle();
+
+    expectRestingAtTop();
+  });
 });
 
 describe('in a detail', () => {
@@ -349,6 +360,17 @@ describe('in a detail', () => {
     drag(-120);
     await settle();
     expect(window.scrollY).toBe(splitStop('detail'));
+  });
+
+  it('brings a pushed-up restaurant detail down to the map on a strip tap', async () => {
+    render(<Harness view="detail" detailKind="restaurant" />);
+    for (const top of [SHEET_DOC_TOP - MAP_STRIP_PX, DEEP]) {
+      window.scrollY = top;
+      window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
+      await settle();
+
+      expectRestingAtTop();
+    }
   });
 
   it('lowers a restaurant detail as well, and lets go when the view changes', async () => {

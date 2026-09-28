@@ -372,7 +372,17 @@ export function useHandleScrollDrag(
     const onCollapse = () => {
       if (!isPhone() || busy || drag) return;
       const { sheet, sheetStop, mapY, restLine } = geometry();
-      if (!slides(sheet) || window.scrollY <= sheetStop + AT_STOP_PX) return;
+      if (!slides(sheet)) return;
+      /* Not in the rows yet, only pushed up to a stop — typically the last
+         one, where the bar stands on the strip line and the strip takes the
+         tap. It used to end here, and the tap went nowhere (user,
+         28.09.2026). Same as the grabber's tap there: down to the map. */
+      if (window.scrollY <= sheetStop + AT_STOP_PX) {
+        if (window.scrollY <= mapY) return;
+        trackEvent('map_view_toggle', { direction: 'to_map' });
+        window.scrollTo({ top: mapY, behavior: 'smooth' });
+        return;
+      }
       busy = true;
       trackEvent('map_view_toggle', { direction: 'to_map' });
       void settleOnMap(sheet, grabFromList(sheet), restLine, { restLinePx: restLine, mapY }).finally(

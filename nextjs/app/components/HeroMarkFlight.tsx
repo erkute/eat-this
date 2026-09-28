@@ -103,12 +103,15 @@ export default function HeroMarkFlight() {
       const target = logo.querySelector('img') ?? logo;
       const m = mark.getBoundingClientRect();
       const n = target.getBoundingClientRect();
+      // Beim Laden fällt die Marke noch von oben herein (`translate`, siehe
+      // HubSection.module.css) — gemessen wird ihr Platz, nicht ihr Fall.
+      const falling = parseFloat(getComputedStyle(mark).translate.split(' ')[1] ?? '') || 0;
 
       if (!m.width || !n.width) return null;
 
       return {
         startX: m.left,
-        startY: m.top + scrollTop(),
+        startY: m.top - falling + scrollTop(),
         endX: n.left,
         endY: n.top, // Der Header ist fixed — das ist bereits Viewport-Koordinate.
         startW: m.width,

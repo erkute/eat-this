@@ -142,6 +142,31 @@
   transition: transform 220ms ease;
 }
 
+/* Die Fotos ziehen beim Scrollen langsamer durch ihren Rahmen als die Seite
+   (Parallaxe) — damit bei den Artikeln etwas passiert, ohne dass ein Bild
+   aus einer Maske fährt (Ansage 28.09.2026). Am Scrollweg, als Scroll-
+   Timeline des Browsers; über `translate`/`scale`, `transform` gehört dem
+   Hover. Die Vergrößerung deckt den Weg: 20 % Rand für ±7 %. */
+@keyframes photoDrift {
+  from {
+    scale: 1.2;
+    translate: 0 -7%;
+  }
+  to {
+    scale: 1.2;
+    translate: 0 7%;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section .photo:global(.hv-photo) :global(img) {
+      animation: photoDrift linear both;
+      animation-timeline: view();
+    }
+  }
+}
+
 .card:focus-visible .photo:global(.hv-photo) :global(img) {
   transform: scale(1.03);
 }

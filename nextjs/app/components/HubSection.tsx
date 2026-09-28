@@ -138,7 +138,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
       <HeroMarkFlight />
       <HubMotion />
-      <HubMarquee locale={locale} />
+      <HubMarquee />
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor
           but a tap, and it answers "what do I eat now" with their own street.
@@ -150,13 +150,13 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
 
         {spot && (
           <section className="homeV2 hv-section hv-wrap">
-            <article className={styles.spot} data-reveal="rise">
+            <article className={styles.spot} data-reveal="spot">
               <div className={`hv-head ${styles.spotHead}`}>
                 <h2 className="hv-title">
                   <span className="hv-mk" aria-hidden="true" />
                   {t.spotDay}
                 </h2>
-                <time className={styles.spotDate} dateTime={today}>
+                <time className={styles.spotDate} dateTime={today} data-reveal-stamp="">
                   {dayLabel(today, locale)}
                 </time>
               </div>
@@ -187,13 +187,23 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                 )}
                 <span className={styles.spotBody}>
                   {spot.district && (
-                    <span className={`hv-kicker ${styles.spotKicker}`} data-reveal-line="">{spot.district}</span>
+                    <span className={`hv-kicker ${styles.spotKicker}`} data-reveal-line="">
+                      {spot.district}
+                    </span>
                   )}
-                  <span className={styles.spotName} data-reveal-line="">{normalizeName(spot.name)}</span>
+                  <span className={styles.spotName} data-reveal-line="">
+                    {normalizeName(spot.name)}
+                  </span>
                   {/* Loaded from Sanity all along and never rendered — it is the
                     reason this spot is today's pick, so it belongs here. */}
-                  {spot.sub && <span className={styles.spotSub} data-reveal-line="">{spot.sub}</span>}
-                  <span className={styles.spotCta} data-reveal-line="">{t.spotCta}</span>
+                  {spot.sub && (
+                    <span className={styles.spotSub} data-reveal-line="">
+                      {spot.sub}
+                    </span>
+                  )}
+                  <span className={styles.spotCta} data-reveal-line="">
+                    {t.spotCta}
+                  </span>
                 </span>
               </MapIntentLink>
             </article>

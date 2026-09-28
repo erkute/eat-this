@@ -71,6 +71,33 @@
   white-space: nowrap;
 }
 
+/* ── Remys Hand ── Links neben ihm, aus der unteren Tafelkante, zum Chat
+   hin gedreht. Aufgehängt am Handgelenk, damit das Winken dort dreht. Der
+   Unterarm läuft über die Kante hinaus, die Tafel schneidet ihn ab
+   (`overflow: hidden` auf `.body`). */
+.hand {
+  position: absolute;
+  z-index: 2;
+  left: 3%;
+  bottom: 2%;
+  width: 30%;
+  pointer-events: none;
+  /* Am Handgelenk, nicht am Ende des Unterarms. */
+  transform-origin: 58% 56%;
+  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.4));
+}
+
+/* Die Ruhelage zum Chat hin liegt auf der Zeichnung, nicht auf `.hand`: dort
+   winkt GSAP über `transform`, und das setzte ein `rotate` am selben Element
+   inline auf `none`. */
+.hand svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 58% 56%;
+  rotate: -22deg;
+}
+
 /* ── Remy stage — freigestellt, no background sun ── */
 .avatarWrap {
   grid-area: avatar;
@@ -113,7 +140,13 @@
   opacity: 0;
 }
 
-.avatar[data-talking] .faceOpen {
+/* Drei Anlässe für den Mund: der erste Blick (`data-talking`, React), Scrollen
+   über die Startseite (`data-remy-talk`, HubMotion) und sein Auftritt, während
+   der Satz neben ihm erscheint (`data-speaking`, HubMotion — eigenes Attribut,
+   weil React `data-talking` beim nächsten Rendern überschreibt). */
+.avatar[data-talking] .faceOpen,
+.avatarWrap[data-speaking] .faceOpen,
+:global(html[data-remy-talk]) .faceOpen {
   animation: remyFlap 0.46s steps(1) infinite;
 }
 

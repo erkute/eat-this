@@ -145,9 +145,14 @@ describe('in the list', () => {
       vi.spyOn(content, 'getBoundingClientRect').mockReturnValue({ top: -500.25 } as DOMRect);
       handle.dispatchEvent(pointer('pointerdown', 100));
       expect(content.style.clipPath).toBe('inset(663px 0 0)');
+      /* The clipped sheet stacks its bars inside it: the frame steps back at
+         once, or it covers the grip's line (user, 28.09.2026). */
+      const frame = document.querySelector('[data-map-frame]')!;
+      expect(frame.hasAttribute('data-following')).toBe(true);
       handle.dispatchEvent(pointer('pointerup', 100));
       await settle();
       expect(content.style.clipPath).toBe('');
+      expect(frame.hasAttribute('data-following')).toBe(false);
     });
 
     it('never takes the bar below the lowest stop', () => {

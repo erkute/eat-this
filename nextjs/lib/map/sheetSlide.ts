@@ -111,6 +111,10 @@ type Shift = { sheet: number; edge: number };
    the same property. */
 const FOLLOWERS = '[data-locate-dock], .maplibregl-ctrl-bottom-left > .maplibregl-ctrl';
 let followed: Shift = { sheet: 0, edge: 0 };
+/* From the grab deep in the list until the release: the sheet carries a
+   clip, which makes it a stacking context — its bars then stack inside it,
+   and the frame (7) would cover their top 12px, the grip's line with them. */
+let grabbed = false;
 
 function place(shift: Shift): void {
   document.querySelectorAll<HTMLElement>(FOLLOWERS).forEach((el) => {
@@ -121,7 +125,7 @@ function place(shift: Shift): void {
      frame"): the sheet moved by a transform uncovers map the frame would
      have cut off. The sheet cuts itself instead (clipAbove). */
   document.querySelectorAll<HTMLElement>('[data-map-frame]').forEach((el) => {
-    el.toggleAttribute('data-following', shift.sheet > 0);
+    el.toggleAttribute('data-following', shift.sheet > 0 || grabbed);
   });
 }
 
@@ -187,6 +191,7 @@ function release(sheet: HTMLElement): void {
   sheet.style.transform = '';
   sheet.style.clipPath = '';
   sheet.querySelector<HTMLElement>('[data-sheet-content]')?.style.removeProperty('clip-path');
+  grabbed = false;
   if (lowered === sheet) lowered = null;
   delete sheet.dataset.sheetLowered;
   followSheet(0);
@@ -276,6 +281,8 @@ export async function settleOnMap(
  */
 export function grabFromList(sheet: HTMLElement): number {
   clipAbove(sheet);
+  grabbed = true;
+  followSheet(0);
   return 0;
 }
 

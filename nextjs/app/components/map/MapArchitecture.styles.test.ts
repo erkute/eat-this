@@ -230,11 +230,12 @@ describe('Map CSS architecture', () => {
       expect.objectContaining({
         /* Fixed in the map frame (see 'covers the strip with the map frame'). */
         position: 'fixed',
-        /* Up under the status bar by --map-overscan (Betreiber, 28.09.2026). */
-        top: 'calc(-1 * var(--map-overscan))',
+        /* Off the top edge by --map-top-gap, so iOS 26 Safari shows what is
+           under its status bar instead of filling it with the wrapper's ink. */
+        top: 'var(--map-top-gap, 0px)',
         /* lvh, not dvh: a dvh map resized with every step of Safari's
            collapsing toolbar and slid under the list (23.09.2026). */
-        height: 'calc(100lvh + var(--map-overscan))',
+        height: '100lvh',
         'background-color': 'var(--et-ink)',
       }),
     ]);
@@ -290,13 +291,11 @@ describe('Map CSS architecture', () => {
         'min-height': 'calc(100dvh + var(--map-bar-overhang, 0px))',
       }),
     ]);
-    expect(layoutRules).toEqual([
-      expect.objectContaining({
-        /* The list's sticky 100lvh map, clipped: the sheet pulled below its
-           resting edge uncovers map, not the page's ink (27.09.2026). */
-        overflow: 'hidden',
-      }),
-    ]);
+    /* The restaurant detail keeps the list's full-height map — a map bounded
+       to the peek left black below it once the sheet was pulled lower
+       (27.09.2026) — and does not clip it: the canvas reaches up under the
+       status bar. */
+    expect(layoutRules).toEqual([]);
     /* The viewport-tall minimum comes from the phone `.list` (above). */
     expect(sheetRules).toEqual([expect.objectContaining({ 'margin-top': '0' })]);
     expect(

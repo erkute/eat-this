@@ -369,8 +369,8 @@
   margin-top: 24px;
 }
 
-/* Telefon: die Map in voller Breite, die übrigen teilen sich die Zeile
-   darunter — ein einzelner Rest nimmt sie ganz. */
+/* Telefon: die Map in voller Breite, „Reservieren“ als einzelner Rest
+   darunter ebenso. Teilen steht seit 28.09.2026 nicht mehr im Kopf. */
 .heroActions > * {
   flex: 1 1 calc(50% - 5px);
 }

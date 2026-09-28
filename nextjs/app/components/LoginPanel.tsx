@@ -37,10 +37,10 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
   let kicker = t('packKicker');
   let title = t('packTitle');
   let lead = t('packLead');
-  if (reason?.kind === 'map-prompt') {
-    title = t('promptTitle');
-    lead = t('promptLead');
-  } else if (reason?.kind === 'card') {
+  /* Die Einladung nach dem Stoebern auf der Karte ('map-prompt') traegt die
+     Pack-Texte: ein eigener, zweizeiliger Titel mit laengerem Text lief auf
+     dem Telefon ueber und machte das Fenster scrollbar (27.09.2026). */
+  if (reason?.kind === 'card') {
     kicker = t('cardKicker');
     title = t('cardTitle');
     lead = t('cardLead');

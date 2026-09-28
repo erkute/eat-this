@@ -85,7 +85,6 @@ const en = {
     // way the rest of the map does ("You're here.", "Tap the card.") — a bare
     // "Locate" would be a system control, not ours. The covered card's
     // no-location state says the same thing, deliberately.
-    locateInvite: 'Where are you?',
     restaurantsListAriaLabel: 'Restaurants nearby',
     open: 'Open',
     closed: 'Closed',
@@ -353,9 +352,6 @@ const en = {
       dividerOr: 'or',
       resendBtn: 'Resend',
       backBtn: 'Back',
-      promptTitle: 'Your Berlin Starter Pack.',
-      promptLead:
-        '20 Must Eats from all over Berlin. Sign up for free, open your pack and save your favourite spots.',
       packKicker: 'Start your collection',
       packTitle: 'Starter Pack',
       packLead:
@@ -475,7 +471,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   map: {
     filterAll: 'Alle',
     myLocationAriaLabel: 'Mein Standort',
-    locateInvite: 'Wo bist du?',
     restaurantsListAriaLabel: 'Restaurants in der N\u00e4he',
     openNow: 'Offen',
     open: 'Ge\u00f6ffnet',
@@ -772,9 +767,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       dividerOr: 'oder',
       resendBtn: 'Nochmal',
       backBtn: 'Zur\u00fcck',
-      promptTitle: 'Dein Berlin Starter Pack.',
-      promptLead:
-        '20 Must Eats aus ganz Berlin. Kostenlos anmelden, Pack öffnen und deine Lieblingsspots speichern.',
       packKicker: 'Starte deine Sammlung',
       packTitle: 'Starter Pack',
       packLead:

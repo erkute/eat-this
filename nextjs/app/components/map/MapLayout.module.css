@@ -247,11 +247,6 @@
   outline-offset: 2px;
 }
 
-/* Phone only; see the phone block below. */
-.mapStrip {
-  display: none;
-}
-
 @media (max-width: 767.98px) {
   .shell {
     /* Resting stop of the three-stage sheet ("map"), mirrored in JS by
@@ -280,11 +275,36 @@
     display: block;
     height: auto;
     overflow: visible;
-    position: relative;
     /* The phone map lies UNDER the sheet at z-index -1, the map strip over
        it (7), the sheet's bars over both (8). A stacking context of its own
        keeps the -1 above this body's background. */
     isolation: isolate;
+    /* The line the edge controls stand on — map credit left, locate button
+       right (MapControls.module.css), 44px tall, 14px above the sheet's
+       resting edge — and how far they ride up with the sheet before it
+       slides over them: to the middle stop (phoneSheetSnaps.ts: the list
+       rests at 72dvh of map, the middle stop leaves 50dvh), never past 104px
+       below the safe area, where search and burger begin. Like Google Maps. */
+    --edge-bottom: calc(var(--phone-list-sheet-visible, 28dvh) + 14px);
+    --edge-ride: max(
+      0px,
+      min(
+        22dvh,
+        calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
+      )
+    );
+  }
+  /* The restaurant detail rests lower, its top edge at --detail-map-peek; its
+     middle stop leaves 27 of its 50 parts of map (46 % of the way up). */
+  .body[data-map-view='detail'] {
+    --edge-bottom: calc(100dvh - var(--detail-map-peek, 50lvh) + 14px);
+    --edge-ride: max(
+      0px,
+      min(
+        calc(var(--detail-map-peek, 50lvh) * 0.46),
+        calc(var(--detail-map-peek, 50lvh) - 162px - env(safe-area-inset-top, 0px))
+      )
+    );
   }
   .mapWrap {
     position: sticky;
@@ -306,24 +326,41 @@
        sie faerbt ausschliesslich die Safari-Leisten. */
     background-color: var(--et-ink);
   }
+  /* The restaurant detail keeps the list's full-height map (the sheet rests
+     at --detail-map-peek through its own margin, MapSheet.module.css) — a map
+     bounded to the peek left black below it once the sheet was pulled lower
+     (user, 27.09.2026). */
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapWrap {
-    /* Same anchoring as the list: the map stays put and the sheet slides over
-       it, so the three stops uncover it instead of dragging it off-screen.
-       Only the HEIGHT differs — bounded to the strip. */
-    position: sticky;
-    top: 0;
-    height: var(--detail-map-peek);
     overflow: hidden;
   }
+  /* The map credit stands on the edge line, centred on the locate button's
+     44px: the credit stays (ODbL wants it on the map), the two just agree.
+     It sits in the 100lvh map, the button's dock in the viewport, hence the
+     lvh − dvh. It rides up and stops with the button (same timeline, same
+     range) and follows a sheet pulled below its rest through its child
+     (lib/map/sheetSlide.ts followSheet — this element's translate belongs to
+     the ride). */
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
-    bottom: calc(var(--phone-list-sheet-visible) + 10px);
+    left: 14px;
+    bottom: calc(100lvh - 100dvh + var(--edge-bottom));
+    display: flex;
+    align-items: center;
+    height: 44px;
+  }
+  .mapWrap :global(.maplibregl-ctrl-bottom-left .maplibregl-ctrl) {
+    margin: 0;
+  }
+  @supports (animation-timeline: scroll()) {
+    .mapWrap :global(.maplibregl-ctrl-bottom-left) {
+      animation: edgeRide linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 var(--edge-ride);
+    }
   }
   .body[data-map-view='detail'][data-detail-kind='restaurant']
     .mapWrap
     :global(.maplibregl-ctrl-bottom-left) {
-    display: block;
-    bottom: 6px;
-    left: 8px;
+    display: flex;
   }
   .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapWrap {
     visibility: hidden;
@@ -339,54 +376,7 @@
     overflow: clip;
   }
 
-  /* The map strip: the map's top slice, copied frame by frame into a layer
-     fixed above the list (lib/map/mapStripMirror), so the rows scrolling up
-     vanish under map and the sticky bar rests below it. Over the map it is
-     pixel for pixel the map, so it can stay on at every depth — nothing
-     switches, nothing can come late (user, 23.09.2026). Search and burger
-     stand above it (MapControls.module.css). Ink, like .mapWrap: it touches
-     the top edge, and iOS 26 Safari tints its bar after such an element.
-
-     Inert over the map, where a finger means to pan the map under it; it
-     takes taps once the bar is stuck, and a tap goes to the map
-     (MapSectionBody). Not in the must-eat takeover: no map there.
-
-     It reaches a little past the strip line, under the stuck bar (z 8): the
-     bar's top corners are rounded (10px) and see-through, and the rows
-     scrolling under the bar showed in them — on the right mostly the yellow
-     must-eat card (user, 23.09.2026). 12px = the radius plus the hairline. */
-  .mapStrip {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: calc(var(--map-strip) + 12px);
-    z-index: 7;
-    overflow: hidden;
-    background-color: var(--et-ink);
-    pointer-events: none;
-  }
-  .body[data-header-stuck='true'] .mapStrip {
-    pointer-events: auto;
-    cursor: pointer;
-  }
-  .body[data-map-view='detail'][data-detail-kind='must-eat'] .mapStrip {
-    display: none;
-  }
-  .mapStripCanvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-  .mapStripPins {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-}
-
-@media (max-width: 767.98px) {
+  /* The detail's page ground is ink, up to html and body. */
   .shell[data-map-view='detail'],
   .shell[data-map-view='detail'] .body[data-map-view='detail'] {
     background: var(--et-ink);
@@ -397,5 +387,15 @@
   html:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']),
   body:has(.body[data-map-view='detail']) :global(.app-page[data-page='map']) {
     background: var(--et-ink);
+  }
+}
+
+/* The edge controls' ride up with the sheet (phone; see --edge-ride). */
+@keyframes edgeRide {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 calc(-1 * var(--edge-ride));
   }
 }

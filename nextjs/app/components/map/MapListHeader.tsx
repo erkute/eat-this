@@ -255,10 +255,12 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
            and correctly stays on aria-pressed. */
         aria-haspopup="dialog"
       >
-        <span className={styles.filterChipLabel}>
-          {label}
-        </span>
-        {!active && <span className={styles.filterChevron}><PagerArrowIcon /></span>}
+        <span className={styles.filterChipLabel}>{label}</span>
+        {!active && (
+          <span className={styles.filterChevron}>
+            <PagerArrowIcon />
+          </span>
+        )}
       </button>
       {/* Sibling, not a child: a button inside a button is invalid markup and
             makes screen readers announce two controls for one chip. Clearing a

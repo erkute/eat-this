@@ -17,10 +17,11 @@ import {
   type LocationStatus,
 } from '@/lib/map/locationStatus';
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
+import { useLocationWelcome } from '@/lib/map/useLocationWelcome';
 import { notify, type NoticeKind } from '@/lib/notice';
 import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
-import { mapStripLine, SHEET_COLLAPSE_EVENT } from '@/lib/map/sheetSlide';
+import { mapStripLine } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
@@ -33,6 +34,7 @@ import MapIntro from './MapIntro';
 import { SearchGlassIcon } from './icons';
 import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
+import MapStrip from './MapStrip';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
 import styles from './MapLayout.module.css';
@@ -153,9 +155,6 @@ interface MapBodyHandlers {
 /* Host-locale-aware aria copy passed in from the server-rendered shell. */
 interface MapBodyAria {
   myLocationAriaLabel: string;
-  /** Visible on the locate control until a position is shared — see
-   *  `.fab[data-invite]`. Doubles as its accessible name there. */
-  locateInviteLabel: string;
   restaurantsListAriaLabel: string;
 }
 
@@ -237,7 +236,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onToggleDesktopPanel,
     onRetryMapData,
     myLocationAriaLabel,
-    locateInviteLabel,
     restaurantsListAriaLabel,
   } = props;
 
@@ -300,23 +298,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       ? { copy: null, isError: false, canRetry: false }
       : rawLocationStatus;
 
-  /* The locate FAB is a bare icon on a halo — nothing on screen says the map
-     could centre on you, so nobody presses it. It introduces itself instead.
-     The hook owns WHEN, because the two cases differ: an unanswered permission
-     gets a standing invitation, a granted one a short greeting that ends when
-     the position lands (useLocationInvite). Note it is NOT gated on `location`
-     here any more — that would collapse the greeting the instant the fix
-     arrives, which for a cached fix is a frame or two. */
-  const locateLabel = useLocationInvite(location !== null);
-  /* Im Detail bleibt der Knopf das nackte Icon: die Plakette war für die Karte
-     ohne Standortfreigabe gedacht, im 50dvh-Streifen über dem Detail nimmt sie
-     ein Drittel der Kartenbreite (User, 03.09.2026). */
-  const showLocateInvite =
-    locateLabel !== null && isActive && !locationError && !locateLoading && sheetView !== 'detail';
-  /* Only an unanswered permission is a funnel step. A greeting is shown to
-     someone who has nothing left to decide, so counting it would pad the
-     denominator with returning visitors. */
-  const isRealInvite = showLocateInvite && locateLabel === 'invite';
+  /* A first visit with the location question still open: the map asks once,
+     through the info card (useLocationWelcome), never over a detail. That is
+     also the funnel step — a visitor who already answered has nothing to
+     decide, and counting them would pad the denominator. */
+  const invited = useLocationInvite(location !== null);
+  const isRealInvite =
+    invited && isActive && !locationError && !locateLoading && sheetView !== 'detail';
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locatingVisible ? 'loading' : 'idle'}`
     : null;
@@ -370,6 +358,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     setDismissedLocationStatusKey(null);
     onLocateMe();
   }, [isRealInvite, onLocateMe]);
+  useLocationWelcome(isRealInvite && !mapDataLoading && !mapDataError, locale, handleLocateMe);
+
   const handleDismissLocationStatus = useCallback(() => {
     if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
   }, [locationStatusKey]);
@@ -427,9 +417,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
      Kante hängt an einem transformierten Sheet, davon weiß ein Stylesheet
      nichts. Nach oben gedeckelt, damit er nicht in Lupe und Burger läuft.
 
-     Telefone rechnen nichts: dort steht der Knopf still und die Liste schiebt
-     sich über ihn (MapControls.module.css). Pro Frame nachgeführt zitterte er
-     auf iOS gegen die Liste und flog bei jedem schnellen Wisch raus und rein. */
+     On phones the sticky list header carries its own control above the edge.
+     Native scrolling keeps both together without per-frame measurements. */
   const [locateBottom, setLocateBottom] = useState<number | null>(null);
   const [locateGone, setLocateGone] = useState(false);
   useEffect(() => {
@@ -584,6 +573,53 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     };
   }, [searchVisible, searchOpen]);
 
+  const renderLocateControl = () => (
+    <button
+      type="button"
+      onClick={handleLocateMe}
+      disabled={locateLoading}
+      /* In the invite state the accessible name IS the visible label —
+               anything else leaves a screen reader hearing one control and
+               everyone else reading another. */
+      aria-label={myLocationAriaLabel}
+      className={controlStyles.fab}
+      data-locate-fab=""
+    >
+      <svg
+        className={controlStyles.fabIcon}
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        {/* Dasselbe Handwerk wie bei Lupe und Burger: geschlossener Ring,
+                  dicker Punkt, vier kurze Striche mit runden Enden — und wie
+                  dort von Hand geführt statt konstruiert (siehe die Lupe oben).
+                  Der Ring läuft am Schluss über seinen Anfang, der Punkt ist
+                  keine exakte Scheibe, und die vier Striche sind
+                  unterschiedlich lang: ein perfektes Fadenkreuz stand als
+                  einziges technisches Zeichen zwischen lauter gezeichneten. */}
+        <path
+          d="M7.1 15.4C5.4 13.1 5.8 9.6 8.2 7.8c2.4-1.8 6-1.4 7.7.9 1.7 2.3 1.2 5.8-1.3 7.4-2.1 1.4-5.1 1-6.9-.7"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+        />
+        <path
+          d="M10.9 10.9c1.2-.9 3-.2 3.1 1.2.1 1.4-1.4 2.3-2.6 1.7-1.1-.6-1.4-2.2-.5-2.9Z"
+          fill="currentColor"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M12.2 2.4 12 5M11.7 19.2l.2 2.3M2.5 11.6l2.7.3M19 12.3l2.4-.3"
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+        />
+      </svg>
+    </button>
+  );
+
   const sheetHandle = (
     <div ref={handleRef} className={sheetStyles.handle} data-sheet-handle="" aria-hidden="true" />
   );
@@ -661,21 +697,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
           </div>
 
-          {/* The phone map strip (lib/map/mapStripMirror): a copy of the map's
-              top slice, fixed above the list, so the rows run under map all
-              the way up. Always there, never switched — over the map it is
-              the map. A tap on it once the bar is stuck takes you to the map,
-              like a tap on the grabber. After the map wrapper in the DOM, so
-              the cloned pins never come first in a query. */}
-          <div
-            className={styles.mapStrip}
-            data-map-strip=""
-            aria-hidden="true"
-            onClick={() => window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT))}
-          >
-            <canvas className={styles.mapStripCanvas} />
-            <div className={styles.mapStripPins} data-map-strip-pins="" inert />
-          </div>
+          <MapStrip />
 
           {/* Floating search — collapsed to a square icon button by
               default (2026-06-04: the always-on toolbar read too loud over
@@ -763,56 +785,13 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               z-index nach draußen wirken, und die Liste (z-index 4) legte sich
               über den Knopf, sobald sie auch nur ein Stück hochkam. Als
               Geschwister der Liste gewinnt seine 6 gegen ihre 4. */}
-          <button
-            type="button"
-            onClick={handleLocateMe}
-            disabled={locateLoading}
-            /* In the invite state the accessible name IS the visible label —
-               anything else leaves a screen reader hearing one control and
-               everyone else reading another. */
-            aria-label={showLocateInvite ? locateInviteLabel : myLocationAriaLabel}
-            className={controlStyles.fab}
-            data-locate-fab=""
-            data-invite={showLocateInvite ? '' : undefined}
-          >
-            <svg
-              className={`${controlStyles.fabIcon}${showLocateInvite ? ` ${controlStyles.fabIconOnPlate}` : ''}`}
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              {/* Dasselbe Handwerk wie bei Lupe und Burger: geschlossener Ring,
-                  dicker Punkt, vier kurze Striche mit runden Enden — und wie
-                  dort von Hand geführt statt konstruiert (siehe die Lupe oben).
-                  Der Ring läuft am Schluss über seinen Anfang, der Punkt ist
-                  keine exakte Scheibe, und die vier Striche sind
-                  unterschiedlich lang: ein perfektes Fadenkreuz stand als
-                  einziges technisches Zeichen zwischen lauter gezeichneten. */}
-              <path
-                d="M7.1 15.4C5.4 13.1 5.8 9.6 8.2 7.8c2.4-1.8 6-1.4 7.7.9 1.7 2.3 1.2 5.8-1.3 7.4-2.1 1.4-5.1 1-6.9-.7"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-              />
-              <path
-                d="M10.9 10.9c1.2-.9 3-.2 3.1 1.2.1 1.4-1.4 2.3-2.6 1.7-1.1-.6-1.4-2.2-.5-2.9Z"
-                fill="currentColor"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12.2 2.4 12 5M11.7 19.2l.2 2.3M2.5 11.6l2.7.3M19 12.3l2.4-.3"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-              />
-            </svg>
-            {/* Always mounted so the label can collapse back out on the way
-                down, not just unfold on the way in. */}
-            <span className={controlStyles.fabLabel} aria-hidden="true">
-              <span>{locateInviteLabel}</span>
-            </span>
-          </button>
+          {/* The dock is the button's frame on phones: fixed above the sheet's
+              resting edge, it rides up with the sheet and then stays while
+              the sheet slides over it (MapControls.module.css). Elsewhere it
+              has no box. */}
+          <div className={controlStyles.locateDock} data-locate-dock="">
+            {renderLocateControl()}
+          </div>
 
           <button
             type="button"

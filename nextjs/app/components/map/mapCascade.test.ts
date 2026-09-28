@@ -4,26 +4,16 @@ import postcss from 'postcss';
 import { describe, expect, it } from 'vitest';
 
 /**
- * MapControls.module.css spreads a single control over many blocks —
- * `.mapSearchBtn` alone appears in 15 of them, most inside grouped selectors
- * that also serve `.mapBurger`, `.fab` or `.panelToggle`. That grouping is
- * deliberate and mostly load-bearing, so the file cannot simply be flattened:
- * an attempt to merge same-selector blocks at their last position silently
- * flipped `.mapSearchToolbar { gap }` from 8px to 10px, because a
- * `@media (max-width: 520px)` block sits BEFORE the media-less one in source
- * order and loses the tie until it is moved.
- *
- * What the spread does cost is visibility: you cannot see, at any one place,
- * what a control ends up with. Two real bugs came out of exactly that —
+ * MapControls.module.css used to spread a single control over up to 15
+ * grouped blocks, and two real bugs came out of not seeing, at any one place,
+ * what a control ends up with:
  *   1. `.mapSearchBtn`'s `transition` shorthand listed only colour properties,
  *      so it JUMPED off-screen on the same trigger that made `.mapBurger`,
  *      which keeps its own `transition: transform`, glide.
- *   2. The white icon halo was killed by a `filter: none` declared later in
- *      the file for an overlapping selector.
- *
- * These tests pin the *effective* values instead of any single block, so the
- * next well-meaning edit somewhere in those 900 lines fails here rather than
- * on someone's phone.
+ *   2. The icon halo was killed by a `filter: none` declared later in the
+ *      file for an overlapping selector.
+ * The file is one section per control now (27.09.2026), but these tests keep
+ * pinning the *effective* values rather than any single block.
  */
 
 const CONTROLS = 'MapControls.module.css';
@@ -100,41 +90,6 @@ describe('MapControls cascade', () => {
         `.${icon} lost its halo — effective filter is "${filter}"`
       ).toBe(true);
     }
-  });
-
-  it('unfolds the locate label by geometry, never by fading it in', () => {
-    /* A brand surface appearing on the map moves — it does not materialise
-     * (CLAUDE.md). It must also actually MOVE: this shipped once as a
-     * `0fr → 1fr` grid column, the usual animate-to-content-width trick, and
-     * Chrome refused to create a transition for it at all in an auto-width
-     * flex item — `getAnimations()` on the label came back empty on
-     * production and the track stayed pinned at 0px, so the label was clipped
-     * to nothing. `max-width` is the mechanism that survives; the fr trick is
-     * documented for HEIGHTS, where the container has a definite inline size.
-     * Assert the property by name so a well-meaning "cleanup" back to fr
-     * fails here instead of on someone's phone. */
-    const transition = effective(CONTROLS, 'fabLabel', 'transition');
-    expect(transition, '.fabLabel has no effective transition').toBeDefined();
-    expect(
-      transition!.includes('max-width'),
-      `.fabLabel must animate max-width — an fr track does not transition here. Got: ${transition}`
-    ).toBe(true);
-    expect(
-      transition!.includes('grid-template-columns'),
-      `.fabLabel must NOT go back to an fr track — Chrome creates no transition for it. Got: ${transition}`
-    ).toBe(false);
-    expect(
-      transition!.includes('opacity'),
-      `.fabLabel must not fade — brand surfaces move. Got: ${transition}`
-    ).toBe(false);
-  });
-
-  it('drops the icon halo once the icon sits on its own plate', () => {
-    /* The drop-shadow exists so the free-standing icon survives on top of a
-     * yellow pin. On the pill's own plate the same filter is only a glow
-     * around the crosshair. Separate class on purpose, so the halo assertion above
-     * keeps guarding the plate-less state. */
-    expect(effective(CONTROLS, 'fabIconOnPlate', 'filter')).toBe('none');
   });
 
   it('pins the phone controls to the VISUAL viewport, not just the layout one', () => {
@@ -217,7 +172,13 @@ describe('MapControls cascade', () => {
        nicht mehr treffen. Was zu sichern bleibt, ist die Lage der FAB. */
     const phone = '(max-width: 767.98px)';
 
-    expect(effective(CONTROLS, 'fab', 'bottom', phone)).toContain('14px');
+    /* On phones the dock carries the position; the button rides inside it. */
+    expect(effective(CONTROLS, 'locateDock', 'bottom', phone)).toBe('var(--edge-bottom)');
+    /* The edge line, shared with the map credit: 14px above the resting edge. */
+    const layout = readFileSync(fileURLToPath(new URL('./MapLayout.module.css', import.meta.url)), 'utf8');
+    expect(layout).toMatch(/--edge-bottom: calc\(var\(--phone-list-sheet-visible, 28dvh\) \+ 14px\)/);
+    expect(layout).toContain('bottom: calc(100lvh - 100dvh + var(--edge-bottom))');
+    expect(effective(CONTROLS, 'locateDock', 'position', phone)).toBe('fixed');
   });
 });
 

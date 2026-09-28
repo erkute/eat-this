@@ -5,9 +5,11 @@
  * The phone list is a window-scrolled document with the map as a sticky layer
  * behind it (see phoneSheetSnaps.ts). Deep in the list, the way back to the map
  * is the grabber in the sticky filter bar: pull it down and the list follows
- * the finger, let go and it glides down to its resting place above the map.
- * Pull the bar up from the map again and the list comes back exactly where you
- * left it.
+ * the finger, let go and it glides down to its resting place above the map —
+ * or further, to the lowest stop, where only the bar is left above the bottom.
+ * Back on the map the list starts at its top again. Remembering the row it
+ * was pulled from and keeping it in the peek left a cut-off or empty sheet
+ * over the map (user, 27.09.2026).
  *
  * Under the hood the list never scrolls through its rows on the way. The slab
  * on screen is moved by a transform, and the scroll position changes only at
@@ -16,17 +18,17 @@
  * programmatic smooth scroll in a fixed short time whatever the distance —
  * from three thousand pixels down it read as a jump.
  *
- * The bar never travels below its resting line. The first version let the
- * slab drop out through the bottom of the screen, and on the way the sticky
- * filter bar crossed the bottom edge: iOS Safari tints its URL bar after a
- * sticky container at that edge and keeps the colour afterwards, so the
- * translucent bar turned black (user, 22.09.2026).
+ * The bar never reaches the bottom edge. The first version let the slab drop
+ * out through the bottom of the screen, and on the way the sticky filter bar
+ * crossed that edge: iOS Safari tints its URL bar after a sticky container
+ * there and keeps the colour afterwards, so the translucent bar turned black
+ * (user, 22.09.2026). At the lowest stop LOWERED_GAP_PX of rows stay below
+ * the bar for that reason.
  *
  * The document itself is never frozen, fixed or overflow-locked: it stays the
  * window-scrolled page it always was, which keeps it flowing behind Safari's
  * and Chrome's toolbars (and lets them collapse). The transform exists for the
- * length of a gesture only. While collapsed, only the content keeps a
- * clipped reading offset; the map and grabber remain in their normal flow.
+ * length of a gesture, and at the lowest stop, which lies below scroll 0.
  */
 
 import { safeAreaInsetTop } from './safeArea';
@@ -49,54 +51,31 @@ export const SHEET_COLLAPSE_EVENT = 'et:map-sheet-collapse';
 const SETTLE_MS = 360;
 const SETTLE_EASING = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
 
-/** The two phone views the gesture works in — the list, and a restaurant
- *  detail (the must-eat detail is a takeover with no map behind it). */
-export type SlideView = 'list' | 'detail';
+/** Sheet left on screen below the bar at the lowest stop — a sliver of rows.
+ *  It keeps the sticky bar clear of the bottom edge, where iOS Safari samples
+ *  4px in and would tint its URL bar after it (see above). */
+export const LOWERED_GAP_PX = 24;
 
-/* Where each view was when it was pulled off the map; null = nothing to return
-   to. Kept apart so a detail opened from the map and closed again does not
-   hand its offset to the list. Module state, because there is one map page and
-   MapSection has to be able to drop an entry (forgetSheetPosition). */
-const remembered: Record<SlideView, number | null> = { list: null, detail: null };
-const parked: Partial<Record<SlideView, { sheet: HTMLElement; offset: number }>> = {};
+/* The sheet currently held at the lowest stop, if any. Module state for the
+   same reason the strip line is: there is one map page. */
+let lowered: HTMLElement | null = null;
 
-function clearParked(view: SlideView): void {
-  parked[view]?.sheet.style.removeProperty('--sheet-reading-offset');
-  delete parked[view];
-}
+/* What stands on the sheet's resting edge over the map: the locate button's
+   dock and the map credit (ODbL wants it on the map) — its control, since the
+   credit's container carries the scroll ride on the same property. */
+const FOLLOWERS = '[data-locate-dock], .maplibregl-ctrl-bottom-left > .maplibregl-ctrl';
+let followed = 0;
 
-/** Native scrolling can raise a collapsed sheet too. Transfer the content
- * offset back into the document scroll at the top stop, without changing
- * which row is visible. */
-export function resumeSheetReading(view: SlideView): void {
-  const offset = parked[view]?.offset ?? 0;
-  clearParked(view);
-  remembered[view] = null;
-  if (offset) window.scrollTo({ top: window.scrollY + offset, behavior: 'instant' });
-}
-
-/** At the map stop the document cannot scroll any farther towards its top.
- * Let a downward content gesture consume the retained reading offset instead.
- * Keep the remembered destination in sync so the grip reopens the new place. */
-export function scrollCollapsedReading(view: SlideView, distance: number): boolean {
-  const state = parked[view];
-  if (!state || distance <= 0 || state.offset <= 0) return false;
-  const consumed = Math.min(distance, state.offset);
-  state.offset -= consumed;
-  if (remembered[view] !== null) remembered[view] -= consumed;
-  state.sheet.style.setProperty('--sheet-reading-offset', `${state.offset}px`);
-  return true;
-}
-
-export function rememberedSheetPosition(view: SlideView): number | null {
-  return remembered[view];
-}
-
-/** A different result set or another restaurant: an offset into the old
- *  content means nothing. */
-export function forgetSheetPosition(view: SlideView): void {
-  clearParked(view);
-  remembered[view] = null;
+/** How far the sheet stands below its resting edge; the followers go along.
+ *  Set on the elements themselves in the same frame as the sheet's transform
+ *  — never from the scroll position, which made the button jitter on iOS when
+ *  it rode the list, and never through a variable on <html>, which restyles
+ *  the whole page every frame and let the button trail the finger. */
+export function followSheet(px: number): void {
+  followed = Math.max(0, Math.round(px));
+  document.querySelectorAll<HTMLElement>(FOLLOWERS).forEach((el) => {
+    el.style.translate = followed ? `0 ${followed}px` : '';
+  });
 }
 
 function reducedMotion(): boolean {
@@ -145,7 +124,7 @@ function lift(sheet: HTMLElement, on: boolean) {
 
 /** Put the sheet at an offset below its scroll position. */
 export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
-  sheet.style.transform = offsetPx > 0 ? `translateY(${Math.round(offsetPx)}px)` : '';
+  sheet.style.transform = offsetPx !== 0 ? `translateY(${Math.round(offsetPx)}px)` : '';
 }
 
 /** End a gesture: the transform and the clip come off in the same task as
@@ -155,16 +134,61 @@ function release(sheet: HTMLElement): void {
   sheet.style.clipPath = '';
   sheet.querySelector<HTMLElement>('[data-sheet-content]')?.style.removeProperty('clip-path');
   lift(sheet, false);
+  if (lowered === sheet) lowered = null;
+  delete sheet.dataset.sheetLowered;
+  followSheet(0);
 }
 
-function glide(sheet: HTMLElement, fromPx: number, toPx: number): Promise<void> {
+/** Leave the sheet held at the lowest stop. Far from the strip, it needs no
+ *  lift. `data-sheet-lowered` hands every touch on it to the grip
+ *  (MapSheet.module.css, useHandleScrollDrag). */
+function hold(sheet: HTMLElement, offsetPx: number): void {
+  release(sheet);
+  if (offsetPx <= 0) return;
+  holdSheetAt(sheet, offsetPx);
+  followSheet(offsetPx);
+  sheet.dataset.sheetLowered = '';
+  lowered = sheet;
+}
+
+/** The offset a sheet is currently held at (0 without a transform). */
+export function heldOffset(sheet: HTMLElement): number {
+  const m = /translateY\((-?[\d.]+)px\)/.exec(sheet.style.transform);
+  return m ? Number(m[1]) : 0;
+}
+
+/** Something else moved the page (a filter, a detail, a programmatic
+ *  scroll): the lowered sheet goes back to the map stop at once. */
+export function dropLowered(): void {
+  if (lowered) release(lowered);
+}
+
+/** Glide the sheet — and, from where they stand to `followTo`, its
+ *  followers, on the same keyframe timing, so nothing trails behind. */
+function glide(
+  sheet: HTMLElement,
+  fromPx: number,
+  toPx: number,
+  followTo: number
+): Promise<void> {
+  const followFrom = followed;
   holdSheetAt(sheet, toPx);
+  followSheet(followTo);
   if (reducedMotion() || typeof sheet.animate !== 'function' || fromPx === toPx) {
     return Promise.resolve();
   }
+  const timing = { duration: SETTLE_MS, easing: SETTLE_EASING };
+  if (followFrom !== followed) {
+    document.querySelectorAll<HTMLElement>(FOLLOWERS).forEach((el) =>
+      el.animate(
+        [{ translate: `0 ${followFrom}px` }, { translate: `0 ${followed}px` }],
+        timing
+      )
+    );
+  }
   const anim = sheet.animate(
     [{ transform: `translateY(${fromPx}px)` }, { transform: `translateY(${toPx}px)` }],
-    { duration: SETTLE_MS, easing: SETTLE_EASING }
+    timing
   );
   return anim.finished.then(
     () => undefined,
@@ -183,52 +207,28 @@ export function grabFromList(sheet: HTMLElement): number {
 }
 
 /**
- * Grab the resting sheet on the map while a list position is remembered: the
- * page jumps to that position with the slab held down at the resting line, so
- * the pull brings up the rows you left, not the list top. The bar itself does
- * not move — it is at the top of the slab either way.
- */
-export function grabFromMap(sheet: HTMLElement, view: SlideView, restLinePx: number): boolean {
-  const back = remembered[view];
-  if (back == null) return false;
-  /* The document can be shorter than when we left — clamp inside it. */
-  const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-  clearParked(view);
-  lift(sheet, true);
-  window.scrollTo({ top: Math.min(back, maxY), behavior: 'instant' });
-  holdSheetAt(sheet, restLinePx);
-  clipAbove(sheet);
-  return true;
-}
-
-/**
- * Let go towards the map: the slab glides down to the resting line, and the
- * page returns to the map stop underneath it — the bar stands in the same place
- * before and after. The visible content keeps its reading offset while
- * collapsed; reopening transfers it back into native document scrolling.
+ * Let go towards the map: the slab glides down to `toPx` — the resting line,
+ * or past it to the lowest stop — and the page returns to the map stop
+ * underneath it, so the bar stands in the same place before and after. The
+ * sheet comes back at its top: the rows it was pulled from are not where the
+ * map picks up (user, 27.09.2026).
  */
 export async function settleOnMap(
   sheet: HTMLElement,
   fromPx: number,
-  restLinePx: number,
-  mapY: number,
-  { remember }: { remember: SlideView | null }
+  toPx: number,
+  { restLinePx, mapY }: { restLinePx: number; mapY: number }
 ): Promise<void> {
-  if (remember) remembered[remember] = window.scrollY;
-  await glide(sheet, fromPx, restLinePx);
+  await glide(sheet, fromPx, toPx, toPx - restLinePx);
   /* `instant`, not `auto`: html carries scroll-behavior: smooth. The release
      runs in the same task as the jump, so no frame shows the sheet twice. */
-  if (remember) {
-    const offset = Math.max(0, window.scrollY - (restLinePx + mapY));
-    sheet.style.setProperty('--sheet-reading-offset', `${offset}px`);
-    parked[remember] = { sheet, offset };
-  }
   window.scrollTo({ top: mapY, behavior: 'instant' });
-  release(sheet);
+  hold(sheet, toPx - restLinePx);
 }
 
-/** Let go towards the list: the slab rises until it covers the map. */
+/** Let go towards the list, or back onto the map stop from below it: the
+ *  slab rises to where the page itself puts it. */
 export async function raiseToList(sheet: HTMLElement, fromPx: number): Promise<void> {
-  await glide(sheet, fromPx, 0);
+  await glide(sheet, fromPx, 0, 0);
   release(sheet);
 }

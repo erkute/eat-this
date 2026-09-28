@@ -9,7 +9,7 @@ import {
   type Peek,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
-import { localizedCategoryName } from '@/lib/categories';
+import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import { spotPhotoSrcSet } from '@/lib/map/spotPhoto';
@@ -76,10 +76,9 @@ const Item = memo(
     // Prenzlauer Berg shortens to P'berg so the mustard sticker stays one line.
     const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null);
 
-    // One category in the eyebrow — the detail page is where the full set lives.
-    const categoryLabel = restaurant.categories?.[0]
-      ? localizedCategoryName(restaurant.categories[0], loc)
-      : null;
+    // The cuisine, as on the detail sheet — the categories are what the filter
+    // above the list already says.
+    const cuisine = restaurant.cuisineType ? localizedCuisine(restaurant.cuisineType, loc) : null;
     const [statusMain] = status?.label ? status.label.split(' · ') : [];
 
     // Warm the on-demand detail fields once a card scrolls near the viewport —
@@ -250,9 +249,9 @@ const Item = memo(
                 <span>{district}</span>
               </span>
             )}
-            {categoryLabel && (
-              <span className={`${styles.rcardMetaChip} ${styles.rcardMetaCategory}`}>
-                <span>{categoryLabel}</span>
+            {cuisine && (
+              <span className={`${styles.rcardMetaChip} ${styles.rcardMetaCuisine}`}>
+                <span>{cuisine}</span>
               </span>
             )}
           </p>

@@ -85,7 +85,7 @@
 .rcardMetaDistrict {
   max-width: min(100%, 190px);
 }
-.rcardMetaCategory {
+.rcardMetaCuisine {
   border-color: rgba(255, 255, 255, 0.34);
 }
 .rcardActive {
@@ -293,7 +293,7 @@
   text-transform: uppercase;
 }
 .rcardMetaChip,
-.rcardMetaCategory {
+.rcardMetaCuisine {
   display: inline-flex;
   align-items: center;
   overflow: hidden;
@@ -401,7 +401,7 @@
   transform: none;
 }
 .rcardMetaChip,
-.rcardMetaCategory {
+.rcardMetaCuisine {
   text-align: center;
   text-decoration: none;
 }
@@ -409,7 +409,7 @@
   gap: 7px;
 }
 .rcardMetaChip,
-.rcardMetaCategory {
+.rcardMetaCuisine {
   max-width: min(100%, 18ch);
   white-space: nowrap;
 }
@@ -422,7 +422,7 @@
    auf der ansonsten ink-farbenen Liste die hellste Flaeche im Bild und zoegen
    mehr Blick als der Name darueber. */
 .rcardMetaChip,
-.rcardMetaCategory {
+.rcardMetaCuisine {
   background: transparent;
   color: #fff;
   border: 1px solid var(--et-ink-ring);
@@ -440,7 +440,7 @@
    29.08.2026). Ein Pixel kommt aus dem Polster zurück, damit der Sticker seine
    Höhe behält. */
 .rcardMetaChip,
-.rcardMetaCategory {
+.rcardMetaCuisine {
   min-height: 28px;
   padding: 6px 11px;
   font-size: 11px;

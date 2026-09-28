@@ -26,6 +26,10 @@ describe('localizedCuisine', () => {
     expect(localizedCuisine(raw, 'de')).toBe(expected);
   });
 
+  it('kennt Fusion, obwohl es auf Deutsch gleich heißt', () => {
+    expect(CUISINE_LABELS_DE.Fusion).toBe('Fusion');
+  });
+
   it('lässt einen unbekannten Wert stehen, statt ihn zu verschlucken', () => {
     expect(localizedCuisine('Ethiopian', 'de')).toBe('Ethiopian');
     expect(CUISINE_LABELS_DE.Ethiopian).toBeUndefined();

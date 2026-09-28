@@ -310,11 +310,13 @@
 
   @supports (animation-timeline: scroll()) {
     .list[data-view='list'] {
-      --strip-cut-from: calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - var(--map-strip));
+      --strip-cut-from: calc(
+        100dvh - var(--phone-list-sheet-visible, 28dvh) - var(--map-strip) + var(--map-top-gap, 0px)
+      );
     }
 
     .list[data-view='detail'][data-detail-kind='restaurant'] {
-      --strip-cut-from: calc(var(--detail-map-peek) - var(--map-strip));
+      --strip-cut-from: calc(var(--detail-map-peek) - var(--map-strip) + var(--map-top-gap, 0px));
       /* The ink rides in the window instead: the sheet's own background
          scrolls with the page and would fill the strip. */
       background: transparent;

@@ -225,7 +225,7 @@ describe('Map CSS architecture', () => {
      der Rest der Seite, also sollen die Leisten dunkel werden. Was der Test
      festhaelt, ist unveraendert die DECKUNG — eine transparente Fassung faellt
      hier durch, egal in welcher Farbe. */
-  it('paints the phone map wrapper opaque so iOS 26 tints its bars from it', () => {
+  it('paints the phone map wrapper opaque, clear of the top edge, touching the bottom', () => {
     const wrapRules = declarationsInMedia(
       'MapLayout.module.css',
       '.mapWrap',
@@ -235,7 +235,11 @@ describe('Map CSS architecture', () => {
     expect(wrapRules).toEqual([
       expect.objectContaining({
         position: 'sticky',
-        top: '0',
+        /* Off the top edge by --map-top-gap, so iOS 26 Safari shows the map
+           under the status bar instead of filling it with the wrapper's ink;
+           margin and sticky offset agree, so it never touches at any scroll. */
+        top: 'var(--map-top-gap, 0px)',
+        'margin-top': 'var(--map-top-gap, 0px)',
         /* lvh, not dvh: a dvh map resized with every step of Safari's
            collapsing toolbar and slid under the list (23.09.2026). */
         height: '100lvh',

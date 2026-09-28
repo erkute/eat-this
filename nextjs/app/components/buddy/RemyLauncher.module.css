@@ -13,8 +13,6 @@
 }
 
 .launcher {
-  /* Anker für das redende Gesicht (`.talk`). */
-  position: relative;
   display: grid;
   place-items: center;
   width: 58px;
@@ -48,53 +46,6 @@
   object-position: 50% 0%;
   transform: scale(1.45);
   transform-origin: 50% 0%;
-}
-
-/* Das redende Gesicht liegt deckungsgleich über dem lächelnden und bleibt
-   verborgen, bis HubMotion `data-remy-talk` setzt. Harte Schnitte über
-   `visibility`, kein Überblenden: nur der Mund bewegt sich. */
-.talk {
-  position: absolute;
-  inset: 0;
-  visibility: hidden;
-}
-
-.talk .face {
-  position: absolute;
-  inset: 0;
-}
-
-.talkOpen {
-  visibility: hidden;
-}
-
-:global(html[data-remy-talk]) .talk {
-  visibility: visible;
-}
-
-:global(html[data-remy-talk]) .faceSmile {
-  visibility: hidden;
-}
-
-:global(html[data-remy-talk]) .talkOpen {
-  animation: launcherFlap 0.34s steps(1) infinite;
-}
-
-@keyframes launcherFlap {
-  0%,
-  45% {
-    visibility: hidden;
-  }
-  50%,
-  95% {
-    visibility: visible;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :global(html[data-remy-talk]) .talkOpen {
-    animation: none;
-  }
 }
 
 @media (hover: hover) {

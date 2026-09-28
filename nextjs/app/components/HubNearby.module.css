@@ -128,43 +128,6 @@
   scale: var(--et-press-tile);
 }
 
-/* Die Karten schwingen leise hin und her, jede in ihrem eigenen Takt — die
-   Liste lebt, es gibt um dich herum noch mehr. Über `rotate`/`translate`: die
-   Einblendung (HubMotion) liegt auf `transform`, der Druck auf `scale`.
-   Aufgehängt oben in der Mitte, damit es nach Schwingen aussieht und nicht
-   nach Wackeln. */
-@keyframes cardSway {
-  from {
-    rotate: -1deg;
-    translate: -4px 0;
-  }
-  to {
-    rotate: 1deg;
-    translate: 4px 0;
-  }
-}
-
-.card {
-  transform-origin: 50% -30%;
-  animation: cardSway 3.2s ease-in-out infinite alternate;
-}
-
-.card:nth-child(2n) {
-  animation-delay: -1.6s;
-  animation-duration: 3.6s;
-}
-
-.card:nth-child(3n) {
-  animation-delay: -0.8s;
-  animation-duration: 2.9s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card {
-    animation: none;
-  }
-}
-
 /* Providence's descender reaches far below a tight line, and the two-line
    clamp above brings `overflow: hidden` with it — the ink room goes in as
    padding so the g in "Bagel Bro" keeps its tail. */
@@ -299,11 +262,6 @@
     padding-left: var(--rail-mobile-safe);
     padding-right: var(--rail-mobile-safe);
     scroll-padding-inline: var(--rail-mobile-safe);
-    /* Luft für die schwingenden Karten: die Leiste scrollt seitwärts und
-       schneidet damit auch oben und unten — ohne Polster stünden die Ecken
-       ab und die Leiste bekäme einen Mini-Scrollweg nach unten. */
-    padding-block: 10px;
-    margin-block: -10px;
   }
 
   .card {

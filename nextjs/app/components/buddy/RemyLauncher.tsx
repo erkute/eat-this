@@ -77,35 +77,13 @@ export default function RemyLauncher() {
             58er-Kachel zoomt 1,45-fach (siehe .face), sichtbar sind also rund
             84 CSS-px — daraus wählt next/image die 256er-Stufe, ~13 KB. */}
         <Image
-          className={`${styles.face} ${styles.faceSmile}`}
+          className={styles.face}
           src="/buddy/buddy-smile.webp"
           alt=""
           width={791}
           height={876}
           sizes="84px"
         />
-        {/* Beim Scrollen über die Startseite quatscht er (HubMotion setzt
-            `data-remy-talk` am <html>). Das Lächeln ist in anderem Ausschnitt
-            gezeichnet als der offene Mund — also redet das neutrale Gesicht,
-            dessen Zähne-Ebene genau darauf passt (siehe BuddyAvatar). */}
-        <span className={styles.talk} aria-hidden="true">
-          <Image
-            className={styles.face}
-            src="/buddy/buddy.webp"
-            alt=""
-            width={1024}
-            height={1024}
-            sizes="84px"
-          />
-          <Image
-            className={`${styles.face} ${styles.talkOpen}`}
-            src="/buddy/buddy-open.webp"
-            alt=""
-            width={1024}
-            height={1024}
-            sizes="84px"
-          />
-        </span>
       </button>
       {/* Eigener Knopf neben dem großen, nicht darin: ein <button> im <button>
           ist kein gültiges Markup. */}

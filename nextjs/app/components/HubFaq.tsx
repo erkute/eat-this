@@ -17,7 +17,7 @@ export default function HubFaq({ locale }: Props) {
             FAQ
           </h2>
         </div>
-        <div className={styles.list} data-reveal="flip">
+        <div className={styles.list}>
           {faqs.map((f) => (
             <details key={f.q} className={styles.item}>
               <summary className={styles.question}>{f.q}</summary>

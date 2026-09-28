@@ -4,7 +4,7 @@
 .band {
   position: relative;
   margin-top: var(--home-section-gap);
-  padding-block: clamp(28px, 4vw, 56px);
+  padding-block: clamp(24px, 3vw, 40px);
   overflow: hidden;
   overflow: clip;
 }
@@ -19,7 +19,7 @@
   rotate: -3deg;
   background: var(--et-accent);
   color: var(--et-ink);
-  padding-block: clamp(6px, 0.8vw, 12px);
+  padding-block: clamp(5px, 0.6vw, 9px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
 
@@ -40,13 +40,16 @@
   flex: none;
 }
 
+/* Auf dem Telefon 44px wie gehabt; auf dem Desktop deutlich kleiner als
+   vorher (bis 136px stand das Band dort wie eine zweite Headline, Ansage
+   28.09.2026) — höchstens 76px. */
 .word {
   display: inline-flex;
   align-items: center;
   flex: none;
   font-family: var(--et-font-display);
   font-weight: 700;
-  font-size: clamp(44px, 8.5vw, 136px);
+  font-size: clamp(44px, 5.2vw, 76px);
   line-height: 1.02;
   letter-spacing: -0.02em;
   text-transform: uppercase;

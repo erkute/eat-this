@@ -25,6 +25,7 @@ import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { dropLowered, mapStripLine } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
+import { berlinNow } from '@/lib/map/openingHours';
 import {
   resolveListReturn,
   rowRevealOffset,
@@ -56,6 +57,10 @@ const ROW_REVEAL_SETTLED_FRAMES = 3;
 interface Props {
   isActive?: boolean;
   initialMapData?: InitialMapData;
+  /** When the server rendered the page (epoch ms). The list puts what is open
+   *  at that moment first, on the server and in the browser alike, so the
+   *  rows do not reshuffle on hydration (openFirst). */
+  renderedAt?: number;
   initialRestaurantSlug?: string | null;
   fontClassName?: string;
 }
@@ -63,9 +68,14 @@ interface Props {
 export default function MapSection({
   isActive = false,
   initialMapData,
+  renderedAt,
   initialRestaurantSlug = null,
   fontClassName,
 }: Props) {
+  const orderedAt = useMemo(
+    () => (renderedAt === undefined ? undefined : berlinNow(new Date(renderedAt))),
+    [renderedAt]
+  );
   const mapRef = useRef<MapRef>(null);
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
@@ -347,7 +357,7 @@ export default function MapSection({
     optionCounts,
     displayedRestaurants,
     listRestaurants,
-  } = useMapFilters({ restaurants, mustEats, location, listCenter });
+  } = useMapFilters({ restaurants, mustEats, location, listCenter, orderedAt });
 
   const [searchOpen, setSearchOpen] = useState(false);
   /* MapSection's open handlers, for the back/forward gestures that reopen a

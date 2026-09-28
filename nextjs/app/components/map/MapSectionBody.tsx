@@ -18,6 +18,7 @@ import {
 } from '@/lib/map/locationStatus';
 import { useLocationInvite } from '@/lib/map/useLocationInvite';
 import { useLocationWelcome } from '@/lib/map/useLocationWelcome';
+import { useExplorationSettled } from '@/lib/map/useExplorationSettled';
 import { notify, type NoticeKind } from '@/lib/notice';
 import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
@@ -305,10 +306,15 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   /* A first visit with the location question still open: the map asks once,
      through the info card (useLocationWelcome), never over a detail. That is
      also the funnel step — a visitor who already answered has nothing to
-     decide, and counting them would pad the denominator. */
+     decide, and counting them would pad the denominator; neither would one
+     who never touched the map and so was never asked. */
   const invited = useLocationInvite(location !== null);
+  /* Not straight after the cookie answer: only once the visitor has moved the
+     map or the list and let go (useExplorationSettled). Before that the map
+     had not even been looked at, and the question came as a second dialog. */
+  const explored = useExplorationSettled();
   const isRealInvite =
-    invited && isActive && !locationError && !locateLoading && sheetView !== 'detail';
+    invited && explored && isActive && !locationError && !locateLoading && sheetView !== 'detail';
   const locationStatusKey = locationStatus.copy
     ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locatingVisible ? 'loading' : 'idle'}`
     : null;

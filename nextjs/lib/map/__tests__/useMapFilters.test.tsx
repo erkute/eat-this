@@ -310,6 +310,52 @@ describe('useMapFilters list order', () => {
     expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Zola', 'Mustafa']);
   });
 
+  /* Montag 09:00: im Audit waren zehn der ersten zwölf Zeilen geschlossen. */
+  const MON_9AM = new Date('2026-04-20T09:00:00');
+  const MORNING = [{ days: 'Mo–Sa', hours: '07:00–18:00' }];
+  const EVENING = [{ days: 'Mo–Sa', hours: '18:00–23:00' }];
+
+  it('stellt geöffnete Spots vor geschlossene, darunter bleibt die Ordnung', () => {
+    const closedMust = spot({ name: 'Bunker', mustEatCount: 3, openingHours: EVENING });
+    const openPlain = spot({ name: 'Zola', mustEatCount: 0, openingHours: MORNING });
+    const openMust = spot({ name: 'Mustafa', mustEatCount: 1, openingHours: MORNING });
+    const { result } = renderHook(() =>
+      useMapFilters({
+        restaurants: [closedMust, openPlain, openMust],
+        location: null,
+        orderedAt: MON_9AM,
+      })
+    );
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual([
+      'Mustafa',
+      'Zola',
+      'Bunker',
+    ]);
+  });
+
+  it('stellt auch mit Standort das Geöffnete vor das Nähere', () => {
+    const nearClosed = spot({ name: 'Nah', lat: 52.5, lng: 13.4, openingHours: EVENING });
+    const farOpen = spot({ name: 'Weit', lat: 52.6, lng: 13.62, openingHours: MORNING });
+    const { result } = renderHook(() =>
+      useMapFilters({
+        restaurants: [nearClosed, farOpen],
+        location: { lat: 52.5, lng: 13.4 },
+        orderedAt: MON_9AM,
+      })
+    );
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Weit', 'Nah']);
+  });
+
+  it('lässt bei einer Suche die Treffergüte vor offen/geschlossen', () => {
+    const nameHit = spot({ name: 'Eisbar', openingHours: EVENING });
+    const midWord = spot({ name: 'Speiselokal', openingHours: MORNING });
+    const { result } = renderHook(() =>
+      useMapFilters({ restaurants: [midWord, nameHit], location: null, orderedAt: MON_9AM })
+    );
+    act(() => result.current.setSearch('eis'));
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Eisbar', 'Speiselokal']);
+  });
+
   it('lets the map centre outrank the visitor once the map has been moved', () => {
     const nearMe = spot({ name: 'Zola', lat: 52.5, lng: 13.4, mustEatCount: 0 });
     const nearMap = spot({ name: 'Mustafa', lat: 52.6, lng: 13.62, mustEatCount: 0 });

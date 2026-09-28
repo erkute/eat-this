@@ -191,6 +191,15 @@ describe('in the list', () => {
       expect(window.scrollY).toBe(REST_OFFSET - 40);
     });
 
+    it('takes a wobbling press as a press, not a pull — the list stays where it was', async () => {
+      window.scrollY = DEEP;
+      drag(10, { steps: 3, msPerStep: 100 });
+      await settle();
+
+      expect(window.scrollY).toBe(DEEP);
+      expect(sheet().style.transform).toBe('');
+    });
+
     it('leaves the list where it was when the bar comes back to where it started', async () => {
       window.scrollY = DEEP;
       const handle = document.querySelector('[data-sheet-handle]')!;
@@ -226,6 +235,14 @@ describe('in the list', () => {
 
       expect(window.scrollY).toBe(120);
       expect(sheet().style.transform).toBe('');
+    });
+
+    it('puts the sheet back where it was after a wobbling press', async () => {
+      window.scrollY = 200;
+      drag(-10, { steps: 3, msPerStep: 100 });
+      await settle();
+
+      expect(window.scrollY).toBe(200);
     });
 
     it('stops the bar at the strip line, however far the finger goes', () => {

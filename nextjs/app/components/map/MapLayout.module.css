@@ -274,8 +274,10 @@
        22.09.2026: „oben noch minimal die Map sehen"). The sticky bar stops
        below it. Mirrored in JS by MAP_STRIP_PX in lib/map/sheetSlide.ts. */
     --map-strip: calc(env(safe-area-inset-top, 0px) + 72px);
-    /* How far the map stands off the top edge — see .mapWrap below. */
-    --map-top-gap: 1px;
+    /* How far the map reaches above the viewport, under the status bar —
+       see .mapWrap below. Mirrored in JS by the measured canvas top
+       (lib/map/useMapCamera.ts canvasOverscan). */
+    --map-overscan: 80px;
     /* Where the sheet's top edge rests over the map: the list at 100dvh −
        its visible share, a restaurant at --detail-map-peek. */
     --frame-edge: calc(100dvh - var(--phone-list-sheet-visible));
@@ -381,21 +383,19 @@
     position: fixed;
     left: 0;
     right: 0;
-    /* One pixel off the top edge (Betreiber, 28.09.2026: „die Map komplett
-       hinter der Statusleiste"). iOS 26 Safari fills its top bar with the
-       background of a fixed or sticky element that TOUCHES the top edge —
-       here that was this wrapper's ink, a dark band where the status bar
-       is. Standing 1px clear, it no longer touches, and Safari shows the
-       page under the status bar: the map. The bottom edge it still touches,
-       so the URL bar keeps the ink (below). EXPERIMENT on staging — if the
-       top bar turns grey instead, this goes. */
-    top: var(--map-top-gap, 0px);
+    /* Up under the status bar (Betreiber, 28.09.2026: „die Map komplett
+       hinter der Statusleiste", Lupe und Burger bleiben darunter). The map
+       reaches --map-overscan above the viewport: where Safari shows the page
+       under its status bar, that is the map. The 1px gap before it (dc72ab92)
+       let the list show through there once rows ran under the map's frame.
+       The camera pads for the overscan (useMapCamera). */
+    top: calc(-1 * var(--map-overscan));
     /* The LARGEST viewport, not the dynamic one: 100dvh followed Safari's
        toolbar as it collapsed and expanded during a scroll, the canvas
        resized on every step and the map slid up and down under the list
        (user, 23.09.2026). The list's resting edge is set against dvh on its
        own (--frame-edge). */
-    height: 100lvh;
+    height: calc(100lvh + var(--map-overscan));
     z-index: -1;
     /* Deckend, nicht transparent: iOS 26 Safari ignoriert theme-color und
        faerbt seine Leisten nach der background-color des obersten fixierten
@@ -416,13 +416,13 @@
   }
   /* The map credit stands on the edge line, centred on the locate button's
      44px: the credit stays (ODbL wants it on the map), the two just agree.
-     The map is fixed at the top, so its top is the viewport's. It rides up
+     The map is fixed, --map-overscan above the viewport's top. It rides up
      and stops with the button (same timeline, same range) and follows a
      sheet pulled below its rest through its child (lib/map/sheetSlide.ts
      followSheet — this element's translate belongs to the ride). */
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
     left: 14px;
-    top: var(--edge-top);
+    top: calc(var(--edge-top) + var(--map-overscan));
     bottom: auto;
     display: flex;
     align-items: center;

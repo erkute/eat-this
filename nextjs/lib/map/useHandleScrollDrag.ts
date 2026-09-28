@@ -23,6 +23,10 @@ const PHONE_MAX = 767.98;
 const AT_STOP_PX = 24;
 /* Below this much movement a release is a tap. */
 const TAP_PX = 6;
+/* Below this much, the grip was pressed, not pulled: the finger wobbles on a
+   press, and a sheet that stayed a few px off where it was — deep in the
+   list, back at its top — read as the grip slipping (user, 28.09.2026). */
+const STILL_PX = 16;
 /* After a gesture of the grip, the click the browser may still send is the
    gesture's, not a tap's. */
 const CLICK_AFTER_DRAG_MS = 400;
@@ -315,11 +319,11 @@ export function useHandleScrollDrag(
             restLinePx: d.restLine,
             mapY: d.mapY,
           });
-        } else if (!cancelled && d.offset >= TAP_PX) {
+        } else if (!cancelled && Math.abs(e.clientY - d.startY) >= STILL_PX) {
           /* Where the finger let go. */
           leaveSlabAt(sheet, d.offset, { restLinePx: d.restLine, mapY: d.mapY });
         } else {
-          /* Cancelled, or not pulled at all: the list stays where it was. */
+          /* Cancelled, or only pressed: the list stays where it was. */
           done = raiseToList(sheet, d.offset);
         }
         void done.finally(() => {
@@ -351,6 +355,13 @@ export function useHandleScrollDrag(
       if (tap && claimedLate && sheet && d.startPos < mapY) {
         /* A tap on a lowered sheet brings it back onto the map stop. */
         settleBelow(sheet, d.pos, mapY, mapY);
+        return;
+      }
+
+      /* Only pressed: back to where it was. */
+      if (Math.abs(e.clientY - d.startY) < STILL_PX) {
+        if (sheet && (d.startPos < mapY || d.pos < mapY)) restAt(sheet, mapY - d.startPos);
+        else if (d.pos !== d.startPos) window.scrollTo({ top: d.startPos, behavior: 'instant' });
         return;
       }
 

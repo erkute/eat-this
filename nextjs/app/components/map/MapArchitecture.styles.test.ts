@@ -195,12 +195,12 @@ describe('Map CSS architecture', () => {
     const phoneList = declarationsInMedia('MapSheet.module.css', '.list', '(max-width: 767.98px)');
     expect(phoneList).toEqual([expect.objectContaining({ position: 'relative' })]);
     expect(mustEatRules[0]).not.toHaveProperty('position');
-    /* The takeover lies over the sticky map by exactly the map's height. The
-       map moved from 100dvh to 100lvh and the margin stayed behind: on the
+    /* The takeover lies over the map's frame by exactly the frame's height.
+       The map moved from 100dvh to 100lvh and the margin stayed behind: on the
        iPhone the takeover sat a toolbar height low and the page scrolled. */
     const mapHeight = declarationsInMedia(
       'MapLayout.module.css',
-      '.mapWrap',
+      '.mapFrame',
       '(max-width: 767.98px)'
     )
       .map((d) => d.height)
@@ -230,12 +230,11 @@ describe('Map CSS architecture', () => {
       expect.objectContaining({
         /* Fixed in the map frame (see 'covers the strip with the map frame'). */
         position: 'fixed',
-        /* Off the top edge by --map-top-gap, so iOS 26 Safari shows the map
-           under the status bar instead of filling it with the wrapper's ink. */
-        top: 'var(--map-top-gap, 0px)',
+        /* Up under the status bar by --map-overscan (Betreiber, 28.09.2026). */
+        top: 'calc(-1 * var(--map-overscan))',
         /* lvh, not dvh: a dvh map resized with every step of Safari's
            collapsing toolbar and slid under the list (23.09.2026). */
-        height: '100lvh',
+        height: 'calc(100lvh + var(--map-overscan))',
         'background-color': 'var(--et-ink)',
       }),
     ]);

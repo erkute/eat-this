@@ -295,6 +295,8 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
       ],
     },
     search: { ok: true, data: search() },
+    live: { activeNow: 4, ga: 1, minutes: 30, at: '2026-08-31T10:00:00.000Z' },
+    ga: { ok: true, users: 400, days: [{ day: '2026-08-31', users: 30 }] },
     latest: {
       day: { day: '2026-08-30', pageviews: 372, visitors: 91 },
       vsPrevDay: {
@@ -403,6 +405,50 @@ describe('StatsDashboard', () => {
 
   /* Die Stats-Seite hat keine Seitenleiste der App — ohne diesen Link war sie
      eine Sackgasse. */
+  it('zeigt „Gerade aktiv" und fragt nur diese Zahl jede Minute nach', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce({ ok: true, status: 200, json: async () => summary() })
+        .mockResolvedValue({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            live: { activeNow: 9, ga: 2, minutes: 30, at: '2026-08-31T10:01:00.000Z' },
+          }),
+        });
+      vi.stubGlobal('fetch', fetchMock);
+
+      render(<StatsDashboard />);
+      const value = () =>
+        screen.getByText('Gerade aktiv', { selector: 'span[class*="kpiLabel"]' }).nextElementSibling
+          ?.textContent;
+      await waitFor(() => expect(value()).toBe('4'));
+
+      await vi.advanceTimersByTimeAsync(60_000);
+
+      await waitFor(() => expect(value()).toBe('9'));
+      expect(screen.getByText(/GA 2/)).toBeTruthy();
+      expect(fetchMock).toHaveBeenLastCalledWith('/api/admin/stats?only=live', {
+        headers: { Authorization: `Bearer token-123` },
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stellt die GA-Nutzer neben die Besucher — als Anteil', async () => {
+    vi.stubGlobal('fetch', respondWith(summary()));
+
+    render(<StatsDashboard />);
+
+    const label = await screen.findByText('GA-Nutzer', { selector: 'span[class*="kpiLabel"]' });
+    expect(label.nextElementSibling?.textContent).toBe('400');
+    // 400 von 1.147 Besuchern.
+    expect(screen.getByText(/35\s?% der Besucher/)).toBeTruthy();
+  });
+
   it('führt über die Wortmarke zurück zur Startseite', async () => {
     vi.stubGlobal('fetch', respondWith(summary()));
 

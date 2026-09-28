@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   checkRateLimit: vi.fn(),
   create: vi.fn(),
+  update: vi.fn(),
   set: vi.fn(),
   get: vi.fn(),
 }));
@@ -16,6 +17,7 @@ vi.mock('@/lib/firebase/admin', () => ({
     collection: (name: string) => ({
       doc: (id: string) => ({
         create: (data: unknown) => mocks.create(name, id, data),
+        update: (data: unknown) => mocks.update(name, id, data),
         set: (data: unknown, opts: unknown) => mocks.set(name, id, data, opts),
         get: async () => ({ data: () => mocks.get(name, id) }),
       }),
@@ -58,6 +60,7 @@ describe('POST /api/count', () => {
   beforeEach(() => {
     mocks.checkRateLimit.mockReset().mockResolvedValue({ allowed: true });
     mocks.create.mockReset().mockResolvedValue(undefined);
+    mocks.update.mockReset().mockResolvedValue(undefined);
     mocks.set.mockReset().mockResolvedValue(undefined);
     // Ein leeres Tagesdokument: jeder Schluessel ist neu und passt ins Budget.
     mocks.get.mockReset().mockReturnValue(undefined);
@@ -153,6 +156,45 @@ describe('POST /api/count', () => {
     const second = dayWrite();
     expect(second?.pageviews, 'the view still counts').toEqual({ __inc: 1 });
     expect(second?.visitors, 'the person does not count twice').toBeUndefined();
+  });
+
+  /* „Gerade aktiv" im Brett zaehlt Pruefwerte mit `lastSeenAt` in den letzten
+   * 30 Minuten. Jeder Beacon frischt die Zeit auf — aber nur ein Seitenaufruf
+   * darf das Dokument anlegen, sonst verschluckt ein fruehes Ereignis den
+   * Besucher (siehe `firstToday`). */
+  describe('lastSeenAt fuer „gerade aktiv"', () => {
+    it('setzt die Zeit beim ersten Aufruf des Tages mit an', async () => {
+      await POST(request({ path: '/' }));
+
+      const [collection, , data] = mocks.create.mock.calls[0];
+      expect(collection).toBe('analytics_seen');
+      expect(data).toHaveProperty('lastSeenAt');
+      expect(mocks.update).not.toHaveBeenCalled();
+    });
+
+    it('frischt sie bei jedem weiteren Aufruf auf', async () => {
+      mocks.create.mockRejectedValueOnce(new Error('ALREADY_EXISTS'));
+      await POST(request({ path: '/map' }));
+
+      const [collection, , data] = mocks.update.mock.calls[0];
+      expect(collection).toBe('analytics_seen');
+      expect(Object.keys(data as object)).toEqual(['lastSeenAt']);
+    });
+
+    it('frischt sie bei einem Ereignis auf, ohne das Dokument anzulegen', async () => {
+      await POST(request({ path: '/map', event: 'map_opened' }));
+
+      expect(mocks.create).not.toHaveBeenCalled();
+      expect(mocks.update).toHaveBeenCalledTimes(1);
+    });
+
+    it('bleibt bei 204, wenn das Auffrischen scheitert', async () => {
+      mocks.update.mockRejectedValueOnce(new Error('NOT_FOUND'));
+      const res = await POST(request({ path: '/map', event: 'map_opened' }));
+
+      expect(res.status).toBe(204);
+      expect(dayWrite()?.events).toEqual({ map_opened: { __inc: 1 } });
+    });
   });
 
   /* The storage-free opt-out. If these ever start counting, the privacy policy

@@ -6,11 +6,18 @@ import { BarRows, Card, Change, Columns, Kpi, LineChart, type Series } from '../
 import { NUMBER, WEEKDAYS_SHORT, dayTitle, decimal, euro, labelFor, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
-type Metric = 'visitors' | 'pageviews' | 'search_clicks' | 'search_impressions' | `event:${string}`;
+type Metric =
+  | 'visitors'
+  | 'pageviews'
+  | 'ga_users'
+  | 'search_clicks'
+  | 'search_impressions'
+  | `event:${string}`;
 
 const METRIC_LABELS: Record<string, string> = {
   visitors: 'Besucher',
   pageviews: 'Seitenaufrufe',
+  ga_users: 'GA-Nutzer',
   search_clicks: 'Google-Klicks',
   search_impressions: 'Google-Impressionen',
 };
@@ -36,6 +43,7 @@ export default function Overview({
 }) {
   const { totals, period, accounts, latest, today } = data;
   const search = data.search?.ok ? data.search.data : null;
+  const ga = data.ga?.ok ? data.ga : null;
   const [metric, setMetric] = useState<Metric>('visitors');
   const [compare, setCompare] = useState(true);
 
@@ -62,6 +70,16 @@ export default function Overview({
         label: METRIC_LABELS[metric],
       };
     }
+    if (metric === 'ga_users') {
+      // Gegen die Besucher gezeichnet: der Abstand ist genau die Einwilligung.
+      const gaByDay = new Map(ga?.days.map((d) => [d.day, d.users]) ?? []);
+      return {
+        days,
+        now: data.days.map((d) => gaByDay.get(d.day) ?? 0),
+        before: [],
+        label: METRIC_LABELS[metric],
+      };
+    }
     if (metric === 'search_clicks' || metric === 'search_impressions') {
       const field = metric === 'search_clicks' ? 'clicks' : 'impressions';
       return {
@@ -78,7 +96,7 @@ export default function Overview({
       before: [],
       label: labelFor(key),
     };
-  }, [metric, data, search]);
+  }, [metric, data, search, ga]);
 
   const openIndex = data.today ? chart.days.indexOf(data.today.day) : -1;
   const series: Series[] = [{ label: chart.label, values: chart.now }];
@@ -93,6 +111,19 @@ export default function Overview({
   return (
     <>
       <div className={styles.kpis}>
+        {data.live && (
+          <Kpi
+            label="Gerade aktiv"
+            value={NUMBER.format(data.live.activeNow)}
+            hint={[
+              `letzte ${data.live.minutes} Min`,
+              data.live.ga !== null ? `GA ${NUMBER.format(data.live.ga)}` : null,
+              `Stand ${new Date(data.live.at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          />
+        )}
         <Kpi
           label="Besucher"
           value={NUMBER.format(totals.visitors)}
@@ -100,6 +131,18 @@ export default function Overview({
           hint={`${NUMBER.format(perDay)} je vollem Tag`}
           spark={data.days.map((d) => d.visitors)}
         />
+        {ga && (
+          <Kpi
+            label="GA-Nutzer"
+            value={NUMBER.format(ga.users)}
+            hint={
+              totals.visitors > 0
+                ? `${percent(ga.users / totals.visitors, 0)} der Besucher · nur mit Zustimmung`
+                : 'nur mit Zustimmung'
+            }
+            spark={ga.days.map((d) => d.users)}
+          />
+        )}
         <Kpi
           label="Seitenaufrufe"
           value={NUMBER.format(totals.pageviews)}
@@ -163,6 +206,7 @@ export default function Overview({
             >
               <option value="visitors">Besucher</option>
               <option value="pageviews">Seitenaufrufe</option>
+              {ga && <option value="ga_users">GA-Nutzer</option>}
               {search && (
                 <>
                   <option value="search_clicks">Google-Klicks</option>

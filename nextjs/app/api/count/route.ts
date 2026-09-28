@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp, type DocumentReference } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { isAutomated } from '@/lib/analytics/botFilter';
@@ -125,6 +125,24 @@ const RATE_LIMITS = { perMinute: 90, perDay: 3000 };
  *  Aufrufe am Tag von EINER Adresse hat diese Seite nie gesehen. */
 const IP_RATE_LIMITS = { perMinute: 240, perDay: 6000 };
 
+/**
+ * Vermerkt am Pruefwert, wann dieser Besucher zuletzt etwas getan hat — die
+ * Grundlage fuer „gerade aktiv" (letzte 30 Minuten, wie im Echtzeitbericht
+ * von GA4) in /admin/stats. Nur die Zeit, nie die Seite: welche Seite jemand
+ * ansah, wird weiterhin mit keinem Pruefwert verknuepft.
+ *
+ * `update`, nicht `set`: ein Ereignis, das vor dem ersten Seitenaufruf
+ * eintrifft, darf das Dokument nicht anlegen — sonst schluege der `create`
+ * des Seitenaufrufs fehl und der Besucher fehlte im Tagesstand.
+ */
+async function markActive(seen: DocumentReference): Promise<void> {
+  try {
+    await seen.update({ lastSeenAt: Timestamp.fromMillis(Date.now()) });
+  } catch {
+    // Noch kein Seitenaufruf heute, oder Firestore gestoert — beides harmlos.
+  }
+}
+
 type Body = { path?: unknown; referrer?: unknown; event?: unknown; from?: unknown; ua?: unknown };
 
 /**
@@ -220,9 +238,12 @@ export async function POST(request: Request) {
   const dayRef = db.collection('analytics_daily').doc(day);
   const inc = FieldValue.increment(1);
   const update: Record<string, unknown> = { day };
+  const seen = db.collection('analytics_seen').doc(hash);
+  let active: Promise<void> | null = null;
 
   if (event) {
     update.events = { [event]: inc };
+    active = markActive(seen);
   } else {
     // Die Schluessel, die heute schon im Dokument stehen — hoechstens einmal je
     // Minute und Instanz gelesen. Ohne diese Sicht kann der Zaehler nicht
@@ -241,13 +262,17 @@ export async function POST(request: Request) {
     // ihn auch verbuchen koennen. Lag das davor, konnte ein Ereignis, das vor
     // dem ersten Seitenaufruf eintrifft, `firstToday` aufbrauchen — gezaehlt
     // wurde es dann nirgends, und der Besucher fehlte im Tagesstand.
-    const seen = db.collection('analytics_seen').doc(hash);
     let firstToday = false;
+    const now = Date.now();
     try {
-      await seen.create({ expiresAt: Timestamp.fromMillis(Date.now() + SEEN_TTL_MS) });
+      await seen.create({
+        expiresAt: Timestamp.fromMillis(now + SEEN_TTL_MS),
+        lastSeenAt: Timestamp.fromMillis(now),
+      });
       firstToday = true;
     } catch {
       firstToday = false;
+      active = markActive(seen);
     }
 
     update.pageviews = inc;
@@ -292,5 +317,6 @@ export async function POST(request: Request) {
       error instanceof Error ? error.name : 'UnknownError'
     );
   }
+  await active;
   return new NextResponse(null, { status: 204 });
 }

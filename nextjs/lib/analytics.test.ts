@@ -122,6 +122,60 @@ describe('GA laeuft nur auf dem Produktions-Host', () => {
   });
 });
 
+/* Mit Zustimmung, aber trotzdem nicht in GA: der eigene Browser, Bots samt
+ * dem Browser der Claude-App, und das Zahlenbrett. Dieselben Riegel wie beim
+ * Zaehler. */
+describe('GA laesst eigene und automatische Besuche aus', () => {
+  beforeEach(() => {
+    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
+    delete (window as Window & { gtag?: unknown }).gtag;
+    delete (window as Window & { __eatThisAnalyticsQueue?: unknown }).__eatThisAnalyticsQueue;
+    vi.stubGlobal('navigator', { ...navigator, userAgent: TEST_UA, sendBeacon: vi.fn(() => true) });
+  });
+
+  afterEach(() => {
+    document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
+    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
+    vi.unstubAllGlobals();
+  });
+
+  const queue = () =>
+    (window as Window & { __eatThisAnalyticsQueue?: unknown[] }).__eatThisAnalyticsQueue;
+
+  it('zaehlt einen gewoehnlichen Browser mit Zustimmung', () => {
+    trackEvent('map_opened');
+    expect(queue()).toHaveLength(1);
+  });
+
+  it('laesst den per Knopf abgemeldeten Browser aus', () => {
+    document.cookie = 'eatthis_nocount=1; Path=/';
+    trackEvent('map_opened');
+    expect(queue()).toBeUndefined();
+  });
+
+  it('laesst den Browser der Claude-App aus', () => {
+    vi.stubGlobal('navigator', {
+      ...navigator,
+      userAgent: `${TEST_UA} Claude/1.2.3 Chrome/136.0.0.0`,
+      sendBeacon: vi.fn(() => true),
+    });
+    trackEvent('map_opened');
+    expect(queue()).toBeUndefined();
+  });
+
+  it.each(['/admin/stats', '/en/admin/stats'])('laesst %s aus', (pathname) => {
+    vi.stubGlobal('location', { ...window.location, pathname });
+    trackEvent('page_view');
+    expect(queue()).toBeUndefined();
+  });
+
+  it('haelt „admin" im Slug nicht fuer das Brett', () => {
+    vi.stubGlobal('location', { ...window.location, pathname: '/news/administration-kantine' });
+    trackEvent('page_view');
+    expect(queue()).toHaveLength(1);
+  });
+});
+
 describe('getAnalyticsPageLocation', () => {
   it('removes Stripe session IDs from page views but preserves other params', () => {
     expect(

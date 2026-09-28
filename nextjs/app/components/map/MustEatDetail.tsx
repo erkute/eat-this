@@ -5,6 +5,7 @@ import { useLoginModal } from '@/lib/auth';
 import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import type { MapMustEat } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
+import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import { LOCATION_ERROR_VISIBLE_MS } from '@/lib/map/locationStatus';
 import { notify } from '@/lib/notice';
@@ -40,6 +41,8 @@ interface MustEatDetailProps {
   /** Offene Karten gegen alle — die Bühne des Aufdeckens zählt eins hoch. */
   collection?: { count: number; total: number };
   uid?: string | null;
+  /** Stapel für die Must-Eats-Erklärung eines Gasts (MustEatDetailMobile). */
+  onboardingData?: InitialMustEatsData;
 }
 
 export default function MustEatDetail({
@@ -60,6 +63,7 @@ export default function MustEatDetail({
   position,
   collection,
   uid,
+  onboardingData,
 }: MustEatDetailProps) {
   const tMustEats = useTranslations('mustEats');
   const locale = useLocale();
@@ -192,6 +196,7 @@ export default function MustEatDetail({
         position={position}
         state={state}
         guest={!uid}
+        onboardingData={onboardingData}
       />
       {r && (
         <MustEatRevealOverlay

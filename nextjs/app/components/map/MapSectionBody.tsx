@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import type { CSSProperties, Ref, RefObject } from 'react';
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
@@ -7,6 +7,7 @@ import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import type { CategoryDef } from '@/lib/categories';
 import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } from '@/lib/map';
 import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
+import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
 import {
   getLocatingCopy,
@@ -243,6 +244,19 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     myLocationAriaLabel,
     restaurantsListAriaLabel,
   } = props;
+
+  /* Die Must-Eats-Erklärung im Detail gibt es nur für Gäste; ihre Demo-Karte
+     ist eine der offenen aus dem Stapel (MustEatsOnboarding). */
+  const onboardingData = useMemo<InitialMustEatsData | undefined>(
+    () =>
+      uid
+        ? undefined
+        : {
+            mustEats: [...primaryMustEats.values()],
+            revealedMustEatIds: [...revealedMustEatIds],
+          },
+    [uid, primaryMustEats, revealedMustEatIds]
+  );
 
   /* Every input that reorders or re-scopes the list, in one string. */
   const listFilterKey = `${category}|${bezirk ?? ''}|${price ?? ''}|${openOnly}|${search.trim()}`;
@@ -911,6 +925,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 nextMustEat={mustEatPagerNext}
                 mustEatPosition={mustEatPagerPosition}
                 mustEatCollection={mustEatCollection}
+                onboardingData={onboardingData}
                 onPagePrev={() => onPageMustEat('prev')}
                 onPageNext={() => onPageMustEat('next')}
               />

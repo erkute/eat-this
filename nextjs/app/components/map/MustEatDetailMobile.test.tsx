@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
 import type { MustEatDetailState } from './useMustEatDetailState';
 
@@ -47,6 +47,7 @@ vi.mock('@/i18n/navigation', () => ({
 }));
 
 vi.mock('./useSwipePager', () => ({ useSwipePager: vi.fn() }));
+vi.mock('@/lib/auth', () => ({ useLoginModal: () => ({ open: vi.fn() }) }));
 
 import MustEatDetailMobile from './MustEatDetailMobile';
 
@@ -115,6 +116,72 @@ describe('MustEatDetailMobile guest pitch', () => {
        freigeben". */
     fireEvent.click(screen.getByRole('button', { name: 'starterCta' }));
     expect(handleCardClick).toHaveBeenCalledTimes(1);
+  });
+
+  /* Was eine verdeckte Karte ist, erklaeren die Folien der Must-Eats-Seite:
+     beim ersten Mal von selbst, danach ueber den Knopf unter der Karte
+     (Betreiber, 28.09.2026). */
+  describe('explainer', () => {
+    const onboardingData = {
+      mustEats: [{ ...mustEat, _id: 'open-1', dish: 'Klopse', image: '/open.webp' }],
+      revealedMustEatIds: ['open-1'],
+    };
+    beforeEach(() => window.localStorage.clear());
+
+    it("opens the Must Eats slides on a guest's first covered card", () => {
+      render(
+        <MustEatDetailMobile
+          mustEat={mustEat}
+          isUnlocked={false}
+          onClose={vi.fn()}
+          state={makeState({ needsLocation: true })}
+          guest
+          onboardingData={onboardingData}
+        />
+      );
+      expect(screen.getByRole('dialog', { name: 'mustEats.howItWorks' })).toBeTruthy();
+    });
+
+    it('keeps a way back to the slides once they were seen', () => {
+      window.localStorage.setItem('mustEatsOnboardingSeen', '1');
+      render(
+        <MustEatDetailMobile
+          mustEat={mustEat}
+          isUnlocked={false}
+          onClose={vi.fn()}
+          state={makeState({ needsLocation: true })}
+          guest
+          onboardingData={onboardingData}
+        />
+      );
+      expect(screen.queryByRole('dialog', { name: 'mustEats.howItWorks' })).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: /mustEats\.howItWorks/ }));
+      expect(screen.getByRole('dialog', { name: 'mustEats.howItWorks' })).toBeTruthy();
+    });
+
+    it('explains nothing to a signed-in reader or on an open card', () => {
+      const { rerender } = render(
+        <MustEatDetailMobile
+          mustEat={mustEat}
+          isUnlocked={false}
+          onClose={vi.fn()}
+          state={makeState()}
+          onboardingData={onboardingData}
+        />
+      );
+      expect(screen.queryByText('mustEats.howItWorks')).toBeNull();
+      rerender(
+        <MustEatDetailMobile
+          mustEat={{ ...mustEat, dish: 'Klopse', image: '/x.webp' }}
+          isUnlocked
+          onClose={vi.fn()}
+          state={makeState()}
+          guest
+          onboardingData={onboardingData}
+        />
+      );
+      expect(screen.queryByText('mustEats.howItWorks')).toBeNull();
+    });
   });
 
   /* Mit Konto aendert sich nichts. */

@@ -322,7 +322,6 @@ describe('Map CSS architecture', () => {
       '.listHeader',
       '(max-width: 767.98px)'
     );
-    const stripRules = declarationsInMedia('MapStrip.module.css', '.strip', '(max-width: 767.98px)');
 
     expect(mapPage).toContain('themeColor: null');
     expect(mapPage).not.toContain("themeColor: '#15120e'");
@@ -339,19 +338,32 @@ describe('Map CSS architecture', () => {
       }),
     ]);
 
-    /* The strip starts at the very top, so in an installed app it is what
-       the status-bar band shows — map, not a separate cap over rows. Ink
-       behind it, the colour iOS 26 Safari tints its bar with. */
-    expect(stripRules).toEqual([
-      expect.objectContaining({
-        position: 'fixed',
-        top: '0',
-        /* Past the strip line, under the stuck bar: fills its rounded,
-           see-through top corners with map instead of passing rows. */
-        height: 'calc(var(--map-strip) + 12px)',
-        'background-color': 'var(--et-ink)',
-      }),
-    ]);
+  });
+
+  /* The map strip is the real map: the phone sheet cuts itself off at the
+     strip line on a scroll timeline (MapSheet.module.css). The cut has to
+     move 1:1 with the scroll — a span of N px of scroll moving the inset by
+     anything but N px puts the edge above the line (rows in the strip) or
+     below it (the bar's top cut off). */
+  it('cuts the phone sheet at the strip line, 1:1 with the scroll', () => {
+    const css = readFileSync(
+      fileURLToPath(new URL('./MapSheet.module.css', import.meta.url)),
+      'utf8'
+    );
+    const px = (v: string) => Number(/(-?\d+)px/.exec(v)![1]);
+    const range = /animation-range:\s*calc\(var\(--strip-cut-from\) - (\d+)px\)\s*calc\(var\(--strip-cut-from\) \+ (\d+)px\)/.exec(css);
+    const frames = /@keyframes stripCut\s*{\s*from\s*{\s*clip-path:\s*inset\(([^)]*)\);\s*}\s*to\s*{\s*clip-path:\s*inset\(([^)]*)\);/.exec(css);
+    expect(range, 'stripCut range').not.toBeNull();
+    expect(frames, 'stripCut keyframes').not.toBeNull();
+
+    const early = Number(range![1]);
+    const span = early + Number(range![2]);
+    const from = px(frames![1]);
+    const to = px(frames![2]);
+    // Starts `early` px before the line at −early, so it is 0 at the line.
+    expect(from).toBe(-early);
+    expect(to - from).toBe(span);
+    expect(css).toMatch(/animation-timeline:\s*scroll\(root block\)/);
   });
 
   /* Der verdeckte Zustand hatte einen eigenen, kompakten Namens-Slot, damit

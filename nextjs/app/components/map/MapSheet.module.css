@@ -157,9 +157,6 @@
     left: auto;
     right: auto;
     bottom: auto;
-    /* No stacking context: the map strip slides in between the rows and the
-       bars. Rows and detail content are contained below instead, so their
-       own z-indices stay theirs. */
     z-index: auto;
     height: auto;
     /* The map above is 100lvh; this puts the resting edge at 100dvh − the
@@ -197,7 +194,7 @@
   }
 
   /* Detail content keeps its own stacking (cards up to z 30 inside), so none
-     of it climbs over the map strip or the bars. */
+     of it climbs over the bars. */
   .list[data-view='detail'] > :not(.handle) {
     isolation: isolate;
   }
@@ -219,7 +216,6 @@
   .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
     position: sticky;
     top: var(--map-strip, env(safe-area-inset-top, 0px));
-    /* Above the map strip (7). */
     z-index: 8;
     background: var(--et-ink);
     border-top: 1px solid var(--et-ink-line);
@@ -275,5 +271,59 @@
      the page under its transform. */
   .list[data-sheet-lowered] {
     touch-action: none;
+  }
+
+  /* The map strip: all the way up, --map-strip of the real map stays above
+     the sheet (user, 22.09.2026). The sheet cuts itself off at that line —
+     whatever scrolls above it is clipped, and the map that lies behind the
+     page anyway shows there, pans there and takes taps there.
+
+     Until 28.09.2026 the strip was a COPY of the map in a fixed layer, drawn
+     frame by frame, because lifting the map over the rows from a scroll
+     handler came a frame or two late on iOS and rows flashed through on a
+     flick (23.09.2026). A scroll timeline does not wait for the main thread:
+     it runs in step with the scroll itself, like the locate button's ride
+     (MapControls.module.css).
+
+     The cut is `scroll − start` below the sheet's top, i.e. exactly at the
+     line — linear, over a span longer than any list. It starts 12px early at
+     −12px, so the grab band above the handle (.handle::after reaches 12px
+     up) stays reachable while the sheet rests over the map. Rounded like the
+     bars' own top corners, so the rows never show in them either — the copy
+     reached 12px below the line for that. Same geometry as the clip a grip
+     gesture puts on the sheet (sheetSlide.ts clipAbove), which this matches
+     while the scroll holds still under the gesture.
+
+     `clip-path` makes the sheet a stacking context. At z auto it paints
+     where the sheet always painted — after the locate dock, under search and
+     burger (8) — and its bars stay above its rows inside it.
+
+     Without scroll timelines (iOS before 26.4) there is no cut: the rows run
+     up under the top edge. The must-eat takeover has no map behind it and
+     is left alone. */
+  @supports (animation-timeline: scroll()) {
+    .list[data-view='list'] {
+      --strip-cut-from: calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - var(--map-strip));
+    }
+
+    .list[data-view='detail'][data-detail-kind='restaurant'] {
+      --strip-cut-from: calc(var(--detail-map-peek) - var(--map-strip));
+    }
+
+    .list[data-view='list'],
+    .list[data-view='detail'][data-detail-kind='restaurant'] {
+      animation: stripCut linear both;
+      animation-timeline: scroll(root block);
+      animation-range: calc(var(--strip-cut-from) - 12px) calc(var(--strip-cut-from) + 99988px);
+    }
+  }
+}
+
+@keyframes stripCut {
+  from {
+    clip-path: inset(-12px 0 0 0 round 10px 10px 0 0);
+  }
+  to {
+    clip-path: inset(99988px 0 0 0 round 10px 10px 0 0);
   }
 }

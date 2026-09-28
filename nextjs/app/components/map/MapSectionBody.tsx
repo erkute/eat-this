@@ -22,7 +22,6 @@ import { useExplorationSettled } from '@/lib/map/useExplorationSettled';
 import { notify, type NoticeKind } from '@/lib/notice';
 import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
-import { mapStripLine } from '@/lib/map/sheetSlide';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
@@ -35,7 +34,6 @@ import MapIntro from './MapIntro';
 import { SearchGlassIcon } from './icons';
 import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
-import MapStrip from './MapStrip';
 import type { InitialCamera } from '@/lib/map/useMapCamera';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
@@ -489,61 +487,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     };
   }, [sheetView, snap]);
 
-  /* The must-eat detail is a takeover with its map hidden — no strip there. */
-  const hasMapStrip = !(sheetView === 'detail' && selectedMustEat);
-  /* "The sheet's bar is stuck": the map strip takes taps then (a tap there
-     goes to the map), and not before, when it lies over the map itself and a
-     finger there means to pan. Nothing visible hangs on it any more — the
-     strip is always drawn (lib/map/mapStripMirror) — so a late frame is
-     harmless. Worked out from the scroll position and written straight onto
-     the DOM, not rendered: this whole body re-rendering on a flick was a
-     hitch of its own (user, 23.09.2026). */
-  useEffect(() => {
-    const body = document.querySelector<HTMLElement>('[data-map-body]');
-    const sheet = document.querySelector<HTMLElement>('[data-map-sheet]');
-    const mark = (on: boolean) => {
-      if (!body) return;
-      if (on) body.setAttribute('data-header-stuck', 'true');
-      else body.removeAttribute('data-header-stuck');
-    };
-    if (!body || !sheet || !hasMapStrip || !window.matchMedia('(max-width: 767.98px)').matches) {
-      mark(false);
-      return;
-    }
-    const line = mapStripLine();
-    /* The sheet's document offset, read through the offset chain: it ignores
-       the transform the grabber puts on the sheet mid-gesture, and it does
-       not force a layout on a scroll event. */
-    const sheetDocTop = () => {
-      let top = 0;
-      for (let el: HTMLElement | null = sheet; el; el = el.offsetParent as HTMLElement | null) {
-        top += el.offsetTop;
-      }
-      return top;
-    };
-    let stuck = body.getAttribute('data-header-stuck') === 'true';
-    const update = () => {
-      /* The burger drawer pins the page (body position: fixed) and the window
-         reads scrollY 0 while it is open. The page has not moved. */
-      if (document.body.dataset.burgerLockMode) return;
-      /* A pixel of slack for the rounding of the sticky bar's position. */
-      const next = sheetDocTop() - window.scrollY <= line + 1;
-      if (next === stuck) return;
-      stuck = next;
-      mark(next);
-    };
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
-    };
-  }, [sheetView, hasMapStrip]);
-
   /* The search field takes focus without moving the page. `autoFocus` let
-     iOS Safari scroll the document to "reveal" the field — it sits in the
-     fixed map strip and never needed revealing — and the keyboard going away
+     iOS Safari scroll the document to "reveal" the field — it is fixed
+     over the map strip and never needed revealing — and the keyboard going away
      moved it again, so every tap on the magnifier walked the list further
      down (user, 23.09.2026). Focus with preventScroll, and for as long as the
      keyboard takes to come and go, put back any scroll that happened without
@@ -665,8 +611,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               : undefined
           }
           data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
-          /* data-header-stuck is written by the stuck effect above, straight
-             onto the DOM — never rendered from here. */
           /* Die aufgeklappte Suchleiste liegt in derselben Zeile wie der
              Titel. Statt sie zu kürzen, bis sie irgendwo gerade so vorbeikommt,
              tritt der Titel zur Seite — siehe MapIntro.module.css. */
@@ -708,14 +652,12 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
           </div>
 
-          <MapStrip />
-
           {/* Floating search — collapsed to a square icon button by
               default (2026-06-04: the always-on toolbar read too loud over
               the tiles). Tapping expands the full input; it stays open
               while a query is active so the filter is never invisible.
               Outside the map wrapper: that is a stacking context under the
-              list, and on phones the search has to stand above the strip. */}
+              list, and on phones the search has to stand above the sheet. */}
           {searchOpen || search ? (
             /* Ein Formular, damit Enter bzw. „Suchen" auf der Handy-Tastatur
                etwas tut: gefiltert wird schon beim Tippen, Bestätigen schließt

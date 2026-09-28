@@ -398,7 +398,7 @@
   .mapBurger {
     position: fixed;
     top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
-    /* Over the map strip (7, MapLayout.module.css). */
+    /* Over the sheet and the map strip it leaves (MapSheet.module.css). */
     z-index: 8;
   }
 

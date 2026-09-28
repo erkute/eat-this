@@ -3,33 +3,8 @@ import type { MapRef } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { pollUntilMapReady } from './pollUntilMapReady';
 
-interface Bbox {
-  west: number;
-  south: number;
-  east: number;
-  north: number;
-}
-
 function districtOf(r: MapRestaurant): string | null {
   return r.bezirk?.name ?? r.district ?? null;
-}
-
-function computeBezirkBbox(filtered: MapRestaurant[]): Bbox | null {
-  if (filtered.length === 0) return null;
-  let west = filtered[0].lng;
-  let east = filtered[0].lng;
-  let south = filtered[0].lat;
-  let north = filtered[0].lat;
-  for (const r of filtered) {
-    if (r.lng < west) west = r.lng;
-    if (r.lng > east) east = r.lng;
-    if (r.lat < south) south = r.lat;
-    if (r.lat > north) north = r.lat;
-  }
-  // 10 % padding on each side so markers aren't flush to the bbox edges.
-  const padX = (east - west) * 0.1 || 0.005;
-  const padY = (north - south) * 0.1 || 0.005;
-  return { west: west - padX, east: east + padX, south: south - padY, north: north + padY };
 }
 
 interface Args {
@@ -44,6 +19,9 @@ interface Args {
    *  ?r= URL. MapSection owns its initial camera poll; this hook only marks
    *  the URL as consumed so it cannot reopen the detail after hydration. */
   initialRestaurant?: MapRestaurant | null;
+  /** MapSection's camera move onto a match set — the same one search and
+   *  filter chips use, so ?bezirk= frames its spots like the Bezirk chip. */
+  fitCameraToSpots: (spots: MapRestaurant[]) => void;
 }
 
 export function useMapDeepLinks({
@@ -55,6 +33,7 @@ export function useMapDeepLinks({
   onRestaurantSlugMatch,
   onMustEatIdMatch,
   initialRestaurant = null,
+  fitCameraToSpots,
 }: Args) {
   // ?r=<slug> opens the matching restaurant detail directly. Used by profile
   // favourites and any external link that wants to land on the map with a
@@ -152,7 +131,7 @@ export function useMapDeepLinks({
      itself is applied by useMapFilterUrl — this hook owns only the camera, so
      the two never race over who writes the URL. Mirrors the ?r= polling above. */
   const bezirkConsumed = useRef(false);
-  const [bezirkBboxTarget, setBezirkBboxTarget] = useState<Bbox | null>(null);
+  const [bezirkSpots, setBezirkSpots] = useState<MapRestaurant[] | null>(null);
   useEffect(() => {
     if (bezirkConsumed.current) return;
     if (!isActive) return;
@@ -166,26 +145,20 @@ export function useMapDeepLinks({
     if (!match?.bezirk?.name) return;
     userInteractedRef.current = true;
     const bezirkName = match.bezirk.name;
-    const bbox = computeBezirkBbox(restaurants.filter((r) => districtOf(r) === bezirkName));
-    if (!bbox) return;
-    setBezirkBboxTarget(bbox);
+    const spots = restaurants.filter((r) => districtOf(r) === bezirkName);
+    if (spots.length === 0) return;
+    setBezirkSpots(spots);
   }, [isActive, restaurants, userInteractedRef]);
 
   useEffect(() => {
-    if (!isActive || !bezirkBboxTarget) return;
+    if (!isActive || !bezirkSpots) return;
     return pollUntilMapReady({
       mapRef,
-      onReady: (map) => {
-        map.fitBounds(
-          [
-            [bezirkBboxTarget.west, bezirkBboxTarget.south],
-            [bezirkBboxTarget.east, bezirkBboxTarget.north],
-          ],
-          { padding: 60, duration: 800 }
-        );
-        setBezirkBboxTarget(null);
+      onReady: () => {
+        fitCameraToSpots(bezirkSpots);
+        setBezirkSpots(null);
       },
-      onTimeout: () => setBezirkBboxTarget(null),
+      onTimeout: () => setBezirkSpots(null),
     });
-  }, [bezirkBboxTarget, isActive, mapRef]);
+  }, [bezirkSpots, isActive, mapRef, fitCameraToSpots]);
 }

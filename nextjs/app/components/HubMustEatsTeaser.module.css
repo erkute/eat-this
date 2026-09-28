@@ -414,9 +414,22 @@
     gap: 2px;
   }
 
+  /* Eine Zeile, wie lang das Gericht auch heißt: die Schrift schrumpft auf
+     Spaltenbreite ÷ Zeichenzahl (`--chars` setzt die Komponente), höchstens
+     13px. Versalien der Markenschrift laufen rund 0,66em breit. Unter 10px
+     liest es niemand mehr: ein sehr langes Gericht („Crispy Pork Bánh Mì")
+     bleibt dort stehen und endet mit Auslassung, statt umzubrechen. */
+  .meta {
+    container-type: inline-size;
+  }
+
   .dish {
-    font-size: 13px;
+    font-size: clamp(10px, calc(100cqi / (var(--chars, 10) * 0.66)), 13px);
     line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    hyphens: manual;
   }
 
   .restaurantLink :global(.hv-sub) {

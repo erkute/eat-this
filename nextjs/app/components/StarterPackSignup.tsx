@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import LoginBoard, { LoginSceneArt } from './LoginBoard';
 import styles from './StarterPackSignup.module.css';
 
@@ -21,6 +21,66 @@ import styles from './StarterPackSignup.module.css';
  * Ein neues Konto bekommt danach die Starter-Pack-Einblendung (siehe
  * signInArrival).
  */
+/* Was Remy sagt, wenn er aus dem Pack springt. Kein Knopftext — der Knopf
+   heißt weiter „Anmelden"; das hier ist Remy, der dich anstupst. */
+const REMY_SAYS = {
+  de: 'Hey, meld dich doch an!',
+  en: 'Hey, why not sign up?',
+} as const;
+
+/**
+ * Das Pack mit Remy davor: er springt heraus, landet vorn am Pack und redet
+ * dich an (die Bewegung macht HubMotion, sobald die Tafel ins Bild kommt; ohne
+ * JS oder mit reduced motion steht er einfach da und die Blase ist voll).
+ * Die Blase führt jedes Zeichen als eigenes Element, damit sie sich tippt,
+ * ohne dass etwas an React-eigenen Textknoten herumschneidet. Reine Deko: das
+ * Formular daneben sagt dasselbe in Worten, die zählen.
+ */
+function StarterScene() {
+  const locale = useLocale() === 'en' ? 'en' : 'de';
+  const says = REMY_SAYS[locale];
+  return (
+    <div className={styles.scene} data-starter-scene="" aria-hidden="true">
+      <div data-starter-pack="">
+        <LoginSceneArt reason={null} />
+      </div>
+      <div className={styles.remy} data-starter-remy="">
+        {/* Das Wippen liegt eine Ebene tiefer als der Sprung: GSAP darf am
+            äußeren Element nichts von CSS-`translate`/`rotate` vorfinden. */}
+        <span className={styles.remyBody}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={styles.remyFace}
+            src="/buddy/buddy.webp"
+            alt=""
+            width={1024}
+            height={1024}
+            loading="lazy"
+            decoding="async"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={`${styles.remyFace} ${styles.remyOpen}`}
+            src="/buddy/buddy-open.webp"
+            alt=""
+            width={1024}
+            height={1024}
+            loading="lazy"
+            decoding="async"
+          />
+        </span>
+      </div>
+      <p className={styles.bubble} data-starter-bubble="">
+        {Array.from(says).map((c, i) => (
+          <span key={i} data-starter-char="">
+            {c}
+          </span>
+        ))}
+      </p>
+    </div>
+  );
+}
+
 export default function StarterPackSignup() {
   const t = useTranslations('modals.login');
 
@@ -36,7 +96,7 @@ export default function StarterPackSignup() {
     >
       <div className={styles.inner}>
         <LoginBoard
-          art={<LoginSceneArt reason={null} />}
+          art={<StarterScene />}
           kicker={t('packKicker')}
           title={t('packTitle')}
           lead={t('packLead')}

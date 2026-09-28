@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
@@ -15,6 +15,13 @@ import { composeTeaserCards } from '@/lib/home/mustEatsGallery';
 import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubMustEatsTeaser.module.css';
+
+/* Die Länge des Gerichts, damit es am Telefon in eine Zeile passt: die Schrift
+   schrumpft dort auf Spaltenbreite ÷ Zeichenzahl (HubMustEatsTeaser.module.css,
+   `.dish`). „Rinderschaufel" brach in der Dreier-Spalte sonst um. */
+function charCount(text: string): CSSProperties {
+  return { '--chars': Math.max(1, text.length) } as CSSProperties;
+}
 
 const TEASER_COUNT = 6;
 
@@ -266,10 +273,15 @@ export default function HubMustEatsTeaser() {
                         className={styles.dishLink}
                         aria-label={cardAria}
                       >
-                        <span className={styles.dish}>{dish}</span>
+                        <span className={styles.dish} style={charCount(dish)}>
+                          {dish}
+                        </span>
                       </MapIntentLink>
                     ) : (
-                      <span className={`${styles.dish} ${styles.dishCovered}`}>
+                      <span
+                        className={`${styles.dish} ${styles.dishCovered}`}
+                        style={charCount(t('mustEats.covered'))}
+                      >
                         {t('mustEats.covered')}
                       </span>
                     )}

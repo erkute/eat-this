@@ -255,6 +255,10 @@ export default async function RestaurantPage({ params }: PageProps) {
   // zurückholt, nimmt wie das Map-Sheet eine name+address-Suche statt der
   // gepflegten `mapsUrl` — die kann veraltet sein, die Suche trifft immer.
   const mapHref = `/map?r=${slug}`;
+  // Vorübergehend geschlossen: die Map lässt den Spot weg, `?r=` liefe dort
+  // ins Leere. Also kein Map-Knopf, keine Map-Adresse, und der Block am Ende
+  // wirbt für die Map als Ganzes statt für diesen Pin.
+  const onMap = r.isClosed !== true;
   const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
   const hasContact = Boolean(telHref || websiteUrl || r.menuUrl);
   const hasInfo = Boolean(address || hasHours || priceLabel || hasContact);
@@ -347,9 +351,13 @@ export default async function RestaurantPage({ params }: PageProps) {
                 statisch, ein gebautes „Geöffnet" wäre tagelang falsch) und
                 beantwortet die größte gemessene Brand-Intention („uhrzeit")
                 direkt im Kopf. */}
-            {hasHours && (
+            {(hasHours || r.isClosed) && (
               <div className={styles.status}>
-                <OpenStateChip openingHours={r.openingHours ?? []} locale={loc} />
+                <OpenStateChip
+                  openingHours={r.openingHours ?? []}
+                  locale={loc}
+                  temporarilyClosed={r.isClosed === true}
+                />
               </div>
             )}
             <div className={styles.heroActions}>
@@ -357,14 +365,16 @@ export default async function RestaurantPage({ params }: PageProps) {
                   die Map selbst her. nofollow wie am Map-Block — `mapHref`
                   trägt eine Query, und jede Variante würde sonst einzeln
                   gecrawlt. */}
-              <MapIntentLink
-                href={mapHref}
-                rel="nofollow"
-                className={`${styles.btn} ${styles.btnPrimary}`}
-              >
-                <RouteIcon />
-                <span>{de ? 'Zur Map' : 'On the map'}</span>
-              </MapIntentLink>
+              {onMap && (
+                <MapIntentLink
+                  href={mapHref}
+                  rel="nofollow"
+                  className={`${styles.btn} ${styles.btnPrimary}`}
+                >
+                  <RouteIcon />
+                  <span>{de ? 'Zur Map' : 'On the map'}</span>
+                </MapIntentLink>
+              )}
               {r.reservationUrl && (
                 <a
                   className={styles.btn}
@@ -447,11 +457,19 @@ export default async function RestaurantPage({ params }: PageProps) {
                             (Nutzer-Entscheidung 28.08.): der Spot öffnet dort
                             direkt, statt den Besucher aus dem Produkt zu
                             schicken. */}
-                        <MapIntentLink href={mapHref} rel="nofollow" className={styles.address}>
-                          {address.split(',').map((part, i) => (
-                            <span key={i}>{part.trim()}</span>
-                          ))}
-                        </MapIntentLink>
+                        {onMap ? (
+                          <MapIntentLink href={mapHref} rel="nofollow" className={styles.address}>
+                            {address.split(',').map((part, i) => (
+                              <span key={i}>{part.trim()}</span>
+                            ))}
+                          </MapIntentLink>
+                        ) : (
+                          <span className={styles.addressPlain}>
+                            {address.split(',').map((part, i) => (
+                              <span key={i}>{part.trim()}</span>
+                            ))}
+                          </span>
+                        )}
                       </dd>
                     </div>
                   )}
@@ -595,7 +613,11 @@ export default async function RestaurantPage({ params }: PageProps) {
             hat, ist der beste Map-Kandidat. Der Block sagt anders als der
             Knopf im Kopf auch, WAS auf der Map steht. */}
         <div className={styles.promo}>
-          <MapPromoCTA kind="restaurant" name={displayName} mapHref={mapHref} locale={loc} />
+          {onMap ? (
+            <MapPromoCTA kind="restaurant" name={displayName} mapHref={mapHref} locale={loc} />
+          ) : (
+            <MapPromoCTA kind="bezirk" name={displayName} mapHref="/map" locale={loc} />
+          )}
         </div>
 
         <RemyDock pageSlug={slug} />

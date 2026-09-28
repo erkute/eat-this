@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
@@ -58,7 +58,7 @@ export const revalidate = 86400;
 
 export async function generateStaticParams() {
   const bezirke = await getAllBezirkeWithStats();
-  // Skip districts without open spots — their detail page 404s (see below).
+  // Skip districts without open spots — their detail page redirects to the index (see below).
   return routing.locales.flatMap((locale) =>
     bezirke.filter((b) => (b.restaurantCount ?? 0) > 0).map((b) => ({ locale, slug: b.slug }))
   );
@@ -137,10 +137,15 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     getAllBezirkeWithStats(),
     Promise.all(bezirkGuideSlugs(slug).map((s) => getGuideTeaser(s, loc))),
   ]);
+  if (!b) notFound();
   // A district without spots renders hero + FAQ around an empty grid —
-  // dead end + thin content. 404 until the first spot is curated; the page
-  // reappears automatically via ISR once a restaurant references the bezirk.
-  if (!b || restaurants.length === 0) notFound();
+  // dead end + thin content. Google knew nine such pages after the curation
+  // of 27.09.2026, so they 301 to the district index rather than 404; the
+  // page reappears automatically via ISR once a restaurant references the
+  // bezirk (the sitemap drops it meanwhile, see sitemap-entries.ts).
+  if (restaurants.length === 0) {
+    permanentRedirect(locale === 'de' ? '/bezirk' : `/${locale}/bezirk`);
+  }
 
   const bezirkDescription = pickLocale(b.description, b.descriptionEn, loc);
   // Nur der erste Satz auf der Kopf-Tafel („zu viel Info"): der ganze
@@ -170,7 +175,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const titleStyle = hubTitleStyle(b.name);
 
   // Nur Bezirke, die auch etwas zu zeigen haben — ein Link auf einen leeren
-  // Hub läuft in denselben notFound() wie diese Seite ihn oben wirft.
+  // Hub liefe in dieselbe Weiterleitung zur Übersicht wie diese Seite oben.
   const nachbarBezirke = alleBezirke
     .filter((x) => x.slug && x.slug !== slug && (x.restaurantCount ?? 0) > 0)
     .map((x) => ({ slug: x.slug, label: x.name }));

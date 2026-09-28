@@ -109,7 +109,7 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-articles'] } }
     ),
     client.fetch<{ slug: string; descriptionEn?: string }[]>(
-      // Districts without open spots 404 (bezirk/[slug]/page.tsx) — keep them
+      // Districts without open spots redirect to /bezirk (bezirk/[slug]/page.tsx) — keep them
       // out of the sitemap too.
       `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && seo.noIndex != true && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]) > 0] { "slug": slug.current, descriptionEn }`,
       {},

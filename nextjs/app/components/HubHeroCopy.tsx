@@ -94,12 +94,12 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         </span>
       ) : null}
       <h1 className={styles.heroHeadline} aria-label={headlineLabel}>
-        <span>{headline[0]}</span>
-        <span>{headline[1]}</span>
+        <span data-line="1">{headline[0]}</span>
+        <span data-line="2">{headline[1]}</span>
       </h1>
       <p className={styles.heroLead}>{signedIn ? LEAD_AUTH[locale] : LEAD[locale]}</p>
       <div className={styles.heroActions}>
-        <MapIntentLink href="/map" className="hv-btn">
+        <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
           {HERO_MAP_LABEL}
         </MapIntentLink>
         {signedIn ? (
@@ -134,12 +134,12 @@ function LoadingHeroCopy({ locale }: Props) {
       </span>
       <h1 className={styles.heroHeadline}>
         <span data-guest-only="">
-          <span>We tell you</span>
-          <span>what to eat</span>
+          <span data-line="1">We tell you</span>
+          <span data-line="2">what to eat</span>
         </span>
         <span data-auth-only="">
-          <span>{de ? 'Deine Map' : 'Your map'}</span>
-          <span>{de ? 'wartet.' : 'is ready.'}</span>
+          <span data-line="1">{de ? 'Deine Map' : 'Your map'}</span>
+          <span data-line="2">{de ? 'wartet.' : 'is ready.'}</span>
         </span>
       </h1>
       <p className={styles.heroLead} data-guest-only="">
@@ -150,12 +150,12 @@ function LoadingHeroCopy({ locale }: Props) {
       </p>
       <div className={styles.heroActions}>
         <span className={styles.heroActionVariant} data-guest-only="">
-          <MapIntentLink href="/map" className="hv-btn">
+          <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
             {HERO_MAP_LABEL}
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
-          <MapIntentLink href="/map" className="hv-btn">
+          <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
             {HERO_MAP_LABEL}
           </MapIntentLink>
           <Link

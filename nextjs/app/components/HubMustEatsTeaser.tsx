@@ -161,7 +161,7 @@ export default function HubMustEatsTeaser() {
           <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
         </div>
 
-        <ul className={`hv-rail ${styles.rail}`} role="list">
+        <ul className={`hv-rail ${styles.rail}`} role="list" data-reveal="deal">
           {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
             const restaurant = normalizeName(m.restaurant.name);
             const dish = isFaceUp ? normalizeName(m.dish ?? '') : '';
@@ -242,6 +242,7 @@ export default function HubMustEatsTeaser() {
                       type="button"
                       className={`${styles.cardLink} ${styles.cardButton}`}
                       aria-label={cardAria}
+                      data-deal-card=""
                       onClick={() => openStarterLogin(m._id)}
                     >
                       {photo}
@@ -253,11 +254,12 @@ export default function HubMustEatsTeaser() {
                       href={`/map?me=${m._id}`}
                       className={styles.cardLink}
                       aria-label={cardAria}
+                      data-deal-card=""
                     >
                       {photo}
                     </MapIntentLink>
                   )}
-                  <span className={styles.meta}>
+                  <span className={styles.meta} data-deal-caption="">
                     {isFaceUp ? (
                       <MapIntentLink
                         href={`/map?me=${m._id}`}

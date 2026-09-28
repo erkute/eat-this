@@ -1,0 +1,91 @@
+/* Die Bänder sind breiter als der Bildschirm und schräg: die Section schneidet
+   beides ab, sonst scrollt die Seite seitwärts. `clip` statt `hidden`, damit
+   sie kein eigener Scroll-Container wird. */
+.band {
+  position: relative;
+  margin-top: var(--home-section-gap);
+  padding-block: clamp(28px, 4vw, 56px);
+  overflow: hidden;
+  overflow: clip;
+}
+
+.tape {
+  width: 130vw;
+  margin-left: -15vw;
+  /* Die Bewegung aus HubMotion (Scrollschub) liegt auf `translate`, die
+     Schräge auf `rotate` — beide Einzel-Eigenschaften, damit sie sich nicht
+     gegenseitig überschreiben. */
+  translate: calc(var(--push, 0) * 1px) 0;
+}
+
+.tapeAccent {
+  position: relative;
+  z-index: 1;
+  rotate: -3deg;
+  background: var(--et-accent);
+  color: var(--et-ink);
+  padding-block: clamp(6px, 0.8vw, 12px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.tapeOutline {
+  rotate: 2deg;
+  margin-top: clamp(-18px, -1.4vw, -8px);
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--et-white);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+
+.trackReverse {
+  animation-direction: reverse;
+  animation-duration: 46s;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.run {
+  display: flex;
+  flex: none;
+}
+
+.word {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  font-size: clamp(44px, 8.5vw, 136px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Das gelbe Quadrat der Abschnittstitel als Trenner — auf dem gelben Band
+   in Ink. */
+.dot {
+  flex: none;
+  width: 0.22em;
+  height: 0.22em;
+  margin-inline: 0.45em;
+  background: var(--et-accent);
+}
+
+.tapeAccent .dot {
+  background: var(--et-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

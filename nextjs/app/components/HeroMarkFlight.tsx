@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { appScroller } from '@/lib/dom/appScroller';
 import { flightKeyframes, flightTransform, type FlightGeo } from '@/lib/home/heroMarkFlight';
 import styles from './HeroMarkFlight.module.css';
 
@@ -52,16 +53,8 @@ export default function HeroMarkFlight() {
     const mobile = window.matchMedia('(max-width: 767.98px)');
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    /* Ab 768px scrollt nicht das Fenster, sondern `.app-pages` (globals.css,
-       Desktop app frame). Der Container wird gesucht statt angenommen: auf dem
-       Telefon steht er im Fluss und scrollt gar nicht, dann bleibt das
-       Fenster. */
-    const scroller = (): HTMLElement | null => {
-      const el = document.querySelector<HTMLElement>('.app-pages');
-      return el && el.scrollHeight > el.clientHeight + 1 ? el : null;
-    };
     const scrollTop = () => {
-      const el = scroller();
+      const el = appScroller();
       return el ? el.scrollTop : window.scrollY;
     };
     const travel = () => (mobile.matches ? TRAVEL_MOBILE : TRAVEL_DESKTOP);
@@ -205,7 +198,7 @@ export default function HeroMarkFlight() {
       // Beide Eigenschaften prüfen: griffe die Timeline, der Bereich aber nicht,
       // flöge die Marke über die ganze Seitenlänge statt über den Scrollweg.
       native =
-        !scroller() &&
+        !appScroller() &&
         CSS.supports('animation-timeline: scroll()') &&
         CSS.supports('animation-range: 0px 1px');
       if (native) {

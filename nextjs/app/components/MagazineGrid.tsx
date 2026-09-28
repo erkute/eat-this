@@ -52,7 +52,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
           </h2>
         </div>
 
-        <ul className={styles.grid} role="list">
+        <ul className={styles.grid} role="list" data-reveal="stagger">
           {list.map((a, i) => (
             <li key={a.slug}>
               <Link href={`/news/${a.slug}`} className={styles.card}>

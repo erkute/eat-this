@@ -111,7 +111,9 @@ describe('HubSection home', () => {
     const html = renderHome();
     // The pick used to be an unlabelled photo in the left half of a row, with
     // the only heading in the block sitting over the nearby cards beside it.
-    const head = html.indexOf('Spot des Tages');
+    // An der Überschrift selbst gesucht: das Laufband (HubMarquee) führt
+    // „Spot des Tages" schon weiter oben als Deko-Wort.
+    const head = html.indexOf('Spot des Tages</h2>');
     expect(html.slice(head - 120, head)).toContain('hv-title');
     expect(head).toBeLessThan(html.indexOf('Gazzo'));
   });
@@ -121,8 +123,8 @@ describe('HubSection home', () => {
     // What's nearby costs the visitor one tap and answers with their own
     // street, so it leads; the pick is the editorial answer to the same
     // question. (The HubNearby mock returns a string, so it lands escaped.)
-    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Spot des Tages'));
-    expect(html.indexOf('Spot des Tages')).toBeLessThan(html.indexOf('Auf dem Teller'));
+    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Spot des Tages</h2>'));
+    expect(html.indexOf('Spot des Tages</h2>')).toBeLessThan(html.indexOf('Auf dem Teller'));
     expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('musteats'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
   });

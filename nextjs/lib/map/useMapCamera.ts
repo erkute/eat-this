@@ -50,15 +50,21 @@ const SHEET_IDLE_MS = 150;
 /**
  * Is the open spot's pin out of sight after the phone detail sheet moved?
  * `anchorY` is the pin's tip and `sheetTop` the sheet's top edge, both in
- * viewport pixels. Out of sight is under the sheet, or — while there is room
- * for more — up under the search/burger row. In the map strip there is not:
- * there the pin only has to stand fully inside the canvas.
+ * viewport pixels. Out of sight is under the sheet, or up under the
+ * search/burger row.
+ *
+ * Only while there is map to speak of below that row. With the sheet up at
+ * the map strip — or scrolled past it, its top edge far above the screen —
+ * the strip is scenery around a detail being read, and the camera leaves it
+ * alone. Until 29.09.2026 it pulled the pin into the strip, and with the
+ * sheet scrolled past it counted every pin as covered: the map shifted
+ * inside the strip while reading, at the end of a detail on every further
+ * pull (Betreiber).
  */
 export function pinNeedsFollow(anchorY: number, sheetTop: number, safeTop: number): boolean {
-  if (anchorY > sheetTop - 8) return true;
   const belowControls = PIN_SAFE_TOP + safeTop;
-  const roomy = sheetTop - belowControls >= PIN_HEIGHT_PX;
-  return anchorY < (roomy ? belowControls : PIN_HEIGHT_PX);
+  if (sheetTop - belowControls < PIN_HEIGHT_PX) return false;
+  return anchorY > sheetTop - 8 || anchorY < belowControls;
 }
 
 type LngLat = { lng: number; lat: number };
@@ -71,6 +77,8 @@ interface Options {
   snap: SheetSnap;
   sheetView: SheetView;
   sheetElRef: RefObject<HTMLElement | null>;
+  /** Desktop: the results panel is folded away, the whole canvas is map. */
+  desktopPanelHiddenRef: RefObject<boolean>;
   selectedRestaurant: MapRestaurant | null;
   /** The ?r= spot the server already rendered open, if any. */
   initialRestaurantId: string | undefined;
@@ -93,6 +101,7 @@ export function useMapCamera({
   snap,
   sheetView,
   sheetElRef,
+  desktopPanelHiddenRef,
   selectedRestaurant,
   initialRestaurantId: initialCameraRestaurantId,
 }: Options) {
@@ -261,15 +270,17 @@ export function useMapCamera({
       if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 };
       const isMobile = isSheetViewport();
       if (!isMobile) {
-        // Desktop: the map canvas IS the left grid cell — the side panel is
-        // outside the canvas. Reserve room at top (toolbar + burger stacked
-        // beneath it) and bottom (zoom controls + FAB); horizontal stays
-        // symmetric so the marker lands at the column's geometric center.
+        // Desktop: the canvas runs under the results panel (MapLayout.module.css),
+        // so the panel's strip is padding on the right while it is out — the
+        // marker lands in the middle of the map that shows. The padding also
+        // moves the pitched map's vanishing point there. Room at top (toolbar
+        // + burger stacked beneath it) and bottom (zoom controls + FAB).
+        const panel = desktopPanelHiddenRef.current ? 0 : (sheetElRef.current?.offsetWidth ?? 0);
         return {
           top: PIN_SAFE_TOP,
           bottom: 100,
           left: PIN_SAFE_SIDE,
-          right: PIN_SAFE_SIDE,
+          right: PIN_SAFE_SIDE + panel,
         };
       }
       // When the caller specifies a target snap, use known pixel heights for
@@ -346,7 +357,7 @@ export function useMapCamera({
         right: PIN_SAFE_SIDE,
       };
     },
-    [snap, sheetView, sheetElRef, phoneDetailFlyPadding, mapRef]
+    [snap, sheetView, sheetElRef, desktopPanelHiddenRef, phoneDetailFlyPadding, mapRef]
   );
   const getFlyPaddingRef = useRef(getFlyPadding);
   getFlyPaddingRef.current = getFlyPadding;

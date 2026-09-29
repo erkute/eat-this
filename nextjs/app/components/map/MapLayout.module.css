@@ -74,17 +74,19 @@
   overflow: hidden;
 }
 
+/* Desktop: no column for the results panel. The map runs under it at full
+   width and the panel lies over its right edge (MapSheet), sliding out and
+   back in. Until 29.09.2026 the panel had its own grid column, animated from
+   380px to 0 — the rows were squeezed with it, and every new canvas width
+   moved the pitched map's vanishing point, so the picture sheared. The camera
+   leaves the covered strip out through its padding instead (useMapCamera,
+   getFlyPadding). */
 @media (min-width: 1024px) {
   .shell {
     --map-desktop-panel-width: clamp(380px, 25vw, 420px);
-  }
-
-  .body {
-    grid-template-columns: minmax(0, 1fr) var(--map-desktop-panel-width);
-    transition: grid-template-columns 0.3s ease;
-  }
-  .body[data-panel-hidden='true'] {
-    grid-template-columns: minmax(0, 1fr) 0px;
+    /* The panel's slide. The tab, burger and locate button at its edge ride
+       along with exactly this — one value, or they part company mid-slide. */
+    --map-panel-slide: var(--motion-slow) var(--ease-standard);
   }
 }
 

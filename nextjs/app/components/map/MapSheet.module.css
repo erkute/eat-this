@@ -54,14 +54,22 @@
 
 /* ── Desktop: the rail ─────────────────────────────────────────────────── */
 @media (min-width: 1024px) {
+  /* Over the map's right edge at its full width: hiding slides it out to the
+     right, showing slides it back in — nothing inside it shrinks (Betreiber,
+     29.09.2026). The map under it never changes size. */
   .list {
-    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    width: var(--map-desktop-panel-width);
     border-left: 1px solid var(--et-rule);
+    transition: transform var(--map-panel-slide);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .list {
     transform: translateX(100%);
-    transition: transform 0.3s ease;
   }
 
   .handle {

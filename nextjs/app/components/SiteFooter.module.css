@@ -287,8 +287,7 @@
 }
 
 @media (hover: hover) {
-  .socialLink:hover,
-  .remyLink:hover {
+  .socialLink:hover {
     transform: translateY(-3px) rotate(0.8deg);
   }
 }
@@ -301,13 +300,50 @@
   translate: 0 1px;
 }
 
-.remyLink:focus-visible img {
-  transform: translateY(-4px) rotate(-2deg);
+/* Hover: Remy reckt sich aus der Zeile und redet, als antworte er schon —
+   „Frag Remy" wird gelb. Kein Kippen mehr (Ansage 29.09.2026). Die Bühne
+   bewegt sich, nicht der Körper: dessen `translate` hält die Auftritts-
+   Animation fest. */
+.remyStage {
+  transition: translate 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.remyLink:focus-visible {
+  color: var(--footer-accent);
+}
+
+.remyLink:focus-visible .remyStage {
+  translate: 0 -8px;
+}
+
+.remyLink[data-remy]:focus-visible .remyOpen,
+.remyLink:focus-visible .remyOpen {
+  animation: remyFlap 0.34s steps(1) infinite;
 }
 
 @media (hover: hover) {
-  .remyLink:hover img {
-    transform: translateY(-4px) rotate(-2deg);
+  .remyLink:hover {
+    color: var(--footer-accent);
+  }
+
+  .remyLink:hover .remyStage {
+    translate: 0 -8px;
+  }
+
+  .remyLink[data-remy]:hover .remyOpen,
+  .remyLink:hover .remyOpen {
+    animation: remyFlap 0.34s steps(1) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .remyLink:is(:hover, :focus-visible) .remyStage {
+    translate: none;
+  }
+
+  .remyLink[data-remy]:is(:hover, :focus-visible) .remyOpen,
+  .remyLink:is(:hover, :focus-visible) .remyOpen {
+    animation: none;
   }
 }
 

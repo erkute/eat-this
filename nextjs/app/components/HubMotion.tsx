@@ -70,7 +70,10 @@ function finishIntro(): (() => void) | void {
   const html = document.documentElement;
   if (!html.hasAttribute('data-hero-intro')) return;
   const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  const running = hero?.getAnimations() ?? [];
+  // Die Section treibt die Zahlen `--in-*`; Stempel und Zucken laufen als
+  // eigene Animationen auf Marke und Innenleben (HubSection.module.css).
+  const parts = [hero, hero?.querySelector('[data-hero-mark]'), hero?.firstElementChild];
+  const running = parts.flatMap((el) => el?.getAnimations() ?? []);
   const done = () => html.removeAttribute('data-hero-intro');
   if (!running.length) {
     done();
@@ -492,56 +495,111 @@ function armScrollBand(rail: HTMLElement, scroller: HTMLElement | Window): () =>
 }
 
 /**
- * FAQ: „Was ist Eat This?" klappt einmal von selbst auf, sobald die Frage gut
- * im Bild ist — oberhalb von 55 % der Höhe —, und zwar langsam: die Antwort
+ * FAQ: „Was ist Eat This?" klappt von selbst auf, sobald die Frage gut im
+ * Bild ist — oberhalb von 55 % der Höhe —, und zwar langsam: die Antwort
  * wächst über gut eine Sekunde auf (Ansage 29.09.2026: „sehe ich sofort
- * aufgeklappt"). Getrieben von GSAP, nicht vom CSS-Gleiten in
- * HubFaq.module.css: das kann nur Chrome, Safari und Firefox klappten sofort
- * auf. Solange GSAP läuft, ist das CSS-Gleiten aus (`data-auto-open`).
- * Ohne JS oder bei reduced motion bleibt sie zu; wer sie vorher schon selbst
- * geöffnet oder geschlossen hat, dem wird nichts umgestellt.
+ * aufgeklappt"). Wer wieder hochscrollt, bis die Frage unter diese Linie
+ * rutscht, sieht sie ebenso langsam zugehen; kommt sie wieder, geht sie
+ * wieder auf. Getrieben von GSAP, nicht vom CSS-Gleiten in
+ * HubFaq.module.css: das kann nur Chrome. Solange GSAP läuft, ist das
+ * CSS-Gleiten aus (`data-auto-open`). Ohne JS oder bei reduced motion bleibt
+ * sie zu. Sobald jemand selbst klickt, stellt hier niemand mehr um.
  */
 function armFaqOpen(safe: gsap.ContextSafeFunc): () => void {
   const first = document.querySelector<HTMLDetailsElement>('[data-hub-faq] details');
   const answer = first?.querySelector<HTMLElement>('p');
   if (!first || !answer || typeof IntersectionObserver === 'undefined') return () => {};
+  const CLEAR = 'height,paddingTop,paddingBottom,overflow';
   let touched = false;
+  // `toggle` kommt auch bei unserem eigenen Umschalten — die zählen nicht.
+  let own = 0;
+  let tween: gsap.core.Tween | null = null;
   const onToggle = () => {
+    if (own > 0) {
+      own -= 1;
+      return;
+    }
     touched = true;
+    tween?.kill();
+    gsap.set(answer, { clearProps: CLEAR });
+    first.removeAttribute('data-auto-open');
   };
-  first.addEventListener('toggle', onToggle, { once: true });
-  const open = safe(() => {
-    first.removeEventListener('toggle', onToggle);
-    if (touched || first.open) return;
-    first.setAttribute('data-auto-open', '');
-    first.open = true;
+  first.addEventListener('toggle', onToggle);
+  const pad = () => {
     // Das Polster wächst mit — sonst sprang die Zeile beim Öffnen um 20px.
+    gsap.set(answer, { clearProps: CLEAR });
     const { paddingTop, paddingBottom } = getComputedStyle(answer);
-    gsap.fromTo(
-      answer,
-      { height: 0, paddingTop: 0, paddingBottom: 0, overflow: 'hidden' },
-      {
-        height: 'auto',
-        paddingTop,
-        paddingBottom,
-        duration: 1.3,
-        ease: 'power1.inOut',
-        clearProps: 'height,paddingTop,paddingBottom,overflow',
-        onComplete: () => first.removeAttribute('data-auto-open'),
-      }
-    );
+    return { paddingTop, paddingBottom };
+  };
+  const open = safe(() => {
+    if (touched) return;
+    // Mitten im Zugehen wieder runtergescrollt: von der aktuellen Höhe aus
+    // wieder auf, statt erst ganz zu schliessen.
+    const closing = first.open && !!tween?.isActive();
+    if (first.open && !closing) return;
+    const from = closing
+      ? {
+          height: gsap.getProperty(answer, 'height'),
+          paddingTop: gsap.getProperty(answer, 'paddingTop'),
+          paddingBottom: gsap.getProperty(answer, 'paddingBottom'),
+          overflow: 'hidden',
+        }
+      : { height: 0, paddingTop: 0, paddingBottom: 0, overflow: 'hidden' };
+    tween?.kill();
+    first.setAttribute('data-auto-open', '');
+    if (!first.open) {
+      own += 1;
+      first.open = true;
+    }
+    tween = gsap.fromTo(answer, from, {
+      height: 'auto',
+      ...pad(),
+      duration: 1.3,
+      ease: 'power1.inOut',
+      clearProps: CLEAR,
+      onComplete: () => first.removeAttribute('data-auto-open'),
+    });
+  }) as () => void;
+  const close = safe(() => {
+    if (touched || !first.open) return;
+    tween?.kill();
+    first.setAttribute('data-auto-open', '');
+    tween = gsap.to(answer, {
+      height: 0,
+      paddingTop: 0,
+      paddingBottom: 0,
+      overflow: 'hidden',
+      duration: 1,
+      ease: 'power1.inOut',
+      onComplete: () => {
+        own += 1;
+        first.open = false;
+        gsap.set(answer, { clearProps: CLEAR });
+        // Das CSS-Gleiten erst nach dem Umschalten wieder erlauben — sonst
+        // spielte es das Zugehen ein zweites Mal ab (gemessen: kurz 112px).
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            if (!tween?.isActive()) first.removeAttribute('data-auto-open');
+          })
+        );
+      },
+    });
   }) as () => void;
   const io = new IntersectionObserver(
     (entries) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      io.disconnect();
-      open();
+      for (const e of entries) {
+        if (e.isIntersecting) open();
+        // Unter die Linie gerutscht = wieder hochgescrollt. Oben hinaus
+        // (weitergescrollt) bleibt sie offen.
+        else if (e.rootBounds && e.boundingClientRect.top > e.rootBounds.bottom) close();
+      }
     },
     { rootMargin: '0px 0px -45% 0px' }
   );
   io.observe(first);
   return () => {
     io.disconnect();
+    tween?.kill();
     first.removeEventListener('toggle', onToggle);
     first.removeAttribute('data-auto-open');
   };
@@ -552,7 +610,9 @@ function armFaqOpen(safe: gsap.ContextSafeFunc): () => void {
  * Feld, „Anmelden" wird gedrückt, das Feld leert sich wieder (Ansage
  * 28.09.2026). Getippt wird in den Platzhalter, nie in den Wert — es wird
  * nichts abgeschickt, nichts validiert, und wer selbst ins Feld tippt, bricht
- * die Vorführung sofort ab. Jedes Mal beim Hereinkommen, höchstens alle 12s.
+ * die Vorführung sofort ab. Sie läuft in Schleife, solange die Tafel im Bild
+ * ist: tippen, drücken, leeren, kurz Pause, von vorn (Ansage 29.09.2026).
+ * Nach eigenem Tippen erst wieder, wenn die Tafel neu ins Bild kommt.
  * Feld und Knopf werden bei jedem Lauf neu gesucht, Fokus und Eingabe an der
  * Section abgefangen: nach einem Absenden baut LoginBoard das Formular über
  * die „Mail gesendet"-Ansicht neu, gemerkte Knoten wären dann tot.
@@ -567,7 +627,7 @@ function armSignupDemo(): () => void {
   // Die Knoten des laufenden Durchgangs, damit `reset` genau sie zurücksetzt.
   let shown: { input: HTMLInputElement; submit: HTMLButtonElement; original: string } | null = null;
   let timers: number[] = [];
-  let lastRun = -Infinity;
+  let active = false;
   const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
   const reset = () => {
     timers.forEach(clearTimeout);
@@ -578,14 +638,19 @@ function armSignupDemo(): () => void {
     shown.submit.removeAttribute('data-pressing');
     shown = null;
   };
+  const stop = () => {
+    active = false;
+    reset();
+  };
   const run = () => {
+    if (!active) return;
     const input = section.querySelector<HTMLInputElement>('input[type="email"]');
     const submit = section.querySelector<HTMLButtonElement>('button[type="submit"]');
-    // Kein Formular (gerade „Mail gesendet") — nichts vorzuführen.
-    if (!input || !submit) return;
-    if (input.value || document.activeElement === input) return;
-    if (performance.now() - lastRun < 12000) return;
-    lastRun = performance.now();
+    // Kein Formular (gerade „Mail gesendet"), oder jemand ist im Feld.
+    if (!input || !submit || input.value || document.activeElement === input) {
+      stop();
+      return;
+    }
     reset();
     shown = { input, submit, original: input.placeholder };
     input.setAttribute('data-demo-typing', '');
@@ -601,15 +666,26 @@ function armSignupDemo(): () => void {
     later(() => {
       input.placeholder = '';
     }, t + 1000);
-    later(reset, t + 1700);
+    // Leeren, kurz Pause mit dem echten Platzhalter, dann von vorn.
+    later(() => {
+      reset();
+      later(run, 1800);
+    }, t + 1700);
   };
   const io = new IntersectionObserver(
-    (entries) => entries.forEach((e) => (e.isIntersecting ? run() : reset())),
+    (entries) =>
+      entries.forEach((e) => {
+        if (!e.isIntersecting) stop();
+        else if (!active) {
+          active = true;
+          run();
+        }
+      }),
     { rootMargin: '0px 0px -30% 0px' }
   );
   io.observe(section);
   const interrupt = (e: Event) => {
-    if (isField(e.target)) reset();
+    if (isField(e.target)) stop();
   };
   section.addEventListener('focusin', interrupt);
   section.addEventListener('input', interrupt);
@@ -617,7 +693,7 @@ function armSignupDemo(): () => void {
     io.disconnect();
     section.removeEventListener('focusin', interrupt);
     section.removeEventListener('input', interrupt);
-    reset();
+    stop();
   };
 }
 

@@ -404,7 +404,7 @@
   scale: calc(1 - var(--press) * 0.04);
   box-shadow: 0 calc(8px + (1 - var(--in-cta, 1)) * 18px - var(--press) * 5px)
     calc(22px + (1 - var(--in-cta, 1)) * 20px) -10px rgba(255, 198, 0, 0.3);
-  animation: ctaPress 4.5s linear 2.8s infinite both;
+  animation: ctaPress 4.5s linear 3s infinite both;
 }
 
 /* Immer wieder, nicht nur beim Laden (Ansage 28.09.2026: „wenn ich von unten
@@ -487,11 +487,6 @@
    `@property` macht die Zahlen interpolierbar; ohne springt ein Browser in
    der Mitte auf den Endwert — auch dann steht am Ende alles. HubMotion nimmt
    das Attribut ab, sobald alle Animationen durch sind. */
-@property --in-mark {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
 @property --in-copy {
   syntax: '<number>';
   inherits: true;
@@ -512,11 +507,6 @@
   inherits: true;
   initial-value: 1;
 }
-@property --thud {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
-}
 @property --in-front {
   syntax: '<number>';
   inherits: true;
@@ -528,11 +518,6 @@
   initial-value: 1;
 }
 
-@keyframes inMark {
-  from {
-    --in-mark: 0;
-  }
-}
 @keyframes inCopy {
   from {
     --in-copy: 0;
@@ -551,24 +536,6 @@
 @keyframes inCta {
   from {
     --in-cta: 0;
-  }
-}
-/* Der Aufprall des Stempels: ein Schlag nach unten, einmal zurück, aus. */
-@keyframes inThud {
-  0% {
-    --thud: 0;
-  }
-  18% {
-    --thud: 1;
-  }
-  45% {
-    --thud: -0.55;
-  }
-  70% {
-    --thud: 0.22;
-  }
-  100% {
-    --thud: 0;
   }
 }
 @keyframes inFront {
@@ -590,58 +557,122 @@
   --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
   --swing: cubic-bezier(0.2, 1.28, 0.32, 1);
   --glide: cubic-bezier(0.25, 1, 0.5, 1);
+  --slam: cubic-bezier(0.5, 0, 0.75, 0);
   animation:
-    inMark 0.42s cubic-bezier(0.5, 0, 0.75, 0) 0.28s both,
-    inThud 0.55s ease-out 0.7s both,
     inBack 1.8s var(--expo-out) 0.75s both,
     inFront 1.7s var(--expo-out) 0.85s both,
-    inL1 1.9s var(--glide) 0.8s both,
-    inL2 1.9s var(--glide) 1.05s both,
-    inCopy 1.05s var(--swing) 1.5s both,
-    inCta 0.75s var(--glide) 2s both;
+    inL1 0.3s var(--slam) 0.95s both,
+    inL2 0.3s var(--slam) 1.3s both,
+    inCopy 1.05s var(--swing) 1.8s both,
+    inCta 0.75s var(--glide) 2.2s both;
 }
 
 /* Die Wortmarke knallt als Stempel auf die Seite, „so richtig in your
    face" (Ansage 29.09.2026): sie steht beim ersten Bild riesig und gedreht
-   über allem, hält einen Moment und schlägt dann mit anziehendem Tempo auf
-   ihren Platz. Beim Aufprall staucht sie sich (`--thud`) und der ganze
-   Aufmacher zuckt nach unten. Davor fiel sie von oben herein. Sie liegt
-   dabei über den Telefonen; die Navigation bleibt darüber. HeroMarkFlight
-   misst sie erst, wenn der Auftritt durch ist — die Skalierung verfälschte
-   jede Messung. */
-/* Riesig steht sie in der Bildmitte, nicht an ihrem Platz oben links —
-   sonst schnitt der Aufmacher die obere Hälfte ab (gemessen). */
+   in der Bildmitte — an ihrem Platz oben links schnitt der Aufmacher die
+   obere Hälfte ab —, hält einen Moment und schlägt dann mit anziehendem
+   Tempo auf ihren Platz, staucht sich beim Aufprall und federt aus. Sie
+   liegt dabei über den Telefonen; die Navigation bleibt darüber.
+   Anders als der Rest des Auftritts eine echte Animation auf dem Element,
+   keine animierte Zahl auf der Section: die rechnet der Browser auf dem
+   Hauptthread, und der ist beim Laden mit der Hydrierung beschäftigt — der
+   Stempel ruckelte (Ansage 29.09.2026). `translate/scale/rotate` laufen auf
+   dem Compositor. Möglich, weil HubHeroCopy die Marke über den
+   Anmelde-Wechsel hinweg als dasselbe Element behält. HeroMarkFlight misst
+   sie erst, wenn der Auftritt durch ist. */
 :global(html[data-hero-intro]) .heroMark {
   position: relative;
   z-index: 2;
-  translate: calc((1 - var(--in-mark, 1)) * var(--stamp-dx)) calc((1 - var(--in-mark, 1)) * 26vh);
-  scale: calc(1 + (1 - var(--in-mark, 1)) * 3.2 + var(--thud, 0) * 0.06)
-    calc(1 + (1 - var(--in-mark, 1)) * 3.2 - var(--thud, 0) * 0.1);
-  rotate: calc((1 - var(--in-mark, 1)) * -9deg);
   transform-origin: 50% 60%;
+  animation: markStamp 1s linear 0.28s both;
 }
 
+@keyframes markStamp {
+  0% {
+    translate: var(--stamp-dx) 26vh;
+    scale: 4.2;
+    rotate: -9deg;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  }
+  42% {
+    translate: 0 0;
+    scale: 1;
+    rotate: 0deg;
+    animation-timing-function: ease-out;
+  }
+  54% {
+    scale: 1.06 0.9;
+  }
+  70% {
+    scale: 0.97 1.05;
+  }
+  84% {
+    scale: 1.01 0.99;
+  }
+  100% {
+    translate: 0 0;
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
+/* Jeder Einschlag lässt den ganzen Aufmacher zucken: der Stempel (0,7s),
+   dann „WE TELL YOU" (1,25s) und „WHAT TO EAT" (1,6s), jeweils etwas
+   schwächer. Ebenfalls direkt auf dem Element, nicht über eine Zahl. */
 :global(html[data-hero-intro]) .heroInner {
-  translate: 0 calc(var(--thud, 0) * 7px);
+  animation: heroThud 1.3s linear 0.7s both;
 }
 
-/* Die Headline teilt sich (Ansage 28.09.2026): „WE TELL YOU" gleitet
-   langsam von links herein, „WHAT TO EAT" von rechts, leicht versetzt —
-   sie treffen sich in der Mitte. Lange, weich auslaufende Kurve, damit es
-   langsam wirkt statt geschossen. Die Schräge hängt an derselben Zahl wie
-   der Weg: am Anfang, wo er am schnellsten ist, liegt die Zeile am
-   stärksten schräg, am Ende steht sie gerade — Tempo als Form. Der
-   Aufmacher schneidet seitlich ab, was noch vor dem Bild steht. */
+@keyframes heroThud {
+  0%,
+  27%,
+  42%,
+  58%,
+  69%,
+  86%,
+  100% {
+    translate: 0 0;
+  }
+  4% {
+    translate: 0 7px;
+  }
+  12% {
+    translate: 0 -4px;
+  }
+  20% {
+    translate: 0 1.5px;
+  }
+  45% {
+    translate: 0 4px;
+  }
+  52% {
+    translate: 0 -2px;
+  }
+  72% {
+    translate: 0 4px;
+  }
+  79% {
+    translate: 0 -2px;
+  }
+}
+
+/* Die Headline schlägt Zeile für Zeile ein, nacheinander (Ansage
+   29.09.2026: „erst We tell you, dann what to eat"; von links und rechts
+   sah „blöd aus"): erst „WE TELL YOU", dann „WHAT TO EAT", jede kleiner als
+   der Stempel der Marke und leicht gegeneinander gedreht. Bis zum Einschlag
+   ist die Zeile nicht da: bei genau 0 steht die Skalierung auf 0. Über die
+   Zahlen `--in-l1/-l2` auf der Section, weil HubHeroCopy die Zeilen beim
+   Anmelde-Wechsel neu baut. */
 :global(html[data-hero-intro]) .heroHeadline .heroLine:first-child {
-  translate: calc((1 - var(--in-l1, 1)) * -100vw) 0;
-  transform: skewX(calc((1 - var(--in-l1, 1)) * 20deg));
-  transform-origin: 0 100%;
+  scale: calc((1 + (1 - var(--in-l1, 1)) * 0.9) * min(1, var(--in-l1, 1) * 1000));
+  rotate: calc((1 - var(--in-l1, 1)) * -5deg);
+  transform-origin: 50% 70%;
 }
 
 :global(html[data-hero-intro]) .heroHeadline .heroLine:last-child {
-  translate: calc((1 - var(--in-l2, 1)) * 100vw) 0;
-  transform: skewX(calc((1 - var(--in-l2, 1)) * -20deg));
-  transform-origin: 100% 100%;
+  scale: calc((1 + (1 - var(--in-l2, 1)) * 0.9) * min(1, var(--in-l2, 1) * 1000));
+  rotate: calc((1 - var(--in-l2, 1)) * 4deg);
+  transform-origin: 50% 70%;
 }
 
 /* Gruß und Lead folgen als Block von links, sobald die Headline steht. */

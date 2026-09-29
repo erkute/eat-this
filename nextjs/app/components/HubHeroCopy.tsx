@@ -83,8 +83,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
     : 'We tell you what to eat';
 
   return (
-    <div className={styles.heroCopy}>
-      <HeroMark />
+    <>
       {/* Der Gruß bleibt, die Gästezeile nicht: „Was du essen solltest." sagte
           dasselbe wie die Headline darunter, und über der Wortmarke wurde die
           Spalte damit dreistöckig. */}
@@ -113,7 +112,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
           </Link>
         ) : null}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -127,8 +126,7 @@ function LoadingHeroCopy({ locale }: Props) {
   const de = locale === 'de';
 
   return (
-    <div className={styles.heroCopy}>
-      <HeroMark />
+    <>
       <span className={`hv-kicker ${styles.heroKicker}`} data-auth-only="">
         Hey
       </span>
@@ -168,7 +166,7 @@ function LoadingHeroCopy({ locale }: Props) {
           </Link>
         </span>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -180,9 +178,18 @@ export default function HubHeroCopy({ locale }: Props) {
       null
     : null;
 
-  if (loading) {
-    return <LoadingHeroCopy locale={locale} />;
-  }
-
-  return <HeroCopy locale={locale} variant={user ? 'auth' : 'guest'} firstName={firstName} />;
+  // Die Wortmarke steht ausserhalb des Wechsels: sobald `useAuth` fertig ist,
+  // baut React Headline und Knöpfe neu, die Marke bleibt dasselbe Element.
+  // Nur so kann ihr Stempel beim Laden eine echte CSS-Animation auf dem
+  // Element sein (Compositor) — ein neuer Knoten finge sie von vorn an.
+  return (
+    <div className={styles.heroCopy}>
+      <HeroMark />
+      {loading ? (
+        <LoadingHeroCopy locale={locale} />
+      ) : (
+        <HeroCopy locale={locale} variant={user ? 'auth' : 'guest'} firstName={firstName} />
+      )}
+    </div>
+  );
 }

@@ -56,11 +56,13 @@ export default function SiteFooter() {
         <Link href="/#hub-fragremy" className={styles.remyLink} ref={remyRef}>
           {/* Gesichter übereinander: das offene blitzt beim Reden durch, das
               lachende steht beim Hovern (harte Schnitte, kein Überblenden —
-              wie der schwebende Remy). */}
+              wie der schwebende Remy). Alle drei aus demselben 1024er-Zuschnitt:
+              `buddy-smile` sitzt anders im Bild, mit ihm stand Remy beim
+              Mundwechsel doppelt da. */}
           <span className={styles.remyStage} aria-hidden="true">
             <span className={styles.remyBody}>
               <Image
-                src="/buddy/buddy-smile.webp"
+                src="/buddy/buddy.webp"
                 alt=""
                 width={220}
                 height={220}

@@ -1,11 +1,19 @@
 'use client';
 
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
+import { scrollProgress } from '@/lib/dom/scrollProgress';
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+/* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
+   leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
+   auf jeder Seite. Damit rechnet der Hauptthread jedes Frame mit, und selbst
+   reine Compositor-Animationen (Laufband, schwebende Telefone) kosteten
+   Stil-Neuberechnungen — gemessen 60/s im Leerlauf, am gedrosselten Telefon
+   rund ein Viertel der Hauptthread-Zeit (Review 29.09.2026). Ausgelöst wird
+   hier per IntersectionObserver, was am Scrollweg hängt, über einen passiven
+   Scroll-Listener. */
+gsap.registerPlugin(useGSAP);
 
 /**
  * Bewegung auf der Startseite. Alles nur ohne `prefers-reduced-motion` und nie
@@ -23,13 +31,12 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *    kein JS: sie laufen im Takt des Scrollens, auch auf dem iPhone, wo
  *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
  *    Nur wo der Browser keine Scroll-Timeline kann, treibt `armScrubFallback`
- *    dieselben Werte per GSAP (`data-scrub`).
- *    Der Stapel ist bewusst nicht mehr gepinnt (bis 28.09.2026 ab 1024px eine
- *    Sequenz mit ScrollTrigger-Pin): ein Pin braucht im `.app-pages`-Container
- *    `pinType: 'fixed'` — ein Transform-Pin liefe dem Scrollen dort hinterher
- *    wie Scroll-JS auf dem iPhone — und nach jeder Höhenänderung darüber ein
- *    Neumessen, sonst greift er an der alten Stelle. Ohne Pin fällt beides weg,
- *    und Telefon und Desktop teilen denselben Weg.
+ *    dieselben Werte per Scroll-Listener (`data-scrub`).
+ *    Der Stapel ist bewusst nicht gepinnt (bis 28.09.2026 ab 1024px eine
+ *    Sequenz mit Pin): ein Pin im `.app-pages`-Container liefe dem Scrollen
+ *    hinterher wie Scroll-JS auf dem iPhone und müsste nach jeder
+ *    Höhenänderung darüber neu messen. Ohne Pin teilen Telefon und Desktop
+ *    denselben Weg.
  *
  *    Die Bänder (Nearby, Magazin) sind die Ausnahme: sie lassen sich auch
  *    selbst wischen, also schiebt JS am Telefon ihre Scrollposition mit
@@ -48,8 +55,10 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
- *      wird gedrückt, das Feld leert sich (`armSignupDemo`).
- *    - FAQ: die erste Frage klappt einmal von selbst auf (`armFaqOpen`).
+ *      wird gedrückt, das Feld leert sich — in Schleife, solange die Tafel im
+ *      Bild ist (`armSignupDemo`).
+ *    - FAQ: die erste Frage klappt von selbst auf und beim Hochscrollen
+ *      wieder zu, bis jemand selbst klickt (`armFaqOpen`).
  *
  * 4. **Immer:** Remy redet, solange gescrollt wird — der große im Frag-Remy-
  *    Abschnitt und der schwebende unten rechts (`armScrollTalk`). Scrollen
@@ -125,6 +134,49 @@ function onceInView(plays: Map<Element, () => void>): () => void {
   return () => io.disconnect();
 }
 
+/** Auftritt und Rückweg an einer Section: `enter`, sobald sie das mittlere
+ *  Band des Bildschirms (30–70 % der Höhe) berührt, `leave`, sobald sie es
+ *  nach oben oder unten verlässt — in beide Richtungen, beliebig oft. */
+function whileCentered(el: Element, enter: () => void, leave: () => void): () => void {
+  if (typeof IntersectionObserver === 'undefined') return () => {};
+  let inside = false;
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting === inside) return;
+      inside = entry.isIntersecting;
+      (inside ? enter : leave)();
+    },
+    { rootMargin: '-30% 0px -30% 0px' }
+  );
+  io.observe(el);
+  return () => io.disconnect();
+}
+
+/** Oberkante und Höhe des sichtbaren Scrollbereichs: `.app-pages` ab 768px,
+ *  darunter das Fenster. */
+function viewportOf(scroller: HTMLElement | Window): { top: number; height: number } {
+  return scroller instanceof HTMLElement
+    ? scroller.getBoundingClientRect()
+    : { top: 0, height: window.innerHeight };
+}
+
+/** Ruft `update` höchstens einmal pro Frame, solange gescrollt wird, und einmal
+ *  gleich zu Beginn. */
+function onScrollFrame(scroller: HTMLElement | Window, update: () => void): () => void {
+  let frame = 0;
+  const schedule = () => {
+    if (!frame) frame = requestAnimationFrame(() => ((frame = 0), update()));
+  };
+  update();
+  scroller.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule);
+  return () => {
+    cancelAnimationFrame(frame);
+    scroller.removeEventListener('scroll', schedule);
+    window.removeEventListener('resize', schedule);
+  };
+}
+
 /** Gestaffelte Kacheln (Kategorien): versteckt wird nur, was beim
  *  Mount unterhalb des Bildschirms liegt — was schon zu sehen ist (gemerkte
  *  Scrollposition), bleibt stehen. */
@@ -174,12 +226,12 @@ function armStaggers(safe: gsap.ContextSafeFunc): () => void {
  * Umkehrbar (Ansage 28.09.2026): wer den Abschnitt nach oben oder unten
  * verlässt, sieht den Auftritt rückwärts laufen — Remy taucht ab, „Frag
  * Remy." fliegt weg, das Fragezeichen zurück nach links —, wer zurückkommt,
- * sieht ihn neu. ScrollTrigger löst nur aus, er hängt nicht an der Position:
+ * sieht ihn neu. Der Observer löst nur aus, nichts hängt an der Position:
  * auf dem iPhone zittert da nichts.
  * Getrieben wird Remy über `--remy-y/--remy-r` (siehe HubFragRemy.module.css),
  * der Mund über `data-speaking`; beides verwaltet React nicht.
  */
-function armFragRemy(scroller: HTMLElement | Window): () => void {
+function armFragRemy(): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
   const q = section?.querySelector<HTMLElement>('[data-fragremy-q]');
   const ask = section?.querySelector<HTMLElement>('[data-fragremy-ask]');
@@ -290,18 +342,9 @@ function armFragRemy(scroller: HTMLElement | Window): () => void {
     stopTalk();
     entrance.timeScale(1.6).reverse();
   };
-  const st = ScrollTrigger.create({
-    trigger: section,
-    scroller,
-    start: 'top 70%',
-    end: 'bottom 30%',
-    onEnter: show,
-    onEnterBack: show,
-    onLeave: hide,
-    onLeaveBack: hide,
-  });
+  const unwatch = whileCentered(section, show, hide);
   return () => {
-    st.kill();
+    unwatch();
     stopTalk();
     entrance.kill();
     settle();
@@ -318,7 +361,7 @@ function armFragRemy(scroller: HTMLElement | Window): () => void {
  * (`visibility`, kein Ausblenden). Genau ein Tween auf seinem `transform` —
  * zwei liessen bei Frag Remy den Rückweg fallen.
  */
-function armStamps(scroller: HTMLElement | Window): () => void {
+function armStamps(): () => void {
   const root = document.querySelector<HTMLElement>('[data-hub]');
   if (!root) return () => {};
   const stops: Array<() => void> = [];
@@ -339,18 +382,13 @@ function armStamps(scroller: HTMLElement | Window): () => void {
           { y: 0, duration: 0.5, ease: 'elastic.out(1, 0.35)' },
         ],
       });
-    const st = ScrollTrigger.create({
-      trigger: el.closest('section') ?? el,
-      scroller,
-      start: 'top 70%',
-      end: 'bottom 30%',
-      onEnter: () => stamp.timeScale(1).play(),
-      onEnterBack: () => stamp.timeScale(1).play(),
-      onLeave: () => stamp.timeScale(1.6).reverse(),
-      onLeaveBack: () => stamp.timeScale(1.6).reverse(),
-    });
+    const unwatch = whileCentered(
+      el.closest('section') ?? el,
+      () => stamp.timeScale(1).play(),
+      () => stamp.timeScale(1.6).reverse()
+    );
     stops.push(() => {
-      st.kill();
+      unwatch();
       stamp.kill();
       gsap.set(el, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility` });
     });
@@ -455,13 +493,9 @@ function armScrollBand(rail: HTMLElement, scroller: HTMLElement | Window): () =>
   let offset = 0;
   let written = -1;
   let frame = 0;
-  const viewport = () =>
-    scroller instanceof HTMLElement
-      ? scroller.getBoundingClientRect()
-      : { top: 0, height: window.innerHeight };
   const goal = () => {
     const r = rail.getBoundingClientRect();
-    const v = viewport();
+    const v = viewportOf(scroller);
     const p = gsap.utils.clamp(0, 1, (v.top + v.height - r.top) / (v.height + r.height));
     return (1 - p) * (rail.scrollWidth - rail.clientWidth);
   };
@@ -733,7 +767,7 @@ function armScrollTalk(scroller: HTMLElement | Window): () => void {
  */
 function armMarqueeSkew(scroller: HTMLElement | Window): () => void {
   const tape = document.querySelector<HTMLElement>('[data-marquee-tape]');
-  if (!tape) return () => {};
+  if (!tape || typeof IntersectionObserver === 'undefined') return () => {};
   const run = tape.firstElementChild?.getAnimations()[0];
   const proxy = { skew: 0, rate: 1 };
   const write = () => tape.style.setProperty('--skew', proxy.skew.toFixed(2));
@@ -742,90 +776,120 @@ function armMarqueeSkew(scroller: HTMLElement | Window): () => void {
     if (run) run.playbackRate = proxy.rate;
   };
   const clamp = gsap.utils.clamp(-12, 12);
-  ScrollTrigger.create({
-    trigger: tape,
-    scroller,
-    start: 'top bottom',
-    end: 'bottom top',
-    onUpdate: (self) => {
-      const v = self.getVelocity();
-      const rate = 1 + Math.min(12, Math.abs(v) / 120);
-      if (rate > proxy.rate) {
-        proxy.rate = rate;
-        gsap.to(proxy, {
-          rate: 1,
-          duration: 1.4,
-          ease: 'power2.out',
-          overwrite: 'auto',
-          onUpdate: writeRate,
-        });
-      }
-      const skew = clamp(v / -260);
-      if (Math.abs(skew) <= Math.abs(proxy.skew)) return;
-      proxy.skew = skew;
-      gsap.to(proxy, {
+  const top = () => (scroller instanceof HTMLElement ? scroller.scrollTop : window.scrollY);
+  let last = { y: top(), t: performance.now() };
+  // Tempo in px/s aus zwei Scroll-Ereignissen; nur, solange das Band im Bild
+  // ist. Nach einer Pause zählt das erste Ereignis nicht — sonst ginge die
+  // Pause als langsames Scrollen in die Rechnung ein.
+  const onScroll = () => {
+    const now = { y: top(), t: performance.now() };
+    const dt = now.t - last.t;
+    const v = dt > 0 && dt < 100 ? ((now.y - last.y) / dt) * 1000 : 0;
+    last = now;
+    // `fromTo`, nicht `to`: ein `to` liest seinen Startwert erst beim ersten
+    // Rendern, und bis dahin hatte der laufende Tween den Wert schon wieder
+    // zurückgeschrieben — das Band wurde kaum schneller (gemessen: 1,1 statt 7).
+    const rate = 1 + Math.min(12, Math.abs(v) / 120);
+    if (rate > proxy.rate) {
+      gsap.fromTo(
+        proxy,
+        { rate },
+        { rate: 1, duration: 1.4, ease: 'power2.out', overwrite: 'auto', onUpdate: writeRate }
+      );
+    }
+    const skew = clamp(v / -260);
+    if (Math.abs(skew) <= Math.abs(proxy.skew)) return;
+    gsap.fromTo(
+      proxy,
+      { skew },
+      {
         skew: 0,
         duration: 0.9,
         ease: 'power3',
         overwrite: 'auto',
         onUpdate: write,
         onComplete: rest,
-      });
-    },
+      }
+    );
+  };
+  const io = new IntersectionObserver(([entry]) => {
+    scroller.removeEventListener('scroll', onScroll);
+    if (!entry.isIntersecting) return;
+    last = { y: top(), t: performance.now() };
+    scroller.addEventListener('scroll', onScroll, { passive: true });
   });
+  io.observe(tape);
   return () => {
+    io.disconnect();
+    scroller.removeEventListener('scroll', onScroll);
+    gsap.killTweensOf(proxy);
+    rest();
     if (run) run.playbackRate = 1;
   };
 }
 
 /**
  * Für Browser ohne Scroll-Timeline (`animation-timeline: view()`): dieselben
- * Werte, die sonst CSS am Scrollweg treibt, per ScrollTrigger. Jedes Element
+ * Werte, die sonst CSS am Scrollweg treibt, per Scroll-Listener. Jedes Element
  * sagt selbst, welche Variable von wo nach wo läuft (`data-scrub="--deal 0 1"`)
- * und über welche Strecke (`data-scrub-start/-end`, ScrollTrigger-Notation).
+ * und über welche Strecke (`data-scrub-start/-end`, lib/dom/scrollProgress).
+ * Ein Drittel Sekunde Nachlauf, damit es sich nicht wie eingerastet anfühlt.
  */
-function armScrubFallback(scroller: HTMLElement | Window): void {
-  if (typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()')) return;
-  for (const el of document.querySelectorAll<HTMLElement>('[data-hub] [data-scrub]')) {
-    const [prop, from, to] = (el.dataset.scrub ?? '').split(' ');
-    if (!prop?.startsWith('--')) continue;
-    gsap.fromTo(
-      el,
-      { [prop]: Number(from) },
-      {
-        [prop]: Number(to),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: el,
-          scroller,
-          start: el.dataset.scrubStart ?? 'top bottom',
-          end: el.dataset.scrubEnd ?? 'bottom top',
-          scrub: 0.3,
-        },
-      }
-    );
-  }
+function armScrubFallback(scroller: HTMLElement | Window): () => void {
+  if (typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()')) return () => {};
+  const scrubs = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-hub] [data-scrub]'),
+    (el) => {
+      const [prop, from, to] = (el.dataset.scrub ?? '').split(' ');
+      if (!prop?.startsWith('--')) return null;
+      const a = Number(from);
+      const b = Number(to);
+      const set = gsap.quickTo(el, prop, { duration: 0.3, ease: 'power1.out' });
+      const start = el.dataset.scrubStart ?? 'top bottom';
+      const end = el.dataset.scrubEnd ?? 'bottom top';
+      gsap.set(el, {
+        [prop]:
+          a +
+          (b - a) * scrollProgress(el.getBoundingClientRect(), viewportOf(scroller), start, end),
+      });
+      return {
+        el,
+        prop,
+        update: () =>
+          set(
+            a +
+              (b - a) * scrollProgress(el.getBoundingClientRect(), viewportOf(scroller), start, end)
+          ),
+      };
+    }
+  ).filter((s) => s !== null);
+  if (!scrubs.length) return () => {};
+  const stop = onScrollFrame(scroller, () => scrubs.forEach((s) => s.update()));
+  return () => {
+    stop();
+    scrubs.forEach(({ el, prop }) => {
+      gsap.killTweensOf(el);
+      gsap.set(el, { clearProps: prop });
+    });
+  };
 }
 
-function armPhonesDrift(scroller: HTMLElement | Window): void {
+/** Die Telefone driften auseinander, während der Aufmacher oben hinausläuft
+ *  (`--phones-drift`, HubSection.module.css) — mit einem halben Takt Nachlauf:
+ *  liest sich als Trägheit, nicht als Ruckeln. */
+function armPhonesDrift(scroller: HTMLElement | Window): () => void {
   const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  if (!hero) return;
-  gsap.fromTo(
-    hero,
-    { '--phones-drift': 0 },
-    {
-      '--phones-drift': 1,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: hero,
-        scroller,
-        start: 'top top',
-        end: 'bottom top',
-        // Ein halber Takt Nachlauf: liest sich als Trägheit, nicht als Ruckeln.
-        scrub: 0.5,
-      },
-    }
-  );
+  if (!hero) return () => {};
+  const drift = gsap.quickTo(hero, '--phones-drift', { duration: 0.5, ease: 'power1.out' });
+  const progress = () =>
+    scrollProgress(hero.getBoundingClientRect(), viewportOf(scroller), 'top top', 'bottom top');
+  gsap.set(hero, { '--phones-drift': progress() });
+  const stop = onScrollFrame(scroller, () => drift(progress()));
+  return () => {
+    stop();
+    gsap.killTweensOf(hero);
+    gsap.set(hero, { clearProps: '--phones-drift' });
+  };
 }
 
 /**
@@ -901,32 +965,6 @@ function armHeroPointer(): () => void {
   };
 }
 
-/**
- * ScrollTrigger misst Start und Ende einmal und dann nur bei Resize/Load neu.
- * Wächst die Seite oberhalb eines Triggers danach — die Markenschrift von
- * Typekit kommt nach, Bilder ohne feste Höhe, die Nearby-Karten nach der
- * Standortfreigabe —, griffe er an der alten Stelle. Also bei jeder
- * Höhenänderung der Seite neu messen, gebündelt auf eine Messung pro
- * Ruhephase.
- */
-function refreshOnReflow(): () => void {
-  const root = document.querySelector<HTMLElement>('[data-hub]');
-  if (!root || typeof ResizeObserver === 'undefined') return () => {};
-  let timer = 0;
-  let last = root.offsetHeight;
-  const ro = new ResizeObserver(() => {
-    if (root.offsetHeight === last) return;
-    last = root.offsetHeight;
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => ScrollTrigger.refresh(), 150);
-  });
-  ro.observe(root);
-  return () => {
-    ro.disconnect();
-    window.clearTimeout(timer);
-  };
-}
-
 export default function HubMotion() {
   useGSAP(() => {
     // Ausserhalb von matchMedia: aufräumen muss es auch, wenn jemand während
@@ -944,10 +982,10 @@ export default function HubMotion() {
         if (!motion) return;
         const scroller = appScroller() ?? window;
         const stops: Array<() => void> = [];
-        armScrubFallback(scroller);
+        stops.push(armScrubFallback(scroller));
         stops.push(armStaggers(safe!));
-        stops.push(armFragRemy(scroller));
-        stops.push(armStamps(scroller));
+        stops.push(armFragRemy());
+        stops.push(armStamps());
         stops.push(armInView());
         stops.push(desk ? armBandGlide(safe!) : armScrollBands(scroller));
         stops.push(armSignupDemo());
@@ -956,9 +994,8 @@ export default function HubMotion() {
         stops.push(armMarqueeSkew(scroller));
         // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein
         // bis zwei Frames hinterher (siehe HeroMarkFlight) und zittert.
-        if (desk) armPhonesDrift(scroller);
+        if (desk) stops.push(armPhonesDrift(scroller));
         if (desk && pointer) stops.push(armHeroPointer());
-        stops.push(refreshOnReflow());
         return () => stops.forEach((stop) => stop());
       }
     );

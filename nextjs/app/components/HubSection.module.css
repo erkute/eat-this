@@ -327,8 +327,8 @@
 /* Beim Herausscrollen driften die Telefone auseinander: das vordere steigt
    schneller und richtet sich auf, das hintere kippt weiter weg — Tiefe statt
    einer flachen Bildstrecke. `--phones-drift` läuft 0 → 1 über die Höhe des
-   Aufmachers und kommt von HubMotion (GSAP ScrollTrigger, nur ab 768px und
-   ohne reduced motion); ohne JS bleibt es 0. Über die Einzel-Eigenschaften
+   Aufmachers und kommt von HubMotion (Scroll-Listener mit GSAP-Nachlauf, nur
+   ab 768px und ohne reduced motion); ohne JS bleibt es 0. Über die Einzel-Eigenschaften
    `translate`/`rotate`, nicht über `transform`: die gehört dem Hover und
    ihrer Transition, und beide addieren sich, statt sich zu überschreiben. */
 /* Dazu zwei Eingänge mehr: `--px/--py` (-1…1) folgen auf dem Desktop der
@@ -373,6 +373,14 @@
    samt Hover-Transition. Ein Wert für beide, gegenläufig verrechnet. */
 .heroPhones {
   animation: phonesFloat 6.5s ease-in-out infinite;
+}
+
+/* Eine animierte Variable rechnet der Browser auf dem Hauptthread, jedes
+   Frame — auch, wenn der Aufmacher längst oben hinaus ist (gemessen: 60
+   Stil-Neuberechnungen pro Sekunde, Review 29.09.2026). Draussen pausiert
+   das Schweben also; `data-in-view` setzt HubMotion (`armInView`). */
+.hero[data-in-view='0'] .heroPhones {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -660,17 +668,20 @@
    29.09.2026: „erst We tell you, dann what to eat"; von links und rechts
    sah „blöd aus"): erst „WE TELL YOU", dann „WHAT TO EAT", jede kleiner als
    der Stempel der Marke und leicht gegeneinander gedreht. Bis zum Einschlag
-   ist die Zeile nicht da: bei genau 0 steht die Skalierung auf 0. Über die
+   ist die Zeile nicht da: bei genau 0 steht die Skalierung auf 0. Der Faktor
+   der Schwelle ist bewusst riesig: die Kurve (`--slam`) läuft langsam an, bei
+   `* 1000` blieb der Wert gut 40 ms unter 0,001 — die Zeile wuchs sichtbar
+   aus einem Punkt, bevor sie einschlug (Review 29.09.2026). Über die
    Zahlen `--in-l1/-l2` auf der Section, weil HubHeroCopy die Zeilen beim
    Anmelde-Wechsel neu baut. */
 :global(html[data-hero-intro]) .heroHeadline .heroLine:first-child {
-  scale: calc((1 + (1 - var(--in-l1, 1)) * 0.9) * min(1, var(--in-l1, 1) * 1000));
+  scale: calc((1 + (1 - var(--in-l1, 1)) * 0.9) * min(1, var(--in-l1, 1) * 1000000));
   rotate: calc((1 - var(--in-l1, 1)) * -5deg);
   transform-origin: 50% 70%;
 }
 
 :global(html[data-hero-intro]) .heroHeadline .heroLine:last-child {
-  scale: calc((1 + (1 - var(--in-l2, 1)) * 0.9) * min(1, var(--in-l2, 1) * 1000));
+  scale: calc((1 + (1 - var(--in-l2, 1)) * 0.9) * min(1, var(--in-l2, 1) * 1000000));
   rotate: calc((1 - var(--in-l2, 1)) * 4deg);
   transform-origin: 50% 70%;
 }

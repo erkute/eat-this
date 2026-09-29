@@ -18,10 +18,10 @@ export default function HubFaq({ locale }: Props) {
           </h2>
         </div>
         <div className={styles.list}>
-          {/* Die erste Frage („Was ist Eat This?") klappt von selbst auf,
-              sobald die Liste ins Bild kommt (HubMotion, `armFaqOpen`): wer
-              bis hier scrollt, sieht, dass sich die Zeilen öffnen lassen
-              (Ansage 29.09.2026 — in Bewegung, nicht schon offen). */}
+          {/* Die Antworten klappen auf wie eine Klappe, die erste von selbst,
+              sobald die Liste ins Bild kommt (HubMotion, `armFaq`): wer bis
+              hier scrollt, sieht, dass sich die Zeilen öffnen lassen (Ansage
+              29.09.2026 — in Bewegung, nicht schon offen). */}
           {faqs.map((f) => (
             <details key={f.q} className={styles.item}>
               <summary className={styles.question}>{f.q}</summary>

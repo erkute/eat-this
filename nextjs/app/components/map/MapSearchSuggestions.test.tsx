@@ -24,6 +24,17 @@ describe('MapSearchSuggestions', () => {
     expect(onPick).toHaveBeenCalledWith(zola);
   });
 
+  it('nennt den Bezirk nicht doppelt, wenn er schon im Namen steht', () => {
+    const aera = spot({
+      name: 'AERA Charlottenburg',
+      district: 'Charlottenburg',
+      bezirk: { name: 'Charlottenburg' } as MapRestaurant['bezirk'],
+    });
+    render(<MapSearchSuggestions spots={[aera]} locale="de" onPick={() => {}} />);
+    expect(screen.getByText('AERA')).toBeTruthy();
+    expect(screen.queryByText('AERA Charlottenburg')).toBeNull();
+  });
+
   it('sagt es, wenn nichts passt', () => {
     render(<MapSearchSuggestions spots={[]} locale="de" onPick={() => {}} />);
     expect(screen.getByText('Kein Spot gefunden')).toBeTruthy();

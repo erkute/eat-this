@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link } from '@/i18n/navigation';
@@ -10,26 +9,6 @@ export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
   const de = lang === 'de';
   const follow = de ? 'Folgen' : 'Follow';
-  const askRemy = de ? 'Frag Remy' : 'Ask Remy';
-  const remyRef = useRef<HTMLAnchorElement>(null);
-
-  /* Remy taucht auf, sobald der Footer ins Bild kommt, und redet (Ansage
-     29.09.2026) — jedes Mal neu, wie in „Frag Remy". `data-remy` steuert nur
-     das CSS; ohne JS steht er einfach da. */
-  useEffect(() => {
-    const link = remyRef.current;
-    if (!link || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(
-      ([entry]) => link.setAttribute('data-remy', entry.isIntersecting ? 'in' : 'out'),
-      { rootMargin: '0px 0px -10% 0px' }
-    );
-    io.observe(link);
-    return () => {
-      io.disconnect();
-      link.removeAttribute('data-remy');
-    };
-  }, []);
-
   return (
     <footer className={styles.footer} data-site-footer role="contentinfo" aria-label="Site footer">
       <div className={styles.top}>
@@ -52,49 +31,6 @@ export default function SiteFooter() {
               auswählbar, skaliert mit und spart einen Bild-Request. */}
           <p className={styles.tagline}>we tell you what to eat</p>
         </div>
-
-        <Link href="/#hub-fragremy" className={styles.remyLink} ref={remyRef}>
-          {/* Gesichter übereinander: das offene blitzt beim Reden durch, das
-              lachende steht beim Hovern (harte Schnitte, kein Überblenden —
-              wie der schwebende Remy). Alle drei aus demselben 1024er-Zuschnitt:
-              `buddy-smile` sitzt anders im Bild, mit ihm stand Remy beim
-              Mundwechsel doppelt da. */}
-          <span className={styles.remyStage} aria-hidden="true">
-            <span className={styles.remyBody}>
-              <Image
-                src="/buddy/buddy.webp"
-                alt=""
-                width={220}
-                height={220}
-                sizes="52px"
-                loading="lazy"
-                decoding="async"
-              />
-              <Image
-                src="/buddy/buddy-open.webp"
-                alt=""
-                width={220}
-                height={220}
-                sizes="52px"
-                loading="lazy"
-                decoding="async"
-                className={styles.remyOpen}
-              />
-              {/* Beim Hovern lacht er (SiteFooter.module.css). */}
-              <Image
-                src="/buddy/buddy-laugh.webp"
-                alt=""
-                width={220}
-                height={220}
-                sizes="52px"
-                loading="lazy"
-                decoding="async"
-                className={styles.remyLaugh}
-              />
-            </span>
-          </span>
-          <span className={styles.remyLabel}>{askRemy}</span>
-        </Link>
       </div>
 
       <div className={styles.links}>

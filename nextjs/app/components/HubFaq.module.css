@@ -108,34 +108,6 @@
   line-height: 1.5;
 }
 
-/* Auf- und Zuklappen gleitet, statt zu springen — beim eigenen Klick wie
-   beim Aufklappen von selbst (HubMotion). `interpolate-size` macht `height:
-   auto` animierbar; Browser ohne `::details-content` klappen wie bisher
-   sofort. */
-@media (prefers-reduced-motion: no-preference) {
-  .item {
-    interpolate-size: allow-keywords;
-  }
-
-  .item::details-content {
-    height: 0;
-    overflow: clip;
-    transition:
-      height 0.55s cubic-bezier(0.25, 1, 0.5, 1),
-      content-visibility 0.55s allow-discrete;
-  }
-
-  .item[open]::details-content {
-    height: auto;
-  }
-
-  /* Klappt HubMotion die erste Frage von selbst auf, treibt GSAP die Höhe —
-     das CSS-Gleiten liefe sonst doppelt. */
-  .item[data-auto-open]::details-content {
-    transition: none;
-  }
-}
-
 @media (max-width: 560px) {
   .question {
     min-height: 56px;

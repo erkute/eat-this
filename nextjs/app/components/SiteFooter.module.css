@@ -7,7 +7,6 @@
   --footer-paper: #fff;
   --footer-accent: #ffc600;
   --footer-shadow: #15120e;
-  --footer-hover: var(--footer-accent);
   /* Eine Flaeche statt eines Strichs: der Footer steht eine Stufe ueber dem
      Ink-Grund (--et-ink-raised, dieselbe Stufe wie Info-Karte und
      Anmelde-Layer) und setzt sich so von der Seite ab. Bis 25.09.2026 trennte
@@ -74,180 +73,6 @@
   text-transform: uppercase;
 }
 
-.remyLink {
-  position: relative;
-  display: inline-flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: clamp(8px, 1.6vw, 14px);
-  width: max-content;
-  max-width: min(100%, 260px);
-  min-height: 0;
-  color: var(--footer-ink);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  text-decoration: none;
-  font-family: var(--et-font-display);
-  padding: 0;
-  text-align: center;
-  overflow: visible;
-  cursor: pointer;
-  transform: rotate(-1deg);
-  transition:
-    color 140ms ease,
-    transform 140ms ease;
-}
-
-.remyLink::after {
-  content: none;
-}
-
-.remyLink img {
-  display: block;
-  align-self: flex-end;
-  width: 52px;
-  height: 52px;
-  object-fit: contain;
-  object-position: center bottom;
-  transform: translateY(0);
-  transition: transform 140ms ease;
-}
-
-/* Remy steigt aus der Zeile: die Bühne schneidet nur unten ab. Kommt der
-   Footer ins Bild (`data-remy="in"`, SiteFooter), schiesst er hoch, wackelt
-   und redet — danach alle sechs Sekunden wieder. Draussen (`out`) wartet er
-   unter der Kante, damit er beim nächsten Mal neu auftaucht. Das offene
-   Gesicht liegt deckungsgleich über dem lächelnden und blitzt in harten
-   Schnitten durch (`visibility`), wie beim schwebenden Remy. Ohne JS steht
-   er einfach da. */
-.remyStage {
-  display: block;
-  flex: none;
-  align-self: flex-end;
-  width: 52px;
-  height: 52px;
-  clip-path: inset(-60px -60px 0 -60px);
-}
-
-.remyBody {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform-origin: 50% 100%;
-}
-
-.remyLink .remyOpen {
-  position: absolute;
-  inset: 0;
-  visibility: hidden;
-}
-
-.remyLink[data-remy='out'] .remyBody {
-  translate: 0 110%;
-}
-
-.remyLink[data-remy='in'] .remyBody {
-  animation:
-    remyPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both,
-    remyWobble 6s ease-in-out 0.55s infinite;
-}
-
-.remyLink[data-remy='in'] .remyOpen {
-  animation: remyTalk 6s steps(1) 0.55s infinite;
-}
-
-/* Auf der Startseite redet er zusätzlich, solange gescrollt wird
-   (`data-remy-talk`, HubMotion) — wie die anderen beiden Remys. */
-:global(html[data-remy-talk]) .remyLink[data-remy='in'] .remyOpen {
-  animation: remyFlap 0.34s steps(1) infinite;
-}
-
-@keyframes remyPop {
-  from {
-    translate: 0 110%;
-  }
-  to {
-    translate: 0 0;
-  }
-}
-
-@keyframes remyWobble {
-  0%,
-  30%,
-  100% {
-    rotate: 0deg;
-  }
-  5% {
-    rotate: -6deg;
-  }
-  10% {
-    rotate: 5deg;
-  }
-  15% {
-    rotate: -4deg;
-  }
-  20% {
-    rotate: 3deg;
-  }
-  25% {
-    rotate: -1.5deg;
-  }
-}
-
-@keyframes remyTalk {
-  0%,
-  6%,
-  12%,
-  18%,
-  24% {
-    visibility: visible;
-  }
-  3%,
-  9%,
-  15%,
-  21%,
-  28%,
-  100% {
-    visibility: hidden;
-  }
-}
-
-@keyframes remyFlap {
-  0%,
-  45% {
-    visibility: hidden;
-  }
-  50%,
-  95% {
-    visibility: visible;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .remyLink[data-remy] .remyBody {
-    translate: none;
-    animation: none;
-  }
-
-  .remyLink[data-remy] .remyOpen,
-  :global(html[data-remy-talk]) .remyLink[data-remy='in'] .remyOpen {
-    animation: none;
-  }
-}
-
-.remyLabel {
-  font-family: var(--et-font-display);
-  padding-bottom: 7px;
-  font-size: clamp(20px, 5.2vw, 28px);
-  line-height: 0.9;
-  letter-spacing: 0;
-  text-transform: uppercase;
-  text-align: center;
-}
-
 .links {
   max-width: 1180px;
   margin: clamp(26px, 4vw, 52px) auto 0;
@@ -292,76 +117,11 @@
   }
 }
 
-/* Druckzustand: beides sind Links, die pauschale Knopf-Regel in globals.css
-   trifft sie also nicht. Eigenständiges `translate`, damit die Kippung aus
+/* Druckzustand: ein Link, die pauschale Knopf-Regel in globals.css trifft
+   ihn also nicht. Eigenständiges `translate`, damit die Kippung aus
    `transform` stehen bleibt. */
-.socialLink:active,
-.remyLink:active {
+.socialLink:active {
   translate: 0 1px;
-}
-
-/* Hover: Remy wechselt den Gesichtsausdruck und lacht, „Frag Remy" wird
-   gelb (Ansage 29.09.2026) — kein Kippen, kein Hüpfen. Harter Schnitt
-   zwischen den Gesichtern; das Reden pausiert, solange er lacht. */
-.remyLink .remyLaugh {
-  position: absolute;
-  inset: 0;
-  visibility: hidden;
-}
-
-.remyLink:focus-visible {
-  color: var(--footer-accent);
-}
-
-.remyLink:focus-visible .remyLaugh {
-  visibility: visible;
-}
-
-.remyLink:focus-visible .remyBody > :not(.remyLaugh) {
-  visibility: hidden;
-  animation: none;
-}
-
-@media (hover: hover) {
-  .remyLink:hover {
-    color: var(--footer-accent);
-  }
-
-  .remyLink:hover .remyLaugh {
-    visibility: visible;
-  }
-
-  .remyLink[data-remy]:hover .remyBody > :not(.remyLaugh),
-  .remyLink:hover .remyBody > :not(.remyLaugh) {
-    visibility: hidden;
-    animation: none;
-  }
-}
-
-.remyLink:focus-visible::after {
-  content: none;
-}
-
-@media (hover: hover) {
-  .remyLink:hover::after {
-    content: none;
-  }
-}
-
-.remyLink:focus-visible {
-  color: var(--footer-hover);
-  background: transparent;
-  box-shadow: none;
-  outline: 0;
-}
-
-@media (hover: hover) {
-  .remyLink:hover {
-    color: var(--footer-hover);
-    background: transparent;
-    box-shadow: none;
-    outline: 0;
-  }
 }
 
 .legal {
@@ -516,16 +276,6 @@
   .tagline {
     font-size: 15px;
     letter-spacing: 0.1em;
-  }
-
-  .remyLink {
-    min-height: 68px;
-    max-width: min(100%, 300px);
-  }
-
-  .remyLink img {
-    width: 66px;
-    height: 66px;
   }
 
   .meta {

@@ -57,8 +57,8 @@ gsap.registerPlugin(useGSAP);
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
  *      wird gedrückt, das Feld leert sich — in Schleife, solange die Tafel im
  *      Bild ist (`armSignupDemo`).
- *    - FAQ: die erste Frage klappt von selbst auf und beim Hochscrollen
- *      wieder zu, bis jemand selbst klickt (`armFaqOpen`).
+ *    - FAQ: Antworten klappen auf wie eine Klappe; die erste von selbst und
+ *      beim Hochscrollen wieder zu, bis jemand selbst klickt (`armFaq`).
  *
  * 4. **Immer:** Remy redet, solange gescrollt wird — der große im Frag-Remy-
  *    Abschnitt und der schwebende unten rechts (`armScrollTalk`). Scrollen
@@ -134,10 +134,11 @@ function onceInView(plays: Map<Element, () => void>): () => void {
   return () => io.disconnect();
 }
 
-/** Auftritt und Rückweg an einer Section: `enter`, sobald sie das mittlere
- *  Band des Bildschirms (30–70 % der Höhe) berührt, `leave`, sobald sie es
- *  nach oben oder unten verlässt — in beide Richtungen, beliebig oft. */
-function whileCentered(el: Element, enter: () => void, leave: () => void): () => void {
+/** Auftritt und Rückweg an einer Section: `enter`, sobald sie das Band des
+ *  Bildschirms berührt (Vorgabe 30–70 % der Höhe, `from` verschiebt die
+ *  Unterkante), `leave`, sobald sie es nach oben oder unten verlässt — in
+ *  beide Richtungen, beliebig oft. */
+function whileCentered(el: Element, enter: () => void, leave: () => void, from = 0.7): () => void {
   if (typeof IntersectionObserver === 'undefined') return () => {};
   let inside = false;
   const io = new IntersectionObserver(
@@ -146,7 +147,7 @@ function whileCentered(el: Element, enter: () => void, leave: () => void): () =>
       inside = entry.isIntersecting;
       (inside ? enter : leave)();
     },
-    { rootMargin: '-30% 0px -30% 0px' }
+    { rootMargin: `-30% 0px -${Math.round((1 - from) * 100)}% 0px` }
   );
   io.observe(el);
   return () => io.disconnect();
@@ -342,7 +343,9 @@ function armFragRemy(): () => void {
     stopTalk();
     entrance.timeScale(1.6).reverse();
   };
-  const unwatch = whileCentered(section, show, hide);
+  // Schon ab 85 % der Höhe, nicht erst ab 70 %: „Keine Idee? Frag Remy." kam
+  // zu spät, die Tafel stand schon leer im Bild (Ansage 29.09.2026).
+  const unwatch = whileCentered(section, show, hide, 0.85);
   return () => {
     unwatch();
     stopTalk();
@@ -529,103 +532,97 @@ function armScrollBand(rail: HTMLElement, scroller: HTMLElement | Window): () =>
 }
 
 /**
- * FAQ: „Was ist Eat This?" klappt von selbst auf, sobald die Frage gut im
- * Bild ist — oberhalb von 55 % der Höhe —, und zwar langsam: die Antwort
- * wächst über gut eine Sekunde auf (Ansage 29.09.2026: „sehe ich sofort
- * aufgeklappt"). Wer wieder hochscrollt, bis die Frage unter diese Linie
- * rutscht, sieht sie ebenso langsam zugehen; kommt sie wieder, geht sie
- * wieder auf. Getrieben von GSAP, nicht vom CSS-Gleiten in
- * HubFaq.module.css: das kann nur Chrome. Solange GSAP läuft, ist das
- * CSS-Gleiten aus (`data-auto-open`). Ohne JS oder bei reduced motion bleibt
- * sie zu. Sobald jemand selbst klickt, stellt hier niemand mehr um.
+ * FAQ: jede Antwort klappt auf wie eine Klappe (Ansage 29.09.2026: „der Text
+ * muss schon drinstehen … wirklich wie ein Tab auf", nicht gewischt). Die
+ * Antwort steht fertig gesetzt und schwenkt um ihre Oberkante aus der Tiefe
+ * nach vorn, federt kurz nach und steht; die Zeilen darunter rücken genau so
+ * weit, wie die Klappe schon Höhe zeigt (Kosinus des Winkels) — nichts wird
+ * abgeschnitten, nichts wächst von oben nach unten auf. Zu geht es rückwärts.
+ * „Was ist Eat This?" klappt von selbst auf, sobald die Frage oberhalb von
+ * 55 % der Höhe steht, und beim Hochscrollen wieder zu. Ein eigener Klick
+ * klappt genauso und beendet die Automatik. Ohne JS oder bei reduced motion
+ * schaltet `<details>` einfach um.
  */
-function armFaqOpen(safe: gsap.ContextSafeFunc): () => void {
-  const first = document.querySelector<HTMLDetailsElement>('[data-hub-faq] details');
-  const answer = first?.querySelector<HTMLElement>('p');
-  if (!first || !answer || typeof IntersectionObserver === 'undefined') return () => {};
-  const CLEAR = 'height,paddingTop,paddingBottom,overflow';
+function armFaq(): () => void {
+  const faq = document.querySelector<HTMLElement>('[data-hub-faq]');
+  const first = faq?.querySelector<HTMLDetailsElement>('details');
+  if (!faq || !first || typeof IntersectionObserver === 'undefined') return () => {};
+  const CLEAR = 'height,paddingTop,paddingBottom,boxSizing,transform,transformOrigin';
+  type Flap = { tween: gsap.core.Animation; open: boolean; state: { p: number } };
+  const flaps = new Map<HTMLDetailsElement, Flap>();
+  const isOpen = (d: HTMLDetailsElement) => flaps.get(d)?.open ?? d.open;
   let touched = false;
-  // `toggle` kommt auch bei unserem eigenen Umschalten — die zählen nicht.
-  let own = 0;
-  let tween: gsap.core.Tween | null = null;
-  const onToggle = () => {
-    if (own > 0) {
-      own -= 1;
-      return;
-    }
+
+  const flap = (d: HTMLDetailsElement, open: boolean) => {
+    const answer = d.querySelector<HTMLElement>('p');
+    if (!answer || isOpen(d) === open) return;
+    const running = flaps.get(d);
+    running?.tween.kill();
+    // Mitten im Schwenk umgedreht: von der aktuellen Stellung aus weiter.
+    const state = { p: running ? running.state.p : open ? 0 : 1 };
+    d.open = true;
+    // Die fertige Höhe messen, bevor gezeichnet wird — im selben Takt, es
+    // blitzt also nichts auf.
+    gsap.set(answer, { clearProps: CLEAR });
+    const cs = getComputedStyle(answer);
+    const pad = [parseFloat(cs.paddingTop), parseFloat(cs.paddingBottom)];
+    const full = answer.getBoundingClientRect().height;
+    const draw = () => {
+      // 90° = hochgeklappt (Kante voraus), 0° = steht. Über 1 hinaus
+      // (Nachfedern) schwenkt sie kurz ein Stück nach vorn.
+      const angle = (1 - state.p) * 90;
+      const k = Math.max(0, Math.cos((angle * Math.PI) / 180));
+      Object.assign(answer.style, {
+        boxSizing: 'border-box',
+        height: `${full * k}px`,
+        paddingTop: `${pad[0] * k}px`,
+        paddingBottom: `${pad[1] * k}px`,
+        transformOrigin: '50% 0',
+        transform: `perspective(900px) rotateX(${angle}deg)`,
+      });
+    };
+    const done = () => {
+      flaps.delete(d);
+      if (!open) d.open = false;
+      gsap.set(answer, { clearProps: CLEAR });
+    };
+    // Auf: sie fällt nach vorn — erst langsam, dann schneller, ein Stück über
+    // die Senkrechte hinaus (p 1,1 ≈ −9°) — und federt aus. Zu: sie wird
+    // gleichmässig wieder hochgeklappt.
+    const tween = open
+      ? gsap
+          .timeline({ onUpdate: draw, onComplete: done })
+          .to(state, { p: 1.1, duration: 0.7, ease: 'power2.in' })
+          .to(state, { p: 1, duration: 0.5, ease: 'elastic.out(1, 0.4)' })
+      : gsap.to(state, {
+          p: 0,
+          duration: 0.6,
+          ease: 'power2.inOut',
+          onUpdate: draw,
+          onComplete: done,
+        });
+    flaps.set(d, { tween, open, state });
+    draw();
+  };
+
+  const onClick = (e: MouseEvent) => {
+    const summary = e.target instanceof Element ? e.target.closest('summary') : null;
+    const d = summary?.parentElement;
+    if (!(d instanceof HTMLDetailsElement) || !faq.contains(d)) return;
+    e.preventDefault();
     touched = true;
-    tween?.kill();
-    gsap.set(answer, { clearProps: CLEAR });
-    first.removeAttribute('data-auto-open');
+    flap(d, !isOpen(d));
   };
-  first.addEventListener('toggle', onToggle);
-  const pad = () => {
-    // Das Polster wächst mit — sonst sprang die Zeile beim Öffnen um 20px.
-    gsap.set(answer, { clearProps: CLEAR });
-    const { paddingTop, paddingBottom } = getComputedStyle(answer);
-    return { paddingTop, paddingBottom };
-  };
-  const open = safe(() => {
-    if (touched) return;
-    // Mitten im Zugehen wieder runtergescrollt: von der aktuellen Höhe aus
-    // wieder auf, statt erst ganz zu schliessen.
-    const closing = first.open && !!tween?.isActive();
-    if (first.open && !closing) return;
-    const from = closing
-      ? {
-          height: gsap.getProperty(answer, 'height'),
-          paddingTop: gsap.getProperty(answer, 'paddingTop'),
-          paddingBottom: gsap.getProperty(answer, 'paddingBottom'),
-          overflow: 'hidden',
-        }
-      : { height: 0, paddingTop: 0, paddingBottom: 0, overflow: 'hidden' };
-    tween?.kill();
-    first.setAttribute('data-auto-open', '');
-    if (!first.open) {
-      own += 1;
-      first.open = true;
-    }
-    tween = gsap.fromTo(answer, from, {
-      height: 'auto',
-      ...pad(),
-      duration: 1.3,
-      ease: 'power1.inOut',
-      clearProps: CLEAR,
-      onComplete: () => first.removeAttribute('data-auto-open'),
-    });
-  }) as () => void;
-  const close = safe(() => {
-    if (touched || !first.open) return;
-    tween?.kill();
-    first.setAttribute('data-auto-open', '');
-    tween = gsap.to(answer, {
-      height: 0,
-      paddingTop: 0,
-      paddingBottom: 0,
-      overflow: 'hidden',
-      duration: 1,
-      ease: 'power1.inOut',
-      onComplete: () => {
-        own += 1;
-        first.open = false;
-        gsap.set(answer, { clearProps: CLEAR });
-        // Das CSS-Gleiten erst nach dem Umschalten wieder erlauben — sonst
-        // spielte es das Zugehen ein zweites Mal ab (gemessen: kurz 112px).
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => {
-            if (!tween?.isActive()) first.removeAttribute('data-auto-open');
-          })
-        );
-      },
-    });
-  }) as () => void;
+  faq.addEventListener('click', onClick);
+
   const io = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
-        if (e.isIntersecting) open();
+        if (touched) return;
+        if (e.isIntersecting) flap(first, true);
         // Unter die Linie gerutscht = wieder hochgescrollt. Oben hinaus
         // (weitergescrollt) bleibt sie offen.
-        else if (e.rootBounds && e.boundingClientRect.top > e.rootBounds.bottom) close();
+        else if (e.rootBounds && e.boundingClientRect.top > e.rootBounds.bottom) flap(first, false);
       }
     },
     { rootMargin: '0px 0px -45% 0px' }
@@ -633,9 +630,14 @@ function armFaqOpen(safe: gsap.ContextSafeFunc): () => void {
   io.observe(first);
   return () => {
     io.disconnect();
-    tween?.kill();
-    first.removeEventListener('toggle', onToggle);
-    first.removeAttribute('data-auto-open');
+    faq.removeEventListener('click', onClick);
+    flaps.forEach(({ tween, open }, d) => {
+      tween.kill();
+      d.open = open;
+      const answer = d.querySelector('p');
+      if (answer) gsap.set(answer, { clearProps: CLEAR });
+    });
+    flaps.clear();
   };
 }
 
@@ -989,7 +991,7 @@ export default function HubMotion() {
         stops.push(armInView());
         stops.push(desk ? armBandGlide(safe!) : armScrollBands(scroller));
         stops.push(armSignupDemo());
-        stops.push(armFaqOpen(safe!));
+        stops.push(armFaq());
         stops.push(armScrollTalk(scroller));
         stops.push(armMarqueeSkew(scroller));
         // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein

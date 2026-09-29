@@ -12,17 +12,19 @@
 .tape {
   width: 130vw;
   margin-left: -15vw;
-  /* Drei Bewegungen, drei Eigenschaften, keine überschreibt die andere: der
-     Scrollschub auf `translate` (`--push`, siehe unten), die feste Schräge
-     auf `rotate`, das Tempo auf `transform` — HubMotion schreibt `--skew`
-     aus der Scrollgeschwindigkeit, schnelles Scrollen legt die Schrift schräg
-     wie auf gsap.com, in Ruhe steht sie gerade. */
-  translate: calc(var(--push, 0) * 260px) 0;
+  /* Zwei Bewegungen, zwei Eigenschaften: die feste Schräge auf `rotate`, das
+     Tempo auf `transform` — HubMotion schreibt `--skew` aus der
+     Scrollgeschwindigkeit, schnelles Scrollen legt die Schrift schräg wie auf
+     gsap.com, in Ruhe steht sie gerade. */
   rotate: -3deg;
   transform: skewX(calc(var(--skew, 0) * 1deg));
   background: var(--et-accent);
   color: var(--et-ink);
-  padding-block: clamp(5px, 0.6vw, 9px);
+  /* Oben und unten gleich viel Gelb (Ansage 29.09.2026: „nicht korrekt
+     ausgerichtet"). Die Zeile wird dafür auf Versalhöhe geschnitten, siehe
+     `.claim` — vorher sass die Schrift hoch, weil Providence unten Platz für
+     Unterlängen hält, die der Claim in Versalien nie braucht. */
+  padding-block: clamp(10px, 1.1vw, 16px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
 
@@ -32,9 +34,17 @@
   animation: marquee 38s linear infinite;
 }
 
+/* Immer von links nach rechts (Ansage 28.09.2026: „soll bleiben von links
+   nach rechts"). Scrollen macht das Band nur schneller, in beide Richtungen,
+   und kehrt es nie um — HubMotion dreht dafür am Tempo dieser Animation
+   (`armMarqueeSkew`). Bis dahin lief es nach links und hing zusätzlich als
+   Scroll-Timeline an der Position: Hochscrollen schob es zurück. */
 @keyframes marquee {
-  to {
+  from {
     transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 
@@ -45,19 +55,35 @@
 
 /* Auf dem Telefon 26px statt 44px (Ansage 28.09.2026: bei 44 stand nur
    „WE TELL YOU W" im Bild, der Satz liess sich nicht lesen) — jetzt passt
-   der ganze Claim auf 390px. Auf dem Desktop höchstens 76px (bis 136px stand
-   das Band dort wie eine zweite Headline). */
+   der ganze Claim auf 390px. Auf dem Desktop höchstens 44px: auch 76px waren
+   dort noch „zu riesig" (Ansage 28.09.2026), davor 136px — das Band stand
+   wie eine zweite Headline. */
 .word {
   display: inline-flex;
   align-items: center;
   flex: none;
   font-family: var(--et-font-display);
   font-weight: 700;
-  font-size: clamp(26px, 6.4vw, 76px);
+  font-size: clamp(26px, 3.6vw, 44px);
   line-height: 1.02;
   letter-spacing: -0.02em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* Die Zeile genau so hoch wie die Versalien: Ober- und Unterkante des
+   Texts sind die der Buchstaben, das Polster am Band ist damit oben und
+   unten wirklich gleich. Ohne `text-box` (Firefox) bleibt die Zeile, dann
+   gleicht ein Versatz nach unten die Unterlängen-Luft aus. */
+.claim {
+  display: inline-block;
+  text-box: trim-both cap alphabetic;
+}
+
+@supports not (text-box: trim-both cap alphabetic) {
+  .claim {
+    translate: 0 0.08em;
+  }
 }
 
 /* Das gelbe Quadrat der Abschnittstitel als Trenner — auf dem gelben Band
@@ -68,35 +94,6 @@
   height: 0.22em;
   margin-inline: 0.45em;
   background: var(--et-ink);
-}
-
-/* Scrollschub: Scrollen schiebt das Band zusätzlich weiter, solange es im
-   Bild ist — als Scroll-Timeline des Browsers, nicht aus JS. So läuft es im
-   selben Takt wie das Scrollen, auch auf dem iPhone (dort zittert Scroll-JS,
-   siehe HeroMarkFlight). Browser ohne Scroll-Timeline treibt HubMotion über
-   `data-scrub` mit GSAP an. */
-@property --push {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
-}
-
-@keyframes push {
-  from {
-    --push: 1;
-  }
-  to {
-    --push: -1;
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .tape {
-      animation: push linear both;
-      animation-timeline: view();
-    }
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -198,7 +198,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                   {/* Loaded from Sanity all along and never rendered — it is the
                     reason this spot is today's pick, so it belongs here. */}
                   {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
-                  <span className={styles.spotCta}>{t.spotCta}</span>
+                  <span className={styles.spotCta} data-press="">
+                    {t.spotCta}
+                  </span>
                 </span>
               </MapIntentLink>
             </article>

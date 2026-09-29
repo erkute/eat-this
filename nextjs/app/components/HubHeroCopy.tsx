@@ -83,8 +83,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
     : 'We tell you what to eat';
 
   return (
-    <div className={styles.heroCopy}>
-      <HeroMark />
+    <>
       {/* Der Gruß bleibt, die Gästezeile nicht: „Was du essen solltest." sagte
           dasselbe wie die Headline darunter, und über der Wortmarke wurde die
           Spalte damit dreistöckig. */}
@@ -94,8 +93,8 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         </span>
       ) : null}
       <h1 className={styles.heroHeadline} aria-label={headlineLabel}>
-        <span>{headline[0]}</span>
-        <span>{headline[1]}</span>
+        <span className={styles.heroLine}>{headline[0]}</span>
+        <span className={styles.heroLine}>{headline[1]}</span>
       </h1>
       <p className={styles.heroLead}>{signedIn ? LEAD_AUTH[locale] : LEAD[locale]}</p>
       <div className={styles.heroActions}>
@@ -113,7 +112,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
           </Link>
         ) : null}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -127,19 +126,18 @@ function LoadingHeroCopy({ locale }: Props) {
   const de = locale === 'de';
 
   return (
-    <div className={styles.heroCopy}>
-      <HeroMark />
+    <>
       <span className={`hv-kicker ${styles.heroKicker}`} data-auth-only="">
         Hey
       </span>
       <h1 className={styles.heroHeadline}>
         <span data-guest-only="">
-          <span>We tell you</span>
-          <span>what to eat</span>
+          <span className={styles.heroLine}>We tell you</span>
+          <span className={styles.heroLine}>what to eat</span>
         </span>
         <span data-auth-only="">
-          <span>{de ? 'Deine Map' : 'Your map'}</span>
-          <span>{de ? 'wartet.' : 'is ready.'}</span>
+          <span className={styles.heroLine}>{de ? 'Deine Map' : 'Your map'}</span>
+          <span className={styles.heroLine}>{de ? 'wartet.' : 'is ready.'}</span>
         </span>
       </h1>
       <p className={styles.heroLead} data-guest-only="">
@@ -168,7 +166,7 @@ function LoadingHeroCopy({ locale }: Props) {
           </Link>
         </span>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -180,9 +178,18 @@ export default function HubHeroCopy({ locale }: Props) {
       null
     : null;
 
-  if (loading) {
-    return <LoadingHeroCopy locale={locale} />;
-  }
-
-  return <HeroCopy locale={locale} variant={user ? 'auth' : 'guest'} firstName={firstName} />;
+  // Die Wortmarke steht ausserhalb des Wechsels: sobald `useAuth` fertig ist,
+  // baut React Headline und Knöpfe neu, die Marke bleibt dasselbe Element.
+  // Nur so kann ihr Stempel beim Laden eine echte CSS-Animation auf dem
+  // Element sein (Compositor) — ein neuer Knoten finge sie von vorn an.
+  return (
+    <div className={styles.heroCopy}>
+      <HeroMark />
+      {loading ? (
+        <LoadingHeroCopy locale={locale} />
+      ) : (
+        <HeroCopy locale={locale} variant={user ? 'auth' : 'guest'} firstName={firstName} />
+      )}
+    </div>
+  );
 }

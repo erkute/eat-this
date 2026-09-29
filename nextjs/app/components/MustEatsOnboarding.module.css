@@ -105,6 +105,49 @@
   }
 }
 
+/* Auf der Startseite winkt das Fragezeichen alle paar Sekunden: es springt
+   an und wackelt, damit man sieht, dass hier etwas erklärt wird (Ansage
+   28.09.2026). Nur dort — in der Must-Eat-Ansicht der Map ist der Knopf
+   ohnehin der nächste Schritt. */
+:global([data-hub]) .howBadge {
+  animation: howNudge 4.2s ease-in-out 1.5s infinite;
+}
+
+@keyframes howNudge {
+  0%,
+  72%,
+  100% {
+    scale: 1;
+    rotate: 0deg;
+  }
+  76% {
+    scale: 1.45;
+    rotate: -18deg;
+  }
+  80% {
+    scale: 1.3;
+    rotate: 16deg;
+  }
+  84% {
+    scale: 1.35;
+    rotate: -10deg;
+  }
+  88% {
+    scale: 1.15;
+    rotate: 6deg;
+  }
+  93% {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global([data-hub]) .howBadge {
+    animation: none;
+  }
+}
+
 .howBadge {
   display: inline-grid;
   place-items: center;

@@ -38,6 +38,7 @@ import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCent
 import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
 import { useMapCamera, USER_LOCATION_ZOOM } from '@/lib/map/useMapCamera';
 import { useMapStarterPrompt } from '@/lib/map/useMapStarterPrompt';
+import { usePageEndAnchor } from '@/lib/map/usePageEndAnchor';
 import { useDetailSelection, type DetailOpeners } from '@/lib/map/useDetailSelection';
 
 /* How long the search query has to hold still before the camera follows it.
@@ -437,6 +438,8 @@ export default function MapSection({
      keeps the height the user had pulled it to instead of dropping back to
      its resting stop (user, 23.09.2026). Consumed once by the effect below. */
   const detailOpenTopRef = useRef<number | null>(null);
+
+  usePageEndAnchor(isActive);
 
   useEffect(() => {
     if (!isActive) return;

@@ -192,7 +192,7 @@ export default function BurgerDrawer() {
                 nobody had asked to see yet. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/pics/eat-this-logo.webp?v=6"
+              src="/pics/eat-this-logo.webp?v=7"
               alt="Eat This"
               width="660"
               height="265"

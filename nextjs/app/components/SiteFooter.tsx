@@ -36,7 +36,7 @@ export default function SiteFooter() {
         <div className={styles.brand}>
           <h2 className={styles.mega} aria-label="Eat This">
             <Image
-              src="/pics/eat-this-logo.webp?v=6"
+              src="/pics/eat-this-logo.webp?v=7"
               alt="Eat This"
               width={1660}
               height={667}

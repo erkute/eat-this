@@ -113,7 +113,7 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
             Füllung, wie im SiteNav. Nicht `aria-hidden`: der Absender gehört
             vorgelesen. */}
         <Image
-          src="/pics/eat-this-logo.webp?v=6"
+          src="/pics/eat-this-logo.webp?v=7"
           alt="Eat This"
           width={1660}
           height={667}

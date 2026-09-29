@@ -348,7 +348,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                           1660er-Vorlage mit 50 KB; `sizes` trifft dieselbe 256er-Stufe
                           wie das Logo in der SiteNav, die schon im Cache liegt. */}
                       <Image
-                        src="/pics/eat-this-logo.webp?v=6"
+                        src="/pics/eat-this-logo.webp?v=7"
                         alt="Eat This"
                         width={1660}
                         height={667}

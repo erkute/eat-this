@@ -54,8 +54,9 @@ export default function SiteFooter() {
         </div>
 
         <Link href="/#hub-fragremy" className={styles.remyLink} ref={remyRef}>
-          {/* Zwei Gesichter übereinander: das offene blitzt beim Reden durch
-              (harte Schnitte, kein Überblenden — wie der schwebende Remy). */}
+          {/* Gesichter übereinander: das offene blitzt beim Reden durch, das
+              lachende steht beim Hovern (harte Schnitte, kein Überblenden —
+              wie der schwebende Remy). */}
           <span className={styles.remyStage} aria-hidden="true">
             <span className={styles.remyBody}>
               <Image
@@ -76,6 +77,17 @@ export default function SiteFooter() {
                 loading="lazy"
                 decoding="async"
                 className={styles.remyOpen}
+              />
+              {/* Beim Hovern lacht er (SiteFooter.module.css). */}
+              <Image
+                src="/buddy/buddy-laugh.webp"
+                alt=""
+                width={220}
+                height={220}
+                sizes="52px"
+                loading="lazy"
+                decoding="async"
+                className={styles.remyLaugh}
               />
             </span>
           </span>

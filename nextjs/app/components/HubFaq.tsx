@@ -18,8 +18,11 @@ export default function HubFaq({ locale }: Props) {
           </h2>
         </div>
         <div className={styles.list}>
-          {faqs.map((f) => (
-            <details key={f.q} className={styles.item}>
+          {/* Die erste Frage („Was ist Eat This?") steht offen: wer bis hier
+              scrollt, sieht gleich, dass sich die Zeilen aufklappen lassen,
+              und liest die Antwort, die am meisten fragt (Ansage 29.09.2026). */}
+          {faqs.map((f, i) => (
+            <details key={f.q} className={styles.item} open={i === 0}>
               <summary className={styles.question}>{f.q}</summary>
               <p className={styles.answer}>{f.a}</p>
             </details>

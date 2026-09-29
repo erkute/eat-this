@@ -38,10 +38,10 @@ gsap.registerPlugin(useGSAP);
  *    Höhenänderung darüber neu messen. Ohne Pin teilen Telefon und Desktop
  *    denselben Weg.
  *
- *    Die Bänder (Nearby, Magazin) sind die Ausnahme: sie lassen sich auch
- *    selbst wischen, also schiebt JS am Telefon ihre Scrollposition mit
- *    (`armScrollBands`); am Desktop gleiten sie nur einmal herein
- *    (`armBandGlide`).
+ *    Die Bänder (Nearby, Magazin) sind am Telefon die Ausnahme: sie lassen
+ *    sich auch selbst wischen, also schiebt JS ihre Scrollposition mit
+ *    (`armScrollBands`). Am Desktop sind es Raster ohne seitliches Scrollen
+ *    (Ansage 29.09.2026), deren Karten am Scrollweg aufsteigen — CSS.
  *
  * 3. **Beim Hereinkommen:**
  *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
@@ -79,9 +79,9 @@ function finishIntro(): (() => void) | void {
   const html = document.documentElement;
   if (!html.hasAttribute('data-hero-intro')) return;
   const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  // Die Section treibt die Zahlen `--in-*`; Stempel und Zucken laufen als
-  // eigene Animationen auf Marke und Innenleben (HubSection.module.css).
-  const parts = [hero, hero?.querySelector('[data-hero-mark]'), hero?.firstElementChild];
+  // Die Section treibt die Zahlen `--in-*`; die Marke hat ihre eigene
+  // Animation (HubSection.module.css).
+  const parts = [hero, hero?.querySelector('[data-hero-mark]')];
   const running = parts.flatMap((el) => el?.getAnimations() ?? []);
   const done = () => html.removeAttribute('data-hero-intro');
   if (!running.length) {
@@ -437,41 +437,6 @@ function armInView(): () => void {
     io.disconnect();
     sections.forEach((el) => el.removeAttribute('data-in-view'));
   };
-}
-
-/**
- * Am Desktop schieben die Bänder nicht mit (Ansage 29.09.2026: gefiel dort
- * nicht): kommt ein Band ins Bild, gleiten seine Karten einmal nacheinander
- * von links auf ihren Platz, danach steht es still — weiter geht es per
- * Trackpad oder am gelben Regler (CSS). Bewegt wird der Link der Karte, nicht
- * der Listeneintrag: der trägt im Magazin eigenes `rotate`/`translate`, das
- * GSAP beim Animieren von `transform` inline auf `none` setzte. Nur, was beim
- * Mount unterhalb des Bildschirms liegt.
- */
-function armBandGlide(safe: gsap.ContextSafeFunc): () => void {
-  const fold = window.innerHeight;
-  const plays = new Map<Element, () => void>();
-  for (const band of document.querySelectorAll<HTMLElement>('[data-hub] [data-scroll-band]')) {
-    if (band.getBoundingClientRect().top <= fold) continue;
-    const cards = Array.from(band.children, (child) =>
-      child.matches('a') ? child : (child.querySelector(':scope > a') ?? child)
-    );
-    if (!cards.length) continue;
-    gsap.set(cards, { x: -180, transition: 'none' });
-    plays.set(
-      band,
-      safe(() => {
-        gsap.to(cards, {
-          x: 0,
-          duration: 1.3,
-          ease: 'expo.out',
-          stagger: 0.08,
-          clearProps: `${CLEAR_TRANSFORMS},transition`,
-        });
-      }) as () => void
-    );
-  }
-  return onceInView(plays);
 }
 
 /**
@@ -989,7 +954,7 @@ export default function HubMotion() {
         stops.push(armFragRemy());
         stops.push(armStamps());
         stops.push(armInView());
-        stops.push(desk ? armBandGlide(safe!) : armScrollBands(scroller));
+        if (!desk) stops.push(armScrollBands(scroller));
         stops.push(armSignupDemo());
         stops.push(armFaq());
         stops.push(armScrollTalk(scroller));

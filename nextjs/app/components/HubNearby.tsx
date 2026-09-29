@@ -44,8 +44,8 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   }, []);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
-  // Acht statt vier: das Band (siehe .rail) muss breiter sein als die
-  // Spalte, sonst läuft auf dem Desktop nichts.
+  // Acht: am Telefon ein Band, das breiter ist als der Bildschirm, am Desktop
+  // zwei volle Reihen à vier (siehe .rail).
   const count = 8;
 
   /* Nur die Fehler laufen durch die zentrale Info-Karte. „Wir suchen dich"

@@ -9,9 +9,8 @@ interface Props {
   locale: 'de' | 'en';
 }
 
-// Sechs Stories als Band, das beim Scrollen durchs Bild läuft (seit
-// 28.09.2026): nebeneinander kostet jede weitere Story keine Seitenhöhe, und
-// je mehr darin liegen, desto deutlicher liest sich die Reihe als News.
+// Sechs Stories: am Telefon ein Band, das beim Scrollen durchs Bild läuft
+// (seit 28.09.2026), am Desktop zwei Reihen à drei.
 const CARD_COUNT = 6;
 
 // Dasselbe Format wie der Magazin-Index (NewsSection): „1. September 2026".
@@ -68,8 +67,9 @@ export default function MagazineGrid({ articles, locale }: Props) {
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      // Karten wie im CSS: min(72vw, 270px), ab 768px bis 340px.
-                      sizes="(max-width:767.98px) 72vw, 340px"
+                      // Karten wie im CSS: min(72vw, 270px), ab 768px ein
+                      // Drittel der Spalte, höchstens rund 400px.
+                      sizes="(max-width:767.98px) 72vw, 400px"
                     />
                   )}
                 </span>

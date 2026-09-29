@@ -91,16 +91,15 @@
   transform: translateY(1px);
 }
 
-/* ── Artikel-Band ──
-   Die Artikel liegen als Band nebeneinander wie Zeitungsausschnitte auf der
-   Tafel, ragen links und rechts bis an die Fensterkante und laufen beim Scrollen der
-   Seite von links nach rechts durchs Bild (HubMotion, `data-scroll-band`) —
-   wer scrollt, sieht sofort, dass es mehrere sind (Ansage 28.09.2026). Das
-   Band lässt sich trotzdem selbst wischen. Vorher: am Handy eine Wischreihe,
-   am Desktop Aufmacher plus Liste, und von den Artikeln bewegte sich nichts.
-   Derselbe Rand wie das Nearby-Band, Begründung dort: `(100vw - 100%) / 2`
-   reicht bis an die Fensterkante, die erste Karte steht bündig in der
-   Spalte. */
+/* ── Artikel-Band (Telefon) ──
+   Am Telefon liegen die Artikel als Band nebeneinander wie
+   Zeitungsausschnitte auf der Tafel, ragen links und rechts bis an die
+   Fensterkante und laufen beim Scrollen der Seite von links nach rechts
+   durchs Bild (HubMotion, `data-scroll-band`) — wer scrollt, sieht sofort,
+   dass es mehrere sind (Ansage 28.09.2026). Das Band lässt sich trotzdem
+   selbst wischen. Derselbe Rand wie das Nearby-Band, Begründung dort:
+   `(100vw - 100%) / 2` reicht bis an die Fensterkante, die erste Karte steht
+   bündig in der Spalte. Ab 768px ein Raster (unten). */
 :global(.homeV2) :global(.hv-rail).band {
   --bleed: var(--et-wrap-pad);
   display: flex;
@@ -333,6 +332,53 @@
   .band > li {
     scroll-snap-align: start;
     transition: none;
+  }
+}
+
+/* ── Raster (ab 768px) ──
+   Am Desktop scrollt man nach unten, nicht zur Seite (Ansage 29.09.2026):
+   die sechs Stories stehen als zwei Reihen à drei da, weiter angepinnt und
+   gekippt. Bewegung kommt vom Seitenscrollen — jede Karte steigt auf ihren
+   Platz, sobald sie ins Bild kommt. Bewegt wird der Link, nicht der
+   Listeneintrag: der trägt das Kippen, und eine Animation darauf hielte
+   `rotate` fest und nähme dem Hover das Aufrichten. */
+@media (min-width: 768px) {
+  :global(.homeV2) :global(.hv-rail).band {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(36px, 3.6vw, 52px) clamp(20px, 2.2vw, 32px);
+    margin: 0;
+    padding: 0;
+    /* `visible` Pflicht: sonst rechnet `overflow-y` auf `auto` und schneidet
+       gekippte Ecken und Schatten ab. */
+    overflow: visible;
+  }
+}
+
+@keyframes cardRise {
+  from {
+    translate: 0 120px;
+    rotate: -3deg;
+  }
+}
+
+/* Am Scrollweg (Scroll-Timeline, Compositor), jede Spalte ein Stück später.
+   Ohne Scroll-Timeline stehen die Karten einfach da. */
+@supports (animation-timeline: view()) {
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .band > li > .card {
+      animation: cardRise cubic-bezier(0.33, 1, 0.68, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+
+    .band > li:nth-child(3n + 2) > .card {
+      animation-range: entry 8% cover 34%;
+    }
+
+    .band > li:nth-child(3n + 3) > .card {
+      animation-range: entry 16% cover 38%;
+    }
   }
 }
 

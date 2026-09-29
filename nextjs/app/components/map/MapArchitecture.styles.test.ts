@@ -121,18 +121,12 @@ describe('Map CSS architecture', () => {
     expect(localClasses('MapLayout.module.css')).toEqual([
       'body',
       'liveMapLayer',
+      'mapFrame',
       'mapLoading',
       'mapWrap',
       'shell',
     ]);
-    expect(localClasses('MapSheet.module.css')).toEqual([
-      'handle',
-      'list',
-      'listScroll',
-      'stripClip',
-      'stripInner',
-      'stripWindow',
-    ]);
+    expect(localClasses('MapSheet.module.css')).toEqual(['handle', 'list', 'listScroll']);
     expect(localClasses('MapMarkers.module.css')).toEqual([
       'markerRoot',
       'markerRootActive',
@@ -201,12 +195,12 @@ describe('Map CSS architecture', () => {
     const phoneList = declarationsInMedia('MapSheet.module.css', '.list', '(max-width: 767.98px)');
     expect(phoneList).toEqual([expect.objectContaining({ position: 'relative' })]);
     expect(mustEatRules[0]).not.toHaveProperty('position');
-    /* The takeover lies over the sticky map by exactly the map's height. The
-       map moved from 100dvh to 100lvh and the margin stayed behind: on the
+    /* The takeover lies over the map's frame by exactly the frame's height.
+       The map moved from 100dvh to 100lvh and the margin stayed behind: on the
        iPhone the takeover sat a toolbar height low and the page scrolled. */
     const mapHeight = declarationsInMedia(
       'MapLayout.module.css',
-      '.mapWrap',
+      '.mapFrame',
       '(max-width: 767.98px)'
     )
       .map((d) => d.height)
@@ -234,12 +228,11 @@ describe('Map CSS architecture', () => {
 
     expect(wrapRules).toEqual([
       expect.objectContaining({
-        position: 'sticky',
-        /* Off the top edge by --map-top-gap, so iOS 26 Safari shows the map
-           under the status bar instead of filling it with the wrapper's ink;
-           margin and sticky offset agree, so it never touches at any scroll. */
+        /* Fixed in the map frame (see 'covers the strip with the map frame'). */
+        position: 'fixed',
+        /* Off the top edge by --map-top-gap, so iOS 26 Safari shows what is
+           under its status bar instead of filling it with the wrapper's ink. */
         top: 'var(--map-top-gap, 0px)',
-        'margin-top': 'var(--map-top-gap, 0px)',
         /* lvh, not dvh: a dvh map resized with every step of Safari's
            collapsing toolbar and slid under the list (23.09.2026). */
         height: '100lvh',
@@ -291,20 +284,18 @@ describe('Map CSS architecture', () => {
     expect(rest, 'the resting stop must stay at 28dvh (= LIST_REST_VISIBLE_DVH)').toBe('28dvh');
     expect(listRules).toEqual([
       expect.objectContaining({
-        /* The map above is 100lvh; the resting edge stays at 100dvh − 28dvh. */
-        'margin-top': 'calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 100lvh)',
+        /* The map's frame above ends 12px below the resting edge. */
+        'margin-top': '-12px',
         /* The last stop is only reachable if the list is at least a viewport
            tall — see phoneSheetSnaps.ts. */
         'min-height': 'calc(100dvh + var(--map-bar-overhang, 0px))',
       }),
     ]);
-    expect(layoutRules).toEqual([
-      expect.objectContaining({
-        /* The list's sticky 100lvh map, clipped: the sheet pulled below its
-           resting edge uncovers map, not the page's ink (27.09.2026). */
-        overflow: 'hidden',
-      }),
-    ]);
+    /* The restaurant detail keeps the list's full-height map — a map bounded
+       to the peek left black below it once the sheet was pulled lower
+       (27.09.2026) — and does not clip it: the canvas reaches up under the
+       status bar. */
+    expect(layoutRules).toEqual([]);
     /* The viewport-tall minimum comes from the phone `.list` (above). */
     expect(sheetRules).toEqual([expect.objectContaining({ 'margin-top': '0' })]);
     expect(
@@ -314,7 +305,7 @@ describe('Map CSS architecture', () => {
         '(max-width: 767.98px)'
       )
     ).toEqual([
-      expect.objectContaining({ 'margin-top': 'calc(var(--detail-map-peek) - 100lvh)' }),
+      expect.objectContaining({ 'margin-top': '-12px' }),
     ]);
     expect(section).not.toContain("mapWrap.style.visibility = 'hidden'");
     /* The camera measures the compact canvas before it flies (useMapCamera). */
@@ -350,39 +341,57 @@ describe('Map CSS architecture', () => {
     ]);
   });
 
-  /* The map strip is the real map: on the phone the rows sit in a window whose
-     top edge is held at the stuck bar by a transform on a scroll timeline
-     (MapSheet.module.css, "The map strip"). WebKit runs only transform-like
-     properties in step with the scroll; a clip-path cut lagged and let rows
-     run up through the strip on a flick (28.09.2026). The window has to ride
-     down exactly as far as the page scrolls, and the rows inside back up by
-     the same amount — any other ratio moves the edge or the rows. */
-  it('holds the phone rows below the bar with transforms, 1:1 with the scroll', () => {
-    const css = readFileSync(
-      fileURLToPath(new URL('./MapSheet.module.css', import.meta.url)),
-      'utf8'
+  /* The map strip is the real map, and no row may show in it. On the phone
+     the map sits in a frame that lies over the sheet and ends at the sheet's
+     top edge — sticky, so that edge stops at the strip line (MapLayout.module.css,
+     "The map frame"). Layout the browser scrolls itself: every cut drawn from
+     a scroll timeline ran ahead of or behind the page on an iOS flick
+     (28.09.2026). */
+  it('covers the strip with the map frame, laid out with the page', () => {
+    const phone = '(max-width: 767.98px)';
+    /* One rule for both views that show the map. */
+    const frame = declarationsInMedia(
+      'MapLayout.module.css',
+      ".body[data-map-view='list'] .mapFrame,\n  .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapFrame",
+      phone
     );
-    const px = (v: string) => parseFloat(v);
-    const range =
-      /animation-range:\s*var\(--strip-cut-from\)\s*calc\(var\(--strip-cut-from\) \+ (\d+)px\)/.exec(
-        css
-      );
-    const frames = (name: string) =>
-      new RegExp(
-        `@keyframes ${name}\\s*{\\s*from\\s*{\\s*transform:\\s*translateY\\(([^)]*)\\);\\s*}\\s*to\\s*{\\s*transform:\\s*translateY\\(([^)]*)\\);`
-      ).exec(css);
-    const win = frames('stripWindow');
-    const inner = frames('stripInner');
-    expect(range, 'strip range').not.toBeNull();
-    expect(win, 'stripWindow keyframes').not.toBeNull();
-    expect(inner, 'stripInner keyframes').not.toBeNull();
-
-    const span = Number(range![1]);
-    expect(px(win![2]) - px(win![1])).toBe(span);
-    expect(px(inner![2]) - px(inner![1])).toBe(-span);
-    expect(css).toMatch(/animation-timeline:\s*scroll\(root block\)/);
-    // No property the compositor cannot run may carry the cut again.
-    expect(css).not.toMatch(/@keyframes[^{]*{[^}]*clip-path/);
+    expect(frame).toEqual([
+      expect.objectContaining({
+        position: 'sticky',
+        /* Its lower edge (12px past the sheet's top) sticks 12px below the line. */
+        top: 'calc(var(--map-strip) - var(--frame-edge))',
+        height: 'calc(var(--frame-edge) + 12px)',
+        /* A clip-path cuts the fixed map inside; overflow would not. */
+        'clip-path': 'inset(-100lvh 0 0 0)',
+        /* Over the sheet (auto), under its bars (8). */
+        'z-index': '7',
+      }),
+    ]);
+    /* Fixed, not sticky: a sticky map in the clipping sticky frame lost its
+       pins mid-flick in WebKit. */
+    expect(declarationsInMedia('MapLayout.module.css', '.mapWrap', phone)).toEqual([
+      expect.objectContaining({ position: 'fixed' }),
+    ]);
+    /* While a grip gesture moves the sheet, the frame steps behind it. */
+    expect(
+      declarationsInMedia(
+        'MapLayout.module.css',
+        ".body[data-map-view='list'] .mapFrame[data-following],\n  .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapFrame[data-following]",
+        phone
+      )
+    ).toEqual([{ 'z-index': 'auto', 'clip-path': 'none' }]);
+    for (const [file, selector] of [
+      ['MapFilters.module.css', '.listHeader'],
+      ['MapSheet.module.css', ".list[data-view='detail'][data-detail-kind='restaurant'] > .handle"],
+    ] as const) {
+      expect(declarationsInMedia(file, selector, phone)).toEqual([
+        expect.objectContaining({ 'z-index': '8' }),
+      ]);
+    }
+    for (const file of ['MapLayout.module.css', 'MapSheet.module.css']) {
+      const css = readFileSync(modulePath(file), 'utf8');
+      expect(css, `${file} cuts on a scroll timeline again`).not.toMatch(/strip-cut|stripWindow/);
+    }
   });
 
   /* Der verdeckte Zustand hatte einen eigenen, kompakten Namens-Slot, damit

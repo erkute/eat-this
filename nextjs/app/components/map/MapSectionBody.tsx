@@ -636,34 +636,54 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               : ({ '--locate-bottom': `${locateBottom}px` } as CSSProperties)
           }
         >
-          <div className={styles.mapWrap} data-map-canvas="">
-            {/* Die H1 der Seite — im HTML, aber visuell ausgeblendet (seit
+          {/* The map's frame. On the phone it lies OVER the sheet and ends
+              where the sheet begins — at its top edge, and never above the
+              strip line — so the real map covers the strip above the stuck
+              bar and no row shows there, however fast the page flies
+              (MapLayout.module.css, "The map frame"). Elsewhere it has no
+              box. */}
+          <div className={styles.mapFrame} data-map-frame="">
+            <div className={styles.mapWrap} data-map-canvas="">
+              {/* Die H1 der Seite — im HTML, aber visuell ausgeblendet (seit
                 23.09.2026, siehe MapIntro). Steht in der Kartenhülle, damit
                 sie im Must-Eat-Takeover mit der Karte verschwindet. */}
-            <MapIntro locale={locale} />
-            <div className={styles.liveMapLayer} data-live-map-layer="">
-              <MapCanvasLayer
-                mapRef={mapRef}
-                getInitialCamera={getInitialCamera}
-                onMapClick={onMapClick}
-                onMoveEnd={onMapMoveEnd}
-                displayedRestaurants={displayedRestaurants}
-                selectedRestaurant={selectedRestaurant}
-                onRestaurantClick={handleMapRestaurantClick}
-                /* Der Spot, um den es gerade geht. Beim Must-Eat-Detail ist
+              <MapIntro locale={locale} />
+              <div className={styles.liveMapLayer} data-live-map-layer="">
+                <MapCanvasLayer
+                  mapRef={mapRef}
+                  getInitialCamera={getInitialCamera}
+                  onMapClick={onMapClick}
+                  onMoveEnd={onMapMoveEnd}
+                  displayedRestaurants={displayedRestaurants}
+                  selectedRestaurant={selectedRestaurant}
+                  onRestaurantClick={handleMapRestaurantClick}
+                  /* Der Spot, um den es gerade geht. Beim Must-Eat-Detail ist
                    `selectedRestaurant` null (siehe handleMustEatClick), das
                    Gericht gehört aber zu einem Spot — auf der Karte ist das
                    derselbe Punkt, also tritt auch dort der Rest zurück. */
-                focusedRestaurantId={
-                  selectedRestaurant?._id ?? selectedMustEat?.restaurant._id ?? null
-                }
-                location={location}
-              />
-            </div>
+                  focusedRestaurantId={
+                    selectedRestaurant?._id ?? selectedMustEat?.restaurant._id ?? null
+                  }
+                  location={location}
+                />
+              </div>
 
-            {/* Desktop floating modals removed — both mobile and desktop now
+              {/* Desktop floating modals removed — both mobile and desktop now
                 render the detail in the side panel / bottom sheet so the
                 selected marker stays visible on the map. */}
+            </div>
+
+            {/* Der Standort-Knopf steht bewusst AUSSERHALB von `.mapWrap`.
+              Der Wrapper trägt `isolation: isolate` (damit der Standort-Marker
+              mit z-index 1000 im Kartenfenster bleibt) — darin kann kein
+              z-index nach draußen wirken. */}
+            {/* The dock is the button's frame on phones: sticky above the
+              sheet's resting edge, it rides up with the sheet and then stays;
+              the frame's lower edge is the sheet's top, so the sheet slides
+              over it (MapControls.module.css). Elsewhere it has no box. */}
+            <div className={controlStyles.locateDock} data-locate-dock="">
+              {renderLocateControl()}
+            </div>
           </div>
 
           {/* Floating search — collapsed to a square icon button by
@@ -745,20 +765,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <SearchGlassIcon className={controlStyles.mapSearchIcon} />
             </button>
           )}
-
-          {/* Der Standort-Knopf steht bewusst AUSSERHALB von `.mapWrap`.
-              Der Wrapper trägt `isolation: isolate` (damit der Standort-Marker
-              mit z-index 1000 im Kartenfenster bleibt) — darin kann kein
-              z-index nach draußen wirken, und die Liste (z-index 4) legte sich
-              über den Knopf, sobald sie auch nur ein Stück hochkam. Als
-              Geschwister der Liste gewinnt seine 6 gegen ihre 4. */}
-          {/* The dock is the button's frame on phones: fixed above the sheet's
-              resting edge, it rides up with the sheet and then stays while
-              the sheet slides over it (MapControls.module.css). Elsewhere it
-              has no box. */}
-          <div className={controlStyles.locateDock} data-locate-dock="">
-            {renderLocateControl()}
-          </div>
 
           <button
             type="button"
@@ -910,33 +916,23 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   onPrice={setPrice}
                   optionCounts={optionCounts}
                 />
-                {/* Window and counter-shift keep the rows below the stuck
-                    bar on the phone (MapSheet.module.css, "The map strip"). */}
-                <div className={sheetStyles.stripClip}>
-                  <div
-                    ref={setContentRef}
-                    className={`${sheetStyles.listScroll} ${sheetStyles.stripWindow}`}
-                    data-sheet-content=""
-                  >
-                    <div className={sheetStyles.stripInner}>
-                      <RestaurantList
-                        restaurants={listRestaurants}
-                        userLocation={location}
-                        selectedId={selectedRestaurant?._id ?? listFocusId}
-                        onSelect={onRestaurantClick}
-                        primaryMustEats={primaryMustEats}
-                        unlockedIds={unlockedIds}
-                        revealedMustEatIds={revealedMustEatIds}
-                        onResetFilters={handleResetFilters}
-                        onClearSearch={handleClearSearch}
-                        searchQuery={search}
-                        filtersActive={category !== 'All' || Boolean(bezirk || price) || openOnly}
-                        visibleRows={listRows}
-                        onNeedMoreRows={showMoreRows}
-                      />
-                      <MapSeoFooter locale={locale} />
-                    </div>
-                  </div>
+                <div ref={setContentRef} className={sheetStyles.listScroll} data-sheet-content="">
+                  <RestaurantList
+                    restaurants={listRestaurants}
+                    userLocation={location}
+                    selectedId={selectedRestaurant?._id ?? listFocusId}
+                    onSelect={onRestaurantClick}
+                    primaryMustEats={primaryMustEats}
+                    unlockedIds={unlockedIds}
+                    revealedMustEatIds={revealedMustEatIds}
+                    onResetFilters={handleResetFilters}
+                    onClearSearch={handleClearSearch}
+                    searchQuery={search}
+                    filtersActive={category !== 'All' || Boolean(bezirk || price) || openOnly}
+                    visibleRows={listRows}
+                    onNeedMoreRows={showMoreRows}
+                  />
+                  <MapSeoFooter locale={locale} />
                 </div>
               </>
             )}

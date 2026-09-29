@@ -577,36 +577,43 @@
   transform: rotate(3deg);
 }
 
-/* Phone: the Google Maps way. The dock stands fixed above the sheet's
-   resting edge; the button rides up with the sheet 1:1 on a document scroll
-   timeline (compositor — a scroll handler lagged a frame or two on iOS and
-   the list overtook it), stops where its top is 104px below the safe area,
-   clear of search and burger, and the sheet slides over it (dock before the
-   sheet in the DOM, no z-index). --edge-ride is that distance from rest.
-   A sheet pulled below its rest takes the dock along (sheetSlide.ts
-   followSheet). Elsewhere the dock has no box. */
+/* Phone: the Google Maps way. The button stands above the sheet's resting
+   edge, rides up with the sheet 1:1, stops where its top is 104px below the
+   safe area, clear of search and burger, and the sheet slides over it.
+   --edge-ride is that distance from rest. A sheet pulled below its rest
+   takes the dock along (sheetSlide.ts followSheet). Elsewhere the dock has
+   no box. */
 .locateDock {
   display: contents;
 }
 
-@keyframes locateRide {
-  from {
-    translate: 0 0;
-  }
-  to {
-    translate: 0 calc(-1 * var(--edge-ride));
-  }
-}
-
 @media (max-width: 767.98px) {
-  /* On the edge line the map credit shares (--edge-bottom/--edge-ride,
-     MapLayout.module.css). 2.5px: the crosshair's ink then stands 14px from
-     the edge, like the credit, the magnifier and the burger. */
+  /* The dock is sticky, not fixed: it rides with the sheet because it is
+     laid out with the page, and sticks where the ride ends. A fixed dock
+     riding a scroll timeline twitched on iOS whenever Safari's toolbar
+     unfolded at the end of a scroll back to the map — the compositor saw a
+     scroll offset for a few frames that the page never had (iOS 27
+     simulator, 28.09.2026; without the timeline the button stood still).
+
+     It lives in the map's frame (MapLayout.module.css, "The map frame"),
+     next to the fixed map: its top margin puts it on the edge line
+     (--edge-top, shared with the map credit), its bottom margin lets the
+     frame's lower edge — the sheet's top — pass over it, so the sheet
+     slides over the button. 2.5px: the crosshair's ink then stands
+     14px from the edge, like the credit, the magnifier and the burger. The
+     dock spans the width: only the button takes taps, the rest belongs to
+     the map. */
   .locateDock {
-    position: fixed;
-    right: 2.5px;
-    bottom: var(--edge-bottom);
-    display: block;
+    position: sticky;
+    top: calc(var(--edge-top) - var(--edge-ride));
+    display: flex;
+    justify-content: flex-end;
+    height: 44px;
+    /* The bottom margin gives it all back, so the frame's end never pushes
+       the dock. */
+    margin: var(--edge-top) 0 calc(-1 * var(--edge-top) - 44px);
+    padding-right: 2.5px;
+    pointer-events: none;
   }
 
   /* The must-eat detail is a takeover with no map behind it. */
@@ -620,14 +627,7 @@
     right: auto;
     bottom: auto;
     z-index: auto;
-  }
-
-  @supports (animation-timeline: scroll()) {
-    .fab {
-      animation: locateRide linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 var(--edge-ride);
-    }
+    pointer-events: auto;
   }
 }
 

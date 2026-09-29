@@ -265,6 +265,9 @@
   padding-bottom: 32px;
   margin-bottom: -28px;
   overflow-x: auto;
+  /* Kein Balken, auf keiner Breite (Ansage 29.09.2026) — `hv-rail` blendet
+     ihn für WebKit aus, das hier gilt für Firefox. */
+  scrollbar-width: none;
   scroll-snap-type: none;
   scroll-behavior: auto;
 }
@@ -287,44 +290,6 @@
 
   .photo {
     height: 140px;
-  }
-}
-
-/* Am Desktop ein feiner gelber Regler unter dem Band (Ansage 29.09.2026: der
-   Scrollbalken des Browsers war „viel zu dick" und passte nicht zum
-   Ink-Look): 4px Gelb auf einer Schiene in Weiß 10 %, ohne Rahmen und
-   Pfeile, bündig mit der Spalte statt über die ganze Fensterbreite. Nur über
-   `::-webkit-scrollbar` — setzte man `scrollbar-width/-color`, schaltete
-   Chrome diese Regeln ab; die bekommt nur Firefox, der sie nicht kennt. */
-@media (min-width: 768px) {
-  /* Der Regler sitzt ganz unten im Band: kein negativer Rand darunter, sonst
-     läge er unter dem Block danach (gemessen: unter „Alle Stories"). */
-  :global(.homeV2) :global(.hv-rail).rail {
-    padding-bottom: 24px;
-    margin-bottom: 0;
-  }
-
-  :global(.homeV2) :global(.hv-rail).rail::-webkit-scrollbar {
-    display: block;
-    height: 4px;
-  }
-
-  :global(.homeV2) :global(.hv-rail).rail::-webkit-scrollbar-track {
-    margin-inline: calc(max(0px, (100vw - var(--et-wrap-max)) / 2) + var(--et-wrap-pad));
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-  }
-
-  :global(.homeV2) :global(.hv-rail).rail::-webkit-scrollbar-thumb {
-    background: var(--et-accent);
-    border-radius: 2px;
-  }
-
-  @supports not selector(::-webkit-scrollbar) {
-    :global(.homeV2) :global(.hv-rail).rail {
-      scrollbar-width: thin;
-      scrollbar-color: var(--et-accent) rgba(255, 255, 255, 0.1);
-    }
   }
 }
 

@@ -73,6 +73,53 @@ const SYNONYMS: [string[], string[]][] = [
   [['pasta'], ['italian', 'italienisch']],
   [['vegetarisch', 'veggie'], ['vegan', 'vegetarisch']],
   [['brot'], ['bakery', 'backerei']],
+  /* Was man isst, nicht wie die Küche heisst — „Nudeln" stand an keinem Spot
+     und fand nichts (Betreiber, 29.09.2026). Jede Zeile zeigt nur auf Küchen
+     und Kategorien, die es im Bestand gibt (cuisineLabels.ts). */
+  [
+    ['nudeln', 'nudel', 'noodle', 'noodles'],
+    /* „italienisch", nicht „italian": Pizzerien stehen als „Italian / Pizza"
+       im Index und heissen auf Deutsch „Pizza" — die sind hier nicht gemeint. */
+    ['pasta', 'noodle', 'ramen', 'udon', 'italienisch'],
+  ],
+  [['pho'], ['vietnamese', 'vietnamesisch']],
+  [
+    ['asiatisch', 'asiate', 'asia', 'asian'],
+    [
+      'chinese',
+      'chinesisch',
+      'japanese',
+      'japanisch',
+      'korean',
+      'koreanisch',
+      'thai',
+      'vietnamese',
+      'vietnamesisch',
+      'indonesian',
+      'indonesisch',
+    ],
+  ],
+  [
+    ['currywurst', 'wurst'],
+    ['currywurst', 'imbiss', 'german / fast food'],
+  ],
+  [['schnitzel'], ['austrian', 'osterreichisch', 'deutsche kuche']],
+  [
+    ['falafel', 'hummus'],
+    ['israeli', 'israelisch', 'middle eastern', 'orientalisch'],
+  ],
+  [
+    ['dumplings', 'dumpling', 'teigtaschen'],
+    ['chinese', 'chinesisch'],
+  ],
+  [
+    ['kuchen', 'torte'],
+    ['bakery', 'backerei', 'desserts', 'konditorei'],
+  ],
+  [['fleisch'], ['steak', 'steakhouse', 'grill']],
+  [['eiscafe'], ['ice cream', 'eisdiele', 'gelato']],
+  [['mittag', 'mittagessen'], ['lunch']],
+  [['abendessen', 'abends'], ['dinner']],
 ];
 const SYNONYMS_BY_WORD = new Map(
   SYNONYMS.flatMap(([words, alternatives]) =>

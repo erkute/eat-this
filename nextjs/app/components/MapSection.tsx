@@ -552,7 +552,13 @@ export default function MapSection({
          phone fly below measures the sheet after this jump. */
       const sheet = selectedMustEat?._id ? null : sheetElRef.current;
       if (keepTop == null || !sheet) {
-        window.scrollTo(0, 0);
+        /* Instant: html scrolls smooth, and a spot picked in the search
+           from deep inside another detail closes the search in the same
+           render — its keyboard hold (MapSectionBody) reads scrollY right
+           after this and put the old depth back while the smooth scroll had
+           barely started. The new spot opened in the middle of its text
+           (user, 29.09.2026). */
+        window.scrollTo({ top: 0, behavior: 'instant' });
         return;
       }
       const restTop = sheet.getBoundingClientRect().top + window.scrollY;

@@ -436,8 +436,12 @@
 }
 
 @media (min-width: 1024px) {
+  /* Rides the panel's edge as it slides — same duration and curve. */
   .mapBurger {
     right: calc(var(--map-desktop-panel-width) + 14px);
+    transition:
+      transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      right var(--motion-slow) var(--ease-standard);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .mapBurger {
@@ -510,28 +514,37 @@
 }
 
 /* ── Panel disclosure (desktop) ────────────────────────────────────────── */
-/* Der Griff an der Kante des Desktop-Panels. Bis 28.09.2026 ein 11-px-Pfeil
-   ohne Fläche am Kartenrand — kaum zu finden, und eingeklappt stand nirgends,
-   dass es eine Liste gibt. Jetzt eine Ink-Lasche an der Panelkante (Fläche,
-   kein Rand), eingeklappt mit „Liste" daneben. */
+/* Die Lasche an der Kante des Desktop-Panels. Bis 28.09.2026 ein 11-px-Pfeil
+   ohne Fläche am Kartenrand — kaum zu finden. Dann eine 34×64-Ink-Lasche mit
+   geometrischem Pfeil: dem Betreiber zu präsent, und der Pfeil passte nicht zu
+   den gezeichneten Zeichen daneben (29.09.2026). Jetzt ein schmaler Reiter,
+   der am Panel hängt, mit einem von Hand gezogenen Winkel wie Lupe und Burger;
+   eingeklappt sagt er „Liste", damit man weiß, was dahinter liegt.
+
+   Er fährt mit dem Panel: dieselbe Dauer, dieselbe Kurve, per transform. */
 .panelToggle {
+  --panel-toggle-x: 0px;
   position: absolute;
   top: 50%;
-  right: 360px;
+  right: 0;
   z-index: 6;
   display: none;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 64px;
-  padding: 0 9px 0 10px;
+  gap: 5px;
+  width: 20px;
+  height: 44px;
+  padding: 0;
   background: var(--et-ink-raised);
-  color: var(--et-white);
-  border-radius: var(--et-radius-control) 0 0 var(--et-radius-control);
+  color: var(--et-ink-soft);
+  border-radius: 8px 0 0 8px;
   filter: none;
   clip-path: none;
-  transform: translateY(-50%);
-  transition: right var(--motion-slow) var(--ease-standard);
+  transform: translate(var(--panel-toggle-x), -50%);
+  transition:
+    transform var(--motion-slow) var(--ease-standard),
+    color 150ms var(--ease-standard),
+    background-color 150ms var(--ease-standard);
 }
 
 /* Nach den gemeinsamen transparenten Zuständen oben: die Lasche behält ihre
@@ -550,26 +563,27 @@
 /* Nur die Verschiebung — ohne das -50% sprang die Lasche beim Druck nach
    unten. */
 .panelToggle:active {
-  transform: translateY(calc(-50% + 1px));
+  transform: translate(var(--panel-toggle-x), calc(-50% + 1px));
 }
 
 .panelToggleLabel {
   font-family: var(--et-font-display);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1;
+  color: var(--et-white);
 }
 
 .panelToggle svg {
-  width: 15px;
-  height: 15px;
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
   fill: none;
-  color: currentColor;
   stroke: currentColor;
-  stroke-width: 2.6;
+  stroke-width: 3.2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 220ms ease;
+  transition: transform var(--motion-slow) var(--ease-standard);
 }
 
 @media (min-width: 1024px) {
@@ -577,10 +591,17 @@
     display: flex;
     right: var(--map-desktop-panel-width);
   }
-}
 
-:global([data-map-body][data-panel-hidden='true']) .panelToggle {
-  right: 0;
+  :global([data-map-body][data-panel-hidden='true']) .panelToggle {
+    --panel-toggle-x: var(--map-desktop-panel-width);
+    width: auto;
+    height: 34px;
+    padding: 0 10px 0 7px;
+  }
+
+  :global([data-map-body][data-panel-hidden='true']) .panelToggle svg {
+    transform: rotate(180deg);
+  }
 }
 
 /* ── Locate button ─────────────────────────────────────────────────────
@@ -742,7 +763,7 @@
     bottom: 12px;
     transition:
       transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      right 0.3s ease;
+      right var(--motion-slow) var(--ease-standard);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .fab {

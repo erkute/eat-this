@@ -839,16 +839,11 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             aria-expanded={!desktopPanelHidden}
             onClick={onToggleDesktopPanel}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <polyline points={desktopPanelHidden ? '15 6 9 12 15 18' : '9 6 15 12 9 18'} />
+            {/* Von Hand gezogen wie Lupe und Burger: ein Strich mit Bauch,
+                der Abstrich länger als der Aufstrich. Eingeklappt dreht er
+                sich um (MapControls.module.css). */}
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9.2 5.4c2.3 1.9 4.4 4 6.1 6.4-1.8 2.3-3.9 4.5-6 6.6" />
             </svg>
             {desktopPanelHidden && (
               <span className={controlStyles.panelToggleLabel} aria-hidden="true">

@@ -71,6 +71,8 @@ interface Options {
   snap: SheetSnap;
   sheetView: SheetView;
   sheetElRef: RefObject<HTMLElement | null>;
+  /** Desktop: the results panel is folded away, the whole canvas is map. */
+  desktopPanelHiddenRef: RefObject<boolean>;
   selectedRestaurant: MapRestaurant | null;
   /** The ?r= spot the server already rendered open, if any. */
   initialRestaurantId: string | undefined;
@@ -93,6 +95,7 @@ export function useMapCamera({
   snap,
   sheetView,
   sheetElRef,
+  desktopPanelHiddenRef,
   selectedRestaurant,
   initialRestaurantId: initialCameraRestaurantId,
 }: Options) {
@@ -261,15 +264,17 @@ export function useMapCamera({
       if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 };
       const isMobile = isSheetViewport();
       if (!isMobile) {
-        // Desktop: the map canvas IS the left grid cell — the side panel is
-        // outside the canvas. Reserve room at top (toolbar + burger stacked
-        // beneath it) and bottom (zoom controls + FAB); horizontal stays
-        // symmetric so the marker lands at the column's geometric center.
+        // Desktop: the canvas runs under the results panel (MapLayout.module.css),
+        // so the panel's strip is padding on the right while it is out — the
+        // marker lands in the middle of the map that shows. The padding also
+        // moves the pitched map's vanishing point there. Room at top (toolbar
+        // + burger stacked beneath it) and bottom (zoom controls + FAB).
+        const panel = desktopPanelHiddenRef.current ? 0 : (sheetElRef.current?.offsetWidth ?? 0);
         return {
           top: PIN_SAFE_TOP,
           bottom: 100,
           left: PIN_SAFE_SIDE,
-          right: PIN_SAFE_SIDE,
+          right: PIN_SAFE_SIDE + panel,
         };
       }
       // When the caller specifies a target snap, use known pixel heights for
@@ -346,7 +351,7 @@ export function useMapCamera({
         right: PIN_SAFE_SIDE,
       };
     },
-    [snap, sheetView, sheetElRef, phoneDetailFlyPadding, mapRef]
+    [snap, sheetView, sheetElRef, desktopPanelHiddenRef, phoneDetailFlyPadding, mapRef]
   );
   const getFlyPaddingRef = useRef(getFlyPadding);
   getFlyPaddingRef.current = getFlyPadding;

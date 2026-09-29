@@ -18,7 +18,7 @@ export default function HubMarquee() {
     <span className={styles.run}>
       {[0, 1, 2].map((i) => (
         <span key={i} className={styles.word}>
-          {CLAIM}
+          <span className={styles.claim}>{CLAIM}</span>
           <span className={styles.dot} />
         </span>
       ))}

@@ -385,8 +385,7 @@
    px) und wird kurz nach dem Laden gedrückt: `--press` lässt ihn einsinken,
    beim Loslassen federt er knapp über seine Ruhelage zurück (negativer
    Wert). Keine Hand, kein Ring — nur der Knopf (Ansage
-   28.09.2026). Drei Mal im Abstand von 7s, der erste Druck, wenn er gerade
-   aufgestiegen ist. Alles über `translate`/`scale`, damit `:active` seinen
+   28.09.2026). Alle 4,5s, der erste Druck, sobald er hingelegt ist. Alles über `translate`/`scale`, damit `:active` seinen
    `transform` behält; nie per GSAP-`transform`, das setzte beides inline auf
    `none`. */
 @property --press {
@@ -405,7 +404,7 @@
   scale: calc(1 - var(--press) * 0.04);
   box-shadow: 0 calc(8px + (1 - var(--in-cta, 1)) * 18px - var(--press) * 5px)
     calc(22px + (1 - var(--in-cta, 1)) * 20px) -10px rgba(255, 198, 0, 0.3);
-  animation: ctaPress 7s linear 3.1s infinite both;
+  animation: ctaPress 4.5s linear 2.8s infinite both;
 }
 
 /* Immer wieder, nicht nur beim Laden (Ansage 28.09.2026: „wenn ich von unten
@@ -413,14 +412,15 @@
    `data-in-view` an die Section — `1` im Bild, `0` draussen. Draussen steht
    die Animation still (`none`), und erst das Zurückschalten startet sie neu:
    eine bloss andere Verzögerung startete Chrome nicht neu (gemessen). Wer
-   zurück nach oben kommt, sieht den Druck nach einer halben Sekunde, danach
-   alle 7s. Ohne JS gilt die Regel darüber. */
+   zurück nach oben kommt, sieht den Druck nach 0,3s, danach alle 4,5s
+   (Ansage 29.09.2026: „schneller gedrückt", vorher 0,5s und 7s). Ohne JS
+   gilt die Regel darüber. */
 :global([data-in-view='0']) .heroActions [data-magnetic] {
   animation: none;
 }
 
 :global([data-in-view='1']) .heroActions [data-magnetic] {
-  animation: ctaPress 7s linear 0.5s infinite both;
+  animation: ctaPress 4.5s linear 0.3s infinite both;
 }
 
 /* Dasselbe für andere Knöpfe der Startseite (`data-press`, z. B. „Zur Map"

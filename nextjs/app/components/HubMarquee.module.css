@@ -20,7 +20,11 @@
   transform: skewX(calc(var(--skew, 0) * 1deg));
   background: var(--et-accent);
   color: var(--et-ink);
-  padding-block: clamp(5px, 0.6vw, 9px);
+  /* Oben und unten gleich viel Gelb (Ansage 29.09.2026: „nicht korrekt
+     ausgerichtet"). Die Zeile wird dafür auf Versalhöhe geschnitten, siehe
+     `.claim` — vorher sass die Schrift hoch, weil Providence unten Platz für
+     Unterlängen hält, die der Claim in Versalien nie braucht. */
+  padding-block: clamp(10px, 1.1vw, 16px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 }
 
@@ -65,6 +69,21 @@
   letter-spacing: -0.02em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* Die Zeile genau so hoch wie die Versalien: Ober- und Unterkante des
+   Texts sind die der Buchstaben, das Polster am Band ist damit oben und
+   unten wirklich gleich. Ohne `text-box` (Firefox) bleibt die Zeile, dann
+   gleicht ein Versatz nach unten die Unterlängen-Luft aus. */
+.claim {
+  display: inline-block;
+  text-box: trim-both cap alphabetic;
+}
+
+@supports not (text-box: trim-both cap alphabetic) {
+  .claim {
+    translate: 0 0.08em;
+  }
 }
 
 /* Das gelbe Quadrat der Abschnittstitel als Trenner — auf dem gelben Band

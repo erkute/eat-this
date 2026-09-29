@@ -128,6 +128,12 @@
   .item[open]::details-content {
     height: auto;
   }
+
+  /* Klappt HubMotion die erste Frage von selbst auf, treibt GSAP die Höhe —
+     das CSS-Gleiten liefe sonst doppelt. */
+  .item[data-auto-open]::details-content {
+    transition: none;
+  }
 }
 
 @media (max-width: 560px) {

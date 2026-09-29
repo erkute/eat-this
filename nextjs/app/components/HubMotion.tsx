@@ -492,34 +492,58 @@ function armScrollBand(rail: HTMLElement, scroller: HTMLElement | Window): () =>
 }
 
 /**
- * FAQ: „Was ist Eat This?" klappt einmal von selbst auf, sobald die Liste ein
- * Stück im Bild ist (Ansage 29.09.2026) — das Gleiten der Höhe kommt aus
- * HubFaq.module.css. Ohne JS oder bei reduced motion bleibt sie zu. Wer sie
- * vorher schon selbst geöffnet oder geschlossen hat, dem wird nichts
- * umgestellt.
+ * FAQ: „Was ist Eat This?" klappt einmal von selbst auf, sobald die Frage gut
+ * im Bild ist — oberhalb von 55 % der Höhe —, und zwar langsam: die Antwort
+ * wächst über gut eine Sekunde auf (Ansage 29.09.2026: „sehe ich sofort
+ * aufgeklappt"). Getrieben von GSAP, nicht vom CSS-Gleiten in
+ * HubFaq.module.css: das kann nur Chrome, Safari und Firefox klappten sofort
+ * auf. Solange GSAP läuft, ist das CSS-Gleiten aus (`data-auto-open`).
+ * Ohne JS oder bei reduced motion bleibt sie zu; wer sie vorher schon selbst
+ * geöffnet oder geschlossen hat, dem wird nichts umgestellt.
  */
-function armFaqOpen(): () => void {
+function armFaqOpen(safe: gsap.ContextSafeFunc): () => void {
   const first = document.querySelector<HTMLDetailsElement>('[data-hub-faq] details');
-  if (!first) return () => {};
+  const answer = first?.querySelector<HTMLElement>('p');
+  if (!first || !answer || typeof IntersectionObserver === 'undefined') return () => {};
   let touched = false;
   const onToggle = () => {
     touched = true;
   };
   first.addEventListener('toggle', onToggle, { once: true });
-  const stop = onceInView(
-    new Map([
-      [
-        first,
-        () => {
-          first.removeEventListener('toggle', onToggle);
-          if (!touched) first.open = true;
-        },
-      ],
-    ])
-  );
-  return () => {
-    stop();
+  const open = safe(() => {
     first.removeEventListener('toggle', onToggle);
+    if (touched || first.open) return;
+    first.setAttribute('data-auto-open', '');
+    first.open = true;
+    // Das Polster wächst mit — sonst sprang die Zeile beim Öffnen um 20px.
+    const { paddingTop, paddingBottom } = getComputedStyle(answer);
+    gsap.fromTo(
+      answer,
+      { height: 0, paddingTop: 0, paddingBottom: 0, overflow: 'hidden' },
+      {
+        height: 'auto',
+        paddingTop,
+        paddingBottom,
+        duration: 1.3,
+        ease: 'power1.inOut',
+        clearProps: 'height,paddingTop,paddingBottom,overflow',
+        onComplete: () => first.removeAttribute('data-auto-open'),
+      }
+    );
+  }) as () => void;
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      open();
+    },
+    { rootMargin: '0px 0px -45% 0px' }
+  );
+  io.observe(first);
+  return () => {
+    io.disconnect();
+    first.removeEventListener('toggle', onToggle);
+    first.removeAttribute('data-auto-open');
   };
 }
 
@@ -851,7 +875,7 @@ export default function HubMotion() {
         stops.push(armInView());
         stops.push(desk ? armBandGlide(safe!) : armScrollBands(scroller));
         stops.push(armSignupDemo());
-        stops.push(armFaqOpen());
+        stops.push(armFaqOpen(safe!));
         stops.push(armScrollTalk(scroller));
         stops.push(armMarqueeSkew(scroller));
         // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein

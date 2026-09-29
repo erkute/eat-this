@@ -1,6 +1,7 @@
 import type { MapRestaurant } from '@/lib/types';
 import { abbreviateBezirk } from '@/lib/map';
 import { localizedCuisine } from '@/lib/cuisineLabels';
+import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
 import styles from './MapControls.module.css';
 
 /**
@@ -33,6 +34,11 @@ export default function MapSearchSuggestions({
             const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);
             const cuisine = r.cuisineType ? localizedCuisine(r.cuisineType, locale) : null;
             const meta = [district, cuisine].filter(Boolean).join(' · ');
+            // Der Bezirk steht darunter schon: „AERA Charlottenburg" heisst
+            // hier nur „AERA" (31 Spots tragen ihn im Namen, Review 29.09.2026).
+            const name = district
+              ? spotNameWithoutDistrict(r.name, r.district ?? r.bezirk?.name)
+              : r.name;
             return (
               <li key={r._id} role="option" aria-selected={false}>
                 <button
@@ -44,7 +50,7 @@ export default function MapSearchSuggestions({
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => onPick(r)}
                 >
-                  <span className={styles.mapSearchSuggestionName}>{r.name}</span>
+                  <span className={styles.mapSearchSuggestionName}>{name}</span>
                   {meta && <span className={styles.mapSearchSuggestionMeta}>{meta}</span>}
                 </button>
               </li>

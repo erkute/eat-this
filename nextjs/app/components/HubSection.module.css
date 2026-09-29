@@ -169,6 +169,9 @@
   line-height: 1;
   margin-bottom: clamp(10px, 1.2vw, 18px);
   text-transform: none;
+  /* So breit wie der Gruß: der Stift beim Laden (Auftritt unten) schreibt
+     über den Text, nicht über die leere Spalte daneben. */
+  width: fit-content;
 }
 
 .heroHeadline {
@@ -525,6 +528,16 @@
   inherits: true;
   initial-value: 1;
 }
+@property --in-hey {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-profile {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
 
 @keyframes inCopy {
   from {
@@ -556,6 +569,16 @@
     --in-back: 0;
   }
 }
+@keyframes inHey {
+  from {
+    --in-hey: 0;
+  }
+}
+@keyframes inProfile {
+  from {
+    --in-profile: 0;
+  }
+}
 
 /* Die Kurven: expo.out und power3.inOut, wie GSAP sie nennt; der Text dazu
    mit Überschwinger (back.out) — er kommt mit Schwung an, schießt eine Spur
@@ -573,6 +596,25 @@
     inL2 0.3s var(--slam) 1.3s both,
     inCopy 1.05s var(--swing) 1.8s both,
     inCta 0.75s var(--glide) 2.2s both;
+}
+
+/* Angemeldet geht es danach weiter (Ansage 29.09.2026): erst liegt der
+   Map-Knopf, dann schreibt sich „Hey Ersan" wie mit dem Stift hin, zuletzt
+   kommt „Dein Profil". Nur mit `data-auth` (Bootstrap-Skript aus dem
+   Anmelde-Hinweis, BridgeAuth nach dem Anmelden) — ein Gast wartete sonst
+   anderthalb Sekunden länger auf das Ende des Auftritts, ohne etwas davon zu
+   sehen. Die Liste muss ganz wiederholt werden, `animation` ist ein
+   Kurzwert. */
+:global(html[data-hero-intro][data-auth]) .hero {
+  animation:
+    inBack 1.8s var(--expo-out) 0.75s both,
+    inFront 1.7s var(--expo-out) 0.85s both,
+    inL1 0.3s var(--slam) 0.95s both,
+    inL2 0.3s var(--slam) 1.3s both,
+    inCopy 1.05s var(--swing) 1.8s both,
+    inCta 0.75s var(--glide) 2.2s both,
+    inHey 0.95s cubic-bezier(0.45, 0.05, 0.55, 0.95) 2.9s both,
+    inProfile 0.75s var(--glide) 3.9s both;
 }
 
 /* Die Wortmarke knallt als Stempel auf die Seite, „so richtig in your
@@ -686,11 +728,21 @@
   transform-origin: 50% 70%;
 }
 
-/* Gruß und Lead folgen als Block von links, sobald die Headline steht. */
-:global(html[data-hero-intro]) .heroCopy > :not(.heroActions, .heroMark, .heroHeadline) {
+/* Der Lead folgt als Block von links, sobald die Headline steht. */
+:global(html[data-hero-intro])
+  .heroCopy
+  > :not(.heroActions, .heroMark, .heroHeadline, .heroKicker) {
   translate: calc((1 - var(--in-copy, 1)) * -100vw) 0;
   transform: skewX(calc((1 - var(--in-copy, 1)) * 28deg));
   transform-origin: 0 100%;
+}
+
+/* Der Gruß schreibt sich von links nach rechts hin, wie mit dem Stift
+   (Ansage 29.09.2026) — ein Schnitt, der mitläuft, kein Einblenden. Der
+   Überstand oben und unten lässt Ober- und Unterlängen der Handschrift
+   stehen. Er steht über der Headline, kommt aber erst nach dem Map-Knopf. */
+:global(html[data-hero-intro]) .heroCopy > .heroKicker {
+  clip-path: inset(-0.4em calc((1 - var(--in-hey, 1)) * 100%) -0.4em -0.2em);
 }
 
 /* Der Knopf wird zuletzt hingelegt (Ansage 29.09.2026): er schwebt etwas
@@ -702,6 +754,13 @@
 :global(html[data-hero-intro]) .heroCopy > .heroActions {
   translate: 0 calc((1 - var(--in-cta, 1)) * -18px);
   scale: calc((1 + (1 - var(--in-cta, 1)) * 0.14) * min(1, var(--in-cta, 1) * 1000));
+}
+
+/* „Dein Profil" legt sich genauso hin, aber für sich — nach dem Gruß, nicht
+   zusammen mit dem Map-Knopf. */
+:global(html[data-hero-intro]) .heroActions .heroSecondaryBtn {
+  translate: 0 calc((1 - var(--in-profile, 1)) * -18px);
+  scale: calc((1 + (1 - var(--in-profile, 1)) * 0.14) * min(1, var(--in-profile, 1) * 1000));
 }
 
 .heroPhones:focus-visible .phoneFront {

@@ -49,6 +49,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
  *      wird gedrückt, das Feld leert sich (`armSignupDemo`).
+ *    - FAQ: die erste Frage klappt einmal von selbst auf (`armFaqOpen`).
  *
  * 4. **Immer:** Remy redet, solange gescrollt wird — der große im Frag-Remy-
  *    Abschnitt und der schwebende unten rechts (`armScrollTalk`). Scrollen
@@ -491,6 +492,38 @@ function armScrollBand(rail: HTMLElement, scroller: HTMLElement | Window): () =>
 }
 
 /**
+ * FAQ: „Was ist Eat This?" klappt einmal von selbst auf, sobald die Liste ein
+ * Stück im Bild ist (Ansage 29.09.2026) — das Gleiten der Höhe kommt aus
+ * HubFaq.module.css. Ohne JS oder bei reduced motion bleibt sie zu. Wer sie
+ * vorher schon selbst geöffnet oder geschlossen hat, dem wird nichts
+ * umgestellt.
+ */
+function armFaqOpen(): () => void {
+  const first = document.querySelector<HTMLDetailsElement>('[data-hub-faq] details');
+  if (!first) return () => {};
+  let touched = false;
+  const onToggle = () => {
+    touched = true;
+  };
+  first.addEventListener('toggle', onToggle, { once: true });
+  const stop = onceInView(
+    new Map([
+      [
+        first,
+        () => {
+          first.removeEventListener('toggle', onToggle);
+          if (!touched) first.open = true;
+        },
+      ],
+    ])
+  );
+  return () => {
+    stop();
+    first.removeEventListener('toggle', onToggle);
+  };
+}
+
+/**
  * Starter Pack: sobald die Tafel ins Bild kommt, tippt sich eine Adresse ins
  * Feld, „Anmelden" wird gedrückt, das Feld leert sich wieder (Ansage
  * 28.09.2026). Getippt wird in den Platzhalter, nie in den Wert — es wird
@@ -818,6 +851,7 @@ export default function HubMotion() {
         stops.push(armInView());
         stops.push(desk ? armBandGlide(safe!) : armScrollBands(scroller));
         stops.push(armSignupDemo());
+        stops.push(armFaqOpen());
         stops.push(armScrollTalk(scroller));
         stops.push(armMarqueeSkew(scroller));
         // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein

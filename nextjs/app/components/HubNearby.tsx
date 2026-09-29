@@ -138,7 +138,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
           )}
         </div>
 
-        <div className={`hv-rail ${styles.rail}`} data-nearby-rail="">
+        <div className={`hv-rail ${styles.rail}`} data-scroll-band="">
           {cards.map((r) => {
             const walk = activeLocation
               ? formatWalkingTime(

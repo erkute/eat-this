@@ -9,11 +9,10 @@ interface Props {
   locale: 'de' | 'en';
 }
 
-// Four stories, not six. Stacked full-width on mobile the old six-card grid
-// ran 3218px — 41% of the entire home page — for the section readers reach
-// last. On the phone they sit in a swipeable rail; on desktop the newest
-// leads and the other three stand beside it as a list.
-const CARD_COUNT = 4;
+// Sechs Stories als Band, das beim Scrollen durchs Bild läuft (seit
+// 28.09.2026): nebeneinander kostet jede weitere Story keine Seitenhöhe, und
+// je mehr darin liegen, desto deutlicher liest sich die Reihe als News.
+const CARD_COUNT = 6;
 
 // Dasselbe Format wie der Magazin-Index (NewsSection): „1. September 2026".
 function formatDate(iso: string | null | undefined, locale: 'de' | 'en'): string {
@@ -52,8 +51,8 @@ export default function MagazineGrid({ articles, locale }: Props) {
           </h2>
         </div>
 
-        <ul className={styles.grid} role="list" data-stamp="stagger">
-          {list.map((a, i) => (
+        <ul className={`hv-rail ${styles.band}`} role="list" data-scroll-band="">
+          {list.map((a) => (
             <li key={a.slug}>
               <Link href={`/news/${a.slug}`} className={styles.card}>
                 <span className={`hv-photo ${styles.photo}`}>
@@ -69,13 +68,8 @@ export default function MagazineGrid({ articles, locale }: Props) {
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      // Ab 768px ist die erste Story der Aufmacher, die
-                      // anderen sind kleine Listenbilder.
-                      sizes={
-                        i === 0
-                          ? '(max-width:767.98px) 92vw, 46vw'
-                          : '(max-width:767.98px) 92vw, 168px'
-                      }
+                      // Karten wie im CSS: min(72vw, 270px), ab 768px bis 340px.
+                      sizes="(max-width:767.98px) 72vw, 340px"
                     />
                   )}
                 </span>

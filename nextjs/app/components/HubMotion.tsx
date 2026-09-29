@@ -17,8 +17,9 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
  *    HubSection.module.css). Hier nur das Aufräumen, siehe `finishIntro`.
  *
- * 2. **Am Scrollweg** — und damit umkehrbar — hängen Must-Eat-Stapel, Spot des Tages, die Magazin-Fotos (Parallaxe) und die
- *    Quadrate vor den Titeln. Das sind Scroll-Timelines des Browsers in den CSS-Modulen,
+ * 2. **Am Scrollweg** — und damit umkehrbar — hängen Must-Eat-Stapel, Spot
+ *    des Tages, die Magazin-Fotos (Parallaxe) und die Quadrate vor den
+ *    Titeln. Das sind Scroll-Timelines des Browsers in den CSS-Modulen,
  *    kein JS: sie laufen im Takt des Scrollens, auch auf dem iPhone, wo
  *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
  *    Nur wo der Browser keine Scroll-Timeline kann, treibt `armScrubFallback`
@@ -30,14 +31,15 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *    Neumessen, sonst greift er an der alten Stelle. Ohne Pin fällt beides weg,
  *    und Telefon und Desktop teilen denselben Weg.
  *
- *    Das Nearby-Band ist die Ausnahme: es lässt sich auch selbst wischen, also
- *    schiebt JS seine Scrollposition mit (`armNearbyBand`).
+ *    Die Bänder (Nearby, Magazin) sind die Ausnahme: sie lassen sich auch
+ *    selbst wischen, also schiebt JS ihre Scrollposition mit
+ *    (`armScrollBands`).
  *
  * 3. **Beim Hereinkommen:**
  *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
  *      als ganze Kacheln — einmal.
- *    - `data-stamp`: der Titel „Must Eats" und die Magazin-Artikel schlagen
- *      wie Stempel ein, umkehrbar (`armStamps`).
+ *    - `data-stamp`: der Titel „Must Eats" schlägt wie ein Stempel ein,
+ *      umkehrbar (`armStamps`).
  *    - Frag Remy: das Fragezeichen fliegt von links ein, „Frag Remy." schlägt
  *      ein, Remy schießt von unten hoch und redet, mehrmals. Wer den
  *      Abschnitt verlässt, sieht alles rückwärts gehen; wer zurückkommt, sieht
@@ -118,7 +120,7 @@ function onceInView(plays: Map<Element, () => void>): () => void {
   return () => io.disconnect();
 }
 
-/** Gestaffelte Kacheln (Magazin, Kategorien): versteckt wird nur, was beim
+/** Gestaffelte Kacheln (Kategorien): versteckt wird nur, was beim
  *  Mount unterhalb des Bildschirms liegt — was schon zu sehen ist (gemerkte
  *  Scrollposition), bleibt stehen. */
 function armStaggers(safe: gsap.ContextSafeFunc): () => void {
@@ -305,68 +307,38 @@ function armFragRemy(scroller: HTMLElement | Window): () => void {
 /**
  * Stempel wie „Frag Remy." (Ansage 28.09.2026): gross, gedreht und etwas zu
  * hoch, dann mit anziehendem Tempo flach auf seinen Platz, ein kurzer
- * Aufprall. `data-stamp` am Element — der Titel „Must Eats" —, oder
- * `data-stamp="stagger"` an einer Liste, dann schlagen ihre Einträge
- * nacheinander ein (die Artikel unter „Auf dem Teller"). Wie Frag Remy
+ * Aufprall — `data-stamp`, derzeit der Titel „Must Eats". Wie Frag Remy
  * umkehrbar: wer die Section verlässt, sieht den Stempel rückwärts abheben,
  * wer zurückkommt, sieht ihn neu. Bis zum Einschlag ist nichts da
- * (`visibility`, kein Ausblenden). Jeder Eintrag hat genau einen Tween auf
- * seinem `transform` — zwei liessen bei Frag Remy den Rückweg fallen.
- *
- * Die Artikel stempeln kleiner, langsamer und erst, wenn die Liste gut im
- * Bild ist: mit Titel-Werten (2,4-fach, ab Section-Oberkante bei 70 %) war
- * der Einschlag am Handy vorbei, bevor die Karten zu sehen waren, und die
- * Wischreihe schnitt die grossen Karten ab („man sieht nicht richtig was").
+ * (`visibility`, kein Ausblenden). Genau ein Tween auf seinem `transform` —
+ * zwei liessen bei Frag Remy den Rückweg fallen.
  */
-const STAMP = {
-  single: { scale: 2.4, duration: 0.34, stagger: 0, start: 'top 70%', end: 'bottom 30%' },
-  group: { scale: 1.5, duration: 0.45, stagger: 0.22, start: 'top 55%', end: 'bottom 25%' },
-};
-
 function armStamps(scroller: HTMLElement | Window): () => void {
   const root = document.querySelector<HTMLElement>('[data-hub]');
   if (!root) return () => {};
   const stops: Array<() => void> = [];
   for (const el of root.querySelectorAll<HTMLElement>('[data-stamp]')) {
-    const group = el.dataset.stamp === 'stagger';
-    const how = group ? STAMP.group : STAMP.single;
-    const targets = group ? (Array.from(el.children) as HTMLElement[]) : [el];
-    if (!targets.length) continue;
-    gsap.set(targets, { visibility: 'hidden' });
-    const stamp = gsap.timeline({ paused: true });
-    targets.forEach((target, i) => {
+    gsap.set(el, { visibility: 'hidden' });
+    const stamp = gsap
+      .timeline({ paused: true })
       // Nicht bei 0: ein `set` ganz am Anfang einer Zeitleiste greift sofort.
-      const at = 0.01 + i * how.stagger;
-      stamp
-        .set(
-          target,
-          {
-            visibility: 'visible',
-            scale: how.scale,
-            rotation: i % 2 ? 6 : -7,
-            y: -24,
-            transformOrigin: group ? '50% 60%' : '0% 60%',
-          },
-          at
-        )
-        .to(
-          target,
-          {
-            keyframes: [
-              { scale: 1, rotation: 0, y: 0, duration: how.duration, ease: 'power4.in' },
-              { y: 6, duration: 0.07, ease: 'power1.out' },
-              { y: 0, duration: 0.5, ease: 'elastic.out(1, 0.35)' },
-            ],
-          },
-          at
-        );
-    });
+      .set(
+        el,
+        { visibility: 'visible', scale: 2.4, rotation: -7, y: -24, transformOrigin: '0% 60%' },
+        0.01
+      )
+      .to(el, {
+        keyframes: [
+          { scale: 1, rotation: 0, y: 0, duration: 0.34, ease: 'power4.in' },
+          { y: 6, duration: 0.07, ease: 'power1.out' },
+          { y: 0, duration: 0.5, ease: 'elastic.out(1, 0.35)' },
+        ],
+      });
     const st = ScrollTrigger.create({
-      // Der Titel hängt an seiner Section, eine Liste an sich selbst.
-      trigger: group ? el : (el.closest('section') ?? el),
+      trigger: el.closest('section') ?? el,
       scroller,
-      start: how.start,
-      end: how.end,
+      start: 'top 70%',
+      end: 'bottom 30%',
       onEnter: () => stamp.timeScale(1).play(),
       onEnterBack: () => stamp.timeScale(1).play(),
       onLeave: () => stamp.timeScale(1.6).reverse(),
@@ -375,7 +347,7 @@ function armStamps(scroller: HTMLElement | Window): () => void {
     stops.push(() => {
       st.kill();
       stamp.kill();
-      gsap.set(targets, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility` });
+      gsap.set(el, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility` });
     });
   }
   return () => stops.forEach((stop) => stop());
@@ -422,17 +394,24 @@ function armInView(): () => void {
 }
 
 /**
- * Das Nearby-Band läuft beim Scrollen von links nach rechts durchs Bild und
- * lässt sich trotzdem selbst wischen. Die Scrollposition der Reihe folgt der
- * Seite: kommt das Band unten herein, steht es am Ende, verlässt es oben das
- * Bild, am Anfang. Wischt jemand selbst, merkt sich das der Versatz
- * (`offset`) — weiterscrollen setzt dort an, statt das Wischen zu überschreiben.
- * Das ist seitliches Scrollen, kein Mitziehen mit der Seite: ein Frame Verzug
- * auf dem iPhone fällt hier nicht auf.
+ * Die Bänder (`data-scroll-band`: „Um dich herum", „Auf dem Teller") laufen
+ * beim Scrollen von links nach rechts durchs Bild und lassen sich trotzdem
+ * selbst wischen. Die Scrollposition der Reihe folgt der Seite: kommt das
+ * Band unten herein, steht es am Ende, verlässt es oben das Bild, am Anfang.
+ * Wischt jemand selbst, merkt sich das der Versatz (`offset`) —
+ * weiterscrollen setzt dort an, statt das Wischen zu überschreiben. Das ist
+ * seitliches Scrollen, kein Mitziehen mit der Seite: ein Frame Verzug auf dem
+ * iPhone fällt hier nicht auf.
  */
-function armNearbyBand(scroller: HTMLElement | Window): () => void {
-  const rail = document.querySelector<HTMLElement>('[data-nearby-rail]');
-  if (!rail) return () => {};
+function armScrollBands(scroller: HTMLElement | Window): () => void {
+  const stops = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-hub] [data-scroll-band]'),
+    (rail) => armScrollBand(rail, scroller)
+  );
+  return () => stops.forEach((stop) => stop());
+}
+
+function armScrollBand(rail: HTMLElement, scroller: HTMLElement | Window): () => void {
   let offset = 0;
   let written = -1;
   let frame = 0;
@@ -801,7 +780,7 @@ export default function HubMotion() {
         stops.push(armFragRemy(scroller));
         stops.push(armStamps(scroller));
         stops.push(armInView());
-        stops.push(armNearbyBand(scroller));
+        stops.push(armScrollBands(scroller));
         stops.push(armSignupDemo());
         stops.push(armScrollTalk(scroller));
         stops.push(armMarqueeSkew(scroller));

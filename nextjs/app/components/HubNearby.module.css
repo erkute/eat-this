@@ -241,18 +241,24 @@
    (Ansage 28.09.2026), auf jeder Breite — und lassen sich trotzdem selbst
    wischen (Ansage vom selben Abend: „geht das in Kombination?"). Die Reihe
    ist deshalb ein echter seitlicher Scroll-Container, breiter als die
-   Spalte und bis an deren Rand. HubMotion schiebt ihre Scrollposition mit
-   der Seite mit (`armNearbyBand`) und merkt sich, wie weit jemand selbst
-   gewischt hat — das Seitenscrollen setzt dort an, statt es zu überschreiben.
+   Spalte. HubMotion schiebt ihre Scrollposition mit der Seite mit
+   (`armScrollBands`) und merkt sich, wie weit jemand selbst gewischt hat —
+   das Seitenscrollen setzt dort an, statt es zu überschreiben.
    Kein Scroll-Snap, solange HubMotion schiebt: er risse jeden geschobenen
-   Wert auf die nächste Kachel. */
+   Wert auf die nächste Kachel.
+   Bis an die Fensterkante, nicht nur bis an den Rand der Spalte: am Desktop
+   schnitt die Spalte die Karten mitten auf der Seite ab (Ansage 28.09.2026).
+   Prozent an Rand und Polster beziehen sich auf die Spalte, also ist
+   `(100vw - 100%) / 2` genau der Weg bis zur Kante, und die erste Karte
+   steht trotzdem bündig in der Spalte. Am Telefon ist das der Gutter wie
+   vorher. Den Überstand eines Scrollbalkens schneidet `.page` ab. */
 :global(.homeV2) :global(.hv-rail).rail {
   --bleed: var(--et-wrap-pad);
   display: flex;
   flex-wrap: nowrap;
   gap: var(--et-rail-gap);
-  margin-inline: calc(var(--bleed) * -1);
-  padding-inline: var(--bleed);
+  margin-inline: calc((100% - 100vw) / 2);
+  padding-inline: calc((100vw - 100%) / 2);
   scroll-padding-inline: var(--bleed);
   /* Ein Scroll-Container schneidet auch unten ab: Platz für den Schatten der
      Fotos, den der negative Rand wieder abgibt. */

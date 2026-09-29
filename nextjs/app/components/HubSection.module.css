@@ -30,6 +30,12 @@
   padding-top: 0;
   font-family: var(--et-font-body);
   letter-spacing: var(--et-tracking-none);
+  /* Die Bänder (Nearby, Magazin) reichen per `100vw` bis an die Fensterkante;
+     mit klassischem Scrollbalken ist 100vw breiter als die Seite. `clip`
+     schneidet diesen Überstand seitlich ab, ohne die Seite zum
+     Scroll-Container zu machen — Sticky und der Logo-Fall nach oben bleiben
+     heil. */
+  overflow-x: clip;
 }
 
 /* Doppelte Klasse gegen `.homeV2` (globals.css, Rang 0,1,0), das Papier
@@ -373,9 +379,9 @@
 }
 
 /* Der Knopf im Aufmacher zieht zur Maus (HubMotion schreibt `--mx/--my` in
-   px) und wird kurz nach dem Laden gedrückt: `--press` lässt ihn einsinken
-   und schrumpfen, beim Loslassen federt er knapp über seine Größe zurück
-   (negativer Wert). Keine Hand, kein Ring — nur der Knopf (Ansage
+   px) und wird kurz nach dem Laden gedrückt: `--press` lässt ihn einsinken,
+   beim Loslassen federt er knapp über seine Ruhelage zurück (negativer
+   Wert). Keine Hand, kein Ring — nur der Knopf (Ansage
    28.09.2026). Drei Mal im Abstand von 7s, der erste Druck, wenn er gerade
    aufgestiegen ist. Alles über `translate`/`scale`, damit `:active` seinen
    `transform` behält; nie per GSAP-`transform`, das setzte beides inline auf
@@ -386,10 +392,70 @@
   initial-value: 0;
 }
 
+/* Seit 28.09.2026 eine Taste mit Kante („muss Bock haben, drauf zu
+   klicken"): unter der gelben Fläche steht eine dunkle Ocker-Kante — Ink
+   verschwände auf dem Ink-Grund. Der Druck versenkt die Taste in ihre Kante
+   (`--press` 1 = ganz unten, Kante weg), das Nachfedern hebt sie kurz höher.
+   Hover hebt sie ein Stück an (`--lift`), Tippen drückt sie ganz hinein. */
+@property --lift {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
 .heroActions [data-magnetic] {
-  translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px + var(--press) * 5px);
-  scale: calc(1 - var(--press) * 0.07);
-  animation: ctaPress 7s linear 2s infinite both;
+  --key-depth: 6px;
+  --key-edge: #a37d00;
+  gap: 10px;
+  translate: calc(var(--mx, 0) * 1px)
+    calc(var(--my, 0) * 1px + var(--press) * var(--key-depth) - var(--lift));
+  box-shadow: 0 calc((1 - var(--press)) * var(--key-depth) + var(--lift)) 0 var(--key-edge);
+  transition:
+    --lift 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+  animation: ctaPress 7s linear 2.4s infinite both;
+}
+
+@media (hover: hover) {
+  .heroActions [data-magnetic]:hover {
+    --lift: 3px;
+    --key-edge: #b9b1a1;
+  }
+}
+
+.heroActions [data-magnetic]:focus-visible {
+  --key-edge: #b9b1a1;
+}
+
+.page .heroActions [data-magnetic]:active {
+  transform: translateY(var(--key-depth));
+  box-shadow: none;
+}
+
+/* Der Pfeil stupst alle paar Sekunden nach rechts: da geht's lang. */
+.heroArrow {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  animation: arrowNudge 3.6s ease-in-out 3s infinite both;
+}
+
+@keyframes arrowNudge {
+  0%,
+  72%,
+  100% {
+    translate: 0 0;
+  }
+  80% {
+    translate: 6px 0;
+  }
+  87% {
+    translate: 0 0;
+  }
+  93% {
+    translate: 3px 0;
+  }
 }
 
 /* Immer wieder, nicht nur beim Laden (Ansage 28.09.2026: „wenn ich von unten
@@ -453,7 +519,8 @@
   .heroActions [data-magnetic],
   :global([data-in-view='1']) .heroActions [data-magnetic],
   .page :global([data-in-view='1']) :global([data-press]),
-  .page :global([data-pressing]) {
+  .page :global([data-pressing]),
+  .heroArrow {
     animation: none;
   }
 }
@@ -477,6 +544,16 @@
   initial-value: 1;
 }
 @property --in-copy {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-l1 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-l2 {
   syntax: '<number>';
   inherits: true;
   initial-value: 1;
@@ -507,6 +584,16 @@
     --in-copy: 0;
   }
 }
+@keyframes inL1 {
+  from {
+    --in-l1: 0;
+  }
+}
+@keyframes inL2 {
+  from {
+    --in-l2: 0;
+  }
+}
 @keyframes inCta {
   from {
     --in-cta: 0;
@@ -530,12 +617,15 @@
 :global(html[data-hero-intro]) .hero {
   --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
   --swing: cubic-bezier(0.2, 1.28, 0.32, 1);
+  --glide: cubic-bezier(0.25, 1, 0.5, 1);
   animation:
     inMark 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 0.05s both,
     inBack 1.8s var(--expo-out) 0.15s both,
     inFront 1.7s var(--expo-out) 0.27s both,
-    inCopy 1.05s var(--swing) 0.3s both,
-    inCta 0.34s cubic-bezier(0.5, 0, 0.75, 0) 1.05s both;
+    inL1 1.9s var(--glide) 0.2s both,
+    inL2 1.9s var(--glide) 0.45s both,
+    inCopy 1.05s var(--swing) 0.9s both,
+    inCta 0.6s var(--swing) 1.35s both;
 }
 
 /* Die Wortmarke fällt als Ganzes von oben herein und federt beim Aufsetzen
@@ -571,29 +661,39 @@
   }
 }
 
-/* Gruß, Headline und Lead kommen als EIN Block von links herein, nicht Zeile
-   für Zeile aus Masken von unten (Ansage 28.09.2026: „das von unten kommen
-   gefällt mir nicht"). Die Schräge hängt an derselben Zahl wie der Weg: am
-   Anfang, wo er am schnellsten ist, liegt der Block am stärksten schräg,
-   beim Überschwingen kippt er kurz gegen und steht dann gerade — Tempo als
-   Form, wie die Laufbänder auf gsap.com. Der Aufmacher schneidet mit
-   `overflow: hidden` ab, was noch links vor dem Bild steht. */
-:global(html[data-hero-intro]) .heroCopy > :not(.heroActions, .heroMark) {
+/* Die Headline teilt sich (Ansage 28.09.2026): „WE TELL YOU" gleitet
+   langsam von links herein, „WHAT TO EAT" von rechts, leicht versetzt —
+   sie treffen sich in der Mitte. Lange, weich auslaufende Kurve, damit es
+   langsam wirkt statt geschossen. Die Schräge hängt an derselben Zahl wie
+   der Weg: am Anfang, wo er am schnellsten ist, liegt die Zeile am
+   stärksten schräg, am Ende steht sie gerade — Tempo als Form. Der
+   Aufmacher schneidet seitlich ab, was noch vor dem Bild steht. */
+:global(html[data-hero-intro]) .heroHeadline .heroLine:first-child {
+  translate: calc((1 - var(--in-l1, 1)) * -100vw) 0;
+  transform: skewX(calc((1 - var(--in-l1, 1)) * 20deg));
+  transform-origin: 0 100%;
+}
+
+:global(html[data-hero-intro]) .heroHeadline .heroLine:last-child {
+  translate: calc((1 - var(--in-l2, 1)) * 100vw) 0;
+  transform: skewX(calc((1 - var(--in-l2, 1)) * -20deg));
+  transform-origin: 100% 100%;
+}
+
+/* Gruß und Lead folgen als Block von links, sobald die Headline steht. */
+:global(html[data-hero-intro]) .heroCopy > :not(.heroActions, .heroMark, .heroHeadline) {
   translate: calc((1 - var(--in-copy, 1)) * -100vw) 0;
   transform: skewX(calc((1 - var(--in-copy, 1)) * 28deg));
   transform-origin: 0 100%;
 }
 
-/* Die Knöpfe knallen danach wie ein Stempel auf ihren Platz — dieselbe
-   Bewegung wie „Frag Remy." (Ansage 28.09.2026): gross, gedreht und etwas zu
-   hoch, dann mit anziehendem Tempo (power4.in) flach auf. Bis dahin sind sie
-   nicht da: bei genau 0 steht die Skalierung auf 0 — kein Ausblenden, sie
-   schlagen ein. Die Bewegung liegt auf der Reihe, nicht auf dem Knopf: der
-   trägt Magnet und Druck. */
+/* Der Knopf klappt danach aus seiner Mitte auf wie ein Schalter — gerade und
+   gelb vom ersten Bild an, damit er als Knopf zu lesen ist (Ansage
+   28.09.2026; ein Stempel, gross und gedreht, war es nicht, und das
+   anziehende Tempo ruckelte). Bei 0 ist er ganz zu, die Kurve schwingt eine
+   Spur über. Oben und unten Luft, sonst schnitte es den Schatten ab. */
 :global(html[data-hero-intro]) .heroCopy > .heroActions {
-  translate: 0 calc((1 - var(--in-cta, 1)) * -24px);
-  rotate: calc((1 - var(--in-cta, 1)) * -7deg);
-  scale: calc((1 + (1 - var(--in-cta, 1)) * 1.8) * min(1, var(--in-cta, 1) * 1000));
+  clip-path: inset(-16px calc((1 - var(--in-cta, 1)) * 50%) round var(--et-radius-control));
 }
 
 .heroPhones:focus-visible .phoneFront {

@@ -35,6 +35,27 @@ const MARK = { src: '/pics/eat-this-logo.webp?v=6', width: 1660, height: 667 } a
    drei Stellen, an denen der Hero sie rendert (Gast, geladen, FOUC-Variante). */
 const HERO_MAP_LABEL = 'Berlin Food Map';
 
+/* Mit Pfeil, der alle paar Sekunden nach rechts stupst (HubSection.module.css):
+   der Knopf soll Lust aufs Klicken machen (Ansage 28.09.2026). Der Pfeil ist
+   Deko — der Ankertext bleibt der Name. */
+function HeroMapLabel() {
+  return (
+    <>
+      {HERO_MAP_LABEL}
+      <svg className={styles.heroArrow} viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M4 12h14M13 6l6 6-6 6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </>
+  );
+}
+
 function HeroMark() {
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -94,13 +115,13 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         </span>
       ) : null}
       <h1 className={styles.heroHeadline} aria-label={headlineLabel}>
-        <span>{headline[0]}</span>
-        <span>{headline[1]}</span>
+        <span className={styles.heroLine}>{headline[0]}</span>
+        <span className={styles.heroLine}>{headline[1]}</span>
       </h1>
       <p className={styles.heroLead}>{signedIn ? LEAD_AUTH[locale] : LEAD[locale]}</p>
       <div className={styles.heroActions}>
         <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
-          {HERO_MAP_LABEL}
+          <HeroMapLabel />
         </MapIntentLink>
         {signedIn ? (
           <Link
@@ -134,12 +155,12 @@ function LoadingHeroCopy({ locale }: Props) {
       </span>
       <h1 className={styles.heroHeadline}>
         <span data-guest-only="">
-          <span>We tell you</span>
-          <span>what to eat</span>
+          <span className={styles.heroLine}>We tell you</span>
+          <span className={styles.heroLine}>what to eat</span>
         </span>
         <span data-auth-only="">
-          <span>{de ? 'Deine Map' : 'Your map'}</span>
-          <span>{de ? 'wartet.' : 'is ready.'}</span>
+          <span className={styles.heroLine}>{de ? 'Deine Map' : 'Your map'}</span>
+          <span className={styles.heroLine}>{de ? 'wartet.' : 'is ready.'}</span>
         </span>
       </h1>
       <p className={styles.heroLead} data-guest-only="">
@@ -151,12 +172,12 @@ function LoadingHeroCopy({ locale }: Props) {
       <div className={styles.heroActions}>
         <span className={styles.heroActionVariant} data-guest-only="">
           <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
-            {HERO_MAP_LABEL}
+            <HeroMapLabel />
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
           <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
-            {HERO_MAP_LABEL}
+            <HeroMapLabel />
           </MapIntentLink>
           <Link
             href="/profile"

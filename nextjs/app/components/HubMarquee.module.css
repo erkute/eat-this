@@ -51,15 +51,16 @@
 
 /* Auf dem Telefon 26px statt 44px (Ansage 28.09.2026: bei 44 stand nur
    „WE TELL YOU W" im Bild, der Satz liess sich nicht lesen) — jetzt passt
-   der ganze Claim auf 390px. Auf dem Desktop höchstens 76px (bis 136px stand
-   das Band dort wie eine zweite Headline). */
+   der ganze Claim auf 390px. Auf dem Desktop höchstens 44px: auch 76px waren
+   dort noch „zu riesig" (Ansage 28.09.2026), davor 136px — das Band stand
+   wie eine zweite Headline. */
 .word {
   display: inline-flex;
   align-items: center;
   flex: none;
   font-family: var(--et-font-display);
   font-weight: 700;
-  font-size: clamp(26px, 6.4vw, 76px);
+  font-size: clamp(26px, 3.6vw, 44px);
   line-height: 1.02;
   letter-spacing: -0.02em;
   text-transform: uppercase;

@@ -354,6 +354,7 @@ export default function MapSection({
     setCategory,
     search,
     setSearch,
+    suggest,
     bezirk,
     setBezirk,
     price,
@@ -1601,6 +1602,7 @@ export default function MapSection({
       onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
       onUnlock={handleUnlock}
       onSearchChange={handleSearchChange}
+      suggestSpots={suggest}
       onBezirkChange={handleBezirkChange}
       onToggleFavorite={() => {
         if (selectedRestaurant) toggleFavorite(selectedRestaurant);

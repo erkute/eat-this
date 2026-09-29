@@ -35,6 +35,7 @@ import MapIntro from './MapIntro';
 import { SearchGlassIcon } from './icons';
 import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
+import MapSearchSuggestions from './MapSearchSuggestions';
 import type { InitialCamera } from '@/lib/map/useMapCamera';
 /* BezirkFilterPill removed — redundant now that the bezirk filter shows
    as a chip in the list header. The chip also has reset built in. */
@@ -109,8 +110,11 @@ interface MapBodyFilterState {
   categories: CategoryDef[];
   category: MapCategory;
   setCategory: (c: MapCategory) => void;
+  /** The query the list is filtered by — set on submit, not per key. */
   search: string;
   onSearchChange: (v: string) => void;
+  /** Spots to suggest for what is typed (useMapFilters). */
+  suggestSpots: (query: string) => MapRestaurant[];
   searchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
   /** Opens the search UI and reveals the result list — see MapSection. */
@@ -234,6 +238,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     onViewRestaurantFromMustEat,
     onUnlock,
     onSearchChange,
+    suggestSpots,
     onBezirkChange,
     onToggleFavorite,
     desktopPanelHidden,
@@ -501,6 +506,31 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     };
   }, [sheetView, snap]);
 
+  /* What is typed but not sent yet. The suggestions follow it; the list and
+     the pins wait for Enter — a list that changed with every letter was
+     restless, and what you look for is usually one spot (Betreiber,
+     29.09.2026). Follows `search` when that changes elsewhere (a picked
+     suggestion, a cleared filter). */
+  const [draft, setDraft] = useState(search);
+  const [draftFor, setDraftFor] = useState(search);
+  if (draftFor !== search) {
+    setDraftFor(search);
+    setDraft(search);
+  }
+  const suggesting = Boolean(draft.trim()) && draft !== search;
+  const suggestions = useMemo(
+    () => (suggesting ? suggestSpots(draft) : []),
+    [suggesting, suggestSpots, draft]
+  );
+  const pickSuggestion = useCallback(
+    (r: MapRestaurant) => {
+      setDraft('');
+      searchInputRef.current?.blur();
+      onRestaurantClick(r, 'list');
+    },
+    [onRestaurantClick]
+  );
+
   /* The search field takes focus without moving the page. `autoFocus` let
      iOS Safari scroll the document to "reveal" the field — it is fixed
      over the map strip and never needed revealing — and the keyboard going away
@@ -694,63 +724,74 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               list, and on phones the search has to stand above the sheet. */}
           {searchOpen || search ? (
             /* Ein Formular, damit Enter bzw. „Suchen" auf der Handy-Tastatur
-               etwas tut: gefiltert wird schon beim Tippen, Bestätigen schließt
-               nur die Tastatur und gibt den Blick auf Liste und Karte frei.
-               Ohne <form> lief die Taste ins Leere (23.09.2026). */
-            <form
-              role="search"
-              className={controlStyles.mapSearchToolbar}
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-              onSubmit={(e) => {
-                e.preventDefault();
-                searchInputRef.current?.blur();
-              }}
-            >
-              <SearchGlassIcon className={controlStyles.mapSearchIcon} />
-              <input
-                ref={searchInputRef}
-                type="search"
-                enterKeyHint="search"
-                name="map-search"
-                value={search}
-                onChange={(e) => onSearchChange(e.target.value)}
-                onBlur={() => {
-                  if (!search) setSearchOpen(false);
+               etwas tut: erst das Abschicken filtert Liste und Karte, und die
+               Tastatur geht und gibt den Blick darauf frei. Ohne <form> lief
+               die Taste ins Leere (23.09.2026). */
+            <>
+              <form
+                role="search"
+                className={controlStyles.mapSearchToolbar}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onSearchChange(draft.trim() ? draft : '');
+                  searchInputRef.current?.blur();
                 }}
-                placeholder={locale === 'en' ? 'Spot, area, dish' : 'Spot, Kiez, Gericht'}
-                className={controlStyles.mapSearchInput}
-                aria-label={searchLabel}
-                autoComplete="off"
-              />
-              <button
-                type="button"
-                className={controlStyles.mapSearchClear}
-                onClick={() => {
-                  onSearchChange('');
-                  setSearchOpen(false);
-                }}
-                aria-label={locale === 'en' ? 'Clear search' : 'Suche zurücksetzen'}
               >
-                {/* Zwei Striche, ungleich lang und je eigen gekippt — dieselbe
+                <SearchGlassIcon className={controlStyles.mapSearchIcon} />
+                <input
+                  ref={searchInputRef}
+                  type="search"
+                  enterKeyHint="search"
+                  name="map-search"
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onBlur={() => {
+                    if (!search && !draft) setSearchOpen(false);
+                  }}
+                  placeholder={locale === 'en' ? 'Spot, area, dish' : 'Spot, Kiez, Gericht'}
+                  className={controlStyles.mapSearchInput}
+                  aria-label={searchLabel}
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  className={controlStyles.mapSearchClear}
+                  onClick={() => {
+                    setDraft('');
+                    onSearchChange('');
+                    setSearchOpen(false);
+                  }}
+                  aria-label={locale === 'en' ? 'Clear search' : 'Suche zurücksetzen'}
+                >
+                  {/* Zwei Striche, ungleich lang und je eigen gekippt — dieselbe
                     Handschrift wie die Lupe links daneben und die drei
                     Burger-Balken (19/22/15px). Als exaktes, symmetrisches
                     Kreuz war es das einzige konstruierte Zeichen in der
                     Reihe. */}
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  aria-hidden="true"
-                >
-                  <path d="M6.6 6.2c3.6 3.9 7.4 7.6 11.2 11.4" strokeWidth="2.6" />
-                  <path d="M17.4 6.8c-3.3 3.4-6.8 6.8-10.3 10.1" strokeWidth="2.1" />
-                </svg>
-              </button>
-            </form>
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M6.6 6.2c3.6 3.9 7.4 7.6 11.2 11.4" strokeWidth="2.6" />
+                    <path d="M17.4 6.8c-3.3 3.4-6.8 6.8-10.3 10.1" strokeWidth="2.1" />
+                  </svg>
+                </button>
+              </form>
+              {suggesting && (
+                <MapSearchSuggestions
+                  spots={suggestions}
+                  locale={locale === 'en' ? 'en' : 'de'}
+                  onPick={pickSuggestion}
+                />
+              )}
+            </>
           ) : (
             <button
               type="button"

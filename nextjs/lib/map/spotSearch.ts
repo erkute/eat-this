@@ -226,3 +226,46 @@ export function searchRank(entry: SearchEntry, query: QueryWord[]): number {
   }
   return 2;
 }
+
+/** Wie viele Vorschläge unter dem Suchfeld stehen. */
+export const SUGGESTION_LIMIT = 6;
+
+/**
+ * Die Vorschläge unter dem Suchfeld: dieselben Treffer, die ein Abschicken
+ * der Anfrage in die Liste holt (useMapFilters), nach Passung und dann nach
+ * Namen geordnet — die Entfernung, nach der die Liste sortiert, kennt ein
+ * Vorschlag nicht. Tippen filtert die Liste nicht mehr, erst das Abschicken
+ * (Betreiber, 29.09.2026).
+ *
+ * Der Tippfehler-Rückfall greift wie in der Liste nur, wenn exakt im ganzen
+ * Katalog nichts passt — gezählt ohne `keep` (die Chips des Aufrufers).
+ */
+export function suggestSpots(
+  restaurants: MapRestaurant[],
+  index: Map<string, SearchEntry>,
+  query: string,
+  {
+    limit = SUGGESTION_LIMIT,
+    keep = () => true,
+  }: { limit?: number; keep?: (r: MapRestaurant) => boolean } = {}
+): MapRestaurant[] {
+  const words = parseQuery(query);
+  if (!words.length) return [];
+  let fuzzy = true;
+  for (const entry of index.values()) {
+    if (matchesSearch(entry, words)) {
+      fuzzy = false;
+      break;
+    }
+  }
+  const hits: { r: MapRestaurant; rank: number }[] = [];
+  for (const r of restaurants) {
+    const entry = index.get(r._id);
+    if (!entry || !matchesSearch(entry, words, fuzzy) || !keep(r)) continue;
+    hits.push({ r, rank: searchRank(entry, words) });
+  }
+  return hits
+    .sort((a, b) => a.rank - b.rank || a.r.name.localeCompare(b.r.name, 'de'))
+    .slice(0, limit)
+    .map((h) => h.r);
+}

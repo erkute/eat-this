@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import type { MapRestaurant } from '@/lib/types';
-import { buildSearchIndex, matchesSearch, normalizeForSearch, parseQuery } from '../spotSearch';
+import {
+  buildSearchIndex,
+  matchesSearch,
+  normalizeForSearch,
+  parseQuery,
+  suggestSpots,
+} from '../spotSearch';
 
 const entryFor = (partial: Partial<MapRestaurant>) =>
   buildSearchIndex([{ _id: 'x', name: 'x', lat: 0, lng: 0, ...partial } as MapRestaurant], []).get('x')!;
@@ -31,5 +37,38 @@ describe('matchesSearch, Tippfehler-Durchgang', () => {
 
   it('ist ohne den Rückfall exakt', () => {
     expect(matchesSearch(pizza, parseQuery('piza'))).toBe(false);
+  });
+});
+
+describe('suggestSpots', () => {
+  const spots = [
+    { _id: 'a', name: 'Standard Serious Pizza', cuisineType: 'Italian' },
+    { _id: 'b', name: 'Zola', cuisineType: 'Italian', bezirk: { name: 'Kreuzberg' } },
+    { _id: 'c', name: 'Pizza Nostra', cuisineType: 'Italian' },
+    { _id: 'd', name: 'Bonanza Coffee', cuisineType: 'Coffee' },
+  ].map((r) => ({ lat: 0, lng: 0, ...r }) as MapRestaurant);
+  const index = buildSearchIndex(spots, []);
+  const ids = (q: string, opts?: Parameters<typeof suggestSpots>[3]) =>
+    suggestSpots(spots, index, q, opts).map((r) => r._id);
+
+  it('schlägt nichts vor, solange nichts getippt ist', () => {
+    expect(ids('')).toEqual([]);
+    expect(ids('   ')).toEqual([]);
+  });
+
+  it('stellt Namen, die mit dem Getippten anfangen, vor Treffer in anderen Feldern', () => {
+    /* „pizza": beide Pizza-Namen vorn, nach Namen sortiert. */
+    expect(ids('pizza')).toEqual(['c', 'a']);
+    /* „kreuzberg" trifft nur den Bezirk. */
+    expect(ids('kreuzberg')).toEqual(['b']);
+  });
+
+  it('fällt auf Tippfehler zurück, wenn exakt nichts passt', () => {
+    expect(ids('bonanaza')).toEqual(['d']);
+  });
+
+  it('begrenzt die Zahl und hält sich an den Filter des Aufrufers', () => {
+    expect(ids('italienisch', { limit: 2 })).toHaveLength(2);
+    expect(ids('pizza', { keep: (r) => r._id !== 'c' })).toEqual(['a']);
   });
 });

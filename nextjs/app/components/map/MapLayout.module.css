@@ -1,16 +1,11 @@
 /* Map page geometry, canvas host and MapLibre attribution. */
 
 /* Die Map steht seit 04.09.2026 auf demselben Ink-Grund wie der Rest der
-   Seite. Die vier `--map-collage-*`-Tokens behalten ihre Namen, weil rund ein
-   Dutzend Regeln in vier Modulen sie liest — sie zeigen jetzt nur woandershin.
+   Seite. Die `--map-collage-*`-Tokens behalten ihre Namen, weil vier Regeln
+   in drei Modulen sie lesen — sie zeigen jetzt nur woandershin.
    Wer hier etwas aufhellt, hellt die halbe Map auf. */
 .shell {
   --map-motion: var(--et-motion-base);
-  /* War #ef3108 als Schriftfarbe fuer Kicker und Zwischentitel im Detail.
-     Rot kommt auf Ink auf rund 2,9:1 und ist als Text nicht lesbar — dieselbe
-     Entscheidung wie site-weit am 03.09.2026. Rot bleibt der Marke als
-     FLAECHE erhalten, etwa am gesperrten Pin. */
-  --map-collage-red: var(--et-accent);
   /* War #f8f6f1 und traegt die Flaeche des Detail-Sheets. */
   --map-collage-paper: var(--et-ink);
   /* War #2b211c und umrandet die aktive Karte in der Liste. Ein dunkler Ring

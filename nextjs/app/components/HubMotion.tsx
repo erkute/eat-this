@@ -32,8 +32,9 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
  *    und Telefon und Desktop teilen denselben Weg.
  *
  *    Die Bänder (Nearby, Magazin) sind die Ausnahme: sie lassen sich auch
- *    selbst wischen, also schiebt JS ihre Scrollposition mit
- *    (`armScrollBands`).
+ *    selbst wischen, also schiebt JS am Telefon ihre Scrollposition mit
+ *    (`armScrollBands`); am Desktop gleiten sie nur einmal herein
+ *    (`armBandGlide`).
  *
  * 3. **Beim Hereinkommen:**
  *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
@@ -394,9 +395,44 @@ function armInView(): () => void {
 }
 
 /**
- * Die Bänder (`data-scroll-band`: „Um dich herum", „Auf dem Teller") laufen
- * beim Scrollen von links nach rechts durchs Bild und lassen sich trotzdem
- * selbst wischen. Die Scrollposition der Reihe folgt der Seite: kommt das
+ * Am Desktop schieben die Bänder nicht mit (Ansage 29.09.2026: gefiel dort
+ * nicht): kommt ein Band ins Bild, gleiten seine Karten einmal nacheinander
+ * von links auf ihren Platz, danach steht es still — weiter geht es per
+ * Trackpad oder am gelben Regler (CSS). Bewegt wird der Link der Karte, nicht
+ * der Listeneintrag: der trägt im Magazin eigenes `rotate`/`translate`, das
+ * GSAP beim Animieren von `transform` inline auf `none` setzte. Nur, was beim
+ * Mount unterhalb des Bildschirms liegt.
+ */
+function armBandGlide(safe: gsap.ContextSafeFunc): () => void {
+  const fold = window.innerHeight;
+  const plays = new Map<Element, () => void>();
+  for (const band of document.querySelectorAll<HTMLElement>('[data-hub] [data-scroll-band]')) {
+    if (band.getBoundingClientRect().top <= fold) continue;
+    const cards = Array.from(band.children, (child) =>
+      child.matches('a') ? child : (child.querySelector(':scope > a') ?? child)
+    );
+    if (!cards.length) continue;
+    gsap.set(cards, { x: -180, transition: 'none' });
+    plays.set(
+      band,
+      safe(() => {
+        gsap.to(cards, {
+          x: 0,
+          duration: 1.3,
+          ease: 'expo.out',
+          stagger: 0.08,
+          clearProps: `${CLEAR_TRANSFORMS},transition`,
+        });
+      }) as () => void
+    );
+  }
+  return onceInView(plays);
+}
+
+/**
+ * Am Telefon laufen die Bänder (`data-scroll-band`: „Um dich herum", „Auf dem
+ * Teller") beim Scrollen von links nach rechts durchs Bild und lassen sich
+ * trotzdem selbst wischen. Die Scrollposition der Reihe folgt der Seite: kommt das
  * Band unten herein, steht es am Ende, verlässt es oben das Bild, am Anfang.
  * Wischt jemand selbst, merkt sich das der Versatz (`offset`) —
  * weiterscrollen setzt dort an, statt das Wischen zu überschreiben. Das ist
@@ -780,7 +816,7 @@ export default function HubMotion() {
         stops.push(armFragRemy(scroller));
         stops.push(armStamps(scroller));
         stops.push(armInView());
-        stops.push(armScrollBands(scroller));
+        stops.push(desk ? armBandGlide(safe!) : armScrollBands(scroller));
         stops.push(armSignupDemo());
         stops.push(armScrollTalk(scroller));
         stops.push(armMarqueeSkew(scroller));

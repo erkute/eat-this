@@ -35,27 +35,6 @@ const MARK = { src: '/pics/eat-this-logo.webp?v=6', width: 1660, height: 667 } a
    drei Stellen, an denen der Hero sie rendert (Gast, geladen, FOUC-Variante). */
 const HERO_MAP_LABEL = 'Berlin Food Map';
 
-/* Mit Pfeil, der alle paar Sekunden nach rechts stupst (HubSection.module.css):
-   der Knopf soll Lust aufs Klicken machen (Ansage 28.09.2026). Der Pfeil ist
-   Deko — der Ankertext bleibt der Name. */
-function HeroMapLabel() {
-  return (
-    <>
-      {HERO_MAP_LABEL}
-      <svg className={styles.heroArrow} viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M4 12h14M13 6l6 6-6 6"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </>
-  );
-}
-
 function HeroMark() {
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -121,7 +100,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
       <p className={styles.heroLead}>{signedIn ? LEAD_AUTH[locale] : LEAD[locale]}</p>
       <div className={styles.heroActions}>
         <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
-          <HeroMapLabel />
+          {HERO_MAP_LABEL}
         </MapIntentLink>
         {signedIn ? (
           <Link
@@ -172,12 +151,12 @@ function LoadingHeroCopy({ locale }: Props) {
       <div className={styles.heroActions}>
         <span className={styles.heroActionVariant} data-guest-only="">
           <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
-            <HeroMapLabel />
+            {HERO_MAP_LABEL}
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
           <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
-            <HeroMapLabel />
+            {HERO_MAP_LABEL}
           </MapIntentLink>
           <Link
             href="/profile"

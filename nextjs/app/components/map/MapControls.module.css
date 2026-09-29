@@ -436,12 +436,12 @@
 }
 
 @media (min-width: 1024px) {
-  /* Rides the panel's edge as it slides — same duration and curve. */
+  /* Rides the panel's edge as it slides (--map-panel-slide, MapLayout). */
   .mapBurger {
     right: calc(var(--map-desktop-panel-width) + 14px);
     transition:
       transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      right var(--motion-slow) var(--ease-standard);
+      right var(--map-panel-slide);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .mapBurger {
@@ -521,12 +521,12 @@
    der am Panel hängt, mit einem von Hand gezogenen Winkel wie Lupe und Burger;
    eingeklappt sagt er „Liste", damit man weiß, was dahinter liegt.
 
-   Er fährt mit dem Panel: dieselbe Dauer, dieselbe Kurve, per transform. */
+   Er fährt mit dem Panel, per transform und mit --map-panel-slide
+   (MapLayout.module.css). */
 .panelToggle {
   --panel-toggle-x: 0px;
   position: absolute;
   top: 50%;
-  right: 0;
   z-index: 6;
   display: none;
   align-items: center;
@@ -542,7 +542,7 @@
   clip-path: none;
   transform: translate(var(--panel-toggle-x), -50%);
   transition:
-    transform var(--motion-slow) var(--ease-standard),
+    transform var(--map-panel-slide),
     color 150ms var(--ease-standard),
     background-color 150ms var(--ease-standard);
 }
@@ -583,7 +583,7 @@
   stroke-width: 3.2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform var(--motion-slow) var(--ease-standard);
+  transition: transform var(--map-panel-slide);
 }
 
 @media (min-width: 1024px) {
@@ -763,7 +763,7 @@
     bottom: 12px;
     transition:
       transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      right var(--motion-slow) var(--ease-standard);
+      right var(--map-panel-slide);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .fab {

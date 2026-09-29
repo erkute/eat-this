@@ -65,7 +65,7 @@
     z-index: 5;
     width: var(--map-desktop-panel-width);
     border-left: 1px solid var(--et-rule);
-    transition: transform var(--motion-slow) var(--ease-standard);
+    transition: transform var(--map-panel-slide);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .list {

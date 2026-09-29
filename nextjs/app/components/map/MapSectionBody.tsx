@@ -630,7 +630,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
       data-page="map"
       data-map-view={sheetView}
       data-map-snap={snap}
-      data-panel-hidden={desktopPanelHidden ? 'true' : undefined}
     >
       {/* Die H1 der Seite steht in MapIntro, über der Karte. Sie lag bis zum
           01.09.2026 als `srOnly` hier: unsichtbar, und im Detail-Zustand stand

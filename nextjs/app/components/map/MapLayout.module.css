@@ -84,6 +84,9 @@
 @media (min-width: 1024px) {
   .shell {
     --map-desktop-panel-width: clamp(380px, 25vw, 420px);
+    /* The panel's slide. The tab, burger and locate button at its edge ride
+       along with exactly this — one value, or they part company mid-slide. */
+    --map-panel-slide: var(--motion-slow) var(--ease-standard);
   }
 }
 

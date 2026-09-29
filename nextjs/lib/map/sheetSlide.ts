@@ -2,8 +2,8 @@
  * Pulling the phone list off the map and back — the Google Maps / Airbnb
  * gesture, built on a window-scrolled page.
  *
- * The phone list is a window-scrolled document with the map as a sticky layer
- * behind it (see phoneSheetSnaps.ts). Deep in the list, the way back to the map
+ * The phone list is a window-scrolled document; the map lies in a frame over
+ * it that ends at its top edge (MapLayout.module.css, "The map frame"). Deep in the list, the way back to the map
  * is the grabber in the sticky filter bar: pull it down and the list follows
  * the finger, let go and it stays where the finger left it — over the map,
  * or below its resting place, down to where only the bar is left above the
@@ -37,7 +37,7 @@ import { safeAreaInsetTop } from './safeArea';
 
 /** Map left showing above the sheet when it is all the way up — the bar
  *  sticks below it, and nothing of the sheet shows above the bar
- *  (MapSheet.module.css, "The map strip"). Mirrors `--map-strip` in
+ *  (MapLayout.module.css, "The map frame"). Mirrors `--map-strip` in
  *  MapLayout.module.css (minus the safe-area term, which mapStripLine adds). */
 export const MAP_STRIP_PX = 72;
 
@@ -111,10 +111,13 @@ type Shift = { sheet: number; edge: number };
    the same property. */
 const FOLLOWERS = '[data-locate-dock], .maplibregl-ctrl-bottom-left > .maplibregl-ctrl';
 let followed: Shift = { sheet: 0, edge: 0 };
-/* From the grab deep in the list until the release: the sheet carries a
+/* From the grab deep in the list, or the start of a glide, until the
+   release: the frame stays behind the sheet. Grabbed, the sheet carries a
    clip, which makes it a stacking context — its bars then stack inside it,
-   and the frame (7) would cover their top 12px, the grip's line with them. */
-let grabbed = false;
+   and the frame (7) would cover their top 12px, the grip's line with them.
+   Gliding back up, the sheet still stands below its resting edge, and the
+   frame would cut the map off above it. */
+let moving = false;
 
 function place(shift: Shift): void {
   document.querySelectorAll<HTMLElement>(FOLLOWERS).forEach((el) => {
@@ -125,7 +128,7 @@ function place(shift: Shift): void {
      frame"): the sheet moved by a transform uncovers map the frame would
      have cut off. The sheet cuts itself instead (clipAbove). */
   document.querySelectorAll<HTMLElement>('[data-map-frame]').forEach((el) => {
-    el.toggleAttribute('data-following', shift.sheet > 0 || grabbed);
+    el.toggleAttribute('data-following', shift.sheet > 0 || moving);
   });
 }
 
@@ -191,7 +194,7 @@ function release(sheet: HTMLElement): void {
   sheet.style.transform = '';
   sheet.style.clipPath = '';
   sheet.querySelector<HTMLElement>('[data-sheet-content]')?.style.removeProperty('clip-path');
-  grabbed = false;
+  moving = false;
   if (lowered === sheet) lowered = null;
   delete sheet.dataset.sheetLowered;
   followSheet(0);
@@ -230,6 +233,7 @@ function glide(
   edgeTo: number
 ): Promise<void> {
   const from = followed;
+  if (fromPx > 0) moving = true;
   holdSheetAt(sheet, toPx);
   followSheet(toPx, edgeTo);
   if (reducedMotion() || typeof sheet.animate !== 'function' || fromPx === toPx) {
@@ -281,7 +285,7 @@ export async function settleOnMap(
  */
 export function grabFromList(sheet: HTMLElement): number {
   clipAbove(sheet);
-  grabbed = true;
+  moving = true;
   followSheet(0);
   return 0;
 }

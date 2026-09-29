@@ -274,12 +274,8 @@
        22.09.2026: „oben noch minimal die Map sehen"). The sticky bar stops
        below it. Mirrored in JS by MAP_STRIP_PX in lib/map/sheetSlide.ts. */
     --map-strip: calc(env(safe-area-inset-top, 0px) + 72px);
-    /* How far the map stands off the top edge, and how far its canvas
-       reaches above the viewport, under the status bar — see .mapWrap and
-       .liveMapLayer below. The canvas top is measured in JS
-       (lib/map/useMapCamera.ts canvasOverscan). */
+    /* How far the map's wrapper stands off the top edge — see .mapWrap. */
     --map-top-gap: 1px;
-    --map-overscan: 80px;
     /* Where the sheet's top edge rests over the map: the list at 100dvh −
        its visible share, a restaurant at --detail-map-peek. */
     --frame-edge: calc(100dvh - var(--phone-list-sheet-visible));
@@ -409,24 +405,23 @@
        sie faerbt ausschliesslich die Safari-Leisten. */
     background-color: var(--et-ink);
   }
-  /* What Safari shows under its status bar is then the map (Betreiber,
-     28.09.2026: „die Map komplett hinter der Statusleiste", Lupe und Burger
-     bleiben darunter): the canvas — not the fixed wrapper, which must not
-     touch the edge — reaches --map-overscan above the viewport. It covers
-     the wrapper's 1px gap too, where the rows under the map's frame showed
-     through. The camera pads for it (useMapCamera). */
+  /* The canvas — not the fixed wrapper, which must not touch the edge —
+     closes the wrapper's gap: rows running under the map's frame showed
+     through that pixel (user, 28.09.2026). Reaching further up, under the
+     status bar, showed nothing there: Safari paints no page under it
+     (iOS 27 simulator; the user's iPhone, 29.09.2026). */
   .liveMapLayer {
-    top: calc(-1 * (var(--map-overscan) + var(--map-top-gap, 0px)));
+    top: calc(-1 * var(--map-top-gap, 0px));
   }
   /* The map credit stands on the edge line, centred on the locate button's
      44px: the credit stays (ODbL wants it on the map), the two just agree.
-     The map is fixed, --map-overscan above the viewport's top. It rides up
+     The map's canvas is fixed at the viewport's top. It rides up
      and stops with the button (same timeline, same range) and follows a
      sheet pulled below its rest through its child (lib/map/sheetSlide.ts
      followSheet — this element's translate belongs to the ride). */
   .mapWrap :global(.maplibregl-ctrl-bottom-left) {
     left: 14px;
-    top: calc(var(--edge-top) + var(--map-overscan));
+    top: var(--edge-top);
     bottom: auto;
     display: flex;
     align-items: center;

@@ -149,7 +149,7 @@
 }
 
 /* ── Phone: the sheet is the window-scrolled document ─────────────────────
-   The map is sticky and 100lvh, in a frame that lies over the sheet and ends
+   The map is fixed and 100lvh, in a frame that lies over the sheet and ends
    at its top edge, never above the strip line (MapLayout.module.css, "The
    map frame"); the stops are scroll positions (lib/map/phoneSheetSnaps.ts). */
 @media (max-width: 767.98px) {

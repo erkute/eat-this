@@ -62,14 +62,6 @@ export function pinNeedsFollow(anchorY: number, sheetTop: number, safeTop: numbe
 }
 
 type LngLat = { lng: number; lat: number };
-
-/* How far the phone map reaches above the viewport, under the status bar
-   (--map-overscan, MapLayout.module.css). Camera padding is in CANVAS pixels,
-   and everything measured on screen starts that much further down in it. */
-function canvasOverscan(map: { getContainer(): HTMLElement } | null | undefined): number {
-  const top = map?.getContainer().getBoundingClientRect().top;
-  return top != null && top < 0 ? Math.round(-top) : 0;
-}
 type Camera = { center: LngLat; zoom: number; padding?: PaddingOptions };
 type FlyOptions = { duration: number; padding?: PaddingOptions; zoom?: number };
 
@@ -136,15 +128,11 @@ export function useMapCamera({
     /* Mirrors --detail-map-peek in MapLayout.module.css. */
     const peek = (DETAIL_PEEK_DVH / 100) * window.innerHeight;
     const canvasH = mapRef.current?.getContainer().clientHeight || peek;
-    const overscan = canvasOverscan(mapRef.current);
     const sheetTop = document
       .querySelector<HTMLElement>('[data-map-sheet]')
       ?.getBoundingClientRect().top;
     /* How much map is on screen above the sheet. */
-    const visible = Math.min(
-      canvasH - overscan,
-      sheetTop != null && sheetTop > 0 ? sheetTop : peek
-    );
+    const visible = Math.min(canvasH, sheetTop != null && sheetTop > 0 ? sheetTop : peek);
     /* Where the pin's anchor (its bottom tip) should land: at 60% of the
        visible map, which centres the pin body above it — but never so high
        that the pin, drawn upwards from its anchor, runs off the top. */
@@ -152,8 +140,8 @@ export function useMapCamera({
     /* The padded area's centre is the anchor: bottom cuts away what the
        sheet covers, top balances it. */
     return {
-      top: Math.max(0, Math.round(2 * anchor - visible + overscan)),
-      bottom: Math.max(0, Math.round(canvasH - overscan - visible)),
+      top: Math.max(0, Math.round(2 * anchor - visible)),
+      bottom: Math.max(0, Math.round(canvasH - visible)),
       left: 20,
       right: 20,
     };
@@ -345,16 +333,14 @@ export function useMapCamera({
       // height so lvh/dvh bar states are handled for free.
       const canvasH =
         canvasHeightOverride ?? mapRef.current?.getContainer().clientHeight ?? window.innerHeight;
-      /* The canvas also reaches above the viewport (--map-overscan). */
-      const overscan = canvasOverscan(mapRef.current);
-      const overhang = Math.max(0, canvasH - overscan - window.innerHeight);
+      const overhang = Math.max(0, canvasH - window.innerHeight);
       /* MapLibre applies padding to the marker's ANCHOR COORDINATE, but the pin
          is a 47px card drawn bottom-anchored ABOVE that point (see
          MapMarkers.module.css). Padding that only clears the anchor let pins
          hang off the left/right edge and slide under the burger after a filter
          refit, so reserve the pin's own extent on top of the chrome. */
       return {
-        top: PIN_SAFE_TOP + safeAreaInsetTop() + overscan,
+        top: PIN_SAFE_TOP + safeAreaInsetTop(),
         bottom: Math.round(visible + overhang) + 20,
         left: PIN_SAFE_SIDE,
         right: PIN_SAFE_SIDE,

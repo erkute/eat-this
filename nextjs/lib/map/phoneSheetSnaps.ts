@@ -6,9 +6,9 @@
  * Each stop is defined by how much MAP is left uncovered there, which keeps
  * the two views comparable even though their map layers differ:
  *
- * - list:   the map is a sticky 100lvh layer and the list slides over it.
- * - detail: the same sticky 100lvh map; the detail sheet rests lower in it
- *           (its margin, MapSheet.module.css), so its stops differ.
+ * - list:   the map is a fixed 100lvh layer and the list slides over it.
+ * - detail: the same map; the detail sheet rests lower over it
+ *           (--frame-edge, MapLayout.module.css), so its stops differ.
  *
  * The grip no longer snaps to them: it leaves the sheet wherever it is let
  * go (user, 28.09.2026, useHandleScrollDrag). The first and last stop are

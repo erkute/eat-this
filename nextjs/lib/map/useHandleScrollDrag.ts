@@ -137,7 +137,6 @@ export function useHandleScrollDrag(
       const mapY = offsets[0];
       return {
         sheet,
-        offsets,
         mapY,
         sheetStop: offsets[offsets.length - 1],
         /* Slab offset at which the bar stands where it stands at the map stop.
@@ -319,8 +318,9 @@ export function useHandleScrollDrag(
             restLinePx: d.restLine,
             mapY: d.mapY,
           });
-        } else if (!cancelled && Math.abs(e.clientY - d.startY) >= STILL_PX) {
-          /* Where the finger let go. */
+        } else if (!cancelled && d.offset >= STILL_PX) {
+          /* Where the finger let go. Pushed up, the slab does not move (it
+             is the page's end of the strip line): that stays a press. */
           leaveSlabAt(sheet, d.offset, { restLinePx: d.restLine, mapY: d.mapY });
         } else {
           /* Cancelled, or only pressed: the list stays where it was. */

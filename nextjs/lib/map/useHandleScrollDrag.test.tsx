@@ -196,6 +196,15 @@ describe('in the list', () => {
       expect(window.scrollY).toBe(REST_OFFSET - 40);
     });
 
+    it('leaves the list where it was when the grip is pushed up instead of pulled down', async () => {
+      window.scrollY = DEEP;
+      drag(-80);
+      await settle();
+
+      expect(window.scrollY).toBe(DEEP);
+      expect(sheet().style.transform).toBe('');
+    });
+
     it('takes a wobbling press as a press, not a pull — the list stays where it was', async () => {
       window.scrollY = DEEP;
       drag(10, { steps: 3, msPerStep: 100 });
@@ -288,6 +297,35 @@ describe('in the list', () => {
       drag(0, { steps: 0 });
       await settle();
       expect(frame().hasAttribute('data-following')).toBe(false);
+    });
+
+    it('keeps the map frame behind the sheet while it glides back up', async () => {
+      let finish: () => void = () => {};
+      const animate = vi.fn(() => ({
+        finished: new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+      }));
+      Object.defineProperty(HTMLElement.prototype, 'animate', {
+        value: animate,
+        configurable: true,
+      });
+      const frame = () => document.querySelector('[data-map-frame]')!;
+      try {
+        drag(0, { steps: 0 });
+        await settle();
+        /* Mid-glide the sheet still stands below its resting edge: the frame
+           would cut the map off above it. */
+        expect(animate).toHaveBeenCalled();
+        expect(frame().hasAttribute('data-following')).toBe(true);
+
+        finish();
+        await settle();
+        expect(frame().hasAttribute('data-following')).toBe(false);
+      } finally {
+        finish();
+        delete (HTMLElement.prototype as { animate?: unknown }).animate;
+      }
     });
 
     it('goes on down to the lowest line, not further', async () => {

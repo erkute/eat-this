@@ -18,6 +18,7 @@ import Content from './stats/reports/Content';
 import EventsReport from './stats/reports/EventsReport';
 import ConsentReport from './stats/reports/ConsentReport';
 import styles from './StatsDashboard.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 /**
  * Die Leseseite des einwilligungsfreien Zählers — als Werkzeug mit Berichten
@@ -235,7 +236,7 @@ export default function StatsDashboard() {
             zur Startseite führt. Die Stats-Seite hat sonst keine Leiste. */}
         <Link href="/" className={styles.home} aria-label="Eat This — Startseite">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/eat-this-logo.webp?v=7" alt="Eat This" width={660} height={265} />
+          <img src={BRAND_LOGO_SRC} alt="Eat This" width={660} height={265} />
         </Link>
         <h1 className={styles.brand}>Stats</h1>
         <nav className={styles.nav} aria-label="Berichte">

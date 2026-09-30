@@ -5,9 +5,16 @@ produces **leads**. This directory is what turns a lead into a verdict: a
 computed-style sweep over viewports × the 24 `[data-map-body]` states × every
 class a module ships, so a prune can be shown to change nothing.
 
+Documentation checked: 2026-09-30. Historical measurement counts below are
+examples from earlier audits, not results of a new sweep. Earlier open work
+was retired; see [project status](../../../docs/status.md).
+
 ## Run it
 
-Dev server up (`npm run dev`), then through the Playwright MCP:
+Run shell commands below from the repository root. Start the dev server in
+`nextjs/` with `npm run dev`. The following browser calls require a Playwright
+MCP exposing these methods; they are examples for that integration, not
+universal browser-tool APIs:
 
 ```
 browser_run_code_unsafe { filename: "nextjs/scripts/cascade/sweep-controls.js" }
@@ -43,7 +50,7 @@ dead as soon as it is dead for one of them.
 go:
 
 ```bash
-node nextjs/scripts/cascade/triage.mjs app/components/map/RestaurantDetail.module.css
+node nextjs/scripts/cascade/triage.mjs nextjs/app/components/map/RestaurantDetail.module.css
 ```
 
 It splits the audit's findings into REMOVABLE (dead for every class **and**

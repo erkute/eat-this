@@ -3,13 +3,17 @@ description: Senior-Review des Diffs, bevor er nach staging oder main geht
 ---
 
 Review den Diff, der nach `staging` bzw. `main` gehen soll, als Senior Dev.
-Ziehe ihn dir frisch (`git diff origin/staging...HEAD` bzw. `origin/main...origin/staging`),
-verlasse dich nicht auf CI-Signale von vorher.
+Prüfe zuerst `git status --short --branch` und aktualisiere die Remote-Refs
+mit `git fetch origin --prune`. Reviewe den Branch-Diff
+(`git diff origin/staging...HEAD` bzw. `git diff origin/main...origin/staging`)
+und bei noch nicht committierter Arbeit auch `git diff` und `git diff --cached`;
+prüfe ungetrackte Dateien aus dem Status separat. Ein leerer Branch-Diff
+schließt lokale Änderungen nicht aus. Verlasse dich nicht auf frühere CI-Signale.
 
 Nicht nur „funktioniert es" — geh gezielt auf:
 
 1. **Toter Code.** Gibt es nach der Änderung Funktionen, Queries, Module oder
-   CSS-Regeln ohne Konsumenten? Belege es mit grep, rate nicht.
+   CSS-Regeln ohne Konsumenten? Belege es mit `rg`, rate nicht.
 2. **Duplikation.** Steht dieselbe Logik zweimal da und kann auseinanderlaufen,
    ohne dass ein Test es merkt?
 3. **Einfachere Variante.** Löst eine vorhandene Abstraktion das schon, oder
@@ -34,7 +38,10 @@ gerenderten Seite.
 
 ## Womit messen
 
-Der Browser-Pane läuft `hidden` und blockt fremde Domains; für Sicht- und
-Messfragen ist Playwright zuverlässiger (echte Viewport-Kontrolle, wartet
-sauber). Lange Iframe-Messschleifen bleiben stehen und liefern dann Werte der
-vorigen Seite — lieber eine Seite pro Aufruf.
+Die verfügbaren Browser-Werkzeuge bestimmen den Messweg. Viewport und Route
+explizit setzen, auf das fertige Layout warten und `getComputedStyle` an der
+gerenderten Seite prüfen. Lange Iframe-Messschleifen vermeiden; lieber eine
+Seite pro Aufruf. Historische Audit-Werte ersetzen keine aktuelle Messung.
+
+Stand dieser Anleitung: 30.09.2026. Frühere offene Reviews sind kein laufender
+Auftrag; vor einem neuen Merge den tatsächlichen Diff neu prüfen.

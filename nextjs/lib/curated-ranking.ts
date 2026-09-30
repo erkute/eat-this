@@ -13,7 +13,7 @@ import type { RestaurantCard } from './types';
  * schlechter als alphabetisch, weil alphabetisch wenigstens ehrlich willkürlich
  * ist. Die Rangfolge kommt deshalb aus dem Studio.
  *
- * Vollständige Analyse: docs/specs/2026-08-20-kategorie-ranking.md
+ * Entscheidung und aktuelle Mechanik: docs/architecture.md#redaktionelle-reihenfolge
  */
 
 /**

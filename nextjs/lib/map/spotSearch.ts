@@ -250,11 +250,23 @@ function wordMatches(entry: SearchEntry, word: QueryWord, fuzzy: boolean): boole
 /**
  * Passt der Spot zur Anfrage? Jedes Wort muss treffen. `fuzzy` lässt pro
  * Wort einen Buchstaben daneben zu — nur für den Rückfall, wenn die exakte
- * Suche im ganzen Katalog nichts findet (useMapFilters). So kommt nach
+ * Suche im ganzen Katalog nichts findet (needsFuzzy). So kommt nach
  * „piza" die Pizza, und „eis" holt trotzdem kein „reis" dazu.
  */
 export function matchesSearch(entry: SearchEntry, query: QueryWord[], fuzzy = false): boolean {
   return query.every((word) => wordMatches(entry, word, fuzzy));
+}
+
+/**
+ * Der Tippfehler-Rückfall: nur, wenn exakt im ganzen Katalog nichts passt.
+ * Gezählt ohne die Chips — ein Bezirk, in dem es keine Pizza gibt, ist kein
+ * Tippfehler. Eine Regel für Liste (useMapFilters) und Vorschläge
+ * (suggestSpots): die Vorschläge zeigen, was das Abschicken in die Liste holt.
+ */
+export function needsFuzzy(index: Map<string, SearchEntry>, query: QueryWord[]): boolean {
+  if (!query.length) return false;
+  for (const entry of index.values()) if (matchesSearch(entry, query)) return false;
+  return true;
 }
 
 /**
@@ -275,7 +287,7 @@ export function searchRank(entry: SearchEntry, query: QueryWord[]): number {
 }
 
 /** Wie viele Vorschläge unter dem Suchfeld stehen. */
-export const SUGGESTION_LIMIT = 6;
+const SUGGESTION_LIMIT = 6;
 
 /**
  * Die Vorschläge unter dem Suchfeld: dieselben Treffer, die ein Abschicken
@@ -284,8 +296,8 @@ export const SUGGESTION_LIMIT = 6;
  * Vorschlag nicht. Tippen filtert die Liste nicht mehr, erst das Abschicken
  * (Betreiber, 29.09.2026).
  *
- * Der Tippfehler-Rückfall greift wie in der Liste nur, wenn exakt im ganzen
- * Katalog nichts passt — gezählt ohne `keep` (die Chips des Aufrufers).
+ * Der Tippfehler-Rückfall wie in der Liste (needsFuzzy) — gezählt ohne
+ * `keep`, die Chips des Aufrufers.
  */
 export function suggestSpots(
   restaurants: MapRestaurant[],
@@ -298,13 +310,7 @@ export function suggestSpots(
 ): MapRestaurant[] {
   const words = parseQuery(query);
   if (!words.length) return [];
-  let fuzzy = true;
-  for (const entry of index.values()) {
-    if (matchesSearch(entry, words)) {
-      fuzzy = false;
-      break;
-    }
-  }
+  const fuzzy = needsFuzzy(index, words);
   const hits: { r: MapRestaurant; rank: number }[] = [];
   for (const r of restaurants) {
     const entry = index.get(r._id);

@@ -22,7 +22,7 @@ const ENDPOINT = `https://analyticsdata.googleapis.com/v1beta/${PROPERTY}`;
  *  Kontingent soll nicht am Neuladen des Bretts haengen. */
 const CACHE_MS = 10 * 60 * 1000;
 
-export interface GaDay {
+interface GaDay {
   day: string;
   users: number;
 }

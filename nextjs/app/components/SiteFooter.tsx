@@ -4,6 +4,7 @@ import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link } from '@/i18n/navigation';
 import styles from './SiteFooter.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
@@ -15,7 +16,7 @@ export default function SiteFooter() {
         <div className={styles.brand}>
           <h2 className={styles.mega} aria-label="Eat This">
             <Image
-              src="/pics/eat-this-logo.webp?v=7"
+              src={BRAND_LOGO_SRC}
               alt="Eat This"
               width={1660}
               height={667}

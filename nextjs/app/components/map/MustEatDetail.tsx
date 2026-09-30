@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useLoginModal } from '@/lib/auth';
-import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import type { MapMustEat } from '@/lib/types';
 import type { UserLocation } from '@/lib/map';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
@@ -147,7 +146,6 @@ export default function MustEatDetail({
      Karte reist als Absicht mit (pendingStarterCard), damit das Pack sie
      garantiert offen enthaelt. */
   const handleRequireLogin = useCallback(() => {
-    rememberPendingStarterCard(mustEat._id);
     openLoginModal({ kind: 'card', mustEatId: mustEat._id });
   }, [openLoginModal, mustEat._id]);
   const state = useMustEatDetailState({

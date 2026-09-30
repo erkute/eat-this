@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { pauseStarterPrompt } from './starterPromptCooldown';
+import { rememberPendingStarterCard } from './pendingStarterCard';
 import type { LoginIntent } from './loginContinueUrl';
 
 /**
@@ -52,6 +53,11 @@ export function LoginModalProvider({ children }: { children: React.ReactNode }) 
   const [reason, setReason] = useState<LoginReason | null>(null);
   const open = useCallback((nextReason?: LoginReason) => {
     pauseStarterPrompt();
+    /* Die angetippte Karte hat zwei Träger: die Continue-URL (`intent`, für
+       den Magic-Link) und den sessionStorage (für Google, pendingStarterCard).
+       Hier gemerkt, damit kein Auslöser den zweiten vergessen kann. Das Herz
+       merkt sich useFavorites selbst: pendingHeart löst es auch ein. */
+    if (nextReason?.kind === 'card') rememberPendingStarterCard(nextReason.mustEatId);
     setReason(nextReason ?? null);
     setIsOpen(true);
   }, []);

@@ -102,30 +102,18 @@
   width: 100%;
 }
 
-/* Die Wortmarke ist die Antwort auf die Headline (Ansage 29.09.2026: „das
-   Logo anders einbinden"): „WE TELL YOU WHAT TO EAT" — „EAT THIS". Vorher
-   stand sie darüber, und zwei Display-Zeilen übereinander stritten um den
-   Blick. Jetzt ist die Headline kleiner und die Marke das Größte in der
-   Spalte.
-   Sie steht im DOM weiter vor der Headline und rückt nur per `order` darunter:
-   HubHeroCopy rendert sie ausserhalb des Anmelde-Wechsels, damit ihr Auftritt
-   eine echte Animation auf demselben Element bleibt (siehe dort). Ein
-   Vorleser hört „Eat This", dann die Headline — das stimmt auch so.
-   Das Asset trägt transparenten Rand: links 120 von 1660px (7,23 %), oben
-   97 und unten 90 von 667px (5,8 bzw. 5,4 % der Breite). Die Ränder hier
-   gleichen ihn aus; wird das Logo je neu exportiert, nachmessen. */
+/* Die Wortmarke führt die Spalte an, die Headline schlägt darunter ein
+   (Ansage 30.09.2026: „Eat This muss über We tell …"; die Marke stand für
+   einen Tag als Antwort darunter).
+   Die Wortmarke trägt links 120px von 1660px transparenten Rand (7,23 %).
+   Ohne Ausgleich stünde sie sichtbar eingerückt gegenüber der Headline und
+   allem anderen in der Spalte. Der Faktor ist am Asset gemessen; wird das
+   Logo je neu exportiert, muss er nachgemessen werden. */
 .heroMark {
-  --hero-mark-w: clamp(280px, 30vw, 440px);
-  order: 1;
+  --hero-mark-w: clamp(240px, 23vw, 330px);
   width: var(--hero-mark-w);
   height: auto;
-  margin: clamp(2px, 0.4vw, 6px) 0 calc(var(--hero-mark-w) * -0.03)
-    calc(var(--hero-mark-w) * -0.0723);
-}
-
-.heroLead,
-.heroActions {
-  order: 2;
+  margin: 0 0 clamp(20px, 2vw, 28px) calc(var(--hero-mark-w) * -0.0723);
 }
 
 /* Solange die Marke fliegt, hält das Original hier nur noch den Platz frei.
@@ -198,9 +186,7 @@
   text-transform: uppercase;
   letter-spacing: -0.025em;
   line-height: var(--et-leading-hero);
-  /* Kleiner als die Marke darunter: sie ist die Antwort, die Headline die
-     Frage davor. */
-  font-size: clamp(34px, 3.3vw, 46px);
+  font-size: clamp(46px, 4.9vw, 64px);
   margin: 0;
 }
 
@@ -511,9 +497,10 @@
    aufzutauchen. `@property` macht die Zahlen interpolierbar; ohne springt ein
    Browser in der Mitte auf den Endwert — auch dann steht am Ende alles.
    HubMotion nimmt das Attribut ab, sobald alle Animationen durch sind.
-   Ruhiger seit dem 29.09.2026 („zu aggressiv"): kein Stempel mehr, kein
-   Zucken des Aufmachers. Die Headline steigt auf, die Marke setzt sich
-   darunter, der Lead schreibt sich hin, der Knopf wird hingelegt. */
+   Die Reihenfolge seit dem 30.09.2026: die Marke wächst auf, die Headline
+   schlägt Zeile für Zeile als Stempel ein, der Lead schreibt sich hin, der
+   Knopf wird hingelegt. Das Zucken des ganzen Aufmachers und der riesige
+   Logo-Stempel (bis 29.09.2026) waren „zu aggressiv". */
 @property --in-write {
   syntax: '<number>';
   inherits: true;
@@ -553,6 +540,18 @@
   syntax: '<number>';
   inherits: true;
   initial-value: 1;
+}
+/* Der Aufprall der Stempel-Zeilen: schlägt nach dem Einschlag einmal aus
+   (Stauchung) und schwingt zurück auf 0. */
+@property --hit-l1 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@property --hit-l2 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
 }
 
 @keyframes inWrite {
@@ -595,20 +594,46 @@
     --in-profile: 0;
   }
 }
+@keyframes hitL1 {
+  20% {
+    --hit-l1: 1;
+  }
+  50% {
+    --hit-l1: -0.4;
+  }
+  75% {
+    --hit-l1: 0.12;
+  }
+}
+@keyframes hitL2 {
+  20% {
+    --hit-l2: 1;
+  }
+  50% {
+    --hit-l2: -0.4;
+  }
+  75% {
+    --hit-l2: 0.12;
+  }
+}
 
-/* Die Kurven: expo.out wie GSAP sie nennt; der Stift schreibt gleichmäßig
-   (`linear`, das Tempo verteilen die Wörter selbst). `both` hält die
-   Startpose schon während der Verzögerung. */
+/* Die Kurven: expo.out wie GSAP sie nennt; der Stempel zieht an und
+   schlägt auf (`--slam`), der Aufprall läuft 0,3 s danach; der Stift
+   schreibt gleichmäßig (`linear`, das Tempo verteilen die Wörter selbst).
+   `both` hält die Startpose schon während der Verzögerung. */
 :global(html[data-hero-intro]) .hero {
   --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
   --glide: cubic-bezier(0.25, 1, 0.5, 1);
+  --slam: cubic-bezier(0.5, 0, 0.75, 0);
   animation:
-    inL1 1.1s var(--expo-out) 0.2s both,
-    inL2 1.1s var(--expo-out) 0.36s both,
     inBack 1.8s var(--expo-out) 0.75s both,
     inFront 1.7s var(--expo-out) 0.85s both,
-    inWrite 2.3s linear 1.35s both,
-    inCta 0.75s var(--glide) 2.4s both;
+    inL1 0.3s var(--slam) 0.95s both,
+    hitL1 0.45s ease-out 1.25s both,
+    inL2 0.3s var(--slam) 1.3s both,
+    hitL2 0.45s ease-out 1.6s both,
+    inWrite 2.1s linear 1.95s both,
+    inCta 0.75s var(--glide) 2.7s both;
 }
 
 /* Angemeldet geht es danach weiter (Ansage 29.09.2026): erst liegt der
@@ -617,24 +642,26 @@
    Anmelde-Hinweis, BridgeAuth nach dem Anmelden) — ein Gast wartete sonst
    anderthalb Sekunden länger auf das Ende des Auftritts, ohne etwas davon zu
    sehen. Die Liste muss ganz wiederholt werden, `animation` ist ein
-   Kurzwert. Der kürzere Lead ist hier gegen 2,9 s fertig geschrieben. */
+   Kurzwert. Der kürzere Lead ist hier gegen 3,4 s fertig geschrieben. */
 :global(html[data-hero-intro][data-auth]) .hero {
   animation:
-    inL1 1.1s var(--expo-out) 0.2s both,
-    inL2 1.1s var(--expo-out) 0.36s both,
     inBack 1.8s var(--expo-out) 0.75s both,
     inFront 1.7s var(--expo-out) 0.85s both,
-    inWrite 2.3s linear 1.35s both,
-    inCta 0.75s var(--glide) 2.4s both,
-    inHey 0.95s cubic-bezier(0.45, 0.05, 0.55, 0.95) 2.95s both,
-    inProfile 0.75s var(--glide) 3.9s both;
+    inL1 0.3s var(--slam) 0.95s both,
+    hitL1 0.45s ease-out 1.25s both,
+    inL2 0.3s var(--slam) 1.3s both,
+    hitL2 0.45s ease-out 1.6s both,
+    inWrite 2.1s linear 1.95s both,
+    inCta 0.75s var(--glide) 2.7s both,
+    inHey 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) 3.4s both,
+    inProfile 0.75s var(--glide) 4.2s both;
 }
 
-/* Die Marke setzt sich als Antwort unter die Headline: sie wächst aus der
-   Mitte auf, schwingt eine Spur über ihre Größe und steht — wie eine
-   Blase, passend zu den runden Buchstaben. Kein Stempel mehr (bis
+/* Die Marke kommt zuerst: sie wächst aus der Mitte auf, schwingt eine Spur
+   über ihre Größe und steht — wie eine Blase, passend zu den runden
+   Buchstaben (Ansage 30.09.2026: „mag das von Eat This, lass"). Bis
    29.09.2026 knallte sie 4,2-fach vergrößert aus der Bildmitte auf ihren
-   Platz, und der ganze Aufmacher zuckte beim Einschlag).
+   Platz.
    Eine echte Animation auf dem Element, keine animierte Zahl auf der
    Section: `scale/rotate` laufen auf dem Compositor, während der Hauptthread
    hydriert. Möglich, weil HubHeroCopy die Marke über den Anmelde-Wechsel
@@ -642,7 +669,7 @@
    der Auftritt durch ist. */
 :global(html[data-hero-intro]) .heroMark {
   transform-origin: 40% 55%;
-  animation: markPop 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 0.8s both;
+  animation: markPop 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 0.2s both;
 }
 
 @keyframes markPop {
@@ -656,23 +683,36 @@
   }
 }
 
-/* Die Headline steigt Zeile für Zeile aus ihrer eigenen Zeile auf (Ansage
-   29.09.2026: „erst We tell you, dann what to eat" — aber nicht als harter
-   Stempel). Die Zeile rutscht von unten herauf, und der Ausschnitt rechnet
-   ihren Weg zurück, damit er an der Stelle der fertigen Zeile stehen bleibt:
-   was noch darunter liegt, ist nicht zu sehen. Oben und unten lässt er
-   Ober- und Unterlängen der Handschrift stehen. Kein Opacity-Fade. */
+/* Die Headline schlägt als Stempel ein, Zeile für Zeile (Ansage 30.09.2026:
+   „We tell muss wie ein Stempel rein"; 29.09.: „erst We tell you, dann what
+   to eat"). Jede Zeile steht fast doppelt so groß und leicht gedreht
+   über ihrem Platz, zieht an, schlägt auf und staucht sich beim Aufprall —
+   breiter und flacher, dann schwingt sie zurück (`--hit-*`). Bis zum
+   Einschlag ist die Zeile nicht da: bei genau 0 steht die Skalierung auf 0.
+   Der Faktor der Schwelle ist bewusst riesig: die Kurve (`--slam`) läuft
+   langsam an, bei `* 1000` blieb der Wert gut 40 ms unter 0,001 — die Zeile
+   wuchs sichtbar aus einem Punkt, bevor sie einschlug (Review 29.09.2026).
+   Über die Zahlen auf der Section, weil HubHeroCopy die Zeilen beim
+   Anmelde-Wechsel neu baut. */
 :global(html[data-hero-intro]) .heroHeadline .heroLine:first-child {
-  --rise: calc((1 - var(--in-l1, 1)) * 1.4em);
+  --in: var(--in-l1, 1);
+  --hit: var(--hit-l1, 0);
+  --tilt: -5deg;
 }
 
 :global(html[data-hero-intro]) .heroHeadline .heroLine:last-child {
-  --rise: calc((1 - var(--in-l2, 1)) * 1.4em);
+  --in: var(--in-l2, 1);
+  --hit: var(--hit-l2, 0);
+  --tilt: 4deg;
 }
 
 :global(html[data-hero-intro]) .heroHeadline .heroLine {
-  translate: 0 var(--rise, 0px);
-  clip-path: inset(calc(-0.35em - var(--rise, 0px)) -0.3em calc(var(--rise, 0px) - 0.3em));
+  --gate: min(1, var(--in) * 1000000);
+  --size: calc(1 + (1 - var(--in)) * 0.9);
+  scale: calc((var(--size) + var(--hit) * 0.08) * var(--gate))
+    calc((var(--size) - var(--hit) * 0.12) * var(--gate));
+  rotate: calc((1 - var(--in)) * var(--tilt));
+  transform-origin: 50% 70%;
 }
 
 /* Der Lead schreibt sich hin, Wort für Wort und in jedem Wort von links nach
@@ -1138,7 +1178,7 @@
   }
 
   .heroMark {
-    --hero-mark-w: min(74vw, 300px);
+    --hero-mark-w: min(62vw, 250px);
     /* Zentriert braucht es den Kantenausgleich nicht — der transparente Rand
        ist links wie rechts fast gleich (120 zu 104 von 1660). */
     margin-left: 0;

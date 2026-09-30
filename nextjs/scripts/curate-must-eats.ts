@@ -1,7 +1,7 @@
 /**
  * Legt Must-Eats an und nimmt welche heraus — beides gegen ein Spec-JSON.
  *
- *   npx tsx scripts/curate-must-eats.ts --spec scripts/data/must-eat-curation-2026-08-29.json \
+ *   npx tsx scripts/curate-must-eats.ts --spec /path/to/curation.json \
  *     --cards ../CARDS --dry-run
  *   npx tsx scripts/curate-must-eats.ts --spec … --cards ../CARDS --apply
  *

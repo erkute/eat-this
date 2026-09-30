@@ -29,7 +29,7 @@ interface HeartBody {
 // counter is now maintained server-side via the Admin SDK, exactly like
 // /api/must-eat-reveal and /api/referral/confirm. firestore.rules keep
 // restaurants/{id} server-only writable, so the client can't touch the count
-// directly. See docs/specs/2026-06-09-hearts-design.md.
+// directly. See docs/architecture.md#herzen-und-favoriten.
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;

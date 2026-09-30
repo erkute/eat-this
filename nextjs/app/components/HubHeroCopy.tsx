@@ -236,7 +236,7 @@ export default function HubHeroCopy({ locale }: Props) {
 
   // Die Wortmarke steht ausserhalb des Wechsels: sobald `useAuth` fertig ist,
   // baut React Headline und Knöpfe neu, die Marke bleibt dasselbe Element.
-  // Nur so kann ihr Stempel beim Laden eine echte CSS-Animation auf dem
+  // Nur so kann ihr Auftritt beim Laden eine echte CSS-Animation auf dem
   // Element sein (Compositor) — ein neuer Knoten finge sie von vorn an.
   return (
     <div className={styles.heroCopy}>

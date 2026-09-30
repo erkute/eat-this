@@ -3,6 +3,7 @@
    sections. The bottom margin stays — nothing else carries the gap to the
    footer. */
 .section:global(.hv-section.hv-wrap) {
+  margin-top: clamp(64px, 7vw, 96px);
   margin-bottom: var(--home-section-gap);
 }
 
@@ -119,5 +120,36 @@
     padding-top: 4px;
     padding-bottom: 16px;
     font-size: 15px;
+  }
+}
+
+.section .board :global(.hv-title) {
+  font-size: clamp(60px, 10vw, 140px);
+  line-height: 1;
+}
+.question {
+  font-size: clamp(18px, 2vw, 23px);
+  min-height: 70px;
+}
+@media (min-width: 900px) {
+  .board {
+    display: grid;
+    grid-template-columns: 0.65fr 1.35fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .board > :global(.hv-head) {
+    position: sticky;
+    top: 36px;
+  }
+}
+
+@media (min-width: 768px) {
+  .section .board :global(.hv-title) {
+    font-size: clamp(44px, 5vw, 64px);
+  }
+  .question {
+    font-size: 18px;
+    min-height: 56px;
   }
 }

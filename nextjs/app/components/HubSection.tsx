@@ -8,7 +8,7 @@ import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
 import HeroMarkFlight from './HeroMarkFlight';
 import HubHashScroll from './HubHashScroll';
-import HubMarquee from './HubMarquee';
+import HeroCurtain from './HeroCurtain';
 import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
@@ -89,6 +89,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           Satzspiegel — deshalb sitzt `hv-wrap` innen und nicht auf der
           Section. */}
       <section className={styles.hero} aria-label={t.heroLabel} data-hub-hero="">
+        <HeroCurtain />
         <div className={`hv-wrap ${styles.heroInner}`}>
           <div className={styles.heroGrid}>
             <HubHeroCopy locale={locale} />
@@ -138,7 +139,6 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
       <HeroMarkFlight />
       <HubMotion />
-      <HubMarquee />
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor
           but a tap, and it answers "what do I eat now" with their own street.
@@ -152,6 +152,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           <section className="homeV2 hv-section hv-wrap">
             <article
               className={styles.spot}
+              data-home-pointer=""
               data-scrub="--spot 0 1"
               data-scrub-start="top bottom"
               data-scrub-end="top 45%"
@@ -186,7 +187,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                       alt=""
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:767.98px) 100vw, 520px"
+                      sizes="(max-width:767.98px) 100vw, 65vw"
                     />
                   </span>
                 )}
@@ -219,7 +220,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HubFragRemy />
       <HubFaq locale={locale} />
-      <SiteFooter />
+      <SiteFooter home />
     </main>
   );
 }

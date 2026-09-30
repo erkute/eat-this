@@ -64,7 +64,7 @@
   row-gap: var(--et-head-gap);
   /* The sub line used to carry this as its own margin-bottom; it now sits
      inside the head, so the head owns the distance down to the rail. */
-  margin-bottom: 18px;
+  margin-bottom: 8px;
 }
 
 :global(.homeV2) .head .title {
@@ -102,7 +102,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  flex: 0 0 clamp(240px, 24vw, 300px);
+  width: 100%;
+  text-align: center;
   color: var(--board-paper, #fff);
 }
 
@@ -236,149 +237,14 @@
   color: var(--board-soft, rgba(255, 255, 255, 0.76));
 }
 
-/* ── Band (Telefon) ──────────────────────────────────────────────────────────
-   Am Telefon laufen die Spots beim Scrollen als Band von links nach rechts
-   durchs Bild (Ansage 28.09.2026) — und lassen sich trotzdem selbst wischen
-   (Ansage vom selben Abend: „geht das in Kombination?"). Die Reihe ist
-   deshalb ein echter seitlicher Scroll-Container, breiter als die Spalte.
-   HubMotion schiebt ihre Scrollposition mit der Seite mit
-   (`armScrollBands`) und merkt sich, wie weit jemand selbst gewischt hat —
-   das Seitenscrollen setzt dort an, statt es zu überschreiben. Ab 768px ist
-   die Reihe ein Raster (unten).
-   Kein Scroll-Snap, solange HubMotion schiebt: er risse jeden geschobenen
-   Wert auf die nächste Kachel.
-   Bis an die Fensterkante, nicht nur bis an den Rand der Spalte: am Desktop
-   schnitt die Spalte die Karten mitten auf der Seite ab (Ansage 28.09.2026).
-   Prozent an Rand und Polster beziehen sich auf die Spalte, also ist
-   `(100vw - 100%) / 2` genau der Weg bis zur Kante, und die erste Karte
-   steht trotzdem bündig in der Spalte. Am Telefon ist das der Gutter wie
-   vorher. Den Überstand eines Scrollbalkens schneidet `.page` ab. */
-:global(.homeV2) :global(.hv-rail).rail {
-  --bleed: var(--et-wrap-pad);
-  display: flex;
-  flex-wrap: nowrap;
-  gap: var(--et-rail-gap);
-  margin-inline: calc((100% - 100vw) / 2);
-  padding-inline: calc((100vw - 100%) / 2);
-  scroll-padding-inline: var(--bleed);
-  /* Ein Scroll-Container schneidet auch unten ab: Platz für den Schatten der
-     Fotos, den der negative Rand wieder abgibt. */
-  padding-bottom: 32px;
-  margin-bottom: -28px;
-  overflow-x: auto;
-  /* Kein Balken, auf keiner Breite (Ansage 29.09.2026) — `hv-rail` blendet
-     ihn für WebKit aus, das hier gilt für Firefox. */
-  scrollbar-width: none;
-  scroll-snap-type: none;
-  scroll-behavior: auto;
-}
-
-.rail > .card {
-  flex: 0 0 clamp(240px, 24vw, 300px);
-  min-width: 0;
-  scroll-snap-align: start;
-}
-
-/* ── Mobile ────────────────────────────────────────────────────────────────── */
 @media (max-width: 767.98px) {
-  :global(.homeV2) :global(.hv-rail).rail {
-    --bleed: var(--et-wrap-pad-mobile);
-  }
-
-  .rail > .card {
-    flex-basis: min(78vw, 200px);
-  }
-
   .photo {
-    height: 140px;
+    aspect-ratio: 4 / 3;
   }
 }
 
-/* Wer keine Bewegung will, wischt allein — dann rastet die Reihe wieder auf
-   den Kacheln ein. */
-@media (prefers-reduced-motion: reduce) {
-  :global(.homeV2) :global(.hv-rail).rail {
-    scroll-snap-type: x mandatory;
-  }
-}
-
-/* ── Raster (ab 768px) ──────────────────────────────────────────────────────
-   Am Desktop scrollt man nach unten, nicht zur Seite (Ansage 29.09.2026):
-   alle Spots stehen auf einen Blick da, keine Reihe, die man erst wischen
-   muss. Bewegung kommt vom Seitenscrollen — jede Karte steigt auf ihren
-   Platz, sobald sie ins Bild kommt, zurückscrollen legt sie wieder ab.
-   Acht Spots: vier Spalten à zwei Reihen, bis 1099px drei Spalten mit den
-   ersten sechs (acht in drei Spalten ließen eine halbe Reihe stehen). */
-@media (min-width: 768px) {
-  :global(.homeV2) :global(.hv-rail).rail {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(28px, 3vw, 40px) var(--et-rail-gap);
-    margin: 0;
-    padding: 0;
-    /* `visible` Pflicht: sonst rechnet `overflow-y` auf `auto`, und die
-       Schatten und Hover-Zooms würden abgeschnitten. */
-    overflow: visible;
-  }
-
-  .rail > .card:nth-child(n + 7) {
-    display: none;
-  }
-}
-
-@media (min-width: 1100px) {
-  :global(.homeV2) :global(.hv-rail).rail {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .rail > .card:nth-child(n + 7) {
-    display: flex;
-  }
-}
-
-@keyframes cardRise {
-  from {
-    translate: 0 120px;
-    rotate: -3deg;
-  }
-}
-
-/* Am Scrollweg, als Scroll-Timeline des Browsers (Compositor, auch auf dem
-   iPhone ohne Nachzittern). Jede Spalte ein Stück später, damit die Reihe
-   als Welle kommt und nicht als Block. Ohne Scroll-Timeline stehen die
-   Karten einfach da. */
-@supports (animation-timeline: view()) {
-  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-    .rail > .card {
-      animation: cardRise cubic-bezier(0.33, 1, 0.68, 1) both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 30%;
-    }
-
-    .rail > .card:nth-child(3n + 2) {
-      animation-range: entry 8% cover 34%;
-    }
-
-    .rail > .card:nth-child(3n + 3) {
-      animation-range: entry 16% cover 38%;
-    }
-  }
-
-  @media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
-    .rail > .card:nth-child(n) {
-      animation-range: entry 0% cover 30%;
-    }
-
-    .rail > .card:nth-child(4n + 2) {
-      animation-range: entry 8% cover 34%;
-    }
-
-    .rail > .card:nth-child(4n + 3) {
-      animation-range: entry 16% cover 38%;
-    }
-
-    .rail > .card:nth-child(4n + 4) {
-      animation-range: entry 24% cover 42%;
-    }
+@media (max-width: 767.98px) {
+  .photo {
+    box-shadow: none;
   }
 }

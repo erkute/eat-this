@@ -23,25 +23,17 @@ gsap.registerPlugin(useGSAP);
  *
  * 1. **Auftritt beim Laden** (Aufmacher). Bewusst CSS, nicht GSAP: er muss ab
  *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
- *    HubSection.module.css). Hier nur das Aufräumen, siehe `finishIntro`.
+ *    HeroCurtain.module.css). Hier nur das Aufräumen, siehe `finishIntro`.
  *
- * 2. **Am Scrollweg** — und damit umkehrbar — hängen Must-Eat-Stapel, Spot
- *    des Tages, die Magazin-Fotos (Parallaxe) und die Quadrate vor den
+ * 2. **Am Scrollweg** — und damit umkehrbar — hängen der Spot
+ *    des Tages und die Quadrate vor den
  *    Titeln. Das sind Scroll-Timelines des Browsers in den CSS-Modulen,
  *    kein JS: sie laufen im Takt des Scrollens, auch auf dem iPhone, wo
  *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
  *    Nur wo der Browser keine Scroll-Timeline kann, treibt `armScrubFallback`
  *    dieselben Werte per Scroll-Listener (`data-scrub`).
- *    Der Stapel ist bewusst nicht gepinnt (bis 28.09.2026 ab 1024px eine
- *    Sequenz mit Pin): ein Pin im `.app-pages`-Container liefe dem Scrollen
- *    hinterher wie Scroll-JS auf dem iPhone und müsste nach jeder
- *    Höhenänderung darüber neu messen. Ohne Pin teilen Telefon und Desktop
- *    denselben Weg.
- *
- *    Die Bänder (Nearby, Magazin) sind am Telefon die Ausnahme: sie lassen
- *    sich auch selbst wischen, also schiebt JS ihre Scrollposition mit
- *    (`armScrollBands`). Am Desktop sind es Raster ohne seitliches Scrollen
- *    (Ansage 29.09.2026), deren Karten am Scrollweg aufsteigen — CSS.
+ *    Die räumlichen Galerien (Nearby, Magazin, Must Eats) steuert jeweils
+ *    HomeGallery: vertikale Scrollstrecke mit nativer Timeline und GSAP-Fallback.
  *
  * 3. **Beim Hereinkommen:**
  *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
@@ -52,8 +44,6 @@ gsap.registerPlugin(useGSAP);
  *      es neu (`armFragRemy`).
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
- *    - „Alle Must Eats": kleine Karten fliegen von überall in den Knopf, dann
- *      drückt er sich selbst (`armSwarm`, CSS in HubMustEatsTeaser.module.css).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
  *      wird gedrückt, das Feld leert sich — in Schleife, solange die Tafel im
  *      Bild ist (`armSignupDemo`).
@@ -61,29 +51,59 @@ gsap.registerPlugin(useGSAP);
  *      beim Hochscrollen wieder zu, bis jemand selbst klickt (`armFaq`).
  *
  * 4. **Immer:** Remy redet, solange gescrollt wird — der große im Frag-Remy-
- *    Abschnitt und der schwebende unten rechts (`armScrollTalk`). Scrollen
- *    treibt das Laufband schneller nach rechts und legt es schräg
- *    (`armMarqueeSkew`).
+ *    Abschnitt und der schwebende unten rechts (`armScrollTalk`).
  *
  * 5. **Nur ab 768px:** die Telefone driften beim Herausscrollen auseinander;
  *    mit echtem Zeiger kippen sie zur Maus, der Knopf zieht magnetisch.
  */
 
 /**
- * Der Ladeauftritt selbst ist CSS (HubSection.module.css) und läuft ab dem
- * ersten Paint. Hier nur: wer scrollt, bevor er fertig ist, spult ihn vierfach
- * ab — und am Ende fällt `data-hero-intro`, damit nichts dauerhaft an den
+ * Der Schiebe-Auftritt selbst ist CSS (HeroCurtain.module.css) und läuft ab dem
+ * ersten Paint. Das Tempo bleibt auch beim Scrollen konstant. Am Ende fällt `data-hero-intro`, damit nichts dauerhaft an den
  * Auftrittsregeln hängt.
  */
 function finishIntro(): (() => void) | void {
   const html = document.documentElement;
   if (!html.hasAttribute('data-hero-intro')) return;
   const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  // Die Section treibt die Zahlen `--in-*`; die Marke hat ihre eigene
-  // Animation (HubSection.module.css).
-  const parts = [hero, hero?.querySelector('[data-hero-mark]')];
-  const running = parts.flatMap((el) => el?.getAnimations() ?? []);
-  const done = () => html.removeAttribute('data-hero-intro');
+  const running = hero?.querySelector('[data-hero-curtain]')?.getAnimations() ?? [];
+  const done = () => {
+    html.removeAttribute('data-hero-intro');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    hero?.querySelectorAll<HTMLElement>('h1').forEach((headline) => {
+      const lines = Array.from(headline.querySelectorAll<HTMLElement>('span')).filter(
+        (line) => !line.children.length && line.getBoundingClientRect().height > 0
+      );
+      lines.forEach((line, index) => {
+        line.animate(
+          [
+            {
+              transform: 'scale(2.8) translateZ(0) rotate(-5deg)',
+              visibility: 'hidden',
+              offset: 0,
+            },
+            {
+              transform: 'scale(2.8) translateZ(0) rotate(-5deg)',
+              visibility: 'visible',
+              offset: 0.01,
+            },
+            {
+              transform: 'scale(.97) translateZ(0) rotate(.6deg)',
+              visibility: 'visible',
+              offset: 0.75,
+            },
+            { transform: 'scale(1) translateZ(0) rotate(0deg)', visibility: 'visible' },
+          ],
+          {
+            duration: 900,
+            delay: 450 + index * 650,
+            fill: 'backwards',
+            easing: 'cubic-bezier(.16,1,.3,1)',
+          }
+        );
+      });
+    });
+  };
   if (!running.length) {
     done();
     return;
@@ -94,12 +114,8 @@ function finishIntro(): (() => void) | void {
     // Abgebrochen (Attribut schon weg, Seite verlassen) — nichts mehr zu tun.
     .catch(() => {});
 
-  const hurry = () => running.forEach((a) => (a.playbackRate = 4));
-  const scroller = appScroller() ?? window;
-  scroller.addEventListener('scroll', hurry, { passive: true, once: true });
   return () => {
     cancelled = true;
-    scroller.removeEventListener('scroll', hurry);
   };
 }
 
@@ -188,6 +204,7 @@ function armStaggers(safe: gsap.ContextSafeFunc): () => void {
   const plays = new Map<Element, () => void>();
 
   for (const group of root.querySelectorAll<HTMLElement>('[data-reveal="stagger"]')) {
+    if (group.hasAttribute('data-cravings') && CSS.supports('animation-timeline: view()')) continue;
     if (group.getBoundingClientRect().top <= fold) continue;
     const items = Array.from(group.children) as HTMLElement[];
     if (!items.length) continue;
@@ -356,54 +373,6 @@ function armFragRemy(): () => void {
 }
 
 /**
- * „Alle Must Eats" (`data-swarm`, HubMustEatsTeaser): `1`, sobald der Knopf
- * über 75 % der Höhe steht — dann fliegen die Karten, und er drückt sich —,
- * `0` erst, wenn er ganz aus dem Bild ist. Wer ein Stück zurückscrollt, sieht
- * es also nicht dauernd neu, wer wiederkommt, schon. Die Bewegung ist CSS;
- * hier nur, wo jede Karte startet: an der Bildschirmkante in ihrer Richtung
- * (goldener Winkel, damit sie sich ums ganze Rund verteilen), gestaffelt ein
- * Stück dahinter — so fliegt jede quer durchs sichtbare Bild.
- */
-function armSwarm(): () => void {
-  const el = document.querySelector<HTMLElement>('[data-hub] [data-swarm]');
-  if (!el || typeof IntersectionObserver === 'undefined') return () => {};
-  const aim = () => {
-    const r = el.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    el.querySelectorAll<HTMLElement>(':scope > [aria-hidden] > img').forEach((card, i) => {
-      const a = ((i * 137.5) % 360) * (Math.PI / 180);
-      const dx = Math.cos(a);
-      const dy = Math.sin(a);
-      // Wie weit bis zur Kante in dieser Richtung, plus eine Kartenlänge.
-      const toX = dx > 0 ? (window.innerWidth - cx) / dx : dx < 0 ? -cx / dx : Infinity;
-      const toY = dy > 0 ? (window.innerHeight - cy) / dy : dy < 0 ? -cy / dy : Infinity;
-      const reach = Math.min(toX, toY) + 60 + ((i * 7) % 5) * 40;
-      card.style.setProperty('--sx', `${Math.round(dx * reach)}px`);
-      card.style.setProperty('--sy', `${Math.round(dy * reach)}px`);
-    });
-  };
-  const enter = new IntersectionObserver(
-    ([entry]) => {
-      if (!entry.isIntersecting || el.getAttribute('data-swarm') === '1') return;
-      aim();
-      el.setAttribute('data-swarm', '1');
-    },
-    { rootMargin: '0px 0px -25% 0px' }
-  );
-  const leave = new IntersectionObserver(([entry]) => {
-    if (!entry.isIntersecting) el.setAttribute('data-swarm', '0');
-  });
-  enter.observe(el);
-  leave.observe(el);
-  return () => {
-    enter.disconnect();
-    leave.disconnect();
-    el.setAttribute('data-swarm', '');
-  };
-}
-
-/**
  * `data-in-view` an jeder Section mit einem Knopf, der gedrückt werden soll
  * (`data-press`), und am Aufmacher: `1` im Bild, `0` draussen. Das CSS dazu
  * (HubSection.module.css) startet den Druck neu, sobald es auf `1` springt:
@@ -440,63 +409,6 @@ function armInView(): () => void {
   return () => {
     io.disconnect();
     sections.forEach((el) => el.removeAttribute('data-in-view'));
-  };
-}
-
-/**
- * Am Telefon laufen die Bänder (`data-scroll-band`: „Um dich herum", „Auf dem
- * Teller") beim Scrollen von links nach rechts durchs Bild und lassen sich
- * trotzdem selbst wischen. Die Scrollposition der Reihe folgt der Seite: kommt das
- * Band unten herein, steht es am Ende, verlässt es oben das Bild, am Anfang.
- * Wischt jemand selbst, merkt sich das der Versatz (`offset`) —
- * weiterscrollen setzt dort an, statt das Wischen zu überschreiben. Das ist
- * seitliches Scrollen, kein Mitziehen mit der Seite: ein Frame Verzug auf dem
- * iPhone fällt hier nicht auf.
- */
-function armScrollBands(scroller: HTMLElement | Window): () => void {
-  const stops = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-hub] [data-scroll-band]'),
-    (rail) => armScrollBand(rail, scroller)
-  );
-  return () => stops.forEach((stop) => stop());
-}
-
-function armScrollBand(rail: HTMLElement, scroller: HTMLElement | Window): () => void {
-  let offset = 0;
-  let written = -1;
-  let frame = 0;
-  const goal = () => {
-    const r = rail.getBoundingClientRect();
-    const v = viewportOf(scroller);
-    const p = gsap.utils.clamp(0, 1, (v.top + v.height - r.top) / (v.height + r.height));
-    return (1 - p) * (rail.scrollWidth - rail.clientWidth);
-  };
-  const apply = () => {
-    frame = 0;
-    const max = rail.scrollWidth - rail.clientWidth;
-    if (max <= 0) return;
-    const x = Math.round(gsap.utils.clamp(0, max, goal() + offset));
-    if (x === Math.round(rail.scrollLeft)) return;
-    written = x;
-    rail.scrollLeft = x;
-  };
-  const onPage = () => {
-    if (!frame) frame = requestAnimationFrame(apply);
-  };
-  const onRail = () => {
-    // Unser eigenes Schreiben meldet sich auch — nur echtes Wischen zählt.
-    if (Math.abs(rail.scrollLeft - written) < 2) return;
-    offset = rail.scrollLeft - goal();
-  };
-  apply();
-  scroller.addEventListener('scroll', onPage, { passive: true });
-  window.addEventListener('resize', onPage);
-  rail.addEventListener('scroll', onRail, { passive: true });
-  return () => {
-    cancelAnimationFrame(frame);
-    scroller.removeEventListener('scroll', onPage);
-    window.removeEventListener('resize', onPage);
-    rail.removeEventListener('scroll', onRail);
   };
 }
 
@@ -728,78 +640,6 @@ function armScrollTalk(scroller: HTMLElement | Window): () => void {
 }
 
 /**
- * Tempo als Form: schnelles Scrollen legt die Schrift im Laufband schräg und
- * treibt sie schneller nach rechts, in Ruhe richtet sie sich wieder auf und
- * läuft im Grundtakt. Das Tempo zählt in beide Richtungen gleich — das Band
- * läuft immer von links nach rechts, Hochscrollen kehrt es nicht um (Ansage
- * 28.09.2026). Nur die Spitze zählt — wird schneller gescrollt als gerade
- * eingestellt, springt es mit, sonst klingt es aus. Das hängt am Tempo, nicht
- * an der Position: auf dem iPhone ist ein Frame Verzug hier unsichtbar.
- */
-function armMarqueeSkew(scroller: HTMLElement | Window): () => void {
-  const tape = document.querySelector<HTMLElement>('[data-marquee-tape]');
-  if (!tape || typeof IntersectionObserver === 'undefined') return () => {};
-  const run = tape.firstElementChild?.getAnimations()[0];
-  const proxy = { skew: 0, rate: 1 };
-  const write = () => tape.style.setProperty('--skew', proxy.skew.toFixed(2));
-  const rest = () => tape.style.removeProperty('--skew');
-  const writeRate = () => {
-    if (run) run.playbackRate = proxy.rate;
-  };
-  const clamp = gsap.utils.clamp(-12, 12);
-  const top = () => (scroller instanceof HTMLElement ? scroller.scrollTop : window.scrollY);
-  let last = { y: top(), t: performance.now() };
-  // Tempo in px/s aus zwei Scroll-Ereignissen; nur, solange das Band im Bild
-  // ist. Nach einer Pause zählt das erste Ereignis nicht — sonst ginge die
-  // Pause als langsames Scrollen in die Rechnung ein.
-  const onScroll = () => {
-    const now = { y: top(), t: performance.now() };
-    const dt = now.t - last.t;
-    const v = dt > 0 && dt < 100 ? ((now.y - last.y) / dt) * 1000 : 0;
-    last = now;
-    // `fromTo`, nicht `to`: ein `to` liest seinen Startwert erst beim ersten
-    // Rendern, und bis dahin hatte der laufende Tween den Wert schon wieder
-    // zurückgeschrieben — das Band wurde kaum schneller (gemessen: 1,1 statt 7).
-    const rate = 1 + Math.min(12, Math.abs(v) / 120);
-    if (rate > proxy.rate) {
-      gsap.fromTo(
-        proxy,
-        { rate },
-        { rate: 1, duration: 1.4, ease: 'power2.out', overwrite: 'auto', onUpdate: writeRate }
-      );
-    }
-    const skew = clamp(v / -260);
-    if (Math.abs(skew) <= Math.abs(proxy.skew)) return;
-    gsap.fromTo(
-      proxy,
-      { skew },
-      {
-        skew: 0,
-        duration: 0.9,
-        ease: 'power3',
-        overwrite: 'auto',
-        onUpdate: write,
-        onComplete: rest,
-      }
-    );
-  };
-  const io = new IntersectionObserver(([entry]) => {
-    scroller.removeEventListener('scroll', onScroll);
-    if (!entry.isIntersecting) return;
-    last = { y: top(), t: performance.now() };
-    scroller.addEventListener('scroll', onScroll, { passive: true });
-  });
-  io.observe(tape);
-  return () => {
-    io.disconnect();
-    scroller.removeEventListener('scroll', onScroll);
-    gsap.killTweensOf(proxy);
-    rest();
-    if (run) run.playbackRate = 1;
-  };
-}
-
-/**
  * Für Browser ohne Scroll-Timeline (`animation-timeline: view()`): dieselben
  * Werte, die sonst CSS am Scrollweg treibt, per Scroll-Listener. Jedes Element
  * sagt selbst, welche Variable von wo nach wo läuft (`data-scrub="--deal 0 1"`)
@@ -936,6 +776,39 @@ function armHeroPointer(): () => void {
   };
 }
 
+/** A small camera response, only on devices with a real hovering pointer. */
+function armDepthPointer(): () => void {
+  const cleanups = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-home-pointer]'),
+    (el) => {
+      const options = { duration: 0.65, ease: 'power3.out' };
+      const x = gsap.quickTo(el, '--look-x', options);
+      const y = gsap.quickTo(el, '--look-y', options);
+      const move = (e: PointerEvent) => {
+        const rect = el.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        x(gsap.utils.clamp(-1, 1, ((e.clientX - rect.left) / rect.width) * 2 - 1));
+        y(gsap.utils.clamp(-1, 1, ((e.clientY - rect.top) / rect.height) * 2 - 1));
+      };
+      const leave = () => {
+        x(0);
+        y(0);
+      };
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerleave', leave);
+      return () => {
+        el.removeEventListener('pointermove', move);
+        el.removeEventListener('pointerleave', leave);
+        x.tween.kill();
+        y.tween.kill();
+        el.style.removeProperty('--look-x');
+        el.style.removeProperty('--look-y');
+      };
+    }
+  );
+  return () => cleanups.forEach((stop) => stop());
+}
+
 export default function HubMotion() {
   useGSAP(() => {
     // Ausserhalb von matchMedia: aufräumen muss es auch, wenn jemand während
@@ -957,16 +830,16 @@ export default function HubMotion() {
         stops.push(armStaggers(safe!));
         stops.push(armFragRemy());
         stops.push(armInView());
-        if (!desk) stops.push(armScrollBands(scroller));
-        stops.push(armSwarm());
         stops.push(armSignupDemo());
         stops.push(armFaq());
         stops.push(armScrollTalk(scroller));
-        stops.push(armMarqueeSkew(scroller));
         // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein
         // bis zwei Frames hinterher (siehe HeroMarkFlight) und zittert.
         if (desk) stops.push(armPhonesDrift(scroller));
-        if (desk && pointer) stops.push(armHeroPointer());
+        if (desk && pointer) {
+          stops.push(armHeroPointer());
+          stops.push(armDepthPointer());
+        }
         return () => stops.forEach((stop) => stop());
       }
     );

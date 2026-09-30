@@ -23,7 +23,7 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: end;
   gap: var(--et-head-gap);
-  margin-bottom: clamp(26px, 2.6vw, 38px);
+  margin-bottom: 8px;
   text-align: left;
 }
 
@@ -91,61 +91,6 @@
   transform: translateY(1px);
 }
 
-/* ── Artikel-Band (Telefon) ──
-   Am Telefon liegen die Artikel als Band nebeneinander wie
-   Zeitungsausschnitte auf der Tafel, ragen links und rechts bis an die
-   Fensterkante und laufen beim Scrollen der Seite von links nach rechts
-   durchs Bild (HubMotion, `data-scroll-band`) — wer scrollt, sieht sofort,
-   dass es mehrere sind (Ansage 28.09.2026). Das Band lässt sich trotzdem
-   selbst wischen. Derselbe Rand wie das Nearby-Band, Begründung dort:
-   `(100vw - 100%) / 2` reicht bis an die Fensterkante, die erste Karte steht
-   bündig in der Spalte. Ab 768px ein Raster (unten). */
-:global(.homeV2) :global(.hv-rail).band {
-  --bleed: var(--et-wrap-pad);
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  gap: clamp(20px, 2.2vw, 32px);
-  margin: 0 calc((100% - 100vw) / 2);
-  padding: 22px calc((100vw - 100%) / 2) 40px;
-  scroll-padding-inline: var(--bleed);
-  /* Ein Scroll-Container schneidet auch oben und unten ab: Platz für die
-     gekippten Ecken und den Schatten, den der negative Rand wieder abgibt. */
-  margin-block: -22px -36px;
-  overflow-x: auto;
-  /* Kein Balken, auf keiner Breite (Ansage 29.09.2026) — `hv-rail` blendet
-     ihn für WebKit aus, das hier gilt für Firefox. */
-  scrollbar-width: none;
-  scroll-snap-type: none;
-  scroll-behavior: auto;
-  list-style: none;
-}
-
-/* Wie angepinnt: jede zweite Karte liegt etwas höher und andersherum
-   gekippt. Beim Berühren richtet sie sich auf. */
-.band > li {
-  flex: 0 0 clamp(270px, 24vw, 340px);
-  min-width: 0;
-  display: flex;
-  rotate: -1.6deg;
-  transition: rotate 220ms ease;
-}
-
-.band > li:nth-child(even) {
-  rotate: 1.4deg;
-  translate: 0 14px;
-}
-
-@media (hover: hover) {
-  .band > li:hover {
-    rotate: 0deg;
-  }
-}
-
-.band > li:focus-within {
-  rotate: 0deg;
-}
-
 /* Auf der Tafel trägt die Kachel keine eigene Fläche: das Foto steht frei
    mit dem Sheet-Schatten, der Text liegt direkt auf der Tafel. Eine
    Ink-Kachel auf Ink wäre unsichtbar. */
@@ -180,39 +125,6 @@
   transition: transform 220ms ease;
 }
 
-/* Die Fotos ziehen beim Scrollen langsamer durch ihren Rahmen als die Seite
-   (Parallaxe). Am Scrollweg, als Scroll-Timeline des Browsers; über
-   `translate`/`scale`, `transform` gehört dem Hover. Die Vergrößerung deckt
-   den Weg: 20 % Rand für ±7 %.
-   Die Zeitleiste gehört dem Band, nicht dem Foto: `view()` am Foto hängt am
-   nächsten Scroll-Container, und das ist sein Rahmen (`overflow: hidden`
-   macht ihn zu einem) oder das Band selbst — beide scrollen nie senkrecht,
-   die Parallaxe stand fest in der Mitte (gemessen). Das Band misst gegen
-   die Seite. */
-@keyframes photoDrift {
-  from {
-    scale: 1.2;
-    translate: 0 -7%;
-  }
-  to {
-    scale: 1.2;
-    translate: 0 7%;
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .section .band {
-      view-timeline: --magazine-drift block;
-    }
-
-    .section .photo:global(.hv-photo) :global(img) {
-      animation: photoDrift linear both;
-      animation-timeline: --magazine-drift;
-    }
-  }
-}
-
 .card:focus-visible .photo:global(.hv-photo) :global(img) {
   transform: scale(1.03);
 }
@@ -227,7 +139,8 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 8px;
   padding: 16px 0 0;
 }
@@ -263,6 +176,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
+  justify-content: center;
   gap: 4px 10px;
 }
 
@@ -302,91 +216,29 @@
     grid-template-columns: 1fr;
     align-items: start;
     gap: 12px;
-    margin-bottom: 30px;
+    margin-bottom: 8px;
   }
 
   .eyebrow {
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
 
   .allLink {
     width: 100%;
   }
+}
 
-  :global(.homeV2) :global(.hv-rail).band {
-    --bleed: var(--et-wrap-pad-mobile);
-  }
-
-  .band > li {
-    flex-basis: min(72vw, 270px);
+@media (max-width: 767.98px) {
+  .section .photo:global(.hv-photo) {
+    aspect-ratio: 4 / 3;
   }
 }
 
-/* Wer keine Bewegung will, wischt allein — dann rastet das Band auf den
-   Karten ein. */
-@media (prefers-reduced-motion: reduce) {
-  :global(.homeV2) :global(.hv-rail).band {
-    scroll-snap-type: x mandatory;
+@media (max-width: 767.98px) {
+  .section .photo:global(.hv-photo) {
+    box-shadow: none;
   }
-
-  .band > li {
-    scroll-snap-align: start;
-    transition: none;
-  }
-}
-
-/* ── Raster (ab 768px) ──
-   Am Desktop scrollt man nach unten, nicht zur Seite (Ansage 29.09.2026):
-   die sechs Stories stehen als zwei Reihen à drei da, weiter angepinnt und
-   gekippt. Bewegung kommt vom Seitenscrollen — jede Karte steigt auf ihren
-   Platz, sobald sie ins Bild kommt. Bewegt wird der Link, nicht der
-   Listeneintrag: der trägt das Kippen, und eine Animation darauf hielte
-   `rotate` fest und nähme dem Hover das Aufrichten. */
-@media (min-width: 768px) {
-  :global(.homeV2) :global(.hv-rail).band {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(36px, 3.6vw, 52px) clamp(20px, 2.2vw, 32px);
-    margin: 0;
-    padding: 0;
-    /* `visible` Pflicht: sonst rechnet `overflow-y` auf `auto` und schneidet
-       gekippte Ecken und Schatten ab. */
-    overflow: visible;
-  }
-}
-
-@keyframes cardRise {
-  from {
-    translate: 0 120px;
-    rotate: -3deg;
-  }
-}
-
-/* Am Scrollweg (Scroll-Timeline, Compositor), jede Spalte ein Stück später.
-   Ohne Scroll-Timeline stehen die Karten einfach da. */
-@supports (animation-timeline: view()) {
-  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-    .band > li > .card {
-      animation: cardRise cubic-bezier(0.33, 1, 0.68, 1) both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 30%;
-    }
-
-    .band > li:nth-child(3n + 2) > .card {
-      animation-range: entry 8% cover 34%;
-    }
-
-    .band > li:nth-child(3n + 3) > .card {
-      animation-range: entry 16% cover 38%;
-    }
-  }
-}
-
-/* iOS rendert Filter-Schatten auf vielen Ausschnitt-Bildern spürbar zäh; ein
-   box-shadow ist dort günstig, bleibt also. Nur die Hover-Verstärkung entfällt
-   auf Touch, wo es keinen Hover gibt. */
-@media (hover: none) {
-  .card:hover .photo:global(.hv-photo) {
-    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+  .section .photo:global(.hv-photo) :global(img) {
+    filter: none;
   }
 }

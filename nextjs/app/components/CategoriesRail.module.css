@@ -1,157 +1,87 @@
-/* ── Ink-Tafel ──
-   Jeder Abschnitt der Startseite ist eine Tafel, damit es nur eine Art Grenze
-   gibt: Kante zu Kante. Vorher standen Tafeln und lose Bloecke gemischt, und
-   der sichtbare Abstand zwischen zwei Inhalten schwankte zwischen 104 und
-   206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
-   der Tafeln zaehlte unsichtbar mit. */
+/* Compact menu index: a quiet left heading beside a readable list. */
 .board {
-  --board-ink: var(--et-ink);
-  --board-paper: var(--et-white);
-  --board-accent: var(--et-accent);
-  --board-soft: rgba(255, 255, 255, 0.76);
-
-  padding: var(--et-board-pad);
-  background: var(--et-board-bg);
-  color: var(--board-paper);
-  border-radius: var(--et-board-radius);
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 24px 64px;
+  padding-block: 12px;
+  color: var(--et-white);
 }
-
-:global(.homeV2) .board :global(.hv-title) {
-  color: var(--board-paper);
+.head {
+  max-width: 260px;
 }
-
-@media (max-width: 767.98px) {
-  .board {
-    padding: var(--et-board-pad);
-  }
+.title {
+  margin: 0;
+  font-family: var(--et-font-display);
+  font-size: clamp(26px, 2.8vw, 36px);
+  line-height: 1.15;
+  font-weight: 700;
+  text-wrap: balance;
 }
-/* Neun Kategorien als typografischer Index, nicht als Kaestchen-Raster: auf
-   dem durchgehenden Grund waren neun gleiche Ringe genauso monoton wie die
-   Kaesten davor. Jetzt traegt die Type — gross, in Spalten, jede Zeile mit dem
-   gelben Marken-Quadrat. Beim Beruehren geht die Zeile auf Gelb.
-   Bewusst OHNE Pack-Kunst: die Tueten sind Produktfotos, und neun davon in
-   einer Reihe lasen die Seite als Shop (deshalb sind sie am 24.08.2026 hier
-   rausgeflogen). */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: clamp(20px, 3vw, 44px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 28px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-
 .grid > li {
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 1px solid #ffffff20;
 }
-
-/* Die oberste Zeile jeder Spalte traegt keine Linie: drei Striche
-   nebeneinander direkt unter der Ueberschrift lasen sich als Tabellenkopf. */
-.grid > li:nth-child(-n + 3) {
-  border-top: 0;
-}
-
 .chip {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: clamp(58px, 5vw, 74px);
-  padding: 0;
-  color: var(--board-paper, #fff);
-  background: transparent;
+  min-height: 52px;
+  padding-block: 12px;
+  width: 100%;
   font-family: var(--et-font-display);
-  font-size: clamp(20px, 2.4vw, 32px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  font-size: clamp(18px, 1.8vw, 23px);
+  line-height: 1.25;
   text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    color 160ms ease,
-    transform 160ms ease;
+  transition: transform 180ms ease;
 }
-
-/* Dasselbe gelbe Marken-Quadrat wie vor jedem Abschnittstitel.
-   `align-items: center` setzt es auf die Mitte der Zeilenbox, nicht der
-   Schrift: Providence hat 0.51em Unterlänge, die Mitte ihrer Versalien liegt
-   bei `line-height: 1` rund 0.14em höher. Um genau das hebt es sich. */
 .chip::before {
   content: '';
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  background: var(--board-accent, #ffc600);
-  translate: 0 -0.14em;
-  transition: transform 160ms ease;
+  width: 0;
+  height: 2px;
+  margin-right: 0;
+  background: currentColor;
+  transition:
+    width 180ms ease,
+    margin-right 180ms ease;
 }
-
 .chip:focus-visible {
-  color: var(--board-accent, #ffc600);
-  outline: 0;
-  transform: translateX(4px);
-}
-
-@media (hover: hover) {
-  .chip:hover {
-    color: var(--board-accent, #ffc600);
-    outline: 0;
-    transform: translateX(4px);
-  }
-}
-
-.chip:focus-visible::before {
-  transform: scale(1.35);
-}
-
-@media (hover: hover) {
-  .chip:hover::before {
-    transform: scale(1.35);
-  }
-}
-
-.chip:active {
-  transform: translateX(4px) translateY(1px);
-}
-
-.chip:focus-visible {
-  outline: 2px solid var(--board-accent, #ffc600);
+  outline: 2px solid currentColor;
   outline-offset: 4px;
 }
-
+@media (hover: hover) {
+  .chip:hover::before {
+    width: 16px;
+    margin-right: 10px;
+  }
+}
+@media (max-width: 767.98px) {
+  .board {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .head {
+    max-width: 100%;
+  }
+  .title {
+    font-size: 28px;
+  }
+  .grid {
+    gap: 0 22px;
+  }
+  .chip {
+    font-size: 19px;
+    min-height: 52px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .chip,
   .chip::before {
     transition: none;
-  }
-
-  .chip:focus-visible,
-  .chip:active {
-    transform: none;
-  }
-
-  @media (hover: hover) {
-    .chip:hover {
-      transform: none;
-    }
-  }
-}
-
-@media (max-width: 767.98px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 20px;
-  }
-
-  .grid > li:nth-child(-n + 3) {
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-  }
-
-  .grid > li:nth-child(-n + 2) {
-    border-top: 0;
-  }
-
-  .chip {
-    min-height: 54px;
-    font-size: 19px;
   }
 }

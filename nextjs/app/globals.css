@@ -1497,7 +1497,8 @@ ol {
     padding-bottom: 0;
   }
   .app-page[data-page='start'] {
-    background: var(--et-white);
+    /* Keep the mobile document ink through Safari's translucent chrome. */
+    background: var(--et-ink);
   }
 }
 
@@ -1533,7 +1534,8 @@ ol {
     overflow-x: hidden;
   }
   .app-page[data-page='start'] {
-    background: var(--et-white);
+    /* Keep the mobile document ink through Safari's translucent chrome. */
+    background: var(--et-ink);
   }
 }
 
@@ -1675,5 +1677,17 @@ ol {
   }
   .homeV2 .hv-section {
     margin-top: var(--et-section-gap-mobile);
+  }
+}
+
+/* Let the fixed opening curtain cover the navigation as well as the page.
+   No transforms or scroll locks: Safari keeps its native window scrolling. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-hero-intro][data-active-page='start'] .app-pages {
+    z-index: 100100;
+  }
+  html[data-hero-intro][data-active-page='start'],
+  html[data-hero-intro][data-active-page='start'] body {
+    background-color: #000;
   }
 }

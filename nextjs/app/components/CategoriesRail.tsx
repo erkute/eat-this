@@ -25,13 +25,12 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
       aria-label={locale === 'en' ? 'Categories' : 'Kategorien'}
     >
       <div className={styles.board}>
-        <div className="hv-head">
-          <h2 className="hv-title">
-            <span className="hv-mk" aria-hidden="true" />
+        <div className={styles.head}>
+          <h2 className={styles.title}>
             {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
           </h2>
         </div>
-        <ul className={styles.grid} role="list" data-reveal="stagger">
+        <ul className={styles.grid} role="list" data-reveal="stagger" data-cravings="">
           {entries.map(([slug, name]) => (
             <li key={slug}>
               {/* Der Name steht als Text direkt in der Zeile: `.chip` ist ein

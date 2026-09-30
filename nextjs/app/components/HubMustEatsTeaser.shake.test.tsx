@@ -10,6 +10,25 @@ import { translations } from '@/lib/i18n/translations';
 import { GUEST_SHAKE_MS } from '@/lib/guestCardShake';
 
 const openLoginModal = vi.fn();
+// These tests cover location/login behavior; gallery input is tested separately.
+vi.mock('./HomeGallery', () => ({
+  default: ({
+    children,
+    heading,
+    footer,
+  }: {
+    children: import('react').ReactNode;
+    heading?: import('react').ReactNode;
+    footer?: import('react').ReactNode;
+  }) => (
+    <>
+      {heading}
+      {children}
+      {footer}
+    </>
+  ),
+}));
+
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: null, loading: false }),
   useLoginModal: () => ({ open: openLoginModal }),

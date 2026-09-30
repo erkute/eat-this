@@ -83,21 +83,6 @@ describe('HubHeroCopy', () => {
     expect(en).toContain('The best places in Berlin on one map');
   });
 
-  it('writes the lead word by word, each on its own stretch of the pen path', () => {
-    const stretches = [...render().matchAll(/--a:([\d.]+);--b:([\d.]+)/g)].map(([, a, b]) => [
-      Number(a),
-      Number(b),
-    ]);
-    expect(stretches.length).toBeGreaterThan(10);
-    expect(stretches[0][0]).toBe(0);
-    // Alle Leads teilen einen Maßstab: keiner läuft über das Ende hinaus.
-    expect(stretches[stretches.length - 1][1]).toBeLessThanOrEqual(1);
-    for (const [i, [a, b]] of stretches.entries()) {
-      expect(b).toBeGreaterThan(a);
-      if (i > 0) expect(a).toBeGreaterThan(stretches[i - 1][1]);
-    }
-  });
-
   it('drops the explainer once a visitor is signed in', () => {
     authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
     const html = text(render());

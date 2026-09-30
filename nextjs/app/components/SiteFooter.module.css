@@ -292,3 +292,77 @@
     padding-inline: 80px;
   }
 }
+
+/* The homepage keeps the shared grey footer palette. */
+@property --outro {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+.home .megaImg {
+  width: min(48vw, 190px);
+  filter: none;
+}
+.home .brand {
+  transform: translateY(calc((1 - var(--outro)) * 70px)) rotate(calc((1 - var(--outro)) * -8deg))
+    scale(calc(0.8 + var(--outro) * 0.2));
+}
+.home .tagline {
+  font-size: clamp(13px, 2.5vw, 23px);
+}
+.home .langBtn,
+.home .langSep,
+.home .legalLink::after {
+  color: var(--footer-ink);
+}
+.home .langBtnActive {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.home .langBtn:focus-visible,
+.home .legalLink:focus-visible,
+.home .socialLink:focus-visible {
+  outline: 2px solid var(--footer-ink);
+  outline-offset: 5px;
+}
+.home .legalLink:hover,
+.home .legalLink:active,
+.home .langBtn:hover,
+.home .langBtn:focus-visible {
+  color: var(--footer-ink);
+  text-decoration: underline;
+}
+@keyframes outro {
+  from {
+    --outro: 0;
+  }
+  to {
+    --outro: 1;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home {
+      animation: outro linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home .brand {
+    transform: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .home .megaImg {
+    width: min(22vw, 240px);
+  }
+  .home .tagline {
+    font-size: 16px;
+  }
+  .home {
+    padding-block: 36px 24px;
+  }
+}

@@ -6,12 +6,19 @@ import { Link } from '@/i18n/navigation';
 import styles from './SiteFooter.module.css';
 import { BRAND_LOGO_SRC } from '@/lib/constants';
 
-export default function SiteFooter() {
+export default function SiteFooter({ home = false }: { home?: boolean }) {
   const { t, lang, setLang } = useTranslation();
   const de = lang === 'de';
   const follow = de ? 'Folgen' : 'Follow';
   return (
-    <footer className={styles.footer} data-site-footer role="contentinfo" aria-label="Site footer">
+    <footer
+      className={`${styles.footer}${home ? ` ${styles.home}` : ''}`}
+      data-site-footer
+      data-scrub={home ? '--outro 0 1' : undefined}
+      data-scrub-end="top 25%"
+      role="contentinfo"
+      aria-label="Site footer"
+    >
       <div className={styles.top}>
         <div className={styles.brand}>
           <h2 className={styles.mega} aria-label="Eat This">
@@ -20,7 +27,7 @@ export default function SiteFooter() {
               alt="Eat This"
               width={1660}
               height={667}
-              sizes="min(56vw, 230px)"
+              sizes={home ? '(min-width: 1000px) 800px, 82vw' : 'min(56vw, 230px)'}
               loading="lazy"
               decoding="async"
               className={styles.megaImg}

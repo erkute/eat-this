@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import LoginBoard, { LoginSceneArt } from './LoginBoard';
+import LoginBoard from './LoginBoard';
 import styles from './StarterPackSignup.module.css';
 
 /**
@@ -29,14 +29,35 @@ export default function StarterPackSignup() {
       // Anchor target: the Must-Eats onboarding sends logged-out visitors here
       // from its last slide (#hub-starter), same convention as #hub-fragremy.
       id="hub-starter"
-      className="homeV2 hv-section hv-wrap"
+      className={`homeV2 hv-section hv-wrap ${styles.scene}`}
+      data-scrub="--pack-arrival 0 1"
+      data-scrub-end="top 25%"
       data-hub-starter=""
       data-guest-only=""
       aria-label={t('packTitle')}
     >
       <div className={styles.inner}>
         <LoginBoard
-          art={<LoginSceneArt reason={null} />}
+          art={
+            <div className={styles.art} aria-hidden="true">
+              <div className={styles.packRig}>
+                {/* The foil never contains a baked-in person: the print and
+                    emerging character are the very same registered layer. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className={styles.packFront}
+                  src="/pics/home/booster-empty.webp"
+                  alt=""
+                  width={1008}
+                  height={1560}
+                />
+                <div className={styles.character}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/pics/home/booster-cafe-layer.webp" alt="" width={960} height={1600} />
+                </div>
+              </div>
+            </div>
+          }
           kicker={t('packKicker')}
           title={t('packTitle')}
           lead={t('packLead')}

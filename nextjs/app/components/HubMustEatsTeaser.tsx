@@ -15,6 +15,7 @@ import { composeTeaserCards } from '@/lib/home/mustEatsGallery';
 import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubMustEatsTeaser.module.css';
+import HomeGallery from './HomeGallery';
 
 const TEASER_COUNT = 6;
 
@@ -22,46 +23,20 @@ const TEASER_COUNT = 6;
 // the first tile poses the question and the second answers it. The row used to
 // be six face-up cards, which showed the reward without ever showing the
 // mechanic that earns it — the card frame then had no visible reason to exist.
-// These two positions also land in the middle column of each row once the
-// phone grid wraps six cards into 3×2.
+// Both examples remain between covered cards as visitors browse the gallery.
 const FACE_UP_SLOTS = [1, 4] as const;
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 
-// Card art comes from /api/must-eat-image, not the Sanity CDN, so
-// `sanitySrcSet` silently returned undefined here: every tile downloaded the
-// 1200px original (~140 kB) into a slot a fraction of that wide, and the
-// `sizes` attribute below described a candidate list that did not exist. The
-// route resizes on demand, but only for widths on its own ladder — these three
-// are its rungs for the 178 px card at 1x, 2x and 3x.
-// Measured 25.08.2026: 22 kB at w=360 against 142 kB for the original, at the
-// same TTFB.
-const CARD_WIDTHS = [180, 360, 440] as const;
+// The large gallery card reaches 300px; the image route supplies the same
+// supported width ladder used elsewhere in the collection.
+const CARD_WIDTHS = [180, 360, 440, 720] as const;
 
 function cardSrcSet(url: string): string {
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
-// The card is capped at 178px (see .card in the CSS module). Below the cap it
-// fills its grid column: the viewport minus the 16px wrap padding and two 8px
-// gutters, over three columns — ~109px on a 375px phone. The two meet at
-// 582px. Die Mini-Karten im Knopf nehmen dieselbe Angabe: so wählt der Browser
-// dieselbe Datei wie für die grosse Karte und lädt nichts nach — mit eigener
-// Breite (w=180) holte ein Retina-Bildschirm jedes offene Motiv ein zweites
-// Mal von der langsamen Bildroute (gemessen 30.09.2026).
-const CARD_SIZES = '(min-width: 582px) 178px, calc((100vw - 48px) / 3)';
-
-/* „Alle Must Eats" saugt Karten an (Ansage 30.09.2026): vierundzwanzig
-   kleine Karten fliegen von allen Bildschirmkanten hinein, jede dritte offen,
-   dann drückt sich der Knopf selbst — wer hier klickt, sieht alle Karten. Die
-   Bewegung ist CSS (`.swarm`); HubMotion schaltet sie an und rechnet beim
-   Auslösen, wo an der Kante jede Karte startet (`armSwarm`). Drall und
-   Startzeit hier ganzzahlig gestreut, ohne Zufall — Server und Client
-   schreiben dieselben Werte. */
-const SWARM = Array.from({ length: 24 }, (_, i) => ({
-  '--spin': `${(i % 2 ? 1 : -1) * (160 + ((i * 11) % 5) * 60)}deg`,
-  '--delay': `${(((i * 5) % 24) * 0.03).toFixed(2)}s`,
-})) as CSSProperties[];
+const CARD_SIZES = '(min-width: 473px) 340px, 72vw';
 
 /* Die Länge des Gerichts, damit es in eine Zeile passt: die Schrift schrumpft
    auf Spaltenbreite ÷ Zeichenzahl (HubMustEatsTeaser.module.css, `.dish`). */
@@ -141,8 +116,6 @@ export default function HubMustEatsTeaser() {
   // a section that asks visitors to collect something it never shows.
   if (!cards.some((c) => c.faceUp)) return null;
 
-  const faceUpImages = cards.flatMap((c) => (c.faceUp && c.mustEat.image ? [c.mustEat.image] : []));
-
   /* Ohne Konto ist eine verdeckte Karte hier keine Aufgabe, sondern das
      Angebot: die Rücken kommen aus dem ganzen Stapel (getHomeInitialMapData),
      nicht aus einem Deck, das der Besucher hätte — auf der Map gäbe es für
@@ -178,27 +151,32 @@ export default function HubMustEatsTeaser() {
       {/* Eine Ink-Tafel wie die Kartenbänder auf /must-eats: die Karten liegen
           mit Schatten auf Ink, der Titel ist weiß, die Knöpfe gelb und Ring. */}
       <div className={styles.board}>
-        <div className="hv-head">
-          <h2 className="hv-title">
-            <span className="hv-mk" aria-hidden="true" />
-            {t('mustEats.teaserTitle')}
-          </h2>
-        </div>
-
-        <div className={styles.intro}>
-          <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
-        </div>
-
-        {/* Die Karten werden beim Scrollen aus einem Stapel ausgeteilt und beim
-            Zurückscrollen wieder eingesammelt — ganz in CSS (`--deal`, siehe
-            das Modul), `data-scrub` ist nur der GSAP-Weg für Browser ohne
-            Scroll-Timeline. */}
-        <ul
-          className={`hv-rail ${styles.rail}`}
-          role="list"
-          data-scrub="--deal 0 1"
-          data-scrub-start="top 70%"
-          data-scrub-end="top 15%"
+        <HomeGallery
+          variant="nearby"
+          heading={
+            <>
+              {' '}
+              <div className="hv-head">
+                <h2 className="hv-title">
+                  <span className="hv-mk" aria-hidden="true" />
+                  {t('mustEats.teaserTitle')}
+                </h2>
+              </div>
+              <div className={styles.intro}>
+                <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
+              </div>{' '}
+            </>
+          }
+          label={t('mustEats.teaserTitle')}
+          portrait
+          footer={
+            <div className={styles.foot}>
+              <MapIntentLink href="/must-eats" className={`hv-btn ${styles.cta}`}>
+                {t('mustEats.teaserCta')}
+              </MapIntentLink>
+              <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="ink" />
+            </div>
+          }
         >
           {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
             // Ohne Bezirk: „AERA Charlottenburg“ heisst unter dem Gericht nur „AERA“.
@@ -272,100 +250,60 @@ export default function HubMustEatsTeaser() {
             );
 
             return (
-              <li key={m._id} className={styles.item}>
-                <article className={styles.cardShell}>
-                  {needsAccount ? (
-                    <button
-                      type="button"
-                      className={`${styles.cardLink} ${styles.cardButton}`}
-                      aria-label={cardAria}
-                      onClick={() => openStarterLogin(m._id)}
-                    >
-                      {photo}
-                    </button>
-                  ) : (
-                    /* Deep-link into the map: ?me= opens the must-eat detail —
+              <article key={m._id} className={styles.cardShell}>
+                {needsAccount ? (
+                  <button
+                    type="button"
+                    className={`${styles.cardLink} ${styles.cardButton}`}
+                    aria-label={cardAria}
+                    onClick={() => openStarterLogin(m._id)}
+                  >
+                    {photo}
+                  </button>
+                ) : (
+                  /* Deep-link into the map: ?me= opens the must-eat detail —
                        face-up as the card, face-down with the reveal affordance. */
+                  <MapIntentLink
+                    href={`/map?me=${m._id}`}
+                    className={styles.cardLink}
+                    aria-label={cardAria}
+                  >
+                    {photo}
+                  </MapIntentLink>
+                )}
+                <span className={styles.meta}>
+                  {isFaceUp ? (
                     <MapIntentLink
                       href={`/map?me=${m._id}`}
-                      className={styles.cardLink}
+                      className={styles.dishLink}
                       aria-label={cardAria}
                     >
-                      {photo}
-                    </MapIntentLink>
-                  )}
-                  <span className={styles.meta}>
-                    {isFaceUp ? (
-                      <MapIntentLink
-                        href={`/map?me=${m._id}`}
-                        className={styles.dishLink}
-                        aria-label={cardAria}
-                      >
-                        <span className={styles.dish} style={charCount(dish)}>
-                          {dish}
-                        </span>
-                      </MapIntentLink>
-                    ) : (
-                      <span
-                        className={`${styles.dish} ${styles.dishCovered}`}
-                        style={charCount(t('mustEats.covered'))}
-                      >
-                        {t('mustEats.covered')}
+                      <span className={styles.dish} style={charCount(dish)}>
+                        {dish}
                       </span>
-                    )}
-                    {hasSpot && (
-                      <Link
-                        href={`/restaurant/${m.restaurant.slug}`}
-                        className={styles.restaurantLink}
-                        aria-label={`${restaurant} ${restaurantAria}`}
-                      >
-                        <span className="hv-sub">{restaurant}</span>
-                      </Link>
-                    )}
-                  </span>
-                </article>
-              </li>
+                    </MapIntentLink>
+                  ) : (
+                    <span
+                      className={`${styles.dish} ${styles.dishCovered}`}
+                      style={charCount(t('mustEats.covered'))}
+                    >
+                      {t('mustEats.covered')}
+                    </span>
+                  )}
+                  {hasSpot && (
+                    <Link
+                      href={`/restaurant/${m.restaurant.slug}`}
+                      className={styles.restaurantLink}
+                      aria-label={`${restaurant} ${restaurantAria}`}
+                    >
+                      <span className="hv-sub">{restaurant}</span>
+                    </Link>
+                  )}
+                </span>
+              </article>
             );
           })}
-        </ul>
-
-        {/* Gelb ist der Weg zu allen Must Eats, der Ring erklärt das Spiel —
-            dieselbe Reihe wie auf der Kopf-Tafel von /must-eats. The explainer
-            used to live exclusively behind the CTA, so a visitor who bounced
-            off this section because they didn't understand it never reached
-            the thing that explains it. */}
-        <div className={styles.foot}>
-          <span className={styles.ctaWrap} data-swarm="">
-            <span className={styles.swarm} aria-hidden="true">
-              {SWARM.map((style, i) => {
-                const image =
-                  i % 3 === 1 && faceUpImages.length
-                    ? faceUpImages[Math.floor(i / 3) % faceUpImages.length]
-                    : null;
-                return (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={i}
-                    className={styles.fly}
-                    src={image ? mustEatCardSrc(image, 360) : CARD_BACK}
-                    srcSet={image ? cardSrcSet(image) : undefined}
-                    sizes={image ? CARD_SIZES : undefined}
-                    alt=""
-                    width={760}
-                    height={1044}
-                    loading="lazy"
-                    decoding="async"
-                    style={style}
-                  />
-                );
-              })}
-            </span>
-            <MapIntentLink href="/must-eats" className={`hv-btn ${styles.cta}`}>
-              {t('mustEats.teaserCta')}
-            </MapIntentLink>
-          </span>
-          <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="ink" />
-        </div>
+        </HomeGallery>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 import { Link } from '@/i18n/navigation';
 import type { HubArticle } from '@/lib/home/getHomeData';
 import styles from './MagazineGrid.module.css';
+import HomeGallery from './HomeGallery';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 
@@ -9,8 +10,7 @@ interface Props {
   locale: 'de' | 'en';
 }
 
-// Sechs Stories: am Telefon ein Band, das beim Scrollen durchs Bild läuft
-// (seit 28.09.2026), am Desktop zwei Reihen à drei.
+// Six stories, browsed as a spatial gallery on every screen.
 const CARD_COUNT = 6;
 
 // Dasselbe Format wie der Magazin-Index (NewsSection): „1. September 2026".
@@ -42,66 +42,67 @@ export default function MagazineGrid({ articles, locale }: Props) {
           nicht als eigenes Ding. Die Kacheln tragen darin keine eigene Fläche
           mehr — Foto mit Schatten, Text direkt auf der Tafel. */}
       <div className={styles.board}>
-        <div className={`hv-head ${styles.head}`}>
-          <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
-          <h2 className="hv-title">
-            <span className="hv-mk" aria-hidden="true" />
-            {locale === 'en' ? 'On the plate' : 'Auf dem Teller'}
-          </h2>
-        </div>
-
-        <ul className={`hv-rail ${styles.band}`} role="list" data-scroll-band="">
+        <HomeGallery
+          variant="editorial"
+          heading={
+            <>
+              {' '}
+              <div className={`hv-head ${styles.head}`}>
+                <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
+                <h2 className="hv-title">
+                  <span className="hv-mk" aria-hidden="true" />
+                  {locale === 'en' ? 'On the plate' : 'Auf dem Teller'}
+                </h2>
+              </div>{' '}
+            </>
+          }
+          label={labels.kicker}
+          footer={
+            <div className={styles.foot}>
+              <Link href="/news" className={styles.allLink}>
+                {labels.all}
+              </Link>
+            </div>
+          }
+        >
           {list.map((a) => (
-            <li key={a.slug}>
-              <Link href={`/news/${a.slug}`} className={styles.card}>
-                <span className={`hv-photo ${styles.photo}`}>
-                  {a.image && (
-                    // Same detour as HubNearby had: `a.image` is already a Sanity
-                    // URL, so /_next/image re-optimised an optimised file on
-                    // Cloud Run. Sanity serves the responsive variants itself.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className={styles.photoImg}
-                      src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
-                      srcSet={sanitySrcSet(a.image, [480, 800, 1200, 1600])}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      // Karten wie im CSS: min(72vw, 270px), ab 768px ein
-                      // Drittel der Spalte, höchstens rund 400px.
-                      sizes="(max-width:767.98px) 72vw, 400px"
-                    />
-                  )}
-                </span>
-                {/* Rubrik und Datum stehen als eine Meta-Zeile ÜBER der
+            <Link key={a.slug} href={`/news/${a.slug}`} className={styles.card}>
+              <span className={`hv-photo ${styles.photo}`}>
+                {a.image && (
+                  // Same detour as HubNearby had: `a.image` is already a Sanity
+                  // URL, so /_next/image re-optimised an optimised file on
+                  // Cloud Run. Sanity serves the responsive variants itself.
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className={styles.photoImg}
+                    src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
+                    srcSet={sanitySrcSet(a.image, [480, 800, 1200, 1600])}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    sizes="(max-width: 634px) 82vw, 520px"
+                  />
+                )}
+              </span>
+              {/* Rubrik und Datum stehen als eine Meta-Zeile ÜBER der
                     Headline — darunter las sich das Datum wie ein Nachsatz zum
                     Titel statt wie seine Einordnung (Ansage 03.09.2026). */}
-                <span className={styles.text}>
-                  {(a.kicker || formatDate(a.date, locale)) && (
-                    <span className={styles.meta}>
-                      {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
-                      {formatDate(a.date, locale) && (
-                        <time className={styles.date} dateTime={a.date ?? undefined}>
-                          {formatDate(a.date, locale)}
-                        </time>
-                      )}
-                    </span>
-                  )}
-                  <span className={styles.title}>{a.title}</span>
-                </span>
-              </Link>
-            </li>
+              <span className={styles.text}>
+                {(a.kicker || formatDate(a.date, locale)) && (
+                  <span className={styles.meta}>
+                    {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
+                    {formatDate(a.date, locale) && (
+                      <time className={styles.date} dateTime={a.date ?? undefined}>
+                        {formatDate(a.date, locale)}
+                      </time>
+                    )}
+                  </span>
+                )}
+                <span className={styles.title}>{a.title}</span>
+              </span>
+            </Link>
           ))}
-        </ul>
-
-        {/* Unter den Kacheln wie „Alle Spots ansehen" und „Alle Must-Eats" —
-          im Kopf war es der einzige Ausgang der Seite, der vor seinem Inhalt
-          stand („der Button muss doch eher runter"). */}
-        <div className={styles.foot}>
-          <Link href="/news" className={styles.allLink}>
-            {labels.all}
-          </Link>
-        </div>
+        </HomeGallery>
       </div>
     </section>
   );

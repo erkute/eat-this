@@ -6,9 +6,14 @@
  * Each stop is defined by how much MAP is left uncovered there, which keeps
  * the two views comparable even though their map layers differ:
  *
- * - list:   the map is a sticky 100lvh layer and the list slides over it.
- * - detail: the same sticky 100lvh map; the detail sheet rests lower in it
- *           (its margin, MapSheet.module.css), so its stops differ.
+ * - list:   the map is a fixed 100lvh layer and the list slides over it.
+ * - detail: the same map; the detail sheet rests lower over it
+ *           (--frame-edge, MapLayout.module.css), so its stops differ.
+ *
+ * The grip no longer snaps to them: it leaves the sheet wherever it is let
+ * go (user, 28.09.2026, useHandleScrollDrag). The first and last stop are
+ * its bounds and the targets of a tap on it; the middle one is where
+ * filters and the camera put the list.
  */
 
 /* Map left uncovered at each stop, in dvh. Index order: map, split, sheet. */
@@ -50,40 +55,6 @@ export function snapOffsets(
   const rest = map[0];
   const full = sheetTopPx ?? Math.round((rest / 100) * viewportH);
   return map.map((dvh) => Math.round((1 - dvh / rest) * full));
-}
-
-/**
- * Which stop a released drag should settle on.
- *
- * Intent beats proximity: any deliberate movement carries you to the next stop
- * even if you did not drag all the way there, which is what makes the gesture
- * feel light. Below that threshold the nearest stop wins, so a stray tap or a
- * tiny wobble parks you where you already were rather than jumping.
- */
-export function resolveSnap(
-  offsets: number[],
-  scrollY: number,
-  startScrollY: number,
-  intentPx = 24
-): number {
-  const delta = scrollY - startScrollY;
-  const nearestTo = (y: number) =>
-    offsets.reduce((best, o) => (Math.abs(o - y) < Math.abs(best - y) ? o : best), offsets[0]);
-
-  if (Math.abs(delta) < intentPx) return nearestTo(scrollY);
-
-  // Past the last stop the sheet is fully up and the list scrolls freely —
-  // snapping back there would fight the user mid-read.
-  const last = offsets[offsets.length - 1];
-  if (scrollY > last) return scrollY;
-
-  const startIndex = offsets.indexOf(nearestTo(startScrollY));
-  const step = delta > 0 ? 1 : -1;
-  const target = Math.min(offsets.length - 1, Math.max(0, startIndex + step));
-  // Distance fallback: a long drag may cross more than one stop, and stopping
-  // one short of where the finger clearly went reads as the sheet fighting back.
-  const nearest = nearestTo(scrollY);
-  return step > 0 ? Math.max(offsets[target], nearest) : Math.min(offsets[target], nearest);
 }
 
 /**

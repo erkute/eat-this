@@ -99,11 +99,13 @@
   margin: 0;
   padding: clamp(4px, 0.45vw, 6px) clamp(12px, 1.4vw, 18px) 18px;
   color: var(--board-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-body);
+  /* In der Markenschrift wie die Frage darüber (Ansage 29.09.2026), nicht
+     mehr in der Textschrift. Providence gibt es nur in 400 und 700. */
+  font-family: var(--et-font-display);
   /* 14px lagen unter dem Band der Wettbewerber (15–18px Fließtext). */
   font-size: clamp(16px, 1.2vw, 17px);
-  font-weight: 500;
-  line-height: 1.6;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 @media (max-width: 560px) {
@@ -116,6 +118,6 @@
   .answer {
     padding-top: 4px;
     padding-bottom: 16px;
-    font-size: 14px;
+    font-size: 15px;
   }
 }

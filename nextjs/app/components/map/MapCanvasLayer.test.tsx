@@ -181,23 +181,23 @@ describe('MapCanvasLayer draws every spot on its own', () => {
 /* Steht eine Detailansicht offen, tritt der Rest der Karte zurück — sonst
    verschwindet der eine Spot, um den es geht, zwischen 400 gleich hellen
    Pins, und genau darin sollte man sich umsehen können. */
-describe('MapCanvasLayer dims everything but the open spot', () => {
-  const dimmed = () => document.querySelectorAll('[class*="pinLogoDim"]');
+describe('MapCanvasLayer shrinks everything but the open spot', () => {
+  const small = () => document.querySelectorAll('[class*="pinLogoSmall"]');
 
   it('leaves every pin at full strength while no detail is open', async () => {
     render(layer(spread('spot-1', 'spot-2', 'spot-3')));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(dimmed()).toHaveLength(0);
+    expect(small()).toHaveLength(0);
   });
 
-  it('dims the others but never the open spot', async () => {
+  it('shrinks the others but never the open spot', async () => {
     const target = spot('spot-2');
     render(layer([spot('spot-1'), target, spot('spot-3'), spot('spot-4')], target));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(dimmed()).toHaveLength(3);
-    expect(screen.getByLabelText('spot-2').className).not.toMatch(/pinLogoDim/);
+    expect(small()).toHaveLength(3);
+    expect(screen.getByLabelText('spot-2').className).not.toMatch(/pinLogoSmall/);
   });
 
   /* Ein offenes Must Eat setzt `selectedRestaurant` auf null (siehe
@@ -207,7 +207,7 @@ describe('MapCanvasLayer dims everything but the open spot', () => {
     render(layer(spread('spot-1', 'spot-2'), null, 'spot-2'));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(dimmed()).toHaveLength(1);
-    expect(screen.getByLabelText('spot-2').className).not.toMatch(/pinLogoDim/);
+    expect(small()).toHaveLength(1);
+    expect(screen.getByLabelText('spot-2').className).not.toMatch(/pinLogoSmall/);
   });
 });

@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { snapOffsets } from '../phoneSheetSnaps';
 import { useHandleScrollDrag } from '../useHandleScrollDrag';
 
 function pointerEvent(type: string, clientY: number, pointerId = 1, clientX = 0) {
@@ -107,25 +106,14 @@ describe('useHandleScrollDrag', () => {
     expect(scrollTo).not.toHaveBeenCalled();
   });
 
-  it('settles on the next stop when the handle is released', () => {
-    mount('list');
-    handle.dispatchEvent(pointerEvent('pointerdown', 500));
-    handle.dispatchEvent(pointerEvent('pointermove', 440)); // 60px up — deliberate
-    handle.dispatchEvent(pointerEvent('pointerup', 440));
-
-    const settle = scrollTo.mock.calls.at(-1)![0];
-    expect(settle.behavior).toBe('smooth');
-    expect(settle.top).toBe(snapOffsets('list', window.innerHeight)[1]);
-  });
-
-  it('uses the detail stops when the detail is open', () => {
-    mount('detail');
+  it.each(['list', 'detail'] as const)('leaves the %s where the handle is let go — no snapping', (view) => {
+    mount(view);
     handle.dispatchEvent(pointerEvent('pointerdown', 500));
     handle.dispatchEvent(pointerEvent('pointermove', 440));
     handle.dispatchEvent(pointerEvent('pointerup', 440));
 
-    const settle = scrollTo.mock.calls.at(-1)![0];
-    expect(settle.top).toBe(snapOffsets('detail', window.innerHeight)[1]);
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 60, behavior: 'instant' });
   });
 
   it('does not settle when the handle was only tapped', () => {

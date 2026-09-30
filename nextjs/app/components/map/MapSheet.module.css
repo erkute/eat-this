@@ -54,14 +54,22 @@
 
 /* ── Desktop: the rail ─────────────────────────────────────────────────── */
 @media (min-width: 1024px) {
+  /* Over the map's right edge at its full width: hiding slides it out to the
+     right, showing slides it back in — nothing inside it shrinks (Betreiber,
+     29.09.2026). The map under it never changes size. */
   .list {
-    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    width: var(--map-desktop-panel-width);
     border-left: 1px solid var(--et-rule);
+    transition: transform var(--map-panel-slide);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .list {
     transform: translateX(100%);
-    transition: transform 0.3s ease;
   }
 
   .handle {
@@ -149,22 +157,21 @@
 }
 
 /* ── Phone: the sheet is the window-scrolled document ─────────────────────
-   The map lies behind it, sticky and 100lvh (MapLayout.module.css); the
-   stops are scroll positions (lib/map/phoneSheetSnaps.ts). */
+   The map is fixed and 100lvh, in a frame that lies over the sheet and ends
+   at its top edge, never above the strip line (MapLayout.module.css, "The
+   map frame"); the stops are scroll positions (lib/map/phoneSheetSnaps.ts). */
 @media (max-width: 767.98px) {
   .list {
     position: relative;
     left: auto;
     right: auto;
     bottom: auto;
-    /* No stacking context: the map strip slides in between the rows and the
-       bars. Rows and detail content are contained below instead, so their
-       own z-indices stay theirs. */
     z-index: auto;
     height: auto;
-    /* The map above is 100lvh; this puts the resting edge at 100dvh − the
-       visible share. */
-    margin-top: calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 100lvh);
+    /* The map's frame above ends 12px below the resting edge (100dvh − the
+       visible share, MapLayout.module.css "The map frame"): the sheet starts
+       at that edge. */
+    margin-top: -12px;
     /* At least a viewport, or the last stop (sheet covering the map) cannot
        be reached by scrolling. */
     min-height: calc(100dvh + var(--map-bar-overhang, 0px));
@@ -173,6 +180,23 @@
     transform: none;
     transition: none;
     will-change: auto;
+  }
+
+  /* The end of the page stands still when Safari unfolds its bar. Scrolling
+     down, Safari shrinks the bar (viewport 714 → 754px on an iPhone 17); at
+     the end it unfolds it again. A plain page runs into its rubber band there
+     and settles at the new end; the map has none (overscroll-behavior-y in
+     globals.css), so the last 40px slid under the bar and could be pushed up
+     once more (Betreiber, 29.09.2026). Moving the page along with the bar
+     looked wrong, too (30.09.2026). This pad is exactly what the bar takes
+     back — `100dvh` follows the viewport, `100svh` is its unfolded height —
+     so the end of the scroll stays where it was and the bar covers ink.
+     Not the must-eat takeover, which must not scroll at all. */
+  .list:not([data-detail-kind='must-eat'])::after {
+    content: '';
+    display: block;
+    height: calc(100dvh - 100svh);
+    background: var(--et-ink);
   }
 
   /* The list sheet is see-through; its two parts carry the ink — the filter
@@ -197,17 +221,18 @@
   }
 
   /* Detail content keeps its own stacking (cards up to z 30 inside), so none
-     of it climbs over the map strip or the bars. */
+     of it climbs over the bars. */
   .list[data-view='detail'] > :not(.handle) {
     isolation: isolate;
   }
 
   /* The restaurant detail rests at --detail-map-peek over the full-height
-     map, so it can be pulled below its resting edge onto more map. Its slot
-     above the stuck handle is see-through like the list's: 27px = the
-     handle's 26px plus its hairline. */
+     map, so it can be pulled below its resting edge onto more map. Like the
+     list's, the map's frame ends 12px below that edge. Its slot above the
+     stuck handle is see-through like the list's: 27px = the handle's 26px
+     plus its hairline. */
   .list[data-view='detail'][data-detail-kind='restaurant'] {
-    margin-top: calc(var(--detail-map-peek) - 100lvh);
+    margin-top: -12px;
     background: linear-gradient(transparent 0 27px, var(--et-ink) 27px);
     border-top: 0;
   }
@@ -219,7 +244,6 @@
   .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
     position: sticky;
     top: var(--map-strip, env(safe-area-inset-top, 0px));
-    /* Above the map strip (7). */
     z-index: 8;
     background: var(--et-ink);
     border-top: 1px solid var(--et-ink-line);
@@ -270,7 +294,7 @@
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
   }
 
-  /* Held at the lowest stop (lib/map/sheetSlide.ts): the whole sheet is the
+  /* Held below the map stop (lib/map/sheetSlide.ts): the whole sheet is the
      grip, so a swipe on a chip or a row moves the sheet instead of scrolling
      the page under its transform. */
   .list[data-sheet-lowered] {

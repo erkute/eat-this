@@ -7,6 +7,7 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { closeBurgerDrawer } from './burgerDrawerState';
 import styles from './BurgerDrawer.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 /* Ein Menü-Link, der erst auf Absicht lädt.
  *
@@ -192,7 +193,7 @@ export default function BurgerDrawer() {
                 nobody had asked to see yet. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/pics/eat-this-logo.webp?v=6"
+              src={BRAND_LOGO_SRC}
               alt="Eat This"
               width="660"
               height="265"

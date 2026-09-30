@@ -44,7 +44,9 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   }, []);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
-  const count = 4;
+  // Acht: am Telefon ein Band, das breiter ist als der Bildschirm, am Desktop
+  // zwei volle Reihen à vier (siehe .rail).
+  const count = 8;
 
   /* Nur die Fehler laufen durch die zentrale Info-Karte. „Wir suchen dich"
      sagt der Knopf selbst, und ein gefundener Standort zeigt sich daran, dass
@@ -136,7 +138,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
           )}
         </div>
 
-        <div className={`hv-rail ${styles.rail}`}>
+        <div className={`hv-rail ${styles.rail}`} data-scroll-band="">
           {cards.map((r) => {
             const walk = activeLocation
               ? formatWalkingTime(
@@ -170,7 +172,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
                       alt={normalizeName(r.name)}
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:767.98px) 78vw, 280px"
+                      sizes="(max-width:767.98px) 200px, 300px"
                     />
                   )}
                 </span>

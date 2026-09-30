@@ -103,9 +103,9 @@ describe('HubMustEatsTeaser — Zittern vor der Anmeldung', () => {
     expect(container.querySelector('[class*="photoTapping"]')).toBeNull();
     expect(openLoginModal).toHaveBeenCalledOnce();
     // Die angetippte Karte reist als Absicht mit — das Starter Pack legt sie
-    // garantiert offen hinein (/api/starter-pack, pendingStarterCard).
+    // garantiert offen hinein (/api/starter-pack). Gemerkt wird sie beim
+    // Öffnen (LoginModalContext.test).
     expect(openLoginModal).toHaveBeenCalledWith({ kind: 'card', mustEatId: 'm2' });
-    expect(sessionStorage.getItem('eatthis_pending_starter_card')).toContain('"m2"');
   });
 
   it('does not open the login twice when the card is tapped again mid-shake', () => {

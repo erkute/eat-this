@@ -7,6 +7,7 @@ import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { openBurgerDrawer } from './burgerDrawerState';
 import styles from './SiteNav.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 function pageSlugFromPath(path: string): string {
   if (path === '/') return 'start';
@@ -152,7 +153,7 @@ export default function SiteNav() {
               Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
           <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
-              src="/pics/eat-this-logo.webp?v=6"
+              src={BRAND_LOGO_SRC}
               alt="Eat This"
               width={1660}
               height={667}

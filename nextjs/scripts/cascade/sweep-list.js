@@ -91,7 +91,6 @@ async (page) => {
     const before = {
       view: body.getAttribute("data-map-view"),
       snap: body.getAttribute("data-map-snap"),
-      stuck: body.getAttribute("data-header-stuck"),
       hidden: body.getAttribute("data-panel-hidden"),
     };
     const setAttr = (n, v) => {
@@ -110,11 +109,9 @@ async (page) => {
     const byState = {};
     for (const view of ["list", "detail"])
       for (const snap of ["peek", "mid", "full"])
-        for (const stuck of [null, "true"])
           for (const hidden of [null, "true"]) {
             setAttr("data-map-view", view);
             setAttr("data-map-snap", snap);
-            setAttr("data-header-stuck", stuck);
             setAttr("data-panel-hidden", hidden);
             void body.offsetHeight;
             const cells = {};
@@ -131,13 +128,12 @@ async (page) => {
               }
             }
             byState[
-              `${view}/${snap}/stuck=${stuck ?? "-"}/hidden=${hidden ?? "-"}`
+              `${view}/${snap}/hidden=${hidden ?? "-"}`
             ] = cells;
           }
 
     setAttr("data-map-view", before.view);
     setAttr("data-map-snap", before.snap);
-    setAttr("data-header-stuck", before.stuck);
     setAttr("data-panel-hidden", before.hidden);
     return { meta, byState };
   };

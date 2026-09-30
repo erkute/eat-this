@@ -77,6 +77,77 @@
   outline-offset: 3px;
 }
 
+/* Im Must-Eat-Detail der Karte: dieselbe helle Fläche wie auf der Tafel, aber
+   in Chip-Größe — er steht im knappen Text-Slot unter der verdeckten Karte,
+   dort, wo ein angemeldeter Besucher den Standort-Chip sieht. */
+.howSheet {
+  margin: 0;
+  min-height: 40px;
+  padding: 0 16px 0 12px;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--et-white);
+  font-weight: 700;
+  /* Providence braucht Platz unter der Zeile, sonst kappt der Kasten das g. */
+  line-height: 1.55;
+  white-space: nowrap;
+}
+.howSheet:focus-visible {
+  background: var(--et-accent);
+  color: var(--et-ink);
+  outline: 2px solid var(--et-accent);
+  outline-offset: 3px;
+}
+@media (hover: hover) {
+  .howSheet:hover {
+    background: var(--et-accent);
+    color: var(--et-ink);
+  }
+}
+
+/* Auf der Startseite winkt das Fragezeichen alle paar Sekunden: es springt
+   an und wackelt, damit man sieht, dass hier etwas erklärt wird (Ansage
+   28.09.2026). Nur dort — in der Must-Eat-Ansicht der Map ist der Knopf
+   ohnehin der nächste Schritt. */
+:global([data-hub]) .howBadge {
+  animation: howNudge 4.2s ease-in-out 1.5s infinite;
+}
+
+@keyframes howNudge {
+  0%,
+  72%,
+  100% {
+    scale: 1;
+    rotate: 0deg;
+  }
+  76% {
+    scale: 1.45;
+    rotate: -18deg;
+  }
+  80% {
+    scale: 1.3;
+    rotate: 16deg;
+  }
+  84% {
+    scale: 1.35;
+    rotate: -10deg;
+  }
+  88% {
+    scale: 1.15;
+    rotate: 6deg;
+  }
+  93% {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global([data-hub]) .howBadge {
+    animation: none;
+  }
+}
+
 .howBadge {
   display: inline-grid;
   place-items: center;

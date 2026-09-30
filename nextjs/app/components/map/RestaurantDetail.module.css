@@ -1785,8 +1785,7 @@
   color: var(--et-white);
 }
 
-/* Fliesstext und Zwischentitel. Die Initiale und die Titel sind gelb (ueber
-   --map-collage-red, das in MapLayout auf den Akzent zeigt); der Lauftext ist
+/* Fliesstext und Zwischentitel. Die Titel sind gelb, der Lauftext ist
    Papier, die Unterzeile eine Stufe leiser. */
 
 .detail .rdStoryLead {

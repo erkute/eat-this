@@ -45,6 +45,12 @@ function render(locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(<HubHeroCopy locale={locale} />);
 }
 
+/** Der Lead steht Wort für Wort in eigenen Spans (er schreibt sich hin) —
+ *  Sätze darin also am Text prüfen, nicht am Markup. */
+function text(html: string): string {
+  return html.replace(/<[^>]+>/g, '');
+}
+
 describe('HubHeroCopy', () => {
   beforeEach(() => {
     authState.user = null;
@@ -69,17 +75,32 @@ describe('HubHeroCopy', () => {
   });
 
   it('explains what this is — guests only', () => {
-    const html = render();
+    const html = text(render());
     expect(html).toContain('Die besten Orte Berlins auf einer Map');
     expect(html).toContain('was du bestellen musst');
 
-    const en = render('en');
+    const en = text(render('en'));
     expect(en).toContain('The best places in Berlin on one map');
+  });
+
+  it('writes the lead word by word, each on its own stretch of the pen path', () => {
+    const stretches = [...render().matchAll(/--a:([\d.]+);--b:([\d.]+)/g)].map(([, a, b]) => [
+      Number(a),
+      Number(b),
+    ]);
+    expect(stretches.length).toBeGreaterThan(10);
+    expect(stretches[0][0]).toBe(0);
+    // Alle Leads teilen einen Maßstab: keiner läuft über das Ende hinaus.
+    expect(stretches[stretches.length - 1][1]).toBeLessThanOrEqual(1);
+    for (const [i, [a, b]] of stretches.entries()) {
+      expect(b).toBeGreaterThan(a);
+      if (i > 0) expect(a).toBeGreaterThan(stretches[i - 1][1]);
+    }
   });
 
   it('drops the explainer once a visitor is signed in', () => {
     authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
-    const html = render();
+    const html = text(render());
     expect(html).not.toContain('Die besten Orte Berlins');
   });
 
@@ -103,6 +124,6 @@ describe('HubHeroCopy', () => {
     expect(html).toContain('Deine Map');
     expect(html.match(/<h1/g)).toHaveLength(1);
     // The explainer is guest copy — one copy only, behind the guest gate.
-    expect(html.match(/Die besten Orte Berlins auf einer Map/g)).toHaveLength(1);
+    expect(text(html).match(/Die besten Orte Berlins auf einer Map/g)).toHaveLength(1);
   });
 });

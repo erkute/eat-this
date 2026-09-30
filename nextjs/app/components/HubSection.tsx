@@ -8,6 +8,8 @@ import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
 import HeroMarkFlight from './HeroMarkFlight';
 import HubHashScroll from './HubHashScroll';
+import HubMarquee from './HubMarquee';
+import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
@@ -86,7 +88,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       {/* Die gelbe Fläche läuft von Kante zu Kante, der Inhalt bleibt im
           Satzspiegel — deshalb sitzt `hv-wrap` innen und nicht auf der
           Section. */}
-      <section className={styles.hero} aria-label={t.heroLabel}>
+      <section className={styles.hero} aria-label={t.heroLabel} data-hub-hero="">
         <div className={`hv-wrap ${styles.heroInner}`}>
           <div className={styles.heroGrid}>
             <HubHeroCopy locale={locale} />
@@ -98,7 +100,12 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               für "Berlin Food Map" — sie braucht diesen Link. Die
               PARAMETRISIERTEN Deep-Links (`?r=`, `?bezirk=`, `?cat=`) behalten
               ihr nofollow, siehe MapPromoCTA. */}
-            <MapIntentLink href="/map" className={styles.heroPhones} aria-label={t.heroPhonesLabel}>
+            <MapIntentLink
+              href="/map"
+              className={styles.heroPhones}
+              aria-label={t.heroPhonesLabel}
+              data-hub-phones=""
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.phoneBack}
@@ -130,7 +137,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </div>
       </section>
       <HeroMarkFlight />
-
+      <HubMotion />
+      <HubMarquee />
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor
           but a tap, and it answers "what do I eat now" with their own street.
@@ -142,7 +150,12 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
 
         {spot && (
           <section className="homeV2 hv-section hv-wrap">
-            <article className={styles.spot}>
+            <article
+              className={styles.spot}
+              data-scrub="--spot 0 1"
+              data-scrub-start="top bottom"
+              data-scrub-end="top 45%"
+            >
               <div className={`hv-head ${styles.spotHead}`}>
                 <h2 className="hv-title">
                   <span className="hv-mk" aria-hidden="true" />
@@ -185,7 +198,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                   {/* Loaded from Sanity all along and never rendered — it is the
                     reason this spot is today's pick, so it belongs here. */}
                   {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
-                  <span className={styles.spotCta}>{t.spotCta}</span>
+                  <span className={styles.spotCta} data-press="">
+                    {t.spotCta}
+                  </span>
                 </span>
               </MapIntentLink>
             </article>

@@ -30,6 +30,12 @@
   padding-top: 0;
   font-family: var(--et-font-body);
   letter-spacing: var(--et-tracking-none);
+  /* Die Bänder (Nearby, Magazin) reichen per `100vw` bis an die Fensterkante;
+     mit klassischem Scrollbalken ist 100vw breiter als die Seite. `clip`
+     schneidet diesen Überstand seitlich ab, ohne die Seite zum
+     Scroll-Container zu machen — Sticky und der Logo-Fall nach oben bleiben
+     heil. */
+  overflow-x: clip;
 }
 
 /* Doppelte Klasse gegen `.homeV2` (globals.css, Rang 0,1,0), das Papier
@@ -48,6 +54,27 @@
    über `.homeV2 .hv-mk` (globals.css, 0,2,0). */
 :global(.homeV2).page :global(.hv-mk) {
   vertical-align: calc(0.36em - 4.5px);
+}
+
+/* Das Quadrat dreht sich beim Hereinscrollen auf seinen Platz — am
+   Scrollweg, nicht an der Uhr: zurückscrollen dreht es wieder heraus. Der
+   Titel daneben steht still (keine Buchstaben, die sich aufbauen — Ansage
+   28.09.2026). */
+@keyframes mkSpin {
+  from {
+    rotate: -270deg;
+    scale: 0;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.homeV2).page :global(.hv-mk) {
+      animation: mkSpin linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+  }
 }
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
@@ -75,7 +102,10 @@
   width: 100%;
 }
 
-/* Die Wortmarke trägt links 120px von 1660px transparenten Rand (7,23 %).
+/* Die Wortmarke führt die Spalte an, die Headline schlägt darunter ein
+   (Ansage 30.09.2026: „Eat This muss über We tell …"; die Marke stand für
+   einen Tag als Antwort darunter).
+   Die Wortmarke trägt links 120px von 1660px transparenten Rand (7,23 %).
    Ohne Ausgleich stünde sie sichtbar eingerückt gegenüber der Headline und
    allem anderen in der Spalte. Der Faktor ist am Asset gemessen; wird das
    Logo je neu exportiert, muss er nachgemessen werden. */
@@ -139,6 +169,9 @@
   line-height: 1;
   margin-bottom: clamp(10px, 1.2vw, 18px);
   text-transform: none;
+  /* So breit wie der Gruß: der Stift beim Laden (Auftritt unten) schreibt
+     über den Text, nicht über die leere Spalte daneben. */
+  width: fit-content;
 }
 
 .heroHeadline {
@@ -179,6 +212,9 @@
   display: flex;
   gap: var(--et-rail-gap);
   align-items: center;
+  /* So breit wie die Knöpfe, nicht wie die Spalte: der Knopf beim Laden
+     (siehe unten) senkt sich um ihre Mitte, nicht um die Mitte der Spalte. */
+  width: fit-content;
   margin-top: clamp(26px, 3vw, 38px);
 }
 
@@ -291,6 +327,433 @@
   filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45));
 }
 
+/* Beim Herausscrollen driften die Telefone auseinander: das vordere steigt
+   schneller und richtet sich auf, das hintere kippt weiter weg — Tiefe statt
+   einer flachen Bildstrecke. `--phones-drift` läuft 0 → 1 über die Höhe des
+   Aufmachers und kommt von HubMotion (Scroll-Listener mit GSAP-Nachlauf, nur
+   ab 768px und ohne reduced motion); ohne JS bleibt es 0. Über die Einzel-Eigenschaften
+   `translate`/`rotate`, nicht über `transform`: die gehört dem Hover und
+   ihrer Transition, und beide addieren sich, statt sich zu überschreiben. */
+/* Dazu zwei Eingänge mehr: `--px/--py` (-1…1) folgen auf dem Desktop der
+   Maus über dem Aufmacher (HubMotion) — das vordere Telefon wandert weiter
+   als das hintere, die beiden trennen sich in der Tiefe. `--float` lässt sie
+   im Leerlauf gegeneinander schweben. */
+.phoneFront {
+  translate: calc(var(--px, 0) * 26px)
+    calc(
+      var(--phones-drift, 0) * -84px + (1 - var(--in-front, 1)) * 58vh + var(--py, 0) * 18px +
+        var(--float, 0) * -9px
+    );
+  rotate: calc(
+    var(--phones-drift, 0) * 3deg - (1 - var(--in-front, 1)) * 16deg + var(--px, 0) * 2deg
+  );
+}
+
+.phoneBack {
+  translate: calc(var(--px, 0) * -12px)
+    calc(
+      var(--phones-drift, 0) * -24px + (1 - var(--in-back, 1)) * 52vh + var(--py, 0) * -8px +
+        var(--float, 0) * 7px
+    );
+  rotate: calc(
+    var(--phones-drift, 0) * 4deg + (1 - var(--in-back, 1)) * 22deg - var(--px, 0) * 1.5deg
+  );
+}
+
+@property --float {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@keyframes phonesFloat {
+  50% {
+    --float: 1;
+  }
+}
+
+/* Auf der Section, nicht auf den Telefonen: dort liegt schon `transform`
+   samt Hover-Transition. Ein Wert für beide, gegenläufig verrechnet. */
+.heroPhones {
+  animation: phonesFloat 6.5s ease-in-out infinite;
+}
+
+/* Eine animierte Variable rechnet der Browser auf dem Hauptthread, jedes
+   Frame — auch, wenn der Aufmacher längst oben hinaus ist (gemessen: 60
+   Stil-Neuberechnungen pro Sekunde, Review 29.09.2026). Draussen pausiert
+   das Schweben also; `data-in-view` setzt HubMotion (`armInView`). */
+.hero[data-in-view='0'] .heroPhones {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroPhones {
+    animation: none;
+  }
+}
+
+/* Der Knopf im Aufmacher zieht zur Maus (HubMotion schreibt `--mx/--my` in
+   px) und wird kurz nach dem Laden gedrückt: `--press` lässt ihn einsinken,
+   beim Loslassen federt er knapp über seine Ruhelage zurück (negativer
+   Wert). Keine Hand, kein Ring — nur der Knopf (Ansage
+   28.09.2026). Alle 4,5s, der erste Druck, sobald er hingelegt ist. Alles über `translate`/`scale`, damit `:active` seinen
+   `transform` behält; nie per GSAP-`transform`, das setzte beides inline auf
+   `none`. */
+@property --press {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+/* Ein leichter Schatten statt Kante und Pfeil (Ansage 29.09.2026). Er hängt
+   am Auftritt (`--in-cta`, siehe unten: schwebt der Knopf noch, liegt der
+   Schatten weiter weg und weicher) und am Druck — der Knopf sinkt, der
+   Schatten rückt heran. Leicht warm getönt: ein schwarzer Schatten
+   verschwände auf dem Ink-Grund. */
+.heroActions [data-magnetic] {
+  translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px + var(--press) * 4px);
+  scale: calc(1 - var(--press) * 0.04);
+  box-shadow: 0 calc(8px + (1 - var(--in-cta, 1)) * 18px - var(--press) * 5px)
+    calc(22px + (1 - var(--in-cta, 1)) * 20px) -10px rgba(255, 198, 0, 0.3);
+  animation: ctaPress 4.5s linear 3s infinite both;
+}
+
+/* Immer wieder, nicht nur beim Laden (Ansage 28.09.2026: „wenn ich von unten
+   wieder hochscrolle, soll er noch mal gedrückt werden"): HubMotion setzt
+   `data-in-view` an die Section — `1` im Bild, `0` draussen. Draussen steht
+   die Animation still (`none`), und erst das Zurückschalten startet sie neu:
+   eine bloss andere Verzögerung startete Chrome nicht neu (gemessen). Wer
+   zurück nach oben kommt, sieht den Druck nach 0,3s, danach alle 4,5s
+   (Ansage 29.09.2026: „schneller gedrückt", vorher 0,5s und 7s). Ohne JS
+   gilt die Regel darüber. */
+:global([data-in-view='0']) .heroActions [data-magnetic] {
+  animation: none;
+}
+
+:global([data-in-view='1']) .heroActions [data-magnetic] {
+  animation: ctaPress 4.5s linear 0.3s infinite both;
+}
+
+/* Dasselbe für andere Knöpfe der Startseite (`data-press`, z. B. „Zur Map"
+   am Spot des Tages): einmal gedrückt, jedes Mal, wenn ihre Section ins
+   Bild kommt. Und einmalig auf Zuruf (`data-pressing`, die Anmelde-Demo in
+   HubMotion). Über `translate`/`scale`, nie über `transform` — den tragen
+   die `:active`-Zustände. */
+.page :global([data-press]),
+.page :global([data-pressing]) {
+  translate: 0 calc(var(--press) * 5px);
+  scale: calc(1 - var(--press) * 0.07);
+}
+
+.page :global([data-in-view='1']) :global([data-press]) {
+  animation: ctaPress 7s linear 0.7s 1 both;
+}
+
+.page :global([data-pressing]) {
+  animation: ctaPress 7s linear -0.1s 1 both;
+}
+
+@keyframes ctaPress {
+  0% {
+    --press: 0;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  }
+  2.2% {
+    --press: 1;
+    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  5% {
+    --press: -0.35;
+    animation-timing-function: ease-in-out;
+  }
+  7.5% {
+    --press: 0.08;
+    animation-timing-function: ease-out;
+  }
+  9.5%,
+  100% {
+    --press: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroActions [data-magnetic],
+  :global([data-in-view='1']) .heroActions [data-magnetic],
+  .page :global([data-in-view='1']) :global([data-press]),
+  .page :global([data-pressing]) {
+    animation: none;
+  }
+}
+
+/* ── Auftritt beim Laden ────────────────────────────────────────────────────
+   Reines CSS, kein JS: das Bootstrap-Skript im Layout setzt `data-hero-intro`
+   vor dem ersten Paint, und die Animationen laufen ab diesem Paint — nicht
+   erst nach der Hydrierung. Aus JS (GSAP) stand der Aufmacher im Dev-Build
+   zwei Sekunden leer in der Startpose, bis React so weit war; auf einem
+   langsamen Telefon in Produktion wäre es kaum besser.
+   Die Zeilen, der Lead und die Knöpfe lesen Zahlen `--in-*` auf der Section:
+   HubHeroCopy baut sie neu, sobald `useAuth` steht — die neuen Knoten stehen
+   damit sofort an der richtigen Stelle der Bewegung, statt mittendrin fertig
+   aufzutauchen. `@property` macht die Zahlen interpolierbar; ohne springt ein
+   Browser in der Mitte auf den Endwert — auch dann steht am Ende alles.
+   HubMotion nimmt das Attribut ab, sobald alle Animationen durch sind.
+   Die Reihenfolge seit dem 30.09.2026: die Marke wächst auf, die Headline
+   schlägt Zeile für Zeile als Stempel ein, der Lead schreibt sich hin, der
+   Knopf wird hingelegt. Das Zucken des ganzen Aufmachers und der riesige
+   Logo-Stempel (bis 29.09.2026) waren „zu aggressiv". */
+@property --in-write {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-l1 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-l2 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-cta {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-front {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-back {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-hey {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --in-profile {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+/* Der Aufprall der Stempel-Zeilen: schlägt nach dem Einschlag einmal aus
+   (Stauchung) und schwingt zurück auf 0. */
+@property --hit-l1 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+@property --hit-l2 {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@keyframes inWrite {
+  from {
+    --in-write: 0;
+  }
+}
+@keyframes inL1 {
+  from {
+    --in-l1: 0;
+  }
+}
+@keyframes inL2 {
+  from {
+    --in-l2: 0;
+  }
+}
+@keyframes inCta {
+  from {
+    --in-cta: 0;
+  }
+}
+@keyframes inFront {
+  from {
+    --in-front: 0;
+  }
+}
+@keyframes inBack {
+  from {
+    --in-back: 0;
+  }
+}
+@keyframes inHey {
+  from {
+    --in-hey: 0;
+  }
+}
+@keyframes inProfile {
+  from {
+    --in-profile: 0;
+  }
+}
+@keyframes hitL1 {
+  20% {
+    --hit-l1: 1;
+  }
+  50% {
+    --hit-l1: -0.4;
+  }
+  75% {
+    --hit-l1: 0.12;
+  }
+}
+@keyframes hitL2 {
+  20% {
+    --hit-l2: 1;
+  }
+  50% {
+    --hit-l2: -0.4;
+  }
+  75% {
+    --hit-l2: 0.12;
+  }
+}
+
+/* Die Kurven: expo.out wie GSAP sie nennt; der Stempel zieht an und
+   schlägt auf (`--slam`), der Aufprall läuft 0,3 s danach; der Stift
+   schreibt gleichmäßig (`linear`, das Tempo verteilen die Wörter selbst).
+   `both` hält die Startpose schon während der Verzögerung. */
+:global(html[data-hero-intro]) .hero {
+  --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --glide: cubic-bezier(0.25, 1, 0.5, 1);
+  --slam: cubic-bezier(0.5, 0, 0.75, 0);
+  animation:
+    inBack 1.8s var(--expo-out) 0.75s both,
+    inFront 1.7s var(--expo-out) 0.85s both,
+    inL1 0.3s var(--slam) 0.95s both,
+    hitL1 0.45s ease-out 1.25s both,
+    inL2 0.3s var(--slam) 1.3s both,
+    hitL2 0.45s ease-out 1.6s both,
+    inWrite 2.1s linear 1.95s both,
+    inCta 0.75s var(--glide) 2.7s both;
+}
+
+/* Angemeldet geht es danach weiter (Ansage 29.09.2026): erst liegt der
+   Map-Knopf, dann schreibt sich „Hey Ersan" wie mit dem Stift hin, zuletzt
+   kommt „Dein Profil". Nur mit `data-auth` (Bootstrap-Skript aus dem
+   Anmelde-Hinweis, BridgeAuth nach dem Anmelden) — ein Gast wartete sonst
+   anderthalb Sekunden länger auf das Ende des Auftritts, ohne etwas davon zu
+   sehen. Die Liste muss ganz wiederholt werden, `animation` ist ein
+   Kurzwert. Der kürzere Lead ist hier gegen 3,4 s fertig geschrieben. */
+:global(html[data-hero-intro][data-auth]) .hero {
+  animation:
+    inBack 1.8s var(--expo-out) 0.75s both,
+    inFront 1.7s var(--expo-out) 0.85s both,
+    inL1 0.3s var(--slam) 0.95s both,
+    hitL1 0.45s ease-out 1.25s both,
+    inL2 0.3s var(--slam) 1.3s both,
+    hitL2 0.45s ease-out 1.6s both,
+    inWrite 2.1s linear 1.95s both,
+    inCta 0.75s var(--glide) 2.7s both,
+    inHey 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) 3.4s both,
+    inProfile 0.75s var(--glide) 4.2s both;
+}
+
+/* Die Marke kommt zuerst: sie wächst aus der Mitte auf, schwingt eine Spur
+   über ihre Größe und steht — wie eine Blase, passend zu den runden
+   Buchstaben (Ansage 30.09.2026: „mag das von Eat This, lass"). Bis
+   29.09.2026 knallte sie 4,2-fach vergrößert aus der Bildmitte auf ihren
+   Platz.
+   Eine echte Animation auf dem Element, keine animierte Zahl auf der
+   Section: `scale/rotate` laufen auf dem Compositor, während der Hauptthread
+   hydriert. Möglich, weil HubHeroCopy die Marke über den Anmelde-Wechsel
+   hinweg als dasselbe Element behält. HeroMarkFlight misst sie erst, wenn
+   der Auftritt durch ist. */
+:global(html[data-hero-intro]) .heroMark {
+  transform-origin: 40% 55%;
+  animation: markPop 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 0.2s both;
+}
+
+@keyframes markPop {
+  from {
+    scale: 0;
+    rotate: -6deg;
+  }
+  to {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
+/* Die Headline schlägt als Stempel ein, Zeile für Zeile (Ansage 30.09.2026:
+   „We tell muss wie ein Stempel rein"; 29.09.: „erst We tell you, dann what
+   to eat"). Jede Zeile steht fast doppelt so groß und leicht gedreht
+   über ihrem Platz, zieht an, schlägt auf und staucht sich beim Aufprall —
+   breiter und flacher, dann schwingt sie zurück (`--hit-*`). Bis zum
+   Einschlag ist die Zeile nicht da: bei genau 0 steht die Skalierung auf 0.
+   Der Faktor der Schwelle ist bewusst riesig: die Kurve (`--slam`) läuft
+   langsam an, bei `* 1000` blieb der Wert gut 40 ms unter 0,001 — die Zeile
+   wuchs sichtbar aus einem Punkt, bevor sie einschlug (Review 29.09.2026).
+   Über die Zahlen auf der Section, weil HubHeroCopy die Zeilen beim
+   Anmelde-Wechsel neu baut. */
+:global(html[data-hero-intro]) .heroHeadline .heroLine:first-child {
+  --in: var(--in-l1, 1);
+  --hit: var(--hit-l1, 0);
+  --tilt: -5deg;
+}
+
+:global(html[data-hero-intro]) .heroHeadline .heroLine:last-child {
+  --in: var(--in-l2, 1);
+  --hit: var(--hit-l2, 0);
+  --tilt: 4deg;
+}
+
+:global(html[data-hero-intro]) .heroHeadline .heroLine {
+  --gate: min(1, var(--in) * 1000000);
+  --size: calc(1 + (1 - var(--in)) * 0.9);
+  scale: calc((var(--size) + var(--hit) * 0.08) * var(--gate))
+    calc((var(--size) - var(--hit) * 0.12) * var(--gate));
+  rotate: calc((1 - var(--in)) * var(--tilt));
+  transform-origin: 50% 70%;
+}
+
+/* Der Lead schreibt sich hin, Wort für Wort und in jedem Wort von links nach
+   rechts (Wege der Wörter: HubHeroCopy). Solange der Stift vor dem Wort ist,
+   steht der Ausschnitt ganz rechts — auch der Überstand nach links
+   (Anfangsstrich der Handschrift) ist dann zu. */
+.penWord {
+  display: inline-block;
+}
+
+:global(html[data-hero-intro]) .penWord {
+  --pen: clamp(0, (var(--b) - var(--in-write, 1)) / (var(--b) - var(--a)), 1);
+  clip-path: inset(-0.4em calc(var(--pen) * (100% + 0.35em) - 0.15em) -0.4em -0.2em);
+}
+
+/* Der Gruß schreibt sich von links nach rechts hin, wie mit dem Stift
+   (Ansage 29.09.2026) — ein Schnitt, der mitläuft, kein Einblenden. Der
+   Überstand oben und unten lässt Ober- und Unterlängen der Handschrift
+   stehen. Er steht über der Headline, kommt aber erst nach dem Map-Knopf. */
+:global(html[data-hero-intro]) .heroCopy > .heroKicker {
+  clip-path: inset(-0.4em calc((1 - var(--in-hey, 1)) * 100%) -0.4em -0.2em);
+}
+
+/* Der Knopf wird zuletzt hingelegt (Ansage 29.09.2026): er schwebt etwas
+   grösser und höher über seinem Platz und senkt sich weich auf die Seite,
+   sein Schatten zieht sich dabei zusammen (siehe `[data-magnetic]` oben).
+   Gerade und gelb vom ersten Bild an — er liest sich sofort als Knopf. Bis
+   sein Auftritt beginnt, ist er nicht da: bei genau 0 steht die Skalierung
+   auf 0. Aus der Mitte aufklappen gefiel nicht, ein Stempel auch nicht. */
+:global(html[data-hero-intro]) .heroCopy > .heroActions {
+  translate: 0 calc((1 - var(--in-cta, 1)) * -18px);
+  scale: calc((1 + (1 - var(--in-cta, 1)) * 0.14) * min(1, var(--in-cta, 1) * 1000));
+}
+
+/* „Dein Profil" legt sich genauso hin, aber für sich — nach dem Gruß, nicht
+   zusammen mit dem Map-Knopf. */
+:global(html[data-hero-intro]) .heroActions .heroSecondaryBtn {
+  translate: 0 calc((1 - var(--in-profile, 1)) * -18px);
+  scale: calc((1 + (1 - var(--in-profile, 1)) * 0.14) * min(1, var(--in-profile, 1) * 1000));
+}
+
 .heroPhones:focus-visible .phoneFront {
   transform: rotate(-3deg) translateY(-8px);
 }
@@ -353,7 +816,43 @@
    oversized card. Seit 03.09.2026 ist die Ebene eine Ink-Tafel: gelber
    Kicker, weiße Versalien, weicher Text, gelber Knopf — dasselbe Objekt wie
    der Insider-Tipp auf der Spot-Seite und die Tafeln der Booster-Seiten. */
+/* Der Spot des Tages kommt als EIN Stück (Ansage 28.09.2026: „nicht in
+   Einzelteilen"): die ganze Tafel liegt erst nach hinten gekippt, tiefer und
+   etwas kleiner, und richtet sich beim Scrollen auf, wie eine Karte, die man
+   vom Tisch hochnimmt. Zurückscrollen legt sie wieder hin. `--spot` (0 → 1)
+   ist eine Scroll-Timeline des Browsers; ohne sie schreibt HubMotion den
+   Wert per GSAP (`data-scrub`), bei reduced motion bleibt er 1. */
+@property --spot {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@keyframes spotUp {
+  from {
+    --spot: 0;
+  }
+  to {
+    --spot: 1;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .spot {
+      animation: spotUp linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 38%;
+    }
+  }
+}
+
 .spot {
+  /* power2.out über den Scrollweg: schnell hoch, weich angekommen. */
+  --spot-rest: calc((1 - var(--spot)) * (1 - var(--spot)));
+  transform: perspective(1400px) translateY(calc(var(--spot-rest) * 160px))
+    rotateX(calc(var(--spot-rest) * 42deg)) scale(calc(1 - var(--spot-rest) * 0.14));
+  transform-origin: 50% 100%;
   /* Die leise Stufe wie Starter Pack und Remy: der Spot des Tages ist ein
      eigenes Objekt auf dem Grund. Nur `--et-board-quiet-pad` lesen, nie
      `--et-board-pad` — das ist auf dem Ink-Grund `0px`. */
@@ -509,8 +1008,10 @@
   font-size: clamp(30px, 2.6vw, 42px);
   letter-spacing: -0.015em;
   /* 0.95 liess zwei Zeilen („Five Elephant / Neue Nationalgalerie")
-     ineinanderlaufen. */
-  line-height: 1.1;
+     ineinanderlaufen; bei 1.1 stiess noch die Unterlänge an die Oberlänge
+     darunter — das g von „Bürgermeister" ans l von „Schlesisches" (Ansage
+     28.09.2026). */
+  line-height: 1.25;
   /* Same rule the restaurant hero needed: `anywhere`, not `break-word` — only
      `anywhere` counts towards min-content, so "Nationalgalerie" at 54px cannot
      push the text column past its grid track. No `hyphens: auto`; it split

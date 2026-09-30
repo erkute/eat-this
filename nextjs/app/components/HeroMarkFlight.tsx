@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { appScroller } from '@/lib/dom/appScroller';
 import { flightKeyframes, flightTransform, type FlightGeo } from '@/lib/home/heroMarkFlight';
 import styles from './HeroMarkFlight.module.css';
 
@@ -52,16 +53,8 @@ export default function HeroMarkFlight() {
     const mobile = window.matchMedia('(max-width: 767.98px)');
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    /* Ab 768px scrollt nicht das Fenster, sondern `.app-pages` (globals.css,
-       Desktop app frame). Der Container wird gesucht statt angenommen: auf dem
-       Telefon steht er im Fluss und scrollt gar nicht, dann bleibt das
-       Fenster. */
-    const scroller = (): HTMLElement | null => {
-      const el = document.querySelector<HTMLElement>('.app-pages');
-      return el && el.scrollHeight > el.clientHeight + 1 ? el : null;
-    };
     const scrollTop = () => {
-      const el = scroller();
+      const el = appScroller();
       return el ? el.scrollTop : window.scrollY;
     };
     const travel = () => (mobile.matches ? TRAVEL_MOBILE : TRAVEL_DESKTOP);
@@ -78,6 +71,7 @@ export default function HeroMarkFlight() {
     /** Steht die Seite ganz oben? Dann zeigt der Aufmacher sein Original. */
     let resting: boolean | null = null;
     let geo: FlightGeo | null = null;
+    let waitIntro: MutationObserver | null = null;
 
     const heroMark = () => document.querySelector<HTMLImageElement>('[data-hero-mark]');
     const navLogo = () => document.querySelector<HTMLElement>('[data-nav-logo]');
@@ -205,7 +199,7 @@ export default function HeroMarkFlight() {
       // Beide Eigenschaften prüfen: griffe die Timeline, der Bereich aber nicht,
       // flöge die Marke über die ganze Seitenlänge statt über den Scrollweg.
       native =
-        !scroller() &&
+        !appScroller() &&
         CSS.supports('animation-timeline: scroll()') &&
         CSS.supports('animation-range: 0px 1px');
       if (native) {
@@ -225,8 +219,24 @@ export default function HeroMarkFlight() {
     };
 
     /* Erst wenn das Logo wirklich geladen ist, stimmt seine gemessene Breite —
-       vorher ist sie 0 und der Flieger landet auf der falschen Größe. */
+       vorher ist sie 0 und der Flieger landet auf der falschen Größe. Und erst
+       nach dem Ladeauftritt: die Marke stempelt sich dort riesig und gedreht
+       auf ihren Platz (HubSection.module.css), jede Messung davor läge
+       daneben. HubMotion nimmt `data-hero-intro` ab, sobald er durch ist —
+       wer vorher scrollt, spult ihn vierfach ab, der Flieger steht also
+       spätestens eine halbe Sekunde später. */
     const start = () => {
+      const html = document.documentElement;
+      if (html.hasAttribute('data-hero-intro')) {
+        waitIntro = new MutationObserver(() => {
+          if (html.hasAttribute('data-hero-intro')) return;
+          waitIntro?.disconnect();
+          waitIntro = null;
+          start();
+        });
+        waitIntro.observe(html, { attributes: true, attributeFilter: ['data-hero-intro'] });
+        return;
+      }
       const mark = heroMark();
       if (mark && !mark.complete) {
         mark.addEventListener('load', setup, { once: true });
@@ -261,6 +271,7 @@ export default function HeroMarkFlight() {
       window.removeEventListener('orientationchange', remeasure);
       mobile.removeEventListener('change', setup);
       calm.removeEventListener('change', setup);
+      waitIntro?.disconnect();
       teardown();
     };
   }, []);

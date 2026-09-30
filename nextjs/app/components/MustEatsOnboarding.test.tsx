@@ -106,6 +106,15 @@ describe('MustEatsOnboarding', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  it('carries the covered card it was opened from into the Starter Pack', () => {
+    openLogin.mockClear();
+    render(<MustEatsOnboarding initialMapData={DATA} starterMustEatId="me-covered" />);
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    fireEvent.click(screen.getByText('mustEats.onbNext'));
+    fireEvent.click(screen.getByText('mustEats.onbStarterCta'));
+    expect(openLogin).toHaveBeenCalledWith({ kind: 'card', mustEatId: 'me-covered' });
+  });
+
   it('gives the guest offer the primary slot and dismissing the secondary one', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
     fireEvent.click(screen.getByText('mustEats.onbNext'));

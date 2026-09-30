@@ -222,11 +222,19 @@ export default function MapSection({
       scrollListToAnchor('peek');
       return;
     }
+    /* The phone restaurant detail is window-scrolled like the list, its map
+       stop is scroll 0 (phoneSheetSnaps.ts), and the snap below moves nothing
+       there (useBottomSheet leaves in-flow phone sheets alone). A tap on the
+       map above a pushed-up detail used to change the state and leave the
+       page where it was (user, 28.09.2026). */
+    if (isPhoneViewport() && sheetElRef.current?.dataset.detailKind === 'restaurant') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     if (snap !== 'peek') {
       setSnap('peek');
       reapplySnap('peek');
     }
-  }, [sheetView, snap, setSnap, reapplySnap, scrollListToAnchor]);
+  }, [sheetView, snap, setSnap, reapplySnap, scrollListToAnchor, sheetElRef]);
 
   /* Der erste Tipp auf die Karte räumt nur weg (User, 04.09.2026).
      Steht eine Detailansicht offen und liegt sie noch über der Karte, dann
@@ -346,6 +354,7 @@ export default function MapSection({
     setCategory,
     search,
     setSearch,
+    suggest,
     bezirk,
     setBezirk,
     price,
@@ -397,7 +406,15 @@ export default function MapSection({
 
   // Desktop-only: lets the user collapse the side panel off to the right so
   // the map fills the viewport (Google-Maps-style toggle).
-  const [desktopPanelHidden, setDesktopPanelHidden] = useState(false);
+  const [desktopPanelHidden, setDesktopPanelHiddenState] = useState(false);
+  /* The same, for the camera: the map runs under the panel, and a flight
+     started in the handler that unfolds it must already leave the panel's
+     strip out — before React has rendered the change. */
+  const desktopPanelHiddenRef = useRef(false);
+  const setDesktopPanelHidden = useCallback((hidden: boolean) => {
+    desktopPanelHiddenRef.current = hidden;
+    setDesktopPanelHiddenState(hidden);
+  }, []);
   useEffect(() => {
     const desktopQuery = window.matchMedia('(min-width: 1024px)');
     const restorePanelBelowDesktop = (event: MediaQueryListEvent) => {
@@ -405,7 +422,7 @@ export default function MapSection({
     };
     desktopQuery.addEventListener('change', restorePanelBelowDesktop);
     return () => desktopQuery.removeEventListener('change', restorePanelBelowDesktop);
-  }, []);
+  }, [setDesktopPanelHidden]);
 
   // Snap the sheet when entering detail view (or switching selections).
   const snapRef = useRef(snap);
@@ -535,7 +552,13 @@ export default function MapSection({
          phone fly below measures the sheet after this jump. */
       const sheet = selectedMustEat?._id ? null : sheetElRef.current;
       if (keepTop == null || !sheet) {
-        window.scrollTo(0, 0);
+        /* Instant: html scrolls smooth, and a spot picked in the search
+           from deep inside another detail closes the search in the same
+           render — its keyboard hold (MapSectionBody) reads scrollY right
+           after this and put the old depth back while the smooth scroll had
+           barely started. The new spot opened in the middle of its text
+           (user, 29.09.2026). */
+        window.scrollTo({ top: 0, behavior: 'instant' });
         return;
       }
       const restTop = sheet.getBoundingClientRect().top + window.scrollY;
@@ -734,6 +757,7 @@ export default function MapSection({
     snap,
     sheetView,
     sheetElRef,
+    desktopPanelHiddenRef,
     selectedRestaurant,
     initialRestaurantId: initialRestaurant?._id,
   });
@@ -835,6 +859,7 @@ export default function MapSection({
       return true;
     },
     [
+      setDesktopPanelHidden,
       mapTapOnlyDismisses,
       collapseSheetToPeek,
       rememberListOrigin,
@@ -867,8 +892,6 @@ export default function MapSection({
       });
       setSelectedRestaurant(target);
       flyToSpot(target, { duration: 400, padding: detailFlyPadding() });
-      const sc = document.querySelector('[data-detail-scroll]');
-      if (sc) (sc as HTMLElement).scrollTop = 0;
     },
     [pagerAdjacent, setSelectedRestaurant, flyToSpot, detailFlyPadding]
   );
@@ -923,6 +946,7 @@ export default function MapSection({
       flyToSpot(m.restaurant, { duration: 500, padding: detailFlyPadding() });
     },
     [
+      setDesktopPanelHidden,
       unlockedIds,
       rememberListOrigin,
       setSelectedRestaurant,
@@ -972,6 +996,7 @@ export default function MapSection({
     if (nextSnap !== snap) setSnap(nextSnap);
     if (r) flyToSpot(r, { duration: 350, padding: getFlyPadding(nextSnap) });
   }, [
+    setDesktopPanelHidden,
     selectedRestaurant,
     setSelectedRestaurant,
     handBackCamera,
@@ -1095,7 +1120,7 @@ export default function MapSection({
   const revealPanelForSearch = useCallback(() => {
     if (sheetView !== 'list') return;
     setDesktopPanelHidden(false);
-  }, [sheetView]);
+  }, [sheetView, setDesktopPanelHidden]);
 
   const handleSearchChange = useCallback(
     (v: string) => {
@@ -1118,6 +1143,7 @@ export default function MapSection({
       if (nextSnap !== snap) setSnap(nextSnap);
     },
     [
+      setDesktopPanelHidden,
       setSearch,
       sheetView,
       setSheetView,
@@ -1595,12 +1621,13 @@ export default function MapSection({
       onViewRestaurantFromMustEat={handleViewRestaurantFromMustEat}
       onUnlock={handleUnlock}
       onSearchChange={handleSearchChange}
+      suggestSpots={suggest}
       onBezirkChange={handleBezirkChange}
       onToggleFavorite={() => {
         if (selectedRestaurant) toggleFavorite(selectedRestaurant);
       }}
       desktopPanelHidden={desktopPanelHidden}
-      onToggleDesktopPanel={() => setDesktopPanelHidden((v) => !v)}
+      onToggleDesktopPanel={() => setDesktopPanelHidden(!desktopPanelHiddenRef.current)}
       onRetryMapData={refetchMapData}
       myLocationAriaLabel={t('map.myLocationAriaLabel') ?? 'My location'}
       restaurantsListAriaLabel={t('map.restaurantsListAriaLabel') ?? 'Restaurants nearby'}

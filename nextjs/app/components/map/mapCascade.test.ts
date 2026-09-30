@@ -65,7 +65,7 @@ function effective(
 
 describe('MapControls cascade', () => {
   it('animates transform on every control that retreats off the top edge', () => {
-    // The three leave together on `data-header-stuck`. If one of them loses
+    // The three leave together on the tablet (full list, open detail). If one of them loses
     // `transform` from its transition it snaps while the others glide — which
     // is exactly what shipped before.
     for (const control of ['mapSearchBtn', 'mapBurger', 'mapSearchToolbar']) {
@@ -98,8 +98,8 @@ describe('MapControls cascade', () => {
      * the layout viewport, so a control at `top: 14px` rides straight out of
      * the visible area. Measured on an iPhone 16e (iOS 26.3): opening the map
      * search put `visualViewport.offsetTop` at 96 and the toolbar's client rect
-     * top at -82, with `data-header-stuck` never set — so the retreat animation
-     * was NOT what hid it.
+     * top at -82 with no retreat in play — so the retreat animation was NOT what
+     * hid it.
      *
      * The three share one trigger and must share this too: if one of them loses
      * the offset it stays behind while the others follow, which is the same
@@ -167,12 +167,16 @@ describe('MapControls cascade', () => {
     const phone = '(max-width: 767.98px)';
 
     /* On phones the dock carries the position; the button rides inside it. */
-    expect(effective(CONTROLS, 'locateDock', 'bottom', phone)).toBe('var(--edge-bottom)');
+    /* Sticky in the page, from the top: the bottom edge moves with Safari's
+       toolbar, and a scroll timeline twitched when it did. */
+    expect(effective(CONTROLS, 'locateDock', 'top', phone)).toBe('calc(var(--edge-top) - var(--edge-ride))');
     /* The edge line, shared with the map credit: 14px above the resting edge. */
     const layout = readFileSync(fileURLToPath(new URL('./MapLayout.module.css', import.meta.url)), 'utf8');
-    expect(layout).toMatch(/--edge-bottom: calc\(var\(--phone-list-sheet-visible, 28dvh\) \+ 14px\)/);
-    expect(layout).toContain('bottom: calc(100lvh - 100dvh + var(--edge-bottom))');
-    expect(effective(CONTROLS, 'locateDock', 'position', phone)).toBe('fixed');
+    expect(layout).toContain('--edge-top: calc(var(--frame-edge) - 58px)');
+    expect(layout).toContain('--frame-edge: calc(100dvh - var(--phone-list-sheet-visible))');
+    expect(layout).toContain('--frame-edge: var(--detail-map-peek)');
+    expect(layout).not.toContain('--edge-bottom');
+    expect(effective(CONTROLS, 'locateDock', 'position', phone)).toBe('sticky');
   });
 });
 

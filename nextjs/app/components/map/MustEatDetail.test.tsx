@@ -76,11 +76,11 @@ describe('MustEatDetail login gate', () => {
       /* Das Formular, keine Tafel dazwischen (Betreiber, 07.09.2026: „soll
          sofort das Anmeldeformular oeffnen") — nur das kurze Zittern der
          Karte davor. Die Karte reist als Absicht mit — das Starter Pack legt
-         sie garantiert offen hinein (/api/starter-pack, pendingStarterCard). */
+         sie garantiert offen hinein (/api/starter-pack). Gemerkt wird sie beim
+         Öffnen (LoginModalContext.test). */
       expect(showNotice).not.toHaveBeenCalled();
       expect(openLoginModal).toHaveBeenCalledOnce();
       expect(openLoginModal).toHaveBeenCalledWith({ kind: 'card', mustEatId: 'must-eat-1' });
-      expect(sessionStorage.getItem('eatthis_pending_starter_card')).toContain('"must-eat-1"');
       expect(onUnlock).not.toHaveBeenCalled();
     } finally {
       vi.useRealTimers();

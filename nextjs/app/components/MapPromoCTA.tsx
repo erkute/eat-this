@@ -1,6 +1,7 @@
 import Image from '@/app/components/SiteImage';
 import MapIntentLink from './MapIntentLink';
 import styles from './MapPromoCTA.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 type Kind = 'restaurant' | 'bezirk' | 'kategorie';
 
@@ -113,7 +114,7 @@ export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'bl
             Füllung, wie im SiteNav. Nicht `aria-hidden`: der Absender gehört
             vorgelesen. */}
         <Image
-          src="/pics/eat-this-logo.webp?v=6"
+          src={BRAND_LOGO_SRC}
           alt="Eat This"
           width={1660}
           height={667}

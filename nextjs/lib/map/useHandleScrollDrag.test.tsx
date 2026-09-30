@@ -7,17 +7,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
 
 import { useHandleScrollDrag } from './useHandleScrollDrag';
-import { snapOffsets } from './phoneSheetSnaps';
-import { LOWERED_GAP_PX, MAP_STRIP_PX, SHEET_COLLAPSE_EVENT } from './sheetSlide';
+import { LOWERED_GAP_PX, MAP_STRIP_PX } from './sheetSlide';
 
 /**
  * The phone list's grabber — pull the list off the map and back.
  *
  * Geometry: an 800px viewport, the sheet's top edge at document offset 600.
- * All the way up, the sheet leaves the 72px map strip showing, so the stops
- * are 0 (map), ~147 (split) and 528 (sheet up to the strip); anything past
- * that is "deep in the list". jsdom has no Web Animations, so every slide
- * lands instantly — these cases are about where things END.
+ * All the way up, the sheet leaves the 72px map strip showing, so the page
+ * runs from 0 (map stop) to 528 (bar on the strip line); anything past that
+ * is "deep in the list". The grip leaves the sheet wherever it lets go
+ * (user, 28.09.2026). jsdom has no Web Animations, so every slide lands
+ * instantly — these cases are about where things END.
  */
 
 const SHEET_DOC_TOP = 600;
@@ -34,6 +34,7 @@ function Harness({
   useHandleScrollDrag(handleRef, view);
   return (
     <div data-map-body="">
+      <div data-map-frame="" />
       <aside data-map-sheet="" data-detail-kind={detailKind}>
         <div ref={handleRef} data-sheet-handle="" />
         <div data-sheet-content="" />
@@ -47,7 +48,6 @@ const REST_OFFSET = SHEET_DOC_TOP - MAP_STRIP_PX;
 /* How far the lowest stop lies below the map stop: the bar (0px tall in
    jsdom) and the gap left above the bottom of the 800px viewport. */
 const LOW_BY = 800 - LOWERED_GAP_PX - SHEET_DOC_TOP;
-const splitStop = (view: 'list' | 'detail') => snapOffsets(view, 800, REST_OFFSET)[1];
 
 function pointer(type: string, clientY: number, timeStamp = 0, pointerType = 'mouse') {
   const e = new Event(type, { bubbles: true, cancelable: true });
@@ -124,12 +124,17 @@ describe('in the list', () => {
   });
 
   describe('pulling the list off the map', () => {
-    it('drops the list to the map on a deliberate pull, back at its top', async () => {
+    it('leaves the bar where the finger let go, with the list back at its top', async () => {
       window.scrollY = DEEP;
       drag(120);
       await settle();
 
-      expectRestingAtTop();
+      /* The bar stands 120px below the strip line: the page is scrolled so
+         the sheet's own top lies there. */
+      expect(window.scrollY).toBe(REST_OFFSET - 120);
+      expect(sheet().style.transform).toBe('');
+      expect(sheet().style.clipPath).toBe('');
+      expect(lowered()).toBe(false);
     });
 
     it('clips moving content below the grip and clears the temporary cut on release', async () => {
@@ -140,9 +145,14 @@ describe('in the list', () => {
       vi.spyOn(content, 'getBoundingClientRect').mockReturnValue({ top: -500.25 } as DOMRect);
       handle.dispatchEvent(pointer('pointerdown', 100));
       expect(content.style.clipPath).toBe('inset(663px 0 0)');
+      /* The clipped sheet stacks its bars inside it: the frame steps back at
+         once, or it covers the grip's line (user, 28.09.2026). */
+      const frame = document.querySelector('[data-map-frame]')!;
+      expect(frame.hasAttribute('data-following')).toBe(true);
       handle.dispatchEvent(pointer('pointerup', 100));
       await settle();
       expect(content.style.clipPath).toBe('');
+      expect(frame.hasAttribute('data-following')).toBe(false);
     });
 
     it('never takes the bar below the lowest stop', () => {
@@ -158,47 +168,63 @@ describe('in the list', () => {
       handle.dispatchEvent(pointer('pointerup', 1500, 80));
     });
 
-    it('goes on to the lowest stop when pulled past the resting line', async () => {
+    it('holds the sheet below the map stop when let go past its resting line', async () => {
       window.scrollY = DEEP;
       drag(REST_OFFSET + 100);
       await settle();
 
       expect(window.scrollY).toBe(0);
-      expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
+      expect(sheet().style.transform).toBe('translateY(100px)');
       expect(sheet().style.clipPath).toBe('');
       expect(lowered()).toBe(true);
     });
 
-    it('springs back on a short, slow pull — the list stays where it was', async () => {
+    it('does not snap: a short, slow pull stays a short pull', async () => {
       window.scrollY = DEEP;
       drag(30, { steps: 6, msPerStep: 80 });
+      await settle();
+
+      expect(window.scrollY).toBe(REST_OFFSET - 30);
+      expect(window.scrollTo).not.toHaveBeenCalledWith(expect.objectContaining({ behavior: 'smooth' }));
+    });
+
+    it('does not throw a flick on: the sheet stays where the finger left it', async () => {
+      window.scrollY = DEEP;
+      drag(40, { steps: 2, msPerStep: 16 });
+      await settle();
+
+      expect(window.scrollY).toBe(REST_OFFSET - 40);
+    });
+
+    it('leaves the list where it was when the grip is pushed up instead of pulled down', async () => {
+      window.scrollY = DEEP;
+      drag(-80);
       await settle();
 
       expect(window.scrollY).toBe(DEEP);
       expect(sheet().style.transform).toBe('');
     });
 
-    it('lifts the sheet over the map strip for the gesture, and only then', async () => {
-      /* A transform makes the sheet a stacking context, which put its bar
-       under the strip — and the strip reaches past its line, so the top of
-       the bar and its grip vanished while being pulled. */
+    it('takes a wobbling press as a press, not a pull — the list stays where it was', async () => {
+      window.scrollY = DEEP;
+      drag(10, { steps: 3, msPerStep: 100 });
+      await settle();
+
+      expect(window.scrollY).toBe(DEEP);
+      expect(sheet().style.transform).toBe('');
+    });
+
+    it('leaves the list where it was when the bar comes back to where it started', async () => {
       window.scrollY = DEEP;
       const handle = document.querySelector('[data-sheet-handle]')!;
       handle.dispatchEvent(pointer('pointerdown', 100, 0));
-      handle.dispatchEvent(pointer('pointermove', 105, 16));
-      expect(sheet().style.zIndex).toBe('7');
-
-      handle.dispatchEvent(pointer('pointerup', 105, 32));
-      await settle();
-      expect(sheet().style.zIndex).toBe('');
-    });
-
-    it('takes a short but fast flick as a decision', async () => {
-      window.scrollY = DEEP;
-      drag(40, { steps: 2, msPerStep: 16 });
+      handle.dispatchEvent(pointer('pointermove', 180, 40));
+      handle.dispatchEvent(pointer('pointermove', 90, 80));
+      handle.dispatchEvent(pointer('pointerup', 90, 120));
       await settle();
 
-      expect(window.scrollY).toBe(0);
+      expect(window.scrollY).toBe(DEEP);
+      expect(sheet().style.transform).toBe('');
     });
 
     it('drops to the map on a tap of the bar', async () => {
@@ -213,7 +239,7 @@ describe('in the list', () => {
   describe('pulling the list back up from the map', () => {
     beforeEach(async () => {
       window.scrollY = DEEP;
-      drag(120);
+      drag(0, { steps: 0 });
       await settle();
     });
 
@@ -221,8 +247,27 @@ describe('in the list', () => {
       drag(-120);
       await settle();
 
-      expect(window.scrollY).toBe(splitStop('list'));
+      expect(window.scrollY).toBe(120);
       expect(sheet().style.transform).toBe('');
+    });
+
+    it('puts the sheet back where it was after a wobbling press', async () => {
+      window.scrollY = 200;
+      drag(-10, { steps: 3, msPerStep: 100 });
+      await settle();
+
+      expect(window.scrollY).toBe(200);
+    });
+
+    it('stops the bar at the strip line, however far the finger goes', () => {
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 700, 0));
+      handle.dispatchEvent(pointer('pointermove', -900, 40));
+      nextFrame();
+
+      expect(window.scrollY).toBe(REST_OFFSET);
+      handle.dispatchEvent(pointer('pointerup', -900, 80));
+      expect(window.scrollY).toBe(REST_OFFSET);
     });
 
     it('opens the whole sheet on a tap', async () => {
@@ -233,16 +278,61 @@ describe('in the list', () => {
     });
   });
 
-  describe('the lowest stop', () => {
+  describe('below the map stop', () => {
     beforeEach(async () => {
       drag(100);
       await settle();
     });
 
-    it('is reached from the map stop by pulling the bar down', () => {
+    it('is reached from the map stop by pulling the bar down, and stays where it is let go', () => {
       expect(window.scrollY).toBe(0);
-      expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
+      expect(sheet().style.transform).toBe('translateY(100px)');
       expect(lowered()).toBe(true);
+    });
+
+    it('puts the map frame behind the moved sheet, and back over it when it rests on the page', async () => {
+      const frame = () => document.querySelector('[data-map-frame]')!;
+      expect(frame().hasAttribute('data-following')).toBe(true);
+
+      drag(0, { steps: 0 });
+      await settle();
+      expect(frame().hasAttribute('data-following')).toBe(false);
+    });
+
+    it('keeps the map frame behind the sheet while it glides back up', async () => {
+      let finish: () => void = () => {};
+      const animate = vi.fn(() => ({
+        finished: new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+      }));
+      Object.defineProperty(HTMLElement.prototype, 'animate', {
+        value: animate,
+        configurable: true,
+      });
+      const frame = () => document.querySelector('[data-map-frame]')!;
+      try {
+        drag(0, { steps: 0 });
+        await settle();
+        /* Mid-glide the sheet still stands below its resting edge: the frame
+           would cut the map off above it. */
+        expect(animate).toHaveBeenCalled();
+        expect(frame().hasAttribute('data-following')).toBe(true);
+
+        finish();
+        await settle();
+        expect(frame().hasAttribute('data-following')).toBe(false);
+      } finally {
+        finish();
+        delete (HTMLElement.prototype as { animate?: unknown }).animate;
+      }
+    });
+
+    it('goes on down to the lowest line, not further', async () => {
+      drag(1000);
+      await settle();
+
+      expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
     });
 
     it('goes back onto the map stop on a tap of the grip', async () => {
@@ -284,10 +374,10 @@ describe('in the list', () => {
     });
 
     it('goes straight on into the list on a long pull up', async () => {
-      drag(-(LOW_BY + 200));
+      drag(-(100 + 200));
       await settle();
 
-      expect(window.scrollY).toBe(splitStop('list'));
+      expect(window.scrollY).toBe(200);
       expect(sheet().style.transform).toBe('');
       expect(lowered()).toBe(false);
     });
@@ -318,22 +408,50 @@ describe('the map strip', () => {
     render(<Harness />);
   });
 
-  it('leaves the strip uncovered at the last stop', async () => {
-    /* A plain drag between the stops, released near the top: it settles on
-       the strip line, not on the viewport's top edge. */
+  it('stays uncovered: the grip stops the bar on the strip line', async () => {
     window.scrollY = 500;
-    drag(-10, { steps: 2, msPerStep: 200 });
+    drag(-200);
     await settle();
 
     expect(window.scrollY).toBe(SHEET_DOC_TOP - MAP_STRIP_PX);
   });
+});
 
-  it('takes a tap on the strip to the map, with the list at its top', async () => {
-    window.scrollY = DEEP;
-    window.dispatchEvent(new Event(SHEET_COLLAPSE_EVENT));
+describe("the bottom bound: clear of Safari's URL bar", () => {
+  beforeEach(() => {
+    render(<Harness />);
+  });
+
+  it('takes the visual viewport when it is shorter than the window', async () => {
+    Object.defineProperty(window, 'visualViewport', {
+      value: { height: 700, offsetTop: 0 },
+      configurable: true,
+    });
+    drag(1000);
     await settle();
+    Object.defineProperty(window, 'visualViewport', { value: undefined, configurable: true });
 
-    expectRestingAtTop();
+    expect(sheet().style.transform).toBe(`translateY(${700 - LOWERED_GAP_PX - SHEET_DOC_TOP}px)`);
+  });
+
+  it('takes the viewport with the toolbar unfolded — a pull from deep starts with it folded', async () => {
+    /* 100svh: what the viewport will be once the scroll back to the map has
+       brought Safari's bar back. */
+    const offsetHeight = vi
+      .spyOn(HTMLElement.prototype, 'offsetHeight', 'get')
+      .mockImplementation(function (this: HTMLElement) {
+        return this.style.height === '100svh' ? 740 : 0;
+      });
+    Object.defineProperty(window, 'innerWidth', { value: 391, configurable: true });
+    window.scrollY = DEEP;
+    drag(2000);
+    await settle();
+    offsetHeight.mockRestore();
+    /* A new width measures again: the next test starts without the probe. */
+    Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
+
+    expect(window.scrollY).toBe(0);
+    expect(sheet().style.transform).toBe(`translateY(${740 - LOWERED_GAP_PX - SHEET_DOC_TOP}px)`);
   });
 });
 
@@ -341,14 +459,14 @@ describe('in a detail', () => {
   it('pulls a restaurant detail off the map, back at its top', async () => {
     render(<Harness view="detail" detailKind="restaurant" />);
     window.scrollY = DEEP;
-    drag(120);
+    drag(REST_OFFSET);
     await settle();
 
     expectRestingAtTop();
 
     drag(-120);
     await settle();
-    expect(window.scrollY).toBe(splitStop('detail'));
+    expect(window.scrollY).toBe(120);
   });
 
   it('lowers a restaurant detail as well, and lets go when the view changes', async () => {
@@ -380,7 +498,7 @@ describe('in a detail', () => {
 });
 
 describe.each(['list', 'detail'] as const)('phone touch grip gestures in a %s', (view) => {
-  it('collapses a scrolled sheet with a touch grip drag', async () => {
+  it('lowers a scrolled sheet with a touch grip drag', async () => {
     render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
     window.scrollY = DEEP;
     const handle = document.querySelector('[data-sheet-handle]')!;
@@ -392,7 +510,8 @@ describe.each(['list', 'detail'] as const)('phone touch grip gestures in a %s', 
     expect(window.scrollTo).not.toHaveBeenCalled();
     handle.dispatchEvent(pointer('pointerup', 220, 160, 'touch'));
     await settle();
-    expectRestingAtTop();
+    expect(window.scrollY).toBe(REST_OFFSET - 120);
+    expect(sheet().style.transform).toBe('');
   });
 
   it('keeps the touch tap shortcut', async () => {
@@ -441,7 +560,7 @@ describe('interrupted restaurant handle gestures', () => {
     window.dispatchEvent(pointer('pointermove', 240, 100));
     window.dispatchEvent(pointer('pointerup', 240, 120));
     await settle();
-    expectRestingAtTop();
+    expect(window.scrollY).toBe(REST_OFFSET - 140);
   });
 
   it.each(['pointercancel', 'lostpointercapture'])('recovers after %s and accepts the next drag', async (event) => {
@@ -456,7 +575,7 @@ describe('interrupted restaurant handle gestures', () => {
     expect(sheet().style.transform).toBe('');
     drag(120);
     await settle();
-    expect(window.scrollY).toBe(0);
+    expect(window.scrollY).toBe(REST_OFFSET - 120);
   });
 
   it('puts a lowered sheet back where it was when the pull is cancelled', async () => {
@@ -468,7 +587,7 @@ describe('interrupted restaurant handle gestures', () => {
     handle.dispatchEvent(pointer('pointermove', 20, 100));
     handle.dispatchEvent(pointer('pointercancel', 20, 120));
     await settle();
-    expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
+    expect(sheet().style.transform).toBe('translateY(100px)');
     expect(lowered()).toBe(true);
   });
 });

@@ -284,6 +284,93 @@
   outline: 0;
 }
 
+/* Suggestions under the open search field (MapSearchSuggestions): the
+   field's own window, one step down. Outside the field, which clips. */
+.mapSearchSuggestions {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px) + 50px);
+  left: 14px;
+  z-index: 55;
+  box-sizing: border-box;
+  width: min(392px, calc(100vw - 84px));
+  max-height: min(55vh, 380px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px 0;
+  background: var(--et-ink-raised);
+  color: var(--et-white);
+  border-radius: var(--et-radius-control);
+}
+
+.mapSearchSuggestions ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mapSearchSuggestion {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 9px 14px;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  text-align: left;
+  font-family: var(--et-font-display);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mapSearchSuggestionName {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapSearchSuggestionMeta,
+.mapSearchSuggestionNone {
+  color: var(--et-ink-soft);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.mapSearchSuggestionNone {
+  margin: 0;
+  padding: 6px 14px;
+  font-family: var(--et-font-display);
+}
+
+@media (hover: hover) {
+  .mapSearchSuggestion:hover {
+    background: var(--et-ink-quiet);
+  }
+}
+
+.mapSearchSuggestion:focus-visible {
+  outline: 0;
+  background: var(--et-ink-quiet);
+}
+
+@media (max-width: 520px) {
+  .mapSearchSuggestions {
+    width: calc(100vw - 78px);
+  }
+}
+
+/* Phone: fixed like the field above it, and over the sheet's bars (8). */
+@media (max-width: 767.98px) {
+  .mapSearchSuggestions {
+    position: fixed;
+    top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px) + 50px);
+    z-index: 9;
+  }
+}
+
 .mapSearchClear {
   flex: 0 0 auto;
   display: grid;
@@ -349,8 +436,12 @@
 }
 
 @media (min-width: 1024px) {
+  /* Rides the panel's edge as it slides (--map-panel-slide, MapLayout). */
   .mapBurger {
     right: calc(var(--map-desktop-panel-width) + 14px);
+    transition:
+      transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      right var(--map-panel-slide);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .mapBurger {
@@ -398,7 +489,7 @@
   .mapBurger {
     position: fixed;
     top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
-    /* Over the map strip (7, MapLayout.module.css). */
+    /* Over the sheet and the map strip it leaves (MapSheet.module.css). */
     z-index: 8;
   }
 
@@ -423,28 +514,37 @@
 }
 
 /* ── Panel disclosure (desktop) ────────────────────────────────────────── */
-/* Der Griff an der Kante des Desktop-Panels. Bis 28.09.2026 ein 11-px-Pfeil
-   ohne Fläche am Kartenrand — kaum zu finden, und eingeklappt stand nirgends,
-   dass es eine Liste gibt. Jetzt eine Ink-Lasche an der Panelkante (Fläche,
-   kein Rand), eingeklappt mit „Liste" daneben. */
+/* Die Lasche an der Kante des Desktop-Panels. Bis 28.09.2026 ein 11-px-Pfeil
+   ohne Fläche am Kartenrand — kaum zu finden. Dann eine 34×64-Ink-Lasche mit
+   geometrischem Pfeil: dem Betreiber zu präsent, und der Pfeil passte nicht zu
+   den gezeichneten Zeichen daneben (29.09.2026). Jetzt ein schmaler Reiter,
+   der am Panel hängt, mit einem von Hand gezogenen Winkel wie Lupe und Burger;
+   eingeklappt sagt er „Liste", damit man weiß, was dahinter liegt.
+
+   Er fährt mit dem Panel, per transform und mit --map-panel-slide
+   (MapLayout.module.css). */
 .panelToggle {
+  --panel-toggle-x: 0px;
   position: absolute;
   top: 50%;
-  right: 360px;
   z-index: 6;
   display: none;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 64px;
-  padding: 0 9px 0 10px;
+  gap: 5px;
+  width: 20px;
+  height: 44px;
+  padding: 0;
   background: var(--et-ink-raised);
-  color: var(--et-white);
-  border-radius: var(--et-radius-control) 0 0 var(--et-radius-control);
+  color: var(--et-ink-soft);
+  border-radius: 8px 0 0 8px;
   filter: none;
   clip-path: none;
-  transform: translateY(-50%);
-  transition: right var(--motion-slow) var(--ease-standard);
+  transform: translate(var(--panel-toggle-x), -50%);
+  transition:
+    transform var(--map-panel-slide),
+    color 150ms var(--ease-standard),
+    background-color 150ms var(--ease-standard);
 }
 
 /* Nach den gemeinsamen transparenten Zuständen oben: die Lasche behält ihre
@@ -463,26 +563,27 @@
 /* Nur die Verschiebung — ohne das -50% sprang die Lasche beim Druck nach
    unten. */
 .panelToggle:active {
-  transform: translateY(calc(-50% + 1px));
+  transform: translate(var(--panel-toggle-x), calc(-50% + 1px));
 }
 
 .panelToggleLabel {
   font-family: var(--et-font-display);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1;
+  color: var(--et-white);
 }
 
 .panelToggle svg {
-  width: 15px;
-  height: 15px;
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
   fill: none;
-  color: currentColor;
   stroke: currentColor;
-  stroke-width: 2.6;
+  stroke-width: 3.2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 220ms ease;
+  transition: transform var(--map-panel-slide);
 }
 
 @media (min-width: 1024px) {
@@ -490,10 +591,17 @@
     display: flex;
     right: var(--map-desktop-panel-width);
   }
-}
 
-:global([data-map-body][data-panel-hidden='true']) .panelToggle {
-  right: 0;
+  :global([data-map-body][data-panel-hidden='true']) .panelToggle {
+    --panel-toggle-x: var(--map-desktop-panel-width);
+    width: auto;
+    height: 34px;
+    padding: 0 10px 0 7px;
+  }
+
+  :global([data-map-body][data-panel-hidden='true']) .panelToggle svg {
+    transform: rotate(180deg);
+  }
 }
 
 /* ── Locate button ─────────────────────────────────────────────────────
@@ -577,36 +685,43 @@
   transform: rotate(3deg);
 }
 
-/* Phone: the Google Maps way. The dock stands fixed above the sheet's
-   resting edge; the button rides up with the sheet 1:1 on a document scroll
-   timeline (compositor — a scroll handler lagged a frame or two on iOS and
-   the list overtook it), stops where its top is 104px below the safe area,
-   clear of search and burger, and the sheet slides over it (dock before the
-   sheet in the DOM, no z-index). --edge-ride is that distance from rest.
-   A sheet pulled below its rest takes the dock along (sheetSlide.ts
-   followSheet). Elsewhere the dock has no box. */
+/* Phone: the Google Maps way. The button stands above the sheet's resting
+   edge, rides up with the sheet 1:1, stops where its top is 104px below the
+   safe area, clear of search and burger, and the sheet slides over it.
+   --edge-ride is that distance from rest. A sheet pulled below its rest
+   takes the dock along (sheetSlide.ts followSheet). Elsewhere the dock has
+   no box. */
 .locateDock {
   display: contents;
 }
 
-@keyframes locateRide {
-  from {
-    translate: 0 0;
-  }
-  to {
-    translate: 0 calc(-1 * var(--edge-ride));
-  }
-}
-
 @media (max-width: 767.98px) {
-  /* On the edge line the map credit shares (--edge-bottom/--edge-ride,
-     MapLayout.module.css). 2.5px: the crosshair's ink then stands 14px from
-     the edge, like the credit, the magnifier and the burger. */
+  /* The dock is sticky, not fixed: it rides with the sheet because it is
+     laid out with the page, and sticks where the ride ends. A fixed dock
+     riding a scroll timeline twitched on iOS whenever Safari's toolbar
+     unfolded at the end of a scroll back to the map — the compositor saw a
+     scroll offset for a few frames that the page never had (iOS 27
+     simulator, 28.09.2026; without the timeline the button stood still).
+
+     It lives in the map's frame (MapLayout.module.css, "The map frame"),
+     next to the fixed map: its top margin puts it on the edge line
+     (--edge-top, shared with the map credit), its bottom margin lets the
+     frame's lower edge — the sheet's top — pass over it, so the sheet
+     slides over the button. 2.5px: the crosshair's ink then stands
+     14px from the edge, like the credit, the magnifier and the burger. The
+     dock spans the width: only the button takes taps, the rest belongs to
+     the map. */
   .locateDock {
-    position: fixed;
-    right: 2.5px;
-    bottom: var(--edge-bottom);
-    display: block;
+    position: sticky;
+    top: calc(var(--edge-top) - var(--edge-ride));
+    display: flex;
+    justify-content: flex-end;
+    height: 44px;
+    /* The bottom margin gives it all back, so the frame's end never pushes
+       the dock. */
+    margin: var(--edge-top) 0 calc(-1 * var(--edge-top) - 44px);
+    padding-right: 2.5px;
+    pointer-events: none;
   }
 
   /* The must-eat detail is a takeover with no map behind it. */
@@ -620,14 +735,7 @@
     right: auto;
     bottom: auto;
     z-index: auto;
-  }
-
-  @supports (animation-timeline: scroll()) {
-    .fab {
-      animation: locateRide linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 var(--edge-ride);
-    }
+    pointer-events: auto;
   }
 }
 
@@ -655,7 +763,7 @@
     bottom: 12px;
     transition:
       transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      right 0.3s ease;
+      right var(--map-panel-slide);
   }
 
   :global([data-map-body][data-panel-hidden='true']) .fab {

@@ -4,20 +4,19 @@ import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link } from '@/i18n/navigation';
 import styles from './SiteFooter.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
   const de = lang === 'de';
   const follow = de ? 'Folgen' : 'Follow';
-  const askRemy = de ? 'Frag Remy' : 'Ask Remy';
-
   return (
     <footer className={styles.footer} data-site-footer role="contentinfo" aria-label="Site footer">
       <div className={styles.top}>
         <div className={styles.brand}>
           <h2 className={styles.mega} aria-label="Eat This">
             <Image
-              src="/pics/eat-this-logo.webp?v=6"
+              src={BRAND_LOGO_SRC}
               alt="Eat This"
               width={1660}
               height={667}
@@ -33,19 +32,6 @@ export default function SiteFooter() {
               auswählbar, skaliert mit und spart einen Bild-Request. */}
           <p className={styles.tagline}>we tell you what to eat</p>
         </div>
-
-        <Link href="/#hub-fragremy" className={styles.remyLink}>
-          <Image
-            src="/buddy/buddy-smile.webp"
-            alt=""
-            width={220}
-            height={220}
-            sizes="52px"
-            loading="lazy"
-            decoding="async"
-          />
-          <span>{askRemy}</span>
-        </Link>
       </div>
 
       <div className={styles.links}>

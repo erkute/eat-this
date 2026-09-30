@@ -1,9 +1,11 @@
 'use client';
 
+import { Fragment, type CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import MapIntentLink from './MapIntentLink';
 import styles from './HubSection.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 interface Props {
   locale: 'de' | 'en';
@@ -23,7 +25,7 @@ const LEAD = {
 // Die Wortmarke steht im Aufmacher, nicht im Header: der Header hält seinen
 // Logoplatz frei, bis sie beim Scrollen dort ankommt (HeroMarkFlight). Die
 // Maße sind die des Assets, damit der Platz vor dem Laden reserviert ist.
-const MARK = { src: '/pics/eat-this-logo.webp?v=6', width: 1660, height: 667 } as const;
+const MARK = { src: BRAND_LOGO_SRC, width: 1660, height: 667 } as const;
 
 /* Nur der Name, kein Verb. Der Knopf daneben heißt „Dein Profil" — auch ein
    Nomen —, und ein Linkziel zu benennen ist die bessere Beschriftung, als eine
@@ -63,6 +65,59 @@ const LEAD_AUTH = {
   en: 'Every spot on your map — and the Must Eats you have collected in your deck.',
 } as const;
 
+/* Der Lead schreibt sich beim Laden hin, als schriebe ihn jemand mit dem
+   Stift (Ansage 29.09.2026). Jedes Wort bekommt seinen Abschnitt auf dem Weg
+   des Stifts (`--a` bis `--b`, Anteil an `--in-write`, HubSection.module.css)
+   und wird in diesem Abschnitt von links nach rechts freigelegt — so läuft
+   die Schrift Zeile für Zeile, wie der Satz umbricht. Gerechnet wird in
+   Zeichen: ein Anschlag pro Leerzeichen, nach einem Satzende eine Pause.
+   Alle Leads teilen sich denselben Maßstab, den längsten: ein kürzerer Satz
+   ist früher fertig, statt langsamer geschrieben zu werden. */
+const SENTENCE_PAUSE = 6;
+
+interface PenWord {
+  word: string;
+  a: number;
+  b: number;
+}
+
+function penPath(text: string): { words: PenWord[]; length: number } {
+  let at = 0;
+  const words = text.split(' ').map((word, i) => {
+    if (i > 0) at += 1;
+    const a = at;
+    at += word.length;
+    const b = at;
+    if (/[.!?]$/.test(word)) at += SENTENCE_PAUSE;
+    return { word, a, b };
+  });
+  // Die Pause nach dem letzten Satz zählt nicht: danach schreibt niemand mehr.
+  return { words, length: words[words.length - 1]?.b ?? 0 };
+}
+
+const PEN_LENGTH = Math.max(
+  ...[LEAD.de, LEAD.en, LEAD_AUTH.de, LEAD_AUTH.en].map((text) => penPath(text).length)
+);
+
+function Written({ text }: { text: string }) {
+  return penPath(text).words.map(({ word, a, b }, i) => (
+    <Fragment key={i}>
+      {i > 0 ? ' ' : null}
+      <span
+        className={styles.penWord}
+        style={
+          {
+            '--a': (a / PEN_LENGTH).toFixed(4),
+            '--b': (b / PEN_LENGTH).toFixed(4),
+          } as CSSProperties
+        }
+      >
+        {word}
+      </span>
+    </Fragment>
+  ));
+}
+
 interface HeroCopyProps extends Props {
   firstName: string | null;
   variant: Variant;
@@ -83,8 +138,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
     : 'We tell you what to eat';
 
   return (
-    <div className={styles.heroCopy}>
-      <HeroMark />
+    <>
       {/* Der Gruß bleibt, die Gästezeile nicht: „Was du essen solltest." sagte
           dasselbe wie die Headline darunter, und über der Wortmarke wurde die
           Spalte damit dreistöckig. */}
@@ -94,12 +148,14 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         </span>
       ) : null}
       <h1 className={styles.heroHeadline} aria-label={headlineLabel}>
-        <span>{headline[0]}</span>
-        <span>{headline[1]}</span>
+        <span className={styles.heroLine}>{headline[0]}</span>
+        <span className={styles.heroLine}>{headline[1]}</span>
       </h1>
-      <p className={styles.heroLead}>{signedIn ? LEAD_AUTH[locale] : LEAD[locale]}</p>
+      <p className={styles.heroLead}>
+        <Written text={signedIn ? LEAD_AUTH[locale] : LEAD[locale]} />
+      </p>
       <div className={styles.heroActions}>
-        <MapIntentLink href="/map" className="hv-btn">
+        <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
           {HERO_MAP_LABEL}
         </MapIntentLink>
         {signedIn ? (
@@ -113,7 +169,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
           </Link>
         ) : null}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -127,35 +183,34 @@ function LoadingHeroCopy({ locale }: Props) {
   const de = locale === 'de';
 
   return (
-    <div className={styles.heroCopy}>
-      <HeroMark />
+    <>
       <span className={`hv-kicker ${styles.heroKicker}`} data-auth-only="">
         Hey
       </span>
       <h1 className={styles.heroHeadline}>
         <span data-guest-only="">
-          <span>We tell you</span>
-          <span>what to eat</span>
+          <span className={styles.heroLine}>We tell you</span>
+          <span className={styles.heroLine}>what to eat</span>
         </span>
         <span data-auth-only="">
-          <span>{de ? 'Deine Map' : 'Your map'}</span>
-          <span>{de ? 'wartet.' : 'is ready.'}</span>
+          <span className={styles.heroLine}>{de ? 'Deine Map' : 'Your map'}</span>
+          <span className={styles.heroLine}>{de ? 'wartet.' : 'is ready.'}</span>
         </span>
       </h1>
       <p className={styles.heroLead} data-guest-only="">
-        {LEAD[locale]}
+        <Written text={LEAD[locale]} />
       </p>
       <p className={styles.heroLead} data-auth-only="">
-        {LEAD_AUTH[locale]}
+        <Written text={LEAD_AUTH[locale]} />
       </p>
       <div className={styles.heroActions}>
         <span className={styles.heroActionVariant} data-guest-only="">
-          <MapIntentLink href="/map" className="hv-btn">
+          <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
             {HERO_MAP_LABEL}
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
-          <MapIntentLink href="/map" className="hv-btn">
+          <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
             {HERO_MAP_LABEL}
           </MapIntentLink>
           <Link
@@ -168,7 +223,7 @@ function LoadingHeroCopy({ locale }: Props) {
           </Link>
         </span>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -180,9 +235,18 @@ export default function HubHeroCopy({ locale }: Props) {
       null
     : null;
 
-  if (loading) {
-    return <LoadingHeroCopy locale={locale} />;
-  }
-
-  return <HeroCopy locale={locale} variant={user ? 'auth' : 'guest'} firstName={firstName} />;
+  // Die Wortmarke steht ausserhalb des Wechsels: sobald `useAuth` fertig ist,
+  // baut React Headline und Knöpfe neu, die Marke bleibt dasselbe Element.
+  // Nur so kann ihr Auftritt beim Laden eine echte CSS-Animation auf dem
+  // Element sein (Compositor) — ein neuer Knoten finge sie von vorn an.
+  return (
+    <div className={styles.heroCopy}>
+      <HeroMark />
+      {loading ? (
+        <LoadingHeroCopy locale={locale} />
+      ) : (
+        <HeroCopy locale={locale} variant={user ? 'auth' : 'guest'} firstName={firstName} />
+      )}
+    </div>
+  );
 }

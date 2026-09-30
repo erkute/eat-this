@@ -53,6 +53,58 @@
   transform: rotate(-4deg);
 }
 
+/* Auf der Startseite (Starter-Pack-Tafel) lebt das Pack: es schwebt leise und
+   vibriert alle paar Sekunden kurz, als wolle es aufgerissen werden (Ansage
+   28.09.2026). Nur dort — im Anmelde-Modal lenkte es vom Formular ab. Über
+   `translate`/`rotate`, die Grundkippung bleibt auf `transform`. */
+:global([data-hub-starter]) .artPack img {
+  transform-origin: 50% 85%;
+  animation: packBuzz 3.6s linear infinite;
+}
+
+@keyframes packBuzz {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  30% {
+    translate: 0 -6px;
+    rotate: 0deg;
+  }
+  60% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  63% {
+    rotate: 3deg;
+  }
+  66% {
+    rotate: -3deg;
+  }
+  69% {
+    rotate: 2.5deg;
+  }
+  72% {
+    rotate: -2.5deg;
+  }
+  75% {
+    rotate: 1.5deg;
+  }
+  78% {
+    rotate: -1deg;
+  }
+  81% {
+    rotate: 0deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global([data-hub-starter]) .artPack img {
+    animation: none;
+  }
+}
+
 /* Die angetippte Karte vor ihrem Pack: sie liegt drin, und sie liegt vorn. */
 .artDuo {
   width: calc(var(--login-art-h) * 0.92);
@@ -237,6 +289,13 @@
 .input::placeholder {
   color: rgba(21, 18, 14, 0.46);
   font-family: inherit;
+}
+
+/* Die Tipp-Demo der Startseite (HubMotion) schreibt ihre Adresse in den
+   Platzhalter, nie in den Wert — das Feld bleibt leer und nichts wird
+   abgeschickt. Solange sie tippt, steht der Platzhalter wie echte Eingabe. */
+.input[data-demo-typing]::placeholder {
+  color: var(--et-ink);
 }
 
 .input:focus {

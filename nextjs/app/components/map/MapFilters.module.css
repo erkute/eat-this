@@ -167,7 +167,7 @@
        status-bar band — carrying the inset here as padding reserved the
        space at every scroll position and left dead space above the chips. */
     top: var(--map-strip, env(safe-area-inset-top, 0px));
-    /* Above the map strip (7, MapLayout.module.css). */
+    /* Above the rows (the sheet is a stacking context, MapSheet.module.css). */
     z-index: 8;
     background: var(--et-ink);
     /* The sheet's edge lives here, not on the sheet (MapSheet.module.css:

@@ -3,6 +3,7 @@ import type { MapRestaurant } from '@/lib/types';
 import {
   buildSearchIndex,
   matchesSearch,
+  needsFuzzy,
   normalizeForSearch,
   parseQuery,
   suggestSpots,
@@ -37,6 +38,27 @@ describe('matchesSearch, Tippfehler-Durchgang', () => {
 
   it('ist ohne den Rückfall exakt', () => {
     expect(matchesSearch(pizza, parseQuery('piza'))).toBe(false);
+  });
+});
+
+describe('needsFuzzy', () => {
+  const index = buildSearchIndex(
+    [
+      { _id: 'a', name: 'Standard Serious Pizza' },
+      { _id: 'b', name: 'Bonanza Coffee' },
+    ].map((r) => ({ lat: 0, lng: 0, ...r }) as MapRestaurant),
+    []
+  );
+
+  /* Eine Regel für Liste und Vorschläge (useMapFilters, suggestSpots): die
+     Vorschläge zeigen, was das Abschicken in die Liste holt. */
+  it('verzeiht erst, wenn exakt im ganzen Katalog nichts passt', () => {
+    expect(needsFuzzy(index, parseQuery('piza'))).toBe(true);
+    expect(needsFuzzy(index, parseQuery('pizza'))).toBe(false);
+  });
+
+  it('braucht ohne Anfrage keinen Rückfall', () => {
+    expect(needsFuzzy(index, [])).toBe(false);
   });
 });
 

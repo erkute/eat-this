@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import { useTranslation } from '@/lib/i18n';
 import { useLoginModal } from '@/lib/auth';
-import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import { resolveUnlockedMustEatIds } from '@/lib/map';
 import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
@@ -413,7 +412,6 @@ export default function MustEatsOnboarding({
                         onClick={() => {
                           close();
                           if (starterMustEatId) {
-                            rememberPendingStarterCard(starterMustEatId);
                             openLogin({ kind: 'card', mustEatId: starterMustEatId });
                           } else {
                             openLogin();

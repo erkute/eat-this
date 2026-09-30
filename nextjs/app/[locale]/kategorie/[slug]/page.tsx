@@ -22,7 +22,7 @@ import { categoryDistrictLinks, categoryGuideSlugs } from '@/lib/seo/crossLinks'
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
 import { schemaImageUrl } from '@/lib/sanity-image-presets';
-import { OG_CARD_VERSION, OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
+import { BRAND_LOGO_SRC, OG_CARD_VERSION, OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { metadataSource } from '@/lib/seo/metadataSource';
@@ -348,7 +348,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                           1660er-Vorlage mit 50 KB; `sizes` trifft dieselbe 256er-Stufe
                           wie das Logo in der SiteNav, die schon im Cache liegt. */}
                       <Image
-                        src="/pics/eat-this-logo.webp?v=7"
+                        src={BRAND_LOGO_SRC}
                         alt="Eat This"
                         width={1660}
                         height={667}

@@ -15,6 +15,11 @@ export const OG_PACK_VERSION = 4;
 // either file changes.
 export const OG_CARD_VERSION = 5;
 
+// The wordmark (public/pics/eat-this-logo.webp) with its cache-bust. Seven
+// call sites carried `?v=…` by hand — the new logo (#985) had to find every
+// one. The file is served immutable: BUMP `v` whenever it changes.
+export const BRAND_LOGO_SRC = '/pics/eat-this-logo.webp?v=7';
+
 /**
  * The day the page templates last changed in a way a crawler can see — new
  * JSON-LD, different image markup, a changed robots or title tag. Feeds

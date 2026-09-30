@@ -6,7 +6,6 @@ import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
 import { useLoginModal } from '@/lib/auth';
-import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import { GUEST_SHAKE_MS, prefersReducedMotion } from '@/lib/guestCardShake';
 import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
@@ -151,7 +150,6 @@ export default function HubMustEatsTeaser() {
     // Ein zweiter Tipp waehrend des Zitterns startet nichts doppelt.
     if (shakeTimer.current !== null) return;
     trackEvent('login_start', { method: 'home_covered_card' });
-    rememberPendingStarterCard(mustEatId);
     const open = () => openLoginModal({ kind: 'card', mustEatId });
     // Ohne Bewegung waere die Wartezeit ein toter Moment.
     if (prefersReducedMotion()) {

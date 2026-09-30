@@ -8,7 +8,8 @@
  *
  *   BurgerDrawer, MustEatsOnboarding,
  *   RestaurantDetail (starter-pack banner)   no reason → the Starter Pack
- *   MustEatDetail, HubMustEatsTeaser         { kind: 'card' } → the tapped card
+ *   MustEatDetail, HubMustEatsTeaser,
+ *   MustEatsOnboarding (map must-eat detail) { kind: 'card' } → the tapped card
  *   useFavorites                             { kind: 'heart' } → the spot
  *
  * SiteNav does not open the modal — it has no login affordance at all.
@@ -16,7 +17,8 @@
  * Aus dem Grund folgt die Absicht (`intent`): das Herz, das der Tap vergeben
  * wollte, oder die Karte, die offen im Pack liegen soll. LoginPanel haengt sie
  * an die Continue-URL des Magic-Links, pendingHeart/pendingStarterCard loesen
- * sie ein.
+ * sie ein. Die Karte merkt sich LoginModalContext beim Oeffnen selbst, das
+ * Herz useFavorites.
  *
  * - localStorage._authHint: read by the inline CRITICAL_BOOTSTRAP in
  *   [locale]/layout.tsx only to set html[data-auth] before paint. The

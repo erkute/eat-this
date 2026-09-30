@@ -13,7 +13,6 @@ const openLogin = vi.fn();
 vi.mock('@/lib/auth', () => ({ useLoginModal: () => ({ open: openLogin }) }));
 
 import MustEatsOnboarding, { ONBOARDING_SEEN_KEY } from '@/app/components/MustEatsOnboarding';
-import { takePendingStarterCard } from '@/lib/auth/pendingStarterCard';
 
 const DATA: InitialMapData = {
   restaurants: [],
@@ -114,7 +113,6 @@ describe('MustEatsOnboarding', () => {
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     fireEvent.click(screen.getByText('mustEats.onbStarterCta'));
     expect(openLogin).toHaveBeenCalledWith({ kind: 'card', mustEatId: 'me-covered' });
-    expect(takePendingStarterCard()).toBe('me-covered');
   });
 
   it('gives the guest offer the primary slot and dismissing the secondary one', () => {

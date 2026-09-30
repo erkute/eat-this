@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 
 import { LoginModalProvider, useLoginModal } from '../LoginModalContext';
+import { takePendingStarterCard } from '../pendingStarterCard';
 
 const mount = () => renderHook(() => useLoginModal(), { wrapper: LoginModalProvider });
 
@@ -28,6 +29,15 @@ describe('LoginModalContext', () => {
     act(() => result.current.open({ kind: 'card', mustEatId: 'me-9' }));
     expect(result.current.reason).toEqual({ kind: 'card', mustEatId: 'me-9' });
     expect(result.current.intent).toEqual({ starterMustEatId: 'me-9' });
+  });
+
+  /* Der zweite Träger neben der Continue-URL: Google meldet im selben
+     Dokument an, der Magic-Link nicht. Bis 30.09.2026 musste jeder Auslöser
+     die Karte selbst merken, bevor er öffnete — drei Stellen. */
+  it('merkt sich die angetippte Karte für die Anmeldung per Google', () => {
+    const { result } = mount();
+    act(() => result.current.open({ kind: 'card', mustEatId: 'me-7' }));
+    expect(takePendingStarterCard()).toBe('me-7');
   });
 
   it('macht aus dem Herz die Absicht, den Spot zu herzen', () => {

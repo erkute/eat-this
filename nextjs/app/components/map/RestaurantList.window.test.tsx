@@ -25,10 +25,13 @@ import type { MapRestaurant } from '@/lib/types';
 type IoCallback = (entries: Array<Partial<IntersectionObserverEntry>>) => void;
 let ioCallbacks: IoCallback[] = [];
 let ioOptions: Array<IntersectionObserverInit | undefined> = [];
+let phone = false;
 
 beforeEach(() => {
   ioCallbacks = [];
   ioOptions = [];
+  phone = false;
+  vi.stubGlobal('matchMedia', () => ({ matches: phone }));
   vi.stubGlobal(
     'IntersectionObserver',
     class {
@@ -151,6 +154,32 @@ describe('RestaurantList card photos', () => {
     const { act } = await import('@testing-library/react');
     act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: true }])));
     expect(photos(container).map((img) => img.getAttribute('loading'))).toEqual(['eager', 'eager', 'eager']);
+  });
+
+  /* Scrolled to the bottom of ~230 spots, every card kept its decoded photos
+     and Safari killed the page on the iPhone (30.09.2026). */
+  it('lets go of the photos of a card far behind on the phone, and fetches them back', async () => {
+    phone = true;
+    const { container } = render(list({ restaurants: photoSpots() }));
+    const { act } = await import('@testing-library/react');
+
+    act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: false }])));
+    expect(photos(container)).toHaveLength(0);
+    // Die Karte bleibt, wie sie war — nur ohne Foto.
+    expect(container.querySelectorAll('[class*=rcardPhoto]').length).toBeGreaterThan(0);
+    expect(rows()).toHaveLength(3);
+
+    act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: true }])));
+    expect(photos(container).map((img) => img.getAttribute('loading'))).toEqual(['eager', 'eager', 'eager']);
+  });
+
+  it('keeps them on tablet and desktop, where the panel scrolls and not the window', async () => {
+    const { container } = render(list({ restaurants: photoSpots() }));
+    const { act } = await import('@testing-library/react');
+
+    act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: true }])));
+    act(() => ioCallbacks.forEach((cb) => cb([{ isIntersecting: false }])));
+    expect(photos(container)).toHaveLength(3);
   });
 
   it('lets the card photos be swiped once the prefetched gallery is in', async () => {

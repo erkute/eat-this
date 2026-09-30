@@ -4,7 +4,14 @@ import { berlinNow, getOpenStatus } from './openingHours';
 import { PRICE_BUCKETS, matchesPriceBucket, priceBucketOf } from './priceBuckets';
 import { byMustEatsThenName, openFirst } from './listOrder';
 import { MUST_EATS_CATEGORY } from './mapFilterParams';
-import { buildSearchIndex, matchesSearch, parseQuery, searchRank, suggestSpots } from './spotSearch';
+import {
+  buildSearchIndex,
+  matchesSearch,
+  needsFuzzy,
+  parseQuery,
+  searchRank,
+  suggestSpots,
+} from './spotSearch';
 
 /** Ab wie vielen Spots ein Bezirk im Filter erscheint. Zehn der zwanzig
  *  Bezirke lagen darunter, die Hälfte davon bei ein oder zwei Treffern. */
@@ -174,13 +181,8 @@ export function useMapFilters({
   const tokens = useMemo(() => parseQuery(search), [search]);
 
   /* Findet die exakte Suche im ganzen Katalog nichts, darf jedes Wort einen
-     Buchstaben danebenliegen (spotSearch). Gezählt wird ohne die Chips: ein
-     Bezirk, in dem es keine Pizza gibt, ist kein Tippfehler. */
-  const fuzzy = useMemo(() => {
-    if (!tokens.length) return false;
-    for (const entry of searchIndex.values()) if (matchesSearch(entry, tokens)) return false;
-    return true;
-  }, [tokens, searchIndex]);
+     Buchstaben danebenliegen (needsFuzzy, dieselbe Regel wie die Vorschläge). */
+  const fuzzy = useMemo(() => needsFuzzy(searchIndex, tokens), [tokens, searchIndex]);
 
   const matchesQuery = useCallback(
     (r: MapRestaurant): boolean => {

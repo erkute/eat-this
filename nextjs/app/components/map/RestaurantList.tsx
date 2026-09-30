@@ -13,12 +13,10 @@ import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import { spotPhotoSrcSet } from '@/lib/map/spotPhoto';
-import {
-  prefetchRestaurantDetail,
-  useCachedRestaurantDetail,
-} from '@/lib/map/useRestaurantDetail';
+import { prefetchRestaurantDetail, useCachedRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { rememberedSpotPhotoIndex, rememberSpotPhoto, spotGallery } from '@/lib/map/spotGallery';
 import { DAY_LABELS } from '@/lib/map/openingHours';
+import { isPhoneViewport } from '@/lib/map/viewport';
 import MapListEmpty from './MapListEmpty';
 import { usePhotoRail } from './usePhotoRail';
 import styles from './RestaurantList.module.css';
@@ -91,22 +89,32 @@ const Item = memo(
        its photo popped in a beat later (user, 23.09.2026). Flipping `loading`
        to eager at PHOTO_LEAD_PX makes the browser fetch it right then; the
        server-rendered markup keeps plain lazy-loading. */
-    const [photoNear, setPhotoNear] = useState(Boolean(priority));
+    /* …and on the phone it lets go of them again once the card is as far
+       behind. Every card the list had ever passed kept its decoded photos:
+       scrolled to the bottom of the ~230 spots, the production build peaked
+       at 830 MB in the iOS simulator, and on the iPhone Safari killed the page
+       — „Auf Staging ist wiederholt ein Problem aufgetreten" (Betreiber,
+       30.09.2026). Now only the cards within the lead on either side hold
+       photos; the card keeps its size (its box has a fixed aspect ratio), and
+       a photo coming back is in the HTTP cache.
+       Not on tablet and desktop: there the list scrolls inside the panel, the
+       observer only sees what the panel shows, and photos would vanish the
+       moment their card leaves it — and there is memory for the whole list.
+       `null`: the observer has not spoken yet — the server's markup, lazy. */
+    const [photoNear, setPhotoNear] = useState<boolean | null>(priority ? true : null);
     useEffect(() => {
       const el = cardRef.current;
-      if (photoNear || !el || typeof IntersectionObserver === 'undefined') return;
+      if (!el || typeof IntersectionObserver === 'undefined') return;
       const io = new IntersectionObserver(
         (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            setPhotoNear(true);
-            io.disconnect();
-          }
+          const near = entries[entries.length - 1].isIntersecting;
+          if (near || isPhoneViewport()) setPhotoNear(near);
         },
         { rootMargin: `${PHOTO_LEAD_PX}px 0px` }
       );
       io.observe(el);
       return () => io.disconnect();
-    }, [photoNear]);
+    }, []);
     const [detailNear, setDetailNear] = useState(false);
     useEffect(() => {
       const el = cardRef.current;
@@ -172,33 +180,37 @@ const Item = memo(
           {photos.length > 0 && (
             <div ref={railRef} className={styles.rcardPhotos} {...handlers}>
               {photos.map((img, index) => (
+                /* Far away the slots stay, empty: the rail keeps its width
+                   and the photo the user had swiped to. */
                 <span key={img._key} className={styles.rcardPhoto}>
-                  <img
-                    src={sanityImageLoader({ src: img.full, width: 600 })}
-                    /* One fixed 600px variant for every device was soft on a 3x
+                  {photoNear !== false && (
+                    <img
+                      src={sanityImageLoader({ src: img.full, width: 600 })}
+                      /* One fixed 600px variant for every device was soft on a 3x
                        phone (the card is ~362 CSS px wide) and oversized for the
                        280px desktop column. */
-                    /* Dieselben Stufen wie die Fotos im Restaurant-Detail
+                      /* Dieselben Stufen wie die Fotos im Restaurant-Detail
                        (lib/map/spotPhoto.ts) — so kommt dort das erste Foto aus
                        dem Cache. */
-                    srcSet={spotPhotoSrcSet(img.full)}
-                    sizes="(max-width: 767.98px) 94vw, 280px"
-                    alt=""
-                    /* Das Nachbarfoto muss schon da sein, wenn der Finger es
+                      srcSet={spotPhotoSrcSet(img.full)}
+                      sizes="(max-width: 767.98px) 94vw, 280px"
+                      alt=""
+                      /* Das Nachbarfoto muss schon da sein, wenn der Finger es
                        hereinzieht — `lazy` lädt im Querstreifen erst, wenn es
                        sichtbar wird. Aber erst, wenn die Karte wirklich nah
                        ist (300px, der Detail-Vorlauf), nicht beim weiten
                        Foto-Vorlauf: sonst holt jede Karte zwei Fotos, auch die,
                        an denen man nur vorbeiscrollt. */
-                    loading={
-                      (index === 0 ? photoNear : detailNear && Math.abs(index - page) <= 1)
-                        ? 'eager'
-                        : 'lazy'
-                    }
-                    fetchPriority={priority && index === 0 ? 'high' : undefined}
-                    decoding={priority && index === 0 ? 'sync' : 'async'}
-                    draggable={false}
-                  />
+                      loading={
+                        (index === 0 ? photoNear : detailNear && Math.abs(index - page) <= 1)
+                          ? 'eager'
+                          : 'lazy'
+                      }
+                      fetchPriority={priority && index === 0 ? 'high' : undefined}
+                      decoding={priority && index === 0 ? 'sync' : 'async'}
+                      draggable={false}
+                    />
+                  )}
                 </span>
               ))}
             </div>

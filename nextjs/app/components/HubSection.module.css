@@ -685,7 +685,7 @@
 
 /* Die Headline schlägt als Stempel ein, Zeile für Zeile (Ansage 30.09.2026:
    „We tell muss wie ein Stempel rein"; 29.09.: „erst We tell you, dann what
-   to eat"). Jede Zeile steht gut fast doppelt so groß und leicht gedreht
+   to eat"). Jede Zeile steht fast doppelt so groß und leicht gedreht
    über ihrem Platz, zieht an, schlägt auf und staucht sich beim Aufprall —
    breiter und flacher, dann schwingt sie zurück (`--hit-*`). Bis zum
    Einschlag ist die Zeile nicht da: bei genau 0 steht die Skalierung auf 0.
@@ -695,20 +695,23 @@
    Über die Zahlen auf der Section, weil HubHeroCopy die Zeilen beim
    Anmelde-Wechsel neu baut. */
 :global(html[data-hero-intro]) .heroHeadline .heroLine:first-child {
-  --gate: min(1, var(--in-l1, 1) * 1000000);
-  --size: calc(1 + (1 - var(--in-l1, 1)) * 0.9);
-  scale: calc((var(--size) + var(--hit-l1, 0) * 0.08) * var(--gate))
-    calc((var(--size) - var(--hit-l1, 0) * 0.12) * var(--gate));
-  rotate: calc((1 - var(--in-l1, 1)) * -5deg);
-  transform-origin: 50% 70%;
+  --in: var(--in-l1, 1);
+  --hit: var(--hit-l1, 0);
+  --tilt: -5deg;
 }
 
 :global(html[data-hero-intro]) .heroHeadline .heroLine:last-child {
-  --gate: min(1, var(--in-l2, 1) * 1000000);
-  --size: calc(1 + (1 - var(--in-l2, 1)) * 0.9);
-  scale: calc((var(--size) + var(--hit-l2, 0) * 0.08) * var(--gate))
-    calc((var(--size) - var(--hit-l2, 0) * 0.12) * var(--gate));
-  rotate: calc((1 - var(--in-l2, 1)) * 4deg);
+  --in: var(--in-l2, 1);
+  --hit: var(--hit-l2, 0);
+  --tilt: 4deg;
+}
+
+:global(html[data-hero-intro]) .heroHeadline .heroLine {
+  --gate: min(1, var(--in) * 1000000);
+  --size: calc(1 + (1 - var(--in)) * 0.9);
+  scale: calc((var(--size) + var(--hit) * 0.08) * var(--gate))
+    calc((var(--size) - var(--hit) * 0.12) * var(--gate));
+  rotate: calc((1 - var(--in)) * var(--tilt));
   transform-origin: 50% 70%;
 }
 

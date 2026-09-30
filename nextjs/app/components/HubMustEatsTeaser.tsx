@@ -42,6 +42,15 @@ function cardSrcSet(url: string): string {
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
+// The card is capped at 178px (see .card in the CSS module). Below the cap it
+// fills its grid column: the viewport minus the 16px wrap padding and two 8px
+// gutters, over three columns — ~109px on a 375px phone. The two meet at
+// 582px. Die Mini-Karten im Knopf nehmen dieselbe Angabe: so wählt der Browser
+// dieselbe Datei wie für die grosse Karte und lädt nichts nach — mit eigener
+// Breite (w=180) holte ein Retina-Bildschirm jedes offene Motiv ein zweites
+// Mal von der langsamen Bildroute (gemessen 30.09.2026).
+const CARD_SIZES = '(min-width: 582px) 178px, calc((100vw - 48px) / 3)';
+
 /* „Alle Must Eats" saugt Karten an (Ansage 30.09.2026): vierundzwanzig
    kleine Karten fliegen von allen Bildschirmkanten hinein, jede dritte offen,
    dann drückt sich der Knopf selbst — wer hier klickt, sieht alle Karten. Die
@@ -238,12 +247,7 @@ export default function HubMustEatsTeaser() {
                     className={styles.card}
                     src={mustEatCardSrc(m.image, 360)}
                     srcSet={cardSrcSet(m.image)}
-                    // The card is capped at 178px (see .card in the CSS
-                    // module). Below the cap it fills its grid column:
-                    // the viewport minus the 16px wrap padding and two 8px
-                    // gutters, over three columns — ~109px on a 375px
-                    // phone. The two meet at 582px.
-                    sizes="(min-width: 582px) 178px, calc((100vw - 48px) / 3)"
+                    sizes={CARD_SIZES}
                     alt={dish}
                     loading="lazy"
                     decoding="async"
@@ -343,7 +347,9 @@ export default function HubMustEatsTeaser() {
                   <img
                     key={i}
                     className={styles.fly}
-                    src={image ? mustEatCardSrc(image, 180) : CARD_BACK}
+                    src={image ? mustEatCardSrc(image, 360) : CARD_BACK}
+                    srcSet={image ? cardSrcSet(image) : undefined}
+                    sizes={image ? CARD_SIZES : undefined}
                     alt=""
                     width={760}
                     height={1044}

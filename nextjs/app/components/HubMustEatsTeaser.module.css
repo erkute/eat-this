@@ -501,7 +501,11 @@
    angesaugt und verschwindet hinter dem Knopf: die Hülle hebt das Ganze über
    die Abschnitte ringsum, im Inneren liegt der Knopf über den Karten.
    Vor dem Start und nach der Landung sind sie nicht da (`visibility`, kein
-   Ausblenden). Nur `translate/rotate/scale` — Compositor. */
+   Ausblenden). Die Karten bewegen nur `translate/rotate/scale` (Compositor);
+   einzig das kurze Papier im Druck des Knopfs ist Malarbeit.
+   `z-index: 20` ist lokal, keine Stufe der `--et-z-*`-Skala: es muss nur über
+   den Karten der Reihe liegen (`.item`, bis 10) und bleibt weit unter der
+   Navigation. */
 .ctaWrap {
   position: relative;
   z-index: 20;

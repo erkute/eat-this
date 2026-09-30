@@ -182,6 +182,23 @@
     will-change: auto;
   }
 
+  /* The end of the page stands still when Safari unfolds its bar. Scrolling
+     down, Safari shrinks the bar (viewport 714 → 754px on an iPhone 17); at
+     the end it unfolds it again. A plain page runs into its rubber band there
+     and settles at the new end; the map has none (overscroll-behavior-y in
+     globals.css), so the last 40px slid under the bar and could be pushed up
+     once more (Betreiber, 29.09.2026). Moving the page along with the bar
+     looked wrong, too (30.09.2026). This pad is exactly what the bar takes
+     back — `100dvh` follows the viewport, `100svh` is its unfolded height —
+     so the end of the scroll stays where it was and the bar covers ink.
+     Not the must-eat takeover, which must not scroll at all. */
+  .list:not([data-detail-kind='must-eat'])::after {
+    content: '';
+    display: block;
+    height: calc(100dvh - 100svh);
+    background: var(--et-ink);
+  }
+
   /* The list sheet is see-through; its two parts carry the ink — the filter
      bar (MapFilters.module.css, with the sheet's edge) and the rows. Once the
      bar sticks, the slot it leaves travels up with the sheet: with an ink

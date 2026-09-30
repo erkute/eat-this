@@ -46,14 +46,14 @@ gsap.registerPlugin(useGSAP);
  * 3. **Beim Hereinkommen:**
  *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
  *      als ganze Kacheln — einmal.
- *    - `data-stamp`: der Titel „Must Eats" schlägt wie ein Stempel ein,
- *      umkehrbar (`armStamps`).
  *    - Frag Remy: das Fragezeichen fliegt von links ein, „Frag Remy." schlägt
  *      ein, Remy schießt von unten hoch und redet, mehrmals. Wer den
  *      Abschnitt verlässt, sieht alles rückwärts gehen; wer zurückkommt, sieht
  *      es neu (`armFragRemy`).
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
+ *    - „Alle Must Eats": kleine Karten fliegen von überall in den Knopf, dann
+ *      drückt er sich selbst (`armSwarm`, CSS in HubMustEatsTeaser.module.css).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
  *      wird gedrückt, das Feld leert sich — in Schleife, solange die Tafel im
  *      Bild ist (`armSignupDemo`).
@@ -135,16 +135,10 @@ function onceInView(plays: Map<Element, () => void>): () => void {
 }
 
 /** Auftritt und Rückweg an einer Section: `enter`, sobald sie das Band des
- *  Bildschirms berührt (Vorgabe 30–70 % der Höhe; `from` verschiebt die
- *  Unterkante, `to` die Oberkante), `leave`, sobald sie es nach oben oder
- *  unten verlässt — in beide Richtungen, beliebig oft. */
-function whileCentered(
-  el: Element,
-  enter: () => void,
-  leave: () => void,
-  from = 0.7,
-  to = 0.3
-): () => void {
+ *  Bildschirms berührt (Vorgabe 30–70 % der Höhe, `from` verschiebt die
+ *  Unterkante), `leave`, sobald sie es nach oben oder unten verlässt — in
+ *  beide Richtungen, beliebig oft. */
+function whileCentered(el: Element, enter: () => void, leave: () => void, from = 0.7): () => void {
   if (typeof IntersectionObserver === 'undefined') return () => {};
   let inside = false;
   const io = new IntersectionObserver(
@@ -153,7 +147,7 @@ function whileCentered(
       inside = entry.isIntersecting;
       (inside ? enter : leave)();
     },
-    { rootMargin: `-${Math.round(to * 100)}% 0px -${Math.round((1 - from) * 100)}% 0px` }
+    { rootMargin: `-30% 0px -${Math.round((1 - from) * 100)}% 0px` }
   );
   io.observe(el);
   return () => io.disconnect();
@@ -362,53 +356,51 @@ function armFragRemy(): () => void {
 }
 
 /**
- * Stempel wie „Frag Remy." (Ansage 28.09.2026): gross, gedreht und etwas zu
- * hoch, dann mit anziehendem Tempo flach auf seinen Platz, ein kurzer
- * Aufprall — `data-stamp`, derzeit der Titel „Must Eats". Bis zum Einschlag
- * ist nichts da (`visibility`, kein Ausblenden). Genau ein Tween auf seinem
- * `transform` — zwei liessen bei Frag Remy den Rückweg fallen.
- * Ausgelöst vom Titel selbst, sobald er unten ins Bild kommt — nicht von der
- * Section in der Bildmitte: sonst standen Satz und Kartenstapel darunter
- * schon ohne Titel da, und der Titel kam als Letztes (Ansage 30.09.2026).
- * Abheben erst, wenn er ganz aus dem Bild ist, nach oben oder unten; wer
- * zurückkommt, sieht ihn neu. Beobachtet wird sein Kopf, nicht der Titel:
- * der wächst beim Stempeln auf das 2,4-Fache und schnitte die Grenze erneut.
+ * „Alle Must Eats" (`data-swarm`, HubMustEatsTeaser): `1`, sobald der Knopf
+ * über 75 % der Höhe steht — dann fliegen die Karten, und er drückt sich —,
+ * `0` erst, wenn er ganz aus dem Bild ist. Wer ein Stück zurückscrollt, sieht
+ * es also nicht dauernd neu, wer wiederkommt, schon. Die Bewegung ist CSS;
+ * hier nur, wo jede Karte startet: an der Bildschirmkante in ihrer Richtung
+ * (goldener Winkel, damit sie sich ums ganze Rund verteilen), gestaffelt ein
+ * Stück dahinter — so fliegt jede quer durchs sichtbare Bild.
  */
-function armStamps(): () => void {
-  const root = document.querySelector<HTMLElement>('[data-hub]');
-  if (!root) return () => {};
-  const stops: Array<() => void> = [];
-  for (const el of root.querySelectorAll<HTMLElement>('[data-stamp]')) {
-    gsap.set(el, { visibility: 'hidden' });
-    const stamp = gsap
-      .timeline({ paused: true })
-      // Nicht bei 0: ein `set` ganz am Anfang einer Zeitleiste greift sofort.
-      .set(
-        el,
-        { visibility: 'visible', scale: 2.4, rotation: -7, y: -24, transformOrigin: '0% 60%' },
-        0.01
-      )
-      .to(el, {
-        keyframes: [
-          { scale: 1, rotation: 0, y: 0, duration: 0.34, ease: 'power4.in' },
-          { y: 6, duration: 0.07, ease: 'power1.out' },
-          { y: 0, duration: 0.5, ease: 'elastic.out(1, 0.35)' },
-        ],
-      });
-    const unwatch = whileCentered(
-      el.parentElement ?? el,
-      () => stamp.timeScale(1).play(),
-      () => stamp.timeScale(1.6).reverse(),
-      0.9,
-      0
-    );
-    stops.push(() => {
-      unwatch();
-      stamp.kill();
-      gsap.set(el, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility` });
+function armSwarm(): () => void {
+  const el = document.querySelector<HTMLElement>('[data-hub] [data-swarm]');
+  if (!el || typeof IntersectionObserver === 'undefined') return () => {};
+  const aim = () => {
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    el.querySelectorAll<HTMLElement>('img').forEach((card, i) => {
+      const a = ((i * 137.5) % 360) * (Math.PI / 180);
+      const dx = Math.cos(a);
+      const dy = Math.sin(a);
+      // Wie weit bis zur Kante in dieser Richtung, plus eine Kartenlänge.
+      const toX = dx > 0 ? (window.innerWidth - cx) / dx : dx < 0 ? -cx / dx : Infinity;
+      const toY = dy > 0 ? (window.innerHeight - cy) / dy : dy < 0 ? -cy / dy : Infinity;
+      const reach = Math.min(toX, toY) + 60 + ((i * 7) % 5) * 40;
+      card.style.setProperty('--sx', `${Math.round(dx * reach)}px`);
+      card.style.setProperty('--sy', `${Math.round(dy * reach)}px`);
     });
-  }
-  return () => stops.forEach((stop) => stop());
+  };
+  const enter = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting || el.getAttribute('data-swarm') === '1') return;
+      aim();
+      el.setAttribute('data-swarm', '1');
+    },
+    { rootMargin: '0px 0px -25% 0px' }
+  );
+  const leave = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) el.setAttribute('data-swarm', '0');
+  });
+  enter.observe(el);
+  leave.observe(el);
+  return () => {
+    enter.disconnect();
+    leave.disconnect();
+    el.setAttribute('data-swarm', '');
+  };
 }
 
 /**
@@ -964,9 +956,9 @@ export default function HubMotion() {
         stops.push(armScrubFallback(scroller));
         stops.push(armStaggers(safe!));
         stops.push(armFragRemy());
-        stops.push(armStamps());
         stops.push(armInView());
         if (!desk) stops.push(armScrollBands(scroller));
+        stops.push(armSwarm());
         stops.push(armSignupDemo());
         stops.push(armFaq());
         stops.push(armScrollTalk(scroller));

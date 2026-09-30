@@ -109,16 +109,12 @@
   }
 }
 
-/* Ausgeteilt wird, während die Reihe unten hereinkommt, und fertig ist es,
-   sobald sie ganz im Bild steht (`entry`). Vorher lief es bis tief in die
-   Bildmitte (`cover 20%`–`58%`): die Knöpfe darunter standen schon da, und
-   die Karten kamen als Letztes (Ansage 30.09.2026). */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .rail {
       animation: deal linear both;
       animation-timeline: view();
-      animation-range: entry 0% entry 100%;
+      animation-range: cover 20% cover 58%;
     }
   }
 }
@@ -495,6 +491,131 @@
   transform: translateY(1px);
 }
 
+/* ── Karten fliegen in „Alle Must Eats" ─────────────────────────────────────
+   Ansage 30.09.2026: kleine Must-Eat-Karten, offen und verdeckt, fliegen von
+   überall in den Knopf, dann drückt er sich selbst — wer hier klickt, sieht
+   alle Karten. HubMotion setzt `data-swarm="1"`, sobald der Knopf gut im Bild
+   ist, und `0` erst, wenn er ganz draussen ist; wer zurückkommt, sieht es neu.
+   Jede Karte startet an der Bildschirmkante in ihrer Richtung (`--sx/--sy`,
+   misst HubMotion beim Auslösen), fliegt quer durchs Bild, beschleunigt wie
+   angesaugt und verschwindet hinter dem Knopf: die Hülle hebt das Ganze über
+   die Abschnitte ringsum, im Inneren liegt der Knopf über den Karten.
+   Vor dem Start und nach der Landung sind sie nicht da (`visibility`, kein
+   Ausblenden). Nur `translate/rotate/scale` — Compositor. */
+.ctaWrap {
+  position: relative;
+  z-index: 20;
+  display: inline-flex;
+}
+
+.ctaWrap .cta {
+  position: relative;
+  z-index: 1;
+}
+
+.swarm {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.fly {
+  --fly-w: clamp(30px, 3vw, 42px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--fly-w);
+  height: auto;
+  margin: calc(var(--fly-w) * -0.687) 0 0 calc(var(--fly-w) * -0.5);
+  border-radius: 3px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.45);
+  visibility: hidden;
+}
+
+@keyframes swarmIn {
+  from {
+    visibility: visible;
+    translate: var(--sx, 0px) var(--sy, 0px);
+    rotate: var(--spin);
+    scale: 1.15;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.85, 0.5);
+  }
+  90% {
+    visibility: visible;
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 0.8;
+  }
+  to {
+    visibility: hidden;
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 0.6;
+  }
+}
+
+/* Der Knopf zuckt bei jedem Schub Karten, die ankommen, und drückt sich dann
+   einmal wie ein echter Klick: einsinken, kurz Papier wie unter dem Finger,
+   zurückfedern. */
+@keyframes swarmPress {
+  0%,
+  40% {
+    scale: 1;
+    translate: 0 0;
+  }
+  43% {
+    scale: 1.05;
+  }
+  47% {
+    scale: 1;
+  }
+  52% {
+    scale: 1.06;
+  }
+  56% {
+    scale: 1;
+  }
+  61% {
+    scale: 1.07;
+  }
+  65%,
+  68% {
+    scale: 1;
+    translate: 0 0;
+    background-color: var(--teaser-accent);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  }
+  72% {
+    scale: 0.92;
+    translate: 0 5px;
+    background-color: var(--teaser-paper);
+    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  80% {
+    scale: 1.03;
+    translate: 0 -1px;
+  }
+  88% {
+    scale: 0.99;
+    translate: 0 0;
+    background-color: var(--teaser-accent);
+  }
+  100% {
+    scale: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ctaWrap[data-swarm='1'] .fly {
+    animation: swarmIn 1.25s linear var(--delay) forwards;
+  }
+
+  .ctaWrap[data-swarm='1'] .cta {
+    animation: swarmPress 2.8s linear both;
+  }
+}
+
 /* ── Mobile: the same set, three across ──────────────────────────────────────
    This was a swipeable rail here. At 375px it laid out 1242px of cards behind
    a 375px window — one card back, a sliver of the next, and no scrollbar or
@@ -553,6 +674,10 @@
     width: 100%;
     text-align: center;
     justify-content: center;
+  }
+
+  .ctaWrap .cta {
+    width: 100%;
   }
 }
 

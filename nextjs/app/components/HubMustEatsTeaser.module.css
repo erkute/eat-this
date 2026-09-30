@@ -109,12 +109,16 @@
   }
 }
 
+/* Ausgeteilt wird, während die Reihe unten hereinkommt, und fertig ist es,
+   sobald sie ganz im Bild steht (`entry`). Vorher lief es bis tief in die
+   Bildmitte (`cover 20%`–`58%`): die Knöpfe darunter standen schon da, und
+   die Karten kamen als Letztes (Ansage 30.09.2026). */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .rail {
       animation: deal linear both;
       animation-timeline: view();
-      animation-range: cover 20% cover 58%;
+      animation-range: entry 0% entry 100%;
     }
   }
 }

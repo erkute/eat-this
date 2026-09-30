@@ -135,10 +135,16 @@ function onceInView(plays: Map<Element, () => void>): () => void {
 }
 
 /** Auftritt und Rückweg an einer Section: `enter`, sobald sie das Band des
- *  Bildschirms berührt (Vorgabe 30–70 % der Höhe, `from` verschiebt die
- *  Unterkante), `leave`, sobald sie es nach oben oder unten verlässt — in
- *  beide Richtungen, beliebig oft. */
-function whileCentered(el: Element, enter: () => void, leave: () => void, from = 0.7): () => void {
+ *  Bildschirms berührt (Vorgabe 30–70 % der Höhe; `from` verschiebt die
+ *  Unterkante, `to` die Oberkante), `leave`, sobald sie es nach oben oder
+ *  unten verlässt — in beide Richtungen, beliebig oft. */
+function whileCentered(
+  el: Element,
+  enter: () => void,
+  leave: () => void,
+  from = 0.7,
+  to = 0.3
+): () => void {
   if (typeof IntersectionObserver === 'undefined') return () => {};
   let inside = false;
   const io = new IntersectionObserver(
@@ -147,7 +153,7 @@ function whileCentered(el: Element, enter: () => void, leave: () => void, from =
       inside = entry.isIntersecting;
       (inside ? enter : leave)();
     },
-    { rootMargin: `-30% 0px -${Math.round((1 - from) * 100)}% 0px` }
+    { rootMargin: `-${Math.round(to * 100)}% 0px -${Math.round((1 - from) * 100)}% 0px` }
   );
   io.observe(el);
   return () => io.disconnect();
@@ -358,11 +364,15 @@ function armFragRemy(): () => void {
 /**
  * Stempel wie „Frag Remy." (Ansage 28.09.2026): gross, gedreht und etwas zu
  * hoch, dann mit anziehendem Tempo flach auf seinen Platz, ein kurzer
- * Aufprall — `data-stamp`, derzeit der Titel „Must Eats". Wie Frag Remy
- * umkehrbar: wer die Section verlässt, sieht den Stempel rückwärts abheben,
- * wer zurückkommt, sieht ihn neu. Bis zum Einschlag ist nichts da
- * (`visibility`, kein Ausblenden). Genau ein Tween auf seinem `transform` —
- * zwei liessen bei Frag Remy den Rückweg fallen.
+ * Aufprall — `data-stamp`, derzeit der Titel „Must Eats". Bis zum Einschlag
+ * ist nichts da (`visibility`, kein Ausblenden). Genau ein Tween auf seinem
+ * `transform` — zwei liessen bei Frag Remy den Rückweg fallen.
+ * Ausgelöst vom Titel selbst, sobald er unten ins Bild kommt — nicht von der
+ * Section in der Bildmitte: sonst standen Satz und Kartenstapel darunter
+ * schon ohne Titel da, und der Titel kam als Letztes (Ansage 30.09.2026).
+ * Abheben erst, wenn er ganz aus dem Bild ist, nach oben oder unten; wer
+ * zurückkommt, sieht ihn neu. Beobachtet wird sein Kopf, nicht der Titel:
+ * der wächst beim Stempeln auf das 2,4-Fache und schnitte die Grenze erneut.
  */
 function armStamps(): () => void {
   const root = document.querySelector<HTMLElement>('[data-hub]');
@@ -386,9 +396,11 @@ function armStamps(): () => void {
         ],
       });
     const unwatch = whileCentered(
-      el.closest('section') ?? el,
+      el.parentElement ?? el,
       () => stamp.timeScale(1).play(),
-      () => stamp.timeScale(1.6).reverse()
+      () => stamp.timeScale(1.6).reverse(),
+      0.9,
+      0
     );
     stops.push(() => {
       unwatch();

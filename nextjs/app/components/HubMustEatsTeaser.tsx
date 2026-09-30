@@ -176,8 +176,8 @@ export default function HubMustEatsTeaser() {
           className={`hv-rail ${styles.rail}`}
           role="list"
           data-scrub="--deal 0 1"
-          data-scrub-start="top 70%"
-          data-scrub-end="top 15%"
+          data-scrub-start="top bottom"
+          data-scrub-end="bottom bottom"
         >
           {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
             // Ohne Bezirk: „AERA Charlottenburg“ heisst unter dem Gericht nur „AERA“.

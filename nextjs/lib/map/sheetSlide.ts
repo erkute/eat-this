@@ -110,6 +110,16 @@ type Shift = { sheet: number; edge: number };
    map) — its control, since the credit's container carries the scroll ride on
    the same property. */
 const FOLLOWERS = '[data-locate-dock], .maplibregl-ctrl-bottom-left > .maplibregl-ctrl';
+
+/** The controls have already ridden up before a deep-list pull begins.
+ * Their resting top is the dock's resolved margin, their current top is
+ * its sticky position. Keep that travel when moving the sheet back down. */
+export function controlScrollRide(): number {
+  const dock = document.querySelector<HTMLElement>('[data-locate-dock]');
+  if (!dock) return 0;
+  const restTop = parseFloat(getComputedStyle(dock).marginTop);
+  return Number.isFinite(restTop) ? Math.max(0, restTop - dock.getBoundingClientRect().top) : 0;
+}
 let followed: Shift = { sheet: 0, edge: 0 };
 /* From the grab deep in the list, or the start of a glide, until the
    release: the frame stays behind the sheet. Grabbed, the sheet carries a
@@ -269,9 +279,9 @@ export async function settleOnMap(
   sheet: HTMLElement,
   fromPx: number,
   toPx: number,
-  { restLinePx, mapY }: { restLinePx: number; mapY: number }
+  { restLinePx, mapY, controlRidePx = 0 }: { restLinePx: number; mapY: number; controlRidePx?: number }
 ): Promise<void> {
-  await glide(sheet, fromPx, toPx, toPx - restLinePx);
+  await glide(sheet, fromPx, toPx, toPx - restLinePx + controlRidePx);
   /* `instant`, not `auto`: html carries scroll-behavior: smooth. The release
      runs in the same task as the jump, so no frame shows the sheet twice. */
   window.scrollTo({ top: mapY, behavior: 'instant' });

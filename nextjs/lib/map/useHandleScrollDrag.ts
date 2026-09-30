@@ -4,6 +4,7 @@ import { trackEvent } from '@/lib/analytics';
 import { measureSheetTop, snapOffsets } from './phoneSheetSnaps';
 import {
   clearBottom,
+  controlScrollRide,
   dropLowered,
   followSheet,
   grabFromList,
@@ -67,6 +68,7 @@ type Drag =
       offset: number;
       /* Where the bar rests over the map, in slab offset. */
       restLine: number;
+      controlRide: number;
       /* The lowest the bar may go, in slab offset. Past it the sticky bar
          would near the bottom edge — under Safari's URL bar, which also
          tints itself after it (see sheetSlide.ts). */
@@ -169,6 +171,7 @@ export function useHandleScrollDrag(
           startY,
           offset: grabFromList(sheet),
           restLine,
+          controlRide: controlScrollRide(),
           lowLine: restLine + lowBy,
           mapY,
         };
@@ -219,7 +222,7 @@ export function useHandleScrollDrag(
       if (!drag) return;
       if (drag.kind === 'slab') {
         if (sheet) holdSheetAt(sheet, drag.offset);
-        followSheet(drag.offset, drag.offset - drag.restLine);
+        followSheet(drag.offset, drag.offset - drag.restLine + drag.controlRide);
         return;
       }
       if (sheet) holdSheetAt(sheet, Math.max(0, drag.mapY - drag.pos));
@@ -271,6 +274,14 @@ export function useHandleScrollDrag(
       schedule();
     };
 
+    const onTouchMove = (e: TouchEvent) => {
+      // A photo rail is its own native scroll container. On iPhone Safari
+      // it can take over a lowered-sheet swipe despite pointer capture and
+      // touch-action on the outer sheet. Keep native scrolling out only
+      // while this hook owns the gesture; ordinary content swipes stay native.
+      if (drag && e.cancelable) e.preventDefault();
+    };
+
     /* Glide a sheet held below the map stop to `target` (a scroll position;
        below the map stop = lowered). */
     const settleBelow = (sheet: HTMLElement, from: number, target: number, mapY: number) => {
@@ -317,6 +328,7 @@ export function useHandleScrollDrag(
           done = settleOnMap(sheet, d.offset, d.restLine, {
             restLinePx: d.restLine,
             mapY: d.mapY,
+            controlRidePx: d.controlRide,
           });
         } else if (!cancelled && d.offset >= STILL_PX) {
           /* Where the finger let go. Pushed up, the slab does not move (it
@@ -386,6 +398,7 @@ export function useHandleScrollDrag(
     };
 
     press.addEventListener('pointerdown', onDown);
+    press.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
     // Capture is best-effort in mobile browsers. Finish even when the pointer
     // leaves the moving grip, or native scrolling takes its capture away.
     window.addEventListener('pointermove', onMove, true);
@@ -397,6 +410,7 @@ export function useHandleScrollDrag(
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       press.removeEventListener('pointerdown', onDown);
+      press.removeEventListener('touchmove', onTouchMove, true);
       window.removeEventListener('pointermove', onMove, true);
       window.removeEventListener('pointerup', onUp, true);
       window.removeEventListener('pointercancel', onUp, true);

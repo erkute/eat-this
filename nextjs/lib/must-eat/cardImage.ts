@@ -27,7 +27,7 @@ export function mustEatImageUrl(id: string, imageObjectPath: string): string {
 
 /** Nur Bilder der Route bekommen eine Breite — die Kartenrückseite aus
  *  `public/pics` läuft unverändert durch, eine schon skalierte URL auch. */
-export function isMustEatRouteImage(url: string | undefined): url is string {
+function isMustEatRouteImage(url: string | undefined): url is string {
   return !!url && url.startsWith(ROUTE_PREFIX) && !/[?&]w=/.test(url);
 }
 

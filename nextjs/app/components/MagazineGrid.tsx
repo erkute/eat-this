@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { HubArticle } from '@/lib/home/getHomeData';
-import { deckKeyframes } from '@/lib/home/magazineDeck';
+import { deckKeyframes, tableKeyframes } from '@/lib/home/magazineDeck';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import MagazineDeckDots from './MagazineDeckDots';
@@ -60,6 +60,13 @@ export function headlineSize(title: string): number {
  * Schlüsselbilder kommen aus `deckKeyframes`. Kein `sticky`: iOS 27 färbt
  * sonst die URL-Leiste. Ohne Scroll-Timelines ist es ein gewöhnlicher
  * Querstreifen mit Einrasten.
+ *
+ * Ab 768px liegt der Stapel als Fächer auf einem Tisch, der bis an den
+ * Fensterrand reicht (`mag-table-*`, magazineDeck.ts): bildschirmhoch, die
+ * nächsten vier Hefte nach links aufgeblättert, weiterblättern schiebt das
+ * oberste unter den Stapel, der Stapel ist ein Ring. Mit der Maus lässt er
+ * sich ziehen, aufblättern und ein Heft aus dem Fächer nach vorn holen
+ * (lib/home/deckMouse.ts, HubMotion).
  */
 export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
@@ -78,8 +85,9 @@ export default function MagazineGrid({ articles, locale }: Props) {
       aria-label={labels.kicker}
       data-hub-magazine=""
     >
-      {/* Keyframes per cover and dot, for exactly this many covers. */}
-      <style>{deckKeyframes(count)}</style>
+      {/* Keyframes per cover and dot, for exactly this many covers — the
+          phone's deal-off stack and the desktop's table (magazineDeck.ts). */}
+      <style>{deckKeyframes(count) + tableKeyframes(count)}</style>
       <div className={styles.layout}>
         <div>
           <div className={`hv-head ${styles.head}`}>
@@ -94,8 +102,13 @@ export default function MagazineGrid({ articles, locale }: Props) {
           </Link>
         </div>
 
-        <div className={styles.stage} style={{ '--count': count } as CSSProperties}>
-          <div id={DECK_ID} className={styles.deck}>
+        <div
+          className={styles.stage}
+          style={{ '--count': count } as CSSProperties}
+          data-home-pointer=""
+          data-magazine-stage=""
+        >
+          <div id={DECK_ID} className={styles.deck} data-magazine-deck="">
             <ol className={styles.track} role="list" aria-label={labels.kicker}>
               {list.map((a, i) => {
                 const month = formatMonth(a.date, locale);
@@ -103,11 +116,13 @@ export default function MagazineGrid({ articles, locale }: Props) {
                   <li
                     key={a.slug}
                     className={styles.card}
+                    data-deck-index={i}
                     style={
                       {
                         '--i': i,
+                        '--deck-key': `mag-deck-${count}-${i}`,
+                        '--table-key': `mag-table-${count}-${i}`,
                         zIndex: count - i,
-                        animationName: `mag-deck-${count}-${i}`,
                       } as CSSProperties
                     }
                   >

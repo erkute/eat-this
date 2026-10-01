@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { scrollProgress } from '@/lib/dom/scrollProgress';
+import { armDeckMouse } from '@/lib/home/deckMouse';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -55,7 +56,8 @@ gsap.registerPlugin(useGSAP);
  *    Abschnitt und der schwebende unten rechts (`armScrollTalk`).
  *
  * 5. **Nur ab 768px:** die Telefone driften beim Herausscrollen auseinander;
- *    mit echtem Zeiger kippen sie zur Maus, der Knopf zieht magnetisch.
+ *    mit echtem Zeiger kippen sie zur Maus, der Knopf zieht magnetisch, und
+ *    der Magazin-Stapel lässt sich ziehen und aufblättern (`armMagazineMouse`).
  */
 
 /**
@@ -825,6 +827,14 @@ function armDepthPointer(): () => void {
   return () => cleanups.forEach((stop) => stop());
 }
 
+/** Der Magazin-Stapel mit der Maus: ziehen, aufblättern, nach vorn holen
+ *  (lib/home/deckMouse.ts). */
+function armMagazineMouse(): () => void {
+  const stage = document.querySelector<HTMLElement>('[data-magazine-stage]');
+  const deck = stage?.querySelector<HTMLElement>('[data-magazine-deck]');
+  return stage && deck ? armDeckMouse(stage, deck) : () => {};
+}
+
 export default function HubMotion() {
   useGSAP(() => {
     // Ausserhalb von matchMedia: aufräumen muss es auch, wenn jemand während
@@ -855,6 +865,7 @@ export default function HubMotion() {
         if (desk && pointer) {
           stops.push(armHeroPointer());
           stops.push(armDepthPointer());
+          stops.push(armMagazineMouse());
         }
         return () => stops.forEach((stop) => stop());
       }

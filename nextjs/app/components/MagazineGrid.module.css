@@ -17,19 +17,6 @@
   display: grid;
   gap: var(--mag-gap);
 }
-@media (min-width: 768px) {
-  .section {
-    --cover-w: min(420px, (100svh - 230px) * 0.75);
-  }
-  /* Überschrift links, der Stapel in der Seitenmitte — nicht an den
-     rechten Rand gedrückt mit einem leeren Feld dazwischen. */
-  .layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 460px) minmax(0, 1fr);
-    column-gap: clamp(32px, 4vw, 64px);
-    align-items: center;
-  }
-}
-
 .section .head:global(.hv-head) {
   display: flex;
   flex-direction: column;
@@ -412,6 +399,7 @@
   @media (prefers-reduced-motion: no-preference) {
     .card {
       grid-column: 1;
+      animation-name: var(--deck-key);
       animation-duration: auto;
       animation-timing-function: linear;
       animation-fill-mode: both;
@@ -436,5 +424,112 @@
 @media (prefers-reduced-motion: reduce) {
   .photo {
     transition: none;
+  }
+}
+
+/* ── Desktop: der Stapel auf dem Tisch (ab 768px) ──
+   Die Hefte liegen bildschirmhoch rechts, die nächsten vier als Fächer nach
+   links aufgeblättert — zur Überschrift hin, so liest man bei jedem den
+   Anfang der Schlagzeile, und der Fächer füllt die Fläche bis zur
+   Überschrift. Weiterblättern schiebt das oberste nach links über den
+   Fächer und darunter (`mag-table-*`, magazineDeck.ts). Der Tisch (der
+   Querscroller) reicht deshalb vom linken Satzrand bis an den rechten
+   Fensterrand und läuft unter der Überschrift durch: an seiner Kante würde
+   ein gleitendes oder aufgeblättertes Heft abgeschnitten. Die Maus
+   (lib/home/deckMouse.ts): ziehen blättert, darüberfahren fächert weiter
+   auf (`--fan`), der Zeiger neigt den Stapel (`--look-x/-y`, HubMotion).
+   Ab 1024px steht die Überschrift links neben dem Fächer, darunter über
+   ihm. */
+@media (min-width: 768px) {
+  .section {
+    /* Platz der Überschrift links im Tisch (0 = Überschrift darüber). */
+    --head-w: 0px;
+    /* Bildschirmhoch, aber so, dass Fächer (gut 0,9 Hefte) und Heft
+       nebeneinander in den Tisch passen. */
+    --cover-w: min(
+      560px,
+      (100svh - 210px) * 0.75,
+      (100vw - var(--et-wrap-pad) - var(--head-w) - 48px) / 1.95
+    );
+    /* Bis an den rechten Fensterrand, über den Satzspiegel hinaus. */
+    --mag-bleed: calc(var(--et-wrap-pad) + max(0px, (100vw - var(--et-wrap-max)) / 2));
+    /* Wo der Stapel im Tisch liegt: links davon die Überschrift und so viel
+       Platz, wie der Fächer in Ruhe braucht (gemessen). */
+    --pile-x: calc(var(--head-w) + var(--cover-w) * 0.92);
+  }
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+  }
+  .stage {
+    /* Wie weit der Fächer aufgeht: in Ruhe ein Stück, mit der Maus
+       darüber weit. `--fan` (0 → 1) setzt deckMouse hier am Stapel — die
+       Lagen müssen hier ausgerechnet werden, nicht weiter oben: eine
+       Variable, die eine andere liest, löst sie dort auf, wo sie steht. */
+    --fan: 0;
+    --fan-x: calc(-16% - var(--fan) * 5%);
+    --fan-y: calc(-5px - var(--fan) * 6px);
+    --fan-r: calc(-2.6deg - var(--fan) * 1.2deg);
+    margin-right: calc(-1 * var(--mag-bleed));
+  }
+  .track {
+    padding-bottom: 36px;
+  }
+  .card {
+    justify-self: start;
+    margin-left: var(--pile-x);
+    transform-origin: 75% 115%;
+  }
+  .mag {
+    transform: perspective(1100px) rotateY(calc(-9deg + var(--look-x, 0) * 10deg))
+      rotateX(calc(4deg - var(--look-y, 0) * 7deg));
+    cursor: grab;
+  }
+  .deck[data-gliding] {
+    scroll-snap-type: none;
+  }
+  .deck[data-gliding] .mag {
+    cursor: grabbing;
+  }
+  /* Die Punkte unter dem Stapel, nicht unter der Mitte des Tisches. */
+  .dots {
+    justify-content: flex-start;
+    padding-left: calc(var(--pile-x) + var(--cover-w) / 2 - var(--count) * 16px);
+  }
+}
+@media (min-width: 1024px) {
+  .section {
+    --head-w: clamp(230px, 19vw, 290px);
+  }
+  /* Überschrift und Tisch in derselben Zeile; die Überschrift liegt oben
+     auf, der Tisch läuft unter ihr durch. */
+  .layout {
+    grid-template-columns: var(--head-w) minmax(0, 1fr);
+  }
+  .layout > :first-child {
+    position: relative;
+    z-index: 2;
+    grid-row: 1;
+    grid-column: 1;
+    pointer-events: none;
+  }
+  .layout > :first-child a {
+    pointer-events: auto;
+  }
+  .stage {
+    grid-row: 1;
+    grid-column: 1 / -1;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .card {
+      animation-name: var(--table-key);
+    }
+    /* Das Locken gehört dem Telefon: hier zeigt der Fächer, dass da mehr
+       liegt, und der Zeiger wird zur Hand. */
+    .card:first-child .mag {
+      animation: none;
+    }
   }
 }

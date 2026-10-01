@@ -30,6 +30,54 @@ export function deckPose(depth: number): string {
   return `translate(0%, ${-PEEK * d}px) rotate(${TURN[d]}deg) scale(${scale})`;
 }
 
+/* ── Desktop: der Stapel auf dem Tisch ──
+   Ab 768px liegen die Hefte als Fächer nach links aufgeblättert — zur
+   Überschrift hin, so zeigt jedes dahinter den Anfang seiner Schlagzeile —,
+   und wer weiterblättert, schiebt das oberste nach links über den Fächer und
+   darunter, statt es aus dem Bild zu werfen: aus der Spalte geworfen wäre es an der Kante des
+   Querscrollers abgeschnitten (gemessen 01.10.2026), und der Fächer wäre zum
+   Ende hin leer. So ist der Stapel ein Ring — hinter dem vorderen Heft liegen
+   immer die nächsten, nach dem letzten wieder das erste. Wie weit der Fächer
+   aufgeht, steht in CSS-Variablen (`--fan-x/-y/-r`, MagazineGrid.module.css),
+   damit ihn die Maus aufblättern kann, ohne die Schlüsselbilder neu zu
+   schreiben. */
+
+const FAN = 4; // so many covers fan out behind the front one
+const FAN_SHRINK = 0.04;
+/** Halfway through a deal the top cover has slid out to the left, over the
+ *  fan — there it drops behind and slides back under the pile. */
+const TUCK = 'translate(-52%, 5%) rotate(-7deg) scale(0.96)';
+
+/** One pose on the table, `depth` ≥ 0 places behind the front cover. */
+export function tablePose(depth: number): string {
+  const d = Math.min(Math.max(depth, 0), FAN);
+  const scale = Math.round((1 - FAN_SHRINK * d) * 1000) / 1000;
+  return `translate(calc(${d} * var(--fan-x)), calc(${d} * var(--fan-y))) rotate(calc(${d} * var(--fan-r))) scale(${scale})`;
+}
+
+export function tableKeyframes(count: number): string {
+  if (count < 2) return '';
+  const span = count - 1;
+  const at = (k: number) => Math.round((k / span) * 10000) / 100;
+  const carry = (k: number) => `translate(calc(${k} * 100cqw), 0px)`;
+  const frame = (pct: number, k: number, pose: string, z: number) =>
+    `${pct}%{transform:${carry(k)} ${pose};z-index:${z}}`;
+  return Array.from({ length: count }, (_, i) => {
+    const frames: string[] = [];
+    for (let k = 0; k < count; k++) {
+      const depth = (((i - k) % count) + count) % count;
+      frames.push(frame(at(k), k, tablePose(depth), count - Math.min(depth, FAN + 1)));
+      // Dealt from the top: out to the left, behind, back under the pile.
+      if (depth === 0 && k < span) {
+        const mid = at(k + 0.5);
+        frames.push(frame(mid, k + 0.5, TUCK, count + 1));
+        frames.push(frame(Math.round((mid + 0.01) * 100) / 100, k + 0.5, TUCK, 0));
+      }
+    }
+    return `@keyframes mag-table-${count}-${i}{${frames.join('')}}`;
+  }).join('');
+}
+
 export function deckKeyframes(count: number): string {
   if (count < 2) return '';
   const at = (k: number) => `${Math.round((k / (count - 1)) * 10000) / 100}%`;

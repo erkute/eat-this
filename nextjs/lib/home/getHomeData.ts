@@ -16,8 +16,10 @@ export interface HubArticle {
   slug: string;
   image: string | null;
   kicker: string | null;
-  /** ISO-Datum der Veröffentlichung — die Kachel nennt es wie der Magazin-Index. */
+  /** ISO-Datum der Veröffentlichung — das Heft nennt seinen Monat. */
   date?: string | null;
+  /** Ausgabe: Platz in der Reihe aller Artikel, der älteste ist 1. */
+  issue: number;
 }
 
 export interface HomeData {
@@ -46,7 +48,7 @@ export async function getHomeData(
   locale: 'de' | 'en',
   today: string = new Date().toISOString().slice(0, 10)
 ): Promise<HomeData> {
-  const [candidates, articles, catNameRows] = await Promise.all([
+  const [candidates, latest, catNameRows] = await Promise.all([
     client.fetch<HomeSpot[]>(
       spotCandidatesQuery,
       { locale },
@@ -63,12 +65,14 @@ export async function getHomeData(
   // a.titleDe is the German override. So de → titleDe||title, en → title.
   // Desktop renders the magazine as a 3-up grid → 6 fills two full rows
   // (4 would leave two empty cells in the second row).
-  const magazine: HubArticle[] = articles.map((a) => ({
+  // Newest first, so the first is the highest issue and they count down.
+  const magazine: HubArticle[] = latest.articles.map((a, i) => ({
     title: locale === 'de' && a.titleDe ? a.titleDe : a.title,
     slug: a.slug,
     image: a.imageUrl ?? null,
     kicker: (locale === 'de' ? a.categoryLabelDe : a.categoryLabel) ?? a.categoryLabel ?? null,
     date: a.date ?? null,
+    issue: latest.total - i,
   }));
   const categoryNames: Record<string, string> = Object.fromEntries(
     (catNameRows ?? []).map((r) => [r.slug, r.name])

@@ -1,49 +1,16 @@
-/* „Auf dem Teller" als Stapel aus Titelseiten (30.09.2026). Erklärung der
-   Mechanik in MagazineGrid.tsx. */
+/* „Auf dem Teller" als Stapel aus Titelseiten, quer zu wischen (01.10.2026).
+   Mechanik in MagazineGrid.tsx, Schlüsselbilder in lib/home/magazineDeck.ts. */
 .section {
   --mag-paper: var(--et-white);
-  /* Die Überschrift bleibt stehen, solange die Cover wechseln (Ansage
-     30.09.2026): am Telefon unter der festen Leiste, die Cover darunter.
-     `--mag-head-h` ist ihre feste Höhe. Ab 768px scrollt `.app-pages` unter
-     der Leiste, dort steht die Überschrift links. */
-  --mag-head-h: 78px;
-  /* Die Leiste klappt am Telefon beim Runterscrollen weg (SiteNav,
-     `data-visibility`); ohne sie steht alles bis ganz oben. */
-  --mag-nav: var(--staging-banner-h, 0px);
   --mag-gap: clamp(22px, 3vw, 32px);
-  --stack-top: calc(var(--mag-nav) + var(--mag-head-h) + 8px);
-  /* Wofür die Cover bemessen sind: die Pin-Linie bei sichtbarer Leiste. Fest,
-     damit sie nicht mit der Leiste wachsen und schrumpfen. */
-  --stack-fit: calc(
-    var(--site-nav-h, 64px) + var(--staging-banner-h, 0px) + var(--mag-head-h) + 8px
-  );
-  --cover-step: 12px;
+  /* Wie hoch die hinteren Cover über das vordere ragen (3 Lagen à 16px,
+     magazineDeck.ts) — Platz über dem Stapel, damit nichts abgeschnitten
+     wird. */
+  --mag-peek: 52px;
+  /* Am Telefon passt Cover samt Überschrift und Punkten in die sichtbare
+     Höhe, auch am kleinen iPhone. */
+  --cover-w: min(80vw, 380px, (100svh - 250px) * 0.75);
   color: var(--et-white);
-}
-:global(body:has(#navbar[data-visibility='visible'])) .section {
-  --mag-nav: calc(var(--site-nav-h, 64px) + var(--staging-banner-h, 0px));
-}
-@media (max-width: 767.98px) {
-  .aside {
-    position: sticky;
-    z-index: 2;
-    top: var(--mag-nav);
-    transition: top 280ms ease;
-    display: flex;
-    align-items: center;
-    height: var(--mag-head-h);
-    /* Ink-Grund, damit Cover, die am Ende darunter wegscrollen, verschwinden
-       statt durch die Überschrift zu scheinen. */
-    background: var(--et-ink);
-  }
-}
-@media (min-width: 768px) {
-  .section {
-    --stack-top: 28px;
-    --stack-fit: var(--stack-top);
-    /* Ab 768px scrollt nur `.app-pages` unter der Leiste. */
-    --mag-view: calc(100svh - var(--site-nav-h, 78px));
-  }
 }
 
 .layout {
@@ -51,18 +18,15 @@
   gap: var(--mag-gap);
 }
 @media (min-width: 768px) {
+  .section {
+    --cover-w: min(420px, (100svh - 230px) * 0.75);
+  }
   /* Überschrift links, der Stapel in der Seitenmitte — nicht an den
      rechten Rand gedrückt mit einem leeren Feld dazwischen. */
   .layout {
     grid-template-columns: minmax(0, 1fr) minmax(0, 460px) minmax(0, 1fr);
     column-gap: clamp(32px, 4vw, 64px);
-    align-items: start;
-  }
-  /* Überschrift und „Alle Stories" bleiben links stehen, rechts wächst der
-     Stapel. */
-  .aside {
-    position: sticky;
-    top: var(--stack-top);
+    align-items: center;
   }
 }
 
@@ -140,252 +104,337 @@
   }
 }
 
-/* ── Der Stapel ── Jedes Cover klebt ein Stück tiefer als das vorige, damit
-   die Kanten darunter sichtbar bleiben. Der Abstand dazwischen ist der
-   Scrollweg, auf dem das nächste Cover heranfährt. Am Telefon hält eine
-   Scroll-Timeline die Cover fest statt `sticky` (unten, „Am Telefon"). */
-.stack {
+/* ── Der Stapel ──
+   `.deck` ist ein Querscroller mit einem Einrastpunkt pro Cover (`.snap`,
+   je eine Spalte so breit wie der Scroller). Mit Scroll-Timeline liegen alle
+   Cover in der ersten Spalte, und die Timeline trägt sie um genau den
+   gescrollten Weg zurück — sie bleiben stehen, wo sie sind. Kein `sticky`:
+   iOS 27 färbt die URL-Leiste nach allem Klebenden an der Unterkante.
+   Ohne Timeline steht jedes Cover in seiner Spalte, ein Querstreifen. */
+.stage {
+  /* Die Punkte stehen neben dem Scroller und lesen trotzdem seine Timeline.
+     `--stage` ist die Lage des Stapels auf der Seite: das Locken hängt
+     daran, `view()` fände nur den Querscroller. */
+  timeline-scope: --deck;
+  view-timeline: --stage block;
+  min-width: 0;
+}
+.deck {
+  container-type: inline-size;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  scroll-timeline: --deck x;
+}
+.deck::-webkit-scrollbar {
+  display: none;
+}
+/* Am Telefon randlos: die Cover fliegen bis an den Bildschirmrand hinaus. */
+@media (max-width: 767.98px) {
+  .deck {
+    margin-inline: calc(-1 * var(--et-wrap-pad-mobile));
+  }
+}
+.track {
   display: grid;
+  grid-template-columns: repeat(var(--count), 100cqw);
   margin: 0;
-  padding: 0;
+  /* Oben Platz für die hinausragenden Lagen, unten für den Schatten. */
+  padding: var(--mag-peek) 0 28px;
   list-style: none;
 }
-.item {
-  --cover-run: 14svh;
-  position: sticky;
-  top: calc(var(--stack-top) + var(--i) * var(--cover-step));
-  transition: top 280ms ease;
-  /* Knapp: sobald ein Cover festklebt, ragt das nächste schon unten ins
-     Bild — kein leerer schwarzer Grund unter dem Stapel. */
-  margin-bottom: var(--cover-run);
-  view-timeline-axis: block;
-  /* Die Timeline endet, wo das Cover festklebt (`exit 0%`). */
-  view-timeline-inset: calc(var(--stack-top) + var(--i) * var(--cover-step)) 0px;
+.snap {
+  grid-row: 1;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  pointer-events: none;
 }
-.item:last-child {
-  margin-bottom: 0;
-}
-@media (max-width: 767.98px) {
-  .item {
-    justify-self: center;
-    width: min(100%, 84vw);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .aside,
-  .item {
-    transition: none;
-  }
-}
-
-.cover {
-  position: relative;
-  /* Foto oben, Band unten — das Foto liegt nicht unter dem Band, sonst
-     säße seine Mitte zu tief und Pizza oder Croissant rutschten aus dem
-     Bild (Ansage 30.09.2026). */
-  display: flex;
-  flex-direction: column;
-  /* Nie höher als der Platz unter der Überschrift, samt der Kanten der
-     Cover darunter — sonst fiele das Titelband am kleinen iPhone aus dem
-     Bild. */
-  width: min(
-    100%,
-    (var(--mag-view, 100svh) - var(--stack-fit) - 6 * var(--cover-step) - 16px) * 0.75
-  );
-  margin-inline: auto;
-  aspect-ratio: 3 / 4;
-  overflow: hidden;
-  border-radius: var(--et-radius-photo);
-  background: var(--et-ink-raised);
-  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
-  color: var(--et-white);
-  text-decoration: none;
+.card {
+  grid-row: 1;
+  grid-column: calc(var(--i) + 1);
+  justify-self: center;
+  width: var(--cover-w);
   transform-origin: 50% 0%;
 }
-.cover:focus-visible {
-  outline: 3px solid var(--et-accent);
-  outline-offset: 4px;
+
+/* ── Das Heft ── leicht in den Raum gedreht, mit eigener Perspektive, damit
+   die Drehung des Stapels darüber nichts flach drückt. Die Dicke macht der
+   Seitenblock an der Titelseite (`.cover`). Echte Seitenflächen in 3D waren
+   bei dieser Neigung nur 1–3px breit und lagen hinter dem Cover (gemessen). */
+.mag {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  transform: perspective(1100px) rotateY(-9deg) rotateX(4deg);
+  color: var(--et-white);
+  text-decoration: none;
 }
-.cover:active {
+.mag:focus-visible {
+  outline: 3px solid var(--et-accent);
+  outline-offset: 10px;
+}
+.mag:active {
   scale: var(--et-press-tile);
 }
+
+/* ── Die Titelseite ── Alles in `cqw` des Covers, damit sie am Telefon und
+   am Desktop gleich gesetzt ist. Das Foto füllt das Heft (randlos), sitzt
+   im gelben Rand (Rahmen) oder unter einem Papierkopf (Papier). */
+.cover {
+  --frame: 0cqw;
+  --photo-top: 0cqw;
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  display: block;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--et-ink-raised);
+  /* Der Seitenblock: Lage um Lage Papier nach rechts unten, hell und dunkel
+     im Wechsel wie Blattkanten, dann der Schatten auf dem Tisch. `overflow`
+     schneidet nur den Inhalt, nicht den Schatten. */
+  box-shadow:
+    1px 1px 0 #f3eee4,
+    2px 2px 0 #d6cfbf,
+    3px 3px 0 #eee8dc,
+    4px 4px 0 #d0c8b8,
+    5px 5px 0 #e9e3d6,
+    6px 6px 0 #cbc3b2,
+    7px 7px 0 #e4ddcf,
+    8px 8px 0 #bfb7a6,
+    0 22px 34px rgba(0, 0, 0, 0.5);
+}
+/* Randlos: das Foto bis an die Kanten. */
+.lookBleed {
+  --frame: 0cqw;
+  --photo-top: 0cqw;
+}
+.lookFrame {
+  --frame: 3.4cqw;
+  background: var(--et-accent);
+}
+.lookPaper {
+  --photo-top: 46cqw;
+  background: #f4f1ea;
+}
 .photo {
-  flex: 1 1 0;
-  min-height: 0;
-  width: 100%;
+  position: absolute;
+  top: calc(var(--frame) + var(--photo-top));
+  left: var(--frame);
+  width: calc(100% - 2 * var(--frame));
+  height: calc(100% - 2 * var(--frame) - var(--photo-top));
   object-fit: cover;
   object-position: 50% 50%;
   transition: transform 260ms ease;
 }
 @media (hover: hover) {
-  .cover:hover .photo {
+  .mag:hover .photo {
     transform: scale(1.03);
   }
 }
-.band {
-  position: relative;
-  display: grid;
-  gap: 8px;
-  padding: 16px 18px 20px;
-  background: var(--et-ink);
+/* Oben und unten dunkler, damit Kopf und Schlagzeile auf jedem Foto stehen —
+   die Mitte, wo Pizza oder Croissant liegt, bleibt frei. */
+.scrim {
+  position: absolute;
+  inset: calc(var(--frame) + var(--photo-top)) var(--frame) var(--frame);
+  background:
+    linear-gradient(rgba(21, 18, 14, 0.62), rgba(21, 18, 14, 0) 36%),
+    linear-gradient(rgba(21, 18, 14, 0) 46%, rgba(21, 18, 14, 0.9) 88%);
 }
-.meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
+.lookPaper .scrim {
+  background: linear-gradient(rgba(21, 18, 14, 0) 30%, rgba(21, 18, 14, 0.9) 82%);
+}
+/* Ganz oben klein Ausgabe und Monat — die Datumszeile eines Hefts,
+   zurückhaltend und ohne Linie (Ansage 01.10.: „Magazine haben oben keinen
+   Strich", der Monat war „viel zu präsent") —, darunter der Masthead. Oben,
+   nicht unter dem Logo: dort ist die Abdunklung am stärksten, unter dem Logo
+   verschwand die Zeile auf hellen Fotos. */
+.masthead {
+  position: absolute;
+  top: calc(var(--frame) + 8cqw);
+  left: 50%;
+  width: 84cqw;
+  height: auto;
+  translate: -50% 0;
+  filter: drop-shadow(0 0.8cqw 0 rgba(21, 18, 14, 0.35));
+}
+.folio {
+  position: absolute;
+  top: calc(var(--frame) + 3.6cqw);
+  left: 0;
+  right: 0;
   font-family: var(--et-font-display);
-  font-size: 11px;
+  font-size: 2.3cqw;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 2px rgba(21, 18, 14, 0.6);
+}
+.lookPaper .folio {
+  color: rgba(21, 18, 14, 0.7);
+  text-shadow: none;
+}
+/* Unten die Titelzeile des Hefts: Rubrik als Etikett, darunter die ganze
+   Schlagzeile. Wächst von unten nach oben; die Grösse (`--headline`) setzt
+   die Komponente nach der Länge, gekürzt wird nie. */
+.lines {
+  position: absolute;
+  left: calc(var(--frame) + 5cqw);
+  right: calc(var(--frame) + 13cqw);
+  bottom: calc(var(--frame) + 5cqw);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2.6cqw;
+}
+.flash {
+  padding: 1.5cqw 2.4cqw 1.2cqw;
+  border-radius: 2px;
+  background: var(--et-accent);
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
+  font-size: 3.4cqw;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
-  line-height: 1.3;
+  line-height: 1;
   text-transform: uppercase;
+  rotate: -3deg;
 }
-.kicker {
-  color: var(--et-accent);
+.lookFrame .flash {
+  background: var(--et-white);
 }
-.date {
-  color: rgba(255, 255, 255, 0.6);
-}
-/* Drei Zeilen, dann Schluss; das Polster unten hält die Unterlänge von
-   Providence im Bild (siehe providence-unterlaenge). */
-.title {
-  display: -webkit-box;
-  overflow: hidden;
-  padding-bottom: 0.15em;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+/* Zeilenhöhe statt Polster für die Unterlänge von Providence (siehe
+   providence-unterlaenge). */
+.headline {
   font-family: var(--et-font-display);
-  font-size: clamp(20px, 1.9vw, 26px);
+  font-size: var(--headline, 6.4cqw);
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.24;
+  overflow-wrap: anywhere;
+  text-shadow: 0 1px 4px rgba(21, 18, 14, 0.6);
+}
+/* Strichcode senkrecht am rechten Rand, wie auf manchem Heft — so bleibt die
+   ganze Breite unten der Schlagzeile. Striche ungleich breit. */
+.barcode {
+  position: absolute;
+  right: calc(var(--frame) + 3.4cqw);
+  bottom: calc(var(--frame) + 5cqw);
+  width: 7.5cqw;
+  height: 13cqw;
+  border: 0.9cqw solid var(--et-white);
+  border-left-width: 2cqw;
+  background: repeating-linear-gradient(
+    0deg,
+    var(--et-ink) 0 0.5cqw,
+    var(--et-white) 0.5cqw 0.9cqw,
+    var(--et-ink) 0.9cqw 1.6cqw,
+    var(--et-white) 1.6cqw 1.9cqw,
+    var(--et-ink) 1.9cqw 2.1cqw,
+    var(--et-white) 2.1cqw 2.8cqw
+  );
+}
+/* Glanz des Umschlags und der Rücken links, wo er gefalzt ist. */
+.sheen {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(21, 18, 14, 0.3), rgba(21, 18, 14, 0) 2.6cqw),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 2.6cqw,
+      rgba(255, 255, 255, 0.14) 3.2cqw,
+      rgba(255, 255, 255, 0) 4.6cqw
+    ),
+    linear-gradient(118deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 36%);
+  pointer-events: none;
 }
 
-/* Das Cover darunter kippt nach hinten und wird kleiner, während das nächste
-   heranfährt — im Takt des Scrollens, auf der Timeline des nächsten Covers. */
-@keyframes coverBack {
-  to {
-    transform: perspective(1200px) translateY(-1.5%) scale(0.9) rotateX(9deg);
-    filter: brightness(0.55);
+/* Punkte: wo im Stapel man ist, antippbar (MagazineDeckDots). Der vordere
+   wird ein gelber Strich — gefärbt von der Timeline des Stapels. */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.dot {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+.dot:first-child::before {
+  background-color: var(--et-accent);
+  transform: scaleX(2.4);
+}
+.dot:focus-visible {
+  outline: 2px solid var(--et-accent);
+  outline-offset: -4px;
+  border-radius: 8px;
+}
+
+/* Erst lockt das vordere Cover: während der Stapel von unten ins Bild
+   kommt, zuckt es ein Stück nach links und zurück — hier lässt sich
+   wischen. Ganz im Bild liegt er ruhig. Am Scrollweg, auf der inneren
+   Ebene, weil die äussere dem Stapel gehört. */
+@keyframes coverNudge {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  50% {
+    translate: -14% 0;
+    rotate: -4deg;
   }
 }
-@supports (timeline-scope: --a) and (animation-timeline: view()) {
+@supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
-    .item:not(:last-child) .cover {
-      animation: coverBack linear both;
-      animation-timeline: var(--covered-by);
-      animation-range: entry 0% exit 0%;
+    .card {
+      grid-column: 1;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --deck;
+    }
+    /* Die Keyframes (`mag-dot-*`) nennt die Komponente in `--dot-keys`. */
+    .dot::before,
+    .dot:first-child::before {
+      animation-name: var(--dot-keys);
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --deck;
+    }
+    .card:first-child .mag {
+      animation: coverNudge ease-in-out both;
+      animation-timeline: --stage;
+      animation-range: entry 35% entry 100%;
     }
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .photo {
     transition: none;
-  }
-}
-
-/* ── Am Telefon: festhalten ohne `sticky` ──
-   iOS 27 färbt Safaris URL-Leiste deckend, sobald ein klebendes Element die
-   Unterkante berührt — auch die schmaleren Cover (84vw) und die Überschrift;
-   unten schnitt dann eine Ink-Fläche das hereinkommende Cover ab (im
-   Simulator belegt, 01.10.2026, siehe ios26-safari-leisten). Darum hält hier
-   eine Scroll-Timeline Cover und Überschrift fest, wie `stagePin` die
-   Must-Eat-Bühne: dieselben Wege wie `sticky`, nur als `translate`. Ohne
-   Timelines (Safari vor den Glasleisten) bleibt es bei `sticky` oben.
-
-   Die Fenster der Timelines sind 1px hoch und hängen an der Pin-Linie
-   (`calc(100% - Linie - 1px)` als unterer Inset): so hängt keine Position
-   von der Höhe des Scroll-Containers ab. Safari rechnet die Animation im
-   UI-Prozess nach und hatte dort nach dem Einklappen der Leiste eine
-   veraltete Höhe — Überschrift und Cover standen dann ~80px zu tief, obwohl
-   die Seite selbst richtig rechnete (Simulator, 01.10.2026). */
-@keyframes headPin {
-  to {
-    translate: 0 100%;
-  }
-}
-@keyframes coverPin {
-  to {
-    translate: 0 var(--pin-len);
-  }
-}
-@supports (animation-timeline: view()) and (animation-range: contain 0% cover 100%) {
-  @media (max-width: 767.98px) {
-    /* Feste Maße statt Seitenverhältnis allein: die Wege unten rechnen damit. */
-    .section {
-      --cover-w: min(84vw, (100svh - var(--stack-fit) - 6 * var(--cover-step) - 16px) * 0.75);
-      --cover-h: calc(var(--cover-w) * 4 / 3);
-    }
-    .layout {
-      position: relative;
-      /* Platz der Überschrift, die nicht mehr im Raster steht. */
-      padding-top: calc(var(--mag-head-h) + var(--mag-gap));
-      /* Die Hülle der Überschrift ragt am Ende ihres Wegs unter das Layout. */
-      overflow-y: clip;
-      view-timeline: --mag-layout block;
-      view-timeline-inset: var(--mag-nav) calc(100% - var(--mag-nav) - 1px);
-    }
-    /* Die Überschrift fährt in einer Hülle, die genau so hoch ist wie ihr
-       Weg: vom Kopf des Layouts bis eine Überschrift vor seinem Ende, wo
-       `sticky` sie losliess. `translate: 0 100%` ist dann dieser Weg, ohne
-       ihn in Pixeln zu kennen. Die Hülle ist durchsichtig und lässt Tipps
-       durch. */
-    .aside {
-      position: absolute;
-      inset: 0 0 var(--mag-head-h);
-      display: block;
-      height: auto;
-      background: none;
-      pointer-events: none;
-      animation: headPin linear both;
-      animation-timeline: --mag-layout;
-      animation-range: contain 0% cover calc(100% - var(--mag-head-h));
-    }
-    .section .head:global(.hv-head) {
-      justify-content: center;
-      height: var(--mag-head-h);
-      background: var(--et-ink);
-    }
-    .stack {
-      view-timeline: --mag-stack block;
-      view-timeline-inset: var(--stack-top) calc(100% - var(--stack-top) - 1px);
-    }
-    /* Jedes Cover fährt mit dem Scrollen bis zu seiner Linie und steht dann.
-       `--pin-at`: Scrollweg ab „Stapel an seiner Linie", nach dem es dort
-       ankommt; `--pin-len`: wie lange es steht. Wie `sticky` in WebKit
-       (Margin-Box) gibt es den Platz frei, sobald das letzte Cover noch
-       `--cover-run` unter ihm ist. Das letzte Cover steht nie. */
-    .item {
-      --pitch: calc(var(--cover-h) + var(--cover-run));
-      --pin-at: calc(var(--i) * (var(--pitch) - var(--cover-step)));
-      --pin-len: calc((var(--count) - 1 - var(--i)) * var(--pitch) - var(--cover-run));
-      position: relative;
-      top: auto;
-      width: var(--cover-w);
-      height: var(--cover-h);
-      animation: coverPin linear both;
-      animation-timeline: --mag-stack;
-      animation-range: contain var(--pin-at) contain calc(var(--pin-at) + var(--pin-len));
-    }
-    .item:last-child {
-      animation: none;
-    }
-  }
-  /* Das Kippen wie mit `sticky`: dort dehnt die Timeline eines klebenden
-     Covers sich über seine ganze Standzeit, das Cover darunter kippt also
-     vom Hereinkommen des nächsten bis zu dessen Loslassen (gemessen in
-     WebKit und Chrome). Dieselben Punkte auf der Stapel-Timeline, ab
-     „Stapel an seiner Linie" gerechnet: das nächste Cover erreicht die
-     Unterkante (`100lvh`, die Leiste ist durchsichtig) bei `--next-in` und
-     lässt bei `--next-at + --next-len` los. */
-  @media (max-width: 767.98px) and (prefers-reduced-motion: no-preference) {
-    .item:not(:last-child) .cover {
-      --next-in: calc((var(--i) + 1) * var(--pitch) - (100lvh - var(--stack-top)));
-      --next-at: calc((var(--i) + 1) * (var(--pitch) - var(--cover-step)));
-      --next-len: max(0px, (var(--count) - 2 - var(--i)) * var(--pitch) - var(--cover-run));
-      animation: coverBack linear both;
-      animation-timeline: --mag-stack;
-      animation-range: contain var(--next-in) contain calc(var(--next-at) + var(--next-len));
-    }
   }
 }

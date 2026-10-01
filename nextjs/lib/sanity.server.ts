@@ -246,8 +246,11 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryDef | nul
   );
 }
 
-export async function getLatestNewsArticles(limit: number): Promise<NewsArticle[]> {
-  return client.fetch<NewsArticle[]>(
+/** The newest `limit` articles, newest first, and how many there are in all. */
+export async function getLatestNewsArticles(
+  limit: number
+): Promise<{ total: number; articles: NewsArticle[] }> {
+  return client.fetch<{ total: number; articles: NewsArticle[] }>(
     latestNewsArticlesQuery,
     { limit },
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['news'] } }

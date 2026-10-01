@@ -26,7 +26,8 @@ import { useEffect } from 'react';
  *   – on popstate, restore the target entry's saved position once the new
  *     page is tall enough (retry loop, cancelled by user input),
  *   – on full-load back/forward/reload arrivals (no bfcache), restore from
- *     the stamped key at install time. bfcache hits keep scroll by snapshot.
+ *     the stamped key at install time — except a reload of the home page,
+ *     which starts at the top. bfcache hits keep scroll by snapshot.
  *
  * Forward navs are untouched: Next scrolls new pushes to top itself.
  */
@@ -190,7 +191,12 @@ function install() {
     const navType = (
       performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
     )?.type;
-    if (navType === 'back_forward' || navType === 'reload') {
+    // A reload of the home page starts at the top, where its intro plays
+    // (Ansage 01.10.2026); the head script already stopped Safari's own
+    // restore there.
+    const homeReload =
+      navType === 'reload' && document.documentElement.getAttribute('data-active-page') === 'start';
+    if ((navType === 'back_forward' || navType === 'reload') && !homeReload) {
       const target = readScroll(currentKey);
       if (target !== null && !window.location.hash) restore(currentKey, target);
     }

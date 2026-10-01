@@ -48,9 +48,21 @@
     will-change: transform;
   }
 }
+/* Am Telefon steht Remy unten auf der Kante über Safaris URL-Leiste wie auf
+   einem Boden und schiebt den Vorhang von dort weg (Ansage 01.10.2026) —
+   in der Mitte schwebte er. `bottom: 0` des fixierten Vollbilds ist die
+   Unterkante des Layout-Viewports, also die Oberkante des schwarzen Bands,
+   in dem die Leiste schwebt. 2.6 % seiner Höhe sinkt er ein — am iPhone
+   des Betreibers standen die Füsse mit 1.8 % über der Linie, mit 3.4 % schon
+   im Schwarzen (im Simulator sass 3.4 % genau auf der Kante). */
 @media (max-width: 767.98px) {
   .scene {
     --figure-width: min(76vw, 46dvh);
+  }
+  .runner {
+    top: auto;
+    bottom: 0;
+    transform: translate(-99%, 2.6%);
   }
 }
 :global(html:not([data-hero-intro])) .scene {

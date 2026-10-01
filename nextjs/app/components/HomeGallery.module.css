@@ -112,10 +112,10 @@
   .gallery {
     --gallery-viewport: calc(100dvh - 74px);
     --gallery-top: 0px;
-    /* Die Karte nach der Höhe bemessen, nicht auf 600px gedeckelt: bei
-       1920×1080 stand ein 600er-Band mit je 250px leerem Ink darüber und
-       darunter in der bildschirmhohen Bühne (gemessen 01.10.2026). */
-    --gallery-width: min(46vw, 70svh, 860px);
+    /* Die Karte nach der Höhe bemessen. Mit 46vw/70svh füllte das Band
+       die Bühne, war aber „ziemlich gross" und drückte gegen die nächste
+       Sektion (Rückmeldung 01.10.2026) — jetzt gut die Hälfte der Höhe. */
+    --gallery-width: min(36vw, 56svh, 680px);
   }
   /* Die 520px-Kappe gehört der Liste ohne Bewegung; im Band ist die Karte
      so breit wie ihr Platz, sonst stehen breite Lücken zwischen den Fotos. */

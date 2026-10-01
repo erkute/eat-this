@@ -649,13 +649,48 @@
 .page :global([data-hub-nearby]) + section {
   margin-top: clamp(64px, 8vw, 112px);
 }
-/* Ab 768px ist die Nearby-Bühne bildschirmhoch und das Band steht mittig
-   darin — die Luft unter dem Band ist schon Abstand. Mit voller Fuge
-   dazu standen bei 1920×1080 über 300px leeres Ink vor der nächsten
-   Sektion. */
+/* ── Abstände zwischen den Sektionen ab 768px ──
+   Gleichmässig, nicht jede Grenze anders (Rückmeldung 01.10.2026: „vom
+   Gesamtaufbau harmonisch"). Gemessen war vorher bei 1440×900 sichtbares
+   Schwarz von 241 (Hero → Nearby), 173 (Nearby → Kategorien), 168
+   (Kategorien → Teller) und 349px (Teller → Must Eats) gegen ~90–110px an
+   den übrigen Grenzen. Die bildschirmhohen Bühnen (Nearby, Must Eats)
+   bleiben, wie sie sind; was folgt oder vorausgeht, rückt um ihre leere
+   Luft nach. Die Luft wird aus denselben Grössen gerechnet, die die Bühnen
+   setzen — ändert sich dort eine Kartengrösse, muss sie hier mit.
+   - Nach Nearby: Luft unter dem Band = (Bühne − Kopf 128px − Band)/2, das
+     Band ist 3/4 der Kartenbreite plus 70px Unterschrift, die Karte
+     min(36vw, 56svh, 680px) (HomeGallery.module.css).
+   - Vor Must Eats: sichtbar wird zuerst die Textspalte (die erste Karte
+     kommt von rechts unten herein); sie steht mittig in der Bühne, Luft
+     darüber = (Bühne − 48px − Spalte ~300px)/2 + 24px
+     (HubMustEatsTeaser.module.css). Der Teller liegt dabei über der leeren
+     Oberkante der Bühne, sonst fingen deren Pixel die Klicks auf den Punkten
+     ab.
+   - Vor dem Teller: Fuge minus der Luft, die der Fächer oben mitbringt. */
 @media (min-width: 768px) {
+  .page {
+    --stage-h: calc(100svh - 74px);
+    --nearby-air: calc(
+      (var(--stage-h) - 128px - min(36vw, 56svh, 680px) * 0.75 - 70px) / 2
+    );
+    --musteats-air: max(0px, (var(--stage-h) - 348px) / 2 + 24px);
+  }
+  .page :global([data-hub-nearby]) {
+    margin-top: 0;
+  }
   .page :global([data-hub-nearby]) + section {
-    margin-top: clamp(16px, 2vw, 32px);
+    position: relative;
+    z-index: 1;
+    margin-top: calc(104px - var(--nearby-air));
+  }
+  .page :global([data-hub-magazine]) {
+    position: relative;
+    z-index: 2;
+    margin-top: calc(var(--home-section-gap) - var(--mag-peek, 0px));
+  }
+  .page :global([data-hub-musteats]) {
+    margin-top: calc(120px - var(--musteats-air));
   }
 }
 /* Dasselbe nach der Must-Eats-Bühne, nur stärker: unter den Karten bleiben
@@ -666,8 +701,8 @@
    nach den Messungen so, dass überall rund 55–75px Abstand bleiben (lineare
    Näherung der Luft: 0,468 · Bühnenhöhe − 215px, minus 56px Abstand). Sie
    liegt dabei über der Bühne, sonst fingen deren leere Pixel die Klicks auf
-   der Tafel ab. Angemeldete sehen kein Starter Pack; dann rückt die
-   Kategorie-Sektion nach. */
+   der Tafel ab. Angemeldete sehen kein Starter Pack; dann rückt Frag Remy
+   nach. */
 @media (min-width: 768px) {
   .page {
     --after-musteats: calc(-1 * max(0px, (100svh - 74px) * 0.468 - 271px));

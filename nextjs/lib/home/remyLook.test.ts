@@ -20,9 +20,26 @@ describe('lookPose', () => {
     expect(down(chin).y - chin.y).toBeGreaterThan(HEAD_SHIFT.y * 0.9);
   });
 
-  it('schiebt die Züge weiter als den Umriss', () => {
+  it('schiebt das Gesicht weiter als den Umriss des Schädels', () => {
     const right = lookPose(1, 0);
-    expect(right(glasses).x - glasses.x).toBeGreaterThan(right(chin).x - chin.x);
+    const skull = { x: 330, y: 120 };
+    expect(right(glasses).x - glasses.x).toBeGreaterThan(right(skull).x - skull.x + 10);
+  });
+
+  it('nimmt Kinn und Kiefer mit dem Gesicht mit (Ansage: „Kinn auch mitbewegen")', () => {
+    const jaw = { x: 400, y: 415 };
+    for (const [lx, ly] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]) {
+      const pose = lookPose(lx, ly);
+      const move = (p: { x: number; y: number }) => Math.hypot(pose(p).x - p.x, pose(p).y - p.y);
+      // Höchstens die Neigung um die Halsbasis trennt Kinn und Brille.
+      expect(move(chin)).toBeGreaterThan(move(glasses) - 10);
+      expect(move(jaw)).toBeGreaterThan(move(glasses) - 14);
+    }
   });
 
   it('lässt die Schultern stehen', () => {

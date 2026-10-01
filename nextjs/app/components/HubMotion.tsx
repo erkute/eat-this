@@ -39,13 +39,14 @@ gsap.registerPlugin(useGSAP);
  *    HomeGallery: vertikale Scrollstrecke mit nativer Timeline und GSAP-Fallback.
  *
  * 3. **Beim Hereinkommen:**
- *    - Worauf hast du Lust: Remy schießt hoch, wenn sein Platz im Bild ist,
- *      die Kategorien platzen aus seinem Kopf in den Bogen um ihn, und er
- *      redet, mehrmals. Sein Kopf folgt der Maus, über einer Kategorie
- *      lacht er; ohne Maus schaut er reihum auf die Kategorien, die dann
- *      fett werden (`armRemyLook`). Wer den
+ *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
+ *      als ganze Kacheln — einmal.
+ *    - Frag Remy: das Fragezeichen fliegt von links ein, „Frag Remy." schlägt
+ *      ein; Remy schießt erst hoch, wenn sein leerer Platz im Bild ist, und
+ *      redet, mehrmals. Wer den
  *      Abschnitt verlässt, sieht alles rückwärts gehen; wer zurückkommt, sieht
- *      es neu (`armFragRemy`).
+ *      es neu (`armFragRemy`). Sein Kopf folgt der Maus oder dem Finger und
+ *      schaut sonst von sich aus umher (`armRemyLook`).
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
@@ -337,6 +338,32 @@ function finishIntro(): (() => void) | void {
  *  geben, sonst bleiben Druckzustände (`--et-press-tile`) tot. */
 const CLEAR_TRANSFORMS = 'transform,translate,rotate,scale';
 
+/** Scrollt der Container seitwärts? Dann rücken die Karten von rechts nach. */
+function sideways(el: Element): boolean {
+  return /auto|scroll/.test(getComputedStyle(el).overflowX);
+}
+
+/** Beobachtet Elemente und spielt ihren Auftritt einmal, sobald sie ein Stück
+ *  im Bild sind — nicht schon unter der Bildschirmkante, wo ihn niemand sieht.
+ *  Beobachtet werden nur ruhende Elemente: IntersectionObserver misst die
+ *  verschobene Box, ein seitlich weggeschobenes Element meldete sich nie. */
+function onceInView(plays: Map<Element, () => void>): () => void {
+  if (!plays.size || typeof IntersectionObserver === 'undefined') return () => {};
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        io.unobserve(entry.target);
+        plays.get(entry.target)?.();
+        plays.delete(entry.target);
+      }
+    },
+    { rootMargin: '0px 0px -15% 0px' }
+  );
+  plays.forEach((_, el) => io.observe(el));
+  return () => io.disconnect();
+}
+
 /** Auftritt und Rückweg an einer Section: `enter`, sobald sie das Band des
  *  Bildschirms berührt (Vorgabe 30–70 % der Höhe, `from` verschiebt die
  *  Unterkante), `leave`, sobald sie es nach oben oder unten verlässt — in
@@ -381,92 +408,146 @@ function onScrollFrame(scroller: HTMLElement | Window, update: () => void): () =
   };
 }
 
+/** Gestaffelte Kacheln (Kategorien): versteckt wird nur, was beim
+ *  Mount unterhalb des Bildschirms liegt — was schon zu sehen ist (gemerkte
+ *  Scrollposition), bleibt stehen. */
+function armStaggers(safe: gsap.ContextSafeFunc): () => void {
+  const root = document.querySelector<HTMLElement>('[data-hub]');
+  if (!root) return () => {};
+  const fold = window.innerHeight;
+  const plays = new Map<Element, () => void>();
+
+  for (const group of root.querySelectorAll<HTMLElement>('[data-reveal="stagger"]')) {
+    if (group.getBoundingClientRect().top <= fold) continue;
+    const items = Array.from(group.children) as HTMLElement[];
+    if (!items.length) continue;
+    const across = sideways(group);
+    gsap.set(items, {
+      x: across ? 120 : 0,
+      y: across ? 0 : 90,
+      rotation: across ? 0 : (i: number) => (i % 2 ? 3 : -3),
+      transition: 'none',
+    });
+    // Später gestartete Tweens gehören trotzdem in den matchMedia-Kontext —
+    // sonst räumt ihn ein Wechsel auf reduced motion nicht mit ab.
+    plays.set(
+      group,
+      safe(() => {
+        gsap.to(items, {
+          x: 0,
+          y: 0,
+          rotation: 0,
+          duration: 1.2,
+          ease: 'expo.out',
+          stagger: Math.min(0.08, 0.6 / items.length),
+          clearProps: `${CLEAR_TRANSFORMS},transition`,
+        });
+      }) as () => void
+    );
+  }
+  return onceInView(plays);
+}
+
 /**
- * Remys Tafel („Worauf hast du Lust?"): Remy steht unter der Unterkante, bis
- * sein Platz im Bild ist, und schießt dann wie ein Schreck hoch; danach
- * platzen die Kategorien aus seinem Kopf in den Bogen um ihn herum, und er
- * redet und wackelt — dreimal, mit Pausen. Umkehrbar (Ansage 28.09.2026):
- * wer den Abschnitt verlässt, sieht alles rückwärts laufen — die Kategorien
- * fliegen zurück in seinen Kopf, Remy taucht ab —, wer zurückkommt, sieht es
- * neu. Der Observer löst nur aus, nichts hängt an der Position: auf dem
- * iPhone zittert da nichts.
+ * „Keine Idee? Frag Remy." mit Wucht: das Fragezeichen fliegt drehend von
+ * links herein und schlägt ein, die Zeile davor zuckt vom Aufprall; dann
+ * knallt „Frag Remy." von groß auf seine Größe wie ein Stempel. Remy steht
+ * unter der Kante der Tafel, bis die leere Fläche darüber im Bild ist, und
+ * schießt dann wie ein Schreck hoch, redet und wackelt — dreimal, mit Pausen.
+ * Umkehrbar (Ansage 28.09.2026): wer den Abschnitt nach oben oder unten
+ * verlässt, sieht den Auftritt rückwärts laufen — Remy taucht ab, „Frag
+ * Remy." fliegt weg, das Fragezeichen zurück nach links —, wer zurückkommt,
+ * sieht ihn neu. Der Observer löst nur aus, nichts hängt an der Position:
+ * auf dem iPhone zittert da nichts.
  * Getrieben wird Remy über `--remy-y/--remy-r` (siehe HubFragRemy.module.css),
  * der Mund über `data-speaking`; beides verwaltet React nicht.
- * Bis 01.10.2026 stand darunter „Keine Idee? Frag Remy." mit Eingabe — der
- * Chat beginnt jetzt über den Knopf unten rechts oder den Burger.
  */
 function armFragRemy(): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
+  const q = section?.querySelector<HTMLElement>('[data-fragremy-q]');
+  const ask = section?.querySelector<HTMLElement>('[data-fragremy-ask]');
   const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
-  if (!section || !avatar) return () => {};
+  const title = q?.closest<HTMLElement>('h2, h3');
+  const line = q?.parentElement;
+  if (!section || !q || !ask || !avatar || !title || !line) return () => {};
+
+  // Bis links hinter die Kante der Tafel (`.body` schneidet ab).
+  const offLeft = () => {
+    const board = section.getBoundingClientRect();
+    const box = q.getBoundingClientRect();
+    return -(box.right - board.left + 40);
+  };
+  const texts = [ask, title, line];
+  // Aufgeräumt wird erst beim Abbauen: die Rückwärtsfahrt braucht die Werte,
+  // nach einem `clearProps` kam das Fragezeichen gedreht, aber ohne seinen
+  // Weg nach links zurück (gemessen). Keiner der Texte trägt eigene
+  // `translate/rotate/scale`, die GSAP hier überschreiben könnte.
+  const settle = () => {
+    gsap.set(texts, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility` });
+    gsap.set(q, { clearProps: '--q-x,--q-r,--q-sx,--q-sy' });
+  };
+
+  // Ausgangswerte ausdrücklich: eine nie gesetzte Variable merkt sich GSAP
+  // als 0 — rückwärts gelaufen stand das Fragezeichen sonst auf Grösse 0 und
+  // flog beim nächsten Auftritt unsichtbar ein (gemessen).
+  gsap.set(q, { '--q-sx': 1, '--q-sy': 1 });
+  const entrance = gsap
+    .timeline({ paused: true })
+    // Das Fragezeichen über Variablen (HubFragRemy.module.css): zwei Tweens
+    // auf seinem `transform` liessen beim Rückwärtslaufen den Weg nach links
+    // fallen — es kam gedreht, aber an seinem Platz zurück (gemessen).
+    .fromTo(
+      q,
+      { '--q-x': offLeft, '--q-r': -540 },
+      { '--q-x': 0, '--q-r': 0, duration: 0.55, ease: 'power3.in' }
+    )
+    // Aufprall: das Zeichen staucht, die Zeile davor zuckt weg.
+    .fromTo(
+      q,
+      { '--q-sx': 1.35, '--q-sy': 0.7 },
+      {
+        '--q-sx': 1,
+        '--q-sy': 1,
+        duration: 0.7,
+        ease: 'elastic.out(1.1, 0.35)',
+        immediateRender: false,
+      }
+    )
+    .fromTo(
+      line,
+      { x: 16 },
+      { x: 0, duration: 0.7, ease: 'elastic.out(1, 0.3)', immediateRender: false },
+      '<'
+    )
+    .fromTo(
+      ask,
+      { scale: 2.8, rotation: -7, y: -24, visibility: 'hidden', transformOrigin: '0% 60%' },
+      { scale: 1, rotation: 0, y: 0, visibility: 'visible', duration: 0.34, ease: 'power4.in' },
+      '-=0.45'
+    )
+    .fromTo(
+      title,
+      { y: 8 },
+      { y: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)', immediateRender: false }
+    );
+  // Die Startpose sofort: vor dem ersten Auftritt ist nichts zu sehen.
+  entrance.progress(0);
 
   // Remy hat seinen eigenen Auslöser (Ansage 01.10.2026: „kommt viel zu
-  // früh"): er wartet unter der Kante, bis die Fläche, in der er gleich
-  // steht, in der Bildmitte angekommen ist — und schießt dann in einem Ruck
-  // hoch wie ein Schreck, Mund sofort offen. Beobachtet wird
-  // `[data-fragremy-spot]`, ein unbewegter Platzhalter an seiner Stelle:
-  // Remy selbst steht verschoben unter der Kante und wäre für den Observer
-  // nie sichtbar.
+  // früh"): er wartet unter der Kante, bis die leere Fläche, in der er
+  // gleich steht, in der unteren Bildhälfte angekommen ist — und schießt dann
+  // in einem Ruck hoch wie ein Schreck, Mund sofort offen. Beobachtet wird
+  // `[data-fragremy-spot]`, ein unbewegter Platzhalter in seiner Rasterzelle:
+  // Remy selbst steht verschoben unter der Kante, die `.body` abschneidet, und
+  // wäre für den Observer nie sichtbar.
   gsap.set(avatar, { '--remy-y': 118 });
   const pop = gsap.timeline({ paused: true }).to(avatar, {
     '--remy-y': 0,
     duration: 0.3,
     ease: 'back.out(2.6)',
     onStart: () => avatar.setAttribute('data-speaking', ''),
-    onComplete: () => {
-      startTalk();
-      burstOut();
-    },
+    onComplete: () => startTalk(),
   });
-
-  // Die Kategorien platzen aus Remys Kopf in den Bogen um ihn herum (Ansage
-  // 01.10.2026: „Remys Kopf ist in der Mitte und die Kategorien um ihn
-  // herum"): erst wenn er hochgeschossen ist, eine nach der anderen, mit
-  // Drehung und Überschwingen. Duckt er sich weg, fliegen sie zurück in
-  // seinen Kopf. Gemessen wird beim Losfliegen, solange alle an ihrem Platz
-  // ruhen — so stimmt der Weg auch nach einer Grössenänderung.
-  const flyers = Array.from(section.querySelectorAll<HTMLElement>('[data-remy-orbit]'));
-  const hub = section.querySelector<HTMLElement>('[data-fragremy-spot]');
-  // (Die Gläser liegen bei 28 % des Bildes: von dort fliegen sie los.)
-  gsap.set(flyers, { visibility: 'hidden' });
-  let burst: gsap.core.Timeline | null = null;
-  const burstOut = () => {
-    if (!hub || !flyers.length) return;
-    if (!burst || burst.progress() === 0) {
-      burst?.kill();
-      gsap.set(flyers, { x: 0, y: 0, scale: 1, rotation: 0 });
-      const c = hub.getBoundingClientRect();
-      const cx = c.left + c.width / 2;
-      const cy = c.top + c.height * 0.28;
-      burst = gsap.timeline({ paused: true });
-      flyers.forEach((el, i) => {
-        const r = el.getBoundingClientRect();
-        burst!.fromTo(
-          el,
-          {
-            x: cx - (r.left + r.width / 2),
-            y: cy - (r.top + r.height / 2),
-            scale: 0.2,
-            rotation: (i % 2 ? 1 : -1) * (24 + ((i * 37) % 50)),
-            visibility: 'hidden',
-          },
-          {
-            x: 0,
-            y: 0,
-            scale: 1,
-            rotation: 0,
-            visibility: 'visible',
-            duration: 0.75,
-            ease: 'back.out(1.7)',
-            immediateRender: false,
-          },
-          i * 0.07
-        );
-      });
-    }
-    burst.timeScale(1).play();
-  };
-  const burstIn = () => burst?.timeScale(1.8).reverse();
 
   let talk: gsap.core.Timeline | null = null;
   const stopTalk = () => {
@@ -497,45 +578,52 @@ function armFragRemy(): () => void {
     });
   };
 
+  const show = () => entrance.timeScale(1).play();
+  const hide = () => entrance.timeScale(1.6).reverse();
   const jump = () => pop.timeScale(1).play();
   const duck = () => {
     stopTalk();
-    burstIn();
     pop.timeScale(1.4).reverse();
   };
+  // Schon ab 85 % der Höhe, nicht erst ab 70 %: „Keine Idee? Frag Remy." kam
+  // zu spät, die Tafel stand schon leer im Bild (Ansage 29.09.2026).
+  const unwatch = whileCentered(section, show, hide, 0.85);
   const spot = section.querySelector('[data-fragremy-spot]');
-  // Bis 0,68 der Höhe: Remy steht jetzt mittig im Ring, nicht mehr unten an
-  // der Tafel — mit 0,55 kam er am kleinen iPhone (375×667) erst, als die
-  // Tafel schon fast oben hinaus war, und bis dahin stand sie leer.
-  const unwatchRemy = spot ? whileCentered(spot, jump, duck, 0.68) : () => {};
+  const unwatchRemy = spot ? whileCentered(spot, jump, duck, 0.55) : () => {};
   return () => {
+    unwatch();
     unwatchRemy();
     stopTalk();
     pop.kill();
-    burst?.kill();
-    gsap.set(flyers, { clearProps: `${CLEAR_TRANSFORMS},visibility` });
+    entrance.kill();
+    settle();
     gsap.set(avatar, { clearProps: '--remy-y,--remy-r' });
   };
 }
 
 /**
- * Remys Blick (Ansage 01.10.2026: „mit der Maus dreht Remy seinen Kopf
- * dahin", „nur Kopf, keine Augen", „das Gesicht muss nach rechts, links,
- * oben, unten gucken"). Die Zeichnung liegt als Gitter auf einer Leinwand
- * und wird verformt: die Gesichtszüge wandern in Blickrichtung
- * (lib/home/remyLook.ts, renderRemyLook.ts) — vorher kippte eine flache 3D-
- * Drehung das ganze Bild, „sehr schlecht animiert". Mit echtem Zeiger folgt
- * der Blick der Maus, solange seine Tafel in der Nähe ist; über einer
- * Kategorie lacht er und schaut sie an. Ohne Zeiger (Telefon) schaut er,
- * solange er im Bild ist, von sich aus reihum zu den Kategorien, die dabei
- * fett werden.
+ * Remys Blick (Ansagen 01.10.2026: „mit der Maus dreht Remy seinen Kopf
+ * dahin", „nur Kopf, keine Augen", „nimm seinen ganzen Kopf"; danach: die
+ * Kopfgeste ja, aber ohne die Kategorien im Bogen um ihn). Die Zeichnung
+ * liegt als Gitter auf einer Leinwand und wird verformt (lib/home/remyLook.ts,
+ * renderRemyLook.ts) — eine flache 3D-Kippung des Bildes war „sehr schlecht
+ * animiert". Er schaut:
+ * - mit Maus dorthin, wo sie ist, solange seine Tafel in der Nähe ist;
+ * - am Telefon auf den Finger, solange einer auf dem Bildschirm liegt, auch
+ *   beim Scrollen (passive Touch-Ereignisse: das Scrollen bleibt unberührt);
+ * - ins Eingabefeld, solange es den Fokus hat;
+ * - sonst, am Telefon und im Bild, von sich aus umher: hoch zu den
+ *   Kategorien, rüber zu den Antworten, wieder geradeaus.
+ * Zeigt man auf etwas, das man antippen kann (Kategorie, Antwort, Senden),
+ * schaut er hin und lacht.
  */
 function armRemyLook(pointer: boolean): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
   const head = section?.querySelector<HTMLElement>('[data-remy-head]');
   const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
   if (!section || !head || !avatar) return () => {};
-  const words = Array.from(section.querySelectorAll<HTMLElement>('[data-remy-orbit] a'));
+  const input = section.querySelector<HTMLElement>('[data-fragremy-input]');
+  const choices = Array.from(section.querySelectorAll<HTMLElement>('a[href], button'));
   const stops: Array<() => void> = [];
 
   // Der Blick (-1…1) folgt weich; jede Änderung heisst: neu zeichnen.
@@ -561,17 +649,13 @@ function armRemyLook(pointer: boolean): () => void {
     ly(0);
   };
   const delight = (on: boolean) => avatar.toggleAttribute('data-delight', on);
-  /** Das Wort, das er ansieht, wird fett (`data-looked`). */
-  const mark = (word: Element | null) =>
-    words.forEach((w) => w.toggleAttribute('data-looked', w === word));
 
   // ── Das Gitter (WebGL, lib/home/renderRemyLook.ts) ──
   // Erst wenn alle drei Gesichter geladen sind; ohne WebGL bleiben die Bilder.
   // Gezeichnet wird nur, solange die Tafel in der Nähe ist, und nur, wenn
   // sich Blick oder Gesicht ändern — keine Dauerschleife im Leerlauf.
-  const canvas = avatar.querySelector<HTMLCanvasElement>('[data-remy-mesh]');
-  const holder = canvas?.parentElement ?? null;
-  const images = holder ? Array.from(holder.querySelectorAll<HTMLImageElement>('img')) : [];
+  const canvas = head.querySelector<HTMLCanvasElement>('[data-remy-mesh]');
+  const images = Array.from(head.querySelectorAll<HTMLImageElement>('img'));
   let mesh: ReturnType<typeof renderRemyLook> = null;
   let shown = -1;
   let frame = 0;
@@ -624,41 +708,86 @@ function armRemyLook(pointer: boolean): () => void {
     cancelAnimationFrame(frame);
     mesh?.dispose();
     mesh = null;
-    holder?.removeAttribute('data-mesh');
+    head.removeAttribute('data-mesh');
   });
-  if (canvas && holder && images.length >= 3) {
+  if (canvas && images.length >= 3) {
     Promise.all(images.slice(0, 3).map((img) => img.decode()))
       .then(() => {
         if (cancelled) return;
         resize();
         mesh = renderRemyLook(canvas, [images[0], images[1], images[2]]);
         if (!mesh) return;
-        holder.setAttribute('data-mesh', '');
+        head.setAttribute('data-mesh', '');
         if (near && !frame) frame = requestAnimationFrame(paint);
       })
       // Nicht dekodierbar (offline, abgebrochen): die Bilder bleiben stehen.
       .catch(() => {});
   }
 
-  // Auf ein Wort zeigen oder es fokussieren: er schaut hin und lacht.
-  const enterWord = (event: Event) => {
+  // ── Von sich aus umherschauen (nur ohne Maus) ──
+  // Pausiert, solange ihn etwas anderes beschäftigt: ein Finger, das Feld.
+  let idle: gsap.core.Tween | null = null;
+  let centered = false;
+  let busy = false;
+  let step = 0;
+  const glance = () => {
+    const cats = section.querySelectorAll('[data-hub-categories] a');
+    const answers = section.querySelectorAll('[data-fragremy-chips] button');
+    const pick = (list: NodeListOf<Element>) => list[Math.floor(Math.random() * list.length)];
+    const target = [cats.length ? pick(cats) : null, null, answers.length ? pick(answers) : input, null][
+      step++ % 4
+    ];
+    if (target) lookAtEl(target);
+    else ahead();
+    idle = gsap.delayedCall(1.2 + Math.random() * 0.8, glance);
+  };
+  const rest = (after = 1.2) => {
+    idle?.kill();
+    idle = !pointer && centered && !busy ? gsap.delayedCall(after, glance) : null;
+  };
+  const hold = () => {
+    idle?.kill();
+    idle = null;
+  };
+  stops.push(hold);
+
+  // Auf etwas zeigen oder es fokussieren: er schaut hin und lacht.
+  const enterChoice = (event: Event) => {
+    hold();
     delight(true);
     lookAtEl(event.currentTarget as Element);
   };
-  const leaveWord = () => delight(false);
-  for (const word of words) {
-    word.addEventListener('pointerenter', enterWord);
-    word.addEventListener('focus', enterWord);
-    word.addEventListener('pointerleave', leaveWord);
-    word.addEventListener('blur', leaveWord);
+  const leaveChoice = () => {
+    delight(false);
+    rest();
+  };
+  for (const el of choices) {
+    el.addEventListener('pointerenter', enterChoice);
+    el.addEventListener('focus', enterChoice);
+    el.addEventListener('pointerleave', leaveChoice);
+    el.addEventListener('blur', leaveChoice);
   }
+  // Ins Feld getippt: er schaut hin, bis es den Fokus verliert.
+  const enterField = () => {
+    busy = true;
+    hold();
+    if (input) lookAtEl(input);
+  };
+  const leaveField = () => {
+    busy = false;
+    rest();
+  };
+  input?.addEventListener('focus', enterField);
+  input?.addEventListener('blur', leaveField);
   stops.push(() => {
-    for (const word of words) {
-      word.removeEventListener('pointerenter', enterWord);
-      word.removeEventListener('focus', enterWord);
-      word.removeEventListener('pointerleave', leaveWord);
-      word.removeEventListener('blur', leaveWord);
+    for (const el of choices) {
+      el.removeEventListener('pointerenter', enterChoice);
+      el.removeEventListener('focus', enterChoice);
+      el.removeEventListener('pointerleave', leaveChoice);
+      el.removeEventListener('blur', leaveChoice);
     }
+    input?.removeEventListener('focus', enterField);
+    input?.removeEventListener('blur', leaveField);
   });
 
   if (pointer) {
@@ -674,41 +803,49 @@ function armRemyLook(pointer: boolean): () => void {
       window.removeEventListener('pointermove', move);
       document.removeEventListener('pointerout', out);
     });
-  } else if (words.length) {
-    // Ohne Zeiger: reihum ein Wort anschauen, kurz lachen, wieder geradeaus.
-    let glance: gsap.core.Tween | null = null;
-    let n = 0;
-    const next = () => {
-      const word = words[n++ % words.length];
-      lookAtEl(word);
-      delight(true);
-      mark(word);
-      glance = gsap.delayedCall(1.1, () => {
-        delight(false);
-        mark(null);
-        ahead();
-        glance = gsap.delayedCall(1.3, next);
-      });
+  } else {
+    // Der Finger ist die Maus des Telefons: Touch-Ereignisse, weil ein
+    // Pointer beim Scrollen abgebrochen wird (`pointercancel`), der Finger
+    // aber weiter auf dem Glas liegt.
+    const touch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!near || !t || document.activeElement === input) return;
+      hold();
+      lookAt(t.clientX, t.clientY);
     };
-    const start = () => {
-      glance?.kill();
-      glance = gsap.delayedCall(1.6, next);
+    const release = (e: TouchEvent) => {
+      if (!e.touches.length) rest();
     };
-    const stop = () => {
-      glance?.kill();
-      glance = null;
-      delight(false);
-      mark(null);
-      ahead();
-    };
-    stops.push(whileCentered(section, start, stop, 0.9));
-    stops.push(stop);
+    window.addEventListener('touchstart', touch, { passive: true });
+    window.addEventListener('touchmove', touch, { passive: true });
+    window.addEventListener('touchend', release, { passive: true });
+    window.addEventListener('touchcancel', release, { passive: true });
+    stops.push(() => {
+      window.removeEventListener('touchstart', touch);
+      window.removeEventListener('touchmove', touch);
+      window.removeEventListener('touchend', release);
+      window.removeEventListener('touchcancel', release);
+    });
+    stops.push(
+      whileCentered(
+        section,
+        () => {
+          centered = true;
+          rest(1.6);
+        },
+        () => {
+          centered = false;
+          hold();
+          ahead();
+        },
+        0.9
+      )
+    );
   }
 
   return () => {
     stops.forEach((stop) => stop());
     delight(false);
-    mark(null);
   };
 }
 
@@ -1200,12 +1337,13 @@ export default function HubMotion() {
         desk: '(min-width: 768px)',
         pointer: '(hover: hover) and (pointer: fine)',
       },
-      (ctx) => {
+      (ctx, safe) => {
         const { motion, desk, pointer } = ctx.conditions as Record<string, boolean>;
         if (!motion) return;
         const scroller = appScroller() ?? window;
         const stops: Array<() => void> = [];
         stops.push(armScrubFallback(scroller));
+        stops.push(armStaggers(safe!));
         stops.push(armFragRemy());
         stops.push(armRemyLook(pointer));
         stops.push(armInView());

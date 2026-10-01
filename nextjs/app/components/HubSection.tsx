@@ -10,6 +10,7 @@ import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
+import CategoriesRail from './CategoriesRail';
 import MagazineGrid from './MagazineGrid';
 import StarterPackSignup from './StarterPackSignup';
 import SiteFooter from './SiteFooter';
@@ -140,8 +141,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           (Teller) → entdecken (was ist um dich) → sammeln (Must Eats und
           das Starter Pack, das die ersten Karten bringt) → noch
           unentschlossen: Remys Tafel fragt „Worauf hast du Lust?", die
-          Kategorien stehen im Ring um seinen Kopf, und wer keine Antwort
-          hat, fragt ihn →
+          Kategorien sind die Antworten, und wer keine hat, fragt Remy →
           FAQ. Packs verkauft die Startseite nicht mehr, den Spot des Tages
           gibt es seit 01.10.2026 nicht mehr. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
@@ -149,7 +149,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         <HubMustEatsTeaser />
         <StarterPackSignup />
       </HomeMapDataProvider>
-      <HubFragRemy categoryNames={initialData.categoryNames} />
+      <HubFragRemy
+        choices={<CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />}
+      />
       <HubFaq locale={locale} />
       <SiteFooter home />
     </main>

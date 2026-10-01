@@ -15,6 +15,12 @@ const en = {
     bezirke: {},
     allBerlin: {},
     newOnMap: {},
+    fragRemy: {
+      title: 'Ask Remy',
+      sub: 'Your Berlin food insider – just ask.',
+      inputPlaceholder: '…or just ask Remy',
+      sendAria: 'Send',
+    },
     magazine: {},
     nearby: {
       title: 'Around you',
@@ -416,6 +422,12 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     bezirke: {},
     allBerlin: {},
     newOnMap: {},
+    fragRemy: {
+      title: 'Frag Remy',
+      sub: 'Frag ihn nach deinem nächsten Spot.',
+      inputPlaceholder: '…oder frag Remy direkt',
+      sendAria: 'Senden',
+    },
     magazine: {},
     nearby: {
       title: 'Um dich herum',

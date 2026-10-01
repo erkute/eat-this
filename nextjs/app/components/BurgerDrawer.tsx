@@ -244,8 +244,9 @@ export default function BurgerDrawer() {
             </DrawerLink>
             {/* „Frag Remy" öffnet den Chat dort, wo man gerade ist — derselbe
                 Weg wie der Knopf unten rechts (BUDDY_ASK_EVENT, RemyDock).
-                Bis 01.10.2026 sprang der Eintrag zur Startseite, wo unter
-                „Worauf hast du Lust?" ein Eingabefeld stand; das ist weg. Die
+                Bis 01.10.2026 sprang der Eintrag zur Startseite, zur
+                Eingabe unter „Worauf hast du Lust?"; die steht dort weiter,
+                aber von jeder anderen Seite aus war der Sprung ein Umweg. Die
                 Seite bleibt, wo sie war — also mit Scroll-Rückgabe. */}
             <button
               type="button"

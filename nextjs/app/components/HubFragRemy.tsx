@@ -1,54 +1,58 @@
 'use client';
-// „Worauf hast du Lust?" — Remy in der Mitte, die Kategorien im Bogen um
-// Kopf und Schultern (Ansagen 01.10.2026: „Remys Kopf ist in der Mitte und
-// die Kategorien um ihn herum", „Remy mit Körper", „mit der Maus dreht Remy
-// seinen Kopf dahin, keine Augen"; die Kategorie, auf die man zeigt, wird
-// fett — ohne Gelb). Gechattet wird nicht mehr hier, sondern über den Knopf unten
-// rechts oder „Frag Remy" im Burger — beide schicken ein BUDDY_ASK_EVENT an
-// RemyDock.
-//
-// Der Auftritt (Remy schießt hoch, die Kategorien platzen aus seinem Kopf, er
-// redet), sein Blick zur Maus und das Reden beim Scrollen gehören HubMotion —
-// über `data-fragremy-*`/`data-remy-*`-Haken und Attribute, die React nicht
-// verwaltet.
-import type { CSSProperties } from 'react';
+// Home-hub section for Remy, the KI buddy — restyled into the homeV2 white
+// vocabulary. Yellow is kept as Remy's accent (avatar circle, chip hover),
+// NOT as a full-section background band.
+// Daypart greeting and chat/quick-ask dispatch via dispatchBuddyAsk. Der
+// Auftritt (Fragezeichen, „Frag Remy.", Remy schießt hoch und redet), sein
+// Blick (der Kopf dreht sich zur Maus oder zum Finger) und das Reden beim
+// Scrollen gehören HubMotion — über `data-fragremy-*`/`data-remy-*`-Haken und
+// Attribute, die React nicht verwaltet.
+import { useEffect, useState, type ReactNode } from 'react';
 import Image from '@/app/components/SiteImage';
-import { useLocale } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { stageFor } from '@/lib/buddy/greeting';
+import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
+import type { Locale } from '@/lib/buddy/types';
 import styles from './HubFragRemy.module.css';
 
+const REMY_SIZES = '(max-width: 899px) min(92vw, 560px), (max-width: 1360px) 38vw, 520px';
+
 interface Props {
-  /** Slug → Name der Kategorien (getHomeData). */
-  categoryNames?: Record<string, string>;
+  /** Die erste Hälfte der Tafel: „Worauf hast du Lust?" mit den Kategorien
+   *  (CategoriesRail, vom Server gerendert). Remy beantwortet darunter
+   *  dieselbe Frage im Gespräch — eine Tafel, eine Frage, zwei Wege. */
+  choices?: ReactNode;
 }
 
-const REMY_SIZES = '(max-width: 767px) 60vw, 480px';
+export default function HubFragRemy({ choices }: Props) {
+  const locale = useLocale() as Locale;
+  const t = useTranslations('hub.fragRemy');
+  const [stage, setStage] = useState<{
+    line: string;
+    lead: string;
+    answers: [string, string];
+  } | null>(null);
+  const [draft, setDraft] = useState('');
 
-/**
- * Wo eine Kategorie steht: auf einem Bogen um Remys Gesicht, über Kopf und
- * Schultern, unten offen — dort steht sein Körper.
- * - `--a` (ab 768px): gleichmässig über 210°.
- * - `--am` (Telefon): an der Spitze des Bogens ist auf 343px nur für ein
- *   Wort Platz (gleichmässig verteilt stiessen dort drei aneinander). Also
- *   eins oben, die übrigen je zur Hälfte an den Seiten, von schräg unten
- *   (135° bzw. 45°) bis schräg oben (225° bzw. 315°).
- */
-function placeOf(i: number, n: number): CSSProperties {
-  const t = n > 1 ? i / (n - 1) : 0.5;
-  const top = n % 2 === 1 ? (n - 1) / 2 : -1;
-  const side = Math.floor(n / 2);
-  const step = side > 1 ? 90 / (side - 1) : 0;
-  const am = i === top ? 270 : i < side ? 135 + i * step : 315 + (i - (n - side)) * step;
-  return {
-    '--i': i,
-    '--a': `${165 + t * 210}deg`,
-    '--am': `${am}deg`,
-  } as CSSProperties;
-}
+  // Daypart copy is client-only (the server's clock isn't the user's): SSR shows
+  // the generic sub, the daypart lead + answers land after hydration.
+  useEffect(() => {
+    setStage(stageFor(new Date().getHours(), locale));
+  }, [locale]);
 
-export default function HubFragRemy({ categoryNames = {} }: Props) {
-  const de = useLocale() === 'de';
-  const categories = Object.entries(categoryNames);
+  const lead = stage ? stage.lead : t('sub');
+  const fallbackAnswers: [string, string] =
+    locale === 'de'
+      ? ['Richtig gute Pizza', 'Schönes Dinner für zwei']
+      : ['Really good pizza', 'A nice dinner for two'];
+  const answers = stage?.answers ?? fallbackAnswers;
+
+  function submitDraft() {
+    const q = draft.trim();
+    if (!q) return;
+    dispatchBuddyAsk({ question: q });
+    setDraft('');
+  }
 
   return (
     <section
@@ -56,77 +60,113 @@ export default function HubFragRemy({ categoryNames = {} }: Props) {
       id="hub-fragremy"
       data-hub-fragremy=""
     >
+      {/* Body: Remy avatar, headline, copy + actions as one stage */}
       <div className={styles.body}>
-        <h2 className={`hv-title ${styles.question}`}>
-          {de ? 'Worauf hast du Lust?' : 'What are you craving?'}
-        </h2>
-
-        <div className={styles.ring} data-remy-ring="">
-          {/* Remy freigestellt, mit Oberkörper; nach unten läuft er in die
-              Tafel aus. */}
-          <div className={styles.figure}>
-            <div className={styles.avatarWrap} data-fragremy-avatar="">
-              <div className={styles.head} data-remy-head="">
-                <div className={styles.avatar}>
-                  <Image
-                    className={styles.face}
-                    src="/buddy/buddy.webp"
-                    alt="Remy"
-                    fill
-                    sizes={REMY_SIZES}
-                    loading="lazy"
-                  />
-                  <Image
-                    className={styles.faceOpen}
-                    src="/buddy/buddy-open.webp"
-                    alt=""
-                    fill
-                    sizes={REMY_SIZES}
-                    loading="lazy"
-                    aria-hidden="true"
-                  />
-                  <Image
-                    className={styles.faceLaugh}
-                    src="/buddy/buddy-laugh.webp"
-                    alt=""
-                    fill
-                    sizes={REMY_SIZES}
-                    loading="lazy"
-                    aria-hidden="true"
-                  />
-                  {/* Sein Blick: die Zeichnung als verformtes Gitter
-                      (lib/home/renderRemyLook.ts). Zeichnet es, treten die
-                      drei Bilder darüber zurück (`data-mesh`). */}
-                  <canvas className={styles.mesh} data-remy-mesh="" aria-hidden="true" />
-                </div>
-              </div>
-            </div>
+        <div className={styles.ask}>
+          {choices}
+          <div className={`hv-head ${styles.panelHead}`}>
+            <h3 className="hv-title">
+              <span className={styles.titleLine}>
+                {locale === 'de' ? 'Keine Idee' : 'No idea'}
+                <span className={styles.titleMark} data-fragremy-q="">
+                  ?
+                </span>
+              </span>
+              <span className={styles.titleLine} data-fragremy-ask="">
+                {locale === 'de' ? 'Frag Remy.' : 'Ask Remy.'}
+              </span>
+            </h3>
           </div>
 
-          {/* Remys Platz, unbewegt: daran misst HubMotion, wann er im Bild
-              ist und hochschießt, und von dort fliegen die Kategorien los. */}
-          <span className={styles.avatarSpot} data-fragremy-spot="" aria-hidden="true" />
+          {/* Copy + interactions */}
+          <div className={styles.copy}>
+            <p className={styles.lead} data-fragremy-lead="">
+              {lead}
+            </p>
 
-          {categories.length > 0 && (
-            <ul
-              className={styles.orbit}
-              role="list"
-              aria-label={de ? 'Kategorien' : 'Categories'}
-              data-hub-categories=""
-            >
-              {categories.map(([slug, name], i) => (
-                <li key={slug} className={styles.place} style={placeOf(i, categories.length)}>
-                  {/* `fly` gehört dem Auftritt (GSAP-transform), der Platz
-                      darüber seiner Lage im Bogen (`translate`). */}
-                  <span className={styles.fly} data-remy-orbit="">
-                    <Link href={`/kategorie/${slug}`} className={styles.word}>
-                      {name}
-                    </Link>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+            <div className={styles.actions}>
+              <div className={styles.chips} data-fragremy-chips="">
+                {answers.map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    className={`hv-chip ${styles.chip}`}
+                    onClick={() => dispatchBuddyAsk({ question: a })}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+              <form
+                className={styles.chatin}
+                data-fragremy-form=""
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitDraft();
+                }}
+              >
+                <input
+                  className={styles.input}
+                  data-fragremy-input=""
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={t('inputPlaceholder')}
+                  aria-label={t('inputPlaceholder')}
+                />
+                <button
+                  className={`hv-btn ${styles.send}`}
+                  type="submit"
+                  aria-label={t('sendAria')}
+                >
+                  <span aria-hidden="true">{t('sendAria')}</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        {/* Remys Platz, unbewegt: daran misst HubMotion, wann die leere
+            Fläche im Bild ist und er hochschießt. */}
+        <span className={styles.avatarSpot} data-fragremy-spot="" aria-hidden="true" />
+
+        {/* Remy avatar */}
+        <div className={styles.avatarWrap} data-fragremy-avatar="">
+          <div className={styles.avatar}>
+            {/* Das Quadrat, in dem die Zeichnung steht: daran richtet
+                HubMotion den Blick aus (`data-remy-head`). */}
+            <div className={styles.head} data-remy-head="">
+              <Image
+                className={styles.face}
+                src="/buddy/buddy.webp"
+                alt="Remy"
+                fill
+                sizes={REMY_SIZES}
+                loading="lazy"
+              />
+              <Image
+                className={styles.faceOpen}
+                src="/buddy/buddy-open.webp"
+                alt=""
+                fill
+                sizes={REMY_SIZES}
+                loading="lazy"
+                aria-hidden="true"
+              />
+              <Image
+                className={styles.faceLaugh}
+                src="/buddy/buddy-laugh.webp"
+                alt=""
+                fill
+                sizes={REMY_SIZES}
+                loading="lazy"
+                aria-hidden="true"
+              />
+              {/* Sein Blick: die Zeichnung als verformtes Gitter
+                  (lib/home/renderRemyLook.ts). Zeichnet es, treten die drei
+                  Bilder darüber zurück (`data-mesh`). */}
+              <canvas className={styles.mesh} data-remy-mesh="" aria-hidden="true" />
+            </div>
+          </div>
         </div>
       </div>
     </section>

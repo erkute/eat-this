@@ -61,9 +61,12 @@
    bringt transparenten Rand mit, und die Zeilenbox des Textes hat über den
    Versalien selbst noch Luft. Beides zusammen ließ die Zeile abgesetzt wirken,
    obwohl der gemessene Abstand nur 2px betrug. In em, damit der Zug mit dem
-   Schriftgrad mitwächst statt bei 15px wieder aufzureißen. */
+   Schriftgrad mitwächst statt bei 15px wieder aufzureißen.
+   Mit -0.62em klebte er dann am Schatten des Logos (gemessen 5px am
+   Desktop, 3px am Telefon; Ansage 01.10.2026: „zu nah an Eat This") —
+   -0.15em lässt ihm rund 12 bzw. 9px. */
 .tagline {
-  margin: -0.62em auto 0;
+  margin: -0.15em auto 0;
   color: var(--footer-ink);
   font-family: var(--et-font-display);
   font-size: clamp(11px, 2.9vw, 14px);

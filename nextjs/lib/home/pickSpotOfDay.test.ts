@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { pickSpotOfDay, previousDay, type SpotCandidate } from './pickSpotOfDay';
+import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay';
 
 const r = (id: string, o: Partial<SpotCandidate> = {}): SpotCandidate => ({
   _id: id,
@@ -45,19 +45,5 @@ describe('pickSpotOfDay', () => {
 
   it('returns null for an empty list', () => {
     expect(pickSpotOfDay([], '2026-06-01')).toBeNull();
-  });
-});
-
-describe('previousDay', () => {
-  it('steps back one calendar day, across months and years', () => {
-    expect(previousDay('2026-10-01')).toBe('2026-09-30');
-    expect(previousDay('2026-03-01')).toBe('2026-02-28');
-    expect(previousDay('2027-01-01')).toBe('2026-12-31');
-  });
-
-  it("gives yesterday's pick, not today's, when fed to the rotation", () => {
-    const list = [r('a'), r('b'), r('c')];
-    const today = '2026-10-01';
-    expect(pickSpotOfDay(list, previousDay(today))?._id).not.toBe(pickSpotOfDay(list, today)?._id);
   });
 });

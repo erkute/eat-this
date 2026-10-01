@@ -24,10 +24,3 @@ export function pickSpotOfDay<T extends SpotCandidate>(candidates: T[], today: s
   const idx = ((epochDay % sorted.length) + sorted.length) % sorted.length;
   return sorted[idx];
 }
-
-/** The ISO date (YYYY-MM-DD) before `day`, in UTC like the pick itself. */
-export function previousDay(day: string): string {
-  const date = new Date(`${day}T12:00:00Z`);
-  date.setUTCDate(date.getUTCDate() - 1);
-  return date.toISOString().slice(0, 10);
-}

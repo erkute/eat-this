@@ -70,7 +70,6 @@ const data: HomeData = {
     _id: 'r1',
     featuredOnDate: null,
   },
-  spotOfYesterday: null,
   // MagazineGrid renders nothing on an empty list, and the order assertions
   // below need it on the page.
   magazine: [{ title: 'Zehn Teller', slug: 'zehn-teller', image: null, kicker: 'Magazin' }],
@@ -140,9 +139,11 @@ describe('HubSection home', () => {
   it("keeps the pick's name off the photo, where a bright image swallows it", () => {
     const html = renderHome();
     const photo = html.indexOf('hv-photo');
-    const name = html.indexOf('Gazzo');
-    // Name after the closing </span> of the photo box, not inside it.
-    expect(html.slice(photo, name)).toContain('</span>');
+    // The photo box holds the picture and nothing else: the name stands
+    // above it on the board.
+    const box = html.slice(photo, html.indexOf('</span>', photo));
+    expect(box).not.toContain('Gazzo');
+    expect(html.indexOf('>Gazzo<')).toBeLessThan(photo);
   });
 
   it("renders the spot's description, which used to be fetched and dropped", () => {
@@ -175,7 +176,10 @@ describe('HubSection home', () => {
   it('renders the spot of the day', () => {
     const html = renderHome();
     expect(html).toContain('Gazzo');
-    expect(html).toContain('Prenzlberg');
-    expect(html).toContain('Zur Map');
+    // Only the name and why — the district is no longer on the calendar.
+    expect(html).not.toContain('Prenzlberg');
+    // No button: the whole calendar, and with it the day, leads to the map.
+    expect(html).not.toContain('Zur Map');
+    expect(html).toContain('aria-label="Gazzo, auf der Map"');
   });
 });

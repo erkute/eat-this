@@ -129,14 +129,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           one's way, and neither block led. */}
         <HubNearby locale={locale} today={today} />
 
-        {spot && (
-          <HubSpotOfDay
-            spot={spot}
-            yesterday={initialData.spotOfYesterday}
-            today={today}
-            locale={locale}
-          />
-        )}
+        {spot && <HubSpotOfDay spot={spot} today={today} locale={locale} />}
 
         {/* Order follows what a first-time visitor needs, in that order: what is
           this (hero) → what is around you → the day's pick → proof we know the

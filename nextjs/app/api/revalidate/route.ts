@@ -148,14 +148,11 @@ export async function POST(req: NextRequest) {
       revalidateTag('bezirk');
       revalidateTag('category-list');
       revalidateTag('restaurant-siblings');
-      // Und die Listen ÜBER alle Restaurants: der Spot-des-Tages-Kandidatenpool
-      // (lib/home/spotOfDay.server.ts, deckt auf der Map die Karten des Tages
-      // auf) und die
-      // Mail-Spots hängen am blanken Tag `restaurant`. Das fehlte hier, und
-      // niemandem fiel es auf, solange die ISR-Frist bei einer Stunde lag.
-      // Seit sie 24 Stunden beträgt, wäre ein frisch gesetztes
-      // `featuredOnDate` bis zu einen Tag lang wirkungslos geblieben — der
-      // Spot des Tages ist genau die Fläche, für die Redaktion kuratiert.
+      // Und was über ALLE Restaurants liest: jede Spot-Seite trägt den
+      // blanken Tag `restaurant` (lib/sanity.server.ts). Das fehlte hier, und
+      // niemandem fiel es auf, solange die ISR-Frist bei einer Stunde lag —
+      // seit sie 24 Stunden beträgt, stünde eine Änderung sonst bis zu einen
+      // Tag lang nicht auf den übrigen Spot-Seiten.
       revalidateTag('restaurant');
       // Die Slug-Tabelle des Legacy-Redirects (getAllRestaurantsLite) hängt
       // an einem eigenen Tag, den bisher niemand invalidierte: sie stand bis

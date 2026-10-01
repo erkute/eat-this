@@ -30,7 +30,7 @@ export const dynamic = 'force-dynamic';
  * Antwort „hast du schon".
  *
  * Verschenkt wird aus dem, was NICHT ohnehin offen liegt: das öffentliche
- * Schaufenster und der Spot des Tages sind kein Geschenk. Zufällig gezogen,
+ * Schaufenster ist kein Geschenk. Zufällig gezogen,
  * damit zwei Konten nicht denselben Stapel bekommen — ein Album, das bei jedem
  * gleich aussieht, ist keine Sammlung.
  *

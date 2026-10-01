@@ -17,7 +17,7 @@ import type { MapMustEat } from '@/lib/types';
  * Restaurant-Seiten stehen und die Sperre nur den ersten Eindruck kostete.
  *
  * Gestaffelt sind jetzt nur noch die KARTEN, und zwar auf drei Wegen:
- * verdienen (vor Ort, 50 m), geschenkt bekommen (Spot des Tages, Einladung)
+ * verdienen (vor Ort, 50 m), geschenkt bekommen (Starter Pack, Einladung)
  * oder kaufen (Pack). Diese Handvoll hier ist keiner davon: sie liegt für
  * jeden offen, damit überhaupt zu sehen ist, was eine Karte IST.
  *
@@ -31,8 +31,6 @@ import type { MapMustEat } from '@/lib/types';
  * Karte IST, und wenig genug, dass die Anmeldung noch etwas zu bieten hat.
  * Sie ist absolut, nicht anteilig: wächst der Stapel auf die geplanten 100+,
  * verwässert sie von allein, und das ist gewollt.
- *
- * Der Spot des Tages kommt täglich als sechste dazu und ist flüchtig.
  */
 export const REVEALED_TARGET = 5;
 

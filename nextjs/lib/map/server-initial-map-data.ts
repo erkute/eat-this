@@ -8,14 +8,12 @@
 
 import { getCachedMapData } from './cached-sanity';
 import { composeRevealedMustEats } from './revealed-must-eats';
-import { spotOfDayMustEatIds } from './spotOfDayReveal';
 import { stripCoveredMustEats } from './stripCoveredMustEats';
 import {
   selectHomeInitialMapData,
   selectMustEatsCatalog,
   type InitialMustEatsData,
 } from './initial-surface-data';
-import { getSpotOfDayId } from '@/lib/home/spotOfDay.server';
 import { unstable_cache } from 'next/cache';
 import { hydrateAuthorizedMustEats, readPrivateMustEatContent } from '@/lib/must-eat/private-store';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
@@ -32,24 +30,17 @@ export interface InitialMapData {
 }
 
 async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
-  const today = new Date().toISOString().slice(0, 10);
-  const [{ restaurants: all, mustEats: allMustEats, categories }, spotId] = await Promise.all([
-    getCachedMapData(),
-    getSpotOfDayId(today),
-  ]);
+  const { restaurants: all, mustEats: allMustEats, categories } = await getCachedMapData();
 
   // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL sieht ein Besucher
-  // ohne Konto seit dem 07.09.2026 jede Karte, aber offen nur das Schaufenster
-  // plus den Spot des Tages, und der ist flüchtig: pro Anfrage aus `today`
-  // gerechnet, morgen steht ein anderer da. Dieselbe Regel wie
-  // composeAccountSurface für ein Konto ohne alles — die SSR-Nutzlast und der spätere Fetch müssen
-  // dasselbe meinen, sonst springt die Karte beim Hydrieren. Die Rücken sind
-  // der Anlass zur Anmeldung; was darunter liegt, bleibt auf dem Server
-  // (getInitialAnonMapData strippt).
-  const revealedMustEatIds = new Set([
-    ...composeRevealedMustEats(allMustEats),
-    ...spotOfDayMustEatIds(spotId, allMustEats),
-  ]);
+  // ohne Konto seit dem 07.09.2026 jede Karte, aber offen nur das
+  // Schaufenster. (Bis 01.10.2026 kam täglich der Spot des Tages dazu; die
+  // Freigabe ist mit seiner Sektion auf der Startseite gegangen.) Dieselbe
+  // Regel wie composeAccountSurface für ein Konto ohne alles — die
+  // SSR-Nutzlast und der spätere Fetch müssen dasselbe meinen, sonst springt
+  // die Karte beim Hydrieren. Die Rücken sind der Anlass zur Anmeldung; was
+  // darunter liegt, bleibt auf dem Server (getInitialAnonMapData strippt).
+  const revealedMustEatIds = composeRevealedMustEats(allMustEats);
 
   return {
     restaurants: all,
@@ -61,8 +52,8 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
 }
 
 /**
- * The face-up set below is the curated shop window plus the spot-of-day gift —
- * the same cards for every visitor, and the same cards whose premium fields ship
+ * The face-up set below is the curated shop window — the same cards for
+ * every visitor, and the same cards whose premium fields ship
  * in the anonymous HTML. So this read has no per-viewer component and caching
  * it publishes nothing that isn't published already. The per-viewer path
  * (/api/map-data, entitlements + on-site unlocks + purchases) keeps the

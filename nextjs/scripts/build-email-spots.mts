@@ -89,8 +89,8 @@ async function publicCardPng(mustEatId: string): Promise<string | null> {
 }
 
 const all = await client.fetch<SanityMustEat[]>(emailMustEatsQuery);
-/* Dasselbe Schaufenster wie die Seite, OHNE den Spot des Tages: der ist nur
-   heute offen, eine Mail liegt aber wochenlang im Postfach. */
+/* Dasselbe Schaufenster wie die Seite: nur, was dauerhaft offen liegt — eine
+   Mail liegt wochenlang im Postfach. */
 const showcase = composeRevealedMustEats(
   all as unknown as Parameters<typeof composeRevealedMustEats>[0]
 );

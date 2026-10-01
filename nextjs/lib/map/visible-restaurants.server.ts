@@ -1,8 +1,6 @@
 import { ownsCategoryOf, type resolveEntitlements } from '@/lib/firebase/entitlements';
-import { getSpotOfDayId } from '@/lib/home/spotOfDay.server';
 import type { MapMustEat, MapRestaurant } from '@/lib/types';
 import { composeRevealedMustEats } from './revealed-must-eats';
-import { spotOfDayMustEatIds } from './spotOfDayReveal';
 
 type Entitlements = Awaited<ReturnType<typeof resolveEntitlements>>;
 
@@ -22,7 +20,6 @@ interface ComposeAccountSurfaceArgs {
   ent: Entitlements;
   /** Aufdeckungen vor Ort aus users/{uid}/unlockedMustEats. */
   unlockedIds: ReadonlySet<string>;
-  today?: string;
 }
 
 /**
@@ -49,7 +46,6 @@ export async function composeAccountSurface({
   allMustEats,
   ent,
   unlockedIds,
-  today = new Date().toISOString().slice(0, 10),
 }: ComposeAccountSurfaceArgs): Promise<AccountSurface> {
   /* Admin und All-Berlin sehen jede Karte offen. Ein leeres Face-up-Set wäre
      hier still falsch: `isAlbumMustEatCollected` fällt dann auf das Bild
@@ -62,8 +58,6 @@ export async function composeAccountSurface({
     };
   }
 
-  const spotId = await getSpotOfDayId(today);
-
   /* Ein Kategorie-Pack wird LIVE aufgelöst, nicht aus dem Schnappschuss im
      Entitlement-Dokument. Der hält fest, welche Karten es beim Kauf gab; wer
      das Pizza-Pack kauft und drei Wochen später eine neue Pizza-Karte
@@ -72,7 +66,6 @@ export async function composeAccountSurface({
      Kategorie gibt. */
   const faceUpIds = new Set<string>([
     ...composeRevealedMustEats(allMustEats),
-    ...spotOfDayMustEatIds(spotId, allMustEats),
     ...unlockedIds,
     ...ent.mustEatIds,
   ]);

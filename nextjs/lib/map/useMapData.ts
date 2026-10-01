@@ -34,7 +34,7 @@ interface MapData {
    *  Konto, das ihn nutzt, hat weder Claim noch Entitlement-Dokument. */
   fullCatalog: boolean;
   /** Die Karten, die fuer diesen Betrachter offen liegen — das oeffentliche
-   *  Schaufenster plus Spot des Tages, und bei einem Konto obendrein alles,
+   *  Schaufenster, und bei einem Konto obendrein alles,
    *  was es vor Ort aufgedeckt, geschenkt bekommen oder gekauft hat. Alle
    *  uebrigen Karten rendern als Kartenruecken. */
   revealedMustEatIds: Set<string>;

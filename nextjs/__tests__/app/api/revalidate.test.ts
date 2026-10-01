@@ -54,10 +54,9 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:test-spot')
     expect(mocks.revalidateTag).toHaveBeenCalledWith('map-data')
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant-siblings')
-    // Der Kandidatenpool des Spots des Tages haengt am blanken Tag
-    // `restaurant` — ohne ihn bliebe ein frisch gesetztes `featuredOnDate`
-    // bis zum Ablauf der ISR-Frist wirkungslos, seit dem 25.08.2026 also
-    // bis zu 24 Stunden.
+    // Jede Spot-Seite haengt am blanken Tag `restaurant` — ohne ihn stuende
+    // eine Aenderung bis zum Ablauf der ISR-Frist nicht auf den uebrigen
+    // Spot-Seiten, seit dem 25.08.2026 also bis zu 24 Stunden.
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/restaurant/test-spot')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')

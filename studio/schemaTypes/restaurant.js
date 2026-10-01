@@ -64,13 +64,6 @@ export default {
       description: 'Anhaken, um dieses Restaurant in der Featured-Spots-Section auf der Landingpage zu zeigen. Max. 12 werden angezeigt. Wenn keiner angehakt ist, fällt die Landing auf die Top-Restaurants nach Must-Eat-Anzahl zurück.',
     },
     {
-      name: 'featuredOnDate',
-      title: 'Spot des Tages am Datum',
-      type: 'date',
-      description:
-        'Optional. Kürt dieses Restaurant als „Spot des Tages" im Hub-Hero an genau diesem Datum. Ist für heute keiner gesetzt, fällt der Hero auf „Featured" und dann auf die meisten Must Eats zurück.',
-    },
-    {
       name: 'cuisineType',
       title: 'Küche / Cuisine',
       type: 'string',

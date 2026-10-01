@@ -48,7 +48,7 @@ export interface PublicDeck {
    * - `shown` — offen, mit Bild. Das bekommen NUR Karten, die ohnehin jedem
    *   anonymen Besucher offen liegen: dieselbe Menge, die
    *   `/api/must-eat-image` ohne Cookie ausliefert (`getPublicMustEatIds`,
-   *   der kuratierte Anon-Satz plus Spot des Tages). Wer diese Grenze
+   *   der kuratierte Anon-Satz). Wer diese Grenze
    *   verschiebt, verschenkt den bezahlten Teil des Produkts an jeden, der
    *   einen geteilten Link hat.
    * - `held` — gesammelt, aber nicht fuer fremde Augen. Rueckseite, kein Bild.

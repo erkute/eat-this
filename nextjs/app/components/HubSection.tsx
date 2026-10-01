@@ -122,17 +122,19 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         {/* What is around you comes first: it needs nothing from the visitor
           but a tap, and it answers "what do I eat now" with their own street. */}
         <HubNearby locale={locale} today={today} />
+        {/* The categories follow right under it: the same question („what do
+          I feel like?") answered by kind instead of by distance (Ansage
+          01.10.2026: „Worauf hast du Lust unter Was ist um dich"). */}
+        <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
 
-        {/* Order follows what a first-time visitor needs, in that order: what is
-          this (hero) → what is around you → proof we know the city (magazine)
-          → Must-Eat examples and explanation → the free offer → navigation →
-          Remy and FAQ. Selling packs moved off the home page; the day's pick
-          (Spot des Tages) left it on 01.10.2026. */}
+        {/* Then proof we know the city (magazine) → Must-Eat examples and
+          explanation → the free offer → Remy and FAQ. Selling packs moved off
+          the home page; the day's pick (Spot des Tages) left it on
+          01.10.2026. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
         <HubMustEatsTeaser />
         <StarterPackSignup />
       </HomeMapDataProvider>
-      <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
       <HubFragRemy />
       <HubFaq locale={locale} />
       <SiteFooter home />

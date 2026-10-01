@@ -97,15 +97,17 @@ describe('HubSection home', () => {
     // A second copy lower down was tried and dropped: it looked identical
     // once it gained the pack and panel, so it read as repetition.
     expect(html.match(/data-hub-starter/g)).toHaveLength(1);
-    expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
+    // (The HubFragRemy mock returns a string, so it lands escaped.)
+    expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('&quot;remy&quot;'));
   });
 
-  it('runs nearby, the magazine, then Must Eats before signup', () => {
+  it('runs nearby, the categories, the magazine, then Must Eats before signup', () => {
     const html = renderHome();
     // What's nearby costs the visitor one tap and answers with their own
-    // street, so it leads. (The HubNearby mock returns a string, so it lands
-    // escaped.)
-    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Auf dem Teller'));
+    // street, so it leads; the categories answer the same question by kind.
+    // (The HubNearby mock returns a string, so it lands escaped.)
+    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
+    expect(html.indexOf('Worauf hast du Lust?')).toBeLessThan(html.indexOf('Auf dem Teller'));
     expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('musteats'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
   });

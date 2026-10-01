@@ -667,7 +667,9 @@
      (HubMustEatsTeaser.module.css). Der Teller liegt dabei über der leeren
      Oberkante der Bühne, sonst fingen deren Pixel die Klicks auf den Punkten
      ab.
-   - Vor dem Teller: Fuge minus der Luft, die der Fächer oben mitbringt. */
+   - Vor dem Teller: die Fuge, etwas knapper — gezählt bis zu den obersten
+     Ecken des Fächers, der über die Überschrift hinausragt (eingeschwungen
+     gemessen; die Kategorie-Wörter fahren beim Auftritt von unten ein). */
 @media (min-width: 768px) {
   .page {
     --stage-h: calc(100svh - 74px);
@@ -687,7 +689,7 @@
   .page :global([data-hub-magazine]) {
     position: relative;
     z-index: 2;
-    margin-top: calc(var(--home-section-gap) - var(--mag-peek, 0px));
+    margin-top: calc(var(--home-section-gap) - 36px);
   }
   .page :global([data-hub-musteats]) {
     margin-top: calc(120px - var(--musteats-air));

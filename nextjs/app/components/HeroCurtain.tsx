@@ -48,6 +48,8 @@ export default function HeroCurtain() {
         const time = Number(animation?.currentTime ?? 0) / 1000;
         renderer.draw(time);
         drawing.setAttribute('data-animated', '');
+        // The legs move from the first frame on: now the curtain may go.
+        document.documentElement.setAttribute('data-remy-go', '');
         frame = requestAnimationFrame(draw);
       };
       draw();

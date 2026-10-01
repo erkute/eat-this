@@ -47,6 +47,17 @@
     animation: travel 5.4s cubic-bezier(0.35, 0, 0.65, 1) both;
     will-change: transform;
   }
+  /* Der Vorhang wartet auf Remys Beine: die Verformung (WebGL, renderRemy)
+     startet erst nach Hydrierung und Dekodieren des Bildes. Lief der
+     Vorhang schon, schob bei langsamem Laden ein starres Bild — „seine
+     Beine bewegen sich nicht" (Rückmeldung 01.10.2026). Beide Animationen
+     stehen auf Zeit 0 (Remy noch links ausserhalb, nur Schwarz), bis
+     HeroCurtain `data-remy-go` setzt; spätestens nach 3 s setzt es das
+     Kopf-Skript ([locale]/layout.tsx), damit nichts hängen bleibt. */
+  :global(html:not([data-remy-go])) .scene,
+  :global(html:not([data-remy-go])) .travel {
+    animation-play-state: paused;
+  }
 }
 /* Am Telefon steht Remy unten auf der Kante über Safaris URL-Leiste wie auf
    einem Boden und schiebt den Vorhang von dort weg (Ansage 01.10.2026) —

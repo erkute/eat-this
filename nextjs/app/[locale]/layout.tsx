@@ -26,7 +26,9 @@ export function generateStaticParams() {
 // Runs synchronously in <head>: sets data-active-page (read by CSS selectors
 // like [data-active-page="map"] .app-pages), locks portrait orientation on mobile,
 // marks the home page for its intro (data-hero-intro, HubSection.module.css —
-// set here so the CSS animation starts with the first paint, not after hydration),
+// set here so the CSS animation starts with the first paint, not after hydration;
+// the curtain itself waits for Remy's legs — data-remy-go, set by HeroCurtain
+// once its mesh draws, at the latest after 3 s from here),
 // starts the home page at the top on every load (scrollRestoration — Safari
 // restores the old position before hydration otherwise; Ansage 01.10.2026:
 // „bei einem Reload fängt die Seite wieder oben an", the intro plays there),
@@ -46,7 +48,7 @@ const CRITICAL_BOOTSTRAP = `(function(){
   else if(p.indexOf('/news/')===0&&p.length>6)slug='news-article';
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);
-  try{if(slug==='start'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-hero-intro','');}catch(_){}
+  try{if(slug==='start'&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.setAttribute('data-remy-go','');},3000);}}catch(_){}
   try{if(slug==='start'&&'scrollRestoration' in history)history.scrollRestoration='manual';}catch(_){}
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
   try{var ah=JSON.parse(localStorage.getItem('_authHint')||'null');if(ah&&ah.n)document.documentElement.setAttribute('data-auth','1');}catch(_){}

@@ -826,6 +826,36 @@ function armDepthPointer(): () => void {
   return () => cleanups.forEach((stop) => stop());
 }
 
+/**
+ * Bilder der Bühnen vorladen, bevor sie ins Bild kommen. Sie laden
+ * `lazy`, und der Browser zählt nur, was sichtbar ist: die wartenden
+ * Must-Eat-Karten stehen ausserhalb der beschnittenen Bühne, die Nearby-
+ * Karten seitlich im Band — sie luden erst beim Hereinfahren, und das Feld
+ * war einen Moment leer (Rückmeldung 01.10.2026). Anderthalb Bildschirm-
+ * höhen vorher werden sie auf `eager` gestellt. Auch ohne Bewegung, und
+ * am Scroller des Desktops (`.app-pages`) gemessen — der Rand des Fensters
+ * hilft dort nicht, der Scroller schneidet ab.
+ */
+function armPreload(): () => void {
+  if (typeof IntersectionObserver === 'undefined') return () => {};
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        io.unobserve(entry.target);
+        entry.target
+          .querySelectorAll<HTMLImageElement>('img[loading="lazy"]')
+          .forEach((img) => (img.loading = 'eager'));
+      }
+    },
+    { root: appScroller(), rootMargin: '150% 0px' }
+  );
+  document
+    .querySelectorAll('[data-hub-nearby], [data-hub-magazine], [data-hub-musteats]')
+    .forEach((section) => io.observe(section));
+  return () => io.disconnect();
+}
+
 /** Der Magazin-Stapel mit der Maus: ziehen, aufblättern, nach vorn holen
  *  (lib/home/deckMouse.ts). */
 function armMagazineMouse(): () => void {
@@ -839,6 +869,7 @@ export default function HubMotion() {
     // Ausserhalb von matchMedia: aufräumen muss es auch, wenn jemand während
     // des Auftritts auf reduced motion umschaltet.
     const stopIntro = finishIntro();
+    const stopPreload = armPreload();
     const mm = gsap.matchMedia();
     mm.add(
       {
@@ -871,6 +902,7 @@ export default function HubMotion() {
     );
     return () => {
       stopIntro?.();
+      stopPreload();
       mm.revert();
     };
   });

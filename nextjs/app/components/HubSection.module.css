@@ -59,7 +59,10 @@
 /* Das Quadrat dreht sich beim Hereinscrollen auf seinen Platz — am
    Scrollweg, nicht an der Uhr: zurückscrollen dreht es wieder heraus. Der
    Titel daneben steht still (keine Buchstaben, die sich aufbauen — Ansage
-   28.09.2026). */
+   28.09.2026). Das Ende als feste Strecke, nicht als Prozent: steht der
+   Titel in einer klebenden Bühne (Nearby, Teller, Must Eats), streckt die
+   Timeline `cover` über den ganzen Pin-Weg — mit `cover 35%` stand das
+   Quadrat dort oben angekommen erst halb gedreht, als Punkt. */
 @keyframes mkSpin {
   from {
     rotate: -270deg;
@@ -72,7 +75,7 @@
     :global(.homeV2).page :global(.hv-mk) {
       animation: mkSpin linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 35%;
+      animation-range: entry 0% cover 35vh;
     }
   }
 }

@@ -1,4 +1,4 @@
-/* Seitliches Ziehen auf den Scroll-Bühnen der Startseite (Must Eats, Nearby).
+/* Seitliches Ziehen auf der Scroll-Bühne der Startseite (Must Eats).
    Dort fahren die Karten am vertikalen Scrollweg zur Seite; wer am Telefon
    quer über die Bühne wischt, erwartet aber, dass die Karten mitgehen.
    Dieses Modul übersetzt den Querwisch in genau diesen Scrollweg — die

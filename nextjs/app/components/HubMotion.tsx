@@ -35,8 +35,8 @@ gsap.registerPlugin(useGSAP);
  *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
  *    Nur wo der Browser keine Scroll-Timeline kann, treibt `armScrubFallback`
  *    dieselben Werte per Scroll-Listener (`data-scrub`).
- *    Die räumlichen Galerien (Nearby, Magazin, Must Eats) steuert jeweils
- *    HomeGallery: vertikale Scrollstrecke mit nativer Timeline und GSAP-Fallback.
+ *    Die räumlichen Bühnen (Magazin, Must Eats) steuern sich selbst;
+ *    Nearby ist eine Querleiste, die man nativ wischt (HubNearby).
  *
  * 3. **Beim Hereinkommen:**
  *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
@@ -1290,7 +1290,7 @@ function armDepthPointer(): () => void {
  * Bilder der Bühnen vorladen, bevor sie ins Bild kommen. Sie laden
  * `lazy`, und der Browser zählt nur, was sichtbar ist: die wartenden
  * Must-Eat-Karten stehen ausserhalb der beschnittenen Bühne, die Nearby-
- * Karten seitlich im Band — sie luden erst beim Hereinfahren, und das Feld
+ * Karten rechts in der Querleiste — sie luden erst beim Hereinfahren, und das Feld
  * war einen Moment leer (Rückmeldung 01.10.2026). Anderthalb Bildschirm-
  * höhen vorher werden sie auf `eager` gestellt. Auch ohne Bewegung, und
  * am Scroller des Desktops (`.app-pages`) gemessen — der Rand des Fensters

@@ -9,10 +9,10 @@ import { notify, type NoticeKind } from '@/lib/notice';
 import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { normalizeName } from '@/lib/normalizeName';
 import { nearestRestaurants, rotatingRestaurants } from '@/lib/home/nearby';
+import { armRailDrag } from '@/lib/home/railDrag';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import MapIntentLink from './MapIntentLink';
-import HomeGallery from './HomeGallery';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubNearby.module.css';
 
@@ -24,6 +24,11 @@ interface Props {
       block, under the day's pick: no section chrome of its own, and a heading
       one step below the red section title above it. */
 }
+
+/** Finger und Trackpad wischen die Leiste nativ; mit der Maus wird gezogen.
+ *  Ein Ref-Callback mit Aufräumfunktion (React 19): die Leiste entsteht erst,
+ *  wenn es Karten gibt. */
+const railDrag = (rail: HTMLUListElement | null) => (rail ? armRailDrag(rail) : undefined);
 
 export default function HubNearby({ locale = 'de', today }: Props) {
   const t = useTranslations('hub.nearby');
@@ -45,7 +50,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   }, []);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
-  // Eight picks in the same spatial gallery on phones and desktop.
+  // Eight picks in the same rail on phones and desktop.
   const count = 8;
 
   /* Nur die Fehler laufen durch die zentrale Info-Karte. „Wir suchen dich"
@@ -108,43 +113,42 @@ export default function HubNearby({ locale = 'de', today }: Props) {
             heading and the line explaining it, which put more space inside the
             heading than above it — the section read as if it belonged to
             whatever sat above. */}
-        <HomeGallery
-          heading={
-            <>
-              {' '}
-              <div className={`hv-head ${styles.head}`}>
-                <h2 className={`hv-title ${styles.title}`}>
-                  <span className="hv-mk" aria-hidden="true" />
-                  {title}
-                </h2>
-                <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
-                {/* Ist der Standort da, hat der Knopf seine Arbeit getan: die Liste
+        <div className={`hv-head ${styles.head}`}>
+          <h2 className={`hv-title ${styles.title}`}>
+            <span className="hv-mk" aria-hidden="true" />
+            {title}
+          </h2>
+          <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
+          {/* Ist der Standort da, hat der Knopf seine Arbeit getan: die Liste
               ist nach Nähe sortiert und zeigt Gehzeiten. Ein zweiter Druck
               holte nur dieselbe Position noch einmal. */}
-                {!activeLocation && (
-                  <button
-                    type="button"
-                    className={styles.locBtn}
-                    onClick={handleLocate}
-                    disabled={locating}
-                    aria-label={t('locationAria')}
-                  >
-                    <svg className={styles.locIcon} viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="12" r="8" />
-                      <line x1="12" y1="2" x2="12" y2="5" />
-                      <line x1="12" y1="19" x2="12" y2="22" />
-                      <line x1="2" y1="12" x2="5" y2="12" />
-                      <line x1="19" y1="12" x2="22" y2="12" />
-                      <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
-                    </svg>
-                    <span>{locating ? t('locating') : t('locationRequest')}</span>
-                  </button>
-                )}
-              </div>{' '}
-            </>
-          }
-          label={title}
-        >
+          {!activeLocation && (
+            <button
+              type="button"
+              className={styles.locBtn}
+              onClick={handleLocate}
+              disabled={locating}
+              aria-label={t('locationAria')}
+            >
+              <svg className={styles.locIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="8" />
+                <line x1="12" y1="2" x2="12" y2="5" />
+                <line x1="12" y1="19" x2="12" y2="22" />
+                <line x1="2" y1="12" x2="5" y2="12" />
+                <line x1="19" y1="12" x2="22" y2="12" />
+                <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
+              </svg>
+              <span>{locating ? t('locating') : t('locationRequest')}</span>
+            </button>
+          )}
+        </div>
+
+        {/* Eine Querleiste (Ansage 01.10.2026: „die Restaurants alle
+            anklickbar und horizontal scrollbar"): nativ gewischt, mit Snap
+            auf jede Karte, jede Karte ein Link. Bis dahin fuhr ein 3D-Band
+            am senkrechten Scrollweg vorbei — angetippt werden konnte nur,
+            was gerade vorne stand. */}
+        <ul className={styles.rail} role="list" aria-label={title} ref={railDrag}>
           {cards.map((r) => {
             const walk = activeLocation
               ? formatWalkingTime(
@@ -153,43 +157,39 @@ export default function HubNearby({ locale = 'de', today }: Props) {
               : null;
             const district = r.district ?? r.bezirk?.name ?? r.categories?.[0]?.name;
             return (
-              // Every card on the home page leads back to the map — that is
-              // the product, and the spot is already pinned there.
-              <MapIntentLink
-                key={r._id}
-                href={`/map?r=${r.slug}`}
-                rel="nofollow"
-                className={styles.card}
-              >
-                <span className={`hv-photo ${styles.photo}`}>
-                  {r.photo && (
-                    // Deliberately bypass the App Hosting image proxy, like
-                    // HubSection and HubMustEatsTeaser next door: `r.photo` is
-                    // already a Sanity URL carrying ?w=600&auto=format&q=80
-                    // (mapCard preset), so routing it through /_next/image
-                    // re-optimised an optimised file on Cloud Run for nothing.
-                    // These were the last seven images on the home page still
-                    // taking that detour.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className={styles.photoImg}
-                      src={sanityImageLoader({ src: r.photo, width: 560, quality: 80 })}
-                      srcSet={sanitySrcSet(r.photo, [280, 380, 560, 760], 80)}
-                      alt={normalizeName(r.name)}
-                      loading="lazy"
-                      decoding="async"
-                      sizes="(max-width: 767.98px) 78vw, min(46vw, 860px)"
-                    />
+              <li key={r._id} className={styles.slide}>
+                {/* Every card on the home page leads back to the map — that
+                    is the product, and the spot is already pinned there. */}
+                <MapIntentLink href={`/map?r=${r.slug}`} rel="nofollow" className={styles.card}>
+                  <span className={`hv-photo ${styles.photo}`}>
+                    {r.photo && (
+                      // Deliberately bypass the App Hosting image proxy, like
+                      // HubSection and HubMustEatsTeaser next door: `r.photo`
+                      // is already a Sanity URL carrying ?w=600&auto=format&q=80
+                      // (mapCard preset), so routing it through /_next/image
+                      // re-optimised an optimised file on Cloud Run for nothing.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        className={styles.photoImg}
+                        src={sanityImageLoader({ src: r.photo, width: 560, quality: 80 })}
+                        srcSet={sanitySrcSet(r.photo, [280, 380, 560, 760], 80)}
+                        alt={normalizeName(r.name)}
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        sizes="(max-width: 767.98px) min(78vw, 340px), min(28vw, 420px)"
+                      />
+                    )}
+                  </span>
+                  <span className="hv-cap">{normalizeName(r.name)}</span>
+                  {(walk || district) && (
+                    <span className="hv-sub">{[walk, district].filter(Boolean).join(' · ')}</span>
                   )}
-                </span>
-                <span className="hv-cap">{normalizeName(r.name)}</span>
-                {(walk || district) && (
-                  <span className="hv-sub">{[walk, district].filter(Boolean).join(' · ')}</span>
-                )}
-              </MapIntentLink>
+                </MapIntentLink>
+              </li>
             );
           })}
-        </HomeGallery>
+        </ul>
       </div>
     </section>
   );

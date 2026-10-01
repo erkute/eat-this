@@ -308,19 +308,42 @@
 }
 
 /* Ab 768px: der Spot über die ganze Breite, darunter links Foto und Monat,
-   rechts das Raster. */
+   rechts das Raster. Die Tafel nimmt den ganzen Satzspiegel — auf 1040px
+   gedeckelt stand rechts daneben ein leeres Drittel Ink (Ansage
+   01.10.2026: „keine freien Flächen"). Damit sie dabei nicht höher wird,
+   steht der Grund rechts neben dem Namen statt darunter, und das Foto ist
+   quer (3:2): so enden Foto samt Monat und ein fünfzeiliger Monat auf
+   derselben Linie. */
 @media (min-width: 768px) {
+  .card {
+    max-width: none;
+  }
   .board {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
-      'body body'
+      'name sub'
       'head calendar';
     align-items: end;
     column-gap: clamp(24px, 3vw, 44px);
+    row-gap: clamp(20px, 2.4vw, 32px);
   }
   .body {
-    grid-area: body;
+    display: contents;
+  }
+  .name {
+    grid-area: name;
+    font-size: clamp(34px, 4.2vw, 64px);
+  }
+  .sub {
+    grid-area: sub;
+    max-width: 46ch;
+    margin-top: 0;
+    padding-bottom: 0.35em;
+  }
+  .photo,
+  .photoBlank {
+    aspect-ratio: 3 / 2;
   }
   .head {
     grid-area: head;
@@ -328,6 +351,13 @@
   .calendar {
     grid-area: calendar;
     margin-top: 0;
+  }
+  /* Der Kalender hängt an seiner Bindung: fährt die Maus hinein, schwingt
+     er gedämpft aus (`--swing` in Grad, HubMotion `armCalendarSwing`). */
+  .board {
+    --swing: 0;
+    rotate: calc(var(--swing) * 1deg);
+    transform-origin: 50% -12px;
   }
 }
 

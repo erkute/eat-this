@@ -76,7 +76,7 @@ export default function HubSpotOfDay({ spot, today, locale }: Props) {
           className={styles.card}
           aria-label={`${name}, ${t.map}`}
         >
-          <span className={styles.board}>
+          <span className={styles.board} data-calendar-board="">
             <span className={styles.body}>
               <span className={styles.name}>{name}</span>
               {/* The reason this spot is the day's pick. */}

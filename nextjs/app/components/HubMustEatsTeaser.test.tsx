@@ -117,6 +117,7 @@ describe('HubMustEatsTeaser', () => {
   it('points the must-eats CTA at the full must-eats page', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toMatch(/href="\/must-eats"/);
+    expect(html).not.toContain('data-swarm');
   });
 
   it('locale-prefixes the must-eats CTA for en', () => {
@@ -150,7 +151,8 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toContain('180w');
     expect(html).toContain('360w');
     expect(html).toContain('440w');
-    expect(html).toContain('sizes="(min-width: 582px) 178px, calc((100vw - 48px) / 3)"');
+    expect(html).toContain('720w');
+    expect(html).toContain('sizes="(min-width: 768px) 340px, 60vw"');
   });
 
   it('renders nothing when no card is face-up', () => {

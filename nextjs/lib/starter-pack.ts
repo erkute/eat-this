@@ -42,7 +42,7 @@ export const STARTER_PACK_DOC_ID = 'starter';
  * Welche Karten überhaupt zu verschenken sind.
  *
  * Nicht der ganze Stapel: was ohnehin für jeden offen liegt (das öffentliche
- * Schaufenster, der Spot des Tages), ist kein Geschenk. Wer es trotzdem
+ * Schaufenster), ist kein Geschenk. Wer es trotzdem
  * mitgäbe, verteilte ein Fünftel des Packs an Karten, die der Beschenkte schon
  * sieht — und das Pack fühlte sich kleiner an, als es ist.
  */

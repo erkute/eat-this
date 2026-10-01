@@ -23,7 +23,7 @@ const state = vi.hoisted(() => ({
   /** Der Stapel aus Sanity — seit 27.09.2026 fuer jedes Konto derselbe. */
   mustEats: [] as MapMustEat[],
   revealed: new Set<string>(),
-  /* Der kuratierte Anon-Satz plus Spot des Tages — genau die Karten, die
+  /* Der kuratierte Anon-Satz — genau die Karten, die
      /api/must-eat-image ohne Cookie ausliefert. */
   publicMustEatIds: new Set<string>(),
 }));

@@ -1,0 +1,289 @@
+@property --gallery-position {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.gallery {
+  --gallery-width: min(82vw, 600px, 60svh);
+  --gallery-gap: clamp(12px, 2vw, 28px);
+  --gallery-height: 100svh;
+  --gallery-viewport: 100dvh;
+  --gallery-step: 34svh;
+  --gallery-top: var(--site-nav-h, 64px);
+  /* Liest HomeGallery als Pixelwert: wo die Bühne feststeht. */
+  scroll-margin-top: var(--gallery-top);
+  min-width: 0;
+}
+
+/* No JS / reduced motion: ordinary vertical content, with no dead scroll
+   distance and no sideways interaction needed to reach a card. */
+.gallery .rail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 48px 32px;
+  margin: 0;
+  padding: 24px 0;
+  list-style: none;
+}
+.slide {
+  min-width: 0;
+}
+.face {
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+/* The stage sticks within its own scroll runway. Nothing captures the page's
+   wheel or touch input, so visitors can always keep scrolling or reverse. */
+.gallery[data-motion] {
+  height: calc(var(--gallery-height) + (var(--gallery-count) - 1) * var(--gallery-step));
+  position: relative;
+}
+.gallery[data-motion] .stage {
+  position: sticky;
+  top: var(--gallery-top);
+  height: auto;
+  /* Bildschirmhoch, die Karten mittig im freien Raum: kein leerer Ink-Grund
+     unter dem Band, solange es sich bewegt (Ansage 30.09.2026). Die feste
+     Höhe (`svh`, nicht `dvh`): am iPhone ändert sich `dvh` mit jeder
+     Bewegung der Safari-Leiste, die Bühne wuchs und schrumpfte, und das
+     mittig gestellte Band wackelte hoch und runter. */
+  min-height: calc(100svh - var(--site-nav-h, 64px));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0;
+  margin-inline: calc((100% - 100vw) / 2);
+  overflow: clip;
+}
+.gallery[data-motion] .rail {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: 0;
+  width: 100%;
+  padding: 12px 0;
+}
+.gallery[data-motion] .slide {
+  --distance: calc(var(--gallery-index) - var(--gallery-position));
+  --turn: clamp(-2, var(--distance), 2);
+  --depth: max(var(--turn), calc(-1 * var(--turn)));
+  grid-area: 1 / 1;
+  align-self: center;
+  width: var(--gallery-width);
+  margin-inline: auto;
+  z-index: calc(100 - var(--depth) * 10);
+}
+.gallery[data-motion] .face {
+  transform-origin: 50% 45%;
+  transform: perspective(1100px)
+    translate3d(
+      calc(var(--distance) * (var(--gallery-width) + var(--gallery-gap))),
+      calc(var(--turn) * -24px),
+      calc(var(--depth) * -95px)
+    )
+    rotateX(calc(var(--look-y, 0) * -4deg))
+    rotateY(calc(var(--turn) * -24deg + var(--look-x, 0) * 5deg)) rotateZ(calc(var(--turn) * 4deg));
+  backface-visibility: hidden;
+}
+
+@keyframes browse {
+  from {
+    --gallery-position: 0;
+  }
+  to {
+    --gallery-position: calc(var(--gallery-count) - 1);
+  }
+}
+.gallery[data-motion='native'] {
+  animation: browse linear both;
+  animation-timeline: view(
+    block var(--gallery-top)
+      calc(var(--gallery-viewport) - var(--gallery-height) - var(--gallery-top))
+  );
+  animation-range: contain 0% contain 100%;
+  /* Match the effective viewport to the measured stage: contain starts at
+     sticky top and ends exactly when the last card leaves its runway. */
+}
+
+@media (min-width: 768px) {
+  .gallery {
+    --gallery-viewport: calc(100dvh - 74px);
+    --gallery-top: 0px;
+    /* Die Karte nach der Höhe bemessen. Mit 46vw/70svh füllte das Band
+       die Bühne, war aber „ziemlich gross" und drückte gegen die nächste
+       Sektion (Rückmeldung 01.10.2026) — jetzt gut die Hälfte der Höhe. */
+    --gallery-width: min(36vw, 56svh, 680px);
+  }
+  /* Die 520px-Kappe gehört der Liste ohne Bewegung; im Band ist die Karte
+     so breit wie ihr Platz, sonst stehen breite Lücken zwischen den Fotos. */
+  .gallery[data-motion] .face {
+    max-width: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Also applies immediately while the JS media-change callback is pending. */
+  .gallery[data-motion] {
+    height: auto;
+    animation: none;
+  }
+  .gallery[data-motion] .stage {
+    position: static;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+  }
+  .gallery[data-motion] .rail {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 48px 32px;
+  }
+  .gallery[data-motion] .slide {
+    grid-area: auto;
+    width: 100%;
+  }
+  .gallery[data-motion] .face {
+    transform: none;
+  }
+}
+
+.footer {
+  width: min(100%, 520px);
+  margin-inline: auto;
+}
+.gallery[data-motion] .footer {
+  width: var(--gallery-width);
+  padding-bottom: 8px;
+}
+.footer > div {
+  margin-top: 0;
+  justify-content: center;
+}
+/* Ab 768px ein Ring: Karte 0 steht am Anfang in der Mitte, links neben ihr
+   schon die letzte, und am Ende des Wegs rechts neben der letzten wieder die
+   erste. Als offenes Band stand links vom Start und rechts vom Ende nur
+   leerer Ink-Grund, der sich erst beim Scrollen füllte (Ansage 01.10.2026:
+   „nirgends schwarzer Leerraum"). `mod()` legt jede Karte auf den kürzeren
+   Weg um den Ring; der Sprung von ganz links nach ganz rechts geschieht
+   ausserhalb des Bildes (±count/2 Karten). Am Telefon bleibt das Band offen. */
+@supports (width: calc(mod(3px, 2px))) {
+  @media (min-width: 768px) {
+    .gallery[data-motion] .slide {
+      --distance: calc(
+        mod(
+            calc(var(--gallery-index) - var(--gallery-position) + var(--gallery-count) / 2),
+            var(--gallery-count)
+          ) - var(--gallery-count) / 2
+      );
+    }
+  }
+}
+@media (min-width: 768px) {
+  .gallery[data-motion] .face {
+    transform: perspective(1100px)
+      translate3d(
+        calc(var(--distance) * (var(--gallery-width) + var(--gallery-gap))),
+        calc(var(--turn) * -30px),
+        calc(var(--depth) * -95px)
+      )
+      rotateX(calc(var(--look-y, 0) * -4deg))
+      rotateY(calc(var(--turn) * -34deg + var(--look-x, 0) * 5deg))
+      rotateZ(calc(var(--turn) * 6deg));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery[data-motion] .face {
+    transform: none;
+  }
+}
+
+.heading {
+  width: 100%;
+}
+.gallery[data-motion] .heading {
+  width: calc(100% - 2 * var(--et-wrap-pad-mobile, 16px));
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-top: 8px;
+}
+.gallery[data-motion] .footer {
+  margin-top: 12px;
+}
+@media (min-width: 768px) {
+  .gallery[data-motion] .heading {
+    width: 92%;
+  }
+}
+
+/* Same scroll-pinned position, without a sticky viewport-sized layer that
+   Safari may extend as a solid tint underneath its bottom browser toolbar. */
+@media (max-width: 767.98px) and (prefers-reduced-motion: no-preference) {
+  .gallery[data-motion='native'] .stage {
+    position: relative;
+    top: auto;
+    translate: 0 calc(var(--gallery-position) * var(--gallery-step));
+  }
+}
+
+/* Reserve room for the heading, location action and captions on short phones. */
+@media (max-width: 767.98px) {
+  .gallery {
+    --gallery-width: min(78vw, 360px, 40svh);
+  }
+}
+
+/* Direct transform timelines avoid per-frame inherited-variable invalidation. */
+@keyframes mobilePin {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 calc((var(--gallery-count) - 1) * var(--gallery-step));
+  }
+}
+@keyframes mobileCards {
+  from {
+    transform: translate3d(
+      calc(var(--gallery-index) * (var(--gallery-width) + var(--gallery-gap))),
+      0,
+      0
+    );
+  }
+  to {
+    transform: translate3d(
+      calc(
+        (var(--gallery-index) - var(--gallery-count) + 1) *
+          (var(--gallery-width) + var(--gallery-gap))
+      ),
+      0,
+      0
+    );
+  }
+}
+@media (max-width: 767.98px) and (prefers-reduced-motion: no-preference) {
+  .gallery[data-motion='native'] {
+    animation: none;
+    view-timeline-name: --gallery-scroll;
+    view-timeline-axis: block;
+    view-timeline-inset: var(--gallery-top)
+      calc(var(--gallery-viewport) - var(--gallery-height) - var(--gallery-top));
+  }
+  .gallery[data-motion='native'] .stage {
+    animation: mobilePin linear both;
+    animation-timeline: --gallery-scroll;
+    animation-range: contain 0% contain 100%;
+  }
+  .gallery[data-motion='native'] .face {
+    animation: mobileCards linear both;
+    animation-timeline: --gallery-scroll;
+    animation-range: contain 0% contain 100%;
+  }
+  .gallery[data-motion='gsap'] .face {
+    transform: translate3d(
+      calc(var(--distance) * (var(--gallery-width) + var(--gallery-gap))),
+      0,
+      0
+    );
+  }
+}

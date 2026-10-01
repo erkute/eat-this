@@ -14,10 +14,6 @@ vi.mock('@/lib/must-eat/premium-access', () => ({
   clearPremiumAccessCookie: vi.fn(),
 }))
 
-vi.mock('@/lib/home/spotOfDay.server', () => ({
-  getSpotOfDayId: vi.fn().mockResolvedValue(null),
-}))
-
 vi.mock('@/lib/firebase/entitlements', async () => {
   const actual = await vi.importActual<typeof import('@/lib/firebase/entitlements')>(
     '@/lib/firebase/entitlements',

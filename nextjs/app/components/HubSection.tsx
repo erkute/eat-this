@@ -1,14 +1,11 @@
-import { normalizeName } from '@/lib/normalizeName';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
-import { sanitySrcSet } from '@/lib/sanity-image-presets';
-import sanityImageLoader from '@/lib/sanityImageLoader';
 import HubFaq from './HubFaq';
 import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
 import HeroMarkFlight from './HeroMarkFlight';
 import HubHashScroll from './HubHashScroll';
-import HubMarquee from './HubMarquee';
+import HeroCurtain from './HeroCurtain';
 import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
@@ -19,6 +16,7 @@ import StarterPackSignup from './StarterPackSignup';
 import SiteFooter from './SiteFooter';
 import { HomeMapDataProvider } from './HomeMapDataContext';
 import styles from './HubSection.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 interface Props {
   initialData: HomeData;
@@ -33,15 +31,11 @@ interface Props {
 // dafür ist `heroPhonesAlt` da, das vorher denselben String doppelt benutzte.
 const copy = {
   de: {
-    spotDay: 'Spot des Tages',
-    spotCta: 'Zur Map',
     heroLabel: 'Eat This — die Food-Map für Berlin',
     heroPhonesLabel: 'Berlin Food Map öffnen',
     heroPhonesAlt: 'Die Eat This Berlin Food Map auf dem Handy',
   },
   en: {
-    spotDay: 'Spot of the day',
-    spotCta: 'To the map',
     heroLabel: 'Eat This — the food map for Berlin',
     heroPhonesLabel: 'Open the Berlin food map',
     heroPhonesAlt: 'The Eat This Berlin food map on a phone',
@@ -60,22 +54,8 @@ function phoneSrcSet(name: string): string {
   ).join(', ');
 }
 
-// Makes "des Tages" literal. Nothing else on the page said the pick is new
-// today, so nothing gave a reason to come back tomorrow. Formatted from the
-// very string the pick is keyed to, pinned to noon UTC so no zone or DST
-// shift can move the label off the day it labels.
-function dayLabel(today: string, locale: 'de' | 'en'): string {
-  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
-    weekday: 'short',
-    day: '2-digit',
-    month: locale === 'en' ? 'short' : '2-digit',
-    timeZone: 'UTC',
-  }).format(new Date(`${today}T12:00:00Z`));
-}
-
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
   const t = copy[locale];
-  const spot = initialData.spotOfDay;
   // Server date seeds HubNearby's no-location rotation. Taken here rather than
   // in the client island so SSR and the first client render can't disagree
   // across a midnight boundary. The page is force-dynamic, so it stays fresh.
@@ -89,6 +69,23 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           Satzspiegel — deshalb sitzt `hv-wrap` innen und nicht auf der
           Section. */}
       <section className={styles.hero} aria-label={t.heroLabel} data-hub-hero="">
+        <HeroCurtain />
+        {/* Die grosse Marke des Auftritts: Remy legt sie in der Mitte frei,
+            dann wird sie auf den Platz der echten geschubst (HubMotion,
+            `finishIntro`) und tritt dort ab. Dieselbe Datei wie die Marke im
+            Aufmacher, also keine zweite Anfrage. Ausserhalb des Auftritts
+            `display: none`. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className={styles.heroIntroMark}
+          data-hero-intro-mark=""
+          src={BRAND_LOGO_SRC}
+          width={1660}
+          height={667}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+        />
         <div className={`hv-wrap ${styles.heroInner}`}>
           <div className={styles.heroGrid}>
             <HubHeroCopy locale={locale} />
@@ -138,88 +135,25 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
       <HeroMarkFlight />
       <HubMotion />
-      <HubMarquee />
       <HomeMapDataProvider initialMapData={initialMapData}>
-        {/* What is around you comes first: it needs nothing from the visitor
-          but a tap, and it answers "what do I eat now" with their own street.
-          The day's pick follows as the editorial answer to the same question.
-          Both are full-width sections of their own now — stacked inside one
-          section the second heading had to shrink to stay out of the first
-          one's way, and neither block led. */}
-        <HubNearby locale={locale} today={today} />
-
-        {spot && (
-          <section className="homeV2 hv-section hv-wrap">
-            <article
-              className={styles.spot}
-              data-scrub="--spot 0 1"
-              data-scrub-start="top bottom"
-              data-scrub-end="top 45%"
-            >
-              <div className={`hv-head ${styles.spotHead}`}>
-                <h2 className="hv-title">
-                  <span className="hv-mk" aria-hidden="true" />
-                  {t.spotDay}
-                </h2>
-                <time className={styles.spotDate} dateTime={today}>
-                  {dayLabel(today, locale)}
-                </time>
-              </div>
-              {/* Name and reason sit beside the photo, not on it: the pick is a
-                different restaurant every day and half the images are bright
-                enough to swallow white type. The photo runs out to the page
-                edge instead, which is what makes this read as the lead. */}
-              <MapIntentLink
-                href={`/map?r=${spot.slug}`}
-                rel="nofollow"
-                className={`${styles.spotCard} ${spot.image ? '' : styles.spotCardTextOnly}`}
-              >
-                {spot.image && (
-                  <span className={`hv-photo ${styles.spotPhoto}`}>
-                    {/* Deliberately bypass the App Hosting image proxy: Sanity
-                      serves the responsive, format-negotiated variants directly. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className={styles.spotImage}
-                      src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
-                      srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      sizes="(max-width:767.98px) 100vw, 520px"
-                    />
-                  </span>
-                )}
-                <span className={styles.spotBody}>
-                  {spot.district && (
-                    <span className={`hv-kicker ${styles.spotKicker}`}>{spot.district}</span>
-                  )}
-                  <span className={styles.spotName}>{normalizeName(spot.name)}</span>
-                  {/* Loaded from Sanity all along and never rendered — it is the
-                    reason this spot is today's pick, so it belongs here. */}
-                  {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
-                  <span className={styles.spotCta} data-press="">
-                    {t.spotCta}
-                  </span>
-                </span>
-              </MapIntentLink>
-            </article>
-          </section>
-        )}
-
-        {/* Order follows what a first-time visitor needs, in that order: what is
-          this (hero) → what is around you → the day's pick → proof we know the
-          city (magazine) → Must-Eat examples and explanation → the free offer
-          → navigation → Remy and FAQ. Selling packs moved off the home
-          page. */}
+        {/* Ansage 01.10.2026: das Magazin direkt unter den Hero, „Worauf hast
+          du Lust" unter das Starter Pack. Daraus vier Kapitel: lesen
+          (Teller) → entdecken (was ist um dich) → sammeln (Must Eats und
+          das Starter Pack, das die ersten Karten bringt) → noch
+          unentschlossen: Remys Tafel fragt „Worauf hast du Lust?", die
+          Kategorien sind die Antworten, und wer keine hat, fragt Remy →
+          FAQ. Packs verkauft die Startseite nicht mehr, den Spot des Tages
+          gibt es seit 01.10.2026 nicht mehr. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
+        <HubNearby locale={locale} today={today} />
         <HubMustEatsTeaser />
         <StarterPackSignup />
       </HomeMapDataProvider>
-      <CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />
-      <HubFragRemy />
+      <HubFragRemy
+        choices={<CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />}
+      />
       <HubFaq locale={locale} />
-      <SiteFooter />
+      <SiteFooter home />
     </main>
   );
 }

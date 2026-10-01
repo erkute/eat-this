@@ -1,6 +1,5 @@
 'use client';
 
-import { Fragment, type CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import MapIntentLink from './MapIntentLink';
@@ -65,59 +64,6 @@ const LEAD_AUTH = {
   en: 'Every spot on your map — and the Must Eats you have collected in your deck.',
 } as const;
 
-/* Der Lead schreibt sich beim Laden hin, als schriebe ihn jemand mit dem
-   Stift (Ansage 29.09.2026). Jedes Wort bekommt seinen Abschnitt auf dem Weg
-   des Stifts (`--a` bis `--b`, Anteil an `--in-write`, HubSection.module.css)
-   und wird in diesem Abschnitt von links nach rechts freigelegt — so läuft
-   die Schrift Zeile für Zeile, wie der Satz umbricht. Gerechnet wird in
-   Zeichen: ein Anschlag pro Leerzeichen, nach einem Satzende eine Pause.
-   Alle Leads teilen sich denselben Maßstab, den längsten: ein kürzerer Satz
-   ist früher fertig, statt langsamer geschrieben zu werden. */
-const SENTENCE_PAUSE = 6;
-
-interface PenWord {
-  word: string;
-  a: number;
-  b: number;
-}
-
-function penPath(text: string): { words: PenWord[]; length: number } {
-  let at = 0;
-  const words = text.split(' ').map((word, i) => {
-    if (i > 0) at += 1;
-    const a = at;
-    at += word.length;
-    const b = at;
-    if (/[.!?]$/.test(word)) at += SENTENCE_PAUSE;
-    return { word, a, b };
-  });
-  // Die Pause nach dem letzten Satz zählt nicht: danach schreibt niemand mehr.
-  return { words, length: words[words.length - 1]?.b ?? 0 };
-}
-
-const PEN_LENGTH = Math.max(
-  ...[LEAD.de, LEAD.en, LEAD_AUTH.de, LEAD_AUTH.en].map((text) => penPath(text).length)
-);
-
-function Written({ text }: { text: string }) {
-  return penPath(text).words.map(({ word, a, b }, i) => (
-    <Fragment key={i}>
-      {i > 0 ? ' ' : null}
-      <span
-        className={styles.penWord}
-        style={
-          {
-            '--a': (a / PEN_LENGTH).toFixed(4),
-            '--b': (b / PEN_LENGTH).toFixed(4),
-          } as CSSProperties
-        }
-      >
-        {word}
-      </span>
-    </Fragment>
-  ));
-}
-
 interface HeroCopyProps extends Props {
   firstName: string | null;
   variant: Variant;
@@ -148,13 +94,13 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         </span>
       ) : null}
       <h1 className={styles.heroHeadline} aria-label={headlineLabel}>
-        <span className={styles.heroLine}>{headline[0]}</span>
-        <span className={styles.heroLine}>{headline[1]}</span>
+        <span>{headline[0]}</span>
+        <span>{headline[1]}</span>
       </h1>
-      <p className={styles.heroLead}>
-        <Written text={signedIn ? LEAD_AUTH[locale] : LEAD[locale]} />
+      <p className={styles.heroLead} data-hero-lead="">
+        {signedIn ? LEAD_AUTH[locale] : LEAD[locale]}
       </p>
-      <div className={styles.heroActions}>
+      <div className={styles.heroActions} data-hero-actions="">
         <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
           {HERO_MAP_LABEL}
         </MapIntentLink>
@@ -189,21 +135,21 @@ function LoadingHeroCopy({ locale }: Props) {
       </span>
       <h1 className={styles.heroHeadline}>
         <span data-guest-only="">
-          <span className={styles.heroLine}>We tell you</span>
-          <span className={styles.heroLine}>what to eat</span>
+          <span>We tell you</span>
+          <span>what to eat</span>
         </span>
         <span data-auth-only="">
-          <span className={styles.heroLine}>{de ? 'Deine Map' : 'Your map'}</span>
-          <span className={styles.heroLine}>{de ? 'wartet.' : 'is ready.'}</span>
+          <span>{de ? 'Deine Map' : 'Your map'}</span>
+          <span>{de ? 'wartet.' : 'is ready.'}</span>
         </span>
       </h1>
-      <p className={styles.heroLead} data-guest-only="">
-        <Written text={LEAD[locale]} />
+      <p className={styles.heroLead} data-hero-lead="" data-guest-only="">
+        {LEAD[locale]}
       </p>
-      <p className={styles.heroLead} data-auth-only="">
-        <Written text={LEAD_AUTH[locale]} />
+      <p className={styles.heroLead} data-hero-lead="" data-auth-only="">
+        {LEAD_AUTH[locale]}
       </p>
-      <div className={styles.heroActions}>
+      <div className={styles.heroActions} data-hero-actions="">
         <span className={styles.heroActionVariant} data-guest-only="">
           <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
             {HERO_MAP_LABEL}

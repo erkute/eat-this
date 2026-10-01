@@ -1,0 +1,105 @@
+.scene {
+  --figure-width: min(380px, 46dvh);
+  position: fixed;
+  inset: 0;
+  z-index: 100100;
+  overflow: clip;
+  pointer-events: none;
+  visibility: hidden;
+}
+.travel {
+  position: absolute;
+  inset: 0;
+}
+.curtain {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+.runner {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: var(--figure-width);
+  transform: translate(-99%, -50%);
+}
+.figure {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* One uninterrupted acceleration/deceleration. No easing restart between
+   successive pushes, and no independent looping limb animations. */
+@keyframes travel {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100% + var(--figure-width))); }
+}
+@keyframes lifetime {
+  from { visibility: visible; }
+  to { visibility: hidden; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .scene {
+    animation: lifetime 5.4s step-end both;
+  }
+  .travel {
+    animation: travel 5.4s cubic-bezier(0.35, 0, 0.65, 1) both;
+    will-change: transform;
+  }
+  /* Der Vorhang wartet auf Remys Beine: die Verformung (WebGL, renderRemy)
+     startet erst nach Hydrierung und Dekodieren des Bildes. Lief der
+     Vorhang schon, schob bei langsamem Laden ein starres Bild — „seine
+     Beine bewegen sich nicht" (Rückmeldung 01.10.2026). Beide Animationen
+     stehen auf Zeit 0 (Remy noch links ausserhalb, nur Schwarz), bis
+     HeroCurtain `data-remy-go` setzt; spätestens nach 3 s setzt es das
+     Kopf-Skript ([locale]/layout.tsx), damit nichts hängen bleibt. */
+  :global(html:not([data-remy-go])) .scene,
+  :global(html:not([data-remy-go])) .travel {
+    animation-play-state: paused;
+  }
+}
+/* Am Telefon steht Remy unten auf der Kante über Safaris URL-Leiste wie auf
+   einem Boden und schiebt den Vorhang von dort weg (Ansage 01.10.2026) —
+   in der Mitte schwebte er. `bottom: 0` des fixierten Vollbilds ist die
+   Unterkante des Layout-Viewports, also die Oberkante des schwarzen Bands,
+   in dem die Leiste schwebt. 2.6 % seiner Höhe sinkt er ein — am iPhone
+   des Betreibers standen die Füsse mit 1.8 % über der Linie, mit 3.4 % schon
+   im Schwarzen (im Simulator sass 3.4 % genau auf der Kante). */
+@media (max-width: 767.98px) {
+  .scene {
+    --figure-width: min(76vw, 46dvh);
+  }
+  .runner {
+    top: auto;
+    bottom: 0;
+    transform: translate(-99%, 2.6%);
+  }
+}
+/* Auf Desktop steht Remy genauso unten: die Unterkante des Fensters ist sein
+   Boden, die Sohlen auf der untersten Linie (Ansage 01.10.2026) — in der
+   Mitte schwebte er, und auf einem eigenen schwarzen Streifen darüber stand
+   er „nicht unten". Unter den Sohlen liegen im Bild 1.8 % transparenter
+   Rand; 2 % lässt sie genau auf der Kante stehen (gemessen am Film). */
+@media (min-width: 768px) {
+  .runner {
+    top: auto;
+    bottom: 0;
+    transform: translate(-99%, 2%);
+  }
+}
+:global(html:not([data-hero-intro])) .scene {
+  display: none;
+}
+
+.original { display: block; width: 100%; height: auto; }
+.mesh {
+  position: absolute;
+  left: -8.7336%;
+  top: -3.639%;
+  width: 117.4672%;
+  height: 107.278%;
+  visibility: hidden;
+}
+.figure[data-animated] .mesh { visibility: visible; }
+.figure[data-animated] .original { visibility: hidden; }

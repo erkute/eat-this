@@ -297,7 +297,10 @@
   /* Held below the map stop (lib/map/sheetSlide.ts): the whole sheet is the
      grip, so a swipe on a chip or a row moves the sheet instead of scrolling
      the page under its transform. */
-  .list[data-sheet-lowered] {
+  .list[data-sheet-lowered],
+  /* Apply at the nested photo/filter scroll container too: Safari can
+     claim its native pan before consulting the outer sheet's touch-action. */
+  .list[data-sheet-lowered] [data-h-scroll] {
     touch-action: none;
   }
 }

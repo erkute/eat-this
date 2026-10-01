@@ -492,22 +492,16 @@ a {
   text-decoration: none;
   color: inherit;
 }
-/* Signup-only blocks (e.g. the Welcome Pack gift card) are SSR'd for everyone
-   because the server can't know the auth state. The CRITICAL_BOOTSTRAP sets
-   data-auth="1" pre-paint from localStorage._authHint, so signed-in visitors
-   never see them flash before client-side auth resolves and removes them. */
-html[data-auth='1'] [data-signup-gift] {
-  display: none;
-}
 /* Signed-in-only blocks are SSR'd as static shells so they don't pop in /
    shift the page once client auth resolves. Anyone without the pre-paint
    flag never sees those shells. */
 html:not([data-auth='1']) [data-auth-only] {
   display: none;
 }
-/* Logged-out-only Home blocks are SSR'd for everyone for the same reason:
-   the server cannot know auth state. Hide them pre-paint for signed-in
-   visitors once the bootstrap has an auth hint. */
+/* Logged-out-only Home blocks are SSR'd for everyone because the server
+   cannot know the auth state. The CRITICAL_BOOTSTRAP sets data-auth="1"
+   pre-paint from localStorage._authHint, so signed-in visitors never see
+   them flash before client-side auth resolves. */
 html[data-auth='1'] [data-guest-only] {
   display: none;
 }
@@ -1356,7 +1350,7 @@ summary:active,
 /* Kacheln drücken sich, statt zu nicken.
 
    Die Regel darüber trifft nur Knöpfe. Die grossen Kacheln sind Links —
-   Restaurant, Spot des Tages, Magazin, Must-Eat-Karte, die Hero-Telefone —
+   Restaurant, Magazin, Must-Eat-Karte, die Hero-Telefone —
    und hatten damit auf dem Telefon gar keine Rückmeldung: ihre Antwort auf
    eine Berührung war ein Hover, und der liegt seit 04.09.2026 hinter
    `(hover: hover)`. Gemeldet als „ich klicke ein Restaurant an und es
@@ -1497,7 +1491,8 @@ ol {
     padding-bottom: 0;
   }
   .app-page[data-page='start'] {
-    background: var(--et-white);
+    /* Keep the mobile document ink through Safari's translucent chrome. */
+    background: var(--et-ink);
   }
 }
 
@@ -1533,7 +1528,8 @@ ol {
     overflow-x: hidden;
   }
   .app-page[data-page='start'] {
-    background: var(--et-white);
+    /* Keep the mobile document ink through Safari's translucent chrome. */
+    background: var(--et-ink);
   }
 }
 
@@ -1675,5 +1671,23 @@ ol {
   }
   .homeV2 .hv-section {
     margin-top: var(--et-section-gap-mobile);
+  }
+}
+
+/* Scroll-Bühnen der Startseite, die quer gezogen werden (lib/home/sideDrag.ts):
+   senkrecht scrollt und zoomt der Browser, den Querwisch bekommt das Skript. */
+[data-side-drag] {
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Let the fixed opening curtain cover the navigation as well as the page.
+   No transforms or scroll locks: Safari keeps its native window scrolling. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-hero-intro][data-active-page='start'] .app-pages {
+    z-index: 100100;
+  }
+  html[data-hero-intro][data-active-page='start'],
+  html[data-hero-intro][data-active-page='start'] body {
+    background-color: #000;
   }
 }

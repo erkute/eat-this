@@ -1,102 +1,193 @@
+import type { CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { HubArticle } from '@/lib/home/getHomeData';
-import styles from './MagazineGrid.module.css';
+import { deckKeyframes } from '@/lib/home/magazineDeck';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
+import MagazineDeckDots from './MagazineDeckDots';
+import styles from './MagazineGrid.module.css';
 
 interface Props {
   articles: HubArticle[];
   locale: 'de' | 'en';
 }
 
-// Sechs Stories: am Telefon ein Band, das beim Scrollen durchs Bild läuft
-// (seit 28.09.2026), am Desktop zwei Reihen à drei.
 const CARD_COUNT = 6;
+const DECK_ID = 'hub-magazine-deck';
+const MASTHEAD = '/pics/eat-this-logo.webp';
+/** Three cover styles in turn, so the stack reads as different issues:
+ *  full-bleed, yellow frame, paper head. */
+const LOOKS = [styles.lookBleed, styles.lookFrame, styles.lookPaper];
 
-// Dasselbe Format wie der Magazin-Index (NewsSection): „1. September 2026".
-function formatDate(iso: string | null | undefined, locale: 'de' | 'en'): string {
+/** The issue's month on the cover, like a magazine: „September 2026". */
+function formatMonth(iso: string | null | undefined, locale: 'de' | 'en'): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
   return d.toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
-    day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
 }
 
+/** Headline size in cover widths (cqw), so every title fits whole on its
+ *  cover — never cut (Ansage 01.10.2026: „alles vom Titel zu lesen"). */
+export function headlineSize(title: string): number {
+  return Math.round(Math.min(7.6, Math.max(5.4, 360 / Math.max(title.length, 1))) * 10) / 10;
+}
+
+/**
+ * „Auf dem Teller" als Stapel aus Magazinen (01.10.2026, nach „Card stack"
+ * aus den GSAP-Demos). Jeder Artikel ist die Titelseite einer Ausgabe, gebaut
+ * wie ein Heft: ganz oben klein „Issue 27 · September 2026" (gezählt ab dem
+ * ältesten Artikel, siehe getHomeData), darunter das Eat-This-Logo als
+ * Masthead, unten die Rubrik als Etikett über der ganzen Schlagzeile (nie
+ * gekürzt, die Grösse richtet sich nach der Länge), ein Strichcode am Rand,
+ * Glanz und Rücken — in drei wechselnden Stilen. Jedes Heft hat einen
+ * Seitenblock aus Papierlagen rechts und unten und ist leicht in den Raum
+ * gedreht, damit es dick wirkt (Ansage 01.10.: „wie ein Magazin, ein bisschen
+ * dicker"). Sie liegen
+ * als Stapel wie auf dem Tisch, die hinteren leicht verdreht und darüber
+ * hinausragend. Quer wischen nimmt das oberste vom Stapel — es fliegt gedreht
+ * nach links aus dem Bild —, die übrigen rücken eine Lage vor; zurückwischen
+ * legt es wieder obenauf.
+ *
+ * Das Wischen ist nativ (Scroll-Snap, ein Einrastpunkt pro Cover), nicht
+ * per Pointer-Handler: so fühlt es sich an wie Instagram, auch bei schrägem
+ * Wisch (siehe wischen-nativ-statt-js). Alle Cover liegen in der ersten
+ * Spalte des Querscrollers; dessen Scroll-Timeline (`--deck`) trägt sie um
+ * genau den gescrollten Weg zurück und legt sie in den Stapel — die
+ * Schlüsselbilder kommen aus `deckKeyframes`. Kein `sticky`: iOS 27 färbt
+ * sonst die URL-Leiste. Ohne Scroll-Timelines ist es ein gewöhnlicher
+ * Querstreifen mit Einrasten.
+ *
+ * Ab 768px liegt der Stapel als Fächer auf einem Tisch, der bis an den
+ * Fensterrand reicht: bildschirmhoch, die nächsten vier Hefte nach links
+ * aufgeblättert, der Stapel ist ein Ring. Dort hängt nichts am Scrollweg —
+ * jedes Blättern ist eine getimte Bewegung wie in der GSAP-Demo: das oberste
+ * wird angehoben und nach links aus dem Bild geworfen, die übrigen rücken
+ * versetzt nach (lib/home/magazineTable.ts, HubMotion). Ziehen, Trackpad,
+ * Punkte und ein Klick in den Fächer blättern; die Maus fächert auf.
+ */
 export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
   const list = articles.slice(0, CARD_COUNT);
+  const count = list.length;
   const labels = {
     all: locale === 'en' ? 'All stories' : 'Alle Stories',
     kicker: locale === 'en' ? 'Magazine' : 'Magazin',
+    title: locale === 'en' ? 'On the plate' : 'Auf dem Teller',
+    dot: (n: number) => (locale === 'en' ? `Story ${n} of ${count}` : `Story ${n} von ${count}`),
   };
+
   return (
     <section
       className={`homeV2 hv-section hv-wrap ${styles.section}`}
-      aria-label={locale === 'en' ? 'Magazine' : 'Magazin'}
+      aria-label={labels.kicker}
+      data-hub-magazine=""
     >
-      {/* Eine Ink-Tafel wie Starter Pack und Must Eats: der Abschnitt war
-          zwischen zwei Tafeln der einzige lose Block auf Weiß und las sich
-          nicht als eigenes Ding. Die Kacheln tragen darin keine eigene Fläche
-          mehr — Foto mit Schatten, Text direkt auf der Tafel. */}
-      <div className={styles.board}>
-        <div className={`hv-head ${styles.head}`}>
-          <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
-          <h2 className="hv-title">
-            <span className="hv-mk" aria-hidden="true" />
-            {locale === 'en' ? 'On the plate' : 'Auf dem Teller'}
-          </h2>
+      {/* Keyframes per cover and dot, for exactly this many covers — the
+          phone's deal-off stack (magazineDeck.ts). */}
+      <style>{deckKeyframes(count)}</style>
+      <div className={styles.layout}>
+        <div>
+          <div className={`hv-head ${styles.head}`}>
+            <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
+            <h2 className="hv-title">
+              <span className="hv-mk" aria-hidden="true" />
+              {labels.title}
+            </h2>
+          </div>
+          <Link href="/news" className={`${styles.allLink} ${styles.allTop}`}>
+            {labels.all}
+          </Link>
         </div>
 
-        <ul className={`hv-rail ${styles.band}`} role="list" data-scroll-band="">
-          {list.map((a) => (
-            <li key={a.slug}>
-              <Link href={`/news/${a.slug}`} className={styles.card}>
-                <span className={`hv-photo ${styles.photo}`}>
-                  {a.image && (
-                    // Same detour as HubNearby had: `a.image` is already a Sanity
-                    // URL, so /_next/image re-optimised an optimised file on
-                    // Cloud Run. Sanity serves the responsive variants itself.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className={styles.photoImg}
-                      src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
-                      srcSet={sanitySrcSet(a.image, [480, 800, 1200, 1600])}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      // Karten wie im CSS: min(72vw, 270px), ab 768px ein
-                      // Drittel der Spalte, höchstens rund 400px.
-                      sizes="(max-width:767.98px) 72vw, 400px"
-                    />
-                  )}
-                </span>
-                {/* Rubrik und Datum stehen als eine Meta-Zeile ÜBER der
-                    Headline — darunter las sich das Datum wie ein Nachsatz zum
-                    Titel statt wie seine Einordnung (Ansage 03.09.2026). */}
-                <span className={styles.text}>
-                  {(a.kicker || formatDate(a.date, locale)) && (
-                    <span className={styles.meta}>
-                      {a.kicker && <span className={styles.kicker}>{a.kicker}</span>}
-                      {formatDate(a.date, locale) && (
-                        <time className={styles.date} dateTime={a.date ?? undefined}>
-                          {formatDate(a.date, locale)}
-                        </time>
-                      )}
-                    </span>
-                  )}
-                  <span className={styles.title}>{a.title}</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div
+          className={styles.stage}
+          style={{ '--count': count } as CSSProperties}
+          data-home-pointer=""
+          data-magazine-stage=""
+        >
+          <div id={DECK_ID} className={styles.deck} data-magazine-deck="">
+            <ol className={styles.track} role="list" aria-label={labels.kicker}>
+              {list.map((a, i) => {
+                const month = formatMonth(a.date, locale);
+                return (
+                  <li
+                    key={a.slug}
+                    className={styles.card}
+                    data-deck-index={i}
+                    style={
+                      {
+                        '--i': i,
+                        '--deck-key': `mag-deck-${count}-${i}`,
+                        zIndex: count - i,
+                      } as CSSProperties
+                    }
+                  >
+                    <Link href={`/news/${a.slug}`} className={styles.mag}>
+                      <span className={`${styles.cover} ${LOOKS[i % LOOKS.length]}`}>
+                        {a.image && (
+                          // Sanity serves the responsive variants itself; the App
+                          // Hosting image proxy would re-optimise them.
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            className={styles.photo}
+                            src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
+                            srcSet={sanitySrcSet(a.image, [480, 800, 1200])}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            sizes="(max-width: 767.98px) 80vw, 420px"
+                          />
+                        )}
+                        <span className={styles.scrim} aria-hidden="true" />
+                        <span className={styles.folio} aria-hidden="true">
+                          Issue {a.issue}
+                          {month && ` · ${month}`}
+                        </span>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          className={styles.masthead}
+                          src={MASTHEAD}
+                          alt=""
+                          aria-hidden="true"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <span className={styles.lines}>
+                          {a.kicker && <span className={styles.flash}>{a.kicker}</span>}
+                          <span
+                            className={styles.headline}
+                            style={{ '--headline': `${headlineSize(a.title)}cqw` } as CSSProperties}
+                          >
+                            {a.title}
+                          </span>
+                        </span>
+                        <span className={styles.barcode} aria-hidden="true" />
+                        <span className={styles.sheen} aria-hidden="true" />
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+              {/* One snap point per cover: the swipe distance between two. */}
+              {list.map((a, i) => (
+                <li
+                  key={`snap-${a.slug}`}
+                  className={styles.snap}
+                  style={{ gridColumn: i + 1 }}
+                  aria-hidden="true"
+                />
+              ))}
+            </ol>
+          </div>
+          {count > 1 && (
+            <MagazineDeckDots deckId={DECK_ID} labels={list.map((_, i) => labels.dot(i + 1))} />
+          )}
+        </div>
 
-        {/* Unter den Kacheln wie „Alle Spots ansehen" und „Alle Must-Eats" —
-          im Kopf war es der einzige Ausgang der Seite, der vor seinem Inhalt
-          stand („der Button muss doch eher runter"). */}
         <div className={styles.foot}>
           <Link href="/news" className={styles.allLink}>
             {labels.all}

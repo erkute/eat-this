@@ -1,157 +1,109 @@
-/* ── Ink-Tafel ──
-   Jeder Abschnitt der Startseite ist eine Tafel, damit es nur eine Art Grenze
-   gibt: Kante zu Kante. Vorher standen Tafeln und lose Bloecke gemischt, und
-   der sichtbare Abstand zwischen zwei Inhalten schwankte zwischen 104 und
-   206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
-   der Tafeln zaehlte unsichtbar mit. */
+/* „Worauf hast du Lust?" als erste Hälfte von Remys Tafel (HubFragRemy):
+   die Frage in Versalien wie jeder Tafeltitel, darunter die Kategorien als
+   Menü — die Antworten. Darunter fragt man Remy. */
 .board {
-  --board-ink: var(--et-ink);
-  --board-paper: var(--et-white);
-  --board-accent: var(--et-accent);
-  --board-soft: rgba(255, 255, 255, 0.76);
-
-  padding: var(--et-board-pad);
-  background: var(--et-board-bg);
-  color: var(--board-paper);
-  border-radius: var(--et-board-radius);
+  color: var(--et-white);
 }
-
-:global(.homeV2) .board :global(.hv-title) {
-  color: var(--board-paper);
+/* Rang (0,3,0) über `.homeV2 .hv-title` (globals.css) und die Einzeiler-
+   Regel der Startseite am Telefon (HubSection.module.css, 0,2,0): die Frage
+   darf am Telefon umbrechen, sie steht nicht mehr neben der Liste. */
+.board .title:global(.hv-title) {
+  margin: 0 0 clamp(14px, 1.8vw, 24px);
+  color: var(--et-white);
+  font-size: clamp(34px, 4.4vw, 64px);
+  line-height: 0.98;
+  white-space: normal;
+  text-wrap: balance;
 }
-
-@media (max-width: 767.98px) {
-  .board {
-    padding: var(--et-board-pad);
-  }
-}
-/* Neun Kategorien als typografischer Index, nicht als Kaestchen-Raster: auf
-   dem durchgehenden Grund waren neun gleiche Ringe genauso monoton wie die
-   Kaesten davor. Jetzt traegt die Type — gross, in Spalten, jede Zeile mit dem
-   gelben Marken-Quadrat. Beim Beruehren geht die Zeile auf Gelb.
-   Bewusst OHNE Pack-Kunst: die Tueten sind Produktfotos, und neun davon in
-   einer Reihe lasen die Seite als Shop (deshalb sind sie am 24.08.2026 hier
-   rausgeflogen). */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: clamp(20px, 3vw, 44px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 28px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-
-.grid > li {
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-/* Die oberste Zeile jeder Spalte traegt keine Linie: drei Striche
-   nebeneinander direkt unter der Ueberschrift lasen sich als Tabellenkopf. */
-.grid > li:nth-child(-n + 3) {
-  border-top: 0;
-}
-
+/* Ohne Trennlinien und ohne Strich davor (Ansage 30.09.2026): beim
+   Drüberfahren fährt ein gelber Textmarker von links hinter das Wort, die
+   Schrift wird Ink. Der Link ist nur so breit wie sein Wort, damit der
+   Marker das Wort trifft und nicht die ganze Spalte. Auftritt: gestaffelt
+   als ganze Wörter (`data-reveal="stagger"`, HubMotion). */
 .chip {
-  display: flex;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  min-height: clamp(58px, 5vw, 74px);
-  padding: 0;
-  color: var(--board-paper, #fff);
-  background: transparent;
+  min-height: 52px;
+  padding-block: 12px;
   font-family: var(--et-font-display);
-  font-size: clamp(20px, 2.4vw, 32px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  font-size: clamp(18px, 1.8vw, 23px);
+  line-height: 1.25;
   text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    color 160ms ease,
-    transform 160ms ease;
+  transition: color 180ms ease;
 }
-
-/* Dasselbe gelbe Marken-Quadrat wie vor jedem Abschnittstitel.
-   `align-items: center` setzt es auf die Mitte der Zeilenbox, nicht der
-   Schrift: Providence hat 0.51em Unterlänge, die Mitte ihrer Versalien liegt
-   bei `line-height: 1` rund 0.14em höher. Um genau das hebt es sich. */
 .chip::before {
   content: '';
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  background: var(--board-accent, #ffc600);
-  translate: 0 -0.14em;
-  transition: transform 160ms ease;
+  position: absolute;
+  z-index: -1;
+  left: -0.25em;
+  right: -0.25em;
+  top: 50%;
+  height: 1.3em;
+  translate: 0 -50%;
+  border-radius: 4px;
+  background: var(--et-accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.3, 1);
 }
-
 .chip:focus-visible {
-  color: var(--board-accent, #ffc600);
-  outline: 0;
-  transform: translateX(4px);
-}
-
-@media (hover: hover) {
-  .chip:hover {
-    color: var(--board-accent, #ffc600);
-    outline: 0;
-    transform: translateX(4px);
-  }
-}
-
-.chip:focus-visible::before {
-  transform: scale(1.35);
-}
-
-@media (hover: hover) {
-  .chip:hover::before {
-    transform: scale(1.35);
-  }
-}
-
-.chip:active {
-  transform: translateX(4px) translateY(1px);
-}
-
-.chip:focus-visible {
-  outline: 2px solid var(--board-accent, #ffc600);
+  color: var(--et-ink);
+  outline: 2px solid var(--et-accent);
   outline-offset: 4px;
 }
-
+.chip:focus-visible::before,
+.chip:active::before {
+  transform: scaleX(1);
+}
+.chip:active {
+  color: var(--et-ink);
+}
+@media (hover: hover) {
+  .chip:hover {
+    color: var(--et-ink);
+  }
+  .chip:hover::before {
+    transform: scaleX(1);
+  }
+}
+/* Ab 600px drei Spalten, jedes Wort in einer Zeile. Die Spalte ist die
+   Textspalte der Tafel (neben Remy), nicht mehr die halbe Seite — die
+   Grösse ist so gewählt, dass „Fine Dining" auch bei 900px hineinpasst. */
+@media (min-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    justify-content: start;
+    column-gap: clamp(28px, 3.4vw, 56px);
+  }
+  .chip {
+    min-height: 0;
+    padding-block: 0.24em;
+    font-size: clamp(22px, 2vw, 30px);
+    white-space: nowrap;
+  }
+}
+@media (max-width: 599.98px) {
+  .grid {
+    gap: 0 22px;
+  }
+  .chip {
+    font-size: 19px;
+    min-height: 48px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .chip,
   .chip::before {
     transition: none;
-  }
-
-  .chip:focus-visible,
-  .chip:active {
-    transform: none;
-  }
-
-  @media (hover: hover) {
-    .chip:hover {
-      transform: none;
-    }
-  }
-}
-
-@media (max-width: 767.98px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 20px;
-  }
-
-  .grid > li:nth-child(-n + 3) {
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-  }
-
-  .grid > li:nth-child(-n + 2) {
-    border-top: 0;
-  }
-
-  .chip {
-    min-height: 54px;
-    font-size: 19px;
   }
 }

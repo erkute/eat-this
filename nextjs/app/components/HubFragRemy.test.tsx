@@ -78,7 +78,9 @@ describe('HubFragRemy', () => {
 
   it('gibt HubMotion die Haken für den Auftritt: Fragezeichen, „Frag Remy.", Remy', () => {
     renderSection();
-    const title = document.querySelector('h2')!;
+    // Seit 01.10.2026 die zweite Frage der Tafel, unter „Worauf hast du
+    // Lust?" (CategoriesRail) — daher h3.
+    const title = document.querySelector('h3')!;
     expect(title.textContent).toBe('Keine Idee?Frag Remy.');
     expect(document.querySelector('[data-fragremy-q]')!.textContent).toBe('?');
     expect(document.querySelector('[data-fragremy-ask]')!.textContent).toBe('Frag Remy.');

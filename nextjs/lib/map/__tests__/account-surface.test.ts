@@ -1,11 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { MapMustEat, MapRestaurant } from '@/lib/types';
-
-/* Der Spot-des-Tages zieht Sanity — hier zaehlt nur die Ableitung darum
-   herum, also ein fester Wert. */
-vi.mock('@/lib/home/spotOfDay.server', () => ({
-  getSpotOfDayId: async () => null,
-}));
 
 import { composeAccountSurface } from '../visible-restaurants.server';
 import { REVEALED_TARGET } from '../revealed-must-eats';

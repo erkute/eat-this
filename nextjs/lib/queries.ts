@@ -469,8 +469,14 @@ export const allNewsArticlesQuery = `
 `;
 
 // Latest N news articles — for detail-page outro / home feed
-export const latestNewsArticlesQuery = `
-  *[_type == "newsArticle" && defined(slug.current)] | order(date desc)[0...$limit] {
+// Die neuesten Artikel für die Startseite und die Zahl aller: dort ist jeder
+// Artikel ein Heft, gezählt ab dem ältesten (Issue 1), die neuesten tragen die
+// höchsten Nummern. Liste und Zählung teilen sich den Filter, damit die
+// Nummer nie andere Artikel sieht als die Liste.
+const publishedNews = `_type == "newsArticle" && defined(slug.current)`;
+export const latestNewsArticlesQuery = `{
+  "total": count(*[${publishedNews}]),
+  "articles": *[${publishedNews}] | order(date desc)[0...$limit] {
     _id,
     "title": coalesce(title, titleDe),
     titleDe,
@@ -480,7 +486,7 @@ export const latestNewsArticlesQuery = `
     categoryLabel, categoryLabelDe,
     "imageUrl": ${groqImageUrl('image', 'card')}
   }
-`;
+}`;
 
 // Ein Guide als Teaser — für den Querverweis von der Kategorieseite auf den
 // gleichnamigen Magazin-Artikel (siehe categoryGuideSlug in lib/seo/crossLinks).

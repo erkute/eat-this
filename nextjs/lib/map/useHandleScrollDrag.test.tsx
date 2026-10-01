@@ -109,6 +109,29 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 const lowered = () => sheet().dataset.sheetLowered !== undefined;
+
+it('keeps the map controls on the sheet edge before releasing a pull from a deep list', () => {
+  render(<Harness />);
+  const dock = document.createElement('div');
+  dock.dataset.locateDock = '';
+  dock.style.marginTop = '542px'; // Resting sheet edge (600) minus the control gap (58).
+  dock.getBoundingClientRect = () => ({ top: 366 } as DOMRect);
+  document.body.appendChild(dock);
+  try {
+    window.scrollY = DEEP;
+    const handle = document.querySelector<HTMLElement>('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 80, 0));
+    handle.dispatchEvent(pointer('pointermove', 680, 80));
+    nextFrame();
+    // The bar is now at 672; the dock belongs at 614. Its native sticky
+    // position is 366, so it needs 248px, including its previous 176px ride.
+    expect(dock.style.translate).toBe('0 248px');
+    handle.dispatchEvent(pointer('pointerup', 680, 100));
+    expect(dock.style.translate).toBe('0 72px');
+  } finally {
+    dock.remove();
+  }
+});
 /* Nothing of the deep rows is kept over the map: the sheet shows its top. */
 function expectRestingAtTop() {
   expect(window.scrollY).toBe(0);
@@ -552,6 +575,40 @@ describe.each(['touch', 'mouse'])('phone handle %s taps', (pointerType) => {
 });
 
 describe('interrupted restaurant handle gestures', () => {
+  it('keeps a swipe on the lowered photo rail in the sheet gesture, then restores native scrolling', async () => {
+    render(<Harness view="detail" detailKind="restaurant" />);
+    const rail = document.createElement('div');
+    rail.dataset.hScroll = '';
+    const photo = document.createElement('img');
+    rail.appendChild(photo);
+    sheet().querySelector('[data-sheet-content]')!.appendChild(rail);
+    const touchMove = () => {
+      const event = new Event('touchmove', { bubbles: true, cancelable: true });
+      photo.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+
+    drag(100);
+    await settle();
+    photo.dispatchEvent(pointer('pointerdown', 760, 0, 'touch'));
+    photo.dispatchEvent(pointer('pointermove', 745, 30, 'touch'));
+    nextFrame();
+    // iPhone trace: the unblocked touchmove lets Safari take over here,
+    // cancelling the pointer while the lowered transform is still present.
+    expect(touchMove()).toBe(true);
+    photo.dispatchEvent(pointer('pointermove', 500, 60, 'touch'));
+    nextFrame();
+    expect(touchMove()).toBe(true);
+    photo.dispatchEvent(pointer('pointerup', 500, 90, 'touch'));
+    await settle();
+    expect(lowered()).toBe(false);
+    expect(sheet().style.transform).toBe('');
+
+    photo.dispatchEvent(pointer('pointerdown', 500, 120, 'touch'));
+    expect(touchMove()).toBe(false);
+    photo.dispatchEvent(pointer('pointercancel', 0, 150, 'touch'));
+  });
+
   it('finishes outside the handle when pointer capture is unavailable', async () => {
     render(<Harness view="detail" detailKind="restaurant" />);
     window.scrollY = DEEP;

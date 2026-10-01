@@ -21,7 +21,7 @@
      Gemessen war das vorher der Fehler: aussen ueberall 104px, innen aber
      zwischen 104 und 206px, weil das Polster der Tafeln unsichtbar mitzaehlte
      (zwei Tafeln = 112px eingebaute Luft). Jetzt zaehlt nur noch die Fuge. */
-  --home-section-gap: clamp(72px, 7vw, 104px);
+  --home-section-gap: clamp(56px, 6vw, 88px);
   width: 100%;
   min-height: 100svh;
   /* Kein Kopfpolster mehr: der Aufmacher ist eine randlose Farbfläche und
@@ -59,7 +59,10 @@
 /* Das Quadrat dreht sich beim Hereinscrollen auf seinen Platz — am
    Scrollweg, nicht an der Uhr: zurückscrollen dreht es wieder heraus. Der
    Titel daneben steht still (keine Buchstaben, die sich aufbauen — Ansage
-   28.09.2026). */
+   28.09.2026). Das Ende als feste Strecke, nicht als Prozent: steht der
+   Titel in einer klebenden Bühne (Nearby, Teller, Must Eats), streckt die
+   Timeline `cover` über den ganzen Pin-Weg — mit `cover 35%` stand das
+   Quadrat dort oben angekommen erst halb gedreht, als Punkt. */
 @keyframes mkSpin {
   from {
     rotate: -270deg;
@@ -72,7 +75,7 @@
     :global(.homeV2).page :global(.hv-mk) {
       animation: mkSpin linear both;
       animation-timeline: view();
-      animation-range: entry 0% cover 35%;
+      animation-range: entry 0% cover 35vh;
     }
   }
 }
@@ -340,24 +343,14 @@
    im Leerlauf gegeneinander schweben. */
 .phoneFront {
   translate: calc(var(--px, 0) * 26px)
-    calc(
-      var(--phones-drift, 0) * -84px + (1 - var(--in-front, 1)) * 58vh + var(--py, 0) * 18px +
-        var(--float, 0) * -9px
-    );
-  rotate: calc(
-    var(--phones-drift, 0) * 3deg - (1 - var(--in-front, 1)) * 16deg + var(--px, 0) * 2deg
-  );
+    calc(var(--phones-drift, 0) * -84px + var(--py, 0) * 18px + var(--float, 0) * -9px);
+  rotate: calc(var(--phones-drift, 0) * 3deg + var(--px, 0) * 2deg);
 }
 
 .phoneBack {
   translate: calc(var(--px, 0) * -12px)
-    calc(
-      var(--phones-drift, 0) * -24px + (1 - var(--in-back, 1)) * 52vh + var(--py, 0) * -8px +
-        var(--float, 0) * 7px
-    );
-  rotate: calc(
-    var(--phones-drift, 0) * 4deg + (1 - var(--in-back, 1)) * 22deg - var(--px, 0) * 1.5deg
-  );
+    calc(var(--phones-drift, 0) * -24px + var(--py, 0) * -8px + var(--float, 0) * 7px);
+  rotate: calc(var(--phones-drift, 0) * 4deg - var(--px, 0) * 1.5deg);
 }
 
 @property --float {
@@ -405,16 +398,11 @@
   initial-value: 0;
 }
 
-/* Ein leichter Schatten statt Kante und Pfeil (Ansage 29.09.2026). Er hängt
-   am Auftritt (`--in-cta`, siehe unten: schwebt der Knopf noch, liegt der
-   Schatten weiter weg und weicher) und am Druck — der Knopf sinkt, der
-   Schatten rückt heran. Leicht warm getönt: ein schwarzer Schatten
-   verschwände auf dem Ink-Grund. */
+/* Der magnetische Knopf senkt sich beim Druck leicht in seinen Schatten. */
 .heroActions [data-magnetic] {
   translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px + var(--press) * 4px);
   scale: calc(1 - var(--press) * 0.04);
-  box-shadow: 0 calc(8px + (1 - var(--in-cta, 1)) * 18px - var(--press) * 5px)
-    calc(22px + (1 - var(--in-cta, 1)) * 20px) -10px rgba(255, 198, 0, 0.3);
+  box-shadow: 0 calc(8px - var(--press) * 5px) 22px -10px rgba(255, 198, 0, 0.3);
   animation: ctaPress 4.5s linear 3s infinite both;
 }
 
@@ -434,8 +422,7 @@
   animation: ctaPress 4.5s linear 0.3s infinite both;
 }
 
-/* Dasselbe für andere Knöpfe der Startseite (`data-press`, z. B. „Zur Map"
-   am Spot des Tages): einmal gedrückt, jedes Mal, wenn ihre Section ins
+/* Dasselbe für andere Knöpfe der Startseite (`data-press`): einmal gedrückt, jedes Mal, wenn ihre Section ins
    Bild kommt. Und einmalig auf Zuruf (`data-pressing`, die Anmelde-Demo in
    HubMotion). Über `translate`/`scale`, nie über `transform` — den tragen
    die `:active`-Zustände. */
@@ -483,275 +470,6 @@
   .page :global([data-pressing]) {
     animation: none;
   }
-}
-
-/* ── Auftritt beim Laden ────────────────────────────────────────────────────
-   Reines CSS, kein JS: das Bootstrap-Skript im Layout setzt `data-hero-intro`
-   vor dem ersten Paint, und die Animationen laufen ab diesem Paint — nicht
-   erst nach der Hydrierung. Aus JS (GSAP) stand der Aufmacher im Dev-Build
-   zwei Sekunden leer in der Startpose, bis React so weit war; auf einem
-   langsamen Telefon in Produktion wäre es kaum besser.
-   Die Zeilen, der Lead und die Knöpfe lesen Zahlen `--in-*` auf der Section:
-   HubHeroCopy baut sie neu, sobald `useAuth` steht — die neuen Knoten stehen
-   damit sofort an der richtigen Stelle der Bewegung, statt mittendrin fertig
-   aufzutauchen. `@property` macht die Zahlen interpolierbar; ohne springt ein
-   Browser in der Mitte auf den Endwert — auch dann steht am Ende alles.
-   HubMotion nimmt das Attribut ab, sobald alle Animationen durch sind.
-   Die Reihenfolge seit dem 30.09.2026: die Marke wächst auf, die Headline
-   schlägt Zeile für Zeile als Stempel ein, der Lead schreibt sich hin, der
-   Knopf wird hingelegt. Das Zucken des ganzen Aufmachers und der riesige
-   Logo-Stempel (bis 29.09.2026) waren „zu aggressiv". */
-@property --in-write {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-l1 {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-l2 {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-cta {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-front {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-back {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-hey {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-@property --in-profile {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-/* Der Aufprall der Stempel-Zeilen: schlägt nach dem Einschlag einmal aus
-   (Stauchung) und schwingt zurück auf 0. */
-@property --hit-l1 {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
-}
-@property --hit-l2 {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
-}
-
-@keyframes inWrite {
-  from {
-    --in-write: 0;
-  }
-}
-@keyframes inL1 {
-  from {
-    --in-l1: 0;
-  }
-}
-@keyframes inL2 {
-  from {
-    --in-l2: 0;
-  }
-}
-@keyframes inCta {
-  from {
-    --in-cta: 0;
-  }
-}
-@keyframes inFront {
-  from {
-    --in-front: 0;
-  }
-}
-@keyframes inBack {
-  from {
-    --in-back: 0;
-  }
-}
-@keyframes inHey {
-  from {
-    --in-hey: 0;
-  }
-}
-@keyframes inProfile {
-  from {
-    --in-profile: 0;
-  }
-}
-@keyframes hitL1 {
-  20% {
-    --hit-l1: 1;
-  }
-  50% {
-    --hit-l1: -0.4;
-  }
-  75% {
-    --hit-l1: 0.12;
-  }
-}
-@keyframes hitL2 {
-  20% {
-    --hit-l2: 1;
-  }
-  50% {
-    --hit-l2: -0.4;
-  }
-  75% {
-    --hit-l2: 0.12;
-  }
-}
-
-/* Die Kurven: expo.out wie GSAP sie nennt; der Stempel zieht an und
-   schlägt auf (`--slam`), der Aufprall läuft 0,3 s danach; der Stift
-   schreibt gleichmäßig (`linear`, das Tempo verteilen die Wörter selbst).
-   `both` hält die Startpose schon während der Verzögerung. */
-:global(html[data-hero-intro]) .hero {
-  --expo-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --glide: cubic-bezier(0.25, 1, 0.5, 1);
-  --slam: cubic-bezier(0.5, 0, 0.75, 0);
-  animation:
-    inBack 1.8s var(--expo-out) 0.75s both,
-    inFront 1.7s var(--expo-out) 0.85s both,
-    inL1 0.3s var(--slam) 0.95s both,
-    hitL1 0.45s ease-out 1.25s both,
-    inL2 0.3s var(--slam) 1.3s both,
-    hitL2 0.45s ease-out 1.6s both,
-    inWrite 2.1s linear 1.95s both,
-    inCta 0.75s var(--glide) 2.7s both;
-}
-
-/* Angemeldet geht es danach weiter (Ansage 29.09.2026): erst liegt der
-   Map-Knopf, dann schreibt sich „Hey Ersan" wie mit dem Stift hin, zuletzt
-   kommt „Dein Profil". Nur mit `data-auth` (Bootstrap-Skript aus dem
-   Anmelde-Hinweis, BridgeAuth nach dem Anmelden) — ein Gast wartete sonst
-   anderthalb Sekunden länger auf das Ende des Auftritts, ohne etwas davon zu
-   sehen. Die Liste muss ganz wiederholt werden, `animation` ist ein
-   Kurzwert. Der kürzere Lead ist hier gegen 3,4 s fertig geschrieben. */
-:global(html[data-hero-intro][data-auth]) .hero {
-  animation:
-    inBack 1.8s var(--expo-out) 0.75s both,
-    inFront 1.7s var(--expo-out) 0.85s both,
-    inL1 0.3s var(--slam) 0.95s both,
-    hitL1 0.45s ease-out 1.25s both,
-    inL2 0.3s var(--slam) 1.3s both,
-    hitL2 0.45s ease-out 1.6s both,
-    inWrite 2.1s linear 1.95s both,
-    inCta 0.75s var(--glide) 2.7s both,
-    inHey 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) 3.4s both,
-    inProfile 0.75s var(--glide) 4.2s both;
-}
-
-/* Die Marke kommt zuerst: sie wächst aus der Mitte auf, schwingt eine Spur
-   über ihre Größe und steht — wie eine Blase, passend zu den runden
-   Buchstaben (Ansage 30.09.2026: „mag das von Eat This, lass"). Bis
-   29.09.2026 knallte sie 4,2-fach vergrößert aus der Bildmitte auf ihren
-   Platz.
-   Eine echte Animation auf dem Element, keine animierte Zahl auf der
-   Section: `scale/rotate` laufen auf dem Compositor, während der Hauptthread
-   hydriert. Möglich, weil HubHeroCopy die Marke über den Anmelde-Wechsel
-   hinweg als dasselbe Element behält. HeroMarkFlight misst sie erst, wenn
-   der Auftritt durch ist. */
-:global(html[data-hero-intro]) .heroMark {
-  transform-origin: 40% 55%;
-  animation: markPop 0.9s cubic-bezier(0.34, 1.4, 0.64, 1) 0.2s both;
-}
-
-@keyframes markPop {
-  from {
-    scale: 0;
-    rotate: -6deg;
-  }
-  to {
-    scale: 1;
-    rotate: 0deg;
-  }
-}
-
-/* Die Headline schlägt als Stempel ein, Zeile für Zeile (Ansage 30.09.2026:
-   „We tell muss wie ein Stempel rein"; 29.09.: „erst We tell you, dann what
-   to eat"). Jede Zeile steht fast doppelt so groß und leicht gedreht
-   über ihrem Platz, zieht an, schlägt auf und staucht sich beim Aufprall —
-   breiter und flacher, dann schwingt sie zurück (`--hit-*`). Bis zum
-   Einschlag ist die Zeile nicht da: bei genau 0 steht die Skalierung auf 0.
-   Der Faktor der Schwelle ist bewusst riesig: die Kurve (`--slam`) läuft
-   langsam an, bei `* 1000` blieb der Wert gut 40 ms unter 0,001 — die Zeile
-   wuchs sichtbar aus einem Punkt, bevor sie einschlug (Review 29.09.2026).
-   Über die Zahlen auf der Section, weil HubHeroCopy die Zeilen beim
-   Anmelde-Wechsel neu baut. */
-:global(html[data-hero-intro]) .heroHeadline .heroLine:first-child {
-  --in: var(--in-l1, 1);
-  --hit: var(--hit-l1, 0);
-  --tilt: -5deg;
-}
-
-:global(html[data-hero-intro]) .heroHeadline .heroLine:last-child {
-  --in: var(--in-l2, 1);
-  --hit: var(--hit-l2, 0);
-  --tilt: 4deg;
-}
-
-:global(html[data-hero-intro]) .heroHeadline .heroLine {
-  --gate: min(1, var(--in) * 1000000);
-  --size: calc(1 + (1 - var(--in)) * 0.9);
-  scale: calc((var(--size) + var(--hit) * 0.08) * var(--gate))
-    calc((var(--size) - var(--hit) * 0.12) * var(--gate));
-  rotate: calc((1 - var(--in)) * var(--tilt));
-  transform-origin: 50% 70%;
-}
-
-/* Der Lead schreibt sich hin, Wort für Wort und in jedem Wort von links nach
-   rechts (Wege der Wörter: HubHeroCopy). Solange der Stift vor dem Wort ist,
-   steht der Ausschnitt ganz rechts — auch der Überstand nach links
-   (Anfangsstrich der Handschrift) ist dann zu. */
-.penWord {
-  display: inline-block;
-}
-
-:global(html[data-hero-intro]) .penWord {
-  --pen: clamp(0, (var(--b) - var(--in-write, 1)) / (var(--b) - var(--a)), 1);
-  clip-path: inset(-0.4em calc(var(--pen) * (100% + 0.35em) - 0.15em) -0.4em -0.2em);
-}
-
-/* Der Gruß schreibt sich von links nach rechts hin, wie mit dem Stift
-   (Ansage 29.09.2026) — ein Schnitt, der mitläuft, kein Einblenden. Der
-   Überstand oben und unten lässt Ober- und Unterlängen der Handschrift
-   stehen. Er steht über der Headline, kommt aber erst nach dem Map-Knopf. */
-:global(html[data-hero-intro]) .heroCopy > .heroKicker {
-  clip-path: inset(-0.4em calc((1 - var(--in-hey, 1)) * 100%) -0.4em -0.2em);
-}
-
-/* Der Knopf wird zuletzt hingelegt (Ansage 29.09.2026): er schwebt etwas
-   grösser und höher über seinem Platz und senkt sich weich auf die Seite,
-   sein Schatten zieht sich dabei zusammen (siehe `[data-magnetic]` oben).
-   Gerade und gelb vom ersten Bild an — er liest sich sofort als Knopf. Bis
-   sein Auftritt beginnt, ist er nicht da: bei genau 0 steht die Skalierung
-   auf 0. Aus der Mitte aufklappen gefiel nicht, ein Stempel auch nicht. */
-:global(html[data-hero-intro]) .heroCopy > .heroActions {
-  translate: 0 calc((1 - var(--in-cta, 1)) * -18px);
-  scale: calc((1 + (1 - var(--in-cta, 1)) * 0.14) * min(1, var(--in-cta, 1) * 1000));
-}
-
-/* „Dein Profil" legt sich genauso hin, aber für sich — nach dem Gruß, nicht
-   zusammen mit dem Map-Knopf. */
-:global(html[data-hero-intro]) .heroActions .heroSecondaryBtn {
-  translate: 0 calc((1 - var(--in-profile, 1)) * -18px);
-  scale: calc((1 + (1 - var(--in-profile, 1)) * 0.14) * min(1, var(--in-profile, 1) * 1000));
 }
 
 .heroPhones:focus-visible .phoneFront {
@@ -808,274 +526,6 @@
   scale: var(--et-press-tile);
 }
 
-/* ── Spot des Tages ─────────────────────────────────────────────────────────
-   The pick used to be a rounded 16/9 box with a text column parked next to it:
-   two floating objects on white, and visibly less designed than the four cards
-   that followed it. Now the copy holds the right column as a layer on the
-   photo — one object, and unmistakably the section's lead rather than an
-   oversized card. Seit 03.09.2026 ist die Ebene eine Ink-Tafel: gelber
-   Kicker, weiße Versalien, weicher Text, gelber Knopf — dasselbe Objekt wie
-   der Insider-Tipp auf der Spot-Seite und die Tafeln der Booster-Seiten. */
-/* Der Spot des Tages kommt als EIN Stück (Ansage 28.09.2026: „nicht in
-   Einzelteilen"): die ganze Tafel liegt erst nach hinten gekippt, tiefer und
-   etwas kleiner, und richtet sich beim Scrollen auf, wie eine Karte, die man
-   vom Tisch hochnimmt. Zurückscrollen legt sie wieder hin. `--spot` (0 → 1)
-   ist eine Scroll-Timeline des Browsers; ohne sie schreibt HubMotion den
-   Wert per GSAP (`data-scrub`), bei reduced motion bleibt er 1. */
-@property --spot {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 1;
-}
-
-@keyframes spotUp {
-  from {
-    --spot: 0;
-  }
-  to {
-    --spot: 1;
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .spot {
-      animation: spotUp linear both;
-      animation-timeline: view();
-      animation-range: cover 0% cover 38%;
-    }
-  }
-}
-
-.spot {
-  /* power2.out über den Scrollweg: schnell hoch, weich angekommen. */
-  --spot-rest: calc((1 - var(--spot)) * (1 - var(--spot)));
-  transform: perspective(1400px) translateY(calc(var(--spot-rest) * 160px))
-    rotateX(calc(var(--spot-rest) * 42deg)) scale(calc(1 - var(--spot-rest) * 0.14));
-  transform-origin: 50% 100%;
-  /* Die leise Stufe wie Starter Pack und Remy: der Spot des Tages ist ein
-     eigenes Objekt auf dem Grund. Nur `--et-board-quiet-pad` lesen, nie
-     `--et-board-pad` — das ist auf dem Ink-Grund `0px`. */
-  padding: var(--et-board-quiet-pad);
-  background: var(--et-ink-quiet);
-  color: var(--et-white);
-  border-radius: var(--et-radius-photo);
-  /* Kein Anschnitt mehr: das Foto liegt IN der Tafel, ihre Kante ist der
-     Rand. Frueher lief es auf dem Telefon bis zur Blattkante, weil nichts
-     sonst den Aufmacher von der Kartenreihe darunter trennte. (Die Variable
-     `--spot-bleed`, die das steuerte, stand seitdem fest auf 0 und ist raus.) */
-}
-
-/* Am Telefon randlos wie die Starter-Pack-Tafel: ein Kasten 16px vor der
-   Bildschirmkante liest sich als Rahmen. Die negative Rinne ist exakt die
-   von `hv-wrap` — der Inhalt steht auf derselben Satzkante wie der Rest. */
-@media (max-width: 767.98px) {
-  .spot {
-    margin-inline: calc(-1 * var(--et-wrap-pad-mobile));
-    padding: 28px var(--et-wrap-pad-mobile) 30px;
-    border-radius: 0;
-  }
-}
-
-.page .spot :global(.hv-title) {
-  color: var(--et-white);
-}
-
-.page .spotHead:global(.hv-head) {
-  /* Das Datum gehört zum Titel, nicht an die rechte Kante der Tafel: dort
-     stand es über 700px von „Spot des Tages" entfernt und las sich als
-     Fremdkörper. */
-  justify-content: flex-start;
-  column-gap: clamp(14px, 1.4vw, 20px);
-  margin-bottom: clamp(20px, 2.2vw, 30px);
-}
-
-/* Under ~560px the 30px title and the date stop fitting on one line and end up
-   touching. Stacked they read as headline and dateline, which is what they
-   are, and no width can make them collide. */
-@media (max-width: 560px) {
-  .page .spotHead:global(.hv-head) {
-    flex-direction: column;
-    align-items: flex-start;
-    row-gap: 7px;
-  }
-}
-
-/* On the title's baseline, right after it. Without it nothing
-   on the page said the pick is new today; the heading alone claims a daily
-   rhythm the visitor has no way to see. Muted, not a second red thing. */
-.spotDate {
-  flex: none;
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: clamp(14px, 1.15vw, 17px);
-  letter-spacing: 0;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.55);
-  white-space: nowrap;
-}
-
-.spotCard {
-  display: grid;
-  /* Foto und Copy nebeneinander, ohne Ueberlappung: die Ebene auf dem Foto
-     war noetig, solange beide auf Weiss standen — auf der Tafel traegt der
-     Grund den Text, und eine Ink-Ebene auf Ink waere unsichtbar. */
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  align-items: center;
-  gap: clamp(20px, 3vw, 40px);
-  color: var(--et-white);
-  text-decoration: none;
-}
-
-/* The `.page` prefix is load-bearing, here and on the stacked override below.
-   Without it the selector ties with `.homeV2 .hv-photo` (0,2,0) — and while
-   that rule lived in the late-loading style.css (bis 26.09.2026), it decided
-   the radius. This block
-   claimed a square left edge and the stacked one claimed square corners; on
-   production both photos were rounded all round the whole time. Raise the two
-   together or not at all: at (0,3,0) here and (0,2,0) below, the base rule
-   would outrank its own media override and take the stacked bleed with it. */
-.page .spotCard .spotPhoto {
-  /* Fünf von zwölf Spalten bei 3/2: bei sieben Spalten und 4/3 war das Foto
-     auf 1440px über 700px breit und über 500px hoch — mehr Aufmacher als
-     der Aufmacher. */
-  grid-column: 1 / 6;
-  grid-row: 1;
-  position: relative;
-  display: block;
-  /* Flush left with the rest of the board, rounded on all four corners: a
-     square edge said "this continues off the page", and sitting inside the
-     column it has nothing to continue into. */
-  aspect-ratio: 3 / 2;
-  border-radius: var(--et-radius-photo);
-  overflow: hidden;
-  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
-}
-
-.spotImage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 260ms ease;
-}
-
-.spotCard:focus-visible .spotImage {
-  transform: scale(1.03);
-}
-
-@media (hover: hover) {
-  .spotCard:hover .spotImage {
-    transform: scale(1.03);
-  }
-}
-
-.spotCard:focus-visible {
-  outline: 3px solid var(--et-accent);
-  outline-offset: 8px;
-  border-radius: var(--et-radius-photo);
-}
-
-.spotBody {
-  grid-column: 6 / 13;
-  grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-}
-
-.spotCardTextOnly .spotBody {
-  grid-column: 1 / 13;
-}
-
-/* Der Bezirk als gelbe Kreide-Zeile, wie der Kicker auf jeder Tafel. */
-.page .spotBody .spotKicker:global(.hv-kicker) {
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.3;
-  text-transform: uppercase;
-  color: var(--et-accent);
-}
-
-.spotName {
-  margin-top: clamp(10px, 1.2vw, 15px);
-  color: var(--et-white);
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: clamp(30px, 2.6vw, 42px);
-  letter-spacing: -0.015em;
-  /* 0.95 liess zwei Zeilen („Five Elephant / Neue Nationalgalerie")
-     ineinanderlaufen; bei 1.1 stiess noch die Unterlänge an die Oberlänge
-     darunter — das g von „Bürgermeister" ans l von „Schlesisches" (Ansage
-     28.09.2026). */
-  line-height: 1.25;
-  /* Same rule the restaurant hero needed: `anywhere`, not `break-word` — only
-     `anywhere` counts towards min-content, so "Nationalgalerie" at 54px cannot
-     push the text column past its grid track. No `hyphens: auto`; it split
-     "Five Elephant Schwedter" in the wrong places. */
-  overflow-wrap: anywhere;
-}
-
-/* Three lines of running copy, so it is set to be read rather than to shout:
-   Providence at 400 instead of 700 and 1.45 leading instead of 1.2. Bold brush
-   type packed at 1.2 is what made the reason the pick was picked the least
-   legible thing in the block. */
-.spotSub {
-  max-width: 36ch;
-  margin-top: clamp(12px, 1.3vw, 18px);
-  color: rgba(255, 255, 255, 0.76);
-  font-family: var(--et-font-display);
-  font-size: clamp(17px, 1.4vw, 20px);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1.45;
-}
-
-/* Gelb auf Ink, wie jeder Tafel-Knopf — Ink auf Ink verschwände. Hover:
-   Papier. */
-.spotCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 52px;
-  margin-top: clamp(20px, 2.2vw, 30px);
-  padding: 0 24px;
-  border-radius: var(--et-radius-control);
-  background: var(--et-accent);
-  color: var(--et-ink);
-  font-family: var(--et-font-display);
-  font-size: clamp(16px, 1.4vw, 19px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-  transition: background 160ms ease;
-}
-
-.spotCard:focus-visible .spotCta {
-  background: var(--et-white);
-}
-
-@media (hover: hover) {
-  .spotCard:hover .spotCta {
-    background: var(--et-white);
-  }
-}
-
-/* Der Knopf allein reichte nicht: er sitzt am unteren Ende einer 358x533-Kachel
-   und bewegt sich um 1px — wer die Kachel oben am Foto antippt, sah nichts.
-   Jetzt drückt sich die Kachel, der Knopf nickt weiter mit. */
-.spotCard:active {
-  scale: var(--et-press-tile);
-}
-
-.spotCard:active .spotCta {
-  transform: translateY(1px);
-}
-
 @media (max-width: 920px) {
   .heroGrid {
     grid-template-columns: 1fr;
@@ -1103,40 +553,6 @@
 
   .heroCopy {
     align-items: flex-start;
-  }
-}
-
-/* Der Spot des Tages stapelt erst am Telefon. Bis 920px gestapelt lief das
-   Foto am Tablet über die volle Breite und füllte allein den Bildschirm;
-   nebeneinander passt es ab 768px (Foto ~290px, Text daneben). */
-@media (max-width: 767.98px) {
-  .spotCard {
-    grid-template-columns: minmax(0, 1fr);
-    gap: clamp(16px, 3vw, 24px);
-  }
-
-  .page .spotCard .spotPhoto {
-    grid-column: 1;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-  }
-
-  .spotBody {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .spotCardTextOnly .spotBody {
-    grid-row: 1;
-  }
-
-  .spotCta {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .spotSub {
-    max-width: none;
   }
 }
 
@@ -1193,5 +609,232 @@
   .heroActions {
     justify-content: center;
     flex-wrap: wrap;
+  }
+}
+
+/* Compact transitions around the first gallery, without a viewport of air. */
+/* Ab 1600px eine breitere Satzspalte: bei 1360px stand bei 1920 ein Drittel
+   des Bildschirms als schwarzer Rand links und rechts, bei 2560 die Hälfte
+   (Ansage 01.10.2026: „Desktop wirklich komplett benutzen"). Für alle
+   Sektionen gleich, sonst sprängen die Titelkanten beim Scrollen. Der
+   Aufmacher wächst mit — Wortmarke, Headline und Telefone —, damit Text und
+   Telefone die Breite tragen und keine leere Mitte zwischen sich lassen. */
+@media (min-width: 1600px) {
+  .page {
+    --et-wrap-max: min(1840px, 88vw);
+  }
+  .heroMark {
+    --hero-mark-w: min(21vw, 480px);
+  }
+  .heroHeadline {
+    font-size: min(4.3vw, 96px);
+  }
+  .heroLead {
+    max-width: 34em;
+    font-size: calc(var(--et-type-lead) * 1.2);
+  }
+  .heroPhones {
+    height: min(76vh, 900px);
+  }
+  .page .heroActions :global(.hv-btn) {
+    min-height: 64px;
+    padding: 0 32px;
+    font-size: min(1.15vw, 24px);
+  }
+}
+
+/* ── Kapitel: zwei Gründe im Wechsel (01.10.2026) ──
+   Ansage: die Sektionen „ein bisschen abgrenzen voneinander". Auf dem
+   durchgehenden Ink lief eine Sektion in die nächste (Kategorien und Teller
+   auf einem Bildschirm, das Starter Pack unter den Must-Eat-Karten).
+   Abgegrenzt wird mit Fläche, nicht mit Linie, Kasten oder Nummer: Ink und
+   die Stufe des Footers (`--et-ink-raised`) wechseln sich ab, randlos von
+   Fensterkante zu Fensterkante —
+   Hero Ink · Teller · Nearby Ink · Must Eats · Starter Ink ·
+   Remy (mit den Kategorien) · FAQ Ink · Footer.
+   Gemalt per `border-image`
+   mit seitlichem Überstand: die Sektion bleibt im Satzspiegel (`hv-wrap`),
+   die Fläche reicht bis an die Fensterränder, `.page` schneidet den
+   Überstand ab (`overflow-x: clip`). Jede Sektion malt ihren Grund selbst,
+   auch die Ink-Bänder: wo eine Sektion in die leere Luft der Bühne davor
+   hochrückt (negativer Rand), deckt sie deren Band ab. Die hellen Bänder
+   tragen ihre Luft als Polster, nicht als Rand — ein Rand stünde auf dem
+   Ink der Seite. Angemeldete sehen kein Starter Pack; dann stossen Must
+   Eats und Remy aneinander, und Remy bleibt Ink. */
+.page > section:not(.hero) {
+  --band: var(--et-ink);
+  /* `--band-lift-*` zieht die Fläche über die Box hinaus (in den Rand davor
+     bzw. danach), ohne die Bühne darin zu verschieben. */
+  border-image: conic-gradient(var(--band) 0 0) fill 0 / / var(--band-lift-top, 0px) 100vw
+    var(--band-lift-bottom, 0px);
+}
+/* `section:is(…)`: gleicher Rang wie die Ink-Regel darüber (0,2,1), die
+   spätere gewinnt. */
+.page
+  > section:is(
+    :global([data-hub-magazine]),
+    :global([data-hub-musteats]),
+    :global([data-hub-fragremy])
+  ) {
+  --band: var(--et-ink-raised);
+}
+:global(html[data-auth='1']) .page > :global([data-hub-fragremy]) {
+  --band: var(--et-ink);
+}
+
+/* ── Abstände an den Bandkanten ──
+   `--band-air` ist die Luft zwischen Kante und Inhalt, auf beiden Seiten
+   gleich, damit die Kante mittig zwischen zwei Sektionen liegt. Die
+   bildschirmhohen Bühnen (Nearby, Must Eats) bleiben, wie sie sind; was an
+   sie grenzt, rückt um ihre leere Luft nach. */
+.page {
+  --band-air: var(--home-section-gap);
+}
+.page > :global([data-hub-magazine]) {
+  position: relative;
+  /* Über Nearby: geworfene Hefte fliegen über die Bandkante hinaus. */
+  z-index: 2;
+  margin-top: 0;
+  padding-block: var(--band-air);
+}
+.page > :global([data-hub-nearby]) {
+  margin-top: 0;
+  padding-top: var(--band-air);
+}
+/* Am Telefon schiebt `stagePin` die Bühne in der Sektion — ein Polster
+   verschöbe sie mit. Deshalb trägt die Must-Eats-Fläche ihre Luft als
+   Überstand: oben in den Rand, unten in den Platz vor dem Starter Pack
+   (unter den Knöpfen stehen schon ~20px). */
+.page > :global([data-hub-musteats]) {
+  --band-lift-top: var(--band-air);
+  --band-lift-bottom: calc(var(--band-air) - 20px);
+  position: relative;
+  z-index: 1;
+  margin-top: var(--band-air);
+}
+/* Die randlose Tafel des Telefons bringt oben 30, unten 32px mit
+   (StarterPackSignup.module.css). */
+.page > :global([data-hub-starter]) {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--band-air) - 20px);
+  padding-block: calc(var(--band-air) - 30px) calc(var(--band-air) - 32px);
+}
+.page > :global([data-hub-fragremy]) {
+  margin-top: 0;
+  padding-block: var(--band-air);
+}
+/* Angemeldet folgt Remy direkt auf Must Eats: Platz für deren Überstand. */
+:global(html[data-auth='1'])
+  .page
+  > :global([data-hub-musteats])
+  + :global([data-guest-only])
+  + section {
+  margin-top: calc(var(--band-air) - 20px);
+}
+
+/* Ab 768px: die Luft der Bühnen aus denselben Grössen gerechnet, die die
+   Bühnen setzen — ändert sich dort eine Kartengrösse, muss sie hier mit.
+   - Unter Nearby: (Bühne − Kopf 128px − Band)/2, das Band ist 3/4 der
+     Kartenbreite plus 70px Unterschrift, die Karte min(36vw, 56svh, 680px)
+     (HomeGallery.module.css).
+   - Die Must-Eats-Spalte (~348px) steht mittig in der Bühne; unter ihr
+     bleibt am Ende des Wegs die halbe Resthöhe leer (gemessen 232px bei
+     1440×900). Was folgt, liegt über der Bühne, sonst fingen deren leere
+     Pixel die Klicks ab. Über der Spalte bleibt die Luft stehen: die
+     Bühne klebt, sobald ihre Kante oben ankommt, und füllt dann den
+     Bildschirm — die Überschrift steht in der Mitte ihres Bandes.
+   - Der Teller ab 1024px: die Überschrift steht neben dem Fächer, und der
+     ragt oben ~30px über das Polster hinaus. */
+@media (min-width: 768px) {
+  .page {
+    --stage-h: calc(100svh - 74px);
+    --nearby-air: calc((var(--stage-h) - 128px - min(36vw, 56svh, 680px) * 0.75 - 70px) / 2);
+    --musteats-air-below: max(0px, (var(--stage-h) - 348px) / 2 - 8px);
+  }
+  .page > :global([data-hub-musteats]) {
+    --band-lift-top: 0px;
+    --band-lift-bottom: 0px;
+  }
+  .page > :global([data-hub-starter]) {
+    padding-block: var(--band-air);
+  }
+  .page > :global([data-hub-musteats]) {
+    margin-top: calc(var(--band-air) - var(--nearby-air));
+  }
+  .page > :global([data-hub-musteats]) + section,
+  :global(html[data-auth='1'])
+    .page
+    > :global([data-hub-musteats])
+    + :global([data-guest-only])
+    + section {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(var(--band-air) - var(--musteats-air-below));
+  }
+}
+@media (min-width: 1024px) {
+  .page > :global([data-hub-magazine]) {
+    padding-top: calc(var(--band-air) - 30px);
+  }
+}
+
+/* ── Auftritt beim Laden: die Marke wird nach oben geschubst ──
+   Idee des Betreibers (01.10.2026): erst ein grosses EAT THIS, das dann
+   „an seinen Platz gedrängt wird, nach oben, und dann kommt We tell you what
+   to eat". Remy legt die grosse Marke beim Wegschieben des Vorhangs in der
+   Mitte frei; kurz bevor er hinaus ist, duckt sie sich und wird auf den
+   Platz der echten Marke geschubst (HubMotion, `finishIntro`). Bei der
+   Landung tauscht sie mit der echten, und die Headline stempelt darunter
+   ein; danach kommen Lead, Knopf und Telefone. Die Takte stehen als
+   Attribute an <html>, nicht als Inline-Stil an den Elementen: HubHeroCopy
+   baut Headline und Knöpfe neu, sobald `useAuth` steht — ein neuer Knoten
+   hätte keinen Inline-Stil, er läse aber dieselbe Regel.
+   - `data-intro-mark`: die echte Marke steht, die grosse tritt ab
+   - `data-intro-head`: Headline (und Gruß) dürfen einstempeln
+   - `data-intro-copy`: Lead, Knöpfe, Telefone
+   Alles hängt an `data-hero-intro` (Kopf-Skript, nur ohne reduced motion);
+   fällt das am Ende, gilt keine dieser Regeln mehr. */
+.hero {
+  position: relative;
+}
+.heroIntroMark {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :global(html[data-hero-intro]:not([data-intro-mark])) .heroIntroMark {
+    /* Grösse mal 667/1660/2 = halbe Höhe: mittig in der Fläche. */
+    --intro-mark-w: min(56vw, 820px);
+    display: block;
+    position: absolute;
+    z-index: 2;
+    top: calc(50% - var(--intro-mark-w) * 0.2009);
+    left: 0;
+    right: 0;
+    width: var(--intro-mark-w);
+    height: auto;
+    margin-inline: auto;
+    pointer-events: none;
+  }
+  :global(html[data-hero-intro]:not([data-intro-mark])) .heroMark {
+    visibility: hidden;
+  }
+  :global(html[data-hero-intro]:not([data-intro-head])) .heroHeadline {
+    clip-path: inset(0 0 100% 0);
+  }
+  :global(html[data-hero-intro]:not([data-intro-head])) .heroKicker,
+  :global(html[data-hero-intro]:not([data-intro-copy])) .heroLead,
+  :global(html[data-hero-intro]:not([data-intro-copy])) .heroActions,
+  :global(html[data-hero-intro]:not([data-intro-copy])) .heroPhones {
+    visibility: hidden;
+  }
+}
+/* Am Telefon ist der Aufmacher so hoch wie sein Inhalt, nicht wie der
+   Bildschirm: die Marke steht in der Mitte des sichtbaren Teils unter der
+   64px-Navigation. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 767.98px) {
+  :global(html[data-hero-intro]:not([data-intro-mark])) .heroIntroMark {
+    --intro-mark-w: 92vw;
+    top: calc((100svh - 64px) / 2 - var(--intro-mark-w) * 0.2009);
   }
 }

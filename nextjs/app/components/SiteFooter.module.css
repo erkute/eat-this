@@ -61,9 +61,12 @@
    bringt transparenten Rand mit, und die Zeilenbox des Textes hat über den
    Versalien selbst noch Luft. Beides zusammen ließ die Zeile abgesetzt wirken,
    obwohl der gemessene Abstand nur 2px betrug. In em, damit der Zug mit dem
-   Schriftgrad mitwächst statt bei 15px wieder aufzureißen. */
+   Schriftgrad mitwächst statt bei 15px wieder aufzureißen.
+   Mit -0.62em klebte er dann am Schatten des Logos (gemessen 5px am
+   Desktop, 3px am Telefon; Ansage 01.10.2026: „zu nah an Eat This") —
+   -0.15em lässt ihm rund 12 bzw. 9px. */
 .tagline {
-  margin: -0.62em auto 0;
+  margin: -0.15em auto 0;
   color: var(--footer-ink);
   font-family: var(--et-font-display);
   font-size: clamp(11px, 2.9vw, 14px);
@@ -290,5 +293,72 @@
 @media (min-width: 1024px) {
   .footer {
     padding-inline: 80px;
+  }
+}
+
+/* The homepage keeps the shared grey footer palette. */
+.home .megaImg {
+  width: min(48vw, 190px);
+  filter: none;
+}
+.home .tagline {
+  font-size: clamp(13px, 2.5vw, 23px);
+}
+.home .langBtn,
+.home .langSep,
+.home .legalLink::after {
+  color: var(--footer-ink);
+}
+.home .langBtnActive {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.home .langBtn:focus-visible,
+.home .legalLink:focus-visible,
+.home .socialLink:focus-visible {
+  outline: 2px solid var(--footer-ink);
+  outline-offset: 5px;
+}
+.home .legalLink:hover,
+.home .legalLink:active,
+.home .langBtn:hover,
+.home .langBtn:focus-visible {
+  color: var(--footer-ink);
+  text-decoration: underline;
+}
+/* Die Marke ploppt beim Hereinscrollen an ihrem Platz auf. Früher kam sie
+   70px tiefer herein und lief dabei in „Folgen / Instagram" darunter
+   (Ansage 30.09.2026) — jetzt nur Skalierung um die eigene Mitte, direkt am
+   Element statt über eine animierte Variable. */
+@keyframes brandPop {
+  0% {
+    transform: scale(0.72) rotate(-6deg);
+  }
+  70% {
+    transform: scale(1.06) rotate(1.5deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home .brand {
+      animation: brandPop linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 90%;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .home .megaImg {
+    width: min(22vw, 240px);
+  }
+  .home .tagline {
+    font-size: 16px;
+  }
+  .home {
+    padding-block: 36px 24px;
   }
 }

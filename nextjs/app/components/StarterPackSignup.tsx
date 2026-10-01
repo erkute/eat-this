@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import LoginBoard, { LoginSceneArt } from './LoginBoard';
+import LoginBoard from './LoginBoard';
+import StarterPack3D from './StarterPack3D';
 import styles from './StarterPackSignup.module.css';
 
 /**
@@ -29,14 +30,14 @@ export default function StarterPackSignup() {
       // Anchor target: the Must-Eats onboarding sends logged-out visitors here
       // from its last slide (#hub-starter), same convention as #hub-fragremy.
       id="hub-starter"
-      className="homeV2 hv-section hv-wrap"
+      className={`homeV2 hv-section hv-wrap ${styles.scene}`}
       data-hub-starter=""
       data-guest-only=""
       aria-label={t('packTitle')}
     >
       <div className={styles.inner}>
         <LoginBoard
-          art={<LoginSceneArt reason={null} />}
+          art={<StarterPack3D />}
           kicker={t('packKicker')}
           title={t('packTitle')}
           lead={t('packLead')}

@@ -19,6 +19,25 @@ import type { MapRestaurant } from '@/lib/types';
 // Node/vitest environment. The first client render mirrors the SSR snapshot:
 // mounted = false → initialMapData is used, location = null → Mitte fallback.
 
+// These tests cover location/login behavior; gallery input is tested separately.
+vi.mock('./HomeGallery', () => ({
+  default: ({
+    children,
+    heading,
+    footer,
+  }: {
+    children: import('react').ReactNode;
+    heading?: import('react').ReactNode;
+    footer?: import('react').ReactNode;
+  }) => (
+    <>
+      {heading}
+      {children}
+      {footer}
+    </>
+  ),
+}));
+
 vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null, loading: true }) }));
 
 vi.mock('@/lib/map', () => ({

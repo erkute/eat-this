@@ -12,6 +12,7 @@ import { nearestRestaurants, rotatingRestaurants } from '@/lib/home/nearby';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import MapIntentLink from './MapIntentLink';
+import HomeGallery from './HomeGallery';
 import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubNearby.module.css';
 
@@ -44,8 +45,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   }, []);
   const restaurants = mounted ? live.restaurants : initialMapData.restaurants;
   const activeLocation = mounted ? location : null;
-  // Acht: am Telefon ein Band, das breiter ist als der Bildschirm, am Desktop
-  // zwei volle Reihen à vier (siehe .rail).
+  // Eight picks in the same spatial gallery on phones and desktop.
   const count = 8;
 
   /* Nur die Fehler laufen durch die zentrale Info-Karte. „Wir suchen dich"
@@ -108,37 +108,43 @@ export default function HubNearby({ locale = 'de', today }: Props) {
             heading and the line explaining it, which put more space inside the
             heading than above it — the section read as if it belonged to
             whatever sat above. */}
-        <div className={`hv-head ${styles.head}`}>
-          <h2 className={`hv-title ${styles.title}`}>
-            <span className="hv-mk" aria-hidden="true" />
-            {title}
-          </h2>
-          <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
-          {/* Ist der Standort da, hat der Knopf seine Arbeit getan: die Liste
+        <HomeGallery
+          heading={
+            <>
+              {' '}
+              <div className={`hv-head ${styles.head}`}>
+                <h2 className={`hv-title ${styles.title}`}>
+                  <span className="hv-mk" aria-hidden="true" />
+                  {title}
+                </h2>
+                <p className={styles.sub}>{activeLocation ? t('sub') : t('subFallback')}</p>
+                {/* Ist der Standort da, hat der Knopf seine Arbeit getan: die Liste
               ist nach Nähe sortiert und zeigt Gehzeiten. Ein zweiter Druck
               holte nur dieselbe Position noch einmal. */}
-          {!activeLocation && (
-            <button
-              type="button"
-              className={styles.locBtn}
-              onClick={handleLocate}
-              disabled={locating}
-              aria-label={t('locationAria')}
-            >
-              <svg className={styles.locIcon} viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="8" />
-                <line x1="12" y1="2" x2="12" y2="5" />
-                <line x1="12" y1="19" x2="12" y2="22" />
-                <line x1="2" y1="12" x2="5" y2="12" />
-                <line x1="19" y1="12" x2="22" y2="12" />
-                <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
-              </svg>
-              <span>{locating ? t('locating') : t('locationRequest')}</span>
-            </button>
-          )}
-        </div>
-
-        <div className={`hv-rail ${styles.rail}`} data-scroll-band="">
+                {!activeLocation && (
+                  <button
+                    type="button"
+                    className={styles.locBtn}
+                    onClick={handleLocate}
+                    disabled={locating}
+                    aria-label={t('locationAria')}
+                  >
+                    <svg className={styles.locIcon} viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="12" cy="12" r="8" />
+                      <line x1="12" y1="2" x2="12" y2="5" />
+                      <line x1="12" y1="19" x2="12" y2="22" />
+                      <line x1="2" y1="12" x2="5" y2="12" />
+                      <line x1="19" y1="12" x2="22" y2="12" />
+                      <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
+                    </svg>
+                    <span>{locating ? t('locating') : t('locationRequest')}</span>
+                  </button>
+                )}
+              </div>{' '}
+            </>
+          }
+          label={title}
+        >
           {cards.map((r) => {
             const walk = activeLocation
               ? formatWalkingTime(
@@ -172,7 +178,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
                       alt={normalizeName(r.name)}
                       loading="lazy"
                       decoding="async"
-                      sizes="(max-width:767.98px) 200px, 300px"
+                      sizes="(max-width: 767.98px) 78vw, min(46vw, 860px)"
                     />
                   )}
                 </span>
@@ -183,7 +189,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
               </MapIntentLink>
             );
           })}
-        </div>
+        </HomeGallery>
       </div>
     </section>
   );

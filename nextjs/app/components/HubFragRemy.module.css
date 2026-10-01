@@ -1,152 +1,228 @@
-/* HubFragRemy — homeV2 restyled into one compact Remy stage. Seit 03.09.2026
-   als Ink-Tafel: dieselbe Fläche wie Footer (wo Remy längst auf Ink steht),
+/* HubFragRemy — „Worauf hast du Lust?" auf Remys Tafel. Seit 03.09.2026 als
+   Ink-Tafel: dieselbe Fläche wie Footer (wo Remy längst auf Ink steht),
    Must-Eat-Tafeln und Booster-Tafeln. Das mintgrüne Panel (#eaf2ed) war die
-   einzige Farbe der Site außerhalb von Weiß, Ink, Gelb und Rot. */
+   einzige Farbe der Site außerhalb von Weiß, Ink, Gelb und Rot.
+   Seit 01.10.2026: die Frage oben, darunter Remy mit Oberkörper in der Mitte
+   und die Kategorien im Bogen um Kopf und Schultern. */
 
 .section {
   /* Anchor target (#hub-fragremy): clear the fixed navbar. */
   scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px));
 }
 
-/* ── body: one compact Remy stage ── */
 .body {
-  --remy-stage-ink: #15120e;
-  --remy-stage-paper: #fff;
-  --remy-stage-accent: var(--et-accent);
-  --remy-stage-soft: rgba(255, 255, 255, 0.76);
-  /* Chips, Feld und Knopf heben sich per Flaeche ab, nie per Ring (Ansage
-     23.09.2026: „keine grauen Rahmen"). */
-  --remy-stage-control: rgba(255, 255, 255, 0.08);
-  --remy-stage-control-hi: rgba(255, 255, 255, 0.14);
-  --remy-stage-dim: rgba(255, 255, 255, 0.55);
   position: relative;
   isolation: isolate;
-  display: grid;
-  grid-template-areas:
-    'ask'
-    'avatar';
-  /* `minmax(0, 1fr)`, nicht `1fr`: sonst wuchs die Spalte auf die
-     Mindestbreite des Remy-Bilds (340px) und schob Satz, Chips und
-     „Senden" am Telefon über die rechte Kante der Tafel. */
-  grid-template-columns: minmax(0, 1fr);
-  gap: clamp(12px, 2.4vw, 24px);
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   overflow: hidden;
   /* Der einzige Abschnitt mit eigener Flaeche — bewusst gegen die Tokens der
      Seite gesetzt. Remy ist kein Inhalt, sondern ein Gegenueber; auf dem
      durchgehenden Grund ging er unter (Ansage 03.09.2026). Eine Stufe heller
-     als der Grund reicht: es liest sich als Layer, ohne ein Kasten zu sein. */
-  padding: var(--et-board-quiet-pad);
-  color: var(--remy-stage-paper);
+     als der Grund reicht: es liest sich als Layer, ohne ein Kasten zu sein.
+     Unten kein Polster: Remy läuft dort in die Tafel aus. */
+  padding: clamp(28px, 4vw, 56px) clamp(16px, 4vw, 64px) 0;
+  color: #fff;
+  text-align: center;
   background: var(--et-ink-quiet);
   border: none;
   border-radius: var(--et-radius-photo);
 }
 
-.ask {
-  grid-area: ask;
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.body .panelHead:global(.hv-head) {
-  margin-bottom: 0;
-}
-
-/* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier,
-   wie auf jeder Tafel. Seit 01.10.2026 die zweite Frage der Tafel, unter
-   „Worauf hast du Lust?" und den Kategorien (CategoriesRail, `choices`) —
-   eine Stufe kleiner als die erste, sonst stünden zwei Rufe gleich laut
-   übereinander. */
-.body .panelHead :global(.hv-title) {
-  max-width: 790px;
-  color: var(--remy-stage-paper);
-  font-size: clamp(30px, 3.4vw, 48px);
-  /* Zwei Zeilen Versalien: bei 0.88 standen „?" und „R" fast aufeinander. */
+/* Die Frage. Rang (0,3,0) über `.homeV2 .hv-title` und die Einzeiler-Regel
+   der Startseite am Telefon (HubSection.module.css): sie darf umbrechen. */
+.body .question:global(.hv-title) {
+  max-width: 14ch;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(34px, 4.6vw, 68px);
   line-height: 0.98;
+  white-space: normal;
+  text-wrap: balance;
 }
 
-/* Zwischen den Kategorien und Remys Frage: Luft, keine Linie. */
-.ask > :global([data-hub-categories]) {
-  margin-bottom: clamp(30px, 4vw, 56px);
+/* ── Remy und der Bogen ──
+   Die Kategorien liegen auf einer Ellipse um Remys Gesicht, aber nur im
+   Bogen über Kopf und Schultern (Winkel `--a`, HubFragRemy `placeOf`): unten
+   steht sein Körper, darauf wären sie schlecht zu lesen. Das Gesicht (die
+   Gläser bei 28 % des Bildes) steht genau in der Mitte des Rings. */
+.ring {
+  --rx: 42%;
+  --ry: 44%;
+  position: relative;
+  width: min(100%, 940px);
+  aspect-ratio: 16 / 10;
+  margin-top: clamp(4px, 1vw, 12px);
 }
 
-.titleLine {
+.orbit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.place {
+  position: absolute;
+  left: calc(50% + cos(var(--a)) * var(--rx));
+  top: calc(50% + sin(var(--a)) * var(--ry));
+  translate: -50% -50%;
+}
+
+/* Der Auftritt (HubMotion) bewegt `fly` per GSAP-transform; das Schweben
+   liegt eine Ebene tiefer auf dem Wort, sonst setzte GSAP es auf `none`. */
+.fly {
   display: block;
+}
+
+/* Die Wörter: ohne Linien und ohne Gelb (Ansage 01.10.2026: „mach die
+   gelben Markierungen auf den Kategorien weg, die Schrift muss dicker
+   werden oder sich verändern, aber kein Gelb drüber"). In Ruhe eine Spur
+   gedämpft; auf das Wort, auf das man zeigt — oder das Remy gerade ansieht
+   (`data-looked`, HubMotion) —, wird es fett, voll weiß und etwas grösser.
+   Die Grösse über `scale`, damit die Nachbarn nicht springen. */
+.word {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 6px;
+  font-family: var(--et-font-display);
+  font-size: clamp(19px, 1.9vw, 28px);
+  font-weight: 400;
+  line-height: 1.2;
   white-space: nowrap;
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  transition:
+    color 180ms ease,
+    scale 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.word:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+.word[data-looked],
+.word:focus-visible,
+.word:active {
+  color: #fff;
+  font-weight: 700;
+  scale: 1.14;
+}
+@media (hover: hover) {
+  .word:hover {
+    color: #fff;
+    font-weight: 700;
+    scale: 1.14;
+  }
 }
 
-/* Das Fragezeichen fliegt beim Auftritt einzeln herein (HubMotion) — dafür
-   braucht es eine eigene Box, die sich drehen und verschieben lässt. */
-.titleMark {
-  display: inline-block;
-  /* Weg, Drehung und Stauchung als Variablen (HubMotion): zwei GSAP-Tweens
-     auf demselben `transform` — Flug und Aufprall — liessen beim
-     Rückwärtslaufen den Weg nach links fallen (gemessen). */
-  translate: calc(var(--q-x, 0) * 1px) 0;
-  rotate: calc(var(--q-r, 0) * 1deg);
-  scale: var(--q-sx, 1) var(--q-sy, 1);
+/* Jedes Wort schwebt für sich, gegeneinander versetzt. */
+@keyframes drift {
+  50% {
+    translate: 0 -7px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .word {
+    animation: drift 4.6s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -0.7s);
+  }
 }
 
-/* ── Remy stage — freigestellt, no background sun ── */
-/* Sein Auftritt: HubMotion hält ihn erst unter der Kante der Tafel
-   (`--remy-y` in Prozent seiner Höhe; `.body` schneidet ab) und lässt ihn
-   dann hochschießen, beim Reden wackelt er (`--remy-r`). Über Variablen auf
-   den Einzel-Eigenschaften — `transform` gehört auf dem Desktop dem
-   Versatz weiter unten und würde von GSAP überschrieben. */
+/* Remy steht im Ring, nach unten läuft er in die Tafel aus (eine stehende
+   Maske, keine Bewegung). Das Bild ist 51 % des Rings breit; die Gläser bei
+   28 % seiner Höhe stehen in der Ringmitte. */
+.figure {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 70%, transparent 97%);
+}
+
+/* Sein Auftritt: HubMotion hält ihn erst unter der Unterkante (`--remy-y` in
+   Prozent seiner Höhe) und lässt ihn hochschießen, beim Reden wackelt er
+   (`--remy-r`). Über Variablen auf den Einzel-Eigenschaften. */
 .avatarWrap {
-  translate: 0 calc(var(--remy-y, 0) * 1%);
+  position: absolute;
+  left: 50%;
+  top: 27.2%;
+  width: 51%;
+  aspect-ratio: 1 / 1;
+  translate: -50% calc(var(--remy-y, 0) * 1%);
   rotate: calc(var(--remy-r, 0) * 1deg);
   transform-origin: 50% 100%;
-  grid-area: avatar;
-  position: relative;
-  z-index: 1;
-  justify-self: center;
-  width: 100%;
-  max-width: clamp(340px, 92vw, 560px);
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-top: 0;
-  margin-top: clamp(-42px, -7vw, -24px);
-  margin-bottom: clamp(-132px, -17vw, -82px);
 }
 
-/* Dieselbe Rasterzelle wie Remy, aber nie verschoben — der Observer in
-   HubMotion braucht eine Box, die `.body` nicht wegschneidet. */
+/* Dieselbe Stelle wie Remy, aber nie verschoben — der Observer in HubMotion
+   braucht eine Box, die nicht unter der Kante wartet. */
 .avatarSpot {
-  grid-area: avatar;
-  align-self: stretch;
+  position: absolute;
+  left: 50%;
+  top: 27.2%;
+  width: 51%;
+  aspect-ratio: 1 / 1;
+  translate: -50% 0;
   pointer-events: none;
 }
 
+/* Hält die Box, an der HubMotion den Blick ausrichtet (`data-remy-head`). */
+.head {
+  position: absolute;
+  inset: 0;
+}
+
 .avatar {
-  position: relative;
-  top: clamp(-16px, -3vw, -8px);
-  z-index: 1;
-  width: 104%;
-  height: 120%;
+  position: absolute;
+  inset: 0;
   transform-origin: 50% 100%;
   animation: remyBob 3.8s ease-in-out infinite;
 }
 
 .face,
-.faceOpen {
+.faceOpen,
+.faceLaugh {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: 50% 100%;
   display: block;
 }
 
+/* Sein Blick (HubMotion, `armRemyLook`): die Zeichnung als Gitter, das
+   Gesicht wandert in Blickrichtung. Zeichnet das Gitter, treten die Bilder
+   zurück (`data-mesh`); ohne WebGL oder Bewegung bleiben sie stehen. */
+.mesh {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+.avatar[data-mesh] .mesh {
+  visibility: visible;
+}
+/* Rang (0,4,0): über `.avatarWrap[data-delight] .faceLaugh` (0,3,0) —
+   lacht er, zeichnet das Gitter das Lachen, nicht das Bild darüber. */
+.avatarWrap .avatar[data-mesh] :is(.face, .faceOpen, .faceLaugh) {
+  visibility: hidden;
+  animation: none;
+}
+
+/* Die drei Bilder liegen nicht deckungsgleich: der offene Mund sitzt 9px,
+   das Lachen 11px (von 1024) anders. Ausgerichtet an den Gläsern, sonst
+   springt der Kopf beim Wechsel. */
 .faceOpen {
   opacity: 0;
+  translate: 0 -0.9%;
+}
+.faceLaugh {
+  visibility: hidden;
+  translate: 0 1.1%;
 }
 
 /* Zwei Anlässe für den Mund: sein Auftritt (`data-speaking`, HubMotion) und
@@ -155,6 +231,15 @@
 .avatarWrap[data-speaking] .faceOpen,
 :global(html[data-remy-talk]) .faceOpen {
   animation: remyFlap 0.46s steps(1) infinite;
+}
+
+/* Schaut er eine Kategorie an (`data-delight`, HubMotion), lacht er. */
+.avatarWrap[data-delight] .faceLaugh {
+  visibility: visible;
+}
+.avatarWrap[data-delight] .face,
+.avatarWrap[data-delight] .faceOpen {
+  visibility: hidden;
 }
 
 @keyframes remyBob {
@@ -185,168 +270,34 @@
   }
 }
 
-/* ── copy column ── */
-.copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  margin-top: clamp(14px, 1.8vw, 24px);
-}
-
-.lead {
-  max-width: 660px;
-  margin: 0 0 clamp(14px, 1.8vw, 22px);
-  font-family: var(--et-font-display);
-  font-size: clamp(19px, 1.85vw, 27px);
-  font-weight: 700;
-  line-height: 1.16;
-  color: var(--remy-stage-soft);
-}
-
-/* ── actions: quick answers + chat input ── */
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 680px;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Flaeche statt Ring, bei Hover eine Stufe heller mit gelber Schrift (state
-   change, not motion — allowed). */
-.body .chip:global(.hv-chip):focus-visible {
-  outline: none;
-  background: var(--remy-stage-control-hi);
-  color: var(--remy-stage-accent);
-  box-shadow: none;
-}
-@media (hover: hover) {
-  .body .chip:global(.hv-chip):hover {
-    background: var(--remy-stage-control-hi);
-    color: var(--remy-stage-accent);
+/* Am Telefon hochkant und ein Bogen wie ab 768px, nur höher und an der
+   Spitze mit einem Wort (`--am`, HubFragRemy `placeOf`): Remy kleiner, die Schrift
+   etwas kleiner — so stehen neun Wörter auf 343px um ihn herum, ohne sich
+   zu berühren (gemessen 375–430px, Chrome und WebKit). */
+@media (max-width: 767.98px) {
+  .ring {
+    --rx: 35%;
+    --ry: 44%;
+    aspect-ratio: 3 / 4;
   }
-}
-
-.body .chip:global(.hv-chip) {
-  background: var(--remy-stage-control);
-  color: var(--remy-stage-paper);
-  border: none;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-}
-
-/* ── free-text input row ──
-   Feld und Knopf nebeneinander, gleich hoch und mit derselben Rundung. Das
-   Feld ist eine dunkle Flaeche, der Knopf Papier — bis zum 23.09.2026 weißes
-   Feld und gelber Knopf („gefällt mir nicht"), davor eine runde Pille in einem
-   weißen Kasten. Dieselbe Zeile wie die Eingabe im Chat-Fenster. */
-.chatin {
-  display: flex;
-  gap: 10px;
-  align-items: stretch;
-  padding: 0;
-  background: transparent;
-  border: none;
-}
-
-.input {
-  flex: 1;
-  min-width: 0;
-  min-height: 52px;
-  border: none;
-  border-radius: var(--et-radius-control);
-  padding: 0 14px;
-  font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--remy-stage-paper);
-  caret-color: var(--remy-stage-accent);
-  background: var(--remy-stage-control);
-  transition: background var(--et-motion-fast);
-}
-
-.input::placeholder {
-  color: var(--remy-stage-dim);
-}
-
-/* Kein Ring, auch nicht gelb: im Fokus wird die Flaeche eine Stufe heller. */
-.input:focus {
-  outline: none;
-  background: var(--remy-stage-control-hi);
-}
-
-.body .send:global(.hv-btn) {
-  display: inline-grid;
-  place-items: center;
-  flex: 0 0 auto;
-  min-width: 62px;
-  width: auto;
-  min-height: 52px;
-  padding: 0 22px;
-  color: var(--remy-stage-ink);
-  background: var(--remy-stage-paper);
-  border: none;
-  /* Eckig wie das Feld daneben und jeder Tafel-Knopf — die runde Pille
-     gehört den weißen Abschnitten. */
-  border-radius: var(--et-radius-control);
-  text-align: center;
-  box-shadow: none;
-}
-
-@media (hover: hover) {
-  .body .send:global(.hv-btn):hover {
-    color: var(--remy-stage-ink);
-    background: var(--remy-stage-soft);
+  .place {
+    left: calc(50% + cos(var(--am)) * var(--rx));
+    top: calc(50% + sin(var(--am)) * var(--ry));
   }
-}
-
-.body .send:global(.hv-btn):focus-visible {
-  outline: none;
-  background: var(--remy-stage-soft);
-  box-shadow: none;
-}
-
-/* ── desktop: copy left, big Remy right ── */
-@media (min-width: 900px) {
-  .body {
-    grid-template-areas: 'ask avatar';
-    grid-template-columns: minmax(420px, 0.86fr) minmax(430px, 0.78fr);
-    min-height: clamp(460px, 39vw, 560px);
-    padding: clamp(34px, 3.5vw, 52px) clamp(38px, 4.5vw, 70px);
-    align-items: center;
-    gap: clamp(30px, 4.4vw, 72px);
+  .avatarWrap,
+  .avatarSpot {
+    top: 40.3%;
+    width: 46%;
   }
-
-  /* Oben an der Tafelkante, nicht optisch hochgeschoben: seit die
-     Kategorien darüberstehen, ist die Spalte höher als Remy, und die alte
-     Verschiebung um bis zu 42px setzte die erste Frage an die Kante. */
-  .ask {
-    align-self: start;
-    max-width: 650px;
+  /* Das Bild endet hier bei 75 % des Rings — die Maske muss vorher
+     auslaufen, sonst steht die Brust als harte Kante da. */
+  .figure {
+    mask-image: linear-gradient(to bottom, #000 56%, transparent 75%);
   }
-
-  .avatarWrap {
-    align-self: flex-end;
-    justify-self: end;
-    max-width: clamp(500px, 45vw, 700px);
-    margin-top: clamp(-42px, -3vw, -24px);
-    margin-bottom: clamp(-154px, -9vw, -96px);
-    transform: translateY(clamp(-24px, -1.8vw, -12px));
-  }
-
-  .avatar {
-    top: 0;
-  }
-}
-
-@media (max-width: 520px) {
-  .body .send:global(.hv-btn) {
-    min-width: 78px;
+  .word {
+    min-height: 36px;
+    padding-block: 4px;
+    font-size: 15.5px;
   }
 }
 

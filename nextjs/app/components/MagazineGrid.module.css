@@ -445,8 +445,13 @@
     /* Bis an den rechten Fensterrand, über den Satzspiegel hinaus. */
     --mag-bleed: calc(var(--et-wrap-pad) + max(0px, (100vw - var(--et-wrap-max)) / 2));
     /* Wo der Stapel im Tisch liegt: links davon die Überschrift und so viel
-       Platz, wie der Fächer in Ruhe braucht (gemessen). */
-    --pile-x: calc(var(--head-w) + var(--cover-w) * 0.92);
+       Platz, wie der Fächer in Ruhe braucht (gemessen); bleibt im Tisch mehr
+       Raum, steht Fächer samt Heft mittig darin. `cqw` misst am Tisch (Stapel
+       und Punkte liegen beide in einem Container seiner Breite). */
+    --pile-x: calc(
+      var(--head-w) + var(--cover-w) * 0.92 +
+        max(0px, (100cqw - var(--mag-bleed) - var(--head-w) - var(--cover-w) * 1.92) / 2)
+    );
   }
   .layout {
     grid-template-columns: minmax(0, 1fr);
@@ -461,6 +466,7 @@
     --fan-x: calc(-16% - var(--fan) * 5%);
     --fan-y: calc(-5px - var(--fan) * 6px);
     --fan-r: calc(-2.6deg - var(--fan) * 1.2deg);
+    container-type: inline-size;
     margin-right: calc(-1 * var(--mag-bleed));
   }
   /* Unten Platz für den Schatten (22px tief, 34px weich) und die Neigung

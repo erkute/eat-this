@@ -613,6 +613,36 @@
 }
 
 /* Compact transitions around the first gallery, without a viewport of air. */
+/* Ab 1600px eine breitere Satzspalte: bei 1360px stand bei 1920 ein Drittel
+   des Bildschirms als schwarzer Rand links und rechts, bei 2560 die Hälfte
+   (Ansage 01.10.2026: „Desktop wirklich komplett benutzen"). Für alle
+   Sektionen gleich, sonst sprängen die Titelkanten beim Scrollen. Der
+   Aufmacher wächst mit — Wortmarke, Headline und Telefone —, damit Text und
+   Telefone die Breite tragen und keine leere Mitte zwischen sich lassen. */
+@media (min-width: 1600px) {
+  .page {
+    --et-wrap-max: min(1840px, 88vw);
+  }
+  .heroMark {
+    --hero-mark-w: min(21vw, 480px);
+  }
+  .heroHeadline {
+    font-size: min(4.3vw, 96px);
+  }
+  .heroLead {
+    max-width: 34em;
+    font-size: calc(var(--et-type-lead) * 1.2);
+  }
+  .heroPhones {
+    height: min(76vh, 900px);
+  }
+  .page .heroActions :global(.hv-btn) {
+    min-height: 64px;
+    padding: 0 32px;
+    font-size: min(1.15vw, 24px);
+  }
+}
+
 .page :global([data-hub-nearby]) {
   margin-top: var(--home-section-gap);
 }

@@ -220,11 +220,11 @@ export default function HeroMarkFlight() {
 
     /* Erst wenn das Logo wirklich geladen ist, stimmt seine gemessene Breite —
        vorher ist sie 0 und der Flieger landet auf der falschen Größe. Und erst
-       nach dem Ladeauftritt: die Marke stempelt sich dort riesig und gedreht
-       auf ihren Platz (HubSection.module.css), jede Messung davor läge
-       daneben. HubMotion nimmt `data-hero-intro` ab, sobald er durch ist —
-       wer vorher scrollt, spult ihn vierfach ab, der Flieger steht also
-       spätestens eine halbe Sekunde später. */
+       nach dem Ladeauftritt: dort steht eine grosse Marke in der Mitte und
+       wird auf den Platz der echten geschubst (HubMotion, `finishIntro`),
+       jede Messung davor läge daneben. HubMotion nimmt `data-hero-intro` ab,
+       sobald Vorhang und Auftritt durch sind; wer vorher scrollt, hat bis
+       dahin die Marke im Aufmacher statt des Fliegers. */
     const start = () => {
       const html = document.documentElement;
       if (html.hasAttribute('data-hero-intro')) {

@@ -65,48 +65,16 @@
     transform: translate(-99%, 2.6%);
   }
 }
-/* Auf Desktop gibt es kein Leistenband, auf dem Remy stehen könnte — in
-   der Mitte schwebte er (Ansage 01.10.2026: „unten im Bild laufen, wie auf
-   Mobile, da braucht er einen Boden unter sich"). Also bekommt er einen:
-   ein schwarzer Streifen an der Unterkante, so schwarz wie der Vorhang und
-   wie Safaris Band am Telefon, auf dessen Oberkante er läuft — eingesunken
-   wie dort um 2.6 % seiner Höhe. Der Boden steht still, Remy und Vorhang
-   ziehen darüber; ist Remy rechts hinaus, klappt der Boden nach unten weg
-   (keine Blende). */
-.floor {
-  display: none;
-}
-@keyframes floorAway {
-  0%,
-  95% {
-    translate: 0 0;
-  }
-  to {
-    translate: 0 100%;
-  }
-}
+/* Auf Desktop steht Remy genauso unten: die Unterkante des Fensters ist sein
+   Boden, die Sohlen auf der untersten Linie (Ansage 01.10.2026) — in der
+   Mitte schwebte er, und auf einem eigenen schwarzen Streifen darüber stand
+   er „nicht unten". Unter den Sohlen liegen im Bild 1.8 % transparenter
+   Rand; 2 % lässt sie genau auf der Kante stehen (gemessen am Film). */
 @media (min-width: 768px) {
-  .scene {
-    --floor-h: clamp(40px, 6.5dvh, 72px);
-  }
-  .floor {
-    display: block;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: var(--floor-h);
-    background: #000;
-  }
   .runner {
     top: auto;
-    bottom: var(--floor-h);
-    transform: translate(-99%, 2.6%);
-  }
-}
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-  .floor {
-    animation: floorAway 5.4s cubic-bezier(0.5, 0, 0.75, 0) both;
+    bottom: 0;
+    transform: translate(-99%, 2%);
   }
 }
 :global(html:not([data-hero-intro])) .scene {

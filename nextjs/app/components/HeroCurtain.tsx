@@ -71,8 +71,6 @@ export default function HeroCurtain() {
 
   return (
     <div ref={scene} className={styles.scene} data-hero-curtain="" aria-hidden="true">
-      {/* Remys Boden auf Desktop — am Telefon ist es Safaris Leistenband. */}
-      <div className={styles.floor} />
       <div className={styles.travel}>
         <div className={styles.curtain} />
         <div className={styles.runner}>

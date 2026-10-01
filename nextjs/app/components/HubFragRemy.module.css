@@ -108,6 +108,14 @@
   margin-bottom: clamp(-132px, -17vw, -82px);
 }
 
+/* Dieselbe Rasterzelle wie Remy, aber nie verschoben — der Observer in
+   HubMotion braucht eine Box, die `.body` nicht wegschneidet. */
+.avatarSpot {
+  grid-area: avatar;
+  align-self: stretch;
+  pointer-events: none;
+}
+
 .avatar {
   position: relative;
   top: clamp(-16px, -3vw, -8px);

@@ -39,7 +39,8 @@ gsap.registerPlugin(useGSAP);
  *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
  *      als ganze Kacheln — einmal.
  *    - Frag Remy: das Fragezeichen fliegt von links ein, „Frag Remy." schlägt
- *      ein, Remy schießt von unten hoch und redet, mehrmals. Wer den
+ *      ein; Remy schießt erst hoch, wenn sein leerer Platz im Bild ist, und
+ *      redet, mehrmals. Wer den
  *      Abschnitt verlässt, sieht alles rückwärts gehen; wer zurückkommt, sieht
  *      es neu (`armFragRemy`).
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
@@ -238,8 +239,8 @@ function armStaggers(safe: gsap.ContextSafeFunc): () => void {
  * „Keine Idee? Frag Remy." mit Wucht: das Fragezeichen fliegt drehend von
  * links herein und schlägt ein, die Zeile davor zuckt vom Aufprall; dann
  * knallt „Frag Remy." von groß auf seine Größe wie ein Stempel. Remy steht
- * bis dahin unter der Kante der Tafel und schießt jetzt hoch, dann redet er
- * und wackelt dabei — dreimal, mit Pausen.
+ * unter der Kante der Tafel, bis die leere Fläche darüber im Bild ist, und
+ * schießt dann wie ein Schreck hoch, redet und wackelt — dreimal, mit Pausen.
  * Umkehrbar (Ansage 28.09.2026): wer den Abschnitt nach oben oder unten
  * verlässt, sieht den Auftritt rückwärts laufen — Remy taucht ab, „Frag
  * Remy." fliegt weg, das Fragezeichen zurück nach links —, wer zurückkommt,
@@ -278,7 +279,7 @@ function armFragRemy(): () => void {
   // flog beim nächsten Auftritt unsichtbar ein (gemessen).
   gsap.set(q, { '--q-sx': 1, '--q-sy': 1 });
   const entrance = gsap
-    .timeline({ paused: true, onStart: () => stopTalk() })
+    .timeline({ paused: true })
     // Das Fragezeichen über Variablen (HubFragRemy.module.css): zwei Tweens
     // auf seinem `transform` liessen beim Rückwärtslaufen den Weg nach links
     // fallen — es kam gedreht, aber an seinem Platz zurück (gemessen).
@@ -315,15 +316,25 @@ function armFragRemy(): () => void {
       title,
       { y: 8 },
       { y: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)', immediateRender: false }
-    )
-    .fromTo(
-      avatar,
-      { '--remy-y': 118 },
-      { '--remy-y': 0, duration: 0.7, ease: 'back.out(1.7)', onComplete: () => startTalk() },
-      '-=0.5'
     );
   // Die Startpose sofort: vor dem ersten Auftritt ist nichts zu sehen.
   entrance.progress(0);
+
+  // Remy hat seinen eigenen Auslöser (Ansage 01.10.2026: „kommt viel zu
+  // früh"): er wartet unter der Kante, bis die leere Fläche, in der er
+  // gleich steht, in der unteren Bildhälfte angekommen ist — und schießt dann
+  // in einem Ruck hoch wie ein Schreck, Mund sofort offen. Beobachtet wird
+  // `[data-fragremy-spot]`, ein unbewegter Platzhalter in seiner Rasterzelle:
+  // Remy selbst steht verschoben unter der Kante, die `.body` abschneidet, und
+  // wäre für den Observer nie sichtbar.
+  gsap.set(avatar, { '--remy-y': 118 });
+  const pop = gsap.timeline({ paused: true }).to(avatar, {
+    '--remy-y': 0,
+    duration: 0.3,
+    ease: 'back.out(2.6)',
+    onStart: () => avatar.setAttribute('data-speaking', ''),
+    onComplete: () => startTalk(),
+  });
 
   let talk: gsap.core.Timeline | null = null;
   const stopTalk = () => {
@@ -355,16 +366,22 @@ function armFragRemy(): () => void {
   };
 
   const show = () => entrance.timeScale(1).play();
-  const hide = () => {
+  const hide = () => entrance.timeScale(1.6).reverse();
+  const jump = () => pop.timeScale(1).play();
+  const duck = () => {
     stopTalk();
-    entrance.timeScale(1.6).reverse();
+    pop.timeScale(1.4).reverse();
   };
   // Schon ab 85 % der Höhe, nicht erst ab 70 %: „Keine Idee? Frag Remy." kam
   // zu spät, die Tafel stand schon leer im Bild (Ansage 29.09.2026).
   const unwatch = whileCentered(section, show, hide, 0.85);
+  const spot = section.querySelector('[data-fragremy-spot]');
+  const unwatchRemy = spot ? whileCentered(spot, jump, duck, 0.55) : () => {};
   return () => {
     unwatch();
+    unwatchRemy();
     stopTalk();
+    pop.kill();
     entrance.kill();
     settle();
     gsap.set(avatar, { clearProps: '--remy-y,--remy-r' });

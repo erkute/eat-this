@@ -114,6 +114,10 @@ export default function HubFragRemy() {
           </div>
         </div>
 
+        {/* Remys Platz, unbewegt: daran misst HubMotion, wann die leere
+            Fläche im Bild ist und er hochschießt. */}
+        <span className={styles.avatarSpot} data-fragremy-spot="" aria-hidden="true" />
+
         {/* Remy avatar */}
         <div className={styles.avatarWrap} data-fragremy-avatar="">
           <div className={styles.avatar}>

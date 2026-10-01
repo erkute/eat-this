@@ -74,8 +74,9 @@ export default function HeroCurtain() {
   return (
     <div ref={scene} className={styles.scene} data-hero-curtain="" aria-hidden="true">
       <div className={styles.travel}>
-        <div className={styles.curtain} />
-        <div className={styles.runner}>
+        {/* HubMotion liest hier ab, wie weit der Vorhang schon weg ist. */}
+        <div className={styles.curtain} data-hero-curtain-edge="" />
+        <div className={styles.runner} data-hero-remy="">
           <div ref={figure} className={styles.figure}>
             <SiteImage src="/pics/home/remy-push-relaxed.webp" alt="" width={1145} height={1374}
               priority unoptimized className={styles.original} />

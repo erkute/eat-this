@@ -717,8 +717,62 @@
   }
 }
 
+/* ── Auftritt beim Laden: die Marke wird nach oben geschubst ──
+   Idee des Betreibers (01.10.2026): erst ein grosses EAT THIS, das dann
+   „an seinen Platz gedrängt wird, nach oben, und dann kommt We tell you what
+   to eat". Remy legt die grosse Marke beim Wegschieben des Vorhangs in der
+   Mitte frei; kurz bevor er hinaus ist, duckt sie sich und wird auf den
+   Platz der echten Marke geschubst (HubMotion, `finishIntro`). Bei der
+   Landung tauscht sie mit der echten, und die Headline stempelt darunter
+   ein; danach kommen Lead, Knopf und Telefone. Die Takte stehen als
+   Attribute an <html>, nicht als Inline-Stil an den Elementen: HubHeroCopy
+   baut Headline und Knöpfe neu, sobald `useAuth` steht — ein neuer Knoten
+   hätte keinen Inline-Stil, er läse aber dieselbe Regel.
+   - `data-intro-mark`: die echte Marke steht, die grosse tritt ab
+   - `data-intro-head`: Headline (und Gruß) dürfen einstempeln
+   - `data-intro-copy`: Lead, Knöpfe, Telefone
+   Alles hängt an `data-hero-intro` (Kopf-Skript, nur ohne reduced motion);
+   fällt das am Ende, gilt keine dieser Regeln mehr. */
+.hero {
+  position: relative;
+}
+.heroIntroMark {
+  display: none;
+}
 @media (prefers-reduced-motion: no-preference) {
-  :global(html[data-hero-intro]) .heroHeadline {
+  :global(html[data-hero-intro]:not([data-intro-mark])) .heroIntroMark {
+    /* Grösse mal 667/1660/2 = halbe Höhe: mittig in der Fläche. */
+    --intro-mark-w: min(56vw, 820px);
+    display: block;
+    position: absolute;
+    z-index: 2;
+    top: calc(50% - var(--intro-mark-w) * 0.2009);
+    left: 0;
+    right: 0;
+    width: var(--intro-mark-w);
+    height: auto;
+    margin-inline: auto;
+    pointer-events: none;
+  }
+  :global(html[data-hero-intro]:not([data-intro-mark])) .heroMark {
+    visibility: hidden;
+  }
+  :global(html[data-hero-intro]:not([data-intro-head])) .heroHeadline {
     clip-path: inset(0 0 100% 0);
+  }
+  :global(html[data-hero-intro]:not([data-intro-head])) .heroKicker,
+  :global(html[data-hero-intro]:not([data-intro-copy])) .heroLead,
+  :global(html[data-hero-intro]:not([data-intro-copy])) .heroActions,
+  :global(html[data-hero-intro]:not([data-intro-copy])) .heroPhones {
+    visibility: hidden;
+  }
+}
+/* Am Telefon ist der Aufmacher so hoch wie sein Inhalt, nicht wie der
+   Bildschirm: die Marke steht in der Mitte des sichtbaren Teils unter der
+   64px-Navigation. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 767.98px) {
+  :global(html[data-hero-intro]:not([data-intro-mark])) .heroIntroMark {
+    --intro-mark-w: 92vw;
+    top: calc((100svh - 64px) / 2 - var(--intro-mark-w) * 0.2009);
   }
 }

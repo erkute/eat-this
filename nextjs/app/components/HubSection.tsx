@@ -16,6 +16,7 @@ import StarterPackSignup from './StarterPackSignup';
 import SiteFooter from './SiteFooter';
 import { HomeMapDataProvider } from './HomeMapDataContext';
 import styles from './HubSection.module.css';
+import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 interface Props {
   initialData: HomeData;
@@ -69,6 +70,22 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           Section. */}
       <section className={styles.hero} aria-label={t.heroLabel} data-hub-hero="">
         <HeroCurtain />
+        {/* Die grosse Marke des Auftritts: Remy legt sie in der Mitte frei,
+            dann wird sie auf den Platz der echten geschubst (HubMotion,
+            `finishIntro`) und tritt dort ab. Dieselbe Datei wie die Marke im
+            Aufmacher, also keine zweite Anfrage. Ausserhalb des Auftritts
+            `display: none`. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className={styles.heroIntroMark}
+          data-hero-intro-mark=""
+          src={BRAND_LOGO_SRC}
+          width={1660}
+          height={667}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+        />
         <div className={`hv-wrap ${styles.heroInner}`}>
           <div className={styles.heroGrid}>
             <HubHeroCopy locale={locale} />

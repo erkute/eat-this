@@ -278,3 +278,12 @@
 :global(html[data-hero-intro][data-active-page='start']) .logoImg {
   visibility: hidden;
 }
+
+/* MAP und MENÜ stehen beim Ladeauftritt nicht schon über dem Vorhang: sie
+   fliegen im letzten Takt von links und rechts herein (HubMotion, `copyIn`,
+   Ansage 01.10.2026: „Map und Menü müssen auch reinfliegen"). */
+@media (prefers-reduced-motion: no-preference) {
+  :global(html[data-hero-intro][data-active-page='start']:not([data-intro-copy])) .control {
+    visibility: hidden;
+  }
+}

@@ -97,8 +97,10 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         <span>{headline[0]}</span>
         <span>{headline[1]}</span>
       </h1>
-      <p className={styles.heroLead}>{signedIn ? LEAD_AUTH[locale] : LEAD[locale]}</p>
-      <div className={styles.heroActions}>
+      <p className={styles.heroLead} data-hero-lead="">
+        {signedIn ? LEAD_AUTH[locale] : LEAD[locale]}
+      </p>
+      <div className={styles.heroActions} data-hero-actions="">
         <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
           {HERO_MAP_LABEL}
         </MapIntentLink>
@@ -141,13 +143,13 @@ function LoadingHeroCopy({ locale }: Props) {
           <span>{de ? 'wartet.' : 'is ready.'}</span>
         </span>
       </h1>
-      <p className={styles.heroLead} data-guest-only="">
+      <p className={styles.heroLead} data-hero-lead="" data-guest-only="">
         {LEAD[locale]}
       </p>
-      <p className={styles.heroLead} data-auth-only="">
+      <p className={styles.heroLead} data-hero-lead="" data-auth-only="">
         {LEAD_AUTH[locale]}
       </p>
-      <div className={styles.heroActions}>
+      <div className={styles.heroActions} data-hero-actions="">
         <span className={styles.heroActionVariant} data-guest-only="">
           <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
             {HERO_MAP_LABEL}

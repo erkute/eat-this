@@ -22,9 +22,11 @@ gsap.registerPlugin(useGSAP);
  * Buchstabe für Buchstabe oder Zeile für Zeile aufbaut, keine Fotos, die aus
  * Masken ausfahren (Ansage 28.09.2026) — Dinge bewegen sich als Ganzes.
  *
- * 1. **Auftritt beim Laden** (Aufmacher). Bewusst CSS, nicht GSAP: er muss ab
+ * 1. **Auftritt beim Laden** (Aufmacher). Der Vorhang ist CSS: er muss ab
  *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
- *    HeroCurtain.module.css). Hier nur das Aufräumen, siehe `finishIntro`.
+ *    HeroCurtain.module.css). Was er freilegt — die grosse Marke, die auf
+ *    ihren Platz geschubst wird, die Stempel der Headline —, steuert
+ *    `finishIntro`.
  *
  * 2. **Am Scrollweg** — und damit umkehrbar — hängen die Quadrate vor den
  *    Titeln. Das sind Scroll-Timelines des Browsers in den CSS-Modulen,
@@ -60,65 +62,272 @@ gsap.registerPlugin(useGSAP);
  *    der Knopf zieht magnetisch.
  */
 
+/** Die Headline-Zeilen schlagen als Stempel ein: riesig und gedreht, dann
+ *  mit Stauchung auf ihren Platz (Ansage 30.09.2026). `start` ist die
+ *  Verzögerung der ersten Zeile, jede weitere folgt nach `gap` ms. */
+function stampHeadline(hero: HTMLElement | null, start: number, gap: number): void {
+  hero?.querySelectorAll<HTMLElement>('h1').forEach((headline) => {
+    const lines = Array.from(headline.querySelectorAll<HTMLElement>('span')).filter(
+      (line) => !line.children.length && line.getBoundingClientRect().height > 0
+    );
+    lines.forEach((line, index) => {
+      line.animate(
+        [
+          {
+            transform: 'scale(2.8) translateZ(0) rotate(-5deg)',
+            visibility: 'hidden',
+            offset: 0,
+          },
+          {
+            transform: 'scale(2.8) translateZ(0) rotate(-5deg)',
+            visibility: 'visible',
+            offset: 0.01,
+          },
+          {
+            transform: 'scale(.97) translateZ(0) rotate(.6deg)',
+            visibility: 'visible',
+            offset: 0.75,
+          },
+          { transform: 'scale(1) translateZ(0) rotate(0deg)', visibility: 'visible' },
+        ],
+        {
+          duration: 900,
+          delay: start + index * gap,
+          fill: 'backwards',
+          easing: 'cubic-bezier(.16,1,.3,1)',
+        }
+      );
+    });
+  });
+}
+
+/** Die Takte des Auftritts als Attribute an <html> (HubSection.module.css). */
+const INTRO_STEPS = ['data-intro-mark', 'data-intro-head', 'data-intro-copy'] as const;
+
 /**
- * Der Schiebe-Auftritt selbst ist CSS (HeroCurtain.module.css) und läuft ab dem
- * ersten Paint. Das Tempo bleibt auch beim Scrollen konstant. Am Ende fällt `data-hero-intro`, damit nichts dauerhaft an den
- * Auftrittsregeln hängt.
+ * Der Auftritt beim Laden: Remy schiebt den Vorhang weg (CSS,
+ * HeroCurtain.module.css, ab dem ersten Paint) und legt dabei eine grosse
+ * Wortmarke in der Mitte frei. Hat der Vorhang sie ganz freigegeben, duckt
+ * sie sich, wird auf den Platz der echten Marke geschubst und tauscht dort
+ * mit ihr. Die Headline stempelt erst ein, wenn Remy rechts ganz aus dem
+ * Bild ist („We tell … muss kommen, wenn Remy aus dem Bild ist"), danach
+ * kommen Lead, Knöpfe und Telefone (Idee des Betreibers 01.10.2026: „erstmal
+ * gross und dann an seinem Platz gedrängt, nach oben, und dann kommt We tell
+ * you what to eat"). Erst wenn Vorhang und Auftritt durch sind, fällt
+ * `data-hero-intro` — vorher misst HeroMarkFlight die Marke nicht.
  */
 function finishIntro(): (() => void) | void {
   const html = document.documentElement;
   if (!html.hasAttribute('data-hero-intro')) return;
   const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  const running = hero?.querySelector('[data-hero-curtain]')?.getAnimations() ?? [];
-  const done = () => {
+  const curtain = hero?.querySelector<HTMLElement>('[data-hero-curtain]');
+  const edge = curtain?.querySelector<HTMLElement>('[data-hero-curtain-edge]');
+  const card = hero?.querySelector<HTMLElement>('[data-hero-intro-mark]');
+  const remy = curtain?.querySelector<HTMLElement>('[data-hero-remy]');
+  const running = curtain?.getAnimations() ?? [];
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let cancelled = false;
+  let frame = 0;
+  let hold = 0;
+  let later = 0;
+  let timeline: gsap.core.Timeline | null = null;
+  const motions: Animation[] = [];
+
+  const end = () => {
     html.removeAttribute('data-hero-intro');
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    hero?.querySelectorAll<HTMLElement>('h1').forEach((headline) => {
-      const lines = Array.from(headline.querySelectorAll<HTMLElement>('span')).filter(
-        (line) => !line.children.length && line.getBoundingClientRect().height > 0
-      );
-      lines.forEach((line, index) => {
-        line.animate(
+    INTRO_STEPS.forEach((step) => html.removeAttribute(step));
+    if (card) gsap.set(card, { clearProps: 'all' });
+  };
+
+  /** Lead, Knöpfe und Telefone, nachdem die Headline steht. Bewegung als
+   *  Ganzes und ohne Opacity: der Lead rückt hoch, der Knopf ploppt auf, die
+   *  Telefone steigen von unter der Kante des Aufmachers herauf, und MAP und
+   *  MENÜ fliegen von links und rechts in den Header. */
+  const copyIn = () => {
+    html.setAttribute('data-intro-copy', '');
+    const lead = hero?.querySelectorAll<HTMLElement>('[data-hero-lead]');
+    const actions = hero?.querySelector<HTMLElement>('[data-hero-actions]');
+    const phones = hero?.querySelector<HTMLElement>('[data-hub-phones]');
+    // Über `translate`/`rotate`, nicht `transform`: der gehört dem Zittern
+    // der Wörter beim Drüberfahren (SiteNav.module.css).
+    (
+      [
+        ['navMapBtn', -1],
+        ['burgerBtn', 1],
+      ] as const
+    ).forEach(([id, side], i) => {
+      const control = document.getElementById(id);
+      if (!control) return;
+      motions.push(
+        control.animate(
           [
-            {
-              transform: 'scale(2.8) translateZ(0) rotate(-5deg)',
-              visibility: 'hidden',
-              offset: 0,
-            },
-            {
-              transform: 'scale(2.8) translateZ(0) rotate(-5deg)',
-              visibility: 'visible',
-              offset: 0.01,
-            },
-            {
-              transform: 'scale(.97) translateZ(0) rotate(.6deg)',
-              visibility: 'visible',
-              offset: 0.75,
-            },
-            { transform: 'scale(1) translateZ(0) rotate(0deg)', visibility: 'visible' },
+            { translate: `${side * 180}px 0`, rotate: `${side * 14}deg` },
+            { translate: '0 0', rotate: '0deg' },
           ],
           {
-            duration: 900,
-            delay: 450 + index * 650,
+            duration: 750,
+            delay: 120 + i * 90,
             fill: 'backwards',
-            easing: 'cubic-bezier(.16,1,.3,1)',
+            easing: 'cubic-bezier(.34,1.45,.5,1)',
           }
-        );
-      });
+        )
+      );
     });
+    lead?.forEach((el) =>
+      motions.push(
+        el.animate([{ translate: '0 18px' }, { translate: '0 0' }], {
+          duration: 700,
+          easing: 'cubic-bezier(.16,1,.3,1)',
+        })
+      )
+    );
+    if (actions) {
+      motions.push(
+        actions.animate([{ scale: '0.4' }, { scale: '1' }], {
+          duration: 650,
+          delay: 140,
+          fill: 'backwards',
+          easing: 'cubic-bezier(.34,1.8,.5,1)',
+        })
+      );
+    }
+    if (phones) {
+      motions.push(
+        phones.animate(
+          [
+            { translate: '0 85vh', rotate: '7deg' },
+            { translate: '0 0', rotate: '0deg' },
+          ],
+          { duration: 1150, delay: 60, fill: 'backwards', easing: 'cubic-bezier(.16,1,.3,1)' }
+        )
+      );
+    }
   };
-  if (!running.length) {
-    done();
-    return;
-  }
-  let cancelled = false;
-  Promise.all(running.map((a) => a.finished))
-    .then(() => !cancelled && done())
+
+  /** Ist Remy rechts ganz aus dem Bild? Ohne Vorhang gilt er als weg. */
+  const remyGone = () =>
+    !remy ||
+    running.every((a) => a.playState === 'finished') ||
+    remy.getBoundingClientRect().left >= window.innerWidth;
+
+  /** Die Headline, sobald Remy draussen ist; Lead und Rest, wenn ihre zweite
+   *  Zeile eingeschlagen hat (430ms + 0,75 · 900ms) und kurz steht. */
+  const headIn = () => {
+    if (cancelled) return;
+    if (!remyGone()) {
+      frame = requestAnimationFrame(headIn);
+      return;
+    }
+    html.setAttribute('data-intro-head', '');
+    stampHeadline(hero, 0, 430);
+    later = window.setTimeout(() => !cancelled && copyIn(), 1300);
+  };
+
+  /** Ohne grosse Marke (oder ohne Bewegung): alles steht sofort. */
+  const showAll = () => {
+    INTRO_STEPS.forEach((step) => html.setAttribute(step, ''));
+  };
+
+  const push = () => {
+    const mark = hero?.querySelector<HTMLElement>('[data-hero-mark]');
+    if (!card || !mark || calm) {
+      showAll();
+      return;
+    }
+    // FLIP: von der Mitte auf den Platz der echten Marke, gemessen in dem
+    // Moment, in dem es losgeht (Schrift und Knöpfe stehen dann schon).
+    const from = card.getBoundingClientRect();
+    const to = mark.getBoundingClientRect();
+    if (!from.width || !to.width) {
+      showAll();
+      return;
+    }
+    const s = to.width / from.width;
+    const x = to.left + to.width / 2 - (from.left + from.width / 2);
+    const y = to.top + to.height / 2 - (from.top + from.height / 2);
+    timeline = gsap
+      .timeline()
+      // Ducken: sie sackt ein Stück ein und wird breit — Anlauf für den Schub.
+      .to(card, {
+        y: 14,
+        scaleX: 1.06,
+        scaleY: 0.9,
+        rotation: -2,
+        duration: 0.22,
+        ease: 'power2.in',
+      })
+      // Der Schub: schnell los, knapp über das Ziel hinaus, zurückfedern.
+      .to(card, {
+        x,
+        y,
+        scaleX: s,
+        scaleY: s,
+        rotation: 0,
+        duration: 0.95,
+        ease: 'back.out(1.25)',
+      })
+      // Gelandet: die echte Marke übernimmt, dann wartet die Headline auf
+      // Remys Abgang.
+      .call(() => html.setAttribute('data-intro-mark', ''))
+      .call(headIn);
+  };
+
+  // Los geht es, sobald der Vorhang die Marke ganz freigegeben hat — dann
+  // ist Remy noch auf dem Weg nach rechts hinaus, und der Schub schliesst an
+  // sein Schieben an. Kurz stehen lassen, damit man sie liest.
+  const watch = () => {
+    if (cancelled) return;
+    const freed =
+      !edge ||
+      !card ||
+      edge.getBoundingClientRect().left >= card.getBoundingClientRect().right + 24;
+    if (freed) {
+      hold = window.setTimeout(() => !cancelled && push(), 280);
+      return;
+    }
+    frame = requestAnimationFrame(watch);
+  };
+  if (running.length) watch();
+  else push();
+
+  // `data-hero-intro` erst nehmen, wenn Vorhang UND Auftritt durch sind:
+  // der Vorhang hängt daran (display: none), die Takte auch.
+  const curtainDone = Promise.all(running.map((a) => a.finished));
+  const introDone = new Promise<void>((resolve) => {
+    const check = () => {
+      if (cancelled) return;
+      const ready = html.hasAttribute('data-intro-copy') && (!timeline || !timeline.isActive());
+      if (ready) {
+        Promise.all(motions.map((m) => m.finished)).then(
+          () => resolve(),
+          () => resolve()
+        );
+        return;
+      }
+      window.setTimeout(check, 120);
+    };
+    check();
+  });
+  Promise.all([curtainDone, introDone])
+    .then(() => !cancelled && end())
     // Abgebrochen (Attribut schon weg, Seite verlassen) — nichts mehr zu tun.
     .catch(() => {});
 
   return () => {
     cancelled = true;
+    cancelAnimationFrame(frame);
+    window.clearTimeout(hold);
+    window.clearTimeout(later);
+    timeline?.kill();
+    motions.forEach((m) => m.cancel());
+    // Wer die Startseite mitten im Auftritt verlässt, nimmt nichts davon mit
+    // (versteckte MAP/MENÜ, Logo im Header). Nicht sofort: React baut im
+    // Entwicklungsmodus jeden Effekt einmal ab und gleich wieder auf — dann
+    // steht der Aufmacher noch.
+    window.setTimeout(() => {
+      if (!document.querySelector('[data-hub-hero]')) end();
+    }, 0);
   };
 }
 

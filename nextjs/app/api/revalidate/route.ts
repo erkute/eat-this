@@ -149,7 +149,8 @@ export async function POST(req: NextRequest) {
       revalidateTag('category-list');
       revalidateTag('restaurant-siblings');
       // Und die Listen ÜBER alle Restaurants: der Spot-des-Tages-Kandidatenpool
-      // (lib/home/getHomeData.ts, lib/home/spotOfDay.server.ts) und die
+      // (lib/home/spotOfDay.server.ts, deckt auf der Map die Karten des Tages
+      // auf) und die
       // Mail-Spots hängen am blanken Tag `restaurant`. Das fehlte hier, und
       // niemandem fiel es auf, solange die ISR-Frist bei einer Stunde lag.
       // Seit sie 24 Stunden beträgt, wäre ein frisch gesetztes

@@ -61,15 +61,6 @@ vi.mock('./MapIntentLink', () => ({
 import HubSection from './HubSection';
 
 const data: HomeData = {
-  spotOfDay: {
-    name: 'Gazzo',
-    slug: 'gazzo',
-    image: '/x.webp',
-    district: 'Prenzlberg',
-    sub: 'Sauerteigpizza, die den Vergleich nicht scheut.',
-    _id: 'r1',
-    featuredOnDate: null,
-  },
   // MagazineGrid renders nothing on an empty list, and the order assertions
   // below need it on the page.
   magazine: [
@@ -109,53 +100,20 @@ describe('HubSection home', () => {
     expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
   });
 
-  it("gives the day's pick a heading of its own", () => {
-    const html = renderHome();
-    // The pick used to be an unlabelled photo in the left half of a row, with
-    // the only heading in the block sitting over the nearby cards beside it.
-    // An der Überschrift selbst gesucht: das Laufband (HubMarquee) führt
-    // „Spot des Tages" schon weiter oben als Deko-Wort.
-    const head = html.indexOf('Spot des Tages</h2>');
-    expect(html.slice(head - 120, head)).toContain('hv-title');
-    expect(head).toBeLessThan(html.indexOf('Gazzo'));
-  });
-
-  it('runs nearby, the pick, the magazine, then Must Eats before signup', () => {
+  it('runs nearby, the magazine, then Must Eats before signup', () => {
     const html = renderHome();
     // What's nearby costs the visitor one tap and answers with their own
-    // street, so it leads; the pick is the editorial answer to the same
-    // question. (The HubNearby mock returns a string, so it lands escaped.)
-    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Spot des Tages</h2>'));
-    expect(html.indexOf('Spot des Tages</h2>')).toBeLessThan(html.indexOf('Auf dem Teller'));
+    // street, so it leads. (The HubNearby mock returns a string, so it lands
+    // escaped.)
+    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Auf dem Teller'));
     expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('musteats'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
   });
 
-  it("dates the pick, so 'des Tages' is something the visitor can see", () => {
+  it('has no Spot des Tages any more (removed 01.10.2026)', () => {
     const html = renderHome();
-    // Nothing on the page said the pick was new today — the heading claimed a
-    // daily rhythm with no evidence for it.
-    expect(html).toMatch(/<time[^>]+datetime="\d{4}-\d{2}-\d{2}"/i);
-  });
-
-  it("keeps the pick's name off the photo, where a bright image swallows it", () => {
-    const html = renderHome();
-    const photo = html.indexOf('hv-photo');
-    // The photo box holds the picture and nothing else: the name stands
-    // above it on the board.
-    const box = html.slice(photo, html.indexOf('</span>', photo));
-    expect(box).not.toContain('Gazzo');
-    expect(html.indexOf('>Gazzo<')).toBeLessThan(photo);
-  });
-
-  it("renders the spot's description, which used to be fetched and dropped", () => {
-    const html = renderHome();
-    expect(html).toContain('Sauerteigpizza, die den Vergleich nicht scheut.');
-  });
-
-  it("opens the day's pick on the map", () => {
-    const html = renderHome();
-    expect(html).toContain('/map?r=gazzo');
+    expect(html).not.toContain('Spot des Tages');
+    expect(html).not.toContain('hub-spot');
   });
 
   it('sells no packs on the home page', () => {
@@ -173,15 +131,5 @@ describe('HubSection home', () => {
   it('wraps the page in the homeV2 class', () => {
     const html = renderHome();
     expect(html).toContain('homeV2');
-  });
-
-  it('renders the spot of the day', () => {
-    const html = renderHome();
-    expect(html).toContain('Gazzo');
-    // Only the name and why — the district is no longer on the calendar.
-    expect(html).not.toContain('Prenzlberg');
-    // No button: the whole calendar, and with it the day, leads to the map.
-    expect(html).not.toContain('Zur Map');
-    expect(html).toContain('aria-label="Gazzo, auf der Map"');
   });
 });

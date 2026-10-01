@@ -9,7 +9,6 @@ import HeroCurtain from './HeroCurtain';
 import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
-import HubSpotOfDay from './HubSpotOfDay';
 import MapIntentLink from './MapIntentLink';
 import CategoriesRail from './CategoriesRail';
 import MagazineGrid from './MagazineGrid';
@@ -56,7 +55,6 @@ function phoneSrcSet(name: string): string {
 
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
   const t = copy[locale];
-  const spot = initialData.spotOfDay;
   // Server date seeds HubNearby's no-location rotation. Taken here rather than
   // in the client island so SSR and the first client render can't disagree
   // across a midnight boundary. The page is force-dynamic, so it stays fresh.
@@ -122,20 +120,14 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HubMotion />
       <HomeMapDataProvider initialMapData={initialMapData}>
         {/* What is around you comes first: it needs nothing from the visitor
-          but a tap, and it answers "what do I eat now" with their own street.
-          The day's pick follows as the editorial answer to the same question.
-          Both are full-width sections of their own now — stacked inside one
-          section the second heading had to shrink to stay out of the first
-          one's way, and neither block led. */}
+          but a tap, and it answers "what do I eat now" with their own street. */}
         <HubNearby locale={locale} today={today} />
 
-        {spot && <HubSpotOfDay spot={spot} today={today} locale={locale} />}
-
         {/* Order follows what a first-time visitor needs, in that order: what is
-          this (hero) → what is around you → the day's pick → proof we know the
-          city (magazine) → Must-Eat examples and explanation → the free offer
-          → navigation → Remy and FAQ. Selling packs moved off the home
-          page. */}
+          this (hero) → what is around you → proof we know the city (magazine)
+          → Must-Eat examples and explanation → the free offer → navigation →
+          Remy and FAQ. Selling packs moved off the home page; the day's pick
+          (Spot des Tages) left it on 01.10.2026. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
         <HubMustEatsTeaser />
         <StarterPackSignup />

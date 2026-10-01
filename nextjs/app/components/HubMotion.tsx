@@ -26,8 +26,7 @@ gsap.registerPlugin(useGSAP);
  *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
  *    HeroCurtain.module.css). Hier nur das Aufräumen, siehe `finishIntro`.
  *
- * 2. **Am Scrollweg** — und damit umkehrbar — hängen der Spot
- *    des Tages und die Quadrate vor den
+ * 2. **Am Scrollweg** — und damit umkehrbar — hängen die Quadrate vor den
  *    Titeln. Das sind Scroll-Timelines des Browsers in den CSS-Modulen,
  *    kein JS: sie laufen im Takt des Scrollens, auch auf dem iPhone, wo
  *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
@@ -57,8 +56,7 @@ gsap.registerPlugin(useGSAP);
  *
  * 5. **Nur ab 768px:** die Telefone driften beim Herausscrollen auseinander;
  *    mit echtem Zeiger kippen sie zur Maus, der Knopf zieht magnetisch, und
- *    der Magazin-Stapel lässt sich ziehen und aufblättern (`armMagazineMouse`),
- *    der Wandkalender schwingt an seiner Bindung (`armCalendarSwing`).
+ *    der Magazin-Stapel lässt sich ziehen und aufblättern (`armMagazineMouse`).
  */
 
 /**
@@ -828,35 +826,6 @@ function armDepthPointer(): () => void {
   return () => cleanups.forEach((stop) => stop());
 }
 
-/** Der Wandkalender (Spot des Tages) hängt an seiner Bindung: fährt die
- *  Maus hinein, gibt sie ihm einen Stoss von der Seite, auf der sie kam, und
- *  er schwingt gedämpft aus. `--swing` in Grad, die Drehung um die Bindung
- *  steht in HubSpotOfDay.module.css. */
-function armCalendarSwing(): () => void {
-  const board = document.querySelector<HTMLElement>('[data-calendar-board]');
-  if (!board) return () => {};
-  const push = (event: PointerEvent) => {
-    if (event.pointerType !== 'mouse') return;
-    const r = board.getBoundingClientRect();
-    // Von links hineingefahren schiebt die Unterkante nach rechts: gegen
-    // den Uhrzeigersinn, also negativ.
-    const side = gsap.utils.clamp(-1, 1, ((event.clientX - r.left) / r.width) * 2 - 1);
-    // Ein Pendel: hin, und dann jeder Ausschlag gut halb so weit zurück,
-    // im Takt eines schweren Blatts (eine halbe Schwingung ≈ 0,45 s).
-    const swing = gsap.timeline({ overwrite: true });
-    swing.to(board, { '--swing': side * 1.6, duration: 0.3, ease: 'power2.out' });
-    [-0.6, 0.32, -0.15, 0.06, 0].forEach((share) =>
-      swing.to(board, { '--swing': side * 1.6 * share, duration: 0.45, ease: 'sine.inOut' })
-    );
-  };
-  board.addEventListener('pointerenter', push);
-  return () => {
-    board.removeEventListener('pointerenter', push);
-    gsap.killTweensOf(board);
-    board.style.removeProperty('--swing');
-  };
-}
-
 /** Der Magazin-Stapel mit der Maus: ziehen, aufblättern, nach vorn holen
  *  (lib/home/deckMouse.ts). */
 function armMagazineMouse(): () => void {
@@ -896,7 +865,6 @@ export default function HubMotion() {
           stops.push(armHeroPointer());
           stops.push(armDepthPointer());
           stops.push(armMagazineMouse());
-          stops.push(armCalendarSwing());
         }
         return () => stops.forEach((stop) => stop());
       }

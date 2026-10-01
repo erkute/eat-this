@@ -1,16 +1,6 @@
 import { client } from '@/lib/sanity';
 import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { getLatestNewsArticles } from '@/lib/sanity.server';
-import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay';
-
-export interface HomeSpot extends SpotCandidate {
-  name: string;
-  slug: string;
-  image: string | null;
-  district: string | null;
-  sub: string | null;
-}
-
 export interface HubArticle {
   title: string;
   slug: string;
@@ -23,37 +13,18 @@ export interface HubArticle {
 }
 
 export interface HomeData {
-  spotOfDay: HomeSpot | null;
   magazine: HubArticle[];
   categoryNames: Record<string, string>;
 }
-
-const spotCandidatesQuery = `*[_type == "restaurant" && isOpen == true && isClosed != true && !(_id in path("drafts.**"))]{
-  _id,
-  "name": name,
-  "slug": slug.current,
-  featuredOnDate,
-  "image": image.asset->url,
-  "district": coalesce(bezirkRef->name, district, null),
-  "sub": select($locale == "en" => coalesce(shortDescriptionEn, shortDescription), shortDescription)
-}`;
 
 const categoryNamesQuery = `*[_type == "category" && defined(slug.current)]{
   "slug": slug.current,
   "name": select($locale == "en" => nameEn, name)
 }`;
 
-/** Server: assemble the Hub's initial data. `today` defaults to the server's date. */
-export async function getHomeData(
-  locale: 'de' | 'en',
-  today: string = new Date().toISOString().slice(0, 10)
-): Promise<HomeData> {
-  const [candidates, latest, catNameRows] = await Promise.all([
-    client.fetch<HomeSpot[]>(
-      spotCandidatesQuery,
-      { locale },
-      { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['restaurant', 'mustEat'] } }
-    ),
+/** Server: assemble the Hub's initial data. */
+export async function getHomeData(locale: 'de' | 'en'): Promise<HomeData> {
+  const [latest, catNameRows] = await Promise.all([
     getLatestNewsArticles(6),
     client.fetch<{ slug: string; name: string }[]>(
       categoryNamesQuery,
@@ -78,7 +49,6 @@ export async function getHomeData(
     (catNameRows ?? []).map((r) => [r.slug, r.name])
   );
   return {
-    spotOfDay: pickSpotOfDay(candidates, today),
     magazine,
     categoryNames,
   };

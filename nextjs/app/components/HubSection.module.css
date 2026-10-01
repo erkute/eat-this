@@ -422,8 +422,7 @@
   animation: ctaPress 4.5s linear 0.3s infinite both;
 }
 
-/* Dasselbe für andere Knöpfe der Startseite (`data-press`, z. B. „Zur Map"
-   am Spot des Tages): einmal gedrückt, jedes Mal, wenn ihre Section ins
+/* Dasselbe für andere Knöpfe der Startseite (`data-press`): einmal gedrückt, jedes Mal, wenn ihre Section ins
    Bild kommt. Und einmalig auf Zuruf (`data-pressing`, die Anmelde-Demo in
    HubMotion). Über `translate`/`scale`, nie über `transform` — den tragen
    die `:active`-Zustände. */
@@ -622,7 +621,8 @@
 }
 /* Ab 768px ist die Nearby-Bühne bildschirmhoch und das Band steht mittig
    darin — die Luft unter dem Band ist schon Abstand. Mit voller Fuge
-   dazu standen bei 1920×1080 über 300px leeres Ink vor „Spot des Tages". */
+   dazu standen bei 1920×1080 über 300px leeres Ink vor der nächsten
+   Sektion. */
 @media (min-width: 768px) {
   .page :global([data-hub-nearby]) + section {
     margin-top: clamp(16px, 2vw, 32px);

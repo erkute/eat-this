@@ -57,13 +57,21 @@
 }
 
 /* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier,
-   wie auf jeder Tafel. */
+   wie auf jeder Tafel. Seit 01.10.2026 die zweite Frage der Tafel, unter
+   „Worauf hast du Lust?" und den Kategorien (CategoriesRail, `choices`) —
+   eine Stufe kleiner als die erste, sonst stünden zwei Rufe gleich laut
+   übereinander. */
 .body .panelHead :global(.hv-title) {
   max-width: 790px;
   color: var(--remy-stage-paper);
-  font-size: clamp(44px, 8vw, 96px);
+  font-size: clamp(30px, 3.4vw, 48px);
   /* Zwei Zeilen Versalien: bei 0.88 standen „?" und „R" fast aufeinander. */
   line-height: 0.98;
+}
+
+/* Zwischen den Kategorien und Remys Frage: Luft, keine Linie. */
+.ask > :global([data-hub-categories]) {
+  margin-bottom: clamp(30px, 4vw, 56px);
 }
 
 .titleLine {
@@ -314,10 +322,12 @@
     gap: clamp(30px, 4.4vw, 72px);
   }
 
+  /* Oben an der Tafelkante, nicht optisch hochgeschoben: seit die
+     Kategorien darüberstehen, ist die Spalte höher als Remy, und die alte
+     Verschiebung um bis zu 42px setzte die erste Frage an die Kante. */
   .ask {
-    align-self: center;
+    align-self: start;
     max-width: 650px;
-    transform: translateY(clamp(-42px, -3.2vw, -24px));
   }
 
   .avatarWrap {
@@ -337,15 +347,6 @@
 @media (max-width: 520px) {
   .body .send:global(.hv-btn) {
     min-width: 78px;
-  }
-}
-
-/* Die Titelzeilen brechen nicht um (einzeilige Titel am Telefon, siehe
-   HubSection). Bei 44px Mindestgroesse lief „KEINE IDEE?" auf 320px ueber
-   die Tafel; unter 420px waechst die Schrift mit der Breite. */
-@media (max-width: 420px) {
-  .body .panelHead :global(.hv-title) {
-    font-size: 11vw;
   }
 }
 

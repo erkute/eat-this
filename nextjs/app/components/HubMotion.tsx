@@ -465,7 +465,7 @@ function armFragRemy(): () => void {
   const q = section?.querySelector<HTMLElement>('[data-fragremy-q]');
   const ask = section?.querySelector<HTMLElement>('[data-fragremy-ask]');
   const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
-  const title = q?.closest<HTMLElement>('h2');
+  const title = q?.closest<HTMLElement>('h2, h3');
   const line = q?.parentElement;
   if (!section || !q || !ask || !avatar || !title || !line) return () => {};
 

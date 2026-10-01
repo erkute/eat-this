@@ -7,7 +7,9 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 
 vi.mock('./HubNearby', () => ({ default: () => '<div data-testid="nearby"></div>' }));
 vi.mock('./HubMustEatsTeaser', () => ({ default: () => '<div data-testid="musteats"></div>' }));
-vi.mock('./HubFragRemy', () => ({ default: () => '<div data-testid="remy"></div>' }));
+vi.mock('./HubFragRemy', () => ({
+  default: ({ choices }: { choices?: ReactNode }) => <div data-testid="remy">{choices}</div>,
+}));
 vi.mock('./HubFaq', () => ({ default: () => '<div data-testid="faq"></div>' }));
 vi.mock('./SiteFooter', () => ({ default: () => '<footer data-testid="footer"></footer>' }));
 vi.mock('./HubHashScroll', () => ({ default: () => null }));
@@ -97,19 +99,23 @@ describe('HubSection home', () => {
     // A second copy lower down was tried and dropped: it looked identical
     // once it gained the pack and panel, so it read as repetition.
     expect(html.match(/data-hub-starter/g)).toHaveLength(1);
-    // (The HubFragRemy mock returns a string, so it lands escaped.)
-    expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('&quot;remy&quot;'));
+    expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('data-testid="remy"'));
   });
 
-  it('runs nearby, the categories, the magazine, then Must Eats before signup', () => {
+  it('runs the magazine, nearby, Must Eats and signup, then Remy with the categories', () => {
     const html = renderHome();
-    // What's nearby costs the visitor one tap and answers with their own
-    // street, so it leads; the categories answer the same question by kind.
-    // (The HubNearby mock returns a string, so it lands escaped.)
-    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('Worauf hast du Lust?'));
-    expect(html.indexOf('Worauf hast du Lust?')).toBeLessThan(html.indexOf('Auf dem Teller'));
-    expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('musteats'));
+    // Ansage 01.10.2026: the magazine right under the hero, „Worauf hast du
+    // Lust?" under the Starter Pack — as the first half of Remy's board, who
+    // answers the same question in conversation. (The HubNearby and
+    // HubMustEatsTeaser mocks return strings, so they land escaped.)
+    expect(html.indexOf('data-hub-hero')).toBeLessThan(html.indexOf('Auf dem Teller'));
+    expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('nearby'));
+    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('musteats'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
+    expect(html.indexOf('data-hub-starter')).toBeLessThan(html.indexOf('data-testid="remy"'));
+    const remy = html.slice(html.indexOf('data-testid="remy"'));
+    expect(remy).toContain('Worauf hast du Lust?');
+    expect(remy).toContain('/kategorie/');
   });
 
   it('has no Spot des Tages any more (removed 01.10.2026)', () => {

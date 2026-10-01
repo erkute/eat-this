@@ -6,7 +6,7 @@
 // Auftritt (Fragezeichen, „Frag Remy.", Remy schießt hoch und redet) und das
 // Reden beim Scrollen gehören HubMotion — über `data-fragremy-*`-Haken und
 // Attribute, die React nicht verwaltet.
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
 import { stageFor } from '@/lib/buddy/greeting';
@@ -14,7 +14,14 @@ import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import type { Locale } from '@/lib/buddy/types';
 import styles from './HubFragRemy.module.css';
 
-export default function HubFragRemy() {
+interface Props {
+  /** Die erste Hälfte der Tafel: „Worauf hast du Lust?" mit den Kategorien
+   *  (CategoriesRail, vom Server gerendert). Remy beantwortet darunter
+   *  dieselbe Frage im Gespräch — eine Tafel, eine Frage, zwei Wege. */
+  choices?: ReactNode;
+}
+
+export default function HubFragRemy({ choices }: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations('hub.fragRemy');
   const [stage, setStage] = useState<{
@@ -53,8 +60,9 @@ export default function HubFragRemy() {
       {/* Body: Remy avatar, headline, copy + actions as one stage */}
       <div className={styles.body}>
         <div className={styles.ask}>
+          {choices}
           <div className={`hv-head ${styles.panelHead}`}>
-            <h2 className="hv-title">
+            <h3 className="hv-title">
               <span className={styles.titleLine}>
                 {locale === 'de' ? 'Keine Idee' : 'No idea'}
                 <span className={styles.titleMark} data-fragremy-q="">
@@ -64,7 +72,7 @@ export default function HubFragRemy() {
               <span className={styles.titleLine} data-fragremy-ask="">
                 {locale === 'de' ? 'Frag Remy.' : 'Ask Remy.'}
               </span>
-            </h2>
+            </h3>
           </div>
 
           {/* Copy + interactions */}

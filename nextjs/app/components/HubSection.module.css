@@ -643,77 +643,139 @@
   }
 }
 
-.page :global([data-hub-nearby]) {
-  margin-top: var(--home-section-gap);
+/* ── Kapitel: zwei Gründe im Wechsel (01.10.2026) ──
+   Ansage: die Sektionen „ein bisschen abgrenzen voneinander". Auf dem
+   durchgehenden Ink lief eine Sektion in die nächste (Kategorien und Teller
+   auf einem Bildschirm, das Starter Pack unter den Must-Eat-Karten).
+   Abgegrenzt wird mit Fläche, nicht mit Linie, Kasten oder Nummer: Ink und
+   die Stufe des Footers (`--et-ink-raised`) wechseln sich ab, randlos von
+   Fensterkante zu Fensterkante —
+   Hero Ink · Teller · Nearby Ink · Must Eats · Starter Ink ·
+   Remy (mit den Kategorien) · FAQ Ink · Footer.
+   Gemalt per `border-image`
+   mit seitlichem Überstand: die Sektion bleibt im Satzspiegel (`hv-wrap`),
+   die Fläche reicht bis an die Fensterränder, `.page` schneidet den
+   Überstand ab (`overflow-x: clip`). Jede Sektion malt ihren Grund selbst,
+   auch die Ink-Bänder: wo eine Sektion in die leere Luft der Bühne davor
+   hochrückt (negativer Rand), deckt sie deren Band ab. Die hellen Bänder
+   tragen ihre Luft als Polster, nicht als Rand — ein Rand stünde auf dem
+   Ink der Seite. Angemeldete sehen kein Starter Pack; dann stossen Must
+   Eats und Remy aneinander, und Remy bleibt Ink. */
+.page > section:not(.hero) {
+  --band: var(--et-ink);
+  /* `--band-lift-*` zieht die Fläche über die Box hinaus (in den Rand davor
+     bzw. danach), ohne die Bühne darin zu verschieben. */
+  border-image: conic-gradient(var(--band) 0 0) fill 0 / / var(--band-lift-top, 0px) 100vw
+    var(--band-lift-bottom, 0px);
 }
-.page :global([data-hub-nearby]) + section {
-  margin-top: clamp(64px, 8vw, 112px);
+/* `section:is(…)`: gleicher Rang wie die Ink-Regel darüber (0,2,1), die
+   spätere gewinnt. */
+.page
+  > section:is(
+    :global([data-hub-magazine]),
+    :global([data-hub-musteats]),
+    :global([data-hub-fragremy])
+  ) {
+  --band: var(--et-ink-raised);
 }
-/* ── Abstände zwischen den Sektionen ab 768px ──
-   Gleichmässig, nicht jede Grenze anders (Rückmeldung 01.10.2026: „vom
-   Gesamtaufbau harmonisch"). Gemessen war vorher bei 1440×900 sichtbares
-   Schwarz von 241 (Hero → Nearby), 173 (Nearby → Kategorien), 168
-   (Kategorien → Teller) und 349px (Teller → Must Eats) gegen ~90–110px an
-   den übrigen Grenzen. Die bildschirmhohen Bühnen (Nearby, Must Eats)
-   bleiben, wie sie sind; was folgt oder vorausgeht, rückt um ihre leere
-   Luft nach. Die Luft wird aus denselben Grössen gerechnet, die die Bühnen
-   setzen — ändert sich dort eine Kartengrösse, muss sie hier mit.
-   - Nach Nearby: Luft unter dem Band = (Bühne − Kopf 128px − Band)/2, das
-     Band ist 3/4 der Kartenbreite plus 70px Unterschrift, die Karte
-     min(36vw, 56svh, 680px) (HomeGallery.module.css).
-   - Vor Must Eats: sichtbar wird zuerst die Textspalte (die erste Karte
-     kommt von rechts unten herein); sie steht mittig in der Bühne, Luft
-     darüber = (Bühne − 48px − Spalte ~300px)/2 + 24px
-     (HubMustEatsTeaser.module.css). Der Teller liegt dabei über der leeren
-     Oberkante der Bühne, sonst fingen deren Pixel die Klicks auf den Punkten
-     ab.
-   - Vor dem Teller: die Fuge, etwas knapper — gezählt bis zu den obersten
-     Ecken des Fächers, der über die Überschrift hinausragt (eingeschwungen
-     gemessen; die Kategorie-Wörter fahren beim Auftritt von unten ein). */
+:global(html[data-auth='1']) .page > :global([data-hub-fragremy]) {
+  --band: var(--et-ink);
+}
+
+/* ── Abstände an den Bandkanten ──
+   `--band-air` ist die Luft zwischen Kante und Inhalt, auf beiden Seiten
+   gleich, damit die Kante mittig zwischen zwei Sektionen liegt. Die
+   bildschirmhohen Bühnen (Nearby, Must Eats) bleiben, wie sie sind; was an
+   sie grenzt, rückt um ihre leere Luft nach. */
+.page {
+  --band-air: var(--home-section-gap);
+}
+.page > :global([data-hub-magazine]) {
+  position: relative;
+  /* Über Nearby: geworfene Hefte fliegen über die Bandkante hinaus. */
+  z-index: 2;
+  margin-top: 0;
+  padding-block: var(--band-air);
+}
+.page > :global([data-hub-nearby]) {
+  margin-top: 0;
+  padding-top: var(--band-air);
+}
+/* Am Telefon schiebt `stagePin` die Bühne in der Sektion — ein Polster
+   verschöbe sie mit. Deshalb trägt die Must-Eats-Fläche ihre Luft als
+   Überstand: oben in den Rand, unten in den Platz vor dem Starter Pack
+   (unter den Knöpfen stehen schon ~20px). */
+.page > :global([data-hub-musteats]) {
+  --band-lift-top: var(--band-air);
+  --band-lift-bottom: calc(var(--band-air) - 20px);
+  position: relative;
+  z-index: 1;
+  margin-top: var(--band-air);
+}
+/* Die randlose Tafel des Telefons bringt oben 30, unten 32px mit
+   (StarterPackSignup.module.css). */
+.page > :global([data-hub-starter]) {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--band-air) - 20px);
+  padding-block: calc(var(--band-air) - 30px) calc(var(--band-air) - 32px);
+}
+.page > :global([data-hub-fragremy]) {
+  margin-top: 0;
+  padding-block: var(--band-air);
+}
+/* Angemeldet folgt Remy direkt auf Must Eats: Platz für deren Überstand. */
+:global(html[data-auth='1'])
+  .page
+  > :global([data-hub-musteats])
+  + :global([data-guest-only])
+  + section {
+  margin-top: calc(var(--band-air) - 20px);
+}
+
+/* Ab 768px: die Luft der Bühnen aus denselben Grössen gerechnet, die die
+   Bühnen setzen — ändert sich dort eine Kartengrösse, muss sie hier mit.
+   - Unter Nearby: (Bühne − Kopf 128px − Band)/2, das Band ist 3/4 der
+     Kartenbreite plus 70px Unterschrift, die Karte min(36vw, 56svh, 680px)
+     (HomeGallery.module.css).
+   - Die Must-Eats-Spalte (~348px) steht mittig in der Bühne; unter ihr
+     bleibt am Ende des Wegs die halbe Resthöhe leer (gemessen 232px bei
+     1440×900). Was folgt, liegt über der Bühne, sonst fingen deren leere
+     Pixel die Klicks ab. Über der Spalte bleibt die Luft stehen: die
+     Bühne klebt, sobald ihre Kante oben ankommt, und füllt dann den
+     Bildschirm — die Überschrift steht in der Mitte ihres Bandes.
+   - Der Teller ab 1024px: die Überschrift steht neben dem Fächer, und der
+     ragt oben ~30px über das Polster hinaus. */
 @media (min-width: 768px) {
   .page {
     --stage-h: calc(100svh - 74px);
-    --nearby-air: calc(
-      (var(--stage-h) - 128px - min(36vw, 56svh, 680px) * 0.75 - 70px) / 2
-    );
-    --musteats-air: max(0px, (var(--stage-h) - 348px) / 2 + 24px);
+    --nearby-air: calc((var(--stage-h) - 128px - min(36vw, 56svh, 680px) * 0.75 - 70px) / 2);
+    --musteats-air-below: max(0px, (var(--stage-h) - 348px) / 2 - 8px);
   }
-  .page :global([data-hub-nearby]) {
-    margin-top: 0;
+  .page > :global([data-hub-musteats]) {
+    --band-lift-top: 0px;
+    --band-lift-bottom: 0px;
   }
-  .page :global([data-hub-nearby]) + section {
+  .page > :global([data-hub-starter]) {
+    padding-block: var(--band-air);
+  }
+  .page > :global([data-hub-musteats]) {
+    margin-top: calc(var(--band-air) - var(--nearby-air));
+  }
+  .page > :global([data-hub-musteats]) + section,
+  :global(html[data-auth='1'])
+    .page
+    > :global([data-hub-musteats])
+    + :global([data-guest-only])
+    + section {
     position: relative;
     z-index: 1;
-    margin-top: calc(104px - var(--nearby-air));
-  }
-  .page :global([data-hub-magazine]) {
-    position: relative;
-    z-index: 2;
-    margin-top: calc(var(--home-section-gap) - 36px);
-  }
-  .page :global([data-hub-musteats]) {
-    margin-top: calc(120px - var(--musteats-air));
+    margin-top: calc(var(--band-air) - var(--musteats-air-below));
   }
 }
-/* Dasselbe nach der Must-Eats-Bühne, nur stärker: unter den Karten bleiben
-   dort 16–32 % der Bühnenhöhe leer (gemessen 106px bei 1280×720, 263px bei
-   1920×1080, 443px bei 2560×1440), mit der Fuge dazu bis 350px Schwarz vor
-   dem Starter Pack. Die Bühne selbst bleibt, wie sie ist; die nächste
-   Sektion rückt um einen Teil dieser Luft hinauf — mit der Höhe wachsend,
-   nach den Messungen so, dass überall rund 55–75px Abstand bleiben (lineare
-   Näherung der Luft: 0,468 · Bühnenhöhe − 215px, minus 56px Abstand). Sie
-   liegt dabei über der Bühne, sonst fingen deren leere Pixel die Klicks auf
-   der Tafel ab. Angemeldete sehen kein Starter Pack; dann rückt Frag Remy
-   nach. */
-@media (min-width: 768px) {
-  .page {
-    --after-musteats: calc(-1 * max(0px, (100svh - 74px) * 0.468 - 271px));
-  }
-  .page :global([data-hub-musteats]) + section,
-  :global(html[data-auth='1']) .page :global([data-hub-musteats]) + :global([data-guest-only]) + section {
-    position: relative;
-    z-index: 1;
-    margin-top: var(--after-musteats);
+@media (min-width: 1024px) {
+  .page > :global([data-hub-magazine]) {
+    padding-top: calc(var(--band-air) - 30px);
   }
 }
 

@@ -33,6 +33,16 @@
     border-radius: 0;
   }
 }
+/* Auf der Startseite steht das Starter Pack seit 01.10.2026 in einem
+   eigenen Ink-Band zwischen zwei helleren (HubSection.module.css, „Kapitel").
+   Dort ist das Band die Tafel: eine zweite, fast gleich helle Bahn darin
+   las sich als Streifen zwischen Streifen. Ab 768px bleibt die schmale
+   Tafel in der Mitte des Bandes stehen. */
+@media (max-width: 767.98px) {
+  :global([data-hub-starter]) .inner {
+    background: transparent;
+  }
+}
 
 /* Die Bühne des Packs. Darin das flache Bild (`.packRig`) — erst Platzhalter,
    dann nur noch Maß: die WebGL-Leinwand (`.gl`) liegt über der ganzen

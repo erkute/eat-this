@@ -550,3 +550,22 @@
     min-height: 44px;
   }
 }
+
+/* ── Startseite: die ganze Tafel ─────────────────────────────────────── */
+
+/* Auf der Startseite steht die Anmeldung allein in einer seitenbreiten Tafel.
+   In 780px gefasst stand das Pack zwar mittig in seiner Spalte, die Spalte
+   aber mitten in der Tafel: links blieb ein leeres Feld, das Pack las sich als
+   nach rechts gerueckt (Ansage 30.09.2026: „mehr nach links"). Hier teilen
+   zwei gleiche Haelften die Tafel — das Pack mittig in der linken, Ueberschrift
+   und Formular mittig in der rechten. Das Modal behaelt sein 780er-Raster. */
+@media (min-width: 821px) {
+  :global([data-hub-starter]) .board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  :global([data-hub-starter]) .side {
+    justify-self: center;
+  }
+}

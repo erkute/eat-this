@@ -215,12 +215,6 @@
   height: calc(100% - 2 * var(--frame) - var(--photo-top));
   object-fit: cover;
   object-position: 50% 50%;
-  transition: transform 260ms ease;
-}
-@media (hover: hover) {
-  .mag:hover .photo {
-    transform: scale(1.03);
-  }
 }
 /* Oben und unten dunkler, damit Kopf und Schlagzeile auf jedem Foto stehen —
    die Mitte, wo Pizza oder Croissant liegt, bleibt frei. */
@@ -421,11 +415,6 @@
     }
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .photo {
-    transition: none;
-  }
-}
 
 /* ── Desktop: der Stapel auf dem Tisch (ab 768px) ──
    Die Hefte liegen bildschirmhoch rechts, die nächsten vier als Fächer nach
@@ -444,11 +433,13 @@
   .section {
     /* Platz der Überschrift links im Tisch (0 = Überschrift darüber). */
     --head-w: 0px;
+    /* Oben Luft für den Fächer und die Neigung zur Maus. */
+    --mag-peek: 60px;
     /* Bildschirmhoch, aber so, dass Fächer (gut 0,9 Hefte) und Heft
        nebeneinander in den Tisch passen. */
     --cover-w: min(
       560px,
-      (100svh - 210px) * 0.75,
+      (100svh - 262px) * 0.75,
       (100vw - var(--et-wrap-pad) - var(--head-w) - 48px) / 1.95
     );
     /* Bis an den rechten Fensterrand, über den Satzspiegel hinaus. */
@@ -472,13 +463,18 @@
     --fan-r: calc(-2.6deg - var(--fan) * 1.2deg);
     margin-right: calc(-1 * var(--mag-bleed));
   }
+  /* Unten Platz für den Schatten (22px tief, 34px weich) und die Neigung
+     zur Maus — mit 36px schnitt die Kante des Querscrollers Hefte und
+     Schatten unten ab (gemessen bis 52px, Ansage 01.10.2026). */
   .track {
-    padding-bottom: 36px;
+    padding-bottom: 76px;
   }
+  /* Der Fächer dreht um die linke Unterkante: so öffnet er sich nach
+     links oben, und kein hinteres Heft sackt unter die anderen ab. */
   .card {
     justify-self: start;
     margin-left: var(--pile-x);
-    transform-origin: 75% 115%;
+    transform-origin: 6% 96%;
   }
   .mag {
     transform: perspective(1100px) rotateY(calc(-9deg + var(--look-x, 0) * 10deg))
@@ -497,6 +493,14 @@
     padding-left: calc(var(--pile-x) + var(--cover-w) / 2 - var(--count) * 16px);
   }
 }
+/* Schmal steht der Stapel näher am linken Rand: die Maus fächert hier
+   kaum weiter auf, sonst schnitte die Kante das hinterste Heft ab. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .stage {
+    --fan-x: calc(-16% - var(--fan) * 1%);
+    --fan-r: calc(-2.6deg - var(--fan) * 0.3deg);
+  }
+}
 @media (min-width: 1024px) {
   .section {
     --head-w: clamp(230px, 19vw, 290px);
@@ -506,11 +510,17 @@
   .layout {
     grid-template-columns: var(--head-w) minmax(0, 1fr);
   }
+  /* Oben bündig mit dem vorderen Heft, nicht in der Mitte der Höhe: dort
+     schwebte sie klein im Leeren neben dem Fächer. */
+  .layout {
+    align-items: start;
+  }
   .layout > :first-child {
     position: relative;
     z-index: 2;
     grid-row: 1;
     grid-column: 1;
+    padding-top: var(--mag-peek);
     pointer-events: none;
   }
   .layout > :first-child a {

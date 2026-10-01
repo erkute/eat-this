@@ -1,8 +1,5 @@
-import { normalizeName } from '@/lib/normalizeName';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
-import { sanitySrcSet } from '@/lib/sanity-image-presets';
-import sanityImageLoader from '@/lib/sanityImageLoader';
 import HubFaq from './HubFaq';
 import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
@@ -12,6 +9,7 @@ import HeroCurtain from './HeroCurtain';
 import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
+import HubSpotOfDay from './HubSpotOfDay';
 import MapIntentLink from './MapIntentLink';
 import CategoriesRail from './CategoriesRail';
 import MagazineGrid from './MagazineGrid';
@@ -33,15 +31,11 @@ interface Props {
 // dafür ist `heroPhonesAlt` da, das vorher denselben String doppelt benutzte.
 const copy = {
   de: {
-    spotDay: 'Spot des Tages',
-    spotCta: 'Zur Map',
     heroLabel: 'Eat This — die Food-Map für Berlin',
     heroPhonesLabel: 'Berlin Food Map öffnen',
     heroPhonesAlt: 'Die Eat This Berlin Food Map auf dem Handy',
   },
   en: {
-    spotDay: 'Spot of the day',
-    spotCta: 'To the map',
     heroLabel: 'Eat This — the food map for Berlin',
     heroPhonesLabel: 'Open the Berlin food map',
     heroPhonesAlt: 'The Eat This Berlin food map on a phone',
@@ -58,19 +52,6 @@ function phoneSrcSet(name: string): string {
   return PHONE_WIDTHS.map(
     (w) => `/pics/home-phones/${name}${w === 855 ? '' : `-${w}`}.webp ${w}w`
   ).join(', ');
-}
-
-// Makes "des Tages" literal. Nothing else on the page said the pick is new
-// today, so nothing gave a reason to come back tomorrow. Formatted from the
-// very string the pick is keyed to, pinned to noon UTC so no zone or DST
-// shift can move the label off the day it labels.
-function dayLabel(today: string, locale: 'de' | 'en'): string {
-  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
-    weekday: 'short',
-    day: '2-digit',
-    month: locale === 'en' ? 'short' : '2-digit',
-    timeZone: 'UTC',
-  }).format(new Date(`${today}T12:00:00Z`));
 }
 
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
@@ -149,63 +130,12 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         <HubNearby locale={locale} today={today} />
 
         {spot && (
-          <section className="homeV2 hv-section hv-wrap">
-            <article
-              className={styles.spot}
-              data-home-pointer=""
-              data-scrub="--spot 0 1"
-              data-scrub-start="top bottom"
-              data-scrub-end="top 45%"
-            >
-              <div className={`hv-head ${styles.spotHead}`}>
-                <h2 className="hv-title">
-                  <span className="hv-mk" aria-hidden="true" />
-                  {t.spotDay}
-                </h2>
-                <time className={styles.spotDate} dateTime={today}>
-                  {dayLabel(today, locale)}
-                </time>
-              </div>
-              {/* Name and reason sit beside the photo, not on it: the pick is a
-                different restaurant every day and half the images are bright
-                enough to swallow white type. The photo runs out to the page
-                edge instead, which is what makes this read as the lead. */}
-              <MapIntentLink
-                href={`/map?r=${spot.slug}`}
-                rel="nofollow"
-                className={`${styles.spotCard} ${spot.image ? '' : styles.spotCardTextOnly}`}
-              >
-                {spot.image && (
-                  <span className={`hv-photo ${styles.spotPhoto}`}>
-                    {/* Deliberately bypass the App Hosting image proxy: Sanity
-                      serves the responsive, format-negotiated variants directly. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className={styles.spotImage}
-                      src={sanityImageLoader({ src: spot.image, width: 960, quality: 75 })}
-                      srcSet={sanitySrcSet(spot.image, [640, 750, 960, 1280], 75)}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      sizes="(max-width:767.98px) 100vw, 65vw"
-                    />
-                  </span>
-                )}
-                <span className={styles.spotBody}>
-                  {spot.district && (
-                    <span className={`hv-kicker ${styles.spotKicker}`}>{spot.district}</span>
-                  )}
-                  <span className={styles.spotName}>{normalizeName(spot.name)}</span>
-                  {/* Loaded from Sanity all along and never rendered — it is the
-                    reason this spot is today's pick, so it belongs here. */}
-                  {spot.sub && <span className={styles.spotSub}>{spot.sub}</span>}
-                  <span className={styles.spotCta} data-press="">
-                    {t.spotCta}
-                  </span>
-                </span>
-              </MapIntentLink>
-            </article>
-          </section>
+          <HubSpotOfDay
+            spot={spot}
+            yesterday={initialData.spotOfYesterday}
+            today={today}
+            locale={locale}
+          />
         )}
 
         {/* Order follows what a first-time visitor needs, in that order: what is

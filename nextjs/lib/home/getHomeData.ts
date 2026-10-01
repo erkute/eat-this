@@ -1,9 +1,9 @@
 import { client } from '@/lib/sanity';
 import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { getLatestNewsArticles } from '@/lib/sanity.server';
-import { pickSpotOfDay, type SpotCandidate } from './pickSpotOfDay';
+import { pickSpotOfDay, previousDay, type SpotCandidate } from './pickSpotOfDay';
 
-interface HomeSpot extends SpotCandidate {
+export interface HomeSpot extends SpotCandidate {
   name: string;
   slug: string;
   image: string | null;
@@ -22,6 +22,8 @@ export interface HubArticle {
 
 export interface HomeData {
   spotOfDay: HomeSpot | null;
+  /** Yesterday's pick: the calendar sheet that tears off above today's. */
+  spotOfYesterday: HomeSpot | null;
   magazine: HubArticle[];
   categoryNames: Record<string, string>;
 }
@@ -73,5 +75,10 @@ export async function getHomeData(
   const categoryNames: Record<string, string> = Object.fromEntries(
     (catNameRows ?? []).map((r) => [r.slug, r.name])
   );
-  return { spotOfDay: pickSpotOfDay(candidates, today), magazine, categoryNames };
+  return {
+    spotOfDay: pickSpotOfDay(candidates, today),
+    spotOfYesterday: pickSpotOfDay(candidates, previousDay(today)),
+    magazine,
+    categoryNames,
+  };
 }

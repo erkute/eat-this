@@ -237,9 +237,11 @@
   color: var(--board-soft, rgba(255, 255, 255, 0.76));
 }
 
+/* Am Telefon hochkant: das Band füllt so den Bildschirm, statt unter sich
+   leeren Ink-Grund zu lassen (Ansage 30.09.2026). */
 @media (max-width: 767.98px) {
   .photo {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 4 / 5;
   }
 }
 

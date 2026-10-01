@@ -1,54 +1,101 @@
+/* „Auf dem Teller" als Stapel aus Titelseiten (30.09.2026). Erklärung der
+   Mechanik in MagazineGrid.tsx. */
 .section {
-  position: relative;
-}
-
-/* Die Tafel — dieselbe Fläche wie Starter Pack, Must Eats und Remy. */
-.board {
   --mag-paper: var(--et-white);
-  --mag-accent: var(--et-accent);
-
-  padding: var(--et-board-pad);
-  background: var(--et-board-bg);
-  color: var(--mag-paper);
-  border-radius: var(--et-board-radius);
+  /* Die Überschrift bleibt stehen, solange die Cover wechseln (Ansage
+     30.09.2026): am Telefon klebt sie unter der festen Leiste, die Cover
+     darunter. `--mag-head-h` ist ihre feste Höhe. Ab 768px scrollt
+     `.app-pages` unter der Leiste, dort steht die Überschrift links. */
+  --mag-head-h: 78px;
+  /* Die Leiste klappt am Telefon beim Runterscrollen weg (SiteNav,
+     `data-visibility`); ohne sie klebt alles bis nach oben. */
+  --mag-nav: var(--staging-banner-h, 0px);
+  --stack-top: calc(var(--mag-nav) + var(--mag-head-h) + 8px);
+  --cover-step: 12px;
+  color: var(--et-white);
+}
+:global(body:has(#navbar[data-visibility='visible'])) .section {
+  --mag-nav: calc(var(--site-nav-h, 64px) + var(--staging-banner-h, 0px));
+}
+@media (max-width: 767.98px) {
+  .aside {
+    position: sticky;
+    z-index: 2;
+    top: var(--mag-nav);
+    transition: top 280ms ease;
+    display: flex;
+    align-items: center;
+    height: var(--mag-head-h);
+    /* Ink-Grund, damit Cover, die am Ende darunter wegscrollen, verschwinden
+       statt durch die Überschrift zu scheinen. Schmaler als 90 % der
+       Bildschirmbreite, aber breiter als die Cover (84vw, mittig): so deckt
+       sie sie ganz, und beim Hereinkommen an der Unterkante färbt sie
+       Safaris Leiste nicht (siehe `.item`). */
+    width: min(100%, 88vw);
+    background: var(--et-ink);
+  }
+}
+@media (min-width: 768px) {
+  .section {
+    --stack-top: 28px;
+    /* Ab 768px scrollt nur `.app-pages` unter der Leiste. */
+    --mag-view: calc(100svh - var(--site-nav-h, 78px));
+  }
 }
 
-/* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier. */
-.section .board :global(.hv-title) {
-  color: var(--mag-paper);
+.layout {
+  display: grid;
+  gap: clamp(22px, 3vw, 32px);
+}
+@media (min-width: 768px) {
+  /* Überschrift links, der Stapel in der Seitenmitte — nicht an den
+     rechten Rand gedrückt mit einem leeren Feld dazwischen. */
+  .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 460px) minmax(0, 1fr);
+    column-gap: clamp(32px, 4vw, 64px);
+    align-items: start;
+  }
+  /* Überschrift und „Alle Stories" bleiben links stehen, rechts wächst der
+     Stapel. */
+  .aside {
+    position: sticky;
+    top: var(--stack-top);
+  }
 }
 
 .section .head:global(.hv-head) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: end;
-  gap: var(--et-head-gap);
-  margin-bottom: 8px;
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 0;
 }
-
-/* Dieselbe Größe wie jeder Abschnittstitel — die Sondergröße (38–56px) ließ
-   „Auf dem Teller" als Einzigen auf dem Telefon umbrechen. */
 .section .head :global(.hv-title) {
-  max-width: none;
-  text-align: left;
-  white-space: nowrap;
+  color: var(--mag-paper);
 }
-
-/* Der Kicker als gelbe Kreide-Zeile, wie auf jeder Tafel. */
 .section .eyebrow:global(.hv-kicker) {
-  grid-column: 1 / -1;
-  width: max-content;
-  color: var(--mag-accent);
+  font-size: 12px;
+  letter-spacing: var(--et-tracking-meta);
+  color: var(--et-accent);
 }
-
+.allTop {
+  margin-top: clamp(22px, 2.4vw, 32px);
+}
 .foot {
   display: flex;
-  margin-top: clamp(18px, 2.4vw, 26px);
+  justify-content: center;
+}
+/* Ab 768px steht „Alle Stories" links unter der Überschrift; der Knopf
+   unter dem Stapel gehört nur dem Telefon. Nach `.foot`, sonst gewinnt
+   dessen `display` bei gleicher Spezifität — es standen zwei Knöpfe da. */
+@media (min-width: 768px) {
+  .foot {
+    display: none;
+  }
 }
 
-/* Gelb wie jeder Weiterweg der Site („Zur Map", „Alle Must-Eats"), Hover
-   kippt auf Ink — dieselbe Form wie „Alle Spots ansehen" auf den Hubs. */
+/* Gelb auf Ink wie jeder Tafel-Knopf; Hover auf Papier, damit er auf dem
+   dunklen Grund nicht verschwindet. */
 .allLink {
   display: inline-flex;
   align-items: center;
@@ -61,184 +108,177 @@
   font-family: var(--et-font-display);
   font-size: clamp(15px, 1.2vw, 17px);
   font-weight: 700;
-  letter-spacing: 0;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   transition:
-    color 160ms ease,
     background 160ms ease,
     transform 160ms ease;
 }
-
-/* Hover geht auf Papier, nicht auf Ink: auf dem dunklen Grund verschwand der
-   Knopf beim Beruehren im Hintergrund. Gilt fuer jeden gelben Knopf der
-   Seite. Der Druck sitzt tiefer, damit sich der Klick anfuehlt. */
 .allLink:focus-visible {
-  color: var(--et-ink);
   background: var(--mag-paper);
-  transform: translateY(-2px);
+  outline: 2px solid var(--et-accent);
+  outline-offset: 3px;
 }
 @media (hover: hover) {
   .allLink:hover {
-    color: var(--et-ink);
     background: var(--mag-paper);
     transform: translateY(-2px);
   }
 }
-
 .allLink:active {
   transform: translateY(1px);
 }
-
-/* Auf der Tafel trägt die Kachel keine eigene Fläche: das Foto steht frei
-   mit dem Sheet-Schatten, der Text liegt direkt auf der Tafel. Eine
-   Ink-Kachel auf Ink wäre unsichtbar. */
-.card {
-  position: relative;
-  min-width: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--mag-paper);
-  text-decoration: none;
-}
-
-.section .photo:global(.hv-photo) {
-  flex: 0 0 auto;
-  aspect-ratio: 4 / 3;
-  border: 0;
-  border-radius: var(--et-radius-photo);
-  background: var(--et-ink-raised);
-  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
-}
-
-/* Replaces what next/image's `fill` used to do: cover the 4/3 box. */
-.photoImg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.section .photo:global(.hv-photo) :global(img) {
-  filter: saturate(1.05) contrast(1.03);
-  transition: transform 220ms ease;
-}
-
-.card:focus-visible .photo:global(.hv-photo) :global(img) {
-  transform: scale(1.03);
-}
-
-@media (hover: hover) {
-  .card:hover .photo:global(.hv-photo) :global(img) {
-    transform: scale(1.03);
+/* Am Telefon steht der Knopf unter dem Stapel, nicht über ihm. Nach
+   `.allLink`, sonst gewinnt dessen `display` bei gleicher Spezifität. */
+@media (max-width: 767.98px) {
+  .allTop {
+    display: none;
   }
 }
 
-.text {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 8px;
-  padding: 16px 0 0;
+/* ── Der Stapel ── Jedes Cover klebt ein Stück tiefer als das vorige, damit
+   die Kanten darunter sichtbar bleiben. Der Abstand dazwischen ist der
+   Scrollweg, auf dem das nächste Cover heranfährt. */
+.stack {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.item {
+  position: sticky;
+  top: calc(var(--stack-top) + var(--i) * var(--cover-step));
+  transition: top 280ms ease;
+  /* Knapp: sobald ein Cover festklebt, ragt das nächste schon unten ins
+     Bild — kein leerer schwarzer Grund unter dem Stapel. */
+  margin-bottom: 14svh;
+  view-timeline-axis: block;
+  /* Die Timeline endet, wo das Cover festklebt (`exit 0%`). */
+  view-timeline-inset: calc(var(--stack-top) + var(--i) * var(--cover-step)) 0px;
+}
+.item:last-child {
+  margin-bottom: 0;
+}
+/* Unter 90 % der Bildschirmbreite: ein klebendes Element, das so breit ist
+   und die Unterkante berührt, färbt Safaris URL-Leiste in seiner Farbe (siehe
+   ios26-safari-leisten). So bleibt sie durchsichtig, der Inhalt scheint
+   durch (Ansage 30.09.2026). */
+@media (max-width: 767.98px) {
+  .item {
+    justify-self: center;
+    width: min(100%, 84vw);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aside,
+  .item {
+    transition: none;
+  }
 }
 
-/* Die Rubrik als gelbe Kreide-Zeile, wie der Kicker auf jeder Tafel. */
-.kicker {
-  display: block;
-  color: var(--mag-accent);
+.cover {
+  position: relative;
+  /* Foto oben, Band unten — das Foto liegt nicht unter dem Band, sonst
+     säße seine Mitte zu tief und Pizza oder Croissant rutschten aus dem
+     Bild (Ansage 30.09.2026). */
+  display: flex;
+  flex-direction: column;
+  /* Nie höher als der Platz unter der Überschrift, samt der Kanten der
+     Cover darunter — sonst fiele das Titelband am kleinen iPhone aus dem
+     Bild. */
+  width: min(
+    100%,
+    (var(--mag-view, 100svh) - var(--stack-top) - 6 * var(--cover-step) - 16px) * 0.75
+  );
+  margin-inline: auto;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: var(--et-radius-photo);
+  background: var(--et-ink-raised);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+  color: var(--et-white);
+  text-decoration: none;
+  transform-origin: 50% 0%;
+}
+.cover:focus-visible {
+  outline: 3px solid var(--et-accent);
+  outline-offset: 4px;
+}
+.cover:active {
+  scale: var(--et-press-tile);
+}
+.photo {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  transition: transform 260ms ease;
+}
+@media (hover: hover) {
+  .cover:hover .photo {
+    transform: scale(1.03);
+  }
+}
+.band {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px 20px;
+  background: var(--et-ink);
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
+  line-height: 1.3;
   text-transform: uppercase;
 }
-
-/* Providence schiebt die Unterlänge weit unter die enge Zeile, und das Band
-   ist ein Scroll-Container — das Polster hält das g der längsten Headline. */
-.title {
-  display: block;
-  padding-bottom: 0.3em;
-  color: var(--mag-paper);
-  font-family: var(--et-font-display);
-  font-size: clamp(20px, 1.6vw, 24px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.15;
+.kicker {
+  color: var(--et-accent);
 }
-
-/* Rubrik und Datum als eine Zeile über der Headline. Das gelbe Label führt,
-   das Datum steht still dahinter. */
-.meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: center;
-  gap: 4px 10px;
-}
-
 .date {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.6);
+}
+/* Drei Zeilen, dann Schluss; das Polster unten hält die Unterlänge von
+   Providence im Bild (siehe providence-unterlaenge). */
+.title {
+  display: -webkit-box;
+  overflow: hidden;
+  padding-bottom: 0.15em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   font-family: var(--et-font-display);
-  font-size: 12px;
+  font-size: clamp(20px, 1.9vw, 26px);
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
-.card:focus-visible .photo:global(.hv-photo) {
-  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.5);
-}
-
-@media (hover: hover) {
-  .card:hover .photo:global(.hv-photo) {
-    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.5);
+/* Das Cover darunter kippt nach hinten und wird kleiner, während das nächste
+   heranfährt — im Takt des Scrollens, auf der Timeline des nächsten Covers. */
+@keyframes coverBack {
+  to {
+    transform: perspective(1200px) translateY(-1.5%) scale(0.9) rotateX(9deg);
+    filter: brightness(0.55);
   }
 }
-
-.card:focus-visible,
-.allLink:focus-visible {
-  outline: 2px solid var(--mag-accent);
-  outline-offset: 4px;
-}
-
-/* Druckzustand: die Kachel ist ein Link, die pauschale Knopf-Regel in
-   globals.css trifft sie also nicht. Siehe `--et-press-tile`. */
-.card:active {
-  scale: var(--et-press-tile);
-}
-
-@media (max-width: 767.98px) {
-  .section .head:global(.hv-head) {
-    grid-template-columns: 1fr;
-    align-items: start;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-
-  .eyebrow {
-    margin-bottom: 0;
-  }
-
-  .allLink {
-    width: 100%;
+@supports (timeline-scope: --a) and (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .item:not(:last-child) .cover {
+      animation: coverBack linear both;
+      animation-timeline: var(--covered-by);
+      animation-range: entry 0% exit 0%;
+    }
   }
 }
-
-@media (max-width: 767.98px) {
-  .section .photo:global(.hv-photo) {
-    aspect-ratio: 4 / 3;
-  }
-}
-
-@media (max-width: 767.98px) {
-  .section .photo:global(.hv-photo) {
-    box-shadow: none;
-  }
-  .section .photo:global(.hv-photo) :global(img) {
-    filter: none;
+@media (prefers-reduced-motion: reduce) {
+  .photo {
+    transition: none;
   }
 }

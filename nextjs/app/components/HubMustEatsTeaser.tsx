@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
@@ -14,8 +14,8 @@ import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
 import { composeTeaserCards } from '@/lib/home/mustEatsGallery';
 import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
 import { useHomeMapData } from './HomeMapDataContext';
+import { appScroller } from '@/lib/dom/appScroller';
 import styles from './HubMustEatsTeaser.module.css';
-import HomeGallery from './HomeGallery';
 
 const TEASER_COUNT = 6;
 
@@ -36,13 +36,7 @@ function cardSrcSet(url: string): string {
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
-const CARD_SIZES = '(min-width: 473px) 340px, 72vw';
-
-/* Die Länge des Gerichts, damit es in eine Zeile passt: die Schrift schrumpft
-   auf Spaltenbreite ÷ Zeichenzahl (HubMustEatsTeaser.module.css, `.dish`). */
-function charCount(text: string): CSSProperties {
-  return { '--chars': Math.max(1, text.length) } as CSSProperties;
-}
+const CARD_SIZES = '(min-width: 768px) 340px, 60vw';
 
 export default function HubMustEatsTeaser() {
   const { initialMapData, live, uid } = useHomeMapData();
@@ -112,6 +106,87 @@ export default function HubMustEatsTeaser() {
     []
   );
 
+  /* ── Bühne (A24, 30.09.2026) ── Die Karten fahren stufenlos am Scrollweg:
+     von rechts klein über die Mitte gross nach links klein, jede auf ihrem
+     eigenen Fenster der Scroll-Timeline (HubMustEatsTeaser.module.css). Das
+     läuft im Takt des Scrollens, auch auf dem iPhone; JS misst nur die
+     Bühne aus. Nichts hält den Scroll fest. Mit reduzierter Bewegung und
+     ohne Scroll-Timelines liegen die Karten nebeneinander. */
+  const runwayRef = useRef<HTMLDivElement>(null);
+  const deckRef = useRef<HTMLUListElement>(null);
+  const [staged, setStaged] = useState(false);
+  const count = cards.length;
+
+  useEffect(() => {
+    const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (!calm || typeof ResizeObserver === 'undefined') return;
+    if (!CSS.supports?.('animation-timeline: view()')) return;
+    const update = () => setStaged(!calm.matches);
+    update();
+    calm.addEventListener?.('change', update);
+    return () => calm.removeEventListener?.('change', update);
+  }, []);
+
+  /** Runway geometry: where the stage pins and how far it travels. */
+  const measure = useCallback(() => {
+    const runway = runwayRef.current;
+    const stage = runway?.firstElementChild as HTMLElement | null;
+    if (!runway || !stage) return null;
+    const scroller = appScroller();
+    // `scroll-margin-top` carries the stage's pin line (CSS `--stage-top`)
+    // as a resolved pixel value.
+    const stageTop = parseFloat(getComputedStyle(runway).scrollMarginTop) || 0;
+    const portHeight = scroller ? scroller.clientHeight : window.innerHeight;
+    const pinTop = (scroller?.getBoundingClientRect().top ?? 0) + stageTop;
+    const travel = runway.offsetHeight - stage.offsetHeight;
+    return { runway, stage, scroller, stageTop, portHeight, pinTop, travel };
+  }, []);
+
+  useEffect(() => {
+    const runway = runwayRef.current;
+    if (!staged || !runway || count < 2) return;
+    // The stage fills the scroll area below its pin line; its height then
+    // sets the runway and the timeline's window (CSS reads the three).
+    const stage = runway.firstElementChild as HTMLElement;
+    const size = () => {
+      const m = measure();
+      if (!m) return;
+      // Desktop scrolls `.app-pages`, measured here. The phone keeps the CSS
+      // values (`100svh` for the stage, `100dvh` for the timeline window):
+      // `innerHeight` changes with every move of Safari's toolbar, and a stage
+      // sized from it grew and shrank the cards while scrolling.
+      if (m.scroller) {
+        runway.style.setProperty('--view-h', `${m.portHeight - m.stageTop}px`);
+        runway.style.setProperty('--port-h', `${m.portHeight}px`);
+      } else {
+        runway.style.removeProperty('--view-h');
+        runway.style.removeProperty('--port-h');
+      }
+      runway.style.setProperty('--stage-h', `${stage.offsetHeight}px`);
+    };
+    size();
+    const resize = new ResizeObserver(size);
+    resize.observe(stage);
+    window.addEventListener('resize', size);
+    return () => {
+      resize.disconnect();
+      window.removeEventListener('resize', size);
+      ['--view-h', '--stage-h', '--port-h'].forEach((v) => runway.style.removeProperty(v));
+    };
+  }, [staged, count, measure]);
+
+  /** Tab brings an off-stage card into view: scroll to where it stands in
+   *  the middle. A tap on a visible card never moves the page. */
+  const focusCard = (index: number) => {
+    if (!staged || !deckRef.current?.querySelector(':focus-visible')) return;
+    const m = measure();
+    if (!m) return;
+    const delta =
+      m.runway.getBoundingClientRect().top - m.pinTop + (m.travel * index) / Math.max(1, count - 1);
+    if (m.scroller) m.scroller.scrollTop += delta;
+    else window.scrollTo({ top: window.scrollY + delta, behavior: 'instant' });
+  };
+
   // Nothing face-up means six card backs and no example of what is under one —
   // a section that asks visitors to collect something it never shows.
   if (!cards.some((c) => c.faceUp)) return null;
@@ -147,38 +222,36 @@ export default function HubMustEatsTeaser() {
   };
 
   return (
-    <section className="homeV2 hv-section hv-wrap">
-      {/* Eine Ink-Tafel wie die Kartenbänder auf /must-eats: die Karten liegen
-          mit Schatten auf Ink, der Titel ist weiß, die Knöpfe gelb und Ring. */}
-      <div className={styles.board}>
-        <HomeGallery
-          variant="nearby"
-          heading={
-            <>
-              {' '}
-              <div className="hv-head">
-                <h2 className="hv-title">
-                  <span className="hv-mk" aria-hidden="true" />
-                  {t('mustEats.teaserTitle')}
-                </h2>
-              </div>
-              <div className={styles.intro}>
-                <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
-              </div>{' '}
-            </>
-          }
-          label={t('mustEats.teaserTitle')}
-          portrait
-          footer={
+    <section className="homeV2 hv-section hv-wrap" data-hub-musteats="">
+      <div
+        ref={runwayRef}
+        className={styles.runway}
+        data-staged={staged && count > 1 ? '' : undefined}
+        style={{ '--count': count } as CSSProperties}
+      >
+        <div className={styles.stage}>
+          <div className={styles.side}>
+            <div className="hv-head">
+              <h2 className="hv-title">
+                <span className="hv-mk" aria-hidden="true" />
+                {t('mustEats.teaserTitle')}
+              </h2>
+            </div>
+            <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
             <div className={styles.foot}>
               <MapIntentLink href="/must-eats" className={`hv-btn ${styles.cta}`}>
                 {t('mustEats.teaserCta')}
               </MapIntentLink>
               <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="ink" />
             </div>
-          }
-        >
-          {cards.map(({ mustEat: m, faceUp: isFaceUp }) => {
+          </div>
+          <ul
+            ref={deckRef}
+            className={styles.deck}
+            role="list"
+            aria-label={t('mustEats.teaserTitle')}
+          >
+          {cards.map(({ mustEat: m, faceUp: isFaceUp }, index) => {
             // Ohne Bezirk: „AERA Charlottenburg“ heisst unter dem Gericht nur „AERA“.
             const restaurant = spotNameWithoutDistrict(
               normalizeName(m.restaurant.name),
@@ -250,7 +323,13 @@ export default function HubMustEatsTeaser() {
             );
 
             return (
-              <article key={m._id} className={styles.cardShell}>
+              <li
+                  key={m._id}
+                  className={styles.slide}
+                  style={{ '--i': index } as CSSProperties}
+                  onFocusCapture={() => focusCard(index)}
+                >
+                <article className={styles.cardShell}>
                 {needsAccount ? (
                   <button
                     type="button"
@@ -278,14 +357,13 @@ export default function HubMustEatsTeaser() {
                       className={styles.dishLink}
                       aria-label={cardAria}
                     >
-                      <span className={styles.dish} style={charCount(dish)}>
+                      <span className={styles.dish}>
                         {dish}
                       </span>
                     </MapIntentLink>
                   ) : (
                     <span
-                      className={`${styles.dish} ${styles.dishCovered}`}
-                      style={charCount(t('mustEats.covered'))}
+                      className={styles.dish}
                     >
                       {t('mustEats.covered')}
                     </span>
@@ -301,9 +379,11 @@ export default function HubMustEatsTeaser() {
                   )}
                 </span>
               </article>
+              </li>
             );
           })}
-        </HomeGallery>
+          </ul>
+        </div>
       </div>
     </section>
   );

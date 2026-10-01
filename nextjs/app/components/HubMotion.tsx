@@ -204,7 +204,6 @@ function armStaggers(safe: gsap.ContextSafeFunc): () => void {
   const plays = new Map<Element, () => void>();
 
   for (const group of root.querySelectorAll<HTMLElement>('[data-reveal="stagger"]')) {
-    if (group.hasAttribute('data-cravings') && CSS.supports('animation-timeline: view()')) continue;
     if (group.getBoundingClientRect().top <= fold) continue;
     const items = Array.from(group.children) as HTMLElement[];
     if (!items.length) continue;

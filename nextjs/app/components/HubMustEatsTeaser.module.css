@@ -10,35 +10,236 @@
    hellere Fläche dahinter hat mit ihnen konkurriert statt sie zu tragen. Am
    Telefon kam dazu, dass die Fläche nur 16px vom Bildschirmrand entfernt saß
    und als Rahmen um die Karten gelesen wurde. */
-.board {
+/* ── A24-Bühne (30.09.2026) ──
+   Ohne Scroll-Timelines und mit reduzierter Bewegung: Überschrift, Satz,
+   die Karten nebeneinander mit ihrer Zeile, darunter die Knöpfe. Mit Bühne
+   (`data-staged`, HubMustEatsTeaser): eine bildschirmhohe Szene, die Karten
+   fahren stufenlos am Scrollweg von rechts klein über die Mitte gross nach
+   links klein. Die Karte liegt schräg im Raum, Gericht und Restaurant
+   stehen gerade darunter und fahren mit. Keine Linien, keine Zeilen darüber
+   (Ansage 30.09.2026). */
+.runway {
   --teaser-ink: var(--et-ink);
   --teaser-paper: var(--et-white);
   --teaser-accent: var(--et-accent);
   --teaser-soft: rgba(255, 255, 255, 0.76);
+  --stage-top: var(--site-nav-h, 64px);
+  --stage-step: 55svh;
+  --card-w: min(56vw, 260px);
+  /* Wo die Nachbarn stehen, in Kartenbreiten (translate %). */
+  --x-next: 62%;
+  --x-prev: -82%;
+  --x-after: 135%;
+  --x-before: -155%;
+  --y-side: 16%;
 
+  /* Liest HubMustEatsTeaser als Pixelwert: wo die Bühne feststeht. */
+  scroll-margin-top: var(--stage-top);
+  color: var(--teaser-paper);
+}
+@media (min-width: 768px) {
+  .runway {
+    --stage-top: 0px;
+    --card-w: min(24vw, 340px);
+    --x-next: 108%;
+    --x-prev: -104%;
+    --x-after: 215%;
+    --x-before: -210%;
+  }
+}
+
+:global(.homeV2) .runway :global(.hv-title) {
   color: var(--teaser-paper);
 }
 
-/* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier. */
-:global(.homeV2) .board :global(.hv-title) {
-  color: var(--teaser-paper);
+.stage {
+  display: grid;
+  grid-template-areas:
+    'head'
+    'lead'
+    'deck'
+    'foot';
+  gap: 14px;
 }
-
-/* ── Lead line ─────────────────────────────────────────────────────────────── */
-.intro {
-  margin: 0 0 8px;
+.side {
+  display: contents;
+}
+.side > :global(.hv-head) {
+  grid-area: head;
+  margin: 0;
 }
 
 .lead {
+  grid-area: lead;
   max-width: 52ch;
   margin: 0;
   font-family: var(--et-font-display);
   font-size: clamp(16px, 1.35vw, 19px);
   font-weight: 400;
-  letter-spacing: 0;
   line-height: 1.5;
-  text-transform: none;
   color: var(--teaser-soft);
+}
+
+.deck {
+  --dish-size: 18px;
+  grid-area: deck;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 28px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.slide {
+  min-width: 0;
+}
+
+/* ── Mit Bühne ── */
+.runway[data-staged] {
+  --step: calc(100% / max(1, var(--count) - 1));
+  position: relative;
+  height: calc(var(--stage-h, 100svh) + (var(--count) - 1) * var(--stage-step));
+  view-timeline-name: --must-eat-stage;
+  view-timeline-axis: block;
+  /* Das Fenster der Timeline ist genau die Bühne: `contain` läuft dann von
+     „Bühne steht fest" bis „Strecke zu Ende". */
+  view-timeline-inset: var(--stage-top)
+    calc(var(--port-h, 100dvh) - var(--stage-h, 100svh) - var(--stage-top));
+}
+.runway[data-staged] .stage {
+  position: sticky;
+  top: var(--stage-top);
+  height: var(--view-h, calc(100svh - var(--stage-top)));
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 12px;
+  /* Randlos, damit die Nachbarkarten bis an die Bildschirmkante reichen. */
+  margin-inline: calc((100% - 100vw) / 2);
+  padding: 12px var(--et-wrap-pad-mobile, 16px) 20px;
+  overflow: clip;
+}
+.runway[data-staged] .deck {
+  display: block;
+  position: relative;
+  /* Das Deck misst sich selbst (`cqh`): die Karte richtet sich nach der
+     Höhe, die zwischen Text und Knöpfen wirklich frei ist — am iPhone mit
+     Safari-Leisten deutlich weniger als im Emulator. */
+  container-type: size;
+}
+/* Karte samt Zeile stehen mittig im Deck. Die Breite nimmt, was die Höhe
+   hergibt: Karte (1,3737 × Breite) plus `--caption-h` für die Zeile. */
+.runway[data-staged] .slide {
+  --caption-h: 76px;
+  --w: min(var(--card-w), calc((100cqh - var(--caption-h)) / 1.3737));
+  /* Eine Grösse für jede Unterschrift, aus derselben Kartenbreite. */
+  --dish-size: clamp(14px, calc(var(--w) * 0.075), 22px);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--w);
+  margin: calc((var(--w) * 1.3737 + var(--caption-h)) / -2) 0 0 calc(var(--w) / -2);
+  animation: deckPass ease-in-out both;
+  animation-timeline: --must-eat-stage;
+  animation-range: contain calc((var(--i) - 2) * var(--step)) contain
+    calc((var(--i) + 2) * var(--step));
+}
+.runway[data-staged] .card {
+  max-width: none;
+  animation: cardTurn ease-in-out both;
+  animation-timeline: --must-eat-stage;
+  animation-range: contain calc((var(--i) - 2) * var(--step)) contain
+    calc((var(--i) + 2) * var(--step));
+}
+.runway[data-staged] .meta {
+  padding-top: 18px;
+}
+@media (hover: hover) {
+  .runway[data-staged] .cardLink:hover .card {
+    scale: 1.03;
+  }
+}
+
+/* Die Bahn einer Karte über ihr Fenster: fünf Stationen, die Mitte bei
+   50 %. `z-index` stuft mit, damit die Karte vorn immer oben liegt. */
+@keyframes deckPass {
+  0% {
+    z-index: 1;
+    transform: translate(var(--x-after), var(--y-side)) scale(0.3);
+  }
+  25% {
+    z-index: 2;
+    transform: translate(var(--x-next), var(--y-side)) scale(0.4);
+  }
+  50% {
+    z-index: 3;
+    transform: translate(0, 0) scale(1);
+  }
+  75% {
+    z-index: 2;
+    transform: translate(var(--x-prev), var(--y-side)) scale(0.4);
+  }
+  100% {
+    z-index: 1;
+    transform: translate(var(--x-before), var(--y-side)) scale(0.3);
+  }
+}
+/* Die Karte liegt schräg im Raum und dreht sich beim Ankommen nach vorn. */
+@keyframes cardTurn {
+  0%,
+  25% {
+    transform: perspective(1100px) rotateX(18deg) rotateY(-18deg) rotate(7deg);
+  }
+  38% {
+    transform: perspective(1100px) rotateX(10deg) rotateY(-62deg) rotate(2deg);
+  }
+  50%,
+  100% {
+    transform: perspective(1100px) rotateX(18deg) rotateY(-18deg) rotate(7deg);
+  }
+}
+
+@media (min-width: 768px) {
+  .runway[data-staged] .stage {
+    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'side deck';
+    column-gap: clamp(24px, 4vw, 64px);
+    padding: 24px
+      max(
+        var(--et-wrap-pad, 32px),
+        (100vw - var(--et-wrap-max, 1440px)) / 2 + var(--et-wrap-pad, 32px)
+      );
+  }
+  .runway[data-staged] .side {
+    grid-area: side;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+  }
+  /* Links steht die Textspalte: die wartenden Karten verschwinden an der
+     Kante des Decks, statt über die Knöpfe zu fahren. */
+  .runway[data-staged] .deck {
+    overflow: clip;
+  }
+}
+
+/* Am Telefon wird die Bühne nicht mit `sticky` gehalten: eine
+   bildschirmhohe fixierte Fläche an der Unterkante färbt Safaris URL-Leiste
+   (siehe ios26-safari-leisten). Stattdessen schiebt dieselbe Timeline sie im
+   Gleichschritt mit. */
+@keyframes stagePin {
+  to {
+    translate: 0 calc((var(--count) - 1) * var(--stage-step));
+  }
+}
+@media (max-width: 767.98px) {
+  .runway[data-staged] .stage {
+    position: relative;
+    top: auto;
+    animation: stagePin linear both;
+    animation-timeline: --must-eat-stage;
+    animation-range: contain 0% contain 100%;
+  }
 }
 
 .cardShell {
@@ -189,14 +390,17 @@
 }
 
 /* ── Card meta (dish + restaurant) ────────────────────────────────────────── */
+/* Alle Unterschriften gleich (Ansage 30.09.2026): linksbündig, eine Grösse,
+   verdeckt wie aufgedeckt. Die Grösse hängt an der Kartenbreite (`.slide`),
+   nicht an der Länge des Gerichts — so ist „Verdeckt" nicht grösser als
+   „Rinder Schaufel". */
 .meta {
   display: grid;
   align-content: start;
+  justify-items: start;
   gap: 4px;
   padding: 20px 2px 0;
-  text-align: center;
-  /* Maß für die Gerichtzeile darunter (`100cqi`). */
-  container-type: inline-size;
+  text-align: left;
 }
 
 .dishLink,
@@ -209,17 +413,14 @@
   text-decoration: none;
 }
 
-/* Das Gericht steht in EINER Zeile, auf jeder Breite (Ansage 28.09.2026:
-   „Rinderschaufel eine Zeile natürlich"): die Schrift schrumpft auf
-   Spaltenbreite ÷ Zeichenzahl (`--chars` setzt die Komponente), höchstens
-   `--dish-max`. Versalien der Markenschrift laufen rund 0,66em breit. Unter
-   10px liest es niemand mehr: ein sehr langes Gericht („Crispy Pork Bánh Mì")
-   bleibt dort stehen und endet mit Auslassung — nie läuft es in die
-   Nachbarkarte, wie früher „Rindergulasch mit Knödel" in „Chorizo". */
+/* Das Gericht steht in EINER Zeile (Ansage 28.09.2026: „Rinderschaufel eine
+   Zeile natürlich"); ein sehr langes endet mit Auslassung, nie läuft es in
+   die Nachbarkarte. */
 .dish {
   display: block;
+  max-width: 100%;
   font-family: var(--et-font-display);
-  font-size: clamp(10px, calc(100cqi / (var(--chars, 10) * 0.66)), var(--dish-max, 24px));
+  font-size: var(--dish-size);
   font-weight: 700;
   letter-spacing: 0;
   /* Akzente auf Versalien („BÁNH MÌ") brauchen Luft über der Zeile, sonst
@@ -252,12 +453,6 @@
   color: var(--teaser-accent);
 }
 
-/* The card's state, standing where a dish name would. Same slot and type so the
-   row keeps one baseline; muted because it names a blank, not a dish. */
-.dishCovered {
-  color: rgba(255, 255, 255, 0.4);
-}
-
 .restaurantLink :global(.hv-sub) {
   color: rgba(255, 255, 255, 0.62);
   font-family: var(--et-font-display);
@@ -284,11 +479,11 @@
 
 /* ── Footer row: gelber Knopf zu allen Must Eats, Ring fürs Onboarding ────── */
 .foot {
+  grid-area: foot;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: clamp(12px, 1.4vw, 16px);
-  margin-top: clamp(8px, 1.5vw, 16px);
 }
 
 /* Gelb auf Ink, eckig wie jeder Tafel-Knopf — die runde `.hv-btn`-Pille
@@ -335,9 +530,6 @@
     gap: 2px;
   }
 
-  .meta .dish {
-    --dish-max: 22px;
-  }
 
   .restaurantLink :global(.hv-sub) {
     font-size: 15px;

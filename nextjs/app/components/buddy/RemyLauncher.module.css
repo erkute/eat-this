@@ -13,15 +13,17 @@
 }
 
 .launcher {
-  /* Anker für das redende Gesicht (`.talk`). */
   position: relative;
+  isolation: isolate;
   display: grid;
   place-items: center;
   width: 58px;
   height: 58px;
   padding: 0;
   overflow: hidden;
-  background: var(--et-accent);
+  /* Das Gelb liegt als eigene Ebene hinter dem Kopf (::before), damit es
+     beim Auftritt um ihn herum wachsen kann. */
+  background: transparent;
   border: none;
   border-radius: var(--et-radius-photo);
   cursor: pointer;
@@ -29,6 +31,24 @@
   transition:
     transform var(--et-motion-base),
     background var(--et-motion-base);
+}
+
+.launcher::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--et-accent);
+}
+
+/* Anker für das redende Gesicht (`.talk`) und das, was beim Auftritt von
+   der Seite hereinguckt. */
+.head {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* Sein Kopf füllt die Kachel wie ein Passfoto — gerechnet, nicht geraten.
@@ -149,6 +169,87 @@
 .dismiss:focus-visible {
   outline: 2px solid var(--et-accent);
   outline-offset: 2px;
+}
+
+/* ── Auftritt auf der Startseite (30.09.2026) ──
+   Während der grosse Remy den Vorhang schiebt, wartet der kleine unsichtbar.
+   Danach guckt erst sein Kopf gekippt von der Seite herein, hält kurz inne
+   und hüpft an seinen Platz; dann wächst das Gelb um ihn herum und rahmt
+   ihn ein, zuletzt kommt das ✕. Nur Bewegung, kein Einblenden. */
+:global(html[data-hero-intro]) .dock,
+.dock[data-entrance='waiting'] {
+  visibility: hidden;
+}
+.dock[data-entrance='playing'] .launcher {
+  overflow: visible;
+  animation: remyFrame 2.3s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+.dock[data-entrance='playing'] .head {
+  animation: remyPeek 2.3s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+.dock[data-entrance='playing'] .launcher::before {
+  animation: remyTile 2.3s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+.dock[data-entrance='playing'] .dismiss {
+  animation: remyBadge 2.3s ease-out both;
+}
+@keyframes remyPeek {
+  0% {
+    transform: translateX(170%) rotate(-24deg);
+  }
+  22%,
+  46% {
+    transform: translateX(64%) rotate(-14deg);
+  }
+  62% {
+    transform: translateX(-6%) rotate(5deg);
+  }
+  76% {
+    transform: translateX(0) rotate(-2deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes remyTile {
+  0%,
+  56% {
+    transform: scale(0);
+  }
+  74% {
+    transform: scale(1.14);
+  }
+  86% {
+    transform: scale(0.97);
+  }
+  100% {
+    transform: none;
+  }
+}
+/* Bis das Gelb kommt, ragt der Kopf frei über die Kachel hinaus — nach
+   oben und zur Seite, nicht nach unten: unter dem Kinn ist er nackt. Mit dem
+   Gelb rahmt die Kachel ihn ein. */
+@keyframes remyFrame {
+  0%,
+  58% {
+    clip-path: inset(-100% -200% 0 -100% round 10px);
+  }
+  80%,
+  100% {
+    clip-path: inset(0 round 10px);
+  }
+}
+@keyframes remyBadge {
+  0%,
+  82% {
+    transform: scale(0);
+  }
+  92% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: none;
+  }
 }
 
 /* Solange der Chat offen ist, ist die Anlegestelle nichts weiter als Ballast

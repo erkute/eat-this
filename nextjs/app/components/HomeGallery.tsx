@@ -8,10 +8,8 @@ import styles from './HomeGallery.module.css';
 interface Props {
   children: ReactNode;
   label: string;
-  portrait?: boolean;
   footer?: ReactNode;
   heading?: ReactNode;
-  variant?: 'nearby' | 'editorial';
 }
 
 /** The page scroll is the only timeline. Native scroll animations keep the
@@ -20,10 +18,8 @@ interface Props {
 export default function HomeGallery({
   children,
   label,
-  portrait = false,
   footer,
   heading,
-  variant = 'nearby',
 }: Props) {
   const items = Children.toArray(children);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -115,10 +111,9 @@ export default function HomeGallery({
   return (
     <div
       ref={rootRef}
-      className={`${styles.gallery}${portrait ? ` ${styles.portrait}` : ''}`}
+      className={styles.gallery}
       style={{ '--gallery-count': count } as CSSProperties}
       data-home-gallery=""
-      data-gallery-variant={variant}
     >
       <div className={styles.stage} data-home-pointer="">
         {heading && <div className={styles.heading}>{heading}</div>}

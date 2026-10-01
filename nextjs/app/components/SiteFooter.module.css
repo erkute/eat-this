@@ -294,18 +294,9 @@
 }
 
 /* The homepage keeps the shared grey footer palette. */
-@property --outro {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
 .home .megaImg {
   width: min(48vw, 190px);
   filter: none;
-}
-.home .brand {
-  transform: translateY(calc((1 - var(--outro)) * 70px)) rotate(calc((1 - var(--outro)) * -8deg))
-    scale(calc(0.8 + var(--outro) * 0.2));
 }
 .home .tagline {
   font-size: clamp(13px, 2.5vw, 23px);
@@ -332,26 +323,28 @@
   color: var(--footer-ink);
   text-decoration: underline;
 }
-@keyframes outro {
-  from {
-    --outro: 0;
+/* Die Marke ploppt beim Hereinscrollen an ihrem Platz auf. Früher kam sie
+   70px tiefer herein und lief dabei in „Folgen / Instagram" darunter
+   (Ansage 30.09.2026) — jetzt nur Skalierung um die eigene Mitte, direkt am
+   Element statt über eine animierte Variable. */
+@keyframes brandPop {
+  0% {
+    transform: scale(0.72) rotate(-6deg);
   }
-  to {
-    --outro: 1;
+  70% {
+    transform: scale(1.06) rotate(1.5deg);
+  }
+  100% {
+    transform: none;
   }
 }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .home {
-      animation: outro linear both;
+    .home .brand {
+      animation: brandPop linear both;
       animation-timeline: view();
-      animation-range: entry 0% entry 100%;
+      animation-range: entry 10% entry 90%;
     }
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .home .brand {
-    transform: none;
   }
 }
 

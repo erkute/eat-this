@@ -30,7 +30,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
             {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
           </h2>
         </div>
-        <ul className={styles.grid} role="list" data-reveal="stagger" data-cravings="">
+        <ul className={styles.grid} role="list" data-reveal="stagger">
           {entries.map(([slug, name]) => (
             <li key={slug}>
               {/* Der Name steht als Text direkt in der Zeile: `.chip` ist ein

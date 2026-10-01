@@ -14,8 +14,6 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
     <footer
       className={`${styles.footer}${home ? ` ${styles.home}` : ''}`}
       data-site-footer
-      data-scrub={home ? '--outro 0 1' : undefined}
-      data-scrub-end="top 25%"
       role="contentinfo"
       aria-label="Site footer"
     >

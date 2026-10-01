@@ -5,18 +5,13 @@
 }
 
 .gallery {
-  --gallery-width: min(82vw, 520px, 52svh);
+  --gallery-width: min(82vw, 600px, 60svh);
   --gallery-gap: clamp(12px, 2vw, 28px);
   --gallery-height: 100svh;
   --gallery-viewport: 100dvh;
   --gallery-step: 34svh;
   --gallery-top: var(--site-nav-h, 64px);
   min-width: 0;
-}
-
-.portrait {
-  --gallery-width: min(72vw, 340px, 30svh);
-  --gallery-gap: clamp(24px, 5vw, 70px);
 }
 
 /* No JS / reduced motion: ordinary vertical content, with no dead scroll
@@ -36,9 +31,6 @@
   max-width: 520px;
   margin-inline: auto;
 }
-.portrait .face {
-  max-width: 340px;
-}
 
 /* The stage sticks within its own scroll runway. Nothing captures the page's
    wheel or touch input, so visitors can always keep scrolling or reverse. */
@@ -50,6 +42,12 @@
   position: sticky;
   top: var(--gallery-top);
   height: auto;
+  /* Bildschirmhoch, die Karten mittig im freien Raum: kein leerer Ink-Grund
+     unter dem Band, solange es sich bewegt (Ansage 30.09.2026). Die feste
+     Höhe (`svh`, nicht `dvh`): am iPhone ändert sich `dvh` mit jeder
+     Bewegung der Safari-Leiste, die Bühne wuchs und schrumpfte, und das
+     mittig gestellte Band wackelte hoch und runter. */
+  min-height: calc(100svh - var(--site-nav-h, 64px));
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -59,7 +57,9 @@
 }
 .gallery[data-motion] .rail {
   display: grid;
+  flex: 1;
   grid-template-columns: minmax(0, 1fr);
+  align-content: center;
   gap: 0;
   width: 100%;
   padding: 12px 0;
@@ -186,29 +186,6 @@
   }
 }
 
-/* Magazine: pages move vertically through a stable image window. */
-.gallery[data-motion][data-gallery-variant='editorial'] .rail {
-  overflow: clip;
-  padding-block: 0;
-}
-.gallery[data-motion][data-gallery-variant='editorial'] .slide {
-  z-index: calc(100 - var(--gallery-index));
-}
-.gallery[data-motion][data-gallery-variant='editorial'] .face {
-  transform: translateY(calc(var(--distance) * 112%)) scale(calc(1 - min(var(--depth), 1) * 0.06));
-}
-@media (prefers-reduced-motion: reduce) {
-  .gallery[data-motion][data-gallery-variant] .face {
-    transform: none;
-    clip-path: none;
-  }
-}
-@media (min-width: 768px) {
-  .gallery[data-gallery-variant='editorial'] {
-    --gallery-width: min(78vw, 680px, 70svh);
-  }
-}
-
 /* Same scroll-pinned position, without a sticky viewport-sized layer that
    Safari may extend as a solid tint underneath its bottom browser toolbar. */
 @media (max-width: 767.98px) and (prefers-reduced-motion: no-preference) {
@@ -222,10 +199,7 @@
 /* Reserve room for the heading, location action and captions on short phones. */
 @media (max-width: 767.98px) {
   .gallery {
-    --gallery-width: min(78vw, 360px, 48svh);
-  }
-  .portrait {
-    --gallery-width: min(64vw, 290px, 28svh);
+    --gallery-width: min(78vw, 360px, 40svh);
   }
 }
 
@@ -257,14 +231,6 @@
     );
   }
 }
-@keyframes mobilePages {
-  from {
-    transform: translateY(calc(var(--gallery-index) * 112%));
-  }
-  to {
-    transform: translateY(calc((var(--gallery-index) - var(--gallery-count) + 1) * 112%));
-  }
-}
 @media (max-width: 767.98px) and (prefers-reduced-motion: no-preference) {
   .gallery[data-motion='native'] {
     animation: none;
@@ -283,20 +249,11 @@
     animation-timeline: --gallery-scroll;
     animation-range: contain 0% contain 100%;
   }
-  .gallery[data-motion='native'][data-gallery-variant='editorial'] .face {
-    animation-name: mobilePages;
-  }
   .gallery[data-motion='gsap'] .face {
     transform: translate3d(
       calc(var(--distance) * (var(--gallery-width) + var(--gallery-gap))),
       0,
       0
     );
-  }
-  .gallery[data-gallery-variant='editorial'] {
-    --gallery-width: min(78vw, 360px, 40svh);
-  }
-  .portrait {
-    --gallery-width: min(64vw, 290px, 25svh);
   }
 }

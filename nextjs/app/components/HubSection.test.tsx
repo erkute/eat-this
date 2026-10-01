@@ -70,6 +70,7 @@ const data: HomeData = {
     _id: 'r1',
     featuredOnDate: null,
   },
+  spotOfYesterday: null,
   // MagazineGrid renders nothing on an empty list, and the order assertions
   // below need it on the page.
   magazine: [{ title: 'Zehn Teller', slug: 'zehn-teller', image: null, kicker: 'Magazin' }],

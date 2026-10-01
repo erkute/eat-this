@@ -41,19 +41,22 @@ export default function StarterPackSignup() {
           art={
             <div className={styles.art} aria-hidden="true">
               <div className={styles.packRig}>
-                {/* The foil never contains a baked-in person: the print and
-                    emerging character are the very same registered layer. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className={styles.packFront}
-                  src="/pics/home/booster-empty.webp"
-                  alt=""
-                  width={1008}
-                  height={1560}
-                />
-                <div className={styles.character}>
+                {/* Pack and figure turn as one: the figure is printed on the
+                    foil (Ansage 30.09.2026: „die Figur wieder in das Starter
+                    Pack rein"), and the pack keeps its turn into the room. */}
+                <div className={styles.pack}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/pics/home/booster-cafe-layer.webp" alt="" width={960} height={1600} />
+                  <img
+                    className={styles.packFront}
+                    src="/pics/home/booster-empty.webp"
+                    alt=""
+                    width={1008}
+                    height={1560}
+                  />
+                  <div className={styles.character}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/pics/home/booster-cafe-layer.webp" alt="" width={960} height={1600} />
+                  </div>
                 </div>
               </div>
             </div>

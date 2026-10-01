@@ -1,22 +1,32 @@
 /**
  * Remys Blick als Verformung der Zeichnung (Ansage 01.10.2026: „was machen
  * wir mit seinem Gesicht? Das muss sich in diese Richtung bewegen … ein
- * bisschen nach rechts und links und oben und unten gucken"). Neu zeichnen
- * lässt sich der Kopf nicht; aber wie bei einer echten Drehung wandern die
- * Gesichtszüge — Brille, Nase, Schnurrbart, Mund — in Blickrichtung, während
- * der Kopfumriss stehen bleibt und die Haut dazwischen sich dehnt. Das Ohr
- * auf der Seite, zu der er schaut, rutscht ein Stück hinter die Wange. Hals
- * und Schultern bleiben, wo sie sind.
+ * bisschen nach rechts und links und oben und unten gucken"; danach: „nimm
+ * seinen ganzen Kopf … das Kinn und den oberen Kopfbereich mehr bewegen").
+ * Neu zeichnen lässt sich der Kopf nicht; also bewegt sich der ganze Kopf —
+ * Scheitel bis Kinn — als Einheit: er verschiebt sich in Blickrichtung und
+ * neigt sich leicht um die Halsbasis. Die Gesichtszüge (Brille, Nase,
+ * Schnurrbart, Mund) wandern noch ein Stück weiter als der Umriss, so wirkt
+ * es wie eine Drehung und nicht wie ein Schieben. Das Ohr auf der Seite, zu
+ * der er schaut, rutscht hinter die Wange. Der Hals dehnt sich, die
+ * Schultern bleiben, wo sie sind.
  *
  * Koordinaten im 1024er-Quadrat von /buddy/buddy.webp (gemessen 01.10.2026:
- * Gläser y 236–338, x 384–638; Kopf bis Kinn y ≈ 440; Ohren bei x ≈ 322 und
- * 702). `look` ist -1…1 je Achse; +x schaut nach rechts, +y nach unten.
+ * Gläser y 236–338, x 384–638; Kinn y ≈ 440; Hals y 480–590, 220px breit;
+ * Schultern ab y ≈ 600; Ohren bei x ≈ 322 und 702). `look` ist -1…1 je
+ * Achse; +x schaut nach rechts, +y nach unten.
  */
 export type Point = { x: number; y: number };
 
-/** Wie weit die Züge höchstens wandern (px im 1024er-Bild). */
-export const LOOK_SHIFT = { x: 40, y: 26 } as const;
+/** Wie weit der ganze Kopf wandert (px im 1024er-Bild). */
+export const HEAD_SHIFT = { x: 30, y: 22 } as const;
+/** Wie weit die Gesichtszüge insgesamt wandern — Kopf plus Drehung. */
+export const LOOK_SHIFT = { x: 54, y: 36 } as const;
+/** Neigung um die Halsbasis je Einheit Blick zur Seite (rad, ~3°). */
+const TILT = 0.055;
 
+const NECK = { top: 450, bottom: 600 };
+const PIVOT = { x: 512, y: 600 };
 const FACE = { x: 512, y: 300, rx: 205, ry: 200 };
 const EAR = { y: 300, rx: 42, ry: 75, left: 322, right: 702 };
 
@@ -29,11 +39,20 @@ const gauss = (p: Point, x: number, y: number, rx: number, ry: number) =>
 
 export function lookPose(lx: number, ly: number) {
   return (p: Point): Point => {
-    // Der Kern des Gesichts wandert starr, zum Umriss hin klingt es aus.
+    // Der ganze Kopf bis zum Kinn, über den Hals ausklingend.
+    const head = 1 - smooth(NECK.top, NECK.bottom, p.y);
+    const angle = lx * TILT * head;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const dx = p.x - PIVOT.x;
+    const dy = p.y - PIVOT.y;
+    let x = PIVOT.x + dx * cos - dy * sin + lx * HEAD_SHIFT.x * head;
+    let y = PIVOT.y + dx * sin + dy * cos + ly * HEAD_SHIFT.y * head;
+    // Die Züge wandern weiter als der Umriss — das macht die Drehung.
     const r = Math.hypot((p.x - FACE.x) / FACE.rx, (p.y - FACE.y) / FACE.ry);
     const face = 1 - smooth(0.5, 1, r);
-    let x = p.x + lx * LOOK_SHIFT.x * face;
-    const y = p.y + ly * LOOK_SHIFT.y * face;
+    x += lx * (LOOK_SHIFT.x - HEAD_SHIFT.x) * face;
+    y += ly * (LOOK_SHIFT.y - HEAD_SHIFT.y) * face;
     // Das zugewandte Ohr rückt nach innen, das abgewandte bleibt.
     x -= Math.max(lx, 0) * 18 * gauss(p, EAR.right, EAR.y, EAR.rx, EAR.ry);
     x -= Math.min(lx, 0) * 18 * gauss(p, EAR.left, EAR.y, EAR.rx, EAR.ry);

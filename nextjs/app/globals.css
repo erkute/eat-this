@@ -1680,6 +1680,12 @@ ol {
   }
 }
 
+/* Scroll-Bühnen der Startseite, die quer gezogen werden (lib/home/sideDrag.ts):
+   senkrecht scrollt und zoomt der Browser, den Querwisch bekommt das Skript. */
+[data-side-drag] {
+  touch-action: pan-y pinch-zoom;
+}
+
 /* Let the fixed opening curtain cover the navigation as well as the page.
    No transforms or scroll locks: Safari keeps its native window scrolling. */
 @media (prefers-reduced-motion: no-preference) {

@@ -15,6 +15,7 @@ import { composeTeaserCards } from '@/lib/home/mustEatsGallery';
 import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
 import { useHomeMapData } from './HomeMapDataContext';
 import { appScroller } from '@/lib/dom/appScroller';
+import { armSideDrag } from '@/lib/home/sideDrag';
 import styles from './HubMustEatsTeaser.module.css';
 
 const TEASER_COUNT = 6;
@@ -110,7 +111,8 @@ export default function HubMustEatsTeaser() {
      von rechts klein über die Mitte gross nach links klein, jede auf ihrem
      eigenen Fenster der Scroll-Timeline (HubMustEatsTeaser.module.css). Das
      läuft im Takt des Scrollens, auch auf dem iPhone; JS misst nur die
-     Bühne aus. Nichts hält den Scroll fest. Mit reduzierter Bewegung und
+     Bühne aus und übersetzt einen Querwisch in denselben Scroll. Nichts
+     hält den Scroll fest. Mit reduzierter Bewegung und
      ohne Scroll-Timelines liegen die Karten nebeneinander. */
   const runwayRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLUListElement>(null);
@@ -168,7 +170,21 @@ export default function HubMustEatsTeaser() {
     const resize = new ResizeObserver(size);
     resize.observe(stage);
     window.addEventListener('resize', size);
+    // Quer über die Bühne wischen schiebt die Karten wie der Scroll: dieselbe
+    // Strecke, auf der `focusCard` eine Karte in die Mitte holt.
+    const disarm = armSideDrag(stage, () => {
+      const m = measure();
+      const slide = deckRef.current?.firstElementChild as HTMLElement | null;
+      if (!m || !slide) return null;
+      return {
+        start: m.runway.getBoundingClientRect().top - m.pinTop,
+        step: m.travel / (count - 1),
+        count,
+        finger: slide.offsetWidth,
+      };
+    });
     return () => {
+      disarm();
       resize.disconnect();
       window.removeEventListener('resize', size);
       ['--view-h', '--stage-h', '--port-h'].forEach((v) => runway.style.removeProperty(v));

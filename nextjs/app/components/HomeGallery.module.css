@@ -11,6 +11,8 @@
   --gallery-viewport: 100dvh;
   --gallery-step: 34svh;
   --gallery-top: var(--site-nav-h, 64px);
+  /* Liest HomeGallery als Pixelwert: wo die Bühne feststeht. */
+  scroll-margin-top: var(--gallery-top);
   min-width: 0;
 }
 

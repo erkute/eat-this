@@ -3,6 +3,7 @@
 import { Children, useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { appScroller } from '@/lib/dom/appScroller';
+import { armSideDrag } from '@/lib/home/sideDrag';
 import styles from './HomeGallery.module.css';
 
 interface Props {
@@ -12,9 +13,18 @@ interface Props {
   heading?: ReactNode;
 }
 
+/** The stage's pin line in px. `--gallery-top` computes to `calc(64px + 0px)`,
+ *  which `parseFloat` reads as NaN — `scroll-margin-top` (CSS) carries it as
+ *  a resolved length instead, as on the Must-Eat runway. */
+function pinLine(root: HTMLElement): number {
+  return parseFloat(getComputedStyle(root).scrollMarginTop) || 0;
+}
+
 /** The page scroll is the only timeline. Native scroll animations keep the
  * phone's gallery in step with its compositor; GSAP supplies the same numeric
- * position in browsers without scroll timelines. No wheel/touch interception. */
+ * position in browsers without scroll timelines. Nothing holds the page's
+ * wheel or vertical touch; a sideways finger drag only moves that same
+ * scroll (lib/home/sideDrag.ts). */
 export default function HomeGallery({
   children,
   label,
@@ -42,13 +52,27 @@ export default function HomeGallery({
     };
     let frame = 0;
     let removeFallback = () => {};
+    let removeDrag = () => {};
+    /** Where the band stands, for a sideways drag: card 0 sits at the pin
+     *  line, every further card one equal share of the runway below. */
+    const dragGeometry = () => {
+      const scroller = appScroller();
+      const pin = (scroller?.getBoundingClientRect().top ?? 0) + pinLine(root);
+      const slide = root.querySelector<HTMLElement>('[data-gallery-slide]');
+      if (!slide) return null;
+      return {
+        start: root.getBoundingClientRect().top - pin,
+        step: (root.offsetHeight - stage.offsetHeight) / (count - 1),
+        count,
+        // A card moves one width (plus a narrow gap) per step.
+        finger: slide.offsetWidth,
+      };
+    };
 
     const draw = () => {
       frame = 0;
       const scroller = appScroller();
-      const top =
-        (scroller?.getBoundingClientRect().top ?? 0) +
-        (parseFloat(getComputedStyle(stage).getPropertyValue('--gallery-top')) || 0);
+      const top = (scroller?.getBoundingClientRect().top ?? 0) + pinLine(root);
       const travel = root.offsetHeight - stage.offsetHeight;
       const progress =
         travel > 0
@@ -61,6 +85,8 @@ export default function HomeGallery({
     };
     const configure = () => {
       removeFallback();
+      removeDrag();
+      removeDrag = () => {};
       cancelAnimationFrame(frame);
       frame = 0;
       root.style.removeProperty('--gallery-position');
@@ -71,6 +97,7 @@ export default function HomeGallery({
       }
       root.setAttribute('data-motion', native ? 'native' : 'gsap');
       measure();
+      removeDrag = armSideDrag(stage, dragGeometry);
       if (native) return;
       // Both scroll sources: the app changes its scroller at 768px.
       const container = document.querySelector<HTMLElement>('.app-pages');
@@ -97,6 +124,7 @@ export default function HomeGallery({
     calm.addEventListener('change', configure);
     return () => {
       removeFallback();
+      removeDrag();
       stageResize.disconnect();
       cancelAnimationFrame(frame);
       calm.removeEventListener('change', configure);
@@ -135,7 +163,7 @@ export default function HomeGallery({
                 const start =
                   root.getBoundingClientRect().top -
                   (scroller?.getBoundingClientRect().top ?? 0) -
-                  (parseFloat(getComputedStyle(stage).getPropertyValue('--gallery-top')) || 0);
+                  pinLine(root);
                 const travel = root.offsetHeight - stage.offsetHeight;
                 const delta = start + (travel * index) / Math.max(1, count - 1);
                 if (scroller) scroller.scrollTop += delta;

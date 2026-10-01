@@ -2,8 +2,10 @@
  * The Starter Pack as a 3D foil bag (01.10.2026, Ansage: „ein 3D-Modell, das
  * sich leicht bewegt"). A small WebGL renderer, no library: one grid per side,
  * bulged into a pillow — flat at the crimped seals top and bottom, rounded
- * between the side folds — printed with the pack art on the front and plain
- * foil on the back. The colours stay those of the picture; light only
+ * between the side folds — printed with the pack art on the front and the
+ * pack's back on the back (01.10.2026, the operator's back-side picture:
+ * logo, the four lines, „20 Must Eats", barcode). The colours stay those of
+ * the pictures; light only
  * shades the bulge a little where the foil turns away. Earlier passes with
  * reflections, crinkles and highlights read as glow and glitter.
  */
@@ -66,6 +68,7 @@ void main() {
 const FRAGMENT = `
 precision mediump float;
 uniform sampler2D uArt;
+uniform sampler2D uBack;
 varying vec2 vUv;
 varying vec3 vNormal;
 varying float vSide;
@@ -77,7 +80,9 @@ void main() {
   // Farbe bleiben, die das Starter Pack hat", white foil, no glitter) — the
   // light only lets the bulge read: a little darker where the foil turns
   // away, never brighter than the print.
-  vec3 base = vSide > 0.0 ? art.rgb : vec3(0.86, 0.86, 0.85);
+  // The back picture is stored mirrored, so the same uv reads right way
+  // round from behind; it has the front's silhouette (booster-back.webp).
+  vec3 base = vSide > 0.0 ? art.rgb : texture2D(uBack, vUv).rgb;
   vec3 n = normalize(vNormal);
   float facing = max(dot(n, normalize(vec3(-0.3, 0.45, 1.0))), 0.0);
   gl_FragColor = vec4(base * (0.86 + 0.14 * facing), 1.0);
@@ -135,7 +140,11 @@ function pixelsPerUnit(canvasHeight: number): number {
   return canvasHeight / (2 * DISTANCE * Math.tan(FOV / 2));
 }
 
-export function renderPack(canvas: HTMLCanvasElement, art: TexImageSource): PackRenderer | null {
+export function renderPack(
+  canvas: HTMLCanvasElement,
+  art: TexImageSource,
+  back: TexImageSource
+): PackRenderer | null {
   const gl = canvas.getContext('webgl', {
     alpha: true,
     antialias: true,
@@ -149,11 +158,13 @@ export function renderPack(canvas: HTMLCanvasElement, art: TexImageSource): Pack
   const sideBuffer = gl.createBuffer()!;
   const indexBuffer = gl.createBuffer()!;
   const texture = gl.createTexture()!;
+  const backTexture = gl.createTexture()!;
   const dispose = () => {
     gl.deleteBuffer(uvBuffer);
     gl.deleteBuffer(sideBuffer);
     gl.deleteBuffer(indexBuffer);
     gl.deleteTexture(texture);
+    gl.deleteTexture(backTexture);
     gl.deleteProgram(program);
     shaders.forEach((s) => gl.deleteShader(s));
   };
@@ -201,13 +212,19 @@ export function renderPack(canvas: HTMLCanvasElement, art: TexImageSource): Pack
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, art);
+    const upload = (unit: number, target: WebGLTexture, image: TexImageSource, name: string) => {
+      gl.activeTexture(gl.TEXTURE0 + unit);
+      gl.bindTexture(gl.TEXTURE_2D, target);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      gl.uniform1i(gl.getUniformLocation(program, name), unit);
+    };
+    upload(0, texture, art, 'uArt');
+    upload(1, backTexture, back, 'uBack');
 
     gl.enable(gl.DEPTH_TEST);
     gl.clearColor(0, 0, 0, 0);
@@ -237,7 +254,8 @@ export function renderPack(canvas: HTMLCanvasElement, art: TexImageSource): Pack
 }
 
 /** The idle sway at `seconds`: a slow turn left and right, a little nod and
- *  roll, floating up and down — never so far that the back shows. */
+ *  roll, floating up and down — never so far that the back shows; a tap
+ *  turns it once all the way round. */
 export function idlePose(seconds: number): PackPose {
   return {
     rotateY: 0.3 * Math.sin(seconds * 0.55),

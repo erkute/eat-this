@@ -6,6 +6,9 @@ import styles from './StarterPackSignup.module.css';
 
 const PACK_SRC = '/pics/home/booster-empty.webp';
 const FIGURE_SRC = '/pics/home/booster-cafe-layer.webp';
+/** The back of the pack, stored mirrored with the front's silhouette, so the
+ *  renderer reads it with the front's uv (lib/home/renderPack.ts). */
+const BACK_SRC = '/pics/home/booster-back.webp';
 /** Where the figure sits on the foil, as fractions of the pack. */
 const FIGURE = { left: 0.194, top: 0.308, width: 0.598, height: 0.66 };
 const SPIN_MS = 1400;
@@ -122,10 +125,10 @@ export default function StarterPack3D() {
       stage.removeAttribute('data-gl');
     };
 
-    packArt()
-      .then((art) => {
+    Promise.all([packArt(), loadImage(BACK_SRC)])
+      .then(([art, back]) => {
         if (cancelled) return;
-        renderer = renderPack(canvas, art);
+        renderer = renderPack(canvas, art, back);
         if (!renderer) return;
         resize();
         stage.setAttribute('data-gl', '');

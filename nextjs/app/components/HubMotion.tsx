@@ -4,7 +4,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { scrollProgress } from '@/lib/dom/scrollProgress';
-import { armDeckMouse } from '@/lib/home/deckMouse';
+import { armMagazineTable } from '@/lib/home/magazineTable';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -54,9 +54,10 @@ gsap.registerPlugin(useGSAP);
  * 4. **Immer:** Remy redet, solange gescrollt wird — der große im Frag-Remy-
  *    Abschnitt und der schwebende unten rechts (`armScrollTalk`).
  *
- * 5. **Nur ab 768px:** die Telefone driften beim Herausscrollen auseinander;
- *    mit echtem Zeiger kippen sie zur Maus, der Knopf zieht magnetisch, und
- *    der Magazin-Stapel lässt sich ziehen und aufblättern (`armMagazineMouse`).
+ * 5. **Nur ab 768px:** die Telefone driften beim Herausscrollen auseinander,
+ *    und der Magazin-Stapel blättert getimt wie ein Kartenstapel
+ *    (`armMagazineTable`); mit echtem Zeiger kippen die Telefone zur Maus und
+ *    der Knopf zieht magnetisch.
  */
 
 /**
@@ -856,12 +857,12 @@ function armPreload(): () => void {
   return () => io.disconnect();
 }
 
-/** Der Magazin-Stapel mit der Maus: ziehen, aufblättern, nach vorn holen
- *  (lib/home/deckMouse.ts). */
-function armMagazineMouse(): () => void {
+/** Der Magazin-Stapel auf dem Tisch: blättern, ziehen, aufblättern
+ *  (lib/home/magazineTable.ts). */
+function armMagazine(): () => void {
   const stage = document.querySelector<HTMLElement>('[data-magazine-stage]');
   const deck = stage?.querySelector<HTMLElement>('[data-magazine-deck]');
-  return stage && deck ? armDeckMouse(stage, deck) : () => {};
+  return stage && deck ? armMagazineTable(stage, deck) : () => {};
 }
 
 export default function HubMotion() {
@@ -891,11 +892,14 @@ export default function HubMotion() {
         stops.push(armScrollTalk(scroller));
         // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein
         // bis zwei Frames hinterher (siehe HeroMarkFlight) und zittert.
-        if (desk) stops.push(armPhonesDrift(scroller));
+        if (desk) {
+          stops.push(armPhonesDrift(scroller));
+          // Auch mit Finger (iPad): ohne ihn liegt der Fächer nur still da.
+          stops.push(armMagazine());
+        }
         if (desk && pointer) {
           stops.push(armHeroPointer());
           stops.push(armDepthPointer());
-          stops.push(armMagazineMouse());
         }
         return () => stops.forEach((stop) => stop());
       }

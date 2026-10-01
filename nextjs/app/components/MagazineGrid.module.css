@@ -420,15 +420,12 @@
    Die Hefte liegen bildschirmhoch rechts, die nächsten vier als Fächer nach
    links aufgeblättert — zur Überschrift hin, so liest man bei jedem den
    Anfang der Schlagzeile, und der Fächer füllt die Fläche bis zur
-   Überschrift. Weiterblättern wirft das oberste nach links aus dem Bild
-   (`mag-table-*`, magazineDeck.ts). Der Tisch (der Querscroller) reicht
-   deshalb von Fensterrand zu Fensterrand und läuft unter der Überschrift
-   durch: an seiner Kante würde ein geworfenes oder aufgeblättertes Heft
-   abgeschnitten. Die Maus
-   (lib/home/deckMouse.ts): ziehen blättert, darüberfahren fächert weiter
-   auf (`--fan`), der Zeiger neigt den Stapel (`--look-x/-y`, HubMotion).
-   Ab 1024px steht die Überschrift links neben dem Fächer, darunter über
-   ihm. */
+   Überschrift. Der Tisch reicht von Fensterrand zu Fensterrand und läuft
+   unter der Überschrift durch: an seiner Kante würde ein geworfenes Heft
+   abgeschnitten. Hier hängt nichts am Scrollweg: jedes Blättern ist eine
+   getimte Bewegung (lib/home/magazineTable.ts), der Zeiger neigt die Hefte
+   (`--look-x/-y`, HubMotion). Ab 1024px steht die Überschrift links neben
+   dem Fächer, darunter über ihm. */
 @media (min-width: 768px) {
   .section {
     /* Platz der Überschrift links im Tisch (0 = Überschrift darüber). */
@@ -452,23 +449,24 @@
       var(--mag-bleed) + var(--head-w) + var(--cover-w) * 0.92 +
         max(0px, (100cqw - 2 * var(--mag-bleed) - var(--head-w) - var(--cover-w) * 1.92) / 2)
     );
-    /* So weit fliegt ein geworfenes Heft: vom Stapel über den linken
-       Fensterrand hinaus, samt Drehung und Schatten. */
-    --throw: calc(var(--pile-x) + var(--cover-w) * 1.5);
   }
   .layout {
     grid-template-columns: minmax(0, 1fr);
     align-items: center;
   }
   .stage {
-    /* Wie weit der Fächer aufgeht: in Ruhe ein Stück, mit der Maus
-       darüber weit. `--fan` (0 → 1) setzt deckMouse hier am Stapel — die
-       Lagen müssen hier ausgerechnet werden, nicht weiter oben: eine
-       Variable, die eine andere liest, löst sie dort auf, wo sie steht. */
-    --fan: 0;
-    --fan-x: calc(-16% - var(--fan) * 5%);
-    --fan-y: calc(-5px - var(--fan) * 6px);
-    --fan-r: calc(-2.6deg - var(--fan) * 1.2deg);
+    /* Der Fächer: so viele Hefte hinter dem vorderen, jede Lage so viel
+       kleiner, versetzt (% eines Hefts), gehoben (px) und gedreht (Grad) —
+       in Ruhe und mit der Maus darüber. magazineTable liest dieselben Werte,
+       damit der Fächer schon vor dem Hydrieren richtig liegt. */
+    --fan-spread: 4;
+    --fan-shrink: 0.04;
+    --fan-x-rest: -16;
+    --fan-x-open: -21;
+    --fan-y-rest: -5;
+    --fan-y-open: -11;
+    --fan-r-rest: -2.6;
+    --fan-r-open: -3.8;
     container-type: inline-size;
     margin-inline: calc(-1 * var(--mag-bleed));
   }
@@ -488,13 +486,6 @@
   .mag {
     transform: perspective(1100px) rotateY(calc(-9deg + var(--look-x, 0) * 10deg))
       rotateX(calc(4deg - var(--look-y, 0) * 7deg));
-    cursor: grab;
-  }
-  .deck[data-gliding] {
-    scroll-snap-type: none;
-  }
-  .deck[data-gliding] .mag {
-    cursor: grabbing;
   }
   /* Die Punkte unter dem Stapel, nicht unter der Mitte des Tisches. */
   .dots {
@@ -506,8 +497,8 @@
    kaum weiter auf, sonst schnitte die Kante das hinterste Heft ab. */
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .stage {
-    --fan-x: calc(-16% - var(--fan) * 1%);
-    --fan-r: calc(-2.6deg - var(--fan) * 0.3deg);
+    --fan-x-open: -17;
+    --fan-r-open: -2.9;
   }
 }
 @media (min-width: 1024px) {
@@ -540,15 +531,71 @@
     grid-column: 1 / -1;
   }
 }
-@supports (animation-timeline: scroll()) {
-  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-    .card {
-      animation-name: var(--table-key);
-    }
-    /* Das Locken gehört dem Telefon: hier zeigt der Fächer, dass da mehr
-       liegt, und der Zeiger wird zur Hand. */
-    .card:first-child .mag {
-      animation: none;
-    }
+
+/* Der Tisch in Bewegung (ab 768px). Alle Hefte liegen in einer Zelle, in
+   Ruhe als Fächer nach ihrem Platz `--i`; magazineTable übernimmt die Lage
+   als Inline-Transform und blättert in der Zeit. Kein Querscroller: der
+   Tisch schneidet nur seitlich (an den Fensterrändern), oben und unten
+   dürfen geworfene Hefte samt Drehung über ihn hinaus. Senkrecht wischt
+   weiter der Browser, quer gehört der Wisch dem Stapel. `isolation`: die
+   Hefte stapeln sich unter sich, die Überschrift liegt über allen — auch
+   über einem geworfenen. Mit reduzierter Bewegung bleibt es ein
+   Querstreifen mit Einrasten. Nach den Telefon-Regeln, damit `animation:
+   none` deren Scroll-Timeline sicher ablöst. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .stage {
+    isolation: isolate;
+  }
+  .deck {
+    overflow-x: clip;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .track {
+    grid-template-columns: 100cqw;
+  }
+  .snap {
+    display: none;
+  }
+  .card {
+    --depth: min(var(--i), var(--fan-spread));
+    grid-column: 1;
+    animation: none;
+    transform: translate(
+        calc(var(--depth) * var(--fan-x-rest) * 1%),
+        calc(var(--depth) * var(--fan-y-rest) * 1px)
+      )
+      rotate(calc(var(--depth) * var(--fan-r-rest) * 1deg))
+      scale(calc(1 - var(--depth) * var(--fan-shrink)));
+  }
+  .mag {
+    cursor: grab;
+  }
+  .deck[data-dragging] .mag {
+    cursor: grabbing;
+  }
+  /* Das Locken gehört dem Telefon: hier zeigt der Fächer, dass da mehr
+     liegt. */
+  .card:first-child .mag {
+    animation: none;
+  }
+  /* Die Punkte färbt hier nicht die Scroll-Timeline, sondern
+     `aria-current` von magazineTable. Bis dahin bleibt der erste gelb. */
+  .dot::before,
+  .dot:first-child::before {
+    animation: none;
+    transition:
+      background-color 300ms ease,
+      transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .dots:has([aria-current]) .dot::before {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scaleX(1);
+  }
+  .dots .dot[aria-current='true']::before {
+    background-color: var(--et-accent);
+    transform: scaleX(2.4);
   }
 }

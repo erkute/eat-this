@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
+import { DECK_GO_EVENT } from '@/lib/home/magazineDeck';
 import styles from './MagazineGrid.module.css';
 
 interface Props {
@@ -11,16 +12,19 @@ interface Props {
 }
 
 /**
- * Die Punkte unter dem Magazin-Stapel: welches Cover vorn liegt (das färbt
- * die Scroll-Timeline des Stapels, kein JS), und antippbar — für Maus und
- * Tastatur, die nicht quer wischen können. Ein Tipp scrollt den Stapel an
- * die Stelle; das Austeilen läuft dann dieselbe Strecke wie beim Wischen.
+ * Die Punkte unter dem Magazin-Stapel: welches Cover vorn liegt, und
+ * antippbar — für Maus und Tastatur, die nicht quer wischen können. Am
+ * Telefon färbt sie die Scroll-Timeline des Stapels, und ein Tipp scrollt
+ * ihn an die Stelle. Ab 768px nimmt lib/home/magazineTable das Ereignis an,
+ * teilt die Hefte bis dorthin aus und setzt `aria-current`.
  */
 export default function MagazineDeckDots({ deckId, labels }: Props) {
   const count = labels.length;
   const go = (n: number) => {
     const deck = document.getElementById(deckId);
     if (!deck) return;
+    const go = new CustomEvent(DECK_GO_EVENT, { detail: n, cancelable: true });
+    if (!deck.dispatchEvent(go)) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     deck.scrollTo({ left: n * deck.clientWidth, behavior: reduced ? 'auto' : 'smooth' });
   };
@@ -31,6 +35,7 @@ export default function MagazineDeckDots({ deckId, labels }: Props) {
           key={n}
           type="button"
           className={styles.dot}
+          data-deck-dot=""
           style={{ '--dot-keys': `mag-dot-${count}-${n}` } as CSSProperties}
           aria-label={label}
           onClick={() => go(n)}

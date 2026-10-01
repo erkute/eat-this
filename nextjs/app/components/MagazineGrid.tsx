@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { HubArticle } from '@/lib/home/getHomeData';
-import { deckKeyframes, tableKeyframes } from '@/lib/home/magazineDeck';
+import { deckKeyframes } from '@/lib/home/magazineDeck';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import MagazineDeckDots from './MagazineDeckDots';
@@ -62,11 +62,12 @@ export function headlineSize(title: string): number {
  * Querstreifen mit Einrasten.
  *
  * Ab 768px liegt der Stapel als Fächer auf einem Tisch, der bis an den
- * Fensterrand reicht (`mag-table-*`, magazineDeck.ts): bildschirmhoch, die
- * nächsten vier Hefte nach links aufgeblättert, weiterblättern schiebt das
- * oberste unter den Stapel, der Stapel ist ein Ring. Mit der Maus lässt er
- * sich ziehen, aufblättern und ein Heft aus dem Fächer nach vorn holen
- * (lib/home/deckMouse.ts, HubMotion).
+ * Fensterrand reicht: bildschirmhoch, die nächsten vier Hefte nach links
+ * aufgeblättert, der Stapel ist ein Ring. Dort hängt nichts am Scrollweg —
+ * jedes Blättern ist eine getimte Bewegung wie in der GSAP-Demo: das oberste
+ * wird angehoben und nach links aus dem Bild geworfen, die übrigen rücken
+ * versetzt nach (lib/home/magazineTable.ts, HubMotion). Ziehen, Trackpad,
+ * Punkte und ein Klick in den Fächer blättern; die Maus fächert auf.
  */
 export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
@@ -86,8 +87,8 @@ export default function MagazineGrid({ articles, locale }: Props) {
       data-hub-magazine=""
     >
       {/* Keyframes per cover and dot, for exactly this many covers — the
-          phone's deal-off stack and the desktop's table (magazineDeck.ts). */}
-      <style>{deckKeyframes(count) + tableKeyframes(count)}</style>
+          phone's deal-off stack (magazineDeck.ts). */}
+      <style>{deckKeyframes(count)}</style>
       <div className={styles.layout}>
         <div>
           <div className={`hv-head ${styles.head}`}>
@@ -121,7 +122,6 @@ export default function MagazineGrid({ articles, locale }: Props) {
                       {
                         '--i': i,
                         '--deck-key': `mag-deck-${count}-${i}`,
-                        '--table-key': `mag-table-${count}-${i}`,
                         zIndex: count - i,
                       } as CSSProperties
                     }

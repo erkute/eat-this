@@ -1,6 +1,7 @@
 /**
- * Keyframes for the magazine stack on the home page (MagazineGrid): one per
- * cover and one per dot, keyed to the deck's horizontal scroll timeline. At
+ * Keyframes for the magazine stack on the phone (MagazineGrid; from 768px
+ * the table in magazineTable.ts takes over): one per cover and one per dot,
+ * keyed to the deck's horizontal scroll timeline. At
  * every snap point k (k / (count - 1) of the way) cover i lies at depth
  * i - k: under 0 it has been dealt off to the left, 0 is on top, above that
  * it waits in the pile — raised a little, smaller, turned a little, so the
@@ -30,55 +31,10 @@ export function deckPose(depth: number): string {
   return `translate(0%, ${-PEEK * d}px) rotate(${TURN[d]}deg) scale(${scale})`;
 }
 
-/* ── Desktop: der Stapel auf dem Tisch ──
-   Ab 768px liegen die Hefte als Fächer nach links aufgeblättert — zur
-   Überschrift hin, so zeigt jedes dahinter den Anfang seiner Schlagzeile.
-   Wer weiterblättert, wirft das oberste wie am Telefon nach links aus dem
-   Bild; der Tisch reicht dafür von Fensterrand zu Fensterrand, keine Kante
-   schneidet es ab. Hinten im Fächer taucht dabei das nächste auf: der
-   Stapel ist ein Ring, das geworfene liegt unsichtbar unter dem letzten im
-   Fächer und rückt von dort nach. Verworfen (01.10.2026, „verschwinden
-   einfach, total billig"): das oberste unter den Stapel schieben — in der
-   Mitte des Wegs sprang es hinter die anderen. Wie weit der Fächer aufgeht
-   und wie weit geworfen wird, steht in CSS-Variablen (`--fan-x/-y/-r`,
-   `--throw`, MagazineGrid.module.css), damit die Maus aufblättern kann,
-   ohne die Schlüsselbilder neu zu schreiben. */
-
-const FAN = 4; // so many covers fan out behind the front one
-const FAN_SHRINK = 0.04;
-/** Where a dealt cover lands: thrown off to the left, past the window's
- *  edge (`--throw` is measured from the pile to beyond the edge). */
-const THROWN = 'translate(calc(-1 * var(--throw)), 4%) rotate(-16deg) scale(1)';
-
-/** One pose on the table, `depth` ≥ 0 places behind the front cover. */
-export function tablePose(depth: number): string {
-  const d = Math.min(Math.max(depth, 0), FAN);
-  const scale = Math.round((1 - FAN_SHRINK * d) * 1000) / 1000;
-  return `translate(calc(${d} * var(--fan-x)), calc(${d} * var(--fan-y))) rotate(calc(${d} * var(--fan-r))) scale(${scale})`;
-}
-
-export function tableKeyframes(count: number): string {
-  if (count < 2) return '';
-  const span = count - 1;
-  const at = (k: number) => Math.round((k / span) * 10000) / 100;
-  const carry = (k: number) => `translate(calc(${k} * 100cqw), 0px)`;
-  const frame = (pct: number, k: number, pose: string, z: number) =>
-    `${pct}%{transform:${carry(k)} ${pose};z-index:${z}}`;
-  return Array.from({ length: count }, (_, i) => {
-    const frames: string[] = [];
-    for (let k = 0; k < count; k++) {
-      const depth = (((i - k) % count) + count) % count;
-      frames.push(frame(at(k), k, tablePose(depth), count - Math.min(depth, FAN + 1)));
-      // Dealt from the top: thrown off to the left, out of the picture;
-      // right at the next point it lies hidden under the end of the fan.
-      if (depth === 0 && k < span) {
-        const landed = Math.round((at(k + 1) - 0.01) * 100) / 100;
-        frames.push(frame(landed, k + 1, THROWN, count + 1));
-      }
-    }
-    return `@keyframes mag-table-${count}-${i}{${frames.join('')}}`;
-  }).join('');
-}
+/** Die Punkte unter dem Stapel schicken dieses Ereignis an den Querscroller.
+ *  Ab 768px blättert dort lib/home/magazineTable und hält es an; am Telefon
+ *  scrollen die Punkte selbst (MagazineDeckDots). */
+export const DECK_GO_EVENT = 'magazine-deck-go';
 
 export function deckKeyframes(count: number): string {
   if (count < 2) return '';

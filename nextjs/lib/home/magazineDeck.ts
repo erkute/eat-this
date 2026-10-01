@@ -32,21 +32,23 @@ export function deckPose(depth: number): string {
 
 /* ── Desktop: der Stapel auf dem Tisch ──
    Ab 768px liegen die Hefte als Fächer nach links aufgeblättert — zur
-   Überschrift hin, so zeigt jedes dahinter den Anfang seiner Schlagzeile —,
-   und wer weiterblättert, schiebt das oberste nach links über den Fächer und
-   darunter, statt es aus dem Bild zu werfen: aus der Spalte geworfen wäre es an der Kante des
-   Querscrollers abgeschnitten (gemessen 01.10.2026), und der Fächer wäre zum
-   Ende hin leer. So ist der Stapel ein Ring — hinter dem vorderen Heft liegen
-   immer die nächsten, nach dem letzten wieder das erste. Wie weit der Fächer
-   aufgeht, steht in CSS-Variablen (`--fan-x/-y/-r`, MagazineGrid.module.css),
-   damit ihn die Maus aufblättern kann, ohne die Schlüsselbilder neu zu
-   schreiben. */
+   Überschrift hin, so zeigt jedes dahinter den Anfang seiner Schlagzeile.
+   Wer weiterblättert, wirft das oberste wie am Telefon nach links aus dem
+   Bild; der Tisch reicht dafür von Fensterrand zu Fensterrand, keine Kante
+   schneidet es ab. Hinten im Fächer taucht dabei das nächste auf: der
+   Stapel ist ein Ring, das geworfene liegt unsichtbar unter dem letzten im
+   Fächer und rückt von dort nach. Verworfen (01.10.2026, „verschwinden
+   einfach, total billig"): das oberste unter den Stapel schieben — in der
+   Mitte des Wegs sprang es hinter die anderen. Wie weit der Fächer aufgeht
+   und wie weit geworfen wird, steht in CSS-Variablen (`--fan-x/-y/-r`,
+   `--throw`, MagazineGrid.module.css), damit die Maus aufblättern kann,
+   ohne die Schlüsselbilder neu zu schreiben. */
 
 const FAN = 4; // so many covers fan out behind the front one
 const FAN_SHRINK = 0.04;
-/** Halfway through a deal the top cover has slid out to the left, over the
- *  fan — there it drops behind and slides back under the pile. */
-const TUCK = 'translate(-52%, 5%) rotate(-7deg) scale(0.96)';
+/** Where a dealt cover lands: thrown off to the left, past the window's
+ *  edge (`--throw` is measured from the pile to beyond the edge). */
+const THROWN = 'translate(calc(-1 * var(--throw)), 4%) rotate(-16deg) scale(1)';
 
 /** One pose on the table, `depth` ≥ 0 places behind the front cover. */
 export function tablePose(depth: number): string {
@@ -67,11 +69,11 @@ export function tableKeyframes(count: number): string {
     for (let k = 0; k < count; k++) {
       const depth = (((i - k) % count) + count) % count;
       frames.push(frame(at(k), k, tablePose(depth), count - Math.min(depth, FAN + 1)));
-      // Dealt from the top: out to the left, behind, back under the pile.
+      // Dealt from the top: thrown off to the left, out of the picture;
+      // right at the next point it lies hidden under the end of the fan.
       if (depth === 0 && k < span) {
-        const mid = at(k + 0.5);
-        frames.push(frame(mid, k + 0.5, TUCK, count + 1));
-        frames.push(frame(Math.round((mid + 0.01) * 100) / 100, k + 0.5, TUCK, 0));
+        const landed = Math.round((at(k + 1) - 0.01) * 100) / 100;
+        frames.push(frame(landed, k + 1, THROWN, count + 1));
       }
     }
     return `@keyframes mag-table-${count}-${i}{${frames.join('')}}`;

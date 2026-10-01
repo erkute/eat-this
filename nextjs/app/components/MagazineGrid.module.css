@@ -420,11 +420,11 @@
    Die Hefte liegen bildschirmhoch rechts, die nächsten vier als Fächer nach
    links aufgeblättert — zur Überschrift hin, so liest man bei jedem den
    Anfang der Schlagzeile, und der Fächer füllt die Fläche bis zur
-   Überschrift. Weiterblättern schiebt das oberste nach links über den
-   Fächer und darunter (`mag-table-*`, magazineDeck.ts). Der Tisch (der
-   Querscroller) reicht deshalb vom linken Satzrand bis an den rechten
-   Fensterrand und läuft unter der Überschrift durch: an seiner Kante würde
-   ein gleitendes oder aufgeblättertes Heft abgeschnitten. Die Maus
+   Überschrift. Weiterblättern wirft das oberste nach links aus dem Bild
+   (`mag-table-*`, magazineDeck.ts). Der Tisch (der Querscroller) reicht
+   deshalb von Fensterrand zu Fensterrand und läuft unter der Überschrift
+   durch: an seiner Kante würde ein geworfenes oder aufgeblättertes Heft
+   abgeschnitten. Die Maus
    (lib/home/deckMouse.ts): ziehen blättert, darüberfahren fächert weiter
    auf (`--fan`), der Zeiger neigt den Stapel (`--look-x/-y`, HubMotion).
    Ab 1024px steht die Überschrift links neben dem Fächer, darunter über
@@ -442,16 +442,19 @@
       (100svh - 262px) * 0.75,
       (100vw - var(--et-wrap-pad) - var(--head-w) - 48px) / 1.95
     );
-    /* Bis an den rechten Fensterrand, über den Satzspiegel hinaus. */
+    /* Bis an die Fensterränder, über den Satzspiegel hinaus. */
     --mag-bleed: calc(var(--et-wrap-pad) + max(0px, (100vw - var(--et-wrap-max)) / 2));
-    /* Wo der Stapel im Tisch liegt: links davon die Überschrift und so viel
-       Platz, wie der Fächer in Ruhe braucht (gemessen); bleibt im Tisch mehr
-       Raum, steht Fächer samt Heft mittig darin. `cqw` misst am Tisch (Stapel
-       und Punkte liegen beide in einem Container seiner Breite). */
+    /* Wo der Stapel im Tisch liegt: links davon der Rand, die Überschrift
+       und so viel Platz, wie der Fächer in Ruhe braucht (gemessen); bleibt
+       mehr Raum, steht Fächer samt Heft mittig darin. `cqw` misst am Tisch
+       (Stapel und Punkte liegen beide in einem Container seiner Breite). */
     --pile-x: calc(
-      var(--head-w) + var(--cover-w) * 0.92 +
-        max(0px, (100cqw - var(--mag-bleed) - var(--head-w) - var(--cover-w) * 1.92) / 2)
+      var(--mag-bleed) + var(--head-w) + var(--cover-w) * 0.92 +
+        max(0px, (100cqw - 2 * var(--mag-bleed) - var(--head-w) - var(--cover-w) * 1.92) / 2)
     );
+    /* So weit fliegt ein geworfenes Heft: vom Stapel über den linken
+       Fensterrand hinaus, samt Drehung und Schatten. */
+    --throw: calc(var(--pile-x) + var(--cover-w) * 1.5);
   }
   .layout {
     grid-template-columns: minmax(0, 1fr);
@@ -467,7 +470,7 @@
     --fan-y: calc(-5px - var(--fan) * 6px);
     --fan-r: calc(-2.6deg - var(--fan) * 1.2deg);
     container-type: inline-size;
-    margin-right: calc(-1 * var(--mag-bleed));
+    margin-inline: calc(-1 * var(--mag-bleed));
   }
   /* Unten Platz für den Schatten (22px tief, 34px weich) und die Neigung
      zur Maus — mit 36px schnitt die Kante des Querscrollers Hefte und

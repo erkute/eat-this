@@ -73,13 +73,14 @@ describe('tableKeyframes (desktop)', () => {
     expect(first).toContain(`100%{transform:translate(calc(3 * 100cqw), 0px) ${tablePose(1)}`);
   });
 
-  it('tucks the dealt cover under the pile instead of throwing it off', () => {
+  it('throws the dealt cover off to the left, on top, without a jump on the way', () => {
     const first = block(tableKeyframes(4), 'mag-table-4-0');
-    // Halfway it is out to the left and still on top, a hair later behind.
-    expect(first).toMatch(/16\.67%\{transform:translate\(calc\(0\.5 \* 100cqw\), 0px\) translate\(-[\d.]+%[^}]*z-index:5\}/);
-    expect(first).toMatch(/16\.68%\{[^}]*z-index:0\}/);
-    // Then it lies hidden under the fan.
+    // The whole step it flies out, above everything …
+    expect(first).toMatch(/33\.32%\{transform:translate\(calc\(1 \* 100cqw\), 0px\) translate\(calc\(-1 \* var\(--throw\)\)[^}]*z-index:5\}/);
+    // … and only out of the picture does it lie down under the fan's end.
     expect(first).toContain(`33.33%{transform:translate(calc(1 * 100cqw), 0px) ${tablePose(3)}`);
+    // No stop halfway (the old tuck switched behind the pile there).
+    expect(first).not.toMatch(/16\.6\d%/);
   });
 
   it('carries every cover back by exactly the distance scrolled', () => {

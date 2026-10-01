@@ -546,6 +546,14 @@
   .stage {
     isolation: isolate;
   }
+  /* Ein geworfenes Heft fliegt über Überschrift und „Alle Stories" hinweg,
+     nicht darunter durch (Ansage 01.10.2026). Dafür hebt sich die ganze
+     Bühne über die Überschrift (z 2, oben), solange etwas in der Luft ist —
+     `data-flying` setzt magazineTable. In Ruhe liegt der Fächer neben der
+     Überschrift, und die bleibt oben, damit ihr Knopf klickbar ist. */
+  .stage[data-flying] {
+    z-index: 3;
+  }
   .deck {
     overflow-x: clip;
     overflow-y: visible;

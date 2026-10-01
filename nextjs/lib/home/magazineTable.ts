@@ -170,11 +170,13 @@ export function armMagazineTable(stage: HTMLElement, deck: HTMLElement): () => v
   };
   gsap.ticker.add(render);
 
-  /** Wer vorn liegt, liegt oben; was fliegt, über allem. */
+  /** Wer vorn liegt, liegt oben; was fliegt, über allem — auch über der
+   *  Überschrift samt „Alle Stories" (`data-flying`, MagazineGrid.module.css). */
   const layer = () => {
     cards.forEach((card, i) => {
       card.el.style.zIndex = String(card.flying ? card.air : count - ringDepth(i, front, count));
     });
+    stage.toggleAttribute('data-flying', cards.some((card) => card.flying));
   };
   /** Sind mehrere Hefte zugleich in der Luft, braucht jedes seine Ebene —
    *  bei gleicher entschied die DOM-Reihenfolge, und das zuerst geworfene
@@ -504,6 +506,7 @@ export function armMagazineTable(stage: HTMLElement, deck: HTMLElement): () => v
       card.el.style.zIndex = String(count - i);
     });
     dots.forEach((dot) => dot.removeAttribute('aria-current'));
+    stage.removeAttribute('data-flying');
     deck.removeAttribute('data-dragging');
     deck.removeEventListener('pointerdown', down);
     deck.removeEventListener('pointermove', move);

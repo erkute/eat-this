@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import LoginBoard from './LoginBoard';
+import StarterPack3D from './StarterPack3D';
 import styles from './StarterPackSignup.module.css';
 
 /**
@@ -30,37 +31,13 @@ export default function StarterPackSignup() {
       // from its last slide (#hub-starter), same convention as #hub-fragremy.
       id="hub-starter"
       className={`homeV2 hv-section hv-wrap ${styles.scene}`}
-      data-scrub="--pack-arrival 0 1"
-      data-scrub-end="top 25%"
       data-hub-starter=""
       data-guest-only=""
       aria-label={t('packTitle')}
     >
       <div className={styles.inner}>
         <LoginBoard
-          art={
-            <div className={styles.art} aria-hidden="true">
-              <div className={styles.packRig}>
-                {/* Pack and figure turn as one: the figure is printed on the
-                    foil (Ansage 30.09.2026: „die Figur wieder in das Starter
-                    Pack rein"), and the pack keeps its turn into the room. */}
-                <div className={styles.pack}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className={styles.packFront}
-                    src="/pics/home/booster-empty.webp"
-                    alt=""
-                    width={1008}
-                    height={1560}
-                  />
-                  <div className={styles.character}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/pics/home/booster-cafe-layer.webp" alt="" width={960} height={1600} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
+          art={<StarterPack3D />}
           kicker={t('packKicker')}
           title={t('packTitle')}
           lead={t('packLead')}

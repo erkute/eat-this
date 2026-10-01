@@ -24,20 +24,16 @@
   }
 }
 
-@property --pack-arrival {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
+/* Die Bühne des Packs. Darin das flache Bild (`.packRig`) — erst Platzhalter,
+   dann nur noch Maß: die WebGL-Leinwand (`.gl`) liegt über der ganzen
+   Bühne, damit das gedrehte Pack nirgends anstösst, und zeichnet es so breit
+   wie `.packRig` (StarterPack3D). */
 .art {
-  --approach: clamp(0, calc(var(--pack-arrival) / 0.3), 1);
-  --lift: clamp(0, calc((var(--pack-arrival) - 0.22) / 0.65), 1);
-  --say: clamp(0, calc((var(--pack-arrival) - 0.86) / 0.14), 1);
   position: relative;
   width: 100%;
   height: 430px;
-  perspective: 800px;
-  perspective-origin: 50% 45%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 .packRig {
   position: absolute;
@@ -45,21 +41,12 @@
   aspect-ratio: 1008 / 1560;
   top: 50%;
   left: 50%;
-  transform-style: preserve-3d;
-  transform: translate(-50%, -50%) scale(calc(1 + var(--approach) * 0.12));
+  transform: translate(-50%, -50%);
 }
-/* Pack und Figur drehen als EIN Stück in den Raum; die Figur liegt als
-   Aufdruck auf der Folie, einen Pixel davor. */
 .pack {
   position: relative;
   width: 100%;
   height: 100%;
-  /* Um die eigene Mitte gedreht, nicht zur Seite geschoben: das Pack steht
-     mittig (Ansage 30.09.2026), die Drehung in den Raum bleibt. */
-  transform-origin: 50% 50%;
-  transform: translate3d(0, 0, calc(var(--lift) * -100px)) rotateY(calc(var(--lift) * -18deg))
-    rotateX(calc(var(--lift) * 7deg));
-  transform-style: preserve-3d;
   filter: drop-shadow(0 18px 18px #0005);
 }
 .packFront {
@@ -73,12 +60,37 @@
   top: 30.8%;
   width: 59.8%;
   height: 66%;
-  transform: translateZ(1px);
 }
 .character img {
   width: 100%;
   height: 100%;
   object-fit: fill;
+}
+.gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+/* Steht WebGL, zeichnet nur noch die Leinwand; das Bild hält den Platz. */
+.art[data-gl] .gl {
+  visibility: visible;
+}
+.art[data-gl] .packRig {
+  visibility: hidden;
+}
+/* Der Schatten unter dem schwebenden Pack: eine weiche Ellipse auf der
+   Tafel, kein Teil der 3D-Szene. */
+.shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: min(60%, 200px);
+  height: 22px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent);
 }
 .scene .inner {
   padding-block: 12px 32px;
@@ -90,53 +102,17 @@
     padding-block: clamp(32px, 4vw, 56px);
   }
 }
-@keyframes arrive {
-  from {
-    --pack-arrival: 0;
-  }
-  to {
-    --pack-arrival: 1;
-  }
-}
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .art {
-      animation: arrive linear both;
-      animation-timeline: view();
-      animation-range: entry 10% entry 100%;
-    }
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .art {
-    transform: none;
-  }
-}
 
 @media (max-width: 767.98px) {
   .art {
     width: min(100%, 330px);
     height: 340px;
     margin: 0 auto;
-    perspective: 900px;
   }
   /* 180 statt 220px (Ansage 30.09.2026: „am Handy etwas kleiner") — mit
      220px fuellte das Pack am 390er-Telefon den Bildschirm, bevor
      Ueberschrift und Feld kamen. */
   .packRig {
     width: 180px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .art {
-    --approach: 0;
-    --lift: 0;
-    --say: 1;
-  }
-}
-
-@media (max-width: 767.98px) {
-  .pack {
-    filter: none;
   }
 }

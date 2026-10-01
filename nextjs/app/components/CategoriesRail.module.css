@@ -78,6 +78,35 @@
     transform: scaleX(1);
   }
 }
+/* Ab 768px ein Menü in Plakatgröße: drei Spalten über die ganze rechte
+   Seite statt einer kleinen Liste mit leerem Drittel daneben (Ansage
+   01.10.2026: „Desktop komplett benutzen"). Jedes Wort in einer Zeile —
+   die Grösse ist so gewählt, dass „Fine Dining" auch bei 1280px in seine
+   Spalte passt (gemessen). Unter 1024px steht die Frage darüber. */
+@media (min-width: 768px) {
+  .board {
+    align-items: center;
+  }
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    justify-content: space-between;
+    column-gap: clamp(20px, 2.4vw, 44px);
+  }
+  .chip {
+    min-height: 0;
+    padding-block: 0.24em;
+    font-size: clamp(26px, 2.45vw, 38px);
+    white-space: nowrap;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
+  .head {
+    max-width: none;
+  }
+}
 @media (max-width: 767.98px) {
   .board {
     grid-template-columns: 1fr;

@@ -3,14 +3,20 @@
 .section {
   --mag-paper: var(--et-white);
   /* Die Überschrift bleibt stehen, solange die Cover wechseln (Ansage
-     30.09.2026): am Telefon klebt sie unter der festen Leiste, die Cover
-     darunter. `--mag-head-h` ist ihre feste Höhe. Ab 768px scrollt
-     `.app-pages` unter der Leiste, dort steht die Überschrift links. */
+     30.09.2026): am Telefon unter der festen Leiste, die Cover darunter.
+     `--mag-head-h` ist ihre feste Höhe. Ab 768px scrollt `.app-pages` unter
+     der Leiste, dort steht die Überschrift links. */
   --mag-head-h: 78px;
   /* Die Leiste klappt am Telefon beim Runterscrollen weg (SiteNav,
-     `data-visibility`); ohne sie klebt alles bis nach oben. */
+     `data-visibility`); ohne sie steht alles bis ganz oben. */
   --mag-nav: var(--staging-banner-h, 0px);
+  --mag-gap: clamp(22px, 3vw, 32px);
   --stack-top: calc(var(--mag-nav) + var(--mag-head-h) + 8px);
+  /* Wofür die Cover bemessen sind: die Pin-Linie bei sichtbarer Leiste. Fest,
+     damit sie nicht mit der Leiste wachsen und schrumpfen. */
+  --stack-fit: calc(
+    var(--site-nav-h, 64px) + var(--staging-banner-h, 0px) + var(--mag-head-h) + 8px
+  );
   --cover-step: 12px;
   color: var(--et-white);
 }
@@ -27,17 +33,14 @@
     align-items: center;
     height: var(--mag-head-h);
     /* Ink-Grund, damit Cover, die am Ende darunter wegscrollen, verschwinden
-       statt durch die Überschrift zu scheinen. Schmaler als 90 % der
-       Bildschirmbreite, aber breiter als die Cover (84vw, mittig): so deckt
-       sie sie ganz, und beim Hereinkommen an der Unterkante färbt sie
-       Safaris Leiste nicht (siehe `.item`). */
-    width: min(100%, 88vw);
+       statt durch die Überschrift zu scheinen. */
     background: var(--et-ink);
   }
 }
 @media (min-width: 768px) {
   .section {
     --stack-top: 28px;
+    --stack-fit: var(--stack-top);
     /* Ab 768px scrollt nur `.app-pages` unter der Leiste. */
     --mag-view: calc(100svh - var(--site-nav-h, 78px));
   }
@@ -45,7 +48,7 @@
 
 .layout {
   display: grid;
-  gap: clamp(22px, 3vw, 32px);
+  gap: var(--mag-gap);
 }
 @media (min-width: 768px) {
   /* Überschrift links, der Stapel in der Seitenmitte — nicht an den
@@ -139,7 +142,8 @@
 
 /* ── Der Stapel ── Jedes Cover klebt ein Stück tiefer als das vorige, damit
    die Kanten darunter sichtbar bleiben. Der Abstand dazwischen ist der
-   Scrollweg, auf dem das nächste Cover heranfährt. */
+   Scrollweg, auf dem das nächste Cover heranfährt. Am Telefon hält eine
+   Scroll-Timeline die Cover fest statt `sticky` (unten, „Am Telefon"). */
 .stack {
   display: grid;
   margin: 0;
@@ -147,12 +151,13 @@
   list-style: none;
 }
 .item {
+  --cover-run: 14svh;
   position: sticky;
   top: calc(var(--stack-top) + var(--i) * var(--cover-step));
   transition: top 280ms ease;
   /* Knapp: sobald ein Cover festklebt, ragt das nächste schon unten ins
      Bild — kein leerer schwarzer Grund unter dem Stapel. */
-  margin-bottom: 14svh;
+  margin-bottom: var(--cover-run);
   view-timeline-axis: block;
   /* Die Timeline endet, wo das Cover festklebt (`exit 0%`). */
   view-timeline-inset: calc(var(--stack-top) + var(--i) * var(--cover-step)) 0px;
@@ -160,10 +165,6 @@
 .item:last-child {
   margin-bottom: 0;
 }
-/* Unter 90 % der Bildschirmbreite: ein klebendes Element, das so breit ist
-   und die Unterkante berührt, färbt Safaris URL-Leiste in seiner Farbe (siehe
-   ios26-safari-leisten). So bleibt sie durchsichtig, der Inhalt scheint
-   durch (Ansage 30.09.2026). */
 @media (max-width: 767.98px) {
   .item {
     justify-self: center;
@@ -189,7 +190,7 @@
      Bild. */
   width: min(
     100%,
-    (var(--mag-view, 100svh) - var(--stack-top) - 6 * var(--cover-step) - 16px) * 0.75
+    (var(--mag-view, 100svh) - var(--stack-fit) - 6 * var(--cover-step) - 16px) * 0.75
   );
   margin-inline: auto;
   aspect-ratio: 3 / 4;
@@ -280,5 +281,111 @@
 @media (prefers-reduced-motion: reduce) {
   .photo {
     transition: none;
+  }
+}
+
+/* ── Am Telefon: festhalten ohne `sticky` ──
+   iOS 27 färbt Safaris URL-Leiste deckend, sobald ein klebendes Element die
+   Unterkante berührt — auch die schmaleren Cover (84vw) und die Überschrift;
+   unten schnitt dann eine Ink-Fläche das hereinkommende Cover ab (im
+   Simulator belegt, 01.10.2026, siehe ios26-safari-leisten). Darum hält hier
+   eine Scroll-Timeline Cover und Überschrift fest, wie `stagePin` die
+   Must-Eat-Bühne: dieselben Wege wie `sticky`, nur als `translate`. Ohne
+   Timelines (Safari vor den Glasleisten) bleibt es bei `sticky` oben.
+
+   Die Fenster der Timelines sind 1px hoch und hängen an der Pin-Linie
+   (`calc(100% - Linie - 1px)` als unterer Inset): so hängt keine Position
+   von der Höhe des Scroll-Containers ab. Safari rechnet die Animation im
+   UI-Prozess nach und hatte dort nach dem Einklappen der Leiste eine
+   veraltete Höhe — Überschrift und Cover standen dann ~80px zu tief, obwohl
+   die Seite selbst richtig rechnete (Simulator, 01.10.2026). */
+@keyframes headPin {
+  to {
+    translate: 0 100%;
+  }
+}
+@keyframes coverPin {
+  to {
+    translate: 0 var(--pin-len);
+  }
+}
+@supports (animation-timeline: view()) and (animation-range: contain 0% cover 100%) {
+  @media (max-width: 767.98px) {
+    /* Feste Maße statt Seitenverhältnis allein: die Wege unten rechnen damit. */
+    .section {
+      --cover-w: min(84vw, (100svh - var(--stack-fit) - 6 * var(--cover-step) - 16px) * 0.75);
+      --cover-h: calc(var(--cover-w) * 4 / 3);
+    }
+    .layout {
+      position: relative;
+      /* Platz der Überschrift, die nicht mehr im Raster steht. */
+      padding-top: calc(var(--mag-head-h) + var(--mag-gap));
+      /* Die Hülle der Überschrift ragt am Ende ihres Wegs unter das Layout. */
+      overflow-y: clip;
+      view-timeline: --mag-layout block;
+      view-timeline-inset: var(--mag-nav) calc(100% - var(--mag-nav) - 1px);
+    }
+    /* Die Überschrift fährt in einer Hülle, die genau so hoch ist wie ihr
+       Weg: vom Kopf des Layouts bis eine Überschrift vor seinem Ende, wo
+       `sticky` sie losliess. `translate: 0 100%` ist dann dieser Weg, ohne
+       ihn in Pixeln zu kennen. Die Hülle ist durchsichtig und lässt Tipps
+       durch. */
+    .aside {
+      position: absolute;
+      inset: 0 0 var(--mag-head-h);
+      display: block;
+      height: auto;
+      background: none;
+      pointer-events: none;
+      animation: headPin linear both;
+      animation-timeline: --mag-layout;
+      animation-range: contain 0% cover calc(100% - var(--mag-head-h));
+    }
+    .section .head:global(.hv-head) {
+      justify-content: center;
+      height: var(--mag-head-h);
+      background: var(--et-ink);
+    }
+    .stack {
+      view-timeline: --mag-stack block;
+      view-timeline-inset: var(--stack-top) calc(100% - var(--stack-top) - 1px);
+    }
+    /* Jedes Cover fährt mit dem Scrollen bis zu seiner Linie und steht dann.
+       `--pin-at`: Scrollweg ab „Stapel an seiner Linie", nach dem es dort
+       ankommt; `--pin-len`: wie lange es steht. Wie `sticky` in WebKit
+       (Margin-Box) gibt es den Platz frei, sobald das letzte Cover noch
+       `--cover-run` unter ihm ist. Das letzte Cover steht nie. */
+    .item {
+      --pitch: calc(var(--cover-h) + var(--cover-run));
+      --pin-at: calc(var(--i) * (var(--pitch) - var(--cover-step)));
+      --pin-len: calc((var(--count) - 1 - var(--i)) * var(--pitch) - var(--cover-run));
+      position: relative;
+      top: auto;
+      width: var(--cover-w);
+      height: var(--cover-h);
+      animation: coverPin linear both;
+      animation-timeline: --mag-stack;
+      animation-range: contain var(--pin-at) contain calc(var(--pin-at) + var(--pin-len));
+    }
+    .item:last-child {
+      animation: none;
+    }
+  }
+  /* Das Kippen wie mit `sticky`: dort dehnt die Timeline eines klebenden
+     Covers sich über seine ganze Standzeit, das Cover darunter kippt also
+     vom Hereinkommen des nächsten bis zu dessen Loslassen (gemessen in
+     WebKit und Chrome). Dieselben Punkte auf der Stapel-Timeline, ab
+     „Stapel an seiner Linie" gerechnet: das nächste Cover erreicht die
+     Unterkante (`100lvh`, die Leiste ist durchsichtig) bei `--next-in` und
+     lässt bei `--next-at + --next-len` los. */
+  @media (max-width: 767.98px) and (prefers-reduced-motion: no-preference) {
+    .item:not(:last-child) .cover {
+      --next-in: calc((var(--i) + 1) * var(--pitch) - (100lvh - var(--stack-top)));
+      --next-at: calc((var(--i) + 1) * (var(--pitch) - var(--cover-step)));
+      --next-len: max(0px, (var(--count) - 2 - var(--i)) * var(--pitch) - var(--cover-run));
+      animation: coverBack linear both;
+      animation-timeline: --mag-stack;
+      animation-range: contain var(--next-in) contain calc(var(--next-at) + var(--next-len));
+    }
   }
 }

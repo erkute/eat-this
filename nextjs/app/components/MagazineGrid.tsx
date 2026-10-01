@@ -31,10 +31,14 @@ function formatDate(iso: string | null | undefined, locale: 'de' | 'en'): string
  * Beim Scrollen klebt ein Cover oben fest und das nächste schiebt sich
  * darüber; das untere kippt dabei nach hinten und wird kleiner.
  *
- * Das Stapeln ist `position: sticky`, die Bewegung eine Scroll-Timeline: jedes
- * Cover gibt seine Timeline (`--cover-<i>`) an das darunterliegende weiter,
- * `timeline-scope` am Stapel macht die Namen dafür sichtbar. Ohne Timelines
- * stapeln die Cover trotzdem, nur ohne Kippen.
+ * Am Desktop ist das Stapeln `position: sticky` und das Kippen eine
+ * Scroll-Timeline: jedes Cover gibt seine Timeline (`--cover-<i>`) an das
+ * darunterliegende weiter, `timeline-scope` am Stapel macht die Namen dafür
+ * sichtbar. Am Telefon laufen Festhalten und Kippen auf der Timeline des
+ * ganzen Stapels (`--count` rechnet die Wege), ganz ohne `sticky`: Safari
+ * färbt unter iOS 27 seine URL-Leiste deckend, sobald etwas Klebendes die
+ * Unterkante berührt. Ohne Timelines stapeln die Cover per `sticky`, nur ohne
+ * Kippen.
  */
 export default function MagazineGrid({ articles, locale }: Props) {
   if (!articles.length) return null;
@@ -70,7 +74,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
           className={styles.stack}
           role="list"
           aria-label={labels.kicker}
-          style={{ timelineScope: names.join(', ') } as CSSProperties}
+          style={{ timelineScope: names.join(', '), '--count': list.length } as CSSProperties}
         >
           {list.map((a, i) => {
             const date = formatDate(a.date, locale);

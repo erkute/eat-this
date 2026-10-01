@@ -112,6 +112,15 @@
   .gallery {
     --gallery-viewport: calc(100dvh - 74px);
     --gallery-top: 0px;
+    /* Die Karte nach der Höhe bemessen, nicht auf 600px gedeckelt: bei
+       1920×1080 stand ein 600er-Band mit je 250px leerem Ink darüber und
+       darunter in der bildschirmhohen Bühne (gemessen 01.10.2026). */
+    --gallery-width: min(46vw, 70svh, 860px);
+  }
+  /* Die 520px-Kappe gehört der Liste ohne Bewegung; im Band ist die Karte
+     so breit wie ihr Platz, sonst stehen breite Lücken zwischen den Fotos. */
+  .gallery[data-motion] .face {
+    max-width: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -150,6 +159,25 @@
 .footer > div {
   margin-top: 0;
   justify-content: center;
+}
+/* Ab 768px ein Ring: Karte 0 steht am Anfang in der Mitte, links neben ihr
+   schon die letzte, und am Ende des Wegs rechts neben der letzten wieder die
+   erste. Als offenes Band stand links vom Start und rechts vom Ende nur
+   leerer Ink-Grund, der sich erst beim Scrollen füllte (Ansage 01.10.2026:
+   „nirgends schwarzer Leerraum"). `mod()` legt jede Karte auf den kürzeren
+   Weg um den Ring; der Sprung von ganz links nach ganz rechts geschieht
+   ausserhalb des Bildes (±count/2 Karten). Am Telefon bleibt das Band offen. */
+@supports (width: calc(mod(3px, 2px))) {
+  @media (min-width: 768px) {
+    .gallery[data-motion] .slide {
+      --distance: calc(
+        mod(
+            calc(var(--gallery-index) - var(--gallery-position) + var(--gallery-count) / 2),
+            var(--gallery-count)
+          ) - var(--gallery-count) / 2
+      );
+    }
+  }
 }
 @media (min-width: 768px) {
   .gallery[data-motion] .face {

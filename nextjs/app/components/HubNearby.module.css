@@ -250,3 +250,14 @@
     box-shadow: none;
   }
 }
+
+/* Ab 768px liegt das Foto wie hinter einem Fenster: während die Karte durchs
+   Band fährt, wandert es gegenläufig in seinem Rahmen (`--distance` setzt
+   HomeGallery pro Karte). Nur mit Bewegung — ohne JS oder bei reduzierter
+   Bewegung fehlt `[data-motion]`, und das Foto steht. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  :global([data-motion]) .photoImg {
+    scale: 1.18;
+    translate: calc(clamp(-1.4, var(--distance, 0), 1.4) * -6%) 0;
+  }
+}

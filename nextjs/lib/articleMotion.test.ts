@@ -24,7 +24,7 @@ function article() {
       <div data-article-content>
         <p>Einstieg</p>
         <h2 id="goldies">goldies</h2>
-        <span data-motion="spot"><span data-motion="print"></span><a data-motion="pop">Auf die Map</a></span>
+        <span data-motion="spot"><span data-motion="print"></span><a data-motion="pop">Zur Map</a></span>
       </div>
     </div>`;
   return document.querySelector<HTMLElement>('[data-page="news-article"]')!;

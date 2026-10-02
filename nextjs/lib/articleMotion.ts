@@ -17,7 +17,7 @@
  * - Stempel: Kapitel, Zitate und „Fazit" schlagen ein wie die Headline der
  *   Startseite — gross und gedreht, dann mit Stauchung auf ihren Platz.
  * - Abzug: Spot-Fotos und Bilder im Text landen wie hingeworfene Abzüge,
- *   „Auf die Map" ploppt danach auf.
+ *   „Zur Map" ploppt danach auf.
  * - Must-Eat-Bänder schieben von links herein, die Hefte unter „Weiter auf
  *   dem Teller" werden ausgeteilt, und das Booster-Pack der Katalog-Tafel
  *   wird auf die Tafel geworfen.

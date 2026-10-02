@@ -238,13 +238,15 @@ describe('NewsArticleShell', () => {
   });
 
   // Die Kartenfläche hat ein Ziel: die Map. Vorher führte der Name auf die
-  // Spot-Seite — auf einer Karte, deren sichtbarer Knopf „Auf die Map“ heißt,
+  // Spot-Seite — auf einer Karte, deren sichtbarer Knopf „Zur Map“ heißt,
   // ist das für niemanden vorhersehbar, zumal die Trefferfläche des Namens
   // über die ganze Karte reicht.
   it('sends both the spot name and the map button to the map', () => {
     const html = render([spot('Spumante', 'spumante')]);
     expect(html.match(/href="\/map\?r=spumante"/g)).toHaveLength(2);
-    expect(html).toContain('Auf die Map');
+    // „Zur Map" wie überall in der App — „Auf die Map" klang doof (02.10.2026).
+    expect(html).toContain('Zur Map');
+    expect(html).not.toContain('Auf die Map');
   });
 
   // Der gefolgte Link auf die Spot-Seite sitzt jetzt auf der Meta-Zeile. Ohne

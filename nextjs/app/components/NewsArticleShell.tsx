@@ -275,7 +275,9 @@ export default function NewsArticleShell({
     ]
       .filter(Boolean)
       .join(' · ');
-    const cta = de ? 'Auf die Map' : 'To the map';
+    // Wie auf der Restaurantseite und überall sonst in der App — „Auf die
+    // Map" klang doof (Ansage 02.10.2026).
+    const cta = de ? 'Zur Map' : 'On the map';
 
     // Wie im Heft: oben das Foto ohne Schrift darauf, darunter die
     // Bildunterschrift mit Bezirk, Name und dem Weg auf die Map.

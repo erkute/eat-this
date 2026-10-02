@@ -3,41 +3,18 @@ import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { NewsArticle } from '@/lib/types';
 
-vi.mock('next/image', () => ({
-  default: ({
-    src,
-    alt,
-    sizes,
-    priority,
-    className,
-  }: {
-    src: string;
-    alt: string;
-    sizes: string;
-    priority?: boolean;
-    className?: string;
-  }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
-      sizes={sizes}
-      className={className}
-      data-priority={priority ? 'true' : undefined}
-    />
-  ),
-}));
 vi.mock('@/i18n/navigation', () => ({
   Link: ({
     href,
     children,
     className,
+    ...rest
   }: {
     href: string;
     children: ReactNode;
     className?: string;
   }) => (
-    <a href={href} className={className}>
+    <a href={href} className={className} {...rest}>
       {children}
     </a>
   ),
@@ -46,115 +23,95 @@ vi.mock('./SiteFooter', () => ({ default: () => <footer role="contentinfo" /> })
 
 import NewsSection from './NewsSection';
 
-const articles: NewsArticle[] = [
-  {
-    _id: 'lead',
-    slug: 'lead-story',
-    title: 'Lead story',
-    titleDe: 'Titelstory',
-    date: '2026-07-14',
-    imageUrl: 'https://cdn.sanity.io/lead.webp',
-    alt: 'Lead food',
-  },
-  {
-    _id: 'latest',
-    slug: 'latest-story',
-    title: 'Latest story',
-    titleDe: 'Neue Story',
-    date: '2026-07-13',
-    imageUrl: 'https://cdn.sanity.io/latest.webp',
-    alt: 'Latest food',
-  },
-];
+const story = (n: number, over: Partial<NewsArticle> = {}): NewsArticle => ({
+  _id: `id-${n}`,
+  slug: `story-${n}`,
+  title: `Story ${n}`,
+  titleDe: `Geschichte ${n}`,
+  date: `2026-07-${String(20 - n).padStart(2, '0')}`,
+  imageUrl: `https://cdn.sanity.io/story-${n}.webp?w=800`,
+  ...over,
+});
 
-describe('NewsSection images', () => {
-  it('serves responsive images and prioritizes only the first tile', () => {
-    const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
+// Newest first, like getAllNewsArticles.
+const articles = [1, 2, 3, 4, 5].map((n) => story(n));
 
-    expect(html).toContain('src="https://cdn.sanity.io/lead.webp"');
-    expect(html).toContain('src="https://cdn.sanity.io/latest.webp"');
-    // Der Aufmacher läuft unter 700px über beide Spalten und braucht deshalb
-    // einen eigenen sizes-Hinweis. Ohne den zöge der Browser die
-    // 46vw-Variante und skalierte sie auf die doppelte Breite hoch.
-    expect(html).toContain('sizes="(max-width: 700px) 92vw, (max-width: 960px) 46vw, 380px"');
-    expect(html.match(/sizes="\(max-width: 960px\) 46vw, 380px"/g)).toHaveLength(1);
-    expect(html).toContain('data-priority="true"');
-    expect(html.match(/data-priority=/g)).toHaveLength(1);
-    expect(html).not.toContain('background-image');
+const render = (list: NewsArticle[] = articles, locale: 'de' | 'en' = 'de') =>
+  renderToStaticMarkup(<NewsSection articles={list} locale={locale} />);
+
+describe('NewsSection — current issue', () => {
+  it('links the newest article as the front cover and a short „Lesen"', () => {
+    const html = render();
+    expect(html.match(/href="\/news\/story-1"/g)).toHaveLength(2);
+    expect(html).toContain('>Lesen</a>');
+    expect(html).toContain('aria-label="Lesen: Geschichte 1"');
+    expect(html).toContain('Aktuelle Ausgabe');
+  });
+
+  it('loads only the front cover ahead of everything else', () => {
+    const html = render();
+    expect(html.match(/fetchPriority="high"/g)?.length).toBeGreaterThan(0);
+    // The front cover is the one eager photo; every other cover waits.
+    const eagerPhotos = html.match(/<img[^>]*story-\d\.webp[^>]*loading="eager"/g) ?? [];
+    expect(eagerPhotos).toHaveLength(1);
+    expect(eagerPhotos[0]).toContain('story-1.webp');
+  });
+
+  it('lays the two issues before it underneath, silent and without a link', () => {
+    const html = render();
+    const pile = html.match(/<span class="[^"]*pileCover[^"]*"[^>]*>/g) ?? [];
+    expect(pile).toHaveLength(2);
+    for (const cover of pile) expect(cover).toContain('aria-hidden="true"');
   });
 });
 
-describe('NewsSection lead image', () => {
-  it('takes the larger source for the first tile only, and falls back when absent', () => {
-    const html = renderToStaticMarkup(
-      <NewsSection
-        articles={[
-          { ...articles[0], imageUrlLead: 'https://cdn.sanity.io/lead-1400.webp' },
-          { ...articles[1], imageUrlLead: 'https://cdn.sanity.io/latest-1400.webp' },
-        ]}
-        locale="de"
-      />
-    );
-
-    expect(html).toContain('src="https://cdn.sanity.io/lead-1400.webp"');
-    // Die zweite Kachel ist 165px breit — die grosse Quelle waere dort nur
-    // teurer, nicht schaerfer.
-    expect(html).toContain('src="https://cdn.sanity.io/latest.webp"');
-    expect(html).not.toContain('latest-1400.webp');
+describe('NewsSection — issue numbers', () => {
+  it('counts down from the number of articles, the oldest is Issue 1', () => {
+    const html = render();
+    expect(html).toContain('Issue 5 · Juli 2026');
+    expect(html).toContain('Issue 1 · Juli 2026');
+    expect(html).not.toContain('Issue 6');
+    expect(html).toContain('Aktuelle Ausgabe<span');
   });
 
-  it('uses the normal source when the article has no larger one', () => {
-    const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
-    expect(html).toContain('src="https://cdn.sanity.io/lead.webp"');
+  it('prints the month in the page language', () => {
+    expect(render(articles, 'en')).toContain('Issue 5 · July 2026');
   });
 });
 
-describe('NewsSection cards', () => {
-  // Der Aufmacher ist reine CSS-Sache (erste Kachel über beide Spalten unter
-  // 700px). Im Markup bleibt jede Story dieselbe Kachel — es gibt keinen
-  // Sonderbaum, den man getrennt pflegen müsste.
-  it('lists every story as the same tile — the lead differs only in CSS', () => {
-    const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
-
-    expect(html.match(/href="\/news\//g)).toHaveLength(2);
-    expect(html).toContain('href="/news/lead-story"');
-    expect(html).toContain('href="/news/latest-story"');
+describe('NewsSection — back issues', () => {
+  it('lists every older article once as a cover on the shelf', () => {
+    const html = render();
+    const shelf = html.slice(html.indexOf('Frühere Ausgaben'));
+    for (const n of [2, 3, 4, 5]) {
+      expect(shelf.match(new RegExp(`href="/news/story-${n}"`, 'g'))).toHaveLength(1);
+    }
+    expect(shelf).not.toContain('href="/news/story-1"');
   });
 
-  it('uses the category as the card kicker and omits it when there is none', () => {
-    const html = renderToStaticMarkup(
-      <NewsSection
-        articles={[{ ...articles[0], categoryLabelDe: 'Guides' }, articles[1]]}
-        locale="de"
-      />
-    );
-
-    expect(html).toContain('Guides');
-    expect(html).toContain('Titelstory');
+  it('puts the rubric on the cover and leaves it out when there is none', () => {
+    const html = render([story(1), story(2, { categoryLabelDe: 'Guides' }), story(3)]);
+    const shelf = html.slice(html.indexOf('Frühere Ausgaben'));
+    expect(shelf.match(/>Guides</g)).toHaveLength(1);
+    expect(shelf.match(/class="[^"]*flash/g)).toHaveLength(1);
   });
 
-  it('prints the publication date under the title as a machine-readable time', () => {
-    const html = renderToStaticMarkup(<NewsSection articles={articles} locale="de" />);
-
-    // renderToStaticMarkup emits the JSX casing; HTML attribute names parse
-    // case-insensitively, so this is the `datetime` attribute either way.
-    expect(html).toMatch(/<time[^>]*dateTime="2026-07-14"[^>]*>14\. Juli 2026<\/time>/i);
-    // Title first, date after it — the date is the last line on the tile.
-    expect(html.indexOf('Titelstory')).toBeLessThan(html.indexOf('14. Juli 2026'));
+  it('prints the whole headline, never cut', () => {
+    const long =
+      'Essen und Trinken in Schöneberg – 9 Adressen von acht Uhr morgens bis vier Uhr nachts';
+    expect(render([story(1), story(2, { titleDe: long })])).toContain(long);
   });
 
-  it('omits the date element when an article carries no usable date', () => {
-    const html = renderToStaticMarkup(
-      <NewsSection articles={[{ ...articles[0], date: '' }]} locale="de" />
-    );
-
-    expect(html).not.toContain('<time');
+  it('drops the shelf when there is only the current issue', () => {
+    expect(render([story(1)])).not.toContain('Frühere Ausgaben');
   });
+});
 
-  it('falls back to the empty note when there is nothing to show', () => {
-    const html = renderToStaticMarkup(<NewsSection articles={[]} locale="de" />);
-
+describe('NewsSection — empty', () => {
+  it('falls back to the note when there is nothing to show', () => {
+    const html = render([]);
     expect(html).toContain('Aktuell keine Artikel');
+    expect(html).toContain('<h1');
     expect(html).not.toContain('<ul');
   });
 });

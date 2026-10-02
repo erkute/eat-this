@@ -452,8 +452,18 @@ export const categoryBySlugQuery = `
 `;
 
 // All news articles — newest first
+// Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1) — auf der
+// Startseite, im Magazin-Index und im Artikelkopf. Dafür brauchen alle drei
+// dieselbe Menge und eine feste Reihenfolge: viele Artikel teilen sich ein
+// Datum (am 26.08.2026 sechzehn), und ohne zweiten Schlüssel ist die
+// Reihenfolge innerhalb eines Tages nicht zugesagt — dasselbe Heft trüge sonst
+// je nach Seite eine andere Nummer. `_id` hält die Reihenfolge, die Sanity
+// bisher von sich aus lieferte.
+const publishedNews = `_type == "newsArticle" && defined(slug.current)`;
+const newsOrder = `date desc, _id asc`;
+
 export const allNewsArticlesQuery = `
-  *[_type == "newsArticle"] | order(date desc) {
+  *[${publishedNews}] | order(${newsOrder}) {
     _id,
     "slug": slug.current,
     "title": coalesce(title, titleDe),
@@ -462,21 +472,18 @@ export const allNewsArticlesQuery = `
     categoryLabel, categoryLabelDe,
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},
-    "imageUrlLead": ${groqImageUrl('image', 'newsLead')},
     "alt": coalesce(image.alt, alt),
     excerpt, excerptDe
   }
 `;
 
-// Latest N news articles — for detail-page outro / home feed
 // Die neuesten Artikel für die Startseite und die Zahl aller: dort ist jeder
 // Artikel ein Heft, gezählt ab dem ältesten (Issue 1), die neuesten tragen die
-// höchsten Nummern. Liste und Zählung teilen sich den Filter, damit die
-// Nummer nie andere Artikel sieht als die Liste.
-const publishedNews = `_type == "newsArticle" && defined(slug.current)`;
+// höchsten Nummern. Liste und Zählung teilen sich Filter und Reihenfolge mit
+// allNewsArticlesQuery, damit die Nummer nie andere Artikel sieht als die Liste.
 export const latestNewsArticlesQuery = `{
   "total": count(*[${publishedNews}]),
-  "articles": *[${publishedNews}] | order(date desc)[0...$limit] {
+  "articles": *[${publishedNews}] | order(${newsOrder})[0...$limit] {
     _id,
     "title": coalesce(title, titleDe),
     titleDe,

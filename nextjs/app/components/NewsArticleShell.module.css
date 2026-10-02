@@ -70,21 +70,30 @@ div.page {
 
 /* ---------------------------------------------------------------- hero --- */
 
+/* Der Aufmacher ist die Titelseite der Ausgabe (MagazineCover): das Heft,
+   das man auf der Startseite oder im Index angetippt hat, leicht in den Raum
+   gedreht wie dort. Am Telefon mittig über dem Titel, ab Desktop rechts neben
+   ihm. Unten Luft für Seitenblock und Schatten des Hefts. */
 .heroMedia {
-  position: relative;
-  aspect-ratio: 3 / 2;
-  max-height: 70vh;
-  overflow: hidden;
-  background: var(--article-ink);
-  /* Oben eckig, weil das Foto an der SiteNav sitzt: eine runde Ecke direkt
-     unter der Leiste lässt dort Weiß durchblitzen — genau den Rest, den das
-     Andocken beseitigen soll. Unten bleibt der Radius. */
-  border-radius: 0 0 var(--et-radius-photo) var(--et-radius-photo);
+  justify-self: center;
+  width: min(78vw, 360px);
+  margin: 26px 0 14px;
+  transform: perspective(1100px) rotateY(-9deg) rotateX(4deg);
 }
 
-.hero {
-  object-fit: cover;
-  filter: saturate(1.04) contrast(1.03);
+/* Einmal beim Laden legt sich das Heft hin — die einzige Bewegung des
+   Artikels, die von selbst läuft. Der Lesetext bleibt still. */
+@keyframes coverSettle {
+  from {
+    translate: 0 20px;
+    rotate: 2.5deg;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroMedia {
+    animation: coverSettle 650ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
 }
 
 .introCopy {
@@ -258,6 +267,18 @@ div.page {
   font-size: clamp(19px, 1.5vw, 21px);
   font-weight: 600;
   line-height: 1.5;
+}
+
+/* Das Schlusszeichen wie im Heft: das gelbe Marken-Quadrat am Ende des
+   letzten Absatzes — im Fazit oder im Fliesstext. */
+.content > p:last-child::after,
+.content > [data-block='conclusion']:last-child > p:last-child:not([data-block])::after {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-left: 0.4em;
+  background: var(--article-accent);
 }
 
 .content h2,
@@ -732,9 +753,8 @@ div.page {
 
 /* ----------------------------------------------------------- related ---- */
 
-/* Same card as the magazine rail on the home page: photo 4/5, title inside the
-   photo, yellow kicker. It used to be a dark box with 34px all-caps headlines —
-   the loudest type on a page whose own chapter headings were smaller. */
+/* Die nächsten Ausgaben als Hefte — dasselbe Objekt wie „Auf dem Teller" auf
+   der Startseite und die Auslage im Index. */
 .related {
   margin-top: clamp(56px, 8vw, 104px);
   margin-bottom: clamp(48px, 7vw, 88px);
@@ -767,8 +787,8 @@ div.page {
 
 .relatedGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(20px, 2.2vw, 32px);
+  grid-template-columns: repeat(3, minmax(0, 300px));
+  gap: clamp(28px, 3.4vw, 48px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -779,82 +799,51 @@ div.page {
   min-width: 0;
 }
 
+/* „Weiter auf dem Teller": die nächsten Ausgaben als kleine Hefte
+   (MagazineCover), jedes ein wenig anders gedreht wie in der Auslage des
+   Index. Unter der Maus hebt sich eins und liegt gerade. */
 .relatedCard {
-  position: relative;
   display: block;
   width: 100%;
   min-width: 0;
   color: var(--article-fg);
   text-decoration: none;
+  rotate: -1.2deg;
+  transition:
+    translate 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    rotate 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.relatedPhoto {
-  position: relative;
-  display: block;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--article-quiet);
-  border-radius: var(--et-radius-photo);
-  box-shadow: var(--et-ink-shadow);
+.relatedGrid > li:nth-child(2) .relatedCard {
+  rotate: 1deg;
 }
 
-.relatedPhoto img {
-  object-fit: cover;
-  transition: transform 220ms ease;
+.relatedGrid > li:nth-child(3) .relatedCard {
+  rotate: -0.5deg;
 }
 
-.relatedPhoto::after {
-  content: '';
-  position: absolute;
-  inset: 42% 0 0 0;
-  background: linear-gradient(to bottom, rgba(21, 18, 14, 0), rgba(21, 18, 14, 0.82));
-  pointer-events: none;
+.relatedCard:active {
+  scale: var(--et-press-tile);
 }
 
-.relatedText {
-  position: absolute;
-  inset: auto 0 0 0;
-  z-index: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: clamp(14px, 1.5vw, 20px);
-}
-
-.relatedCategory {
-  display: block;
-  color: var(--article-accent);
-  font-family: var(--et-font-display);
-  font-size: clamp(15px, 1.2vw, 19px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-}
-
-.relatedHeadline {
-  display: block;
-  margin: 0;
-  color: #fff;
-  font-family: var(--et-font-display);
-  font-size: clamp(19px, 1.5vw, 24px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.04;
-  text-shadow: var(--et-photo-text-shadow);
-  text-transform: none;
+@media (prefers-reduced-motion: reduce) {
+  .relatedCard {
+    transition: none;
+  }
 }
 
 /* ------------------------------------------------------------ states ---- */
 
 .mustEat:focus-visible,
 .inlineSpotCta:focus-visible,
-.relatedCard:focus-visible,
 .shareBtn:focus-visible {
   outline: 2px solid var(--article-accent);
   outline-offset: 4px;
+}
+
+.relatedCard:focus-visible {
+  outline: 3px solid var(--article-accent);
+  outline-offset: 8px;
 }
 
 @media (hover: hover) {
@@ -866,9 +855,9 @@ div.page {
     transform: rotate(-2deg) translateY(-3px);
   }
 
-  .relatedCard:hover .relatedPhoto img,
-  .relatedCard:focus-visible .relatedPhoto img {
-    transform: scale(1.03);
+  .relatedCard:hover {
+    translate: 0 -8px;
+    rotate: 0deg;
   }
 
   .shareBtn:hover,
@@ -936,12 +925,12 @@ div.page {
     margin-bottom: clamp(48px, 5vw, 80px);
   }
 
+  /* So hoch wie früher das Foto (420–620px), als Heft im Hochformat. */
   .headerSplit .heroMedia {
     grid-area: 1 / 2 / -1 / 3;
-    aspect-ratio: auto;
-    height: clamp(420px, calc(100vh - 220px), 620px);
-    max-height: none;
-    border-radius: var(--et-radius-photo);
+    align-self: center;
+    width: clamp(315px, calc((100vh - 220px) * 0.75), 465px);
+    margin: 0 8px 14px 0;
   }
 
   .headerSplit .introCopy {
@@ -1047,20 +1036,6 @@ div.page {
     margin-top: 26px;
   }
 
-  /* Hochformat und randlos, wie das Aufmacherfoto bei Highsnobiety.
-
-     Ohne die `70vh`-Grenze der Grundregel: Chrome auf dem iPhone ändert `vh`,
-     während es beim Scrollen seine Leisten ein- und ausblendet, und das Foto
-     wurde dabei höher und niedriger — es sah aus wie gezoomt (Betreiber,
-     26.09.2026). Volle Breite × 4:5 steht still und ist am Telefon nie höher
-     als der Bildschirm. Dasselbe wie bei `.inlineImage`. */
-  .heroMedia {
-    aspect-ratio: 4 / 5;
-    max-height: none;
-    margin-inline: -16px;
-    border-radius: 0;
-  }
-
   /* Fotos im Text ebenfalls randlos: die Spalte gibt links und rechts je
      16px ab, das Bild nimmt sie sich zurück. Die Unterschrift bleibt auf der
      Textkante. Spot-Karte und Must-Eat-Band behalten ihren Rand — sie sind
@@ -1141,18 +1116,18 @@ div.page {
     font-size: clamp(26px, 7.4vw, 34px);
   }
 
-  /* Swipeable rail instead of a stack — same three cards, a fifth of the
-     height. Bleeds to both edges so the next card peeks in, exactly like the
-     magazine rail on the home page. */
+  /* Swipeable rail instead of a stack. Bleeds to both edges so the next
+     issue peeks in. Oben und unten Luft: der Querscroller schneidet sonst die
+     gedrehten Hefte und ihren Seitenblock ab. */
   .relatedGrid {
     display: flex;
     grid-template-columns: none;
-    gap: 14px;
+    gap: 18px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     margin-inline: -16px;
-    padding-inline: 16px;
+    padding: 10px 16px 34px;
     scroll-padding-inline: 16px;
   }
 
@@ -1161,11 +1136,7 @@ div.page {
   }
 
   .relatedGrid > li {
-    flex: 0 0 min(76vw, 300px);
+    flex: 0 0 min(62vw, 250px);
     scroll-snap-align: start;
-  }
-
-  .relatedHeadline {
-    font-size: clamp(20px, 5.4vw, 24px);
   }
 }

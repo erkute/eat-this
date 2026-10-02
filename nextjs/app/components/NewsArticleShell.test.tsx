@@ -276,4 +276,70 @@ describe('NewsArticleShell', () => {
   it('reports a reading estimate of at least a minute', () => {
     expect(render([para('Kurz.')])).toContain('1 Min. Lesezeit');
   });
+
+  describe('issue cover', () => {
+    const issues = (slugs: string[]) =>
+      slugs.map(
+        (slug, i) =>
+          ({
+            _id: `id-${slug}`,
+            slug,
+            title: `Story ${slug}`,
+            date: `2026-09-${String(20 - i).padStart(2, '0')}`,
+            imageUrl: `https://cdn.sanity.io/${slug}.webp`,
+          }) as NewsArticle
+      );
+
+    const renderWith = (related: NewsArticle[], over: Partial<NewsArticle> = {}) =>
+      renderToStaticMarkup(
+        <NewsArticleShell
+          article={{
+            _id: 'news-1',
+            slug: 'doener',
+            title: 'Döner in Berlin',
+            titleDe: 'Döner in Berlin',
+            date: '2026-04-24',
+            imageUrl: 'https://cdn.sanity.io/doener.webp',
+            alt: 'Döner im Brot',
+            categoryLabelDe: 'Guides',
+            content: [para('Text.')],
+            contentDe: [para('Text.')],
+            ...over,
+          }}
+          relatedArticles={related}
+          locale="de"
+          isActive
+        />
+      );
+
+    it('opens on the cover of its own issue, counted from the oldest article', () => {
+      // Newest first: four articles, `doener` is the second newest → Issue 3.
+      const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
+      expect(html).toContain('Issue 3 · April 2026');
+    });
+
+    it('keeps the lead photo described and the cover copy silent', () => {
+      const html = renderWith(issues(['doener']));
+      expect(html).toContain('alt="Döner im Brot"');
+      expect(html).toMatch(/class="[^"]*lines[^"]*" aria-hidden="true"/);
+      // Still exactly one real headline on the page.
+      expect(html.match(/<h1/g)).toHaveLength(1);
+    });
+
+    it('prints only the month for a draft that is not in the run yet', () => {
+      const html = renderWith(issues(['pizza', 'eis']));
+      expect(html).toContain('>April 2026<');
+      expect(html).not.toContain('Issue 3');
+    });
+
+    it('shows the next issues as covers with their own numbers', () => {
+      const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
+      const related = html.slice(html.indexOf('Weiter auf dem Teller'));
+      expect(related).toContain('href="/news/pizza"');
+      expect(related).toContain('Issue 4 · September 2026');
+      expect(related).toContain('href="/news/donuts"');
+      expect(related).toContain('Issue 1 · September 2026');
+      expect(related).not.toContain('href="/news/doener"');
+    });
+  });
 });

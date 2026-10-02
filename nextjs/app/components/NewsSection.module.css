@@ -1,14 +1,16 @@
-/* Seit 03.09.2026 steht der Magazin-Index auf durchgehendem Ink wie die
-   Startseite: `--news-ink` ist der GRUND, `--news-fg` die Schrift darauf, die
-   Kacheln sind Foto mit Sheet-Schatten und Text direkt auf dem Grund —
-   dasselbe Objekt wie die Magazin-Kacheln der Startseite (MagazineGrid). */
+/* Der Magazin-Index als Heft-Archiv (02.10.2026, NewsSection.tsx): auf
+   durchgehendem Ink wie die Startseite, jede Story ist eine Titelseite
+   (MagazineCover). Bewegung nur unter der Maus; mit reduzierter Bewegung
+   bleibt alles stehen. */
 .page {
   --news-ink: var(--et-ink);
   --news-fg: var(--et-white);
-  --news-soft: var(--et-ink-quiet);
   --news-yellow: var(--et-accent);
   --news-muted: var(--et-ink-dim);
   --news-copy: var(--et-ink-soft);
+  /* Breite der aktuellen Ausgabe: bildschirmhoch, aber nie breiter als die
+     rechte Hälfte des Satzspiegels. */
+  --issue-w: min(74vw, 340px);
   background: var(--news-ink);
   color: var(--news-fg);
 }
@@ -17,8 +19,7 @@
   margin-inline: calc(50% - 50vw);
 }
 
-/* Same 1180 frame as the article detail — both pages are "Auf dem Teller" and
-   used to disagree about how wide that is (1040 shell, 900 content). */
+/* Same 1180 frame as the article detail — both pages are "Auf dem Teller". */
 .shell {
   width: min(100%, 1180px);
   margin: 0 auto;
@@ -26,15 +27,27 @@
   padding: 34px clamp(18px, 4vw, 54px) clamp(56px, 8vw, 112px);
 }
 
+/* ------------------------------------------------------------- kopf ---- */
+
 .hero {
   display: grid;
-  gap: clamp(14px, 2.4vw, 24px);
-  margin-bottom: clamp(34px, 5vw, 64px);
+  gap: clamp(30px, 5vw, 48px);
 }
 
-.heroCopy {
+.intro {
   display: grid;
-  gap: clamp(12px, 1.8vw, 18px);
+  justify-items: start;
+  gap: clamp(10px, 1.4vw, 16px);
+}
+
+.kicker {
+  color: var(--news-yellow);
+  font-family: var(--et-font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .heroTitle {
@@ -42,31 +55,162 @@
   margin: 0;
   color: var(--news-fg);
   font-family: var(--et-font-display);
-  font-size: clamp(40px, 5vw, 64px);
+  font-size: clamp(42px, 5vw, 64px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.86;
   text-transform: uppercase;
 }
 
-/* Was 750-weight at 23px — a second headline rather than a standfirst. */
 .heroSub {
-  max-width: 52ch;
-  margin: 0;
+  max-width: 46ch;
+  margin: clamp(4px, 0.6vw, 8px) 0 0;
   color: var(--news-copy);
   font-family: var(--et-font-body);
-  font-size: clamp(17px, 1.45vw, 20px);
+  font-size: clamp(16px, 1.35vw, 19px);
   font-weight: 400;
   line-height: 1.6;
 }
 
-/* ----------------------------------------------------------- stories ---- */
+/* ── Die aktuelle Ausgabe ── Das vordere Heft ist der Link, leicht in den
+   Raum gedreht wie auf der Startseite; die zwei Ausgaben davor liegen schräg
+   darunter. `isolation`: der Stapel ordnet sich unter sich, nichts darüber
+   gerät zwischen die Hefte. */
+.issue {
+  display: grid;
+  gap: clamp(30px, 4vw, 44px);
+}
+
+.pile {
+  position: relative;
+  isolation: isolate;
+  justify-self: center;
+  width: var(--issue-w);
+  /* Platz für die hinausragenden Lagen und den Schatten. */
+  margin: 18px 0 14px;
+}
+
+.front,
+.pileCover {
+  display: block;
+  width: 100%;
+  transition:
+    translate 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    rotate 450ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 450ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.front {
+  position: relative;
+  z-index: 3;
+  color: var(--et-white);
+  text-decoration: none;
+  transform: perspective(1100px) rotateY(-9deg) rotateX(4deg);
+}
+
+.front:focus-visible {
+  outline: 3px solid var(--news-yellow);
+  outline-offset: 10px;
+}
+
+.front:active {
+  scale: var(--et-press-tile);
+}
+
+/* Die älteren liegen am Telefon links und rechts heraus — so sieht man an
+   beiden Kanten, dass es ein Stapel ist. */
+.pileCover {
+  position: absolute;
+  inset: 0;
+  z-index: calc(3 - var(--d));
+  pointer-events: none;
+  /* Dieselbe Neigung wie das vordere Heft; Lage und Drehung kommen aus den
+     Einzel-Eigenschaften davor. */
+  transform: perspective(1100px) rotateY(-9deg) rotateX(4deg);
+  translate: calc(var(--d) * -9%) calc(var(--d) * -2.5%);
+  rotate: calc(var(--d) * -4.5deg);
+  scale: calc(1 - var(--d) * 0.04);
+}
+
+.pileCover:nth-child(2) {
+  translate: 8% -3%;
+  rotate: 5deg;
+}
+
+.issueText {
+  display: grid;
+  justify-items: start;
+  gap: clamp(12px, 1.4vw, 16px);
+}
+
+.issueLabel {
+  color: var(--news-yellow);
+  font-family: var(--et-font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.issueNo {
+  color: var(--news-muted);
+}
+
+.issueExcerpt {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--news-fg);
+  font-family: var(--et-font-body);
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Gelb auf Ink wie jeder Tafel-Knopf; Hover auf Papier, damit er auf dem
+   dunklen Grund nicht verschwindet. */
+.read {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  margin-top: 4px;
+  padding: 0 26px;
+  color: var(--et-ink);
+  background: var(--news-yellow);
+  border-radius: var(--et-radius-control);
+  font-family: var(--et-font-display);
+  font-size: clamp(15px, 1.2vw, 17px);
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.read:focus-visible {
+  background: var(--news-fg);
+  outline: 2px solid var(--news-yellow);
+  outline-offset: 3px;
+}
+
+.read:active {
+  transform: translateY(1px);
+}
+
+/* ---------------------------------------------------------- auslage ---- */
+
+.archive {
+  margin-top: clamp(64px, 9vw, 128px);
+}
 
 .sectionHead {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  margin-bottom: clamp(20px, 2.6vw, 32px);
+  margin-bottom: clamp(26px, 3.4vw, 44px);
 }
 
 .sectionMark {
@@ -80,113 +224,58 @@
   margin: 0;
   color: var(--news-fg);
   font-family: var(--et-font-display);
-  font-size: clamp(28px, 3.4vw, 42px);
+  font-size: clamp(26px, 3.4vw, 42px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.9;
   text-transform: uppercase;
 }
 
-.grid {
+/* Die Hefte liegen nebeneinander aus, jedes ein wenig anders gedreht — eine
+   Auslage, kein Raster aus gleichen Kacheln. Unten Luft für den Seitenblock
+   und den Schatten jedes Hefts. */
+.shelf {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(20px, 2.2vw, 32px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 34px 16px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.grid > li {
-  display: flex;
+.slot {
   min-width: 0;
 }
 
-.card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-width: 0;
-  color: var(--news-fg);
+.mag {
+  display: block;
+  color: var(--et-white);
   text-decoration: none;
+  rotate: -1.4deg;
+  transition:
+    translate 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    rotate 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.photo {
-  position: relative;
-  display: block;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--news-soft);
-  border-radius: var(--et-radius-photo);
-  /* Das Foto liegt mit dem Sheet-Schatten auf dem Grund — wie die Kacheln der
-     Startseite. */
-  box-shadow: var(--et-ink-shadow);
+.slot:nth-child(4n + 2) .mag {
+  rotate: 1.1deg;
 }
 
-.photoFallback {
-  position: absolute;
-  inset: 0;
-  background: var(--news-soft);
+.slot:nth-child(4n + 3) .mag {
+  rotate: 0.6deg;
 }
 
-.imageFill {
-  object-fit: cover;
-  object-position: center;
-  transition: transform 220ms ease;
+.slot:nth-child(4n + 4) .mag {
+  rotate: -0.8deg;
 }
 
-/* Der Text steht UNTER dem Foto, nicht darauf.
-
-   Übereinander gelegt kämpften beide gegeneinander: über einem unruhigen Motiv
-   braucht helle Schrift einen Verlauf, der Verlauf verdeckt das Foto, und je
-   länger die Überschrift desto weiter musste er hochgezogen werden. Auf den
-   schmalen Kacheln verlor man dadurch beides. Getrennt gewinnen beide — das
-   Foto bleibt unverdeckt, die Schrift steht auf Papier. */
-.text {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: clamp(10px, 0.9vw, 14px) 2px 0;
+.mag:focus-visible {
+  outline: 3px solid var(--news-yellow);
+  outline-offset: 8px;
 }
 
-/* Die Rubrik als gelbe Kreide-Zeile ueber der Headline — auf Ink traegt Gelb
-   als Schrift, die Marker-Flaeche war fuer Papier gedacht. */
-.kicker {
-  display: block;
-  align-self: flex-start;
-  color: var(--news-yellow);
-  font-family: var(--et-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.title {
-  display: block;
-  color: var(--news-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(16px, 1.5vw, 24px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.08;
-  text-transform: none;
-}
-
-/* Quiet date under the headline — chronology is worth having on an index, but
-   it is the last thing you read on the tile, not the first. */
-.date {
-  display: block;
-  margin-top: 2px;
-  color: var(--news-muted);
-  font-family: var(--et-font-display);
-  font-size: clamp(12px, 0.95vw, 14px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.1;
+.mag:active {
+  scale: var(--et-press-tile);
 }
 
 .empty {
@@ -198,94 +287,120 @@
   line-height: 1.38;
 }
 
-.card:focus-visible {
-  outline: 2px solid var(--news-yellow);
-  outline-offset: 4px;
-}
+/* ----------------------------------------------------- unter der maus ---- */
 
 @media (hover: hover) {
-  .card:hover .imageFill,
-  .card:focus-visible .imageFill {
-    transform: scale(1.035);
+  .read:hover {
+    background: var(--news-fg);
+    transform: translateY(-2px);
+  }
+
+  /* Das Heft hebt sich aus der Auslage und liegt gerade. */
+  .mag:hover {
+    translate: 0 -8px;
+    rotate: 0deg;
+  }
+
+  /* Der Stapel fächert auf, das vordere hebt sich. */
+  .pile:hover .front {
+    translate: 0 -6px;
+  }
+
+  .pile:hover .pileCover {
+    translate: calc(var(--d) * -14%) calc(var(--d) * -4%);
+    rotate: calc(var(--d) * -6.5deg);
+  }
+
+  .pile:hover .pileCover:nth-child(2) {
+    translate: 13% -4%;
+    rotate: 8deg;
   }
 }
 
-@media (max-width: 960px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+/* Einmal beim Laden rutschen die älteren Hefte unter dem vorderen hervor —
+   die einzige Bewegung, die von selbst läuft. `backwards`: danach gelten
+   wieder die Ruhelage und der Hover oben. */
+@keyframes pileDeal {
+  from {
+    translate: 0 0;
+    rotate: 0deg;
   }
 }
 
-@media (max-width: 900px) {
-  .shell {
-    padding-top: 24px;
+@media (prefers-reduced-motion: no-preference) {
+  .pileCover {
+    animation: pileDeal 650ms cubic-bezier(0.2, 0.8, 0.2, 1) 250ms backwards;
   }
 }
 
-@media (max-width: 700px) {
-  .shell {
-    padding-inline: 16px;
+@media (prefers-reduced-motion: reduce) {
+  .front,
+  .pileCover,
+  .mag,
+  .read {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------ breiten ---- */
+
+@media (min-width: 768px) {
+  .page {
+    --issue-w: min(440px, (100svh - 230px) * 0.75, 44vw);
   }
 
+  .shelf {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(40px, 4.4vw, 56px) clamp(24px, 3vw, 40px);
+  }
+
+  /* Ab hier fächern beide älteren nach links auf, zur Schrift hin — wie der
+     Stapel auf der Startseite. */
+  .pileCover:nth-child(2) {
+    translate: calc(var(--d) * -9%) calc(var(--d) * -2.5%);
+    rotate: calc(var(--d) * -4.5deg);
+  }
+}
+
+@media (min-width: 768px) and (hover: hover) {
+  .pile:hover .pileCover:nth-child(2) {
+    translate: calc(var(--d) * -14%) calc(var(--d) * -4%);
+    rotate: calc(var(--d) * -6.5deg);
+  }
+}
+
+/* Links Titel, Vorspann und „Lesen", rechts der Stapel über beide Zeilen. */
+@media (min-width: 900px) {
   .hero {
-    gap: 16px;
-    margin-bottom: 30px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(48px, 7vw, 120px);
+    row-gap: clamp(28px, 3.4vw, 44px);
+    align-items: start;
   }
 
-  .heroTitle {
-    max-width: 7.8ch;
-    font-size: clamp(42px, 12.6vw, 62px);
-    line-height: 0.88;
+  .issue {
+    display: contents;
   }
 
-  .heroSub {
-    max-width: none;
-    font-size: clamp(16px, 4.4vw, 19px);
+  /* Links Platz für die aufgefächerten Hefte (auch unter der Maus), sonst
+     ragen sie in den Vorspann. */
+  .pile {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin: 40px 24px 18px calc(var(--issue-w) * 0.26);
   }
 
-  .sectionHead h2 {
-    font-size: clamp(26px, 7.4vw, 34px);
+  .issueText {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    padding-bottom: 32px;
   }
+}
 
-  /* Two columns, not a stack. Seven stories ran 4343px as full-width rows at
-     390px wide; the same seven as tiles measure 1800px.
-
-     Zeilen- und Spaltenabstand getrennt: seitlich hält 12px die Kacheln als
-     Paar zusammen, vertikal braucht es mehr. Seit der Text unter dem Foto
-     steht, endet jede Kachel mit dem Datum — bei 12px klebte das an der
-     nächsten Bildkante, und die Reihen liefen ineinander. */
-  .grid {
-    gap: 30px 12px;
-  }
-
-  /* Die erste Story quer über beide Spalten. Zwanzig gleich große Kacheln
-     untereinander sind ein Archiv, kein Magazin — und in einer 165px-Spalte
-     ist kein Foto „schön groß". Der Aufmacher bekommt die volle Breite und ein
-     ruhigeres 3/2, das Raster darunter bleibt wie es ist. */
-  .grid > li:first-child {
-    grid-column: 1 / -1;
-  }
-
-  .grid > li:first-child .photo {
-    aspect-ratio: 3 / 2;
-  }
-
-  .grid > li:first-child .title {
-    font-size: 21px;
-  }
-
-  .text {
-    gap: 4px;
-    padding: 9px 1px 0;
-  }
-
-  .title {
-    font-size: 16px;
-    line-height: 1.14;
-  }
-
-  .date {
-    margin-top: 2px;
-    font-size: 11px;
+@media (min-width: 1100px) {
+  .shelf {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

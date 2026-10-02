@@ -268,14 +268,25 @@ describe('NewsArticleShell', () => {
   });
 
   it('lists the spots of a guide under the head, by name, each a jump', () => {
+    const conclusion = {
+      _type: 'block',
+      _key: 'fazit',
+      style: 'conclusion',
+      markDefs: [],
+      children: [{ _type: 'span', _key: 'f', text: 'Fünf Pizzen, fünf Wege' }],
+    } as unknown as PortableTextBlock;
     const html = render([
       h2('Saucen'),
       spot('Spumante', 'spumante'),
       h2('Kolo Coffee – Mikrorösterei mit Bohnen'),
       spot('Kolo', 'kolo'),
+      conclusion,
     ]);
     const head = html.slice(0, html.indexOf('</header>'));
-    expect(head).toContain('aria-label="Kapitel"');
+    // „nicht Kapitel nennen" (02.10.2026): die Zeile zählt Spots auf.
+    expect(head).toContain('aria-label="Die Spots"');
+    // Das Fazit ist kein Spot.
+    expect(head).not.toContain('Fünf Pizzen');
     expect(head).toContain('href="#saucen"');
     expect(head).toMatch(/href="#kolo-coffee-[^"]*"[^>]*>Kolo Coffee<\/a>/);
   });
@@ -289,7 +300,7 @@ describe('NewsArticleShell', () => {
       h2('Das Croissant'),
       spot('Crapulix', 'crapulix'),
     ]);
-    expect(html).not.toContain('aria-label="Kapitel"');
+    expect(html).not.toContain('aria-label="Die Spots"');
   });
 
   it('reports a reading estimate of at least a minute', () => {

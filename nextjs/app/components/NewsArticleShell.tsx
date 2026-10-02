@@ -169,7 +169,11 @@ export default function NewsArticleShell({
     (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
-  const chapters = extractHeadings(content);
+  // Die Spots eines Guides für die Zeile unter dem Kopf: seine Kapitel, ohne
+  // das Fazit — das ist kein Spot.
+  const chapters = extractHeadings(
+    content.filter((block) => !('style' in block && block.style === 'conclusion'))
+  );
   // Die Kapitel-Zeile nur in Guides, die Spots aufzählen (Ansage 02.10.2026:
   // „nur wenn Spots gelistet sind") — nicht in einem Essay mit
   // Zwischenüberschriften, der höchstens einen Laden zeigt.
@@ -354,7 +358,8 @@ export default function NewsArticleShell({
 
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
-  const chaptersLabel = de ? 'Kapitel' : 'Chapters';
+  // Nicht „Kapitel" (Ansage 02.10.2026): die Zeile zählt die Spots auf.
+  const chaptersLabel = de ? 'Die Spots' : 'The spots';
 
   // Die Credits unter der Schlagzeile, klein in Versalien wie bei Kaleidoscope:
   // die Ausgabe, die man eben aufgeschlagen hat, Datum und Lesezeit.
@@ -413,11 +418,11 @@ export default function NewsArticleShell({
               </div>
             )}
             {showLede && <p className={styles.lede}>{excerpt}</p>}
-            {/* Die Kapitel als eine Zeile unter dem Kopf, wie die Namenslisten
-                bei Kaleidoscope — sie ersetzt die Leiste links, die als
-                einziges Element aus der Mitte fiel (Ansage 02.10.2026), und
-                gibt es jetzt auch am Telefon. Nur der Name, nicht die ganze
-                Überschrift; ein Tipp springt zum Kapitel. */}
+            {/* Die Spots als eine Zeile unter dem Kopf, wie die Namenslisten
+                bei Kaleidoscope — sie ersetzt die Kapitel-Leiste links, die
+                als einziges Element aus der Mitte fiel (Ansage 02.10.2026),
+                und gibt es jetzt auch am Telefon. Nur der Name, nicht die
+                ganze Überschrift; ein Tipp springt zum Spot. */}
             {listsSpots && chapters.length > 1 && (
               <nav className={styles.chapters} aria-label={chaptersLabel}>
                 <span className={styles.chaptersLabel}>{chaptersLabel}</span>

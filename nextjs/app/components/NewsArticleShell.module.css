@@ -191,9 +191,9 @@ div.page {
 
 /* ------------------------------------------------------------ chapters --- */
 
-/* Die Kapitel als eine Zeile unter dem Kopf, mittig wie die Namenslisten bei
-   Kaleidoscope (Ansage 02.10.2026, statt der Leiste links). Jedes Kapitel ist
-   ein leises Feld wie „Teilen", unter der Maus gelb. */
+/* „Die Spots" als eine Zeile unter dem Kopf, mittig wie die Namenslisten bei
+   Kaleidoscope (Ansage 02.10.2026, statt der Kapitel-Leiste links). Jeder
+   Spot ist ein leises Feld wie „Teilen", unter der Maus gelb. */
 .chapters {
   display: grid;
   justify-items: center;

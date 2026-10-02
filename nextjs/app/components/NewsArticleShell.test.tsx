@@ -267,10 +267,17 @@ describe('NewsArticleShell', () => {
     for (const link of mapLinks) expect(link).toContain('nofollow');
   });
 
-  it('lists the h2 chapters in the rail', () => {
-    const html = render([h2('Saucen'), para('x'), h2('Und jetzt zum traurigen Teil')]);
-    expect(html).toContain('href="#saucen"');
-    expect(html).toContain('href="#und-jetzt-zum-traurigen-teil"');
+  it('lists the chapters under the head, by name, each a jump', () => {
+    const html = render([h2('Saucen'), para('x'), h2('Kolo Coffee – Mikrorösterei mit Bohnen')]);
+    const head = html.slice(0, html.indexOf('</header>'));
+    expect(head).toContain('aria-label="Kapitel"');
+    expect(head).toContain('href="#saucen"');
+    expect(head).toMatch(/href="#kolo-coffee-[^"]*"[^>]*>Kolo Coffee<\/a>/);
+  });
+
+  it('shows no chapter row for a piece with a single chapter', () => {
+    const html = render([h2('Saucen'), para('x')]);
+    expect(html).not.toContain('aria-label="Kapitel"');
   });
 
   it('reports a reading estimate of at least a minute', () => {

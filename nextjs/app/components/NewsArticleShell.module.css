@@ -108,7 +108,8 @@ div.page {
   text-transform: uppercase;
 }
 
-.kicker::before {
+.kicker::before,
+.chaptersLabel::before {
   content: '';
   display: inline-block;
   width: 9px;
@@ -186,6 +187,77 @@ div.page {
   font-weight: 400;
   line-height: 1.25;
   text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------ chapters --- */
+
+/* Die Kapitel als eine Zeile unter dem Kopf, mittig wie die Namenslisten bei
+   Kaleidoscope (Ansage 02.10.2026, statt der Leiste links). Jedes Kapitel ist
+   ein leises Feld wie „Teilen", unter der Maus gelb. */
+.chapters {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 900px;
+  margin: clamp(40px, 5vw, 72px) auto 0;
+}
+
+.chaptersLabel {
+  color: var(--article-fg);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.chapterList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chapterList a {
+  display: inline-block;
+  padding: 8px 12px 7px;
+  background: var(--article-quiet);
+  color: var(--article-fg);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.chapterList a:focus-visible {
+  outline: 2px solid var(--article-fg);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .chapterList a:hover {
+    background: var(--article-accent);
+    color: var(--et-ink);
+  }
+}
+
+/* -------------------------------------------------------------- column --- */
+
+/* Die Lesespalte steht mittig in Lesebreite, auf jeder Breite. Alles im
+   Textfluss folgt ihr — auch Bilder, Spot-Karten und die Tafel: kein Block
+   steht über den Text hinaus (User, 28.08.: gemessen 236px Überhang nach
+   rechts, als die Blöcke noch die ganze Spalte nahmen). */
+.column {
+  min-width: 0;
+  max-width: var(--article-measure);
+  margin-inline: auto;
 }
 
 /* ------------------------------------------------------------ motion ---- */
@@ -1020,42 +1092,6 @@ div.page {
 /* ------------------------------------------------------------ layout ---- */
 
 @media (min-width: 1080px) {
-  /* Die Lesespalte steht mittig wie alles bei Kaleidoscope; die
-     Kapitel-Leiste sitzt im linken Rand, rechts bleibt derselbe Rand frei. */
-  .body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, var(--article-measure)) minmax(0, 1fr);
-    column-gap: clamp(32px, 4vw, 64px);
-    /* No `align-items: start` — the rail has to stretch to the full row height,
-       otherwise its sticky child unsticks as soon as the rail's own short box
-       has scrolled past. */
-  }
-
-  .column {
-    max-width: none;
-    margin-inline: 0;
-  }
-
-  /* Prose keeps the measure; the visual blocks take the whole column and so
-     step out past the text — the wide space to the right of the paragraphs is
-     the point, not an accident. */
-  /* Alles im Textfluss folgt der Lesebreite — nicht nur die Textknoten.
-     Vorher zählte diese Regel p/h2/h3/ul/ol einzeln auf, und jeder Blocktyp,
-     der später dazukam, fehlte darin: Artikelbilder, Spot-Karten,
-     Must-Eat-Bänder und der Katalog-Ausgang liefen über die vollen 896px der
-     Spalte, während der Text daneben bei 660px endete — gemessen 236px
-     Überhang nach rechts (User, 28.08.). Als `> *` erbt jeder künftige Block
-     die Breite, statt dass jemand daran denken muss. */
-  .content > *,
-  .hubLink,
-  .shareRow {
-    max-width: var(--article-measure);
-  }
-
-  .inlineImage {
-    --img-frame: min(100%, var(--article-measure));
-  }
-
   /* Ab Desktop steht der Knopf rechts als Kante der Tafel (Betreiber,
      07.09.2026: „sehr viel Leerfläche" rechts). */
   .hubLink {
@@ -1071,11 +1107,6 @@ div.page {
     margin-top: 0;
     padding: 0 22px;
     font-size: 14px;
-  }
-
-  /* The rail already carries Teilen. */
-  .shareRow {
-    display: none;
   }
 }
 

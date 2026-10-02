@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { splitHeading } from './headingDeck';
+import { chapterShortLabel, splitHeading } from './headingDeck';
 
 describe('splitHeading', () => {
   it('teilt am Gedankenstrich in Name und Unterzeile', () => {
@@ -27,5 +27,29 @@ describe('splitHeading', () => {
     expect(splitHeading('Fazit')).toBeNull();
     expect(splitHeading(' – nur Unterzeile')).toBeNull();
     expect(splitHeading('Nur Name – ')).toBeNull();
+  });
+});
+
+describe('chapterShortLabel', () => {
+  it('schneidet die Erklärung hinter dem Gedankenstrich ab', () => {
+    expect(chapterShortLabel('Kolo Coffee – Mikrorösterei mit Wettkampf-Bohnen')).toBe(
+      'Kolo Coffee'
+    );
+    expect(chapterShortLabel('BEN RAHIM — Ibrik im Sand, ohne Zucker')).toBe('BEN RAHIM');
+    expect(chapterShortLabel('Distrikt - All-Day-Breakfast an der Bergstraße')).toBe('Distrikt');
+  });
+
+  it('lässt einen Bindestrich im Namen selbst stehen', () => {
+    // Ohne Leerzeichen drumherum ist der Strich Teil des Namens.
+    expect(chapterShortLabel('Coffee-Bar Nummer 9')).toBe('Coffee-Bar Nummer 9');
+  });
+
+  it('lässt Überschriften ohne Trenner ganz', () => {
+    expect(chapterShortLabel('Fazit')).toBe('Fazit');
+  });
+
+  it('gibt nie einen leeren Namen zurück', () => {
+    // Eine Überschrift, die mit dem Trenner anfängt, hätte sonst nichts übrig.
+    expect(chapterShortLabel('– Nachtrag')).toBe('– Nachtrag');
   });
 });

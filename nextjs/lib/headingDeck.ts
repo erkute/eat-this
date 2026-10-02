@@ -17,3 +17,11 @@ export function splitHeading(
   if (!name.trim() || !deck.trim()) return null;
   return { name, separator: match[0], deck };
 }
+
+/** Nur der Name, nicht die ganze Überschrift (User, 2026-08-27): die
+ *  Kapitel-Zeile unter dem Kopf nennt „Kolo Coffee", nicht „Kolo Coffee –
+ *  Mikrorösterei mit Wettkampf-Bohnen". Überschriften ohne Trenner
+ *  („Fazit") bleiben ganz, und nie bleibt ein leerer Name übrig. */
+export function chapterShortLabel(text: string): string {
+  return (splitHeading(text)?.name ?? text).trim();
+}

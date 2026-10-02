@@ -13,13 +13,13 @@ import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
-import ArticleRail from './ArticleRail';
 import ArticleMotion from './ArticleMotion';
 import ArticleThemeToggle from './ArticleThemeToggle';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
+import { chapterShortLabel } from '@/lib/headingDeck';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -409,77 +409,83 @@ export default function NewsArticleShell({
               </div>
             )}
             {showLede && <p className={styles.lede}>{excerpt}</p>}
+            {/* Die Kapitel als eine Zeile unter dem Kopf, wie die Namenslisten
+                bei Kaleidoscope — sie ersetzt die Leiste links, die als
+                einziges Element aus der Mitte fiel (Ansage 02.10.2026), und
+                gibt es jetzt auch am Telefon. Nur der Name, nicht die ganze
+                Überschrift; ein Tipp springt zum Kapitel. */}
+            {chapters.length > 1 && (
+              <nav className={styles.chapters} aria-label={chaptersLabel}>
+                <span className={styles.chaptersLabel}>{chaptersLabel}</span>
+                <ol className={styles.chapterList}>
+                  {chapters.map((chapter) => (
+                    <li key={chapter.id}>
+                      <a href={`#${chapter.id}`} title={chapter.text}>
+                        {chapterShortLabel(chapter.text)}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )}
           </header>
 
-          <div className={styles.body}>
-            <ArticleRail
-              chapters={chapters}
-              label={chaptersLabel}
-              shareLabel={shareLabel}
-              shareCopiedLabel={copiedLabel}
-              shareTitle={title}
-              shareExcerpt={excerpt}
-            >
-              <ArticleThemeToggle de={de} />
-            </ArticleRail>
+          <div className={styles.column}>
+            <div className={styles.content} data-article-content="">
+              <PortableTextRenderer
+                blocks={content}
+                renderMustEatCard={renderMustEatCard}
+                renderSpotCard={renderSpotCard}
+                renderImage={renderImage}
+              />
+            </div>
 
-            <div className={styles.column}>
-              <div className={styles.content} data-article-content="">
-                <PortableTextRenderer
-                  blocks={content}
-                  renderMustEatCard={renderMustEatCard}
-                  renderSpotCard={renderSpotCard}
-                  renderImage={renderImage}
-                />
-              </div>
-
-              {/* Teilen steht direkt unter dem Text, der Katalog-Ausgang
+            {/* Teilen steht direkt unter dem Text, der Katalog-Ausgang
                   darunter: Teilen bezieht sich auf den gelesenen Artikel und
                   gehört an dessen Ende; der Hub führt aus ihm hinaus und ist
                   damit der letzte Schritt der Seite. */}
-              <div className={styles.shareRow}>
-                <NewsArticleShare
-                  title={title}
-                  excerpt={excerpt}
-                  label={shareLabel}
-                  copiedLabel={copiedLabel}
-                  className={styles.shareBtn}
-                />
-              </div>
+            <div className={styles.shareRow}>
+              <NewsArticleShare
+                title={title}
+                excerpt={excerpt}
+                label={shareLabel}
+                copiedLabel={copiedLabel}
+                className={styles.shareBtn}
+              />
+            </div>
 
-              {hubLink && (
-                <Link href={hubLink.href} className={styles.hubLink} data-motion="toss">
-                  {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
+            {hubLink && (
+              <Link href={hubLink.href} className={styles.hubLink} data-motion="toss">
+                {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
                       davor — dieselbe Art wie auf /packs und in der
                       „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
                       keine Art; dort trägt die Zeile allein. Der Pfeil, der
                       hier stand, ist weg: die Fläche ist der Knopf. */}
-                  {hubPack && (
-                    <Image
-                      src={hubPack}
-                      alt=""
-                      width={72}
-                      height={101}
-                      className={styles.hubLinkPack}
-                      data-motion-part="pack"
-                    />
-                  )}
-                  <span className={styles.hubLinkKicker}>
-                    {de ? 'Der ganze Katalog' : 'The full catalogue'}
-                  </span>
-                  <span className={styles.hubLinkLabel}>
-                    {articleHubLabel(hubLink, de ? 'de' : 'en')}
-                  </span>
-                  {/* Die sichtbare Kante der Tafel: auf dem Telefon unter dem
+                {hubPack && (
+                  <Image
+                    src={hubPack}
+                    alt=""
+                    width={72}
+                    height={101}
+                    className={styles.hubLinkPack}
+                    data-motion-part="pack"
+                  />
+                )}
+                <span className={styles.hubLinkKicker}>
+                  {de ? 'Der ganze Katalog' : 'The full catalogue'}
+                </span>
+                <span className={styles.hubLinkLabel}>
+                  {articleHubLabel(hubLink, de ? 'de' : 'en')}
+                </span>
+                {/* Die sichtbare Kante der Tafel: auf dem Telefon unter dem
                       Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
                       Leerfläche"). Für Screenreader trägt der Link seinen
                       Namen schon in Kicker und Label. */}
-                  <span className={styles.hubLinkCta} aria-hidden="true">
-                    {de ? 'Ansehen' : 'View'}
-                  </span>
-                </Link>
-              )}
-            </div>
+                <span className={styles.hubLinkCta} aria-hidden="true">
+                  {de ? 'Ansehen' : 'View'}
+                </span>
+              </Link>
+            )}
           </div>
 
           {recommendations.length > 0 && (

@@ -36,9 +36,13 @@ Sentry.init({
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 0,
 
-  // PII collection is ON per project decision (2026-05-09): IP and User-Agent
-  // help debug "this crash only hits Safari 17 in Berlin" without round-trips.
-  sendDefaultPii: true,
+  // Keine IP (Betreiber, 02.10.2026). Der Cookie-Dialog verspricht für Sentry
+  // höchstens eine pseudonymisierte IP; mit `true` (Projektentscheidung vom
+  // 09.05.2026) speicherte Sentry die volle. Mit `false` schickt das SDK
+  // `infer_ip: "never"`, Sentry leitet dann keine IP mehr ab. Browser und
+  // Betriebssystem kommen weiter über den User-Agent an — das, was der
+  // Dialog nennt.
+  sendDefaultPii: false,
 });
 
 // No onRouterTransitionStart export: it only feeds navigation SPANS, and

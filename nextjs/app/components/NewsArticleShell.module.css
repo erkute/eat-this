@@ -92,16 +92,15 @@ div.page {
 }
 
 /* Die Rubrik wie der Kicker der Startseite (`.hv-kicker`): klein in
-   Versalien, davor das gelbe Quadrat (`.hv-mk`). Der kleine Lesetext der
-   Seite — Rubrik, Credits, Kapitel-Leiste, Etiketten — steht in Inter, eng
-   gesperrt, wie der kleine Text bei 032c (Neue Haas Grotesk Text, Ansage
-   02.10.2026). Knöpfe und die Spot-Labels (Bezirk · Küche) bleiben in
-   Providence wie das Label-System der Startseite („meine Font"), ebenso
-   alles Grosse. */
+   Versalien, davor das gelbe Quadrat (`.hv-mk`). Alle Labels der Seite —
+   Rubrik, Credits, Kapitel-Leiste, Etiketten, Knöpfe, Bezirk · Küche —
+   stehen in Providence wie das Label-System der Startseite (Ansagen
+   02.10.2026: „in meiner Font"); Inter bleibt dem Lesetext und den
+   Bildunterschriften. */
 .kicker {
-  font-family: var(--et-font-body);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   margin-bottom: clamp(16px, 1.8vw, 24px);
   color: var(--article-fg);
   font-size: 14px;
@@ -146,9 +145,9 @@ div.page {
 /* Getrennt durch Abstand, nicht durch Punkte: bricht die Zeile am Telefon
    um, stünde sonst ein einzelner Punkt am Anfang der zweiten. */
 .bylineMeta {
-  font-family: var(--et-font-body);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -537,9 +536,9 @@ div.page {
 
 /* Dieselbe Stimme wie die übrigen Labels der Seite: klein in Versalien. */
 .mustEatTag {
-  font-family: var(--et-font-body);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   display: inline-block;
   padding: 5px 8px;
   color: var(--article-on-accent);
@@ -788,9 +787,9 @@ div.page {
 }
 
 .hubLinkKicker {
-  font-family: var(--et-font-body);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   grid-column: 2;
   color: var(--et-white);
   font-size: 12px;

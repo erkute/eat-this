@@ -162,7 +162,7 @@ export default async function SPACatchAllPage({ params }: PageProps) {
             {
               '@type': 'ListItem',
               position: 2,
-              name: de ? 'Auf dem Teller' : 'Food News',
+              name: de ? 'Auf dem Teller' : 'On the plate',
               item: localeUrl(activeLocale, '/news'),
             },
           ],

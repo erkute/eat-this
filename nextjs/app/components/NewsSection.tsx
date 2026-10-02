@@ -33,7 +33,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
 
   const labels = {
     kicker: de ? 'Magazin' : 'Magazine',
-    title: de ? 'Auf dem Teller' : 'Food News',
+    title: de ? 'Auf dem Teller' : 'On the plate',
     sub: de
       ? 'Restaurantgeschichten, Empfehlungen und Beobachtungen aus Berlin. Orte, Gerichte und Szenen, die uns auffallen - manchmal neu, manchmal vertraut, meistens ziemlich gut.'
       : 'Restaurant stories, recommendations and observations from Berlin. Places, dishes and scenes that catch our eye - sometimes new, sometimes familiar, usually pretty good.',

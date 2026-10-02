@@ -53,7 +53,7 @@ interface Props {
  * Strichcode am Rand, Glanz, Rücken und eine feine Papierkante — dünn wie ein
  * Magazin, nicht wie ein Buch. Alles in `cqw` der Titelseite, damit sie in jeder Grösse gleich
  * gesetzt ist. Dasselbe Objekt auf der Startseite („Auf dem Teller"), im
- * Magazin-Index und unter „Weiter auf dem Teller". Ein Tipp darauf schlägt das
+ * Magazin-Index und unter „Weitere Ausgaben". Ein Tipp darauf schlägt das
  * Heft auf und landet im Artikel (MagazineLink) — im Artikel selbst steht das
  * Heft deshalb nicht noch einmal.
  *

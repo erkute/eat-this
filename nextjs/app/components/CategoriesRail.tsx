@@ -1,5 +1,4 @@
 import { Link } from '@/i18n/navigation';
-import { categoryLine } from '@/lib/buddy/greeting';
 import styles from './CategoriesRail.module.css';
 
 interface Props {
@@ -17,9 +16,9 @@ interface Props {
  * links went. Type carries the brand here without pretending to sell anything.
  *
  * Seit 02.10.2026 nur noch die Antworten auf Remys Frage „Worauf hast du
- * Lust?" (HubFragRemy, `choices`; die Frage selbst steht dort). Jede trägt
- * Remys Satz zu ihr (`data-remy-line`): zeigt man darauf, sagt er ihn
- * (HubMotion, `armRemySays`).
+ * Lust?" (HubFragRemy; die Frage selbst steht dort). Zeigt man auf eine,
+ * sagt Remy seinen Satz zu ihr — welchen, sagt `data-slug` (HubMotion,
+ * `armRemySays`).
  */
 export default function CategoriesRail({ categoryNames, locale }: Props) {
   const entries = Object.entries(categoryNames);
@@ -41,7 +40,7 @@ export default function CategoriesRail({ categoryNames, locale }: Props) {
             href={`/kategorie/${slug}`}
             className={styles.chip}
             data-text={name}
-            data-remy-line={categoryLine(locale, slug, name)}
+            data-slug={slug}
           >
             {name}
           </Link>

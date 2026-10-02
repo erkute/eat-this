@@ -8,7 +8,9 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 vi.mock('./HubNearby', () => ({ default: () => '<div data-testid="nearby"></div>' }));
 vi.mock('./HubMustEatsTeaser', () => ({ default: () => '<div data-testid="musteats"></div>' }));
 vi.mock('./HubFragRemy', () => ({
-  default: ({ choices }: { choices?: ReactNode }) => <div data-testid="remy">{choices}</div>,
+  default: ({ categoryNames }: { categoryNames: Record<string, string> }) => (
+    <div data-testid="remy">{Object.keys(categoryNames).join(',')}</div>
+  ),
 }));
 vi.mock('./HubFaq', () => ({ default: () => '<div data-testid="faq"></div>' }));
 vi.mock('./SiteFooter', () => ({ default: () => '<footer data-testid="footer"></footer>' }));
@@ -115,7 +117,7 @@ describe('HubSection home', () => {
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
     expect(html.indexOf('data-hub-starter')).toBeLessThan(html.indexOf('data-testid="remy"'));
     const remy = html.slice(html.indexOf('data-testid="remy"'));
-    expect(remy).toContain('/kategorie/');
+    expect(remy).toContain('pizza');
   });
 
   it('has no Spot des Tages any more (removed 01.10.2026)', () => {

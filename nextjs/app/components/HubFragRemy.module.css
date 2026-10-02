@@ -62,14 +62,27 @@
   text-wrap: balance;
 }
 
-/* Was Remy gerade sagt: „Remy" als Kicker wie im Chat-Fenster, darunter der
-   Satz. Der Satz springt beim Wechsel (HubMotion, `armRemySays`) — um die
-   linke Unterkante, deshalb eine eigene Box. */
+/* Was Remy sagt: alle Sätze in derselben Rasterzelle, die Box ist so hoch
+   wie der längste — der Wechsel verschiebt nichts darunter. Zu sehen ist
+   der mit `data-on`; beim Wechsel rollt der alte oben aus der Box und der
+   neue von unten hinein (HubMotion, `armRemySays`). Über dem Satz steht,
+   wer redet und worüber („Remy · Pizza"), wie der Kicker im Chat-Fenster. */
 .say {
   grid-area: say;
+  display: grid;
   margin: clamp(18px, 2vw, 26px) 0 clamp(8px, 1vw, 14px);
   font-family: var(--et-font-display);
   font-weight: 700;
+}
+
+.said {
+  grid-area: 1 / 1;
+  margin: 0;
+  visibility: hidden;
+}
+
+.said[data-on] {
+  visibility: visible;
 }
 
 .kicker {
@@ -91,13 +104,9 @@
 
 .line {
   display: block;
-  /* Zwei Zeilen frei halten: ein längerer Satz schiebt sonst die
-     Kategorien darunter. */
-  min-height: 2.36em;
   font-size: clamp(19px, 2vw, 30px);
   line-height: 1.18;
   color: var(--remy-stage-paper);
-  transform-origin: 0% 100%;
 }
 
 .body > :global([data-hub-categories]) {
@@ -316,12 +325,12 @@
   }
 
   .say {
-    max-width: 24ch;
+    max-width: 28ch;
     margin: 0;
   }
 
   .line {
-    font-size: clamp(22px, 2.1vw, 32px);
+    font-size: clamp(21px, 1.9vw, 30px);
   }
 
   .body > :global([data-hub-categories]) {

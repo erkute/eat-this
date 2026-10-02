@@ -503,32 +503,29 @@ function armFragRemy(): () => void {
 /**
  * Was Remy auf seiner Tafel sagt (Variante „Remy erzählt", gewählt am
  * 02.10.2026). Zeigt man auf eine Kategorie oder fokussiert sie, sagt er
- * seinen Satz zu ihr (`data-remy-line`, CategoriesRail): der alte Satz kippt
- * weg, der neue springt hin, Remy redet, das Wort wird fett (`data-pick`) und
- * hüpft. Fasst niemand die Tafel an, geht er die Kategorien von selbst durch,
- * solange sie im Bild ist — so redet er auch am Telefon, wo nichts schwebt.
+ * seinen Satz zu ihr: alle Sätze liegen schon in der Box (`data-remy-say`,
+ * HubFragRemy), gezeigt wird der mit `data-on`. Beim Wechsel rollt der alte
+ * oben aus der Box und der neue von unten hinein — als Ganzes, per
+ * Translate und clip-path, nie Wort für Wort und ohne Ausblenden. Sobald der
+ * neue kommt, wird seine Kategorie fett (`data-pick`) und hüpft, und Remy
+ * redet. Fasst niemand die Tafel an, geht er die Kategorien von selbst
+ * durch, solange sie im Bild ist — so redet er auch am Telefon, wo nichts
+ * schwebt; jeder Satz bleibt so lange stehen, wie man zum Lesen braucht.
  * Ins Feld getippt, lacht er und hört zu.
  * Der Satz ist Inhalt, keine Bewegung: mit reduzierter Bewegung wechselt er
- * ohne Sprung, und Remy geht nichts von selbst durch.
+ * ohne Rollen, und Remy geht nichts von selbst durch.
  */
 function armRemySays(motion: boolean): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
-  const line = section?.querySelector<HTMLElement>('[data-fragremy-line]');
   const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
-  if (!section || !line || !avatar) return () => {};
+  const saids = Array.from(section?.querySelectorAll<HTMLElement>('[data-remy-say]') ?? []);
+  if (!section || !avatar || !saids.length) return () => {};
   const input = section.querySelector<HTMLElement>('[data-fragremy-input]');
   const cats = Array.from(
-    section.querySelectorAll<HTMLElement>('[data-hub-categories] a[data-remy-line]')
+    section.querySelectorAll<HTMLElement>('[data-hub-categories] a[data-slug]')
   );
-
-  // Den Textknoten umschreiben, den React angelegt hat, statt ihn zu
-  // ersetzen: React behält ihn und setzt ihn nur neu, wenn die Tageszeit
-  // feststeht — gleich nach dem Laden, bevor Remy etwas anderes sagt.
-  const write = (text: string) => {
-    const node = line.firstChild;
-    if (node?.nodeType === Node.TEXT_NODE) node.nodeValue = text;
-    else line.textContent = text;
-  };
+  const said = (key: string) => saids.find((el) => el.dataset.remySay === key);
+  const words = (el: HTMLElement) => (el.textContent ?? '').trim().split(/\s+/).length;
 
   let quiet: gsap.core.Tween | null = null;
   const talk = (seconds: number) => {
@@ -537,46 +534,78 @@ function armRemySays(motion: boolean): () => void {
     quiet = gsap.delayedCall(seconds, () => avatar.removeAttribute('data-speaking'));
   };
 
+  // `onShow` läuft, sobald der neue Satz zu sehen ist: dann erst wird seine
+  // Kategorie fett, sonst stünde sie neben dem alten Satz.
   let swap: gsap.core.Timeline | null = null;
-  const say = (text: string | undefined) => {
-    if (!text || line.textContent === text) return;
-    talk(Math.min(2.6, 0.5 + text.split(' ').length * 0.17));
-    swap?.kill();
-    if (!motion) {
-      write(text);
+  const say = (key: string, onShow?: () => void) => {
+    const next = said(key);
+    const prev = saids.find((el) => el.hasAttribute('data-on'));
+    if (!next || next === prev) {
+      onShow?.();
       return;
     }
-    swap = gsap
-      .timeline()
-      .to(line, { yPercent: 35, rotation: 2, scale: 0.88, duration: 0.12, ease: 'power2.in' })
-      .call(() => write(text))
-      .fromTo(
-        line,
-        { yPercent: -28, rotation: -2.5, scale: 1.1 },
-        { yPercent: 0, rotation: 0, scale: 1, duration: 0.55, ease: 'back.out(2.6)' }
-      );
-  };
-
-  let picked: HTMLElement | null = null;
-  const pick = (cat: HTMLElement | null) => {
-    if (cat === picked) return;
-    picked = cat;
-    for (const c of cats) c.toggleAttribute('data-pick', c === cat);
-    if (!cat) return;
-    say(cat.dataset.remyLine);
-    if (motion) {
-      gsap.fromTo(
-        cat,
-        { y: -9, rotation: -2 },
+    // Ein Wechsel, der noch läuft, springt an sein Ende.
+    swap?.progress(1);
+    prev?.removeAttribute('data-on');
+    next.setAttribute('data-on', '');
+    talk(Math.min(2.6, 0.4 + words(next) * 0.17));
+    if (!motion) {
+      onShow?.();
+      return;
+    }
+    const tidy = (el: HTMLElement) => () =>
+      gsap.set(el, { clearProps: 'transform,clipPath,visibility' });
+    swap = gsap.timeline();
+    if (prev) {
+      swap.fromTo(
+        prev,
+        { yPercent: 0, clipPath: 'inset(0% 0% 0% 0%)', visibility: 'visible' },
         {
-          y: 0,
-          rotation: 0,
-          duration: 0.7,
-          ease: 'elastic.out(1.1, 0.4)',
-          clearProps: CLEAR_TRANSFORMS,
+          yPercent: -100,
+          clipPath: 'inset(100% 0% 0% 0%)',
+          duration: 0.42,
+          ease: 'power3.in',
+          onComplete: tidy(prev),
         }
       );
     }
+    swap
+      .fromTo(
+        next,
+        { yPercent: 100, clipPath: 'inset(0% 0% 100% 0%)' },
+        {
+          yPercent: 0,
+          clipPath: 'inset(0% 0% 0% 0%)',
+          duration: 0.6,
+          ease: 'power3.out',
+          onComplete: tidy(next),
+        },
+        prev ? 0.28 : 0
+      )
+      .call(() => onShow?.(), undefined, prev ? 0.3 : 0);
+  };
+
+  let picked: HTMLElement | null = null;
+  const mark = (cat: HTMLElement | null) => {
+    for (const c of cats) c.toggleAttribute('data-pick', c === cat);
+    if (cat && motion) {
+      gsap.fromTo(
+        cat,
+        { y: -6 },
+        { y: 0, duration: 0.45, ease: 'back.out(3)', clearProps: CLEAR_TRANSFORMS }
+      );
+    }
+  };
+  const pick = (cat: HTMLElement | null) => {
+    if (cat === picked) return;
+    picked = cat;
+    if (!cat) {
+      mark(null);
+      return;
+    }
+    say(cat.dataset.slug!, () => {
+      if (picked === cat) mark(cat);
+    });
   };
 
   // ── Von selbst durch die Kategorien, solange niemand etwas anfasst ──
@@ -586,8 +615,11 @@ function armRemySays(motion: boolean): () => void {
   let auto: gsap.core.Tween | null = null;
   let step = Math.floor(Math.random() * cats.length);
   const next = () => {
-    pick(cats[step++ % cats.length]);
-    auto = gsap.delayedCall(3.2, next);
+    const cat = cats[step++ % cats.length];
+    pick(cat);
+    // Stehen lassen, bis man ihn gelesen hat: ~0,1 s pro Wort mehr.
+    const line = said(cat.dataset.slug!);
+    auto = gsap.delayedCall(2.6 + (line ? words(line) : 6) * 0.1, next);
   };
   const startAuto = (after: number) => {
     auto?.kill();
@@ -616,7 +648,7 @@ function armRemySays(motion: boolean): () => void {
     listening = true;
     stopAuto();
     pick(null);
-    say(input?.dataset.remyLine);
+    say('listen');
     avatar.setAttribute('data-delight', '');
   };
   const unlisten = () => {
@@ -652,6 +684,7 @@ function armRemySays(motion: boolean): () => void {
     unwatch();
     stopAuto();
     swap?.kill();
+    gsap.set(saids, { clearProps: 'transform,clipPath,visibility' });
     quiet?.kill();
     section.removeEventListener('pointerenter', handsOn);
     section.removeEventListener('pointerleave', handsOff);
@@ -664,7 +697,6 @@ function armRemySays(motion: boolean): () => void {
     }
     input?.removeEventListener('focus', listen);
     input?.removeEventListener('blur', unlisten);
-    gsap.set(line, { clearProps: CLEAR_TRANSFORMS });
     avatar.removeAttribute('data-delight');
   };
 }

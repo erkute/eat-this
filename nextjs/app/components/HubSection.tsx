@@ -10,7 +10,6 @@ import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HubNearby from './HubNearby';
 import MapIntentLink from './MapIntentLink';
-import CategoriesRail from './CategoriesRail';
 import MagazineGrid from './MagazineGrid';
 import StarterPackSignup from './StarterPackSignup';
 import SiteFooter from './SiteFooter';
@@ -149,9 +148,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         <HubMustEatsTeaser />
         <StarterPackSignup />
       </HomeMapDataProvider>
-      <HubFragRemy
-        choices={<CategoriesRail categoryNames={initialData.categoryNames} locale={locale} />}
-      />
+      <HubFragRemy categoryNames={initialData.categoryNames} />
       <HubFaq locale={locale} />
       <SiteFooter home />
     </main>

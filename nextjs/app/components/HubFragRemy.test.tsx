@@ -23,7 +23,7 @@ afterEach(() => {
 function renderSection() {
   return render(
     <NextIntlClientProvider locale="de" messages={messages}>
-      <HubFragRemy />
+      <HubFragRemy categoryNames={{ pizza: 'Pizza', lunch: 'Lunch' }} />
     </NextIntlClientProvider>
   );
 }
@@ -42,21 +42,32 @@ describe('HubFragRemy', () => {
   it('fragt „Worauf hast du Lust?" und zeigt darüber Remys Satz zur Tageszeit', () => {
     renderSection();
     expect(document.querySelector('h2')!.textContent).toBe('Worauf hast du Lust?');
-    // Der Satz zur Tageszeit kommt nach dem Mount (useEffect); den Textknoten
-    // schreibt HubMotion später um.
-    const line = document.querySelector('[data-fragremy-line]')!;
-    expect(line.textContent!.length).toBeGreaterThan(0);
-    expect(line.firstChild!.nodeType).toBe(Node.TEXT_NODE);
-    expect(line.childNodes.length).toBe(1);
+    // Zu sehen ist zuerst der Satz zur Tageszeit (nach dem Mount, useEffect).
+    const shown = document.querySelectorAll('[data-remy-say][data-on]');
+    expect(shown.length).toBe(1);
+    expect(shown[0].getAttribute('data-remy-say')).toBe('lead');
+    expect(shown[0].textContent!.length).toBeGreaterThan('Remy'.length);
   });
 
-  it('nimmt die Kategorien als Antworten auf (`choices`)', () => {
-    render(
-      <NextIntlClientProvider locale="de" messages={messages}>
-        <HubFragRemy choices={<ul data-hub-categories="" />} />
-      </NextIntlClientProvider>
+  /* Alle Sätze liegen schon in der Box: so hoch wie der längste, damit beim
+     Wechsel nichts darunter springt. HubMotion zeigt sie per `data-on`. */
+  it('legt zu jeder Kategorie Remys Satz in die Box, dazu den Satz fürs Feld', () => {
+    renderSection();
+    const keys = Array.from(
+      document.querySelectorAll('[data-fragremy-say] [data-remy-say]'),
+      (el) => el.getAttribute('data-remy-say')
     );
-    expect(document.querySelector('[data-hub-fragremy] [data-hub-categories]')).not.toBeNull();
+    expect(keys).toEqual(['lead', 'pizza', 'lunch', 'listen']);
+    expect(document.querySelector('[data-remy-say="pizza"]')!.textContent).toBe(
+      'Remy · PizzaPizza? Ich kenn die Öfen, die es wirklich können.'
+    );
+    expect(document.querySelector('[data-remy-say="listen"]')!.textContent).toContain('Schieß los');
+  });
+
+  it('stellt die Kategorien als Antworten darunter, jede mit ihrem Slug', () => {
+    renderSection();
+    const links = document.querySelectorAll('[data-hub-categories] a[data-slug]');
+    expect(Array.from(links, (a) => a.getAttribute('data-slug'))).toEqual(['pizza', 'lunch']);
   });
 
   it('dispatches buddy:ask when the free-text form is submitted', () => {
@@ -74,14 +85,11 @@ describe('HubFragRemy', () => {
     expect(got).toEqual({ question: 'Gute Ramen' });
   });
 
-  it('gibt HubMotion die Haken: Frage, Satz, Feld, Remy und sein Platz', () => {
+  it('gibt HubMotion die Haken: Frage, Sätze, Feld, Remy und sein Platz', () => {
     renderSection();
     expect(document.querySelector('[data-fragremy-title]')!.tagName).toBe('H2');
-    expect(document.querySelector('[data-fragremy-say] [data-fragremy-line]')).not.toBeNull();
-    // Was er sagt, wenn man ins Feld tippt.
-    expect(
-      document.querySelector('[data-fragremy-input]')!.getAttribute('data-remy-line')
-    ).toBeTruthy();
+    expect(document.querySelector('[data-fragremy-say]')).not.toBeNull();
+    expect(document.querySelector('[data-fragremy-input]')).not.toBeNull();
     expect(document.querySelector('[data-fragremy-avatar]')).not.toBeNull();
     expect(document.querySelector('[data-fragremy-spot]')).not.toBeNull();
   });

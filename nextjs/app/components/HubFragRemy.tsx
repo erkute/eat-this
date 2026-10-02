@@ -4,26 +4,28 @@
 // Kategorien sind die Antworten (`choices`, CategoriesRail), das Feld darunter
 // die freie Antwort — die geht in seinen Chat. Darüber steht, was Remy gerade
 // sagt: erst ein Satz zur Tageszeit, dann zu der Kategorie, auf die man zeigt
-// oder die er selbst durchgeht. Auftritt, Reden und Lachen gehören HubMotion
-// (`armFragRemy`, `armRemySays`) — über `data-fragremy-*`-Haken und
-// Attribute, die React nicht verwaltet.
-import { useEffect, useState, type ReactNode } from 'react';
+// oder die er selbst durchgeht. Auftritt, Reden, Satzwechsel und Lachen
+// gehören HubMotion (`armFragRemy`, `armRemySays`) — über
+// `data-fragremy-*`/`data-remy-say`-Haken und Attribute, die React nach dem
+// ersten Rendern nicht mehr anfasst.
+import { useEffect, useState } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
-import { stageLeadFor } from '@/lib/buddy/greeting';
+import { categoryLine, stageLeadFor } from '@/lib/buddy/greeting';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import type { Locale } from '@/lib/buddy/types';
+import CategoriesRail from './CategoriesRail';
 import styles from './HubFragRemy.module.css';
 
 const REMY_SIZES = '(max-width: 899px) min(92vw, 560px), (max-width: 1360px) 38vw, 520px';
 
 interface Props {
-  /** Die Antworten auf Remys Frage: die Kategorien (CategoriesRail, vom
-   *  Server gerendert, jede mit Remys Satz in `data-remy-line`). */
-  choices?: ReactNode;
+  /** Die Kategorien (Slug → Name): Remys Antworten auf seine Frage, und zu
+   *  jeder sagt er einen Satz. */
+  categoryNames: Record<string, string>;
 }
 
-export default function HubFragRemy({ choices }: Props) {
+export default function HubFragRemy({ categoryNames }: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations('hub.fragRemy');
   const [lead, setLead] = useState<string | null>(null);
@@ -53,20 +55,42 @@ export default function HubFragRemy({ choices }: Props) {
           {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
         </h2>
 
-        {/* Was Remy gerade sagt. Den Satz tauscht HubMotion im Textknoten
-            aus, den React hier anlegt — React setzt ihn nur einmal, wenn die
-            Tageszeit feststeht. */}
-        <p className={styles.say} data-fragremy-say="" aria-live="polite">
-          <span className={styles.kicker}>
-            <span className={styles.mk} aria-hidden="true" />
-            Remy
-          </span>
-          <span className={styles.line} data-fragremy-line="">
-            {lead ?? t('sub')}
-          </span>
-        </p>
+        {/* Was Remy sagt: alle seine Sätze liegen übereinander in einer Box,
+            so hoch wie der längste — wechselt er, springt darunter nichts
+            (bis 02.10.2026 schob ein fünfzeiliger Satz am Desktop Kategorien
+            und Feld um bis zu 70px). Zu sehen ist der mit `data-on`; den
+            Wechsel rollt HubMotion (`armRemySays`). Kein `aria-live`: er
+            geht die Kategorien von selbst durch, alle drei Sekunden ein
+            neuer Satz wäre im Screenreader nur Lärm. */}
+        <div className={styles.say} data-fragremy-say="">
+          <p className={styles.said} data-remy-say="lead" data-on="">
+            <span className={styles.kicker}>
+              <span className={styles.mk} aria-hidden="true" />
+              Remy
+            </span>
+            <span className={styles.line}>{lead ?? t('sub')}</span>
+          </p>
+          {Object.entries(categoryNames).map(([slug, name]) => (
+            <p key={slug} className={styles.said} data-remy-say={slug}>
+              <span className={styles.kicker}>
+                <span className={styles.mk} aria-hidden="true" />
+                Remy · {name}
+              </span>
+              <span className={styles.line}>{categoryLine(locale, slug, name)}</span>
+            </p>
+          ))}
+          <p className={styles.said} data-remy-say="listen">
+            <span className={styles.kicker}>
+              <span className={styles.mk} aria-hidden="true" />
+              Remy
+            </span>
+            <span className={styles.line}>
+              {locale === 'en' ? "Go on, I'm listening." : 'Schieß los, ich hör zu.'}
+            </span>
+          </p>
+        </div>
 
-        {choices}
+        <CategoriesRail categoryNames={categoryNames} locale={locale} />
 
         <form
           className={styles.chatin}
@@ -78,7 +102,6 @@ export default function HubFragRemy({ choices }: Props) {
           <input
             className={styles.input}
             data-fragremy-input=""
-            data-remy-line={locale === 'en' ? "Go on, I'm listening." : 'Schieß los, ich hör zu.'}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder={t('inputPlaceholder')}

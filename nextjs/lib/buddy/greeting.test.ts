@@ -1,6 +1,6 @@
 // nextjs/lib/buddy/greeting.test.ts
 import { describe, it, expect } from 'vitest';
-import { daypartFor, greetingFor } from './greeting';
+import { categoryLine, daypartFor, greetingFor, stageLeadFor } from './greeting';
 
 describe('daypartFor', () => {
   it('buckets the hour into dayparts', () => {
@@ -31,5 +31,20 @@ describe('greetingFor', () => {
   });
   it('changes copy by daypart', () => {
     expect(greetingFor(8, 'de').greeting).not.toBe(greetingFor(21, 'de').greeting);
+  });
+});
+
+describe('Remys Tafel', () => {
+  it('sagt zur Tageszeit einen anderen Satz', () => {
+    expect(stageLeadFor(8, 'de')).not.toBe(stageLeadFor(21, 'de'));
+    expect(stageLeadFor(8, 'en')).toMatch(/coffee/);
+  });
+
+  it('hat zu jeder Kategorie einen Satz, für neue einen allgemeinen', () => {
+    expect(categoryLine('de', 'pizza', 'Pizza')).toBe(
+      'Pizza? Ich kenn die Öfen, die es wirklich können.'
+    );
+    expect(categoryLine('de', 'neu', 'Neu')).toBe('Neu? Da kenn ich was.');
+    expect(categoryLine('en', 'neu', 'New')).toBe('New? I know a place.');
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { nearestRestaurants, rotatingRestaurants } from './nearby';
+import { nearbyDistance, nearestRestaurants, rotatingRestaurants } from './nearby';
 import type { MapRestaurant } from '@/lib/types';
 
 const R = (id: string, lat: number, lng: number) =>
@@ -74,5 +74,18 @@ describe('rotatingRestaurants', () => {
     const before = BERLIN.map((r) => r._id);
     rotatingRestaurants(BERLIN, '2026-08-20', 3);
     expect(BERLIN.map((r) => r._id)).toEqual(before);
+  });
+});
+
+describe('nearbyDistance', () => {
+  it('nennt Gehminuten bis 1600 m, aufgerundet, mindestens eine', () => {
+    expect(nearbyDistance(10, 'de')).toEqual({ value: '1', unit: 'Min' });
+    expect(nearbyDistance(241, 'de')).toEqual({ value: '4', unit: 'Min' });
+    expect(nearbyDistance(1600, 'de')).toEqual({ value: '20', unit: 'Min' });
+  });
+
+  it('wechselt danach auf Kilometer, im Zahlformat der Sprache', () => {
+    expect(nearbyDistance(2440, 'de')).toEqual({ value: '2,4', unit: 'km' });
+    expect(nearbyDistance(2440, 'en')).toEqual({ value: '2.4', unit: 'km' });
   });
 });

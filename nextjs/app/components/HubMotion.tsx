@@ -5,6 +5,7 @@ import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { scrollProgress } from '@/lib/dom/scrollProgress';
 import { armMagazineTable } from '@/lib/home/magazineTable';
+import { armNearbyStamps } from '@/lib/home/nearbyMotion';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -44,6 +45,8 @@ gsap.registerPlugin(useGSAP);
  *      alles rückwärts gehen; wer zurückkommt, sieht es neu (`armFragRemy`).
  *      Zu jeder Kategorie sagt er einen Satz — beim Zeigen darauf oder von
  *      selbst, solange niemand die Tafel anfasst (`armRemySays`).
+ *    - Nearby: die Gehzeit-Stempel schlagen nacheinander auf die Karten ein,
+ *      einmal pro Aufruf (`armNearbyStamps`, lib/home/nearbyMotion.ts).
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
@@ -1219,6 +1222,7 @@ export default function HubMotion() {
         stops.push(armScrubFallback(scroller));
         stops.push(armFragRemy());
         stops.push(armInView());
+        stops.push(armNearbyStamps());
         stops.push(armSignupDemo());
         stops.push(armFaq());
         stops.push(armScrollTalk(scroller));

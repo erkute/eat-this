@@ -96,8 +96,37 @@
   }
 }
 
-/* ── Rail card ──
-   Auf der Tafel traegt die Kachel keine eigene Flaeche: das Foto steht frei
+/* ── Die Nächste und die Leiste ──
+   Wahl vom 02.10.2026 (Prototyp „D · Die Nächste"): die nächste Karte groß,
+   die übrigen sieben klein daneben — ab 768px rechts in einer Querleiste bis
+   an den Fensterrand, am Telefon darunter. */
+.spread {
+  --bleed: calc((100vw - 100cqw) / 2);
+  display: grid;
+  /* Am Telefon: Luft zwischen dem Bezirk der Großen und den Stempeln der
+     Leiste, die über ihre Karten ragen. */
+  row-gap: 36px;
+  /* Der große Stempel ragt rund 25px über das Foto; darüber steht der Knopf
+     „Freigeben" (Rückmeldung 02.10.2026: „zu nah an dem Zeit-Label"). Mit
+     Standort ist der Knopf weg, darüber steht nur noch der Satz. */
+  margin-top: clamp(52px, 4.4vw, 64px);
+}
+.spread[data-located] {
+  margin-top: clamp(44px, 3.4vw, 52px);
+}
+@media (min-width: 768px) {
+  .spread {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    align-items: start;
+    column-gap: clamp(18px, 2vw, 28px);
+  }
+}
+
+.hero {
+  position: relative;
+}
+
+/* Auf der Tafel traegt die Kachel keine eigene Flaeche: das Foto steht frei
    mit dem Sheet-Schatten, Name und Zeile liegen darunter auf der Tafel. Eine
    Ink-Kachel auf Ink waere unsichtbar. */
 .card {
@@ -131,18 +160,24 @@
   scale: var(--et-press-tile);
 }
 
-/* Providence's descender reaches far below a tight line, and the two-line
-   clamp above brings `overflow: hidden` with it — the ink room goes in as
-   padding so the g in "Bagel Bro" keeps its tail. */
+/* Providence's descender reaches far below a tight line, and the clamp above
+   brings `overflow: hidden` with it — the ink room goes in as padding so the
+   g in "Bagel Bro" keeps its tail. Klein in der Leiste, groß bei der
+   Nächsten. */
 :global(.homeV2) .card :global(.hv-cap) {
   margin: 0;
   padding: 14px 0 0.3em;
   color: var(--board-paper, #fff);
-  font-size: clamp(18px, 1.6vw, 22px);
+  font-size: 16px;
   line-height: 1.15;
 }
+:global(.homeV2) .hero .card :global(.hv-cap) {
+  padding-top: 18px;
+  font-size: clamp(26px, 2.6vw, 40px);
+}
 
-/* Die Zeile in Gelb, wie die Kreide-Labels auf jeder Tafel. */
+/* Der Bezirk in Gelb, wie die Kreide-Labels auf jeder Tafel. Die Gehzeit
+   steht im Stempel. */
 :global(.homeV2) .card :global(.hv-sub) {
   margin: 0;
   padding: 4px 0 0;
@@ -154,16 +189,28 @@
   line-height: 1.2;
   text-transform: uppercase;
 }
+:global(.homeV2) .hero .card :global(.hv-sub) {
+  font-size: 13px;
+}
 
+/* Hochkant in der Leiste, wie die Karten auf der Map; die Große quer. */
 .photo {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 4 / 5;
   height: auto;
   border-radius: var(--et-radius-photo);
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
 }
+.hero .photo {
+  aspect-ratio: 4 / 3;
+}
+@media (max-width: 767.98px) {
+  .photo {
+    box-shadow: none;
+  }
+}
 
-/* Replaces what next/image's `fill` used to do: cover the 4/3 box. The
+/* Replaces what next/image's `fill` used to do: cover the box. The
    object-fit itself comes from the global `.homeV2 .hv-photo img` rule. */
 .photoImg {
   position: absolute;
@@ -174,6 +221,72 @@
 
 .photo img {
   transition: transform 180ms ease;
+}
+
+/* ── Der Zeit-Stempel ──
+   Grau (`--et-ink-raised`), schräg über der oberen linken Fotoecke — auch
+   mit Standort grau, nicht gelb (Ansage 02.10.2026: „in grau aber
+   zähler"). Ohne Standort „? Min". Die Ziffern sind Walzen: jede zeigt per
+   `--reel-y` ihr Zeichen, nach der Freigabe dreht GSAP sie von „?" auf den
+   Wert (lib/home/nearbyMotion.ts). */
+.stamp {
+  position: absolute;
+  z-index: 1;
+  top: -12px;
+  left: -8px;
+  padding: 7px 11px 6px;
+  border-radius: 5px;
+  background: var(--et-ink-raised);
+  color: var(--et-white);
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta);
+  text-transform: uppercase;
+  transform: rotate(-7deg);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+.stampHero {
+  top: -16px;
+  left: -12px;
+  padding: 10px 16px 9px;
+  border-radius: 7px;
+  font-size: clamp(22px, 2.2vw, 32px);
+}
+.stampFace {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.1;
+}
+.reelWindow {
+  display: block;
+  width: 0.56em;
+  height: 1.1em;
+  overflow: hidden;
+  letter-spacing: 0;
+  text-align: center;
+}
+.reelWindow[data-narrow] {
+  width: 0.3em;
+}
+.reel {
+  display: block;
+  line-height: 1.1em;
+  white-space: pre;
+  transform: translateY(var(--reel-y, 0%));
+}
+.stampUnit {
+  margin-left: 0.42em;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* ── Locate button ──────────────────────────────────────────────────────────
@@ -242,27 +355,24 @@
 /* ── Die Querleiste ──
    Nativ gewischt, mit Snap auf jede Karte (Ansage 01.10.2026: „die
    Restaurants alle anklickbar und horizontal scrollbar"); mit der Maus wird
-   gezogen (lib/home/railDrag.ts). Die Leiste reicht von Fensterrand zu
-   Fensterrand, die erste Karte steht an der Satzkante, rechts schaut die
-   nächste herein — so liest sie sich als Reihe, ohne Pfeile oder Punkte. */
+   gezogen (lib/home/railDrag.ts). Am Telefon von Fensterrand zu Fensterrand,
+   ab 768px von der rechten Spalte bis an den rechten Fensterrand. Oben Platz
+   für die Stempel, die über die Karten ragen — die Leiste schneidet ab. */
 .rail {
-  --card-w: min(78vw, 340px);
+  --card-w: 42vw;
   --card-gap: 14px;
-  /* Vom Satzspiegel bis zum Fensterrand. In `cqw` (die Tafel ist der
-     Container), nicht in Prozent: `scroll-padding` rechnete Prozent gegen
-     die Leiste selbst, die erste Karte rastete am Fensterrand ein. */
-  --bleed: calc((100vw - 100cqw) / 2);
+  --pad-top: 22px;
   position: relative;
   display: flex;
   gap: var(--card-gap);
-  /* Oben und unten 8px Polster: die Leiste schneidet ab (`overflow`), der
-     Fokusring der Karte steht 3px über ihr. */
-  margin: calc(clamp(18px, 2.4vw, 32px) - 8px) calc(-1 * var(--bleed)) -8px;
-  padding: 8px var(--bleed);
+  margin: calc(-1 * var(--pad-top)) calc(-1 * var(--bleed)) -8px;
+  padding: var(--pad-top) var(--bleed) 8px;
   list-style: none;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
+  /* In `cqw` (die Tafel ist der Container), nicht in Prozent:
+     `scroll-padding` rechnete Prozent gegen die Leiste selbst. */
   scroll-padding-inline: var(--bleed);
   scrollbar-width: none;
 }
@@ -282,24 +392,21 @@
   scroll-snap-align: start;
 }
 
-/* Am Telefon hochkant, wie die Karten auf der Map. */
-@media (max-width: 767.98px) {
-  .photo {
-    aspect-ratio: 4 / 5;
-    box-shadow: none;
-  }
-}
-
 @media (min-width: 768px) {
   .rail {
-    --card-w: clamp(260px, 28vw, 420px);
-    --card-gap: clamp(18px, 2vw, 28px);
+    --card-w: clamp(170px, 15vw, 250px);
+    --card-gap: clamp(16px, 1.6vw, 24px);
+    /* Links 14px Polster: der Stempel der ersten Karte ragt 8px heraus. */
+    margin: calc(-1 * var(--pad-top)) calc(-1 * var(--bleed)) -8px 0;
+    padding: var(--pad-top) var(--bleed) 8px 14px;
+    scroll-padding-inline: 14px var(--bleed);
   }
 }
 
 /* Das Foto liegt wie hinter einem Fenster: während die Karte durch die
    Leiste fährt, wandert es gegenläufig in seinem Rahmen — am Querscroll
-   der Leiste, nicht am Scroll der Seite. Ohne Scroll-Timeline steht es. */
+   der Leiste, nicht am Scroll der Seite. Ohne Scroll-Timeline steht es.
+   Nur in der Leiste: die Große steht in keinem Scroller. */
 @keyframes windowDrift {
   from {
     translate: 7% 0;
@@ -310,7 +417,7 @@
 }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .photoImg {
+    .rail .photoImg {
       scale: 1.16;
       animation: windowDrift linear both;
       animation-timeline: view(inline);

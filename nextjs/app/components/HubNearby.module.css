@@ -428,6 +428,25 @@
   .slide:nth-child(n + 7) {
     display: none;
   }
+  /* Die Große ist so hoch wie das Raster und gibt ihrem Foto, was der Text
+     übrig lässt: Name und Bezirk enden auf derselben Linie wie die zweite
+     Reihe (Rückmeldung 02.10.2026: „der Text von dem großen Element ist
+     aber weiter unten"). Vorher standen die Fotounterkanten bündig, und der
+     große Name hing darunter tiefer als die kleinen. */
+  .spread {
+    align-items: stretch;
+  }
+  .hero {
+    display: flex;
+  }
+  .hero .card {
+    flex: 1;
+  }
+  .hero .photo {
+    flex: 1 1 auto;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
 }
 
 /* Das Foto liegt wie hinter einem Fenster: während die Karte durch die

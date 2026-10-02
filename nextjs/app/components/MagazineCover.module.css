@@ -14,19 +14,14 @@
   border-radius: 2px;
   background: var(--et-ink-raised);
   color: var(--et-white);
-  /* Der Seitenblock: Lage um Lage Papier nach rechts unten, hell und dunkel
-     im Wechsel wie Blattkanten, dann der Schatten auf dem Tisch. `overflow`
-     schneidet nur den Inhalt, nicht den Schatten. */
+  /* Dünn wie ein Magazin, nicht wie ein Buch (Ansage 02.10.2026: „zu dick,
+     eher wie ein Buch" — vorher acht Papierlagen): eine feine Papierkante
+     rechts unten und der weiche Schatten auf dem Tisch. `overflow` schneidet
+     nur den Inhalt, nicht den Schatten. */
   box-shadow:
-    1px 1px 0 #f3eee4,
-    2px 2px 0 #d6cfbf,
-    3px 3px 0 #eee8dc,
-    4px 4px 0 #d0c8b8,
-    5px 5px 0 #e9e3d6,
-    6px 6px 0 #cbc3b2,
-    7px 7px 0 #e4ddcf,
-    8px 8px 0 #bfb7a6,
-    0 22px 34px rgba(0, 0, 0, 0.5);
+    1px 1px 0 #ece6da,
+    2px 2px 0 #cdc5b4,
+    0 14px 26px rgba(0, 0, 0, 0.45);
 }
 /* Randlos: das Foto bis an die Kanten. */
 .lookBleed {

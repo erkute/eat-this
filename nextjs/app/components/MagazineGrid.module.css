@@ -148,9 +148,8 @@
 }
 
 /* ── Das Heft ── leicht in den Raum gedreht, mit eigener Perspektive, damit
-   die Drehung des Stapels darüber nichts flach drückt. Die Dicke macht der
-   Seitenblock an der Titelseite (`.cover`). Echte Seitenflächen in 3D waren
-   bei dieser Neigung nur 1–3px breit und lagen hinter dem Cover (gemessen). */
+   die Drehung des Stapels darüber nichts flach drückt. Die Papierkante sitzt
+   an der Titelseite (MagazineCover). */
 .mag {
   position: relative;
   display: block;
@@ -168,7 +167,7 @@
   scale: var(--et-press-tile);
 }
 
-/* Die Titelseite selbst (Foto, Masthead, Schlagzeile, Seitenblock) ist
+/* Die Titelseite selbst (Foto, Masthead, Schlagzeile, Papierkante) ist
    MagazineCover — dasselbe Objekt wie im Magazin-Index und im Artikelkopf. */
 
 /* Punkte: wo im Stapel man ist, antippbar (MagazineDeckDots). Der vordere

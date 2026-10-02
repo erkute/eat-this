@@ -53,8 +53,8 @@ interface Props {
  * Eine Titelseite des Eat-This-Hefts: ganz oben klein „Issue 27 · September
  * 2026", darunter das Logo als Masthead, unten die Rubrik als Etikett über der
  * ganzen Schlagzeile (nie gekürzt, die Grösse richtet sich nach der Länge), ein
- * Strichcode am Rand, Glanz, Rücken und rechts unten der Seitenblock aus
- * Papierlagen. Alles in `cqw` der Titelseite, damit sie in jeder Grösse gleich
+ * Strichcode am Rand, Glanz, Rücken und eine feine Papierkante — dünn wie ein
+ * Magazin, nicht wie ein Buch. Alles in `cqw` der Titelseite, damit sie in jeder Grösse gleich
  * gesetzt ist. Dasselbe Objekt auf der Startseite („Auf dem Teller"), im
  * Magazin-Index und unter „Weiter auf dem Teller". Ein Tipp darauf schlägt das
  * Heft auf und landet im Artikel (MagazineLink) — im Artikel selbst steht das

@@ -47,7 +47,7 @@ function land(slug: string) {
 beforeEach(() => {
   navigations.length = 0;
   Element.prototype.animate = vi.fn(
-    () => ({ finished: Promise.resolve() }) as unknown as Animation
+    () => ({ finished: Promise.resolve(), cancel: vi.fn() }) as unknown as Animation
   );
   window.matchMedia = vi.fn(() => ({ matches: false }) as MediaQueryList);
   globalThis.CSS ??= { escape: (s: string) => s } as typeof CSS;

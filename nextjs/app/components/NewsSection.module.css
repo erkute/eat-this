@@ -232,7 +232,7 @@
 }
 
 /* Die Hefte liegen nebeneinander aus, jedes ein wenig anders gedreht — eine
-   Auslage, kein Raster aus gleichen Kacheln. Unten Luft für den Seitenblock
+   Auslage, kein Raster aus gleichen Kacheln. Unten Luft für die Papierkante
    und den Schatten jedes Hefts. */
 .shelf {
   display: grid;

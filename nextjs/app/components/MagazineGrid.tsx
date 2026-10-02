@@ -22,10 +22,9 @@ const DECK_ID = 'hub-magazine-deck';
  * ältesten Artikel, siehe getHomeData), darunter das Eat-This-Logo als
  * Masthead, unten die Rubrik als Etikett über der ganzen Schlagzeile (nie
  * gekürzt, die Grösse richtet sich nach der Länge), ein Strichcode am Rand,
- * Glanz und Rücken — in drei wechselnden Stilen. Jedes Heft hat einen
- * Seitenblock aus Papierlagen rechts und unten und ist leicht in den Raum
- * gedreht, damit es dick wirkt (Ansage 01.10.: „wie ein Magazin, ein bisschen
- * dicker"). Sie liegen
+ * Glanz und Rücken — in drei wechselnden Stilen. Jedes Heft hat eine feine
+ * Papierkante und ist leicht in den Raum gedreht (die acht Papierlagen vom
+ * 01.10. wirkten am 02.10. „zu dick, eher wie ein Buch"). Sie liegen
  * als Stapel wie auf dem Tisch, die hinteren leicht verdreht und darüber
  * hinausragend. Quer wischen nimmt das oberste vom Stapel — es fliegt gedreht
  * nach links aus dem Bild —, die übrigen rücken eine Lage vor; zurückwischen

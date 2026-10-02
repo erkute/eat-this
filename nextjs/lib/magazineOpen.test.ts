@@ -1,16 +1,27 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { bookGeometry, canOpenMagazine, openMagazine } from './magazineOpen';
+import {
+  bookGeometry,
+  canOpenMagazine,
+  edgeOnAt,
+  onPage,
+  openMagazine,
+  pageRects,
+} from './magazineOpen';
 
 const classes = {
   overlay: 'overlay',
   table: 'table',
   book: 'book',
   page: 'page',
-  leaf: 'leaf',
+  shadow: 'shadow',
+  gutter: 'gutter',
+  strip: 'strip',
   front: 'front',
   back: 'back',
+  skin: 'skin',
+  inside: 'inside',
   backFolio: 'backFolio',
   backMark: 'backMark',
 };
@@ -33,9 +44,12 @@ function land(slug: string) {
   page.dataset.page = 'news-article';
   page.dataset.articleSlug = slug;
   document.body.append(page);
+  return page;
 }
 
-const animate = vi.fn(() => ({ finished: Promise.resolve() }) as unknown as Animation);
+const animate = vi.fn(
+  () => ({ finished: Promise.resolve(), cancel: vi.fn() }) as unknown as Animation
+);
 
 beforeEach(() => {
   document.body.innerHTML = '';
@@ -71,6 +85,48 @@ describe('bookGeometry', () => {
   });
 });
 
+describe('the article on the page', () => {
+  it('opens the page as the right half of a centred spread and ends on the window', () => {
+    const g = bookGeometry(1440, 900);
+    const r = pageRects(g, 1440, 900);
+    expect(r.closed).toEqual({ x: g.left, y: g.top, w: g.w, h: g.h });
+    // The spine sits in the middle of the window.
+    expect(r.open.x).toBeCloseTo(720);
+    expect(r.open.w).toBeCloseTo(g.w);
+    expect(r.full).toEqual({ x: 0, y: 0, w: 1440, h: 900 });
+  });
+
+  it('lays a wide first screen across the page, from the top', () => {
+    const m = onPage({ x: 720, y: 117, w: 500, h: 666 }, 1440, 900);
+    expect(m.k).toBeCloseTo(500 / 1440);
+    expect(m.x).toBeCloseTo(720);
+    expect(m.y).toBe(117);
+  });
+
+  it('fits a tall phone screen whole, centred, with margins either side', () => {
+    const m = onPage({ x: 195, y: 300, w: 180, h: 240 }, 390, 844);
+    expect(m.k).toBeCloseTo(240 / 844);
+    expect(m.x).toBeCloseTo(195 + (180 - m.k * 390) / 2);
+    expect(m.x).toBeGreaterThan(195);
+  });
+
+  it('is the article itself, unshrunk, once the page is the window', () => {
+    expect(onPage({ x: 0, y: 0, w: 390, h: 844 }, 390, 844)).toEqual({ k: 1, x: 0, y: 0 });
+  });
+});
+
+describe('the cover bends like a magazine, not a board', () => {
+  it('turns its spine strip evenly, edge-on at half way', () => {
+    expect(edgeOnAt(0)).toBeCloseTo(0.5, 3);
+  });
+
+  it('lets the outer strips lead, so the cover curves while it turns', () => {
+    expect(edgeOnAt(1)).toBeLessThan(edgeOnAt(0));
+    expect(edgeOnAt(2)).toBeLessThan(edgeOnAt(1));
+    expect(edgeOnAt(2)).toBeGreaterThan(0.3);
+  });
+});
+
 describe('canOpenMagazine', () => {
   it('stays shut with reduced motion', () => {
     window.matchMedia = vi.fn(() => ({ matches: true }) as MediaQueryList);
@@ -87,7 +143,12 @@ describe('canOpenMagazine', () => {
 describe('openMagazine', () => {
   it('lifts, waits for the article, opens and leaves no trace', async () => {
     const { link, cover } = magazine();
-    const navigate = vi.fn(() => setTimeout(() => land('doener'), 20));
+    let article: HTMLElement | undefined;
+    const navigate = vi.fn(() =>
+      setTimeout(() => {
+        article = land('doener');
+      }, 20)
+    );
 
     expect(openMagazine({ link, cover, slug: 'doener', navigate, classes })).toBe(true);
     expect(document.querySelector('.overlay')).not.toBeNull();
@@ -102,8 +163,13 @@ describe('openMagazine', () => {
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
     await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
     expect(link.style.visibility).toBe('');
-    // lift + table, opening + both faces + centring, entering
-    expect(animate).toHaveBeenCalledTimes(7);
+    // lift + table; per cover strip its turn and both faces (3 × 3);
+    // centring + article onto the page; entering + article + gutter
+    expect(animate).toHaveBeenCalledTimes(2 + 9 + 2 + 3);
+    // The article stands where it stands, without a transform left behind.
+    expect(article?.style.transform).toBe('');
+    expect(article?.style.transformOrigin).toBe('');
+    expect(article?.style.clipPath).toBe('');
   });
 
   it('opens again once the first one has landed', async () => {

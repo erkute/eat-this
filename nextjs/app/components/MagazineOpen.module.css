@@ -1,8 +1,10 @@
 /* Die Ebene, auf der ein Heft aufgeschlagen wird (lib/magazineOpen.ts).
-   Lage und Grösse setzt das Skript; hier stehen nur Farben, Papier und 3D. */
+   Lage und Grösse setzt das Skript; hier stehen nur Farben, Papier und 3D.
+   Ein Magazin, kein Buch (Ansage 02.10.2026): dünn, ohne Seitenblock, der
+   Umschlag biegt sich beim Umblättern. */
 .overlay {
   /* Der Tisch, eine Spur dunkler als die Seite — so hebt sich die rechte
-     Seite (das Fenster auf den Artikel) ab, die selbst Ink ist. */
+     Seite (die Seite mit dem Artikel) ab, die selbst Ink ist. */
   --table: #0b0a08;
   position: fixed;
   inset: 0;
@@ -26,27 +28,44 @@
 }
 
 /* Die rechte Seite: innen durchsichtig auf den Artikel darunter, aussen der
-   Tisch (ein Schatten ohne Weichzeichnung, der bis über jeden Rand reicht),
-   rechts und unten der Seitenblock der übrigen Blätter wie am Umschlag. */
+   Tisch (ein Schatten ohne Weichzeichnung, der bis über jeden Rand reicht). */
 .page {
   position: absolute;
   inset: 0;
   visibility: hidden;
-  box-shadow:
-    1px 1px 0 #f3eee4,
-    2px 2px 0 #d6cfbf,
-    3px 3px 0 #eee8dc,
-    4px 4px 0 #d0c8b8,
-    5px 5px 0 #e9e3d6,
-    6px 6px 0 #cbc3b2,
-    0 0 0 300vmax var(--table);
+  box-shadow: 0 0 0 300vmax var(--table);
 }
 
-/* Der Umschlag dreht am Rücken (linke Kante); vorn die Titelseite, hinten
-   die Innenseite aus Papier. */
-.leaf {
+/* Das Heft liegt auf dem Tisch: ein weicher Schatten, keine Papierlagen. */
+.shadow {
   position: absolute;
   inset: 0;
+  border-radius: 2px;
+  box-shadow:
+    1px 1px 0 rgba(244, 241, 234, 0.55),
+    0 16px 28px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+/* Der Falz: aufgeschlagen fällt die Seite zum Rücken hin leicht ab. */
+.gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 9%;
+  visibility: hidden;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0));
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* Ein Streifen des Umschlags; der nächste steckt in ihm und dreht an seiner
+   rechten Kante. */
+.strip {
+  position: absolute;
+  top: 0;
+  height: 100%;
   transform-origin: 0 50%;
   transform-style: preserve-3d;
 }
@@ -55,6 +74,7 @@
 .back {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -63,14 +83,26 @@
   transform: rotateY(0deg);
 }
 
-/* Aufgeschlagen liegt der Rücken rechts dieser Seite — dort fällt sie in
-   den Falz. Bis 90° unsichtbar; den Tausch macht das Skript (WebKit hält
-   sich nicht verlässlich an `backface-visibility`). */
+/* Bis zur Kante unsichtbar; den Tausch macht das Skript (WebKit hält sich
+   nicht verlässlich an `backface-visibility`). */
 .back {
   visibility: hidden;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #f4f1ea 0 78%, #e4ddcf 94%, #cfc7b6);
   transform: rotateY(180deg);
+}
+
+/* Titel- und Innenseite in voller Breite, der Streifen schneidet seinen Teil
+   heraus. */
+.skin,
+.inside {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+
+/* Aufgeschlagen liegt der Rücken am rechten Ende der Innenseite — dort fällt
+   sie in den Falz. */
+.inside {
+  background: linear-gradient(90deg, #f4f1ea 0 72%, #ebe5d8 90%, #d6cebe);
 }
 
 .backFolio {

@@ -1124,7 +1124,7 @@ div.page {
 
   /* Swipeable rail instead of a stack. Bleeds to both edges so the next
      issue peeks in. Oben und unten Luft: der Querscroller schneidet sonst die
-     gedrehten Hefte und ihren Seitenblock ab. */
+     gedrehten Hefte und ihren Schatten ab. */
   .relatedGrid {
     display: flex;
     grid-template-columns: none;

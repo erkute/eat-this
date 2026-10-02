@@ -312,14 +312,22 @@ describe('NewsArticleShell', () => {
         />
       );
 
-    it('names its issue in the folio line, counted from the oldest article', () => {
+    it('names its issue in the credits under the head, counted from the oldest article', () => {
       // Newest first: four articles, `doener` is the second newest → Issue 3.
-      // Like the head of a magazine page: above the article, with its month.
       const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
-      const folio = html.slice(0, html.indexOf('<header'));
-      expect(folio).toContain('<span>Issue 3 · April 2026</span>');
-      // Said once: the byline keeps only what belongs to reading.
-      expect(html.match(/Issue 3/g)).toHaveLength(1);
+      const credits = html.slice(html.indexOf('</h1>'), html.indexOf('Min. Lesezeit'));
+      expect(credits).toContain('<span>Issue 3</span>');
+      expect(credits.indexOf('Issue 3')).toBeLessThan(credits.indexOf('24. April 2026'));
+      // Nothing stands above the photo: the page opens with the head itself.
+      expect(html.slice(0, html.indexOf('<header'))).not.toContain('Issue');
+    });
+
+    it('sets the lede before the credits, like a magazine head', () => {
+      const html = renderWith(issues(['doener']), {
+        excerptDe: 'Wo Berlin seinen Döner wirklich isst.',
+      });
+      expect(html.indexOf('Wo Berlin seinen Döner')).toBeGreaterThan(html.indexOf('</h1>'));
+      expect(html.indexOf('Wo Berlin seinen Döner')).toBeLessThan(html.indexOf('24. April 2026'));
     });
 
     it('puts the rubric as a label right above the headline', () => {

@@ -14,7 +14,7 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleRail from './ArticleRail';
-import MagazineCover, { formatMonth } from './MagazineCover';
+import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
@@ -187,9 +187,6 @@ export default function NewsArticleShell({
     return at < 0 ? null : relatedArticles.length - at;
   };
   const issue = issueOf(article.slug);
-  const folio = [issue ? `Issue ${issue}` : '', formatMonth(article.date, coverLocale)]
-    .filter(Boolean)
-    .join(' · ');
 
   // Inline "Must Eat" band — a flat strip in the article column, not a poster.
   // The restaurant carries the headline so two must-eats in one guide can't
@@ -349,11 +346,12 @@ export default function NewsArticleShell({
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
   const chaptersLabel = de ? 'Kapitel' : 'Chapters';
 
-  // Ausgabe und Rubrik stehen in Heftzeile und Etikett; die Byline trägt nur
-  // noch, was zum Lesen gehört.
+  // Die Credits unter dem Kopf, klein wie bei SSENSE („Written by / Photos"):
+  // die Ausgabe, die man eben aufgeschlagen hat, Datum und Lesezeit.
   const byline = (
     <div className={styles.byline}>
       <span className={styles.bylineMeta}>
+        {issue && <span>Issue {issue}</span>}
         {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
         <span>{readingTime}</span>
       </span>
@@ -369,16 +367,6 @@ export default function NewsArticleShell({
     >
       <main className={styles.article}>
         <article>
-          {/* Die Heftzeile, wie oben auf jeder Heftseite: links der Name des
-              Hefts, rechts Ausgabe und Monat — dieselbe Zeile wie auf
-              Titelseite und Innenseite des Umschlags beim Aufklappen. Als
-              Schrift, nicht als Logo: das steht schon in der Kopfleiste
-              direkt darüber, und das Aufklappen wartet auf `header img`, das
-              Foto. */}
-          <div className={styles.folio}>
-            <span aria-hidden="true">Eat This</span>
-            {folio && <span>{folio}</span>}
-          </div>
           <header className={`${styles.header}${article.imageUrl ? ` ${styles.headerSplit}` : ''}`}>
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
                 brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
@@ -400,18 +388,18 @@ export default function NewsArticleShell({
               </div>
             )}
             <div className={styles.introCopy}>
-              {/* Die Rubrik als Etikett über der Schlagzeile — dasselbe wie
-                  auf der Titelseite des Hefts. */}
+              {/* Die Rubrik klein über der Schlagzeile, als Schrift — kein
+                  Etikett, wie bei SSENSE und 032c. */}
               <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
               <h1 className={styles.heroTitle}>{title}</h1>
             </div>
-            {/* Byline und Vorspann gehören zum Kopf, nicht zur Lesespalte: ab
+            {/* Vorspann und Credits gehören zum Kopf, nicht zur Lesespalte: ab
                 Desktop stehen sie links neben dem Aufmacher unter dem Titel,
-                wie bei Highsnobiety. Auf dem Telefon laufen sie wie bisher
-                direkt unter dem Foto. */}
+                wie bei SSENSE — erst der Vorspann gross, dann klein die
+                Credits. Auf dem Telefon laufen sie direkt unter dem Foto. */}
             <div className={styles.headerMeta}>
-              {byline}
               {showLede && <p className={styles.lede}>{excerpt}</p>}
+              {byline}
             </div>
           </header>
 

@@ -24,13 +24,17 @@
   display: grid;
   /* Telefon: alles über Remy, er steht gross unten und läuft aus der Tafel
      (Ansage 02.10.2026: „Remy größer, unten wie in main, alles über ihn
-     drüber"). */
+     drüber"). Sein Satz steht direkt über seinem Kopf, nicht über den
+     Kategorien: dort lagen ~450px zwischen Satz und Remy, und in Safari mit
+     Leisten sah man beide nie zugleich (gemessen 02.10.2026, 390×664 bis
+     402×740). Im Markup bleibt der Satz vor den Kategorien — der Desktop
+     braucht ihn oben rechts. */
   grid-template-areas:
     'title'
-    'say'
     'choices'
     'chips'
     'form'
+    'say'
     'avatar';
   /* `minmax(0, 1fr)`, nicht `1fr`: sonst wuchs die Spalte auf die
      Mindestbreite des Remy-Bilds (340px) und schob Satz, Feld und
@@ -112,7 +116,7 @@
 
 .body > :global([data-hub-categories]) {
   grid-area: choices;
-  margin: 6px 0 clamp(22px, 2.6vw, 38px);
+  margin: clamp(14px, 4vw, 22px) 0 clamp(22px, 2.6vw, 38px);
 }
 
 /* ── Remy stage — freigestellt, no background sun ── */

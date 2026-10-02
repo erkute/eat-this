@@ -677,20 +677,27 @@ div.page {
 .inlineSpotMetaLink {
   position: relative;
   z-index: 2;
-  /* Leise und unterstrichen: ohne Akzentfarbe trägt die Unterstreichung den
-     Link-Hinweis. Ein reiner Hover-Hinweis käme nicht in Frage: auf Mobil
-     gibt es kein Hover, und Mobil ist rund die Hälfte der Aufrufe. */
-  color: var(--article-muted);
+  /* Ein leises Feld statt einer Unterstreichung (Ansage 02.10.2026: „mag das
+     Unterstrichene nicht") — dieselbe Fläche wie „Teilen" und der
+     Hell/Dunkel-Knopf, unter der Maus gelb. Ein reiner Hover-Hinweis käme
+     nicht in Frage: auf Mobil gibt es kein Hover, und Mobil ist rund die
+     Hälfte der Aufrufe. */
+  display: inline-block;
+  padding: 6px 9px 5px;
+  background: var(--article-quiet);
+  color: var(--article-fg);
   font: inherit;
   letter-spacing: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-decoration: none;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 }
 
 @media (hover: hover) {
   .inlineSpotMetaLink:hover {
-    color: var(--article-fg);
+    background: var(--article-accent);
+    color: var(--et-ink);
   }
 }
 

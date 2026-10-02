@@ -1180,7 +1180,11 @@ function armPreload(): () => void {
         io.unobserve(entry.target);
         entry.target
           .querySelectorAll<HTMLImageElement>('img[loading="lazy"]')
-          .forEach((img) => (img.loading = 'eager'));
+          .forEach((img) => {
+            // Ausgeblendet (z. B. die siebte Nearby-Karte im Desktop-Raster)
+            // bleibt `lazy` — `eager` lüde das Bild trotz display:none.
+            if (img.getClientRects().length > 0) img.loading = 'eager';
+          });
       }
     },
     { root: appScroller(), rootMargin: '150% 0px' }

@@ -30,7 +30,12 @@ export function formatLocalizedDistance(meters: number, locale: 'de' | 'en'): st
  * button is the right tool for those routes.
  */
 export function formatWalkingTime(meters: number): string | null {
+  const minutes = walkingMinutes(meters);
+  return minutes === null ? null : `${minutes} Min`;
+}
+
+/** Die Gehminuten hinter formatWalkingTime, als Zahl (null ab ~1600 m). */
+export function walkingMinutes(meters: number): number | null {
   if (meters > 1600) return null;
-  const minutes = Math.max(1, Math.ceil(meters / 80));
-  return `${minutes} Min`;
+  return Math.max(1, Math.ceil(meters / 80));
 }

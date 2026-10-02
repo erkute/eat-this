@@ -42,7 +42,8 @@ interface Props {
       one step below the red section title above it. */
 }
 
-// Eight picks: the nearest big, seven in the rail beside it.
+// Eight picks: the nearest big, seven in the rail beside it. From 1024px the
+// rail is a 3 × 2 grid and the seventh small card is hidden (CSS).
 const COUNT = 8;
 const HERO_SIZES = '(max-width: 767.98px) calc(100vw - 32px), min(42vw, 760px)';
 const RAIL_SIZES = '(max-width: 767.98px) 42vw, clamp(170px, 15vw, 250px)';
@@ -128,15 +129,9 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   // Finger und Trackpad wischen die Leiste nativ; mit der Maus wird gezogen.
   // Ein Ref-Callback mit Aufräumfunktion (React 19): die Leiste entsteht
   // erst, wenn es Karten gibt.
-  const railRef = useRef<HTMLUListElement | null>(null);
   const setRail = useCallback((rail: HTMLUListElement | null) => {
     if (!rail) return;
-    railRef.current = rail;
-    const disarm = armRailDrag(rail);
-    return () => {
-      disarm();
-      railRef.current = null;
-    };
+    return armRailDrag(rail);
   }, []);
 
   // Nach der Freigabe sortiert sich alles nach Nähe um: die neue Nächste
@@ -318,12 +313,14 @@ export default function HubNearby({ locale = 'de', today }: Props) {
           )}
         </div>
 
-        {/* Die Nächste groß, die übrigen sieben klein daneben (am Telefon
+        {/* Die Nächste groß, die übrigen klein daneben (am Telefon
             darunter), auf jeder Karte die Gehzeit als Stempel — Wahl vom
-            02.10.2026 nach dem Prototyp „D · Die Nächste". Die Leiste bleibt
-            eine Querleiste (Ansage 01.10.2026: „die Restaurants alle
-            anklickbar und horizontal scrollbar"): nativ gewischt, mit Snap
-            auf jede Karte, jede Karte ein Link. */}
+            02.10.2026 nach dem Prototyp „D · Die Nächste". Unter 1024px eine
+            Querleiste (Ansage 01.10.2026: „die Restaurants alle anklickbar
+            und horizontal scrollbar"): nativ gewischt, mit Snap auf jede
+            Karte; ab 1024px ein Raster 3 × 2 ohne Querscrollen. Jede Karte
+            ist ein Link — davor fuhr ein 3D-Band am senkrechten Scrollweg
+            vorbei, und angetippt werden konnte nur, was gerade vorne stand. */}
         <div
           className={styles.spread}
           data-nearby-spread=""

@@ -1,4 +1,4 @@
-import { haversineDistance } from '@/lib/map/distance';
+import { haversineDistance, walkingMinutes } from '@/lib/map/distance';
 import type { MapRestaurant } from '@/lib/types';
 
 interface LatLng {
@@ -63,7 +63,8 @@ export interface NearbyDistance {
  * stamp rolls each character of it like a counter.
  */
 export function nearbyDistance(meters: number, locale: 'de' | 'en'): NearbyDistance {
-  if (meters <= 1600) return { value: String(Math.max(1, Math.ceil(meters / 80))), unit: 'Min' };
+  const minutes = walkingMinutes(meters);
+  if (minutes !== null) return { value: String(minutes), unit: 'Min' };
   const value = new Intl.NumberFormat(locale === 'de' ? 'de-DE' : 'en-GB', {
     maximumFractionDigits: 1,
   }).format(meters / 1000);

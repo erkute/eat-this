@@ -3,6 +3,7 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { dropResourceLoadErrors } from '@/lib/sentry/beforeSend';
+import { sentryEnvironment } from '@/lib/sentry/environment';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -26,9 +27,9 @@ Sentry.init({
   // entirely (webpack.treeshake.removeTracing in next.config.ts). Setting it
   // here would be inert and misleading.
 
-  // Capture browser-build context so the dashboard shows release names
-  // and minified stack traces resolve back to source via uploaded sourcemaps.
-  environment: process.env.NODE_ENV,
+  // Staging, Produktion oder lokal — nicht `NODE_ENV`, das ist auf Staging
+  // auch `production` (lib/sentry/environment.ts).
+  environment: sentryEnvironment(),
 
   // Replay (session video) is opt-out by default — heavy on the free tier
   // and adds substantial bundle weight. Re-enable only if a debugging

@@ -2,12 +2,14 @@
 // Limited API surface vs. Node — no node:fs, no native deps.
 import * as Sentry from '@sentry/nextjs';
 
+import { sentryEnvironment } from '@/lib/sentry/environment';
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   // No tracesSampleRate: removeTracing in next.config.ts strips tracing from
   // the server and edge bundles too (Next runs the webpack config for all
   // three runtimes), so this would be inert.
-  environment: process.env.NODE_ENV,
+  environment: sentryEnvironment(),
   // Keine IP, keine Cookies (siehe instrumentation-client.ts).
   sendDefaultPii: false,
 });

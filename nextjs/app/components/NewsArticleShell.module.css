@@ -1023,7 +1023,7 @@ div.page {
   min-width: 0;
 }
 
-/* „Weiter auf dem Teller": die nächsten Ausgaben als kleine Hefte
+/* „Weitere Ausgaben": die nächsten Ausgaben als kleine Hefte
    (MagazineCover), jedes ein wenig anders gedreht wie in der Auslage des
    Index. Unter der Maus hebt sich eins und liegt gerade. Die Neigung steht
    als Variable am Listenpunkt: als `rotate` mit `:nth-child` wäre sie

@@ -359,7 +359,8 @@ export default function NewsArticleShell({
   };
 
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
-  const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
+  // Darunter liegen Hefte, also „Weitere Ausgaben" (Ansage 02.10.2026).
+  const moreLabel = de ? 'Weitere Ausgaben' : 'More issues';
   // Nicht „Kapitel" (Ansage 02.10.2026): die Zeile zählt die Spots auf.
   const chaptersLabel = de ? 'Die Spots' : 'The spots';
 

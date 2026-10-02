@@ -18,8 +18,8 @@
  *   Startseite — gross und gedreht, dann mit Stauchung auf ihren Platz.
  * - Abzug: Spot-Fotos und Bilder im Text landen wie hingeworfene Abzüge,
  *   „Zur Map" ploppt danach auf.
- * - Must-Eat-Bänder schieben von links herein, die Hefte unter „Weiter auf
- *   dem Teller" werden ausgeteilt, und das Booster-Pack der Katalog-Tafel
+ * - Must-Eat-Bänder schieben von links herein, die Hefte unter „Weitere
+ *   Ausgaben" werden ausgeteilt, und das Booster-Pack der Katalog-Tafel
  *   wird auf die Tafel geworfen.
  *
  * Der Kopf ist CSS (NewsArticleShell.module.css, `data-article-intro`): er

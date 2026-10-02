@@ -396,7 +396,11 @@ describe('NewsArticleShell', () => {
 
     it('shows the next issues as covers with their own numbers', () => {
       const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
-      const related = html.slice(html.indexOf('Weiter auf dem Teller'));
+      // Darunter liegen Hefte, also „Weitere Ausgaben" — nicht mehr „Weiter
+      // auf dem Teller" (Ansage 02.10.2026).
+      expect(html).toContain('>Weitere Ausgaben</h2>');
+      expect(html).not.toContain('Weiter auf dem Teller');
+      const related = html.slice(html.indexOf('Weitere Ausgaben'));
       expect(related).toContain('href="/news/pizza"');
       expect(related).toContain('Issue 4 · September 2026');
       expect(related).toContain('href="/news/donuts"');

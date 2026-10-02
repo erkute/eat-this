@@ -53,11 +53,16 @@ export async function POST(req: Request) {
   // `deny`: hier geht bezahlter Inhalt raus. Ohne zaehlbaren Riegel lieber
   // gar nicht — das ist dieselbe Abwaegung wie `checkRateLimitFailClosed`
   // in lib/rateLimit.ts.
+  // 15 am Tag statt 80 (Betreiber, 02.10.2026): bei ~25 Karten holte ein
+  // Gratis-Konto den ganzen Stapel an einem Tag. Auf einem Food-Walk deckt
+  // niemand 15 auf. Die Pruefung auf den Standort bleibt bewusst weg — die
+  // Koordinaten jedes Spots stehen offen auf der Map, ein Skript schickte sie
+  // einfach mit (docs/architecture.md, „Verdeckte Must-Eat-Karten").
   const limit = await checkWindowedRateLimit(
     `reveal:${uid}`,
     {
       perMinute: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_MIN, 10),
-      perDay: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_DAY, 80),
+      perDay: num(process.env.MUST_EAT_REVEAL_LIMIT_PER_DAY, 15),
     },
     'deny'
   );

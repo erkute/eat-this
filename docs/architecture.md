@@ -44,6 +44,16 @@ Die Restaurant-Map ist frei; Kartenbilder haben eigene Zugriffsregeln.
 Die maßgeblichen Regeln stehen im aktuellen Code und in den Firestore- und
 Storage-Regeln, nicht in alten Preis- oder Stapelgrößen aus den Entwürfen.
 
+Wer angemeldet ist, bekommt über `POST /api/must-eat-reveal` jede Karte offen,
+ohne Kauf und ohne Standortprüfung auf dem Server; die 50 m misst nur der
+Browser. Das ist Absicht (Betreiber, 06.09. und 02.10.2026): wer vor einem
+Laden steht, darf dessen Karte aufdecken, egal welcher Laden. Eine
+Koordinatenprüfung auf dem Server schützte nicht, denn die Koordinaten jedes
+Spots stehen offen auf der Map. Begrenzt wird über das Ratenlimit je Konto
+(10 pro Minute, 15 pro Tag), damit niemand den ganzen Stapel an einem Tag holt.
+Jede Freigabe schreibt den Stempel nach `users/{uid}/unlockedMustEats`. Der
+Routentest `nextjs/app/api/must-eat-reveal/route.test.ts` hält das fest.
+
 Der Gast-Tipp auf eine verdeckte Karte führt nach dem kurzen Zittern zu
 `openLoginModal({ kind: 'card', mustEatId })`. Der Login-Kontext merkt sich
 die gewünschte Starter-Karte selbst. Die Details zu Bewegung, Reduced Motion

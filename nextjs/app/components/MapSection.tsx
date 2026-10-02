@@ -25,6 +25,7 @@ import { prefetchRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import { dropLowered, mapStripLine } from '@/lib/map/sheetSlide';
 import { trackEvent } from '@/lib/analytics';
 import { pollUntilMapReady } from '@/lib/map/pollUntilMapReady';
+import { basemapTileTemplate, preloadSpotTiles } from '@/lib/map/tilePreload';
 import { berlinNow } from '@/lib/map/openingHours';
 import {
   resolveListReturn,
@@ -879,10 +880,15 @@ export default function MapSection({
     ]
   );
 
+  /* In welche Richtung zuletzt geblättert wurde — dorthin lädt der Effekt
+     unter den Pager-Handlern die nächste Kachel vor. */
+  const pageDirRef = useRef<'prev' | 'next'>('next');
+
   const handlePageRestaurant = useCallback(
     (dir: 'prev' | 'next') => {
       const target = dir === 'prev' ? pagerAdjacent.prev : pagerAdjacent.next;
       if (!target) return;
+      pageDirRef.current = dir;
       userInteractedRef.current = true;
       trackEvent('restaurant_opened', {
         restaurant_id: target._id,
@@ -900,6 +906,7 @@ export default function MapSection({
     (dir: 'prev' | 'next') => {
       const target = dir === 'prev' ? mustEatPagerAdjacent.prev : mustEatPagerAdjacent.next;
       if (!target) return;
+      pageDirRef.current = dir;
       userInteractedRef.current = true;
       trackEvent('must_eat_opened', {
         must_eat_id: target._id,
@@ -915,6 +922,37 @@ export default function MapSection({
     },
     [mustEatPagerAdjacent, setSelectedMustEat, flyToSpot, detailFlyPadding, unlockedIds]
   );
+
+  /* Solange ein Detail offen ist, liegt die Kachel des nächsten Spots in
+     Blätterrichtung schon im Cache, wenn die Kamera dort ankommt
+     (lib/map/tilePreload.ts). Erst wenn die Karte ruht: sonst stünde das
+     Vorladen in der Leitung neben den Kacheln, auf die gerade jemand wartet.
+     Gepollt wird, weil die Karte beim Öffnen per Link noch nicht steht. */
+  useEffect(() => {
+    const ahead = <T,>(adj: { prev: T | null; next: T | null }) =>
+      pageDirRef.current === 'prev' ? adj.prev : adj.next;
+    const spot = selectedRestaurant
+      ? ahead(pagerAdjacent)
+      : selectedMustEat
+        ? (ahead(mustEatPagerAdjacent)?.restaurant ?? null)
+        : null;
+    if (!spot) return;
+    let unwatch = () => {};
+    const cancelPoll = pollUntilMapReady({
+      mapRef,
+      onReady: (ref) => {
+        const map = ref.getMap();
+        const run = () => preloadSpotTiles(basemapTileTemplate(map), spot);
+        if (map.loaded() && !map.isMoving()) return run();
+        map.once('idle', run);
+        unwatch = () => map.off('idle', run);
+      },
+    });
+    return () => {
+      cancelPoll();
+      unwatch();
+    };
+  }, [selectedRestaurant, selectedMustEat, pagerAdjacent, mustEatPagerAdjacent]);
 
   const handleMustEatClick = useCallback(
     (m: MapMustEat) => {

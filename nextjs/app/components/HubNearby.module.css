@@ -403,10 +403,38 @@
   }
 }
 
+/* Ab 1024px kein Querscrollen mehr (Frage 02.10.2026: „braucht man für
+   Desktop eine horizontale Scrollmöglichkeit?" — nein): in der Leiste sah
+   man drei von sieben Karten, das Mausrad scrollt nur senkrecht, und unter
+   der Leiste blieb neben der Großen ein Loch. Jetzt ein festes Raster 3 × 2,
+   alles auf einen Blick; die siebte kleine Karte fällt weg. Quer (4/3) und
+   mit 36px Zeilenabstand stehen die Fotounterkanten der zweiten Reihe etwa
+   auf der Höhe der Großen. Die Stempel ragen frei heraus — es schneidet
+   nichts mehr ab. */
+@media (min-width: 1024px) {
+  .rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 36px clamp(16px, 1.6vw, 24px);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .rail .photo {
+    aspect-ratio: 4 / 3;
+  }
+  .slide:nth-child(n + 7) {
+    display: none;
+  }
+}
+
 /* Das Foto liegt wie hinter einem Fenster: während die Karte durch die
    Leiste fährt, wandert es gegenläufig in seinem Rahmen — am Querscroll
    der Leiste, nicht am Scroll der Seite. Ohne Scroll-Timeline steht es.
-   Nur in der Leiste: die Große steht in keinem Scroller. */
+   Nur in der Leiste: die Große und das Raster ab 1024px stehen in keinem
+   Scroller. */
 @keyframes windowDrift {
   from {
     translate: 7% 0;
@@ -416,7 +444,7 @@
   }
 }
 @supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
+  @media (prefers-reduced-motion: no-preference) and (max-width: 1023.98px) {
     .rail .photoImg {
       scale: 1.16;
       animation: windowDrift linear both;

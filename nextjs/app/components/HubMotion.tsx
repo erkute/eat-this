@@ -381,7 +381,8 @@ function onScrollFrame(scroller: HTMLElement | Window, update: () => void): () =
 
 /**
  * Remys Tafel kommt herein: „Worauf hast du Lust?" schlägt ein wie ein
- * Stempel, die Kategorien rücken gestaffelt nach, Remys Satz springt hin.
+ * Stempel, die Kategorien und die zwei Beispiel-Fragen rücken gestaffelt
+ * nach, Remys Satz springt hin.
  * Remy selbst steht unter der Kante der Tafel, bis die leere Fläche, in der
  * er gleich steht, im Bild ist, und schießt dann wie ein Schreck hoch, redet
  * und wackelt — dreimal, mit Pausen. Umkehrbar (Ansage 28.09.2026): wer den
@@ -398,7 +399,12 @@ function armFragRemy(): () => void {
   const say = section?.querySelector<HTMLElement>('[data-fragremy-say]');
   const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
   if (!section || !title || !say || !avatar) return () => {};
-  const items = Array.from(section.querySelectorAll<HTMLElement>('[data-hub-categories] > li'));
+  // Die Kategorien und die zwei Beispiel-Fragen rücken gemeinsam nach — die
+  // Fragen als eine Zeile: auf den Knöpfen selbst nähme ein Inline-
+  // `transform` ihnen den Druckzustand (`.hv-chip:active`).
+  const items = Array.from(
+    section.querySelectorAll<HTMLElement>('[data-hub-categories] > li, [data-fragremy-chips]')
+  );
 
   // Aufgeräumt wird erst beim Abbauen: die Rückwärtsfahrt braucht die Werte.
   // Keins der Elemente trägt eigene `translate/rotate/scale`, die GSAP hier
@@ -508,10 +514,12 @@ function armFragRemy(): () => void {
  * oben aus der Box und der neue von unten hinein — als Ganzes, per
  * Translate und clip-path, nie Wort für Wort und ohne Ausblenden. Sobald der
  * neue kommt, wird seine Kategorie fett (`data-pick`) und hüpft, und Remy
- * redet. Fasst niemand die Tafel an, geht er die Kategorien von selbst
- * durch, solange sie im Bild ist — so redet er auch am Telefon, wo nichts
- * schwebt; jeder Satz bleibt so lange stehen, wie man zum Lesen braucht.
- * Ins Feld getippt, lacht er und hört zu.
+ * redet. Von selbst geht er die Kategorien durch, solange die Tafel im Bild
+ * ist; jeder Satz bleibt so lange stehen, wie man zum Lesen braucht. Am
+ * Telefon immer (Ansage 02.10.2026: „der Wechsel soll automatisch erfolgen
+ * auf mobile") — ein Finger auf dem Glas, etwa beim Scrollen, hält ihn
+ * nicht an. Nur eine Maus über der Tafel lässt ihn warten, dann zeigt sie
+ * selbst. Ins Feld getippt, lacht er und hört zu.
  * Der Satz ist Inhalt, keine Bewegung: mit reduzierter Bewegung wechselt er
  * ohne Rollen, und Remy geht nichts von selbst durch.
  */
@@ -633,17 +641,29 @@ function armRemySays(motion: boolean): () => void {
     auto = null;
   };
 
-  // Hand auf der Tafel (Maus darüber, Finger darauf): er wartet.
-  const handsOn = () => {
+  // Nur die Maus hält ihn an: Touch-Zeiger melden sich mit jedem Wischen
+  // über der Tafel (`pointerenter`), und am Telefon blieb Remy dann stumm.
+  const mouse = (event: Event) => (event as PointerEvent).pointerType === 'mouse';
+  const handsOn = (event: Event) => {
+    if (!mouse(event)) return;
     hands = true;
     stopAuto();
   };
-  const handsOff = () => {
+  const handsOff = (event: Event) => {
+    if (!mouse(event)) return;
     hands = false;
     startAuto(4);
   };
-  const enterCat = (event: Event) => pick(event.currentTarget as HTMLElement);
-  const leaveCat = () => pick(null);
+  // Zeigen (Maus) oder fokussieren (Tastatur); ein Finger, der über eine
+  // Kategorie wischt, wählt sie nicht.
+  const enterCat = (event: Event) => {
+    if (event.type === 'pointerenter' && !mouse(event)) return;
+    pick(event.currentTarget as HTMLElement);
+  };
+  const leaveCat = (event: Event) => {
+    if (event.type === 'pointerleave' && !mouse(event)) return;
+    pick(null);
+  };
   const listen = () => {
     listening = true;
     stopAuto();
@@ -670,7 +690,7 @@ function armRemySays(motion: boolean): () => void {
     section,
     () => {
       inside = true;
-      startAuto(2.4);
+      startAuto(1.6);
     },
     () => {
       inside = false;

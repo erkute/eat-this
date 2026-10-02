@@ -29,6 +29,7 @@
     'title'
     'say'
     'choices'
+    'chips'
     'form'
     'avatar';
   /* `minmax(0, 1fr)`, nicht `1fr`: sonst wuchs die Spalte auf die
@@ -62,27 +63,17 @@
   text-wrap: balance;
 }
 
-/* Was Remy sagt: alle Sätze in derselben Rasterzelle, die Box ist so hoch
-   wie der längste — der Wechsel verschiebt nichts darunter. Zu sehen ist
-   der mit `data-on`; beim Wechsel rollt der alte oben aus der Box und der
-   neue von unten hinein (HubMotion, `armRemySays`). Über dem Satz steht,
-   wer redet und worüber („Remy · Pizza"), wie der Kicker im Chat-Fenster. */
+/* Was Remy sagt: „Remy" als Kicker wie im Chat-Fenster, sonst nichts
+   (Ansage 02.10.2026). Darunter alle Sätze in derselben Rasterzelle, die
+   Box ist so hoch wie der längste — der Wechsel verschiebt nichts darunter.
+   Zu sehen ist der mit `data-on`; beim Wechsel rollt der alte oben aus der
+   Box und der neue von unten hinein (HubMotion, `armRemySays`), der Kicker
+   bleibt stehen. */
 .say {
   grid-area: say;
-  display: grid;
   margin: clamp(18px, 2vw, 26px) 0 clamp(8px, 1vw, 14px);
   font-family: var(--et-font-display);
   font-weight: 700;
-}
-
-.said {
-  grid-area: 1 / 1;
-  margin: 0;
-  visibility: hidden;
-}
-
-.said[data-on] {
-  visibility: visible;
 }
 
 .kicker {
@@ -102,11 +93,21 @@
   background: var(--remy-stage-accent);
 }
 
-.line {
-  display: block;
+.lines {
+  display: grid;
+}
+
+.said {
+  grid-area: 1 / 1;
+  margin: 0;
+  visibility: hidden;
   font-size: clamp(19px, 2vw, 30px);
   line-height: 1.18;
   color: var(--remy-stage-paper);
+}
+
+.said[data-on] {
+  visibility: visible;
 }
 
 .body > :global([data-hub-categories]) {
@@ -236,6 +237,39 @@
   }
 }
 
+/* ── zwei Beispiel-Fragen: gehen in Remys Chat ──
+   Fläche statt Ring, bei Hover eine Stufe heller mit gelber Schrift
+   (Zustand, keine Bewegung). Wie auf main. */
+.chips {
+  grid-area: chips;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.body .chip:global(.hv-chip) {
+  background: var(--remy-stage-control);
+  color: var(--remy-stage-paper);
+  border: none;
+  border-radius: var(--et-radius-control);
+  box-shadow: none;
+}
+
+.body .chip:global(.hv-chip):focus-visible {
+  outline: none;
+  background: var(--remy-stage-control-hi);
+  color: var(--remy-stage-accent);
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  .body .chip:global(.hv-chip):hover {
+    background: var(--remy-stage-control-hi);
+    color: var(--remy-stage-accent);
+  }
+}
+
 /* ── die freie Antwort: geht in Remys Chat ──
    Feld und Knopf nebeneinander, gleich hoch und mit derselben Rundung. Das
    Feld ist eine dunkle Flaeche, der Knopf Papier — bis zum 23.09.2026 weißes
@@ -316,9 +350,10 @@
     grid-template-areas:
       'title say'
       'choices avatar'
+      'chips avatar'
       'form avatar';
     grid-template-columns: minmax(420px, 1.05fr) minmax(400px, 0.95fr);
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto auto auto 1fr;
     min-height: clamp(520px, 42vw, 640px);
     padding: clamp(40px, 4vw, 60px) clamp(38px, 4.5vw, 70px);
     column-gap: clamp(30px, 4.4vw, 72px);
@@ -329,7 +364,7 @@
     margin: 0;
   }
 
-  .line {
+  .said {
     font-size: clamp(21px, 1.9vw, 30px);
   }
 
@@ -337,8 +372,12 @@
     margin: clamp(18px, 2vw, 28px) 0 clamp(26px, 3vw, 40px);
   }
 
+  .chips,
   .chatin {
     max-width: 640px;
+  }
+
+  .chatin {
     margin-bottom: 0;
   }
 

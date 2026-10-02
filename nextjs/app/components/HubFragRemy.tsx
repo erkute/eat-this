@@ -1,8 +1,9 @@
 'use client';
 // Remys Tafel auf der Startseite (Variante A „Remy erzählt", gewählt am
 // 02.10.2026): eine Frage statt zwei. Remy fragt „Worauf hast du Lust?", die
-// Kategorien sind die Antworten (`choices`, CategoriesRail), das Feld darunter
-// die freie Antwort — die geht in seinen Chat. Darüber steht, was Remy gerade
+// Kategorien sind die Antworten (CategoriesRail), darunter zwei
+// Beispiel-Fragen zur Tageszeit und das Feld für die freie Antwort — beide
+// gehen in seinen Chat. Darüber steht, was Remy gerade
 // sagt: erst ein Satz zur Tageszeit, dann zu der Kategorie, auf die man zeigt
 // oder die er selbst durchgeht. Auftritt, Reden, Satzwechsel und Lachen
 // gehören HubMotion (`armFragRemy`, `armRemySays`) — über
@@ -11,7 +12,7 @@
 import { useEffect, useState } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
-import { categoryLine, stageLeadFor } from '@/lib/buddy/greeting';
+import { categoryLine, stageFor } from '@/lib/buddy/greeting';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import type { Locale } from '@/lib/buddy/types';
 import CategoriesRail from './CategoriesRail';
@@ -28,14 +29,21 @@ interface Props {
 export default function HubFragRemy({ categoryNames }: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations('hub.fragRemy');
-  const [lead, setLead] = useState<string | null>(null);
+  const [stage, setStage] = useState<{ lead: string; answers: [string, string] } | null>(null);
   const [draft, setDraft] = useState('');
 
   // Die Tageszeit kennt nur der Browser (die Uhr des Servers ist nicht die des
-  // Besuchers): der Server rendert den allgemeinen Satz.
+  // Besuchers): der Server rendert den allgemeinen Satz und zwei Fragen, die
+  // immer passen.
   useEffect(() => {
-    setLead(stageLeadFor(new Date().getHours(), locale));
+    setStage(stageFor(new Date().getHours(), locale));
   }, [locale]);
+  const lead = stage?.lead ?? null;
+  const answers: [string, string] =
+    stage?.answers ??
+    (locale === 'de'
+      ? ['Richtig gute Pizza', 'Schönes Dinner für zwei']
+      : ['Really good pizza', 'A nice dinner for two']);
 
   function submitDraft() {
     const q = draft.trim();
@@ -55,42 +63,50 @@ export default function HubFragRemy({ categoryNames }: Props) {
           {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
         </h2>
 
-        {/* Was Remy sagt: alle seine Sätze liegen übereinander in einer Box,
-            so hoch wie der längste — wechselt er, springt darunter nichts
-            (bis 02.10.2026 schob ein fünfzeiliger Satz am Desktop Kategorien
-            und Feld um bis zu 70px). Zu sehen ist der mit `data-on`; den
-            Wechsel rollt HubMotion (`armRemySays`). Kein `aria-live`: er
-            geht die Kategorien von selbst durch, alle drei Sekunden ein
-            neuer Satz wäre im Screenreader nur Lärm. */}
+        {/* Was Remy sagt: über allem nur „Remy" (Ansage 02.10.2026), darunter
+            liegen alle seine Sätze übereinander in einer Box, so hoch wie
+            der längste — wechselt er, springt darunter nichts (bis
+            02.10.2026 schob ein fünfzeiliger Satz am Desktop Kategorien und
+            Feld um bis zu 70px). Zu sehen ist der mit `data-on`; den Wechsel
+            rollt HubMotion (`armRemySays`). Kein `aria-live`: er geht die
+            Kategorien von selbst durch, alle drei Sekunden ein neuer Satz
+            wäre im Screenreader nur Lärm. */}
         <div className={styles.say} data-fragremy-say="">
-          <p className={styles.said} data-remy-say="lead" data-on="">
-            <span className={styles.kicker}>
-              <span className={styles.mk} aria-hidden="true" />
-              Remy
-            </span>
-            <span className={styles.line}>{lead ?? t('sub')}</span>
-          </p>
-          {Object.entries(categoryNames).map(([slug, name]) => (
-            <p key={slug} className={styles.said} data-remy-say={slug}>
-              <span className={styles.kicker}>
-                <span className={styles.mk} aria-hidden="true" />
-                Remy · {name}
-              </span>
-              <span className={styles.line}>{categoryLine(locale, slug, name)}</span>
+          <span className={styles.kicker}>
+            <span className={styles.mk} aria-hidden="true" />
+            Remy
+          </span>
+          <div className={styles.lines}>
+            <p className={styles.said} data-remy-say="lead" data-on="">
+              {lead ?? t('sub')}
             </p>
-          ))}
-          <p className={styles.said} data-remy-say="listen">
-            <span className={styles.kicker}>
-              <span className={styles.mk} aria-hidden="true" />
-              Remy
-            </span>
-            <span className={styles.line}>
+            {Object.entries(categoryNames).map(([slug, name]) => (
+              <p key={slug} className={styles.said} data-remy-say={slug}>
+                {categoryLine(locale, slug, name)}
+              </p>
+            ))}
+            <p className={styles.said} data-remy-say="listen">
               {locale === 'en' ? "Go on, I'm listening." : 'Schieß los, ich hör zu.'}
-            </span>
-          </p>
+            </p>
+          </div>
         </div>
 
         <CategoriesRail categoryNames={categoryNames} locale={locale} />
+
+        {/* Zwei Beispiel-Fragen wie auf main (Ansage 02.10.2026): wer nichts
+            Passendes unter den Kategorien findet, fragt Remy mit einem Tipp. */}
+        <div className={styles.chips} data-fragremy-chips="">
+          {answers.map((a) => (
+            <button
+              key={a}
+              type="button"
+              className={`hv-chip ${styles.chip}`}
+              onClick={() => dispatchBuddyAsk({ question: a })}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
 
         <form
           className={styles.chatin}

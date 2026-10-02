@@ -139,8 +139,31 @@ const STAGE_LEAD: Record<Locale, Record<Daypart, string>> = {
   },
 };
 
-export function stageLeadFor(hour: number, locale: Locale): string {
-  return STAGE_LEAD[locale][daypartFor(hour)];
+// Zwei Beispiel-Fragen zur Tageszeit unter den Kategorien — die Seite des
+// Besuchers im Gespräch; antippen öffnet den Chat mit genau dieser Frage.
+const STAGE_ANSWERS: Record<Locale, Record<Daypart, [string, string]>> = {
+  de: {
+    morning: ['Guter Kaffee in der Nähe', 'Ordentliches Frühstück'],
+    midday: ['Schnelles Mittagessen', 'Lieber in Ruhe hinsetzen'],
+    afternoon: ['Kaffee und was Süßes', 'Schon der erste Drink'],
+    evening: ['Richtig gute Pizza', 'Schönes Dinner für zwei'],
+    late: ['Beste Döner jetzt', 'Bars, die noch offen haben'],
+  },
+  en: {
+    morning: ['Good coffee nearby', 'A proper breakfast'],
+    midday: ['Quick lunch', 'A proper sit-down'],
+    afternoon: ['Coffee and something sweet', 'Already the first drink'],
+    evening: ['Really good pizza', 'A nice dinner for two'],
+    late: ['Best döner right now', "A bar that's still open"],
+  },
+};
+
+export function stageFor(
+  hour: number,
+  locale: Locale
+): { lead: string; answers: [string, string] } {
+  const part = daypartFor(hour);
+  return { lead: STAGE_LEAD[locale][part], answers: STAGE_ANSWERS[locale][part] };
 }
 
 // Zu jeder Kategorie ein Satz: zeigt man auf der Tafel auf eine Kategorie

@@ -46,7 +46,7 @@ describe('HubFragRemy', () => {
     const shown = document.querySelectorAll('[data-remy-say][data-on]');
     expect(shown.length).toBe(1);
     expect(shown[0].getAttribute('data-remy-say')).toBe('lead');
-    expect(shown[0].textContent!.length).toBeGreaterThan('Remy'.length);
+    expect(shown[0].textContent!.length).toBeGreaterThan(0);
   });
 
   /* Alle Sätze liegen schon in der Box: so hoch wie der längste, damit beim
@@ -59,8 +59,10 @@ describe('HubFragRemy', () => {
     );
     expect(keys).toEqual(['lead', 'pizza', 'lunch', 'listen']);
     expect(document.querySelector('[data-remy-say="pizza"]')!.textContent).toBe(
-      'Remy · PizzaPizza? Ich kenn die Öfen, die es wirklich können.'
+      'Pizza? Ich kenn die Öfen, die es wirklich können.'
     );
+    // Im Kicker steht nur „Remy", und er rollt nicht mit.
+    expect(document.querySelector('[data-fragremy-say] > span')!.textContent).toBe('Remy');
     expect(document.querySelector('[data-remy-say="listen"]')!.textContent).toContain('Schieß los');
   });
 
@@ -68,6 +70,30 @@ describe('HubFragRemy', () => {
     renderSection();
     const links = document.querySelectorAll('[data-hub-categories] a[data-slug]');
     expect(Array.from(links, (a) => a.getAttribute('data-slug'))).toEqual(['pizza', 'lunch']);
+  });
+
+  it('bietet unter den Kategorien zwei Fragen zur Tageszeit an, wie auf main', () => {
+    renderSection();
+    const chips = document.querySelectorAll('[data-fragremy-chips] button');
+    expect(chips.length).toBe(2);
+    // Unter den Kategorien, über dem Feld.
+    const cats = document.querySelector('[data-hub-categories]')!;
+    const input = document.querySelector('[data-fragremy-input]')!;
+    expect(cats.compareDocumentPosition(chips[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(chips[1].compareDocumentPosition(input) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('dispatches buddy:ask with the chip question on chip click', () => {
+    let got: BuddyAskDetail | null = null;
+    const onAsk = (e: Event) => {
+      got = (e as CustomEvent<BuddyAskDetail>).detail;
+    };
+    window.addEventListener(BUDDY_ASK_EVENT, onAsk);
+    renderSection();
+    const chip = document.querySelector<HTMLButtonElement>('[data-fragremy-chips] button')!;
+    fireEvent.click(chip);
+    window.removeEventListener(BUDDY_ASK_EVENT, onAsk);
+    expect(got).toEqual({ question: chip.textContent });
   });
 
   it('dispatches buddy:ask when the free-text form is submitted', () => {

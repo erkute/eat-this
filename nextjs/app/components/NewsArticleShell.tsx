@@ -14,7 +14,7 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleRail from './ArticleRail';
-import MagazineCover from './MagazineCover';
+import MagazineCover, { formatMonth } from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
@@ -187,6 +187,9 @@ export default function NewsArticleShell({
     return at < 0 ? null : relatedArticles.length - at;
   };
   const issue = issueOf(article.slug);
+  const folio = [issue ? `Issue ${issue}` : '', formatMonth(article.date, coverLocale)]
+    .filter(Boolean)
+    .join(' · ');
 
   // Inline "Must Eat" band — a flat strip in the article column, not a poster.
   // The restaurant carries the headline so two must-eats in one guide can't
@@ -266,13 +269,17 @@ export default function NewsArticleShell({
       .join(' · ');
     const cta = de ? 'Auf die Map' : 'To the map';
 
+    // Wie im Heft: oben das Foto ohne Schrift darauf, darunter die
+    // Bildunterschrift mit Bezirk, Name und dem Weg auf die Map.
     return (
-      <span
-        className={styles.inlineSpot}
-        style={
-          block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined
-        }
-      >
+      <span className={styles.inlineSpot}>
+        {block.restaurantPhoto && (
+          <span
+            className={styles.inlineSpotPhoto}
+            style={{ backgroundImage: `url(${block.restaurantPhoto})` }}
+            aria-hidden="true"
+          />
+        )}
         <span className={styles.inlineSpotFoot}>
           {/* Die Meta-Zeile trägt den gefolgten Link auf die Spot-Seite. Die
               Karte selbst führt auf die Map — ohne diesen Link gäben die
@@ -342,13 +349,11 @@ export default function NewsArticleShell({
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
   const chaptersLabel = de ? 'Kapitel' : 'Chapters';
 
+  // Ausgabe und Rubrik stehen in Heftzeile und Etikett; die Byline trägt nur
+  // noch, was zum Lesen gehört.
   const byline = (
     <div className={styles.byline}>
-      <span className={styles.category}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
       <span className={styles.bylineMeta}>
-        {/* Die Ausgabe, die man eben aufgeschlagen hat — wie die Kopfzeile
-            einer Heftseite. */}
-        {issue && <span>Issue {issue}</span>}
         {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
         <span>{readingTime}</span>
       </span>
@@ -364,6 +369,16 @@ export default function NewsArticleShell({
     >
       <main className={styles.article}>
         <article>
+          {/* Die Heftzeile, wie oben auf jeder Heftseite: links der Name des
+              Hefts, rechts Ausgabe und Monat — dieselbe Zeile wie auf
+              Titelseite und Innenseite des Umschlags beim Aufklappen. Als
+              Schrift, nicht als Logo: das steht schon in der Kopfleiste
+              direkt darüber, und das Aufklappen wartet auf `header img`, das
+              Foto. */}
+          <div className={styles.folio}>
+            <span aria-hidden="true">Eat This</span>
+            {folio && <span>{folio}</span>}
+          </div>
           <header className={`${styles.header}${article.imageUrl ? ` ${styles.headerSplit}` : ''}`}>
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
                 brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
@@ -385,6 +400,9 @@ export default function NewsArticleShell({
               </div>
             )}
             <div className={styles.introCopy}>
+              {/* Die Rubrik als Etikett über der Schlagzeile — dasselbe wie
+                  auf der Titelseite des Hefts. */}
+              <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
               <h1 className={styles.heroTitle}>{title}</h1>
             </div>
             {/* Byline und Vorspann gehören zum Kopf, nicht zur Lesespalte: ab

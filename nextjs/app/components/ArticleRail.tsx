@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import NewsArticleShare from './NewsArticleShare';
+import { splitHeading } from '@/lib/headingDeck';
 import styles from './ArticleRail.module.css';
 
 /** Reading position: a chapter counts as current once its heading has passed
@@ -33,15 +34,13 @@ export function activeChapterId(
 /** Nur der Spot-Name, nicht die ganze Überschrift (User, 2026-08-27).
  *
  *  Die Kapitel heißen im Artikel „Kolo Coffee – Mikrorösterei mit
- *  Wettkampf-Bohnen"; in der Leiste reicht „Kolo Coffee". Geschnitten wird am
- *  ersten Gedankenstrich MIT Leerzeichen drumherum — ein Bindestrich ohne
- *  Leerzeichen gehört zum Namen („Five Elephant Kreuzberg", „Jules Geisberg")
- *  und bleibt stehen. Überschriften ohne Trenner („Fazit") bleiben ganz.
+ *  Wettkampf-Bohnen"; in der Leiste reicht „Kolo Coffee". Derselbe Schnitt,
+ *  mit dem der Artikel Name und Unterzeile setzt (`splitHeading`).
+ *  Überschriften ohne Trenner („Fazit") bleiben ganz.
  *
  *  Pur und exportiert, damit die Regel im Test steht und nicht im Markup. */
 export function chapterShortLabel(text: string): string {
-  const cut = text.search(/\s+[–—-]\s+/);
-  return (cut === -1 ? text : text.slice(0, cut)).trim() || text.trim();
+  return (splitHeading(text)?.name ?? text).trim();
 }
 
 export interface Chapter {

@@ -47,6 +47,26 @@ div.page {
   margin: 0 auto;
 }
 
+/* ----------------------------------------------------------- folio ---- */
+
+/* Die Heftzeile über dem Kopf: dieselbe Stimme wie die Zeile auf der
+   Innenseite des Umschlags beim Aufklappen (MagazineOpen.module.css,
+   `.backFolio`) — Versalien, weit gesperrt, leise. Keine Linie darunter,
+   der Abstand trennt. */
+.folio {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0 14px;
+  color: var(--et-ink-dim);
+  font-family: var(--et-font-display);
+  font-size: clamp(11px, 0.85vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 /* Drei Geschwister im Kopf: Aufmacher, Titel, Byline mit Vorspann. Bis
    1079px stehen sie untereinander wie bei Highsnobiety auf dem Telefon: erst
    das Foto, randlos, dann groß der Titel auf Ink, dann Byline und Vorspann.
@@ -76,10 +96,9 @@ div.page {
   max-height: 70vh;
   overflow: hidden;
   background: var(--article-ink);
-  /* Oben eckig, weil das Foto an der SiteNav sitzt: eine runde Ecke direkt
-     unter der Leiste lässt dort Weiß durchblitzen — genau den Rest, den das
-     Andocken beseitigen soll. Unten bleibt der Radius. */
-  border-radius: 0 0 var(--et-radius-photo) var(--et-radius-photo);
+  /* Rundum rund: das Foto sitzt nicht mehr an der Kopfleiste, über ihm steht
+     die Heftzeile. Am Telefon randlos (unten). */
+  border-radius: var(--et-radius-photo);
 }
 
 .hero {
@@ -102,6 +121,25 @@ div.page {
   width: 100%;
   max-width: 720px;
   margin: clamp(22px, 3.4vw, 34px) auto 0;
+}
+
+/* Die Rubrik als Etikett über der Schlagzeile, wie das gelbe Etikett auf der
+   Titelseite (MagazineCover.module.css, `.flash`): gelb, Versalien, schräg
+   aufgeklebt. */
+.kicker {
+  display: inline-block;
+  margin-bottom: clamp(16px, 1.8vw, 22px);
+  padding: 7px 10px 6px;
+  border-radius: 2px;
+  background: var(--article-accent);
+  color: var(--article-ink);
+  font-family: var(--et-font-display);
+  font-size: clamp(13px, 1.1vw, 15px);
+  font-weight: 700;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.1;
+  text-transform: uppercase;
+  rotate: -2deg;
 }
 
 .heroTitle {
@@ -146,21 +184,6 @@ div.page {
   margin-bottom: clamp(22px, 3vw, 34px);
 }
 
-/* Yellow chip, same as the magazine eyebrow on the home page — which frees red
-   up to mean "headline" and nothing else. */
-.category {
-  display: inline-block;
-  padding: 6px 9px 7px;
-  color: var(--article-ink);
-  background: var(--article-accent);
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: clamp(14px, 1.15vw, 16px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-}
-
 .bylineMeta {
   display: flex;
   flex-wrap: wrap;
@@ -173,7 +196,7 @@ div.page {
   line-height: 1.2;
 }
 
-/* Ausgabe · Datum · Lesezeit, jeweils mit Punkt dazwischen. */
+/* Datum · Lesezeit, mit Punkt dazwischen. */
 .bylineMeta > * + *::before {
   content: '·';
   margin-right: 12px;
@@ -216,14 +239,18 @@ div.page {
   margin: 0 0 1.2em;
 }
 
+/* Die Initiale wie im Heft: der Buchstabe in Ink auf einem gelben Quadrat,
+   drei Zeilen hoch — dasselbe Quadrat wie das Schlusszeichen am Ende. */
 .content > p:first-of-type::first-letter {
   float: left;
-  margin: 0.04em 0.1em 0 0;
-  color: var(--article-accent);
+  margin: 0.1em 0.16em 0 0;
+  padding: 0.14em 0.14em 0.08em;
+  background: var(--article-accent);
+  color: var(--article-ink);
   font-family: var(--et-font-display);
   font-weight: 700;
-  font-size: 3.6em;
-  line-height: 0.74;
+  font-size: 3.9em;
+  line-height: 0.8;
 }
 
 /* Das Fazit. Es stand vorher als zwoelfte Kapitelueberschrift da — dieselbe
@@ -289,6 +316,35 @@ div.page {
 
 .content h3 {
   font-size: clamp(23px, 2.2vw, 30px);
+}
+
+/* „goldies – für Puristen mit Prinzipien": der Name ist die Überschrift, der
+   Rest steht als kursive Unterzeile darunter, wie im Heft. Der Gedankenstrich
+   bleibt im Text (Anker, Vorleser) und wird nur nicht gezeigt. Die Teile
+   setzt der Renderer (`renderHeading`). */
+.content h2 [data-heading='name'],
+.content h2 [data-heading='deck'] {
+  display: block;
+}
+
+.content h2 [data-heading='separator'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.content h2 [data-heading='deck'] {
+  /* Luft für die Unterlänge des Namens („goldies"). */
+  margin-top: 0.6em;
+  color: var(--article-muted);
+  font-size: clamp(19px, 1.65vw, 24px);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.2;
 }
 
 .content ul,
@@ -477,52 +533,51 @@ div.page {
   border-radius: var(--et-radius-photo);
 }
 
+/* Bildunterschrift wie im Heft: kursiv und leise. */
 .inlineImage figcaption {
-  margin-top: 8px;
+  margin-top: 10px;
   color: var(--article-muted);
   font-family: var(--et-font-display);
-  font-size: clamp(13px, 1.05vw, 15px);
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: clamp(14px, 1.1vw, 16px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.3;
 }
 
+/* Die Spot-Karte wie ein Foto im Heft: oben das Bild ohne Schrift und ohne
+   Verlauf darauf, darunter die Bildunterschrift — Bezirk und Küche als
+   Etikett, der Name gross, rechts der Weg auf die Map. Vorher lag alles auf
+   dem Foto, und ein Verlauf dunkelte dafür die untere Hälfte ab. */
 .inlineSpot {
-  --spot-inset: clamp(16px, 2.4vw, 26px);
-
   position: relative;
   display: block;
-  min-height: clamp(320px, 40vw, 460px);
   margin: clamp(30px, 5vw, 60px) 0;
+  /* Schneidet die kartenweite Trefferfläche des Namens (::after) ab. */
   overflow: hidden;
-  background-color: var(--article-ink);
-  background-position: center;
-  background-size: cover;
-  border-radius: var(--et-radius-photo);
-  color: #fff;
+  color: var(--article-fg);
   text-decoration: none;
 }
 
-.inlineSpot::after {
-  content: '';
-  position: absolute;
-  inset: 24% 0 0;
-  background: linear-gradient(
-    to top,
-    rgba(12, 9, 7, 0.92),
-    rgba(12, 9, 7, 0.42) 58%,
-    rgba(12, 9, 7, 0)
-  );
+.inlineSpotPhoto {
+  display: block;
+  aspect-ratio: 3 / 2;
+  background-color: var(--article-quiet);
+  background-position: center;
+  background-size: cover;
+  border-radius: var(--et-radius-photo);
 }
 
 .inlineSpotFoot {
-  position: absolute;
-  right: var(--spot-inset);
-  bottom: var(--spot-inset);
-  left: var(--spot-inset);
-  z-index: 1;
   display: grid;
-  gap: 10px;
-  justify-items: start;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 6px 18px;
+  padding-top: 14px;
+}
+
+.inlineSpotMeta,
+.inlineSpotName {
+  grid-column: 1;
 }
 
 /* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence, 12px,
@@ -532,14 +587,12 @@ div.page {
    hier früher stand, beschrieb eine Vereinheitlichung auf die Body-Schrift,
    die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
 .inlineSpotMeta {
-  color: #fff;
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.15;
   text-transform: uppercase;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
 }
 
 /* Die Meta-Zeile ist der einzige gefolgte Link der Karte — die Karte selbst
@@ -575,21 +628,18 @@ div.page {
 
 .inlineSpotName {
   max-width: 16ch;
-  margin-bottom: 2px;
-  color: #fff;
+  color: var(--article-fg);
   font-family: var(--et-font-display);
-  font-size: clamp(26px, 3vw, 42px);
+  font-size: clamp(24px, 2.1vw, 30px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 0.98;
-  text-shadow: var(--et-photo-text-shadow);
+  line-height: 1;
   text-transform: none;
 }
 
 /* Der Name ist der gefolgte Link auf die Spot-Seite. Sein ::after spannt die
-   ganze Karte als Trefferfläche auf: seitlich und unten um den Foot-Abstand
-   hinaus, nach oben weit über die Karte — `overflow: hidden` auf .inlineSpot
-   schneidet den Überstand ab, deshalb braucht die Höhe keinen echten Wert. */
+   ganze Karte als Trefferfläche auf, Foto und Unterschrift: nichts dazwischen
+   ist positioniert, also misst es an .inlineSpot. */
 .inlineSpotNameLink {
   color: inherit;
   font: inherit;
@@ -599,10 +649,7 @@ div.page {
 .inlineSpotNameLink::after {
   content: '';
   position: absolute;
-  top: -100em;
-  right: calc(-1 * var(--spot-inset));
-  bottom: calc(-1 * var(--spot-inset));
-  left: calc(-1 * var(--spot-inset));
+  inset: 0;
 }
 .inlineSpotNameLink:focus-visible::after {
   outline: 2px solid var(--article-accent);
@@ -613,6 +660,8 @@ div.page {
 .inlineSpotCta {
   position: relative;
   z-index: 2;
+  grid-column: 2;
+  grid-row: 1 / span 2;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -903,10 +952,6 @@ div.page {
     --img-frame: min(100%, var(--article-measure));
   }
 
-  .inlineSpot {
-    min-height: 380px;
-  }
-
   /* Der geteilte Kopf, wie bei Highsnobiety: links Titel, Byline und
      Vorspann, rechts der Aufmacher als Hochformat-Ausschnitt. Vorher lag der
      Titel auf einem 1180 × 600px großen Foto über die volle Breite — das Bild
@@ -1116,8 +1161,24 @@ div.page {
     font-size: 14px;
   }
 
+  /* Das Spot-Foto randlos wie die Fotos im Text, die Unterschrift bleibt auf
+     der Textkante. Die Karte selbst nimmt sich den Rand, damit ihr
+     `overflow: hidden` das Foto nicht beschneidet. */
   .inlineSpot {
-    min-height: clamp(300px, 78vw, 420px);
+    margin-inline: -16px;
+  }
+
+  .inlineSpotPhoto {
+    aspect-ratio: 4 / 3;
+    border-radius: 0;
+  }
+
+  .inlineSpotFoot {
+    padding-inline: 16px;
+  }
+
+  .content h2 [data-heading='deck'] {
+    font-size: 18px;
   }
 
   .relatedHeading {

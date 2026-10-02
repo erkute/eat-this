@@ -312,12 +312,19 @@ describe('NewsArticleShell', () => {
         />
       );
 
-    it('names its issue in the byline, counted from the oldest article', () => {
+    it('names its issue in the folio line, counted from the oldest article', () => {
       // Newest first: four articles, `doener` is the second newest → Issue 3.
+      // Like the head of a magazine page: above the article, with its month.
       const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
-      const byline = html.slice(html.indexOf('</h1>'), html.indexOf('Min. Lesezeit'));
-      expect(byline).toContain('<span>Issue 3</span>');
-      expect(byline.indexOf('Issue 3')).toBeLessThan(byline.indexOf('24. April 2026'));
+      const folio = html.slice(0, html.indexOf('<header'));
+      expect(folio).toContain('<span>Issue 3 · April 2026</span>');
+      // Said once: the byline keeps only what belongs to reading.
+      expect(html.match(/Issue 3/g)).toHaveLength(1);
+    });
+
+    it('puts the rubric as a label right above the headline', () => {
+      const html = renderWith(issues(['doener']));
+      expect(html).toMatch(/>Guides<\/span><h1[^>]*>Döner in Berlin<\/h1>/);
     });
 
     it('does not show its own cover again — the tap opened the magazine', () => {

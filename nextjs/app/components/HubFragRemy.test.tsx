@@ -3,12 +3,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
-import {
-  BUDDY_ASK_EVENT,
-  REMY_NOD_EVENT,
-  type BuddyAskDetail,
-  type RemyNodDetail,
-} from '@/lib/buddy/homeStage';
+import { BUDDY_ASK_EVENT, type BuddyAskDetail } from '@/lib/buddy/homeStage';
 import HubFragRemy from './HubFragRemy';
 
 const messages = {
@@ -81,27 +76,6 @@ describe('HubFragRemy', () => {
     expect(got).toEqual({ question: 'Gute Ramen' });
   });
 
-  /* Nimmt jemand das Nicken an (HubMotion), geht der Chat erst auf, wenn
-     Remy genickt hat — vorher nicht. */
-  it('lässt Remy erst nicken, bevor der Chat aufgeht', () => {
-    const asks: BuddyAskDetail[] = [];
-    const onAsk = (e: Event) => asks.push((e as CustomEvent<BuddyAskDetail>).detail);
-    window.addEventListener(BUDDY_ASK_EVENT, onAsk);
-    renderSection();
-    const section = document.querySelector('[data-hub-fragremy]')!;
-    let nodded: RemyNodDetail | null = null;
-    section.addEventListener(REMY_NOD_EVENT, (e) => {
-      e.preventDefault();
-      nodded = (e as CustomEvent<RemyNodDetail>).detail;
-    });
-    const chip = document.querySelector<HTMLButtonElement>('[data-fragremy-chips] button')!;
-    fireEvent.click(chip);
-    expect(asks).toEqual([]);
-    nodded!.ask();
-    window.removeEventListener(BUDDY_ASK_EVENT, onAsk);
-    expect(asks).toEqual([{ question: chip.textContent }]);
-  });
-
   it('gibt HubMotion die Haken für den Auftritt: Fragezeichen, „Frag Remy.", Remy', () => {
     renderSection();
     // Seit 01.10.2026 die zweite Frage der Tafel, unter „Worauf hast du
@@ -113,12 +87,10 @@ describe('HubFragRemy', () => {
     expect(document.querySelector('[data-fragremy-avatar]')).not.toBeNull();
   });
 
-  it('gibt HubMotion die Haken für den Blick: Kopf, Gitter und die drei Gesichter', () => {
+  it('zeigt Remy als drei Gesichter: neutral, Mund offen, Lachen', () => {
     renderSection();
-    const head = document.querySelector('[data-remy-head]')!;
-    expect(head.querySelector('canvas[data-remy-mesh]')).not.toBeNull();
-    // Neutral, Mund offen, Lachen: das Gitter zeichnet alle drei.
-    expect(Array.from(head.querySelectorAll('img'), (img) => img.getAttribute('alt'))).toEqual([
+    const avatar = document.querySelector('[data-fragremy-avatar]')!;
+    expect(Array.from(avatar.querySelectorAll('img'), (img) => img.getAttribute('alt'))).toEqual([
       'Remy',
       '',
       '',

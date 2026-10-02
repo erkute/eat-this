@@ -135,7 +135,7 @@
 }
 
 /* Das Quadrat der Zeichnung, unten in `.avatar` — genau dort, wo das Bild
-   mit `contain` stünde. Daran richtet HubMotion den Blick aus. */
+   mit `contain` stünde. */
 .head {
   position: absolute;
   left: 0;
@@ -165,27 +165,6 @@
 .faceLaugh {
   visibility: hidden;
   translate: 0 1.1%;
-}
-
-/* Sein Blick (HubMotion, `armRemyLook`, Ansage 01.10.2026: „mit der Maus
-   dreht Remy seinen Kopf dahin"): die Zeichnung als Gitter, der ganze Kopf
-   neigt sich in Blickrichtung. Zeichnet das Gitter, treten die Bilder
-   zurück (`data-mesh`); ohne WebGL oder Bewegung bleiben sie stehen. */
-.mesh {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  visibility: hidden;
-}
-.head[data-mesh] .mesh {
-  visibility: visible;
-}
-/* Rang (0,4,0): über `.avatarWrap[data-delight] .faceLaugh` (0,3,0) —
-   lacht er, zeichnet das Gitter das Lachen, nicht das Bild darüber. */
-.avatarWrap .head[data-mesh] :is(.face, .faceOpen, .faceLaugh) {
-  visibility: hidden;
-  animation: none;
 }
 
 /* Zeigt man auf etwas, das man antippen kann (`data-delight`, HubMotion),

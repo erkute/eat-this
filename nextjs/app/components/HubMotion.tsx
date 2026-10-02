@@ -5,8 +5,6 @@ import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { scrollProgress } from '@/lib/dom/scrollProgress';
 import { armMagazineTable } from '@/lib/home/magazineTable';
-import { renderRemyLook, type RemyFace } from '@/lib/home/renderRemyLook';
-import { REMY_NOD_EVENT, type RemyNodDetail } from '@/lib/buddy/homeStage';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -46,8 +44,8 @@ gsap.registerPlugin(useGSAP);
  *      ein; Remy schießt erst hoch, wenn sein leerer Platz im Bild ist, und
  *      redet, mehrmals. Wer den
  *      Abschnitt verlässt, sieht alles rückwärts gehen; wer zurückkommt, sieht
- *      es neu (`armFragRemy`). Sein Kopf folgt der Maus oder dem Finger und
- *      schaut sonst von sich aus umher (`armRemyLook`).
+ *      es neu (`armFragRemy`). Zeigt man auf etwas auf seiner Tafel, lacht
+ *      er (`armRemyDelight`).
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
@@ -603,326 +601,32 @@ function armFragRemy(): () => void {
 }
 
 /**
- * Remys Blick (Ansagen 01.10.2026: „mit der Maus dreht Remy seinen Kopf
- * dahin", „nur Kopf, keine Augen", „nimm seinen ganzen Kopf"; danach: die
- * Kopfgeste ja, aber ohne die Kategorien im Bogen um ihn). Die Zeichnung
- * liegt als Gitter auf einer Leinwand und wird verformt (lib/home/remyLook.ts,
- * renderRemyLook.ts) — eine flache 3D-Kippung des Bildes war „sehr schlecht
- * animiert". Er schaut:
- * - mit Maus dorthin, wo sie ist, solange seine Tafel in der Nähe ist;
- * - am Telefon auf den Finger, solange einer auf dem Bildschirm liegt, auch
- *   beim Scrollen (passive Touch-Ereignisse: das Scrollen bleibt unberührt);
- * - ins Eingabefeld, solange es den Fokus hat;
- * - sonst, am Telefon und im Bild, von sich aus umher: hoch zu den
- *   Kategorien, rüber zu den Antworten, wieder geradeaus.
- * Zeigt man auf etwas, das man antippen kann (Kategorie, Antwort, Senden),
- * schaut er hin und lacht. Fragt man ihn (Antwort antippen, abschicken),
- * nickt er und redet kurz, und erst dann geht der Chat auf.
+ * Zeigt man auf etwas, das man auf Remys Tafel antippen kann (Kategorie,
+ * Antwort, Senden), oder fokussiert es, lacht er (`data-delight`). Sein Kopf
+ * bleibt dabei stehen: der Blick zur Maus und das Nicken vor dem Chat sind
+ * wieder raus (Ansage 02.10.2026: „Remys Kopf-Animation aus").
  */
-function armRemyLook(pointer: boolean): () => void {
+function armRemyDelight(): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
-  const head = section?.querySelector<HTMLElement>('[data-remy-head]');
   const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
-  if (!section || !head || !avatar) return () => {};
-  const input = section.querySelector<HTMLElement>('[data-fragremy-input]');
+  if (!section || !avatar) return () => {};
   const choices = Array.from(section.querySelectorAll<HTMLElement>('a[href], button'));
-  const stops: Array<() => void> = [];
-
-  // Der Blick (-1…1) folgt weich; jede Änderung heisst: neu zeichnen.
-  const look = { x: 0, y: 0 };
-  let dirty = true;
-  const follow = { duration: 0.6, ease: 'power3', onUpdate: () => (dirty = true) };
-  const lx = gsap.quickTo(look, 'x', follow);
-  const ly = gsap.quickTo(look, 'y', follow);
-  const clamp = gsap.utils.clamp(-1, 1);
-  /** Die Gläser liegen bei 28 % der Bildhöhe, mittig. */
-  const lookAt = (x: number, y: number) => {
-    const r = head.getBoundingClientRect();
-    const reach = Math.max(240, r.width * 0.8);
-    lx(clamp((x - (r.left + r.width / 2)) / reach));
-    ly(clamp((y - (r.top + r.height * 0.28)) / reach));
-  };
-  const lookAtEl = (el: Element) => {
-    const r = el.getBoundingClientRect();
-    lookAt(r.left + r.width / 2, r.top + r.height / 2);
-  };
-  const ahead = () => {
-    lx(0);
-    ly(0);
-  };
-  const delight = (on: boolean) => avatar.toggleAttribute('data-delight', on);
-  /** Das Nicken kommt auf den Blick drauf (`nod.y`), statt ihn zu
-   *  übernehmen: Maus und Finger steuern weiter, er nickt dabei. */
-  const nod = { y: 0 };
-
-  // ── Das Gitter (WebGL, lib/home/renderRemyLook.ts) ──
-  // Erst wenn alle drei Gesichter geladen sind; ohne WebGL bleiben die Bilder.
-  // Gezeichnet wird nur, solange die Tafel in der Nähe ist, und nur, wenn
-  // sich Blick oder Gesicht ändern — keine Dauerschleife im Leerlauf.
-  const canvas = head.querySelector<HTMLCanvasElement>('[data-remy-mesh]');
-  const images = Array.from(head.querySelectorAll<HTMLImageElement>('img'));
-  let mesh: ReturnType<typeof renderRemyLook> = null;
-  let shown = -1;
-  let frame = 0;
-  let near = false;
-  let cancelled = false;
-  /** Lacht er, redet er (Mund im Takt von `remyFlap`: offen 48–80 % von
-   *  0,46 s), oder schaut er nur? */
-  const faceAt = (seconds: number): RemyFace => {
-    if (avatar.hasAttribute('data-delight')) return 2;
-    const talking =
-      avatar.hasAttribute('data-speaking') ||
-      document.documentElement.hasAttribute('data-remy-talk');
-    if (!talking) return 0;
-    const phase = (seconds % 0.46) / 0.46;
-    return phase >= 0.48 && phase < 0.8 ? 1 : 0;
-  };
-  const paint = (now: number) => {
-    frame = 0;
-    if (!mesh || !near) return;
-    const face = faceAt(now / 1000);
-    if (dirty || face !== shown) {
-      dirty = false;
-      shown = face;
-      mesh.draw(look.x, look.y + nod.y, face);
-    }
-    frame = requestAnimationFrame(paint);
-  };
-  const resize = () => {
-    if (!canvas) return;
-    const r = canvas.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.max(1, Math.round(r.width * dpr));
-    canvas.height = Math.max(1, Math.round(r.height * dpr));
-    dirty = true;
-  };
-  const io = new IntersectionObserver(
-    ([entry]) => {
-      near = entry.isIntersecting;
-      if (!near) ahead();
-      if (near && mesh && !frame) frame = requestAnimationFrame(paint);
-    },
-    { rootMargin: '30% 0px' }
-  );
-  io.observe(section);
-  window.addEventListener('resize', resize);
-  stops.push(() => {
-    cancelled = true;
-    io.disconnect();
-    window.removeEventListener('resize', resize);
-    cancelAnimationFrame(frame);
-    mesh?.dispose();
-    mesh = null;
-    head.removeAttribute('data-mesh');
-  });
-  if (canvas && images.length >= 3) {
-    Promise.all(images.slice(0, 3).map((img) => img.decode()))
-      .then(() => {
-        if (cancelled) return;
-        resize();
-        mesh = renderRemyLook(canvas, [images[0], images[1], images[2]]);
-        if (!mesh) return;
-        head.setAttribute('data-mesh', '');
-        if (near && !frame) frame = requestAnimationFrame(paint);
-      })
-      // Nicht dekodierbar (offline, abgebrochen): die Bilder bleiben stehen.
-      .catch(() => {});
-  }
-
-  // ── Von sich aus umherschauen (nur ohne Maus) ──
-  // Pausiert, solange ihn etwas anderes beschäftigt: ein Finger, das Feld.
-  let idle: gsap.core.Tween | null = null;
-  let centered = false;
-  let busy = false;
-  let step = 0;
-  const glance = () => {
-    const cats = section.querySelectorAll('[data-hub-categories] a');
-    const answers = section.querySelectorAll('[data-fragremy-chips] button');
-    const pick = (list: NodeListOf<Element>) => list[Math.floor(Math.random() * list.length)];
-    const target = [cats.length ? pick(cats) : null, null, answers.length ? pick(answers) : input, null][
-      step++ % 4
-    ];
-    if (target) lookAtEl(target);
-    else ahead();
-    idle = gsap.delayedCall(1.2 + Math.random() * 0.8, glance);
-  };
-  const rest = (after = 1.2) => {
-    idle?.kill();
-    idle = !pointer && centered && !busy ? gsap.delayedCall(after, glance) : null;
-  };
-  const hold = () => {
-    idle?.kill();
-    idle = null;
-  };
-  stops.push(hold);
-
-  // Auf etwas zeigen oder es fokussieren: er schaut hin und lacht.
-  const enterChoice = (event: Event) => {
-    hold();
-    delight(true);
-    lookAtEl(event.currentTarget as Element);
-  };
-  const leaveChoice = () => {
-    delight(false);
-    rest();
-  };
+  const enter = () => avatar.setAttribute('data-delight', '');
+  const leave = () => avatar.removeAttribute('data-delight');
   for (const el of choices) {
-    el.addEventListener('pointerenter', enterChoice);
-    el.addEventListener('focus', enterChoice);
-    el.addEventListener('pointerleave', leaveChoice);
-    el.addEventListener('blur', leaveChoice);
+    el.addEventListener('pointerenter', enter);
+    el.addEventListener('focus', enter);
+    el.addEventListener('pointerleave', leave);
+    el.addEventListener('blur', leave);
   }
-  // Ins Feld getippt: er schaut hin, bis es den Fokus verliert.
-  const enterField = () => {
-    busy = true;
-    hold();
-    if (input) lookAtEl(input);
-  };
-  const leaveField = () => {
-    busy = false;
-    rest();
-  };
-  input?.addEventListener('focus', enterField);
-  input?.addEventListener('blur', leaveField);
-  stops.push(() => {
-    for (const el of choices) {
-      el.removeEventListener('pointerenter', enterChoice);
-      el.removeEventListener('focus', enterChoice);
-      el.removeEventListener('pointerleave', leaveChoice);
-      el.removeEventListener('blur', leaveChoice);
-    }
-    input?.removeEventListener('focus', enterField);
-    input?.removeEventListener('blur', leaveField);
-  });
-
-  // ── Er nickt, bevor der Chat aufgeht (REMY_NOD_EVENT, askRemyWithNod) ──
-  // Nur, wenn man ihn sieht und das Gitter zeichnet — sonst wäre das Warten
-  // verschenkt, und der Chat geht sofort auf. Sichtbar heisst: im sichtbaren
-  // Ausschnitt, nicht hinter der Tastatur (`visualViewport`).
-  let nodding: gsap.core.Timeline | null = null;
-  let pendingAsk: (() => void) | null = null;
-  const onNod = (event: Event) => {
-    const { ask: next } = (event as CustomEvent<RemyNodDetail>).detail;
-    // Ein zweiter Tipp, während er noch nickt: die neuere Frage geht raus.
-    if (nodding) {
-      event.preventDefault();
-      pendingAsk = next;
-      return;
-    }
-    if (!mesh) return;
-    const r = head.getBoundingClientRect();
-    const view = window.visualViewport;
-    const top = view?.offsetTop ?? 0;
-    const bottom = top + (view?.height ?? window.innerHeight);
-    // Die Gläser (28 % des Bildes) müssen zu sehen sein.
-    const eyes = r.top + r.height * 0.28;
-    if (eyes < top || eyes > bottom) return;
-    event.preventDefault();
-    pendingAsk = next;
-    const ask = () => {
-      const run = pendingAsk;
-      pendingAsk = null;
-      run?.();
-    };
-    hold();
-    ahead();
-    avatar.setAttribute('data-speaking', '');
-    // Zweimal nicken, das zweite Mal kleiner, und der Oberkörper wippt mit
-    // (`--remy-y`, in Prozent seiner Höhe) — mit dem Kopf allein war es am
-    // Telefon kaum zu sehen. Der Chat geht auf, während er zurückkommt.
-    nodding = gsap
-      .timeline({
-        onComplete: () => {
-          nodding = null;
-          avatar.removeAttribute('data-speaking');
-          rest();
-        },
-      })
-      .to(nod, {
-        keyframes: { y: [0, 1.35, -0.3, 0.85, 0], easeEach: 'sine.inOut' },
-        duration: 0.62,
-        ease: 'none',
-        onUpdate: () => (dirty = true),
-      })
-      .to(
-        avatar,
-        {
-          keyframes: { '--remy-y': [0, 2.5, -0.5, 1.5, 0], easeEach: 'sine.inOut' },
-          duration: 0.62,
-          ease: 'none',
-        },
-        0
-      )
-      .call(ask, undefined, 0.5);
-  };
-  section.addEventListener(REMY_NOD_EVENT, onNod);
-  stops.push(() => {
-    section.removeEventListener(REMY_NOD_EVENT, onNod);
-    nodding?.kill();
-    nodding = null;
-    nod.y = 0;
-    // Wird mitten im Nicken abgebaut, geht die Frage trotzdem raus.
-    const run = pendingAsk;
-    pendingAsk = null;
-    run?.();
-  });
-
-  if (pointer) {
-    const move = (e: PointerEvent) => {
-      if (near && e.pointerType === 'mouse') lookAt(e.clientX, e.clientY);
-    };
-    const out = (e: PointerEvent) => {
-      if (!e.relatedTarget) ahead();
-    };
-    window.addEventListener('pointermove', move, { passive: true });
-    document.addEventListener('pointerout', out);
-    stops.push(() => {
-      window.removeEventListener('pointermove', move);
-      document.removeEventListener('pointerout', out);
-    });
-  } else {
-    // Der Finger ist die Maus des Telefons: Touch-Ereignisse, weil ein
-    // Pointer beim Scrollen abgebrochen wird (`pointercancel`), der Finger
-    // aber weiter auf dem Glas liegt.
-    const touch = (e: TouchEvent) => {
-      const t = e.touches[0];
-      if (!near || !t || document.activeElement === input) return;
-      hold();
-      lookAt(t.clientX, t.clientY);
-    };
-    const release = (e: TouchEvent) => {
-      if (!e.touches.length) rest();
-    };
-    window.addEventListener('touchstart', touch, { passive: true });
-    window.addEventListener('touchmove', touch, { passive: true });
-    window.addEventListener('touchend', release, { passive: true });
-    window.addEventListener('touchcancel', release, { passive: true });
-    stops.push(() => {
-      window.removeEventListener('touchstart', touch);
-      window.removeEventListener('touchmove', touch);
-      window.removeEventListener('touchend', release);
-      window.removeEventListener('touchcancel', release);
-    });
-    stops.push(
-      whileCentered(
-        section,
-        () => {
-          centered = true;
-          rest(1.6);
-        },
-        () => {
-          centered = false;
-          hold();
-          ahead();
-        },
-        0.9
-      )
-    );
-  }
-
   return () => {
-    stops.forEach((stop) => stop());
-    delight(false);
+    for (const el of choices) {
+      el.removeEventListener('pointerenter', enter);
+      el.removeEventListener('focus', enter);
+      el.removeEventListener('pointerleave', leave);
+      el.removeEventListener('blur', leave);
+    }
+    leave();
   };
 }
 
@@ -1422,7 +1126,7 @@ export default function HubMotion() {
         stops.push(armScrubFallback(scroller));
         stops.push(armStaggers(safe!));
         stops.push(armFragRemy());
-        stops.push(armRemyLook(pointer));
+        stops.push(armRemyDelight());
         stops.push(armInView());
         stops.push(armSignupDemo());
         stops.push(armFaq());

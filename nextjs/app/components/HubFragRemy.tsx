@@ -2,16 +2,15 @@
 // Home-hub section for Remy, the KI buddy — restyled into the homeV2 white
 // vocabulary. Yellow is kept as Remy's accent (avatar circle, chip hover),
 // NOT as a full-section background band.
-// Daypart greeting and chat/quick-ask dispatch via askRemyWithNod. Der
+// Daypart greeting and chat/quick-ask dispatch via dispatchBuddyAsk. Der
 // Auftritt (Fragezeichen, „Frag Remy.", Remy schießt hoch und redet), sein
-// Blick (der Kopf dreht sich zur Maus oder zum Finger) und das Reden beim
-// Scrollen gehören HubMotion — über `data-fragremy-*`/`data-remy-*`-Haken und
-// Attribute, die React nicht verwaltet.
+// Lachen und das Reden beim Scrollen gehören HubMotion — über
+// `data-fragremy-*`-Haken und Attribute, die React nicht verwaltet.
 import { useEffect, useState, type ReactNode } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
 import { stageFor } from '@/lib/buddy/greeting';
-import { askRemyWithNod } from '@/lib/buddy/homeStage';
+import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import type { Locale } from '@/lib/buddy/types';
 import styles from './HubFragRemy.module.css';
 
@@ -47,11 +46,10 @@ export default function HubFragRemy({ choices }: Props) {
       : ['Really good pizza', 'A nice dinner for two'];
   const answers = stage?.answers ?? fallbackAnswers;
 
-  // Erst nickt Remy, dann geht der Chat auf (askRemyWithNod, HubMotion).
-  function submitDraft(form: HTMLFormElement) {
+  function submitDraft() {
     const q = draft.trim();
     if (!q) return;
-    askRemyWithNod(form, { question: q });
+    dispatchBuddyAsk({ question: q });
     setDraft('');
   }
 
@@ -92,7 +90,7 @@ export default function HubFragRemy({ choices }: Props) {
                     key={a}
                     type="button"
                     className={`hv-chip ${styles.chip}`}
-                    onClick={(e) => askRemyWithNod(e.currentTarget, { question: a })}
+                    onClick={() => dispatchBuddyAsk({ question: a })}
                   >
                     {a}
                   </button>
@@ -103,7 +101,7 @@ export default function HubFragRemy({ choices }: Props) {
                 data-fragremy-form=""
                 onSubmit={(e) => {
                   e.preventDefault();
-                  submitDraft(e.currentTarget);
+                  submitDraft();
                 }}
               >
                 <input
@@ -133,9 +131,8 @@ export default function HubFragRemy({ choices }: Props) {
         {/* Remy avatar */}
         <div className={styles.avatarWrap} data-fragremy-avatar="">
           <div className={styles.avatar}>
-            {/* Das Quadrat, in dem die Zeichnung steht: daran richtet
-                HubMotion den Blick aus (`data-remy-head`). */}
-            <div className={styles.head} data-remy-head="">
+            {/* Das Quadrat, in dem die Zeichnung steht, unten in `.avatar`. */}
+            <div className={styles.head}>
               <Image
                 className={styles.face}
                 src="/buddy/buddy.webp"
@@ -162,10 +159,6 @@ export default function HubFragRemy({ choices }: Props) {
                 loading="lazy"
                 aria-hidden="true"
               />
-              {/* Sein Blick: die Zeichnung als verformtes Gitter
-                  (lib/home/renderRemyLook.ts). Zeichnet es, treten die drei
-                  Bilder darüber zurück (`data-mesh`). */}
-              <canvas className={styles.mesh} data-remy-mesh="" aria-hidden="true" />
             </div>
           </div>
         </div>

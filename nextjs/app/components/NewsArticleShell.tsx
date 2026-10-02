@@ -13,11 +13,13 @@ import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
-import ArticleRail from './ArticleRail';
+import ArticleMotion from './ArticleMotion';
+import ArticleThemeToggle from './ArticleThemeToggle';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
+import { chapterShortLabel } from '@/lib/headingDeck';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -167,7 +169,15 @@ export default function NewsArticleShell({
     (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
-  const chapters = extractHeadings(content);
+  // Die Spots eines Guides für die Zeile unter dem Kopf: seine Kapitel, ohne
+  // das Fazit — das ist kein Spot.
+  const chapters = extractHeadings(
+    content.filter((block) => !('style' in block && block.style === 'conclusion'))
+  );
+  // Die Kapitel-Zeile nur in Guides, die Spots aufzählen (Ansage 02.10.2026:
+  // „nur wenn Spots gelistet sind") — nicht in einem Essay mit
+  // Zwischenüberschriften, der höchstens einen Laden zeigt.
+  const listsSpots = content.filter((block) => block._type === 'spotCard').length > 1;
   const hubLink = articleHubLink(article.slug);
   // Nur Kategorie-Hubs haben ein Booster-Pack; Bezirke nicht.
   const hubPack = hubLink?.href.startsWith('/kategorie/')
@@ -232,6 +242,7 @@ export default function NewsArticleShell({
       <Link
         href={href}
         className={styles.mustEat}
+        data-motion="slide"
         aria-label={
           de
             ? `Must Eat${restName ? ` bei ${restName}` : ''} ansehen`
@@ -264,15 +275,22 @@ export default function NewsArticleShell({
     ]
       .filter(Boolean)
       .join(' · ');
-    const cta = de ? 'Auf die Map' : 'To the map';
+    // Wie auf der Restaurantseite und überall sonst in der App — „Auf die
+    // Map" klang doof (Ansage 02.10.2026).
+    const cta = de ? 'Zur Map' : 'On the map';
 
+    // Wie im Heft: oben das Foto ohne Schrift darauf, darunter die
+    // Bildunterschrift mit Bezirk, Name und dem Weg auf die Map.
     return (
-      <span
-        className={styles.inlineSpot}
-        style={
-          block.restaurantPhoto ? { backgroundImage: `url(${block.restaurantPhoto})` } : undefined
-        }
-      >
+      <span className={styles.inlineSpot} data-motion="spot">
+        {block.restaurantPhoto && (
+          <span
+            className={styles.inlineSpotPhoto}
+            data-motion="print"
+            style={{ backgroundImage: `url(${block.restaurantPhoto})` }}
+            aria-hidden="true"
+          />
+        )}
         <span className={styles.inlineSpotFoot}>
           {/* Die Meta-Zeile trägt den gefolgten Link auf die Spot-Seite. Die
               Karte selbst führt auf die Map — ohne diesen Link gäben die
@@ -305,6 +323,7 @@ export default function NewsArticleShell({
             href={`/map?r=${block.restaurantSlug}`}
             rel="nofollow"
             className={styles.inlineSpotCta}
+            data-motion="pop"
             aria-label={de ? `${restName} auf der Map öffnen` : `Open ${restName} on the map`}
           >
             <span>{cta}</span>
@@ -324,6 +343,7 @@ export default function NewsArticleShell({
     return (
       <figure
         className={styles.inlineImage}
+        data-motion="print"
         style={{ '--img-ratio': width / height } as React.CSSProperties}
       >
         <Image
@@ -339,15 +359,16 @@ export default function NewsArticleShell({
   };
 
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
-  const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
-  const chaptersLabel = de ? 'Kapitel' : 'Chapters';
+  // Darunter liegen Hefte, also „Weitere Ausgaben" (Ansage 02.10.2026).
+  const moreLabel = de ? 'Weitere Ausgaben' : 'More issues';
+  // Nicht „Kapitel" (Ansage 02.10.2026): die Zeile zählt die Spots auf.
+  const chaptersLabel = de ? 'Die Spots' : 'The spots';
 
+  // Die Credits unter der Schlagzeile, klein in Versalien wie bei Kaleidoscope:
+  // die Ausgabe, die man eben aufgeschlagen hat, Datum und Lesezeit.
   const byline = (
     <div className={styles.byline}>
-      <span className={styles.category}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
       <span className={styles.bylineMeta}>
-        {/* Die Ausgabe, die man eben aufgeschlagen hat — wie die Kopfzeile
-            einer Heftseite. */}
         {issue && <span>Issue {issue}</span>}
         {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
         <span>{readingTime}</span>
@@ -362,9 +383,17 @@ export default function NewsArticleShell({
       data-article-slug={article.slug}
       id="newsModal"
     >
+      {/* Der Lesefortschritt: ein gelber Strich unter der Kopfleiste, der mit
+          dem Scrollen wächst — reines CSS, nur ab Tablet. */}
+      <div className={styles.progress} aria-hidden="true" />
+      <ArticleMotion slug={article.slug} />
       <main className={styles.article}>
         <article>
-          <header className={`${styles.header}${article.imageUrl ? ` ${styles.headerSplit}` : ''}`}>
+          {/* Der Kopf wie bei Kaleidoscope (Ansage 02.10.2026, Vorbild
+              manifesto.kaleidoscope.media): mittig Rubrik, die Schlagzeile
+              gross in Providence, klein die Credits; darunter das Foto
+              randlos mit schmalem Rahmen, dann der Vorspann als Auftakt. */}
+          <header className={styles.header}>
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
                 brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
                 — „/" und „/news" stehen im Burger, der auf jeder Seite
@@ -372,6 +401,12 @@ export default function NewsArticleShell({
                 `news/[slug]/page.tsx` bleibt davon unberührt, die SERP-Krume
                 also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
                 ohne. */}
+            <div className={styles.introCopy}>
+              <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
+              <h1 className={styles.heroTitle}>{title}</h1>
+              {byline}
+              <ArticleThemeToggle de={de} className={styles.themeToggle} />
+            </div>
             {article.imageUrl && (
               <div className={styles.heroMedia}>
                 <Image
@@ -379,101 +414,101 @@ export default function NewsArticleShell({
                   alt={article.alt || title}
                   fill
                   priority
-                  sizes="(max-width: 1079px) 100vw, 580px"
+                  sizes="100vw"
                   className={styles.hero}
                 />
               </div>
             )}
-            <div className={styles.introCopy}>
-              <h1 className={styles.heroTitle}>{title}</h1>
-            </div>
-            {/* Byline und Vorspann gehören zum Kopf, nicht zur Lesespalte: ab
-                Desktop stehen sie links neben dem Aufmacher unter dem Titel,
-                wie bei Highsnobiety. Auf dem Telefon laufen sie wie bisher
-                direkt unter dem Foto. */}
-            <div className={styles.headerMeta}>
-              {byline}
-              {showLede && <p className={styles.lede}>{excerpt}</p>}
-            </div>
+            {showLede && <p className={styles.lede}>{excerpt}</p>}
+            {/* Die Spots als eine Zeile unter dem Kopf, wie die Namenslisten
+                bei Kaleidoscope — sie ersetzt die Kapitel-Leiste links, die
+                als einziges Element aus der Mitte fiel (Ansage 02.10.2026),
+                und gibt es jetzt auch am Telefon. Nur der Name, nicht die
+                ganze Überschrift; ein Tipp springt zum Spot. */}
+            {listsSpots && chapters.length > 1 && (
+              <nav className={styles.chapters} aria-label={chaptersLabel}>
+                <span className={styles.chaptersLabel}>{chaptersLabel}</span>
+                <ol className={styles.chapterList}>
+                  {chapters.map((chapter) => (
+                    <li key={chapter.id}>
+                      <a href={`#${chapter.id}`} title={chapter.text}>
+                        {chapterShortLabel(chapter.text)}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )}
           </header>
 
-          <div className={styles.body}>
-            <ArticleRail
-              chapters={chapters}
-              label={chaptersLabel}
-              shareLabel={shareLabel}
-              shareCopiedLabel={copiedLabel}
-              shareTitle={title}
-              shareExcerpt={excerpt}
-            />
-
-            <div className={styles.column}>
-              <div className={styles.content}>
-                <PortableTextRenderer
-                  blocks={content}
-                  renderMustEatCard={renderMustEatCard}
-                  renderSpotCard={renderSpotCard}
-                  renderImage={renderImage}
-                />
-              </div>
-
-              {/* Teilen steht direkt unter dem Text, der Katalog-Ausgang
-                  darunter: Teilen bezieht sich auf den gelesenen Artikel und
-                  gehört an dessen Ende; der Hub führt aus ihm hinaus und ist
-                  damit der letzte Schritt der Seite. */}
-              <div className={styles.shareRow}>
-                <NewsArticleShare
-                  title={title}
-                  excerpt={excerpt}
-                  label={shareLabel}
-                  copiedLabel={copiedLabel}
-                  className={styles.shareBtn}
-                />
-              </div>
-
-              {hubLink && (
-                <Link href={hubLink.href} className={styles.hubLink}>
-                  {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
-                      davor — dieselbe Art wie auf /packs und in der
-                      „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
-                      keine Art; dort trägt die Zeile allein. Der Pfeil, der
-                      hier stand, ist weg: die Fläche ist der Knopf. */}
-                  {hubPack && (
-                    <Image
-                      src={hubPack}
-                      alt=""
-                      width={72}
-                      height={101}
-                      className={styles.hubLinkPack}
-                    />
-                  )}
-                  <span className={styles.hubLinkKicker}>
-                    {de ? 'Der ganze Katalog' : 'The full catalogue'}
-                  </span>
-                  <span className={styles.hubLinkLabel}>
-                    {articleHubLabel(hubLink, de ? 'de' : 'en')}
-                  </span>
-                  {/* Nur auf Desktop (CSS): dort ist der Kasten 660px breit,
-                      und mit einem 72px-Pack und zwei kurzen Zeilen blieb die
-                      rechte Hälfte leer (Betreiber, 07.09.2026). Der Knopf
-                      gibt der Fläche eine rechte Kante; auf dem Telefon füllt
-                      der Text die Breite ohnehin. Für Screenreader trägt der
-                      Link seinen Namen schon in Kicker und Label. */}
-                  <span className={styles.hubLinkCta} aria-hidden="true">
-                    {de ? 'Ansehen' : 'View'}
-                  </span>
-                </Link>
-              )}
+          <div className={styles.column}>
+            <div
+              className={styles.content}
+              data-article-content=""
+              data-lede={showLede ? '' : undefined}
+            >
+              <PortableTextRenderer
+                blocks={content}
+                renderMustEatCard={renderMustEatCard}
+                renderSpotCard={renderSpotCard}
+                renderImage={renderImage}
+              />
             </div>
+
+            {/* Teilen steht direkt unter dem Text, der Katalog-Ausgang
+                darunter: Teilen bezieht sich auf den gelesenen Artikel und
+                gehört an dessen Ende; der Hub führt aus ihm hinaus und ist
+                damit der letzte Schritt der Seite. */}
+            <div className={styles.shareRow}>
+              <NewsArticleShare
+                title={title}
+                excerpt={excerpt}
+                label={shareLabel}
+                copiedLabel={copiedLabel}
+                className={styles.shareBtn}
+              />
+            </div>
+
+            {hubLink && (
+              <Link href={hubLink.href} className={styles.hubLink} data-motion="toss">
+                {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
+                    davor — dieselbe Art wie auf /packs und in der
+                    „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
+                    keine Art; dort trägt die Zeile allein. Der Pfeil, der
+                    hier stand, ist weg: die Fläche ist der Knopf. */}
+                {hubPack && (
+                  <Image
+                    src={hubPack}
+                    alt=""
+                    width={72}
+                    height={101}
+                    className={styles.hubLinkPack}
+                    data-motion-part="pack"
+                  />
+                )}
+                <span className={styles.hubLinkKicker}>
+                  {de ? 'Der ganze Katalog' : 'The full catalogue'}
+                </span>
+                <span className={styles.hubLinkLabel}>
+                  {articleHubLabel(hubLink, de ? 'de' : 'en')}
+                </span>
+                {/* Die sichtbare Kante der Tafel: auf dem Telefon unter dem
+                    Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
+                    Leerfläche"). Für Screenreader trägt der Link seinen
+                    Namen schon in Kicker und Label. */}
+                <span className={styles.hubLinkCta} aria-hidden="true">
+                  {de ? 'Ansehen' : 'View'}
+                </span>
+              </Link>
+            )}
           </div>
 
           {recommendations.length > 0 && (
             <section className={styles.related}>
               <div className={styles.relatedHead}>
-                <span className={styles.relatedMark} aria-hidden="true" />
                 <h2 className={styles.relatedHeading}>{moreLabel}</h2>
               </div>
-              <ul className={styles.relatedGrid} role="list">
+              <ul className={styles.relatedGrid} role="list" data-motion="deal">
                 {recommendations.map((rec, i) => {
                   const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
                   const recCategory =

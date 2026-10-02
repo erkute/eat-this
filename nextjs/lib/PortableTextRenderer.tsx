@@ -5,6 +5,7 @@ import type {
   SpotCardBlock,
   ArticleImageBlock,
 } from './types';
+import { splitHeading } from './headingDeck';
 
 type Span = {
   _type?: string;
@@ -97,6 +98,28 @@ function renderChildren(children: Span[] = [], markDefs: MarkDef[] = []): ReactN
 /** Concatenated plain text of a block's spans — used for heading anchors. */
 function headingText(children: Span[] = []): string {
   return normalizeDisplayText(children.map((c) => c.text ?? '').join(''));
+}
+
+/** An h2 that reads „Name – wofür" comes out in three parts, so a page can set
+ *  the name as the headline and the rest as its deck (the article does, see
+ *  NewsArticleShell.module.css). The text stays exactly the heading,
+ *  separator included — for the anchor, for screen readers and on pages that
+ *  style none of the parts.
+ *
+ *  Most guide headings are bolded whole in the Studio; in a heading that adds
+ *  nothing, so `strong` may go. A link or `em` would be lost — those headings
+ *  stay as they are. */
+function renderHeading(children: Span[] = [], markDefs: MarkDef[] = []): ReactNode {
+  const plain = children.every((c) => (c.marks ?? []).every((mark) => mark === 'strong'));
+  const parts = plain ? splitHeading(headingText(children)) : null;
+  if (!parts) return renderChildren(children, markDefs);
+  return (
+    <>
+      <span data-heading="name">{parts.name}</span>
+      <span data-heading="separator">{parts.separator}</span>
+      <span data-heading="deck">{parts.deck}</span>
+    </>
+  );
 }
 
 /** Deterministic ASCII anchor slug. Shared by the renderer (heading ids) and
@@ -216,7 +239,7 @@ export function PortableTextRenderer({
     if (style === 'h2')
       target.push(
         <h2 key={key} id={slugifyHeading(headingText(raw.children))}>
-          {renderChildren(raw.children, raw.markDefs)}
+          {renderHeading(raw.children, raw.markDefs)}
         </h2>
       );
     else if (style === 'h3')

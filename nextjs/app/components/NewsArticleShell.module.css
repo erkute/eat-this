@@ -1,36 +1,60 @@
-/* Seit 03.09.2026 steht der Artikel auf durchgehendem Ink wie Startseite und
-   Spot-Seite: `--article-ink` bleibt die dunkle Farbe und ist der GRUND,
-   `--article-fg` ist die Schrift darauf, Muted ist eine Weiss-Stufe. Was ein
-   eigenes Objekt ist (Must-Eat-Band, Katalog-Ausgang), traegt die leise
-   Stufe; Rot ist auf Ink als Schriftfarbe raus (rund 2,9:1) — die Initiale
-   und die aktive Kapitelmarke sind Gelb. */
+/* Seit 02.10.2026 im Aufbau von Kaleidoscope (manifesto.kaleidoscope.media,
+   Ansage „mach in dem Look"): alles mittig, Schlagzeile, Kapitel und Fazit
+   gross, das Foto über die ganze Breite, Fotos eckig. Schrift und Farben
+   bleiben die eigenen (Ansagen „Typo soll zu meinem Design passen" und „in
+   dem Rot-Gelb-Stil von mir, keine neuen Farben"): dieselbe Sprache wie die
+   Startseite (`.homeV2` in globals.css) — weisser Grund, Ink für Text,
+   Überschriften in Rot wie `.hv-title`, Gelb als Akzent wie `.hv-mk`;
+   Providence für alles Plakative und die Labels, Inter für den Lesetext.
+   Davor stand der Artikel auf Ink.
+
+   `--article-ground` ist der Grund, `--article-fg` die Schrift darauf,
+   `--article-head` die Farbe der Überschriften. Gelbe Flächen
+   (`--article-accent`: Knöpfe, Etiketten, Schlusszeichen) tragen Ink
+   (`--article-on-accent`). Fokusrahmen sind Ink — Gelb auf Weiss sähe man
+   nicht. */
 .page {
-  --article-ink: var(--et-ink);
-  --article-fg: var(--et-white);
+  --article-ground: var(--et-white);
+  --article-fg: var(--et-ink);
+  --article-head: var(--et-red);
   --article-accent: var(--et-accent);
-  --article-paper: var(--et-white);
-  --article-muted: var(--et-ink-soft);
-  --article-quiet: var(--et-ink-quiet);
+  --article-on-accent: var(--et-ink);
+  --article-muted: var(--et-muted);
+  --article-quiet: var(--et-quiet);
+  /* Die Tafel am Artikelende (Katalog-Ausgang): Ink auf Weiss. */
+  --article-board: var(--et-ink);
   /* The reading measure. 680px at 18-19px lands around 68 characters — the
      old full-width 900px column ran ~95, which is why desktop read worse than
      mobile despite all the extra room. */
   /* 660 statt 680: bei 18px Lauftext sind das ~73 Zeichen pro Zeile und damit
      innerhalb der 45–75, die als angenehm gelten. Mit 680 waren es 76. */
   --article-measure: 660px;
-  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert.
-     Oben 0: die 34px trugen die Brotkrume. Ohne sie klemmte ein weißer
-     Streifen zwischen der schwarzen SiteNav und dem dunklen Aufmacherfoto und
-     las sich als Fuge, nicht als Rand. Das Foto dockt jetzt an die Leiste an;
-     wer kein Foto hat, bekommt seinen Abstand an `.introCopy`. */
+  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
   padding: 0 clamp(18px, 4vw, 54px) 0;
-  background: var(--article-ink);
+  /* Der Grund selbst liegt an html/body/.app-pages (globals.css): `.app-page`
+     ist dort sitewide transparent und schlägt diese Klasse. */
   color: var(--article-fg);
+  font-family: var(--et-font-display);
+}
+
+/* Dunkel auf Knopfdruck (lib/articleTheme.ts, ArticleThemeToggle): der
+   Ink-Grund der Marke, Schrift weiss. Die Kapitel werden gelb statt rot —
+   Rot ist auf Ink als Schriftfarbe raus (rund 2,9:1), wie überall auf Ink.
+   Die Tafel hebt sich mit der erhöhten Ink-Stufe ab. Den Grund selbst stellt
+   globals.css um. */
+:global(html[data-article-theme='dark']) .page {
+  --article-ground: var(--et-ink);
+  --article-fg: var(--et-white);
+  --article-head: var(--et-accent);
+  --article-muted: var(--et-ink-soft);
+  --article-quiet: var(--et-ink-raised);
+  --article-board: var(--et-ink-raised);
 }
 
 /* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
    from 768px up — a combination CSS computes to overflow-y:auto, i.e. a
-   scrollport that never scrolls. That silently kills `position: sticky` in the
-   chapter rail. `clip` contains the same horizontal overflow without creating a
+   scrollport that never scrolls. That silently kills `position: sticky` — once
+   in the chapter rail, now in the reading progress (`.progress`). `clip` contains the same horizontal overflow without creating a
    scroll container. Qualified with the element (0,1,1) so it outranks
    `.app-page` regardless of load order. */
 div.page {
@@ -47,39 +71,103 @@ div.page {
   margin: 0 auto;
 }
 
-/* Drei Geschwister im Kopf: Aufmacher, Titel, Byline mit Vorspann. Bis
-   1079px stehen sie untereinander wie bei Highsnobiety auf dem Telefon: erst
-   das Foto, randlos, dann groß der Titel auf Ink, dann Byline und Vorspann.
-   Kein Text mehr auf dem Foto — der brauchte einen Verlauf, der das Bild
-   halb abdunkelte. Ab Desktop teilt sich der Kopf (`.headerSplit`, unten im
-   Layout-Block). */
+/* ---------------------------------------------------------------- head --- */
+
+/* Der Kopf wie bei Kaleidoscope: mittig die Rubrik, die Schlagzeile gross in
+   Providence, klein die Credits; darunter das Foto randlos mit 10px Rahmen,
+   dann der Vorspann als Auftakt. */
 .header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  padding-top: clamp(40px, 5.5vw, 84px);
+  margin-bottom: clamp(48px, 6vw, 88px);
+  text-align: center;
 }
 
-.headerMeta {
+.introCopy {
+  display: grid;
+  justify-items: center;
   width: 100%;
-  max-width: 720px;
-  margin: clamp(28px, 4vw, 52px) auto 0;
+  min-width: 0;
 }
 
-.headerSplit .headerMeta {
-  margin-top: clamp(18px, 2.6vw, 26px);
+/* Die Rubrik wie der Kicker der Startseite (`.hv-kicker`): klein in
+   Versalien, davor das gelbe Quadrat (`.hv-mk`). Alle Labels der Seite —
+   Rubrik, Credits, „Die Spots", Etiketten, Knöpfe, Bezirk · Küche —
+   stehen in Providence wie das Label-System der Startseite (Ansagen
+   02.10.2026: „in meiner Font"); Inter bleibt dem Lesetext und den
+   Bildunterschriften. */
+.kicker {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: clamp(16px, 1.8vw, 24px);
+  color: var(--article-fg);
+  font-size: 14px;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
-/* ---------------------------------------------------------------- hero --- */
+.kicker::before,
+.chaptersLabel::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--article-accent);
+  vertical-align: 0.12em;
+}
 
+.heroTitle {
+  max-width: 18ch;
+  margin: 0;
+  /* Schwarz (Ansage 02.10.2026 „mach Headline schwarz"); die Kapitel
+     darunter bleiben rot. */
+  color: var(--article-fg);
+  /* Providence läuft breiter als Kaleidoscopes Compacta — deshalb kleiner
+     als dort (90px) und etwas enger gesperrt. */
+  font-size: clamp(44px, 6vw, 88px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title);
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.byline {
+  margin-top: clamp(20px, 2.2vw, 30px);
+}
+
+.themeToggle {
+  margin-top: 18px;
+}
+
+/* Getrennt durch Abstand, nicht durch Punkte: bricht die Zeile am Telefon
+   um, stünde sonst ein einzelner Punkt am Anfang der zweiten. */
+.bylineMeta {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 22px;
+  color: var(--article-fg);
+  font-size: 13px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+/* Das Foto über die ganze Fensterbreite, ringsum 10px Rahmen — wie die
+   Bildbänder bei Kaleidoscope. Eckig: ein Foto ist eine Seite, keine Karte. */
 .heroMedia {
   position: relative;
+  justify-self: stretch;
   aspect-ratio: 3 / 2;
-  max-height: 70vh;
+  margin: clamp(36px, 4.4vw, 64px) calc(50% - 50vw + 10px) 0;
   overflow: hidden;
-  background: var(--article-ink);
-  /* Oben eckig, weil das Foto an der SiteNav sitzt: eine runde Ecke direkt
-     unter der Leiste lässt dort Weiß durchblitzen — genau den Rest, den das
-     Andocken beseitigen soll. Unten bleibt der Radius. */
-  border-radius: 0 0 var(--et-radius-photo) var(--et-radius-photo);
+  background: var(--article-quiet);
 }
 
 .hero {
@@ -87,117 +175,216 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-.introCopy {
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  /* Ohne Foto gibt es nichts zum Andocken — die Überschrift braucht den
-     Abstand zur Leiste, den `.page` oben abgegeben hat: 34px ab Desktop,
-     24px darunter. */
-  margin-top: 34px;
-  max-width: var(--article-measure);
-}
-
-.headerSplit .introCopy {
-  width: 100%;
-  max-width: 720px;
-  margin: clamp(22px, 3.4vw, 34px) auto 0;
-}
-
-.heroTitle {
-  max-width: 16ch;
-  margin: 0;
+/* Der Vorspann als Auftakt unter dem Foto, gross und mittig wie die
+   Textblöcke bei Kaleidoscope — dort 32px auf 30px Zeilenabstand; hier in
+   Providence Regular und lockerer, damit er sich liest und nicht nur
+   aussieht. */
+.lede {
+  max-width: 860px;
+  margin: clamp(48px, 5.6vw, 88px) auto 0;
   color: var(--article-fg);
-  font-family: var(--et-font-display);
+  font-size: clamp(23px, 2.1vw, 30px);
+  font-weight: 400;
+  line-height: 1.25;
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------ chapters --- */
+
+/* „Die Spots" als eine Zeile unter dem Kopf, mittig wie die Namenslisten bei
+   Kaleidoscope (Ansage 02.10.2026, statt der Kapitel-Leiste links). Jeder
+   Spot ist ein leises Feld wie „Teilen", unter der Maus gelb. */
+.chapters {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 900px;
+  margin: clamp(40px, 5vw, 72px) auto 0;
+}
+
+.chaptersLabel {
+  color: var(--article-fg);
+  font-size: 13px;
   font-weight: 700;
-  /* Gemessen gegen Eater und Mit Vergnügen (beide 40px auf 1512) und The
-     Infatuation (68px, die display-freudigste der vier): 76px lagen fast beim
-     Doppelten der Norm. 56px hält Markenpräsenz, ohne zu schreien. */
-  font-size: clamp(38px, 4.4vw, 56px);
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-title);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
-.headerSplit .heroTitle {
-  max-width: 17ch;
-  text-wrap: balance;
+.chapterList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* ------------------------------------------------------- column + rail --- */
-
-.body {
-  display: block;
+.chapterList a {
+  display: inline-block;
+  padding: 8px 12px 7px;
+  background: var(--article-quiet);
+  color: var(--article-fg);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 }
 
+.chapterList a:focus-visible {
+  outline: 2px solid var(--article-fg);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .chapterList a:hover {
+    background: var(--article-accent);
+    color: var(--et-ink);
+  }
+}
+
+/* -------------------------------------------------------------- column --- */
+
+/* Die Lesespalte steht mittig in Lesebreite, auf jeder Breite. Alles im
+   Textfluss folgt ihr — auch Bilder, Spot-Karten und die Tafel: kein Block
+   steht über den Text hinaus (User, 28.08.: gemessen 236px Überhang nach
+   rechts, als die Blöcke noch die ganze Spalte nahmen). */
 .column {
   min-width: 0;
-  max-width: 720px;
+  max-width: var(--article-measure);
   margin-inline: auto;
 }
 
-.byline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 14px;
-  /* Derselbe Takt wie unter dem Vorspann: mit 14-20px klebte der erste Satz
-     an Datum und Lesezeit (User, 25.09.). */
-  margin-bottom: clamp(22px, 3vw, 34px);
+/* ------------------------------------------------------------ motion ---- */
+
+/* Der Lesefortschritt: ein gelber Strich direkt unter der Kopfleiste, der mit
+   dem Scrollen von links nach rechts wächst. Eine Scroll-Timeline des
+   Browsers, kein JS — sie läuft im Takt des Scrollens. Nur ab Tablet: dort
+   scrollt `.app-pages`; am Telefon klappt die Leiste weg (SiteNav), und ein
+   iPhone hinkt bei scroll-gekoppelter Bewegung hinterher.
+   `.app-pages` beginnt bei 74px (globals.css), die Leiste ist aber
+   `--site-nav-h` hoch (78px): mit `top: 0` lagen 4 der 5px unter der Leiste,
+   und der übrige Pixel verschwand auf Weiss (Ansage 02.10.2026: „man sieht
+   den Fortschrittbalken nicht bei hell"). Deshalb klebt er um genau diese
+   Differenz tiefer. */
+.progress {
+  display: none;
 }
 
-/* Yellow chip, same as the magazine eyebrow on the home page — which frees red
-   up to mean "headline" and nothing else. */
-.category {
-  display: inline-block;
-  padding: 6px 9px 7px;
-  color: var(--article-ink);
-  background: var(--article-accent);
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: clamp(14px, 1.15vw, 16px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
+/* Der Kopf tritt nur beim Laden auf (`data-article-intro`, gesetzt vom
+   Bootstrap in app/[locale]/layout.tsx, wieder entfernt von
+   lib/articleMotion.ts): die Rubrik fällt herein, die Schlagzeile schlägt als
+   Stempel ein wie die Headline der Startseite, die Credits rücken nach, das
+   Foto steigt als Ganzes auf. Kein Opacity-Fade — unsichtbar ist nur, was
+   noch nicht dran ist. */
+@media (prefers-reduced-motion: no-preference) {
+  :global(html[data-article-intro]) .kicker {
+    animation: introDrop 520ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms backwards;
+  }
+
+  :global(html[data-article-intro]) .heroTitle {
+    animation: introStamp 900ms cubic-bezier(0.16, 1, 0.3, 1) 260ms backwards;
+  }
+
+  :global(html[data-article-intro]) .byline {
+    animation: introRise 560ms cubic-bezier(0.2, 0.8, 0.2, 1) 880ms backwards;
+  }
+
+  :global(html[data-article-intro]) .heroMedia {
+    animation: introLift 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 620ms backwards;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    @media (min-width: 768px) {
+      .progress {
+        position: sticky;
+        top: calc(var(--site-nav-h) - 74px);
+        z-index: 3;
+        display: block;
+        height: 5px;
+        /* Über die ganze Breite, über das Polster von `.page` hinaus. */
+        margin: 0 calc(-1 * clamp(18px, 4vw, 54px)) -5px;
+        background: var(--article-accent);
+        transform-origin: 0 50%;
+        animation: readProgress linear both;
+        animation-timeline: scroll(nearest block);
+      }
+
+      /* Das Aufmacherfoto zieht beim Scrollen langsamer mit als die Seite —
+         es bewegt sich in seinem Rahmen, der Rahmen bleibt stehen. */
+      .hero {
+        animation: heroDrift linear both;
+        animation-timeline: view();
+      }
+    }
+  }
 }
 
-.bylineMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  color: var(--article-muted);
-  font-family: var(--et-font-display);
-  font-size: clamp(13px, 1.05vw, 15px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.2;
+@keyframes introDrop {
+  0% {
+    transform: translateY(-28px) rotate(-8deg);
+    visibility: hidden;
+  }
+  1% {
+    visibility: visible;
+  }
 }
 
-/* Ausgabe · Datum · Lesezeit, jeweils mit Punkt dazwischen. */
-.bylineMeta > * + *::before {
-  content: '·';
-  margin-right: 12px;
+@keyframes introStamp {
+  0% {
+    transform: scale(2.2) rotate(-5deg);
+    visibility: hidden;
+  }
+  1% {
+    transform: scale(2.2) rotate(-5deg);
+    visibility: visible;
+  }
+  75% {
+    transform: scale(0.97) rotate(0.6deg);
+  }
 }
 
-/* Der Vorspann trug denselben Schnitt wie der Fliesstext und war auf Mobil
-   ganze 0,7px groesser (17,7 gegen 17) — als eigene Ebene las ihn niemand.
-   Die Groesse allein kann das nicht tragen, solange die Lesespalte schmal
-   ist; das Gewicht schon. 600 statt 700: bei 18-21px wird Inter im Bold
-   blockig, und direkt darunter steht bereits die rote Initiale des ersten
-   Absatzes. */
-.lede {
-  /* Keine eigene Lesebreite: die 46ch waren bei 1000px 516px breit, waehrend
-     Byline und Fliesstext daneben die vollen 720px der Spalte nutzten — 204px
-     Versatz, der als Fehlausrichtung gelesen wird (User, 28.08.), genau wie
-     seinerzeit bei `.story` auf der Spot-Seite. Ab 1080px steht der Vorspann
-     im geteilten Kopf und nimmt dort dessen linke Haelfte. */
-  max-width: none;
-  margin: 0 0 clamp(22px, 3vw, 34px);
-  color: var(--article-fg);
-  font-family: var(--et-font-body);
-  font-size: clamp(17px, 1.45vw, 21px);
-  font-weight: 600;
-  line-height: 1.55;
+@keyframes introRise {
+  0% {
+    transform: translateY(24px);
+    visibility: hidden;
+  }
+  1% {
+    visibility: visible;
+  }
+}
+
+@keyframes introLift {
+  0% {
+    transform: translateY(90px) scale(0.94);
+    visibility: hidden;
+  }
+  1% {
+    visibility: visible;
+  }
+}
+
+@keyframes readProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes heroDrift {
+  from {
+    transform: translateY(-7%) scale(1.14);
+  }
+  to {
+    transform: translateY(7%) scale(1.14);
+  }
 }
 
 /* ------------------------------------------------------------- prose ---- */
@@ -216,21 +403,27 @@ div.page {
   margin: 0 0 1.2em;
 }
 
-.content > p:first-of-type::first-letter {
-  float: left;
-  margin: 0.04em 0.1em 0 0;
-  color: var(--article-accent);
+/* Der Einstieg gross und mittig statt einer Initiale: der erste Absatz ist
+   der Auftakt, der Rest liest sich linksbündig in Lesegrösse weiter —
+   Kaleidoscope zentriert jeden Block, über einen ganzen Artikel wäre das
+   anstrengend. Steht im Kopf schon ein Vorspann (`data-lede`), ist der der
+   Auftakt, und der Text beginnt normal — nur ein Absatz in Providence
+   (Ansage 02.10.2026). */
+.content:not([data-lede]) > p:first-of-type {
+  margin-bottom: 1.2em;
   font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: 3.6em;
-  line-height: 0.74;
+  font-size: clamp(22px, 1.9vw, 27px);
+  line-height: 1.3;
+  text-align: center;
+  text-wrap: pretty;
 }
 
 /* Das Fazit. Es stand vorher als zwoelfte Kapitelueberschrift da — dieselbe
    41px-Providence-Zeile wie „Distrikt" oder „Bar Basta", obwohl es kein Kapitel
-   ist, sondern der Schluss. Jetzt kippt die Hierarchie: die Ueberschrift wird
-   zum gelben Etikett (dieselbe Marke wie der Kategorie-Chip und das
-   Kapitel-Label der Leiste), und der Satz darunter traegt das Gewicht.
+   ist, sondern der Schluss. Seit dem Kaleidoscope-Umbau (02.10.2026) steht
+   die Ueberschrift gross und mittig wie ein Kapitel, aber mit mehr Luft
+   davor, und der Satz darunter steht in Providence statt im Lesetext — so
+   liest sich der Block als Schlusswort.
 
    Bewusst keine dunkle Flaeche: direkt unter dem Fazit sitzt bereits die
    schwarze Katalog-Karte, zwei dunkle Kaesten uebereinander haetten dem
@@ -240,29 +433,32 @@ div.page {
      Block beendet den Text, er reiht sich nicht ein. Mit dem gleichen Abstand
      las er sich wie ein dreizehntes Kapitel, das zufaellig anders aussieht. */
   margin: clamp(58px, 7.5vw, 100px) 0 0;
+  text-align: center;
   scroll-margin-top: 104px;
 }
 
 .content [data-block='conclusion-label'] {
-  display: inline-block;
-  margin: 0 0 16px;
-  padding: 7px 12px 8px;
-  background: var(--article-accent);
-  color: var(--article-ink);
+  display: block;
+  margin: 0 0 18px;
+  color: var(--article-head);
   font-family: var(--et-font-display);
-  font-size: 14px;
+  font-size: clamp(34px, 3.8vw, 52px);
   font-weight: 700;
-  line-height: 1;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
+  text-transform: uppercase;
 }
 
 .content [data-block='conclusion'] p:not([data-block='conclusion-label']) {
-  font-size: clamp(19px, 1.5vw, 21px);
-  font-weight: 600;
-  line-height: 1.5;
+  font-family: var(--et-font-display);
+  font-size: clamp(21px, 1.7vw, 24px);
+  font-weight: 400;
+  line-height: 1.35;
+  text-wrap: pretty;
 }
 
-/* Das Schlusszeichen wie im Heft: das gelbe Marken-Quadrat am Ende des
-   letzten Absatzes — im Fazit oder im Fliesstext. */
+/* Das Schlusszeichen wie im Heft: ein kleines Quadrat am Ende des letzten
+   Absatzes — im Fazit oder im Fliesstext. */
 .content > p:last-child::after,
 .content > [data-block='conclusion']:last-child > p:last-child:not([data-block])::after {
   content: '';
@@ -275,20 +471,52 @@ div.page {
 
 .content h2,
 .content h3 {
-  max-width: 24ch;
-  margin: clamp(38px, 5vw, 66px) 0 14px;
-  color: var(--article-fg);
+  max-width: none;
+  margin: clamp(56px, 7vw, 104px) 0 clamp(18px, 2vw, 26px);
+  color: var(--article-head);
   font-family: var(--et-font-display);
+  font-size: clamp(34px, 4.2vw, 58px);
   font-weight: 700;
-  font-size: clamp(27px, 3.2vw, 44px);
   letter-spacing: -0.02em;
-  line-height: 0.98;
-  text-transform: none;
+  line-height: var(--et-leading-title);
+  text-align: center;
+  text-transform: uppercase;
+  text-wrap: balance;
   scroll-margin-top: 104px;
 }
 
 .content h3 {
-  font-size: clamp(23px, 2.2vw, 30px);
+  font-size: clamp(26px, 2.6vw, 34px);
+}
+
+/* „goldies – für Puristen mit Prinzipien": der Name ist die Überschrift, der
+   Rest steht als kursive Unterzeile darunter, wie im Heft. Der Gedankenstrich
+   bleibt im Text (Anker, Vorleser) und wird nur nicht gezeigt. Die Teile
+   setzt der Renderer (`renderHeading`). */
+.content h2 [data-heading='name'],
+.content h2 [data-heading='deck'] {
+  display: block;
+}
+
+.content h2 [data-heading='separator'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Die Unterzeile in Providence Regular, gerade: Providence hat keine
+   Kursive, und eine vom Browser schräg gestellte sah nach Fehler aus. */
+.content h2 [data-heading='deck'] {
+  margin-top: 14px;
+  color: var(--article-fg);
+  font-size: clamp(20px, 1.7vw, 24px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: none;
 }
 
 .content ul,
@@ -302,57 +530,45 @@ div.page {
 }
 
 .content strong {
-  font-weight: 800;
+  font-weight: 700;
 }
 
-/* Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Display-Name auf
-   dem Foto, Knopf darunter, Meta-Zeile als Versalien-Label) — die gelbe
-   Fließtext-Unterstreichung würde alle drei zerlegen, und ihr `--article-ink`
-   wäre auf dem Foto ohnehin unlesbar. */
+/* Links im Text sind fett, sonst nichts — keine Unterstreichung (der
+   Browser brach die dicke gelbe an jeder Unterlänge), kein Marker-Streifen
+   (las sich als Hervorhebung, nicht als Link). Ansagen 02.10.2026: „so
+   komisch unterstrichen", „kein Marker". Unter der Maus werden sie rot wie
+   die Kapitel.
+   Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
+   Bezirk · Küche). */
 .content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat) {
   color: var(--article-fg);
-  font-weight: 800;
-  text-decoration: underline;
-  text-decoration-color: var(--article-accent);
-  text-decoration-thickness: 3px;
-  text-underline-offset: 3px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 140ms ease;
 }
 
 @media (hover: hover) {
   .content
     a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
-    color: var(--article-accent);
+    color: var(--article-head);
   }
 }
 
+/* Das Zitat gross und mittig — ohne Kasten, Klebestreifen und Drehung von
+   vorher. */
 .content blockquote {
-  position: relative;
-  width: min(100%, 22ch);
   max-width: none;
-  margin: clamp(34px, 5vw, 64px) 0;
-  padding: clamp(20px, 2.8vw, 32px) clamp(22px, 3.2vw, 36px);
-  color: var(--article-ink);
+  margin: clamp(48px, 6vw, 88px) 0;
+  padding: 0;
+  color: var(--article-fg);
   font-family: var(--et-font-display);
-  font-size: clamp(26px, 3vw, 40px);
+  font-size: clamp(28px, 2.8vw, 38px);
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.96;
-  text-transform: none;
-  background: var(--article-accent);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-align: center;
+  text-wrap: balance;
   border: 0;
-  transform: rotate(-1deg);
-}
-
-.content blockquote::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 82px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.62);
-  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
-  transform: translateX(-50%) rotate(3deg);
 }
 
 /* --------------------------------------------------------- must-eat ----- */
@@ -363,6 +579,7 @@ div.page {
    in one piece can never read as the same block twice. */
 .mustEat {
   position: relative;
+  font-family: var(--et-font-display);
   display: grid;
   grid-template-columns: clamp(88px, 15%, 128px) minmax(0, 1fr);
   align-items: center;
@@ -370,7 +587,6 @@ div.page {
   margin: clamp(30px, 4.5vw, 56px) 0;
   padding: clamp(16px, 2vw, 22px);
   background: var(--article-quiet);
-  border-radius: var(--et-radius-photo);
   color: var(--article-fg);
   text-align: left;
   text-decoration: none;
@@ -399,18 +615,16 @@ div.page {
   gap: 7px;
 }
 
-/* Markenschrift statt Body-Font — der Kicker war der einzige Fremdsatz im
-   Block (Nutzer-Review 28.08.). */
+/* Dieselbe Stimme wie die übrigen Labels der Seite: klein in Versalien. */
 .mustEatTag {
-  display: inline-block;
-  padding: 4px 8px 5px;
-  color: var(--article-ink);
-  background: var(--article-accent);
-  border-radius: 5px;
   font-family: var(--et-font-display);
-  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
+  display: inline-block;
+  padding: 5px 8px;
+  color: var(--article-on-accent);
+  background: var(--article-accent);
+  font-size: 11px;
   line-height: 1;
   text-transform: uppercase;
 }
@@ -419,30 +633,28 @@ div.page {
   max-width: 18ch;
   margin: 0;
   color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(22px, 2.1vw, 30px);
+  font-size: clamp(24px, 2.2vw, 30px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 1;
+  line-height: 1.05;
   text-transform: none;
 }
 
 /* Der Satz trägt den Block jetzt allein — er ersetzt Meta-Zeile und
-   Knopf, steht deshalb in der Markenschrift und etwas größer. */
+   Knopf, steht deshalb etwas größer. */
 .mustEat .mustEatDesc {
   max-width: 34ch;
   margin: 0;
   color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(15px, 1.2vw, 17px);
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: clamp(16px, 1.25vw, 18px);
+  font-weight: 400;
+  line-height: 1.35;
 }
 
 /* ------------------------------------------------------- inline spot ---- */
 
-/* Inline editorial photo — same radius as the spot card, caption in the same
-   muted meta voice as the byline. The img keeps its intrinsic ratio; next/image
+/* Inline editorial photo — square corners like every photo in the article,
+   a small quiet caption. The img keeps its intrinsic ratio; next/image
    ships width/height so the column doesn't jump while it loads. */
 /* Die Höhe ist gedeckelt, nicht die Breite: ein Hochformat lief über die
    volle Spalte und stand auf Desktop 660 × 920px da — höher als der
@@ -474,72 +686,67 @@ div.page {
 .inlineImage img {
   width: 100%;
   height: auto;
-  border-radius: var(--et-radius-photo);
 }
 
+/* Bildunterschrift klein, leise und mittig unter dem Bild. */
 .inlineImage figcaption {
-  margin-top: 8px;
+  margin-top: 10px;
   color: var(--article-muted);
-  font-family: var(--et-font-display);
-  font-size: clamp(13px, 1.05vw, 15px);
-  font-weight: 700;
-  line-height: 1.2;
+  font-family: var(--et-font-body);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
 }
 
+/* Die Spot-Karte wie ein Foto im Heft: oben das Bild ohne Schrift und ohne
+   Verlauf darauf, darunter die Bildunterschrift — Bezirk und Küche als
+   Etikett, der Name gross, darunter der Weg auf die Map. Vorher lag alles auf
+   dem Foto, und ein Verlauf dunkelte dafür die untere Hälfte ab. */
 .inlineSpot {
-  --spot-inset: clamp(16px, 2.4vw, 26px);
-
   position: relative;
   display: block;
-  min-height: clamp(320px, 40vw, 460px);
+  /* Steht im Lesetext (Inter), spricht aber mit der Stimme der Labels. */
+  font-family: var(--et-font-display);
   margin: clamp(30px, 5vw, 60px) 0;
+  /* Schneidet die kartenweite Trefferfläche des Namens (::after) ab. */
   overflow: hidden;
-  background-color: var(--article-ink);
-  background-position: center;
-  background-size: cover;
-  border-radius: var(--et-radius-photo);
-  color: #fff;
+  color: var(--article-fg);
   text-decoration: none;
 }
 
-.inlineSpot::after {
-  content: '';
-  position: absolute;
-  inset: 24% 0 0;
-  background: linear-gradient(
-    to top,
-    rgba(12, 9, 7, 0.92),
-    rgba(12, 9, 7, 0.42) 58%,
-    rgba(12, 9, 7, 0)
-  );
+.inlineSpotPhoto {
+  display: block;
+  aspect-ratio: 3 / 2;
+  background-color: var(--article-quiet);
+  background-position: center;
+  background-size: cover;
 }
 
+/* Die Bildunterschrift wie die Credits bei Kaleidoscope: mittig, oben
+   klein das Label (Bezirk · Küche), darunter der Name, darunter der Weg auf
+   die Map. */
 .inlineSpotFoot {
-  position: absolute;
-  right: var(--spot-inset);
-  bottom: var(--spot-inset);
-  left: var(--spot-inset);
-  z-index: 1;
   display: grid;
-  gap: 10px;
-  justify-items: start;
+  justify-items: center;
+  gap: 8px;
+  padding-top: 16px;
+  text-align: center;
 }
 
-/* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence, 12px,
-   0.04em. Diese Zeile war das letzte Versalien-Label des Artikels, das noch
+/* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence in
+   Versalien, 0.04em. Diese Zeile war das letzte Versalien-Label des Artikels, das noch
    auf der Body-Schrift lief — die übrigen vier (Hero, Must-Eat-Tag, Hub-
    Kicker, Related-Heading) stehen längst auf Providence. Der Kommentar, der
    hier früher stand, beschrieb eine Vereinheitlichung auf die Body-Schrift,
    die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
 .inlineSpotMeta {
-  color: #fff;
   font-family: var(--et-font-display);
-  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  line-height: 1.15;
+  font-size: 13px;
+  line-height: 1.2;
   text-transform: uppercase;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7);
 }
 
 /* Die Meta-Zeile ist der einzige gefolgte Link der Karte — die Karte selbst
@@ -551,45 +758,47 @@ div.page {
 .inlineSpotMetaLink {
   position: relative;
   z-index: 2;
-  /* Das Brand-Gelb statt einer Unterstreichung: Die Zeile steht allein auf
-     ihrer Höhe, es gibt also keinen Fließtext, von dem sie sich absetzen
-     müsste — Farbe allein trägt den Link-Hinweis hier. Ein reiner
-     Hover-Hinweis käme nicht in Frage: auf Mobil gibt es kein Hover, und
-     Mobil ist rund die Hälfte der Aufrufe. */
-  color: var(--article-accent);
+  /* Ein leises Feld statt einer Unterstreichung (Ansage 02.10.2026: „mag das
+     Unterstrichene nicht") — dieselbe Fläche wie „Teilen" und der
+     Hell/Dunkel-Knopf, unter der Maus gelb. Ein reiner Hover-Hinweis käme
+     nicht in Frage: auf Mobil gibt es kein Hover, und Mobil ist rund die
+     Hälfte der Aufrufe. */
+  display: inline-block;
+  padding: 6px 9px 5px;
+  background: var(--article-quiet);
+  color: var(--article-fg);
   font: inherit;
   letter-spacing: inherit;
   text-decoration: none;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 }
 
 @media (hover: hover) {
   .inlineSpotMetaLink:hover {
-    color: var(--article-paper);
+    background: var(--article-accent);
+    color: var(--et-ink);
   }
 }
 
 .inlineSpotMetaLink:focus-visible {
-  outline: 2px solid var(--article-accent);
+  outline: 2px solid var(--article-fg);
   outline-offset: 3px;
 }
 
 .inlineSpotName {
-  max-width: 16ch;
-  margin-bottom: 2px;
-  color: #fff;
-  font-family: var(--et-font-display);
-  font-size: clamp(26px, 3vw, 42px);
+  color: var(--article-fg);
+  font-size: clamp(26px, 2.2vw, 32px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 0.98;
-  text-shadow: var(--et-photo-text-shadow);
+  line-height: 1.1;
   text-transform: none;
 }
 
 /* Der Name ist der gefolgte Link auf die Spot-Seite. Sein ::after spannt die
-   ganze Karte als Trefferfläche auf: seitlich und unten um den Foot-Abstand
-   hinaus, nach oben weit über die Karte — `overflow: hidden` auf .inlineSpot
-   schneidet den Überstand ab, deshalb braucht die Höhe keinen echten Wert. */
+   ganze Karte als Trefferfläche auf, Foto und Unterschrift: nichts dazwischen
+   ist positioniert, also misst es an .inlineSpot. */
 .inlineSpotNameLink {
   color: inherit;
   font: inherit;
@@ -599,105 +808,143 @@ div.page {
 .inlineSpotNameLink::after {
   content: '';
   position: absolute;
-  top: -100em;
-  right: calc(-1 * var(--spot-inset));
-  bottom: calc(-1 * var(--spot-inset));
-  left: calc(-1 * var(--spot-inset));
+  inset: 0;
 }
 .inlineSpotNameLink:focus-visible::after {
-  outline: 2px solid var(--article-accent);
+  outline: 2px solid var(--article-fg);
   outline-offset: -6px;
 }
 
-/* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht klickbar. */
+/* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht
+   klickbar. Ein gelbes Feld wie die Etiketten, klein in Versalien. */
 .inlineSpotCta {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   position: relative;
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  padding: 10px 15px 11px;
-  background: var(--article-paper);
-  color: var(--article-ink);
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
-  letter-spacing: 0;
+  min-height: 36px;
+  margin-top: 6px;
+  padding: 0 14px;
+  background: var(--article-accent);
+  color: var(--article-on-accent);
+  font-size: 12px;
   line-height: 1;
   /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
   text-decoration: none;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 /* ---------------------------------------------------------- hub link ---- */
 
-/* Artikel → Hub: der Katalog-Verweis unter dem Fließtext. Gelb wie die
-   Akzentfläche, damit er als redaktionelle Empfehlung liest, nicht als Ad. */
-/* Der Ausgang am Artikelende: Booster-Pack der Kategorie, daneben die Ansage
-   in der Markenschrift, auf Ink statt auf dem gelben Akzent. Vorher war das
-   ein Kasten in Akzentfarbe mit Body-Font und einem Pfeil rechts — der Pfeil
-   ist weg, weil die ganze Fläche der Knopf ist, und die gelbe Fläche
-   konkurrierte am Seitenende mit dem Map-Plakat.
-   Bezirks-Hubs bringen kein Pack mit; `auto` fällt dann auf null zusammen und
-   die Zeile trägt allein. */
+/* Der Ausgang am Artikelende als Ink-Tafel (Ansage 02.10.2026 „das besser
+   designen"): das Booster-Pack der Kategorie liegt schräg auf der Tafel und
+   ragt oben über ihre Kante, daneben der Kicker mit dem gelben Quadrat, das
+   Ziel gross in Versalien und der gelbe Knopf — dieselben Teile wie die
+   Tafeln der Startseite. Die ganze Fläche ist der Link, der Knopf nur ihre
+   sichtbare Kante (`aria-hidden`); seit heute auch am Telefon.
+   Bezirks-Hubs bringen kein Pack mit; `auto` fällt dann auf null zusammen. */
 .hubLink {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  column-gap: clamp(14px, 2vw, 22px);
-  row-gap: 2px;
-  margin: clamp(26px, 4vw, 44px) 0 0;
-  padding: clamp(16px, 2vw, 22px) clamp(18px, 2.2vw, 26px);
-  background: var(--article-quiet);
-  border-radius: var(--et-radius-photo);
+  column-gap: clamp(16px, 2.6vw, 30px);
+  row-gap: 8px;
+  /* Luft nach oben für das Pack, das über die Kante ragt. */
+  margin: clamp(64px, 8vw, 96px) 0 0;
+  padding: clamp(20px, 2.6vw, 30px) clamp(18px, 2.6vw, 32px);
+  background: var(--article-board);
   color: var(--et-white);
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .hubLinkPack {
-  grid-row: 1 / span 2;
-  width: clamp(56px, 7vw, 72px);
+  grid-row: 1 / span 3;
+  align-self: end;
+  width: clamp(88px, 11vw, 124px);
   height: auto;
-  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
-  transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
+  /* Ragt gut zur Hälfte über die Tafel. */
+  margin-top: calc(-1 * clamp(56px, 7vw, 84px));
+  rotate: -8deg;
+  filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.45));
+  transition: transform 220ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .hubLinkKicker {
-  grid-column: 2;
-  color: var(--et-accent);
   font-family: var(--et-font-display);
-  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.04em;
+  grid-column: 2;
+  color: var(--et-white);
+  font-size: 12px;
   line-height: 1.2;
   text-transform: uppercase;
 }
 
-.hubLinkLabel {
-  grid-column: 2;
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
-  line-height: 1.15;
+.hubLinkKicker::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--article-accent);
+  vertical-align: 0.1em;
 }
 
-/* Der Knopf am rechten Rand — erst ab Desktop, siehe unten. Auf dem Telefon
-   füllt der Text die Breite, dort wäre er ein drittes Element in einer
-   Zeile, die schon voll ist. */
+.hubLinkLabel {
+  grid-column: 2;
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
 .hubLinkCta {
-  display: none;
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  grid-column: 2;
+  justify-self: start;
+  align-items: center;
+  min-height: 40px;
+  margin-top: 6px;
+  padding: 0 16px;
+  background: var(--article-accent);
+  color: var(--et-ink);
+  font-size: 13px;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 180ms ease;
+}
+
+.hubLink:focus-visible {
+  outline: 2px solid var(--article-fg);
+  outline-offset: 4px;
+}
+
+.hubLink:focus-visible .hubLinkCta {
+  background: var(--et-white);
 }
 
 @media (hover: hover) {
   .hubLink:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
 
   .hubLink:hover .hubLinkPack {
-    transform: translateY(-3px) rotate(-2deg);
+    transform: translateY(-6px) rotate(5deg);
+  }
+
+  .hubLink:hover .hubLinkCta {
+    background: var(--et-white);
   }
 }
 
@@ -710,22 +957,21 @@ div.page {
 }
 
 .shareBtn {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   display: inline-flex;
   align-items: center;
   gap: 7px;
   min-height: 38px;
   padding: 8px 13px 9px;
   border: 0;
-  border-radius: var(--et-radius-control);
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--article-quiet);
   color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0;
+  font-size: 13px;
   line-height: 1;
   text-decoration: none;
-  text-transform: none;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     background 140ms ease,
@@ -753,33 +999,24 @@ div.page {
 }
 
 .relatedHead {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: clamp(20px, 2.6vw, 32px);
-}
-
-.relatedMark {
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  background: var(--article-accent);
+  margin-bottom: clamp(24px, 3vw, 40px);
+  text-align: center;
 }
 
 .relatedHeading {
   margin: 0;
-  color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(28px, 3.4vw, 42px);
+  color: var(--article-head);
+  font-size: clamp(34px, 4.2vw, 58px);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.9;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
   text-transform: uppercase;
 }
 
 .relatedGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 300px));
+  justify-content: center;
   gap: clamp(28px, 3.4vw, 48px);
   margin: 0;
   padding: 0;
@@ -791,7 +1028,7 @@ div.page {
   min-width: 0;
 }
 
-/* „Weiter auf dem Teller": die nächsten Ausgaben als kleine Hefte
+/* „Weitere Ausgaben": die nächsten Ausgaben als kleine Hefte
    (MagazineCover), jedes ein wenig anders gedreht wie in der Auslage des
    Index. Unter der Maus hebt sich eins und liegt gerade. Die Neigung steht
    als Variable am Listenpunkt: als `rotate` mit `:nth-child` wäre sie
@@ -831,12 +1068,12 @@ div.page {
 .mustEat:focus-visible,
 .inlineSpotCta:focus-visible,
 .shareBtn:focus-visible {
-  outline: 2px solid var(--article-accent);
+  outline: 2px solid var(--article-fg);
   outline-offset: 4px;
 }
 
 .relatedCard:focus-visible {
-  outline: 3px solid var(--article-accent);
+  outline: 3px solid var(--article-fg);
   outline-offset: 8px;
 }
 
@@ -857,167 +1094,37 @@ div.page {
   .shareBtn:hover,
   .shareBtn:focus-visible {
     background: var(--article-accent);
-    color: var(--article-ink);
+    color: var(--article-on-accent);
   }
 }
 
 /* ------------------------------------------------------------ layout ---- */
 
 @media (min-width: 1080px) {
-  .body {
-    display: grid;
-    grid-template-columns: minmax(0, 216px) minmax(0, 1fr);
-    column-gap: clamp(40px, 4.5vw, 76px);
-    /* No `align-items: start` — the rail has to stretch to the full row height,
-       otherwise its sticky child unsticks as soon as the rail's own short box
-       has scrolled past. */
-  }
-
-  .column {
-    max-width: none;
-    margin-inline: 0;
-  }
-
-  /* Prose keeps the measure; the visual blocks take the whole column and so
-     step out past the text — the wide space to the right of the paragraphs is
-     the point, not an accident. */
-  /* Alles im Textfluss folgt der Lesebreite — nicht nur die Textknoten.
-     Vorher zählte diese Regel p/h2/h3/ul/ol einzeln auf, und jeder Blocktyp,
-     der später dazukam, fehlte darin: Artikelbilder, Spot-Karten,
-     Must-Eat-Bänder und der Katalog-Ausgang liefen über die vollen 896px der
-     Spalte, während der Text daneben bei 660px endete — gemessen 236px
-     Überhang nach rechts (User, 28.08.). Als `> *` erbt jeder künftige Block
-     die Breite, statt dass jemand daran denken muss. */
-  .content > *,
-  .hubLink,
-  .shareRow {
-    max-width: var(--article-measure);
-  }
-
-  .content > h2,
-  .content > h3 {
-    max-width: min(24ch, var(--article-measure));
-  }
-
-  .inlineImage {
-    --img-frame: min(100%, var(--article-measure));
-  }
-
-  .inlineSpot {
-    min-height: 380px;
-  }
-
-  /* Der geteilte Kopf, wie bei Highsnobiety: links Titel, Byline und
-     Vorspann, rechts der Aufmacher als Hochformat-Ausschnitt. Vorher lag der
-     Titel auf einem 1180 × 600px großen Foto über die volle Breite — das Bild
-     war das Erste und Größte der Seite, der Text kam erst danach. */
-  .headerSplit {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
-    column-gap: clamp(40px, 5vw, 80px);
-    padding-top: clamp(32px, 3.4vw, 48px);
-    margin-bottom: clamp(48px, 5vw, 80px);
-  }
-
-  .headerSplit .heroMedia {
-    grid-area: 1 / 2 / -1 / 3;
-    aspect-ratio: auto;
-    height: clamp(420px, calc(100vh - 220px), 620px);
-    max-height: none;
-    border-radius: var(--et-radius-photo);
-  }
-
-  .headerSplit .introCopy {
-    grid-area: 2 / 1;
-    align-self: end;
-    width: auto;
-    max-width: none;
-    margin: 0;
-  }
-
-  .headerSplit .heroTitle {
-    max-width: none;
-  }
-
-  .headerSplit .headerMeta {
-    grid-area: 3 / 1;
-    max-width: none;
-    margin: clamp(22px, 2.4vw, 32px) 0 0;
-  }
-
-  .headerSplit .lede {
-    margin-bottom: 0;
-  }
-
-  /* Der Katalog-Ausgang als Tafel, nicht als Zeile. Auf 660px Lesebreite
-     trug er ein 72px-Pack und zwei kurze Zeilen — die rechte Hälfte blieb
-     leer (Betreiber, 07.09.2026: „sehr viel Leerfläche"). Jetzt drei
-     Spalten: das Pack größer, das Label in Überschriftengröße, rechts ein
-     gelber Knopf als Kante. Auf dem Telefon bleibt alles, wie es war. */
+  /* Ab Desktop steht der Knopf rechts als Kante der Tafel (Betreiber,
+     07.09.2026: „sehr viel Leerfläche" rechts). */
   .hubLink {
     grid-template-columns: auto minmax(0, 1fr) auto;
-    column-gap: 26px;
-    padding: 24px 28px;
-  }
-
-  .hubLinkPack {
-    width: 96px;
-  }
-
-  .hubLinkKicker {
-    font-size: 14px;
-  }
-
-  .hubLinkLabel {
-    font-size: clamp(1.5rem, 2.2vw, 1.9rem);
-    line-height: 1.05;
-    text-wrap: balance;
+    padding: 28px 32px;
   }
 
   .hubLinkCta {
-    display: inline-flex;
     grid-column: 3;
     grid-row: 1 / span 2;
-    align-items: center;
     align-self: center;
     min-height: 48px;
+    margin-top: 0;
     padding: 0 22px;
-    border-radius: var(--et-radius-control);
-    background: var(--et-accent);
-    color: var(--et-ink);
-    font-family: var(--et-font-display);
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1;
-    white-space: nowrap;
-    transition: background 180ms ease;
-  }
-
-  .hubLink:focus-visible .hubLinkCta {
-    background: var(--et-white);
-  }
-
-  @media (hover: hover) {
-    .hubLink:hover .hubLinkCta {
-      background: var(--et-white);
-    }
-  }
-
-  /* The pull quote hangs in the margin next to the text. */
-  .content blockquote {
-    margin-left: auto;
-    margin-right: clamp(0px, 2vw, 40px);
-  }
-
-  /* The rail already carries Teilen. */
-  .shareRow {
-    display: none;
+    font-size: 14px;
   }
 }
 
-@media (max-width: 900px) {
-  .introCopy {
-    margin-top: 24px;
+/* Ab Tablet: das Foto nie höher als der sichtbare Teil der Seite —
+   `.app-pages` beginnt ab 768px bei 74px (globals.css). Am Telefon hält das
+   feste Seitenverhältnis still; dort ändert Chrome `vh` beim Scrollen. */
+@media (min-width: 768px) {
+  .heroMedia {
+    max-height: calc(100dvh - 74px - 20px);
   }
 }
 
@@ -1026,53 +1133,40 @@ div.page {
     padding-inline: 16px;
   }
 
-  .headerMeta {
-    margin-top: 26px;
+  .header {
+    padding-top: 30px;
   }
 
-  /* Hochformat und randlos, wie das Aufmacherfoto bei Highsnobiety.
-
-     Ohne die `70vh`-Grenze der Grundregel: Chrome auf dem iPhone ändert `vh`,
-     während es beim Scrollen seine Leisten ein- und ausblendet, und das Foto
-     wurde dabei höher und niedriger — es sah aus wie gezoomt (Betreiber,
-     26.09.2026). Volle Breite × 4:5 steht still und ist am Telefon nie höher
-     als der Bildschirm. Dasselbe wie bei `.inlineImage`. */
+  /* Hochformat, mit demselben 10px-Rahmen. Ohne `vh`: Chrome auf dem iPhone
+     ändert es, während es beim Scrollen seine Leisten ein- und ausblendet,
+     und das Foto wurde dabei höher und niedriger — es sah aus wie gezoomt
+     (Betreiber, 26.09.2026). 4:5 steht still. */
   .heroMedia {
     aspect-ratio: 4 / 5;
-    max-height: none;
-    margin-inline: -16px;
-    border-radius: 0;
+    margin-top: 28px;
   }
 
-  /* Fotos im Text ebenfalls randlos: die Spalte gibt links und rechts je
-     16px ab, das Bild nimmt sie sich zurück. Die Unterschrift bleibt auf der
-     Textkante. Spot-Karte und Must-Eat-Band behalten ihren Rand — sie sind
-     Knöpfe, keine Bilder. */
+  /* Fotos im Text mit demselben 10px-Rahmen wie der Aufmacher: die Spalte
+     gibt links und rechts je 16px ab, das Bild nimmt sich 6 davon zurück.
+     Die Unterschrift bleibt auf der Textkante. Das Must-Eat-Band behält
+     seinen Rand — es ist ein Knopf, kein Bild. */
   .inlineImage {
-    --img-frame: calc(100% + 32px);
-    --img-offset: -16px;
-  }
-
-  .inlineImage img {
-    border-radius: 0;
+    --img-frame: calc(100% + 12px);
+    --img-offset: -6px;
   }
 
   .inlineImage figcaption {
-    padding-inline: 16px;
+    padding-inline: 6px;
   }
 
   .heroTitle {
     max-width: none;
-    font-size: clamp(30px, 8.6vw, 46px);
-  }
-
-  .headerSplit .heroTitle {
-    max-width: 15ch;
+    font-size: clamp(38px, 10.5vw, 52px);
   }
 
   .lede {
-    max-width: none;
-    font-size: clamp(17px, 4.4vw, 19px);
+    margin-top: 32px;
+    font-size: 21px;
   }
 
   .content {
@@ -1080,25 +1174,21 @@ div.page {
     line-height: 1.6;
   }
 
-  .content > p:first-of-type::first-letter {
-    font-size: 3.2em;
+  .content:not([data-lede]) > p:first-of-type {
+    font-size: 20px;
   }
 
   .content h2,
   .content h3 {
-    max-width: none;
-    font-size: clamp(26px, 7vw, 32px);
-    line-height: 1;
+    font-size: clamp(30px, 8.5vw, 38px);
   }
 
   .content h3 {
-    font-size: clamp(22px, 5.8vw, 26px);
+    font-size: clamp(24px, 6.6vw, 28px);
   }
 
   .content blockquote {
-    width: calc(100% - 6px);
-    padding: 22px 22px 24px;
-    font-size: clamp(24px, 7vw, 32px);
+    font-size: clamp(24px, 7vw, 30px);
   }
 
   .mustEat {
@@ -1108,20 +1198,44 @@ div.page {
   }
 
   .mustEat .mustEatName {
-    font-size: clamp(21px, 6vw, 26px);
+    font-size: clamp(22px, 6vw, 26px);
   }
 
   .mustEat .mustEatDesc {
     max-width: none;
-    font-size: 14px;
+    font-size: 15px;
   }
 
+  /* Das Spot-Foto mit demselben 10px-Rahmen wie die Fotos im Text. Die
+     Karte selbst nimmt sich den Rand, damit ihr `overflow: hidden` das Foto
+     nicht beschneidet. */
   .inlineSpot {
-    min-height: clamp(300px, 78vw, 420px);
+    margin-inline: -6px;
+  }
+
+  .inlineSpotPhoto {
+    aspect-ratio: 4 / 3;
+  }
+
+  .inlineSpotFoot {
+    padding-inline: 6px;
+  }
+
+  /* Am Telefon ist die Textspalte der Tafel höher als das Pack — am Fuss
+     ausgerichtet bliebe es ganz in der Tafel. Oben angeschlagen ragt es
+     hinaus wie auf dem Desktop. */
+  .hubLinkPack {
+    align-self: start;
+    width: 100px;
+  }
+
+  .content h2 [data-heading='deck'] {
+    margin-top: 10px;
+    font-size: 19px;
   }
 
   .relatedHeading {
-    font-size: clamp(26px, 7.4vw, 34px);
+    font-size: clamp(30px, 8.5vw, 38px);
   }
 
   /* Swipeable rail instead of a stack. Bleeds to both edges so the next

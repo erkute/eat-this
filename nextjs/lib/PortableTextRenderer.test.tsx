@@ -227,3 +227,41 @@ describe('PortableTextRenderer conclusion blocks', () => {
     expect(heads[1].id).toBe('fazit');
   });
 });
+
+describe('chapter headings with a deck', () => {
+  const h2 = (children: unknown[], markDefs: unknown[] = []): PortableTextBlock =>
+    ({
+      _type: 'block',
+      _key: 'h',
+      style: 'h2',
+      markDefs,
+      children,
+    }) as unknown as PortableTextBlock;
+
+  it('sets the name and the deck apart, keeping the whole text and anchor', () => {
+    const html = render([h2([span('goldies – für Puristen mit Prinzipien')])]);
+    expect(html).toContain(
+      '<h2 id="goldies-fur-puristen-mit-prinzipien"><span data-heading="name">goldies</span>' +
+        '<span data-heading="separator"> – </span>' +
+        '<span data-heading="deck">für Puristen mit Prinzipien</span></h2>'
+    );
+  });
+
+  it('splits a heading that is bold as a whole — bold adds nothing there', () => {
+    const html = render([h2([span('Ari’s – für den Plot-Twist', ['strong'])])]);
+    expect(html).toContain('<span data-heading="deck">für den Plot-Twist</span>');
+    expect(html).not.toContain('<strong>');
+  });
+
+  it('leaves a heading with a link as it is, so the link survives', () => {
+    const html = render([
+      h2([span('VEG’D', ['l1']), span(' – vegan')], [link('l1', '/map?r=vegd')]),
+    ]);
+    expect(html).toContain('href="/map?r=vegd"');
+    expect(html).not.toContain('data-heading');
+  });
+
+  it('leaves a heading without a dash whole', () => {
+    expect(render([h2([span('Fazit')])])).not.toContain('data-heading');
+  });
+});

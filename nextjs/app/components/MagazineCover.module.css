@@ -165,7 +165,7 @@
   pointer-events: none;
 }
 
-/* Kleine Titelseiten (Regal im Magazin-Index, „Weiter auf dem Teller"): bei
+/* Kleine Titelseiten (Regal im Magazin-Index, „Weitere Ausgaben"): bei
    170–260px Breite wären Schlagzeile, Etikett und Kopfzeile in reinen `cqw`
    9, 6 und 4px gross. Die Untergrenzen halten sie lesbar; der Platz reicht
    auch für die längste Schlagzeile (85 Zeichen) unter dem Masthead. */

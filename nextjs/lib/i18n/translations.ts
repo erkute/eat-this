@@ -203,7 +203,7 @@ const en = {
     categories: 'Categories',
     districts: 'Districts',
     fragRemy: 'Ask Remy',
-    aufDemTeller: 'On the Menu',
+    aufDemTeller: 'On the plate',
     boosterPacks: 'Booster Packs',
     profile: 'Profile',
     signIn: 'Sign in',

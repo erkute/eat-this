@@ -1,8 +1,8 @@
 /**
  * Ein Heft aufschlagen (02.10.2026, Ansage: „wenn man auf einen Artikel
  * klickt, öffnet sich das Magazin, und man landet im Artikel"). Läuft auf
- * jedem Heft, das MagazineLink trägt — Startseite, Magazin-Index, „Weiter auf
- * dem Teller".
+ * jedem Heft, das MagazineLink trägt — Startseite, Magazin-Index, „Weitere
+ * Ausgaben" unter dem Artikel.
  *
  * Drei Takte über einer eigenen Ebene, der Artikel lädt währenddessen darunter:
  *

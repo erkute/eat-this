@@ -14,6 +14,31 @@ describe('critical auth bootstrap', () => {
     expect(bootstrap).not.toContain('.textContent=')
   })
 
+  // Der Artikel tritt nur auf, wenn er die erste Seite ist: beim Aufklappen
+  // aus einem Heft ist das Aufklappen schon der Auftritt (ArticleMotion).
+  it('marks a freshly loaded article for its intro, never with reduced motion', () => {
+    const source = readFileSync(join(process.cwd(), 'app/[locale]/layout.tsx'), 'utf8')
+    const bootstrap = source.match(/const CRITICAL_BOOTSTRAP = `([\s\S]*?)`;/)?.[1] ?? ''
+    const line = bootstrap.split('\n').find((l) => l.includes('data-article-intro')) ?? ''
+
+    expect(line).toContain("slug==='news-article'")
+    expect(line).toContain("matchMedia('(prefers-reduced-motion: reduce)')")
+    // In einem unsichtbaren Tab liefe die Animation nie — der Kopf bliebe leer.
+    expect(line).toContain("document.visibilityState==='visible'")
+  })
+
+  // Wer den Artikel dunkel gestellt hat, sieht ihn beim Laden gleich dunkel —
+  // ohne einen hellen ersten Frame. Gesetzt auf jeder Seite, damit auch ein
+  // Artikel, in den man aus der App navigiert, schon dunkel ist.
+  it('restores the dark article before the first paint', () => {
+    const source = readFileSync(join(process.cwd(), 'app/[locale]/layout.tsx'), 'utf8')
+    const bootstrap = source.match(/const CRITICAL_BOOTSTRAP = `([\s\S]*?)`;/)?.[1] ?? ''
+    const line = bootstrap.split('\n').find((l) => l.includes('data-article-theme')) ?? ''
+
+    expect(line).toContain("localStorage.getItem('et-article-theme')==='dark'")
+    expect(line).toContain("setAttribute('data-article-theme','dark')")
+  })
+
   /* Adobe's kit stylesheet used to be linked here and loaded with media="print"
    * until the bootstrap flipped it. It @imported p.typekit.net/p.css — Adobe's
    * usage beacon — which ran for every visitor before the cookie dialog was

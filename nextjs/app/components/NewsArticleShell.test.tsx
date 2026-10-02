@@ -238,13 +238,15 @@ describe('NewsArticleShell', () => {
   });
 
   // Die Kartenfläche hat ein Ziel: die Map. Vorher führte der Name auf die
-  // Spot-Seite — auf einer Karte, deren sichtbarer Knopf „Auf die Map“ heißt,
+  // Spot-Seite — auf einer Karte, deren sichtbarer Knopf „Zur Map“ heißt,
   // ist das für niemanden vorhersehbar, zumal die Trefferfläche des Namens
   // über die ganze Karte reicht.
   it('sends both the spot name and the map button to the map', () => {
     const html = render([spot('Spumante', 'spumante')]);
     expect(html.match(/href="\/map\?r=spumante"/g)).toHaveLength(2);
-    expect(html).toContain('Auf die Map');
+    // „Zur Map" wie überall in der App — „Auf die Map" klang doof (02.10.2026).
+    expect(html).toContain('Zur Map');
+    expect(html).not.toContain('Auf die Map');
   });
 
   // Der gefolgte Link auf die Spot-Seite sitzt jetzt auf der Meta-Zeile. Ohne
@@ -267,10 +269,40 @@ describe('NewsArticleShell', () => {
     for (const link of mapLinks) expect(link).toContain('nofollow');
   });
 
-  it('lists the h2 chapters in the rail', () => {
-    const html = render([h2('Saucen'), para('x'), h2('Und jetzt zum traurigen Teil')]);
-    expect(html).toContain('href="#saucen"');
-    expect(html).toContain('href="#und-jetzt-zum-traurigen-teil"');
+  it('lists the spots of a guide under the head, by name, each a jump', () => {
+    const conclusion = {
+      _type: 'block',
+      _key: 'fazit',
+      style: 'conclusion',
+      markDefs: [],
+      children: [{ _type: 'span', _key: 'f', text: 'Fünf Pizzen, fünf Wege' }],
+    } as unknown as PortableTextBlock;
+    const html = render([
+      h2('Saucen'),
+      spot('Spumante', 'spumante'),
+      h2('Kolo Coffee – Mikrorösterei mit Bohnen'),
+      spot('Kolo', 'kolo'),
+      conclusion,
+    ]);
+    const head = html.slice(0, html.indexOf('</header>'));
+    // „nicht Kapitel nennen" (02.10.2026): die Zeile zählt Spots auf.
+    expect(head).toContain('aria-label="Die Spots"');
+    // Das Fazit ist kein Spot.
+    expect(head).not.toContain('Fünf Pizzen');
+    expect(head).toContain('href="#saucen"');
+    expect(head).toMatch(/href="#kolo-coffee-[^"]*"[^>]*>Kolo Coffee<\/a>/);
+  });
+
+  // Ansage 02.10.2026: „das brauche ich hier nicht, nur wenn Spots gelistet
+  // sind" — ein Essay mit Zwischenüberschriften bekommt keine Zeile.
+  it('shows no chapter row for an essay that lists no spots', () => {
+    const html = render([
+      h2('Von der Sterneküche'),
+      para('x'),
+      h2('Das Croissant'),
+      spot('Crapulix', 'crapulix'),
+    ]);
+    expect(html).not.toContain('aria-label="Die Spots"');
   });
 
   it('reports a reading estimate of at least a minute', () => {
@@ -312,12 +344,37 @@ describe('NewsArticleShell', () => {
         />
       );
 
-    it('names its issue in the byline, counted from the oldest article', () => {
+    it('names its issue in the credits under the head, counted from the oldest article', () => {
       // Newest first: four articles, `doener` is the second newest → Issue 3.
       const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
-      const byline = html.slice(html.indexOf('</h1>'), html.indexOf('Min. Lesezeit'));
-      expect(byline).toContain('<span>Issue 3</span>');
-      expect(byline.indexOf('Issue 3')).toBeLessThan(byline.indexOf('24. April 2026'));
+      const credits = html.slice(html.indexOf('</h1>'), html.indexOf('Min. Lesezeit'));
+      expect(credits).toContain('<span>Issue 3</span>');
+      expect(credits.indexOf('Issue 3')).toBeLessThan(credits.indexOf('24. April 2026'));
+      // Nothing stands above the photo: the page opens with the head itself.
+      expect(html.slice(0, html.indexOf('<header'))).not.toContain('Issue');
+    });
+
+    it('opens like Kaleidoscope: headline and credits, then the photo, then the lede', () => {
+      const html = renderWith(issues(['doener']), {
+        excerptDe: 'Wo Berlin seinen Döner wirklich isst.',
+      });
+      const at = (needle: string) => html.indexOf(needle);
+      expect(at('</h1>')).toBeLessThan(at('24. April 2026'));
+      expect(at('24. April 2026')).toBeLessThan(at('alt="Döner im Brot"'));
+      expect(at('alt="Döner im Brot"')).toBeLessThan(at('Wo Berlin seinen Döner'));
+      expect(at('Wo Berlin seinen Döner')).toBeLessThan(at('</header>'));
+    });
+
+    // Nur ein Auftakt in Providence: mit Vorspann beginnt der Text normal.
+    it('marks the text as led when the head carries a lede', () => {
+      const led = renderWith(issues(['doener']), { excerptDe: 'Wo Berlin seinen Döner isst.' });
+      expect(led).toMatch(/data-article-content=""[^>]*data-lede=""/);
+      expect(renderWith(issues(['doener']))).not.toContain('data-lede');
+    });
+
+    it('puts the rubric as a label right above the headline', () => {
+      const html = renderWith(issues(['doener']));
+      expect(html).toMatch(/>Guides<\/span><h1[^>]*>Döner in Berlin<\/h1>/);
     });
 
     it('does not show its own cover again — the tap opened the magazine', () => {
@@ -339,7 +396,11 @@ describe('NewsArticleShell', () => {
 
     it('shows the next issues as covers with their own numbers', () => {
       const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
-      const related = html.slice(html.indexOf('Weiter auf dem Teller'));
+      // Darunter liegen Hefte, also „Weitere Ausgaben" — nicht mehr „Weiter
+      // auf dem Teller" (Ansage 02.10.2026).
+      expect(html).toContain('>Weitere Ausgaben</h2>');
+      expect(html).not.toContain('Weiter auf dem Teller');
+      const related = html.slice(html.indexOf('Weitere Ausgaben'));
       expect(related).toContain('href="/news/pizza"');
       expect(related).toContain('Issue 4 · September 2026');
       expect(related).toContain('href="/news/donuts"');

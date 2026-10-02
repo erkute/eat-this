@@ -24,6 +24,8 @@ const classes = {
   inside: 'inside',
   backFolio: 'backFolio',
   backMark: 'backMark',
+  capTop: 'capTop',
+  capBottom: 'capBottom',
 };
 
 function magazine() {

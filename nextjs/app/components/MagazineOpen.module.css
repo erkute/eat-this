@@ -20,6 +20,34 @@
   background: var(--table);
 }
 
+/* Die Leisten von Safari schwarz wie der Tisch (Ansage 02.10.2026: unter der
+   URL-Leiste stand beim Aufklappen Weiss oder Grau). Seit iOS 26 färbt Safari
+   sie nach dem fixierten Element, das es 4px innerhalb der Kante findet: der
+   Tisch wächst erst als Kreis von der Klickstelle, danach steht dort nur der
+   Schatten der Seite, und am Ende der Artikel — nichts davon ist für Safari
+   eine deckende Fläche. Dieselbe Lösung wie beim Foto-Zoom (ZoomCurtain, am
+   iPhone belegt): eine deckende Kappe an jeder Kante, über die ganze Breite
+   und bündig an der Kante, nie darüber hinaus. In die Leisten zeichnet Safari
+   nur die gefundene Farbe; im Fenster sind die Kappen 6px Tisch. */
+.capTop,
+.capBottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  background-color: var(--table);
+  pointer-events: none;
+}
+
+.capTop {
+  top: 0;
+  height: max(6px, env(safe-area-inset-top, 0px));
+}
+
+.capBottom {
+  bottom: 0;
+  height: max(6px, env(safe-area-inset-bottom, 0px));
+}
+
 .book {
   position: absolute;
   perspective: 2200px;

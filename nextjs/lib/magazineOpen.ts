@@ -42,6 +42,8 @@ export interface MagazineOpenClasses {
   inside: string;
   backFolio: string;
   backMark: string;
+  capTop: string;
+  capBottom: string;
 }
 
 interface Options {
@@ -297,7 +299,12 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
   const shadow = div(classes.shadow);
   const gutter = div(classes.gutter);
   book.append(page, shadow, gutter);
-  overlay.append(table, book);
+  // Safari färbt Status- und URL-Leiste nach dem fixierten Element mit
+  // deckender Farbe, das es an der Kante findet — ohne die Kappen traf es das
+  // Heft oder den durchscheinenden Artikel, und unter der URL-Leiste stand
+  // beim Aufklappen Weiss oder Grau (Ansage 02.10.2026). Zuletzt angehängt,
+  // damit sie über dem Heft liegen.
+  overlay.append(table, book, div(classes.capTop), div(classes.capBottom));
 
   // Die Innenseite des Umschlags: oben dieselbe Heftzeile wie vorn, unten
   // klein das Logo — wie das Impressum eines Hefts.

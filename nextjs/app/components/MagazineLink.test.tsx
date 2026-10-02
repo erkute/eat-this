@@ -32,6 +32,7 @@ vi.mock('@/i18n/navigation', () => ({
 }));
 
 import MagazineLink from './MagazineLink';
+import styles from './MagazineOpen.module.css';
 
 const cover = <span data-magazine-cover="">Cover</span>;
 const overlay = () => document.querySelector('[aria-hidden="true"][class]');
@@ -68,6 +69,25 @@ describe('MagazineLink', () => {
     await vi.waitFor(() => expect(navigations).toEqual(['/news/doener']));
     land('doener');
     await vi.waitFor(() => expect(overlay()).toBeNull());
+  });
+
+  // Safari färbt Status- und URL-Leiste nach dem fixierten Element mit
+  // deckender Farbe, das es an der Kante findet. Ohne Kappen fand es dort das
+  // Heft oder den durchscheinenden Artikel, und unter der URL-Leiste stand
+  // beim Aufklappen Weiss oder Grau (Ansage 02.10.2026: „das muss schwarz
+  // sein"). Die Kappen liegen zuoberst, damit die Abtastung sie trifft.
+  it('lays a cap on both edges, above the magazine, while it opens', async () => {
+    const { getByRole } = render(<MagazineLink href="/news/doener">{cover}</MagazineLink>);
+    fireEvent.click(getByRole('link'));
+    const layer = overlay();
+    expect(layer).not.toBeNull();
+    const [top, bottom] = Array.from(layer!.children).slice(-2);
+    expect(top.className).toBe(styles.capTop);
+    expect(bottom.className).toBe(styles.capBottom);
+    await vi.waitFor(() => expect(navigations).toEqual(['/news/doener']));
+    land('doener');
+    await vi.waitFor(() => expect(overlay()).toBeNull());
+    expect(document.querySelector(`.${styles.capTop}`)).toBeNull();
   });
 
   it('navigates at once with reduced motion', () => {

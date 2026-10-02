@@ -52,7 +52,7 @@ const COOKIE_SECTIONS_DE: ModalBodySection[] = [
       { strong: 'Sanity CDN', text: ' — Bilder und Inhalte' },
       {
         strong: 'Sentry',
-        text: ' — meldet uns technische Fehler, wenn bei dir etwas kaputtgeht; dabei fallen Browser, Betriebssystem, die aufgerufene Seite und eine pseudonymisierte IP an',
+        text: ' — meldet uns technische Fehler, wenn bei dir etwas kaputtgeht; dabei fallen Browser, Betriebssystem und die aufgerufene Seite an, deine IP speichert Sentry nicht',
       },
       {
         strong: 'Google Sign-In',
@@ -104,7 +104,7 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
       { strong: 'Sanity CDN', text: ' — photos and content' },
       {
         strong: 'Sentry',
-        text: ' — reports technical errors to us when something breaks on your side; it records browser, operating system, the page you were on and a pseudonymised IP',
+        text: ' — reports technical errors to us when something breaks on your side; it records browser, operating system and the page you were on, but does not store your IP',
       },
       {
         strong: 'Google Sign-In',

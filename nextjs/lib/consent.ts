@@ -51,6 +51,14 @@ export const CONSENT_ID_COOKIE = 'consentId';
  * (returning visitors and time on site). Consent given to the old wording was
  * given to a false premise, so it does not carry over.
  */
+/*
+ * Still 4 after 02.10.2026, although the Sentry line changed: it used to say
+ * Sentry records "a pseudonymised IP" and now says it stores none
+ * (sendDefaultPii off, see instrumentation-client.ts). Sentry is listed under
+ * third parties, not under what the answer decides, and the processing only
+ * got smaller — an answer given to the old text covers the new one. Bump only
+ * when the question itself changes or the text had withheld something.
+ */
 export const CONSENT_VERSION = 4;
 
 export type ConsentValue = 'accepted' | 'declined';

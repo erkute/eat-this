@@ -25,3 +25,25 @@ export function consumePendingBuddyAsk(): BuddyAskDetail | null {
   pendingBuddyAsk = null;
   return detail;
 }
+
+// Fragt man auf Remys Tafel (Antwort antippen oder abschicken), nickt Remy
+// erst und redet kurz, dann geht der Chat auf (Idee vom 01.10.2026: Tafel und
+// Chat sollen sichtbar zusammenhängen). Das Nicken gehört HubMotion
+// (`armRemyLook`): es nimmt das Ereignis an (`preventDefault`) und ruft `ask`
+// selbst, sobald er genickt hat. Nimmt es niemand an — keine Bewegung, kein
+// WebGL, Remy nicht im Bild —, geht der Chat sofort auf.
+export const REMY_NOD_EVENT = 'remy:nod';
+
+export interface RemyNodDetail {
+  ask: () => void;
+}
+
+export function askRemyWithNod(from: Element, detail: BuddyAskDetail): void {
+  const ask = () => dispatchBuddyAsk(detail);
+  const nod = new CustomEvent<RemyNodDetail>(REMY_NOD_EVENT, {
+    bubbles: true,
+    cancelable: true,
+    detail: { ask },
+  });
+  if (from.dispatchEvent(nod)) ask();
+}

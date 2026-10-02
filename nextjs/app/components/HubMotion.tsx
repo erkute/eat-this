@@ -6,6 +6,7 @@ import { appScroller } from '@/lib/dom/appScroller';
 import { scrollProgress } from '@/lib/dom/scrollProgress';
 import { armMagazineTable } from '@/lib/home/magazineTable';
 import { renderRemyLook, type RemyFace } from '@/lib/home/renderRemyLook';
+import { REMY_NOD_EVENT, type RemyNodDetail } from '@/lib/buddy/homeStage';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -615,7 +616,8 @@ function armFragRemy(): () => void {
  * - sonst, am Telefon und im Bild, von sich aus umher: hoch zu den
  *   Kategorien, rüber zu den Antworten, wieder geradeaus.
  * Zeigt man auf etwas, das man antippen kann (Kategorie, Antwort, Senden),
- * schaut er hin und lacht.
+ * schaut er hin und lacht. Fragt man ihn (Antwort antippen, abschicken),
+ * nickt er und redet kurz, und erst dann geht der Chat auf.
  */
 function armRemyLook(pointer: boolean): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
@@ -649,6 +651,9 @@ function armRemyLook(pointer: boolean): () => void {
     ly(0);
   };
   const delight = (on: boolean) => avatar.toggleAttribute('data-delight', on);
+  /** Das Nicken kommt auf den Blick drauf (`nod.y`), statt ihn zu
+   *  übernehmen: Maus und Finger steuern weiter, er nickt dabei. */
+  const nod = { y: 0 };
 
   // ── Das Gitter (WebGL, lib/home/renderRemyLook.ts) ──
   // Erst wenn alle drei Gesichter geladen sind; ohne WebGL bleiben die Bilder.
@@ -679,7 +684,7 @@ function armRemyLook(pointer: boolean): () => void {
     if (dirty || face !== shown) {
       dirty = false;
       shown = face;
-      mesh.draw(look.x, look.y, face);
+      mesh.draw(look.x, look.y + nod.y, face);
     }
     frame = requestAnimationFrame(paint);
   };
@@ -788,6 +793,78 @@ function armRemyLook(pointer: boolean): () => void {
     }
     input?.removeEventListener('focus', enterField);
     input?.removeEventListener('blur', leaveField);
+  });
+
+  // ── Er nickt, bevor der Chat aufgeht (REMY_NOD_EVENT, askRemyWithNod) ──
+  // Nur, wenn man ihn sieht und das Gitter zeichnet — sonst wäre das Warten
+  // verschenkt, und der Chat geht sofort auf. Sichtbar heisst: im sichtbaren
+  // Ausschnitt, nicht hinter der Tastatur (`visualViewport`).
+  let nodding: gsap.core.Timeline | null = null;
+  let pendingAsk: (() => void) | null = null;
+  const onNod = (event: Event) => {
+    const { ask: next } = (event as CustomEvent<RemyNodDetail>).detail;
+    // Ein zweiter Tipp, während er noch nickt: die neuere Frage geht raus.
+    if (nodding) {
+      event.preventDefault();
+      pendingAsk = next;
+      return;
+    }
+    if (!mesh) return;
+    const r = head.getBoundingClientRect();
+    const view = window.visualViewport;
+    const top = view?.offsetTop ?? 0;
+    const bottom = top + (view?.height ?? window.innerHeight);
+    // Die Gläser (28 % des Bildes) müssen zu sehen sein.
+    const eyes = r.top + r.height * 0.28;
+    if (eyes < top || eyes > bottom) return;
+    event.preventDefault();
+    pendingAsk = next;
+    const ask = () => {
+      const run = pendingAsk;
+      pendingAsk = null;
+      run?.();
+    };
+    hold();
+    ahead();
+    avatar.setAttribute('data-speaking', '');
+    // Zweimal nicken, das zweite Mal kleiner, und der Oberkörper wippt mit
+    // (`--remy-y`, in Prozent seiner Höhe) — mit dem Kopf allein war es am
+    // Telefon kaum zu sehen. Der Chat geht auf, während er zurückkommt.
+    nodding = gsap
+      .timeline({
+        onComplete: () => {
+          nodding = null;
+          avatar.removeAttribute('data-speaking');
+          rest();
+        },
+      })
+      .to(nod, {
+        keyframes: { y: [0, 1.35, -0.3, 0.85, 0], easeEach: 'sine.inOut' },
+        duration: 0.62,
+        ease: 'none',
+        onUpdate: () => (dirty = true),
+      })
+      .to(
+        avatar,
+        {
+          keyframes: { '--remy-y': [0, 2.5, -0.5, 1.5, 0], easeEach: 'sine.inOut' },
+          duration: 0.62,
+          ease: 'none',
+        },
+        0
+      )
+      .call(ask, undefined, 0.5);
+  };
+  section.addEventListener(REMY_NOD_EVENT, onNod);
+  stops.push(() => {
+    section.removeEventListener(REMY_NOD_EVENT, onNod);
+    nodding?.kill();
+    nodding = null;
+    nod.y = 0;
+    // Wird mitten im Nicken abgebaut, geht die Frage trotzdem raus.
+    const run = pendingAsk;
+    pendingAsk = null;
+    run?.();
   });
 
   if (pointer) {

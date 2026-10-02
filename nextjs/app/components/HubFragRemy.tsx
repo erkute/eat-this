@@ -2,7 +2,7 @@
 // Home-hub section for Remy, the KI buddy — restyled into the homeV2 white
 // vocabulary. Yellow is kept as Remy's accent (avatar circle, chip hover),
 // NOT as a full-section background band.
-// Daypart greeting and chat/quick-ask dispatch via dispatchBuddyAsk. Der
+// Daypart greeting and chat/quick-ask dispatch via askRemyWithNod. Der
 // Auftritt (Fragezeichen, „Frag Remy.", Remy schießt hoch und redet), sein
 // Blick (der Kopf dreht sich zur Maus oder zum Finger) und das Reden beim
 // Scrollen gehören HubMotion — über `data-fragremy-*`/`data-remy-*`-Haken und
@@ -11,7 +11,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
 import { stageFor } from '@/lib/buddy/greeting';
-import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
+import { askRemyWithNod } from '@/lib/buddy/homeStage';
 import type { Locale } from '@/lib/buddy/types';
 import styles from './HubFragRemy.module.css';
 
@@ -47,10 +47,11 @@ export default function HubFragRemy({ choices }: Props) {
       : ['Really good pizza', 'A nice dinner for two'];
   const answers = stage?.answers ?? fallbackAnswers;
 
-  function submitDraft() {
+  // Erst nickt Remy, dann geht der Chat auf (askRemyWithNod, HubMotion).
+  function submitDraft(form: HTMLFormElement) {
     const q = draft.trim();
     if (!q) return;
-    dispatchBuddyAsk({ question: q });
+    askRemyWithNod(form, { question: q });
     setDraft('');
   }
 
@@ -91,7 +92,7 @@ export default function HubFragRemy({ choices }: Props) {
                     key={a}
                     type="button"
                     className={`hv-chip ${styles.chip}`}
-                    onClick={() => dispatchBuddyAsk({ question: a })}
+                    onClick={(e) => askRemyWithNod(e.currentTarget, { question: a })}
                   >
                     {a}
                   </button>
@@ -102,7 +103,7 @@ export default function HubFragRemy({ choices }: Props) {
                 data-fragremy-form=""
                 onSubmit={(e) => {
                   e.preventDefault();
-                  submitDraft();
+                  submitDraft(e.currentTarget);
                 }}
               >
                 <input

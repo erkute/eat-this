@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const analytics = vi.hoisted(() => ({
@@ -232,5 +232,41 @@ describe('CookieConsent — der Detailbereich nennt die eigene Zählung', () => 
     expect(panel?.textContent).toMatch(/läuft auch weiter, wenn du unten .?Ablehnen.? wählst/);
     // Und die entscheidende Eigenschaft, die ihn einwilligungsfrei macht.
     expect(panel?.textContent).toMatch(/kein Cookie bei dir/);
+  });
+});
+
+/* Auf der Startseite wartet die Frage, bis Remy den Vorhang weggeschoben hat
+ * und die Headline steht (Ansage 02.10.2026: „die Cookies kommen zu früh"). */
+describe('CookieConsent während des Startseiten-Auftritts', () => {
+  beforeEach(() => {
+    clearCookies();
+    document.documentElement.removeAttribute('data-consent-gate');
+  });
+  afterEach(() => {
+    document.documentElement.removeAttribute('data-hero-intro');
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  it('fragt erst, wenn der Auftritt vorbei ist', async () => {
+    document.documentElement.setAttribute('data-hero-intro', '');
+    render(<CookieConsent />);
+    expect(gate(), 'nicht über dem schiebenden Remy').toBeNull();
+
+    document.documentElement.removeAttribute('data-hero-intro');
+    await waitFor(() => expect(gate()).not.toBeNull());
+    await openGate();
+  });
+
+  it('fragt spätestens nach 15 s, falls der Auftritt hängt', async () => {
+    vi.useFakeTimers();
+    document.documentElement.setAttribute('data-hero-intro', '');
+    render(<CookieConsent />);
+    vi.advanceTimersByTime(14_999);
+    expect(gate()).toBeNull();
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(gate()).not.toBeNull();
   });
 });

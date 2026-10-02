@@ -21,6 +21,7 @@ import Image from '@/app/components/SiteImage';
 import { useLocale } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
+import { afterHeroIntro } from '@/lib/home/heroIntro';
 import { CloseIcon } from '@/app/components/map/icons';
 import { preloadBuddyWidget } from './RemyDock';
 import styles from './RemyLauncher.module.css';
@@ -49,19 +50,15 @@ export default function RemyLauncher() {
      (andere Seiten, reduzierte Bewegung) steht er einfach da. */
   const [entrance, setEntrance] = useState<'waiting' | 'playing' | null>(null);
   useEffect(() => {
-    const html = document.documentElement;
-    if (!html.hasAttribute('data-hero-intro')) return;
+    if (!document.documentElement.hasAttribute('data-hero-intro')) return;
     setEntrance('waiting');
     let timer = 0;
-    const watch = new MutationObserver(() => {
-      if (html.hasAttribute('data-hero-intro')) return;
-      watch.disconnect();
+    const cancel = afterHeroIntro(() => {
       setEntrance('playing');
       timer = window.setTimeout(() => setEntrance(null), ENTRANCE_MS);
     });
-    watch.observe(html, { attributes: true, attributeFilter: ['data-hero-intro'] });
     return () => {
-      watch.disconnect();
+      cancel();
       window.clearTimeout(timer);
     };
   }, []);

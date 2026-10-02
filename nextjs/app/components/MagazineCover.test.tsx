@@ -31,18 +31,25 @@ describe('MagazineCover', () => {
     expect(html).toContain('>Guides<');
   });
 
-  it('keeps the photo silent unless it stands for the lead image', () => {
+  it('keeps the photo silent — the link is named by the headline', () => {
     expect(renderToStaticMarkup(<MagazineCover {...base} />)).toMatch(
       /class="[^"]*photo[^"]*"[^>]*alt=""/
     );
-    const lead = renderToStaticMarkup(
-      <MagazineCover {...base} alt="Pizza mit Burrata" decorative priority />
-    );
-    expect(lead).toContain('alt="Pizza mit Burrata"');
-    // Title and rubric stand next to it as the page's heading.
-    expect(lead).toMatch(/class="[^"]*lines[^"]*" aria-hidden="true"/);
-    expect(lead).toContain('fetchPriority="high"');
-    expect(lead).toContain('loading="eager"');
+  });
+
+  it('hides the copy of a cover that only lies underneath', () => {
+    const html = renderToStaticMarkup(<MagazineCover {...base} decorative />);
+    expect(html).toMatch(/class="[^"]*lines[^"]*" aria-hidden="true"/);
+  });
+
+  it('loads the page lead at once', () => {
+    const html = renderToStaticMarkup(<MagazineCover {...base} priority />);
+    expect(html).toContain('fetchPriority="high"');
+    expect(html).toContain('loading="eager"');
+  });
+
+  it('marks itself for MagazineLink', () => {
+    expect(renderToStaticMarkup(<MagazineCover {...base} />)).toContain('data-magazine-cover=""');
   });
 
   it("waits with photo and masthead when it is not the page's lead", () => {

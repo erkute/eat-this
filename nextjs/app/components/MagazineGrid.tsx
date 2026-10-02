@@ -4,6 +4,7 @@ import type { HubArticle } from '@/lib/home/getHomeData';
 import { deckKeyframes } from '@/lib/home/magazineDeck';
 import MagazineCover from './MagazineCover';
 import MagazineDeckDots from './MagazineDeckDots';
+import MagazineLink from './MagazineLink';
 import styles from './MagazineGrid.module.css';
 
 interface Props {
@@ -102,7 +103,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
                     } as CSSProperties
                   }
                 >
-                  <Link href={`/news/${a.slug}`} className={styles.mag}>
+                  <MagazineLink href={`/news/${a.slug}`} className={styles.mag}>
                     <MagazineCover
                       title={a.title}
                       image={a.image}
@@ -114,7 +115,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
                       sizes="(max-width: 767.98px) 80vw, 420px"
                       widths={[480, 800, 1200]}
                     />
-                  </Link>
+                  </MagazineLink>
                 </li>
               ))}
               {/* One snap point per cover: the swipe distance between two. */}

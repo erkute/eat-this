@@ -15,6 +15,7 @@ import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleRail from './ArticleRail';
 import MagazineCover from './MagazineCover';
+import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import styles from './NewsArticleShell.module.css';
@@ -144,12 +145,13 @@ function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): bo
   );
 }
 
-// Article detail — magazine feature. On desktop the header splits like
-// Highsnobiety's: title, byline and lede on the left, the issue's cover on the
-// right (the same cover the home page and /news show — you open the issue you
-// tapped); below, the piece runs as a reading column with a sticky chapter rail
-// beside it. Nothing in the reading column moves. Inline must-eat and spot
-// cards are driven by mustEatCard / spotCard reference blocks in the body.
+// Article detail — magazine feature, the inside of the issue: a tap on a cover
+// opens the magazine and lands here (MagazineLink), so the cover itself does
+// not appear again. On desktop the header splits like Highsnobiety's: title,
+// byline and lede on the left, the lead photo on the right; below, the piece
+// runs as a reading column with a sticky chapter rail beside it. Nothing in
+// the reading column moves. Inline must-eat and spot cards are driven by
+// mustEatCard / spotCard reference blocks in the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -179,11 +181,12 @@ export default function NewsArticleShell({
   const coverLocale = de ? 'de' : 'en';
   // `relatedArticles` is every article, newest first — the issue counts from
   // the oldest, as on the home page (getHomeData). The preview of an
-  // unpublished draft is not in the list and prints only its month.
+  // unpublished draft is not in the list and carries no number.
   const issueOf = (slug: string) => {
     const at = relatedArticles.findIndex((a) => a.slug === slug);
     return at < 0 ? null : relatedArticles.length - at;
   };
+  const issue = issueOf(article.slug);
 
   // Inline "Must Eat" band — a flat strip in the article column, not a poster.
   // The restaurant carries the headline so two must-eats in one guide can't
@@ -343,8 +346,11 @@ export default function NewsArticleShell({
     <div className={styles.byline}>
       <span className={styles.category}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
       <span className={styles.bylineMeta}>
+        {/* Die Ausgabe, die man eben aufgeschlagen hat — wie die Kopfzeile
+            einer Heftseite. */}
+        {issue && <span>Issue {issue}</span>}
         {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-        <span className={styles.readingTime}>{readingTime}</span>
+        <span>{readingTime}</span>
       </span>
     </div>
   );
@@ -353,6 +359,7 @@ export default function NewsArticleShell({
     <div
       className={`app-page news-article-page${isActive ? ' active' : ''} ${styles.page}`}
       data-page="news-article"
+      data-article-slug={article.slug}
       id="newsModal"
     >
       <main className={styles.article}>
@@ -365,23 +372,15 @@ export default function NewsArticleShell({
                 `news/[slug]/page.tsx` bleibt davon unberührt, die SERP-Krume
                 also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
                 ohne. */}
-            {/* Der Aufmacher als Titelseite der Ausgabe. Titel und Rubrik
-                stehen daneben als echte Überschrift — die Kopie auf dem Heft
-                ist für Vorleser stumm, das Foto behält seinen Alt-Text. */}
             {article.imageUrl && (
               <div className={styles.heroMedia}>
-                <MagazineCover
-                  title={title}
-                  image={article.imageUrl}
+                <Image
+                  src={article.imageUrl}
                   alt={article.alt || title}
-                  kicker={categoryLabel}
-                  issue={issueOf(article.slug)}
-                  date={article.date}
-                  locale={coverLocale}
-                  sizes="(max-width: 1079px) 78vw, 460px"
-                  widths={[480, 800, 1200]}
+                  fill
                   priority
-                  decorative
+                  sizes="(max-width: 1079px) 100vw, 580px"
+                  className={styles.hero}
                 />
               </div>
             )}
@@ -481,7 +480,7 @@ export default function NewsArticleShell({
                     (de ? rec.categoryLabelDe : rec.categoryLabel) || rec.categoryLabel || '';
                   return (
                     <li key={rec.slug}>
-                      <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
+                      <MagazineLink href={`/news/${rec.slug}`} className={styles.relatedCard}>
                         <MagazineCover
                           title={recTitle}
                           image={rec.imageUrl}
@@ -494,7 +493,7 @@ export default function NewsArticleShell({
                           widths={[320, 480, 800]}
                           compact
                         />
-                      </Link>
+                      </MagazineLink>
                     </li>
                   );
                 })}

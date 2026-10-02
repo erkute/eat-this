@@ -277,7 +277,7 @@ describe('NewsArticleShell', () => {
     expect(render([para('Kurz.')])).toContain('1 Min. Lesezeit');
   });
 
-  describe('issue cover', () => {
+  describe('issue', () => {
     const issues = (slugs: string[]) =>
       slugs.map(
         (slug, i) =>
@@ -312,24 +312,29 @@ describe('NewsArticleShell', () => {
         />
       );
 
-    it('opens on the cover of its own issue, counted from the oldest article', () => {
+    it('names its issue in the byline, counted from the oldest article', () => {
       // Newest first: four articles, `doener` is the second newest → Issue 3.
       const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
-      expect(html).toContain('Issue 3 · April 2026');
+      const byline = html.slice(html.indexOf('</h1>'), html.indexOf('Min. Lesezeit'));
+      expect(byline).toContain('<span>Issue 3</span>');
+      expect(byline.indexOf('Issue 3')).toBeLessThan(byline.indexOf('24. April 2026'));
     });
 
-    it('keeps the lead photo described and the cover copy silent', () => {
-      const html = renderWith(issues(['doener']));
-      expect(html).toContain('alt="Döner im Brot"');
-      expect(html).toMatch(/class="[^"]*lines[^"]*" aria-hidden="true"/);
-      // Still exactly one real headline on the page.
+    it('does not show its own cover again — the tap opened the magazine', () => {
+      const html = renderWith(issues(['pizza', 'doener', 'eis']));
+      const header = html.slice(0, html.indexOf('</header>'));
+      expect(header).not.toContain('data-magazine-cover');
+      expect(header).toContain('alt="Döner im Brot"');
       expect(html.match(/<h1/g)).toHaveLength(1);
     });
 
-    it('prints only the month for a draft that is not in the run yet', () => {
+    it('carries no number for a draft that is not in the run yet', () => {
       const html = renderWith(issues(['pizza', 'eis']));
-      expect(html).toContain('>April 2026<');
-      expect(html).not.toContain('Issue 3');
+      expect(html.slice(0, html.indexOf('</header>'))).not.toContain('Issue');
+    });
+
+    it('marks the page for the magazine opener to land on', () => {
+      expect(renderWith(issues(['doener']))).toContain('data-article-slug="doener"');
     });
 
     it('shows the next issues as covers with their own numbers', () => {

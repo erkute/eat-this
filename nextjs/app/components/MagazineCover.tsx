@@ -29,10 +29,6 @@ interface Props {
   title: string;
   /** Sanity image URL; without one the cover keeps its ground colour. */
   image?: string | null;
-  /** Alt text of the photo — only where the cover stands for the article's
-   *  lead image (Artikelkopf); elsewhere the cover is a link named by its
-   *  headline and the photo stays silent. */
-  alt?: string;
   kicker?: string | null;
   /** Place in the run of all articles, the oldest is 1 (siehe getHomeData). */
   issue?: number | null;
@@ -48,8 +44,8 @@ interface Props {
   /** Small covers (archive shelf, related row): type keeps a legible floor
    *  in px, where pure `cqw` would shrink below reading size. */
   compact?: boolean;
-  /** The page repeats title and rubric in its own heading — the cover's copy
-   *  is then hidden from screen readers (the photo's alt stays). */
+  /** A cover that only lies underneath (the pile on /news) — its copy is
+   *  hidden from screen readers. */
   decorative?: boolean;
 }
 
@@ -60,7 +56,9 @@ interface Props {
  * Strichcode am Rand, Glanz, Rücken und rechts unten der Seitenblock aus
  * Papierlagen. Alles in `cqw` der Titelseite, damit sie in jeder Grösse gleich
  * gesetzt ist. Dasselbe Objekt auf der Startseite („Auf dem Teller"), im
- * Magazin-Index und im Kopf jedes Artikels.
+ * Magazin-Index und unter „Weiter auf dem Teller". Ein Tipp darauf schlägt das
+ * Heft auf und landet im Artikel (MagazineLink) — im Artikel selbst steht das
+ * Heft deshalb nicht noch einmal.
  *
  * Die Bewegung gehört nicht hierher: Stapel, Neigung und Wurf legt die Seite
  * um die Titelseite herum.
@@ -68,7 +66,6 @@ interface Props {
 export default function MagazineCover({
   title,
   image,
-  alt = '',
   kicker,
   issue,
   date,
@@ -87,7 +84,8 @@ export default function MagazineCover({
     .join(' ');
 
   return (
-    <span className={className}>
+    // `data-magazine-cover`: MagazineLink opens exactly this cover.
+    <span className={className} data-magazine-cover="">
       {image && (
         // Sanity serves the responsive variants itself; the App Hosting image
         // proxy would re-optimise them.
@@ -96,7 +94,7 @@ export default function MagazineCover({
           className={styles.photo}
           src={sanityImageLoader({ src: image, width: 800, quality: 80 })}
           srcSet={sanitySrcSet(image, widths)}
-          alt={alt}
+          alt=""
           loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : undefined}
           decoding="async"
@@ -105,7 +103,7 @@ export default function MagazineCover({
       )}
       <span className={styles.scrim} aria-hidden="true" />
       {folio && (
-        <span className={styles.folio} aria-hidden="true">
+        <span className={styles.folio} aria-hidden="true" data-cover-folio="">
           {folio}
         </span>
       )}

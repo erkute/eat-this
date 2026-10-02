@@ -70,30 +70,21 @@ div.page {
 
 /* ---------------------------------------------------------------- hero --- */
 
-/* Der Aufmacher ist die Titelseite der Ausgabe (MagazineCover): das Heft,
-   das man auf der Startseite oder im Index angetippt hat, leicht in den Raum
-   gedreht wie dort. Am Telefon mittig über dem Titel, ab Desktop rechts neben
-   ihm. Unten Luft für Seitenblock und Schatten des Hefts. */
 .heroMedia {
-  justify-self: center;
-  width: min(78vw, 360px);
-  margin: 26px 0 14px;
-  transform: perspective(1100px) rotateY(-9deg) rotateX(4deg);
+  position: relative;
+  aspect-ratio: 3 / 2;
+  max-height: 70vh;
+  overflow: hidden;
+  background: var(--article-ink);
+  /* Oben eckig, weil das Foto an der SiteNav sitzt: eine runde Ecke direkt
+     unter der Leiste lässt dort Weiß durchblitzen — genau den Rest, den das
+     Andocken beseitigen soll. Unten bleibt der Radius. */
+  border-radius: 0 0 var(--et-radius-photo) var(--et-radius-photo);
 }
 
-/* Einmal beim Laden legt sich das Heft hin — die einzige Bewegung des
-   Artikels, die von selbst läuft. Der Lesetext bleibt still. */
-@keyframes coverSettle {
-  from {
-    translate: 0 20px;
-    rotate: 2.5deg;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .heroMedia {
-    animation: coverSettle 650ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-  }
+.hero {
+  object-fit: cover;
+  filter: saturate(1.04) contrast(1.03);
 }
 
 .introCopy {
@@ -182,7 +173,8 @@ div.page {
   line-height: 1.2;
 }
 
-.readingTime::before {
+/* Ausgabe · Datum · Lesezeit, jeweils mit Punkt dazwischen. */
+.bylineMeta > * + *::before {
   content: '·';
   margin-right: 12px;
 }
@@ -925,12 +917,12 @@ div.page {
     margin-bottom: clamp(48px, 5vw, 80px);
   }
 
-  /* So hoch wie früher das Foto (420–620px), als Heft im Hochformat. */
   .headerSplit .heroMedia {
     grid-area: 1 / 2 / -1 / 3;
-    align-self: center;
-    width: clamp(315px, calc((100vh - 220px) * 0.75), 465px);
-    margin: 0 8px 14px 0;
+    aspect-ratio: auto;
+    height: clamp(420px, calc(100vh - 220px), 620px);
+    max-height: none;
+    border-radius: var(--et-radius-photo);
   }
 
   .headerSplit .introCopy {
@@ -1034,6 +1026,20 @@ div.page {
 
   .headerMeta {
     margin-top: 26px;
+  }
+
+  /* Hochformat und randlos, wie das Aufmacherfoto bei Highsnobiety.
+
+     Ohne die `70vh`-Grenze der Grundregel: Chrome auf dem iPhone ändert `vh`,
+     während es beim Scrollen seine Leisten ein- und ausblendet, und das Foto
+     wurde dabei höher und niedriger — es sah aus wie gezoomt (Betreiber,
+     26.09.2026). Volle Breite × 4:5 steht still und ist am Telefon nie höher
+     als der Bildschirm. Dasselbe wie bei `.inlineImage`. */
+  .heroMedia {
+    aspect-ratio: 4 / 5;
+    max-height: none;
+    margin-inline: -16px;
+    border-radius: 0;
   }
 
   /* Fotos im Text ebenfalls randlos: die Spalte gibt links und rechts je

@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
-import { Link } from '@/i18n/navigation';
 import SiteFooter from './SiteFooter';
 import MagazineCover from './MagazineCover';
+import MagazineLink from './MagazineLink';
 import type { NewsArticle } from '@/lib/types';
 import styles from './NewsSection.module.css';
 
@@ -109,7 +109,11 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                   />
                 </span>
               ))}
-              <Link href={`/news/${current.slug}`} className={styles.front}>
+              <MagazineLink
+                href={`/news/${current.slug}`}
+                className={styles.front}
+                data-current-issue=""
+              >
                 <MagazineCover
                   title={currentTitle}
                   image={current.imageUrl}
@@ -122,7 +126,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                   widths={[480, 800, 1200]}
                   priority
                 />
-              </Link>
+              </MagazineLink>
             </div>
 
             <div className={styles.issueText}>
@@ -133,13 +137,14 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                 </span>
               </span>
               {currentExcerpt && <p className={styles.issueExcerpt}>{currentExcerpt}</p>}
-              <Link
+              <MagazineLink
                 href={`/news/${current.slug}`}
                 className={styles.read}
+                coverFrom="[data-current-issue]"
                 aria-label={`${labels.read}: ${currentTitle}`}
               >
                 {labels.read}
-              </Link>
+              </MagazineLink>
             </div>
           </div>
         </header>
@@ -153,7 +158,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
             <ul className={styles.shelf} role="list">
               {older.map((a, i) => (
                 <li key={a.slug} className={styles.slot} style={{ '--n': i } as CSSProperties}>
-                  <Link href={`/news/${a.slug}`} className={styles.mag}>
+                  <MagazineLink href={`/news/${a.slug}`} className={styles.mag}>
                     <MagazineCover
                       title={titleOf(a)}
                       image={a.imageUrl}
@@ -166,7 +171,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       widths={[320, 480, 800]}
                       compact
                     />
-                  </Link>
+                  </MagazineLink>
                 </li>
               ))}
             </ul>

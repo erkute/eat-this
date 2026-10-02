@@ -28,8 +28,6 @@ export default defineConfig({
       // Next resolves this package to empty.js under the react-server
       // condition. Vitest has no RSC condition, so mirror that server import.
       'server-only': resolve(__dirname, 'node_modules/server-only/empty.js'),
-      // next/font/google exists only for the Next compiler; tests get stub fonts.
-      'next/font/google': resolve(__dirname, '__tests__/stubs/nextFontGoogle.ts'),
     },
   },
 })

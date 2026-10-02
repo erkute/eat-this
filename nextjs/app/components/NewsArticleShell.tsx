@@ -18,7 +18,6 @@ import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
-import { condensed, serif } from '@/app/fonts';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -361,7 +360,7 @@ export default function NewsArticleShell({
 
   return (
     <div
-      className={`app-page news-article-page${isActive ? ' active' : ''} ${styles.page} ${serif.variable} ${condensed.variable}`}
+      className={`app-page news-article-page${isActive ? ' active' : ''} ${styles.page}`}
       data-page="news-article"
       data-article-slug={article.slug}
       id="newsModal"

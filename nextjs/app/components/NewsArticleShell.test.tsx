@@ -333,14 +333,6 @@ describe('NewsArticleShell', () => {
       expect(at('Wo Berlin seinen Döner')).toBeLessThan(at('</header>'));
     });
 
-    it('brings its own book and display faces, only on this page', () => {
-      const root = renderWith(issues(['doener'])).match(
-        /<div class="([^"]*)" data-page="news-article"/
-      );
-      expect(root?.[1]).toContain('var-font-serif');
-      expect(root?.[1]).toContain('var-font-condensed');
-    });
-
     it('puts the rubric as a label right above the headline', () => {
       const html = renderWith(issues(['doener']));
       expect(html).toMatch(/>Guides<\/span><h1[^>]*>Döner in Berlin<\/h1>/);

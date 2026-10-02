@@ -45,10 +45,20 @@
   --rail-top: clamp(88px, 10vh, 128px);
 }
 
+.label::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--article-accent);
+  vertical-align: 0.1em;
+}
+
 .label {
   color: var(--article-fg);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1.2;
   text-transform: uppercase;
@@ -80,6 +90,7 @@
 
 .text {
   min-width: 0;
+  font-family: var(--et-font-display);
   /* Durchgehend 15px, keine Staffelung nach Fensterhöhe mehr: die Spalte ist
      216px breit, seit die Nummern weg sind (25.09.) ganz für den Text; die
      Rechnung stammt aus der Zeit mit 188px. Bei 16px scheiterten „Companion Tea &
@@ -87,11 +98,12 @@
      Pixel am Ellipsis, bei 15px passen beide. „Five Elephant Neue
      Nationalgalerie" braucht 264px und wird gekürzt — dafür ist keine Spalte
      dieser Breite zu haben, der volle Titel steht im title-Attribut. */
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 15px;
+  font-weight: 700;
   letter-spacing: 0;
-  /* 1.35, nicht 1.12: `overflow: hidden` fürs Ellipsis schneidet sonst die
-     Unterlänge ab — mit Providence verlor „Jules Geisberg" den Bogen des g. */
+  /* 1.35, nicht 1.12: Providence hat eine tiefe Unterlänge, und `overflow:
+     hidden` fürs Ellipsis schnitt sie ab — „Jules Geisberg" verlor den Bogen
+     des g. */
   line-height: 1.35;
   /* Eine Zeile statt zwei geklammerter: zwei Zeilen mal 18 Kapitel waren der
      Grund für den zweiten Scrollbalken. Was nicht passt, endet im Ellipsis —
@@ -105,8 +117,7 @@
 }
 
 .itemActive {
-  color: var(--article-fg);
-  font-style: italic;
+  color: var(--article-head);
 }
 
 .share {
@@ -121,7 +132,7 @@
   color: var(--article-fg);
   font: inherit;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;

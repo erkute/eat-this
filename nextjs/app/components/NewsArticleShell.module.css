@@ -1,26 +1,26 @@
-/* Seit 02.10.2026 im Look von Kaleidoscope (manifesto.kaleidoscope.media,
-   Ansage „mach in dem Look … gut zu lesen, die Schrift aber geil"): heller
-   warmgrauer Grund, Text in einer Buchschrift, Schlagzeile, Kapitel und
-   Fazit in einer schmalen fetten Grotesk in Grau, alles mittig, Fotos
-   eckig. Davor stand der Artikel auf Ink mit Providence.
+/* Seit 02.10.2026 im Aufbau von Kaleidoscope (manifesto.kaleidoscope.media,
+   Ansage „mach in dem Look"): alles mittig, Schlagzeile, Kapitel und Fazit
+   gross, das Foto über die ganze Breite, Fotos eckig. Schrift und Farben
+   bleiben die eigenen (Ansagen „Typo soll zu meinem Design passen" und „in
+   dem Rot-Gelb-Stil von mir, keine neuen Farben"): dieselbe Sprache wie die
+   Startseite (`.homeV2` in globals.css) — weisser Grund, Ink für Text,
+   Überschriften in Rot wie `.hv-title`, Gelb als Akzent wie `.hv-mk`;
+   Providence für alles Plakative und die Labels, Inter für den Lesetext.
+   Davor stand der Artikel auf Ink.
 
-   `--article-ground` ist der Grund, `--article-fg` die Schrift darauf.
-   `--article-accent` ist Ink: Etiketten, Schlusszeichen und Knöpfe sind
-   schwarz mit Schrift in Grundfarbe (`--article-on-accent`) — Gelb kommt im
-   Artikel nicht mehr vor, Kaleidoscope hat keine Akzentfarbe.
-   `--article-grey` ist das Grau der Überschriften: 3,2:1 auf dem Grund, für
-   Schrift ab 40px reicht das (WCAG-Grosstext); Kaleidoscopes eigenes
-   #92909b läge mit 2,7:1 darunter. */
+   `--article-ground` ist der Grund, `--article-fg` die Schrift darauf,
+   `--article-head` die Farbe der Überschriften. Gelbe Flächen
+   (`--article-accent`: Knöpfe, Etiketten, Schlusszeichen) tragen Ink
+   (`--article-on-accent`). Fokusrahmen sind Ink — Gelb auf Weiss sähe man
+   nicht. */
 .page {
-  --article-ground: var(--et-paper);
+  --article-ground: var(--et-white);
   --article-fg: var(--et-ink);
-  --article-grey: #86848f;
-  --article-accent: var(--et-ink);
-  --article-on-accent: var(--article-ground);
-  --article-muted: rgba(21, 18, 14, 0.62);
-  --article-quiet: #e4e2de;
-  --article-serif: var(--font-serif), Georgia, 'Times New Roman', serif;
-  --article-condensed: var(--font-condensed), 'Arial Narrow', Impact, sans-serif;
+  --article-head: var(--et-red);
+  --article-accent: var(--et-accent);
+  --article-on-accent: var(--et-ink);
+  --article-muted: var(--et-muted);
+  --article-quiet: var(--et-quiet);
   /* The reading measure. 680px at 18-19px lands around 68 characters — the
      old full-width 900px column ran ~95, which is why desktop read worse than
      mobile despite all the extra room. */
@@ -32,7 +32,7 @@
   /* Der Grund selbst liegt an html/body/.app-pages (globals.css): `.app-page`
      ist dort sitewide transparent und schlägt diese Klasse. */
   color: var(--article-fg);
-  font-family: var(--article-serif);
+  font-family: var(--et-font-display);
 }
 
 /* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
@@ -75,26 +75,38 @@ div.page {
   min-width: 0;
 }
 
-/* Die Rubrik klein in Versalien, wie die Labels der Credits bei Kaleidoscope. */
+/* Die Rubrik wie der Kicker der Startseite (`.hv-kicker`): klein in
+   Versalien, davor das gelbe Quadrat (`.hv-mk`). */
 .kicker {
   margin-bottom: clamp(16px, 1.8vw, 24px);
   color: var(--article-fg);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.14em;
   line-height: 1.2;
   text-transform: uppercase;
 }
 
+.kicker::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--article-accent);
+  vertical-align: 0.12em;
+}
+
 .heroTitle {
   max-width: 18ch;
   margin: 0;
-  color: var(--article-grey);
-  font-family: var(--article-condensed);
-  font-size: clamp(52px, 7.4vw, 112px);
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  line-height: 0.88;
+  color: var(--article-head);
+  /* Providence läuft breiter als Kaleidoscopes Compacta — deshalb kleiner
+     als dort (90px) und etwas enger gesperrt. */
+  font-size: clamp(44px, 6vw, 88px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title);
   text-transform: uppercase;
   text-wrap: balance;
 }
@@ -112,7 +124,7 @@ div.page {
   gap: 6px 22px;
   color: var(--article-fg);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1.3;
   text-transform: uppercase;
@@ -135,15 +147,16 @@ div.page {
 }
 
 /* Der Vorspann als Auftakt unter dem Foto, gross und mittig wie die
-   Textblöcke bei Kaleidoscope — dort 32px auf 30px Zeilenabstand; hier
-   lockerer, damit er sich liest und nicht nur aussieht. */
+   Textblöcke bei Kaleidoscope — dort 32px auf 30px Zeilenabstand; hier in
+   Providence Regular und lockerer, damit er sich liest und nicht nur
+   aussieht. */
 .lede {
-  max-width: 880px;
+  max-width: 860px;
   margin: clamp(48px, 5.6vw, 88px) auto 0;
   color: var(--article-fg);
-  font-size: clamp(24px, 2.2vw, 32px);
+  font-size: clamp(23px, 2.1vw, 30px);
   font-weight: 400;
-  line-height: 1.16;
+  line-height: 1.25;
   text-wrap: pretty;
 }
 
@@ -151,11 +164,12 @@ div.page {
 
 .content {
   color: var(--article-fg);
-  /* Newsreader ist eine Buchschrift mit kleinerer x-Höhe als Inter: 20px
-     lesen sich wie die 18px davor. Die Wettbewerber liegen bei 18px
-     Grotesk. */
-  font-size: clamp(19px, 1.4vw, 21px);
-  line-height: 1.5;
+  font-family: var(--et-font-body);
+  /* Untergrenze 18 statt 17: bei genau 1280px Fensterbreite fiel der Lauftext
+     auf 17px und die Zeile auf 80 Zeichen — beides am Rand. Die Wettbewerber
+     liegen alle bei 18px. */
+  font-size: clamp(18px, 1.3vw, 19px);
+  line-height: 1.65;
 }
 
 .content p {
@@ -168,8 +182,9 @@ div.page {
    anstrengend. */
 .content > p:first-of-type {
   margin-bottom: 1.2em;
+  font-family: var(--et-font-display);
   font-size: clamp(22px, 1.9vw, 27px);
-  line-height: 1.28;
+  line-height: 1.3;
   text-align: center;
   text-wrap: pretty;
 }
@@ -195,18 +210,20 @@ div.page {
 .content [data-block='conclusion-label'] {
   display: block;
   margin: 0 0 18px;
-  color: var(--article-grey);
-  font-family: var(--article-condensed);
-  font-size: clamp(40px, 4.6vw, 64px);
-  font-weight: 400;
-  line-height: 0.9;
+  color: var(--article-head);
+  font-family: var(--et-font-display);
+  font-size: clamp(34px, 3.8vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
   text-transform: uppercase;
 }
 
 .content [data-block='conclusion'] p:not([data-block='conclusion-label']) {
+  font-family: var(--et-font-display);
   font-size: clamp(21px, 1.7vw, 24px);
   font-weight: 400;
-  line-height: 1.38;
+  line-height: 1.35;
   text-wrap: pretty;
 }
 
@@ -226,12 +243,12 @@ div.page {
 .content h3 {
   max-width: none;
   margin: clamp(56px, 7vw, 104px) 0 clamp(18px, 2vw, 26px);
-  color: var(--article-grey);
-  font-family: var(--article-condensed);
-  font-size: clamp(44px, 5.4vw, 76px);
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  line-height: 0.9;
+  color: var(--article-head);
+  font-family: var(--et-font-display);
+  font-size: clamp(34px, 4.2vw, 58px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
   text-align: center;
   text-transform: uppercase;
   text-wrap: balance;
@@ -239,7 +256,7 @@ div.page {
 }
 
 .content h3 {
-  font-size: clamp(30px, 3vw, 40px);
+  font-size: clamp(26px, 2.6vw, 34px);
 }
 
 /* „goldies – für Puristen mit Prinzipien": der Name ist die Überschrift, der
@@ -260,14 +277,12 @@ div.page {
   white-space: nowrap;
 }
 
-/* Die Unterzeile in der Kursiven der Buchschrift — eine echte, keine vom
-   Browser schräg gestellte wie vorher bei Providence. */
+/* Die Unterzeile in Providence Regular, gerade: Providence hat keine
+   Kursive, und eine vom Browser schräg gestellte sah nach Fehler aus. */
 .content h2 [data-heading='deck'] {
   margin-top: 14px;
   color: var(--article-fg);
-  font-family: var(--article-serif);
   font-size: clamp(20px, 1.7vw, 24px);
-  font-style: italic;
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1.25;
@@ -285,7 +300,7 @@ div.page {
 }
 
 .content strong {
-  font-weight: 650;
+  font-weight: 700;
 }
 
 /* Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Display-Name auf
@@ -295,28 +310,30 @@ div.page {
   color: var(--article-fg);
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
+  text-decoration-color: var(--article-accent);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 3px;
 }
 
 @media (hover: hover) {
   .content
     a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
-    color: var(--article-grey);
+    color: var(--article-head);
   }
 }
 
-/* Das Zitat gross, kursiv und mittig — ohne Kasten, Klebestreifen und
-   Drehung von vorher. */
+/* Das Zitat gross und mittig — ohne Kasten, Klebestreifen und Drehung von
+   vorher. */
 .content blockquote {
   max-width: none;
   margin: clamp(48px, 6vw, 88px) 0;
   padding: 0;
   color: var(--article-fg);
+  font-family: var(--et-font-display);
   font-size: clamp(28px, 2.8vw, 38px);
-  font-style: italic;
-  font-weight: 400;
-  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
   text-align: center;
   text-wrap: balance;
   border: 0;
@@ -330,6 +347,7 @@ div.page {
    in one piece can never read as the same block twice. */
 .mustEat {
   position: relative;
+  font-family: var(--et-font-display);
   display: grid;
   grid-template-columns: clamp(88px, 15%, 128px) minmax(0, 1fr);
   align-items: center;
@@ -372,7 +390,7 @@ div.page {
   color: var(--article-on-accent);
   background: var(--article-accent);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
@@ -383,7 +401,7 @@ div.page {
   margin: 0;
   color: var(--article-fg);
   font-size: clamp(24px, 2.2vw, 30px);
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.05;
   text-transform: none;
@@ -441,7 +459,8 @@ div.page {
 .inlineImage figcaption {
   margin-top: 10px;
   color: var(--article-muted);
-  font-size: 14px;
+  font-family: var(--et-font-body);
+  font-size: 13px;
   font-weight: 400;
   line-height: 1.4;
   text-align: center;
@@ -454,6 +473,8 @@ div.page {
 .inlineSpot {
   position: relative;
   display: block;
+  /* Steht im Lesetext (Inter), spricht aber mit der Stimme der Labels. */
+  font-family: var(--et-font-display);
   margin: clamp(30px, 5vw, 60px) 0;
   /* Schneidet die kartenweite Trefferfläche des Namens (::after) ab. */
   overflow: hidden;
@@ -488,7 +509,7 @@ div.page {
    die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
 .inlineSpotMeta {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1.2;
   text-transform: uppercase;
@@ -521,14 +542,14 @@ div.page {
 }
 
 .inlineSpotMetaLink:focus-visible {
-  outline: 2px solid var(--article-accent);
+  outline: 2px solid var(--article-fg);
   outline-offset: 3px;
 }
 
 .inlineSpotName {
   color: var(--article-fg);
   font-size: clamp(26px, 2.2vw, 32px);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.1;
   text-transform: none;
@@ -549,7 +570,7 @@ div.page {
   inset: 0;
 }
 .inlineSpotNameLink:focus-visible::after {
-  outline: 2px solid var(--article-accent);
+  outline: 2px solid var(--article-fg);
   outline-offset: -6px;
 }
 
@@ -566,7 +587,7 @@ div.page {
   background: var(--article-accent);
   color: var(--article-on-accent);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1;
   /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
@@ -611,7 +632,7 @@ div.page {
   grid-column: 2;
   color: var(--article-muted);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1.2;
   text-transform: uppercase;
@@ -620,7 +641,7 @@ div.page {
 .hubLinkLabel {
   grid-column: 2;
   font-size: clamp(1.15rem, 1.9vw, 1.45rem);
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.15;
 }
 
@@ -660,7 +681,7 @@ div.page {
   color: var(--article-fg);
   font: inherit;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1;
   text-decoration: none;
@@ -698,12 +719,11 @@ div.page {
 
 .relatedHeading {
   margin: 0;
-  color: var(--article-grey);
-  font-family: var(--article-condensed);
-  font-size: clamp(44px, 5.4vw, 76px);
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  line-height: 0.9;
+  color: var(--article-head);
+  font-size: clamp(34px, 4.2vw, 58px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
   text-transform: uppercase;
 }
 
@@ -762,12 +782,12 @@ div.page {
 .mustEat:focus-visible,
 .inlineSpotCta:focus-visible,
 .shareBtn:focus-visible {
-  outline: 2px solid var(--article-accent);
+  outline: 2px solid var(--article-fg);
   outline-offset: 4px;
 }
 
 .relatedCard:focus-visible {
-  outline: 3px solid var(--article-accent);
+  outline: 3px solid var(--article-fg);
   outline-offset: 8px;
 }
 
@@ -867,7 +887,7 @@ div.page {
     background: var(--article-accent);
     color: var(--article-on-accent);
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     letter-spacing: 0.12em;
     line-height: 1;
     text-transform: uppercase;
@@ -876,12 +896,14 @@ div.page {
   }
 
   .hubLink:focus-visible .hubLinkCta {
-    background: var(--article-grey);
+    background: var(--article-fg);
+    color: var(--article-ground);
   }
 
   @media (hover: hover) {
     .hubLink:hover .hubLinkCta {
-      background: var(--article-grey);
+      background: var(--article-fg);
+      color: var(--article-ground);
     }
   }
 
@@ -933,32 +955,30 @@ div.page {
 
   .heroTitle {
     max-width: none;
-    font-size: clamp(44px, 13vw, 60px);
+    font-size: clamp(38px, 10.5vw, 52px);
   }
 
   .lede {
     margin-top: 32px;
-    font-size: 22px;
-    line-height: 1.22;
+    font-size: 21px;
   }
 
   .content {
-    font-size: 18px;
-    line-height: 1.5;
+    font-size: 17px;
+    line-height: 1.6;
   }
 
   .content > p:first-of-type {
-    font-size: 21px;
-    line-height: 1.3;
+    font-size: 20px;
   }
 
   .content h2,
   .content h3 {
-    font-size: clamp(36px, 10vw, 44px);
+    font-size: clamp(30px, 8.5vw, 38px);
   }
 
   .content h3 {
-    font-size: clamp(26px, 7vw, 30px);
+    font-size: clamp(24px, 6.6vw, 28px);
   }
 
   .content blockquote {
@@ -1001,7 +1021,7 @@ div.page {
   }
 
   .relatedHeading {
-    font-size: clamp(36px, 10vw, 44px);
+    font-size: clamp(30px, 8.5vw, 38px);
   }
 
   /* Swipeable rail instead of a stack. Bleeds to both edges so the next

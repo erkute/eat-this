@@ -18,7 +18,7 @@ import type { Locale } from '@/lib/buddy/types';
 import CategoriesRail from './CategoriesRail';
 import styles from './HubFragRemy.module.css';
 
-const REMY_SIZES = '(max-width: 899px) min(92vw, 560px), (max-width: 1360px) 38vw, 520px';
+const REMY_SIZES = '(max-width: 899px) min(92vw, 560px), 440px';
 
 interface Props {
   /** Die Kategorien (Slug → Name): Remys Antworten auf seine Frage, und zu

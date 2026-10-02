@@ -19,6 +19,8 @@ const CLASSES = {
   inside: styles.inside,
   backFolio: styles.backFolio,
   backMark: styles.backMark,
+  capTop: styles.capTop,
+  capBottom: styles.capBottom,
 };
 
 type Props = Omit<ComponentProps<typeof Link>, 'href' | 'onClick'> & {

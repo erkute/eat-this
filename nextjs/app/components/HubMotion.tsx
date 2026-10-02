@@ -34,17 +34,16 @@ gsap.registerPlugin(useGSAP);
  *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
  *    Nur wo der Browser keine Scroll-Timeline kann, treibt `armScrubFallback`
  *    dieselben Werte per Scroll-Listener (`data-scrub`).
- *    Die räumlichen Galerien (Nearby, Magazin, Must Eats) steuert jeweils
- *    HomeGallery: vertikale Scrollstrecke mit nativer Timeline und GSAP-Fallback.
+ *    Die räumlichen Bühnen (Magazin, Must Eats) steuern sich selbst;
+ *    Nearby ist eine Querleiste, die man nativ wischt (HubNearby).
  *
  * 3. **Beim Hereinkommen:**
- *    - `data-reveal="stagger"` (Kategorien): Kacheln rücken gestaffelt nach,
- *      als ganze Kacheln — einmal.
- *    - Frag Remy: das Fragezeichen fliegt von links ein, „Frag Remy." schlägt
- *      ein; Remy schießt erst hoch, wenn sein leerer Platz im Bild ist, und
- *      redet, mehrmals. Wer den
- *      Abschnitt verlässt, sieht alles rückwärts gehen; wer zurückkommt, sieht
- *      es neu (`armFragRemy`).
+ *    - Remys Tafel: „Worauf hast du Lust?" schlägt ein, die Kategorien
+ *      rücken gestaffelt nach; Remy schießt erst hoch, wenn sein leerer Platz
+ *      im Bild ist, und redet, mehrmals. Wer den Abschnitt verlässt, sieht
+ *      alles rückwärts gehen; wer zurückkommt, sieht es neu (`armFragRemy`).
+ *      Zu jeder Kategorie sagt er einen Satz — beim Zeigen darauf oder von
+ *      selbst, solange niemand die Tafel anfasst (`armRemySays`).
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
@@ -336,32 +335,6 @@ function finishIntro(): (() => void) | void {
  *  geben, sonst bleiben Druckzustände (`--et-press-tile`) tot. */
 const CLEAR_TRANSFORMS = 'transform,translate,rotate,scale';
 
-/** Scrollt der Container seitwärts? Dann rücken die Karten von rechts nach. */
-function sideways(el: Element): boolean {
-  return /auto|scroll/.test(getComputedStyle(el).overflowX);
-}
-
-/** Beobachtet Elemente und spielt ihren Auftritt einmal, sobald sie ein Stück
- *  im Bild sind — nicht schon unter der Bildschirmkante, wo ihn niemand sieht.
- *  Beobachtet werden nur ruhende Elemente: IntersectionObserver misst die
- *  verschobene Box, ein seitlich weggeschobenes Element meldete sich nie. */
-function onceInView(plays: Map<Element, () => void>): () => void {
-  if (!plays.size || typeof IntersectionObserver === 'undefined') return () => {};
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        io.unobserve(entry.target);
-        plays.get(entry.target)?.();
-        plays.delete(entry.target);
-      }
-    },
-    { rootMargin: '0px 0px -15% 0px' }
-  );
-  plays.forEach((_, el) => io.observe(el));
-  return () => io.disconnect();
-}
-
 /** Auftritt und Rückweg an einer Section: `enter`, sobald sie das Band des
  *  Bildschirms berührt (Vorgabe 30–70 % der Höhe, `from` verschiebt die
  *  Unterkante), `leave`, sobald sie es nach oben oder unten verlässt — in
@@ -406,135 +379,69 @@ function onScrollFrame(scroller: HTMLElement | Window, update: () => void): () =
   };
 }
 
-/** Gestaffelte Kacheln (Kategorien): versteckt wird nur, was beim
- *  Mount unterhalb des Bildschirms liegt — was schon zu sehen ist (gemerkte
- *  Scrollposition), bleibt stehen. */
-function armStaggers(safe: gsap.ContextSafeFunc): () => void {
-  const root = document.querySelector<HTMLElement>('[data-hub]');
-  if (!root) return () => {};
-  const fold = window.innerHeight;
-  const plays = new Map<Element, () => void>();
-
-  for (const group of root.querySelectorAll<HTMLElement>('[data-reveal="stagger"]')) {
-    if (group.getBoundingClientRect().top <= fold) continue;
-    const items = Array.from(group.children) as HTMLElement[];
-    if (!items.length) continue;
-    const across = sideways(group);
-    gsap.set(items, {
-      x: across ? 120 : 0,
-      y: across ? 0 : 90,
-      rotation: across ? 0 : (i: number) => (i % 2 ? 3 : -3),
-      transition: 'none',
-    });
-    // Später gestartete Tweens gehören trotzdem in den matchMedia-Kontext —
-    // sonst räumt ihn ein Wechsel auf reduced motion nicht mit ab.
-    plays.set(
-      group,
-      safe(() => {
-        gsap.to(items, {
-          x: 0,
-          y: 0,
-          rotation: 0,
-          duration: 1.2,
-          ease: 'expo.out',
-          stagger: Math.min(0.08, 0.6 / items.length),
-          clearProps: `${CLEAR_TRANSFORMS},transition`,
-        });
-      }) as () => void
-    );
-  }
-  return onceInView(plays);
-}
-
 /**
- * „Keine Idee? Frag Remy." mit Wucht: das Fragezeichen fliegt drehend von
- * links herein und schlägt ein, die Zeile davor zuckt vom Aufprall; dann
- * knallt „Frag Remy." von groß auf seine Größe wie ein Stempel. Remy steht
- * unter der Kante der Tafel, bis die leere Fläche darüber im Bild ist, und
- * schießt dann wie ein Schreck hoch, redet und wackelt — dreimal, mit Pausen.
- * Umkehrbar (Ansage 28.09.2026): wer den Abschnitt nach oben oder unten
- * verlässt, sieht den Auftritt rückwärts laufen — Remy taucht ab, „Frag
- * Remy." fliegt weg, das Fragezeichen zurück nach links —, wer zurückkommt,
- * sieht ihn neu. Der Observer löst nur aus, nichts hängt an der Position:
- * auf dem iPhone zittert da nichts.
+ * Remys Tafel kommt herein: „Worauf hast du Lust?" schlägt ein wie ein
+ * Stempel, die Kategorien und die zwei Beispiel-Fragen rücken gestaffelt
+ * nach, Remys Satz springt hin.
+ * Remy selbst steht unter der Kante der Tafel, bis die leere Fläche, in der
+ * er gleich steht, im Bild ist, und schießt dann wie ein Schreck hoch, redet
+ * und wackelt — dreimal, mit Pausen. Umkehrbar (Ansage 28.09.2026): wer den
+ * Abschnitt nach oben oder unten verlässt, sieht den Auftritt rückwärts
+ * laufen — Remy taucht ab —, wer zurückkommt, sieht ihn neu. Der Observer
+ * löst nur aus, nichts hängt an der Position: auf dem iPhone zittert da
+ * nichts.
  * Getrieben wird Remy über `--remy-y/--remy-r` (siehe HubFragRemy.module.css),
  * der Mund über `data-speaking`; beides verwaltet React nicht.
  */
 function armFragRemy(): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
-  const q = section?.querySelector<HTMLElement>('[data-fragremy-q]');
-  const ask = section?.querySelector<HTMLElement>('[data-fragremy-ask]');
+  const title = section?.querySelector<HTMLElement>('[data-fragremy-title]');
+  const say = section?.querySelector<HTMLElement>('[data-fragremy-say]');
   const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
-  const title = q?.closest<HTMLElement>('h2, h3');
-  const line = q?.parentElement;
-  if (!section || !q || !ask || !avatar || !title || !line) return () => {};
+  if (!section || !title || !say || !avatar) return () => {};
+  // Die Kategorien und die zwei Beispiel-Fragen rücken gemeinsam nach — die
+  // Fragen als eine Zeile: auf den Knöpfen selbst nähme ein Inline-
+  // `transform` ihnen den Druckzustand (`.hv-chip:active`).
+  const items = Array.from(
+    section.querySelectorAll<HTMLElement>('[data-hub-categories] > li, [data-fragremy-chips]')
+  );
 
-  // Bis links hinter die Kante der Tafel (`.body` schneidet ab).
-  const offLeft = () => {
-    const board = section.getBoundingClientRect();
-    const box = q.getBoundingClientRect();
-    return -(box.right - board.left + 40);
-  };
-  const texts = [ask, title, line];
-  // Aufgeräumt wird erst beim Abbauen: die Rückwärtsfahrt braucht die Werte,
-  // nach einem `clearProps` kam das Fragezeichen gedreht, aber ohne seinen
-  // Weg nach links zurück (gemessen). Keiner der Texte trägt eigene
-  // `translate/rotate/scale`, die GSAP hier überschreiben könnte.
-  const settle = () => {
-    gsap.set(texts, { clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility` });
-    gsap.set(q, { clearProps: '--q-x,--q-r,--q-sx,--q-sy' });
-  };
+  // Aufgeräumt wird erst beim Abbauen: die Rückwärtsfahrt braucht die Werte.
+  // Keins der Elemente trägt eigene `translate/rotate/scale`, die GSAP hier
+  // überschreiben könnte.
+  const settle = () =>
+    gsap.set([title, say, ...items], {
+      clearProps: `${CLEAR_TRANSFORMS},transformOrigin,visibility`,
+    });
 
-  // Ausgangswerte ausdrücklich: eine nie gesetzte Variable merkt sich GSAP
-  // als 0 — rückwärts gelaufen stand das Fragezeichen sonst auf Grösse 0 und
-  // flog beim nächsten Auftritt unsichtbar ein (gemessen).
-  gsap.set(q, { '--q-sx': 1, '--q-sy': 1 });
   const entrance = gsap
     .timeline({ paused: true })
-    // Das Fragezeichen über Variablen (HubFragRemy.module.css): zwei Tweens
-    // auf seinem `transform` liessen beim Rückwärtslaufen den Weg nach links
-    // fallen — es kam gedreht, aber an seinem Platz zurück (gemessen).
-    .fromTo(
-      q,
-      { '--q-x': offLeft, '--q-r': -540 },
-      { '--q-x': 0, '--q-r': 0, duration: 0.55, ease: 'power3.in' }
-    )
-    // Aufprall: das Zeichen staucht, die Zeile davor zuckt weg.
-    .fromTo(
-      q,
-      { '--q-sx': 1.35, '--q-sy': 0.7 },
-      {
-        '--q-sx': 1,
-        '--q-sy': 1,
-        duration: 0.7,
-        ease: 'elastic.out(1.1, 0.35)',
-        immediateRender: false,
-      }
-    )
-    .fromTo(
-      line,
-      { x: 16 },
-      { x: 0, duration: 0.7, ease: 'elastic.out(1, 0.3)', immediateRender: false },
-      '<'
-    )
-    .fromTo(
-      ask,
-      { scale: 2.8, rotation: -7, y: -24, visibility: 'hidden', transformOrigin: '0% 60%' },
-      { scale: 1, rotation: 0, y: 0, visibility: 'visible', duration: 0.34, ease: 'power4.in' },
-      '-=0.45'
-    )
     .fromTo(
       title,
-      { y: 8 },
-      { y: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)', immediateRender: false }
+      { scale: 2.4, rotation: -6, y: -24, visibility: 'hidden', transformOrigin: '0% 60%' },
+      { scale: 1, rotation: 0, y: 0, visibility: 'visible', duration: 0.34, ease: 'power4.in' }
+    )
+    .fromTo(
+      items,
+      { y: 70, rotation: (i: number) => (i % 2 ? 4 : -4) },
+      { y: 0, rotation: 0, duration: 1.1, ease: 'expo.out', stagger: 0.05 },
+      0.2
+    )
+    .fromTo(
+      say,
+      { scale: 0, transformOrigin: '0% 100%' },
+      { scale: 1, duration: 0.5, ease: 'back.out(2.6)' },
+      0.45
     );
   // Die Startpose sofort: vor dem ersten Auftritt ist nichts zu sehen.
   entrance.progress(0);
 
   // Remy hat seinen eigenen Auslöser (Ansage 01.10.2026: „kommt viel zu
   // früh"): er wartet unter der Kante, bis die leere Fläche, in der er
-  // gleich steht, in der unteren Bildhälfte angekommen ist — und schießt dann
-  // in einem Ruck hoch wie ein Schreck, Mund sofort offen. Beobachtet wird
+  // gleich steht, über 70 % der Bildhöhe angekommen ist — und schießt dann
+  // in einem Ruck hoch wie ein Schreck, Mund sofort offen. Seit er unten
+  // unter allem steht (02.10.2026), nicht erst ab 55 %: auf einem hohen
+  // Telefon stand sonst die ganze Tafel im Bild, unten leer. Beobachtet wird
   // `[data-fragremy-spot]`, ein unbewegter Platzhalter in seiner Rasterzelle:
   // Remy selbst steht verschoben unter der Kante, die `.body` abschneidet, und
   // wäre für den Observer nie sichtbar.
@@ -583,11 +490,11 @@ function armFragRemy(): () => void {
     stopTalk();
     pop.timeScale(1.4).reverse();
   };
-  // Schon ab 85 % der Höhe, nicht erst ab 70 %: „Keine Idee? Frag Remy." kam
-  // zu spät, die Tafel stand schon leer im Bild (Ansage 29.09.2026).
+  // Schon ab 85 % der Höhe, nicht erst ab 70 %: die Frage kam zu spät, die
+  // Tafel stand schon leer im Bild (Ansage 29.09.2026).
   const unwatch = whileCentered(section, show, hide, 0.85);
   const spot = section.querySelector('[data-fragremy-spot]');
-  const unwatchRemy = spot ? whileCentered(spot, jump, duck, 0.55) : () => {};
+  const unwatchRemy = spot ? whileCentered(spot, jump, duck, 0.7) : () => {};
   return () => {
     unwatch();
     unwatchRemy();
@@ -596,6 +503,221 @@ function armFragRemy(): () => void {
     entrance.kill();
     settle();
     gsap.set(avatar, { clearProps: '--remy-y,--remy-r' });
+  };
+}
+
+/**
+ * Was Remy auf seiner Tafel sagt (Variante „Remy erzählt", gewählt am
+ * 02.10.2026). Zeigt man auf eine Kategorie oder fokussiert sie, sagt er
+ * seinen Satz zu ihr: alle Sätze liegen schon in der Box (`data-remy-say`,
+ * HubFragRemy), gezeigt wird der mit `data-on`. Beim Wechsel rollt der alte
+ * oben aus der Box und der neue von unten hinein — als Ganzes, per
+ * Translate und clip-path, nie Wort für Wort und ohne Ausblenden. Sobald der
+ * neue kommt, wird seine Kategorie fett (`data-pick`) und hüpft, und Remy
+ * redet. Von selbst geht er die Kategorien durch, solange die Tafel im Bild
+ * ist; jeder Satz bleibt so lange stehen, wie man zum Lesen braucht. Am
+ * Telefon immer (Ansage 02.10.2026: „der Wechsel soll automatisch erfolgen
+ * auf mobile") — ein Finger auf dem Glas, etwa beim Scrollen, hält ihn
+ * nicht an. Nur eine Maus über der Tafel lässt ihn warten, dann zeigt sie
+ * selbst. Ins Feld getippt, lacht er und hört zu.
+ * Der Satz ist Inhalt, keine Bewegung: mit reduzierter Bewegung wechselt er
+ * ohne Rollen, und Remy geht nichts von selbst durch.
+ */
+function armRemySays(motion: boolean): () => void {
+  const section = document.querySelector<HTMLElement>('[data-hub-fragremy]');
+  const avatar = section?.querySelector<HTMLElement>('[data-fragremy-avatar]');
+  const saids = Array.from(section?.querySelectorAll<HTMLElement>('[data-remy-say]') ?? []);
+  if (!section || !avatar || !saids.length) return () => {};
+  const input = section.querySelector<HTMLElement>('[data-fragremy-input]');
+  const cats = Array.from(
+    section.querySelectorAll<HTMLElement>('[data-hub-categories] a[data-slug]')
+  );
+  const said = (key: string) => saids.find((el) => el.dataset.remySay === key);
+  const words = (el: HTMLElement) => (el.textContent ?? '').trim().split(/\s+/).length;
+
+  let quiet: gsap.core.Tween | null = null;
+  const talk = (seconds: number) => {
+    avatar.setAttribute('data-speaking', '');
+    quiet?.kill();
+    quiet = gsap.delayedCall(seconds, () => avatar.removeAttribute('data-speaking'));
+  };
+
+  // `onShow` läuft, sobald der neue Satz zu sehen ist: dann erst wird seine
+  // Kategorie fett, sonst stünde sie neben dem alten Satz.
+  let swap: gsap.core.Timeline | null = null;
+  const say = (key: string, onShow?: () => void) => {
+    const next = said(key);
+    const prev = saids.find((el) => el.hasAttribute('data-on'));
+    if (!next || next === prev) {
+      onShow?.();
+      return;
+    }
+    // Ein Wechsel, der noch läuft, springt an sein Ende.
+    swap?.progress(1);
+    prev?.removeAttribute('data-on');
+    next.setAttribute('data-on', '');
+    talk(Math.min(2.6, 0.4 + words(next) * 0.17));
+    if (!motion) {
+      onShow?.();
+      return;
+    }
+    const tidy = (el: HTMLElement) => () =>
+      gsap.set(el, { clearProps: 'transform,clipPath,visibility' });
+    swap = gsap.timeline();
+    if (prev) {
+      swap.fromTo(
+        prev,
+        { yPercent: 0, clipPath: 'inset(0% 0% 0% 0%)', visibility: 'visible' },
+        {
+          yPercent: -100,
+          clipPath: 'inset(100% 0% 0% 0%)',
+          duration: 0.42,
+          ease: 'power3.in',
+          onComplete: tidy(prev),
+        }
+      );
+    }
+    swap
+      .fromTo(
+        next,
+        { yPercent: 100, clipPath: 'inset(0% 0% 100% 0%)' },
+        {
+          yPercent: 0,
+          clipPath: 'inset(0% 0% 0% 0%)',
+          duration: 0.6,
+          ease: 'power3.out',
+          onComplete: tidy(next),
+        },
+        prev ? 0.28 : 0
+      )
+      .call(() => onShow?.(), undefined, prev ? 0.3 : 0);
+  };
+
+  let picked: HTMLElement | null = null;
+  const mark = (cat: HTMLElement | null) => {
+    for (const c of cats) c.toggleAttribute('data-pick', c === cat);
+    if (cat && motion) {
+      gsap.fromTo(
+        cat,
+        { y: -6 },
+        { y: 0, duration: 0.45, ease: 'back.out(3)', clearProps: CLEAR_TRANSFORMS }
+      );
+    }
+  };
+  const pick = (cat: HTMLElement | null) => {
+    if (cat === picked) return;
+    picked = cat;
+    if (!cat) {
+      mark(null);
+      return;
+    }
+    say(cat.dataset.slug!, () => {
+      if (picked === cat) mark(cat);
+    });
+  };
+
+  // ── Von selbst durch die Kategorien, solange niemand etwas anfasst ──
+  let inside = false;
+  let hands = false;
+  let listening = false;
+  let auto: gsap.core.Tween | null = null;
+  let step = Math.floor(Math.random() * cats.length);
+  const next = () => {
+    const cat = cats[step++ % cats.length];
+    pick(cat);
+    // Stehen lassen, bis man ihn gelesen hat: ~0,1 s pro Wort mehr.
+    const line = said(cat.dataset.slug!);
+    auto = gsap.delayedCall(2.6 + (line ? words(line) : 6) * 0.1, next);
+  };
+  const startAuto = (after: number) => {
+    auto?.kill();
+    auto =
+      motion && inside && !hands && !listening && cats.length
+        ? gsap.delayedCall(after, next)
+        : null;
+  };
+  const stopAuto = () => {
+    auto?.kill();
+    auto = null;
+  };
+
+  // Nur die Maus hält ihn an: Touch-Zeiger melden sich mit jedem Wischen
+  // über der Tafel (`pointerenter`), und am Telefon blieb Remy dann stumm.
+  const mouse = (event: Event) => (event as PointerEvent).pointerType === 'mouse';
+  const handsOn = (event: Event) => {
+    if (!mouse(event)) return;
+    hands = true;
+    stopAuto();
+  };
+  const handsOff = (event: Event) => {
+    if (!mouse(event)) return;
+    hands = false;
+    startAuto(4);
+  };
+  // Zeigen (Maus) oder fokussieren (Tastatur); ein Finger, der über eine
+  // Kategorie wischt, wählt sie nicht.
+  const enterCat = (event: Event) => {
+    if (event.type === 'pointerenter' && !mouse(event)) return;
+    pick(event.currentTarget as HTMLElement);
+  };
+  const leaveCat = (event: Event) => {
+    if (event.type === 'pointerleave' && !mouse(event)) return;
+    pick(null);
+  };
+  const listen = () => {
+    listening = true;
+    stopAuto();
+    pick(null);
+    say('listen');
+    avatar.setAttribute('data-delight', '');
+  };
+  const unlisten = () => {
+    listening = false;
+    avatar.removeAttribute('data-delight');
+    startAuto(4);
+  };
+  section.addEventListener('pointerenter', handsOn);
+  section.addEventListener('pointerleave', handsOff);
+  for (const c of cats) {
+    c.addEventListener('pointerenter', enterCat);
+    c.addEventListener('focus', enterCat);
+    c.addEventListener('pointerleave', leaveCat);
+    c.addEventListener('blur', leaveCat);
+  }
+  input?.addEventListener('focus', listen);
+  input?.addEventListener('blur', unlisten);
+  const unwatch = whileCentered(
+    section,
+    () => {
+      inside = true;
+      startAuto(1.6);
+    },
+    () => {
+      inside = false;
+      stopAuto();
+      pick(null);
+    },
+    0.85
+  );
+
+  return () => {
+    unwatch();
+    stopAuto();
+    swap?.kill();
+    gsap.set(saids, { clearProps: 'transform,clipPath,visibility' });
+    quiet?.kill();
+    section.removeEventListener('pointerenter', handsOn);
+    section.removeEventListener('pointerleave', handsOff);
+    for (const c of cats) {
+      c.removeEventListener('pointerenter', enterCat);
+      c.removeEventListener('focus', enterCat);
+      c.removeEventListener('pointerleave', leaveCat);
+      c.removeEventListener('blur', leaveCat);
+      c.removeAttribute('data-pick');
+    }
+    input?.removeEventListener('focus', listen);
+    input?.removeEventListener('blur', unlisten);
+    avatar.removeAttribute('data-delight');
   };
 }
 
@@ -1040,7 +1162,7 @@ function armDepthPointer(): () => void {
  * Bilder der Bühnen vorladen, bevor sie ins Bild kommen. Sie laden
  * `lazy`, und der Browser zählt nur, was sichtbar ist: die wartenden
  * Must-Eat-Karten stehen ausserhalb der beschnittenen Bühne, die Nearby-
- * Karten seitlich im Band — sie luden erst beim Hereinfahren, und das Feld
+ * Karten rechts in der Querleiste — sie luden erst beim Hereinfahren, und das Feld
  * war einen Moment leer (Rückmeldung 01.10.2026). Anderthalb Bildschirm-
  * höhen vorher werden sie auf `eager` gestellt. Auch ohne Bewegung, und
  * am Scroller des Desktops (`.app-pages`) gemessen — der Rand des Fensters
@@ -1087,13 +1209,14 @@ export default function HubMotion() {
         desk: '(min-width: 768px)',
         pointer: '(hover: hover) and (pointer: fine)',
       },
-      (ctx, safe) => {
+      (ctx) => {
         const { motion, desk, pointer } = ctx.conditions as Record<string, boolean>;
-        if (!motion) return;
+        // Was Remy sagt, ist Inhalt: auch mit reduzierter Bewegung.
+        const stopSays = armRemySays(motion);
+        if (!motion) return stopSays;
         const scroller = appScroller() ?? window;
-        const stops: Array<() => void> = [];
+        const stops: Array<() => void> = [stopSays];
         stops.push(armScrubFallback(scroller));
-        stops.push(armStaggers(safe!));
         stops.push(armFragRemy());
         stops.push(armInView());
         stops.push(armSignupDemo());

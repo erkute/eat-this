@@ -118,57 +118,10 @@ export function greetingFor(
   };
 }
 
-// ── Home-stage variant ────────────────────────────────────────────────────
-// The "Remy kennt die Spots" hero on the home hub speaks one self-contained
-// line in his voice (Döner-&-Donuts tone: dry, concrete, no filler, no emojis).
-// The identity opener stays constant; the second clause shifts with the daypart
-// so the hero reads fresh morning vs. midnight. Two tappable answers per daypart
-// hand off to the chat (see HubFragRemy + homeStage.ts).
-const STAGE_LINE: Record<Locale, Record<Daypart, string>> = {
-  de: {
-    morning:
-      'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — der Tag ist zu kurz für schlechten Kaffee.',
-    midday:
-      'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — schnell essen, ohne sich mit Mittelmaß abzufinden.',
-    afternoon:
-      'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — Kaffee, Kuchen, kurze Pause.',
-    evening:
-      'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — für Dinner, Drinks und Orte, die den Abend tragen.',
-    late: 'Hi, ich bin Remy. Ich kenne die besten Spots in Berlin — wenn es spät wird, zählt nicht nur, was noch offen ist.',
-  },
-  en: {
-    morning: "Hi, I'm Remy. I know the best spots in Berlin — the day's too short for bad coffee.",
-    midday:
-      "Hi, I'm Remy. I know the best spots in Berlin — eat quick, without settling for mediocre.",
-    afternoon: "Hi, I'm Remy. I know the best spots in Berlin — coffee, cake, a short break.",
-    evening:
-      "Hi, I'm Remy. I know the best spots in Berlin — for dinner, drinks, and places that carry the night.",
-    late: "Hi, I'm Remy. I know the best spots in Berlin — when it gets late, it's not just about what's still open.",
-  },
-};
-
-// Two quick answers per daypart — the user's side of the conversation. Tapping
-// one opens the chat with that exact question.
-const STAGE_ANSWERS: Record<Locale, Record<Daypart, [string, string]>> = {
-  de: {
-    morning: ['Guter Kaffee in der Nähe', 'Ordentliches Frühstück'],
-    midday: ['Schnelles Mittagessen', 'Lieber in Ruhe hinsetzen'],
-    afternoon: ['Kaffee und was Süßes', 'Schon der erste Drink'],
-    evening: ['Richtig gute Pizza', 'Schönes Dinner für zwei'],
-    late: ['Beste Döner jetzt', 'Bars, die noch offen haben'],
-  },
-  en: {
-    morning: ['Good coffee nearby', 'A proper breakfast'],
-    midday: ['Quick lunch', 'A proper sit-down'],
-    afternoon: ['Coffee and something sweet', 'Already the first drink'],
-    evening: ['Really good pizza', 'A nice dinner for two'],
-    late: ['Best döner right now', "A bar that's still open"],
-  },
-};
-
-// Editorial lead — the daypart clause as a standalone sentence (the bold hero's
-// headline already carries "Remy kennt die Spots", so the lead need not repeat
-// it). Shifts with the time of day; SSR falls back to the generic sub.
+// ── Remys Tafel auf der Startseite ────────────────────────────────────────
+// Remys erster Satz auf seiner Tafel (HubFragRemy), bevor er zu den Kategorien
+// redet: trocken, konkret, kein Füllwort, kein Emoji. Wechselt mit der
+// Tageszeit; der Server rendert stattdessen den allgemeinen `sub`.
 const STAGE_LEAD: Record<Locale, Record<Daypart, string>> = {
   de: {
     morning: 'Der Tag ist zu kurz für schlechten Kaffee.',
@@ -186,14 +139,64 @@ const STAGE_LEAD: Record<Locale, Record<Daypart, string>> = {
   },
 };
 
+// Zwei Beispiel-Fragen zur Tageszeit unter den Kategorien — die Seite des
+// Besuchers im Gespräch; antippen öffnet den Chat mit genau dieser Frage.
+const STAGE_ANSWERS: Record<Locale, Record<Daypart, [string, string]>> = {
+  de: {
+    morning: ['Guter Kaffee in der Nähe', 'Ordentliches Frühstück'],
+    midday: ['Schnelles Mittagessen', 'Lieber in Ruhe hinsetzen'],
+    afternoon: ['Kaffee und was Süßes', 'Schon der erste Drink'],
+    evening: ['Richtig gute Pizza', 'Schönes Dinner für zwei'],
+    late: ['Beste Döner jetzt', 'Bars, die noch offen haben'],
+  },
+  en: {
+    morning: ['Good coffee nearby', 'A proper breakfast'],
+    midday: ['Quick lunch', 'A proper sit-down'],
+    afternoon: ['Coffee and something sweet', 'Already the first drink'],
+    evening: ['Really good pizza', 'A nice dinner for two'],
+    late: ['Best döner right now', "A bar that's still open"],
+  },
+};
+
 export function stageFor(
   hour: number,
   locale: Locale
-): { line: string; lead: string; answers: [string, string] } {
+): { lead: string; answers: [string, string] } {
   const part = daypartFor(hour);
-  return {
-    line: STAGE_LINE[locale][part],
-    lead: STAGE_LEAD[locale][part],
-    answers: STAGE_ANSWERS[locale][part],
-  };
+  return { lead: STAGE_LEAD[locale][part], answers: STAGE_ANSWERS[locale][part] };
+}
+
+// Zu jeder Kategorie ein Satz: zeigt man auf der Tafel auf eine Kategorie
+// (oder geht Remy sie von selbst durch), sagt er ihn. Neue Kategorien in
+// Sanity bekommen den allgemeinen Satz, bis hier einer steht.
+const CATEGORY_LINES: Record<Locale, Record<string, string>> = {
+  de: {
+    'fine-dining': 'Fine Dining heißt hier: modernes Berlin, keine steife Tischdecke.',
+    pizza: 'Pizza? Ich kenn die Öfen, die es wirklich können.',
+    coffee: 'Kaffee, für den sich der Umweg lohnt.',
+    dinner: 'Dinner an Orten, die den Abend tragen.',
+    'fast-food': 'Schnell heißt nicht schlecht. Ich zeig dir, wo.',
+    breakfast: 'Frühstück, für das man gern früher aufsteht.',
+    lunch: 'Mittag ohne Mittelmaß.',
+    sweets: 'Kuchen, Eis, Gebäck — da hab ich Favoriten.',
+    drinks: 'Erster Drink? Ich weiß, wo der zweite besser wird.',
+  },
+  en: {
+    'fine-dining': 'Fine dining here means modern Berlin, no stiff tablecloth.',
+    pizza: 'Pizza? I know the ovens that really deliver.',
+    coffee: 'Coffee worth the detour.',
+    dinner: 'Dinner in places that carry the night.',
+    'fast-food': "Fast doesn't mean bad. I'll show you where.",
+    breakfast: 'Breakfast worth getting up early for.',
+    lunch: 'Lunch without the mediocre.',
+    sweets: 'Cake, ice cream, pastry — I have favourites.',
+    drinks: 'First drink? I know where the second gets better.',
+  },
+};
+
+export function categoryLine(locale: Locale, slug: string, name: string): string {
+  return (
+    CATEGORY_LINES[locale][slug] ??
+    (locale === 'de' ? `${name}? Da kenn ich was.` : `${name}? I know a place.`)
+  );
 }

@@ -9,7 +9,7 @@ import HubFragRemy from './HubFragRemy';
 const messages = {
   hub: {
     fragRemy: {
-      sub: 'Frag Remy direkt.',
+      sub: 'Ich kenne die besten Spots in Berlin.',
       inputPlaceholder: '...oder frag Remy direkt',
       sendAria: 'Senden',
     },
@@ -23,7 +23,7 @@ afterEach(() => {
 function renderSection() {
   return render(
     <NextIntlClientProvider locale="de" messages={messages}>
-      <HubFragRemy />
+      <HubFragRemy categoryNames={{ pizza: 'Pizza', lunch: 'Lunch' }} />
     </NextIntlClientProvider>
   );
 }
@@ -39,13 +39,48 @@ describe('HubFragRemy', () => {
     expect(title).not.toBeNull();
   });
 
-  it('renders the time-of-day lead and the two quick answers', () => {
+  it('fragt „Worauf hast du Lust?" und zeigt darüber Remys Satz zur Tageszeit', () => {
     renderSection();
-    // Daypart lead + answers land after mount via useEffect.
-    const lead = document.querySelector('[data-fragremy-lead]');
-    expect((lead?.textContent ?? '').length).toBeGreaterThan(0);
+    expect(document.querySelector('h2')!.textContent).toBe('Worauf hast du Lust?');
+    // Zu sehen ist zuerst der Satz zur Tageszeit (nach dem Mount, useEffect).
+    const shown = document.querySelectorAll('[data-remy-say][data-on]');
+    expect(shown.length).toBe(1);
+    expect(shown[0].getAttribute('data-remy-say')).toBe('lead');
+    expect(shown[0].textContent!.length).toBeGreaterThan(0);
+  });
+
+  /* Alle Sätze liegen schon in der Box: so hoch wie der längste, damit beim
+     Wechsel nichts darunter springt. HubMotion zeigt sie per `data-on`. */
+  it('legt zu jeder Kategorie Remys Satz in die Box, dazu den Satz fürs Feld', () => {
+    renderSection();
+    const keys = Array.from(
+      document.querySelectorAll('[data-fragremy-say] [data-remy-say]'),
+      (el) => el.getAttribute('data-remy-say')
+    );
+    expect(keys).toEqual(['lead', 'pizza', 'lunch', 'listen']);
+    expect(document.querySelector('[data-remy-say="pizza"]')!.textContent).toBe(
+      'Pizza? Ich kenn die Öfen, die es wirklich können.'
+    );
+    // Im Kicker steht nur „Remy", und er rollt nicht mit.
+    expect(document.querySelector('[data-fragremy-say] > span')!.textContent).toBe('Remy');
+    expect(document.querySelector('[data-remy-say="listen"]')!.textContent).toContain('Schieß los');
+  });
+
+  it('stellt die Kategorien als Antworten darunter, jede mit ihrem Slug', () => {
+    renderSection();
+    const links = document.querySelectorAll('[data-hub-categories] a[data-slug]');
+    expect(Array.from(links, (a) => a.getAttribute('data-slug'))).toEqual(['pizza', 'lunch']);
+  });
+
+  it('bietet unter den Kategorien zwei Fragen zur Tageszeit an, wie auf main', () => {
+    renderSection();
     const chips = document.querySelectorAll('[data-fragremy-chips] button');
     expect(chips.length).toBe(2);
+    // Unter den Kategorien, über dem Feld.
+    const cats = document.querySelector('[data-hub-categories]')!;
+    const input = document.querySelector('[data-fragremy-input]')!;
+    expect(cats.compareDocumentPosition(chips[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(chips[1].compareDocumentPosition(input) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('dispatches buddy:ask with the chip question on chip click', () => {
@@ -69,21 +104,29 @@ describe('HubFragRemy', () => {
     window.addEventListener(BUDDY_ASK_EVENT, onAsk);
     renderSection();
     const input = document.querySelector<HTMLInputElement>('[data-fragremy-input]')!;
-    const form = document.querySelector<HTMLFormElement>('[data-fragremy-form]')!;
+    const form = input.closest('form')!;
     fireEvent.change(input, { target: { value: 'Gute Ramen' } });
     fireEvent.submit(form);
     window.removeEventListener(BUDDY_ASK_EVENT, onAsk);
     expect(got).toEqual({ question: 'Gute Ramen' });
   });
 
-  it('gibt HubMotion die Haken für den Auftritt: Fragezeichen, „Frag Remy.", Remy', () => {
+  it('gibt HubMotion die Haken: Frage, Sätze, Feld, Remy und sein Platz', () => {
     renderSection();
-    // Seit 01.10.2026 die zweite Frage der Tafel, unter „Worauf hast du
-    // Lust?" (CategoriesRail) — daher h3.
-    const title = document.querySelector('h3')!;
-    expect(title.textContent).toBe('Keine Idee?Frag Remy.');
-    expect(document.querySelector('[data-fragremy-q]')!.textContent).toBe('?');
-    expect(document.querySelector('[data-fragremy-ask]')!.textContent).toBe('Frag Remy.');
+    expect(document.querySelector('[data-fragremy-title]')!.tagName).toBe('H2');
+    expect(document.querySelector('[data-fragremy-say]')).not.toBeNull();
+    expect(document.querySelector('[data-fragremy-input]')).not.toBeNull();
     expect(document.querySelector('[data-fragremy-avatar]')).not.toBeNull();
+    expect(document.querySelector('[data-fragremy-spot]')).not.toBeNull();
+  });
+
+  it('zeigt Remy als drei Gesichter: neutral, Mund offen, Lachen', () => {
+    renderSection();
+    const avatar = document.querySelector('[data-fragremy-avatar]')!;
+    expect(Array.from(avatar.querySelectorAll('img'), (img) => img.getAttribute('alt'))).toEqual([
+      'Remy',
+      '',
+      '',
+    ]);
   });
 });

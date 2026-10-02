@@ -685,8 +685,9 @@
 /* ── Abstände an den Bandkanten ──
    `--band-air` ist die Luft zwischen Kante und Inhalt, auf beiden Seiten
    gleich, damit die Kante mittig zwischen zwei Sektionen liegt. Die
-   bildschirmhohen Bühnen (Nearby, Must Eats) bleiben, wie sie sind; was an
-   sie grenzt, rückt um ihre leere Luft nach. */
+   bildschirmhohe Bühne (Must Eats) bleibt, wie sie ist; was an sie grenzt,
+   rückt um ihre leere Luft nach. Nearby ist seit 01.10.2026 eine Querleiste
+   ohne Bühne und trägt ihre Luft als Polster wie Teller und Remy. */
 .page {
   --band-air: var(--home-section-gap);
 }
@@ -699,7 +700,7 @@
 }
 .page > :global([data-hub-nearby]) {
   margin-top: 0;
-  padding-top: var(--band-air);
+  padding-block: var(--band-air);
 }
 /* Am Telefon schiebt `stagePin` die Bühne in der Sektion — ein Polster
    verschöbe sie mit. Deshalb trägt die Must-Eats-Fläche ihre Luft als
@@ -735,9 +736,6 @@
 
 /* Ab 768px: die Luft der Bühnen aus denselben Grössen gerechnet, die die
    Bühnen setzen — ändert sich dort eine Kartengrösse, muss sie hier mit.
-   - Unter Nearby: (Bühne − Kopf 128px − Band)/2, das Band ist 3/4 der
-     Kartenbreite plus 70px Unterschrift, die Karte min(36vw, 56svh, 680px)
-     (HomeGallery.module.css).
    - Die Must-Eats-Spalte (~348px) steht mittig in der Bühne; unter ihr
      bleibt am Ende des Wegs die halbe Resthöhe leer (gemessen 232px bei
      1440×900). Was folgt, liegt über der Bühne, sonst fingen deren leere
@@ -749,7 +747,6 @@
 @media (min-width: 768px) {
   .page {
     --stage-h: calc(100svh - 74px);
-    --nearby-air: calc((var(--stage-h) - 128px - min(36vw, 56svh, 680px) * 0.75 - 70px) / 2);
     --musteats-air-below: max(0px, (var(--stage-h) - 348px) / 2 - 8px);
   }
   .page > :global([data-hub-musteats]) {
@@ -760,7 +757,7 @@
     padding-block: var(--band-air);
   }
   .page > :global([data-hub-musteats]) {
-    margin-top: calc(var(--band-air) - var(--nearby-air));
+    margin-top: 0;
   }
   .page > :global([data-hub-musteats]) + section,
   :global(html[data-auth='1'])

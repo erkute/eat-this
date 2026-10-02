@@ -7,6 +7,8 @@
    206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
    der Tafeln zaehlte unsichtbar mit. */
 .board {
+  /* Für die Querleiste: `cqw` misst die Breite der Tafel. */
+  container-type: inline-size;
   --board-ink: var(--et-ink);
   --board-paper: var(--et-white);
   --board-accent: var(--et-accent);
@@ -237,27 +239,81 @@
   color: var(--board-soft, rgba(255, 255, 255, 0.76));
 }
 
-/* Am Telefon hochkant: das Band füllt so den Bildschirm, statt unter sich
-   leeren Ink-Grund zu lassen (Ansage 30.09.2026). */
+/* ── Die Querleiste ──
+   Nativ gewischt, mit Snap auf jede Karte (Ansage 01.10.2026: „die
+   Restaurants alle anklickbar und horizontal scrollbar"); mit der Maus wird
+   gezogen (lib/home/railDrag.ts). Die Leiste reicht von Fensterrand zu
+   Fensterrand, die erste Karte steht an der Satzkante, rechts schaut die
+   nächste herein — so liest sie sich als Reihe, ohne Pfeile oder Punkte. */
+.rail {
+  --card-w: min(78vw, 340px);
+  --card-gap: 14px;
+  /* Vom Satzspiegel bis zum Fensterrand. In `cqw` (die Tafel ist der
+     Container), nicht in Prozent: `scroll-padding` rechnete Prozent gegen
+     die Leiste selbst, die erste Karte rastete am Fensterrand ein. */
+  --bleed: calc((100vw - 100cqw) / 2);
+  position: relative;
+  display: flex;
+  gap: var(--card-gap);
+  /* Oben und unten 8px Polster: die Leiste schneidet ab (`overflow`), der
+     Fokusring der Karte steht 3px über ihr. */
+  margin: calc(clamp(18px, 2.4vw, 32px) - 8px) calc(-1 * var(--bleed)) -8px;
+  padding: 8px var(--bleed);
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--bleed);
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+/* Solange die Maus zieht, führt die Hand: kein Einrasten, kein weiches
+   Scrollen, keine Textauswahl. */
+.rail[data-dragging] {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+  cursor: grabbing;
+  user-select: none;
+}
+.slide {
+  flex: 0 0 var(--card-w);
+  scroll-snap-align: start;
+}
+
+/* Am Telefon hochkant, wie die Karten auf der Map. */
 @media (max-width: 767.98px) {
   .photo {
     aspect-ratio: 4 / 5;
-  }
-}
-
-@media (max-width: 767.98px) {
-  .photo {
     box-shadow: none;
   }
 }
 
-/* Ab 768px liegt das Foto wie hinter einem Fenster: während die Karte durchs
-   Band fährt, wandert es gegenläufig in seinem Rahmen (`--distance` setzt
-   HomeGallery pro Karte). Nur mit Bewegung — ohne JS oder bei reduzierter
-   Bewegung fehlt `[data-motion]`, und das Foto steht. */
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-  :global([data-motion]) .photoImg {
-    scale: 1.18;
-    translate: calc(clamp(-1.4, var(--distance, 0), 1.4) * -6%) 0;
+@media (min-width: 768px) {
+  .rail {
+    --card-w: clamp(260px, 28vw, 420px);
+    --card-gap: clamp(18px, 2vw, 28px);
+  }
+}
+
+/* Das Foto liegt wie hinter einem Fenster: während die Karte durch die
+   Leiste fährt, wandert es gegenläufig in seinem Rahmen — am Querscroll
+   der Leiste, nicht am Scroll der Seite. Ohne Scroll-Timeline steht es. */
+@keyframes windowDrift {
+  from {
+    translate: 7% 0;
+  }
+  to {
+    translate: -7% 0;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .photoImg {
+      scale: 1.16;
+      animation: windowDrift linear both;
+      animation-timeline: view(inline);
+    }
   }
 }

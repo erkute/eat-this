@@ -19,25 +19,6 @@ import type { MapRestaurant } from '@/lib/types';
 // Node/vitest environment. The first client render mirrors the SSR snapshot:
 // mounted = false → initialMapData is used, location = null → Mitte fallback.
 
-// These tests cover location/login behavior; gallery input is tested separately.
-vi.mock('./HomeGallery', () => ({
-  default: ({
-    children,
-    heading,
-    footer,
-  }: {
-    children: import('react').ReactNode;
-    heading?: import('react').ReactNode;
-    footer?: import('react').ReactNode;
-  }) => (
-    <>
-      {heading}
-      {children}
-      {footer}
-    </>
-  ),
-}));
-
 vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null, loading: true }) }));
 
 vi.mock('@/lib/map', () => ({
@@ -196,6 +177,19 @@ describe('HubNearby', () => {
     // pinned there, so the map is the shorter path to what the visitor wants.
     expect(html).toContain('href="/map?r=bar-basta"');
     expect(html).not.toContain('/restaurant/');
+  });
+
+  /* Ansage 01.10.2026: „die Restaurants alle anklickbar und horizontal
+     scrollbar" — eine Querleiste, in der jede Karte ein eigener Link ist. */
+  it('lists every restaurant as its own link in one sideways rail', () => {
+    const spots = Array.from({ length: 8 }, (_, i) =>
+      restaurant({ _id: `r${i}`, slug: `spot-${i}`, name: `Spot ${i}` })
+    );
+    renderLive(mapData(spots));
+    const rail = screen.getByRole('list', { name: 'Was ist um dich?' });
+    const links = Array.from(rail.querySelectorAll('li > a'));
+    expect(links).toHaveLength(8);
+    expect(new Set(links.map((a) => a.getAttribute('href'))).size).toBe(8);
   });
 
   it('renders the restaurant name', () => {

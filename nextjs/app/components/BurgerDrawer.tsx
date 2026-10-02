@@ -6,6 +6,7 @@ import { useAuth, useLoginModal } from '@/lib/auth';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { closeBurgerDrawer } from './burgerDrawerState';
+import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import styles from './BurgerDrawer.module.css';
 import { BRAND_LOGO_SRC } from '@/lib/constants';
 
@@ -25,7 +26,7 @@ import { BRAND_LOGO_SRC } from '@/lib/constants';
 function DrawerLink({ href, children, ...props }: ComponentProps<typeof Link>) {
   const router = useRouter();
   const preload = useCallback(() => {
-    /* Der Hash gehört nicht in den Prefetch: `/#hub-fragremy` und `/` sind
+    /* Der Hash gehört nicht in den Prefetch: `/#anker` und `/` sind
        dieselbe Route, aber nur die zweite Form kennt der Router. */
     const target = typeof href === 'string' ? href.split('#')[0] || '/' : null;
     if (target) (router.prefetch as (target: string) => void)(target);
@@ -241,12 +242,22 @@ export default function BurgerDrawer() {
             <DrawerLink href="/bezirk" className={styles.navItem}>
               {t('burger.districts')}
             </DrawerLink>
-            {/* Remy lives in the home hub now. From other pages the burger
-                sends users back to
-                his "Frag Remy" section via HubHashScroll. */}
-            <DrawerLink href="/#hub-fragremy" className={styles.navItem}>
+            {/* „Frag Remy" öffnet den Chat dort, wo man gerade ist — derselbe
+                Weg wie der Knopf unten rechts (BUDDY_ASK_EVENT, RemyDock).
+                Bis 01.10.2026 sprang der Eintrag zur Startseite, zur
+                Eingabe unter „Worauf hast du Lust?"; die steht dort weiter,
+                aber von jeder anderen Seite aus war der Sprung ein Umweg. Die
+                Seite bleibt, wo sie war — also mit Scroll-Rückgabe. */}
+            <button
+              type="button"
+              className={styles.navItem}
+              onClick={() => {
+                closeBurger(true);
+                dispatchBuddyAsk();
+              }}
+            >
               {t('burger.fragRemy')}
-            </DrawerLink>
+            </button>
             <DrawerLink href="/news" className={styles.navItem}>
               {t('burger.aufDemTeller')}
             </DrawerLink>

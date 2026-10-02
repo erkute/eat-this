@@ -16,8 +16,9 @@ const en = {
     allBerlin: {},
     newOnMap: {},
     fragRemy: {
-      title: 'Ask Remy',
-      sub: 'Your Berlin food insider – just ask.',
+      // Remys erster Satz auf seiner Tafel, solange die Tageszeit noch nicht
+      // feststeht (Server-Render); danach greeting.ts `stageLeadFor`.
+      sub: 'I know the best spots in Berlin.',
       inputPlaceholder: '…or just ask Remy',
       sendAria: 'Send',
     },
@@ -423,8 +424,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     allBerlin: {},
     newOnMap: {},
     fragRemy: {
-      title: 'Frag Remy',
-      sub: 'Frag ihn nach deinem nächsten Spot.',
+      sub: 'Ich kenne die besten Spots in Berlin.',
       inputPlaceholder: '…oder frag Remy direkt',
       sendAria: 'Senden',
     },

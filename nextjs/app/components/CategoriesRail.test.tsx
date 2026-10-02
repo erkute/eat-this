@@ -40,6 +40,15 @@ describe('CategoriesRail', () => {
     expect(html).not.toContain('<img');
   });
 
+  it('sagt per Slug, über welche Kategorie Remy redet — ohne eigene Frage', () => {
+    const html = renderToStaticMarkup(
+      <CategoriesRail categoryNames={{ pizza: 'Pizza' }} locale="de" />
+    );
+    expect(html).toContain('data-slug="pizza"');
+    // Die Frage „Worauf hast du Lust?" stellt Remy (HubFragRemy).
+    expect(html).not.toContain('<h2');
+  });
+
   it('renders nothing when empty', () => {
     const html = renderToStaticMarkup(<CategoriesRail categoryNames={{}} locale="de" />);
     expect(html).toBe('');

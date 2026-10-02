@@ -1,6 +1,7 @@
 // Static catalog mapping packId → Stripe Price ID and entitlement shape.
 // packId is the prefixed form (`category-pizza`, `all-berlin`) — same
-// string is also the Firestore entitlement doc ID and the Stripe Product ID.
+// string is also the Firestore entitlement doc ID. The Stripe Product IDs are
+// generated (`prod_…`); they hang off the Price.
 //
 // stripePriceId values are LIVE-mode IDs from Stripe Dashboard.
 
@@ -12,11 +13,9 @@ export interface PackDef {
   type: 'category' | 'all-berlin';
   slug: string | null; // category slug (null for all-berlin)
   displayName: string; // shown in success-page copy
-  /** Long editorial copy — `de` mirrors the Stripe Product description
-   *  verbatim (it is the Stripe Hosted Checkout body). ACHTUNG: aendert sich
-   *  der Text hier, muss er im Stripe-Dashboard nachgezogen werden, sonst
-   *  verspricht die Kassenseite etwas anderes als die Pack-Seite.
-   *  Der Weg dorthin: `npx tsx scripts/sync-stripe-catalog.ts`. */
+  /** Pack-Seite (auch ihre Meta-Description) und Remys Pack-Teaser. NICHT
+   *  der Text der Stripe-Kassenseite: den pflegt der Betreiber im Dashboard
+   *  (Produktbeschreibung), dort ist er länger und darf es sein. */
   description: PackCopy;
   spectrum: PackCopy; // tight declarative line — rendered as the Booster card headline (period-separated, Editor-Pick voice)
   amountCents: number; // for sanity checks + receipts

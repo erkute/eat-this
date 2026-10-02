@@ -1,10 +1,14 @@
 /* „Was ist um dich?" (HubNearby): die Nächste groß, die übrigen klein in der
-   Querleiste, auf jeder Karte ein grauer Stempel mit der Gehzeit (Wahl vom
-   02.10.2026 nach Prototyp „D · Die Nächste", Stempel grau, mit Zähler).
+   Querleiste bzw. ab 1024px im Raster, auf jeder Karte ein grauer Stempel
+   mit der Gehzeit (Wahl vom 02.10.2026 nach Prototyp „D · Die Nächste",
+   Stempel grau, mit Zähler).
 
-   Drei Bewegungen:
-   - Beim Hereinkommen schlagen die Stempel nacheinander ein (`armNearbyStamps`,
-     aus HubMotion).
+   Vier Bewegungen:
+   - Beim Hereinkommen werden die Karten von einem Stapel ausgeteilt, jede
+     bekommt beim Landen ihren Stempel (`createNearbyEntrance`).
+   - Ohne Standort sucht das „?": ab und zu dreht eine Walze eine Runde und
+     bleibt wieder auf „?", mit der Maus auch die Karte unter dem Zeiger
+     (`armQuestionSpin`).
    - Nach „Freigeben" sortiert sich alles nach Nähe: die neue Nächste fliegt in
      den großen Platz, die alte schrumpft in die Leiste, Neue werden von unten
      eingeworfen (`rememberCards`).
@@ -68,45 +72,227 @@ export function spinCounters(root: Element, delay = 0): void {
   });
 }
 
-/* ── Stempel beim Hereinkommen ── */
+/* ── Das „?" sucht ── */
 
-/** Die Stempel schlagen nacheinander ein, sobald die Karten ins Bild kommen;
- *  die Karte darunter zuckt. Einmal pro Seitenaufruf. */
-export function armNearbyStamps(): () => void {
-  const spread = document.querySelector<HTMLElement>('[data-hub-nearby] [data-nearby-spread]');
-  if (!spread || typeof IntersectionObserver === 'undefined') return () => {};
-  const stamps = () => Array.from(spread.querySelectorAll<HTMLElement>('[data-stamp]'));
-  gsap.set(stamps(), { scale: 0 });
-  let tl: gsap.core.Timeline | null = null;
-  const io = new IntersectionObserver(
-    (entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      io.disconnect();
-      // Neu abfragen: die Karten können seit dem Laden gewechselt haben.
-      const all = stamps();
-      gsap.set(all, { scale: 0 });
-      tl = gsap.timeline();
-      all.forEach((stamp, i) => {
-        const at = 0.1 + i * 0.11;
-        tl!.fromTo(
-          stamp,
-          { scale: 2.8, rotation: -26 },
-          { scale: 1, rotation: -7, duration: 0.2, ease: 'power4.in', immediateRender: false },
-          at
-        );
-        const card = stamp.closest('a');
-        if (card) {
-          tl!.to(card, { y: 4, duration: 0.05, ease: 'power1.out', yoyo: true, repeat: 1 }, at + 0.2);
-        }
-      });
-    },
-    { rootMargin: '0px 0px -25% 0px' }
+/** Eine „?"-Walze dreht eine Runde und landet wieder auf „?". */
+function spinQuestion(reel: HTMLElement): void {
+  if (reel.dataset.reel !== '?' || gsap.isTweening(reel)) return;
+  gsap.fromTo(
+    reel,
+    { y: 0, yPercent: reelPercent(0) },
+    {
+      yPercent: reelPercent(COUNTER_GLYPHS.length),
+      duration: 0.9,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        gsap.set(reel, { clearProps: 'transform' });
+      },
+    }
   );
-  io.observe(spread);
+}
+
+/** Solange der Standort fehlt und die Karten im Bild sind, dreht alle
+ *  `every` ms eine zufällige „?"-Walze; mit der Maus dreht die der Karte,
+ *  auf die man zeigt. Gibt die Aufräumfunktion zurück. */
+export function armQuestionSpin(board: HTMLElement, every = 2600): () => void {
+  if (reducedMotion() || typeof IntersectionObserver === 'undefined') return () => {};
+  let inView = false;
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      inView = entry.isIntersecting;
+    },
+    { threshold: 0.2 }
+  );
+  io.observe(board);
+  const timer = window.setInterval(() => {
+    if (!inView || document.hidden) return;
+    const reels = Array.from(board.querySelectorAll<HTMLElement>('[data-reel="?"]')).filter(
+      (reel) => reel.getClientRects().length > 0
+    );
+    if (reels.length) spinQuestion(reels[Math.floor(Math.random() * reels.length)]);
+  }, every);
+  const onOver = (event: PointerEvent) => {
+    if (event.pointerType !== 'mouse') return;
+    const card = (event.target as Element).closest('a');
+    // Nur beim Betreten der Karte, nicht bei jedem Kind darin.
+    if (!card || card.contains(event.relatedTarget as Node | null)) return;
+    const reel = card.querySelector<HTMLElement>('[data-reel="?"]');
+    if (reel) spinQuestion(reel);
+  };
+  board.addEventListener('pointerover', onOver);
   return () => {
     io.disconnect();
-    tl?.kill();
-    gsap.set(stamps(), { clearProps: 'transform' });
+    window.clearInterval(timer);
+    board.removeEventListener('pointerover', onOver);
+  };
+}
+
+/* ── Austeilen beim Hereinkommen ──
+   Ab 1024px liegt der Stapel auf dem Foto der Großen: die kleinen Karten
+   fliegen nacheinander in ihre Rasterfelder, zuletzt wächst die Große, die
+   ganz unten lag, auf ihren Platz. Darunter (Leiste) schneidet die Leiste
+   alles ab, was über sie hinausragt — dort wird die Große erst hingelegt,
+   dann liegt der Stapel am Anfang der Leiste und wird nach rechts
+   ausgeteilt. Jede Karte bekommt beim Landen ihren Stempel. */
+
+const jitter = (i: number, span: number) => Math.sin(i * 12.9898 + 4.1) * span;
+const center = (r: DOMRect) => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+const photoOf = (card: HTMLElement) => card.querySelector<HTMLElement>('.hv-photo') ?? card;
+
+export interface NearbyEntrance {
+  /** Legt die (womöglich neu gerenderten) Karten wieder auf den Stapel,
+   *  solange noch nicht ausgeteilt ist. */
+  restack: () => void;
+  /** Springt ans Ende (z. B. wenn „Freigeben" getippt wird). */
+  finish: () => void;
+  dispose: () => void;
+}
+
+/** Legt die Karten von `board` auf den Stapel und teilt sie aus, sobald sie
+ *  ins Bild kommen. Ohne Bewegung: `null` — die Karten liegen einfach da. */
+export function createNearbyEntrance(board: HTMLElement): NearbyEntrance | null {
+  if (reducedMotion() || typeof IntersectionObserver === 'undefined') return null;
+  const spread = board.querySelector<HTMLElement>('[data-nearby-spread]');
+  const rail = board.querySelector<HTMLElement>('[data-nearby-rail]');
+  if (!spread || !rail) return null;
+
+  let state: 'stacked' | 'dealing' | 'done' = 'stacked';
+  let tl: gsap.core.Timeline | null = null;
+
+  const heroCard = () => spread.querySelector<HTMLElement>(':scope > [data-flip-id] > a');
+  const railCards = () =>
+    Array.from(rail.querySelectorAll<HTMLElement>(':scope > li > a')).filter(
+      (card) => card.getClientRects().length > 0
+    );
+  // Das Raster (ab 1024px) schneidet nicht ab, die Leiste schon.
+  const isGrid = () => getComputedStyle(rail).overflowX === 'visible';
+  const stampOf = (card: HTMLElement) => card.querySelector<HTMLElement>('[data-stamp]');
+  const all = () => [heroCard(), ...railCards()].filter((c): c is HTMLElement => !!c);
+  const stamps = () => all().flatMap((card) => stampOf(card) ?? []);
+  const slides = () => railCards().flatMap((card) => card.parentElement ?? []);
+
+  const stack = () => {
+    // Deckender Grund, solange Karten übereinanderliegen (HubNearby.module.css).
+    board.setAttribute('data-dealing', '');
+    const hero = heroCard();
+    const cards = railCards();
+    // Erst ohne Versatz messen, dann auf den Stapel legen.
+    gsap.set(all(), { clearProps: 'transform' });
+    gsap.set(stamps(), { scale: 0 });
+    if (!hero) return;
+    const heroPhoto = photoOf(hero).getBoundingClientRect();
+    if (isGrid()) {
+      const deck = center(heroPhoto);
+      cards.forEach((card, i) => {
+        const at = center(photoOf(card).getBoundingClientRect());
+        gsap.set(card.parentElement, { zIndex: cards.length - i });
+        gsap.set(card, {
+          x: deck.x - at.x + jitter(i, 8),
+          y: deck.y - at.y + jitter(i + 3, 6),
+          rotation: jitter(i + 7, 7),
+        });
+      });
+      // Die Große liegt ganz unten, so klein wie eine aus dem Stapel.
+      const small = cards[0] ? photoOf(cards[0]).getBoundingClientRect().width : heroPhoto.width / 2;
+      const box = hero.getBoundingClientRect();
+      gsap.set(hero, {
+        transformOrigin: `${deck.x - box.left}px ${deck.y - box.top}px`,
+        scale: small / heroPhoto.width,
+        rotation: -4,
+      });
+    } else {
+      const first = cards[0]?.getBoundingClientRect();
+      cards.forEach((card, i) => {
+        const box = card.getBoundingClientRect();
+        gsap.set(card.parentElement, { zIndex: cards.length - i });
+        gsap.set(card, {
+          x: (first?.left ?? box.left) - box.left - 22 + jitter(i, 6),
+          y: 14 + jitter(i + 3, 5),
+          rotation: jitter(i + 7, 7),
+          scale: 0.92,
+        });
+      });
+      gsap.set(hero, { y: -18, scale: 1.05, rotation: -3 });
+    }
+  };
+
+  const slam = (timeline: gsap.core.Timeline, card: HTMLElement, at: number) => {
+    const stamp = stampOf(card);
+    if (!stamp) return;
+    timeline.fromTo(
+      stamp,
+      { scale: 2.8, rotation: -26 },
+      { scale: 1, rotation: -7, duration: 0.2, ease: 'power4.in', immediateRender: false },
+      at
+    );
+    timeline.to(card, { y: '+=4', duration: 0.05, ease: 'power1.out', yoyo: true, repeat: 1 }, at + 0.2);
+  };
+
+  const deal = () => {
+    state = 'dealing';
+    stack(); // frisch messen: Schrift und Bilder können das Layout verschoben haben
+    const hero = heroCard();
+    const cards = railCards();
+    tl = gsap.timeline({
+      onComplete: () => {
+        state = 'done';
+        board.removeAttribute('data-dealing');
+        gsap.set(all(), { clearProps: 'transform,transformOrigin' });
+        gsap.set(stamps(), { clearProps: 'transform' });
+        gsap.set(slides(), { clearProps: 'zIndex' });
+      },
+    });
+    const grid = isGrid();
+    let t = 0.05;
+    const heroIn = (at: number) => {
+      if (!hero) return;
+      tl!.to(hero, { x: 0, y: 0, scale: 1, rotation: 0, duration: 0.65, ease: 'back.out(1.3)' }, at);
+      slam(tl!, hero, at + 0.5);
+    };
+    if (!grid) {
+      heroIn(t);
+      t += 0.55;
+    }
+    cards.forEach((card, i) => {
+      const at = t + i * 0.12;
+      tl!.to(card, { x: 0, y: 0, rotation: 0, scale: 1, duration: 0.62, ease: 'power3.out' }, at);
+      slam(tl!, card, at + 0.48);
+    });
+    if (grid) heroIn(t + cards.length * 0.12 + 0.15);
+  };
+
+  stack();
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((entry) => entry.isIntersecting) || state !== 'stacked') return;
+      io.disconnect();
+      deal();
+    },
+    // Erst wenn die Karten gut im Bild sind: der Stapel soll als Stapel zu
+    // sehen sein, bevor er ausgeteilt wird.
+    { rootMargin: '0px 0px -40% 0px' }
+  );
+  io.observe(spread);
+
+  return {
+    restack: () => {
+      if (state === 'stacked') stack();
+    },
+    finish: () => {
+      if (state === 'stacked') {
+        io.disconnect();
+        deal();
+      }
+      tl?.progress(1);
+    },
+    dispose: () => {
+      io.disconnect();
+      tl?.kill();
+      board.removeAttribute('data-dealing');
+      gsap.set(all(), { clearProps: 'transform,transformOrigin' });
+      gsap.set(stamps(), { clearProps: 'transform' });
+      gsap.set(slides(), { clearProps: 'zIndex' });
+    },
   };
 }
 

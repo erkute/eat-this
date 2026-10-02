@@ -19,10 +19,13 @@ import { armRailDrag } from '@/lib/home/railDrag';
 import {
   COUNTER_GLYPHS,
   COUNTER_REEL,
+  armQuestionSpin,
+  createNearbyEntrance,
   preloadPhotos,
   reelPercent,
   rememberCards,
   type CardsFlip,
+  type NearbyEntrance,
 } from '@/lib/home/nearbyMotion';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
@@ -144,8 +147,11 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   // sind, und erst dann wird umgestellt und geflogen.
   const boardRef = useRef<HTMLDivElement | null>(null);
   const pendingFlip = useRef<Promise<CardsFlip | null> | null>(null);
+  const entranceRef = useRef<NearbyEntrance | null>(null);
   const handleLocate = useCallback(async () => {
     setDismissedErrorKey(null);
+    // Wer tippt, während noch ausgeteilt wird, bekommt den Endstand sofort.
+    entranceRef.current?.finish();
     const board = boardRef.current;
     const remembered = board ? rememberCards(board).catch(() => null) : null;
     pendingFlip.current = remembered;
@@ -204,7 +210,33 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   const cards = listLocation
     ? nearestRestaurants(restaurants, listLocation, COUNT)
     : rotatingRestaurants(restaurants, today, COUNT);
-  if (cards.length === 0) return null;
+
+  // Beim Hereinkommen werden die Karten von einem Stapel ausgeteilt. Liegen
+  // sollen sie dort schon vor dem ersten Bild — auch wenn React sie nach dem
+  // Laden austauscht (live statt SSR-Daten): deshalb Layout-Effekte.
+  const hasCards = cards.length > 0;
+  const cardKey = cards.map((r) => r._id).join(' ');
+  useLayoutEffect(() => {
+    const board = boardRef.current;
+    if (!board) return;
+    const entrance = createNearbyEntrance(board);
+    entranceRef.current = entrance;
+    return () => {
+      entrance?.dispose();
+      entranceRef.current = null;
+    };
+  }, [hasCards]);
+  useLayoutEffect(() => {
+    entranceRef.current?.restack();
+  }, [cardKey]);
+  // Ohne Standort sucht das „?" in den Stempeln.
+  useEffect(() => {
+    const board = boardRef.current;
+    if (!board || listLocation) return;
+    return armQuestionSpin(board);
+  }, [hasCards, listLocation]);
+
+  if (!hasCards) return null;
 
   // `loc` falls back to Mitte, so without a grant the walking time below is
   // measured from a place the user isn't. A denial is indistinguishable from a

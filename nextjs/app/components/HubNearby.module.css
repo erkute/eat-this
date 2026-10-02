@@ -160,6 +160,14 @@
   scale: var(--et-press-tile);
 }
 
+/* Solange ausgeteilt wird, liegen Karten übereinander: dann tragen sie den
+   Grund des Bands, sonst schienen die Namen der unteren durch die obere
+   (lib/home/nearbyMotion.ts, `data-dealing`). Danach wieder ohne Fläche. */
+.board[data-dealing] .card {
+  border-radius: var(--et-radius-photo);
+  background: var(--band, var(--et-ink));
+}
+
 /* Providence's descender reaches far below a tight line, and the clamp above
    brings `overflow: hidden` with it — the ink room goes in as padding so the
    g in "Bagel Bro" keeps its tail. Klein in der Leiste, groß bei der

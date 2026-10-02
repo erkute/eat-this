@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import NewsArticleShare from './NewsArticleShare';
 import { splitHeading } from '@/lib/headingDeck';
 import styles from './ArticleRail.module.css';
@@ -50,6 +50,8 @@ export interface Chapter {
 
 interface Props {
   chapters: Chapter[];
+  /** Weitere Knöpfe unter „Teilen" (der Umschalter hell/dunkel). */
+  children?: ReactNode;
   label: string;
   shareLabel: string;
   shareCopiedLabel: string;
@@ -67,6 +69,7 @@ export default function ArticleRail({
   shareCopiedLabel,
   shareTitle,
   shareExcerpt,
+  children,
 }: Props) {
   const [activeId, setActiveId] = useState<string>(chapters[0]?.id ?? '');
   // A stable dependency: `chapters` is rebuilt on every parent render, so
@@ -158,6 +161,7 @@ export default function ArticleRail({
           copiedLabel={shareCopiedLabel}
           className={styles.share}
         />
+        {children}
       </div>
     </aside>
   );

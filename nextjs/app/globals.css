@@ -418,6 +418,12 @@ html[data-active-page='news-article'] body,
 html[data-active-page='news-article'] .app-pages {
   background: var(--et-white);
 }
+/* …ausser jemand stellt ihn dunkel (lib/articleTheme.ts). */
+html[data-active-page='news-article'][data-article-theme='dark'],
+html[data-active-page='news-article'][data-article-theme='dark'] body,
+html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {
+  background: var(--et-ink);
+}
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
    erste Pfadsegment der falschen Adresse, und auf einem gestreamten
    notFound() laeuft der Bootstrap gar nicht erst. Also am Inhalt erkennen.

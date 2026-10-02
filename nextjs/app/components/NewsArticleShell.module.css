@@ -21,6 +21,8 @@
   --article-on-accent: var(--et-ink);
   --article-muted: var(--et-muted);
   --article-quiet: var(--et-quiet);
+  /* Die Tafel am Artikelende (Katalog-Ausgang): Ink auf Weiss. */
+  --article-board: var(--et-ink);
   /* The reading measure. 680px at 18-19px lands around 68 characters — the
      old full-width 900px column ran ~95, which is why desktop read worse than
      mobile despite all the extra room. */
@@ -33,6 +35,20 @@
      ist dort sitewide transparent und schlägt diese Klasse. */
   color: var(--article-fg);
   font-family: var(--et-font-display);
+}
+
+/* Dunkel auf Knopfdruck (lib/articleTheme.ts, ArticleThemeToggle): der
+   Ink-Grund der Marke, Schrift weiss. Die Kapitel werden gelb statt rot —
+   Rot ist auf Ink als Schriftfarbe raus (rund 2,9:1), wie überall auf Ink.
+   Die Tafel hebt sich mit der erhöhten Ink-Stufe ab. Den Grund selbst stellt
+   globals.css um. */
+:global(html[data-article-theme='dark']) .page {
+  --article-ground: var(--et-ink);
+  --article-fg: var(--et-white);
+  --article-head: var(--et-accent);
+  --article-muted: var(--et-ink-soft);
+  --article-quiet: var(--et-ink-raised);
+  --article-board: var(--et-ink-raised);
 }
 
 /* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
@@ -76,13 +92,19 @@ div.page {
 }
 
 /* Die Rubrik wie der Kicker der Startseite (`.hv-kicker`): klein in
-   Versalien, davor das gelbe Quadrat (`.hv-mk`). */
+   Versalien, davor das gelbe Quadrat (`.hv-mk`). Der kleine Lesetext der
+   Seite — Rubrik, Credits, Kapitel-Leiste, Etiketten — steht in Inter, eng
+   gesperrt, wie der kleine Text bei 032c (Neue Haas Grotesk Text, Ansage
+   02.10.2026). Knöpfe und die Spot-Labels (Bezirk · Küche) bleiben in
+   Providence wie das Label-System der Startseite („meine Font"), ebenso
+   alles Grosse. */
 .kicker {
+  font-family: var(--et-font-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
   margin-bottom: clamp(16px, 1.8vw, 24px);
   color: var(--article-fg);
   font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -100,7 +122,9 @@ div.page {
 .heroTitle {
   max-width: 18ch;
   margin: 0;
-  color: var(--article-head);
+  /* Schwarz (Ansage 02.10.2026 „mach Headline schwarz"); die Kapitel
+     darunter bleiben rot. */
+  color: var(--article-fg);
   /* Providence läuft breiter als Kaleidoscopes Compacta — deshalb kleiner
      als dort (90px) und etwas enger gesperrt. */
   font-size: clamp(44px, 6vw, 88px);
@@ -115,17 +139,22 @@ div.page {
   margin-top: clamp(20px, 2.2vw, 30px);
 }
 
+.themeToggle {
+  margin-top: 18px;
+}
+
 /* Getrennt durch Abstand, nicht durch Punkte: bricht die Zeile am Telefon
    um, stünde sonst ein einzelner Punkt am Anfang der zweiten. */
 .bylineMeta {
+  font-family: var(--et-font-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 6px 22px;
   color: var(--article-fg);
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
   line-height: 1.3;
   text-transform: uppercase;
 }
@@ -158,6 +187,129 @@ div.page {
   font-weight: 400;
   line-height: 1.25;
   text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------ motion ---- */
+
+/* Der Lesefortschritt: ein gelber Strich direkt unter der Kopfleiste, der mit
+   dem Scrollen von links nach rechts wächst. Eine Scroll-Timeline des
+   Browsers, kein JS — sie läuft im Takt des Scrollens. Nur ab Tablet: dort
+   scrollt `.app-pages`, und `top: 0` sitzt genau unter der Leiste; am
+   Telefon klappt die Leiste weg (SiteNav), und ein iPhone hinkt bei
+   scroll-gekoppelter Bewegung hinterher. */
+.progress {
+  display: none;
+}
+
+/* Der Kopf tritt nur beim Laden auf (`data-article-intro`, gesetzt vom
+   Bootstrap in app/[locale]/layout.tsx, wieder entfernt von
+   lib/articleMotion.ts): die Rubrik fällt herein, die Schlagzeile schlägt als
+   Stempel ein wie die Headline der Startseite, die Credits rücken nach, das
+   Foto steigt als Ganzes auf. Kein Opacity-Fade — unsichtbar ist nur, was
+   noch nicht dran ist. */
+@media (prefers-reduced-motion: no-preference) {
+  :global(html[data-article-intro]) .kicker {
+    animation: introDrop 520ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms backwards;
+  }
+
+  :global(html[data-article-intro]) .heroTitle {
+    animation: introStamp 900ms cubic-bezier(0.16, 1, 0.3, 1) 260ms backwards;
+  }
+
+  :global(html[data-article-intro]) .byline {
+    animation: introRise 560ms cubic-bezier(0.2, 0.8, 0.2, 1) 880ms backwards;
+  }
+
+  :global(html[data-article-intro]) .heroMedia {
+    animation: introLift 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 620ms backwards;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    @media (min-width: 768px) {
+      .progress {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        display: block;
+        height: 5px;
+        /* Über die ganze Breite, über das Polster von `.page` hinaus. */
+        margin: 0 calc(-1 * clamp(18px, 4vw, 54px)) -5px;
+        background: var(--article-accent);
+        transform-origin: 0 50%;
+        animation: readProgress linear both;
+        animation-timeline: scroll(nearest block);
+      }
+
+      /* Das Aufmacherfoto zieht beim Scrollen langsamer mit als die Seite —
+         es bewegt sich in seinem Rahmen, der Rahmen bleibt stehen. */
+      .hero {
+        animation: heroDrift linear both;
+        animation-timeline: view();
+      }
+    }
+  }
+}
+
+@keyframes introDrop {
+  0% {
+    transform: translateY(-28px) rotate(-8deg);
+    visibility: hidden;
+  }
+  1% {
+    visibility: visible;
+  }
+}
+
+@keyframes introStamp {
+  0% {
+    transform: scale(2.2) rotate(-5deg);
+    visibility: hidden;
+  }
+  1% {
+    transform: scale(2.2) rotate(-5deg);
+    visibility: visible;
+  }
+  75% {
+    transform: scale(0.97) rotate(0.6deg);
+  }
+}
+
+@keyframes introRise {
+  0% {
+    transform: translateY(24px);
+    visibility: hidden;
+  }
+  1% {
+    visibility: visible;
+  }
+}
+
+@keyframes introLift {
+  0% {
+    transform: translateY(90px) scale(0.94);
+    visibility: hidden;
+  }
+  1% {
+    visibility: visible;
+  }
+}
+
+@keyframes readProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes heroDrift {
+  from {
+    transform: translateY(-7%) scale(1.14);
+  }
+  to {
+    transform: translateY(7%) scale(1.14);
+  }
 }
 
 /* ------------------------------------------------------------- prose ---- */
@@ -385,13 +537,14 @@ div.page {
 
 /* Dieselbe Stimme wie die übrigen Labels der Seite: klein in Versalien. */
 .mustEatTag {
+  font-family: var(--et-font-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
   display: inline-block;
   padding: 5px 8px;
   color: var(--article-on-accent);
   background: var(--article-accent);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
 }
@@ -508,9 +661,10 @@ div.page {
    hier früher stand, beschrieb eine Vereinheitlichung auf die Body-Schrift,
    die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
 .inlineSpotMeta {
-  font-size: 13px;
+  font-family: var(--et-font-display);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.04em;
+  font-size: 13px;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -577,6 +731,9 @@ div.page {
 /* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht
    klickbar. Ein schwarzes Feld wie die Etiketten, klein in Versalien. */
 .inlineSpotCta {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   position: relative;
   z-index: 2;
   display: inline-flex;
@@ -587,8 +744,6 @@ div.page {
   background: var(--article-accent);
   color: var(--article-on-accent);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
   line-height: 1;
   /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
   text-decoration: none;
@@ -597,68 +752,112 @@ div.page {
 
 /* ---------------------------------------------------------- hub link ---- */
 
-/* Artikel → Hub: der Katalog-Verweis unter dem Fließtext. Gelb wie die
-   Akzentfläche, damit er als redaktionelle Empfehlung liest, nicht als Ad. */
-/* Der Ausgang am Artikelende: Booster-Pack der Kategorie, daneben die Ansage
-   in der Markenschrift, auf Ink statt auf dem gelben Akzent. Vorher war das
-   ein Kasten in Akzentfarbe mit Body-Font und einem Pfeil rechts — der Pfeil
-   ist weg, weil die ganze Fläche der Knopf ist, und die gelbe Fläche
-   konkurrierte am Seitenende mit dem Map-Plakat.
-   Bezirks-Hubs bringen kein Pack mit; `auto` fällt dann auf null zusammen und
-   die Zeile trägt allein. */
+/* Der Ausgang am Artikelende als Ink-Tafel (Ansage 02.10.2026 „das besser
+   designen"): das Booster-Pack der Kategorie liegt schräg auf der Tafel und
+   ragt oben über ihre Kante, daneben der Kicker mit dem gelben Quadrat, das
+   Ziel gross in Versalien und der gelbe Knopf — dieselben Teile wie die
+   Tafeln der Startseite. Die ganze Fläche ist der Link, der Knopf nur ihre
+   sichtbare Kante (`aria-hidden`); seit heute auch am Telefon.
+   Bezirks-Hubs bringen kein Pack mit; `auto` fällt dann auf null zusammen. */
 .hubLink {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  column-gap: clamp(14px, 2vw, 22px);
-  row-gap: 2px;
-  margin: clamp(26px, 4vw, 44px) 0 0;
-  padding: clamp(16px, 2vw, 22px) clamp(18px, 2.2vw, 26px);
-  background: var(--article-quiet);
-  color: var(--article-fg);
+  column-gap: clamp(16px, 2.6vw, 30px);
+  row-gap: 8px;
+  /* Luft nach oben für das Pack, das über die Kante ragt. */
+  margin: clamp(64px, 8vw, 96px) 0 0;
+  padding: clamp(20px, 2.6vw, 30px) clamp(18px, 2.6vw, 32px);
+  background: var(--article-board);
+  color: var(--et-white);
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .hubLinkPack {
-  grid-row: 1 / span 2;
-  width: clamp(56px, 7vw, 72px);
+  grid-row: 1 / span 3;
+  align-self: end;
+  width: clamp(88px, 11vw, 124px);
   height: auto;
-  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.25));
-  transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
+  /* Ragt gut zur Hälfte über die Tafel. */
+  margin-top: calc(-1 * clamp(56px, 7vw, 84px));
+  rotate: -8deg;
+  filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.45));
+  transition: transform 220ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .hubLinkKicker {
+  font-family: var(--et-font-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
   grid-column: 2;
-  color: var(--article-muted);
+  color: var(--et-white);
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
   line-height: 1.2;
   text-transform: uppercase;
 }
 
-.hubLinkLabel {
-  grid-column: 2;
-  font-size: clamp(1.15rem, 1.9vw, 1.45rem);
-  font-weight: 700;
-  line-height: 1.15;
+.hubLinkKicker::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--article-accent);
+  vertical-align: 0.1em;
 }
 
-/* Der Knopf am rechten Rand — erst ab Desktop, siehe unten. Auf dem Telefon
-   füllt der Text die Breite, dort wäre er ein drittes Element in einer
-   Zeile, die schon voll ist. */
+.hubLinkLabel {
+  grid-column: 2;
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
 .hubLinkCta {
-  display: none;
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  grid-column: 2;
+  justify-self: start;
+  align-items: center;
+  min-height: 40px;
+  margin-top: 6px;
+  padding: 0 16px;
+  background: var(--article-accent);
+  color: var(--et-ink);
+  font-size: 13px;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 180ms ease;
+}
+
+.hubLink:focus-visible {
+  outline: 2px solid var(--article-fg);
+  outline-offset: 4px;
+}
+
+.hubLink:focus-visible .hubLinkCta {
+  background: var(--et-white);
 }
 
 @media (hover: hover) {
   .hubLink:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
   }
 
   .hubLink:hover .hubLinkPack {
-    transform: translateY(-3px) rotate(-2deg);
+    transform: translateY(-6px) rotate(5deg);
+  }
+
+  .hubLink:hover .hubLinkCta {
+    background: var(--et-white);
   }
 }
 
@@ -671,6 +870,9 @@ div.page {
 }
 
 .shareBtn {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -679,10 +881,7 @@ div.page {
   border: 0;
   background: var(--article-quiet);
   color: var(--article-fg);
-  font: inherit;
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
@@ -851,60 +1050,21 @@ div.page {
     --img-frame: min(100%, var(--article-measure));
   }
 
-  /* Der Katalog-Ausgang als Tafel, nicht als Zeile. Auf 660px Lesebreite
-     trug er ein 72px-Pack und zwei kurze Zeilen — die rechte Hälfte blieb
-     leer (Betreiber, 07.09.2026: „sehr viel Leerfläche"). Jetzt drei
-     Spalten: das Pack größer, das Label in Überschriftengröße, rechts ein
-     gelber Knopf als Kante. Auf dem Telefon bleibt alles, wie es war. */
+  /* Ab Desktop steht der Knopf rechts als Kante der Tafel (Betreiber,
+     07.09.2026: „sehr viel Leerfläche" rechts). */
   .hubLink {
     grid-template-columns: auto minmax(0, 1fr) auto;
-    column-gap: 26px;
-    padding: 24px 28px;
-  }
-
-  .hubLinkPack {
-    width: 96px;
-  }
-
-  .hubLinkKicker {
-    font-size: 14px;
-  }
-
-  .hubLinkLabel {
-    font-size: clamp(1.5rem, 2.2vw, 1.9rem);
-    line-height: 1.05;
-    text-wrap: balance;
+    padding: 28px 32px;
   }
 
   .hubLinkCta {
-    display: inline-flex;
     grid-column: 3;
     grid-row: 1 / span 2;
-    align-items: center;
     align-self: center;
     min-height: 48px;
+    margin-top: 0;
     padding: 0 22px;
-    background: var(--article-accent);
-    color: var(--article-on-accent);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    line-height: 1;
-    text-transform: uppercase;
-    white-space: nowrap;
-    transition: background 180ms ease;
-  }
-
-  .hubLink:focus-visible .hubLinkCta {
-    background: var(--article-fg);
-    color: var(--article-ground);
-  }
-
-  @media (hover: hover) {
-    .hubLink:hover .hubLinkCta {
-      background: var(--article-fg);
-      color: var(--article-ground);
-    }
+    font-size: 14px;
   }
 
   /* The rail already carries Teilen. */
@@ -1013,6 +1173,14 @@ div.page {
 
   .inlineSpotFoot {
     padding-inline: 6px;
+  }
+
+  /* Am Telefon ist die Textspalte der Tafel höher als das Pack — am Fuss
+     ausgerichtet bliebe es ganz in der Tafel. Oben angeschlagen ragt es
+     hinaus wie auf dem Desktop. */
+  .hubLinkPack {
+    align-self: start;
+    width: 100px;
   }
 
   .content h2 [data-heading='deck'] {

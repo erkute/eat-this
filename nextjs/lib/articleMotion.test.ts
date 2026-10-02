@@ -1,0 +1,105 @@
+// @vitest-environment jsdom
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { armArticleMotion } from './articleMotion';
+
+type Callback = (entries: Partial<IntersectionObserverEntry>[]) => void;
+let observed: { callback: Callback; targets: Element[] }[] = [];
+
+class FakeObserver {
+  targets: Element[] = [];
+  constructor(public callback: Callback) {
+    observed.push(this);
+  }
+  observe(el: Element) {
+    this.targets.push(el);
+  }
+  disconnect() {}
+  unobserve() {}
+}
+
+function article() {
+  document.body.innerHTML = `
+    <div data-page="news-article">
+      <div data-article-content>
+        <p>Einstieg</p>
+        <h2 id="goldies">goldies</h2>
+        <span data-motion="spot"><span data-motion="print"></span><a data-motion="pop">Auf die Map</a></span>
+      </div>
+    </div>`;
+  return document.querySelector<HTMLElement>('[data-page="news-article"]')!;
+}
+
+const entry = (target: Element, isIntersecting: boolean, top: number) => ({
+  target,
+  isIntersecting,
+  boundingClientRect: { top } as DOMRect,
+  rootBounds: { top: 0, bottom: 800 } as DOMRect,
+});
+
+const frames = () => new Promise((resolve) => setTimeout(resolve, 1200));
+
+beforeEach(() => {
+  observed = [];
+  globalThis.IntersectionObserver = FakeObserver as unknown as typeof IntersectionObserver;
+  window.matchMedia = vi.fn(() => ({ matches: false }) as MediaQueryList);
+});
+
+afterEach(() => {
+  document.documentElement.removeAttribute('data-article-intro');
+});
+
+describe('armArticleMotion', () => {
+  it('stays still with reduced motion', () => {
+    window.matchMedia = vi.fn(() => ({ matches: true }) as MediaQueryList);
+    const root = article();
+    armArticleMotion(root);
+    expect(observed).toHaveLength(0);
+    expect(root.querySelector('h2')!.style.visibility).toBe('');
+  });
+
+  it('waits below the fold, stamps on the way in, runs back when it leaves below', async () => {
+    const root = article();
+    const cleanup = armArticleMotion(root);
+    const heading = root.querySelector<HTMLElement>('h2')!;
+    const { callback } = observed[0];
+
+    callback([entry(heading, false, 1400)]);
+    expect(heading.style.visibility).toBe('hidden');
+
+    callback([entry(heading, true, 600)]);
+    await frames();
+    expect(heading.style.visibility).toBe('visible');
+    expect(heading.style.transform).not.toContain('scale(1.9');
+
+    callback([entry(heading, false, 1200)]);
+    await frames();
+    expect(heading.style.visibility).toBe('hidden');
+
+    cleanup();
+    expect(heading.style.visibility).toBe('');
+    expect(heading.style.transform).toBe('');
+  });
+
+  it('shows at once what the reader has already scrolled past', () => {
+    const root = article();
+    armArticleMotion(root);
+    const heading = root.querySelector<HTMLElement>('h2')!;
+    observed[0].callback([entry(heading, false, -900)]);
+    expect(heading.style.visibility).toBe('visible');
+  });
+
+  it('lets the intro mark go once the intro has run, and on leaving', () => {
+    vi.useFakeTimers();
+    document.documentElement.setAttribute('data-article-intro', '');
+    const cleanup = armArticleMotion(article());
+    expect(document.documentElement.hasAttribute('data-article-intro')).toBe(true);
+    vi.advanceTimersByTime(2000);
+    expect(document.documentElement.hasAttribute('data-article-intro')).toBe(false);
+
+    document.documentElement.setAttribute('data-article-intro', '');
+    cleanup();
+    expect(document.documentElement.hasAttribute('data-article-intro')).toBe(false);
+    vi.useRealTimers();
+  });
+});

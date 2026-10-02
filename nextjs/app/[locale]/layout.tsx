@@ -29,6 +29,11 @@ export function generateStaticParams() {
 // set here so the CSS animation starts with the first paint, not after hydration;
 // the curtain itself waits for Remy's legs — data-remy-go, set by HeroCurtain
 // once its mesh draws, at the latest after 3 s from here),
+// marks a freshly loaded article the same way (data-article-intro,
+// NewsArticleShell.module.css — only on a real load: an article opened from a
+// magazine has the opening as its intro; lib/articleMotion.ts drops the mark),
+// restores a dark article (data-article-theme, lib/articleTheme.ts) on every
+// page, so an article reached from inside the app is dark from its first frame,
 // starts the home page at the top on every load (scrollRestoration — Safari
 // restores the old position before hydration otherwise; Ansage 01.10.2026:
 // „bei einem Reload fängt die Seite wieder oben an", the intro plays there —
@@ -51,6 +56,8 @@ const CRITICAL_BOOTSTRAP = `(function(){
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);
   try{if(slug==='start'&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.setAttribute('data-remy-go','');},3000);}}catch(_){}
+  try{if(slug==='news-article'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-article-intro','');}catch(_){}
+  try{if(localStorage.getItem('et-article-theme')==='dark')document.documentElement.setAttribute('data-article-theme','dark');}catch(_){}
   try{if(slug==='start'&&'scrollRestoration' in history)history.scrollRestoration='manual';}catch(_){}
   try{if(slug==='start'&&location.hash){var nv=performance.getEntriesByType('navigation')[0];if(nv&&nv.type==='reload')history.replaceState(history.state,'',location.pathname+location.search);}}catch(_){}
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}

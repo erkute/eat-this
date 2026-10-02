@@ -14,6 +14,8 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleRail from './ArticleRail';
+import ArticleMotion from './ArticleMotion';
+import ArticleThemeToggle from './ArticleThemeToggle';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
@@ -232,6 +234,7 @@ export default function NewsArticleShell({
       <Link
         href={href}
         className={styles.mustEat}
+        data-motion="slide"
         aria-label={
           de
             ? `Must Eat${restName ? ` bei ${restName}` : ''} ansehen`
@@ -269,10 +272,11 @@ export default function NewsArticleShell({
     // Wie im Heft: oben das Foto ohne Schrift darauf, darunter die
     // Bildunterschrift mit Bezirk, Name und dem Weg auf die Map.
     return (
-      <span className={styles.inlineSpot}>
+      <span className={styles.inlineSpot} data-motion="spot">
         {block.restaurantPhoto && (
           <span
             className={styles.inlineSpotPhoto}
+            data-motion="print"
             style={{ backgroundImage: `url(${block.restaurantPhoto})` }}
             aria-hidden="true"
           />
@@ -309,6 +313,7 @@ export default function NewsArticleShell({
             href={`/map?r=${block.restaurantSlug}`}
             rel="nofollow"
             className={styles.inlineSpotCta}
+            data-motion="pop"
             aria-label={de ? `${restName} auf der Map öffnen` : `Open ${restName} on the map`}
           >
             <span>{cta}</span>
@@ -328,6 +333,7 @@ export default function NewsArticleShell({
     return (
       <figure
         className={styles.inlineImage}
+        data-motion="print"
         style={{ '--img-ratio': width / height } as React.CSSProperties}
       >
         <Image
@@ -365,6 +371,10 @@ export default function NewsArticleShell({
       data-article-slug={article.slug}
       id="newsModal"
     >
+      {/* Der Lesefortschritt: ein gelber Strich unter der Kopfleiste, der mit
+          dem Scrollen wächst — reines CSS, nur ab Tablet. */}
+      <div className={styles.progress} aria-hidden="true" />
+      <ArticleMotion slug={article.slug} />
       <main className={styles.article}>
         <article>
           {/* Der Kopf wie bei Kaleidoscope (Ansage 02.10.2026, Vorbild
@@ -384,6 +394,7 @@ export default function NewsArticleShell({
               <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
               <h1 className={styles.heroTitle}>{title}</h1>
               {byline}
+              <ArticleThemeToggle de={de} className={styles.themeToggle} />
             </div>
             {article.imageUrl && (
               <div className={styles.heroMedia}>
@@ -408,10 +419,12 @@ export default function NewsArticleShell({
               shareCopiedLabel={copiedLabel}
               shareTitle={title}
               shareExcerpt={excerpt}
-            />
+            >
+              <ArticleThemeToggle de={de} />
+            </ArticleRail>
 
             <div className={styles.column}>
-              <div className={styles.content}>
+              <div className={styles.content} data-article-content="">
                 <PortableTextRenderer
                   blocks={content}
                   renderMustEatCard={renderMustEatCard}
@@ -435,7 +448,7 @@ export default function NewsArticleShell({
               </div>
 
               {hubLink && (
-                <Link href={hubLink.href} className={styles.hubLink}>
+                <Link href={hubLink.href} className={styles.hubLink} data-motion="toss">
                   {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
                       davor — dieselbe Art wie auf /packs und in der
                       „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
@@ -448,6 +461,7 @@ export default function NewsArticleShell({
                       width={72}
                       height={101}
                       className={styles.hubLinkPack}
+                      data-motion-part="pack"
                     />
                   )}
                   <span className={styles.hubLinkKicker}>
@@ -456,12 +470,10 @@ export default function NewsArticleShell({
                   <span className={styles.hubLinkLabel}>
                     {articleHubLabel(hubLink, de ? 'de' : 'en')}
                   </span>
-                  {/* Nur auf Desktop (CSS): dort ist der Kasten 660px breit,
-                      und mit einem 72px-Pack und zwei kurzen Zeilen blieb die
-                      rechte Hälfte leer (Betreiber, 07.09.2026). Der Knopf
-                      gibt der Fläche eine rechte Kante; auf dem Telefon füllt
-                      der Text die Breite ohnehin. Für Screenreader trägt der
-                      Link seinen Namen schon in Kicker und Label. */}
+                  {/* Die sichtbare Kante der Tafel: auf dem Telefon unter dem
+                      Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
+                      Leerfläche"). Für Screenreader trägt der Link seinen
+                      Namen schon in Kicker und Label. */}
                   <span className={styles.hubLinkCta} aria-hidden="true">
                     {de ? 'Ansehen' : 'View'}
                   </span>
@@ -475,7 +487,7 @@ export default function NewsArticleShell({
               <div className={styles.relatedHead}>
                 <h2 className={styles.relatedHeading}>{moreLabel}</h2>
               </div>
-              <ul className={styles.relatedGrid} role="list">
+              <ul className={styles.relatedGrid} role="list" data-motion="deal">
                 {recommendations.map((rec, i) => {
                   const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
                   const recCategory =

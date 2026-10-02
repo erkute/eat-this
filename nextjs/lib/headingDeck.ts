@@ -1,6 +1,7 @@
 /** Ein Guide-Kapitel heisst „Name – wofür": „goldies – für Puristen mit
  *  Prinzipien". Der Artikel setzt den Namen als Überschrift und den Rest als
- *  Unterzeile darunter, wie im Heft; die Kapitel-Leiste nennt nur den Namen.
+ *  Unterzeile darunter, wie im Heft; die Spots-Zeile unter dem Kopf nennt nur
+ *  den Namen.
  *
  *  Geschnitten wird am ersten Gedankenstrich MIT Leerzeichen drumherum — ein
  *  Bindestrich ohne Leerzeichen gehört zum Namen („Five Elephant Kreuzberg",

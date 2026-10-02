@@ -33,7 +33,8 @@ export function setArticleTheme(theme: ArticleTheme): void {
   } catch {}
 }
 
-/** Meldet jeden Wechsel — es gibt zwei Knöpfe (Kopf und Kapitel-Leiste). */
+/** Meldet jeden Wechsel am Attribut — auch den, den der Bootstrap vor dem
+ *  Hydrieren gesetzt hat, damit der Knopf im Kopf dieselbe Wahl zeigt. */
 export function subscribeArticleTheme(onChange: () => void): () => void {
   const observer = new MutationObserver(onChange);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: [ATTR] });

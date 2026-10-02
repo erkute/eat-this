@@ -53,8 +53,8 @@
 
 /* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
    from 768px up — a combination CSS computes to overflow-y:auto, i.e. a
-   scrollport that never scrolls. That silently kills `position: sticky` in the
-   chapter rail. `clip` contains the same horizontal overflow without creating a
+   scrollport that never scrolls. That silently kills `position: sticky` — once
+   in the chapter rail, now in the reading progress (`.progress`). `clip` contains the same horizontal overflow without creating a
    scroll container. Qualified with the element (0,1,1) so it outranks
    `.app-page` regardless of load order. */
 div.page {
@@ -74,8 +74,8 @@ div.page {
 /* ---------------------------------------------------------------- head --- */
 
 /* Der Kopf wie bei Kaleidoscope: mittig die Rubrik, die Schlagzeile gross in
-   der schmalen Grotesk, klein die Credits; darunter das Foto randlos mit
-   10px Rahmen, dann der Vorspann als Auftakt. */
+   Providence, klein die Credits; darunter das Foto randlos mit 10px Rahmen,
+   dann der Vorspann als Auftakt. */
 .header {
   display: grid;
   justify-items: center;
@@ -93,7 +93,7 @@ div.page {
 
 /* Die Rubrik wie der Kicker der Startseite (`.hv-kicker`): klein in
    Versalien, davor das gelbe Quadrat (`.hv-mk`). Alle Labels der Seite —
-   Rubrik, Credits, Kapitel-Leiste, Etiketten, Knöpfe, Bezirk · Küche —
+   Rubrik, Credits, „Die Spots", Etiketten, Knöpfe, Bezirk · Küche —
    stehen in Providence wie das Label-System der Startseite (Ansagen
    02.10.2026: „in meiner Font"); Inter bleibt dem Lesetext und den
    Bildunterschriften. */
@@ -420,9 +420,10 @@ div.page {
 
 /* Das Fazit. Es stand vorher als zwoelfte Kapitelueberschrift da — dieselbe
    41px-Providence-Zeile wie „Distrikt" oder „Bar Basta", obwohl es kein Kapitel
-   ist, sondern der Schluss. Jetzt kippt die Hierarchie: die Ueberschrift wird
-   zum gelben Etikett (dieselbe Marke wie der Kategorie-Chip und das
-   Kapitel-Label der Leiste), und der Satz darunter traegt das Gewicht.
+   ist, sondern der Schluss. Seit dem Kaleidoscope-Umbau (02.10.2026) steht
+   die Ueberschrift gross und mittig wie ein Kapitel, aber mit mehr Luft
+   davor, und der Satz darunter steht in Providence statt im Lesetext — so
+   liest sich der Block als Schlusswort.
 
    Bewusst keine dunkle Flaeche: direkt unter dem Fazit sitzt bereits die
    schwarze Katalog-Karte, zwei dunkle Kaesten uebereinander haetten dem
@@ -652,8 +653,8 @@ div.page {
 
 /* ------------------------------------------------------- inline spot ---- */
 
-/* Inline editorial photo — same radius as the spot card, caption in the same
-   muted meta voice as the byline. The img keeps its intrinsic ratio; next/image
+/* Inline editorial photo — square corners like every photo in the article,
+   a small quiet caption. The img keeps its intrinsic ratio; next/image
    ships width/height so the column doesn't jump while it loads. */
 /* Die Höhe ist gedeckelt, nicht die Breite: ein Hochformat lief über die
    volle Spalte und stand auf Desktop 660 × 920px da — höher als der
@@ -700,7 +701,7 @@ div.page {
 
 /* Die Spot-Karte wie ein Foto im Heft: oben das Bild ohne Schrift und ohne
    Verlauf darauf, darunter die Bildunterschrift — Bezirk und Küche als
-   Etikett, der Name gross, rechts der Weg auf die Map. Vorher lag alles auf
+   Etikett, der Name gross, darunter der Weg auf die Map. Vorher lag alles auf
    dem Foto, und ein Verlauf dunkelte dafür die untere Hälfte ab. */
 .inlineSpot {
   position: relative;
@@ -733,8 +734,8 @@ div.page {
   text-align: center;
 }
 
-/* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence, 12px,
-   0.04em. Diese Zeile war das letzte Versalien-Label des Artikels, das noch
+/* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence in
+   Versalien, 0.04em. Diese Zeile war das letzte Versalien-Label des Artikels, das noch
    auf der Body-Schrift lief — die übrigen vier (Hero, Must-Eat-Tag, Hub-
    Kicker, Related-Heading) stehen längst auf Providence. Der Kommentar, der
    hier früher stand, beschrieb eine Vereinheitlichung auf die Body-Schrift,
@@ -815,7 +816,7 @@ div.page {
 }
 
 /* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht
-   klickbar. Ein schwarzes Feld wie die Etiketten, klein in Versalien. */
+   klickbar. Ein gelbes Feld wie die Etiketten, klein in Versalien. */
 .inlineSpotCta {
   font-family: var(--et-font-display);
   font-weight: 700;

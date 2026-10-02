@@ -391,9 +391,8 @@ export default function NewsArticleShell({
         <article>
           {/* Der Kopf wie bei Kaleidoscope (Ansage 02.10.2026, Vorbild
               manifesto.kaleidoscope.media): mittig Rubrik, die Schlagzeile
-              gross in der schmalen Grotesk, klein die Credits; darunter das
-              Foto randlos mit schmalem Rahmen, dann der Vorspann als
-              Auftakt. */}
+              gross in Providence, klein die Credits; darunter das Foto
+              randlos mit schmalem Rahmen, dann der Vorspann als Auftakt. */}
           <header className={styles.header}>
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
                 brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
@@ -457,9 +456,9 @@ export default function NewsArticleShell({
             </div>
 
             {/* Teilen steht direkt unter dem Text, der Katalog-Ausgang
-                  darunter: Teilen bezieht sich auf den gelesenen Artikel und
-                  gehört an dessen Ende; der Hub führt aus ihm hinaus und ist
-                  damit der letzte Schritt der Seite. */}
+                darunter: Teilen bezieht sich auf den gelesenen Artikel und
+                gehört an dessen Ende; der Hub führt aus ihm hinaus und ist
+                damit der letzte Schritt der Seite. */}
             <div className={styles.shareRow}>
               <NewsArticleShare
                 title={title}
@@ -473,10 +472,10 @@ export default function NewsArticleShell({
             {hubLink && (
               <Link href={hubLink.href} className={styles.hubLink} data-motion="toss">
                 {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
-                      davor — dieselbe Art wie auf /packs und in der
-                      „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
-                      keine Art; dort trägt die Zeile allein. Der Pfeil, der
-                      hier stand, ist weg: die Fläche ist der Knopf. */}
+                    davor — dieselbe Art wie auf /packs und in der
+                    „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
+                    keine Art; dort trägt die Zeile allein. Der Pfeil, der
+                    hier stand, ist weg: die Fläche ist der Knopf. */}
                 {hubPack && (
                   <Image
                     src={hubPack}
@@ -494,9 +493,9 @@ export default function NewsArticleShell({
                   {articleHubLabel(hubLink, de ? 'de' : 'en')}
                 </span>
                 {/* Die sichtbare Kante der Tafel: auf dem Telefon unter dem
-                      Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
-                      Leerfläche"). Für Screenreader trägt der Link seinen
-                      Namen schon in Kicker und Label. */}
+                    Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
+                    Leerfläche"). Für Screenreader trägt der Link seinen
+                    Namen schon in Kicker und Label. */}
                 <span className={styles.hubLinkCta} aria-hidden="true">
                   {de ? 'Ansehen' : 'View'}
                 </span>

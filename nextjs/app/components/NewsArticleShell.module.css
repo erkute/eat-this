@@ -1,30 +1,38 @@
-/* Seit 03.09.2026 steht der Artikel auf durchgehendem Ink wie Startseite und
-   Spot-Seite: `--article-ink` bleibt die dunkle Farbe und ist der GRUND,
-   `--article-fg` ist die Schrift darauf, Muted ist eine Weiss-Stufe. Was ein
-   eigenes Objekt ist (Must-Eat-Band, Katalog-Ausgang), traegt die leise
-   Stufe; Rot ist auf Ink als Schriftfarbe raus (rund 2,9:1) — die Initiale
-   und die aktive Kapitelmarke sind Gelb. */
+/* Seit 02.10.2026 im Look von Kaleidoscope (manifesto.kaleidoscope.media,
+   Ansage „mach in dem Look … gut zu lesen, die Schrift aber geil"): heller
+   warmgrauer Grund, Text in einer Buchschrift, Schlagzeile, Kapitel und
+   Fazit in einer schmalen fetten Grotesk in Grau, alles mittig, Fotos
+   eckig. Davor stand der Artikel auf Ink mit Providence.
+
+   `--article-ground` ist der Grund, `--article-fg` die Schrift darauf.
+   `--article-accent` ist Ink: Etiketten, Schlusszeichen und Knöpfe sind
+   schwarz mit Schrift in Grundfarbe (`--article-on-accent`) — Gelb kommt im
+   Artikel nicht mehr vor, Kaleidoscope hat keine Akzentfarbe.
+   `--article-grey` ist das Grau der Überschriften: 3,2:1 auf dem Grund, für
+   Schrift ab 40px reicht das (WCAG-Grosstext); Kaleidoscopes eigenes
+   #92909b läge mit 2,7:1 darunter. */
 .page {
-  --article-ink: var(--et-ink);
-  --article-fg: var(--et-white);
-  --article-accent: var(--et-accent);
-  --article-paper: var(--et-white);
-  --article-muted: var(--et-ink-soft);
-  --article-quiet: var(--et-ink-quiet);
+  --article-ground: var(--et-paper);
+  --article-fg: var(--et-ink);
+  --article-grey: #86848f;
+  --article-accent: var(--et-ink);
+  --article-on-accent: var(--article-ground);
+  --article-muted: rgba(21, 18, 14, 0.62);
+  --article-quiet: #e4e2de;
+  --article-serif: var(--font-serif), Georgia, 'Times New Roman', serif;
+  --article-condensed: var(--font-condensed), 'Arial Narrow', Impact, sans-serif;
   /* The reading measure. 680px at 18-19px lands around 68 characters — the
      old full-width 900px column ran ~95, which is why desktop read worse than
      mobile despite all the extra room. */
   /* 660 statt 680: bei 18px Lauftext sind das ~73 Zeichen pro Zeile und damit
      innerhalb der 45–75, die als angenehm gelten. Mit 680 waren es 76. */
   --article-measure: 660px;
-  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert.
-     Oben 0: die 34px trugen die Brotkrume. Ohne sie klemmte ein weißer
-     Streifen zwischen der schwarzen SiteNav und dem dunklen Aufmacherfoto und
-     las sich als Fuge, nicht als Rand. Das Foto dockt jetzt an die Leiste an;
-     wer kein Foto hat, bekommt seinen Abstand an `.introCopy`. */
+  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
   padding: 0 clamp(18px, 4vw, 54px) 0;
-  background: var(--article-ink);
+  /* Der Grund selbst liegt an html/body/.app-pages (globals.css): `.app-page`
+     ist dort sitewide transparent und schlägt diese Klasse. */
   color: var(--article-fg);
+  font-family: var(--article-serif);
 }
 
 /* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
@@ -47,37 +55,78 @@ div.page {
   margin: 0 auto;
 }
 
-/* Drei Geschwister im Kopf: Aufmacher, Titel, Byline mit Vorspann. Bis
-   1079px stehen sie untereinander wie bei Highsnobiety auf dem Telefon: erst
-   das Foto, randlos, dann groß der Titel auf Ink, dann Byline und Vorspann.
-   Kein Text mehr auf dem Foto — der brauchte einen Verlauf, der das Bild
-   halb abdunkelte. Ab Desktop teilt sich der Kopf (`.headerSplit`, unten im
-   Layout-Block). */
+/* ---------------------------------------------------------------- head --- */
+
+/* Der Kopf wie bei Kaleidoscope: mittig die Rubrik, die Schlagzeile gross in
+   der schmalen Grotesk, klein die Credits; darunter das Foto randlos mit
+   10px Rahmen, dann der Vorspann als Auftakt. */
 .header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  padding-top: clamp(40px, 5.5vw, 84px);
+  margin-bottom: clamp(48px, 6vw, 88px);
+  text-align: center;
 }
 
-.headerMeta {
+.introCopy {
+  display: grid;
+  justify-items: center;
   width: 100%;
-  max-width: 720px;
-  margin: clamp(28px, 4vw, 52px) auto 0;
+  min-width: 0;
 }
 
-.headerSplit .headerMeta {
-  margin-top: clamp(18px, 2.6vw, 26px);
+/* Die Rubrik klein in Versalien, wie die Labels der Credits bei Kaleidoscope. */
+.kicker {
+  margin-bottom: clamp(16px, 1.8vw, 24px);
+  color: var(--article-fg);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
-/* ---------------------------------------------------------------- hero --- */
+.heroTitle {
+  max-width: 18ch;
+  margin: 0;
+  color: var(--article-grey);
+  font-family: var(--article-condensed);
+  font-size: clamp(52px, 7.4vw, 112px);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 0.88;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
 
+.byline {
+  margin-top: clamp(20px, 2.2vw, 30px);
+}
+
+/* Getrennt durch Abstand, nicht durch Punkte: bricht die Zeile am Telefon
+   um, stünde sonst ein einzelner Punkt am Anfang der zweiten. */
+.bylineMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 22px;
+  color: var(--article-fg);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+/* Das Foto über die ganze Fensterbreite, ringsum 10px Rahmen — wie die
+   Bildbänder bei Kaleidoscope. Eckig: ein Foto ist eine Seite, keine Karte. */
 .heroMedia {
   position: relative;
+  justify-self: stretch;
   aspect-ratio: 3 / 2;
-  max-height: 70vh;
+  margin: clamp(36px, 4.4vw, 64px) calc(50% - 50vw + 10px) 0;
   overflow: hidden;
-  background: var(--article-ink);
-  /* Eckig wie in jedem Modeheft (SSENSE, 032c, System): ein Foto ist eine
-     Seite, keine Karte. */
+  background: var(--article-quiet);
 }
 
 .hero {
@@ -85,142 +134,44 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-.introCopy {
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  /* Ohne Foto gibt es nichts zum Andocken — die Überschrift braucht den
-     Abstand zur Leiste, den `.page` oben abgegeben hat: 34px ab Desktop,
-     24px darunter. */
-  margin-top: 34px;
-  max-width: var(--article-measure);
-}
-
-.headerSplit .introCopy {
-  width: 100%;
-  max-width: 720px;
-  margin: clamp(22px, 3.4vw, 34px) auto 0;
-}
-
-/* Die Rubrik über der Schlagzeile: klein, gesperrt, gelb — Schrift, kein
-   Etikett. Die Modehefte (SSENSE, 032c) setzen sie so leise oder gar nicht;
-   das aufgeklebte Etikett gehört auf die Titelseite. */
-.kicker {
-  display: block;
-  margin-bottom: clamp(14px, 1.6vw, 20px);
-  color: var(--article-accent);
-  font-family: var(--et-font-display);
-  font-size: clamp(13px, 1vw, 14px);
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.heroTitle {
-  max-width: 16ch;
-  margin: 0;
-  color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  /* Gemessen gegen Eater und Mit Vergnügen (beide 40px auf 1512) und The
-     Infatuation (68px, die display-freudigste der vier): 76px lagen fast beim
-     Doppelten der Norm. 56px hält Markenpräsenz, ohne zu schreien. */
-  font-size: clamp(38px, 4.4vw, 56px);
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-title);
-  text-transform: uppercase;
-}
-
-.headerSplit .heroTitle {
-  max-width: 17ch;
-  text-wrap: balance;
-}
-
-/* ------------------------------------------------------- column + rail --- */
-
-.body {
-  display: block;
-}
-
-.column {
-  min-width: 0;
-  max-width: 720px;
-  margin-inline: auto;
-}
-
-.byline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 14px;
-  /* Derselbe Takt wie unter dem Vorspann: mit 14-20px klebte der erste Satz
-     an Datum und Lesezeit (User, 25.09.). */
-  margin-bottom: clamp(22px, 3vw, 34px);
-}
-
-.bylineMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  color: var(--article-muted);
-  font-family: var(--et-font-display);
-  font-size: clamp(13px, 1.05vw, 15px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.2;
-}
-
-/* Datum · Lesezeit, mit Punkt dazwischen. */
-.bylineMeta > * + *::before {
-  content: '·';
-  margin-right: 12px;
-}
-
-/* Der Vorspann trug denselben Schnitt wie der Fliesstext und war auf Mobil
-   ganze 0,7px groesser (17,7 gegen 17) — als eigene Ebene las ihn niemand.
-   Die Groesse allein kann das nicht tragen, solange die Lesespalte schmal
-   ist; das Gewicht schon. 600 statt 700: bei 18-21px wird Inter im Bold
-   blockig, und direkt darunter steht bereits die rote Initiale des ersten
-   Absatzes. */
+/* Der Vorspann als Auftakt unter dem Foto, gross und mittig wie die
+   Textblöcke bei Kaleidoscope — dort 32px auf 30px Zeilenabstand; hier
+   lockerer, damit er sich liest und nicht nur aussieht. */
 .lede {
-  /* Keine eigene Lesebreite: die 46ch waren bei 1000px 516px breit, waehrend
-     Byline und Fliesstext daneben die vollen 720px der Spalte nutzten — 204px
-     Versatz, der als Fehlausrichtung gelesen wird (User, 28.08.), genau wie
-     seinerzeit bei `.story` auf der Spot-Seite. Ab 1080px steht der Vorspann
-     im geteilten Kopf und nimmt dort dessen linke Haelfte. */
-  max-width: none;
-  margin: 0 0 clamp(16px, 2vw, 22px);
+  max-width: 880px;
+  margin: clamp(48px, 5.6vw, 88px) auto 0;
   color: var(--article-fg);
-  font-family: var(--et-font-body);
-  font-size: clamp(17px, 1.45vw, 21px);
-  font-weight: 600;
-  line-height: 1.55;
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 400;
+  line-height: 1.16;
+  text-wrap: pretty;
 }
 
 /* ------------------------------------------------------------- prose ---- */
 
 .content {
   color: var(--article-fg);
-  font-family: var(--et-font-body);
-  /* Untergrenze 18 statt 17: bei genau 1280px Fensterbreite fiel der Lauftext
-     auf 17px und die Zeile auf 80 Zeichen — beides am Rand. Die Wettbewerber
-     liegen alle bei 18px. */
-  font-size: clamp(18px, 1.3vw, 19px);
-  line-height: 1.65;
+  /* Newsreader ist eine Buchschrift mit kleinerer x-Höhe als Inter: 20px
+     lesen sich wie die 18px davor. Die Wettbewerber liegen bei 18px
+     Grotesk. */
+  font-size: clamp(19px, 1.4vw, 21px);
+  line-height: 1.5;
 }
 
 .content p {
   margin: 0 0 1.2em;
 }
 
-/* Der Einstieg gross statt einer Initiale, wie bei SSENSE (40px) und 032c
-   (32px): der erste Absatz ist der Auftakt, der Rest liest sich in
-   Lesegrösse weiter. */
+/* Der Einstieg gross und mittig statt einer Initiale: der erste Absatz ist
+   der Auftakt, der Rest liest sich linksbündig in Lesegrösse weiter —
+   Kaleidoscope zentriert jeden Block, über einen ganzen Artikel wäre das
+   anstrengend. */
 .content > p:first-of-type {
-  font-size: clamp(21px, 1.75vw, 25px);
-  line-height: 1.45;
-  margin-bottom: 1.1em;
+  margin-bottom: 1.2em;
+  font-size: clamp(22px, 1.9vw, 27px);
+  line-height: 1.28;
+  text-align: center;
+  text-wrap: pretty;
 }
 
 /* Das Fazit. Es stand vorher als zwoelfte Kapitelueberschrift da — dieselbe
@@ -237,29 +188,30 @@ div.page {
      Block beendet den Text, er reiht sich nicht ein. Mit dem gleichen Abstand
      las er sich wie ein dreizehntes Kapitel, das zufaellig anders aussieht. */
   margin: clamp(58px, 7.5vw, 100px) 0 0;
+  text-align: center;
   scroll-margin-top: 104px;
 }
 
 .content [data-block='conclusion-label'] {
-  display: inline-block;
-  margin: 0 0 16px;
-  padding: 7px 12px 8px;
-  background: var(--article-accent);
-  color: var(--article-ink);
-  font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
+  display: block;
+  margin: 0 0 18px;
+  color: var(--article-grey);
+  font-family: var(--article-condensed);
+  font-size: clamp(40px, 4.6vw, 64px);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
 }
 
 .content [data-block='conclusion'] p:not([data-block='conclusion-label']) {
-  font-size: clamp(19px, 1.5vw, 21px);
-  font-weight: 600;
-  line-height: 1.5;
+  font-size: clamp(21px, 1.7vw, 24px);
+  font-weight: 400;
+  line-height: 1.38;
+  text-wrap: pretty;
 }
 
-/* Das Schlusszeichen wie im Heft: das gelbe Marken-Quadrat am Ende des
-   letzten Absatzes — im Fazit oder im Fliesstext. */
+/* Das Schlusszeichen wie im Heft: ein kleines Quadrat am Ende des letzten
+   Absatzes — im Fazit oder im Fliesstext. */
 .content > p:last-child::after,
 .content > [data-block='conclusion']:last-child > p:last-child:not([data-block])::after {
   content: '';
@@ -272,20 +224,22 @@ div.page {
 
 .content h2,
 .content h3 {
-  max-width: 24ch;
-  margin: clamp(38px, 5vw, 66px) 0 14px;
-  color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: clamp(27px, 3.2vw, 44px);
-  letter-spacing: -0.02em;
-  line-height: 0.98;
-  text-transform: none;
+  max-width: none;
+  margin: clamp(56px, 7vw, 104px) 0 clamp(18px, 2vw, 26px);
+  color: var(--article-grey);
+  font-family: var(--article-condensed);
+  font-size: clamp(44px, 5.4vw, 76px);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 0.9;
+  text-align: center;
+  text-transform: uppercase;
+  text-wrap: balance;
   scroll-margin-top: 104px;
 }
 
 .content h3 {
-  font-size: clamp(23px, 2.2vw, 30px);
+  font-size: clamp(30px, 3vw, 40px);
 }
 
 /* „goldies – für Puristen mit Prinzipien": der Name ist die Überschrift, der
@@ -306,15 +260,18 @@ div.page {
   white-space: nowrap;
 }
 
+/* Die Unterzeile in der Kursiven der Buchschrift — eine echte, keine vom
+   Browser schräg gestellte wie vorher bei Providence. */
 .content h2 [data-heading='deck'] {
-  /* Luft für die Unterlänge des Namens („goldies"). */
-  margin-top: 0.6em;
-  color: var(--article-muted);
-  font-size: clamp(19px, 1.65vw, 24px);
+  margin-top: 14px;
+  color: var(--article-fg);
+  font-family: var(--article-serif);
+  font-size: clamp(20px, 1.7vw, 24px);
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0;
-  line-height: 1.2;
+  line-height: 1.25;
+  text-transform: none;
 }
 
 .content ul,
@@ -328,57 +285,41 @@ div.page {
 }
 
 .content strong {
-  font-weight: 800;
+  font-weight: 650;
 }
 
 /* Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Display-Name auf
-   dem Foto, Knopf darunter, Meta-Zeile als Versalien-Label) — die gelbe
-   Fließtext-Unterstreichung würde alle drei zerlegen, und ihr `--article-ink`
-   wäre auf dem Foto ohnehin unlesbar. */
+   der Bildunterschrift, Knopf, Meta-Zeile als Versalien-Label) — die
+   Fließtext-Unterstreichung würde alle drei zerlegen. */
 .content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat) {
   color: var(--article-fg);
-  font-weight: 800;
+  font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: var(--article-accent);
-  text-decoration-thickness: 3px;
-  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
 }
 
 @media (hover: hover) {
   .content
     a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
-    color: var(--article-accent);
+    color: var(--article-grey);
   }
 }
 
+/* Das Zitat gross, kursiv und mittig — ohne Kasten, Klebestreifen und
+   Drehung von vorher. */
 .content blockquote {
-  position: relative;
-  width: min(100%, 22ch);
   max-width: none;
-  margin: clamp(34px, 5vw, 64px) 0;
-  padding: clamp(20px, 2.8vw, 32px) clamp(22px, 3.2vw, 36px);
-  color: var(--article-ink);
-  font-family: var(--et-font-display);
-  font-size: clamp(26px, 3vw, 40px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.96;
-  text-transform: none;
-  background: var(--article-accent);
+  margin: clamp(48px, 6vw, 88px) 0;
+  padding: 0;
+  color: var(--article-fg);
+  font-size: clamp(28px, 2.8vw, 38px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.12;
+  text-align: center;
+  text-wrap: balance;
   border: 0;
-  transform: rotate(-1deg);
-}
-
-.content blockquote::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 82px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.62);
-  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
-  transform: translateX(-50%) rotate(3deg);
 }
 
 /* --------------------------------------------------------- must-eat ----- */
@@ -396,7 +337,6 @@ div.page {
   margin: clamp(30px, 4.5vw, 56px) 0;
   padding: clamp(16px, 2vw, 22px);
   background: var(--article-quiet);
-  border-radius: var(--et-radius-photo);
   color: var(--article-fg);
   text-align: left;
   text-decoration: none;
@@ -425,18 +365,15 @@ div.page {
   gap: 7px;
 }
 
-/* Markenschrift statt Body-Font — der Kicker war der einzige Fremdsatz im
-   Block (Nutzer-Review 28.08.). */
+/* Dieselbe Stimme wie die übrigen Labels der Seite: klein in Versalien. */
 .mustEatTag {
   display: inline-block;
-  padding: 4px 8px 5px;
-  color: var(--article-ink);
+  padding: 5px 8px;
+  color: var(--article-on-accent);
   background: var(--article-accent);
-  border-radius: 5px;
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   line-height: 1;
   text-transform: uppercase;
 }
@@ -445,24 +382,22 @@ div.page {
   max-width: 18ch;
   margin: 0;
   color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(22px, 2.1vw, 30px);
-  font-weight: 700;
+  font-size: clamp(24px, 2.2vw, 30px);
+  font-weight: 500;
   letter-spacing: -0.01em;
-  line-height: 1;
+  line-height: 1.05;
   text-transform: none;
 }
 
 /* Der Satz trägt den Block jetzt allein — er ersetzt Meta-Zeile und
-   Knopf, steht deshalb in der Markenschrift und etwas größer. */
+   Knopf, steht deshalb etwas größer. */
 .mustEat .mustEatDesc {
   max-width: 34ch;
   margin: 0;
   color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(15px, 1.2vw, 17px);
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: clamp(16px, 1.25vw, 18px);
+  font-weight: 400;
+  line-height: 1.35;
 }
 
 /* ------------------------------------------------------- inline spot ---- */
@@ -502,15 +437,14 @@ div.page {
   height: auto;
 }
 
-/* Bildunterschrift wie in den Modeheften: klein, gerade, leise — in der
-   Lesestimme, nicht in der Display-Schrift. */
+/* Bildunterschrift klein, leise und mittig unter dem Bild. */
 .inlineImage figcaption {
   margin-top: 10px;
   color: var(--article-muted);
-  font-family: var(--et-font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
+  text-align: center;
 }
 
 /* Die Spot-Karte wie ein Foto im Heft: oben das Bild ohne Schrift und ohne
@@ -535,17 +469,15 @@ div.page {
   background-size: cover;
 }
 
+/* Die Bildunterschrift wie die Credits bei Kaleidoscope: mittig, oben
+   klein das Label (Bezirk · Küche), darunter der Name, darunter der Weg auf
+   die Map. */
 .inlineSpotFoot {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 6px 18px;
-  padding-top: 14px;
-}
-
-.inlineSpotMeta,
-.inlineSpotName {
-  grid-column: 1;
+  justify-items: center;
+  gap: 8px;
+  padding-top: 16px;
+  text-align: center;
 }
 
 /* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence, 12px,
@@ -555,11 +487,10 @@ div.page {
    hier früher stand, beschrieb eine Vereinheitlichung auf die Body-Schrift,
    die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
 .inlineSpotMeta {
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.15;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
@@ -572,20 +503,20 @@ div.page {
 .inlineSpotMetaLink {
   position: relative;
   z-index: 2;
-  /* Das Brand-Gelb statt einer Unterstreichung: Die Zeile steht allein auf
-     ihrer Höhe, es gibt also keinen Fließtext, von dem sie sich absetzen
-     müsste — Farbe allein trägt den Link-Hinweis hier. Ein reiner
-     Hover-Hinweis käme nicht in Frage: auf Mobil gibt es kein Hover, und
-     Mobil ist rund die Hälfte der Aufrufe. */
-  color: var(--article-accent);
+  /* Leise und unterstrichen: ohne Akzentfarbe trägt die Unterstreichung den
+     Link-Hinweis. Ein reiner Hover-Hinweis käme nicht in Frage: auf Mobil
+     gibt es kein Hover, und Mobil ist rund die Hälfte der Aufrufe. */
+  color: var(--article-muted);
   font: inherit;
   letter-spacing: inherit;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 @media (hover: hover) {
   .inlineSpotMetaLink:hover {
-    color: var(--article-paper);
+    color: var(--article-fg);
   }
 }
 
@@ -595,13 +526,11 @@ div.page {
 }
 
 .inlineSpotName {
-  max-width: 16ch;
   color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(24px, 2.1vw, 30px);
-  font-weight: 700;
+  font-size: clamp(26px, 2.2vw, 32px);
+  font-weight: 400;
   letter-spacing: -0.01em;
-  line-height: 1;
+  line-height: 1.1;
   text-transform: none;
 }
 
@@ -624,28 +553,25 @@ div.page {
   outline-offset: -6px;
 }
 
-/* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht klickbar. */
+/* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht
+   klickbar. Ein schwarzes Feld wie die Etiketten, klein in Versalien. */
 .inlineSpotCta {
   position: relative;
   z-index: 2;
-  grid-column: 2;
-  grid-row: 1 / span 2;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  padding: 10px 15px 11px;
-  background: var(--article-paper);
-  color: var(--article-ink);
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
-  letter-spacing: 0;
+  min-height: 36px;
+  margin-top: 6px;
+  padding: 0 14px;
+  background: var(--article-accent);
+  color: var(--article-on-accent);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   line-height: 1;
   /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
   text-decoration: none;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 /* ---------------------------------------------------------- hub link ---- */
@@ -668,8 +594,7 @@ div.page {
   margin: clamp(26px, 4vw, 44px) 0 0;
   padding: clamp(16px, 2vw, 22px) clamp(18px, 2.2vw, 26px);
   background: var(--article-quiet);
-  border-radius: var(--et-radius-photo);
-  color: var(--et-white);
+  color: var(--article-fg);
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
@@ -678,26 +603,24 @@ div.page {
   grid-row: 1 / span 2;
   width: clamp(56px, 7vw, 72px);
   height: auto;
-  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.25));
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .hubLinkKicker {
   grid-column: 2;
-  color: var(--et-accent);
-  font-family: var(--et-font-display);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  color: var(--article-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   line-height: 1.2;
   text-transform: uppercase;
 }
 
 .hubLinkLabel {
   grid-column: 2;
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  font-size: clamp(1.15rem, 1.9vw, 1.45rem);
+  font-weight: 500;
   line-height: 1.15;
 }
 
@@ -733,16 +656,15 @@ div.page {
   min-height: 38px;
   padding: 8px 13px 9px;
   border: 0;
-  border-radius: var(--et-radius-control);
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--article-quiet);
   color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   line-height: 1;
   text-decoration: none;
-  text-transform: none;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     background 140ms ease,
@@ -770,26 +692,17 @@ div.page {
 }
 
 .relatedHead {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: clamp(20px, 2.6vw, 32px);
-}
-
-.relatedMark {
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  background: var(--article-accent);
+  margin-bottom: clamp(24px, 3vw, 40px);
+  text-align: center;
 }
 
 .relatedHeading {
   margin: 0;
-  color: var(--article-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(28px, 3.4vw, 42px);
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  color: var(--article-grey);
+  font-family: var(--article-condensed);
+  font-size: clamp(44px, 5.4vw, 76px);
+  font-weight: 400;
+  letter-spacing: -0.005em;
   line-height: 0.9;
   text-transform: uppercase;
 }
@@ -797,6 +710,7 @@ div.page {
 .relatedGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 300px));
+  justify-content: center;
   gap: clamp(28px, 3.4vw, 48px);
   margin: 0;
   padding: 0;
@@ -874,17 +788,19 @@ div.page {
   .shareBtn:hover,
   .shareBtn:focus-visible {
     background: var(--article-accent);
-    color: var(--article-ink);
+    color: var(--article-on-accent);
   }
 }
 
 /* ------------------------------------------------------------ layout ---- */
 
 @media (min-width: 1080px) {
+  /* Die Lesespalte steht mittig wie alles bei Kaleidoscope; die
+     Kapitel-Leiste sitzt im linken Rand, rechts bleibt derselbe Rand frei. */
   .body {
     display: grid;
-    grid-template-columns: minmax(0, 216px) minmax(0, 1fr);
-    column-gap: clamp(40px, 4.5vw, 76px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, var(--article-measure)) minmax(0, 1fr);
+    column-gap: clamp(32px, 4vw, 64px);
     /* No `align-items: start` — the rail has to stretch to the full row height,
        otherwise its sticky child unsticks as soon as the rail's own short box
        has scrolled past. */
@@ -911,77 +827,8 @@ div.page {
     max-width: var(--article-measure);
   }
 
-  .content > h2,
-  .content > h3 {
-    max-width: min(24ch, var(--article-measure));
-  }
-
   .inlineImage {
     --img-frame: min(100%, var(--article-measure));
-  }
-
-  /* Der geteilte Kopf wie bei SSENSE (Ansage 02.10.2026: „mehr wie ein
-     Magazin", Vorbilder SSENSE, 032c, System): links Rubrik, Schlagzeile,
-     Vorspann und klein die Credits, rechts der Aufmacher randlos — von der
-     Kopfleiste bis zum Fensterrand unten und bis an den rechten Rand, ohne
-     Rundung. Der Kopf läuft dafür über die ganze Fensterbreite; die
-     Spalten richten seinen Text an der Kante der Lesespalte darunter aus
-     (gleiche 1180px, gleicher Rand wie `.page`). Oben die Schlagzeile,
-     unten an der Fotokante Vorspann und Credits — so bleibt links kein
-     Loch, auch wenn der Vorspann entfällt, weil er den Einstieg doppelt. */
-  .headerSplit {
-    margin-inline: calc(50% - 50vw);
-    margin-bottom: clamp(56px, 6vw, 96px);
-    grid-template-columns:
-      minmax(clamp(18px, 4vw, 54px), 1fr)
-      minmax(0, 590px)
-      minmax(0, 590px)
-      minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) auto;
-  }
-
-  /* Genau so hoch wie der sichtbare Teil der Seite: `.app-pages` beginnt ab
-     768px bei 74px (globals.css) und reicht bis zum Fensterrand. Mit der
-     Nav-Höhe (78px) blieb unten ein 4px-Streifen Ink. */
-  .headerSplit .heroMedia {
-    grid-area: 1 / 3 / -1 / 5;
-    aspect-ratio: auto;
-    height: clamp(560px, calc(100dvh - 74px), 980px);
-    max-height: none;
-  }
-
-  .headerSplit .introCopy {
-    grid-area: 1 / 2;
-    width: auto;
-    max-width: none;
-    margin: 0;
-    padding: clamp(44px, 4.4vw, 72px) clamp(40px, 4.4vw, 72px) 0 0;
-  }
-
-  .headerSplit .heroTitle {
-    max-width: none;
-    font-size: clamp(40px, 4.4vw, 64px);
-    letter-spacing: -0.03em;
-  }
-
-  .headerSplit .headerMeta {
-    grid-area: 3 / 2;
-    max-width: none;
-    margin: 0;
-    padding: clamp(24px, 2.6vw, 36px) clamp(40px, 4.4vw, 72px) clamp(36px, 3.4vw, 52px) 0;
-  }
-
-  /* Der Vorspann gross und leicht wie die Unterzeile bei SSENSE — eine
-     zweite Stimme neben der Schlagzeile, nicht fett wie Fliesstext. */
-  .headerSplit .lede {
-    margin-bottom: clamp(22px, 2.4vw, 30px);
-    font-size: clamp(20px, 1.75vw, 26px);
-    font-weight: 400;
-    line-height: 1.38;
-  }
-
-  .headerSplit .byline {
-    margin-bottom: 0;
   }
 
   /* Der Katalog-Ausgang als Tafel, nicht als Zeile. Auf 660px Lesebreite
@@ -1017,31 +864,25 @@ div.page {
     align-self: center;
     min-height: 48px;
     padding: 0 22px;
-    border-radius: var(--et-radius-control);
-    background: var(--et-accent);
-    color: var(--et-ink);
-    font-family: var(--et-font-display);
-    font-size: 17px;
-    font-weight: 700;
+    background: var(--article-accent);
+    color: var(--article-on-accent);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
     line-height: 1;
+    text-transform: uppercase;
     white-space: nowrap;
     transition: background 180ms ease;
   }
 
   .hubLink:focus-visible .hubLinkCta {
-    background: var(--et-white);
+    background: var(--article-grey);
   }
 
   @media (hover: hover) {
     .hubLink:hover .hubLinkCta {
-      background: var(--et-white);
+      background: var(--article-grey);
     }
-  }
-
-  /* The pull quote hangs in the margin next to the text. */
-  .content blockquote {
-    margin-left: auto;
-    margin-right: clamp(0px, 2vw, 40px);
   }
 
   /* The rail already carries Teilen. */
@@ -1050,9 +891,12 @@ div.page {
   }
 }
 
-@media (max-width: 900px) {
-  .introCopy {
-    margin-top: 24px;
+/* Ab Tablet: das Foto nie höher als der sichtbare Teil der Seite —
+   `.app-pages` beginnt ab 768px bei 74px (globals.css). Am Telefon hält das
+   feste Seitenverhältnis still; dort ändert Chrome `vh` beim Scrollen. */
+@media (min-width: 768px) {
+  .heroMedia {
+    max-height: calc(100dvh - 74px - 20px);
   }
 }
 
@@ -1061,80 +905,64 @@ div.page {
     padding-inline: 16px;
   }
 
-  .headerMeta {
-    margin-top: 26px;
+  .header {
+    padding-top: 30px;
   }
 
-  /* Hochformat und randlos, wie das Aufmacherfoto bei Highsnobiety.
-
-     Ohne die `70vh`-Grenze der Grundregel: Chrome auf dem iPhone ändert `vh`,
-     während es beim Scrollen seine Leisten ein- und ausblendet, und das Foto
-     wurde dabei höher und niedriger — es sah aus wie gezoomt (Betreiber,
-     26.09.2026). Volle Breite × 4:5 steht still und ist am Telefon nie höher
-     als der Bildschirm. Dasselbe wie bei `.inlineImage`. */
+  /* Hochformat, mit demselben 10px-Rahmen. Ohne `vh`: Chrome auf dem iPhone
+     ändert es, während es beim Scrollen seine Leisten ein- und ausblendet,
+     und das Foto wurde dabei höher und niedriger — es sah aus wie gezoomt
+     (Betreiber, 26.09.2026). 4:5 steht still. */
   .heroMedia {
     aspect-ratio: 4 / 5;
-    max-height: none;
-    margin-inline: -16px;
-    border-radius: 0;
+    margin-top: 28px;
   }
 
-  /* Fotos im Text ebenfalls randlos: die Spalte gibt links und rechts je
-     16px ab, das Bild nimmt sie sich zurück. Die Unterschrift bleibt auf der
-     Textkante. Spot-Karte und Must-Eat-Band behalten ihren Rand — sie sind
-     Knöpfe, keine Bilder. */
+  /* Fotos im Text mit demselben 10px-Rahmen wie der Aufmacher: die Spalte
+     gibt links und rechts je 16px ab, das Bild nimmt sich 6 davon zurück.
+     Die Unterschrift bleibt auf der Textkante. Das Must-Eat-Band behält
+     seinen Rand — es ist ein Knopf, kein Bild. */
   .inlineImage {
-    --img-frame: calc(100% + 32px);
-    --img-offset: -16px;
-  }
-
-  .inlineImage img {
-    border-radius: 0;
+    --img-frame: calc(100% + 12px);
+    --img-offset: -6px;
   }
 
   .inlineImage figcaption {
-    padding-inline: 16px;
+    padding-inline: 6px;
   }
 
   .heroTitle {
     max-width: none;
-    font-size: clamp(30px, 8.6vw, 46px);
-  }
-
-  .headerSplit .heroTitle {
-    max-width: 15ch;
+    font-size: clamp(44px, 13vw, 60px);
   }
 
   .lede {
-    max-width: none;
-    font-size: clamp(17px, 4.4vw, 19px);
+    margin-top: 32px;
+    font-size: 22px;
+    line-height: 1.22;
   }
 
   .content {
-    font-size: 17px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.5;
   }
 
   .content > p:first-of-type {
-    font-size: 19px;
-    line-height: 1.5;
+    font-size: 21px;
+    line-height: 1.3;
   }
 
   .content h2,
   .content h3 {
-    max-width: none;
-    font-size: clamp(26px, 7vw, 32px);
-    line-height: 1;
+    font-size: clamp(36px, 10vw, 44px);
   }
 
   .content h3 {
-    font-size: clamp(22px, 5.8vw, 26px);
+    font-size: clamp(26px, 7vw, 30px);
   }
 
   .content blockquote {
-    width: calc(100% - 6px);
-    padding: 22px 22px 24px;
-    font-size: clamp(24px, 7vw, 32px);
+    font-size: clamp(24px, 7vw, 30px);
   }
 
   .mustEat {
@@ -1144,36 +972,36 @@ div.page {
   }
 
   .mustEat .mustEatName {
-    font-size: clamp(21px, 6vw, 26px);
+    font-size: clamp(22px, 6vw, 26px);
   }
 
   .mustEat .mustEatDesc {
     max-width: none;
-    font-size: 14px;
+    font-size: 15px;
   }
 
-  /* Das Spot-Foto randlos wie die Fotos im Text, die Unterschrift bleibt auf
-     der Textkante. Die Karte selbst nimmt sich den Rand, damit ihr
-     `overflow: hidden` das Foto nicht beschneidet. */
+  /* Das Spot-Foto mit demselben 10px-Rahmen wie die Fotos im Text. Die
+     Karte selbst nimmt sich den Rand, damit ihr `overflow: hidden` das Foto
+     nicht beschneidet. */
   .inlineSpot {
-    margin-inline: -16px;
+    margin-inline: -6px;
   }
 
   .inlineSpotPhoto {
     aspect-ratio: 4 / 3;
-    border-radius: 0;
   }
 
   .inlineSpotFoot {
-    padding-inline: 16px;
+    padding-inline: 6px;
   }
 
   .content h2 [data-heading='deck'] {
-    font-size: 18px;
+    margin-top: 10px;
+    font-size: 19px;
   }
 
   .relatedHeading {
-    font-size: clamp(26px, 7.4vw, 34px);
+    font-size: clamp(36px, 10vw, 44px);
   }
 
   /* Swipeable rail instead of a stack. Bleeds to both edges so the next

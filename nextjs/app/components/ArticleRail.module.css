@@ -1,5 +1,7 @@
 /* Chapter rail — desktop only. Below 1080px the article is a single column and
-   a second navigation layer is exactly the clutter phones don't need. */
+   a second navigation layer is exactly the clutter phones don't need.
+   Farben und Schrift kommen aus den Tokens der Artikelseite
+   (NewsArticleShell.module.css, `.page`): die Leiste steht nur dort. */
 .rail {
   display: none;
 }
@@ -44,16 +46,12 @@
 }
 
 .label {
-  display: inline-block;
-  padding: 6px 9px 7px;
-  color: var(--et-ink);
-  background: var(--et-accent);
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
+  color: var(--article-fg);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .list {
@@ -73,7 +71,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   padding: 3px 0;
-  color: var(--et-ink-soft);
+  color: var(--article-muted);
   text-decoration: none;
   transition:
     color 140ms ease,
@@ -82,7 +80,6 @@
 
 .text {
   min-width: 0;
-  font-family: var(--et-font-display);
   /* Durchgehend 15px, keine Staffelung nach Fensterhöhe mehr: die Spalte ist
      216px breit, seit die Nummern weg sind (25.09.) ganz für den Text; die
      Rechnung stammt aus der Zeit mit 188px. Bei 16px scheiterten „Companion Tea &
@@ -90,12 +87,11 @@
      Pixel am Ellipsis, bei 15px passen beide. „Five Elephant Neue
      Nationalgalerie" braucht 264px und wird gekürzt — dafür ist keine Spalte
      dieser Breite zu haben, der volle Titel steht im title-Attribut. */
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 400;
   letter-spacing: 0;
-  /* 1.35, nicht 1.12: Providence hat eine tiefe Unterlänge, und `overflow:
-     hidden` fürs Ellipsis schnitt sie ab — „Jules Geisberg" verlor den Bogen
-     des g. */
+  /* 1.35, nicht 1.12: `overflow: hidden` fürs Ellipsis schneidet sonst die
+     Unterlänge ab — mit Providence verlor „Jules Geisberg" den Bogen des g. */
   line-height: 1.35;
   /* Eine Zeile statt zwei geklammerter: zwei Zeilen mal 18 Kapitel waren der
      Grund für den zweiten Scrollbalken. Was nicht passt, endet im Ellipsis —
@@ -109,7 +105,8 @@
 }
 
 .itemActive {
-  color: var(--et-accent);
+  color: var(--article-fg);
+  font-style: italic;
 }
 
 .share {
@@ -120,15 +117,14 @@
   margin-top: 4px;
   padding: 6px 10px 7px;
   border: 0;
-  border-radius: var(--et-radius-control);
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--et-white);
-  font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0;
+  background: var(--article-quiet);
+  color: var(--article-fg);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
   line-height: 1;
-  text-transform: none;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     background 140ms ease,
@@ -148,19 +144,19 @@
 
 .item:focus-visible,
 .share:focus-visible {
-  outline: 2px solid var(--et-accent);
+  outline: 2px solid var(--article-fg);
   outline-offset: 3px;
 }
 
 @media (hover: hover) {
   .item:hover {
-    color: var(--et-white);
+    color: var(--article-fg);
     transform: translateX(2px);
   }
 
   .share:hover {
-    background: var(--et-accent);
-    color: var(--et-ink);
+    background: var(--article-accent);
+    color: var(--article-on-accent);
   }
 }
 

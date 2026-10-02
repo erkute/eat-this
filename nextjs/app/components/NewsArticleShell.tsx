@@ -18,6 +18,7 @@ import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
+import { condensed, serif } from '@/app/fonts';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -346,7 +347,7 @@ export default function NewsArticleShell({
   const moreLabel = de ? 'Weiter auf dem Teller' : 'More on the menu';
   const chaptersLabel = de ? 'Kapitel' : 'Chapters';
 
-  // Die Credits unter dem Kopf, klein wie bei SSENSE („Written by / Photos"):
+  // Die Credits unter der Schlagzeile, klein in Versalien wie bei Kaleidoscope:
   // die Ausgabe, die man eben aufgeschlagen hat, Datum und Lesezeit.
   const byline = (
     <div className={styles.byline}>
@@ -360,14 +361,19 @@ export default function NewsArticleShell({
 
   return (
     <div
-      className={`app-page news-article-page${isActive ? ' active' : ''} ${styles.page}`}
+      className={`app-page news-article-page${isActive ? ' active' : ''} ${styles.page} ${serif.variable} ${condensed.variable}`}
       data-page="news-article"
       data-article-slug={article.slug}
       id="newsModal"
     >
       <main className={styles.article}>
         <article>
-          <header className={`${styles.header}${article.imageUrl ? ` ${styles.headerSplit}` : ''}`}>
+          {/* Der Kopf wie bei Kaleidoscope (Ansage 02.10.2026, Vorbild
+              manifesto.kaleidoscope.media): mittig Rubrik, die Schlagzeile
+              gross in der schmalen Grotesk, klein die Credits; darunter das
+              Foto randlos mit schmalem Rahmen, dann der Vorspann als
+              Auftakt. */}
+          <header className={styles.header}>
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
                 brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
                 — „/" und „/news" stehen im Burger, der auf jeder Seite
@@ -375,6 +381,11 @@ export default function NewsArticleShell({
                 `news/[slug]/page.tsx` bleibt davon unberührt, die SERP-Krume
                 also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
                 ohne. */}
+            <div className={styles.introCopy}>
+              <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
+              <h1 className={styles.heroTitle}>{title}</h1>
+              {byline}
+            </div>
             {article.imageUrl && (
               <div className={styles.heroMedia}>
                 <Image
@@ -382,25 +393,12 @@ export default function NewsArticleShell({
                   alt={article.alt || title}
                   fill
                   priority
-                  sizes="(max-width: 1079px) 100vw, 580px"
+                  sizes="100vw"
                   className={styles.hero}
                 />
               </div>
             )}
-            <div className={styles.introCopy}>
-              {/* Die Rubrik klein über der Schlagzeile, als Schrift — kein
-                  Etikett, wie bei SSENSE und 032c. */}
-              <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
-              <h1 className={styles.heroTitle}>{title}</h1>
-            </div>
-            {/* Vorspann und Credits gehören zum Kopf, nicht zur Lesespalte: ab
-                Desktop stehen sie links neben dem Aufmacher unter dem Titel,
-                wie bei SSENSE — erst der Vorspann gross, dann klein die
-                Credits. Auf dem Telefon laufen sie direkt unter dem Foto. */}
-            <div className={styles.headerMeta}>
-              {showLede && <p className={styles.lede}>{excerpt}</p>}
-              {byline}
-            </div>
+            {showLede && <p className={styles.lede}>{excerpt}</p>}
           </header>
 
           <div className={styles.body}>
@@ -476,7 +474,6 @@ export default function NewsArticleShell({
           {recommendations.length > 0 && (
             <section className={styles.related}>
               <div className={styles.relatedHead}>
-                <span className={styles.relatedMark} aria-hidden="true" />
                 <h2 className={styles.relatedHeading}>{moreLabel}</h2>
               </div>
               <ul className={styles.relatedGrid} role="list">

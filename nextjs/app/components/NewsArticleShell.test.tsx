@@ -322,12 +322,23 @@ describe('NewsArticleShell', () => {
       expect(html.slice(0, html.indexOf('<header'))).not.toContain('Issue');
     });
 
-    it('sets the lede before the credits, like a magazine head', () => {
+    it('opens like Kaleidoscope: headline and credits, then the photo, then the lede', () => {
       const html = renderWith(issues(['doener']), {
         excerptDe: 'Wo Berlin seinen Döner wirklich isst.',
       });
-      expect(html.indexOf('Wo Berlin seinen Döner')).toBeGreaterThan(html.indexOf('</h1>'));
-      expect(html.indexOf('Wo Berlin seinen Döner')).toBeLessThan(html.indexOf('24. April 2026'));
+      const at = (needle: string) => html.indexOf(needle);
+      expect(at('</h1>')).toBeLessThan(at('24. April 2026'));
+      expect(at('24. April 2026')).toBeLessThan(at('alt="Döner im Brot"'));
+      expect(at('alt="Döner im Brot"')).toBeLessThan(at('Wo Berlin seinen Döner'));
+      expect(at('Wo Berlin seinen Döner')).toBeLessThan(at('</header>'));
+    });
+
+    it('brings its own book and display faces, only on this page', () => {
+      const root = renderWith(issues(['doener'])).match(
+        /<div class="([^"]*)" data-page="news-article"/
+      );
+      expect(root?.[1]).toContain('var-font-serif');
+      expect(root?.[1]).toContain('var-font-condensed');
     });
 
     it('puts the rubric as a label right above the headline', () => {

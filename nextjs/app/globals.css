@@ -120,6 +120,10 @@
      Flächen, Providence. */
   --et-ink: #15120e;
   --et-white: #fff;
+  /* Der helle warmgraue Grund der Artikelseite (Kaleidoscope-Look,
+     02.10.2026) — ein Wert für den Seitenrahmen hier und die Tokens in
+     NewsArticleShell.module.css. */
+  --et-paper: #f0efed;
   --et-red: #d9382a;
   --et-accent: #ffc600;
   /* Rollen, die die Karte auf Ink umdeutet (MapLayout.module.css): gedämpfte
@@ -350,7 +354,8 @@ html[data-active-page='start'] [data-hub] .homeV2 {
 /* Der Rahmen unter der Seite muss mit: beim Ueberscrollen (iOS) und auf sehr
    hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
    Seit 03.09.2026 stehen ALLE Inhaltsseiten auf diesem Grund — die Liste
-   ist die Wahrheit darueber, welche das sind. Seit 04.09.2026 ist die Map
+   ist die Wahrheit darueber, welche das sind; der Artikel steht seit
+   02.10.2026 auf hellem Grund (Block darunter). Seit 04.09.2026 ist die Map
    dabei: sie bleibt ein Werkzeug, aber ein Werkzeug in derselben Farbe.
    Nicht dabei: die 404, der Badge-Generator und die Admin-Zahlen.
    Die Seitenmodule malen ihren Grund zusaetzlich selbst; hier steht er nur,
@@ -380,9 +385,6 @@ html[data-active-page='pack'] .app-pages,
 html[data-active-page='news'],
 html[data-active-page='news'] body,
 html[data-active-page='news'] .app-pages,
-html[data-active-page='news-article'],
-html[data-active-page='news-article'] body,
-html[data-active-page='news-article'] .app-pages,
 html[data-active-page='about'],
 html[data-active-page='about'] body,
 html[data-active-page='about'] .app-pages,
@@ -411,6 +413,14 @@ html[data-active-page='map'],
 html[data-active-page='map'] body,
 html[data-active-page='map'] .app-pages {
   background: var(--et-ink);
+}
+/* Die Ausnahme seit 02.10.2026: der Artikel steht im Kaleidoscope-Look auf
+   hellem Grund (NewsArticleShell.module.css). Aus demselben Grund wie oben
+   hier und nicht im Modul — `main` und `.app-page` sind transparent. */
+html[data-active-page='news-article'],
+html[data-active-page='news-article'] body,
+html[data-active-page='news-article'] .app-pages {
+  background: var(--et-paper);
 }
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
    erste Pfadsegment der falschen Adresse, und auf einem gestreamten

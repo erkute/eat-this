@@ -402,8 +402,10 @@ div.page {
 /* Der Einstieg gross und mittig statt einer Initiale: der erste Absatz ist
    der Auftakt, der Rest liest sich linksbündig in Lesegrösse weiter —
    Kaleidoscope zentriert jeden Block, über einen ganzen Artikel wäre das
-   anstrengend. */
-.content > p:first-of-type {
+   anstrengend. Steht im Kopf schon ein Vorspann (`data-lede`), ist der der
+   Auftakt, und der Text beginnt normal — nur ein Absatz in Providence
+   (Ansage 02.10.2026). */
+.content:not([data-lede]) > p:first-of-type {
   margin-bottom: 1.2em;
   font-family: var(--et-font-display);
   font-size: clamp(22px, 1.9vw, 27px);
@@ -526,34 +528,24 @@ div.page {
   font-weight: 700;
 }
 
-/* Links im Text als gelber Textmarker: ein Streifen hinter dem unteren Teil
-   des Worts. Vorher eine dicke gelbe Unterstreichung — der Browser
-   unterbrach sie an jeder Unterlänge („Crapulix" in drei Stücke), Ansage
-   02.10.2026: „so hässlich, so komisch unterstrichen". Der Streifen läuft
-   durch und bricht mit der Zeile um (`box-decoration-break`); unter der Maus
-   füllt er das ganze Wort.
+/* Links im Text sind fett, sonst nichts — keine Unterstreichung (der
+   Browser brach die dicke gelbe an jeder Unterlänge), kein Marker-Streifen
+   (las sich als Hervorhebung, nicht als Link). Ansagen 02.10.2026: „so
+   komisch unterstrichen", „kein Marker". Unter der Maus werden sie rot wie
+   die Kapitel.
    Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
-   Bezirk · Küche) — der Marker würde alle drei zerlegen. */
+   Bezirk · Küche). */
 .content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat) {
   color: var(--article-fg);
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  background-image: linear-gradient(var(--article-accent), var(--article-accent));
-  background-position: 0 88%;
-  background-repeat: no-repeat;
-  background-size: 100% 0.36em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  transition:
-    background-size 160ms ease,
-    color 160ms ease;
+  transition: color 140ms ease;
 }
 
 @media (hover: hover) {
   .content
     a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
-    color: var(--et-ink);
-    background-size: 100% 100%;
+    color: var(--article-head);
   }
 }
 
@@ -1177,7 +1169,7 @@ div.page {
     line-height: 1.6;
   }
 
-  .content > p:first-of-type {
+  .content:not([data-lede]) > p:first-of-type {
     font-size: 20px;
   }
 

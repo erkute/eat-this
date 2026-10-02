@@ -160,6 +160,26 @@ export function armArticleMotion(root: HTMLElement): () => void {
   if (typeof IntersectionObserver === 'undefined') return leaveIntro;
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return leaveIntro;
 
+  // Ein Tab, der nicht zu sehen ist (im Hintergrund geöffnet, die Vorschau
+  // der Desktop-App), lässt keine Animation laufen — was hier versteckt
+  // würde, bliebe unsichtbar. Scharf wird erst, wenn der Tab sichtbar ist.
+  let disarm: (() => void) | null = null;
+  const armWhenVisible = () => {
+    if (disarm || document.visibilityState !== 'visible') return;
+    document.removeEventListener('visibilitychange', armWhenVisible);
+    disarm = armScenes(root);
+  };
+  document.addEventListener('visibilitychange', armWhenVisible);
+  armWhenVisible();
+
+  return () => {
+    document.removeEventListener('visibilitychange', armWhenVisible);
+    disarm?.();
+    leaveIntro();
+  };
+}
+
+function armScenes(root: HTMLElement): () => void {
   const scenes = scenesOf(root);
   const byTrigger = new Map(scenes.map((scene) => [scene.trigger, scene]));
   const io = new IntersectionObserver(
@@ -181,7 +201,6 @@ export function armArticleMotion(root: HTMLElement): () => void {
 
   return () => {
     io.disconnect();
-    leaveIntro();
     for (const scene of scenes) {
       scene.timeline.kill();
       gsap.set(scene.targets, { clearProps: 'transform,visibility' });

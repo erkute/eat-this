@@ -435,7 +435,11 @@ export default function NewsArticleShell({
           </header>
 
           <div className={styles.column}>
-            <div className={styles.content} data-article-content="">
+            <div
+              className={styles.content}
+              data-article-content=""
+              data-lede={showLede ? '' : undefined}
+            >
               <PortableTextRenderer
                 blocks={content}
                 renderMustEatCard={renderMustEatCard}

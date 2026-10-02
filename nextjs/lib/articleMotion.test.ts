@@ -89,6 +89,25 @@ describe('armArticleMotion', () => {
     expect(heading.style.visibility).toBe('visible');
   });
 
+  // Die Vorschau der Desktop-App und Tabs im Hintergrund lassen keine
+  // Animation laufen — dort darf nichts versteckt werden, sonst bliebe es
+  // unsichtbar. Scharf wird erst, wenn der Tab sichtbar ist.
+  it('hides nothing in a hidden tab and arms once it shows', () => {
+    const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    const root = article();
+    const cleanup = armArticleMotion(root);
+    const heading = root.querySelector<HTMLElement>('h2')!;
+    expect(observed).toHaveLength(0);
+    expect(heading.style.visibility).toBe('');
+
+    visibility.mockReturnValue('visible');
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(observed).toHaveLength(1);
+    expect(heading.style.visibility).toBe('hidden');
+    cleanup();
+    visibility.mockRestore();
+  });
+
   it('lets the intro mark go once the intro has run, and on leaving', () => {
     vi.useFakeTimers();
     document.documentElement.setAttribute('data-article-intro', '');

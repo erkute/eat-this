@@ -23,6 +23,8 @@ describe('critical auth bootstrap', () => {
 
     expect(line).toContain("slug==='news-article'")
     expect(line).toContain("matchMedia('(prefers-reduced-motion: reduce)')")
+    // In einem unsichtbaren Tab liefe die Animation nie — der Kopf bliebe leer.
+    expect(line).toContain("document.visibilityState==='visible'")
   })
 
   // Wer den Artikel dunkel gestellt hat, sieht ihn beim Laden gleich dunkel —

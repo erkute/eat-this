@@ -352,6 +352,13 @@ describe('NewsArticleShell', () => {
       expect(at('Wo Berlin seinen Döner')).toBeLessThan(at('</header>'));
     });
 
+    // Nur ein Auftakt in Providence: mit Vorspann beginnt der Text normal.
+    it('marks the text as led when the head carries a lede', () => {
+      const led = renderWith(issues(['doener']), { excerptDe: 'Wo Berlin seinen Döner isst.' });
+      expect(led).toMatch(/data-article-content=""[^>]*data-lede=""/);
+      expect(renderWith(issues(['doener']))).not.toContain('data-lede');
+    });
+
     it('puts the rubric as a label right above the headline', () => {
       const html = renderWith(issues(['doener']));
       expect(html).toMatch(/>Guides<\/span><h1[^>]*>Döner in Berlin<\/h1>/);

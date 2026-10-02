@@ -170,6 +170,10 @@ export default function NewsArticleShell({
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
   const chapters = extractHeadings(content);
+  // Die Kapitel-Zeile nur in Guides, die Spots aufzählen (Ansage 02.10.2026:
+  // „nur wenn Spots gelistet sind") — nicht in einem Essay mit
+  // Zwischenüberschriften, der höchstens einen Laden zeigt.
+  const listsSpots = content.filter((block) => block._type === 'spotCard').length > 1;
   const hubLink = articleHubLink(article.slug);
   // Nur Kategorie-Hubs haben ein Booster-Pack; Bezirke nicht.
   const hubPack = hubLink?.href.startsWith('/kategorie/')
@@ -414,7 +418,7 @@ export default function NewsArticleShell({
                 einziges Element aus der Mitte fiel (Ansage 02.10.2026), und
                 gibt es jetzt auch am Telefon. Nur der Name, nicht die ganze
                 Überschrift; ein Tipp springt zum Kapitel. */}
-            {chapters.length > 1 && (
+            {listsSpots && chapters.length > 1 && (
               <nav className={styles.chapters} aria-label={chaptersLabel}>
                 <span className={styles.chaptersLabel}>{chaptersLabel}</span>
                 <ol className={styles.chapterList}>

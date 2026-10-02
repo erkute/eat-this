@@ -267,16 +267,28 @@ describe('NewsArticleShell', () => {
     for (const link of mapLinks) expect(link).toContain('nofollow');
   });
 
-  it('lists the chapters under the head, by name, each a jump', () => {
-    const html = render([h2('Saucen'), para('x'), h2('Kolo Coffee – Mikrorösterei mit Bohnen')]);
+  it('lists the spots of a guide under the head, by name, each a jump', () => {
+    const html = render([
+      h2('Saucen'),
+      spot('Spumante', 'spumante'),
+      h2('Kolo Coffee – Mikrorösterei mit Bohnen'),
+      spot('Kolo', 'kolo'),
+    ]);
     const head = html.slice(0, html.indexOf('</header>'));
     expect(head).toContain('aria-label="Kapitel"');
     expect(head).toContain('href="#saucen"');
     expect(head).toMatch(/href="#kolo-coffee-[^"]*"[^>]*>Kolo Coffee<\/a>/);
   });
 
-  it('shows no chapter row for a piece with a single chapter', () => {
-    const html = render([h2('Saucen'), para('x')]);
+  // Ansage 02.10.2026: „das brauche ich hier nicht, nur wenn Spots gelistet
+  // sind" — ein Essay mit Zwischenüberschriften bekommt keine Zeile.
+  it('shows no chapter row for an essay that lists no spots', () => {
+    const html = render([
+      h2('Von der Sterneküche'),
+      para('x'),
+      h2('Das Croissant'),
+      spot('Crapulix', 'crapulix'),
+    ]);
     expect(html).not.toContain('aria-label="Kapitel"');
   });
 

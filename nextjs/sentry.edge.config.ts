@@ -8,5 +8,6 @@ Sentry.init({
   // the server and edge bundles too (Next runs the webpack config for all
   // three runtimes), so this would be inert.
   environment: process.env.NODE_ENV,
-  sendDefaultPii: true,
+  // Keine IP, keine Cookies (siehe instrumentation-client.ts).
+  sendDefaultPii: false,
 });

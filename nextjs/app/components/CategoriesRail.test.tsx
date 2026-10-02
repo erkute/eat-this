@@ -40,6 +40,17 @@ describe('CategoriesRail', () => {
     expect(html).not.toContain('<img');
   });
 
+  it('gibt jeder Kategorie Remys Satz mit, ohne eigene Frage', () => {
+    const html = renderToStaticMarkup(
+      <CategoriesRail categoryNames={{ pizza: 'Pizza', neu: 'Neu' }} locale="de" />
+    );
+    expect(html).toContain('data-remy-line="Pizza? Ich kenn die Öfen, die es wirklich können."');
+    // Eine Kategorie ohne eigenen Satz bekommt den allgemeinen.
+    expect(html).toContain('data-remy-line="Neu? Da kenn ich was."');
+    // Die Frage „Worauf hast du Lust?" stellt Remy (HubFragRemy).
+    expect(html).not.toContain('<h2');
+  });
+
   it('renders nothing when empty', () => {
     const html = renderToStaticMarkup(<CategoriesRail categoryNames={{}} locale="de" />);
     expect(html).toBe('');

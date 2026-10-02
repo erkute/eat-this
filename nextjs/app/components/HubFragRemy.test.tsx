@@ -9,7 +9,7 @@ import HubFragRemy from './HubFragRemy';
 const messages = {
   hub: {
     fragRemy: {
-      sub: 'Frag Remy direkt.',
+      sub: 'Ich kenne die besten Spots in Berlin.',
       inputPlaceholder: '...oder frag Remy direkt',
       sendAria: 'Senden',
     },
@@ -39,26 +39,24 @@ describe('HubFragRemy', () => {
     expect(title).not.toBeNull();
   });
 
-  it('renders the time-of-day lead and the two quick answers', () => {
+  it('fragt „Worauf hast du Lust?" und zeigt darüber Remys Satz zur Tageszeit', () => {
     renderSection();
-    // Daypart lead + answers land after mount via useEffect.
-    const lead = document.querySelector('[data-fragremy-lead]');
-    expect((lead?.textContent ?? '').length).toBeGreaterThan(0);
-    const chips = document.querySelectorAll('[data-fragremy-chips] button');
-    expect(chips.length).toBe(2);
+    expect(document.querySelector('h2')!.textContent).toBe('Worauf hast du Lust?');
+    // Der Satz zur Tageszeit kommt nach dem Mount (useEffect); den Textknoten
+    // schreibt HubMotion später um.
+    const line = document.querySelector('[data-fragremy-line]')!;
+    expect(line.textContent!.length).toBeGreaterThan(0);
+    expect(line.firstChild!.nodeType).toBe(Node.TEXT_NODE);
+    expect(line.childNodes.length).toBe(1);
   });
 
-  it('dispatches buddy:ask with the chip question on chip click', () => {
-    let got: BuddyAskDetail | null = null;
-    const onAsk = (e: Event) => {
-      got = (e as CustomEvent<BuddyAskDetail>).detail;
-    };
-    window.addEventListener(BUDDY_ASK_EVENT, onAsk);
-    renderSection();
-    const chip = document.querySelector<HTMLButtonElement>('[data-fragremy-chips] button')!;
-    fireEvent.click(chip);
-    window.removeEventListener(BUDDY_ASK_EVENT, onAsk);
-    expect(got).toEqual({ question: chip.textContent });
+  it('nimmt die Kategorien als Antworten auf (`choices`)', () => {
+    render(
+      <NextIntlClientProvider locale="de" messages={messages}>
+        <HubFragRemy choices={<ul data-hub-categories="" />} />
+      </NextIntlClientProvider>
+    );
+    expect(document.querySelector('[data-hub-fragremy] [data-hub-categories]')).not.toBeNull();
   });
 
   it('dispatches buddy:ask when the free-text form is submitted', () => {
@@ -69,22 +67,23 @@ describe('HubFragRemy', () => {
     window.addEventListener(BUDDY_ASK_EVENT, onAsk);
     renderSection();
     const input = document.querySelector<HTMLInputElement>('[data-fragremy-input]')!;
-    const form = document.querySelector<HTMLFormElement>('[data-fragremy-form]')!;
+    const form = input.closest('form')!;
     fireEvent.change(input, { target: { value: 'Gute Ramen' } });
     fireEvent.submit(form);
     window.removeEventListener(BUDDY_ASK_EVENT, onAsk);
     expect(got).toEqual({ question: 'Gute Ramen' });
   });
 
-  it('gibt HubMotion die Haken für den Auftritt: Fragezeichen, „Frag Remy.", Remy', () => {
+  it('gibt HubMotion die Haken: Frage, Satz, Feld, Remy und sein Platz', () => {
     renderSection();
-    // Seit 01.10.2026 die zweite Frage der Tafel, unter „Worauf hast du
-    // Lust?" (CategoriesRail) — daher h3.
-    const title = document.querySelector('h3')!;
-    expect(title.textContent).toBe('Keine Idee?Frag Remy.');
-    expect(document.querySelector('[data-fragremy-q]')!.textContent).toBe('?');
-    expect(document.querySelector('[data-fragremy-ask]')!.textContent).toBe('Frag Remy.');
+    expect(document.querySelector('[data-fragremy-title]')!.tagName).toBe('H2');
+    expect(document.querySelector('[data-fragremy-say] [data-fragremy-line]')).not.toBeNull();
+    // Was er sagt, wenn man ins Feld tippt.
+    expect(
+      document.querySelector('[data-fragremy-input]')!.getAttribute('data-remy-line')
+    ).toBeTruthy();
     expect(document.querySelector('[data-fragremy-avatar]')).not.toBeNull();
+    expect(document.querySelector('[data-fragremy-spot]')).not.toBeNull();
   });
 
   it('zeigt Remy als drei Gesichter: neutral, Mund offen, Lachen', () => {

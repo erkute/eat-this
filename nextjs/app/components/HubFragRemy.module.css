@@ -14,7 +14,7 @@
   --remy-stage-paper: #fff;
   --remy-stage-accent: var(--et-accent);
   --remy-stage-soft: rgba(255, 255, 255, 0.76);
-  /* Chips, Feld und Knopf heben sich per Flaeche ab, nie per Ring (Ansage
+  /* Feld und Knopf heben sich per Flaeche ab, nie per Ring (Ansage
      23.09.2026: „keine grauen Rahmen"). */
   --remy-stage-control: rgba(255, 255, 255, 0.08);
   --remy-stage-control-hi: rgba(255, 255, 255, 0.14);
@@ -22,14 +22,20 @@
   position: relative;
   isolation: isolate;
   display: grid;
+  /* Telefon: alles über Remy, er steht gross unten und läuft aus der Tafel
+     (Ansage 02.10.2026: „Remy größer, unten wie in main, alles über ihn
+     drüber"). */
   grid-template-areas:
-    'ask'
+    'title'
+    'say'
+    'choices'
+    'form'
     'avatar';
   /* `minmax(0, 1fr)`, nicht `1fr`: sonst wuchs die Spalte auf die
-     Mindestbreite des Remy-Bilds (340px) und schob Satz, Chips und
+     Mindestbreite des Remy-Bilds (340px) und schob Satz, Feld und
      „Senden" am Telefon über die rechte Kante der Tafel. */
   grid-template-columns: minmax(0, 1fr);
-  gap: clamp(12px, 2.4vw, 24px);
+  gap: 0;
   align-items: start;
   overflow: hidden;
   /* Der einzige Abschnitt mit eigener Flaeche — bewusst gegen die Tokens der
@@ -43,52 +49,60 @@
   border-radius: var(--et-radius-photo);
 }
 
-.ask {
-  grid-area: ask;
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.body .panelHead:global(.hv-head) {
-  margin-bottom: 0;
-}
-
-/* Weiß statt des roten Abschnittstitels: auf Ink sind die Versalien Papier,
-   wie auf jeder Tafel. Seit 01.10.2026 die zweite Frage der Tafel, unter
-   „Worauf hast du Lust?" und den Kategorien (CategoriesRail, `choices`) —
-   eine Stufe kleiner als die erste, sonst stünden zwei Rufe gleich laut
-   übereinander. */
-.body .panelHead :global(.hv-title) {
-  max-width: 790px;
+/* Remys Frage: Papier statt des roten Abschnittstitels, wie auf jeder
+   Tafel. Rang (0,3,0) über die Einzeiler-Regel der Startseite am Telefon
+   (HubSection.module.css, 0,2,0): die Frage darf umbrechen. */
+.body .title:global(.hv-title) {
+  grid-area: title;
+  margin: 0;
   color: var(--remy-stage-paper);
-  font-size: clamp(30px, 3.4vw, 48px);
-  /* Zwei Zeilen Versalien: bei 0.88 standen „?" und „R" fast aufeinander. */
+  font-size: clamp(34px, 4.6vw, 72px);
   line-height: 0.98;
+  white-space: normal;
+  text-wrap: balance;
 }
 
-/* Zwischen den Kategorien und Remys Frage: Luft, keine Linie. */
-.ask > :global([data-hub-categories]) {
-  margin-bottom: clamp(30px, 4vw, 56px);
+/* Was Remy gerade sagt: „Remy" als Kicker wie im Chat-Fenster, darunter der
+   Satz. Der Satz springt beim Wechsel (HubMotion, `armRemySays`) — um die
+   linke Unterkante, deshalb eine eigene Box. */
+.say {
+  grid-area: say;
+  margin: clamp(18px, 2vw, 26px) 0 clamp(8px, 1vw, 14px);
+  font-family: var(--et-font-display);
+  font-weight: 700;
 }
 
-.titleLine {
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: var(--remy-stage-dim);
+  font-size: 11px;
+  letter-spacing: var(--et-tracking-label);
+  text-transform: uppercase;
+}
+
+.mk {
+  width: 9px;
+  height: 9px;
+  background: var(--remy-stage-accent);
+}
+
+.line {
   display: block;
-  white-space: nowrap;
+  /* Zwei Zeilen frei halten: ein längerer Satz schiebt sonst die
+     Kategorien darunter. */
+  min-height: 2.36em;
+  font-size: clamp(19px, 2vw, 30px);
+  line-height: 1.18;
+  color: var(--remy-stage-paper);
+  transform-origin: 0% 100%;
 }
 
-/* Das Fragezeichen fliegt beim Auftritt einzeln herein (HubMotion) — dafür
-   braucht es eine eigene Box, die sich drehen und verschieben lässt. */
-.titleMark {
-  display: inline-block;
-  /* Weg, Drehung und Stauchung als Variablen (HubMotion): zwei GSAP-Tweens
-     auf demselben `transform` — Flug und Aufprall — liessen beim
-     Rückwärtslaufen den Weg nach links fallen (gemessen). */
-  translate: calc(var(--q-x, 0) * 1px) 0;
-  rotate: calc(var(--q-r, 0) * 1deg);
-  scale: var(--q-sx, 1) var(--q-sy, 1);
+.body > :global([data-hub-categories]) {
+  grid-area: choices;
+  margin: 6px 0 clamp(22px, 2.6vw, 38px);
 }
 
 /* ── Remy stage — freigestellt, no background sun ── */
@@ -213,68 +227,15 @@
   }
 }
 
-/* ── copy column ── */
-.copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  margin-top: clamp(14px, 1.8vw, 24px);
-}
-
-.lead {
-  max-width: 660px;
-  margin: 0 0 clamp(14px, 1.8vw, 22px);
-  font-family: var(--et-font-display);
-  font-size: clamp(19px, 1.85vw, 27px);
-  font-weight: 700;
-  line-height: 1.16;
-  color: var(--remy-stage-soft);
-}
-
-/* ── actions: quick answers + chat input ── */
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 680px;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Flaeche statt Ring, bei Hover eine Stufe heller mit gelber Schrift (state
-   change, not motion — allowed). */
-.body .chip:global(.hv-chip):focus-visible {
-  outline: none;
-  background: var(--remy-stage-control-hi);
-  color: var(--remy-stage-accent);
-  box-shadow: none;
-}
-@media (hover: hover) {
-  .body .chip:global(.hv-chip):hover {
-    background: var(--remy-stage-control-hi);
-    color: var(--remy-stage-accent);
-  }
-}
-
-.body .chip:global(.hv-chip) {
-  background: var(--remy-stage-control);
-  color: var(--remy-stage-paper);
-  border: none;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-}
-
-/* ── free-text input row ──
+/* ── die freie Antwort: geht in Remys Chat ──
    Feld und Knopf nebeneinander, gleich hoch und mit derselben Rundung. Das
    Feld ist eine dunkle Flaeche, der Knopf Papier — bis zum 23.09.2026 weißes
    Feld und gelber Knopf („gefällt mir nicht"), davor eine runde Pille in einem
    weißen Kasten. Dieselbe Zeile wie die Eingabe im Chat-Fenster. */
 .chatin {
+  grid-area: form;
   display: flex;
+  margin-bottom: clamp(12px, 2.4vw, 24px);
   gap: 10px;
   align-items: stretch;
   padding: 0;
@@ -339,30 +300,44 @@
   box-shadow: none;
 }
 
-/* ── desktop: copy left, big Remy right ── */
+/* ── Desktop: links Frage, Antworten und Feld; rechts Remy, sein Satz über
+   dem Kopf, der Oberkörper läuft unten aus der Tafel ── */
 @media (min-width: 900px) {
   .body {
-    grid-template-areas: 'ask avatar';
-    grid-template-columns: minmax(420px, 0.86fr) minmax(430px, 0.78fr);
-    min-height: clamp(460px, 39vw, 560px);
-    padding: clamp(34px, 3.5vw, 52px) clamp(38px, 4.5vw, 70px);
-    align-items: center;
-    gap: clamp(30px, 4.4vw, 72px);
+    grid-template-areas:
+      'title say'
+      'choices avatar'
+      'form avatar';
+    grid-template-columns: minmax(420px, 1.05fr) minmax(400px, 0.95fr);
+    grid-template-rows: auto auto 1fr;
+    min-height: clamp(520px, 42vw, 640px);
+    padding: clamp(40px, 4vw, 60px) clamp(38px, 4.5vw, 70px);
+    column-gap: clamp(30px, 4.4vw, 72px);
   }
 
-  /* Oben an der Tafelkante, nicht optisch hochgeschoben: seit die
-     Kategorien darüberstehen, ist die Spalte höher als Remy, und die alte
-     Verschiebung um bis zu 42px setzte die erste Frage an die Kante. */
-  .ask {
-    align-self: start;
-    max-width: 650px;
+  .say {
+    max-width: 24ch;
+    margin: 0;
+  }
+
+  .line {
+    font-size: clamp(22px, 2.1vw, 32px);
+  }
+
+  .body > :global([data-hub-categories]) {
+    margin: clamp(18px, 2vw, 28px) 0 clamp(26px, 3vw, 40px);
+  }
+
+  .chatin {
+    max-width: 640px;
+    margin-bottom: 0;
   }
 
   .avatarWrap {
     align-self: flex-end;
     justify-self: end;
     max-width: clamp(500px, 45vw, 700px);
-    margin-top: clamp(-42px, -3vw, -24px);
+    margin-top: 0;
     margin-bottom: clamp(-154px, -9vw, -96px);
     transform: translateY(clamp(-24px, -1.8vw, -12px));
   }

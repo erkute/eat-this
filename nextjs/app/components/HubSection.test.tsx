@@ -105,16 +105,16 @@ describe('HubSection home', () => {
   it('runs the magazine, nearby, Must Eats and signup, then Remy with the categories', () => {
     const html = renderHome();
     // Ansage 01.10.2026: the magazine right under the hero, „Worauf hast du
-    // Lust?" under the Starter Pack — as the first half of Remy's board, who
-    // answers the same question in conversation. (The HubNearby and
-    // HubMustEatsTeaser mocks return strings, so they land escaped.)
+    // Lust?" under the Starter Pack — since 02.10.2026 Remy's own question,
+    // the categories are its answers (the question itself lives in
+    // HubFragRemy, mocked here). (The HubNearby and HubMustEatsTeaser mocks
+    // return strings, so they land escaped.)
     expect(html.indexOf('data-hub-hero')).toBeLessThan(html.indexOf('Auf dem Teller'));
     expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('nearby'));
     expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('musteats'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
     expect(html.indexOf('data-hub-starter')).toBeLessThan(html.indexOf('data-testid="remy"'));
     const remy = html.slice(html.indexOf('data-testid="remy"'));
-    expect(remy).toContain('Worauf hast du Lust?');
     expect(remy).toContain('/kategorie/');
   });
 

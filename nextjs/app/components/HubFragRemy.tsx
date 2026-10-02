@@ -1,15 +1,16 @@
 'use client';
-// Home-hub section for Remy, the KI buddy — restyled into the homeV2 white
-// vocabulary. Yellow is kept as Remy's accent (avatar circle, chip hover),
-// NOT as a full-section background band.
-// Daypart greeting and chat/quick-ask dispatch via dispatchBuddyAsk. Der
-// Auftritt (Fragezeichen, „Frag Remy.", Remy schießt hoch und redet), sein
-// Lachen und das Reden beim Scrollen gehören HubMotion — über
-// `data-fragremy-*`-Haken und Attribute, die React nicht verwaltet.
+// Remys Tafel auf der Startseite (Variante A „Remy erzählt", gewählt am
+// 02.10.2026): eine Frage statt zwei. Remy fragt „Worauf hast du Lust?", die
+// Kategorien sind die Antworten (`choices`, CategoriesRail), das Feld darunter
+// die freie Antwort — die geht in seinen Chat. Darüber steht, was Remy gerade
+// sagt: erst ein Satz zur Tageszeit, dann zu der Kategorie, auf die man zeigt
+// oder die er selbst durchgeht. Auftritt, Reden und Lachen gehören HubMotion
+// (`armFragRemy`, `armRemySays`) — über `data-fragremy-*`-Haken und
+// Attribute, die React nicht verwaltet.
 import { useEffect, useState, type ReactNode } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
-import { stageFor } from '@/lib/buddy/greeting';
+import { stageLeadFor } from '@/lib/buddy/greeting';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import type { Locale } from '@/lib/buddy/types';
 import styles from './HubFragRemy.module.css';
@@ -17,34 +18,22 @@ import styles from './HubFragRemy.module.css';
 const REMY_SIZES = '(max-width: 899px) min(92vw, 560px), (max-width: 1360px) 38vw, 520px';
 
 interface Props {
-  /** Die erste Hälfte der Tafel: „Worauf hast du Lust?" mit den Kategorien
-   *  (CategoriesRail, vom Server gerendert). Remy beantwortet darunter
-   *  dieselbe Frage im Gespräch — eine Tafel, eine Frage, zwei Wege. */
+  /** Die Antworten auf Remys Frage: die Kategorien (CategoriesRail, vom
+   *  Server gerendert, jede mit Remys Satz in `data-remy-line`). */
   choices?: ReactNode;
 }
 
 export default function HubFragRemy({ choices }: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations('hub.fragRemy');
-  const [stage, setStage] = useState<{
-    line: string;
-    lead: string;
-    answers: [string, string];
-  } | null>(null);
+  const [lead, setLead] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
 
-  // Daypart copy is client-only (the server's clock isn't the user's): SSR shows
-  // the generic sub, the daypart lead + answers land after hydration.
+  // Die Tageszeit kennt nur der Browser (die Uhr des Servers ist nicht die des
+  // Besuchers): der Server rendert den allgemeinen Satz.
   useEffect(() => {
-    setStage(stageFor(new Date().getHours(), locale));
+    setLead(stageLeadFor(new Date().getHours(), locale));
   }, [locale]);
-
-  const lead = stage ? stage.lead : t('sub');
-  const fallbackAnswers: [string, string] =
-    locale === 'de'
-      ? ['Richtig gute Pizza', 'Schönes Dinner für zwei']
-      : ['Really good pizza', 'A nice dinner for two'];
-  const answers = stage?.answers ?? fallbackAnswers;
 
   function submitDraft() {
     const q = draft.trim();
@@ -59,76 +48,51 @@ export default function HubFragRemy({ choices }: Props) {
       id="hub-fragremy"
       data-hub-fragremy=""
     >
-      {/* Body: Remy avatar, headline, copy + actions as one stage */}
       <div className={styles.body}>
-        <div className={styles.ask}>
-          {choices}
-          <div className={`hv-head ${styles.panelHead}`}>
-            <h3 className="hv-title">
-              <span className={styles.titleLine}>
-                {locale === 'de' ? 'Keine Idee' : 'No idea'}
-                <span className={styles.titleMark} data-fragremy-q="">
-                  ?
-                </span>
-              </span>
-              <span className={styles.titleLine} data-fragremy-ask="">
-                {locale === 'de' ? 'Frag Remy.' : 'Ask Remy.'}
-              </span>
-            </h3>
-          </div>
+        <h2 className={`hv-title ${styles.title}`} data-fragremy-title="">
+          {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
+        </h2>
 
-          {/* Copy + interactions */}
-          <div className={styles.copy}>
-            <p className={styles.lead} data-fragremy-lead="">
-              {lead}
-            </p>
+        {/* Was Remy gerade sagt. Den Satz tauscht HubMotion im Textknoten
+            aus, den React hier anlegt — React setzt ihn nur einmal, wenn die
+            Tageszeit feststeht. */}
+        <p className={styles.say} data-fragremy-say="" aria-live="polite">
+          <span className={styles.kicker}>
+            <span className={styles.mk} aria-hidden="true" />
+            Remy
+          </span>
+          <span className={styles.line} data-fragremy-line="">
+            {lead ?? t('sub')}
+          </span>
+        </p>
 
-            <div className={styles.actions}>
-              <div className={styles.chips} data-fragremy-chips="">
-                {answers.map((a) => (
-                  <button
-                    key={a}
-                    type="button"
-                    className={`hv-chip ${styles.chip}`}
-                    onClick={() => dispatchBuddyAsk({ question: a })}
-                  >
-                    {a}
-                  </button>
-                ))}
-              </div>
-              <form
-                className={styles.chatin}
-                data-fragremy-form=""
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  submitDraft();
-                }}
-              >
-                <input
-                  className={styles.input}
-                  data-fragremy-input=""
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  placeholder={t('inputPlaceholder')}
-                  aria-label={t('inputPlaceholder')}
-                />
-                <button
-                  className={`hv-btn ${styles.send}`}
-                  type="submit"
-                  aria-label={t('sendAria')}
-                >
-                  <span aria-hidden="true">{t('sendAria')}</span>
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
+        {choices}
+
+        <form
+          className={styles.chatin}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submitDraft();
+          }}
+        >
+          <input
+            className={styles.input}
+            data-fragremy-input=""
+            data-remy-line={locale === 'en' ? "Go on, I'm listening." : 'Schieß los, ich hör zu.'}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={t('inputPlaceholder')}
+            aria-label={t('inputPlaceholder')}
+          />
+          <button className={`hv-btn ${styles.send}`} type="submit" aria-label={t('sendAria')}>
+            <span aria-hidden="true">{t('sendAria')}</span>
+          </button>
+        </form>
 
         {/* Remys Platz, unbewegt: daran misst HubMotion, wann die leere
             Fläche im Bild ist und er hochschießt. */}
         <span className={styles.avatarSpot} data-fragremy-spot="" aria-hidden="true" />
 
-        {/* Remy avatar */}
         <div className={styles.avatarWrap} data-fragremy-avatar="">
           <div className={styles.avatar}>
             {/* Das Quadrat, in dem die Zeichnung steht, unten in `.avatar`. */}

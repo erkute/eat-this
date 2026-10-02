@@ -15,6 +15,10 @@
 // der Liste mitwandert (MapControls .fab, `--locate-bottom` pro Frame). Zwei
 // Knöpfe übereinander an einer wandernden Kante ist eine eigene Entscheidung —
 // Remy gehört dort eher in die Such-Leiste als in die Ecke.
+//
+// Nicht in Magazin-Artikeln (/news/<slug>, Ansage 02.10.2026): dort wird
+// gelesen, und der Knopf sass in der Ecke über dem Text. Die Übersicht
+// /news behält ihn.
 
 import { useCallback, useEffect, useState } from 'react';
 import Image from '@/app/components/SiteImage';
@@ -77,6 +81,7 @@ export default function RemyLauncher() {
   // Keep purchase controls unobstructed on pack pages.
   if (pathname === '/packs' || pathname.startsWith('/pack/')) return null;
   if (pathname === '/map' || pathname.startsWith('/map/')) return null;
+  if (pathname.startsWith('/news/')) return null;
 
   const label = locale === 'en' ? 'Ask Remy' : 'Frag Remy';
   const hide = locale === 'en' ? 'Hide Remy' : 'Remy ausblenden';

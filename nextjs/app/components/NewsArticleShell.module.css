@@ -265,9 +265,13 @@ div.page {
 /* Der Lesefortschritt: ein gelber Strich direkt unter der Kopfleiste, der mit
    dem Scrollen von links nach rechts wächst. Eine Scroll-Timeline des
    Browsers, kein JS — sie läuft im Takt des Scrollens. Nur ab Tablet: dort
-   scrollt `.app-pages`, und `top: 0` sitzt genau unter der Leiste; am
-   Telefon klappt die Leiste weg (SiteNav), und ein iPhone hinkt bei
-   scroll-gekoppelter Bewegung hinterher. */
+   scrollt `.app-pages`; am Telefon klappt die Leiste weg (SiteNav), und ein
+   iPhone hinkt bei scroll-gekoppelter Bewegung hinterher.
+   `.app-pages` beginnt bei 74px (globals.css), die Leiste ist aber
+   `--site-nav-h` hoch (78px): mit `top: 0` lagen 4 der 5px unter der Leiste,
+   und der übrige Pixel verschwand auf Weiss (Ansage 02.10.2026: „man sieht
+   den Fortschrittbalken nicht bei hell"). Deshalb klebt er um genau diese
+   Differenz tiefer. */
 .progress {
   display: none;
 }
@@ -299,7 +303,7 @@ div.page {
     @media (min-width: 768px) {
       .progress {
         position: sticky;
-        top: 0;
+        top: calc(var(--site-nav-h) - 74px);
         z-index: 3;
         display: block;
         height: 5px;

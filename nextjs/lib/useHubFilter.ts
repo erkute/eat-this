@@ -32,7 +32,8 @@ export function useHubFilter({
 }): HubFilter {
   const [active, setActive] = useState<string | null>(null);
   const known = useMemo(() => new Set(slugs), [slugs]);
-  const settled = useRef(false);
+  // Der Filter, zu dem zuletzt gescrollt wurde — beim Ankommen keiner.
+  const shown = useRef<string | null>(null);
 
   // Geteilte Links (?bezirk=neukoelln, ?cat=coffee) gehen gefiltert auf.
   // Bewusst erst nach dem Mount: so bleibt das SSR-Markup die vollständige
@@ -55,18 +56,21 @@ export function useHubFilter({
   );
 
   // Beim Umschalten verschwinden Einträge oberhalb des Blickfelds — ohne
-  // Korrektur steht man anschließend im Weißraum unter der Liste. Der erste
-  // Lauf wird übersprungen, damit ein Direktaufruf nicht sofort wegscrollt.
+  // Korrektur steht man anschließend im Weißraum unter der Liste. Gescrollt
+  // wird nur, wenn sich der Filter wirklich geändert hat: wer ankommt, ohne
+  // gefilterten Link, bleibt oben. Bis 02.10.2026 übersprang ein Merker nur
+  // den ersten Lauf — Reacts StrictMode lässt Effekte im Dev-Server zweimal
+  // laufen, und der zweite scrollte jede Kategorie- und Bezirksseite beim
+  // Ankommen ~310px nach unten (Ansage: „bei einem Klick drauf muss man in
+  // der Kategorie-Seite ganz oben beginnen").
   //
   // Bewusst ohne `behavior`: der Vorgabewert `auto` übernimmt das CSS
   // `scroll-behavior` — global `smooth`, und unter `prefers-reduced-motion`
   // per `!important` auf `auto` zurückgesetzt (globals.css). Ein hier fest
   // verdrahtetes `smooth` würde genau diese Regel aushebeln.
   useEffect(() => {
-    if (!settled.current) {
-      settled.current = true;
-      return;
-    }
+    if (active === shown.current) return;
+    shown.current = active;
     document.getElementById(anchorId)?.scrollIntoView({ block: 'start' });
   }, [active, anchorId]);
 

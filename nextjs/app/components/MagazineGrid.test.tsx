@@ -8,7 +8,7 @@ vi.mock('@/i18n/navigation', () => ({
   ),
 }));
 vi.mock('next/image', () => ({ default: () => null }));
-import MagazineGrid, { headlineSize } from './MagazineGrid';
+import MagazineGrid from './MagazineGrid';
 
 const articles = [
   {
@@ -42,12 +42,6 @@ describe('MagazineGrid', () => {
   it('loads the masthead lazily, so it never competes with the hero', () => {
     const html = renderToStaticMarkup(<MagazineGrid articles={articles} locale="de" />);
     expect(html).not.toContain('rel="preload"');
-  });
-  it('sizes long headlines down instead of cutting them', () => {
-    const long = 'Crapulix: Handgemachte Croissants und Canelés in Steglitz';
-    expect(headlineSize(long)).toBeLessThan(headlineSize('Beste Pizza 2026'));
-    expect(headlineSize('x'.repeat(200))).toBe(5.4);
-    expect(headlineSize('Kurz')).toBe(7.6);
   });
   it('renders nothing when empty', () => {
     expect(renderToStaticMarkup(<MagazineGrid articles={[]} locale="de" />)).toBe('');

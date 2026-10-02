@@ -26,8 +26,10 @@ describe('getLatestNewsArticles', () => {
     const result = await getLatestNewsArticles(2)
     expect(result).toEqual(sample)
     // Confirm the GROQ query asks for the newest first and slices to limit.
+    // `_id` breaks ties between articles of the same day, so the issue
+    // numbers on home, /news and the article header always agree.
     const callArgs = vi.mocked(client.fetch).mock.calls[0]
-    expect(callArgs[0]).toMatch(/order\(date desc\)/)
+    expect(callArgs[0]).toMatch(/order\(date desc, _id asc\)/)
     expect(callArgs[0]).toMatch(/\[0\.\.\.\$limit\]/)
     expect(callArgs[1]).toEqual({ limit: 2 })
   })

@@ -276,4 +276,75 @@ describe('NewsArticleShell', () => {
   it('reports a reading estimate of at least a minute', () => {
     expect(render([para('Kurz.')])).toContain('1 Min. Lesezeit');
   });
+
+  describe('issue', () => {
+    const issues = (slugs: string[]) =>
+      slugs.map(
+        (slug, i) =>
+          ({
+            _id: `id-${slug}`,
+            slug,
+            title: `Story ${slug}`,
+            date: `2026-09-${String(20 - i).padStart(2, '0')}`,
+            imageUrl: `https://cdn.sanity.io/${slug}.webp`,
+          }) as NewsArticle
+      );
+
+    const renderWith = (related: NewsArticle[], over: Partial<NewsArticle> = {}) =>
+      renderToStaticMarkup(
+        <NewsArticleShell
+          article={{
+            _id: 'news-1',
+            slug: 'doener',
+            title: 'Döner in Berlin',
+            titleDe: 'Döner in Berlin',
+            date: '2026-04-24',
+            imageUrl: 'https://cdn.sanity.io/doener.webp',
+            alt: 'Döner im Brot',
+            categoryLabelDe: 'Guides',
+            content: [para('Text.')],
+            contentDe: [para('Text.')],
+            ...over,
+          }}
+          relatedArticles={related}
+          locale="de"
+          isActive
+        />
+      );
+
+    it('names its issue in the byline, counted from the oldest article', () => {
+      // Newest first: four articles, `doener` is the second newest → Issue 3.
+      const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
+      const byline = html.slice(html.indexOf('</h1>'), html.indexOf('Min. Lesezeit'));
+      expect(byline).toContain('<span>Issue 3</span>');
+      expect(byline.indexOf('Issue 3')).toBeLessThan(byline.indexOf('24. April 2026'));
+    });
+
+    it('does not show its own cover again — the tap opened the magazine', () => {
+      const html = renderWith(issues(['pizza', 'doener', 'eis']));
+      const header = html.slice(0, html.indexOf('</header>'));
+      expect(header).not.toContain('data-magazine-cover');
+      expect(header).toContain('alt="Döner im Brot"');
+      expect(html.match(/<h1/g)).toHaveLength(1);
+    });
+
+    it('carries no number for a draft that is not in the run yet', () => {
+      const html = renderWith(issues(['pizza', 'eis']));
+      expect(html.slice(0, html.indexOf('</header>'))).not.toContain('Issue');
+    });
+
+    it('marks the page for the magazine opener to land on', () => {
+      expect(renderWith(issues(['doener']))).toContain('data-article-slug="doener"');
+    });
+
+    it('shows the next issues as covers with their own numbers', () => {
+      const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
+      const related = html.slice(html.indexOf('Weiter auf dem Teller'));
+      expect(related).toContain('href="/news/pizza"');
+      expect(related).toContain('Issue 4 · September 2026');
+      expect(related).toContain('href="/news/donuts"');
+      expect(related).toContain('Issue 1 · September 2026');
+      expect(related).not.toContain('href="/news/doener"');
+    });
+  });
 });

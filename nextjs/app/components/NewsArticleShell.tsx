@@ -14,6 +14,8 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleRail from './ArticleRail';
+import MagazineCover from './MagazineCover';
+import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import styles from './NewsArticleShell.module.css';
@@ -143,11 +145,13 @@ function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): bo
   );
 }
 
-// Article detail — magazine feature. On desktop the header splits like
-// Highsnobiety's: title, byline and lede on the left, the lead photo on the
-// right; below, the piece runs as a reading column with a sticky chapter rail
-// beside it. Inline must-eat and spot cards are driven by mustEatCard /
-// spotCard reference blocks in the body.
+// Article detail — magazine feature, the inside of the issue: a tap on a cover
+// opens the magazine and lands here (MagazineLink), so the cover itself does
+// not appear again. On desktop the header splits like Highsnobiety's: title,
+// byline and lede on the left, the lead photo on the right; below, the piece
+// runs as a reading column with a sticky chapter rail beside it. Nothing in
+// the reading column moves. Inline must-eat and spot cards are driven by
+// mustEatCard / spotCard reference blocks in the body.
 export default function NewsArticleShell({
   article,
   relatedArticles = [],
@@ -174,6 +178,15 @@ export default function NewsArticleShell({
   const readingTime = de ? `${minutes} Min. Lesezeit` : `${minutes} min read`;
   const shareLabel = de ? 'Teilen' : 'Share';
   const copiedLabel = de ? 'Kopiert' : 'Copied';
+  const coverLocale = de ? 'de' : 'en';
+  // `relatedArticles` is every article, newest first — the issue counts from
+  // the oldest, as on the home page (getHomeData). The preview of an
+  // unpublished draft is not in the list and carries no number.
+  const issueOf = (slug: string) => {
+    const at = relatedArticles.findIndex((a) => a.slug === slug);
+    return at < 0 ? null : relatedArticles.length - at;
+  };
+  const issue = issueOf(article.slug);
 
   // Inline "Must Eat" band — a flat strip in the article column, not a poster.
   // The restaurant carries the headline so two must-eats in one guide can't
@@ -333,8 +346,11 @@ export default function NewsArticleShell({
     <div className={styles.byline}>
       <span className={styles.category}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
       <span className={styles.bylineMeta}>
+        {/* Die Ausgabe, die man eben aufgeschlagen hat — wie die Kopfzeile
+            einer Heftseite. */}
+        {issue && <span>Issue {issue}</span>}
         {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-        <span className={styles.readingTime}>{readingTime}</span>
+        <span>{readingTime}</span>
       </span>
     </div>
   );
@@ -343,6 +359,7 @@ export default function NewsArticleShell({
     <div
       className={`app-page news-article-page${isActive ? ' active' : ''} ${styles.page}`}
       data-page="news-article"
+      data-article-slug={article.slug}
       id="newsModal"
     >
       <main className={styles.article}>
@@ -457,30 +474,26 @@ export default function NewsArticleShell({
                 <h2 className={styles.relatedHeading}>{moreLabel}</h2>
               </div>
               <ul className={styles.relatedGrid} role="list">
-                {recommendations.map((rec) => {
+                {recommendations.map((rec, i) => {
                   const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
                   const recCategory =
                     (de ? rec.categoryLabelDe : rec.categoryLabel) || rec.categoryLabel || '';
                   return (
                     <li key={rec.slug}>
-                      <Link href={`/news/${rec.slug}`} className={styles.relatedCard}>
-                        <span className={styles.relatedPhoto}>
-                          {rec.imageUrl && (
-                            <Image
-                              src={rec.imageUrl}
-                              alt=""
-                              fill
-                              sizes="(max-width: 767.98px) 76vw, 33vw"
-                            />
-                          )}
-                        </span>
-                        <span className={styles.relatedText}>
-                          {recCategory && (
-                            <span className={styles.relatedCategory}>{recCategory}</span>
-                          )}
-                          <span className={styles.relatedHeadline}>{recTitle}</span>
-                        </span>
-                      </Link>
+                      <MagazineLink href={`/news/${rec.slug}`} className={styles.relatedCard}>
+                        <MagazineCover
+                          title={recTitle}
+                          image={rec.imageUrl}
+                          kicker={recCategory}
+                          issue={issueOf(rec.slug)}
+                          date={rec.date}
+                          locale={coverLocale}
+                          look={i + 1}
+                          sizes="(max-width: 767.98px) 62vw, 300px"
+                          widths={[320, 480, 800]}
+                          compact
+                        />
+                      </MagazineLink>
                     </li>
                   );
                 })}

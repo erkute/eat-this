@@ -2,9 +2,9 @@ import type { CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { HubArticle } from '@/lib/home/getHomeData';
 import { deckKeyframes } from '@/lib/home/magazineDeck';
-import { sanitySrcSet } from '@/lib/sanity-image-presets';
-import sanityImageLoader from '@/lib/sanityImageLoader';
+import MagazineCover from './MagazineCover';
 import MagazineDeckDots from './MagazineDeckDots';
+import MagazineLink from './MagazineLink';
 import styles from './MagazineGrid.module.css';
 
 interface Props {
@@ -14,27 +14,6 @@ interface Props {
 
 const CARD_COUNT = 6;
 const DECK_ID = 'hub-magazine-deck';
-const MASTHEAD = '/pics/eat-this-logo.webp';
-/** Three cover styles in turn, so the stack reads as different issues:
- *  full-bleed, yellow frame, paper head. */
-const LOOKS = [styles.lookBleed, styles.lookFrame, styles.lookPaper];
-
-/** The issue's month on the cover, like a magazine: „September 2026". */
-function formatMonth(iso: string | null | undefined, locale: 'de' | 'en'): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-/** Headline size in cover widths (cqw), so every title fits whole on its
- *  cover — never cut (Ansage 01.10.2026: „alles vom Titel zu lesen"). */
-export function headlineSize(title: string): number {
-  return Math.round(Math.min(7.6, Math.max(5.4, 360 / Math.max(title.length, 1))) * 10) / 10;
-}
 
 /**
  * „Auf dem Teller" als Stapel aus Magazinen (01.10.2026, nach „Card stack"
@@ -43,10 +22,9 @@ export function headlineSize(title: string): number {
  * ältesten Artikel, siehe getHomeData), darunter das Eat-This-Logo als
  * Masthead, unten die Rubrik als Etikett über der ganzen Schlagzeile (nie
  * gekürzt, die Grösse richtet sich nach der Länge), ein Strichcode am Rand,
- * Glanz und Rücken — in drei wechselnden Stilen. Jedes Heft hat einen
- * Seitenblock aus Papierlagen rechts und unten und ist leicht in den Raum
- * gedreht, damit es dick wirkt (Ansage 01.10.: „wie ein Magazin, ein bisschen
- * dicker"). Sie liegen
+ * Glanz und Rücken — in drei wechselnden Stilen. Jedes Heft hat eine feine
+ * Papierkante und ist leicht in den Raum gedreht (die acht Papierlagen vom
+ * 01.10. wirkten am 02.10. „zu dick, eher wie ein Buch"). Sie liegen
  * als Stapel wie auf dem Tisch, die hinteren leicht verdreht und darüber
  * hinausragend. Quer wischen nimmt das oberste vom Stapel — es fliegt gedreht
  * nach links aus dem Bild —, die übrigen rücken eine Lage vor; zurückwischen
@@ -111,67 +89,34 @@ export default function MagazineGrid({ articles, locale }: Props) {
         >
           <div id={DECK_ID} className={styles.deck} data-magazine-deck="">
             <ol className={styles.track} role="list" aria-label={labels.kicker}>
-              {list.map((a, i) => {
-                const month = formatMonth(a.date, locale);
-                return (
-                  <li
-                    key={a.slug}
-                    className={styles.card}
-                    data-deck-index={i}
-                    style={
-                      {
-                        '--i': i,
-                        '--deck-key': `mag-deck-${count}-${i}`,
-                        zIndex: count - i,
-                      } as CSSProperties
-                    }
-                  >
-                    <Link href={`/news/${a.slug}`} className={styles.mag}>
-                      <span className={`${styles.cover} ${LOOKS[i % LOOKS.length]}`}>
-                        {a.image && (
-                          // Sanity serves the responsive variants itself; the App
-                          // Hosting image proxy would re-optimise them.
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            className={styles.photo}
-                            src={sanityImageLoader({ src: a.image, width: 800, quality: 80 })}
-                            srcSet={sanitySrcSet(a.image, [480, 800, 1200])}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                            sizes="(max-width: 767.98px) 80vw, 420px"
-                          />
-                        )}
-                        <span className={styles.scrim} aria-hidden="true" />
-                        <span className={styles.folio} aria-hidden="true">
-                          Issue {a.issue}
-                          {month && ` · ${month}`}
-                        </span>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          className={styles.masthead}
-                          src={MASTHEAD}
-                          alt=""
-                          aria-hidden="true"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <span className={styles.lines}>
-                          {a.kicker && <span className={styles.flash}>{a.kicker}</span>}
-                          <span
-                            className={styles.headline}
-                            style={{ '--headline': `${headlineSize(a.title)}cqw` } as CSSProperties}
-                          >
-                            {a.title}
-                          </span>
-                        </span>
-                        <span className={styles.barcode} aria-hidden="true" />
-                        <span className={styles.sheen} aria-hidden="true" />
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
+              {list.map((a, i) => (
+                <li
+                  key={a.slug}
+                  className={styles.card}
+                  data-deck-index={i}
+                  style={
+                    {
+                      '--i': i,
+                      '--deck-key': `mag-deck-${count}-${i}`,
+                      zIndex: count - i,
+                    } as CSSProperties
+                  }
+                >
+                  <MagazineLink href={`/news/${a.slug}`} className={styles.mag}>
+                    <MagazineCover
+                      title={a.title}
+                      image={a.image}
+                      kicker={a.kicker}
+                      issue={a.issue}
+                      date={a.date}
+                      locale={locale}
+                      look={i}
+                      sizes="(max-width: 767.98px) 80vw, 420px"
+                      widths={[480, 800, 1200]}
+                    />
+                  </MagazineLink>
+                </li>
+              ))}
               {/* One snap point per cover: the swipe distance between two. */}
               {list.map((a, i) => (
                 <li

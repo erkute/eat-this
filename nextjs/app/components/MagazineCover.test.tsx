@@ -37,11 +37,6 @@ describe('MagazineCover', () => {
     );
   });
 
-  it('hides the copy of a cover that only lies underneath', () => {
-    const html = renderToStaticMarkup(<MagazineCover {...base} decorative />);
-    expect(html).toMatch(/class="[^"]*lines[^"]*" aria-hidden="true"/);
-  });
-
   it('loads the page lead at once', () => {
     const html = renderToStaticMarkup(<MagazineCover {...base} priority />);
     expect(html).toContain('fetchPriority="high"');

@@ -260,8 +260,16 @@ function placeOn(page: Rect, vw: number, vh: number, at: DOMRect): string {
 export function openMagazine(options: Options): boolean {
   if (busy || !canOpenMagazine()) return false;
   busy = true;
-  void run(options)
-    .catch(() => undefined)
+  let navigated = false;
+  const navigate = () => {
+    if (navigated) return;
+    navigated = true;
+    options.navigate();
+  };
+  void run({ ...options, navigate })
+    // Bricht die Bewegung ab, führt der Tipp trotzdem in den Artikel — der
+    // Link hat seinen eigenen Klick schon abgefangen.
+    .catch(() => navigate())
     .finally(() => {
       busy = false;
     });
@@ -324,59 +332,62 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
   const tilt = style.transform && style.transform !== 'none' ? style.transform : IDENTITY;
   const turn = style.rotate && style.rotate !== 'none' ? style.rotate : '0deg';
 
-  document.body.append(overlay);
-  const vw = overlay.clientWidth;
-  const vh = overlay.clientHeight;
-  const g = bookGeometry(vw, vh);
-  Object.assign(book.style, {
-    left: `${g.left}px`,
-    top: `${g.top}px`,
-    width: `${g.w}px`,
-    height: `${g.h}px`,
-  });
-
-  // Der Umschlag in Streifen, jeder im vorigen verschachtelt und an dessen
-  // rechter Kante angeschlagen. Vorn zeigt jeder seinen Teil der Titelseite,
-  // hinten seinen Teil der Innenseite — die liegt aufgeschlagen links vom
-  // Rücken, der innerste Streifen also an ihrem rechten Ende. 2px Überlappung
-  // gegen Haarfugen.
-  const stripW = g.w / STRIPS;
-  const strips: { strip: HTMLElement; front: HTMLElement; back: HTMLElement }[] = [];
-  let holder: HTMLElement = book;
-  for (let i = 0; i < STRIPS; i++) {
-    const strip = div(classes.strip);
-    strip.style.left = `${i === 0 ? 0 : stripW}px`;
-    strip.style.width = `${stripW + (i < STRIPS - 1 ? 2 : 0)}px`;
-    const front = div(classes.front);
-    const back = div(classes.back);
-    const outside = skin();
-    outside.style.width = `${g.w}px`;
-    outside.style.left = `${-i * stripW}px`;
-    const inner = inside();
-    inner.style.width = `${g.w}px`;
-    inner.style.left = `${-(g.w - (i + 1) * stripW)}px`;
-    front.append(outside);
-    back.append(inner);
-    strip.append(front, back);
-    holder.append(strip);
-    holder = strip;
-    strips.push({ strip, front, back });
-  }
-
-  const startX = from.left + from.width / 2 - (g.left + g.w / 2);
-  const startY = from.top + from.height / 2 - (g.top + g.h / 2);
-  const startScale = (cover.offsetWidth || from.width) / g.w;
-  const cx = from.left + from.width / 2;
-  const cy = from.top + from.height / 2;
-  const reach = Math.hypot(Math.max(cx, vw - cx), Math.max(cy, vh - cy));
-
   // Was auf die Seite gelegt wird (der Artikel) und wie es dort hinkommt.
   const scene: { el: HTMLElement; at: DOMRect }[] = [];
   const nav = document.getElementById('navbar');
   const sceneAnimations: Animation[] = [];
 
-  link.style.visibility = 'hidden';
+  document.body.append(overlay);
+  // Ab hier räumt `finally` auf: die Ebene deckt die ganze Seite, sie darf
+  // nach keinem Fehler stehen bleiben.
   try {
+    const vw = overlay.clientWidth;
+    const vh = overlay.clientHeight;
+    const g = bookGeometry(vw, vh);
+    Object.assign(book.style, {
+      left: `${g.left}px`,
+      top: `${g.top}px`,
+      width: `${g.w}px`,
+      height: `${g.h}px`,
+    });
+
+    // Der Umschlag in Streifen, jeder im vorigen verschachtelt und an dessen
+    // rechter Kante angeschlagen. Vorn zeigt jeder seinen Teil der Titelseite,
+    // hinten seinen Teil der Innenseite — die liegt aufgeschlagen links vom
+    // Rücken, der innerste Streifen also an ihrem rechten Ende. 2px Überlappung
+    // gegen Haarfugen.
+    const stripW = g.w / STRIPS;
+    const strips: { strip: HTMLElement; front: HTMLElement; back: HTMLElement }[] = [];
+    let holder: HTMLElement = book;
+    for (let i = 0; i < STRIPS; i++) {
+      const strip = div(classes.strip);
+      strip.style.left = `${i === 0 ? 0 : stripW}px`;
+      strip.style.width = `${stripW + (i < STRIPS - 1 ? 2 : 0)}px`;
+      const front = div(classes.front);
+      const back = div(classes.back);
+      const outside = skin();
+      outside.style.width = `${g.w}px`;
+      outside.style.left = `${-i * stripW}px`;
+      const inner = inside();
+      inner.style.width = `${g.w}px`;
+      inner.style.left = `${-(g.w - (i + 1) * stripW)}px`;
+      front.append(outside);
+      back.append(inner);
+      strip.append(front, back);
+      holder.append(strip);
+      holder = strip;
+      strips.push({ strip, front, back });
+    }
+
+    const startX = from.left + from.width / 2 - (g.left + g.w / 2);
+    const startY = from.top + from.height / 2 - (g.top + g.h / 2);
+    const startScale = (cover.offsetWidth || from.width) / g.w;
+    const cx = from.left + from.width / 2;
+    const cy = from.top + from.height / 2;
+    const reach = Math.hypot(Math.max(cx, vw - cx), Math.max(cy, vh - cy));
+
+    link.style.visibility = 'hidden';
+
     // 1 — hochheben, der Tisch zieht sich zu.
     const lift = book.animate(
       [

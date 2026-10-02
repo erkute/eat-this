@@ -243,30 +243,35 @@
   list-style: none;
 }
 
+/* Die Neigung steht als Variable am Platz, nicht als `rotate` mit
+   `:nth-child` am Heft: so ein Selektor ist spezifischer als `.mag:hover`, und
+   unter der Maus lagen das zweite bis vierte Heft weiter schief. */
 .slot {
+  --tilt: -1.4deg;
+
   min-width: 0;
+}
+
+.slot:nth-child(4n + 2) {
+  --tilt: 1.1deg;
+}
+
+.slot:nth-child(4n + 3) {
+  --tilt: 0.6deg;
+}
+
+.slot:nth-child(4n + 4) {
+  --tilt: -0.8deg;
 }
 
 .mag {
   display: block;
   color: var(--et-white);
   text-decoration: none;
-  rotate: -1.4deg;
+  rotate: var(--tilt);
   transition:
     translate 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
     rotate 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.slot:nth-child(4n + 2) .mag {
-  rotate: 1.1deg;
-}
-
-.slot:nth-child(4n + 3) .mag {
-  rotate: 0.6deg;
-}
-
-.slot:nth-child(4n + 4) .mag {
-  rotate: -0.8deg;
 }
 
 .mag:focus-visible {

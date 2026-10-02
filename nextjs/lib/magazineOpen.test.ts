@@ -172,6 +172,18 @@ describe('openMagazine', () => {
     expect(article?.style.clipPath).toBe('');
   });
 
+  it('still leads to the article when the animation breaks', async () => {
+    const { link, cover } = magazine();
+    animate.mockImplementationOnce(() => {
+      throw new Error('no animation');
+    });
+    const navigate = vi.fn();
+    expect(openMagazine({ link, cover, slug: 'kaffee', navigate, classes })).toBe(true);
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
+    expect(link.style.visibility).toBe('');
+  });
+
   it('opens again once the first one has landed', async () => {
     const { link, cover } = magazine();
     land('eis');

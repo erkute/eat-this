@@ -105,7 +105,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                     look={i + 1}
                     sizes="(max-width: 767.98px) 74vw, 440px"
                     widths={[480, 800]}
-                    decorative
                   />
                 </span>
               ))}
@@ -157,7 +156,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
             </div>
             <ul className={styles.shelf} role="list">
               {older.map((a, i) => (
-                <li key={a.slug} className={styles.slot} style={{ '--n': i } as CSSProperties}>
+                <li key={a.slug} className={styles.slot}>
                   <MagazineLink href={`/news/${a.slug}`} className={styles.mag}>
                     <MagazineCover
                       title={titleOf(a)}

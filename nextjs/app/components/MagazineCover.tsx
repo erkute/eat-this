@@ -44,9 +44,6 @@ interface Props {
   /** Small covers (archive shelf, related row): type keeps a legible floor
    *  in px, where pure `cqw` would shrink below reading size. */
   compact?: boolean;
-  /** A cover that only lies underneath (the pile on /news) — its copy is
-   *  hidden from screen readers. */
-  decorative?: boolean;
 }
 
 /**
@@ -75,7 +72,6 @@ export default function MagazineCover({
   widths = [480, 800, 1200],
   priority = false,
   compact = false,
-  decorative = false,
 }: Props) {
   const month = formatMonth(date, locale);
   const folio = [issue ? `Issue ${issue}` : '', month].filter(Boolean).join(' · ');
@@ -116,7 +112,7 @@ export default function MagazineCover({
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
       />
-      <span className={styles.lines} aria-hidden={decorative || undefined}>
+      <span className={styles.lines}>
         {kicker && <span className={styles.flash}>{kicker}</span>}
         <span
           className={styles.headline}

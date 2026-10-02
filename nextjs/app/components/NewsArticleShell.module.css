@@ -793,25 +793,27 @@ div.page {
 
 /* „Weiter auf dem Teller": die nächsten Ausgaben als kleine Hefte
    (MagazineCover), jedes ein wenig anders gedreht wie in der Auslage des
-   Index. Unter der Maus hebt sich eins und liegt gerade. */
+   Index. Unter der Maus hebt sich eins und liegt gerade. Die Neigung steht
+   als Variable am Listenpunkt: als `rotate` mit `:nth-child` wäre sie
+   spezifischer als `.relatedCard:hover`, und das Heft bliebe schief. */
+.relatedGrid > li:nth-child(2) {
+  --tilt: 1deg;
+}
+
+.relatedGrid > li:nth-child(3) {
+  --tilt: -0.5deg;
+}
+
 .relatedCard {
   display: block;
   width: 100%;
   min-width: 0;
   color: var(--article-fg);
   text-decoration: none;
-  rotate: -1.2deg;
+  rotate: var(--tilt, -1.2deg);
   transition:
     translate 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
     rotate 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.relatedGrid > li:nth-child(2) .relatedCard {
-  rotate: 1deg;
-}
-
-.relatedGrid > li:nth-child(3) .relatedCard {
-  rotate: -0.5deg;
 }
 
 .relatedCard:active {

@@ -451,14 +451,6 @@ export const categoryBySlugQuery = `
   }
 `;
 
-// All news articles — newest first
-// Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1) — auf der
-// Startseite, im Magazin-Index und im Artikelkopf. Dafür brauchen alle drei
-// dieselbe Menge und eine feste Reihenfolge: viele Artikel teilen sich ein
-// Datum (am 26.08.2026 sechzehn), und ohne zweiten Schlüssel ist die
-// Reihenfolge innerhalb eines Tages nicht zugesagt — dasselbe Heft trüge sonst
-// je nach Seite eine andere Nummer. `_id` hält die Reihenfolge, die Sanity
-// bisher von sich aus lieferte.
 // Das Heft-Cover (lib/magazineCover.ts): gewählter Look, ob ein Gericht
 // erkannt ist, der Freisteller samt Rahmen und Pixelmassen — die braucht
 // „Vor dem Logo“, um Foto und Freisteller deckungsgleich zu legen — und die
@@ -477,6 +469,14 @@ const newsCoverProjection = `"cover": {
     }
   }`;
 
+// All news articles — newest first
+// Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1) — auf der
+// Startseite, im Magazin-Index und im Artikelkopf. Dafür brauchen alle drei
+// dieselbe Menge und eine feste Reihenfolge: viele Artikel teilen sich ein
+// Datum (am 26.08.2026 sechzehn), und ohne zweiten Schlüssel ist die
+// Reihenfolge innerhalb eines Tages nicht zugesagt — dasselbe Heft trüge sonst
+// je nach Seite eine andere Nummer. `_id` hält die Reihenfolge, die Sanity
+// bisher von sich aus lieferte.
 const publishedNews = `_type == "newsArticle" && defined(slug.current)`;
 const newsOrder = `date desc, _id asc`;
 
@@ -509,7 +509,6 @@ export const latestNewsArticlesQuery = `{
     "slug": slug.current,
     date,
     excerpt, excerptDe,
-    categoryLabel, categoryLabelDe,
     "imageUrl": ${groqImageUrl('image', 'card')},
     ${newsCoverProjection}
   }

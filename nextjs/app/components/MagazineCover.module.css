@@ -51,8 +51,8 @@
 }
 
 /* ── Schrift ─────────────────────────────────────────────────────────── */
-/* Die Schlagzeile: ganz, nie gekürzt; die Grösse (`--size`) setzt die
-   Komponente nach der Länge. Zeilenhöhe statt Polster für die Unterlänge
+/* Die Schlagzeile: ganz, nie gekürzt (Ansage 01.10.2026: „alles vom Titel
+   zu lesen"); die Grösse (`--size`) setzt die Komponente nach der Länge. Zeilenhöhe statt Polster für die Unterlänge
    von Providence (siehe providence-unterlaenge). */
 .headline {
   display: block;

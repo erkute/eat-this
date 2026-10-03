@@ -174,7 +174,8 @@ export const restaurantsByBezirkQuery = `
     lng,
     tip,
     tipEn,
-    "photo": ${publishableRestaurantImageUrl('image', 'card')}
+    "photo": ${publishableRestaurantImageUrl('image', 'card')},
+    _updatedAt
   }
 `;
 
@@ -518,7 +519,10 @@ export const guideTeaserBySlugQuery = `
     ),
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},
-    "noIndex": seo.noIndex == true
+    "noIndex": seo.noIndex == true,
+    // Die Ausgabennummer wie auf /news (Anzahl − Position in derselben
+    // Reihenfolge), damit das Heft auf der Bezirksseite dieselbe trägt.
+    "issue": count(*[${publishedNews}]) - count(*[${publishedNews} && (date > ^.date || (date == ^.date && _id < ^._id))])
   }
 `;
 

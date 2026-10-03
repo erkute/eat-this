@@ -1,6 +1,5 @@
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
 import {
   getBezirkBySlug,
@@ -22,11 +21,16 @@ import {
 import { rankCurated } from '@/lib/curated-ranking';
 import { bezirkCategoryLinks, bezirkGuideSlugs } from '@/lib/seo/crossLinks';
 import type { RestaurantCard } from '@/lib/types';
-import styles from '@/app/components/HubPage.module.css';
-import { HubSpotCards, HubSpotRows, hubTitleStyle } from '@/app/components/HubSpots';
-import MapPromoCTA from '@/app/components/MapPromoCTA';
-import HubSiblings from '@/app/components/HubSiblings';
-import GuideCrossLinks from '@/app/components/GuideCrossLinks';
+import styles from '@/app/components/BezirkIssue.module.css';
+import {
+  IssueContents,
+  IssueFaq,
+  IssueGuides,
+  IssueRegister,
+  IssueSiblings,
+  IssueSpots,
+} from '@/app/components/BezirkIssue';
+import MapIntentLink from '@/app/components/MapIntentLink';
 import {
   HubFilterProvider,
   HubFilterBar,
@@ -40,9 +44,9 @@ interface PageProps {
 }
 
 /**
- * Bis zu so vielen Spots trägt auch eine Seite ohne Bestenliste große Karten;
- * darüber wird das Verzeichnis zu Zeilen, sonst scrollt man an Dutzenden
- * Fotos vorbei, um einen Namen zu finden.
+ * Bis zu so vielen Spots trägt auch eine Seite ohne Bestenliste Kapitel;
+ * darüber wird alles zum Register, sonst scrollt man an Dutzenden Fotos
+ * vorbei, um einen Namen zu finden.
  */
 const CARD_LIMIT = 12;
 
@@ -115,6 +119,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+/** „Oktober 2026" — der Monat, in dem zuletzt ein Spot des Bezirks gepflegt
+ *  wurde. Leer, wenn keiner ein Datum trägt. */
+function latestMonth(restaurants: RestaurantCard[], locale: 'de' | 'en'): string {
+  const latest = restaurants.reduce((max, r) => (r._updatedAt && r._updatedAt > max ? r._updatedAt : max), '');
+  if (!latest) return '';
+  return new Date(latest).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Europe/Berlin',
+  });
+}
+
 /** Erster Satz samt Satzzeichen; ohne Satzzeichen der ganze Text. */
 function firstSentence(text: string): string {
   const match = text.match(/^.*?[.!?](?=\s|$)/);
@@ -167,12 +183,10 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     locale: loc,
     curated: top,
   });
-  // Only the district's own picture. Falling back to a restaurant photo put a
-  // spot in the banner that the grid below lists again — and captioned it,
-  // so the banner read as a recommendation of its own.
-  const heroImage = b.imageUrl;
-  const heroImageAlt = de ? `Essen in ${b.name}` : `Food in ${b.name}`;
-  const titleStyle = hubTitleStyle(b.name);
+  // Kein Bezirk hat in Sanity ein eigenes Foto (Stand 03.10.2026); statt
+  // eines Banners zeigt der Kopf die Kapitel als Bildleiste. Ein Spotfoto als
+  // Banner las sich früher wie eine eigene Empfehlung.
+  const updated = latestMonth(restaurants, loc);
 
   // Nur Bezirke, die auch etwas zu zeigen haben — ein Link auf einen leeren
   // Hub liefe in dieselbe Weiterleitung zur Übersicht wie diese Seite oben.
@@ -212,41 +226,39 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <header className={`${styles.hero} ${heroImage ? styles.heroWithMedia : ''}`}>
-          <div className={styles.heroCopy}>
-            {/* „Restaurants in" ist Teil der H1 — die Suchen lauten
-                „restaurants berlin mitte", nicht „mitte". Optisch die gelbe
-                Einordnung über dem Namen. Gleiche Phrase in beiden Sprachen. */}
-            <h1 className={styles.title} style={titleStyle}>
-              <span className={styles.kicker}>Restaurants in</span>
-              {b.name}
-            </h1>
-            <p className={styles.lede}>
-              {heroLede ||
-                (de ? `Die besten Restaurants in ${b.name}` : `The best restaurants in ${b.name}`)}
-            </p>
-            <div className={styles.heroActions}>
-              <MapPromoCTA
-                variant="band"
-                kind="bezirk"
-                name={b.name}
-                mapHref={`/map?bezirk=${slug}`}
-                locale={loc}
-              />
-            </div>
-          </div>
-          {heroImage && (
-            <figure className={styles.heroMedia}>
-              <Image
-                src={heroImage}
-                alt={heroImageAlt}
-                fill
-                priority
-                sizes="(max-width: 899px) 100vw, 46vw"
-              />
-            </figure>
-          )}
+        <header className={styles.head}>
+          <p className={styles.kicker}>{de ? 'Bezirk' : 'District'}</p>
+          {/* „Restaurants in" ist Teil der H1 — die Suchen lauten
+              „restaurants berlin mitte", nicht „mitte". Gleiche Phrase in
+              beiden Sprachen. */}
+          <h1 className={styles.title}>
+            <span className={styles.pre}>Restaurants in</span>
+            <span className={styles.name}>{b.name}</span>
+          </h1>
+          <p className={styles.credits}>
+            <span>{de ? 'Von Eat This kuratiert' : 'Curated by Eat This'}</span>
+            {updated && <span>{de ? `Stand ${updated}` : `Updated ${updated}`}</span>}
+          </p>
         </header>
+
+        {leadAsCards && (
+          <IssueContents restaurants={lead} label={de ? 'Die Spots' : 'The spots'} />
+        )}
+
+        <p className={styles.lede}>
+          {heroLede ||
+            (de ? `Die besten Restaurants in ${b.name}` : `The best restaurants in ${b.name}`)}
+        </p>
+        <div className={styles.actions}>
+          <MapIntentLink
+            href={`/map?bezirk=${slug}`}
+            rel="nofollow"
+            className={styles.btn}
+            aria-label={de ? `${b.name} auf der Map öffnen` : `Open ${b.name} on the map`}
+          >
+            {de ? 'Zur Map' : 'On the map'}
+          </MapIntentLink>
+        </div>
 
         <HubFilterProvider queryKey="cat" slugs={categoryFilters.map((c) => c.slug)}>
           {/* Filtert die Liste an Ort und Stelle. Bis 25.08.2026 stand hier
@@ -264,6 +276,12 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               groupLabel={
                 de ? `In ${b.name} nach Kategorie filtern` : `Filter ${b.name} by category`
               }
+              classNames={{
+                status: styles.filterStatus,
+                bar: styles.filterBar,
+                rail: styles.filterRail,
+                chip: styles.filterChip,
+              }}
             />
           )}
 
@@ -273,28 +291,18 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               nirgendwohin. */}
           <div id={SPOT_LIST_ID} className={styles.spotList}>
             <HubFilterGroup slugs={slugsIn(lead)}>
-              <section className={styles.section}>
-                <div className={styles.sectionHead}>
-                  <h2 className={styles.sectionTitle}>
-                    {top.length > 0
-                      ? buildBezirkBestOfHeading(b.name, loc)
-                      : de
-                        ? 'Wo du essen solltest'
-                        : 'Where to eat'}
-                  </h2>
-                </div>
+              <section>
+                <h2 className={styles.secTitle}>
+                  {top.length > 0
+                    ? buildBezirkBestOfHeading(b.name, loc)
+                    : de
+                      ? 'Wo du essen solltest'
+                      : 'Where to eat'}
+                </h2>
                 {leadAsCards ? (
-                  <HubSpotCards
-                    restaurants={lead}
-                    locale={loc}
-                    facetsOf={categorySlugsOf}
-                    ranked={top.length > 0}
-                    // Nur ohne Bezirksbild: sonst führt der Banner (priority), und
-                    // ein zweites eiliges Bild nähme ihm die Bandbreite.
-                    eagerFirst={!heroImage}
-                  />
+                  <IssueSpots restaurants={lead} locale={loc} facetsOf={categorySlugsOf} />
                 ) : (
-                  <HubSpotRows restaurants={lead} locale={loc} facetsOf={categorySlugsOf} />
+                  <IssueRegister restaurants={lead} locale={loc} facetsOf={categorySlugsOf} />
                 )}
               </section>
             </HubFilterGroup>
@@ -304,11 +312,9 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               gecrawlt werden. */}
             {top.length > 0 && rest.length > 0 && (
               <HubFilterGroup slugs={slugsIn(rest)}>
-                <section className={`${styles.section} ${styles.sectionGap}`}>
-                  <div className={styles.sectionHead}>
-                    <h2 className={styles.sectionTitle}>{buildBezirkDirectoryHeading(loc)}</h2>
-                  </div>
-                  <HubSpotRows restaurants={rest} locale={loc} facetsOf={categorySlugsOf} />
+                <section>
+                  <h2 className={styles.secTitle}>{buildBezirkDirectoryHeading(loc)}</h2>
+                  <IssueRegister restaurants={rest} locale={loc} facetsOf={categorySlugsOf} />
                 </section>
               </HubFilterGroup>
             )}
@@ -316,36 +322,19 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         </HubFilterProvider>
 
         {/* Siehe bezirkGuideSlugs — die Zuordnung Hub → Guide. */}
-        <GuideCrossLinks guides={guides} locale={loc} />
+        <IssueGuides
+          guides={guides}
+          locale={loc}
+          heading={de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
+        />
 
-        <div className={styles.promo}>
-          <MapPromoCTA kind="bezirk" name={b.name} mapHref={`/map?bezirk=${slug}`} locale={loc} />
-        </div>
-
-        {faqEntries.length > 0 && (
-          <section className={styles.faq} aria-labelledby="faq-title">
-            <div className={styles.sectionHead}>
-              <h2 id="faq-title" className={styles.sectionTitle}>
-                {de ? 'Häufige Fragen' : 'Frequently asked'}
-              </h2>
-            </div>
-            <div className={styles.faqList}>
-              {faqEntries.map((entry, i) => (
-                <details key={i} className={styles.faqRow}>
-                  <summary>{entry.question}</summary>
-                  <p className={styles.faqAnswer}>{entry.answer}</p>
-                </details>
-              ))}
-            </div>
-          </section>
-        )}
+        <IssueFaq entries={faqEntries} heading={de ? 'Häufige Fragen' : 'Frequently asked'} />
 
         {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und wo noch?". */}
-        <HubSiblings
+        <IssueSiblings
           items={nachbarBezirke}
-          base="/bezirk"
           heading={de ? 'Auch in Berlin' : 'Elsewhere in Berlin'}
-          ariaLabel={de ? 'Weitere Bezirke' : 'More districts'}
+          label={de ? 'Weitere Bezirke' : 'More districts'}
         />
       </main>
     </>

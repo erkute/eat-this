@@ -4,6 +4,19 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 describe('critical auth bootstrap', () => {
+  // Die Bezirksseite steht auf Weiss (Heftlook), der Index /bezirk auf Ink —
+  // globals.css unterscheidet sie am Seitennamen. Bootstrap und SiteNav
+  // müssen ihn gleich vergeben, sonst blitzt beim Laden der falsche Grund.
+  it('names a district page apart from the district index, like SiteNav', () => {
+    const layout = readFileSync(join(process.cwd(), 'app/[locale]/layout.tsx'), 'utf8')
+    const nav = readFileSync(join(process.cwd(), 'app/components/SiteNav.tsx'), 'utf8')
+    const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8')
+
+    expect(layout).toContain("else if(p.indexOf('/bezirk/')===0&&p.length>8)slug='bezirk-detail';")
+    expect(nav).toContain("if (path.startsWith('/bezirk/') && path.length > 8) return 'bezirk-detail';")
+    expect(css).toMatch(/html\[data-active-page='bezirk-detail'\] \.app-pages \{\s*background: var\(--et-white\);/)
+  })
+
   it('uses the cached auth hint only for a pre-paint flag', () => {
     const source = readFileSync(join(process.cwd(), 'app/[locale]/layout.tsx'), 'utf8')
     const bootstrap = source.match(/const CRITICAL_BOOTSTRAP = `([\s\S]*?)`;/)?.[1]

@@ -100,6 +100,7 @@ export function HubFilterBar({
   allLabel,
   allStatus,
   groupLabel,
+  classNames,
 }: {
   facets: HubFacet[];
   /** Beschriftung des Zurücksetzen-Chips („Alle" / „All"). */
@@ -107,22 +108,31 @@ export function HubFilterBar({
   allStatus: string;
   /** aria-label der Chip-Gruppe. */
   groupLabel: string;
+  /** Eigene Klassen statt der Chips — die Bezirksseite setzt die Leiste als
+   *  Rubrikenzeile (BezirkIssue.module.css). */
+  classNames?: { status: string; bar: string; rail: string; chip: string };
 }) {
   const { active, select } = useContext(HubFilterContext);
   const current = facets.find((f) => f.slug === active) ?? null;
+  const cls = classNames ?? {
+    status: styles.filterStatus,
+    bar: styles.filterBar,
+    rail: styles.filterRail,
+    chip: styles.filterChip,
+  };
 
   // Statuszeile und Leiste als Geschwister: die Leiste klebt (`sticky`) und
   // muss dafür direktes Kind des hohen Seitenblocks sein.
   return (
     <>
-      <p className={styles.filterStatus} role="status">
+      <p className={cls.status} role="status">
         {current ? current.status : allStatus}
       </p>
-      <div className={styles.filterBar}>
-        <div className={styles.filterRail} role="group" aria-label={groupLabel}>
+      <div className={cls.bar}>
+        <div className={cls.rail} role="group" aria-label={groupLabel}>
           <button
             type="button"
-            className={styles.filterChip}
+            className={cls.chip}
             aria-pressed={active === null}
             onClick={() => select(null)}
           >
@@ -132,7 +142,7 @@ export function HubFilterBar({
             <button
               key={f.slug}
               type="button"
-              className={styles.filterChip}
+              className={cls.chip}
               aria-pressed={active === f.slug}
               onClick={() => select(active === f.slug ? null : f.slug)}
             >

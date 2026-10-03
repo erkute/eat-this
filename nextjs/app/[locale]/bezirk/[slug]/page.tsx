@@ -21,15 +21,16 @@ import {
 import { rankCurated } from '@/lib/curated-ranking';
 import { bezirkCategoryLinks, bezirkGuideSlugs } from '@/lib/seo/crossLinks';
 import type { RestaurantCard } from '@/lib/types';
-import styles from '@/app/components/BezirkIssue.module.css';
+import styles from '@/app/components/HubIssue.module.css';
 import {
   IssueContents,
   IssueFaq,
+  latestMonth,
   IssueGuides,
   IssueRegister,
   IssueSiblings,
   IssueSpots,
-} from '@/app/components/BezirkIssue';
+} from '@/app/components/HubIssue';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import {
   HubFilterProvider,
@@ -117,21 +118,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       locale: toOgLocale(loc),
     },
   };
-}
-
-/** „Oktober 2026" — der Monat, in dem zuletzt ein Spot des Bezirks gepflegt
- *  wurde. Leer, wenn keiner ein Datum trägt. */
-function latestMonth(restaurants: RestaurantCard[], locale: 'de' | 'en'): string {
-  const latest = restaurants.reduce(
-    (max, r) => (r._updatedAt && r._updatedAt > max ? r._updatedAt : max),
-    ''
-  );
-  if (!latest) return '';
-  return new Date(latest).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'Europe/Berlin',
-  });
 }
 
 /** Erster Satz samt Satzzeichen; ohne Satzzeichen der ganze Text. */
@@ -279,12 +265,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               groupLabel={
                 de ? `In ${b.name} nach Kategorie filtern` : `Filter ${b.name} by category`
               }
-              classNames={{
-                status: styles.filterStatus,
-                bar: styles.filterBar,
-                rail: styles.filterRail,
-                chip: styles.filterChip,
-              }}
             />
           )}
 
@@ -336,6 +316,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und wo noch?". */}
         <IssueSiblings
           items={nachbarBezirke}
+          base="/bezirk"
           heading={de ? 'Auch in Berlin' : 'Elsewhere in Berlin'}
           label={de ? 'Weitere Bezirke' : 'More districts'}
         />

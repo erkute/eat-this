@@ -1,9 +1,9 @@
-/* Die Bezirksseite im Heftlook (BezirkIssue.tsx), Entwurf A „Die Ausgabe"
-   vom 03.10.2026: gesetzt wie der Artikel (NewsArticleShell.module.css) —
-   weisser Grund, alles mittig, Providence gross für Titel, Kapitel und
-   Labels, Inter für den Lesetext, Rot für Überschriften, Gelb als Akzent.
-   Den Grund selbst stellt globals.css an html/body/.app-pages um
-   (`data-active-page='bezirk-detail'`). */
+/* Die Hub-Seiten im Heftlook (HubIssue.tsx), Entwurf A „Die Ausgabe" vom
+   03.10.2026 — Bezirke, Kategorien und ihre beiden Übersichten: gesetzt wie
+   der Artikel (NewsArticleShell.module.css) — weisser Grund, alles mittig,
+   Providence gross für Titel, Kapitel und Labels, Inter für den Lesetext,
+   Rot für Überschriften, Gelb als Akzent. Den Grund selbst stellt
+   globals.css an html/body/.app-pages um. */
 .page {
   --issue-gutter: clamp(18px, 4vw, 54px);
   --issue-measure: 660px;
@@ -87,6 +87,24 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .name {
   display: block;
   font-size: min(150px, 15cqi);
+  text-wrap: balance;
+}
+
+/* „in Berlin" unter dem Kategorienamen — dieselbe Zeile wie „Restaurants
+   in" über dem Bezirk, nur darunter. */
+.post {
+  display: block;
+  margin-top: 0.4em;
+  font-size: clamp(18px, 1.8vw, 26px);
+  letter-spacing: 0.08em;
+}
+
+/* Die Übersichten tragen einen ganzen Satz als Titel („Berlin nach
+   Bezirk"), kleiner als ein einzelner Name. */
+.indexTitle {
+  display: block;
+  max-width: 14ch;
+  font-size: min(110px, 11cqi);
   text-wrap: balance;
 }
 
@@ -322,6 +340,25 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   }
 }
 
+/* Die Provider-Hülle ist der Bereich, in dem die Leiste klebt: Leiste plus
+   Listen. Bis 25.09.2026 löste sie sich per `display: contents` auf — die
+   Leiste klebte dann an `main` und lief über Magazin und FAQ bis zum
+   Seitenende mit, obwohl sie dort nichts mehr filtert. */
+.filterScope {
+  display: block;
+}
+
+/* Die Hülle um einen filterbaren Spot (HubFilterCard) stellt sich nicht
+   zwischen Liste und Spot. `hidden` braucht dann die Klasse mit Attribut —
+   `display: contents` hebelte es sonst aus. */
+.cardSlot {
+  display: contents;
+}
+
+.cardSlot[hidden] {
+  display: none;
+}
+
 /* Sprungziel nach einem Filterwechsel: hält Navigation und Rubrikenzeile
    frei. */
 .spotList {
@@ -414,6 +451,33 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   min-height: 40px;
   padding: 0 18px;
   font-size: 15px;
+}
+
+/* „Die 6 besten, ausgewählt von [Logo]" unter dem Abschnittstitel der
+   Kategorieseite — fällt mit einem aktiven Filter weg (HubFilterUnfiltered). */
+.secNote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 18px 0 0;
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.inlineLogo {
+  width: auto;
+  height: 20px;
+}
+
+/* Das Booster-Pack der Kategorie nach der Bestenliste, in der Breite der
+   Lesespalte. */
+.boost {
+  max-width: var(--issue-measure);
+  margin: clamp(64px, 7vw, 104px) auto 0;
 }
 
 /* ------------------------------------------------------------ register -- */
@@ -566,6 +630,108 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   color: inherit;
   text-decoration: none;
   white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ übersicht -- */
+
+/* Die Übersichten als Register: zwei Spalten ab Tablet, je Eintrag der Name
+   gross in Rot, ein Satz und vier Spots. */
+.directory {
+  display: grid;
+  gap: clamp(56px, 6vw, 88px) 64px;
+  width: min(100%, var(--issue-wide));
+  margin: clamp(56px, 6vw, 96px) auto 0;
+}
+
+@media (min-width: 900px) {
+  .directory {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.dirHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dirArt {
+  flex: none;
+  width: 44px;
+  height: auto;
+  rotate: -6deg;
+}
+
+.dirName {
+  margin: 0;
+  color: var(--et-red);
+  font-size: clamp(34px, 4vw, 54px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
+  text-transform: uppercase;
+}
+
+.dirName a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dirCta {
+  flex: none;
+  margin-left: auto;
+  padding: 9px 14px 8px;
+  background: var(--et-quiet);
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background-color 140ms ease;
+}
+
+@media (hover: hover) {
+  .dirCta:hover {
+    background: var(--et-accent);
+  }
+
+  .dirName a:hover {
+    color: var(--et-ink);
+  }
+}
+
+.dirCta:focus-visible,
+.dirName a:focus-visible,
+.dirStrip a:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 3px;
+}
+
+.dirBlurb {
+  max-width: 560px;
+  margin: 14px 0 0;
+  font-family: var(--et-font-body);
+  font-size: clamp(16px, 1.2vw, 18px);
+  line-height: 1.55;
+}
+
+.dirStrip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dirStrip a {
+  display: grid;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
 }
 
 /* ------------------------------------------------------------- telefon -- */

@@ -3,30 +3,28 @@ import MapIntentLink from './MapIntentLink';
 import styles from './MapPromoCTA.module.css';
 import { BRAND_LOGO_SRC } from '@/lib/constants';
 
-type Kind = 'restaurant' | 'bezirk' | 'kategorie';
+/** Nur noch die Restaurant-Seite zeigt die Tafel: `restaurant` für einen
+ *  Spot auf der Map, `bezirk` für einen, der dort nicht steht (dann führt sie
+ *  auf die ganze Map). Bezirks- und Kategorieseiten stehen seit 03.10.2026 im Heftlook und
+ *  haben stattdessen ihren „Zur Map"-Knopf (HubIssue). */
+type Kind = 'restaurant' | 'bezirk';
 
 interface Props {
   kind: Kind;
-  /** Restaurant / Bezirk / Kategorie name for {name} interpolation. */
+  /** Restaurant name for {name} interpolation. */
   name: string;
-  /** Locale-relative deep-link into /map — immer mit Query (`?r=`, `?bezirk=`,
-   *  `?cat=`), deshalb tragen alle drei Varianten unten rel="nofollow". */
+  /** Locale-relative deep-link into /map. Trägt sie eine Query (`?r=`), wäre
+   *  ein gefolgter Link eine eigene Variante in der Search Console — deshalb
+   *  rel="nofollow" unten. */
   mapHref: string;
   locale: 'de' | 'en';
-  variant?: 'block' | 'chip' | 'band';
 }
 
 // All map-promo wording lives here — single place to wordsmith. Brand voice:
 // declarative, no "gratis/free", no spot counts, no cheesy framing.
-// Der Slogan bleibt auch auf DE englisch. Die schmale Pille trägt ihn nicht —
-// dort steht `chipLabel`, siehe unten.
+// Der Slogan bleibt auch auf DE englisch.
 /** Headline des Banners — auf jeder Fläche dieselbe, das ist die Marke. */
 const SLOGAN = 'The map for people who care about food.';
-
-/** Pillen-Label — bewusst neutral: auf welcher Seite man steht, sagt die Seite
- *  selbst, die Pille muss nur den Weg zur Map zeigen. */
-const chipLabel = (locale: 'de' | 'en') =>
-  locale === 'de' ? 'Auf der Map öffnen' : 'Open on the map';
 
 function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { sub: string } {
   const de = locale === 'de';
@@ -51,58 +49,12 @@ function getCopy(kind: Kind, name: string, locale: 'de' | 'en'): { sub: string }
         : {
             sub: `The map doesn't stop at the district line. It shows you hand-picked restaurants, cafés and bars across Berlin — and what to order there. Open it and see what's near you.`,
           };
-    case 'kategorie':
-      return de
-        ? {
-            sub: `Auf der Map steht nicht nur ${name}. Sie zeigt dir handverlesene Restaurants, Cafés und Bars in ganz Berlin — und was du dort bestellen solltest. Mach sie auf und schau, was in deiner Nähe liegt.`,
-          }
-        : {
-            sub: `The map holds more than ${name}. It shows you hand-picked restaurants, cafés and bars across Berlin — and what to order there. Open it and see what's near you.`,
-          };
   }
 }
 
-const pin = (
-  <svg
-    width="22"
-    height="26"
-    viewBox="0 0 22 26"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.4"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M11 24.5C11 24.5 19.5 16.6 19.5 10.5a8.5 8.5 0 1 0-17 0C2.5 16.6 11 24.5 11 24.5Z" />
-    <circle cx="11" cy="10.4" r="3.1" />
-  </svg>
-);
-
-export default function MapPromoCTA({ kind, name, mapHref, locale, variant = 'block' }: Props) {
+export default function MapPromoCTA({ kind, name, mapHref, locale }: Props) {
   const { sub } = getCopy(kind, name, locale);
   const ctaLabel = locale === 'de' ? 'Map öffnen' : 'Open the map';
-
-  // Die frühe Map-CTA unter dem Opener — derselbe Knopf wie im Hero der
-  // Startseite, nur mit dem gelben Pin davor.
-  if (variant === 'band') {
-    const label = chipLabel(locale);
-    return (
-      <MapIntentLink href={mapHref} rel="nofollow" className={styles.band} aria-label={label}>
-        <span className={styles.bandMark}>{pin}</span>
-        <span>{label}</span>
-      </MapIntentLink>
-    );
-  }
-
-  if (variant === 'chip') {
-    const label = chipLabel(locale);
-    return (
-      <MapIntentLink href={mapHref} rel="nofollow" className={styles.chip} aria-label={label}>
-        <span>{label}</span>
-      </MapIntentLink>
-    );
-  }
 
   return (
     <section className={styles.promo} aria-label={SLOGAN}>

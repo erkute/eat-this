@@ -48,24 +48,12 @@ describe('MapPromoCTA', () => {
     expect(html).toContain('Map öffnen');
   });
 
-  it('renders EN copy + interpolated category name', () => {
-    const html = render({
-      kind: 'kategorie',
-      name: 'Pizza',
-      mapHref: '/map?cat=pizza',
-      locale: 'en',
-    });
-    expect(html).toContain('/map?cat=pizza');
-    expect(html).toContain('The map holds more than Pizza.');
-    expect(html).toContain('Open the map');
-  });
-
-  it.each(['restaurant', 'bezirk', 'kategorie'] as const)(
+  it.each(['restaurant', 'bezirk'] as const)(
     'leads the %s banner with the brand slogan, not the place',
     (kind) => {
       const html = render({ kind, name: 'Neukölln', mapHref: '/map', locale: 'de' });
       expect(html).toContain('<span>The map for people</span> <span>who care about food.</span>');
-      // Der ortsspezifische Titel gehört in die Pille, nicht in die Headline.
+      // Der Ort gehört in den Fließtext, nicht in die Headline.
       const heading = html.match(/<h2[^>]*>(.*?)<\/h2>/)?.[1] ?? '';
       expect(heading).not.toContain('Neukölln');
     }
@@ -89,61 +77,4 @@ describe('MapPromoCTA', () => {
     expect(html).toContain('phone-map-ink.webp');
     expect(html).toContain('phone-restaurant-ink.webp');
   });
-
-  it('band variant is the home-page button: label, deep-link, no section heading', () => {
-    const html = render({
-      kind: 'restaurant',
-      name: 'Cocolo',
-      mapHref: '/map?r=cocolo',
-      locale: 'de',
-      variant: 'band',
-    });
-    expect(html).toContain('href="/map?r=cocolo"');
-    expect(html).toContain('rel="nofollow"');
-    expect(html).toContain('Auf der Map öffnen');
-    // Wie bei der Pille: der Name des Spots steht nicht drin.
-    expect(html).not.toContain('Cocolo');
-    expect(html).not.toContain('<h2');
-  });
-
-  it('band variant speaks English on /en', () => {
-    const html = render({
-      kind: 'restaurant',
-      name: 'Cocolo',
-      mapHref: '/map?r=cocolo',
-      locale: 'en',
-      variant: 'band',
-    });
-    expect(html).toContain('Open on the map');
-  });
-
-  it('chip variant renders an inline pill (nofollow deep-link, no section heading)', () => {
-    const html = render({
-      kind: 'bezirk',
-      name: 'Mitte',
-      mapHref: '/map?bezirk=mitte',
-      locale: 'de',
-      variant: 'chip',
-    });
-    expect(html).toContain('href="/map?bezirk=mitte"');
-    expect(html).toContain('rel="nofollow"');
-    expect(html).toContain('Auf der Map öffnen');
-    expect(html).not.toContain('<h2');
-  });
-
-  it.each(['restaurant', 'bezirk', 'kategorie'] as const)(
-    'chip label for %s names neither the place nor the slogan — the page says where you are',
-    (kind) => {
-      const html = render({
-        kind,
-        name: 'Bari',
-        mapHref: '/map',
-        locale: 'en',
-        variant: 'chip',
-      });
-      expect(html).toContain('Open on the map');
-      expect(html).not.toContain('Bari');
-      expect(html).not.toContain('The map for people who care about food.');
-    }
-  );
 });

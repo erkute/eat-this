@@ -351,8 +351,8 @@ html[data-active-page='start'] [data-hub] .homeV2 {
    hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
    Seit 03.09.2026 stehen ALLE Inhaltsseiten auf diesem Grund — die Liste
    ist die Wahrheit darueber, welche das sind; der Artikel steht seit
-   02.10.2026 auf weissem Grund, die Bezirksseite seit 03.10.2026 (Bloecke
-   darunter). Seit 04.09.2026 ist die Map
+   02.10.2026 auf weissem Grund, Bezirks- und Kategorieseiten samt ihren
+   Uebersichten seit 03.10.2026 (Bloecke darunter). Seit 04.09.2026 ist die Map
    dabei: sie bleibt ein Werkzeug, aber ein Werkzeug in derselben Farbe.
    Nicht dabei: die 404, der Badge-Generator und die Admin-Zahlen.
    Die Seitenmodule malen ihren Grund zusaetzlich selbst; hier steht er nur,
@@ -364,12 +364,6 @@ html[data-active-page='start'] .app-pages,
 html[data-active-page='restaurant'],
 html[data-active-page='restaurant'] body,
 html[data-active-page='restaurant'] .app-pages,
-html[data-active-page='bezirk'],
-html[data-active-page='bezirk'] body,
-html[data-active-page='bezirk'] .app-pages,
-html[data-active-page='kategorie'],
-html[data-active-page='kategorie'] body,
-html[data-active-page='kategorie'] .app-pages,
 html[data-active-page='must-eats'],
 html[data-active-page='must-eats'] body,
 html[data-active-page='must-eats'] .app-pages,
@@ -425,12 +419,14 @@ html[data-active-page='news-article'][data-article-theme='dark'] body,
 html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {
   background: var(--et-ink);
 }
-/* Seit 03.10.2026 auch die Bezirksseite, im Heftlook wie der Artikel
-   (BezirkIssue.module.css). Eigener Name statt `bezirk`: der Index /bezirk
-   bleibt in der Ink-Liste oben (SiteNav, Bootstrap in [locale]/layout.tsx). */
-html[data-active-page='bezirk-detail'],
-html[data-active-page='bezirk-detail'] body,
-html[data-active-page='bezirk-detail'] .app-pages {
+/* Seit 03.10.2026 auch Bezirke und Kategorien mit ihren Uebersichten, im
+   Heftlook wie der Artikel (HubIssue.module.css). */
+html[data-active-page='bezirk'],
+html[data-active-page='bezirk'] body,
+html[data-active-page='bezirk'] .app-pages,
+html[data-active-page='kategorie'],
+html[data-active-page='kategorie'] body,
+html[data-active-page='kategorie'] .app-pages {
   background: var(--et-white);
 }
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -14,12 +16,13 @@ vi.mock('@/i18n/navigation', () => ({
 
 import {
   IssueContents,
+  IssueDirectory,
   IssueFaq,
   IssueRegister,
   IssueSiblings,
   IssueSpots,
   spotAnchor,
-} from '@/app/components/BezirkIssue';
+} from '@/app/components/HubIssue';
 
 const spot = (slug: string, over: Partial<RestaurantCard> = {}): RestaurantCard => ({
   _id: slug,
@@ -108,6 +111,7 @@ describe('IssueSiblings', () => {
         { slug: 'mitte', label: 'Mitte' },
         { slug: 'wedding', label: 'Wedding' },
       ]}
+      base="/bezirk"
       heading="Auch in Berlin"
       label="Weitere Bezirke"
     />
@@ -121,5 +125,67 @@ describe('IssueSiblings', () => {
   // Ansage 03.10.2026: kein gelbes Quadrat nach dem letzten Bezirk.
   it('ends on the last name, without a closing mark', () => {
     expect(html).toMatch(/Wedding<\/a><\/li><\/ul>/);
+  });
+});
+
+describe('IssueSpots on a category page', () => {
+  it('names the district, which the page itself does not', () => {
+    const html = renderToStaticMarkup(
+      <IssueSpots
+        restaurants={[spot('stoke', { bezirk: { name: 'Kreuzberg', slug: 'kreuzberg' } })]}
+        locale="de"
+        facetsOf={facets}
+        showDistrict
+      />
+    );
+    expect(html).toContain('Italienisch · Kreuzberg · 10–20 €');
+  });
+});
+
+describe('IssueDirectory', () => {
+  const html = renderToStaticMarkup(
+    <IssueDirectory
+      label="Alle Bezirke"
+      entries={[
+        {
+          slug: 'mitte',
+          href: '/bezirk/mitte',
+          name: 'Mitte',
+          blurb: 'Zwischen Torstraße und Spree.',
+          spots: [spot('bar-basta'), spot('sofi')],
+          cta: 'Alle',
+          ctaLabel: 'Alle Spots in Mitte',
+        },
+      ]}
+    />
+  );
+
+  it('links the name and the short way in to the page', () => {
+    expect(html).toMatch(/<h2[^>]*><a href="\/bezirk\/mitte">Mitte<\/a><\/h2>/);
+    expect(html).toContain('aria-label="Alle Spots in Mitte"');
+    expect(html).toContain('Zwischen Torstraße und Spree.');
+  });
+
+  it('shows the spots as a strip of links into their pages', () => {
+    expect(html).toContain('href="/restaurant/bar-basta"');
+    expect(html).toContain('href="/restaurant/sofi"');
+  });
+});
+
+describe('page ground', () => {
+  // Bezirke und Kategorien samt Übersichten stehen seit 03.10.2026 auf Weiss
+  // wie der Artikel — nicht mehr in der Ink-Liste von globals.css.
+  it('puts district and category pages on white', () => {
+    const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
+    for (const page of ['bezirk', 'kategorie']) {
+      expect(css).toMatch(
+        new RegExp(
+          `html\\[data-active-page='${page}'\\] \\.app-pages[,\\s\\S]*?\\{\\s*background: var\\(--et-white\\);`
+        )
+      );
+      expect(css.match(new RegExp(`html\\[data-active-page='${page}'\\] body`, 'g'))).toHaveLength(
+        1
+      );
+    }
   });
 });

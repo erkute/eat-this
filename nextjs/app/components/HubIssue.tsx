@@ -9,32 +9,53 @@ import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import { formatArticleDate } from '@/lib/articleDate';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { HubFilterCard, HubFilterGroup } from './HubFilter';
-import { byLetter } from './HubSpots';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
-import styles from './BezirkIssue.module.css';
+import Image from './SiteImage';
+import styles from './HubIssue.module.css';
 
 /**
- * Die Bezirksseite im Heftlook (Entwurf A „Die Ausgabe", Wahl 03.10.2026):
- * der Bezirk liest sich wie ein Artikel aus dem Magazin — alles mittig, die
- * Bestenliste als Kapitel mit rotem Namen, Foto, Text und Tipp, der Rest als
- * Register hinten im Heft. Dieselbe Sprache wie NewsArticleShell: weisser
- * Grund, Providence für alles Gesetzte, Inter für den Lesetext, Rot für
- * Überschriften, Gelb als Akzent.
+ * Die Hub-Seiten im Heftlook (Entwurf A „Die Ausgabe", Wahl 03.10.2026 für
+ * die Bezirke, am selben Tag auf Kategorien und die beiden Übersichten
+ * ausgedehnt): die Seite liest sich wie ein Artikel aus dem Magazin — alles
+ * mittig, die Bestenliste als Kapitel mit rotem Namen, Foto, Text und Tipp,
+ * der Rest als Register hinten im Heft. Dieselbe Sprache wie
+ * NewsArticleShell: weisser Grund, Providence für alles Gesetzte, Inter für
+ * den Lesetext, Rot für Überschriften, Gelb als Akzent.
  *
  * Die Teile hier sind Server-Markup; gefiltert wird über HubFilterCard und
- * HubFilterGroup wie auf den übrigen Hub-Seiten.
+ * HubFilterGroup.
  */
 
 type Locale = 'de' | 'en';
 type Spot = RestaurantCard;
 
+/** „Oktober 2026" — der Monat, in dem zuletzt ein Spot der Seite gepflegt
+ *  wurde. Leer, wenn keiner ein Datum trägt. */
+export function latestMonth(restaurants: RestaurantCard[], locale: 'de' | 'en'): string {
+  const latest = restaurants.reduce(
+    (max, r) => (r._updatedAt && r._updatedAt > max ? r._updatedAt : max),
+    ''
+  );
+  if (!latest) return '';
+  return new Date(latest).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Europe/Berlin',
+  });
+}
+
 /** Sprungziel eines Kapitels — die Bildleiste oben zeigt darauf. */
 export const spotAnchor = (slug: string) => `spot-${slug}`;
 
-function metaLine(r: Spot, locale: Locale): string {
-  return [r.cuisineType && localizedCuisine(r.cuisineType, locale), formatPriceLabel(r, locale)]
+/** Küche, Bezirk (nur wo er nicht schon die Seite ist) und Preis. */
+function metaLine(r: Spot, locale: Locale, showDistrict = false): string {
+  return [
+    r.cuisineType && localizedCuisine(r.cuisineType, locale),
+    showDistrict && (r.district || r.bezirk?.name),
+    formatPriceLabel(r, locale),
+  ]
     .filter(Boolean)
     .join(' · ');
 }
@@ -108,17 +129,20 @@ export function IssueSpots({
   restaurants,
   locale,
   facetsOf,
+  showDistrict = false,
 }: {
   restaurants: Spot[];
   locale: Locale;
   facetsOf: (r: Spot) => string[];
+  /** Bezirk in der Metazeile — auf den Kategorieseiten. */
+  showDistrict?: boolean;
 }) {
   const de = locale === 'de';
   return (
     <div className={styles.column}>
       {restaurants.map((r) => {
         const name = normalizeName(r.name);
-        const meta = metaLine(r, locale);
+        const meta = metaLine(r, locale, showDistrict);
         const desc = pickLocale(r.shortDescription, r.shortDescriptionEn, locale);
         const tip = pickLocale(r.tip, r.tipEn, locale);
         return (
@@ -171,6 +195,27 @@ export function IssueSpots({
   );
 }
 
+/** Die Marke eines Namens: Grundbuchstabe ohne Akzent, Ziffern unter „#". */
+function letterOf(name: string): string {
+  const first = normalizeName(name).normalize('NFD').charAt(0).toUpperCase();
+  return /\p{L}/u.test(first) ? first : '#';
+}
+
+/** Aufeinanderfolgende Spots mit derselben Marke — die Liste kommt schon
+ *  alphabetisch (siehe directoryOrder in lib/curated-ranking.ts). */
+function byLetter<T extends Pick<Spot, 'name'>>(
+  restaurants: T[]
+): { letter: string; items: T[] }[] {
+  const groups: { letter: string; items: T[] }[] = [];
+  for (const r of restaurants) {
+    const letter = letterOf(r.name);
+    const last = groups[groups.length - 1];
+    if (last?.letter === letter) last.items.push(r);
+    else groups.push({ letter, items: [r] });
+  }
+  return groups;
+}
+
 /**
  * Das Register hinten im Heft: alle übrigen Spots alphabetisch in drei
  * Spalten (Ansage 03.10.2026), Buchstaben rot, je Spot Name und Küche ·
@@ -182,10 +227,12 @@ export function IssueRegister({
   restaurants,
   locale,
   facetsOf,
+  showDistrict = false,
 }: {
   restaurants: Spot[];
   locale: Locale;
   facetsOf: (r: Spot) => string[];
+  showDistrict?: boolean;
 }) {
   return (
     <div className={styles.register}>
@@ -196,7 +243,7 @@ export function IssueRegister({
               {letter}
             </p>
             {items.map((r) => {
-              const meta = metaLine(r, locale);
+              const meta = metaLine(r, locale, showDistrict);
               return (
                 <HubFilterCard key={r._id} slugs={facetsOf(r)}>
                   <Link href={`/restaurant/${r.slug}`} className={styles.entry}>
@@ -296,10 +343,13 @@ export function IssueFaq({
  */
 export function IssueSiblings({
   items,
+  base,
   heading,
   label,
 }: {
   items: { slug: string; label: string }[];
+  /** Pfad-Präfix ohne Sprache: `/bezirk` oder `/kategorie`. */
+  base: '/bezirk' | '/kategorie';
   heading: string;
   label: string;
 }) {
@@ -321,10 +371,75 @@ export function IssueSiblings({
                 </span>{' '}
               </>
             )}
-            <Link href={`/bezirk/${item.slug}`}>{item.label}</Link>
+            <Link href={`${base}/${item.slug}`}>{item.label}</Link>
           </li>
         ))}
       </ul>
     </nav>
+  );
+}
+
+export interface DirectoryEntry {
+  slug: string;
+  href: string;
+  name: string;
+  /** Ein Satz, warum man hinein sollte — vier Namen allein sagen das nicht. */
+  blurb?: string;
+  /** Bis zu vier Spots als Bildleiste. */
+  spots: Spot[];
+  /** Kurz und ohne Zahl: „Alle", bei einem einzigen Spot „Zum Spot". */
+  cta: string;
+  ctaLabel: string;
+  /** Das Booster-Pack der Kategorie als Marke neben dem Namen. */
+  art?: string | null;
+}
+
+/**
+ * Die Übersichten /bezirk und /kategorie als Register: je Eintrag der Name
+ * gross in Rot, ein Satz dazu und vier Spots als Bildleiste — statt der
+ * Foto-Regale, die bis 03.10.2026 dort standen. Ohne Spot-Zahl: eine Reihe
+ * von „9" bis „224" las sich als Rangliste (Ansage 27.08.2026).
+ */
+export function IssueDirectory({ entries, label }: { entries: DirectoryEntry[]; label: string }) {
+  return (
+    <div className={styles.directory} role="region" aria-label={label}>
+      {entries.map((e) => (
+        <section key={e.slug} aria-labelledby={`dir-${e.slug}`}>
+          <div className={styles.dirHead}>
+            {e.art && (
+              <Image
+                className={styles.dirArt}
+                src={e.art}
+                alt=""
+                width={96}
+                height={145}
+                aria-hidden="true"
+              />
+            )}
+            <h2 id={`dir-${e.slug}`} className={styles.dirName}>
+              <Link href={e.href}>{e.name}</Link>
+            </h2>
+            <Link href={e.href} className={styles.dirCta} aria-label={e.ctaLabel}>
+              {e.cta}
+            </Link>
+          </div>
+          {e.blurb && <p className={styles.dirBlurb}>{e.blurb}</p>}
+          {e.spots.length > 0 && (
+            <ol className={styles.dirStrip}>
+              {e.spots.map((r) => (
+                <li key={r._id}>
+                  <Link href={`/restaurant/${r.slug}`}>
+                    <span className={styles.contentsPhoto}>
+                      <Photo r={r} sizes="(max-width: 899px) 24vw, 140px" widths={[240, 320]} />
+                    </span>
+                    <span className={styles.contentsName}>{normalizeName(r.name)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+      ))}
+    </div>
   );
 }

@@ -199,7 +199,8 @@ export const restaurantsByCategoryQuery = `
     lng,
     tip,
     tipEn,
-    "photo": ${publishableRestaurantImageUrl('image', 'card')}
+    "photo": ${publishableRestaurantImageUrl('image', 'card')},
+    _updatedAt
   }
 `;
 

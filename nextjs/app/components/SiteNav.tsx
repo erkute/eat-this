@@ -12,9 +12,6 @@ import { BRAND_LOGO_SRC } from '@/lib/constants';
 function pageSlugFromPath(path: string): string {
   if (path === '/') return 'start';
   if (path.startsWith('/news/') && path.length > 6) return 'news-article';
-  // Die Bezirksseite steht im Heftlook auf Weiß, der Index /bezirk auf Ink —
-  // globals.css unterscheidet die beiden an diesem Namen.
-  if (path.startsWith('/bezirk/') && path.length > 8) return 'bezirk-detail';
   return path.replace(/^\//, '').split('/')[0];
 }
 

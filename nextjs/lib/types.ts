@@ -226,8 +226,8 @@ export interface RestaurantCard {
   tip?: string;
   tipEn?: string;
   photo?: string;
-  /** Only projected by restaurantsByBezirkQuery — der „Stand" im Kopf der
-   *  Bezirksseite. */
+  /** Only projected by restaurantsByBezirkQuery and restaurantsByCategoryQuery
+   *  — der „Stand" im Kopf der Hub-Seite. */
   _updatedAt?: string;
 }
 

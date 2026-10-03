@@ -54,7 +54,6 @@ const CRITICAL_BOOTSTRAP = `(function(){
   var slug;
   if(p==='/')slug='start';
   else if(p.indexOf('/news/')===0&&p.length>6)slug='news-article';
-  else if(p.indexOf('/bezirk/')===0&&p.length>8)slug='bezirk-detail';
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);
   try{if(slug==='start'&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.setAttribute('data-remy-go','');},3000);}}catch(_){}

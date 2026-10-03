@@ -8,7 +8,8 @@ import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import styles from '@/app/components/HubIssue.module.css';
-import { IssueDirectory } from '@/app/components/HubIssue';
+import { IssueDirectory, IssueMagazine } from '@/app/components/HubIssue';
+import { latestIssues } from '@/lib/home/getHomeData';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -58,7 +59,11 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   const title = de ? 'Berlin nach Bezirk' : 'Berlin by district';
   // Empty districts (no open spots) are hidden — an empty grid page is a
   // dead end for users and thin content for Google. Same rule as the Hub chips.
-  const bezirke = (await getAllBezirkeWithStats()).filter((b) => (b.restaurantCount ?? 0) > 0);
+  const [allBezirke, magazine] = await Promise.all([
+    getAllBezirkeWithStats(),
+    latestIssues(3, loc),
+  ]);
+  const bezirke = allBezirke.filter((b) => (b.restaurantCount ?? 0) > 0);
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -136,6 +141,13 @@ export default async function BezirkIndexPage({ params }: PageProps) {
               ctaLabel: de ? `Alle Spots in ${b.name}` : `All spots in ${b.name}`,
             };
           })}
+        />
+
+        {/* Der Schluss: wer unten ankommt, liest weiter. */}
+        <IssueMagazine
+          issues={magazine}
+          locale={loc}
+          heading={de ? 'Aus dem Magazin' : 'From the magazine'}
         />
       </main>
     </>

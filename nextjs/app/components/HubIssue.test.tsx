@@ -17,6 +17,7 @@ vi.mock('@/i18n/navigation', () => ({
 import {
   IssueContents,
   IssueDirectory,
+  IssueMagazine,
   IssueRegister,
   IssueSiblings,
   IssueSpots,
@@ -163,6 +164,37 @@ describe('IssueDirectory', () => {
   it('shows the spots as a strip of links into their pages', () => {
     expect(html).toContain('href="/restaurant/bar-basta"');
     expect(html).toContain('href="/restaurant/sofi"');
+  });
+});
+
+describe('IssueMagazine', () => {
+  // Der Schluss der Übersichten (Ansage 03.10.2026: „da ist einfach Stille").
+  it('lays out the newest issues and a way to all of them', () => {
+    const html = renderToStaticMarkup(
+      <IssueMagazine
+        issues={[
+          { slug: 'crapulix', title: 'Crapulix', image: null, date: null, issue: 27, cover: null },
+          {
+            slug: 'franzoesisch',
+            title: 'Französisch',
+            image: null,
+            date: null,
+            issue: 26,
+            cover: null,
+          },
+        ]}
+        locale="de"
+        heading="Aus dem Magazin"
+      />
+    );
+    expect(html).toContain('href="/news/crapulix"');
+    expect(html).toContain('href="/news/franzoesisch"');
+    expect(html).toContain('href="/news"');
+    expect(html).toContain('Alle Stories');
+  });
+
+  it('stays away without issues', () => {
+    expect(renderToStaticMarkup(<IssueMagazine issues={[]} locale="de" heading="x" />)).toBe('');
   });
 });
 

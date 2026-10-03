@@ -10,7 +10,8 @@ import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import styles from '@/app/components/HubIssue.module.css';
-import { IssueDirectory } from '@/app/components/HubIssue';
+import { IssueDirectory, IssueMagazine } from '@/app/components/HubIssue';
+import { latestIssues } from '@/lib/home/getHomeData';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -61,9 +62,11 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   // Leere Kategorien fliegen raus — dieselbe Regel wie auf dem Bezirks-Index:
   // eine Zeile ohne Spots ist eine Sackgasse für Leser und dünner Inhalt für
   // Google.
-  const categories = (await getAllCategoriesWithStats()).filter(
-    (c) => (c.restaurantCount ?? 0) > 0
-  );
+  const [allCategories, magazine] = await Promise.all([
+    getAllCategoriesWithStats(),
+    latestIssues(3, loc),
+  ]);
+  const categories = allCategories.filter((c) => (c.restaurantCount ?? 0) > 0);
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -142,6 +145,13 @@ export default async function KategorieIndexPage({ params }: PageProps) {
               art: categoryArt(c.slug),
             };
           })}
+        />
+
+        {/* Der Schluss: wer unten ankommt, liest weiter. */}
+        <IssueMagazine
+          issues={magazine}
+          locale={loc}
+          heading={de ? 'Aus dem Magazin' : 'From the magazine'}
         />
       </main>
     </>

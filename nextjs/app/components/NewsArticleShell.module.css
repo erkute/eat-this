@@ -1244,6 +1244,9 @@ div.page {
   .relatedGrid {
     display: flex;
     grid-template-columns: none;
+    /* Nicht mittig wie am Desktop: WebKit schob das erste Heft sonst links
+       aus dem Bild, die Reihe begann am iPhone beim zweiten (03.10.2026). */
+    justify-content: flex-start;
     gap: 18px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;

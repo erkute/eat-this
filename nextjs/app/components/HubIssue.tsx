@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { GuideTeaser } from '@/lib/sanity.server';
+import type { HubArticle } from '@/lib/home/getHomeData';
 import type { RestaurantCard } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
@@ -328,6 +329,54 @@ export function IssueGuides({
 }
 
 /**
+ * Der Schluss der Übersichten: die neuesten Hefte aus dem Magazin, gelegt wie
+ * „Weitere Ausgaben" unter einem Artikel. Bis 03.10.2026 endeten /bezirk und
+ * /kategorie nach dem letzten Eintrag einfach — „da ist einfach Stille".
+ */
+export function IssueMagazine({
+  issues,
+  locale,
+  heading,
+}: {
+  issues: HubArticle[];
+  locale: Locale;
+  heading: string;
+}) {
+  if (issues.length === 0) return null;
+  return (
+    <section aria-labelledby="magazine-title">
+      <h2 id="magazine-title" className={styles.secTitle}>
+        {heading}
+      </h2>
+      <ul className={styles.shelf}>
+        {issues.map((a) => (
+          <li key={a.slug}>
+            <MagazineLink href={`/news/${a.slug}`} className={styles.shelfIssue}>
+              <MagazineCover
+                title={a.title}
+                image={a.image}
+                issue={a.issue}
+                date={a.date}
+                locale={locale}
+                cover={a.cover}
+                sizes="(max-width: 767px) 62vw, 260px"
+                widths={[320, 480, 800]}
+                compact
+              />
+            </MagazineLink>
+          </li>
+        ))}
+      </ul>
+      <div className={styles.links}>
+        <Link href="/news" className={styles.btn}>
+          {locale === 'de' ? 'Alle Stories' : 'All stories'}
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/**
  * Der Ausgang: die anderen Bezirke oder Kategorien als Bildleiste, gesetzt
  * wie die Leiste im Kopf — Foto, darunter der Name. Bis 03.10.2026 stand hier
  * eine Wortzeile mit gelben Strichen; sie passte nicht zum Rest des Hefts
@@ -387,16 +436,17 @@ export interface DirectoryEntry {
 }
 
 /**
- * Die Übersichten /bezirk und /kategorie als Register: je Eintrag der Name
- * gross in Rot, ein Satz dazu und vier Spots als Bildleiste — statt der
- * Foto-Regale, die bis 03.10.2026 dort standen. Ohne Spot-Zahl: eine Reihe
- * von „9" bis „224" las sich als Rangliste (Ansage 27.08.2026).
+ * Die Übersichten /bezirk und /kategorie: ein Eintrag unter dem anderen,
+ * gesetzt wie ein Kapitel auf der Detailseite — Name mittig, vier Spots als
+ * Bildleiste, der Satz dazu, ein Knopf. Bis 03.10.2026 standen am Desktop
+ * zwei Einträge nebeneinander, das las sich unruhig. Ohne Spot-Zahl: eine
+ * Reihe von „9" bis „224" las sich als Rangliste (Ansage 27.08.2026).
  */
 export function IssueDirectory({ entries, label }: { entries: DirectoryEntry[]; label: string }) {
   return (
     <div className={styles.directory} role="region" aria-label={label}>
       {entries.map((e) => (
-        <section key={e.slug} aria-labelledby={`dir-${e.slug}`}>
+        <section key={e.slug} className={styles.dirEntry} aria-labelledby={`dir-${e.slug}`}>
           <div className={styles.dirHead}>
             {e.art && (
               <Image
@@ -411,11 +461,7 @@ export function IssueDirectory({ entries, label }: { entries: DirectoryEntry[]; 
             <h2 id={`dir-${e.slug}`} className={styles.dirName}>
               <Link href={e.href}>{e.name}</Link>
             </h2>
-            <Link href={e.href} className={styles.dirCta} aria-label={e.ctaLabel}>
-              {e.cta}
-            </Link>
           </div>
-          {e.blurb && <p className={styles.dirBlurb}>{e.blurb}</p>}
           {e.spots.length > 0 && (
             <ol className={styles.dirStrip}>
               {e.spots.map((r) => (
@@ -425,7 +471,7 @@ export function IssueDirectory({ entries, label }: { entries: DirectoryEntry[]; 
                       <Photo
                         src={r.photo}
                         name={r.name}
-                        sizes="(max-width: 599px) 31vw, (max-width: 899px) 24vw, 140px"
+                        sizes="(max-width: 599px) 31vw, 160px"
                         widths={[240, 320]}
                       />
                     </span>
@@ -435,6 +481,14 @@ export function IssueDirectory({ entries, label }: { entries: DirectoryEntry[]; 
               ))}
             </ol>
           )}
+          {e.blurb && <p className={styles.dirBlurb}>{e.blurb}</p>}
+          {/* Gelb und mittig wie „Zur Map" im Kapitel — das graue „Alle"
+              rechts neben dem Namen sah gedrückt aus (Ansage 03.10.2026). */}
+          <div className={styles.links}>
+            <Link href={e.href} className={styles.btn} aria-label={e.ctaLabel}>
+              {e.cta}
+            </Link>
+          </div>
         </section>
       ))}
     </div>

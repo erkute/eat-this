@@ -211,21 +211,20 @@ export default function MagazineCover({
       break;
     }
     case 'paper': {
-      // Nach PAPER: das Logo gross auf Weiss, darunter ein Studio-Feld in
-      // Gelb oder Ink mit dem Gericht, Ort und Ausgabe in den Ecken. Kein
-      // Rot: „der Kontrast zwischen Weiss und dem Rot ist nicht so geil"
-      // (Ansage 03.10.2026).
+      // Nach PAPER, in Rot und Schwarz wie Carnale: das Logo gross auf Rot,
+      // darunter ein schwarzes Studio-Feld mit dem Gericht, Ort und Ausgabe in
+      // den Ecken. Ansagen 03.10.2026: erst „Rot mit Weiss nicht so geil",
+      // dann Gelb auf Weiss „hässlich, mach rot schwarz wie Carnale".
       const c = cut as CutoutCover;
-      const panelTone = altTone(issue, ['yellow', 'ink']);
-      const onPanel = panelTone === 'yellow' ? 'var(--et-ink)' : '#fff';
+      tone = 'red';
       body = (
         <>
           {logo({ top: q(3.5), width: q(92) })}
-          <span className={`${styles.panel} ${TONES[panelTone]}`} aria-hidden="true" />
-          {meta('Berlin', { left: q(9), top: q(41), color: onPanel }, styles.metaBold)}
+          <span className={`${styles.panel} ${styles.ink}`} aria-hidden="true" />
+          {meta('Berlin', { left: q(9), top: q(41), color: '#fff' }, styles.metaBold)}
           {meta(
             issueLine,
-            { right: q(9), top: q(41), color: onPanel, textAlign: 'right' },
+            { right: q(9), top: q(41), color: '#fff', textAlign: 'right' },
             styles.metaBold
           )}
           {cutout(c, fitCutout(c, 66, 52, 50, 76), styles.objectSoft)}
@@ -237,7 +236,7 @@ export default function MagazineCover({
               right: q(9),
               bottom: q(10),
               textAlign: 'center',
-              color: onPanel,
+              color: '#fff',
             }}
           >
             {title}

@@ -52,7 +52,6 @@
   --ground: var(--et-ink);
   --type: var(--et-white);
 }
-.panel.yellow,
 .panel.ink {
   background-color: var(--ground);
 }

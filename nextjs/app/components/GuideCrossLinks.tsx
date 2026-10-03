@@ -1,26 +1,13 @@
 import { Link } from '@/i18n/navigation';
 import type { GuideTeaser } from '@/lib/sanity.server';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
+import { formatArticleDate } from '@/lib/articleDate';
 import styles from './GuideCrossLinks.module.css';
 
 interface Props {
   /** Die Guides zu diesem Hub, in kuratierter Reihenfolge. */
   guides: (GuideTeaser | null)[];
   locale: 'de' | 'en';
-}
-
-/** „1. September 2026" — dasselbe Format wie der Magazin-Index. Fest auf
- *  Berlin: ein Datum ohne Uhrzeit ist UTC-Mitternacht. */
-function formatDate(iso: string | undefined, locale: 'de' | 'en'): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'Europe/Berlin',
-  });
 }
 
 /**
@@ -54,7 +41,7 @@ export default function GuideCrossLinks({ guides, locale }: Props) {
       </h2>
       <div className={styles.cards} data-count={shown.length}>
         {shown.map((guide) => {
-          const date = formatDate(guide.date, locale);
+          const date = formatArticleDate(guide.date, locale);
           return (
             <Link key={guide.slug} href={`/news/${guide.slug}`} className={styles.card}>
               <div className={styles.photo}>

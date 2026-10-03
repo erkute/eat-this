@@ -93,14 +93,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   padding-bottom: clamp(20px, 3vw, 36px);
 }
 
-@media (min-width: 900px) {
-  .heroWithMedia {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    align-items: end;
-    gap: clamp(32px, 5vw, 72px);
-  }
-}
-
 /* Container für die Titelgröße: `--title-fit` rechnet in cqi, damit auch
    „Friedrichshain" auf dem Telefon in eine Zeile passt. */
 .heroCopy {

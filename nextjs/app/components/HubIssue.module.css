@@ -591,28 +591,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   }
 }
 
-/* ---------------------------------------------------------------- faq --- */
-
-.faq {
-  display: grid;
-  gap: 34px;
-  margin-top: 40px;
-}
-
-.question {
-  margin: 0;
-  font-size: 23px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.answer {
-  margin: 10px 0 0;
-  font-family: var(--et-font-body);
-  font-size: 18px;
-  line-height: 1.6;
-}
-
 /* -------------------------------------------------------------- ausgang -- */
 
 /* Die anderen Bezirke oder Kategorien als Bildleiste wie im Kopf: Kacheln
@@ -770,11 +748,14 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
     margin-inline: calc(-1 * var(--issue-gutter));
   }
 
+  /* Wischende Leisten schneiden unten ab: der Grund lässt der tiefen
+     Unterlänge der Providence Platz — sonst fehlte dem „g" in „Prenzlauer
+     Berg" der Bogen (03.10.2026). */
   .contents ol {
     display: flex;
     justify-content: flex-start;
     overflow-x: auto;
-    padding: 0 var(--issue-gutter);
+    padding: 0 var(--issue-gutter) 10px;
     scrollbar-width: none;
   }
 
@@ -792,7 +773,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
     justify-content: flex-start;
     width: auto;
     margin-inline: calc(-1 * var(--issue-gutter));
-    padding: 0 var(--issue-gutter);
+    padding: 0 var(--issue-gutter) 10px;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;

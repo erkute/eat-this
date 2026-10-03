@@ -18,7 +18,6 @@ import {
 } from '@/lib/seo/categoryMeta';
 import { rankCurated, shelfPhoto } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
-import { buildKategorieFAQEntries } from '@/lib/kategorie-prose';
 import { categoryDistrictLinks, categoryGuideSlugs } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
@@ -32,7 +31,6 @@ import { routing } from '@/i18n/routing';
 import styles from '@/app/components/HubIssue.module.css';
 import {
   IssueContents,
-  IssueFaq,
   IssueGuides,
   IssueRegister,
   IssueSiblings,
@@ -187,15 +185,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const lead = top.length > 0 ? top : rest;
   const leadAsCards = top.length > 0 || rest.length <= CARD_LIMIT;
   const updated = latestMonth(restaurants, loc);
-  // `curated: top` statt der Slugs: die FAQ nennt damit exakt die Namen der
-  // Bestenliste über ihr — auseinanderlaufen können sie nicht mehr.
-  const faqEntries = buildKategorieFAQEntries({
-    slug,
-    label,
-    restaurants,
-    locale: loc,
-    curated: top,
-  });
 
   const takenPhotos = new Set<string>();
   const nachbarKategorien = alleKategorien
@@ -245,18 +234,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           },
         ],
       },
-      ...(faqEntries.length > 0
-        ? [
-            {
-              '@type': 'FAQPage',
-              mainEntity: faqEntries.map((entry) => ({
-                '@type': 'Question',
-                name: entry.question,
-                acceptedAnswer: { '@type': 'Answer', text: entry.answer },
-              })),
-            },
-          ]
-        : []),
       {
         '@type': 'ItemList',
         name: buildCategoryTitle(slug, label, loc),
@@ -425,8 +402,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           locale={loc}
           heading={de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
         />
-
-        <IssueFaq entries={faqEntries} heading={de ? 'Häufige Fragen' : 'Frequently asked'} />
 
         {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und was noch?". */}
         <IssueSiblings

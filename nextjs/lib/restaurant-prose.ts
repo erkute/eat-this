@@ -7,11 +7,6 @@
  * Every helper degrades gracefully when source fields are missing.
  */
 
-export interface FAQEntry {
-  question: string;
-  answer: string;
-}
-
 /**
  * Magazine-style split of the long description into editorial pieces.
  * Preserves the author's paragraph breaks (`\n\n`) so rhythm survives —

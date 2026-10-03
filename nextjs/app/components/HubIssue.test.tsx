@@ -17,7 +17,6 @@ vi.mock('@/i18n/navigation', () => ({
 import {
   IssueContents,
   IssueDirectory,
-  IssueFaq,
   IssueRegister,
   IssueSiblings,
   IssueSpots,
@@ -96,17 +95,6 @@ describe('IssueRegister', () => {
     const letters = [...html.matchAll(/aria-hidden="true">([A-Z#])<\/p>/g)].map((m) => m[1]);
     expect(letters).toEqual(['A', 'O']);
     expect(html).toContain('href="/restaurant/albatross"');
-  });
-});
-
-describe('IssueFaq', () => {
-  // Offen wie Zwischentitel im Heft — nichts zum Aufklappen.
-  it('shows every answer without details', () => {
-    const html = renderToStaticMarkup(
-      <IssueFaq entries={[{ question: 'Wie viele?', answer: 'Sieben.' }]} heading="Fragen" />
-    );
-    expect(html).toContain('Sieben.');
-    expect(html).not.toContain('<details');
   });
 });
 

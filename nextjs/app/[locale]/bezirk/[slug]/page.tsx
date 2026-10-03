@@ -13,18 +13,13 @@ import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo
 import { buildPlainTitle, truncateMetadataDescription } from '@/lib/seo/metadata-text';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { routing } from '@/i18n/routing';
-import {
-  buildBezirkFAQEntries,
-  buildBezirkBestOfHeading,
-  buildBezirkDirectoryHeading,
-} from '@/lib/bezirk-prose';
+import { buildBezirkBestOfHeading, buildBezirkDirectoryHeading } from '@/lib/bezirk-prose';
 import { rankCurated, shelfPhoto } from '@/lib/curated-ranking';
 import { bezirkCategoryLinks, bezirkGuideSlugs } from '@/lib/seo/crossLinks';
 import type { RestaurantCard } from '@/lib/types';
 import styles from '@/app/components/HubIssue.module.css';
 import {
   IssueContents,
-  IssueFaq,
   latestMonth,
   IssueGuides,
   IssueRegister,
@@ -143,7 +138,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     Promise.all(bezirkGuideSlugs(slug).map((s) => getGuideTeaser(s, loc))),
   ]);
   if (!b) notFound();
-  // A district without spots renders hero + FAQ around an empty grid —
+  // A district without spots renders the head around an empty grid —
   // dead end + thin content. Google knew nine such pages after the curation
   // of 27.09.2026, so they 301 to the district index rather than 404; the
   // page reappears automatically via ISR once a restaurant references the
@@ -158,20 +153,11 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   const heroLede = bezirkDescription ? firstSentence(bezirkDescription) : '';
   // Kuratierte Bestenliste aus dem Studio; ohne Pflege (oder unter
   // MIN_CURATED) fällt `top` leer aus und die Seite bleibt rein alphabetisch.
-  // Steht vor der FAQ, weil die sie als Antwortquelle bekommt.
   const { top, rest } = rankCurated(restaurants, b.topSpots);
   // Der erste Abschnitt: die Bestenliste, oder ohne sie das ganze Verzeichnis —
   // als Karten nur, solange es kurz genug ist.
   const lead = top.length > 0 ? top : rest;
   const leadAsCards = top.length > 0 || rest.length <= CARD_LIMIT;
-  // `curated: top` statt der Slugs: die FAQ nennt damit exakt die Namen der
-  // Bestenliste, die auf derselben Seite darüber steht.
-  const faqEntries = buildBezirkFAQEntries({
-    bezirk: b,
-    restaurants,
-    locale: loc,
-    curated: top,
-  });
   // Kein Bezirk hat in Sanity ein eigenes Foto (Stand 03.10.2026); statt
   // eines Banners zeigt der Kopf die Kapitel als Bildleiste. Ein Spotfoto als
   // Banner las sich früher wie eine eigene Empfehlung.
@@ -204,7 +190,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
     restaurants: [...top, ...rest],
     locale,
     districtsLabel: de ? 'Bezirke' : 'Districts',
-    faqs: faqEntries,
   });
 
   return (
@@ -310,8 +295,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
           locale={loc}
           heading={de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
         />
-
-        <IssueFaq entries={faqEntries} heading={de ? 'Häufige Fragen' : 'Frequently asked'} />
 
         {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und wo noch?". */}
         <IssueSiblings

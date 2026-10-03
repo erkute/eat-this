@@ -327,32 +327,6 @@ export function IssueGuides({
   );
 }
 
-/** Die Fragen offen, wie Zwischentitel im Heft — nichts zum Aufklappen. */
-export function IssueFaq({
-  entries,
-  heading,
-}: {
-  entries: { question: string; answer: string }[];
-  heading: string;
-}) {
-  if (entries.length === 0) return null;
-  return (
-    <section aria-labelledby="faq-title">
-      <h2 id="faq-title" className={styles.secTitle}>
-        {heading}
-      </h2>
-      <div className={`${styles.column} ${styles.faq}`}>
-        {entries.map((entry) => (
-          <div key={entry.question}>
-            <h3 className={styles.question}>{entry.question}</h3>
-            <p className={styles.answer}>{entry.answer}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 /**
  * Der Ausgang: die anderen Bezirke oder Kategorien als Bildleiste, gesetzt
  * wie die Leiste im Kopf — Foto, darunter der Name. Bis 03.10.2026 stand hier

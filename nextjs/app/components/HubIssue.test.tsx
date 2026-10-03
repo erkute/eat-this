@@ -201,10 +201,11 @@ describe('IssueMagazine', () => {
 
 describe('page ground', () => {
   // Bezirke und Kategorien samt Übersichten stehen seit 03.10.2026 auf Weiss
-  // wie der Artikel — nicht mehr in der Ink-Liste von globals.css.
-  it('puts district and category pages on white', () => {
+  // wie der Artikel, die Spot-Seite ebenso — nicht mehr in der Ink-Liste von
+  // globals.css.
+  it('puts district, category and spot pages on white', () => {
     const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
-    for (const page of ['bezirk', 'kategorie']) {
+    for (const page of ['bezirk', 'kategorie', 'restaurant']) {
       expect(css).toMatch(
         new RegExp(
           `html\\[data-active-page='${page}'\\] \\.app-pages[,\\s\\S]*?\\{\\s*background: var\\(--et-white\\);`

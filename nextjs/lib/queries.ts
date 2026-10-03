@@ -259,6 +259,34 @@ const siblingWindow = (cmp: '>' | '<') => `*[
 // Geht als GROQ-Variable `$articleLimit` in die Query.
 export const RESTAURANT_ARTICLE_LIMIT = 3;
 
+// Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1) — auf der
+// Startseite, im Magazin-Index und im Artikelkopf. Dafür brauchen alle drei
+// dieselbe Menge und eine feste Reihenfolge: viele Artikel teilen sich ein
+// Datum (am 26.08.2026 sechzehn), und ohne zweiten Schlüssel ist die
+// Reihenfolge innerhalb eines Tages nicht zugesagt — dasselbe Heft trüge sonst
+// je nach Seite eine andere Nummer. `_id` hält die Reihenfolge, die Sanity
+// bisher von sich aus lieferte.
+const publishedNews = `_type == "newsArticle" && defined(slug.current)`;
+const newsOrder = `date desc, _id asc`;
+
+// Das Heft-Cover (lib/magazineCover.ts): gewählter Look, ob ein Gericht
+// erkannt ist, der Freisteller samt Rahmen und Pixelmassen — die braucht
+// „Vor dem Logo“, um Foto und Freisteller deckungsgleich zu legen — und die
+// Farben des Aufmacher-Bilds, aus denen „Nach LOVE“ sein Logo tönt.
+const newsCoverProjection = `"cover": {
+    "look": cover.look,
+    "dish": cover.dish,
+    "box": cover.box,
+    "cutout": cover.cutout.asset->url,
+    "cutoutWidth": cover.cutout.asset->metadata.dimensions.width,
+    "cutoutHeight": cover.cutout.asset->metadata.dimensions.height,
+    "palette": image.asset->metadata.palette{
+      "dominant": dominant{background, foreground},
+      "dark": darkMuted.background,
+      "light": lightMuted.background
+    }
+  }`;
+
 /**
  * Die Artikel, in denen dieser Spot vorkommt — für den „Im Magazin"-Block
  * auf der Restaurant-Seite und im Map-Sheet.
@@ -291,7 +319,10 @@ export const articlesAboutRestaurant = `"articles": *[_type == "newsArticle" && 
       categoryLabel, categoryLabelDe,
       date,
       "imageUrl": ${groqImageUrl('image', 'card')},
-      "alt": coalesce(image.alt, alt)
+      "alt": coalesce(image.alt, alt),
+      // Für das Heft unter „Im Magazin“: Ausgabe wie auf /news, dazu der Look.
+      "issue": count(*[${publishedNews}]) - count(*[${publishedNews} && (date > ^.date || (date == ^.date && _id < ^._id))]),
+      ${newsCoverProjection}
     }`;
 
 // katalog-ausnahme: Die Detailseite eines einzelnen Spots, per Slug geholt.
@@ -453,34 +484,7 @@ export const categoryBySlugQuery = `
   }
 `;
 
-// Das Heft-Cover (lib/magazineCover.ts): gewählter Look, ob ein Gericht
-// erkannt ist, der Freisteller samt Rahmen und Pixelmassen — die braucht
-// „Vor dem Logo“, um Foto und Freisteller deckungsgleich zu legen — und die
-// Farben des Aufmacher-Bilds, aus denen „Nach LOVE“ sein Logo tönt.
-const newsCoverProjection = `"cover": {
-    "look": cover.look,
-    "dish": cover.dish,
-    "box": cover.box,
-    "cutout": cover.cutout.asset->url,
-    "cutoutWidth": cover.cutout.asset->metadata.dimensions.width,
-    "cutoutHeight": cover.cutout.asset->metadata.dimensions.height,
-    "palette": image.asset->metadata.palette{
-      "dominant": dominant{background, foreground},
-      "dark": darkMuted.background,
-      "light": lightMuted.background
-    }
-  }`;
-
 // All news articles — newest first
-// Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1) — auf der
-// Startseite, im Magazin-Index und im Artikelkopf. Dafür brauchen alle drei
-// dieselbe Menge und eine feste Reihenfolge: viele Artikel teilen sich ein
-// Datum (am 26.08.2026 sechzehn), und ohne zweiten Schlüssel ist die
-// Reihenfolge innerhalb eines Tages nicht zugesagt — dasselbe Heft trüge sonst
-// je nach Seite eine andere Nummer. `_id` hält die Reihenfolge, die Sanity
-// bisher von sich aus lieferte.
-const publishedNews = `_type == "newsArticle" && defined(slug.current)`;
-const newsOrder = `date desc, _id asc`;
 
 export const allNewsArticlesQuery = `
   *[${publishedNews}] | order(${newsOrder}) {

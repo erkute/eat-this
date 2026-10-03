@@ -1,74 +1,60 @@
-import Image from '@/app/components/SiteImage';
-import { Link } from '@/i18n/navigation';
 import type { RestaurantArticleCard } from '@/lib/types';
 import { articleCardText } from '@/lib/articleCard';
-import hubStyles from './HubPage.module.css';
+import MagazineCover from './MagazineCover';
+import MagazineLink from './MagazineLink';
 import styles from './RestaurantArticlesSection.module.css';
 
 interface Props {
   articles: RestaurantArticleCard[];
   locale: 'de' | 'en';
+  /** Abschnitt und Zwischentitel setzt die Spot-Seite. */
+  classNames: { section: string; heading: string };
 }
 
 /**
- * Die Artikel, in denen dieser Spot vorkommt.
+ * Die Artikel, in denen dieser Spot vorkommt — seit 03.10.2026 als Hefte wie
+ * auf /news (MagazineCover), ein Tipp schlägt das Heft auf (MagazineLink).
+ * Daneben Rubrik, Datum und Titel.
  *
- * Steht bewusst VOR der Bezirks-Zeile: ein Text über genau diesen Laden ist
- * spezifischer als vier weitere Spots aus demselben Bezirk. Die Reihenfolge
- * innerhalb des Blocks kommt aus der Query — je weniger Spots ein Artikel
- * nennt, desto weiter oben steht er.
- *
- * Der Link zeigt Google außerdem, welche der beiden Seiten die Entität ist:
- * Restaurant-Seite und Ein-Spot-Artikel konkurrieren sonst um dieselbe
- * Marken-Suche.
- *
- * Kopf und Karten wie das Bezirks-Regal darunter: Titel mit „Alle", Schlagzeile
- * unter dem Bild statt auf ihm (bis 25.09.2026 lag sie unter einem Verlauf auf
- * dem Foto).
+ * Die Reihenfolge kommt aus der Query — je weniger Spots ein Artikel nennt,
+ * desto weiter oben steht er. Der Link zeigt Google ausserdem, welche der
+ * beiden Seiten die Entität ist: Restaurant-Seite und Ein-Spot-Artikel
+ * konkurrieren sonst um dieselbe Marken-Suche.
  */
-export default function RestaurantArticlesSection({ articles, locale }: Props) {
+export default function RestaurantArticlesSection({ articles, locale, classNames }: Props) {
   if (articles.length === 0) return null;
   const de = locale === 'de';
 
-  const heading = de ? 'Im Magazin' : 'In the magazine';
-
   return (
-    <section aria-labelledby="spot-articles">
-      <div className={hubStyles.shelfHead}>
-        <h2 id="spot-articles" className={hubStyles.shelfTitle}>
-          <Link href="/news">{heading}</Link>
-        </h2>
-        <Link
-          href="/news"
-          className={hubStyles.shelfAll}
-          aria-label={de ? 'Alle Artikel' : 'All articles'}
-        >
-          {de ? 'Alle' : 'All'}
-        </Link>
-      </div>
-      <div className={styles.cards} data-count={articles.length}>
+    <section className={classNames.section} aria-labelledby="spot-articles">
+      <h2 id="spot-articles" className={classNames.heading}>
+        {de ? 'Im Magazin' : 'In the magazine'}
+      </h2>
+      <div className={styles.issues}>
         {articles.map((a) => {
           const { title, kicker, date } = articleCardText(a, locale);
           return (
-            <Link key={a._id} href={`/news/${a.slug}`} className={styles.card}>
-              {a.imageUrl && (
-                <div className={styles.photo}>
-                  <Image
-                    src={a.imageUrl}
-                    alt={a.alt || ''}
-                    fill
-                    sizes="(max-width: 699px) 100vw, (max-width: 1099px) 50vw, 400px"
-                  />
-                </div>
-              )}
-              {kicker && <span className={styles.kicker}>{kicker}</span>}
-              <span className={styles.title}>{title}</span>
-              {date && (
-                <time className={styles.date} dateTime={a.date}>
-                  {date}
-                </time>
-              )}
-            </Link>
+            <MagazineLink key={a._id} href={`/news/${a.slug}`} className={styles.issue}>
+              <span className={styles.cover}>
+                <MagazineCover
+                  title={title}
+                  image={a.imageUrl}
+                  issue={a.issue}
+                  date={a.date}
+                  locale={locale}
+                  cover={a.cover}
+                  sizes="(max-width: 767px) 130px, 200px"
+                  widths={[320, 480]}
+                  compact
+                />
+              </span>
+              <span className={styles.text}>
+                {(kicker || date) && (
+                  <span className={styles.meta}>{[kicker, date].filter(Boolean).join(' · ')}</span>
+                )}
+                <span className={styles.title}>{title}</span>
+              </span>
+            </MagazineLink>
           );
         })}
       </div>

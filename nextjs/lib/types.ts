@@ -160,6 +160,10 @@ export interface RestaurantArticleCard {
   date?: string;
   imageUrl?: string;
   alt?: string;
+  /** Ausgabe im Heft-Archiv, die älteste ist 1 (wie auf /news). */
+  issue?: number;
+  /** Look und Freisteller des Hefts. */
+  cover?: CoverData | null;
 }
 
 export interface StaticPageDoc {

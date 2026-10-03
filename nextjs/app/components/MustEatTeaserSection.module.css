@@ -1,40 +1,21 @@
-/* MustEatTeaserSection — die verdeckten Karten auf der Spot-Seite.
- *
- * Kopf wie die übrigen Module der Seite: der Abschnittstitel ist
- * `sectionTitle` aus HubPage.module.css, darunter die Ansage als Unterzeile.
- * Alles in der Markenschrift (der Mono-Kicker war der Fremdkörper, Nutzer-
- * Review 28.08.) und in Papier statt Rot — Rot kommt auf Ink auf rund 2,9:1. Den Abstand
- * zu den Nachbarn setzt der Seitenrhythmus (`gap` auf der Seite) — die
- * Section bringt keinen eigenen mehr mit.
+/* MustEatTeaserSection — die verdeckten Karten auf der Spot-Seite, seit
+ * 03.10.2026 im Heftlook auf Weiss: ein eigener Abschnitt mit Satz, Karten
+ * und Knopf. Den Abstand zu den Nachbarn setzt die Seite.
  */
 
-.section {
-  margin: 0;
-}
-
-.head {
-  margin: 0 0 clamp(14px, 2vw, 22px);
+/* Der Satz zum Abschnitt — gesetzt wie der Lesetext der Spot-Seite
+   (Neue Haas Grotesk Text, wie bei 032c). Titel, Abschnitt und Knopf kommen
+   von der Seite (classNames), damit sie wie ihre übrigen Abschnitte aussehen. */
+.sentence {
   max-width: 46ch;
-}
-
-.heading {
-  margin: 12px 0 4px;
-  color: var(--hub-paper, #fff);
-  font-family: var(--hub-display, var(--et-font-display), sans-serif);
-  font-size: clamp(18px, 1.7vw, 22px);
-  font-weight: 700;
-  line-height: 1.35;
-  text-wrap: balance;
-}
-
-/* Die Handlungsaufforderung — leiser als die Ansage darüber. */
-.body {
-  margin: 0;
-  color: var(--hub-soft, rgba(255, 255, 255, 0.76));
-  font-family: var(--hub-display, var(--et-font-display), sans-serif);
-  font-size: clamp(16px, 1.4vw, 18px);
-  font-weight: 400;
+  margin: 0 0 clamp(18px, 2vw, 26px);
+  font-family: var(--et-font-text);
+  font-size: 18px;
   line-height: 1.4;
+}
+
+.actions {
+  margin-top: clamp(22px, 2.6vw, 32px);
 }
 
 /* ── Card grid — trading-card scatter ────────────────────────────────── */
@@ -65,7 +46,7 @@
 
 @media (min-width: 720px) {
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 160px));
+    grid-template-columns: repeat(auto-fill, minmax(170px, 220px));
     justify-content: start;
     justify-items: start;
     gap: 28px 24px;
@@ -85,7 +66,7 @@
    Reihe nicht im Gleichschritt pumpt. Nur Transform, kein Opacity-Fade. */
 .cardWrap {
   width: 100%;
-  max-width: 160px;
+  max-width: 220px;
   transform: rotate(var(--tilt, 0deg));
   transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
   animation: mustEatWobble 3.2s ease-in-out var(--wobble-delay, 0s) infinite;
@@ -188,4 +169,7 @@
      feedback_musteat_cards_freigestellt). Box ratio matches the asset so
      contain fills cleanly without letterboxing. */
   object-fit: contain;
+  /* Auf Weiss liegt die Karte wie ein Heft auf dem Tisch: der Schatten folgt
+     der freigestellten Form, nicht dem Kasten. */
+  filter: drop-shadow(0 14px 22px rgba(21, 18, 14, 0.24));
 }

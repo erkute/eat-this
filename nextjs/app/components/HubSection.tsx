@@ -95,7 +95,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               `noindex` war. Seit dem 01.09.2026 ist die Karte die Landingpage
               für "Berlin Food Map" — sie braucht diesen Link. Die
               PARAMETRISIERTEN Deep-Links (`?r=`, `?bezirk=`, `?cat=`) behalten
-              ihr nofollow, siehe MapPromoCTA. */}
+              ihr nofollow, siehe „Zur Map" auf Spot-, Bezirks- und
+              Kategorieseiten. */}
             <MapIntentLink
               href="/map"
               className={styles.heroPhones}

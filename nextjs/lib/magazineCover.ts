@@ -255,6 +255,8 @@ export interface CutoutReport {
   edges?: number;
   coverage?: number;
   labels?: Record<string, number>;
+  /** Anteil des Rahmens einer erkannten Person, der im Freisteller liegt. */
+  person?: number;
 }
 
 /** Ein Freisteller taugt fürs Heft, wenn höchstens drei Motive drauf sind —
@@ -266,12 +268,23 @@ export function usableCutout(report: CutoutReport): boolean {
 }
 
 /**
- * Ein Gericht: die Bilderkennung sagt „food“ (ab 0,3) und das Motiv berührt
- * höchstens zwei Bildränder. An der Regel gemessen am 02.10.2026 auf allen 27
- * Titelfotos: zehn Gerichte, kein Tisch, keine Fassade, kein Regal. Blumen
- * und Wein ohne „food“ fallen durch — die stellt man in Studio
- * von Hand um.
+ * Ein Gericht: die Bilderkennung sagt „food“ (ab 0,3), das Motiv berührt
+ * höchstens zwei Bildränder, und es steckt keine Person darin. An der Regel
+ * gemessen am 02.10.2026 auf allen 27 Titelfotos: zehn Gerichte, kein Tisch,
+ * keine Fassade, kein Regal. Blumen und Wein ohne „food“ fallen durch — die
+ * stellt man in Studio von Hand um.
+ *
+ * Personen schneidet das Heft nie aus, nur Essen (Ansage 03.10.2026). Beim
+ * Döner-Heft hielt ein Mann den Döner, und der Freisteller nahm ihn halb mit:
+ * 44 % seines Rahmens lagen darin, bei den neun übrigen Gerichten 0 % — auch
+ * bei Charlottenburg, wo Gäste im Hintergrund sitzen. Mit Person bleibt das
+ * ganze Foto, also ein Foto-Look.
  */
 export function isDish(report: CutoutReport): boolean {
-  return usableCutout(report) && (report.labels?.food ?? 0) >= 0.3 && (report.edges ?? 4) <= 2;
+  return (
+    usableCutout(report) &&
+    (report.labels?.food ?? 0) >= 0.3 &&
+    (report.edges ?? 4) <= 2 &&
+    (report.person ?? 0) < 0.1
+  );
 }

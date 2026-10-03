@@ -107,7 +107,7 @@ try {
     const dish = isDish(report);
     const food = (report.labels?.food ?? 0).toFixed(2);
     console.log(
-      `${dish ? '🍽 ' : usable ? '◻︎ ' : '· '} ${a.slug}  food=${food} edges=${report.edges ?? '-'} motive=${report.instances ?? 0}${dish ? '  → Gericht' : ''}`
+      `${dish ? '🍽 ' : usable ? '◻︎ ' : '· '} ${a.slug}  food=${food} edges=${report.edges ?? '-'} motive=${report.instances ?? 0} person=${(report.person ?? 0).toFixed(2)}${dish ? '  → Gericht' : ''}`
     );
     if (dryRun) continue;
 

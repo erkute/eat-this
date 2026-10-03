@@ -52,7 +52,7 @@
   --ground: var(--et-ink);
   --type: var(--et-white);
 }
-.panel.red,
+.panel.yellow,
 .panel.ink {
   background-color: var(--ground);
 }
@@ -286,10 +286,11 @@
 }
 .scrimSilver {
   inset: 0;
+  /* Oben für das Silber-Logo, unten für die Schlagzeile — die Mitte bleibt
+     Foto. */
   background:
     linear-gradient(rgba(21, 18, 14, 0.62), rgba(21, 18, 14, 0.15) 34%, rgba(21, 18, 14, 0) 44%),
-    radial-gradient(72% 26% at 50% 50%, rgba(21, 18, 14, 0.6), rgba(21, 18, 14, 0)),
-    linear-gradient(rgba(21, 18, 14, 0) 62%, rgba(21, 18, 14, 0.4));
+    linear-gradient(rgba(21, 18, 14, 0) 50%, rgba(21, 18, 14, 0.82) 92%);
 }
 .dim {
   inset: 0;

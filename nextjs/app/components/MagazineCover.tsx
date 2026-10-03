@@ -189,40 +189,43 @@ export default function MagazineCover({
   switch (look) {
     /* ── Freisteller-Looks ─────────────────────────────────────────────── */
     case 'perfect': {
-      // Nach Perfect, mit der Schlagzeile statt des Zitats (Ansage
-      // 03.10.2026): weiss, das Logo klein oben, die Schlagzeile gross, das
-      // Gericht unten rechts.
+      // Nach Perfect, mit der Schlagzeile statt des Zitats: weiss, das Logo
+      // klein oben, das Gericht gross in der Mitte, die Schlagzeile unten.
+      // Erst stand die Schlagzeile gross oben und das Gericht klein unten
+      // rechts — „andersherum, das Bild muss grösser sein, die Headline
+      // nach unten" (Ansage 03.10.2026).
       const c = cut as CutoutCover;
       body = (
         <>
           {logo({ left: q(5), top: q(5), width: q(34) }, styles.logoAt)}
           {meta(issueStack, { right: q(5), top: q(6), textAlign: 'right' })}
+          {cutout(c, fitCutout(c, 84, 68, 50, 58), styles.object)}
           <span
             className={styles.headline}
-            style={{ ...size(fitSize(title, 560, 7, 11)), left: q(5), right: q(5), top: q(22) }}
+            style={{ ...size(fitSize(title, 330, 4.6, 7)), left: q(5), right: q(5), bottom: q(6) }}
           >
             {title}
           </span>
-          {cutout(c, fitCutout(c, 52, 40, 68, 106), styles.object)}
         </>
       );
       break;
     }
     case 'paper': {
-      // Nach PAPER: das Logo gross auf Weiss, darunter ein farbiges
-      // Studio-Feld mit dem Gericht, Ort und Ausgabe in den Ecken.
+      // Nach PAPER: das Logo gross auf Weiss, darunter ein Studio-Feld in
+      // Gelb oder Ink mit dem Gericht, Ort und Ausgabe in den Ecken. Kein
+      // Rot: „der Kontrast zwischen Weiss und dem Rot ist nicht so geil"
+      // (Ansage 03.10.2026).
       const c = cut as CutoutCover;
+      const panelTone = altTone(issue, ['yellow', 'ink']);
+      const onPanel = panelTone === 'yellow' ? 'var(--et-ink)' : '#fff';
       body = (
         <>
           {logo({ top: q(3.5), width: q(92) })}
-          <span
-            className={`${styles.panel} ${TONES[altTone(issue, ['red', 'ink'])]}`}
-            aria-hidden="true"
-          />
-          {meta('Berlin', { left: q(9), top: q(41), color: '#fff' }, styles.metaBold)}
+          <span className={`${styles.panel} ${TONES[panelTone]}`} aria-hidden="true" />
+          {meta('Berlin', { left: q(9), top: q(41), color: onPanel }, styles.metaBold)}
           {meta(
             issueLine,
-            { right: q(9), top: q(41), color: '#fff', textAlign: 'right' },
+            { right: q(9), top: q(41), color: onPanel, textAlign: 'right' },
             styles.metaBold
           )}
           {cutout(c, fitCutout(c, 66, 52, 50, 76), styles.objectSoft)}
@@ -234,7 +237,7 @@ export default function MagazineCover({
               right: q(9),
               bottom: q(10),
               textAlign: 'center',
-              color: '#fff',
+              color: onPanel,
             }}
           >
             {title}
@@ -493,9 +496,10 @@ export default function MagazineCover({
       break;
     }
     case 'silver': {
-      // Nach 032c, Ausgabe 49: das Logo in Silber, roter Rücken, Leitsatz,
-      // die Schlagzeile gross in der Mitte (Ansage: „besser zu lesen, etwas
-      // grösser"), unten der Strichcode.
+      // Nach 032c, Ausgabe 49: das Logo in Silber, Leitsatz, die Schlagzeile
+      // gross unten links über dem Strichcode. Ansagen 03.10.2026: „besser zu
+      // lesen, etwas grösser"; „in die Mitte geklatscht würde ein Magazin
+      // nicht machen"; der rote Rücken links gefiel nicht.
       body = (
         <>
           {photo(styles.fill)}
@@ -509,16 +513,14 @@ export default function MagazineCover({
           <span
             className={`${styles.headline} ${styles.caps} ${styles.onPhotoStrong}`}
             style={{
-              ...size(fitSize(title, 240, 4.4, 6.4)),
-              left: q(12),
-              right: q(9),
-              top: q(44),
-              textAlign: 'center',
+              ...size(fitSize(title, 270, 4.6, 6.8)),
+              left: q(7),
+              right: q(12),
+              bottom: q(14),
             }}
           >
             {title}
           </span>
-          {spine}
           {barcode({ left: q(7), bottom: q(4), width: q(15), height: q(6) })}
           {meta(
             [issue ? `No. ${issue}` : '', month, 'Berlin'].filter(Boolean).join(' · '),
@@ -645,8 +647,10 @@ export default function MagazineCover({
       break;
     }
     default: {
-      // Rote Fläche nach Carnale und 032c: das Foto im farbigen Rahmen, das
-      // Logo über die ganze Breite unten.
+      // Rote Fläche nach Carnale und 032c: das Foto im farbigen Rahmen,
+      // darunter die Schlagzeile, das Logo unten links. Erst lief das Logo
+      // über die ganze Breite — „viel zu gross, man kann die Headline nicht
+      // richtig lesen" (Ansage 03.10.2026).
       tone = altTone(issue, ['red', 'yellow']);
       body = (
         <>
@@ -654,7 +658,7 @@ export default function MagazineCover({
           <span className={styles.fieldRow}>
             <span
               className={`${styles.headline} ${styles.caps}`}
-              style={size(fitSize(title, 260, 4.4, 6))}
+              style={size(fitSize(title, 300, 4.6, 7))}
             >
               {title}
             </span>
@@ -662,7 +666,7 @@ export default function MagazineCover({
               {issueStack}
             </span>
           </span>
-          {logo({ bottom: q(3), width: q(92) })}
+          {logo({ left: q(7), bottom: q(5), width: q(52) }, styles.logoAt)}
         </>
       );
     }

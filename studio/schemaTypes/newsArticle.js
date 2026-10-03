@@ -183,6 +183,75 @@ export default defineType({
       ],
       validation: (Rule) => Rule.required(),
     }),
+    // Das Heft auf Startseite und /news (MagazineCover). Freisteller, Rahmen,
+    // „Gericht erkannt“ und Quelle schreibt der Job „Heft-Cover freistellen“
+    // (nextjs/scripts/build-cover-cutouts.mts) — von Hand wird nur der Look
+    // gewählt.
+    defineField({
+      name: 'cover',
+      title: 'Heft-Cover',
+      type: 'object',
+      group: 'meta',
+      options: {collapsible: true, collapsed: true},
+      description:
+        'Automatisch: Jedes Heft bekommt reihum einen Look. Ist ein Gericht auf dem Aufmacher-Bild, kommen auch die Freisteller-Looks dran — der Freisteller kommt von selbst, spätestens eine Stunde nach dem Veröffentlichen.',
+      fields: [
+        {
+          name: 'look',
+          title: 'Look',
+          type: 'string',
+          options: {
+            list: [
+              {title: 'Automatisch', value: 'auto'},
+              {title: 'Nach LOVE (Logo Ton in Ton)', value: 'love'},
+              {title: 'Nach System (weisses Feld unten)', value: 'system'},
+              {title: 'Nach Holiday (weisses Riesenlogo)', value: 'holiday'},
+              {title: 'Nach Beauty Papers (Logo in der Mitte)', value: 'beauty'},
+              {title: 'Nach 032c (Silber, roter Rücken)', value: 'silver'},
+              {title: 'Nach 032c (rotes Logo in der Mitte)', value: 'redlogo'},
+              {title: 'Nach Purple (weisser Rahmen)', value: 'purple'},
+              {title: 'Nach The Face (roter Block)', value: 'face'},
+              {title: 'Teller', value: 'plate'},
+              {title: 'Rote Fläche', value: 'field'},
+              {title: 'Nach Perfect — braucht Freisteller', value: 'perfect'},
+              {title: 'Nach PAPER — braucht Freisteller', value: 'paper'},
+              {title: 'Fussband — braucht Freisteller', value: 'band'},
+              {title: 'Vor dem Logo — braucht Freisteller', value: 'front'},
+              {title: 'Stillleben — braucht Freisteller', value: 'still'},
+            ],
+          },
+          initialValue: 'auto',
+          description:
+            'Die Looks mit „braucht Freisteller“ greifen nur, wenn unten ein Freisteller steht. Sonst bleibt es bei Automatisch.',
+        },
+        {
+          name: 'cutout',
+          title: 'Freisteller',
+          type: 'image',
+          readOnly: true,
+          description: 'Kommt automatisch aus dem Aufmacher-Bild.',
+        },
+        {
+          name: 'dish',
+          title: 'Gericht erkannt',
+          type: 'boolean',
+          readOnly: true,
+        },
+        {
+          name: 'box',
+          title: 'Rahmen des Motivs',
+          type: 'object',
+          hidden: true,
+          fields: ['x', 'y', 'w', 'h'].map((name) => ({name, type: 'number'})),
+        },
+        {
+          name: 'source',
+          title: 'Freigestellt aus',
+          type: 'string',
+          hidden: true,
+        },
+      ],
+    }),
     defineField({
       name: 'alt',
       title: 'Alt-Text (veraltet)',

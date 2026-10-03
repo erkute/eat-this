@@ -1,15 +1,17 @@
 import { client } from '@/lib/sanity';
 import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { getLatestNewsArticles } from '@/lib/sanity.server';
+import type { CoverData } from '@/lib/magazineCover';
 export interface HubArticle {
   title: string;
   slug: string;
   image: string | null;
-  kicker: string | null;
   /** ISO-Datum der Veröffentlichung — das Heft nennt seinen Monat. */
   date?: string | null;
   /** Ausgabe: Platz in der Reihe aller Artikel, der älteste ist 1. */
   issue: number;
+  /** Look und Freisteller des Hefts. */
+  cover: CoverData | null;
 }
 
 export interface HomeData {
@@ -41,9 +43,9 @@ export async function getHomeData(locale: 'de' | 'en'): Promise<HomeData> {
     title: locale === 'de' && a.titleDe ? a.titleDe : a.title,
     slug: a.slug,
     image: a.imageUrl ?? null,
-    kicker: (locale === 'de' ? a.categoryLabelDe : a.categoryLabel) ?? a.categoryLabel ?? null,
     date: a.date ?? null,
     issue: latest.total - i,
+    cover: a.cover ?? null,
   }));
   const categoryNames: Record<string, string> = Object.fromEntries(
     (catNameRows ?? []).map((r) => [r.slug, r.name])

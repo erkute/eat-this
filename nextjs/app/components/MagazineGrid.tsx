@@ -106,11 +106,10 @@ export default function MagazineGrid({ articles, locale }: Props) {
                     <MagazineCover
                       title={a.title}
                       image={a.image}
-                      kicker={a.kicker}
                       issue={a.issue}
                       date={a.date}
                       locale={locale}
-                      look={i}
+                      cover={a.cover}
                       sizes="(max-width: 767.98px) 80vw, 420px"
                       widths={[480, 800, 1200]}
                     />

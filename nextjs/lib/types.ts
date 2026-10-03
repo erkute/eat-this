@@ -1,3 +1,4 @@
+import type { CoverData } from './magazineCover';
 export interface OpeningHourSlot {
   days: string;
   hours: string;
@@ -141,6 +142,8 @@ export interface NewsArticle {
   alt?: string;
   excerpt?: string;
   excerptDe?: string;
+  /** Das Heft-Cover, siehe lib/magazineCover.ts. */
+  cover?: CoverData | null;
   content?: PortableTextBlock[];
   contentDe?: PortableTextBlock[];
   seo?: NewsArticleSeo;

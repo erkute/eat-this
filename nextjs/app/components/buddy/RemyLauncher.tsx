@@ -9,7 +9,7 @@
 // Wer ihn nicht will, tippt das ✕ in der Ecke — dann ist Remy für diesen Besuch
 // weg. Für DIESEN Besuch, nicht für immer: ein dauerhaft weggeklickter Remy
 // wäre für den Besucher nicht mehr auffindbar. Über die Bühne der Startseite
-// und den Block auf der Spot-Seite bleibt er in jedem Fall erreichbar.
+// bleibt er in jedem Fall erreichbar.
 //
 // Nicht auf /map: dort sitzt unten rechts der Standort-Knopf, der an der Kante
 // der Liste mitwandert (MapControls .fab, `--locate-bottom` pro Frame). Zwei

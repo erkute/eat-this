@@ -1,13 +1,6 @@
 // nextjs/lib/buddy/orchestrator.ts
 import Anthropic from '@anthropic-ai/sdk';
-import type {
-  Locale,
-  ChatMessage,
-  BuddyStreamEvent,
-  SpotCandidate,
-  ArticleResult,
-  BuddyPageContext,
-} from './types';
+import type { Locale, ChatMessage, BuddyStreamEvent, SpotCandidate, ArticleResult } from './types';
 import { buddyTools } from './tools';
 import { buildSystemPrompt } from './prompt';
 import { pickPackForSpots, buildPackTeaser } from './packTeaser';
@@ -125,7 +118,6 @@ export async function* runBuddyTurn(
     messages: ChatMessage[];
     locale: Locale;
     geo?: { lat: number; lng: number };
-    page?: BuddyPageContext;
     /** Was dieses Konto schon hat — die Route leitet es aus dem verifizierten
      *  Token ab. Fehlt es, fragt ein Gast, und jedes Pack darf. */
     owned?: OwnedPacks;
@@ -138,7 +130,6 @@ export async function* runBuddyTurn(
       type: 'text',
       text: buildSystemPrompt(input.locale, {
         hasGeo: !!input.geo,
-        page: input.page,
         signedIn: !!deps.listSavedSpots,
       }),
       cache_control: { type: 'ephemeral' },
@@ -155,7 +146,7 @@ export async function* runBuddyTurn(
   let packSent = false;
   const latestUserText =
     [...input.messages].reverse().find((m) => m.role === 'user')?.content ?? '';
-  const forceGeoSearch = !!input.geo && isNearbyIntent(latestUserText, { pageBound: !!input.page });
+  const forceGeoSearch = !!input.geo && isNearbyIntent(latestUserText);
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     throwIfAborted(options.signal);

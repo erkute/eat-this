@@ -23,7 +23,7 @@ import RemyLauncher from './RemyLauncher';
 export const preloadBuddyWidget = () => import('./BuddyWidget');
 const BuddyWidget = dynamic(preloadBuddyWidget, { ssr: false });
 
-export default function RemyDock({ pageSlug }: { pageSlug?: string } = {}) {
+export default function RemyDock() {
   const [mount, setMount] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === '/';
@@ -53,7 +53,7 @@ export default function RemyDock({ pageSlug }: { pageSlug?: string } = {}) {
   return (
     <>
       <RemyLauncher />
-      {mount && <BuddyWidget pageSlug={pageSlug} />}
+      {mount && <BuddyWidget />}
     </>
   );
 }

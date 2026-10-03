@@ -84,9 +84,8 @@ export interface EmbeddingsIndex {
 
 /**
  * Kein eigenes Muster: geprueft wird gegen genau die Zeichenklasse, an der zur
- * Laufzeit der `[[spot:…]]`-Marker und der Seitenkontext haengen. Eine Kopie
- * hier wuerde irgendwann von ihr abweichen — und dann gruen melden, was Remy
- * nicht darstellen kann. Fuer Artikel ist es dieselbe Frage eine Ebene weiter:
+ * Laufzeit der `[[spot:…]]`-Marker haengt. Eine Kopie hier wuerde irgendwann
+ * von ihr abweichen — und dann gruen melden, was Remy nicht darstellen kann. Fuer Artikel ist es dieselbe Frage eine Ebene weiter:
  * der Slug wird zu `/news/<slug>`.
  */
 const PATH_SAFE_SLUG = SPOT_SLUG_RE;

@@ -137,8 +137,14 @@ export default async function BezirkIndexPage({ params }: PageProps) {
               blurb: pickLocale(b.description, b.descriptionEn, loc),
               spots: pickShelf(curated, b.exampleRestaurants, 4),
               // Friedenau hat genau einen Spot — dort kein „Alle".
-              cta: count === 1 ? (de ? 'Zum Spot' : 'Open') : de ? 'Alle' : 'All',
-              ctaLabel: de ? `Alle Spots in ${b.name}` : `All spots in ${b.name}`,
+              more:
+                count === 1
+                  ? de
+                    ? `Zum Spot in ${b.name}`
+                    : `The spot in ${b.name}`
+                  : de
+                    ? `Alle Spots in ${b.name}`
+                    : `All spots in ${b.name}`,
             };
           })}
         />

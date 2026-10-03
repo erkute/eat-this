@@ -428,9 +428,9 @@ export interface DirectoryEntry {
   blurb?: string;
   /** Bis zu vier Spots als Bildleiste. */
   spots: Spot[];
-  /** Kurz und ohne Zahl: „Alle", bei einem einzigen Spot „Zum Spot". */
-  cta: string;
-  ctaLabel: string;
+  /** Der Weg zur ganzen Liste, ohne Zahl: „Alle Spots in Mitte", bei einem
+   *  einzigen Spot „Zum Spot in Friedenau". */
+  more: string;
   /** Das Booster-Pack der Kategorie als Marke neben dem Namen. */
   art?: string | null;
 }
@@ -482,13 +482,14 @@ export function IssueDirectory({ entries, label }: { entries: DirectoryEntry[]; 
             </ol>
           )}
           {e.blurb && <p className={styles.dirBlurb}>{e.blurb}</p>}
-          {/* Gelb und mittig wie „Zur Map" im Kapitel — das graue „Alle"
-              rechts neben dem Namen sah gedrückt aus (Ansage 03.10.2026). */}
-          <div className={styles.links}>
-            <Link href={e.href} className={styles.btn} aria-label={e.ctaLabel}>
-              {e.cta}
+          {/* Kein Knopf, eine Etikett-Zeile wie die Rubrik im Kopf (Wahl
+              03.10.2026): das graue „Alle" sah gedrückt aus, das gelbe
+              passte im Wort und in der Form nicht. */}
+          <p className={styles.dirMoreLine}>
+            <Link href={e.href} className={styles.dirMore}>
+              {e.more}
             </Link>
-          </div>
+          </p>
         </section>
       ))}
     </div>

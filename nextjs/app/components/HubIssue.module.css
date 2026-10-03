@@ -738,6 +738,47 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   line-height: 1.65;
 }
 
+/* Der Weg zur ganzen Liste als Etikett-Zeile wie die Rubrik im Kopf:
+   gelbes Quadrat, Providence in Versalien, gesperrt — kein Knopf. */
+.dirMoreLine {
+  margin: 18px 0 0;
+  text-align: center;
+}
+
+.dirMore {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.dirMore::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--et-accent);
+}
+
+@media (hover: hover) {
+  .dirMore:hover {
+    color: var(--et-red);
+  }
+}
+
+.dirMore:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 3px;
+}
+
 .dirStrip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

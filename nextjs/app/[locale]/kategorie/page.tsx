@@ -137,8 +137,7 @@ export default async function KategorieIndexPage({ params }: PageProps) {
               name: label,
               blurb: localizedCategoryBlurb(c, loc),
               spots: pickShelf(curated, c.exampleRestaurants, 4),
-              cta: de ? 'Alle' : 'All',
-              ctaLabel: de ? `Alle Spots: ${label}` : `All spots: ${label}`,
+              more: de ? `Alle Spots für ${label}` : `All spots for ${label}`,
               // Das Pack der Kategorie als Marke neben dem Namen — nur Bild,
               // kein Link (27.08.2026): die Packs liegen unter /packs, ein
               // zweites Ziel in derselben Zeile machte zwei Versprechen.

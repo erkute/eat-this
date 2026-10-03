@@ -148,8 +148,7 @@ describe('IssueDirectory', () => {
           name: 'Mitte',
           blurb: 'Zwischen Torstraße und Spree.',
           spots: [spot('bar-basta'), spot('sofi')],
-          cta: 'Alle',
-          ctaLabel: 'Alle Spots in Mitte',
+          more: 'Alle Spots in Mitte',
         },
       ]}
     />
@@ -157,7 +156,9 @@ describe('IssueDirectory', () => {
 
   it('links the name and the short way in to the page', () => {
     expect(html).toMatch(/<h2[^>]*><a href="\/bezirk\/mitte">Mitte<\/a><\/h2>/);
-    expect(html).toContain('aria-label="Alle Spots in Mitte"');
+    // Eine Etikett-Zeile statt Knopf (Wahl 03.10.2026), sprechend genug ohne
+    // eigenes aria-label.
+    expect(html).toMatch(/<a [^>]*href="\/bezirk\/mitte"[^>]*>Alle Spots in Mitte<\/a>/);
     expect(html).toContain('Zwischen Torstraße und Spree.');
   });
 

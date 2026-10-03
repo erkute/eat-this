@@ -95,6 +95,23 @@ describe('RemyDock', () => {
   });
 });
 
+/* In Magazin-Artikeln wird gelesen — kein Knopf über dem Text (Ansage
+   02.10.2026). Die Übersicht behält ihn. */
+it.each(['/news/bestes-croissant-berlin', '/news/vorschau/abc'])(
+  'keeps the launcher out of the article %s',
+  (pathname) => {
+    route.pathname = pathname;
+    renderDock();
+    expect(launcher()).toBeNull();
+  }
+);
+
+it('keeps the launcher on the magazine index', () => {
+  route.pathname = '/news';
+  renderDock();
+  expect(launcher()).not.toBeNull();
+});
+
 it.each(['/packs', '/pack/pizza', '/pack/coffee'])(
   'keeps purchase controls clear on %s',
   (pathname) => {

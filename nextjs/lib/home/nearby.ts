@@ -1,4 +1,4 @@
-import { haversineDistance } from '@/lib/map/distance';
+import { haversineDistance, walkingMinutes } from '@/lib/map/distance';
 import type { MapRestaurant } from '@/lib/types';
 
 interface LatLng {
@@ -48,4 +48,25 @@ export function rotatingRestaurants(
     { length: Math.min(n, ordered.length) },
     (_, i) => ordered[(start + i) % ordered.length]
   );
+}
+
+/** What the stamp on a nearby card says: a number and its unit. */
+export interface NearbyDistance {
+  value: string;
+  unit: 'Min' | 'km';
+}
+
+/**
+ * Walking minutes up to ~1600 m, like formatWalkingTime — past that a walking
+ * time reads as off-putting ("90 min on foot"), so the stamp switches to the
+ * distance in kilometres. The value is kept apart from its unit because the
+ * stamp rolls each character of it like a counter.
+ */
+export function nearbyDistance(meters: number, locale: 'de' | 'en'): NearbyDistance {
+  const minutes = walkingMinutes(meters);
+  if (minutes !== null) return { value: String(minutes), unit: 'Min' };
+  const value = new Intl.NumberFormat(locale === 'de' ? 'de-DE' : 'en-GB', {
+    maximumFractionDigits: 1,
+  }).format(meters / 1000);
+  return { value, unit: 'km' };
 }

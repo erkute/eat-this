@@ -168,7 +168,20 @@ describe('HubNearby', () => {
     await waitFor(() => {
       expect(screen.getByText('Um dich herum')).toBeTruthy();
     });
-    expect(screen.getByText('1 Min · Mitte')).toBeTruthy();
+    // Die Gehzeit steht im Stempel (für Vorleser als Text), der Bezirk darunter.
+    expect(screen.getByText('1 Min')).toBeTruthy();
+    expect(screen.getByText('Mitte')).toBeTruthy();
+  });
+
+  /* Ohne Standort trägt jede Karte einen Stempel „? Min" — er fragt, statt
+     eine Zeit von einem erfundenen Ort aus zu nennen. */
+  it('stamps every card with an open question while the position is unknown', () => {
+    const spots = Array.from({ length: 3 }, (_, i) =>
+      restaurant({ _id: `r${i}`, slug: `spot-${i}`, name: `Spot ${i}` })
+    );
+    const html = render(mapData(spots));
+    expect(html.match(/data-stamp=""/g)).toHaveLength(3);
+    expect(html.match(/data-reel="\?"/g)).toHaveLength(3);
   });
 
   it('opens the spot on the map', () => {
@@ -179,15 +192,17 @@ describe('HubNearby', () => {
     expect(html).not.toContain('/restaurant/');
   });
 
-  /* Ansage 01.10.2026: „die Restaurants alle anklickbar und horizontal
-     scrollbar" — eine Querleiste, in der jede Karte ein eigener Link ist. */
-  it('lists every restaurant as its own link in one sideways rail', () => {
+  /* Die Nächste groß, die übrigen in einer Querleiste (Ansage 01.10.2026:
+     „die Restaurants alle anklickbar und horizontal scrollbar"), jede Karte
+     ein eigener Link (Wahl 02.10.2026). */
+  it('shows the first spot big and the rest as links in one sideways rail', () => {
     const spots = Array.from({ length: 8 }, (_, i) =>
       restaurant({ _id: `r${i}`, slug: `spot-${i}`, name: `Spot ${i}` })
     );
-    renderLive(mapData(spots));
+    const { container } = renderLive(mapData(spots));
     const rail = screen.getByRole('list', { name: 'Was ist um dich?' });
-    const links = Array.from(rail.querySelectorAll('li > a'));
+    expect(rail.querySelectorAll('li > a')).toHaveLength(7);
+    const links = Array.from(container.querySelectorAll('[data-hub-nearby] a'));
     expect(links).toHaveLength(8);
     expect(new Set(links.map((a) => a.getAttribute('href'))).size).toBe(8);
   });

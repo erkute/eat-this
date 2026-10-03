@@ -44,6 +44,9 @@ gsap.registerPlugin(useGSAP);
  *      alles rückwärts gehen; wer zurückkommt, sieht es neu (`armFragRemy`).
  *      Zu jeder Kategorie sagt er einen Satz — beim Zeigen darauf oder von
  *      selbst, solange niemand die Tafel anfasst (`armRemySays`).
+ *    - Nearby teilt seine Karten selbst aus und lässt die Stempel einschlagen
+ *      (HubNearby, lib/home/nearbyMotion.ts): es muss die Karten vor dem
+ *      ersten Bild auf den Stapel legen, auch nach einem Neu-Rendern.
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
@@ -1177,7 +1180,11 @@ function armPreload(): () => void {
         io.unobserve(entry.target);
         entry.target
           .querySelectorAll<HTMLImageElement>('img[loading="lazy"]')
-          .forEach((img) => (img.loading = 'eager'));
+          .forEach((img) => {
+            // Ausgeblendet (z. B. die siebte Nearby-Karte im Desktop-Raster)
+            // bleibt `lazy` — `eager` lüde das Bild trotz display:none.
+            if (img.getClientRects().length > 0) img.loading = 'eager';
+          });
       }
     },
     { root: appScroller(), rootMargin: '150% 0px' }

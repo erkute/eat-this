@@ -56,6 +56,10 @@ export function armRailDrag(rail: HTMLElement): () => void {
 
   const down = (event: PointerEvent) => {
     if (event.pointerType !== 'mouse' || event.button !== 0) return;
+    // Was nicht scrollt, wird nicht gezogen: im Raster der Startseite (ab
+    // 1024px) schluckte ein um ein paar Pixel verrutschter Klick sonst die
+    // Karte (gemessen 02.10.2026).
+    if (rail.scrollWidth <= rail.clientWidth + 1) return;
     pointer = event.pointerId;
     x0 = event.clientX;
     left0 = rail.scrollLeft;

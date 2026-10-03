@@ -6,8 +6,10 @@ import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
+import { formatArticleDate } from '@/lib/articleDate';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { HubFilterCard, HubFilterGroup } from './HubFilter';
+import { byLetter } from './HubSpots';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
@@ -175,12 +177,6 @@ export function IssueSpots({
   );
 }
 
-/** Die Marke eines Namens: Grundbuchstabe ohne Akzent, Ziffern unter „#". */
-function letterOf(name: string): string {
-  const first = normalizeName(name).normalize('NFD').charAt(0).toUpperCase();
-  return /\p{L}/u.test(first) ? first : '#';
-}
-
 /**
  * Das Register hinten im Heft: alle übrigen Spots alphabetisch in drei
  * Spalten (Ansage 03.10.2026), Buchstaben rot, je Spot Name und Küche ·
@@ -197,16 +193,9 @@ export function IssueRegister({
   locale: Locale;
   facetsOf: (r: Spot) => string[];
 }) {
-  const groups: { letter: string; items: Spot[] }[] = [];
-  for (const r of restaurants) {
-    const letter = letterOf(r.name);
-    const last = groups[groups.length - 1];
-    if (last?.letter === letter) last.items.push(r);
-    else groups.push({ letter, items: [r] });
-  }
   return (
     <div className={styles.register}>
-      {groups.map(({ letter, items }) => (
+      {byLetter(restaurants).map(({ letter, items }) => (
         <HubFilterGroup key={letter} slugs={[...new Set(items.flatMap(facetsOf))]}>
           <div className={styles.letterGroup}>
             <p className={styles.letter} aria-hidden="true">
@@ -230,19 +219,6 @@ export function IssueRegister({
   );
 }
 
-/** „26. August 2026" — wie die Credits im Artikel. */
-function formatDate(iso: string | undefined, locale: Locale): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'Europe/Berlin',
-  });
-}
-
 /**
  * Der Guide zum Bezirk als Heft, wie auf /news: ein Tipp schlägt es auf und
  * landet im Artikel (MagazineLink). Daneben Rubrik, Datum und Titel.
@@ -264,7 +240,7 @@ export function IssueGuides({
         {heading}
       </h2>
       {shown.map((g) => {
-        const date = formatDate(g.date, locale);
+        const date = formatArticleDate(g.date, locale);
         return (
           <MagazineLink key={g.slug} href={`/news/${g.slug}`} className={styles.guide}>
             <span className={styles.guideCover}>

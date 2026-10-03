@@ -188,8 +188,11 @@ function letterOf(name: string): string {
 }
 
 /** Aufeinanderfolgende Spots mit derselben Marke — die Liste kommt schon
- *  alphabetisch (siehe directoryOrder in lib/curated-ranking.ts). */
-function byLetter<T extends Spot>(restaurants: T[]): { letter: string; items: T[] }[] {
+ *  alphabetisch (siehe directoryOrder in lib/curated-ranking.ts). Auch das
+ *  Register der Bezirksseite (BezirkIssue) gruppiert damit. */
+export function byLetter<T extends Pick<Spot, 'name'>>(
+  restaurants: T[]
+): { letter: string; items: T[] }[] {
   const groups: { letter: string; items: T[] }[] = [];
   for (const r of restaurants) {
     const letter = letterOf(r.name);

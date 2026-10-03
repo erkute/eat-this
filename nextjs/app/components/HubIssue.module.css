@@ -103,8 +103,8 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   letter-spacing: 0.08em;
 }
 
-/* Die Übersichten tragen einen ganzen Satz als Titel („Berlin nach
-   Bezirk"), kleiner als ein einzelner Name. */
+/* Die Übersichten tragen zwei Wörter als Titel („Die Bezirke", „Die
+   Kategorien"), kleiner als ein einzelner Name auf der Detailseite. */
 .indexTitle {
   display: block;
   max-width: 14ch;

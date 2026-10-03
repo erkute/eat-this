@@ -56,7 +56,9 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   setRequestLocale(locale);
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
-  const title = de ? 'Berlin nach Bezirk' : 'Berlin by district';
+  // Schlicht wie ein Ressort im Heft (Wahl 03.10.2026, vorher „Berlin nach
+  // Bezirk"); die Stadt steht in der Rubrik darüber.
+  const title = de ? 'Die Bezirke' : 'The districts';
   // Empty districts (no open spots) are hidden — an empty grid page is a
   // dead end for users and thin content for Google. Same rule as the Hub chips.
   const [allBezirke, magazine] = await Promise.all([
@@ -106,16 +108,11 @@ export default async function BezirkIndexPage({ params }: PageProps) {
       />
       <main className={styles.page}>
         <header className={styles.head}>
-          <p className={styles.kicker}>{de ? 'Bezirke' : 'Districts'}</p>
+          <p className={styles.kicker}>Restaurants in Berlin</p>
           <h1 className={styles.title}>
             <span className={styles.indexTitle}>{title}</span>
           </h1>
         </header>
-        <p className={styles.lede}>
-          {de
-            ? 'Entdecke Restaurants, Cafés und Bars in deinem Bezirk.'
-            : 'Discover restaurants, cafés and bars in your neighbourhood.'}
-        </p>
 
         {/* Das Register ersetzt die Regale und die Bezirks-Leiste darüber
             (bis 03.10.2026): jeder Name ist selbst der Weg, ein Filter vor

@@ -58,7 +58,8 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   setRequestLocale(locale);
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
-  const title = de ? 'Wonach ist dir?' : 'What are you craving?';
+  // Parallel zu „Die Bezirke" (Wahl 03.10.2026, vorher „Wonach ist dir?").
+  const title = de ? 'Die Kategorien' : 'The categories';
   // Leere Kategorien fliegen raus — dieselbe Regel wie auf dem Bezirks-Index:
   // eine Zeile ohne Spots ist eine Sackgasse für Leser und dünner Inhalt für
   // Google.
@@ -111,19 +112,14 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         {/* Der Kopf war bis 24.08.2026 drei Booster-Pack-Tüten — Produktfotos,
             keine Kategoriebilder. Hier trägt die Type. */}
         <header className={styles.head}>
-          <p className={styles.kicker}>{de ? 'Kategorien' : 'Categories'}</p>
+          <p className={styles.kicker}>Restaurants in Berlin</p>
           <h1 className={styles.title}>
             <span className={styles.indexTitle}>{title}</span>
           </h1>
         </header>
-        <p className={styles.lede}>
-          {de
-            ? 'Frühstück, Pizza oder Drinks – such dir aus, worauf du Lust hast.'
-            : 'Breakfast, pizza or drinks – pick what you’re in the mood for.'}
-        </p>
 
-        {/* Keine Zwischenüberschrift „Kategorie wählen": die H1 fragt schon,
-            das Register darunter ist die Antwort. */}
+        {/* Ohne Vorspann und ohne Zwischenüberschrift: das Register spricht
+            für sich (Wahl 03.10.2026). */}
         <IssueDirectory
           label={de ? 'Alle Kategorien' : 'All categories'}
           entries={categories.map((c) => {

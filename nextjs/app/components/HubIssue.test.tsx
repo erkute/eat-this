@@ -191,7 +191,7 @@ describe('IssueMagazine', () => {
     expect(html).toContain('href="/news/crapulix"');
     expect(html).toContain('href="/news/franzoesisch"');
     expect(html).toContain('href="/news"');
-    expect(html).toContain('Alle Stories');
+    expect(html).toContain('Alle Ausgaben');
   });
 
   it('stays away without issues', () => {

@@ -330,7 +330,7 @@ export function IssueGuides({
 
 /**
  * Der Schluss der Übersichten: die neuesten Hefte aus dem Magazin, gelegt wie
- * „Weitere Ausgaben" unter einem Artikel. Bis 03.10.2026 endeten /bezirk und
+ * „Weitere Ausgaben" unter einem Artikel, dazu der Weg zu allen. Bis 03.10.2026 endeten /bezirk und
  * /kategorie nach dem letzten Eintrag einfach — „da ist einfach Stille".
  */
 export function IssueMagazine({
@@ -369,7 +369,10 @@ export function IssueMagazine({
       </ul>
       <div className={styles.links}>
         <Link href="/news" className={styles.btn}>
-          {locale === 'de' ? 'Alle Stories' : 'All stories'}
+          {/* „Ausgaben" wie die Hefte selbst („Issue 27") und „Weitere
+              Ausgaben" unter dem Artikel — „Alle Stories" passte nicht
+              (Ansage 03.10.2026). */}
+          {locale === 'de' ? 'Alle Ausgaben' : 'All issues'}
         </Link>
       </div>
     </section>

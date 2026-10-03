@@ -6,7 +6,14 @@
 .cover {
   --ground: #fff;
   --type: var(--et-ink);
-  --silver: linear-gradient(170deg, #f4f4f2 0%, #c9c9c6 38%, #9d9d9a 52%, #e2e2df 68%, #b5b5b2 100%);
+  --silver: linear-gradient(
+    170deg,
+    #f4f4f2 0%,
+    #c9c9c6 38%,
+    #9d9d9a 52%,
+    #e2e2df 68%,
+    #b5b5b2 100%
+  );
   position: relative;
   container-type: inline-size;
   display: block;

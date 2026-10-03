@@ -122,7 +122,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 /** „Oktober 2026" — der Monat, in dem zuletzt ein Spot des Bezirks gepflegt
  *  wurde. Leer, wenn keiner ein Datum trägt. */
 function latestMonth(restaurants: RestaurantCard[], locale: 'de' | 'en'): string {
-  const latest = restaurants.reduce((max, r) => (r._updatedAt && r._updatedAt > max ? r._updatedAt : max), '');
+  const latest = restaurants.reduce(
+    (max, r) => (r._updatedAt && r._updatedAt > max ? r._updatedAt : max),
+    ''
+  );
   if (!latest) return '';
   return new Date(latest).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
     month: 'long',
@@ -232,7 +235,9 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               „restaurants berlin mitte", nicht „mitte". Gleiche Phrase in
               beiden Sprachen. */}
           <h1 className={styles.title}>
-            <span className={styles.pre}>Restaurants in</span>
+            {/* Das Leerzeichen trennt die beiden Zeilen im Text der H1 —
+                ohne es lesen Suchmaschinen und Vorleser „inKreuzberg". */}
+            <span className={styles.pre}>Restaurants in</span>{' '}
             <span className={styles.name}>{b.name}</span>
           </h1>
           <p className={styles.credits}>
@@ -241,9 +246,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
           </p>
         </header>
 
-        {leadAsCards && (
-          <IssueContents restaurants={lead} label={de ? 'Die Spots' : 'The spots'} />
-        )}
+        {leadAsCards && <IssueContents restaurants={lead} label={de ? 'Die Spots' : 'The spots'} />}
 
         <p className={styles.lede}>
           {heroLede ||

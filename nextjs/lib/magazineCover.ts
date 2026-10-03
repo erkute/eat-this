@@ -72,12 +72,7 @@ export type CutoutCover = CoverData & {
 export function hasCutout(cover: CoverData | null | undefined): cover is CutoutCover {
   const box = cover?.box;
   return Boolean(
-    cover?.cutout &&
-    cover.cutoutWidth &&
-    cover.cutoutHeight &&
-    box &&
-    box.w > 0 &&
-    box.h > 0
+    cover?.cutout && cover.cutoutWidth && cover.cutoutHeight && box && box.w > 0 && box.h > 0
   );
 }
 
@@ -112,13 +107,18 @@ export type CoverTone = 'yellow' | 'red' | 'ink';
 
 /** Zwei Töne im Wechsel. Ein Look kommt höchstens alle zehn Nummern wieder,
  *  deshalb wechselt der Ton erst mit dem nächsten Zehner. */
-export function altTone(issue: number | null | undefined, tones: [CoverTone, CoverTone]): CoverTone {
+export function altTone(
+  issue: number | null | undefined,
+  tones: [CoverTone, CoverTone]
+): CoverTone {
   return tones[Math.floor(Math.abs(issue ?? 0) / PHOTO_LOOKS.length) % 2];
 }
 
 /** Der Teller reihum in Gelb, Rot und Ink. */
 export function plateTone(issue: number | null | undefined): CoverTone {
-  return (['yellow', 'red', 'ink'] as const)[Math.floor(Math.abs(issue ?? 0) / PHOTO_LOOKS.length) % 3];
+  return (['yellow', 'red', 'ink'] as const)[
+    Math.floor(Math.abs(issue ?? 0) / PHOTO_LOOKS.length) % 3
+  ];
 }
 
 /**
@@ -261,10 +261,7 @@ export interface CutoutReport {
  *  ein Brotregal zerfällt in sieben und gibt kein Bild. */
 export function usableCutout(report: CutoutReport): boolean {
   return Boolean(
-    report.found &&
-    report.box &&
-    (report.instances ?? 0) >= 1 &&
-    (report.instances ?? 0) <= 3
+    report.found && report.box && (report.instances ?? 0) >= 1 && (report.instances ?? 0) <= 3
   );
 }
 

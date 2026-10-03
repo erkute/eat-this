@@ -116,7 +116,9 @@ try {
     if (usable && report.box) {
       // Vision schreibt unkomprimiert; das meiste ist Transparenz und
       // schrumpft auf einen Bruchteil.
-      const png = await sharp(await readFile(cutout)).png({ compressionLevel: 9, palette: false }).toBuffer();
+      const png = await sharp(await readFile(cutout))
+        .png({ compressionLevel: 9, palette: false })
+        .toBuffer();
       const asset = await client.assets.upload('image', png, {
         filename: `cover-${a.slug}.png`,
         contentType: 'image/png',
@@ -128,7 +130,11 @@ try {
     }
 
     const draftId = `drafts.${a._id}`;
-    const hasDraft = await client.fetch<boolean>('defined(*[_id == $id][0]._id)', { id: draftId }, { perspective: 'raw' });
+    const hasDraft = await client.fetch<boolean>(
+      'defined(*[_id == $id][0]._id)',
+      { id: draftId },
+      { perspective: 'raw' }
+    );
     const tx = client.transaction();
     for (const id of hasDraft ? [a._id, draftId] : [a._id]) {
       tx.patch(id, (p) => {

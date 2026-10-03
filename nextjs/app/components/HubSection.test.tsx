@@ -67,9 +67,7 @@ import HubSection from './HubSection';
 const data: HomeData = {
   // MagazineGrid renders nothing on an empty list, and the order assertions
   // below need it on the page.
-  magazine: [
-    { title: 'Zehn Teller', slug: 'zehn-teller', image: null, issue: 1, cover: null },
-  ],
+  magazine: [{ title: 'Zehn Teller', slug: 'zehn-teller', image: null, issue: 1, cover: null }],
   categoryNames: { pizza: 'Pizza' },
 };
 const map = { restaurants: [], mustEats: [], revealedMustEatIds: [] } as unknown as InitialMapData;

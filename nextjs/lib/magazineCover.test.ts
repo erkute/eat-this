@@ -87,7 +87,8 @@ describe('headlines', () => {
   });
 
   it('sizes long headlines down, short ones up, within the bounds', () => {
-    const long = 'Essen und Trinken in Schöneberg – 9 Adressen von acht Uhr morgens bis vier Uhr nachts';
+    const long =
+      'Essen und Trinken in Schöneberg – 9 Adressen von acht Uhr morgens bis vier Uhr nachts';
     expect(fitSize(long, 352, 3.6, 5.4)).toBe(4.1);
     expect(fitSize('Kurz', 352, 3.6, 5.4)).toBe(5.4);
     expect(fitSize('x'.repeat(500), 352, 3.6, 5.4)).toBe(3.6);

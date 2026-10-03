@@ -77,13 +77,7 @@ function Photo({
  * Steht dort, wo andere Seiten ihr Aufmacherfoto haben — keiner der Bezirke
  * hat in Sanity ein eigenes (Stand 03.10.2026).
  */
-export function IssueContents({
-  restaurants,
-  label,
-}: {
-  restaurants: Spot[];
-  label: string;
-}) {
+export function IssueContents({ restaurants, label }: { restaurants: Spot[]; label: string }) {
   if (restaurants.length < 2) return null;
   return (
     <nav className={styles.contents} aria-label={label}>

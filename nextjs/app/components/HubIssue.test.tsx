@@ -70,6 +70,12 @@ describe('IssueSpots', () => {
     expect(html).toMatch(/href="\/map\?r=romeos" rel="nofollow"/);
   });
 
+  // „Spot-Seite" war kein Wort für einen Knopf (Ansage 03.10.2026).
+  it('calls the second way „Zum Spot"', () => {
+    expect(html).toContain('>Zum Spot</a>');
+    expect(html).not.toContain('Spot-Seite');
+  });
+
   it('prints description, tip, cuisine and price', () => {
     expect(html).toContain('Sandwiches.');
     expect(html).toContain('Tipp');
@@ -108,7 +114,7 @@ describe('IssueSiblings', () => {
   const html = renderToStaticMarkup(
     <IssueSiblings
       items={[
-        { slug: 'mitte', label: 'Mitte' },
+        { slug: 'mitte', label: 'Mitte', photo: 'https://cdn.sanity.io/images/p/d/sofi.jpg' },
         { slug: 'wedding', label: 'Wedding' },
       ]}
       base="/bezirk"
@@ -117,14 +123,14 @@ describe('IssueSiblings', () => {
     />
   );
 
-  it('separates the districts with one stroke between them', () => {
-    expect(html.match(/>\/<\/span>/g)).toHaveLength(1);
-    expect(html).toContain('href="/bezirk/wedding"');
+  // Seit 03.10.2026 eine Bildleiste wie im Kopf statt der Wortzeile.
+  it('shows each hub as a photo with its name, linked to its page', () => {
+    expect(html).toMatch(/<a href="\/bezirk\/mitte"><span[^>]*><img[^>]*sofi\.jpg/);
+    expect(html).toMatch(/>Mitte<\/span><\/a>/);
   });
 
-  // Ansage 03.10.2026: kein gelbes Quadrat nach dem letzten Bezirk.
-  it('ends on the last name, without a closing mark', () => {
-    expect(html).toMatch(/Wedding<\/a><\/li><\/ul>/);
+  it('falls back to the initial without a photo', () => {
+    expect(html).toMatch(/<a href="\/bezirk\/wedding"><span[^>]*><span[^>]*>W<\/span>/);
   });
 });
 

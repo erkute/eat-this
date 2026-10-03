@@ -6,6 +6,7 @@ import {
   getRestaurantsByCategory,
   getCategoryBySlug,
   getAllCategories,
+  getAllCategoriesWithStats,
   getGuideTeaser,
 } from '@/lib/sanity.server';
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories';
@@ -15,7 +16,7 @@ import {
   buildCategorySectionHeading,
   buildCategoryDirectoryHeading,
 } from '@/lib/seo/categoryMeta';
-import { rankCurated } from '@/lib/curated-ranking';
+import { rankCurated, shelfPhoto } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
 import { buildKategorieFAQEntries } from '@/lib/kategorie-prose';
 import { categoryDistrictLinks, categoryGuideSlugs } from '@/lib/seo/crossLinks';
@@ -152,14 +153,14 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const loc = de ? 'de' : 'en';
 
   const guideSlugs = categoryGuideSlugs(slug);
-  // `getAllCategories` läuft für diese Route schon in `generateStaticParams`
-  // — derselbe Aufruf trifft den Data-Cache-Eintrag und kostet keine
-  // zusätzliche Sanity-Anfrage.
+  // Mit Zahlen und Regal wie auf /kategorie: der Ausgang unten zeigt je
+  // Kategorie ein Foto und lässt leere weg. Derselbe Data-Cache-Eintrag wie
+  // die Übersicht.
   const [c, restaurants, guides, alleKategorien] = await Promise.all([
     getCategoryBySlug(slug),
     getRestaurantsByCategory(slug),
     Promise.all(guideSlugs.map((s) => getGuideTeaser(s, loc))),
-    getAllCategories(),
+    getAllCategoriesWithStats(),
   ]);
   if (!c) notFound();
   const label = localizedCategoryName(c, loc);
@@ -196,9 +197,14 @@ export default async function KategorieDetailPage({ params }: PageProps) {
     curated: top,
   });
 
+  const takenPhotos = new Set<string>();
   const nachbarKategorien = alleKategorien
-    .filter((x) => x.slug && x.slug !== slug)
-    .map((x) => ({ slug: x.slug, label: localizedCategoryName(x, loc) }));
+    .filter((x) => x.slug && x.slug !== slug && (x.restaurantCount ?? 0) > 0)
+    .map((x) => ({
+      slug: x.slug,
+      label: localizedCategoryName(x, loc),
+      photo: shelfPhoto(x, takenPhotos),
+    }));
 
   const restaurantUrl = (rSlug: string) => `/restaurant/${rSlug}`;
 

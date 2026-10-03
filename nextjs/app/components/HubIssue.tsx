@@ -61,20 +61,23 @@ function metaLine(r: Spot, locale: Locale, showDistrict = false): string {
 }
 
 function Photo({
-  r,
+  src,
+  name,
   sizes,
   widths,
   eager = false,
 }: {
-  r: Spot;
+  src?: string | null;
+  /** Gibt ohne Foto die Initiale her. */
+  name: string;
   sizes: string;
   widths: number[];
   eager?: boolean;
 }) {
-  if (!r.photo) {
+  if (!src) {
     return (
       <span className={styles.initial} aria-hidden="true">
-        {normalizeName(r.name).charAt(0)}
+        {normalizeName(name).charAt(0)}
       </span>
     );
   }
@@ -83,8 +86,8 @@ function Photo({
        nur noch einmal. */
     /* eslint-disable-next-line @next/next/no-img-element */
     <img
-      src={r.photo}
-      srcSet={sanitySrcSet(r.photo, widths)}
+      src={src}
+      srcSet={sanitySrcSet(src, widths)}
       sizes={sizes}
       alt=""
       loading={eager ? 'eager' : 'lazy'}
@@ -108,7 +111,13 @@ export function IssueContents({ restaurants, label }: { restaurants: Spot[]; lab
             <a href={`#${spotAnchor(r.slug)}`}>
               <span className={styles.contentsPhoto}>
                 {/* Steht im ersten Bildschirm — nicht erst beim Scrollen laden. */}
-                <Photo r={r} sizes="(max-width: 767px) 104px, 150px" widths={[240, 320]} eager />
+                <Photo
+                  src={r.photo}
+                  name={r.name}
+                  sizes="(max-width: 767px) 104px, 150px"
+                  widths={[240, 320]}
+                  eager
+                />
               </span>
               <span className={styles.contentsName}>{normalizeName(r.name)}</span>
             </a>
@@ -122,7 +131,7 @@ export function IssueContents({ restaurants, label }: { restaurants: Spot[]; lab
 /**
  * Die Bestenliste als Kapitel: Name rot und gross, darunter Küche und Preis,
  * das Foto über die Lesespalte, Beschreibung und Tipp im Lesetext, dann die
- * zwei Wege — auf die Map und auf die Spot-Seite. Der Name ist der gefolgte
+ * zwei Wege — auf die Map und zum Spot. Der Name ist der gefolgte
  * Link auf die Spot-Seite; die Map-Links tragen `nofollow` (Query-Varianten).
  */
 export function IssueSpots({
@@ -158,7 +167,12 @@ export function IssueSpots({
                 tabIndex={-1}
                 aria-hidden="true"
               >
-                <Photo r={r} sizes="(max-width: 767px) 100vw, 660px" widths={[480, 800, 1320]} />
+                <Photo
+                  src={r.photo}
+                  name={r.name}
+                  sizes="(max-width: 767px) 100vw, 660px"
+                  widths={[480, 800, 1320]}
+                />
               </Link>
               {(desc || tip) && (
                 <div className={styles.text}>
@@ -179,12 +193,14 @@ export function IssueSpots({
                 >
                   {de ? 'Zur Map' : 'On the map'}
                 </MapIntentLink>
+                {/* „Zum Spot" neben „Zur Map" — „Spot-Seite" war kein Wort für
+                    einen Knopf (Ansage 03.10.2026). */}
                 <Link
                   href={`/restaurant/${r.slug}`}
                   className={`${styles.btn} ${styles.btnQuiet}`}
-                  aria-label={de ? `${name}: Spot-Seite öffnen` : `Open the spot page for ${name}`}
+                  aria-label={de ? `Zum Spot: ${name}` : `View spot: ${name}`}
                 >
-                  {de ? 'Spot-Seite' : 'Spot page'}
+                  {de ? 'Zum Spot' : 'View spot'}
                 </Link>
               </div>
             </article>
@@ -338,8 +354,10 @@ export function IssueFaq({
 }
 
 /**
- * Der Ausgang: die anderen Bezirke als eine Zeile, getrennt durch gelbe
- * Striche. Ohne Schlusszeichen nach dem letzten (Ansage 03.10.2026).
+ * Der Ausgang: die anderen Bezirke oder Kategorien als Bildleiste, gesetzt
+ * wie die Leiste im Kopf — Foto, darunter der Name. Bis 03.10.2026 stand hier
+ * eine Wortzeile mit gelben Strichen; sie passte nicht zum Rest des Hefts
+ * (Ansage 03.10.2026). Am Telefon wischt die Leiste.
  */
 export function IssueSiblings({
   items,
@@ -347,7 +365,8 @@ export function IssueSiblings({
   heading,
   label,
 }: {
-  items: { slug: string; label: string }[];
+  /** `photo`: das erste Foto aus dem Regal dieses Hubs (siehe pickShelf). */
+  items: { slug: string; label: string; photo?: string | null }[];
   /** Pfad-Präfix ohne Sprache: `/bezirk` oder `/kategorie`. */
   base: '/bezirk' | '/kategorie';
   heading: string;
@@ -358,20 +377,19 @@ export function IssueSiblings({
     <nav aria-label={label}>
       <h2 className={styles.secTitle}>{heading}</h2>
       <ul className={styles.siblings}>
-        {items.map((item, i) => (
+        {items.map((item) => (
           <li key={item.slug}>
-            {/* Umbrechen darf die Zeile nur nach dem Strich: er hängt am
-                Namen davor (geschütztes Leerzeichen), ein Name selbst bricht
-                nie. */}
-            {i > 0 && (
-              <>
-                {'\u00a0'}
-                <span className={styles.slash} aria-hidden="true">
-                  /
-                </span>{' '}
-              </>
-            )}
-            <Link href={`${base}/${item.slug}`}>{item.label}</Link>
+            <Link href={`${base}/${item.slug}`}>
+              <span className={styles.contentsPhoto}>
+                <Photo
+                  src={item.photo}
+                  name={item.label}
+                  sizes="(max-width: 767px) 104px, 136px"
+                  widths={[240, 320]}
+                />
+              </span>
+              <span className={styles.contentsName}>{item.label}</span>
+            </Link>
           </li>
         ))}
       </ul>
@@ -430,7 +448,12 @@ export function IssueDirectory({ entries, label }: { entries: DirectoryEntry[]; 
                 <li key={r._id}>
                   <Link href={`/restaurant/${r.slug}`}>
                     <span className={styles.contentsPhoto}>
-                      <Photo r={r} sizes="(max-width: 899px) 24vw, 140px" widths={[240, 320]} />
+                      <Photo
+                        src={r.photo}
+                        name={r.name}
+                        sizes="(max-width: 599px) 31vw, (max-width: 899px) 24vw, 140px"
+                        widths={[240, 320]}
+                      />
                     </span>
                     <span className={styles.contentsName}>{normalizeName(r.name)}</span>
                   </Link>

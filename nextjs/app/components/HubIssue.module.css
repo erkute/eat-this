@@ -29,10 +29,14 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* ---------------------------------------------------------------- kopf --- */
 
+/* Bezirk und Kategorie hängen nicht in `.app-pages` (SiteChrome ohne
+   appPages): den Streifen unter der fixen Navigation hält hier niemand sonst
+   frei. Ohne ihn lag die Rubrik am Telefon und bis 1280px ganz darunter.
+   Darunter derselbe Abstand wie im Artikel. */
 .head {
   display: grid;
   justify-items: center;
-  padding-top: clamp(40px, 5.5vw, 84px);
+  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + clamp(40px, 5.5vw, 84px));
   text-align: center;
   container-type: inline-size;
 }
@@ -134,8 +138,14 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   list-style: none;
 }
 
-.contents a {
+/* Eine Spalte, die nie breiter wird als ihr Platz: ein langes Wort im Namen
+   („Friedrichshain") zog sonst Spalte und Foto mit — die Bilder wurden
+   unterschiedlich hoch und liefen in den Nachbarn (03.10.2026). */
+.contents a,
+.dirStrip a,
+.siblings a {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   color: inherit;
   text-decoration: none;
@@ -159,13 +169,15 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   font-size: 15px;
   font-weight: 700;
   line-height: 1.2;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 @media (hover: hover) {
   .contents a:hover .contentsName,
+  .siblings a:hover .contentsName,
   .spotName a:hover,
-  .entry:hover .entryName,
-  .siblings a:hover {
+  .entry:hover .entryName {
     color: var(--et-red);
   }
 }
@@ -603,33 +615,22 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* -------------------------------------------------------------- ausgang -- */
 
-/* Die anderen Bezirke als eine Zeile, getrennt durch gelbe Striche. Ein
-   Name bricht nie in sich um. */
+/* Die anderen Bezirke oder Kategorien als Bildleiste wie im Kopf: Kacheln
+   in fester Breite, mittig umbrechend. Am Telefon wischt sie (unten). */
 .siblings {
-  max-width: 900px;
-  margin: 32px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 26px 10px;
+  width: min(100%, var(--issue-wide));
+  margin: 40px auto 0;
   padding: 0;
   list-style: none;
-  font-size: clamp(24px, 2.6vw, 34px);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.35;
-  text-align: center;
-  text-transform: uppercase;
 }
 
 .siblings li {
-  display: inline;
-}
-
-.slash {
-  color: var(--et-accent);
-}
-
-.siblings a {
-  color: inherit;
-  text-decoration: none;
-  white-space: nowrap;
+  flex: 0 0 136px;
+  min-width: 0;
 }
 
 /* ------------------------------------------------------------ übersicht -- */
@@ -649,6 +650,9 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   }
 }
 
+/* Name und „Alle" bleiben in einer Zeile: der Name bricht in sich (an
+   Leerzeichen und Bindestrichen), der Knopf bleibt rechts stehen. Bis
+   03.10.2026 schob „Charlottenburg" den Knopf über den Rand. */
 .dirHead {
   display: flex;
   align-items: center;
@@ -662,10 +666,15 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   rotate: -6deg;
 }
 
+/* Schwarz, nicht Rot (Ansage 03.10.2026): auf der Übersicht ist der Name
+   ein Eintrag im Register, kein Kapiteltitel. */
 .dirName {
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
-  color: var(--et-red);
+  color: var(--et-ink);
   font-size: clamp(34px, 4vw, 54px);
+  overflow-wrap: break-word;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title);
@@ -699,7 +708,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   }
 
   .dirName a:hover {
-    color: var(--et-ink);
+    color: var(--et-red);
   }
 }
 
@@ -728,10 +737,28 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .dirStrip a {
-  display: grid;
   gap: 8px;
-  color: inherit;
-  text-decoration: none;
+}
+
+/* Am Telefon drei statt vier: bei vier Fotos blieben je ~80px, und die
+   Namen brachen auf drei Zeilen. */
+@media (max-width: 599px) {
+  .dirStrip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dirStrip li:nth-child(n + 4) {
+    display: none;
+  }
+
+  .dirStrip .contentsName {
+    font-size: 14px;
+  }
+
+  /* So gross, dass „Charlottenburg" neben „Alle" passt. */
+  .dirName {
+    font-size: min(34px, 7.2vw);
+  }
 }
 
 /* ------------------------------------------------------------- telefon -- */
@@ -755,8 +782,24 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
     display: none;
   }
 
-  .contents li {
+  .contents li,
+  .siblings li {
     flex: 0 0 104px;
+  }
+
+  .siblings {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: auto;
+    margin-inline: calc(-1 * var(--issue-gutter));
+    padding: 0 var(--issue-gutter);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .siblings::-webkit-scrollbar {
+    display: none;
   }
 
   .contentsName {

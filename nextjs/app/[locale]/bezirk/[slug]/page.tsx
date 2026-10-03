@@ -18,7 +18,7 @@ import {
   buildBezirkBestOfHeading,
   buildBezirkDirectoryHeading,
 } from '@/lib/bezirk-prose';
-import { rankCurated } from '@/lib/curated-ranking';
+import { rankCurated, shelfPhoto } from '@/lib/curated-ranking';
 import { bezirkCategoryLinks, bezirkGuideSlugs } from '@/lib/seo/crossLinks';
 import type { RestaurantCard } from '@/lib/types';
 import styles from '@/app/components/HubIssue.module.css';
@@ -181,7 +181,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   // Hub liefe in dieselbe Weiterleitung zur Übersicht wie diese Seite oben.
   const nachbarBezirke = alleBezirke
     .filter((x) => x.slug && x.slug !== slug && (x.restaurantCount ?? 0) > 0)
-    .map((x) => ({ slug: x.slug, label: x.name }));
+    .map((x) => ({ slug: x.slug, label: x.name, photo: shelfPhoto(x) }));
 
   // Ohne Limit: die Chip-Leiste braucht *jede* vertretene Kategorie, sonst
   // wären Karten hinter keinem Chip erreichbar. Die Statuszeilen entstehen

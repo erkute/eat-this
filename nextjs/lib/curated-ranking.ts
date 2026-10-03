@@ -120,6 +120,25 @@ export function pickShelf<T extends { slug: string }>(
 }
 
 /**
+ * Das Titelfoto eines Hubs im Ausgang der Nachbarseiten: das erste Foto aus
+ * seinem Regal — kuratiert zuerst, wie die Bildleiste auf der Übersicht.
+ * `taken` sammelt die schon vergebenen: ein Spot führt oft zwei Kategorien
+ * an (Frühstück und Kaffee), in der Leiste soll er nicht zweimal stehen.
+ */
+export function shelfPhoto(
+  hub: {
+    topSpotCards?: readonly { photo?: string | null }[] | null;
+    exampleRestaurants?: readonly { photo?: string | null }[] | null;
+  },
+  taken: Set<string> = new Set()
+): string | null {
+  const shelf = [...(hub.topSpotCards ?? []), ...(hub.exampleRestaurants ?? [])];
+  const photo = shelf.find((r) => r.photo && !taken.has(r.photo))?.photo ?? null;
+  if (photo) taken.add(photo);
+  return photo;
+}
+
+/**
  * Wie „vorzeigbar" ein Name in einer Aufzählung ist.
  *
  * Die Listen kommen alphabetisch aus Sanity (`order(name asc)`), also lieferte

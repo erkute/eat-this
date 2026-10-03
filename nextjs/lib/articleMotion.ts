@@ -38,6 +38,8 @@ interface Scene {
   trigger: Element;
   timeline: gsap.core.Timeline;
   targets: Element[];
+  /** Räumt auf, was die Szene ausser Transform und Sichtbarkeit setzt. */
+  release?: () => void;
 }
 
 const hide = { visibility: 'hidden' } as const;
@@ -114,12 +116,23 @@ function toss(board: HTMLElement): Scene | null {
 function deal(list: HTMLElement): Scene | null {
   const items = Array.from(list.children) as HTMLElement[];
   if (!items.length) return null;
+  // Am Telefon ist die Liste ein Querscroller mit Einrasten, und Einrastpunkte
+  // folgen verschobenen Elementen: der Streifen rastete auf das noch versetzte
+  // erste Heft ein (205 px statt 0) und lief beim Austeilen mit — „erst nach
+  // links, dann plötzlich nach rechts" (Ansage 03.10.2026); WebKit blieb mit
+  // angeschnittenem Heft stehen. Solange ein Heft unterwegs ist, rastet nichts
+  // ein, und der Streifen steht am Anfang.
+  const settle = (dealt: boolean) => {
+    list.style.scrollSnapType = dealt ? '' : 'none';
+    if (!dealt) list.scrollLeft = 0;
+  };
+  settle(false);
   gsap.set(items, { ...hide, x: 240, y: -40, rotation: 14 });
-  const timeline = gsap
-    .timeline({ paused: true })
+  const timeline: gsap.core.Timeline = gsap
+    .timeline({ paused: true, onUpdate: () => settle(timeline.progress() === 1) })
     .set(items, show)
     .to(items, { x: 0, y: 0, rotation: 0, duration: 0.7, ease: 'power3.out', stagger: 0.12 });
-  return { trigger: list, timeline, targets: items };
+  return { trigger: list, timeline, targets: items, release: () => settle(true) };
 }
 
 function scenesOf(root: HTMLElement): Scene[] {
@@ -204,6 +217,7 @@ function armScenes(root: HTMLElement): () => void {
     for (const scene of scenes) {
       scene.timeline.kill();
       gsap.set(scene.targets, { clearProps: 'transform,visibility' });
+      scene.release?.();
     }
   };
 }

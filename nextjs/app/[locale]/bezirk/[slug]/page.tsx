@@ -300,7 +300,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         <IssueSiblings
           items={nachbarBezirke}
           base="/bezirk"
-          heading={de ? 'Auch in Berlin' : 'Elsewhere in Berlin'}
+          heading={de ? 'Andere Bezirke' : 'Other districts'}
           label={de ? 'Weitere Bezirke' : 'More districts'}
         />
       </main>

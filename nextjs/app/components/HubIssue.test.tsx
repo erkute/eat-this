@@ -107,7 +107,7 @@ describe('IssueSiblings', () => {
         { slug: 'wedding', label: 'Wedding' },
       ]}
       base="/bezirk"
-      heading="Auch in Berlin"
+      heading="Andere Bezirke"
       label="Weitere Bezirke"
     />
   );

@@ -451,6 +451,24 @@ export const categoryBySlugQuery = `
   }
 `;
 
+// Das Heft-Cover (lib/magazineCover.ts): gewählter Look, ob ein Gericht
+// erkannt ist, der Freisteller samt Rahmen und Pixelmassen — die braucht
+// „Vor dem Logo“, um Foto und Freisteller deckungsgleich zu legen — und die
+// Farben des Aufmacher-Bilds, aus denen „Nach LOVE“ sein Logo tönt.
+const newsCoverProjection = `"cover": {
+    "look": cover.look,
+    "dish": cover.dish,
+    "box": cover.box,
+    "cutout": cover.cutout.asset->url,
+    "cutoutWidth": cover.cutout.asset->metadata.dimensions.width,
+    "cutoutHeight": cover.cutout.asset->metadata.dimensions.height,
+    "palette": image.asset->metadata.palette{
+      "dominant": dominant{background, foreground},
+      "dark": darkMuted.background,
+      "light": lightMuted.background
+    }
+  }`;
+
 // All news articles — newest first
 // Jeder Artikel ist ein Heft, gezählt ab dem ältesten (Issue 1) — auf der
 // Startseite, im Magazin-Index und im Artikelkopf. Dafür brauchen alle drei
@@ -473,6 +491,7 @@ export const allNewsArticlesQuery = `
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},
     "alt": coalesce(image.alt, alt),
+    ${newsCoverProjection},
     excerpt, excerptDe
   }
 `;
@@ -490,8 +509,8 @@ export const latestNewsArticlesQuery = `{
     "slug": slug.current,
     date,
     excerpt, excerptDe,
-    categoryLabel, categoryLabelDe,
-    "imageUrl": ${groqImageUrl('image', 'card')}
+    "imageUrl": ${groqImageUrl('image', 'card')},
+    ${newsCoverProjection}
   }
 }`;
 

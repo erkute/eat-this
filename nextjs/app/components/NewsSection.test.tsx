@@ -68,14 +68,16 @@ describe('NewsSection — current issue', () => {
 describe('NewsSection — issue numbers', () => {
   it('counts down from the number of articles, the oldest is Issue 1', () => {
     const html = render();
-    expect(html).toContain('Issue 5 · Juli 2026');
-    expect(html).toContain('Issue 1 · Juli 2026');
-    expect(html).not.toContain('Issue 6');
+    expect(html).toContain('data-cover-issue="5"');
+    expect(html).toContain('data-cover-issue="1"');
+    expect(html).not.toContain('data-cover-issue="6"');
     expect(html).toContain('Aktuelle Ausgabe<span');
   });
 
   it('prints the month in the page language', () => {
-    expect(render(articles, 'en')).toContain('Issue 5 · July 2026');
+    const html = render(articles, 'en');
+    expect(html).toContain('July 2026');
+    expect(html).not.toContain('Juli');
   });
 });
 
@@ -89,11 +91,20 @@ describe('NewsSection — back issues', () => {
     expect(shelf).not.toContain('href="/news/story-1"');
   });
 
-  it('puts the rubric on the cover and leaves it out when there is none', () => {
-    const html = render([story(1), story(2, { categoryLabelDe: 'Guides' }), story(3)]);
+  it('gives each back issue the look its cover data asks for', () => {
+    const cover = {
+      dish: true,
+      cutout: 'https://cdn.sanity.io/cut.png',
+      cutoutWidth: 1600,
+      cutoutHeight: 2133,
+      box: { x: 0.2, y: 0.3, w: 0.5, h: 0.4 },
+    };
+    const html = render([story(1), story(2, { cover }), story(3)]);
     const shelf = html.slice(html.indexOf('Frühere Ausgaben'));
-    expect(shelf.match(/>Guides</g)).toHaveLength(1);
-    expect(shelf.match(/class="[^"]*flash/g)).toHaveLength(1);
+    // Issue 2 of 3: a dish gets a cut-out look (Fussband), issue 1 without
+    // one a photo look (System).
+    expect(shelf.match(/data-cover-look="band"/g)).toHaveLength(1);
+    expect(shelf.match(/data-cover-look="system"/g)).toHaveLength(1);
   });
 
   it('prints the whole headline, never cut', () => {

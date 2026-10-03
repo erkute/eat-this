@@ -68,7 +68,7 @@ const data: HomeData = {
   // MagazineGrid renders nothing on an empty list, and the order assertions
   // below need it on the page.
   magazine: [
-    { title: 'Zehn Teller', slug: 'zehn-teller', image: null, kicker: 'Magazin', issue: 1 },
+    { title: 'Zehn Teller', slug: 'zehn-teller', image: null, issue: 1, cover: null },
   ],
   categoryNames: { pizza: 'Pizza' },
 };

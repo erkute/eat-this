@@ -1,0 +1,62 @@
+name: Heft-Cover freistellen
+
+# Stellt die Aufmacher-Bilder neuer Magazin-Artikel frei und legt Freisteller,
+# Rahmen und „Gericht erkannt“ in Sanity ab — daraus wählt MagazineCover die
+# Freisteller-Looks (lib/magazineCover.ts). Das Freistellen ist Apples Vision
+# und läuft nur auf macOS, deshalb ein Mac-Runner. Das Repo ist öffentlich,
+# die Minuten kosten hier nichts.
+#
+# Damit der Mac nicht jede halbe Stunde umsonst hochfährt, fragt zuerst ein
+# Linux-Job Sanity, ob ein Foto offen ist — mit demselben Filter wie
+# nextjs/scripts/build-cover-cutouts.mts (`PENDING`). Bis ein Artikel
+# freigestellt ist, bekommt sein Heft einen der Foto-Looks.
+#
+# Braucht das Repo-Secret SANITY_API_WRITE_TOKEN.
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cover-cutouts
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      pending: ${{ steps.count.outputs.pending }}
+    steps:
+      - id: count
+        run: |
+          set -uo pipefail
+          q='count(*[_type == "newsArticle" && defined(slug.current) && defined(image.asset) && !(cover.source == image.asset._ref)])'
+          n=$(curl -sf --max-time 20 -G 'https://ehwjnjr2.api.sanity.io/v2024-01-01/data/query/production' \
+            --data-urlencode "query=$q" --data-urlencode 'perspective=published' | jq -r '.result // empty')
+          # Ohne Antwort lieber den Mac fragen lassen als ein Foto liegen lassen.
+          echo "Offene Aufmacher-Bilder: ${n:-unbekannt}"
+          echo "pending=${n:-unknown}" >> "$GITHUB_OUTPUT"
+
+  cutout:
+    needs: check
+    if: needs.check.outputs.pending != '0'
+    runs-on: macos-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: nextjs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: nextjs/package-lock.json
+      - run: npm ci
+      - run: npm run build:cover-cutouts
+        env:
+          SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}

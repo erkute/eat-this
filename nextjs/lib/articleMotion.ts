@@ -7,15 +7,14 @@
  *
  * Ausgelöst per IntersectionObserver, nicht per ScrollTrigger: das Plugin hält
  * eine rAF-Schleife für die ganze Sitzung am Laufen (siehe HubMotion). Nichts
- * hängt an der Scrollposition, also zittert auf dem iPhone nichts.
+ * hängt direkt an der Scrollposition.
  *
- * Jede Szene läuft, wenn sie von unten ins Bild kommt, und rückwärts, wenn sie
- * es nach unten wieder verlässt — wer zurückscrollt und wieder runter, sieht
- * sie neu (wie Remys Tafel, Ansage 28.09.2026). Was schon über dem Bild liegt,
- * steht einfach da.
+ * Jede Szene läuft einmal, wenn sie ins Bild kommt. Danach wird ihr Trigger
+ * nicht mehr beobachtet: eigene Transforms dürfen den Auftritt nicht an der
+ * Viewport-Kante umkehren. Was schon über dem Bild liegt, steht einfach da.
  *
- * - Stempel: Kapitel, Zitate und „Fazit" schlagen ein wie die Headline der
- *   Startseite — gross und gedreht, dann mit Stauchung auf ihren Platz.
+ * - Kapitel, Zitate und „Fazit" setzen sich mit einer kleinen Skalierung
+ *   und Drehung ohne Nachfedern auf ihren Platz.
  * - Abzug: Spot-Fotos und Bilder im Text landen wie hingeworfene Abzüge,
  *   „Zur Map" ploppt danach auf.
  * - Must-Eat-Bänder schieben von links herein, die Hefte unter „Weitere
@@ -46,12 +45,11 @@ const hide = { visibility: 'hidden' } as const;
 const show = { visibility: 'visible' } as const;
 
 function stamp(el: HTMLElement): Scene {
-  gsap.set(el, { ...hide, scale: 1.9, rotation: -4 });
+  gsap.set(el, { ...hide, scale: 1.08, rotation: -1 });
   const timeline = gsap
     .timeline({ paused: true })
     .set(el, show)
-    .to(el, { scale: 0.97, rotation: 0.6, duration: 0.5, ease: 'expo.out' })
-    .to(el, { scale: 1, rotation: 0, duration: 0.3, ease: 'power2.out' });
+    .to(el, { scale: 1, rotation: 0, duration: 0.5, ease: 'power3.out' });
   return { trigger: el, timeline, targets: [el] };
 }
 
@@ -202,9 +200,11 @@ function armScenes(root: HTMLElement): () => void {
         if (!scene) continue;
         const { timeline } = scene;
         const below = entry.boundingClientRect.top > 0;
+        if (!entry.isIntersecting && below) continue;
+        io.unobserve(entry.target);
+        byTrigger.delete(entry.target);
         if (entry.isIntersecting) timeline.play();
-        else if (below) timeline.reverse();
-        else if (timeline.progress() === 0) timeline.progress(1);
+        else timeline.progress(1);
       }
     },
     // Erst, wenn ein Stück wirklich im Bild ist — nicht schon an der Kante.

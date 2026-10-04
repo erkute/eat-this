@@ -38,6 +38,24 @@
   font-weight: 700;
 }
 
+@font-face {
+  font-family: 'neue-haas-grotesk-text-1';
+  src: url('https://use.typekit.net/af/68dda9/00000000000000007735bb35/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i4&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: italic;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'neue-haas-grotesk-text-1';
+  src: url('https://use.typekit.net/af/71e50e/00000000000000007735bb3d/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i7&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: italic;
+  font-weight: 700;
+}
+
 /* Metrisch angepasster Fallback für Providence. Providence kommt von Typekit
    mit `font-display: swap`, also rendert der erste Frame in der Systemschrift
    und der Text springt beim Tausch — auf /news waren das 0.06 CLS, gemessen

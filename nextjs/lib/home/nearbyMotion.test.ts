@@ -69,38 +69,22 @@ describe('createNearbyEntrance', () => {
     el.remove();
   });
 
-  it('legt die Karten auf den Stapel und teilt sie beim Hereinkommen aus', () => {
-    vi.stubGlobal('matchMedia', () => ({ matches: false }));
-    let enter: IntersectionObserverCallback = () => {};
-    vi.stubGlobal(
-      'IntersectionObserver',
-      class {
-        constructor(cb: IntersectionObserverCallback) {
-          enter = cb;
-        }
-        observe() {}
-        disconnect() {}
-      }
-    );
-    // jsdom legt nichts aus: jede Karte gilt als sichtbar.
-    const rects = vi
-      .spyOn(HTMLElement.prototype, 'getClientRects')
-      .mockReturnValue([{}] as unknown as DOMRectList);
+  it('öffnet den Scrollfächer bei Tastaturfokus und räumt die Transformationen auf', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('no-preference'),
+      addListener: vi.fn(), removeListener: vi.fn(),
+      addEventListener: vi.fn(), removeEventListener: vi.fn(),
+    }));
+    vi.stubGlobal('scrollTo', vi.fn());
     const el = board();
     const entrance = createNearbyEntrance(el)!;
     expect(entrance).not.toBeNull();
-    // Gestapelt: die Stempel sind weg, der Grund deckt.
-    expect(el.hasAttribute('data-dealing')).toBe(true);
-    const stamps = Array.from(el.querySelectorAll<HTMLElement>('[data-stamp]'));
-    expect(stamps.every((s) => s.style.transform.includes('scale(0'))).toBe(true);
-
-    enter([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
-    entrance.finish();
-    // Ausgeteilt: keine Reste am Ende, die Fläche ist wieder weg.
-    expect(el.hasAttribute('data-dealing')).toBe(false);
-    expect(Array.from(el.querySelectorAll<HTMLElement>('a')).every((a) => !a.style.transform)).toBe(true);
+    const card = el.querySelector('a')!;
+    expect(card.style.transform).not.toBe('');
+    card.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    expect(card.style.transform).not.toContain('rotate');
     entrance.dispose();
-    rects.mockRestore();
+    expect(card.style.transform).toBe('');
     el.remove();
   });
 });

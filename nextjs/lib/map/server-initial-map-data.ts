@@ -117,19 +117,7 @@ function composeMustEatsCatalog(anon: InitialMapData, catalog: MapMustEat[]): In
   };
 }
 
-/**
- * Nutzlast für die Startseite: die Spots der anonymen Map, dazu für den
- * Must-Eats-Teaser das Schaufenster UND ein paar Rücken aus dem ganzen Stapel.
- *
- * Die anonyme Map-Nutzlast trägt seit dem 06.09.2026 nur noch die offenen
- * Karten — was ein Konto nicht sieht, taucht am Spot nicht auf. Für die
- * Startseite ist das die falsche Menge: der Teaser lebt vom Kontrast zwischen
- * Rücken und Motiv, und ohne Rücken zeigte er sechs gerahmte Fotos und kein
- * Spiel (Betreiber, 07.09.2026: „kannst du ruhig wieder die verdeckten
- * dazupacken"). Also kommen die Rücken aus demselben Katalog wie auf
- * /must-eats, in derselben Fassung: ohne Gericht, ohne Bild, ohne Spot.
- * Wer ohne Konto auf einen tippt, landet bei der Anmeldung (HubMustEatsTeaser).
- */
+/** Homepage payload: spots plus five cards from the public shop window. */
 export async function getHomeInitialMapData(): Promise<InitialMapData> {
   const [anon, { mustEats: catalog }] = await Promise.all([
     getInitialAnonMapData(),

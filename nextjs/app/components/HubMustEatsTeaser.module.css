@@ -1,245 +1,28 @@
-/* HubMustEatsTeaser — homeV2 vocabulary. Global hv-section/hv-wrap/hv-head/
-   hv-title/hv-rail/hv-btn handle the shell; this file covers the card
-   tilt/lift variants, dish text, and the footer CTA row.
-
-   Seit 04.09.2026 ohne eigene Fläche. Die leise Stufe gehört laut globals.css
-   dem, was ein eigenes OBJEKT ist — Angeboten, Formularen, Remy. Dieser
-   Abschnitt hat dagegen exakt die Form von Magazin und Nearby (Überschrift,
-   Kacheln, Knopf), und die beiden stehen ohne Fläche auf dem Grund. Die
-   Sammelkarten sind ohnehin schon Gegenstände mit Schatten und Kippung; eine
-   hellere Fläche dahinter hat mit ihnen konkurriert statt sie zu tragen. Am
-   Telefon kam dazu, dass die Fläche nur 16px vom Bildschirmrand entfernt saß
-   und als Rahmen um die Karten gelesen wurde. */
-/* ── A24-Bühne (30.09.2026) ──
-   Ohne Scroll-Timelines und mit reduzierter Bewegung: Überschrift, Satz,
-   die Karten nebeneinander mit ihrer Zeile, darunter die Knöpfe. Mit Bühne
-   (`data-staged`, HubMustEatsTeaser): eine bildschirmhohe Szene, die Karten
-   fahren stufenlos am Scrollweg von rechts klein über die Mitte gross nach
-   links klein. Die Karte liegt schräg im Raum, Gericht und Restaurant
-   stehen gerade darunter und fahren mit. Keine Linien, keine Zeilen darüber
-   (Ansage 30.09.2026). */
+/* Fünf offene Karten auf Desktop, vier im mobilen Zweierspalten-Raster. */
 .runway {
   --teaser-ink: var(--et-ink);
   --teaser-paper: var(--et-white);
   --teaser-accent: var(--et-accent);
-  --teaser-soft: rgba(255, 255, 255, 0.76);
-  --stage-top: var(--site-nav-h, 64px);
-  --stage-step: 55svh;
-  --card-w: min(56vw, 260px);
-  /* Wo die Nachbarn stehen, in Kartenbreiten (translate %). */
-  --x-next: 62%;
-  --x-prev: -82%;
-  --x-after: 135%;
-  --x-before: -155%;
-  --y-side: 16%;
-
-  /* Liest HubMustEatsTeaser als Pixelwert: wo die Bühne feststeht. */
-  scroll-margin-top: var(--stage-top);
+  --teaser-soft: rgba(255,255,255,0.76);
   color: var(--teaser-paper);
 }
-@media (min-width: 768px) {
-  .runway {
-    --stage-top: 0px;
-    --card-w: min(24vw, 340px);
-    --x-next: 108%;
-    --x-prev: -104%;
-    --x-after: 215%;
-    --x-before: -210%;
-  }
-}
-
-:global(.homeV2) .runway :global(.hv-title) {
-  color: var(--teaser-paper);
-}
-
-.stage {
-  display: grid;
-  grid-template-areas:
-    'head'
-    'lead'
-    'deck'
-    'foot';
-  gap: 14px;
-}
-.side {
-  display: contents;
-}
-.side > :global(.hv-head) {
-  grid-area: head;
-  margin: 0;
-}
-
-.lead {
-  grid-area: lead;
-  max-width: 52ch;
-  margin: 0;
-  font-family: var(--et-font-display);
-  font-size: clamp(16px, 1.35vw, 19px);
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--teaser-soft);
-}
-
-.deck {
-  --dish-size: 18px;
-  grid-area: deck;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 28px 18px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.slide {
-  min-width: 0;
-}
-
-/* ── Mit Bühne ── */
-.runway[data-staged] {
-  --step: calc(100% / max(1, var(--count) - 1));
-  position: relative;
-  height: calc(var(--stage-h, 100svh) + (var(--count) - 1) * var(--stage-step));
-  view-timeline-name: --must-eat-stage;
-  view-timeline-axis: block;
-  /* Das Fenster der Timeline ist genau die Bühne: `contain` läuft dann von
-     „Bühne steht fest" bis „Strecke zu Ende". */
-  view-timeline-inset: var(--stage-top)
-    calc(var(--port-h, 100dvh) - var(--stage-h, 100svh) - var(--stage-top));
-}
-.runway[data-staged] .stage {
-  position: sticky;
-  top: var(--stage-top);
-  height: var(--view-h, calc(100svh - var(--stage-top)));
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
-  gap: 12px;
-  /* Randlos, damit die Nachbarkarten bis an die Bildschirmkante reichen. */
-  margin-inline: calc((100% - 100vw) / 2);
-  padding: 12px var(--et-wrap-pad-mobile, 16px) 20px;
-  overflow: clip;
-}
-.runway[data-staged] .deck {
-  display: block;
-  position: relative;
-  /* Das Deck misst sich selbst (`cqh`): die Karte richtet sich nach der
-     Höhe, die zwischen Text und Knöpfen wirklich frei ist — am iPhone mit
-     Safari-Leisten deutlich weniger als im Emulator. */
-  container-type: size;
-}
-/* Karte samt Zeile stehen mittig im Deck. Die Breite nimmt, was die Höhe
-   hergibt: Karte (1,3737 × Breite) plus `--caption-h` für die Zeile. */
-.runway[data-staged] .slide {
-  --caption-h: 76px;
-  --w: min(var(--card-w), calc((100cqh - var(--caption-h)) / 1.3737));
-  /* Eine Grösse für jede Unterschrift, aus derselben Kartenbreite. */
-  --dish-size: clamp(14px, calc(var(--w) * 0.075), 22px);
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: var(--w);
-  margin: calc((var(--w) * 1.3737 + var(--caption-h)) / -2) 0 0 calc(var(--w) / -2);
-  animation: deckPass ease-in-out both;
-  animation-timeline: --must-eat-stage;
-  animation-range: contain calc((var(--i) - 2) * var(--step)) contain
-    calc((var(--i) + 2) * var(--step));
-}
-.runway[data-staged] .card {
-  max-width: none;
-  animation: cardTurn ease-in-out both;
-  animation-timeline: --must-eat-stage;
-  animation-range: contain calc((var(--i) - 2) * var(--step)) contain
-    calc((var(--i) + 2) * var(--step));
-}
-.runway[data-staged] .meta {
-  padding-top: 18px;
-}
-@media (hover: hover) {
-  .runway[data-staged] .cardLink:hover .card {
-    scale: 1.03;
-  }
-}
-
-/* Die Bahn einer Karte über ihr Fenster: fünf Stationen, die Mitte bei
-   50 %. `z-index` stuft mit, damit die Karte vorn immer oben liegt. */
-@keyframes deckPass {
-  0% {
-    z-index: 1;
-    transform: translate(var(--x-after), var(--y-side)) scale(0.3);
-  }
-  25% {
-    z-index: 2;
-    transform: translate(var(--x-next), var(--y-side)) scale(0.4);
-  }
-  50% {
-    z-index: 3;
-    transform: translate(0, 0) scale(1);
-  }
-  75% {
-    z-index: 2;
-    transform: translate(var(--x-prev), var(--y-side)) scale(0.4);
-  }
-  100% {
-    z-index: 1;
-    transform: translate(var(--x-before), var(--y-side)) scale(0.3);
-  }
-}
-/* Die Karte liegt schräg im Raum und dreht sich beim Ankommen nach vorn. */
-@keyframes cardTurn {
-  0%,
-  25% {
-    transform: perspective(1100px) rotateX(18deg) rotateY(-18deg) rotate(7deg);
-  }
-  38% {
-    transform: perspective(1100px) rotateX(10deg) rotateY(-62deg) rotate(2deg);
-  }
-  50%,
-  100% {
-    transform: perspective(1100px) rotateX(18deg) rotateY(-18deg) rotate(7deg);
-  }
-}
-
-@media (min-width: 768px) {
-  .runway[data-staged] .stage {
-    grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    grid-template-areas: 'side deck';
-    column-gap: clamp(24px, 4vw, 64px);
-    padding: 24px
-      max(
-        var(--et-wrap-pad, 32px),
-        (100vw - var(--et-wrap-max, 1440px)) / 2 + var(--et-wrap-pad, 32px)
-      );
-  }
-  .runway[data-staged] .side {
-    grid-area: side;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 18px;
-  }
-  /* Links steht die Textspalte: die wartenden Karten verschwinden an der
-     Kante des Decks, statt über die Knöpfe zu fahren. */
-  .runway[data-staged] .deck {
-    overflow: clip;
-  }
-}
-
-/* Am Telefon wird die Bühne nicht mit `sticky` gehalten: eine
-   bildschirmhohe fixierte Fläche an der Unterkante färbt Safaris URL-Leiste
-   (siehe ios26-safari-leisten). Stattdessen schiebt dieselbe Timeline sie im
-   Gleichschritt mit. */
-@keyframes stagePin {
-  to {
-    translate: 0 calc((var(--count) - 1) * var(--stage-step));
-  }
+.stage { display: grid; gap: clamp(32px, 4vw, 56px); padding-block: 36px; }
+.side { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 32px; align-items: center; }
+.side > :global(.hv-head) { margin: 0; }
+:global(.homeV2) .runway :global(.hv-title) { color: var(--teaser-paper); }
+.lead { margin: 0; max-width: 48ch; color: var(--teaser-soft); font-family: var(--et-font-display); font-size: clamp(17px, 1.4vw, 20px); line-height: 1.45; grid-column: 1; }
+.side > .foot { grid-column: 2; grid-row: 1 / 3; }
+.deck { --dish-size: clamp(17px, 1.5vw, 22px); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(20px, 2.5vw, 40px); margin: 0; padding: 24px 12px; list-style: none; }
+.slide { min-width: 0; }
+.slide:nth-child(even) { --card-angle: 2.4deg; }
+@media (max-width: 1023.98px) {
+  .deck { display: flex; overflow-x: auto; scroll-snap-type: x proximity; gap: 24px; padding: 28px 16px; margin-inline: -16px; }
+  .slide { flex: 0 0 min(48vw, 220px); scroll-snap-align: center; }
 }
 @media (max-width: 767.98px) {
-  .runway[data-staged] .stage {
-    position: relative;
-    top: auto;
-    animation: stagePin linear both;
-    animation-timeline: --must-eat-stage;
-    animation-range: contain 0% contain 100%;
-  }
+  .stage { gap: 20px; padding-block: 20px; }
+  .deck { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; overflow: visible; margin: 0; padding: 20px 8px; scroll-snap-type: none; }
+  .side { display: flex; flex-direction: column; align-items: stretch; gap: 20px; }
 }
 
 .cardShell {
@@ -259,70 +42,11 @@
   text-decoration: none;
 }
 
-/* Ohne Konto ist die verdeckte Karte ein Knopf zur Anmeldung, kein Link auf
-   die Map — derselbe Auftritt wie der Link, nur das Element ist ein <button>,
-   und dem nimmt das hier die Browser-Kleidung. */
-.cardButton {
-  appearance: none;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  text-align: inherit;
-  cursor: pointer;
-}
-
 .photo {
   min-height: 0;
   display: grid;
   place-items: center;
   padding: 0;
-}
-
-/* Tipp auf einen Rücken ohne Konto: die Karte zittert einmal, dann geht das
-   Anmeldeformular auf (Betreiber, 07.09.2026: „auf der Startseite eigentlich
-   genau das Gleiche"). Gleiche Dauer und gleicher Rhythmus wie der Tap-Shake
-   im Map-Detail (.mustEatCardTapping in MustEatDetail.module.css) — die Dauer
-   hält lib/guestCardShake.ts mit dem Timer zusammen.
-
-   Zwei Unterschiede, beide notwendig: Die Keyframes liegen doppelt vor, weil
-   CSS-Module Keyframe-Namen eigen vergeben — eine geteilte Animation gibt es
-   nicht. Und geschüttelt wird die HÜLLE, nicht das Bild: die Karte trägt ihre
-   Kippung (rotate) selbst, ein Shake auf ihr würde sie beim Start auf 0
-   reißen. So legen sich Zittern und Kippung übereinander.
-
-   Die Wege sind Prozent der Kachel, nicht Pixel: eine Teaser-Karte ist am
-   Telefon ~114px breit, die 14px des Map-Details wären hier ein Wurf. */
-.photoTapping {
-  animation: teaserTapShake 520ms cubic-bezier(0.3, 0.7, 0.4, 1) 1;
-}
-
-@keyframes teaserTapShake {
-  0% {
-    transform: translate(0, 0) rotate(0);
-  }
-  10% {
-    transform: translate(-6%, 1.7%) rotate(-8deg);
-  }
-  25% {
-    transform: translate(5.6%, -1.3%) rotate(7deg);
-  }
-  40% {
-    transform: translate(-4.8%, 2.1%) rotate(-6deg);
-  }
-  55% {
-    transform: translate(4.3%, -1.3%) rotate(5deg);
-  }
-  70% {
-    transform: translate(-3%, 1.3%) rotate(-4deg);
-  }
-  85% {
-    transform: translate(2.2%, -0.4%) rotate(2deg);
-  }
-  100% {
-    transform: translate(0, 0) rotate(0);
-  }
 }
 
 /* These are collectible cards, so they should read as physical objects: the
@@ -335,7 +59,7 @@
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
-  transform: rotate(-2.4deg);
+  transform: rotate(var(--card-angle, -2.4deg));
   transition:
     transform 220ms cubic-bezier(0.2, 0.8, 0.3, 1),
     filter 220ms ease;
@@ -361,17 +85,11 @@
    Eine Sammelkarte ist ohnehin ein Gegenstand — sie darf sich unter dem Finger
    spürbar in den Grund drücken. Eigenständiges `scale`, damit die Kippung aus
    `transform` stehen bleibt. */
-.cardLink:active .card {
-  scale: 0.94;
+@media (hover: hover) and (pointer: fine) {
+  .cardLink:active .card { scale: 0.94; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Ohne Bewegung kein Zittern — und der Tipp öffnet das Formular sofort,
-     statt auf eine Animation zu warten, die nicht läuft (HubMustEatsTeaser). */
-  .photoTapping {
-    animation: none;
-  }
-
   .card {
     transform: none;
   }
@@ -479,7 +197,6 @@
 
 /* ── Footer row: gelber Knopf zu allen Must Eats, Ring fürs Onboarding ────── */
 .foot {
-  grid-area: foot;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -565,3 +282,11 @@
     }
   }
 }
+
+/* Touch stays native in both directions, including pinch zoom. */
+.deck { touch-action: pan-x pan-y pinch-zoom; }
+@media (hover: none) {
+  .cardShell:focus-within .card { transform: rotate(var(--card-angle, -2.4deg)); }
+}
+
+.coveredButton { width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }

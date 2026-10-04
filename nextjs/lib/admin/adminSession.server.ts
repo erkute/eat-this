@@ -20,7 +20,7 @@ import { isAdminToken } from '@/lib/firebase/entitlements';
 export async function isAdminSession(sessionCookie: string | undefined): Promise<boolean> {
   if (!sessionCookie) return false;
   try {
-    const decoded = await getAdminAuth().verifySessionCookie(sessionCookie);
+    const decoded = await getAdminAuth().verifySessionCookie(sessionCookie, true);
     return isAdminToken({
       email: decoded.email ?? null,
       emailVerified: decoded.email_verified === true,

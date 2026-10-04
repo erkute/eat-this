@@ -24,7 +24,7 @@ vi.mock('@/lib/analytics', () => analytics);
 
 import EmailLinkSignIn from './EmailLinkSignIn';
 
-/** Der Link, wie ihn sendMagicLink baut: Zielseite + Code + Adresse. */
+/** Landing URL; fixtures may include an untrusted email parameter. */
 function arriveWith(query: string, path = '/map') {
   window.history.replaceState(null, '', `${path}?${query}`);
 }
@@ -43,6 +43,7 @@ beforeEach(() => {
   fb.getAdditionalUserInfo.mockReturnValue({ isNewUser: true });
   nav.pathname = '/map';
   localStorage.clear();
+  localStorage.setItem('emailForSignIn', 'gast@example.com');
   arriveWith('r=spot&mode=signIn&oobCode=abc&apiKey=k&e=gast%40example.com');
 });
 
@@ -143,11 +144,11 @@ describe('Link aus der Anmelde-Mail', () => {
     expect(nav.push).not.toHaveBeenCalled();
   });
 
-  it('nimmt die Adresse aus dem Link, nicht die zuletzt gemerkte', async () => {
+  it('ignoriert die Link-Adresse zugunsten des lokal begonnenen Logins', async () => {
     localStorage.setItem('emailForSignIn', 'zuletzt@example.com');
     await mount();
-    expect(screen.getByText('gast@example.com')).toBeTruthy();
-    expect(screen.queryByText('zuletzt@example.com')).toBeNull();
+    expect(screen.getByText('zuletzt@example.com')).toBeTruthy();
+    expect(screen.queryByText('gast@example.com')).toBeNull();
   });
 
   it('sagt beim angetippten Kartenweg, dass die Karte im Pack ist', async () => {
@@ -186,14 +187,19 @@ describe('Link aus der Anmelde-Mail', () => {
   });
 });
 
-/* Ein Link ohne Adresse, geoeffnet in einem Browser, der sich keine gemerkt
-   hat. Firebase braucht die Adresse zum Einloesen — hier tippt der Mensch sie. */
+/* Ohne lokal gemerkte Adresse muss der Mensch sie eingeben, auch wenn
+   ein fremder Link eine Adresse als Parameter mitbringt. */
 describe('ohne bekannte Adresse', () => {
-  beforeEach(() => arriveWith('mode=signIn&oobCode=abc&apiKey=k'));
+  beforeEach(() => {
+    localStorage.clear();
+    arriveWith('mode=signIn&oobCode=abc&apiKey=k&e=attacker%40example.com');
+  });
 
   it('fragt nach der Adresse und meldet mit der getippten an', async () => {
     await mount();
     const input = screen.getByLabelText('Deine E-Mail-Adresse');
+    expect((input as HTMLInputElement).value).toBe('');
+    expect(fb.signInWithEmailLink).not.toHaveBeenCalled();
     fireEvent.change(input, { target: { value: '  fremd@example.com ' } });
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));

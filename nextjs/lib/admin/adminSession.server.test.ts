@@ -45,3 +45,14 @@ describe('isAdminSession', () => {
     expect(await isAdminSession('abc')).toBe(true);
   });
 });
+
+
+it.each(['auth/session-cookie-revoked', 'auth/user-disabled'])(
+  'rejects %s through Firebase revocation checking', async (code) => {
+    verifySessionCookie.mockImplementation(async (_cookie, checkRevoked) => {
+      if (checkRevoked) throw { code };
+      return { admin: true };
+    });
+    expect(await isAdminSession('old-admin-session')).toBe(false);
+  }
+);

@@ -27,10 +27,9 @@ type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'se
  * Firebase erzeugt `<Action-Handler>?mode=…&oobCode=…&apiKey=…&continueUrl=…`.
  * Übernommen werden nur die drei Parameter, die `signInWithEmailLink` liest;
  * `continueUrl` ist die Zielseite selbst, und Firebases `lang` würde die
- * Middleware als alten Sprachschalter lesen und mit 308 beantworten. Dazu
- * kommt `e`, die Adresse: der Link öffnet routinemäßig in einem anderen
- * Browser als dem, der ihn angefordert hat (Gmail-App → Chrome), und Firebase
- * braucht sie zum Einlösen.
+ * Middleware als alten Sprachschalter lesen und mit 308 beantworten. Die
+ * Adresse stammt beim Einlösen ausschließlich aus lokalem Speicher oder
+ * einer Eingabe. Eine Adresse aus der URL ermöglicht Session-Injection.
  *
  * Der Host kommt aus der Continue-URL, nie aus der Projekt-Einstellung:
  * Staging stand auf dem Firebase-Default-Handler, der stumm weiterleitet, ohne
@@ -39,7 +38,7 @@ type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'se
  * der Link auf eine eigene Seite /welcome, die nach dem Klick hart auf die
  * Zielseite weiterleitete.
  */
-export function landingLink(generated: string, continueUrl: string, email: string): string {
+export function landingLink(generated: string, continueUrl: string): string {
   try {
     const link = new URL(generated);
     const target = new URL(continueUrl);
@@ -49,7 +48,6 @@ export function landingLink(generated: string, continueUrl: string, email: strin
       const value = link.searchParams.get(name);
       if (value) target.searchParams.set(name, value);
     }
-    target.searchParams.set(EMAIL_LINK_EMAIL_PARAM, email);
     return target.toString();
   } catch {
     // Keine absolute Continue-URL (rufen alle Aufrufer so nicht): lieber der
@@ -80,8 +78,7 @@ export async function sendMagicLinkEmail(params: {
         url: continueUrl,
         handleCodeInApp: true,
       }),
-      continueUrl,
-      email
+      continueUrl
     );
   } catch (err) {
     console.error('[sendMagicLink] generateSignInWithEmailLink failed:', err);

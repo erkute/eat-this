@@ -6,46 +6,46 @@ export interface LandingFaqEntry {
 const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   de: [
     {
-      q: 'Was ist Eat This?',
-      a: 'Eat This ist eine kuratierte Food-Map für Berlin: handverlesene Restaurants, Cafés und Bars. Frag Remy, er kennt jeden Spot und findet sofort deinen.',
-    },
-    {
-      q: 'Was sind Must Eats?',
-      a: 'Für ausgewählte Spots empfehlen wir zusätzlich konkrete Gerichte, die du dort bestellen solltest.',
-    },
-    {
-      q: 'Wie werden die Restaurants ausgewählt?',
-      a: 'Jeder Spot wird von uns persönlich besucht und anonym getestet. Wir lassen uns nicht für Platzierungen bezahlen - auf die Map kommt nur, was uns überzeugt hat.',
-    },
-    {
-      q: 'Gibt es Eat This nur in Berlin?',
-      a: 'Aktuell liegt der Fokus auf Berlin. Weitere Städte sind bereits geplant.',
-    },
-    {
       q: 'Ist Eat This kostenlos?',
-      a: 'Die Map ist kostenlos. Mit dem kostenlosen Starter Pack kannst du Must Eats sammeln und vor Ort aufdecken. Optional kannst du mit einem Booster Pack die enthaltenen Must Eats sofort freischalten: einmal zahlen, kein Abo. Damit unterstützt du unsere unabhängige Auswahl ohne bezahlte Restaurantplatzierungen.',
+      a: 'Die Map und das Starter Pack sind kostenlos. Optional kannst du mit einem Booster Pack die enthaltenen Must Eats sofort freischalten.',
+    },
+    {
+      q: 'Brauche ich ein Konto?',
+      a: 'Du kannst die Map und die Spots ohne Konto entdecken. Zum Sammeln und Aufdecken verdeckter Must Eats brauchst du ein kostenloses Konto. Bei der Anmeldung bekommst du dein Starter Pack.',
+    },
+    {
+      q: 'Was sind Must Eats und wie decke ich sie auf?',
+      a: 'Must Eats sind konkrete Gerichte, die wir dir an einem Spot empfehlen. Einige sind direkt sichtbar. Verdeckte Karten deckst du mit deinem Konto vor Ort auf und sammelst sie in deinem Deck. Ein Booster Pack schaltet die enthaltenen Karten auch ohne Besuch frei.',
+    },
+    {
+      q: 'Wie wählt ihr die Spots aus?',
+      a: 'Wir besuchen die Spots persönlich und testen anonym. Auf die Map kommt, was uns überzeugt. Restaurants können sich keinen Platz kaufen.',
+    },
+    {
+      q: 'Gibt’s Eat This auch außerhalb von Berlin?',
+      a: 'Aktuell findest du bei uns Restaurants, Cafés und Bars in Berlin. Weitere Großstädte sind geplant.',
     },
   ],
   en: [
     {
-      q: 'What is Eat This?',
-      a: 'Eat This is a curated food map for Berlin: hand-picked restaurants, cafés and bars on one map. Ask Remy — he knows every spot and finds yours instantly.',
-    },
-    {
-      q: 'What are Must Eats?',
-      a: 'For selected spots we add a specific dish recommendation you should order there.',
-    },
-    {
-      q: 'How are the restaurants chosen?',
-      a: "We visit each spot in person, anonymously. We don't take money for placements - on the map only if it convinced us.",
-    },
-    {
-      q: 'Is Eat This only for Berlin?',
-      a: 'Right now we focus on Berlin. More cities are already planned.',
-    },
-    {
       q: 'Is Eat This free?',
-      a: 'The map is free. With the free Starter Pack, you can collect Must Eats and reveal them on site. Optional Booster Packs unlock their Must Eats immediately with a one-time payment and no subscription. Purchases support our independent selection without paid restaurant placements.',
+      a: 'The map and Starter Pack are free. Optional Booster Packs unlock the included Must Eats immediately.',
+    },
+    {
+      q: 'Do I need an account?',
+      a: 'You can explore the map and spots without an account. To collect Must Eats and reveal hidden cards, you need a free account. Your Starter Pack comes with sign-up.',
+    },
+    {
+      q: 'What are Must Eats and how do I reveal them?',
+      a: 'Must Eats are specific dishes we recommend at a spot. Some are visible right away. With an account, you can reveal hidden cards on site and collect them in your deck. A Booster Pack unlocks its included cards without a visit.',
+    },
+    {
+      q: 'How do you choose the spots?',
+      a: 'We visit the spots in person and test anonymously. Only places that win us over make it onto the map. Restaurants cannot buy a place on it.',
+    },
+    {
+      q: 'Is Eat This available outside Berlin?',
+      a: 'For now, you’ll find restaurants, cafés and bars in Berlin. We plan to expand to other major cities.',
     },
   ],
 };

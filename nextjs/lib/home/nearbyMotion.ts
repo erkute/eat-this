@@ -1,23 +1,9 @@
-/* „Was ist um dich?" (HubNearby): die Nächste groß, die übrigen klein in der
-   Querleiste bzw. ab 1024px im Raster, auf jeder Karte ein grauer Stempel
-   mit der Gehzeit (Wahl vom 02.10.2026 nach Prototyp „D · Die Nächste",
-   Stempel grau, mit Zähler).
-
-   Vier Bewegungen:
-   - Beim Hereinkommen werden die Karten von einem Stapel ausgeteilt, jede
-     bekommt beim Landen ihren Stempel (`createNearbyEntrance`).
-   - Ohne Standort sucht das „?": ab und zu dreht eine Walze eine Runde und
-     bleibt wieder auf „?", mit der Maus auch die Karte unter dem Zeiger
-     (`armQuestionSpin`).
-   - Nach „Freigeben" sortiert sich alles nach Nähe: die neue Nächste fliegt in
-     den großen Platz, die alte schrumpft in die Leiste, Neue werden von unten
-     eingeworfen (`rememberCards`).
-   - Dabei laufen die Stempel wie ein Zählwerk von „?" auf die Gehzeit: jede
-     Ziffer ist eine Walze (`spinCounters`).
-   Bewegt wird nur per translate/rotate/scale, nie per Opacity (Hausregel für
-   Brand-Flächen). GSAP Flip wird erst beim Tipp auf „Freigeben" geladen: der
-   Startseite kostet das nichts, solange niemand fragt. */
+/* „Was ist um dich?“: ScrollTrigger öffnet einen Fotofächer zur Fotowand.
+   Nach Standortfreigabe sortiert Flip die Spots nach Entfernung; die grauen
+   Gehzeit-Stempel zählen ihre Werte hoch. Reduced Motion zeigt die Endlage. */
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { appScroller } from '@/lib/dom/appScroller';
 
 type FlipPlugin = (typeof import('gsap/Flip'))['Flip'];
 
@@ -127,172 +113,64 @@ export function armQuestionSpin(board: HTMLElement, every = 2600): () => void {
   };
 }
 
-/* ── Austeilen beim Hereinkommen ──
-   Ab 1024px liegt der Stapel auf dem Foto der Großen: die kleinen Karten
-   fliegen nacheinander in ihre Rasterfelder, zuletzt wächst die Große, die
-   ganz unten lag, auf ihren Platz. Darunter (Leiste) schneidet die Leiste
-   alles ab, was über sie hinausragt — dort wird die Große erst hingelegt,
-   dann liegt der Stapel am Anfang der Leiste und wird nach rechts
-   ausgeteilt. Jede Karte bekommt beim Landen ihren Stempel. */
-
-const jitter = (i: number, span: number) => Math.sin(i * 12.9898 + 4.1) * span;
-const center = (r: DOMRect) => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
-const photoOf = (card: HTMLElement) => card.querySelector<HTMLElement>('.hv-photo') ?? card;
-
+/* Der Scrollweg öffnet den Fotofächer zur frei anklickbaren Fotowand. */
 export interface NearbyEntrance {
-  /** Legt die (womöglich neu gerenderten) Karten wieder auf den Stapel,
-   *  solange noch nicht ausgeteilt ist. */
-  restack: () => void;
-  /** Springt ans Ende (z. B. wenn „Freigeben" getippt wird). */
   finish: () => void;
   dispose: () => void;
 }
 
-/** Legt die Karten von `board` auf den Stapel und teilt sie aus, sobald sie
- *  ins Bild kommen. Ohne Bewegung: `null` — die Karten liegen einfach da. */
 export function createNearbyEntrance(board: HTMLElement): NearbyEntrance | null {
-  if (reducedMotion() || typeof IntersectionObserver === 'undefined') return null;
+  if (!window.matchMedia || reducedMotion()) return null;
   const spread = board.querySelector<HTMLElement>('[data-nearby-spread]');
-  const rail = board.querySelector<HTMLElement>('[data-nearby-rail]');
-  if (!spread || !rail) return null;
-
-  let state: 'stacked' | 'dealing' | 'done' = 'stacked';
-  let tl: gsap.core.Timeline | null = null;
-
-  const heroCard = () => spread.querySelector<HTMLElement>(':scope > [data-flip-id] > a');
-  const railCards = () =>
-    Array.from(rail.querySelectorAll<HTMLElement>(':scope > li > a')).filter(
-      (card) => card.getClientRects().length > 0
-    );
-  // Das Raster (ab 1024px) schneidet nicht ab, die Leiste schon.
-  const isGrid = () => getComputedStyle(rail).overflowX === 'visible';
-  const stampOf = (card: HTMLElement) => card.querySelector<HTMLElement>('[data-stamp]');
-  const all = () => [heroCard(), ...railCards()].filter((c): c is HTMLElement => !!c);
-  const stamps = () => all().flatMap((card) => stampOf(card) ?? []);
-  const slides = () => railCards().flatMap((card) => card.parentElement ?? []);
-
-  const stack = () => {
-    // Deckender Grund, solange Karten übereinanderliegen (HubNearby.module.css).
-    board.setAttribute('data-dealing', '');
-    const hero = heroCard();
-    const cards = railCards();
-    // Erst ohne Versatz messen, dann auf den Stapel legen.
-    gsap.set(all(), { clearProps: 'transform' });
-    gsap.set(stamps(), { scale: 0 });
-    if (!hero) return;
-    const heroPhoto = photoOf(hero).getBoundingClientRect();
-    if (isGrid()) {
-      const deck = center(heroPhoto);
-      cards.forEach((card, i) => {
-        const at = center(photoOf(card).getBoundingClientRect());
-        gsap.set(card.parentElement, { zIndex: cards.length - i });
-        gsap.set(card, {
-          x: deck.x - at.x + jitter(i, 8),
-          y: deck.y - at.y + jitter(i + 3, 6),
-          rotation: jitter(i + 7, 7),
-        });
-      });
-      // Die Große liegt ganz unten, so klein wie eine aus dem Stapel.
-      const small = cards[0] ? photoOf(cards[0]).getBoundingClientRect().width : heroPhoto.width / 2;
-      const box = hero.getBoundingClientRect();
-      gsap.set(hero, {
-        transformOrigin: `${deck.x - box.left}px ${deck.y - box.top}px`,
-        scale: small / heroPhoto.width,
-        rotation: -4,
-      });
-    } else {
-      const first = cards[0]?.getBoundingClientRect();
-      cards.forEach((card, i) => {
-        const box = card.getBoundingClientRect();
-        gsap.set(card.parentElement, { zIndex: cards.length - i });
-        gsap.set(card, {
-          x: (first?.left ?? box.left) - box.left - 22 + jitter(i, 6),
-          y: 14 + jitter(i + 3, 5),
-          rotation: jitter(i + 7, 7),
-          scale: 0.92,
-        });
-      });
-      gsap.set(hero, { y: -18, scale: 1.05, rotation: -3 });
-    }
-  };
-
-  const slam = (timeline: gsap.core.Timeline, card: HTMLElement, at: number) => {
-    const stamp = stampOf(card);
-    if (!stamp) return;
-    timeline.fromTo(
-      stamp,
-      { scale: 2.8, rotation: -26 },
-      { scale: 1, rotation: -7, duration: 0.2, ease: 'power4.in', immediateRender: false },
-      at
-    );
-    timeline.to(card, { y: '+=4', duration: 0.05, ease: 'power1.out', yoyo: true, repeat: 1 }, at + 0.2);
-  };
-
-  const deal = () => {
-    state = 'dealing';
-    stack(); // frisch messen: Schrift und Bilder können das Layout verschoben haben
-    const hero = heroCard();
-    const cards = railCards();
-    tl = gsap.timeline({
-      onComplete: () => {
-        state = 'done';
-        board.removeAttribute('data-dealing');
-        gsap.set(all(), { clearProps: 'transform,transformOrigin' });
-        gsap.set(stamps(), { clearProps: 'transform' });
-        gsap.set(slides(), { clearProps: 'zIndex' });
+  if (!spread) return null;
+  gsap.registerPlugin(ScrollTrigger);
+  const media = gsap.matchMedia();
+  let timeline: gsap.core.Timeline | null = null;
+  let finished = false;
+  media.add('(prefers-reduced-motion: no-preference)', () => {
+    const cards = Array.from(spread.querySelectorAll<HTMLElement>('[data-flip-id] > a'));
+    if (!cards.length || finished) return;
+    const box = () => spread.getBoundingClientRect();
+    timeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: spread,
+        scroller: appScroller() ?? undefined,
+        start: 'top 85%',
+        end: 'top 15%',
+        scrub: 0.6,
+        invalidateOnRefresh: true,
       },
     });
-    const grid = isGrid();
-    let t = 0.05;
-    const heroIn = (at: number) => {
-      if (!hero) return;
-      tl!.to(hero, { x: 0, y: 0, scale: 1, rotation: 0, duration: 0.65, ease: 'back.out(1.3)' }, at);
-      slam(tl!, hero, at + 0.5);
-    };
-    if (!grid) {
-      heroIn(t);
-      t += 0.55;
-    }
     cards.forEach((card, i) => {
-      const at = t + i * 0.12;
-      tl!.to(card, { x: 0, y: 0, rotation: 0, scale: 1, duration: 0.62, ease: 'power3.out' }, at);
-      slam(tl!, card, at + 0.48);
+      const position = i - (cards.length - 1) / 2;
+      timeline!.fromTo(card, {
+        x: () => box().left + box().width / 2 - (card.parentElement!.getBoundingClientRect().left + card.offsetWidth / 2) + position * Math.min(32, box().width * 0.035),
+        y: () => box().top + 140 - card.parentElement!.getBoundingClientRect().top + card.offsetTop + Math.abs(position) * 12,
+        rotation: position * 9,
+        scale: () => Math.min(1, (window.innerWidth < 768 ? 150 : 250) / Math.max(1, card.offsetWidth)),
+        transformOrigin: '50% 25%',
+      }, {
+        x: 0, y: 0, rotation: 0, scale: 1,
+        duration: 1,
+        ease: 'power2.inOut',
+      }, i * 0.035);
     });
-    if (grid) heroIn(t + cards.length * 0.12 + 0.15);
+    // Keyboard navigation exposes the complete wall immediately.
+    const onFocus = () => finish();
+    spread.addEventListener('focusin', onFocus);
+    return () => {
+      spread.removeEventListener('focusin', onFocus);
+      timeline = null;
+    };
+  });
+  const finish = () => {
+    finished = true;
+    timeline?.scrollTrigger?.kill();
+    timeline?.progress(1);
   };
-
-  stack();
-  const io = new IntersectionObserver(
-    (entries) => {
-      if (!entries.some((entry) => entry.isIntersecting) || state !== 'stacked') return;
-      io.disconnect();
-      deal();
-    },
-    // Erst wenn die Karten gut im Bild sind: der Stapel soll als Stapel zu
-    // sehen sein, bevor er ausgeteilt wird.
-    { rootMargin: '0px 0px -40% 0px' }
-  );
-  io.observe(spread);
-
   return {
-    restack: () => {
-      if (state === 'stacked') stack();
-    },
-    finish: () => {
-      if (state === 'stacked') {
-        io.disconnect();
-        deal();
-      }
-      tl?.progress(1);
-    },
-    dispose: () => {
-      io.disconnect();
-      tl?.kill();
-      board.removeAttribute('data-dealing');
-      gsap.set(all(), { clearProps: 'transform,transformOrigin' });
-      gsap.set(stamps(), { clearProps: 'transform' });
-      gsap.set(slides(), { clearProps: 'zIndex' });
-    },
+    finish,
+    dispose: () => media.revert(),
   };
 }
 
@@ -337,18 +215,20 @@ export async function rememberCards(board: HTMLElement): Promise<CardsFlip | nul
           gsap.fromTo(
             (fresh = entering),
             {
-              y: 160,
-              scale: 0.72,
+              clipPath: 'inset(100% 0 0 0)',
+              y: 64,
+              scale: 0.92,
               rotation: (i: number) => (i % 2 ? 7 : -7),
             },
             {
               y: 0,
               scale: 1,
               rotation: 0,
-              duration: 0.75,
+              clipPath: 'inset(0% 0 0 0)',
+              duration: 0.85,
               ease: 'back.out(1.3)',
-              stagger: 0.08,
-              clearProps: 'transform',
+              stagger: 0.1,
+              clearProps: 'transform,clipPath',
             }
           ),
       });

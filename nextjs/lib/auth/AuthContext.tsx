@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   browserPopupRedirectResolver,
   getRedirectResult,
@@ -57,6 +57,15 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+// All cookie mutations in this document share a queue, including remounts.
+// Do not abort requests: their Set-Cookie may already be on its way.
+let sessionMutation: Promise<unknown> = Promise.resolve();
+function enqueueSessionMutation<T>(operation: () => Promise<T>): Promise<T> {
+  const result = sessionMutation.then(operation);
+  sessionMutation = result.catch(() => undefined);
+  return result;
+}
+
 async function clearPremiumAccess(): Promise<void> {
   const response = await fetch('/api/auth/premium-access', { method: 'DELETE' });
   if (!response.ok) throw new Error('Failed to clear premium access');
@@ -99,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const endingSession = useRef(false);
 
   // Synchronize the server-verifiable image session before exposing a Firebase
   // identity to the app. onIdTokenChanged also refreshes the session when the
@@ -107,15 +117,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let active = true;
     let generation = 0;
     const unsubscribe = onIdTokenChanged(auth, (firebaseUser) => {
+      if (endingSession.current && firebaseUser) return;
       const currentGeneration = ++generation;
       setLoading(true);
       reconcileMapDataCacheIdentity(firebaseUser?.uid ?? null);
       let admin = false;
-      void synchronizePremiumAccessWithRetry(firebaseUser)
+      void enqueueSessionMutation(async () => {
+        if (!active || currentGeneration !== generation || (endingSession.current && firebaseUser)) {
+          return false;
+        }
+        return synchronizePremiumAccessWithRetry(firebaseUser).catch(async (error: unknown) => {
+          // Cleanup belongs to the same queue entry as the failed sync.
+          await clearPremiumAccess().catch(() => undefined);
+          throw error;
+        });
+      })
         .then((result) => {
           admin = result;
         })
-        .catch(async (error: unknown) => {
+        .catch((error: unknown) => {
           /* Die Bild-Sitzung ist ein Nebenaufruf. Faellt sie aus, fehlen
              signierte Bilder — die Anmeldung selbst haelt Firebase, und genau
              die hat der Code hier bisher weggeworfen: ein einziger
@@ -130,8 +150,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             },
           });
           console.warn('[auth] premium access sync failed:', error);
-          // Die Sitzung des vorigen Kontos darf trotzdem nicht stehen bleiben.
-          await clearPremiumAccess().catch(() => undefined);
         })
         .finally(() => {
           if (!active || currentGeneration !== generation) return;
@@ -246,8 +264,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // browser identity. Failure is surfaced to the caller so a shared browser
     // never appears signed out while retaining the short-lived capability.
     clearMapDataCaches();
-    await clearPremiumAccess();
-    await firebaseSignOut(auth);
+    endingSession.current = true;
+    try {
+      await enqueueSessionMutation(async () => {
+        await clearPremiumAccess();
+        await firebaseSignOut(auth);
+      });
+    } finally {
+      endingSession.current = false;
+    }
   }, []);
 
   const updateDisplayName = useCallback(async (name: string): Promise<void> => {
@@ -260,8 +285,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const deleteAccount = useCallback(async (): Promise<void> => {
     if (!auth.currentUser) throw new Error('Not authenticated');
     clearMapDataCaches();
-    await clearPremiumAccess();
-    await deleteUser(auth.currentUser);
+    const currentUser = auth.currentUser;
+    endingSession.current = true;
+    try {
+      await enqueueSessionMutation(async () => {
+        await clearPremiumAccess();
+        await deleteUser(currentUser);
+      });
+    } finally {
+      endingSession.current = false;
+    }
   }, []);
 
   // ─────────────────────────────────────────────────────────────────────────

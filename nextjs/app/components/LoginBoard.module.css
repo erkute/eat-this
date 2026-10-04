@@ -244,7 +244,7 @@
   margin: 0;
   color: #fff;
   font-family: var(--et-font-display);
-  font-size: clamp(32px, 3.6vw, 46px);
+  font-size: var(--login-title-size, clamp(32px, 3.6vw, 46px));
   font-weight: 700;
   letter-spacing: 0;
   /* Zweizeilig liefen die Versalien bei 1.02 ineinander. */
@@ -511,7 +511,7 @@
   }
 
   .title {
-    font-size: clamp(28px, 8vw, 36px);
+    font-size: var(--login-title-size, clamp(28px, 8vw, 36px));
   }
 
   .lead {

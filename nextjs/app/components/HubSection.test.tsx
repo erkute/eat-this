@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ReactNode } from 'react';
+import { translations } from '@/lib/i18n/translations';
 import { NextIntlClientProvider } from 'next-intl';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
@@ -8,11 +9,9 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 vi.mock('./HubNearby', () => ({ default: () => '<div data-testid="nearby"></div>' }));
 vi.mock('./HubMustEatsTeaser', () => ({ default: () => '<div data-testid="musteats"></div>' }));
 vi.mock('./HubFragRemy', () => ({
-  default: ({ categoryNames }: { categoryNames: Record<string, string> }) => (
-    <div data-testid="remy">{Object.keys(categoryNames).join(',')}</div>
-  ),
+  default: () => <div data-testid="remy" />,
 }));
-vi.mock('./HubFaq', () => ({ default: () => '<div data-testid="faq"></div>' }));
+vi.mock('./HubFaq', () => ({ default: () => <div data-testid="faq" /> }));
 vi.mock('./SiteFooter', () => ({ default: () => '<footer data-testid="footer"></footer>' }));
 vi.mock('./HubHashScroll', () => ({ default: () => null }));
 /* Das Starter-Pack-Formular bietet seit 07.09.2026 auch Google an und liest
@@ -74,7 +73,7 @@ const map = { restaurants: [], mustEats: [], revealedMustEatIds: [] } as unknown
 
 function renderHome(locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale={locale} messages={{}} timeZone="Europe/Berlin">
+    <NextIntlClientProvider locale={locale} messages={translations[locale]} timeZone="Europe/Berlin">
       <HubSection initialData={data} initialMapData={map} locale={locale} />
     </NextIntlClientProvider>
   );
@@ -94,28 +93,24 @@ describe('HubSection home', () => {
     expect(hero).not.toContain('Deine Map wartet');
   });
 
-  it('carries exactly one signup, high on the page', () => {
+  it('carries exactly one signup after the FAQ', () => {
     const html = renderHome();
     // A second copy lower down was tried and dropped: it looked identical
     // once it gained the pack and panel, so it read as repetition.
     expect(html.match(/data-hub-starter/g)).toHaveLength(1);
-    expect(html.indexOf('Starter Pack')).toBeLessThan(html.indexOf('data-testid="remy"'));
+    expect(html.indexOf('data-hub-starter')).toBeGreaterThan(html.indexOf('data-testid="faq"'));
   });
 
-  it('runs the magazine, nearby, Must Eats and signup, then Remy with the categories', () => {
+  it('orders magazine, nearby, Must Eats, Remy, FAQ and signup', () => {
     const html = renderHome();
-    // Ansage 01.10.2026: the magazine right under the hero, „Worauf hast du
-    // Lust?" under the Starter Pack — since 02.10.2026 Remy's own question,
-    // the categories are its answers (the question itself lives in
-    // HubFragRemy, mocked here). (The HubNearby and HubMustEatsTeaser mocks
-    // return strings, so they land escaped.)
     expect(html.indexOf('data-hub-hero')).toBeLessThan(html.indexOf('Auf dem Teller'));
     expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('nearby'));
     expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('musteats'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
-    expect(html.indexOf('data-hub-starter')).toBeLessThan(html.indexOf('data-testid="remy"'));
-    const remy = html.slice(html.indexOf('data-testid="remy"'));
-    expect(remy).toContain('pizza');
+    expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-testid="remy"'));
+    expect(html.indexOf('data-testid="remy"')).toBeLessThan(html.indexOf('data-testid="faq"'));
+    expect(html.indexOf('data-testid="faq"')).toBeLessThan(html.indexOf('data-hub-starter'));
+
   });
 
   it('has no Spot des Tages any more (removed 01.10.2026)', () => {

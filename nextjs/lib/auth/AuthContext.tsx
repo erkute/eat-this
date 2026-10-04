@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   browserPopupRedirectResolver,
   getRedirectResult,
@@ -60,6 +60,8 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
 // All cookie mutations in this document share a queue, including remounts.
 // Do not abort requests: their Set-Cookie may already be on its way.
 let sessionMutation: Promise<unknown> = Promise.resolve();
+// Shared with the queue: a remount must not schedule a signed-in sync during logout.
+let endingSessions = 0;
 function enqueueSessionMutation<T>(operation: () => Promise<T>): Promise<T> {
   const result = sessionMutation.then(operation);
   sessionMutation = result.catch(() => undefined);
@@ -108,7 +110,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const endingSession = useRef(false);
 
   // Synchronize the server-verifiable image session before exposing a Firebase
   // identity to the app. onIdTokenChanged also refreshes the session when the
@@ -117,13 +118,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let active = true;
     let generation = 0;
     const unsubscribe = onIdTokenChanged(auth, (firebaseUser) => {
-      if (endingSession.current && firebaseUser) return;
+      if (endingSessions > 0 && firebaseUser) return;
       const currentGeneration = ++generation;
       setLoading(true);
       reconcileMapDataCacheIdentity(firebaseUser?.uid ?? null);
       let admin = false;
       void enqueueSessionMutation(async () => {
-        if (!active || currentGeneration !== generation || (endingSession.current && firebaseUser)) {
+        if (!active || currentGeneration !== generation || (endingSessions > 0 && firebaseUser)) {
           return false;
         }
         return synchronizePremiumAccessWithRetry(firebaseUser).catch(async (error: unknown) => {
@@ -264,14 +265,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // browser identity. Failure is surfaced to the caller so a shared browser
     // never appears signed out while retaining the short-lived capability.
     clearMapDataCaches();
-    endingSession.current = true;
+    endingSessions += 1;
     try {
       await enqueueSessionMutation(async () => {
         await clearPremiumAccess();
         await firebaseSignOut(auth);
       });
     } finally {
-      endingSession.current = false;
+      endingSessions -= 1;
     }
   }, []);
 
@@ -286,14 +287,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!auth.currentUser) throw new Error('Not authenticated');
     clearMapDataCaches();
     const currentUser = auth.currentUser;
-    endingSession.current = true;
+    endingSessions += 1;
     try {
       await enqueueSessionMutation(async () => {
         await clearPremiumAccess();
         await deleteUser(currentUser);
       });
     } finally {
-      endingSession.current = false;
+      endingSessions -= 1;
     }
   }, []);
 

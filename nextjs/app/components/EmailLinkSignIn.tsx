@@ -214,11 +214,16 @@ export default function EmailLinkSignIn() {
         /* Verbraucht oder abgelaufen — der häufige Fall, und dann hilft
            nur ein neuer Link. Alles andere (Netz) darf man nochmal drücken. */
         const code = codeOf(err);
-        setState(
-          spent(code) || code === 'auth/invalid-email'
-            ? { kind: 'expired' }
-            : { ...state, busy: false, error: true }
-        );
+        if (code === 'auth/invalid-email') {
+          // Another requested link may have replaced the remembered address.
+          // Let the reader correct it; never take the replacement from the URL.
+          try {
+            localStorage.removeItem('emailForSignIn');
+          } catch {}
+          setState({ kind: 'needs-email', email: '', busy: false, error: null });
+        } else {
+          setState(spent(code) ? { kind: 'expired' } : { ...state, busy: false, error: true });
+        }
       }
     };
     content = (

@@ -232,3 +232,21 @@ describe('auf Englisch', () => {
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeTruthy();
   });
 });
+
+it('lets a reader correct a stale remembered email without trusting the URL', async () => {
+  localStorage.setItem('emailForSignIn', 'newer@example.com');
+  fb.signInWithEmailLink.mockRejectedValueOnce({ code: 'auth/invalid-email' });
+  await mount();
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+  });
+  const input = screen.getByLabelText('Deine E-Mail-Adresse');
+  expect((input as HTMLInputElement).value).toBe('');
+  expect(localStorage.getItem('emailForSignIn')).toBeNull();
+  fireEvent.change(input, { target: { value: 'original@example.com' } });
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+  });
+  expect(fb.signInWithEmailLink.mock.calls.at(-1)?.[1]).toBe('original@example.com');
+  expect(screen.queryByRole('dialog')).toBeNull();
+});

@@ -211,7 +211,6 @@ describe('AuthContext — Admin-Kennung aus dem Sync', () => {
   });
 });
 
-
 describe('session mutation ordering', () => {
   it('finishes an in-flight cookie response before logout deletes it', async () => {
     vi.clearAllMocks();
@@ -219,23 +218,34 @@ describe('session mutation ordering', () => {
     let cookie: string | null = null;
     let release: (() => void) | undefined;
     global.fetch = vi.fn((_url: string, init?: RequestInit) => {
-      if (init?.method === 'POST') return new Promise<Response>((resolve) => {
-        release = () => {
-          cookie = 'old-session';
-          resolve({ ok: true, json: async () => ({ admin: false }) } as Response);
-        };
-      });
+      if (init?.method === 'POST')
+        return new Promise<Response>((resolve) => {
+          release = () => {
+            cookie = 'old-session';
+            resolve({ ok: true, json: async () => ({ admin: false }) } as Response);
+          };
+        });
       cookie = null;
       return Promise.resolve({ ok: true } as Response);
     }) as typeof fetch;
     const { result, unmount } = mountAuth();
-    await act(async () => { mocks.emitIdToken!(signedIn); });
+    await act(async () => {
+      mocks.emitIdToken!(signedIn);
+    });
     await waitFor(() => expect(release).toBeTypeOf('function'));
     let logout!: Promise<void>;
-    act(() => { logout = result.current.signOut(); });
+    act(() => {
+      logout = result.current.signOut();
+    });
     // Another token refresh during logout must not enqueue another POST.
-    act(() => { mocks.emitIdToken!(signedIn); });
-    await act(async () => { release!(); await logout; mocks.emitIdToken!(null); });
+    act(() => {
+      mocks.emitIdToken!(signedIn);
+    });
+    await act(async () => {
+      release!();
+      await logout;
+      mocks.emitIdToken!(null);
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(cookie).toBeNull();
     expect(result.current.user).toBeNull();
@@ -244,4 +254,45 @@ describe('session mutation ordering', () => {
     expect(methods.at(-1)).toBe('DELETE');
     unmount();
   });
+});
+
+it('keeps logout suppression when the provider remounts', async () => {
+  vi.clearAllMocks();
+  mocks.getRedirectResult.mockResolvedValue(null);
+  let release!: () => void;
+  let cookie: string | null = null;
+  global.fetch = vi.fn((_url: string, init?: RequestInit) => {
+    if (init?.method === 'POST')
+      return new Promise<Response>((resolve) => {
+        release = () => {
+          cookie = 'old-session';
+          resolve({ ok: true, json: async () => ({}) } as Response);
+        };
+      });
+    cookie = null;
+    return Promise.resolve({ ok: true } as Response);
+  }) as typeof fetch;
+  const original = mountAuth();
+  await act(async () => {
+    mocks.emitIdToken!(signedIn);
+  });
+  await waitFor(() => expect(release).toBeTypeOf('function'));
+  let logout!: Promise<void>;
+  act(() => {
+    logout = original.result.current.signOut();
+  });
+  original.unmount();
+  const replacement = mountAuth();
+  await act(async () => {
+    mocks.emitIdToken!(signedIn);
+  });
+  await act(async () => {
+    release();
+    await logout;
+    mocks.emitIdToken!(null);
+  });
+  await waitFor(() => expect(replacement.result.current.loading).toBe(false));
+  expect(cookie).toBeNull();
+  expect(vi.mocked(fetch).mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(1);
+  replacement.unmount();
 });

@@ -16,7 +16,7 @@
   font-weight: 700;
 }
 
-/* Neue Haas Grotesk Text — der Lesetext der Spot-Seite, wie bei 032c
+/* Neue Haas Grotesk Text — der Fließtext der gesamten App, wie bei 032c
    (Wahl 03.10.2026). Aus demselben Adobe-Fonts-Webprojekt wie Providence
    (Kit kgb1lmh); im Kit stehen 55 Roman und 75 Bold. Geladen wird nur, wo
    eine Regel die Familie wirklich benutzt. */
@@ -156,12 +156,9 @@
   --et-font-display:
     'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
     sans-serif;
-  /* Inter ist die Brot-und-Butter-Schrift für Fließtext und Eyebrows — sie
-     hat DM Sans am 27.08.2026 abgelöst: höhere x-Höhe, engere Laufweite. */
-  --et-font-body: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
-  /* Lesetext im Heftlook der Spot-Seite (032c). */
-  --et-font-text:
-    'neue-haas-grotesk-text-1', 'Helvetica Neue', Helvetica, var(--font-sans), sans-serif;
+  /* Einheitlicher Fließtext; Providence bleibt für Titel und Marken-Labels. */
+  --et-font-body: 'neue-haas-grotesk-text-1', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --et-font-text: var(--et-font-body);
   --et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
   --et-font-moonblossom:
     'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;

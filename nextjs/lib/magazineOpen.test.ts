@@ -166,8 +166,8 @@ describe('openMagazine', () => {
     await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
     expect(link.style.visibility).toBe('');
     // lift + table; per cover strip its turn and both faces (3 × 3);
-    // centring + article onto the page; entering + article + gutter
-    expect(animate).toHaveBeenCalledTimes(2 + 9 + 2 + 3);
+    // centring + article onto the page; cover exit + entering + article + gutter
+    expect(animate).toHaveBeenCalledTimes(2 + 9 + 2 + 4);
     // The article stands where it stands, without a transform left behind.
     expect(article?.style.transform).toBe('');
     expect(article?.style.transformOrigin).toBe('');

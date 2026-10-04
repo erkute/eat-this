@@ -1379,7 +1379,7 @@
 }
 
 .rdActProviderWord {
-  font-family: var(--font-sans, var(--et-font-body), system-ui, sans-serif);
+  font-family: var(--et-font-body);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;

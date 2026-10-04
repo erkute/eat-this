@@ -22,7 +22,7 @@ import styles from './HubIssue.module.css';
  * ausgedehnt): die Seite liest sich wie ein Artikel aus dem Magazin — alles
  * mittig, die Bestenliste als Kapitel mit rotem Namen, Foto, Text und Tipp,
  * der Rest als Register hinten im Heft. Dieselbe Sprache wie
- * NewsArticleShell: weisser Grund, Providence für alles Gesetzte, Inter für
+ * NewsArticleShell: weisser Grund, Providence für alles Gesetzte, Neue Haas Grotesk Text für
  * den Lesetext, Rot für Überschriften, Gelb als Akzent.
  *
  * Die Teile hier sind Server-Markup; gefiltert wird über HubFilterCard und

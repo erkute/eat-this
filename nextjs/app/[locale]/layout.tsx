@@ -11,7 +11,6 @@ import ScrollRestorer from '@/app/components/ScrollRestorer';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
 import CookieConsent from '@/app/components/CookieConsent';
 import { buildSiteJsonLd } from '@/lib/json-ld';
-import { sans } from '@/app/fonts';
 
 const PROVIDENCE_REGULAR_WOFF2 =
   'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
@@ -88,7 +87,6 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       data-scroll-behavior="smooth"
-      className={sans.variable}
       suppressHydrationWarning
     >
       <head suppressHydrationWarning>

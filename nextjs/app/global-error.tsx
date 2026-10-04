@@ -12,7 +12,6 @@
 import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
 import ServerErrorContent from './components/ServerErrorContent';
-import { sans } from './fonts';
 import './globals.css';
 
 export default function GlobalError({
@@ -27,7 +26,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="de" className={sans.variable}>
+    <html lang="de">
       <body style={{ margin: 0, padding: 0, backgroundColor: '#15120e' }}>
         <ServerErrorContent onRetry={reset} />
       </body>

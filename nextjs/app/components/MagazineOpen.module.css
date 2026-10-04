@@ -3,8 +3,8 @@
    Ein Magazin, kein Buch (Ansage 02.10.2026): dünn, ohne Seitenblock, der
    Umschlag biegt sich beim Umblättern. */
 .overlay {
-  /* Der Tisch, fast schwarz: darauf heben sich die Innenseite des Umschlags
-     (eine Stufe heller) und rechts der Artikel ab. */
+  /* Der Tisch, eine Spur dunkler als die Seite — so hebt sich die rechte
+     Seite (die Seite mit dem Artikel) ab, die selbst Ink ist. */
   --table: #0b0a08;
   position: fixed;
   inset: 0;
@@ -128,12 +128,9 @@
 }
 
 /* Aufgeschlagen liegt der Rücken am rechten Ende der Innenseite — dort fällt
-   sie in den Falz. Dunkel wie eine bedruckte Umschlag-Innenseite, eine Stufe
-   über dem Tisch: in Papierweiss (#f4f1ea) leuchtete sie beim Umblättern
-   schlagartig über die ganze linke Hälfte auf, am iPhone ein weisser Blitz
-   (Ansage 03.10.2026). */
+   sie in den Falz. */
 .inside {
-  background: linear-gradient(90deg, var(--et-ink-raised) 0 72%, #1c1a17 90%, #12100d);
+  background: linear-gradient(90deg, #f4f1ea 0 72%, #ebe5d8 90%, #d6cebe);
 }
 
 .backFolio {
@@ -141,7 +138,7 @@
   top: 3.6%;
   left: 0;
   right: 0;
-  color: rgba(244, 241, 234, 0.6);
+  color: rgba(21, 18, 14, 0.6);
   font-family: var(--et-font-display);
   font-size: clamp(7px, 1.6vmin, 11px);
   font-weight: 700;

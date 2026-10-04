@@ -1,7 +1,7 @@
 /* Die Hub-Seiten im Heftlook (HubIssue.tsx), Entwurf A „Die Ausgabe" vom
    03.10.2026 — Bezirke, Kategorien und ihre beiden Übersichten: gesetzt wie
    der Artikel (NewsArticleShell.module.css) — weisser Grund, alles mittig,
-   Providence gross für Titel, Kapitel und Labels, Inter für den Lesetext,
+   Providence gross für Titel, Kapitel und Labels, Neue Haas Grotesk Text für den Lesetext,
    Rot für Überschriften, Gelb als Akzent. Den Grund selbst stellt
    globals.css an html/body/.app-pages um. */
 .page {
@@ -74,6 +74,8 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
    trägt — „Prenzlauer Berg" bricht am Telefon auf zwei Zeilen. Schwarz wie
    die Schlagzeile im Artikel. */
 .title {
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -91,6 +93,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .name {
   display: block;
   font-size: min(150px, 15cqi);
+  overflow-wrap: anywhere;
   text-wrap: balance;
 }
 
@@ -381,6 +384,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* Abschnittstitel wie die Kapitel im Artikel: rot, gross, mittig. */
 .secTitle {
+  overflow-wrap: anywhere;
   margin: clamp(72px, 8vw, 120px) auto 0;
   color: var(--et-red);
   font-size: clamp(34px, 4.2vw, 58px);
@@ -403,6 +407,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .spotName {
+  overflow-wrap: anywhere;
   margin: 0;
   color: var(--et-red);
   font-size: clamp(30px, 3.2vw, 44px);
@@ -577,6 +582,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .guideTitle {
+  overflow-wrap: anywhere;
   font-size: clamp(24px, 2.4vw, 34px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -816,6 +822,10 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 /* ------------------------------------------------------------- telefon -- */
 
 @media (max-width: 767px) {
+  .name {
+    font-size: 10cqi;
+  }
+
   /* Die Bildleiste wischt am Telefon, statt zu schrumpfen. */
   .contents {
     width: auto;

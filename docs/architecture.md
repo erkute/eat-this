@@ -61,3 +61,20 @@ und Darstellung stehen in [den Projektregeln](../AGENTS.md).
 
 Betrieb: [Staging](runbooks/staging.md). Arbeitsbasis und Bereinigung:
 [Projektstand](status.md).
+
+## Anmeldung und Sitzungen
+
+Firebase Auth unterstützt Google und E-Mail-Links. Die Adresse zum Einlösen
+stammt aus `emailForSignIn` im anfordernden Browser oder aus einer erneuten
+Eingabe. Link-Parameter dürfen keine Konto-Adresse vorgeben; auch ein
+mitgeschicktes `e` wird nur entfernt, nie zur Anmeldung verwendet.
+
+Geschützte API-Routen prüfen Firebase-ID-Tokens mit Widerrufsprüfung. Dasselbe
+gilt für die Session-Cookies an Admin-Seiten und geschützten Kartenbildern:
+gesperrte Konten und widerrufene Sitzungen dürfen nicht bis zum Token-Ablauf
+weiter zugreifen.
+
+`AuthProvider` serialisiert Session-Sync und Cookie-Löschung innerhalb des
+Dokuments, einschließlich erneuter Provider-Mounts. Logout und Kontolöschung
+warten auf laufende Session-Antworten, bevor sie die Cookies löschen. Während
+des Vorgangs werden zusätzliche Token-Refresh-Ereignisse nicht synchronisiert.

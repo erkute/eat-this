@@ -43,3 +43,14 @@ describe('Premium Firebase session binding', () => {
     expect(response.cookies.get(premiumSessionCookieName())?.value).toBe('');
   });
 });
+
+
+it.each(['auth/session-cookie-revoked', 'auth/user-disabled'])(
+  'rejects image sessions for %s', async (code) => {
+    verifySessionCookie.mockImplementation(async (_cookie, checkRevoked) => {
+      if (checkRevoked) throw { code };
+      return { uid: 'user-1' };
+    });
+    await expect(readPremiumSessionUid('old-session')).resolves.toBeNull();
+  }
+);

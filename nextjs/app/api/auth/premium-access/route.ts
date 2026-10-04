@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const decoded = await getAdminAuth().verifyIdToken(idToken);
+    const decoded = await getAdminAuth().verifyIdToken(idToken, true);
     // Ob der Client den Admin-Eingang (Stats im Burger) zeigen darf. Die
     // Admin-Liste ist server-only; die Seiten unter /admin prüfen selbst
     // noch einmal, das hier schaltet nur die Sichtbarkeit des Links.

@@ -232,7 +232,7 @@ export async function GET(request: Request) {
 
   let isAdmin = false;
   try {
-    const decoded = await getAdminAuth().verifyIdToken(token);
+    const decoded = await getAdminAuth().verifyIdToken(token, true);
     isAdmin = isAdminToken({
       email: decoded.email ?? null,
       emailVerified: decoded.email_verified === true,

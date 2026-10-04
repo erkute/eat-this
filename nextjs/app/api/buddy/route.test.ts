@@ -135,7 +135,7 @@ describe('POST /api/buddy', () => {
       body: JSON.stringify(body),
     });
     await (await POST(signed)).text();
-    expect(account.verifyIdToken).toHaveBeenCalledWith('tok');
+    expect(account.verifyIdToken).toHaveBeenCalledWith('tok', true);
     expect(account.resolveEntitlements).toHaveBeenCalledWith('u1', {
       email: 'admin@example.com',
       emailVerified: true,

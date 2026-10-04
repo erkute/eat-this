@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import { useDialogFocus } from '@/lib/useDialogFocus';
-import { EMAIL_LINK_EMAIL_PARAM, EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
+import { EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
 import { HEART_PARAM, STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
 import {
   PROFILE_PATH,
@@ -131,7 +131,6 @@ export default function EmailLinkSignIn() {
        Adresszeile — beides raus, bevor jemand den Link teilt oder ein
        Seitenaufruf ihn mitzählt. `starter` bleibt: den löst die Pack-Vergabe
        nach der Anmeldung ein (pendingStarterCard). */
-    const fromLink = url.searchParams.get(EMAIL_LINK_EMAIL_PARAM) ?? '';
     setClaimingCard(url.searchParams.has(STARTER_PARAM));
     for (const name of EMAIL_LINK_PARAMS) url.searchParams.delete(name);
     window.history.replaceState(
@@ -145,15 +144,13 @@ export default function EmailLinkSignIn() {
       ([{ auth }, { isSignInWithEmailLink }]) => {
         if (!alive) return;
         if (!isSignInWithEmailLink(auth, linkRef.current)) return setState({ kind: 'expired' });
-        /* Der Link kennt seine Adresse selbst — sie hat Vorrang vor der, die
-           zuletzt gemerkt wurde: wer zwei Links an verschiedene Adressen
-           anfordert und den älteren öffnet, meldete sich sonst als die
-           falsche Person an. */
+        // Never trust an email supplied by the link. Another browser must
+        // ask for the address to prevent signing into a sender's account.
         let remembered = '';
         try {
           remembered = localStorage.getItem('emailForSignIn') ?? '';
         } catch {}
-        const email = fromLink || remembered;
+        const email = remembered;
         setState(
           email
             ? { kind: 'confirm', email, busy: false, error: false }
@@ -217,11 +214,16 @@ export default function EmailLinkSignIn() {
         /* Verbraucht oder abgelaufen — der häufige Fall, und dann hilft
            nur ein neuer Link. Alles andere (Netz) darf man nochmal drücken. */
         const code = codeOf(err);
-        setState(
-          spent(code) || code === 'auth/invalid-email'
-            ? { kind: 'expired' }
-            : { ...state, busy: false, error: true }
-        );
+        if (code === 'auth/invalid-email') {
+          // Another requested link may have replaced the remembered address.
+          // Let the reader correct it; never take the replacement from the URL.
+          try {
+            localStorage.removeItem('emailForSignIn');
+          } catch {}
+          setState({ kind: 'needs-email', email: '', busy: false, error: null });
+        } else {
+          setState(spent(code) ? { kind: 'expired' } : { ...state, busy: false, error: true });
+        }
       }
     };
     content = (

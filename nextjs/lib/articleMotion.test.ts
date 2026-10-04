@@ -58,7 +58,7 @@ describe('armArticleMotion', () => {
     expect(root.querySelector('h2')!.style.visibility).toBe('');
   });
 
-  it('waits below the fold, stamps on the way in, runs back when it leaves below', async () => {
+  it('plays once and ignores boundary crossings caused by its own transform', async () => {
     const root = article();
     const cleanup = armArticleMotion(root);
     const heading = root.querySelector<HTMLElement>('h2')!;
@@ -68,13 +68,14 @@ describe('armArticleMotion', () => {
     expect(heading.style.visibility).toBe('hidden');
 
     callback([entry(heading, true, 600)]);
+    callback([entry(heading, false, 1200)]);
     await frames();
     expect(heading.style.visibility).toBe('visible');
-    expect(heading.style.transform).not.toContain('scale(1.9');
+    expect(heading.style.transform).not.toContain('scale(1.08');
 
     callback([entry(heading, false, 1200)]);
     await frames();
-    expect(heading.style.visibility).toBe('hidden');
+    expect(heading.style.visibility).toBe('visible');
 
     cleanup();
     expect(heading.style.visibility).toBe('');

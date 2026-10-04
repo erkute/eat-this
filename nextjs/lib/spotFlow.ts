@@ -16,8 +16,10 @@ export type SpotFlowBlock =
   | { kind: 'mustEats' }
   | { kind: 'image'; index: number };
 
-/** Unter dieser Länge wirkt ein Abschnitt zwischen grossen Bildern wie eine
- *  Bildunterschrift — die Seite setzt ihn dann gross in der Markenschrift. */
+/** Ein einzelner Satz unter dieser Länge wirkt zwischen grossen Bildern wie
+ *  eine Bildunterschrift — die Seite setzt ihn dann gross in der Markenschrift.
+ *  Mehrere Sätze bleiben Lesetext, auch wenn sie kurz sind: gross gesetzt
+ *  sahen sie aus wie der Insider-Tipp (Durchsicht 03.10.2026). */
 const SHORT_TEXT = 170;
 
 /** Abkürzungen, nach deren Punkt kein Satz endet („Nr. 12", „St. Oberholz"). */
@@ -109,7 +111,7 @@ export function buildSpotFlow({
   const asText = (text: string): SpotFlowBlock => ({
     kind: 'text',
     text,
-    short: text.length < SHORT_TEXT,
+    short: text.length < SHORT_TEXT && splitSentences(text).length === 1,
   });
   if (texts[0]) sections.push(asText(texts[0]));
   if (hasTip) sections.push({ kind: 'tip' });

@@ -93,6 +93,18 @@ describe('buildSpotFlow', () => {
     expect(rest).toEqual([1]);
   });
 
+  // Mehrere Sätze sind Lesetext, auch wenn sie kurz sind — gross gesetzt
+  // sahen sie aus wie der Insider-Tipp (Durchsicht 03.10.2026, AVIV 030).
+  it('sets only a single short sentence large', () => {
+    const { blocks } = buildSpotFlow({
+      paragraphs: ['Am Wochenende Challah-Burger. Der Name ist Programm. Tel Aviv in Rixdorf.'],
+      hasTip: false,
+      hasMustEats: false,
+      imageCount: 0,
+    });
+    expect(blocks[0]).toMatchObject({ kind: 'text', short: false });
+  });
+
   it('keeps long paragraphs whole', () => {
     const long = 'Satz eins ist da. Satz zwei auch. Satz drei kommt.';
     const { blocks } = buildSpotFlow({
@@ -101,7 +113,7 @@ describe('buildSpotFlow', () => {
       hasMustEats: false,
       imageCount: 1,
     });
-    expect(blocks[0]).toEqual({ kind: 'text', text: long, short: true });
+    expect(blocks[0]).toEqual({ kind: 'text', text: long, short: false });
   });
 
   it('never puts two photos next to each other', () => {

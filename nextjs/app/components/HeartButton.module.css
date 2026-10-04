@@ -1,12 +1,10 @@
-/* Heart toggle + public count for the SEO restaurant page. A client island on
-   an otherwise static page. Count sits inside the button, right of the glyph —
-   one heart on the photo, like the map detail sheet.
-   See docs/specs/2026-06-09-hearts-design.md. */
+/* Heart toggle + public count for the spot page. A client island on an
+   otherwise static page. Count sits inside the button, right of the glyph.
+   Seit 03.10.2026 nicht mehr auf dem Foto („Herz muss woanders hin, nicht ins
+   Bild"), sondern in der Zeile darunter auf Weiss — deshalb Ink statt Weiss
+   und ohne Schatten. See docs/specs/2026-06-09-hearts-design.md. */
 .row {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 3;
+  display: inline-flex;
 }
 
 .btn {
@@ -14,16 +12,16 @@
   height: 44px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 7px;
+  /* Bündig mit der Spalte: das Glyph steht an der Kante, die Tippfläche
+     bleibt 44px. */
+  margin-left: -6px;
   padding: 0 6px;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: var(--et-ink);
   cursor: pointer;
   border-radius: 0;
-  box-shadow: none;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.42);
   transition:
     transform 0.14s ease,
     color 0.14s ease;
@@ -35,27 +33,22 @@
 }
 
 .btn:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--et-ink);
   outline-offset: 3px;
 }
 
 .btn svg {
-  width: 29px;
-  height: 29px;
+  width: 26px;
+  height: 26px;
   stroke-width: 2.2;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.46));
 }
 
-/* Stays white even when the glyph flips to coral — a coral number on a bright
-   photo (ice cream, white tiles) all but disappears. Own shadow, a touch
-   deeper than the button's, so a thin Providence "1" holds on a light photo. */
 .count {
   font-family: var(--et-font-display);
-  font-size: 18px;
-  line-height: 1;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
   letter-spacing: 0.01em;
-  color: #fff;
-  text-shadow: 0 2px 9px rgba(0, 0, 0, 0.6);
 }
 
 .btnActive {
@@ -65,6 +58,5 @@
 @media (hover: hover) {
   .btn:hover {
     color: var(--et-heart);
-    transform: translateY(-2px);
   }
 }

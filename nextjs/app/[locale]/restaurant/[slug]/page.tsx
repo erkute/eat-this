@@ -163,12 +163,10 @@ function SpotPhoto({
   src,
   alt,
   priority = false,
-  children,
 }: {
   src: string;
   alt: string;
   priority?: boolean;
-  children?: React.ReactNode;
 }) {
   const size = sanityImageSize(src);
   return (
@@ -187,7 +185,6 @@ function SpotPhoto({
         fetchPriority={priority ? 'high' : undefined}
         decoding="async"
       />
-      {children}
     </div>
   );
 }
@@ -280,13 +277,20 @@ export default async function RestaurantPage({ params }: PageProps) {
   });
   const galleryAlt = (i: number) =>
     galleryImages[i].alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 2}`;
-  // Ein Nachweis steht nur, wenn er sich vom zuletzt gezeigten unterscheidet —
-  // „Foto: AVIV 030" unter jedem der fünf Bilder war Rauschen.
-  const shownCredits = new Set(r.photoCredit ? [r.photoCredit] : []);
+  // Jedes Foto braucht seinen Nachweis. Stammen alle von derselben Quelle,
+  // steht er einmal in der Mehrzahl unter dem Aufmacher („Fotos: AVIV 030") —
+  // fünfmal dieselbe Zeile war Rauschen, „Foto:" in der Einzahl las sich, als
+  // gelte er nur fürs erste Bild. Sonst steht er unter jedem Bild.
+  const sharedCredit =
+    galleryImages.length > 0 &&
+    Boolean(r.photoCredit) &&
+    galleryImages.every((img) => img.credit === r.photoCredit);
+  const heroCredit = sharedCredit
+    ? `${de ? 'Fotos' : 'Photos'}: ${r.photoCredit!.replace(/^(fotos?|photos?):\s*/i, '')}`
+    : r.photoCredit;
   const galleryCredit = (i: number) => {
     const img = galleryImages[i];
-    if (!img.credit || shownCredits.has(img.credit)) return null;
-    shownCredits.add(img.credit);
+    if (sharedCredit || !img.credit) return null;
     return <Credit text={img.credit} href={safeHttpUrl(img.creditUrl)} className={styles.credit} />;
   };
 
@@ -328,7 +332,10 @@ export default async function RestaurantPage({ params }: PageProps) {
 
           {r.photo && (
             <figure className={styles.figure}>
-              <SpotPhoto src={r.photo} alt={heroAlt} priority>
+              <SpotPhoto src={r.photo} alt={heroAlt} priority />
+              {/* Das Herz unter dem Foto, nicht darauf (Ansage 03.10.2026);
+                  rechts daneben der Nachweis. */}
+              <div className={styles.photoBar}>
                 <HeartButton
                   restaurantId={r._id}
                   name={r.name}
@@ -337,10 +344,10 @@ export default async function RestaurantPage({ params }: PageProps) {
                   district={r.bezirk?.name ?? undefined}
                   locale={loc}
                 />
-              </SpotPhoto>
-              {r.photoCredit && (
-                <Credit text={r.photoCredit} href={heroCreditHref} className={styles.credit} />
-              )}
+                {heroCredit && (
+                  <Credit text={heroCredit} href={heroCreditHref} className={styles.credit} />
+                )}
+              </div>
             </figure>
           )}
 

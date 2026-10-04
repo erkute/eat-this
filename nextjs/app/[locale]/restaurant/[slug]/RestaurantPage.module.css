@@ -99,7 +99,6 @@
 /* Ungeschnitten in seinem eigenen Format; Breite und Höhe stehen am <img>,
    damit vor dem Laden schon der Platz reserviert ist. */
 .photo {
-  position: relative;
   background: var(--et-quiet);
 }
 
@@ -107,6 +106,20 @@
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* Unter dem Aufmacher: links das Herz, rechts der Nachweis. */
+.photoBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.photoBar .credit {
+  margin: 0;
+  text-align: right;
 }
 
 .credit {
@@ -236,8 +249,10 @@
   font-weight: 700;
 }
 
-/* Buttons sehen aus wie Buttons (Ansage 03.10.2026): volle Fläche, gelb der
-   Hauptweg, Ink die übrigen. */
+/* Buttons in der Form von 032c („Subscribe", gemessen 03.10.2026): volle
+   Fläche, eckig, ohne Rahmen, 50px hoch, in Versalien — aber in der eigenen
+   Button-Schrift Providence (Ansage 03.10.2026). Ink mit weisser Schrift;
+   „Zur Map" als Hauptweg in Gelb. */
 .buttons {
   display: flex;
   flex-wrap: wrap;
@@ -249,19 +264,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0 22px;
+  min-height: 50px;
+  padding: 0 26px;
   background: var(--et-accent);
   color: var(--et-ink);
   font-family: var(--et-font-display);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
   /* 1.55 statt 1: Providence hängt tief, bei kleinerer Zeile fehlte der
      Unterlänge der Platz (gemessen 30.08.2026). Die Höhe kommt aus
      min-height. */
   line-height: 1.55;
   text-decoration: none;
+  text-transform: uppercase;
   white-space: nowrap;
   transition:
     background-color var(--et-motion-fast),
@@ -413,8 +429,13 @@
     margin-inline: calc(-1 * var(--gut));
   }
 
-  .figure .credit {
+  .figure .credit,
+  .photoBar {
     padding-inline: var(--gut);
+  }
+
+  .photoBar .credit {
+    padding-inline: 0;
   }
 
   .sheet {

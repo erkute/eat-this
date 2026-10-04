@@ -344,9 +344,7 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
   const nav = document.getElementById('navbar');
   const sceneAnimations: Animation[] = [];
 
-  overlay.style.visibility = 'hidden';
   document.body.append(overlay);
-  const previousOverflow = document.documentElement.style.overflow;
   // Ab hier räumt `finally` auf: die Ebene deckt die ganze Seite, sie darf
   // nach keinem Fehler stehen bleiben.
   try {
@@ -395,14 +393,6 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     const cy = from.top + from.height / 2;
     const reach = Math.hypot(Math.max(cx, vw - cx), Math.max(cy, vh - cy));
 
-    // Der Bildklon ist in Safari auch aus dem Cache nicht sofort bereit.
-    // Bis dahin bleibt das Original sichtbar.
-    const decoding = Array.from(book.querySelectorAll('img'))
-      .filter((img) => typeof img.decode === 'function')
-      .map((img) => img.decode().catch(() => undefined));
-    if (decoding.length) await Promise.race([Promise.all(decoding), sleep(PHOTO_TIMEOUT)]);
-    document.documentElement.style.overflow = 'hidden';
-    overlay.style.visibility = '';
     link.style.visibility = 'hidden';
 
     // 1 — hochheben, der Tisch zieht sich zu.
@@ -496,34 +486,6 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     sceneAnimations.push(...moveScene(rects.closed, rects.open, OPEN));
     await Promise.all([...turning.map((t) => done(t, OPEN)), done(centre, OPEN)]);
 
-    // Nach dem Umblättern ist der Umschlag flach. Die überlappenden
-    // 3D-Streifen würden beim Zoom in WebKit am Falz weitergerastert und
-    // könnten als helle Haarlinie auf die Artikelseite ragen.
-    const openCover = document.createElement('div');
-    Object.assign(openCover.style, {
-      position: 'absolute',
-      left: `${-g.w}px`,
-      top: '0',
-      width: `${g.w}px`,
-      height: '100%',
-      overflow: 'hidden',
-    });
-    const flatInside = inside();
-    flatInside.style.width = '100%';
-    openCover.append(flatInside);
-    book.append(openCover);
-    strips[0].strip.remove();
-    book.style.perspective = 'none';
-
-    // Die Innenseite verlässt das Bild vor dem Artikel-Zoom: sonst bleibt
-    // ihr heller Papierrand bis zum letzten Frame als senkrechter Streifen
-    // am linken Fensterrand stehen. Die Bewegung braucht keine Ausblendung.
-    openCover.animate(
-      [{ transform: 'translateX(0)' }, { transform: 'translateX(-100%)' }],
-      { ...ENTER, fill: 'forwards' }
-    );
-    shadow.remove();
-
     // 3 — hineinzoomen: Seite und Artikel wachsen bis an den Fensterrand.
     const enter = book.animate(
       [
@@ -542,7 +504,6 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     await done(enter, ENTER);
   } finally {
     overlay.remove();
-    document.documentElement.style.overflow = previousOverflow;
     link.style.visibility = '';
     // Am Ende steht der Artikel wieder ohne Transform — dieselbe Lage, die
     // die letzte Animation zeigt, also ohne Sprung.

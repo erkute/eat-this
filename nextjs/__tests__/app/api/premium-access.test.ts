@@ -34,7 +34,7 @@ describe('/api/auth/premium-access', () => {
     }))
 
     expect(response.status).toBe(200)
-    expect(mocks.verifyIdToken).toHaveBeenCalledWith('firebase-id-token')
+    expect(mocks.verifyIdToken).toHaveBeenCalledWith('firebase-id-token', true)
     expect(mocks.clearAccess).toHaveBeenCalledOnce()
     expect(mocks.setSession).toHaveBeenCalledWith(expect.anything(), 'firebase-id-token')
   })
@@ -58,3 +58,18 @@ describe('/api/auth/premium-access', () => {
     expect(mocks.clearSession).toHaveBeenCalledOnce()
   })
 })
+
+
+it.each(['auth/id-token-revoked', 'auth/user-disabled'])(
+  'does not mint a session for %s', async (code) => {
+    mocks.verifyIdToken.mockImplementation(async (_token, checkRevoked) => {
+      if (checkRevoked) throw { code };
+      return { uid: 'user-1' };
+    });
+    const response = await POST(new Request('https://example.com/api/auth/premium-access', {
+      method: 'POST', headers: { authorization: 'Bearer old-token' },
+    }));
+    expect(response.status).toBe(401);
+    expect(mocks.setSession).not.toHaveBeenCalled();
+  }
+);

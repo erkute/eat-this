@@ -22,7 +22,7 @@ export async function GET(req: Request) {
   let identity: Parameters<typeof resolveEntitlements>[1] = {};
   if (token) {
     try {
-      const decoded = await getAdminAuth().verifyIdToken(token);
+      const decoded = await getAdminAuth().verifyIdToken(token, true);
       uid = decoded.uid;
       identity = {
         email: decoded.email ?? null,

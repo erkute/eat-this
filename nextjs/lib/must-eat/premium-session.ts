@@ -33,7 +33,7 @@ export async function readPremiumSessionUid(
 ): Promise<string | null> {
   if (!sessionCookie) return null;
   try {
-    const decoded = await getAdminAuth().verifySessionCookie(sessionCookie);
+    const decoded = await getAdminAuth().verifySessionCookie(sessionCookie, true);
     return decoded.uid;
   } catch {
     return null;

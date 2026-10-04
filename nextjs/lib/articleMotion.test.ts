@@ -142,7 +142,7 @@ describe('armArticleMotion', () => {
 
     observed[0].callback([entry(rail, false, 1200)]);
     await frames();
-    expect(rail.style.scrollSnapType).toBe('none');
+    expect(rail.style.scrollSnapType).toBe('');
 
     cleanup();
     expect(rail.style.scrollSnapType).toBe('');

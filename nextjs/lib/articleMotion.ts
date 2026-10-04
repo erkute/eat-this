@@ -13,8 +13,8 @@
  * nicht mehr beobachtet: eigene Transforms dürfen den Auftritt nicht an der
  * Viewport-Kante umkehren. Was schon über dem Bild liegt, steht einfach da.
  *
- * - Stempel: Kapitel, Zitate und „Fazit" schlagen ein wie die Headline der
- *   Startseite — gross und gedreht, dann mit Stauchung auf ihren Platz.
+ * - Kapitel, Zitate und „Fazit" setzen sich mit einer kleinen Skalierung
+ *   und Drehung ohne Nachfedern auf ihren Platz.
  * - Abzug: Spot-Fotos und Bilder im Text landen wie hingeworfene Abzüge,
  *   „Zur Map" ploppt danach auf.
  * - Must-Eat-Bänder schieben von links herein, die Hefte unter „Weitere

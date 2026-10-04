@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   let friendEmail: string | null;
   let friendCreatedAtMs: number;
   try {
-    const decoded = await getAdminAuth().verifyIdToken(idToken);
+    const decoded = await getAdminAuth().verifyIdToken(idToken, true);
     friendUid = decoded.uid;
     const friend = await getAdminAuth().getUser(friendUid);
     friendEmail = friend.email?.toLowerCase() ?? null;

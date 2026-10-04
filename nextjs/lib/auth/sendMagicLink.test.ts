@@ -131,15 +131,14 @@ describe('landingLink', () => {
   const OOB =
     '?mode=signIn&oobCode=abc123&apiKey=k&continueUrl=https%3A%2F%2Fstaging.example%2Fmap%3Fr%3Dspot&lang=de';
 
-  it('landet auf der Zielseite selbst, mit Code und Adresse', () => {
+  it('landet auf der Zielseite selbst, mit Code ohne Adresse', () => {
     /* Staging sass auf dem Firebase-Default (…firebaseapp.com/__/auth/action),
        dessen Handler stumm weiterleitet, ohne je jemanden anzumelden
        (26.08.2026). Der Host gehoert deshalb der Continue-URL. */
     const out = new URL(
       landingLink(
         `https://eat-this-staging-8a13b.firebaseapp.com/__/auth/action${OOB}`,
-        'https://staging.example/map?r=spot&starter=me-1',
-        'gast@example.com'
+        'https://staging.example/map?r=spot&starter=me-1&e=attacker%40example.com'
       )
     );
     expect(out.origin).toBe('https://staging.example');
@@ -149,15 +148,14 @@ describe('landingLink', () => {
     expect(out.searchParams.get('mode')).toBe('signIn');
     expect(out.searchParams.get('oobCode')).toBe('abc123');
     expect(out.searchParams.get('apiKey')).toBe('k');
-    expect(out.searchParams.get('e')).toBe('gast@example.com');
+    expect(out.searchParams.has('e')).toBe(false);
   });
 
   it('laesst continueUrl und Firebases lang weg', () => {
     const out = new URL(
       landingLink(
         `https://x.firebaseapp.com/__/auth/action${OOB}`,
-        'https://staging.example/',
-        'a@b.c'
+        'https://staging.example/'
       )
     );
     expect(out.searchParams.has('continueUrl')).toBe(false);
@@ -166,6 +164,6 @@ describe('landingLink', () => {
 
   it('schickt lieber den unveraenderten Link als gar keine Mail', () => {
     const raw = `https://x.firebaseapp.com/__/auth/action${OOB}`;
-    expect(landingLink(raw, '/map', 'a@b.c')).toBe(raw);
+    expect(landingLink(raw, '/map')).toBe(raw);
   });
 });

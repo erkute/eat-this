@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   let email: string | null = null;
   if (token) {
     try {
-      const decoded = await getAdminAuth().verifyIdToken(token);
+      const decoded = await getAdminAuth().verifyIdToken(token, true);
       uid = decoded.uid;
       email = decoded.email ?? null;
     } catch {

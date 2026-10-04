@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
   let uid: string;
   try {
-    uid = (await getAdminAuth().verifyIdToken(token)).uid;
+    uid = (await getAdminAuth().verifyIdToken(token, true)).uid;
   } catch {
     return NextResponse.json({ error: 'invalid token' }, { status: 401 });
   }

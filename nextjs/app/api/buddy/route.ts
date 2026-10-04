@@ -85,7 +85,7 @@ async function resolveViewer(
   const token = header?.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token) return undefined;
   try {
-    const decoded = await getAdminAuth().verifyIdToken(token);
+    const decoded = await getAdminAuth().verifyIdToken(token, true);
     const ent = await resolveEntitlements(decoded.uid, {
       email: decoded.email ?? null,
       emailVerified: decoded.email_verified === true,

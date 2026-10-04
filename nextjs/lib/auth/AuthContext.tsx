@@ -57,6 +57,17 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+// All cookie mutations in this document share a queue, including remounts.
+// Do not abort requests: their Set-Cookie may already be on its way.
+let sessionMutation: Promise<unknown> = Promise.resolve();
+// Shared with the queue: a remount must not schedule a signed-in sync during logout.
+let endingSessions = 0;
+function enqueueSessionMutation<T>(operation: () => Promise<T>): Promise<T> {
+  const result = sessionMutation.then(operation);
+  sessionMutation = result.catch(() => undefined);
+  return result;
+}
+
 async function clearPremiumAccess(): Promise<void> {
   const response = await fetch('/api/auth/premium-access', { method: 'DELETE' });
   if (!response.ok) throw new Error('Failed to clear premium access');
@@ -107,15 +118,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let active = true;
     let generation = 0;
     const unsubscribe = onIdTokenChanged(auth, (firebaseUser) => {
+      if (endingSessions > 0 && firebaseUser) return;
       const currentGeneration = ++generation;
       setLoading(true);
       reconcileMapDataCacheIdentity(firebaseUser?.uid ?? null);
       let admin = false;
-      void synchronizePremiumAccessWithRetry(firebaseUser)
+      void enqueueSessionMutation(async () => {
+        if (!active || currentGeneration !== generation || (endingSessions > 0 && firebaseUser)) {
+          return false;
+        }
+        return synchronizePremiumAccessWithRetry(firebaseUser).catch(async (error: unknown) => {
+          // Cleanup belongs to the same queue entry as the failed sync.
+          await clearPremiumAccess().catch(() => undefined);
+          throw error;
+        });
+      })
         .then((result) => {
           admin = result;
         })
-        .catch(async (error: unknown) => {
+        .catch((error: unknown) => {
           /* Die Bild-Sitzung ist ein Nebenaufruf. Faellt sie aus, fehlen
              signierte Bilder — die Anmeldung selbst haelt Firebase, und genau
              die hat der Code hier bisher weggeworfen: ein einziger
@@ -130,8 +151,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             },
           });
           console.warn('[auth] premium access sync failed:', error);
-          // Die Sitzung des vorigen Kontos darf trotzdem nicht stehen bleiben.
-          await clearPremiumAccess().catch(() => undefined);
         })
         .finally(() => {
           if (!active || currentGeneration !== generation) return;
@@ -246,8 +265,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // browser identity. Failure is surfaced to the caller so a shared browser
     // never appears signed out while retaining the short-lived capability.
     clearMapDataCaches();
-    await clearPremiumAccess();
-    await firebaseSignOut(auth);
+    endingSessions += 1;
+    try {
+      await enqueueSessionMutation(async () => {
+        await clearPremiumAccess();
+        await firebaseSignOut(auth);
+      });
+    } finally {
+      endingSessions -= 1;
+    }
   }, []);
 
   const updateDisplayName = useCallback(async (name: string): Promise<void> => {
@@ -260,8 +286,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const deleteAccount = useCallback(async (): Promise<void> => {
     if (!auth.currentUser) throw new Error('Not authenticated');
     clearMapDataCaches();
-    await clearPremiumAccess();
-    await deleteUser(auth.currentUser);
+    const currentUser = auth.currentUser;
+    endingSessions += 1;
+    try {
+      await enqueueSessionMutation(async () => {
+        await clearPremiumAccess();
+        await deleteUser(currentUser);
+      });
+    } finally {
+      endingSessions -= 1;
+    }
   }, []);
 
   // ─────────────────────────────────────────────────────────────────────────

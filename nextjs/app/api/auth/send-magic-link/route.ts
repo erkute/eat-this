@@ -62,9 +62,8 @@ function readCookie(header: string | null, name: string): string | null {
  * stand. Beide Seiten gingen leer aus, beide ohne Meldung.
  *
  * Die Continue-URL ist der einzige Traeger, der den Posteingang ueberlebt.
- * Die Mailadresse (`e`, sendMagicLink) und der Spot-Claim (`claim`,
- * loginContinueUrl) fahren aus genau diesem Grund schon dort mit — nur der
- * Einladende sass noch im Cookie fest.
+ * Der Spot-Claim (loginContinueUrl) fährt ebenfalls dort mit.
+ * Die Mailadresse wird dagegen aus Sicherheitsgründen nicht im Link transportiert.
  *
  * Der Parameter ist `ref`, derselbe, den die Einladung selbst benutzt: beim
  * Landen greift die Middleware erneut und setzt den Cookie ein zweites Mal,

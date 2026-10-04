@@ -54,7 +54,7 @@ export async function POST(req: Request) {
   let uid: string;
   let identity: Parameters<typeof resolveEntitlements>[1] = {};
   try {
-    const decoded = await getAdminAuth().verifyIdToken(token);
+    const decoded = await getAdminAuth().verifyIdToken(token, true);
     uid = decoded.uid;
     identity = {
       email: decoded.email ?? null,

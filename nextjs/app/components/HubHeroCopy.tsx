@@ -17,8 +17,8 @@ type Variant = 'guest' | 'auth';
 // Zwei Sätze statt Gedankenstrich: gestapelt fiel der Strich auf den Anfang
 // der zweiten Zeile und stand dort wie ein Spiegelstrich.
 const LEAD = {
-  de: 'Die besten Orte Berlins auf einer Map. Für ausgewählte Spots sagen wir dir gleich, was du bestellen musst.',
-  en: "The best places in Berlin on one map. At selected spots we'll tell you exactly what to order.",
+  de: 'Die besten Spots und unsere passenden Must Eats auf einer Map.',
+  en: "The best spots and our matching Must Eats on one map.",
 } as const;
 
 // Die Wortmarke steht im Aufmacher, nicht im Header: der Header hält seinen

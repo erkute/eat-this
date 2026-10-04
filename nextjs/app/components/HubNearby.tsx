@@ -15,7 +15,6 @@ import {
   rotatingRestaurants,
   type NearbyDistance,
 } from '@/lib/home/nearby';
-import { armRailDrag } from '@/lib/home/railDrag';
 import {
   COUNTER_GLYPHS,
   COUNTER_REEL,
@@ -42,11 +41,10 @@ interface Props {
       one step below the red section title above it. */
 }
 
-// Eight picks: the nearest big, seven in the rail beside it. From 1024px the
-// rail is a 3 × 2 grid and the seventh small card is hidden (CSS).
-const COUNT = 8;
+// Seven spots: one large, six small.
+const COUNT = 7;
 const HERO_SIZES = '(max-width: 767.98px) calc(100vw - 32px), min(42vw, 760px)';
-const RAIL_SIZES = '(max-width: 767.98px) 42vw, clamp(170px, 15vw, 250px)';
+const RAIL_SIZES = '(max-width: 767.98px) 46vw, 25vw';
 
 /** Wie die Karte ihr Foto lädt — auch fürs Vorladen (preloadPhotos). */
 const photoSource = (photo: string, hero = false) => ({
@@ -126,14 +124,6 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   const errorKey = mounted && locationStatus.isError ? locationStatus.copy : null;
   const [dismissedErrorKey, setDismissedErrorKey] = useState<string | null>(null);
 
-  // Finger und Trackpad wischen die Leiste nativ; mit der Maus wird gezogen.
-  // Ein Ref-Callback mit Aufräumfunktion (React 19): die Leiste entsteht
-  // erst, wenn es Karten gibt.
-  const setRail = useCallback((rail: HTMLUListElement | null) => {
-    if (!rail) return;
-    return armRailDrag(rail);
-  }, []);
-
   // Nach der Freigabe sortiert sich alles nach Nähe um: die neue Nächste
   // fliegt in den großen Platz, die übrigen an ihre Plätze in der Leiste,
   // die Stempel zählen auf die Gehzeit (lib/home/nearbyMotion.ts).
@@ -141,7 +131,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
   // Reihe, bis der Standort da ist und die ersten Fotos der neuen geladen
   // sind, und erst dann wird umgestellt und geflogen.
   const boardRef = useRef<HTMLDivElement | null>(null);
-  const pendingFlip = useRef<Promise<CardsFlip | null> | null>(null);
+  const pendingFlip = useRef<CardsFlip | null>(null);
   const entranceRef = useRef<NearbyEntrance | null>(null);
   const handleLocate = useCallback(async () => {
     setDismissedErrorKey(null);
@@ -149,7 +139,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
     entranceRef.current?.finish();
     const board = boardRef.current;
     const remembered = board ? rememberCards(board).catch(() => null) : null;
-    pendingFlip.current = remembered;
+    pendingFlip.current = null;
     if (remembered) setHolding(true);
     const found = await request();
     if (!found) {
@@ -157,21 +147,16 @@ export default function HubNearby({ locale = 'de', today }: Props) {
       setHolding(false);
       return;
     }
-    if (remembered && (await remembered)) {
-      const next = nearestRestaurants(restaurantsRef.current, found, COUNT).slice(0, 3);
+    const flip = remembered ? await remembered : null;
+    if (flip) {
+      pendingFlip.current = flip;
+      const next = nearestRestaurants(restaurantsRef.current, found, COUNT);
       await preloadPhotos(
         next.flatMap((r, i) => (r.photo ? [photoSource(r.photo, i === 0)] : []))
       );
     }
     setHolding(false);
   }, [request]);
-  useLayoutEffect(() => {
-    const pending = pendingFlip.current;
-    const board = boardRef.current;
-    if (!listLocation || !pending || !board) return;
-    pendingFlip.current = null;
-    void pending.then((flip) => flip?.play(board));
-  }, [listLocation]);
   const errorKind: NoticeKind | null =
     errorKey && errorKey !== dismissedErrorKey
       ? locError === 'denied'
@@ -216,14 +201,18 @@ export default function HubNearby({ locale = 'de', today }: Props) {
     if (!board) return;
     const entrance = createNearbyEntrance(board);
     entranceRef.current = entrance;
+    if (listLocation) {
+      entrance?.finish();
+      // Start synchronously before paint, after entrance cleanup has settled.
+      const flip = pendingFlip.current;
+      pendingFlip.current = null;
+      flip?.play(board);
+    }
     return () => {
       entrance?.dispose();
       entranceRef.current = null;
     };
-  }, [hasCards]);
-  useLayoutEffect(() => {
-    entranceRef.current?.restack();
-  }, [cardKey]);
+  }, [hasCards, cardKey, listLocation]);
   // Ohne Standort sucht das „?" in den Stempeln.
   useEffect(() => {
     const board = boardRef.current;
@@ -313,14 +302,6 @@ export default function HubNearby({ locale = 'de', today }: Props) {
           )}
         </div>
 
-        {/* Die Nächste groß, die übrigen klein daneben (am Telefon
-            darunter), auf jeder Karte die Gehzeit als Stempel — Wahl vom
-            02.10.2026 nach dem Prototyp „D · Die Nächste". Unter 1024px eine
-            Querleiste (Ansage 01.10.2026: „die Restaurants alle anklickbar
-            und horizontal scrollbar"): nativ gewischt, mit Snap auf jede
-            Karte; ab 1024px ein Raster 3 × 2 ohne Querscrollen. Jede Karte
-            ist ein Link — davor fuhr ein 3D-Band am senkrechten Scrollweg
-            vorbei, und angetippt werden konnte nur, was gerade vorne stand. */}
         <div
           className={styles.spread}
           data-nearby-spread=""
@@ -333,7 +314,6 @@ export default function HubNearby({ locale = 'de', today }: Props) {
             className={styles.rail}
             role="list"
             aria-label={title}
-            ref={setRail}
             data-nearby-rail=""
           >
             {rest.map((r) => (
@@ -343,6 +323,7 @@ export default function HubNearby({ locale = 'de', today }: Props) {
             ))}
           </ul>
         </div>
+
       </div>
     </section>
   );

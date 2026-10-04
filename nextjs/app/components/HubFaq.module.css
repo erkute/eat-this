@@ -1,155 +1,70 @@
-/* No margin-top: this outranked the home page's shared section rhythm and left
-   the FAQ sitting roughly half as far from Remy as every other pair of
-   sections. The bottom margin stays — nothing else carries the gap to the
-   footer. */
 .section:global(.hv-section.hv-wrap) {
   margin-top: clamp(64px, 7vw, 96px);
   margin-bottom: var(--home-section-gap);
 }
-
-/* ── Ink-Tafel ──
-   Jeder Abschnitt der Startseite ist eine Tafel, damit es nur eine Art Grenze
-   gibt: Kante zu Kante. Vorher standen Tafeln und lose Bloecke gemischt, und
-   der sichtbare Abstand zwischen zwei Inhalten schwankte zwischen 104 und
-   206px, obwohl die Aussenabstaende ueberall 104 massen — das Innenpolster
-   der Tafeln zaehlte unsichtbar mit. */
 .board {
-  --board-ink: var(--et-ink);
-  --board-paper: var(--et-white);
-  --board-accent: var(--et-accent);
-  --board-soft: rgba(255, 255, 255, 0.76);
-
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
   padding: var(--et-board-pad);
   background: var(--et-board-bg);
-  color: var(--board-paper);
+  color: var(--et-white);
   border-radius: var(--et-board-radius);
 }
-
-:global(.homeV2) .board :global(.hv-title) {
-  color: var(--board-paper);
+.section .board :global(.hv-title) {
+  max-width: 8ch;
+  margin: 0;
+  font-size: var(--et-type-section-title);
+  line-height: 0.98;
+  white-space: normal;
+  color: var(--et-white);
 }
-
-@media (max-width: 767.98px) {
-  .board {
-    padding: var(--et-board-pad);
-  }
-}
-
-/* Ohne Trennlinien: auf dem Ink-Grund reicht Raum, und die letzte Linie stand
-   als Strich quer ueber der Seite direkt vor dem Footer (Ansage 03.09.2026).
-   Jede Frage ist ein eigener Block mit Luft darum. */
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.item {
-  border: 0;
-  border-radius: var(--et-radius-control);
-  transition: background-color 160ms ease;
-}
-
-/* Die geoeffnete Frage bekommt eine leichte Flaeche — sie sagt, welche
-   Antwort gerade sichtbar ist, ohne dass eine Linie quer laufen muss. */
-.item[open] {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-@media (hover: hover) {
-  .item:hover:not([open]) {
-    background: rgba(255, 255, 255, 0.03);
-  }
-}
-
+.list { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.item { border: none; }
 .question {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 28px;
   align-items: center;
-  min-height: clamp(52px, 4.5vw, 68px);
-  padding: 10px clamp(12px, 1.4vw, 18px);
+  gap: 24px;
+  min-height: 64px;
+  padding: 14px 0;
   cursor: pointer;
   font-family: var(--et-font-display);
-  font-size: clamp(15px, 2vw, 17px);
+  font-size: clamp(21px, 2.1vw, 29px);
+  line-height: 1.2;
   font-weight: 700;
-  line-height: 1.25;
-  color: var(--board-paper, #fff);
+  color: var(--et-white);
   list-style: none;
 }
-
-.question::-webkit-details-marker {
-  display: none;
-}
-
+.question::-webkit-details-marker { display: none; }
 .question::after {
   content: '+';
-  color: var(--board-accent, #ffc600);
+  justify-self: center;
+  color: var(--et-accent);
   font-family: var(--et-font-body);
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 28px;
   line-height: 1;
+  transition: transform 300ms ease;
 }
-
-.item[open] .question::after {
-  content: '−';
-}
-
+.item[open] .question::after { transform: rotate(45deg); }
+.question:focus-visible { outline: 2px solid var(--et-white); outline-offset: 5px; }
+@media (hover: hover) { .question:hover { color: var(--et-accent); } }
 .answer {
-  max-width: 72ch;
+  max-width: 58ch;
   margin: 0;
-  padding: clamp(4px, 0.45vw, 6px) clamp(12px, 1.4vw, 18px) 18px;
-  color: var(--board-soft, rgba(255, 255, 255, 0.76));
-  /* In der Markenschrift wie die Frage darüber (Ansage 29.09.2026), nicht
-     mehr in der Textschrift. Providence gibt es nur in 400 und 700. */
+  padding: 2px 42px 22px 0;
+  overflow: hidden;
+  color: rgba(255,255,255,0.76);
   font-family: var(--et-font-display);
-  /* 14px lagen unter dem Band der Wettbewerber (15–18px Fließtext). */
-  font-size: clamp(16px, 1.2vw, 17px);
-  font-weight: 400;
+  font-size: clamp(17px, 1.5vw, 20px);
   line-height: 1.5;
 }
-
-@media (max-width: 560px) {
-  .question {
-    min-height: 56px;
-    padding-block: 12px;
-    font-size: clamp(14px, 4.5vw, 16px);
-  }
-
-  .answer {
-    padding-top: 4px;
-    padding-bottom: 16px;
-    font-size: 15px;
-  }
+@media (max-width: 899px) {
+  .board { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .section .board :global(.hv-title) { max-width: none; font-size: var(--et-type-section-title); }
+  .list { gap: 8px; }
+  .question { min-height: 60px; gap: 14px; font-size: 21px; }
+  .answer { padding-right: 20px; font-size: 17px; }
 }
-
-.section .board :global(.hv-title) {
-  font-size: clamp(60px, 10vw, 140px);
-  line-height: 1;
-}
-.question {
-  font-size: clamp(18px, 2vw, 23px);
-  min-height: 70px;
-}
-@media (min-width: 900px) {
-  .board {
-    display: grid;
-    grid-template-columns: 0.65fr 1.35fr;
-    gap: 48px;
-    align-items: start;
-  }
-  .board > :global(.hv-head) {
-    position: sticky;
-    top: 36px;
-  }
-}
-
-@media (min-width: 768px) {
-  .section .board :global(.hv-title) {
-    font-size: clamp(44px, 5vw, 64px);
-  }
-  .question {
-    font-size: 18px;
-    min-height: 56px;
-  }
-}
+@media (prefers-reduced-motion: reduce) { .question::after { transition: none; } }

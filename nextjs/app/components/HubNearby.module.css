@@ -96,32 +96,6 @@
   }
 }
 
-/* ── Die Nächste und die Leiste ──
-   Wahl vom 02.10.2026 (Prototyp „D · Die Nächste"): die nächste Karte groß,
-   die übrigen sieben klein daneben — ab 768px rechts in einer Querleiste bis
-   an den Fensterrand, am Telefon darunter. */
-.spread {
-  --bleed: calc((100vw - 100cqw) / 2);
-  display: grid;
-  /* Am Telefon: Luft zwischen dem Bezirk der Großen und den Stempeln der
-     Leiste, die über ihre Karten ragen. */
-  row-gap: 36px;
-  /* Der große Stempel ragt rund 25px über das Foto; darüber steht der Knopf
-     „Freigeben" (Rückmeldung 02.10.2026: „zu nah an dem Zeit-Label"). Mit
-     Standort ist der Knopf weg, darüber steht nur noch der Satz. */
-  margin-top: clamp(52px, 4.4vw, 64px);
-}
-.spread[data-located] {
-  margin-top: clamp(44px, 3.4vw, 52px);
-}
-@media (min-width: 768px) {
-  .spread {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    align-items: start;
-    column-gap: clamp(18px, 2vw, 28px);
-  }
-}
-
 .hero {
   position: relative;
 }
@@ -360,122 +334,51 @@
   color: var(--board-soft, rgba(255, 255, 255, 0.76));
 }
 
-/* ── Die Querleiste ──
-   Nativ gewischt, mit Snap auf jede Karte (Ansage 01.10.2026: „die
-   Restaurants alle anklickbar und horizontal scrollbar"); mit der Maus wird
-   gezogen (lib/home/railDrag.ts). Am Telefon von Fensterrand zu Fensterrand,
-   ab 768px von der rechten Spalte bis an den rechten Fensterrand. Oben Platz
-   für die Stempel, die über die Karten ragen — die Leiste schneidet ab. */
-.rail {
-  --card-w: 42vw;
-  --card-gap: 14px;
-  --pad-top: 22px;
-  position: relative;
-  display: flex;
-  gap: var(--card-gap);
-  margin: calc(-1 * var(--pad-top)) calc(-1 * var(--bleed)) -8px;
-  padding: var(--pad-top) var(--bleed) 8px;
-  list-style: none;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  /* In `cqw` (die Tafel ist der Container), nicht in Prozent:
-     `scroll-padding` rechnete Prozent gegen die Leiste selbst. */
-  scroll-padding-inline: var(--bleed);
-  scrollbar-width: none;
+/* Eine gemeinsame Fotowand. GSAP führt den Fächer in diese Endpositionen. */
+.spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  align-items: stretch;
+  gap: clamp(20px, 2.5vw, 36px);
+  margin-top: 64px;
+  padding-bottom: 24px;
 }
-.rail::-webkit-scrollbar {
-  display: none;
+.rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px 20px; margin: 0; padding: 0; list-style: none; align-items: start; }
+.spread .card { background: var(--et-board-bg); }
+.hero { display: flex; min-width: 0; }
+.hero .card { flex: 1; }
+.slide { min-width: 0; position: relative; }
+
+.photo { aspect-ratio: 4 / 3; border-radius: var(--et-radius-photo); }
+.hero .photo { flex: 1; min-height: 180px; aspect-ratio: auto; }
+:global(.homeV2) .card :global(.hv-cap) {
+  text-align: left;
+  font-size: clamp(16px, 1.6vw, 22px);
+  padding-top: 14px;
 }
-/* Solange die Maus zieht, führt die Hand: kein Einrasten, kein weiches
-   Scrollen, keine Textauswahl. */
-.rail[data-dragging] {
-  scroll-snap-type: none;
-  scroll-behavior: auto;
-  cursor: grabbing;
-  user-select: none;
+:global(.homeV2) .hero .card :global(.hv-cap) {
+  font-size: clamp(28px, 3vw, 44px);
 }
-.slide {
-  flex: 0 0 var(--card-w);
-  scroll-snap-align: start;
+:global(.homeV2) .card :global(.hv-sub) { text-align: left; }
+:global(.homeV2) .board .title {
+  font-size: var(--et-type-section-title);
+  line-height: 1;
+  max-width: 12ch;
+}
+@media (max-width: 767.98px) {
+  .spread { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .rail { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 18px; }
+  .hero { display: block; }
+  .hero .photo { aspect-ratio: 4 / 3; }
+
+  :global(.homeV2) .hero .card :global(.hv-cap) { font-size: 34px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo img { transition: none; }
 }
 
-@media (min-width: 768px) {
-  .rail {
-    --card-w: clamp(170px, 15vw, 250px);
-    --card-gap: clamp(16px, 1.6vw, 24px);
-    /* Links 14px Polster: der Stempel der ersten Karte ragt 8px heraus. */
-    margin: calc(-1 * var(--pad-top)) calc(-1 * var(--bleed)) -8px 0;
-    padding: var(--pad-top) var(--bleed) 8px 14px;
-    scroll-padding-inline: 14px var(--bleed);
-  }
-}
-
-/* Ab 1024px kein Querscrollen mehr (Frage 02.10.2026: „braucht man für
-   Desktop eine horizontale Scrollmöglichkeit?" — nein): in der Leiste sah
-   man drei von sieben Karten, das Mausrad scrollt nur senkrecht, und unter
-   der Leiste blieb neben der Großen ein Loch. Jetzt ein festes Raster 3 × 2,
-   alles auf einen Blick; die siebte kleine Karte fällt weg. Quer (4/3) und
-   mit 36px Zeilenabstand stehen die Fotounterkanten der zweiten Reihe etwa
-   auf der Höhe der Großen. Die Stempel ragen frei heraus — es schneidet
-   nichts mehr ab. */
-@media (min-width: 1024px) {
-  .rail {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: start;
-    gap: 36px clamp(16px, 1.6vw, 24px);
-    margin: 0;
-    padding: 0;
-    overflow: visible;
-    scroll-snap-type: none;
-  }
-  .rail .photo {
-    aspect-ratio: 4 / 3;
-  }
-  .slide:nth-child(n + 7) {
-    display: none;
-  }
-  /* Die Große ist so hoch wie das Raster und gibt ihrem Foto, was der Text
-     übrig lässt: Name und Bezirk enden auf derselben Linie wie die zweite
-     Reihe (Rückmeldung 02.10.2026: „der Text von dem großen Element ist
-     aber weiter unten"). Vorher standen die Fotounterkanten bündig, und der
-     große Name hing darunter tiefer als die kleinen. */
-  .spread {
-    align-items: stretch;
-  }
-  .hero {
-    display: flex;
-  }
-  .hero .card {
-    flex: 1;
-  }
-  .hero .photo {
-    flex: 1 1 auto;
-    min-height: 0;
-    aspect-ratio: auto;
-  }
-}
-
-/* Das Foto liegt wie hinter einem Fenster: während die Karte durch die
-   Leiste fährt, wandert es gegenläufig in seinem Rahmen — am Querscroll
-   der Leiste, nicht am Scroll der Seite. Ohne Scroll-Timeline steht es.
-   Nur in der Leiste: die Große und das Raster ab 1024px stehen in keinem
-   Scroller. */
-@keyframes windowDrift {
-  from {
-    translate: 7% 0;
-  }
-  to {
-    translate: -7% 0;
-  }
-}
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) and (max-width: 1023.98px) {
-    .rail .photoImg {
-      scale: 1.16;
-      animation: windowDrift linear both;
-      animation-timeline: view(inline);
-    }
-  }
+@media (min-width: 900px) {
+  :global(.homeV2) .board .title { font-size: var(--et-type-section-title); max-width: none; }
+  .spread { margin-top: 40px; gap: clamp(20px, 2vw, 32px); }
+  :global(.homeV2) .hero .card :global(.hv-cap) { font-size: clamp(26px, 2.4vw, 36px); }
 }

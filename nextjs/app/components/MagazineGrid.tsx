@@ -52,7 +52,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
   const list = articles.slice(0, CARD_COUNT);
   const count = list.length;
   const labels = {
-    all: locale === 'en' ? 'All stories' : 'Alle Stories',
+    all: locale === 'en' ? 'More magazines' : 'Weitere Magazine',
     kicker: locale === 'en' ? 'Magazine' : 'Magazin',
     title: locale === 'en' ? 'On the plate' : 'Auf dem Teller',
     dot: (n: number) => (locale === 'en' ? `Story ${n} of ${count}` : `Story ${n} von ${count}`),

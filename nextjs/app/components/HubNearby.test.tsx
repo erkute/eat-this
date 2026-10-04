@@ -201,10 +201,10 @@ describe('HubNearby', () => {
     );
     const { container } = renderLive(mapData(spots));
     const rail = screen.getByRole('list', { name: 'Was ist um dich?' });
-    expect(rail.querySelectorAll('li > a')).toHaveLength(7);
+    expect(rail.querySelectorAll('li > a')).toHaveLength(6);
     const links = Array.from(container.querySelectorAll('[data-hub-nearby] a'));
-    expect(links).toHaveLength(8);
-    expect(new Set(links.map((a) => a.getAttribute('href'))).size).toBe(8);
+    expect(links).toHaveLength(7);
+    expect(new Set(links.map((a) => a.getAttribute('href'))).size).toBe(7);
   });
 
   it('renders the restaurant name', () => {

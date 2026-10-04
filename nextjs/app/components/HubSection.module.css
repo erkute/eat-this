@@ -627,14 +627,14 @@
     --hero-mark-w: min(21vw, 480px);
   }
   .heroHeadline {
-    font-size: min(4.3vw, 96px);
+    font-size: clamp(48px, 3.6vw, 68px);
   }
   .heroLead {
     max-width: 34em;
-    font-size: calc(var(--et-type-lead) * 1.2);
+    font-size: var(--et-type-lead);
   }
   .heroPhones {
-    height: min(76vh, 900px);
+    height: min(65vh, 640px);
   }
   .page .heroActions :global(.hv-btn) {
     min-height: 64px;
@@ -672,9 +672,7 @@
    spätere gewinnt. */
 .page
   > section:is(
-    :global([data-hub-magazine]),
-    :global([data-hub-musteats]),
-    :global([data-hub-fragremy])
+    :global([data-hub-magazine])
   ) {
   --band: var(--et-ink-raised);
 }
@@ -834,4 +832,15 @@
     --intro-mark-w: 92vw;
     top: calc((100svh - 64px) / 2 - var(--intro-mark-w) * 0.2009);
   }
+}
+
+@media (min-width: 900px) {
+  .page {
+    --et-wrap-max: min(1680px, 96vw);
+    --home-section-gap: clamp(40px, 4vw, 64px);
+    --musteats-air-below: 0px;
+  }
+  .heroHeadline { font-size: clamp(42px, 3.6vw, 64px); }
+  .heroGrid { gap: clamp(24px, 3vw, 48px); }
+  .page > :global([data-hub-faq]) { margin-bottom: 0; }
 }

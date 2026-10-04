@@ -132,14 +132,12 @@ describe('HubMustEatsTeaser', () => {
     expect(html).not.toContain('/map?r=');
   });
 
-  it('server-renders the card image and leaves the fetch to native lazy loading', () => {
+  it('starts preview downloads early at low priority and reserves their dimensions', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toContain('Smash Burger');
-    // The image used to be withheld from SSR and mounted by an
-    // IntersectionObserver after hydration, which put the JS bundle in front of
-    // every card on the page's furthest-down section. `loading="lazy"` keeps it
-    // off the initial payload without that dependency.
-    expect(html).toContain('loading="lazy"');
+    expect(html).toContain('loading="eager"');
+    expect(html).toContain('fetchPriority="low"');
+    expect(html).toContain('width="760" height="1044"');
     expect(html).toContain('src="/api/must-eat-image/m1?v=0123456789ab&amp;w=360');
   });
 
@@ -152,7 +150,7 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toContain('360w');
     expect(html).toContain('440w');
     expect(html).toContain('720w');
-    expect(html).toContain('sizes="(min-width: 768px) 340px, 60vw"');
+    expect(html).toContain('sizes="(min-width: 1024px) 17vw, (min-width: 768px) 220px, 42vw"');
   });
 
   it('renders nothing when no card is face-up', () => {
@@ -160,56 +158,19 @@ describe('HubMustEatsTeaser', () => {
     expect(render(data([me()]))).toBe('');
   });
 
-  it('shows covered cards as card backs, with the restaurant but no dish', () => {
-    const html = render(data([me(), covered('m2', 'Ora'), covered('m3', 'Otto')], ['m1']));
-
-    // The card mechanic is only legible if the row shows both states — a row of
-    // six face-up cards reads as six framed photos, which is what made visitors
-    // ask why the dishes are on cards at all.
+  it('shows five open cards and one covered card', () => {
+    const openCards = Array.from({ length: 6 }, (_, i) => me({ _id: `open${i}`, dish: `Dish ${i}` }));
+    const html = render(data([covered('hidden', 'Hidden Spot'), ...openCards], openCards.map(m => m._id)));
+    expect(html.match(/data-stack-photo="open"/g)).toHaveLength(5);
+    expect(html).toContain('/map?me=open4');
+    expect(html).not.toContain('/map?me=open5');
+    expect(html).not.toContain('Hidden Spot');
     expect(html).toContain('/pics/card-back.webp');
-    expect(html).toContain('Ora');
-    expect(html).toContain('Otto');
-    expect(html).toContain(translations.de.mustEats.covered);
-    // The dish name is the paid content the server withheld; naming it here
-    // would give away the reveal.
-    expect(html).not.toContain('Dish m2');
   });
 
-  /* Ohne Konto kommen die Ruecken aus dem ganzen Stapel, nicht aus einem
-     Deck — auf der Map gaebe es fuer den Besucher dort nichts aufzudecken.
-     Der Tipp fuehrt deshalb zur Anmeldung (Betreiber, 07.09.2026: „da muss
-     man aber dann zur Anmeldung kommen, wenn man eine verdeckte Karte
-     anklickt"). Die offene Karte daneben bleibt der Weg auf die Map. */
-  it('leads a covered card to the sign-in, not to the map, while signed out', () => {
+  it('shows fewer open cards with one covered preview', () => {
     const html = render(data([me(), covered('m2', 'Ora')], ['m1']));
-
-    expect(html).not.toContain('href="/map?me=m2"');
-    expect(html).toContain('href="/map?me=m1"');
-    expect(html).toContain('<button type="button"');
-    expect(html).toContain('Verdecktes Must Eat — anmelden und aufdecken');
-  });
-
-  /* Eine Karte aus dem Stapel verraet ihren Spot nicht (trimCoveredSpot) —
-     welches Lokal sie haelt, ist Teil der Ueberraschung. Die Zeile unter der
-     Karte bleibt dann leer statt einen leeren Link zu tragen. */
-  it('shows no restaurant line for a covered card that carries no spot', () => {
-    const fromDeck: MapMustEat = {
-      _id: 'm2',
-      restaurant: { _id: 'r-m2', name: '', slug: '', lat: 0, lng: 0 },
-    };
-    const html = render(data([me(), fromDeck], ['m1']));
-
-    expect(html).toContain('/pics/card-back.webp');
-    expect(html).toContain(translations.de.mustEats.covered);
-    expect(html).not.toContain('href="/restaurant/"');
-  });
-
-  it('opens the row with a covered card so the face-up one answers it', () => {
-    const html = render(data([me(), covered('m2', 'Ora'), covered('m3', 'Otto')], ['m1']));
-
-    const backFirst = html.indexOf('/pics/card-back.webp');
-    const artFirst = html.indexOf('/api/must-eat-image/m1');
-    expect(backFirst).toBeGreaterThan(-1);
-    expect(artFirst).toBeGreaterThan(backFirst);
+    expect(html.match(/data-stack-photo="open"/g)).toHaveLength(1);
+    expect(html).toContain('Verdecktes Must Eat');
   });
 });

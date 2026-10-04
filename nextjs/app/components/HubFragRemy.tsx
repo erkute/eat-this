@@ -1,169 +1,185 @@
 'use client';
-// Remys Tafel auf der Startseite (Variante A „Remy erzählt", gewählt am
-// 02.10.2026): eine Frage statt zwei. Remy fragt „Worauf hast du Lust?", die
-// Kategorien sind die Antworten (CategoriesRail), darunter zwei
-// Beispiel-Fragen zur Tageszeit und das Feld für die freie Antwort — beide
-// gehen in seinen Chat. Darüber steht, was Remy gerade
-// sagt: erst ein Satz zur Tageszeit, dann zu der Kategorie, auf die man zeigt
-// oder die er selbst durchgeht. Auftritt, Reden, Satzwechsel und Lachen
-// gehören HubMotion (`armFragRemy`, `armRemySays`) — über
-// `data-fragremy-*`/`data-remy-say`-Haken und Attribute, die React nach dem
-// ersten Rendern nicht mehr anfasst.
-import { useEffect, useState } from 'react';
+
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 import Image from '@/app/components/SiteImage';
-import { useLocale, useTranslations } from 'next-intl';
-import { categoryLine, stageFor } from '@/lib/buddy/greeting';
+import { useLocale } from 'next-intl';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
-import type { Locale } from '@/lib/buddy/types';
-import CategoriesRail from './CategoriesRail';
 import styles from './HubFragRemy.module.css';
 
-const REMY_SIZES = '(max-width: 899px) min(92vw, 560px), 440px';
-
-interface Props {
-  /** Die Kategorien (Slug → Name): Remys Antworten auf seine Frage, und zu
-   *  jeder sagt er einen Satz. */
-  categoryNames: Record<string, string>;
-}
-
-export default function HubFragRemy({ categoryNames }: Props) {
-  const locale = useLocale() as Locale;
-  const t = useTranslations('hub.fragRemy');
-  const [stage, setStage] = useState<{ lead: string; answers: [string, string] } | null>(null);
+export default function HubFragRemy() {
+  const en = useLocale() === 'en';
   const [draft, setDraft] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [expression, setExpression] = useState<'neutral' | 'open' | 'laugh'>('neutral');
+  const stage = useRef<HTMLDivElement>(null);
+  const figure = useRef<HTMLDivElement>(null);
+  const entrance = useRef<gsap.core.Timeline | null>(null);
+  const reaction = useRef<gsap.core.Timeline | null>(null);
+  const pending = useRef(false);
+  const motion = () => !!window.matchMedia?.('(prefers-reduced-motion: no-preference)').matches;
+  const questions = en
+    ? ['Where can I get really good pizza?', 'Where should I go on a date?', 'Surprise me.']
+    : ['Wo gibt’s richtig gute Pizza?', 'Was passt für ein Date?', 'Überrasch mich.'];
 
-  // Die Tageszeit kennt nur der Browser (die Uhr des Servers ist nicht die des
-  // Besuchers): der Server rendert den allgemeinen Satz und zwei Fragen, die
-  // immer passen.
   useEffect(() => {
-    setStage(stageFor(new Date().getHours(), locale));
-  }, [locale]);
-  const lead = stage?.lead ?? null;
-  const answers: [string, string] =
-    stage?.answers ??
-    (locale === 'de'
-      ? ['Richtig gute Pizza', 'Schönes Dinner für zwei']
-      : ['Really good pizza', 'A nice dinner for two']);
+    if (!stage.current || !figure.current || !window.matchMedia) return;
+    const avatarElement = figure.current;
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const avatar = figure.current!;
+      let visit = 0;
+      let inside = false;
+      const settle = { x: 0, y: 0, xPercent: 0, yPercent: 0, rotation: 0, scale: 1 };
+      const arrive = () => {
+        entrance.current?.kill();
+        gsap.killTweensOf(avatar);
+        avatar.removeAttribute('data-speaking');
+        const tl = gsap.timeline();
+        entrance.current = tl;
+        switch (visit++ % 3) {
+          case 0:
+            // Gerade von unten auftauchen, ohne seitlichen Anflug.
+            tl.fromTo(avatar,
+              { ...settle, yPercent: 48, xPercent: 0, rotation: 0, scale: 0.88 },
+              { ...settle, yPercent: -3, xPercent: 0, rotation: 0, scale: 1.04, duration: 1.1, ease: 'power3.out' });
+            break;
+          case 1:
+            // Erst neugierig von rechts hereinschauen, dann ganz hervorkommen.
+            tl.fromTo(avatar,
+              { ...settle, xPercent: 75, yPercent: 22, rotation: 18, scale: 0.96 },
+              { ...settle, xPercent: 24, yPercent: 8, rotation: -10, duration: 0.6, ease: 'power3.out' })
+              .to(avatar, { ...settle, xPercent: -3, rotation: 4, duration: 0.5, ease: 'power2.inOut' }, '+=0.2');
+            break;
+          default:
+            // Von unten hochspringen, kurz landen und sich aufrichten.
+            tl.fromTo(avatar,
+              { ...settle, yPercent: 100, rotation: -6, scale: 0.9 },
+              { ...settle, yPercent: -9, rotation: -5, scale: 1.04, duration: 0.65, ease: 'power3.out' })
+              .to(avatar, { ...settle, yPercent: 3, scaleY: 0.94, duration: 0.2, ease: 'power2.in' });
+        }
+        tl.to(avatar, { ...settle, duration: 0.5, ease: 'back.out(1.5)' })
+          .call(() => avatar.setAttribute('data-speaking', ''))
+          .call(() => avatar.removeAttribute('data-speaking'), [], '+=2');
+      };
+      // Zwei Schwellen verhindern Flackern beim langsamen Scrollen.
+      // Der Abgang beginnt, solange Remy noch teilweise sichtbar ist.
+      const observer = new IntersectionObserver(([entry]) => {
+        if (pending.current) return;
+        if (inside && (!entry.isIntersecting || entry.intersectionRatio < 0.4)) {
+          inside = false;
+          entrance.current?.kill();
+          reaction.current?.kill();
+          gsap.killTweensOf(avatar);
+          avatar.removeAttribute('data-speaking');
+          entrance.current = gsap.timeline().to(avatar, {
+            x: 0, y: 0, xPercent: 0, yPercent: 110,
+            rotation: 8, scale: 0.92,
+            duration: 0.45, ease: 'power2.in',
+          });
+          return;
+        }
+        if (inside || !entry.isIntersecting || entry.intersectionRatio < 0.6) return;
+        inside = true;
+        arrive();
+      }, { threshold: [0, 0.4, 0.6] });
+      observer.observe(avatar.parentElement!);
+      return () => { observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-speaking'); gsap.set(avatar, { clearProps: 'transform' }); };
+    });
+    return () => {
+      media.revert();
+      reaction.current?.kill();
+      gsap.killTweensOf(avatarElement);
+    };
+  }, []);
 
-  function submitDraft() {
-    const q = draft.trim();
-    if (!q) return;
-    dispatchBuddyAsk({ question: q });
-    setDraft('');
+  function listen(active: boolean, choice = -1) {
+    if (pending.current) return;
+    setExpression(active ? (choice === 2 ? 'laugh' : choice === 0 ? 'open' : 'neutral') : 'neutral');
+    if (!figure.current || !motion()) return;
+    const avatar = figure.current;
+    if (entrance.current?.isActive() && entrance.current.time() < 1.85) return;
+    entrance.current?.progress(1);
+    avatar.removeAttribute('data-speaking');
+    reaction.current?.kill();
+    gsap.killTweensOf(avatar);
+    const rest = { x: 0, y: 0, rotation: 0, scale: 1 };
+    const tl = gsap.timeline();
+    reaction.current = tl;
+    if (!active) {
+      tl.to(avatar, { ...rest, duration: 0.45, ease: 'back.out(1.4)' });
+      return;
+    }
+    if (choice === -1) {
+      tl.to(avatar, { ...rest, duration: 0.18, ease: 'power2.out' })
+        .to(avatar, { y: 7, scaleY: 0.985, duration: 0.16, ease: 'power2.inOut' })
+        .to(avatar, { ...rest, duration: 0.25, ease: 'power2.out' });
+    } else if (choice === 2) {
+      tl.to(avatar, { y: 7, scaleY: 0.96, rotation: -5, duration: 0.14 })
+        .to(avatar, { ...rest, y: -42, rotation: 9, scale: 1.06, duration: 0.3, ease: 'power2.out' })
+        .to(avatar, { ...rest, y: -6, rotation: -3, scale: 1.025, duration: 0.45, ease: 'back.out(2)' });
+    } else if (choice === 1) {
+      tl.to(avatar, { ...rest, x: 0, rotation: 0, scale: 1.03, duration: 0.16 })
+        .to(avatar, { y: 14, scaleY: 0.97, duration: 0.18, ease: 'power2.inOut', repeat: 3, yoyo: true })
+        .to(avatar, { y: 0, scale: 1.03, rotation: 3, duration: 0.2 });
+    } else {
+      tl.to(avatar, { ...rest, x: -24, y: -10, rotation: -11, scale: 1.09, duration: 0.55, ease: 'back.out(1.8)' });
+    }
+  }
+
+  function ask(question: string, choice = -1) {
+    const value = question.trim();
+    if (!value || pending.current) return;
+    pending.current = true;
+    setBusy(true);
+    setExpression(choice === 2 ? 'laugh' : choice === 0 ? 'open' : 'neutral');
+    const open = () => {
+      dispatchBuddyAsk({ question: value });
+      setDraft('');
+      setBusy(false);
+      setExpression('neutral');
+      pending.current = false;
+    };
+    if (!figure.current || !motion()) { open(); return; }
+    entrance.current?.progress(1);
+    gsap.killTweensOf(figure.current);
+    reaction.current?.kill();
+    const tl = gsap.timeline({ onComplete: open });
+    reaction.current = tl;
+    if (choice === 0) {
+      tl.to(figure.current, { x: -20, y: -8, rotation: -10, scale: 1.08, duration: 0.22 })
+        .to(figure.current, { x: 0, y: 0, rotation: 0, scale: 1, duration: 0.2 });
+    } else if (choice === 2) {
+      tl.to(figure.current, { y: -35, rotation: 8, scale: 1.05, duration: 0.22, ease: 'power2.out' })
+        .to(figure.current, { x: 0, y: 0, rotation: 0, scale: 1, duration: 0.24, ease: 'back.out(1.5)' });
+    } else {
+      tl.to(figure.current, { x: 0, y: 12, rotation: 0, scaleY: 0.96, duration: 0.12, repeat: 3, yoyo: true })
+        .to(figure.current, { y: 0, rotation: 0, scale: 1, duration: 0.12 });
+    }
   }
 
   return (
-    <section
-      className={`homeV2 hv-section hv-wrap ${styles.section}`}
-      id="hub-fragremy"
-      data-hub-fragremy=""
-    >
-      <div className={styles.body}>
-        <h2 className={`hv-title ${styles.title}`} data-fragremy-title="">
-          {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
-        </h2>
-
-        {/* Was Remy sagt: über allem nur „Remy" (Ansage 02.10.2026), darunter
-            liegen alle seine Sätze übereinander in einer Box, so hoch wie
-            der längste — wechselt er, springt darunter nichts (bis
-            02.10.2026 schob ein fünfzeiliger Satz am Desktop Kategorien und
-            Feld um bis zu 70px). Zu sehen ist der mit `data-on`; den Wechsel
-            rollt HubMotion (`armRemySays`). Kein `aria-live`: er geht die
-            Kategorien von selbst durch, alle drei Sekunden ein neuer Satz
-            wäre im Screenreader nur Lärm. */}
-        <div className={styles.say} data-fragremy-say="">
-          <span className={styles.kicker}>
-            <span className={styles.mk} aria-hidden="true" />
-            Remy
-          </span>
-          <div className={styles.lines}>
-            <p className={styles.said} data-remy-say="lead" data-on="">
-              {lead ?? t('sub')}
-            </p>
-            {Object.entries(categoryNames).map(([slug, name]) => (
-              <p key={slug} className={styles.said} data-remy-say={slug}>
-                {categoryLine(locale, slug, name)}
-              </p>
+    <section className={`homeV2 hv-section hv-wrap ${styles.section}`} id="hub-fragremy" data-hub-fragremy="">
+      <div className={styles.body} ref={stage}>
+        <div className={styles.portrait} aria-hidden="true">
+          <div className={styles.figure} ref={figure} data-expression={expression}>
+            <Image className={styles.face} src="/buddy/buddy.webp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+            <Image className={styles.open} src="/buddy/buddy-open.webp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+            <Image className={styles.laugh} src="/buddy/buddy-laugh.webp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+          </div>
+        </div>
+        <div className={styles.content}>
+          <p className={styles.intro}>{en ? 'Hey, I’m Remy. I know where to eat in Berlin.' : 'Hey, ich bin Remy. Ich zeig dir, wo Berlin gut isst.'}</p>
+          <h2 className={`hv-title ${styles.title}`}>{en ? 'What are you craving?' : 'Worauf hast du Lust?'}</h2>
+          <div className={styles.questions} data-fragremy-chips="">
+            {questions.map((question, index) => (
+              <button key={question} type="button" className={styles.question} disabled={busy} onPointerEnter={(event) => { if (event.pointerType === 'mouse') listen(true, index); }} onPointerLeave={() => listen(false)} onFocus={() => listen(true, index)} onBlur={() => listen(false)} onClick={() => ask(question, index)}>{question}</button>
             ))}
-            <p className={styles.said} data-remy-say="listen">
-              {locale === 'en' ? "Go on, I'm listening." : 'Schieß los, ich hör zu.'}
-            </p>
           </div>
-        </div>
-
-        <CategoriesRail categoryNames={categoryNames} locale={locale} />
-
-        {/* Zwei Beispiel-Fragen wie auf main (Ansage 02.10.2026): wer nichts
-            Passendes unter den Kategorien findet, fragt Remy mit einem Tipp. */}
-        <div className={styles.chips} data-fragremy-chips="">
-          {answers.map((a) => (
-            <button
-              key={a}
-              type="button"
-              className={`hv-chip ${styles.chip}`}
-              onClick={() => dispatchBuddyAsk({ question: a })}
-            >
-              {a}
-            </button>
-          ))}
-        </div>
-
-        <form
-          className={styles.chatin}
-          onSubmit={(e) => {
-            e.preventDefault();
-            submitDraft();
-          }}
-        >
-          <input
-            className={styles.input}
-            data-fragremy-input=""
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder={t('inputPlaceholder')}
-            aria-label={t('inputPlaceholder')}
-          />
-          <button className={`hv-btn ${styles.send}`} type="submit" aria-label={t('sendAria')}>
-            <span aria-hidden="true">{t('sendAria')}</span>
-          </button>
-        </form>
-
-        {/* Remys Platz, unbewegt: daran misst HubMotion, wann die leere
-            Fläche im Bild ist und er hochschießt. */}
-        <span className={styles.avatarSpot} data-fragremy-spot="" aria-hidden="true" />
-
-        <div className={styles.avatarWrap} data-fragremy-avatar="">
-          <div className={styles.avatar}>
-            {/* Das Quadrat, in dem die Zeichnung steht, unten in `.avatar`. */}
-            <div className={styles.head}>
-              <Image
-                className={styles.face}
-                src="/buddy/buddy.webp"
-                alt="Remy"
-                fill
-                sizes={REMY_SIZES}
-                loading="lazy"
-              />
-              <Image
-                className={styles.faceOpen}
-                src="/buddy/buddy-open.webp"
-                alt=""
-                fill
-                sizes={REMY_SIZES}
-                loading="lazy"
-                aria-hidden="true"
-              />
-              <Image
-                className={styles.faceLaugh}
-                src="/buddy/buddy-laugh.webp"
-                alt=""
-                fill
-                sizes={REMY_SIZES}
-                loading="lazy"
-                aria-hidden="true"
-              />
-            </div>
-          </div>
+          <form className={styles.form} onSubmit={(event) => { event.preventDefault(); ask(draft); }} aria-label={en ? 'Ask Remy' : 'Frag Remy'}>
+            <input className={styles.input} data-fragremy-input="" value={draft} onChange={(event) => setDraft(event.target.value)} onFocus={() => listen(true)} onBlur={() => listen(false)} placeholder={en ? 'Or ask me yourself …' : 'Oder frag mich selbst …'} aria-label={en ? 'Your question for Remy' : 'Deine Frage an Remy'} disabled={busy} />
+            <button className={styles.send} type="submit" disabled={busy || !draft.trim()}>{en ? 'Ask' : 'Fragen'}</button>
+          </form>
         </div>
       </div>
     </section>

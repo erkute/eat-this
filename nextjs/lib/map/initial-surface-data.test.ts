@@ -28,20 +28,14 @@ function mapData(): InitialMapData {
 }
 
 describe('initial surface data selectors', () => {
-  it('keeps both face-up and face-down Must Eats for the home teaser', () => {
+  it('provides five open Must Eats for the home teaser', () => {
     const data = mapData();
     data.categories = [{ slug: 'pizza' }] as InitialMapData['categories'];
 
     const selected = selectHomeInitialMapData(data);
 
-    // Two face-up, then whatever is covered (7 and 9 here). The teaser row is
-    // mostly face-down, so filtering the covered ones out left it unable to
-    // show the card mechanic at all.
     expect(selected.mustEats.map(({ _id }) => _id)).toEqual([
-      'must-eat-1',
-      'must-eat-2',
-      'must-eat-7',
-      'must-eat-9',
+      'must-eat-1', 'must-eat-2', 'must-eat-3', 'must-eat-4', 'must-eat-5', 'must-eat-7',
     ]);
     expect(selected.categories).toEqual([]);
     expect(selected.restaurants).toBe(data.restaurants);
@@ -49,23 +43,16 @@ describe('initial surface data selectors', () => {
     expect(data.mustEats).toHaveLength(9);
   });
 
-  it('caps the face-down cards at four', () => {
+  it('adds only one covered preview when fewer public cards exist', () => {
     const data = mapData();
     data.revealedMustEatIds = ['must-eat-1', 'must-eat-2'];
 
     const selected = selectHomeInitialMapData(data);
 
-    expect(selected.mustEats.map(({ _id }) => _id)).toEqual([
-      'must-eat-1',
-      'must-eat-2',
-      'must-eat-3',
-      'must-eat-4',
-      'must-eat-5',
-      'must-eat-6',
-    ]);
+    expect(selected.mustEats.map(({ _id }) => _id)).toEqual(['must-eat-1', 'must-eat-2', 'must-eat-3']);
   });
 
-  it('takes at most one card per restaurant', () => {
+  it('takes at most one open card per restaurant', () => {
     const data = mapData();
     // Every tile shows its restaurant's name, so a second card from the same
     // place reads as a duplicate row entry.
@@ -76,7 +63,7 @@ describe('initial surface data selectors', () => {
 
     const selected = selectHomeInitialMapData(data);
 
-    expect(selected.mustEats.map(({ _id }) => _id)).toEqual(['must-eat-1']);
+    expect(selected.mustEats.map(({ _id }) => _id)).toEqual(['must-eat-1', 'must-eat-7']);
   });
 
   it('keeps only catalog fields for the Must-Eats page', () => {

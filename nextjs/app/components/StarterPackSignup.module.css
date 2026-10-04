@@ -1,6 +1,7 @@
 /* Die Ink-Tafel um die Anmeldung auf der Startseite. Was darauf steht,
    gehoert LoginBoard; hier nur die Flaeche und das Pack. */
 .inner {
+  --login-title-size: var(--et-type-section-title);
   /* Nur `--et-board-quiet-pad` lesen, nie `--et-board-pad`: das zweite Token
      ist seit dem Ink-Umbau `0px` und löst die Tafeln auf, die auf dem Grund
      stehen. */

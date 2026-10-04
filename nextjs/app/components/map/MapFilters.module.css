@@ -604,3 +604,13 @@
   max-height: none;
   overflow-y: auto;
 }
+
+/* Price follows its short label; category and district share the remaining room. */
+.filterChipWrap.filterChipCompact { flex: 0 0 auto; min-width: 58px; }
+/* Providence descenders extend below the line box even at 1.35 line-height. */
+.filterChipRow .filterChipLabel,
+.pickerTitle,
+.pickerItemLabel {
+  padding-bottom: 0.22em;
+  margin-bottom: -0.22em;
+}

@@ -1,249 +1,116 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, type MouseEvent } from 'react';
+import gsap from 'gsap';
+import { useLoginModal } from '@/lib/auth';
+import { guardSwipeClick } from '@/lib/home/guardSwipeClick';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
-import { useUnlockedMustEats, resolveUnlockedMustEatIds } from '@/lib/map';
-import { useLoginModal } from '@/lib/auth';
 import { GUEST_SHAKE_MS, prefersReducedMotion } from '@/lib/guestCardShake';
-import { trackEvent } from '@/lib/analytics';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
-import { composeTeaserCards } from '@/lib/home/mustEatsGallery';
 import { mustEatCardSrc } from '@/lib/must-eat/cardImage';
 import { useHomeMapData } from './HomeMapDataContext';
-import { appScroller } from '@/lib/dom/appScroller';
-import { armSideDrag } from '@/lib/home/sideDrag';
 import styles from './HubMustEatsTeaser.module.css';
 
-const TEASER_COUNT = 6;
-
-// Face-up cards sit between the face-down ones rather than leading the set:
-// the first tile poses the question and the second answers it. The row used to
-// be six face-up cards, which showed the reward without ever showing the
-// mechanic that earns it — the card frame then had no visible reason to exist.
-// Both examples remain between covered cards as visitors browse the gallery.
-const FACE_UP_SLOTS = [1, 4] as const;
-
-const CARD_BACK = '/pics/card-back.webp?v=7';
-
-// The large gallery card reaches 300px; the image route supplies the same
-// supported width ladder used elsewhere in the collection.
+const TEASER_COUNT = 5;
 const CARD_WIDTHS = [180, 360, 440, 720] as const;
 
 function cardSrcSet(url: string): string {
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
-const CARD_SIZES = '(min-width: 768px) 340px, 60vw';
+const CARD_SIZES = '(min-width: 1024px) 17vw, (min-width: 768px) 220px, 42vw';
 
 export default function HubMustEatsTeaser() {
-  const { initialMapData, live, uid } = useHomeMapData();
-  const { unlockedIds: storedUnlockedIds } = useUnlockedMustEats(uid);
+  const { initialMapData, uid } = useHomeMapData();
   const { open: openLoginModal } = useLoginModal();
+  const covered = initialMapData.mustEats.find((card) => !initialMapData.revealedMustEatIds.includes(card._id));
   const { lang, t } = useTranslation();
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
   const restaurantAria = lang === 'de' ? 'Restaurantseite öffnen' : 'open restaurant page';
 
-  // The first client render must match SSR exactly: SSR renders the anonymous
-  // view (uid=null) from `initialMapData`, so the pre-mount render here mirrors
-  // it — uid=null + initialMapData fed through the shared face-up helper. That
-  // yields the deterministic anon view (10 curated cards + spot-of-day) face-up,
-  // identical on server and first client paint. After mount, swap to the live
-  // dataset + the real uid so signed-in stored unlocks + proximity reveals show
-  // too — exactly like the map.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // The teaser always shows the public selection, including for signed-in visitors.
+  const cards = useMemo(() => {
+    const publicIds = new Set(initialMapData.revealedMustEatIds);
+    return initialMapData.mustEats.filter((card) => publicIds.has(card._id) && card.image).slice(0, TEASER_COUNT);
+  }, [initialMapData]);
 
-  const effUid = mounted ? uid : null;
-  const mustEats = mounted ? live.mustEats : initialMapData.mustEats;
-  // Memoized: the pre-mount fallbacks construct fresh Sets, which would
-  // otherwise re-trigger the faceUp memo below on every render.
-  const revealedMustEatIds = useMemo(
-    () => (mounted ? live.revealedMustEatIds : new Set<string>(initialMapData.revealedMustEatIds)),
-    [mounted, live.revealedMustEatIds, initialMapData]
-  );
-  const storedSet = useMemo(
-    () => (mounted ? storedUnlockedIds : new Set<string>()),
-    [mounted, storedUnlockedIds]
-  );
-  // Public anon face-up set — folded in for signed-in users too so the teaser
-  // matches the map/profile ("publicly face-up means face-up everywhere").
-  const publicFaceUpIds = useMemo(
-    () => new Set<string>(initialMapData.revealedMustEatIds),
-    [initialMapData]
-  );
-  const faceUp = useMemo(
-    () =>
-      resolveUnlockedMustEatIds({
-        uid: effUid,
-        storedUnlockedIds: storedSet,
-        revealedMustEatIds,
-        publicFaceUpIds,
-      }),
-    [effUid, storedSet, revealedMustEatIds, publicFaceUpIds]
-  );
+  const clickAnimation = useRef<gsap.core.Timeline | null>(null);
+  const continuingClick = useRef(false);
+  useEffect(() => () => { clickAnimation.current?.kill(); }, []);
+  const animateCardClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (continuingClick.current) { continuingClick.current = false; return; }
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || prefersReducedMotion()) return;
+    const link = event.currentTarget;
+    const photo = link.closest('article')?.querySelector<HTMLElement>('[data-stack-photo]');
+    if (!photo) return;
+    event.preventDefault();
+    if (clickAnimation.current?.isActive()) return;
+    clickAnimation.current = gsap.timeline({ onComplete: () => {
+      gsap.set(photo, { clearProps: 'transform' });
+      if (!link.isConnected) return;
+      continuingClick.current = true;
+      link.click();
+    } })
+      .to(photo, { y: 3, scale: 0.94, rotation: 0, duration: 0.1, ease: 'power2.out' })
+      .to(photo, { y: -22, scale: 1.1, rotation: -7, duration: 0.26, ease: 'back.out(1.5)' })
+      .to(photo, { y: 0, scale: 1, rotation: 0, duration: 0.24, ease: 'power2.inOut' });
+  };
 
-  const cards = useMemo(
-    () => composeTeaserCards(mustEats, faceUp, TEASER_COUNT, FACE_UP_SLOTS),
-    [mustEats, faceUp]
-  );
+  const animateCoveredClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (!covered || clickAnimation.current?.isActive()) return;
+    const open = () => openLoginModal({ kind: 'card', mustEatId: covered._id });
+    if (prefersReducedMotion()) { open(); return; }
+    const photo = event.currentTarget.querySelector('[data-stack-photo]');
+    if (!photo) return;
+    clickAnimation.current = gsap.timeline({ onComplete: () => {
+      gsap.set(photo, { clearProps: 'transform' });
+      open();
+    } }).to(photo, { xPercent: -5, rotation: -6, duration: GUEST_SHAKE_MS / 1000 / 8 })
+      .to(photo, { xPercent: 5, rotation: 6, duration: GUEST_SHAKE_MS / 1000 / 8, repeat: 5, yoyo: true })
+      .to(photo, { xPercent: 0, rotation: 0, duration: GUEST_SHAKE_MS / 1000 / 8 });
+  };
 
-  /* Der Tipp auf einen Rücken ohne Konto lässt die Karte erst zittern und
-     öffnet dann das Anmeldeformular — derselbe Griff wie im Map-Detail
-     (Betreiber, 07.09.2026: „auf der Startseite eigentlich genau das
-     Gleiche"). Der Timer wird beim Abräumen gestoppt: sonst setzte er den
-     Zustand einer Karte, die nicht mehr auf der Seite steht. */
-  const [shakingId, setShakingId] = useState<string | null>(null);
-  const shakeTimer = useRef<number | null>(null);
-  useEffect(
-    () => () => {
-      if (shakeTimer.current !== null) window.clearTimeout(shakeTimer.current);
-    },
-    []
-  );
-
-  /* ── Bühne (A24, 30.09.2026) ── Die Karten fahren stufenlos am Scrollweg:
-     von rechts klein über die Mitte gross nach links klein, jede auf ihrem
-     eigenen Fenster der Scroll-Timeline (HubMustEatsTeaser.module.css). Das
-     läuft im Takt des Scrollens, auch auf dem iPhone; JS misst nur die
-     Bühne aus und übersetzt einen Querwisch in denselben Scroll. Nichts
-     hält den Scroll fest. Mit reduzierter Bewegung und
-     ohne Scroll-Timelines liegen die Karten nebeneinander. */
-  const runwayRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLUListElement>(null);
-  const [staged, setStaged] = useState(false);
-  const count = cards.length;
-
   useEffect(() => {
-    const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    if (!calm || typeof ResizeObserver === 'undefined') return;
-    if (!CSS.supports?.('animation-timeline: view()')) return;
-    const update = () => setStaged(!calm.matches);
-    update();
-    calm.addEventListener?.('change', update);
-    return () => calm.removeEventListener?.('change', update);
-  }, []);
-
-  /** Runway geometry: where the stage pins and how far it travels. */
-  const measure = useCallback(() => {
-    const runway = runwayRef.current;
-    const stage = runway?.firstElementChild as HTMLElement | null;
-    if (!runway || !stage) return null;
-    const scroller = appScroller();
-    // `scroll-margin-top` carries the stage's pin line (CSS `--stage-top`)
-    // as a resolved pixel value.
-    const stageTop = parseFloat(getComputedStyle(runway).scrollMarginTop) || 0;
-    const portHeight = scroller ? scroller.clientHeight : window.innerHeight;
-    const pinTop = (scroller?.getBoundingClientRect().top ?? 0) + stageTop;
-    const travel = runway.offsetHeight - stage.offsetHeight;
-    return { runway, stage, scroller, stageTop, portHeight, pinTop, travel };
-  }, []);
-
-  useEffect(() => {
-    const runway = runwayRef.current;
-    if (!staged || !runway || count < 2) return;
-    // The stage fills the scroll area below its pin line; its height then
-    // sets the runway and the timeline's window (CSS reads the three).
-    const stage = runway.firstElementChild as HTMLElement;
-    const size = () => {
-      const m = measure();
-      if (!m) return;
-      // Desktop scrolls `.app-pages`, measured here. The phone keeps the CSS
-      // values (`100svh` for the stage, `100dvh` for the timeline window):
-      // `innerHeight` changes with every move of Safari's toolbar, and a stage
-      // sized from it grew and shrank the cards while scrolling.
-      if (m.scroller) {
-        runway.style.setProperty('--view-h', `${m.portHeight - m.stageTop}px`);
-        runway.style.setProperty('--port-h', `${m.portHeight}px`);
-      } else {
-        runway.style.removeProperty('--view-h');
-        runway.style.removeProperty('--port-h');
-      }
-      runway.style.setProperty('--stage-h', `${stage.offsetHeight}px`);
-    };
-    size();
-    const resize = new ResizeObserver(size);
-    resize.observe(stage);
-    window.addEventListener('resize', size);
-    // Quer über die Bühne wischen schiebt die Karten wie der Scroll: dieselbe
-    // Strecke, auf der `focusCard` eine Karte in die Mitte holt.
-    const disarm = armSideDrag(stage, () => {
-      const m = measure();
-      const slide = deckRef.current?.firstElementChild as HTMLElement | null;
-      if (!m || !slide) return null;
-      return {
-        start: m.runway.getBoundingClientRect().top - m.pinTop,
-        step: m.travel / (count - 1),
-        count,
-        finger: slide.offsetWidth,
-      };
+    const deck = deckRef.current;
+    if (!deck) return;
+    return guardSwipeClick(deck, () => {
+      if (!clickAnimation.current?.isActive()) return;
+      clickAnimation.current?.kill();
+      continuingClick.current = false;
+      gsap.set(deck.querySelectorAll('[data-stack-photo]'), { clearProps: 'transform' });
     });
-    return () => {
-      disarm();
-      resize.disconnect();
-      window.removeEventListener('resize', size);
-      ['--view-h', '--stage-h', '--port-h'].forEach((v) => runway.style.removeProperty(v));
-    };
-  }, [staged, count, measure]);
+  }, [cards]);
+  useEffect(() => {
+    const deck = deckRef.current;
+    if (!deck || !window.matchMedia || typeof IntersectionObserver === 'undefined') return;
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const slides = Array.from(deck.children);
+      let animation: gsap.core.Tween | null = null;
+      const observer = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        animation = gsap.fromTo(slides,
+          { y: 45, rotation: (index: number) => index % 2 ? 8 : -8, scale: 0.94 },
+          { y: 0, rotation: 0, scale: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out', clearProps: 'transform' });
+      }, { threshold: 0.2 });
+      observer.observe(deck);
+      return () => { observer.disconnect(); animation?.kill(); gsap.set(slides, { clearProps: 'transform' }); };
+    });
+    return () => media.revert();
+  }, [cards]);
 
-  /** Tab brings an off-stage card into view: scroll to where it stands in
-   *  the middle. A tap on a visible card never moves the page. */
-  const focusCard = (index: number) => {
-    if (!staged || !deckRef.current?.querySelector(':focus-visible')) return;
-    const m = measure();
-    if (!m) return;
-    const delta =
-      m.runway.getBoundingClientRect().top - m.pinTop + (m.travel * index) / Math.max(1, count - 1);
-    if (m.scroller) m.scroller.scrollTop += delta;
-    else window.scrollTo({ top: window.scrollY + delta, behavior: 'instant' });
-  };
-
-  // Nothing face-up means six card backs and no example of what is under one —
-  // a section that asks visitors to collect something it never shows.
-  if (!cards.some((c) => c.faceUp)) return null;
-
-  /* Ohne Konto ist eine verdeckte Karte hier keine Aufgabe, sondern das
-     Angebot: die Rücken kommen aus dem ganzen Stapel (getHomeInitialMapData),
-     nicht aus einem Deck, das der Besucher hätte — auf der Map gäbe es für
-     ihn dort nichts aufzudecken. Der Tipp führt deshalb zur Anmeldung, und
-     zwar in den Starter-Pack-Modus, weil das die Antwort auf „was ist unter
-     der Karte" ist: zwanzig davon, zehn liegen dann offen. Mit Konto bleibt
-     die Karte, was sie im Profil ist — der Weg auf die Map, an den Spot.
-
-     Die angetippte Karte reist mit (pendingStarterCard): das Starter Pack
-     legt sie garantiert offen hinein — dieselbe Zusage wie auf der Map. Und
-     wie dort oeffnet der Tipp sofort das Formular, ohne Tafel dazwischen
-     (Betreiber, 07.09.2026). */
-  const openStarterLogin = (mustEatId: string) => {
-    // Ein zweiter Tipp waehrend des Zitterns startet nichts doppelt.
-    if (shakeTimer.current !== null) return;
-    trackEvent('login_start', { method: 'home_covered_card' });
-    const open = () => openLoginModal({ kind: 'card', mustEatId });
-    // Ohne Bewegung waere die Wartezeit ein toter Moment.
-    if (prefersReducedMotion()) {
-      open();
-      return;
-    }
-    setShakingId(mustEatId);
-    shakeTimer.current = window.setTimeout(() => {
-      shakeTimer.current = null;
-      setShakingId(null);
-      open();
-    }, GUEST_SHAKE_MS);
-  };
+  if (!cards.length) return null;
 
   return (
     <section className="homeV2 hv-section hv-wrap" data-hub-musteats="">
       <div
-        ref={runwayRef}
         className={styles.runway}
-        data-staged={staged && count > 1 ? '' : undefined}
-        style={{ '--count': count } as CSSProperties}
       >
         <div className={styles.stage}>
           <div className={styles.side}>
@@ -267,137 +134,55 @@ export default function HubMustEatsTeaser() {
             role="list"
             aria-label={t('mustEats.teaserTitle')}
           >
-          {cards.map(({ mustEat: m, faceUp: isFaceUp }, index) => {
-            // Ohne Bezirk: „AERA Charlottenburg“ heisst unter dem Gericht nur „AERA“.
-            const restaurant = spotNameWithoutDistrict(
-              normalizeName(m.restaurant.name),
-              m.restaurant.district
-            );
-            const dish = isFaceUp ? normalizeName(m.dish ?? '') : '';
-            // Eine verdeckte Karte aus dem Stapel kennt ihren Spot nicht
-            // (trimCoveredSpot): welches Lokal die Karte hält, ist Teil der
-            // Überraschung. Eine aus dem eigenen Deck kennt ihn — dort ist der
-            // Spot die Aufgabe, und die Zeile darunter führt hin.
-            const hasSpot = m.restaurant.name !== '' && m.restaurant.slug !== '';
-            const needsAccount = !isFaceUp && effUid === null;
-            // A covered card carries no dish name — the server strips it (see
-            // stripCoveredMustEats), and naming it would give away the reveal.
-            const cardAria = isFaceUp
-              ? `${dish} ${mustEatAria}`
-              : needsAccount
-                ? lang === 'de'
-                  ? 'Verdecktes Must Eat — anmelden und aufdecken'
-                  : 'Face-down Must Eat — sign in to reveal it'
-                : lang === 'de'
-                  ? `Verdecktes Must Eat bei ${restaurant} — auf der Map aufdecken`
-                  : `Face-down Must Eat at ${restaurant} — reveal it on the map`;
-
-            const photo = (
-              <span
-                className={`${styles.photo}${shakingId === m._id ? ` ${styles.photoTapping}` : ''}`}
-              >
-                {/* Server-rendered with native lazy loading rather than
-                    mounted by an IntersectionObserver after hydration. The
-                    observer kept the images off the initial payload, which
-                    `loading="lazy"` does by itself — but it also made every
-                    card wait for the JS bundle and hydration first, on the
-                    section furthest down the page. */}
-                {isFaceUp && m.image ? (
-                  // Eigener `key`: deckt sich eine Karte nach dem Mount auf
-                  // (angemeldet, Standort), baut React ein neues <img>, statt
-                  // das der Rueckseite umzuschreiben — sonst waehlt Safari bei
-                  // src, srcset und sizes einzeln neu und laedt zwei Varianten.
-                  // Grund und Beleg in ProfileAlbum.tsx.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key="card"
-                    className={styles.card}
-                    src={mustEatCardSrc(m.image, 360)}
-                    srcSet={cardSrcSet(m.image)}
-                    sizes={CARD_SIZES}
-                    alt={dish}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ) : (
-                  // One shared asset across every face-down tile, so the
-                  // row costs a single request. Same 760×1044 aspect as the
-                  // card art, which keeps the tiles the same height.
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key="back"
-                    className={styles.card}
-                    src={CARD_BACK}
-                    alt=""
-                    width={760}
-                    height={1044}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                )}
-              </span>
-            );
-
+          {cards.map((m) => {
+            const restaurant = spotNameWithoutDistrict(normalizeName(m.restaurant.name), m.restaurant.district);
+            const dish = normalizeName(m.dish ?? '');
+            const cardAria = `${dish} ${mustEatAria}`;
             return (
-              <li
-                  key={m._id}
-                  className={styles.slide}
-                  style={{ '--i': index } as CSSProperties}
-                  onFocusCapture={() => focusCard(index)}
-                >
+              <li key={m._id} className={styles.slide}>
                 <article className={styles.cardShell}>
-                {needsAccount ? (
-                  <button
-                    type="button"
-                    className={`${styles.cardLink} ${styles.cardButton}`}
-                    aria-label={cardAria}
-                    onClick={() => openStarterLogin(m._id)}
-                  >
-                    {photo}
-                  </button>
-                ) : (
-                  /* Deep-link into the map: ?me= opens the must-eat detail —
-                       face-up as the card, face-down with the reveal affordance. */
-                  <MapIntentLink
-                    href={`/map?me=${m._id}`}
-                    className={styles.cardLink}
-                    aria-label={cardAria}
-                  >
-                    {photo}
-                  </MapIntentLink>
-                )}
-                <span className={styles.meta}>
-                  {isFaceUp ? (
-                    <MapIntentLink
-                      href={`/map?me=${m._id}`}
-                      className={styles.dishLink}
-                      aria-label={cardAria}
-                    >
-                      <span className={styles.dish}>
-                        {dish}
-                      </span>
-                    </MapIntentLink>
-                  ) : (
-                    <span
-                      className={styles.dish}
-                    >
-                      {t('mustEats.covered')}
+                  <MapIntentLink href={`/map?me=${m._id}`} onClick={animateCardClick} className={styles.cardLink} aria-label={cardAria}>
+                    <span data-stack-photo="open" className={styles.photo}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img className={styles.card} src={mustEatCardSrc(m.image!, 360)} srcSet={cardSrcSet(m.image!)} sizes={CARD_SIZES} alt={dish} draggable={false} width={760} height={1044} loading="eager" fetchPriority="low" decoding="async" />
                     </span>
-                  )}
-                  {hasSpot && (
-                    <Link
-                      href={`/restaurant/${m.restaurant.slug}`}
-                      className={styles.restaurantLink}
-                      aria-label={`${restaurant} ${restaurantAria}`}
-                    >
-                      <span className="hv-sub">{restaurant}</span>
-                    </Link>
-                  )}
-                </span>
-              </article>
+                  </MapIntentLink>
+                  <span className={styles.meta} data-stack-caption="">
+                    <MapIntentLink href={`/map?me=${m._id}`} onClick={animateCardClick} className={styles.dishLink} aria-label={cardAria}>
+                      <span className={styles.dish}>{dish}</span>
+                    </MapIntentLink>
+                    {m.restaurant.name && m.restaurant.slug && (
+                      <Link href={`/restaurant/${m.restaurant.slug}`} className={styles.restaurantLink} aria-label={`${restaurant} ${restaurantAria}`}>
+                        <span className="hv-sub">{restaurant}</span>
+                      </Link>
+                    )}
+                  </span>
+                </article>
               </li>
             );
           })}
+          {covered && (
+            <li className={styles.slide}>
+              <article className={styles.cardShell}>
+                {uid ? (
+                  <MapIntentLink href={`/map?me=${covered._id}`} onClick={animateCardClick} className={styles.cardLink} aria-label={lang === 'de' ? 'Verdecktes Must Eat auf der Map öffnen' : 'Open face-down Must Eat on the map'}>
+                  <span className={styles.photo} data-stack-photo="covered">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className={styles.card} src="/pics/card-back.webp?v=7" alt="" width={760} height={1044} draggable={false} />
+                  </span>
+                  </MapIntentLink>
+                ) : (
+                <button type="button" className={`${styles.cardLink} ${styles.coveredButton}`} onClick={animateCoveredClick} aria-label={lang === 'de' ? 'Verdecktes Must Eat — anmelden und aufdecken' : 'Face-down Must Eat — sign in to reveal'}>
+                  <span className={styles.photo} data-stack-photo="covered">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className={styles.card} src="/pics/card-back.webp?v=7" alt="" width={760} height={1044} draggable={false} />
+                  </span>
+                </button>
+                )}
+                <span className={styles.meta}><span className={styles.dish}>{t('mustEats.covered')}</span></span>
+              </article>
+            </li>
+          )}
           </ul>
         </div>
       </div>

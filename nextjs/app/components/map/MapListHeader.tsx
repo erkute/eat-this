@@ -159,6 +159,7 @@ export default function MapListHeader({
         {priceBucketIds.length > 0 && (
           <FilterChip
             ref={priceBtnRef}
+            compact
             label={price ? priceBucketChipLabel(price) : t('map.filterChipPrice')}
             ariaLabel={price ? t(priceBucketLabelKey(price)) : undefined}
             active={!!price}
@@ -225,6 +226,7 @@ export default function MapListHeader({
 }
 
 interface FilterChipProps {
+  compact?: boolean;
   label: string;
   ariaLabel?: string;
   active: boolean;
@@ -237,11 +239,11 @@ interface FilterChipProps {
 }
 
 const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function FilterChip(
-  { label, ariaLabel, active, expanded, onClick, clearLabel, onClear },
+  { label, ariaLabel, active, expanded, onClick, clearLabel, onClear, compact },
   ref
 ) {
   return (
-    <span className={`${styles.filterChipWrap} ${active ? styles.filterChipWrapActive : ''}`}>
+    <span className={`${styles.filterChipWrap} ${compact ? styles.filterChipCompact : ''} ${active ? styles.filterChipWrapActive : ''}`}>
       <button
         ref={ref}
         type="button"

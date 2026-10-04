@@ -141,16 +141,16 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           (Teller) → entdecken (was ist um dich) → sammeln (Must Eats und
           das Starter Pack, das die ersten Karten bringt) → noch
           unentschlossen: Remys Tafel fragt „Worauf hast du Lust?", die
-          Kategorien sind die Antworten, und wer keine hat, fragt Remy →
+          Beispielfragen und die freie Eingabe öffnen seinen Chat →
           FAQ. Packs verkauft die Startseite nicht mehr, den Spot des Tages
           gibt es seit 01.10.2026 nicht mehr. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
         <HubNearby locale={locale} today={today} />
         <HubMustEatsTeaser />
-        <StarterPackSignup />
       </HomeMapDataProvider>
-      <HubFragRemy categoryNames={initialData.categoryNames} />
+      <HubFragRemy />
       <HubFaq locale={locale} />
+      <StarterPackSignup />
       <SiteFooter home />
     </main>
   );

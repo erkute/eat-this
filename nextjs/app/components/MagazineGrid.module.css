@@ -40,7 +40,7 @@
   display: flex;
   justify-content: center;
 }
-/* Ab 768px steht „Alle Stories" links unter der Überschrift; der Knopf
+/* Ab 768px steht „Magazin" links unter der Überschrift; der Knopf
    unter dem Stapel gehört nur dem Telefon. Nach `.foot`, sonst gewinnt
    dessen `display` bei gleicher Spezifität — es standen zwei Knöpfe da. */
 @media (min-width: 768px) {
@@ -380,7 +380,7 @@
   .stage {
     isolation: isolate;
   }
-  /* Ein geworfenes Heft fliegt über Überschrift und „Alle Stories" hinweg,
+  /* Ein geworfenes Heft fliegt über Überschrift und „Magazin" hinweg,
      nicht darunter durch (Ansage 01.10.2026). Dafür hebt sich die ganze
      Bühne über die Überschrift (z 2, oben), solange etwas in der Luft ist —
      `data-flying` setzt magazineTable. In Ruhe liegt der Fächer neben der

@@ -6,6 +6,7 @@ import {
   getRestaurantsByCategory,
   getCategoryBySlug,
   getAllCategories,
+  getAllCategoriesWithStats,
   getGuideTeaser,
 } from '@/lib/sanity.server';
 import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories';
@@ -15,9 +16,8 @@ import {
   buildCategorySectionHeading,
   buildCategoryDirectoryHeading,
 } from '@/lib/seo/categoryMeta';
-import { rankCurated } from '@/lib/curated-ranking';
+import { rankCurated, shelfPhoto } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
-import { buildKategorieFAQEntries } from '@/lib/kategorie-prose';
 import { categoryDistrictLinks, categoryGuideSlugs } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
@@ -28,10 +28,16 @@ import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { metadataSource } from '@/lib/seo/metadataSource';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { routing } from '@/i18n/routing';
-import styles from '@/app/components/HubPage.module.css';
-import { HubSpotCards, HubSpotRows, hubTitleStyle } from '@/app/components/HubSpots';
-import HubSiblings from '@/app/components/HubSiblings';
-import GuideCrossLinks from '@/app/components/GuideCrossLinks';
+import styles from '@/app/components/HubIssue.module.css';
+import {
+  IssueContents,
+  IssueGuides,
+  IssueRegister,
+  IssueSiblings,
+  IssueSpots,
+  latestMonth,
+} from '@/app/components/HubIssue';
+import MapIntentLink from '@/app/components/MapIntentLink';
 import {
   HubFilterProvider,
   HubFilterBar,
@@ -40,7 +46,6 @@ import {
   SPOT_LIST_ID,
   type HubFacet,
 } from '@/app/components/HubFilter';
-import MapPromoCTA from '@/app/components/MapPromoCTA';
 import KategorieBoost from '@/app/components/KategorieBoost';
 
 interface PageProps {
@@ -146,14 +151,14 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const loc = de ? 'de' : 'en';
 
   const guideSlugs = categoryGuideSlugs(slug);
-  // `getAllCategories` läuft für diese Route schon in `generateStaticParams`
-  // — derselbe Aufruf trifft den Data-Cache-Eintrag und kostet keine
-  // zusätzliche Sanity-Anfrage.
+  // Mit Zahlen und Regal wie auf /kategorie: der Ausgang unten zeigt je
+  // Kategorie ein Foto und lässt leere weg. Derselbe Data-Cache-Eintrag wie
+  // die Übersicht.
   const [c, restaurants, guides, alleKategorien] = await Promise.all([
     getCategoryBySlug(slug),
     getRestaurantsByCategory(slug),
     Promise.all(guideSlugs.map((s) => getGuideTeaser(s, loc))),
-    getAllCategories(),
+    getAllCategoriesWithStats(),
   ]);
   if (!c) notFound();
   const label = localizedCategoryName(c, loc);
@@ -178,20 +183,17 @@ export default async function KategorieDetailPage({ params }: PageProps) {
    *  aktiven Filter überhaupt noch etwas zeigt. */
   const districtSlugsIn = (list: RestaurantCard[]) => [...new Set(list.flatMap(districtSlugsOf))];
   const lead = top.length > 0 ? top : rest;
-  const titleStyle = hubTitleStyle(label);
-  // `curated: top` statt der Slugs: die FAQ nennt damit exakt die Namen der
-  // Bestenliste über ihr — auseinanderlaufen können sie nicht mehr.
-  const faqEntries = buildKategorieFAQEntries({
-    slug,
-    label,
-    restaurants,
-    locale: loc,
-    curated: top,
-  });
+  const leadAsCards = top.length > 0 || rest.length <= CARD_LIMIT;
+  const updated = latestMonth(restaurants, loc);
 
+  const takenPhotos = new Set<string>();
   const nachbarKategorien = alleKategorien
-    .filter((x) => x.slug && x.slug !== slug)
-    .map((x) => ({ slug: x.slug, label: localizedCategoryName(x, loc) }));
+    .filter((x) => x.slug && x.slug !== slug && (x.restaurantCount ?? 0) > 0)
+    .map((x) => ({
+      slug: x.slug,
+      label: localizedCategoryName(x, loc),
+      photo: shelfPhoto(x, takenPhotos),
+    }));
 
   const restaurantUrl = (rSlug: string) => `/restaurant/${rSlug}`;
 
@@ -232,18 +234,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           },
         ],
       },
-      ...(faqEntries.length > 0
-        ? [
-            {
-              '@type': 'FAQPage',
-              mainEntity: faqEntries.map((entry) => ({
-                '@type': 'Question',
-                name: entry.question,
-                acceptedAnswer: { '@type': 'Answer', text: entry.answer },
-              })),
-            },
-          ]
-        : []),
       {
         '@type': 'ItemList',
         name: buildCategoryTitle(slug, label, loc),
@@ -276,33 +266,39 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <header className={styles.hero}>
-          <div className={styles.heroCopy}>
-            <p className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</p>
-            {/* „Lunch" allein trifft weder „lunch berlin" noch „mittagessen
-                berlin". Der Zusatz steht in der H1, optisch als gelbe
-                Unterzeile unter dem Display-Wort. */}
-            <h1 className={styles.title} style={titleStyle}>
-              {label}
-              <span className={styles.titleSuffix}>in Berlin</span>
-            </h1>
-            <p className={styles.lede}>
-              {blurb || (de ? 'Die besten Spots in Berlin.' : 'The best spots in Berlin.')}
-            </p>
-            <div className={styles.heroActions}>
-              <MapPromoCTA
-                variant="band"
-                kind="kategorie"
-                name={label}
-                mapHref={`/map?cat=${slug}`}
-                locale={loc}
-              />
-            </div>
-          </div>
+        <header className={styles.head}>
+          <p className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</p>
+          {/* „Lunch" allein trifft weder „lunch berlin" noch „mittagessen
+              berlin". Der Zusatz steht in der H1, optisch klein unter dem
+              Namen; das Leerzeichen trennt beide im Text der H1. */}
+          <h1 className={styles.title}>
+            <span className={styles.name}>{label}</span>{' '}
+            <span className={styles.post}>in Berlin</span>
+          </h1>
+          <p className={styles.credits}>
+            <span>{de ? 'Von Eat This kuratiert' : 'Curated by Eat This'}</span>
+            {updated && <span>{de ? `Stand ${updated}` : `Updated ${updated}`}</span>}
+          </p>
         </header>
 
+        {leadAsCards && <IssueContents restaurants={lead} label={de ? 'Die Spots' : 'The spots'} />}
+
+        <p className={styles.lede}>
+          {blurb || (de ? 'Die besten Spots in Berlin.' : 'The best spots in Berlin.')}
+        </p>
+        <div className={styles.actions}>
+          <MapIntentLink
+            href={`/map?cat=${slug}`}
+            rel="nofollow"
+            className={styles.btn}
+            aria-label={de ? `${label} auf der Map öffnen` : `Open ${label} on the map`}
+          >
+            {de ? 'Zur Map' : 'On the map'}
+          </MapIntentLink>
+        </div>
+
         <HubFilterProvider queryKey="bezirk" slugs={districtFilters.map((b) => b.slug)}>
-          {/* Spiegelbild der Kategorie-Leiste auf den Bezirksseiten. Bis
+          {/* Spiegelbild der Kategorie-Zeile auf den Bezirksseiten. Bis
               25.08.2026 stand hier eine Reihe Links auf die Bezirks-Hubs — sie
               versprach „Frühstück in Mitte" und lieferte „alle Spots in Mitte". */}
           {districtFilters.length > 1 && (
@@ -324,54 +320,44 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               nirgendwohin. */}
           <div id={SPOT_LIST_ID} className={styles.spotList}>
             <HubFilterGroup slugs={districtSlugsIn(lead)}>
-              <section className={styles.section}>
-                <div className={styles.sectionHead}>
-                  {/* Trägt die Ziel-Query im Klartext — die H1 ist auf ein
-                    einzelnes Display-Wort gebaut und kann das nicht. */}
-                  <h2 className={styles.sectionTitle}>
-                    {buildCategorySectionHeading(slug, label, loc)}
-                  </h2>
-                  {/* „Die 6 besten" zählt die ganze Kategorie. Sobald ein
+              <section>
+                {/* Trägt die Ziel-Query im Klartext — die H1 ist auf den
+                    Kategorienamen gebaut. */}
+                <h2 className={styles.secTitle}>{buildCategorySectionHeading(slug, label, loc)}</h2>
+                {/* „Die 6 besten" zählt die ganze Kategorie. Sobald ein
                     Bezirksfilter zwei davon übrig lässt, stimmt die Zahl nicht
                     mehr — die Zeile fällt dann weg statt zu lügen. Die Marke
                     als Logo, nicht als gesetzter Text; `alt` trägt den Namen. */}
-                  <HubFilterUnfiltered>
-                    <p className={styles.sectionNote}>
-                      {top.length > 0
-                        ? de
-                          ? `Die ${top.length} besten, ausgewählt von`
-                          : `The top ${top.length}, picked by`
-                        : de
-                          ? 'Kuratiert von'
-                          : 'Curated by'}
-                      {/* Rund 18px hoch, also ~45px breit. Als rohes <img> kam die
-                          1660er-Vorlage mit 50 KB; `sizes` trifft dieselbe 256er-Stufe
-                          wie das Logo in der SiteNav, die schon im Cache liegt. */}
-                      <Image
-                        src={BRAND_LOGO_SRC}
-                        alt="Eat This"
-                        width={1660}
-                        height={667}
-                        sizes="64px"
-                        className={styles.inlineLogo}
-                      />
-                    </p>
-                  </HubFilterUnfiltered>
-                </div>
-                {top.length > 0 || rest.length <= CARD_LIMIT ? (
-                  <HubSpotCards
+                <HubFilterUnfiltered>
+                  <p className={styles.secNote}>
+                    {top.length > 0
+                      ? de
+                        ? `Die ${top.length} besten, ausgewählt von`
+                        : `The top ${top.length}, picked by`
+                      : de
+                        ? 'Kuratiert von'
+                        : 'Curated by'}
+                    {/* Rund 20px hoch; `sizes` trifft dieselbe 256er-Stufe wie
+                        das Logo in der SiteNav, die schon im Cache liegt. */}
+                    <Image
+                      src={BRAND_LOGO_SRC}
+                      alt="Eat This"
+                      width={1660}
+                      height={667}
+                      sizes="64px"
+                      className={styles.inlineLogo}
+                    />
+                  </p>
+                </HubFilterUnfiltered>
+                {leadAsCards ? (
+                  <IssueSpots
                     restaurants={lead}
                     locale={loc}
                     facetsOf={districtSlugsOf}
                     showDistrict
-                    ranked={top.length > 0}
-                    // Die Kategorieseite hat kein Bannerbild — das erste Kartenfoto
-                    // ist der LCP-Kandidat. (Das Seitenbild im JSON-LD ist die
-                    // Pack-Card.)
-                    eagerFirst
                   />
                 ) : (
-                  <HubSpotRows
+                  <IssueRegister
                     restaurants={lead}
                     locale={loc}
                     facetsOf={districtSlugsOf}
@@ -396,11 +382,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               der Crawl-Pfad zu den Restaurant-Detailseiten. */}
             {top.length > 0 && rest.length > 0 && (
               <HubFilterGroup slugs={districtSlugsIn(rest)}>
-                <section id="alle" className={`${styles.section} ${styles.sectionGap}`}>
-                  <div className={styles.sectionHead}>
-                    <h2 className={styles.sectionTitle}>{buildCategoryDirectoryHeading(loc)}</h2>
-                  </div>
-                  <HubSpotRows
+                <section id="alle">
+                  <h2 className={styles.secTitle}>{buildCategoryDirectoryHeading(loc)}</h2>
+                  <IssueRegister
                     restaurants={rest}
                     locale={loc}
                     facetsOf={districtSlugsOf}
@@ -413,36 +397,18 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         </HubFilterProvider>
 
         {/* Siehe categoryGuideSlugs — die Zuordnung Hub → Guide. */}
-        <GuideCrossLinks guides={guides} locale={loc} />
-
-        <div className={styles.promo}>
-          <MapPromoCTA kind="kategorie" name={label} mapHref={`/map?cat=${slug}`} locale={loc} />
-        </div>
-
-        {faqEntries.length > 0 && (
-          <section className={styles.faq} aria-labelledby="faq-title">
-            <div className={styles.sectionHead}>
-              <h2 id="faq-title" className={styles.sectionTitle}>
-                {de ? 'Häufige Fragen' : 'Frequently asked'}
-              </h2>
-            </div>
-            <div className={styles.faqList}>
-              {faqEntries.map((entry, i) => (
-                <details key={i} className={styles.faqRow}>
-                  <summary>{entry.question}</summary>
-                  <p className={styles.faqAnswer}>{entry.answer}</p>
-                </details>
-              ))}
-            </div>
-          </section>
-        )}
+        <IssueGuides
+          guides={guides}
+          locale={loc}
+          heading={de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
+        />
 
         {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und was noch?". */}
-        <HubSiblings
+        <IssueSiblings
           items={nachbarKategorien}
           base="/kategorie"
           heading={de ? 'Andere Kategorien' : 'Other categories'}
-          ariaLabel={de ? 'Weitere Kategorien' : 'More categories'}
+          label={de ? 'Weitere Kategorien' : 'More categories'}
         />
       </main>
     </>

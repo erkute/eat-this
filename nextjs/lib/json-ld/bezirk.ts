@@ -3,7 +3,6 @@ import { buildWebPageNodes } from './webpage';
 import { localeUrl } from '@/lib/locale-url';
 import { schemaImageUrl } from '@/lib/sanity-image-presets';
 import type { BezirkDoc, RestaurantCard } from '@/lib/types';
-import type { FAQEntry } from '@/lib/restaurant-prose';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 
 interface BuildBezirkJsonLdArgs {
@@ -12,9 +11,6 @@ interface BuildBezirkJsonLdArgs {
   locale: string;
   // Localized label for the "Bezirke" / "Districts" breadcrumb hub.
   districtsLabel: string;
-  // Auto-generated FAQs shown on the page — mirrored into a FAQPage entity
-  // so Google can pick them up for FAQ rich snippets. Omit/empty to skip.
-  faqs?: FAQEntry[];
 }
 
 // Builds the WebPage + BreadcrumbList + ItemList<Restaurant> JSON-LD graph for
@@ -25,7 +21,6 @@ export function buildBezirkJsonLd({
   restaurants,
   locale,
   districtsLabel,
-  faqs,
 }: BuildBezirkJsonLdArgs): string {
   const pageUrl = localeUrl(locale, `/bezirk/${bezirk.slug}`);
   // The district's own banner leads when it has one; otherwise the first
@@ -34,18 +29,6 @@ export function buildBezirkJsonLd({
   // empty — then the page ships without an ImageObject rather than with the
   // brand card.
   const primaryImage = schemaImageUrl(bezirk.imageUrl || restaurants.find((r) => r.photo)?.photo);
-
-  const faqEntity =
-    faqs && faqs.length > 0
-      ? {
-          '@type': 'FAQPage',
-          mainEntity: faqs.map(({ question, answer }) => ({
-            '@type': 'Question',
-            name: question,
-            acceptedAnswer: { '@type': 'Answer', text: answer },
-          })),
-        }
-      : null;
 
   return serializeJsonLd({
     '@context': 'https://schema.org',
@@ -56,7 +39,6 @@ export function buildBezirkJsonLd({
         image: primaryImage,
         caption: `Restaurants in ${bezirk.name}`,
       }),
-      ...(faqEntity ? [faqEntity] : []),
       {
         '@type': 'BreadcrumbList',
         itemListElement: [

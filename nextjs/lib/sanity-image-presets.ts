@@ -157,3 +157,15 @@ export function sanitySrcSet(
   const base = url.split('?')[0];
   return widths.map((w) => `${base}?w=${w}&auto=format&q=${q} ${w}w`).join(', ');
 }
+
+/**
+ * Breite und Höhe eines Sanity-Bilds aus seinem Dateinamen
+ * (`…/<hash>-1600x2400.jpg`) — für Fotos, die ungeschnitten in ihrem eigenen
+ * Format stehen und vor dem Laden schon ihren Platz brauchen.
+ */
+export function sanityImageSize(
+  url: string | null | undefined
+): { width: number; height: number } | null {
+  const match = url?.split('?')[0].match(/-(\d+)x(\d+)\.[a-z]+$/i);
+  return match ? { width: Number(match[1]), height: Number(match[2]) } : null;
+}

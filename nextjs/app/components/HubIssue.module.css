@@ -1,0 +1,923 @@
+/* Die Hub-Seiten im Heftlook (HubIssue.tsx), Entwurf A „Die Ausgabe" vom
+   03.10.2026 — Bezirke, Kategorien und ihre beiden Übersichten: gesetzt wie
+   der Artikel (NewsArticleShell.module.css) — weisser Grund, alles mittig,
+   Providence gross für Titel, Kapitel und Labels, Neue Haas Grotesk Text für den Lesetext,
+   Rot für Überschriften, Gelb als Akzent. Den Grund selbst stellt
+   globals.css an html/body/.app-pages um. */
+.page {
+  --issue-gutter: clamp(18px, 4vw, 54px);
+  --issue-measure: 660px;
+  --issue-wide: 1180px;
+  /* Die Rubrikenzeile klebt am Telefon unter der Navigation und folgt ihr,
+     wenn sie wegklappt (SiteNav, data-visibility) — wie auf den übrigen
+     Hub-Seiten. */
+  --issue-sticky-top: var(--staging-banner-h, 0px);
+  display: flow-root;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0 var(--issue-gutter) clamp(72px, 9vw, 120px);
+  overflow-x: clip;
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
+}
+
+body:has(:global(#navbar[data-visibility='visible'])) .page {
+  --issue-sticky-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
+}
+
+/* ---------------------------------------------------------------- kopf --- */
+
+/* Bezirk und Kategorie hängen nicht in `.app-pages` (SiteChrome ohne
+   appPages): den Streifen unter der fixen Navigation hält hier niemand sonst
+   frei. Ohne ihn lag die Rubrik am Telefon und bis 1280px ganz darunter.
+   Darunter derselbe Abstand wie im Artikel. */
+.head {
+  display: grid;
+  justify-items: center;
+  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + clamp(40px, 5.5vw, 84px));
+  text-align: center;
+  container-type: inline-size;
+}
+
+/* Kleine Labels wie im Artikel: Providence in Versalien, leicht gesperrt. */
+.kicker,
+.credits,
+.deck,
+.tipLabel,
+.entryMeta,
+.guideMeta {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.kicker {
+  margin: 0 0 clamp(16px, 1.8vw, 24px);
+  font-size: 14px;
+}
+
+.kicker::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--et-accent);
+  vertical-align: 0.12em;
+}
+
+/* „Restaurants in" klein über dem Namen, der Name so breit, wie die Spalte
+   trägt — „Prenzlauer Berg" bricht am Telefon auf zwei Zeilen. Schwarz wie
+   die Schlagzeile im Artikel. */
+.title {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: var(--et-leading-title);
+  text-transform: uppercase;
+}
+
+.pre {
+  display: block;
+  margin-bottom: 0.35em;
+  font-size: clamp(18px, 1.8vw, 26px);
+  letter-spacing: 0.08em;
+}
+
+.name {
+  display: block;
+  font-size: min(150px, 15cqi);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+/* „in Berlin" unter dem Kategorienamen — dieselbe Zeile wie „Restaurants
+   in" über dem Bezirk, nur darunter. */
+.post {
+  display: block;
+  margin-top: 0.4em;
+  font-size: clamp(18px, 1.8vw, 26px);
+  letter-spacing: 0.08em;
+}
+
+/* Die Übersichten tragen zwei Wörter als Titel („Die Bezirke", „Die
+   Kategorien"), kleiner als ein einzelner Name auf der Detailseite. */
+.indexTitle {
+  display: block;
+  max-width: 14ch;
+  font-size: min(110px, 11cqi);
+  text-wrap: balance;
+}
+
+.credits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 22px;
+  margin: clamp(20px, 2.2vw, 30px) 0 0;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------- bildleiste ----- */
+
+.contents {
+  width: min(100%, var(--issue-wide));
+  margin: clamp(40px, 5vw, 72px) auto 0;
+}
+
+.contents ol {
+  display: grid;
+  grid-template-columns: repeat(var(--count), minmax(0, 150px));
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Eine Spalte, die nie breiter wird als ihr Platz: ein langes Wort im Namen
+   („Friedrichshain") zog sonst Spalte und Foto mit — die Bilder wurden
+   unterschiedlich hoch und liefen in den Nachbarn (03.10.2026). */
+.contents a,
+.dirStrip a,
+.siblings a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.contentsPhoto {
+  display: grid;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--et-quiet);
+}
+
+.contentsPhoto img,
+.spotPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.contentsName {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media (hover: hover) {
+  .contents a:hover .contentsName,
+  .siblings a:hover .contentsName,
+  .spotName a:hover,
+  .entry:hover .entryName {
+    color: var(--et-red);
+  }
+}
+
+.contents a:focus-visible,
+.spotName a:focus-visible,
+.entry:focus-visible,
+.guide:focus-visible,
+.siblings a:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 4px;
+}
+
+/* Ohne publizierbares Foto die Initiale auf ruhiger Fläche. */
+.initial {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--et-muted);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------- vorspann + knöpfe ---- */
+
+.lede {
+  max-width: 860px;
+  margin: clamp(48px, 5.6vw, 80px) auto 0;
+  font-size: clamp(23px, 2.1vw, 30px);
+  font-weight: 400;
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  background: var(--et-accent);
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 140ms ease;
+}
+
+.btnQuiet {
+  background: var(--et-quiet);
+}
+
+@media (hover: hover) {
+  .btnQuiet:hover {
+    background: var(--et-accent);
+  }
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------- rubrikenzeile -------- */
+
+/* Der Filter als Rubrikenzeile: Wörter statt Knöpfe, das aktive steht in
+   Ink mit dem gelben Quadrat davor. Am Telefon eine wischbare Zeile, die
+   unter der Navigation klebt; ab Tablet bricht sie mittig um. */
+.filterStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.filterBar {
+  position: sticky;
+  top: var(--issue-sticky-top);
+  z-index: 20;
+  margin: clamp(56px, 6vw, 88px) calc(-1 * var(--issue-gutter)) 0;
+  padding: 6px var(--issue-gutter);
+  background: var(--et-white);
+  transition: top 0.2s ease;
+}
+
+.filterRail {
+  display: flex;
+  gap: 4px 26px;
+  margin-inline: calc(-1 * var(--issue-gutter));
+  padding-inline: var(--issue-gutter);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filterRail::-webkit-scrollbar {
+  display: none;
+}
+
+.filterChip {
+  flex: none;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--et-muted);
+  cursor: pointer;
+  font-family: var(--et-font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filterChip[aria-pressed='true'] {
+  color: var(--et-ink);
+}
+
+.filterChip[aria-pressed='true']::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--et-accent);
+  vertical-align: 0.12em;
+}
+
+@media (hover: hover) {
+  .filterChip:not([aria-pressed='true']):hover {
+    color: var(--et-ink);
+  }
+}
+
+.filterChip:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .filterBar {
+    position: static;
+    margin-inline: auto;
+    max-width: 980px;
+    padding-inline: 0;
+  }
+
+  .filterRail {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+}
+
+/* Die Provider-Hülle ist der Bereich, in dem die Leiste klebt: Leiste plus
+   Listen. Bis 25.09.2026 löste sie sich per `display: contents` auf — die
+   Leiste klebte dann an `main` und lief über Magazin und FAQ bis zum
+   Seitenende mit, obwohl sie dort nichts mehr filtert. */
+.filterScope {
+  display: block;
+}
+
+/* Die Hülle um einen filterbaren Spot (HubFilterCard) stellt sich nicht
+   zwischen Liste und Spot. `hidden` braucht dann die Klasse mit Attribut —
+   `display: contents` hebelte es sonst aus. */
+.cardSlot {
+  display: contents;
+}
+
+.cardSlot[hidden] {
+  display: none;
+}
+
+/* Sprungziel nach einem Filterwechsel: hält Navigation und Rubrikenzeile
+   frei. */
+.spotList {
+  scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 56px);
+}
+
+/* ------------------------------------------------------------ kapitel --- */
+
+/* Abschnittstitel wie die Kapitel im Artikel: rot, gross, mittig. */
+.secTitle {
+  overflow-wrap: anywhere;
+  margin: clamp(72px, 8vw, 120px) auto 0;
+  color: var(--et-red);
+  font-size: clamp(34px, 4.2vw, 58px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
+  text-align: center;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.column {
+  max-width: var(--issue-measure);
+  margin-inline: auto;
+}
+
+.spot {
+  margin-top: clamp(64px, 7vw, 104px);
+  scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px);
+}
+
+.spotName {
+  overflow-wrap: anywhere;
+  margin: 0;
+  color: var(--et-red);
+  font-size: clamp(30px, 3.2vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.spotName a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.deck {
+  margin: 12px 0 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+.spotPhoto {
+  display: block;
+  aspect-ratio: 3 / 2;
+  margin-top: clamp(24px, 2.6vw, 36px);
+  overflow: hidden;
+  background: var(--et-quiet);
+}
+
+.text {
+  display: grid;
+  gap: 1em;
+  margin-top: 26px;
+  font-family: var(--et-font-body);
+  font-size: clamp(17px, 1.3vw, 19px);
+  line-height: 1.65;
+}
+
+.text p {
+  margin: 0;
+}
+
+.tipLabel {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.links .btn {
+  min-height: 40px;
+  padding: 0 18px;
+  font-size: 15px;
+}
+
+/* „Die 6 besten, ausgewählt von [Logo]" unter dem Abschnittstitel der
+   Kategorieseite — fällt mit einem aktiven Filter weg (HubFilterUnfiltered). */
+.secNote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 18px 0 0;
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.inlineLogo {
+  width: auto;
+  height: 20px;
+}
+
+/* Das Booster-Pack der Kategorie nach der Bestenliste, in der Breite der
+   Lesespalte. */
+.boost {
+  max-width: var(--issue-measure);
+  margin: clamp(64px, 7vw, 104px) auto 0;
+}
+
+/* ------------------------------------------------------------ register -- */
+
+/* Hinten im Heft: drei Spalten, Buchstaben rot (Ansage 03.10.2026 „nimm 3
+   Spalten"). Am Telefon fällt es auf eine Spalte zusammen. */
+.register {
+  width: min(100%, var(--issue-wide));
+  margin: 40px auto 0;
+  columns: 3 280px;
+  column-gap: 48px;
+}
+
+.letterGroup {
+  break-inside: avoid-column;
+}
+
+.letter {
+  margin: 22px 0 6px;
+  color: var(--et-red);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  break-after: avoid;
+}
+
+.register > :first-child .letter {
+  margin-top: 0;
+}
+
+.entry {
+  display: grid;
+  gap: 3px;
+  padding: 7px 0;
+  color: inherit;
+  text-decoration: none;
+  break-inside: avoid;
+}
+
+.entryName {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.entryMeta {
+  color: var(--et-muted);
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------- magazin -- */
+
+.guide {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+  align-items: center;
+  max-width: 760px;
+  margin: 48px auto 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.guideCover {
+  display: block;
+}
+
+.guideText {
+  display: grid;
+  gap: 10px;
+}
+
+.guideMeta {
+  font-size: 13px;
+}
+
+.guideMeta::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--et-accent);
+  vertical-align: 0.12em;
+}
+
+.guideTitle {
+  overflow-wrap: anywhere;
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+@media (hover: hover) {
+  .guide:hover .guideTitle {
+    color: var(--et-red);
+  }
+}
+
+/* --------------------------------------------------------------- auslage -- */
+
+/* Die neuesten Hefte am Ende der Übersichten, gelegt wie „Weitere Ausgaben"
+   unter dem Artikel (NewsArticleShell.module.css): leicht verdreht, unter
+   der Maus hebt sich eins und liegt gerade. */
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 260px));
+  justify-content: center;
+  gap: clamp(28px, 3.4vw, 48px);
+  margin: 40px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shelf > li {
+  display: flex;
+  min-width: 0;
+}
+
+.shelf > li:nth-child(2) {
+  --tilt: 1deg;
+}
+
+.shelf > li:nth-child(3) {
+  --tilt: -0.5deg;
+}
+
+.shelfIssue {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  rotate: var(--tilt, -1.2deg);
+  transition:
+    translate 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    rotate 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.shelfIssue:active {
+  scale: var(--et-press-tile);
+}
+
+.shelfIssue:focus-visible {
+  outline: 3px solid var(--et-ink);
+  outline-offset: 8px;
+}
+
+@media (hover: hover) {
+  .shelfIssue:hover {
+    translate: 0 -8px;
+    rotate: 0deg;
+  }
+}
+
+.shelf + .links {
+  margin-top: clamp(32px, 4vw, 48px);
+}
+
+/* -------------------------------------------------------------- ausgang -- */
+
+/* Die anderen Bezirke oder Kategorien als Bildleiste wie im Kopf: Kacheln
+   in fester Breite, mittig umbrechend. Am Telefon wischt sie (unten). */
+.siblings {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 26px 10px;
+  width: min(100%, var(--issue-wide));
+  margin: 40px auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.siblings li {
+  flex: 0 0 136px;
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------ übersicht -- */
+
+/* Ein Eintrag unter dem anderen, in der Lesespalte wie ein Kapitel. */
+.directory {
+  max-width: var(--issue-measure);
+  margin: clamp(8px, 2vw, 24px) auto 0;
+}
+
+.dirEntry {
+  margin-top: clamp(64px, 7vw, 104px);
+}
+
+.dirHead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.dirArt {
+  flex: none;
+  width: 44px;
+  height: auto;
+  rotate: -6deg;
+}
+
+/* Schwarz, nicht Rot (Ansage 03.10.2026): auf der Übersicht ist der Name
+   ein Eintrag im Register, kein Kapiteltitel. */
+.dirName {
+  min-width: 0;
+  margin: 0;
+  color: var(--et-ink);
+  font-size: clamp(34px, 4vw, 54px);
+  overflow-wrap: break-word;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--et-leading-title);
+  text-align: center;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.dirName a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .dirName a:hover {
+    color: var(--et-red);
+  }
+}
+
+.dirName a:focus-visible,
+.dirStrip a:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 3px;
+}
+
+/* Der Satz zum Eintrag wie der Lesetext im Kapitel. */
+.dirBlurb {
+  margin: 22px 0 0;
+  font-family: var(--et-font-body);
+  font-size: clamp(17px, 1.3vw, 19px);
+  line-height: 1.65;
+}
+
+/* Der Weg zur ganzen Liste als Etikett-Zeile wie die Rubrik im Kopf:
+   gelbes Quadrat, Providence in Versalien, gesperrt — kein Knopf. */
+.dirMoreLine {
+  margin: 18px 0 0;
+  text-align: center;
+}
+
+.dirMore {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--et-ink);
+  font-family: var(--et-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.dirMore::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-right: var(--et-control-gap);
+  background: var(--et-accent);
+}
+
+@media (hover: hover) {
+  .dirMore:hover {
+    color: var(--et-red);
+  }
+}
+
+.dirMore:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 3px;
+}
+
+.dirStrip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: clamp(24px, 2.6vw, 36px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dirStrip a {
+  gap: 8px;
+}
+
+/* Am Telefon drei statt vier: bei vier Fotos blieben je ~80px, und die
+   Namen brachen auf drei Zeilen. */
+@media (max-width: 599px) {
+  .dirStrip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dirStrip li:nth-child(n + 4) {
+    display: none;
+  }
+
+  .dirStrip .contentsName {
+    font-size: 14px;
+  }
+
+  /* So gross, dass „Charlottenburg" in eine Zeile passt. */
+  .dirName {
+    font-size: min(34px, 8.4vw);
+  }
+}
+
+/* ------------------------------------------------------------- telefon -- */
+
+@media (max-width: 767px) {
+  .name {
+    font-size: 10cqi;
+  }
+
+  /* Die Bildleiste wischt am Telefon, statt zu schrumpfen. */
+  .contents {
+    width: auto;
+    margin-inline: calc(-1 * var(--issue-gutter));
+  }
+
+  /* Wischende Leisten schneiden unten ab: der Grund lässt der tiefen
+     Unterlänge der Providence Platz — sonst fehlte dem „g" in „Prenzlauer
+     Berg" der Bogen (03.10.2026). */
+  .contents ol {
+    display: flex;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 0 var(--issue-gutter) 10px;
+    scrollbar-width: none;
+  }
+
+  .contents ol::-webkit-scrollbar {
+    display: none;
+  }
+
+  .contents li,
+  .siblings li {
+    flex: 0 0 104px;
+  }
+
+  .siblings {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: auto;
+    margin-inline: calc(-1 * var(--issue-gutter));
+    padding: 0 var(--issue-gutter) 10px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .siblings::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Die Hefte wischen am Telefon; oben und unten Luft, sonst schneidet der
+     Querscroller die gedrehten Hefte und ihren Schatten ab. */
+  .shelf {
+    display: flex;
+    /* Nicht mittig wie am Desktop: ein zentrierter, zu breiter Streifen
+       schöbe das erste Heft links aus dem Bild, unerreichbar. */
+    justify-content: flex-start;
+    gap: 18px;
+    margin-inline: calc(-1 * var(--issue-gutter));
+    padding: 10px var(--issue-gutter) 34px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--issue-gutter);
+    scrollbar-width: none;
+  }
+
+  .shelf::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shelf > li {
+    flex: 0 0 min(62vw, 250px);
+    scroll-snap-align: start;
+  }
+
+  .shelf + .links {
+    margin-top: 6px;
+  }
+
+  .contentsName {
+    font-size: 14px;
+  }
+
+  .actions .btn {
+    width: 100%;
+  }
+
+  .guide {
+    grid-template-columns: 130px 1fr;
+    gap: 18px;
+  }
+
+  .guideTitle {
+    font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .filterBar,
+  .shelfIssue {
+    transition: none;
+  }
+}

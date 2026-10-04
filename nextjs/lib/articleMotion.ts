@@ -7,15 +7,14 @@
  *
  * Ausgelöst per IntersectionObserver, nicht per ScrollTrigger: das Plugin hält
  * eine rAF-Schleife für die ganze Sitzung am Laufen (siehe HubMotion). Nichts
- * hängt an der Scrollposition, also zittert auf dem iPhone nichts.
+ * hängt direkt an der Scrollposition.
  *
- * Jede Szene läuft, wenn sie von unten ins Bild kommt, und rückwärts, wenn sie
- * es nach unten wieder verlässt — wer zurückscrollt und wieder runter, sieht
- * sie neu (wie Remys Tafel, Ansage 28.09.2026). Was schon über dem Bild liegt,
- * steht einfach da.
+ * Jede Szene läuft einmal, wenn sie ins Bild kommt. Danach wird ihr Trigger
+ * nicht mehr beobachtet: eigene Transforms dürfen den Auftritt nicht an der
+ * Viewport-Kante umkehren. Was schon über dem Bild liegt, steht einfach da.
  *
- * - Stempel: Kapitel, Zitate und „Fazit" schlagen ein wie die Headline der
- *   Startseite — gross und gedreht, dann mit Stauchung auf ihren Platz.
+ * - Kapitel, Zitate und „Fazit" setzen sich mit einer kleinen Skalierung
+ *   und Drehung ohne Nachfedern auf ihren Platz.
  * - Abzug: Spot-Fotos und Bilder im Text landen wie hingeworfene Abzüge,
  *   „Zur Map" ploppt danach auf.
  * - Must-Eat-Bänder schieben von links herein, die Hefte unter „Weitere
@@ -38,18 +37,19 @@ interface Scene {
   trigger: Element;
   timeline: gsap.core.Timeline;
   targets: Element[];
+  /** Räumt auf, was die Szene ausser Transform und Sichtbarkeit setzt. */
+  release?: () => void;
 }
 
 const hide = { visibility: 'hidden' } as const;
 const show = { visibility: 'visible' } as const;
 
 function stamp(el: HTMLElement): Scene {
-  gsap.set(el, { ...hide, scale: 1.9, rotation: -4 });
+  gsap.set(el, { ...hide, scale: 1.08, rotation: -1 });
   const timeline = gsap
     .timeline({ paused: true })
     .set(el, show)
-    .to(el, { scale: 0.97, rotation: 0.6, duration: 0.5, ease: 'expo.out' })
-    .to(el, { scale: 1, rotation: 0, duration: 0.3, ease: 'power2.out' });
+    .to(el, { scale: 1, rotation: 0, duration: 0.5, ease: 'power3.out' });
   return { trigger: el, timeline, targets: [el] };
 }
 
@@ -114,12 +114,23 @@ function toss(board: HTMLElement): Scene | null {
 function deal(list: HTMLElement): Scene | null {
   const items = Array.from(list.children) as HTMLElement[];
   if (!items.length) return null;
+  // Am Telefon ist die Liste ein Querscroller mit Einrasten, und Einrastpunkte
+  // folgen verschobenen Elementen: der Streifen rastete auf das noch versetzte
+  // erste Heft ein (205 px statt 0) und lief beim Austeilen mit — „erst nach
+  // links, dann plötzlich nach rechts" (Ansage 03.10.2026); WebKit blieb mit
+  // angeschnittenem Heft stehen. Solange ein Heft unterwegs ist, rastet nichts
+  // ein, und der Streifen steht am Anfang.
+  const settle = (dealt: boolean) => {
+    list.style.scrollSnapType = dealt ? '' : 'none';
+    if (!dealt) list.scrollLeft = 0;
+  };
+  settle(false);
   gsap.set(items, { ...hide, x: 240, y: -40, rotation: 14 });
-  const timeline = gsap
-    .timeline({ paused: true })
+  const timeline: gsap.core.Timeline = gsap
+    .timeline({ paused: true, onUpdate: () => settle(timeline.progress() === 1) })
     .set(items, show)
     .to(items, { x: 0, y: 0, rotation: 0, duration: 0.7, ease: 'power3.out', stagger: 0.12 });
-  return { trigger: list, timeline, targets: items };
+  return { trigger: list, timeline, targets: items, release: () => settle(true) };
 }
 
 function scenesOf(root: HTMLElement): Scene[] {
@@ -189,9 +200,11 @@ function armScenes(root: HTMLElement): () => void {
         if (!scene) continue;
         const { timeline } = scene;
         const below = entry.boundingClientRect.top > 0;
+        if (!entry.isIntersecting && below) continue;
+        io.unobserve(entry.target);
+        byTrigger.delete(entry.target);
         if (entry.isIntersecting) timeline.play();
-        else if (below) timeline.reverse();
-        else if (timeline.progress() === 0) timeline.progress(1);
+        else timeline.progress(1);
       }
     },
     // Erst, wenn ein Stück wirklich im Bild ist — nicht schon an der Kante.
@@ -204,6 +217,7 @@ function armScenes(root: HTMLElement): () => void {
     for (const scene of scenes) {
       scene.timeline.kill();
       gsap.set(scene.targets, { clearProps: 'transform,visibility' });
+      scene.release?.();
     }
   };
 }

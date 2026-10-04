@@ -1,6 +1,0 @@
-/* Die Tafel selbst liegt in RemyAskPanel.module.css. Breite und Abstand setzt
-   die Spot-Seite (eine Spalte, `gap` als Rhythmus) — hier steht nichts
-   Eigenes mehr, außer dass die Tafel keinen Außenabstand mitbringt. */
-.section {
-  margin: 0;
-}

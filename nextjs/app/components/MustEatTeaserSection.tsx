@@ -5,12 +5,16 @@ import Image from '@/app/components/SiteImage';
 import type { MustEatPreview } from '@/lib/sanity.server';
 import { useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
-import hubStyles from './HubPage.module.css';
 import styles from './MustEatTeaserSection.module.css';
 
 interface Props {
   mustEats: MustEatPreview[];
+  /** Der Spot, wie er auf der Seite heisst — der Satz nennt ihn. */
+  name: string;
   locale: 'de' | 'en';
+  /** Abschnitt, Zwischentitel und Knopf setzt die Spot-Seite, damit sie
+   *  aussehen wie ihre übrigen Abschnitte. */
+  classNames: { section: string; heading: string; button: string };
 }
 
 // Deterministic ±tilt array — cards look thrown-on-the-table consistently
@@ -18,7 +22,13 @@ interface Props {
 // same way and creating accidental stripes.
 const TILTS = [-3.2, 2.4, -1.8, 2.8, -2.6, 1.9, -3.0, 2.2, -2.1, 2.6, -2.4, 1.7];
 
-export default function MustEatTeaserSection({ mustEats, locale }: Props) {
+/**
+ * Die verdeckten Karten auf der Spot-Seite — ein eigener Abschnitt im
+ * Heftlook, auf Weiss (Ansage 03.10.2026: „nicht schwarz", Insider-Tipp und
+ * Must Eats getrennt). Ein Satz, die Karten, ein Knopf „Aufdecken"; keine
+ * Bedienzeile mehr darunter.
+ */
+export default function MustEatTeaserSection({ mustEats, name, locale, classNames }: Props) {
   const [shakingId, setShakingId] = useState<string | null>(null);
   const router = useRouter();
 
@@ -55,39 +65,25 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
     ? ['Ein', 'Zwei', 'Drei', 'Vier', 'Fünf', 'Sechs']
     : ['One', 'Two', 'Three', 'Four', 'Five', 'Six'];
   const countWord = count <= words.length ? words[count - 1] : String(count);
-  const heading = de
+  const sentence = de
     ? count === 1
-      ? 'Ein Gericht hat es auf unsere Karten geschafft.'
-      : `${countWord} Gerichte haben es auf unsere Karten geschafft.`
+      ? `Ein Gericht von ${name} hat es auf unsere Karten geschafft.`
+      : `${countWord} Gerichte von ${name} haben es auf unsere Karten geschafft.`
     : count === 1
-      ? 'One dish made it onto our cards.'
-      : `${countWord} dishes made it onto our cards.`;
+      ? `One dish from ${name} made it onto our cards.`
+      : `${countWord} dishes from ${name} made it onto our cards.`;
 
   const t = de
-    ? {
-        eyebrow: 'Must Eats',
-        // Der Hinweis sagt jetzt, was zu TUN ist: dass die verdeckten Karten
-        // anklickbar sind, war nicht erkennbar (Nutzer-Review 28.08.).
-        body: 'Tipp eine Karte an — sie deckt sich auf der Map auf.',
-        ariaList: 'Must Eats aufdecken',
-        ariaCard: 'Karte auf der Map aufdecken',
-      }
-    : {
-        eyebrow: 'Must Eats',
-        body: 'Tap a card — it flips open on the map.',
-        ariaList: 'Reveal Must Eats',
-        ariaCard: 'Reveal this card on the map',
-      };
+    ? { ariaCard: 'Karte auf der Map aufdecken', reveal: 'Aufdecken' }
+    : { ariaCard: 'Reveal this card on the map', reveal: 'Reveal' };
+  const first = mustEats[0]._id;
 
   return (
-    <section className={styles.section} aria-label={t.ariaList}>
-      <header className={styles.head}>
-        {/* Die H2 trägt jetzt den Abschnittsnamen (vorher stand er als
-            blindes <p> davor und die Outline bestand aus dem Rätsel-Satz). */}
-        <h2 className={hubStyles.sectionTitle}>{t.eyebrow}</h2>
-        <p className={styles.heading}>{heading}</p>
-        <p className={styles.body}>{t.body}</p>
-      </header>
+    <section className={classNames.section} aria-labelledby="spot-must-eats">
+      <h2 id="spot-must-eats" className={classNames.heading}>
+        Must Eats
+      </h2>
+      <p className={styles.sentence}>{sentence}</p>
 
       <ul className={styles.grid} role="list">
         {mustEats.map((m, i) => (
@@ -120,6 +116,18 @@ export default function MustEatTeaserSection({ mustEats, locale }: Props) {
           </li>
         ))}
       </ul>
+
+      {/* Derselbe Weg wie ein Tipp auf die erste Karte: sie wackelt, dann
+          geht es auf die Map. */}
+      <div className={styles.actions}>
+        <MapIntentLink
+          href={`/map?me=${first}`}
+          className={classNames.button}
+          onClick={(event) => handleClick(event, first)}
+        >
+          {t.reveal}
+        </MapIntentLink>
+      </div>
     </section>
   );
 }

@@ -4,13 +4,11 @@ import { cleanup, fireEvent, render } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage';
 
-const widgetProps = vi.hoisted(() => ({ last: null as { pageSlug?: string } | null }));
 const route = vi.hoisted(() => ({ pathname: '/kategorie/pizza' }));
 
 vi.mock('next/dynamic', () => ({
   default: () =>
-    function MockBuddyWidget(props: { pageSlug?: string }) {
-      widgetProps.last = props;
+    function MockBuddyWidget() {
       return <div data-testid="buddy-widget" />;
     },
 }));
@@ -20,10 +18,10 @@ vi.mock('@/i18n/navigation', () => ({ usePathname: () => route.pathname }));
 
 import RemyDock from './RemyDock';
 
-function renderDock(pageSlug?: string) {
+function renderDock() {
   return render(
     <NextIntlClientProvider locale="de" messages={{}}>
-      <RemyDock pageSlug={pageSlug} />
+      <RemyDock />
     </NextIntlClientProvider>
   );
 }
@@ -33,25 +31,23 @@ const dismiss = () => document.querySelector<HTMLButtonElement>('[data-buddy-lau
 
 afterEach(() => {
   cleanup();
-  widgetProps.last = null;
   route.pathname = '/kategorie/pizza';
   window.sessionStorage.clear();
 });
 
 describe('RemyDock', () => {
   it('mounts nothing but the launcher until someone asks — the SEO page pays only for the listener', () => {
-    const { queryByTestId } = renderDock('bari');
+    const { queryByTestId } = renderDock();
     expect(queryByTestId('buddy-widget')).toBeNull();
     expect(launcher()).not.toBeNull();
   });
 
-  it('mounts the widget with the page slug on the first ask event', () => {
-    const { queryByTestId } = renderDock('bari');
+  it('mounts the widget on the first ask event', () => {
+    const { queryByTestId } = renderDock();
 
-    fireEvent(window, new CustomEvent(BUDDY_ASK_EVENT, { detail: { question: 'Was hier?' } }));
+    fireEvent(window, new CustomEvent(BUDDY_ASK_EVENT, { detail: { question: 'Was gibt es?' } }));
 
     expect(queryByTestId('buddy-widget')).not.toBeNull();
-    expect(widgetProps.last).toEqual({ pageSlug: 'bari' });
   });
 
   it('opens the chat from the launcher', () => {
@@ -70,7 +66,7 @@ describe('RemyDock', () => {
     expect(launcher()).toBeNull();
 
     // Auch nach dem Seitenwechsel bleibt er weg — und der Chat selbst bleibt
-    // trotzdem erreichbar (Bühne der Startseite, Block der Spot-Seite).
+    // trotzdem erreichbar (Bühne der Startseite).
     cleanup();
     const { queryByTestId } = renderDock();
     expect(launcher()).toBeNull();

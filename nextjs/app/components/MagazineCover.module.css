@@ -1,10 +1,19 @@
-/* Die Titelseite des Hefts (MagazineCover.tsx). Alles in `cqw` der
-   Titelseite, damit sie am Telefon und am Desktop gleich gesetzt ist. Das Foto
-   füllt das Heft (randlos), sitzt im gelben Rand (Rahmen) oder unter einem
-   Papierkopf (Papier). Stapel, Neigung und Wurf legt die Seite außen herum. */
+/* Die Titelseite des Hefts (MagazineCover.tsx) in fünfzehn Looks nach
+   Mode-Magazinen. Alles in `cqw` der Titelseite, damit sie am Telefon und am
+   Desktop gleich gesetzt ist; wo was liegt und welcher Look, rechnet
+   lib/magazineCover.ts. Im Heft bewegt sich nichts — Stapel, Neigung und Wurf
+   legt die Seite außen herum. */
 .cover {
-  --frame: 0cqw;
-  --photo-top: 0cqw;
+  --ground: #fff;
+  --type: var(--et-ink);
+  --silver: linear-gradient(
+    170deg,
+    #f4f4f2 0%,
+    #c9c9c6 38%,
+    #9d9d9a 52%,
+    #e2e2df 68%,
+    #b5b5b2 100%
+  );
   position: relative;
   container-type: inline-size;
   display: block;
@@ -12,165 +21,395 @@
   aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: 2px;
-  background: var(--et-ink-raised);
-  color: var(--et-white);
-  /* Dünn wie ein Magazin, nicht wie ein Buch (Ansage 02.10.2026: „zu dick,
-     eher wie ein Buch" — vorher acht Papierlagen): eine feine Papierkante
-     rechts unten und der weiche Schatten auf dem Tisch. `overflow` schneidet
-     nur den Inhalt, nicht den Schatten. */
+  background: var(--ground);
+  color: var(--type);
+  /* Dünn wie ein Magazin, nicht wie ein Buch (Ansage 02.10.2026): eine feine
+     Papierkante rechts unten und der weiche Schatten auf dem Tisch.
+     `overflow` schneidet nur den Inhalt, nicht den Schatten. */
   box-shadow:
     1px 1px 0 #ece6da,
     2px 2px 0 #cdc5b4,
     0 14px 26px rgba(0, 0, 0, 0.45);
 }
-/* Randlos: das Foto bis an die Kanten. */
-.lookBleed {
-  --frame: 0cqw;
-  --photo-top: 0cqw;
+.cover img {
+  display: block;
 }
-.lookFrame {
-  --frame: 3.4cqw;
-  background: var(--et-accent);
-}
-.lookPaper {
-  --photo-top: 46cqw;
-  background: #f4f1ea;
-}
-.photo {
+/* Fotos, Logos und Schrift liegen absolut auf dem Heft. */
+.cover > * {
   position: absolute;
-  top: calc(var(--frame) + var(--photo-top));
-  left: var(--frame);
-  width: calc(100% - 2 * var(--frame));
-  height: calc(100% - 2 * var(--frame) - var(--photo-top));
-  object-fit: cover;
-  object-position: 50% 50%;
 }
-/* Oben und unten dunkler, damit Kopf und Schlagzeile auf jedem Foto stehen —
-   die Mitte, wo Pizza oder Croissant liegt, bleibt frei. */
-.scrim {
-  position: absolute;
-  inset: calc(var(--frame) + var(--photo-top)) var(--frame) var(--frame);
-  background:
-    linear-gradient(rgba(21, 18, 14, 0.62), rgba(21, 18, 14, 0) 36%),
-    linear-gradient(rgba(21, 18, 14, 0) 46%, rgba(21, 18, 14, 0.9) 88%);
+/* Gelb und Rot der Marke, Ink. Auf Gelb und Rot steht die Schrift in Ink,
+   auf Ink in Weiss. */
+.yellow {
+  --ground: var(--et-accent);
+  --type: var(--et-ink);
 }
-.lookPaper .scrim {
-  background: linear-gradient(rgba(21, 18, 14, 0) 30%, rgba(21, 18, 14, 0.9) 82%);
+.red {
+  --ground: var(--et-red);
+  --type: var(--et-ink);
 }
-/* Ganz oben klein Ausgabe und Monat — die Datumszeile eines Hefts,
-   zurückhaltend und ohne Linie (Ansage 01.10.: „Magazine haben oben keinen
-   Strich", der Monat war „viel zu präsent") —, darunter der Masthead. Oben,
-   nicht unter dem Logo: dort ist die Abdunklung am stärksten, unter dem Logo
-   verschwand die Zeile auf hellen Fotos. */
-.masthead {
-  position: absolute;
-  top: calc(var(--frame) + 8cqw);
-  left: 50%;
-  width: 84cqw;
-  height: auto;
-  translate: -50% 0;
-  filter: drop-shadow(0 0.8cqw 0 rgba(21, 18, 14, 0.35));
+.ink {
+  --ground: var(--et-ink);
+  --type: var(--et-white);
 }
-.folio {
-  position: absolute;
-  top: calc(var(--frame) + 3.6cqw);
-  left: 0;
-  right: 0;
+.panel.ink {
+  background-color: var(--ground);
+}
+
+/* ── Schrift ─────────────────────────────────────────────────────────── */
+/* Die Schlagzeile: ganz, nie gekürzt (Ansage 01.10.2026: „alles vom Titel
+   zu lesen"); die Grösse (`--size`) setzt die Komponente nach der Länge. Zeilenhöhe statt Polster für die Unterlänge
+   von Providence (siehe providence-unterlaenge). */
+.headline {
+  display: block;
   font-family: var(--et-font-display);
-  font-size: max(2.3cqw, var(--folio-min, 0px));
+  font-size: max(var(--size, 6cqw), var(--headline-min, 0px));
   font-weight: 700;
-  letter-spacing: 0.18em;
-  line-height: 1;
-  text-align: center;
+  line-height: 1.14;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+.caps {
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
-  text-shadow: 0 1px 2px rgba(21, 18, 14, 0.6);
+  letter-spacing: 0.01em;
 }
-.lookPaper .folio {
-  color: rgba(21, 18, 14, 0.7);
-  text-shadow: none;
+.lower {
+  text-transform: lowercase;
 }
-/* Unten die Titelzeile des Hefts: Rubrik als Etikett, darunter die ganze
-   Schlagzeile. Wächst von unten nach oben; die Grösse (`--headline`) setzt
-   die Komponente nach der Länge, gekürzt wird nie. */
-.lines {
-  position: absolute;
-  left: calc(var(--frame) + 5cqw);
-  right: calc(var(--frame) + 13cqw);
-  bottom: calc(var(--frame) + 5cqw);
+.onPhoto {
+  color: #fff;
+  text-shadow: 0 1px 5px rgba(21, 18, 14, 0.6);
+}
+.onPhotoStrong {
+  color: #fff;
+  text-shadow:
+    0 1px 6px rgba(0, 0, 0, 0.85),
+    0 0 18px rgba(0, 0, 0, 0.35);
+}
+/* Fussband: höchstens zwei Zeilen (Ansage 03.10.2026). Das hält die Grösse
+   (fitSize in MagazineCover), nicht eine Zeilenklammer — gemessen am
+   03.10.2026 passen alle 27 Schlagzeilen ganz in zwei Zeilen, auch die mit
+   85 Zeichen. Nur auf kleinen Heften, wo die Untergrenze von `.compact`
+   greift, kann es eine dritte werden; dann wächst das Band nach oben. */
+.twoLines {
+  line-height: 1.24;
+}
+.stack {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2.6cqw;
+  gap: 1.2cqw;
 }
-.flash {
-  padding: 1.5cqw 2.4cqw 1.2cqw;
-  border-radius: 2px;
-  background: var(--et-accent);
-  color: var(--et-ink);
-  font-family: var(--et-font-display);
-  font-size: max(3.4cqw, var(--flash-min, 0px));
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1;
+.sub {
+  font-family: var(--et-font-body);
+  font-size: 2cqw;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
   text-transform: uppercase;
-  rotate: -3deg;
 }
-.lookFrame .flash {
-  background: var(--et-white);
+.meta,
+.metaBold,
+.metaShadow,
+.metaWide,
+.fieldMeta {
+  font-family: var(--et-font-body);
+  font-size: 2cqw;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: uppercase;
 }
-/* Zeilenhöhe statt Polster für die Unterlänge von Providence (siehe
-   providence-unterlaenge). */
-.headline {
-  font-family: var(--et-font-display);
-  font-size: max(var(--headline, 6.4cqw), var(--headline-min, 0px));
+.metaBold {
+  font-size: 2.3cqw;
   font-weight: 700;
-  line-height: 1.24;
-  overflow-wrap: anywhere;
-  text-shadow: 0 1px 4px rgba(21, 18, 14, 0.6);
 }
-/* Strichcode senkrecht am rechten Rand, wie auf manchem Heft — so bleibt die
-   ganze Breite unten der Schlagzeile. Striche ungleich breit. */
-.barcode {
+.metaShadow {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.metaWide {
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+[data-cover-look='front'] .metaWide {
+  color: rgba(255, 255, 255, 0.86);
+  text-shadow: 0 1px 2px rgba(21, 18, 14, 0.6);
+}
+.slogan {
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--et-font-display);
+  font-size: 2.9cqw;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.hidden {
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Logo ────────────────────────────────────────────────────────────── */
+.logo {
+  left: 50%;
+  height: auto;
+  translate: -50% 0;
+}
+.logoAt {
+  height: auto;
+}
+/* Einfarbig: nur die Buchstabenflächen aus der Maske, ohne Kontur. */
+.flatLogo {
+  aspect-ratio: 1436 / 480;
+  background: var(--fill);
+  -webkit-mask: url('/pics/cover/logo-face.webp') center / contain no-repeat;
+  mask: url('/pics/cover/logo-face.webp') center / contain no-repeat;
+}
+.logoShadow {
+  inset: 0;
+  filter: drop-shadow(0 0.5cqw 0.9cqw rgba(0, 0, 0, 0.45));
+}
+.logoShadow > .flatLogo {
   position: absolute;
-  right: calc(var(--frame) + 3.4cqw);
-  bottom: calc(var(--frame) + 5cqw);
-  width: 7.5cqw;
-  height: 13cqw;
-  border: 0.9cqw solid var(--et-white);
-  border-left-width: 2cqw;
-  background: repeating-linear-gradient(
-    0deg,
-    var(--et-ink) 0 0.5cqw,
-    var(--et-white) 0.5cqw 0.9cqw,
-    var(--et-ink) 0.9cqw 1.6cqw,
-    var(--et-white) 1.6cqw 1.9cqw,
-    var(--et-ink) 1.9cqw 2.1cqw,
-    var(--et-white) 2.1cqw 2.8cqw
-  );
 }
-/* Glanz des Umschlags und der Rücken links, wo er gefalzt ist. */
-.sheen {
+.middle {
+  left: 3cqw;
+  right: 3cqw;
+  top: 50%;
+  translate: 0 -50%;
+  filter: drop-shadow(0 0.4cqw 1cqw rgba(0, 0, 0, 0.25));
+}
+.redBlock {
+  left: 0;
+  top: 0;
+  width: 62cqw;
+  height: 26cqw;
+  display: grid;
+  place-items: center;
+  background: var(--et-red);
+}
+.logoInBlock {
+  position: static;
+  height: auto;
+}
+
+/* ── Fotos ───────────────────────────────────────────────────────────── */
+.fill {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.layer {
+  max-width: none;
+  object-fit: fill;
+}
+.systemPhoto {
+  left: 0;
+  top: 0;
+  width: 100cqw;
+  height: 92cqw;
+  object-fit: cover;
+}
+.square {
+  left: 13cqw;
+  top: 40cqw;
+  width: 74cqw;
+  height: 74cqw;
+  object-fit: cover;
+}
+.framed {
+  left: 7cqw;
+  top: 7cqw;
+  width: 86cqw;
+  height: 69cqw;
+  object-fit: cover;
+}
+.hole {
+  left: 20cqw;
+  top: 32cqw;
+  width: 60cqw;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: rgba(21, 18, 14, 0.25);
+}
+.hole img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Die Papierkante der Stanzung. */
+.hole::after {
+  content: '';
   position: absolute;
   inset: 0;
+  border-radius: 50%;
+  box-shadow:
+    inset 0.9cqw 1.4cqw 1.8cqw rgba(0, 0, 0, 0.55),
+    inset -0.2cqw -0.3cqw 0.4cqw rgba(255, 255, 255, 0.25);
+}
+.object {
+  object-fit: contain;
+  filter: saturate(1.15) contrast(1.04) drop-shadow(2.4cqw 3.4cqw 0 rgba(21, 18, 14, 0.24));
+}
+.objectSoft {
+  object-fit: contain;
+  filter: drop-shadow(0 2.2cqw 2.4cqw rgba(0, 0, 0, 0.4));
+}
+.cutoutShadow {
+  filter: drop-shadow(0 1.2cqw 1.8cqw rgba(0, 0, 0, 0.45));
+}
+
+/* Abdunklungen, damit Logo und Schrift auf jedem Foto stehen. */
+.scrimTop {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 34cqw;
+  background: linear-gradient(rgba(21, 18, 14, 0.4), rgba(21, 18, 14, 0));
+}
+.scrimBottom {
+  inset: 0;
+  background: linear-gradient(rgba(21, 18, 14, 0) 50%, rgba(21, 18, 14, 0.78) 95%);
+}
+.scrimBoth {
+  inset: 0;
   background:
-    linear-gradient(90deg, rgba(21, 18, 14, 0.3), rgba(21, 18, 14, 0) 2.6cqw),
+    linear-gradient(rgba(21, 18, 14, 0.45), rgba(21, 18, 14, 0) 34%),
+    linear-gradient(rgba(21, 18, 14, 0) 58%, rgba(21, 18, 14, 0.82) 94%);
+}
+.scrimSilver {
+  inset: 0;
+  /* Oben für das Silber-Logo, unten für die Schlagzeile — die Mitte bleibt
+     Foto. */
+  background:
+    linear-gradient(rgba(21, 18, 14, 0.62), rgba(21, 18, 14, 0.15) 34%, rgba(21, 18, 14, 0) 44%),
+    linear-gradient(rgba(21, 18, 14, 0) 50%, rgba(21, 18, 14, 0.82) 92%);
+}
+.dim {
+  inset: 0;
+  background: rgba(21, 18, 14, 0.18);
+}
+
+/* ── Einzelteile ─────────────────────────────────────────────────────── */
+.spine {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3.4cqw;
+  background: var(--et-red);
+}
+/* Strichcode, quer oder hochkant, Striche ungleich breit. */
+.barcode,
+.barcodeUp {
+  padding: 0.6cqw 0.8cqw;
+  background: #fff;
+}
+.barcode::before,
+.barcodeUp::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    var(--bars, 90deg),
+    #111 0 0.35cqw,
+    #fff 0.35cqw 0.6cqw,
+    #111 0.6cqw 1.1cqw,
+    #fff 1.1cqw 1.3cqw,
+    #111 1.3cqw 1.45cqw,
+    #fff 1.45cqw 1.9cqw
+  );
+}
+.barcodeUp {
+  --bars: 0deg;
+  padding: 0.7cqw 0.5cqw;
+}
+.panel {
+  left: 5cqw;
+  right: 5cqw;
+  top: 37cqw;
+  bottom: 5cqw;
+  background-image: linear-gradient(rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.14));
+}
+.band {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 32cqw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3cqw;
+  padding: 5cqw 6cqw;
+  background: var(--et-ink);
+  color: #fff;
+}
+.bandLogo {
+  width: 24cqw;
+  height: auto;
+}
+.systemText {
+  left: 14cqw;
+  right: 14cqw;
+  top: 96cqw;
+  bottom: 7cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--et-ink);
+}
+.systemRest {
+  margin-top: 1.4cqw;
+  font-family: var(--et-font-display);
+  font-size: 3.2cqw;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.fieldRow {
+  left: 7cqw;
+  right: 7cqw;
+  top: 80cqw;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 4cqw;
+}
+.fieldRow .headline {
+  line-height: 1.08;
+}
+.fieldMeta {
+  flex: none;
+  padding-top: 0.6cqw;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Glanz des Umschlags und der Rücken links, wo er gefalzt ist. */
+.sheen {
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0) 2.6cqw),
     linear-gradient(
       90deg,
       rgba(255, 255, 255, 0) 2.6cqw,
-      rgba(255, 255, 255, 0.14) 3.2cqw,
+      rgba(255, 255, 255, 0.13) 3.2cqw,
       rgba(255, 255, 255, 0) 4.6cqw
     ),
-    linear-gradient(118deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 36%);
+    linear-gradient(118deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 36%);
   pointer-events: none;
 }
 
 /* Kleine Titelseiten (Regal im Magazin-Index, „Weitere Ausgaben"): bei
-   170–260px Breite wären Schlagzeile, Etikett und Kopfzeile in reinen `cqw`
-   9, 6 und 4px gross. Die Untergrenzen halten sie lesbar; der Platz reicht
-   auch für die längste Schlagzeile (85 Zeichen) unter dem Masthead. */
+   170–260px Breite wären Schlagzeilen in reinen `cqw` 7 bis 10px gross. Die
+   Untergrenze hält sie lesbar; die kleinen Angaben bleiben Dekor. */
 .compact {
-  --headline-min: 13.5px;
-  --flash-min: 9px;
-  --folio-min: 7px;
+  --headline-min: 11px;
 }

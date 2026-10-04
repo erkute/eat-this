@@ -1,3 +1,4 @@
+import type { CoverData } from './magazineCover';
 export interface OpeningHourSlot {
   days: string;
   hours: string;
@@ -141,6 +142,8 @@ export interface NewsArticle {
   alt?: string;
   excerpt?: string;
   excerptDe?: string;
+  /** Das Heft-Cover, siehe lib/magazineCover.ts. */
+  cover?: CoverData | null;
   content?: PortableTextBlock[];
   contentDe?: PortableTextBlock[];
   seo?: NewsArticleSeo;
@@ -157,6 +160,10 @@ export interface RestaurantArticleCard {
   date?: string;
   imageUrl?: string;
   alt?: string;
+  /** Ausgabe im Heft-Archiv, die älteste ist 1 (wie auf /news). */
+  issue?: number;
+  /** Look und Freisteller des Hefts. */
+  cover?: CoverData | null;
 }
 
 export interface StaticPageDoc {
@@ -223,6 +230,9 @@ export interface RestaurantCard {
   tip?: string;
   tipEn?: string;
   photo?: string;
+  /** Only projected by restaurantsByBezirkQuery and restaurantsByCategoryQuery
+   *  — der „Stand" im Kopf der Hub-Seite. */
+  _updatedAt?: string;
 }
 
 export interface MapRestaurant {

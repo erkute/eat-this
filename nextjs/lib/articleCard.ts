@@ -1,3 +1,4 @@
+import { formatArticleDate } from './articleDate';
 import type { RestaurantArticleCard } from './types';
 
 /**
@@ -9,19 +10,7 @@ export function articleCardText(a: RestaurantArticleCard, locale: 'de' | 'en') {
   const de = locale === 'de';
   const title = (de && a.titleDe ? a.titleDe : a.title) || '';
   const kicker = (de ? a.categoryLabelDe : a.categoryLabel) || a.categoryLabel || '';
-  let date = '';
-  if (a.date) {
-    const d = new Date(a.date);
-    if (!isNaN(d.getTime())) {
-      date = d.toLocaleDateString(de ? 'de-DE' : 'en-US', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        // Fest auf Berlin: das Sheet rendert im Browser, und ein Datum ohne
-        // Uhrzeit ist UTC-Mitternacht — in New York stünde sonst der Vortag.
-        timeZone: 'Europe/Berlin',
-      });
-    }
-  }
+  // Das Map-Sheet rendert im Browser — deshalb fest auf Berlin, siehe dort.
+  const date = formatArticleDate(a.date, locale);
   return { title, kicker, date };
 }

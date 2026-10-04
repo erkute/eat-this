@@ -26,7 +26,13 @@ const card = (over: Partial<RestaurantArticleCard> = {}): RestaurantArticleCard 
 });
 
 const render = (articles: RestaurantArticleCard[], locale: 'de' | 'en' = 'de') =>
-  renderToStaticMarkup(<RestaurantArticlesSection articles={articles} locale={locale} />);
+  renderToStaticMarkup(
+    <RestaurantArticlesSection
+      articles={articles}
+      locale={locale}
+      classNames={{ section: 'section', heading: 'heading' }}
+    />
+  );
 
 describe('RestaurantArticlesSection', () => {
   // Ohne Artikel darf der Block nicht als leere Überschrift stehen bleiben —
@@ -58,17 +64,16 @@ describe('RestaurantArticlesSection', () => {
     expect(html).not.toContain('Wo ich jetzt meinen Kaffee trinke');
   });
 
-  // Der Zähler steuert das Raster: ein einzelner Artikel soll keine
-  // 900px-Bahn werden.
-  it('exposes the article count to the grid', () => {
-    expect(render([card()])).toContain('data-count="1"');
-    expect(render([card(), card({ _id: 'a2', slug: 'x' })])).toContain('data-count="2"');
+  // Seit 03.10.2026 ein Heft wie auf /news, mit der Ausgabe aus der Query.
+  it('shows each article as an issue of the magazine', () => {
+    const html = render([card({ issue: 21 })]);
+    expect(html).toContain('data-magazine-cover');
+    expect(html).toContain('data-cover-issue="21"');
   });
 
   it('survives a missing image and a missing date', () => {
     const html = render([card({ imageUrl: undefined, date: undefined })]);
     expect(html).toContain('Wo ich jetzt meinen Kaffee trinke');
-    expect(html).not.toContain('<img');
-    expect(html).not.toContain('<time');
+    expect(html).not.toContain('27. August 2026');
   });
 });

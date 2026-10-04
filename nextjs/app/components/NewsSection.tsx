@@ -46,8 +46,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
   };
 
   const titleOf = (a: NewsArticle) => (de && a.titleDe ? a.titleDe : a.title);
-  const kickerOf = (a: NewsArticle) =>
-    (de && a.categoryLabelDe ? a.categoryLabelDe : a.categoryLabel) || '';
   const excerptOf = (a: NewsArticle) => (de && a.excerptDe ? a.excerptDe : a.excerpt) || '';
   // Newest first, so the first is the highest issue and they count down —
   // the same count as the covers on the home page (getHomeData).
@@ -98,11 +96,10 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                   <MagazineCover
                     title={titleOf(a)}
                     image={a.imageUrl}
-                    kicker={kickerOf(a)}
                     issue={issueOf(i + 1)}
                     date={a.date}
                     locale={locale}
-                    look={i + 1}
+                    cover={a.cover}
                     sizes="(max-width: 767.98px) 74vw, 440px"
                     widths={[480, 800]}
                   />
@@ -116,11 +113,10 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                 <MagazineCover
                   title={currentTitle}
                   image={current.imageUrl}
-                  kicker={kickerOf(current)}
                   issue={issueOf(0)}
                   date={current.date}
                   locale={locale}
-                  look={0}
+                  cover={current.cover}
                   sizes="(max-width: 767.98px) 74vw, 440px"
                   widths={[480, 800, 1200]}
                   priority
@@ -161,11 +157,10 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                     <MagazineCover
                       title={titleOf(a)}
                       image={a.imageUrl}
-                      kicker={kickerOf(a)}
                       issue={issueOf(i + 1)}
                       date={a.date}
                       locale={locale}
-                      look={i + 1}
+                      cover={a.cover}
                       sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, 260px"
                       widths={[320, 480, 800]}
                       compact

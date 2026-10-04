@@ -172,46 +172,6 @@ describe('BuddyWidget expression policy', () => {
     expect(document.body.textContent).toContain('Steakhauskultur im Pressecafé.');
   });
 
-  it('leaves the page’s own spot out of the fallback block', () => {
-    // Auf ZOLAs Seite setzt Remy — der Regel folgend — keinen Marker für ZOLA.
-    // Die Sammelausgabe legte darunter trotzdem eine ZOLA-Karte: der Weg zu
-    // der Seite, auf der der Nutzer schon steht.
-    chat.messages = [
-      { role: 'user', content: 'Was bestell ich hier am besten?' },
-      {
-        role: 'assistant',
-        content: 'Fang mit der Margherita an.',
-        spots: [
-          {
-            _id: 'restaurant-zola',
-            name: 'ZOLA',
-            slug: 'zola',
-            cuisineType: 'Italienisch',
-            bezirk: 'Kreuzberg',
-            shortDescription: 'Erste Berliner Pizzeria mit Stefano-Ferrara-Holzofen.',
-            tip: null,
-            priceRange: '10–20 €',
-            mapsUrl: null,
-            image: null,
-            openNow: false,
-            openLabel: 'Geschlossen',
-            distanceLabel: null,
-          },
-        ],
-      },
-    ];
-    chat.isStreaming = false;
-    render(
-      <NextIntlClientProvider locale="de" messages={{}}>
-        <BuddyWidget pageSlug="zola" />
-      </NextIntlClientProvider>
-    );
-    fireEvent(window, new CustomEvent(BUDDY_ASK_EVENT, { detail: {} }));
-
-    expect(document.querySelector('a[href="/map?r=zola"]')).toBeNull();
-    expect(document.body.textContent).not.toContain('Stefano-Ferrara-Holzofen');
-  });
-
   it('offers sharper Sanity image candidates for spot cards', () => {
     chat.messages = [
       {

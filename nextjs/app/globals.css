@@ -16,6 +16,28 @@
   font-weight: 700;
 }
 
+/* Neue Haas Grotesk Text — der Fließtext der gesamten App, wie bei 032c
+   (Wahl 03.10.2026). Aus demselben Adobe-Fonts-Webprojekt wie Providence
+   (Kit kgb1lmh); im Kit stehen 55 Roman und 75 Bold. Geladen wird nur, wo
+   eine Regel die Familie wirklich benutzt. */
+@font-face {
+  font-family: 'neue-haas-grotesk-text-1';
+  src: url('https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'neue-haas-grotesk-text-1';
+  src: url('https://use.typekit.net/af/2288cb/00000000000000007735bb39/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3')
+    format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
 /* Metrisch angepasster Fallback für Providence. Providence kommt von Typekit
    mit `font-display: swap`, also rendert der erste Frame in der Systemschrift
    und der Text springt beim Tausch — auf /news waren das 0.06 CLS, gemessen
@@ -134,9 +156,9 @@
   --et-font-display:
     'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
     sans-serif;
-  /* Inter ist die Brot-und-Butter-Schrift für Fließtext und Eyebrows — sie
-     hat DM Sans am 27.08.2026 abgelöst: höhere x-Höhe, engere Laufweite. */
-  --et-font-body: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Einheitlicher Fließtext; Providence bleibt für Titel und Marken-Labels. */
+  --et-font-body: 'neue-haas-grotesk-text-1', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --et-font-text: var(--et-font-body);
   --et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
   --et-font-moonblossom:
     'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
@@ -351,7 +373,8 @@ html[data-active-page='start'] [data-hub] .homeV2 {
    hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
    Seit 03.09.2026 stehen ALLE Inhaltsseiten auf diesem Grund — die Liste
    ist die Wahrheit darueber, welche das sind; der Artikel steht seit
-   02.10.2026 auf weissem Grund (Block darunter). Seit 04.09.2026 ist die Map
+   02.10.2026 auf weissem Grund, Bezirks- und Kategorieseiten samt ihren
+   Uebersichten seit 03.10.2026 (Bloecke darunter). Seit 04.09.2026 ist die Map
    dabei: sie bleibt ein Werkzeug, aber ein Werkzeug in derselben Farbe.
    Nicht dabei: die 404, der Badge-Generator und die Admin-Zahlen.
    Die Seitenmodule malen ihren Grund zusaetzlich selbst; hier steht er nur,
@@ -360,15 +383,6 @@ html[data-active-page='start'] [data-hub] .homeV2 {
 html[data-active-page='start'],
 html[data-active-page='start'] body,
 html[data-active-page='start'] .app-pages,
-html[data-active-page='restaurant'],
-html[data-active-page='restaurant'] body,
-html[data-active-page='restaurant'] .app-pages,
-html[data-active-page='bezirk'],
-html[data-active-page='bezirk'] body,
-html[data-active-page='bezirk'] .app-pages,
-html[data-active-page='kategorie'],
-html[data-active-page='kategorie'] body,
-html[data-active-page='kategorie'] .app-pages,
 html[data-active-page='must-eats'],
 html[data-active-page='must-eats'] body,
 html[data-active-page='must-eats'] .app-pages,
@@ -423,6 +437,19 @@ html[data-active-page='news-article'][data-article-theme='dark'],
 html[data-active-page='news-article'][data-article-theme='dark'] body,
 html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {
   background: var(--et-ink);
+}
+/* Seit 03.10.2026 auch Bezirke und Kategorien mit ihren Uebersichten, im
+   Heftlook wie der Artikel (HubIssue.module.css), und die Spot-Seite. */
+html[data-active-page='restaurant'],
+html[data-active-page='restaurant'] body,
+html[data-active-page='restaurant'] .app-pages,
+html[data-active-page='bezirk'],
+html[data-active-page='bezirk'] body,
+html[data-active-page='bezirk'] .app-pages,
+html[data-active-page='kategorie'],
+html[data-active-page='kategorie'] body,
+html[data-active-page='kategorie'] .app-pages {
+  background: var(--et-white);
 }
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
    erste Pfadsegment der falschen Adresse, und auf einem gestreamten

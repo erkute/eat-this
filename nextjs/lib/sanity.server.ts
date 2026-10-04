@@ -266,6 +266,8 @@ export interface GuideTeaser {
   date?: string;
   imageUrl?: string;
   noIndex: boolean;
+  /** Ausgabennummer im Heft-Archiv, die älteste ist 1. */
+  issue?: number;
 }
 
 /**

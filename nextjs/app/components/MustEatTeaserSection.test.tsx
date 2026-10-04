@@ -28,7 +28,12 @@ function render(list: MustEatPreview[], locale: 'de' | 'en' = 'de') {
         messages={translations[locale]}
         timeZone="Europe/Berlin"
       >
-        <MustEatTeaserSection mustEats={list} locale={locale} />
+        <MustEatTeaserSection
+          mustEats={list}
+          name="SOFI"
+          locale={locale}
+          classNames={{ section: 'section', heading: 'heading', button: 'button' }}
+        />
       </NextIntlClientProvider>
     </AppRouterContext.Provider>
   );
@@ -57,11 +62,24 @@ describe('MustEatTeaserSection', () => {
     expect(html).not.toMatch(/href="\/(en\/)?map"/);
   });
 
-  it('counts the cards in the heading, in both languages', () => {
-    expect(render(mustEats('a'))).toContain('Ein Gericht hat es auf unsere Karten geschafft.');
-    expect(render(mustEats('a', 'b'))).toContain(
-      'Zwei Gerichte haben es auf unsere Karten geschafft.'
+  it('counts the cards and names the spot, in both languages', () => {
+    expect(render(mustEats('a'))).toContain(
+      'Ein Gericht von SOFI hat es auf unsere Karten geschafft.'
     );
-    expect(render(mustEats('a', 'b'), 'en')).toContain('Two dishes made it onto our cards.');
+    expect(render(mustEats('a', 'b'))).toContain(
+      'Zwei Gerichte von SOFI haben es auf unsere Karten geschafft.'
+    );
+    expect(render(mustEats('a', 'b'), 'en')).toContain(
+      'Two dishes from SOFI made it onto our cards.'
+    );
+  });
+
+  // Keine Bedienhinweise im Text (Ansage 03.10.2026) — der Weg ist ein Knopf.
+  it('offers „Aufdecken" as a real link to the first card, without a how-to line', () => {
+    const html = render(mustEats('me-1', 'me-2'));
+    expect(html).toMatch(
+      /<a[^>]*class="button"[^>]*href="\/map\?me=me-1"[^>]*>Aufdecken<\/a>|<a[^>]*href="\/map\?me=me-1"[^>]*class="button"[^>]*>Aufdecken<\/a>/
+    );
+    expect(html).not.toContain('Tipp eine Karte an');
   });
 });

@@ -28,7 +28,7 @@ export const MAP_FILTER_DEFAULTS: MapFilterState = {
 };
 
 /* `cat` and `bezirk` are pre-existing inbound params — the kategorie, bezirk
-   and guide pages link into the map with them (MapPromoCTA). Their names and
+   and guide pages link into the map with them („Zur Map“). Their names and
    slug values are therefore fixed; `price`, `q` and `open` are new.
    `cuisine` stand hier bis zum 27.08.2026 und ist ersatzlos weg — der Filter
    las ein ungeprüftes Freitextfeld aus. Alte Links mit ?cuisine= verlieren

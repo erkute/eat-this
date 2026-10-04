@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { presetQuery, groqImageUrl, sanitySrcSet } from './sanity-image-presets';
+import { presetQuery, groqImageUrl, sanitySrcSet, sanityImageSize } from './sanity-image-presets';
 
 // These assertions pin the EXACT query strings the hand-written GROQ
 // projections used before the refactor. If any byte changes, a projection's
@@ -57,5 +57,22 @@ describe('groqImageUrl', () => {
     expect(groqImageUrl('mustEatRef->restaurantRef->image', 'articleDishRestaurant')).toBe(
       'mustEatRef->restaurantRef->image.asset->url + "?w=500&auto=format&q=75"'
     );
+  });
+});
+
+describe('sanityImageSize', () => {
+  // Die Spot-Seite zeigt Fotos ungeschnitten in ihrem eigenen Format; die
+  // Masse stehen im Dateinamen des Sanity-Assets.
+  it('reads width and height from the asset file name', () => {
+    expect(
+      sanityImageSize(
+        'https://cdn.sanity.io/images/p/d/b822ba15ca9b271eee8ba94ceb96cbbd5de6c37e-1600x2400.jpg?w=1600&q=85'
+      )
+    ).toEqual({ width: 1600, height: 2400 });
+  });
+
+  it('returns null for anything else', () => {
+    expect(sanityImageSize('/pics/card-back.webp')).toBeNull();
+    expect(sanityImageSize(undefined)).toBeNull();
   });
 });

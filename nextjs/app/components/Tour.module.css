@@ -601,11 +601,7 @@ a.quiet {
   border-radius: var(--et-radius-control);
   background: #fff;
   color: var(--et-ink);
-  font-family:
-    var(--font-sans),
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  font-family: var(--et-font-body);
   font-size: 16px;
   outline: none;
 }

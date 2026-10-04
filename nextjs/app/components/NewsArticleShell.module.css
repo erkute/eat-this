@@ -43,7 +43,7 @@
    dem Rot-Gelb-Stil von mir, keine neuen Farben"): dieselbe Sprache wie die
    Startseite (`.homeV2` in globals.css) — weisser Grund, Ink für Text,
    Überschriften in Rot wie `.hv-title`, Gelb als Akzent wie `.hv-mk`;
-   Providence für alles Plakative und die Labels, Inter für den Lesetext.
+   Providence für alles Plakative und die Labels, Neue Haas Grotesk Text für den Lesetext.
    Davor stand der Artikel auf Ink.
 
    `--article-ground` ist der Grund, `--article-fg` die Schrift darauf,
@@ -133,7 +133,7 @@ div.page {
    Versalien, davor das gelbe Quadrat (`.hv-mk`). Alle Labels der Seite —
    Rubrik, Credits, „Die Spots", Etiketten, Knöpfe, Bezirk · Küche —
    stehen in Providence wie das Label-System der Startseite (Ansagen
-   02.10.2026: „in meiner Font"); Inter bleibt dem Lesetext und den
+   02.10.2026: „in meiner Font"); Neue Haas Grotesk Text bleibt dem Lesetext und den
    Bildunterschriften. */
 .kicker {
   font-family: var(--et-font-display);
@@ -739,7 +739,7 @@ div.page {
 .inlineSpot {
   position: relative;
   display: block;
-  /* Steht im Lesetext (Inter), spricht aber mit der Stimme der Labels. */
+  /* Steht im Lesetext (Neue Haas Grotesk Text), spricht aber mit der Stimme der Labels. */
   font-family: var(--et-font-display);
   margin: clamp(30px, 5vw, 60px) 0;
   /* Schneidet die kartenweite Trefferfläche des Namens (::after) ab. */
@@ -1277,6 +1277,9 @@ div.page {
   .relatedGrid {
     display: flex;
     grid-template-columns: none;
+    /* Nicht mittig wie am Desktop: WebKit schob das erste Heft sonst links
+       aus dem Bild, die Reihe begann am iPhone beim zweiten (03.10.2026). */
+    justify-content: flex-start;
     gap: 18px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;

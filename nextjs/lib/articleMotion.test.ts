@@ -122,4 +122,29 @@ describe('armArticleMotion', () => {
     expect(document.documentElement.hasAttribute('data-article-intro')).toBe(false);
     vi.useRealTimers();
   });
+
+  // Am Telefon ist „Weitere Ausgaben" ein Querscroller mit Einrasten: er
+  // rastete auf das noch versetzte Heft ein und lief beim Austeilen mit
+  // (03.10.2026). Solange die Hefte unterwegs sind, rastet nichts ein.
+  it('keeps the dealt rail from snapping until the issues have landed', async () => {
+    document.body.innerHTML = `
+      <div data-page="news-article">
+        <ul data-motion="deal"><li>27</li><li>26</li></ul>
+      </div>`;
+    const root = document.querySelector<HTMLElement>('[data-page="news-article"]')!;
+    const rail = root.querySelector<HTMLElement>('[data-motion="deal"]')!;
+    const cleanup = armArticleMotion(root);
+    expect(rail.style.scrollSnapType).toBe('none');
+
+    observed[0].callback([entry(rail, true, 600)]);
+    await frames();
+    expect(rail.style.scrollSnapType).toBe('');
+
+    observed[0].callback([entry(rail, false, 1200)]);
+    await frames();
+    expect(rail.style.scrollSnapType).toBe('none');
+
+    cleanup();
+    expect(rail.style.scrollSnapType).toBe('');
+  });
 });

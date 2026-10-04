@@ -509,21 +509,18 @@ export default function NewsArticleShell({
                 <h2 className={styles.relatedHeading}>{moreLabel}</h2>
               </div>
               <ul className={styles.relatedGrid} role="list" data-motion="deal">
-                {recommendations.map((rec, i) => {
+                {recommendations.map((rec) => {
                   const recTitle = (de ? rec.titleDe : rec.title) || rec.title || '';
-                  const recCategory =
-                    (de ? rec.categoryLabelDe : rec.categoryLabel) || rec.categoryLabel || '';
                   return (
                     <li key={rec.slug}>
                       <MagazineLink href={`/news/${rec.slug}`} className={styles.relatedCard}>
                         <MagazineCover
                           title={recTitle}
                           image={rec.imageUrl}
-                          kicker={recCategory}
                           issue={issueOf(rec.slug)}
                           date={rec.date}
                           locale={coverLocale}
-                          look={i + 1}
+                          cover={rec.cover}
                           sizes="(max-width: 767.98px) 62vw, 300px"
                           widths={[320, 480, 800]}
                           compact

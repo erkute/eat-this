@@ -361,7 +361,6 @@ function BotMessage({
   onSaveSpot,
   thinkingLabel,
   pack,
-  pageSlug,
 }: {
   m: BuddyDisplayMessage;
   locale: Locale;
@@ -374,9 +373,6 @@ function BotMessage({
   thinkingLabel: string;
   /** Booster-Pack teaser — set only on the one message that may show it. */
   pack?: PackTeaser;
-  /** Restaurant-Seite, auf der der Chat steht — dieser Spot fällt aus der
-   *  Sammelausgabe. */
-  pageSlug?: string;
 }) {
   if (!m.content) {
     return streaming ? <TypingDots label={thinkingLabel} /> : null;
@@ -388,13 +384,7 @@ function BotMessage({
   // text + spot-card segments.
   const { chips, rest } = extractFollowups(m.content);
   const { segments, placedSlugs } = splitAnswerSegments(rest, allowed);
-  /* Die Sammelausgabe ohne den Spot, dessen Seite der Nutzer gerade liest:
-     auf ZOLAs Seite beantwortete Remy „was bestell ich hier am besten?"
-     richtig und setzte — der Regel folgend — keinen Marker für ZOLA. Die
-     Sammelausgabe legte darunter trotzdem eine ZOLA-Karte, also den Weg zu
-     der Seite, auf der man steht. */
-  const fallbackSpots = pageSlug ? spots.filter((s) => s.slug !== pageSlug) : spots;
-  const showFallback = !streaming && placedSlugs.length === 0 && fallbackSpots.length > 0;
+  const showFallback = !streaming && placedSlugs.length === 0 && spots.length > 0;
   // Linked magazine articles Remy pulled via search_articles.
   const articles = m.articles ?? [];
   const showArticles = !streaming && articles.length > 0;
@@ -420,7 +410,7 @@ function BotMessage({
       )}
       {showFallback && (
         <div className={styles.spots}>
-          {fallbackSpots.slice(0, 4).map((s) => (
+          {spots.slice(0, 4).map((s) => (
             <SpotCard
               key={s.slug}
               spot={s}
@@ -461,12 +451,12 @@ function BotMessage({
   );
 }
 
-export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
+export default function BuddyWidget() {
   const locale = useLocale() as Locale;
   const t = T[locale];
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
-  const { messages, isStreaming, send, stop, reset, setGeo } = useBuddyChat({ pageSlug });
+  const { messages, isStreaming, send, stop, reset, setGeo } = useBuddyChat();
   /* Die zuletzt gestellte Frage — aber nur eine aus dieser Sitzung: was beim
      Laden schon im Faden stand, wird nicht verankert (siehe das Scrollen
      unten). `null` heißt: nichts zu verankern. */
@@ -550,7 +540,7 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
       const trimmed = text.trim();
       if (!trimmed || isStreaming || locating) return;
 
-      if (isNearbyIntent(trimmed, { pageBound: !!pageSlug }) && !location) {
+      if (isNearbyIntent(trimmed) && !location) {
         const loc = await requestLocation();
         if (!loc) {
           notifyLocationFailure();
@@ -562,16 +552,7 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
       setDraft('');
       void send(trimmed);
     },
-    [
-      isStreaming,
-      locating,
-      location,
-      notifyLocationFailure,
-      requestLocation,
-      send,
-      setGeo,
-      pageSlug,
-    ]
+    [isStreaming, locating, location, notifyLocationFailure, requestLocation, send, setGeo]
   );
 
   // A short "happy" laugh beat the moment an answer with spot recommendations
@@ -1038,7 +1019,6 @@ export default function BuddyWidget({ pageSlug }: { pageSlug?: string } = {}) {
                         onSaveSpot={onSaveSpot}
                         thinkingLabel={t.thinking}
                         pack={i === firstPackIdx ? m.pack : undefined}
-                        pageSlug={pageSlug}
                       />
                     </div>
                   )

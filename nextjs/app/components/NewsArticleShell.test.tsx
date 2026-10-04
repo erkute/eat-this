@@ -402,9 +402,9 @@ describe('NewsArticleShell', () => {
       expect(html).not.toContain('Weiter auf dem Teller');
       const related = html.slice(html.indexOf('Weitere Ausgaben'));
       expect(related).toContain('href="/news/pizza"');
-      expect(related).toContain('Issue 4 · September 2026');
+      expect(related).toContain('data-cover-issue="4"');
       expect(related).toContain('href="/news/donuts"');
-      expect(related).toContain('Issue 1 · September 2026');
+      expect(related).toContain('data-cover-issue="1"');
       expect(related).not.toContain('href="/news/doener"');
     });
   });

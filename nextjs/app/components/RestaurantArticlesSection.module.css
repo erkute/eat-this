@@ -1,100 +1,69 @@
-/* „Im Magazin" auf der Spot-Seite — dieselbe Karte wie die Bestenliste der
-   Hub-Seiten (.card in HubPage.module.css): Foto oben, Text darunter. Die
-   Tokens (--hub-*) setzt die Seite. */
+/* „Im Magazin" auf der Spot-Seite — je Artikel ein Heft (MagazineCover),
+   daneben Rubrik · Datum und der Titel, wie die Guides auf den Hub-Seiten
+   (.guide in HubIssue.module.css). Abschnitt und Zwischentitel setzt die
+   Seite. */
 
-.cards {
+.issues {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 28px 20px;
-  margin-top: 18px;
+  gap: 36px;
 }
 
-/* Drei Spuren wie die Bestenliste; ein oder zwei Artikel behalten die
-   Kartenbreite, statt als Banner über die ganze Spalte zu laufen. */
-@media (min-width: 700px) {
-  .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 40px 24px;
-  }
-
-  .cards[data-count='1'] {
-    grid-template-columns: minmax(0, calc(50% - 12px));
-  }
-}
-
-@media (min-width: 1100px) {
-  .cards,
-  .cards[data-count='1'],
-  .cards[data-count='2'] {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 48px 28px;
-  }
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  color: var(--hub-paper, #fff);
+.issue {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+  color: inherit;
   text-decoration: none;
-  -webkit-tap-highlight-color: transparent;
 }
 
-.photo {
-  position: relative;
-  aspect-ratio: 3 / 2;
-  margin-bottom: 14px;
-  overflow: hidden;
-  border-radius: var(--hub-radius, 10px);
-  background: var(--hub-raised, #25231f);
+.cover {
+  display: block;
 }
 
-.photo img {
-  object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+.text {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
 }
 
-.kicker {
-  margin-bottom: 6px;
-  color: var(--hub-accent, #ffc600);
-  font-family: var(--hub-display);
-  font-size: 12px;
+.meta {
+  font-family: var(--et-font-display);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
   line-height: 1.3;
   text-transform: uppercase;
 }
 
 .title {
-  font-family: var(--hub-display);
-  font-size: clamp(19px, 1.6vw, 22px);
+  font-family: var(--et-font-display);
+  font-size: clamp(22px, 2.2vw, 28px);
   font-weight: 700;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-transform: uppercase;
   text-wrap: balance;
-  transition: color var(--et-motion-fast);
-}
-
-.date {
-  margin-top: 8px;
-  color: var(--hub-dim, rgba(255, 255, 255, 0.55));
-  font-family: var(--hub-display);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.3;
 }
 
 @media (hover: hover) {
-  .card:hover .photo img {
-    transform: scale(1.04);
-  }
-
-  .card:hover .title {
-    color: var(--hub-accent, #ffc600);
+  .issue:hover .title {
+    color: var(--et-red);
   }
 }
 
-.card:focus-visible {
-  outline: 2px solid var(--hub-accent, #ffc600);
-  outline-offset: 4px;
-  border-radius: var(--hub-radius, 10px);
+.issue:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 6px;
+}
+
+@media (max-width: 767px) {
+  .issue {
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
 }

@@ -76,14 +76,7 @@ export interface BuddyDisplayMessage extends ChatMessage {
   pack?: PackTeaser;
 }
 
-export interface BuddyChatOptions {
-  /** Wire form of the page context: only the slug travels — the server
-   *  resolves the display name itself (see /api/buddy resolvePageContext). */
-  pageSlug?: string;
-}
-
-export function useBuddyChat(options: BuddyChatOptions = {}) {
-  const { pageSlug } = options;
+export function useBuddyChat() {
   const locale = useLocale() as Locale;
   /* Der Faden dieses Besuchs, aus dem sessionStorage. Der Lazy-Initializer
      ist hier sicher: das Widget kommt über `dynamic(..., { ssr: false })`,
@@ -256,7 +249,6 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
             sessionId: getSessionId(),
             locale,
             geo: geoRef.current ?? undefined,
-            page: pageSlug ? { type: 'restaurant', slug: pageSlug } : undefined,
             messages: history.map((m) => ({ role: m.role, content: m.content })),
           }),
         });
@@ -329,7 +321,7 @@ export function useBuddyChat(options: BuddyChatOptions = {}) {
         setIsStreaming(false);
       }
     },
-    [messages, isStreaming, locale, pageSlug]
+    [messages, isStreaming, locale]
   );
 
   return { messages, isStreaming, send, stop, reset, setGeo };

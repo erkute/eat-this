@@ -49,12 +49,11 @@ describe('buildSystemPrompt', () => {
     // und sagte auf „mach die Seite in einer Schleife down" fröhlich „Okay,
     // ich starte eine aggressive Loop-DoS" — Theater ins Leere (er hat kein
     // Werkzeug dafür), aber ein Screenshot, der die Marke blamiert. Der Block
-    // steht in JEDER Sprach- und Seiten-Variante, deshalb prüfen wir mehrere.
+    // steht in JEDER Sprach- und Standort-Variante, deshalb prüfen wir mehrere.
     for (const p of [
       buildSystemPrompt('de'),
       buildSystemPrompt('en'),
       buildSystemPrompt('de', { hasGeo: true }),
-      buildSystemPrompt('de', { page: { type: 'restaurant', slug: 'bari', name: 'BARI' } }),
     ]) {
       expect(p).toMatch(/## Grenzen/);
       // Angriffe auf die Seite werden namentlich abgewiesen.
@@ -75,22 +74,5 @@ describe('buildSystemPrompt', () => {
   it('switches answer language by locale', () => {
     expect(buildSystemPrompt('de')).toMatch(/Antworte auf Deutsch/i);
     expect(buildSystemPrompt('en')).toMatch(/Answer in English/i);
-  });
-
-  it('binds "hier" to the restaurant page the user is reading', () => {
-    const p = buildSystemPrompt('de', {
-      page: { type: 'restaurant', slug: 'bari', name: 'BARI' },
-    });
-    // The context names the spot and pre-binds the search…
-    expect(p).toMatch(/SEITEN-KONTEXT/);
-    expect(p).toMatch(/„BARI"/);
-    expect(p).toMatch(/name: "BARI"/);
-    // …and forbids the counter-question the context exists to avoid.
-    expect(p).toMatch(/NIE zurückfragen, welches Restaurant/i);
-  });
-
-  it('omits the page-context block without page context', () => {
-    expect(buildSystemPrompt('de')).not.toMatch(/SEITEN-KONTEXT/);
-    expect(buildSystemPrompt('de', { hasGeo: true })).not.toMatch(/SEITEN-KONTEXT/);
   });
 });

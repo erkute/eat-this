@@ -15,11 +15,11 @@ const articles = [
     title: 'Beste Pizza 2026',
     slug: 'beste-pizza',
     image: '/a.webp',
-    kicker: 'Guide',
     date: '2026-09-25',
     issue: 27,
+    cover: null,
   },
-  { title: 'Neukölln Guide', slug: 'nk-guide', image: '/b.webp', kicker: 'Guide', issue: 26 },
+  { title: 'Neukölln Guide', slug: 'nk-guide', image: '/b.webp', issue: 26, cover: null },
 ] as any;
 
 describe('MagazineGrid', () => {
@@ -34,8 +34,8 @@ describe('MagazineGrid', () => {
   it('prints issue number and month like a magazine, never the full date', () => {
     const html = renderToStaticMarkup(<MagazineGrid articles={articles} locale="de" />);
     // The issue counts from the oldest article, not the stack position.
-    expect(html).toContain('Issue 27 · September 2026');
-    expect(html).toContain('Issue 26');
+    expect(html).toContain('data-cover-issue="27"');
+    expect(html).toContain('data-cover-issue="26"');
     expect(html).toContain('September 2026');
     expect(html).not.toContain('25. September 2026');
   });

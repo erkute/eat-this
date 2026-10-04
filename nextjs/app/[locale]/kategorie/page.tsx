@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
-import { Link } from '@/i18n/navigation';
 import { getAllCategoriesWithStats } from '@/lib/sanity.server';
 import { localizedCategoryBlurb, localizedCategoryName } from '@/lib/categories';
 import { categoryArt } from '@/lib/categoryArt';
@@ -11,8 +9,9 @@ import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
-import styles from '@/app/components/HubPage.module.css';
-import { HubSpotShelf, hubTitleStyle } from '@/app/components/HubSpots';
+import styles from '@/app/components/HubIssue.module.css';
+import { IssueDirectory, IssueMagazine } from '@/app/components/HubIssue';
+import { latestIssues } from '@/lib/home/getHomeData';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -59,13 +58,16 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   setRequestLocale(locale);
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
-  const title = de ? 'Wonach ist dir?' : 'What are you craving?';
+  // Parallel zu „Die Bezirke" (Wahl 03.10.2026, vorher „Wonach ist dir?").
+  const title = de ? 'Die Kategorien' : 'The categories';
   // Leere Kategorien fliegen raus — dieselbe Regel wie auf dem Bezirks-Index:
   // eine Zeile ohne Spots ist eine Sackgasse für Leser und dünner Inhalt für
   // Google.
-  const categories = (await getAllCategoriesWithStats()).filter(
-    (c) => (c.restaurantCount ?? 0) > 0
-  );
+  const [allCategories, magazine] = await Promise.all([
+    getAllCategoriesWithStats(),
+    latestIssues(3, loc),
+  ]);
+  const categories = allCategories.filter((c) => (c.restaurantCount ?? 0) > 0);
 
   const jsonLd = serializeJsonLd({
     '@context': 'https://schema.org',
@@ -107,77 +109,45 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        {/* Der Hero war bis 24.08.2026 drei Booster-Pack-Tüten — Produktfotos,
+        {/* Der Kopf war bis 24.08.2026 drei Booster-Pack-Tüten — Produktfotos,
             keine Kategoriebilder. Hier trägt die Type. */}
-        <header className={styles.hero}>
-          <div className={styles.heroCopy}>
-            <h1 className={styles.title} style={hubTitleStyle(title)}>
-              {title}
-            </h1>
-            <p className={styles.lede}>
-              {de
-                ? 'Frühstück, Pizza oder Drinks – such dir aus, worauf du Lust hast.'
-                : 'Breakfast, pizza or drinks – pick what you’re in the mood for.'}
-            </p>
-          </div>
+        <header className={styles.head}>
+          <p className={styles.kicker}>Restaurants in Berlin</p>
+          <h1 className={styles.title}>
+            <span className={styles.indexTitle}>{title}</span>
+          </h1>
         </header>
 
-        {/* Keine Zwischenüberschrift „Kategorie wählen": die H1 fragt schon,
-            die Regale darunter sind die Antwort. */}
-        <div aria-label={de ? 'Alle Kategorien' : 'All categories'} role="region">
-          {categories.map((c) => {
-            // Kuratierte Spots führen das Regal an, aufgefüllt wird mit der
-            // alphabetischen Auswahl.
-            const curated = (c.topSpotCards ?? []).filter((r) => r.photo);
-            const spots = pickShelf(curated, c.exampleRestaurants, 4);
+        {/* Ohne Vorspann und ohne Zwischenüberschrift: das Register spricht
+            für sich (Wahl 03.10.2026). */}
+        <IssueDirectory
+          label={de ? 'Alle Kategorien' : 'All categories'}
+          entries={categories.map((c) => {
             const label = localizedCategoryName(c, loc);
-            const blurb = localizedCategoryBlurb(c, loc);
-            /* Das Pack der Kategorie als Marke neben dem Namen — nur Bild, kein
-               Link (User, 2026-08-27): die Packs liegen unter /packs, ein
-               zweites Ziel in derselben Zeile machte zwei Versprechen. */
-            const pack = categoryArt(c.slug);
-
-            return (
-              <section
-                key={c._id ?? c.slug}
-                className={styles.shelfSection}
-                aria-labelledby={`kategorie-${c.slug}-title`}
-              >
-                <div className={styles.shelfHead}>
-                  {pack && (
-                    <Image
-                      className={styles.shelfPack}
-                      src={pack}
-                      alt=""
-                      width={96}
-                      height={145}
-                      aria-hidden="true"
-                    />
-                  )}
-                  <h2 id={`kategorie-${c.slug}-title`} className={styles.shelfTitle}>
-                    <Link href={`/kategorie/${c.slug}`}>{label}</Link>
-                  </h2>
-                  {/* Ohne Zahl: neun Knöpfe von „Alle 9" bis „Alle 224" lesen
-                      sich als Rangliste, obwohl die Zahl nur sagt, wie breit
-                      Berlin dort isst. */}
-                  <Link
-                    href={`/kategorie/${c.slug}`}
-                    className={styles.shelfAll}
-                    aria-label={de ? `Alle Spots: ${label}` : `All spots: ${label}`}
-                  >
-                    {de ? 'Alle' : 'All'}
-                  </Link>
-                </div>
-                {blurb && <p className={styles.shelfBlurb}>{blurb}</p>}
-                <HubSpotShelf
-                  restaurants={spots}
-                  locale={loc}
-                  label={de ? `Spots für ${label}` : `${label} spots`}
-                />
-              </section>
-            );
+            // Kuratierte Spots führen die Bildleiste an, aufgefüllt wird mit
+            // der alphabetischen Auswahl.
+            const curated = (c.topSpotCards ?? []).filter((r) => r.photo);
+            return {
+              slug: c.slug,
+              href: `/kategorie/${c.slug}`,
+              name: label,
+              blurb: localizedCategoryBlurb(c, loc),
+              spots: pickShelf(curated, c.exampleRestaurants, 4),
+              more: de ? `Alle Spots für ${label}` : `All spots for ${label}`,
+              // Das Pack der Kategorie als Marke neben dem Namen — nur Bild,
+              // kein Link (27.08.2026): die Packs liegen unter /packs, ein
+              // zweites Ziel in derselben Zeile machte zwei Versprechen.
+              art: categoryArt(c.slug),
+            };
           })}
-        </div>
+        />
+
+        {/* Der Schluss: wer unten ankommt, liest weiter. */}
+        <IssueMagazine
+          issues={magazine}
+          locale={loc}
+          heading={de ? 'Aus dem Magazin' : 'From the magazine'}
+        />
       </main>
     </>
   );

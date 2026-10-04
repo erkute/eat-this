@@ -3,15 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
- * Der Zustand hinter den beiden Hub-Filtern: die Bezirks-Chips auf dem
- * `/bezirk`-Index (BezirkFilter) und die Kategorie-Chips auf einer
- * Bezirksseite (KategorieFilter). Beide halten genau einen aktiven Slug,
- * spiegeln ihn in die URL und holen die Liste nach dem Umschalten zurück ins
- * Blickfeld — nur die Beschriftung und das, was sie ausblenden, unterscheidet
- * sich.
+ * Der Zustand hinter der Rubrikenzeile der Hub-Seiten (HubFilter): Kategorien
+ * auf einer Bezirksseite (`?cat=`), Bezirke auf einer Kategorieseite
+ * (`?bezirk=`). Hält genau einen aktiven Slug, spiegelt ihn in die URL und
+ * holt die Liste nach dem Umschalten zurück ins Blickfeld.
  *
- * Bewusst hier statt zweimal ausgeschrieben: die drei Feinheiten unten sind
- * genau die, die man beim Nachbauen falsch macht.
+ * Die drei Feinheiten unten sind genau die, die man beim Nachbauen falsch
+ * macht. (Bis 03.10.2026 nutzte sie auch ein zweiter Filter auf dem
+ * `/bezirk`-Index; der ist mit dem Register dort weggefallen.)
  */
 export interface HubFilter {
   active: string | null;

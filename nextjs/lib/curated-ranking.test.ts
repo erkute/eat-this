@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rankCurated, pickShelf, MIN_CURATED } from './curated-ranking';
+import { rankCurated, pickShelf, shelfPhoto, MIN_CURATED } from './curated-ranking';
 import type { RestaurantCard } from './types';
 
 /** Karte mit dem Nötigsten — die Sortierung liest nur `slug` und `name`. */
@@ -126,5 +126,24 @@ describe('pickShelf', () => {
 
   it('survives a district with nothing at all', () => {
     expect(pickShelf(null, null, 4)).toEqual([]);
+  });
+});
+
+describe('shelfPhoto', () => {
+  const p = (photo?: string) => ({ photo });
+
+  it('takes the first curated photo, then the alphabetical fill', () => {
+    expect(shelfPhoto({ topSpotCards: [p(), p('a.jpg')], exampleRestaurants: [p('b.jpg')] })).toBe(
+      'a.jpg'
+    );
+    expect(shelfPhoto({ exampleRestaurants: [p('b.jpg')] })).toBe('b.jpg');
+    expect(shelfPhoto({})).toBeNull();
+  });
+
+  // Ein Spot führt oft Frühstück und Kaffee an — in der Leiste nur einmal.
+  it('skips a photo another hub already shows', () => {
+    const taken = new Set<string>();
+    expect(shelfPhoto({ topSpotCards: [p('sofi.jpg')] }, taken)).toBe('sofi.jpg');
+    expect(shelfPhoto({ topSpotCards: [p('sofi.jpg'), p('basta.jpg')] }, taken)).toBe('basta.jpg');
   });
 });

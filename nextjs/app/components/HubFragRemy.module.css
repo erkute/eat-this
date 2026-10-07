@@ -171,3 +171,13 @@
   .portrait { min-height: 340px; max-height: 460px; align-self: end; height: 100%; }
   .figure { inset: 0 0 -10%; }
 }
+
+/* About supplies its own content measure and spacing. Keep this in the
+   owning module, above the specificity of the homepage wrap rules. */
+.section.embedded:global(.homeV2):global(.hv-wrap) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}

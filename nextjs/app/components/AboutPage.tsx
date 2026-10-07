@@ -1,9 +1,9 @@
 import { Fragment, type CSSProperties } from 'react';
 import Image from '@/app/components/SiteImage';
-import { Link } from '@/i18n/navigation';
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
-import RemyAskPanel from './RemyAskPanel';
+import HubFragRemy from './HubFragRemy';
+import AboutMotion from './AboutMotion';
 import SiteFooter from './SiteFooter';
 import styles from './AboutPage.module.css';
 
@@ -35,7 +35,7 @@ type Figure = {
    *  plate's width it shouted down the section it belongs to. */
   renderWidth: number;
   tilt: number;
-  /** Remy's panel follows this section — see COPY. */
+  /** The homepage Remy stage follows this section. */
   remyAfter?: true;
   caption: { de: string; en: string };
   alt: { de: string; en: string };
@@ -51,7 +51,7 @@ type Figure = {
    contact sheet. */
 const FIGURES: (Figure | null)[] = [
   {
-    src: '/pics/home-phones/phone-map-ink-600.webp',
+    src: '/pics/home-phones/phone-map-red-600.webp',
     width: 600,
     height: 1219,
     // 600x1219 is a tall object: anything wider than this and the phone runs
@@ -60,8 +60,8 @@ const FIGURES: (Figure | null)[] = [
     tilt: -2,
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
-      de: 'Die Eat-This-App zeigt Berliner Spots als gelbe Pins auf der Karte',
-      en: 'The Eat This app showing Berlin spots as yellow pins on the map',
+      de: 'Die Eat-This-App zeigt Berliner Spots auf der roten Karte',
+      en: 'The Eat This app showing Berlin spots on the red map',
     },
   },
   {
@@ -100,50 +100,6 @@ const FIGURES: (Figure | null)[] = [
     },
   },
 ];
-
-/* Remy follows the card chapter, because the last paragraph of that section
-   is already about him — "frag einfach Remy". He used to get a title "Frag
-   Remy" and a link "Remy fragen" under it: the same two words twice, and a
-   door that led off the page to the home hub. Now the chat starts right here.
-   The first chip is the question the page itself opens with.
-   The Sanity copy speaks in the first person; these lines describe the app,
-   not the person, so they stay out of the "ich". */
-const COPY = {
-  de: {
-    remyTitle: ['Keine Idee?', 'Frag Remy.'] as [string, string],
-    remyLead: 'Remy kennt jeden Spot auf der Map. Sag ihm, worauf du Lust hast.',
-    remyChips: [
-      'Wo gehen wir heute essen?',
-      'Ein Hidden Place in Neukölln?',
-      'Schönes Dinner für zwei',
-    ],
-    remyPlaceholder: 'Worauf hast du Lust?',
-    ctaTitle: 'Hungrig geworden?',
-    /* Closes the loop the sticker opened: the page ends on the wish it
-       started from, quoted as the wish it was, then what the map does with it.
-       „Über 200" rather than the exact count: a floor survives imports and
-       curation, a number would be stale by the next one. It read „über 400"
-       until the curation on 27.09.2026 cut the map from 464 to 237 spots —
-       check it whenever the catalog shrinks. */
-    ctaQuote: '„Geh hierhin, das ist gut, und es ist um die Ecke.“',
-    ctaText: 'Genau das sagt dir jetzt die Map – für über\u00a0200 handverlesene Spots in Berlin.',
-    ctaMap: 'Zur Map',
-  },
-  en: {
-    remyTitle: ['No idea?', 'Ask Remy.'] as [string, string],
-    remyLead: "Remy knows every spot on the map. Tell him what you're in the mood for.",
-    remyChips: [
-      'Where should we eat today?',
-      'A hidden place in Neukölln?',
-      'A nice dinner for two',
-    ],
-    remyPlaceholder: 'What are you in the mood for?',
-    ctaTitle: 'Hungry yet?',
-    ctaQuote: '“Go here, it’s good, and it’s around the corner.”',
-    ctaText: 'That’s what the map tells you now – for over\u00a0200 hand-picked spots in Berlin.',
-    ctaMap: 'Open map',
-  },
-};
 
 function blockText(block: Block): string {
   return (block.children ?? []).map((c) => c.text ?? '').join('');
@@ -211,9 +167,64 @@ function splitSections(blocks: PortableTextBlock[]) {
   return { intro, sections };
 }
 
+/** Keep the contact copy in Sanity, but give its address a dedicated link.
+ * Slicing spans preserves the surrounding copy's marks and annotations. */
+function CodaContent({ blocks }: { blocks: PortableTextBlock[] }) {
+  const emailPattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
+  const index = blocks.findIndex(
+    (block) => isPlainParagraph(block) && emailPattern.test(blockText(block as Block))
+  );
+  if (index < 0) {
+    return (
+      <div className={styles.body}>
+        <PortableTextRenderer blocks={blocks} />
+      </div>
+    );
+  }
+
+  const block = blocks[index] as Block;
+  const text = blockText(block);
+  const match = text.match(emailPattern)!;
+  const start = match.index!;
+  const end = start + match[0].length;
+  // A sentence-ending dot belongs to the inline address, not the next paragraph.
+  const afterStart = end + (text.slice(end).match(/^\.\s*/)?.[0].length ?? 0);
+  const slice = (from: number, to: number, suffix: string): PortableTextBlock[] => {
+    let offset = 0;
+    const children = (block.children ?? []).flatMap((span) => {
+      const value = span.text ?? '';
+      const part = value.slice(Math.max(0, from - offset), Math.max(0, to - offset));
+      offset += value.length;
+      return part ? [{ ...span, text: part }] : [];
+    });
+    return children.some((span) => span.text.trim())
+      ? [{ ...block, _key: `${block._key ?? index}-${suffix}`, children }]
+      : [];
+  };
+  const before = [...blocks.slice(0, index), ...slice(0, start, 'before-email')];
+  const after = [...slice(afterStart, text.length, 'after-email'), ...blocks.slice(index + 1)];
+
+  return (
+    <>
+      {before.length > 0 && (
+        <div className={styles.body}>
+          <PortableTextRenderer blocks={before} />
+        </div>
+      )}
+      <a className={styles.email} href={`mailto:${match[0]}`}>
+        {match[0]}
+      </a>
+      {after.length > 0 && (
+        <div className={styles.body}>
+          <PortableTextRenderer blocks={after} />
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale: Locale }) {
   const de = locale === 'de';
-  const copy = de ? COPY.de : COPY.en;
   const { intro, sections } = splitSections(doc.body ?? []);
   let ledeCount = 0;
   while (ledeCount < LEDE_PARAGRAPHS && isPlainParagraph(intro[ledeCount])) ledeCount += 1;
@@ -225,38 +236,28 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
   return (
     <main className={styles.page} data-page="about" id="staticPageAbout">
+      <AboutMotion />
       <div className={styles.inner}>
-        <header className={styles.hero}>
-          {/* Klassenlos mit Absicht: der Kasten fasst Titel und Lede zu EINER
-              Rasterzelle zusammen, damit die Figur die zweite bekommt. Er
-              traegt keinen eigenen Stil — `styles.heroCopy` stand hier
-              jahrelang, ohne dass es die Klasse je gab. */}
-          <div>
+        <header className={styles.hero} data-about-hero="">
+          <div className={styles.heroCopy} data-about-enter="">
             <h1 className={styles.title} id="staticPageAbout-title">
               {doc.title || ''}
             </h1>
-            {ledes.map((text, index) => (
-              <p key={index} className={index === 0 ? styles.lede : styles.ledeAside}>
-                {text}
-              </p>
-            ))}
+            {ledes.map((text, index) =>
+              index === 0 ? (
+                <p key={index} className={styles.lede}>
+                  {text}
+                </p>
+              ) : (
+                <blockquote key={index} className={styles.ledeQuote}>
+                  {de ? '„' : '“'}
+                  {text}
+                  {de ? '“' : '”'}
+                </blockquote>
+              )
+            )}
           </div>
-
-          {/* The page speaks in the first person; this is that person as an
-              object. It replaced a stack of phone-plus-cards that repeated what
-              the rails below already show one at a time — the person is the
-              only picture on this page that appears exactly once.
-
-              Deliberately no quote from the lede here. It used to carry one,
-              and the lede is `staticPage` content in Sanity: it moved, the
-              quote stayed, and the next person rewrote the comment around a
-              sentence that was already gone too. What justifies the image is
-              the first-person voice, not any particular wording of it.
-
-              Not decorative, so not aria-hidden: it is the subject of the page.
-              It also arrives with its own drawn floor and cast shadow, which is
-              why it neither tilts nor takes the CSS drop-shadow. */}
-          <div className={styles.heroArt}>
+          <div className={styles.heroArt} data-about-portrait="">
             <Image
               src="/pics/founder-cafe.webp"
               alt={
@@ -266,7 +267,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               }
               width={760}
               height={1327}
-              sizes="(min-width: 900px) 290px, 62vw"
+              sizes="(min-width: 900px) 320px, 200px"
               priority
               className={styles.heroFigure}
             />
@@ -277,7 +278,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           <div className={styles.bridge}>
             {bridge.map((part, index) =>
               'line' in part ? (
-                <p key={index} className={styles.oneLiner}>
+                <p key={index} className={styles.oneLiner} data-about-enter="">
                   {part.line}
                 </p>
               ) : (
@@ -291,20 +292,17 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
         {story.map((section, index) => {
           const figure = FIGURES[index] ?? null;
-          /* Sides alternate down the page: masthead right, then left, right,
-             left, Remy right, the closer left. Every figure hanging in the
-             same rail was even and, by the third one, wallpaper.
-
-             Only sections that actually carry a figure flip — moving the text
-             column of a picture-less section would be a jolt with nothing to
-             show for it. The swap happens in the grid, never in the markup:
-             the copy stays first in the DOM so the single-column stack and
-             the reading order never zigzag. */
           const flipped = Boolean(figure) && index % 2 === 0;
           return (
             <Fragment key={section.title || index}>
-              <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}>
-                <div className={styles.sectionCopy}>
+              <section
+                className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}
+                data-about-chapter={index}
+              >
+                <div className={styles.sectionCopy} data-about-enter="">
+                  <span className={styles.sectionNumber} aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
                   <h2 className={styles.sectionTitle}>{section.title}</h2>
                   <div className={styles.body}>
                     <PortableTextRenderer blocks={section.blocks} />
@@ -314,13 +312,39 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                 {figure && (
                   <figure
                     className={styles.figure}
+                    data-about-figure=""
                     style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
                   >
-                    {figure.partner ? (
-                      /* Two objects, one measure. They overlap on purpose: a
+                    <div data-about-object="">
+                      {figure.partner ? (
+                        /* Two objects, one measure. They overlap on purpose: a
                          pair set side by side with a gap reads as two products
                          in a catalogue, not as one deck you are holding. */
-                      <div className={styles.pair}>
+                        <div className={styles.pair}>
+                          <Image
+                            src={figure.src}
+                            alt={de ? figure.alt.de : figure.alt.en}
+                            width={figure.width}
+                            height={figure.height}
+                            sizes={`${figure.renderWidth}px`}
+                            loading="lazy"
+                            className={styles.pairBack}
+                            data-about-card="back"
+                            style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
+                          />
+                          <Image
+                            src={figure.partner.src}
+                            alt=""
+                            width={figure.partner.width}
+                            height={figure.partner.height}
+                            sizes={`${figure.renderWidth}px`}
+                            loading="lazy"
+                            className={styles.pairFront}
+                            data-about-card="front"
+                            style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
+                          />
+                        </div>
+                      ) : (
                         <Image
                           src={figure.src}
                           alt={de ? figure.alt.de : figure.alt.en}
@@ -328,109 +352,39 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                           height={figure.height}
                           sizes={`${figure.renderWidth}px`}
                           loading="lazy"
-                          className={styles.pairBack}
+                          className={styles.figureImg}
                           style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
                         />
-                        <Image
-                          src={figure.partner.src}
-                          alt=""
-                          width={figure.partner.width}
-                          height={figure.partner.height}
-                          sizes={`${figure.renderWidth}px`}
-                          loading="lazy"
-                          className={styles.pairFront}
-                          style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
-                        />
-                      </div>
-                    ) : (
-                      <Image
-                        src={figure.src}
-                        alt={de ? figure.alt.de : figure.alt.en}
-                        width={figure.width}
-                        height={figure.height}
-                        sizes={`${figure.renderWidth}px`}
-                        loading="lazy"
-                        className={styles.figureImg}
-                        style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
-                      />
-                    )}
+                      )}
+                    </div>
                     <figcaption className={styles.caption}>
                       {de ? figure.caption.de : figure.caption.en}
                     </figcaption>
                   </figure>
                 )}
               </section>
-
-              {/* Remy used to be tacked under the card argument, inside the
-                  same section; a door out of the page does not belong at the
-                  bottom of a closed room. It follows immediately after, as
-                  its own panel. */}
               {figure?.remyAfter && (
-                <RemyAskPanel
-                  locale={locale}
-                  className={styles.remy}
-                  titleLines={copy.remyTitle}
-                  lead={copy.remyLead}
-                  chips={copy.remyChips}
-                  placeholder={copy.remyPlaceholder}
-                />
+                <div className={styles.remy}>
+                  <HubFragRemy embedded />
+                </div>
               )}
             </Fragment>
           );
         })}
-
-        {/* The coda: the short, picture-less sections after the last figure.
-            Stacked one under the other they ran as a wall of text straight
-            into the closer, and the page lost its pace right at the end. Side
-            by side they read as what they are — two short notes, not two more
-            chapters. The copy still decides how many there are. */}
         {coda.length > 0 && (
           <div className={styles.coda}>
             {coda.map((section, index) => (
-              <section key={section.title || index} className={styles.codaSection}>
+              <section
+                key={section.title || index}
+                className={styles.codaSection}
+                data-about-enter=""
+              >
                 <h2 className={styles.sectionTitle}>{section.title}</h2>
-                <div className={styles.body}>
-                  <PortableTextRenderer blocks={section.blocks} />
-                </div>
+                <CodaContent blocks={section.blocks} />
               </section>
             ))}
           </div>
         )}
-
-        {/* Object left, copy right — the last beat of the alternation, after
-            Remy's panel hung right.
-
-            A booster pack was tried here once and pulled the eye away — it is
-            something you buy, sitting next to a button that leads to a free
-            map. A spot's own screen is not a competing offer. It is the offer,
-            with a picture. */}
-        <aside className={styles.cta}>
-          <Image
-            src="/pics/home-phones/phone-restaurant-ink-600.webp"
-            alt={
-              de
-                ? 'Die Eat-This-App zeigt die Detailseite eines Berliner Spots'
-                : "The Eat This app showing a Berlin spot's detail page"
-            }
-            width={600}
-            height={1219}
-            sizes="(min-width: 768px) 210px, 170px"
-            loading="lazy"
-            className={styles.ctaPhone}
-          />
-          {/* Wie im Hero: nur die zweite Rasterzelle neben dem Telefon,
-              ohne eigenen Stil. */}
-          <div>
-            <h2 className={styles.ctaTitle}>{copy.ctaTitle}</h2>
-            <blockquote className={styles.ctaQuote}>{copy.ctaQuote}</blockquote>
-            <p className={styles.ctaText}>{copy.ctaText}</p>
-            <div className={styles.ctaRow}>
-              <Link href="/map" className={styles.ctaPrimary}>
-                {copy.ctaMap}
-              </Link>
-            </div>
-          </div>
-        </aside>
       </div>
       <SiteFooter />
     </main>

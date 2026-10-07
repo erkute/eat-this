@@ -1,12 +1,20 @@
 // Generated 28.09.2026 from the spot curation of 27.09.2026 (283 spots taken
 // off the map) plus earlier leftovers of the old embeddings index. Not a
 // hand-maintained list: re-derive it the same way if the catalog is culled again.
+// `sathutu` and `story-coffee-roesterei-p-berg` came on 07.10.2026: deleted
+// later, still 404ing in GSC.
 //
-// Consulted only after a restaurant slug 404s and resolveLegacyRestaurantSlug()
-// found nothing — a spot that comes back renders normally and never reaches
-// this map. 95 of these pages still had Google clicks in the 90 days before
-// the cull (GSC, 28.06.–26.09.2026: 167 clicks, 43k impressions), so they
-// 301 to the closest living hub instead of dying on a 404:
+// middleware.ts answers these before any page renders, in both locales. A spot
+// that comes back therefore has to leave this map, or it keeps redirecting.
+// It used to be the page's job, after the slug 404ed, but a page that
+// redirects while Next renders it on demand sent `location` twice on EN
+// (Next 15.5, still in 15.5.27); App Hosting joined both to
+// `/en/bezirk/mitte,/en/bezirk/mitte`, a 404 — GSC listed the EN spots as
+// "Nicht gefunden (404)".
+//
+// 95 of these pages still had Google clicks in the 90 days before the cull
+// (GSC, 28.06.–26.09.2026: 167 clicks, 43k impressions), so they 301 to the
+// closest living hub instead of dying on a 404:
 //   its Bezirk hub if that still has spots, else its first category hub,
 //   else /map. Targets are locale-less paths.
 export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
@@ -248,6 +256,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'rocoto': '/bezirk/schoeneberg',
   'rutz-zollhaus': '/bezirk/kreuzberg',
   'sahara-imbiss': '/bezirk/neukoelln',
+  'sathutu': '/bezirk/prenzlauer-berg',
   'semiramis': '/bezirk/charlottenburg',
   'sfera': '/bezirk/neukoelln',
   'shaniu-s-house-of-noodles-2': '/bezirk/schoeneberg',
@@ -264,6 +273,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'son-kitchen': '/bezirk/charlottenburg',
   'sorrel': '/bezirk/neukoelln',
   'spindler': '/bezirk/kreuzberg',
+  'story-coffee-roesterei-p-berg': '/bezirk/prenzlauer-berg',
   'suedblock': '/bezirk/kreuzberg',
   'suessfein-rykestrasse': '/bezirk/prenzlauer-berg',
   'super-westberlin': '/kategorie/lunch',

@@ -27,7 +27,8 @@
   border: none;
   border-radius: var(--et-radius-photo);
   cursor: pointer;
-  box-shadow: var(--et-ink-shadow);
+  /* Kein Schatten (07.10.2026): auf hellen Seiten lag er als grauer Fleck
+     unter der Kachel. Die gelbe Fläche steht auf beiden Gründen allein. */
   transition:
     transform var(--et-motion-base),
     background var(--et-motion-base);

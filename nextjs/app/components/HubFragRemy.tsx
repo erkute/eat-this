@@ -169,7 +169,7 @@ export default function HubFragRemy() {
           </div>
         </div>
         <div className={styles.content}>
-          <p className={styles.intro}>{en ? 'Hey, I’m Remy. I know where to eat in Berlin.' : 'Hey, ich bin Remy. Ich zeig dir, wo Berlin gut isst.'}</p>
+          <p className={styles.intro}>{en ? 'Hey, I’m Remy. I’ll show you what to eat in Berlin.' : 'Hey, ich bin Remy. Ich zeig dir, was du in Berlin essen musst.'}</p>
           <h2 className={`hv-title ${styles.title}`}>{en ? 'What are you craving?' : 'Worauf hast du Lust?'}</h2>
           <div className={styles.questions} data-fragremy-chips="">
             {questions.map((question, index) => (

@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import {
   resolveLegacyRestaurantSlug,
+  EARLY_RESTAURANT_REDIRECTS,
   GONE_SLUGS,
   NEWS_REDIRECTS,
   type LegacyRestaurant,
 } from './legacyRedirects';
+import { DELISTED_RESTAURANT_REDIRECTS } from './delistedSpots';
 
 const RESTAURANTS: LegacyRestaurant[] = [
   // accent / apostrophe renames
@@ -90,5 +92,22 @@ describe('static gone / news maps', () => {
       '/restaurant/file-asto'
     );
     expect(NEWS_REDIRECTS['ramen-berlin']).toBe('/news');
+  });
+});
+
+describe('EARLY_RESTAURANT_REDIRECTS', () => {
+  // middleware.ts asks GONE, then EARLY, then DELISTED. A slug in two of them
+  // would make the later answer dead code.
+  it('shares no slug with the 410 list or the delisted spots', () => {
+    for (const slug of Object.keys(EARLY_RESTAURANT_REDIRECTS)) {
+      expect(GONE_SLUGS.has(slug), slug).toBe(false);
+      expect(Object.hasOwn(DELISTED_RESTAURANT_REDIRECTS, slug), slug).toBe(false);
+    }
+  });
+
+  it('never points at another old slug, so no chain stays inside this map', () => {
+    for (const [slug, target] of Object.entries(EARLY_RESTAURANT_REDIRECTS)) {
+      expect(Object.hasOwn(EARLY_RESTAURANT_REDIRECTS, target), `${slug} → ${target}`).toBe(false);
+    }
   });
 });

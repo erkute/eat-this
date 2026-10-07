@@ -58,21 +58,18 @@
   overflow-wrap: anywhere;
 }
 
-/* Unter dem Namen der Bezirk und das Herz in einer Zeile. Das Herz bringt
-   seine 44px Tippfläche mit; die Zeile steht so, dass der Bezirk mit dem
-   Glyph auf einer Mitte liegt. */
-.byline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 4px 12px;
-  margin-top: 5px;
+/* Am Desktop ein Stück kleiner, in jeder Breite um denselben Anteil
+   (Ansage 07.10.2026). Das Telefon bleibt, wie es ist. */
+@media (min-width: 768px) {
+  .title {
+    font-size: max(36px, calc(0.82 * min(150px, 14cqi, var(--word-fit, 100cqi))));
+  }
 }
 
+/* Unter dem Namen nur der Bezirk (Ansage 03.10.2026). */
 .district {
   display: inline-block;
-  margin: 0;
+  margin: 18px 0 0;
   color: var(--et-ink);
   font-size: 14px;
   font-weight: 700;
@@ -194,44 +191,95 @@
   object-fit: cover;
 }
 
-/* ---------------------------------------------------------- angaben ----- */
+/* -------------------------------------------------------- steckbrief ---- */
 
-.closed {
-  margin: 0 0 14px;
-  color: var(--et-red);
+/* Der Steckbrief (Wahl 07.10.2026 im Steckbrief-Labor, Fassung „Heft"): in
+   der Typografie der Seite selbst und zentriert wie der Kopf. Oben der Name,
+   darunter Bezirk · Küche · Preis wie der Bezirk unter dem grossen Namen;
+   dann wie beim Insider-Tipp kleine Zwischentitel über grosser Providence.
+   Jede Zeile steht für sich mittig — auch die Zeiten: an einer Mittelachse
+   (Tage rechts, Zeiten links) wirkte der Block nach rechts versetzt.
+   Abgelehnt: eine Ink-Tafel mit gelben Labels („zu schwarz" für die weisse
+   Seite) und ein Datenblatt mit Haarlinien. */
+.brief {
+  margin-top: clamp(48px, 5vw, 72px);
+  text-align: center;
+}
+
+.briefTitle {
+  margin: 0;
+  font-size: clamp(30px, 3.6vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  /* Providence hängt tief — unter 0.9 stiesse eine zweite Zeile an. */
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.briefMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 10px;
+  margin: 12px 0 0;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.06em;
+  line-height: 1.4;
   text-transform: uppercase;
 }
 
-.facts {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
-  gap: 18px 32px;
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.45;
+.briefMeta a {
+  color: inherit;
+  text-decoration: none;
 }
 
-.factGroup {
-  margin: 0;
-  display: grid;
-  gap: 14px;
-  align-content: start;
+@media (hover: hover) {
+  .briefMeta a:hover {
+    color: var(--et-red);
+  }
 }
 
-.facts dd {
-  margin: 0;
+.briefMeta a:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 3px;
 }
 
-.label {
-  margin: 0 0 4px;
+.closed {
+  display: inline-block;
+  margin: 18px 0 0;
+  padding: 3px 10px 1px;
+  background: var(--et-ink);
+  color: var(--et-white);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--et-tracking-meta);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.briefBlock {
+  margin-top: 36px;
+}
+
+/* Zwischentitel klein, fett, versal — wie „Insider-Tipp". */
+.kicker {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   line-height: 1.3;
   text-transform: uppercase;
+}
+
+.briefAddress {
+  margin: 0;
+  font-size: clamp(26px, 2.6vw, 36px);
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
 }
 
 .line {
@@ -240,24 +288,39 @@
 
 .hours {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0 14px;
+  gap: 2px;
+  margin: 0;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.3;
   font-variant-numeric: tabular-nums;
 }
 
-.hoursDay {
+/* Tag und Zeit als eine Zeile, die als Ganzes mittig steht. */
+.hoursRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 0.4em;
+}
+
+.hoursRow dt {
   font-weight: 700;
+}
+
+.hoursRow dd {
+  margin: 0;
 }
 
 /* Buttons in der Form von 032c („Subscribe", gemessen 03.10.2026): volle
    Fläche, eckig, ohne Rahmen, 50px hoch, in Versalien — aber in der eigenen
    Button-Schrift Providence (Ansage 03.10.2026). Ink mit weisser Schrift;
-   „Zur Map" als Hauptweg in Gelb. */
+   „Zur Map" als Hauptweg in Gelb. Im Steckbrief zentriert wie alles dort. */
 .buttons {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
-  margin-top: 26px;
+  margin-top: 34px;
 }
 
 .btn {
@@ -437,12 +500,11 @@
     margin-inline: calc(10px - var(--gut));
   }
 
-  .facts {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
+  /* Paarweise; der schmale Innenabstand lässt auch „Reservieren" in eine
+     halbe Reihe passen. */
   .buttons .btn {
     flex: 1 1 calc(50% - 5px);
+    padding-inline: 12px;
   }
 
   .grid {

@@ -56,3 +56,7 @@ rive-src/
 # Lizenzierte Desktop-Schrift — nur lokal, aus ihr entstehen die E-Mail-PNGs
 # (npm run sync:brand-font). Die Schrift selbst gehört nicht ins Repo.
 nextjs/assets/fonts/Providence*
+
+# Local Lighthouse runs and Playwright reports
+.lighthouseci/
+playwright-report/

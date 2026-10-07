@@ -58,10 +58,21 @@
   overflow-wrap: anywhere;
 }
 
-/* Unter dem Namen nur der Bezirk (Ansage 03.10.2026). */
+/* Unter dem Namen der Bezirk und das Herz in einer Zeile. Das Herz bringt
+   seine 44px Tippfläche mit; die Zeile steht so, dass der Bezirk mit dem
+   Glyph auf einer Mitte liegt. */
+.byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 12px;
+  margin-top: 5px;
+}
+
 .district {
   display: inline-block;
-  margin: 18px 0 0;
+  margin: 0;
   color: var(--et-ink);
   font-size: 14px;
   font-weight: 700;
@@ -108,27 +119,15 @@
   height: auto;
 }
 
-/* Unter dem Aufmacher: links das Herz, rechts der Nachweis. */
-.photoBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 4px;
-}
-
-.photoBar .credit {
-  margin: 0;
-  text-align: right;
-}
-
+/* Der Bildnachweis dicht unter dem Foto, rechtsbündig wie im Heft. */
 .credit {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: var(--et-muted);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1.4;
+  text-align: right;
   text-transform: uppercase;
 }
 
@@ -216,6 +215,7 @@
 }
 
 .factGroup {
+  margin: 0;
   display: grid;
   gap: 14px;
   align-content: start;
@@ -429,13 +429,8 @@
     margin-inline: calc(-1 * var(--gut));
   }
 
-  .figure .credit,
-  .photoBar {
+  .figure .credit {
     padding-inline: var(--gut);
-  }
-
-  .photoBar .credit {
-    padding-inline: 0;
   }
 
   .sheet {

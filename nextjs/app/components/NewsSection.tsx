@@ -108,7 +108,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                     cover={a.cover}
                     sizes="(max-width: 767.98px) 62vw, 360px"
                     widths={[480, 800]}
-                    loading="eager"
+                    priority
                   />
                 </span>
               ))}
@@ -169,7 +169,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       cover={a.cover}
                       sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, 260px"
                       widths={[320, 480, 800]}
-                      compact
                     />
                     <h3 className={styles.magTitle}>{titleOf(a)}</h3>
                   </MagazineLink>

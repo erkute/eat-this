@@ -1,27 +1,9 @@
 name: Lighthouse CI
 
 on:
-  # Only run when something could plausibly change what the audit measures.
-  #
-  # Note what this job actually does: it audits the LIVE production URLs listed
-  # in .lighthouserc.json — not a build of the ref that triggered it. On a PR it
-  # therefore measures whatever is already deployed, so a docs-only change has
-  # nothing to audit and would just spend ~16 min re-measuring the unchanged
-  # site (that is the whole run; the quality workflow finishes in ~3 min).
-  #
-  # Safe to skip because `main` has no required status checks. If Lighthouse is
-  # ever made required, a filtered-out run stays permanently "expected" and
-  # blocks the merge — drop the filter again, or make it required only for the
-  # paths below.
-  #
-  # Keep both lists identical; GitHub Actions does not expand YAML anchors.
+  # Production monitoring only. PRs audit their own isolated production
+  # build in quality.yml; this workflow waits for the deployed main commit.
   push:
-    branches: [main]
-    paths:
-      - 'nextjs/**'
-      - '.lighthouserc.json'
-      - '.github/workflows/lighthouse.yml'
-  pull_request:
     branches: [main]
     paths:
       - 'nextjs/**'
@@ -46,7 +28,7 @@ jobs:
           node-version-file: .nvmrc
 
       - name: Install Lighthouse CI
-        run: npm install -g @lhci/cli
+        run: npm install -g @lhci/cli@0.15.1
 
       - name: Wait for the rollout of THIS commit
         # Auf einen Push nach `main` baut App Hosting einen neuen Container und
@@ -65,9 +47,6 @@ jobs:
         # "App Hosting - Rollout (eat-this-8a13b/…)" an. Der steht auf
         # `success`, wenn der neue Container den Traffic hat.
         #
-        # Nur bei `push`. Ein PR-Lauf misst bewusst die bereits deployte Seite
-        # (siehe Kommentar oben) und hat keinen eigenen Rollout, auf den er
-        # warten könnte.
         if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -100,7 +79,7 @@ jobs:
           exit 1
 
       - name: Wait for the site to answer
-        # Zweite Stufe, und für PR-Läufe die einzige: der Traffic kann
+        # Zweite Stufe: der Traffic kann
         # umgeschaltet sein, während einzelne Edges noch 502 werfen.
         env:
           SITE_URL: https://www.eatthisdot.com/

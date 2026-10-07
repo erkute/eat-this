@@ -45,7 +45,6 @@ export default function RestaurantArticlesSection({ articles, locale, classNames
                   cover={a.cover}
                   sizes="(max-width: 767px) 130px, 200px"
                   widths={[320, 480]}
-                  compact
                 />
               </span>
               <span className={styles.text}>

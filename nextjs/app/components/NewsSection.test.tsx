@@ -54,7 +54,8 @@ describe('NewsSection — current issue', () => {
     // All three visible covers can become LCP; the archive still waits.
     const eagerPhotos = html.match(/<img[^>]*story-\d\.webp[^>]*loading="eager"/g) ?? [];
     expect(eagerPhotos).toHaveLength(3);
-    for (const n of [1, 2, 3]) expect(eagerPhotos.some((photo) => photo.includes(`story-${n}.webp`))).toBe(true);
+    for (const n of [1, 2, 3])
+      expect(eagerPhotos.some((photo) => photo.includes(`story-${n}.webp`))).toBe(true);
   });
 
   it('lays the two issues before it underneath, silent and without a link', () => {

@@ -523,7 +523,6 @@ export default function NewsArticleShell({
                           cover={rec.cover}
                           sizes="(max-width: 767.98px) 62vw, 300px"
                           widths={[320, 480, 800]}
-                          compact
                         />
                       </MagazineLink>
                     </li>

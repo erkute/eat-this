@@ -27,6 +27,7 @@ import type {
   RestaurantCard,
   RestaurantArticleCard,
 } from './types';
+import type { CoverData } from './magazineCover';
 import type { CategoryDef, CategoryWithStats } from './categories';
 import type { PackContents, PackContentsIndex } from './pack/packDetail';
 
@@ -268,6 +269,8 @@ export interface GuideTeaser {
   noIndex: boolean;
   /** Ausgabennummer im Heft-Archiv, die älteste ist 1. */
   issue?: number;
+  /** Look des Hefts wie im Magazin (lib/magazineCover.ts). */
+  cover?: CoverData | null;
 }
 
 /**

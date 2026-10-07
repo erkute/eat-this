@@ -543,6 +543,7 @@ export const guideTeaserBySlugQuery = `
     ),
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},
+    ${newsCoverProjection},
     "noIndex": seo.noIndex == true,
     // Die Ausgabennummer wie auf /news (Anzahl − Position in derselben
     // Reihenfolge), damit das Heft auf der Bezirksseite dieselbe trägt.

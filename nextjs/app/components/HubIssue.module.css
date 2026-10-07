@@ -90,9 +90,14 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   letter-spacing: 0.08em;
 }
 
+/* 10cqi hält „Charlottenburg" (gut 7em breit) in einer Zeile — darüber
+   brach es mitten im Wort. Der Abstand oben gibt den Umlautpunkten Platz
+   (Schöneberg, Neukölln): sie ragen bei der knappen Titel-Zeilenhöhe gut
+   0.13em über die Zeile hinaus und stießen an „Restaurants in". */
 .name {
   display: block;
-  font-size: min(150px, 15cqi);
+  margin-top: 0.25em;
+  font-size: min(88px, 10cqi);
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
@@ -822,10 +827,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 /* ------------------------------------------------------------- telefon -- */
 
 @media (max-width: 767px) {
-  .name {
-    font-size: 10cqi;
-  }
-
   /* Die Bildleiste wischt am Telefon, statt zu schrumpfen. */
   .contents {
     width: auto;

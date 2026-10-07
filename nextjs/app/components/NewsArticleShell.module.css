@@ -683,9 +683,10 @@ div.page {
   height: auto;
 }
 
-/* Bildunterschrift klein, leise und mittig unter dem Bild. */
+/* Bildunterschrift klein, leise und mittig, dicht unter dem Bild — wie der
+   Nachweis auf der Spot-Seite. */
 .inlineImage figcaption {
-  margin-top: 10px;
+  margin-top: 6px;
   color: var(--article-muted);
   font-family: var(--et-font-body);
   font-size: 13px;

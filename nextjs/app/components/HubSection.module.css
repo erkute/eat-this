@@ -211,6 +211,12 @@
   line-height: var(--et-leading-copy);
 }
 
+/* Eigene Box je Wort, damit `clip-path` beim Tippen greift
+   (lib/home/leadEntrance.ts). */
+.heroLeadWord {
+  display: inline-block;
+}
+
 .heroActions {
   display: flex;
   gap: var(--et-rail-gap);

@@ -64,6 +64,20 @@ const LEAD_AUTH = {
   en: 'Every spot on your map — and the Must Eats you have collected in your deck.',
 } as const;
 
+/** Der Lead Wort für Wort in eigenen Spans: beim Auftritt tippt er sich hin
+ *  (lib/home/leadEntrance.ts). Die Leerzeichen bleiben echter Text
+ *  dazwischen, damit die Zeile normal umbricht und vorgelesen wird. */
+function LeadWords({ text }: { text: string }) {
+  return text.split(' ').map((word, index) => (
+    <span key={index}>
+      {index > 0 ? ' ' : null}
+      <span className={styles.heroLeadWord} data-lead-word="">
+        {word}
+      </span>
+    </span>
+  ));
+}
+
 interface HeroCopyProps extends Props {
   firstName: string | null;
   variant: Variant;
@@ -98,7 +112,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         <span>{headline[1]}</span>
       </h1>
       <p className={styles.heroLead} data-hero-lead="">
-        {signedIn ? LEAD_AUTH[locale] : LEAD[locale]}
+        <LeadWords text={signedIn ? LEAD_AUTH[locale] : LEAD[locale]} />
       </p>
       <div className={styles.heroActions} data-hero-actions="">
         <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
@@ -144,10 +158,10 @@ function LoadingHeroCopy({ locale }: Props) {
         </span>
       </h1>
       <p className={styles.heroLead} data-hero-lead="" data-guest-only="">
-        {LEAD[locale]}
+        <LeadWords text={LEAD[locale]} />
       </p>
       <p className={styles.heroLead} data-hero-lead="" data-auth-only="">
-        {LEAD_AUTH[locale]}
+        <LeadWords text={LEAD_AUTH[locale]} />
       </p>
       <div className={styles.heroActions} data-hero-actions="">
         <span className={styles.heroActionVariant} data-guest-only="">

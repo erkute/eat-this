@@ -63,7 +63,7 @@ const copy = {
       tag: 'Die Map',
       title: 'Die Berlin Food Map.',
       body: 'Die besten Restaurants, Cafés und Bars. Entdecke, was um dich herum ist – und filtere nach Kategorie, Preis oder „Jetzt geöffnet“.',
-      image: '/pics/home-phones/phone-map-ink-480.webp',
+      image: '/pics/home-phones/phone-map-red-480.webp',
       alt: 'Die Eat-This-Map mit Berliner Spots',
     },
     go: {
@@ -115,7 +115,7 @@ const copy = {
       tag: 'The map',
       title: 'Find your next great spot.',
       body: 'The best restaurants, cafés and bars. Discover what’s around you – and filter by category, price or open now.',
-      image: '/pics/home-phones/phone-map-ink-480.webp',
+      image: '/pics/home-phones/phone-map-red-480.webp',
       alt: 'The Eat This map with Berlin food spots',
     },
     go: {
@@ -612,7 +612,7 @@ export default function SignInReward() {
             <span className={styles.halfArt}>
               <span className={styles.phone}>
                 <Image
-                  src="/pics/home-phones/phone-map-ink-480.webp"
+                  src="/pics/home-phones/phone-map-red-480.webp"
                   alt=""
                   fill
                   sizes="(max-width: 600px) 30vw, 220px"

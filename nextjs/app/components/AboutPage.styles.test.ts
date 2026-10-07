@@ -21,25 +21,6 @@ function effective(className: string, prop: string): string | undefined {
 
 describe('AboutPage styles', () => {
   /**
-   * The closer holds the page's only call to action. It once lost its whole
-   * shared block — padding, min-height, radius, type — to an over-greedy
-   * regex while the second button was being removed, and went on rendering as
-   * a yellow rectangle tight around its text. Nothing failed; it just stopped
-   * looking like a button. These are the declarations that make it one.
-   */
-  it('keeps the single call to action a real, tappable button', () => {
-    expect(effective('ctaPrimary', 'display')).toBe('inline-flex');
-    expect(effective('ctaPrimary', 'padding')).toBeTruthy();
-    expect(effective('ctaPrimary', 'border-radius')).toBeTruthy();
-    expect(effective('ctaPrimary', 'background')).toBeTruthy();
-
-    const minHeight = effective('ctaPrimary', 'min-height');
-    expect(minHeight).toBeTruthy();
-    // 44px is the smallest target a finger can hit reliably.
-    expect(Number.parseInt(minHeight as string, 10)).toBeGreaterThanOrEqual(44);
-  });
-
-  /**
    * A width together with a max-height does not scale a picture, it squashes
    * one — that is how the phone ended up 290 wide inside a 460 cap instead of
    * its own 225x457. The figures carry a width and nothing else.

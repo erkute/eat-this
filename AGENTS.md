@@ -3,8 +3,7 @@
 `nextjs/` = die Live-App (Next.js App Router, Firebase App Hosting). `studio/` = Sanity Studio.
 Frühes Stadium, praktisch keine echten User: alten/toten Code ersatzlos rausschmeißen, keine Kompatibilitäts-Shims.
 
-Einzige Regeldatei für alle Agents; `CLAUDE.md` importiert sie nur. Projektstand: [docs/status.md](docs/status.md).
-Neue Branches: Codex `codex/`, Claude `claude/`.
+Einzige Regeldatei für alle Agents; `CLAUDE.md` importiert sie nur. Neue Branches: Codex `codex/`, Claude `claude/`.
 
 ## Befehle (alle aus `nextjs/`)
 
@@ -29,7 +28,16 @@ Zwei **getrennte** Projekte – bei jedem `firebase`-Befehl `--project` explizit
 `main` ist branch-protected: Feature-Branch → PR nach `staging` → PR nach `main`. Auf `staging` darf direkt gepusht werden.
 Der `.githooks/pre-push`-Hook baut voll durch (~30-60 s) – nie mit `--no-verify` umgehen, Log unter `/tmp/eat-this-prepush-build.log`.
 
+Firestore-Regeln und Sanity Studio werden separat deployt. Auf Staging sind `/api/stripe/webhook` und `/api/revalidate` vom Basic-Auth-Gate ausgenommen – ihre Signaturprüfung muss bleiben. Rollout-Nachweis: `/deploy-verify`.
+
 Status nur so weit melden, wie er belegt ist: `committed` → `pushed` → `PR offen` → `Rollout erfolgreich` (nur wenn App Hosting es meldet) → `smoke-getestet`.
+
+## Gewollte Produktlogik (nicht „reparieren“)
+
+- **Must-Eat aufdecken:** angemeldet gibt `POST /api/must-eat-reveal` jede Karte frei, ohne Kauf und ohne Standortprüfung auf dem Server – die 50 m misst nur der Browser (Koordinaten sind ohnehin öffentlich). Gebremst wird über das Ratenlimit je Konto (10/min, 15/Tag); `route.test.ts` hält das fest.
+- **Herzen:** `api/heart` schreibt Favorit und `restaurants/{id}.heartCount` in einer Admin-Transaktion, idempotent. Der Client schreibt den Zähler nie.
+- **Bestenlisten** kommen aus `topSpots` in Sanity (`rankCurated`); unter drei gültigen Einträgen entfällt die Liste.
+- **E-Mail-Link-Login:** die Adresse kommt aus `emailForSignIn` oder erneuter Eingabe, nie aus Link-Parametern. Geschützte Routen und Session-Cookies prüfen mit Widerrufsprüfung.
 
 ## Was sonst kaputtgeht
 

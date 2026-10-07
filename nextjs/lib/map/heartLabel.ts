@@ -1,5 +1,5 @@
 // Public heart-count phrase. Returns null below 1 so we never render an empty
-// "loved by 0 people". See docs/architecture.md#herzen-und-favoriten.
+// "loved by 0 people". See AGENTS.md (Gewollte Produktlogik).
 export function heartLabel(count: number, locale: string): string | null {
   if (!Number.isFinite(count) || count < 1) return null;
   const n = Math.floor(count);

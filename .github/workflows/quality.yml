@@ -47,7 +47,7 @@ jobs:
           if [ -n "$BASE" ] && [ "$BASE" != 0000000000000000000000000000000000000000 ] \
             && files=$(gh api "repos/$GITHUB_REPOSITORY/compare/$BASE...$HEAD" --jq '.files[].filename') \
             && [ -n "$files" ] && [ "$(wc -l <<< "$files")" -lt 300 ] \
-            && ! grep -qvE '\.md$|^\.(claude|agents|codex)/' <<< "$files"; then
+            && ! grep -qvE '\.md$|^\.claude/' <<< "$files"; then
             code=false
             echo "Nur Doku geändert – Build übersprungen:"; printf '  %s\n' $files
           fi

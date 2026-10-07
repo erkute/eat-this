@@ -6,7 +6,6 @@ node_modules/
 
 # Build artifacts & caches
 .firebase/
-.agents/
 # `.claude/*` and not `.claude/` — git does not descend into an excluded
 # DIRECTORY, so a `!.claude/launch.json` negation under `.claude/` would be
 # silently ignored. That is also why the skills path below re-includes one
@@ -31,7 +30,6 @@ node_modules/
 !.claude/skills/deploy-verify/
 !.claude/commands/
 .claude/commands/*
-.codex/
 .playwright-mcp/
 .worktrees/
 .superpowers/

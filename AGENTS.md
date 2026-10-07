@@ -3,7 +3,7 @@
 `nextjs/` = die Live-App (Next.js App Router, Firebase App Hosting). `studio/` = Sanity Studio.
 Frühes Stadium, praktisch keine echten User: alten/toten Code ersatzlos rausschmeißen, keine Kompatibilitäts-Shims.
 
-Einzige Regeldatei für alle Agents; `CLAUDE.md` importiert sie nur. Neue Branches: Codex `codex/`, Claude `claude/`.
+Einzige Regeldatei; `CLAUDE.md` importiert sie nur. Neue Branches: `claude/`.
 
 ## Befehle (alle aus `nextjs/`)
 
@@ -25,7 +25,7 @@ npm run build:email-spots         # rendert die Spot-Cards der Anmelde-Mail neu 
 | `staging` | `eat-this-staging-8a13b` | `…--eat-this-staging-8a13b.us-central1.hosted.app` (Basic Auth + noindex) |
 
 Zwei **getrennte** Projekte – bei jedem `firebase`-Befehl `--project` explizit setzen.
-`main` ist branch-protected, der Weg dorthin führt immer über `staging`. Kleinkram (Doku, Texte, Einzeiler) direkt auf `staging` committen und pushen; größere Arbeit über Feature-Branch → PR nach `staging`. „Bring das live“ heißt: PR `staging → main` öffnen und `gh pr merge <nr> --merge --auto` setzen – GitHub mergt, sobald `nextjs` grün ist. Ändert ein PR oder Push nur `*.md`, `.claude/`, `.agents/` oder `.codex/`, überspringt der CI-Check den Build.
+`main` ist branch-protected, der Weg dorthin führt immer über `staging`. Kleinkram (Doku, Texte, Einzeiler) direkt auf `staging` committen und pushen; größere Arbeit über Feature-Branch → PR nach `staging`. „Bring das live“ heißt: PR `staging → main` öffnen und `gh pr merge <nr> --merge --auto` setzen – GitHub mergt, sobald `nextjs` grün ist. Ändert ein PR oder Push nur `*.md` oder `.claude/`, überspringt der CI-Check den Build. „Live“ erst melden, wenn am Merge-Commit auf `main` der Check `App Hosting - Rollout (eat-this-8a13b/…)` grün ist (`gh api repos/erkute/eat-this/commits/<sha>/check-runs`, dauert ~5–10 min).
 Der `.githooks/pre-push`-Hook baut voll durch (~30-60 s) – nie mit `--no-verify` umgehen, Log unter `/tmp/eat-this-prepush-build.log`.
 
 Firestore-Regeln und Sanity Studio werden separat deployt. Auf Staging sind `/api/stripe/webhook` und `/api/revalidate` vom Basic-Auth-Gate ausgenommen – ihre Signaturprüfung muss bleiben. Rollout-Nachweis: `/deploy-verify`.

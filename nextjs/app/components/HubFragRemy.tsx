@@ -31,11 +31,15 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
       let visit = 0;
       let inside = false;
       const settle = { x: 0, y: 0, xPercent: 0, yPercent: 0, rotation: 0, scale: 1 };
+      const away = { ...settle, yPercent: 110, rotation: 8, scale: 0.92 };
+      // Remy startet unsichtbar unter der Bühne und kommt erst, wenn die Section im Bild ist.
+      gsap.set(avatar, away);
+      avatar.setAttribute('data-staged', '');
       const arrive = () => {
         entrance.current?.kill();
         gsap.killTweensOf(avatar);
         avatar.removeAttribute('data-speaking');
-        const tl = gsap.timeline();
+        const tl = gsap.timeline({ delay: 0.35 });
         entrance.current = tl;
         switch (visit++ % 3) {
           case 0:
@@ -72,11 +76,7 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
           reaction.current?.kill();
           gsap.killTweensOf(avatar);
           avatar.removeAttribute('data-speaking');
-          entrance.current = gsap.timeline().to(avatar, {
-            x: 0, y: 0, xPercent: 0, yPercent: 110,
-            rotation: 8, scale: 0.92,
-            duration: 0.45, ease: 'power2.in',
-          });
+          entrance.current = gsap.timeline().to(avatar, { ...away, duration: 0.45, ease: 'power2.in' });
           return;
         }
         if (inside || !entry.isIntersecting || entry.intersectionRatio < 0.6) return;
@@ -84,7 +84,7 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
         arrive();
       }, { threshold: [0, 0.4, 0.6] });
       observer.observe(avatar.parentElement!);
-      return () => { observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-speaking'); gsap.set(avatar, { clearProps: 'transform' }); };
+      return () => { observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-speaking'); avatar.removeAttribute('data-staged'); gsap.set(avatar, { clearProps: 'transform' }); };
     });
     return () => {
       media.revert();
@@ -98,7 +98,8 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
     setExpression(active ? (choice === 2 ? 'laugh' : choice === 0 ? 'open' : 'neutral') : 'neutral');
     if (!figure.current || !motion()) return;
     const avatar = figure.current;
-    if (entrance.current?.isActive() && entrance.current.time() < 1.85) return;
+    // Auch während der Verzögerung vor dem Auftritt nicht dazwischenfunken.
+    if (entrance.current && entrance.current.progress() < 1 && entrance.current.time() < 1.85) return;
     entrance.current?.progress(1);
     avatar.removeAttribute('data-speaking');
     reaction.current?.kill();

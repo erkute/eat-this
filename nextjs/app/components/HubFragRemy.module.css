@@ -156,6 +156,11 @@
   .question:nth-child(2) { margin-left: 0; max-width: 100%; }
   .input { font-size: 16px; }
 }
+/* Vor der Hydrierung nicht schon dastehen: GSAP setzt Remy unter die Bühne
+   und markiert ihn dann mit data-staged. Ohne Bewegung bleibt er einfach da. */
+@media (prefers-reduced-motion: no-preference) {
+  .figure:not([data-staged]) { opacity: 0; }
+}
 @media (prefers-reduced-motion: reduce) {
   .question { transition: none; }
   .question:hover:not(:disabled), .question:focus-visible:not(:disabled) { transform: none; }

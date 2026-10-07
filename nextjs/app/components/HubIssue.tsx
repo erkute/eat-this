@@ -308,9 +308,9 @@ export function IssueGuides({
                 issue={g.issue}
                 date={g.date}
                 locale={locale}
+                cover={g.cover}
                 sizes="(max-width: 767px) 130px, 240px"
                 widths={[320, 480]}
-                compact
               />
             </span>
             <span className={styles.guideText}>
@@ -361,7 +361,6 @@ export function IssueMagazine({
                 cover={a.cover}
                 sizes="(max-width: 767px) 62vw, 260px"
                 widths={[320, 480, 800]}
-                compact
               />
             </MagazineLink>
           </li>

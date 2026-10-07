@@ -62,6 +62,7 @@
    nicht festgelegt. `scale`/`rotate` statt `transform` — das Aufsetzen nach
    dem Zeichnen läuft per GSAP über `transform`. */
 .btn .glyph {
+  --heart-line: currentColor;
   width: 0.92em;
   height: 0.92em;
   scale: 1;

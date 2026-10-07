@@ -5,10 +5,6 @@ produces **leads**. This directory is what turns a lead into a verdict: a
 computed-style sweep over viewports × the 24 `[data-map-body]` states × every
 class a module ships, so a prune can be shown to change nothing.
 
-Documentation checked: 2026-09-30. Historical measurement counts below are
-examples from earlier audits, not results of a new sweep. Earlier open work
-was retired; see [project status](../../../docs/status.md).
-
 ## Run it
 
 Run shell commands below from the repository root. Start the dev server in

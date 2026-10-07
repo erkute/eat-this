@@ -1,10 +1,11 @@
 'use client';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useIsPresent, useReducedMotion } from 'framer-motion';
 import { useLocale } from 'next-intl';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
+import { sanityImageSize } from '@/lib/sanity-image-presets';
 import styles from './RestaurantGalleryLightbox.module.css';
 import ZoomCurtain from './ZoomCurtain';
 
@@ -80,6 +81,7 @@ function Viewer({
   const thumbsRef = useRef<HTMLDivElement>(null);
   const trackWidthRef = useRef(0);
   const focusDirectionRef = useRef<string | null>(null);
+  const dismissTouchRef = useRef<{ x: number; y: number; axis: 'x' | 'y' | null } | null>(null);
   const pageRef = useRef(startIndex);
   pageRef.current = page;
 
@@ -205,36 +207,63 @@ function Viewer({
       <span className={styles.galleryLbAnnouncement} role="status" aria-live="polite" aria-atomic="true">
         {photoLabel(page)}
       </span>
-      <div className={styles.galleryLbHeader} onClick={(event) => event.stopPropagation()}>
-        <span className={styles.galleryLbName}>{restaurantName}</span>
-        <button
-          ref={closeRef}
-          type="button"
-          className={styles.galleryLbClose}
-          aria-label={english ? 'Close gallery' : 'Galerie schließen'}
-          onClick={(event) => {
-            event.stopPropagation();
-            onClose();
-          }}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 6l12 12M18 6 6 18" />
-          </svg>
-        </button>
-      </div>
+      <button
+        ref={closeRef}
+        type="button"
+        className={styles.galleryLbClose}
+        aria-label={english ? 'Close gallery' : 'Galerie schließen'}
+        onClick={(event) => {
+          event.stopPropagation();
+          onClose();
+        }}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+      </button>
 
       {/* Ein echter Scroll-Container statt framer-`drag`: das Foto folgt dem
           Finger 1:1, das Nachbarfoto zieht sichtbar mit herein, und
           `scroll-snap-stop: always` rastet pro Wisch genau ein Foto weiter —
           wie bei Instagram. Die alte Fassung hielt das Bild mit
           `dragElastic: 0.18` fest, es ging nur ein Fünftel des Fingerwegs
-          mit und klebte. Ein Wisch erzeugt keinen Klick, schließt also nie. */}
+          mit und klebte. Der horizontale Wisch erzeugt keinen Klick;
+          nur ein eigener Wisch nach unten schließt die Galerie. */}
       <div
         ref={trackRef}
         className={styles.galleryLbStage}
         role="region"
         aria-label={english ? 'Browse photos' : 'Fotos durchblättern'}
         tabIndex={0}
+        onTouchStart={(event) => {
+          const touch = event.touches[0];
+          dismissTouchRef.current = event.touches.length === 1 && !(event.target as Element).closest('a, button')
+            ? { x: touch.clientX, y: touch.clientY, axis: null }
+            : null;
+        }}
+        onTouchMove={(event) => {
+          const start = dismissTouchRef.current;
+          if (!start) return;
+          if (event.touches.length !== 1) {
+            dismissTouchRef.current = null;
+            return;
+          }
+          const dx = Math.abs(event.touches[0].clientX - start.x);
+          const dy = Math.abs(event.touches[0].clientY - start.y);
+          // Ein begonnener Foto-Wechsel bleibt horizontal, auch wenn der
+          // Finger am Ende abbiegt. Zwei Finger bleiben dem Browser-Zoom.
+          if (!start.axis && Math.max(dx, dy) > 10) start.axis = dx > dy ? 'x' : 'y';
+        }}
+        onTouchEnd={(event) => {
+          const start = dismissTouchRef.current;
+          dismissTouchRef.current = null;
+          if (!start || start.axis !== 'y' || event.touches.length) return;
+          const touch = event.changedTouches[0];
+          const dx = Math.abs(touch.clientX - start.x);
+          const dy = touch.clientY - start.y;
+          if (dy >= 72 && dy > dx * 1.5) onClose();
+        }}
+        onTouchCancel={() => { dismissTouchRef.current = null; }}
         onScroll={(event) => {
           const track = event.currentTarget;
           if (!track.clientWidth || track.clientWidth !== trackWidthRef.current) return;
@@ -244,6 +273,7 @@ function Viewer({
       >
         {images.map((img, index) => {
           const near = Math.abs(index - page) <= 1;
+          const size = sanityImageSize(img.full);
           return (
             <div
               key={img._key}
@@ -251,11 +281,17 @@ function Viewer({
               aria-hidden={index !== page || undefined}
               inert={index !== page}
             >
-              <div className={styles.galleryLbMedia} onClick={(e) => e.stopPropagation()}>
+              <div
+                className={styles.galleryLbMedia}
+                style={{ '--gallery-ratio': size ? size.width / size.height : 1 } as CSSProperties}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <img
                   src={img.full}
                   alt={img.alt ?? restaurantName}
                   className={styles.galleryLbImg}
+                  width={size?.width}
+                  height={size?.height}
                   draggable={false}
                   loading={near ? 'eager' : 'lazy'}
                   decoding="async"

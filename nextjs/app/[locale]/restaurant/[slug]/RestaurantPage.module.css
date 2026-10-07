@@ -269,7 +269,7 @@
 
 /* Zwischentitel klein, fett, versal — wie „Insider-Tipp". */
 .kicker {
-  color: var(--et-accent-heading);
+  color: var(--et-accent-text);
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: 700;

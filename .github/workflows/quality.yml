@@ -119,12 +119,28 @@ jobs:
       - run: npm run build:isolated
         if: steps.scope.outputs.code == 'true'
 
-      - name: Install Chromium
+      # Browser, Barrierefreiheit und Lighthouse kosten rund 16 der ~20 Minuten
+      # dieses Jobs. Sie laufen nur im PR nach `staging` – dort kommt neuer
+      # Code herein. Der Release-PR `staging → main` und die Pushes danach
+      # tragen nur schon geprüften Code weiter; sie bauen, linten und testen,
+      # brauchen dafür aber ~4 statt ~20 Minuten. Vorher wartete jedes Release
+      # zweimal 20 Minuten, und ein Push auf `staging` brach den laufenden
+      # Check ab (07.10.2026). Die Live-Messung auf `main` macht lighthouse.yml.
+      - name: Browser-Prüfung nötig?
+        id: browser
         if: steps.scope.outputs.code == 'true'
+        working-directory: .
+        run: echo "run=${{ github.event_name == 'pull_request' && github.base_ref == 'staging' }}" >> "$GITHUB_OUTPUT"
+
+      # Sonst rund 25 s. Am 07.10.2026 hing der Schritt 23 Minuten (apt) und
+      # hielt das Release fest, ohne rot zu werden.
+      - name: Install Chromium
+        if: steps.browser.outputs.run == 'true'
+        timeout-minutes: 5
         run: npx playwright install --with-deps chromium
 
       - uses: actions/setup-java@v4
-        if: steps.scope.outputs.code == 'true'
+        if: steps.browser.outputs.run == 'true'
         with:
           distribution: temurin
           java-version: '21'
@@ -132,7 +148,8 @@ jobs:
       # Public card metadata comes from Sanity; Firestore/Storage use synthetic
       # fixtures in a demo project. PR code receives no production credentials.
       - name: Browser flows, accessibility and Lighthouse (this build)
-        if: steps.scope.outputs.code == 'true'
+        if: steps.browser.outputs.run == 'true'
+        timeout-minutes: 30
         env:
           FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
         run: |
@@ -140,7 +157,7 @@ jobs:
           npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npm run test:e2e && npm run audit:preview"
 
       - name: Browser and Lighthouse evidence
-        if: always() && steps.scope.outputs.code == 'true'
+        if: always() && steps.browser.outputs.run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: frontend-quality-${{ github.run_id }}

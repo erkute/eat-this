@@ -8,7 +8,7 @@ import HubHashScroll from './HubHashScroll';
 import HeroCurtain from './HeroCurtain';
 import HubMotion from './HubMotion';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
-import HubNearby from './HubNearby';
+import HubMapPreview from './HubMapPreview';
 import MapIntentLink from './MapIntentLink';
 import MagazineGrid from './MagazineGrid';
 import StarterPackSignup from './StarterPackSignup';
@@ -55,10 +55,6 @@ function phoneSrcSet(name: string): string {
 
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
   const t = copy[locale];
-  // Server date seeds HubNearby's no-location rotation. Taken here rather than
-  // in the client island so SSR and the first client render can't disagree
-  // across a midnight boundary. The page is force-dynamic, so it stays fresh.
-  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <main className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
@@ -106,8 +102,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.phoneBack}
-                src="/pics/home-phones/phone-restaurant-ink-480.webp"
-                srcSet={phoneSrcSet('phone-restaurant-ink')}
+                src="/pics/home-phones/phone-restaurant-red-480.webp"
+                srcSet={phoneSrcSet('phone-restaurant-red')}
                 sizes={PHONE_SIZES}
                 alt=""
                 width={855}
@@ -119,8 +115,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.phoneFront}
-                src="/pics/home-phones/phone-map-ink-480.webp"
-                srcSet={phoneSrcSet('phone-map-ink')}
+                src="/pics/home-phones/phone-map-red-480.webp"
+                srcSet={phoneSrcSet('phone-map-red')}
                 sizes={PHONE_SIZES}
                 alt={t.heroPhonesAlt}
                 width={855}
@@ -136,16 +132,9 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HeroMarkFlight />
       <HubMotion />
       <HomeMapDataProvider initialMapData={initialMapData}>
-        {/* Ansage 01.10.2026: das Magazin direkt unter den Hero, „Worauf hast
-          du Lust" unter das Starter Pack. Daraus vier Kapitel: lesen
-          (Teller) → entdecken (was ist um dich) → sammeln (Must Eats und
-          das Starter Pack, das die ersten Karten bringt) → noch
-          unentschlossen: Remys Tafel fragt „Worauf hast du Lust?", die
-          Beispielfragen und die freie Eingabe öffnen seinen Chat →
-          FAQ. Packs verkauft die Startseite nicht mehr, den Spot des Tages
-          gibt es seit 01.10.2026 nicht mehr. */}
+        {/* Lesen → Map ausprobieren → Must Eats sammeln. */}
         <MagazineGrid articles={initialData.magazine} locale={locale} />
-        <HubNearby locale={locale} today={today} />
+        <HubMapPreview locale={locale} />
         <HubMustEatsTeaser />
       </HomeMapDataProvider>
       <HubFragRemy />

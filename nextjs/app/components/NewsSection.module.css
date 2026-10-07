@@ -5,7 +5,7 @@
 .page {
   --news-ink: var(--et-ink);
   --news-fg: var(--et-white);
-  --news-yellow: var(--et-accent);
+  --news-accent: var(--et-accent);
   --news-muted: var(--et-ink-dim);
   --news-copy: var(--et-ink-soft);
   /* Das Heft bleibt kompakt, damit Vorspann und Auslage früher sichtbar sind. */
@@ -41,7 +41,7 @@
 }
 
 .kicker {
-  color: var(--news-yellow);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -109,7 +109,7 @@
 }
 
 .front:focus-visible {
-  outline: 3px solid var(--news-yellow);
+  outline: 3px solid var(--news-accent);
   outline-offset: 10px;
 }
 
@@ -144,7 +144,7 @@
 }
 
 .issueLabel {
-  color: var(--news-yellow);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
@@ -176,8 +176,8 @@
   min-height: 52px;
   margin-top: 4px;
   padding: 0 26px;
-  color: var(--et-ink);
-  background: var(--news-yellow);
+  color: var(--et-on-accent);
+  background: var(--news-accent);
   border-radius: var(--et-radius-control);
   font-family: var(--et-font-display);
   font-size: clamp(15px, 1.2vw, 17px);
@@ -192,7 +192,8 @@
 
 .read:focus-visible {
   background: var(--news-fg);
-  outline: 2px solid var(--news-yellow);
+  color: var(--et-ink);
+  outline: 2px solid var(--news-accent);
   outline-offset: 3px;
 }
 
@@ -217,7 +218,7 @@
   flex: 0 0 auto;
   width: 9px;
   height: 9px;
-  background: var(--news-yellow);
+  background: var(--news-accent);
 }
 
 .sectionHead h2 {
@@ -275,7 +276,7 @@
 }
 
 .mag:focus-visible {
-  outline: 3px solid var(--news-yellow);
+  outline: 3px solid var(--news-accent);
   outline-offset: 8px;
 }
 
@@ -297,6 +298,7 @@
 @media (hover: hover) {
   .read:hover {
     background: var(--news-fg);
+  color: var(--et-ink);
     transform: translateY(-2px);
   }
 

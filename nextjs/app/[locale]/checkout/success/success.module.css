@@ -95,7 +95,7 @@
   padding: 0 26px;
   border-radius: var(--et-radius-control);
   background: var(--conversion-accent);
-  color: var(--conversion-ink);
+  color: var(--et-on-accent);
   font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
   line-height: 1;

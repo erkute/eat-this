@@ -7,7 +7,7 @@
      stehen. */
   padding: var(--et-board-quiet-pad);
   overflow: hidden;
-  background: var(--et-ink-quiet);
+  background: transparent;
   color: var(--et-white);
   border-radius: var(--et-radius-photo);
 }
@@ -120,7 +120,7 @@
    die hoehere Spalte; mit 12px oben klebte der Kicker an der Tafelkante. */
 @media (min-width: 821px) {
   .scene .inner {
-    padding-block: clamp(32px, 4vw, 56px);
+    padding-block: 0;
   }
 }
 

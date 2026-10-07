@@ -1505,7 +1505,7 @@
   box-shadow: none;
   background: transparent;
   transform: translateY(-1px);
-  color: var(--me-accent);
+  color: var(--et-accent-text);
 }
 
 @media (hover: hover) {
@@ -1515,7 +1515,7 @@
     box-shadow: none;
     background: transparent;
     transform: translateY(-1px);
-    color: var(--me-accent);
+    color: var(--et-accent-text);
   }
 }
 
@@ -1559,7 +1559,7 @@
 .fdKicker {
   flex: 0 0 auto;
   margin: 0;
-  color: var(--me-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: var(--et-type-kicker);
   font-weight: 700;
@@ -1762,7 +1762,7 @@
   max-height: none;
   text-align: left;
   line-height: 1;
-  color: var(--me-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: var(--et-type-kicker);
   font-weight: 700;

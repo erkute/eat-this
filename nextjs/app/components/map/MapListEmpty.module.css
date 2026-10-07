@@ -45,7 +45,7 @@
   /* War Ink auf einer Ink-Flaeche: gemessen Kontrast 1,14, also unsichtbar.
      Ein Rest aus der Zeit, als dieser Block auf Papier stand. Gelb ist die
      Farbe, die jeder andere Kicker auf einer Ink-Tafel traegt. */
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   border: 0;
   font-family: var(--et-font-display);
   font-size: var(--et-type-kicker);
@@ -100,7 +100,7 @@
   text-align: center;
   text-decoration: none;
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;

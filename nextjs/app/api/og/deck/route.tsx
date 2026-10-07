@@ -28,7 +28,7 @@ const HEIGHT = 630;
 
 const INK = '#15120e';
 const PAPER = '#ffffff';
-const ACCENT = '#ffc600';
+const ACCENT = '#a82b2e';
 
 // Satori kennt keine Systemschriften; beide Schnitte liegen als Repo-Assets
 // (über outputFileTracingIncludes in den Standalone-Build gezogen). Providence

@@ -2,7 +2,6 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { MapRestaurant, MapMustEat, OpenStatus } from '@/lib/types';
 import {
-  abbreviateBezirk,
   getOpenStatus,
   resolvePeek,
   type UserLocation,
@@ -71,8 +70,7 @@ const Item = memo(
         ? getOpenStatus(restaurant.openingHours, now, statusLabels)
         : null;
 
-    // Prenzlauer Berg shortens to P'berg so the mustard sticker stays one line.
-    const district = abbreviateBezirk(restaurant.bezirk?.name ?? restaurant.district ?? null);
+    const district = restaurant.bezirk?.name ?? restaurant.district ?? null;
 
     // The cuisine, as on the detail sheet — the categories are what the filter
     // above the list already says.

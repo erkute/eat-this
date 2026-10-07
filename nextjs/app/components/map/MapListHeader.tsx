@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { localizedCategoryName, type CategoryDef } from '@/lib/categories';
-import { abbreviateBezirk, type FilterDimension, type MapOptionCounts } from '@/lib/map';
+import { type FilterDimension, type MapOptionCounts } from '@/lib/map';
 import { priceBucketLabelKey, priceBucketChipLabel } from '@/lib/map/priceBuckets';
 import { MUST_EATS_CATEGORY } from '@/lib/map/mapFilterParams';
 import type { MapCategory } from '@/lib/types';
@@ -147,9 +147,7 @@ export default function MapListHeader({
         />
         <FilterChip
           ref={bezirkBtnRef}
-          /* "Prenzlauer Berg" is the one district name the rail cannot hold;
-             the list stickers already shorten it the same way. */
-          label={abbreviateBezirk(bezirk) ?? t('map.filterChipBezirk')}
+          label={bezirk ?? t('map.filterChipBezirk')}
           active={!!bezirk}
           expanded={openChip === 'bezirk'}
           onClick={() => setOpenChip((prev) => (prev === 'bezirk' ? null : 'bezirk'))}
@@ -243,7 +241,7 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
   ref
 ) {
   return (
-    <span className={`${styles.filterChipWrap} ${compact ? styles.filterChipCompact : ''} ${active ? styles.filterChipWrapActive : ''}`}>
+    <span className={`${styles.filterChipWrap} ${compact ? styles.filterChipCompact : ''} ${active ? styles.filterChipWrapActive : ''} ${label.length > 10 ? styles.filterChipWrapLong : ''}`}>
       <button
         ref={ref}
         type="button"

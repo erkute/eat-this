@@ -72,7 +72,6 @@ export default function MagazineGrid({ articles, locale }: Props) {
           <div className={`hv-head ${styles.head}`}>
             <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
             <h2 className="hv-title">
-              <span className="hv-mk" aria-hidden="true" />
               {labels.title}
             </h2>
           </div>
@@ -127,9 +126,8 @@ export default function MagazineGrid({ articles, locale }: Props) {
               ))}
             </ol>
           </div>
-          {count > 1 && (
-            <MagazineDeckDots deckId={DECK_ID} labels={list.map((_, i) => labels.dot(i + 1))} />
-          )}
+          <MagazineDeckDots deckId={DECK_ID} labels={list.map((_, i) => labels.dot(i + 1))}
+            stories={list.map((article) => ({ title: article.title, href: `/news/${article.slug}` }))} />
         </div>
 
         <div className={styles.foot}>

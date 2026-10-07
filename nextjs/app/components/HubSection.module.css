@@ -21,7 +21,7 @@
      Gemessen war das vorher der Fehler: aussen ueberall 104px, innen aber
      zwischen 104 und 206px, weil das Polster der Tafeln unsichtbar mitzaehlte
      (zwei Tafeln = 112px eingebaute Luft). Jetzt zaehlt nur noch die Fuge. */
-  --home-section-gap: clamp(56px, 6vw, 88px);
+  --home-section-gap: clamp(32px, 3vw, 48px);
   width: 100%;
   min-height: 100svh;
   /* Kein Kopfpolster mehr: der Aufmacher ist eine randlose Farbfläche und
@@ -30,7 +30,7 @@
   padding-top: 0;
   font-family: var(--et-font-body);
   letter-spacing: var(--et-tracking-none);
-  /* Die Bänder (Nearby, Magazin) reichen per `100vw` bis an die Fensterkante;
+  /* Die Bänder (Magazin, Must Eats) reichen per `100vw` bis an die Fensterkante;
      mit klassischem Scrollbalken ist 100vw breiter als die Seite. `clip`
      schneidet diesen Überstand seitlich ab, ohne die Seite zum
      Scroll-Container zu machen — Sticky und der Logo-Fall nach oben bleiben
@@ -43,41 +43,6 @@
 :global(.homeV2).page {
   color: var(--et-white);
   background: var(--et-ink);
-}
-
-/* Das gelbe Quadrat auf die Mitte der Versalien daneben. Mit `vertical-align:
-   1px` sass es auf der Grundlinie, also sichtbar unter der Schriftmitte:
-   Providence-Versalien stehen rund 0.72em hoch, ihre Mitte liegt 0.36em über
-   der Grundlinie. Ein leerer Inline-Block steht mit seiner Unterkante auf
-   der Grundlinie plus `vertical-align` — also Unterkante = Mitte minus halbe
-   Kante (4.5px). In em, damit es bei jeder Titelgröße stimmt. Rang (0,3,0)
-   über `.homeV2 .hv-mk` (globals.css, 0,2,0). */
-:global(.homeV2).page :global(.hv-mk) {
-  vertical-align: calc(0.36em - 4.5px);
-}
-
-/* Das Quadrat dreht sich beim Hereinscrollen auf seinen Platz — am
-   Scrollweg, nicht an der Uhr: zurückscrollen dreht es wieder heraus. Der
-   Titel daneben steht still (keine Buchstaben, die sich aufbauen — Ansage
-   28.09.2026). Das Ende als feste Strecke, nicht als Prozent: steht der
-   Titel in einer klebenden Bühne (Nearby, Teller, Must Eats), streckt die
-   Timeline `cover` über den ganzen Pin-Weg — mit `cover 35%` stand das
-   Quadrat dort oben angekommen erst halb gedreht, als Punkt. */
-@keyframes mkSpin {
-  from {
-    rotate: -270deg;
-    scale: 0;
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    :global(.homeV2).page :global(.hv-mk) {
-      animation: mkSpin linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 35vh;
-    }
-  }
 }
 
 /* ── homeV2 hero ─────────────────────────────────────────── */
@@ -164,7 +129,7 @@
    (Gruß line-height 1, Headline 0.9). Der Abstand ist deshalb bewusst knapper
    gesetzt als er aussieht: 18px Marge werden zu rund 14px sichtbarer Luft. */
 .page .heroKicker:global(.hv-kicker) {
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: clamp(17px, 2.2vw, 24px);
   font-weight: 700;
@@ -243,7 +208,7 @@
   padding: 0 26px;
   border-radius: var(--et-radius-control);
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   font-size: clamp(16px, 1.4vw, 19px);
   line-height: 1;
 }
@@ -278,13 +243,13 @@
 }
 
 .page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   background: var(--et-accent);
 }
 
 @media (hover: hover) {
   .page .heroActions .heroSecondaryBtn:global(.hv-btn):hover {
-    color: var(--et-ink);
+    color: var(--et-on-accent);
     background: var(--et-accent);
   }
 }
@@ -408,7 +373,7 @@
 .heroActions [data-magnetic] {
   translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px + var(--press) * 4px);
   scale: calc(1 - var(--press) * 0.04);
-  box-shadow: 0 calc(8px - var(--press) * 5px) 22px -10px rgba(255, 198, 0, 0.3);
+  box-shadow: 0 calc(8px - var(--press) * 5px) 22px -10px color-mix(in srgb, var(--et-accent) 30%, transparent);
   animation: ctaPress 4.5s linear 3s infinite both;
 }
 
@@ -562,13 +527,11 @@
   }
 }
 
-/* Die Abschnittstitel bleiben auf dem Telefon einzeilig („eine Zeile die
-   Headlines"): die Größe folgt der Breite, bis 30px erreicht sind. „Worauf
-   hast du Lust?" ist der längste; bei 375px trägt ihn 6.4vw. Remys Titel
-   bricht bewusst in zwei Zeilen — er setzt sie selbst. */
+/* Gleiche Titelgröße für alle Kapitel. Längere Titel dürfen in ihren
+   Komponenten umbrechen, ohne auf dem Telefon kleiner zu werden. */
 @media (max-width: 560px) {
   .page {
-    --et-type-section-title: clamp(20px, 6.4vw, 30px);
+    --et-type-section-title: clamp(28px, 7.2vw, 32px);
   }
 
   .page :global(.hv-title) {
@@ -649,135 +612,42 @@
   }
 }
 
-/* ── Kapitel: zwei Gründe im Wechsel (01.10.2026) ──
-   Ansage: die Sektionen „ein bisschen abgrenzen voneinander". Auf dem
-   durchgehenden Ink lief eine Sektion in die nächste (Kategorien und Teller
-   auf einem Bildschirm, das Starter Pack unter den Must-Eat-Karten).
-   Abgegrenzt wird mit Fläche, nicht mit Linie, Kasten oder Nummer: Ink und
-   die Stufe des Footers (`--et-ink-raised`) wechseln sich ab, randlos von
-   Fensterkante zu Fensterkante —
-   Hero Ink · Teller · Nearby Ink · Must Eats · Starter Ink ·
-   Remy (mit den Kategorien) · FAQ Ink · Footer.
-   Gemalt per `border-image`
-   mit seitlichem Überstand: die Sektion bleibt im Satzspiegel (`hv-wrap`),
-   die Fläche reicht bis an die Fensterränder, `.page` schneidet den
-   Überstand ab (`overflow-x: clip`). Jede Sektion malt ihren Grund selbst,
-   auch die Ink-Bänder: wo eine Sektion in die leere Luft der Bühne davor
-   hochrückt (negativer Rand), deckt sie deren Band ab. Die hellen Bänder
-   tragen ihre Luft als Polster, nicht als Rand — ein Rand stünde auf dem
-   Ink der Seite. Angemeldete sehen kein Starter Pack; dann stossen Must
-   Eats und Remy aneinander, und Remy bleibt Ink. */
-.page > section:not(.hero) {
-  --band: var(--et-ink);
-  /* `--band-lift-*` zieht die Fläche über die Box hinaus (in den Rand davor
-     bzw. danach), ohne die Bühne darin zu verschieben. */
-  border-image: conic-gradient(var(--band) 0 0) fill 0 / / var(--band-lift-top, 0px) 100vw
-    var(--band-lift-bottom, 0px);
+/* Farbwechsel gliedern den Scrollweg: Ink-Spots, graue Kartenbühne,
+   Remys graue Fläche, dunkle Fragen, Starter Pack auf Ink. Keine Trennlinien.
+   Jede Sektion besitzt ihren Abstand einmal; die alte Sticky-Bühne braucht
+   weder Überstände noch negative Ausgleichsränder. */
+.page > section:global(.homeV2) {
+  background: transparent;
+  color: inherit;
 }
-/* `section:is(…)`: gleicher Rang wie die Ink-Regel darüber (0,2,1), die
-   spätere gewinnt. */
-.page
-  > section:is(
-    :global([data-hub-magazine])
-  ) {
-  --band: var(--et-ink-raised);
-}
-:global(html[data-auth='1']) .page > :global([data-hub-fragremy]) {
-  --band: var(--et-ink);
-}
-
-/* ── Abstände an den Bandkanten ──
-   `--band-air` ist die Luft zwischen Kante und Inhalt, auf beiden Seiten
-   gleich, damit die Kante mittig zwischen zwei Sektionen liegt. Die
-   bildschirmhohe Bühne (Must Eats) bleibt, wie sie ist; was an sie grenzt,
-   rückt um ihre leere Luft nach. Nearby ist seit 01.10.2026 eine Querleiste
-   ohne Bühne und trägt ihre Luft als Polster wie Teller und Remy. */
-.page {
-  --band-air: var(--home-section-gap);
-}
-.page > :global([data-hub-magazine]) {
+.page > section:global([data-hub-magazine]) {
   position: relative;
-  /* Über Nearby: geworfene Hefte fliegen über die Bandkante hinaus. */
   z-index: 2;
   margin-top: 0;
-  padding-block: var(--band-air);
+  padding-block: var(--home-section-gap);
+  background: var(--et-ink-raised);
+  border-image: conic-gradient(var(--et-ink-raised) 0 0) fill 0 / / 0 100vw;
 }
-.page > :global([data-hub-nearby]) {
+.page > :global([data-hub-map-preview]) {
   margin-top: 0;
-  padding-block: var(--band-air);
+  padding-block: var(--home-section-gap);
 }
-/* Am Telefon schiebt `stagePin` die Bühne in der Sektion — ein Polster
-   verschöbe sie mit. Deshalb trägt die Must-Eats-Fläche ihre Luft als
-   Überstand: oben in den Rand, unten in den Platz vor dem Starter Pack
-   (unter den Knöpfen stehen schon ~20px). */
-.page > :global([data-hub-musteats]) {
-  --band-lift-top: var(--band-air);
-  --band-lift-bottom: calc(var(--band-air) - 20px);
-  position: relative;
-  z-index: 1;
-  margin-top: var(--band-air);
-}
-/* Die randlose Tafel des Telefons bringt oben 30, unten 32px mit
-   (StarterPackSignup.module.css). */
-.page > :global([data-hub-starter]) {
-  position: relative;
-  z-index: 1;
-  margin-top: calc(var(--band-air) - 20px);
-  padding-block: calc(var(--band-air) - 30px) calc(var(--band-air) - 32px);
+.page > section:global([data-hub-musteats]) {
+  --must-eats-surface: var(--et-ink-raised);
+  margin-top: 0;
+  padding-block: clamp(32px, 4vw, 64px);
+  background: var(--must-eats-surface);
+  color: var(--et-white);
+  border-image: conic-gradient(var(--must-eats-surface) 0 0) fill 0 / / 0 100vw;
 }
 .page > :global([data-hub-fragremy]) {
   margin-top: 0;
-  padding-block: var(--band-air);
+  padding-block: var(--home-section-gap);
 }
-/* Angemeldet folgt Remy direkt auf Must Eats: Platz für deren Überstand. */
-:global(html[data-auth='1'])
-  .page
-  > :global([data-hub-musteats])
-  + :global([data-guest-only])
-  + section {
-  margin-top: calc(var(--band-air) - 20px);
-}
-
-/* Ab 768px: die Luft der Bühnen aus denselben Grössen gerechnet, die die
-   Bühnen setzen — ändert sich dort eine Kartengrösse, muss sie hier mit.
-   - Die Must-Eats-Spalte (~348px) steht mittig in der Bühne; unter ihr
-     bleibt am Ende des Wegs die halbe Resthöhe leer (gemessen 232px bei
-     1440×900). Was folgt, liegt über der Bühne, sonst fingen deren leere
-     Pixel die Klicks ab. Über der Spalte bleibt die Luft stehen: die
-     Bühne klebt, sobald ihre Kante oben ankommt, und füllt dann den
-     Bildschirm — die Überschrift steht in der Mitte ihres Bandes.
-   - Der Teller ab 1024px: die Überschrift steht neben dem Fächer, und der
-     ragt oben ~30px über das Polster hinaus. */
-@media (min-width: 768px) {
-  .page {
-    --stage-h: calc(100svh - 74px);
-    --musteats-air-below: max(0px, (var(--stage-h) - 348px) / 2 - 8px);
-  }
-  .page > :global([data-hub-musteats]) {
-    --band-lift-top: 0px;
-    --band-lift-bottom: 0px;
-  }
-  .page > :global([data-hub-starter]) {
-    padding-block: var(--band-air);
-  }
-  .page > :global([data-hub-musteats]) {
-    margin-top: 0;
-  }
-  .page > :global([data-hub-musteats]) + section,
-  :global(html[data-auth='1'])
-    .page
-    > :global([data-hub-musteats])
-    + :global([data-guest-only])
-    + section {
-    position: relative;
-    z-index: 1;
-    margin-top: calc(var(--band-air) - var(--musteats-air-below));
-  }
-}
-@media (min-width: 1024px) {
-  .page > :global([data-hub-magazine]) {
-    padding-top: calc(var(--band-air) - 30px);
-  }
+.page > :global([data-hub-starter]) {
+  position: relative;
+  margin-top: 0;
+  padding-block: var(--home-section-gap);
 }
 
 /* ── Auftritt beim Laden: die Marke wird nach oben geschubst ──
@@ -843,8 +713,7 @@
 @media (min-width: 900px) {
   .page {
     --et-wrap-max: min(1680px, 96vw);
-    --home-section-gap: clamp(40px, 4vw, 64px);
-    --musteats-air-below: 0px;
+    --home-section-gap: clamp(32px, 3vw, 48px);
   }
   .heroHeadline { font-size: clamp(42px, 3.6vw, 64px); }
   .heroGrid { gap: clamp(24px, 3vw, 48px); }

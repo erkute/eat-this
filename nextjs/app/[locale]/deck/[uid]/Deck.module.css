@@ -104,7 +104,7 @@
 .dare {
   display: block;
   margin-top: 6px;
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   font-size: 0.82em;
   white-space: nowrap;
 }

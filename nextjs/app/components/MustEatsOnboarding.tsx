@@ -48,7 +48,7 @@ interface Props {
    *  Fläche in Chip-Größe, für das Must-Eat-Detail der Karte, wo er im
    *  knappen Text-Slot unter der verdeckten Karte steht. Default: Ink-Knopf
    *  auf Weiß. */
-  tone?: 'paper' | 'ink' | 'sheet';
+  tone?: 'paper' | 'ink' | 'sheet' | 'plain';
   /** Die verdeckte Karte, von der aus ein Gast die Erklärung sieht (Must-Eat-
    *  Detail der Karte). „Anmelden" auf der letzten Folie nimmt sie dann als
    *  Absicht mit ins Starter Pack — wie der Tipp auf die Karte selbst. */
@@ -253,7 +253,9 @@ export default function MustEatsOnboarding({
             ? `${styles.how} ${styles.howInk}`
             : tone === 'sheet'
               ? `${styles.how} ${styles.howSheet}`
-              : styles.how
+              : tone === 'plain'
+                ? `${styles.how} ${styles.howPlain}`
+                : styles.how
         }
         onClick={reopen}
       >

@@ -121,7 +121,7 @@
 /* ---- gemeinsam ---- */
 
 .kicker {
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
@@ -154,7 +154,7 @@
 
   .lead:hover .leadTitle,
   .row:hover .rowTitle {
-    color: var(--et-accent);
+    color: var(--et-accent-text);
   }
 }
 

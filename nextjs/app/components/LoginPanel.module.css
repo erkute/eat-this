@@ -52,14 +52,14 @@
 }
 
 .close:focus-visible {
-  color: var(--login-accent);
+  color: var(--et-accent-text);
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
   .close:hover {
-    color: var(--login-accent);
+    color: var(--et-accent-text);
   }
 }
 

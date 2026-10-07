@@ -6,7 +6,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 
-vi.mock('./HubNearby', () => ({ default: () => '<div data-testid="nearby"></div>' }));
+vi.mock('./HubMapPreview', () => ({ default: () => '<div data-testid="map-preview"></div>' }));
 vi.mock('./HubMustEatsTeaser', () => ({ default: () => '<div data-testid="musteats"></div>' }));
 vi.mock('./HubFragRemy', () => ({
   default: () => <div data-testid="remy" />,
@@ -101,11 +101,11 @@ describe('HubSection home', () => {
     expect(html.indexOf('data-hub-starter')).toBeGreaterThan(html.indexOf('data-testid="faq"'));
   });
 
-  it('orders magazine, nearby, Must Eats, Remy, FAQ and signup', () => {
+  it('orders magazine, map-preview, Must Eats, Remy, FAQ and signup', () => {
     const html = renderHome();
     expect(html.indexOf('data-hub-hero')).toBeLessThan(html.indexOf('Auf dem Teller'));
-    expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('nearby'));
-    expect(html.indexOf('nearby')).toBeLessThan(html.indexOf('musteats'));
+    expect(html.indexOf('Auf dem Teller')).toBeLessThan(html.indexOf('map-preview'));
+    expect(html.indexOf('map-preview')).toBeLessThan(html.indexOf('musteats'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-hub-starter'));
     expect(html.indexOf('musteats')).toBeLessThan(html.indexOf('data-testid="remy"'));
     expect(html.indexOf('data-testid="remy"')).toBeLessThan(html.indexOf('data-testid="faq"'));

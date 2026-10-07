@@ -82,7 +82,7 @@
 .kicker,
 .bandKicker {
   margin: 0 0 clamp(14px, 1.6vw, 22px);
-  color: var(--must-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -155,7 +155,7 @@
 }
 
 .statLabel {
-  color: var(--must-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
@@ -439,7 +439,7 @@
    weißen Kicker, das auf Ink neben gelber Schrift doppelt wäre. */
 .closeK {
   margin: 0 0 clamp(14px, 1.6vw, 22px);
-  color: var(--close-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -495,7 +495,7 @@
 .headCta,
 .closeCta {
   background: var(--must-accent);
-  color: var(--must-ink);
+  color: var(--et-on-accent);
   border: 2px solid var(--must-accent);
 }
 
@@ -527,14 +527,14 @@
 
 .closeSecondary:focus-visible {
   border-color: var(--close-accent);
-  color: var(--close-accent);
+  color: var(--et-accent-text);
   transform: translateY(-2px);
 }
 
 @media (hover: hover) {
   .closeSecondary:hover {
     border-color: var(--close-accent);
-    color: var(--close-accent);
+    color: var(--et-accent-text);
     transform: translateY(-2px);
   }
 }

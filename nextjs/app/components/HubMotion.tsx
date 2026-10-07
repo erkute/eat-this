@@ -29,20 +29,12 @@ gsap.registerPlugin(useGSAP);
  *    ihren Platz geschubst wird, die Stempel der Headline —, steuert
  *    `finishIntro`.
  *
- * 2. **Am Scrollweg** — und damit umkehrbar — hängen die Quadrate vor den
- *    Titeln. Das sind Scroll-Timelines des Browsers in den CSS-Modulen,
- *    kein JS: sie laufen im Takt des Scrollens, auch auf dem iPhone, wo
- *    Scroll-JS ein bis zwei Frames hinterherzittert (siehe HeroMarkFlight).
- *    Nur wo der Browser keine Scroll-Timeline kann, treibt `armScrubFallback`
- *    dieselben Werte per Scroll-Listener (`data-scrub`).
- *    Die räumlichen Bühnen (Magazin, Must Eats) steuern sich selbst;
- *    Nearby ist eine Querleiste, die man nativ wischt (HubNearby).
+ * 2. **Am Scrollweg:** Die räumlichen Bühnen (Magazin, Must Eats)
+ *    steuern sich selbst. Nearby bleibt als ruhige Fotowand stehen.
+ *    `armScrubFallback` ergänzt CSS-Scroll-Timelines, wo sie fehlen.
  *
  * 3. **Beim Hereinkommen:**
  *    - Remys Auftritt und Reaktionen gehören HubFragRemy.
- *    - Nearby teilt seine Karten selbst aus und lässt die Stempel einschlagen
- *      (HubNearby, lib/home/nearbyMotion.ts): es muss die Karten vor dem
- *      ersten Bild auf den Stapel legen, auch nach einem Neu-Rendern.
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
  *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
@@ -737,16 +729,8 @@ function armDepthPointer(): () => void {
   return () => cleanups.forEach((stop) => stop());
 }
 
-/**
- * Bilder der Bühnen vorladen, bevor sie ins Bild kommen. Sie laden
- * `lazy`, und der Browser zählt nur, was sichtbar ist: die wartenden
- * Must-Eat-Karten stehen ausserhalb der beschnittenen Bühne, die Nearby-
- * Karten rechts in der Querleiste — sie luden erst beim Hereinfahren, und das Feld
- * war einen Moment leer (Rückmeldung 01.10.2026). Anderthalb Bildschirm-
- * höhen vorher werden sie auf `eager` gestellt. Auch ohne Bewegung, und
- * am Scroller des Desktops (`.app-pages`) gemessen — der Rand des Fensters
- * hilft dort nicht, der Scroller schneidet ab.
- */
+/** Fotos vorladen, bevor die Sektionen ins Bild kommen. Der Desktop scrollt
+ * in `.app-pages`; dessen Rand ist für das Vorladen maßgeblich. */
 function armPreload(): () => void {
   if (typeof IntersectionObserver === 'undefined') return () => {};
   const io = new IntersectionObserver(
@@ -757,8 +741,7 @@ function armPreload(): () => void {
         entry.target
           .querySelectorAll<HTMLImageElement>('img[loading="lazy"]')
           .forEach((img) => {
-            // Ausgeblendet (z. B. die siebte Nearby-Karte im Desktop-Raster)
-            // bleibt `lazy` — `eager` lüde das Bild trotz display:none.
+            // Ausgeblendete Bilder bleiben lazy.
             if (img.getClientRects().length > 0) img.loading = 'eager';
           });
       }
@@ -766,7 +749,7 @@ function armPreload(): () => void {
     { root: appScroller(), rootMargin: '150% 0px' }
   );
   document
-    .querySelectorAll('[data-hub-nearby], [data-hub-magazine], [data-hub-musteats]')
+    .querySelectorAll('[data-hub-map-preview], [data-hub-magazine], [data-hub-musteats]')
     .forEach((section) => io.observe(section));
   return () => io.disconnect();
 }

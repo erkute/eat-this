@@ -10,12 +10,14 @@
    versal und in Ink. Ganz unten der Bezirk als Raster über die ganze
    Breite.
 
-   Weisser Grund wie Artikel, Bezirke und Kategorien — den Grund selbst
+   Dunkler Grund wie Bezirke und Kategorien — den Grund selbst
    stellt globals.css an html/body. Die Seite hängt nicht in `.app-pages`:
    den Streifen unter der fixen Navigation hält der Kopf selbst frei.
    ============================================================ */
 
 .page {
+  --et-muted: var(--et-ink-soft);
+  --et-quiet: var(--et-ink-raised);
   --gut: clamp(18px, 4vw, 54px);
   --nav-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
   --rhythm: clamp(40px, 4.4vw, 64px);
@@ -27,7 +29,7 @@
   min-height: 100dvh;
   padding: 0 var(--gut) clamp(80px, 9vw, 120px);
   overflow-x: clip;
-  color: var(--et-ink);
+  color: var(--et-white);
   font-family: var(--et-font-display);
 }
 
@@ -70,7 +72,7 @@
 .district {
   display: inline-block;
   margin: 18px 0 0;
-  color: var(--et-ink);
+  color: var(--et-white);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -81,7 +83,7 @@
 
 @media (hover: hover) {
   a.district:hover {
-    color: var(--et-red);
+    color: var(--et-accent-heading);
   }
 }
 
@@ -159,6 +161,7 @@
 
 /* Zwischentitel klein, fett, versal — wie bei 032c. */
 .sub {
+  color: var(--et-accent-heading);
   margin: 0 0 14px;
   font-size: 20px;
   font-weight: 700;
@@ -238,12 +241,12 @@
 
 @media (hover: hover) {
   .briefMeta a:hover {
-    color: var(--et-red);
+    color: var(--et-accent-heading);
   }
 }
 
 .briefMeta a:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 3px;
 }
 
@@ -251,7 +254,7 @@
   display: inline-block;
   margin: 18px 0 0;
   padding: 3px 10px 1px;
-  background: var(--et-ink);
+  background: var(--et-accent);
   color: var(--et-white);
   font-size: 12px;
   font-weight: 700;
@@ -266,6 +269,7 @@
 
 /* Zwischentitel klein, fett, versal — wie „Insider-Tipp". */
 .kicker {
+  color: var(--et-accent-text);
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: 700;
@@ -330,7 +334,7 @@
   min-height: 50px;
   padding: 0 26px;
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 700;
@@ -348,23 +352,23 @@
 }
 
 .btnInk {
-  background: var(--et-ink);
+  background: var(--et-ink-raised);
   color: var(--et-white);
 }
 
 @media (hover: hover) {
   .btn:hover {
-    background: var(--et-ink);
+    background: var(--et-ink-raised);
     color: var(--et-white);
   }
 
   .btnInk:hover {
-    background: var(--et-red);
+    background: var(--et-accent);
   }
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 3px;
 }
 
@@ -383,7 +387,7 @@
   display: grid;
   justify-items: center;
   gap: 10px;
-  color: var(--et-ink);
+  color: var(--et-white);
   font-size: 15px;
   font-weight: 700;
   text-decoration: none;
@@ -401,12 +405,12 @@
 
 @media (hover: hover) {
   .pack:hover .packName {
-    color: var(--et-red);
+    color: var(--et-accent-heading);
   }
 }
 
 .pack:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 4px;
 }
 
@@ -433,7 +437,7 @@
 
 .tile {
   display: grid;
-  color: var(--et-ink);
+  color: var(--et-white);
   text-decoration: none;
 }
 
@@ -470,12 +474,12 @@
 
 @media (hover: hover) {
   .tile:hover .tileName {
-    color: var(--et-red);
+    color: var(--et-accent-heading);
   }
 }
 
 .tile:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 3px;
 }
 

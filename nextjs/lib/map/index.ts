@@ -13,7 +13,6 @@ export type { Peek } from './mustEatPeek';
 export { resolveUnlockedMustEatIds } from './unlockedMustEats';
 export { haversineDistance, formatWalkingTime } from './distance';
 export { getOpenStatus } from './openingHours';
-export { abbreviateBezirk } from './abbreviateBezirk';
 
 // Data sources
 export { useMapData } from './useMapData';

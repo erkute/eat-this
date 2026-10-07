@@ -63,7 +63,7 @@
 .headline {
   display: block;
   font-family: var(--et-font-display);
-  font-size: max(var(--size, 6cqw), var(--headline-min, 0px));
+  font-size: var(--size, 6cqw);
   font-weight: 700;
   line-height: 1.14;
   overflow-wrap: break-word;
@@ -89,8 +89,7 @@
 /* Fussband: höchstens zwei Zeilen (Ansage 03.10.2026). Das hält die Grösse
    (fitSize in MagazineCover), nicht eine Zeilenklammer — gemessen am
    03.10.2026 passen alle 27 Schlagzeilen ganz in zwei Zeilen, auch die mit
-   85 Zeichen. Nur auf kleinen Heften, wo die Untergrenze von `.compact`
-   greift, kann es eine dritte werden; dann wächst das Band nach oben. */
+   85 Zeichen. */
 .twoLines {
   line-height: 1.24;
 }
@@ -405,11 +404,4 @@
     ),
     linear-gradient(118deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 36%);
   pointer-events: none;
-}
-
-/* Kleine Titelseiten (Regal im Magazin-Index, „Weitere Ausgaben"): bei
-   170–260px Breite wären Schlagzeilen in reinen `cqw` 7 bis 10px gross. Die
-   Untergrenze hält sie lesbar; die kleinen Angaben bleiben Dekor. */
-.compact {
-  --headline-min: 11px;
 }

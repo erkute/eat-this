@@ -163,7 +163,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       cover={a.cover}
                       sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, 260px"
                       widths={[320, 480, 800]}
-                      compact
                     />
                   </MagazineLink>
                 </li>

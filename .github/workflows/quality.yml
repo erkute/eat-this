@@ -94,7 +94,7 @@ jobs:
       # am 24.08.2026 das CDN- und am 27.08.2026 das API-Kontingent gerissen:
       # nicht am Besucherverkehr, sondern an diesem Schritt.
       #
-      # Next legt jede dieser Antworten in `.next/cache/fetch-cache` ab (24 h
+      # Next legt jede dieser Antworten in `.next-verify/cache/fetch-cache` ab (24 h
       # Frist, `SANITY_REVALIDATE_SECONDS`). Nimmt man nur dieses Verzeichnis
       # zwischen den Läufen mit, baut CI vollständig durch, ohne Sanity auch
       # nur einmal anzufassen — gemessen: 952 Anfragen kalt, 0 mit
@@ -108,14 +108,49 @@ jobs:
         with:
           # `path` ist repo-relativ — `defaults.run.working-directory` gilt nur
           # für `run`-Schritte, nicht für Action-Eingaben.
-          path: nextjs/.next/cache/fetch-cache
+          path: nextjs/.next-verify/cache/fetch-cache
           # Der exakte Key trifft absichtlich nie (`run_id` ist pro Lauf neu),
           # der Treffer kommt über `restore-keys`: der zuletzt gesicherte Stand.
-          key: sanity-fetch-cache-${{ github.run_id }}
-          restore-keys: sanity-fetch-cache-
+          key: sanity-verify-fetch-cache-${{ github.run_id }}
+          restore-keys: |
+            sanity-verify-fetch-cache-
+            sanity-fetch-cache-
 
-      - run: npm run build
+      - run: npm run build:isolated
         if: steps.scope.outputs.code == 'true'
+
+      - name: Install Chromium
+        if: steps.scope.outputs.code == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - uses: actions/setup-java@v4
+        if: steps.scope.outputs.code == 'true'
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # Public card metadata comes from Sanity; Firestore/Storage use synthetic
+      # fixtures in a demo project. PR code receives no production credentials.
+      - name: Browser flows, accessibility and Lighthouse (this build)
+        if: steps.scope.outputs.code == 'true'
+        env:
+          FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
+        run: |
+          export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
+          npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npm run test:e2e && npm run audit:preview"
+
+      - name: Browser and Lighthouse evidence
+        if: always() && steps.scope.outputs.code == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-quality-${{ github.run_id }}
+          path: |
+            /tmp/eat-this-playwright-results
+            /tmp/eat-this-lighthouse-preview
+            /tmp/eat-this-mobile-*.png
+            /tmp/eat-this-desktop-*.png
+          retention-days: 7
+          if-no-files-found: ignore
 
       # Nur auf einem Push sichern, also auf `staging` und `main`. Ein Cache aus
       # einem PR-Lauf ist auf genau diesen PR beschränkt und für keinen anderen
@@ -129,5 +164,5 @@ jobs:
         if: steps.scope.outputs.code == 'true' && github.event_name == 'push'
         uses: actions/cache/save@v4
         with:
-          path: nextjs/.next/cache/fetch-cache
-          key: sanity-fetch-cache-${{ github.run_id }}
+          path: nextjs/.next-verify/cache/fetch-cache
+          key: sanity-verify-fetch-cache-${{ github.run_id }}

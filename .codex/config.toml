@@ -1,0 +1,3 @@
+# Eat This: careful reasoning for frontend, SEO and production changes.
+# Per-chat model/effort choices still take precedence.
+model_reasoning_effort = "high"

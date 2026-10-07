@@ -421,8 +421,8 @@ export default async function RestaurantPage({ params }: PageProps) {
                 {de ? 'Vorübergehend geschlossen' : 'Temporarily closed'}
               </p>
             )}
-            <dl className={styles.facts}>
-              <div className={styles.factGroup}>
+            <div className={styles.facts}>
+              <dl className={styles.factGroup}>
                 {address && (
                   <div>
                     <dt className={styles.label}>{de ? 'Adresse' : 'Address'}</dt>
@@ -447,9 +447,9 @@ export default async function RestaurantPage({ params }: PageProps) {
                     <dd>{priceLabel}</dd>
                   </div>
                 )}
-              </div>
+              </dl>
               {hasHours && (
-                <div className={styles.factGroup}>
+                <dl className={styles.factGroup}>
                   <div>
                     <dt className={styles.label}>{de ? 'Öffnungszeiten' : 'Hours'}</dt>
                     <dd className={styles.hours}>
@@ -461,9 +461,9 @@ export default async function RestaurantPage({ params }: PageProps) {
                       ])}
                     </dd>
                   </div>
-                </div>
+                </dl>
               )}
-            </dl>
+            </div>
             <div className={styles.buttons}>
               {/* nofollow: `mapHref` trägt eine Query, jede Variante würde
                   sonst einzeln gecrawlt. */}

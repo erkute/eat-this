@@ -45,7 +45,7 @@ function render(locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(<HubHeroCopy locale={locale} />);
 }
 
-/** Der Lead steht Wort für Wort in eigenen Spans (er schreibt sich hin) —
+/** Der Lead steht Wort für Wort in eigenen Spans (er tippt sich hin) —
  *  Sätze darin also am Text prüfen, nicht am Markup. */
 function text(html: string): string {
   return html.replace(/<[^>]+>/g, '');

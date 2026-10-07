@@ -163,8 +163,8 @@ function finishIntro(): (() => void) | void {
         )
       );
     });
-    // Place whole objects below the viewport before lifting CSS visibility.
-    // No clip masks and no visible jump at the destination.
+    // Die Telefone stehen als Ganzes unter dem Fensterrand, bevor CSS sie
+    // sichtbar macht — keine Maske, kein Sprung am Ziel.
     const entryY = (element: HTMLElement) => Math.max(80, window.innerHeight - element.getBoundingClientRect().top + 32);
     const leads = Array.from(lead ?? []).filter((element) => element.getClientRects().length > 0);
     if (phones) gsap.set(phones, { y: entryY(phones) });

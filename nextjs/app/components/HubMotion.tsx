@@ -5,6 +5,7 @@ import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
 import { scrollProgress } from '@/lib/dom/scrollProgress';
 import { armMagazineTable } from '@/lib/home/magazineTable';
+import { enterLead } from '@/lib/home/leadEntrance';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -18,8 +19,9 @@ gsap.registerPlugin(useGSAP);
 
 /**
  * Bewegung auf der Startseite. Alles nur ohne `prefers-reduced-motion` und nie
- * als Opacity-Fade (Hausregel für Brand-Flächen). Der Slogan schreibt sich auf Wunsch vom 04.10.2026 auf; Geräte und
- * Knöpfe bewegen sich als ganze Objekte.
+ * als Opacity-Fade (Hausregel für Brand-Flächen). Der Slogan stempelt ein
+ * (das Hinschreiben vom 04.10.2026 ist seit 07.10.2026 wieder raus); Geräte
+ * und Knöpfe bewegen sich als ganze Objekte.
  *
  * 1. **Auftritt beim Laden** (Aufmacher). Der Vorhang ist CSS: er muss ab
  *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
@@ -57,25 +59,32 @@ gsap.registerPlugin(useGSAP);
  *    der Knopf zieht magnetisch.
  */
 
-/** Write each line from left to right; keep the brand font and accessible text. */
-function writeHeadline(hero: HTMLElement | null): Animation[] {
+/** Die Headline-Zeilen schlagen als Stempel ein: riesig und gedreht, dann
+ *  mit Stauchung auf ihren Platz (Ansage 30.09.2026, nach dem Hinschreiben
+ *  wieder zurück am 07.10.2026). Jede Zeile folgt der vorigen nach `gap` ms. */
+function stampHeadline(hero: HTMLElement | null, gap: number): Animation[] {
   const animations: Animation[] = [];
   hero?.querySelectorAll<HTMLElement>('h1').forEach((headline) => {
     const lines = Array.from(headline.querySelectorAll<HTMLElement>('span')).filter(
       (line) => !line.children.length && line.getBoundingClientRect().height > 0
     );
-    let delay = 0;
-    lines.forEach((line) => {
-      const text = line.textContent ?? '';
-      const total = Math.max(1, text.length);
-      // Reveal the brand lettering continuously along its writing direction.
-      const frames = [{ clipPath: 'inset(0 100% 0 0)', offset: 0 }];
-      Array.from(text).forEach((_, index) => {
-        frames.push({ clipPath: `inset(0 ${100 - (index + 1) / total * 100}% 0 0)`, offset: (index + 1) / total });
-      });
-      const duration = total * 70;
-      animations.push(line.animate(frames, { duration, delay, fill: 'backwards', easing: 'linear' }));
-      delay += duration + 120;
+    lines.forEach((line, index) => {
+      animations.push(
+        line.animate(
+          [
+            { transform: 'scale(2.8) translateZ(0) rotate(-5deg)', visibility: 'hidden', offset: 0 },
+            { transform: 'scale(2.8) translateZ(0) rotate(-5deg)', visibility: 'visible', offset: 0.01 },
+            { transform: 'scale(.97) translateZ(0) rotate(.6deg)', visibility: 'visible', offset: 0.75 },
+            { transform: 'scale(1) translateZ(0) rotate(0deg)', visibility: 'visible' },
+          ],
+          {
+            duration: 900,
+            delay: index * gap,
+            fill: 'backwards',
+            easing: 'cubic-bezier(.16,1,.3,1)',
+          }
+        )
+      );
     });
   });
   return animations;
@@ -121,10 +130,10 @@ function finishIntro(): (() => void) | void {
     if (card) gsap.set(card, { clearProps: 'all' });
   };
 
-  /** Lead, Knöpfe und Telefone, nachdem die Headline steht. Bewegung als
-   *  Ganzes und ohne Opacity: Text und Knopf werden ruhig aufgedeckt, die
-   *  Telefone steigen von unter der Kante des Aufmachers herauf, und MAP und
-   *  MENÜ fliegen von links und rechts in den Header. */
+  /** Lead, Knöpfe und Telefone, nachdem die Headline steht. Ohne Opacity:
+   *  der Lead tippt sich hin (lib/home/leadEntrance.ts), der Knopf
+   *  schlägt ein, die Telefone steigen von unter der Kante des Aufmachers
+   *  herauf, und MAP und MENÜ fliegen von links und rechts in den Header. */
   const copyIn = () => {
     const lead = hero?.querySelectorAll<HTMLElement>('[data-hero-lead]');
     const actions = hero?.querySelector<HTMLElement>('[data-hero-actions]');
@@ -154,19 +163,22 @@ function finishIntro(): (() => void) | void {
         )
       );
     });
-    // Place whole objects below the viewport before lifting CSS visibility.
-    // No clip masks and no visible jump at the destination.
+    // Die Telefone stehen als Ganzes unter dem Fensterrand, bevor CSS sie
+    // sichtbar macht — keine Maske, kein Sprung am Ziel.
     const entryY = (element: HTMLElement) => Math.max(80, window.innerHeight - element.getBoundingClientRect().top + 32);
-    const text = Array.from(lead ?? []).filter((element) => element.getClientRects().length > 0);
-    const parts = [...text, ...(phones ? [phones] : [])];
-    parts.forEach((element) => gsap.set(element, { y: entryY(element) }));
+    const leads = Array.from(lead ?? []).filter((element) => element.getClientRects().length > 0);
+    if (phones) gsap.set(phones, { y: entryY(phones) });
     if (actions) gsap.set(actions, { scale: 0, transformOrigin: '50% 50%' });
+    const entrance = enterLead(leads);
+    motions.push(...entrance.animations);
+    const leadEnd = entrance.duration;
     html.setAttribute('data-intro-copy', '');
     copyTimeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    if (text.length) copyTimeline.to(text, { y: 0, duration: 1.05, clearProps: 'transform' }, 0);
+    // Der Knopf drückt sich, wenn der Lead fast steht.
+    const press = Math.max(0.55, leadEnd / 1000 - 0.25);
     if (actions) copyTimeline
-      .set(actions, { scale: 1.28, rotation: -7, y: -18 }, 0.55)
-      .to(actions, { scale: 0.96, rotation: 1, y: 2, duration: 0.18, ease: 'power3.in' }, 0.55)
+      .set(actions, { scale: 1.28, rotation: -7, y: -18 }, press)
+      .to(actions, { scale: 0.96, rotation: 1, y: 2, duration: 0.18, ease: 'power3.in' }, press)
       .to(actions, { scale: 1, rotation: 0, y: 0, duration: 0.22, ease: 'back.out(1.8)', clearProps: 'transform,transformOrigin' });
     if (phones) copyTimeline.to(phones, { y: 0, duration: 1.3, clearProps: 'transform' }, 0.12);
   };
@@ -186,11 +198,8 @@ function finishIntro(): (() => void) | void {
       return;
     }
     html.setAttribute('data-intro-head', '');
-    const writing = writeHeadline(hero);
-    motions.push(...writing);
-    void Promise.all(writing.map((animation) => animation.finished)).then(() => {
-      if (!cancelled) later = window.setTimeout(copyIn, 180);
-    }).catch(() => {});
+    motions.push(...stampHeadline(hero, 430));
+    later = window.setTimeout(() => !cancelled && copyIn(), 1300);
   };
 
   /** Ohne grosse Marke (oder ohne Bewegung): alles steht sofort. */

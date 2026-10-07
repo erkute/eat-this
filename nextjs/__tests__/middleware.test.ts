@@ -190,6 +190,17 @@ describe('middleware: legacy 404 cleanup (post-rebuild re-slug)', () => {
     }
   })
 
+  it('old accent and split slugs → 308 to the current spot, in either locale', async () => {
+    const middleware = await mw()
+    for (const prefix of ['', '/en']) {
+      for (const [old, current] of [['kur-me', 'kureme'], ['concierge-coffee', 'concierge-coffee-schoeneberg']]) {
+        const res = await middleware(makeReq(`${prefix}/restaurant/${old}`))
+        expect(res.status).toBe(308)
+        expect(res.headers.get('location')).toBe(`https://staging.example.com${prefix}/restaurant/${current}`)
+      }
+    }
+  })
+
   it('spot taken off the map → 308 to its hub before any page renders, in either locale', async () => {
     const middleware = await mw()
     for (const prefix of ['', '/en']) {

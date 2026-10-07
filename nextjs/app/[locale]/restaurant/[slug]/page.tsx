@@ -307,20 +307,32 @@ export default async function RestaurantPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        {/* Unter dem Namen nur der Bezirk — keine Küche, kein Preis, kein
-            Status, keine Knöpfe (Ansage 03.10.2026). */}
+        {/* Unter dem Namen nur der Bezirk und das Herz — keine Küche, kein
+            Preis, kein Status (Ansage 03.10.2026). Das Herz gilt dem Spot,
+            deshalb am Namen: unter dem Foto las es sich, als like man das
+            Bild (Ansage 07.10.2026). */}
         <header className={styles.head}>
           <h1 className={styles.title} style={titleFitStyle(displayName)}>
             {displayName}
           </h1>
-          {districtName &&
-            (bezirkSlug ? (
-              <IntlLink href={`/bezirk/${bezirkSlug}`} className={styles.district}>
-                {districtName}
-              </IntlLink>
-            ) : (
-              <p className={styles.district}>{districtName}</p>
-            ))}
+          <div className={styles.byline}>
+            {districtName &&
+              (bezirkSlug ? (
+                <IntlLink href={`/bezirk/${bezirkSlug}`} className={styles.district}>
+                  {districtName}
+                </IntlLink>
+              ) : (
+                <p className={styles.district}>{districtName}</p>
+              ))}
+            <HeartButton
+              restaurantId={r._id}
+              name={r.name}
+              slug={slug}
+              photo={r.photo ?? undefined}
+              district={r.bezirk?.name ?? undefined}
+              locale={loc}
+            />
+          </div>
         </header>
 
         <div className={styles.column}>
@@ -329,21 +341,9 @@ export default async function RestaurantPage({ params }: PageProps) {
           {r.photo && (
             <figure className={styles.figure}>
               <SpotPhoto src={r.photo} alt={heroAlt} priority />
-              {/* Das Herz unter dem Foto, nicht darauf (Ansage 03.10.2026);
-                  rechts daneben der Nachweis. */}
-              <div className={styles.photoBar}>
-                <HeartButton
-                  restaurantId={r._id}
-                  name={r.name}
-                  slug={slug}
-                  photo={r.photo ?? undefined}
-                  district={r.bezirk?.name ?? undefined}
-                  locale={loc}
-                />
-                {heroCredit && (
-                  <Credit text={heroCredit} href={heroCreditHref} className={styles.credit} />
-                )}
-              </div>
+              {heroCredit && (
+                <Credit text={heroCredit} href={heroCreditHref} className={styles.credit} />
+              )}
             </figure>
           )}
 

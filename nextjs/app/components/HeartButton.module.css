@@ -1,8 +1,9 @@
 /* Heart toggle + public count for the spot page. A client island on an
    otherwise static page. Count sits inside the button, right of the glyph.
    Seit 03.10.2026 nicht mehr auf dem Foto („Herz muss woanders hin, nicht ins
-   Bild"), sondern in der Zeile darunter auf Weiss — deshalb Ink statt Weiss
-   und ohne Schatten. See docs/specs/2026-06-09-hearts-design.md. */
+   Bild"), seit 07.10.2026 auch nicht mehr darunter, sondern im Kopf neben dem
+   Bezirk: es gilt dem Spot, nicht dem Bild. Auf Weiss — deshalb Ink statt
+   Weiss und ohne Schatten. See docs/specs/2026-06-09-hearts-design.md. */
 .row {
   display: inline-flex;
 }
@@ -13,9 +14,6 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  /* Bündig mit der Spalte: das Glyph steht an der Kante, die Tippfläche
-     bleibt 44px. */
-  margin-left: -6px;
   padding: 0 6px;
   border: 0;
   background: transparent;

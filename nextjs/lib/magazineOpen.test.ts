@@ -15,6 +15,7 @@ const classes = {
   table: 'table',
   book: 'book',
   page: 'page',
+  paper: 'paper',
   shadow: 'shadow',
   gutter: 'gutter',
   strip: 'strip',
@@ -146,11 +147,13 @@ describe('openMagazine', () => {
   it('lifts, waits for the article, opens and leaves no trace', async () => {
     const { link, cover } = magazine();
     let article: HTMLElement | undefined;
-    const navigate = vi.fn(() =>
-      setTimeout(() => {
+    let canvasHeldAtNavigation = false;
+    const navigate = vi.fn(() => {
+      canvasHeldAtNavigation = document.documentElement.hasAttribute('data-magazine-opening');
+      return setTimeout(() => {
         article = land('doener');
-      }, 20)
-    );
+      }, 20);
+    });
 
     expect(openMagazine({ link, cover, slug: 'doener', navigate, classes })).toBe(true);
     expect(document.querySelector('.overlay')).not.toBeNull();
@@ -167,11 +170,15 @@ describe('openMagazine', () => {
     expect(link.style.visibility).toBe('');
     // lift + table; per cover strip its turn and both faces (3 × 3);
     // centring + article onto the page; entering + article + gutter
-    expect(animate).toHaveBeenCalledTimes(2 + 9 + 2 + 3);
+    expect(animate).toHaveBeenCalledTimes(2 + 9 + 3 + 4);
     // The article stands where it stands, without a transform left behind.
+    expect(canvasHeldAtNavigation).toBe(true);
     expect(article?.style.transform).toBe('');
     expect(article?.style.transformOrigin).toBe('');
     expect(article?.style.clipPath).toBe('');
+    expect(article?.style.backgroundColor).toBe('');
+    expect(document.querySelector('.paper')).toBeNull();
+    expect(document.documentElement.hasAttribute('data-magazine-opening')).toBe(false);
   });
 
   it('still leads to the article when the animation breaks', async () => {
@@ -184,6 +191,29 @@ describe('openMagazine', () => {
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
     await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
     expect(link.style.visibility).toBe('');
+    expect(document.documentElement.hasAttribute('data-magazine-opening')).toBe(false);
+  });
+
+  it('restores the canvas and article ground when opening fails after navigation', async () => {
+    const { link, cover } = magazine();
+    const article = land('pasta');
+    article.style.backgroundColor = 'rgb(240, 240, 240)';
+    const finished = () =>
+      ({ finished: Promise.resolve(), cancel: vi.fn() }) as unknown as Animation;
+    animate
+      .mockImplementationOnce(finished)
+      .mockImplementationOnce(finished)
+      .mockImplementationOnce(() => {
+        throw new Error('turn interrupted');
+      });
+    const navigate = vi.fn();
+    expect(openMagazine({ link, cover, slug: 'pasta', navigate, classes })).toBe(true);
+    await vi.waitFor(() => expect(document.querySelector('.overlay')).toBeNull());
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(document.documentElement.hasAttribute('data-magazine-opening')).toBe(false);
+    expect(article.style.backgroundColor).toBe('rgb(240, 240, 240)');
+    expect(document.querySelector('.paper')).toBeNull();
+    expect(article.style.transform).toBe('');
   });
 
   it('opens again once the first one has landed', async () => {

@@ -1,6 +1,6 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -11,6 +11,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    exclude: [...configDefaults.exclude, 'e2e/**'],
     server: {
       deps: {
         // Re-transform next-intl so vitest's resolver handles 'next/server'

@@ -138,7 +138,7 @@
 }
 
 .legalLink {
-  min-height: 0;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -230,6 +230,8 @@
 }
 
 .langBtn {
+  min-width: 44px;
+  min-height: 44px;
   border: 0;
   background: transparent;
   padding: 0;
@@ -246,7 +248,8 @@
 
 .langBtn:focus-visible {
   color: var(--et-accent);
-  outline: 0;
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 
 @media (hover: hover) {

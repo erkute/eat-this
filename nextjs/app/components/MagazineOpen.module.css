@@ -5,7 +5,7 @@
 .overlay {
   /* Der Tisch, eine Spur dunkler als die Seite — so hebt sich die rechte
      Seite (die Seite mit dem Artikel) ab, die selbst Ink ist. */
-  --table: #0b0a08;
+  --table: var(--et-magazine-table);
   position: fixed;
   inset: 0;
   z-index: var(--et-z-sheet);
@@ -155,4 +155,13 @@
   width: 28%;
   height: auto;
   translate: -50% 0;
+}
+
+/* Below the transformed article, inside the right page's transparent window. */
+.paper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
 }

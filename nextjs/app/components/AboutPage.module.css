@@ -1,581 +1,313 @@
-/* The About page is the one static page that gets to be a story: Providence
-   headline, freigestellte Objekte tilted onto the page, and a closer that
-   hands the reader back to the map. Same vocabulary as the home rails —
-   photos on the ground, no borders, structure from whitespace.
-   Seit 03.09.2026 auf durchgehendem Ink wie die Startseite: `--about-ink`
-   ist der GRUND, `--about-fg` die Schrift darauf, Muted und stille Flaeche
-   sind Weiss-Stufen; Trennlinien gibt es keine. Nur was ein eigenes Objekt
-   ist (Remy, der Schluss), traegt die leise Stufe — keine Kapitel-Flaeche,
-   kein Papier: eine weisse Flaeche gibt es sonst nirgends auf der Seite. Rot
-   ist auf Ink als Schriftfarbe raus. */
+/* Editorial rhythm: one portrait, scroll-driven objects and the Remy stage.
+   The same ink, Providence and red as the rest of Eat This. */
 .page {
-  --about-ink: var(--et-ink);
-  --about-fg: var(--et-white);
-  --about-accent: var(--et-accent);
-  --about-paper: var(--et-white);
-  --about-quiet: var(--et-ink-quiet);
-  --about-muted: var(--et-ink-soft);
-  --about-text: rgba(255, 255, 255, 0.84);
-  /* Fill exactly what .app-pages leaves us — it offsets the fixed navbar by
-     64px below 768px and by a 74px margin above it. A plain 100dvh overshot
-     that offset and left a strip of dead scroll under the footer. */
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 64px);
-  min-height: calc(100dvh - 64px);
-  /* Kein safe-area-inset hier: `.app-pages` reserviert unter 768px bereits
-     `--site-nav-h` (inkl. safe-area-inset-top) für die fixe SiteNav (globals.css).
-     Ein zweiter Inset schob den Kicker auf Notch-Geräten um weitere ~59px
-     nach unten. */
-  padding: 24px clamp(18px, 4vw, 54px) 0;
-  background: var(--about-ink);
-  color: var(--about-fg);
+  min-height: calc(100dvh - var(--site-nav-h));
+  padding: 0 clamp(20px, 5vw, 72px);
+  background: var(--et-ink);
+  color: var(--et-white);
 }
 
 .page > :global(footer[role='contentinfo']) {
-  /* .inner already carries the closing whitespace; a second block margin here
-     stacked on top of it and left a dead band above the footer. */
-  margin-inline: calc(50% - 50vw);
-  /* Sticky footer: on a tall screen the page would otherwise end mid-way and
-     leave a strip of bare ground under the footer. */
-  margin-top: auto;
-}
-
-@media (min-width: 768px) {
-  .page {
-    min-height: calc(100dvh - 74px);
-  }
+  margin: auto calc(50% - 50vw) 0;
 }
 
 .inner {
-  width: min(100%, 960px);
-  margin: 0 auto;
-  padding: clamp(26px, 4vw, 48px) 0 clamp(54px, 8vw, 96px);
+  width: min(100%, 1120px);
+  margin-inline: auto;
+  padding-block: clamp(32px, 5vw, 64px) clamp(64px, 8vw, 112px);
 }
-
-/* ---------- hero ---------- */
 
 .hero {
   display: grid;
-  gap: clamp(28px, 4vw, 40px);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   align-items: center;
+  gap: clamp(32px, 5vw, 72px);
 }
 
-/* The figure column is sized to the copy, not the other way round: at 320px
-   the portrait stood ~560 tall beside a title and one sentence, and the copy
-   floated in the middle of a lot of ink. Two lede paragraphs and a 290 figure
-   meet at roughly the same height. */
-@media (min-width: 900px) {
-  .hero {
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: clamp(40px, 5vw, 64px);
-  }
+.heroCopy {
+  min-width: 0;
 }
 
 .title {
-  max-width: 12ch;
+  max-width: 9ch;
   margin: 0;
-  color: var(--about-fg);
   font-family: var(--et-font-display);
-  font-size: clamp(36px, 4.8vw, 60px);
+  font-size: clamp(56px, 8vw, 104px);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-title);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
   text-transform: uppercase;
   text-wrap: balance;
 }
 
-/* Der erste Absatz spricht in der Markenschrift, nicht im Fliesstext — er ist
-   Teil der Anrede, nicht des Berichts (Nutzer, 30.08.2026). Providence gibt es
-   nur in 400 und 700; 400 traegt einen Absatz, 700 schreit. line-height bleibt
-   ueber 1.2: darunter kappt die Unterlaenge (siehe Memory). */
 .lede {
-  max-width: 30ch;
-  margin: clamp(20px, 2.6vw, 28px) 0 0;
-  color: var(--about-fg);
+  max-width: 38ch;
+  margin: clamp(24px, 3vw, 36px) 0 0;
   font-family: var(--et-font-display);
-  font-size: clamp(21px, 2vw, 26px);
-  font-weight: 400;
-  line-height: 1.42;
+  font-size: clamp(20px, 1.8vw, 24px);
+  line-height: 1.5;
   text-wrap: pretty;
 }
 
-/* The second opening paragraph — who is speaking. Same face, one step
-   quieter, so the first sentence keeps the lead. */
-.ledeAside {
-  max-width: 34ch;
-  margin: clamp(12px, 1.6vw, 18px) 0 0;
-  color: var(--about-muted);
+.ledeQuote {
+  max-width: 38ch;
+  margin: 28px 0 0;
+  padding: 0;
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
-  font-size: clamp(17px, 1.5vw, 20px);
-  font-weight: 400;
-  line-height: 1.45;
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 700;
+  line-height: 1.5;
   text-wrap: pretty;
 }
 
-/* One object, centred under nothing — the hero art is a single freigestellte
-   figure now, so the absolutely-positioned stack that held a phone and two
-   cards is gone with it. Kept as a box rather than a bare <img> so the column
-   can cap the object without the grid track doing it. */
 .heroArt {
   display: flex;
   justify-content: center;
-  width: 100%;
 }
-
-/* Drawn with its own floor and cast shadow: no tilt, and deliberately no
-   drop-shadow. A CSS shadow under a picture that already casts one reads as
-   a printing error. */
 .heroFigure {
-  width: min(100%, 290px);
+  width: min(100%, 320px);
   height: auto;
 }
 
-@media (max-width: 899px) {
-  .heroArt {
-    margin-inline: auto;
-  }
-
-  /* Stacked under the headline the figure has to earn its height: it is a
-     0.57 portrait, so every 100px of width buys 175px of scroll. At 300 it
-     stood 524 tall on a 375 screen and pushed the whole read below the fold. */
-  .heroFigure {
-    width: min(62vw, 230px);
-  }
-}
-
-/* ---------- sections ---------- */
-
-.section {
-  display: grid;
-  gap: clamp(24px, 3.4vw, 36px);
-  align-items: start;
-  margin-top: clamp(46px, 6.5vw, 84px);
-}
-
-@media (min-width: 900px) {
-  .section {
-    grid-template-columns: minmax(0, 60ch) 300px;
-    justify-content: space-between;
-    gap: clamp(40px, 5vw, 72px);
-  }
-
-  /* The mirrored spread. Placement only — the copy is still the first child,
-     so nothing about the markup order changes and the one-column stack below
-     900px is unaffected. */
-  .flip {
-    grid-template-columns: 300px minmax(0, 60ch);
-  }
-
-  .flip .sectionCopy {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .flip .figure {
-    grid-column: 1;
-    grid-row: 1;
-  }
-}
-
-.sectionTitle {
-  margin: 0 0 clamp(14px, 1.8vw, 18px);
-  color: var(--about-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(26px, 3.2vw, 38px);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 0.98;
-  text-transform: none;
-  text-wrap: balance;
-  scroll-margin-top: 96px;
-}
-
-/* The bridge between hero and first chapter. No rule above it any more: the
-   line under the portrait cut the intro in two, and the bridge is still the
-   intro — it reads on from the lede, one step quieter. */
 .bridge {
-  margin-top: clamp(34px, 5vw, 56px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+  margin-top: clamp(40px, 6vw, 72px);
+  padding-block: clamp(28px, 4vw, 44px);
 }
 
-/* Two classes deep on purpose: `.oneLiner` resets its own margin further
-   down, and at equal weight the later rule would take the gap away again. */
-.bridge > :not(:first-child) {
-  margin-top: clamp(16px, 2vw, 22px);
-}
-
-/* The story's short turns, in the brand face and yellow — one line each, not
-   a headline: Providence 700 at a size just above the body copy. */
 .oneLiner {
-  /* No measure of its own: the point is one line. The column caps it. */
   margin: 0;
   color: var(--et-accent-text);
   font-family: var(--et-font-display);
-  font-size: clamp(19px, 1.8vw, 22px);
+  font-size: clamp(26px, 3vw, 38px);
   font-weight: 700;
-  letter-spacing: 0;
-  /* Nicht unter 1.2: darunter kappt Providence die Unterlaengen. */
   line-height: 1.25;
+  text-wrap: balance;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(40px, 7vw, 100px);
+  margin-top: clamp(48px, 7vw, 88px);
+}
+
+.section + .section {
+  padding-top: clamp(48px, 7vw, 88px);
+}
+
+.flip {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+}
+.flip .sectionCopy {
+  grid-column: 2;
+  grid-row: 1;
+}
+.flip .figure {
+  grid-column: 1;
+  grid-row: 1;
+}
+.sectionCopy {
+  min-width: 0;
+}
+
+.sectionNumber {
+  display: block;
+  margin-bottom: 20px;
+  color: var(--et-accent-text);
+  font-family: var(--et-font-display);
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.sectionTitle {
+  margin: 0 0 24px;
+  font-family: var(--et-font-display);
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 700;
+  line-height: 1.2;
   text-wrap: balance;
 }
 
 .body {
   max-width: 60ch;
-  color: var(--about-text);
+  color: var(--et-ink-soft);
   font-family: var(--et-font-body);
-  font-size: clamp(16px, 1.15vw, 17.5px);
-  line-height: 1.65;
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .body p {
-  margin: 0 0 1.15em;
+  margin: 0 0 1.2em;
 }
-
 .body p:last-child {
   margin-bottom: 0;
 }
-
 .body ul,
 .body ol {
-  margin: 0 0 1.25em;
-  padding-left: 1.15em;
+  margin: 0 0 1.2em;
+  padding-left: 1.2em;
 }
-
 .body li {
-  margin: 0 0 0.4em;
+  margin-bottom: 0.4em;
 }
-
 .body strong,
 .body b {
-  color: var(--about-fg);
-  font-weight: 700;
+  color: var(--et-white);
 }
-
-.body em,
-.body i {
-  font-style: italic;
-}
-
 .body a {
   color: var(--et-accent-text);
-  font-weight: 700;
   text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
-  transition: color 140ms ease;
+  text-underline-offset: 4px;
 }
-
-.body a:focus-visible {
-  color: var(--about-fg);
-}
-
-@media (hover: hover) {
-  .body a:hover {
-    color: var(--about-fg);
-  }
-}
-
-/* The taped yellow sticker stays — it is the one loud thing in the copy and
-   it carries the founding line. */
-.body blockquote {
-  position: relative;
-  width: min(100%, 20ch);
-  margin: clamp(30px, 4.5vw, 48px) 0;
-  padding: clamp(22px, 3vw, 30px) clamp(22px, 3.2vw, 32px);
-  background: var(--about-accent);
-  border: 0;
-  color: var(--et-on-accent);
+.body a[href^='mailto:'] {
   font-family: var(--et-font-display);
-  font-size: clamp(24px, 3vw, 34px);
   font-weight: 700;
-  line-height: 0.96;
-  text-transform: none;
-  transform: rotate(-1.4deg);
+}
+.body a:focus-visible {
+  outline: 2px solid var(--et-accent-text);
+  outline-offset: 4px;
 }
 
-.body blockquote::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 82px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 1px 2px rgba(43, 33, 28, 0.12);
-  transform: translateX(-50%) rotate(3deg);
+.body blockquote {
+  margin: 32px 0;
+  padding-left: 24px;
+  color: var(--et-white);
+  font-family: var(--et-font-display);
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 700;
+  line-height: 1.25;
 }
 
-/* The pair. Two cards overlapping inside one rail measure — the back tucked
-   left and low, the revealed one over it to the right and a little higher.
-   The revealed card is the thing the section argues for, so it sits on top;
-   a dead-level, evenly-spaced pair read as two catalogue shots.
-
-   No drop-shadow, like every object on the ink: a dark shadow disappears on
-   it, and the yellow card back is the brightest thing in its row anyway. */
-.pair {
-  position: relative;
-  width: var(--fig-w, 260px);
-  max-width: 100%;
-  margin-inline: auto;
-  /* Reserved height, or the absolute children collapse the figure and drag the
-     caption up under them. It has to cover the *rotated* card, not the upright
-     one: at 62% of the rail a card stands 221px, and an 8deg tilt swings that
-     to 242. Measured at 260/215 the pair hung 31px out over the top. */
-  aspect-ratio: 260 / 252;
-}
-
-.pairBack,
-.pairFront {
-  position: absolute;
-  bottom: 0;
-  width: 62%;
-  height: auto;
-  transform: rotate(var(--tilt, 0deg));
-}
-
-.pairBack {
-  left: 0;
-}
-
-/* The caption under the pair needs its own measure. Rotating a card about its
-   centre swings the lower corner roughly 10px past the box `bottom: 0` put it
-   in, and that overhang came straight out of the caption's margin: 6px of
-   daylight where the untilted phone and plate get 12. Sibling margins collapse
-   rather than add, so paying it back on the pair itself would have done
-   nothing — it is spent here instead. */
-.pair + .caption {
-  margin-top: clamp(26px, 3vw, 34px);
-}
-
-.pairFront {
-  right: 0;
-  bottom: 7%;
-}
-
-/* ---------- Frag Remy ----------
-
-   The chat panel itself is RemyAskPanel, shared with the restaurant page; the
-   page only gives it its place on the spine. */
-.remy {
-  margin-top: clamp(46px, 6.5vw, 84px);
-}
-
-/* ---------- figures ---------- */
-
-/* The column stays put; the object inside it does not. Hanging the caption
-   off the image width instead gave the narrow card a 205px measure and broke
-   a six-word line in two. */
 .figure {
+  width: min(100%, 340px);
   margin: 0;
-  width: min(100%, 300px);
+  justify-self: center;
 }
-
-/* One width per object, chosen for optical weight — a 600x1219 phone and an
-   867x856 plate cannot share a width without one of them dominating. Width
-   only: pairing it with a max-height does not scale a picture, it squashes
-   one, and that is exactly what happened to the phone. */
 .figureImg {
   display: block;
   width: var(--fig-w, 290px);
   max-width: 100%;
   height: auto;
-  /* Centred so the caption below has something to be centred *on*. Left-hung
-     objects put the 185px card 57px off its own caption's axis. */
   margin-inline: auto;
-  /* No drop-shadow: on ink a dark shadow is invisible, and the objects read as
-     lifted by being the brightest thing in their row. */
   transform: rotate(var(--tilt, 0deg));
 }
 
+.pair {
+  position: relative;
+  width: min(var(--fig-w, 260px), calc(100% - 40px));
+  max-width: 100%;
+  aspect-ratio: 0.9;
+  margin-inline: auto;
+}
+
+.pairBack,
+.pairFront {
+  position: absolute;
+  width: 65%;
+  height: auto;
+  transform: rotate(var(--tilt, 0deg));
+}
+.pairBack {
+  left: 0;
+  top: 10%;
+}
+.pairFront {
+  right: 0;
+  top: 0;
+}
+
 .caption {
-  margin-top: clamp(12px, 1.6vw, 16px);
-  color: var(--about-muted);
-  font-family: var(--et-font-display);
-  font-size: clamp(15px, 1.2vw, 17px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.15;
+  margin-top: 24px;
+  color: var(--et-ink-soft);
+  font-family: var(--et-font-body);
+  font-size: 13px;
+  line-height: 1.5;
   text-align: center;
-  text-transform: none;
-  /* Measure still comes from the column, not the object: at the card's 185px
-     a six-word caption breaks in two. Centred text, column-wide box. */
   text-wrap: balance;
 }
 
-/* ---------- coda ----------
-
-   The short sections after the last figure. They stood side by side for one
-   revision, and in half the column the mail address and everything around it
-   was cramped. Stacked on the text spine instead, with a section's air
-   between them — no rule: the page has no lines left. */
+.remy {
+  margin-top: clamp(56px, 7vw, 88px);
+}
 
 .coda {
   display: grid;
-  gap: clamp(40px, 5.5vw, 64px);
-  margin-top: clamp(46px, 6.5vw, 84px);
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(32px, 4vw, 56px);
+  margin-top: clamp(56px, 7vw, 88px);
 }
 
 .codaSection {
   min-width: 0;
+  padding-top: 28px;
+}
+.coda .sectionTitle {
+  font-size: clamp(28px, 2.7vw, 36px);
 }
 
-/* The address is the one thing in the section you act on: never split across
-   a line break. */
-.codaSection a[href^='mailto:'] {
-  white-space: nowrap;
-}
-
-/* ---------- closer ---------- */
-
-.cta {
-  display: grid;
-  justify-items: center;
-  gap: clamp(18px, 2.6vw, 28px);
-  align-items: center;
-  margin-top: clamp(54px, 8vw, 96px);
-  padding: clamp(34px, 5vw, 60px) clamp(24px, 4vw, 48px);
-  text-align: center;
-  /* Der Schluss ist das Angebot der Seite — ein Objekt, also die leise Stufe. */
-  background: var(--about-quiet);
-  border-radius: var(--et-radius-panel, 10px);
-  color: var(--about-paper);
-}
-
-/* Object left, copy right — the one place on the page where it goes that way
-   round. Only from 768px: stacked, a picture above a headline above a button
-   is a queue, and putting the picture at the front of it delays the sentence
-   that does the asking. */
-@media (min-width: 768px) {
-  .cta {
-    grid-template-columns: auto minmax(0, 1fr);
-    justify-items: start;
-    gap: clamp(28px, 4vw, 52px);
-    text-align: left;
-    padding-block: clamp(30px, 4vw, 44px);
-  }
-
-  .cta .ctaTitle,
-  .cta .ctaQuote,
-  .cta .ctaText {
-    margin-inline: 0;
-  }
-
-  .cta .ctaRow {
-    justify-content: flex-start;
-  }
-}
-
-/* Trimmed against the panel's own padding rather than given a shadow: on ink
-   a drop-shadow is invisible, and the phone already reads as lifted because
-   its screen is the brightest thing in the block. */
-.ctaPhone {
+.email {
   display: block;
-  width: 170px;
+  width: fit-content;
   max-width: 100%;
-  height: auto;
-  transform: rotate(-2deg);
-}
-
-@media (min-width: 768px) {
-  .ctaPhone {
-    width: 210px;
-    /* Let it sit deeper than the copy: the panel is short and a phone this
-       tall would otherwise set the whole block's height. */
-    margin-block: clamp(-14px, -1.5vw, -6px);
-  }
-}
-
-.ctaTitle {
-  margin: 0;
-  max-width: 20ch;
+  min-height: 44px;
+  margin-block: 24px;
+  padding-block: 6px;
   color: var(--et-accent-text);
   font-family: var(--et-font-display);
-  font-size: clamp(32px, 4.4vw, 54px);
+  font-size: clamp(22px, 4.2vw, 48px);
   font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 0.94;
-  text-transform: uppercase;
-  text-wrap: balance;
-}
-
-/* The wish from the sticker, quoted back. Its own line in Providence 700 and
-   white, so it reads as a quote and not as the start of the sentence after
-   it; the quotation marks are in the copy, not generated, so they stay
-   typographic per language („…“ / “…”). */
-.ctaQuote {
-  max-width: 30ch;
-  margin: clamp(14px, 1.8vw, 18px) 0 0;
-  color: var(--about-fg);
-  font-family: var(--et-font-display);
-  font-size: clamp(19px, 1.9vw, 24px);
-  font-weight: 700;
-  line-height: 1.25;
-  text-wrap: balance;
-}
-
-/* In the brand face like the lede — the closer speaks in the page's voice,
-   not in body copy. 400, because 700 at this length shouts. */
-.ctaText {
-  max-width: 36ch;
-  text-wrap: pretty;
-  margin: clamp(8px, 1vw, 12px) 0 0;
-  color: rgba(255, 255, 255, 0.86);
-  font-family: var(--et-font-display);
-  font-size: clamp(18px, 1.7vw, 22px);
-  font-weight: 400;
-  line-height: 1.4;
-}
-
-.ctaRow {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: clamp(20px, 2.6vw, 26px);
-}
-
-.ctaPrimary {
-  display: inline-flex;
-  align-items: center;
-  min-height: 48px;
-  padding: 0 24px;
-  background: var(--about-accent);
-  border: 1px solid var(--about-accent);
-  border-radius: var(--et-radius-control);
-  color: var(--et-on-accent);
-  font-family: var(--et-font-display);
-  font-size: clamp(18px, 1.7vw, 21px);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  line-height: 1;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
   text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease,
-    transform 140ms ease;
+  transition: color 160ms ease;
 }
 
-.ctaPrimary:focus-visible {
-  background: var(--about-paper);
-  border-color: var(--about-paper);
-  transform: translateY(-2px);
+.email:focus-visible {
+  outline: 2px solid var(--et-accent-text);
+  outline-offset: 6px;
 }
 
 @media (hover: hover) {
-  .ctaPrimary:hover {
-    background: var(--about-paper);
-    border-color: var(--about-paper);
-    transform: translateY(-2px);
+  .body a:hover,
+  .email:hover {
+    color: var(--et-white);
   }
 }
 
-.ctaPrimary:active {
-  transform: translateY(1px);
-}
-
-@media (max-width: 560px) {
-  .page {
-    padding-inline: clamp(16px, 5vw, 22px);
+@media (max-width: 899px) {
+  .hero,
+  .bridge,
+  .section,
+  .flip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero {
+    gap: 28px;
+  }
+  .title {
+    font-size: clamp(56px, 12vw, 88px);
+  }
+  .heroFigure {
+    width: 200px;
+  }
+  .flip .sectionCopy,
+  .flip .figure {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .figure {
+    margin-top: 4px;
+  }
+  .figureImg {
+    width: min(var(--fig-w, 290px), 220px);
   }
 }

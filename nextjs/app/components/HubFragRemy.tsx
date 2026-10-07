@@ -7,7 +7,7 @@ import { useLocale } from 'next-intl';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import styles from './HubFragRemy.module.css';
 
-export default function HubFragRemy() {
+export default function HubFragRemy({ embedded = false }: { embedded?: boolean }) {
   const en = useLocale() === 'en';
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
@@ -159,7 +159,7 @@ export default function HubFragRemy() {
   }
 
   return (
-    <section className={`homeV2 hv-section hv-wrap ${styles.section}`} id="hub-fragremy" data-hub-fragremy="">
+    <section className={`homeV2 hv-section hv-wrap ${styles.section}${embedded ? ` ${styles.embedded}` : ''}`} id="hub-fragremy" data-hub-fragremy="">
       <div className={styles.body} ref={stage}>
         <div className={styles.portrait} aria-hidden="true">
           <div className={styles.figure} ref={figure} data-expression={expression}>

@@ -1,16 +1,16 @@
 import { PortableTextRenderer, extractHeadings } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
+import { Link } from '@/i18n/navigation';
 import SiteFooter from './SiteFooter';
 import styles from './LegalPage.module.css';
 
 type Locale = 'de' | 'en';
 
-const KICKER: Record<string, { de: string; en: string }> = {
-  impressum: { de: 'Rechtliches', en: 'Legal' },
-  datenschutz: { de: 'Rechtliches', en: 'Legal' },
-  agb: { de: 'Rechtliches', en: 'Legal' },
-  contact: { de: 'Sag Hallo', en: 'Say hello' },
-};
+const PAGES = [
+  { slug: 'impressum', de: 'Impressum', en: 'Imprint' },
+  { slug: 'datenschutz', de: 'Datenschutz', en: 'Privacy' },
+  { slug: 'agb', de: 'AGB', en: 'Terms' },
+];
 
 /** A standalone "Stand: 17. April 2026" paragraph belongs in the header, not
  *  buried in the first chapter. Matched tightly (whole paragraph, short, known
@@ -49,48 +49,75 @@ export default function LegalPage({ doc, locale }: { doc: StaticPageDoc; locale:
   const id = `staticPage${doc.slug.charAt(0).toUpperCase()}${doc.slug.slice(1)}`;
   const { updated, body } = liftDateLine(doc.body ?? []);
   const chapters = extractHeadings(body);
-  // A jump list earns its space on a long filing (the German privacy policy
-  // runs 20+ chapters); on a four-heading imprint it is just noise.
-  const showToc = chapters.length >= 5;
-  const kicker = KICKER[doc.slug] ?? { de: 'Rechtliches', en: 'Legal' };
+  const showToc = chapters.length > 1;
+  const title = PAGES.find((page) => page.slug === doc.slug)?.[locale] ?? doc.title;
+  const contents = de ? 'Inhalt' : 'Contents';
+  const tocList = (
+    <ol className={styles.tocList}>
+      {chapters.map((chapter, index) => (
+        <li key={chapter.id}>
+          <a href={`#${chapter.id}`} className={styles.tocLink}>
+            <span className={styles.tocNum} aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <span>{chapter.text}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  );
 
   return (
     <main className={styles.page} data-page={doc.slug} id={id}>
       <div className={styles.inner}>
+        <nav className={styles.pageNav} aria-label={de ? 'Rechtliche Seiten' : 'Legal pages'}>
+          {PAGES.map((page) => (
+            <Link
+              key={page.slug}
+              href={`/${page.slug}`}
+              aria-current={page.slug === doc.slug ? 'page' : undefined}
+            >
+              {page[locale]}
+            </Link>
+          ))}
+        </nav>
         <header className={styles.head}>
-          <p className={styles.kicker}>
-            <span className={styles.mark} aria-hidden="true" />
-            {de ? kicker.de : kicker.en}
-          </p>
           <h1 className={styles.title} id={`${id}-title`}>
-            {doc.title || ''}
+            {title}
           </h1>
+          {doc.title && doc.title !== title && <p className={styles.subtitle}>{doc.title}</p>}
           {updated && <p className={styles.updated}>{updated}</p>}
         </header>
 
         <div className={showToc ? styles.layout : undefined}>
           {showToc && (
-            <nav className={styles.toc} aria-labelledby={`${id}-toc`}>
-              <p className={styles.tocLabel} id={`${id}-toc`}>
-                {de ? 'Inhalt' : 'Contents'}
-              </p>
-              <ol className={styles.tocList}>
-                {chapters.map((chapter, index) => (
-                  <li key={chapter.id}>
-                    <a href={`#${chapter.id}`} className={styles.tocLink}>
-                      <span className={styles.tocNum}>{String(index + 1).padStart(2, '0')}</span>
-                      <span>{chapter.text}</span>
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </nav>
+            <>
+              <nav className={styles.toc} aria-label={contents}>
+                <p className={styles.tocLabel}>{contents}</p>
+                {tocList}
+              </nav>
+              <details className={styles.mobileToc}>
+                <summary>
+                  {contents}
+                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="m5 7 5 5 5-5" stroke="currentColor" strokeWidth="1.5" />
+                  </svg>
+                </summary>
+                <nav aria-label={contents}>{tocList}</nav>
+              </details>
+            </>
           )}
 
           <div className={styles.body} id={`${id}-body`}>
             <PortableTextRenderer blocks={body} />
           </div>
         </div>
+        <a className={styles.backTop} href={`#${id}-title`}>
+          {de ? 'Zurück nach oben' : 'Back to top'}
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M10 16V4m-5 5 5-5 5 5" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+        </a>
       </div>
       <SiteFooter />
     </main>

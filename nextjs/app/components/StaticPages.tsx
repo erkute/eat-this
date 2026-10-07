@@ -1,14 +1,11 @@
 import type { StaticPageDoc } from '@/lib/types';
 import AboutPage from './AboutPage';
+import ContactPage from './ContactPage';
 import LegalPage from './LegalPage';
 
-/* One entry point for every Sanity `staticPage`, two very different pages
-   behind it: About is a story (objects, a Providence headline, a closer back
-   to the map), the
-   filings are documents (jump list, quiet type, no drop cap). They used to
-   share one shell, which meant the privacy policy inherited a 116px headline
-   and the imprint lost the first letter of the company name to a drop cap. */
+// Sanity owns the content; each page type gets its own reading layout.
 export default function StaticPages({ doc, locale }: { doc: StaticPageDoc; locale: 'de' | 'en' }) {
   if (doc.slug === 'about') return <AboutPage doc={doc} locale={locale} />;
+  if (doc.slug === 'contact') return <ContactPage doc={doc} />;
   return <LegalPage doc={doc} locale={locale} />;
 }

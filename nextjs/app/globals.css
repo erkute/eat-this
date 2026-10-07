@@ -554,6 +554,11 @@ a {
   text-decoration: none;
   color: inherit;
 }
+/* The site's contact address is always set in the brand face, including
+   legal copy and dialogs. Specificity keeps this stable across CSS modules. */
+:root a[href^='mailto:hello@eatthisdot.com' i] {
+  font-family: var(--et-font-display);
+}
 /* Signed-in-only blocks are SSR'd as static shells so they don't pop in /
    shift the page once client auth resolves. Anyone without the pre-paint
    flag never sees those shells. */

@@ -57,7 +57,7 @@ export async function POST(req: Request) {
   // Gratis-Konto den ganzen Stapel an einem Tag. Auf einem Food-Walk deckt
   // niemand 15 auf. Die Pruefung auf den Standort bleibt bewusst weg — die
   // Koordinaten jedes Spots stehen offen auf der Map, ein Skript schickte sie
-  // einfach mit (docs/architecture.md, „Verdeckte Must-Eat-Karten").
+  // einfach mit (AGENTS.md, „Gewollte Produktlogik").
   const limit = await checkWindowedRateLimit(
     `reveal:${uid}`,
     {

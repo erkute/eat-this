@@ -466,7 +466,7 @@ export const allCategoriesWithStatsQuery = `
 // One category by slug — detail / hub page.
 //
 // `topSpots` is the editorially ordered best-of list (see
-// docs/architecture.md#redaktionelle-reihenfolge). Only the slugs are projected:
+// AGENTS.md (Gewollte Produktlogik)). Only the slugs are projected:
 // the page already loads every restaurant of the category, so the slug is
 // enough to reorder them, and the full card payload would ship twice.
 // `defined(@->slug.current)` guards dangling refs the same way

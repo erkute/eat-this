@@ -13,7 +13,7 @@ import type { RestaurantCard } from './types';
  * schlechter als alphabetisch, weil alphabetisch wenigstens ehrlich willkürlich
  * ist. Die Rangfolge kommt deshalb aus dem Studio.
  *
- * Entscheidung und aktuelle Mechanik: docs/architecture.md#redaktionelle-reihenfolge
+ * Entscheidung und aktuelle Mechanik: AGENTS.md (Gewollte Produktlogik)
  */
 
 /**

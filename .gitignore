@@ -31,7 +31,6 @@ node_modules/
 !.claude/skills/deploy-verify/
 !.claude/commands/
 .claude/commands/*
-!.claude/commands/pre-merge-review.md
 .codex/
 .mcp.json
 .playwright-mcp/

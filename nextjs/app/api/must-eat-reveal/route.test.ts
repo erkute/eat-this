@@ -1,5 +1,5 @@
 // Was /api/must-eat-reveal einem angemeldeten Konto herausgibt. Die Herausgabe
-// ist bewusst offen (Betreiber, 02.10.2026; docs/architecture.md): wer eine
+// ist bewusst offen (Betreiber, 02.10.2026; AGENTS.md): wer eine
 // Karte anfragt, bekommt sie und ihren Stempel — begrenzt nur über das
 // Ratenlimit. Ändert sich das, ändert sich dieser Test mit.
 import { describe, it, expect, vi, beforeEach } from 'vitest';

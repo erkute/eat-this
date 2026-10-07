@@ -7,7 +7,7 @@ import { getDb } from '@/lib/firebase/config';
 // onSnapshot so the count updates in real time everywhere it's shown (map
 // detail sheet + SEO page) the moment the /api/heart transaction lands — no
 // reopen/reload needed. Maintained server-side; clients only read.
-// See docs/architecture.md#herzen-und-favoriten.
+// See AGENTS.md (Gewollte Produktlogik).
 //
 // Firestore SDK is code-split behind getDb() + a dynamic import (like the other
 // map hooks) so it stays out of the SEO restaurant page's first-load bundle.

@@ -32,7 +32,6 @@ node_modules/
 !.claude/commands/
 .claude/commands/*
 .codex/
-.mcp.json
 .playwright-mcp/
 .worktrees/
 .superpowers/

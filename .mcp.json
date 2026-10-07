@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "firebase": {
+      "type": "stdio",
+      "command": "firebase",
+      "args": [
+        "mcp",
+        "--only",
+        "core,firestore,auth,storage,apphosting"
+      ],
+      "env": {}
+    }
+  }
+}

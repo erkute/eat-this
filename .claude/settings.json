@@ -7,16 +7,20 @@
       "Write",
       "Glob",
       "Grep",
-      "WebFetch",
-      "mcp__github",
-      "mcp__Claude_Code_Remote"
+      "WebFetch"
     ],
     "deny": [
       "Bash(git push --force*)",
       "Bash(git push * --force*)",
       "Bash(git push -f*)",
       "Bash(git push * -f*)",
-      "Bash(* --no-verify*)"
+      "Bash(* --no-verify*)",
+      "mcp__firebase__firestore_delete_database",
+      "mcp__firebase__firestore_delete_backup",
+      "mcp__firebase__firebase_create_project"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "firebase"
+  ]
 }

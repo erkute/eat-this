@@ -1,33 +1,55 @@
-/* Heart toggle + public count for the spot page. A client island on an
-   otherwise static page. Count sits inside the button, right of the glyph.
-   Seit 03.10.2026 nicht mehr auf dem Foto („Herz muss woanders hin, nicht ins
-   Bild"), seit 07.10.2026 auch nicht mehr darunter, sondern im Kopf neben dem
-   Bezirk: es gilt dem Spot, nicht dem Bild. Auf Weiss — deshalb Ink statt
-   Weiss und ohne Schatten. See docs/specs/2026-06-09-hearts-design.md. */
-.row {
-  display: inline-flex;
+/* Das Herz der Spot-Seite als Satz: „Ich ♥ <Name>" (Wahl 07.10.2026 im
+   Herz-Labor, Variante E). Im Grad des Vorspanns, zentriert, nach dem
+   Steckbrief und über „Im Magazin"; darunter klein, wie viele es geherzt
+   haben. Geschichte der Plätze und warum: HeartButton.tsx.
+   See docs/specs/2026-06-09-hearts-design.md. */
+.love {
+  margin-top: clamp(48px, 5vw, 72px);
+  text-align: center;
 }
 
+.line {
+  margin: 0;
+  font-size: clamp(24px, 2.3vw, 32px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.18;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.keep {
+  white-space: nowrap;
+}
+
+.name {
+  display: inline-block;
+}
+
+/* Das Herz ist so gross wie ein Buchstabe; getippt wird auf 44px. Knöpfe
+   erben die Schrift nicht — `font: inherit`, damit `em` am Grad der Zeile
+   misst. */
 .btn {
-  min-width: 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 0 6px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 1em;
+  height: 1em;
+  margin-inline: 0.02em;
+  padding: 0;
   border: 0;
-  background: transparent;
+  background: none;
   color: inherit;
+  font: inherit;
+  vertical-align: -0.14em;
   cursor: pointer;
-  border-radius: 0;
-  transition:
-    transform 0.14s ease,
-    color 0.14s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-.btn:active {
-  transform: scale(0.92);
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: calc((1em - 44px) / 2);
 }
 
 .btn:focus-visible {
@@ -35,26 +57,68 @@
   outline-offset: 3px;
 }
 
-.btn svg {
-  width: 26px;
-  height: 26px;
-  stroke-width: 2.2;
+/* `.btn .glyph`, nicht `.glyph` allein: HeartDraw setzt an derselben
+   Klasse seine eigene Regel, und zwischen zwei Modulen ist die Reihenfolge
+   nicht festgelegt. `scale`/`rotate` statt `transform` — das Aufsetzen nach
+   dem Zeichnen läuft per GSAP über `transform`. */
+.btn .glyph {
+  width: 0.92em;
+  height: 0.92em;
+  scale: 1;
+  transition:
+    scale 120ms ease-out,
+    rotate 160ms ease;
+  --heart-weight: 2.5;
+}
+
+.btn:active .glyph {
+  scale: 0.88;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Leicht gekippt, wie angetippt — das Herz ist ja von Hand gezeichnet. */
+  .btn:hover .glyph {
+    rotate: -8deg;
+  }
 }
 
 .count {
-  font-family: var(--et-font-display);
-  font-size: 17px;
+  margin: 8px 0 0;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.06em;
   line-height: 1.3;
-  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
-.btnActive {
-  color: var(--et-heart);
+/* Die Zahl stempelt sich beim eigenen Tipp neu ein, beim Laden nicht. */
+.stamp {
+  animation: heart-count-stamp 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-@media (hover: hover) {
-  .btn:hover {
-    color: var(--et-heart);
+@keyframes heart-count-stamp {
+  from {
+    transform: scale(1.5);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn .glyph {
+    transition: none;
+  }
+
+  .btn:active .glyph {
+    scale: 1;
+  }
+
+  .btn:hover .glyph {
+    rotate: none;
+  }
+
+  .stamp {
+    animation: none;
   }
 }

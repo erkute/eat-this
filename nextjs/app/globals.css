@@ -159,6 +159,7 @@
      Vorlage: weisses Papier, fast schwarzes Ink, roter Akzent, flache
      Flächen, Providence. */
   --et-ink: #15120e;
+  --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
   /* Ari’s Berlin: https://www.arisberlin.com/menu */
@@ -452,6 +453,14 @@ html[data-active-page='news-article'][data-article-theme='dark'],
 html[data-active-page='news-article'][data-article-theme='dark'] body,
 html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {
   background: var(--et-ink);
+}
+/* The browser canvas stays dark throughout the magazine transition, even
+   after navigation activates a light article. Its transformed page paints
+   --article-ground itself until the overlay is removed (magazineOpen.ts). */
+html[data-active-page][data-magazine-opening],
+html[data-active-page][data-magazine-opening] body,
+html[data-active-page][data-magazine-opening] .app-pages {
+  background: var(--et-magazine-table);
 }
 /* Bezirke, Kategorien und Spots samt Übersichten stehen auf Marken-Ink. */
 html[data-active-page='restaurant'],

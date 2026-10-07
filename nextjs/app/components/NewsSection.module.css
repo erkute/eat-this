@@ -8,9 +8,8 @@
   --news-accent: var(--et-accent);
   --news-muted: var(--et-ink-dim);
   --news-copy: var(--et-ink-soft);
-  /* Breite der aktuellen Ausgabe: bildschirmhoch, aber nie breiter als die
-     rechte Hälfte des Satzspiegels. */
-  --issue-w: min(74vw, 340px);
+  /* Das Heft bleibt kompakt, damit Vorspann und Auslage früher sichtbar sind. */
+  --issue-w: min(62vw, 260px);
   background: var(--news-ink);
   color: var(--news-fg);
 }
@@ -24,20 +23,21 @@
   width: min(100%, 1180px);
   margin: 0 auto;
   /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
-  padding: 34px clamp(18px, 4vw, 54px) clamp(56px, 8vw, 112px);
+  padding: 24px clamp(18px, 4vw, 54px) clamp(56px, 8vw, 112px);
 }
 
 /* ------------------------------------------------------------- kopf ---- */
 
 .hero {
   display: grid;
-  gap: clamp(30px, 5vw, 48px);
+  gap: clamp(22px, 3vw, 32px);
 }
 
 .intro {
   display: grid;
   justify-items: start;
-  gap: clamp(10px, 1.4vw, 16px);
+  gap: 10px;
+  padding-bottom: 24px;
 }
 
 .kicker {
@@ -51,25 +51,25 @@
 }
 
 .heroTitle {
-  max-width: 9ch;
+  max-width: none;
   margin: 0;
   color: var(--news-fg);
   font-family: var(--et-font-display);
-  font-size: clamp(42px, 5vw, 64px);
+  font-size: clamp(34px, 4.5vw, 56px);
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 0.86;
+  line-height: 1;
   text-transform: uppercase;
 }
 
 .heroSub {
-  max-width: 46ch;
-  margin: clamp(4px, 0.6vw, 8px) 0 0;
+  max-width: 32ch;
+  margin: 0;
   color: var(--news-copy);
-  font-family: var(--et-font-body);
-  font-size: clamp(16px, 1.35vw, 19px);
-  font-weight: 400;
-  line-height: 1.6;
+  font-family: var(--et-font-display);
+  font-size: clamp(20px, 2vw, 25px);
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 /* ── Die aktuelle Ausgabe ── Das vordere Heft ist der Link, leicht in den
@@ -78,7 +78,7 @@
    gerät zwischen die Hefte. */
 .issue {
   display: grid;
-  gap: clamp(30px, 4vw, 44px);
+  gap: 20px;
 }
 
 .pile {
@@ -87,7 +87,7 @@
   justify-self: center;
   width: var(--issue-w);
   /* Platz für die hinausragenden Lagen und den Schatten. */
-  margin: 18px 0 14px;
+  margin: 8px 0;
 }
 
 .front,
@@ -160,11 +160,11 @@
 .issueExcerpt {
   max-width: 48ch;
   margin: 0;
-  color: var(--news-fg);
-  font-family: var(--et-font-body);
-  font-size: clamp(17px, 1.4vw, 20px);
-  font-weight: 600;
-  line-height: 1.5;
+  color: var(--news-copy);
+  font-family: var(--et-font-display);
+  font-size: clamp(18px, 1.5vw, 20px);
+  font-weight: 400;
+  line-height: 1.55;
 }
 
 /* Gelb auf Ink wie jeder Tafel-Knopf; Hover auf Papier, damit er auf dem
@@ -204,7 +204,7 @@
 /* ---------------------------------------------------------- auslage ---- */
 
 .archive {
-  margin-top: clamp(64px, 9vw, 128px);
+  margin-top: clamp(40px, 5vw, 64px);
 }
 
 .sectionHead {
@@ -353,7 +353,7 @@
 
 @media (min-width: 768px) {
   .page {
-    --issue-w: min(440px, (100svh - 230px) * 0.75, 44vw);
+    --issue-w: min(360px, 38vw);
   }
 
   .shelf {
@@ -376,14 +376,25 @@
   }
 }
 
-/* Links Titel, Vorspann und „Lesen", rechts der Stapel über beide Zeilen. */
+/* Links Titel, Ausgabenlabel und Vorspann, rechts der Stapel über drei Zeilen. */
 @media (min-width: 900px) {
   .hero {
     grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto 1fr;
-    column-gap: clamp(48px, 7vw, 120px);
-    row-gap: clamp(28px, 3.4vw, 44px);
+    grid-template-rows: auto auto 1fr;
+    column-gap: clamp(40px, 5vw, 72px);
+    row-gap: 22px;
     align-items: start;
+  }
+
+  /* Titel und Unterzeile bleiben ein gemeinsamer Magazinkopf. Der Abstand
+     darunter trennt ihn von der aktuellen Ausgabe, ohne Trennlinie. */
+  .intro {
+    grid-column: 1 / -1;
+    margin-bottom: 16px;
+  }
+
+  .kicker {
+    grid-column: 1 / -1;
   }
 
   .issue {
@@ -394,15 +405,19 @@
      ragen sie in den Vorspann. */
   .pile {
     grid-column: 2;
-    grid-row: 1 / span 2;
-    margin: 40px 24px 18px calc(var(--issue-w) * 0.26);
+    grid-row: 2 / span 2;
+    margin: 8px 18px 12px calc(var(--issue-w) * 0.26);
+  }
+
+  .issueLabel {
+    grid-column: 1;
+    grid-row: 2;
   }
 
   .issueText {
     grid-column: 1;
-    grid-row: 2;
-    align-self: end;
-    padding-bottom: 32px;
+    grid-row: 3;
+    align-self: start;
   }
 }
 
@@ -410,4 +425,27 @@
   .shelf {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+/* Die Titel bleiben auch ausserhalb der kleinen Titelseiten lesbar. */
+.currentTitle,
+.magTitle {
+  margin: 0;
+  color: var(--news-fg);
+  font-family: var(--et-font-display);
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.currentTitle {
+  max-width: 22ch;
+  font-size: clamp(30px, 3.2vw, 44px);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.magTitle {
+  margin-top: 18px;
+  font-size: clamp(17px, 1.65vw, 21px);
 }

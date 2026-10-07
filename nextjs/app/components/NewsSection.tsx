@@ -35,8 +35,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
     kicker: de ? 'Magazin' : 'Magazine',
     title: de ? 'Auf dem Teller' : 'On the plate',
     sub: de
-      ? 'Restaurantgeschichten, Empfehlungen und Beobachtungen aus Berlin. Orte, Gerichte und Szenen, die uns auffallen - manchmal neu, manchmal vertraut, meistens ziemlich gut.'
-      : 'Restaurant stories, recommendations and observations from Berlin. Places, dishes and scenes that catch our eye - sometimes new, sometimes familiar, usually pretty good.',
+      ? 'Wo Berlin gut isst.'
+      : 'Good food. All over Berlin.',
     current: de ? 'Aktuelle Ausgabe' : 'Current issue',
     read: de ? 'Lesen' : 'Read',
     archive: de ? 'Frühere Ausgaben' : 'Back issues',
@@ -85,6 +85,12 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
               nur als Stapel darunter (ohne eigenes Ziel — sie stehen unten
               in der Auslage). */}
           <div className={styles.issue}>
+            <span className={styles.issueLabel}>
+              {labels.current}
+              <span className={styles.issueNo}>
+                {' · '}Issue {issueOf(0)}
+              </span>
+            </span>
             <div className={styles.pile}>
               {pile.map((a, i) => (
                 <span
@@ -100,7 +106,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                     date={a.date}
                     locale={locale}
                     cover={a.cover}
-                    sizes="(max-width: 767.98px) 74vw, 440px"
+                    sizes="(max-width: 767.98px) 62vw, 360px"
                     widths={[480, 800]}
                     priority
                   />
@@ -118,7 +124,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                   date={current.date}
                   locale={locale}
                   cover={current.cover}
-                  sizes="(max-width: 767.98px) 74vw, 440px"
+                  sizes="(max-width: 767.98px) 62vw, 360px"
                   widths={[480, 800, 1200]}
                   priority
                 />
@@ -126,12 +132,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
             </div>
 
             <div className={styles.issueText}>
-              <span className={styles.issueLabel}>
-                {labels.current}
-                <span className={styles.issueNo}>
-                  {' · '}Issue {issueOf(0)}
-                </span>
-              </span>
+              <h2 className={styles.currentTitle}>{currentTitle}</h2>
               {currentExcerpt && <p className={styles.issueExcerpt}>{currentExcerpt}</p>}
               <MagazineLink
                 href={`/news/${current.slug}`}
@@ -154,7 +155,11 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
             <ul className={styles.shelf} role="list">
               {older.map((a, i) => (
                 <li key={a.slug} className={styles.slot}>
-                  <MagazineLink href={`/news/${a.slug}`} className={styles.mag}>
+                  <MagazineLink
+                    href={`/news/${a.slug}`}
+                    className={styles.mag}
+                    aria-label={titleOf(a)}
+                  >
                     <MagazineCover
                       title={titleOf(a)}
                       image={a.imageUrl}
@@ -165,6 +170,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, 260px"
                       widths={[320, 480, 800]}
                     />
+                    <h3 className={styles.magTitle}>{titleOf(a)}</h3>
                   </MagazineLink>
                 </li>
               ))}

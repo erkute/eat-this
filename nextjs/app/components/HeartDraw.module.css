@@ -1,0 +1,47 @@
+/* Das Herz, das sich selbst zeichnet (HeartDraw.tsx). Kontur in
+   `--heart-line` (sonst Ink), Strich in `--heart-weight` (Einheiten der
+   24er viewBox). Geherzt liegen darüber der Stift in der Herz-Farbe und die
+   ausgemalte Fläche; GSAP schaltet sie sichtbar. */
+.heart {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.line,
+.pen,
+.scribble {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.line {
+  stroke: var(--heart-line, var(--et-ink));
+  stroke-width: var(--heart-weight, 2.2);
+}
+
+.pen {
+  stroke: var(--et-heart);
+  stroke-width: calc(var(--heart-weight, 2.2) + 0.25);
+  visibility: hidden;
+}
+
+.scribble {
+  stroke: var(--et-heart);
+  stroke-width: 3.4;
+  visibility: hidden;
+}
+
+.fill {
+  fill: var(--et-heart);
+  visibility: hidden;
+}

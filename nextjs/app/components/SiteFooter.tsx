@@ -5,11 +5,15 @@ import { useTranslation } from '@/lib/i18n';
 import { Link } from '@/i18n/navigation';
 import styles from './SiteFooter.module.css';
 import { BRAND_LOGO_SRC } from '@/lib/constants';
+import { useEffect, useRef } from 'react';
+import { prefersReducedMotion } from '@/lib/guestCardShake';
 
 export default function SiteFooter({ home = false }: { home?: boolean }) {
   const { t, lang, setLang } = useTranslation();
   const de = lang === 'de';
   const follow = de ? 'Folgen' : 'Follow';
+  const logoAnimation = useRef<Animation | null>(null);
+  useEffect(() => () => logoAnimation.current?.cancel(), []);
   return (
     <footer
       className={`${styles.footer}${home ? ` ${styles.home}` : ''}`}
@@ -20,16 +24,43 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
       <div className={styles.top}>
         <div className={styles.brand}>
           <h2 className={styles.mega} aria-label="Eat This">
-            <Image
-              src={BRAND_LOGO_SRC}
-              alt="Eat This"
-              width={1660}
-              height={667}
-              sizes={home ? '(min-width: 1000px) 800px, 82vw' : 'min(56vw, 230px)'}
-              loading="lazy"
-              decoding="async"
-              className={styles.megaImg}
-            />
+            <Link
+              href="/"
+              className={styles.homeLink}
+              aria-label={de ? 'Eat This — Zur Startseite' : 'Eat This — Back to home'}
+              onClick={(event) => {
+                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                  return;
+                }
+                // Auch auf der Startseite beginnt ein Klick wieder oben mit dem Intro.
+                event.preventDefault();
+                if (logoAnimation.current?.playState === 'running') return;
+                const link = event.currentTarget;
+                const href = link.href;
+                if (prefersReducedMotion() || !link.animate) {
+                  window.location.assign(href);
+                  return;
+                }
+                logoAnimation.current = link.animate([
+                  { transform: 'scale(1) rotate(0deg)' },
+                  { transform: 'scale(.9) rotate(-3deg)', offset: .4 },
+                  { transform: 'scale(1.04) rotate(1deg)', offset: .8 },
+                  { transform: 'scale(1) rotate(0deg)' },
+                ], { duration: 240, easing: 'ease-out' });
+                void logoAnimation.current.finished.then(() => window.location.assign(href)).catch(() => {});
+              }}
+            >
+              <Image
+                src={BRAND_LOGO_SRC}
+                alt="Eat This"
+                width={1660}
+                height={667}
+                sizes={home ? '(min-width: 1000px) 800px, 82vw' : 'min(56vw, 230px)'}
+                loading="lazy"
+                decoding="async"
+                className={styles.megaImg}
+              />
+            </Link>
           </h2>
           {/* Echter Text statt des früheren slogan.webp: das Bild war in einer
               kondensierten Fremdschrift gesetzt und stach damit aus dem

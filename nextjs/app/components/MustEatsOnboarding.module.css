@@ -30,13 +30,13 @@
 }
 .how:focus-visible {
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   transform: translateY(-2px);
 }
 @media (hover: hover) {
   .how:hover {
     background: var(--et-accent);
-    color: var(--et-ink);
+    color: var(--et-on-accent);
     transform: translateY(-2px);
   }
 }
@@ -51,7 +51,7 @@
   margin: 0;
   min-height: 56px;
   padding: 0 26px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--onboarding-trigger-bg, rgba(255, 255, 255, 0.1));
   color: var(--et-white);
   font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
@@ -61,19 +61,19 @@
     color var(--et-motion-fast);
 }
 .howInk:focus-visible {
-  background: var(--et-accent);
-  color: var(--et-ink);
+  background: var(--onboarding-trigger-hover-bg, var(--et-accent));
+  color: var(--et-on-accent);
   transform: translateY(-2px);
 }
 @media (hover: hover) {
   .howInk:hover {
-    background: var(--et-accent);
-    color: var(--et-ink);
+    background: var(--onboarding-trigger-hover-bg, var(--et-accent));
+    color: var(--et-on-accent);
     transform: translateY(-2px);
   }
 }
 .howInk:focus-visible {
-  outline: 2px solid var(--et-accent);
+  outline: 2px solid var(--onboarding-trigger-focus, var(--et-accent));
   outline-offset: 3px;
 }
 
@@ -94,14 +94,14 @@
 }
 .howSheet:focus-visible {
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   outline: 2px solid var(--et-accent);
   outline-offset: 3px;
 }
 @media (hover: hover) {
   .howSheet:hover {
     background: var(--et-accent);
-    color: var(--et-ink);
+    color: var(--et-on-accent);
   }
 }
 
@@ -178,4 +178,26 @@
       transform: none;
     }
   }
+}
+
+/* A quiet optional walkthrough beside the homepage action. */
+.howPlain {
+  margin: 0;
+  padding: 0;
+  min-height: 48px;
+  background: transparent;
+  color: var(--onboarding-trigger-ink, var(--et-ink));
+  font-size: 16px;
+  font-weight: 700;
+}
+.howPlain .howBadge { animation: none; }
+.howPlain:focus-visible {
+  background: transparent;
+  color: var(--onboarding-trigger-ink, var(--et-ink));
+  outline: 2px solid var(--onboarding-trigger-ink, var(--et-ink));
+  outline-offset: 4px;
+  transform: none;
+}
+@media (hover: hover) {
+  .howPlain:hover { background: transparent; color: var(--onboarding-trigger-ink, var(--et-ink)); transform: none; text-decoration: underline; text-underline-offset: 4px; }
 }

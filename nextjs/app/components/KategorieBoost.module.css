@@ -21,7 +21,7 @@
   padding: clamp(22px, 3.2vw, 40px);
   overflow: hidden;
   border-radius: var(--et-radius-photo);
-  background: var(--et-ink);
+  background: var(--et-ink-raised);
   color: var(--boost-paper);
 }
 
@@ -56,7 +56,7 @@
 
 .kicker {
   margin: 0;
-  color: var(--boost-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -81,7 +81,7 @@
 .spectrum {
   max-width: 34ch;
   margin: 2px 0 0;
-  color: var(--boost-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: clamp(16px, 1.6vw, 22px);
   font-weight: 700;
@@ -100,7 +100,7 @@
   padding: 0 26px;
   border-radius: var(--et-radius-control);
   background: var(--boost-accent);
-  color: var(--boost-ink);
+  color: var(--et-on-accent);
   font-family: var(--et-font-display);
   font-size: clamp(16px, 1.4vw, 19px);
   font-weight: 700;
@@ -115,12 +115,14 @@
 
 .cta:focus-visible {
   background: var(--boost-paper);
+  color: var(--boost-ink);
   transform: translateY(-2px);
 }
 
 @media (hover: hover) {
   .cta:hover {
     background: var(--boost-paper);
+    color: var(--boost-ink);
     transform: translateY(-2px);
   }
 }

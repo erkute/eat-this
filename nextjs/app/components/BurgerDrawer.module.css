@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════
    BURGER DRAWER  —  single source of truth
-   Full-screen slide-in menu. Ink sheet · white type · ONE yellow accent ·
+   Full-screen slide-in menu. Ink sheet · white type · red accent ·
    Providence display caps · borderless · modest radius. Mirrors the home
    masthead (SiteNav.module.css) and the ink home footer so header, menu
    and footer read as one system.
@@ -95,15 +95,17 @@
 }
 .langBtn.langBtnOn,
 .langBtn:focus-visible {
-  color: var(--et-accent);
+  color: var(--et-white);
   text-decoration: underline;
+  text-decoration-color: var(--et-accent);
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
 @media (hover: hover) {
   .langBtn:hover {
-    color: var(--et-accent);
+    color: var(--et-white);
     text-decoration: underline;
+    text-decoration-color: var(--et-accent);
     text-decoration-thickness: 2px;
     text-underline-offset: 3px;
   }
@@ -138,13 +140,13 @@
 }
 .close:focus-visible {
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   outline: 0;
 }
 @media (hover: hover) {
   .close:hover {
     background: var(--et-accent);
-    color: var(--et-ink);
+    color: var(--et-on-accent);
     outline: 0;
   }
 }
@@ -175,7 +177,8 @@
   height: auto;
 }
 
-/* Nav — big white Providence caps as bare words; hover = yellow + slide */
+/* Bare words: a small movement without a highlight or extra symbols.
+   White lettering stays readable on Ink; touch scrolling cannot latch hover. */
 .nav {
   display: flex;
   flex-direction: column;
@@ -191,7 +194,7 @@
   background: transparent;
   color: #fff;
   border: 0;
-  border-radius: var(--et-radius-control);
+  border-radius: 0;
   font-family: var(--et-font-display);
   font-size: clamp(28px, min(4.6dvh, 8vw), 40px);
   font-weight: 700;
@@ -201,23 +204,24 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition:
     background-color 0.15s ease,
     color 0.15s ease,
     transform 0.15s ease;
 }
-.navItem:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--et-accent);
+.navItem:not(.cta):focus-visible {
   outline: 0;
-  transform: translateX(-6px);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
 }
-@media (hover: hover) {
-  .navItem:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--et-accent);
-    outline: 0;
-    transform: translateX(-6px);
+.navItem:not(.cta):active {
+  translate: 2px 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .navItem:not(.cta):hover {
+    transform: translateX(4px);
   }
 }
 /* Anmelden / Profil — THE single accent button, pinned above the nav */
@@ -225,18 +229,19 @@
   order: -1;
   margin-bottom: clamp(14px, 2dvh, 22px);
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
+  border-radius: var(--et-radius-control);
 }
 .navItem.cta:focus-visible {
   background: #fff;
   color: var(--et-ink);
-  transform: translateX(-6px);
+  transform: none;
 }
 @media (hover: hover) {
   .navItem.cta:hover {
     background: #fff;
     color: var(--et-ink);
-    transform: translateX(-6px);
+    transform: none;
   }
 }
 
@@ -387,5 +392,13 @@
   .navItem.cta {
     min-height: 36px;
     font-size: clamp(24px, 4.6dvh, 34px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navItem:not(.cta):hover,
+  .navItem:not(.cta):active {
+    transform: none;
+    translate: none;
   }
 }

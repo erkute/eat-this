@@ -5,7 +5,6 @@ import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useR
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import {
-  abbreviateBezirk,
   formatWalkingTime,
   haversineDistance,
   type UserLocation,
@@ -174,12 +173,12 @@ export default function RestaurantDetail({
     );
   }, [detail, displayName, r._id, r.photo, r.photoCredit, r.photoCreditUrl, restaurant.photo]);
 
-  const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);
+  const district = r.bezirk?.name ?? r.district ?? null;
   /* Unter dem Namen im Blätterknopf der Bezirk: bei Ketten stand sonst
      „‹ Bonanza Coffee…" neben „Bonanza Coffee… ›", und welcher welcher war,
      sah man erst nach dem Tippen. */
   const pagerDistrict = (spot: MapRestaurant) =>
-    abbreviateBezirk(spot.bezirk?.name ?? spot.district ?? null);
+    spot.bezirk?.name ?? spot.district ?? null;
 
   const meters = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, r.lat, r.lng)

@@ -79,7 +79,7 @@
 }
 
 .hello {
-  color: var(--album-accent);
+  color: var(--et-accent-text);
   font-family: var(--album-display);
   font-size: clamp(12px, 1vw, 14px);
   font-weight: 700;
@@ -297,7 +297,7 @@ div.player {
 }
 
 .playerScore strong {
-  color: var(--album-accent);
+  color: var(--et-accent-text);
   font-weight: 700;
 }
 
@@ -390,7 +390,7 @@ div.player {
 /* Der gewaehlte Reiter ist gelb gefuellt — dieselbe Umkehr wie jeder
    aktive Zustand auf Ink. */
 .chip[aria-pressed='true'] {
-  color: var(--profile-ink, #15120e);
+  color: var(--et-on-accent);
   background: var(--album-accent);
 }
 
@@ -459,8 +459,8 @@ div.player {
 
 .badge {
   padding: 6px 12px 5px;
-  color: var(--album-accent, #ffc600);
-  border: 1px solid color-mix(in srgb, var(--album-accent, #ffc600) 55%, transparent);
+  color: var(--et-accent-text);
+  border: 1px solid color-mix(in srgb, var(--album-accent, var(--et-accent)) 55%, transparent);
   border-radius: 999px;
   font-family: var(--album-display, var(--et-font-display));
   font-size: 12px;
@@ -510,7 +510,7 @@ div.player {
   /* NICHT --album-ink: das ist auf dieser Fläche die SCHRIFTfarbe (weiß auf
      Ink), und weiß auf Gelb wäre unleserlich. Auf einer gelben Fläche ist die
      Tinte die Tinte. */
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   border-radius: 3px;
   font-family: var(--et-font-display);
   font-size: clamp(8px, 1vw, 11px);

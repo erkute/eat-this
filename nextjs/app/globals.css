@@ -156,12 +156,17 @@
   /* ── Farben ── Eine Farbe, ein Name. Bis 26.09.2026 hatte Ink zwölf Namen
      (darunter --gray-100 und --brand-muted), Weiss dreizehn (darunter
      --et-yellow), verbunden über bis zu fünf Alias-Ebenen. Home bleibt die
-     Vorlage: weisses Papier, fast schwarzes Ink, gelber Akzent, flache
+     Vorlage: weisses Papier, fast schwarzes Ink, roter Akzent, flache
      Flächen, Providence. */
   --et-ink: #15120e;
   --et-white: #fff;
   --et-red: #d9382a;
-  --et-accent: #ffc600;
+  /* Ari’s Berlin: https://www.arisberlin.com/menu */
+  --et-accent: #a82b2e;
+  --et-on-accent: #fff;
+  /* Small red lettering on Ink needs a lighter shade than filled controls. */
+  --et-accent-text: color-mix(in srgb, var(--et-accent) 60%, #fff);
+  --et-accent-heading: color-mix(in srgb, var(--et-accent) 85%, #fff);
   /* Rollen, die die Karte auf Ink umdeutet (MapLayout.module.css): gedämpfte
      Schrift, leise Fläche, Trennlinie. Hier die Werte für hellen Grund. */
   --et-muted: rgba(21, 18, 14, 0.64);
@@ -379,14 +384,6 @@ body {
 html[data-active-page='start'] [data-hub] {
   background: var(--et-ink);
 }
-/* Jeder Abschnitt traegt selbst `homeV2`, und die Klasse malt (weiter unten)
-   Papier — auf dem Ink-Grund waeren das weisse Baender quer durch die Seite,
-   mit weisser Schrift darauf. Die Abschnitte holen sich Grund und Farbe
-   deshalb vom Elternteil. */
-html[data-active-page='start'] [data-hub] .homeV2 {
-  background: transparent;
-  color: inherit;
-}
 /* Der Rahmen unter der Seite muss mit: beim Ueberscrollen (iOS) und auf sehr
    hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
    Seit 03.09.2026 stehen ALLE Inhaltsseiten auf diesem Grund — die Liste
@@ -456,8 +453,7 @@ html[data-active-page='news-article'][data-article-theme='dark'] body,
 html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {
   background: var(--et-ink);
 }
-/* Seit 03.10.2026 auch Bezirke und Kategorien mit ihren Uebersichten, im
-   Heftlook wie der Artikel (HubIssue.module.css), und die Spot-Seite. */
+/* Bezirke, Kategorien und Spots samt Übersichten stehen auf Marken-Ink. */
 html[data-active-page='restaurant'],
 html[data-active-page='restaurant'] body,
 html[data-active-page='restaurant'] .app-pages,
@@ -467,7 +463,7 @@ html[data-active-page='bezirk'] .app-pages,
 html[data-active-page='kategorie'],
 html[data-active-page='kategorie'] body,
 html[data-active-page='kategorie'] .app-pages {
-  background: var(--et-white);
+  background: var(--et-ink);
 }
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
    erste Pfadsegment der falschen Adresse, und auf einem gestreamten
@@ -849,7 +845,7 @@ html[data-auth='1'] [data-guest-only] {
   letter-spacing: 0.06em;
   line-height: 1.2;
   text-transform: uppercase;
-  color: var(--toast-accent);
+  color: var(--et-accent-text);
 }
 .notification-eyebrow::before {
   content: '';
@@ -906,7 +902,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 .notification-steps li::before {
   content: counter(notice-step);
-  color: var(--toast-accent);
+  color: var(--et-accent-text);
 }
 /* Knoepfe nur, wo es welche gibt — dann ist die Karte ein Layer. Gleich
    breit nebeneinander, der gelbe rechts; allein nimmt er die ganze Breite. */
@@ -938,7 +934,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 .notification-primary {
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
 }
 .notification-quiet {
   background: rgba(255, 255, 255, 0.1);
@@ -948,6 +944,7 @@ html[data-auth='1'] [data-guest-only] {
 @media (hover: hover) {
   .notification-primary:hover {
     background: #fff;
+    color: var(--et-ink);
   }
   .notification-quiet:hover {
     background: rgba(255, 255, 255, 0.16);
@@ -1122,7 +1119,7 @@ html[data-auth='1'] [data-guest-only] {
   margin-top: 14px;
   padding: 2px 0;
   cursor: pointer;
-  color: var(--cookie-accent);
+  color: var(--et-accent-text);
   background: none;
   border: 0;
   font-family: var(--cookie-font);
@@ -1175,7 +1172,7 @@ html[data-auth='1'] [data-guest-only] {
     color 140ms ease;
 }
 .cookie-btn-accept {
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   background: var(--cookie-accent);
 }
 .cookie-btn-decline {
@@ -1185,18 +1182,20 @@ html[data-auth='1'] [data-guest-only] {
 .cookie-btn-accept:focus-visible {
   background: #fff;
   outline: 0;
+  color: var(--et-ink);
 }
 .cookie-btn-decline:focus-visible {
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   background: var(--cookie-accent);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-btn-accept:hover {
     background: #fff;
+    color: var(--et-ink);
   }
   .cookie-btn-decline:hover {
-    color: var(--et-ink);
+    color: var(--et-on-accent);
     background: var(--cookie-accent);
   }
 }
@@ -1216,12 +1215,12 @@ html[data-auth='1'] [data-guest-only] {
   text-decoration: none;
 }
 .cookie-legal a:focus-visible {
-  color: var(--cookie-accent);
+  color: var(--et-accent-text);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-legal a:hover {
-    color: var(--cookie-accent);
+    color: var(--et-accent-text);
   }
 }
 @media (max-width: 640px) {
@@ -1312,7 +1311,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 .cookie-expand .cookie-info-body h3 {
   margin: 0 0 7px;
-  color: var(--cookie-accent);
+  color: var(--et-accent-text);
   font-family: var(--cookie-font);
   font-size: 12px;
   font-weight: 700;
@@ -1354,7 +1353,7 @@ html[data-auth='1'] [data-guest-only] {
   font-weight: 700;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--cookie-accent);
+  color: var(--et-accent-text);
   font-weight: 700;
   text-decoration: none;
 }
@@ -1447,7 +1446,7 @@ summary:active,
 }
 .skip-link:focus {
   left: 0;
-  outline: 3px solid #ff0;
+  outline: 3px solid var(--et-accent);
   outline-offset: 2px;
 }
 
@@ -1611,14 +1610,6 @@ ol {
   letter-spacing: var(--et-tracking-label);
   text-transform: uppercase;
   color: var(--et-ink);
-}
-.homeV2 .hv-mk {
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  background: var(--et-accent);
-  margin-right: var(--et-control-gap);
-  vertical-align: 1px;
 }
 .homeV2 .hv-head {
   display: flex;

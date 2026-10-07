@@ -17,7 +17,7 @@
   padding: 0 6px;
   border: 0;
   background: transparent;
-  color: var(--et-ink);
+  color: inherit;
   cursor: pointer;
   border-radius: 0;
   transition:
@@ -31,7 +31,7 @@
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid currentColor;
   outline-offset: 3px;
 }
 

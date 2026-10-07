@@ -108,7 +108,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--yellow);
+  color: var(--et-accent-text);
 }
 
 .navItem,
@@ -132,7 +132,7 @@
 /* Gewählt = gelb gefüllt, wie ein gesetzter Filter-Chip. Kein Balken. */
 .navItemOn {
   background: var(--yellow);
-  color: var(--on-accent);
+  color: var(--et-on-accent);
   font-weight: 700;
 }
 
@@ -231,7 +231,7 @@
 
 .segBtnOn {
   background: var(--yellow);
-  color: var(--on-accent);
+  color: var(--et-on-accent);
   font-weight: 700;
 }
 
@@ -262,7 +262,7 @@
   border: 0;
   border-radius: var(--et-radius-control);
   background: var(--yellow);
-  color: var(--on-accent);
+  color: var(--et-on-accent);
   font: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -285,7 +285,7 @@
 
   .btnGhost:hover:not(:disabled) {
     background: var(--yellow);
-    color: var(--on-accent);
+    color: var(--et-on-accent);
   }
 }
 
@@ -364,7 +364,7 @@
   align-items: center;
   gap: 8px;
   margin: 0;
-  color: var(--yellow);
+  color: var(--et-accent-text);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -756,7 +756,7 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-align: right;
-  color: var(--yellow);
+  color: var(--et-accent-text);
   white-space: nowrap;
 }
 
@@ -826,7 +826,7 @@
   height: 24px;
   border-radius: 50%;
   background: var(--yellow);
-  color: var(--on-accent);
+  color: var(--et-on-accent);
   font-size: 13px;
   font-weight: 700;
   flex: none;
@@ -911,7 +911,7 @@
 
 .rateValue {
   display: block;
-  color: var(--yellow);
+  color: var(--et-accent-text);
   font-size: 24px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -995,7 +995,7 @@
 
 .subTitle {
   margin: 0 0 10px;
-  color: var(--yellow);
+  color: var(--et-accent-text);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -1036,7 +1036,7 @@
 
 .pillYellow {
   background: var(--yellow);
-  color: var(--on-accent);
+  color: var(--et-on-accent);
 }
 
 .pillRed {
@@ -1093,7 +1093,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--yellow);
+  color: var(--et-accent-text);
   font: inherit;
   font-weight: 700;
   text-decoration: underline;

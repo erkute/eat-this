@@ -63,7 +63,7 @@ main.page :global(.hv-sub) {
 
 main.page :global(.hv-btn) {
   background: var(--profile-accent);
-  color: var(--profile-ink);
+  color: var(--et-on-accent);
 }
 
 main.page :global(.hv-btn):focus-visible {
@@ -284,7 +284,7 @@ main.page .head {
    dahinter — als eigene Zeile kostete die Beschriftung 26 px. */
 .moveLabel {
   margin-right: 9px;
-  color: var(--profile-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
@@ -330,7 +330,7 @@ main.page .head {
   justify-content: center;
   min-height: 34px;
   padding: 0 14px;
-  color: var(--profile-accent);
+  color: var(--et-accent-text);
   background: var(--profile-raised);
   border: 1px solid transparent;
   border-radius: 999px;
@@ -348,14 +348,14 @@ main.page .head {
 }
 
 .moveCta:focus-visible {
-  color: var(--profile-ink);
+  color: var(--et-on-accent);
   background: var(--profile-accent);
   outline: 0;
 }
 
 @media (hover: hover) {
   .moveCta:hover {
-    color: var(--profile-ink);
+    color: var(--et-on-accent);
     background: var(--profile-accent);
   }
 }
@@ -685,7 +685,7 @@ main.page .head {
 }
 
 .spotVisitedOn {
-  color: var(--profile-ink);
+  color: var(--et-on-accent);
   background: var(--profile-accent);
 }
 
@@ -820,13 +820,13 @@ main.page .head {
 }
 
 .packsMore:focus-visible {
-  color: var(--profile-ink);
+  color: var(--et-on-accent);
   background: var(--profile-accent);
 }
 
 @media (hover: hover) {
   .packsMore:hover {
-    color: var(--profile-ink);
+    color: var(--et-on-accent);
     background: var(--profile-accent);
   }
 }
@@ -905,7 +905,7 @@ main.page .head {
 }
 
 .tab[aria-selected='true'] {
-  color: var(--profile-ink);
+  color: var(--et-on-accent);
   background: var(--profile-accent);
 }
 
@@ -1002,7 +1002,7 @@ main.page .head {
    Tafeln, klein und fett — er soll gelesen, nicht gerufen werden. */
 .inviteJoined {
   margin: 7px 0 0;
-  color: var(--profile-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -1022,7 +1022,7 @@ main.page .head {
   justify-content: center;
   min-height: 42px;
   padding: 0 20px;
-  color: var(--profile-ink);
+  color: var(--et-on-accent);
   background: var(--profile-accent);
   border: 0;
   border-radius: var(--profile-radius);
@@ -1112,13 +1112,13 @@ main.page .foot {
 }
 
 .logout:focus-visible {
-  color: var(--profile-ink);
+  color: var(--et-on-accent);
   background: var(--profile-accent);
 }
 
 @media (hover: hover) {
   .logout:hover {
-    color: var(--profile-ink);
+    color: var(--et-on-accent);
     background: var(--profile-accent);
   }
 }

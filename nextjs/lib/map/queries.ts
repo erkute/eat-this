@@ -13,6 +13,21 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   nameEn
 }`;
 
+/** The homepage preview follows the same editorial lists as category pages. */
+export const homeMapCategoriesQuery = `
+  {
+    "categories": *[_type == "category" && slug.current in $slugs] {
+      name,
+      "slug": slug.current,
+      "topSpots": topSpots[defined(@->slug.current)]->slug.current
+    },
+    "articles": *[_type == "newsArticle" && defined(slug.current)] {
+      "slug": slug.current,
+      "spots": coalesce(contentDe, content)[_type == "spotCard"].restaurantRef->slug.current
+    }
+  }
+`;
+
 // Map list/marker payload — deliberately WITHOUT the detail-only fields
 // (phone, website, menuUrl, reservationUrl, mapsUrl, instagramHandle, tip,
 // description, photoCredit*). Those are fetched on demand when the detail

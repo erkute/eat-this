@@ -1,10 +1,12 @@
 /* Die Hub-Seiten im Heftlook (HubIssue.tsx), Entwurf A „Die Ausgabe" vom
    03.10.2026 — Bezirke, Kategorien und ihre beiden Übersichten: gesetzt wie
-   der Artikel (NewsArticleShell.module.css) — weisser Grund, alles mittig,
+   der Artikel (NewsArticleShell.module.css) — dunkler Markengrund, alles mittig,
    Providence gross für Titel, Kapitel und Labels, Neue Haas Grotesk Text für den Lesetext,
-   Rot für Überschriften, Gelb als Akzent. Den Grund selbst stellt
+   Markenrot für Überschriften und Akzente. Den Grund selbst stellt
    globals.css an html/body/.app-pages um. */
 .page {
+  --et-muted: var(--et-ink-soft);
+  --et-quiet: var(--et-ink-raised);
   --issue-gutter: clamp(18px, 4vw, 54px);
   --issue-measure: 660px;
   --issue-wide: 1180px;
@@ -19,7 +21,7 @@
   min-height: 100dvh;
   padding: 0 var(--issue-gutter) clamp(72px, 9vw, 120px);
   overflow-x: clip;
-  color: var(--et-ink);
+  color: var(--et-white);
   font-family: var(--et-font-display);
 }
 
@@ -186,7 +188,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   .siblings a:hover .contentsName,
   .spotName a:hover,
   .entry:hover .entryName {
-    color: var(--et-red);
+    color: var(--et-accent-heading);
   }
 }
 
@@ -195,7 +197,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .entry:focus-visible,
 .guide:focus-visible,
 .siblings a:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 4px;
 }
 
@@ -235,7 +237,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   min-height: 44px;
   padding: 0 22px;
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   font-family: var(--et-font-display);
   font-size: 16px;
   font-weight: 700;
@@ -252,11 +254,12 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 @media (hover: hover) {
   .btnQuiet:hover {
     background: var(--et-accent);
+    color: var(--et-on-accent);
   }
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 3px;
 }
 
@@ -281,7 +284,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   z-index: 20;
   margin: clamp(56px, 6vw, 88px) calc(-1 * var(--issue-gutter)) 0;
   padding: 6px var(--issue-gutter);
-  background: var(--et-white);
+  background: var(--et-ink);
   transition: top 0.2s ease;
 }
 
@@ -319,7 +322,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .filterChip[aria-pressed='true'] {
-  color: var(--et-ink);
+  color: var(--et-white);
 }
 
 .filterChip[aria-pressed='true']::before {
@@ -334,12 +337,12 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (hover: hover) {
   .filterChip:not([aria-pressed='true']):hover {
-    color: var(--et-ink);
+    color: var(--et-white);
   }
 }
 
 .filterChip:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 2px;
 }
 
@@ -391,7 +394,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .secTitle {
   overflow-wrap: anywhere;
   margin: clamp(72px, 8vw, 120px) auto 0;
-  color: var(--et-red);
+  color: var(--et-accent-heading);
   font-size: clamp(34px, 4.2vw, 58px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -414,7 +417,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .spotName {
   overflow-wrap: anywhere;
   margin: 0;
-  color: var(--et-red);
+  color: var(--et-accent-heading);
   font-size: clamp(30px, 3.2vw, 44px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -519,7 +522,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 .letter {
   margin: 22px 0 6px;
-  color: var(--et-red);
+  color: var(--et-accent-heading);
   font-size: 22px;
   font-weight: 700;
   line-height: 1.2;
@@ -598,7 +601,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (hover: hover) {
   .guide:hover .guideTitle {
-    color: var(--et-red);
+    color: var(--et-accent-heading);
   }
 }
 
@@ -647,7 +650,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .shelfIssue:focus-visible {
-  outline: 3px solid var(--et-ink);
+  outline: 3px solid var(--et-white);
   outline-offset: 8px;
 }
 
@@ -708,12 +711,11 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   rotate: -6deg;
 }
 
-/* Schwarz, nicht Rot (Ansage 03.10.2026): auf der Übersicht ist der Name
-   ein Eintrag im Register, kein Kapiteltitel. */
+/* Auf der Übersicht ist der Name ein weisser Registereintrag. */
 .dirName {
   min-width: 0;
   margin: 0;
-  color: var(--et-ink);
+  color: var(--et-white);
   font-size: clamp(34px, 4vw, 54px);
   overflow-wrap: break-word;
   font-weight: 700;
@@ -731,13 +733,13 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (hover: hover) {
   .dirName a:hover {
-    color: var(--et-red);
+    color: var(--et-accent-heading);
   }
 }
 
 .dirName a:focus-visible,
 .dirStrip a:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 3px;
 }
 
@@ -760,7 +762,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  color: var(--et-ink);
+  color: var(--et-white);
   font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
@@ -781,12 +783,12 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (hover: hover) {
   .dirMore:hover {
-    color: var(--et-red);
+    color: var(--et-accent-heading);
   }
 }
 
 .dirMore:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-white);
   outline-offset: 3px;
 }
 

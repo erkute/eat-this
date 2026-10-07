@@ -71,7 +71,7 @@ export default async function HomePage({ params }: PageProps) {
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
-  // The hub's client islands (HubNearby, the Must-Eats teaser) reuse the map's
+  // The hub's client islands (HubMapPreview, the Must-Eats teaser) reuse the map's
   // anon dataset — plus a few covered cards from the full deck, see
   // getHomeInitialMapData — so SSR both in parallel and hand initialMapData
   // down through HubSection.

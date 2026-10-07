@@ -43,13 +43,13 @@
   cursor: pointer;
 }
 .close:focus-visible {
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
 @media (hover: hover) {
   .close:hover {
-    color: var(--et-accent);
+    color: var(--et-accent-text);
   }
 }
 .close svg {
@@ -150,12 +150,12 @@
 
 @media (hover: hover) {
   .navBtn:hover:not(:disabled) {
-    color: var(--et-accent);
+    color: var(--et-accent-text);
   }
 }
 
 .navBtn:focus-visible {
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   outline: 2px solid currentColor;
   outline-offset: -2px;
 }
@@ -209,7 +209,7 @@
   border-radius: 999px;
   background: var(--et-accent);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 700;
@@ -227,5 +227,6 @@
 @media (hover: hover) {
   .actionBtn:hover {
     background: #fff;
+    color: var(--et-ink);
   }
 }

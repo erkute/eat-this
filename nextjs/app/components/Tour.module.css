@@ -81,7 +81,7 @@
 }
 .kicker {
   margin: 0 0 12px;
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   font-size: 13px;
 }
 .headline {
@@ -145,6 +145,7 @@
 }
 .segments .active {
   background: var(--et-accent);
+  color: var(--et-on-accent);
 }
 .actions {
   display: flex;
@@ -161,7 +162,7 @@
   border: 0;
   border-radius: var(--et-radius-control);
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   font: inherit;
   font-size: 16px;
   font-weight: 700;
@@ -275,7 +276,7 @@ a.quiet {
   left: 50%;
   width: calc(var(--card-width) * 1.1);
   margin: 0;
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   font-size: clamp(15px, 2vw, 18px);
   line-height: 1.1;
   text-align: center;
@@ -632,7 +633,7 @@ a.quiet {
 .nameError {
   margin: 8px 0 0;
   font-size: 13px;
-  color: var(--et-accent);
+  color: var(--et-accent-text);
 }
 
 /* ── Letzte Seite: der Layer zweigeteilt, links Map, rechts Deck ──────── */
@@ -685,7 +686,7 @@ a.quiet {
     transform: translateY(-4px);
   }
   .half:hover .halfLabel {
-    color: var(--et-accent);
+    color: var(--et-accent-text);
   }
 }
 .half:focus-visible {
@@ -693,7 +694,7 @@ a.quiet {
   outline-offset: -2px;
 }
 .half:focus-visible .halfLabel {
-  color: var(--et-accent);
+  color: var(--et-accent-text);
 }
 /* Telefon und Deck wiegen gleich: das Telefon ist rund 1,3 Kartenhoehen
    hoch. Die Karten liegen je 35 % versetzt, also 2,05 Kartenbreiten

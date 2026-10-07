@@ -1,8 +1,9 @@
-/* Four filters always visible, aligned to the restaurant cards.
-   Selected values may shorten with ellipsis; the row never scrolls or wraps. */
+/* Full labels stay visible. Long selections get more room; very narrow
+   panels use two rows rather than abbreviating district names. */
 .listHeader {
   position: relative;
   flex-shrink: 0;
+  container-type: inline-size;
 }
 
 .filterChipRow {
@@ -11,7 +12,7 @@
   gap: 8px;
   width: 100%;
   min-width: 0;
-  padding: 8px 14px 12px;
+  padding: 8px 10px 12px;
   box-sizing: border-box;
   background: var(--et-ink);
 }
@@ -27,7 +28,9 @@
 .filterChipWrapActive {
   min-width: 0;
   background: var(--et-accent);
+  color: var(--et-on-accent);
 }
+.filterChipWrapLong { flex-grow: 1.25; min-width: max-content; }
 
 .filterChipRow .filterChip {
   display: inline-flex;
@@ -44,7 +47,7 @@
   border-radius: var(--et-radius-control);
   box-shadow: none;
   font-family: var(--et-font-display);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: 0;
@@ -60,19 +63,19 @@
 }
 .filterChipRow .filterChipActive {
   background: transparent;
-  color: var(--et-ink);
-  padding-inline: 8px 16px;
+  color: var(--et-on-accent);
+  padding-inline: 6px 10px;
   border-radius: var(--et-radius-control);
 }
 .filterChipRow .filterChipLabel {
   display: block;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   font: inherit;
-  /* Providence needs its descenders even in a clipped, single-line label. */
+  /* Keep Providence's descenders and the complete selected name. */
   line-height: 1.4;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  white-space: normal;
+  text-wrap: balance;
   color: inherit;
 }
 .filterChevron {
@@ -98,7 +101,7 @@
   height: 22px;
   padding: 0;
   background: var(--et-ink);
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   border: 0;
   border-radius: 50%;
   box-shadow: none;
@@ -117,7 +120,7 @@
 .filterChipRow .filterOpenToggle {
   flex: 0 0 auto;
   gap: 5px;
-  padding-inline: 9px;
+  padding-inline: 8px;
 }
 .filterOpenToggle::before {
   content: '';
@@ -309,14 +312,14 @@
 
 .pickerClose:focus-visible {
   background: var(--et-ink-quiet);
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   outline: 0;
 }
 
 @media (hover: hover) {
   .pickerClose:hover {
     background: var(--et-ink-quiet);
-    color: var(--et-accent);
+    color: var(--et-accent-text);
     outline: 0;
   }
 }
@@ -416,7 +419,7 @@
 .pickerItemActive,
 .pickerItemActive:focus-visible {
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   border-color: var(--et-accent);
   box-shadow: none;
   filter: none;
@@ -426,7 +429,7 @@
 @media (hover: hover) {
   .pickerItemActive:hover {
     background: var(--et-accent);
-    color: var(--et-ink);
+    color: var(--et-on-accent);
     border-color: var(--et-accent);
     box-shadow: none;
     filter: none;
@@ -440,7 +443,7 @@
    und die Auswahl sähe für einen Moment aus wie eine gewöhnliche Zeile. */
 .pickerItemActive:active {
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   border-color: var(--et-accent);
   box-shadow: none;
   filter: none;
@@ -491,7 +494,7 @@
 .pickerItemLabel {
   flex: 1 1 auto;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   color: inherit;
   font-family: var(--et-font-display);
   font-size: 15px;
@@ -499,8 +502,7 @@
   letter-spacing: 0;
   line-height: 1.35;
   text-transform: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .pickerItemSub {
@@ -607,6 +609,13 @@
 
 /* Price follows its short label; category and district share the remaining room. */
 .filterChipWrap.filterChipCompact { flex: 0 0 auto; min-width: 58px; }
+@container (max-width: 374px) {
+  .filterChipRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filterChipRow .filterChip { font-size: 12px; }
+}
+@media (max-width: 374px) {
+  .pickerItemLabel { font-size: 13px; }
+}
 /* Providence descenders extend below the line box even at 1.35 line-height. */
 .filterChipRow .filterChipLabel,
 .pickerTitle,

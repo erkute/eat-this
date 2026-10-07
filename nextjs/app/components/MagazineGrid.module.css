@@ -31,7 +31,7 @@
 .section .eyebrow:global(.hv-kicker) {
   font-size: 12px;
   letter-spacing: var(--et-tracking-meta);
-  color: var(--et-accent);
+  color: var(--et-accent-text);
 }
 .allTop {
   margin-top: clamp(22px, 2.4vw, 32px);
@@ -57,7 +57,7 @@
   justify-content: center;
   min-height: 52px;
   padding: 0 24px;
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   background: var(--et-accent);
   border-radius: var(--et-radius-control);
   font-family: var(--et-font-display);
@@ -178,6 +178,12 @@
   gap: 4px;
   margin-top: 4px;
 }
+.storyCaption { width: min(100%, 420px); min-height: 114px; margin: 0 auto; padding: 0 16px; text-align: center; font-family: var(--et-font-display); }
+.storyNumber { display: block; margin-bottom: 10px; color: var(--et-accent-text); font-size: 14px; letter-spacing: .08em; }
+.storyCaption h3 { margin: 0; font-family: inherit; font-size: clamp(22px, 2vw, 28px); font-weight: 400; line-height: 1.25; text-wrap: balance; }
+.storyCaption a { color: var(--et-white); text-decoration: none; }
+.storyCaption a:focus-visible { outline: 2px solid var(--et-white); outline-offset: 5px; }
+@media (hover: hover) { .storyCaption a:hover { color: var(--et-accent-text); } }
 .dot {
   position: relative;
   width: 28px;
@@ -326,6 +332,7 @@
     justify-content: flex-start;
     padding-left: calc(var(--pile-x) + var(--cover-w) / 2 - var(--count) * 16px);
   }
+  .storyCaption { width: var(--cover-w); margin-left: var(--pile-x); margin-top: -32px; padding: 0; min-height: 128px; }
 }
 /* Schmal steht der Stapel näher am linken Rand: die Maus fächert hier
    kaum weiter auf, sonst schnitte die Kante das hinterste Heft ab. */

@@ -16,9 +16,8 @@
 .page {
   --article-ground: var(--et-white);
   --article-fg: var(--et-ink);
-  --article-head: var(--et-red);
+  --article-head: var(--et-accent);
   --article-accent: var(--et-accent);
-  --article-on-accent: var(--et-ink);
   --article-muted: var(--et-muted);
   --article-quiet: var(--et-quiet);
   /* Die Tafel am Artikelende (Katalog-Ausgang): Ink auf Weiss. */
@@ -37,15 +36,12 @@
   font-family: var(--et-font-display);
 }
 
-/* Dunkel auf Knopfdruck (lib/articleTheme.ts, ArticleThemeToggle): der
-   Ink-Grund der Marke, Schrift weiss. Die Kapitel werden gelb statt rot —
-   Rot ist auf Ink als Schriftfarbe raus (rund 2,9:1), wie überall auf Ink.
-   Die Tafel hebt sich mit der erhöhten Ink-Stufe ab. Den Grund selbst stellt
-   globals.css um. */
+/* Dunkel auf Knopfdruck: Ink-Grund und weisser Lesetext. Die Kapitel und
+   Spotnamen behalten das Markenrot; die Tafel nutzt die erhöhte Ink-Stufe. */
 :global(html[data-article-theme='dark']) .page {
   --article-ground: var(--et-ink);
   --article-fg: var(--et-white);
-  --article-head: var(--et-accent);
+  --article-head: var(--et-accent-heading);
   --article-muted: var(--et-ink-soft);
   --article-quiet: var(--et-ink-raised);
   --article-board: var(--et-ink-raised);
@@ -244,7 +240,7 @@ div.page {
 @media (hover: hover) {
   .chapterList a:hover {
     background: var(--article-accent);
-    color: var(--et-ink);
+    color: var(--et-on-accent);
   }
 }
 
@@ -506,9 +502,9 @@ div.page {
    Kursive, und eine vom Browser schräg gestellte sah nach Fehler aus. */
 .content h2 [data-heading='deck'] {
   margin-top: 14px;
-  color: var(--article-fg);
+  color: var(--article-head);
   font-size: clamp(20px, 1.7vw, 24px);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 1.25;
   text-transform: none;
@@ -536,7 +532,7 @@ div.page {
    Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
    Bezirk · Küche). */
 .content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat) {
-  color: var(--article-fg);
+  color: inherit;
   font-weight: 700;
   text-decoration: none;
   transition: color 140ms ease;
@@ -617,7 +613,7 @@ div.page {
   letter-spacing: 0.04em;
   display: inline-block;
   padding: 5px 8px;
-  color: var(--article-on-accent);
+  color: var(--et-on-accent);
   background: var(--article-accent);
   font-size: 11px;
   line-height: 1;
@@ -627,7 +623,7 @@ div.page {
 .mustEat .mustEatName {
   max-width: 18ch;
   margin: 0;
-  color: var(--article-fg);
+  color: var(--article-head);
   font-size: clamp(24px, 2.2vw, 30px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -774,7 +770,7 @@ div.page {
 @media (hover: hover) {
   .inlineSpotMetaLink:hover {
     background: var(--article-accent);
-    color: var(--et-ink);
+    color: var(--et-on-accent);
   }
 }
 
@@ -784,7 +780,7 @@ div.page {
 }
 
 .inlineSpotName {
-  color: var(--article-fg);
+  color: var(--article-head);
   font-size: clamp(26px, 2.2vw, 32px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -825,7 +821,7 @@ div.page {
   margin-top: 6px;
   padding: 0 14px;
   background: var(--article-accent);
-  color: var(--article-on-accent);
+  color: var(--et-on-accent);
   font-size: 12px;
   line-height: 1;
   /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
@@ -913,7 +909,7 @@ div.page {
   margin-top: 6px;
   padding: 0 16px;
   background: var(--article-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   font-size: 13px;
   line-height: 1;
   text-transform: uppercase;
@@ -928,6 +924,7 @@ div.page {
 
 .hubLink:focus-visible .hubLinkCta {
   background: var(--et-white);
+  color: var(--et-ink);
 }
 
 @media (hover: hover) {
@@ -941,6 +938,7 @@ div.page {
 
   .hubLink:hover .hubLinkCta {
     background: var(--et-white);
+    color: var(--et-ink);
   }
 }
 
@@ -1090,7 +1088,7 @@ div.page {
   .shareBtn:hover,
   .shareBtn:focus-visible {
     background: var(--article-accent);
-    color: var(--article-on-accent);
+    color: var(--et-on-accent);
   }
 }
 

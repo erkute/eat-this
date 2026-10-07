@@ -209,7 +209,7 @@
 .oneLiner {
   /* No measure of its own: the point is one line. The column caps it. */
   margin: 0;
-  color: var(--about-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: clamp(19px, 1.8vw, 22px);
   font-weight: 700;
@@ -257,7 +257,7 @@
 }
 
 .body a {
-  color: var(--about-accent);
+  color: var(--et-accent-text);
   font-weight: 700;
   text-decoration: underline;
   text-decoration-thickness: 2px;
@@ -284,7 +284,7 @@
   padding: clamp(22px, 3vw, 30px) clamp(22px, 3.2vw, 32px);
   background: var(--about-accent);
   border: 0;
-  color: var(--about-ink);
+  color: var(--et-on-accent);
   font-family: var(--et-font-display);
   font-size: clamp(24px, 3vw, 34px);
   font-weight: 700;
@@ -488,7 +488,7 @@
 .ctaTitle {
   margin: 0;
   max-width: 20ch;
-  color: var(--about-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-display);
   font-size: clamp(32px, 4.4vw, 54px);
   font-weight: 700;
@@ -542,7 +542,7 @@
   background: var(--about-accent);
   border: 1px solid var(--about-accent);
   border-radius: var(--et-radius-control);
-  color: var(--about-ink);
+  color: var(--et-on-accent);
   font-family: var(--et-font-display);
   font-size: clamp(18px, 1.7vw, 21px);
   font-weight: 700;

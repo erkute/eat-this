@@ -5,7 +5,7 @@
 .footer {
   --footer-ink: #fff;
   --footer-paper: #fff;
-  --footer-accent: #ffc600;
+  --footer-accent: var(--et-accent);
   --footer-shadow: #15120e;
   /* Eine Flaeche statt eines Strichs: der Footer steht eine Stufe ueber dem
      Ink-Grund (--et-ink-raised, dieselbe Stufe wie Info-Karte und
@@ -46,6 +46,20 @@
   margin: 0;
   font-size: 0;
   line-height: 0;
+}
+
+.homeLink {
+  display: block;
+  border-radius: var(--et-radius-control);
+  transform-origin: center;
+  transition: scale 160ms ease;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .homeLink:hover { scale: 1.035; }
+}
+.homeLink:focus-visible {
+  outline: 3px solid var(--et-white);
+  outline-offset: 8px;
 }
 
 .megaImg {
@@ -93,7 +107,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--footer-accent);
+  color: var(--et-accent-text);
 }
 
 .socialLink {
@@ -166,7 +180,7 @@
 @media (hover: hover) {
   .legalLink:hover {
     background: transparent;
-    color: var(--et-accent);
+    color: var(--et-accent-text);
   }
 }
 
@@ -174,7 +188,7 @@
    Bewegung würde die ganze Zeile umbrechen lassen. */
 .legalLink:active {
   background: transparent;
-  color: var(--et-accent);
+  color: var(--et-accent-text);
 }
 
 .legalBtn {
@@ -243,18 +257,18 @@
 }
 
 .langBtnActive {
-  color: var(--footer-accent);
+  color: var(--et-accent-text);
 }
 
 .langBtn:focus-visible {
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
   .langBtn:hover {
-    color: var(--et-accent);
+    color: var(--et-accent-text);
     outline: 0;
   }
 }
@@ -275,7 +289,16 @@
     gap: clamp(14px, 2vw, 22px);
   }
 
-  .megaImg {
+  .homeLink {
+  display: block;
+  border-radius: var(--et-radius-control);
+}
+.homeLink:focus-visible {
+  outline: 3px solid var(--et-white);
+  outline-offset: 8px;
+}
+
+.megaImg {
     width: min(31vw, 320px);
   }
 
@@ -300,7 +323,16 @@
 }
 
 /* The homepage keeps the shared grey footer palette. */
-.home .megaImg {
+.home .homeLink {
+  display: block;
+  border-radius: var(--et-radius-control);
+}
+.homeLink:focus-visible {
+  outline: 3px solid var(--et-white);
+  outline-offset: 8px;
+}
+
+.megaImg {
   width: min(48vw, 190px);
   filter: none;
 }
@@ -355,7 +387,16 @@
 }
 
 @media (min-width: 768px) {
-  .home .megaImg {
+  .home .homeLink {
+  display: block;
+  border-radius: var(--et-radius-control);
+}
+.homeLink:focus-visible {
+  outline: 3px solid var(--et-white);
+  outline-offset: 8px;
+}
+
+.megaImg {
     width: min(22vw, 240px);
   }
   .home .tagline {

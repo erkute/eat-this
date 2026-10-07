@@ -1,12 +1,12 @@
 /** Keep native touch scrolling; suppress only clicks that follow a swipe. */
-export function guardSwipeClick(surface: HTMLElement, onSwipe: () => void): () => void {
+export function guardSwipeClick(surface: HTMLElement): () => void {
   let start: { id: number; x: number; y: number } | null = null;
   let swiped = false;
   const down = (event: PointerEvent) => {
     swiped = false;
     start = event.pointerType === 'mouse' ? null : { id: event.pointerId, x: event.clientX, y: event.clientY };
   };
-  const markSwipe = () => { swiped = true; onSwipe(); };
+  const markSwipe = () => { swiped = true; };
   const move = (event: PointerEvent) => {
     if (start?.id === event.pointerId && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) markSwipe();
   };
@@ -23,15 +23,11 @@ export function guardSwipeClick(surface: HTMLElement, onSwipe: () => void): () =
   surface.addEventListener('pointerup', up, { passive: true });
   surface.addEventListener('pointercancel', cancel, { passive: true });
   surface.addEventListener('click', click, true);
-  surface.addEventListener('scroll', onSwipe, { passive: true });
-  window.addEventListener('scroll', onSwipe, { passive: true, capture: true });
   return () => {
     surface.removeEventListener('pointerdown', down);
     surface.removeEventListener('pointermove', move);
     surface.removeEventListener('pointerup', up);
     surface.removeEventListener('pointercancel', cancel);
     surface.removeEventListener('click', click, true);
-    surface.removeEventListener('scroll', onSwipe);
-    window.removeEventListener('scroll', onSwipe, true);
   };
 }

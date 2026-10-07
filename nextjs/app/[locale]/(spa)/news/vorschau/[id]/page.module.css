@@ -4,7 +4,7 @@
   margin: 0;
   padding: 10px 16px;
   background: var(--et-accent);
-  color: var(--et-ink);
+  color: var(--et-on-accent);
   font-family: var(--et-font-display);
   font-size: 1rem;
   text-align: center;

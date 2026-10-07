@@ -44,7 +44,7 @@
 .panelToggle:focus-visible,
 .mapSearchClear:focus-visible {
   background: transparent;
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   border: 0;
   box-shadow: none;
 }
@@ -56,7 +56,7 @@
   .panelToggle:hover,
   .mapSearchClear:hover {
     background: transparent;
-    color: var(--et-accent);
+    color: var(--et-accent-text);
     border: 0;
     box-shadow: none;
   }
@@ -551,12 +551,12 @@
    Fläche und hebt sich beim Hover um eine Stufe. */
 .panelToggle:focus-visible {
   background: var(--et-ink-raised);
-  color: var(--et-accent);
+  color: var(--et-accent-text);
 }
 @media (hover: hover) {
   .panelToggle:hover {
     background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
-    color: var(--et-accent);
+    color: var(--et-accent-text);
   }
 }
 

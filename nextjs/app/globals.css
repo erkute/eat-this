@@ -159,6 +159,7 @@
      Vorlage: weisses Papier, fast schwarzes Ink, gelber Akzent, flache
      Flächen, Providence. */
   --et-ink: #15120e;
+  --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
   --et-accent: #ffc600;
@@ -455,6 +456,14 @@ html[data-active-page='news-article'][data-article-theme='dark'],
 html[data-active-page='news-article'][data-article-theme='dark'] body,
 html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {
   background: var(--et-ink);
+}
+/* The browser canvas stays dark throughout the magazine transition, even
+   after navigation activates a light article. Its transformed page paints
+   --article-ground itself until the overlay is removed (magazineOpen.ts). */
+html[data-active-page][data-magazine-opening],
+html[data-active-page][data-magazine-opening] body,
+html[data-active-page][data-magazine-opening] .app-pages {
+  background: var(--et-magazine-table);
 }
 /* Seit 03.10.2026 auch Bezirke und Kategorien mit ihren Uebersichten, im
    Heftlook wie der Artikel (HubIssue.module.css), und die Spot-Seite. */

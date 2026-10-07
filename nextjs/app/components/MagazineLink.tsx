@@ -10,6 +10,7 @@ const CLASSES = {
   table: styles.table,
   book: styles.book,
   page: styles.page,
+  paper: styles.paper,
   shadow: styles.shadow,
   gutter: styles.gutter,
   strip: styles.strip,

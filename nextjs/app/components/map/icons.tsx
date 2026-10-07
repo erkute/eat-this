@@ -113,6 +113,13 @@ export function PinIcon() {
 // Heart — outline when empty, filled when hearted. A "heart" is a saved spot
 // (see docs/specs/2026-06-09-hearts-design.md); this replaced the bookmark on
 // the detail surfaces so the icon matches the public "geherzt von N" wording.
+// Gezeichnet wie von Hand, passend zur Providence (07.10.2026): die Bögen
+// leicht ungleich, die Spitze ein Stück rechts der Mitte — statt des
+// geometrischen Herzens aus zwei Kreisbögen. Dieselbe Form zeichnet sich auf
+// der Spot-Seite selbst (HeartDraw).
+export const HEART_PATH =
+  'M12.1 6.5C10.8 4 7.5 3 5.1 4.4 2.5 5.9 2.2 9.4 3.9 12c1.9 3 5.1 5.7 8.3 8.7 3-2.8 6.3-5.6 8-8.6 1.6-2.8 1.3-6.1-1.2-7.6-2.4-1.4-5.6-.6-6.9 2z';
+
 export function HeartIcon({ filled }: { filled: boolean }) {
   return (
     <svg
@@ -124,7 +131,7 @@ export function HeartIcon({ filled }: { filled: boolean }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z" />
+      <path d={HEART_PATH} />
     </svg>
   );
 }

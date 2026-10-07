@@ -53,6 +53,11 @@ function titleFitStyle(name: string): CSSProperties {
   return { '--word-fit': `${(100 / (0.62 * longest)).toFixed(2)}cqi` } as CSSProperties;
 }
 
+/** Zeiten mit Halbgeviertstrich statt Bindestrich: 09:00–16:00. */
+function withDash(hours: string): string {
+  return hours.replace(/(\d)\s*-\s*(\d)/g, '$1–$2');
+}
+
 /** Foto-Nachweis unter einem Bild — als Link, wenn die Quelle eine sichere URL hat. */
 function Credit({
   text,
@@ -264,6 +269,24 @@ export default async function RestaurantPage({ params }: PageProps) {
   // ins Leere — also kein Map-Knopf, dafür der Hinweis bei den Angaben.
   const onMap = r.isClosed !== true;
   const telHref = r.phone ? `tel:${r.phone.replace(/\s+/g, '')}` : null;
+  // Im Steckbrief ohne Land — ein Berliner Guide braucht „Deutschland" nicht.
+  const addressLines = (address ?? '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part && !/^(deutschland|germany)$/i.test(part));
+  // Die Meta-Zeile unter dem Namen im Steckbrief: Bezirk · Küche · Preis.
+  const metaParts = [
+    districtName &&
+      (bezirkSlug ? (
+        <IntlLink key="district" href={`/bezirk/${bezirkSlug}`}>
+          {districtName}
+        </IntlLink>
+      ) : (
+        <span key="district">{districtName}</span>
+      )),
+    cuisineLabel && <span key="cuisine">{cuisineLabel}</span>,
+    priceLabel && <span key="price">{priceLabel}</span>,
+  ].filter(Boolean);
 
   const flow = buildSpotFlow({
     paragraphs: description.split(/\n\s*\n/),
@@ -307,32 +330,20 @@ export default async function RestaurantPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        {/* Unter dem Namen nur der Bezirk und das Herz — keine Küche, kein
-            Preis, kein Status (Ansage 03.10.2026). Das Herz gilt dem Spot,
-            deshalb am Namen: unter dem Foto las es sich, als like man das
-            Bild (Ansage 07.10.2026). */}
+        {/* Unter dem Namen nur der Bezirk — keine Küche, kein Preis, kein
+            Status, keine Knöpfe (Ansage 03.10.2026). */}
         <header className={styles.head}>
           <h1 className={styles.title} style={titleFitStyle(displayName)}>
             {displayName}
           </h1>
-          <div className={styles.byline}>
-            {districtName &&
-              (bezirkSlug ? (
-                <IntlLink href={`/bezirk/${bezirkSlug}`} className={styles.district}>
-                  {districtName}
-                </IntlLink>
-              ) : (
-                <p className={styles.district}>{districtName}</p>
-              ))}
-            <HeartButton
-              restaurantId={r._id}
-              name={r.name}
-              slug={slug}
-              photo={r.photo ?? undefined}
-              district={r.bezirk?.name ?? undefined}
-              locale={loc}
-            />
-          </div>
+          {districtName &&
+            (bezirkSlug ? (
+              <IntlLink href={`/bezirk/${bezirkSlug}`} className={styles.district}>
+                {districtName}
+              </IntlLink>
+            ) : (
+              <p className={styles.district}>{districtName}</p>
+            ))}
         </header>
 
         <div className={styles.column}>
@@ -410,60 +421,60 @@ export default async function RestaurantPage({ params }: PageProps) {
             </ul>
           )}
 
-          {/* Was man zum Hingehen braucht, überschrieben mit dem Namen — kein
-              „Adresse und Zeiten" (Ansage 03.10.2026). */}
-          <section className={styles.section} aria-labelledby="spot-facts">
-            <h2 id="spot-facts" className={styles.sub}>
+          {/* Der Steckbrief (Wahl 07.10.2026 im Steckbrief-Labor, Fassung
+              „Heft"): in der Typografie der Seite selbst, zentriert wie der
+              Kopf — der Name, darunter Bezirk · Küche · Preis, dann wie beim
+              Insider-Tipp kleine Zwischentitel über grosser Providence. Jede
+              Zeile für sich mittig. Abgelehnt: Ink-Tafel mit gelben Labels
+              („zu schwarz") und ein Datenblatt mit Haarlinien. */}
+          <section className={styles.brief} aria-labelledby="spot-facts">
+            <h2 id="spot-facts" className={styles.briefTitle}>
               {displayName}
             </h2>
+            {metaParts.length > 0 && (
+              <p className={styles.briefMeta}>
+                {metaParts.flatMap((part, i) =>
+                  i === 0
+                    ? [part]
+                    : [
+                        <span key={`dot-${i}`} aria-hidden="true">
+                          ·
+                        </span>,
+                        part,
+                      ]
+                )}
+              </p>
+            )}
             {r.isClosed && (
               <p className={styles.closed}>
                 {de ? 'Vorübergehend geschlossen' : 'Temporarily closed'}
               </p>
             )}
-            <dl className={styles.facts}>
-              <div className={styles.factGroup}>
-                {address && (
-                  <div>
-                    <dt className={styles.label}>{de ? 'Adresse' : 'Address'}</dt>
-                    <dd>
-                      {address.split(',').map((part, i) => (
-                        <span key={i} className={styles.line}>
-                          {part.trim()}
-                        </span>
-                      ))}
-                    </dd>
-                  </div>
-                )}
-                {cuisineLabel && (
-                  <div>
-                    <dt className={styles.label}>{de ? 'Küche' : 'Cuisine'}</dt>
-                    <dd>{cuisineLabel}</dd>
-                  </div>
-                )}
-                {priceLabel && (
-                  <div>
-                    <dt className={styles.label}>{de ? 'Preis' : 'Price'}</dt>
-                    <dd>{priceLabel}</dd>
-                  </div>
-                )}
+            {addressLines.length > 0 && (
+              <div className={styles.briefBlock}>
+                <h3 className={styles.kicker}>{de ? 'Adresse' : 'Address'}</h3>
+                <p className={styles.briefAddress}>
+                  {addressLines.map((line) => (
+                    <span key={line} className={styles.line}>
+                      {line}
+                    </span>
+                  ))}
+                </p>
               </div>
-              {hasHours && (
-                <div className={styles.factGroup}>
-                  <div>
-                    <dt className={styles.label}>{de ? 'Öffnungszeiten' : 'Hours'}</dt>
-                    <dd className={styles.hours}>
-                      {r.openingHours!.map((slot, i) => [
-                        <span key={`d-${i}`} className={styles.hoursDay}>
-                          {localizeOpeningDays(slot.days, loc)}
-                        </span>,
-                        <span key={`t-${i}`}>{localizeOpeningHours(slot.hours, loc)}</span>,
-                      ])}
-                    </dd>
-                  </div>
-                </div>
-              )}
-            </dl>
+            )}
+            {hasHours && (
+              <div className={styles.briefBlock}>
+                <h3 className={styles.kicker}>{de ? 'Öffnungszeiten' : 'Hours'}</h3>
+                <dl className={styles.hours}>
+                  {r.openingHours!.map((slot, i) => (
+                    <div key={i} className={styles.hoursRow}>
+                      <dt>{localizeOpeningDays(slot.days, loc)}</dt>
+                      <dd>{withDash(localizeOpeningHours(slot.hours, loc))}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            )}
             <div className={styles.buttons}>
               {/* nofollow: `mapHref` trägt eine Query, jede Variante würde
                   sonst einzeln gecrawlt. */}
@@ -509,6 +520,18 @@ export default async function RestaurantPage({ params }: PageProps) {
               )}
             </div>
           </section>
+
+          {/* Das Herz als Satz „Ich ♥ <Name>" nach dem Steckbrief, über „Im
+              Magazin" (Wahl 07.10.2026; davor stand der Name doppelt). */}
+          <HeartButton
+            restaurantId={r._id}
+            name={r.name}
+            displayName={displayName}
+            slug={slug}
+            photo={r.photo ?? undefined}
+            district={r.bezirk?.name ?? undefined}
+            locale={loc}
+          />
 
           <RestaurantArticlesSection
             articles={articles}

@@ -131,9 +131,10 @@
   text-decoration: none;
 }
 
-/* Das Gericht steht in EINER Zeile (Ansage 28.09.2026: „Rinderschaufel eine
-   Zeile natürlich"); ein sehr langes endet mit Auslassung, nie läuft es in
-   die Nachbarkarte. */
+/* Was in eine Zeile passt, steht in einer (Ansage 28.09.2026: „Rinderschaufel
+   eine Zeile natürlich"). Ein langes Gericht bricht ausgeglichen um, statt
+   mit Auslassung zu enden (Ansage 07.10.2026) — nie läuft es in die
+   Nachbarkarte. */
 .dish {
   display: block;
   max-width: 100%;
@@ -141,13 +142,10 @@
   font-size: var(--dish-size);
   font-weight: 700;
   letter-spacing: 0;
-  /* Akzente auf Versalien („BÁNH MÌ") brauchen Luft über der Zeile, sonst
-     schneidet `overflow: hidden` sie an. */
   line-height: 1.2;
   text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .restaurantLink :global(.hv-sub) {

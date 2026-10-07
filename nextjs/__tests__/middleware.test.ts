@@ -190,6 +190,15 @@ describe('middleware: legacy 404 cleanup (post-rebuild re-slug)', () => {
     }
   })
 
+  it('spot taken off the map → 308 to its hub before any page renders, in either locale', async () => {
+    const middleware = await mw()
+    for (const prefix of ['', '/en']) {
+      const res = await middleware(makeReq(`${prefix}/restaurant/piazza-bra?utm_source=test`))
+      expect(res.status).toBe(308)
+      expect(res.headers.get('location')).toBe(`https://staging.example.com${prefix}/kategorie/lunch`)
+    }
+  })
+
   it('removed news article → 308 to /news, locale preserved', async () => {
     const middleware = await mw()
     const de = await middleware(makeReq('/news/bun-society'))

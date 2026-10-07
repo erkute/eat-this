@@ -25,7 +25,7 @@ npm run build:email-spots         # rendert die Spot-Cards der Anmelde-Mail neu 
 | `staging` | `eat-this-staging-8a13b` | `…--eat-this-staging-8a13b.us-central1.hosted.app` (Basic Auth + noindex) |
 
 Zwei **getrennte** Projekte – bei jedem `firebase`-Befehl `--project` explizit setzen.
-`main` ist branch-protected: Feature-Branch → PR nach `staging` → PR nach `main`. Auf `staging` darf direkt gepusht werden.
+`main` ist branch-protected, der Weg dorthin führt immer über `staging`. Kleinkram (Doku, Texte, Einzeiler) direkt auf `staging` committen und pushen; größere Arbeit über Feature-Branch → PR nach `staging`. „Bring das live“ heißt: PR `staging → main` öffnen und `gh pr merge <nr> --merge --auto` setzen – GitHub mergt, sobald `nextjs` grün ist. Ändert ein PR oder Push nur `*.md`, `.claude/`, `.agents/` oder `.codex/`, überspringt der CI-Check den Build.
 Der `.githooks/pre-push`-Hook baut voll durch (~30-60 s) – nie mit `--no-verify` umgehen, Log unter `/tmp/eat-this-prepush-build.log`.
 
 Firestore-Regeln und Sanity Studio werden separat deployt. Auf Staging sind `/api/stripe/webhook` und `/api/revalidate` vom Basic-Auth-Gate ausgenommen – ihre Signaturprüfung muss bleiben. Rollout-Nachweis: `/deploy-verify`.

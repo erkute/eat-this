@@ -28,14 +28,42 @@ jobs:
         working-directory: nextjs
     steps:
       - uses: actions/checkout@v5
+
+      # Reine Doku-Änderungen brauchen keinen Build: ändert der PR bzw. Push nur
+      # Markdown oder Agent-Konfiguration, meldet der Check nach Sekunden grün
+      # statt nach ~4 Minuten. `nextjs` bleibt dabei ein erfolgreicher Lauf, der
+      # Pflicht-Check auf `main` wird also erfüllt (ein `paths-ignore` am
+      # Trigger würde ihn dagegen ewig „ausstehend“ lassen). Im Zweifel – neuer
+      # Branch ohne Vorgänger, Vergleich schlägt fehl, ≥ 300 Dateien – wird gebaut.
+      - name: Nur Doku geändert?
+        id: scope
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          code=true
+          if [ -n "$BASE" ] && [ "$BASE" != 0000000000000000000000000000000000000000 ] \
+            && files=$(gh api "repos/$GITHUB_REPOSITORY/compare/$BASE...$HEAD" --jq '.files[].filename') \
+            && [ -n "$files" ] && [ "$(wc -l <<< "$files")" -lt 300 ] \
+            && ! grep -qvE '\.md$|^\.(claude|agents|codex)/' <<< "$files"; then
+            code=false
+            echo "Nur Doku geändert – Build übersprungen:"; printf '  %s\n' $files
+          fi
+          echo "code=$code" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v5
+        if: steps.scope.outputs.code == 'true'
         with:
           node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: nextjs/package-lock.json
       - run: npm ci
+        if: steps.scope.outputs.code == 'true'
       - run: npm run lint
+        if: steps.scope.outputs.code == 'true'
       - run: npm test
+        if: steps.scope.outputs.code == 'true'
 
       # Remys Vektor-Indizes (Spots und Artikel) sind eingecheckte Moment-
       # aufnahmen, die nichts automatisch nachziehen. Am 06.09.2026 kannte der
@@ -50,6 +78,7 @@ jobs:
       # bleibt gruen — dafuer ist der Uptime-Workflow zustaendig, nicht
       # dieser PR.
       - run: npm run check:embeddings
+        if: steps.scope.outputs.code == 'true'
 
       # Der teuerste Schritt dieses Workflows ist nicht CPU, sondern Sanity.
       #
@@ -74,6 +103,7 @@ jobs:
       # Der Cache darf hier veralten: dieser Build ist ein CODE-Gate. Der Build,
       # der wirklich ausliefert, läuft bei App Hosting und immer kalt.
       - name: Sanity-Fetch-Cache holen
+        if: steps.scope.outputs.code == 'true'
         uses: actions/cache/restore@v4
         with:
           # `path` ist repo-relativ — `defaults.run.working-directory` gilt nur
@@ -85,6 +115,7 @@ jobs:
           restore-keys: sanity-fetch-cache-
 
       - run: npm run build
+        if: steps.scope.outputs.code == 'true'
 
       # Nur auf einem Push sichern, also auf `staging` und `main`. Ein Cache aus
       # einem PR-Lauf ist auf genau diesen PR beschränkt und für keinen anderen
@@ -95,7 +126,7 @@ jobs:
       # lesen den staging-Stand (ihr Basis-Branch), `staging → main`-PRs und
       # alles andere den main-Stand (Default-Branch, von überall lesbar).
       - name: Sanity-Fetch-Cache sichern
-        if: github.event_name == 'push'
+        if: steps.scope.outputs.code == 'true' && github.event_name == 'push'
         uses: actions/cache/save@v4
         with:
           path: nextjs/.next/cache/fetch-cache

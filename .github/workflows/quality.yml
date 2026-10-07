@@ -123,15 +123,21 @@ jobs:
         if: steps.scope.outputs.code == 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Browser flows and accessibility (this build)
+      - uses: actions/setup-java@v4
         if: steps.scope.outputs.code == 'true'
-        run: npm run test:e2e
+        with:
+          distribution: temurin
+          java-version: '21'
 
-      - name: Lighthouse (this build)
+      # Public card metadata comes from Sanity; Firestore/Storage use synthetic
+      # fixtures in a demo project. PR code receives no production credentials.
+      - name: Browser flows, accessibility and Lighthouse (this build)
         if: steps.scope.outputs.code == 'true'
+        env:
+          FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
         run: |
           export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
-          npm run audit:preview
+          npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npm run test:e2e && npm run audit:preview"
 
       - name: Browser and Lighthouse evidence
         if: always() && steps.scope.outputs.code == 'true'

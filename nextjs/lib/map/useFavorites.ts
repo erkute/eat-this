@@ -22,13 +22,15 @@ interface FavoriteEntry {
 interface UseFavoritesResult {
   favoriteIds: Set<string>;
   favorites: FavoriteEntry[];
+  /** `true`, sobald das Herz auf dem Server steht oder entfernt ist; `false`
+   *  ohne Konto (dann geht das Login-Modal auf) und bei einem Fehler. */
   toggle: (r: {
     _id: string;
     name: string;
     slug?: string;
     photo?: string;
     district?: string;
-  }) => Promise<void>;
+  }) => Promise<boolean>;
   updateNote: (restaurantId: string, note: string) => Promise<void>;
   setVisited: (restaurantId: string, visited: boolean) => Promise<void>;
   loading: boolean;
@@ -193,7 +195,13 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
   const { favoriteIds, favorites, loading } = visibleState;
 
   const toggle = useCallback(
-    async (r: { _id: string; name: string; slug?: string; photo?: string; district?: string }) => {
+    async (r: {
+      _id: string;
+      name: string;
+      slug?: string;
+      photo?: string;
+      district?: string;
+    }): Promise<boolean> => {
       if (!uid || !auth.currentUser) {
         /* Der Tap geht nicht verloren: er wartet auf das Konto und wird
            eingeloest, sobald eines da ist (siehe pendingHeart). Das Modal
@@ -206,7 +214,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           name: r.name,
           photo: r.photo,
         });
-        return;
+        return false;
       }
       // The heart write goes through /api/heart (Admin SDK), which is the single
       // writer of both the favorite doc and the public restaurants/{id}.heartCount
@@ -238,7 +246,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
         if (!res.ok) throw new Error(`heart ${res.status}`);
       } catch {
         notify('actionFailed', locale);
-        return;
+        return false;
       }
       if (adding) {
         setState((current) => {
@@ -271,6 +279,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           return { ...current, favoriteIds: nextIds, favorites: next };
         });
       }
+      return true;
     },
     [uid, favoriteIds, loading, locale, openLoginModal]
   );

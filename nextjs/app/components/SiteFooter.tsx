@@ -84,7 +84,7 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
           type="button"
           className={`${styles.langBtn} ${lang === 'de' ? styles.langBtnActive : ''}`}
           onClick={() => setLang('de')}
-          aria-label="Deutsch"
+          aria-label="DE — Deutsch"
         >
           DE
         </button>
@@ -93,7 +93,7 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
           type="button"
           className={`${styles.langBtn} ${lang === 'en' ? styles.langBtnActive : ''}`}
           onClick={() => setLang('en')}
-          aria-label="English"
+          aria-label="EN — English"
         >
           EN
         </button>

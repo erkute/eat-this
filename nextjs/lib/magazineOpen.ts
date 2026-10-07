@@ -33,6 +33,7 @@ export interface MagazineOpenClasses {
   table: string;
   book: string;
   page: string;
+  paper: string;
   shadow: string;
   gutter: string;
   strip: string;
@@ -296,6 +297,8 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
   const table = div(classes.table);
   const book = div(classes.book);
   const page = div(classes.page);
+  const paper = div(classes.paper);
+  paper.setAttribute('aria-hidden', 'true');
   const shadow = div(classes.shadow);
   const gutter = div(classes.gutter);
   book.append(page, shadow, gutter);
@@ -340,7 +343,7 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
   const turn = style.rotate && style.rotate !== 'none' ? style.rotate : '0deg';
 
   // Was auf die Seite gelegt wird (der Artikel) und wie es dort hinkommt.
-  const scene: { el: HTMLElement; at: DOMRect }[] = [];
+  const scene: { el: HTMLElement; at: DOMRect; background: string }[] = [];
   const nav = document.getElementById('navbar');
   const sceneAnimations: Animation[] = [];
 
@@ -413,6 +416,10 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
       { ...LIFT, fill: 'forwards' }
     );
     await Promise.all([done(lift, LIFT), done(close, LIFT)]);
+    // Keep the browser canvas dark when the route switches to a light
+    // article. Safari can expose it at the viewport edges while compositing
+    // the transformed page's large shadow. The article gets its own ground.
+    document.documentElement.setAttribute('data-magazine-opening', '');
     navigate();
     const landed = await waitFor(landing, LANDING_TIMEOUT);
     if (landed) await photoReady(landed);
@@ -424,13 +431,26 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     // dem Rand, bis man gelandet ist. Ohne Übergang — sie klappt am Telefon
     // per `transition` weg, und ein laufender Übergang schlüge jede Animation.
     const rects = pageRects(g, vw, vh);
+    const paperOn = (r: Rect) =>
+      `translate(${r.x}px, ${r.y}px) scale(${r.w / vw}, ${r.h / vh})`;
     if (nav) {
       nav.style.transition = 'none';
       nav.style.transform = 'translateY(calc(-100% - 2px))';
     }
     if (landed instanceof HTMLElement) {
       const at = landed.getBoundingClientRect();
-      scene.push({ el: landed, at });
+      scene.push({ el: landed, at, background: landed.style.backgroundColor });
+      landed.style.backgroundColor = 'var(--article-ground)';
+      // A tall phone article leaves margins inside the wider magazine page.
+      // Give the whole sheet its theme colour without lightening the canvas
+      // outside the sheet (Safari's viewport-edge flash protection).
+      Object.assign(paper.style, {
+        width: `${vw}px`,
+        height: `${vh}px`,
+        backgroundColor: getComputedStyle(landed).backgroundColor,
+        transform: paperOn(rects.closed),
+      });
+      landed.before(paper);
       landed.style.transformOrigin = '0 0';
       landed.style.transform = placeOn(rects.closed, vw, vh, at);
       // Nur zeichnen, was auf der Seite zu sehen ist: verkleinert zeigt sie
@@ -442,8 +462,8 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     }
     // Zuletzt endet der Artikel ohne Transform, also genau an seinem Platz
     // unter der Kopfleiste.
-    const moveScene = (fromRect: Rect, toRect: Rect | null, timing: typeof OPEN) =>
-      scene.map(({ el, at }) =>
+    const moveScene = (fromRect: Rect, toRect: Rect | null, timing: typeof OPEN) => {
+      const animations = scene.map(({ el, at }) =>
         el.animate(
           [
             { transform: placeOn(fromRect, vw, vh, at) },
@@ -452,6 +472,14 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
           { ...timing, fill: 'forwards' }
         )
       );
+      if (paper.isConnected) {
+        animations.push(paper.animate(
+          [{ transform: paperOn(fromRect) }, { transform: paperOn(toRect ?? rects.full) }],
+          { ...timing, fill: 'forwards' }
+        ));
+      }
+      return animations;
+    };
 
     // 2 — aufschlagen. Die Seite übernimmt den Tisch (gleiche Farbe, ohne
     // Sprung); auf ihr steht schon der Artikel.
@@ -503,16 +531,19 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     });
     await done(enter, ENTER);
   } finally {
-    overlay.remove();
     link.style.visibility = '';
     // Am Ende steht der Artikel wieder ohne Transform — dieselbe Lage, die
     // die letzte Animation zeigt, also ohne Sprung.
-    for (const { el } of scene) {
+    for (const { el, background } of scene) {
+      el.style.backgroundColor = background;
       el.style.transform = '';
       el.style.transformOrigin = '';
       el.style.clipPath = '';
     }
     sceneAnimations.forEach((animation) => animation.cancel());
+    document.documentElement.removeAttribute('data-magazine-opening');
+    paper.remove();
+    overlay.remove();
     if (nav?.style.transform) {
       // Die Kopfleiste rutscht herein, sobald man im Artikel steht.
       nav.style.transform = '';

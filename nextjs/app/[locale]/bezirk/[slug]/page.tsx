@@ -58,10 +58,12 @@ export const revalidate = 86400;
 
 export async function generateStaticParams() {
   const bezirke = await getAllBezirkeWithStats();
-  // Skip districts without open spots — their detail page redirects to the index (see below).
-  return routing.locales.flatMap((locale) =>
-    bezirke.filter((b) => (b.restaurantCount ?? 0) > 0).map((b) => ({ locale, slug: b.slug }))
-  );
+  // Empty districts too, although their page only redirects (see below): a
+  // redirect Next renders on demand sends `location` twice on EN (Next 15.5),
+  // which App Hosting joins to `/en/bezirk,/en/bezirk` — a 404. Prerendered,
+  // the first request is a cache hit and carries one; so does every later
+  // background revalidation (measured with revalidate=15, 07.10.2026).
+  return routing.locales.flatMap((locale) => bezirke.map((b) => ({ locale, slug: b.slug })));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

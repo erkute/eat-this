@@ -111,15 +111,15 @@
 .metaShadow,
 .metaWide,
 .fieldMeta {
-  font-family: var(--et-font-body);
-  font-size: 2cqw;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-family: var(--et-font-display);
+  font-size: 2.4cqw;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   line-height: 1.35;
   text-transform: uppercase;
 }
 .metaBold {
-  font-size: 2.3cqw;
+  font-size: 2.6cqw;
   font-weight: 700;
 }
 .metaShadow {

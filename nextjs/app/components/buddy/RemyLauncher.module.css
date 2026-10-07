@@ -131,15 +131,15 @@
 
 /* Das ✕ zum Wegtippen sitzt als Abzeichen in der Ecke der Kachel, wie an einem
    App-Icon: klein genug, um die Kachel nicht zu dominieren, groß genug für den
-   Daumen (das Trefferfeld wird über ::before auf 34px aufgezogen). */
+   Daumen (28px Box, über ::before ein 44px Trefferfeld). */
 .dismiss {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: -9px;
+  right: -9px;
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   color: var(--et-white);
   background: var(--et-ink);

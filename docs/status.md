@@ -62,4 +62,4 @@ Bestände wurden bei der lokalen Bereinigung weder geprüft noch gelöscht.
 
 Neue Arbeiten beginnen mit dem dann aktuellen Quellstand und einem neuen
 Auftrag. Die verbindlichen Arbeitsregeln stehen in [AGENTS.md](../AGENTS.md)
-und [CLAUDE.md](../CLAUDE.md).
+(`CLAUDE.md` importiert sie nur).

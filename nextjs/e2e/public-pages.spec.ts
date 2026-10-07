@@ -86,3 +86,19 @@ test('reduced motion keeps magazine navigation usable', async ({ page, context, 
   await expect(page).toHaveURL(new RegExp(`${href}$`));
   await expect(page.locator('h1')).toBeVisible();
 });
+
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+  test(`guest card opens starter login (${reducedMotion})`, async ({ page, context, baseURL }) => {
+    await page.emulateMedia({ reducedMotion });
+    await context.addCookies([
+      { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
+    ]);
+    await page.goto('/');
+    await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
+    await page
+      .getByRole('button', { name: 'Verdecktes Must Eat — anmelden und aufdecken', exact: true })
+      .click();
+    await expect(page.getByRole('heading', { name: 'Schau drunter', exact: true })).toBeVisible();
+    await expect(page.locator('input[type="email"]').last()).toBeVisible();
+  });
+}

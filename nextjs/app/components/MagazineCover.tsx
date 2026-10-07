@@ -57,8 +57,6 @@ interface Props {
   widths?: number[];
   /** The page's LCP image: load at once and ahead of the rest. */
   priority?: boolean;
-  /** Visible supporting covers load immediately without competing with the front. */
-  loading?: 'eager' | 'lazy';
 }
 
 const q = (n: number) => `${Math.round(n * 1000) / 1000}cqw`;
@@ -95,7 +93,6 @@ export default function MagazineCover({
   sizes,
   widths = [480, 800, 1200],
   priority = false,
-  loading: requestedLoading = 'lazy',
 }: Props) {
   const look = coverLook(issue, cover);
   const month = formatMonth(date, locale);
@@ -111,7 +108,7 @@ export default function MagazineCover({
       {month}
     </>
   );
-  const loading = priority ? 'eager' : requestedLoading;
+  const loading = priority ? 'eager' : 'lazy';
   const fetchPriority = priority ? ('high' as const) : undefined;
   const [lead, rest] = splitHeadline(title);
   const cut = hasCutout(cover) ? cover : null;

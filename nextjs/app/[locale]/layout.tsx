@@ -91,6 +91,7 @@ export default async function LocaleLayout({
     >
       <head suppressHydrationWarning>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn.sanity.io" />
         <link
           rel="preload"
           href={PROVIDENCE_REGULAR_WOFF2}

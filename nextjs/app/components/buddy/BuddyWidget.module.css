@@ -170,7 +170,7 @@
 @media (hover: hover) {
   .close:hover,
   .reset:hover {
-    color: var(--buddy-accent);
+    color: var(--et-accent-text);
     background: var(--buddy-control-hi);
   }
 }
@@ -178,7 +178,7 @@
 .close:focus-visible,
 .reset:focus-visible {
   outline: none;
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
   background: var(--buddy-control-hi);
 }
 
@@ -320,7 +320,7 @@
 }
 
 .botList li::marker {
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
 }
 
 .chips {
@@ -354,13 +354,13 @@
 
 .chip:focus-visible {
   outline: none;
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
   background: var(--buddy-control-hi);
 }
 
 @media (hover: hover) {
   .chip:hover {
-    color: var(--buddy-accent);
+    color: var(--et-accent-text);
     background: var(--buddy-control-hi);
   }
 }
@@ -372,7 +372,7 @@
   align-items: center;
   gap: 7px;
   padding: 11px 14px;
-  color: var(--buddy-ink);
+  color: var(--et-on-accent);
   background: var(--buddy-accent);
 }
 
@@ -549,7 +549,7 @@
 
 @media (hover: hover) {
   .spotSave:hover {
-    color: var(--buddy-accent);
+    color: var(--et-accent-text);
   }
 }
 
@@ -627,7 +627,7 @@
   .spotCardLink:hover .spotName,
   .articleCard:hover .spotName,
   .packCard:hover .spotName {
-    color: var(--buddy-accent);
+    color: var(--et-accent-text);
   }
 }
 
@@ -636,7 +636,7 @@
 }
 
 .spotCardLink:focus-visible .spotName {
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
 }
 
 /* Die Fakten-Zeile: Kueche · Bezirk · Preis, in Weiss 55 %. Die Entfernung
@@ -658,7 +658,7 @@
 }
 
 .spotDist {
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
 }
 
 .spotDesc,
@@ -772,7 +772,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
   font-family: var(--buddy-display);
   font-size: 0.68rem;
   font-weight: 700;
@@ -795,6 +795,7 @@
   height: 9px;
   flex: 0 0 9px;
   background: var(--buddy-accent);
+  color: var(--et-on-accent);
 }
 
 .form {
@@ -834,14 +835,14 @@
 
 @media (hover: hover) {
   .geo:not(:disabled):hover {
-    color: var(--buddy-accent);
+    color: var(--et-accent-text);
     background: var(--buddy-control-hi);
   }
 }
 
 .geo:focus-visible {
   outline: none;
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
   background: var(--buddy-control-hi);
 }
 
@@ -939,13 +940,13 @@
 
 @media (hover: hover) {
   .stop:hover:not(:disabled) {
-    color: var(--buddy-accent);
+    color: var(--et-accent-text);
     background: var(--buddy-control-hi);
   }
 }
 
 .stop:focus-visible {
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
   background: var(--buddy-control-hi);
 }
 
@@ -962,7 +963,7 @@
   align-items: center;
   gap: 8px;
   padding: 4px 0;
-  color: var(--buddy-accent);
+  color: var(--et-accent-text);
   font-family: var(--buddy-display);
   font-size: 0.8rem;
   font-weight: 700;
@@ -984,6 +985,7 @@
   background: var(--buddy-accent);
   border-radius: var(--et-radius-pill);
   animation: buddyDot 0.9s ease-in-out infinite;
+  color: var(--et-on-accent);
 }
 
 .typingDots i:nth-child(2) {

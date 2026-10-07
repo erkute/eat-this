@@ -62,6 +62,6 @@
 @media (hover: hover) {
   .toggle:hover {
     background: var(--article-accent);
-    color: var(--et-ink);
+    color: var(--et-on-accent);
   }
 }

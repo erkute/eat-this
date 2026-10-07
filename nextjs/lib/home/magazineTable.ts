@@ -26,7 +26,7 @@
    Fächer schon vor dem Hydrieren richtig liegt. */
 
 import gsap from 'gsap';
-import { DECK_GO_EVENT } from './magazineDeck';
+import { DECK_CHANGE_EVENT, DECK_GO_EVENT } from './magazineDeck';
 
 export interface FanGeometry {
   /** So viele Hefte liegen sichtbar hinter dem vorderen; dahinter genau
@@ -191,6 +191,8 @@ export function armMagazineTable(stage: HTMLElement, deck: HTMLElement): () => v
     layer();
   };
   const mark = () => {
+    deck.dataset.activeIndex = String(front);
+    deck.dispatchEvent(new CustomEvent(DECK_CHANGE_EVENT, { detail: front }));
     dots.forEach((dot, n) => {
       if (n === front) dot.setAttribute('aria-current', 'true');
       else dot.removeAttribute('aria-current');
@@ -506,6 +508,7 @@ export function armMagazineTable(stage: HTMLElement, deck: HTMLElement): () => v
       card.el.style.zIndex = String(count - i);
     });
     dots.forEach((dot) => dot.removeAttribute('aria-current'));
+    delete deck.dataset.activeIndex;
     stage.removeAttribute('data-flying');
     deck.removeAttribute('data-dragging');
     deck.removeEventListener('pointerdown', down);

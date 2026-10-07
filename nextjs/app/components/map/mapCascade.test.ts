@@ -247,11 +247,12 @@ describe('RestaurantDetail cascade', () => {
 });
 
 describe('MapFilters cascade', () => {
-  it('lets an active chip keep full-size type on one line', () => {
-    // Long values must use the same readable type as every other filter.
-    // A single-line label may truncate; shrinking text is never the fallback.
+  it('lets a full district name wrap at spaces instead of truncating', () => {
+    // Districts such as Prenzlauer Berg must remain fully readable, including
+    // inside the narrow desktop sidebar and on a phone.
     expect(effective(FILTERS, 'filterChipLabel', 'font')).toBe('inherit');
-    expect(effective(FILTERS, 'filterChipLabel', 'white-space')).toBe('nowrap');
+    expect(effective(FILTERS, 'filterChipLabel', 'white-space')).toBe('normal');
+    expect(effective(FILTERS, 'filterChipLabel', 'overflow')).toBe('visible');
   });
 
   it('never breaks a chip label mid-word', () => {

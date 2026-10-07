@@ -1,6 +1,8 @@
 .section:global(.hv-section.hv-wrap) {
-  margin-top: clamp(64px, 7vw, 96px);
-  margin-bottom: var(--home-section-gap);
+  margin-block: 0;
+  padding-block: clamp(40px, 5vw, 72px);
+  background: var(--et-ink-raised);
+  border-image: conic-gradient(var(--et-ink-raised) 0 0) fill 0 / / 0 100vw;
 }
 .board {
   display: grid;
@@ -8,12 +10,11 @@
   gap: clamp(32px, 5vw, 80px);
   align-items: start;
   padding: var(--et-board-pad);
-  background: var(--et-board-bg);
+  background: transparent;
   color: var(--et-white);
   border-radius: var(--et-board-radius);
 }
 .section .board :global(.hv-title) {
-  max-width: 8ch;
   margin: 0;
   font-size: var(--et-type-section-title);
   line-height: 0.98;
@@ -21,7 +22,7 @@
   color: var(--et-white);
 }
 .list { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.item { border: none; }
+.item { border: 0; }
 .question {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 28px;
@@ -41,28 +42,27 @@
 .question::after {
   content: '+';
   justify-self: center;
-  color: var(--et-accent);
+  color: var(--et-accent-text);
   font-family: var(--et-font-body);
   font-size: 28px;
   line-height: 1;
   transition: transform 300ms ease;
 }
 .item[open] .question::after { transform: rotate(45deg); }
-.question:focus-visible { outline: 2px solid var(--et-white); outline-offset: 5px; }
-@media (hover: hover) { .question:hover { color: var(--et-accent); } }
+.question:focus-visible { outline: 2px solid var(--et-accent-text); outline-offset: 5px; }
+@media (hover: hover) { .question:hover { color: var(--et-accent-text); } }
 .answer {
   max-width: 58ch;
   margin: 0;
   padding: 2px 42px 22px 0;
   overflow: hidden;
-  color: rgba(255,255,255,0.76);
+  color: rgba(255, 255, 255, 0.76);
   font-family: var(--et-font-display);
   font-size: clamp(17px, 1.5vw, 20px);
   line-height: 1.5;
 }
 @media (max-width: 899px) {
   .board { grid-template-columns: minmax(0, 1fr); gap: 26px; }
-  .section .board :global(.hv-title) { max-width: none; font-size: var(--et-type-section-title); }
   .list { gap: 8px; }
   .question { min-height: 60px; gap: 14px; font-size: 21px; }
   .answer { padding-right: 20px; font-size: 17px; }

@@ -18,6 +18,10 @@ import { unstable_cache } from 'next/cache';
 import { hydrateAuthorizedMustEats, readPrivateMustEatContent } from '@/lib/must-eat/private-store';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import type { CategoryDef } from '@/lib/categories';
+import { client } from '@/lib/sanity';
+import { SANITY_LIVE_SURFACE_SECONDS } from '@/lib/constants';
+import { HOME_MAP_CATEGORIES } from '@/lib/home/mapPreview';
+import { homeMapCategoriesQuery } from './queries';
 
 export interface InitialMapData {
   restaurants: MapRestaurant[];
@@ -119,12 +123,24 @@ function composeMustEatsCatalog(anon: InitialMapData, catalog: MapMustEat[]): In
 
 /** Homepage payload: spots plus five cards from the public shop window. */
 export async function getHomeInitialMapData(): Promise<InitialMapData> {
-  const [anon, { mustEats: catalog }] = await Promise.all([
+  const [anon, { mustEats: catalog }, recommendations] = await Promise.all([
     getInitialAnonMapData(),
     getCachedMapData(),
+    client.fetch<{ categories: CategoryDef[]; articles: { slug: string; spots: (string | null)[] | null }[] }>(homeMapCategoriesQuery,
+      { slugs: HOME_MAP_CATEGORIES.map(({ slug }) => slug) },
+      { next: { revalidate: SANITY_LIVE_SURFACE_SECONDS, tags: ['map-data'] } }),
   ]);
+  const categories = recommendations.categories.map((category) => {
+    const sources: readonly string[] = HOME_MAP_CATEGORIES.find((item) => item.slug === category.slug)?.articles ?? [];
+    const articleSlugs = recommendations.articles.filter((article) => sources.includes(article.slug))
+      .flatMap((article) => article.spots ?? []);
+    const members = new Set(anon.restaurants.filter((spot) =>
+      spot.categories?.some((item) => item.slug === category.slug)).map((spot) => spot.slug));
+    return { ...category, recommendedSpots: [...new Set([...(category.topSpots ?? []), ...articleSlugs])]
+      .filter((slug): slug is string => slug !== null && members.has(slug)) };
+  });
   const { mustEats } = composeMustEatsCatalog(anon, catalog);
-  return selectHomeInitialMapData({ ...anon, mustEats });
+  return selectHomeInitialMapData({ ...anon, mustEats, categories });
 }
 
 export async function getInitialAnonMapData(): Promise<InitialMapData> {

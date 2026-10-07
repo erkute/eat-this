@@ -23,21 +23,6 @@ const en = {
       sendAria: 'Send',
     },
     magazine: {},
-    nearby: {
-      title: 'Around you',
-      // Without a location grant the list is centred on Mitte — saying so as a
-      // headline claims a place the visitor probably isn't. Ask instead.
-      titleFallback: "What's near you?",
-      locationAria: 'Use my location',
-      // The button only exists before a grant — once the list is sorted by
-      // distance it has nothing left to do.
-      // Short on purpose: the button sits under its own explaining line, and
-      // a full sentence made it the widest thing in the column.
-      locationRequest: 'Share',
-      locating: 'Locating…',
-      sub: 'A quick entry to the closest spots on the map.',
-      subFallback: 'Share your location and Berlin sorts itself around you.',
-    },
   },
   mustEats: {
     // "Covered" wie auf der Pack-Seite — dieselbe Sache hieß dort schon so.
@@ -68,14 +53,11 @@ const en = {
     onbPacksCta: 'Packs',
     onbClose: 'Close',
     teaserTitle: 'Must Eats',
-    // The home teaser's lead. Three beats: what is on a card, how a face-down
-    // one opens, and that it stays yours afterwards. The old lead stopped after
-    // the reveal and never said the cards are a collection — "Sammlung" is what
-    // the reveal itself and the profile's deck already call it. The grid below
-    // shows how many are face-up, so the lead no longer counts them.
-    teaserSub:
-      'Dishes you should order. Some we show you right away, others you flip at the spot and collect in your deck.',
+    teaserSub: 'Gotta try it. Gotta collect it.',
     teaserCta: 'All Must Eats',
+    teaserBrowse: 'Go there. Flip it. Keep it.',
+    teaserMystery: 'What’s inside?',
+    teaserTap: 'Tap the card.',
   },
   news: {},
   map: {
@@ -429,16 +411,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       sendAria: 'Senden',
     },
     magazine: {},
-    nearby: {
-      title: 'Um dich herum',
-      titleFallback: 'Was ist um dich?',
-      locationAria: 'Mein Standort verwenden',
-      // Kurz mit Absicht — siehe den englischen Zwilling.
-      locationRequest: 'Freigeben',
-      locating: 'Ortet …',
-      sub: 'Der schnelle Einstieg zu den nächsten Spots auf der Map.',
-      subFallback: 'Gib deinen Standort frei — dann sortiert sich Berlin um dich herum.',
-    },
   },
   mustEats: {
     covered: 'Verdeckt',
@@ -463,9 +435,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbPacksCta: 'Packs',
     onbClose: 'Schließen',
     teaserTitle: 'Must Eats',
-    teaserSub:
-      'Gerichte, die du bestellen solltest. Einige zeigen wir dir direkt, andere deckst du erst vor Ort auf und sammelst sie in deinem Deck.',
+    teaserSub: 'Musst du probieren. Kannst du sammeln.',
     teaserCta: 'Alle Must Eats',
+    teaserBrowse: 'Hingehen. Aufdecken. Deins.',
+    teaserMystery: 'Was steckt drin?',
+    teaserTap: 'Tipp auf die Karte.',
   },
   news: {},
   map: {

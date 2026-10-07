@@ -30,14 +30,14 @@ function mapData(): InitialMapData {
 describe('initial surface data selectors', () => {
   it('provides five open Must Eats for the home teaser', () => {
     const data = mapData();
-    data.categories = [{ slug: 'pizza' }] as InitialMapData['categories'];
+    data.categories = [{ slug: 'pizza', name: 'Pizza', topSpots: ['gazzo'] }];
 
     const selected = selectHomeInitialMapData(data);
 
     expect(selected.mustEats.map(({ _id }) => _id)).toEqual([
       'must-eat-1', 'must-eat-2', 'must-eat-3', 'must-eat-4', 'must-eat-5', 'must-eat-7',
     ]);
-    expect(selected.categories).toEqual([]);
+    expect(selected.categories).toEqual(data.categories);
     expect(selected.restaurants).toBe(data.restaurants);
     expect(selected.revealedMustEatIds).toBe(data.revealedMustEatIds);
     expect(data.mustEats).toHaveLength(9);

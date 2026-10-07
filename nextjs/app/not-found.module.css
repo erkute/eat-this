@@ -15,7 +15,6 @@
   --nf-dim: var(--et-ink-dim);
   --nf-accent: var(--et-accent);
   --nf-raised: var(--et-ink-raised);
-  --nf-on-accent: var(--et-ink);
   --nf-display: var(--et-font-display);
   --nf-label: var(--et-font-display);
 
@@ -213,7 +212,7 @@
 
 .primaryCta {
   background: var(--nf-accent);
-  color: var(--nf-on-accent);
+  color: var(--et-on-accent);
 }
 
 .secondaryCta {
@@ -223,25 +222,25 @@
 
 .primaryCta:focus-visible {
   background: var(--nf-ink);
-  color: var(--nf-on-accent);
+  color: var(--et-ink);
   outline: 0;
 }
 
 .secondaryCta:focus-visible {
   background: var(--nf-accent);
-  color: var(--nf-on-accent);
+  color: var(--et-on-accent);
   outline: 0;
 }
 
 @media (hover: hover) {
   .primaryCta:hover {
     background: var(--nf-ink);
-    color: var(--nf-on-accent);
+    color: var(--et-ink);
   }
 
   .secondaryCta:hover {
     background: var(--nf-accent);
-    color: var(--nf-on-accent);
+    color: var(--et-on-accent);
   }
 }
 
@@ -283,13 +282,13 @@
 }
 
 .moreLink:focus-visible {
-  color: var(--nf-accent);
+  color: var(--et-accent-text);
   outline: 0;
 }
 
 @media (hover: hover) {
   .moreLink:hover {
-    color: var(--nf-accent);
+    color: var(--et-accent-text);
   }
 }
 

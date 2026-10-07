@@ -1,5 +1,4 @@
 import type { MapRestaurant } from '@/lib/types';
-import { abbreviateBezirk } from '@/lib/map';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
 import styles from './MapControls.module.css';
@@ -31,7 +30,7 @@ export default function MapSearchSuggestions({
       {spots.length ? (
         <ul role="listbox" aria-label={locale === 'en' ? 'Suggestions' : 'Vorschläge'}>
           {spots.map((r) => {
-            const district = abbreviateBezirk(r.bezirk?.name ?? r.district ?? null);
+            const district = r.bezirk?.name ?? r.district ?? null;
             const cuisine = r.cuisineType ? localizedCuisine(r.cuisineType, locale) : null;
             const meta = [district, cuisine].filter(Boolean).join(' · ');
             // Der Bezirk steht darunter schon: „AERA Charlottenburg" heisst

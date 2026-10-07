@@ -39,7 +39,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--et-ink);
+  color: inherit;
   font: inherit;
   vertical-align: -0.14em;
   cursor: pointer;
@@ -53,7 +53,7 @@
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid currentColor;
   outline-offset: 3px;
 }
 
@@ -62,6 +62,7 @@
    nicht festgelegt. `scale`/`rotate` statt `transform` — das Aufsetzen nach
    dem Zeichnen läuft per GSAP über `transform`. */
 .btn .glyph {
+  --heart-line: currentColor;
   width: 0.92em;
   height: 0.92em;
   scale: 1;

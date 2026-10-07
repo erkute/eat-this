@@ -1,290 +1,146 @@
-/* Fünf offene Karten auf Desktop, vier im mobilen Zweierspalten-Raster. */
+/* The cards explain the collection: one open card, then one to try. */
 .runway {
-  --teaser-ink: var(--et-ink);
-  --teaser-paper: var(--et-white);
-  --teaser-accent: var(--et-accent);
-  --teaser-soft: rgba(255,255,255,0.76);
-  color: var(--teaser-paper);
-}
-.stage { display: grid; gap: clamp(32px, 4vw, 56px); padding-block: 36px; }
-.side { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 32px; align-items: center; }
-.side > :global(.hv-head) { margin: 0; }
-:global(.homeV2) .runway :global(.hv-title) { color: var(--teaser-paper); }
-.lead { margin: 0; max-width: 48ch; color: var(--teaser-soft); font-family: var(--et-font-display); font-size: clamp(17px, 1.4vw, 20px); line-height: 1.45; grid-column: 1; }
-.side > .foot { grid-column: 2; grid-row: 1 / 3; }
-.deck { --dish-size: clamp(17px, 1.5vw, 22px); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: clamp(20px, 2.5vw, 40px); margin: 0; padding: 24px 12px; list-style: none; }
-.slide { min-width: 0; }
-.slide:nth-child(even) { --card-angle: 2.4deg; }
-@media (max-width: 1023.98px) {
-  .deck { display: flex; overflow-x: auto; scroll-snap-type: x proximity; gap: 24px; padding: 28px 16px; margin-inline: -16px; }
-  .slide { flex: 0 0 min(48vw, 220px); scroll-snap-align: center; }
-}
-@media (max-width: 767.98px) {
-  .stage { gap: 20px; padding-block: 20px; }
-  .deck { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; overflow: visible; margin: 0; padding: 20px 8px; scroll-snap-type: none; }
-  .side { display: flex; flex-direction: column; align-items: stretch; gap: 20px; }
+  color: var(--et-white);
+  --onboarding-trigger-ink: var(--et-white);
+  --dish-size: clamp(18px, 1.5vw, 22px);
 }
 
-.cardShell {
-  position: relative;
+.stage {
   display: grid;
-  grid-template-rows: auto auto;
-  min-height: 100%;
-  color: var(--teaser-paper);
-  background: transparent;
-  border: 0;
-  text-decoration: none;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'intro' 'collection' 'foot';
+  gap: 24px;
+  align-items: start;
 }
 
-.cardLink {
-  display: block;
-  color: inherit;
-  text-decoration: none;
+.intro { grid-area: intro; display: flex; justify-content: space-between; align-items: baseline; gap: 24px; }
+.intro > :global(.hv-head) { margin: 0; }
+:global(.homeV2) .runway .intro :global(.hv-title) {
+  color: var(--et-white);
+  font-size: var(--et-type-section-title);
+  line-height: 1.05;
+  white-space: normal;
+}
+.lead {
+  margin: 0;
+  max-width: 40ch;
+  font-family: var(--et-font-display);
+  font-size: clamp(18px, 1.45vw, 21px);
+  line-height: 1.5;
+  text-wrap: pretty;
 }
 
-.photo {
-  min-height: 0;
-  display: grid;
-  place-items: center;
-  padding: 0;
+.collection { grid-area: collection; min-width: 0; align-self: center; }
+.deck {
+  display: flex;
+  align-items: stretch;
+  gap: 30px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 18px;
+  touch-action: pan-x pan-y pinch-zoom;
+  scrollbar-width: none;
+  margin: 0 -18px;
+  padding: 32px 18px 28px;
+  list-style: none;
 }
-
-/* These are collectible cards, so they should read as physical objects: the
-   Must-Eat-sheet shadow that lifts them off the ink and a small alternating
-   tilt, as if a hand had laid them down. Straightening on hover is the reward. */
+.deck::-webkit-scrollbar { display: none; }
+.deck:focus-visible { outline: 2px solid var(--et-white); outline-offset: 5px; border-radius: 8px; }
+.slide { flex: 0 0 clamp(220px, 16.5vw, 270px); min-width: 0; scroll-snap-align: start; }
+.slide:nth-child(even) { --card-angle: 2deg; }
+.browseHint { margin: 4px 0 0; text-align: center; font-size: 20px; line-height: 1.5; }
+.cardShell { display: grid; grid-template-rows: auto 1fr; min-height: 100%; color: inherit; }
+.cardLink { display: block; color: inherit; text-decoration: none; border-radius: 12px; }
+.photo { display: grid; place-items: center; }
 .card {
   display: block;
   width: 100%;
-  max-width: 340px;
   height: auto;
+  aspect-ratio: 760 / 1044;
   object-fit: contain;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
-  transform: rotate(var(--card-angle, -2.4deg));
-  transition:
-    transform 220ms cubic-bezier(0.2, 0.8, 0.3, 1),
-    filter 220ms ease;
+  transform: rotate(var(--card-angle, -2deg));
+  filter: drop-shadow(0 14px 12px rgba(0, 0, 0, 0.32));
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.3, 1), filter 220ms ease;
 }
-
-.cardShell:focus-within .card,
-.cardLink:focus-visible .card {
-  transform: rotate(0deg) translateY(-8px) scale(1.04);
-  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
-}
-
-@media (hover: hover) {
-  .cardShell:hover .card,
-  .cardLink:hover .card {
-    transform: rotate(0deg) translateY(-8px) scale(1.04);
-    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
-  }
-}
-
-/* Druckzustand: die Karte ist ein Link, die pauschale Knopf-Regel in
-   globals.css trifft sie also nicht. Nicht `--et-press-tile` (0.985): am
-   Telefon ist eine Karte 114px breit, 1,5 % davon sind 1,7px und damit nichts.
-   Eine Sammelkarte ist ohnehin ein Gegenstand — sie darf sich unter dem Finger
-   spürbar in den Grund drücken. Eigenständiges `scale`, damit die Kippung aus
-   `transform` stehen bleibt. */
+.cardLink:focus-visible { outline: 2px solid var(--et-white); outline-offset: 8px; }
+.cardShell:focus-within .card { transform: rotate(0deg) translateY(-6px); }
 @media (hover: hover) and (pointer: fine) {
-  .cardLink:active .card { scale: 0.94; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card {
-    transform: none;
+  .cardShell:hover .card {
+    transform: rotate(0deg) translateY(-6px);
+    filter: drop-shadow(0 18px 16px rgba(0, 0, 0, 0.4));
   }
-
-  .cardShell:focus-within .card,
-  .cardLink:focus-visible .card {
-    transform: none;
-  }
-
-  @media (hover: hover) {
-    .cardShell:hover .card,
-    .cardLink:hover .card {
-      transform: none;
-    }
-  }
+  .cardLink:active .card { scale: 0.98; }
 }
-
-/* ── Card meta (dish + restaurant) ────────────────────────────────────────── */
-/* Alle Unterschriften gleich (Ansage 30.09.2026): linksbündig, eine Grösse,
-   verdeckt wie aufgedeckt. Die Grösse hängt an der Kartenbreite (`.slide`),
-   nicht an der Länge des Gerichts — so ist „Verdeckt" nicht grösser als
-   „Rinder Schaufel". */
-.meta {
-  display: grid;
-  align-content: start;
-  justify-items: start;
-  gap: 4px;
-  padding: 20px 2px 0;
-  text-align: left;
-}
-
-.dishLink,
-.restaurantLink {
-  display: grid;
-  width: fit-content;
-  max-width: 100%;
-  min-width: 0;
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Was in eine Zeile passt, steht in einer (Ansage 28.09.2026: „Rinderschaufel
-   eine Zeile natürlich"). Ein langes Gericht bricht ausgeglichen um, statt
-   mit Auslassung zu enden (Ansage 07.10.2026) — nie läuft es in die
-   Nachbarkarte. */
+.meta { display: grid; align-content: start; justify-items: start; gap: 6px; padding: 24px 6px 0; }
+.dishLink, .restaurantLink { display: block; max-width: 100%; color: inherit; text-decoration: none; }
 .dish {
   display: block;
-  max-width: 100%;
   font-family: var(--et-font-display);
   font-size: var(--dish-size);
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.2;
+  line-height: 1.25;
   text-transform: uppercase;
   text-wrap: balance;
   overflow-wrap: break-word;
 }
-
 .restaurantLink :global(.hv-sub) {
-  hyphens: auto;
+  color: var(--et-ink-soft);
+  font-family: var(--et-font-display);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.35;
+  text-transform: none;
   overflow-wrap: anywhere;
 }
-
-.dishLink:focus-visible .dish {
-  color: var(--teaser-accent);
-}
-
+.dishLink:focus-visible, .restaurantLink:focus-visible { outline: 2px solid var(--et-white); outline-offset: 4px; border-radius: 2px; }
 @media (hover: hover) {
-  .dishLink:hover .dish {
-    color: var(--teaser-accent);
-  }
+  .dishLink:hover, .restaurantLink:hover { text-decoration: underline; text-underline-offset: 4px; }
 }
 
-/* Text-Links bewegen sich nicht, sie färben sich — derselbe Wechsel, den ihr
-   Hover kennt, nur eben auch für einen Finger. */
-.dishLink:active .dish {
-  color: var(--teaser-accent);
-}
-
-.restaurantLink :global(.hv-sub) {
-  color: rgba(255, 255, 255, 0.62);
-  font-family: var(--et-font-display);
-  font-size: clamp(13px, 1.15vw, 15px);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  line-height: 1.1;
-  text-transform: none;
-}
-
-.restaurantLink:focus-visible :global(.hv-sub) {
-  color: var(--teaser-accent);
-}
-
-@media (hover: hover) {
-  .restaurantLink:hover :global(.hv-sub) {
-    color: var(--teaser-accent);
-  }
-}
-
-.restaurantLink:active :global(.hv-sub) {
-  color: var(--teaser-accent);
-}
-
-/* ── Footer row: gelber Knopf zu allen Must Eats, Ring fürs Onboarding ────── */
-.foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: clamp(12px, 1.4vw, 16px);
-}
-
-/* Gelb auf Ink, eckig wie jeder Tafel-Knopf — die runde `.hv-btn`-Pille
-   gehört der weißen Seite. Hover: Papier. */
+.foot { grid-area: foot; display: flex; justify-content: center; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
 :global(.homeV2) .foot .cta:global(.hv-btn) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 56px;
-  padding: 0 26px;
+  min-height: 54px;
+  padding: 0 24px;
   border-radius: var(--et-radius-control);
-  background: var(--teaser-accent);
-  color: var(--teaser-ink);
-  font-size: clamp(16px, 1.4vw, 19px);
-  line-height: 1;
+  background: var(--et-accent);
+  color: var(--et-white);
+  font-size: 17px;
+  line-height: 1.2;
 }
-
-:global(.homeV2) .foot .cta:global(.hv-btn):focus-visible {
-  color: var(--teaser-ink);
-  background: var(--teaser-paper);
-}
-
+:global(.homeV2) .foot .cta:global(.hv-btn):focus-visible { outline: 2px solid var(--et-white); outline-offset: 4px; }
 @media (hover: hover) {
-  :global(.homeV2) .foot .cta:global(.hv-btn):hover {
-    color: var(--teaser-ink);
-    background: var(--teaser-paper);
-  }
+  :global(.homeV2) .foot .cta:global(.hv-btn):hover { background: var(--et-white); color: var(--et-ink); }
 }
-
-:global(.homeV2) .foot .cta:global(.hv-btn):focus-visible {
-  outline: 2px solid var(--teaser-accent);
-  outline-offset: 3px;
-}
-
-:global(.homeV2) .foot .cta:global(.hv-btn):active {
-  transform: translateY(1px);
-}
-
-@media (max-width: 560px) {
-  /* ~109px per card at 375px. At the rail's type sizes the caption block
-     outweighed the card above it. */
-  .meta {
-    padding-top: 10px;
-    gap: 2px;
-  }
-
-
-  .restaurantLink :global(.hv-sub) {
-    font-size: 15px;
-    line-height: 1.15;
-  }
-
-  .foot {
-    display: grid;
-    gap: 10px;
-  }
-
-  .foot > * {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-  }
-
-  .foot .cta {
-    width: 100%;
-  }
-}
-
-/* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
-@supports (-webkit-touch-callout: none) {
-  @media (pointer: coarse) {
-    .card {
-      filter: none;
-    }
-    @media (hover: hover) {
-      .cardShell:hover .card {
-        filter: none;
-      }
-    }
-  }
-}
-
-/* Touch stays native in both directions, including pinch zoom. */
-.deck { touch-action: pan-x pan-y pinch-zoom; }
-@media (hover: none) {
-  .cardShell:focus-within .card { transform: rotate(var(--card-angle, -2.4deg)); }
-}
-
 .coveredButton { width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.tapHint { color: var(--et-accent-text); font-size: 16px; line-height: 1.35; }
+
+@media (max-width: 1023.98px) {
+  .slide { flex-basis: 240px; }
+}
+@media (max-width: 767.98px) {
+  .stage { gap: 16px; }
+  .intro { display: grid; gap: 14px; }
+  .lead { font-size: 18px; }
+  .deck { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 18px 6px 24px; gap: 28px 20px; overflow: visible; scroll-snap-type: none; touch-action: pan-y pinch-zoom; }
+  .slide { min-width: 0; }
+  .slide:nth-child(n + 5) { display: none; }
+  .meta { padding: 14px 0 0; gap: 4px; }
+  .dish { font-size: 18px; }
+  .restaurantLink :global(.hv-sub), .tapHint { font-size: 15px; }
+  .foot { display: grid; grid-template-columns: 1fr; gap: 4px; }
+  .foot > * { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card, .cardShell:focus-within .card { transform: none; transition: none; }
+  @media (hover: hover) {
+    .cardShell:hover .card { transform: none; }
+    .cardLink:active .card { scale: 1; }
+  }
+}
+@supports (-webkit-touch-callout: none) {
+  @media (pointer: coarse) { .card { filter: none; } }
+}

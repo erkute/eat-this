@@ -104,7 +104,7 @@
 }
 
 .control:focus-visible {
-  outline: 3px solid #ffc600;
+  outline: 3px solid var(--et-accent);
   outline-offset: 4px;
 }
 

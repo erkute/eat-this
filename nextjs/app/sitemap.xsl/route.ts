@@ -44,7 +44,7 @@ const STYLESHEET = `<?xml version="1.0" encoding="UTF-8"?>
     color: rgba(21, 18, 14, 0.64);
   }
   h1 { margin: 0; font-size: clamp(30px, 6vw, 46px); line-height: 1.1; letter-spacing: -0.02em; }
-  h1 em { font-style: normal; background: #ffc600; padding: 0 6px; }
+  h1 em { font-style: normal; background: #a82b2e; color: #fff; padding: 0 6px; }
   .lede { margin: 14px 0 0; max-width: 62ch; color: rgba(21, 18, 14, 0.64); }
   section { margin: 44px 0 0; }
   h2 {
@@ -63,7 +63,7 @@ const STYLESHEET = `<?xml version="1.0" encoding="UTF-8"?>
     margin-left: 8px;
     padding: 2px 8px;
     border-radius: 999px;
-    background: #ffc600;
+    background: #a82b2e; color: #fff;
     font-size: 12px;
     font-weight: 700;
     vertical-align: 2px;
@@ -82,7 +82,7 @@ const STYLESHEET = `<?xml version="1.0" encoding="UTF-8"?>
     text-transform: uppercase;
     color: rgba(21, 18, 14, 0.64);
   }
-  tbody tr:hover { background: #fffbe9; }
+  tbody tr:hover { background: #faeeee; }
   td.url { width: 100%; word-break: break-word; }
   td.url a {
     color: #15120e;
@@ -91,7 +91,7 @@ const STYLESHEET = `<?xml version="1.0" encoding="UTF-8"?>
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 13.5px;
   }
-  td.url a:hover { border-bottom-color: #15120e; background: #ffc600; }
+  td.url a:hover { border-bottom-color: #15120e; background: #a82b2e; color: #fff; }
   td.meta { white-space: nowrap; color: rgba(21, 18, 14, 0.64); font-size: 13px; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }
   .empty { margin: 40px 0; padding: 20px; background: #f4f2ee; border-radius: 8px; }

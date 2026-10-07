@@ -45,7 +45,7 @@
 
 .kicker {
   margin: 0 0 clamp(14px, 1.6vw, 22px);
-  color: var(--pack-accent);
+  color: var(--et-accent-text);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
@@ -81,7 +81,7 @@
    Kreide-Labels der Tafel. */
 .spectrum {
   margin: clamp(14px, 1.8vw, 22px) 0 0;
-  color: var(--pack-accent);
+  color: var(--et-accent-text);
   font-size: clamp(18px, 2vw, 26px);
   font-weight: 700;
   line-height: 1.2;
@@ -113,7 +113,7 @@
   min-height: 56px;
   padding: 0 22px;
   background: var(--pack-accent);
-  color: var(--pack-ink);
+  color: var(--et-on-accent);
   border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;
@@ -159,7 +159,7 @@
 
 .ctaError {
   margin: 0;
-  color: var(--pack-accent);
+  color: var(--et-accent-text);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;

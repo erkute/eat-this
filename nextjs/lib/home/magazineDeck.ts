@@ -35,6 +35,7 @@ export function deckPose(depth: number): string {
  *  Ab 768px blättert dort lib/home/magazineTable und hält es an; am Telefon
  *  scrollen die Punkte selbst (MagazineDeckDots). */
 export const DECK_GO_EVENT = 'magazine-deck-go';
+export const DECK_CHANGE_EVENT = 'magazine-deck-change';
 
 export function deckKeyframes(count: number): string {
   if (count < 2) return '';

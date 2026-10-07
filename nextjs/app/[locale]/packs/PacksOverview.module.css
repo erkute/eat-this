@@ -34,6 +34,7 @@
   width: 9px;
   height: 9px;
   background: var(--packs-accent);
+  color: var(--et-on-accent);
 }
 
 /* ── Kategorie-Packs ───────────────────────────────────────────────────── */
@@ -156,12 +157,12 @@
 }
 
 .tileLink:focus-visible .tileName {
-  color: var(--packs-accent);
+  color: var(--et-accent-text);
 }
 
 @media (hover: hover) {
   .tileLink:hover .tileName {
-    color: var(--packs-accent);
+    color: var(--et-accent-text);
   }
 }
 
@@ -221,7 +222,7 @@
 .buy:focus-visible {
   background: var(--packs-accent);
   box-shadow: none;
-  color: var(--packs-ink);
+  color: var(--et-on-accent);
   transform: translateY(-2px);
 }
 
@@ -229,7 +230,7 @@
   .buy:hover {
     background: var(--packs-accent);
     box-shadow: none;
-    color: var(--packs-ink);
+    color: var(--et-on-accent);
     transform: translateY(-2px);
   }
 }
@@ -245,7 +246,7 @@
 
 .buyError {
   margin: 8px 0 0;
-  color: var(--packs-accent);
+  color: var(--et-accent-text);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;

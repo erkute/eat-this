@@ -149,7 +149,7 @@ export async function GET(request: Request) {
           <div
             style={{
               display: 'flex',
-              color: '#ffd84a',
+              color: '#a82b2e',
               fontSize: 34,
               letterSpacing: 4,
               textTransform: 'uppercase',

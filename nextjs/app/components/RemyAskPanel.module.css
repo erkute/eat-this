@@ -110,7 +110,7 @@
 @media (hover: hover) {
   .chip:hover {
     background: var(--remy-accent);
-    color: var(--remy-ink);
+    color: var(--et-on-accent);
   }
 }
 
@@ -146,7 +146,7 @@
   border: none;
   border-radius: var(--et-radius-control);
   background: var(--remy-accent);
-  color: var(--remy-ink);
+  color: var(--et-on-accent);
   font-family: var(--et-font-display);
   font-weight: 700;
   font-size: 15px;

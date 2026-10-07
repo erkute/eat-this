@@ -82,6 +82,7 @@
   height: 9px;
   flex: none;
   background: var(--legal-accent);
+  color: var(--et-on-accent);
 }
 
 .title {
@@ -193,12 +194,12 @@
 }
 
 .tocLink:focus-visible {
-  color: var(--legal-accent);
+  color: var(--et-accent-text);
 }
 
 @media (hover: hover) {
   .tocLink:hover {
-    color: var(--legal-accent);
+    color: var(--et-accent-text);
   }
 }
 
@@ -310,7 +311,7 @@
 }
 
 .body a {
-  color: var(--legal-accent);
+  color: var(--et-accent-text);
   font-weight: 700;
   text-decoration: underline;
   text-decoration-thickness: 1.5px;

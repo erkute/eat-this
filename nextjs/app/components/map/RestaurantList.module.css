@@ -362,8 +362,8 @@
   color: #fff;
 }
 .openPill {
-  background: #ffc600;
-  color: #15120e;
+  background: var(--et-accent);
+  color: var(--et-on-accent);
 }
 .openPill::before {
   background: #15120e;

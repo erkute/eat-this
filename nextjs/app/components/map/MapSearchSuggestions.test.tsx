@@ -19,7 +19,7 @@ describe('MapSearchSuggestions', () => {
     render(<MapSearchSuggestions spots={[zola]} locale="de" onPick={onPick} />);
 
     expect(screen.getByText('Zola')).toBeTruthy();
-    expect(screen.getByText("P'berg · Italienisch")).toBeTruthy();
+    expect(screen.getByText('Prenzlauer Berg · Italienisch')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Zola/ }));
     expect(onPick).toHaveBeenCalledWith(zola);
   });

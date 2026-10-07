@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, type MouseEvent } from 'react';
+import { Fragment, useEffect, useMemo, useRef, type MouseEvent } from 'react';
 import gsap from 'gsap';
 import { useLoginModal } from '@/lib/auth';
 import { guardSwipeClick } from '@/lib/home/guardSwipeClick';
@@ -22,12 +22,15 @@ function cardSrcSet(url: string): string {
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
-const CARD_SIZES = '(min-width: 1024px) 17vw, (min-width: 768px) 220px, 42vw';
+const CARD_SIZES =
+  '(min-width: 1637px) 270px, (min-width: 1334px) 16.5vw, (min-width: 1024px) 220px, (min-width: 768px) 240px, calc((100vw - 64px) / 2)';
 
 export default function HubMustEatsTeaser() {
   const { initialMapData, uid } = useHomeMapData();
   const { open: openLoginModal } = useLoginModal();
-  const covered = initialMapData.mustEats.find((card) => !initialMapData.revealedMustEatIds.includes(card._id));
+  const covered = initialMapData.mustEats.find(
+    (card) => !initialMapData.revealedMustEatIds.includes(card._id)
+  );
   const { lang, t } = useTranslation();
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
   const restaurantAria = lang === 'de' ? 'Restaurantseite öffnen' : 'open restaurant page';
@@ -35,42 +38,43 @@ export default function HubMustEatsTeaser() {
   // The teaser always shows the public selection, including for signed-in visitors.
   const cards = useMemo(() => {
     const publicIds = new Set(initialMapData.revealedMustEatIds);
-    return initialMapData.mustEats.filter((card) => publicIds.has(card._id) && card.image).slice(0, TEASER_COUNT);
+    return initialMapData.mustEats
+      .filter((card) => publicIds.has(card._id) && card.image)
+      .slice(0, TEASER_COUNT);
   }, [initialMapData]);
 
   const clickAnimation = useRef<gsap.core.Timeline | null>(null);
-  const continuingClick = useRef(false);
-  useEffect(() => () => { clickAnimation.current?.kill(); }, []);
-  const animateCardClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (continuingClick.current) { continuingClick.current = false; return; }
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || prefersReducedMotion()) return;
-    const link = event.currentTarget;
-    const photo = link.closest('article')?.querySelector<HTMLElement>('[data-stack-photo]');
-    if (!photo) return;
-    event.preventDefault();
-    if (clickAnimation.current?.isActive()) return;
-    clickAnimation.current = gsap.timeline({ onComplete: () => {
-      gsap.set(photo, { clearProps: 'transform' });
-      if (!link.isConnected) return;
-      continuingClick.current = true;
-      link.click();
-    } })
-      .to(photo, { y: 3, scale: 0.94, rotation: 0, duration: 0.1, ease: 'power2.out' })
-      .to(photo, { y: -22, scale: 1.1, rotation: -7, duration: 0.26, ease: 'back.out(1.5)' })
-      .to(photo, { y: 0, scale: 1, rotation: 0, duration: 0.24, ease: 'power2.inOut' });
-  };
+  useEffect(
+    () => () => {
+      clickAnimation.current?.kill();
+    },
+    []
+  );
 
   const animateCoveredClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (!covered || clickAnimation.current?.isActive()) return;
     const open = () => openLoginModal({ kind: 'card', mustEatId: covered._id });
-    if (prefersReducedMotion()) { open(); return; }
+    if (prefersReducedMotion()) {
+      open();
+      return;
+    }
     const photo = event.currentTarget.querySelector('[data-stack-photo]');
     if (!photo) return;
-    clickAnimation.current = gsap.timeline({ onComplete: () => {
-      gsap.set(photo, { clearProps: 'transform' });
-      open();
-    } }).to(photo, { xPercent: -5, rotation: -6, duration: GUEST_SHAKE_MS / 1000 / 8 })
-      .to(photo, { xPercent: 5, rotation: 6, duration: GUEST_SHAKE_MS / 1000 / 8, repeat: 5, yoyo: true })
+    clickAnimation.current = gsap
+      .timeline({
+        onComplete: () => {
+          gsap.set(photo, { clearProps: 'transform' });
+          open();
+        },
+      })
+      .to(photo, { xPercent: -5, rotation: -6, duration: GUEST_SHAKE_MS / 1000 / 8 })
+      .to(photo, {
+        xPercent: 5,
+        rotation: 6,
+        duration: GUEST_SHAKE_MS / 1000 / 8,
+        repeat: 5,
+        yoyo: true,
+      })
       .to(photo, { xPercent: 0, rotation: 0, duration: GUEST_SHAKE_MS / 1000 / 8 });
   };
 
@@ -78,12 +82,7 @@ export default function HubMustEatsTeaser() {
   useEffect(() => {
     const deck = deckRef.current;
     if (!deck) return;
-    return guardSwipeClick(deck, () => {
-      if (!clickAnimation.current?.isActive()) return;
-      clickAnimation.current?.kill();
-      continuingClick.current = false;
-      gsap.set(deck.querySelectorAll('[data-stack-photo]'), { clearProps: 'transform' });
-    });
+    return guardSwipeClick(deck);
   }, [cards]);
   useEffect(() => {
     const deck = deckRef.current;
@@ -92,98 +91,177 @@ export default function HubMustEatsTeaser() {
     media.add('(prefers-reduced-motion: no-preference)', () => {
       const slides = Array.from(deck.children);
       let animation: gsap.core.Tween | null = null;
-      const observer = new IntersectionObserver(([entry]) => {
-        if (!entry.isIntersecting) return;
-        observer.disconnect();
-        animation = gsap.fromTo(slides,
-          { y: 45, rotation: (index: number) => index % 2 ? 8 : -8, scale: 0.94 },
-          { y: 0, rotation: 0, scale: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out', clearProps: 'transform' });
-      }, { threshold: 0.2 });
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return;
+          observer.disconnect();
+          animation = gsap.fromTo(
+            slides,
+            { y: 24 },
+            { y: 0, duration: 0.55, stagger: 0.06, ease: 'power3.out', clearProps: 'transform' }
+          );
+        },
+        { threshold: 0.2 }
+      );
       observer.observe(deck);
-      return () => { observer.disconnect(); animation?.kill(); gsap.set(slides, { clearProps: 'transform' }); };
+      return () => {
+        observer.disconnect();
+        animation?.kill();
+        gsap.set(slides, { clearProps: 'transform' });
+      };
     });
     return () => media.revert();
   }, [cards]);
 
   if (!cards.length) return null;
 
+  const coveredCard = covered ? (
+    <li className={styles.slide}>
+      <article className={styles.cardShell}>
+        {uid ? (
+          <MapIntentLink
+            href={`/map?me=${covered._id}`}
+            className={styles.cardLink}
+            aria-label={
+              lang === 'de'
+                ? 'Verdecktes Must Eat auf der Map öffnen'
+                : 'Open face-down Must Eat on the map'
+            }
+          >
+            <span className={styles.photo} data-stack-photo="covered">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.card}
+                src="/pics/card-back.webp?v=7"
+                alt=""
+                width={760}
+                height={1044}
+                draggable={false}
+              />
+            </span>
+          </MapIntentLink>
+        ) : (
+          <button
+            type="button"
+            className={`${styles.cardLink} ${styles.coveredButton}`}
+            onClick={animateCoveredClick}
+            aria-label={
+              lang === 'de'
+                ? 'Verdecktes Must Eat — anmelden und aufdecken'
+                : 'Face-down Must Eat — sign in to reveal'
+            }
+          >
+            <span className={styles.photo} data-stack-photo="covered">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.card}
+                src="/pics/card-back.webp?v=7"
+                alt=""
+                width={760}
+                height={1044}
+                draggable={false}
+              />
+            </span>
+          </button>
+        )}
+        <span className={styles.meta}>
+          <span className={styles.dish}>{t('mustEats.teaserMystery')}</span>
+          <span className={styles.tapHint}>{t('mustEats.teaserTap')}</span>
+        </span>
+      </article>
+    </li>
+  ) : null;
+
   return (
-    <section className="homeV2 hv-section hv-wrap" data-hub-musteats="">
-      <div
-        className={styles.runway}
-      >
+    <section
+      className="homeV2 hv-section hv-wrap"
+      data-hub-musteats=""
+      aria-labelledby="home-musteats-title"
+    >
+      <div className={styles.runway}>
         <div className={styles.stage}>
-          <div className={styles.side}>
+          <div className={styles.intro}>
             <div className="hv-head">
-              <h2 className="hv-title">
-                <span className="hv-mk" aria-hidden="true" />
+              <h2 className="hv-title" id="home-musteats-title">
                 {t('mustEats.teaserTitle')}
               </h2>
             </div>
             <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
-            <div className={styles.foot}>
-              <MapIntentLink href="/must-eats" className={`hv-btn ${styles.cta}`}>
-                {t('mustEats.teaserCta')}
-              </MapIntentLink>
-              <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="ink" />
-            </div>
           </div>
-          <ul
-            ref={deckRef}
-            className={styles.deck}
-            role="list"
-            aria-label={t('mustEats.teaserTitle')}
-          >
-          {cards.map((m) => {
-            const restaurant = spotNameWithoutDistrict(normalizeName(m.restaurant.name), m.restaurant.district);
-            const dish = normalizeName(m.dish ?? '');
-            const cardAria = `${dish} ${mustEatAria}`;
-            return (
-              <li key={m._id} className={styles.slide}>
-                <article className={styles.cardShell}>
-                  <MapIntentLink href={`/map?me=${m._id}`} onClick={animateCardClick} className={styles.cardLink} aria-label={cardAria}>
-                    <span data-stack-photo="open" className={styles.photo}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img className={styles.card} src={mustEatCardSrc(m.image!, 360)} srcSet={cardSrcSet(m.image!)} sizes={CARD_SIZES} alt={dish} draggable={false} width={760} height={1044} loading="eager" fetchPriority="low" decoding="async" />
-                    </span>
-                  </MapIntentLink>
-                  <span className={styles.meta} data-stack-caption="">
-                    <MapIntentLink href={`/map?me=${m._id}`} onClick={animateCardClick} className={styles.dishLink} aria-label={cardAria}>
-                      <span className={styles.dish}>{dish}</span>
-                    </MapIntentLink>
-                    {m.restaurant.name && m.restaurant.slug && (
-                      <Link href={`/restaurant/${m.restaurant.slug}`} className={styles.restaurantLink} aria-label={`${restaurant} ${restaurantAria}`}>
-                        <span className="hv-sub">{restaurant}</span>
-                      </Link>
-                    )}
-                  </span>
-                </article>
-              </li>
-            );
-          })}
-          {covered && (
-            <li className={styles.slide}>
-              <article className={styles.cardShell}>
-                {uid ? (
-                  <MapIntentLink href={`/map?me=${covered._id}`} onClick={animateCardClick} className={styles.cardLink} aria-label={lang === 'de' ? 'Verdecktes Must Eat auf der Map öffnen' : 'Open face-down Must Eat on the map'}>
-                  <span className={styles.photo} data-stack-photo="covered">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className={styles.card} src="/pics/card-back.webp?v=7" alt="" width={760} height={1044} draggable={false} />
-                  </span>
-                  </MapIntentLink>
-                ) : (
-                <button type="button" className={`${styles.cardLink} ${styles.coveredButton}`} onClick={animateCoveredClick} aria-label={lang === 'de' ? 'Verdecktes Must Eat — anmelden und aufdecken' : 'Face-down Must Eat — sign in to reveal'}>
-                  <span className={styles.photo} data-stack-photo="covered">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className={styles.card} src="/pics/card-back.webp?v=7" alt="" width={760} height={1044} draggable={false} />
-                  </span>
-                </button>
-                )}
-                <span className={styles.meta}><span className={styles.dish}>{t('mustEats.covered')}</span></span>
-              </article>
-            </li>
-          )}
-          </ul>
+          <div className={styles.collection}>
+            <ul
+              ref={deckRef}
+              className={styles.deck}
+              role="list"
+              aria-label={t('mustEats.teaserTitle')}
+              tabIndex={0}
+            >
+              {cards.map((m, index) => {
+                const restaurant = spotNameWithoutDistrict(
+                  normalizeName(m.restaurant.name),
+                  m.restaurant.district
+                );
+                const dish = normalizeName(m.dish ?? '');
+                const cardAria = `${dish} ${mustEatAria}`;
+                return (
+                  <Fragment key={m._id}>
+                    <li className={styles.slide}>
+                      <article className={styles.cardShell}>
+                        <MapIntentLink
+                          href={`/map?me=${m._id}`}
+                          className={styles.cardLink}
+                          aria-label={cardAria}
+                        >
+                          <span data-stack-photo="open" className={styles.photo}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              className={styles.card}
+                              src={mustEatCardSrc(m.image!, 360)}
+                              srcSet={cardSrcSet(m.image!)}
+                              sizes={CARD_SIZES}
+                              alt={dish}
+                              draggable={false}
+                              width={760}
+                              height={1044}
+                              loading="eager"
+                              fetchPriority="low"
+                              decoding="async"
+                            />
+                          </span>
+                        </MapIntentLink>
+                        <span className={styles.meta} data-stack-caption="">
+                          <MapIntentLink
+                            href={`/map?me=${m._id}`}
+                            className={styles.dishLink}
+                            aria-label={cardAria}
+                          >
+                            <span className={styles.dish}>{dish}</span>
+                          </MapIntentLink>
+                          {m.restaurant.name && m.restaurant.slug && (
+                            <Link
+                              href={`/restaurant/${m.restaurant.slug}`}
+                              className={styles.restaurantLink}
+                              aria-label={`${restaurant} ${restaurantAria}`}
+                            >
+                              <span className="hv-sub">{restaurant}</span>
+                            </Link>
+                          )}
+                        </span>
+                      </article>
+                    </li>
+                    {index === 0 && coveredCard}
+                  </Fragment>
+                );
+              })}
+            </ul>
+            <p className={styles.browseHint}>{t('mustEats.teaserBrowse')}</p>
+          </div>
+          <div className={styles.foot}>
+            <MapIntentLink href="/must-eats" className={`hv-btn ${styles.cta}`}>
+              {t('mustEats.teaserCta')}
+            </MapIntentLink>
+            <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="plain" />
+          </div>
         </div>
       </div>
     </section>

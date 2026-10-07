@@ -29,7 +29,11 @@
     "check:embeddings": "tsx scripts/check-embeddings.ts",
     "test": "vitest run",
     "test:rules": "firebase emulators:exec --only firestore,storage --project eat-this-rules-test \"vitest run __tests__/firestore.rules.test.ts __tests__/storage.rules.test.ts\"",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "start:verify": "NEXT_DIST_DIR=.next-verify next start --hostname 127.0.0.1 --port 3100",
+    "test:e2e": "playwright test",
+    "audit:preview": "lhci autorun --config=../lighthouserc.preview.cjs",
+    "audit:field": "tsx scripts/audit-field-vitals.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.94.0",
@@ -62,8 +66,11 @@
     "@swc/core-linux-x64-gnu": "1.15.30"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/eslintrc": "^3",
     "@firebase/rules-unit-testing": "^5.0.1",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.63.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20.19.42",
     "@types/react": "^19.2.17",

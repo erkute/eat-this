@@ -102,6 +102,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                     cover={a.cover}
                     sizes="(max-width: 767.98px) 74vw, 440px"
                     widths={[480, 800]}
+                    loading="eager"
                   />
                 </span>
               ))}

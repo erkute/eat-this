@@ -215,6 +215,7 @@
 }
 
 .factGroup {
+  margin: 0;
   display: grid;
   gap: 14px;
   align-content: start;

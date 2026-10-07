@@ -48,13 +48,14 @@ describe('NewsSection — current issue', () => {
     expect(html).toContain('Aktuelle Ausgabe');
   });
 
-  it('loads only the front cover ahead of everything else', () => {
+  it('loads the visible stack eagerly and keeps the archive lazy', () => {
     const html = render();
     expect(html.match(/fetchPriority="high"/g)?.length).toBeGreaterThan(0);
-    // The front cover is the one eager photo; every other cover waits.
+    // All three visible covers can become LCP; the archive still waits.
     const eagerPhotos = html.match(/<img[^>]*story-\d\.webp[^>]*loading="eager"/g) ?? [];
-    expect(eagerPhotos).toHaveLength(1);
-    expect(eagerPhotos[0]).toContain('story-1.webp');
+    expect(eagerPhotos).toHaveLength(3);
+    for (const n of [1, 2, 3])
+      expect(eagerPhotos.some((photo) => photo.includes(`story-${n}.webp`))).toBe(true);
   });
 
   it('lays the two issues before it underneath, silent and without a link', () => {

@@ -107,6 +107,10 @@
   inset: -5% -3% -12%;
   transform-origin: 50% 85%;
 }
+/* The decorative figure must be offstage before hydration and observation. */
+@media (prefers-reduced-motion: no-preference) {
+  .figure { transform: translate(120%, 22%) rotate(18deg); }
+}
 .face, .laugh, .open { object-fit: contain; object-position: center bottom; }
 .laugh { visibility: hidden; translate: 0 1.1%; }
 .open { visibility: hidden; translate: 0 -0.9%; }
@@ -156,7 +160,7 @@
   .question:nth-child(2) { margin-left: 0; max-width: 100%; }
   .input { font-size: 16px; }
 }
-/* Vor der Hydrierung nicht schon dastehen: GSAP setzt Remy unter die Bühne
+/* Vor der Hydrierung nicht schon dastehen: GSAP setzt Remy neben die Bühne
    und markiert ihn dann mit data-staged. Ohne Bewegung bleibt er einfach da. */
 @media (prefers-reduced-motion: no-preference) {
   .figure:not([data-staged]) { opacity: 0; }

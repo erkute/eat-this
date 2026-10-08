@@ -39,7 +39,7 @@ export default {
   fieldsets: [
     {name: 'status', title: 'Status', options: {columns: 2}},
     {name: 'kurz', title: 'Kurzbeschreibung', description: 'Für Vorschauen und Google. Höchstens 160 Zeichen.', options: {columns: 2}},
-    {name: 'lang', title: 'Beschreibung', description: 'Der Text auf der Spot-Seite. Ziel 500–650 Zeichen, höchstens 700.', options: {columns: 2}},
+    {name: 'lang', title: 'Beschreibung', description: 'Der Text auf der Spot-Seite, Absätze durch eine Leerzeile getrennt. Höchstens 2000 Zeichen.', options: {columns: 2}},
     {name: 'tipp', title: 'Insider-Tipp', description: 'Ein Satz fürs Popup auf der Map.', options: {columns: 2}},
     {name: 'links', title: 'Links', options: {columns: 2}},
     {name: 'ort', title: 'Position auf der Map', options: {collapsible: true, collapsed: true, columns: 2}},
@@ -174,7 +174,7 @@ export default {
       rows: 10,
       group: 'texte',
       fieldset: 'lang',
-      validation: (Rule) => Rule.max(700),
+      validation: (Rule) => Rule.max(2000),
     },
     {
       name: 'descriptionEn',
@@ -183,7 +183,7 @@ export default {
       rows: 10,
       group: 'texte',
       fieldset: 'lang',
-      validation: (Rule) => Rule.max(700),
+      validation: (Rule) => Rule.max(2000),
     },
     {
       name: 'tip',

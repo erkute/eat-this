@@ -61,15 +61,26 @@ export default function RemyLauncher() {
       if (exitTimer.current !== null) window.clearTimeout(exitTimer.current);
     };
   }, []);
+  const [faceReady, setFaceReady] = useState(false);
   /* Auf der Startseite erscheint er erst, wenn der grosse Remy den Vorhang
      weggeschoben hat (Ansage 30.09.2026): solange `data-hero-intro` am
      <html> steht, wartet er unsichtbar; faellt es, guckt erst sein Kopf von
-     der Seite herein, dann waechst das Gelb um ihn herum. Ohne Auftritt
+     der Seite herein, dann waechst das Rot um ihn herum. Ohne Auftritt
      (andere Seiten, reduzierte Bewegung) steht er einfach da. */
-  const [entrance, setEntrance] = useState<'waiting' | 'playing' | null>(null);
+  const [entrance, setEntrance] = useState<'waiting' | 'playing' | null>(
+    pathname === '/' ? 'waiting' : null
+  );
   useEffect(() => {
-    if (!document.documentElement.hasAttribute('data-hero-intro')) return;
+    if (pathname !== '/' || prefersReducedMotion()) {
+      setEntrance(null);
+      return;
+    }
     setEntrance('waiting');
+    // Safari kann das Gesicht erst nach der 2,3s-Animation liefern. Dann
+    // fliegt eine leere Ebene herein und Remy erscheint später schlagartig.
+    // Next/Image meldet onLoad erst nach dem Decode. Auch bei später
+    // Hydrierung (Intro schon fertig) bekommt er so seinen ganzen Auftritt.
+    if (!faceReady) return;
     let timer = 0;
     const cancel = afterHeroIntro(() => {
       setEntrance('playing');
@@ -79,7 +90,7 @@ export default function RemyLauncher() {
       cancel();
       window.clearTimeout(timer);
     };
-  }, []);
+  }, [pathname, faceReady]);
 
   const dismiss = useCallback(() => {
     if (exitTimer.current !== null) return;
@@ -140,6 +151,9 @@ export default function RemyLauncher() {
             width={791}
             height={876}
             sizes="84px"
+            loading="eager"
+            onLoad={() => setFaceReady(true)}
+            onError={() => setFaceReady(true)}
           />
           {/* Beim Scrollen über die Startseite quatscht er (HubMotion setzt
             `data-remy-talk` am <html>). Das Lächeln ist in anderem Ausschnitt

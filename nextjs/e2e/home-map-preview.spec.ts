@@ -20,6 +20,8 @@ for (const locale of ['de', 'en'] as const) {
     await preview.getByRole('button', { name: 'Pizza', exact: true }).click();
     await expect(preview.getByRole('button', { name: 'Gazzo', exact: true })).toBeVisible();
     await expect(preview.locator('h3')).toHaveText('Gazzo');
+    await expect(preview.getByRole('button', { name: 'Gazzo', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(preview.locator('.maplibregl-marker [aria-pressed="true"]')).toHaveCount(1);
     const attribution = preview.locator('.maplibregl-ctrl-attrib');
     await expect(attribution.locator('summary')).toBeVisible();
     expect(await attribution.getAttribute('open')).toBeNull();
@@ -44,6 +46,8 @@ for (const locale of ['de', 'en'] as const) {
     const name = await pin.getAttribute('aria-label');
     await pin.press('Enter');
     await expect(preview.locator('h3')).toHaveText(name!);
+    await expect(pin).toHaveAttribute('aria-pressed', 'true');
+    await expect(preview.getByRole('button', { name: 'Kolo Coffee', exact: true })).toHaveAttribute('aria-pressed', 'false');
     await expect(preview.locator('a[href*="cat=coffee&r="]')).toHaveCount(1);
     expect(await preview.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
     const axe = await new AxeBuilder({ page }).include('[data-hub-map-preview]')
@@ -73,57 +77,64 @@ test('a failed basemap keeps the selected map link usable', async ({ page }) => 
   await expect(preview.locator('h3')).toHaveText('Kolo Coffee');
 });
 
-test('switching spot photos never stretches the map or moves its CTA', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  // Exercise different intrinsic dimensions independently of the current CMS
-  // photos. Pin art is kept intact; only the detail photo uses w >= 256.
-  let imageIndex = 0;
-  await page.route('https://cdn.sanity.io/images/**', async (route) => {
-    const width = Number(new URL(route.request().url()).searchParams.get('w'));
-    if (width < 256) return route.continue();
-    const [w, h] = imageIndex++ % 2 ? [1600, 400] : [400, 1600];
-    await route.fulfill({ contentType: 'image/svg+xml', body: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="#a82b2e"/></svg>` });
-  });
-  await page.goto('/#hub-map');
-  const preview = page.locator('[data-hub-map-preview]');
-  let first: { height: number; ctaOffset: number } | undefined;
-  for (const category of ['Pizza', 'Kaffee', 'Lunch']) {
-    await preview.getByRole('button', { name: category, exact: true }).click();
-    const pins = preview.locator('.maplibregl-marker [role="button"]');
-    await expect(pins.first()).toBeVisible();
-    await expect(pins.first()).toHaveAttribute('aria-label', ({ Pizza: 'Gazzo', Kaffee: 'Kolo Coffee', Lunch: 'Schüsseldienst' })[category]!);
-    const names = await pins.evaluateAll((elements) => elements.map((el) => el.getAttribute('aria-label')!));
-    expect(names.length).toBeGreaterThanOrEqual(4);
-    const positions = await pins.evaluateAll((elements) => elements.map((el) => {
-      const rect = el.getBoundingClientRect();
-      return { left: rect.left, right: rect.right + 6, top: rect.top - 6, bottom: rect.bottom };
-    }));
-    for (let i = 0; i < positions.length; i++) {
-      for (const b of positions.slice(i + 1)) {
-        const a = positions[i];
-        expect(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top).toBe(true);
+for (const narrowDesktop of [false, true]) {
+  test(`switching spot photos never stretches the map or moves its CTA${narrowDesktop ? ' (narrow desktop)' : ''}`, async ({ page, isMobile }) => {
+    test.skip(narrowDesktop && isMobile, 'The regular case already covers the phone layout.');
+    if (narrowDesktop) await page.setViewportSize({ width: 768, height: 1000 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    // Exercise different intrinsic dimensions independently of the current CMS
+    // photos. Pin art is kept intact; only the detail photo uses w >= 256.
+    let imageIndex = 0;
+    await page.route('https://cdn.sanity.io/images/**', async (route) => {
+      const width = Number(new URL(route.request().url()).searchParams.get('w'));
+      if (width < 256) return route.continue();
+      const [w, h] = imageIndex++ % 2 ? [1600, 400] : [400, 1600];
+      await route.fulfill({ contentType: 'image/svg+xml', body: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="#a82b2e"/></svg>` });
+    });
+    await page.goto('/#hub-map');
+    const preview = page.locator('[data-hub-map-preview]');
+    let first: { height: number; ctaOffset: number; photoWidth: number; photoHeight: number } | undefined;
+    for (const category of ['Pizza', 'Kaffee', 'Lunch']) {
+      await preview.getByRole('button', { name: category, exact: true }).click();
+      const pins = preview.locator('.maplibregl-marker [role="button"]');
+      await expect(pins.first()).toBeVisible();
+      await expect(pins.first()).toHaveAttribute('aria-label', ({ Pizza: 'Gazzo', Kaffee: 'Kolo Coffee', Lunch: 'Schüsseldienst' })[category]!);
+      const names = await pins.evaluateAll((elements) => elements.map((el) => el.getAttribute('aria-label')!));
+      expect(names.length).toBeGreaterThanOrEqual(4);
+      const positions = await pins.evaluateAll((elements) => elements.map((el) => {
+        const rect = el.getBoundingClientRect();
+        return { left: rect.left, right: rect.right + 6, top: rect.top - 6, bottom: rect.bottom };
+      }));
+      for (let i = 0; i < positions.length; i++) {
+        for (const b of positions.slice(i + 1)) {
+          const a = positions[i];
+          expect(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top).toBe(true);
+        }
+      }
+      expect(names).not.toContain("VEG'D Friedrichshain");
+      for (const name of names) {
+        await preview.getByRole('button', { name, exact: true }).click();
+        const photo = preview.locator('#home-map-preview > div').nth(1).locator('img');
+        await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+        const layout = await preview.evaluate((section) => {
+          const frame = section.querySelector('#home-map-preview')!;
+          const map = frame.children[0].getBoundingClientRect();
+          const detail = frame.children[1].getBoundingClientRect();
+          const photo = frame.children[1].querySelector('img')!.getBoundingClientRect();
+          const box = frame.getBoundingClientRect();
+          const cta = section.lastElementChild!.getBoundingClientRect();
+          return { height: box.height, ctaOffset: cta.top - box.top, photoWidth: photo.width, photoHeight: photo.height,
+            unexplainedSpace: box.height - (window.innerWidth < 768 ? map.height + detail.height : map.height),
+            overflows: section.scrollWidth > section.clientWidth + 1 || frame.children[1].scrollHeight > frame.children[1].clientHeight + 1 };
+        });
+        first ??= layout;
+        expect(Math.abs(layout.height - first.height)).toBeLessThan(1);
+        expect(Math.abs(layout.ctaOffset - first.ctaOffset)).toBeLessThan(1);
+        expect(Math.abs(layout.photoWidth - first.photoWidth)).toBeLessThan(1);
+        expect(Math.abs(layout.photoHeight - first.photoHeight)).toBeLessThan(1);
+        expect(Math.abs(layout.unexplainedSpace)).toBeLessThan(1);
+        expect(layout.overflows).toBe(false);
       }
     }
-    expect(names).not.toContain("VEG'D Friedrichshain");
-    for (const name of names) {
-      await preview.getByRole('button', { name, exact: true }).click();
-      const photo = preview.locator('#home-map-preview > div').nth(1).locator('img');
-      await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-      const layout = await preview.evaluate((section) => {
-        const frame = section.querySelector('#home-map-preview')!;
-        const map = frame.children[0].getBoundingClientRect();
-        const detail = frame.children[1].getBoundingClientRect();
-        const box = frame.getBoundingClientRect();
-        const cta = section.lastElementChild!.getBoundingClientRect();
-        return { height: box.height, ctaOffset: cta.top - box.top,
-          unexplainedSpace: box.height - (window.innerWidth < 768 ? map.height + detail.height : map.height),
-          overflows: section.scrollWidth > section.clientWidth + 1 };
-      });
-      first ??= layout;
-      expect(Math.abs(layout.height - first.height)).toBeLessThan(1);
-      expect(Math.abs(layout.ctaOffset - first.ctaOffset)).toBeLessThan(1);
-      expect(Math.abs(layout.unexplainedSpace)).toBeLessThan(1);
-      expect(layout.overflows).toBe(false);
-    }
-  }
-});
+  });
+}

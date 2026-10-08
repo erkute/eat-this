@@ -12,6 +12,7 @@ interface MarkerButtonProps {
   /** Classes for the control itself. */
   className: string;
   label: string;
+  pressed?: boolean;
   onActivate: () => void;
   style?: React.CSSProperties;
   children: React.ReactNode;
@@ -39,6 +40,7 @@ export default function MarkerButton({
   rootClassName,
   className,
   label,
+  pressed,
   onActivate,
   style,
   children,
@@ -66,6 +68,7 @@ export default function MarkerButton({
         role="button"
         tabIndex={0}
         aria-label={label}
+        aria-pressed={pressed}
         className={className}
         style={style}
         onKeyDown={(event) => {

@@ -1,6 +1,6 @@
 .section:global(.hv-section.hv-wrap) {
   margin-block: 0;
-  padding-block: clamp(40px, 5vw, 72px);
+  padding-block: var(--home-section-gap, 40px);
   background: var(--et-ink-raised);
   border-image: conic-gradient(var(--et-ink-raised) 0 0) fill 0 / / 0 100vw;
 }

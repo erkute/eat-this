@@ -19,8 +19,8 @@ for (const locale of ['de', 'en'] as const) {
     await expect(
       section.getByText(
         locale === 'de'
-          ? 'Musst du probieren. Kannst du sammeln.'
-          : 'Gotta try it. Gotta collect it.',
+          ? 'Gerichte, die du bestellen solltest. Einige zeigen wir dir direkt, andere deckst du erst vor Ort auf und sammelst sie in deinem Deck.'
+          : 'Dishes you should order. Some we show you right away, others you flip at the spot and collect in your deck.',
         { exact: true }
       )
     ).toBeVisible();

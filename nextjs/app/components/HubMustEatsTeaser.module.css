@@ -13,7 +13,7 @@
   align-items: start;
 }
 
-.intro { grid-area: intro; display: flex; justify-content: space-between; align-items: baseline; gap: 24px; }
+.intro { grid-area: intro; display: grid; justify-items: start; gap: 16px; }
 .intro > :global(.hv-head) { margin: 0; }
 :global(.homeV2) .runway .intro :global(.hv-title) {
   color: var(--et-white);
@@ -23,7 +23,7 @@
 }
 .lead {
   margin: 0;
-  max-width: 40ch;
+  max-width: 64ch;
   font-family: var(--et-font-display);
   font-size: clamp(18px, 1.45vw, 21px);
   line-height: 1.5;

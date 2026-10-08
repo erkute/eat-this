@@ -670,8 +670,8 @@ function armHeroPointer(): () => void {
       // Fängt knapp vor dem Knopf an zu ziehen, nicht erst darauf — und nie
       // weiter als ein paar Pixel: ein Knopf, der wegläuft, ist keiner.
       const near = Math.hypot(dx, dy) < Math.max(b.width, b.height) * 0.8;
-      pull(el).x(near ? gsap.utils.clamp(-16, 16, dx * 0.25) : 0);
-      pull(el).y(near ? gsap.utils.clamp(-10, 10, dy * 0.3) : 0);
+      pull(el).x(near ? gsap.utils.clamp(-6, 6, dx * 0.1) : 0);
+      pull(el).y(near ? gsap.utils.clamp(-4, 4, dy * 0.12) : 0);
     });
   };
   const onLeave = () => {

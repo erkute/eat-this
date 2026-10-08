@@ -322,7 +322,11 @@
   }
 }
 
-/* The homepage keeps the shared grey footer palette. */
+/* A red closing surface separates the footer from FAQ even without signup. */
+.home {
+  --footer-bg: var(--et-accent);
+}
+.home .linksKicker { color: var(--footer-ink); }
 .home .homeLink {
   display: block;
   border-radius: var(--et-radius-control);

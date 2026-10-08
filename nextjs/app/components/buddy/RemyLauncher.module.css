@@ -94,15 +94,16 @@
   visibility: hidden;
 }
 
-:global(html[data-remy-talk]) .talk {
+/* Erst nach dem Auftritt reden: vorher bleibt das dekodierte Lächeln sichtbar. */
+:global(html[data-remy-talk]) .dock:not([data-entrance]) .talk {
   visibility: visible;
 }
 
-:global(html[data-remy-talk]) .faceSmile {
+:global(html[data-remy-talk]) .dock:not([data-entrance]) .faceSmile {
   visibility: hidden;
 }
 
-:global(html[data-remy-talk]) .talkOpen {
+:global(html[data-remy-talk]) .dock:not([data-entrance]) .talkOpen {
   animation: launcherFlap 0.34s steps(1) infinite;
 }
 
@@ -118,7 +119,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :global(html[data-remy-talk]) .talkOpen {
+  :global(html[data-remy-talk]) .dock:not([data-entrance]) .talkOpen {
     animation: none;
   }
 }

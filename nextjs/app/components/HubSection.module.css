@@ -15,13 +15,9 @@
   /* Global 0.92: bricht ein Titel um, stehen Providence-Versalien aneinander.
      Die Startseite gibt ihnen Luft. */
   --et-leading-title: 1.05;
-  /* Eine Fuge fuer jede Grenze der Seite, bis hinunter zum Footer (HubFaq
-     traegt sie als margin-bottom). Seit jeder Abschnitt eine Tafel ist, ist
-     die Kante die Grenze — und Kanten stehen enger als lose Textbloecke.
-     Gemessen war das vorher der Fehler: aussen ueberall 104px, innen aber
-     zwischen 104 und 206px, weil das Polster der Tafeln unsichtbar mitzaehlte
-     (zwei Tafeln = 112px eingebaute Luft). Jetzt zaehlt nur noch die Fuge. */
-  --home-section-gap: clamp(32px, 3vw, 48px);
+  /* Farbwechsel und ein gleichmäßiger Innenabstand gliedern die Abschnitte.
+     Auf Desktop wächst die Luft mit den breiteren Inhaltsflächen. */
+  --home-section-gap: 40px;
   width: 100%;
   min-height: 100svh;
   /* Kein Kopfpolster mehr: der Aufmacher ist eine randlose Farbfläche und
@@ -635,7 +631,7 @@
 .page > section:global([data-hub-musteats]) {
   --must-eats-surface: var(--et-ink-raised);
   margin-top: 0;
-  padding-block: clamp(32px, 4vw, 64px);
+  padding-block: var(--home-section-gap);
   background: var(--must-eats-surface);
   color: var(--et-white);
   border-image: conic-gradient(var(--must-eats-surface) 0 0) fill 0 / / 0 100vw;
@@ -713,7 +709,7 @@
 @media (min-width: 900px) {
   .page {
     --et-wrap-max: min(1680px, 96vw);
-    --home-section-gap: clamp(32px, 3vw, 48px);
+    --home-section-gap: clamp(64px, 5vw, 80px);
   }
   .heroHeadline { font-size: clamp(42px, 3.6vw, 64px); }
   .heroGrid { gap: clamp(24px, 3vw, 48px); }

@@ -13,7 +13,7 @@
   align-items: start;
 }
 
-.intro { grid-area: intro; display: flex; justify-content: space-between; align-items: baseline; gap: 24px; }
+.intro { grid-area: intro; display: grid; justify-items: start; gap: 16px; }
 .intro > :global(.hv-head) { margin: 0; }
 :global(.homeV2) .runway .intro :global(.hv-title) {
   color: var(--et-white);
@@ -23,7 +23,7 @@
 }
 .lead {
   margin: 0;
-  max-width: 40ch;
+  max-width: 64ch;
   font-family: var(--et-font-display);
   font-size: clamp(18px, 1.45vw, 21px);
   line-height: 1.5;
@@ -125,10 +125,10 @@
   .stage { gap: 16px; }
   .intro { display: grid; gap: 14px; }
   .lead { font-size: 18px; }
-  .deck { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 18px 6px 24px; gap: 28px 20px; overflow: visible; scroll-snap-type: none; touch-action: pan-y pinch-zoom; }
+  .deck { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 18px clamp(12px, 3vw, 24px) 24px; gap: 28px 20px; overflow: visible; scroll-snap-type: none; touch-action: pan-y pinch-zoom; }
   .slide { min-width: 0; }
   .slide:nth-child(n + 5) { display: none; }
-  .meta { padding: 14px 0 0; gap: 4px; }
+  .meta { padding: 24px 0 0; gap: 4px; }
   .dish { font-size: 18px; }
   .restaurantLink :global(.hv-sub), .tapHint { font-size: 15px; }
   .foot { display: grid; grid-template-columns: 1fr; gap: 4px; }

@@ -70,6 +70,8 @@ describe('armMagazineTable', () => {
   });
 
   function table(count: number) {
+    const section = document.createElement('section');
+    section.dataset.hubMagazine = '';
     const stage = document.createElement('div');
     const deck = document.createElement('div');
     for (let i = 0; i < count; i++) {
@@ -87,8 +89,9 @@ describe('armMagazineTable', () => {
       dot.dataset.deckDot = '';
       dots.append(dot);
     }
-    stage.append(deck, dots);
-    document.body.append(stage);
+    stage.append(deck);
+    section.append(stage, dots);
+    document.body.append(section);
     return {
       stage,
       deck,

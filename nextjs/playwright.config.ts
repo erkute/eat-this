@@ -21,6 +21,11 @@ export default defineConfig({
   projects: [
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
     {
+      name: 'mobile-safari',
+      testMatch: ['remy-launcher.spec.ts', 'home-scroll-motion.spec.ts'],
+      use: { ...devices['iPhone 13'] },
+    },
+    {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 1000 } },
     },

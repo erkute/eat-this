@@ -20,12 +20,13 @@
 // gelesen, und der Knopf sass in der Ecke über dem Text. Die Übersicht
 // /news behält ihn.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale } from 'next-intl';
 import { usePathname } from '@/i18n/navigation';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import { afterHeroIntro } from '@/lib/home/heroIntro';
+import { prefersReducedMotion } from '@/lib/guestCardShake';
 import { CloseIcon } from '@/app/components/map/icons';
 import { preloadBuddyWidget } from './RemyDock';
 import styles from './RemyLauncher.module.css';
@@ -33,6 +34,8 @@ import styles from './RemyLauncher.module.css';
 const DISMISS_KEY = 'buddyLauncherHidden';
 /** Length of the entrance (RemyLauncher.module.css, `remyPeek`). */
 const ENTRANCE_MS = 2300;
+/** Keep in sync with `remyExit` in RemyLauncher.module.css. */
+const EXIT_MS = 760;
 
 function readDismissed(): boolean {
   if (typeof window === 'undefined') return false;
@@ -46,16 +49,38 @@ function readDismissed(): boolean {
 export default function RemyLauncher() {
   const pathname = usePathname();
   const locale = useLocale();
-  const [hidden, setHidden] = useState(readDismissed);
+  // Server und erster Client-Render müssen dieselbe Kachel liefern. Liest der
+  // Initializer schon sessionStorage, kann die Server-Kachel ohne React-Handler
+  // stehen bleiben: sichtbar, aber weder Remy noch das X reagieren auf Taps.
+  const [visibility, setVisibility] = useState<'loading' | 'visible' | 'leaving' | 'hidden'>('loading');
+  const leaving = visibility === 'leaving';
+  const exitTimer = useRef<number | null>(null);
+  useEffect(() => {
+    setVisibility(readDismissed() ? 'hidden' : 'visible');
+    return () => {
+      if (exitTimer.current !== null) window.clearTimeout(exitTimer.current);
+    };
+  }, []);
+  const [faceReady, setFaceReady] = useState(false);
   /* Auf der Startseite erscheint er erst, wenn der grosse Remy den Vorhang
      weggeschoben hat (Ansage 30.09.2026): solange `data-hero-intro` am
      <html> steht, wartet er unsichtbar; faellt es, guckt erst sein Kopf von
-     der Seite herein, dann waechst das Gelb um ihn herum. Ohne Auftritt
+     der Seite herein, dann waechst das Rot um ihn herum. Ohne Auftritt
      (andere Seiten, reduzierte Bewegung) steht er einfach da. */
-  const [entrance, setEntrance] = useState<'waiting' | 'playing' | null>(null);
+  const [entrance, setEntrance] = useState<'waiting' | 'playing' | null>(
+    pathname === '/' ? 'waiting' : null
+  );
   useEffect(() => {
-    if (!document.documentElement.hasAttribute('data-hero-intro')) return;
+    if (pathname !== '/' || prefersReducedMotion()) {
+      setEntrance(null);
+      return;
+    }
     setEntrance('waiting');
+    // Safari kann das Gesicht erst nach der 2,3s-Animation liefern. Dann
+    // fliegt eine leere Ebene herein und Remy erscheint später schlagartig.
+    // Next/Image meldet onLoad erst nach dem Decode. Auch bei später
+    // Hydrierung (Intro schon fertig) bekommt er so seinen ganzen Auftritt.
+    if (!faceReady) return;
     let timer = 0;
     const cancel = afterHeroIntro(() => {
       setEntrance('playing');
@@ -65,19 +90,26 @@ export default function RemyLauncher() {
       cancel();
       window.clearTimeout(timer);
     };
-  }, []);
+  }, [pathname, faceReady]);
 
   const dismiss = useCallback(() => {
-    setHidden(true);
+    if (exitTimer.current !== null) return;
     try {
       window.sessionStorage.setItem(DISMISS_KEY, '1');
     } catch {
       // Gesperrter Speicher: dann gilt es nur für diese Seite. Immer noch
       // besser als ein Knopf, der sich nicht wegtippen lässt.
     }
+    if (prefersReducedMotion()) {
+      setVisibility('hidden');
+      return;
+    }
+    setEntrance(null);
+    setVisibility('leaving');
+    exitTimer.current = window.setTimeout(() => setVisibility('hidden'), EXIT_MS);
   }, []);
 
-  if (hidden) return null;
+  if (visibility === 'hidden') return null;
   // Keep purchase controls unobstructed on pack pages.
   if (pathname === '/packs' || pathname.startsWith('/pack/')) return null;
   if (pathname === '/map' || pathname.startsWith('/map/')) return null;
@@ -86,7 +118,12 @@ export default function RemyLauncher() {
   const label = locale === 'en' ? 'Ask Remy' : 'Frag Remy';
   const hide = locale === 'en' ? 'Hide Remy' : 'Remy ausblenden';
   return (
-    <div className={styles.dock} data-entrance={entrance ?? undefined}>
+    <div
+      className={styles.dock}
+      data-entrance={entrance ?? undefined}
+      data-leaving={leaving || undefined}
+      aria-hidden={leaving || undefined}
+    >
       <button
         type="button"
         className={styles.launcher}
@@ -95,7 +132,10 @@ export default function RemyLauncher() {
         title={label}
         aria-haspopup="dialog"
         aria-controls="buddy-panel"
-        onPointerEnter={() => void preloadBuddyWidget()}
+        disabled={visibility !== 'visible'}
+        onPointerEnter={(event) => {
+          if (event.pointerType === 'mouse') void preloadBuddyWidget();
+        }}
         onFocus={() => void preloadBuddyWidget()}
         onClick={() => dispatchBuddyAsk()}
       >
@@ -111,6 +151,9 @@ export default function RemyLauncher() {
             width={791}
             height={876}
             sizes="84px"
+            loading="eager"
+            onLoad={() => setFaceReady(true)}
+            onError={() => setFaceReady(true)}
           />
           {/* Beim Scrollen über die Startseite quatscht er (HubMotion setzt
             `data-remy-talk` am <html>). Das Lächeln ist in anderem Ausschnitt
@@ -144,6 +187,7 @@ export default function RemyLauncher() {
         data-buddy-launcher-dismiss=""
         aria-label={hide}
         title={hide}
+        disabled={visibility !== 'visible'}
         onClick={dismiss}
       >
         <CloseIcon />

@@ -17,6 +17,7 @@
 .layout {
   display: grid;
   gap: var(--mag-gap);
+  timeline-scope: --deck;
 }
 .section .head:global(.hv-head) {
   display: flex;
@@ -28,29 +29,25 @@
 .section .head :global(.hv-title) {
   color: var(--mag-paper);
 }
+.intro {
+  margin: 8px 0 0;
+  color: var(--mag-paper);
+  font-family: var(--et-font-display);
+  font-size: clamp(18px, 1.45vw, 21px);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
 .section .eyebrow:global(.hv-kicker) {
   font-size: 12px;
   letter-spacing: var(--et-tracking-meta);
   color: var(--et-accent-text);
 }
-.allTop {
-  margin-top: clamp(22px, 2.4vw, 32px);
-}
 .foot {
   display: flex;
   justify-content: center;
 }
-/* Ab 768px steht „Magazin" links unter der Überschrift; der Knopf
-   unter dem Stapel gehört nur dem Telefon. Nach `.foot`, sonst gewinnt
-   dessen `display` bei gleicher Spezifität — es standen zwei Knöpfe da. */
-@media (min-width: 768px) {
-  .foot {
-    display: none;
-  }
-}
 
-/* Gelb auf Ink wie jeder Tafel-Knopf; Hover auf Papier, damit er auf dem
-   dunklen Grund nicht verschwindet. */
+/* Markenrot mit weißer Schrift; auf Papier wechselt die Schrift zu Ink. */
 .allLink {
   display: inline-flex;
   align-items: center;
@@ -72,24 +69,19 @@
 }
 .allLink:focus-visible {
   background: var(--mag-paper);
+  color: var(--et-ink);
   outline: 2px solid var(--et-accent);
   outline-offset: 3px;
 }
 @media (hover: hover) {
   .allLink:hover {
     background: var(--mag-paper);
+    color: var(--et-ink);
     transform: translateY(-2px);
   }
 }
 .allLink:active {
   transform: translateY(1px);
-}
-/* Am Telefon steht der Knopf unter dem Stapel, nicht über ihm. Nach
-   `.allLink`, sonst gewinnt dessen `display` bei gleicher Spezifität. */
-@media (max-width: 767.98px) {
-  .allTop {
-    display: none;
-  }
 }
 
 /* ── Der Stapel ──
@@ -103,7 +95,6 @@
   /* Die Punkte stehen neben dem Scroller und lesen trotzdem seine Timeline.
      `--stage` ist die Lage des Stapels auf der Seite: das Locken hängt
      daran, `view()` fände nur den Querscroller. */
-  timeline-scope: --deck;
   view-timeline: --stage block;
   min-width: 0;
 }
@@ -178,6 +169,7 @@
   gap: 4px;
   margin-top: 4px;
 }
+.storyControls { min-width: 0; margin-top: calc(-1 * var(--mag-gap)); }
 .storyCaption { width: min(100%, 420px); min-height: 114px; margin: 0 auto; padding: 0 16px; text-align: center; font-family: var(--et-font-display); }
 .storyNumber { display: block; margin-bottom: 10px; color: var(--et-accent-text); font-size: 14px; letter-spacing: .08em; }
 .storyCaption h3 { margin: 0; font-family: inherit; font-size: clamp(22px, 2vw, 28px); font-weight: 400; line-height: 1.25; text-wrap: balance; }
@@ -327,13 +319,9 @@
     transform: perspective(1100px) rotateY(calc(-9deg + var(--look-x, 0) * 10deg))
       rotateX(calc(4deg - var(--look-y, 0) * 7deg));
   }
-  /* Die Punkte unter dem Stapel, nicht unter der Mitte des Tisches. */
-  .dots {
-    justify-content: flex-start;
-    padding-left: calc(var(--pile-x) + var(--cover-w) / 2 - var(--count) * 16px);
-  }
-  .storyCaption { width: var(--cover-w); margin-left: var(--pile-x); margin-top: -32px; padding: 0; min-height: 128px; }
+  .storyCaption { padding: 0; }
 }
+
 /* Schmal steht der Stapel näher am linken Rand: die Maus fächert hier
    kaum weiter auf, sonst schnitte die Kante das hinterste Heft ab. */
 @media (min-width: 768px) and (max-width: 1023.98px) {
@@ -344,12 +332,17 @@
 }
 @media (min-width: 1024px) {
   .section {
-    --head-w: clamp(230px, 19vw, 290px);
+    --head-w: clamp(280px, 24vw, 360px);
+    --cover-w: min(560px, (100svh - 262px) * 0.75,
+      (100vw - 2 * var(--mag-bleed) - var(--head-w) - var(--mag-gap)) / 2.15);
+    --pile-x: calc(var(--mag-bleed) + var(--head-w) + var(--mag-gap) + var(--cover-w) * 1.05 +
+      max(0px, (100cqw - 2 * var(--mag-bleed) - var(--head-w) - var(--mag-gap) - var(--cover-w) * 2.05) / 2));
   }
   /* Überschrift und Tisch in derselben Zeile; die Überschrift liegt oben
      auf, der Tisch läuft unter ihr durch. */
   .layout {
     grid-template-columns: var(--head-w) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
   }
   /* Oben bündig mit dem vorderen Heft, nicht in der Mitte der Höhe: dort
      schwebte sie klein im Leeren neben dem Fächer. */
@@ -368,8 +361,26 @@
     pointer-events: auto;
   }
   .stage {
-    grid-row: 1;
+    grid-row: 1 / 4;
     grid-column: 1 / -1;
+  }
+  .storyControls {
+    position: relative;
+    z-index: 2;
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: 0;
+  }
+  .storyCaption { width: 100%; min-height: 0; margin: 0; text-align: left; }
+  .storyCaption h3 { font-size: clamp(24px, 2vw, 30px); text-wrap: pretty; }
+  .dots { justify-content: flex-start; margin-top: 20px; margin-left: -10px; }
+  .foot { position: relative; z-index: 2; grid-column: 1; grid-row: 3; align-self: start; justify-content: flex-start; }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .section {
+    --pile-x: calc(var(--mag-bleed) + var(--head-w) + var(--mag-gap) +
+      (100cqw - 2 * var(--mag-bleed) - var(--head-w) - var(--mag-gap) - var(--cover-w)) / 2);
   }
 }
 
@@ -439,12 +450,12 @@
       background-color 300ms ease,
       transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .dots:has([aria-current]) .dot::before {
-    background-color: rgba(255, 255, 255, 0.3);
-    transform: scaleX(1);
-  }
-  .dots .dot[aria-current='true']::before {
-    background-color: var(--et-accent);
-    transform: scaleX(2.4);
-  }
+}
+.dots:has([aria-current]) .dot::before {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scaleX(1);
+}
+.dots .dot[aria-current='true']::before {
+  background-color: var(--et-accent);
+  transform: scaleX(2.4);
 }

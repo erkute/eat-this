@@ -50,7 +50,7 @@ export default function MagazineDeckDots({ deckId, labels, stories }: Props) {
     deck.scrollTo({ left: n * deck.clientWidth, behavior: reduced ? 'auto' : 'smooth' });
   };
   return (
-    <>
+    <div className={styles.storyControls}>
     <div className={styles.storyCaption} data-magazine-caption="" aria-live="polite" aria-atomic="true">
       <span className={styles.storyNumber}>{String(active + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}</span>
       <h3>
@@ -68,10 +68,11 @@ export default function MagazineDeckDots({ deckId, labels, stories }: Props) {
           data-deck-dot=""
           style={{ '--dot-keys': `mag-dot-${count}-${n}` } as CSSProperties}
           aria-label={label}
+          aria-current={active === n ? 'true' : undefined}
           onClick={() => go(n)}
         />
       ))}
     </div>
-    </>
+    </div>
   );
 }

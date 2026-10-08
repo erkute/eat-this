@@ -46,6 +46,7 @@ function RestaurantMarker({
         .filter(Boolean)
         .join(' ')}
       label={restaurant.name}
+      pressed={isSelected}
       onActivate={() => onClick(restaurant)}
       style={
         enterDelayMs !== null

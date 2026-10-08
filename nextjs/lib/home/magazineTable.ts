@@ -152,7 +152,7 @@ export function armMagazineTable(stage: HTMLElement, deck: HTMLElement): () => v
   );
   const count = cards.length;
   if (count < 2) return () => {};
-  const dots = Array.from(stage.querySelectorAll<HTMLElement>('[data-deck-dot]'));
+  const dots = Array.from(stage.closest('[data-hub-magazine]')!.querySelectorAll<HTMLElement>('[data-deck-dot]'));
 
   let geo = readGeometry(stage);
   let front = 0;

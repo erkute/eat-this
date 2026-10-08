@@ -32,9 +32,13 @@ const CATEGORY_TITLES: Record<string, { de: string; en: string }> = {
     de: 'Abendessen in Berlin: Die besten Restaurants',
     en: 'Dinner in Berlin: The Best Restaurants',
   },
+  // EN wird so gesucht, wie der Title jetzt lautet: „best restaurants for
+  // lunch" 2.713 Impr. auf Pos. 11,5, „where to go for lunch" 742 (GSC, 90
+  // Tage bis 08.10.2026) — „lunch spots" in allen Varianten zusammen keine
+  // 600. Die H2 darunter trägt „lunch spots" weiter.
   lunch: {
     de: 'Mittagessen in Berlin: Die besten Lunch-Spots',
-    en: 'The Best Lunch Spots in Berlin',
+    en: 'The Best Restaurants for Lunch in Berlin',
   },
   drinks: { de: 'Die besten Bars in Berlin', en: 'The Best Bars in Berlin' },
   'fine-dining': {

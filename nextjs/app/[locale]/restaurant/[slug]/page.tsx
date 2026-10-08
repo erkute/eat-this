@@ -128,7 +128,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     district: districtName,
     locale: loc,
   });
-  const title = curatedTitle ? buildCuratedRestaurantTitle(curatedTitle, r.name) : builtTitle;
+  const title = curatedTitle
+    ? buildCuratedRestaurantTitle(curatedTitle, r.name, districtName)
+    : builtTitle;
 
   // Branded share card — the dynamic OG route overlays name + cuisine + district
   // on the restaurant photo (and falls back to a brand card when there is none),

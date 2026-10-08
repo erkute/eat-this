@@ -114,6 +114,51 @@ describe('buildCuratedRestaurantTitle', () => {
   });
 });
 
+describe('city in curated titles', () => {
+  it('turns "in {Bezirk}" into "in Berlin-{Bezirk}"', () => {
+    expect(
+      buildCuratedRestaurantTitle(
+        'Tacos el Rey – Hausgemachte Tortillas in Kreuzberg',
+        'Tacos el Rey',
+        'Kreuzberg'
+      )
+    ).toBe('Tacos el Rey – Hausgemachte Tortillas in Berlin-Kreuzberg');
+  });
+
+  it('qualifies the place, not a district in the name', () => {
+    expect(
+      buildCuratedRestaurantTitle(
+        'Bonanza Coffee Mitte – Specialty Coffee in Mitte',
+        'Bonanza Coffee Mitte',
+        'Mitte'
+      )
+    ).toBe('Bonanza Coffee Mitte – Specialty Coffee in Berlin-Mitte');
+  });
+
+  it('appends the city when the title names no district', () => {
+    expect(
+      buildCuratedRestaurantTitle(
+        'Pamela – Big-Mamma-Pizzeria am Gendarmenmarkt',
+        'Pamela',
+        'Mitte'
+      )
+    ).toBe('Pamela – Big-Mamma-Pizzeria am Gendarmenmarkt, Berlin');
+  });
+
+  it('leaves a title alone that already names Berlin', () => {
+    expect(
+      buildCuratedRestaurantTitle('Berliner Republik – Bier an der Spree', 'Berliner Republik', 'Mitte')
+    ).toBe('Berliner Republik – Bier an der Spree');
+  });
+
+  it('keeps the curated title when the city would not fit', () => {
+    const title = 'Jones Ice Cream Eberswalder — Ice Cream in Prenzlauer Berg';
+    expect(buildCuratedRestaurantTitle(title, 'Jones Ice Cream Eberswalder', 'Prenzlauer Berg')).toBe(
+      title
+    );
+  });
+});
+
 describe('title budget without the brand suffix', () => {
   // Genau die Titel, die vorher mitten im Satz gekappt wurden: 51 bzw. 55
   // Zeichen lagen über den 49, die das Suffix übrig ließ — und weg war der
@@ -121,9 +166,10 @@ describe('title budget without the brand suffix', () => {
   it('keeps a curated title that the brand suffix used to cut', () => {
     const t = buildCuratedRestaurantTitle(
       'Long March Canteen — Chinesische Tapas in Kreuzberg',
-      'Long March Canteen'
+      'Long March Canteen',
+      'Kreuzberg'
     );
-    expect(t).toBe('Long March Canteen — Chinesische Tapas in Kreuzberg');
+    expect(t).toBe('Long March Canteen — Chinesische Tapas in Berlin-Kreuzberg');
     expect(t).not.toContain('…');
   });
 

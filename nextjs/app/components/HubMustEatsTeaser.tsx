@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useRef, type MouseEvent } from 'react';
 import gsap from 'gsap';
 import { useLoginModal } from '@/lib/auth';
 import { guardSwipeClick } from '@/lib/home/guardSwipeClick';
+import { armMustEatCardMotion } from '@/lib/home/mustEatCardMotion';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
@@ -87,30 +88,7 @@ export default function HubMustEatsTeaser() {
   useEffect(() => {
     const deck = deckRef.current;
     if (!deck || !window.matchMedia || typeof IntersectionObserver === 'undefined') return;
-    const media = gsap.matchMedia();
-    media.add('(prefers-reduced-motion: no-preference)', () => {
-      const slides = Array.from(deck.children);
-      let animation: gsap.core.Tween | null = null;
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry.isIntersecting) return;
-          observer.disconnect();
-          animation = gsap.fromTo(
-            slides,
-            { y: 24 },
-            { y: 0, duration: 0.55, stagger: 0.06, ease: 'power3.out', clearProps: 'transform' }
-          );
-        },
-        { threshold: 0.2 }
-      );
-      observer.observe(deck);
-      return () => {
-        observer.disconnect();
-        animation?.kill();
-        gsap.set(slides, { clearProps: 'transform' });
-      };
-    });
-    return () => media.revert();
+    return armMustEatCardMotion(deck);
   }, [cards]);
 
   if (!cards.length) return null;

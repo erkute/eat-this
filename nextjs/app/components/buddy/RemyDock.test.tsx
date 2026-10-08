@@ -33,11 +33,39 @@ afterEach(() => {
   cleanup();
   route.pathname = '/kategorie/pizza';
   window.sessionStorage.clear();
+  document.documentElement.removeAttribute('data-hero-intro');
   vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
 describe('RemyDock', () => {
+  it('keeps the home entrance waiting until its face is loaded, even after the intro', async () => {
+    route.pathname = '/';
+    renderDock();
+    const dock = launcher()!.parentElement!;
+    expect(dock.dataset.entrance).toBe('waiting');
+
+    await act(async () => { fireEvent.load(launcher()!.querySelector('img')!); });
+    expect(dock.dataset.entrance).toBe('playing');
+  });
+
+  it('waits for both the face and the hero before playing the home entrance', async () => {
+    route.pathname = '/';
+    document.documentElement.setAttribute('data-hero-intro', '');
+    renderDock();
+    await act(async () => { fireEvent.load(launcher()!.querySelector('img')!); });
+    expect(launcher()!.parentElement!.dataset.entrance).toBe('waiting');
+    await act(async () => { document.documentElement.removeAttribute('data-hero-intro'); });
+    expect(launcher()!.parentElement!.dataset.entrance).toBe('playing');
+  });
+
+  it('shows the home launcher immediately without motion when reduced motion is requested', () => {
+    route.pathname = '/';
+    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })));
+    renderDock();
+    expect(launcher()!.parentElement!.dataset.entrance).toBeUndefined();
+  });
+
   it('mounts nothing but the launcher until someone asks — the SEO page pays only for the listener', () => {
     const { queryByTestId } = renderDock();
     expect(queryByTestId('buddy-widget')).toBeNull();

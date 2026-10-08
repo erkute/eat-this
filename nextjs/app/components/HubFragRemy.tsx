@@ -33,11 +33,12 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
       const settle = { x: 0, y: 0, xPercent: 0, yPercent: 0, rotation: 0, scale: 1 };
       const tuckedRight = { ...settle, xPercent: 120, yPercent: 22, rotation: 18 };
       gsap.set(avatar, tuckedRight);
+      avatar.setAttribute('data-staged', '');
       const arrive = () => {
         entrance.current?.kill();
         gsap.killTweensOf(avatar);
         avatar.removeAttribute('data-speaking');
-        const tl = gsap.timeline();
+        const tl = gsap.timeline({ delay: 0.35 });
         entrance.current = tl;
         // Zwei von drei Auftritten kommen von rechts, jeder dritte von unten.
         // Beide beginnen vollständig hinter der Bühne und enden ohne Hochsprung.
@@ -73,7 +74,7 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
         arrive();
       }, { threshold: [0, 0.4, 0.6] });
       observer.observe(avatar.parentElement!);
-      return () => { observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-speaking'); gsap.set(avatar, { clearProps: 'transform' }); };
+      return () => { observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-speaking'); avatar.removeAttribute('data-staged'); gsap.set(avatar, { clearProps: 'transform' }); };
     });
     return () => {
       media.revert();
@@ -87,7 +88,8 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
     setExpression(active ? (choice === 2 ? 'laugh' : choice === 0 ? 'open' : 'neutral') : 'neutral');
     if (!figure.current || !motion()) return;
     const avatar = figure.current;
-    if (entrance.current?.isActive() && entrance.current.time() < 1.85) return;
+    // Auch während der Verzögerung vor dem Auftritt nicht dazwischenfunken.
+    if (entrance.current && entrance.current.progress() < 1 && entrance.current.time() < 1.85) return;
     entrance.current?.progress(1);
     avatar.removeAttribute('data-speaking');
     reaction.current?.kill();

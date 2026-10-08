@@ -55,6 +55,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
     all: locale === 'en' ? 'More magazines' : 'Weitere Magazine',
     kicker: locale === 'en' ? 'Magazine' : 'Magazin',
     title: locale === 'en' ? 'On the plate' : 'Auf dem Teller',
+    intro: locale === 'en' ? 'Stories from Berlin’s food scene.' : 'Geschichten aus Berlins Food-Szene.',
     dot: (n: number) => (locale === 'en' ? `Story ${n} of ${count}` : `Story ${n} von ${count}`),
   };
 
@@ -74,10 +75,8 @@ export default function MagazineGrid({ articles, locale }: Props) {
             <h2 className="hv-title">
               {labels.title}
             </h2>
+            <p className={styles.intro}>{labels.intro}</p>
           </div>
-          <Link href="/news" className={`${styles.allLink} ${styles.allTop}`}>
-            {labels.all}
-          </Link>
         </div>
 
         <div
@@ -126,9 +125,10 @@ export default function MagazineGrid({ articles, locale }: Props) {
               ))}
             </ol>
           </div>
-          <MagazineDeckDots deckId={DECK_ID} labels={list.map((_, i) => labels.dot(i + 1))}
-            stories={list.map((article) => ({ title: article.title, href: `/news/${article.slug}` }))} />
         </div>
+
+        <MagazineDeckDots deckId={DECK_ID} labels={list.map((_, i) => labels.dot(i + 1))}
+          stories={list.map((article) => ({ title: article.title, href: `/news/${article.slug}` }))} />
 
         <div className={styles.foot}>
           <Link href="/news" className={styles.allLink}>

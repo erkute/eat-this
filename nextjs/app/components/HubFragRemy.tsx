@@ -31,35 +31,25 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
       let visit = 0;
       let inside = false;
       const settle = { x: 0, y: 0, xPercent: 0, yPercent: 0, rotation: 0, scale: 1 };
+      const tuckedRight = { ...settle, xPercent: 120, yPercent: 22, rotation: 18 };
+      gsap.set(avatar, tuckedRight);
       const arrive = () => {
         entrance.current?.kill();
         gsap.killTweensOf(avatar);
         avatar.removeAttribute('data-speaking');
         const tl = gsap.timeline();
         entrance.current = tl;
-        switch (visit++ % 3) {
-          case 0:
-            // Gerade von unten auftauchen, ohne seitlichen Anflug.
-            tl.fromTo(avatar,
-              { ...settle, yPercent: 48, xPercent: 0, rotation: 0, scale: 0.88 },
-              { ...settle, yPercent: -3, xPercent: 0, rotation: 0, scale: 1.04, duration: 1.1, ease: 'power3.out' });
-            break;
-          case 1:
-            // Erst neugierig von rechts hereinschauen, dann ganz hervorkommen.
-            tl.fromTo(avatar,
-              { ...settle, xPercent: 75, yPercent: 22, rotation: 18, scale: 0.96 },
-              { ...settle, xPercent: 24, yPercent: 8, rotation: -10, duration: 0.6, ease: 'power3.out' })
-              .to(avatar, { ...settle, xPercent: -3, rotation: 4, duration: 0.5, ease: 'power2.inOut' }, '+=0.2');
-            break;
-          default:
-            // Von unten hochspringen, kurz landen und sich aufrichten.
-            tl.fromTo(avatar,
-              { ...settle, yPercent: 100, rotation: -6, scale: 0.9 },
-              { ...settle, yPercent: -9, rotation: -5, scale: 1.04, duration: 0.65, ease: 'power3.out' })
-              .to(avatar, { ...settle, yPercent: 3, scaleY: 0.94, duration: 0.2, ease: 'power2.in' });
+        // Zwei von drei Auftritten kommen von rechts, jeder dritte von unten.
+        // Beide beginnen vollständig hinter der Bühne und enden ohne Hochsprung.
+        if (visit++ % 3 !== 2) {
+          tl.fromTo(avatar, tuckedRight,
+            { ...settle, xPercent: 24, yPercent: 8, rotation: -8, duration: 0.65, ease: 'power3.out' })
+            .to(avatar, { ...settle, duration: 0.65, ease: 'power2.inOut' }, '+=0.15');
+        } else {
+          tl.fromTo(avatar, { ...settle, yPercent: 110 },
+            { ...settle, duration: 1.15, ease: 'power3.out' });
         }
-        tl.to(avatar, { ...settle, duration: 0.5, ease: 'back.out(1.5)' })
-          .call(() => avatar.setAttribute('data-speaking', ''))
+        tl.call(() => avatar.setAttribute('data-speaking', ''))
           .call(() => avatar.removeAttribute('data-speaking'), [], '+=2');
       };
       // Zwei Schwellen verhindern Flackern beim langsamen Scrollen.
@@ -73,8 +63,7 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
           gsap.killTweensOf(avatar);
           avatar.removeAttribute('data-speaking');
           entrance.current = gsap.timeline().to(avatar, {
-            x: 0, y: 0, xPercent: 0, yPercent: 110,
-            rotation: 8, scale: 0.92,
+            ...tuckedRight,
             duration: 0.45, ease: 'power2.in',
           });
           return;

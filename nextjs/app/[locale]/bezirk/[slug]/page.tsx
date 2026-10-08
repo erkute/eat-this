@@ -94,8 +94,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = rawDescription ? truncateMetadataDescription(rawDescription) : undefined;
   const pageTitle = buildPlainTitle(title ?? fallbackTitleDe);
 
-  const baseImage = b.seo?.ogImageUrl || b.imageUrl;
-  const image = baseImage || `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
+  const image = `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;
 
   const alternates = buildHreflangAlternates(`/bezirk/${slug}`, loc, {
     hasEnContent: hasEnContent(b),

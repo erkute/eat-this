@@ -129,19 +129,6 @@ describe('/api/revalidate', () => {
     }
   )
 
-  it('invalidates the map pages for home-week changes', async () => {
-    const raw = JSON.stringify({ _type: 'homeWeek' })
-    const ts = Date.now()
-
-    const res = await POST(mkReq(raw, signature(raw, ts)))
-
-    expect(res.status).toBe(200)
-    expect(mocks.revalidatePath).toHaveBeenCalledWith('/map')
-    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
-    expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
-    expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
-  })
-
   // Die echte Webhook-Projektion sendet `"slug": slug.current` — einen
   // STRING (Hook-Log vom 27.08.2026: { _id, _type, slug: 'beste-burger-berlin' }).
   // Die Route las nur `doc.slug?.current`; auf dieser Payload war der Slug

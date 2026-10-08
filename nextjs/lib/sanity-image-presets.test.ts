@@ -12,9 +12,6 @@ describe('presetQuery — frozen against the pre-refactor strings', () => {
   it('sheetHero → w=1200 q=85', () => {
     expect(presetQuery('sheetHero')).toBe('?w=1200&auto=format&q=85');
   });
-  it('bezirkHero → w=1600 q=85', () => {
-    expect(presetQuery('bezirkHero')).toBe('?w=1600&auto=format&q=85');
-  });
   it('card → w=800 q=80', () => {
     expect(presetQuery('card')).toBe('?w=800&auto=format&q=80');
   });

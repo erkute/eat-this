@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const de = locale === 'de';
   const { title, description } = getLocalizedNewsMetadata(a, locale);
   const brandedTitle = buildBrandedTitle(title);
-  const baseImage = a.seo?.ogImageUrl || a.imageUrl?.split('?')[0];
+  const baseImage = a.imageUrl?.split('?')[0];
   const image = baseImage
     ? `${baseImage}?w=1200&h=630&fit=crop&auto=format`
     : `${SITE_URL}/pics/og-card.png?v=${OG_CARD_VERSION}`;

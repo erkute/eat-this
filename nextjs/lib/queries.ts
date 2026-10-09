@@ -66,7 +66,6 @@ const RESTAURANT_DETAIL_FIELDS = `
       metaTitleEn,
       metaDescription,
       metaDescriptionEn,
-      "ogImageUrl": ogImage.asset->url,
       noIndex
     }
 `;
@@ -84,6 +83,12 @@ export const allRestaurantSlugsQuery = `
 // Public article payloads resolve only the restaurant side of a Must-Eat
 // reference. Dish text and images live in the private premium store and must
 // never be projected into an indexed article response.
+// Das Etikett über einem Artikel folgt aus seiner Kategorie; eigene Felder
+// dafür gibt es nicht mehr.
+const ARTICLE_LABEL_DE = `select(category == "openings" => "Eröffnungen", category == "culture" => "Kultur", "Guides")`;
+const ARTICLE_LABEL_EN = `select(category == "openings" => "Openings", category == "culture" => "Culture", "Guides")`;
+const ARTICLE_LABELS = `"categoryLabel": ${ARTICLE_LABEL_EN}, "categoryLabelDe": ${ARTICLE_LABEL_DE}`;
+
 const articleContentProjection = `{
     ...,
     _type == "mustEatCard" => {
@@ -123,11 +128,11 @@ const articleProjection = `{
     "titleEn": title,
     titleDe,
     category,
-    categoryLabel, categoryLabelDe,
+    ${ARTICLE_LABELS},
     date,
     "updatedAt": _updatedAt,
     "imageUrl": ${groqImageUrl('image', 'detailHero')},
-    "alt": coalesce(image.alt, alt),
+    "alt": image.alt,
     excerpt, excerptDe,
     content[] ${articleContentProjection},
     contentDe[] ${articleContentProjection},
@@ -136,7 +141,6 @@ const articleProjection = `{
       metaTitleEn,
       metaDescription,
       metaDescriptionEn,
-      "ogImageUrl": ogImage.asset->url,
       noIndex
     }
   }`;
@@ -316,10 +320,10 @@ export const articlesAboutRestaurant = `"articles": *[_type == "newsArticle" && 
       "slug": slug.current,
       "title": coalesce(title, titleDe),
       titleDe,
-      categoryLabel, categoryLabelDe,
+      ${ARTICLE_LABELS},
       date,
       "imageUrl": ${groqImageUrl('image', 'card')},
-      "alt": coalesce(image.alt, alt),
+      "alt": image.alt,
       // Für das Heft unter „Im Magazin“: Ausgabe wie auf /news, dazu der Look.
       "issue": count(*[${publishedNews}]) - count(*[${publishedNews} && (date > ^.date || (date == ^.date && _id < ^._id))]),
       ${newsCoverProjection}
@@ -367,7 +371,6 @@ export const allBezirkeWithStatsQuery = `
     "slug": slug.current,
     description,
     descriptionEn,
-    "imageUrl": ${groqImageUrl('image', 'card')},
     "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]),
     "exampleRestaurants": *[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()} && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
       | order(coalesce(featured, false) desc, name asc)[0...4] {
@@ -399,14 +402,12 @@ export const bezirkBySlugQuery = `
     "slug": slug.current,
     description,
     descriptionEn,
-    "imageUrl": ${groqImageUrl('image', 'bezirkHero')},
     "topSpots": topSpots[defined(@->slug.current)]->slug.current,
     seo {
       metaTitle,
       metaTitleEn,
       metaDescription,
       metaDescriptionEn,
-      "ogImageUrl": ogImage.asset->url,
       noIndex
     }
   }
@@ -493,10 +494,10 @@ export const allNewsArticlesQuery = `
     "title": coalesce(title, titleDe),
     titleDe,
     category,
-    categoryLabel, categoryLabelDe,
+    ${ARTICLE_LABELS},
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},
-    "alt": coalesce(image.alt, alt),
+    "alt": image.alt,
     ${newsCoverProjection},
     excerpt, excerptDe
   }
@@ -538,8 +539,8 @@ export const guideTeaserBySlugQuery = `
       coalesce(excerpt, excerptDe)
     ),
     "kicker": select(
-      $locale == "de" => coalesce(categoryLabelDe, categoryLabel),
-      coalesce(categoryLabel, categoryLabelDe)
+      $locale == "de" => ${ARTICLE_LABEL_DE},
+      ${ARTICLE_LABEL_EN}
     ),
     date,
     "imageUrl": ${groqImageUrl('image', 'card')},

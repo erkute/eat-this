@@ -31,7 +31,6 @@ const IMAGE_PRESETS = {
   // deshalb nicht fuer beide gelten.
   sheetHero: { w: 1200, q: 85 },
   // Bezirk hero (wider crop)
-  bezirkHero: { w: 1600, q: 85 },
   // Standard restaurant / article card photo
   card: { w: 800, q: 80 },
   // Map list/marker thumbnail

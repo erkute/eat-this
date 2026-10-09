@@ -66,7 +66,6 @@ describe('rankDescriptionBacklog', () => {
         hasShortDescription: true,
         hasTip: true,
         hasMenuUrl: true,
-        lastReviewed: '2026-06-01',
       }),
     ]);
     expect(result.map((r) => r.slug)).toEqual(['editorial-ready', 'ordinary']);

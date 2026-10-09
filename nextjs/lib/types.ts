@@ -9,7 +9,6 @@ interface RestaurantSeo {
   metaTitleEn?: string;
   metaDescription?: string;
   metaDescriptionEn?: string;
-  ogImageUrl?: string;
   noIndex?: boolean;
 }
 
@@ -82,7 +81,6 @@ interface NewsArticleSeo {
   metaTitleEn?: string;
   metaDescription?: string;
   metaDescriptionEn?: string;
-  ogImageUrl?: string;
   noIndex?: boolean;
 }
 
@@ -177,7 +175,6 @@ interface BezirkSeo {
   metaTitleEn?: string;
   metaDescription?: string;
   metaDescriptionEn?: string;
-  ogImageUrl?: string;
   noIndex?: boolean;
 }
 
@@ -187,7 +184,6 @@ export interface BezirkDoc {
   slug: string;
   description?: string;
   descriptionEn?: string;
-  imageUrl?: string;
   seo?: BezirkSeo;
   // Optional: only projected by allBezirkeWithStatsQuery; bezirkBySlugQuery does NOT include it.
   restaurantCount?: number;

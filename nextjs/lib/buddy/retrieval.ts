@@ -69,8 +69,7 @@ export function buildSpotsQuery(limit: number): string {
       + select(defined($vibe2) && (shortDescription match $vibe2 || shortDescriptionEn match $vibe2 || description match $vibe2 || descriptionEn match $vibe2 || tip match $vibe2 || tipEn match $vibe2) => 1, 0)
       + select(defined($vibe3) && (shortDescription match $vibe3 || shortDescriptionEn match $vibe3 || description match $vibe3 || descriptionEn match $vibe3 || tip match $vibe3 || tipEn match $vibe3) => 1, 0)
     ) desc,
-    featured desc,
-    lastReviewed desc
+    featured desc
   ) [0...${n}] ${SPOTS_PROJECTION}`;
 }
 

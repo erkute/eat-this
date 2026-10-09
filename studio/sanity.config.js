@@ -1,180 +1,56 @@
-import {defineConfig} from 'sanity'
+import {defineConfig, isDev} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
-import {DownloadIcon} from '@sanity/icons'
+import {deDELocale} from '@sanity/locale-de-de'
+import {DownloadIcon, HomeIcon} from '@sanity/icons'
 import {schemaTypes} from './schemaTypes'
+import {structure} from './structure'
+import StartPage from './tools/StartPage'
 import RestaurantImporter from './tools/RestaurantImporter'
-import GenerateNewsArticleAction from './actions/GenerateNewsArticleAction'
-import NewsPreviewAction from './actions/NewsPreviewAction'
+import {guardMustEatPublish} from './actions/MustEatPublishGuard'
+import {StudioIcon} from './components/StudioIcon'
 import {sanityTarget} from './sanity-target.mjs'
+
+// Was man neu anlegen kann. Seiten (Impressum, Datenschutz …) gibt es fest,
+// die legt niemand neu an.
+const CREATABLE = new Set(['restaurant', 'newsArticle', 'mustEat', 'bezirk', 'category'])
 
 export default defineConfig({
   name: 'default',
-  title: 'eat-this',
+  title: 'Eat This',
+  icon: StudioIcon,
 
   projectId: sanityTarget.projectId,
   dataset: sanityTarget.dataset,
 
   plugins: [
-    structureTool({
-      // Structure builder is async so the sidebar titles can show live counts.
-      // Default counts are published-doc totals per type — they mirror what's
-      // on the site. For Restaurants we additionally show the total entity
-      // count (unique slug across published + standalone drafts) so the
-      // import-vs-publish backlog is visible from the sidebar: e.g.
-      // "📍 Restaurants (169 / 353)" = 169 live, 353 entities in Sanity.
-      // Structure re-runs on Studio reload, so newly-created docs surface
-      // after a refresh.
-      structure: async (S, context) => {
-        const client = context.getClient({apiVersion: '2024-01-01'})
-        const counts = await client.fetch(`{
-          "newsArticle": count(*[_type=="newsArticle" && !(_id in path("drafts.**"))]),
-          "staticPage":  count(*[_type=="staticPage"  && !(_id in path("drafts.**"))]),
-          "mustEat":     count(*[_type=="mustEat"     && !(_id in path("drafts.**"))]),
-          "restaurantLive":  count(*[_type=="restaurant"  && !(_id in path("drafts.**"))]),
-          "restaurantTotal": count(array::unique(*[_type=="restaurant" && defined(slug.current)].slug.current)),
-          // A draft whose published twin is missing has never gone live; one
-          // with a twin is an unpublished edit. string::split(id, "drafts.")[1]
-          // is the published id — restaurant ids are UUIDs, so nothing else in
-          // them can match the separator.
-          //
-          // These come back as ID LISTS, not counts, because the lists below
-          // need them as a plain _id-in-ids filter: Studio document lists run
-          // as listening queries, and those reject joins — a filter carrying
-          // this subquery silently shows nothing at all.
-          "restaurantDraftOnlyIds": *[_type=="restaurant" && _id in path("drafts.**")
-            && count(*[_id == string::split(^._id, "drafts.")[1]]) == 0]._id,
-          "restaurantEditedIds": *[_type=="restaurant" && _id in path("drafts.**")
-            && count(*[_id == string::split(^._id, "drafts.")[1]]) > 0]._id,
-          "restaurantNoImage": count(*[_type=="restaurant" && !defined(image.asset)]),
-          "bezirk":      count(*[_type=="bezirk"      && !(_id in path("drafts.**"))]),
-          "category":    count(*[_type=="category"    && !(_id in path("drafts.**"))]),
-          "homeWeek":    count(*[_type=="homeWeek"    && !(_id in path("drafts.**"))]),
-        }`)
-        const label = (icon, title, n) => `${icon}  ${title} (${n ?? 0})`
-        const labelPair = (icon, title, live, total) =>
-          `${icon}  ${title} (${live ?? 0} / ${total ?? 0})`
-        return S.list()
-          .title('Content')
-          .items([
-            // ── News ─────────────────────────────────────────────────────
-            S.documentTypeListItem('newsArticle').title(label('📰', 'News', counts.newsArticle)),
-
-            S.divider(),
-
-            // ── Static Pages ─────────────────────────────────────────────
-            S.documentTypeListItem('staticPage').title(label('📄', 'Seiten', counts.staticPage)),
-
-            S.divider(),
-
-            // ── Editorial / Home ─────────────────────────────────────────
-            S.documentTypeListItem('homeWeek').title(label('🏠', 'Home der Woche', counts.homeWeek)),
-            S.listItem()
-              .title('🍱  Home Food-Bilder')
-              .child(S.documentTypeList('category').title('Home Food-Bilder')),
-
-            S.divider(),
-
-            // ── Other content types ───────────────────────────────────────
-            S.documentTypeListItem('mustEat').title(label('🍽', 'Must-Eats', counts.mustEat)),
-            S.listItem()
-              .id('restaurants')
-              .title(labelPair('📍', 'Restaurants', counts.restaurantLive, counts.restaurantTotal))
-              .child(
-                S.list()
-                  .title('Restaurants')
-                  .items([
-                    // Sanity's own list already folds a draft and its published
-                    // twin into one row with a draft badge — that is the "all"
-                    // view. The lists below deliberately do NOT fold, so a
-                    // filter really shows only that state.
-                    S.listItem()
-                      .id('restaurants-all')
-                      .title('Alle')
-                      .child(S.documentTypeList('restaurant').title('Alle Restaurants')),
-                    S.divider(),
-                    S.listItem()
-                      .id('restaurants-published')
-                      .title(`Veröffentlicht (${counts.restaurantLive ?? 0})`)
-                      .child(
-                        S.documentList()
-                          .id('restaurants-published-list')
-                          .title('Veröffentlicht')
-                          .schemaType('restaurant')
-                          .filter('_type == "restaurant" && !(_id in path("drafts.**"))')
-                          .defaultOrdering([{field: 'name', direction: 'asc'}])
-                      ),
-                    S.listItem()
-                      .id('restaurants-draft-only')
-                      .title(`Nur Entwurf (${counts.restaurantDraftOnlyIds?.length ?? 0})`)
-                      .child(
-                        S.documentList()
-                          .id('restaurants-draft-only-list')
-                          .title('Nur Entwurf — nie veröffentlicht')
-                          .schemaType('restaurant')
-                          .filter('_id in $ids')
-                          .params({ids: counts.restaurantDraftOnlyIds ?? []})
-                          .defaultOrdering([{field: 'name', direction: 'asc'}])
-                      ),
-                    S.listItem()
-                      .id('restaurants-edited')
-                      .title(`Unveröffentlichte Änderungen (${counts.restaurantEditedIds?.length ?? 0})`)
-                      .child(
-                        S.documentList()
-                          .id('restaurants-edited-list')
-                          .title('Veröffentlicht, mit offenen Änderungen')
-                          .schemaType('restaurant')
-                          .filter('_id in $ids')
-                          .params({ids: counts.restaurantEditedIds ?? []})
-                          .defaultOrdering([{field: 'name', direction: 'asc'}])
-                      ),
-                    S.divider(),
-                    // The publish gate needs an image; without one the detail
-                    // page renders the empty hero (lib/sanity-image-presets.ts).
-                    S.listItem()
-                      .id('restaurants-no-image')
-                      .title(`Ohne Bild (${counts.restaurantNoImage ?? 0})`)
-                      .child(
-                        S.documentList()
-                          .id('restaurants-no-image-list')
-                          .title('Ohne Bild')
-                          .schemaType('restaurant')
-                          .filter('_type == "restaurant" && !defined(image.asset)')
-                          .defaultOrdering([{field: 'name', direction: 'asc'}])
-                      ),
-                  ])
-              ),
-            S.documentTypeListItem('bezirk').title(label('🏙', 'Bezirke', counts.bezirk)),
-            S.documentTypeListItem('category').title(label('🏷', 'Kategorien', counts.category)),
-
-          ])
-      },
-    }),
-    visionTool(),
+    deDELocale(),
+    structureTool({title: 'Inhalte', structure}),
+    // GROQ-Werkzeug für Entwickler, im deployten Studio nur Ballast.
+    ...(isDev ? [visionTool()] : []),
   ],
 
-  // Available locally and in the deployed Studio. The browser bundle contains
-  // no provider or write secret: the live endpoint receives the current
-  // short-lived Sanity session token and keeps that user's role as the
-  // authorization boundary.
+  // Die Startseite steht vorn und ist damit das, was beim Öffnen erscheint.
+  // Werkzeuge rufen die App mit dem kurzlebigen Sanity-Token der angemeldeten
+  // Person auf; im Studio-Bundle liegt kein Schreib-Geheimnis.
   tools: (prev) => [
+    {name: 'start', title: 'Start', icon: HomeIcon, component: StartPage},
     ...prev,
-    {
-      name: 'restaurant-importer',
-      title: 'Import Restaurant',
-      icon: DownloadIcon,
-      component: RestaurantImporter,
-    },
+    {name: 'restaurant-importer', title: 'Spot importieren', icon: DownloadIcon, component: RestaurantImporter},
   ],
 
   document: {
-    actions: (prev, {schemaType}) =>
-      schemaType === 'newsArticle'
-        ? [...prev, NewsPreviewAction, GenerateNewsArticleAction]
-        : prev,
+    actions: (prev, {schemaType}) => {
+      if (schemaType === 'mustEat') {
+        return prev.map((action) => (action.action === 'publish' ? guardMustEatPublish(action) : action))
+      }
+      return prev
+    },
+    newDocumentOptions: (prev) => prev.filter((item) => CREATABLE.has(item.templateId)),
   },
 
   schema: {
     types: schemaTypes,
+    templates: (prev) => prev.filter((template) => CREATABLE.has(template.schemaType)),
   },
 })

@@ -1,40 +1,56 @@
 import {defineField, defineType} from 'sanity'
+import {EarthGlobeIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'bezirk',
   title: 'Bezirk',
   type: 'document',
+  icon: EarthGlobeIcon,
+  groups: [
+    {name: 'seite', title: 'Seite', default: true},
+    {name: 'seo', title: 'Google'},
+  ],
+  fieldsets: [
+    {name: 'text', title: 'Beschreibung', description: 'Steht oben auf der Bezirksseite.', options: {columns: 2}},
+  ],
   fields: [
     defineField({
       name: 'name',
       title: 'Name',
       type: 'string',
-      validation: Rule => Rule.required(),
+      group: 'seite',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'Adresse der Seite',
       type: 'slug',
+      group: 'seite',
+      description: 'eatthisdot.com/bezirk/… Nach dem Livegang nicht mehr ändern.',
       options: {source: 'name', maxLength: 96},
-      validation: Rule => Rule.required(),
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'description',
-      title: 'Beschreibung',
+      title: 'Deutsch',
       type: 'text',
-      rows: 3,
+      rows: 4,
+      group: 'seite',
+      fieldset: 'text',
     }),
     defineField({
       name: 'descriptionEn',
-      title: 'Description (EN)',
+      title: 'Englisch (leer = Deutsch)',
       type: 'text',
-      rows: 3,
-      description: 'Optional EN override. Leave empty to fall back to German.',
+      rows: 4,
+      group: 'seite',
+      fieldset: 'text',
     }),
     defineField({
       name: 'topSpots',
-      title: 'Top-Spots (kuratierte Reihenfolge)',
+      title: 'Bestenliste',
       type: 'array',
+      group: 'seite',
       of: [
         {
           type: 'reference',
@@ -54,72 +70,62 @@ export default defineType({
           },
         },
       ],
-      validation: Rule => Rule.max(10).unique(),
+      validation: (Rule) => Rule.max(10).unique(),
       description:
-        'Die besten Spots dieses Bezirks, in Reihenfolge — Platz 1 ganz oben, per Drag & Drop ' +
-        'sortieren. Sie erscheinen als nummerierte Bestenliste über der A–Z-Liste und bestimmen, ' +
-        'welche Spots der Bezirk auf der Übersichtsseite zeigt. ' +
-        'Leer lassen (oder unter 3 Einträge) = die Seite bleibt wie bisher rein alphabetisch.',
+        'Die besten Spots des Bezirks, Platz 1 oben, per Ziehen sortieren. Erscheint als ' +
+        'nummerierte Liste über A–Z und bestimmt die Beispiele auf der Übersicht. ' +
+        'Unter drei Einträgen bleibt die Seite rein alphabetisch.',
     }),
     defineField({
       name: 'seo',
-      title: 'SEO',
+      title: 'Google',
       type: 'object',
-      options: {collapsible: true, collapsed: true},
+      group: 'seo',
+      description: 'Alles optional. Bezirksseiten hängen keine Marke an, der Titel darf die vollen 60 Zeichen nutzen.',
       fields: [
         {
           name: 'metaTitle',
-          title: 'Meta Title',
+          title: 'Titel bei Google',
           type: 'string',
-          description: 'Leave empty to use the default page title. Max 60 characters.',
-          validation: Rule => Rule.max(60),
+          description: 'Leer = „Restaurants in Berlin-<Bezirk>“.',
+          validation: (Rule) => Rule.max(60),
         },
         {
           name: 'metaTitleEn',
-          title: 'Meta Title (EN)',
+          title: 'Titel bei Google (Englisch)',
           type: 'string',
-          description: 'Optional EN override. Leave empty to fall back to German. Max 60 characters.',
-          validation: Rule => Rule.max(60),
+          validation: (Rule) => Rule.max(60),
         },
         {
           name: 'metaDescription',
-          title: 'Meta Description',
+          title: 'Beschreibung bei Google',
           type: 'text',
           rows: 2,
-          description: 'Leave empty to use description. Max 160 characters.',
-          validation: Rule => Rule.max(160),
+          description: 'Leer = die Beschreibung oben.',
+          validation: (Rule) => Rule.max(160),
         },
         {
           name: 'metaDescriptionEn',
-          title: 'Meta Description (EN)',
+          title: 'Beschreibung bei Google (Englisch)',
           type: 'text',
           rows: 2,
-          description: 'Optional EN override. Leave empty to fall back to German. Max 160 characters.',
-          validation: Rule => Rule.max(160),
-        },
-        {
-          name: 'ogImage',
-          title: 'Social Sharing Image',
-          type: 'image',
-          description: 'Leave empty to use the bezirk image. Ideal: 1200x630px.',
-          options: {hotspot: true},
+          validation: (Rule) => Rule.max(160),
         },
         {
           name: 'noIndex',
-          title: 'Hide from search engines',
+          title: 'Vor Google verstecken',
           type: 'boolean',
           initialValue: false,
         },
       ],
     }),
-    defineField({
-      name: 'image',
-      title: 'Bild',
-      type: 'image',
-      options: {hotspot: true, accept: 'image/*'},
-    }),
   ],
   preview: {
-    select: {title: 'name', media: 'image'},
+    select: {title: 'name', top: 'topSpots'},
+    prepare: ({title, top}) => ({
+      title,
+      subtitle: top?.length >= 3 ? `Bestenliste mit ${top.length} Spots` : 'Ohne Bestenliste',
+      media: EarthGlobeIcon,
+    }),
   },
 })

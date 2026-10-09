@@ -3,16 +3,12 @@ import {Box, Button, Card, Container, Heading, Inline, Spinner, Stack, Text, Tex
 import {useClient} from 'sanity'
 import {useRouter} from 'sanity/router'
 
+import {APP_API_BASE} from '../lib/appApi'
+
 // The Studio forwards its short-lived Sanity session token to the first-party
 // import endpoint. The endpoint performs all Sanity operations with that same
 // token, so no write secret is bundled and the current user's role remains the
 // authorization boundary.
-const studioEnv = (import.meta as unknown as {
-  env: {DEV?: boolean; SANITY_STUDIO_API_BASE?: string}
-}).env
-const API_BASE: string =
-  studioEnv.SANITY_STUDIO_API_BASE ||
-  (studioEnv.DEV ? 'http://localhost:3000' : 'https://www.eatthisdot.com')
 
 interface ImportResult {
   url: string
@@ -39,7 +35,7 @@ function parseUrls(blob: string): string[] {
 
 async function importOne(url: string, token: string): Promise<ImportResult> {
   try {
-    const res = await fetch(`${API_BASE}/api/admin/import-restaurant`, {
+    const res = await fetch(`${APP_API_BASE}/api/admin/import-restaurant`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -51,7 +47,7 @@ async function importOne(url: string, token: string): Promise<ImportResult> {
     if (!res.ok) {
       const hint =
         res.status === 404
-          ? 'The import service is not deployed for this environment.'
+          ? 'Der Import ist für diese Umgebung nicht eingerichtet.'
           : payload.hint
       return {
         url,
@@ -66,7 +62,7 @@ async function importOne(url: string, token: string): Promise<ImportResult> {
       url,
       status: 'error',
       message: (err as Error).message,
-      hint: 'Could not reach the import service. Check the app deployment and your connection.',
+      hint: 'Der Import-Dienst ist nicht erreichbar. Verbindung prüfen und erneut versuchen.',
     }
   }
 }
@@ -84,7 +80,7 @@ export default function RestaurantImporter() {
       if (urls.length === 0) {
         setStatus({
           kind: 'done',
-          results: [{url: '', status: 'error', message: 'Paste at least one Maps URL.'}],
+          results: [{url: '', status: 'error', message: 'Mindestens einen Google-Maps-Link einfügen.'}],
         })
         return
       }
@@ -96,7 +92,7 @@ export default function RestaurantImporter() {
             {
               url: '',
               status: 'error',
-              message: 'No active Sanity session. Reload Studio and sign in again.',
+              message: 'Keine aktive Sanity-Sitzung. Studio neu laden und erneut anmelden.',
             },
           ],
         })
@@ -128,21 +124,20 @@ export default function RestaurantImporter() {
 
   return (
     <Container width={1} padding={4}>
-      <Stack space={4}>
-        <Stack space={2}>
+      <Stack gap={4}>
+        <Stack gap={2}>
           <Heading as="h1" size={3}>
-            Import Restaurants from Google Maps
+            Spots aus Google Maps importieren
           </Heading>
           <Text muted>
-            Paste one Maps URL per line — short links (maps.app.goo.gl/X) work too. Each URL
-            takes ~1 minute (Places lookup, photo upload, web research on Berlin food editorials,
-            AI generators) and publishes the restaurant directly. Open it from the result list
-            below to review or edit. Access follows your current Sanity role.
+            Einen Google-Maps-Link pro Zeile, Kurzlinks (maps.app.goo.gl/…) gehen auch. Pro Link
+            dauert es etwa eine Minute: Ort nachschlagen, Foto hochladen, recherchieren, Texte
+            schreiben. Der Spot ist danach direkt live — unten in der Liste öffnen und prüfen.
           </Text>
         </Stack>
         <Card padding={4} radius={3} shadow={1}>
           <form onSubmit={handleSubmit}>
-            <Stack space={3}>
+            <Stack gap={3}>
               <TextArea
                 value={input}
                 onChange={(e) => setInput(e.currentTarget.value)}
@@ -151,30 +146,30 @@ export default function RestaurantImporter() {
                 disabled={isLoading}
                 style={{fontFamily: 'monospace', fontSize: 13}}
               />
-              <Inline space={3}>
+              <Inline gap={3}>
                 <Button
                   type="submit"
                   text={
                     isLoading
-                      ? `Importing ${status.current}/${status.total}…`
+                      ? `Importiere ${status.current} von ${status.total} …`
                       : urlCount > 1
-                        ? `Import ${urlCount} restaurants`
-                        : 'Import restaurant'
+                        ? `${urlCount} Spots importieren`
+                        : 'Spot importieren'
                   }
                   tone="primary"
                   disabled={isLoading || urlCount === 0}
                 />
                 {urlCount > 0 && !isLoading && (
                   <Text muted size={1}>
-                    {urlCount} URL{urlCount === 1 ? '' : 's'} detected
+                    {urlCount} {urlCount === 1 ? 'Link' : 'Links'} erkannt
                   </Text>
                 )}
               </Inline>
               {isLoading && (
-                <Inline space={2}>
+                <Inline gap={2}>
                   <Spinner muted />
                   <Text muted size={1}>
-                    Resolving URL → Places API → photo upload → AI generators…
+                    Link auflösen → Google Places → Foto hochladen → Texte schreiben …
                   </Text>
                 </Inline>
               )}
@@ -206,12 +201,12 @@ function ResultsList({
   const successes = results.filter((r) => r.status === 'success').length
   const failures = results.length - successes
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Text size={1} muted>
-        {inProgress ? 'In progress' : 'Done'} — {successes} imported
-        {failures > 0 ? `, ${failures} failed` : ''}
+        {inProgress ? 'Läuft' : 'Fertig'} — {successes} importiert
+        {failures > 0 ? `, ${failures} fehlgeschlagen` : ''}
       </Text>
-      <Stack space={2}>
+      <Stack gap={2}>
         {results.map((r, i) => (
           <Card
             key={`${r.url || 'empty'}-${i}`}
@@ -219,22 +214,22 @@ function ResultsList({
             radius={2}
             tone={r.status === 'success' ? 'positive' : 'critical'}
           >
-            <Stack space={2}>
-              <Inline space={3}>
+            <Stack gap={2}>
+              <Inline gap={3}>
                 <Text weight="semibold">
-                  {r.status === 'success' ? '✓' : '✗'} {r.name ?? r.url ?? 'no URL'}
+                  {r.status === 'success' ? '✓' : '✗'} {r.name ?? r.url ?? 'kein Link'}
                 </Text>
                 {r.status === 'success' && r.docId && (
                   <Button
                     mode="ghost"
-                    text="Open"
+                    text="Öffnen"
                     fontSize={1}
                     onClick={() => onOpen(r.docId!)}
                   />
                 )}
               </Inline>
               {r.status === 'error' && (
-                <Stack space={1}>
+                <Stack gap={1}>
                   <Text size={1}>{r.message}</Text>
                   {r.hint && (
                     <Text size={1} muted>

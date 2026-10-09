@@ -76,6 +76,12 @@ function assertAdminProjectBoundary(app: App): void {
   });
 }
 
+/** Das Firebase-Projekt, in das die Admin-SDK tatsächlich schreibt. */
+export function getAdminProjectId(): string | undefined {
+  const app = getAdminApp();
+  return app.options.projectId ?? process.env.GOOGLE_CLOUD_PROJECT ?? process.env.GCLOUD_PROJECT;
+}
+
 export function getAdminAuth(): Auth {
   return getAuth(getAdminApp());
 }

@@ -143,10 +143,10 @@ export default function RestaurantGallery({ images, restaurantName, slug }: Prop
       </div>
       {multiple && (
         <>
-          {/* Punkte statt „1/6": die Reihe liest man als „hier geht es weiter",
+          {/* Striche statt „1/6": die Reihe liest man als „hier geht es weiter",
               eine Zahl nur als Menge. Höchstens sechs Fotos (Hero plus fünf
-              aus der Galerie), dafür reicht die Reihe. Die Ink-Fläche hält sie
-              auf hellen Fotos lesbar, wie die Chips unten. */}
+              aus der Galerie), dafür reicht die Reihe. Ohne Fläche, ein
+              Schatten hält sie auf hellen Fotos lesbar. */}
           <span className={styles.rdHeroPhotoDots} aria-hidden="true">
             {usable.map((img, index) => (
               <span

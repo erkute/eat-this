@@ -4,7 +4,6 @@ import {
   localizeOpeningHours,
   getOpenStatus,
   buildOpeningHoursSpec,
-  formatOpenStateChip,
   DAY_LABELS,
 } from './openingHours';
 import type { OpeningHourSlot } from '../types';
@@ -188,41 +187,6 @@ describe('getOpenStatus', () => {
       changeAt: null,
       nextOpenDay: null,
     });
-  });
-});
-
-describe('formatOpenStateChip', () => {
-  // Der gemeldete Fall: Samstagabend geschlossen, Chip sagte „Öffnet 12:00" —
-  // gemeint war der Sonntag.
-  const satClosed: OpeningHourSlot[] = [
-    { days: 'Mon-Fri', hours: '12:00-22:00' },
-    { days: 'Sat', hours: 'closed' },
-    { days: 'Sun', hours: '12:00-20:00' },
-  ];
-
-  it('names the day when the next opening is not today', () => {
-    const chip = formatOpenStateChip(satClosed, 'de', new Date('2026-08-29T19:00:00'));
-    expect(chip).toEqual({ text: 'Geschlossen · Öffnet So 12:00', isOpen: false });
-  });
-
-  it('keeps the bare time when the shop opens later today', () => {
-    const chip = formatOpenStateChip(satClosed, 'de', new Date('2026-08-30T09:00:00'));
-    expect(chip).toEqual({ text: 'Geschlossen · Öffnet 12:00', isOpen: false });
-  });
-
-  it('translates the day for the English page', () => {
-    const chip = formatOpenStateChip(satClosed, 'en', new Date('2026-08-29T19:00:00'));
-    expect(chip).toEqual({ text: 'Closed · Opens Sun 12:00', isOpen: false });
-  });
-
-  it('still shows the closing time while open', () => {
-    const chip = formatOpenStateChip(satClosed, 'de', new Date('2026-08-30T14:00:00'));
-    expect(chip).toEqual({ text: 'Geöffnet bis 20:00', isOpen: true });
-  });
-
-  it('returns null without hours', () => {
-    expect(formatOpenStateChip([], 'de')).toBeNull();
-    expect(formatOpenStateChip(undefined, 'de')).toBeNull();
   });
 });
 

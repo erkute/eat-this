@@ -3,6 +3,8 @@
 // hand-maintained list: re-derive it the same way if the catalog is culled again.
 // `sathutu` and `story-coffee-roesterei-p-berg` came on 07.10.2026: deleted
 // later, still 404ing in GSC.
+// `five-elephant-neue-nationalgalerie` and `hokey-pokey-pankow` were taken off
+// on 09.10.2026. Pankow has no spot left, so its entries go to a category hub.
 //
 // middleware.ts answers these before any page renders, in both locales. A spot
 // that comes back therefore has to leave this map, or it keeps redirecting.
@@ -56,7 +58,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'big-bascha': '/kategorie/lunch',
   'blomeyers-kaese-aus-deutschland': '/map',
   'bob-thoms': '/bezirk/schoeneberg',
-  'bollenpiepe-restaurant': '/bezirk/pankow',
+  'bollenpiepe-restaurant': '/map',
   'brammibals-donuts-mitte': '/bezirk/mitte',
   'brammibals-donuts-schoeneberg': '/bezirk/schoeneberg',
   'brechts-steakhaus': '/bezirk/mitte',
@@ -104,6 +106,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'fes-turkish-bbq': '/bezirk/kreuzberg',
   'fisch-borke': '/kategorie/dinner',
   'fischer-lustig': '/bezirk/mitte',
+  'five-elephant-neue-nationalgalerie': '/bezirk/schoeneberg',
   'focacciando': '/bezirk/friedrichshain',
   'fourty-years-kitchen': '/bezirk/kreuzberg',
   'fraeulein-frost': '/bezirk/neukoelln',
@@ -133,6 +136,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'herr-lindemann-cocktail-bar-auf-kraeuterbasis': '/map',
   'hey-schnecke': '/bezirk/schoeneberg',
   'hokey-pokey-boutique': '/bezirk/prenzlauer-berg',
+  'hokey-pokey-pankow': '/kategorie/sweets',
   'honey-lou-bar': '/bezirk/neukoelln',
   'hugos-restaurant-private-dining': '/bezirk/schoeneberg',
   'hummus-friends': '/bezirk/mitte',

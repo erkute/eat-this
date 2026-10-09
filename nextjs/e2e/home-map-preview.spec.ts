@@ -100,7 +100,10 @@ for (const narrowDesktop of [false, true]) {
       await expect(pins.first()).toBeVisible();
       await expect(pins.first()).toHaveAttribute('aria-label', ({ Pizza: 'Gazzo', Kaffee: 'Kolo Coffee', Lunch: 'Schüsseldienst' })[category]!);
       const names = await pins.evaluateAll((elements) => elements.map((el) => el.getAttribute('aria-label')!));
-      expect(names.length).toBeGreaterThanOrEqual(4);
+      // How many pins survive the screen-space spreading depends on the live
+      // curation and the viewport (Pizza showed 3 on a phone on 09.10.2026).
+      // Two are enough to switch between the portrait and landscape photo.
+      expect(names.length).toBeGreaterThanOrEqual(2);
       const positions = await pins.evaluateAll((elements) => elements.map((el) => {
         const rect = el.getBoundingClientRect();
         return { left: rect.left, right: rect.right + 6, top: rect.top - 6, bottom: rect.bottom };

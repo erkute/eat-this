@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { Fragment, useLayoutEffect, useMemo, useRef } from 'react';
+import { Fragment, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
@@ -33,12 +33,17 @@ import { normalizeName } from '@/lib/normalizeName';
 import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
 import ShareButton from '../ShareButton';
-import OpenStateChip from '../OpenStateChip';
 import RestaurantGallery from './RestaurantGallery';
 import { spotGallery } from '@/lib/map/spotGallery';
 import RestaurantDetailArticles from './RestaurantDetailArticles';
 import { trackEvent } from '@/lib/analytics';
-import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
+import {
+  berlinNow,
+  getOpenStatus,
+  localizeOpeningDays,
+  localizeOpeningHours,
+} from '@/lib/map/openingHours';
+import { useInkSafeLeading } from '@/lib/dom/inkSafeLeading';
 import { spotPhotoSrc } from '@/lib/map/spotPhoto';
 import { UNLOCK_RADIUS_METERS } from './useMustEatDetailState';
 
@@ -80,6 +85,17 @@ function MustEatMiniCard({
     </li>
   );
 }
+
+/* Die Uhr für den Öffnungs-Tag, auf die Minute. Auf dem Server null: die Map
+   wird vorgerendert, ein „Geöffnet" aus dem Build wäre bald falsch. Geht das
+   Detail per Tipp auf, steht der Tag dagegen schon im ersten Bild — aus einem
+   Effekt käme er einen Frame später in die Zeile gerutscht. */
+const subscribeMinute = (onChange: () => void) => {
+  const timer = window.setInterval(onChange, 60_000);
+  return () => window.clearInterval(timer);
+};
+const currentMinute = () => Math.floor(Date.now() / 60_000);
+const serverMinute = () => null;
 
 interface RestaurantDetailProps {
   restaurant: MapRestaurant;
@@ -146,6 +162,11 @@ export default function RestaurantDetail({
   }, [restaurant._id]);
 
   const hasHours = !!r.openingHours?.length;
+  const minute = useSyncExternalStore(subscribeMinute, currentMinute, serverMinute);
+  const openNow =
+    hasHours && minute !== null
+      ? getOpenStatus(r.openingHours!, berlinNow(new Date(minute * 60_000))).isOpen
+      : null;
 
   // Scale the hero name down for long single words so they fit on one line
   // (no ugly mid-word break). Upper bound ≈ usableWidth / (longestWord · 0.62).
@@ -154,6 +175,8 @@ export default function RestaurantDetail({
   // narrow Schoolbell; a wider display font overflowed and the
   // last letter got clipped by the hero's overflow:hidden (e.g. "Schüsseldienst").
   const displayName = normalizeName(r.name);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  useInkSafeLeading(nameRef, displayName);
   const longestWord = displayName.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0);
   const nameMaxPx = Math.max(26, Math.min(56, Math.round(311 / (Math.max(longestWord, 1) * 0.62))));
   const galleryImages = useMemo<RestaurantGalleryImage[]>(() => {
@@ -331,6 +354,7 @@ export default function RestaurantDetail({
                 Detail ist ein Panel darin. Bis zum 01.09.2026 standen hier
                 zwei H1 nebeneinander. */}
             <h2
+              ref={nameRef}
               className={styles.rdNameOv}
               style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}
             >
@@ -339,6 +363,18 @@ export default function RestaurantDetail({
             <div className={styles.rdTagsOv}>
               {district && <span className={styles.rdTag}>{district}</span>}
               {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
+              {/* Nur der Zustand, keine Uhrzeit: die Zeiten stehen
+                  vollständig auf der Tafel unten. Bis 09.10.2026 stand
+                  „Geöffnet bis 04:00" als eigene Pille zwischen Blätterleiste
+                  und Text (User: „ein dummer Platz"). */}
+              {openNow !== null && (
+                <span
+                  className={`${styles.rdTag} ${styles.rdTagState}`}
+                  data-open={openNow ? '' : undefined}
+                >
+                  {openNow ? t('map.open') : t('map.closed')}
+                </span>
+              )}
             </div>
           </div>
         </header>
@@ -405,12 +441,6 @@ export default function RestaurantDetail({
               )}
             </button>
           </nav>
-        )}
-
-        {!!r.openingHours?.length && (
-          <div className={styles.rdOpenState}>
-            <OpenStateChip openingHours={r.openingHours} locale={locale === 'en' ? 'en' : 'de'} />
-          </div>
         )}
 
         {/* BODY — story prose with drop cap. While the on-demand detail fetch

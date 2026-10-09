@@ -16,7 +16,6 @@ export interface ContentRestaurant {
   hasExternalPresence: boolean;
   hasShortDescription: boolean;
   hasTip: boolean;
-  lastReviewed?: string;
 }
 
 export interface BacklogItem extends ContentRestaurant {
@@ -81,10 +80,6 @@ export function rankDescriptionBacklog(restaurants: ContentRestaurant[]): Backlo
       if (r.hasMenuUrl) {
         score += 10;
         reasons.push('Menü-Link');
-      }
-      if (r.lastReviewed) {
-        score += 10;
-        reasons.push(`besucht ${r.lastReviewed}`);
       }
       if (r.hasExternalPresence) {
         score += 5;

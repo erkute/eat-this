@@ -229,10 +229,6 @@ export async function POST(req: NextRequest) {
       revalidateMustEatSurface(revalidated);
       revalidatePackContents(revalidated);
       break;
-    case 'homeWeek':
-      revalidateMapSurface(revalidated);
-      revalidateMustEatSurface(revalidated);
-      break;
     case 'staticPage':
       revalidateTag('staticPage');
       revalidated.push('tag:staticPage');

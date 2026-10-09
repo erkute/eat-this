@@ -130,10 +130,10 @@ describe('buildBezirkJsonLd', () => {
 
   type Node = { '@type': string } & Record<string, unknown>;
 
-  const graphOf = (restaurants: RestaurantCard[], imageUrl?: string): Node[] =>
+  const graphOf = (restaurants: RestaurantCard[]): Node[] =>
     JSON.parse(
       buildBezirkJsonLd({
-        bezirk: { name: 'Mitte', slug: 'mitte', imageUrl },
+        bezirk: { name: 'Mitte', slug: 'mitte' },
         restaurants,
         locale: 'de',
         districtsLabel: 'Bezirke',
@@ -161,26 +161,17 @@ describe('buildBezirkJsonLd', () => {
     expect(item).not.toHaveProperty('image');
   });
 
-  it("names the district's own picture as the page's primary image", () => {
-    const graph = graphOf(
-      [card({ photo: 'https://cdn.sanity.io/boii.jpg?w=800' })],
-      'https://cdn.sanity.io/mitte.jpg?w=1600'
-    );
+  it("uses the first listed photo as the page's primary image", () => {
+    const graph = graphOf([card(), card({ photo: 'https://cdn.sanity.io/boii.jpg?w=800' })]);
     const page = nodeOf(graph, 'WebPage') as unknown as {
       primaryImageOfPage: { '@id': string };
       image: { '@id': string };
     };
     const image = nodeOf(graph, 'ImageObject') as unknown as { '@id': string; url: string };
 
-    expect(image.url).toBe('https://cdn.sanity.io/mitte.jpg?w=1200&auto=format&q=80');
+    expect(image.url).toBe('https://cdn.sanity.io/boii.jpg?w=1200&auto=format&q=80');
     expect(page.primaryImageOfPage).toEqual({ '@id': image['@id'] });
     expect(page.image).toEqual({ '@id': image['@id'] });
-  });
-
-  it('falls back to the first listed photo when the district has no picture', () => {
-    const graph = graphOf([card(), card({ photo: 'https://cdn.sanity.io/boii.jpg?w=800' })]);
-    const image = nodeOf(graph, 'ImageObject') as unknown as { url: string };
-    expect(image.url).toBe('https://cdn.sanity.io/boii.jpg?w=1200&auto=format&q=80');
   });
 
   it('ships no ImageObject at all when nothing is publishable', () => {

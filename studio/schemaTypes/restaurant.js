@@ -1,81 +1,123 @@
+import {PinIcon} from '@sanity/icons'
 import {CategoryCheckboxInput} from '../components/CategoryCheckboxInput'
 import {BezirkDropdownInput} from '../components/BezirkDropdownInput'
+import {GalleryInput, SpotPhotoInput} from '../components/PhotoInputs'
+import {OpeningHoursInput} from '../components/OpeningHoursInput'
 
 // Spiegel von FIRST_PARTY_RESTAURANT_PHOTO_SLUGS in
 // nextjs/lib/sanity-image-presets.ts — Spots, deren Foto von uns selbst stammt
 // und deshalb ohne Credit-URL ausgespielt wird. Beim Ändern beide Stellen.
 const FIRST_PARTY_PHOTO_SLUGS = ['bar-basta', 'sardinen-bar']
 
+const slugify = (input) =>
+  input
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/['’]/g, '')
+    // Übrige Akzente (é, á, ì, ō, č …) auf ASCII zurückführen, statt sie im
+    // [^a-z0-9]-Schritt zu verlieren.
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
 export default {
   name: 'restaurant',
-  title: 'Restaurant (Map)',
+  title: 'Spot',
   type: 'document',
+  icon: PinIcon,
+  groups: [
+    {name: 'spot', title: 'Spot', default: true},
+    {name: 'texte', title: 'Texte'},
+    {name: 'fotos', title: 'Fotos'},
+    {name: 'infos', title: 'Infos'},
+    {name: 'seo', title: 'SEO & Technik'},
+  ],
+  fieldsets: [
+    {name: 'status', title: 'Status', options: {columns: 2}},
+    {name: 'kurz', title: 'Kurzbeschreibung', description: 'Für Vorschauen und Google. Höchstens 160 Zeichen.', options: {columns: 2}},
+    {name: 'lang', title: 'Beschreibung', description: 'Der Text auf der Spot-Seite, Absätze durch eine Leerzeile getrennt. Höchstens 2000 Zeichen.', options: {columns: 2}},
+    {name: 'tipp', title: 'Insider-Tipp', description: 'Ein Satz fürs Popup auf der Map.', options: {columns: 2}},
+    {name: 'links', title: 'Links', options: {columns: 2}},
+    {name: 'ort', title: 'Position auf der Map', options: {collapsible: true, collapsed: true, columns: 2}},
+  ],
   fields: [
+    // ── Spot ───────────────────────────────────────────────────────────────
     {
       name: 'name',
       title: 'Name',
       type: 'string',
-      validation: Rule => Rule.required(),
+      group: 'spot',
+      validation: (Rule) => Rule.required(),
     },
     {
       name: 'slug',
-      title: 'Slug',
+      title: 'Adresse der Seite',
       type: 'slug',
-      options: {
-        source: 'name',
-        maxLength: 96,
-        // Slugify: German digraph mapping first, then NFD-normalize and strip
-        // combining marks so other diacritics (é, á, ì, ō, č, …) reduce to ASCII
-        // instead of being deleted by the [^a-z0-9] sweep.
-        slugify: input =>
-          input
-            .toLowerCase()
-            .replace(/ä/g, 'ae')
-            .replace(/ö/g, 'oe')
-            .replace(/ü/g, 'ue')
-            .replace(/ß/g, 'ss')
-            .replace(/['’]/g, '')
-            .normalize('NFD')
-            .replace(/[̀-ͯ]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, ''),
-      },
-      validation: Rule => Rule.required(),
+      group: 'spot',
+      description: 'eatthisdot.com/restaurant/… Wird aus dem Namen erzeugt. Nach dem Livegang nicht mehr ändern.',
+      options: {source: 'name', maxLength: 96, slugify},
+      validation: (Rule) => Rule.required(),
     },
     {
       name: 'isOpen',
-      title: 'Geöffnet',
+      title: 'Gibt es noch',
       type: 'boolean',
+      group: 'spot',
+      fieldset: 'status',
       initialValue: true,
-      description: 'Deaktivieren wenn das Restaurant dauerhaft geschlossen ist.',
+      description: 'Aus = dauerhaft geschlossen. Der Spot fliegt aus allen Listen.',
     },
     {
       name: 'isClosed',
-      title: 'Vorübergehend geschlossen',
+      title: 'Vorübergehend zu',
       type: 'boolean',
+      group: 'spot',
+      fieldset: 'status',
       initialValue: false,
-      description: 'Aktivieren wenn das Restaurant vorübergehend geschlossen ist.',
+      description: 'An = bleibt sichtbar, mit Hinweis „vorübergehend geschlossen“.',
     },
     {
-      name: 'featured',
-      title: 'Auf Landingpage anzeigen',
-      type: 'boolean',
-      initialValue: false,
-      description: 'Anhaken, um dieses Restaurant in der Featured-Spots-Section auf der Landingpage zu zeigen. Max. 12 werden angezeigt. Wenn keiner angehakt ist, fällt die Landing auf die Top-Restaurants nach Must-Eat-Anzahl zurück.',
+      name: 'bezirkRef',
+      title: 'Bezirk',
+      type: 'reference',
+      group: 'spot',
+      to: [{type: 'bezirk'}],
+      components: {input: BezirkDropdownInput},
+    },
+    {
+      name: 'district',
+      title: 'Kiez-Angabe',
+      type: 'string',
+      group: 'spot',
+      description: 'So steht der Ort auf Karten und Kacheln, meist wie der Bezirk.',
+    },
+    {
+      name: 'categories',
+      title: 'Kategorien',
+      type: 'array',
+      group: 'spot',
+      of: [{type: 'reference', to: [{type: 'category'}]}],
+      components: {input: CategoryCheckboxInput},
     },
     {
       name: 'cuisineType',
-      title: 'Küche / Cuisine',
+      title: 'Küche',
       type: 'string',
-      description: 'z.B. Italian, Japanese / Ramen, Coffee, Bakery …',
+      group: 'spot',
+      description: 'Englisch, wie bei den anderen Spots: Italian, Japanese / Ramen, Bakery, Café …',
     },
     {
       name: 'tags',
-      title: 'Tags / Gerichte (für KI-Buddy & Suche)',
+      title: 'Gerichte & Eigenschaften',
       type: 'array',
+      group: 'spot',
       of: [{type: 'string'}],
       options: {
-        layout: 'tags',
+        layout: 'grid',
         list: [
           {title: 'Pizza', value: 'pizza'},
           {title: 'Burger', value: 'burger'},
@@ -95,206 +137,85 @@ export default {
           {title: 'Fine Dining', value: 'fine dining'},
         ],
       },
-      description:
-        'Konkrete Gerichte/Eigenschaften für gezielte Buddy-Empfehlungen. Mehrfachauswahl. Wird beim Matchen am höchsten gewichtet.',
+      description: 'Zum Anhaken. Für Suche und Remy, am stärksten gewichtet, wenn jemand nach einem Gericht fragt.',
     },
     {
+      name: 'featured',
+      title: 'Vorne zeigen',
+      type: 'boolean',
+      group: 'spot',
+      initialValue: false,
+      description: 'Steht auf den Bezirks- und Kategorie-Übersichten unter den ersten Beispielen und zählt bei Remy mehr.',
+    },
+
+    // ── Texte ──────────────────────────────────────────────────────────────
+    {
       name: 'shortDescription',
-      title: 'Kurzbeschreibung (SEO)',
+      title: 'Deutsch',
       type: 'text',
-      rows: 2,
-      description: 'Für Meta Description & Vorschau. Max. 160 Zeichen.',
-      validation: Rule => Rule.max(160),
+      rows: 3,
+      group: 'texte',
+      fieldset: 'kurz',
+      validation: (Rule) => Rule.max(160),
     },
     {
       name: 'shortDescriptionEn',
-      title: 'Short Description (EN, SEO)',
+      title: 'Englisch (leer = Deutsch)',
       type: 'text',
-      rows: 2,
-      description: 'Optional EN override. Leave empty to fall back to German. Max 160 characters.',
-      validation: Rule => Rule.max(160),
+      rows: 3,
+      group: 'texte',
+      fieldset: 'kurz',
+      validation: (Rule) => Rule.max(160),
     },
     {
       name: 'description',
-      title: 'Beschreibung',
+      title: 'Deutsch',
       type: 'text',
-      rows: 8,
-      description: 'Ausführliche Beschreibung auf der Detail-Seite. Max 700 Zeichen (Voice-B Long-form: Ziel 500–650).',
-      validation: Rule => Rule.max(700),
+      rows: 10,
+      group: 'texte',
+      fieldset: 'lang',
+      validation: (Rule) => Rule.max(2000),
     },
     {
       name: 'descriptionEn',
-      title: 'Description (EN)',
+      title: 'Englisch (leer = Deutsch)',
       type: 'text',
-      rows: 8,
-      description: 'Optional EN override. Leave empty to fall back to German. Max 700 characters (Voice-B Long-form: target 500–650).',
-      validation: Rule => Rule.max(700),
+      rows: 10,
+      group: 'texte',
+      fieldset: 'lang',
+      validation: (Rule) => Rule.max(2000),
     },
     {
-      name: 'seo',
-      title: 'SEO',
-      type: 'object',
-      options: { collapsible: true, collapsed: true },
-      fields: [
-        {
-          name: 'metaTitle',
-          title: 'Meta Title',
-          type: 'string',
-          description: 'Leave empty to use restaurant name. Max 60 characters.',
-          validation: Rule => Rule.max(60),
-        },
-        {
-          name: 'metaTitleEn',
-          title: 'Meta Title (EN)',
-          type: 'string',
-          description: 'Optional EN override. Leave empty to fall back to German. Max 60 characters.',
-          validation: Rule => Rule.max(60),
-        },
-        {
-          name: 'metaDescription',
-          title: 'Meta Description',
-          type: 'text',
-          rows: 2,
-          description: 'Leave empty to use description. Max 160 characters.',
-          validation: Rule => Rule.max(160),
-        },
-        {
-          name: 'metaDescriptionEn',
-          title: 'Meta Description (EN)',
-          type: 'text',
-          rows: 2,
-          description: 'Optional EN override. Leave empty to fall back to German. Max 160 characters.',
-          validation: Rule => Rule.max(160),
-        },
-        {
-          name: 'ogImage',
-          title: 'Social Sharing Image',
-          type: 'image',
-          description: 'Leave empty to use restaurant photo. Ideal: 1200x630px.',
-          options: { hotspot: true },
-        },
-        {
-          name: 'noIndex',
-          title: 'Hide from search engines',
-          type: 'boolean',
-          initialValue: false,
-        },
-      ],
-    },
-    {
-      name: 'district',
-      title: 'District',
+      name: 'tip',
+      title: 'Deutsch',
       type: 'string',
+      group: 'texte',
+      fieldset: 'tipp',
     },
     {
-      name: 'bezirkRef',
-      title: 'Bezirk',
-      type: 'reference',
-      to: [{ type: 'bezirk' }],
-      description: 'Berliner Bezirk (verknüpft)',
-      components: { input: BezirkDropdownInput },
-    },
-    {
-      name: 'address',
-      title: 'Address',
+      name: 'tipEn',
+      title: 'Englisch (leer = Deutsch)',
       type: 'string',
+      group: 'texte',
+      fieldset: 'tipp',
     },
-    {
-      name: 'categories',
-      title: 'Categories',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'category' }] }],
-      description:
-        'Anhaken um zuzuordnen. DE/EN-Label gepflegt unter „Kategorien".',
-      components: { input: CategoryCheckboxInput },
-    },
-    {
-      name: 'phone',
-      title: 'Telefon',
-      type: 'string',
-      description:
-        'Internationale E.164-Form (z.B. +49 30 12345678). Aus der Google Places API gezogen.',
-    },
-    {
-      name: 'priceRange',
-      title: 'Preisspanne',
-      type: 'object',
-      description:
-        'Wird beim Import aus Google Places gezogen und überall als "10–20 €" angezeigt. Max darf leer bleiben — Google liefert für sein teuerstes Band nur einen Startpreis, das rendert dann als "ab 100 €". Manuell editieren wenn Places keine Daten hat.',
-      options: { collapsible: true, collapsed: false },
-      fields: [
-        { name: 'min', title: 'Min', type: 'number' },
-        { name: 'max', title: 'Max', type: 'number' },
-        {
-          name: 'currency',
-          title: 'Währung',
-          type: 'string',
-          initialValue: 'EUR',
-          options: { list: ['EUR', 'USD', 'GBP', 'CHF'] },
-        },
-      ],
-    },
-    {
-      name: 'lat',
-      title: 'Latitude',
-      type: 'number',
-      validation: Rule => Rule.required(),
-    },
-    {
-      name: 'lng',
-      title: 'Longitude',
-      type: 'number',
-      validation: Rule => Rule.required(),
-    },
-    {
-      name: 'mapsUrl',
-      title: 'Google Maps URL',
-      type: 'url',
-    },
-    {
-      name: 'googlePlaceId',
-      title: 'Google Place ID',
-      type: 'string',
-      readOnly: true,
-      description:
-        'Kanonische Google-Place-ID (z.B. ChIJ…). Wird beim Import gesetzt und als Dedup-Key verwendet — selbe Filiale derselben Marke an unterschiedlichen Standorten haben unterschiedliche IDs.',
-    },
-    {
-      name: 'website',
-      title: 'Website',
-      type: 'url',
-    },
-    {
-      name: 'menuUrl',
-      title: 'Speisekarte (URL)',
-      type: 'url',
-      description:
-        'Link zur offiziellen Speisekarte. Wird als hasMenu ins JSON-LD geschrieben.',
-    },
-    {
-      name: 'instagramHandle',
-      title: 'Instagram Handle',
-      type: 'string',
-      description:
-        'Nur den Handle ohne @ (z.B. "buba.berlin"). Wenn gesetzt UND das Photo kein eigenes Credit hat, erscheint der Hero-Credit als "via @handle" mit Link auf instagram.com/handle.',
-    },
+
+    // ── Fotos ──────────────────────────────────────────────────────────────
     {
       name: 'image',
-      title: 'Photo',
+      title: 'Titelfoto',
       type: 'image',
-      options: { hotspot: true },
-      // Die Website spielt ein Restaurant-Foto NUR aus, wenn Credit UND
-      // Credit-URL zusammen gesetzt sind, ODER das Restaurant einen
-      // `instagramHandle` hat, ODER der Slug in der First-Party-Liste steht.
-      // Die Bedingung steht in nextjs/lib/sanity-image-presets.ts
-      // (`publishableRestaurantImageCondition`) — dort ist die Quelle der
-      // Wahrheit, hier die Kopie, damit das Studio es vor dem Speichern merkt.
-      //
-      // Ohne diese Prüfung ist der Fehler unsichtbar: das Bild liegt korrekt im
-      // Dataset, die CDN liefert es, und die Detailseite rendert trotzdem den
-      // `heroNoPhoto`-Header. Genau so ist es am 25.08.2026 bei Son Kitchen
-      // passiert, nachdem das Foto ersetzt und nur `credit` neu gesetzt wurde.
-      validation: Rule =>
+      group: 'fotos',
+      options: {hotspot: true},
+      components: {input: SpotPhotoInput},
+      description: 'Erscheint nur mit Copyright und Link zur Quelle. Den Bildausschnitt setzt der Kreis in der Vorschau.',
+      // Die Website spielt ein Foto NUR aus, wenn Credit UND Credit-URL gesetzt
+      // sind, ODER der Spot einen `instagramHandle` hat, ODER der Slug in der
+      // First-Party-Liste steht. Quelle der Wahrheit ist
+      // `publishableRestaurantImageCondition` in nextjs/lib/sanity-image-presets.ts;
+      // hier die Kopie, damit das Studio es vor dem Speichern merkt. Ohne die
+      // Prüfung ist der Fehler unsichtbar (Son Kitchen, 25.08.2026).
+      validation: (Rule) =>
         Rule.custom((value, context) => {
           if (!value || !value.asset) return true
           if (value.credit && value.creditUrl) return true
@@ -302,23 +223,21 @@ export default {
           if (doc.instagramHandle) return true
           if (FIRST_PARTY_PHOTO_SLUGS.includes(doc.slug && doc.slug.current)) return true
           return value.credit
-            ? 'Credit ohne Credit-URL reicht nicht — die Website blendet das Foto dann komplett aus. Entweder Credit-URL ergänzen oder oben den Instagram-Handle setzen.'
-            : 'Ohne Credit + Credit-URL (oder einen Instagram-Handle am Restaurant) wird das Foto auf der Website nicht ausgespielt.'
+            ? 'Copyright ohne Link zur Quelle reicht nicht — die Website blendet das Foto dann aus.'
+            : 'Ohne Copyright und Link zur Quelle zeigt die Website das Foto nicht.'
         }),
       fields: [
         {
           name: 'credit',
-          title: 'Photo Credit',
+          title: 'Copyright',
           type: 'string',
-          description:
-            'Pflicht bei Bildern aus Google Places (z.B. "Foto: Max Mustermann"). Wird als figcaption unter dem Bild angezeigt.',
+          description: 'Steht unter dem Foto, z. B. „Foto: Max Muster“.',
         },
         {
           name: 'creditUrl',
-          title: 'Photo Credit URL',
+          title: 'Link zur Quelle',
           type: 'url',
-          description:
-            'Profil-URL des Fotografen — macht das Credit-Label klickbar. Zusammen mit dem Credit die Bedingung dafür, dass das Foto überhaupt erscheint (Ausnahme: Restaurant hat einen Instagram-Handle).',
+          description: 'Wohin der Credit führt: Website oder Instagram des Fotografen oder Betriebs.',
         },
       ],
     },
@@ -326,86 +245,213 @@ export default {
       name: 'gallery',
       title: 'Galerie',
       type: 'array',
+      group: 'fotos',
+      components: {input: GalleryInput},
+      options: {layout: 'grid'},
       of: [
         {
           type: 'image',
-          options: { hotspot: true },
+          options: {hotspot: true},
           fields: [
             {
-              name: 'alt',
-              title: 'Alt-Text',
-              type: 'string',
-              description: 'Kurze Bildbeschreibung für SEO & Barrierefreiheit',
-            },
-            {
               name: 'credit',
-              title: 'Photo Credit',
+              title: 'Copyright',
               type: 'string',
-              description:
-                'Pflicht bei Bildern aus Google Places (z.B. "Foto: Max Mustermann").',
+              description: 'z. B. „Foto: Max Muster“.',
             },
+            {name: 'creditUrl', title: 'Link zur Quelle', type: 'url'},
             {
-              name: 'creditUrl',
-              title: 'Photo Credit URL',
-              type: 'url',
+              name: 'alt',
+              title: 'Was ist zu sehen?',
+              type: 'string',
+              description: 'Kurz, für Google und Screenreader.',
             },
           ],
+          preview: {select: {media: 'asset', title: 'alt', subtitle: 'credit'}},
         },
       ],
     },
+
+    // ── Infos ──────────────────────────────────────────────────────────────
     {
-      name: 'lastReviewed',
-      title: 'Zuletzt besucht',
-      type: 'date',
-      options: { dateFormat: 'DD.MM.YYYY' },
-    },
-    {
-      name: 'reservationUrl',
-      title: 'Reservation Link (Resy, OpenTable, etc.)',
-      type: 'url',
+      name: 'address',
+      title: 'Adresse',
+      type: 'string',
+      group: 'infos',
     },
     {
       name: 'openingHours',
-      title: 'Opening Hours',
+      title: 'Öffnungszeiten',
       type: 'array',
+      group: 'infos',
+      description: 'Schalter aus = Ruhetag. Ohne Uhrzeit fehlt der Tag auf der Website. Nach Mitternacht einfach weiter: 18:00 bis 02:00.',
+      components: {input: OpeningHoursInput},
       of: [
         {
           type: 'object',
           name: 'daySlot',
           fields: [
-            {
-              name: 'days',
-              title: 'Days',
-              type: 'string',
-              description: 'e.g. "Mon–Fri" or "Saturday"',
-            },
-            {
-              name: 'hours',
-              title: 'Hours',
-              type: 'string',
-              description: 'e.g. "12:00–22:00" or "closed"',
-            },
+            {name: 'days', title: 'Tage', type: 'string', description: 'z. B. „Mon–Fri“ oder „Sat“'},
+            {name: 'hours', title: 'Zeiten', type: 'string', description: 'z. B. „12:00–22:00“ oder „closed“'},
           ],
-          preview: {
-            select: { title: 'days', subtitle: 'hours' },
-          },
+          preview: {select: {title: 'days', subtitle: 'hours'}},
         },
       ],
     },
     {
-      name: 'tip',
-      title: 'Insider Tip',
-      type: 'string',
-      description: 'Short recommendation shown in the map popup',
+      name: 'priceRange',
+      title: 'Preisspanne pro Person',
+      type: 'object',
+      group: 'infos',
+      description: 'Wird als „10–20 €“ angezeigt. Ohne Höchstwert steht „ab …“ da.',
+      options: {columns: 3},
+      fields: [
+        {name: 'min', title: 'Von', type: 'number'},
+        {name: 'max', title: 'Bis', type: 'number'},
+        {
+          name: 'currency',
+          title: 'Währung',
+          type: 'string',
+          initialValue: 'EUR',
+          options: {list: ['EUR', 'USD', 'GBP', 'CHF'].map((code) => ({title: code, value: code}))},
+        },
+      ],
     },
     {
-      name: 'tipEn',
-      title: 'Insider Tip (EN)',
+      name: 'phone',
+      title: 'Telefon',
       type: 'string',
-      description: 'Optional EN override. Leave empty to fall back to German.',
+      group: 'infos',
+      fieldset: 'links',
+      description: 'International, z. B. +49 30 12345678',
+    },
+    {
+      name: 'instagramHandle',
+      title: 'Instagram',
+      type: 'string',
+      group: 'infos',
+      fieldset: 'links',
+      description: 'Nur der Name ohne @, z. B. buba.berlin',
+    },
+    {
+      name: 'website',
+      title: 'Website',
+      type: 'url',
+      group: 'infos',
+      fieldset: 'links',
+    },
+    {
+      name: 'menuUrl',
+      title: 'Speisekarte',
+      type: 'url',
+      group: 'infos',
+      fieldset: 'links',
+    },
+    {
+      name: 'reservationUrl',
+      title: 'Reservierung',
+      type: 'url',
+      group: 'infos',
+      fieldset: 'links',
+      description: 'Resy, OpenTable, eigene Seite …',
+    },
+
+    // ── SEO & Technik ──────────────────────────────────────────────────────
+    {
+      name: 'seo',
+      title: 'Google',
+      type: 'object',
+      group: 'seo',
+      description: 'Alles optional. Leer = Name und Kurzbeschreibung werden genutzt.',
+      options: {columns: 2},
+      fields: [
+        {
+          name: 'metaTitle',
+          title: 'Titel Deutsch',
+          type: 'string',
+          validation: (Rule) => Rule.max(60),
+        },
+        {
+          name: 'metaTitleEn',
+          title: 'Titel Englisch',
+          type: 'string',
+          validation: (Rule) => Rule.max(60),
+        },
+        {
+          name: 'metaDescription',
+          title: 'Beschreibung Deutsch',
+          type: 'text',
+          rows: 2,
+          validation: (Rule) => Rule.max(160),
+        },
+        {
+          name: 'metaDescriptionEn',
+          title: 'Beschreibung Englisch',
+          type: 'text',
+          rows: 2,
+          validation: (Rule) => Rule.max(160),
+        },
+        {
+          name: 'noIndex',
+          title: 'Vor Google verstecken',
+          type: 'boolean',
+          initialValue: false,
+        },
+      ],
+    },
+    {
+      name: 'lat',
+      title: 'Breitengrad',
+      type: 'number',
+      group: 'seo',
+      fieldset: 'ort',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'lng',
+      title: 'Längengrad',
+      type: 'number',
+      group: 'seo',
+      fieldset: 'ort',
+      validation: (Rule) => Rule.required(),
+    },
+    {
+      name: 'mapsUrl',
+      title: 'Google-Maps-Link',
+      type: 'url',
+      group: 'seo',
+    },
+    {
+      name: 'googlePlaceId',
+      title: 'Google Place ID',
+      type: 'string',
+      group: 'seo',
+      readOnly: true,
+      description: 'Setzt der Import. Erkennt doppelte Spots.',
     },
   ],
+  orderings: [
+    {title: 'Name A–Z', name: 'nameAsc', by: [{field: 'name', direction: 'asc'}]},
+    {title: 'Zuletzt bearbeitet', name: 'updatedDesc', by: [{field: '_updatedAt', direction: 'desc'}]},
+  ],
   preview: {
-    select: { title: 'name', subtitle: 'district' },
+    select: {
+      title: 'name',
+      bezirk: 'bezirkRef.name',
+      district: 'district',
+      cuisine: 'cuisineType',
+      media: 'image',
+      isOpen: 'isOpen',
+      isClosed: 'isClosed',
+    },
+    prepare({title, bezirk, district, cuisine, media, isOpen, isClosed}) {
+      const status = isOpen === false ? 'Geschlossen' : isClosed ? 'Vorübergehend zu' : null
+      const place = bezirk || district
+      return {
+        title: title || 'Neuer Spot',
+        subtitle: [status, place, cuisine].filter(Boolean).join(' · '),
+        media: media || PinIcon,
+      }
+    },
   },
 }

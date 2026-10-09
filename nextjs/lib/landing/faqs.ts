@@ -6,8 +6,8 @@ export interface LandingFaqEntry {
 const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   de: [
     {
-      q: 'Ist Eat This kostenlos?',
-      a: 'Die Map und das Starter Pack sind kostenlos. Optional kannst du mit einem Booster Pack die enthaltenen Must Eats sofort freischalten.',
+      q: 'Was kostet Eat This?',
+      a: 'Ganz Berlin ist schon auf deiner Map. Mit einem kostenlosen Konto bekommst du das Starter Pack dazu: 20 Must Eats für deinen Start.\n\nNur Booster Packs kosten etwas. Damit kannst du weitere Must Eats freischalten und Karten sammeln, ohne die Spots vorher besuchen zu müssen.',
     },
     {
       q: 'Brauche ich ein Konto?',
@@ -28,8 +28,8 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
   ],
   en: [
     {
-      q: 'Is Eat This free?',
-      a: 'The map and Starter Pack are free. Optional Booster Packs unlock the included Must Eats immediately.',
+      q: 'What does Eat This cost?',
+      a: 'All of Berlin is already on your map. With a free account you also get the Starter Pack: 20 Must Eats to get you started.\n\nOnly Booster Packs cost money. With them you can unlock more Must Eats and collect cards without having to visit the spots first.',
     },
     {
       q: 'Do I need an account?',

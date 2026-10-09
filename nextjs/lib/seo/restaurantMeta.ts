@@ -53,11 +53,17 @@ export function buildRestaurantTitle(opts: {
  * Behält gepflegte Sanity-Titles, ergänzt aber fehlende Filialqualifizierer
  * aus dem Restaurantnamen. Beispiel: beide „Hokey Pokey"-Titles werden über
  * „Stargarder"/„Oderberger" eindeutig, ohne Datenmigration.
+ *
+ * Dazu die Stadt, wenn der Title sie nicht nennt (siehe `withCity`).
  */
-export function buildCuratedRestaurantTitle(title: string, name: string): string {
+export function buildCuratedRestaurantTitle(
+  title: string,
+  name: string,
+  district?: string | null
+): string {
   const cleanTitle = title.trim().replace(/\s+/g, ' ');
   const separator = cleanTitle.match(/\s(?:—|–|-)\s|:\s/);
-  if (!separator?.index) return buildPlainTitle(cleanTitle);
+  if (!separator?.index) return buildPlainTitle(withCity(cleanTitle, district));
 
   const lead = cleanTitle.slice(0, separator.index);
   const normalizedLead = lead.toLocaleLowerCase('de');
@@ -65,7 +71,41 @@ export function buildCuratedRestaurantTitle(title: string, name: string): string
   const qualified = normalizedName.startsWith(`${normalizedLead} `)
     ? `${name.trim()}${cleanTitle.slice(separator.index)}`
     : cleanTitle;
-  return buildPlainTitle(qualified);
+  return buildPlainTitle(withCity(qualified, district));
+}
+
+/**
+ * „in Kreuzberg" → „in Berlin-Kreuzberg", sonst „, Berlin" am Ende — beides
+ * nur, solange der Title danach noch in die 60 Zeichen passt.
+ *
+ * Der Builder oben schreibt die Stadt immer mit, die kuratierten Titles fast
+ * nie: am 09.10.2026 nannten 230 der 248 deutschen und 223 der englischen
+ * „Berlin" nicht. Gesucht wird aber genau so: „tacos el rey berlin", „gemello
+ * berlin", „bari berlin restaurant" — 43 % der Impressionen der
+ * Restaurantseiten (GSC, 90 Tage bis 08.10.2026) kamen über Suchen mit
+ * „berlin", bei 0,3 % CTR auf Position 9,8. Ein Title, der beide Wörter der
+ * Suche trägt, passt zur Anfrage und wird im Ergebnis fett gesetzt.
+ */
+function withCity(title: string, district: string | null | undefined): string {
+  if (/berlin/i.test(title)) return title;
+  const fits = (candidate: string) => candidate.length <= METADATA_TITLE_MAX;
+
+  if (district) {
+    const escaped = district.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Der letzte Treffer: steht der Bezirk auch im Namen („Bonanza Coffee
+    // Mitte – Specialty Coffee in Mitte"), ist der hintere der Ort.
+    const matches = [...title.matchAll(new RegExp(`(?:\\bin |, )${escaped}(?![\\p{L}-])`, 'gu'))];
+    const last = matches.at(-1);
+    if (last?.index !== undefined) {
+      const at = last.index + last[0].length - district.length;
+      const candidate = `${title.slice(0, at)}Berlin-${title.slice(at)}`;
+      if (fits(candidate)) return candidate;
+      return title;
+    }
+  }
+
+  const appended = `${title}, Berlin`;
+  return fits(appended) ? appended : title;
 }
 
 /**

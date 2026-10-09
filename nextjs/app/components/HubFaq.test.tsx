@@ -9,7 +9,7 @@ describe('HubFaq', () => {
     expect(html).toContain('<details');
     expect(html).toContain('<summary');
     // first DE FAQ question
-    expect(html).toContain('Ist Eat This kostenlos?');
+    expect(html).toContain('Was kostet Eat This?');
   });
 
   it('uses homeV2 section structure with hv-title heading', () => {

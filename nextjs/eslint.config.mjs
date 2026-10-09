@@ -65,6 +65,12 @@ const eslintConfig = [
     rules: { '@typescript-eslint/no-unused-expressions': 'off' },
   },
   {
+    // Next lädt den Cache-Handler selbst, ohne Bundler, als CommonJS – und er
+    // erweitert Nexts eigenen FileSystemCache, den es nur per require gibt.
+    files: ['cache-handler.cjs'],
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
+  {
     // `for (const _ of …)` is the counting idiom in the cascade tooling: the
     // match itself is irrelevant, only how many there are. Underscore is the
     // conventional "deliberately unused" name.

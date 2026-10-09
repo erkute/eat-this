@@ -89,6 +89,27 @@ function firstSentence(text: string): string {
   return (text.match(/^[^.!?]+/) ?? [text])[0];
 }
 
+/** Ab so vielen Buchstaben passt ein Wort der Schlagzeile in Versalien nicht
+ *  mehr sicher in die Telefonspalte (320px fasst gut elf). */
+const LONG_TITLE_WORD = /(\p{L}{12,})/u;
+
+/** Lange Komposita („Mitternachtshunger") bekommen eine eigene Spanne, die
+ *  am Telefon trennen darf. Auf der ganzen Schlagzeile trennte Safari auch
+ *  kurze Wörter („zwi-schen") und ignoriert `hyphenate-limit-chars`. */
+function splitLongWords(title: string): React.ReactNode[] {
+  return title
+    .split(LONG_TITLE_WORD)
+    .map((part, i) =>
+      i % 2 ? (
+        <span key={i} className={styles.longWord}>
+          {part}
+        </span>
+      ) : (
+        part
+      ),
+    );
+}
+
 /** How much of one opening sentence must run through the other, how far into
  *  the lede the article's opening sentence may reach, and how much of the first
  *  words must match when neither has a sentence to judge. */
@@ -403,7 +424,7 @@ export default function NewsArticleShell({
                 ohne. */}
             <div className={styles.introCopy}>
               <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
-              <h1 className={styles.heroTitle}>{title}</h1>
+              <h1 className={styles.heroTitle}>{splitLongWords(title)}</h1>
               {byline}
               <ArticleThemeToggle de={de} className={styles.themeToggle} />
             </div>

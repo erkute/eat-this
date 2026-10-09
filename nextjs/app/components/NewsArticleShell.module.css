@@ -1153,9 +1153,18 @@ div.page {
     padding-inline: 6px;
   }
 
+  /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als
+     die Spalte. Getrennt werden nur sie (`.longWord`, aus dem Titel mit
+     12+ Buchstaben), nach der Sprache aus `<html lang>`. `anywhere` fängt
+     ab, was das Wörterbuch nicht kennt. Ab Tablet passt jedes Wort. */
   .heroTitle {
     max-width: none;
     font-size: clamp(38px, 10.5vw, 52px);
+    overflow-wrap: anywhere;
+  }
+
+  .longWord {
+    hyphens: auto;
   }
 
   .lede {

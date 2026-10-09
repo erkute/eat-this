@@ -377,6 +377,16 @@ describe('NewsArticleShell', () => {
       expect(html).toMatch(/>Guides<\/span><h1[^>]*>Döner in Berlin<\/h1>/);
     });
 
+    // Nur lange Komposita dürfen am Telefon trennen, kurze Wörter nie.
+    it('sets long headline words apart so only they hyphenate', () => {
+      const html = renderWith(issues(['doener']), {
+        titleDe: 'Berlin zwischen Smashburger und Mitternachtshunger',
+      });
+      expect(html).toMatch(
+        /<h1[^>]*>Berlin zwischen Smashburger und <span class="[^"]*">Mitternachtshunger<\/span><\/h1>/
+      );
+    });
+
     it('does not show its own cover again — the tap opened the magazine', () => {
       const html = renderWith(issues(['pizza', 'doener', 'eis']));
       const header = html.slice(0, html.indexOf('</header>'));

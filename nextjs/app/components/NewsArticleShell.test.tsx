@@ -377,14 +377,14 @@ describe('NewsArticleShell', () => {
       expect(html).toMatch(/>Guides<\/span><h1[^>]*>Döner in Berlin<\/h1>/);
     });
 
-    // Nur lange Komposita dürfen am Telefon trennen, kurze Wörter nie.
-    it('sets long headline words apart so only they hyphenate', () => {
-      const html = renderWith(issues(['doener']), {
+    // Am Telefon schrumpft die Schlagzeile, bis ihr längstes Wort passt.
+    it('tells the headline its longest word, a hyphen counting as a break', () => {
+      const long = renderWith(issues(['doener']), {
         titleDe: 'Berlin zwischen Smashburger und Mitternachtshunger',
       });
-      expect(html).toMatch(
-        /<h1[^>]*>Berlin zwischen Smashburger und <span class="[^"]*">Mitternachtshunger<\/span><\/h1>/
-      );
+      expect(long).toMatch(/<h1[^>]*style="--title-longest:18"/);
+      const compound = renderWith(issues(['doener']), { titleDe: 'Bistro-Abende in Berlin' });
+      expect(compound).toMatch(/<h1[^>]*style="--title-longest:7"/);
     });
 
     it('does not show its own cover again — the tap opened the magazine', () => {

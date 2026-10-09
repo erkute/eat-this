@@ -1154,17 +1154,17 @@ div.page {
   }
 
   /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als
-     die Spalte. Getrennt werden nur sie (`.longWord`, aus dem Titel mit
-     12+ Buchstaben), nach der Sprache aus `<html lang>`. `anywhere` fängt
-     ab, was das Wörterbuch nicht kennt. Ab Tablet passt jedes Wort. */
-  .heroTitle {
-    max-width: none;
-    font-size: clamp(38px, 10.5vw, 52px);
-    overflow-wrap: anywhere;
+     die Spalte. Statt zu trennen wird die Schlagzeile so weit kleiner, dass
+     ihr längstes Wort passt: Providence-Versalien laufen 0,60–0,68em pro
+     Zeichen, 0,7 lässt Luft. `anywhere` fängt den Rest ab (MMMM, WWWW). */
+  .introCopy {
+    container-type: inline-size;
   }
 
-  .longWord {
-    hyphens: auto;
+  .heroTitle {
+    max-width: none;
+    font-size: min(clamp(38px, 10.5vw, 52px), 100cqi / (var(--title-longest) * 0.7));
+    overflow-wrap: anywhere;
   }
 
   .lede {

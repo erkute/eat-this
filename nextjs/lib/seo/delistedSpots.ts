@@ -3,8 +3,9 @@
 // hand-maintained list: re-derive it the same way if the catalog is culled again.
 // `sathutu` and `story-coffee-roesterei-p-berg` came on 07.10.2026: deleted
 // later, still 404ing in GSC.
-// `five-elephant-neue-nationalgalerie` and `hokey-pokey-pankow` were taken off
-// on 09.10.2026. Pankow has no spot left, so its entries go to a category hub.
+// `five-elephant-neue-nationalgalerie`, `hokey-pokey-pankow` and `juicery-berlin`
+// were taken off on 09.10.2026. Pankow has no spot left, so its entries go to
+// a category hub.
 //
 // middleware.ts answers these before any page renders, in both locales. A spot
 // that comes back therefore has to leave this map, or it keeps redirecting.
@@ -144,6 +145,7 @@ export const DELISTED_RESTAURANT_REDIRECTS: Readonly<Record<string, string>> = {
   'irma-la-douce': '/bezirk/schoeneberg',
   'jaeger-lustig': '/bezirk/friedrichshain',
   'jubel': '/bezirk/prenzlauer-berg',
+  'juicery-berlin': '/bezirk/prenzlauer-berg',
   'kaffeehaus-sowohlalsauch': '/bezirk/prenzlauer-berg',
   'kai-bar-brasserie': '/bezirk/mitte',
   'kamala-vegan-chinesisches-restaurant': '/bezirk/friedrichshain',

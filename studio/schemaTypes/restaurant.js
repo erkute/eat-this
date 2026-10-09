@@ -78,7 +78,7 @@ export default {
       group: 'spot',
       fieldset: 'status',
       initialValue: false,
-      description: 'An = bleibt sichtbar, mit Hinweis „vorübergehend geschlossen“.',
+      description: 'An = Hinweis „vorübergehend geschlossen“ auf der Spot-Seite. Der Spot verschwindet von Map, Listen und Remy und wird bei Google ausgeblendet.',
     },
     {
       name: 'bezirkRef',

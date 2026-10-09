@@ -281,12 +281,12 @@ export async function fetchPlaceContext(r: RestaurantSource): Promise<PlaceConte
 
 const RESTAURANT_PROMPT = `Du schreibst Restaurant-Beschreibungen auf Deutsch für "Eat This Berlin", einen kuratierten Berliner Food-Guide.
 
-BRAND-VOICE — sehr wichtig:
-- Cool und souverän mit High-Snobiety / Hypebeast-Energie übertragen aufs Essen. Scene-aware, nicht touristisch. Wir stehen über den Restaurants — wir empfehlen sie, wir verkaufen sie nicht.
-- Editor-Pick-Energie statt Erklärbär: knappe, deklarative Sätze, die Insider klingen lassen ohne damit anzugeben. Geschmack zeigt sich in Restraint, nicht in Lautstärke.
-- Englische Begriffe sparsam und ORGANISCH wo sie aus dem Genre kommen (drop, line-up, spot, scene, pick, classic, signature, no-frills [nein! verboten weiter unten], outpost, flagship, brunch, lunch, drinks). Nicht erzwingen, nicht jeder Satz braucht eins. Kein Denglisch-Bingo.
-- Kuratoren-Stimme, nicht Reviewer-Echo. "Eat This" empfiehlt; Lob anderer (Reviews, Stammgäste, Besucher) wird NIE zitiert.
-- Witz, wenn überhaupt, durch Wortwahl und Untertreibung — NIE durch Pointen, Satzkonstrukte oder Wortspiele. Lieber gar kein Witz als ein bemühter.
+STIL — Gastrojournalismus, keine Werbung (hart):
+- Erzähl pro Spot eine kleine Geschichte in drei Schritten: erst der Ort (Straße, Haus, Raum), dann die Menschen dahinter, dann das Essen konkret (Gerichte mit Zutaten, Zubereitung, Herkunft). Menschen nur, wenn die Quellen sie namentlich nennen.
+- Neutral, ohne Ich. Kurze Hauptsätze, einfache Wörter, keine Fachsprache und kein Szene-Englisch ("Line-up", "Signature", "Outpost", "Flagship", "Pick", "Drop").
+- Über das Essen schreiben, nicht über die Bedienung. Keine Preise, keine Pointe am Absatzende, keine "Der Pick:"-Formel, kein Fazit-Satz.
+- "Eat This" empfiehlt; Lob anderer (Reviews, Stammgäste, Besucher) wird NIE zitiert.
+- "Must Eat" immer ohne Bindestrich.
 
 SCHREIB-DISZIPLIN (hart):
 - Kurze, deklarative Sätze mit variabler Länge. Keine konstruierten Kontrastfiguren ("X ist Y, Z ist es nicht", "klein in A, groß in B", "viel C, wenig D").
@@ -313,13 +313,10 @@ KEINE LIEFER-ERWÄHNUNGEN — Brand-Position:
 - NIE erwähnen: "Wolt", "Lieferando", "Uber Eats", "Deliveroo", "wird geliefert", "per Lieferung", "Liefergebiet", "auch zum Liefern", "Delivery". Auch nicht als Nebensatz.
 - "Take-away" und "zum Mitnehmen" sind okay (man kommt vorbei und holt ab — das ist on-site).
 
-TON — wie es klingen soll (konkret, eingebettet, scene-aware, KEINE Komma-Listen):
-- "Specialty-Coffee-Spot in der Akazienstraße seit 2003. Die Espressi haben WM-Format, Pastéis de Nata laufen als Zugabe."
-- "Omakase am Tresen, sieben Plätze. Das Line-up bestimmt der Chef — kein Menü zur Auswahl."
-- "Neapolitanische Pizza in Mitte. Kartenzahlung only, abends Wartezeit."
-- "Die Bowls drehen sich um Teriyaki-Wels und Butter Chicken. Auf den Stullen kommt Pulled Chicken zum Sauerteig, der Abschluss heißt Milchreis mit Salzkaramell."
-- "Das Drinks-Programm zählt hier mindestens so viel wie die Karte."
-- "Hafermilch ohne Aufpreis. Default, kein Statement."
+TON — so soll es klingen (konkret, eingebettet, KEINE Komma-Listen):
+- "Alex und Marcus haben Slice Society 2023 gegründet, für einen Pizzastil, den in Europa kaum jemand kennt: New York Style, dünn, knusprig und faltbar. Der Teig gärt 48 Stunden kalt."
+- "Felix Mielke war sieben Jahre Küchenchef im Le Faubourg. Seit 2019 gibt es den Schüsseldienst im Akazienkiez. Der Wels wird gebeizt und abgeflämmt wie ein Tataki und kommt mit Karottensalat, Pak Choi und Koriander-Joghurt."
+- Tipp: "Die Wels-Bowl nehmen." oder "Nach den Single Origins der Saison fragen."
 
 KEINE Aufzählung wie "Teriyaki Wels, Pulled Chicken, Milchreis als Closer" oder "Cold Drip, Iced Espresso und Pastéis de Nata" — IMMER mit Verb oder neuem Satz einbinden.
 
@@ -345,7 +342,7 @@ NO-HALLUCINATION + KEINE FREMDEN STIMMEN (hart):
 - Rating-Zahlen NICHT erwähnen (Google-Rating ändert sich, würde stale werden).
 
 LÄNGEN-BUDGETS (harte Limits):
-- description: LANGFORM. Ziel 500-650 Zeichen, hartes Maximum 700. 2-4 dichte Sätze, WENN Recherche/Fakten genug konkrete Substanz hergeben (Dishes, Konzept, Raum, Geschichte) — das "warum geht man da hin". Ist wenig belegt: lieber 150-300 wahre Zeichen als aufgeblähter Fülltext. Länge NIE mit Floskeln, Wiederholung oder Antithese erreichen.
+- description: LANGFORM. Ziel 600-1500 Zeichen, hartes Maximum 2000, meist zwei Absätze, getrennt durch eine Leerzeile — WENN Recherche/Fakten genug konkrete Substanz hergeben (Ort, Menschen, Gerichte, Geschichte). Ist wenig belegt: lieber 150-300 wahre Zeichen als aufgeblähter Fülltext. Länge NIE mit Floskeln, Wiederholung oder Antithese erreichen.
 - shortDescription: max 160 Zeichen, EIN Satz. SEO-Meta-Description-Stil. Komprimierte Essenz.
 - tip: 1-2 kurze Sätze (max 200 Zeichen).
 
@@ -467,7 +464,7 @@ const RESEARCH_TOOLS = [
     allowed_domains: RESEARCH_DOMAINS,
     // Each search is billed at $10/1,000 AND its results join the context that
     // every subsequent pause_turn re-sends — so this number drives cost twice.
-    // Three curated sources are plenty for a ~400-character description.
+    // Three searches: one for the place, one or two for people and dishes.
     max_uses: 3,
   },
 ] as unknown as Anthropic.Messages.ToolUnion[];
@@ -553,7 +550,7 @@ export async function generateRestaurant(
     }
   }
 
-  if (!parsed.description || parsed.description.length > 700) {
+  if (!parsed.description || parsed.description.length > 2000) {
     throw new Error(
       `description out of bounds (${parsed.description?.length ?? 0} chars) for ${r._id}`
     );

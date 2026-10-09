@@ -60,6 +60,8 @@
   font-family: var(--et-font-display);
   font-size: clamp(17px, 1.5vw, 20px);
   line-height: 1.5;
+  /* Absätze in einer Antwort stehen als Leerzeile im Text (lib/landing/faqs.ts). */
+  white-space: pre-line;
 }
 @media (max-width: 899px) {
   .board { grid-template-columns: minmax(0, 1fr); gap: 26px; }

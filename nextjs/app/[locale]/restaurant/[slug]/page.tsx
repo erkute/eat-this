@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
 import {
   getRestaurantPageData,
@@ -17,7 +16,6 @@ import {
 } from '@/lib/seo/restaurantMeta';
 import { SITE_URL } from '@/lib/constants';
 import { localizedCuisine } from '@/lib/cuisineLabels';
-import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import { buildHreflangAlternates, restaurantRobots, toOgLocale } from '@/lib/seo/metadata';
 import { metadataSource } from '@/lib/seo/metadataSource';
@@ -29,6 +27,8 @@ import { buildSpotFlow } from '@/lib/spotFlow';
 import { sanityImageSize, sanitySrcSet } from '@/lib/sanity-image-presets';
 import HeartButton from '@/app/components/HeartButton';
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
+import RestaurantDiscovery from '@/app/components/RestaurantDiscovery';
+import SpotArrival from '@/app/components/SpotArrival';
 import RestaurantArticlesSection from '@/app/components/RestaurantArticlesSection';
 import MapIntentLink from '@/app/components/MapIntentLink';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
@@ -179,6 +179,7 @@ function SpotPhoto({
           über den Bild-Proxy brächte nichts. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        data-spot-hero={priority ? '' : undefined}
         src={src}
         srcSet={sanitySrcSet(src, [640, 960, 1280, 1600], priority ? 80 : 85)}
         sizes="(max-width: 767px) 100vw, 768px"
@@ -193,11 +194,6 @@ function SpotPhoto({
   );
 }
 
-/** Eine quadratische Kachel aus einem Sanity-Foto, für das Raster am Ende. */
-function squareSrc(url: string, width: number): string {
-  return `${url.split('?')[0]}?w=${width}&h=${width}&fit=crop&auto=format&q=80`;
-}
-
 /**
  * Die Spot-Seite im Heftlook nach 032c (Wahl 03.10.2026, Entwurf A6): eine
  * Spalte von 768px, der Name riesig, darunter nur der Bezirk, dann der
@@ -205,8 +201,8 @@ function squareSrc(url: string, width: number): string {
  * zwischen dem Text — nie zwei direkt hintereinander (lib/spotFlow.ts).
  * Insider-Tipp und Must Eats sind eigene Abschnitte. Was man zum Hingehen
  * braucht — Adresse, Zeiten, Küche, Preis und die Knöpfe —, steht am Ende,
- * überschrieben mit dem Namen des Spots. Ganz unten der Bezirk als Raster über
- * die ganze Breite.
+ * überschrieben mit dem Namen des Spots. Der Schluss führt über Kategorien
+ * und zwei weitere Spots zurück ins Entdecken.
  *
  * Weggefallen gegenüber der Ink-Fassung vom 25.09.2026: der Öffnungsstatus im
  * Kopf, Küche und Preis über dem Namen, Remy (Abschnitt und Knopf) und die
@@ -259,7 +255,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     ? `${displayName} – ${cuisineLabel} in ${districtName ? `Berlin-${districtName}` : 'Berlin'}`
     : displayName;
   // Kategorien sind Discovery-Hubs (Frühstück, Süßes …): der Weg zu ihnen als
-  // Eigenschaft des Spots, mit dem Pack als Bild.
+  // Eigenschaft des Spots als einfache Textlinks.
   const categoryLinks = (r.categories ?? []).filter(
     (c): c is typeof c & { slug: string; name: string } => Boolean(c?.slug && c?.name)
   );
@@ -330,6 +326,7 @@ export default async function RestaurantPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
+        <SpotArrival slug={slug} />
         {/* Unter dem Namen nur der Bezirk — keine Küche, kein Preis, kein
             Status, keine Knöpfe (Ansage 03.10.2026). */}
         <header className={styles.head}>
@@ -538,85 +535,15 @@ export default async function RestaurantPage({ params }: PageProps) {
             locale={loc}
             classNames={{ section: styles.section, heading: styles.sub }}
           />
-
-          {/* „Kategorien" statt „Mehr davon" (Wahl 03.10.2026): der Klick
-              führt auf die Kategorieseite, das Pack ist ihr Bild. */}
-          {categoryLinks.length > 0 && (
-            <section className={styles.section} aria-labelledby="spot-categories">
-              <h2 id="spot-categories" className={styles.sub}>
-                {de ? 'Kategorien' : 'Categories'}
-              </h2>
-              <ul className={styles.packs}>
-                {categoryLinks.map((c) => {
-                  const art = categoryArt(c.slug);
-                  return (
-                    <li key={c.slug}>
-                      <IntlLink href={`/kategorie/${c.slug}`} className={styles.pack}>
-                        {art && (
-                          <Image
-                            src={art}
-                            alt=""
-                            width={96}
-                            height={144}
-                            className={styles.packArt}
-                          />
-                        )}
-                        <span className={styles.packName}>
-                          {de ? c.name : (c.nameEn ?? c.name)}
-                        </span>
-                      </IntlLink>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          )}
         </div>
-
-        {/* Der Bezirk als Raster über die ganze Breite, wie am Ende bei 032c. */}
-        {siblings.length > 0 && bezirkSlug && r.bezirk?.name && (
-          <section className={styles.more} aria-labelledby="spot-siblings">
-            <h2 id="spot-siblings" className={`${styles.sub} ${styles.moreHead}`}>
-              {de ? `Mehr in ${r.bezirk.name}` : `More in ${r.bezirk.name}`}
-            </h2>
-            <ul className={styles.grid}>
-              {siblings.map((s) => {
-                const meta = [
-                  s.cuisineType && localizedCuisine(s.cuisineType, loc),
-                  formatPriceLabel(s, loc),
-                ]
-                  .filter(Boolean)
-                  .join(' · ');
-                return (
-                  <li key={s._id}>
-                    <IntlLink href={`/restaurant/${s.slug}`} className={styles.tile}>
-                      <span className={styles.tilePhoto}>
-                        {s.photo && (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={squareSrc(s.photo, 600)}
-                            srcSet={`${squareSrc(s.photo, 400)} 400w, ${squareSrc(s.photo, 600)} 600w, ${squareSrc(s.photo, 800)} 800w`}
-                            sizes="(max-width: 767px) 50vw, 25vw"
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        )}
-                      </span>
-                      <span className={styles.tileName}>{normalizeName(s.name)}</span>
-                      {meta && <span className={styles.tileMeta}>{meta}</span>}
-                    </IntlLink>
-                  </li>
-                );
-              })}
-            </ul>
-            <div className={styles.moreAll}>
-              <IntlLink href={`/bezirk/${bezirkSlug}`} className={`${styles.btn} ${styles.btnInk}`}>
-                {de ? `Alle Spots in ${r.bezirk.name}` : `All spots in ${r.bezirk.name}`}
-              </IntlLink>
-            </div>
-          </section>
-        )}
+        <RestaurantDiscovery
+          categories={categoryLinks}
+          siblings={siblings}
+          district={
+            bezirkSlug && r.bezirk?.name ? { slug: bezirkSlug, name: r.bezirk.name } : undefined
+          }
+          locale={loc}
+        />
       </main>
     </>
   );

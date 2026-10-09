@@ -26,13 +26,13 @@ export default async function KategorieBoost({ categorySlug, categoryName, local
   return (
     <aside className={styles.boost} aria-label={`${categoryName} Pack`}>
       {image && (
-        <div className={styles.poster}>
+        <div className={styles.poster} data-discovery-pack>
           <Image
             src={image}
             alt={`${categoryName} Pack`}
             width={420}
             height={630}
-            sizes="(max-width: 540px) 92px, (max-width: 839px) 220px, 240px"
+            sizes="(max-width: 540px) 92px, 180px"
             className={styles.posterImg}
           />
         </div>

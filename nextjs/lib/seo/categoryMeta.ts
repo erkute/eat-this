@@ -146,23 +146,6 @@ export function categorySearchTerm(slug: string, label: string, locale: Loc): Ca
 }
 
 /**
- * Sichtbare H2 über der Restaurant-Liste — trägt die Ziel-Query im Klartext,
- * weil die H1 darüber auf ein einzelnes Display-Wort designt ist („LUNCH“).
- *
- * Bewusst „handverlesen“ statt „die besten“: der SERP-Title sagt schon „die
- * besten“, und für Kategorien wie `coffee` wären Title und H2 sonst wortgleich.
- */
-export function buildCategorySectionHeading(slug: string, label: string, locale: Loc): string {
-  const { term, kind } = categorySearchTerm(slug, label, locale);
-  if (locale === 'de') {
-    return kind === 'venue'
-      ? `Handverlesene ${term} in Berlin`
-      : `Handverlesene Spots für ${term} in Berlin`;
-  }
-  return kind === 'venue' ? `Hand-picked ${term} in Berlin` : `Hand-picked ${term} spots in Berlin`;
-}
-
-/**
  * H2 über dem Rest der Liste, unter der kuratierten Bestenliste. Bewusst ohne
  * Zahl und ohne „A–Z": beides beschrieb die Mechanik statt den Inhalt. Nur
  * gerendert, wenn es tatsächlich eine Bestenliste darüber gibt.

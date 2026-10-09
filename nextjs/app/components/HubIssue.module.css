@@ -1,14 +1,7 @@
-/* Die Hub-Seiten im Heftlook (HubIssue.tsx), Entwurf A „Die Ausgabe" vom
-   03.10.2026 — Bezirke, Kategorien und ihre beiden Übersichten: gesetzt wie
-   der Artikel (NewsArticleShell.module.css) — dunkler Markengrund, alles mittig,
-   Providence gross für Titel, Kapitel und Labels, Neue Haas Grotesk Text für den Lesetext,
-   Markenrot für Überschriften und Akzente. Den Grund selbst stellt
-   globals.css an html/body/.app-pages um. */
 .page {
   --et-muted: var(--et-ink-soft);
   --et-quiet: var(--et-ink-raised);
   --issue-gutter: clamp(18px, 4vw, 54px);
-  --issue-measure: 660px;
   --issue-wide: 1180px;
   /* Die Rubrikenzeile klebt am Telefon unter der Navigation und folgt ihr,
      wenn sie wegklappt (SiteNav, data-visibility) — wie auf den übrigen
@@ -22,6 +15,7 @@
   padding: 0 var(--issue-gutter) clamp(72px, 9vw, 120px);
   overflow-x: clip;
   color: var(--et-white);
+  background: var(--et-ink);
   font-family: var(--et-font-display);
 }
 
@@ -29,23 +23,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   --issue-sticky-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
 }
 
-/* ---------------------------------------------------------------- kopf --- */
-
-/* Bezirk und Kategorie hängen nicht in `.app-pages` (SiteChrome ohne
-   appPages): den Streifen unter der fixen Navigation hält hier niemand sonst
-   frei. Ohne ihn lag die Rubrik am Telefon und bis 1280px ganz darunter.
-   Darunter derselbe Abstand wie im Artikel. */
-.head {
-  display: grid;
-  justify-items: center;
-  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + clamp(40px, 5.5vw, 84px));
-  text-align: center;
-  container-type: inline-size;
-}
-
-/* Kleine Labels wie im Artikel: Providence in Versalien, leicht gesperrt. */
-.kicker,
-.credits,
+/* Editorial labels shared by cards, the register and guides. */
 .deck,
 .tipLabel,
 .entryMeta,
@@ -57,142 +35,25 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   text-transform: uppercase;
 }
 
-.kicker {
-  margin: 0 0 clamp(16px, 1.8vw, 24px);
-  font-size: 14px;
-}
-
-.kicker::before {
-  content: '';
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  margin-right: var(--et-control-gap);
-  background: var(--et-accent);
-  vertical-align: 0.12em;
-}
-
-/* „Restaurants in" klein über dem Namen, der Name so breit, wie die Spalte
-   trägt — „Prenzlauer Berg" bricht am Telefon auf zwei Zeilen. Schwarz wie
-   die Schlagzeile im Artikel. */
-.title {
-  min-width: 0;
-  max-width: 100%;
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-title);
-  text-transform: uppercase;
-}
-
-.pre {
-  display: block;
-  margin-bottom: 0.35em;
-  font-size: clamp(18px, 1.8vw, 26px);
-  letter-spacing: 0.08em;
-}
-
-/* 10cqi hält „Charlottenburg" (gut 7em breit) in einer Zeile — darüber
-   brach es mitten im Wort. Der Abstand oben gibt den Umlautpunkten Platz
-   (Schöneberg, Neukölln): sie ragen bei der knappen Titel-Zeilenhöhe gut
-   0.13em über die Zeile hinaus und stießen an „Restaurants in". */
-.name {
-  display: block;
-  margin-top: 0.25em;
-  font-size: min(88px, 10cqi);
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-
-/* „in Berlin" unter dem Kategorienamen — dieselbe Zeile wie „Restaurants
-   in" über dem Bezirk, nur darunter. */
-.post {
-  display: block;
-  margin-top: 0.4em;
-  font-size: clamp(18px, 1.8vw, 26px);
-  letter-spacing: 0.08em;
-}
-
-/* Die Übersichten tragen zwei Wörter als Titel („Die Bezirke", „Die
-   Kategorien"), kleiner als ein einzelner Name auf der Detailseite. */
-.indexTitle {
-  display: block;
-  max-width: 14ch;
-  font-size: min(110px, 11cqi);
-  text-wrap: balance;
-}
-
-.credits {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 22px;
-  margin: clamp(20px, 2.2vw, 30px) 0 0;
-  font-size: 13px;
-}
-
-/* ------------------------------------------------------- bildleiste ----- */
-
-.contents {
-  width: min(100%, var(--issue-wide));
-  margin: clamp(40px, 5vw, 72px) auto 0;
-}
-
-.contents ol {
-  display: grid;
-  grid-template-columns: repeat(var(--count), minmax(0, 150px));
-  justify-content: center;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* Eine Spalte, die nie breiter wird als ihr Platz: ein langes Wort im Namen
-   („Friedrichshain") zog sonst Spalte und Foto mit — die Bilder wurden
-   unterschiedlich hoch und liefen in den Nachbarn (03.10.2026). */
-.contents a,
-.dirStrip a,
-.siblings a {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.contentsPhoto {
-  display: grid;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--et-quiet);
-}
-
-.contentsPhoto img,
-.spotPhoto img {
+.spotPhoto img,
+.entryPhoto img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.contentsName {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.2;
-  overflow-wrap: break-word;
-  hyphens: auto;
+  transition: transform 240ms ease;
 }
 
 @media (hover: hover) {
-  .contents a:hover .contentsName,
-  .siblings a:hover .contentsName,
   .spotName a:hover,
   .entry:hover .entryName {
-    color: var(--et-accent-heading);
+    color: var(--et-accent-text);
+  }
+  .spotPhoto:hover img,
+  .entry:hover img {
+    transform: scale(1.045);
   }
 }
 
-.contents a:focus-visible,
 .spotName a:focus-visible,
 .entry:focus-visible,
 .guide:focus-visible,
@@ -214,60 +75,43 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* ------------------------------------------------- vorspann + knöpfe ---- */
 
-.lede {
-  max-width: 860px;
-  margin: clamp(48px, 5.6vw, 80px) auto 0;
-  font-size: clamp(23px, 2.1vw, 30px);
-  font-weight: 400;
-  line-height: 1.25;
-  text-align: center;
-  text-wrap: pretty;
-}
-
-.actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 32px;
-}
-
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 22px;
+  min-height: 52px;
+  padding: 10px 24px;
+  border-radius: 10px;
   background: var(--et-accent);
   color: var(--et-on-accent);
   font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.25;
   text-decoration: none;
-  transition: background-color 140ms ease;
-}
-
-.btnQuiet {
-  background: var(--et-quiet);
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
 @media (hover: hover) {
-  .btnQuiet:hover {
-    background: var(--et-accent);
-    color: var(--et-on-accent);
+  .btn:hover {
+    background: var(--et-white);
+    color: var(--et-ink);
   }
 }
 
 .btn:focus-visible {
   outline: 2px solid var(--et-white);
-  outline-offset: 3px;
+  outline-offset: 5px;
+}
+
+.btn:active {
+  transform: translateY(1px);
 }
 
 /* ------------------------------------------------- rubrikenzeile -------- */
 
-/* Der Filter als Rubrikenzeile: Wörter statt Knöpfe, das aktive steht in
-   Ink mit dem gelben Quadrat davor. Am Telefon eine wischbare Zeile, die
-   unter der Navigation klebt; ab Tablet bricht sie mittig um. */
+/* Auswahlflächen wie in der Map-Vorschau der Startseite. Am Telefon
+   wischen sie unter der Navigation; ab Tablet dürfen sie umbrechen. */
 .filterStatus {
   position: absolute;
   width: 1px;
@@ -282,17 +126,18 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   position: sticky;
   top: var(--issue-sticky-top);
   z-index: 20;
-  margin: clamp(56px, 6vw, 88px) calc(-1 * var(--issue-gutter)) 0;
-  padding: 6px var(--issue-gutter);
+  margin: 36px calc(-1 * var(--issue-gutter)) 0;
+  padding: 10px var(--issue-gutter);
   background: var(--et-ink);
   transition: top 0.2s ease;
 }
 
 .filterRail {
   display: flex;
-  gap: 4px 26px;
+  gap: 8px;
   margin-inline: calc(-1 * var(--issue-gutter));
   padding-inline: var(--issue-gutter);
+  padding-block: 5px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
@@ -305,58 +150,49 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 .filterChip {
   flex: none;
-  min-height: 40px;
-  padding: 0;
+  min-height: 44px;
+  padding: 10px 20px;
   border: 0;
-  background: none;
-  color: var(--et-muted);
+  border-radius: 18px;
+  background: var(--et-ink-raised);
+  color: var(--et-white);
   cursor: pointer;
   font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  text-transform: uppercase;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.2;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 160ms ease;
 }
 
 .filterChip[aria-pressed='true'] {
-  color: var(--et-white);
-}
-
-.filterChip[aria-pressed='true']::before {
-  content: '';
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  margin-right: var(--et-control-gap);
   background: var(--et-accent);
-  vertical-align: 0.12em;
+  color: var(--et-on-accent);
 }
 
 @media (hover: hover) {
   .filterChip:not([aria-pressed='true']):hover {
-    color: var(--et-white);
+    background: #443a34;
   }
 }
 
 .filterChip:focus-visible {
   outline: 2px solid var(--et-white);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 @media (min-width: 768px) {
   .filterBar {
     position: static;
     margin-inline: auto;
-    max-width: 980px;
+    max-width: var(--issue-wide);
     padding-inline: 0;
   }
 
   .filterRail {
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     margin-inline: 0;
     padding-inline: 0;
     overflow: visible;
@@ -390,39 +226,49 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* ------------------------------------------------------------ kapitel --- */
 
-/* Abschnittstitel wie die Kapitel im Artikel: rot, gross, mittig. */
+/* Smaller, left-aligned chapter titles keep the cards in view. */
 .secTitle {
   overflow-wrap: anywhere;
-  margin: clamp(72px, 8vw, 120px) auto 0;
-  color: var(--et-accent-heading);
-  font-size: clamp(34px, 4.2vw, 58px);
+  max-width: var(--issue-wide);
+  margin: clamp(48px, 5vw, 72px) auto 0;
+  color: var(--et-white);
+  font-size: clamp(26px, 2.5vw, 34px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title);
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
-  text-wrap: balance;
+  text-wrap: pretty;
 }
 
-.column {
-  max-width: var(--issue-measure);
-  margin-inline: auto;
+.spots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 28px;
+  max-width: var(--issue-wide);
+  margin: 24px auto 0;
 }
 
 .spot {
-  margin-top: clamp(64px, 7vw, 104px);
+  position: relative;
+  display: grid;
+  grid-row: span 5;
+  grid-template-rows: subgrid;
+  min-width: 0;
+  margin-bottom: 40px;
   scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px);
 }
 
 .spotName {
+  grid-row: 2;
   overflow-wrap: anywhere;
   margin: 0;
-  color: var(--et-accent-heading);
-  font-size: clamp(30px, 3.2vw, 44px);
+  color: var(--et-white);
+  font-size: clamp(23px, 2vw, 28px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1;
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
   text-wrap: balance;
 }
@@ -432,27 +278,52 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   text-decoration: none;
 }
 
+.spotName a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.spotName a:focus-visible { outline: none; }
+.spotName a:focus-visible::after { outline: 2px solid var(--et-white); outline-offset: 6px; }
+.tip { grid-row: 5; align-self: start; position: relative; z-index: 2; margin-top: 12px; font-family: var(--et-font-body); font-size: 15px; line-height: 1.5; }
+@media (hover: hover) {
+  .spot:has(.spotName a:hover) .spotName { color: var(--et-accent-text); }
+  .spot:has(.spotName a:hover) img { transform: scale(1.045); }
+}
+
 .deck {
-  margin: 12px 0 0;
-  font-size: 14px;
-  text-align: center;
+  grid-row: 3;
+  margin: 10px 0 0;
+  font-size: 12px;
+  text-align: left;
 }
 
 .spotPhoto {
+  position: relative;
+  grid-row: 1;
   display: block;
-  aspect-ratio: 3 / 2;
-  margin-top: clamp(24px, 2.6vw, 36px);
+  aspect-ratio: 16 / 10;
+  order: -1;
+  margin: 0 0 16px;
+  overflow: visible;
+}
+.spotPhotoCrop {
+  display: block;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background: var(--et-quiet);
 }
 
 .text {
+  grid-row: 4;
   display: grid;
-  gap: 1em;
-  margin-top: 26px;
+  gap: 12px;
+  margin-top: 14px;
   font-family: var(--et-font-body);
-  font-size: clamp(17px, 1.3vw, 19px);
-  line-height: 1.65;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .text p {
@@ -460,32 +331,34 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .tipLabel {
-  margin-right: 4px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--et-accent-text);
   font-size: 14px;
 }
+.tipLabel::-webkit-details-marker { display: none; }
+.tipLabel:focus-visible { outline: 2px solid var(--et-white); outline-offset: 4px; }
+.tip[open] p { margin-top: 8px; }
 
 .links {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
   margin-top: 26px;
 }
 
-.links .btn {
-  min-height: 40px;
-  padding: 0 18px;
-  font-size: 15px;
-}
-
-/* „Die 6 besten, ausgewählt von [Logo]" unter dem Abschnittstitel der
-   Kategorieseite — fällt mit einem aktiven Filter weg (HubFilterUnfiltered). */
+/* Die kuratierende Marke unter dem Abschnittstitel der Kategorieseite. */
 .secNote {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
-  margin: 18px 0 0;
+  max-width: var(--issue-wide);
+  margin: 18px auto 0;
   font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
@@ -498,11 +371,10 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   height: 20px;
 }
 
-/* Das Booster-Pack der Kategorie nach der Bestenliste, in der Breite der
-   Lesespalte. */
+/* Das Booster-Pack folgt der gemeinsamen Breite von Kopf und Empfehlungen. */
 .boost {
-  max-width: var(--issue-measure);
-  margin: clamp(64px, 7vw, 104px) auto 0;
+  max-width: var(--issue-wide);
+  margin: clamp(32px, 4vw, 56px) auto 0;
 }
 
 /* ------------------------------------------------------------ register -- */
@@ -522,7 +394,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 .letter {
   margin: 22px 0 6px;
-  color: var(--et-accent-heading);
+  color: var(--et-accent-text);
   font-size: 22px;
   font-weight: 700;
   line-height: 1.2;
@@ -535,39 +407,52 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 .entry {
   display: grid;
-  gap: 3px;
-  padding: 7px 0;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
   color: inherit;
   text-decoration: none;
   break-inside: avoid;
 }
+.entryPhoto { display: block; aspect-ratio: 1; overflow: hidden; background: var(--et-quiet); }
+.entryCopy { display: grid; gap: 6px; }
 
 .entryName {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .entryMeta {
   color: var(--et-muted);
-  font-size: 13px;
+  font-size: 11px;
 }
 
 /* ------------------------------------------------------------- magazin -- */
 
+/* Drei Hefte als gemeinsame Auslage statt drei aufeinanderfolgenden Aufmacher. */
+.guides {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  max-width: var(--issue-wide);
+  margin: 32px auto 0;
+}
 .guide {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 32px;
-  align-items: center;
-  max-width: 760px;
-  margin: 48px auto 0;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 24px;
+  align-items: start;
   color: inherit;
   text-decoration: none;
 }
 
 .guideCover {
   display: block;
+  width: 190px;
+  max-width: 100%;
 }
 
 .guideText {
@@ -591,7 +476,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 .guideTitle {
   overflow-wrap: anywhere;
-  font-size: clamp(24px, 2.4vw, 34px);
+  font-size: clamp(21px, 1.7vw, 26px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -601,20 +486,25 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (hover: hover) {
   .guide:hover .guideTitle {
-    color: var(--et-accent-heading);
+    color: var(--et-accent-text);
   }
 }
 
 /* --------------------------------------------------------------- auslage -- */
+
+.magazine {
+  max-width: var(--issue-wide);
+  margin-inline: auto;
+}
 
 /* Die neuesten Hefte am Ende der Übersichten, gelegt wie „Weitere Ausgaben"
    unter dem Artikel (NewsArticleShell.module.css): leicht verdreht, unter
    der Maus hebt sich eins und liegt gerade. */
 .shelf {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 260px));
-  justify-content: center;
-  gap: clamp(28px, 3.4vw, 48px);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-content: start;
+  gap: clamp(18px, 2.2vw, 32px);
   margin: 40px 0 0;
   padding: 0;
   list-style: none;
@@ -667,209 +557,99 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* -------------------------------------------------------------- ausgang -- */
 
-/* Die anderen Bezirke oder Kategorien als Bildleiste wie im Kopf: Kacheln
-   in fester Breite, mittig umbrechend. Am Telefon wischt sie (unten). */
+/* Bezirke und Kategorien als bildfüllende Karten mit lesbaren Namen im Foto. */
 .siblings {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 26px 10px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
   width: min(100%, var(--issue-wide));
-  margin: 40px auto 0;
+  margin: 28px auto 0;
   padding: 0;
   list-style: none;
 }
 
 .siblings li {
-  flex: 0 0 136px;
   min-width: 0;
 }
 
-/* ------------------------------------------------------------ übersicht -- */
-
-/* Ein Eintrag unter dem anderen, in der Lesespalte wie ein Kapitel. */
-.directory {
-  max-width: var(--issue-measure);
-  margin: clamp(8px, 2vw, 24px) auto 0;
-}
-
-.dirEntry {
-  margin-top: clamp(64px, 7vw, 104px);
-}
-
-.dirHead {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-}
-
-.dirArt {
-  flex: none;
-  width: 44px;
-  height: auto;
-  rotate: -6deg;
-}
-
-/* Auf der Übersicht ist der Name ein weisser Registereintrag. */
-.dirName {
-  min-width: 0;
-  margin: 0;
-  color: var(--et-white);
-  font-size: clamp(34px, 4vw, 54px);
-  overflow-wrap: break-word;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: var(--et-leading-title);
-  text-align: center;
-  text-transform: uppercase;
-  text-wrap: balance;
-}
-
-.dirName a {
+.siblings a {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  container-type: inline-size;
   color: inherit;
   text-decoration: none;
+  transition: translate 240ms ease;
 }
 
-@media (hover: hover) {
-  .dirName a:hover {
-    color: var(--et-accent-heading);
-  }
+.contentsPhoto {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--et-ink);
 }
 
-.dirName a:focus-visible,
-.dirStrip a:focus-visible {
-  outline: 2px solid var(--et-white);
-  outline-offset: 3px;
+.contentsPhoto::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 36%, rgb(0 0 0 / .2) 60%, rgb(0 0 0 / .84));
+  pointer-events: none;
 }
 
-/* Der Satz zum Eintrag wie der Lesetext im Kapitel. */
-.dirBlurb {
-  margin: 22px 0 0;
-  font-family: var(--et-font-body);
-  font-size: clamp(17px, 1.3vw, 19px);
-  line-height: 1.65;
+.contentsPhoto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 400ms cubic-bezier(.2, .8, .2, 1);
 }
 
-/* Der Weg zur ganzen Liste als Etikett-Zeile wie die Rubrik im Kopf:
-   gelbes Quadrat, Providence in Versalien, gesperrt — kein Knopf. */
-.dirMoreLine {
-  margin: 18px 0 0;
-  text-align: center;
-}
-
-.dirMore {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
+.contentsName {
+  position: absolute;
+  z-index: 1;
+  inset: auto 16px 16px;
   color: var(--et-white);
-  font-family: var(--et-font-display);
-  font-size: 14px;
+  font-size: clamp(17px, 8.3cqi, 28px);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.3;
-  text-decoration: none;
+  line-height: 1.1;
+  white-space: nowrap;
+  letter-spacing: -.025em;
   text-transform: uppercase;
 }
 
-.dirMore::before {
-  content: '';
-  flex: none;
-  width: 9px;
-  height: 9px;
-  margin-right: var(--et-control-gap);
-  background: var(--et-accent);
+.siblings a:focus-visible {
+  outline-color: var(--et-accent-text);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .siblings a:hover { translate: 0 -4px; }
+  .siblings a:hover img { transform: scale(1.055); }
 }
 
 @media (hover: hover) {
-  .dirMore:hover {
-    color: var(--et-accent-heading);
-  }
+  .siblings a:hover .contentsName { color: var(--et-white); }
 }
 
-.dirMore:focus-visible {
-  outline: 2px solid var(--et-white);
-  outline-offset: 3px;
+@media (min-width: 768px) and (max-width: 1199px) {
+  .siblings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-.dirStrip {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin: clamp(24px, 2.6vw, 36px) 0 0;
-  padding: 0;
-  list-style: none;
+@media (max-width: 767px) {
+  .siblings { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .contentsPhoto { aspect-ratio: 1; }
+  .contentsName { inset: auto 10px 12px; font-size: clamp(12px, 8.3cqi, 20px); }
 }
 
-.dirStrip a {
-  gap: 8px;
-}
-
-/* Am Telefon drei statt vier: bei vier Fotos blieben je ~80px, und die
-   Namen brachen auf drei Zeilen. */
-@media (max-width: 599px) {
-  .dirStrip {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .dirStrip li:nth-child(n + 4) {
-    display: none;
-  }
-
-  .dirStrip .contentsName {
-    font-size: 14px;
-  }
-
-  /* So gross, dass „Charlottenburg" in eine Zeile passt. */
-  .dirName {
-    font-size: min(34px, 8.4vw);
-  }
+@media (prefers-reduced-motion: reduce) {
+  .siblings a, .contentsPhoto img { transition: none; }
 }
 
 /* ------------------------------------------------------------- telefon -- */
 
 @media (max-width: 767px) {
-  /* Die Bildleiste wischt am Telefon, statt zu schrumpfen. */
-  .contents {
-    width: auto;
-    margin-inline: calc(-1 * var(--issue-gutter));
-  }
-
-  /* Wischende Leisten schneiden unten ab: der Grund lässt der tiefen
-     Unterlänge der Providence Platz — sonst fehlte dem „g" in „Prenzlauer
-     Berg" der Bogen (03.10.2026). */
-  .contents ol {
-    display: flex;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding: 0 var(--issue-gutter) 10px;
-    scrollbar-width: none;
-  }
-
-  .contents ol::-webkit-scrollbar {
-    display: none;
-  }
-
-  .contents li,
-  .siblings li {
-    flex: 0 0 104px;
-  }
-
-  .siblings {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    width: auto;
-    margin-inline: calc(-1 * var(--issue-gutter));
-    padding: 0 var(--issue-gutter) 10px;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
-  }
-
-  .siblings::-webkit-scrollbar {
-    display: none;
-  }
-
   /* Die Hefte wischen am Telefon; oben und unten Luft, sonst schneidet der
      Querscroller die gedrehten Hefte und ihren Schatten ab. */
   .shelf {
@@ -899,18 +679,8 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
     margin-top: 6px;
   }
 
-  .contentsName {
-    font-size: 14px;
-  }
-
-  .actions .btn {
-    width: 100%;
-  }
-
-  .guide {
-    grid-template-columns: 130px 1fr;
-    gap: 18px;
-  }
+  .guides { grid-template-columns: 1fr; gap: 28px; }
+  .guide { grid-template-columns: 110px minmax(0, 1fr); grid-template-rows: auto; align-items: center; gap: 20px; }
 
   .guideTitle {
     font-size: 22px;
@@ -919,8 +689,210 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (prefers-reduced-motion: reduce) {
   .btn,
+  .filterChip,
   .filterBar,
   .shelfIssue {
     transition: none;
   }
+  .spotPhoto img, .entryPhoto img { transition: none; }
+  .spotPhoto:hover img, .entry:hover img, .spot:has(.spotName a:hover) img { transform: none; }
 }
+
+.spotList > div:first-child .secTitle {
+  margin-top: 32px;
+}
+.spot .text {
+  grid-row: 4;
+  font-size: 15px;
+}
+@media (min-width: 1200px) {
+  .spots[data-count='4'] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .spots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .spots { grid-template-columns: 1fr; gap: 36px; }
+  .spot { display: flex; flex-direction: column; margin-bottom: 0; }
+  .secTitle {
+    font-size: 26px;
+    text-align: left;
+  }
+  .secNote {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 768px) {
+  .guide:only-child { grid-column: 1 / -1; grid-template-columns: 190px minmax(0, 1fr); grid-template-rows: auto; max-width: 760px; align-items: center; }
+}
+
+/* Category features share card content and links, with a deliberate change of scale. */
+.spots.editorialSpots,
+.spots.compactSpots {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 48px;
+  row-gap: 0;
+}
+.editorialSpots .spot,
+.compactSpots .spot {
+  grid-template-columns: 144px minmax(0, 1fr);
+  grid-row: span 4;
+  column-gap: 22px;
+  margin-bottom: 36px;
+}
+.editorialSpots .spotPhoto,
+.compactSpots .spotPhoto {
+  grid-column: 1;
+  grid-row: 1 / span 4;
+  align-self: start;
+  aspect-ratio: 1;
+  margin: 0;
+}
+.editorialSpots .spotName,
+.compactSpots .spotName { grid-column: 2; grid-row: 1; }
+.editorialSpots .spotName,
+.compactSpots .spotName { font-size: 25px; }
+.editorialSpots .deck,
+.compactSpots .deck { grid-column: 2; grid-row: 2; }
+.editorialSpots .text,
+.compactSpots .text { grid-column: 2; grid-row: 3; }
+.editorialSpots .tip,
+.compactSpots .tip { grid-column: 2; grid-row: 4; }
+.editorialSpots > .cardSlot:first-child .spot {
+  grid-column: 1 / -1;
+  grid-template-columns: 1.35fr 1fr;
+  grid-template-rows: auto auto auto 1fr;
+  column-gap: 42px;
+  margin-bottom: 42px;
+}
+.editorialSpots > .cardSlot:first-child .spotPhoto {
+  height: 100%;
+  min-height: 310px;
+  aspect-ratio: 16 / 10;
+}
+.editorialSpots > .cardSlot:first-child .spotName { padding-top: 20px; }
+.editorialSpots > .cardSlot:first-child .spotName { font-size: clamp(32px, 3.2vw, 46px); }
+.editorialSpots > .cardSlot:first-child .text { max-width: 46ch; font-size: 17px; line-height: 1.6; }
+.editorialSpots > .cardSlot:first-child .tip { margin-bottom: 20px; }
+
+.guideInterlude {
+  max-width: var(--issue-wide);
+  margin: 20px auto 0;
+  padding: 32px;
+  box-sizing: border-box;
+  background: var(--et-ink-raised);
+  border-radius: 12px;
+}
+.guideInterlude .secTitle { margin-top: 0; }
+.guideInterlude .guides { gap: 28px; margin-top: 28px; }
+.guideInterlude .guide { grid-template-columns: 110px minmax(0, 1fr); grid-template-rows: auto; gap: 18px; align-items: center; }
+.guideInterlude .guideCover { width: 110px; }
+.guideInterlude .guideTitle { font-size: 22px; hyphens: auto; text-wrap: pretty; }
+.guideInterlude .guideMeta { font-size: 11px; }
+.guideInterlude .guideMeta::before { display: none; }
+.guideInterlude .guide:only-child { max-width: 700px; grid-template-columns: 160px minmax(0, 1fr); }
+.guideInterlude .guide:only-child .guideCover { width: 160px; }
+.guideInterlude .guide:only-child .guideTitle { font-size: 30px; }
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .spots.editorialSpots, .spots.compactSpots { column-gap: 28px; }
+  .editorialSpots .spot, .compactSpots .spot { grid-template-columns: 108px minmax(0, 1fr); column-gap: 18px; }
+  .editorialSpots .spotName, .compactSpots .spotName { font-size: 23px; }
+  .guideInterlude .guide { grid-template-columns: 1fr; align-content: start; }
+  .guideInterlude .guideCover { width: 130px; }
+}
+@media (max-width: 767px) {
+  .spots.editorialSpots, .spots.compactSpots { grid-template-columns: 1fr; row-gap: 28px; }
+  .editorialSpots .spot, .compactSpots .spot {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    grid-row: auto;
+    column-gap: 18px;
+    margin-bottom: 0;
+  }
+  .editorialSpots .spotName, .compactSpots .spotName { font-size: 22px; }
+  .editorialSpots .deck, .compactSpots .deck { font-size: 11px; margin-top: 8px; }
+  .editorialSpots .text, .compactSpots .text { font-size: 14px; margin-top: 10px; }
+  .editorialSpots > .cardSlot:first-child .spot { display: flex; flex-direction: column; margin-bottom: 8px; }
+  .editorialSpots > .cardSlot:first-child .spotPhoto { width: 100%; height: auto; min-height: 0; aspect-ratio: 16 / 10; margin-bottom: 18px; }
+  .editorialSpots > .cardSlot:first-child .spotName { padding-top: 0; }
+  .editorialSpots > .cardSlot:first-child .spotName { font-size: 30px; }
+  .editorialSpots > .cardSlot:first-child .text { font-size: 15px; line-height: 1.5; }
+  .editorialSpots > .cardSlot:first-child .tip { margin-bottom: 0; }
+  .guideInterlude { margin-top: 36px; padding: 24px 18px; }
+  .guideInterlude .guide { grid-template-columns: 88px minmax(0, 1fr); gap: 16px; }
+  .guideInterlude .guideTitle { font-size: 20px; }
+  .guideInterlude .guideCover { width: 88px; }
+  .guideInterlude .guide:only-child { grid-template-columns: 88px minmax(0, 1fr); }
+  .guideInterlude .guide:only-child .guideCover { width: 88px; }
+  .guideInterlude .guide:only-child .guideTitle { font-size: 20px; }
+}
+
+@media (min-width: 768px) {
+  .guideInterlude .guides:has(> .guide:nth-child(2):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Approved corner sticker: original logo over Favorit, like the Must-Eat peek. */
+.favorite {
+  position: absolute;
+  top: -2px;
+  right: -8px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  box-sizing: border-box;
+  width: 66px;
+  padding: 6px 7px 5px;
+  border-radius: 4px;
+  background: var(--et-accent);
+  color: var(--et-on-accent);
+  font-family: var(--et-font-display);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .065em;
+  text-transform: uppercase;
+  transform: rotate(8deg);
+  transform-origin: 58% 72%;
+  pointer-events: none;
+}
+.spotPhoto .favorite img,
+.spot:has(.spotName a:hover) .favorite img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transform: none;
+  transition: none;
+}
+.editorialSpots > .cardSlot:not(:first-child) .favorite,
+.compactSpots .favorite { width: 58px; padding: 5px 6px 4px; font-size: 8px; right: -5px; }
+@media (max-width: 767px) {
+  .editorialSpots > .cardSlot:not(:first-child) .favorite,
+  .compactSpots .favorite { width: 52px; padding: 4px 5px; right: -4px; }
+}
+.magazine.magazineIntro { margin-top: 96px; padding: 44px; background: var(--et-ink-raised); border-radius: 12px; }
+.magazineIntro .secTitle { margin-top: 0; font-size: clamp(30px, 3.2vw, 46px); }
+.magazineDescription { max-width: 52ch; margin: 20px 0 0; font-size: 21px; line-height: 1.5; }
+.categoryMenu { max-width: var(--issue-wide); margin: 88px auto 0; }
+.categoryMenu .secTitle { color: var(--et-accent-text); font-size: 24px; }
+.categoryMenu ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 48px; margin: 28px 0 0; padding: 0; list-style: none; }
+.categoryMenu a { display: inline-block; padding-block: 6px; color: var(--et-white); font-size: clamp(32px, 4.5vw, 64px); font-weight: 700; line-height: 1.1; text-transform: uppercase; text-decoration: none; transition: color 180ms ease, translate 180ms ease; }
+.categoryMenu a:focus-visible { outline: 2px solid var(--et-white); outline-offset: 6px; }
+@media (hover: hover) { .categoryMenu a:hover { color: var(--et-accent-text); } }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .categoryMenu a:hover { translate: 6px 0; } }
+@media (max-width: 767px) {
+  .magazine.magazineIntro { margin: 56px calc(-1 * var(--issue-gutter)) 0; padding: 32px var(--issue-gutter); border-radius: 0; }
+  .magazineDescription { font-size: 18px; }
+  .categoryMenu { margin-top: 56px; }
+  .categoryMenu ul { gap: 12px 20px; }
+  .categoryMenu a { font-size: clamp(23px, 6.5vw, 36px); }
+}
+@media (prefers-reduced-motion: reduce) { .categoryMenu a { transition: none; } }

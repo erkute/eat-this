@@ -2,13 +2,14 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getAllBezirkeWithStats } from '@/lib/sanity.server';
 import { pickShelf } from '@/lib/curated-ranking';
-import { pickLocale } from '@/lib/i18n/pickLocale';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import styles from '@/app/components/HubIssue.module.css';
-import { IssueDirectory, IssueMagazine } from '@/app/components/HubIssue';
+import { IssueMagazine } from '@/app/components/HubIssue';
+import DiscoveryExplorer from '@/app/components/DiscoveryExplorer';
+import { normalizeName } from '@/lib/normalizeName';
 import { latestIssues } from '@/lib/home/getHomeData';
 
 interface PageProps {
@@ -56,14 +57,11 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   setRequestLocale(locale);
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
-  // Schlicht wie ein Ressort im Heft (Wahl 03.10.2026, vorher „Berlin nach
-  // Bezirk"); die Stadt steht in der Rubrik darüber.
-  const title = de ? 'Die Bezirke' : 'The districts';
   // Empty districts (no open spots) are hidden — an empty grid page is a
   // dead end for users and thin content for Google. Same rule as the Hub chips.
   const [allBezirke, magazine] = await Promise.all([
     getAllBezirkeWithStats(),
-    latestIssues(3, loc),
+    latestIssues(4, loc),
   ]);
   const bezirke = allBezirke.filter((b) => (b.restaurantCount ?? 0) > 0);
 
@@ -107,43 +105,19 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <header className={styles.head}>
-          <p className={styles.kicker}>Restaurants in Berlin</p>
-          <h1 className={styles.title}>
-            <span className={styles.indexTitle}>{title}</span>
-          </h1>
-        </header>
-
-        {/* Das Register ersetzt die Regale und die Bezirks-Leiste darüber
-            (bis 03.10.2026): jeder Name ist selbst der Weg, ein Filter vor
-            15 Namen doppelte nur die Liste. */}
-        <IssueDirectory
-          label={de ? 'Alle Bezirke' : 'All districts'}
-          entries={bezirke.map((b) => {
-            // Kuratierte Spots führen die Bildleiste an; aufgefüllt wird mit
-            // der alphabetischen Auswahl. Ohne publizierbares Bild fliegt ein
-            // Spot raus — die Leiste ist ganz Foto.
-            const curated = (b.topSpotCards ?? []).filter((r) => r.photo);
-            const count = b.restaurantCount ?? 0;
-            return {
-              slug: b.slug,
-              href: `/bezirk/${b.slug}`,
-              name: b.name,
-              // Die Beschreibung erklärt, warum man den Bezirk anklicken
-              // sollte — vier Restaurantnamen tun das nicht.
-              blurb: pickLocale(b.description, b.descriptionEn, loc),
-              spots: pickShelf(curated, b.exampleRestaurants, 4),
-              // Friedenau hat genau einen Spot — dort kein „Alle".
-              more:
-                count === 1
-                  ? de
-                    ? `Zum Spot in ${b.name}`
-                    : `The spot in ${b.name}`
-                  : de
-                    ? `Alle Spots in ${b.name}`
-                    : `All spots in ${b.name}`,
-            };
-          })}
+        <DiscoveryExplorer
+          kind="bezirk"
+          locale={loc}
+          entries={bezirke.map((b) => ({
+            slug: b.slug,
+            href: `/bezirk/${b.slug}`,
+            name: b.name,
+            spots: pickShelf(
+              (b.topSpotCards ?? []).filter((r) => r.photo),
+              (b.exampleRestaurants ?? []).filter((r) => r.photo),
+              3
+            ).map((r) => ({ slug: r.slug, name: normalizeName(r.name), photo: r.photo! })),
+          }))}
         />
 
         {/* Der Schluss: wer unten ankommt, liest weiter. */}

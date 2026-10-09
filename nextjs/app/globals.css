@@ -462,10 +462,12 @@ html[data-active-page][data-magazine-opening] body,
 html[data-active-page][data-magazine-opening] .app-pages {
   background: var(--et-magazine-table);
 }
-/* Bezirke, Kategorien und Spots samt Übersichten stehen auf Marken-Ink. */
+/* Spot-Artikel und Entdecker-Rubriken teilen den Ink-Grund der Startseite. */
 html[data-active-page='restaurant'],
 html[data-active-page='restaurant'] body,
-html[data-active-page='restaurant'] .app-pages,
+html[data-active-page='restaurant'] .app-pages {
+  background: var(--et-ink);
+}
 html[data-active-page='bezirk'],
 html[data-active-page='bezirk'] body,
 html[data-active-page='bezirk'] .app-pages,

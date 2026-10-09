@@ -64,7 +64,7 @@ export function HubFilterProvider({
   // Liste.
   return (
     <HubFilterContext.Provider value={value}>
-      <div className={styles.filterScope}>{children}</div>
+      <div className={styles.filterScope} data-filtered={value.active !== null}>{children}</div>
     </HubFilterContext.Provider>
   );
 }

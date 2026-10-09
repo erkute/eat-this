@@ -19,14 +19,13 @@ import { bezirkCategoryLinks, bezirkGuideSlugs } from '@/lib/seo/crossLinks';
 import type { RestaurantCard } from '@/lib/types';
 import styles from '@/app/components/HubIssue.module.css';
 import {
-  IssueContents,
   latestMonth,
   IssueGuides,
   IssueRegister,
   IssueSiblings,
   IssueSpots,
 } from '@/app/components/HubIssue';
-import MapIntentLink from '@/app/components/MapIntentLink';
+import DiscoveryDetail from '@/app/components/DiscoveryDetail';
 import {
   HubFilterProvider,
   HubFilterBar,
@@ -45,6 +44,19 @@ interface PageProps {
  * vorbei, um einen Namen zu finden.
  */
 const CARD_LIMIT = 12;
+
+// Das bisherige Romeo's-Motiv enthält eingeblendete Screenshot-Bedienelemente.
+// Für die Bezirksvorschau das vorhandene, klare Bonanza-Foto verwenden.
+const DISTRICT_PREVIEW_SPOTS: Record<string, string> = {
+  kreuzberg: 'bonanza-coffee-roasters',
+};
+
+// Die Hauptmotive sitzen bei diesen Hochformaten unterhalb der Bildmitte.
+const DISTRICT_PHOTO_POSITIONS: Record<string, string> = {
+  'bonanza-coffee-roasters': '50% 82%',
+  'bar-basta': '50% 65%',
+  crapulix: '50% 65%',
+};
 
 /** Die Kategorie-Slugs eines Spots — seine Facetten im Chip-Filter. */
 const categorySlugsOf = (r: RestaurantCard) =>
@@ -160,26 +172,36 @@ export default async function BezirkDetailPage({ params }: PageProps) {
   // als Karten nur, solange es kurz genug ist.
   const lead = top.length > 0 ? top : rest;
   const leadAsCards = top.length > 0 || rest.length <= CARD_LIMIT;
-  // Kein Bezirk hat in Sanity ein eigenes Foto (Stand 03.10.2026); statt
-  // eines Banners zeigt der Kopf die Kapitel als Bildleiste. Ein Spotfoto als
-  // Banner las sich früher wie eine eigene Empfehlung.
   const updated = latestMonth(restaurants, loc);
 
   // Nur Bezirke, die auch etwas zu zeigen haben — ein Link auf einen leeren
   // Hub liefe in dieselbe Weiterleitung zur Übersicht wie diese Seite oben.
   const nachbarBezirke = alleBezirke
     .filter((x) => x.slug && x.slug !== slug && (x.restaurantCount ?? 0) > 0)
-    .map((x) => ({ slug: x.slug, label: x.name, photo: shelfPhoto(x) }));
+    .map((x) => {
+      const preferred = [...(x.topSpotCards ?? []), ...(x.exampleRestaurants ?? [])].find(
+        (spot) => spot.slug === DISTRICT_PREVIEW_SPOTS[x.slug] && spot.photo
+      );
+      const photo = preferred?.photo ?? shelfPhoto(x);
+      const source = preferred ?? [...(x.topSpotCards ?? []), ...(x.exampleRestaurants ?? [])].find(
+        (spot) => spot.photo === photo
+      );
+      return {
+        slug: x.slug,
+        label: x.name,
+        photo,
+        photoPosition: source ? DISTRICT_PHOTO_POSITIONS[source.slug] : undefined,
+      };
+    });
 
   // Ohne Limit: die Chip-Leiste braucht *jede* vertretene Kategorie, sonst
   // wären Karten hinter keinem Chip erreichbar. Die Statuszeilen entstehen
   // hier, weil nur die Seite weiß, wie der Satz herum läuft — „Kaffee in
   // Schöneberg", auf der Kategorieseite dagegen „Frühstück in Mitte".
-  const spotWord = (n: number) => (de ? (n === 1 ? 'Spot' : 'Spots') : n === 1 ? 'spot' : 'spots');
   const categoryFilters: HubFacet[] = bezirkCategoryLinks(restaurants, loc, Infinity).map((c) => ({
     slug: c.slug,
     label: c.label,
-    status: `${c.label} in ${b.name} · ${c.count} ${spotWord(c.count)}`,
+    status: `${c.label} in ${b.name}`,
   }));
   /** Die Kategorie-Slugs einer Teilliste — entscheidet, ob ihre Sektion beim
    *  aktiven Filter überhaupt noch etwas zeigt. */
@@ -202,39 +224,15 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <header className={styles.head}>
-          <p className={styles.kicker}>{de ? 'Bezirk' : 'District'}</p>
-          {/* „Restaurants in" ist Teil der H1 — die Suchen lauten
-              „restaurants berlin mitte", nicht „mitte". Gleiche Phrase in
-              beiden Sprachen. */}
-          <h1 className={styles.title}>
-            {/* Das Leerzeichen trennt die beiden Zeilen im Text der H1 —
-                ohne es lesen Suchmaschinen und Vorleser „inKreuzberg". */}
-            <span className={styles.pre}>Restaurants in</span>{' '}
-            <span className={styles.name}>{b.name}</span>
-          </h1>
-          <p className={styles.credits}>
-            <span>{de ? 'Von Eat This kuratiert' : 'Curated by Eat This'}</span>
-            {updated && <span>{de ? `Stand ${updated}` : `Updated ${updated}`}</span>}
-          </p>
-        </header>
-
-        {leadAsCards && <IssueContents restaurants={lead} label={de ? 'Die Spots' : 'The spots'} />}
-
-        <p className={styles.lede}>
-          {heroLede ||
-            (de ? `Die besten Restaurants in ${b.name}` : `The best restaurants in ${b.name}`)}
-        </p>
-        <div className={styles.actions}>
-          <MapIntentLink
-            href={`/map?bezirk=${slug}`}
-            rel="nofollow"
-            className={styles.btn}
-            aria-label={de ? `${b.name} auf der Map öffnen` : `Open ${b.name} on the map`}
-          >
-            {de ? 'Zur Map' : 'On the map'}
-          </MapIntentLink>
-        </div>
+        <DiscoveryDetail
+          kind="bezirk"
+          slug={slug}
+          name={b.name}
+          description={heroLede || ''}
+          updated={updated}
+          photos={[...top, ...rest]}
+          locale={loc}
+        />
 
         <HubFilterProvider queryKey="cat" slugs={categoryFilters.map((c) => c.slug)}>
           {/* Filtert die Liste an Ort und Stelle. Bis 25.08.2026 stand hier
@@ -246,8 +244,8 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               allLabel={de ? 'Alle' : 'All'}
               allStatus={
                 de
-                  ? `Alle ${restaurants.length} Spots in ${b.name}`
-                  : `All ${restaurants.length} spots in ${b.name}`
+                  ? `Alle Spots in ${b.name}`
+                  : `All spots in ${b.name}`
               }
               groupLabel={
                 de ? `In ${b.name} nach Kategorie filtern` : `Filter ${b.name} by category`
@@ -302,7 +300,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         <IssueSiblings
           items={nachbarBezirke}
           base="/bezirk"
-          heading={de ? 'Andere Bezirke' : 'Other districts'}
+          heading={de ? 'Weitere Bezirke' : 'More districts'}
           label={de ? 'Weitere Bezirke' : 'More districts'}
         />
       </main>

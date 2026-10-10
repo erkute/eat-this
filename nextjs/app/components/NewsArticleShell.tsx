@@ -89,6 +89,14 @@ function firstSentence(text: string): string {
   return (text.match(/^[^.!?]+/) ?? [text])[0];
 }
 
+/** Zeichen im längsten Wort der Schlagzeile. Am Telefon wird sie nur so weit
+ *  verkleinert, dass dieses Wort in die Spalte passt (`--title-longest` im
+ *  CSS). Nach einem Bindestrich darf die Zeile ohnehin umbrechen, deshalb
+ *  zählt „Bistro-Abende" als zwei Wörter. */
+function longestTitleWord(title: string): number {
+  return Math.max(1, ...title.split(/\s+/).flatMap((w) => w.split(/(?<=-)/)).map((w) => w.length));
+}
+
 /** How much of one opening sentence must run through the other, how far into
  *  the lede the article's opening sentence may reach, and how much of the first
  *  words must match when neither has a sentence to judge. */
@@ -403,7 +411,12 @@ export default function NewsArticleShell({
                 ohne. */}
             <div className={styles.introCopy}>
               <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
-              <h1 className={styles.heroTitle}>{title}</h1>
+              <h1
+                className={styles.heroTitle}
+                style={{ '--title-longest': longestTitleWord(title) } as React.CSSProperties}
+              >
+                {title}
+              </h1>
               {byline}
               <ArticleThemeToggle de={de} className={styles.themeToggle} />
             </div>

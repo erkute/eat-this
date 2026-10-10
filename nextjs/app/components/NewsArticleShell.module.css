@@ -1153,9 +1153,18 @@ div.page {
     padding-inline: 6px;
   }
 
+  /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als
+     die Spalte. Statt zu trennen wird die Schlagzeile so weit kleiner, dass
+     ihr längstes Wort passt: Providence-Versalien laufen 0,60–0,68em pro
+     Zeichen, 0,7 lässt Luft. `anywhere` fängt den Rest ab (MMMM, WWWW). */
+  .introCopy {
+    container-type: inline-size;
+  }
+
   .heroTitle {
     max-width: none;
-    font-size: clamp(38px, 10.5vw, 52px);
+    font-size: min(clamp(38px, 10.5vw, 52px), 100cqi / (var(--title-longest) * 0.7));
+    overflow-wrap: anywhere;
   }
 
   .lede {

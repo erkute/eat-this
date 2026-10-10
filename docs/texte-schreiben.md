@@ -30,21 +30,62 @@ Eat This sagt dir, was du in Berlin essen sollst. „We tell you what to eat.“
 
 ### Vorbild: Ahmet İşçitürk (Eurogamer)
 
-Ersans Vorbild für den Ton sind die Tests von [Ahmet İşçitürk](https://www.eurogamer.de/authors/ahmet-isciturk), etwa „Control Resonant im Test“. Was davon für uns gilt:
+Ersans Vorbild für den Ton sind die Tests von [Ahmet İşçitürk](https://www.eurogamer.de/authors/ahmet-isciturk). Ausgewertet wurden 20 seiner Tests (Stand Oktober 2026, u. a. Control Resonant, The Blood of Dawnwalker, Crimson Desert, Beast of Reincarnation, Forbidden Solitaire, Phonopolis, Vultures, 1666: Amsterdam, Invincible VS, Replaced, Minishoot’ Adventures). Seine Texte folgen einem festen Gerüst, und fast jedes Element lässt sich aufs Essen übertragen.
 
-- **Das Urteil kommt zuerst.** Ein Satz unter dem Titel, der schon sagt, wie es ist. Der Rest begründet es.
-- **Ehrlicher Einstieg mit eigener Haltung.** Er sagt, wo er herkommt und was er erwartet hat (bei ihm: welche Spiele des Studios ihn abgeholt haben und welche nicht). Bei uns: „Ich trinke zwei Cappuccino am Tag. … Man kann also sagen: Ich habe Vergleichswerte.“ (Kolo)
-- **Das Praktische früh und kompakt,** in einem eigenen Block („Was ist …?“), damit der Rest frei erzählen kann.
-- **Konkret, was er selbst getan hat,** nicht was man theoretisch tun kann. Bei uns: was bestellt, in welcher Reihenfolge, was dann passierte.
-- **Schwächen werden genannt, auch im Lob.** Bei ihm zieht sich das Finale, und die erste Stunde ist öde. Bei uns die Schlange, der kleine Raum, das Gericht, das nicht hält, was die Karte verspricht. Lob wird dadurch glaubwürdig.
-- **Vergleiche als Anker.** Er verankert Neues an Bekanntem (andere Spiele, ein altes Gefühl). Bei uns: „Burger, den jedes Kind kennt“, „wie vom Hähnchen-Imbiss“, „eine Mailänder Tagesbar“.
-- **Umgangssprache, präzise gesetzt.** Ein „mit Schmackes“, „Gedöns“ oder „verdammt gut“ zwischen sauberen Sätzen. Sparsam, nie in jedem Absatz.
-- **Rhythmus.** Erklärende Sätze, dann ein kurzer Satz, der zuspitzt. Seine Fazit-Zeile „Die Zutaten kennt man. Diese Mischung nicht.“ ist kein Gag, sondern das Argument in vier Wörtern pro Satz.
-- **Humor aus Beobachtung,** nie aus Wortspielen. Bei ihm die Holzkiste, die beim Anschauen zerfällt, während die nächste unkaputtbar ist. Bei uns: „Und wenn du zur Toilette gehst, stehst du plötzlich in einem Vintage-Laden.“
-- **Zwischenüberschriften als kleine Thesen** statt Etiketten („Keine Liebe auf den ersten Blick“ statt „Kampfsystem“). Im Test gern so, im Guide bleibt die Form „Name – Haken“.
-- **Das Fazit beantwortet die Frage vom Anfang.** Er fragt am Anfang, warum das Studio sein Erfolgsrezept umwirft, und antwortet am Ende in drei Wörtern, dass es eben funktioniert. Danach sagt er, für wen und wie gut.
+#### Das Gerüst eines Tests
+1. **Titel mit Urteil oder Frage.** Nie nur „X im Test“, immer mit Haltung dahinter. Seine vier Formeln:
+   - persönliches Urteil in Ich-Form (dass er ein Spiel freiwillig noch einmal durchspielt),
+   - Kontrast über die Zeit (nach ein paar Stunden begeistert, nach vielen erschöpft),
+   - ehrliche Frage (wie gut etwas wirklich ist),
+   - Gleichung aus zwei Bekannten (Klassiker A trifft Genre B).
+   Bei uns: „Ari’s in Kreuzberg: Pommes im Burger und ein Dressing, das du löffeln willst“, „Crapulix: Dieses Croissant braucht keine Füllung“.
+2. **Unterzeile mit beiden Seiten.** Ein Satz, der sagt, was überzeugt und was nicht: „überzeugt mit …, leidet aber unter …“. Oder ein knapper Widerspruch, der neugierig macht (ein Spiel genau für die Leute, die das Genre sonst meiden). Bei uns ist das der Teaser (`excerpt`).
+3. **„Was ist X?“** gleich am Anfang, ein bis zwei Sätze, nur Fakten: was, von wem, wo, seit wann. Bei ihm auch Preis und Plattform, bei uns Adresse, Öffnung, Reservierung, Zahlung (aber keine Preise, Abschnitt 3).
+4. **Einstieg mit eigener Geschichte und Erwartung.** Er sagt, woher er kommt und was er erwartet hat, oft mit einer kleinen, sehr konkreten Erinnerung (die Zugfahrt am Erscheinungstag, die halbe Stunde mit einem Spiel vor zehn Jahren). Typische Einstiege:
+   - Bekenntnis zur Befangenheit (er gehört eigentlich nicht zur Zielgruppe),
+   - Erwartung, die kippt (erst skeptisch, nach ein paar Stunden überzeugt),
+   - ein Satzfragment mit einer Zahl als erster Satz,
+   - der Reflex, den das Ding sofort auslöst.
+   Bei uns: „Ich trinke zwei Cappuccino am Tag. … Man kann also sagen: Ich habe Vergleichswerte.“ (Kolo) oder „Ich bin in Berlin aufgewachsen.“ (Döner).
+5. **Abschnitte mit These als Zwischenüberschrift,** nicht mit Etikett. Statt „Kampfsystem“ eine Behauptung, die der Abschnitt belegt (dass er etwas liebt, dass es keine Liebe auf den ersten Blick war, was die Kehrseite ist). Ein Wortspiel ist in der Zwischenüberschrift erlaubt, wenn es sofort verständlich bleibt; im Fließtext nicht.
+6. **Szenen statt Behauptungen.** Er erzählt im Präsens, was er tut und was dann passiert, mit Zahl und Detail. Bei uns: was auf den Tisch kam, in welcher Reihenfolge, wie es aussah, was am Nachbartisch passierte.
+7. **Eine Schwäche pro Lob.** Kein Test ohne einen Absatz, der offen sagt, was gestört hat. Das Gewichten macht er ausdrücklich: Er sagt, was etwas erklärt und was es trotzdem nicht entschuldigt, oder dass ein Befund kein Verriss ist, sondern eine Gewichtung.
+8. **„Angaben zum Test“** vor dem Fazit: worauf, wie lange, von wem das Testmuster kam. Bei uns: **„Angaben zum Besuch“** – wann, wie oft, zu wievielt, was bestellt, selbst bezahlt oder eingeladen. Nur mit Ersans Angaben, nie erfinden.
+9. **Fazit, das die Anfangsfrage beantwortet** und danach sagt, für wen (Abschnitt 6).
 
-Unterschied zu ihm: Er sagt „ihr“, wir sagen „du“. Er darf eine Bewertung vergeben, wir vergeben keine Sterne, außer Ersan will es.
+#### Seine Sprache
+- **Ich-Form, klare Meinung, offen als Meinung markiert:** „für mich“, eine direkte Ansage vorweg, manchmal Bauch gegen Kopf.
+- **Vergleiche als Anker, ständig und konkret.** Neues wird an Bekanntem festgemacht: das Spiel als „X mit Vampiren“, eine Mechanik wie in einem anderen Spiel, ein Gefühl wie bei einem Klassiker von früher. Bei uns: „ein Burger, den jedes Kind kennt“, „wie vom Hähnchen-Imbiss“, „eine Mailänder Tagesbar“, „wie in Neapel, nur mit mehr Wasser im Teig“.
+- **Bildhafte Übertreibung aus dem Alltag,** nicht aus dem Feuilleton: Bedienungsanleitungen, vollgestopfte Handtaschen, ein Espresso als Maß für „kurz und intensiv“. Sparsam, höchstens eine pro Abschnitt.
+- **Umgangssprache, präzise gesetzt:** „richtig Bock“, „mit Schmackes“, „Gedöns“, „verdammt gut“, „No-Brainer“. Zwischen sauberen Sätzen, nie gehäuft.
+- **Rhythmus:** erklärende Sätze, dann ein Fragment oder Ein-Wort-Satz, der zuspitzt. Seine Fazit-Zeile „Die Zutaten kennt man. Diese Mischung nicht.“ ist kein Gag, sondern das Argument.
+- **Zusammenfassende Kurzformeln:** „Kurz: …“, „Unterm Strich …“, „Langer Rede, kurzer Sinn: …“, höchstens einmal pro Text.
+- **Selbstironie statt Spott.** Er macht sich über sich lustig (über sein Alter, seine Ungeduld, seine Unfähigkeit bei einem Rätsel), nicht über die Macher.
+
+#### Sein Fazit
+- Beginnt oft mit einer klaren Ansage oder der Antwort auf die Frage aus dem Einstieg.
+- Gewichtet Stärken gegen Schwächen in zwei, drei Sätzen.
+- Sagt, für wen: „Wer X mag, … Wer Y erwartet, …“ – zwei Gruppen, nicht mehr.
+- Gibt eine klare Empfehlung mit Konsequenz: Pflichtkauf, No-Brainer, „kannst du guten Gewissens auslassen“, „gib ihm noch ein paar Monate“.
+- Schließt mit einem Satz, der den Titel oder den Einstieg aufgreift.
+- Begründet eine Wertung konkret (welche Schwäche genau einen Stern gekostet hat). Wir vergeben keine Sterne, außer Ersan will es; die Begründungslogik übernehmen wir trotzdem.
+
+#### Was davon wo gilt
+| Element | Ich-Text / Test | Guide | Spot-Text |
+|---|---|---|---|
+| Titel mit Urteil, Kontrast, Frage oder Gleichung | ja | ja (Thema + Haken) | – |
+| Unterzeile/Teaser mit beiden Seiten | ja | ja | Kurzbeschreibung |
+| „Was ist X?“ früh | ja | in Absatz 1 je Spot | – |
+| Einstieg mit eigener Geschichte | ja, aus Ersans Material | These statt Ich | – |
+| Zwischenüberschrift als These | ja | „Name – Haken“ | – |
+| Szenen im Präsens | ja | nein (wir waren nicht dabei) | nein |
+| Schwäche pro Lob | ja | ein belegter Haken je Spot | wenn belegt |
+| Vergleiche als Anker | ja | ja | ja |
+| Umgangssprache, Übertreibung | ja, sparsam | sehr sparsam | nein |
+| „Angaben zum Besuch“ | ja | – | – |
+| Fazit mit Antwort, für wen, Empfehlung | ja | ja (Abschnitt 6) | – |
+
+Unterschied zu ihm: Er sagt „ihr“, wir sagen „du“. Er schreibt über Spiele, die er selbst gespielt hat; wir schreiben Ich-Erlebnisse nur aus Ersans Material und in Guides gar nicht.
 
 Die zwei Stimmen:
 - **Ich-Text / Test:** Ersan erzählt. Claude war nie dort und schreibt nur aus seinem Material: was er bestellt hat, was gut war, was ihn gestört hat, seine Fotos. Seine Wörter, seine Wertungen. Nichts dazuerfinden.
@@ -90,7 +131,7 @@ Diese Wörter und Wendungen fliegen raus, ohne Ersatz:
 - Füllsätze: „Vegan ist er außerdem.“ „Hier ist für jeden etwas dabei.“
 - Leserführung, die es nicht gibt: „oben“, „unten“, „auf der Karte steht“ (der Leser sieht die Karte nicht), „wie bereits erwähnt“.
 - Inventarsätze: „Ich habe drei Burger gegessen.“
-- Kalauer, Wortspiele und aufgesetzte Pointen, besonders am Absatzende. Erlaubt ist die **Zuspitzung**: ein kurzer Satz, der das Argument des Absatzes auf den Punkt bringt und stimmt. Der Unterschied: Eine Zuspitzung kann man belegen, einen Gag nicht. Humor nur aus konkreter Beobachtung: „Und wenn du zur Toilette gehst, stehst du plötzlich in einem Vintage-Laden.“ (VOLK) ist gut, weil es stimmt.
+- Kalauer und aufgesetzte Pointen, besonders am Absatzende (ein Wortspiel in einer Zwischenüberschrift ist erlaubt, Abschnitt 1). Erlaubt ist die **Zuspitzung**: ein kurzer Satz, der das Argument des Absatzes auf den Punkt bringt und stimmt. Der Unterschied: Eine Zuspitzung kann man belegen, einen Gag nicht. Humor nur aus konkreter Beobachtung: „Und wenn du zur Toilette gehst, stehst du plötzlich in einem Vintage-Laden.“ (VOLK) ist gut, weil es stimmt.
 - Kapitelnummern (01, 02 …).
 
 ### Imperativ

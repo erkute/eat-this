@@ -38,6 +38,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   process.env.SANITY_REVALIDATE_SECRET = SECRET
   process.env.SANITY_WEBHOOK_TOLERANCE_SECONDS = '300'
+  process.env.SANITY_WEBHOOK_SETTLE_MS = '0'
   vi.useFakeTimers()
   vi.setSystemTime(new Date('2026-07-06T10:00:00.000Z'))
 })
@@ -63,6 +64,20 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/map')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/must-eats')
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
+  })
+
+  it('invalidiert erst nach der Wartezeit, damit das Sanity-CDN den neuen Stand hat', async () => {
+    process.env.SANITY_WEBHOOK_SETTLE_MS = '5000'
+    const raw = JSON.stringify({ _id: 'x', _type: 'restaurant', slug: 'comedor' })
+
+    const pending = POST(mkReq(raw, signature(raw, Date.now())))
+    await vi.advanceTimersByTimeAsync(4999)
+    expect(mocks.revalidateTag).not.toHaveBeenCalled()
+
+    await vi.advanceTimersByTimeAsync(1)
+    const res = await pending
+    expect(res.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:comedor')
   })
 
   it('rejects a correctly signed but stale webhook timestamp', async () => {

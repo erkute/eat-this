@@ -99,32 +99,39 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
               aria-label={t.heroPhonesLabel}
               data-hub-phones=""
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className={styles.phoneBack}
-                src="/pics/home-phones/phone-restaurant-red-480.webp"
-                srcSet={phoneSrcSet('phone-restaurant-red')}
-                sizes={PHONE_SIZES}
-                alt=""
-                width={855}
-                height={1736}
-                loading="lazy"
-                decoding="async"
-              />
-              {/* LCP element — the map phone is what the hero is actually about. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className={styles.phoneFront}
-                src="/pics/home-phones/phone-map-red-480.webp"
-                srcSet={phoneSrcSet('phone-map-red')}
-                sizes={PHONE_SIZES}
-                alt={t.heroPhonesAlt}
-                width={855}
-                height={1736}
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-              />
+              {/* Jedes Telefon schwebt in einer eigenen Hülle: die animiert nur
+                  `transform` und läuft so auf der GPU. Am Bild selbst liegen
+                  schon Hover, Maus und Scroll-Drift. */}
+              <span className={`${styles.phoneFloat} ${styles.phoneFloatBack}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className={styles.phoneBack}
+                  src="/pics/home-phones/phone-restaurant-red-480.webp"
+                  srcSet={phoneSrcSet('phone-restaurant-red')}
+                  sizes={PHONE_SIZES}
+                  alt=""
+                  width={855}
+                  height={1736}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+              <span className={`${styles.phoneFloat} ${styles.phoneFloatFront}`}>
+                {/* LCP element — the map phone is what the hero is actually about. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className={styles.phoneFront}
+                  src="/pics/home-phones/phone-map-red-480.webp"
+                  srcSet={phoneSrcSet('phone-map-red')}
+                  sizes={PHONE_SIZES}
+                  alt={t.heroPhonesAlt}
+                  width={855}
+                  height={1736}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                />
+              </span>
             </MapIntentLink>
           </div>
         </div>

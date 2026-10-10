@@ -36,7 +36,8 @@ gsap.registerPlugin(useGSAP);
  * 3. **Beim Hereinkommen:**
  *    - Remys Auftritt und Reaktionen gehören HubFragRemy.
  *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
- *      (`data-in-view`, CSS in HubSection.module.css; `armInView`).
+ *      (`data-in-view`, CSS in HubSection.module.css; `armInView`), der im
+ *      Aufmacher im Takt (`armHeroPress`).
  *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
  *      wird gedrückt, das Feld leert sich — in Schleife, solange die Tafel im
  *      Bild ist (`armSignupDemo`).
@@ -336,13 +337,9 @@ function onScrollFrame(scroller: HTMLElement | Window, update: () => void): () =
  * `data-in-view` an jeder Section mit einem Knopf, der gedrückt werden soll
  * (`data-press`), und am Aufmacher: `1` im Bild, `0` draussen. Das CSS dazu
  * (HubSection.module.css) startet den Druck neu, sobald es auf `1` springt:
- * wer zurückscrollt, sieht den Knopf wieder gedrückt. Beobachtet wird die
- * Section, nicht der Knopf: HubHeroCopy baut die Knöpfe neu, sobald `useAuth`
- * steht.
- * Der Aufmacher bekommt die `1` erst, nachdem er einmal draussen war: beim
- * Laden ist er schon im Bild, und die `1` gleich beim Mount verkürzte nur die
- * Verzögerung des laufenden Drucks — ab Seitenstart gerechnet, der Knopf
- * drückte dann mitten in seinem Einflug.
+ * wer zurückscrollt, sieht den Knopf wieder gedrückt. Am Aufmacher pausiert
+ * die `0` das Schweben der Telefone. Beobachtet wird die Section, nicht der
+ * Knopf: HubHeroCopy baut die Knöpfe neu, sobald `useAuth` steht.
  */
 function armInView(): () => void {
   if (typeof IntersectionObserver === 'undefined') return () => {};
@@ -357,10 +354,7 @@ function armInView(): () => void {
     (entries) => {
       for (const entry of entries) {
         const el = entry.target as HTMLElement;
-        if (!entry.isIntersecting) el.setAttribute('data-in-view', '0');
-        else if (el !== hero || el.hasAttribute('data-in-view')) {
-          el.setAttribute('data-in-view', '1');
-        }
+        el.setAttribute('data-in-view', entry.isIntersecting ? '1' : '0');
       }
     },
     { rootMargin: '0px 0px -20% 0px' }
@@ -369,6 +363,43 @@ function armInView(): () => void {
   return () => {
     io.disconnect();
     sections.forEach((el) => el.removeAttribute('data-in-view'));
+  };
+}
+
+/**
+ * Der Knopf im Aufmacher wird gedrückt (`ctaPressOnce`, HubSection.module.css):
+ * 3s nach dem Laden, danach alle 4,5s, solange der Aufmacher im Bild ist; wer
+ * zurückscrollt, sieht ihn nach 0,3s wieder gedrückt. Im Takt statt als
+ * endlose CSS-Animation, damit der Hauptthread zwischen zwei Drücken ruht.
+ * Die Knöpfe werden bei jedem Druck neu gesucht: HubHeroCopy tauscht sie aus,
+ * sobald `useAuth` steht.
+ */
+function armHeroPress(): () => void {
+  const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
+  if (!hero || typeof IntersectionObserver === 'undefined') return () => {};
+  let next = 0;
+  let release = 0;
+  let seen = false;
+  const press = () => {
+    const buttons = hero.querySelectorAll<HTMLElement>('[data-magnetic]');
+    buttons.forEach((el) => el.setAttribute('data-hero-press', ''));
+    release = window.setTimeout(() => buttons.forEach((el) => el.removeAttribute('data-hero-press')), 500);
+    next = window.setTimeout(press, 4500);
+  };
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      window.clearTimeout(next);
+      if (entry.isIntersecting) next = window.setTimeout(press, seen ? 300 : 3000);
+      seen = true;
+    },
+    { rootMargin: '0px 0px -20% 0px' }
+  );
+  io.observe(hero);
+  return () => {
+    io.disconnect();
+    window.clearTimeout(next);
+    window.clearTimeout(release);
+    hero.querySelectorAll('[data-hero-press]').forEach((el) => el.removeAttribute('data-hero-press'));
   };
 }
 
@@ -782,6 +813,7 @@ export default function HubMotion() {
         const stops: Array<() => void> = [];
         stops.push(armScrubFallback(scroller));
         stops.push(armInView());
+        stops.push(armHeroPress());
         stops.push(armSignupDemo());
         stops.push(armFaq());
         stops.push(armScrollTalk(scroller));

@@ -26,21 +26,20 @@ for (const locale of ['de', 'en'] as const) {
     ).toBeVisible();
     const deck = section.getByRole('list', { name: 'Must Eats', exact: true });
     const mobile = page.viewportSize()!.width < 768;
+    // Telefon: vier Karten im Zweierraster. Desktop: die ganze Auslage, ohne
+    // Seitwärts-Scrollen.
+    const cards = await deck.locator('li:visible').evaluateAll((items) => items.map((item) => {
+      const box = item.getBoundingClientRect();
+      return { x: box.x, y: box.y, right: box.right };
+    }));
+    expect(cards).toHaveLength(mobile ? 4 : 6);
+    expect(Math.abs(cards[0].y - cards[1].y)).toBeLessThan(1);
+    const deckRight = await deck.evaluate((element) => element.getBoundingClientRect().right);
+    expect(Math.max(...cards.map((card) => card.right))).toBeLessThanOrEqual(deckRight + 1);
     if (mobile) {
-      await expect(deck.locator('li:visible')).toHaveCount(4);
-      const cards = await deck.locator('li:visible').evaluateAll((items) => items.map((item) => {
-        const box = item.getBoundingClientRect();
-        return { x: box.x, y: box.y };
-      }));
-      expect(Math.abs(cards[0].y - cards[1].y)).toBeLessThan(1);
       expect(cards[2].y).toBeGreaterThan(cards[0].y);
       expect(Math.abs(cards[0].x - cards[2].x)).toBeLessThan(1);
-      expect(await deck.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
-    } else {
-      await deck.press('ArrowRight');
-      await expect.poll(() => deck.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
     }
-    // Focus reaches cards beyond the initial crop without a carousel button.
     const covered = deck
       .locator('li')
       .nth(1)
@@ -52,10 +51,6 @@ for (const locale of ['de', 'en'] as const) {
         exact: true,
       });
     await expect(covered).toHaveCount(1);
-    if (!mobile) {
-      await deck.locator('li').last().getByRole('link').first().press('Tab');
-      await expect.poll(() => deck.evaluate((element) => element.scrollLeft)).toBeGreaterThan(200);
-    }
     const bounds = await section.evaluate((element) => ({
       width: element.clientWidth,
       content: element.scrollWidth,

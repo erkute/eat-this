@@ -31,23 +31,18 @@
 }
 
 .collection { grid-area: collection; min-width: 0; align-self: center; }
+/* Auf dem Desktop liegen alle Karten auf einmal da, ohne Seitwärts-Scrollen:
+   ab 1280px die ganze Auslage in einer Reihe, darunter zwei Reihen à drei. */
 .deck {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   align-items: stretch;
-  gap: 30px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: 18px;
-  touch-action: pan-x pan-y pinch-zoom;
-  scrollbar-width: none;
-  margin: 0 -18px;
-  padding: 32px 18px 28px;
+  gap: 24px;
+  margin: 0;
+  padding: 32px 0 28px;
   list-style: none;
 }
-.deck::-webkit-scrollbar { display: none; }
-.deck:focus-visible { outline: 2px solid var(--et-white); outline-offset: 5px; border-radius: 8px; }
-.slide { flex: 0 0 clamp(220px, 16.5vw, 270px); min-width: 0; scroll-snap-align: start; }
+.slide { min-width: 0; }
 .slide:nth-child(even) { --card-angle: 2deg; }
 .browseHint { margin: 4px 0 0; text-align: center; font-size: 20px; line-height: 1.5; }
 .cardShell { display: grid; grid-template-rows: auto 1fr; min-height: 100%; color: inherit; }
@@ -118,15 +113,14 @@
 .coveredButton { width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
 .tapHint { color: var(--et-accent-text); font-size: 16px; line-height: 1.35; }
 
-@media (max-width: 1023.98px) {
-  .slide { flex-basis: 240px; }
+@media (max-width: 1279.98px) {
+  .deck { grid-template-columns: repeat(3, minmax(0, 280px)); justify-content: center; gap: 40px 30px; }
 }
 @media (max-width: 767.98px) {
   .stage { gap: 16px; }
   .intro { display: grid; gap: 14px; }
   .lead { font-size: 18px; }
-  .deck { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 18px clamp(12px, 3vw, 24px) 24px; gap: 28px 20px; overflow: visible; scroll-snap-type: none; touch-action: pan-y pinch-zoom; }
-  .slide { min-width: 0; }
+  .deck { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 18px clamp(12px, 3vw, 24px) 24px; gap: 28px 20px; }
   .slide:nth-child(n + 5) { display: none; }
   .meta { padding: 24px 0 0; gap: 4px; }
   .dish { font-size: 18px; }

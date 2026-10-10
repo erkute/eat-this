@@ -167,11 +167,16 @@
   height: 100%;
   border-radius: inherit;
   background: var(--et-accent);
+  transform-origin: left;
   animation: mapLoading 1.6s cubic-bezier(.65, 0, .35, 1) infinite alternate;
 }
+/* Nur `transform`, kein `transform-origin` in den Keyframes: das lief nicht
+   auf der GPU, und der Balken läuft endlos, auch weit unter dem Aufmacher —
+   jedes Frame Hauptthread (Lighthouse, 10.10.2026). Ende gleich, die Mitte
+   weicht um wenige Pixel ab. */
 @keyframes mapLoading {
-  from { transform: translateX(0) scaleX(.7); transform-origin: left; }
-  to { transform: translateX(122.22%) scaleX(1); transform-origin: right; }
+  from { transform: translateX(0) scaleX(.7); }
+  to { transform: translateX(122.22%) scaleX(1); }
 }
 
 .detail { min-width: 0; min-height: 0; background: var(--et-ink); }
@@ -236,4 +241,21 @@
   .loadingBar { animation: none; width: 60%; margin-inline: auto; }
   .photo img { animation: none; }
   .categories button, .cta { transition: none; }
+}
+
+/* Ab 1600px wächst die Startseite mit (HubSection.module.css, `--home-zoom`).
+   Die Map selbst bleibt ohne `zoom` — MapLibre rechnet mit Zeigerpositionen;
+   sie wächst über ihre Höhe. Alles drumherum skaliert im Ganzen. */
+@media (min-width: 1600px) {
+  .head,
+  .categories,
+  .action,
+  .detail {
+    zoom: var(--home-zoom, 1);
+  }
+  .section { column-gap: calc(24 * var(--u, 1px)); }
+  .preview {
+    height: calc(530 * var(--u, 1px));
+    border-radius: calc(12 * var(--u, 1px));
+  }
 }

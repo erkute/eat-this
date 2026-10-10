@@ -5,7 +5,10 @@ import type { NextRequest } from 'next/server'
 const mocks = vi.hoisted(() => ({
   revalidateTag: vi.fn(),
   revalidatePath: vi.fn(),
+  waitForFreshCdn: vi.fn(),
 }))
+
+vi.mock('@/lib/sanity.server', () => ({ waitForFreshCdn: mocks.waitForFreshCdn }))
 
 vi.mock('next/cache', () => ({
   revalidateTag: mocks.revalidateTag,
@@ -66,18 +69,40 @@ describe('/api/revalidate', () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/en/must-eats')
   })
 
-  it('invalidiert erst nach der Wartezeit, damit das Sanity-CDN den neuen Stand hat', async () => {
+  it('invalidiert erst, wenn das Sanity-CDN den neuen Stand der Seite liefert', async () => {
     process.env.SANITY_WEBHOOK_SETTLE_MS = '5000'
+    let release: (v: string) => void = () => {}
+    mocks.waitForFreshCdn.mockReturnValue(new Promise((resolve) => { release = resolve }))
     const raw = JSON.stringify({ _id: 'x', _type: 'restaurant', slug: 'comedor' })
 
     const pending = POST(mkReq(raw, signature(raw, Date.now())))
-    await vi.advanceTimersByTimeAsync(4999)
+    await vi.advanceTimersByTimeAsync(30000)
+    expect(mocks.waitForFreshCdn).toHaveBeenCalledWith('restaurant', 'comedor', { fallbackMs: 5000 })
     expect(mocks.revalidateTag).not.toHaveBeenCalled()
 
-    await vi.advanceTimersByTimeAsync(1)
+    release('fresh')
     const res = await pending
     expect(res.status).toBe(200)
+    expect(await res.json()).toEqual(expect.objectContaining({ settled: 'fresh' }))
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:comedor')
+  })
+
+  it('invalidiert trotzdem, wenn der CDN-Abgleich scheitert', async () => {
+    process.env.SANITY_WEBHOOK_SETTLE_MS = '5000'
+    mocks.waitForFreshCdn.mockRejectedValue(new Error('sanity down'))
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const raw = JSON.stringify({ _id: 'x', _type: 'newsArticle', slug: 'restaurants-mitte' })
+
+    const res = await POST(mkReq(raw, signature(raw, Date.now())))
+    expect(res.status).toBe(200)
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('article:restaurants-mitte')
+    errors.mockRestore()
+  })
+
+  it('wartet gar nicht, wenn SANITY_WEBHOOK_SETTLE_MS=0', async () => {
+    const raw = JSON.stringify({ _id: 'x', _type: 'restaurant', slug: 'comedor' })
+    await POST(mkReq(raw, signature(raw, Date.now())))
+    expect(mocks.waitForFreshCdn).not.toHaveBeenCalled()
   })
 
   it('rejects a correctly signed but stale webhook timestamp', async () => {

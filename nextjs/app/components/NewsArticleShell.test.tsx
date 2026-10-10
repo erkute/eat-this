@@ -417,5 +417,39 @@ describe('NewsArticleShell', () => {
       expect(related).toContain('data-cover-issue="1"');
       expect(related).not.toContain('href="/news/doener"');
     });
+
+    const articleCard = (articleSlug: string): PortableTextBlock =>
+      ({ _type: 'articleCard', _key: `ac-${articleSlug}`, articleSlug }) as unknown as PortableTextBlock;
+
+    it('zeigt einen Artikel-Verweis im Text als Heft mit dem aktuellen Titel', () => {
+      const content = [para('Text.'), articleCard('pizza')];
+      const html = renderWith(issues(['pizza', 'doener']), { content, contentDe: content });
+      const body = html.slice(0, html.indexOf('Weitere Ausgaben'));
+      expect(body).toContain('href="/news/pizza"');
+      expect(body).toContain('data-cover-issue="2"');
+      expect(body).toContain('Story pizza');
+    });
+
+    it('lässt einen Verweis auf einen unveröffentlichten oder den eigenen Artikel weg', () => {
+      const content = [para('Text.'), articleCard('gibts-nicht'), articleCard('doener')];
+      const html = renderWith(issues(['pizza', 'doener']), { content, contentDe: content });
+      const body = html.slice(0, html.indexOf('Weitere Ausgaben'));
+      expect(body).not.toContain('href="/news/gibts-nicht"');
+      expect(body).not.toContain('href="/news/doener"');
+    });
+
+    it('stellt einen Verweis hinter das Fazit statt hinein', () => {
+      const conclusion = {
+        _type: 'block',
+        _key: 'fazit',
+        style: 'conclusion',
+        children: [{ _type: 'span', text: 'Fazit' }],
+      } as unknown as PortableTextBlock;
+      const content = [conclusion, para('Schluss.'), articleCard('pizza')];
+      const html = renderWith(issues(['pizza', 'doener']), { content, contentDe: content });
+      const aside = html.slice(html.indexOf('data-block="conclusion"'), html.indexOf('</aside>'));
+      expect(aside).toContain('Schluss.');
+      expect(aside).not.toContain('href="/news/pizza"');
+    });
   });
 });

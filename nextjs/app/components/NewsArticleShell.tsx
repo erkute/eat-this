@@ -6,9 +6,11 @@ import type {
   MustEatCardBlock,
   SpotCardBlock,
   ArticleImageBlock,
+  ArticleCardBlock,
   PortableTextBlock,
 } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
+import { articleCardText } from '@/lib/articleCard';
 import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
@@ -366,6 +368,44 @@ export default function NewsArticleShell({
     );
   };
 
+  // Verweis auf einen anderen Artikel: das Heft wie unter „Weitere Ausgaben“,
+  // daneben Rubrik · Datum und Titel wie „Im Magazin“ auf der Spot-Seite.
+  // Titel, Bild und Cover kommen aus `relatedArticles` – so stimmt der Titel
+  // auch dann, wenn der andere Artikel umbenannt wird. Ein Verweis auf einen
+  // unveröffentlichten oder gelöschten Artikel fällt weg.
+  const renderArticleCard = (block: ArticleCardBlock) => {
+    if (!block.articleSlug || block.articleSlug === article.slug) return null;
+    const target = relatedArticles.find((a) => a.slug === block.articleSlug);
+    if (!target) return null;
+    const { title: targetTitle, kicker, date } = articleCardText(target, coverLocale);
+    return (
+      <MagazineLink
+        href={`/news/${target.slug}`}
+        className={styles.inlineIssue}
+        data-motion="spot"
+      >
+        <span className={styles.inlineIssueCover}>
+          <MagazineCover
+            title={targetTitle}
+            image={target.imageUrl}
+            issue={issueOf(target.slug)}
+            date={target.date}
+            locale={coverLocale}
+            cover={target.cover}
+            sizes="(max-width: 767.98px) 130px, 180px"
+            widths={[320, 480]}
+          />
+        </span>
+        <span className={styles.inlineIssueText}>
+          <span className={styles.inlineIssueMeta}>
+            {[kicker, date].filter(Boolean).join(' · ')}
+          </span>
+          <span className={styles.inlineIssueTitle}>{targetTitle}</span>
+        </span>
+      </MagazineLink>
+    );
+  };
+
   const recommendations = relatedArticles.filter((a) => a.slug !== article.slug).slice(0, 3);
   // Darunter liegen Hefte, also „Weitere Ausgaben" (Ansage 02.10.2026).
   const moreLabel = de ? 'Weitere Ausgaben' : 'More issues';
@@ -465,6 +505,7 @@ export default function NewsArticleShell({
                 renderMustEatCard={renderMustEatCard}
                 renderSpotCard={renderSpotCard}
                 renderImage={renderImage}
+                renderArticleCard={renderArticleCard}
               />
             </div>
 

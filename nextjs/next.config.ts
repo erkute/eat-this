@@ -61,6 +61,9 @@ const nextConfig: NextConfig = {
     tsconfigPath: process.env.NEXT_DIST_DIR ? 'tsconfig.verify.json' : 'tsconfig.json',
   },
   outputFileTracingRoot: path.resolve(__dirname),
+  // Teilt Tag-Invalidierungen zwischen den Cloud-Run-Instanzen und setzt sie
+  // bei jedem Aufruf neu – Begründung im Kopf von cache-handler.cjs.
+  cacheHandler: path.resolve(__dirname, 'cache-handler.cjs'),
   // Satori fonts for the composed email spot-card image — read via
   // fs.readFile at runtime, so the tracer can't see them on its own.
   outputFileTracingIncludes: {

@@ -108,6 +108,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
   }
 
+  // Erst warten, dann invalidieren. Der Hook kommt rund eine Sekunde nach dem
+  // Publish, die Seiten lesen Sanity aber über das API-CDN (lib/sanity.ts).
+  // Am 09.10.2026 baute /restaurant/comedor 17:50:00 neu, eine Sekunde nach
+  // der Änderung, und behielt den alten Insider-Tipp – vermutlich, weil das
+  // CDN den Stand noch nicht hatte. Der veraltete Neubau stand dann bis zur
+  // nächsten Invalidierung. Ein paar Sekunden Abstand kosten nichts: Sanity
+  // wartet auf die Antwort, niemand sonst.
+  const settleMs = Number(process.env.SANITY_WEBHOOK_SETTLE_MS ?? 5000);
+  if (Number.isFinite(settleMs) && settleMs > 0) {
+    await new Promise((resolve) => setTimeout(resolve, settleMs));
+  }
+
   const type = doc._type;
   // Die Webhook-Projektion liefert `"slug": slug.current` — also einen
   // STRING, kein Objekt. Ein reines `doc.slug?.current` ist auf dieser

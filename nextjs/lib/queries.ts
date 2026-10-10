@@ -110,6 +110,11 @@ const articleContentProjection = `{
       "cuisineType": restaurantRef->cuisineType,
       "restaurantPhoto": ${publishableRestaurantImageUrl('restaurantRef->image', 'card', 'restaurantRef->slug.current', 'restaurantRef->instagramHandle')}
     },
+    _type == "articleCard" => {
+      _type,
+      _key,
+      "articleSlug": articleRef->slug.current
+    },
     _type == "image" => {
       _type,
       _key,

@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {DocumentTextIcon, ImageIcon, LinkIcon, PinIcon, StarIcon} from '@sanity/icons'
+import {BookIcon, DocumentTextIcon, ImageIcon, LinkIcon, PinIcon, StarIcon} from '@sanity/icons'
 import {ArticleInput} from '../components/ArticleInput'
 import {ArticleTextInput, ConclusionStyle, ImageBlock} from '../components/ArticleEditor'
 
@@ -112,6 +112,32 @@ const contentBlocks = [
         title: name || 'Spot wählen',
         subtitle: ['Spot', district, cuisine].filter(Boolean).join(' · '),
         media: media || PinIcon,
+      }),
+    },
+  },
+  // Verweis auf einen anderen Artikel: erscheint als Heft-Cover mit Titel,
+  // wie unter „Weitere Ausgaben“. Statt eines Textlinks auf den Titel, der
+  // veraltet, sobald der andere Artikel umbenannt wird.
+  {
+    type: 'object',
+    name: 'articleCard',
+    title: 'Artikel',
+    icon: BookIcon,
+    fields: [
+      {
+        name: 'articleRef',
+        title: 'Artikel',
+        type: 'reference',
+        to: [{type: 'newsArticle'}],
+        validation: (Rule) => Rule.required(),
+      },
+    ],
+    preview: {
+      select: {title: 'articleRef.titleDe', titleEn: 'articleRef.title', media: 'articleRef.image'},
+      prepare: ({title, titleEn, media}) => ({
+        title: title || titleEn || 'Artikel wählen',
+        subtitle: 'Artikel',
+        media: media || BookIcon,
       }),
     },
   },

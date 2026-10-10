@@ -28,6 +28,24 @@ Eat This sagt dir, was du in Berlin essen sollst. „We tell you what to eat.“
 - **Ersans Stimme ist die Obergrenze.** Sein Ton steht auf `/about`, in den Ich-Texten (Ari’s, Kolo, Döner) und in seinen Insider-Tipps: direkt, warm, unprätentiös, gelegentlich trocken-witzig. Kein Feuilleton, kein Verkoster-Jargon, kein Marketing.
 - **Du-Anrede** überall, auch in Guides.
 
+### Vorbild: Ahmet İşçitürk (Eurogamer)
+
+Ersans Vorbild für den Ton sind die Tests von [Ahmet İşçitürk](https://www.eurogamer.de/authors/ahmet-isciturk), etwa „Control Resonant im Test“. Was davon für uns gilt:
+
+- **Das Urteil kommt zuerst.** Ein Satz unter dem Titel, der schon sagt, wie es ist. Der Rest begründet es.
+- **Ehrlicher Einstieg mit eigener Haltung.** Er sagt, wo er herkommt und was er erwartet hat (bei ihm: welche Spiele des Studios ihn abgeholt haben und welche nicht). Bei uns: „Ich trinke zwei Cappuccino am Tag. … Man kann also sagen: Ich habe Vergleichswerte.“ (Kolo)
+- **Das Praktische früh und kompakt,** in einem eigenen Block („Was ist …?“), damit der Rest frei erzählen kann.
+- **Konkret, was er selbst getan hat,** nicht was man theoretisch tun kann. Bei uns: was bestellt, in welcher Reihenfolge, was dann passierte.
+- **Schwächen werden genannt, auch im Lob.** Bei ihm zieht sich das Finale, und die erste Stunde ist öde. Bei uns die Schlange, der kleine Raum, das Gericht, das nicht hält, was die Karte verspricht. Lob wird dadurch glaubwürdig.
+- **Vergleiche als Anker.** Er verankert Neues an Bekanntem (andere Spiele, ein altes Gefühl). Bei uns: „Burger, den jedes Kind kennt“, „wie vom Hähnchen-Imbiss“, „eine Mailänder Tagesbar“.
+- **Umgangssprache, präzise gesetzt.** Ein „mit Schmackes“, „Gedöns“ oder „verdammt gut“ zwischen sauberen Sätzen. Sparsam, nie in jedem Absatz.
+- **Rhythmus.** Erklärende Sätze, dann ein kurzer Satz, der zuspitzt. Seine Fazit-Zeile „Die Zutaten kennt man. Diese Mischung nicht.“ ist kein Gag, sondern das Argument in vier Wörtern pro Satz.
+- **Humor aus Beobachtung,** nie aus Wortspielen. Bei ihm die Holzkiste, die beim Anschauen zerfällt, während die nächste unkaputtbar ist. Bei uns: „Und wenn du zur Toilette gehst, stehst du plötzlich in einem Vintage-Laden.“
+- **Zwischenüberschriften als kleine Thesen** statt Etiketten („Keine Liebe auf den ersten Blick“ statt „Kampfsystem“). Im Test gern so, im Guide bleibt die Form „Name – Haken“.
+- **Das Fazit beantwortet die Frage vom Anfang.** Er fragt am Anfang, warum das Studio sein Erfolgsrezept umwirft, und antwortet am Ende in drei Wörtern, dass es eben funktioniert. Danach sagt er, für wen und wie gut.
+
+Unterschied zu ihm: Er sagt „ihr“, wir sagen „du“. Er darf eine Bewertung vergeben, wir vergeben keine Sterne, außer Ersan will es.
+
 Die zwei Stimmen:
 - **Ich-Text / Test:** Ersan erzählt. Claude war nie dort und schreibt nur aus seinem Material: was er bestellt hat, was gut war, was ihn gestört hat, seine Fotos. Seine Wörter, seine Wertungen. Nichts dazuerfinden.
 - **Guide und Spot-Text:** Gastrojournalismus. Sachlich, dicht, belegt, mit klarer Empfehlung am Ende. Keine Ich-Erlebnisse, die es nicht gab.
@@ -72,7 +90,7 @@ Diese Wörter und Wendungen fliegen raus, ohne Ersatz:
 - Füllsätze: „Vegan ist er außerdem.“ „Hier ist für jeden etwas dabei.“
 - Leserführung, die es nicht gibt: „oben“, „unten“, „auf der Karte steht“ (der Leser sieht die Karte nicht), „wie bereits erwähnt“.
 - Inventarsätze: „Ich habe drei Burger gegessen.“
-- Pointen und Kalauer am Absatzende. Humor nur aus konkreter Beobachtung: „Und wenn du zur Toilette gehst, stehst du plötzlich in einem Vintage-Laden.“ (VOLK) ist gut, weil es stimmt.
+- Kalauer, Wortspiele und aufgesetzte Pointen, besonders am Absatzende. Erlaubt ist die **Zuspitzung**: ein kurzer Satz, der das Argument des Absatzes auf den Punkt bringt und stimmt. Der Unterschied: Eine Zuspitzung kann man belegen, einen Gag nicht. Humor nur aus konkreter Beobachtung: „Und wenn du zur Toilette gehst, stehst du plötzlich in einem Vintage-Laden.“ (VOLK) ist gut, weil es stimmt.
 - Kapitelnummern (01, 02 …).
 
 ### Imperativ
@@ -98,7 +116,7 @@ Nichts in den Fließtext, was schnell veraltet:
 ### Ich-Text / Test (Magazin)
 Vorbild: Ari’s, Kolo, Crapulix, Döner.
 1. Material holen, wenn es fehlt: Was hast du bestellt? Was war gut? Ein Moment, der hängen blieb? Was hat genervt? Sterne ja/nein? Fotos.
-2. Aufbau nach Ahmet İşçitürk (Eurogamer): Teaser mit dem Urteil → „Was ist X?“ mit dem Praktischen (was, wo, offen, Reservierung, Zahlung) → Abschnitte mit konkreten Beobachtungen (das Patty, die Soßen, der Salat) → Fazit.
+2. Aufbau nach Ahmet İşçitürk (Abschnitt 1): Teaser mit dem Urteil → ehrlicher Einstieg mit Ersans Haltung → „Was ist X?“ mit dem Praktischen (was, wo, offen, Reservierung, Zahlung) → Abschnitte mit konkreten Beobachtungen, Zwischenüberschriften als kleine Thesen, Schwächen inklusive → Fazit, das die Frage vom Anfang beantwortet.
 3. Listen (Soßen, Sorten): eine Zeile pro Ding, nur belegt, keine erfundenen Geschmacksangaben.
 4. Gründer und Geschichte höchstens zwei, drei Sätze.
 5. Ersans Formulierungen bleiben, auch kantige („Das Dressing ist phänomenal.“).
@@ -163,6 +181,7 @@ Absatz 2:  Essen konkret aus der aktuellen Karte, am Ende höchstens ein Bestell
 - **Der Haken** in der Überschrift ist das, was nur dieser Laden hat: „Thunfisch in drei Stufen“, „Crêpe Suzette in Flammen“, „ein halbes Hähnchen seit 1908“. Nicht „Gutes Sushi in Mitte“.
 - **Absatz 1** beginnt nicht jedes Mal mit dem Namen. Abwechseln: Ort („Hinter einer roten Tür im Hinterhof der Ackerstraße …“), Person („Arthur Schneller hat …“), Jahr („1999 eröffnete …“).
 - **Absatz 2** nennt Gerichte mit Zutaten, nicht Kategorien. „Gyūdon ist Rindfleisch mit Zwiebeln auf Reis, auf Wunsch mit Onsen-Ei“ statt „herzhafte Reisgerichte“.
+- **Ein belegter Haken darf rein:** die Schlange, der kleine Raum, kein Reservieren, nur Kartenzahlung. Das macht die Empfehlung glaubwürdig (Abschnitt 1, İşçitürk).
 - **Derselbe Spot in mehreren Guides:** nie denselben Absatz kopieren. Jeder Guide erzählt ihn aus seinem Winkel (im Burger-Guide das Patty, im Kreuzberg-Guide die Garage im Hinterhof).
 - Praktisches nur, wenn es den Besuch entscheidet (Abschnitt 3, „Zeit“).
 
@@ -175,7 +194,7 @@ Das Fazit ist der Schluss des Textes, keine zweite Aufzählung.
 
 - **Erster Satz:** ein Urteil über die Auswahl, also was an ihr stimmt.
 - **Höchstens ein Satz** dazu, für wen was ist, mit zwei, drei Spots, nicht allen.
-- **Letzter Satz:** greift die Einleitung auf, als ruhige Feststellung.
+- **Letzter Satz:** greift die Einleitung auf, als ruhige Feststellung oder kurze Zuspitzung, die stimmt (nicht als Gag). Hat die Einleitung eine Frage gestellt, beantwortet das Fazit sie.
 - Zwei bis drei Sätze. Nichts Praktisches dahinter, das gehört in den Text darüber.
 
 **Verboten:**

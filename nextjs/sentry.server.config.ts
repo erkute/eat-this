@@ -2,10 +2,12 @@
 // Node). Loaded by instrumentation.ts at server boot.
 import * as Sentry from '@sentry/nextjs';
 
-import { sentryEnvironment } from '@/lib/sentry/environment';
+import { sentryEnabled, sentryEnvironment } from '@/lib/sentry/environment';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  // Nur auf App Hosting, nie aus lokalen Servern (lib/sentry/environment.ts).
+  enabled: sentryEnabled(),
   // No tracesSampleRate: removeTracing in next.config.ts strips tracing from
   // the server and edge bundles too (Next runs the webpack config for all
   // three runtimes), so this would be inert.

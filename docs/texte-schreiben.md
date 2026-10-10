@@ -87,7 +87,31 @@ Ersans Vorbild für den Ton sind die Tests von [Ahmet İşçitürk](https://www.
 
 Unterschied zu ihm: Er sagt „ihr“, wir sagen „du“. Er schreibt über Spiele, die er selbst gespielt hat; wir schreiben Ich-Erlebnisse nur aus Ersans Material und in Guides gar nicht.
 
-Die zwei Stimmen:
+### Vorbild: Cathy Horyn (The Cut, früher New York Times)
+
+Die zweite Referenz ist die Modekritikerin [Cathy Horyn](https://www.thecut.com/author/cathy-horyn/). Ausgewertet wurden zehn ihrer Texte (Stand Oktober 2026: Kritiken zu Louis Vuitton, Loewe, Bottega Veneta, Prada, Phoebe Philo, Conner Ives und Altuzarra, die Paris-Kolumne, Porträts von Dries Van Noten, Olivier Theyskens und Jacquemus). Sie passt zu Ersans Vorbild Mode-Editorial (SSENSE, 032c): Wo İşçitürk das Gerüst und die Ehrlichkeit liefert, liefert Horyn den Blick, die Genauigkeit und den Zusammenhang.
+
+#### Was sie macht
+- **Sie beginnt mit dem Ort, nicht mit dem Urteil.** Wochentag, Uhrzeit, wer da ist, wie man hinkommt, was man zuerst bemerkt. Beim Porträt in Venedig beschreibt sie erst die zwei Wege zum Palazzo: mit dem Boot über den Kanal oder zu Fuß durch eine enge Gasse, bei der man nicht glaubt, dass am Ende etwas kommt. Erst dann kommt der Mensch. Bei uns: der Hinterhof hinter der roten Tür, das Garagentor ohne Schild, die Schlange vor dem Fenster unter der U-Bahn.
+- **Sie sieht genau hin und benennt Material und Farbe.** Nicht „eine schöne Jacke“, sondern Stoff, Farbton, Schnitt, wie es getragen wird, oft mit einem häuslichen Vergleich (ein Mantel, dessen Saum hochgeknotet ist wie Sommergardinen). Bei uns: nicht „leckere Pasta“, sondern Form, Soße, Garpunkt, was obendrauf liegt, wie es auf dem Teller aussieht.
+- **Sie stellt alles in einen Zusammenhang.** Was machen die anderen gerade, wogegen setzt sich das ab, warum ist es jetzt interessant? Bei uns: was in Berlin gerade überall passiert (Smashburger an jeder Ecke, Naturwein überall) und warum dieser Laden anders ist, oder eben nicht.
+- **Sie hat ein langes Gedächtnis.** Sie erinnert sich an frühere Jahrzehnte, an den Ort von damals, an die Leute, die sie seit 25 Jahren kennt, und misst das Heute daran. Bei uns: die Geschichte der Adresse (die alte Apotheke, das Postamt, das griechische Lokal, das 40 Jahre in der Ecke war), und was ein Laden früher war.
+- **Sie lässt die Macher sprechen und prüft das Gesagte am Ergebnis.** Ein Satz der Designerin über ihre Absicht, danach ihr Urteil, ob das auf dem Laufsteg ankommt. Bei uns: was die Köchin über ihre Küche sagt (nur aus belegten Quellen: Interview, Website, Presse), und ob die Karte das einlöst.
+- **Sie urteilt klar, auch hart, in einfachen Worten.** Ein kurzer Satz nach einer langen Beschreibung: dass etwas hässlich war, dass es nach wenig Mühe aussah, dass ein Detail einfach nicht funktioniert. Lob ist genauso konkret wie Kritik, und Kritik trifft eine Sache, nie die Person.
+- **Sie stellt die entscheidende Frage.** Statt eine Schwäche zu erklären, fragt sie, was ein Element eigentlich mit dem Rest zu tun hat. Bei uns sparsam: höchstens eine solche Frage pro Text.
+- **Sie hat Werte und zeigt sie.** Echtheit vor Effekt, Leichtigkeit vor Aufwand, Persönlichkeit vor Status. Gimmicks nennt sie Gags. Bei uns: das gut gemachte Einfache vor dem Instagram-Teller, der Laden mit Haltung vor dem mit Marketing.
+- **Kulturelle Anker, präzise gesetzt:** ein Roman, ein Maler, ein Film, der genau das Gefühl trifft, nicht als Namedropping. Bei uns: höchstens einer pro Text, und nur, wenn er dem Leser etwas erklärt.
+- **Kleine persönliche Einschübe:** ein „Well, …“, eine Erinnerung, ein knapper Ausruf. Sie ist im Text anwesend, ohne sich in den Vordergrund zu schieben.
+- **Das Ende ist kurz.** Oft ein Satz, der das Urteil oder den größeren Gedanken auf den Punkt bringt, manchmal nur vier, fünf Wörter.
+
+#### Wie die zwei Stimmen zusammengehen
+- **İşçitürk gibt das Gerüst:** Urteil vorn, das Praktische früh, Ehrlichkeit über Schwächen, Fazit mit Empfehlung. Er ist näher an Ersans Ton (direkt, umgangssprachlich, selbstironisch).
+- **Horyn gibt den Blick:** Einstieg mit Ort und Szene, genaue Beschreibung, Zusammenhang und Geschichte, eine klare, erwachsene Kritik.
+- **Ich-Text / Test:** Gerüst und Ton von İşçitürk, Beschreibungen mit Horyns Genauigkeit.
+- **Guide und Spot-Beschreibung:** Einstieg und Beschreibung nach Horyn (Ort → Menschen → Essen, mit Zusammenhang), Haken und Fazit nach İşçitürk.
+- **Nie:** Horyns Englisch-Eleganz ins Deutsche übersetzen wollen, bis es gestelzt klingt. Kurze deutsche Hauptsätze bleiben die Regel (Abschnitt 3).
+
+Die zwei Textstimmen bei Eat This:
 - **Ich-Text / Test:** Ersan erzählt. Claude war nie dort und schreibt nur aus seinem Material: was er bestellt hat, was gut war, was ihn gestört hat, seine Fotos. Seine Wörter, seine Wertungen. Nichts dazuerfinden.
 - **Guide und Spot-Text:** Gastrojournalismus. Sachlich, dicht, belegt, mit klarer Empfehlung am Ende. Keine Ich-Erlebnisse, die es nicht gab.
 
@@ -167,7 +191,7 @@ Siehe Abschnitt 5.
 
 ### Spot-Beschreibung (`description` / `descriptionEn`)
 Gastrojournalismus, keine Grundschulsätze (abgelehnt: „Barra kocht zum Teilen“). Länger als 700 Zeichen ist erwünscht.
-- Aufbau: **Ort → Menschen → Essen konkret.**
+- Aufbau: **Ort → Menschen → Essen konkret** (Blick und Genauigkeit nach Cathy Horyn, Abschnitt 1).
   - Ort: wo, wie es aussieht, was das Haus vorher war.
   - Menschen: wer kocht, woher, was vorher, seit wann.
   - Essen: Gerichte aus der aktuellen Karte, mit Zutaten. Was trinkt man dazu.

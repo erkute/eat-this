@@ -306,3 +306,54 @@ export async function getPackContents(): Promise<PackContentsIndex> {
     allBerlin: raw.allBerlin,
   };
 }
+
+/**
+ * Wartet im Sanity-Webhook, bis das API-CDN für genau die Abfrage, mit der die
+ * Detailseite ihre Daten holt, den neuen Stand ausliefert.
+ *
+ * Die Seiten lesen über das CDN (lib/sanity.ts). Baut eine Seite nach der
+ * Invalidierung neu, solange das CDN noch den alten Stand hat, hält sie den
+ * alten bis zur 24-Stunden-Frist fest. Am 10.10.2026 passierte genau das bei
+ * zwei von 29 gleichzeitig veröffentlichten Artikeln, obwohl der Webhook fünf
+ * Sekunden gewartet hatte. Deshalb fragt der Webhook dieselbe URL wie die
+ * Seite (gleicher Client, gleiche Abfrage, gleiche Parameter) und vergleicht
+ * mit der Antwort ohne CDN, bis beide übereinstimmen.
+ *
+ * Nur für Artikel und Restaurants, deren Detailabfrage bekannt ist; alles
+ * andere wartet `fallbackMs`. Gibt nach `maxMs` auf, damit der Webhook nicht
+ * in Sanitys Zeitlimit läuft.
+ */
+export async function waitForFreshCdn(
+  type: string | undefined,
+  slug: string | undefined,
+  { fallbackMs = 5000, maxMs = 20000, stepMs = 2000 } = {}
+): Promise<'fresh' | 'timeout' | 'fixed'> {
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  let query: string | null = null;
+  let params: Record<string, unknown> = {};
+  if (type === 'newsArticle' && slug) {
+    query = articleBySlugQuery;
+    params = { slug };
+  } else if (type === 'restaurant' && slug) {
+    query = restaurantPageQuery;
+    params = {
+      slug,
+      siblingLimit: RESTAURANT_SIBLING_LIMIT,
+      articleLimit: RESTAURANT_ARTICLE_LIMIT,
+    };
+  }
+  if (!query) {
+    await sleep(fallbackMs);
+    return 'fixed';
+  }
+  const live = JSON.stringify(
+    await client.withConfig({ useCdn: false }).fetch(query, params, { cache: 'no-store' })
+  );
+  const started = Date.now();
+  for (;;) {
+    const cdn = JSON.stringify(await client.fetch(query, params, { cache: 'no-store' }));
+    if (cdn === live) return 'fresh';
+    if (Date.now() - started + stepMs > maxMs) return 'timeout';
+    await sleep(stepMs);
+  }
+}

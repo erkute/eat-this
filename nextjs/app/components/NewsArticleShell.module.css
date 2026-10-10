@@ -450,8 +450,14 @@ div.page {
 
 /* Das Schlusszeichen wie im Heft: ein kleines Quadrat am Ende des letzten
    Absatzes — im Fazit oder im Fliesstext. */
+/* Steht am Ende noch ein Verweis auf einen anderen Artikel, endet der Text
+   davor. */
 .content > p:last-child::after,
-.content > [data-block='conclusion']:last-child > p:last-child:not([data-block])::after {
+.content > p:has(+ .inlineIssue:last-child)::after,
+.content > [data-block='conclusion']:last-child > p:last-child:not([data-block])::after,
+.content
+  > [data-block='conclusion']:has(+ .inlineIssue:last-child)
+  > p:last-child:not([data-block])::after {
   content: '';
   display: inline-block;
   width: 0.5em;
@@ -531,7 +537,7 @@ div.page {
    die Kapitel.
    Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
    Bezirk · Küche). */
-.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat) {
+.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue) {
   color: inherit;
   font-weight: 700;
   text-decoration: none;
@@ -540,7 +546,7 @@ div.page {
 
 @media (hover: hover) {
   .content
-    a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
+    a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue):hover {
     color: var(--article-head);
   }
 }
@@ -1054,6 +1060,70 @@ div.page {
 @media (prefers-reduced-motion: reduce) {
   .relatedCard {
     transition: none;
+  }
+}
+
+/* Verweis auf einen anderen Artikel im Text: das Heft links, Rubrik · Datum
+   und Titel daneben – wie „Im Magazin“ auf der Spot-Seite
+   (RestaurantArticlesSection.module.css), nur in der Lesespalte. */
+.inlineIssue {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+  margin: clamp(36px, 5vw, 64px) 0;
+  color: var(--article-fg);
+  text-decoration: none;
+}
+
+.inlineIssueCover {
+  display: block;
+  rotate: -1.2deg;
+}
+
+.inlineIssueText {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.inlineIssueMeta {
+  font-family: var(--et-font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.inlineIssueTitle {
+  color: var(--article-head);
+  font-family: var(--et-font-display);
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.inlineIssue:active {
+  scale: var(--et-press-tile);
+}
+
+.inlineIssue:focus-visible {
+  outline: 3px solid var(--article-fg);
+  outline-offset: 8px;
+}
+
+@media (max-width: 767.98px) {
+  .inlineIssue {
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .inlineIssueTitle {
+    font-size: 20px;
   }
 }
 

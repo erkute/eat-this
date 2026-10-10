@@ -4,6 +4,7 @@ import type {
   MustEatCardBlock,
   SpotCardBlock,
   ArticleImageBlock,
+  ArticleCardBlock,
 } from './types';
 import { splitHeading } from './headingDeck';
 
@@ -140,17 +141,19 @@ function slugifyHeading(text: string): string {
 // are delegated to the optional `renderMustEatCard` / `renderSpotCard` render-
 // props (so this stays presentation-agnostic); callers that don't pass them
 // simply skip those blocks. Inline `image` blocks work the same way via
-// `renderImage`. Other unknown types skip.
+// `renderImage`, `articleCard` via `renderArticleCard`. Other unknown types skip.
 export function PortableTextRenderer({
   blocks,
   renderMustEatCard,
   renderSpotCard,
   renderImage,
+  renderArticleCard,
 }: {
   blocks?: PortableTextBlock[];
   renderMustEatCard?: (block: MustEatCardBlock) => ReactNode;
   renderSpotCard?: (block: SpotCardBlock) => ReactNode;
   renderImage?: (block: ArticleImageBlock) => ReactNode;
+  renderArticleCard?: (block: ArticleCardBlock) => ReactNode;
 }) {
   if (!blocks?.length) return null;
 
@@ -196,6 +199,15 @@ export function PortableTextRenderer({
     if (raw._type === 'spotCard') {
       flushList();
       const card = renderSpotCard?.(raw as unknown as SpotCardBlock);
+      if (card) sink().push(<Fragment key={raw._key ?? sink().length}>{card}</Fragment>);
+      continue;
+    }
+    if (raw._type === 'articleCard') {
+      flushList();
+      // Ein Verweis auf den nächsten Artikel gehört nicht mehr ins Fazit:
+      // er schliesst es und steht für sich.
+      flushConclusion();
+      const card = renderArticleCard?.(raw as unknown as ArticleCardBlock);
       if (card) sink().push(<Fragment key={raw._key ?? sink().length}>{card}</Fragment>);
       continue;
     }

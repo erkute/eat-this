@@ -24,7 +24,7 @@ function cardSrcSet(url: string): string {
 }
 
 const CARD_SIZES =
-  '(min-width: 1637px) 270px, (min-width: 1334px) 16.5vw, (min-width: 1024px) 220px, (min-width: 768px) 240px, calc((100vw - 64px) / 2)';
+  '(min-width: 1400px) calc((96vw - 232px) / 6), (min-width: 1280px) calc((88vw - 120px) / 6), (min-width: 768px) min(280px, calc((92vw - 60px) / 3)), calc((100vw - 64px) / 2)';
 
 export default function HubMustEatsTeaser() {
   const { initialMapData, uid } = useHomeMapData();
@@ -172,7 +172,6 @@ export default function HubMustEatsTeaser() {
               className={styles.deck}
               role="list"
               aria-label={t('mustEats.teaserTitle')}
-              tabIndex={0}
             >
               {cards.map((m, index) => {
                 const restaurant = spotNameWithoutDistrict(

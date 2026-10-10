@@ -257,6 +257,10 @@
 .heroPhones {
   position: relative;
   justify-self: end;
+  /* Auf breiten Fenstern rückt das Paar vom Rand zum Text: an der Kante blieb
+     zwischen Lead und Telefonen ein Loch, und das hintere stand schräg über
+     die Spalte hinaus. Unter 1200px ist kein Platz dafür. */
+  margin-right: clamp(0px, (100vw - 1200px) * 0.4, 120px);
   display: block;
   /* Über die Höhe gedeckelt, nicht über die Breite: auf der bildschirmhohen
      Fläche muss das Paar vollständig innerhalb des Gelbs bleiben, und bei
@@ -306,48 +310,61 @@
    ihrer Transition, und beide addieren sich, statt sich zu überschreiben. */
 /* Dazu zwei Eingänge mehr: `--px/--py` (-1…1) folgen auf dem Desktop der
    Maus über dem Aufmacher (HubMotion) — das vordere Telefon wandert weiter
-   als das hintere, die beiden trennen sich in der Tiefe. `--float` lässt sie
-   im Leerlauf gegeneinander schweben. */
+   als das hintere, die beiden trennen sich in der Tiefe. Das Schweben im
+   Leerlauf liegt eine Ebene höher, an `.phoneFloat`. */
 .phoneFront {
   translate: calc(var(--px, 0) * 26px)
-    calc(var(--phones-drift, 0) * -84px + var(--py, 0) * 18px + var(--float, 0) * -9px);
+    calc(var(--phones-drift, 0) * -84px + var(--py, 0) * 18px);
   rotate: calc(var(--phones-drift, 0) * 3deg + var(--px, 0) * 2deg);
 }
 
 .phoneBack {
   translate: calc(var(--px, 0) * -12px)
-    calc(var(--phones-drift, 0) * -24px + var(--py, 0) * -8px + var(--float, 0) * 7px);
+    calc(var(--phones-drift, 0) * -24px + var(--py, 0) * -8px);
   rotate: calc(var(--phones-drift, 0) * 4deg - var(--px, 0) * 1.5deg);
 }
 
-@property --float {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
+/* Im Leerlauf schweben die Telefone gegeneinander. Jedes in seiner eigenen
+   Hülle, die nur `transform` animiert — das rechnet die GPU. Vorher trug eine
+   animierte Variable (`--float`) das Schweben: die rechnete der Hauptthread
+   jedes Frame, solange der Aufmacher im Bild war, und hielt die Seite für
+   Lighthouse nie still (10.10.2026). Die Hülle deckt die ganze Fläche ab,
+   die Telefone liegen darin wie vorher im Link. */
+.phoneFloat {
+  position: absolute;
+  inset: 0;
+  animation: 6.5s ease-in-out infinite;
 }
 
-@keyframes phonesFloat {
+.phoneFloatBack {
+  animation-name: phoneFloatBack;
+}
+
+.phoneFloatFront {
+  z-index: 1;
+  animation-name: phoneFloatFront;
+}
+
+@keyframes phoneFloatBack {
   50% {
-    --float: 1;
+    transform: translateY(7px);
   }
 }
 
-/* Auf der Section, nicht auf den Telefonen: dort liegt schon `transform`
-   samt Hover-Transition. Ein Wert für beide, gegenläufig verrechnet. */
-.heroPhones {
-  animation: phonesFloat 6.5s ease-in-out infinite;
+@keyframes phoneFloatFront {
+  50% {
+    transform: translateY(-9px);
+  }
 }
 
-/* Eine animierte Variable rechnet der Browser auf dem Hauptthread, jedes
-   Frame — auch, wenn der Aufmacher längst oben hinaus ist (gemessen: 60
-   Stil-Neuberechnungen pro Sekunde, Review 29.09.2026). Draussen pausiert
-   das Schweben also; `data-in-view` setzt HubMotion (`armInView`). */
-.hero[data-in-view='0'] .heroPhones {
+/* Draussen pausiert das Schweben; `data-in-view` setzt HubMotion
+   (`armInView`). */
+.hero[data-in-view='0'] .phoneFloat {
   animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .heroPhones {
+  .phoneFloat {
     animation: none;
   }
 }
@@ -370,23 +387,40 @@
   translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px + var(--press) * 4px);
   scale: calc(1 - var(--press) * 0.04);
   box-shadow: 0 calc(8px - var(--press) * 5px) 22px -10px color-mix(in srgb, var(--et-accent) 30%, transparent);
-  animation: ctaPress 4.5s linear 3s infinite both;
 }
 
-/* Immer wieder, nicht nur beim Laden (Ansage 28.09.2026: „wenn ich von unten
-   wieder hochscrolle, soll er noch mal gedrückt werden"): HubMotion setzt
-   `data-in-view` an die Section — `1` im Bild, `0` draussen. Draussen steht
-   die Animation still (`none`), und erst das Zurückschalten startet sie neu:
-   eine bloss andere Verzögerung startete Chrome nicht neu (gemessen). Wer
-   zurück nach oben kommt, sieht den Druck nach 0,3s, danach alle 4,5s
-   (Ansage 29.09.2026: „schneller gedrückt", vorher 0,5s und 7s). Ohne JS
-   gilt die Regel darüber. */
-:global([data-in-view='0']) .heroActions [data-magnetic] {
-  animation: none;
+/* Den Takt gibt HubMotion (`armHeroPress`): 3s nach dem Laden, danach alle
+   4,5s, solange der Aufmacher im Bild ist, und 0,3s nach dem Zurückkommen
+   (Ansagen 28./29.09.2026). Jeder Druck setzt kurz `data-hero-press` und
+   spielt nur die Bewegung selbst, 0,43s. Vorher lief `ctaPress` endlos mit
+   4,5s Takt: die animierte Variable kostete den Hauptthread auch in den vier
+   Sekunden Ruhe jedes Frame (Lighthouse, 10.10.2026). */
+.heroActions [data-magnetic][data-hero-press] {
+  animation: ctaPressOnce 427.5ms linear;
 }
 
-:global([data-in-view='1']) .heroActions [data-magnetic] {
-  animation: ctaPress 4.5s linear 0.3s infinite both;
+/* Die ersten 9,5% von `ctaPress` (4,5s) auf ihre eigene Dauer gestreckt:
+   dieselbe Kurve, ohne die Ruhe danach. */
+@keyframes ctaPressOnce {
+  0% {
+    --press: 0;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+  }
+  23.16% {
+    --press: 1;
+    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  52.63% {
+    --press: -0.35;
+    animation-timing-function: ease-in-out;
+  }
+  78.95% {
+    --press: 0.08;
+    animation-timing-function: ease-out;
+  }
+  100% {
+    --press: 0;
+  }
 }
 
 /* Dasselbe für andere Knöpfe der Startseite (`data-press`): einmal gedrückt, jedes Mal, wenn ihre Section ins
@@ -431,8 +465,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .heroActions [data-magnetic],
-  :global([data-in-view='1']) .heroActions [data-magnetic],
+  .heroActions [data-magnetic][data-hero-press],
   .page :global([data-in-view='1']) :global([data-press]),
   .page :global([data-pressing]) {
     animation: none;
@@ -578,34 +611,60 @@
 }
 
 /* Compact transitions around the first gallery, without a viewport of air. */
-/* Ab 1600px eine breitere Satzspalte: bei 1360px stand bei 1920 ein Drittel
-   des Bildschirms als schwarzer Rand links und rechts, bei 2560 die Hälfte
-   (Ansage 01.10.2026: „Desktop wirklich komplett benutzen"). Für alle
-   Sektionen gleich, sonst sprängen die Titelkanten beim Scrollen. Der
-   Aufmacher wächst mit — Wortmarke, Headline und Telefone —, damit Text und
-   Telefone die Breite tragen und keine leere Mitte zwischen sich lassen. */
+/* Ab 1600px wächst die Satzspalte mit (Regel am Dateiende; Ansage
+   01.10.2026: „Desktop wirklich komplett benutzen"). Der Aufmacher wächst
+   mit — Wortmarke, Headline und Telefone —, damit Text und Telefone die
+   Breite tragen und keine leere Mitte zwischen sich lassen.
+   Die Masse laufen in `--u` (siehe unten): bei 1600px die alten Werte, auf
+   27-Zoll-Monitoren (2560 × 1440) das 1,6-Fache. Mit 480px Marke, 68px
+   Headline und 640px hohen Telefonen stand der Aufmacher dort als kleine
+   Insel im Schwarz (10.10.2026). Die Telefone richten sich nach der
+   Fensterhöhe. */
 @media (min-width: 1600px) {
-  .page {
-    --et-wrap-max: min(1840px, 88vw);
-  }
   .heroMark {
-    --hero-mark-w: min(21vw, 480px);
-  }
-  .heroHeadline {
-    font-size: clamp(48px, 3.6vw, 68px);
+    --hero-mark-w: calc(336 * var(--u));
   }
   .heroLead {
     max-width: 34em;
-    font-size: var(--et-type-lead);
+    font-size: calc(21 * var(--u));
   }
   .heroPhones {
-    height: min(65vh, 640px);
+    height: min(74vh, 1000px);
+    margin-right: calc(120 * var(--u));
   }
   .page .heroActions :global(.hv-btn) {
-    min-height: 64px;
-    padding: 0 32px;
-    font-size: min(1.15vw, 24px);
+    min-height: calc(64 * var(--u));
+    padding: 0 calc(32 * var(--u));
+    font-size: calc(20 * var(--u));
   }
+}
+
+/* ── Ab 1600px wächst die ganze Startseite mit ──
+   Auf 23- und 27-Zoll-Monitoren stand sonst alles in den Grössen von 1600px
+   in einer breiteren Spalte, mit viel leerem Ink (Ansage 10.10.2026: „alles
+   soll mitskalieren"). `--home-zoom` steigt in Stufen von 1 (1600px) bis 1,6
+   (2560px, 27 Zoll) und bleibt darüber stehen; Ultrawide bekommt Rand statt
+   riesiger Schrift. `--u` ist ein Pixel in dieser Stufe.
+   Wo nur Text, Bilder und Formulare stehen, skaliert `zoom` den Inhalt
+   eines Abschnitts im Ganzen. Aufmacher, Magazin und Map-Vorschau rechnen
+   ihre Masse selbst in `--u`: `zoom` vergrössert auch `vw`/`vh`, und Map
+   und Kartenstapel rechnen mit Zeigerpositionen. */
+.page {
+  --home-zoom: 1;
+  --u: calc(var(--home-zoom) * 1px);
+}
+@media (min-width: 1760px) { .page { --home-zoom: 1.1; } }
+@media (min-width: 1920px) { .page { --home-zoom: 1.2; } }
+@media (min-width: 2080px) { .page { --home-zoom: 1.3; } }
+@media (min-width: 2240px) { .page { --home-zoom: 1.4; } }
+@media (min-width: 2400px) { .page { --home-zoom: 1.5; } }
+@media (min-width: 2560px) { .page { --home-zoom: 1.6; } }
+.page > :global([data-hub-musteats]) > *,
+.page > :global([data-hub-fragremy]) > *,
+.page > :global([data-hub-faq]) > *,
+.page > :global([data-hub-starter]) > *,
+.page > :global(footer) {
+  zoom: var(--home-zoom);
 }
 
 /* Farbwechsel gliedern den Scrollweg: Ink-Spots, graue Kartenbühne,
@@ -714,4 +773,19 @@
   .heroHeadline { font-size: clamp(42px, 3.6vw, 64px); }
   .heroGrid { gap: clamp(24px, 3vw, 48px); }
   .page > :global([data-hub-faq]) { margin-bottom: 0; }
+}
+
+/* Spalte, Rand, Abstand der Abschnitte und die Headline wachsen ab 1600px
+   mit (`--u`, siehe oben). Am Dateiende, weil die Regel ab 900px dieselben
+   Werte setzt und sonst gewinnt — so stand die frühere Breite von 1840px
+   nie: die Spalte blieb bei 1680px. */
+@media (min-width: 1600px) {
+  .page {
+    --et-wrap-max: min(96vw, 1680 * var(--u));
+    --et-wrap-pad: calc(56 * var(--u));
+    --home-section-gap: calc(80 * var(--u));
+  }
+  .heroHeadline {
+    font-size: calc(57.6 * var(--u));
+  }
 }

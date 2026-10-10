@@ -449,15 +449,10 @@ div.page {
 }
 
 /* Das Schlusszeichen wie im Heft: ein kleines Quadrat am Ende des letzten
-   Absatzes — im Fazit oder im Fliesstext. */
-/* Steht am Ende noch ein Verweis auf einen anderen Artikel, endet der Text
-   davor. */
+   Absatzes im Fliesstext. Nicht hinter dem Fazit (Ansage 10.10.2026). Steht
+   am Ende noch ein Verweis auf einen anderen Artikel, endet der Text davor. */
 .content > p:last-child::after,
-.content > p:has(+ .inlineIssue:last-child)::after,
-.content > [data-block='conclusion']:last-child > p:last-child:not([data-block])::after,
-.content
-  > [data-block='conclusion']:has(+ .inlineIssue:last-child)
-  > p:last-child:not([data-block])::after {
+.content > p:has(+ .inlineIssue:last-child)::after {
   content: '';
   display: inline-block;
   width: 0.5em;

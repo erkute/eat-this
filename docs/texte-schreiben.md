@@ -158,11 +158,19 @@ Diese Wörter und Wendungen fliegen raus, ohne Ersatz:
 - Kalauer und aufgesetzte Pointen, besonders am Absatzende (ein Wortspiel in einer Zwischenüberschrift ist erlaubt, Abschnitt 1). Erlaubt ist die **Zuspitzung**: ein kurzer Satz, der das Argument des Absatzes auf den Punkt bringt und stimmt. Der Unterschied: Eine Zuspitzung kann man belegen, einen Gag nicht. Humor nur aus konkreter Beobachtung: „Und wenn du zur Toilette gehst, stehst du plötzlich in einem Vintage-Laden.“ (VOLK) ist gut, weil es stimmt.
 - Kapitelnummern (01, 02 …).
 
-### Imperativ
-Ein Guide darf sagen, was du bestellen sollst. Aber:
-- **höchstens ein Bestell-Satz pro Spot**, und
-- **keine Befehlskette.** Falsch: „Bestell das Backhendl und zum Schluss den Apfelstrudel. Wenn du nur kurz bleibst, setz dich an den Tresen und nimm eine Frittatensuppe zum Bier.“ Richtig: „Bestell das Backhendl.“
-- Nicht jeder Spot muss mit „Bestell …“ enden. Abwechseln: „Die richtige Bestellung sind kalte Udon mit Rind.“ / „Am meisten lohnt sich der Rand, pur.“
+### Empfehlung statt Imperativ
+Was man bestellen sollte, steht **dezent im beschreibenden Text**, nie als Befehl und nie als eigener Absatz (Ansage Ersan 10.10.2026).
+- **Kein „Bestell …“, „Nimm …“, „Komm …“, „Setz dich …“, „Frag …“.** Auch nicht mitten im Satz („…, nimm ein Croissant dazu“).
+- **Kein eigener Empfehlungsabsatz.** Die Empfehlung ist ein Satz oder Halbsatz am Ende der Beschreibung.
+- Falsch: „Bestell das Backhendl und zum Schluss den Apfelstrudel.“ (eigener Absatz)
+- Richtig: „… Gekocht werden Wirtshausklassiker aus ganz Mitteleuropa: Gulasch, Klopse, Backhendl. Das Backhendl ist der Grund hinzugehen, und wer nur kurz bleibt, sitzt am Tresen mit einer Frittatensuppe zum Bier richtig.“
+- **Wendungen abwechseln,** sonst wird die Empfehlung selbst zur Schablone. Höchstens einmal „Am besten …“ pro Artikel. Möglich sind zum Beispiel:
+  - als Beschreibung: „Das Sabich kommt hier mit gebratener Aubergine, Tahini und eingelegter Mango.“
+  - als Hervorhebung: „Herausragend ist …“, „Die stärksten Gerichte sind …“, „Hervorzuheben ist …“
+  - als Anlass: „… sind die Tacos, für die man herkommt.“, „… ist das Gericht, nach dem man fragen sollte.“
+  - als Zusammenhang: „Zum Cappuccino gehört die Apfeltarte.“, „Dazu passt …“
+  - als Ort: „Die besten Plätze sind an der Theke.“
+- Praktisches (Reservierung, Ruhetag) ebenfalls ohne Befehl: „Plätze sind knapp, Reservieren lohnt sich.“
 
 ### Zeit
 Nichts in den Fließtext, was schnell veraltet:
@@ -241,7 +249,7 @@ Zwei, drei Sätze: eine These, die die Auswahl zusammenhält, mit konkreten Beis
 h2:        Name – konkreter Haken
 spotCard:  der Spot
 Absatz 1:  Ort → Menschen (höchstens drei Sätze, belegt)
-Absatz 2:  Essen konkret aus der aktuellen Karte, am Ende höchstens ein Bestell-Satz
+Absatz 2:  Essen konkret aus der aktuellen Karte, die Empfehlung dezent im Text (kein Imperativ)
 ```
 - **Der Haken** in der Überschrift ist das, was nur dieser Laden hat: „Thunfisch in drei Stufen“, „Crêpe Suzette in Flammen“, „ein halbes Hähnchen seit 1908“. Nicht „Gutes Sushi in Mitte“.
 - **Absatz 1** beginnt nicht jedes Mal mit dem Namen. Abwechseln: Ort („Hinter einer roten Tür im Hinterhof der Ackerstraße …“), Person („Arthur Schneller hat …“), Jahr („1999 eröffnete …“).
@@ -323,7 +331,7 @@ Ein, zwei Sätze, die sagen, was drin ist: „Fünf Adressen in Charlottenburg, 
    2. Fazit (Abschnitt 6),
    3. Titel anderer Artikel im Fließtext (Abschnitt 8),
    4. Überschneidungen und kopierte Absätze zwischen Guides (Abschnitte 5 und 8),
-   5. Befehlsketten und „Bestell …“ in jedem Absatz (Abschnitt 3),
+   5. Imperative und eigene Empfehlungsabsätze (Abschnitt 3, „Empfehlung statt Imperativ“),
    6. Veraltendes: Preise, Öffnungszeiten, Filialzahlen, „seit X Jahren“ (Abschnitt 3),
    7. Streichliste und Floskeln (Abschnitt 3),
    8. Englisch (Abschnitt 9).
@@ -336,7 +344,7 @@ In den Texten aus Sanity (`contentDe`/`content`):
 - Fazit-Liste: mehr als zwei „, wenn du“ / „für einen“ im Fazit.
 - „bei keinem“, „keine der“, „an keinem“ im Fazit.
 - Titel im Text: `markDefs[].href` enthält `/news/`.
-- Bestell-Ketten: „Bestell“ und „und danach / und zum Schluss / dann“ im selben Satz.
+- Imperative: Satzanfang oder nach Komma mit „Bestell“, „Nimm“, „Komm“, „Setz“, „Frag“, „Teil“, „Iss“, „Reservier“, „Lass“ (Achtung: „Bestellt wird …“ ist Passiv und in Ordnung).
 - Zeit: Ziffern vor „Euro“, „Filialen“, „Läden“, „seit … Jahren“, Wochentage.
 
 ## 11. Arbeitsablauf in Sanity
@@ -376,7 +384,7 @@ Entwurf mit `perspective: 'drafts'` über `articleByIdQuery` aus `nextjs/lib/que
 - [ ] Jede Tatsache belegt, Weggelassenes im Chat genannt
 - [ ] Keine Preise, keine Filialzahlen, Öffnungszeiten nur, wo sie entscheiden
 - [ ] Einleitung mit These, Spots mit Haken, Fazit nach Abschnitt 6
-- [ ] Höchstens ein Bestell-Satz pro Spot, keine Kette
+- [ ] Kein Imperativ, keine Empfehlungsabsätze; Empfehlungen dezent und abwechslungsreich formuliert
 - [ ] Kein Artikeltitel im Fließtext, Verweise als „Artikel“-Block
 - [ ] Keine Spot-Überschneidung mit einem anderen Guide ohne Grund; kein kopierter Absatz
 - [ ] Zahl der Spots stimmt in Teaser, Einleitung, Fazit

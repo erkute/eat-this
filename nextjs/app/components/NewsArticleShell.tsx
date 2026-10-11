@@ -179,15 +179,18 @@ export default function NewsArticleShell({
     (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
-  // Die Spots eines Guides für die Zeile unter dem Kopf: seine Kapitel, ohne
-  // das Fazit — das ist kein Spot.
+  // Die Spots eines Guides für die Zeile unter dem Kopf: nur Überschriften, die
+  // einen Spot eröffnen — direkt darunter steht seine Spot-Karte. Erzählende
+  // Texte gliedern nach Themen („Als Berlin chinesisch essen lernte“), deren
+  // Überschriften sind keine Spots (Ansage 11.10.2026); ebenso wenig das Fazit
+  // oder ein Essay mit Zwischenüberschriften (Ansage 02.10.2026: „nur wenn
+  // Spots gelistet sind“).
   const chapters = extractHeadings(
-    content.filter((block) => !('style' in block && block.style === 'conclusion'))
+    content.filter(
+      (block, i) =>
+        'style' in block && block.style === 'h2' && content[i + 1]?._type === 'spotCard'
+    )
   );
-  // Die Kapitel-Zeile nur in Guides, die Spots aufzählen (Ansage 02.10.2026:
-  // „nur wenn Spots gelistet sind") — nicht in einem Essay mit
-  // Zwischenüberschriften, der höchstens einen Laden zeigt.
-  const listsSpots = content.filter((block) => block._type === 'spotCard').length > 1;
   const hubLink = articleHubLink(article.slug);
   // Nur Kategorie-Hubs haben ein Booster-Pack; Bezirke nicht.
   const hubPack = hubLink?.href.startsWith('/kategorie/')
@@ -478,7 +481,7 @@ export default function NewsArticleShell({
                 als einziges Element aus der Mitte fiel (Ansage 02.10.2026),
                 und gibt es jetzt auch am Telefon. Nur der Name, nicht die
                 ganze Überschrift; ein Tipp springt zum Spot. */}
-            {listsSpots && chapters.length > 1 && (
+            {chapters.length > 1 && (
               <nav className={styles.chapters} aria-label={chaptersLabel}>
                 <span className={styles.chaptersLabel}>{chaptersLabel}</span>
                 <ol className={styles.chapterList}>

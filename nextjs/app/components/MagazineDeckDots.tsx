@@ -10,7 +10,7 @@ interface Props {
   deckId: string;
   /** One accessible name per cover, in stack order. */
   labels: string[];
-  stories: { title: string; href: string }[];
+  stories: { title: string; href: string; issue?: number | null }[];
 }
 
 /**
@@ -52,7 +52,7 @@ export default function MagazineDeckDots({ deckId, labels, stories }: Props) {
   return (
     <div className={styles.storyControls}>
     <div className={styles.storyCaption} data-magazine-caption="" aria-live="polite" aria-atomic="true">
-      <span className={styles.storyNumber}>{String(active + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}</span>
+      {stories[active].issue ? <span className={styles.storyNumber}>Issue {stories[active].issue}</span> : null}
       <h3>
         <MagazineLink href={stories[active].href} coverFrom={`#${deckId} [data-deck-index="${active}"] a`}>
           {stories[active].title}

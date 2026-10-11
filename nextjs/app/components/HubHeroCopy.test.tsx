@@ -76,16 +76,16 @@ describe('HubHeroCopy', () => {
 
   it('explains what this is — guests only', () => {
     const html = text(render());
-    expect(html).toContain('Die besten Spots und unsere passenden Must Eats auf einer Map');
+    expect(html).toContain('Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must\u00a0Eats und sammle sie in deinem Deck. Alles auf einer Map');
 
     const en = text(render('en'));
-    expect(en).toContain('The best spots and our matching Must Eats on one map');
+    expect(en).toContain("Discover Berlin’s best restaurants, cafés and bars, try their Must\u00a0Eats and collect them in your deck. All on one map");
   });
 
   it('drops the explainer once a visitor is signed in', () => {
     authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
     const html = text(render());
-    expect(html).not.toContain('Die besten Spots und unsere passenden Must Eats');
+    expect(html).not.toContain('Entdecke Berlins beste Restaurants');
   });
 
   it('keeps the same hero structure while restoring signed-in copy', () => {
@@ -108,6 +108,6 @@ describe('HubHeroCopy', () => {
     expect(html).toContain('Deine Map');
     expect(html.match(/<h1/g)).toHaveLength(1);
     // The explainer is guest copy — one copy only, behind the guest gate.
-    expect(text(html).match(/Die besten Spots und unsere passenden Must Eats auf einer Map/g)).toHaveLength(1);
+    expect(text(html).match(/Alles auf einer Map/g)).toHaveLength(1);
   });
 });

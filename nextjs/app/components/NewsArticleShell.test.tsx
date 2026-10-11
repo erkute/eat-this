@@ -305,6 +305,33 @@ describe('NewsArticleShell', () => {
     expect(html).not.toContain('aria-label="Die Spots"');
   });
 
+  // Ansage 11.10.2026: ein erzählender Guide gliedert nach Themen, die Spots
+  // stehen im Text — seine Überschriften gehören nicht in die Zeile.
+  it('lists only headings that open a spot', () => {
+    const narrative = render([
+      h2('Als Berlin chinesisch essen lernte'),
+      para('x'),
+      spot('Ottenthal', 'ottenthal'),
+      h2('Die neue Kantstraße'),
+      para('y'),
+      spot('Kuchi', 'kuchi'),
+    ]);
+    expect(narrative).not.toContain('aria-label="Die Spots"');
+
+    const mixed = render([
+      h2('Saucen'),
+      para('x'),
+      h2('Kolo Coffee – Mikrorösterei'),
+      spot('Kolo', 'kolo'),
+      h2('Spumante'),
+      spot('Spumante', 'spumante'),
+    ]);
+    const head = mixed.slice(0, mixed.indexOf('</header>'));
+    expect(head).toContain('aria-label="Die Spots"');
+    expect(head).not.toContain('href="#saucen"');
+    expect(head).toContain('href="#spumante"');
+  });
+
   it('reports a reading estimate of at least a minute', () => {
     expect(render([para('Kurz.')])).toContain('1 Min. Lesezeit');
   });

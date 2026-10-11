@@ -26,13 +26,12 @@ for (const locale of ['de', 'en'] as const) {
     ).toBeVisible();
     const deck = section.getByRole('list', { name: 'Must Eats', exact: true });
     const mobile = page.viewportSize()!.width < 768;
-    // Telefon: vier Karten im Zweierraster. Desktop: die ganze Auslage, ohne
-    // Seitwärts-Scrollen.
+    // Die ganze Auslage, ohne Seitwärts-Scrollen: am Telefon im Zweierraster.
     const cards = await deck.locator('li:visible').evaluateAll((items) => items.map((item) => {
       const box = item.getBoundingClientRect();
       return { x: box.x, y: box.y, right: box.right };
     }));
-    expect(cards).toHaveLength(mobile ? 4 : 6);
+    expect(cards).toHaveLength(6);
     expect(Math.abs(cards[0].y - cards[1].y)).toBeLessThan(1);
     const deckRight = await deck.evaluate((element) => element.getBoundingClientRect().right);
     expect(Math.max(...cards.map((card) => card.right))).toBeLessThanOrEqual(deckRight + 1);

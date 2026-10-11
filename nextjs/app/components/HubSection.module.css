@@ -178,6 +178,12 @@
   display: inline-block;
 }
 
+/* Jeder Satz ausgeglichen umbrochen: kein einzelnes Wort allein unten. */
+.heroLeadLine {
+  display: block;
+  text-wrap: balance;
+}
+
 .heroActions {
   display: flex;
   gap: var(--et-rail-gap);

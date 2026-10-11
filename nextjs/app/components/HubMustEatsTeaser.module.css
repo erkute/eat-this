@@ -121,7 +121,6 @@
   .intro { display: grid; gap: 14px; }
   .lead { font-size: 18px; }
   .deck { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 18px clamp(12px, 3vw, 24px) 24px; gap: 28px 20px; }
-  .slide:nth-child(n + 5) { display: none; }
   .meta { padding: 24px 0 0; gap: 4px; }
   .dish { font-size: 18px; }
   .restaurantLink :global(.hv-sub), .tapHint { font-size: 15px; }

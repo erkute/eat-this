@@ -128,7 +128,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
         </div>
 
         <MagazineDeckDots deckId={DECK_ID} labels={list.map((_, i) => labels.dot(i + 1))}
-          stories={list.map((article) => ({ title: article.title, href: `/news/${article.slug}` }))} />
+          stories={list.map((article) => ({ title: article.title, href: `/news/${article.slug}`, issue: article.issue }))} />
 
         <div className={styles.foot}>
           <Link href="/news" className={styles.allLink}>

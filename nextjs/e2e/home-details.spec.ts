@@ -55,10 +55,11 @@ for (const reduced of [false, true]) {
     const magazine = page.locator('[data-hub-magazine]');
     const target = magazine.locator('[data-deck-index="2"] > a');
     const href = await target.getAttribute('href');
+    const issue = await target.locator('[data-cover-issue]').getAttribute('data-cover-issue');
     await magazine.getByRole('button', { name: 'Story 3 von 6', exact: true }).click();
     const caption = magazine.locator('[data-magazine-caption]');
     await expect(caption.locator('a')).toHaveAttribute('href', href!);
-    await expect(caption).toContainText('03 / 06');
+    await expect(caption).toContainText(`Issue ${issue}`);
     await expect(caption.locator('h3')).not.toBeEmpty();
     const more = magazine.getByRole('link', { name: 'Weitere Magazine', exact: true });
     if (!isMobile) {

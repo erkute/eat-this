@@ -17,8 +17,8 @@ type Variant = 'guest' | 'auth';
 // Zwei Sätze statt Gedankenstrich: gestapelt fiel der Strich auf den Anfang
 // der zweiten Zeile und stand dort wie ein Spiegelstrich.
 const LEAD = {
-  de: 'Die besten Spots und unsere passenden Must Eats auf einer Map.',
-  en: "The best spots and our matching Must Eats on one map.",
+  de: 'Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must\u00a0Eats und sammle sie in deinem Deck.\nAlles auf einer Map.',
+  en: "Discover Berlin’s best restaurants, cafés and bars, try their Must\u00a0Eats and collect them in your deck.\nAll on one map.",
 } as const;
 
 // Die Wortmarke steht im Aufmacher, nicht im Header: der Header hält seinen
@@ -66,14 +66,21 @@ const LEAD_AUTH = {
 
 /** Der Lead Wort für Wort in eigenen Spans: beim Auftritt tippt er sich hin
  *  (lib/home/leadEntrance.ts). Die Leerzeichen bleiben echter Text
- *  dazwischen, damit die Zeile normal umbricht und vorgelesen wird. */
+ *  dazwischen, damit die Zeile normal umbricht und vorgelesen wird. Ein `\n`
+ *  beginnt eine eigene Zeile – als Block, damit `text-wrap` jede für sich
+ *  ohne Einzelwort am Ende umbricht. */
 function LeadWords({ text }: { text: string }) {
-  return text.split(' ').map((word, index) => (
-    <span key={index}>
-      {index > 0 ? ' ' : null}
-      <span className={styles.heroLeadWord} data-lead-word="">
-        {word}
-      </span>
+  let index = 0;
+  return text.split('\n').map((line, lineIndex) => (
+    <span key={lineIndex} className={styles.heroLeadLine}>
+      {line.split(' ').map((word) => (
+        <span key={index}>
+          {index++ > 0 ? ' ' : null}
+          <span className={styles.heroLeadWord} data-lead-word="">
+            {word}
+          </span>
+        </span>
+      ))}
     </span>
   ));
 }

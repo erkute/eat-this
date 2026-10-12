@@ -25,7 +25,6 @@ export default function RestaurantDiscovery({
   const next = siblings;
   return (
     <section className={styles.discovery} aria-labelledby="discovery-next">
-      <p className={styles.kicker}>{de ? 'Weiter entdecken' : 'Keep exploring'}</p>
       <div className={styles.heading}>
         <h2 id="discovery-next">{de ? 'Noch nicht satt?' : 'Still hungry?'}</h2>
         {categories.length > 0 && (

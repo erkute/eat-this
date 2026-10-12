@@ -4,8 +4,8 @@
 
    Eine Spalte von 768px, alles mittig: der Name riesig, darunter nur der
    Bezirk, dann der Vorspann gross und fett. Die Fotos stehen spaltenbreit und
-   ungeschnitten zwischen dem Text, am Telefon randlos — nie zwei direkt
-   hintereinander (lib/spotFlow.ts). Lesetext in Neue Haas Grotesk Text wie
+   ungeschnitten zwischen dem Text, bei wenig Text in Bildgruppen. Am Telefon
+   bleiben sie randlos untereinander (lib/spotFlow.ts). Lesetext in Neue Haas Grotesk Text wie
    bei 032c, alles Gesetzte in Providence. Zwischentitel klein, fett,
    versal. RestaurantDiscovery setzt den redaktionellen Abschluss.
 
@@ -19,6 +19,8 @@
   --et-quiet: var(--et-ink-raised);
   --gut: clamp(18px, 4vw, 54px);
   --nav-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
+  --restaurant-content-width: 768px;
+  --restaurant-section-size: clamp(32px, 3.4vw, 48px);
   --rhythm: clamp(40px, 4.4vw, 64px);
 
   display: flow-root;
@@ -89,7 +91,7 @@
 /* -------------------------------------------------------------- spalte --- */
 
 .column {
-  max-width: 768px;
+  max-width: var(--restaurant-content-width);
   margin: 0 auto;
 }
 
@@ -400,3 +402,31 @@
     transition: none;
   }
 }
+
+/* Photo-led stories: wide desktop pairs/triptychs, intact photos on phones. */
+.imageGroup {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 24px;
+  width: min(1440px, calc(100vw - var(--gut) * 2));
+  margin-top: var(--rhythm);
+}
+
+.imageGroup figure { min-width: 0; margin: 0; }
+
+.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; color: var(--et-white); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
+.caption .credit { display: block; margin: 0; text-align: left; }
+.sheet figure { margin: 0; }
+.imageGroup:focus-visible { outline: 2px solid var(--et-white); outline-offset: 6px; }
+@media (max-width:767px) {
+  .imageGroup { width: 100vw; grid-template-columns: 1fr; gap: 32px; }
+  .imageGroup .caption { padding-inline: var(--gut); }
+  .figure > .caption { padding-inline: var(--gut); }
+  .imageGroup .credit { padding-inline: 0; }
+}
+
+.magazineHeading { margin: 0 0 24px; font-size: var(--restaurant-section-size); font-weight: 700; line-height: 1.05; text-transform: uppercase; }

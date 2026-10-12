@@ -54,6 +54,8 @@ Status nur so weit melden, wie er belegt ist: `committed` → `pushed` → `PR o
 
 ## Design-, Content- und Qualitätsabnahme
 
+**Navigation und CTAs:** Keine Pfeile oder Chevrons als Richtungszeichen (auch nicht für Zurück, Weiter oder externe Links). Keine unterstrichenen Wörter oder Links, auch nicht bei Hover oder Fokus. Interaktion und Fokus über Farbe, Fläche oder eine klare Umrandung kennzeichnen.
+
 Bei sichtbaren Änderungen den betroffenen Ablauf vor und nach dem Umbau auf einem schmalen Telefon und Desktop prüfen. Bestehende Komponenten und die `--et-*`-Tokens in `globals.css` sind die gestalterische Referenz; neue Richtungen erst anhand konkreter Screens/Referenzen ausarbeiten. Schrift, Abstände, Bildausschnitt, Fokus und leere/ladende Zustände gehören zur Abnahme. Animationen mit und ohne Reduced Motion prüfen; sichtbare Inhalte sollen nicht auf eine Animation oder Hydrierung warten müssen.
 
 `npm run build:isolated` erzeugt den Produktionsstand für `npm run test:e2e` und `npm run audit:preview` (Port 3100). Die Browserprüfung deckt DE/EN, Magazin → Artikel, Cookie-Auswahl, Gastkarte → Login (auch mit Reduced Motion) und Barrierefreiheit ab. DNT hält Testaufrufe aus der Zählung; nur der Consent-Beleg wird im Browsertest ersetzt, seine Backendtests bleiben separat. `E2E_BASE_URL` nur setzen, wenn bewusst ein bereits laufender Server geprüft werden soll; im Bericht Dev- und Produktionsmessungen unterscheiden. Playwright benötigt einmalig `npx playwright install chromium`. Screenshots und Traces bleiben unter `/tmp/eat-this-*`.

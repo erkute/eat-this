@@ -1,3 +1,5 @@
+import Image from './SiteImage';
+import { categoryArt } from '@/lib/categoryArt';
 import { Link } from '@/i18n/navigation';
 import type { GuideTeaser } from '@/lib/sanity.server';
 import type { HubArticle } from '@/lib/home/getHomeData';
@@ -12,8 +14,6 @@ import { HubFilterCard, HubFilterGroup } from './HubFilter';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import SpotLink from './SpotLink';
-import Image from './SiteImage';
-import { BRAND_LOGO_SRC } from '@/lib/constants';
 import styles from './HubIssue.module.css';
 
 /** Server-rendered editorial cards and the complete alphabetical directory.
@@ -102,19 +102,17 @@ export function IssueSpots({
   facetsOf,
   showDistrict = false,
   layout = 'grid',
-  favorite = false,
 }: {
   restaurants: Spot[];
   locale: Locale;
   facetsOf: (r: Spot) => string[];
   /** Bezirk in der Metazeile — auf den Kategorieseiten. */
   showDistrict?: boolean;
-  layout?: 'grid' | 'editorial' | 'compact';
-  favorite?: boolean;
+  layout?: 'grid' | 'editorial' | 'compact' | 'district';
 }) {
   const de = locale === 'de';
   return (
-    <div className={`${styles.spots} ${layout === 'editorial' ? styles.editorialSpots : layout === 'compact' ? styles.compactSpots : ''}`} data-count={restaurants.length}>
+    <div className={`${styles.spots} ${layout === 'editorial' ? styles.editorialSpots : layout === 'compact' ? styles.compactSpots : layout === 'district' ? styles.districtSpots : ''}`} data-count={restaurants.length}>
 
       {restaurants.map((r, index) => {
         const name = normalizeName(r.name);
@@ -136,20 +134,18 @@ export function IssueSpots({
                   <Photo
                     src={r.photo}
                     name={r.name}
-                    sizes={layout === 'editorial' && index === 0
+                    sizes={layout === 'district' ? '(max-width: 767px) 92vw, (max-width: 1023px) 44vw, 380px' : layout === 'editorial' && index === 0
                       ? '(max-width: 767px) 92vw, 660px'
                       : layout !== 'grid' ? '(max-width: 767px) 96px, 144px'
                         : '(max-width: 767px) 92vw, (max-width: 1023px) 44vw, 370px'}
-                    widths={layout !== 'grid' && !(layout === 'editorial' && index === 0) ? [240, 400] : [400, 640, 960, 1320]}
-                    eager={layout === 'editorial' && index === 0}
+                    widths={layout !== 'grid' && layout !== 'district' && !(layout === 'editorial' && index === 0) ? [240, 400] : [400, 640, 960, 1320]}
+                    eager={(layout === 'editorial' || layout === 'district') && index === 0}
                   />
                 </span>
-                {favorite && <span className={styles.favorite} data-favorite role="img" aria-label={de ? 'Eat This Favorit' : 'Eat This Favorite'}>
-                  <Image src={BRAND_LOGO_SRC} alt="" width={1660} height={667} sizes="52px" />
-                  <span>{de ? 'Favorit' : 'Favorite'}</span>
-                </span>}
               </span>
-              {desc && <div className={styles.text}><p>{desc}</p></div>}
+              {desc && <div className={styles.text}>
+                {desc && <p>{desc}</p>}
+              </div>}
               {layout === 'grid' && tip && (
                 <details className={styles.tip}>
                   <summary className={styles.tipLabel}>{de ? 'Unser Tipp' : 'Our tip'}</summary>
@@ -385,19 +381,24 @@ export function IssueSiblings({
   );
 }
 
-/** A typographic exit keeps the original pack gallery exclusive to the category index. */
+/** Four illustrated packs offer another category at the end of a visit. */
 export function IssueCategories({ items, heading }: {
   items: { slug: string; label: string }[];
   heading: string;
 }) {
-  if (!items.length) return null;
+  const order = ['pizza', 'coffee', 'drinks', 'sweets', 'breakfast', 'lunch', 'dinner', 'fast-food', 'fine-dining'];
+  const picks = order.flatMap(slug => items.filter(item => item.slug === slug)).slice(0, 4);
+  if (!picks.length) return null;
   return (
     <nav className={styles.categoryMenu} aria-label={heading}>
       <h2 className={styles.secTitle}>{heading}</h2>
       <ul>
-        {items.map((item) => (
+        {picks.map((item) => (
           <li key={item.slug}>
-            <Link href={`/kategorie/${item.slug}`}>{item.label}</Link>
+            <Link href={`/kategorie/${item.slug}`}>
+              <Image src={categoryArt(item.slug)!} alt="" width={160} height={240} sizes="(max-width: 767px) 128px, 200px" className={styles.shelfPack} />
+              <span>{item.label}</span>
+            </Link>
           </li>
         ))}
       </ul>

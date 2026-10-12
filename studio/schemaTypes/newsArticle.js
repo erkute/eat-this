@@ -292,6 +292,8 @@ export default defineType({
       rows: 3,
       description: 'Kurze Zusammenfassung — erscheint in der News-Übersicht',
     }),
+    defineField({ name: 'previewExcerptDe', title: 'Kurzvorschau für /news', type: 'text', group: 'german', rows: 2, description: 'Optionaler kurzer Text nur für die Magazinübersicht. Der Artikel-Vorspann bleibt unverändert.' }),
+    defineField({ name: 'previewExcerpt', title: 'Short preview for /en/news', type: 'text', group: 'english', rows: 2 }),
     defineField({
       name: 'contentDe',
       title: 'Inhalt',

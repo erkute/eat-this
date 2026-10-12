@@ -47,8 +47,8 @@ for (const motion of ['no-preference', 'reduce'] as const) {
   });
 }
 
-test('district header, recommendation and directory photos all enter their own spot', async ({ page }) => {
-  for (const selector of ['main > header figure a', '[data-spot-card]', 'directory']) {
+test('district recommendation and directory photos all enter their own spot', async ({ page }) => {
+  for (const selector of ['[data-spot-card]', 'directory']) {
     await page.goto('/bezirk/schoeneberg');
     const card = selector === 'directory'
       ? page.locator('section').filter({ has: page.getByRole('heading', { name: 'Weitere Spots', exact: true }) }).locator('a[href*="/restaurant/"]').first()
@@ -148,13 +148,20 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     if (!isMobile) {
       const positions = await cards.evaluateAll(nodes => nodes.map(node => {
         const top = (selector: string) => Math.round(node.querySelector(selector)!.getBoundingClientRect().top);
-        return { photo: top('[data-spot-photo]'), title: top('h3'), meta: top(':scope > p'), description: top('div p'), favorite: top('[data-favorite]') };
+        return { photo: top('[data-spot-photo]'), title: top('h3'), meta: top(':scope > p'), description: top(':scope > div > p') };
       }));
       for (const row of [...new Set(positions.map(spot => spot.photo))].map(photo => positions.filter(spot => spot.photo === photo))) {
-        for (const field of ['title', 'meta', 'description', 'favorite'] as const) {
+        for (const field of ['title', 'meta', 'description'] as const) {
           expect(new Set(row!.map(spot => spot[field])).size).toBe(1);
         }
       }
+      // The approved inline label follows each description, whose length may vary.
+      const labelsFollowDescriptions = await cards.evaluateAll(nodes => nodes.every(node => {
+        const description = node.querySelector(':scope > div > p')!.getBoundingClientRect();
+        const favorite = node.querySelector('[data-favorite]')!.getBoundingClientRect();
+        return favorite.top >= description.bottom && Math.abs(favorite.left - description.left) < 1;
+      }));
+      expect(labelsFollowDescriptions).toBe(true);
       await expect(page.getByText('Kuratiert von', { exact: true })).toHaveCount(0);
       await expect(cards.first().locator('[data-favorite]')).toContainText('Favorit');
     }

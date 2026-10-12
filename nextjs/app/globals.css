@@ -1749,3 +1749,10 @@ ol {
     background-color: #000;
   }
 }
+
+/* One continuous map between the district footer and Berlin overview. */
+::view-transition-group(berlin-map) { animation-duration: 700ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+::view-transition-old(berlin-map), ::view-transition-new(berlin-map) { height: 100%; object-fit: fill; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(berlin-map) { animation-duration: 0s; }
+}

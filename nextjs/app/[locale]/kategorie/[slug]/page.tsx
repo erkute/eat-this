@@ -300,7 +300,6 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                   <IssueSpots
                     restaurants={opening}
                     layout="editorial"
-                    favorite={top.length > 0}
                     locale={loc}
                     facetsOf={districtSlugsOf}
                     showDistrict
@@ -330,7 +329,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
                 <section>
                   <h2 className={styles.secTitle}>{de ? 'Noch mehr gute Adressen' : 'More great spots'}</h2>
                   <IssueSpots restaurants={continuation} locale={loc}
-                    facetsOf={districtSlugsOf} showDistrict layout="compact" favorite={top.length > 0} />
+                    facetsOf={districtSlugsOf} showDistrict layout="compact" />
                 </section>
               </HubFilterGroup>
             )}
@@ -363,7 +362,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und was noch?". */}
         <IssueCategories
           items={nachbarKategorien}
-          heading={de ? 'Worauf hast du noch Lust?' : 'What else are you craving?'}
+          heading={de ? 'Oder doch …?' : 'Or maybe …?'}
         />
       </main>
     </>

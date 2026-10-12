@@ -9,120 +9,13 @@ test.beforeEach(async ({ page, context, baseURL }) => {
   ]);
 });
 
-for (const motion of ['no-preference', 'reduce'] as const) {
-  test(`mobile district photos swipe without navigating (${motion})`, async ({ page, isMobile }) => {
-    test.skip(!isMobile, 'Touch gallery');
-    await page.emulateMedia({ reducedMotion: motion });
-    await page.goto('/bezirk');
-    const preview = page.locator('#discovery-preview');
-    const gallery = preview.locator('a[aria-hidden="true"]');
-    await gallery.scrollIntoViewIfNeeded();
-    await expect(gallery.locator('img')).toHaveCount(3);
-    const session = await page.context().newCDPSession(page);
-    const swipe = async () => {
-      const box = (await gallery.boundingBox())!;
-      const x = box.x + box.width * 0.85;
-      const y = box.y + box.height / 2;
-      await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
-      for (let step = 1; step <= 8; step++) {
-        await session.send('Input.dispatchTouchEvent', {
-          type: 'touchMove', touchPoints: [{ x: x - box.width * 0.075 * step, y }],
-        });
-      }
-      await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-    };
-    await swipe();
-    await expect(gallery.locator('img').nth(1)).toBeInViewport({ ratio: 0.9 });
-    await swipe();
-    await expect(gallery.locator('img').nth(2)).toBeInViewport({ ratio: 0.9 });
-    await expect(page).toHaveURL(/\/bezirk$/);
-    await page.screenshot({ path: `/tmp/eat-this-kiez-qa/mobile-swiped-${motion}.png` });
-    await page.getByRole('navigation', { name: 'Alle Bezirke', exact: true })
-      .getByRole('link', { name: 'Mitte', exact: true }).tap();
-    await expect(preview.getByRole('heading')).toHaveText('Mitte');
-    await expect(gallery).toHaveJSProperty('scrollLeft', 0);
-    await preview.getByRole('link', { name: 'Entdecken', exact: true }).tap();
-    await expect(page).toHaveURL(/\/bezirk\/mitte$/);
-    await session.detach();
-  });
-
-  test(`district preview, navigation, back and filtering (${motion})`, async ({
-    page,
-    isMobile,
-  }) => {
-    await page.emulateMedia({ reducedMotion: motion });
-    await page.addInitScript(() => {
-      const observer = new MutationObserver((records) => {
-        if (records.some((record) => record.type === 'attributes' && record.target instanceof HTMLElement && record.target.matches('[data-discovery-motion]') && record.target.style.transform)) {
-          document.documentElement.dataset.observedDiscoveryEntrance = 'true';
-        }
-        if (
-          records.some((record) =>
-            [...record.addedNodes].some(
-              (node) => node instanceof Element && node.hasAttribute('data-discovery-transition')
-            )
-          )
-        ) {
-          document.documentElement.dataset.observedDiscoveryArrival = 'true';
-        }
-      });
-      observer.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
-    });
-    const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(error.message));
-    await page.goto('/bezirk');
-    const names = page.getByRole('navigation', { name: 'Alle Bezirke', exact: true });
-    const mitte = names.getByRole('link', { name: 'Mitte', exact: true });
-    if (isMobile) await mitte.tap();
-    else await mitte.hover();
-    await expect(page).toHaveURL(/\/bezirk$/);
-    await expect(page.locator('#discovery-preview').getByRole('heading')).toHaveText('Mitte');
-    await expect(page.getByRole('link', { name: 'Entdecken', exact: true })).toBeVisible();
-    await expect(mitte).toHaveAttribute('aria-current', 'true');
-    await expect
-      .poll(() =>
-        page
-          .locator('#discovery-preview img')
-          .first()
-          .evaluate((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0)
-      )
-      .toBe(true);
-    await page.getByRole('link', { name: 'Entdecken', exact: true }).click();
-    await expect(page).toHaveURL(/\/bezirk\/mitte$/);
-    await expect(page.locator('h1')).toContainText('Mitte');
-    if (motion === 'no-preference') {
-      await expect(page.locator('html')).toHaveAttribute('data-observed-discovery-arrival', 'true');
-      await expect(page.locator('html')).toHaveAttribute('data-observed-discovery-entrance', 'true');
-    } else {
-      await expect(page.locator('html')).not.toHaveAttribute(
-        'data-observed-discovery-arrival',
-        'true'
-      );
-      await expect(page.locator('html')).not.toHaveAttribute('data-observed-discovery-entrance', 'true');
-    }
-    await expect(page.locator('[data-discovery-transition]')).toHaveCount(0);
-    await page.goBack();
-    await expect(page.locator('#discovery-preview').getByRole('heading')).toHaveText('Mitte');
-    await page.getByRole('link', { name: 'Entdecken', exact: true }).click();
-    const filters = page.getByRole('group', { name: 'In Mitte nach Kategorie filtern' });
-    await filters.getByRole('button', { name: 'Kaffee', exact: true }).click();
-    await expect(page).toHaveURL(/cat=coffee/);
-    await expect(page.getByRole('status')).toContainText('Kaffee in Mitte');
-    await expect(filters.getByRole('button', { name: 'Kaffee', exact: true })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    );
-    await filters.getByRole('button', { name: 'Alle', exact: true }).click();
-    await expect(page).not.toHaveURL(/cat=/);
-    expect(errors).toEqual([]);
-  });
-}
-
 for (const route of [
   '/bezirk',
   '/kategorie',
   '/bezirk/schoeneberg',
   '/bezirk/charlottenburg',
+  '/bezirk/steglitz',
+  '/en/bezirk/steglitz',
   '/kategorie/pizza',
   '/en/bezirk',
   '/en/kategorie/pizza',
@@ -180,13 +73,10 @@ test('320px phone keeps district labels and packs within their space', async ({ 
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto('/bezirk/charlottenburg');
   await page.evaluate(() => document.fonts.ready);
-  const next = page.getByRole('navigation', { name: 'Weitere Bezirke', exact: true });
+  const next = page.getByRole('navigation', { name: 'Zur Berlin-Karte', exact: true });
   const labelsFit = await next.getByRole('link').evaluateAll((links) => links.every((link) => {
-    const photo = link.firstElementChild!;
-    const name = link.lastElementChild!;
-    const caption = name.getBoundingClientRect();
-    const image = photo.getBoundingClientRect();
-    return name.scrollWidth <= name.clientWidth + 1 && caption.left >= image.left && caption.right <= image.right && caption.bottom <= image.bottom;
+    const bounds = link.getBoundingClientRect();
+    return link.scrollWidth <= link.clientWidth + 1 && bounds.left >= 0 && bounds.right <= innerWidth;
   }));
   expect(labelsFit).toBe(true);
   await page.goto('/restaurant/bar-basta');
@@ -197,44 +87,7 @@ test('320px phone keeps district labels and packs within their space', async ({ 
   await page.screenshot({ path: '/tmp/eat-this-kiez-qa/narrow-packs.png' });
 });
 
-test('desktop preview stays fixed and every district CTA fits the first screen', async ({ page, isMobile }) => {
-  test.skip(isMobile, 'Hover layout is a desktop interaction');
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto('/bezirk');
-  await page.evaluate(() => document.fonts.ready);
-  const choices = page.getByRole('navigation', { name: 'Alle Bezirke', exact: true }).getByRole('link');
-  const measurements = [];
-  for (const choice of await choices.all()) {
-    await choice.hover();
-    await expect(page.locator('#discovery-preview').getByRole('heading')).toHaveText((await choice.textContent())!.trim());
-    await expect(page.locator('#discovery-preview').getByRole('link')).toHaveText('Entdecken');
-    const bounds = await page.locator('#discovery-preview').evaluate((preview) => {
-      const cta = preview.querySelector('a:last-child')!;
-      const heading = preview.querySelector('h2')!;
-      const text = document.createRange();
-      text.selectNodeContents(heading);
-      return {
-        name: heading.textContent,
-        ctaBottom: cta.getBoundingClientRect().bottom,
-        ctaWidth: cta.clientWidth,
-        ctaContentWidth: cta.scrollWidth,
-        titleLines: text.getClientRects().length,
-        titleFits: heading.scrollWidth <= heading.clientWidth + 1,
-        magazineTop: document.querySelector('#magazine-title')!.getBoundingClientRect().top,
-      };
-    });
-    measurements.push(bounds);
-  }
-  await choices.filter({ hasText: 'Charlottenburg' }).hover();
-  await expect.poll(() => page.locator('#discovery-preview img').evaluateAll((images) => images.every((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
-  await expect.poll(() => page.locator('[data-discovery-photo] img').evaluateAll((photos) => photos.every((photo) => getComputedStyle(photo).transform === 'none'))).toBe(true);
-  await page.screenshot({ path: `/tmp/eat-this-kiez-qa/stability-${process.env.DISCOVERY_QA_PHASE ?? 'after'}.png` });
-  await test.info().attach('preview-bounds', { body: JSON.stringify(measurements, null, 2), contentType: 'application/json' });
-  expect(measurements.every((m) => m.ctaBottom <= 780 && m.ctaContentWidth <= m.ctaWidth + 1 && m.titleLines === 1 && m.titleFits), JSON.stringify(measurements)).toBe(true);
-  expect(Math.max(...measurements.map((m) => m.magazineTop)) - Math.min(...measurements.map((m) => m.magazineTop))).toBeLessThan(2);
-});
-
-test('Charlottenburg title, compact cards, illustrated directory and next districts', async ({ page, isMobile }) => {
+test('Charlottenburg title, editorial cards, illustrated directory and next districts', async ({ page, isMobile }) => {
   await page.goto('/bezirk/charlottenburg');
   await page.evaluate(() => document.fonts.ready);
   const title = page.locator('h1');
@@ -242,15 +95,18 @@ test('Charlottenburg title, compact cards, illustrated directory and next distri
   const cards = page.locator('#restaurants article');
   if (!isMobile) {
     const first = await cards.nth(0).boundingBox();
-    const fourth = await cards.nth(3).boundingBox();
-    expect(Math.abs(first!.y - fourth!.y)).toBeLessThan(2);
-    expect(first!.width).toBeLessThan(400);
+    const second = await cards.nth(1).boundingBox();
+    const third = await cards.nth(2).boundingBox();
+    expect(Math.abs(first!.y - second!.y)).toBeLessThan(2);
+    expect(first!.width).toBeCloseTo(second!.width, 0);
+    const photo = (await cards.first().locator('[data-spot-photo]').boundingBox())!;
+    expect(photo.height / photo.width).toBeCloseTo(3 / 4, 1);
+    expect(third!.x).toBeGreaterThan(second!.x);
+    expect(third!.y).toBeCloseTo(second!.y, 0);
   }
-  const tip = cards.first().locator('details');
-  await tip.locator('summary').click();
-  await expect(tip).toHaveAttribute('open', '');
-  await expect(tip.locator('p')).toBeVisible();
-  await tip.locator('summary').click();
+  await expect(cards.locator('details')).toHaveCount(0);
+  await expect(page.locator('[data-favorite]')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Eat This Favorites', exact: true })).toBeVisible();
   await cards.first().scrollIntoViewIfNeeded();
   await page.screenshot({ path: `/tmp/eat-this-kiez-qa/${test.info().project.name}-compact-spots.png` });
   const directory = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Weitere Spots', exact: true }) });
@@ -258,12 +114,12 @@ test('Charlottenburg title, compact cards, illustrated directory and next distri
   await directory.getByRole('heading').scrollIntoViewIfNeeded();
   await expect.poll(() => directory.locator('img').first().evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   await page.screenshot({ path: `/tmp/eat-this-kiez-qa/${test.info().project.name}-directory.png` });
-  const next = page.getByRole('navigation', { name: 'Weitere Bezirke', exact: true });
+  const next = page.getByRole('navigation', { name: 'Zur Berlin-Karte', exact: true });
   await next.scrollIntoViewIfNeeded();
-  await expect(next.getByRole('link', { name: 'Mitte', exact: true })).toBeVisible();
+  await expect(next.getByRole('link')).toBeVisible();
   await page.screenshot({ path: `/tmp/eat-this-kiez-qa/${test.info().project.name}-district-links.png` });
-  await next.getByRole('link', { name: 'Mitte', exact: true }).click();
-  await expect(page).toHaveURL(/\/bezirk\/mitte$/);
+  await next.getByRole('link').click();
+  await expect(page).toHaveURL(/\/bezirk$/);
 });
 
 test('rubric navigation and spot links survive without JavaScript', async ({
@@ -287,4 +143,55 @@ test('rubric navigation and spot links survive without JavaScript', async ({
   } finally {
     await context.close();
   }
+});
+
+
+test('district keyboard links, map intent and complete unfiltered directory', async ({ page }) => {
+  await page.goto('/bezirk');
+  const choice = page.getByRole('navigation', { name: 'Alle Bezirke', exact: true })
+    .getByRole('link', { name: 'Steglitz', exact: true });
+  await choice.focus();
+  await expect(choice).toBeFocused();
+  expect(await choice.evaluate((node) => getComputedStyle(node).strokeWidth)).toBe('3px');
+  await choice.press('Enter');
+  await expect(page).toHaveURL(/\/bezirk\/steglitz$/);
+  await expect(page).toHaveURL(/\/bezirk\/steglitz$/);
+  await expect(page.getByRole('link', { name: 'Auf der Map', exact: true })).toHaveCount(0);
+  await expect(page.locator('[data-district-header]')).not.toContainText('Stand ');
+  const displayed = await page.locator('#restaurants a[href^="/restaurant/"]').evaluateAll((links) => links.map((link) => new URL((link as HTMLAnchorElement).href).pathname));
+  const schema = await page.locator('#schema-bezirk-steglitz').textContent();
+  const graph = JSON.parse(schema!)['@graph'];
+  const list = graph.find((node: { '@type': string }) => node['@type'] === 'ItemList');
+  expect(displayed).toEqual(list.itemListElement.map((entry: { item: { url: string } }) => new URL(entry.item.url).pathname));
+});
+
+test('district overview and restaurant links survive without JavaScript', async ({ browser, baseURL, isMobile }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: isMobile ? 375 : 1440, height: 900 }, extraHTTPHeaders: { DNT: '1' } });
+  const page = await context.newPage();
+  try {
+    await page.goto(`${baseURL}/en/bezirk`);
+    await page.getByRole('navigation', { name: 'All districts', exact: true })
+      .getByRole('link', { name: 'Steglitz', exact: true }).press('Enter');
+    await expect(page).toHaveURL(/\/en\/bezirk\/steglitz$/);
+    await expect(page.locator('h1')).toContainText('Steglitz');
+    expect(await page.locator('#restaurants a[href^="/en/restaurant/"]').count()).toBeGreaterThan(0);
+    const back = page.getByRole('navigation', { name: 'Back to the Berlin map', exact: true }).getByRole('link');
+    await expect(back).toHaveAttribute('href', '/en/bezirk');
+    await back.click();
+    await expect(page).toHaveURL(/\/en\/bezirk$/);
+  } finally { await context.close(); }
+});
+
+
+test('district filters preserve the opening photo scale', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Desktop column proportions');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/bezirk/steglitz');
+  const photo = page.locator('#spot-crapulix [data-spot-photo]');
+  const before = (await photo.boundingBox())!;
+  await page.getByRole('button', { name: 'Süßes', exact: true }).click();
+  await expect(page).toHaveURL(/cat=sweets/);
+  const after = (await photo.boundingBox())!;
+  expect(after.width).toBeCloseTo(before.width, 0);
+  expect(after.height).toBeCloseTo(before.height, 0);
 });

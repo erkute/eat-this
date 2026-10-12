@@ -1,16 +1,12 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getAllBezirkeWithStats } from '@/lib/sanity.server';
-import { pickShelf } from '@/lib/curated-ranking';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import styles from '@/app/components/HubIssue.module.css';
-import { IssueMagazine } from '@/app/components/HubIssue';
 import DiscoveryExplorer from '@/app/components/DiscoveryExplorer';
-import { normalizeName } from '@/lib/normalizeName';
-import { latestIssues } from '@/lib/home/getHomeData';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -59,10 +55,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
   const loc = de ? 'de' : 'en';
   // Empty districts (no open spots) are hidden — an empty grid page is a
   // dead end for users and thin content for Google. Same rule as the Hub chips.
-  const [allBezirke, magazine] = await Promise.all([
-    getAllBezirkeWithStats(),
-    latestIssues(4, loc),
-  ]);
+  const allBezirke = await getAllBezirkeWithStats();
   const bezirke = allBezirke.filter((b) => (b.restaurantCount ?? 0) > 0);
 
   const jsonLd = serializeJsonLd({
@@ -106,26 +99,16 @@ export default async function BezirkIndexPage({ params }: PageProps) {
       />
       <main className={styles.page}>
         <DiscoveryExplorer
-          kind="bezirk"
           locale={loc}
           entries={bezirke.map((b) => ({
             slug: b.slug,
             href: `/bezirk/${b.slug}`,
             name: b.name,
-            spots: pickShelf(
-              (b.topSpotCards ?? []).filter((r) => r.photo),
-              (b.exampleRestaurants ?? []).filter((r) => r.photo),
-              3
-            ).map((r) => ({ slug: r.slug, name: normalizeName(r.name), photo: r.photo! })),
+
           }))}
         />
 
-        {/* Der Schluss: wer unten ankommt, liest weiter. */}
-        <IssueMagazine
-          issues={magazine}
-          locale={loc}
-          heading={de ? 'Aus dem Magazin' : 'From the magazine'}
-        />
+
       </main>
     </>
   );

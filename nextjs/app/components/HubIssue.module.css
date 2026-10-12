@@ -263,7 +263,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   grid-row: 2;
   overflow-wrap: anywhere;
   margin: 0;
-  color: var(--et-white);
+  color: var(--et-accent-heading);
   font-size: clamp(23px, 2vw, 28px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -419,6 +419,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .entryCopy { display: grid; gap: 6px; }
 
 .entryName {
+  color: var(--et-accent-heading);
   font-size: 18px;
   font-weight: 700;
   line-height: 1.2;
@@ -837,62 +838,59 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   }
 }
 
-/* Approved corner sticker: original logo over Favorit, like the Must-Eat peek. */
-.favorite {
-  position: absolute;
-  top: -2px;
-  right: -8px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  box-sizing: border-box;
-  width: 66px;
-  padding: 6px 7px 5px;
-  border-radius: 4px;
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  font-family: var(--et-font-display);
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: .065em;
-  text-transform: uppercase;
-  transform: rotate(8deg);
-  transform-origin: 58% 72%;
-  pointer-events: none;
-}
-.spotPhoto .favorite img,
-.spot:has(.spotName a:hover) .favorite img {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  transform: none;
-  transition: none;
-}
-.editorialSpots > .cardSlot:not(:first-child) .favorite,
-.compactSpots .favorite { width: 58px; padding: 5px 6px 4px; font-size: 8px; right: -5px; }
-@media (max-width: 767px) {
-  .editorialSpots > .cardSlot:not(:first-child) .favorite,
-  .compactSpots .favorite { width: 52px; padding: 4px 5px; right: -4px; }
-}
 .magazine.magazineIntro { margin-top: 96px; padding: 44px; background: var(--et-ink-raised); border-radius: 12px; }
 .magazineIntro .secTitle { margin-top: 0; font-size: clamp(30px, 3.2vw, 46px); }
 .magazineDescription { max-width: 52ch; margin: 20px 0 0; font-size: 21px; line-height: 1.5; }
-.categoryMenu { max-width: var(--issue-wide); margin: 88px auto 0; }
-.categoryMenu .secTitle { color: var(--et-accent-text); font-size: 24px; }
-.categoryMenu ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 48px; margin: 28px 0 0; padding: 0; list-style: none; }
-.categoryMenu a { display: inline-block; padding-block: 6px; color: var(--et-white); font-size: clamp(32px, 4.5vw, 64px); font-weight: 700; line-height: 1.1; text-transform: uppercase; text-decoration: none; transition: color 180ms ease, translate 180ms ease; }
+.categoryMenu { max-width: var(--issue-wide); margin: 96px auto 0; }
+.categoryMenu .secTitle { color: var(--et-white); font-size: clamp(36px, 4vw, 56px); }
+.categoryMenu ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px; margin: 48px 0 0; padding: 0; list-style: none; }
+.categoryMenu a { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 16px 8px; color: var(--et-white); font-size: 24px; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none; }
+.categoryMenu .shelfPack { display: block; width: min(100%, 200px); height: auto; rotate: -5deg; transition: rotate 240ms ease, translate 240ms ease; }
+.categoryMenu li:nth-child(even) .shelfPack { rotate: 5deg; }
 .categoryMenu a:focus-visible { outline: 2px solid var(--et-white); outline-offset: 6px; }
 @media (hover: hover) { .categoryMenu a:hover { color: var(--et-accent-text); } }
-@media (hover: hover) and (prefers-reduced-motion: no-preference) { .categoryMenu a:hover { translate: 6px 0; } }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .categoryMenu a:hover .shelfPack { rotate: 0deg; translate: 0 -8px; }
+}
 @media (max-width: 767px) {
   .magazine.magazineIntro { margin: 56px calc(-1 * var(--issue-gutter)) 0; padding: 32px var(--issue-gutter); border-radius: 0; }
   .magazineDescription { font-size: 18px; }
   .categoryMenu { margin-top: 56px; }
-  .categoryMenu ul { gap: 12px 20px; }
-  .categoryMenu a { font-size: clamp(23px, 6.5vw, 36px); }
+  .categoryMenu ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 20px; margin-top: 28px; }
+  .categoryMenu .shelfPack { width: min(100%, 128px); }
+  .categoryMenu a { font-size: 21px; gap: 16px; }
 }
-@media (prefers-reduced-motion: reduce) { .categoryMenu a { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .categoryMenu .shelfPack { transition: none; } }
+
+/* District recommendations share a consistent photo and reading rhythm. */
+.spots.districtSpots { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 64px 36px; align-items: start; margin-top: 36px; }
+.districtSpots > .cardSlot { display: block; min-width: 0; }
+.districtSpots > .cardSlot[hidden] { display: none; }
+.districtSpots .spot { display: flex; flex-direction: column; margin: 0; }
+.districtSpots .spotPhoto { order: -1; width: 100%; aspect-ratio: 4 / 3; margin: 0 0 24px; }
+.districtSpots .spotPhotoCrop { position: absolute; inset: 0; }
+.districtSpots .spotName { font-size: clamp(24px, 2.4vw, 32px); line-height: 1.12; text-wrap: pretty; }
+.districtSpots .deck { margin-top: 12px; }
+.districtSpots .text { margin-top: 18px; font-size: 16px; line-height: 1.65; }
+.districtSpots .spot:has(.spotName a:hover) img,
+.districtSpots .spotPhoto:hover img { transform: none; }
+.secTitle.favoritesTitle { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+.favoritesTitle img { display: block; width: 150px; height: auto; }
+.districtPage .guideInterlude { margin-top: 88px; padding: 40px; }
+.districtPage .spotList > div > section:not(.guideInterlude) > .secTitle:not(.favoritesTitle) { margin-top: 88px; }
+@media (min-width:768px) and (max-width:1023px) {
+  .spots.districtSpots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 28px; }
+}
+@media (max-width:767px) {
+  .spots.districtSpots { grid-template-columns: 1fr; gap: 48px; margin-top: 28px; }
+  .districtSpots .spotPhoto { margin-bottom: 20px; }
+  .districtSpots .spotName { font-size: 28px; }
+  .districtSpots .text { font-size: 16px; margin-top: 14px; }
+  .favoritesTitle img { width: 124px; }
+  .secTitle.favoritesTitle { gap: 12px; font-size: 28px; }
+  .districtPage .guideInterlude { margin-top: 64px; padding: 28px 20px; }
+  .districtPage .spotList > div > section:not(.guideInterlude) > .secTitle:not(.favoritesTitle) { margin-top: 64px; }
+}
+.districtPage .register { column-gap: 56px; }
+.districtPage .entry { padding-block: 16px; gap: 18px; }
+.districtPage .letter { margin-top: 32px; margin-bottom: 12px; }

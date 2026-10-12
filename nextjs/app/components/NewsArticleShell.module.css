@@ -258,20 +258,6 @@ div.page {
 
 /* ------------------------------------------------------------ motion ---- */
 
-/* Der Lesefortschritt: ein gelber Strich direkt unter der Kopfleiste, der mit
-   dem Scrollen von links nach rechts wächst. Eine Scroll-Timeline des
-   Browsers, kein JS — sie läuft im Takt des Scrollens. Nur ab Tablet: dort
-   scrollt `.app-pages`; am Telefon klappt die Leiste weg (SiteNav), und ein
-   iPhone hinkt bei scroll-gekoppelter Bewegung hinterher.
-   `.app-pages` beginnt bei 74px (globals.css), die Leiste ist aber
-   `--site-nav-h` hoch (78px): mit `top: 0` lagen 4 der 5px unter der Leiste,
-   und der übrige Pixel verschwand auf Weiss (Ansage 02.10.2026: „man sieht
-   den Fortschrittbalken nicht bei hell"). Deshalb klebt er um genau diese
-   Differenz tiefer. */
-.progress {
-  display: none;
-}
-
 /* Der Kopf tritt nur beim Laden auf (`data-article-intro`, gesetzt vom
    Bootstrap in app/[locale]/layout.tsx, wieder entfernt von
    lib/articleMotion.ts): die Rubrik fällt herein, die Schlagzeile rückt ohne
@@ -297,20 +283,6 @@ div.page {
 
   @supports (animation-timeline: scroll()) {
     @media (min-width: 768px) {
-      .progress {
-        position: sticky;
-        top: calc(var(--site-nav-h) - 74px);
-        z-index: 3;
-        display: block;
-        height: 5px;
-        /* Über die ganze Breite, über das Polster von `.page` hinaus. */
-        margin: 0 calc(-1 * clamp(18px, 4vw, 54px)) -5px;
-        background: var(--article-accent);
-        transform-origin: 0 50%;
-        animation: readProgress linear both;
-        animation-timeline: scroll(nearest block);
-      }
-
       /* Das Aufmacherfoto zieht beim Scrollen langsamer mit als die Seite —
          es bewegt sich in seinem Rahmen, der Rahmen bleibt stehen. */
       .hero {
@@ -357,15 +329,6 @@ div.page {
   }
   1% {
     visibility: visible;
-  }
-}
-
-@keyframes readProgress {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
   }
 }
 
@@ -446,18 +409,6 @@ div.page {
   font-weight: 400;
   line-height: 1.35;
   text-wrap: pretty;
-}
-
-/* Das Schlusszeichen wie im Heft: ein kleines Quadrat am Ende des letzten
-   Absatzes — im Fazit oder im Fliesstext. */
-.content > p:last-child::after,
-.content > [data-block='conclusion']:last-child > p:last-child:not([data-block])::after {
-  content: '';
-  display: inline-block;
-  width: 0.5em;
-  height: 0.5em;
-  margin-left: 0.4em;
-  background: var(--article-accent);
 }
 
 .content h2,

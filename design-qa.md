@@ -6,7 +6,7 @@ Der folgende Stand ersetzt die früheren Gestaltungsentscheidungen und Übergän
 
 - Kategorie-Hauptseite: Original-Booster-Packs; Intro auch auf Desktop unter der Headline. Magazin bekommt eine eigene Fläche mit erklärendem Einstieg.
 - Kategorie-Details: Pack links, Titel mit „in Berlin“ rechts, Beschreibung darunter. Keine redundanten Scroll-/Map-Buttons im Kopf. Editorialer Auftakt mit großem Spot, kompakte Empfehlungen und Magazin-Unterbrechung; „Weitere Spots“ offen. Andere Kategorien als große Schriftlinks.
-- Favoriten: Nur bestehende kuratierte `topSpots`, keine neue Rangfolge. Original-Eat-This-Logo über „Favorit“ (EN „Favorite“), Markenrot `--et-accent` (#A82B2E), weiße Schrift. Kleiner Sticker an der oberen rechten Fotoecke wie Must-Eat-Peeks; nach Nutzerkorrektur 8° nach rechts gedreht. Breite 66 px beim großen Motiv, 58/52 px bei kompakten Karten. Kein zusätzlicher Kategorie-Tipp. Foto bleibt separat beschnitten; Sticker darf über die Ecke ragen.
+- Favoriten (aktuelle Nutzerkorrektur): Nur bestehende kuratierte `topSpots`, keine neue Rangfolge. Original-Eat-This-Logo (52 px) und „Favorit“ (EN „Favorite“) als kleine einzeilige Kennzeichnung unter der Beschreibung. Ohne rote Fläche, ohne Drehung und nicht auf dem Foto. Kein zusätzlicher Kategorie-Tipp.
 - Restaurantübergang: Der verworfene Thumbnail-Zoom und die ebenfalls verworfene schwarze Blende sind vollständig entfernt. Echte lokalisierte Links navigieren sofort. Auf der Restaurantseite nur 8 px Bewegung in 240 ms, kein Fade, keine Bildvergrößerung, kein Overlay. Reduced Motion deaktiviert diese Bewegung.
 
 ## Prüfung des gesicherten Standes

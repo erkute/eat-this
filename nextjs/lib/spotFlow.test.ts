@@ -1,136 +1,60 @@
 import { describe, expect, it } from 'vitest';
-import { buildSpotFlow, splitSentences, type SpotFlowBlock } from './spotFlow';
+import { buildSpotFlow, splitSentences } from './spotFlow';
 
-const kinds = (blocks: SpotFlowBlock[]) =>
-  blocks.map((b) => (b.kind === 'image' ? `img${b.index}` : b.kind));
+const build = (paragraphs: string[], imageCount: number, hasTip = false, hasMustEats = false) =>
+  buildSpotFlow({ paragraphs, imageCount, hasTip, hasMustEats, imageSizes: Array.from({ length: imageCount }, () => ({ width: 900, height: 1200 })) });
 
-/** Nie zwei Bilder direkt hintereinander (Ansage 03.10.2026). */
-const noImagePairs = (blocks: SpotFlowBlock[]) =>
-  blocks.every((b, i) => !(b.kind === 'image' && blocks[i + 1]?.kind === 'image'));
-
-describe('splitSentences', () => {
-  it('splits after a full stop before a capital', () => {
-    expect(splitSentences('Erst das. Dann das! Und? Ja.')).toEqual([
-      'Erst das.',
-      'Dann das!',
-      'Und?',
-      'Ja.',
-    ]);
+describe('spot photo rhythm', () => {
+  it('keeps sentences and abbreviations intact', () => {
+    expect(splitSentences('Spaccanapoli Nr. 12 backt im St. Oberholz. Weiter geht es.'))
+      .toEqual(['Spaccanapoli Nr. 12 backt im St. Oberholz.', 'Weiter geht es.']);
   });
-
-  it('keeps abbreviations and numbers inside the sentence', () => {
-    expect(splitSentences('Spaccanapoli Nr. 12 backt im St. Oberholz. Weiter geht es.')).toEqual([
-      'Spaccanapoli Nr. 12 backt im St. Oberholz.',
-      'Weiter geht es.',
-    ]);
-  });
-});
-
-describe('buildSpotFlow', () => {
-  it('places every photo between text, tip and Must Eats when there is enough to say', () => {
-    const { blocks, rest } = buildSpotFlow({
-      paragraphs: ['Erster Absatz. Mit zwei Sätzen.', 'Zweiter Absatz. Auch mit zweien.'],
-      hasTip: true,
-      hasMustEats: true,
-      imageCount: 4,
-    });
-    expect(kinds(blocks)).toEqual([
-      'text',
-      'img0',
-      'tip',
-      'img1',
-      'text',
-      'img2',
-      'mustEats',
-      'img3',
-    ]);
-    expect(rest).toEqual([]);
-  });
-
-  it('splits a short description into sentences so each photo still gets text before it', () => {
-    const { blocks, rest } = buildSpotFlow({
-      paragraphs: ['POLIN in Steglitz.', 'Die Karte deckt den Tag ab. Preislich mittel.'],
-      hasTip: false,
-      hasMustEats: false,
-      imageCount: 3,
-    });
-    expect(kinds(blocks)).toEqual(['text', 'img0', 'text', 'img1', 'text', 'img2']);
-    expect(rest).toEqual([]);
-  });
-
-  it('marks short text so it can stand large instead of reading like a caption', () => {
-    const { blocks } = buildSpotFlow({
-      paragraphs: ['Kurz.', 'x'.repeat(240) + '.'],
-      hasTip: false,
-      hasMustEats: false,
-      imageCount: 0,
-    });
+  it('never splits a paragraph just to separate photos', () => {
+    const text = 'Die Karte deckt den Tag ab. Preislich mittel. Noch ein Satz.';
+    const { blocks } = build([text], 3, true);
     expect(blocks).toEqual([
-      { kind: 'text', text: 'Kurz.', short: true },
-      { kind: 'text', text: 'x'.repeat(240) + '.', short: false },
+      { kind: 'text', text, short: false }, { kind: 'tip' },
+      { kind: 'imageGroup', indices: [0, 1] }, { kind: 'image', index: 2 },
     ]);
   });
-
-  it('sends photos beyond the text to a row at the end instead of stacking them', () => {
-    const { blocks, rest } = buildSpotFlow({
-      paragraphs: ['Ein einziger Satz.'],
-      hasTip: false,
-      hasMustEats: false,
-      imageCount: 5,
-    });
-    expect(kinds(blocks)).toEqual(['text', 'img0']);
-    expect(rest).toEqual([1, 2, 3, 4]);
+  it('groups Standard-style photo pairs after the complete story and tip', () => {
+    const { blocks } = build(['Einleitung.', 'Speisen und Öffnungszeiten.'], 2, true);
+    expect(blocks.map(b => b.kind)).toEqual(['text', 'tip', 'text', 'imageGroup']);
+    expect(blocks.at(-1)).toEqual({ kind: 'imageGroup', indices: [0, 1] });
   });
-
-  it('works with a tip but no description', () => {
-    const { blocks, rest } = buildSpotFlow({
-      paragraphs: [],
-      hasTip: true,
-      hasMustEats: false,
-      imageCount: 2,
-    });
-    expect(kinds(blocks)).toEqual(['tip', 'img0']);
-    expect(rest).toEqual([1]);
+  it('uses pairs, never three images across', () => {
+    expect(build(['Kurz.'], 5).blocks.slice(1)).toEqual([
+      { kind: 'imageGroup', indices: [0, 1] }, { kind: 'imageGroup', indices: [2, 3] }, { kind: 'image', index: 4 },
+    ]);
   });
-
-  // Mehrere Sätze sind Lesetext, auch wenn sie kurz sind — gross gesetzt
-  // sahen sie aus wie der Insider-Tipp (Durchsicht 03.10.2026, AVIV 030).
-  it('sets only a single short sentence large', () => {
-    const { blocks } = buildSpotFlow({
-      paragraphs: ['Am Wochenende Challah-Burger. Der Name ist Programm. Tel Aviv in Rixdorf.'],
-      hasTip: false,
-      hasMustEats: false,
-      imageCount: 0,
-    });
-    expect(blocks[0]).toMatchObject({ kind: 'text', short: false });
+  it('keeps a different aspect ratio separate without cropping or reordering', () => {
+    const { blocks } = buildSpotFlow({ paragraphs: ['Kurz.'], imageCount: 3, hasTip: false, hasMustEats: false,
+      imageSizes: [{ width: 900, height: 1200 }, { width: 1200, height: 1600 }, { width: 1600, height: 900 }] });
+    expect(blocks.slice(1)).toEqual([{ kind: 'imageGroup', indices: [0, 1] }, { kind: 'image', index: 2 }]);
   });
-
-  it('keeps long paragraphs whole', () => {
-    const long = 'Satz eins ist da. Satz zwei auch. Satz drei kommt.';
-    const { blocks } = buildSpotFlow({
-      paragraphs: [long],
-      hasTip: false,
-      hasMustEats: false,
-      imageCount: 1,
-    });
-    expect(blocks[0]).toEqual({ kind: 'text', text: long, short: false });
+  it('does not pair images with unknown dimensions', () => {
+    const { blocks } = buildSpotFlow({ paragraphs: ['Kurz.'], imageCount: 2, hasTip: false, hasMustEats: false });
+    expect(blocks.slice(1)).toEqual([{ kind: 'image', index: 0 }, { kind: 'image', index: 1 }]);
   });
-
-  it('never puts two photos next to each other', () => {
-    for (let images = 0; images <= 8; images++) {
-      for (const paragraphs of [[], ['Eins.'], ['Eins. Zwei. Drei.'], ['A. B.', 'C. D. E.']]) {
-        for (const hasTip of [false, true]) {
-          for (const hasMustEats of [false, true]) {
-            const { blocks, rest } = buildSpotFlow({
-              paragraphs,
-              hasTip,
-              hasMustEats,
-              imageCount: images,
-            });
-            expect(noImagePairs(blocks)).toBe(true);
-            expect(blocks.filter((b) => b.kind === 'image').length + rest.length).toBe(images);
-          }
-        }
+  it('retains individual photos for stories with substantial text', () => {
+    const paragraph = 'Ein ausführlicher Absatz mit Inhalt. '.repeat(30);
+    expect(build([paragraph, paragraph], 2).blocks.map(b => b.kind))
+      .toEqual(['text', 'image', 'text', 'image']);
+  });
+  it('renders short single sentences large, but keeps several sentences as prose', () => {
+    expect(build(['Kurz.', 'Noch ein Satz. Und ein zweiter.'], 0).blocks).toEqual([
+      { kind: 'text', text: 'Kurz.', short: true },
+      { kind: 'text', text: 'Noch ein Satz. Und ein zweiter.', short: false },
+    ]);
+  });
+  it('preserves every photo exactly once, in order, with or without text and special sections', () => {
+    for (let images = 0; images <= 12; images++) for (const text of [[], ['Kurz.'], ['Lang '.repeat(400)]]) {
+      for (const tip of [false, true]) for (const mustEats of [false, true]) {
+        const { blocks, rest } = build(text, images, tip, mustEats);
+        const indices = blocks.flatMap(b => b.kind === 'image' ? [b.index] : b.kind === 'imageGroup' ? b.indices : []);
+        expect([...indices, ...rest]).toEqual(Array.from({ length: images }, (_, i) => i));
+        expect(blocks.filter(b => b.kind === 'tip')).toHaveLength(Number(tip));
+        expect(blocks.filter(b => b.kind === 'mustEats')).toHaveLength(Number(mustEats));
       }
     }
   });

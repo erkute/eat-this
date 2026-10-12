@@ -69,7 +69,7 @@ function Credit({
   className: string;
 }) {
   return (
-    <figcaption className={className}>
+    <span className={className}>
       {href ? (
         <a href={href} target="_blank" rel="noopener noreferrer">
           {text}
@@ -77,7 +77,7 @@ function Credit({
       ) : (
         text
       )}
-    </figcaption>
+    </span>
   );
 }
 
@@ -197,8 +197,8 @@ function SpotPhoto({
 /**
  * Die Spot-Seite im Heftlook nach 032c (Wahl 03.10.2026, Entwurf A6): eine
  * Spalte von 768px, der Name riesig, darunter nur der Bezirk, dann der
- * Vorspann gross und fett. Die Fotos stehen spaltenbreit und ungeschnitten
- * zwischen dem Text — nie zwei direkt hintereinander (lib/spotFlow.ts).
+ * Vorspann gross und fett. Bei wenig Text stehen Galeriefotos als breite
+ * Bildgruppen; Absätze bleiben zusammen (lib/spotFlow.ts).
  * Insider-Tipp und Must Eats sind eigene Abschnitte. Was man zum Hingehen
  * braucht — Adresse, Zeiten, Küche, Preis und die Knöpfe —, steht am Ende,
  * überschrieben mit dem Namen des Spots. Der Schluss führt über Kategorien
@@ -289,6 +289,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     hasTip: Boolean(tipText),
     hasMustEats: mustEats.length > 0,
     imageCount: galleryImages.length,
+    imageSizes: galleryImages.map(image => sanityImageSize(image.full)),
   });
   const galleryAlt = (i: number) =>
     galleryImages[i].alt || `${displayName} ${de ? 'Foto' : 'photo'} ${i + 2}`;
@@ -306,7 +307,7 @@ export default async function RestaurantPage({ params }: PageProps) {
   const galleryCredit = (i: number) => {
     const img = galleryImages[i];
     if (sharedCredit || !img.credit) return null;
-    return <Credit text={img.credit} href={safeHttpUrl(img.creditUrl)} className={styles.credit} />;
+    return <figcaption className={styles.caption}><Credit text={img.credit} href={safeHttpUrl(img.creditUrl)} className={styles.credit} /></figcaption>;
   };
 
   const districtsLabel = de ? 'Bezirke' : 'Districts';
@@ -349,9 +350,9 @@ export default async function RestaurantPage({ params }: PageProps) {
           {r.photo && (
             <figure className={styles.figure}>
               <SpotPhoto src={r.photo} alt={heroAlt} priority />
-              {heroCredit && (
+              {heroCredit && <figcaption className={styles.caption}>
                 <Credit text={heroCredit} href={heroCreditHref} className={styles.credit} />
-              )}
+              </figcaption>}
             </figure>
           )}
 
@@ -386,6 +387,13 @@ export default async function RestaurantPage({ params }: PageProps) {
                     }}
                   />
                 );
+              case 'imageGroup':
+                return <div key={i} className={styles.imageGroup} role="region" aria-label={de ? 'Fotostrecke' : 'Photo gallery'} data-photo-group data-count={block.indices.length}>
+                  {block.indices.map(index => <figure key={galleryImages[index]._key}>
+                    <SpotPhoto src={galleryImages[index].full} alt={galleryAlt(index)} />
+                    {galleryCredit(index)}
+                  </figure>)}
+                </div>;
               case 'image':
                 return (
                   <figure key={i} className={styles.figure}>
@@ -403,7 +411,7 @@ export default async function RestaurantPage({ params }: PageProps) {
           {flow.rest.length > 0 && (
             <ul className={styles.sheet} aria-label={de ? 'Weitere Fotos' : 'More photos'}>
               {flow.rest.map((index) => (
-                <li key={galleryImages[index]._key}>
+                <li key={galleryImages[index]._key}><figure>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={galleryImages[index].full}
@@ -413,7 +421,8 @@ export default async function RestaurantPage({ params }: PageProps) {
                     loading="lazy"
                     decoding="async"
                   />
-                </li>
+                  {galleryCredit(index)}
+                </figure></li>
               ))}
             </ul>
           )}
@@ -533,7 +542,7 @@ export default async function RestaurantPage({ params }: PageProps) {
           <RestaurantArticlesSection
             articles={articles}
             locale={loc}
-            classNames={{ section: styles.section, heading: styles.sub }}
+            classNames={{ section: styles.section, heading: styles.magazineHeading }}
           />
         </div>
         <RestaurantDiscovery

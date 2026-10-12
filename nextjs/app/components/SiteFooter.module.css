@@ -17,7 +17,7 @@
   --footer-bg: var(--et-ink-raised);
   background: var(--footer-bg);
   color: var(--footer-ink);
-  padding: clamp(32px, 5vw, 72px) 16px calc(28px + env(safe-area-inset-bottom, 0px));
+  padding: clamp(28px, 3.4vw, 48px) 16px calc(24px + env(safe-area-inset-bottom, 0px));
   /* Markenschrift im ganzen Footer — Mono und die Impact-Kondensierte waren
      zwei Fremdschriften in einem Block (Nutzer-Markierungen 28.08.). */
   font-family: var(--et-font-display);
@@ -92,7 +92,7 @@
 
 .links {
   max-width: 1180px;
-  margin: clamp(26px, 4vw, 52px) auto 0;
+  margin: clamp(20px, 2vw, 28px) auto 0;
   padding-top: 0;
   border-top: 0;
   display: grid;
@@ -143,7 +143,7 @@
 
 .legal {
   max-width: 1180px;
-  margin: clamp(26px, 4vw, 52px) auto 0;
+  margin: clamp(16px, 1.7vw, 24px) auto 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -199,7 +199,7 @@
 
 .meta {
   max-width: 1180px;
-  margin: clamp(22px, 3vw, 40px) auto 0;
+  margin: 12px auto 0;
   display: grid;
   gap: 8px;
   align-items: center;
@@ -225,7 +225,7 @@
   width: max-content;
   align-items: center;
   gap: 7px;
-  margin: clamp(14px, 2.2vw, 24px) auto 0;
+  margin: 8px auto 0;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -349,8 +349,8 @@
   color: var(--footer-ink);
 }
 .home .langBtnActive {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  text-decoration: none;
+  font-weight: 900;
 }
 .home .langBtn:focus-visible,
 .home .legalLink:focus-visible,
@@ -363,7 +363,7 @@
 .home .langBtn:hover,
 .home .langBtn:focus-visible {
   color: var(--footer-ink);
-  text-decoration: underline;
+  text-decoration: none;
 }
 /* Die Marke ploppt beim Hereinscrollen an ihrem Platz auf. Früher kam sie
    70px tiefer herein und lief dabei in „Folgen / Instagram" darunter

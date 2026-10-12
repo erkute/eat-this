@@ -34,9 +34,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
   const labels = {
     kicker: de ? 'Magazin' : 'Magazine',
     title: de ? 'Auf dem Teller' : 'On the plate',
-    sub: de
-      ? 'Wo Berlin gut isst.'
-      : 'Good food. All over Berlin.',
     current: de ? 'Aktuelle Ausgabe' : 'Current issue',
     read: de ? 'Lesen' : 'Read',
     archive: de ? 'Frühere Ausgaben' : 'Back issues',
@@ -46,7 +43,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
   };
 
   const titleOf = (a: NewsArticle) => (de && a.titleDe ? a.titleDe : a.title);
-  const excerptOf = (a: NewsArticle) => (de && a.excerptDe ? a.excerptDe : a.excerpt) || '';
+  const excerptOf = (a: NewsArticle) =>
+    (de ? a.previewExcerptDe || a.excerptDe || a.previewExcerpt || a.excerpt : a.previewExcerpt || a.excerpt) || '';
   // Newest first, so the first is the highest issue and they count down —
   // the same count as the covers on the home page (getHomeData).
   const issueOf = (i: number) => articles.length - i;
@@ -78,7 +76,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
           <div className={styles.intro}>
             <span className={styles.kicker}>{labels.kicker}</span>
             <h1 className={styles.heroTitle}>{labels.title}</h1>
-            <p className={styles.heroSub}>{labels.sub}</p>
           </div>
 
           {/* Die aktuelle Ausgabe: das Heft ist der Link, die älteren liegen

@@ -149,6 +149,8 @@ export interface NewsArticle {
   alt?: string;
   excerpt?: string;
   excerptDe?: string;
+  previewExcerpt?: string;
+  previewExcerptDe?: string;
   /** Das Heft-Cover, siehe lib/magazineCover.ts. */
   cover?: CoverData | null;
   content?: PortableTextBlock[];

@@ -15,8 +15,6 @@ vi.mock('@/i18n/navigation', () => ({
 }));
 
 import {
-  IssueContents,
-  IssueDirectory,
   IssueMagazine,
   IssueRegister,
   IssueSiblings,
@@ -36,20 +34,6 @@ const spot = (slug: string, over: Partial<RestaurantCard> = {}): RestaurantCard 
 });
 const facets = (r: RestaurantCard) => (r.categories ?? []).map((c) => c.slug as string);
 
-describe('IssueContents', () => {
-  it('jumps to each chapter', () => {
-    const html = renderToStaticMarkup(
-      <IssueContents restaurants={[spot('boii-boii'), spot('stoke')]} label="Die Spots" />
-    );
-    expect(html).toContain(`href="#${spotAnchor('boii-boii')}"`);
-    expect(html).toContain(`href="#${spotAnchor('stoke')}"`);
-  });
-
-  it('stays away for a single spot', () => {
-    expect(renderToStaticMarkup(<IssueContents restaurants={[spot('a')]} label="x" />)).toBe('');
-  });
-});
-
 describe('IssueSpots', () => {
   const html = renderToStaticMarkup(
     <IssueSpots
@@ -59,21 +43,20 @@ describe('IssueSpots', () => {
     />
   );
 
-  it('carries the anchor the contents strip points at', () => {
+  it('keeps a stable spot anchor', () => {
     expect(html).toContain(`id="${spotAnchor('romeos')}"`);
   });
 
-  // Der Name ist der gefolgte Link auf die Spot-Seite; die Map-Links tragen
-  // Query-Varianten und bleiben nofollow.
-  it('links the name to the spot page and the map without follow', () => {
+  it('uses a single spot link for the whole card', () => {
     expect(html).toMatch(/<h3[^>]*><a href="\/restaurant\/romeos"/);
-    expect(html).toMatch(/href="\/map\?r=romeos" rel="nofollow"/);
+    expect(html.match(/href="\/restaurant\/romeos"/g)).toHaveLength(1);
+    expect(html).not.toContain('/map?');
   });
 
-  // „Spot-Seite" war kein Wort für einen Knopf (Ansage 03.10.2026).
-  it('calls the second way „Zum Spot"', () => {
-    expect(html).toContain('>Zum Spot</a>');
-    expect(html).not.toContain('Spot-Seite');
+  it('keeps the tip separate from the card link without duplicate buttons', () => {
+    expect(html).toContain('<details');
+    expect(html).not.toContain('>Zum Spot</a>');
+    expect(html).not.toContain('>Zur Map</a>');
   });
 
   it('prints description, tip, cuisine and price', () => {
@@ -137,37 +120,6 @@ describe('IssueSpots on a category page', () => {
   });
 });
 
-describe('IssueDirectory', () => {
-  const html = renderToStaticMarkup(
-    <IssueDirectory
-      label="Alle Bezirke"
-      entries={[
-        {
-          slug: 'mitte',
-          href: '/bezirk/mitte',
-          name: 'Mitte',
-          blurb: 'Zwischen Torstraße und Spree.',
-          spots: [spot('bar-basta'), spot('sofi')],
-          more: 'Alle Spots in Mitte',
-        },
-      ]}
-    />
-  );
-
-  it('links the name and the short way in to the page', () => {
-    expect(html).toMatch(/<h2[^>]*><a href="\/bezirk\/mitte">Mitte<\/a><\/h2>/);
-    // Eine Etikett-Zeile statt Knopf (Wahl 03.10.2026), sprechend genug ohne
-    // eigenes aria-label.
-    expect(html).toMatch(/<a [^>]*href="\/bezirk\/mitte"[^>]*>Alle Spots in Mitte<\/a>/);
-    expect(html).toContain('Zwischen Torstraße und Spree.');
-  });
-
-  it('shows the spots as a strip of links into their pages', () => {
-    expect(html).toContain('href="/restaurant/bar-basta"');
-    expect(html).toContain('href="/restaurant/sofi"');
-  });
-});
-
 describe('IssueMagazine', () => {
   // Der Schluss der Übersichten (Ansage 03.10.2026: „da ist einfach Stille").
   it('lays out the newest issues and a way to all of them', () => {
@@ -200,15 +152,13 @@ describe('IssueMagazine', () => {
 });
 
 describe('page ground', () => {
-  // Bezirke und Kategorien samt Übersichten stehen seit 03.10.2026 auf Weiss
-  // wie der Artikel, die Spot-Seite ebenso — nicht mehr in der Ink-Liste von
-  // globals.css.
-  it('puts district, category and spot pages on white', () => {
+  // The discovery rubrics share the home page's Ink canvas.
+  it('puts district and category pages on Ink', () => {
     const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
-    for (const page of ['bezirk', 'kategorie', 'restaurant']) {
+    for (const page of ['bezirk', 'kategorie']) {
       expect(css).toMatch(
         new RegExp(
-          `html\\[data-active-page='${page}'\\] \\.app-pages[,\\s\\S]*?\\{\\s*background: var\\(--et-white\\);`
+          `html\\[data-active-page='${page}'\\] \\.app-pages[,\\s\\S]*?\\{\\s*background: var\\(--et-ink\\);`
         )
       );
       expect(css.match(new RegExp(`html\\[data-active-page='${page}'\\] body`, 'g'))).toHaveLength(

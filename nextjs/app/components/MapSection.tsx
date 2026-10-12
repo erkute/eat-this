@@ -37,7 +37,7 @@ import {
 import { flyToSpots } from '@/lib/map/cameraFit';
 import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
 import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
-import { useMapCamera, USER_LOCATION_ZOOM } from '@/lib/map/useMapCamera';
+import { useMapCamera, getUserLocationZoom } from '@/lib/map/useMapCamera';
 import { useMapStarterPrompt } from '@/lib/map/useMapStarterPrompt';
 import { useDetailSelection, type DetailOpeners } from '@/lib/map/useDetailSelection';
 
@@ -1333,7 +1333,7 @@ export default function MapSection({
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;
     const flyTo = (loc: { lat: number; lng: number }) =>
-      flyToSpot(loc, { zoom: USER_LOCATION_ZOOM, duration: 600, padding: getFlyPadding() });
+      flyToSpot(loc, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPadding() });
     if (location) flyTo(location);
     if (location && locationPermitted) {
       followFixRef.current = { from: location, until: Date.now() + 10_000 };
@@ -1356,7 +1356,7 @@ export default function MapSection({
     followFixRef.current = null;
     if (Date.now() > pending.until) return;
     if (haversineDistance(pending.from.lat, pending.from.lng, location.lat, location.lng) > 10) {
-      flyToSpot(location, { zoom: USER_LOCATION_ZOOM, duration: 600, padding: getFlyPadding() });
+      flyToSpot(location, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPadding() });
     }
   }, [location, flyToSpot, getFlyPadding]);
 
@@ -1415,7 +1415,7 @@ export default function MapSection({
           },
           onReady: () => {
             completed = true;
-            flyToSpot(loc, { zoom: USER_LOCATION_ZOOM, duration: 600, padding: getFlyPaddingRef.current() });
+            flyToSpot(loc, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPaddingRef.current() });
           },
         });
       });
@@ -1555,7 +1555,7 @@ export default function MapSection({
     if (!justActivated) return;
     if (selectedRestaurant || selectedMustEat) return;
     if (!location) return;
-    flyToSpot(location, { zoom: USER_LOCATION_ZOOM, duration: 400, padding: getFlyPadding() });
+    flyToSpot(location, { zoom: getUserLocationZoom(), duration: 400, padding: getFlyPadding() });
   }, [isActive, selectedRestaurant, selectedMustEat, location, flyToSpot, getFlyPadding]);
 
   // Deep-links: ?r=<slug> opens a restaurant detail; ?bezirk=<slug> also moves

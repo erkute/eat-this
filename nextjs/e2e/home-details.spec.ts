@@ -39,9 +39,11 @@ for (const reduced of [false, true]) {
     const loader = preview.locator('[data-map-loading]');
     await expect(loader).toBeVisible();
     await expect(loader).toHaveText('Berlin lädt …');
-    expect(await loader.evaluate((el) => getComputedStyle(el).fontFamily)).toContain('providence');
-    const animation = await loader.locator('[data-loading-bar]').evaluate((el) => getComputedStyle(el).animationName);
-    expect(animation === 'none').toBe(reduced);
+    // The dynamic-import fallback is replaced by the canvas loader. Retry
+    // against the current element instead of measuring a detached fallback.
+    await expect.poll(() => loader.evaluate((el) => getComputedStyle(el).fontFamily)).toContain('providence');
+    await expect.poll(() => loader.locator('[data-loading-bar]').evaluate((el) => getComputedStyle(el).animationName))
+      .toMatch(reduced ? /^none$/ : /mapLoading/);
     await page.screenshot({ path: `/tmp/eat-this-home-loader-${test.info().project.name}-${reduced}.png` });
     release();
     await expect(loader).toHaveCount(0);

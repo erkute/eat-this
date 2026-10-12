@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -478,5 +479,37 @@ describe('NewsArticleShell', () => {
       expect(aside).toContain('Schluss.');
       expect(aside).not.toContain('href="/news/pizza"');
     });
+  });
+});
+
+describe('editorial image spreads', () => {
+  const photo = (key: string, width: number, height: number): PortableTextBlock => ({
+    _type: 'image', _key: key, imageUrl: `https://cdn.sanity.io/${key}.jpg`,
+    imageWidth: width, imageHeight: height, alt: `Photo ${key}`, caption: `Credit ${key}`,
+  }) as unknown as PortableTextBlock;
+
+  it('groups consecutive photos with their own ratios and keeps text between separate spreads', () => {
+    const html = render([photo('portrait', 600, 900), photo('wide', 1800, 900), para('Between photos.'), photo('single', 900, 900)]);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    const row = container.querySelector('[data-article-image-row]')!;
+    expect(row.querySelectorAll('figure')).toHaveLength(2);
+    expect(row.querySelectorAll('figcaption')).toHaveLength(2);
+    expect(row.textContent).toContain('Credit portrait');
+    expect(row.textContent).toContain('Credit wide');
+    expect(row.querySelector('figure')!.getAttribute('style')).toContain('--img-ratio:0.666');
+    expect(container.querySelectorAll('[data-article-image-row]')).toHaveLength(1);
+    expect(container.querySelectorAll('figure')).toHaveLength(3);
+    expect(html.indexOf('Credit wide')).toBeLessThan(html.indexOf('Between photos.'));
+    expect(html.indexOf('Between photos.')).toBeLessThan(html.indexOf('Credit single'));
+  });
+
+  it('uses pairs for four photos and omits unfilled Sanity image blocks', () => {
+    const html = render([photo('a', 600, 900), { _type: 'image', _key: 'empty' } as PortableTextBlock,
+      photo('b', 900, 600), photo('c', 900, 900), photo('d', 900, 600)]);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const rows = [...container.querySelectorAll('[data-article-image-row]')];
+    expect(rows.map((row) => row.querySelectorAll('figure').length)).toEqual([2, 2]);
+    expect(container.querySelectorAll('img[alt^="Photo"]')).toHaveLength(4);
   });
 });

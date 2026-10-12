@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useIsPresent, useReducedMotion } from 'framer-
 import { useLocale } from 'next-intl';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
-import { sanityImageSize } from '@/lib/sanity-image-presets';
+import { sanityImageSize, sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from './RestaurantGalleryLightbox.module.css';
 import ZoomCurtain from './ZoomCurtain';
 
@@ -288,6 +288,8 @@ function Viewer({
               >
                 <img
                   src={img.full}
+                  srcSet={sanitySrcSet(img.full, [640, 960, 1280, 1600, 2400, 3200])}
+                  sizes="100vw"
                   alt={img.alt ?? restaurantName}
                   className={styles.galleryLbImg}
                   width={size?.width}

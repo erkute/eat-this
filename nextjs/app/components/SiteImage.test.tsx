@@ -22,7 +22,7 @@ describe('SiteImage', () => {
       <SiteImage src="/buddy/buddy.webp" alt="" width={120} height={120} />
     );
     expect(container.querySelector('img')!.getAttribute('src')).toMatch(
-      /^\/_next\/image\?url=%2Fbuddy%2Fbuddy\.webp&w=\d+&q=75$/
+      /^\/_next\/image\?url=%2Fbuddy%2Fbuddy\.webp&w=\d+&q=80$/
     );
   });
 });

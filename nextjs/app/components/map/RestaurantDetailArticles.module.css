@@ -1,125 +1,32 @@
-/* „Im Magazin" im Map-Sheet. Steht auf dem Ink-Grund des Spot-Details; der
-   Abschnittsrahmen (Abstand, Kopf, Unterzeile) kommt aus RestaurantDetail.module.css —
-   `.rdMustSection`, `.rdMustHead`, `.rdSecH`, `.rdMustSub` —, hier liegt nur,
-   was der Block selbst mitbringt.
-
-   Die Bildkarte folgt der Artikel-Karte der Restaurant-Seite
-   (RestaurantArticlesSection.module.css): Foto, Verlauf von unten, gelber
-   Kicker, Schlagzeile in der Markenschrift. Wer beide Flächen kennt, sieht
-   denselben Artikel. */
-
+/* Same magazine artwork as the restaurant page, sized for the map detail. */
 .list {
   display: grid;
-  gap: 12px;
-  margin: 14px 0 0;
+  gap: 24px;
+  margin: 18px 0 0;
   padding: 0;
   list-style: none;
 }
-
-.lead,
-.row {
+.issue {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
   color: var(--et-white);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* ---- Bildkarte (erster Artikel) ---- */
-
-.lead {
-  position: relative;
-  display: block;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: var(--et-ink-raised);
-}
-
-.leadPhoto {
-  position: absolute;
-  inset: 0;
-}
-
-.leadPhoto img,
-.thumb img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.lead::after {
-  content: '';
-  position: absolute;
-  inset: 30% 0 0;
-  background: linear-gradient(
-    to top,
-    rgba(12, 9, 7, 0.9),
-    rgba(12, 9, 7, 0.5) 50%,
-    rgba(12, 9, 7, 0)
-  );
-  pointer-events: none;
-}
-
-.leadCopy {
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px;
-}
-
-.leadTitle {
+.cover { display: block; min-width: 0; }
+.copy { display: grid; min-width: 0; gap: 7px; }
+.title {
   font-family: var(--et-font-display);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-
-/* ---- Zeile (jeder weitere Artikel) ---- */
-
-.row {
-  display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
-  gap: 14px;
-  align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid var(--et-ink-line);
-}
-
-.thumb {
-  display: block;
-  width: 84px;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: var(--et-ink-raised);
-}
-
-.rowCopy {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.rowTitle {
-  display: -webkit-box;
-  overflow: hidden;
-  font-family: var(--et-font-display);
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.015em;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
-
-/* ---- gemeinsam ---- */
-
 .kicker {
   color: var(--et-accent-text);
   font-family: var(--et-font-display);
@@ -129,38 +36,15 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-
 .date {
   color: var(--et-ink-soft);
   font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
-  /* Nicht unter 1.3 — sonst kappt Providence ihre Unterlängen. */
   line-height: 1.3;
   letter-spacing: 0.02em;
 }
-
-.lead:focus-visible,
-.row:focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 3px;
-}
-
+.issue:focus-visible { outline: 2px solid var(--et-accent); outline-offset: 5px; }
 @media (hover: hover) {
-  .lead:hover .leadPhoto img,
-  .row:hover .thumb img {
-    transform: scale(1.04);
-  }
-
-  .lead:hover .leadTitle,
-  .row:hover .rowTitle {
-    color: var(--et-accent-text);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .leadPhoto img,
-  .thumb img {
-    transition: none;
-  }
+  .issue:hover .title { color: var(--et-accent-text); }
 }

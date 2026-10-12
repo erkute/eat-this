@@ -34,11 +34,13 @@ const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
 /* The pin card's height above its anchor (MapMarkers.module.css). */
 const PIN_HEIGHT_PX = 47;
-export const USER_LOCATION_ZOOM = 16;
-/* How close a flight onto one spot comes. 15 until 28.09.2026: close enough
-   for the 3D buildings, but a spot's neighbours were rarely in the picture
-   (Trio at Alexanderplatz: none) — 14 keeps the Kiez around it. */
+export const getUserLocationZoom = () => typeof window === 'undefined' || isSheetViewport() ? 16 : 16.5;
+/* Phones keep the Kiez in view. Desktop has room to show the street and
+   neighbours at a closer zoom, even beside the open detail panel. */
 const SPOT_ZOOM = 14;
+const desktopSpotZoom = () => typeof window === 'undefined' || isSheetViewport()
+  ? SPOT_ZOOM
+  : window.innerWidth >= 1920 ? 15.5 : 15;
 /* The map never opens further out than its old fixed view. */
 const INITIAL_MIN_ZOOM = BERLIN_VIEW.zoom;
 /* …unless the whole catalogue fits within a quarter step of it: a wide
@@ -117,7 +119,7 @@ export function useMapCamera({
 
   /* One flight onto one point — every open, page, close and locate lands here. */
   const flyToSpot = useCallback(
-    (spot: LngLat, { duration, padding, zoom = SPOT_ZOOM }: FlyOptions) => {
+    (spot: LngLat, { duration, padding, zoom = desktopSpotZoom() }: FlyOptions) => {
       mapRef.current?.flyTo({ center: [spot.lng, spot.lat], zoom, duration, padding });
     },
     [mapRef]
@@ -393,9 +395,10 @@ export function useMapCamera({
          Centring the box instead let one spot in Steglitz pull the view
          south, and the pins hung at the top edge above an empty Tempelhof. */
       const middle = medianPoint(spots);
+      const minZoom = INITIAL_MIN_ZOOM + (canvas.width >= 1920 ? 0.75 : canvas.width >= 1024 ? 0.5 : 0);
       const camera =
-        fit && fit.zoom < INITIAL_MIN_ZOOM - INITIAL_FIT_SLACK && middle
-          ? { center: middle, zoom: INITIAL_MIN_ZOOM }
+        fit && fit.zoom < minZoom - INITIAL_FIT_SLACK && middle
+          ? { center: middle, zoom: minZoom }
           : fit;
       if (!camera) return null;
       return {
@@ -486,7 +489,7 @@ export function useMapCamera({
            a flight with the full-height padding on it overshoots to a
            Brandenburg-wide zoom. The layout effect above flies once the
            canvas has its list height back (same choreography as opening). */
-        pendingCameraRestoreRef.current = camera ?? (spot ? { center: spot, zoom: SPOT_ZOOM } : null);
+        pendingCameraRestoreRef.current = camera ?? (spot ? { center: spot, zoom: desktopSpotZoom() } : null);
         return;
       }
       if (!mapRef.current) return;

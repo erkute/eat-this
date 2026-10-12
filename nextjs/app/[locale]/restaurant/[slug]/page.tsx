@@ -197,7 +197,9 @@ function SpotPhoto({
 
 /** Eine quadratische Kachel aus einem Sanity-Foto, für das Raster am Ende. */
 function squareSrc(url: string, width: number): string {
-  return `${url.split('?')[0]}?w=${width}&h=${width}&fit=crop&auto=format&q=80`;
+  const size = sanityImageSize(url);
+  const edge = size ? Math.min(width, size.width, size.height) : width;
+  return `${url.split('?')[0]}?w=${edge}&h=${edge}&fit=crop&auto=format&q=80`;
 }
 
 /**
@@ -589,6 +591,8 @@ export default async function RestaurantPage({ params }: PageProps) {
                 ]
                   .filter(Boolean)
                   .join(' · ');
+                const size = sanityImageSize(s.photo);
+                const widths = [...new Set([400, 600, 800, 1280, 1600].map(w => size ? Math.min(w, size.width, size.height) : w))];
                 return (
                   <li key={s._id}>
                     <IntlLink href={`/restaurant/${s.slug}`} className={styles.tile}>
@@ -597,7 +601,7 @@ export default async function RestaurantPage({ params }: PageProps) {
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img
                             src={squareSrc(s.photo, 600)}
-                            srcSet={`${squareSrc(s.photo, 400)} 400w, ${squareSrc(s.photo, 600)} 600w, ${squareSrc(s.photo, 800)} 800w`}
+                            srcSet={widths.map(w => `${squareSrc(s.photo!, w)} ${w}w`).join(', ')}
                             sizes="(max-width: 767px) 50vw, 25vw"
                             alt=""
                             loading="lazy"

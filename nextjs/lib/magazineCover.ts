@@ -237,10 +237,28 @@ export function focusPoint(cover: CoverData | null | undefined): { x: number; y:
 /** `sizes` einer Ebene, die `factor`-mal so breit ist wie das Heft. */
 export function scaleSizes(sizes: string, factor: number): string {
   const f = Math.round(factor * 1000) / 1000;
-  return sizes
-    .split(',')
-    .map((part) => part.trim().replace(/(\S+)$/, (len) => `calc(${len} * ${f})`))
-    .join(', ');
+  const parts: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let index = 0; index < sizes.length; index++) {
+    if (sizes[index] === '(') depth++;
+    else if (sizes[index] === ')') depth--;
+    else if (sizes[index] === ',' && depth === 0) {
+      parts.push(sizes.slice(start, index).trim());
+      start = index + 1;
+    }
+  }
+  parts.push(sizes.slice(start).trim());
+  return parts.map((part) => {
+    let lengthStart = 0;
+    depth = 0;
+    for (let index = 0; index < part.length; index++) {
+      if (part[index] === '(') depth++;
+      else if (part[index] === ')') depth--;
+      else if (/\s/.test(part[index]) && depth === 0) lengthStart = index + 1;
+    }
+    return `${part.slice(0, lengthStart)}calc(${part.slice(lengthStart)} * ${f})`;
+  }).join(', ');
 }
 
 /* ── Für das Freistell-Skript ─────────────────────────────────────────── */

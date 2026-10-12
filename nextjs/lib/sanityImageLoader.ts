@@ -9,6 +9,8 @@
 // Direkt benutzt von den rohen Sanity-<img>-Stellen. next/image kommt über
 // lib/imageLoader.ts hierher, der eigene Bilder weiter an den Optimierer gibt.
 
+import { sanityImageSize } from './sanity-image-presets';
+
 const DEFAULT_QUALITY = 80;
 
 export default function sanityImageLoader({
@@ -24,5 +26,6 @@ export default function sanityImageLoader({
   // so we don't end up with duplicated `?w=`/`?q=` params.
   const base = src.split('?')[0];
   const q = quality ?? DEFAULT_QUALITY;
-  return `${base}?w=${width}&auto=format&q=${q}`;
+  const nativeWidth = sanityImageSize(base)?.width;
+  return `${base}?w=${nativeWidth ? Math.min(width, nativeWidth) : width}&auto=format&q=${q}`;
 }

@@ -106,8 +106,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                     date={a.date}
                     locale={locale}
                     cover={a.cover}
-                    sizes="(max-width: 767.98px) 62vw, 360px"
-                    widths={[480, 800]}
+                    sizes="(max-width: 767.98px) 62vw, (min-width: 1600px) min(22vw, 520px), 360px"
+                    widths={[480, 800, 1200]}
                     priority
                   />
                 </span>
@@ -124,7 +124,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                   date={current.date}
                   locale={locale}
                   cover={current.cover}
-                  sizes="(max-width: 767.98px) 62vw, 360px"
+                  sizes="(max-width: 767.98px) 62vw, (min-width: 1600px) min(22vw, 520px), 360px"
                   widths={[480, 800, 1200]}
                   priority
                 />
@@ -167,8 +167,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       date={a.date}
                       locale={locale}
                       cover={a.cover}
-                      sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, 260px"
-                      widths={[320, 480, 800]}
+                      sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, (min-width: 1600px) 420px, 260px"
+                      widths={[320, 480, 800, 1200]}
                     />
                     <h3 className={styles.magTitle}>{titleOf(a)}</h3>
                   </MagazineLink>

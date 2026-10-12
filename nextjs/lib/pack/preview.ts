@@ -1,7 +1,11 @@
 import type { MapMustEat, MapRestaurant } from '@/lib/types';
 
 const DONER = /\b(?:d[oö]ner|doener|kebab|kebap)\b/i;
-const PREFERRED_DISH: Record<string, RegExp> = { lunch: /rinderschaufel/i, 'fast-food': DONER };
+const PREFERRED_DISH: Record<string, RegExp> = {
+  lunch: /rinder\s*schaufel/i,
+  'fast-food': DONER,
+  sweets: /cookies?/i,
+};
 
 /** Preview selection never grants access: the server's revealed IDs are required. */
 export function selectPackPreview({

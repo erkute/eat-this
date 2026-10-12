@@ -22,6 +22,8 @@ import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import { chapterShortLabel } from '@/lib/headingDeck';
+import { coverImageScale } from '@/lib/sanity-image-presets';
+import { scaleSizes } from '@/lib/magazineCover';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -364,11 +366,38 @@ export default function NewsArticleShell({
           alt={block.alt || ''}
           width={width}
           height={height}
-          sizes="(max-width: 767.98px) 100vw, 660px"
+          sizes="(max-width: 767.98px) 100vw, 740px"
         />
         {block.caption && <figcaption>{block.caption}</figcaption>}
       </figure>
     );
+  };
+
+  const renderImageGroup = (blocks: ArticleImageBlock[]) => {
+    const images = blocks.filter((block) => block.imageUrl);
+    if (images.length < 2) return images[0] ? renderImage(images[0]) : null;
+    const rows: React.ReactNode[] = [];
+    // Four images form two pairs; larger runs form rows of two or three.
+    for (let index = 0; index < images.length;) {
+      const remaining = images.length - index;
+      const count = remaining === 4 ? 2 : Math.min(3, remaining);
+      const row = images.slice(index, index + count);
+      rows.push(
+        <div className={styles.imageRow} data-article-image-row="" key={row[0]._key ?? index}>
+          {row.map((block, imageIndex) => (
+            <figure key={block._key ?? imageIndex}
+              style={{ '--img-ratio': (block.imageWidth || 1440) / (block.imageHeight || 1080) } as React.CSSProperties}>
+              <Image src={block.imageUrl!} alt={block.alt || ''}
+                width={block.imageWidth || 1440} height={block.imageHeight || 1080}
+                sizes="(max-width: 767.98px) 100vw, (max-width: 1023.98px) 50vw, 70vw" />
+              {block.caption && <figcaption>{block.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+      );
+      index += count;
+    }
+    return <div className={styles.imageSpread}>{rows}</div>;
   };
 
   // Verweis auf einen anderen Artikel: das Heft wie unter „Weitere Ausgaben“,
@@ -470,7 +499,7 @@ export default function NewsArticleShell({
                   alt={article.alt || title}
                   fill
                   priority
-                  sizes="100vw"
+                  sizes={`(max-width: 700px) ${scaleSizes('100vw', coverImageScale(article.imageUrl, 4 / 5))}, ${scaleSizes('100vw', coverImageScale(article.imageUrl, 3 / 2))}`}
                   className={styles.hero}
                 />
               </div>
@@ -508,6 +537,7 @@ export default function NewsArticleShell({
                 renderMustEatCard={renderMustEatCard}
                 renderSpotCard={renderSpotCard}
                 renderImage={renderImage}
+                renderImageGroup={renderImageGroup}
                 renderArticleCard={renderArticleCard}
               />
             </div>

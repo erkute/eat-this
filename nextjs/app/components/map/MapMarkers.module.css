@@ -223,6 +223,16 @@
   z-index: 2;
 }
 
+@media (min-width: 1024px) {
+  .pinLogo { width: clamp(52px, 3vw, 76px); height: clamp(58px, 3.3vw, 84px); }
+  .pinLogoActive { width: clamp(64px, 4vw, 96px); height: clamp(71px, 4.4vw, 106px); }
+  .pinLogoSmall { transform: rotate(-4deg) scale(0.8); }
+  .pinLogoSmall:focus-visible { transform: rotate(-4deg); }
+  .pinLogoHasMust::after { width: clamp(18px, 1vw, 25px); height: clamp(25px, 1.4vw, 35px); }
+  .pinLogoActive.pinLogoHasMust::after { width: clamp(22px, 1.2vw, 30px); height: clamp(30px, 1.65vw, 42px); }
+  .userLoc { width: clamp(58px, 3.5vw, 84px); height: clamp(88px, 5.3vw, 128px); }
+}
+
 /* WebKit can rasterize alpha WebP + drop-shadow as a rectangle while a
    transformed map scrolls. Keep the cut-outs flat on coarse WebKit input. */
 @supports (-webkit-touch-callout: none) {

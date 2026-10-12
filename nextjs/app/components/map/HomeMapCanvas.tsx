@@ -18,6 +18,9 @@ interface Props {
   unavailableLabel: string;
 }
 const FIT_OPTIONS = { padding: { top: 64, bottom: 24, left: 36, right: 44 }, maxZoom: 13.5, duration: 0 };
+const fitOptions = () => typeof window !== 'undefined' && window.innerWidth >= 1024
+  ? { ...FIT_OPTIONS, padding: { top: 144, bottom: 24, left: 80, right: 80 } }
+  : FIT_OPTIONS;
 const spotBounds = (spots: MapRestaurant[]): [number, number, number, number] => [
   Math.min(...spots.map((spot) => spot.lng)), Math.min(...spots.map((spot) => spot.lat)),
   Math.max(...spots.map((spot) => spot.lng)), Math.max(...spots.map((spot) => spot.lat)),
@@ -37,6 +40,15 @@ export default function HomeMapCanvas({ spots, selectedId, onSelect, loadingLabe
   const fit = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
+    const options = fitOptions();
+    // Read the marker's actual CSS dimensions on resize; spacing must grow
+    // with the desktop pins rather than retaining the phone's 56px grid.
+    const marker = map.getContainer().querySelector<HTMLElement>('.maplibregl-marker [aria-pressed="true"]');
+    const pinStyle = marker ? getComputedStyle(marker) : null;
+    const spacing = {
+      x: window.innerWidth < 1024 ? 56 : pinStyle ? parseFloat(pinStyle.width) + 24 : 120,
+      y: window.innerWidth < 1024 ? 60 : pinStyle ? parseFloat(pinStyle.height) + 24 : 130,
+    };
     let best = { bounds, spots, count: -1 };
     const minimum = Math.max(4, spots.findIndex((spot) => spot._id === selectedRef.current) + 1);
     // A distant, lower-ranked recommendation can compress all of the best
@@ -45,17 +57,17 @@ export default function HomeMapCanvas({ spots, selectedId, onSelect, loadingLabe
     for (let count = spots.length; count >= Math.min(minimum, spots.length); count--) {
       const candidates = spots.slice(0, count);
       const candidateBounds = spotBounds(candidates);
-      const camera = map.cameraForBounds(candidateBounds, FIT_OPTIONS);
+      const camera = map.cameraForBounds(candidateBounds, options);
       if (!camera) continue;
       const scale = 2 ** ((camera.zoom ?? map.getZoom()) - map.getZoom());
       const pins = spreadPreviewPins(candidates, (spot) => {
         const point = map.project([spot.lng, spot.lat]);
         return { x: point.x * scale, y: point.y * scale };
-      }, selectedRef.current);
+      }, selectedRef.current, spacing);
       if (pins.length > best.count) best = { bounds: candidateBounds, spots: candidates, count: pins.length };
     }
-    map.fitBounds(best.bounds, FIT_OPTIONS);
-    setVisibleSpots(spreadPreviewPins(best.spots, (spot) => map.project([spot.lng, spot.lat]), selectedRef.current));
+    map.fitBounds(best.bounds, options);
+    setVisibleSpots(spreadPreviewPins(best.spots, (spot) => map.project([spot.lng, spot.lat]), selectedRef.current, spacing));
   }, [bounds, spots]);
   const loaded = useCallback(() => {
     const map = mapRef.current?.getMap();
@@ -101,7 +113,7 @@ export default function HomeMapCanvas({ spots, selectedId, onSelect, loadingLabe
         : <HomeMapLoading label={loadingLabel} />)}
       <Map
         ref={mapRef}
-        initialViewState={{ bounds, fitBoundsOptions: FIT_OPTIONS }}
+        initialViewState={{ bounds, fitBoundsOptions: fitOptions() }}
         mapStyle="/basemap/style.json"
         style={{ width: '100%', height: '100%' }}
         attributionControl={false}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { presetQuery, groqImageUrl, sanitySrcSet, sanityImageSize } from './sanity-image-presets';
+import { presetQuery, groqImageUrl, sanitySrcSet, sanityImageSize, coverImageScale } from './sanity-image-presets';
 
 // These assertions pin the EXACT query strings the hand-written GROQ
 // projections used before the refactor. If any byte changes, a projection's
@@ -43,6 +43,23 @@ describe('sanitySrcSet', () => {
     expect(sanitySrcSet(null, [150])).toBeUndefined();
     expect(sanitySrcSet(undefined, [150])).toBeUndefined();
     expect(sanitySrcSet('/pics/card-back.webp?v=7', [150])).toBeUndefined();
+  });
+
+  it('offers the native image once instead of enlarging small originals', () => {
+    expect(sanitySrcSet(url, [800, 1600, 2400])).toBe(
+      'https://cdn.sanity.io/images/x/production/abc-1539x2115.png?w=800&auto=format&q=80 800w, ' +
+      'https://cdn.sanity.io/images/x/production/abc-1539x2115.png?w=1539&auto=format&q=80 1539w'
+    );
+  });
+});
+
+describe('coverImageScale', () => {
+  it('accounts for a landscape photo cropped into a portrait cover', () => {
+    expect(coverImageScale('https://cdn.sanity.io/images/p/d/photo-1600x1067.jpg', 3 / 4)).toBeCloseTo(2);
+  });
+  it('keeps the slot width for portrait photos and unknown dimensions', () => {
+    expect(coverImageScale('https://cdn.sanity.io/images/p/d/photo-1200x1600.jpg', 3 / 4)).toBe(1);
+    expect(coverImageScale(undefined, 3 / 4)).toBe(1);
   });
 });
 

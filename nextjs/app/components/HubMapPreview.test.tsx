@@ -51,18 +51,18 @@ describe('homepage map preview', () => {
     expect(screen.getByRole('button', { name: 'Kaffee' }).getAttribute('aria-pressed')).toBe('true');
     expect(screen.getByRole('button', { name: 'Pizza' }).getAttribute('aria-pressed')).toBe('false');
     expect(screen.getByRole('heading', { level: 3 }).textContent).toBe('kolo-coffee');
-    expect(screen.getByRole('link', { name: 'Zur Map' }).getAttribute('href')).toBe('/map?cat=coffee');
+    expect(screen.getByRole('link', { name: 'Mehr Kaffee' }).getAttribute('href')).toBe('/map?cat=coffee');
     expect(screen.getByRole('link', { name: 'kolo-coffee auf der Map ansehen' }).getAttribute('href')).toBe('/map?cat=coffee&r=kolo-coffee');
     fireEvent.click(screen.getByRole('button', { name: 'Lunch' }));
     expect(screen.getByRole('heading', { level: 3 }).textContent).toBe('schuesseldienst');
-    expect(screen.getByRole('link', { name: 'Zur Map' }).getAttribute('href')).toBe('/map?cat=lunch');
+    expect(screen.getByRole('link', { name: 'Mehr Lunch' }).getAttribute('href')).toBe('/map?cat=lunch');
   });
 
   it('keeps the English map entry usable with no preview photos', () => {
     fixtures.restaurants = [];
     render(<HubMapPreview locale="en" />);
     fireEvent.click(screen.getByRole('button', { name: 'Coffee' }));
-    expect(screen.getByRole('link', { name: 'Open the map' }).getAttribute('href')).toBe('/map?cat=coffee');
+    expect(screen.getByRole('link', { name: 'More coffee' }).getAttribute('href')).toBe('/map?cat=coffee');
     expect(screen.queryByRole('img')).toBeNull();
   });
 
@@ -76,10 +76,11 @@ describe('homepage map preview', () => {
     expect(rows).toHaveLength(5);
   });
 
-  it('only shows the category’s curated recommendations, in editorial starting order', () => {
-    const rows = [spot('gazzo', 'pizza'), spot('recommended', 'pizza'), spot('unapproved', 'pizza', { lat: 52.52 })];
-    expect(mapPreviewSpots(rows, HOME_MAP_CATEGORIES[0], ['recommended']).map((item) => item.slug)).toEqual(['recommended']);
-    expect(mapPreviewSpots(rows, HOME_MAP_CATEGORIES[0])).toEqual([]);
-    expect(mapPreviewSpots(rows, HOME_MAP_CATEGORIES[0], ['deleted-spot'])).toEqual([]);
+  it('adds published Pizza spots after the editorial lead without mixing categories', () => {
+    const rows = [spot('gazzo', 'pizza'), spot('recommended', 'pizza'), spot('another', 'pizza'), spot('coffee', 'coffee')];
+    expect(mapPreviewSpots(rows, HOME_MAP_CATEGORIES[0], ['recommended']).map((item) => item.slug)).toEqual(['recommended', 'another', 'gazzo']);
+    expect(mapPreviewSpots(rows, HOME_MAP_CATEGORIES[0])).toHaveLength(3);
+    expect(mapPreviewSpots(rows, HOME_MAP_CATEGORIES[1])).toEqual([]);
+    expect(mapPreviewSpots(rows, HOME_MAP_CATEGORIES[1], ['coffee']).map((item) => item.slug)).toEqual(['coffee']);
   });
 });

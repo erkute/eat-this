@@ -17,6 +17,18 @@ describe('sanityNextImageLoader', () => {
     );
   });
 
+  it('fordert beim Original keine zusätzliche Auflösung durch Hochskalieren an', () => {
+    expect(sanityNextImageLoader({ src: ASSET, width: 3840 })).toBe(
+      `${ASSET}?w=1600&auto=format&q=80`
+    );
+  });
+
+  it('begrenzt quadratische Zuschnitte auch an der kürzeren Originalseite', () => {
+    const url = new URL(sanityNextImageLoader({ src: `${ASSET}?w=400&h=400&fit=crop`, width: 2400 }));
+    expect(url.searchParams.get('w')).toBe('1200');
+    expect(url.searchParams.get('h')).toBe('1200');
+  });
+
   it('erhält einen Zuschnitt und skaliert die Höhe mit', () => {
     // galleryThumb: 400×300, fit=crop
     const url = new URL(

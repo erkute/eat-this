@@ -13,6 +13,7 @@
 // den Optimierer weiter.
 
 import sanityImageLoader from './sanityImageLoader';
+import { sanityImageSize } from './sanity-image-presets';
 
 const SANITY_CDN = 'https://cdn.sanity.io/';
 
@@ -41,8 +42,11 @@ export function sanityNextImageLoader({
   const fit = preset.get('fit');
   if (!presetH || !fit) return sanityImageLoader({ src: base, width, quality });
 
-  const params = new URLSearchParams({ w: String(width) });
-  params.set('h', String(presetW ? Math.round((presetH * width) / presetW) : presetH));
+  const ratio = presetW ? presetW / presetH : width / presetH;
+  const native = sanityImageSize(base);
+  const outputWidth = native ? Math.min(width, native.width, Math.floor(native.height * ratio)) : width;
+  const params = new URLSearchParams({ w: String(outputWidth) });
+  params.set('h', String(Math.round(outputWidth / ratio)));
   params.set('fit', fit);
   params.set('auto', 'format');
   params.set('q', String(quality ?? preset.get('q') ?? 80));

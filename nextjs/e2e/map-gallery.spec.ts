@@ -159,9 +159,6 @@ for (const locale of ['de', 'en'] as const) {
 }
 
 test('gallery reserves the photo and credit layout while the full image loads', async ({ page }, info) => {
-  await page.goto('/map?r=gazzo', { waitUntil: 'domcontentloaded' });
-  const opener = page.getByRole('button', { name: 'Gazzo: Fotos 1/2', exact: true });
-  await expect(opener).toBeVisible();
   let releaseImages!: () => void;
   const imagesReady = new Promise<void>((resolve) => { releaseImages = resolve; });
   await page.route('https://cdn.sanity.io/images/**', async (route) => {
@@ -169,6 +166,11 @@ test('gallery reserves the photo and credit layout while the full image loads', 
     await route.continue();
   });
   try {
+    // The viewer can reuse a responsive photo already loaded by the sheet.
+    // Delay from navigation onward to exercise a genuinely unloaded image.
+    await page.goto('/map?r=gazzo', { waitUntil: 'domcontentloaded' });
+    const opener = page.getByRole('button', { name: 'Gazzo: Fotos 1/2', exact: true });
+    await expect(opener).toBeVisible();
     await opener.click();
     const gallery = page.getByRole('dialog', { name: 'Gazzo – Fotogalerie', exact: true });
     const photo = gallery.getByRole('img', { name: 'Gazzo', exact: true });

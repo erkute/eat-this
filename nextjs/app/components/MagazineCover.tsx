@@ -19,7 +19,7 @@ import {
   type CoverTone,
   type CutoutCover,
 } from '@/lib/magazineCover';
-import { sanitySrcSet } from '@/lib/sanity-image-presets';
+import { sanitySrcSet, coverImageScale } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import styles from './MagazineCover.module.css';
 
@@ -114,8 +114,12 @@ export default function MagazineCover({
   const cut = hasCutout(cover) ? cover : null;
 
   // Das Aufmacher-Foto, `factor`-mal so breit wie das Heft.
-  const photo = (className: string, factor = 1, style?: CSSProperties) =>
-    image ? (
+  const photo = (className: string, factor = 1, style?: CSSProperties) => {
+    const slotRatio = className === styles.fill ? 3 / 4
+      : className === styles.systemPhoto ? 1 / .92
+      : className === styles.framed ? .86 / .69 : 1;
+    const sourceScale = factor * coverImageScale(image, slotRatio);
+    return image ? (
       // Sanity serves the responsive variants itself; the App Hosting image
       // proxy would re-optimise them.
       // eslint-disable-next-line @next/next/no-img-element
@@ -123,20 +127,22 @@ export default function MagazineCover({
         className={className}
         style={style}
         src={sanityImageLoader({ src: image, width: widths[1] ?? widths[0] })}
-        srcSet={sanitySrcSet(image, widths.map((w) => Math.round(w * factor)))}
-        sizes={factor === 1 ? sizes : scaleSizes(sizes, factor)}
+        srcSet={sanitySrcSet(image, widths.map((w) => Math.round(w * sourceScale)))}
+        sizes={sourceScale === 1 ? sizes : scaleSizes(sizes, sourceScale)}
         alt=""
         loading={loading}
         fetchPriority={fetchPriority}
         decoding="async"
       />
     ) : null;
+  };
 
   // Der Freisteller, auf den Rahmen des Motivs zugeschnitten.
   const cutout = (c: CutoutCover, rect: CoverRect, className: string, style?: CSSProperties) => {
     const base = c.cutout.split('?')[0];
     const crop = cutoutRect(c);
-    const ws = widths.map((w) => Math.round((w * rect.width) / 100));
+    const cropWidth = Number(crop.split(',')[2]);
+    const ws = [...new Set(widths.map((w) => Math.min(cropWidth, Math.round((w * rect.width) / 100))))];
     const url = (w: number) => `${base}?rect=${crop}&w=${w}&auto=format&q=80`;
     return (
       // eslint-disable-next-line @next/next/no-img-element

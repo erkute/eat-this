@@ -12,5 +12,5 @@ import { isSanityImage, sanityNextImageLoader } from '@/lib/imageLoader';
 export default function SiteImage(props: ImageProps) {
   const sanity = typeof props.src === 'string' && isSanityImage(props.src);
   // eslint-disable-next-line jsx-a11y/alt-text -- `alt` kommt über die Props.
-  return <Image {...props} loader={sanity ? sanityNextImageLoader : props.loader} />;
+  return <Image {...props} quality={props.quality ?? 80} loader={sanity ? sanityNextImageLoader : props.loader} />;
 }

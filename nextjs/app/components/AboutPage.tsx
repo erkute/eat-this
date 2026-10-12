@@ -51,10 +51,10 @@ type Figure = {
    contact sheet. */
 const FIGURES: (Figure | null)[] = [
   {
-    src: '/pics/home-phones/phone-map-red-600.webp',
-    width: 600,
-    height: 1219,
-    // 600x1219 is a tall object: anything wider than this and the phone runs
+    src: '/pics/home-phones/phone-map-red.webp?v=2',
+    width: 1282,
+    height: 2604,
+    // A tall object: anything wider than this and the phone runs
     // past the copy beside it.
     renderWidth: 225,
     tilt: -2,

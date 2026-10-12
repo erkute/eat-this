@@ -22,6 +22,8 @@ import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import { chapterShortLabel } from '@/lib/headingDeck';
+import { coverImageScale } from '@/lib/sanity-image-presets';
+import { scaleSizes } from '@/lib/magazineCover';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -497,7 +499,7 @@ export default function NewsArticleShell({
                   alt={article.alt || title}
                   fill
                   priority
-                  sizes="100vw"
+                  sizes={`(max-width: 700px) ${scaleSizes('100vw', coverImageScale(article.imageUrl, 4 / 5))}, ${scaleSizes('100vw', coverImageScale(article.imageUrl, 3 / 2))}`}
                   className={styles.hero}
                 />
               </div>

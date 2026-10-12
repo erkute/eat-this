@@ -116,14 +116,15 @@ test('category recommendations navigate without JavaScript', async ({ browser, b
   } finally { await context.close(); }
 });
 
-test('further categories use a readable word menu instead of repeating packs', async ({ page, isMobile }) => {
+test('further categories show four illustrated packs with keyboard navigation', async ({ page, isMobile }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   if (isMobile) await page.setViewportSize({ width: 320, height: 850 });
   await page.goto('/kategorie/sweets');
-  const categories = page.getByRole('navigation', { name: 'Worauf hast du noch Lust?', exact: true });
+  const categories = page.getByRole('navigation', { name: 'Oder doch …?', exact: true });
   await categories.scrollIntoViewIfNeeded();
-  await expect(categories.getByRole('link')).toHaveCount(8);
-  await expect(categories.locator('img')).toHaveCount(0);
+  await expect(categories.getByRole('link')).toHaveCount(4);
+  await expect(categories.locator('img')).toHaveCount(4);
+  await expect(categories.locator('a[href="/kategorie/sweets"]')).toHaveCount(0);
   expect(await categories.getByRole('link').evaluateAll(links => links.every(link => link.scrollWidth <= link.clientWidth + 1))).toBe(true);
   const breakfast = categories.getByRole('link', { name: 'Frühstück', exact: true });
   await breakfast.focus();
@@ -155,18 +156,11 @@ for (const motion of ['no-preference', 'reduce'] as const) {
           expect(new Set(row!.map(spot => spot[field])).size).toBe(1);
         }
       }
-      // The approved inline label follows each description, whose length may vary.
-      const labelsFollowDescriptions = await cards.evaluateAll(nodes => nodes.every(node => {
-        const description = node.querySelector(':scope > div > p')!.getBoundingClientRect();
-        const favorite = node.querySelector('[data-favorite]')!.getBoundingClientRect();
-        return favorite.top >= description.bottom && Math.abs(favorite.left - description.left) < 1;
-      }));
-      expect(labelsFollowDescriptions).toBe(true);
       await expect(page.getByText('Kuratiert von', { exact: true })).toHaveCount(0);
-      await expect(cards.first().locator('[data-favorite]')).toContainText('Favorit');
+      await expect(cards.locator('[data-favorite]')).toHaveCount(0);
     }
     await expect(cards.locator('details')).toHaveCount(0);
-    await expect(cards.first().locator('[data-favorite]')).toHaveText('Favorit');
+    await expect(cards.locator('[data-favorite]')).toHaveCount(0);
     const booster = page.locator('[data-discovery-pack]');
     await booster.scrollIntoViewIfNeeded();
     await expect(booster.locator('img')).toBeVisible();

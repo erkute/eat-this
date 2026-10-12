@@ -462,10 +462,12 @@ html[data-active-page][data-magazine-opening] body,
 html[data-active-page][data-magazine-opening] .app-pages {
   background: var(--et-magazine-table);
 }
-/* Bezirke, Kategorien und Spots samt Übersichten stehen auf Marken-Ink. */
+/* Spot-Artikel und Entdecker-Rubriken teilen den Ink-Grund der Startseite. */
 html[data-active-page='restaurant'],
 html[data-active-page='restaurant'] body,
-html[data-active-page='restaurant'] .app-pages,
+html[data-active-page='restaurant'] .app-pages {
+  background: var(--et-ink);
+}
 html[data-active-page='bezirk'],
 html[data-active-page='bezirk'] body,
 html[data-active-page='bezirk'] .app-pages,
@@ -1746,4 +1748,11 @@ ol {
   html[data-hero-intro][data-active-page='start'] body {
     background-color: #000;
   }
+}
+
+/* One continuous map between the district footer and Berlin overview. */
+::view-transition-group(berlin-map) { animation-duration: 700ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+::view-transition-old(berlin-map), ::view-transition-new(berlin-map) { height: 100%; object-fit: fill; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(berlin-map) { animation-duration: 0s; }
 }

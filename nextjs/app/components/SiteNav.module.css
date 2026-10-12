@@ -287,3 +287,19 @@
     visibility: hidden;
   }
 }
+
+/* Die Lesefläche füllt den Header; die Bedienung bleibt darüber. */
+.nav:not([data-nav-page='map']) > .readingProgress {
+  position: absolute;
+  inset: 0;
+  background: var(--et-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  z-index: 0;
+  transition: none;
+  pointer-events: none;
+}
+.nav .actions { position: relative; z-index: 1; }
+
+.nav[data-nav-page='news-article'] .control:focus-visible,
+.nav[data-nav-page='restaurant'] .control:focus-visible { outline-color: var(--et-white); }

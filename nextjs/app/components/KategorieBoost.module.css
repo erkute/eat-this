@@ -1,19 +1,10 @@
-/* Der passende Booster unter dem Aufmacher der Kategorie-Seite — dasselbe
-   Objekt wie die All-Berlin-Tafel auf /packs (Upsell-Fassung): gelber Kicker,
-   weißer Name, gelbe Editor-Zeile, ein gelber Knopf mit dem Preis im Label,
-   das Pack als Star links. Seit 03.10.2026 steht die Kategorie-Seite im
-   Heftlook auf Weiss, die Tafel ist deshalb Ink — wie die Tafel am Ende
-   eines Artikels. Davor, auf der Ink-Seite, trug sie die leise Stufe eine
-   Spur heller als der Grund (auf Weiss unsichtbar, die gelbe Schrift stand
-   dann frei auf Weiss); noch davor eine graue Papierfläche mit rotem Titel
-   und schwarzem Knopf. */
 .boost {
   --boost-ink: var(--et-ink);
   --boost-paper: var(--et-white);
   --boost-accent: var(--et-accent);
 
   display: grid;
-  grid-template-columns: minmax(140px, 240px) minmax(0, 1fr);
+  grid-template-columns: minmax(140px, 280px) minmax(0, 1fr);
   align-items: center;
   gap: clamp(22px, 4vw, 52px);
   min-width: 0;
@@ -35,7 +26,7 @@
 
 .posterImg {
   display: block;
-  width: min(62%, 250px);
+  width: min(100%, 180px);
   height: auto;
   filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45));
   transform: rotate(4deg);
@@ -138,7 +129,7 @@
   }
 
   .posterImg {
-    width: min(100%, 220px);
+    width: min(100%, 180px);
   }
 }
 
@@ -177,4 +168,10 @@
       filter: none;
     }
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .posterImg, .cta { transition: none; }
+  .boost:hover .posterImg { transform: rotate(4deg); }
+  .cta:hover, .cta:focus-visible { transform: none; }
 }

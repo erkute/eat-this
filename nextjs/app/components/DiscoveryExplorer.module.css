@@ -1,0 +1,61 @@
+.explorer {
+  width: 100%;
+  max-width: 1380px;
+  min-height: calc(100svh - 80px);
+  margin-inline: auto;
+  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 8px);
+}
+.mapSection { margin-top: 0; }
+.geography {
+  display: block;
+  width: 100%;
+  height: max(0px, calc(100svh - var(--site-nav-h) - var(--staging-banner-h, 0px) - 96px));
+  min-height: 0;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+}
+.cityFill, .inertRegion, .region { fill: #000; }
+.cityFill { pointer-events: none; }
+.inertRegion { pointer-events: none; }
+.region {
+  cursor: pointer;
+  stroke: transparent;
+  stroke-width: 1.5;
+  transition: fill 180ms ease, stroke 180ms ease;
+}
+.region[data-highlighted='true'], .region[data-selected='true'] {
+  fill: var(--et-accent);
+  stroke: var(--et-white);
+}
+.region:focus { outline: none; }
+.region:focus-visible { fill: var(--et-accent); stroke: var(--et-white); stroke-width: 3; }
+.boundaries { fill: none; stroke: var(--et-white); stroke-opacity: .24; stroke-width: .7; pointer-events: none; }
+.cityBoundary { fill: none; stroke: var(--et-white); stroke-opacity: .85; stroke-width: 1.4; pointer-events: none; }
+.mapHint { min-height: 66px; margin: 14px 0 0; text-align: center; font-size: 18px; line-height: 1.4; }
+.districtName { display: block; font-size: 24px; line-height: 1.2; }
+.hintAction { display: block; margin-top: 5px; font-size: 16px; }
+.mapSection[data-map-opening='true'] .geography { pointer-events: none; }
+@media (max-width: 767px) {
+  .explorer { min-height: calc(100svh - 72px); padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px); }
+  .mapSection { margin-top: 24px; }
+  .geography { height: auto; min-height: 0; aspect-ratio: 640 / 550; }
+  .mapHint { margin-top: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .region { transition: none; } }
+
+.accessibleTitle { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .region[data-preview='true'] { animation: districtEmber 4.2s ease-in-out both; }
+}
+@keyframes districtEmber {
+  0%, 100% { fill: #000; stroke: transparent; }
+  38%, 55% { fill: var(--et-accent); stroke: var(--et-accent); }
+  90% { fill: #000; stroke: transparent; }
+}
+
+@media (min-width: 768px) {
+  .explorer { padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)); }
+  .geography { height: max(0px, calc(100svh - var(--site-nav-h) - var(--staging-banner-h, 0px) - 64px)); }
+  .mapHint { min-height: 56px; margin-top: 0; }
+}

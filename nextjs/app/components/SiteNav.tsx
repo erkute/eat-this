@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { appScroller } from '@/lib/dom/appScroller';
 import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link, usePathname } from '@/i18n/navigation';
@@ -19,6 +20,41 @@ export default function SiteNav() {
   const { t, lang } = useTranslation();
   const pathname = usePathname();
   const activePage = pageSlugFromPath(pathname);
+  const reading = activePage === 'news-article' || activePage === 'restaurant';
+  const progressRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!reading) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const scroller = appScroller();
+      const top = scroller ? scroller.scrollTop : window.scrollY;
+      const content = document.querySelector<HTMLElement>('[data-reading-content]');
+      const viewBottom = scroller ? scroller.getBoundingClientRect().bottom : window.innerHeight;
+      const distance = content
+        ? top + content.getBoundingClientRect().bottom - viewBottom
+        : scroller
+        ? scroller.scrollHeight - scroller.clientHeight
+        : document.documentElement.scrollHeight - window.innerHeight;
+      const progress = distance > 0 ? Math.min(1, Math.max(0, top / distance)) : 0;
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`;
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    document.addEventListener('scroll', schedule, { passive: true, capture: true });
+    window.addEventListener('resize', schedule);
+    const observer = new ResizeObserver(schedule);
+    observer.observe(document.body);
+    const content = document.querySelector('main');
+    if (content) observer.observe(content);
+    update();
+    return () => {
+      document.removeEventListener('scroll', schedule, true);
+      window.removeEventListener('resize', schedule);
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [pathname, reading]);
 
   // Keep the html[data-active-page] attribute in sync with the current
   // route. The bootstrap script in app/[locale]/layout.tsx sets this on
@@ -33,7 +69,7 @@ export default function SiteNav() {
   useEffect(() => {
     const navbar = document.getElementById('navbar');
     if (navbar) navbar.dataset.visibility = 'visible';
-    if (!navbar || activePage === 'map') return;
+    if (!navbar || activePage === 'map' || reading) return;
 
     const media = window.matchMedia('(max-width: 767.98px)');
     let lastY = window.scrollY || window.pageYOffset || 0;
@@ -131,7 +167,7 @@ export default function SiteNav() {
       navbar.dataset.visibility = 'visible';
       delete navbar.dataset.leaving;
     };
-  }, [activePage]);
+  }, [activePage, reading]);
 
   return (
     <>
@@ -139,6 +175,7 @@ export default function SiteNav() {
         {t('a11y.skip')}
       </a>
       <nav className={styles.nav} id="navbar" data-nav-page={activePage} data-visibility="visible">
+        {reading && <span ref={progressRef} className={styles.readingProgress} aria-hidden="true" data-reading-progress="" />}
         {/* Left: map text */}
         <div className={`${styles.actions} ${styles.actionsStart}`}>
           <MapIntentLink href="/map" className={styles.control} id="navMapBtn" aria-label="Map">

@@ -1,16 +1,15 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getAllCategoriesWithStats } from '@/lib/sanity.server';
-import { localizedCategoryBlurb, localizedCategoryName } from '@/lib/categories';
-import { categoryArt } from '@/lib/categoryArt';
-import { pickShelf } from '@/lib/curated-ranking';
+import { localizedCategoryName } from '@/lib/categories';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import styles from '@/app/components/HubIssue.module.css';
-import { IssueDirectory, IssueMagazine } from '@/app/components/HubIssue';
+import { IssueMagazine } from '@/app/components/HubIssue';
+import CategoryGallery from '@/app/components/CategoryGallery';
 import { latestIssues } from '@/lib/home/getHomeData';
 
 interface PageProps {
@@ -58,14 +57,12 @@ export default async function KategorieIndexPage({ params }: PageProps) {
   setRequestLocale(locale);
   const de = locale === 'de';
   const loc = de ? 'de' : 'en';
-  // Parallel zu „Die Bezirke" (Wahl 03.10.2026, vorher „Wonach ist dir?").
-  const title = de ? 'Die Kategorien' : 'The categories';
   // Leere Kategorien fliegen raus — dieselbe Regel wie auf dem Bezirks-Index:
   // eine Zeile ohne Spots ist eine Sackgasse für Leser und dünner Inhalt für
   // Google.
   const [allCategories, magazine] = await Promise.all([
     getAllCategoriesWithStats(),
-    latestIssues(3, loc),
+    latestIssues(4, loc),
   ]);
   const categories = allCategories.filter((c) => (c.restaurantCount ?? 0) > 0);
 
@@ -109,44 +106,22 @@ export default async function KategorieIndexPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        {/* Der Kopf war bis 24.08.2026 drei Booster-Pack-Tüten — Produktfotos,
-            keine Kategoriebilder. Hier trägt die Type. */}
-        <header className={styles.head}>
-          <p className={styles.kicker}>Restaurants in Berlin</p>
-          <h1 className={styles.title}>
-            <span className={styles.indexTitle}>{title}</span>
-          </h1>
-        </header>
-
-        {/* Ohne Vorspann und ohne Zwischenüberschrift: das Register spricht
-            für sich (Wahl 03.10.2026). */}
-        <IssueDirectory
-          label={de ? 'Alle Kategorien' : 'All categories'}
-          entries={categories.map((c) => {
-            const label = localizedCategoryName(c, loc);
-            // Kuratierte Spots führen die Bildleiste an, aufgefüllt wird mit
-            // der alphabetischen Auswahl.
-            const curated = (c.topSpotCards ?? []).filter((r) => r.photo);
-            return {
-              slug: c.slug,
-              href: `/kategorie/${c.slug}`,
-              name: label,
-              blurb: localizedCategoryBlurb(c, loc),
-              spots: pickShelf(curated, c.exampleRestaurants, 4),
-              more: de ? `Alle Spots für ${label}` : `All spots for ${label}`,
-              // Das Pack der Kategorie als Marke neben dem Namen — nur Bild,
-              // kein Link (27.08.2026): die Packs liegen unter /packs, ein
-              // zweites Ziel in derselben Zeile machte zwei Versprechen.
-              art: categoryArt(c.slug),
-            };
-          })}
+        <CategoryGallery
+          locale={loc}
+          items={categories.map((category) => ({
+            slug: category.slug,
+            label: localizedCategoryName(category, loc),
+          }))}
         />
 
         {/* Der Schluss: wer unten ankommt, liest weiter. */}
         <IssueMagazine
           issues={magazine}
           locale={loc}
-          heading={de ? 'Aus dem Magazin' : 'From the magazine'}
+          heading={de ? 'Noch ein bisschen Appetit holen?' : 'A little more food for thought?'}
+          intro={de
+            ? 'Im Eat This Magazin geht’s weiter: mit Geschichten über Berlins Restaurants, Gerichte und die Menschen dahinter.'
+            : 'Keep exploring in the Eat This magazine: stories about Berlin’s restaurants, dishes and the people behind them.'}
         />
       </main>
     </>

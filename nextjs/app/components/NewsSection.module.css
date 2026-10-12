@@ -62,15 +62,7 @@
   text-transform: uppercase;
 }
 
-.heroSub {
-  max-width: 32ch;
-  margin: 0;
-  color: var(--news-copy);
-  font-family: var(--et-font-display);
-  font-size: clamp(20px, 2vw, 25px);
-  font-weight: 700;
-  line-height: 1.35;
-}
+
 
 /* ── Die aktuelle Ausgabe ── Das vordere Heft ist der Link, leicht in den
    Raum gedreht wie auf der Startseite; die zwei Ausgaben davor liegen schräg
@@ -78,7 +70,7 @@
    gerät zwischen die Hefte. */
 .issue {
   display: grid;
-  gap: 20px;
+  gap: 32px;
 }
 
 .pile {
@@ -204,7 +196,7 @@
 /* ---------------------------------------------------------- auslage ---- */
 
 .archive {
-  margin-top: clamp(40px, 5vw, 64px);
+  margin-top: clamp(64px, 7vw, 96px);
 }
 
 .sectionHead {
@@ -238,7 +230,7 @@
 .shelf {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 34px 16px;
+  gap: 52px 16px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -358,7 +350,7 @@
 
   .shelf {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(40px, 4.4vw, 56px) clamp(24px, 3vw, 40px);
+    gap: clamp(64px, 6vw, 88px) clamp(24px, 3vw, 40px);
   }
 
   /* Ab hier fächern beide älteren nach links auf, zur Schrift hin — wie der
@@ -446,8 +438,12 @@
 }
 
 .magTitle {
-  margin-top: 18px;
+  margin-top: 28px;
   font-size: clamp(17px, 1.65vw, 21px);
+}
+
+@media (max-width: 767px) {
+  .issueLabel { text-align: center; }
 }
 
 @media (min-width: 1600px) {

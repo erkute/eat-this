@@ -225,6 +225,8 @@ export default defineType({
       ],
       validation: (Rule) => Rule.required(),
     }),
+    defineField({ name: 'previewExcerptDe', title: 'Kurzvorschau für /news', type: 'text', group: 'artikel', rows: 2 }),
+    defineField({ name: 'previewExcerpt', title: 'Short preview for /en/news', type: 'text', group: 'englisch', rows: 2 }),
     defineField({
       name: 'contentDe',
       title: 'Text',

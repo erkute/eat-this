@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import Image from '@/app/components/SiteImage';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import {
@@ -13,16 +12,15 @@ import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
 import {
   buildCategoryTitle,
   buildCategoryDescription,
-  buildCategorySectionHeading,
   buildCategoryDirectoryHeading,
 } from '@/lib/seo/categoryMeta';
-import { rankCurated, shelfPhoto } from '@/lib/curated-ranking';
+import { rankCurated } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
 import { categoryDistrictLinks, categoryGuideSlugs } from '@/lib/seo/crossLinks';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { buildWebPageNodes, serializeJsonLd } from '@/lib/json-ld';
 import { schemaImageUrl } from '@/lib/sanity-image-presets';
-import { BRAND_LOGO_SRC, OG_CARD_VERSION, OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
+import { OG_CARD_VERSION, OG_PACK_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { metadataSource } from '@/lib/seo/metadataSource';
@@ -30,14 +28,13 @@ import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { routing } from '@/i18n/routing';
 import styles from '@/app/components/HubIssue.module.css';
 import {
-  IssueContents,
   IssueGuides,
   IssueRegister,
-  IssueSiblings,
+  IssueCategories,
   IssueSpots,
   latestMonth,
 } from '@/app/components/HubIssue';
-import MapIntentLink from '@/app/components/MapIntentLink';
+import DiscoveryDetail from '@/app/components/DiscoveryDetail';
 import {
   HubFilterProvider,
   HubFilterBar,
@@ -151,9 +148,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   const loc = de ? 'de' : 'en';
 
   const guideSlugs = categoryGuideSlugs(slug);
-  // Mit Zahlen und Regal wie auf /kategorie: der Ausgang unten zeigt je
-  // Kategorie ein Foto und lässt leere weg. Derselbe Data-Cache-Eintrag wie
-  // die Übersicht.
+  // Der Pack-Ausgang lässt leere Kategorien weg und nutzt denselben
+  // Data-Cache-Eintrag wie die Übersicht.
   const [c, restaurants, guides, alleKategorien] = await Promise.all([
     getCategoryBySlug(slug),
     getRestaurantsByCategory(slug),
@@ -173,26 +169,25 @@ export default async function KategorieDetailPage({ params }: PageProps) {
   // Karten hinter keinem Chip erreichbar. Der Satz läuft hier andersherum als
   // auf den Bezirksseiten — die Facette ist der Bezirk, benannt wird trotzdem
   // „Kategorie in Bezirk".
-  const spotWord = (n: number) => (de ? (n === 1 ? 'Spot' : 'Spots') : n === 1 ? 'spot' : 'spots');
   const districtFilters: HubFacet[] = categoryDistrictLinks(restaurants, Infinity).map((b) => ({
     slug: b.slug,
     label: b.label,
-    status: `${label} in ${b.label} · ${b.count} ${spotWord(b.count)}`,
+    status: `${label} in ${b.label}`,
   }));
   /** Die Bezirks-Slugs einer Teilliste — entscheidet, ob ihre Sektion beim
    *  aktiven Filter überhaupt noch etwas zeigt. */
   const districtSlugsIn = (list: RestaurantCard[]) => [...new Set(list.flatMap(districtSlugsOf))];
   const lead = top.length > 0 ? top : rest;
   const leadAsCards = top.length > 0 || rest.length <= CARD_LIMIT;
+  const opening = leadAsCards ? lead.slice(0, 3) : lead;
+  const continuation = leadAsCards ? lead.slice(3) : [];
   const updated = latestMonth(restaurants, loc);
 
-  const takenPhotos = new Set<string>();
   const nachbarKategorien = alleKategorien
     .filter((x) => x.slug && x.slug !== slug && (x.restaurantCount ?? 0) > 0)
     .map((x) => ({
       slug: x.slug,
       label: localizedCategoryName(x, loc),
-      photo: shelfPhoto(x, takenPhotos),
     }));
 
   const restaurantUrl = (rSlug: string) => `/restaurant/${rSlug}`;
@@ -266,36 +261,15 @@ export default async function KategorieDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
       <main className={styles.page}>
-        <header className={styles.head}>
-          <p className={styles.kicker}>{de ? 'Kategorie' : 'Category'}</p>
-          {/* „Lunch" allein trifft weder „lunch berlin" noch „mittagessen
-              berlin". Der Zusatz steht in der H1, optisch klein unter dem
-              Namen; das Leerzeichen trennt beide im Text der H1. */}
-          <h1 className={styles.title}>
-            <span className={styles.name}>{label}</span>{' '}
-            <span className={styles.post}>in Berlin</span>
-          </h1>
-          <p className={styles.credits}>
-            <span>{de ? 'Von Eat This kuratiert' : 'Curated by Eat This'}</span>
-            {updated && <span>{de ? `Stand ${updated}` : `Updated ${updated}`}</span>}
-          </p>
-        </header>
-
-        {leadAsCards && <IssueContents restaurants={lead} label={de ? 'Die Spots' : 'The spots'} />}
-
-        <p className={styles.lede}>
-          {blurb || (de ? 'Die besten Spots in Berlin.' : 'The best spots in Berlin.')}
-        </p>
-        <div className={styles.actions}>
-          <MapIntentLink
-            href={`/map?cat=${slug}`}
-            rel="nofollow"
-            className={styles.btn}
-            aria-label={de ? `${label} auf der Map öffnen` : `Open ${label} on the map`}
-          >
-            {de ? 'Zur Map' : 'On the map'}
-          </MapIntentLink>
-        </div>
+        <DiscoveryDetail
+          kind="kategorie"
+          slug={slug}
+          name={label}
+          description={blurb || ''}
+          updated={updated}
+          photos={[...top, ...rest]}
+          locale={loc}
+        />
 
         <HubFilterProvider queryKey="bezirk" slugs={districtFilters.map((b) => b.slug)}>
           {/* Spiegelbild der Kategorie-Zeile auf den Bezirksseiten. Bis
@@ -307,8 +281,8 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               allLabel={de ? 'Alle' : 'All'}
               allStatus={
                 de
-                  ? `Alle ${restaurants.length} Spots in Berlin`
-                  : `All ${restaurants.length} spots across Berlin`
+                  ? 'Alle Spots in Berlin'
+                  : 'All spots across Berlin'
               }
               groupLabel={de ? `${label} nach Bezirk filtern` : `Filter ${label} by district`}
             />
@@ -319,39 +293,13 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               wegfiltern, und ein Anker in einer versteckten Gruppe scrollt
               nirgendwohin. */}
           <div id={SPOT_LIST_ID} className={styles.spotList}>
-            <HubFilterGroup slugs={districtSlugsIn(lead)}>
+            <HubFilterGroup slugs={districtSlugsIn(opening)}>
               <section>
-                {/* Trägt die Ziel-Query im Klartext — die H1 ist auf den
-                    Kategorienamen gebaut. */}
-                <h2 className={styles.secTitle}>{buildCategorySectionHeading(slug, label, loc)}</h2>
-                {/* „Die 6 besten" zählt die ganze Kategorie. Sobald ein
-                    Bezirksfilter zwei davon übrig lässt, stimmt die Zahl nicht
-                    mehr — die Zeile fällt dann weg statt zu lügen. Die Marke
-                    als Logo, nicht als gesetzter Text; `alt` trägt den Namen. */}
-                <HubFilterUnfiltered>
-                  <p className={styles.secNote}>
-                    {top.length > 0
-                      ? de
-                        ? `Die ${top.length} besten, ausgewählt von`
-                        : `The top ${top.length}, picked by`
-                      : de
-                        ? 'Kuratiert von'
-                        : 'Curated by'}
-                    {/* Rund 20px hoch; `sizes` trifft dieselbe 256er-Stufe wie
-                        das Logo in der SiteNav, die schon im Cache liegt. */}
-                    <Image
-                      src={BRAND_LOGO_SRC}
-                      alt="Eat This"
-                      width={1660}
-                      height={667}
-                      sizes="64px"
-                      className={styles.inlineLogo}
-                    />
-                  </p>
-                </HubFilterUnfiltered>
+                <h2 className={styles.secTitle}>{de ? 'Unsere Empfehlungen' : 'Our recommendations'}</h2>
                 {leadAsCards ? (
                   <IssueSpots
-                    restaurants={lead}
+                    restaurants={opening}
+                    layout="editorial"
                     locale={loc}
                     facetsOf={districtSlugsOf}
                     showDistrict
@@ -367,10 +315,25 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               </section>
             </HubFilterGroup>
 
-            {/* Das Pack NACH der Bestenliste, nicht davor: auf dem Telefon schob
-              es den ersten Spot bis 25.09.2026 unter die Falz — die Seite
-              begann mit einer Werbung statt mit ihrer Antwort. Gefiltert tritt
-              es ab: dann zählen nur die Treffer. */}
+            <HubFilterUnfiltered>
+              <IssueGuides
+                guides={guides}
+                locale={loc}
+                heading={de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
+                interlude
+              />
+            </HubFilterUnfiltered>
+
+            {continuation.length > 0 && (
+              <HubFilterGroup slugs={districtSlugsIn(continuation)}>
+                <section>
+                  <h2 className={styles.secTitle}>{de ? 'Noch mehr gute Adressen' : 'More great spots'}</h2>
+                  <IssueSpots restaurants={continuation} locale={loc}
+                    facetsOf={districtSlugsOf} showDistrict layout="compact" />
+                </section>
+              </HubFilterGroup>
+            )}
+
             <HubFilterUnfiltered>
               <div className={styles.boost}>
                 <KategorieBoost categorySlug={c.slug} categoryName={label} locale={loc} />
@@ -396,19 +359,10 @@ export default async function KategorieDetailPage({ params }: PageProps) {
           </div>
         </HubFilterProvider>
 
-        {/* Siehe categoryGuideSlugs — die Zuordnung Hub → Guide. */}
-        <IssueGuides
-          guides={guides}
-          locale={loc}
-          heading={de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
-        />
-
         {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und was noch?". */}
-        <IssueSiblings
+        <IssueCategories
           items={nachbarKategorien}
-          base="/kategorie"
-          heading={de ? 'Andere Kategorien' : 'Other categories'}
-          label={de ? 'Weitere Kategorien' : 'More categories'}
+          heading={de ? 'Oder doch …?' : 'Or maybe …?'}
         />
       </main>
     </>

@@ -1,20 +1,13 @@
-/**
- * Die Bildfolge der Spot-Seite (Heftlook nach 032c, Wahl 03.10.2026): die
- * Fotos stehen spaltenbreit zwischen dem Text, und **nie zwei direkt
- * hintereinander**. Vor jedem Bild steht ein Abschnitt — eine Satzgruppe der
- * Beschreibung, der Insider-Tipp oder die Must Eats. Reicht der Text nicht für
- * alle Fotos, wird er in Sätze geteilt; bleiben danach Fotos übrig, stehen sie
- * als Reihe am Ende der Strecke (`rest`) statt gestapelt.
- *
- * Das Titelfoto gehört nicht dazu — es steht immer vorne, direkt unter dem
- * Vorspann.
- */
+/** Restaurant photo rhythm: keep paragraphs intact. Image-heavy stories
+ * collect photos into matching pairs instead of manufacturing text separators.
+ * The cover remains separate from the gallery. */
 
 export type SpotFlowBlock =
   | { kind: 'text'; text: string; short: boolean }
   | { kind: 'tip' }
   | { kind: 'mustEats' }
-  | { kind: 'image'; index: number };
+  | { kind: 'image'; index: number }
+  | { kind: 'imageGroup'; indices: number[] };
 
 /** Ein einzelner Satz unter dieser Länge wirkt zwischen grossen Bildern wie
  *  eine Bildunterschrift — die Seite setzt ihn dann gross in der Markenschrift.
@@ -63,32 +56,12 @@ export function splitSentences(text: string): string[] {
   return out;
 }
 
-/** `n` Gruppen aufeinanderfolgender Sätze, möglichst gleich lang. */
-function groupSentences(sentences: string[], n: number): string[] {
-  const total = sentences.reduce((sum, s) => sum + s.length, 0);
-  const groups: string[] = [];
-  let current: string[] = [];
-  let length = 0;
-  sentences.forEach((sentence, i) => {
-    current.push(sentence);
-    length += sentence.length;
-    const groupsLeft = n - groups.length - 1;
-    const sentencesLeft = sentences.length - i - 1;
-    const reachedShare = length >= (total / n) * (groups.length + 1);
-    if (groupsLeft > 0 && (reachedShare || sentencesLeft === groupsLeft)) {
-      groups.push(current.join(' '));
-      current = [];
-    }
-  });
-  if (current.length) groups.push(current.join(' '));
-  return groups;
-}
-
 export function buildSpotFlow({
   paragraphs,
   hasTip,
   hasMustEats,
   imageCount,
+  imageSizes = [],
 }: {
   /** Die Beschreibung, nach Absätzen (`\n\n`) geteilt. */
   paragraphs: string[];
@@ -96,15 +69,9 @@ export function buildSpotFlow({
   hasMustEats: boolean;
   /** Fotos der Strecke, ohne das Titelfoto. */
   imageCount: number;
+  imageSizes?: ({ width: number; height: number } | null)[];
 }): { blocks: SpotFlowBlock[]; rest: number[] } {
-  let texts = paragraphs.map((p) => p.trim()).filter(Boolean);
-  // Jedes Foto braucht einen Abschnitt davor; Tipp und Must Eats sind welche.
-  const needed = Math.max(1, imageCount - Number(hasTip) - Number(hasMustEats));
-  if (texts.length > 0 && texts.length < needed) {
-    const sentences = texts.flatMap(splitSentences);
-    texts = groupSentences(sentences, Math.min(needed, sentences.length));
-  }
-
+  const texts = paragraphs.map(p => p.trim()).filter(Boolean);
   // Der Tipp nach dem ersten Textabschnitt, die Must Eats nach dem zweiten —
   // getrennt, nicht als ein Block (Ansage 03.10.2026).
   const sections: SpotFlowBlock[] = [];
@@ -118,6 +85,27 @@ export function buildSpotFlow({
   if (texts[1]) sections.push(asText(texts[1]));
   if (hasMustEats) sections.push({ kind: 'mustEats' });
   texts.slice(2).forEach((text) => sections.push(asText(text)));
+
+  const words = texts.join(' ').split(/\s+/).filter(Boolean).length;
+  if (imageCount >= 2 && words < imageCount * 120) {
+    const blocks = [...sections];
+    let next = 0;
+    while (next < imageCount) {
+      const first = imageSizes[next];
+      const second = imageSizes[next + 1];
+      // Only pair matching native proportions; unknown dimensions stay solo.
+      const matches = first && second && first.width > 0 && first.height > 0 &&
+        second.width > 0 && second.height > 0 &&
+        Math.abs(first.width / first.height - second.width / second.height) < 0.001;
+      if (matches) {
+        blocks.push({ kind: 'imageGroup', indices: [next, next + 1] });
+        next += 2;
+      } else {
+        blocks.push({ kind: 'image', index: next++ });
+      }
+    }
+    return { blocks, rest: [] };
+  }
 
   const blocks: SpotFlowBlock[] = [];
   let next = 0;

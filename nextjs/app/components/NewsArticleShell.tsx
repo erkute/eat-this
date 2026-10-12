@@ -465,7 +465,6 @@ export default function NewsArticleShell({
     >
       {/* Der Lesefortschritt: ein gelber Strich unter der Kopfleiste, der mit
           dem Scrollen wächst — reines CSS, nur ab Tablet. */}
-      <div className={styles.progress} aria-hidden="true" />
       <ArticleMotion slug={article.slug} />
       <main className={styles.article}>
         <article>
@@ -529,6 +528,7 @@ export default function NewsArticleShell({
           <div className={styles.column}>
             <div
               className={styles.content}
+              data-reading-content
               data-article-content=""
               data-lede={showLede ? '' : undefined}
             >

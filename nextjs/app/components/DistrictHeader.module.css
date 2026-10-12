@@ -1,0 +1,16 @@
+.header { max-width: var(--issue-wide); margin-inline: auto; padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 20px); }
+.back { display: inline-flex; align-items: center; min-height: 44px; color: var(--et-white); font-size: 18px; text-decoration: none; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(180px, 1fr); align-items: center; gap: 48px; padding: 8px 0 12px; }
+.heading { min-width: 0; container-type: inline-size; }
+.title { margin: 0 0 22px; font-size: min(108px, 16cqi, var(--title-fit)); line-height: 1.08; font-weight: 700; letter-spacing: -.025em; white-space: nowrap; }
+.description { max-width: 48ch; margin: 0; font-size: 20px; line-height: 1.5; }
+.outline { display: block; justify-self: center; width: 100%; max-width: 340px; height: 260px; fill: transparent; stroke: var(--et-white); stroke-width: 1.5; }
+.header a:hover, .header a:active { color: var(--et-accent-text); text-decoration: none; }
+.header a:focus-visible { outline: 2px solid var(--et-white); outline-offset: 4px; border-radius: 4px; }
+@media (max-width: 767px) {
+  .header { padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 12px); }
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-top: 12px; }
+  .title { margin-bottom: 16px; font-size: min(64px, 18cqi, var(--title-fit)); }
+  .description { font-size: 18px; }
+  .outline { height: 170px; max-width: 240px; }
+}

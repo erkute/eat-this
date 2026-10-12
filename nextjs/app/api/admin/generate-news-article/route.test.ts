@@ -1,16 +1,22 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
+  applyGeneratedArticle: vi.fn(),
   captureException: vi.fn(),
   captureMessage: vi.fn(),
   checkRateLimitFailClosed: vi.fn(),
   generateNewsArticle: vi.fn(),
   getCurrentUser: vi.fn(),
+  readArticle: vi.fn(),
+  targetFetch: vi.fn(),
   withConfig: vi.fn(),
+  withTargetConfig: vi.fn(),
 }));
 
+const targetClient = { fetch: mocks.targetFetch };
 const sanityClient = {
   users: { getById: mocks.getCurrentUser },
+  withConfig: mocks.withTargetConfig,
 };
 
 vi.mock('@sentry/nextjs', () => ({
@@ -19,6 +25,10 @@ vi.mock('@sentry/nextjs', () => ({
 }));
 vi.mock('@/lib/admin/generate-news-article.server', () => ({
   generateNewsArticle: mocks.generateNewsArticle,
+}));
+vi.mock('@/lib/admin/applyGeneratedArticle.server', () => ({
+  applyGeneratedArticle: mocks.applyGeneratedArticle,
+  readArticle: mocks.readArticle,
 }));
 vi.mock('@/lib/rateLimit', () => ({
   checkRateLimitFailClosed: mocks.checkRateLimitFailClosed,
@@ -33,13 +43,13 @@ const STUDIO_ORIGIN = 'https://eat-this.sanity.studio';
 const previousAnthropicKey = process.env.ANTHROPIC_API_KEY;
 const validBody = {
   brief: 'Ein ausreichend langes, faktenbasiertes Briefing für einen Berliner Food-Artikel.',
-  category: 'guides',
-  heroImageUrl: null,
-  imageDescription: '',
-  includeEnglish: true,
-  length: 'standard',
+  documentId: 'drafts.article-1',
+  projectId: 'ehwjnjr2',
+  dataset: 'production',
+  replace: false,
   sourceUrls: ['https://example.com/source'],
 };
+const generated = { titleDe: 'Generated article', sources: [{ title: 'a', url: 'https://a' }] };
 
 function request(body: unknown = validBody, headers: Record<string, string> = {}) {
   return new Request('https://www.eatthisdot.com/api/admin/generate-news-article', {
@@ -59,14 +69,12 @@ describe('POST /api/admin/generate-news-article', () => {
     vi.clearAllMocks();
     process.env.ANTHROPIC_API_KEY = 'placeholder';
     mocks.withConfig.mockReturnValue(sanityClient);
-    mocks.getCurrentUser.mockResolvedValue({
-      id: 'sanity-user-id',
-      role: 'editor',
-    });
+    mocks.withTargetConfig.mockReturnValue(targetClient);
+    mocks.getCurrentUser.mockResolvedValue({ id: 'sanity-user-id', role: 'editor' });
     mocks.checkRateLimitFailClosed.mockResolvedValue(true);
-    mocks.generateNewsArticle.mockResolvedValue({
-      titleDe: 'Generated article',
-    });
+    mocks.readArticle.mockResolvedValue(null);
+    mocks.generateNewsArticle.mockResolvedValue(generated);
+    mocks.applyGeneratedArticle.mockResolvedValue(undefined);
   });
 
   afterAll(() => {
@@ -118,29 +126,17 @@ describe('POST /api/admin/generate-news-article', () => {
     expect(mocks.generateNewsArticle).not.toHaveBeenCalled();
   });
 
-  it('validates the brief and HTTPS source URLs before paid generation', async () => {
-    const response = await POST(
-      request({
-        ...validBody,
-        brief: 'too short',
-        sourceUrls: ['http://example.com/source'],
-      })
-    );
+  it.each([
+    ['a short brief', { brief: 'too short' }],
+    ['plain-http sources', { sourceUrls: ['http://example.com/source'] }],
+    ['an unknown dataset', { dataset: 'other' }],
+    ['a malformed document id', { documentId: '../x' }],
+    ['a missing replace flag', { replace: undefined }],
+  ])('validates %s before paid generation', async (_label, change) => {
+    const response = await POST(request({ ...validBody, ...change }));
 
     expect(response.status).toBe(400);
     expect(mocks.checkRateLimitFailClosed).not.toHaveBeenCalled();
-    expect(mocks.generateNewsArticle).not.toHaveBeenCalled();
-  });
-
-  it('accepts only production Sanity image URLs for vision alt text', async () => {
-    const response = await POST(
-      request({
-        ...validBody,
-        heroImageUrl: 'https://attacker.example/image.jpg',
-      })
-    );
-
-    expect(response.status).toBe(400);
     expect(mocks.generateNewsArticle).not.toHaveBeenCalled();
   });
 
@@ -153,25 +149,60 @@ describe('POST /api/admin/generate-news-article', () => {
     expect(mocks.generateNewsArticle).not.toHaveBeenCalled();
   });
 
-  it('normalizes input and returns the generated draft payload', async () => {
+  it('writes the article into the draft with the user token and reports back', async () => {
+    mocks.readArticle.mockResolvedValue({ _id: 'drafts.article-1', _type: 'newsArticle', category: 'culture' });
+
     const response = await POST(request());
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ titleDe: 'Generated article' });
-    expect(mocks.withConfig).toHaveBeenCalledWith({
-      token: 'placeholder',
-      useCdn: false,
-      perspective: 'raw',
+    await expect(response.json()).resolves.toEqual({ sources: 1, titleDe: 'Generated article' });
+    expect(mocks.withConfig).toHaveBeenCalledWith({ token: 'placeholder', useCdn: false, perspective: 'raw' });
+    expect(mocks.withTargetConfig).toHaveBeenCalledWith({
+      projectId: 'ehwjnjr2',
+      dataset: 'production',
+      apiVersion: '2024-01-01',
     });
+    expect(mocks.readArticle).toHaveBeenCalledWith(targetClient, 'article-1');
     expect(mocks.generateNewsArticle).toHaveBeenCalledWith({
       brief: validBody.brief,
-      category: 'guides',
+      category: 'culture',
       heroImageUrl: null,
       imageDescription: null,
       includeEnglish: true,
       length: 'standard',
       sourceUrls: ['https://example.com/source'],
     });
+    expect(mocks.applyGeneratedArticle).toHaveBeenCalledWith(
+      targetClient,
+      'article-1',
+      expect.objectContaining({ category: 'culture' }),
+      generated,
+      false
+    );
+  });
+
+  it('describes the hero image only from the production dataset', async () => {
+    const withImage = { _id: 'article-1', _type: 'newsArticle', image: { asset: { _ref: 'image-abc-10x10-jpg' } } };
+    mocks.readArticle.mockResolvedValue(withImage);
+    mocks.targetFetch.mockResolvedValue('https://cdn.sanity.io/images/ehwjnjr2/production/abc-10x10.jpg');
+
+    await POST(request());
+    expect(mocks.generateNewsArticle.mock.calls[0][0].heroImageUrl).toBe(
+      'https://cdn.sanity.io/images/ehwjnjr2/production/abc-10x10.jpg'
+    );
+
+    mocks.generateNewsArticle.mockClear();
+    await POST(request({ ...validBody, projectId: 'tqgkp8uc', dataset: 'staging' }));
+    expect(mocks.generateNewsArticle.mock.calls[0][0].heroImageUrl).toBeNull();
+  });
+
+  it('refuses documents that are not articles', async () => {
+    mocks.readArticle.mockResolvedValue({ _id: 'article-1', _type: 'restaurant' });
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(400);
+    expect(mocks.generateNewsArticle).not.toHaveBeenCalled();
   });
 
   it('does not leak provider errors', async () => {
@@ -185,5 +216,33 @@ describe('POST /api/admin/generate-news-article', () => {
       message: 'Der Artikel konnte nicht erzeugt werden. Bitte erneut versuchen.',
     });
     expect(mocks.captureException).toHaveBeenCalledOnce();
+    expect(mocks.applyGeneratedArticle).not.toHaveBeenCalled();
+  });
+
+  it('tells the editor when the Anthropic credit is used up', async () => {
+    const { default: Anthropic } = await import('@anthropic-ai/sdk');
+    mocks.generateNewsArticle.mockRejectedValue(
+      new Anthropic.BadRequestError(
+        400,
+        { type: 'error', error: { type: 'invalid_request_error', message: 'Your credit balance is too low' } },
+        'Your credit balance is too low to access the Anthropic API.',
+        new Headers()
+      )
+    );
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(503);
+    await expect(response.json()).resolves.toMatchObject({ error: 'writer_unavailable' });
+    expect(mocks.applyGeneratedArticle).not.toHaveBeenCalled();
+  });
+
+  it('says so when the finished text cannot be written', async () => {
+    mocks.applyGeneratedArticle.mockRejectedValue(new Error('forbidden'));
+
+    const response = await POST(request());
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toMatchObject({ error: 'apply_failed' });
   });
 });

@@ -30,7 +30,11 @@ export default function SiteNav() {
       frame = 0;
       const scroller = appScroller();
       const top = scroller ? scroller.scrollTop : window.scrollY;
-      const distance = scroller
+      const content = document.querySelector<HTMLElement>('[data-reading-content]');
+      const viewBottom = scroller ? scroller.getBoundingClientRect().bottom : window.innerHeight;
+      const distance = content
+        ? top + content.getBoundingClientRect().bottom - viewBottom
+        : scroller
         ? scroller.scrollHeight - scroller.clientHeight
         : document.documentElement.scrollHeight - window.innerHeight;
       const progress = distance > 0 ? Math.min(1, Math.max(0, top / distance)) : 0;

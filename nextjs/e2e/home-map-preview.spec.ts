@@ -10,7 +10,7 @@ test.beforeEach(async ({ page, context, baseURL }) => {
 });
 
 for (const locale of ['de', 'en'] as const) {
-  test(`map preview filters, pins and handoff (${locale})`, async ({ page }) => {
+  test(`map preview filters, pins and handoff (${locale})`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion: locale === 'en' ? 'reduce' : 'no-preference' });
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -22,10 +22,29 @@ for (const locale of ['de', 'en'] as const) {
     await expect(preview.locator('h3')).toHaveText('Gazzo');
     await expect(preview.getByRole('button', { name: 'Gazzo', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await expect(preview.locator('.maplibregl-marker [aria-pressed="true"]')).toHaveCount(1);
+    if (!isMobile) {
+      const map = await preview.locator('#home-map-preview > div').first().boundingBox();
+      const cta = await preview.getByRole('link', { name: locale === 'de' ? 'Mehr Pizza' : 'More pizza', exact: true }).boundingBox();
+      expect(Math.abs(map!.y + map!.height - cta!.y - cta!.height)).toBeLessThan(1);
+      const pin = await preview.getByRole('button', { name: 'Gazzo', exact: true }).boundingBox();
+      expect(pin!.width).toBeGreaterThanOrEqual(64);
+      const pins = await preview.locator('.maplibregl-marker [role="button"]').evaluateAll((elements) =>
+        elements.map((element) => {
+          const rect = element.getBoundingClientRect();
+          return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+        }));
+      for (const bounds of pins) {
+        expect(bounds.left).toBeGreaterThanOrEqual(map!.x);
+        expect(bounds.right).toBeLessThanOrEqual(map!.x + map!.width);
+        expect(bounds.top).toBeGreaterThanOrEqual(map!.y);
+        expect(bounds.bottom).toBeLessThanOrEqual(map!.y + map!.height);
+      }
+    }
     const attribution = preview.locator('.maplibregl-ctrl-attrib');
     await expect(attribution.locator('summary')).toBeVisible();
     expect(await attribution.getAttribute('open')).toBeNull();
     await attribution.locator('summary').press('Enter');
+    await expect(attribution).toHaveClass(/maplibregl-compact-show/);
     await expect(attribution.getByRole('link', { name: 'OpenStreetMap', exact: true })).toBeVisible();
     const creditBox = await attribution.boundingBox();
     const mapBox = await preview.getByRole('region', { name: /Berlin.*preview|Berlin.*Vorschau/ }).boundingBox();
@@ -59,7 +78,7 @@ for (const locale of ['de', 'en'] as const) {
     await preview.getByRole('button', { name: 'Lunch', exact: true }).click();
     await expect(preview.locator('h3')).toHaveText('Schüsseldienst');
     await page.screenshot({ path: `/tmp/eat-this-map-preview-${test.info().project.name}-${locale}.png` });
-    await preview.getByRole('link', { name: locale === 'de' ? 'Zur Map' : 'Open the map', exact: true }).click();
+    await preview.getByRole('link', { name: locale === 'de' ? 'Mehr Lunch' : 'More lunch', exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`${locale === 'en' ? '/en' : ''}/map\\?cat=lunch$`));
     await expect(page.getByRole('button', { name: 'Lunch', exact: true })).toBeVisible();
     expect(errors).toEqual([]);
@@ -73,7 +92,7 @@ test('a failed basemap keeps the selected map link usable', async ({ page }) => 
   const preview = page.locator('[data-hub-map-preview]');
   await preview.getByRole('button', { name: 'Kaffee', exact: true }).click();
   await expect(preview.getByRole('status')).toContainText('Die Vorschau ist gerade nicht verfügbar');
-  await expect(preview.getByRole('link', { name: 'Zur Map' })).toHaveAttribute('href', '/map?cat=coffee');
+  await expect(preview.getByRole('link', { name: 'Mehr Kaffee' })).toHaveAttribute('href', '/map?cat=coffee');
   await expect(preview.locator('h3')).toHaveText('Kolo Coffee');
 });
 
@@ -100,7 +119,10 @@ for (const narrowDesktop of [false, true]) {
       await expect(pins.first()).toBeVisible();
       await expect(pins.first()).toHaveAttribute('aria-label', ({ Pizza: 'Gazzo', Kaffee: 'Kolo Coffee', Lunch: 'Schüsseldienst' })[category]!);
       const names = await pins.evaluateAll((elements) => elements.map((el) => el.getAttribute('aria-label')!));
-      expect(names.length).toBeGreaterThanOrEqual(4);
+      // How many pins survive the screen-space spreading depends on the live
+      // curation and the viewport (Pizza showed 3 on a phone on 09.10.2026).
+      // Two are enough to switch between the portrait and landscape photo.
+      expect(names.length).toBeGreaterThanOrEqual(2);
       const positions = await pins.evaluateAll((elements) => elements.map((el) => {
         const rect = el.getBoundingClientRect();
         return { left: rect.left, right: rect.right + 6, top: rect.top - 6, bottom: rect.bottom };

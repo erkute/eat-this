@@ -11,12 +11,25 @@ describe('buildBrandedTitle', () => {
     );
   });
 
-  it('keeps long titles within the final title budget', () => {
+  it('drops the brand instead of cutting a title that fits 60 on its own', () => {
+    const title = 'Brammibal’s and Atelier Dough: two takes on a good donut';
+    expect(title.length).toBeGreaterThan(49);
+    expect(buildBrandedTitle(title)).toBe(title);
+  });
+
+  it('keeps the brand while title and brand fit 60 together', () => {
+    const title = 'Ari’s Berlin: Smash Burgers in a Courtyard Diner';
+    expect(buildBrandedTitle(title)).toBe(`${title} | EAT THIS`);
+    expect(buildBrandedTitle(title).length).toBeLessThanOrEqual(METADATA_TITLE_MAX);
+  });
+
+  it('cuts only what does not fit 60 even without the brand', () => {
     const title = buildBrandedTitle(
-      'Hokey Pokey Boutique — Eis & Concept-Store in Prenzlauer Berg'
+      'Hokey Pokey Boutique — Eis & Concept-Store in Prenzlauer Berg, Berlin'
     );
     expect(title.length).toBeLessThanOrEqual(METADATA_TITLE_MAX);
-    expect(title).toMatch(/… \| EAT THIS$/);
+    expect(title.endsWith('…')).toBe(true);
+    expect(title).not.toContain('EAT THIS');
   });
 });
 

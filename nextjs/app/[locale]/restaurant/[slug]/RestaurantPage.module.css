@@ -181,8 +181,8 @@
 /* Mehr Fotos als Text: die übrigen als Reihe nebeneinander. */
 .sheet {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: var(--rhythm);
   margin: var(--rhythm) 0 0;
   padding: 0;
   list-style: none;
@@ -191,8 +191,7 @@
 .sheet img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
+  height: auto;
 }
 
 /* -------------------------------------------------------- steckbrief ---- */
@@ -386,7 +385,7 @@
   }
 
   .sheet {
-    margin-inline: calc(10px - var(--gut));
+    margin-inline: calc(-1 * var(--gut));
   }
 
   /* Paarweise; der schmale Innenabstand lässt auch „Reservieren" in eine

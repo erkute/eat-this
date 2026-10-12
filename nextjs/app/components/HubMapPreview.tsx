@@ -10,6 +10,8 @@ import { useHomeMapData } from './HomeMapDataContext';
 import MapIntentLink from './MapIntentLink';
 import styles from './HubMapPreview.module.css';
 import HomeMapLoading from './HomeMapLoading';
+import { coverImageScale } from '@/lib/sanity-image-presets';
+import { scaleSizes } from '@/lib/magazineCover';
 
 const PreviewCanvas = dynamic(() => import('./map/HomeMapCanvas'), { ssr: false, loading: () => <HomeMapLoading /> });
 
@@ -23,7 +25,7 @@ const copy = {
     unavailable: 'Die Vorschau ist gerade nicht verfügbar. Entdecke die Spots direkt auf der Map.',
     empty: 'Noch mehr gute Spots findest du auf der Map.',
     hint: 'Tippe auf einen Spot.',
-    cta: 'Zur Map',
+    cta: (category: string) => `Mehr ${category}`,
     details: 'auf der Map ansehen',
   },
   en: {
@@ -35,7 +37,7 @@ const copy = {
     unavailable: 'The preview is currently unavailable. Discover the spots on the map.',
     empty: 'Find more great spots on the map.',
     hint: 'Tap a spot to explore.',
-    cta: 'Open the map',
+    cta: (category: string) => `More ${category.toLowerCase()}`,
     details: 'on the map',
   },
 };
@@ -93,6 +95,9 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
             aria-pressed={category.slug === item.slug}
             aria-controls="home-map-preview"
             onClick={() => {
+              // Explicit interaction should start the map even if the
+              // viewport observer has not delivered its first entry yet.
+              setNearViewport(true);
               setCategory(item);
               setSelectedId(null);
             }}
@@ -124,7 +129,7 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
                 <SiteImage
                   key={selected._id}
                   src={selected.photo!}
-                  sizes="(max-width: 767px) 120px, (max-width: 1100px) 32vw, 380px"
+                  sizes={`(max-width: 767px) ${Math.ceil(100 * coverImageScale(selected.photo, 100 / 144))}px, ${scaleSizes('(max-width: 1100px) 32vw, 380px', coverImageScale(selected.photo, 4 / 3))}`}
                   alt={selected.name}
                   fill
                   loading="lazy"
@@ -142,7 +147,7 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
       </div>
       <div className={styles.action}>
         <MapIntentLink className={styles.cta} href={mapPreviewHref(category.slug)}>
-          {t.cta}
+          {t.cta(category[locale])}
         </MapIntentLink>
       </div>
     </section>

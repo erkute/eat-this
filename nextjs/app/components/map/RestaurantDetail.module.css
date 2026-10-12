@@ -616,14 +616,14 @@
    Zeilenbox: bei 50px hängt das g der Tinte nach 10,7px unter dem Kasten. Von
    den 18px, die zwischen Name und Tag-Zeile deklariert sind (8 + 10), blieben
    sichtbar 6,6px — das g stand praktisch auf den Labels. Der Kasten bekommt
-   den Tintenraum als Marge dazu; die Grundlinie bleibt, wo sie ist. */
+   den Tintenraum als Marge dazu; die Grundlinie bleibt, wo sie ist.
+   Seit Zeilenhöhe 1.1 (09.10.2026) liegt ein Teil davon schon im Durchschuss
+   der Zeile: die Marge sinkt von 18 auf 15px, und die Grundlinie steht am
+   Telefon wie zuvor 28px über den Tags. */
 .rdNameOv {
   /* Upper bound (--rd-name-max) is computed per-name from the longest word so
      a long single word like "Schlüsseldienst" shrinks to fit on one line
      instead of breaking mid-word. */
-  /* ≥1 so a two-word name that wraps ("Gorilla Bäckerei") doesn't overlap —
-     at .92 the caps of line 1 collided with line 2 (and the uppercase Ä dots
-     need top clearance). */
   margin: 0 0 8px;
   overflow-wrap: normal;
   word-break: normal;
@@ -631,20 +631,29 @@
   max-width: 100%;
   color: #fff;
   font-family: var(--et-font-display);
-  font-size: clamp(30px, 10vw, var(--rd-name-max, 54px));
+  /* Telefon und Tablet: mit der Breite, zwischen 28 und 36px — vorher
+     clamp(30px, 10vw, …), am iPhone 37–43px (User, 09.10.2026: „auch ein
+     bisschen verkleinern"). Der Wert pro Name (--rd-name-max) gewinnt immer,
+     damit ein langes Wort nie über den Rand läuft. */
+  font-size: min(var(--rd-name-max, 36px), 36px, max(28px, 8.8vw));
   font-weight: 800;
-  line-height: 0.95;
+  /* 1.1 wie die Namen in der Liste (`.rcardName`, dort die Herleitung). Bei
+     0.95 fiel das g von „Burgermeister" in das l von „Schlesisches" darunter
+     (User, 09.10.2026). Die seltenen Fälle, in denen eine Unterlänge genau
+     über einer Oberlänge steht, zieht `--ink-lead` auseinander
+     (lib/dom/inkSafeLeading.ts) — nur dort, alle anderen Namen bleiben eng. */
+  line-height: max(1.1em, var(--ink-lead, 0px));
   letter-spacing: 0;
-  margin-bottom: 18px;
+  margin-bottom: 15px;
   text-transform: none;
   text-shadow: none;
 }
 /* Desktop: the detail panel is only 360px wide, so a short name at the 56px
    cap dwarfs a long name that had to shrink to ~36px to fit (User 2026-06-15:
-   "der Unterschied ist sehr stark"). Cap the upper bound at 40px here so short
-   and long names sit close together — still bold, just harmonised. The
-   per-name fit (--rd-name-max) still wins when it's smaller, so nothing clips.
-   Mobile keeps the full 56px range (wider hero, no disparity there). */
+   "der Unterschied ist sehr stark"). Cap the upper bound at 34px (1024px
+   block below) so short and long names sit close together — still bold, just
+   harmonised. The per-name fit (--rd-name-max) still wins when it's smaller,
+   so nothing clips. Mobile keeps the full 56px range (wider hero, no disparity there). */
 .rdTagsOv {
   display: flex;
   flex-wrap: wrap;
@@ -724,14 +733,24 @@
   font-size: 12px;
   font-weight: 800;
 }
-/* Die Zahl stand weiß mit Schatten direkt auf dem Foto — auf einem hellen
-   Bild (Bonanza, Tresen) war die „1" nicht zu lesen. Eine kleine Ink-Fläche,
-   ohne Rand. */
+/* Die Zahl steht frei neben dem Herz, so groß, dass sie mit ihm eine Zeile
+   bildet. Die Ink-Scheibe um die „1" ist weg (User, 09.10.2026: „den Kreis um
+   die Eins finde ich blöd"). Sie war da, weil die Zahl auf hellen Fotos
+   (Bonanza, Tresen) mit einem weichen Schatten nicht zu lesen war — jetzt
+   trägt sie den engen Ink-Hof der Karten-Symbole (Lupe, Burger, Fadenkreuz in
+   MapControls.module.css): zwei dichte Schatten lesen sich als
+   ausgeschnittene Kante, nicht als Glühen. */
 .detail .rdHero .rdHeartToggleCount {
-  padding: 3px 6px 2px;
-  border-radius: 999px;
-  background: var(--et-ink);
+  padding: 2px 0 0;
+  border-radius: 0;
+  background: none;
   color: var(--et-white);
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow:
+    0 0 1.5px var(--et-ink),
+    0 0 3px var(--et-ink),
+    0 1px 2px rgba(0, 0, 0, 0.45);
 }
 .rdPager,
 .rdFacts,
@@ -1500,8 +1519,9 @@
    vorn, im 1024px-Block oben, hätte er verloren. */
 
 @media (min-width: 1024px) {
+  /* 34 statt 40 (User, 09.10.2026: „noch ein bisschen verkleinern"). */
   .rdNameOv {
-    font-size: min(var(--rd-name-max, 40px), 40px);
+    font-size: min(var(--rd-name-max, 34px), 34px);
   }
   .rdV,
   .detail .rdV a,
@@ -1777,6 +1797,28 @@
   line-height: 1.55;
 }
 
+/* Der Öffnungszustand als dritter Tag: derselbe Grund, davor ein Punkt.
+   Offen grün und hell, geschlossen grau und gedämpft — der Unterschied liegt
+   im Wort und in der Helligkeit, nicht in Rot gegen Grün. */
+.detail .rdTagState {
+  gap: 7px;
+}
+.detail .rdTagState::before {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.42);
+}
+.detail .rdTagState:not([data-open]) {
+  color: rgba(255, 255, 255, 0.72);
+}
+.detail .rdTagState[data-open]::before {
+  background: #3ecf7a;
+  box-shadow: 0 0 0 2px rgba(62, 207, 122, 0.28);
+}
+
 /* Der Blaetterbalken unter dem Kopf trug eine eigene Papierflaeche. Auf dem
    Grund braucht er keine — eine Haarlinie haelt ihn ab. */
 
@@ -1979,37 +2021,37 @@
   outline: 3px solid #fff;
   outline-offset: -5px;
 }
-/* Punkte auf Ink-Fläche, senkrecht mittig zu Herz und X (beide 44px ab
-   12px, Mitte bei 34px). Fläche wie die Chips unten, ohne Kontur. Das aktive
-   Foto ist ein gestreckter Punkt — die Breite trägt den Zustand, nicht nur
-   die Helligkeit. */
+/* Striche frei auf dem Foto, senkrecht mittig zu Herz und X (beide 44px ab
+   12px, Mitte bei 34px). Bis 09.10.2026 lagen hier Punkte auf einer
+   Ink-Pille — das Airbnb-Muster (User: „gefällt mir nicht"). Jetzt keine
+   Fläche mehr: weiße Striche mit dem engen Ink-Hof der Karten-Symbole, der
+   sie auf hellen Fotos lesbar hält. Das aktive Foto ist der lange Strich — die Länge
+   trägt den Zustand, nicht nur die Helligkeit. */
 .rdHeroPhotoDots {
   position: absolute;
-  top: 24px;
+  top: 34px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 3;
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 7px 9px;
-  border-radius: var(--et-radius-control);
-  background: rgba(21, 18, 14, 0.72);
+  filter: drop-shadow(0 0 1.5px var(--et-ink)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
   pointer-events: none;
 }
 .rdHeroPhotoDot,
 .rdHeroPhotoDotOn {
   flex: 0 0 auto;
-  width: 6px;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.45);
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
   transition:
     width 0.2s ease,
     background-color 0.2s ease;
 }
 .rdHeroPhotoDotOn {
-  width: 16px;
+  width: 24px;
   background: #fff;
 }
 .rdHeroPhotoLive {
@@ -2052,8 +2094,4 @@
 .rdHero::after,
 .rdOverlay {
   pointer-events: none;
-}
-
-.rdOpenState {
-  padding: 18px 16px 0;
 }

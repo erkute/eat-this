@@ -108,8 +108,8 @@ export default function MagazineGrid({ articles, locale }: Props) {
                       date={a.date}
                       locale={locale}
                       cover={a.cover}
-                      sizes="(max-width: 767.98px) 80vw, 420px"
-                      widths={[480, 800, 1200]}
+                      sizes="(max-width: 767.98px) 80vw, (min-width: 1600px) min(35vw, 900px), (min-width: 1024px) min(40vw, 560px), 46vw"
+                      widths={[480, 800, 1200, 1800, 2400]}
                     />
                   </MagazineLink>
                 </li>
@@ -128,7 +128,7 @@ export default function MagazineGrid({ articles, locale }: Props) {
         </div>
 
         <MagazineDeckDots deckId={DECK_ID} labels={list.map((_, i) => labels.dot(i + 1))}
-          stories={list.map((article) => ({ title: article.title, href: `/news/${article.slug}` }))} />
+          stories={list.map((article) => ({ title: article.title, href: `/news/${article.slug}`, issue: article.issue }))} />
 
         <div className={styles.foot}>
           <Link href="/news" className={styles.allLink}>

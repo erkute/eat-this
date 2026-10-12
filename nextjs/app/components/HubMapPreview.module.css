@@ -167,11 +167,16 @@
   height: 100%;
   border-radius: inherit;
   background: var(--et-accent);
+  transform-origin: left;
   animation: mapLoading 1.6s cubic-bezier(.65, 0, .35, 1) infinite alternate;
 }
+/* Nur `transform`, kein `transform-origin` in den Keyframes: das lief nicht
+   auf der GPU, und der Balken läuft endlos, auch weit unter dem Aufmacher —
+   jedes Frame Hauptthread (Lighthouse, 10.10.2026). Ende gleich, die Mitte
+   weicht um wenige Pixel ab. */
 @keyframes mapLoading {
-  from { transform: translateX(0) scaleX(.7); transform-origin: left; }
-  to { transform: translateX(122.22%) scaleX(1); transform-origin: right; }
+  from { transform: translateX(0) scaleX(.7); }
+  to { transform: translateX(122.22%) scaleX(1); }
 }
 
 .detail { min-width: 0; min-height: 0; background: var(--et-ink); }
@@ -199,19 +204,24 @@
 @keyframes photoIn { from { opacity: .65; } to { opacity: 1; } }
 
 @media (min-width: 768px) {
-  .section { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; }
-  .head { grid-column: 1 / -1; }
-  .categories { grid-column: 1; grid-row: 2; justify-content: flex-start; align-self: center; }
-  .action { grid-column: 2; grid-row: 2; margin: 0 0 24px; align-self: center; }
-  .cta { min-height: 52px; padding: 10px 28px; font-size: 22px; }
-  .preview { grid-column: 1 / -1; }
+  /* Gleiches Raster wie .preview: der Knopf sitzt unten im Spot-Panel und
+     schließt mit der Karte ab. Neben den Kategorien las er sich wie eine
+     weitere Kategorie. */
+  .section { display: grid; grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr); }
+  .head { grid-column: 1 / -1; grid-row: 1; }
+  .categories { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
+  .preview { grid-column: 1 / -1; grid-row: 3; }
+  .action { grid-column: 2; grid-row: 3; align-self: end; z-index: 1; margin: 0; padding: 24px 24px 0; }
+  .cta { width: 100%; min-height: 52px; padding: 10px 28px; font-size: 22px; }
+  .detail { padding-bottom: 100px; }
+  .caption { overflow: hidden; }
+  .hint { display: none; }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .caption { padding: 20px; }
   .caption h3 { font-size: 24px; }
   .caption p { font-size: 18px; }
-  .hint { display: none; }
 }
 
 @media (max-width: 767px) {
@@ -236,4 +246,37 @@
   .loadingBar { animation: none; width: 60%; margin-inline: auto; }
   .photo img { animation: none; }
   .categories button, .cta { transition: none; }
+}
+
+/* Ab 1600px wächst die Startseite mit (HubSection.module.css, `--home-zoom`).
+   Die Map selbst bleibt ohne `zoom` — MapLibre rechnet mit Zeigerpositionen;
+   sie wächst über ihre Höhe. Alles drumherum skaliert im Ganzen. */
+@media (min-width: 1600px) {
+  .head,
+  .categories,
+  .action,
+  .detail {
+    zoom: var(--home-zoom, 1);
+  }
+  .preview {
+    height: calc(530 * var(--u, 1px));
+    border-radius: calc(12 * var(--u, 1px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .map :global(.maplibregl-marker) [role='button'] {
+    --pin-scale: 1;
+    width: clamp(52px, 3vw, 76px);
+    height: clamp(58px, 3.3vw, 84px);
+  }
+  .map :global(.maplibregl-marker) [role='button']::after {
+    width: clamp(18px, 1vw, 25px);
+    height: clamp(25px, 1.4vw, 35px);
+  }
+  .map :global(.maplibregl-marker) [aria-pressed='true'] {
+    --pin-scale: 1.12;
+    width: clamp(64px, 4vw, 96px);
+    height: clamp(71px, 4.4vw, 106px);
+  }
 }

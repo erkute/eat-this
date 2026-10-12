@@ -10,8 +10,11 @@ runConfig:
   # Verkleinerung im selben Prozess. Kommt es mit 1 GiB wieder, ist es ein
   # Leck — dann den Standalone-Build lokal unter Last messen.
   memoryMiB: 1024
-  # Live restaurant imports run Places + photo uploads + three LLM passes.
-  timeoutSeconds: 120
+  # Längste Anfragen: „Mit AI schreiben“ im Studio (Websuche plus Artikel
+  # auf Deutsch und Englisch, gemessen 4:40 min am 08.10.2026) und der
+  # Spot-Import (Places, Fotos, drei LLM-Durchgänge). Mit 120 s brach der
+  # Artikel jedes Mal ab.
+  timeoutSeconds: 600
 
 env:
   - variable: NEXT_PUBLIC_ENV

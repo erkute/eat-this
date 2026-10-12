@@ -445,3 +445,9 @@
 @media (max-width: 767px) {
   .issueLabel { text-align: center; }
 }
+
+@media (min-width: 1600px) {
+  .shell { width: min(100%, 1880px); }
+  .page { --issue-w: clamp(360px, 22vw, 520px); }
+  .currentTitle { font-size: clamp(32px, 2.1vw, 48px); }
+}

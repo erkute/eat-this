@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { sentryEnvironment } from './environment';
+import { sentryEnabled, sentryEnvironment } from './environment';
 
 describe('sentryEnvironment', () => {
   afterEach(() => {
@@ -19,5 +19,20 @@ describe('sentryEnvironment', () => {
     vi.stubEnv('NODE_ENV', 'development');
     vi.stubEnv('NEXT_PUBLIC_ENV', '');
     expect(sentryEnvironment()).toBe('development');
+  });
+});
+
+describe('sentryEnabled', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('meldet nur auf App Hosting, nicht aus lokalen Servern', () => {
+    vi.stubEnv('NEXT_PUBLIC_ENV', '');
+    expect(sentryEnabled()).toBe(false);
+    vi.stubEnv('NEXT_PUBLIC_ENV', 'staging');
+    expect(sentryEnabled()).toBe(true);
+    vi.stubEnv('NEXT_PUBLIC_ENV', 'production');
+    expect(sentryEnabled()).toBe(true);
   });
 });

@@ -84,13 +84,13 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
   if (isStaging) return [];
 
   const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
-    client.fetch<{ slug: string; descriptionEn?: string }[]>(
+    client.fetch<{ slug: string; descriptionEn?: string; createdAt?: string }[]>(
       // `seo.noIndex` ist der Schalter, mit dem die Redaktion eine Seite aus
       // dem Index nimmt (restaurantRobots setzt daraufhin `noindex,nofollow`).
       // Stünde sie trotzdem in der Sitemap, widersprächen sich zwei Signale —
       // dieselbe Falle wie bei den geschlossenen Spots. Heute trifft es null
       // Dokumente; die Regel steht hier, bevor es das erste tut.
-      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && ${liveRestaurant()} && seo.noIndex != true] { "slug": slug.current, descriptionEn }`,
+      `*[_type == "restaurant" && defined(slug.current) && !(_id in path("drafts.**")) && ${liveRestaurant()} && seo.noIndex != true] { "slug": slug.current, descriptionEn, "createdAt": _createdAt }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
     ),
@@ -147,13 +147,21 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
   // enrichment etc.), so it would claim a change that never reached the page.
   // They get the template date instead — the last time their rendered output
   // actually changed, which is a claim we can stand behind.
+  //
+  // Except for a spot younger than that date: its page did not exist on the
+  // template date, so it cannot have last changed then. `_createdAt` is the
+  // one Sanity date no batch script moves. On 09.10.2026 the sitemap dated all
+  // 248 spots 2026-08-25, including the 69 created after it — and the URL
+  // Inspection API reported spots from 26.08., 27.09. and 05.10. as
+  // "URL ist Google nicht bekannt".
   const restaurantEntries = restaurants
     .filter(({ slug }) => !GONE_SLUGS.has(slug))
-    .flatMap(({ slug, descriptionEn }) =>
-      hasEnContent({ descriptionEn })
-        ? withAlternates(`/restaurant/${slug}`, TEMPLATE_REVISED, 0.8, 'monthly')
-        : deOnly(`/restaurant/${slug}`, TEMPLATE_REVISED, 0.8, 'monthly')
-    );
+    .flatMap(({ slug, descriptionEn, createdAt }) => {
+      const lastModified = createdAt ? laterOf(createdAt, TEMPLATE_REVISED) : TEMPLATE_REVISED;
+      return hasEnContent({ descriptionEn })
+        ? withAlternates(`/restaurant/${slug}`, lastModified, 0.8, 'monthly')
+        : deOnly(`/restaurant/${slug}`, lastModified, 0.8, 'monthly');
+    });
 
   // News articles are individually edited by humans, so `_updatedAt` is a
   // meaningful signal — but the template changed under them too. The page

@@ -130,7 +130,11 @@ describe('sitemap entries', () => {
   it('dates every URL, and lets a fresher article beat the template date', async () => {
     process.env.NEXT_PUBLIC_ENV = 'production';
     mocks.fetch
-      .mockResolvedValueOnce([{ slug: 'live-spot' }])
+      .mockResolvedValueOnce([
+        { slug: 'live-spot', createdAt: '2026-05-10T09:00:00Z' },
+        // Created after the template revision — its page cannot predate itself.
+        { slug: 'neu', createdAt: '2026-10-05T14:00:00Z' },
+      ])
       .mockResolvedValueOnce([
         // Older than the template revision — the template change is what
         // last touched this page, so that date wins.
@@ -164,6 +168,7 @@ describe('sitemap entries', () => {
     const lastmod = (suffix: string) =>
       result.find((entry) => entry.url.endsWith(suffix))?.lastModified;
     expect(lastmod('/restaurant/live-spot')).toBe(TEMPLATE_REVISED);
+    expect(lastmod('/restaurant/neu')).toBe('2026-10-05T14:00:00Z');
     expect(lastmod('/bezirk/mitte')).toBe(TEMPLATE_REVISED);
     expect(lastmod('/kategorie/pizza')).toBe(TEMPLATE_REVISED);
     expect(lastmod('/news/alt')).toBe(TEMPLATE_REVISED);

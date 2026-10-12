@@ -137,6 +137,12 @@ it('scales every length in a sizes list', () => {
   );
 });
 
+it('keeps commas and spaces inside responsive CSS functions intact', () => {
+  expect(scaleSizes('(min-width: 1600px) min(35vw, 900px), calc(100vw - 36px)', 1.6)).toBe(
+    '(min-width: 1600px) calc(min(35vw, 900px) * 1.6), calc(calc(100vw - 36px) * 1.6)'
+  );
+});
+
 describe('cut-out reports', () => {
   const report = { found: true, instances: 1, box: { x: 0.3, y: 0.3, w: 0.4, h: 0.4 }, edges: 0 };
 

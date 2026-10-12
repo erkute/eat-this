@@ -4,7 +4,7 @@ import {PortableTextInput} from 'sanity'
 const key = () => Math.random().toString(36).slice(2, 14)
 
 // HTML -> Portable Text
-// Handles h1-h4, p, blockquote, li, strong/b, em/i, u, a[href].
+// Handles h1-h4, p, blockquote, li, strong/b, em/i, a[href].
 function htmlToBlocks(html) {
   const doc = new globalThis.DOMParser().parseFromString(html, 'text/html')
   const blocks = []
@@ -46,7 +46,6 @@ function collectSpans(root) {
     const nextMarks = [...activeMarks]
     if (tag === 'strong' || tag === 'b') nextMarks.push('strong')
     else if (tag === 'em' || tag === 'i') nextMarks.push('em')
-    else if (tag === 'u') nextMarks.push('underline')
     else if (tag === 'a' && node.getAttribute('href')) {
       const linkKey = key()
       markDefs.push({_key: linkKey, _type: 'link', href: node.getAttribute('href'), blank: true})

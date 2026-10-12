@@ -96,7 +96,11 @@ export default function StarterPack3D() {
       if (!renderer) return;
       const box = stage.getBoundingClientRect();
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      renderer.resize(box.width * ratio, box.height * ratio, rig.offsetWidth * ratio);
+      // `box` misst sichtbare Pixel, `offsetWidth` CSS-Pixel. Unter dem Zoom
+      // der Startseite (ab 1600px, HubSection.module.css) weichen sie ab —
+      // das Pack muss im selben Maß wie die Leinwand gezeichnet werden.
+      const zoom = stage.offsetWidth ? box.width / stage.offsetWidth : 1;
+      renderer.resize(box.width * ratio, box.height * ratio, rig.offsetWidth * zoom * ratio);
       if (!frame) renderer.draw(pose(performance.now()));
     };
 

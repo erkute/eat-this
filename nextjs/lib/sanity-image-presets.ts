@@ -31,7 +31,6 @@ const IMAGE_PRESETS = {
   // deshalb nicht fuer beide gelten.
   sheetHero: { w: 1200, q: 85 },
   // Bezirk hero (wider crop)
-  bezirkHero: { w: 1600, q: 85 },
   // Standard restaurant / article card photo
   card: { w: 800, q: 80 },
   // Map list/marker thumbnail
@@ -155,7 +154,16 @@ export function sanitySrcSet(
 ): string | undefined {
   if (!url || !url.includes('cdn.sanity.io')) return undefined;
   const base = url.split('?')[0];
-  return widths.map((w) => `${base}?w=${w}&auto=format&q=${q} ${w}w`).join(', ');
+  const nativeWidth = sanityImageSize(url)?.width;
+  const candidates = [...new Set(widths.map((w) => nativeWidth ? Math.min(w, nativeWidth) : w))];
+  return candidates.map((w) => `${base}?w=${w}&auto=format&q=${q} ${w}w`).join(', ');
+}
+
+/** A landscape photo cropped into a portrait slot needs more source pixels
+ * than the slot's width. Include the pixels hidden by object-fit: cover. */
+export function coverImageScale(url: string | null | undefined, slotRatio: number): number {
+  const size = sanityImageSize(url);
+  return size ? Math.max(1, size.width / size.height / slotRatio) : 1;
 }
 
 /**

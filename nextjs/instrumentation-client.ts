@@ -3,10 +3,12 @@
 import * as Sentry from '@sentry/nextjs';
 
 import { dropResourceLoadErrors } from '@/lib/sentry/beforeSend';
-import { sentryEnvironment } from '@/lib/sentry/environment';
+import { sentryEnabled, sentryEnvironment } from '@/lib/sentry/environment';
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  // Nur auf App Hosting, nie aus lokalen Servern (lib/sentry/environment.ts).
+  enabled: sentryEnabled(),
 
   // Ein gescheitertes <link>/<script> kommt als DOM-Event über den
   // Rejection-Handler herein — ohne Titel, ohne Stacktrace. Solche Events

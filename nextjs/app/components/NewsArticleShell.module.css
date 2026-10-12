@@ -22,11 +22,7 @@
   --article-quiet: var(--et-quiet);
   /* Die Tafel am Artikelende (Katalog-Ausgang): Ink auf Weiss. */
   --article-board: var(--et-ink);
-  /* The reading measure. 680px at 18-19px lands around 68 characters — the
-     old full-width 900px column ran ~95, which is why desktop read worse than
-     mobile despite all the extra room. */
-  /* 660 statt 680: bei 18px Lauftext sind das ~73 Zeichen pro Zeile und damit
-     innerhalb der 45–75, die als angenehm gelten. Mit 680 waren es 76. */
+  /* Text keeps a reading measure; headlines and photo spreads use the desktop width independently. */
   --article-measure: 660px;
   /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
   padding: 0 clamp(18px, 4vw, 54px) 0;
@@ -63,7 +59,7 @@ div.page {
 }
 
 .article {
-  width: min(100%, 1180px);
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -116,14 +112,14 @@ div.page {
 }
 
 .heroTitle {
-  max-width: 18ch;
+  width: 100%;
+  max-width: none;
   margin: 0;
   /* Schwarz (Ansage 02.10.2026 „mach Headline schwarz"); die Kapitel
      darunter bleiben rot. */
   color: var(--article-fg);
-  /* Providence läuft breiter als Kaleidoscopes Compacta — deshalb kleiner
-     als dort (90px) und etwas enger gesperrt. */
-  font-size: clamp(44px, 6vw, 88px);
+  /* The headline spans the page while the prose keeps its reading width. */
+  font-size: clamp(44px, 6vw, 128px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: var(--et-leading-title);
@@ -246,10 +242,7 @@ div.page {
 
 /* -------------------------------------------------------------- column --- */
 
-/* Die Lesespalte steht mittig in Lesebreite, auf jeder Breite. Alles im
-   Textfluss folgt ihr — auch Bilder, Spot-Karten und die Tafel: kein Block
-   steht über den Text hinaus (User, 28.08.: gemessen 236px Überhang nach
-   rechts, als die Blöcke noch die ganze Spalte nahmen). */
+/* Text and cards stay centred; consecutive photos break out symmetrically. */
 .column {
   min-width: 0;
   max-width: var(--article-measure);
@@ -482,7 +475,7 @@ div.page {
    die Kapitel.
    Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
    Bezirk · Küche). */
-.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat) {
+.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue) {
   color: inherit;
   font-weight: 700;
   text-decoration: none;
@@ -491,7 +484,7 @@ div.page {
 
 @media (hover: hover) {
   .content
-    a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):hover {
+    a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue):hover {
     color: var(--article-head);
   }
 }
@@ -1008,6 +1001,70 @@ div.page {
   }
 }
 
+/* Verweis auf einen anderen Artikel im Text: das Heft links, Rubrik · Datum
+   und Titel daneben – wie „Im Magazin“ auf der Spot-Seite
+   (RestaurantArticlesSection.module.css), nur in der Lesespalte. */
+.inlineIssue {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+  margin: clamp(36px, 5vw, 64px) 0;
+  color: var(--article-fg);
+  text-decoration: none;
+}
+
+.inlineIssueCover {
+  display: block;
+  rotate: -1.2deg;
+}
+
+.inlineIssueText {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.inlineIssueMeta {
+  font-family: var(--et-font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.inlineIssueTitle {
+  color: var(--article-head);
+  font-family: var(--et-font-display);
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.inlineIssue:active {
+  scale: var(--et-press-tile);
+}
+
+.inlineIssue:focus-visible {
+  outline: 3px solid var(--article-fg);
+  outline-offset: 8px;
+}
+
+@media (max-width: 767.98px) {
+  .inlineIssue {
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .inlineIssueTitle {
+    font-size: 20px;
+  }
+}
+
 /* ------------------------------------------------------------ states ---- */
 
 .mustEat:focus-visible,
@@ -1104,9 +1161,18 @@ div.page {
     padding-inline: 6px;
   }
 
+  /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als
+     die Spalte. Statt zu trennen wird die Schlagzeile so weit kleiner, dass
+     ihr längstes Wort passt: Providence-Versalien laufen 0,60–0,68em pro
+     Zeichen, 0,7 lässt Luft. `anywhere` fängt den Rest ab (MMMM, WWWW). */
+  .introCopy {
+    container-type: inline-size;
+  }
+
   .heroTitle {
     max-width: none;
-    font-size: clamp(38px, 10.5vw, 52px);
+    font-size: min(clamp(38px, 10.5vw, 52px), 100cqi / (var(--title-longest) * 0.7));
+    overflow-wrap: anywhere;
   }
 
   .lede {
@@ -1209,4 +1275,31 @@ div.page {
     flex: 0 0 min(62vw, 250px);
     scroll-snap-align: start;
   }
+}
+
+/* Desktop editorial spreads, independent of the reading column. */
+.imageSpread { margin-block: clamp(30px, 5vw, 60px); }
+.imageRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-block: 16px;
+}
+.imageRow figure { flex: var(--img-ratio, 1.5) 1 0; min-width: 0; margin: 0; }
+.imageRow img { display: block; width: 100%; height: auto; }
+.imageRow figcaption {
+  margin-top: 6px;
+  color: var(--article-muted);
+  font-family: var(--et-font-body);
+  font-size: 13px;
+  line-height: 1.4;
+}
+@media (min-width: 1024px) {
+  .page { --article-measure: 740px; }
+  .content { font-size: clamp(20px, 1.1vw, 22px); }
+  .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }
+}
+@media (max-width: 767.98px) {
+  .imageRow { flex-direction: column; gap: 24px; }
+  .imageRow figure { width: 100%; flex: auto; }
 }

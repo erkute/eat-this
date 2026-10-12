@@ -300,3 +300,6 @@
   pointer-events: none;
 }
 .nav .actions { position: relative; z-index: 1; }
+
+.nav[data-nav-page='news-article'] .control:focus-visible,
+.nav[data-nav-page='restaurant'] .control:focus-visible { outline-color: var(--et-white); }

@@ -18,9 +18,22 @@ function truncateAtWord(text: string, max: number): string {
   return `${clean}…`;
 }
 
+/**
+ * Brand suffix only when the title fits beside it. A longer title keeps all
+ * of its words and goes out plain, like `buildPlainTitle`.
+ *
+ * Until 09.10.2026 the suffix always won and the title was cut to make room:
+ * 34 of 64 article titles in the live sitemap went out ellipsised, among them
+ * the EN donut guide, "Brammibal’s and Atelier Dough: two takes on a… | EAT
+ * THIS" — 3,175 impressions in 90 days, most of them for "best berliner
+ * doughnut near me", and the word "donut" was the one that got cut. Google
+ * shows the site name beside the title anyway; the words are the part that
+ * can only come from the title.
+ */
 export function buildBrandedTitle(title: string): string {
   const clean = title.trim().replace(/\s+/g, ' ').replace(TRAILING_BRAND, '').trim();
-  return `${truncateAtWord(clean, METADATA_TITLE_TEXT_MAX)}${METADATA_BRAND_SUFFIX}`;
+  if (clean.length <= METADATA_TITLE_TEXT_MAX) return `${clean}${METADATA_BRAND_SUFFIX}`;
+  return truncateAtWord(clean, METADATA_TITLE_MAX);
 }
 
 /**

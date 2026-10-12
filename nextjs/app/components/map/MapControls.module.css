@@ -646,22 +646,10 @@
   transform: translate(1px, 1px);
 }
 
-/* Eine Ink-Scheibe hinter dem Fadenkreuz, nur hier. Der Knopf steht über der
-   Karte, wo sich die gelben Pins ballen — das weisse Zeichen verschwand auf
-   ihnen (Audit 28.09.2026). Suche und Burger stehen im Kartenstreifen am
-   Rand und bleiben nackt. Die Scheibe ist fest, keine Druckfläche: sie liegt
-   in jedem Zustand gleich da, also blitzt beim Tippen nichts auf. */
-.fab {
-  isolation: isolate;
-}
-.fab::before {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  z-index: -1;
-  border-radius: 50%;
-  background: var(--et-ink-raised);
-}
+/* Keine Scheibe hinter dem Fadenkreuz. Vom 28.09. bis 09.10.2026 lag dort
+   eine Ink-Scheibe, weil das Zeichen über gelben Pins verschwand — der User
+   mochte den Kreis nicht. Lesbar hält es jetzt allein der Ink-Hof, den es mit
+   Lupe und Burger teilt (oben, „Free-standing icons"). */
 
 @media (hover: hover) {
   .fab:hover {

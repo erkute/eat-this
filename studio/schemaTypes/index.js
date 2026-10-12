@@ -4,6 +4,5 @@ import restaurant from './restaurant'
 import staticPage from './staticPage'
 import bezirk from './bezirk'
 import category from './category'
-import homeWeek from './homeWeek'
 
-export const schemaTypes = [newsArticle, mustEat, restaurant, bezirk, category, staticPage, homeWeek]
+export const schemaTypes = [restaurant, newsArticle, mustEat, bezirk, category, staticPage]

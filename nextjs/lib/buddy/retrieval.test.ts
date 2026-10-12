@@ -38,7 +38,6 @@ describe('buildSpotsQuery', () => {
     expect(q).toContain('"slug": slug.current');
     expect(q).toContain('"bezirk": bezirkRef->name');
     expect(q).toContain('featured desc');
-    expect(q).toContain('lastReviewed desc');
   });
 
   it('matches the cuisine term across name and descriptions, not just cuisineType', () => {

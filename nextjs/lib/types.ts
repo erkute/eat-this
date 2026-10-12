@@ -9,7 +9,6 @@ interface RestaurantSeo {
   metaTitleEn?: string;
   metaDescription?: string;
   metaDescriptionEn?: string;
-  ogImageUrl?: string;
   noIndex?: boolean;
 }
 
@@ -82,7 +81,6 @@ interface NewsArticleSeo {
   metaTitleEn?: string;
   metaDescription?: string;
   metaDescriptionEn?: string;
-  ogImageUrl?: string;
   noIndex?: boolean;
 }
 
@@ -113,6 +111,15 @@ export interface SpotCardBlock {
   district?: string;
   cuisineType?: string;
   restaurantPhoto?: string;
+}
+
+// Verweis auf einen anderen Artikel im Text. Die Abfrage löst nur den Slug
+// auf; Titel, Bild und Cover kommen aus der Artikelliste, die die Seite
+// ohnehin für „Weitere Ausgaben“ lädt.
+export interface ArticleCardBlock {
+  _type: 'articleCard';
+  _key?: string;
+  articleSlug?: string;
 }
 
 // Inline editorial photo embedded in article Portable Text. The URL and
@@ -179,7 +186,6 @@ interface BezirkSeo {
   metaTitleEn?: string;
   metaDescription?: string;
   metaDescriptionEn?: string;
-  ogImageUrl?: string;
   noIndex?: boolean;
 }
 
@@ -189,7 +195,6 @@ export interface BezirkDoc {
   slug: string;
   description?: string;
   descriptionEn?: string;
-  imageUrl?: string;
   seo?: BezirkSeo;
   // Optional: only projected by allBezirkeWithStatsQuery; bezirkBySlugQuery does NOT include it.
   restaurantCount?: number;

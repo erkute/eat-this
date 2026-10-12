@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useRef, type MouseEvent } from 'react';
 import gsap from 'gsap';
 import { useLoginModal } from '@/lib/auth';
 import { guardSwipeClick } from '@/lib/home/guardSwipeClick';
+import { armMustEatCardMotion } from '@/lib/home/mustEatCardMotion';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
@@ -23,7 +24,7 @@ function cardSrcSet(url: string): string {
 }
 
 const CARD_SIZES =
-  '(min-width: 1637px) 270px, (min-width: 1334px) 16.5vw, (min-width: 1024px) 220px, (min-width: 768px) 240px, calc((100vw - 64px) / 2)';
+  '(min-width: 1400px) calc((96vw - 232px) / 6), (min-width: 1280px) calc((88vw - 120px) / 6), (min-width: 768px) min(280px, calc((92vw - 60px) / 3)), calc((100vw - 64px) / 2)';
 
 export default function HubMustEatsTeaser() {
   const { initialMapData, uid } = useHomeMapData();
@@ -87,30 +88,7 @@ export default function HubMustEatsTeaser() {
   useEffect(() => {
     const deck = deckRef.current;
     if (!deck || !window.matchMedia || typeof IntersectionObserver === 'undefined') return;
-    const media = gsap.matchMedia();
-    media.add('(prefers-reduced-motion: no-preference)', () => {
-      const slides = Array.from(deck.children);
-      let animation: gsap.core.Tween | null = null;
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry.isIntersecting) return;
-          observer.disconnect();
-          animation = gsap.fromTo(
-            slides,
-            { y: 24 },
-            { y: 0, duration: 0.55, stagger: 0.06, ease: 'power3.out', clearProps: 'transform' }
-          );
-        },
-        { threshold: 0.2 }
-      );
-      observer.observe(deck);
-      return () => {
-        observer.disconnect();
-        animation?.kill();
-        gsap.set(slides, { clearProps: 'transform' });
-      };
-    });
-    return () => media.revert();
+    return armMustEatCardMotion(deck);
   }, [cards]);
 
   if (!cards.length) return null;
@@ -194,7 +172,6 @@ export default function HubMustEatsTeaser() {
               className={styles.deck}
               role="list"
               aria-label={t('mustEats.teaserTitle')}
-              tabIndex={0}
             >
               {cards.map((m, index) => {
                 const restaurant = spotNameWithoutDistrict(

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag, revalidatePath } from 'next/cache';
 import crypto from 'node:crypto';
+import { waitForFreshCdn } from '@/lib/sanity.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -106,6 +107,27 @@ export async function POST(req: NextRequest) {
     doc = JSON.parse(rawBody);
   } catch {
     return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
+  }
+
+  // Erst warten, dann invalidieren. Der Hook kommt rund eine Sekunde nach dem
+  // Publish, die Seiten lesen Sanity aber über das API-CDN (lib/sanity.ts).
+  // Baut eine Seite neu, bevor das CDN den neuen Stand hat, hält sie den alten
+  // bis zur 24-Stunden-Frist fest (09.10.2026 Comedor, 10.10.2026 zwei von 29
+  // Artikeln trotz fünf Sekunden Pause). Für Artikel und Restaurants wartet
+  // waitForFreshCdn, bis das CDN dieselbe Abfrage wie die Seite frisch
+  // beantwortet; sonst eine feste Pause. `SANITY_WEBHOOK_SETTLE_MS=0` schaltet
+  // das Warten ab (Tests).
+  const settleMs = Number(process.env.SANITY_WEBHOOK_SETTLE_MS ?? 5000);
+  const slugForSettle = typeof doc.slug === 'string' ? doc.slug : doc.slug?.current;
+  let settled = 'off';
+  if (Number.isFinite(settleMs) && settleMs > 0) {
+    try {
+      settled = await waitForFreshCdn(doc._type, slugForSettle, { fallbackMs: settleMs });
+    } catch (err) {
+      // Sanity nicht erreichbar: lieber jetzt invalidieren als gar nicht.
+      settled = 'error';
+      console.error('[revalidate] CDN-Abgleich fehlgeschlagen', err);
+    }
   }
 
   const type = doc._type;
@@ -229,17 +251,13 @@ export async function POST(req: NextRequest) {
       revalidateMustEatSurface(revalidated);
       revalidatePackContents(revalidated);
       break;
-    case 'homeWeek':
-      revalidateMapSurface(revalidated);
-      revalidateMustEatSurface(revalidated);
-      break;
     case 'staticPage':
       revalidateTag('staticPage');
       revalidated.push('tag:staticPage');
       break;
   }
 
-  return NextResponse.json({ ok: true, type, slug, revalidated });
+  return NextResponse.json({ ok: true, type, slug, settled, revalidated });
 }
 
 export async function GET() {

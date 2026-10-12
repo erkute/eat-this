@@ -4,6 +4,7 @@ import type {
   MustEatCardBlock,
   SpotCardBlock,
   ArticleImageBlock,
+  ArticleCardBlock,
 } from './types';
 import { splitHeading } from './headingDeck';
 
@@ -140,17 +141,21 @@ function slugifyHeading(text: string): string {
 // are delegated to the optional `renderMustEatCard` / `renderSpotCard` render-
 // props (so this stays presentation-agnostic); callers that don't pass them
 // simply skip those blocks. Inline `image` blocks work the same way via
-// `renderImage`. Other unknown types skip.
+// `renderImage`, `articleCard` via `renderArticleCard`. Other unknown types skip.
 export function PortableTextRenderer({
   blocks,
   renderMustEatCard,
   renderSpotCard,
   renderImage,
+  renderImageGroup,
+  renderArticleCard,
 }: {
   blocks?: PortableTextBlock[];
   renderMustEatCard?: (block: MustEatCardBlock) => ReactNode;
   renderSpotCard?: (block: SpotCardBlock) => ReactNode;
   renderImage?: (block: ArticleImageBlock) => ReactNode;
+  renderImageGroup?: (blocks: ArticleImageBlock[]) => ReactNode;
+  renderArticleCard?: (block: ArticleCardBlock) => ReactNode;
 }) {
   if (!blocks?.length) return null;
 
@@ -186,7 +191,8 @@ export function PortableTextRenderer({
     listItems = [];
   };
 
-  for (const raw of blocks as Block[]) {
+  for (let index = 0; index < blocks.length; index++) {
+    const raw = blocks[index] as Block;
     if (raw._type === 'mustEatCard') {
       flushList();
       const card = renderMustEatCard?.(raw as unknown as MustEatCardBlock);
@@ -199,9 +205,24 @@ export function PortableTextRenderer({
       if (card) sink().push(<Fragment key={raw._key ?? sink().length}>{card}</Fragment>);
       continue;
     }
+    if (raw._type === 'articleCard') {
+      flushList();
+      // Ein Verweis auf den nächsten Artikel gehört nicht mehr ins Fazit:
+      // er schliesst es und steht für sich.
+      flushConclusion();
+      const card = renderArticleCard?.(raw as unknown as ArticleCardBlock);
+      if (card) sink().push(<Fragment key={raw._key ?? sink().length}>{card}</Fragment>);
+      continue;
+    }
     if (raw._type === 'image') {
       flushList();
-      const figure = renderImage?.(raw as unknown as ArticleImageBlock);
+      const images = [raw as unknown as ArticleImageBlock];
+      if (renderImageGroup) {
+        while (blocks[index + 1]?._type === 'image') {
+          images.push(blocks[++index] as unknown as ArticleImageBlock);
+        }
+      }
+      const figure = renderImageGroup ? renderImageGroup(images) : renderImage?.(images[0]);
       if (figure) sink().push(<Fragment key={raw._key ?? sink().length}>{figure}</Fragment>);
       continue;
     }

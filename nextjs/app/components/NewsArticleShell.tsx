@@ -6,9 +6,11 @@ import type {
   MustEatCardBlock,
   SpotCardBlock,
   ArticleImageBlock,
+  ArticleCardBlock,
   PortableTextBlock,
 } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
+import { articleCardText } from '@/lib/articleCard';
 import { categoryArt } from '@/lib/categoryArt';
 import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
@@ -20,6 +22,8 @@ import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import { chapterShortLabel } from '@/lib/headingDeck';
+import { coverImageScale } from '@/lib/sanity-image-presets';
+import { scaleSizes } from '@/lib/magazineCover';
 import styles from './NewsArticleShell.module.css';
 
 interface Props {
@@ -87,6 +91,14 @@ function orderedOverlap(a: string[], b: string[]): number {
  *  Stadt hat ...", and that whole clause is one thought. */
 function firstSentence(text: string): string {
   return (text.match(/^[^.!?]+/) ?? [text])[0];
+}
+
+/** Zeichen im längsten Wort der Schlagzeile. Am Telefon wird sie nur so weit
+ *  verkleinert, dass dieses Wort in die Spalte passt (`--title-longest` im
+ *  CSS). Nach einem Bindestrich darf die Zeile ohnehin umbrechen, deshalb
+ *  zählt „Bistro-Abende" als zwei Wörter. */
+function longestTitleWord(title: string): number {
+  return Math.max(1, ...title.split(/\s+/).flatMap((w) => w.split(/(?<=-)/)).map((w) => w.length));
 }
 
 /** How much of one opening sentence must run through the other, how far into
@@ -169,15 +181,18 @@ export default function NewsArticleShell({
     (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
-  // Die Spots eines Guides für die Zeile unter dem Kopf: seine Kapitel, ohne
-  // das Fazit — das ist kein Spot.
+  // Die Spots eines Guides für die Zeile unter dem Kopf: nur Überschriften, die
+  // einen Spot eröffnen — direkt darunter steht seine Spot-Karte. Erzählende
+  // Texte gliedern nach Themen („Als Berlin chinesisch essen lernte“), deren
+  // Überschriften sind keine Spots (Ansage 11.10.2026); ebenso wenig das Fazit
+  // oder ein Essay mit Zwischenüberschriften (Ansage 02.10.2026: „nur wenn
+  // Spots gelistet sind“).
   const chapters = extractHeadings(
-    content.filter((block) => !('style' in block && block.style === 'conclusion'))
+    content.filter(
+      (block, i) =>
+        'style' in block && block.style === 'h2' && content[i + 1]?._type === 'spotCard'
+    )
   );
-  // Die Kapitel-Zeile nur in Guides, die Spots aufzählen (Ansage 02.10.2026:
-  // „nur wenn Spots gelistet sind") — nicht in einem Essay mit
-  // Zwischenüberschriften, der höchstens einen Laden zeigt.
-  const listsSpots = content.filter((block) => block._type === 'spotCard').length > 1;
   const hubLink = articleHubLink(article.slug);
   // Nur Kategorie-Hubs haben ein Booster-Pack; Bezirke nicht.
   const hubPack = hubLink?.href.startsWith('/kategorie/')
@@ -351,10 +366,75 @@ export default function NewsArticleShell({
           alt={block.alt || ''}
           width={width}
           height={height}
-          sizes="(max-width: 767.98px) 100vw, 660px"
+          sizes="(max-width: 767.98px) 100vw, 740px"
         />
         {block.caption && <figcaption>{block.caption}</figcaption>}
       </figure>
+    );
+  };
+
+  const renderImageGroup = (blocks: ArticleImageBlock[]) => {
+    const images = blocks.filter((block) => block.imageUrl);
+    if (images.length < 2) return images[0] ? renderImage(images[0]) : null;
+    const rows: React.ReactNode[] = [];
+    // Four images form two pairs; larger runs form rows of two or three.
+    for (let index = 0; index < images.length;) {
+      const remaining = images.length - index;
+      const count = remaining === 4 ? 2 : Math.min(3, remaining);
+      const row = images.slice(index, index + count);
+      rows.push(
+        <div className={styles.imageRow} data-article-image-row="" key={row[0]._key ?? index}>
+          {row.map((block, imageIndex) => (
+            <figure key={block._key ?? imageIndex}
+              style={{ '--img-ratio': (block.imageWidth || 1440) / (block.imageHeight || 1080) } as React.CSSProperties}>
+              <Image src={block.imageUrl!} alt={block.alt || ''}
+                width={block.imageWidth || 1440} height={block.imageHeight || 1080}
+                sizes="(max-width: 767.98px) 100vw, (max-width: 1023.98px) 50vw, 70vw" />
+              {block.caption && <figcaption>{block.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+      );
+      index += count;
+    }
+    return <div className={styles.imageSpread}>{rows}</div>;
+  };
+
+  // Verweis auf einen anderen Artikel: das Heft wie unter „Weitere Ausgaben“,
+  // daneben Rubrik · Datum und Titel wie „Im Magazin“ auf der Spot-Seite.
+  // Titel, Bild und Cover kommen aus `relatedArticles` – so stimmt der Titel
+  // auch dann, wenn der andere Artikel umbenannt wird. Ein Verweis auf einen
+  // unveröffentlichten oder gelöschten Artikel fällt weg.
+  const renderArticleCard = (block: ArticleCardBlock) => {
+    if (!block.articleSlug || block.articleSlug === article.slug) return null;
+    const target = relatedArticles.find((a) => a.slug === block.articleSlug);
+    if (!target) return null;
+    const { title: targetTitle, kicker, date } = articleCardText(target, coverLocale);
+    return (
+      <MagazineLink
+        href={`/news/${target.slug}`}
+        className={styles.inlineIssue}
+        data-motion="spot"
+      >
+        <span className={styles.inlineIssueCover}>
+          <MagazineCover
+            title={targetTitle}
+            image={target.imageUrl}
+            issue={issueOf(target.slug)}
+            date={target.date}
+            locale={coverLocale}
+            cover={target.cover}
+            sizes="(max-width: 767.98px) 130px, 180px"
+            widths={[320, 480]}
+          />
+        </span>
+        <span className={styles.inlineIssueText}>
+          <span className={styles.inlineIssueMeta}>
+            {[kicker, date].filter(Boolean).join(' · ')}
+          </span>
+          <span className={styles.inlineIssueTitle}>{targetTitle}</span>
+        </span>
+      </MagazineLink>
     );
   };
 
@@ -402,7 +482,12 @@ export default function NewsArticleShell({
                 ohne. */}
             <div className={styles.introCopy}>
               <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
-              <h1 className={styles.heroTitle}>{title}</h1>
+              <h1
+                className={styles.heroTitle}
+                style={{ '--title-longest': longestTitleWord(title) } as React.CSSProperties}
+              >
+                {title}
+              </h1>
               {byline}
               <ArticleThemeToggle de={de} className={styles.themeToggle} />
             </div>
@@ -413,7 +498,7 @@ export default function NewsArticleShell({
                   alt={article.alt || title}
                   fill
                   priority
-                  sizes="100vw"
+                  sizes={`(max-width: 700px) ${scaleSizes('100vw', coverImageScale(article.imageUrl, 4 / 5))}, ${scaleSizes('100vw', coverImageScale(article.imageUrl, 3 / 2))}`}
                   className={styles.hero}
                 />
               </div>
@@ -424,7 +509,7 @@ export default function NewsArticleShell({
                 als einziges Element aus der Mitte fiel (Ansage 02.10.2026),
                 und gibt es jetzt auch am Telefon. Nur der Name, nicht die
                 ganze Überschrift; ein Tipp springt zum Spot. */}
-            {listsSpots && chapters.length > 1 && (
+            {chapters.length > 1 && (
               <nav className={styles.chapters} aria-label={chaptersLabel}>
                 <span className={styles.chaptersLabel}>{chaptersLabel}</span>
                 <ol className={styles.chapterList}>
@@ -443,6 +528,7 @@ export default function NewsArticleShell({
           <div className={styles.column}>
             <div
               className={styles.content}
+              data-reading-content
               data-article-content=""
               data-lede={showLede ? '' : undefined}
             >
@@ -451,6 +537,8 @@ export default function NewsArticleShell({
                 renderMustEatCard={renderMustEatCard}
                 renderSpotCard={renderSpotCard}
                 renderImage={renderImage}
+                renderImageGroup={renderImageGroup}
+                renderArticleCard={renderArticleCard}
               />
             </div>
 

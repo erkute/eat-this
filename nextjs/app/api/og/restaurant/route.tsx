@@ -75,8 +75,7 @@ export async function GET(request: Request) {
   const [{ saira, schoolbell }, logo] = await Promise.all([loadFonts(), loadLogo()]);
 
   const district = r.bezirk?.name ?? r.district ?? null;
-  const basePhoto = r.seo?.ogImageUrl || r.photo;
-  const bg = basePhoto ? ogPhotoUrl(basePhoto) : null;
+  const bg = r.photo ? ogPhotoUrl(r.photo) : null;
   const metaLine = [r.cuisineType ? localizedCuisine(r.cuisineType, locale) : null, district]
     .filter(Boolean)
     .join('   ·   ');

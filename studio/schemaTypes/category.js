@@ -1,49 +1,57 @@
 import {defineField, defineType} from 'sanity'
+import {TagIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'category',
   title: 'Kategorie',
   type: 'document',
+  icon: TagIcon,
+  fieldsets: [
+    {name: 'name', title: 'Name', options: {columns: 2}},
+    {name: 'text', title: 'Beschreibung', description: '1–2 Sätze für die Kategorieseite und Google.', options: {columns: 2}},
+  ],
   fields: [
     defineField({
       name: 'name',
-      title: 'Name (Deutsch)',
+      title: 'Deutsch',
       type: 'string',
-      description: 'Anzeigename auf der DE-Site, z.B. "Café", "Frühstück", "Süßes".',
-      validation: Rule => Rule.required(),
+      fieldset: 'name',
+      description: 'z. B. „Frühstück“, „Süßes“',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'nameEn',
-      title: 'Name (English)',
+      title: 'Englisch',
       type: 'string',
-      description: 'Anzeigename auf der EN-Site, z.B. "Coffee", "Breakfast", "Sweets".',
-      validation: Rule => Rule.required(),
+      fieldset: 'name',
+      description: 'z. B. „Breakfast“, „Sweets“',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'Adresse der Seite',
       type: 'slug',
       options: {source: 'nameEn', maxLength: 96},
-      description: 'URL-Pfad (/kategorie/<slug>). Wird aus dem englischen Namen generiert.',
-      validation: Rule => Rule.required(),
+      description: 'eatthisdot.com/kategorie/… Kommt aus dem englischen Namen. Nach dem Livegang nicht mehr ändern.',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'description',
-      title: 'Beschreibung (Deutsch)',
+      title: 'Deutsch',
       type: 'text',
-      rows: 2,
-      description: 'Kurzer Blurb für SEO + Hub-Seite. 1–2 Sätze.',
+      rows: 3,
+      fieldset: 'text',
     }),
     defineField({
       name: 'descriptionEn',
-      title: 'Description (English)',
+      title: 'Englisch',
       type: 'text',
-      rows: 2,
-      description: 'Short blurb for SEO + hub page. 1–2 sentences.',
+      rows: 3,
+      fieldset: 'text',
     }),
     defineField({
       name: 'topSpots',
-      title: 'Top-Spots (kuratierte Reihenfolge)',
+      title: 'Bestenliste',
       type: 'array',
       of: [
         {
@@ -64,20 +72,22 @@ export default defineType({
           },
         },
       ],
-      validation: Rule => Rule.max(10).unique(),
+      validation: (Rule) => Rule.max(10).unique(),
       description:
-        'Die besten Spots dieser Kategorie, in Reihenfolge — Platz 1 ganz oben, per Drag & Drop ' +
-        'sortieren. Sie erscheinen als nummerierte Bestenliste über der A–Z-Liste. ' +
-        'Leer lassen (oder unter 3 Einträge) = die Seite bleibt wie bisher rein alphabetisch.',
+        'Die besten Spots der Kategorie, Platz 1 oben, per Ziehen sortieren. Erscheint als ' +
+        'nummerierte Liste über A–Z. Unter drei Einträgen bleibt die Seite rein alphabetisch.',
     }),
   ],
-  // Kein `media`: die Vorschau hing an `homeImage`, und das Feld gibt es nicht
-  // mehr. Es hielt die freigestellten Teller-Fotos und wurde von der App nie
-  // gelesen — einziger Treffer im Code war das Import-Skript, das es befüllt
-  // hat. Wo eine Kategorie wirklich ein Bild zeigt (Hub, Index, Boost, OG),
-  // kommt es aus `lib/categoryArt.ts` bzw. `public/pics/og/` und hat mit dem
-  // Dokument nichts zu tun.
+  // Kein Bild: Wo eine Kategorie eins zeigt (Hub, Index, OG), kommt es aus
+  // `lib/categoryArt.ts` bzw. `public/pics/og/`, nicht aus dem Dokument.
   preview: {
-    select: {title: 'name'},
+    select: {title: 'name', en: 'nameEn', top: 'topSpots'},
+    prepare: ({title, en, top}) => ({
+      title,
+      subtitle: [en !== title ? en : null, top?.length >= 3 ? `Bestenliste mit ${top.length} Spots` : 'Ohne Bestenliste']
+        .filter(Boolean)
+        .join(' · '),
+      media: TagIcon,
+    }),
   },
 })

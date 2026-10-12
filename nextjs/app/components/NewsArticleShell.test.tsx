@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -305,6 +306,33 @@ describe('NewsArticleShell', () => {
     expect(html).not.toContain('aria-label="Die Spots"');
   });
 
+  // Ansage 11.10.2026: ein erzählender Guide gliedert nach Themen, die Spots
+  // stehen im Text — seine Überschriften gehören nicht in die Zeile.
+  it('lists only headings that open a spot', () => {
+    const narrative = render([
+      h2('Als Berlin chinesisch essen lernte'),
+      para('x'),
+      spot('Ottenthal', 'ottenthal'),
+      h2('Die neue Kantstraße'),
+      para('y'),
+      spot('Kuchi', 'kuchi'),
+    ]);
+    expect(narrative).not.toContain('aria-label="Die Spots"');
+
+    const mixed = render([
+      h2('Saucen'),
+      para('x'),
+      h2('Kolo Coffee – Mikrorösterei'),
+      spot('Kolo', 'kolo'),
+      h2('Spumante'),
+      spot('Spumante', 'spumante'),
+    ]);
+    const head = mixed.slice(0, mixed.indexOf('</header>'));
+    expect(head).toContain('aria-label="Die Spots"');
+    expect(head).not.toContain('href="#saucen"');
+    expect(head).toContain('href="#spumante"');
+  });
+
   it('reports a reading estimate of at least a minute', () => {
     expect(render([para('Kurz.')])).toContain('1 Min. Lesezeit');
   });
@@ -377,6 +405,16 @@ describe('NewsArticleShell', () => {
       expect(html).toMatch(/>Guides<\/span><h1[^>]*>Döner in Berlin<\/h1>/);
     });
 
+    // Am Telefon schrumpft die Schlagzeile, bis ihr längstes Wort passt.
+    it('tells the headline its longest word, a hyphen counting as a break', () => {
+      const long = renderWith(issues(['doener']), {
+        titleDe: 'Berlin zwischen Smashburger und Mitternachtshunger',
+      });
+      expect(long).toMatch(/<h1[^>]*style="--title-longest:18"/);
+      const compound = renderWith(issues(['doener']), { titleDe: 'Bistro-Abende in Berlin' });
+      expect(compound).toMatch(/<h1[^>]*style="--title-longest:7"/);
+    });
+
     it('does not show its own cover again — the tap opened the magazine', () => {
       const html = renderWith(issues(['pizza', 'doener', 'eis']));
       const header = html.slice(0, html.indexOf('</header>'));
@@ -407,5 +445,71 @@ describe('NewsArticleShell', () => {
       expect(related).toContain('data-cover-issue="1"');
       expect(related).not.toContain('href="/news/doener"');
     });
+
+    const articleCard = (articleSlug: string): PortableTextBlock =>
+      ({ _type: 'articleCard', _key: `ac-${articleSlug}`, articleSlug }) as unknown as PortableTextBlock;
+
+    it('zeigt einen Artikel-Verweis im Text als Heft mit dem aktuellen Titel', () => {
+      const content = [para('Text.'), articleCard('pizza')];
+      const html = renderWith(issues(['pizza', 'doener']), { content, contentDe: content });
+      const body = html.slice(0, html.indexOf('Weitere Ausgaben'));
+      expect(body).toContain('href="/news/pizza"');
+      expect(body).toContain('data-cover-issue="2"');
+      expect(body).toContain('Story pizza');
+    });
+
+    it('lässt einen Verweis auf einen unveröffentlichten oder den eigenen Artikel weg', () => {
+      const content = [para('Text.'), articleCard('gibts-nicht'), articleCard('doener')];
+      const html = renderWith(issues(['pizza', 'doener']), { content, contentDe: content });
+      const body = html.slice(0, html.indexOf('Weitere Ausgaben'));
+      expect(body).not.toContain('href="/news/gibts-nicht"');
+      expect(body).not.toContain('href="/news/doener"');
+    });
+
+    it('stellt einen Verweis hinter das Fazit statt hinein', () => {
+      const conclusion = {
+        _type: 'block',
+        _key: 'fazit',
+        style: 'conclusion',
+        children: [{ _type: 'span', text: 'Fazit' }],
+      } as unknown as PortableTextBlock;
+      const content = [conclusion, para('Schluss.'), articleCard('pizza')];
+      const html = renderWith(issues(['pizza', 'doener']), { content, contentDe: content });
+      const aside = html.slice(html.indexOf('data-block="conclusion"'), html.indexOf('</aside>'));
+      expect(aside).toContain('Schluss.');
+      expect(aside).not.toContain('href="/news/pizza"');
+    });
+  });
+});
+
+describe('editorial image spreads', () => {
+  const photo = (key: string, width: number, height: number): PortableTextBlock => ({
+    _type: 'image', _key: key, imageUrl: `https://cdn.sanity.io/${key}.jpg`,
+    imageWidth: width, imageHeight: height, alt: `Photo ${key}`, caption: `Credit ${key}`,
+  }) as unknown as PortableTextBlock;
+
+  it('groups consecutive photos with their own ratios and keeps text between separate spreads', () => {
+    const html = render([photo('portrait', 600, 900), photo('wide', 1800, 900), para('Between photos.'), photo('single', 900, 900)]);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    const row = container.querySelector('[data-article-image-row]')!;
+    expect(row.querySelectorAll('figure')).toHaveLength(2);
+    expect(row.querySelectorAll('figcaption')).toHaveLength(2);
+    expect(row.textContent).toContain('Credit portrait');
+    expect(row.textContent).toContain('Credit wide');
+    expect(row.querySelector('figure')!.getAttribute('style')).toContain('--img-ratio:0.666');
+    expect(container.querySelectorAll('[data-article-image-row]')).toHaveLength(1);
+    expect(container.querySelectorAll('figure')).toHaveLength(3);
+    expect(html.indexOf('Credit wide')).toBeLessThan(html.indexOf('Between photos.'));
+    expect(html.indexOf('Between photos.')).toBeLessThan(html.indexOf('Credit single'));
+  });
+
+  it('uses pairs for four photos and omits unfilled Sanity image blocks', () => {
+    const html = render([photo('a', 600, 900), { _type: 'image', _key: 'empty' } as PortableTextBlock,
+      photo('b', 900, 600), photo('c', 900, 900), photo('d', 900, 600)]);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const rows = [...container.querySelectorAll('[data-article-image-row]')];
+    expect(rows.map((row) => row.querySelectorAll('figure').length)).toEqual([2, 2]);
+    expect(container.querySelectorAll('img[alt^="Photo"]')).toHaveLength(4);
   });
 });

@@ -2,8 +2,9 @@
    Der eine dauerhafte Weg zu Remy. Bis zum 09.09.2026 gab es ihn nur auf der
    Startseite (die Bühne, weit unten) und auf Restaurantseiten — auf /kategorie,
    /bezirk, /packs, /news, /profile und in den Guides führte KEIN Weg zu ihm.
-   Gelb, unten rechts: so steht es in der Design-Sprache der Startseite. */
+   Unten rechts, mit einem dunkleren Ton des roten Markenakzents. */
 .dock {
+  --remy-accent: color-mix(in srgb, var(--et-accent) 78%, var(--et-ink));
   position: fixed;
   right: 20px;
   bottom: 20px;
@@ -21,12 +22,14 @@
   height: 58px;
   padding: 0;
   overflow: hidden;
-  /* Das Gelb liegt als eigene Ebene hinter dem Kopf (::before), damit es
+  /* Die Farbe liegt als eigene Ebene hinter dem Kopf (::before), damit sie
      beim Auftritt um ihn herum wachsen kann. */
   background: transparent;
   border: none;
   border-radius: var(--et-radius-photo);
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   /* Kein Schatten (07.10.2026): auf hellen Seiten lag er als grauer Fleck
      unter der Kachel. Die gelbe Fläche steht auf beiden Gründen allein. */
   transition:
@@ -40,7 +43,8 @@
   z-index: -1;
   inset: 0;
   border-radius: inherit;
-  background: var(--et-accent);
+  background: var(--remy-accent);
+  pointer-events: none;
 }
 
 /* Anker für das redende Gesicht (`.talk`) und das, was beim Auftritt von
@@ -50,6 +54,7 @@
   display: block;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
 /* Sein Kopf füllt die Kachel wie ein Passfoto — gerechnet, nicht geraten.
@@ -89,15 +94,16 @@
   visibility: hidden;
 }
 
-:global(html[data-remy-talk]) .talk {
+/* Erst nach dem Auftritt reden: vorher bleibt das dekodierte Lächeln sichtbar. */
+:global(html[data-remy-talk]) .dock:not([data-entrance]) .talk {
   visibility: visible;
 }
 
-:global(html[data-remy-talk]) .faceSmile {
+:global(html[data-remy-talk]) .dock:not([data-entrance]) .faceSmile {
   visibility: hidden;
 }
 
-:global(html[data-remy-talk]) .talkOpen {
+:global(html[data-remy-talk]) .dock:not([data-entrance]) .talkOpen {
   animation: launcherFlap 0.34s steps(1) infinite;
 }
 
@@ -113,7 +119,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :global(html[data-remy-talk]) .talkOpen {
+  :global(html[data-remy-talk]) .dock:not([data-entrance]) .talkOpen {
     animation: none;
   }
 }
@@ -129,42 +135,69 @@
   outline-offset: 3px;
 }
 
-/* Das ✕ zum Wegtippen sitzt als Abzeichen in der Ecke der Kachel, wie an einem
-   App-Icon: klein genug, um die Kachel nicht zu dominieren, groß genug für den
-   Daumen (28px Box, über ::before ein 44px Trefferfeld). */
+/* Das Abzeichen bleibt 28px klein; die echte Button-Box ist 44px groß.
+   Das Trefferfeld hängt damit nicht von einem überstehenden Pseudoelement ab. */
 .dismiss {
   position: absolute;
-  top: -9px;
-  right: -9px;
+  top: -17px;
+  right: -17px;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   color: var(--et-white);
-  background: var(--et-ink);
-  border: 2px solid var(--et-accent);
-  border-radius: var(--et-radius-pill);
+  background: transparent;
+  border: 0;
+  border-radius: var(--et-radius-control);
   cursor: pointer;
-  transition: background var(--et-motion-fast);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .dismiss::before {
   content: '';
   position: absolute;
-  inset: -8px;
+  inset: 8px;
+  background: var(--et-ink);
+  border: 2px solid var(--remy-accent);
+  border-radius: var(--et-radius-pill);
+  pointer-events: none;
+  transition: background var(--et-motion-fast);
 }
 
 .dismiss svg {
   width: 9px;
   height: 9px;
   color: currentColor;
+  position: relative;
+  pointer-events: none;
 }
 
 @media (hover: hover) {
-  .dismiss:hover {
+  .dismiss:hover::before {
     background: var(--et-red);
   }
+}
+
+/* Erst in die Knie, ein kleiner Hüpfer — dann nach rechts aus dem Bild.
+   Die gesamte Kachel bewegt sich, ihre Trefferfläche bleibt kein Geisterknopf. */
+.dock[data-leaving] {
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  animation: remyExit 760ms ease-in-out both;
+}
+
+.dock[data-leaving] .dismiss {
+  opacity: 0;
+}
+
+@keyframes remyExit {
+  0% { transform: none; }
+  22% { transform: translate(-8px, 5px) rotate(-9deg) scale(1.08, 0.88); }
+  45% { transform: translate(-12px, -12px) rotate(8deg) scale(0.96, 1.05); }
+  62% { transform: translate(8px, 0) rotate(-6deg); }
+  100% { transform: translate(150px, -14px) rotate(24deg) scale(0.85); }
 }
 
 .dismiss:focus-visible {
@@ -270,14 +303,26 @@
     }
   }
 
-  .dismiss {
+  .dismiss::before {
     transition: none;
+  }
+
+  .dock[data-leaving] {
+    animation: none;
+    visibility: hidden;
+  }
+
+  .dock[data-entrance='playing'] .launcher,
+  .dock[data-entrance='playing'] .head,
+  .dock[data-entrance='playing'] .launcher::before,
+  .dock[data-entrance='playing'] .dismiss {
+    animation: none;
   }
 }
 
 @media (max-width: 480px) {
   .dock {
-    right: 14px;
+    right: max(20px, env(safe-area-inset-right, 0px));
     bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   }
 

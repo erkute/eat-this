@@ -16,6 +16,7 @@ import { prefetchRestaurantDetail, useCachedRestaurantDetail } from '@/lib/map/u
 import { rememberedSpotPhotoIndex, rememberSpotPhoto, spotGallery } from '@/lib/map/spotGallery';
 import { DAY_LABELS } from '@/lib/map/openingHours';
 import { isPhoneViewport } from '@/lib/map/viewport';
+import { useInkSafeLeading } from '@/lib/dom/inkSafeLeading';
 import MapListEmpty from './MapListEmpty';
 import { usePhotoRail } from './usePhotoRail';
 import styles from './RestaurantList.module.css';
@@ -76,6 +77,9 @@ const Item = memo(
     // above the list already says.
     const cuisine = restaurant.cuisineType ? localizedCuisine(restaurant.cuisineType, loc) : null;
     const [statusMain] = status?.label ? status.label.split(' · ') : [];
+    const displayName = normalizeName(restaurant.name);
+    const nameRef = useRef<HTMLHeadingElement>(null);
+    useInkSafeLeading(nameRef, displayName);
 
     // Warm the on-demand detail fields once a card scrolls near the viewport —
     // by the time the user taps it, the story text is already cached and the
@@ -252,7 +256,9 @@ const Item = memo(
         )}
 
         <div className={styles.rcardBody}>
-          <h3 className={styles.rcardName}>{normalizeName(restaurant.name)}</h3>
+          <h3 ref={nameRef} className={styles.rcardName}>
+            {displayName}
+          </h3>
           <p className={styles.rcardMeta}>
             {district && (
               <span className={`${styles.rcardMetaChip} ${styles.rcardMetaDistrict}`}>

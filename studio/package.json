@@ -15,6 +15,7 @@
     "sanity"
   ],
   "dependencies": {
+    "@sanity/locale-de-de": "^1.1.37",
     "@sanity/vision": "^5.31.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

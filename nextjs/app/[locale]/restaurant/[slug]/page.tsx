@@ -128,7 +128,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     district: districtName,
     locale: loc,
   });
-  const title = curatedTitle ? buildCuratedRestaurantTitle(curatedTitle, r.name) : builtTitle;
+  const title = curatedTitle
+    ? buildCuratedRestaurantTitle(curatedTitle, r.name, districtName)
+    : builtTitle;
 
   // Branded share card — the dynamic OG route overlays name + cuisine + district
   // on the restaurant photo (and falls back to a brand card when there is none),
@@ -345,6 +347,7 @@ export default async function RestaurantPage({ params }: PageProps) {
         </header>
 
         <div className={styles.column}>
+          <div data-reading-content>
           {shortDescription && <p className={styles.lede}>{shortDescription}</p>}
 
           {r.photo && (
@@ -407,7 +410,7 @@ export default async function RestaurantPage({ params }: PageProps) {
             }
           })}
 
-          {/* Mehr Fotos als Text: die übrigen als Reihe, nicht gestapelt. */}
+          {/* Weitere Fotos behalten ihr Format und stehen einzeln. */}
           {flow.rest.length > 0 && (
             <ul className={styles.sheet} aria-label={de ? 'Weitere Fotos' : 'More photos'}>
               {flow.rest.map((index) => (
@@ -415,8 +418,8 @@ export default async function RestaurantPage({ params }: PageProps) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={galleryImages[index].full}
-                    srcSet={sanitySrcSet(galleryImages[index].full, [400, 640, 800])}
-                    sizes="(max-width: 767px) 33vw, 250px"
+                    srcSet={sanitySrcSet(galleryImages[index].full, [640, 960, 1600])}
+                    sizes="(max-width: 767px) 100vw, 768px"
                     alt={galleryAlt(index)}
                     loading="lazy"
                     decoding="async"
@@ -538,6 +541,8 @@ export default async function RestaurantPage({ params }: PageProps) {
             district={r.bezirk?.name ?? undefined}
             locale={loc}
           />
+
+          </div>
 
           <RestaurantArticlesSection
             articles={articles}

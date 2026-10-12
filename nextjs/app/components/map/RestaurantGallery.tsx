@@ -6,6 +6,8 @@ import { rememberedSpotPhotoIndex, rememberSpotPhoto } from '@/lib/map/spotGalle
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import { useTranslation } from '@/lib/i18n';
 import { spotPhotoSrc, spotPhotoSrcSet } from '@/lib/map/spotPhoto';
+import { coverImageScale } from '@/lib/sanity-image-presets';
+import { scaleSizes } from '@/lib/magazineCover';
 import styles from './RestaurantDetail.module.css';
 
 const SWIPE_HINT_KEY = 'et:photo-swipe-hint';
@@ -127,7 +129,7 @@ export default function RestaurantGallery({ images, restaurantName, slug }: Prop
                  große Fassung (`full`) bekommt erst der Zoom. */
               src={spotPhotoSrc(img.full)}
               srcSet={spotPhotoSrcSet(img.full)}
-              sizes="(max-width: 1023.98px) 100vw, 430px"
+              sizes={scaleSizes('(max-width: 1023.98px) 100vw, 430px', coverImageScale(img.full, 2 / 3))}
               alt={img.alt ?? restaurantName}
               draggable={false}
               /* Die Nachbarbilder müssen schon da sein, wenn der Finger sie
@@ -143,10 +145,10 @@ export default function RestaurantGallery({ images, restaurantName, slug }: Prop
       </div>
       {multiple && (
         <>
-          {/* Punkte statt „1/6": die Reihe liest man als „hier geht es weiter",
+          {/* Striche statt „1/6": die Reihe liest man als „hier geht es weiter",
               eine Zahl nur als Menge. Höchstens sechs Fotos (Hero plus fünf
-              aus der Galerie), dafür reicht die Reihe. Die Ink-Fläche hält sie
-              auf hellen Fotos lesbar, wie die Chips unten. */}
+              aus der Galerie), dafür reicht die Reihe. Ohne Fläche, ein
+              Schatten hält sie auf hellen Fotos lesbar. */}
           <span className={styles.rdHeroPhotoDots} aria-hidden="true">
             {usable.map((img, index) => (
               <span

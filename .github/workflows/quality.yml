@@ -134,10 +134,10 @@ jobs:
 
       # Sonst rund 25 s. Am 07.10.2026 hing der Schritt 23 Minuten (apt) und
       # hielt das Release fest, ohne rot zu werden.
-      - name: Install Chromium
+      - name: Install Chromium and WebKit
         if: steps.browser.outputs.run == 'true'
         timeout-minutes: 5
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
 
       - uses: actions/setup-java@v4
         if: steps.browser.outputs.run == 'true'

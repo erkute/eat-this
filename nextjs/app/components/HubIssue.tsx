@@ -7,7 +7,8 @@ import type { RestaurantCard } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { normalizeName } from '@/lib/normalizeName';
 import { pickLocale } from '@/lib/i18n/pickLocale';
-import { sanitySrcSet } from '@/lib/sanity-image-presets';
+import { sanitySrcSet, coverImageScale } from '@/lib/sanity-image-presets';
+import { scaleSizes } from '@/lib/magazineCover';
 import { formatArticleDate } from '@/lib/articleDate';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { HubFilterCard, HubFilterGroup } from './HubFilter';
@@ -59,6 +60,7 @@ function Photo({
   widths,
   position,
   eager = false,
+  aspectRatio = 4 / 5,
 }: {
   src?: string | null;
   /** Gibt ohne Foto die Initiale her. */
@@ -67,6 +69,7 @@ function Photo({
   widths: number[];
   position?: string;
   eager?: boolean;
+  aspectRatio?: number;
 }) {
   if (!src) {
     return (
@@ -75,14 +78,15 @@ function Photo({
       </span>
     );
   }
+  const scale = coverImageScale(src, aspectRatio);
   return (
     /* Sanity liefert die Grössen selbst; der App-Hosting-Proxy rechnete sie
        nur noch einmal. */
     /* eslint-disable-next-line @next/next/no-img-element */
     <img
       src={src}
-      srcSet={sanitySrcSet(src, widths)}
-      sizes={sizes}
+      srcSet={sanitySrcSet(src, widths.map(w => Math.round(w * scale)))}
+      sizes={scaleSizes(sizes, scale)}
       style={position ? { objectPosition: position } : undefined}
       alt=""
       loading={eager ? 'eager' : 'lazy'}

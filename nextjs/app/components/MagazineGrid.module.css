@@ -459,3 +459,32 @@
   background-color: var(--et-accent);
   transform: scaleX(2.4);
 }
+
+/* Ab 1600px wächst die Startseite mit (HubSection.module.css, `--u`). Hier
+   über die Masse statt über `zoom`: der Stapel rechnet mit Zeigerpositionen
+   und `vw`. Bei `--u` = 1px (unter 1600px, andere Seiten) gelten genau die
+   Obergrenzen von oben. */
+@media (min-width: 1600px) {
+  .section {
+    --et-type-section-title: calc(42 * var(--u, 1px));
+    --mag-gap: calc(32 * var(--u, 1px));
+    --mag-peek: calc(60 * var(--u, 1px));
+    --head-w: calc(360 * var(--u, 1px));
+    --cover-w: min(
+      560 * var(--u, 1px),
+      (100svh - 262 * var(--u, 1px)) * 0.75,
+      (100vw - 2 * var(--mag-bleed) - var(--head-w) - var(--mag-gap)) / 2.15
+    );
+  }
+  .section .head:global(.hv-head) { gap: calc(8 * var(--u, 1px)); }
+  .section .eyebrow:global(.hv-kicker) { font-size: calc(12 * var(--u, 1px)); }
+  .intro { margin-top: calc(8 * var(--u, 1px)); font-size: calc(21 * var(--u, 1px)); }
+  .storyNumber { margin-bottom: calc(10 * var(--u, 1px)); font-size: calc(14 * var(--u, 1px)); }
+  .storyCaption h3 { font-size: calc(30 * var(--u, 1px)); }
+  .dots { margin-top: calc(20 * var(--u, 1px)); }
+  .allLink {
+    min-height: calc(52 * var(--u, 1px));
+    padding: 0 calc(24 * var(--u, 1px));
+    font-size: calc(17 * var(--u, 1px));
+  }
+}

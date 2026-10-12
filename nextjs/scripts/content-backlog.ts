@@ -41,8 +41,7 @@ const QUERY = `*[_type == "restaurant" && !(_id in path("drafts.**"))] | order(n
     "hasMenuUrl": defined(menuUrl),
     "hasExternalPresence": defined(website) || defined(instagramHandle),
     "hasShortDescription": defined(shortDescription),
-    "hasTip": defined(tip),
-    lastReviewed
+    "hasTip": defined(tip)
   }`;
 
 function readPositiveInteger(args: string[], flag: string, fallback: number): number {

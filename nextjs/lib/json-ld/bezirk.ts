@@ -6,7 +6,7 @@ import type { BezirkDoc, RestaurantCard } from '@/lib/types';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 
 interface BuildBezirkJsonLdArgs {
-  bezirk: Pick<BezirkDoc, 'name' | 'slug' | 'imageUrl'>;
+  bezirk: Pick<BezirkDoc, 'name' | 'slug'>;
   restaurants: RestaurantCard[];
   locale: string;
   // Localized label for the "Bezirke" / "Districts" breadcrumb hub.
@@ -23,12 +23,11 @@ export function buildBezirkJsonLd({
   districtsLabel,
 }: BuildBezirkJsonLdArgs): string {
   const pageUrl = localeUrl(locale, `/bezirk/${bezirk.slug}`);
-  // The district's own banner leads when it has one; otherwise the first
-  // listed photo, which is the first real picture a visitor sees anyway.
+  // The first listed photo — the first real picture a visitor sees anyway.
   // Restaurant photos are licence-gated upstream, so `find` may come back
   // empty — then the page ships without an ImageObject rather than with the
   // brand card.
-  const primaryImage = schemaImageUrl(bezirk.imageUrl || restaurants.find((r) => r.photo)?.photo);
+  const primaryImage = schemaImageUrl(restaurants.find((r) => r.photo)?.photo);
 
   return serializeJsonLd({
     '@context': 'https://schema.org',

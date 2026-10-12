@@ -47,6 +47,7 @@ describe('RestaurantDetailArticles (Map-Sheet)', () => {
     expect(first).toBeLessThan(second);
     expect(second).toBeLessThan(third);
     expect(html.match(/<li>/g)).toHaveLength(3);
+    expect(html.match(/data-magazine-cover/g)).toHaveLength(3);
   });
 
   it('speaks German on DE and English on EN', () => {
@@ -66,7 +67,11 @@ describe('RestaurantDetailArticles (Map-Sheet)', () => {
       card({ imageUrl: undefined, date: undefined }),
       card({ _id: 'a2', slug: 'x', imageUrl: undefined, date: undefined }),
     ]);
-    expect(html).not.toContain('<img');
+    expect(html).not.toContain('cdn.example');
     expect(html).not.toContain('<time');
+  });
+
+  it('passes the issue number to the magazine artwork', () => {
+    expect(render([card({ issue: 7 })])).toContain('data-cover-issue="7"');
   });
 });

@@ -204,6 +204,13 @@
   }
 }
 
+@media (min-width: 1600px) {
+  .inner { width: min(100%, 1880px); }
+  .copy { max-width: 780px; }
+  .name { font-size: clamp(88px, 5.4vw, 128px); }
+  .packArt { width: min(100%, 520px); }
+}
+
 @media (max-width: 767.98px) {
   .copy {
     max-width: none;

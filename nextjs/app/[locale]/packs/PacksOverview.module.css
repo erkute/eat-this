@@ -44,20 +44,16 @@
 }
 
 .catalogHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px 32px;
+  display: grid;
+  justify-items: start;
+  gap: 12px;
   margin-bottom: clamp(26px, 3.4vw, 44px);
   padding-bottom: 14px;
   border-bottom: 1px solid var(--packs-rule);
 }
 
 .sectionTitle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  position: relative;
   margin: 0;
   color: var(--packs-fg);
   font-size: var(--et-type-section-title);
@@ -65,6 +61,12 @@
   letter-spacing: -0.025em;
   line-height: var(--et-leading-title);
   text-transform: uppercase;
+}
+
+.sectionTitle .mk {
+  position: absolute;
+  top: calc(0.5lh - 4.5px);
+  left: -18px;
 }
 
 .sectionLead {
@@ -119,7 +121,7 @@
    Fläche. */
 .art {
   display: block;
-  width: min(66%, 220px);
+  width: min(84%, 320px);
   height: auto;
   margin: 6% 0 10%;
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
@@ -272,8 +274,10 @@
   }
 
   .art {
-    width: min(78%, 150px);
+    width: 88%;
   }
+
+  .catalogHead { padding-left: 18px; }
 
   .tileName {
     font-size: 22px;
@@ -288,6 +292,10 @@
     padding-inline: 8px;
     margin-top: 12px;
   }
+}
+
+@media (min-width: 1600px) {
+  .wrap { width: min(100% - 112px, 1880px); }
 }
 
 /* iOS rendert Filter-Schatten auf neun Ausschnitt-Bildern spürbar zäh. */

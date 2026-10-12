@@ -13,14 +13,14 @@ export const HOME_MAP_CATEGORIES = [
 
 export type PreviewCategory = (typeof HOME_MAP_CATEGORIES)[number];
 
-/** Editorial recommendations only, with unchanged coordinates. No geographic
- * thinning: nearby recommendations and spots outside the centre still count. */
+/** Lead with editorial recommendations. Pizza also uses the other published
+ * category spots, so the preview shows more of the existing Sanity selection. */
 export function mapPreviewSpots(restaurants: MapRestaurant[], category: PreviewCategory, topSpots: string[] = []) {
   const recommended = new Set(topSpots);
   return restaurants
     .filter(
       (spot) =>
-        recommended.has(spot.slug) &&
+        (recommended.has(spot.slug) || category.slug === 'pizza') &&
         spot.photo &&
         Number.isFinite(spot.lat) &&
         Number.isFinite(spot.lng) &&
@@ -28,7 +28,10 @@ export function mapPreviewSpots(restaurants: MapRestaurant[], category: PreviewC
         Math.abs(spot.lng) <= 180 &&
         spot.categories?.some((item) => item.slug === category.slug)
     )
-    .sort((a, b) => topSpots.indexOf(a.slug) - topSpots.indexOf(b.slug));
+    .sort((a, b) => {
+      const rank = (slug: string) => recommended.has(slug) ? topSpots.indexOf(slug) : topSpots.length;
+      return rank(a.slug) - rank(b.slug) || a.name.localeCompare(b.name);
+    });
 }
 
 export function mapPreviewHref(category: string, restaurantSlug?: string) {
@@ -45,6 +48,7 @@ export function spreadPreviewPins(
   spots: MapRestaurant[],
   project: (spot: MapRestaurant) => { x: number; y: number },
   selectedId: string | null,
+  spacing = { x: 56, y: 60 },
 ) {
   const candidates = spots.map((spot, rank) => ({ spot, rank, point: project(spot) }));
   const selected = candidates.find((item) => item.spot._id === selectedId) ?? candidates[0];
@@ -53,7 +57,7 @@ export function spreadPreviewPins(
   let remaining = candidates.filter((item) => item !== selected);
   while (placed.length < 12) {
     remaining = remaining.filter(({ point }) => placed.every((item) =>
-      Math.abs(point.x - item.point.x) >= 56 || Math.abs(point.y - item.point.y) >= 60));
+      Math.abs(point.x - item.point.x) >= spacing.x || Math.abs(point.y - item.point.y) >= spacing.y));
     if (!remaining.length) break;
     const score = (candidate: typeof selected) => Math.min(...placed.map((item) =>
       Math.hypot(candidate.point.x - item.point.x, candidate.point.y - item.point.y))) / (1 + candidate.rank * .035);

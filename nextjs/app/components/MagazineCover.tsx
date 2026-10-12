@@ -123,7 +123,7 @@ export default function MagazineCover({
         className={className}
         style={style}
         src={sanityImageLoader({ src: image, width: widths[1] ?? widths[0] })}
-        srcSet={sanitySrcSet(image, widths)}
+        srcSet={sanitySrcSet(image, widths.map((w) => Math.round(w * factor)))}
         sizes={factor === 1 ? sizes : scaleSizes(sizes, factor)}
         alt=""
         loading={loading}

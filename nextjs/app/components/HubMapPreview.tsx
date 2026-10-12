@@ -23,7 +23,7 @@ const copy = {
     unavailable: 'Die Vorschau ist gerade nicht verfügbar. Entdecke die Spots direkt auf der Map.',
     empty: 'Noch mehr gute Spots findest du auf der Map.',
     hint: 'Tippe auf einen Spot.',
-    cta: 'Zur Map',
+    cta: (category: string) => `Mehr ${category}`,
     details: 'auf der Map ansehen',
   },
   en: {
@@ -35,7 +35,7 @@ const copy = {
     unavailable: 'The preview is currently unavailable. Discover the spots on the map.',
     empty: 'Find more great spots on the map.',
     hint: 'Tap a spot to explore.',
-    cta: 'Open the map',
+    cta: (category: string) => `More ${category.toLowerCase()}`,
     details: 'on the map',
   },
 };
@@ -142,7 +142,7 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
       </div>
       <div className={styles.action}>
         <MapIntentLink className={styles.cta} href={mapPreviewHref(category.slug)}>
-          {t.cta}
+          {t.cta(category[locale])}
         </MapIntentLink>
       </div>
     </section>

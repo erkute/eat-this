@@ -110,9 +110,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                           alt=""
                           width={420}
                           height={656}
-                          // Deckel 220px (PacksOverview.module.css .art), auf
-                          // dem Telefon 150px.
-                          sizes="(max-width: 559px) 150px, 220px"
+                          sizes="(max-width: 559px) 42vw, 320px"
                           className={styles.art}
                         />
                       )}

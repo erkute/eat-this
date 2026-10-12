@@ -41,11 +41,10 @@ const copy = {
   },
 };
 
-// The mockups render ~235px wide on phones and ~290px on desktop. Shipping the
-// 855px master to every viewport cost 250KB in the hero — more than the rest of
-// the page's images put together — for slots a quarter that size.
+// Match the height-driven mockups, including the larger desktop hero. Keep
+// small variants for phones and let large/Retina displays request the master.
 const PHONE_WIDTHS = [300, 480, 600, 855];
-const PHONE_SIZES = '(max-width: 920px) 240px, 290px';
+const PHONE_SIZES = '(min-width: 1600px) min(37vh, 500px), (max-width: 920px) 240px, min(35vh, 330px)';
 
 function phoneSrcSet(name: string): string {
   return PHONE_WIDTHS.map(

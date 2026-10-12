@@ -31,6 +31,7 @@ export default function DistrictHeader({ slug, name, description, locale }: {
         {description && <p className={styles.description}>{description}</p>}
       </div>
       {area && <svg className={styles.outline} data-district-outline={slug}
+        style={{ '--district-ratio': (width + pad * 2) / (height + pad * 2), viewTransitionName: 'district-opening' } as CSSProperties}
         viewBox={`${minX - pad} ${minY - pad} ${width + pad * 2} ${height + pad * 2}`}
         role="img" aria-label={de ? `Umriss von ${name}` : `Outline of ${name}`}>
         <path d={area.path} fillRule="evenodd" vectorEffect="non-scaling-stroke" />

@@ -62,13 +62,14 @@ for (const locale of ['de', 'en'] as const) {
       await expect.poll(() => page.locator('#restaurants img').first().evaluate(node => (node as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
       expect(await page.locator('body').evaluate(node => node.scrollWidth <= innerWidth + 1)).toBe(true);
       const widths = await page.evaluate(() => (window as unknown as { discoveryWidths: number[] }).discoveryWidths);
-      if (motion === 'reduce') expect(widths).toEqual([]);
+      const sharedZoom = await page.evaluate(() => typeof document.startViewTransition === 'function');
+      if (motion === 'reduce' || sharedZoom) expect(widths).toEqual([]);
       else {
         expect(widths.some(width => width > 200 && width < 640)).toBe(true);
         expect(widths.every((width, index) => index === 0 || width <= widths[index - 1])).toBe(true);
       }
       await page.screenshot({ path: `/tmp/eat-this-map-redesign/qa/${isMobile ? 'phone' : 'desktop'}-${locale}-${motion}-mitte.png` });
-      await page.getByRole('link', { name: locale === 'de' ? 'Zur Berlin-Karte' : 'Back to the Berlin map', exact: true }).click();
+      await page.getByRole('navigation', { name: locale === 'de' ? 'Zur Berlin-Karte' : 'Back to the Berlin map', exact: true }).getByRole('link').click();
       await expect(page).toHaveURL(`${prefix}/bezirk`);
       await expect(map).toHaveAttribute('viewBox', '0 0 640 550');
       await expect(page.locator('[data-map-opening]')).toHaveAttribute('data-map-opening', 'false');

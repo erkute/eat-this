@@ -125,7 +125,7 @@ export default function DiscoveryMap({ entries, de }: { entries: DiscoveryEntry[
   return (
     <div className={styles.mapSection} data-map-opening={Boolean(selected)}>
       <nav aria-label={de ? 'Alle Bezirke' : 'All districts'} aria-describedby="discovery-announcement">
-        <svg ref={svg} style={{ viewTransitionName: 'berlin-map' }} viewBox={FULL_VIEW} className={styles.geography} role="group"
+        <svg ref={svg} viewBox={FULL_VIEW} className={styles.geography} role="group"
           aria-label={de ? 'Berlin-Karte' : 'Map of Berlin'} data-map-view="overview"
           onPointerDown={stopPreview}
           onPointerLeave={() => { if (!opening.current) setPointed(null); }}

@@ -42,7 +42,7 @@ export default function DistrictMapReturn({ locale }: { locale: 'de' | 'en' }) {
   }
   return <nav ref={root} className={styles.return} aria-label={locale === 'de' ? 'Zur Berlin-Karte' : 'Back to the Berlin map'}>
     <Link href="/bezirk" className={styles.link} onClick={openMap}>
-      <svg data-map-view="return" viewBox="0 0 640 550" aria-hidden="true" style={{ viewTransitionName: 'berlin-map' }}>
+      <svg data-map-view="return" viewBox="0 0 640 550" aria-hidden="true">
         <path className={styles.silhouette} d={geography.outline} pathLength="1" data-return-outline />
         <g className={styles.boundaries}>
           {geography.regions.map(area => <path key={area.slug} d={area.path} />)}

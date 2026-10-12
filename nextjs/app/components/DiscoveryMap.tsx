@@ -6,7 +6,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import geography from '@/lib/berlin-discovery-map.json';
 import type { DiscoveryEntry } from './DiscoveryExplorer';
 import styles from './DiscoveryExplorer.module.css';
-import { districtMapReady } from '@/lib/districtMapTransition';
+import { districtMapReady, transitionToDistrict } from '@/lib/districtMapTransition';
 
 const FULL_VIEW = '0 0 640 550';
 
@@ -100,6 +100,10 @@ export default function DiscoveryMap({ entries, de }: { entries: DiscoveryEntry[
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { go(); return; }
 
     entrance.current?.progress(1);
+    if (typeof document.startViewTransition === 'function') {
+      transitionToDistrict(path, entry.slug, go);
+      return;
+    }
     const bounds = path.getBBox();
     const width = Math.max(bounds.width, bounds.height * 640 / 550) * 1.65;
     const height = width * 550 / 640;

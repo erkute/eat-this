@@ -19,6 +19,7 @@
 .inertRegion { pointer-events: none; }
 .region {
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   stroke: transparent;
   stroke-width: 1.5;
   transition: fill 180ms ease, stroke 180ms ease;
@@ -56,6 +57,16 @@
 
 @media (min-width: 768px) {
   .explorer { padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)); }
-  .geography { height: max(0px, calc(100svh - var(--site-nav-h) - var(--staging-banner-h, 0px) - 64px)); }
+  /* Match the SVG box to its viewBox so shared-map snapshots scale uniformly. */
+  .geography {
+    width: min(100%, calc((100svh - var(--site-nav-h) - var(--staging-banner-h, 0px) - 88px) * 640 / 550));
+    height: auto;
+    aspect-ratio: 640 / 550;
+    margin-inline: auto;
+  }
   .mapHint { min-height: 56px; margin-top: 0; }
+}
+
+@media (hover: none) {
+  .region[data-selected='true']:not(:focus-visible) { fill: #000; stroke: transparent; }
 }

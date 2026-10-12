@@ -1752,7 +1752,17 @@ ol {
 
 /* One continuous map between the district footer and Berlin overview. */
 ::view-transition-group(berlin-map) { animation-duration: 700ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
-::view-transition-old(berlin-map), ::view-transition-new(berlin-map) { height: 100%; object-fit: fill; }
+::view-transition-old(berlin-map), ::view-transition-new(berlin-map) { height: 100%; object-fit: contain; }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(berlin-map) { animation-duration: 0s; }
+}
+
+/* Only the chosen district travels into the article; the footer map stays put. */
+html[data-district-entering] [data-map-view] { view-transition-name: none !important; }
+::view-transition-group(district-opening) { animation-duration: 900ms; animation-timing-function: cubic-bezier(.4, 0, .2, 1); }
+html[data-district-entering]::view-transition-old(root) { animation-duration: 350ms; }
+html[data-district-entering]::view-transition-new(root) { animation-duration: 450ms; animation-delay: 150ms; }
+::view-transition-old(district-opening), ::view-transition-new(district-opening) { height: 100%; object-fit: contain; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(district-opening) { animation-duration: 0s; }
 }

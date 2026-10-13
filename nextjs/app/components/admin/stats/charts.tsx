@@ -213,7 +213,7 @@ export function LineChart({
 }
 
 /** Ein Funke für eine Kachel: 30 Tage in 90 Pixeln. */
-export function Sparkline({ values, label }: { values: number[]; label: string }) {
+function Sparkline({ values, label }: { values: number[]; label: string }) {
   if (values.length < 2) return null;
   const w = 96;
   const h = 28;

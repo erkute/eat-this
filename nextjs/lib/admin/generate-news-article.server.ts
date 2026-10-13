@@ -5,7 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { extractJsonObjectTextFromBlocks } from '@/scripts/lib/extract-json';
 
 export type NewsCategory = 'openings' | 'guides' | 'culture';
-export type NewsArticleLength = 'short' | 'standard' | 'long';
+type NewsArticleLength = 'short' | 'standard' | 'long';
 
 export interface GenerateNewsArticleInput {
   brief: string;

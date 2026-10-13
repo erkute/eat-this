@@ -115,7 +115,7 @@ function perspective(aspect: number): Mat4 {
 }
 
 /** Translate · rotateY · rotateX · rotateZ · scale, column-major. */
-export function packModel(pose: PackPose, scale: number): Mat4 {
+function packModel(pose: PackPose, scale: number): Mat4 {
   const [sx, cx] = [Math.sin(pose.rotateX), Math.cos(pose.rotateX)];
   const [sy, cy] = [Math.sin(pose.rotateY), Math.cos(pose.rotateY)];
   const [sz, cz] = [Math.sin(pose.rotateZ), Math.cos(pose.rotateZ)];

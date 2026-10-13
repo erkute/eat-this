@@ -35,7 +35,7 @@ export function formatWalkingTime(meters: number): string | null {
 }
 
 /** Die Gehminuten hinter formatWalkingTime, als Zahl (null ab ~1600 m). */
-export function walkingMinutes(meters: number): number | null {
+function walkingMinutes(meters: number): number | null {
   if (meters > 1600) return null;
   return Math.max(1, Math.ceil(meters / 80));
 }

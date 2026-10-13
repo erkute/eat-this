@@ -1,11 +1,23 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
 import styles from './Tour.module.css';
 
 export const CARD_TAP_CUE_MS = 650;
 
-/** Shared finger gesture for both card-reveal tours. */
-export default function CardTapCue() {
+/** Shared finger gesture for card-reveal tours and the home-page pile. */
+export default function CardTapCue({ hint = false }: { hint?: boolean }) {
+  const cue = useRef<HTMLSpanElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!hint || !cue.current) return;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    observer.observe(cue.current);
+    return () => observer.disconnect();
+  }, [hint]);
   return (
-    <span className={styles.tapCue} aria-hidden="true" data-testid="tour-tap-cue">
+    <span ref={cue} className={styles.tapCue} aria-hidden="true" data-testid="tour-tap-cue"
+      data-hint={hint || undefined} data-active={hint && visible || undefined}>
       <span className={styles.tapRing} />
       <svg viewBox="0 0 48 56" fill="none">
         <path

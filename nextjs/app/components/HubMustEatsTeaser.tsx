@@ -1,13 +1,14 @@
 'use client';
 
-import { Fragment, useEffect, useMemo, useRef, type MouseEvent } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, useId, type CSSProperties, type MouseEvent } from 'react';
 import gsap from 'gsap';
 import { useLoginModal } from '@/lib/auth';
 import { guardSwipeClick } from '@/lib/home/guardSwipeClick';
-import { armMustEatCardMotion } from '@/lib/home/mustEatCardMotion';
+import { dealMustEatCards } from '@/lib/home/mustEatCardMotion';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
+import CardTapCue from './CardTapCue';
 import { GUEST_SHAKE_MS, prefersReducedMotion } from '@/lib/guestCardShake';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
@@ -85,11 +86,25 @@ export default function HubMustEatsTeaser() {
     if (!deck) return;
     return guardSwipeClick(deck);
   }, [cards]);
-  useEffect(() => {
+  const [dealState, setDealState] = useState<'stacked' | 'dealing' | 'spread'>('stacked');
+  const deckId = useId();
+  const pileOrigin = useRef<DOMRect | null>(null);
+  const keyboardDeal = useRef(false);
+  const deal = (event: MouseEvent<HTMLButtonElement>) => {
+    if (dealState !== 'stacked') return;
+    pileOrigin.current = event.currentTarget.querySelector('[data-pile-cards]')!.getBoundingClientRect();
+    keyboardDeal.current = event.detail === 0;
+    setDealState(prefersReducedMotion() ? 'spread' : 'dealing');
+  };
+  useLayoutEffect(() => {
     const deck = deckRef.current;
-    if (!deck || !window.matchMedia || typeof IntersectionObserver === 'undefined') return;
-    return armMustEatCardMotion(deck);
-  }, [cards]);
+    if (!deck) return;
+    if (dealState === 'spread' && keyboardDeal.current) {
+      deck.querySelector<HTMLElement>('a, button')?.focus({ preventScroll: true });
+    }
+    if (dealState !== 'dealing' || !pileOrigin.current) return;
+    return dealMustEatCards(deck, pileOrigin.current, () => setDealState('spread'));
+  }, [dealState]);
 
   if (!cards.length) return null;
 
@@ -142,7 +157,7 @@ export default function HubMustEatsTeaser() {
             </span>
           </button>
         )}
-        <span className={styles.meta}>
+        <span className={styles.meta} data-stack-caption="">
           <span className={styles.dish}>{t('mustEats.teaserMystery')}</span>
           <span className={styles.tapHint}>{t('mustEats.teaserTap')}</span>
         </span>
@@ -167,8 +182,25 @@ export default function HubMustEatsTeaser() {
             <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
           </div>
           <div className={styles.collection}>
+            {dealState === 'stacked' && (
+              <button type="button" className={styles.pile} onClick={deal}
+                aria-controls={deckId} aria-expanded={false} aria-label={t('mustEats.teaserDeal')} data-deal-pile="">
+                <span className={styles.pileCards} data-pile-cards="" aria-hidden="true">
+                  {Array.from({ length: cards.length + (covered ? 1 : 0) }, (_, index) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={index} src="/pics/card-back.webp?v=7" alt="" width={760} height={1044}
+                      draggable={false} style={{ '--pile-index': index } as CSSProperties} />
+                  ))}
+                  <CardTapCue hint />
+                </span>
+              </button>
+            )}
             <ul
               ref={deckRef}
+              id={deckId}
+              hidden={dealState === 'stacked'}
+              inert={dealState === 'dealing'}
+              data-deal-state={dealState}
               className={styles.deck}
               role="list"
               aria-label={t('mustEats.teaserTitle')}
@@ -204,6 +236,13 @@ export default function HubMustEatsTeaser() {
                               fetchPriority="low"
                               decoding="async"
                             />
+                            {dealState === 'dealing' && (
+                              <span className={styles.dealBack} data-deal-back="" aria-hidden="true">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img className={styles.card} src="/pics/card-back.webp?v=7" alt=""
+                                  width={760} height={1044} draggable={false} />
+                              </span>
+                            )}
                           </span>
                         </MapIntentLink>
                         <span className={styles.meta} data-stack-caption="">

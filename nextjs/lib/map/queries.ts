@@ -105,6 +105,7 @@ export const mapMustEatsQuery = `
   *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] {
     _id,
     revealedForAnon,
+    "previewCategory": *[_type == "category" && packPreview._ref == ^._id][0].slug.current,
     order,
     "restaurant": restaurantRef-> {
       _id,

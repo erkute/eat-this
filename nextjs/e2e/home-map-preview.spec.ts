@@ -25,7 +25,13 @@ for (const locale of ['de', 'en'] as const) {
     if (!isMobile) {
       const map = await preview.locator('#home-map-preview > div').first().boundingBox();
       const cta = await preview.getByRole('link', { name: locale === 'de' ? 'Mehr Pizza' : 'More pizza', exact: true }).boundingBox();
-      expect(Math.abs(map!.y + map!.height - cta!.y - cta!.height)).toBeLessThan(1);
+      const spot = await preview.locator('a[href*="cat=pizza&r="]').boundingBox();
+      // The compact CTA follows the restaurant info, rather than the map bottom.
+      expect(Math.abs(cta!.y - spot!.y - spot!.height)).toBeLessThan(1);
+      expect(cta!.height).toBeGreaterThanOrEqual(44);
+      expect(cta!.height).toBeLessThanOrEqual(48);
+      expect(cta!.width).toBeLessThan(spot!.width);
+      expect(cta!.y + cta!.height).toBeLessThanOrEqual(map!.y + map!.height);
       const pin = await preview.getByRole('button', { name: 'Gazzo', exact: true }).boundingBox();
       expect(pin!.width).toBeGreaterThanOrEqual(64);
       const pins = await preview.locator('.maplibregl-marker [role="button"]').evaluateAll((elements) =>
@@ -97,7 +103,7 @@ test('a failed basemap keeps the selected map link usable', async ({ page }) => 
 });
 
 for (const narrowDesktop of [false, true]) {
-  test(`switching spot photos never stretches the map or moves its CTA${narrowDesktop ? ' (narrow desktop)' : ''}`, async ({ page, isMobile }) => {
+  test(`switching spot photos keeps the map stable and its CTA below the spot${narrowDesktop ? ' (narrow desktop)' : ''}`, async ({ page, isMobile }) => {
     test.skip(narrowDesktop && isMobile, 'The regular case already covers the phone layout.');
     if (narrowDesktop) await page.setViewportSize({ width: 768, height: 1000 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -112,7 +118,7 @@ for (const narrowDesktop of [false, true]) {
     });
     await page.goto('/#hub-map');
     const preview = page.locator('[data-hub-map-preview]');
-    let first: { height: number; ctaOffset: number; photoWidth: number; photoHeight: number } | undefined;
+    let first: { height: number; photoWidth: number; photoHeight: number } | undefined;
     for (const category of ['Pizza', 'Kaffee', 'Lunch']) {
       await preview.getByRole('button', { name: category, exact: true }).click();
       const pins = preview.locator('.maplibregl-marker [role="button"]');
@@ -144,14 +150,18 @@ for (const narrowDesktop of [false, true]) {
           const detail = frame.children[1].getBoundingClientRect();
           const photo = frame.children[1].querySelector('img')!.getBoundingClientRect();
           const box = frame.getBoundingClientRect();
-          const cta = section.lastElementChild!.getBoundingClientRect();
-          return { height: box.height, ctaOffset: cta.top - box.top, photoWidth: photo.width, photoHeight: photo.height,
+          const links = frame.children[1].querySelectorAll('a');
+          const spot = links[0].getBoundingClientRect();
+          const cta = links[links.length - 1].getBoundingClientRect();
+          return { height: box.height, ctaGap: cta.top - spot.bottom, ctaBottomSpace: detail.bottom - cta.bottom, photoWidth: photo.width, photoHeight: photo.height,
             unexplainedSpace: box.height - (window.innerWidth < 768 ? map.height + detail.height : map.height),
             overflows: section.scrollWidth > section.clientWidth + 1 || frame.children[1].scrollHeight > frame.children[1].clientHeight + 1 };
         });
         first ??= layout;
         expect(Math.abs(layout.height - first.height)).toBeLessThan(1);
-        expect(Math.abs(layout.ctaOffset - first.ctaOffset)).toBeLessThan(1);
+        expect(layout.ctaGap).toBeGreaterThanOrEqual(0);
+        expect(layout.ctaGap).toBeLessThanOrEqual(24);
+        expect(layout.ctaBottomSpace).toBeGreaterThanOrEqual(0);
         expect(Math.abs(layout.photoWidth - first.photoWidth)).toBeLessThan(1);
         expect(Math.abs(layout.photoHeight - first.photoHeight)).toBeLessThan(1);
         expect(Math.abs(layout.unexplainedSpace)).toBeLessThan(1);

@@ -27,16 +27,6 @@
   padding-top: clamp(16px, 3vw, 40px);
 }
 
-/* Das gelbe 9px-Quadrat der Startseiten-Kicker. */
-.mk {
-  display: inline-block;
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  background: var(--packs-accent);
-  color: var(--et-on-accent);
-}
-
 /* ── Kategorie-Packs ───────────────────────────────────────────────────── */
 
 .catalog {
@@ -63,11 +53,7 @@
   text-transform: uppercase;
 }
 
-.sectionTitle .mk {
-  position: absolute;
-  top: calc(0.5lh - 4.5px);
-  left: -18px;
-}
+
 
 .sectionLead {
   margin: 0;
@@ -192,7 +178,7 @@
   text-transform: uppercase;
 }
 
-/* Quiet filled controls keep the bundle primary, without decorative borders. */
+/* Kaufaktionen verwenden auf allen Pack-Seiten dieselbe Akzentfarbe. */
 .buy {
   display: inline-flex;
   align-items: center;
@@ -200,8 +186,8 @@
   min-height: 44px;
   margin-top: 16px;
   padding: 0 20px;
-  background: var(--et-ink-quiet);
-  color: var(--packs-fg);
+  background: var(--packs-accent);
+  color: var(--et-on-accent);
   border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;
@@ -222,17 +208,17 @@
 }
 
 .buy:focus-visible {
-  background: var(--packs-accent);
+  background: var(--et-paper);
   box-shadow: none;
-  color: var(--et-on-accent);
+  color: var(--et-ink);
   transform: translateY(-2px);
 }
 
 @media (hover: hover) {
-  .buy:hover {
-    background: var(--packs-accent);
+  .buy:not(:disabled):hover {
+    background: var(--et-paper);
     box-shadow: none;
-    color: var(--et-on-accent);
+    color: var(--et-ink);
     transform: translateY(-2px);
   }
 }
@@ -277,7 +263,6 @@
     width: 88%;
   }
 
-  .catalogHead { padding-left: 18px; }
 
   .tileName {
     font-size: 22px;
@@ -305,4 +290,10 @@
       filter: none;
     }
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art, .tileName, .buy { transition: none; }
+  .tileLink:focus-visible .art, .tileLink:hover .art { transform: none; }
+  .buy:focus-visible, .buy:hover { transform: none; }
 }

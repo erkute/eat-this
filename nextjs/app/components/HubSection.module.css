@@ -48,15 +48,15 @@
    Header, weiße Versalien, gelber Knopf, die Telefone mit schwarzem Schatten.
    Vorher eine gelbe Fläche; seit die Site überall Tafeln spricht, war sie
    die letzte gelbe Vollfläche.
-   Die Höhe rechnet gegen 74px und nicht gegen volle dvh: ab 768px scrollt
-   nicht das Fenster, sondern `.app-pages`, und das sitzt 74px unter der
+   Die Höhe berücksichtigt die gemeinsame Navigationshöhe: ab 768px scrollt
+   nicht das Fenster, sondern `.app-pages`, und das sitzt unter der Navigation an der
    Oberkante (globals.css, Desktop app frame). Mit vollem dvh wäre die
    Fläche um genau diese Navhöhe zu hoch und liefe unten aus dem Bild. */
 .hero {
   margin-top: 0;
   display: flex;
   align-items: center;
-  min-height: calc(100dvh - 74px);
+  min-height: calc(100dvh - var(--site-nav-h));
   padding: clamp(24px, 4vw, 56px) 0;
   overflow: hidden;
   color: var(--et-white);
@@ -763,11 +763,11 @@
 }
 /* Am Telefon ist der Aufmacher so hoch wie sein Inhalt, nicht wie der
    Bildschirm: die Marke steht in der Mitte des sichtbaren Teils unter der
-   64px-Navigation. */
+   Navigation. */
 @media (prefers-reduced-motion: no-preference) and (max-width: 767.98px) {
   :global(html[data-hero-intro]:not([data-intro-mark])) .heroIntroMark {
     --intro-mark-w: 92vw;
-    top: calc((100svh - 64px) / 2 - var(--intro-mark-w) * 0.2009);
+    top: calc((100svh - var(--site-nav-h)) / 2 - var(--intro-mark-w) * 0.2009);
   }
 }
 

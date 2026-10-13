@@ -1122,7 +1122,7 @@ export function summarizeAccounts(
 
 export interface DeckInput {
   restaurants: { _id: string; categories?: { slug: string; name?: string }[] }[];
-  mustEats: { _id: string; restaurant: { _id: string }; revealedForAnon?: boolean }[];
+  mustEats: { _id: string; restaurant: { _id: string }; revealedForAnon?: boolean; previewCategory?: string }[];
   categories: { slug: string; name: string }[];
 }
 
@@ -1144,7 +1144,7 @@ export function summarizeDeck(input: DeckInput): Deck {
   const cardsPerCategory = new Map<string, number>();
   let publicCards = 0;
   for (const m of input.mustEats) {
-    if (m.revealedForAnon) publicCards += 1;
+    if (m.revealedForAnon || m.previewCategory) publicCards += 1;
     for (const slug of categoryOfSpot.get(m.restaurant._id) ?? []) {
       cardsPerCategory.set(slug, (cardsPerCategory.get(slug) ?? 0) + 1);
     }

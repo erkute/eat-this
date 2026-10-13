@@ -44,14 +44,6 @@
   text-transform: uppercase;
 }
 
-.benefitTitle {
-  margin: 22px 0 0;
-  color: var(--et-accent-text);
-  font-size: clamp(20px, 2vw, 26px);
-  font-weight: 700;
-  line-height: 1.2;
-}
-
 .lead {
   max-width: 44ch;
   margin: clamp(12px, 1.6vw, 18px) 0 0;
@@ -76,67 +68,6 @@
   justify-items: start;
   gap: 12px;
   margin-top: clamp(22px, 3vw, 34px);
-}
-
-/* Auf Ink wird der Kaufknopf gelb — Ink auf Ink verschwände. Hover: Papier. */
-.cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: min(100%, 460px);
-  min-height: 56px;
-  padding: 0 22px;
-  background: var(--board-accent);
-  color: var(--et-on-accent);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: clamp(16px, 1.4vw, 19px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  text-decoration: none;
-  text-transform: none;
-  cursor: pointer;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
-}
-
-.cta:focus-visible {
-  background: var(--board-paper);
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .cta:hover {
-    background: var(--board-paper);
-    transform: translateY(-2px);
-  }
-}
-
-.cta:active {
-  transform: translateY(0);
-}
-
-.cta:disabled {
-  cursor: wait;
-  transform: none;
-}
-
-.cta:focus-visible {
-  outline: 2px solid var(--board-accent);
-  outline-offset: 3px;
-}
-
-.ctaError {
-  margin: 0;
-  color: var(--et-accent-text);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.35;
 }
 
 .savings {
@@ -167,7 +98,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   width: min(100%, 520px);
-  padding: 4% 7% 3%;
+  padding: 4% 3% 3%;
 }
 
 .fanPack {
@@ -222,15 +153,17 @@
   }
 
   .fan {
-    width: min(78%, 240px);
+    width: min(100%, 400px);
   }
 
   .title {
     font-size: clamp(44px, 13vw, 56px);
   }
+}
 
-  .cta {
-    width: 100%;
+@media (max-width: 479px) {
+  .boardHero .fan {
+    width: min(82%, 260px);
   }
 }
 
@@ -251,12 +184,9 @@
   line-height: 1.4;
 }
 
-/* The category page offers a compact upgrade, without repeating the pack fan. */
+/* Compact visual bundle preview on category pages. */
 .boardUpsell .copy {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr);
-  column-gap: 32px;
-  align-items: center;
+  display: block;
 }
 .boardUpsell .kicker {
   margin-bottom: 10px;
@@ -270,15 +200,13 @@
   font-weight: 400;
 }
 .boardUpsell .actions {
-  grid-column: 2;
-  grid-row: 1 / span 3;
-  margin-top: 0;
+  margin-top: 20px;
 }
-@media (max-width: 767.98px) {
-  .boardUpsell .copy {
-    display: block;
-  }
-  .boardUpsell .actions {
-    margin-top: 20px;
+.boardUpsell .fan {
+  width: min(100%, 320px);
+}
+@media (min-width: 768px) {
+  .boardUpsell {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr);
   }
 }

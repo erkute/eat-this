@@ -194,7 +194,7 @@ export default function SiteNav() {
               alt="Eat This"
               width={1660}
               height={667}
-              sizes="(max-width: 520px) 115px, 140px"
+              sizes="80px"
               loading="lazy"
               decoding="async"
               className={styles.logoImg}

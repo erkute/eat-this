@@ -1,8 +1,8 @@
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data';
 import { selectPackPreview } from '@/lib/pack/preview';
-import PackPreviewClient from './PackPreviewClient';
+import PackPreviewCard from './PackPreviewCard';
 
-/** SSR ships only the permanent public shop window, never personalized cards. */
+/** Keep the permanent public example identical for guests and signed-in accounts. */
 export default async function PackPreview({
   locale,
   category,
@@ -13,10 +13,8 @@ export default async function PackPreview({
   const data = await getInitialAnonMapData();
   const initialCard = selectPackPreview({
     mustEats: data.mustEats,
-    restaurants: data.restaurants,
     revealedIds: new Set(data.revealedMustEatIds),
     category,
-    permanentOnly: true,
   });
-  return <PackPreviewClient initialCard={initialCard} locale={locale} category={category} />;
+  return initialCard ? <PackPreviewCard card={initialCard} locale={locale} /> : null;
 }

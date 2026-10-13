@@ -37,8 +37,8 @@ function inMedia(params: string, className: string, prop: string): string | unde
 
 describe('Aufmacher der Startseite', () => {
   /**
-   * Die Fläche muss gegen `100dvh - 74px` rechnen, nicht gegen volle dvh: ab
-   * 768px scrollt `.app-pages`, und das sitzt 74px unter der Oberkante
+   * Die Fläche muss gegen `100dvh - var(--site-nav-h)` rechnen, nicht gegen volle dvh: ab
+   * 768px scrollt `.app-pages`, und das sitzt unter der Navigation
    * (globals.css, Desktop app frame). Mit vollem dvh ist der Aufmacher um
    * genau eine Navhöhe zu hoch und läuft unten aus dem Bild — sichtbar wird
    * das erst im Browser, nicht im Stylesheet.
@@ -47,7 +47,7 @@ describe('Aufmacher der Startseite', () => {
     const minHeight = base('hero', 'min-height');
     expect(minHeight).toBeTruthy();
     expect(minHeight).toContain('100dvh');
-    expect(minHeight).toContain('74px');
+    expect(minHeight).toContain('var(--site-nav-h)');
   });
 
   /**

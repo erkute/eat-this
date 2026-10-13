@@ -4,11 +4,9 @@ import { PackOwnershipProvider } from '@/app/components/PackOwnership';
 import type { Metadata } from 'next';
 import Image from '@/app/components/SiteImage';
 import { setRequestLocale } from 'next-intl/server';
-import { getCategoryBySlug, getPackContents } from '@/lib/sanity.server';
-import { localizedCategoryName } from '@/lib/categories';
+import { getPackContents } from '@/lib/sanity.server';
 import { categoryArt } from '@/lib/categoryArt';
 import { hreflangAlternates } from '@/lib/seo/metadata';
-import { metadataSource } from '@/lib/seo/metadataSource';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import { resolvePackByUrlSlug, formatPackPrice } from '@/lib/pack/packDetail';
 import PackBuyButton from './PackBuyButton';
@@ -33,15 +31,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pack = resolvePackByUrlSlug(slug);
   if (!pack || pack.type !== 'category' || !pack.slug) return {};
   const de = locale === 'de';
-  // Eigene Konstante: in der Closure fällt die Einschränkung von `pack.slug`
-  // auf einen echten String wieder weg.
-  const packSlug = pack.slug;
-  const category = await metadataSource(() => getCategoryBySlug(packSlug));
-  const packTitleName = category
-    ? localizedCategoryName(category, de ? 'de' : 'en')
-    : pack.displayName;
   return {
-    title: { absolute: buildBrandedTitle(`${packTitleName} Booster Pack`) },
+    title: { absolute: buildBrandedTitle(`${pack.displayName} Booster Pack`) },
     description: pack.description[de ? 'de' : 'en'],
     // Conversion page reached from the app — keep it out of the index so it
     // doesn't cannibalise the /kategorie SEO pages, but let links be followed.
@@ -54,7 +45,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 const copy = {
   de: {
-    kicker: 'Booster Pack',
     pack: 'Pack',
     cta: 'Freischalten',
     pending: 'Weiter zu Stripe …',
@@ -65,7 +55,6 @@ const copy = {
     map: '/map',
   },
   en: {
-    kicker: 'Booster Pack',
     pack: 'Pack',
     cta: 'Unlock',
     pending: 'Going to Stripe …',
@@ -86,10 +75,7 @@ export default async function PackDetailPage({ params }: PageProps) {
   const pack = resolvePackByUrlSlug(slug);
   if (!pack || pack.type !== 'category' || !pack.slug) notFound();
   const categorySlug = pack.slug;
-  const [category, packContents] = await Promise.all([
-    getCategoryBySlug(categorySlug),
-    getPackContents(),
-  ]);
+  const packContents = await getPackContents();
 
   /* Ein Pack ohne Karte ist eine leere Schachtel — Fine Dining stand am
      06.09.2026 auf null. Die Seite bleibt (die Kategorie kommt ja), der
@@ -97,7 +83,7 @@ export default async function PackDetailPage({ params }: PageProps) {
      Zahlen nicht, sie beantwortet hier nur diese eine Ja/Nein-Frage. */
   const empty = (packContents.byCategory[categorySlug]?.mustEats ?? 0) === 0;
   const art = categoryArt(categorySlug);
-  const heroName = category ? localizedCategoryName(category, loc) : pack.displayName;
+  const heroName = pack.displayName;
 
   return (
     <PackOwnershipProvider>
@@ -105,7 +91,6 @@ export default async function PackDetailPage({ params }: PageProps) {
         <div className={styles.inner}>
           <section className={styles.hero}>
             <div className={styles.copy}>
-              <p className={styles.kicker}>{t.kicker}</p>
               <h1 className={styles.name}>
                 {heroName}
                 <br />
@@ -114,8 +99,12 @@ export default async function PackDetailPage({ params }: PageProps) {
               <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
               <p className={styles.sub}>
                 {loc === 'de'
-                  ? 'Was du wo bestellen solltest. Mit diesem Pack liegen die Must Eats dieser Kategorie auf deiner Map offen.'
-                  : 'What to order and where. This pack reveals the Must Eats in this category on your map.'}
+                  ? categorySlug === 'fast-food'
+                    ? 'Unsere Fast-Food-Empfehlungen für Berlin: was du wo bestellen solltest. Mit diesem Pack schaltest du die passenden Must Eats auf deiner Map frei.'
+                    : 'Was du wo bestellen solltest. Mit diesem Pack liegen die Must Eats dieser Kategorie auf deiner Map offen.'
+                  : categorySlug === 'fast-food'
+                    ? 'Our fast food recommendations for Berlin: what to order and where. This pack unlocks the matching Must Eats on your map.'
+                    : 'What to order and where. This pack reveals the Must Eats in this category on your map.'}
               </p>
 
               <div className={styles.actions}>

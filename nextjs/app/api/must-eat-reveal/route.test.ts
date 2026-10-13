@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import type { MapMustEat } from '@/lib/types';
-import { composeRevealedMustEats } from '@/lib/map/revealed-must-eats';
+import { composeRevealedMustEats, REVEALED_TARGET } from '@/lib/map/revealed-must-eats';
 
 const m = vi.hoisted(() => ({
   verifyIdToken: vi.fn(),
@@ -61,7 +61,7 @@ function reveal(mustEatId: string) {
 }
 
 describe('POST /api/must-eat-reveal', () => {
-  const cards = Array.from({ length: 8 }, (_, i) => card(i + 1));
+  const cards = Array.from({ length: REVEALED_TARGET + 3 }, (_, i) => card(i + 1));
 
   beforeEach(() => {
     vi.clearAllMocks();

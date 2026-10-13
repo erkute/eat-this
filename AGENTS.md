@@ -19,6 +19,8 @@ npm run build:email-spots         # rendert die Spot-Cards der Anmelde-Mail neu 
 
 ## Deploy
 
+**Code-Review vor jedem Commit und Push:** Änderungen gegen die Anforderungen und diese Projektregeln prüfen, relevante Befunde beheben und die Korrekturen erneut prüfen. Review-Ergebnis vor dem Push kurz berichten (Betreiber, 13.10.2026).
+
 | Branch    | Firebase-Projekt         | URL                                                                       |
 | --------- | ------------------------ | ------------------------------------------------------------------------- |
 | `main`    | `eat-this-8a13b`         | https://www.eatthisdot.com                                                |

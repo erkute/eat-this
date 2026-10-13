@@ -149,7 +149,9 @@ jobs:
       # fixtures in a demo project. PR code receives no production credentials.
       - name: Browser flows, accessibility and Lighthouse (this build)
         if: steps.browser.outputs.run == 'true'
-        timeout-minutes: 30
+        # Browser suite (~15 min) plus 15 Lighthouse runs (~16 min).
+        # Keep room for runner variance without dropping any checks.
+        timeout-minutes: 45
         env:
           FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
         run: |

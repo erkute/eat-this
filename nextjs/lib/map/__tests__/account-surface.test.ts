@@ -30,13 +30,13 @@ function mustEat(id: string, restaurantId: string): MapMustEat {
   };
 }
 
-/* Zwoelf Spots mit je einer Karte: mehr als das Schaufenster (zehn) fasst,
+/* Zwoelf Spots mit je einer Karte: mehr als das Schaufenster (acht) fasst,
    damit „verdeckt" ueberhaupt ein Zustand ist, den dieser Test sehen kann. */
 const IDS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
 const ALL = IDS.map((n) => restaurant(`r${n}`));
 const ALL_MUST_EATS = IDS.map((n) => mustEat(`m${n}`, `r${n}`));
 /** Was das Schaufenster nicht mehr fasst (stabile _id-Ordnung). */
-const COVERED = ['m06', 'm07', 'm08', 'm09', 'm10', 'm11', 'm12'];
+const COVERED = IDS.slice(REVEALED_TARGET).map((n) => `m${n}`);
 
 const EMPTY_ENT = {
   isAdmin: false,

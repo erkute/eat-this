@@ -50,17 +50,6 @@ function blockText(block: TextBlock): string {
   return (block.children ?? []).map((c) => c.text ?? '').join('');
 }
 
-/** Plain prose of the article, for the reading estimate. */
-function countWords(blocks: PortableTextBlock[]): number {
-  let words = 0;
-  for (const raw of blocks as TextBlock[]) {
-    if (raw._type !== 'block') continue;
-    const text = blockText(raw).trim();
-    if (text) words += text.split(/\s+/).length;
-  }
-  return words;
-}
-
 function normalizeForCompare(text: string): string {
   return text
     .toLowerCase()
@@ -177,8 +166,6 @@ export default function NewsArticleShell({
   const de = locale === 'de';
   const title = (de ? article.titleDe : article.title) || article.title || article.titleDe || '';
   const excerpt = (de ? article.excerptDe : article.excerpt) || article.excerpt || '';
-  const categoryLabel =
-    (de ? article.categoryLabelDe : article.categoryLabel) || article.categoryLabel || '';
   const content = (de ? article.contentDe : article.content) || article.content || [];
   const dateFormatted = formatDate(article.date, locale);
   // Die Spots eines Guides für die Zeile unter dem Kopf: nur Überschriften, die
@@ -199,8 +186,6 @@ export default function NewsArticleShell({
     ? categoryArt(hubLink.href.replace('/kategorie/', ''))
     : null;
   const showLede = Boolean(excerpt) && !ledeDuplicatesOpening(excerpt, content);
-  const minutes = Math.max(1, Math.round(countWords(content) / 200));
-  const readingTime = de ? `${minutes} Min. Lesezeit` : `${minutes} min read`;
   const shareLabel = de ? 'Teilen' : 'Share';
   const copiedLabel = de ? 'Kopiert' : 'Copied';
   const coverLocale = de ? 'de' : 'en';
@@ -211,7 +196,6 @@ export default function NewsArticleShell({
     const at = relatedArticles.findIndex((a) => a.slug === slug);
     return at < 0 ? null : relatedArticles.length - at;
   };
-  const issue = issueOf(article.slug);
 
   // Inline "Must Eat" band — a flat strip in the article column, not a poster.
   // The restaurant carries the headline so two must-eats in one guide can't
@@ -297,11 +281,10 @@ export default function NewsArticleShell({
     // Wie im Heft: oben das Foto ohne Schrift darauf, darunter die
     // Bildunterschrift mit Bezirk, Name und dem Weg auf die Map.
     return (
-      <span className={styles.inlineSpot} data-motion="spot">
+      <span className={styles.inlineSpot}>
         {block.restaurantPhoto && (
           <span
             className={styles.inlineSpotPhoto}
-            data-motion="print"
             style={{ backgroundImage: `url(${block.restaurantPhoto})` }}
             aria-hidden="true"
           />
@@ -338,7 +321,6 @@ export default function NewsArticleShell({
             href={`/map?r=${block.restaurantSlug}`}
             rel="nofollow"
             className={styles.inlineSpotCta}
-            data-motion="pop"
             aria-label={de ? `${restName} auf der Map öffnen` : `Open ${restName} on the map`}
           >
             <span>{cta}</span>
@@ -358,7 +340,6 @@ export default function NewsArticleShell({
     return (
       <figure
         className={styles.inlineImage}
-        data-motion="print"
         style={{ '--img-ratio': width / height } as React.CSSProperties}
       >
         <Image
@@ -414,9 +395,9 @@ export default function NewsArticleShell({
       <MagazineLink
         href={`/news/${target.slug}`}
         className={styles.inlineIssue}
-        data-motion="spot"
+        data-motion="issue"
       >
-        <span className={styles.inlineIssueCover}>
+        <span className={styles.inlineIssueCover} data-motion-part="cover">
           <MagazineCover
             title={targetTitle}
             image={target.imageUrl}
@@ -444,15 +425,13 @@ export default function NewsArticleShell({
   // Nicht „Kapitel" (Ansage 02.10.2026): die Zeile zählt die Spots auf.
   const chaptersLabel = de ? 'Die Spots' : 'The spots';
 
-  // Die Credits unter der Schlagzeile, klein in Versalien wie bei Kaleidoscope:
-  // die Ausgabe, die man eben aufgeschlagen hat, Datum und Lesezeit.
+  // Datum und Leseansicht teilen sich eine kompakte Zeile.
   const byline = (
     <div className={styles.byline}>
-      <span className={styles.bylineMeta}>
-        {issue && <span>Issue {issue}</span>}
-        {dateFormatted && <time dateTime={article.date}>{dateFormatted}</time>}
-        <span>{readingTime}</span>
-      </span>
+      {dateFormatted && (
+        <time className={styles.bylineMeta} dateTime={article.date}>{dateFormatted}</time>
+      )}
+      <ArticleThemeToggle de={de} />
     </div>
   );
 
@@ -481,7 +460,6 @@ export default function NewsArticleShell({
                 also auch. Eater und Mit Vergnügen führen ihre Guides ebenfalls
                 ohne. */}
             <div className={styles.introCopy}>
-              <span className={styles.kicker}>{categoryLabel || (de ? 'Kolumne' : 'Column')}</span>
               <h1
                 className={styles.heroTitle}
                 style={{ '--title-longest': longestTitleWord(title) } as React.CSSProperties}
@@ -489,7 +467,6 @@ export default function NewsArticleShell({
                 {title}
               </h1>
               {byline}
-              <ArticleThemeToggle de={de} className={styles.themeToggle} />
             </div>
             {article.imageUrl && (
               <div className={styles.heroMedia}>

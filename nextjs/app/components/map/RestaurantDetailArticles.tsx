@@ -20,7 +20,7 @@ export default function RestaurantDetailArticles({ articles, locale }: Props) {
 
   return (
     <section className={detail.rdMustSection} aria-label={heading}>
-      <div className={detail.rdMustHead}>
+      <div className={`${detail.rdMustHead} ${styles.header}`}>
         <h2 className={detail.rdSecH}>{heading}</h2>
         <p className={detail.rdMustSub}>
           {de ? 'Hier haben wir über diesen Spot geschrieben.' : 'We wrote about this place.'}

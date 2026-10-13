@@ -18,6 +18,10 @@ export function dealMustEatCards(
     gsap.set(captions, { autoAlpha: 0 });
     links.forEach((link, index) => {
       const box = destinations[index];
+      const back = link.querySelector('[data-deal-back]');
+      const front = link.querySelector('[data-stack-photo] > img');
+      // Never blend the cream back through the transparent front-card edges.
+      if (back && front) gsap.set(front, { visibility: 'hidden' });
       timeline.fromTo(link, {
         x: origin.left + origin.width / 2 - box.left - box.width / 2,
         y: origin.top + origin.height / 2 - box.top - box.height / 2,
@@ -28,8 +32,10 @@ export function dealMustEatCards(
         duration: 0.75, ease: 'power3.inOut',
         clearProps: 'transform',
       }, index * 0.075);
-      const back = link.querySelector('[data-deal-back]');
-      if (back) timeline.to(back, { opacity: 0, duration: 0.22 }, 0.3 + index * 0.075);
+      if (back && front) {
+        timeline.set(back, { visibility: 'hidden' }, 0.52 + index * 0.075);
+        timeline.set(front, { clearProps: 'visibility' }, 0.52 + index * 0.075);
+      }
     });
     timeline.to(captions, { autoAlpha: 1, duration: 0.2, stagger: 0.035, clearProps: 'opacity,visibility' }, 0.65);
     const finish = () => timeline.progress(1);

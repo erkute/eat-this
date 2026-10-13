@@ -25,7 +25,7 @@ export function decimal(value: number, digits = 1): string {
   return value.toFixed(digits).replace('.', ',');
 }
 
-export const WEEKDAYS = [
+const WEEKDAYS = [
   'Sonntag',
   'Montag',
   'Dienstag',
@@ -48,7 +48,7 @@ export function longDay(day: string): string {
   return year && month && date ? `${date}.${month}.${year}` : day;
 }
 
-export function weekdayName(day: string): string {
+function weekdayName(day: string): string {
   return WEEKDAYS[new Date(`${day}T12:00:00Z`).getUTCDay()] ?? '';
 }
 
@@ -64,7 +64,7 @@ export function direction(delta: Delta | null | undefined): 'up' | 'down' | 'fla
   return delta.change > 0 ? 'up' : 'down';
 }
 
-export const EVENT_LABELS: Record<string, string> = {
+const EVENT_LABELS: Record<string, string> = {
   visitors: 'Besucher',
   map_opened: 'Karte geöffnet',
   map_view_toggle: 'Kartenansicht gewechselt',

@@ -23,7 +23,7 @@ interface Props {
 }
 
 /** „Max Muster“ → „Foto: Max Muster“; was schon ein Label trägt, bleibt. */
-export function normalizeCredit(raw: string): string {
+function normalizeCredit(raw: string): string {
   const credit = raw.trim().replace(/\s+/g, ' ')
   if (!credit) return ''
   if (/^(foto|photo|bild|©|\(c\))/i.test(credit) || credit.includes(':')) return credit

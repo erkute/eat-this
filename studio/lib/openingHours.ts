@@ -26,7 +26,7 @@ const DAY_TOKENS: Record<string, number> = {
 const CLOSED = /closed|ruhetag|geschlossen/i
 const RANGE = /(\d{1,2}):(\d{2})\s*[–-]\s*(\d{1,2}):(\d{2})/g
 
-export function emptyWeek(): Week {
+function emptyWeek(): Week {
   return WEEKDAYS.map(() => ({closed: false, ranges: [{open: '', close: ''}]}))
 }
 

@@ -133,7 +133,7 @@ function inlineParse(text) {
 }
 
 // Paste handler: prefers text/html, falls back to markdown in text/plain.
-export function onPortableTextPaste({event}) {
+function onPortableTextPaste({event}) {
   const clipboard = event?.clipboardData
   if (!clipboard) return undefined
 

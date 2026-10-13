@@ -1,7 +1,7 @@
 // Geteilt von der Seitenleiste und der Startseite, damit beide dieselben
 // Zahlen zeigen.
 
-export const FIRST_PARTY_PHOTO_SLUGS = ['bar-basta', 'sardinen-bar']
+const FIRST_PARTY_PHOTO_SLUGS = ['bar-basta', 'sardinen-bar']
 
 export const SPOT_FILTERS = {
   noPhoto: '_type == "restaurant" && !defined(image.asset)',

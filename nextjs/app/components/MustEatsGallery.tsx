@@ -11,7 +11,7 @@ import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 
-export interface GalleryCopy {
+interface GalleryCopy {
   openKicker: string;
   openTitle: string;
   openBody: string;

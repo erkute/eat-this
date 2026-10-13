@@ -60,3 +60,7 @@ nextjs/assets/fonts/Providence*
 # Local Lighthouse runs and Playwright reports
 .lighthouseci/
 playwright-report/
+
+# Lokale Kreativ-Exporte und Bildvorlagen (keine App-Assets)
+/output/
+/pics/

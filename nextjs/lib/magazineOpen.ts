@@ -28,7 +28,7 @@
  * navigiert wie immer.
  */
 
-export interface MagazineOpenClasses {
+interface MagazineOpenClasses {
   overlay: string;
   table: string;
   book: string;

@@ -25,12 +25,12 @@ export const PHOTO_LOOKS = [
 /** Looks, die ein freigestelltes Gericht brauchen. */
 export const CUTOUT_LOOKS = ['still', 'paper', 'band', 'front', 'perfect'] as const;
 
-export type PhotoLook = (typeof PHOTO_LOOKS)[number];
-export type CutoutLook = (typeof CUTOUT_LOOKS)[number];
+type PhotoLook = (typeof PHOTO_LOOKS)[number];
+type CutoutLook = (typeof CUTOUT_LOOKS)[number];
 export type CoverLook = PhotoLook | CutoutLook;
 
 /** Rahmen des freigestellten Motivs, als Anteile des ganzen Fotos. */
-export interface CoverBox {
+interface CoverBox {
   x: number;
   y: number;
   w: number;

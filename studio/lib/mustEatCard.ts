@@ -25,7 +25,7 @@ export const MUST_EAT_CARD_SAVED = 'eat-this:must-eat-card-saved'
 /** Format der bisherigen Karten (1026 × 1410). */
 export const CARD_RATIO = 1026 / 1410
 
-export class CardRequestError extends Error {
+class CardRequestError extends Error {
   constructor(
     message: string,
     readonly status: number,

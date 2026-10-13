@@ -6,12 +6,7 @@ import Image from '@/app/components/SiteImage';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import {
-  type PackContentsIndex,
-  formatPackPrice,
-  formatBundleSavings,
-  packUrlSlug,
-} from '@/lib/pack/packDetail';
+import { type PackContentsIndex, formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail';
 import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
 import styles from './AllBerlinSheet.module.css';
 
@@ -24,29 +19,28 @@ import styles from './AllBerlinSheet.module.css';
 
 interface Props {
   locale: 'de' | 'en';
+  triggerLabel?: string;
   contents: PackContentsIndex;
 }
 
 const copy = {
   de: {
-    trigger: 'Was drin ist',
+    trigger: 'Enthaltene Packs ansehen',
     close: 'Schließen',
-    kicker: 'All Berlin',
-    title: 'Diese Packs sind dabei',
-    lead: 'Alle verfügbaren Packs sofort. Kommende Packs und neue Must Eats sind bei Veröffentlichung ebenfalls enthalten.',
-    cta: 'Freischalten',
+    title: 'Alles in All Berlin',
+    lead: 'Alle verfügbaren Packs sofort. Neue Packs und Karten kommen ohne weiteren Kauf dazu.',
+    cta: 'All Berlin freischalten',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
     error: 'Da ging was schief. Versuch es nochmal.',
     map: '/map',
   },
   en: {
-    trigger: "What's inside",
+    trigger: 'View included packs',
     close: 'Close',
-    kicker: 'All Berlin',
-    title: 'Included packs',
-    lead: 'All available packs right away. Upcoming packs and new Must Eats are included when published.',
-    cta: 'Unlock',
+    title: 'Everything in All Berlin',
+    lead: 'All available packs right away. New packs and cards are included at no extra cost.',
+    cta: 'Unlock All Berlin',
     pending: 'Going to Stripe …',
     owned: 'Open map',
     error: 'Something went wrong. Please try again.',
@@ -57,8 +51,13 @@ const copy = {
 const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category');
 const allBerlin = CATALOG['all-berlin'];
 
-export default function AllBerlinSheet({ locale, contents }: Props) {
+export default function AllBerlinSheet({ locale, contents, triggerLabel }: Props) {
   const t = copy[locale];
+  const orderedPacks = [...categoryPacks].sort(
+    (a, b) =>
+      Number((contents.byCategory[a.slug ?? '']?.mustEats ?? 0) === 0) -
+      Number((contents.byCategory[b.slug ?? '']?.mustEats ?? 0) === 0)
+  );
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -101,7 +100,7 @@ export default function AllBerlinSheet({ locale, contents }: Props) {
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        {t.trigger}
+        <span className={styles.triggerLabel}>{triggerLabel ?? t.trigger}</span>
       </button>
 
       {open &&
@@ -122,14 +121,13 @@ export default function AllBerlinSheet({ locale, contents }: Props) {
                 </svg>
               </button>
 
-              <p className={styles.kicker}>{t.kicker}</p>
               <h2 id="all-berlin-sheet-title" className={styles.title}>
                 {t.title}
               </h2>
               <p className={styles.lead}>{t.lead}</p>
 
               <ul className={styles.grid} role="list">
-                {categoryPacks.map((pack) => {
+                {orderedPacks.map((pack) => {
                   const art = pack.slug ? categoryArt(pack.slug) : null;
                   return (
                     <li key={pack.packId}>
@@ -151,7 +149,9 @@ export default function AllBerlinSheet({ locale, contents }: Props) {
                         <span className={styles.name}>
                           {pack.displayName}
                           {(contents.byCategory[pack.slug ?? '']?.mustEats ?? 0) === 0 && (
-                            <small> · {locale === 'de' ? 'Kommt bald' : 'Coming soon'}</small>
+                            <small className={styles.comingSoon}>
+                              {locale === 'de' ? 'Kommt bald' : 'Coming soon'}
+                            </small>
                           )}
                         </span>
                       </Link>
@@ -179,9 +179,6 @@ export default function AllBerlinSheet({ locale, contents }: Props) {
                     ? 'Einmalzahlung, kein Abo'
                     : 'One-time payment, no subscription'}
                 </p>
-                {formatBundleSavings(locale, contents) && (
-                  <p className={styles.savings}>{formatBundleSavings(locale, contents)}</p>
-                )}
               </div>
             </div>
           </div>,

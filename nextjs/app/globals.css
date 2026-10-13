@@ -186,13 +186,8 @@
   --et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
   --et-font-moonblossom:
     'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
-  /* Tatsächliche Höhe der fixierten SiteNav — einzige Quelle für die Navbar
-     selbst UND für den Abstand, den die Seiten darunter freihalten.
-     Die Detailseiten rechneten vorher mit einer festen 64px-Konstante. Auf dem
-     Telefon stimmte die zufällig, ab 521px ist die Leiste aber 78px hoch: dort
-     fehlten 14px, und die Brotkrumen rückten der Navkante auf die Pelle.
-     Der schmale Wert steht in der Media Query weiter unten. */
-  --site-nav-h: max(78px, calc(72px + env(safe-area-inset-top, 0px)));
+  /* Schmale Hauptleiste: dieselbe Höhe für Navigation und Seitenabstand. */
+  --site-nav-h: calc(52px + env(safe-area-inset-top, 0px));
 
   /* Ebenen der Seite, von unten nach oben. Nur, was seitenweit konkurriert
      (fixiert am body oder per Portal); Stapel innerhalb einer Komponente
@@ -342,14 +337,6 @@
 :focus-visible {
   outline: 2px solid var(--et-red);
   outline-offset: 2px;
-}
-/* Unter 520px ist die Navbar flacher (siehe SiteNav.module.css) — der Wert
-   gehört an dieselbe Stelle wie die Vorgabe, sonst rechnen die Seiten auf dem
-   Telefon mit einer Leiste, die es dort gar nicht gibt. */
-@media (max-width: 520px) {
-  :root {
-    --site-nav-h: calc(64px + env(safe-area-inset-top, 0px));
-  }
 }
 
 html {
@@ -539,7 +526,7 @@ html[data-active-page='map'] .app-page {
      thin canvas gap produced by margin + calculated viewport height. */
   html[data-active-page='start'] .app-pages {
     position: fixed;
-    inset: 74px 0 0;
+    inset: var(--site-nav-h) 0 0;
     height: auto;
     margin: 0;
     background-color: var(--et-white);
@@ -1510,12 +1497,12 @@ ol {
 }
 .app-page {
   width: 100%;
-  height: calc(100vh - 64px);
+  height: calc(100vh - var(--site-nav-h));
   overflow-y: auto;
   overflow-x: hidden;
 }
 .app-page[data-page='start'] {
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - var(--site-nav-h));
 }
 
 @media (max-width: 767.98px) {
@@ -1532,10 +1519,7 @@ ol {
   }
   /* Natural window scroll so Safari URL bar auto-hides on scroll. */
   .app-pages {
-    /* Navbar height incl. safe-area-inset-top (notch/Dynamic Island ~47px):
-       64px up to 520px, 78px above. A flat 64px left the top 14px of every
-       page under the 78px bar between 521 and 767px — on /must-eats it cut
-       the corners off the card fan.
+    /* Shared navbar height, including the safe area.
        Padding, not margin: body has no overflow here (see above, Safari URL
        bar), so a top margin collapses out through body — and the moment the
        consent gate sets `overflow: hidden` on body it stops collapsing, the
@@ -1572,9 +1556,9 @@ ol {
 @media (min-width: 768px) {
   .app-pages {
     max-width: none;
-    margin: 74px 0 0;
+    margin: var(--site-nav-h) 0 0;
     box-shadow: none;
-    height: calc(100dvh - 74px);
+    height: calc(100dvh - var(--site-nav-h));
     overflow-y: auto;
     overflow-x: hidden;
   }

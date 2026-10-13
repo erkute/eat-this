@@ -4,7 +4,10 @@
   align-items: center;
   justify-content: center;
   gap: clamp(24px, 5vw, 64px);
-  padding-block: clamp(40px, 6vw, 80px);
+  margin-top: clamp(64px, 8vw, 112px);
+  padding: clamp(32px, 5vw, 64px) clamp(24px, 4vw, 56px);
+  background: var(--et-ink-raised);
+  border-radius: var(--et-radius-photo);
   color: var(--et-white);
 }
 .cardLink {
@@ -49,13 +52,13 @@
   font-size: 14px;
   line-height: 1.5;
 }
-@media (max-width: 559px) {
+@media (max-width: 699px) {
   .preview {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
   }
   .cardLink {
-    width: 140px;
+    width: 170px;
     justify-self: center;
   }
 }

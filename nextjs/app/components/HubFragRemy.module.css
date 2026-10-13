@@ -1,4 +1,4 @@
-.section { scroll-margin-top: calc(72px + env(safe-area-inset-top, 0px)); }
+.section { scroll-margin-top: var(--site-nav-h); }
 .body {
   --stage-pad: clamp(30px, 4.5vw, 72px);
   position: relative;

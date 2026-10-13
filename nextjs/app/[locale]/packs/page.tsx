@@ -40,7 +40,7 @@ const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category'
 const copy = {
   de: {
     categoryTitle: 'Kategorie-Packs',
-    categoryLead: 'Such dir gezielt aus, worauf du Hunger hast.',
+    categoryLead: 'Kaffee, Dinner oder Drinks – finde das Pack, auf das du Lust hast.',
     buy: 'Kaufen',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
@@ -50,7 +50,7 @@ const copy = {
   },
   en: {
     categoryTitle: 'Category Packs',
-    categoryLead: 'Pick exactly what you are hungry for.',
+    categoryLead: 'Coffee, dinner or drinks – find the pack you’re in the mood for.',
     buy: 'Buy',
     pending: 'Going to Stripe …',
     owned: 'Open map',
@@ -82,7 +82,6 @@ export default async function PacksOverviewPage({ params }: PageProps) {
           <section className={styles.catalog} aria-labelledby="packs-catalog-title">
             <div className={styles.catalogHead}>
               <h2 id="packs-catalog-title" className={styles.sectionTitle}>
-                <span className={styles.mk} aria-hidden="true" />
                 {t.categoryTitle}
               </h2>
               <p className={styles.sectionLead}>{t.categoryLead}</p>

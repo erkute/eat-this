@@ -7,7 +7,9 @@
   letter-spacing: 0.04em;
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 92px;
   padding: 6px 10px 7px;
   border: 0;
   background: var(--article-quiet);

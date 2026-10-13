@@ -1,30 +1,9 @@
 /**
- * Bewegung im Artikel (02.10.2026, Ansage „sieht noch zu brav aus, das muss
- * geiles Design haben, wo was passiert im Artikel — check mal GSAP"). Dieselben
- * Regeln wie auf der Startseite (HubMotion): nur ohne `prefers-reduced-motion`,
- * nie als Opacity-Fade, Dinge bewegen sich als Ganzes — kein Text, der sich
- * Buchstabe für Buchstabe aufbaut, keine Fotos, die aus Masken ausfahren.
- *
- * Ausgelöst per IntersectionObserver, nicht per ScrollTrigger: das Plugin hält
- * eine rAF-Schleife für die ganze Sitzung am Laufen (siehe HubMotion). Nichts
- * hängt direkt an der Scrollposition.
- *
- * Jede Szene läuft einmal, wenn sie ins Bild kommt. Danach wird ihr Trigger
- * nicht mehr beobachtet: eigene Transforms dürfen den Auftritt nicht an der
- * Viewport-Kante umkehren. Was schon über dem Bild liegt, steht einfach da.
- *
- * - Kapitel, Zitate und „Fazit" setzen sich mit einer kleinen Skalierung
- *   und Drehung ohne Nachfedern auf ihren Platz.
- * - Abzug: Spot-Fotos und Bilder im Text landen wie hingeworfene Abzüge,
- *   „Zur Map" ploppt danach auf.
- * - Must-Eat-Bänder schieben von links herein, die Hefte unter „Weitere
- *   Ausgaben" werden ausgeteilt, und das Booster-Pack der Katalog-Tafel
- *   wird auf die Tafel geworfen.
- *
- * Der Kopf ist CSS (NewsArticleShell.module.css, `data-article-intro`): er
- * muss mit dem ersten Paint laufen, nicht erst nach der Hydrierung. Die Marke
- * setzt der Bootstrap in app/[locale]/layout.tsx nur beim Laden — wer über ein
- * aufklappendes Heft kommt, hat das Aufklappen als Auftritt.
+ * Nur die gestalteten Verweise bewegen sich: Must-Eat-Bänder, Magazine und
+ * das Booster-Pack. Lesetext, Kapitel, Fotos und Map-Links bleiben wie in
+ * den 032c-Referenzartikeln vom 13.10.2026 beim Scrollen ruhig.
+ * IntersectionObserver löst jede Szene einmal aus, ohne Scroll-Schleife.
+ * Reduced Motion und der bestehende CSS-Auftritt des Kopfs bleiben erhalten.
  */
 
 import gsap from 'gsap';
@@ -44,41 +23,6 @@ interface Scene {
 const hide = { visibility: 'hidden' } as const;
 const show = { visibility: 'visible' } as const;
 
-function stamp(el: HTMLElement): Scene {
-  gsap.set(el, { ...hide, scale: 1.08, rotation: -1 });
-  const timeline = gsap
-    .timeline({ paused: true })
-    .set(el, show)
-    .to(el, { scale: 1, rotation: 0, duration: 0.5, ease: 'power3.out' });
-  return { trigger: el, timeline, targets: [el] };
-}
-
-/** Ein Spot: erst landet das Foto, dann ploppt der Knopf. */
-function spot(card: HTMLElement): Scene | null {
-  const photo = card.querySelector<HTMLElement>('[data-motion="print"]');
-  const pop = card.querySelector<HTMLElement>('[data-motion="pop"]');
-  if (!photo) return null;
-  const scene = print(photo, card);
-  if (pop) {
-    gsap.set(pop, { ...hide, scale: 0.4 });
-    scene.timeline
-      .set(pop, show, '-=0.25')
-      .to(pop, { scale: 1, duration: 0.45, ease: 'back.out(2.4)' }, '<');
-    scene.targets.push(pop);
-  }
-  return scene;
-}
-
-/** Ein Foto fällt auf die Seite: etwas zu gross und schräg, dann flach. */
-function print(el: HTMLElement, trigger: Element = el): Scene {
-  gsap.set(el, { ...hide, y: 70, scale: 1.06, rotation: -3.5 });
-  const timeline = gsap
-    .timeline({ paused: true })
-    .set(el, show)
-    .to(el, { y: 0, scale: 1, rotation: 0, duration: 0.75, ease: 'back.out(1.3)' });
-  return { trigger, timeline, targets: [el] };
-}
-
 /** Gelandet, gibt das Element seinen Transform an das Stylesheet zurück —
  *  sonst schlüge der Inline-Transform den Hover. Läuft die Szene rückwärts,
  *  setzt GSAP ihn wieder. */
@@ -93,6 +37,18 @@ function slide(el: HTMLElement): Scene {
     .set(el, show)
     .to(el, { x: 0, rotation: 0, duration: 0.65, ease: 'power3.out' });
   return { trigger: el, timeline: handBack(timeline, el), targets: [el] };
+}
+
+/** Einzelne Magazinempfehlung im Lesetext: nur das Cover wird eingeschoben.
+ * Der unbewegte Link ist der Trigger; Titel und Trefferfläche bleiben stehen. */
+function issue(card: HTMLElement): Scene | null {
+  const cover = card.querySelector<HTMLElement>('[data-motion-part="cover"]');
+  if (!cover) return null;
+  gsap.set(cover, { x: -64, y: 16, rotation: -8 });
+  const timeline = gsap
+    .timeline({ paused: true })
+    .to(cover, { x: 0, y: 0, rotation: 0, duration: 0.75, ease: 'power3.out' });
+  return { trigger: card, timeline: handBack(timeline, cover), targets: [cover] };
 }
 
 /** Das Booster-Pack fliegt von rechts oben auf die Tafel und bleibt schräg
@@ -135,17 +91,7 @@ function deal(list: HTMLElement): Scene | null {
 
 function scenesOf(root: HTMLElement): Scene[] {
   const scenes: (Scene | null)[] = [];
-  const content = root.querySelector<HTMLElement>('[data-article-content]');
-  content
-    ?.querySelectorAll<HTMLElement>(
-      ':scope > h2, :scope > h3, :scope > blockquote, [data-block="conclusion-label"]'
-    )
-    .forEach((el) => scenes.push(stamp(el)));
-  root.querySelectorAll<HTMLElement>('[data-motion="spot"]').forEach((el) => scenes.push(spot(el)));
-  root.querySelectorAll<HTMLElement>('[data-motion="print"]').forEach((el) => {
-    // Das Foto einer Spot-Karte gehört zur Szene der Karte.
-    if (!el.closest('[data-motion="spot"]')) scenes.push(print(el));
-  });
+  root.querySelectorAll<HTMLElement>('[data-motion="issue"]').forEach((el) => scenes.push(issue(el)));
   root
     .querySelectorAll<HTMLElement>('[data-motion="slide"]')
     .forEach((el) => scenes.push(slide(el)));

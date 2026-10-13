@@ -24,7 +24,8 @@ function article() {
       <div data-article-content>
         <p>Einstieg</p>
         <h2 id="goldies">goldies</h2>
-        <span data-motion="spot"><span data-motion="print"></span><a data-motion="pop">Zur Map</a></span>
+        <a data-motion="slide">Must-Eat</a>
+        <span><span data-testid="photo"></span><a data-testid="map-link">Zur Map</a></span>
       </div>
     </div>`;
   return document.querySelector<HTMLElement>('[data-page="news-article"]')!;
@@ -58,10 +59,21 @@ describe('armArticleMotion', () => {
     expect(root.querySelector('h2')!.style.visibility).toBe('');
   });
 
+  it('keeps article headings, photos and map links visible and still', () => {
+    const root = article();
+    const cleanup = armArticleMotion(root);
+    for (const el of root.querySelectorAll<HTMLElement>('h2, [data-testid="photo"], [data-testid="map-link"]')) {
+      expect(el.style.transform).toBe('');
+      expect(el.style.visibility).toBe('');
+      expect(observed[0].targets).not.toContain(el);
+    }
+    cleanup();
+  });
+
   it('plays once and ignores boundary crossings caused by its own transform', async () => {
     const root = article();
     const cleanup = armArticleMotion(root);
-    const heading = root.querySelector<HTMLElement>('h2')!;
+    const heading = root.querySelector<HTMLElement>('[data-motion="slide"]')!;
     const { callback } = observed[0];
 
     callback([entry(heading, false, 1400)]);
@@ -71,7 +83,7 @@ describe('armArticleMotion', () => {
     callback([entry(heading, false, 1200)]);
     await frames();
     expect(heading.style.visibility).toBe('visible');
-    expect(heading.style.transform).not.toContain('scale(1.08');
+    expect(heading.style.transform).toBe('');
 
     callback([entry(heading, false, 1200)]);
     await frames();
@@ -85,7 +97,7 @@ describe('armArticleMotion', () => {
   it('shows at once what the reader has already scrolled past', () => {
     const root = article();
     armArticleMotion(root);
-    const heading = root.querySelector<HTMLElement>('h2')!;
+    const heading = root.querySelector<HTMLElement>('[data-motion="slide"]')!;
     observed[0].callback([entry(heading, false, -900)]);
     expect(heading.style.visibility).toBe('visible');
   });
@@ -97,7 +109,7 @@ describe('armArticleMotion', () => {
     const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
     const root = article();
     const cleanup = armArticleMotion(root);
-    const heading = root.querySelector<HTMLElement>('h2')!;
+    const heading = root.querySelector<HTMLElement>('[data-motion="slide"]')!;
     expect(observed).toHaveLength(0);
     expect(heading.style.visibility).toBe('');
 

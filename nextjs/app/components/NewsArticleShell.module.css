@@ -83,24 +83,6 @@ div.page {
   min-width: 0;
 }
 
-/* Die Rubrik wie der Kicker der Startseite (`.hv-kicker`): klein in
-   Versalien, davor das gelbe Quadrat (`.hv-mk`). Alle Labels der Seite —
-   Rubrik, Credits, „Die Spots", Etiketten, Knöpfe, Bezirk · Küche —
-   stehen in Providence wie das Label-System der Startseite (Ansagen
-   02.10.2026: „in meiner Font"); Neue Haas Grotesk Text bleibt dem Lesetext und den
-   Bildunterschriften. */
-.kicker {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  margin-bottom: clamp(16px, 1.8vw, 24px);
-  color: var(--article-fg);
-  font-size: 14px;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.kicker::before,
 .chaptersLabel::before {
   content: '';
   display: inline-block;
@@ -128,15 +110,15 @@ div.page {
 }
 
 .byline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 16px;
   margin-top: clamp(20px, 2.2vw, 30px);
 }
 
-.themeToggle {
-  margin-top: 18px;
-}
-
-/* Getrennt durch Abstand, nicht durch Punkte: bricht die Zeile am Telefon
-   um, stünde sonst ein einzelner Punkt am Anfang der zweiten. */
+/* Das Datum bleibt zusammen; bei starkem Zoom darf der Schalter umbrechen. */
 .bylineMeta {
   font-family: var(--et-font-display);
   font-weight: 700;
@@ -144,7 +126,7 @@ div.page {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px 22px;
+  white-space: nowrap;
   color: var(--article-fg);
   font-size: 13px;
   line-height: 1.3;
@@ -167,17 +149,17 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-/* Der Vorspann als Auftakt unter dem Foto, gross und mittig wie die
-   Textblöcke bei Kaleidoscope — dort 32px auf 30px Zeilenabstand; hier in
-   Providence Regular und lockerer, damit er sich liest und nicht nur
-   aussieht. */
+/* Der Vorspann in Grotesk wie der Lesetext; Headlines bleiben Providence. */
 .lede {
-  max-width: 860px;
+  max-width: var(--article-measure);
   margin: clamp(48px, 5.6vw, 88px) auto 0;
   color: var(--article-fg);
-  font-size: clamp(23px, 2.1vw, 30px);
-  font-weight: 400;
-  line-height: 1.25;
+  font-family: var(--et-font-body);
+  font-size: clamp(24px, 2.3vw, 32px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.0125em;
+  text-align: left;
   text-wrap: pretty;
 }
 
@@ -253,15 +235,11 @@ div.page {
 
 /* Der Kopf tritt nur beim Laden auf (`data-article-intro`, gesetzt vom
    Bootstrap in app/[locale]/layout.tsx, wieder entfernt von
-   lib/articleMotion.ts): die Rubrik fällt herein, die Schlagzeile rückt ohne
+   lib/articleMotion.ts): die Schlagzeile rückt ohne
    Skalierung oder Nachfedern nach oben, die Credits rücken nach, das
    Foto steigt als Ganzes auf. Kein Opacity-Fade — unsichtbar ist nur, was
    noch nicht dran ist. */
 @media (prefers-reduced-motion: no-preference) {
-  :global(html[data-article-intro]) .kicker {
-    animation: introDrop 520ms cubic-bezier(0.2, 0.8, 0.2, 1) 120ms backwards;
-  }
-
   :global(html[data-article-intro]) .heroTitle {
     animation: introTitleRise 480ms cubic-bezier(0.2, 0.8, 0.2, 1) 260ms backwards;
   }
@@ -283,16 +261,6 @@ div.page {
         animation-timeline: view();
       }
     }
-  }
-}
-
-@keyframes introDrop {
-  0% {
-    transform: translateY(-28px) rotate(-8deg);
-    visibility: hidden;
-  }
-  1% {
-    visibility: visible;
   }
 }
 
@@ -339,42 +307,29 @@ div.page {
 .content {
   color: var(--article-fg);
   font-family: var(--et-font-body);
-  /* Untergrenze 18 statt 17: bei genau 1280px Fensterbreite fiel der Lauftext
-     auf 17px und die Zeile auf 80 Zeichen — beides am Rand. Die Wettbewerber
-     liegen alle bei 18px. */
-  font-size: clamp(18px, 1.3vw, 19px);
-  line-height: 1.65;
+  /* 032c-Referenzen: 18px / 25.2px auf Telefon und Desktop. */
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 .content p {
-  margin: 0 0 1.2em;
+  margin: 0 0 16px;
 }
 
-/* Der Einstieg gross und mittig statt einer Initiale: der erste Absatz ist
-   der Auftakt, der Rest liest sich linksbündig in Lesegrösse weiter —
-   Kaleidoscope zentriert jeden Block, über einen ganzen Artikel wäre das
-   anstrengend. Steht im Kopf schon ein Vorspann (`data-lede`), ist der der
-   Auftakt, und der Text beginnt normal — nur ein Absatz in Providence
-   (Ansage 02.10.2026). */
+/* Ohne separaten Vorspann übernimmt der erste Absatz dessen Satz. */
 .content:not([data-lede]) > p:first-of-type {
-  margin-bottom: 1.2em;
-  font-family: var(--et-font-display);
-  font-size: clamp(22px, 1.9vw, 27px);
-  line-height: 1.3;
-  text-align: center;
+  margin-bottom: 32px;
+  font-family: var(--et-font-body);
+  font-size: clamp(24px, 2.3vw, 32px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.0125em;
+  text-align: left;
   text-wrap: pretty;
 }
 
-/* Das Fazit. Es stand vorher als zwoelfte Kapitelueberschrift da — dieselbe
-   41px-Providence-Zeile wie „Distrikt" oder „Bar Basta", obwohl es kein Kapitel
-   ist, sondern der Schluss. Seit dem Kaleidoscope-Umbau (02.10.2026) steht
-   die Ueberschrift gross und mittig wie ein Kapitel, aber mit mehr Luft
-   davor, und der Satz darunter steht in Providence statt im Lesetext — so
-   liest sich der Block als Schlusswort.
-
-   Bewusst keine dunkle Flaeche: direkt unter dem Fazit sitzt bereits die
-   schwarze Katalog-Karte, zwei dunkle Kaesten uebereinander haetten dem
-   Schlusswort genau die Sonderstellung genommen, die es bekommen soll. */
+/* Schlusswort in Leseschrift, mit einer eigenen Providence-Überschrift. */
 .content [data-block='conclusion'] {
   /* Mehr Luft als vor einer Kapitelueberschrift (clamp(38px, 5vw, 66px)): der
      Block beendet den Text, er reiht sich nicht ein. Mit dem gleichen Abstand
@@ -397,10 +352,11 @@ div.page {
 }
 
 .content [data-block='conclusion'] p:not([data-block='conclusion-label']) {
-  font-family: var(--et-font-display);
-  font-size: clamp(21px, 1.7vw, 24px);
+  font-family: var(--et-font-body);
+  font-size: 18px;
   font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.4;
+  text-align: left;
   text-wrap: pretty;
 }
 
@@ -489,8 +445,11 @@ div.page {
   }
 }
 
-/* Das Zitat gross und mittig — ohne Kasten, Klebestreifen und Drehung von
-   vorher. */
+/* Zitate sprechen wie Headlines und Insider-Tipps in Providence. */
+.content q {
+  font-family: var(--et-font-display);
+}
+
 .content blockquote {
   max-width: none;
   margin: clamp(48px, 6vw, 88px) 0;
@@ -500,8 +459,8 @@ div.page {
   font-size: clamp(28px, 2.8vw, 38px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 1.05;
-  text-align: center;
+  line-height: 1.15;
+  text-align: left;
   text-wrap: balance;
   border: 0;
 }
@@ -623,16 +582,15 @@ div.page {
   height: auto;
 }
 
-/* Bildunterschrift klein, leise und mittig, dicht unter dem Bild — wie der
-   Nachweis auf der Spot-Seite. */
+/* Bildunterschriften folgen dem 18px-Lesesatz der Referenz. */
 .inlineImage figcaption {
   margin-top: 6px;
   color: var(--article-muted);
   font-family: var(--et-font-body);
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 400;
   line-height: 1.4;
-  text-align: center;
+  text-align: left;
 }
 
 /* Die Spot-Karte wie ein Foto im Heft: oben das Bild ohne Schrift und ohne
@@ -1177,16 +1135,6 @@ div.page {
 
   .lede {
     margin-top: 32px;
-    font-size: 21px;
-  }
-
-  .content {
-    font-size: 17px;
-    line-height: 1.6;
-  }
-
-  .content:not([data-lede]) > p:first-of-type {
-    font-size: 20px;
   }
 
   .content h2,
@@ -1291,12 +1239,11 @@ div.page {
   margin-top: 6px;
   color: var(--article-muted);
   font-family: var(--et-font-body);
-  font-size: 13px;
+  font-size: 18px;
   line-height: 1.4;
 }
 @media (min-width: 1024px) {
-  .page { --article-measure: 740px; }
-  .content { font-size: clamp(20px, 1.1vw, 22px); }
+  .page { --article-measure: 768px; }
   .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }
 }
 @media (max-width: 767.98px) {

@@ -1,3 +1,8 @@
+/* Mehr Luft unter der Providence-Headline, deren Unterlängen weit reichen. */
+.header > p {
+  margin-top: 16px;
+}
+
 /* Same magazine artwork as the restaurant page, sized for the map detail. */
 .list {
   display: grid;

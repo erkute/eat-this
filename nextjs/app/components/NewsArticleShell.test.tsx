@@ -333,8 +333,8 @@ describe('NewsArticleShell', () => {
     expect(head).toContain('href="#spumante"');
   });
 
-  it('reports a reading estimate of at least a minute', () => {
-    expect(render([para('Kurz.')])).toContain('1 Min. Lesezeit');
+  it('omits the reading estimate', () => {
+    expect(render([para('Kurz.')])).not.toContain('Min. Lesezeit');
   });
 
   describe('issue', () => {
@@ -372,14 +372,12 @@ describe('NewsArticleShell', () => {
         />
       );
 
-    it('names its issue in the credits under the head, counted from the oldest article', () => {
-      // Newest first: four articles, `doener` is the second newest → Issue 3.
+    it('shows only the date in the credits, without an issue number', () => {
       const html = renderWith(issues(['pizza', 'doener', 'eis', 'donuts']));
-      const credits = html.slice(html.indexOf('</h1>'), html.indexOf('Min. Lesezeit'));
-      expect(credits).toContain('<span>Issue 3</span>');
-      expect(credits.indexOf('Issue 3')).toBeLessThan(credits.indexOf('24. April 2026'));
-      // Nothing stands above the photo: the page opens with the head itself.
-      expect(html.slice(0, html.indexOf('<header'))).not.toContain('Issue');
+      const credits = html.slice(html.indexOf('</h1>'), html.indexOf('</header>'));
+      expect(credits).toContain('24. April 2026');
+      expect(credits).not.toContain('Issue 3');
+      expect(credits).not.toContain('Min. Lesezeit');
     });
 
     it('opens like Kaleidoscope: headline and credits, then the photo, then the lede', () => {
@@ -400,9 +398,9 @@ describe('NewsArticleShell', () => {
       expect(renderWith(issues(['doener']))).not.toContain('data-lede');
     });
 
-    it('puts the rubric as a label right above the headline', () => {
+    it('omits the rubric above the headline', () => {
       const html = renderWith(issues(['doener']));
-      expect(html).toMatch(/>Guides<\/span><h1[^>]*>Döner in Berlin<\/h1>/);
+      expect(html.slice(0, html.indexOf('</header>'))).not.toContain('Guides');
     });
 
     // Am Telefon schrumpft die Schlagzeile, bis ihr längstes Wort passt.

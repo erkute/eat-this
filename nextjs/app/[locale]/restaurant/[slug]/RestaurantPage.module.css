@@ -96,6 +96,7 @@
 }
 
 .lede {
+  font-family: var(--et-font-body);
   margin: clamp(32px, 3.6vw, 48px) 0 0;
   font-size: clamp(24px, 2.3vw, 32px);
   font-weight: 700;
@@ -146,9 +147,9 @@
   line-height: 1.4;
 }
 
-/* Wenig Text: ein kurzer Abschnitt stünde zwischen grossen Bildern wie eine
-   Bildunterschrift — er steht gross in der Markenschrift (spotFlow.short). */
+/* Auch kurze Beschreibungen bleiben Fließtext in Neue Haas Grotesk. */
 .short {
+  font-family: var(--et-font-body);
   margin: var(--rhythm) 0 0;
   font-size: clamp(24px, 2.3vw, 30px);
   font-weight: 400;

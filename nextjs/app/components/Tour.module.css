@@ -489,6 +489,21 @@ a.quiet {
     transform: scale(0);
   }
 }
+/* Repeat the pile hint while visible; dealing removes the cue. */
+.tapCue[data-hint] { animation: none; transform: rotate(-12deg); }
+.tapCue[data-hint] .tapRing { animation: none; opacity: 0; }
+.tapCue[data-hint][data-active] { animation: pileTapApproach 2.4s ease-in-out infinite both; }
+.tapCue[data-hint][data-active] .tapRing { animation: pileTapRipple 2.4s ease-out infinite both; }
+@keyframes pileTapApproach {
+  0%, 55%, 100% { transform: translate(12px, 18px) rotate(-12deg); }
+  22%, 32% { transform: translate(0, 0) rotate(-12deg) scale(0.94); }
+}
+@keyframes pileTapRipple {
+  0%, 20% { opacity: 0; transform: scale(0.3); }
+  28% { opacity: 0.9; }
+  48%, 100% { opacity: 0; transform: scale(1.5); }
+}
+
 @keyframes cardTap {
   0%,
   40%,
@@ -939,6 +954,8 @@ a.quiet {
   .avatar {
     transition: none;
   }
+  .tapCue[data-hint][data-active],
+  .tapCue[data-hint][data-active] .tapRing,
   .tapCue,
   .tapRing,
   .flipTap[data-tapping] {

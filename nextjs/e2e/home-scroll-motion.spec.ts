@@ -41,52 +41,49 @@ test('Remy waits for his face, then enters from the corner after a slow image lo
 });
 
 for (const reduced of [false, true]) {
-  test(`Must-Eat cards follow scrolling in both directions (reduced motion: ${reduced})`, async ({ page }) => {
+  test(`Must-Eat pile deals into the grid (reduced motion: ${reduced})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('h1')).toBeVisible();
+    await page.goto('/');
     await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
     await expect(page).toHaveTitle(/EAT THIS/);
-    const card = page.locator('[data-hub-musteats] li').first();
-    await card.evaluate((element) => {
-      const container = document.querySelector('.app-pages')!;
-      const desktop = getComputedStyle(container).overflowY === 'auto';
-      const view = desktop ? container.getBoundingClientRect() : { top: 0, height: innerHeight };
-      const amount = element.getBoundingClientRect().top - view.top - view.height * 0.6;
-      (desktop ? container : window).scrollBy({ top: amount, behavior: 'instant' });
-    });
-    // Let any one-shot entrance finish. Movement must still follow later scrolls.
-    await page.waitForTimeout(1700);
-    const pose = () => card.evaluate((element) => {
-      const target = element.querySelector('[data-stack-photo]')!.parentElement!;
-      const matrix = new DOMMatrixReadOnly(getComputedStyle(target).transform);
-      return { y: matrix.m42, rotation: Math.atan2(matrix.m12, matrix.m11) * 180 / Math.PI };
-    });
-    const scroll = async (direction: number) => {
-      await page.evaluate(async (direction) => {
-        const container = document.querySelector('.app-pages')!;
-        const scroller = getComputedStyle(container).overflowY === 'auto' ? container : window;
-        for (let step = 0; step < 24; step++) {
-          scroller.scrollBy({ top: direction * 8, behavior: 'instant' });
-          await new Promise((resolve) => setTimeout(resolve, 20));
-        }
-      }, direction);
-      await page.waitForTimeout(450);
-    };
-    const start = await pose();
-    await scroll(1);
-    const down = await pose();
-    if (reduced) {
-      expect(start).toEqual({ y: 0, rotation: 0 });
-      expect(down).toEqual(start);
-    } else {
-      expect(Math.abs(down.y - start.y)).toBeGreaterThan(3);
-      expect(Math.abs(down.rotation - start.rotation)).toBeGreaterThan(0.5);
+    const section = page.locator('[data-hub-musteats]');
+    const pile = section.getByRole('button', { name: 'Karten auslegen', exact: true });
+    const deck = section.locator('ul');
+    await pile.scrollIntoViewIfNeeded();
+    await expect(pile).toBeVisible();
+    await expect(deck).toBeHidden();
+    await expect(pile.locator('img')).toHaveCount(6);
+    const hand = pile.locator('[data-hint]');
+    await expect(hand).toHaveAttribute('data-active', 'true');
+    for (const animated of [hand, pile.locator('img').last()]) {
+      await expect(animated).toHaveCSS('animation-iteration-count', reduced ? '1' : 'infinite');
+      if (reduced) await expect(animated).toHaveCSS('animation-name', 'none');
     }
-    await scroll(-1);
-    const back = await pose();
-    expect(Math.abs(back.y - start.y)).toBeLessThan(0.8);
-    expect(Math.abs(back.rotation - start.rotation)).toBeLessThan(0.1);
-    await page.screenshot({ path: `/tmp/eat-this-card-scrub-${test.info().project.name}-${reduced}.png`, scale: 'css' });
+    expect(await pile.locator('img').evaluateAll(images => images.every(image => image.getAttribute('src')?.includes('card-back.webp')))).toBe(true);
+    await page.screenshot({ path: `/tmp/eat-this-pile-${test.info().project.name}-${reduced}.png`, scale: 'css' });
+    // Enter also verifies that focus survives the disappearing pile button.
+    await pile.focus();
+    await pile.press('Enter');
+    if (!reduced) {
+      await expect(deck).toHaveAttribute('data-deal-state', 'dealing');
+      await expect(deck).toHaveAttribute('inert', '');
+    }
+    await expect(deck).toHaveAttribute('data-deal-state', 'spread');
+    await expect(deck).not.toHaveAttribute('inert');
+    await expect(pile).toHaveCount(0);
+    const firstLink = deck.locator('li').first().locator('a').first();
+    await expect(firstLink).toBeFocused();
+    const positions = await deck.locator('li').evaluateAll(items => items.map(item => {
+      const box = item.getBoundingClientRect();
+      return { x: box.x, y: box.y };
+    }));
+    expect(positions).toHaveLength(6);
+    expect(Math.abs(positions[0].y - positions[1].y)).toBeLessThan(1);
+    if (page.viewportSize()!.width < 768) {
+      expect(positions[2].y).toBeGreaterThan(positions[0].y);
+      expect(positions[2].x).toBe(positions[0].x);
+    }
+    expect(await firstLink.evaluate(el => getComputedStyle(el).transform)).toBe('none');
+    await page.screenshot({ path: `/tmp/eat-this-dealt-${test.info().project.name}-${reduced}.png`, scale: 'css' });
   });
 }

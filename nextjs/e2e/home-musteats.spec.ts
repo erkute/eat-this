@@ -24,6 +24,8 @@ for (const locale of ['de', 'en'] as const) {
         { exact: true }
       )
     ).toBeVisible();
+    await section.getByRole('button', { name: locale === 'de' ? 'Karten auslegen' : 'Deal the cards', exact: true }).click();
+    await expect(section.locator('ul')).toHaveAttribute('data-deal-state', 'spread');
     const deck = section.getByRole('list', { name: 'Must Eats', exact: true });
     const mobile = page.viewportSize()!.width < 768;
     // Die ganze Auslage, ohne Seitwärts-Scrollen: am Telefon im Zweierraster.

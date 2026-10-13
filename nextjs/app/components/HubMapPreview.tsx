@@ -24,7 +24,6 @@ const copy = {
     loading: 'Berlin lädt …',
     unavailable: 'Die Vorschau ist gerade nicht verfügbar. Entdecke die Spots direkt auf der Map.',
     empty: 'Noch mehr gute Spots findest du auf der Map.',
-    hint: 'Tippe auf einen Spot.',
     cta: (category: string) => `Mehr ${category}`,
     details: 'auf der Map ansehen',
   },
@@ -36,7 +35,6 @@ const copy = {
     loading: 'Loading Berlin …',
     unavailable: 'The preview is currently unavailable. Discover the spots on the map.',
     empty: 'Find more great spots on the map.',
-    hint: 'Tap a spot to explore.',
     cta: (category: string) => `More ${category.toLowerCase()}`,
     details: 'on the map',
   },
@@ -74,6 +72,14 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
     observer.observe(section);
     return () => observer.disconnect();
   }, []);
+
+  const action = (
+      <div className={styles.action}>
+        <MapIntentLink className={styles.cta} href={mapPreviewHref(category.slug)}>
+          {t.cta(category[locale])}
+        </MapIntentLink>
+      </div>
+  );
 
   return (
     <section
@@ -129,7 +135,7 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
                 <SiteImage
                   key={selected._id}
                   src={selected.photo!}
-                  sizes={`(max-width: 767px) ${Math.ceil(100 * coverImageScale(selected.photo, 100 / 144))}px, ${scaleSizes('(max-width: 1100px) 32vw, 380px', coverImageScale(selected.photo, 4 / 3))}`}
+                  sizes={`(max-width: 767px) ${Math.ceil(112 * coverImageScale(selected.photo, 1))}px, ${scaleSizes('(max-width: 1100px) 35vw, 450px', coverImageScale(selected.photo, 16 / 10))}`}
                   alt={selected.name}
                   fill
                   loading="lazy"
@@ -139,17 +145,13 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
               <div className={styles.caption} aria-live="polite" aria-atomic="true">
                 <h3>{normalizeName(selected.name)}</h3>
                 <p>{[selected.bezirk?.name || selected.district, category[locale]].filter(Boolean).join(' · ')}</p>
-                <span className={styles.hint}>{t.hint}</span>
               </div>
             </MapIntentLink>
           ) : null}
+          {selected && action}
         </div>
       </div>
-      <div className={styles.action}>
-        <MapIntentLink className={styles.cta} href={mapPreviewHref(category.slug)}>
-          {t.cta(category[locale])}
-        </MapIntentLink>
-      </div>
+      {!selected && action}
     </section>
   );
 }

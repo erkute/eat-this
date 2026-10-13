@@ -50,6 +50,19 @@ export default defineType({
       fieldset: 'text',
     }),
     defineField({
+      name: 'packPreview',
+      title: 'Öffentliche Beispielkarte des Packs',
+      type: 'reference',
+      to: [{type: 'mustEat'}],
+      description: 'Diese Karte liegt für alle offen – auch ohne Konto. Pro Pack genau ein Beispiel auswählen.',
+      options: {
+        filter: ({document}) => ({
+          filter: '$categoryId in restaurantRef->categories[]._ref && restaurantRef->isOpen != false',
+          params: {categoryId: (document._id || '').replace(/^drafts\./, '')},
+        }),
+      },
+    }),
+    defineField({
       name: 'topSpots',
       title: 'Bestenliste',
       type: 'array',

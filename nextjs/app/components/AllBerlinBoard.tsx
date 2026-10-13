@@ -1,12 +1,7 @@
 import Image from '@/app/components/SiteImage';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import {
-  type PackContentsIndex,
-  formatPackPrice,
-  formatBundleSavings,
-} from '@/lib/pack/packDetail';
-import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
+import { type PackContentsIndex, formatPackPrice, bundleSavings } from '@/lib/pack/packDetail';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from './PaymentMarks';
 import AllBerlinSheet from './AllBerlinSheet';
 import styles from './AllBerlinBoard.module.css';
@@ -40,24 +35,12 @@ interface Props {
 
 const copy = {
   de: {
-    kickerHero: 'Alle Packs',
     kickerUpsell: 'Lieber alles auf einmal',
-    cta: 'Freischalten',
-    pending: 'Weiter zu Stripe …',
-    owned: 'Zur Map',
-    error: 'Da ging was schief. Versuch es nochmal.',
     trust: 'Sicher bezahlen via Stripe',
-    map: '/map',
   },
   en: {
-    kickerHero: 'Every pack',
     kickerUpsell: 'Want it all?',
-    cta: 'Unlock',
-    pending: 'Going to Stripe …',
-    owned: 'Open map',
-    error: 'Something went wrong. Please try again.',
     trust: 'Secure checkout via Stripe',
-    map: '/map',
   },
 } as const;
 
@@ -72,6 +55,7 @@ export default function AllBerlinBoard({
   const pack = CATALOG['all-berlin'];
   const Heading = headingLevel;
   const hero = variant === 'hero';
+  const savings = bundleSavings(contents);
 
   return (
     <section
@@ -79,61 +63,37 @@ export default function AllBerlinBoard({
       aria-labelledby="all-berlin-board-title"
     >
       <div className={styles.copy}>
-        <p className={styles.kicker}>{hero ? t.kickerHero : t.kickerUpsell}</p>
+        {!hero && <p className={styles.kicker}>{t.kickerUpsell}</p>}
         <Heading id="all-berlin-board-title" className={styles.title}>
           All{hero ? <br /> : ' '}Berlin
         </Heading>
 
-        {hero && (
-          <p className={styles.benefitTitle}>
-            {locale === 'de' ? 'Was bestellen? Und wo?' : 'What to order? And where?'}
-          </p>
-        )}
         <p className={styles.lead}>
-          {hero ? (
-            locale === 'de' ? (
-              <>
-                Schalte <strong>alle Must-Eat-Karten</strong> für Berlin frei: konkrete Gerichte,
-                die passenden Restaurants und ihre Standorte auf deiner Map.{' '}
-                <strong>Alle Kategorie-Packs</strong> sind enthalten. Neue Karten bekommst du{' '}
-                <strong>ohne weiteren Kauf</strong> dazu.
-              </>
-            ) : (
-              <>
-                Unlock <strong>every Must Eat card</strong> for Berlin: specific dishes, the
-                restaurants serving them and their locations on your map.{' '}
-                <strong>Every category pack</strong> is included. New cards are added{' '}
-                <strong>without another purchase</strong>.
-              </>
-            )
-          ) : locale === 'de' ? (
-            'Ganz Berlin in deiner Sammlung. Alle Must-Eat-Karten aus allen Packs – inklusive neuer Karten.'
-          ) : (
-            'All of Berlin in your collection. Every Must Eat card from every pack – including new cards.'
-          )}
+          {hero
+            ? locale === 'de'
+              ? 'Alle Must Eats für Berlin: was du wo bestellen solltest. Alle Kategorie-Packs und zukünftigen Karten inklusive.'
+              : 'Every Must Eat in Berlin: what to order and where. All category packs and future cards included.'
+            : locale === 'de'
+              ? 'Alle Kategorie-Packs für Berlin. Neue Packs und Karten kommen ohne weiteren Kauf dazu.'
+              : 'All category packs for Berlin. New packs and cards are included at no extra cost.'}
         </p>
 
         <div className={styles.actions}>
-          <PackBuyButton
-            packId={pack.packId}
-            packName={pack.displayName}
-            amountCents={pack.amountCents}
+          <AllBerlinSheet
             locale={locale}
-            className={styles.cta}
-            errorClassName={styles.ctaError}
-            label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
-            pendingLabel={t.pending}
-            ownedLabel={t.owned}
-            ownedHref={t.map}
-            errorLabel={t.error}
+            contents={contents}
+            triggerLabel={`${locale === 'de' ? 'All Berlin ansehen' : 'Explore All Berlin'} · ${formatPackPrice(pack.amountCents)}`}
           />
           <p className={styles.paymentNote}>
             {locale === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
           </p>
-          {hero && formatBundleSavings(locale, contents) && (
-            <p className={styles.savings}>{formatBundleSavings(locale, contents)}</p>
+          {hero && savings.savedCents > 0 && (
+            <p className={styles.savings}>
+              {locale === 'de'
+                ? `${savings.percent} % günstiger als die verfügbaren Einzelpacks`
+                : `${savings.percent}% less than the available packs bought separately`}
+            </p>
           )}
-          <AllBerlinSheet locale={locale} contents={contents} />
           {hero && (
             <PaymentMarks
               height={24}
@@ -144,27 +104,25 @@ export default function AllBerlinBoard({
         </div>
       </div>
 
-      {hero && (
-        <div className={styles.stage} aria-hidden="true">
-          <div className={styles.fan}>
-            {FAN.map((slug) => {
-              const art = categoryArt(slug);
-              return art ? (
-                <Image
-                  key={slug}
-                  src={art}
-                  alt=""
-                  width={420}
-                  height={656}
-                  sizes="(max-width: 767.98px) 80px, 200px"
-                  priority={priority}
-                  className={styles.fanPack}
-                />
-              ) : null;
-            })}
-          </div>
+      <div className={styles.stage} aria-hidden="true">
+        <div className={styles.fan}>
+          {(hero ? FAN : ['breakfast', 'pizza', 'sweets']).map((slug) => {
+            const art = categoryArt(slug);
+            return art ? (
+              <Image
+                key={slug}
+                src={art}
+                alt=""
+                width={420}
+                height={656}
+                sizes="(max-width: 479px) 34vw, (max-width: 767.98px) 150px, 220px"
+                priority={priority}
+                className={styles.fanPack}
+              />
+            ) : null;
+          })}
         </div>
-      )}
+      </div>
     </section>
   );
 }

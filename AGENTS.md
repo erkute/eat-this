@@ -19,6 +19,8 @@ npm run build:email-spots         # rendert die Spot-Cards der Anmelde-Mail neu 
 
 ## Deploy
 
+**Code-Review vor jedem Commit und Push:** Änderungen gegen die Anforderungen und diese Projektregeln prüfen, relevante Befunde beheben und die Korrekturen erneut prüfen. Review-Ergebnis vor dem Push kurz berichten (Betreiber, 13.10.2026).
+
 | Branch    | Firebase-Projekt         | URL                                                                       |
 | --------- | ------------------------ | ------------------------------------------------------------------------- |
 | `main`    | `eat-this-8a13b`         | https://www.eatthisdot.com                                                |
@@ -54,6 +56,8 @@ Status nur so weit melden, wie er belegt ist: `committed` → `pushed` → `PR o
 - **Getrennte Arbeitskopien bei paralleler Arbeit.** Vor neuer Isolation `git worktree list` prüfen und eine freie Arbeitskopie wiederverwenden. `./scripts/worktree.sh <branch> [base]` legt manuelle Worktrees unter `../eat-this-worktrees/` an und startet neue Branches standardmäßig von `origin/staging`. Zwei Agents dürfen nicht gleichzeitig HEAD, Stashes oder `.next-verify/` derselben Arbeitskopie verändern; Stashes sind repo-weit. Manuelle Worktrees erst nach Prüfung laufender Prozesse und lokaler Änderungen mit `git worktree remove <pfad>` entfernen – ein Merge allein macht eine noch verwendete Arbeitskopie nicht frei.
 
 ## Design-, Content- und Qualitätsabnahme
+
+**Navigation und CTAs:** Keine Pfeile oder Chevrons als Richtungszeichen (auch nicht für Zurück, Weiter oder externe Links). Keine unterstrichenen Wörter oder Links, auch nicht bei Hover oder Fokus. Interaktion und Fokus über Farbe, Fläche oder eine klare Umrandung kennzeichnen.
 
 Bei sichtbaren Änderungen den betroffenen Ablauf vor und nach dem Umbau auf einem schmalen Telefon und Desktop prüfen. Bestehende Komponenten und die `--et-*`-Tokens in `globals.css` sind die gestalterische Referenz; neue Richtungen erst anhand konkreter Screens/Referenzen ausarbeiten. Schrift, Abstände, Bildausschnitt, Fokus und leere/ladende Zustände gehören zur Abnahme. Animationen mit und ohne Reduced Motion prüfen; sichtbare Inhalte sollen nicht auf eine Animation oder Hydrierung warten müssen.
 

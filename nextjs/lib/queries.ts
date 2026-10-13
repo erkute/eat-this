@@ -358,6 +358,7 @@ export const emailMustEatsQuery = `
   *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] | order(_id asc) {
     _id,
     revealedForAnon,
+    "previewCategory": *[_type == "category" && packPreview._ref == ^._id][0].slug.current,
     "restaurant": restaurantRef-> {
       _id,
       name,

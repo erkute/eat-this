@@ -294,6 +294,8 @@ export interface MapMustEat {
     photo?: string;
   };
   revealedForAnon?: boolean;
+  /** Public example selected on its Sanity category. */
+  previewCategory?: string;
 }
 
 /** Map category filter: 'All' or a category slug from Sanity. */

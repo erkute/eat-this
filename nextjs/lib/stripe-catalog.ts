@@ -88,7 +88,7 @@ export const CATALOG: Record<string, PackDef> = {
       de: 'Die Fast-Food-Karten des Stapels. Smash-Burger-Spezialisten, taiwanesische Bao-Bars, neue Bagel-Adressen und gehobenes Streetfood.',
       en: "The fast food cards of the deck. Smash burger specialists, Taiwanese bao bars, new bagel addresses and elevated street food.",
     },
-    spectrum: { de: 'Smash. Dumpling. Döner 2.0.', en: 'Smash. Dumpling. Döner 2.0.' },
+    spectrum: { de: 'Smashburger. Dumplings. Döner.', en: 'Smash burgers. Dumplings. Döner.' },
   },
   'category-finedining': {
     packId: 'category-finedining',

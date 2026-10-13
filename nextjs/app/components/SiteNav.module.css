@@ -9,7 +9,7 @@
   /* Höhe und der Abstand, den die Seiten dafür freihalten, kommen aus
      derselben Variable (globals.css). */
   height: var(--site-nav-h);
-  padding: calc(10px + env(safe-area-inset-top, 0px)) clamp(12px, 3vw, 32px) 10px;
+  padding: env(safe-area-inset-top, 0px) clamp(12px, 3vw, 32px) 0;
   color: #fff;
   background: #15120e;
   border: 0;
@@ -55,7 +55,7 @@
   justify-content: center;
   width: auto;
   min-width: max-content;
-  height: 52px;
+  height: 44px;
   color: #fff;
   text-decoration: none;
   transform: translate(-50%, -50%);
@@ -64,7 +64,7 @@
 .logoImg {
   display: block;
   width: auto;
-  height: clamp(40px, 5vw, 56px);
+  height: 32px;
 }
 
 .control {
@@ -130,7 +130,7 @@
 .menuWord {
   display: inline-block;
   font-family: var(--et-font-display);
-  font-size: clamp(17px, 1.7vw, 22px);
+  font-size: 17px;
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: 0;
@@ -152,17 +152,6 @@
     color: #fff;
     text-shadow: none;
     animation: navHorrorShiver 220ms steps(2, end);
-  }
-}
-
-@media (min-width: 1024px) {
-  .logo {
-    height: 74px;
-  }
-
-  .mapWord,
-  .menuWord {
-    font-size: 22px;
   }
 }
 
@@ -223,7 +212,7 @@
   }
 
   .nav[data-visibility='hidden']:not([data-nav-page='map']) > * {
-    transform: translate3d(0, calc(-72px - env(safe-area-inset-top, 0px) - 2px), 0);
+    transform: translate3d(0, calc(-1 * var(--site-nav-h) - 2px), 0);
   }
 
   .nav[data-visibility='collapsed']:not([data-nav-page='map']) {
@@ -232,15 +221,8 @@
 }
 
 @media (max-width: 520px) {
-  /* Höhe kommt aus --site-nav-h (globals.css), das unter 520px denselben
-     schmalen Wert führt — so rechnen Leiste und Seitenabstand nie
-     auseinander. Hier bleibt nur, was wirklich navspezifisch ist. */
   .nav:not([data-nav-page='map']) {
     padding-inline: 10px;
-  }
-
-  .nav[data-visibility='hidden']:not([data-nav-page='map']) > * {
-    transform: translate3d(0, calc(-64px - env(safe-area-inset-top, 0px) - 2px), 0);
   }
 
   .mapWord,
@@ -249,7 +231,7 @@
   }
 
   .logoImg {
-    height: clamp(36px, 11vw, 46px);
+    height: 30px;
   }
 }
 
@@ -286,4 +268,11 @@
   :global(html[data-hero-intro][data-active-page='start']:not([data-intro-copy])) .control {
     visibility: hidden;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav:not([data-nav-page='map'])::before,
+  .nav:not([data-nav-page='map']) > * { transition: none; }
+  .control:is(:hover, :active, :focus-visible) .mapWord,
+  .control:is(:hover, :active, :focus-visible) .menuWord { animation: none; }
 }

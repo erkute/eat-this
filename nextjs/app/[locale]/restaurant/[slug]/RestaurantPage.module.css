@@ -4,11 +4,10 @@
 
    Eine Spalte von 768px, alles mittig: der Name riesig, darunter nur der
    Bezirk, dann der Vorspann gross und fett. Die Fotos stehen spaltenbreit und
-   ungeschnitten zwischen dem Text, am Telefon randlos — nie zwei direkt
-   hintereinander (lib/spotFlow.ts). Lesetext in Neue Haas Grotesk Text wie
+   ungeschnitten zwischen dem Text, bei wenig Text in Bildgruppen. Am Telefon
+   bleiben sie randlos untereinander (lib/spotFlow.ts). Lesetext in Neue Haas Grotesk Text wie
    bei 032c, alles Gesetzte in Providence. Zwischentitel klein, fett,
-   versal und in Ink. Ganz unten der Bezirk als Raster über die ganze
-   Breite.
+   versal. RestaurantDiscovery setzt den redaktionellen Abschluss.
 
    Dunkler Grund wie Bezirke und Kategorien — den Grund selbst
    stellt globals.css an html/body. Die Seite hängt nicht in `.app-pages`:
@@ -20,6 +19,8 @@
   --et-quiet: var(--et-ink-raised);
   --gut: clamp(18px, 4vw, 54px);
   --nav-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
+  --restaurant-content-width: 768px;
+  --restaurant-section-size: clamp(32px, 3.4vw, 48px);
   --rhythm: clamp(40px, 4.4vw, 64px);
 
   display: flow-root;
@@ -90,7 +91,7 @@
 /* -------------------------------------------------------------- spalte --- */
 
 .column {
-  max-width: 768px;
+  max-width: var(--restaurant-content-width);
   margin: 0 auto;
 }
 
@@ -180,8 +181,8 @@
 /* Mehr Fotos als Text: die übrigen als Reihe nebeneinander. */
 .sheet {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: var(--rhythm);
   margin: var(--rhythm) 0 0;
   padding: 0;
   list-style: none;
@@ -190,8 +191,7 @@
 .sheet img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
+  height: auto;
 }
 
 /* -------------------------------------------------------- steckbrief ---- */
@@ -372,122 +372,6 @@
   outline-offset: 3px;
 }
 
-/* ------------------------------------------------------- kategorien ----- */
-
-.packs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 26px;
-  margin: 12px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pack {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
-  color: var(--et-white);
-  font-size: 15px;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.packArt {
-  width: 96px;
-  height: auto;
-  rotate: -4deg;
-}
-
-.packs li:nth-child(even) .packArt {
-  rotate: 3deg;
-}
-
-@media (hover: hover) {
-  .pack:hover .packName {
-    color: var(--et-accent-heading);
-  }
-}
-
-.pack:focus-visible {
-  outline: 2px solid var(--et-white);
-  outline-offset: 4px;
-}
-
-/* --------------------------------------------------- mehr im bezirk ----- */
-
-/* Das Raster über die ganze Breite, wie am Ende bei 032c. */
-.more {
-  margin-top: clamp(72px, 8vw, 120px);
-}
-
-.moreHead {
-  max-width: 768px;
-  margin: 0 auto 16px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0 calc(12px - var(--gut));
-  padding: 0;
-  list-style: none;
-}
-
-.tile {
-  display: grid;
-  color: var(--et-white);
-  text-decoration: none;
-}
-
-.tilePhoto {
-  display: block;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: var(--et-quiet);
-}
-
-.tilePhoto img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.tileName {
-  margin-top: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.tileMeta {
-  margin-top: 3px;
-  color: var(--et-muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.3;
-  text-transform: uppercase;
-}
-
-@media (hover: hover) {
-  .tile:hover .tileName {
-    color: var(--et-accent-heading);
-  }
-}
-
-.tile:focus-visible {
-  outline: 2px solid var(--et-white);
-  outline-offset: 3px;
-}
-
-.moreAll {
-  margin-top: 28px;
-  text-align: center;
-}
-
 /* ------------------------------------------------------------ telefon --- */
 
 @media (max-width: 767px) {
@@ -501,7 +385,7 @@
   }
 
   .sheet {
-    margin-inline: calc(10px - var(--gut));
+    margin-inline: calc(-1 * var(--gut));
   }
 
   /* Paarweise; der schmale Innenabstand lässt auch „Reservieren" in eine
@@ -510,10 +394,6 @@
     flex: 1 1 calc(50% - 5px);
     padding-inline: 12px;
   }
-
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -521,3 +401,31 @@
     transition: none;
   }
 }
+
+/* Photo-led stories: wide desktop pairs/triptychs, intact photos on phones. */
+.imageGroup {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 24px;
+  width: min(1440px, calc(100vw - var(--gut) * 2));
+  margin-top: var(--rhythm);
+}
+
+.imageGroup figure { min-width: 0; margin: 0; }
+
+.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; color: var(--et-white); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
+.caption .credit { display: block; margin: 0; text-align: left; }
+.sheet figure { margin: 0; }
+.imageGroup:focus-visible { outline: 2px solid var(--et-white); outline-offset: 6px; }
+@media (max-width:767px) {
+  .imageGroup { width: 100vw; grid-template-columns: 1fr; gap: 32px; }
+  .imageGroup .caption { padding-inline: var(--gut); }
+  .figure > .caption { padding-inline: var(--gut); }
+  .imageGroup .credit { padding-inline: 0; }
+}
+
+.magazineHeading { margin: 0 0 24px; font-size: var(--restaurant-section-size); font-weight: 700; line-height: 1.05; text-transform: uppercase; }

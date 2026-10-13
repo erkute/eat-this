@@ -505,7 +505,7 @@ export const allNewsArticlesQuery = `
     "imageUrl": ${groqImageUrl('image', 'card')},
     "alt": image.alt,
     ${newsCoverProjection},
-    excerpt, excerptDe
+    excerpt, excerptDe, previewExcerpt, previewExcerptDe
   }
 `;
 

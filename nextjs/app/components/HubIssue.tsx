@@ -1,4 +1,5 @@
-import type { CSSProperties } from 'react';
+import Image from './SiteImage';
+import { categoryArt } from '@/lib/categoryArt';
 import { Link } from '@/i18n/navigation';
 import type { GuideTeaser } from '@/lib/sanity.server';
 import type { HubArticle } from '@/lib/home/getHomeData';
@@ -13,21 +14,11 @@ import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers'
 import { HubFilterCard, HubFilterGroup } from './HubFilter';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
-import MapIntentLink from './MapIntentLink';
-import Image from './SiteImage';
+import SpotLink from './SpotLink';
 import styles from './HubIssue.module.css';
 
-/**
- * Die Hub-Seiten im Heftlook (Entwurf A „Die Ausgabe", Wahl 03.10.2026 für
- * die Bezirke, am selben Tag auf Kategorien und die beiden Übersichten
- * ausgedehnt): die Seite liest sich wie ein Artikel aus dem Magazin — alles
- * mittig, die Bestenliste als Kapitel mit rotem Namen, Foto, Text und Tipp,
- * der Rest als Register hinten im Heft. Dieselbe Sprache wie
- * NewsArticleShell: weisser Grund, Providence für alles Gesetzte, Neue Haas Grotesk Text für
- * den Lesetext, Rot für Überschriften, Gelb als Akzent.
- *
- * Die Teile hier sind Server-Markup; gefiltert wird über HubFilterCard und
- * HubFilterGroup.
+/** Server-rendered editorial cards and the complete alphabetical directory.
+ * Filtering is progressive enhancement through HubFilterCard/HubFilterGroup.
  */
 
 type Locale = 'de' | 'en';
@@ -67,6 +58,7 @@ function Photo({
   name,
   sizes,
   widths,
+  position,
   eager = false,
   aspectRatio = 4 / 5,
 }: {
@@ -75,6 +67,7 @@ function Photo({
   name: string;
   sizes: string;
   widths: number[];
+  position?: string;
   eager?: boolean;
   aspectRatio?: number;
 }) {
@@ -94,6 +87,7 @@ function Photo({
       src={src}
       srcSet={sanitySrcSet(src, widths.map(w => Math.round(w * scale)))}
       sizes={scaleSizes(sizes, scale)}
+      style={position ? { objectPosition: position } : undefined}
       alt=""
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
@@ -102,113 +96,66 @@ function Photo({
 }
 
 /**
- * Der Inhalt des Hefts: die Kapitel als Bildleiste, ein Tipp springt hin.
- * Steht dort, wo andere Seiten ihr Aufmacherfoto haben — keiner der Bezirke
- * hat in Sanity ein eigenes (Stand 03.10.2026).
- */
-export function IssueContents({ restaurants, label }: { restaurants: Spot[]; label: string }) {
-  if (restaurants.length < 2) return null;
-  return (
-    <nav className={styles.contents} aria-label={label}>
-      <ol style={{ '--count': restaurants.length } as CSSProperties}>
-        {restaurants.map((r) => (
-          <li key={r._id}>
-            <a href={`#${spotAnchor(r.slug)}`}>
-              <span className={styles.contentsPhoto}>
-                {/* Steht im ersten Bildschirm — nicht erst beim Scrollen laden. */}
-                <Photo
-                  src={r.photo}
-                  name={r.name}
-                  sizes="(max-width: 767px) 104px, 150px"
-                  widths={[240, 320]}
-                  eager
-                />
-              </span>
-              <span className={styles.contentsName}>{normalizeName(r.name)}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-}
-
-/**
- * Die Bestenliste als Kapitel: Name rot und gross, darunter Küche und Preis,
- * das Foto über die Lesespalte, Beschreibung und Tipp im Lesetext, dann die
- * zwei Wege — auf die Map und zum Spot. Der Name ist der gefolgte
- * Link auf die Spot-Seite; die Map-Links tragen `nofollow` (Query-Varianten).
+ * Kompakte Empfehlungen: Foto, Name, Beschreibung; der Tipp öffnet sich
+ * bei Bedarf. Der Namenslink macht die ganze Karte anklickbar; das native
+ * Tipp-Element bleibt unabhängig davon bedienbar.
  */
 export function IssueSpots({
   restaurants,
   locale,
   facetsOf,
   showDistrict = false,
+  layout = 'grid',
 }: {
   restaurants: Spot[];
   locale: Locale;
   facetsOf: (r: Spot) => string[];
   /** Bezirk in der Metazeile — auf den Kategorieseiten. */
   showDistrict?: boolean;
+  layout?: 'grid' | 'editorial' | 'compact' | 'district';
 }) {
   const de = locale === 'de';
   return (
-    <div className={styles.column}>
-      {restaurants.map((r) => {
+    <div className={`${styles.spots} ${layout === 'editorial' ? styles.editorialSpots : layout === 'compact' ? styles.compactSpots : layout === 'district' ? styles.districtSpots : ''}`} data-count={restaurants.length}>
+
+      {restaurants.map((r, index) => {
         const name = normalizeName(r.name);
         const meta = metaLine(r, locale, showDistrict);
         const desc = pickLocale(r.shortDescription, r.shortDescriptionEn, locale);
         const tip = pickLocale(r.tip, r.tipEn, locale);
         return (
           <HubFilterCard key={r._id} slugs={facetsOf(r)}>
-            <article className={styles.spot} id={spotAnchor(r.slug)}>
+            <article className={styles.spot} id={spotAnchor(r.slug)} data-spot-card>
               <h3 className={styles.spotName}>
-                <Link href={`/restaurant/${r.slug}`}>{name}</Link>
+                <SpotLink href={`/restaurant/${r.slug}`}>{name}</SpotLink>
               </h3>
               {meta && <p className={styles.deck}>{meta}</p>}
-              <Link
-                href={`/restaurant/${r.slug}`}
+              <span
                 className={styles.spotPhoto}
-                tabIndex={-1}
-                aria-hidden="true"
+                data-discovery-motion
               >
-                <Photo
-                  src={r.photo}
-                  name={r.name}
-                  sizes="(max-width: 767px) 100vw, 660px"
-                  widths={[480, 800, 1320]}
-                  aspectRatio={3 / 2}
-                />
-              </Link>
-              {(desc || tip) && (
-                <div className={styles.text}>
-                  {desc && <p>{desc}</p>}
-                  {tip && (
-                    <p>
-                      <span className={styles.tipLabel}>{de ? 'Tipp' : 'Tip'}</span> {tip}
-                    </p>
-                  )}
-                </div>
+                <span className={styles.spotPhotoCrop} data-spot-photo>
+                  <Photo
+                    src={r.photo}
+                    name={r.name}
+                    sizes={layout === 'district' ? '(max-width: 767px) 92vw, (max-width: 1023px) 44vw, 380px' : layout === 'editorial' && index === 0
+                      ? '(max-width: 767px) 92vw, 660px'
+                      : layout !== 'grid' ? '(max-width: 767px) 96px, 144px'
+                        : '(max-width: 767px) 92vw, (max-width: 1023px) 44vw, 370px'}
+                    widths={layout !== 'grid' && layout !== 'district' && !(layout === 'editorial' && index === 0) ? [240, 400] : [400, 640, 960, 1320]}
+                    eager={(layout === 'editorial' || layout === 'district') && index === 0}
+                  />
+                </span>
+              </span>
+              {desc && <div className={styles.text}>
+                {desc && <p>{desc}</p>}
+              </div>}
+              {layout === 'grid' && tip && (
+                <details className={styles.tip}>
+                  <summary className={styles.tipLabel}>{de ? 'Unser Tipp' : 'Our tip'}</summary>
+                  <p>{tip}</p>
+                </details>
               )}
-              <div className={styles.links}>
-                <MapIntentLink
-                  href={`/map?r=${r.slug}`}
-                  rel="nofollow"
-                  className={styles.btn}
-                  aria-label={de ? `${name} auf der Map öffnen` : `Open ${name} on the map`}
-                >
-                  {de ? 'Zur Map' : 'On the map'}
-                </MapIntentLink>
-                {/* „Zum Spot" neben „Zur Map" — „Spot-Seite" war kein Wort für
-                    einen Knopf (Ansage 03.10.2026). */}
-                <Link
-                  href={`/restaurant/${r.slug}`}
-                  className={`${styles.btn} ${styles.btnQuiet}`}
-                  aria-label={de ? `Zum Spot: ${name}` : `View spot: ${name}`}
-                >
-                  {de ? 'Zum Spot' : 'View spot'}
-                </Link>
-              </div>
             </article>
           </HubFilterCard>
         );
@@ -268,10 +215,15 @@ export function IssueRegister({
               const meta = metaLine(r, locale, showDistrict);
               return (
                 <HubFilterCard key={r._id} slugs={facetsOf(r)}>
-                  <Link href={`/restaurant/${r.slug}`} className={styles.entry}>
+                  <SpotLink href={`/restaurant/${r.slug}`} className={styles.entry}>
+                    <span className={styles.entryPhoto} data-discovery-motion data-spot-photo>
+                      <Photo src={r.photo} name={r.name} sizes="80px" widths={[160, 240]} />
+                    </span>
+                    <span className={styles.entryCopy}>
                     <span className={styles.entryName}>{normalizeName(r.name)}</span>
                     {meta && <span className={styles.entryMeta}>{meta}</span>}
-                  </Link>
+                    </span>
+                  </SpotLink>
                 </HubFilterCard>
               );
             })}
@@ -290,18 +242,21 @@ export function IssueGuides({
   guides,
   locale,
   heading,
+  interlude = false,
 }: {
   guides: (GuideTeaser | null)[];
   locale: Locale;
   heading: string;
+  interlude?: boolean;
 }) {
   const shown = guides.filter((g): g is GuideTeaser => Boolean(g) && !g!.noIndex);
   if (shown.length === 0) return null;
   return (
-    <section aria-labelledby="guides-title">
+    <section className={interlude ? styles.guideInterlude : undefined} aria-labelledby="guides-title">
       <h2 id="guides-title" className={styles.secTitle}>
         {heading}
       </h2>
+      <div className={styles.guides}>
       {shown.map((g) => {
         const date = formatArticleDate(g.date, locale);
         return (
@@ -329,6 +284,7 @@ export function IssueGuides({
           </MagazineLink>
         );
       })}
+      </div>
     </section>
   );
 }
@@ -342,17 +298,20 @@ export function IssueMagazine({
   issues,
   locale,
   heading,
+  intro,
 }: {
   issues: HubArticle[];
   locale: Locale;
   heading: string;
+  intro?: string;
 }) {
   if (issues.length === 0) return null;
   return (
-    <section aria-labelledby="magazine-title">
+    <section className={`${styles.magazine} ${intro ? styles.magazineIntro : ''}`} aria-labelledby="magazine-title">
       <h2 id="magazine-title" className={styles.secTitle}>
         {heading}
       </h2>
+      {intro && <p className={styles.magazineDescription}>{intro}</p>}
       <ul className={styles.shelf}>
         {issues.map((a) => (
           <li key={a.slug}>
@@ -364,7 +323,7 @@ export function IssueMagazine({
                 date={a.date}
                 locale={locale}
                 cover={a.cover}
-                sizes="(max-width: 767px) 62vw, 260px"
+                sizes="(max-width: 767px) 62vw, (max-width: 1199px) 22vw, 280px"
                 widths={[320, 480, 800]}
               />
             </MagazineLink>
@@ -384,10 +343,8 @@ export function IssueMagazine({
 }
 
 /**
- * Der Ausgang: die anderen Bezirke oder Kategorien als Bildleiste, gesetzt
- * wie die Leiste im Kopf — Foto, darunter der Name. Bis 03.10.2026 stand hier
- * eine Wortzeile mit gelben Strichen; sie passte nicht zum Rest des Hefts
- * (Ansage 03.10.2026). Am Telefon wischt die Leiste.
+ * Weitere Bezirke oder Kategorien als Foto-Karten. Echte Links bleiben auch
+ * ohne Animation oder JavaScript zugänglich.
  */
 export function IssueSiblings({
   items,
@@ -396,7 +353,7 @@ export function IssueSiblings({
   label,
 }: {
   /** `photo`: das erste Foto aus dem Regal dieses Hubs (siehe pickShelf). */
-  items: { slug: string; label: string; photo?: string | null }[];
+  items: { slug: string; label: string; photo?: string | null; photoPosition?: string }[];
   /** Pfad-Präfix ohne Sprache: `/bezirk` oder `/kategorie`. */
   base: '/bezirk' | '/kategorie';
   heading: string;
@@ -408,14 +365,15 @@ export function IssueSiblings({
       <h2 className={styles.secTitle}>{heading}</h2>
       <ul className={styles.siblings}>
         {items.map((item) => (
-          <li key={item.slug}>
+          <li key={item.slug} data-discovery-motion>
             <Link href={`${base}/${item.slug}`}>
               <span className={styles.contentsPhoto}>
                 <Photo
                   src={item.photo}
                   name={item.label}
-                  sizes="(max-width: 767px) 104px, 136px"
-                  widths={[240, 320]}
+                  position={item.photoPosition}
+                  sizes="(max-width: 767px) 44vw, (max-width: 1199px) 29vw, 280px"
+                  widths={[240, 400, 640]}
                 />
               </span>
               <span className={styles.contentsName}>{item.label}</span>
@@ -427,78 +385,27 @@ export function IssueSiblings({
   );
 }
 
-export interface DirectoryEntry {
-  slug: string;
-  href: string;
-  name: string;
-  /** Ein Satz, warum man hinein sollte — vier Namen allein sagen das nicht. */
-  blurb?: string;
-  /** Bis zu vier Spots als Bildleiste. */
-  spots: Spot[];
-  /** Der Weg zur ganzen Liste, ohne Zahl: „Alle Spots in Mitte", bei einem
-   *  einzigen Spot „Zum Spot in Friedenau". */
-  more: string;
-  /** Das Booster-Pack der Kategorie als Marke neben dem Namen. */
-  art?: string | null;
-}
-
-/**
- * Die Übersichten /bezirk und /kategorie: ein Eintrag unter dem anderen,
- * gesetzt wie ein Kapitel auf der Detailseite — Name mittig, vier Spots als
- * Bildleiste, der Satz dazu, ein Knopf. Bis 03.10.2026 standen am Desktop
- * zwei Einträge nebeneinander, das las sich unruhig. Ohne Spot-Zahl: eine
- * Reihe von „9" bis „224" las sich als Rangliste (Ansage 27.08.2026).
- */
-export function IssueDirectory({ entries, label }: { entries: DirectoryEntry[]; label: string }) {
+/** Four illustrated packs offer another category at the end of a visit. */
+export function IssueCategories({ items, heading }: {
+  items: { slug: string; label: string }[];
+  heading: string;
+}) {
+  const order = ['pizza', 'coffee', 'drinks', 'sweets', 'breakfast', 'lunch', 'dinner', 'fast-food', 'fine-dining'];
+  const picks = order.flatMap(slug => items.filter(item => item.slug === slug)).slice(0, 4);
+  if (!picks.length) return null;
   return (
-    <div className={styles.directory} role="region" aria-label={label}>
-      {entries.map((e) => (
-        <section key={e.slug} className={styles.dirEntry} aria-labelledby={`dir-${e.slug}`}>
-          <div className={styles.dirHead}>
-            {e.art && (
-              <Image
-                className={styles.dirArt}
-                src={e.art}
-                alt=""
-                width={96}
-                height={145}
-                aria-hidden="true"
-              />
-            )}
-            <h2 id={`dir-${e.slug}`} className={styles.dirName}>
-              <Link href={e.href}>{e.name}</Link>
-            </h2>
-          </div>
-          {e.spots.length > 0 && (
-            <ol className={styles.dirStrip}>
-              {e.spots.map((r) => (
-                <li key={r._id}>
-                  <Link href={`/restaurant/${r.slug}`}>
-                    <span className={styles.contentsPhoto}>
-                      <Photo
-                        src={r.photo}
-                        name={r.name}
-                        sizes="(max-width: 599px) 31vw, 160px"
-                        widths={[240, 320]}
-                      />
-                    </span>
-                    <span className={styles.contentsName}>{normalizeName(r.name)}</span>
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          )}
-          {e.blurb && <p className={styles.dirBlurb}>{e.blurb}</p>}
-          {/* Kein Knopf, eine Etikett-Zeile wie die Rubrik im Kopf (Wahl
-              03.10.2026): das graue „Alle" sah gedrückt aus, das gelbe
-              passte im Wort und in der Form nicht. */}
-          <p className={styles.dirMoreLine}>
-            <Link href={e.href} className={styles.dirMore}>
-              {e.more}
+    <nav className={styles.categoryMenu} aria-label={heading}>
+      <h2 className={styles.secTitle}>{heading}</h2>
+      <ul>
+        {picks.map((item) => (
+          <li key={item.slug}>
+            <Link href={`/kategorie/${item.slug}`}>
+              <Image src={categoryArt(item.slug)!} alt="" width={160} height={240} sizes="(max-width: 767px) 128px, 200px" className={styles.shelfPack} />
+              <span>{item.label}</span>
             </Link>
-          </p>
-        </section>
-      ))}
-    </div>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

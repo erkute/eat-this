@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet; 033-034 am 14.10.2026 ergänzt.",
+  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet; 033-035 am 14.10.2026 ergänzt.",
   "cards": [
     {
       "order": 1,
@@ -273,6 +273,14 @@
       "dish": "Grilled Pork Neck",
       "descriptionEn": "Grilled pork neck, mustard sauce & peppers.",
       "description": "Gegrillter Schweinenacken, Senfsauce & Pimientos."
+    },
+    {
+      "order": 35,
+      "file": "Main-34.png",
+      "spot": "NOVEMBER Brasserie",
+      "dish": "Kinmedai Sashimi",
+      "descriptionEn": "Kinmedai sashimi with a delicate texture and natural sweetness.",
+      "description": "Kinmedai-Sashimi mit zarter Textur und natürlicher Süße."
     }
   ]
 }

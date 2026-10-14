@@ -12,6 +12,7 @@ import styles from './MustEatsOnboarding.module.css';
 import tour from './Tour.module.css';
 import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
+import { afterEmailLink } from '@/lib/auth/emailLinkPending';
 
 const CARD_BACK = '/pics/card-back.webp?v=7';
 // Slide 3 replaces the demo card with the pack art — the thing that brings new
@@ -109,7 +110,9 @@ export default function MustEatsOnboarding({
     } catch {
       /* storage blocked → show once per pageload */
     }
-    if (!seen) setOpen(true);
+    if (seen) return;
+    /* Nie vor oder hinter der Bestaetigung eines Mail-Links (emailLinkPending). */
+    return afterEmailLink(() => setOpen(true));
   }, [autoOpen]);
 
   const close = useCallback(() => {

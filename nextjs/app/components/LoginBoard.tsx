@@ -76,19 +76,15 @@ export default function LoginBoard({
   }, [googleWarmup, prepareGoogle]);
   const warmOnIntent = googleWarmup === 'intent' ? prepareGoogle : undefined;
 
-  /* Nach der Google-Anmeldung melden, wer angekommen ist — nach der
-     Haltezeit des Wartescreens. Ob es danach ins Profil geht, entscheidet
-     EmailLinkSignIn (afterSignIn.ts). Ohne Aufraeumen beim Unmount: das Modal
-     schliesst sich, sobald das Konto da ist, die Meldung soll trotzdem raus. */
-  const hasIntent = Boolean(intent?.heartRestaurantId || intent?.starterMustEatId);
+  /* Nach der Google-Anmeldung melden, dass jemand angekommen ist — nach der
+     Haltezeit des Wartescreens. Ins Profil schickt dann EmailLinkSignIn
+     (afterSignIn.ts). Ohne Aufraeumen beim Unmount: das Modal schliesst sich,
+     sobald das Konto da ist, die Meldung soll trotzdem raus. */
   const { outcome } = google;
   useEffect(() => {
     if (!outcome) return;
-    window.setTimeout(
-      () => announceSignedIn({ isNewUser: outcome === 'sign_up', hasIntent }),
-      AUTH_SCREEN_HOLD_MS
-    );
-  }, [outcome, hasIntent]);
+    window.setTimeout(announceSignedIn, AUTH_SCREEN_HOLD_MS);
+  }, [outcome]);
 
   /* Der Link fuehrt dorthin zurueck, wo die Anmeldung angefangen hat — nicht
      auf die Startseite. Wird erst beim Absenden gelesen, damit `window` nicht

@@ -136,7 +136,6 @@ describe('Map CSS architecture', () => {
       'pinLogoEnter',
       'pinLogoHasMust',
       'pinLogoShape',
-      'pinLogoSmall',
       'userLoc',
       'userLocAvatar',
     ]);

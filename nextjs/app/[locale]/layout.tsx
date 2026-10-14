@@ -27,7 +27,11 @@ export function generateStaticParams() {
 // marks the home page for its intro (data-hero-intro, HubSection.module.css —
 // set here so the CSS animation starts with the first paint, not after hydration;
 // the curtain itself waits for Remy's legs — data-remy-go, set by HeroCurtain
-// once its mesh draws, at the latest after 3 s from here),
+// once its mesh draws, at the latest after 3 s from here; skipped when the
+// address carries a sign-in link from the mail: then the confirmation board
+// (EmailLinkSignIn) is the first thing on screen, and the sign-in leads to the
+// profile anyway; data-email-link holds back what opens by itself until the
+// board closes, lib/auth/emailLinkPending.ts),
 // marks a freshly loaded article the same way (data-article-intro,
 // NewsArticleShell.module.css — only on a real load: an article opened from a
 // magazine has the opening as its intro, and a tab loaded out of sight would
@@ -55,7 +59,9 @@ const CRITICAL_BOOTSTRAP = `(function(){
   else if(p.indexOf('/news/')===0&&p.length>6)slug='news-article';
   else slug=p.replace(/^\\//,'').split('/')[0];
   document.documentElement.setAttribute('data-active-page',slug);
-  try{if(slug==='start'&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.setAttribute('data-remy-go','');},3000);}}catch(_){}
+  var emailLink=/[?&]mode=signIn(&|$)/.test(location.search)&&/[?&]oobCode=[^&]/.test(location.search);
+  if(emailLink)document.documentElement.setAttribute('data-email-link','');
+  try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.setAttribute('data-remy-go','');},3000);}}catch(_){}
   try{if(slug==='news-article'&&document.visibilityState==='visible'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-article-intro','');}catch(_){}
   try{if(localStorage.getItem('et-article-theme')==='dark')document.documentElement.setAttribute('data-article-theme','dark');}catch(_){}
   try{if(slug==='start'&&'scrollRestoration' in history)history.scrollRestoration='manual';}catch(_){}

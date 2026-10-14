@@ -6,12 +6,9 @@ import { useLocale } from 'next-intl';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import { EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
 import { HEART_PARAM, STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
-import {
-  PROFILE_PATH,
-  SIGNED_IN_EVENT,
-  shouldGoToProfile,
-  type SignedInDetail,
-} from '@/lib/auth/afterSignIn';
+import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
+import { PROFILE_PATH, SIGNED_IN_EVENT, shouldGoToProfile } from '@/lib/auth/afterSignIn';
+import { finishEmailLink } from '@/lib/auth/emailLinkPending';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { trackEvent } from '@/lib/analytics';
 import styles from './Tour.module.css';
@@ -81,17 +78,20 @@ const EMAIL_FORM = 'email-link-sign-in';
  * der Mensch bekam „Dieser Link geht nicht mehr". Ein Knopf drückt sich nicht
  * von allein.
  *
- * Bis 22.09.2026 stand dieser Klick auf einer eigenen Seite /welcome, mit
- * eigenem Layout, die danach hart auf die Zielseite weiterleitete. Jetzt
- * bleibt man, wo man ist: nach dem Klick geht die Tafel zu, und was folgt,
- * ist dasselbe wie nach Google — die Tour bei einem neuen Konto (sie hängt an
- * der Pack-Vergabe, siehe signInArrival), sonst „Du bist angemeldet".
+ * Bis 22.09.2026 stand dieser Klick auf einer eigenen Seite /welcome. Jetzt
+ * geht die Tafel auf der Seite auf, auf der die Anmeldung begann, und nach dem
+ * Klick geht es ins Profil — wie nach Google (afterSignIn.ts). Bei einem neuen
+ * Konto läuft dort die Tour (sie hängt an der Pack-Vergabe, siehe
+ * signInArrival).
  *
  * Die Adresse steht groß da, weil der Klick eine echte Frage beantwortet: als
  * WER melde ich mich hier an?
  *
- * Firebase wird erst geladen, wenn die Adresse wirklich einen Link trägt —
- * die Komponente hängt im Locale-Layout jeder Seite.
+ * Die Tafel steht, sobald die Seite hydriert ist — vor dem Auftritt der
+ * Startseite (das Kopf-Skript im Locale-Layout lässt ihn bei einem Mail-Link
+ * aus) und über jedem anderen Layer (`--et-z-email-link`). Firebase lädt erst
+ * daneben und nur, wenn die Adresse wirklich einen Link trägt — die
+ * Komponente hängt im Locale-Layout jeder Seite.
  */
 export default function EmailLinkSignIn() {
   const locale = useLocale();
@@ -99,22 +99,32 @@ export default function EmailLinkSignIn() {
   const [state, setState] = useState<State | null>(null);
   /* Der Link, wie er ankam — die Adresszeile ist da schon aufgeräumt. */
   const linkRef = useRef('');
-  /* Kam der Link mit einem Anlass (Karte, Herz)? Dann bleibt die Anmeldung
-     auf dieser Seite — siehe afterSignIn.ts. */
-  const hadIntentRef = useRef(false);
+  /* Was der Link an Absicht mitbrachte (angetippte Karte, Herz). */
+  const intentRef = useRef<{ starterId: string | null; heartId: string | null }>({
+    starterId: null,
+    heartId: null,
+  });
   const router = useRouter();
   const pathname = usePathname();
 
-  /* Auch die Google-Anmeldung endet hier: die Anmelde-Tafel hat keinen
-     eigenen Router und meldet nur, wer angekommen ist (afterSignIn.ts). */
+  /* Auch die Google-Anmeldung endet hier: die Anmelde-Tafel und der
+     Redirect-Weg haben keinen eigenen Router und melden nur, dass jemand
+     angekommen ist (afterSignIn.ts). */
   useEffect(() => {
-    const onSignedIn = (event: Event) => {
-      const detail = (event as CustomEvent<SignedInDetail>).detail;
-      if (shouldGoToProfile({ ...detail, pathname })) router.push(PROFILE_PATH);
+    const onSignedIn = () => {
+      if (shouldGoToProfile(pathname)) router.push(PROFILE_PATH);
     };
     window.addEventListener(SIGNED_IN_EVENT, onSignedIn);
     return () => window.removeEventListener(SIGNED_IN_EVENT, onSignedIn);
   }, [pathname, router]);
+  /* Nach der Anmeldung unterwegs ins Profil: angekommen, gibt die Seite frei,
+     was auf den Mail-Link gewartet hat (emailLinkPending). */
+  const leavingRef = useRef(false);
+  useEffect(() => {
+    if (!leavingRef.current) return;
+    leavingRef.current = false;
+    finishEmailLink();
+  }, [pathname]);
   const [claimingCard, setClaimingCard] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -124,44 +134,48 @@ export default function EmailLinkSignIn() {
 
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (url.searchParams.get('mode') !== 'signIn' || !url.searchParams.get('oobCode')) return;
+    const params = url.searchParams;
+    if (params.get('mode') !== 'signIn' || !params.get('oobCode')) return;
     linkRef.current = url.toString();
-    hadIntentRef.current = url.searchParams.has(STARTER_PARAM) || url.searchParams.has(HEART_PARAM);
     /* Die Adresse hat eine Mailadresse und einen einlösbaren Code in der
        Adresszeile — beides raus, bevor jemand den Link teilt oder ein
-       Seitenaufruf ihn mitzählt. `starter` bleibt: den löst die Pack-Vergabe
-       nach der Anmeldung ein (pendingStarterCard). */
-    setClaimingCard(url.searchParams.has(STARTER_PARAM));
-    for (const name of EMAIL_LINK_PARAMS) url.searchParams.delete(name);
+       Seitenaufruf ihn mitzählt. Die Absichten (Karte, Herz) gehen mit raus
+       und warten hier; erst beim Anmelden wandern sie in den sessionStorage
+       (signIn), denselben Träger wie bei Google — die Anmeldung endet im
+       Profil, und dort lösen Pack-Vergabe und Spot-Liste sie ein. */
+    const starterId = params.get(STARTER_PARAM);
+    intentRef.current = { starterId, heartId: params.get(HEART_PARAM) };
+    setClaimingCard(Boolean(starterId));
+    for (const name of [...EMAIL_LINK_PARAMS, STARTER_PARAM, HEART_PARAM]) params.delete(name);
     window.history.replaceState(
       window.history.state,
       '',
       `${url.pathname}${url.search}${url.hash}`
     );
 
-    let alive = true;
+    /* Never trust an email supplied by the link. Another browser must ask
+       for the address to prevent signing into a sender's account. */
+    let remembered = '';
+    try {
+      remembered = localStorage.getItem('emailForSignIn') ?? '';
+    } catch {}
+    setState(
+      remembered
+        ? { kind: 'confirm', email: remembered, busy: false, error: false }
+        : { kind: 'needs-email', email: '', busy: false, error: null }
+    );
+
+    /* Firebase lädt, während die Tafel schon steht. Ein Link, den Firebase
+       nicht als Anmelde-Link erkennt, ist eine Sackgasse. Ohne Abbruch beim
+       Aufräumen: die Adresszeile ist schon geräumt, ein zweiter Lauf des
+       Effekts (StrictMode) kommt hier nie an — er muss das Ergebnis des
+       ersten bekommen. Die Komponente hängt im Layout und bleibt stehen. */
     Promise.all([import('@/lib/firebase/config'), import('firebase/auth')]).then(
       ([{ auth }, { isSignInWithEmailLink }]) => {
-        if (!alive) return;
-        if (!isSignInWithEmailLink(auth, linkRef.current)) return setState({ kind: 'expired' });
-        // Never trust an email supplied by the link. Another browser must
-        // ask for the address to prevent signing into a sender's account.
-        let remembered = '';
-        try {
-          remembered = localStorage.getItem('emailForSignIn') ?? '';
-        } catch {}
-        const email = remembered;
-        setState(
-          email
-            ? { kind: 'confirm', email, busy: false, error: false }
-            : { kind: 'needs-email', email: '', busy: false, error: null }
-        );
+        if (!isSignInWithEmailLink(auth, linkRef.current)) setState({ kind: 'expired' });
       },
-      () => alive && setState({ kind: 'expired' })
+      () => setState({ kind: 'expired' })
     );
-    return () => {
-      alive = false;
-    };
   }, []);
 
   useEffect(() => {
@@ -176,13 +190,23 @@ export default function EmailLinkSignIn() {
 
   if (!state) return null;
 
-  const close = () => setState(null);
+  const close = () => {
+    setState(null);
+    finishEmailLink();
+  };
 
   const signIn = async (email: string) => {
-    const [{ auth }, { signInWithEmailLink, getAdditionalUserInfo }] = await Promise.all([
+    const { starterId, heartId } = intentRef.current;
+    const [{ auth }, { signInWithEmailLink }, pendingHeart] = await Promise.all([
       import('@/lib/firebase/config'),
       import('firebase/auth'),
+      heartId ? import('@/lib/map/pendingHeart') : null,
     ]);
+    /* Vor der Anmeldung gemerkt: Pack-Vergabe und Spot-Liste lesen sie,
+       sobald das Konto da ist — und die Frist (zehn Minuten) beginnt erst
+       jetzt, nicht beim Öffnen des Links. */
+    if (starterId) rememberPendingStarterCard(starterId);
+    if (heartId) pendingHeart?.rememberPendingHeart(heartId);
     const credential = await signInWithEmailLink(auth, email, linkRef.current);
     const { user } = credential;
     try {
@@ -190,10 +214,11 @@ export default function EmailLinkSignIn() {
     } catch {}
     trackEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
     setState(null);
-    const isNewUser = getAdditionalUserInfo(credential)?.isNewUser ?? false;
-    if (shouldGoToProfile({ isNewUser, hasIntent: hadIntentRef.current, pathname })) {
-      router.push(PROFILE_PATH);
-    }
+    /* Was auf der alten Seite von selbst aufgehen wollte, bleibt bis zum
+       Seitenwechsel zurückgehalten — sonst blitzte es vor dem Profil auf. */
+    if (!shouldGoToProfile(pathname)) return finishEmailLink();
+    leavingRef.current = true;
+    router.push(PROFILE_PATH);
   };
 
   const codeOf = (err: unknown) => (err as { code?: string } | null)?.code ?? '';
@@ -341,7 +366,7 @@ export default function EmailLinkSignIn() {
   }
 
   return createPortal(
-    <div className={styles.layer}>
+    <div className={`${styles.layer} ${styles.layerTop}`}>
       <div
         ref={panelRef}
         className={styles.panel}

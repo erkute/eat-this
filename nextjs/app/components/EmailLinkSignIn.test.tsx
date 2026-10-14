@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { StrictMode } from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 vi.mock('next-intl', () => ({ useLocale: () => locale.current }));
@@ -8,7 +9,6 @@ const locale = vi.hoisted(() => ({ current: 'de' }));
 const fb = vi.hoisted(() => ({
   isSignInWithEmailLink: vi.fn(() => true),
   signInWithEmailLink: vi.fn(),
-  getAdditionalUserInfo: vi.fn(() => ({ isNewUser: true })),
 }));
 vi.mock('firebase/auth', () => fb);
 vi.mock('@/lib/firebase/config', () => ({ auth: {} }));
@@ -21,6 +21,9 @@ vi.mock('@/i18n/navigation', () => ({
 
 const analytics = vi.hoisted(() => ({ trackEvent: vi.fn() }));
 vi.mock('@/lib/analytics', () => analytics);
+
+const heart = vi.hoisted(() => ({ remember: vi.fn() }));
+vi.mock('@/lib/map/pendingHeart', () => ({ rememberPendingHeart: heart.remember }));
 
 import EmailLinkSignIn from './EmailLinkSignIn';
 
@@ -40,9 +43,9 @@ beforeEach(() => {
   locale.current = 'de';
   fb.isSignInWithEmailLink.mockReturnValue(true);
   fb.signInWithEmailLink.mockResolvedValue({ user: { displayName: null } });
-  fb.getAdditionalUserInfo.mockReturnValue({ isNewUser: true });
   nav.pathname = '/map';
   localStorage.clear();
+  sessionStorage.clear();
   localStorage.setItem('emailForSignIn', 'gast@example.com');
   arriveWith('r=spot&mode=signIn&oobCode=abc&apiKey=k&e=gast%40example.com');
 });
@@ -97,10 +100,10 @@ describe('Link aus der Anmelde-Mail', () => {
     expect(analytics.trackEvent).toHaveBeenCalledWith('login', { method: 'email_link' });
   });
 
-  /* Nutzer, 24.09.2026: „kann man nicht einfach ins Profil nach dem
-     Einloggen". Nur Wiederkehrer ohne Anlass — siehe afterSignIn.ts. */
-  it('schickt einen Wiederkehrer ohne Anlass ins Profil', async () => {
-    fb.getAdditionalUserInfo.mockReturnValue({ isNewUser: false });
+  /* Nach jeder Anmeldung ins Profil — egal wo sie anfing (Betreiber,
+     14.10.2026). Die Tour eines neuen Kontos laeuft dort weiter, sie haengt
+     im Locale-Layout. */
+  it('schickt nach dem Klick ins Profil, auch ein neues Konto', async () => {
     await mount();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
@@ -108,40 +111,37 @@ describe('Link aus der Anmelde-Mail', () => {
     expect(nav.push).toHaveBeenCalledWith('/profile');
   });
 
-  it('laesst ein neues Konto fuer die Tour stehen', async () => {
-    await mount();
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
-    });
-    expect(nav.push).not.toHaveBeenCalled();
-  });
-
-  it('laesst stehen, wer ueber eine angetippte Karte kam', async () => {
-    fb.getAdditionalUserInfo.mockReturnValue({ isNewUser: false });
+  it('schickt auch nach einer angetippten Karte ins Profil', async () => {
     arriveWith('starter=me-1&mode=signIn&oobCode=abc&apiKey=k&e=gast%40example.com');
     await mount();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
     });
+    expect(nav.push).toHaveBeenCalledWith('/profile');
+  });
+
+  it('bleibt im Profil, wenn der Link dort landet', async () => {
+    nav.pathname = '/profile';
+    await mount();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+    });
     expect(nav.push).not.toHaveBeenCalled();
   });
 
-  /* Die Google-Anmeldung meldet sich per Ereignis (LoginBoard). */
-  it('schickt nach einer Google-Anmeldung ins Profil, wenn nichts wartet', async () => {
+  /* Die Google-Anmeldung meldet sich per Ereignis (LoginBoard, AuthContext). */
+  it('schickt nach einer Google-Anmeldung ins Profil', async () => {
     await mount();
     act(() => {
-      window.dispatchEvent(
-        new CustomEvent('eatthis:signed-in', { detail: { isNewUser: false, hasIntent: false } })
-      );
+      window.dispatchEvent(new Event('eatthis:signed-in'));
     });
     expect(nav.push).toHaveBeenCalledWith('/profile');
-    nav.push.mockClear();
-    act(() => {
-      window.dispatchEvent(
-        new CustomEvent('eatthis:signed-in', { detail: { isNewUser: true, hasIntent: false } })
-      );
-    });
-    expect(nav.push).not.toHaveBeenCalled();
+  });
+
+  it('steht sofort, bevor Firebase geladen ist', async () => {
+    render(<EmailLinkSignIn />);
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    await act(async () => {});
   });
 
   it('ignoriert die Link-Adresse zugunsten des lokal begonnenen Logins', async () => {
@@ -155,8 +155,29 @@ describe('Link aus der Anmelde-Mail', () => {
     arriveWith('starter=me-1&mode=signIn&oobCode=abc&apiKey=k&e=gast%40example.com');
     await mount();
     expect(screen.getByText('Deine Karte ist im Pack dabei.')).toBeTruthy();
-    // `starter` loest die Pack-Vergabe nach der Anmeldung ein — er bleibt.
-    expect(window.location.search).toBe('?starter=me-1');
+    expect(window.location.search).toBe('');
+    /* Gemerkt wird erst beim Anmelden — die Frist beginnt dann. */
+    expect(sessionStorage.getItem('eatthis_pending_starter_card')).toBeNull();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+    });
+    expect(sessionStorage.getItem('eatthis_pending_starter_card')).toContain('me-1');
+  });
+
+  it('nimmt ein ausstehendes Herz mit ins Profil — gemerkt vor der Anmeldung', async () => {
+    arriveWith('heart=spot-9&mode=signIn&oobCode=abc&apiKey=k');
+    fb.signInWithEmailLink.mockImplementation(async () => {
+      expect(heart.remember).toHaveBeenCalledWith('spot-9');
+      return { user: { displayName: null } };
+    });
+    await mount();
+    expect(window.location.search).toBe('');
+    expect(heart.remember).not.toHaveBeenCalled();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+    });
+    expect(fb.signInWithEmailLink).toHaveBeenCalledTimes(1);
+    expect(nav.push).toHaveBeenCalledWith('/profile');
   });
 
   it('zeigt die Sackgasse, wenn der Code beim Klick schon verbraucht ist', async () => {
@@ -178,6 +199,18 @@ describe('Link aus der Anmelde-Mail', () => {
     expect((screen.getByRole('button', { name: 'Anmelden' }) as HTMLButtonElement).disabled).toBe(
       false
     );
+  });
+
+  it('zeigt die Sackgasse auch unter StrictMode (Effekt laeuft doppelt)', async () => {
+    fb.isSignInWithEmailLink.mockReturnValue(false);
+    await act(async () => {
+      render(
+        <StrictMode>
+          <EmailLinkSignIn />
+        </StrictMode>
+      );
+    });
+    expect(screen.getByText('Dieser Link geht nicht mehr')).toBeTruthy();
   });
 
   it('zeigt die Sackgasse, wenn Firebase den Link nicht erkennt', async () => {

@@ -50,10 +50,11 @@ for (const motion of ['no-preference', 'reduce'] as const) {
 test('district recommendation and directory photos all enter their own spot', async ({ page }) => {
   for (const selector of ['[data-spot-card]', 'directory']) {
     await page.goto('/bezirk/schoeneberg');
-    const card = selector === 'directory'
-      ? page.locator('section').filter({ has: page.getByRole('heading', { name: 'Weitere Spots', exact: true }) }).locator('a[href*="/restaurant/"]').first()
-      : page.locator(selector).first();
-    const link = selector === '[data-spot-card]' ? card.locator('h3 a') : card;
+    const scope = selector === 'directory'
+      ? page.getByRole('region', { name: 'Weitere Spots', exact: true })
+      : page;
+    const card = scope.locator('[data-spot-card]').first();
+    const link = card.locator('h3 a');
     const path = (await link.getAttribute('href'))!;
     const photo = card.locator('[data-spot-photo] > img').first();
     await photo.scrollIntoViewIfNeeded();

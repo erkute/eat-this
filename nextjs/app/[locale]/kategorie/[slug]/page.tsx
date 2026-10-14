@@ -12,7 +12,6 @@ import { localizedCategoryName, localizedCategoryBlurb } from '@/lib/categories'
 import {
   buildCategoryTitle,
   buildCategoryDescription,
-  buildCategoryDirectoryHeading,
 } from '@/lib/seo/categoryMeta';
 import { rankCurated } from '@/lib/curated-ranking';
 import type { RestaurantCard } from '@/lib/types';
@@ -345,14 +344,9 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               der Crawl-Pfad zu den Restaurant-Detailseiten. */}
             {top.length > 0 && rest.length > 0 && (
               <HubFilterGroup slugs={districtSlugsIn(rest)}>
-                <section id="alle">
-                  <h2 className={styles.secTitle}>{buildCategoryDirectoryHeading(loc)}</h2>
-                  <IssueRegister
-                    restaurants={rest}
-                    locale={loc}
-                    facetsOf={districtSlugsOf}
-                    showDistrict
-                  />
+                <section id="alle" className={styles.moreSpots} aria-label={de ? 'Weitere Spots' : 'More spots'}>
+                  <IssueSpots restaurants={rest} locale={loc} facetsOf={districtSlugsOf}
+                    showDistrict layout="compact" />
                 </section>
               </HubFilterGroup>
             )}

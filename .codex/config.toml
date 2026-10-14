@@ -1,3 +1,10 @@
 # Eat This: careful reasoning for frontend, SEO and production changes.
 # Per-chat model/effort choices still take precedence.
 model_reasoning_effort = "high"
+
+# Separate runtime: the app stays on Node 20.
+[mcp_servers.rea]
+command = "npx"
+args = ["--yes", "--package=node@22.22.2", "--package=rea-agents@6.4.0", "--", "rea", "--mcp"]
+startup_timeout_sec = 120
+tool_timeout_sec = 120

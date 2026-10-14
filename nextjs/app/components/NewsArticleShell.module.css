@@ -83,16 +83,6 @@ div.page {
   min-width: 0;
 }
 
-.chaptersLabel::before {
-  content: '';
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  margin-right: var(--et-control-gap);
-  background: var(--article-accent);
-  vertical-align: 0.12em;
-}
-
 .heroTitle {
   width: 100%;
   max-width: none;
@@ -782,16 +772,6 @@ div.page {
   font-size: 12px;
   line-height: 1.2;
   text-transform: uppercase;
-}
-
-.hubLinkKicker::before {
-  content: '';
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  margin-right: var(--et-control-gap);
-  background: var(--article-accent);
-  vertical-align: 0.1em;
 }
 
 .hubLinkLabel {

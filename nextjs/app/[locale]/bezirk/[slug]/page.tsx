@@ -13,14 +13,12 @@ import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo
 import { buildPlainTitle, truncateMetadataDescription } from '@/lib/seo/metadata-text';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { routing } from '@/i18n/routing';
-import { buildBezirkDirectoryHeading } from '@/lib/bezirk-prose';
 import { rankCurated } from '@/lib/curated-ranking';
 import { bezirkCategoryLinks, bezirkGuideSlugs } from '@/lib/seo/crossLinks';
 import type { RestaurantCard } from '@/lib/types';
 import styles from '@/app/components/HubIssue.module.css';
 import {
   IssueGuides,
-  IssueRegister,
   IssueSpots,
 } from '@/app/components/HubIssue';
 import DistrictHeader from '@/app/components/DistrictHeader';
@@ -227,9 +225,11 @@ export default async function BezirkDetailPage({ params }: PageProps) {
 
             {directory.length > 0 && (
               <HubFilterGroup slugs={slugsIn(directory)}>
-                <section>
-                  <h2 className={styles.secTitle}>{buildBezirkDirectoryHeading(loc)}</h2>
-                  <IssueRegister restaurants={directory} locale={loc} facetsOf={categorySlugsOf} />
+                {/* Ohne eigene Überschrift: die übrigen Spots laufen als dieselben
+                    grossen Karten weiter wie die Favorites. */}
+                <section className={styles.moreSpots} aria-label={de ? 'Weitere Spots' : 'More spots'}>
+                  <IssueSpots restaurants={directory} locale={loc} facetsOf={categorySlugsOf}
+                    layout="district" />
                 </section>
               </HubFilterGroup>
             )}

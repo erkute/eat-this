@@ -111,4 +111,19 @@ describe('signInWithGoogle — wenn der Browser das Fenster blockt', () => {
     await waitFor(() => expect(mocks.getRedirectResult).toHaveBeenCalled());
     expect(mocks.getRedirectResult.mock.calls[0][1]).toBe(mocks.resolver);
   });
+
+  /* Wer ueber den Redirect zurueckkommt, geht ins Profil wie nach dem Popup
+     (afterSignIn.ts) — nur wer wirklich ankommt. */
+  it('meldet die Ankunft nach einem Redirect, sonst nicht', async () => {
+    const arrived = vi.fn();
+    window.addEventListener('eatthis:signed-in', arrived);
+    await mountAuth();
+    await waitFor(() => expect(mocks.getRedirectResult).toHaveBeenCalled());
+    expect(arrived).not.toHaveBeenCalled();
+
+    mocks.getRedirectResult.mockResolvedValue({ user: { uid: 'u1' } });
+    await mountAuth();
+    await waitFor(() => expect(arrived).toHaveBeenCalledTimes(1));
+    window.removeEventListener('eatthis:signed-in', arrived);
+  });
 });

@@ -16,6 +16,7 @@ import {
 import * as Sentry from '@sentry/nextjs';
 import { describeGoogleSignInError } from './googleSignInError';
 import { warmGooglePopup } from './googlePopupWarmup';
+import { announceSignedIn } from './afterSignIn';
 import { auth } from '@/lib/firebase/config';
 import { clearMapDataCaches, reconcileMapDataCacheIdentity } from '@/lib/map/map-data-cache';
 
@@ -174,14 +175,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
      wirklich eine Anmeldung unterwegs ist. Die Zusage des Cookie-Banners —
      Google Sign-In laedt nur, wenn man es nutzt — bleibt damit unberuehrt. */
   useEffect(() => {
-    void getRedirectResult(auth, browserPopupRedirectResolver).catch((error: unknown) => {
-      const { code, benign } = describeGoogleSignInError(error);
-      Sentry.captureException(error, {
-        level: benign ? 'warning' : 'error',
-        tags: { auth_flow: 'google_redirect', auth_error_code: code },
-      });
-      console.warn('[auth] Google redirect result failed:', code, error);
-    });
+    /* Wer ueber den Redirect zurueckkommt, ist angemeldet — weiter ins Profil
+       wie nach dem Popup (afterSignIn.ts). */
+    void getRedirectResult(auth, browserPopupRedirectResolver).then(
+      (result) => {
+        if (result?.user) announceSignedIn();
+      },
+      (error: unknown) => {
+        const { code, benign } = describeGoogleSignInError(error);
+        Sentry.captureException(error, {
+          level: benign ? 'warning' : 'error',
+          tags: { auth_flow: 'google_redirect', auth_error_code: code },
+        });
+        console.warn('[auth] Google redirect result failed:', code, error);
+      }
+    );
   }, []);
 
   // ─── Auth operations ─────────────────────────────────────────────────────

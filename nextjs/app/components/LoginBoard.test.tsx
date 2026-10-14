@@ -253,33 +253,26 @@ describe('LoginBoard — Google', () => {
   });
 });
 
-/* Nutzer, 24.09.2026: „kann man nicht einfach ins Profil nach dem
-   Einloggen". Die Tafel meldet nur, wer angekommen ist — weiter schickt
+/* Nach jeder Anmeldung geht es ins Profil (Betreiber, 14.10.2026). Die
+   Tafel meldet nur, dass jemand angekommen ist — weiter schickt
    EmailLinkSignIn (afterSignIn.ts). */
 describe('LoginBoard — nach der Google-Anmeldung', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  it('meldet einen Wiederkehrer nach dem Wartescreen', () => {
+  it('meldet die Ankunft erst nach dem Wartescreen', () => {
     google.outcome = 'login';
     board();
     expect(arrived.announce).not.toHaveBeenCalled();
     vi.advanceTimersByTime(900);
-    expect(arrived.announce).toHaveBeenCalledWith({ isNewUser: false, hasIntent: false });
+    expect(arrived.announce).toHaveBeenCalledTimes(1);
   });
 
-  it('meldet ein neues Konto als neu', () => {
+  it('meldet auch ein neues Konto und eine Anmeldung mit Anlass', () => {
     google.outcome = 'sign_up';
-    board();
-    vi.advanceTimersByTime(900);
-    expect(arrived.announce).toHaveBeenCalledWith({ isNewUser: true, hasIntent: false });
-  });
-
-  it('gibt den Anlass mit, wenn eine Karte oder ein Herz dahinter steht', () => {
-    google.outcome = 'login';
     board({ intent: { starterMustEatId: 'me-1' } });
     vi.advanceTimersByTime(900);
-    expect(arrived.announce).toHaveBeenCalledWith({ isNewUser: false, hasIntent: true });
+    expect(arrived.announce).toHaveBeenCalledTimes(1);
   });
 });
 

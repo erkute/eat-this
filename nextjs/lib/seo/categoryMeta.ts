@@ -148,12 +148,3 @@ const CATEGORY_SEARCH_TERMS: Record<string, { de: CategorySearchTerm; en: Catego
 export function categorySearchTerm(slug: string, label: string, locale: Loc): CategorySearchTerm {
   return CATEGORY_SEARCH_TERMS[slug]?.[locale] ?? { term: label, kind: 'meal' };
 }
-
-/**
- * H2 über dem Rest der Liste, unter der kuratierten Bestenliste. Bewusst ohne
- * Zahl und ohne „A–Z": beides beschrieb die Mechanik statt den Inhalt. Nur
- * gerendert, wenn es tatsächlich eine Bestenliste darüber gibt.
- */
-export function buildCategoryDirectoryHeading(locale: Loc): string {
-  return locale === 'de' ? 'Weitere Spots' : 'More spots';
-}

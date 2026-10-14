@@ -49,7 +49,7 @@ export default function DiscoveryDetail({
         </h1>
       </div>
       {packArt && (
-        <div className={styles.categoryPack} data-discovery-motion data-category-pack aria-hidden="true">
+        <div className={styles.categoryPack} data-category-pack={slug} aria-hidden="true">
           <Image src={packArt} alt="" width={240} height={360}
             sizes="(max-width: 767px) 96px, 140px" priority />
         </div>
@@ -74,7 +74,7 @@ export default function DiscoveryDetail({
       </div>
       {kind === 'bezirk' && <div className={styles.photos}>
       {pictures.map((picture, index) => (
-        <figure className={styles.figure} key={picture._id} data-discovery-motion>
+        <figure className={styles.figure} key={picture._id}>
           <SpotLink href={`/restaurant/${picture.slug}`} className={styles.photoLink}>
           <span className={styles.photo} data-spot-photo>
           {/* eslint-disable-next-line @next/next/no-img-element */}

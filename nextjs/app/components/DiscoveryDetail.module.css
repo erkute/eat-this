@@ -76,6 +76,8 @@
   height: auto;
   transform: rotate(-6deg);
   filter: drop-shadow(0 12px 14px rgb(0 0 0 / .2));
+  /* Landing spot of the pack chosen on /kategorie (categoryPackTransition). */
+  view-transition-name: category-pack;
 }
 @media (max-width: 767px) {
   .withPack { grid-template-columns: 112px minmax(0, 1fr); gap: 16px 20px; }

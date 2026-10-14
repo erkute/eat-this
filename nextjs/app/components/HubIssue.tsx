@@ -130,10 +130,7 @@ export function IssueSpots({
                 <SpotLink href={`/restaurant/${r.slug}`}>{name}</SpotLink>
               </h3>
               {meta && <p className={styles.deck}>{meta}</p>}
-              <span
-                className={styles.spotPhoto}
-                data-discovery-motion
-              >
+              <span className={styles.spotPhoto}>
                 <span className={styles.spotPhotoCrop} data-spot-photo>
                   <Photo
                     src={r.photo}
@@ -216,7 +213,7 @@ export function IssueRegister({
               return (
                 <HubFilterCard key={r._id} slugs={facetsOf(r)}>
                   <SpotLink href={`/restaurant/${r.slug}`} className={styles.entry}>
-                    <span className={styles.entryPhoto} data-discovery-motion data-spot-photo>
+                    <span className={styles.entryPhoto} data-spot-photo>
                       <Photo src={r.photo} name={r.name} sizes="80px" widths={[160, 240]} />
                     </span>
                     <span className={styles.entryCopy}>
@@ -365,7 +362,7 @@ export function IssueSiblings({
       <h2 className={styles.secTitle}>{heading}</h2>
       <ul className={styles.siblings}>
         {items.map((item) => (
-          <li key={item.slug} data-discovery-motion>
+          <li key={item.slug}>
             <Link href={`${base}/${item.slug}`}>
               <span className={styles.contentsPhoto}>
                 <Photo

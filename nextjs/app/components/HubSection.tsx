@@ -43,14 +43,14 @@ const copy = {
 
 // Match the height-driven mockups, including the larger desktop hero. Keep
 // small variants for phones and let large/Retina displays request the master.
-const PHONE_WIDTHS = [300, 480, 600, 720, 855, 960, 1282];
+const PHONE_WIDTHS = [300, 480, 600, 720, 855, 960, 985];
 // Container height × each phone's height fraction × the source aspect ratio.
 const FRONT_PHONE_SIZES = '(min-width: 1600px) min(34.3vh, 464px), (max-width: 920px) 202px, min(32.4vh, 306px)';
 const BACK_PHONE_SIZES = '(min-width: 1600px) min(32.1vh, 434px), (max-width: 920px) 189px, min(30.4vh, 287px)';
 
 function phoneSrcSet(name: string): string {
   return PHONE_WIDTHS.map(
-    (w) => `/pics/home-phones/${name}${w === 1282 ? '' : `-${w}`}.webp?v=2 ${w}w`
+    (w) => `/pics/home-phones/${name}${w === 985 ? '' : `-${w}`}.webp?v=3 ${w}w`
   ).join(', ');
 }
 
@@ -107,12 +107,12 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className={styles.phoneBack}
-                  src="/pics/home-phones/phone-restaurant-red-480.webp?v=2"
+                  src="/pics/home-phones/phone-restaurant-red-480.webp?v=3"
                   srcSet={phoneSrcSet('phone-restaurant-red')}
                   sizes={BACK_PHONE_SIZES}
                   alt=""
-                  width={1282}
-                  height={2604}
+                  width={985}
+                  height={2000}
                   loading="lazy"
                   decoding="async"
                 />
@@ -122,12 +122,12 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className={styles.phoneFront}
-                  src="/pics/home-phones/phone-map-red-480.webp?v=2"
+                  src="/pics/home-phones/phone-map-red-480.webp?v=3"
                   srcSet={phoneSrcSet('phone-map-red')}
                   sizes={FRONT_PHONE_SIZES}
                   alt={t.heroPhonesAlt}
-                  width={1282}
-                  height={2604}
+                  width={985}
+                  height={2000}
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"

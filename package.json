@@ -9,6 +9,7 @@
     "node": ">=20.19 <21"
   },
   "scripts": {
+    "rea": "npx --yes --package=node@22.22.2 --package=rea-agents@6.4.0 -- rea",
     "dev": "npm run dev --prefix nextjs",
     "build": "npm run build --prefix nextjs",
     "test": "npm test --prefix nextjs",

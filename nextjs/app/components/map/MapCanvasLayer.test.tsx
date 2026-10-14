@@ -88,6 +88,8 @@ function mapRefWithBounds(west: number, south: number, east: number, north: numb
       getEast: () => east,
       getNorth: () => north,
     }),
+    getZoom: () => 12,
+    getContainer: () => document.createElement('div'),
     on: () => {},
     off: () => {},
   };
@@ -178,36 +180,38 @@ describe('MapCanvasLayer draws every spot on its own', () => {
   });
 });
 
-/* Steht eine Detailansicht offen, tritt der Rest der Karte zurück — sonst
-   verschwindet der eine Spot, um den es geht, zwischen 400 gleich hellen
-   Pins, und genau darin sollte man sich umsehen können. */
-describe('MapCanvasLayer shrinks everything but the open spot', () => {
-  const small = () => document.querySelectorAll('[class*="pinLogoSmall"]');
+/* Steht eine Detailansicht offen, steht ihr Spot groß über den anderen —
+   sonst verschwindet er zwischen 400 gleich großen Pins, und genau darin
+   sollte man sich umsehen können. Alle anderen bleiben in Listengröße. */
+describe('MapCanvasLayer raises the focused spot', () => {
+  const active = () => document.querySelectorAll('[aria-pressed="true"]');
 
-  it('leaves every pin at full strength while no detail is open', async () => {
+  it('leaves every pin in list size while no detail is open', async () => {
     render(layer(spread('spot-1', 'spot-2', 'spot-3')));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(small()).toHaveLength(0);
+    expect(active()).toHaveLength(0);
   });
 
-  it('shrinks the others but never the open spot', async () => {
+  it('raises the open spot and paints it last', async () => {
     const target = spot('spot-2');
     render(layer([spot('spot-1'), target, spot('spot-3'), spot('spot-4')], target));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(small()).toHaveLength(3);
-    expect(screen.getByLabelText('spot-2').className).not.toMatch(/pinLogoSmall/);
+    expect(active()).toHaveLength(1);
+    expect(screen.getByLabelText('spot-2').className).toMatch(/pinLogoActive/);
+    expect(screen.getAllByRole('button').at(-1)).toBe(screen.getByLabelText('spot-2'));
   });
 
   /* Ein offenes Must Eat setzt `selectedRestaurant` auf null (siehe
      handleMustEatClick), gehört aber zu einem Spot — auf der Karte ist das
-     derselbe Punkt, und der muss stehen bleiben. */
-  it('keeps the must-eat spot lit when nothing is selected', async () => {
-    render(layer(spread('spot-1', 'spot-2'), null, 'spot-2'));
+     derselbe Punkt, und der steht genauso hervorgehoben. */
+  it('raises the must-eat spot when nothing is selected', async () => {
+    render(layer(spread('spot-1', 'spot-2', 'spot-3'), null, 'spot-2'));
     await waitFor(() => expect(screen.getAllByRole('button')).not.toHaveLength(0));
 
-    expect(small()).toHaveLength(1);
-    expect(screen.getByLabelText('spot-2').className).not.toMatch(/pinLogoSmall/);
+    expect(active()).toHaveLength(1);
+    expect(screen.getAllByLabelText('spot-2')).toHaveLength(1);
+    expect(screen.getByLabelText('spot-2').className).toMatch(/pinLogoActive/);
   });
 });

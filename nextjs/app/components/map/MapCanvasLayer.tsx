@@ -38,6 +38,23 @@ const ENTER_WINDOW_MS = 460 + ENTER_STAGGER_MS * ENTER_STAGGER_CAP;
    tight is visible popping. */
 const VIEWPORT_MARGIN = 0.6;
 
+/* Pins wachsen mit dem Zoom und stehen ab Straßenebene fest (Betreiber,
+   14.10.2026: weit draußen wirkten sie zu groß, und beim Zoomen änderte sich
+   nichts). Über der Stadt überlappen 400 gleich große Pins zu einer Fläche;
+   kleiner bleibt jeder einzelne lesbar. Unter PIN_ZOOM_FROM bleibt es bei
+   PIN_ZOOM_MIN, ab PIN_ZOOM_TO bei voller Größe — dazwischen linear. Das
+   Ergebnis steht als `--map-pin-zoom` am Container und wirkt als CSS-`scale`
+   auf .pinLogo (MapMarkers.module.css), nicht über React: ein Render pro
+   Zoom-Frame für jeden Marker wäre viel teurer als eine Variable. */
+const PIN_ZOOM_FROM = 11;
+const PIN_ZOOM_TO = 15;
+const PIN_ZOOM_MIN = 0.72;
+
+const pinZoomScale = (zoom: number) => {
+  const t = Math.min(Math.max((zoom - PIN_ZOOM_FROM) / (PIN_ZOOM_TO - PIN_ZOOM_FROM), 0), 1);
+  return (PIN_ZOOM_MIN + (1 - PIN_ZOOM_MIN) * t).toFixed(2);
+};
+
 /* The entire react-map-gl / maplibre-gl surface — the canvas plus every
    marker — lives behind this single component so it can be code-split into
    one lazy chunk (see the `next/dynamic` boundary in MapSectionBody). The
@@ -52,8 +69,8 @@ interface MapCanvasLayerProps {
   selectedRestaurant: MapRestaurant | null;
   onRestaurantClick: (r: MapRestaurant) => void;
   /** Der Spot, um den es gerade geht — offene Detailansicht oder offenes
-   *  Must Eat. Ist er gesetzt, treten alle anderen Pins zurück, damit auf der
-   *  Karte sichtbar bleibt, welcher gemeint ist. `null` heißt: keine
+   *  Must Eat. Sein Pin steht groß und mit Glanz über den anderen, damit auf
+   *  der Karte sichtbar bleibt, welcher gemeint ist. `null` heißt: keine
    *  Detailansicht offen, alle Pins stehen gleich. */
   focusedRestaurantId: string | null;
   location: UserLocation | null;
@@ -95,18 +112,14 @@ export default function MapCanvasLayer({
     return () => window.clearTimeout(id);
   }, [entering]);
 
-  const selectedId = selectedRestaurant?._id ?? null;
-
-  /* Steht eine Detailansicht offen, tritt alles zurück, was nicht der Spot
-     darin ist. Der Zweck ist nicht Dekoration: sobald 400 gleich helle Pins
-     im Bild stehen, ist der eine, um den es geht, nicht mehr zu finden — und
-     genau das braucht man, um auf der Karte herumzuschauen, wo er liegt.
-     Sichtbar bleiben sie trotzdem, und anklickbar auch; sie sind nur kleiner
-     (`pinLogoSmall` in MapMarkers.module.css). */
-  const isRecessed = useCallback(
-    (r: MapRestaurant) => focusedRestaurantId !== null && r._id !== focusedRestaurantId,
-    [focusedRestaurantId]
-  );
+  /* Beim Must-Eat-Detail ist `selectedRestaurant` null, das Gericht gehört
+     aber zu einem Spot — der steht dann genauso hervorgehoben. */
+  const focusedRestaurant =
+    selectedRestaurant ??
+    (focusedRestaurantId
+      ? displayedRestaurants.find((r) => r._id === focusedRestaurantId) ?? null
+      : null);
+  const focusedId = focusedRestaurant?._id ?? null;
 
   /* Culling window, refreshed when the camera settles. `null` until the map
      reports in — everything renders then, which is also the fallback if the
@@ -137,11 +150,30 @@ export default function MapCanvasLayer({
     };
   }, [mapRef, painted]);
 
+  useEffect(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const container = map.getContainer();
+    let current = '';
+    /* Per zoom frame, but only a write when the rounded value moves. */
+    const apply = () => {
+      const scale = pinZoomScale(map.getZoom());
+      if (scale === current) return;
+      current = scale;
+      container.style.setProperty('--map-pin-zoom', scale);
+    };
+    apply();
+    map.on('zoom', apply);
+    return () => {
+      map.off('zoom', apply);
+    };
+  }, [mapRef, painted]);
+
   /* Every spot is its own marker — no grouping — but only the ones near the
      viewport get a DOM node. Production carried 169 markers at the default
      camera before ungrouping; without this the same camera would mount 340.
-     The open spot is filtered out here and re-added below, so it always paints
-     last and over whatever sits beneath it. */
+     The focused spot is filtered out here and re-added below, so it always
+     paints last and over whatever sits beneath it. */
   const inView = useCallback(
     (r: MapRestaurant) =>
       !bounds ||
@@ -150,8 +182,8 @@ export default function MapCanvasLayer({
   );
 
   const pins = useMemo(
-    () => displayedRestaurants.filter((r) => r._id !== selectedId && inView(r)),
-    [displayedRestaurants, selectedId, inView]
+    () => displayedRestaurants.filter((r) => r._id !== focusedId && inView(r)),
+    [displayedRestaurants, focusedId, inView]
   );
 
   return (
@@ -173,19 +205,18 @@ export default function MapCanvasLayer({
             key={restaurant._id}
             restaurant={restaurant}
             isSelected={false}
-            isRecessed={isRecessed(restaurant)}
             onClick={onRestaurantClick}
             enterDelayMs={entering ? Math.min(i, ENTER_STAGGER_CAP) * ENTER_STAGGER_MS : null}
           />
         ))}
-      {/* The open spot, always its own pin and always last so it paints over
-          the group it came out of. It also covers the deep-link case, where
-          the selection can sit outside the visible set entirely (an old share
+      {/* The focused spot, always its own pin and always last so it paints
+          over its neighbours. It also covers the deep-link case, where the
+          selection can sit outside the visible set entirely (an old share
           link) — without it the camera would visibly centre on nothing. */}
-      {painted && selectedRestaurant && (
+      {painted && focusedRestaurant && (
         <RestaurantMarker
-          key={selectedRestaurant._id}
-          restaurant={selectedRestaurant}
+          key={focusedRestaurant._id}
+          restaurant={focusedRestaurant}
           isSelected
           onClick={onRestaurantClick}
           enterDelayMs={entering ? 0 : null}

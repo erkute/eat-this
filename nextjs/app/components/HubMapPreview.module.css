@@ -135,15 +135,8 @@
 .map :global(.maplibregl-marker) [aria-pressed='true'] {
   --pin-scale: 1.12;
 }
-/* Der ausgewählte Pin im selben Rot wie die anderen, nur grösser und mit
-   leichtem Glanz (Betreiber, 14.10.2026) — kein helleres Rosa mehr. Die Form
-   schneidet `clip-path` am Pin selbst, der Glanz bleibt also in ihr. */
-.map :global(.maplibregl-marker) [aria-pressed='true'] > [aria-hidden='true'] {
-  background:
-    linear-gradient(145deg, rgb(255 255 255 / 0.42) 0%, rgb(255 255 255 / 0.12) 30%, rgb(255 255 255 / 0) 48%),
-    linear-gradient(325deg, rgb(0 0 0 / 0.2) 0%, rgb(0 0 0 / 0) 38%),
-    var(--et-accent);
-}
+/* Den Glanz des ausgewählten Pins bringt .pinLogoActive selbst mit
+   (MapMarkers.module.css) — hier und auf der Map derselbe. */
 
 .mapStatus {
   position: absolute;

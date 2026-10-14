@@ -7,9 +7,6 @@ import styles from './MapMarkers.module.css';
 interface RestaurantMarkerProps {
   restaurant: MapRestaurant;
   isSelected: boolean;
-  /** Eine Detailansicht steht offen und meint einen anderen Spot — dieser
-   *  hier tritt zurück. Bleibt sichtbar und anklickbar, nur leiser. */
-  isRecessed?: boolean;
   onClick: (restaurant: MapRestaurant) => void;
   /** Milliseconds to hold this pin back during the first-load drop-in, or
    *  `null` outside that window — a pin that mounts later (filter change)
@@ -20,7 +17,6 @@ interface RestaurantMarkerProps {
 function RestaurantMarker({
   restaurant,
   isSelected,
-  isRecessed = false,
   onClick,
   enterDelayMs = null,
 }: RestaurantMarkerProps) {
@@ -40,7 +36,6 @@ function RestaurantMarker({
         styles.pinLogo,
         isSelected && styles.pinLogoActive,
         restaurant.mustEatCount > 0 && styles.pinLogoHasMust,
-        isRecessed && styles.pinLogoSmall,
         enterDelayMs !== null && styles.pinLogoEnter,
       ]
         .filter(Boolean)
@@ -55,8 +50,8 @@ function RestaurantMarker({
       }
     >
       <span className={styles.pinLogoShape} aria-hidden="true">
-        {/* 128px-Variante: das Logo sitzt hier in einem 31px breiten Slot (82%
-            von 38px, 41px am aktiven Pin), und davon stehen bis zu 55 Stück
+        {/* 128px-Variante: das Logo sitzt hier in einem 25–80px breiten Slot
+            (82% der Pinbreite), und davon stehen bis zu 55 Stück
             gleichzeitig auf der Karte. Die große Datei war 1058×1119 und
             37 kB — jeder Pin skalierte ein 1-Megapixel-Bitmap auf Daumennagel-
             größe herunter. */}
@@ -83,7 +78,6 @@ export default memo(
     prev.restaurant.lat === next.restaurant.lat &&
     prev.restaurant.lng === next.restaurant.lng &&
     prev.isSelected === next.isSelected &&
-    prev.isRecessed === next.isRecessed &&
     prev.onClick === next.onClick &&
     prev.enterDelayMs === next.enterDelayMs
 );

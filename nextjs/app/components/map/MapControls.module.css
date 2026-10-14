@@ -330,6 +330,12 @@
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* Providence-Unterlängen reichen unter die Zeile, und `overflow: hidden`
+     (trägt das Ellipsis) schnitt dem „g“ in „Bürgermeister“ den Bogen ab
+     (Betreiber, 14.10.2026). Das Polster liegt innerhalb der Kappung, der
+     negative Rand hält den Abstand zur Bezirkszeile gleich. */
+  padding-bottom: 0.22em;
+  margin-bottom: -0.22em;
 }
 
 .mapSearchSuggestionMeta,

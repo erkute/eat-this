@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet; 033-036 am 14.10.2026 ergänzt.",
+  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet; 033-038 am 14.10.2026 ergänzt. Eine order gehört genau einem Must Eat: das Deck legt pro Must Eat einen Platz an, eine Karte an mehreren Filialen erscheint dort doppelt.",
   "cards": [
     {
       "order": 1,
@@ -289,6 +289,22 @@
       "dish": "Loup de Mer",
       "descriptionEn": "Grilled in banana leaf with Abb paste, served with pickled mango and celery.",
       "description": "Im Bananenblatt gegrillt mit Abb-Paste, dazu eingelegte Mango und Sellerie."
+    },
+    {
+      "order": 37,
+      "file": "Main-36.png",
+      "spot": "Fukagawa Ramen XBerg",
+      "dish": "Truffle Ramen",
+      "descriptionEn": "Signature ramen with homemade truffle foam and truffle oil.",
+      "description": "Signature-Ramen mit hausgemachtem Trüffelschaum und Trüffelöl."
+    },
+    {
+      "order": 38,
+      "file": "Main-37.png",
+      "spot": "Standard Serious Pizza",
+      "dish": "Miraflores",
+      "descriptionEn": "Fig gazpacho, stracciatella, smoked swordfish ceviche, figs and hazelnuts.",
+      "description": "Feigen-Gazpacho, Stracciatella, geräuchertes Schwertfisch-Ceviche, Feigen und Haselnüsse."
     }
   ]
 }

@@ -61,7 +61,7 @@ export default function RestaurantDiscovery({
                         <img
                           src={spot.photo}
                           srcSet={sanitySrcSet(spot.photo, [400, 640, 960])}
-                          sizes="(max-width: 767px) 44vw, 270px"
+                          sizes="(max-width: 359px) 92px, (max-width: 767px) 44vw, 372px"
                           alt=""
                           loading="lazy"
                           decoding="async"

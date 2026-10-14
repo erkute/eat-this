@@ -135,7 +135,7 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
                 <SiteImage
                   key={selected._id}
                   src={selected.photo!}
-                  sizes={`(max-width: 767px) ${Math.ceil(112 * coverImageScale(selected.photo, 1))}px, ${scaleSizes('(max-width: 1100px) 35vw, 450px', coverImageScale(selected.photo, 16 / 10))}`}
+                  sizes={`(max-width: 767px) ${Math.ceil(112 * coverImageScale(selected.photo, 1))}px, ${scaleSizes('(max-width: 1100px) 35vw, (min-width: 1600px) 31vw, 450px', coverImageScale(selected.photo, 16 / 10))}`}
                   alt={selected.name}
                   fill
                   loading="lazy"

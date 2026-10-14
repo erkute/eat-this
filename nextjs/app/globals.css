@@ -213,6 +213,7 @@
   --et-z-reveal: 10010; /* Must-Eat-Aufdecken */
   --et-z-sheet: 10020; /* Vollbild-Layer: AllBerlin-Sheet, Must-Eat-Zoom */
   --et-z-tour: 10025; /* Einführungs-Layer (Tour, Must-Eats-Onboarding) */
+  --et-z-email-link: 10027; /* Bestätigung des Mail-Links — über jeder Einführung */
   --et-z-auth: 10030; /* Wartescreen beim An- und Abmelden */
   --et-z-picker: 11000; /* Filter-Picker der Karte: Vorhang … */
   --et-z-picker-sheet: 11010; /* … und Blatt */

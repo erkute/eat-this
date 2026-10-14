@@ -44,12 +44,9 @@ export default function BridgeAuth() {
   const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
 
   // Ein Login, der waehrend des offenen Modals durchgeht (Google-Popup),
-  // bleibt jetzt auf der Seite stehen, auf der er angefangen hat. Vorher
-  // sprang er auf die Startseite: wer auf einem Spot stand und sich dort
-  // anmeldete, musste den Spot danach wieder suchen (Nutzer, 29.08.2026). Das
-  // Modal liegt UEBER der Seite, die gemeint ist — also reicht Zumachen. Der
-  // Mail-Weg fuehrt ueber die Continue-URL an dieselbe Stelle zurueck (siehe
-  // lib/auth/loginContinueUrl.ts).
+  // schliesst das Modal; ins Profil schickt danach EmailLinkSignIn, auf das
+  // Signal der Anmelde-Tafel hin (lib/auth/afterSignIn.ts). Die Absicht des
+  // Griffs (Karte, Herz) loest das Profil ein.
   //
   // Gehalten wird vorher: der Wartescreen (AuthScreen) haengt im Panel, also
   // an genau diesem Modal. Schliesst es in derselben Runde, in der Firebase

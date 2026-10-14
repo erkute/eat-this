@@ -446,8 +446,23 @@
   .issueLabel { text-align: center; }
 }
 
+/* Ab 1440px dichter wie die Auslage bei 032c (Betreiber, 14.10.2026): fünf,
+   ab 1800px sechs Hefte in der Reihe, engere Fugen. Die Neigung (bis 1,4°)
+   braucht seitlich nur ~4px, 16px Fuge reichen. */
+@media (min-width: 1440px) {
+  .shell { width: min(100%, 2400px); }
+  .shelf {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 56px 16px;
+  }
+  .magTitle { margin-top: 20px; font-size: clamp(17px, 1.15vw, 20px); }
+}
+
+@media (min-width: 1800px) {
+  .shelf { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
 @media (min-width: 1600px) {
-  .shell { width: min(100%, 1880px); }
   .page { --issue-w: clamp(360px, 22vw, 520px); }
   .currentTitle { font-size: clamp(32px, 2.1vw, 48px); }
 }

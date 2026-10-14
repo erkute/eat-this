@@ -14,10 +14,14 @@ interface Props {
   spots: MapRestaurant[];
   selectedId: string | null;
   onSelect: (spot: MapRestaurant) => void;
+  /** Welche Spots als Pin auf der Karte stehen — „In der Nähe" zeigt nur die. */
+  onVisibleChange?: (spots: MapRestaurant[]) => void;
   loadingLabel: string;
   unavailableLabel: string;
 }
-const FIT_OPTIONS = { padding: { top: 64, bottom: 24, left: 36, right: 44 }, maxZoom: 13.5, duration: 0 };
+// Bis Strassenebene (14,2): die Vorschau rahmt die dichteste Ecke
+// (nearbyCluster), nicht mehr ganz Berlin.
+const FIT_OPTIONS = { padding: { top: 64, bottom: 24, left: 36, right: 44 }, maxZoom: 14.2, duration: 0 };
 const fitOptions = () => typeof window !== 'undefined' && window.innerWidth >= 1024
   ? { ...FIT_OPTIONS, padding: { top: 144, bottom: 24, left: 80, right: 80 } }
   : FIT_OPTIONS;
@@ -26,7 +30,7 @@ const spotBounds = (spots: MapRestaurant[]): [number, number, number, number] =>
   Math.max(...spots.map((spot) => spot.lng)), Math.max(...spots.map((spot) => spot.lat)),
 ];
 
-export default function HomeMapCanvas({ spots, selectedId, onSelect, loadingLabel, unavailableLabel }: Props) {
+export default function HomeMapCanvas({ spots, selectedId, onSelect, onVisibleChange, loadingLabel, unavailableLabel }: Props) {
   const mapRef = useRef<MapRef>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -67,8 +71,10 @@ export default function HomeMapCanvas({ spots, selectedId, onSelect, loadingLabe
       if (pins.length > best.count) best = { bounds: candidateBounds, spots: candidates, count: pins.length };
     }
     map.fitBounds(best.bounds, options);
-    setVisibleSpots(spreadPreviewPins(best.spots, (spot) => map.project([spot.lng, spot.lat]), selectedRef.current, spacing));
-  }, [bounds, spots]);
+    const visible = spreadPreviewPins(best.spots, (spot) => map.project([spot.lng, spot.lat]), selectedRef.current, spacing);
+    setVisibleSpots(visible);
+    onVisibleChange?.(visible);
+  }, [bounds, spots, onVisibleChange]);
   const loaded = useCallback(() => {
     const map = mapRef.current?.getMap();
     const attribution = map?.getContainer().querySelector<HTMLDetailsElement>('.maplibregl-ctrl-attrib');

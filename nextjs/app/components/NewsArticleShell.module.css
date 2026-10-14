@@ -603,8 +603,13 @@ div.page {
   display: block;
   aspect-ratio: 3 / 2;
   background-color: var(--article-quiet);
-  background-position: center;
-  background-size: cover;
+}
+
+.inlineSpotPhoto img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Die Bildunterschrift wie die Credits bei Kaleidoscope: mittig, oben
@@ -1223,8 +1228,22 @@ div.page {
   line-height: 1.4;
 }
 @media (min-width: 1024px) {
-  .page { --article-measure: 768px; }
+  .page {
+    --article-measure: 768px;
+    /* Fotos und Spot-Bilder ragen links und rechts über die Lesespalte
+       hinaus (Betreiber, 14.10.2026); der Text bleibt bei 768px. */
+    --article-wide: min(1040px, calc(100vw - 108px));
+  }
   .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }
+  .inlineImage {
+    --img-frame: var(--article-wide);
+    --img-offset: calc((100% - var(--article-wide)) / 2);
+    --img-max-h: min(78vh, 720px);
+  }
+  .inlineSpot {
+    width: var(--article-wide);
+    margin-inline: calc((100% - var(--article-wide)) / 2);
+  }
 }
 @media (max-width: 767.98px) {
   .imageRow { flex-direction: column; gap: 24px; }

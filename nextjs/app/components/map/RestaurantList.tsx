@@ -189,13 +189,14 @@ const Item = memo(
                     <img
                       src={sanityImageLoader({ src: img.full, width: 600 })}
                       /* One fixed 600px variant for every device was soft on a 3x
-                       phone (the card is ~362 CSS px wide) and oversized for the
-                       280px desktop column. */
+                       phone (the card is ~362 CSS px wide). The desktop panel is
+                       clamp(380px, 25vw, 420px) wide (MapLayout.module.css);
+                       below 1024px the sheet spans the screen, the iPad too. */
                       /* Dieselben Stufen wie die Fotos im Restaurant-Detail
                        (lib/map/spotPhoto.ts) — so kommt dort das erste Foto aus
                        dem Cache. */
                       srcSet={spotPhotoSrcSet(img.full)}
-                      sizes="(max-width: 767.98px) 94vw, 280px"
+                      sizes="(max-width: 1023.98px) 94vw, 400px"
                       alt=""
                       /* Das Nachbarfoto muss schon da sein, wenn der Finger es
                        hereinzieht — `lazy` lädt im Querstreifen erst, wenn es

@@ -164,7 +164,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                       date={a.date}
                       locale={locale}
                       cover={a.cover}
-                      sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, (min-width: 1600px) 420px, 260px"
+                      sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, (max-width: 1439.98px) 260px, (max-width: 1799.98px) calc(20vw - 35px), calc(16.7vw - 31px)"
                       widths={[320, 480, 800, 1200]}
                     />
                     <h3 className={styles.magTitle}>{titleOf(a)}</h3>

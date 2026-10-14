@@ -4,7 +4,7 @@ import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, useId,
 import gsap from 'gsap';
 import { useLoginModal } from '@/lib/auth';
 import { guardSwipeClick } from '@/lib/home/guardSwipeClick';
-import { dealMustEatCards } from '@/lib/home/mustEatCardMotion';
+import { dealMustEatCards, readPileSnapshot, type PileSnapshot } from '@/lib/home/mustEatCardMotion';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
@@ -88,11 +88,12 @@ export default function HubMustEatsTeaser() {
   }, [cards]);
   const [dealState, setDealState] = useState<'stacked' | 'dealing' | 'spread'>('stacked');
   const deckId = useId();
-  const pileOrigin = useRef<DOMRect | null>(null);
+  const pileSnapshot = useRef<PileSnapshot | null>(null);
   const keyboardDeal = useRef(false);
   const deal = (event: MouseEvent<HTMLButtonElement>) => {
     if (dealState !== 'stacked') return;
-    pileOrigin.current = event.currentTarget.querySelector('[data-pile-cards]')!.getBoundingClientRect();
+    const pile = event.currentTarget;
+    pileSnapshot.current = readPileSnapshot(pile, pile.parentElement!);
     keyboardDeal.current = event.detail === 0;
     setDealState(prefersReducedMotion() ? 'spread' : 'dealing');
   };
@@ -102,8 +103,8 @@ export default function HubMustEatsTeaser() {
     if (dealState === 'spread' && keyboardDeal.current) {
       deck.querySelector<HTMLElement>('a, button')?.focus({ preventScroll: true });
     }
-    if (dealState !== 'dealing' || !pileOrigin.current) return;
-    return dealMustEatCards(deck, pileOrigin.current, () => setDealState('spread'));
+    if (dealState !== 'dealing' || !pileSnapshot.current) return;
+    return dealMustEatCards(deck, pileSnapshot.current, () => setDealState('spread'));
   }, [dealState]);
 
   if (!cards.length) return null;
@@ -185,7 +186,7 @@ export default function HubMustEatsTeaser() {
             {dealState === 'stacked' && (
               <button type="button" className={styles.pile} onClick={deal}
                 aria-controls={deckId} aria-expanded={false} aria-label={t('mustEats.teaserDeal')} data-deal-pile="">
-                <span className={styles.pileCards} data-pile-cards="" aria-hidden="true">
+                <span className={styles.pileCards} aria-hidden="true">
                   {Array.from({ length: cards.length + (covered ? 1 : 0) }, (_, index) => (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img key={index} src="/pics/card-back.webp?v=7" alt="" width={760} height={1044}
@@ -270,7 +271,7 @@ export default function HubMustEatsTeaser() {
                 );
               })}
             </ul>
-            <p className={styles.browseHint}>{t('mustEats.teaserBrowse')}</p>
+            <p className={styles.browseHint} data-deal-hint="">{t('mustEats.teaserBrowse')}</p>
           </div>
           <div className={styles.foot}>
             <MapIntentLink href="/must-eats" className={`hv-btn ${styles.cta}`}>

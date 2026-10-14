@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      browser: ${{ steps.browser.outputs.run }}
     defaults:
       run:
         working-directory: nextjs
@@ -119,12 +121,11 @@ jobs:
       - run: npm run build:isolated
         if: steps.scope.outputs.code == 'true'
 
-      # Browser, Barrierefreiheit und Lighthouse kosten rund 16 der ~20 Minuten
-      # dieses Jobs. Sie laufen nur im PR nach `staging` – dort kommt neuer
-      # Code herein. Der Release-PR `staging → main` und die Pushes danach
-      # tragen nur schon geprüften Code weiter; sie bauen, linten und testen,
-      # brauchen dafür aber ~4 statt ~20 Minuten. Vorher wartete jedes Release
-      # zweimal 20 Minuten, und ein Push auf `staging` brach den laufenden
+      # Browser, Barrierefreiheit und Lighthouse laufen nur im PR nach
+      # `staging` – dort kommt neuer Code herein. Der Release-PR `staging → main`
+      # und die Pushes danach tragen nur schon geprüften Code weiter; sie bauen,
+      # linten und testen in ~4 Minuten. Vorher wartete jedes Release zweimal
+      # auf die Browser-Prüfung, und ein Push auf `staging` brach den laufenden
       # Check ab (07.10.2026). Die Live-Messung auf `main` macht lighthouse.yml.
       - name: Browser-Prüfung nötig?
         id: browser
@@ -132,44 +133,24 @@ jobs:
         working-directory: .
         run: echo "run=${{ github.event_name == 'pull_request' && github.base_ref == 'staging' }}" >> "$GITHUB_OUTPUT"
 
-      # Sonst rund 25 s. Am 07.10.2026 hing der Schritt 23 Minuten (apt) und
-      # hielt das Release fest, ohne rot zu werden.
-      - name: Install Chromium and WebKit
+      # Der Build für die Jobs `e2e` und `lighthouse` unten. Sie bauen nicht
+      # selbst: sechs weitere Builds kosteten je gut zwei Minuten, und jeder
+      # Fehlgriff beim Fetch-Cache zöge 952 Anfragen aus dem Sanity-Kontingent
+      # (siehe oben). Mit kommt nur, was `next start` braucht, plus der
+      # Fetch-Cache für Seiten, die erst zur Laufzeit rendern; ohne den
+      # Webpack-Cache (1,5 GB) und das Standalone-Bundle.
+      - name: Build für die Browser-Prüfung packen
         if: steps.browser.outputs.run == 'true'
-        timeout-minutes: 5
-        run: npx playwright install --with-deps chromium webkit
-
-      - uses: actions/setup-java@v4
+        run: tar --zstd -cf /tmp/next-verify.tar.zst --exclude=.next-verify/cache/webpack --exclude=.next-verify/standalone --exclude=.next-verify/trace --exclude=.next-verify/types .next-verify
+      - uses: actions/upload-artifact@v4
         if: steps.browser.outputs.run == 'true'
         with:
-          distribution: temurin
-          java-version: '21'
-
-      # Public card metadata comes from Sanity; Firestore/Storage use synthetic
-      # fixtures in a demo project. PR code receives no production credentials.
-      - name: Browser flows, accessibility and Lighthouse (this build)
-        if: steps.browser.outputs.run == 'true'
-        # Browser suite (~15 min) plus 15 Lighthouse runs (~16 min).
-        # Keep room for runner variance without dropping any checks.
-        timeout-minutes: 45
-        env:
-          FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
-        run: |
-          export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
-          npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npm run test:e2e && npm run audit:preview"
-
-      - name: Browser and Lighthouse evidence
-        if: always() && steps.browser.outputs.run == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-quality-${{ github.run_id }}
-          path: |
-            /tmp/eat-this-playwright-results
-            /tmp/eat-this-lighthouse-preview
-            /tmp/eat-this-mobile-*.png
-            /tmp/eat-this-desktop-*.png
-          retention-days: 7
-          if-no-files-found: ignore
+          name: next-verify-${{ github.run_id }}
+          path: /tmp/next-verify.tar.zst
+          retention-days: 1
+          compression-level: 0
+          # Ein „Re-run“ des Jobs lädt erneut unter demselben Namen hoch.
+          overwrite: true
 
       # Nur auf einem Push sichern, also auf `staging` und `main`. Ein Cache aus
       # einem PR-Lauf ist auf genau diesen PR beschränkt und für keinen anderen
@@ -185,3 +166,126 @@ jobs:
         with:
           path: nextjs/.next-verify/cache/fetch-cache
           key: sanity-verify-fetch-cache-${{ github.run_id }}
+
+  # Browser-Abläufe und Barrierefreiheit. Liefen bis 14.10.2026 mit einem
+  # Worker hinter dem Build und vor Lighthouse im selben Job – 14 von ~35
+  # Minuten je PR. Drei Rechner teilen sich die Specs (`--shard`); jeder hat
+  # eigenen Server und eigene Emulatoren, sie kommen sich also nicht in die
+  # Quere. Innerhalb eines Rechners bleibt es bei einem Worker
+  # (playwright.config.ts): die Tests teilen Server und Emulator-Daten.
+  e2e:
+    needs: nextjs
+    if: needs.nextjs.outputs.browser == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    defaults:
+      run:
+        working-directory: nextjs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: nextjs/package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-verify-${{ github.run_id }}
+          path: /tmp
+      - run: tar --zstd -xf /tmp/next-verify.tar.zst
+
+      # Sonst rund 25 s. Am 07.10.2026 hing der Schritt 23 Minuten (apt) und
+      # hielt das Release fest, ohne rot zu werden.
+      - name: Install Chromium and WebKit
+        timeout-minutes: 5
+        run: npx playwright install --with-deps chromium webkit
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # Public card metadata comes from Sanity; Firestore/Storage use synthetic
+      # fixtures in a demo project. PR code receives no production credentials.
+      - name: Browser flows and accessibility (shard ${{ matrix.shard }}/3)
+        timeout-minutes: 20
+        env:
+          FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
+        run: npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npx playwright test --shard=${{ matrix.shard }}/3"
+
+      - name: Browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-${{ github.run_id }}-${{ matrix.shard }}
+          path: |
+            /tmp/eat-this-playwright-results
+            /tmp/eat-this-mobile-*.png
+            /tmp/eat-this-desktop-*.png
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # Lighthouse gegen diesen Build: fünf Seiten, je drei Läufe, zusammen ~15
+  # Minuten. Die Läufe einer Seite bleiben auf einem Rechner und nacheinander –
+  # parallel auf derselben Maschine verfälschten sie sich gegenseitig die
+  # Werte. Verteilt werden nur die Seiten (LIGHTHOUSE_SHARD in
+  # lighthouserc.preview.cjs).
+  lighthouse:
+    needs: nextjs
+    if: needs.nextjs.outputs.browser == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    defaults:
+      run:
+        working-directory: nextjs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: nextjs/package-lock.json
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-verify-${{ github.run_id }}
+          path: /tmp
+      - run: tar --zstd -xf /tmp/next-verify.tar.zst
+
+      - name: Install Chromium
+        timeout-minutes: 5
+        run: npx playwright install --with-deps chromium
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Lighthouse (shard ${{ matrix.shard }}/3)
+        timeout-minutes: 20
+        env:
+          FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
+          LIGHTHOUSE_SHARD: ${{ matrix.shard }}/3
+        run: |
+          export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
+          npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npm run audit:preview"
+
+      - name: Lighthouse evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-${{ github.run_id }}-${{ matrix.shard }}
+          path: /tmp/eat-this-lighthouse-preview
+          retention-days: 7
+          if-no-files-found: ignore

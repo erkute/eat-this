@@ -186,6 +186,20 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(screen.getByText(/Willkommen bei Eat This/)).toBeTruthy();
   });
 
+  /* Hinter der Tour wechselt die Seite ins Profil — das soll man erst
+     danach sehen (Betreiber, 14.10.2026). */
+  it('deckt ganz: Ink-Grund schon waehrend der Namensabfrage, dann unter der Tour', async () => {
+    let answer: (prefill: null) => void = () => {};
+    identityStep.identityStepPrefill.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+    render(<SignInReward />);
+    await arrive();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.querySelector('[class*="layerSolid"]')).toBeTruthy();
+
+    await act(async () => answer(null));
+    expect(screen.getByRole('dialog').parentElement?.className).toContain('layerSolid');
+  });
+
   it('laesst sich vorher wegklicken', async () => {
     render(<SignInReward />);
     await arrive();
@@ -263,5 +277,43 @@ describe('Meldung der Vergabe', () => {
     const seen = vi.fn();
     arrival.subscribeStarterPackGranted(seen);
     expect(seen).toHaveBeenCalledWith(['a', 'b']);
+  });
+});
+
+describe('Ob die Tour kommt', () => {
+  it('kennt die Antwort auch, wenn sie vor der Frage kam', async () => {
+    const arrival = await freshModule();
+    arrival.settleArrival('u1', true);
+    await expect(arrival.arrivalDecided('u1')).resolves.toBe(true);
+  });
+
+  it('liest eine Antwort nur einmal — die naechste Anmeldung wartet auf ihre eigene', async () => {
+    const arrival = await freshModule();
+    arrival.settleArrival('u1', true);
+    await arrival.arrivalDecided('u1');
+    const answer = vi.fn();
+    void arrival.arrivalDecided('u1').then(answer);
+    await act(async () => {});
+    expect(answer).not.toHaveBeenCalled();
+  });
+
+  it('wartet auf die Antwort fuer genau dieses Konto', async () => {
+    const arrival = await freshModule();
+    const answer = vi.fn();
+    void arrival.arrivalDecided('u1').then(answer);
+    arrival.settleArrival('u2', true);
+    await act(async () => {});
+    expect(answer).not.toHaveBeenCalled();
+    arrival.settleArrival('u1', false);
+    await act(async () => {});
+    expect(answer).toHaveBeenCalledWith(false);
+  });
+
+  it('gibt auf, wenn der Server haengt — ohne Tour', async () => {
+    const arrival = await freshModule();
+    const answer = vi.fn();
+    void arrival.arrivalDecided('u1').then(answer);
+    await act(async () => void vi.advanceTimersByTime(8000));
+    expect(answer).toHaveBeenCalledWith(false);
   });
 });

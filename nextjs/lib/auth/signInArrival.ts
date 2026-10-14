@@ -42,3 +42,50 @@ export function subscribeStarterPackGranted(listener: GrantedListener): () => vo
     listeners.delete(listener);
   };
 }
+
+/**
+ * Ob nach einer Anmeldung die Tour kommt — je Konto.
+ *
+ * Der Weg ins Profil wartet darauf (EmailLinkSignIn). Bis 14.10.2026 ging er
+ * sofort, und das Profil stand offen da, bis `/api/starter-pack` antwortete
+ * und die Tour aufging (Betreiber: „man darf nicht im Vorfeld das Profil
+ * sehen"). Jetzt liegt der Ink-Grund der Tour schon, wenn die Seite wechselt.
+ *
+ * Die Antwort kann vor der Frage kommen — der Auth-Listener feuert, bevor
+ * `signInWithEmailLink` zurückkehrt —, deshalb gemerkt statt nur gemeldet.
+ * Gelesen wird sie nur einmal: eine zweite Anmeldung im selben Seitenleben
+ * wartet auf ihre eigene Antwort statt auf die alte.
+ */
+const ARRIVAL_WAIT_MS = 8000;
+const decided = new Map<string, boolean>();
+const waiters = new Set<() => void>();
+
+/** Nach jeder Runde des Starter-Pack-Abgleichs: `granted` heißt, die Tour kommt. */
+export function settleArrival(uid: string, granted: boolean): void {
+  decided.set(uid, granted);
+  for (const wake of [...waiters]) wake();
+}
+
+/** Löst auf, sobald feststeht, ob die Tour kommt; hängt der Server, nach
+ *  ARRIVAL_WAIT_MS mit `false` — eine verspätete Vergabe öffnet sie trotzdem. */
+export function arrivalDecided(uid: string): Promise<boolean> {
+  const known = decided.get(uid);
+  if (known !== undefined) {
+    decided.delete(uid);
+    return Promise.resolve(known);
+  }
+  return new Promise((resolve) => {
+    const finish = (granted: boolean) => {
+      window.clearTimeout(timer);
+      waiters.delete(wake);
+      decided.delete(uid);
+      resolve(granted);
+    };
+    const wake = () => {
+      const granted = decided.get(uid);
+      if (granted !== undefined) finish(granted);
+    };
+    const timer = window.setTimeout(() => finish(false), ARRIVAL_WAIT_MS);
+    waiters.add(wake);
+  });
+}

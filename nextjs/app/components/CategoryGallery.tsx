@@ -1,6 +1,6 @@
-import { Link } from '@/i18n/navigation';
 import { categoryArt } from '@/lib/categoryArt';
 import Image from './SiteImage';
+import CategoryPackLink from './CategoryPackLink';
 import styles from './CategoryGallery.module.css';
 
 /** Direct category links: the pack is the choice, including on touch screens. */
@@ -21,13 +21,13 @@ export default function CategoryGallery({ items, locale }: {
             const art = categoryArt(item.slug);
             return (
               <li key={item.slug}>
-                <Link href={`/kategorie/${item.slug}`}>
+                <CategoryPackLink slug={item.slug}>
                   <span className={styles.stage}>
                     {art && <Image src={art} alt="" width={200} height={300}
                       sizes="(max-width: 767px) 110px, 170px" priority={index < 3} />}
                   </span>
                   <span className={styles.label}>{item.label}</span>
-                </Link>
+                </CategoryPackLink>
               </li>
             );
           })}

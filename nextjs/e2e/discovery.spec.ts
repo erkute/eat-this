@@ -109,9 +109,10 @@ test('Charlottenburg title, editorial cards, illustrated directory and next dist
   await expect(page.getByRole('heading', { name: 'Eat This Favorites', exact: true })).toBeVisible();
   await cards.first().scrollIntoViewIfNeeded();
   await page.screenshot({ path: `/tmp/eat-this-kiez-qa/${test.info().project.name}-compact-spots.png` });
-  const directory = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Weitere Spots', exact: true }) });
+  const directory = page.getByRole('region', { name: 'Weitere Spots', exact: true });
+  await expect(directory.getByRole('heading', { name: 'Weitere Spots' })).toHaveCount(0);
   expect(await directory.locator('img').count()).toBeGreaterThan(3);
-  await directory.getByRole('heading').scrollIntoViewIfNeeded();
+  await directory.locator('[data-spot-card]').first().scrollIntoViewIfNeeded();
   await expect.poll(() => directory.locator('img').first().evaluate((image) => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   await page.screenshot({ path: `/tmp/eat-this-kiez-qa/${test.info().project.name}-directory.png` });
   const next = page.getByRole('navigation', { name: 'Zur Berlin-Karte', exact: true });

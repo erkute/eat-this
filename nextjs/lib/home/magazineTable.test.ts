@@ -138,7 +138,7 @@ describe('armMagazineTable', () => {
     run(2);
     expect(z(0)).toBeLessThan(Math.min(...[1, 2, 3, 4, 5].map(z)));
     expect(card(0).style.transform).toMatch(
-      /^translate\(0px, 0px\) rotate\(0deg\) translate\(-64%/
+      /^translate\(0px, 0px\) rotate\(0deg\) translate\(-108%/
     );
     stop();
   });

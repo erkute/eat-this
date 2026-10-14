@@ -57,11 +57,11 @@ interface Toss {
 }
 
 const FALLBACK: FanGeometry = {
-  spread: 4,
-  shrink: 0.04,
-  x: [-16, -21],
-  y: [-5, -11],
-  r: [-2.6, -3.8],
+  spread: 3,
+  shrink: 0.035,
+  x: [-36, -40],
+  y: [-4, -9],
+  r: [-1.6, -2.4],
 };
 
 const T = {

@@ -58,7 +58,7 @@ for (const reduced of [false, true]) {
     const target = magazine.locator('[data-deck-index="2"] > a');
     const href = await target.getAttribute('href');
     const issue = await target.locator('[data-cover-issue]').getAttribute('data-cover-issue');
-    await magazine.getByRole('button', { name: 'Story 3 von 6', exact: true }).click();
+    await magazine.getByRole('button', { name: 'Story 3 von 4', exact: true }).click();
     const caption = magazine.locator('[data-magazine-caption]');
     await expect(caption.locator('a')).toHaveAttribute('href', href!);
     await expect(caption).toContainText(`Issue ${issue}`);

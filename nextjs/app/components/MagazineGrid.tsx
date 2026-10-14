@@ -12,7 +12,9 @@ interface Props {
   locale: 'de' | 'en';
 }
 
-const CARD_COUNT = 6;
+/** So viele Hefte, wie der Fächer zeigt (vorderes + `--fan-spread` 3):
+ *  keins kommt beim Blättern aus dem Nichts (Betreiber, 14.10.2026). */
+const CARD_COUNT = 4;
 const DECK_ID = 'hub-magazine-deck';
 
 /**

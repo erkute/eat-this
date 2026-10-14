@@ -5,6 +5,7 @@ import {
   getOpenStatus,
   buildOpeningHoursSpec,
   DAY_LABELS,
+  slotCoversDay,
 } from './openingHours';
 import type { OpeningHourSlot } from '../types';
 
@@ -187,6 +188,17 @@ describe('getOpenStatus', () => {
       changeAt: null,
       nextOpenDay: null,
     });
+  });
+});
+
+describe('slotCoversDay', () => {
+  it('liest Spannen, Listen und „täglich" wie die Öffnungsprüfung', () => {
+    expect(slotCoversDay('Mo-Fr', 3)).toBe(true);
+    expect(slotCoversDay('Mo-Fr', 0)).toBe(false);
+    expect(slotCoversDay('Fr-So', 0)).toBe(true);
+    expect(slotCoversDay('Wed,Thu,Sun ', 4)).toBe(true);
+    expect(slotCoversDay('Täglich', 6)).toBe(true);
+    expect(slotCoversDay(undefined, 1)).toBe(false);
   });
 });
 

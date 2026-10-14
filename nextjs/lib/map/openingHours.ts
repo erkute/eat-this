@@ -123,6 +123,12 @@ function parseDays(str: string): DayIndex[] {
   return result;
 }
 
+/** Does this slot's `days` name the weekday (0 = Sunday)? The detail marks
+ *  today's row with it. */
+export function slotCoversDay(days: string | undefined, day: number): boolean {
+  return parseDays(days ?? '').some((d) => d === day);
+}
+
 /**
  * All time ranges in one slot. Editors type split shifts as a single string
  * ("12:00-15:00,18:00-23:00"), so reading only the first match dropped the

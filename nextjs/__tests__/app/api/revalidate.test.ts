@@ -77,7 +77,10 @@ describe('/api/revalidate', () => {
 
     const pending = POST(mkReq(raw, signature(raw, Date.now())))
     await vi.advanceTimersByTimeAsync(30000)
-    expect(mocks.waitForFreshCdn).toHaveBeenCalledWith('restaurant', 'comedor', { fallbackMs: 5000 })
+    expect(mocks.waitForFreshCdn).toHaveBeenCalledWith(
+      { type: 'restaurant', slug: 'comedor', id: 'x' },
+      { fallbackMs: 5000 }
+    )
     expect(mocks.revalidateTag).not.toHaveBeenCalled()
 
     release('fresh')
@@ -85,6 +88,24 @@ describe('/api/revalidate', () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual(expect.objectContaining({ settled: 'fresh' }))
     expect(mocks.revalidateTag).toHaveBeenCalledWith('restaurant:comedor')
+  })
+
+  // Die Projektion des Hooks schickt bei einer Karte nur `_type` und `_id`.
+  // Ohne die ID kann waitForFreshCdn den Spot nicht finden, auf dessen Seite
+  // die Karte steht, und fällt auf die pauschale Pause zurück (14.10.2026).
+  it('reicht bei einer Must-Eat-Karte die Dokument-ID an den CDN-Abgleich', async () => {
+    process.env.SANITY_WEBHOOK_SETTLE_MS = '5000'
+    mocks.waitForFreshCdn.mockResolvedValue('fresh')
+    const raw = JSON.stringify({ _id: 'must-eat-boii-boii-pla-tod', _type: 'mustEat', slug: null })
+
+    const res = await POST(mkReq(raw, signature(raw, Date.now())))
+
+    expect(mocks.waitForFreshCdn).toHaveBeenCalledWith(
+      { type: 'mustEat', slug: undefined, id: 'must-eat-boii-boii-pla-tod' },
+      { fallbackMs: 5000 }
+    )
+    expect(await res.json()).toEqual(expect.objectContaining({ settled: 'fresh' }))
+    expect(mocks.revalidateTag).toHaveBeenCalledWith('mustEat')
   })
 
   it('invalidiert trotzdem, wenn der CDN-Abgleich scheitert', async () => {

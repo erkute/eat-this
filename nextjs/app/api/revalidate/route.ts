@@ -115,14 +115,18 @@ export async function POST(req: NextRequest) {
   // bis zur 24-Stunden-Frist fest (09.10.2026 Comedor, 10.10.2026 zwei von 29
   // Artikeln trotz fünf Sekunden Pause). Für Artikel und Restaurants wartet
   // waitForFreshCdn, bis das CDN dieselbe Abfrage wie die Seite frisch
-  // beantwortet; sonst eine feste Pause. `SANITY_WEBHOOK_SETTLE_MS=0` schaltet
+  // beantwortet — bei einer Must-Eat-Karte die Seite ihres Spots (14.10.2026
+  // Boii Boii); sonst eine feste Pause. `SANITY_WEBHOOK_SETTLE_MS=0` schaltet
   // das Warten ab (Tests).
   const settleMs = Number(process.env.SANITY_WEBHOOK_SETTLE_MS ?? 5000);
   const slugForSettle = typeof doc.slug === 'string' ? doc.slug : doc.slug?.current;
   let settled = 'off';
   if (Number.isFinite(settleMs) && settleMs > 0) {
     try {
-      settled = await waitForFreshCdn(doc._type, slugForSettle, { fallbackMs: settleMs });
+      settled = await waitForFreshCdn(
+        { type: doc._type, slug: slugForSettle, id: doc._id },
+        { fallbackMs: settleMs }
+      );
     } catch (err) {
       // Sanity nicht erreichbar: lieber jetzt invalidieren als gar nicht.
       settled = 'error';

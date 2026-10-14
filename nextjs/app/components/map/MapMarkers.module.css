@@ -106,13 +106,17 @@
   }
 }
 
+/* Die Must-Eat-Karte hängt an der Pin-Größe: 40 % seiner Breite, an derselben
+   Ecke, und sie folgt `--pin-scale` um denselben Punkt (Mitte unten) wie
+   .pinLogoShape. So wächst sie mit dem aktiven Spot mit, auf der Map wie in
+   der Startseiten-Vorschau, ohne eigene Maße je Zustand. */
 .pinLogoHasMust::after {
   content: '';
   position: absolute;
-  top: -8px;
-  right: -9px;
-  width: 15px;
-  height: 21px;
+  top: calc((1 - 1.19 * var(--pin-scale, 1)) * 100%);
+  right: calc((0.5 - 0.74 * var(--pin-scale, 1)) * 100%);
+  width: calc(40% * var(--pin-scale, 1));
+  aspect-ratio: 5 / 7;
   background: transparent url('/pics/card-back-sm.webp?v=6') center/contain no-repeat;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   transform: rotate(10deg);
@@ -184,13 +188,6 @@
   }
 }
 
-.pinLogoActive.pinLogoHasMust::after {
-  top: -9px;
-  right: -10px;
-  width: 18px;
-  height: 25px;
-}
-
 /* Informational user-location marker ----------------------------------- */
 
 .userLoc {
@@ -220,8 +217,6 @@
      wirkten am Desktop zu groß. */
   .pinLogo { width: clamp(42px, 2.5vw, 56px); height: clamp(46px, 2.75vw, 62px); }
   .pinLogoActive { width: clamp(64px, 4vw, 96px); height: clamp(71px, 4.4vw, 106px); }
-  .pinLogoHasMust::after { width: clamp(15px, 0.85vw, 20px); height: clamp(21px, 1.2vw, 28px); }
-  .pinLogoActive.pinLogoHasMust::after { width: clamp(22px, 1.2vw, 30px); height: clamp(30px, 1.65vw, 42px); }
   .userLoc { width: clamp(58px, 3.5vw, 84px); height: clamp(88px, 5.3vw, 128px); }
 }
 

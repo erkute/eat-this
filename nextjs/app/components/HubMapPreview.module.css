@@ -130,7 +130,6 @@
   width: 44px;
   height: 48px;
 }
-.map :global(.maplibregl-marker) [role='button']::after { width: 12px; height: 18px; right: -5px; top: -5px; }
 .map :global(.maplibregl-marker) [role='button']:hover { transform: rotate(3deg); }
 .map :global(.maplibregl-marker) [aria-pressed='true'] {
   --pin-scale: 1.12;
@@ -338,10 +337,6 @@
     --pin-scale: 1;
     width: clamp(52px, 3vw, 76px);
     height: clamp(58px, 3.3vw, 84px);
-  }
-  .map :global(.maplibregl-marker) [role='button']::after {
-    width: clamp(18px, 1vw, 25px);
-    height: clamp(25px, 1.4vw, 35px);
   }
   .map :global(.maplibregl-marker) [aria-pressed='true'] {
     --pin-scale: 1.12;

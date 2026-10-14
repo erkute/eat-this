@@ -1636,6 +1636,34 @@
   }
 }
 
+/* Heute: die ganze Zeile liegt auf einer helleren Fläche (Fläche statt
+   Rahmen, wie überall auf der Tafel), und ihr Tag ist so hell wie die Uhrzeit.
+   Die Zeile spannt das Raster der Tabelle über `subgrid` — Tage und Zeiten
+   bleiben in ihren Spalten; Rand und Polster heben sich auf, damit die Fläche
+   über die Schrift hinaussteht, ohne sie zu verschieben. */
+
+.rdHoursRow {
+  display: contents;
+}
+
+.rdHoursRowToday {
+  grid-column: 1 / -1;
+  display: grid;
+  /* Ohne subgrid (iOS < 16) stünden Tag und Zeit sonst untereinander. */
+  grid-template-columns: minmax(68px, max-content) minmax(0, 1fr);
+  grid-template-columns: subgrid;
+  column-gap: 16px;
+  align-items: baseline;
+  margin: -4px -10px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.detail .rdHoursRowToday .rdHoursD {
+  color: var(--et-white);
+}
+
 /* Der Tag folgt dem Wert: das Desktop-Panel ist 379px breit, dort steht die
    Uhrzeit auf 17px (Block darüber). */
 

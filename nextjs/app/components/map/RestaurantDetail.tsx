@@ -42,6 +42,7 @@ import {
   getOpenStatus,
   localizeOpeningDays,
   localizeOpeningHours,
+  slotCoversDay,
 } from '@/lib/map/openingHours';
 import { useInkSafeLeading } from '@/lib/dom/inkSafeLeading';
 import { spotPhotoSrc } from '@/lib/map/spotPhoto';
@@ -166,6 +167,13 @@ export default function RestaurantDetail({
   const openNow =
     hasHours && minute !== null
       ? getOpenStatus(r.openingHours!, berlinNow(new Date(minute * 60_000))).isOpen
+      : null;
+  /* Heute in Berlin, für die Markierung in den Öffnungszeiten. Erst nach der
+     Hydrierung (minute ist auf dem Server null), und nur bei mehr als einer
+     Zeile: steht da nur „Täglich", gibt es nichts zu unterscheiden. */
+  const today =
+    minute !== null && (r.openingHours?.length ?? 0) > 1
+      ? berlinNow(new Date(minute * 60_000)).getDay()
       : null;
 
   // Scale the hero name down for long single words so they fit on one line
@@ -543,31 +551,38 @@ export default function RestaurantDetail({
             <div className={`${styles.rdRow} ${styles.rdRowHours}`}>
               <span className={styles.rdK}>{t('map.openingHours')}</span>
               <div className={`${styles.rdV} ${styles.rdHours}`}>
-                {r.openingHours!.map((slot, i) => (
-                  <div key={i} style={{ display: 'contents' }}>
-                    <span className={styles.rdHoursD}>
-                      {localizeOpeningDays(slot.days, locale)}
-                    </span>
-                    {/* Geteilte Schichten („10:00-15:00, 18:00-01:00") kamen als
-                        EIN String an, und `overflow-wrap: anywhere` auf der Zelle
-                        durfte deshalb mitten in einer Uhrzeit umbrechen —
-                        „18:00-" / „01:00". Jede Spanne bekommt ihre eigene,
-                        unbrechbare Box; gebrochen wird nur noch am Komma. */}
-                    <span className={styles.rdHoursT}>
-                      {localizeOpeningHours(slot.hours, locale)
-                        .split(/,\s*/)
-                        .map((range, j, all) => (
-                          <Fragment key={j}>
-                            {j > 0 ? ' ' : null}
-                            <span className={styles.rdHoursSpan}>
-                              {range}
-                              {j < all.length - 1 ? ',' : ''}
-                            </span>
-                          </Fragment>
-                        ))}
-                    </span>
-                  </div>
-                ))}
+                {r.openingHours!.map((slot, i) => {
+                  const isToday = today !== null && slotCoversDay(slot.days, today);
+                  return (
+                    <div
+                      key={i}
+                      className={isToday ? styles.rdHoursRowToday : styles.rdHoursRow}
+                      aria-current={isToday ? 'date' : undefined}
+                    >
+                      <span className={styles.rdHoursD}>
+                        {localizeOpeningDays(slot.days, locale)}
+                      </span>
+                      {/* Geteilte Schichten („10:00-15:00, 18:00-01:00") kamen als
+                          EIN String an, und `overflow-wrap: anywhere` auf der Zelle
+                          durfte deshalb mitten in einer Uhrzeit umbrechen —
+                          „18:00-" / „01:00". Jede Spanne bekommt ihre eigene,
+                          unbrechbare Box; gebrochen wird nur noch am Komma. */}
+                      <span className={styles.rdHoursT}>
+                        {localizeOpeningHours(slot.hours, locale)
+                          .split(/,\s*/)
+                          .map((range, j, all) => (
+                            <Fragment key={j}>
+                              {j > 0 ? ' ' : null}
+                              <span className={styles.rdHoursSpan}>
+                                {range}
+                                {j < all.length - 1 ? ',' : ''}
+                              </span>
+                            </Fragment>
+                          ))}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

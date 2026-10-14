@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet; 033-035 am 14.10.2026 ergänzt.",
+  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet; 033-036 am 14.10.2026 ergänzt.",
   "cards": [
     {
       "order": 1,
@@ -281,6 +281,14 @@
       "dish": "Kinmedai Sashimi",
       "descriptionEn": "Kinmedai sashimi with a delicate texture and natural sweetness.",
       "description": "Kinmedai-Sashimi mit zarter Textur und natürlicher Süße."
+    },
+    {
+      "order": 36,
+      "file": "Main-35.png",
+      "spot": "Boii Boii",
+      "dish": "Loup de Mer",
+      "descriptionEn": "Grilled in banana leaf with Abb paste, served with pickled mango and celery.",
+      "description": "Im Bananenblatt gegrillt mit Abb-Paste, dazu eingelegte Mango und Sellerie."
     }
   ]
 }

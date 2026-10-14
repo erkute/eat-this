@@ -53,6 +53,8 @@ export function subscribeStarterPackGranted(listener: GrantedListener): () => vo
  *
  * Die Antwort kann vor der Frage kommen — der Auth-Listener feuert, bevor
  * `signInWithEmailLink` zurückkehrt —, deshalb gemerkt statt nur gemeldet.
+ * Gelesen wird sie nur einmal: eine zweite Anmeldung im selben Seitenleben
+ * wartet auf ihre eigene Antwort statt auf die alte.
  */
 const ARRIVAL_WAIT_MS = 8000;
 const decided = new Map<string, boolean>();
@@ -68,11 +70,15 @@ export function settleArrival(uid: string, granted: boolean): void {
  *  ARRIVAL_WAIT_MS mit `false` — eine verspätete Vergabe öffnet sie trotzdem. */
 export function arrivalDecided(uid: string): Promise<boolean> {
   const known = decided.get(uid);
-  if (known !== undefined) return Promise.resolve(known);
+  if (known !== undefined) {
+    decided.delete(uid);
+    return Promise.resolve(known);
+  }
   return new Promise((resolve) => {
     const finish = (granted: boolean) => {
       window.clearTimeout(timer);
       waiters.delete(wake);
+      decided.delete(uid);
       resolve(granted);
     };
     const wake = () => {

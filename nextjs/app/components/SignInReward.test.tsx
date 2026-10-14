@@ -287,6 +287,16 @@ describe('Ob die Tour kommt', () => {
     await expect(arrival.arrivalDecided('u1')).resolves.toBe(true);
   });
 
+  it('liest eine Antwort nur einmal — die naechste Anmeldung wartet auf ihre eigene', async () => {
+    const arrival = await freshModule();
+    arrival.settleArrival('u1', true);
+    await arrival.arrivalDecided('u1');
+    const answer = vi.fn();
+    void arrival.arrivalDecided('u1').then(answer);
+    await act(async () => {});
+    expect(answer).not.toHaveBeenCalled();
+  });
+
   it('wartet auf die Antwort fuer genau dieses Konto', async () => {
     const arrival = await freshModule();
     const answer = vi.fn();

@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import SiteImage from './SiteImage';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { HOME_MAP_CATEGORIES, mapPreviewHref, mapPreviewSpots } from '@/lib/home/mapPreview';
+import { HOME_MAP_CATEGORIES, distanceKm, mapPreviewHref, mapPreviewSpots, nearbyCluster } from '@/lib/home/mapPreview';
 import { normalizeName } from '@/lib/normalizeName';
 import type { MapRestaurant } from '@/lib/types';
 import { useHomeMapData } from './HomeMapDataContext';
@@ -26,6 +26,7 @@ const copy = {
     empty: 'Noch mehr gute Spots findest du auf der Map.',
     cta: (category: string) => `Mehr ${category}`,
     details: 'auf der Map ansehen',
+    nearby: 'In der Nähe',
   },
   en: {
     title: 'What are you craving?',
@@ -37,6 +38,7 @@ const copy = {
     empty: 'Find more great spots on the map.',
     cta: (category: string) => `More ${category.toLowerCase()}`,
     details: 'on the map',
+    nearby: 'Nearby',
   },
 };
 
@@ -48,12 +50,27 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
   const [nearViewport, setNearViewport] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const spots = useMemo(
-    () => mapPreviewSpots(initialMapData.restaurants, category,
-      initialMapData.categories.find((item) => item.slug === category.slug)?.recommendedSpots),
+    () => nearbyCluster(mapPreviewSpots(initialMapData.restaurants, category,
+      initialMapData.categories.find((item) => item.slug === category.slug)?.recommendedSpots)),
     [initialMapData.restaurants, initialMapData.categories, category]
   );
   const selected = spots.find((spot) => spot._id === selectedId) ?? spots[0];
   const selectSpot = useCallback((spot: MapRestaurant) => setSelectedId(spot._id), []);
+  const [pinnedIds, setPinnedIds] = useState<Set<string> | null>(null);
+  const showPinned = useCallback((visible: MapRestaurant[]) => setPinnedIds(new Set(visible.map((spot) => spot._id))), []);
+  // Die zwei nächsten Spots mit Pin auf der Karte unter dem ausgewählten — ein
+  // Tipp wählt sie dort aus. Ohne Karte (lädt noch, fehlgeschlagen) alle.
+  const distanceLabel = (km: number) => km < 1
+    ? `${Math.max(50, Math.round((km * 1000) / 50) * 50)} m`
+    : `${km.toFixed(1).replace('.', locale === 'de' ? ',' : '.')} km`;
+  const nearby = useMemo(
+    () => selected
+      ? spots.filter((spot) => spot._id !== selected._id && (!pinnedIds || pinnedIds.has(spot._id)))
+        .sort((a, b) => distanceKm(selected, a) - distanceKm(selected, b))
+        .slice(0, 2)
+      : [],
+    [spots, selected, pinnedIds]
+  );
 
   // Copy, photo and map link are in the initial HTML. Only WebGL waits until
   // the section is close, so it doesn't compete with the hero and magazine.
@@ -106,6 +123,8 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
               setNearViewport(true);
               setCategory(item);
               setSelectedId(null);
+              // Neue Kategorie, neue Pins: bis die Karte sie gesetzt hat, alle.
+              if (item.slug !== category.slug) setPinnedIds(null);
             }}
           >
             {item[locale]}
@@ -119,6 +138,7 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
               spots={spots}
               selectedId={selected?._id ?? null}
               onSelect={selectSpot}
+              onVisibleChange={showPinned}
               loadingLabel={t.loading}
               unavailableLabel={t.unavailable}
             />
@@ -135,7 +155,7 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
                 <SiteImage
                   key={selected._id}
                   src={selected.photo!}
-                  sizes={`(max-width: 767px) ${Math.ceil(112 * coverImageScale(selected.photo, 1))}px, ${scaleSizes('(max-width: 1100px) 35vw, (min-width: 1600px) 31vw, 450px', coverImageScale(selected.photo, 16 / 10))}`}
+                  sizes={`(max-width: 767px) ${scaleSizes('calc(100vw - 32px)', coverImageScale(selected.photo, 16 / 10))}, ${scaleSizes('(max-width: 1100px) 35vw, (min-width: 1600px) 31vw, 450px', coverImageScale(selected.photo, 16 / 10))}`}
                   alt={selected.name}
                   fill
                   loading="lazy"
@@ -149,6 +169,28 @@ export default function HubMapPreview({ locale }: { locale: 'de' | 'en' }) {
             </MapIntentLink>
           ) : null}
           {selected && action}
+          {nearby.length > 0 && (
+            <div className={styles.nearby}>
+              <p className={styles.nearbyLabel}>{t.nearby}</p>
+              <ul role="list">
+                {nearby.map((spot) => (
+                  <li key={spot._id}>
+                    <button type="button" className={styles.nearbySpot} onClick={() => selectSpot(spot)}>
+                      <span className={styles.nearbyPhoto}>
+                        <SiteImage src={spot.photo!} alt="" fill sizes="44px" loading="lazy" />
+                      </span>
+                      <span className={styles.nearbyText}>
+                        <span className={styles.nearbyName}>{normalizeName(spot.name)}</span>
+                        <span className={styles.nearbyMeta}>
+                          {spot.bezirk?.name || spot.district} · {distanceLabel(distanceKm(selected!, spot))}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
       {!selected && action}

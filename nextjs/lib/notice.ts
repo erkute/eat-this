@@ -25,6 +25,7 @@ export type NoticeKind =
   | 'mapDataError'
   | 'mapDataStale'
   | 'spotSavedFirst'
+  | 'spotSavedFirstAfterLogin'
   | 'spotSaved'
   | 'actionFailed'
   | 'inviteCard';
@@ -150,6 +151,13 @@ const COPY: Record<NoticeKind, { de: Copy; en: Copy }> = {
       title: 'Saved',
       detail: "Your first spot. You'll find it in your profile.",
     },
+  },
+  /* Das Herz von vor dem Login: die Anmeldung endet im Profil, der Spot steht
+     schon in der Liste darunter — der Hinweis aufs Profil fiele dort schief
+     (Betreiber, 14.10.2026). */
+  spotSavedFirstAfterLogin: {
+    de: { eyebrow: 'Spot', title: 'Gespeichert', detail: 'Dein erster Spot.' },
+    en: { eyebrow: 'Spot', title: 'Saved', detail: 'Your first spot.' },
   },
   spotSaved: {
     de: { eyebrow: 'Spot', title: 'Gespeichert', detail: 'Noch einer für deine Liste.' },

@@ -12,6 +12,7 @@ import { scaleSizes } from '@/lib/magazineCover';
 import { formatArticleDate } from '@/lib/articleDate';
 import { formatPriceLabel } from '@/app/components/map/restaurantDetail.helpers';
 import { HubFilterCard, HubFilterGroup } from './HubFilter';
+import CategoryPackLink from './CategoryPackLink';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import SpotLink from './SpotLink';
@@ -396,10 +397,10 @@ export function IssueCategories({ items, heading }: {
       <ul>
         {picks.map((item) => (
           <li key={item.slug}>
-            <Link href={`/kategorie/${item.slug}`}>
+            <CategoryPackLink slug={item.slug}>
               <Image src={categoryArt(item.slug)!} alt="" width={160} height={240} sizes="(max-width: 767px) 128px, 200px" className={styles.shelfPack} />
               <span>{item.label}</span>
-            </Link>
+            </CategoryPackLink>
           </li>
         ))}
       </ul>

@@ -1,26 +1,50 @@
 import { describe, expect, it } from 'vitest';
-import { listFollowsMove, sameCenter } from '../listCenter';
+import {
+  isRowReturnFlight,
+  listFollowsMove,
+  ROW_RETURN_FLIGHT,
+  sameCenter,
+  type MoveEndContext,
+} from '../listCenter';
 
 /**
  * Die Liste folgt der Karte — aber erst, nachdem der Nutzer sie angefasst hat,
  * und nie während ein Detail offen ist (der Flug zum Spot ist nicht seine
- * Ansicht; der Rückflug beim Schließen ist es).
+ * Ansicht; der Rückflug zur Kamera eines Pin-Tipps ist es). Der Rückflug zu
+ * einer Listenzeile sortiert nie neu: sonst stünde der Spot danach oben.
  */
 describe('listFollowsMove', () => {
+  const base: MoveEndContext = {
+    userGesture: false,
+    following: true,
+    detailOpen: false,
+    rowReturn: false,
+  };
+
   it('folgt jeder Nutzergeste, auch bei offenem Detail', () => {
-    expect(listFollowsMove({ userGesture: true, following: false, detailOpen: false })).toBe(true);
-    expect(listFollowsMove({ userGesture: true, following: false, detailOpen: true })).toBe(true);
+    expect(listFollowsMove({ ...base, userGesture: true, following: false })).toBe(true);
+    expect(listFollowsMove({ ...base, userGesture: true, detailOpen: true })).toBe(true);
   });
 
   it('lässt Kameraflüge vor der ersten Geste die kuratierte Reihenfolge stehen', () => {
-    expect(listFollowsMove({ userGesture: false, following: false, detailOpen: false })).toBe(
-      false
-    );
+    expect(listFollowsMove({ ...base, following: false })).toBe(false);
   });
 
   it('nimmt Kameraflüge mit, sobald die Liste folgt — außer ins Detail hinein', () => {
-    expect(listFollowsMove({ userGesture: false, following: true, detailOpen: false })).toBe(true);
-    expect(listFollowsMove({ userGesture: false, following: true, detailOpen: true })).toBe(false);
+    expect(listFollowsMove(base)).toBe(true);
+    expect(listFollowsMove({ ...base, detailOpen: true })).toBe(false);
+  });
+
+  it('sortiert beim Schließen zurück zur Zeile nicht um den Spot neu', () => {
+    expect(listFollowsMove({ ...base, rowReturn: true })).toBe(false);
+    expect(listFollowsMove({ ...base, rowReturn: true, userGesture: true })).toBe(true);
+  });
+});
+
+describe('isRowReturnFlight', () => {
+  it('erkennt den Rückflug an seinen Event-Daten', () => {
+    expect(isRowReturnFlight({ type: 'moveend', ...ROW_RETURN_FLIGHT })).toBe(true);
+    expect(isRowReturnFlight({ type: 'moveend' })).toBe(false);
   });
 });
 

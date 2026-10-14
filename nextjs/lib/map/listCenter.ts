@@ -18,6 +18,10 @@
  *   — the camera hands it back on close, and that return is the move that
  *   counts. Before following is on, the auto-locate flight and the filter
  *   fits leave the curated order alone.
+ * - Never the flight that closes a detail opened from a list row. It centres
+ *   the map on that spot, and sorting around the spot put it first: the row
+ *   the user had scrolled to jumped to the top of the list (user, 14.10.2026).
+ *   The list comes back as it was, at that row.
  */
 export interface ListCenter {
   lat: number;
@@ -31,11 +35,26 @@ export interface MoveEndContext {
   following: boolean;
   /** A restaurant or must-eat detail is what the sheet shows. */
   detailOpen: boolean;
+  /** The flight that hands a list row back on close (ROW_RETURN_FLIGHT). */
+  rowReturn: boolean;
 }
 
-export function listFollowsMove({ userGesture, following, detailOpen }: MoveEndContext): boolean {
+export function listFollowsMove({
+  userGesture,
+  following,
+  detailOpen,
+  rowReturn,
+}: MoveEndContext): boolean {
   if (userGesture) return true;
-  return following && !detailOpen;
+  return following && !detailOpen && !rowReturn;
+}
+
+/** MapLibre event data for the close flight back to a list row: it rides on
+ *  that flight's own `moveend`, also when another flight interrupts it. */
+export const ROW_RETURN_FLIGHT = { listRowReturn: true } as const;
+
+export function isRowReturnFlight(event: object): boolean {
+  return 'listRowReturn' in event && event.listRowReturn === true;
 }
 
 /** Two centres a hair apart are the same centre — MapLibre reports the last

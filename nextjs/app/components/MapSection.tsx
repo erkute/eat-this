@@ -35,7 +35,13 @@ import {
   type DetailOrigin,
 } from '@/lib/map/phoneSheetSnaps';
 import { flyToSpots } from '@/lib/map/cameraFit';
-import { listFollowsMove, sameCenter, type ListCenter } from '@/lib/map/listCenter';
+import {
+  isRowReturnFlight,
+  listFollowsMove,
+  ROW_RETURN_FLIGHT,
+  sameCenter,
+  type ListCenter,
+} from '@/lib/map/listCenter';
 import { isPhoneViewport, isSheetViewport } from '@/lib/map/viewport';
 import { useMapCamera, getUserLocationZoom } from '@/lib/map/useMapCamera';
 import { useMapStarterPrompt } from '@/lib/map/useMapStarterPrompt';
@@ -1032,7 +1038,13 @@ export default function MapSection({
     // viewport bottom over the rows).
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
-    if (r) flyToSpot(r, { duration: 350, padding: getFlyPadding(nextSnap) });
+    if (r) {
+      flyToSpot(r, {
+        duration: 350,
+        padding: getFlyPadding(nextSnap),
+        eventData: ROW_RETURN_FLIGHT,
+      });
+    }
   }, [
     setDesktopPanelHidden,
     selectedRestaurant,
@@ -1073,7 +1085,14 @@ export default function MapSection({
     // phones always reset (stale 'full' would keep the full-snap UI state active).
     const nextSnap: typeof snap = isPhoneViewport() ? 'mid' : snap === 'peek' ? 'mid' : snap;
     if (nextSnap !== snap) setSnap(nextSnap);
-    if (m) flyToSpot(m.restaurant, { duration: 350, padding: getFlyPadding(nextSnap) });
+    if (m) {
+      flyToSpot(m.restaurant, {
+        duration: 350,
+        padding: getFlyPadding(nextSnap),
+        // Back at a row, the list keeps its order; a marker chain hands the map back.
+        eventData: detailOriginRef.current === 'map' ? undefined : ROW_RETURN_FLIGHT,
+      });
+    }
   }, [
     selectedMustEat,
     setSelectedMustEat,
@@ -1111,6 +1130,7 @@ export default function MapSection({
       userGesture,
       following: listFollowsMapRef.current,
       detailOpen: sheetViewRef.current === 'detail',
+      rowReturn: isRowReturnFlight(e),
     });
     if (!follows) return;
     listFollowsMapRef.current = true;

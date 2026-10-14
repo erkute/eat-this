@@ -71,7 +71,13 @@ export function pinNeedsFollow(anchorY: number, sheetTop: number, safeTop: numbe
 
 type LngLat = { lng: number; lat: number };
 type Camera = { center: LngLat; zoom: number; padding?: PaddingOptions };
-type FlyOptions = { duration: number; padding?: PaddingOptions; zoom?: number };
+type FlyOptions = {
+  duration: number;
+  padding?: PaddingOptions;
+  zoom?: number;
+  /** Handed to MapLibre, which puts it on this flight's move events. */
+  eventData?: object;
+};
 
 interface Options {
   isActive: boolean;
@@ -119,8 +125,8 @@ export function useMapCamera({
 
   /* One flight onto one point — every open, page, close and locate lands here. */
   const flyToSpot = useCallback(
-    (spot: LngLat, { duration, padding, zoom = desktopSpotZoom() }: FlyOptions) => {
-      mapRef.current?.flyTo({ center: [spot.lng, spot.lat], zoom, duration, padding });
+    (spot: LngLat, { duration, padding, zoom = desktopSpotZoom(), eventData }: FlyOptions) => {
+      mapRef.current?.flyTo({ center: [spot.lng, spot.lat], zoom, duration, padding }, eventData);
     },
     [mapRef]
   );

@@ -1,5 +1,10 @@
 {
   "mcpServers": {
+    "rea": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--yes", "--package=node@22.22.2", "--package=rea-agents@6.4.0", "--", "rea", "--mcp"]
+    },
     "firebase": {
       "type": "stdio",
       "command": "firebase",

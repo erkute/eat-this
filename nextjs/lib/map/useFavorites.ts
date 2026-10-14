@@ -164,7 +164,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
            vorher noch der Wartescreen (AUTH_SCREEN_HOLD_MS) darueber, und die
            Bestaetigung soll danach noch zu lesen sein. */
         if (hearted && claimPendingHeartNotice(uid)) {
-          notify(entries.length > 1 ? 'spotSaved' : 'spotSavedFirst', localeRef.current, {
+          notify(entries.length > 1 ? 'spotSaved' : 'spotSavedFirstAfterLogin', localeRef.current, {
             duration: 5000,
           });
         }
@@ -181,7 +181,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           /* Gespeichert ist das Herz trotzdem — nur die Liste kam nicht.
              Direkt nach dem Anmelden ist es fast immer der erste Spot. */
           if (hearted && claimPendingHeartNotice(uid)) {
-            notify('spotSavedFirst', localeRef.current, { duration: 5000 });
+            notify('spotSavedFirstAfterLogin', localeRef.current, { duration: 5000 });
           }
         }
       }

@@ -225,4 +225,24 @@ describe('useFavorites — Bestaetigung beim Speichern', () => {
       duration: 5000,
     });
   });
+
+  /* Nach dem Login geht es ins Profil, der Spot steht dort schon in der
+     Liste — die Meldung verweist nicht noch einmal aufs Profil. */
+  it('verweist beim ersten Spot von vor dem Login nicht aufs Profil', async () => {
+    window.sessionStorage.setItem(
+      'eatthis_pending_heart',
+      JSON.stringify({ id: 'r-9', at: Date.now() })
+    );
+    mocks.getDocs.mockResolvedValue({
+      docs: [{ id: 'r-9', data: () => ({ name: 'Spot 9' }) }],
+    });
+
+    renderHook(() => useFavorites('user-pending-first'));
+
+    await waitFor(() => expect(showNotice).toHaveBeenCalledOnce());
+    expect(showNotice.mock.calls[0][0]).toMatchObject({
+      detail: 'Dein erster Spot.',
+      duration: 5000,
+    });
+  });
 });

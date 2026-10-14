@@ -46,10 +46,9 @@ export async function latestIssues(limit: number, locale: 'de' | 'en'): Promise<
 
 /** Server: assemble the Hub's initial data. */
 export async function getHomeData(locale: 'de' | 'en'): Promise<HomeData> {
-  // Desktop renders the magazine as a 3-up grid → 6 fills two full rows
-  // (4 would leave two empty cells in the second row).
+  // Der Magazin-Fächer zeigt vier Hefte (MagazineGrid, CARD_COUNT).
   const [magazine, catNameRows] = await Promise.all([
-    latestIssues(6, locale),
+    latestIssues(4, locale),
     client.fetch<{ slug: string; name: string }[]>(
       categoryNamesQuery,
       { locale },

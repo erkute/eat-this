@@ -22,9 +22,11 @@ import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import { chapterShortLabel } from '@/lib/headingDeck';
-import { coverImageScale } from '@/lib/sanity-image-presets';
+import { coverImageScale, sanitySrcSet } from '@/lib/sanity-image-presets';
 import { scaleSizes } from '@/lib/magazineCover';
 import styles from './NewsArticleShell.module.css';
+
+const SPOT_PHOTO_WIDTHS = [600, 900, 1200, 1600, 2080];
 
 interface Props {
   article?: NewsArticle | null;
@@ -283,11 +285,19 @@ export default function NewsArticleShell({
     return (
       <span className={styles.inlineSpot}>
         {block.restaurantPhoto && (
-          <span
-            className={styles.inlineSpotPhoto}
-            style={{ backgroundImage: `url(${block.restaurantPhoto})` }}
-            aria-hidden="true"
-          />
+          <span className={styles.inlineSpotPhoto} aria-hidden="true">
+            {/* Ein echtes Bild statt CSS-Hintergrund: der lud fest 800px, am
+                Retina-Desktop braucht das breite Foto über 2000. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={block.restaurantPhoto}
+              srcSet={sanitySrcSet(block.restaurantPhoto, SPOT_PHOTO_WIDTHS)}
+              sizes={`(max-width: 700px) ${scaleSizes('100vw', coverImageScale(block.restaurantPhoto, 4 / 3))}, ${scaleSizes('(max-width: 1023.98px) 740px, 1040px', coverImageScale(block.restaurantPhoto, 3 / 2))}`}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </span>
         )}
         <span className={styles.inlineSpotFoot}>
           {/* Die Meta-Zeile trägt den gefolgten Link auf die Spot-Seite. Die
@@ -347,7 +357,7 @@ export default function NewsArticleShell({
           alt={block.alt || ''}
           width={width}
           height={height}
-          sizes="(max-width: 767.98px) 100vw, 740px"
+          sizes="(max-width: 767.98px) 100vw, (max-width: 1023.98px) 740px, 1040px"
         />
         {block.caption && <figcaption>{block.caption}</figcaption>}
       </figure>

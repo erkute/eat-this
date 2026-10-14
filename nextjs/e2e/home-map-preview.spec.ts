@@ -142,7 +142,8 @@ for (const narrowDesktop of [false, true]) {
       expect(names).not.toContain("VEG'D Friedrichshain");
       for (const name of names) {
         await preview.getByRole('button', { name, exact: true }).click();
-        const photo = preview.locator('#home-map-preview > div').nth(1).locator('img');
+        // Das erste Bild ist das Spot-Foto; danach kommen die „In der Nähe"-Bilder.
+        const photo = preview.locator('#home-map-preview > div').nth(1).locator('img').first();
         await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
         const layout = await preview.evaluate((section) => {
           const frame = section.querySelector('#home-map-preview')!;

@@ -264,12 +264,16 @@
     --head-w: 0px;
     /* Oben Luft für den Fächer und die Neigung zur Maus. */
     --mag-peek: 60px;
-    /* Bildschirmhoch, aber so, dass Fächer (gut 0,9 Hefte) und Heft
-       nebeneinander in den Tisch passen. */
+    /* Wie viele Heftbreiten der Fächer links neben dem vorderen braucht,
+       aufgeblättert mitgerechnet: drei Hefte zu je ~40 % (Betreiber,
+       14.10.2026: „dass man auch die anderen Cover sehen kann"). */
+    --fan-reach: 1.26;
+    /* Bildschirmhoch, aber so, dass Fächer und Heft nebeneinander in den
+       Tisch passen. */
     --cover-w: min(
       560px,
       (100svh - 262px) * 0.75,
-      (100vw - var(--et-wrap-pad) - var(--head-w) - 48px) / 1.95
+      (100vw - var(--et-wrap-pad) - var(--head-w) - 48px) / (1.03 + var(--fan-reach))
     );
     /* Bis an die Fensterränder, über den Satzspiegel hinaus. */
     --mag-bleed: calc(var(--et-wrap-pad) + max(0px, (100vw - var(--et-wrap-max)) / 2));
@@ -278,8 +282,8 @@
        mehr Raum, steht Fächer samt Heft mittig darin. `cqw` misst am Tisch
        (Stapel und Punkte liegen beide in einem Container seiner Breite). */
     --pile-x: calc(
-      var(--mag-bleed) + var(--head-w) + var(--cover-w) * 0.92 +
-        max(0px, (100cqw - 2 * var(--mag-bleed) - var(--head-w) - var(--cover-w) * 1.92) / 2)
+      var(--mag-bleed) + var(--head-w) + var(--cover-w) * var(--fan-reach) +
+        max(0px, (100cqw - 2 * var(--mag-bleed) - var(--head-w) - var(--cover-w) * (1 + var(--fan-reach))) / 2)
     );
   }
   .layout {
@@ -291,14 +295,14 @@
        kleiner, versetzt (% eines Hefts), gehoben (px) und gedreht (Grad) —
        in Ruhe und mit der Maus darüber. magazineTable liest dieselben Werte,
        damit der Fächer schon vor dem Hydrieren richtig liegt. */
-    --fan-spread: 4;
-    --fan-shrink: 0.04;
-    --fan-x-rest: -16;
-    --fan-x-open: -21;
-    --fan-y-rest: -5;
-    --fan-y-open: -11;
-    --fan-r-rest: -2.6;
-    --fan-r-open: -3.8;
+    --fan-spread: 3;
+    --fan-shrink: 0.035;
+    --fan-x-rest: -36;
+    --fan-x-open: -40;
+    --fan-y-rest: -4;
+    --fan-y-open: -9;
+    --fan-r-rest: -1.6;
+    --fan-r-open: -2.4;
     container-type: inline-size;
     margin-inline: calc(-1 * var(--mag-bleed));
   }
@@ -326,17 +330,17 @@
    kaum weiter auf, sonst schnitte die Kante das hinterste Heft ab. */
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .stage {
-    --fan-x-open: -17;
-    --fan-r-open: -2.9;
+    --fan-x-open: -37;
+    --fan-r-open: -1.9;
   }
 }
 @media (min-width: 1024px) {
   .section {
     --head-w: clamp(280px, 24vw, 360px);
     --cover-w: min(560px, (100svh - 262px) * 0.75,
-      (100vw - 2 * var(--mag-bleed) - var(--head-w) - var(--mag-gap)) / 2.15);
-    --pile-x: calc(var(--mag-bleed) + var(--head-w) + var(--mag-gap) + var(--cover-w) * 1.05 +
-      max(0px, (100cqw - 2 * var(--mag-bleed) - var(--head-w) - var(--mag-gap) - var(--cover-w) * 2.05) / 2));
+      (100vw - 2 * var(--mag-bleed) - var(--head-w) - var(--mag-gap)) / (1.1 + var(--fan-reach)));
+    --pile-x: calc(var(--mag-bleed) + var(--head-w) + var(--mag-gap) + var(--cover-w) * var(--fan-reach) +
+      max(0px, (100cqw - 2 * var(--mag-bleed) - var(--head-w) - var(--mag-gap) - var(--cover-w) * (1 + var(--fan-reach))) / 2));
   }
   /* Überschrift und Tisch in derselben Zeile; die Überschrift liegt oben
      auf, der Tisch läuft unter ihr durch. */

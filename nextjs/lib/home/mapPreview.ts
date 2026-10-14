@@ -34,6 +34,40 @@ export function mapPreviewSpots(restaurants: MapRestaurant[], category: PreviewC
     });
 }
 
+/** Luftlinie in km; auf Berliner Distanzen reicht die flache Näherung. */
+export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const x = (b.lng - a.lng) * Math.cos(((a.lat + b.lat) / 2) * (Math.PI / 180)) * 111.32;
+  const y = (b.lat - a.lat) * 110.57;
+  return Math.hypot(x, y);
+}
+
+/** Ein Kiez statt ganz Berlin (Betreiber, 14.10.2026: „man müsste sehen,
+ *  dass man in Berlin ist, Straßen und so"). Über alle Spots einer Kategorie
+ *  gerahmt, stand Pizza auf Stadtzoom am Stadtrand. Zuerst die Ecke um die
+ *  erste Empfehlung, damit sie vorn bleibt; liegt dort zu wenig, die
+ *  dichteste Ecke. Der Radius wächst, bis `min` Spots darin liegen. Die
+ *  Reihenfolge der Empfehlungen bleibt. */
+export function nearbyCluster<T extends { lat: number; lng: number }>(
+  spots: T[],
+  { radiusKm = 1.4, min = 4, maxRadiusKm = 3.2 } = {},
+): T[] {
+  if (spots.length <= min) return spots;
+  const around = (center: T, radius: number) => spots.filter((spot) => distanceKm(center, spot) <= radius);
+  for (let radius = radiusKm; radius <= maxRadiusKm + 1e-9; radius += 0.6) {
+    const lead = around(spots[0], radius);
+    if (lead.length >= min) return lead;
+  }
+  for (let radius = radiusKm; radius <= maxRadiusKm + 1e-9; radius += 0.6) {
+    let best: T[] = [];
+    for (const center of spots) {
+      const members = around(center, radius);
+      if (members.length > best.length) best = members;
+    }
+    if (best.length >= min) return best;
+  }
+  return spots;
+}
+
 export function mapPreviewHref(category: string, restaurantSlug?: string) {
   const params = new URLSearchParams({ cat: category });
   if (restaurantSlug) params.set('r', restaurantSlug);

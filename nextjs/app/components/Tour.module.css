@@ -30,6 +30,12 @@
   box-shadow: 0 24px 80px #0008;
   animation: arrive 260ms ease-out;
 }
+/* Die Tour nach der Anmeldung deckt ganz: hinter ihr wechselt die Seite ins
+   Profil, und das soll man erst nach der Tour sehen (Betreiber, 14.10.2026).
+   Die Must-Eats-Erklaerung laesst ihre Seite durchscheinen. */
+.layerSolid {
+  background: var(--et-ink);
+}
 /* Die Bestaetigung des Mail-Links (EmailLinkSignIn) liegt ueber jeder
    Einfuehrung — das Must-Eats-Onboarding geht auf derselben Seite von selbst
    auf und schob sich sonst davor. */

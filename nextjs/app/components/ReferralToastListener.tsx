@@ -5,7 +5,7 @@ import { auth, getDb } from '@/lib/firebase/config';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from '@/lib/i18n';
 import { takePendingStarterCard } from '@/lib/auth/pendingStarterCard';
-import { announceStarterPackGranted } from '@/lib/auth/signInArrival';
+import { announceStarterPackGranted, settleArrival } from '@/lib/auth/signInArrival';
 import { trackEvent } from '@/lib/analytics';
 import { notify } from '@/lib/notice';
 
@@ -60,8 +60,12 @@ export default function ReferralToastListener() {
       if (!user || inFlight) return;
       const flag = sessionFlag(sessionKey(user.uid));
       const starter = sessionFlag(starterKey(user.uid));
+      /* Jeder Ausgang ohne Vergabe sagt dem wartenden Weg ins Profil, dass
+         keine Tour kommt (signInArrival). */
+      if (starter.seen) settleArrival(user.uid, false);
       if (flag.seen && starter.seen) return;
       inFlight = true;
+      let granted = false;
       try {
         const idToken = await user.getIdToken();
         if (!starter.seen) {
@@ -99,8 +103,10 @@ export default function ReferralToastListener() {
                   ? outcome.faceUpIds.filter((id): id is string => typeof id === 'string')
                   : []
               );
+              granted = true;
             }
           }
+          settleArrival(user.uid, granted);
         }
         if (flag.seen) return;
         await fetch('/api/referral/confirm', {
@@ -118,6 +124,7 @@ export default function ReferralToastListener() {
       } catch {
         // Netzwerkfehler: Riegel bleibt offen, der naechste Auth-Wechsel oder
         // Seitenaufruf versucht es erneut.
+        if (!granted) settleArrival(user.uid, false);
       } finally {
         inFlight = false;
       }

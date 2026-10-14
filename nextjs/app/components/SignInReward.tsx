@@ -211,6 +211,9 @@ export default function SignInReward() {
   const locale = useLocale();
   const t = copy[locale === 'en' ? 'en' : 'de'];
   const [open, setOpen] = useState(false);
+  /* Zwischen Vergabe und Aufgehen (die Namensabfrage) liegt schon der
+     Ink-Grund — darunter wechselt die Seite ins Profil (signInArrival). */
+  const [covered, setCovered] = useState(false);
   const [step, setStep] = useState(0);
   const [pack, setPack] = useState<PackPhase>('sealed');
   /* Die aktuelle Seite fuer Timer, die nach dem Rendern feuern. */
@@ -279,11 +282,13 @@ export default function SignInReward() {
       setStep(0);
       setPack('sealed');
       setOpen(true);
+      setCovered(false);
     };
     /* Erst wissen, ob gefragt werden muss, dann aufgehen — sonst schoebe
        sich die Seite nachtraeglich vor das Pack. Scheitert die Abfrage,
        bleibt es beim Namen, den das Konto hat, und die Tour laeuft ohne sie. */
     const show = (cards: string[]) => {
+      setCovered(true);
       identityStepPrefill().then(
         (prefill) => reveal(prefill, cards),
         () => reveal(null, cards)
@@ -401,7 +406,11 @@ export default function SignInReward() {
     if (open) titleRef.current?.focus({ preventScroll: true });
   }, [open, step]);
 
-  if (!open) return null;
+  if (!open) {
+    return covered
+      ? createPortal(<div className={`${styles.layer} ${styles.layerSolid}`} />, document.body)
+      : null;
+  }
 
   const steps = pages(identity);
   const page = steps[step];
@@ -717,7 +726,7 @@ export default function SignInReward() {
   }
 
   return createPortal(
-    <div className={styles.layer}>
+    <div className={`${styles.layer} ${styles.layerSolid}`}>
       <div
         ref={panelRef}
         className={page === 'go' ? `${styles.panel} ${styles.panelGo}` : styles.panel}

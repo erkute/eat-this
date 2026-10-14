@@ -31,22 +31,29 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Reine Doku-Änderungen brauchen keinen Build: ändert der PR bzw. Push nur
-      # Markdown oder Agent-Konfiguration, meldet der Check nach Sekunden grün
-      # statt nach ~4 Minuten. `nextjs` bleibt dabei ein erfolgreicher Lauf, der
+      # Reine Doku-Änderungen brauchen keinen Build: ändert ein PR nur Markdown
+      # oder Agent-Konfiguration, meldet der Check nach Sekunden grün statt nach
+      # ~4 Minuten. `nextjs` bleibt dabei ein erfolgreicher Lauf, der
       # Pflicht-Check auf `main` wird also erfüllt (ein `paths-ignore` am
-      # Trigger würde ihn dagegen ewig „ausstehend“ lassen). Im Zweifel – neuer
-      # Branch ohne Vorgänger, Vergleich schlägt fehl, ≥ 300 Dateien – wird gebaut.
+      # Trigger würde ihn dagegen ewig „ausstehend“ lassen). Im Zweifel – Vergleich
+      # schlägt fehl, ≥ 300 Dateien – wird gebaut.
+      #
+      # Nur für PRs, die mit ihrem ganzen Diff verglichen werden. Ein Push sieht
+      # nur sich selbst: am 14.10.2026 brach ein Doku-Push auf `staging` den
+      # Lauf des Code-Merges davor ab (`cancel-in-progress`), meldete selbst
+      # ohne Build grün – und GitHub wertete genau dieses Grün am selben Commit
+      # als Pflicht-Check des Release-PRs, der sofort nach `main` ging. Pushes
+      # bauen deshalb immer.
       - name: Nur Doku geändert?
         id: scope
         working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
           code=true
-          if [ -n "$BASE" ] && [ "$BASE" != 0000000000000000000000000000000000000000 ] \
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] && [ -n "$BASE" ] \
             && files=$(gh api "repos/$GITHUB_REPOSITORY/compare/$BASE...$HEAD" --jq '.files[].filename') \
             && [ -n "$files" ] && [ "$(wc -l <<< "$files")" -lt 300 ] \
             && ! grep -qvE '\.md$|^\.claude/' <<< "$files"; then

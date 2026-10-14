@@ -1751,3 +1751,12 @@ html[data-district-entering]::view-transition-new(root) { animation-duration: 45
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(district-opening) { animation-duration: 0s; }
 }
+
+/* The chosen pack flies from the category overview into its page. */
+::view-transition-group(category-pack) { animation-duration: 800ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+::view-transition-old(category-pack), ::view-transition-new(category-pack) { height: 100%; object-fit: contain; }
+html[data-category-entering]::view-transition-old(root) { animation-duration: 300ms; }
+html[data-category-entering]::view-transition-new(root) { animation-duration: 450ms; animation-delay: 150ms; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(category-pack) { animation-duration: 0s; }
+}

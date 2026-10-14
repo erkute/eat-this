@@ -17,7 +17,9 @@
   --footer-bg: var(--et-ink-raised);
   background: var(--footer-bg);
   color: var(--footer-ink);
-  padding: clamp(28px, 3.4vw, 48px) 16px calc(24px + env(safe-area-inset-bottom, 0px));
+  /* Unten Platz für Remys Knopf (fixiert, 58px hoch, 20px über dem Rand):
+     am schmalen Telefon lag er sonst auf der Copyright-Zeile. */
+  padding: clamp(28px, 3.4vw, 48px) 16px calc(88px + env(safe-area-inset-bottom, 0px));
   /* Markenschrift im ganzen Footer — Mono und die Impact-Kondensierte waren
      zwei Fremdschriften in einem Block (Nutzer-Markierungen 28.08.). */
   font-family: var(--et-font-display);
@@ -92,7 +94,7 @@
 
 .links {
   max-width: 1180px;
-  margin: clamp(20px, 2vw, 28px) auto 0;
+  margin: 22px auto 0;
   padding-top: 0;
   border-top: 0;
   display: grid;
@@ -143,16 +145,20 @@
 
 .legal {
   max-width: 1180px;
-  margin: clamp(16px, 1.7vw, 24px) auto 0;
+  margin: 18px auto 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px clamp(10px, 1.5vw, 18px);
+  /* Am Telefon brechen die Links um: ohne Trennpunkte, damit keiner allein
+     am Zeilenende hängt; die Zeilen stehen eng als ein Block. */
+  gap: 0 20px;
   border: 0;
 }
 
 .legalLink {
-  min-height: 44px;
+  /* 32px: über dem Mindestmass von 24px, und die umbrochenen Zeilen
+     lesen sich noch als ein Block (mit 44px klafften rund 40px). */
+  min-height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -170,12 +176,6 @@
   text-align: center;
 }
 
-.legalLink:not(:last-child)::after {
-  content: '·';
-  display: inline-block;
-  margin-left: clamp(10px, 1.5vw, 18px);
-  color: rgba(255, 255, 255, 0.55);
-}
 
 @media (hover: hover) {
   .legalLink:hover {
@@ -199,7 +199,7 @@
 
 .meta {
   max-width: 1180px;
-  margin: 12px auto 0;
+  margin: 10px auto 0;
   display: grid;
   gap: 8px;
   align-items: center;
@@ -224,16 +224,16 @@
   display: flex;
   width: max-content;
   align-items: center;
-  gap: 7px;
-  margin: 8px auto 0;
+  gap: 2px;
+  margin: 12px auto 0;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
   /* Markenschrift statt Mono — Nutzer-Markierung 28.08. */
   font-family: var(--et-font-display);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.14em;
   line-height: 1.25;
   text-transform: uppercase;
@@ -244,8 +244,8 @@
 }
 
 .langBtn {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 32px;
+  min-height: 32px;
   border: 0;
   background: transparent;
   padding: 0;
@@ -280,6 +280,18 @@
 @media (min-width: 740px) {
   .footer {
     padding-inline: 32px;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .legal {
+    gap: 0 clamp(10px, 1.5vw, 18px);
+  }
+
+  .legalLink:not(:last-child)::after {
+    content: '·';
+    display: inline-block;
+    margin-left: clamp(10px, 1.5vw, 18px);
+    color: rgba(255, 255, 255, 0.55);
   }
 
   .top {

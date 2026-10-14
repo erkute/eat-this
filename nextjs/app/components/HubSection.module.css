@@ -273,7 +273,7 @@
      einer Breitenvorgabe läuft es auf flachen Fenstern unten heraus. */
   height: min(70vh, 660px);
   width: auto;
-  /* Mockups are 1282×2604 (0.492). Sized by height and heavily overlapped, the
+  /* Mockups are 985×2000 (0.492). Sized by height and heavily overlapped, the
      stacked pair needs ~0.74 of its height in width. Driving them off the
      container width instead blows them past the box on narrow screens. */
   aspect-ratio: 0.74;

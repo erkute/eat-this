@@ -3,7 +3,6 @@ import Image from '@/app/components/SiteImage';
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
 import HubFragRemy from './HubFragRemy';
-import AboutMotion from './AboutMotion';
 import SiteFooter from './SiteFooter';
 import styles from './AboutPage.module.css';
 
@@ -51,9 +50,9 @@ type Figure = {
    contact sheet. */
 const FIGURES: (Figure | null)[] = [
   {
-    src: '/pics/home-phones/phone-map-red.webp?v=2',
-    width: 1282,
-    height: 2604,
+    src: '/pics/home-phones/phone-map-red.webp?v=3',
+    width: 985,
+    height: 2000,
     // A tall object: anything wider than this and the phone runs
     // past the copy beside it.
     renderWidth: 225,
@@ -236,10 +235,9 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
   return (
     <main className={styles.page} data-page="about" id="staticPageAbout">
-      <AboutMotion />
       <div className={styles.inner}>
-        <header className={styles.hero} data-about-hero="">
-          <div className={styles.heroCopy} data-about-enter="">
+        <header className={styles.hero}>
+          <div className={styles.heroCopy}>
             <h1 className={styles.title} id="staticPageAbout-title">
               {doc.title || ''}
             </h1>
@@ -257,7 +255,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               )
             )}
           </div>
-          <div className={styles.heroArt} data-about-portrait="">
+          <div className={styles.heroArt}>
             <Image
               src="/pics/founder-cafe.webp"
               alt={
@@ -278,7 +276,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           <div className={styles.bridge}>
             {bridge.map((part, index) =>
               'line' in part ? (
-                <p key={index} className={styles.oneLiner} data-about-enter="">
+                <p key={index} className={styles.oneLiner}>
                   {part.line}
                 </p>
               ) : (
@@ -295,11 +293,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           const flipped = Boolean(figure) && index % 2 === 0;
           return (
             <Fragment key={section.title || index}>
-              <section
-                className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}
-                data-about-chapter={index}
-              >
-                <div className={styles.sectionCopy} data-about-enter="">
+              <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}>
+                <div className={styles.sectionCopy}>
                   <span className={styles.sectionNumber} aria-hidden="true">
                     {String(index + 1).padStart(2, '0')}
                   </span>
@@ -312,10 +307,9 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                 {figure && (
                   <figure
                     className={styles.figure}
-                    data-about-figure=""
                     style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
                   >
-                    <div data-about-object="">
+                    <div>
                       {figure.partner ? (
                         /* Two objects, one measure. They overlap on purpose: a
                          pair set side by side with a gap reads as two products
@@ -329,7 +323,6 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                             sizes={`${figure.renderWidth}px`}
                             loading="lazy"
                             className={styles.pairBack}
-                            data-about-card="back"
                             style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
                           />
                           <Image
@@ -340,7 +333,6 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                             sizes={`${figure.renderWidth}px`}
                             loading="lazy"
                             className={styles.pairFront}
-                            data-about-card="front"
                             style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
                           />
                         </div>
@@ -374,11 +366,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
         {coda.length > 0 && (
           <div className={styles.coda}>
             {coda.map((section, index) => (
-              <section
-                key={section.title || index}
-                className={styles.codaSection}
-                data-about-enter=""
-              >
+              <section key={section.title || index} className={styles.codaSection}>
                 <h2 className={styles.sectionTitle}>{section.title}</h2>
                 <CodaContent blocks={section.blocks} />
               </section>

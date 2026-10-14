@@ -9,6 +9,7 @@ import { HEART_PARAM, STARTER_PARAM } from '@/lib/auth/loginContinueUrl';
 import { rememberPendingStarterCard } from '@/lib/auth/pendingStarterCard';
 import { PROFILE_PATH, SIGNED_IN_EVENT, shouldGoToProfile } from '@/lib/auth/afterSignIn';
 import { finishEmailLink } from '@/lib/auth/emailLinkPending';
+import { arrivalDecided } from '@/lib/auth/signInArrival';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { trackEvent } from '@/lib/analytics';
 import styles from './Tour.module.css';
@@ -82,7 +83,7 @@ const EMAIL_FORM = 'email-link-sign-in';
  * geht die Tafel auf der Seite auf, auf der die Anmeldung begann, und nach dem
  * Klick geht es ins Profil — wie nach Google (afterSignIn.ts). Bei einem neuen
  * Konto läuft dort die Tour (sie hängt an der Pack-Vergabe, siehe
- * signInArrival).
+ * signInArrival); losgegangen wird erst, wenn ihr Ink-Grund liegt.
  *
  * Die Adresse steht groß da, weil der Klick eine echte Frage beantwortet: als
  * WER melde ich mich hier an?
@@ -111,8 +112,14 @@ export default function EmailLinkSignIn() {
      Redirect-Weg haben keinen eigenen Router und melden nur, dass jemand
      angekommen ist (afterSignIn.ts). */
   useEffect(() => {
-    const onSignedIn = () => {
-      if (shouldGoToProfile(pathname)) router.push(PROFILE_PATH);
+    const onSignedIn = async () => {
+      if (!shouldGoToProfile(pathname)) return;
+      /* Wie beim Mail-Link: erst wenn feststeht, ob die Tour kommt — sonst
+         stand das Profil offen da, bis sie aufging (signInArrival). */
+      const { auth } = await import('@/lib/firebase/config');
+      const uid = auth.currentUser?.uid;
+      if (uid) await arrivalDecided(uid);
+      router.push(PROFILE_PATH);
     };
     window.addEventListener(SIGNED_IN_EVENT, onSignedIn);
     return () => window.removeEventListener(SIGNED_IN_EVENT, onSignedIn);
@@ -213,6 +220,10 @@ export default function EmailLinkSignIn() {
       localStorage.removeItem('emailForSignIn');
     } catch {}
     trackEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
+    /* Die Tafel bleibt („Anmelden …"), bis feststeht, ob die Tour kommt.
+       Kommt sie, liegt ihr Ink-Grund dann schon unter der Tafel, und das
+       Profil wechselt verdeckt darunter — man sieht es nie vor der Tour. */
+    await arrivalDecided(user.uid);
     setState(null);
     /* Was auf der alten Seite von selbst aufgehen wollte, bleibt bis zum
        Seitenwechsel zurückgehalten — sonst blitzte es vor dem Profil auf. */

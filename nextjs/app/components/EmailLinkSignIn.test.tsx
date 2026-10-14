@@ -25,6 +25,10 @@ vi.mock('@/lib/analytics', () => analytics);
 const heart = vi.hoisted(() => ({ remember: vi.fn() }));
 vi.mock('@/lib/map/pendingHeart', () => ({ rememberPendingHeart: heart.remember }));
 
+/* Ob die Tour kommt, meldet sonst der Starter-Pack-Abgleich — hier gesteuert. */
+const arrival = vi.hoisted(() => ({ arrivalDecided: vi.fn() }));
+vi.mock('@/lib/auth/signInArrival', () => arrival);
+
 import EmailLinkSignIn from './EmailLinkSignIn';
 
 /** Landing URL; fixtures may include an untrusted email parameter. */
@@ -42,7 +46,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   locale.current = 'de';
   fb.isSignInWithEmailLink.mockReturnValue(true);
-  fb.signInWithEmailLink.mockResolvedValue({ user: { displayName: null } });
+  fb.signInWithEmailLink.mockResolvedValue({ user: { uid: 'u1', displayName: null } });
+  arrival.arrivalDecided.mockResolvedValue(true);
   nav.pathname = '/map';
   localStorage.clear();
   sessionStorage.clear();
@@ -92,7 +97,7 @@ describe('Link aus der Anmelde-Mail', () => {
   });
 
   it('zaehlt einen Wiederkehrer als login', async () => {
-    fb.signInWithEmailLink.mockResolvedValue({ user: { displayName: 'Lukas' } });
+    fb.signInWithEmailLink.mockResolvedValue({ user: { uid: 'u1', displayName: 'Lukas' } });
     await mount();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
@@ -108,6 +113,24 @@ describe('Link aus der Anmelde-Mail', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
     });
+    expect(nav.push).toHaveBeenCalledWith('/profile');
+  });
+
+  /* Bis 14.10.2026 ging es sofort ins Profil, und das stand offen da, bis
+     die Tour aufging (Betreiber: „man darf nicht im Vorfeld das Profil
+     sehen"). */
+  it('bleibt stehen, bis feststeht, ob die Tour kommt — erst dann ins Profil', async () => {
+    let decide: (granted: boolean) => void = () => {};
+    arrival.arrivalDecided.mockReturnValue(new Promise((resolve) => (decide = resolve)));
+    await mount();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+    });
+    expect(arrival.arrivalDecided).toHaveBeenCalledWith('u1');
+    expect(screen.getByRole('button', { name: 'Anmelden …' })).toBeTruthy();
+    expect(nav.push).not.toHaveBeenCalled();
+    await act(async () => decide(true));
+    expect(screen.queryByRole('dialog')).toBeNull();
     expect(nav.push).toHaveBeenCalledWith('/profile');
   });
 
@@ -132,7 +155,7 @@ describe('Link aus der Anmelde-Mail', () => {
   /* Die Google-Anmeldung meldet sich per Ereignis (LoginBoard, AuthContext). */
   it('schickt nach einer Google-Anmeldung ins Profil', async () => {
     await mount();
-    act(() => {
+    await act(async () => {
       window.dispatchEvent(new Event('eatthis:signed-in'));
     });
     expect(nav.push).toHaveBeenCalledWith('/profile');

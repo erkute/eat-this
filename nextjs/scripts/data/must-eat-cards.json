@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet.",
+  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet; 033-038 am 14.10.2026, 039 am 15.10.2026 ergänzt. Eine order gehört genau einem Must Eat: das Deck legt pro Must Eat einen Platz an, eine Karte an mehreren Filialen erscheint dort doppelt.",
   "cards": [
     {
       "order": 1,
@@ -257,6 +257,62 @@
       "dish": "Szegediner Wildgulasch",
       "descriptionEn": "Szegediner game goulash with bread dumplings and sour cream.",
       "description": "Szegediner Wildgulasch mit Semmelknödeln und saurer Sahne."
+    },
+    {
+      "order": 33,
+      "file": "Main-32.png",
+      "spot": "ITA Bistro",
+      "dish": "Hamachi Head",
+      "descriptionEn": "Hamachi head straight from the fire, served with charred lemon.",
+      "description": "Hamachi-Kopf direkt vom Feuer, serviert mit verkohlter Zitrone."
+    },
+    {
+      "order": 34,
+      "file": "Main-33.png",
+      "spot": "ITA Bistro",
+      "dish": "Grilled Pork Neck",
+      "descriptionEn": "Grilled pork neck, mustard sauce & peppers.",
+      "description": "Gegrillter Schweinenacken, Senfsauce & Pimientos."
+    },
+    {
+      "order": 35,
+      "file": "Main-34.png",
+      "spot": "NOVEMBER Brasserie",
+      "dish": "Kinmedai Sashimi",
+      "descriptionEn": "Kinmedai sashimi with a delicate texture and natural sweetness.",
+      "description": "Kinmedai-Sashimi mit zarter Textur und natürlicher Süße."
+    },
+    {
+      "order": 36,
+      "file": "Main-35.png",
+      "spot": "Boii Boii",
+      "dish": "Loup de Mer",
+      "descriptionEn": "Grilled in banana leaf with Abb paste, served with pickled mango and celery.",
+      "description": "Im Bananenblatt gegrillt mit Abb-Paste, dazu eingelegte Mango und Sellerie."
+    },
+    {
+      "order": 37,
+      "file": "Main-36.png",
+      "spot": "Fukagawa Ramen XBerg",
+      "dish": "Truffle Ramen",
+      "descriptionEn": "Signature ramen with homemade truffle foam and truffle oil.",
+      "description": "Signature-Ramen mit hausgemachtem Trüffelschaum und Trüffelöl."
+    },
+    {
+      "order": 38,
+      "file": "Main-37.png",
+      "spot": "Standard Serious Pizza",
+      "dish": "Miraflores",
+      "descriptionEn": "Fig gazpacho, stracciatella, smoked swordfish ceviche, figs and hazelnuts.",
+      "description": "Feigen-Gazpacho, Stracciatella, geräuchertes Schwertfisch-Ceviche, Feigen und Haselnüsse."
+    },
+    {
+      "order": 39,
+      "file": "Main-38.png",
+      "spot": "Fukagawa Ramen XBerg",
+      "dish": "Wagyu Ramen",
+      "descriptionEn": "Japanese A5 wagyu in a clear broth with bamboo shoots, egg and nori.",
+      "description": "Japanisches A5-Wagyu in klarer Brühe mit Bambussprossen, Ei und Nori."
     }
   ]
 }

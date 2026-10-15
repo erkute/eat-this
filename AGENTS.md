@@ -67,4 +67,6 @@ Performanceänderungen am selben Seitentyp vor/nachher messen. Der PR-Check miss
 
 **Texte** (Artikel, Spot-Beschreibungen, Tipps, Hub-Texte, SEO-Felder, EN) schreiben und verbessern nach `docs/texte-schreiben.md` – vorher ganz lesen.
 
+**Must-Eat-Karten** (Figma, neue Karte, Kartendesign, Export und Einspielen) nach `docs/must-eat-karten.md`.
+
 Bei Content-/SEO-Arbeit Sanity als Inhaltsquelle verwenden; Fakten und DE/EN-Fassungen prüfen, Canonicals, hreflang, Sitemap, strukturierte Daten und interne Links am gerenderten Ergebnis kontrollieren. Vor Änderungen an Google-Anbindungen die vorhandenen Adapter `lib/admin/searchConsole.server.ts` und `googleAnalytics.server.ts` nutzen. Figma für konkrete Layout-/Komponentenarbeit, Adobe für Bild-/Font-/Asset-Arbeit, Remotion für Video; zusätzliche Plugins nur bei einer nachgewiesenen Lücke.

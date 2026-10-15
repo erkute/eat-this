@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Stand: Export vom 27.09.2026, 001-032 per Kontaktbogen zugeordnet; 033-038 am 14.10.2026, 039 am 15.10.2026 ergänzt. Eine order gehört genau einem Must Eat: das Deck legt pro Must Eat einen Platz an, eine Karte an mehreren Filialen erscheint dort doppelt.",
+  "note": "Kartennummer unten rechts auf der Karte = mustEat.order in Sanity. `file` liegt im Ordner, den replace-must-eat-cards.ts per --cards bekommt. Gericht und Texte stehen hier so, wie sie auf der Karte stehen: descriptionEn ist der Wortlaut der Karte, description die Uebersetzung davon, und der Tausch schreibt beides nach Firestore. Dateiname = Kartennummer (001.png …), wie beim Export vom 15.10.2026; Ablauf in docs/must-eat-karten.md. Eine order gehört genau einem Must Eat: das Deck legt pro Must Eat einen Platz an, eine Karte an mehreren Filialen erscheint dort doppelt.",
   "cards": [
     {
       "order": 1,
-      "file": "Main.png",
+      "file": "001.png",
       "spot": "Saveur de Bánh Mì",
       "dish": "Banh Mi Vegan",
       "descriptionEn": "Baguette, tofu, vegan pâté, mayonnaise, pickled radish, carrots, cucumber",
@@ -12,7 +12,7 @@
     },
     {
       "order": 2,
-      "file": "Main-27.png",
+      "file": "002.png",
       "spot": "SOFI",
       "dish": "Breakfast Plate",
       "descriptionEn": "Sourdough bread with whipped butter, sea salt, cheese and a soft-boiled egg",
@@ -20,7 +20,7 @@
     },
     {
       "order": 3,
-      "file": "Main-26.png",
+      "file": "003.png",
       "spot": "ALL IN.",
       "dish": "Single Burger",
       "descriptionEn": "Beef patty, american cheese, grilled onions, pickles, secret sauce",
@@ -28,7 +28,7 @@
     },
     {
       "order": 4,
-      "file": "Main-25.png",
+      "file": "004.png",
       "spot": "Atelier Dough",
       "dish": "Not So Plain Donut",
       "descriptionEn": "Yeast dough, lime, vanilla glaze.",
@@ -36,7 +36,7 @@
     },
     {
       "order": 5,
-      "file": "Main-24.png",
+      "file": "005.png",
       "spot": "AERA Charlottenburg",
       "dish": "Grilled Cheese",
       "descriptionEn": "Fresh bread, with butter, cheese and egg",
@@ -44,7 +44,7 @@
     },
     {
       "order": 6,
-      "file": "Main-23.png",
+      "file": "006.png",
       "spot": "Romeo's Sandwiches",
       "dish": "Szechuan Tofu Sandwich",
       "descriptionEn": "Chili crisp, and coriander mayo on fluffy potato bread",
@@ -52,7 +52,7 @@
     },
     {
       "order": 7,
-      "file": "Main-22.png",
+      "file": "007.png",
       "spot": "Kitten Deli",
       "dish": "Sabich",
       "descriptionEn": "Roasted eggplant with tahini, soft-boiled egg, potatoes, mango chutney, and harissa",
@@ -60,7 +60,7 @@
     },
     {
       "order": 8,
-      "file": "Main-21.png",
+      "file": "008.png",
       "spot": "Schüsseldienst",
       "dish": "Rinder Schaufel",
       "descriptionEn": "18hr slow-cooked | Potato-leek mash, sesame-soy zucchini, chili pearls, napa",
@@ -68,7 +68,7 @@
     },
     {
       "order": 9,
-      "file": "Main-20.png",
+      "file": "009.png",
       "spot": "Hasir",
       "dish": "Classic Döner",
       "descriptionEn": "Juicy veal, fresh salad, and signature sauces in crispy bread.",
@@ -76,7 +76,7 @@
     },
     {
       "order": 10,
-      "file": "Main-19.png",
+      "file": "010.png",
       "spot": "Jones Ice Cream",
       "dish": "Choco Chip Pecan Cookies",
       "descriptionEn": "Big, flat, and soft at heart – baked with golden edges and a chewy center",
@@ -84,7 +84,7 @@
     },
     {
       "order": 11,
-      "file": "Main-6.png",
+      "file": "011.png",
       "spot": "Bar Basta",
       "dish": "ODB Sandwich",
       "descriptionEn": "Meatball, melting onions, kale and ricotta salata in a milk bun",
@@ -92,7 +92,7 @@
     },
     {
       "order": 12,
-      "file": "Main-18.png",
+      "file": "012.png",
       "spot": "Jules Geisberg",
       "dish": "Cappuccino",
       "descriptionEn": "Not your average coffee",
@@ -100,7 +100,7 @@
     },
     {
       "order": 13,
-      "file": "Main-17.png",
+      "file": "013.png",
       "spot": "SOFI",
       "dish": "Morning Bun",
       "descriptionEn": "Croissant dough infused with aromatic cardamom and zesty orange",
@@ -108,7 +108,7 @@
     },
     {
       "order": 14,
-      "file": "Main-16.png",
+      "file": "014.png",
       "spot": "Gazzo",
       "dish": "Pizza Aubergine",
       "descriptionEn": "Roasted aubergines, Parmesan, garlic, mozzarella, basil, tomato sauce.",
@@ -116,7 +116,7 @@
     },
     {
       "order": 15,
-      "file": "Main-15.png",
+      "file": "015.png",
       "spot": "Slice Society",
       "dish": "Tomate Slice",
       "descriptionEn": "Tomato Sauce, Garlic Butter Breadcrumbs, Chili Oil, Olive Oil",
@@ -124,7 +124,7 @@
     },
     {
       "order": 16,
-      "file": "Main-14.png",
+      "file": "016.png",
       "spot": "Hokey Pokey Stargarder",
       "dish": "Rocky Road",
       "descriptionEn": "A masterpiece of textures and flavors.",
@@ -132,7 +132,7 @@
     },
     {
       "order": 17,
-      "file": "Main-13.png",
+      "file": "017.png",
       "spot": "Bubar Crepes und Galettes",
       "dish": "Galette",
       "descriptionEn": "Authentic Breton buckwheat galette with a fried egg – crispy and handmade",
@@ -140,7 +140,7 @@
     },
     {
       "order": 18,
-      "file": "Main-12.png",
+      "file": "018.png",
       "spot": "GEMELLO",
       "dish": "Pizza",
       "descriptionEn": "Pumpkin cream, vegan Salsicia, mushrooms & sauteed parsley stems, chestnut crunch",
@@ -148,7 +148,7 @@
     },
     {
       "order": 19,
-      "file": "Main-11.png",
+      "file": "019.png",
       "spot": "Wen Cheng 1",
       "dish": "Biang Biang Lamb",
       "descriptionEn": "Lamb, Wencheng sauce, cumin, scallions, red bell pepper, garlic, cilantro, and mint",
@@ -156,7 +156,7 @@
     },
     {
       "order": 20,
-      "file": "Main-10.png",
+      "file": "020.png",
       "spot": "Bar Basta",
       "dish": "Spicy Thai Sausage",
       "descriptionEn": "With mashed potatoes & ginger jus",
@@ -164,7 +164,7 @@
     },
     {
       "order": 21,
-      "file": "Main-9.png",
+      "file": "021.png",
       "spot": "Bursa Uludağ Kebapçısı",
       "dish": "Special Döner",
       "descriptionEn": "Juicy meat, fresh salad, and toasted pita",
@@ -172,7 +172,7 @@
     },
     {
       "order": 22,
-      "file": "Main-8.png",
+      "file": "022.png",
       "spot": "Crapulix",
       "dish": "Croissant",
       "descriptionEn": "A classic, buttery croissant crafted by hand with premium ingredients",
@@ -180,7 +180,7 @@
     },
     {
       "order": 23,
-      "file": "Main-7.png",
+      "file": "023.png",
       "spot": "Tacos el Rey",
       "dish": "Chorizo Verde",
       "descriptionEn": "Homemade green chorizo (pork), caramelized onions",
@@ -188,7 +188,7 @@
     },
     {
       "order": 24,
-      "file": "Main-28.png",
+      "file": "024.png",
       "spot": "EIVGI´S",
       "dish": "Falafel Teller",
       "descriptionEn": "Falafel, hummus, chickpeas, lettuce, cucumber, red cabbage, tahini, fresh herbs",
@@ -196,7 +196,7 @@
     },
     {
       "order": 25,
-      "file": "Main-29.png",
+      "file": "025.png",
       "spot": "Knödelwirtschaft SÜD",
       "dish": "Rindergulasch mit Knödel",
       "descriptionEn": "Beef Goulash with two dumplings of your choice and a small side salad.",
@@ -204,7 +204,7 @@
     },
     {
       "order": 26,
-      "file": "Main-5.png",
+      "file": "026.png",
       "spot": "Zur Bratpfanne",
       "dish": "Currywurst mit Darm",
       "descriptionEn": "Berlin-style currywurst with house-made ketchup and curry powder. Best with fries and mayo.",
@@ -212,7 +212,7 @@
     },
     {
       "order": 27,
-      "file": "Main-4.png",
+      "file": "027.png",
       "spot": "Cocolo Ramen Mitte",
       "dish": "Tonkotsu",
       "descriptionEn": "Rich ramen topped with tender pork, glazed pork belly, a soft-boiled egg and earthy mu-err mushrooms.",
@@ -220,7 +220,7 @@
     },
     {
       "order": 28,
-      "file": "Main-3.png",
+      "file": "028.png",
       "spot": "Sardinen Bar",
       "dish": "Fish & Chips",
       "descriptionEn": "Crispy battered fish, golden fries, lemon and three dips.",
@@ -228,7 +228,7 @@
     },
     {
       "order": 29,
-      "file": "Main-30.png",
+      "file": "029.png",
       "spot": "Sword Master Noodle",
       "dish": "Galbi Kalguksu",
       "descriptionEn": "Slow-braised beef with noodles, potato and carrot in a rich beef broth.",
@@ -236,7 +236,7 @@
     },
     {
       "order": 30,
-      "file": "Main-2.png",
+      "file": "030.png",
       "spot": "Jones Ice Cream",
       "dish": "Carrot Cake",
       "descriptionEn": "Served in a handmade waffle cone.",
@@ -244,7 +244,7 @@
     },
     {
       "order": 31,
-      "file": "Main-1.png",
+      "file": "031.png",
       "spot": "Trio",
       "dish": "Königsberger Klopse",
       "descriptionEn": "In caper sauce with creamy potato purée and beetroot salad on the side.",
@@ -252,7 +252,7 @@
     },
     {
       "order": 32,
-      "file": "Main-31.png",
+      "file": "032.png",
       "spot": "Trio",
       "dish": "Szegediner Wildgulasch",
       "descriptionEn": "Szegediner game goulash with bread dumplings and sour cream.",
@@ -260,7 +260,7 @@
     },
     {
       "order": 33,
-      "file": "Main-32.png",
+      "file": "033.png",
       "spot": "ITA Bistro",
       "dish": "Hamachi Head",
       "descriptionEn": "Hamachi head straight from the fire, served with charred lemon.",
@@ -268,7 +268,7 @@
     },
     {
       "order": 34,
-      "file": "Main-33.png",
+      "file": "034.png",
       "spot": "ITA Bistro",
       "dish": "Grilled Pork Neck",
       "descriptionEn": "Grilled pork neck, mustard sauce & peppers.",
@@ -276,7 +276,7 @@
     },
     {
       "order": 35,
-      "file": "Main-34.png",
+      "file": "035.png",
       "spot": "NOVEMBER Brasserie",
       "dish": "Kinmedai Sashimi",
       "descriptionEn": "Kinmedai sashimi with a delicate texture and natural sweetness.",
@@ -284,7 +284,7 @@
     },
     {
       "order": 36,
-      "file": "Main-35.png",
+      "file": "036.png",
       "spot": "Boii Boii",
       "dish": "Loup de Mer",
       "descriptionEn": "Grilled in banana leaf with Abb paste, served with pickled mango and celery.",
@@ -292,7 +292,7 @@
     },
     {
       "order": 37,
-      "file": "Main-36.png",
+      "file": "037.png",
       "spot": "Fukagawa Ramen XBerg",
       "dish": "Truffle Ramen",
       "descriptionEn": "Signature ramen with homemade truffle foam and truffle oil.",
@@ -300,7 +300,7 @@
     },
     {
       "order": 38,
-      "file": "Main-37.png",
+      "file": "038.png",
       "spot": "Standard Serious Pizza",
       "dish": "Miraflores",
       "descriptionEn": "Fig gazpacho, stracciatella, smoked swordfish ceviche, figs and hazelnuts.",
@@ -308,7 +308,7 @@
     },
     {
       "order": 39,
-      "file": "Main-38.png",
+      "file": "039.png",
       "spot": "Fukagawa Ramen XBerg",
       "dish": "Wagyu Ramen",
       "descriptionEn": "Japanese A5 wagyu in a clear broth with bamboo shoots, egg and nori.",

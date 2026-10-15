@@ -5,6 +5,8 @@ import { haversineDistance } from './distance';
 
 /** Below this, a watched fix counts as jitter and does not replace `location`. */
 const WATCH_MIN_MOVE_M = 3;
+/** Without a fix for this long, the watcher is restarted (see `watch`). */
+export const WATCH_STALL_MS = 10_000;
 
 export interface UserLocation {
   lat: number;
@@ -133,33 +135,66 @@ export function useUserLocation(): UseUserLocationResult {
     if (typeof navigator === 'undefined' || !navigator.geolocation?.watchPosition) {
       return () => {};
     }
-    const id = navigator.geolocation.watchPosition(
-      (pos) => {
-        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        /* GPS zittert auch im Stehen um ein paar Meter und liefert dabei im
-           Sekundentakt. Jeder neue Fix rendert die ganze Map neu und sortiert
-           die Liste nach Entfernung — unterhalb von WATCH_MIN_MOVE_M bleibt
-           deshalb das alte Objekt stehen. */
-        setLocation((prev) =>
-          prev && haversineDistance(prev.lat, prev.lng, next.lat, next.lng) < WATCH_MIN_MOVE_M
-            ? prev
-            : next
-        );
-        /* Ein Fix beantwortet einen alten Timeout — sonst stuende „nicht
-           gefunden" noch im Zustand, waehrend der Avatar laengst da ist. */
-        setError((prev) => (prev === 'denied' ? prev : null));
-      },
-      (err) => {
-        /* A denial that arrives here is only possible when the grant was
-           revoked in the meantime; keep the last fix, the next deliberate
-           request will report the error itself. Dropping `permitted` stops
-           the watcher. Timeouts are the tunnel and just wait for the next
-           fix. */
-        if (err.code === 1) setPermitted(false);
-      },
-      { enableHighAccuracy: true, maximumAge: 0 }
-    );
-    return () => navigator.geolocation.clearWatch(id);
+    const geo = navigator.geolocation;
+    let id = 0;
+    let stallTimer = 0;
+
+    const onFix: PositionCallback = (pos) => {
+      armStallTimer();
+      const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      /* GPS zittert auch im Stehen um ein paar Meter und liefert dabei im
+         Sekundentakt. Jeder neue Fix rendert die ganze Map neu und sortiert
+         die Liste nach Entfernung — unterhalb von WATCH_MIN_MOVE_M bleibt
+         deshalb das alte Objekt stehen. */
+      setLocation((prev) =>
+        prev && haversineDistance(prev.lat, prev.lng, next.lat, next.lng) < WATCH_MIN_MOVE_M
+          ? prev
+          : next
+      );
+      /* Ein Fix beantwortet einen alten Timeout — sonst stuende „nicht
+         gefunden" noch im Zustand, waehrend der Avatar laengst da ist. */
+      setError((prev) => (prev === 'denied' ? prev : null));
+    };
+
+    /* Timeouts are the tunnel and just wait for the next fix. A denial
+       stopped the watcher for good until the next tap — but WebKit also
+       reports one with the grant intact (see MapSection.handleLocateMe).
+       Only a grant that is really gone drops `permitted`, which stops the
+       watcher; otherwise the stall timer restarts it. The last fix stays
+       either way, the next deliberate request reports the error itself. */
+    const onError: PositionErrorCallback = (err) => {
+      if (err.code !== 1) return;
+      void getGeolocationPermissionState().then((state) => {
+        if (state !== 'granted') setPermitted(false);
+      });
+    };
+
+    /* iOS Safari laesst einen laufenden Beobachter auch bei offener Karte
+       verstummen, ohne Fehler. In der Bahn bewegte sich der Avatar deshalb
+       erst, wenn der Standort-Knopf den Beobachter neu startete (Betreiber,
+       15.10.2026) — ein frischer watchPosition liefert in WebKit sofort die
+       aktuelle Position. Das macht der Beobachter jetzt selbst, sobald
+       WATCH_STALL_MS lang kein Fix kam. Im Hintergrund nicht: dort liefert
+       iOS ohnehin nichts, und MapSection startet ihn bei der Rueckkehr neu. */
+    function armStallTimer() {
+      window.clearTimeout(stallTimer);
+      stallTimer = window.setTimeout(() => {
+        if (document.visibilityState === 'hidden') return armStallTimer();
+        geo.clearWatch(id);
+        start();
+      }, WATCH_STALL_MS);
+    }
+
+    function start() {
+      id = geo.watchPosition(onFix, onError, { enableHighAccuracy: true, maximumAge: 0 });
+      armStallTimer();
+    }
+
+    start();
+    return () => {
+      window.clearTimeout(stallTimer);
+      geo.clearWatch(id);
+    };
   }, []);
 
   const request = useCallback((options?: RequestOptions): Promise<LocationRequestResult> => {

@@ -15,7 +15,6 @@ import {
   useUserTier,
   buildPeekMustEatMap,
   resolveUnlockedMustEatIds,
-  haversineDistance,
 } from '@/lib/map';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/lib/auth';
@@ -87,6 +86,8 @@ export default function MapSection({
   // Set true synchronously in any click handler that flies the camera so
   // the slow auto-locate Promise can't overwrite the user's selection.
   const userInteractedRef = useRef(false);
+  // Camera follows the visitor's position — see the follow-mode effect.
+  const followingRef = useRef(false);
   const mapTrackedRef = useRef(false);
   const { t } = useTranslation();
 
@@ -1125,7 +1126,10 @@ export default function MapSection({
      float noise, and every new centre costs a list render. */
   const handleMapMoveEnd = useCallback((e: ViewStateChangeEvent) => {
     const userGesture = e.originalEvent != null;
-    if (userGesture) userInteractedRef.current = true;
+    if (userGesture) {
+      userInteractedRef.current = true;
+      followingRef.current = false;
+    }
     const follows = listFollowsMove({
       userGesture,
       following: listFollowsMapRef.current,
@@ -1337,8 +1341,8 @@ export default function MapSection({
      einem Fix nur zu dem zurueck, den es schon gab — kam der aus der U-Bahn
      und lieferte der Beobachter seitdem nichts, stand der Avatar fest, und
      der Knopf tat sichtbar nichts (Betreiber: „keine neuer Abruf. Ist
-     eingefroren"). Die Kamera geht sofort zum bekannten Punkt; der neue Fix
-     holt sie nur nach, wenn er spuerbar woanders liegt.
+     eingefroren"). Die Kamera geht sofort zum bekannten Punkt, der Tipp
+     schaltet den Folgemodus ein, und der neue Fix holt sie nach.
 
      Laeuft der Beobachter schon, fragt der Knopf NICHT per
      getCurrentPosition. WebKit beantwortet eine Einzelabfrage neben einem
@@ -1348,37 +1352,41 @@ export default function MapSection({
      startet der Tipp den Beobachter neu: ein frischer watchPosition liefert
      in WebKit sofort die aktuelle Position. Die Einzelabfrage bleibt fuer
      den Fall ohne Freigabe (sie stellt die Frage) und ohne Fix (sie meldet,
-     dass keiner kommt). */
-  const followFixRef = useRef<{ from: { lat: number; lng: number }; until: number } | null>(null);
+     dass keiner kommt) — ihr Fix landet in `location`, und der Folgemodus
+     fliegt hin. */
   const handleLocateMe = useCallback(async () => {
     userInteractedRef.current = true;
-    const flyTo = (loc: { lat: number; lng: number }) =>
-      flyToSpot(loc, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPadding() });
-    if (location) flyTo(location);
+    followingRef.current = true;
+    if (location) {
+      flyToSpot(location, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPadding() });
+    }
     if (location && locationPermitted) {
-      followFixRef.current = { from: location, until: Date.now() + 10_000 };
       setWatchRound((round) => round + 1);
       return;
     }
-    const { location: loc } = await requestLocation();
-    if (!loc) return;
-    if (!location || haversineDistance(location.lat, location.lng, loc.lat, loc.lng) > 10) {
-      flyTo(loc);
-    }
+    await requestLocation();
   }, [location, locationPermitted, requestLocation, flyToSpot, getFlyPadding]);
-  /* Der frische Fix nach einem Tipp — die Kamera folgt nur, wenn er spuerbar
-     woanders liegt und der Tipp keine zehn Sekunden her ist. Spaeter
-     gelieferte Fixe sind Gehen, nicht Antwort, und duerfen die Kamera nicht
-     unter der Hand wegziehen. */
+
+  /* Folgemodus: die Kamera geht mit dem Besucher mit, wie in jeder
+     Navi-App (Betreiber, 15.10.2026: „ich will, dass die Kamera sich
+     mitbewegt"). An geht er, wenn die Karte zum Besucher fliegt — Standort-
+     Knopf, Auto-Zentrierung, Rueckkehr auf die Map. Aus geht er, sobald der
+     Besucher die Karte selbst bewegt oder einen Spot oeffnet: wer sich
+     umsieht, dem zieht kein neuer Fix die Kamera unter der Hand weg. Der
+     Knopf schaltet ihn wieder ein — im offenen Detail (Must-Eat: „Standort
+     freigeben") nur fuer den einen Fix, der den Tipp beantwortet. Reduced
+     Motion springt MapLibre von selbst, statt zu fliegen. */
+  const followedLocationRef = useRef(location);
   useEffect(() => {
-    const pending = followFixRef.current;
-    if (!pending || !location || location === pending.from) return;
-    followFixRef.current = null;
-    if (Date.now() > pending.until) return;
-    if (haversineDistance(pending.from.lat, pending.from.lng, location.lat, location.lng) > 10) {
-      flyToSpot(location, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPadding() });
-    }
-  }, [location, flyToSpot, getFlyPadding]);
+    if (location === followedLocationRef.current) return;
+    followedLocationRef.current = location;
+    if (!location || !isActive || !followingRef.current) return;
+    if (sheetViewRef.current === 'detail') followingRef.current = false;
+    flyToSpot(location, { zoom: getUserLocationZoom(), duration: 800, padding: getFlyPadding() });
+  }, [location, isActive, flyToSpot, getFlyPadding]);
+  useEffect(() => {
+    if (selectedRestaurant || selectedMustEat) followingRef.current = false;
+  }, [selectedRestaurant, selectedMustEat]);
 
   /* Default camera = the user's position. Request it once on mount and, as
      soon as it resolves, centre the map there — unless the user already
@@ -1435,6 +1443,7 @@ export default function MapSection({
           },
           onReady: () => {
             completed = true;
+            followingRef.current = true;
             flyToSpot(loc, { zoom: getUserLocationZoom(), duration: 600, padding: getFlyPaddingRef.current() });
           },
         });
@@ -1575,6 +1584,7 @@ export default function MapSection({
     if (!justActivated) return;
     if (selectedRestaurant || selectedMustEat) return;
     if (!location) return;
+    followingRef.current = true;
     flyToSpot(location, { zoom: getUserLocationZoom(), duration: 400, padding: getFlyPadding() });
   }, [isActive, selectedRestaurant, selectedMustEat, location, flyToSpot, getFlyPadding]);
 

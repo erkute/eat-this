@@ -2,7 +2,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useUserLocation } from '../useUserLocation';
+import { useUserLocation, WATCH_STALL_MS } from '../useUserLocation';
 
 type PositionCallback = (pos: { coords: { latitude: number; longitude: number } }) => void;
 
@@ -154,7 +154,7 @@ describe('useUserLocation.watch', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('drops the grant when the watcher is denied', () => {
+  function watchedHook() {
     let fail: (err: { code: number }) => void = () => {};
     geo.watchPosition.mockImplementation(
       (_ok: PositionCallback, onError: (err: { code: number }) => void) => {
@@ -163,19 +163,95 @@ describe('useUserLocation.watch', () => {
       }
     );
     geo.getCurrentPosition.mockImplementationOnce((ok: PositionCallback) => ok(fix(52.5, 13.4)));
-    const { result } = renderHook(() => useUserLocation());
+    const hook = renderHook(() => useUserLocation());
     act(() => {
-      void result.current.request({ silent: true });
+      void hook.result.current.request({ silent: true });
     });
-    expect(result.current.permitted).toBe(true);
+    expect(hook.result.current.permitted).toBe(true);
+    act(() => {
+      hook.result.current.watch();
+    });
+    return { ...hook, fail: (code: number) => fail({ code }) };
+  }
 
-    act(() => {
-      result.current.watch();
-    });
-    act(() => fail({ code: 3 }));
+  it('drops the grant when the watcher is denied', async () => {
+    const { result, fail } = watchedHook();
+    await act(async () => fail(3));
     expect(result.current.permitted).toBe(true);
-    act(() => fail({ code: 1 }));
+    await act(async () => fail(1));
     expect(result.current.permitted).toBe(false);
+  });
+
+  /* WebKit meldet „verweigert" auch mit stehender Freigabe. Das darf den
+     Beobachter nicht bis zum naechsten Tipp abschalten. */
+  it('keeps the grant when a denial arrives but the permission still stands', async () => {
+    Object.defineProperty(navigator, 'permissions', {
+      configurable: true,
+      value: { query: vi.fn(() => Promise.resolve({ state: 'granted' })) },
+    });
+    try {
+      const { result, fail } = watchedHook();
+      await act(async () => fail(1));
+      expect(result.current.permitted).toBe(true);
+    } finally {
+      Reflect.deleteProperty(navigator, 'permissions');
+    }
+  });
+
+  describe('when the watcher goes quiet', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => {
+      vi.useRealTimers();
+      Reflect.deleteProperty(document, 'visibilityState');
+    });
+
+    /* In der Bahn: kein Fehler, nur kein Fix mehr — bis der Knopf den
+       Beobachter neu startete. Das macht er jetzt selbst. */
+    it('restarts itself after WATCH_STALL_MS without a fix', () => {
+      let deliver: PositionCallback = () => {};
+      let nextId = 10;
+      geo.watchPosition.mockImplementation((onFix: PositionCallback) => {
+        deliver = onFix;
+        return nextId++;
+      });
+      const { result } = renderHook(() => useUserLocation());
+      let stop: () => void = () => {};
+      act(() => {
+        stop = result.current.watch();
+      });
+      expect(geo.watchPosition).toHaveBeenCalledTimes(1);
+
+      // Fixe halten ihn am Leben.
+      act(() => vi.advanceTimersByTime(WATCH_STALL_MS - 1));
+      act(() => deliver(fix(52.52, 13.405)));
+      act(() => vi.advanceTimersByTime(WATCH_STALL_MS - 1));
+      expect(geo.watchPosition).toHaveBeenCalledTimes(1);
+
+      act(() => vi.advanceTimersByTime(1));
+      expect(geo.clearWatch).toHaveBeenCalledWith(10);
+      expect(geo.watchPosition).toHaveBeenCalledTimes(2);
+
+      // Der neue Beobachter liefert weiter in `location`.
+      act(() => deliver(fix(52.53, 13.41)));
+      expect(result.current.location).toEqual({ lat: 52.53, lng: 13.41 });
+
+      act(() => stop());
+      expect(geo.clearWatch).toHaveBeenLastCalledWith(11);
+      act(() => vi.advanceTimersByTime(WATCH_STALL_MS * 3));
+      expect(geo.watchPosition).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not restart while the page is in the background', () => {
+      geo.watchPosition.mockReturnValue(4);
+      Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+      const { result } = renderHook(() => useUserLocation());
+      act(() => {
+        result.current.watch();
+      });
+      act(() => vi.advanceTimersByTime(WATCH_STALL_MS * 3));
+      expect(geo.watchPosition).toHaveBeenCalledTimes(1);
+      expect(geo.clearWatch).not.toHaveBeenCalled();
+    });
   });
 
   it('is a no-op without geolocation support', () => {

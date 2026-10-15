@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sortByCardNumber } from './cardOrder';
+import { cardNumber, sortByCardNumber } from './cardOrder';
 
 const card = (_id: string, order?: number) => ({ _id, order });
 
@@ -24,5 +24,17 @@ describe('sortByCardNumber', () => {
     const deck = [card('b', 2), card('a', 1)];
     sortByCardNumber(deck);
     expect(deck.map((c) => c._id)).toEqual(['b', 'a']);
+  });
+});
+
+describe('cardNumber', () => {
+  it('prints the number the way the card does', () => {
+    expect(cardNumber(7)).toBe('007');
+    expect(cardNumber(39)).toBe('039');
+    expect(cardNumber(120)).toBe('120');
+  });
+
+  it('invents no number for a card without one', () => {
+    expect(cardNumber(undefined)).toBeNull();
   });
 });

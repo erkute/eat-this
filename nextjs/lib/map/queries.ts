@@ -100,9 +100,14 @@ export const restaurantMapDetailQuery = `
    — im Album stand ein Platz, den niemand mehr vor Ort umdrehen kann, und das
    All-Berlin-Pack versprach 25 Karten, waehrend das Deck 26 Plaetze zeigte.
    Solange die Karten das Produkt sind, muessen alle vier Flaechen (Map, Album,
-   geteiltes Deck, Pack-Zahl) dieselbe Menge meinen. */
+   geteiltes Deck, Pack-Zahl) dieselbe Menge meinen.
+
+   Sortiert nach Kartennummer: das Must-Eat-Detail blaettert durch genau diese
+   Liste (Vor/Zurueck, „3 / 39"), und mehrere Karten eines Spots stehen in
+   ihrer Reihenfolge. Ohne order kam die Liste in Sanitys _id-Folge
+   (022, 021, 036, …). */
 export const mapMustEatsQuery = `
-  *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] {
+  *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] | order(order asc, _id asc) {
     _id,
     revealedForAnon,
     "previewCategory": *[_type == "category" && packPreview._ref == ^._id][0].slug.current,

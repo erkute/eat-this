@@ -16,3 +16,9 @@ export function compareCardNumber(a: DeckCard, b: DeckCard): number {
 export function sortByCardNumber<T extends DeckCard>(cards: readonly T[]): T[] {
   return [...cards].sort(compareCardNumber);
 }
+
+/** Die Nummer, wie sie auf der Karte steht: dreistellig („007“). Ohne `order`
+ *  hat eine Karte keine Nummer — dann `null`, keine erfundene. */
+export function cardNumber(order: number | undefined | null): string | null {
+  return order == null ? null : String(order).padStart(3, '0');
+}

@@ -23,6 +23,17 @@ describe('public pack examples', () => {
     expect([...composeRevealedMustEats(all)].sort()).toEqual(examples.map((c) => c._id).sort());
     expect(composeRevealedMustEats([...all].reverse())).toEqual(composeRevealedMustEats(all));
   });
+  it('fills free slots with flagged cards independent of input order', () => {
+    // Nur zwei Pack-Beispiele: sechs Plaetze bleiben fuer markierte Karten,
+    // und von zehn markierten kommen nicht alle rein. Welche, darf nicht an
+    // der Reihenfolge haengen, in der die Map die Liste sortiert.
+    const all = [
+      card('pack-a', 'coffee'),
+      card('pack-b', 'pizza'),
+      ...Array.from({ length: 10 }, (_, i) => card(`flag-${i}`)),
+    ];
+    expect(composeRevealedMustEats([...all].reverse())).toEqual(composeRevealedMustEats(all));
+  });
   it('keeps a second card at the same spot covered', () => {
     const all = [card('other', undefined, 'spot'), card('selected', 'lunch', 'spot')];
     expect([...composeRevealedMustEats(all)]).toEqual(['selected']);

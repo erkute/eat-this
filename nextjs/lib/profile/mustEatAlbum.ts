@@ -5,6 +5,7 @@
 // needs the *face-up* content shape (dish/image), which is the same data the
 // map exposes as `MapMustEat`.
 import type { MapMustEat } from '@/lib/types';
+import { sortByCardNumber } from '@/lib/map/cardOrder';
 
 interface AlbumSlot {
   /** Die Nummer, die unten rechts auf der Karte steht — `order` aus Sanity,
@@ -74,10 +75,7 @@ export function buildAlbum(
      Reiter sind, ist das Raster EIN Stapel — und ein Stapel liegt in seiner
      eigenen Reihenfolge. `_id` bleibt der letzte Notnagel, damit ein
      Must-Eat ohne `order` trotzdem fest liegt. */
-  const sorted = [...all].sort((a, b) => {
-    const n = (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
-    return n !== 0 ? n : a._id.localeCompare(b._id);
-  });
+  const sorted = sortByCardNumber(all);
 
   const slots: AlbumSlot[] = sorted.map((m) => {
     const collected = isAlbumMustEatCollected(m, faceUpIds);

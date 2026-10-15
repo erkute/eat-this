@@ -1,5 +1,6 @@
 import type { MapMustEat } from '@/lib/types';
 import type { InitialMapData } from './server-initial-map-data';
+import { compareCardNumber } from './cardOrder';
 
 // The homepage shows five already-public cards.
 const HOME_FACE_UP_COUNT = 5;
@@ -57,10 +58,10 @@ export function selectMustEatsCatalog(data: InitialMapData): InitialMustEatsData
 
   return {
     mustEats: [
-      ...data.mustEats.filter((m) => faceUp.has(m._id)).sort(byCardNumber),
+      ...data.mustEats.filter((m) => faceUp.has(m._id)).sort(compareCardNumber),
       ...data.mustEats
         .filter((m) => !faceUp.has(m._id))
-        .sort(byCardNumber)
+        .sort(compareCardNumber)
         .map(trimCoveredSpot),
     ],
     revealedMustEatIds: data.revealedMustEatIds,
@@ -85,7 +86,3 @@ function trimCoveredSpot(mustEat: MapMustEat): MapMustEat {
   return { ...mustEat, restaurant: { _id, name: '', slug: '', lat: 0, lng: 0 } };
 }
 
-function byCardNumber(a: MapMustEat, b: MapMustEat): number {
-  const diff = (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
-  return diff !== 0 ? diff : a._id.localeCompare(b._id);
-}

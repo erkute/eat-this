@@ -230,7 +230,7 @@
 .shelf {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 52px 16px;
+  gap: 52px 22px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -348,6 +348,12 @@
     --issue-w: min(360px, 38vw);
   }
 
+  /* Das Quadrat hängt im Rand, damit die Überschrift auf derselben Kante
+     steht wie „Auf dem Teller". Am Telefon ist der Rand dafür zu schmal. */
+  .sectionHead {
+    margin-left: calc(-9px - 10px); /* Quadrat + Abstand zur Überschrift */
+  }
+
   .shelf {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: clamp(64px, 6vw, 88px) clamp(24px, 3vw, 40px);
@@ -368,11 +374,17 @@
   }
 }
 
-/* Links Titel, Ausgabenlabel und Vorspann, rechts der Stapel über drei Zeilen. */
+/* Links Titel, Ausgabenlabel und Vorspann, rechts der Stapel. Label und
+   Vorspann stehen als Block mittig neben dem Stapel: die zwei `1fr`-Zeilen
+   darüber und darunter teilen sich die Höhe, die der Stapel mehr braucht. */
 @media (min-width: 900px) {
+  /* Die Textspalte wächst nur bis zu ihrem Inhalt, der Stapel liegt gleich
+     daneben. Mit `1fr` links rutschte er auf breiten Bildschirmen an den
+     rechten Rand, mit einer Lücke so breit wie ein Heft. */
   .hero {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto auto 1fr;
+    grid-template-columns: minmax(0, max-content) auto;
+    justify-content: start;
+    grid-template-rows: auto 1fr auto auto 1fr;
     column-gap: clamp(40px, 5vw, 72px);
     row-gap: 22px;
     align-items: start;
@@ -397,19 +409,18 @@
      ragen sie in den Vorspann. */
   .pile {
     grid-column: 2;
-    grid-row: 2 / span 2;
+    grid-row: 2 / span 4;
     margin: 8px 18px 12px calc(var(--issue-w) * 0.26);
   }
 
   .issueLabel {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
   }
 
   .issueText {
     grid-column: 1;
-    grid-row: 3;
-    align-self: start;
+    grid-row: 4;
   }
 }
 
@@ -438,24 +449,20 @@
 }
 
 .magTitle {
-  margin-top: 28px;
+  margin-top: 18px;
   font-size: clamp(17px, 1.65vw, 21px);
 }
 
-@media (max-width: 767px) {
-  .issueLabel { text-align: center; }
-}
-
 /* Ab 1440px dichter wie die Auslage bei 032c (Betreiber, 14.10.2026): fünf,
-   ab 1800px sechs Hefte in der Reihe, engere Fugen. Die Neigung (bis 1,4°)
-   braucht seitlich nur ~4px, 16px Fuge reichen. */
+   ab 1800px sechs Hefte in der Reihe. Die Fuge blieb mit 16px zu eng – die
+   gedrehten Hefte standen nur ~10px auseinander (Betreiber, 15.10.2026). */
 @media (min-width: 1440px) {
   .shell { width: min(100%, 2400px); }
   .shelf {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 56px 16px;
+    gap: 64px clamp(32px, 2.4vw, 56px);
   }
-  .magTitle { margin-top: 20px; font-size: clamp(17px, 1.15vw, 20px); }
+  .magTitle { font-size: clamp(17px, 1.15vw, 20px); }
 }
 
 @media (min-width: 1800px) {

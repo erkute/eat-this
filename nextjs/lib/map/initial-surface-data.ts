@@ -69,20 +69,20 @@ export function selectMustEatsCatalog(data: InitialMapData): InitialMustEatsData
 }
 
 /**
- * Eine verdeckte Karte verrät ihren Spot nicht.
+ * Eine verdeckte Karte nennt ihren Spot, mehr nicht.
  *
- * Bis zum 06.09.2026 behielt sie den Namen — die Seite druckte darunter die
- * Liste aller Lokale, die eine Karte halten. Die ist raus (Betreiber: „das ist
- * doch Teil der Überraschung"), und damit hat auch die Nutzlast dort nichts
- * mehr verloren: was im RSC-Payload steht, steht im Quelltext.
- *
- * Die Felder bleiben als leere Zeichenketten statt zu verschwinden, weil
- * `MapMustEat.restaurant` sie überall sonst braucht — auf der Map und im
- * Album, wo der Spot einer verdeckten Karte gerade die Aufgabe IST. Nur diese
- * eine Seite kennt ihn nicht.
+ * Vom 06.09. bis 15.10.2026 trug sie hier gar keinen Namen (Betreiber: „das
+ * ist doch Teil der Überraschung"). Seit dem Neubau der Seite steht unter
+ * jeder verdeckten Karte „Verdeckt" und der Spot (Betreiber, 15.10.2026) —
+ * welcher Spot eine Karte hält, zeigt die Map ohnehin. Mitgegeben werden
+ * deshalb nur Name und Bezirk (der Bezirk, damit er aus dem Namen fällt);
+ * Slug, Koordinaten, Adresse und Foto bleiben auf dem Server.
  */
 function trimCoveredSpot(mustEat: MapMustEat): MapMustEat {
-  const { _id } = mustEat.restaurant;
-  return { ...mustEat, restaurant: { _id, name: '', slug: '', lat: 0, lng: 0 } };
+  const { _id, name, district } = mustEat.restaurant;
+  return {
+    ...mustEat,
+    restaurant: { _id, name, slug: '', lat: 0, lng: 0, ...(district ? { district } : {}) },
+  };
 }
 

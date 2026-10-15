@@ -93,8 +93,8 @@ export async function getPublicMustEatIds(): Promise<Set<string>> {
  * die für den Stapel wirbt, den Stapel nicht mehr.
  *
  * Verraten wird dabei nichts: eine verdeckte Karte trägt hier weder Gericht
- * noch Bild (stripCoveredMustEats) noch ihren Spot (trimCoveredSpot). Was
- * bleibt, ist ihre Nummer — und die steht ohnehin auf jeder Karte.
+ * noch Bild (stripCoveredMustEats); von ihrem Spot nur Name und Bezirk
+ * (trimCoveredSpot) — welcher Spot eine Karte hält, zeigt die Map ohnehin.
  *
  * `getInitialAnonMapData()` entscheidet, welche Karten offen liegen, und
  * hydriert nur die; der Rest kommt als bloße Metadaten aus dem Katalog dazu.

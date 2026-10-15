@@ -32,6 +32,7 @@ const EMPTY: InitialMustEatsData = {
 function mustEat(id: string, faceUp: boolean): MapMustEat {
   return {
     _id: id,
+    order: Number(id) || undefined,
     ...(faceUp ? { dish: `Dish ${id}`, image: `https://cdn/${id}.png` } : {}),
     restaurant: { _id: `r-${id}`, name: `Spot ${id}`, slug: id, lat: 52.5, lng: 13.4 },
   };
@@ -101,7 +102,7 @@ describe('MustEatsSection', () => {
 
     expect(galleryCopy).toHaveBeenCalledWith(
       expect.objectContaining({
-        coveredBody: 'Diese Karten deckst du am Spot auf. Dann gehören sie dir.',
+        coveredBody: 'Hinter jeder Karte steckt unsere Empfehlung — ein Gericht, das du probieren musst. Bist du am Spot, drehst du sie mit einem Tap um. Dann liegt sie in deinem Deck.',
       })
     );
   });
@@ -135,30 +136,39 @@ describe('MustEatsSection', () => {
 
     const copy = galleryCopy.mock.calls[0][0];
     expect(copy.openKicker).toBe('Must Eat?');
-    expect(copy.openTitle).toBe('Nicht nur wissen, wo du essen sollst. Sondern was.');
+    expect(copy.openTitle).toBe('Weil Entdecken mehr Spaß macht als Suchen.');
     expect(copy.openBody).toBe(
-      'Must Eats sind die Gerichte, die du nicht verpassen solltest. Geh hin, deck sie auf und sammle sie.'
+      'Must Eats sind die Gerichte, für die sich der Weg durch Berlin lohnt. Am Spot bestellst du das Gericht und deckst seine Karte auf. So wächst deine Sammlung mit jedem Teller.'
     );
     expect(copy.openTitle).not.toMatch(/\d/);
     expect(copy.openBody).not.toMatch(/\d/);
   });
 
-  it('leads the hero deck with dish art, not card backs', () => {
-    // The catalog arrives face-up first, so the three hero cards are dishes.
-    const html = render('de', catalog());
+  it('puts the lowest-numbered face-up card on the cover', () => {
+    // The catalog may arrive in any order; the cover is card 2, not card 3.
+    const data = catalog();
+    const html = render('de', { ...data, mustEats: [...data.mustEats].reverse() });
 
     expect(html).toContain('https://cdn/1.png');
-    expect(html).not.toContain('/pics/card-back.webp');
+    expect(html).not.toContain('https://cdn/3.png');
   });
 
-  it('uses the shared card-back asset for hero cards without an image', () => {
+  it('shows no cover and no card back up top when nothing is face-up', () => {
     const html = render('de', {
       mustEats: [mustEat('covered', false)],
       revealedMustEatIds: [],
     });
 
-    expect(html).toContain('/pics/card-back.webp?v=7');
-    expect(html).not.toContain('card-back-gallery');
+    expect(html).not.toContain('<figure');
+    expect(html).not.toContain('/pics/card-back.webp');
+  });
+
+  it('keeps the empty catalog to the head and the close — no zero stats', () => {
+    const html = render('de', EMPTY);
+
+    expect(html).not.toContain('<dl');
+    expect(html).not.toContain('<figure');
+    expect(html).toContain('Hol sie dir.');
   });
 
   it('sends the primary closing CTA to the map, packs second', () => {

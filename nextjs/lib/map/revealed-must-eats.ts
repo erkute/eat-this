@@ -30,7 +30,10 @@ export function composeRevealedMustEats(all: MapMustEat[]): Set<string> {
     out.add(m._id);
     usedRestaurants.add(m.restaurant._id);
   }
-  for (const m of all) if (m.revealedForAnon) take(m);
+  // In _id-Folge wie die anderen beiden Durchgaenge — nicht in der Folge der
+  // Eingabe, die nach Kartennummer sortiert ankommt. Welche markierte Karte
+  // einen freien Platz bekommt, soll nicht an der Sortierung der Map haengen.
+  for (const m of ordered) if (m.revealedForAnon) take(m);
   const fallbackPool = all
     .filter((m) => !out.has(m._id))
     .sort((a, b) => a._id.localeCompare(b._id));

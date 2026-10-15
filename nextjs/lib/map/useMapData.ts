@@ -4,6 +4,7 @@ import { auth, getDb } from '@/lib/firebase/config';
 import type { MapRestaurant, MapMustEat } from '../types';
 import type { CategoryDef } from '../categories';
 import type { InitialMapData } from './server-initial-map-data';
+import { sortByCardNumber } from './cardOrder';
 import {
   readMapCache,
   seedUidBeforeAuth,
@@ -71,7 +72,11 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
   const [restaurants, setRestaurants] = useState<MapRestaurant[]>(
     initialMapData?.restaurants ?? []
   );
-  const [mustEats, setMustEats] = useState<MapMustEat[]>(initialMapData?.mustEats ?? []);
+  /* In Kartenreihenfolge, egal woher die Liste kommt: das Must-Eat-Detail
+     blaettert durch genau diese Liste („3 / 39"). */
+  const [mustEats, setMustEats] = useState<MapMustEat[]>(() =>
+    sortByCardNumber(initialMapData?.mustEats ?? [])
+  );
   const [categories, setCategories] = useState<CategoryDef[]>(initialMapData?.categories ?? []);
   const [totalCount, setTotalCount] = useState(initialMapData?.totalCount ?? 0);
   // Nie aus dem SSR-Anon-View: der kennt kein Konto.
@@ -107,7 +112,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     const cached = readMapCache(uid ?? seedUidBeforeAuth());
     if (!cached) return;
     setRestaurants(cached.restaurants);
-    setMustEats(cached.mustEats);
+    setMustEats(sortByCardNumber(cached.mustEats));
     setCategories(cached.categories);
     setTotalCount(cached.totalCount);
     setFullCatalog(cached.fullCatalog === true);
@@ -160,7 +165,7 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
           fullCatalog: json.fullCatalog === true,
         };
         setRestaurants(next.restaurants);
-        setMustEats(next.mustEats);
+        setMustEats(sortByCardNumber(next.mustEats));
         setCategories(next.categories);
         setTotalCount(next.totalCount);
         setFullCatalog(next.fullCatalog === true);

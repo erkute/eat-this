@@ -18,6 +18,7 @@ import {
   allCategoriesWithStatsQuery,
   categoryBySlugQuery,
   packContentsQuery,
+  mustEatRestaurantSlugQuery,
 } from './queries';
 import type {
   Restaurant,
@@ -319,25 +320,43 @@ export async function getPackContents(): Promise<PackContentsIndex> {
  * Seite (gleicher Client, gleiche Abfrage, gleiche Parameter) und vergleicht
  * mit der Antwort ohne CDN, bis beide übereinstimmen.
  *
- * Nur für Artikel und Restaurants, deren Detailabfrage bekannt ist; alles
- * andere wartet `fallbackMs`. Gibt nach `maxMs` auf, damit der Webhook nicht
- * in Sanitys Zeitlimit läuft.
+ * Nur für Artikel, Restaurants und Must-Eat-Karten, deren Detailabfrage
+ * bekannt ist; alles andere wartet `fallbackMs`. Gibt nach `maxMs` auf, damit
+ * der Webhook nicht in Sanitys Zeitlimit läuft.
+ *
+ * Eine Must-Eat-Karte hat keine eigene Seite, sie erscheint auf der Seite
+ * ihres Spots. Deshalb wartet der Webhook bei ihr auf die Abfrage DIESER Seite.
+ * Vorher wartete er nur pauschal: am 14.10.2026 baute /restaurant/boii-boii
+ * gut acht Sekunden nach dem Publish neu, das CDN lieferte die Abfrage noch
+ * ohne die neue Karte, und die Seite blieb so stehen, bis ein zweiter Webhook
+ * kam. Ist die Karte gelöscht, findet die Abfrage keinen Spot mehr; dann
+ * bleibt es beim pauschalen Warten.
  */
 export async function waitForFreshCdn(
-  type: string | undefined,
-  slug: string | undefined,
+  doc: { type?: string; slug?: string; id?: string },
   { fallbackMs = 5000, maxMs = 20000, stepMs = 2000 } = {}
 ): Promise<'fresh' | 'timeout' | 'fixed'> {
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const liveClient = client.withConfig({ useCdn: false });
+  const findRestaurantSlug = async () => {
+    if (doc.type === 'restaurant') return doc.slug;
+    if (doc.type !== 'mustEat' || !doc.id) return undefined;
+    return liveClient.fetch<string | null>(
+      mustEatRestaurantSlugQuery,
+      { id: doc.id },
+      { cache: 'no-store' }
+    );
+  };
+  const restaurantSlug = await findRestaurantSlug();
   let query: string | null = null;
   let params: Record<string, unknown> = {};
-  if (type === 'newsArticle' && slug) {
+  if (doc.type === 'newsArticle' && doc.slug) {
     query = articleBySlugQuery;
-    params = { slug };
-  } else if (type === 'restaurant' && slug) {
+    params = { slug: doc.slug };
+  } else if (restaurantSlug) {
     query = restaurantPageQuery;
     params = {
-      slug,
+      slug: restaurantSlug,
       siblingLimit: RESTAURANT_SIBLING_LIMIT,
       articleLimit: RESTAURANT_ARTICLE_LIMIT,
     };
@@ -346,9 +365,7 @@ export async function waitForFreshCdn(
     await sleep(fallbackMs);
     return 'fixed';
   }
-  const live = JSON.stringify(
-    await client.withConfig({ useCdn: false }).fetch(query, params, { cache: 'no-store' })
-  );
+  const live = JSON.stringify(await liveClient.fetch(query, params, { cache: 'no-store' }));
   const started = Date.now();
   for (;;) {
     const cdn = JSON.stringify(await client.fetch(query, params, { cache: 'no-store' }));

@@ -604,3 +604,10 @@ export const packContentsQuery = `
     }
   }
 `;
+
+// Für den Sanity-Webhook: an welchem Spot hängt eine Must-Eat-Karte? Die
+// Webhook-Projektion schickt nur `_type`, `_id` und `slug`, und eine Karte hat
+// keinen Slug.
+export const mustEatRestaurantSlugQuery = `
+  *[_type == "mustEat" && _id == $id][0].restaurantRef->slug.current
+`;

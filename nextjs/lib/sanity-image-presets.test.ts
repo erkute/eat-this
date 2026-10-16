@@ -42,7 +42,7 @@ describe('sanitySrcSet', () => {
   it('returns undefined for null and non-Sanity URLs', () => {
     expect(sanitySrcSet(null, [150])).toBeUndefined();
     expect(sanitySrcSet(undefined, [150])).toBeUndefined();
-    expect(sanitySrcSet('/pics/card-back.webp?v=7', [150])).toBeUndefined();
+    expect(sanitySrcSet('/pics/card-back.webp?v=8', [150])).toBeUndefined();
   });
 
   it('offers the native image once instead of enlarging small originals', () => {

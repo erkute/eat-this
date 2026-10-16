@@ -15,7 +15,7 @@ import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
 import { CloseIcon, PagerArrowIcon, PinIcon } from './icons';
 
-const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_BACK = '/pics/card-back.webp?v=8';
 /* Gesetzt, sobald jemand in DIESER Sitzung gewischt hat — danach ruht der
    Wisch-Hinweis bis zum nächsten Besuch. Er stand in localStorage und kam nie
    wieder; wer die Geste einmal probiert hatte, sah auf dem Telefon danach kein

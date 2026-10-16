@@ -8,7 +8,7 @@ import { SITE_URL } from '@/lib/constants';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import styles from './Profile.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_BACK = '/pics/card-back.webp?v=8';
 const FAN_SIZE = 3;
 
 // The referral machinery has been complete on the server since day one

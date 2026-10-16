@@ -21,7 +21,7 @@ const PACK_ART = '/pics/booster/booster_free.webp';
 const PACK_WIDTH = 1008;
 const PACK_HEIGHT = 1560;
 const PACK_SIZES = '(max-width: 820px) 160px, 260px';
-const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_BACK = '/pics/card-back.webp?v=8';
 
 interface LoginBoardProps {
   /** Die Szene links (LoginSceneArt) — reine Dekoration. */

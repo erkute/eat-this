@@ -358,7 +358,7 @@ export default function EmailLinkSignIn() {
       <div className={styles.content}>
         <div className={styles.art}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.artImg} src="/pics/card-back.webp?v=7" alt="" />
+          <img className={styles.artImg} src="/pics/card-back.webp?v=8" alt="" />
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{t.expiredKicker}</p>

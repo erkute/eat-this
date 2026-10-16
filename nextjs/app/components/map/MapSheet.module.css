@@ -182,6 +182,11 @@
     will-change: auto;
   }
 
+  /* Retain the sheet's compositor layer for the whole touch gesture. */
+  .list[data-sheet-touch-dragging] {
+    will-change: transform;
+  }
+
   /* The end of the page stands still when Safari unfolds its bar. Scrolling
      down, Safari shrinks the bar (viewport 714 → 754px on an iPhone 17); at
      the end it unfolds it again. A plain page runs into its rubber band there

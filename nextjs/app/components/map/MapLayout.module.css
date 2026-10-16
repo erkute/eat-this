@@ -306,7 +306,9 @@
       0px,
       min(
         22dvh,
-        calc(100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px))
+        calc(
+          100dvh - var(--phone-list-sheet-visible, 28dvh) - 162px - env(safe-area-inset-top, 0px)
+        )
       )
     );
   }
@@ -371,6 +373,14 @@
   }
   .body[data-map-view='list'] .mapFrame[data-following],
   .body[data-map-view='detail'][data-detail-kind='restaurant'] .mapFrame[data-following] {
+    z-index: auto;
+    clip-path: none;
+  }
+  /* A promoted sheet is a stacking context; keep the map behind its grip
+     for the full touch gesture, just like a translated deep-list slab. */
+  .body[data-map-view='list'][data-sheet-touch-dragging] .mapFrame,
+  .body[data-map-view='detail'][data-detail-kind='restaurant'][data-sheet-touch-dragging]
+    .mapFrame {
     z-index: auto;
     clip-path: none;
   }

@@ -8,6 +8,7 @@ import {
   dropLowered,
   followSheet,
   grabFromList,
+  grabForTransform,
   heldOffset,
   holdSheetAt,
   leaveSlabAt,
@@ -48,8 +49,10 @@ type Drag =
      is held that far down instead. */
   | {
       kind: 'scroll';
+      visual: { scrollY: number; edge: number; minEdge: number } | null;
       pointerId: number;
       startY: number;
+      lastY: number;
       startPos: number;
       pos: number;
       mapY: number;
@@ -63,8 +66,10 @@ type Drag =
      sheetSlide.ts). */
   | {
       kind: 'slab';
+      precise: boolean;
       pointerId: number;
       startY: number;
+      lastY: number;
       offset: number;
       /* Where the bar rests over the map, in slab offset. */
       restLine: number;
@@ -89,8 +94,11 @@ type Drag =
  * Content and filter touches keep native document scrolling. The grip alone
  * owns its drag: from deep in a list/detail it lowers the visible sheet
  * instead of scrolling through every row, and the sheet comes back at its
- * top. Lowered, the whole sheet is the grip. Movement is applied once per
- * frame. Tablets use useBottomSheet instead.
+ * top. Lowered, the whole sheet is the grip. Touch moves only the sheet,
+ * with fractional positions; document scroll catches up on release. Applying
+ * touch input directly avoids Safari deferring animation callbacks during a
+ * live drag. Mouse movement is batched once per frame. Tablets use
+ * useBottomSheet instead.
  */
 export function useHandleScrollDrag(
   handleRef: RefObject<HTMLDivElement | null>,
@@ -112,7 +120,7 @@ export function useHandleScrollDrag(
     let claimedLate = false;
     let suppressClickUntil = 0;
     let busy = false;
-    /* The finger's latest position waits here for the next frame. */
+    /* Mouse input waits here for the next animation frame. */
     let frame = 0;
 
     /* The list, and a restaurant detail — both have the map behind them. The
@@ -156,7 +164,15 @@ export function useHandleScrollDrag(
       };
     };
 
-    const begin = (pointerId: number, startY: number) => {
+    const clearComposite = () => {
+      sheetEl()?.removeAttribute('data-sheet-touch-dragging');
+      handle.closest('[data-map-body]')?.removeAttribute('data-sheet-touch-dragging');
+    };
+    const begin = (pointerId: number, startY: number, touch = false) => {
+      if (touch) {
+        sheetEl()?.setAttribute('data-sheet-touch-dragging', '');
+        handle.closest('[data-map-body]')?.setAttribute('data-sheet-touch-dragging', '');
+      }
       try {
         zone.setPointerCapture(pointerId);
       } catch {
@@ -167,8 +183,10 @@ export function useHandleScrollDrag(
       if (slides(sheet) && window.scrollY > sheetStop + AT_STOP_PX) {
         drag = {
           kind: 'slab',
+          precise: touch,
           pointerId,
           startY,
+          lastY: startY,
           offset: grabFromList(sheet),
           restLine,
           controlRide: controlScrollRide(),
@@ -180,8 +198,11 @@ export function useHandleScrollDrag(
       const startPos = sheet && isLowered() ? mapY - heldOffset(sheet) : window.scrollY;
       drag = {
         kind: 'scroll',
+        visual:
+          touch && slides(sheet) ? { scrollY: window.scrollY, ...grabForTransform(sheet) } : null,
         pointerId,
         startY,
+        lastY: startY,
         startPos,
         pos: startPos,
         mapY,
@@ -212,17 +233,26 @@ export function useHandleScrollDrag(
       e.preventDefault();
       /* Lowered, a press on a row is the sheet's, not the row's. */
       claimedLate = !onGrip;
-      begin(e.pointerId, e.clientY);
+      begin(e.pointerId, e.clientY, e.pointerType === 'touch');
     };
 
-    /* Put the sheet where the finger is — at most once per frame. */
+    /* Put the sheet at the latest input position. */
     const apply = () => {
       frame = 0;
       const sheet = sheetEl();
       if (!drag) return;
       if (drag.kind === 'slab') {
-        if (sheet) holdSheetAt(sheet, drag.offset);
+        if (sheet) holdSheetAt(sheet, drag.offset, drag.precise);
         followSheet(drag.offset, drag.offset - drag.restLine + drag.controlRide);
+        return;
+      }
+      if (drag.visual && sheet) {
+        holdSheetAt(sheet, drag.visual.scrollY - drag.pos, true);
+        followSheet(
+          drag.visual.scrollY - drag.pos,
+          Math.max(drag.visual.minEdge, drag.visual.edge + drag.startPos - drag.pos),
+          -Infinity
+        );
         return;
       }
       if (sheet) holdSheetAt(sheet, Math.max(0, drag.mapY - drag.pos));
@@ -246,6 +276,25 @@ export function useHandleScrollDrag(
       apply();
     };
 
+    const moveTo = (clientY: number, immediate = false) => {
+      if (!drag || clientY === drag.lastY) return;
+      const delta = clientY - drag.lastY;
+      // Discard overshoot at each bound, so reversing follows the finger
+      // immediately instead of making it repay the distance beyond the bound.
+      drag.lastY = clientY;
+      if (drag.kind === 'slab') {
+        drag.offset = Math.min(drag.lowLine, Math.max(0, drag.offset + delta));
+      } else {
+        drag.pos = Math.min(drag.ceil, Math.max(drag.floor, drag.pos - delta));
+      }
+      if (immediate) {
+        if (frame) window.cancelAnimationFrame(frame);
+        apply();
+      } else {
+        schedule();
+      }
+    };
+
     const onMove = (e: PointerEvent) => {
       if (pending && e.pointerId === pending.pointerId) {
         const dx = Math.abs(e.clientX - pending.startX);
@@ -263,15 +312,9 @@ export function useHandleScrollDrag(
         }
       }
       if (!drag || e.pointerId !== drag.pointerId) return;
-      if (drag.kind === 'slab') {
-        drag.offset = Math.min(drag.lowLine, Math.max(0, e.clientY - drag.startY));
-      } else {
-        drag.pos = Math.min(
-          drag.ceil,
-          Math.max(drag.floor, drag.startPos + (drag.startY - e.clientY))
-        );
-      }
-      schedule();
+      // Safari may delay rAF for several input events during a live touch.
+      // Apply here to avoid freezing, then jumping to the latest position.
+      moveTo(e.clientY, e.pointerType === 'touch');
     };
 
     const onTouchMove = (e: TouchEvent) => {
@@ -302,6 +345,9 @@ export function useHandleScrollDrag(
         return;
       }
       if (!drag || e.pointerId !== drag.pointerId) return;
+      // A release can carry a newer coordinate than the last pointermove.
+      // Cancellation/lost capture coordinates are not reliable positions.
+      if (e.type === 'pointerup') moveTo(e.clientY);
       flush();
       /* Whatever the grip did moved the sheet, and the click that follows is
          hit-tested where the sheet now is: a tap that raised a lowered detail
@@ -309,6 +355,7 @@ export function useHandleScrollDrag(
       suppressClickUntil = e.timeStamp + CLICK_AFTER_DRAG_MS;
       const d = drag;
       drag = null;
+      clearComposite();
       try {
         zone.releasePointerCapture(d.pointerId);
       } catch {
@@ -317,6 +364,12 @@ export function useHandleScrollDrag(
       const cancelled = e.type !== 'pointerup';
       const tap = Math.abs(e.clientY - d.startY) < TAP_PX && e.type === 'pointerup';
       const sheet = sheetEl();
+      if (d.kind === 'scroll' && d.visual && sheet) {
+        const target = cancelled ? d.startPos : d.pos;
+        window.scrollTo({ top: Math.max(d.mapY, target), behavior: 'instant' });
+        restAt(sheet, d.mapY - target);
+        if (cancelled) return;
+      }
 
       if (d.kind === 'slab') {
         if (!sheet) return;
@@ -348,7 +401,8 @@ export function useHandleScrollDrag(
       const { mapY } = d;
 
       if (cancelled) {
-        if (sheet && (d.startPos < mapY || d.pos < mapY)) settleBelow(sheet, d.pos, Math.min(mapY, d.startPos), mapY);
+        if (sheet && (d.startPos < mapY || d.pos < mapY))
+          settleBelow(sheet, d.pos, Math.min(mapY, d.startPos), mapY);
         else window.scrollTo({ top: d.startPos, behavior: 'instant' });
         return;
       }
@@ -408,6 +462,11 @@ export function useHandleScrollDrag(
     press.addEventListener('click', onClick, true);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
+      if (drag && (drag.kind === 'slab' || drag.visual)) {
+        const sheet = sheetEl();
+        if (sheet) restAt(sheet, 0);
+      }
+      clearComposite();
       if (frame) window.cancelAnimationFrame(frame);
       press.removeEventListener('pointerdown', onDown);
       press.removeEventListener('touchmove', onTouchMove, true);

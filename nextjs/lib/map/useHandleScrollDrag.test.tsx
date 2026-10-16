@@ -68,7 +68,7 @@ function drag(dy: number, { steps = 4, msPerStep = 40 } = {}) {
 }
 
 const settle = () => new Promise((r) => setTimeout(r, 0));
-/* The hook moves the sheet once per frame; this runs the frame by hand. */
+/* Mouse movement is batched per frame; this runs that frame by hand. */
 let frames: FrameRequestCallback[] = [];
 function nextFrame() {
   const due = frames;
@@ -115,7 +115,7 @@ it('keeps the map controls on the sheet edge before releasing a pull from a deep
   const dock = document.createElement('div');
   dock.dataset.locateDock = '';
   dock.style.marginTop = '542px'; // Resting sheet edge (600) minus the control gap (58).
-  dock.getBoundingClientRect = () => ({ top: 366 } as DOMRect);
+  dock.getBoundingClientRect = () => ({ top: 366 }) as DOMRect;
   document.body.appendChild(dock);
   try {
     window.scrollY = DEEP;
@@ -208,7 +208,9 @@ describe('in the list', () => {
       await settle();
 
       expect(window.scrollY).toBe(REST_OFFSET - 30);
-      expect(window.scrollTo).not.toHaveBeenCalledWith(expect.objectContaining({ behavior: 'smooth' }));
+      expect(window.scrollTo).not.toHaveBeenCalledWith(
+        expect.objectContaining({ behavior: 'smooth' })
+      );
     });
 
     it('does not throw a flick on: the sheet stays where the finger left it', async () => {
@@ -555,24 +557,246 @@ describe.each(['list', 'detail'] as const)('phone touch grip gestures in a %s', 
 });
 
 describe.each(['touch', 'mouse'])('phone handle %s taps', (pointerType) => {
-  it.each(['list', 'detail'] as const)('opens a fresh %s and closes it again at the top', async (view) => {
-    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+  it.each(['list', 'detail'] as const)(
+    'opens a fresh %s and closes it again at the top',
+    async (view) => {
+      render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      const tap = () => {
+        handle.dispatchEvent(pointer('pointerdown', 100, 0, pointerType));
+        handle.dispatchEvent(pointer('pointerup', 100, 80, pointerType));
+      };
+      tap();
+      await settle();
+      expect(window.scrollY).toBe(REST_OFFSET);
+      tap();
+      await settle();
+      expect(window.scrollY).toBe(0);
+      tap();
+      await settle();
+      expect(window.scrollY).toBe(REST_OFFSET);
+    }
+  );
+});
+
+describe('transform-only phone grip', () => {
+  it('cleans the promoted sheet and map frame if the view unmounts during a pull', () => {
+    const { unmount } = render(<Harness />);
+    const panel = sheet();
+    const frame = document.querySelector('[data-map-frame]')!;
     const handle = document.querySelector('[data-sheet-handle]')!;
-    const tap = () => {
-      handle.dispatchEvent(pointer('pointerdown', 100, 0, pointerType));
-      handle.dispatchEvent(pointer('pointerup', 100, 80, pointerType));
-    };
-    tap();
-    await settle();
-    expect(window.scrollY).toBe(REST_OFFSET);
-    tap();
-    await settle();
+    handle.dispatchEvent(pointer('pointerdown', 600, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 300, 16, 'touch'));
+    expect(frame.hasAttribute('data-following')).toBe(true);
+    expect(panel.hasAttribute('data-sheet-touch-dragging')).toBe(true);
+    unmount();
+    expect(panel.style.transform).toBe('');
+    expect(panel.style.clipPath).toBe('');
+    expect(panel.hasAttribute('data-sheet-touch-dragging')).toBe(false);
+    render(<Harness />);
+    const nextHandle = document.querySelector('[data-sheet-handle]')!;
+    nextHandle.dispatchEvent(pointer('pointerdown', 600));
+    nextHandle.dispatchEvent(pointer('pointermove', 400));
+    nextFrame();
+    expect(document.querySelector('[data-map-frame]')!.hasAttribute('data-following')).toBe(false);
+    nextHandle.dispatchEvent(pointer('pointerup', 400));
+  });
+
+  it('commits a newer release coordinate even without a final touch move', () => {
+    render(<Harness />);
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 600, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 300, 16, 'touch'));
+    handle.dispatchEvent(pointer('pointerup', 280, 32, 'touch'));
+    expect(window.scrollY).toBe(320);
+    expect(sheet().style.transform).toBe('');
+  });
+
+  it('restores a mid-position when a transform-only pull is cancelled', () => {
+    window.scrollY = 200;
+    render(<Harness />);
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 400, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 510, 16, 'touch'));
+    expect(window.scrollY).toBe(200);
+    expect(sheet().style.transform).toBe('translateY(110px)');
+    handle.dispatchEvent(pointer('pointercancel', 0, 32, 'touch'));
+    expect(window.scrollY).toBe(200);
+    expect(sheet().style.transform).toBe('');
+  });
+
+  it('keeps fractional positions while pulling below the map, then raises again', () => {
+    render(<Harness />);
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 600, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 650.333, 16, 'touch'));
     expect(window.scrollY).toBe(0);
-    tap();
-    await settle();
-    expect(window.scrollY).toBe(REST_OFFSET);
+    expect(sheet().style.transform).toBe('translateY(50.333px)');
+    handle.dispatchEvent(pointer('pointermove', 550, 32, 'touch'));
+    expect(sheet().style.transform).toBe('translateY(-50px)');
+    expect(window.scrollY).toBe(0);
+    handle.dispatchEvent(pointer('pointerup', 550, 48, 'touch'));
+    expect(window.scrollY).toBe(50);
+    expect(sheet().style.transform).toBe('');
+  });
+
+  it.each([
+    ['list', false],
+    ['list', true],
+    ['restaurant', false],
+    ['restaurant', true],
+  ] as const)(
+    'keeps document scroll still in %s (reduced motion: %s), then commits on release',
+    (kind, reducedMotion) => {
+      const matchMedia = window.matchMedia;
+      window.matchMedia = (query: string) => ({
+        ...matchMedia(query),
+        matches: query.includes('prefers-reduced-motion')
+          ? reducedMotion
+          : matchMedia(query).matches,
+      });
+      render(
+        <Harness
+          view={kind === 'restaurant' ? 'detail' : 'list'}
+          detailKind={kind === 'restaurant' ? 'restaurant' : undefined}
+        />
+      );
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 600, 0, 'touch'));
+      handle.dispatchEvent(pointer('pointermove', 279, 16, 'touch'));
+      expect(window.scrollY).toBe(0);
+      expect(sheet().style.transform).toBe('translateY(-321px)');
+      handle.dispatchEvent(pointer('pointerup', 279, 32, 'touch'));
+      expect(window.scrollY).toBe(321);
+      expect(sheet().style.transform).toBe('');
+      expect(sheet().hasAttribute('data-sheet-touch-dragging')).toBe(false);
+    }
+  );
+});
+
+describe('touch movement while Safari delays animation callbacks', () => {
+  it('also follows touch immediately when lowering a deep-list slab', () => {
+    window.scrollY = DEEP;
+    render(<Harness />);
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 95, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 673, 16, 'touch'));
+    expect(sheet().style.transform).toBe('translateY(578px)');
+    handle.dispatchEvent(pointer('pointermove', 624, 33, 'touch'));
+    expect(sheet().style.transform).toBe('translateY(529px)');
+    expect(frames.filter(Boolean)).toHaveLength(0);
+    handle.dispatchEvent(pointer('pointerup', 624, 50, 'touch'));
+  });
+
+  it('keeps following touch input without waiting for an animation frame', () => {
+    render(<Harness />);
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 537, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 415, 16, 'touch'));
+    expect(window.scrollY).toBe(0);
+    expect(sheet().style.transform).toBe('translateY(-122px)');
+    handle.dispatchEvent(pointer('pointermove', 398, 33, 'touch'));
+    expect(window.scrollY).toBe(0);
+    expect(sheet().style.transform).toBe('translateY(-139px)');
+    handle.dispatchEvent(pointer('pointermove', 382, 50, 'touch'));
+    expect(window.scrollY).toBe(0);
+    expect(sheet().style.transform).toBe('translateY(-155px)');
+    expect(frames.filter(Boolean)).toHaveLength(0);
+    handle.dispatchEvent(pointer('pointerup', 382, 67, 'touch'));
   });
 });
+
+describe.each([false, true])(
+  'following the finger at the movement bounds (reduced motion: %s)',
+  (reducedMotion) => {
+    beforeEach(() => {
+      const matchMedia = window.matchMedia;
+      window.matchMedia = (query: string) => ({
+        ...matchMedia(query),
+        matches: query.includes('prefers-reduced-motion')
+          ? reducedMotion
+          : matchMedia(query).matches,
+      });
+      render(<Harness />);
+    });
+
+    it('immediately follows an upward reversal after reaching the bottom bound', () => {
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 600));
+      handle.dispatchEvent(pointer('pointermove', 1000));
+      nextFrame();
+      expect(sheet().style.transform).toBe(`translateY(${LOW_BY}px)`);
+
+      handle.dispatchEvent(pointer('pointermove', 980));
+      nextFrame();
+      expect(sheet().style.transform).toBe(`translateY(${LOW_BY - 20}px)`);
+      handle.dispatchEvent(pointer('pointerup', 980));
+    });
+
+    it('immediately follows a downward reversal after reaching the map strip', () => {
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 600));
+      handle.dispatchEvent(pointer('pointermove', 0));
+      nextFrame();
+      expect(window.scrollY).toBe(REST_OFFSET);
+
+      handle.dispatchEvent(pointer('pointermove', 20));
+      nextFrame();
+      expect(window.scrollY).toBe(REST_OFFSET - 20);
+      handle.dispatchEvent(pointer('pointerup', 20));
+    });
+
+    it('immediately reverses a slab pulled from deep in the list at its bottom bound', () => {
+      window.scrollY = DEEP;
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 100));
+      handle.dispatchEvent(pointer('pointermove', 1000));
+      nextFrame();
+      expect(sheet().style.transform).toBe(`translateY(${REST_OFFSET + LOW_BY}px)`);
+
+      handle.dispatchEvent(pointer('pointermove', 980));
+      nextFrame();
+      expect(sheet().style.transform).toBe(`translateY(${REST_OFFSET + LOW_BY - 20}px)`);
+      handle.dispatchEvent(pointer('pointerup', 980));
+    });
+
+    it('follows a downward reversal after pushing a deep-list slab above its top bound', () => {
+      window.scrollY = DEEP;
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 100));
+      handle.dispatchEvent(pointer('pointermove', 0));
+      nextFrame();
+      expect(sheet().style.transform).toBe('');
+
+      handle.dispatchEvent(pointer('pointermove', 20));
+      nextFrame();
+      expect(sheet().style.transform).toBe('translateY(20px)');
+      handle.dispatchEvent(pointer('pointerup', 20));
+    });
+
+    it('coalesces movement into one frame, including a reversal at a bound', () => {
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 600));
+      handle.dispatchEvent(pointer('pointermove', 1000));
+      handle.dispatchEvent(pointer('pointermove', 980));
+      handle.dispatchEvent(pointer('pointermove', 960));
+      expect(frames.filter(Boolean)).toHaveLength(1);
+      expect(sheet().style.transform).toBe('');
+      nextFrame();
+      expect(sheet().style.transform).toBe(`translateY(${LOW_BY - 40}px)`);
+      handle.dispatchEvent(pointer('pointerup', 960));
+    });
+
+    it('lands on the release coordinate when the final pointer move was not delivered', () => {
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 100));
+      handle.dispatchEvent(pointer('pointermove', 160));
+      nextFrame();
+      handle.dispatchEvent(pointer('pointerup', 180));
+      expect(sheet().style.transform).toBe('translateY(80px)');
+    });
+  }
+);
 
 describe('interrupted restaurant handle gestures', () => {
   it('keeps a swipe on the lowered photo rail in the sheet gesture, then restores native scrolling', async () => {
@@ -620,20 +844,23 @@ describe('interrupted restaurant handle gestures', () => {
     expect(window.scrollY).toBe(REST_OFFSET - 140);
   });
 
-  it.each(['pointercancel', 'lostpointercapture'])('recovers after %s and accepts the next drag', async (event) => {
-    render(<Harness view="detail" detailKind="restaurant" />);
-    window.scrollY = DEEP;
-    const handle = document.querySelector('[data-sheet-handle]')!;
-    handle.dispatchEvent(pointer('pointerdown', 100));
-    handle.dispatchEvent(pointer('pointermove', 240, 100));
-    handle.dispatchEvent(pointer(event, 240, 120));
-    await settle();
-    expect(window.scrollY).toBe(DEEP);
-    expect(sheet().style.transform).toBe('');
-    drag(120);
-    await settle();
-    expect(window.scrollY).toBe(REST_OFFSET - 120);
-  });
+  it.each(['pointercancel', 'lostpointercapture'])(
+    'recovers after %s and accepts the next drag',
+    async (event) => {
+      render(<Harness view="detail" detailKind="restaurant" />);
+      window.scrollY = DEEP;
+      const handle = document.querySelector('[data-sheet-handle]')!;
+      handle.dispatchEvent(pointer('pointerdown', 100));
+      handle.dispatchEvent(pointer('pointermove', 240, 100));
+      handle.dispatchEvent(pointer(event, 240, 120));
+      await settle();
+      expect(window.scrollY).toBe(DEEP);
+      expect(sheet().style.transform).toBe('');
+      drag(120);
+      await settle();
+      expect(window.scrollY).toBe(REST_OFFSET - 120);
+    }
+  );
 
   it('puts a lowered sheet back where it was when the pull is cancelled', async () => {
     render(<Harness />);

@@ -10,7 +10,7 @@ describe('mustEatCardSrc', () => {
   });
 
   it('laesst die Kartenrueckseite und schon skalierte URLs in Ruhe', () => {
-    expect(mustEatCardSrc('/pics/card-back.webp?v=7', 360)).toBe('/pics/card-back.webp?v=7');
+    expect(mustEatCardSrc('/pics/card-back.webp?v=8', 360)).toBe('/pics/card-back.webp?v=8');
     expect(mustEatCardSrc('/api/must-eat-image/x?w=180', 360)).toBe('/api/must-eat-image/x?w=180');
     expect(mustEatCardSrc(undefined, 360)).toBeUndefined();
   });
@@ -51,6 +51,6 @@ describe('mustEatCardSrcSet', () => {
   });
 
   it('gibt fuer fremde Bilder kein srcset', () => {
-    expect(mustEatCardSrcSet('/pics/card-back.webp?v=7')).toBeUndefined();
+    expect(mustEatCardSrcSet('/pics/card-back.webp?v=8')).toBeUndefined();
   });
 });

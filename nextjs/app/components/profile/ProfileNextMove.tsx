@@ -11,7 +11,7 @@ import { FALLBACK_DISTRICT, pickNextMove } from '@/lib/profile/nextMove';
 import type { MapMustEat } from '@/lib/types';
 import styles from './Profile.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_BACK = '/pics/card-back.webp?v=8';
 
 interface Props {
   /** Die eigenen Must Eats — dieselbe Liste, die das Deck zeigt. */

@@ -105,7 +105,7 @@ export default function MustEatTeaserSection({ mustEats, name, locale, className
               aria-label={t.ariaCard}
             >
               <Image
-                src="/pics/card-back.webp?v=7"
+                src="/pics/card-back.webp?v=8"
                 alt=""
                 fill
                 sizes="(max-width: 480px) 38vw, (max-width: 720px) 28vw, 180px"

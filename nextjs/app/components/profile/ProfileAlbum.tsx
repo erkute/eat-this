@@ -15,7 +15,7 @@ import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import ProfilePlayerCard from './ProfilePlayerCard';
 import styles from './ProfileAlbum.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_BACK = '/pics/card-back.webp?v=8';
 const ALL = '__all__';
 // Spaltenbreite des Rasters, wie ProfileAlbum.module.css sie setzt: zwei
 // Spalten bis 360 px, drei bis 640 px (gemessen 113 px bei 390 px Breite — die

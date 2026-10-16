@@ -13,7 +13,7 @@ import type { MapMustEat } from '@/lib/types';
 import styles from './MustEatsSection.module.css';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
-const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_BACK = '/pics/card-back.webp?v=8';
 
 interface GalleryCopy {
   numberLabel: string;

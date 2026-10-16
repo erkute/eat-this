@@ -126,7 +126,7 @@ export default function HubMustEatsTeaser() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.card}
-                src="/pics/card-back.webp?v=7"
+                src="/pics/card-back.webp?v=8"
                 alt=""
                 width={760}
                 height={1044}
@@ -149,7 +149,7 @@ export default function HubMustEatsTeaser() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={styles.card}
-                src="/pics/card-back.webp?v=7"
+                src="/pics/card-back.webp?v=8"
                 alt=""
                 width={760}
                 height={1044}
@@ -189,7 +189,7 @@ export default function HubMustEatsTeaser() {
                 <span className={styles.pileCards} aria-hidden="true">
                   {Array.from({ length: cards.length + (covered ? 1 : 0) }, (_, index) => (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img key={index} src="/pics/card-back.webp?v=7" alt="" width={760} height={1044}
+                    <img key={index} src="/pics/card-back.webp?v=8" alt="" width={760} height={1044}
                       draggable={false} style={{ '--pile-index': index } as CSSProperties} />
                   ))}
                   <CardTapCue hint />
@@ -240,7 +240,7 @@ export default function HubMustEatsTeaser() {
                             {dealState === 'dealing' && (
                               <span className={styles.dealBack} data-deal-back="" aria-hidden="true">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img className={styles.card} src="/pics/card-back.webp?v=7" alt=""
+                                <img className={styles.card} src="/pics/card-back.webp?v=8" alt=""
                                   width={760} height={1044} draggable={false} />
                               </span>
                             )}

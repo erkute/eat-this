@@ -122,8 +122,8 @@
   position: relative;
   display: block;
   width: 100%;
-  /* Card-back asset aspect ratio (760×1076 — yellow-frame swirl design). */
-  aspect-ratio: 760 / 1076;
+  /* Seitenverhältnis der Kartenbilder (760×1044). */
+  aspect-ratio: 760 / 1044;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }

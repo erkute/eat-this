@@ -15,7 +15,7 @@ import MustEatDetailMobile from './MustEatDetailMobile';
 import MustEatSheetBarLock from './MustEatSheetBarLock';
 import { useMustEatDetailState } from './useMustEatDetailState';
 
-const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_BACK = '/pics/card-back.webp?v=8';
 
 interface MustEatDetailProps {
   mustEat: MapMustEat;

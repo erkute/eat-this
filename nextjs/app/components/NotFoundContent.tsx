@@ -21,7 +21,7 @@ const linkTo = (locale: Locale, href: string) => (locale === 'en' ? `/en${href}`
 
 // Dieselbe Rueckseite wie im Deck und im Teaser, samt Cache-Stand — der Browser
 // hat sie meist schon.
-const CARD_BACK = '/pics/card-back.webp?v=7';
+const CARD_BACK = '/pics/card-back.webp?v=8';
 
 const COPY = {
   de: {

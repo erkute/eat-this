@@ -5,8 +5,8 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from '@/lib/i18n';
 import styles from './AuthScreen.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=7';
-const CARD_FRONT = '/pics/card-front.webp?v=4';
+const CARD_BACK = '/pics/card-back.webp?v=8';
+const CARD_FRONT = '/pics/card-front.webp?v=5';
 
 /**
  * Wie lange der Screen mindestens stehen bleibt, bevor die Seite ihn wegnimmt.

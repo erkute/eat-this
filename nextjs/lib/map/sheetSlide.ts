@@ -149,10 +149,10 @@ function place(shift: Shift): void {
  *  position, which made the button jitter on iOS when it rode the list, and
  *  never through a variable on <html>, which restyles the whole page every
  *  frame and let the button trail the finger. */
-export function followSheet(sheetPx: number, edgePx: number = sheetPx): void {
+export function followSheet(sheetPx: number, edgePx: number = sheetPx, edgeFloor = 0): void {
   followed = {
     sheet: Math.max(0, Math.round(sheetPx)),
-    edge: Math.max(0, Math.round(edgePx)),
+    edge: Math.max(edgeFloor, Math.round(edgePx)),
   };
   place(followed);
 }
@@ -194,8 +194,9 @@ function clipAbove(sheet: HTMLElement) {
 }
 
 /** Put the sheet at an offset below its scroll position. */
-export function holdSheetAt(sheet: HTMLElement, offsetPx: number): void {
-  sheet.style.transform = offsetPx !== 0 ? `translateY(${Math.round(offsetPx)}px)` : '';
+export function holdSheetAt(sheet: HTMLElement, offsetPx: number, precise = false): void {
+  const offset = precise ? Math.round(offsetPx * 1000) / 1000 : Math.round(offsetPx);
+  sheet.style.transform = offsetPx !== 0 ? `translateY(${offset}px)` : '';
 }
 
 /** End a gesture: the transform and the clip come off in the same task as
@@ -236,12 +237,7 @@ export function dropLowered(): void {
 /** Glide the sheet from `fromPx` to `toPx` — and its followers from where
  *  they stand to where `edgeTo` puts them, on the same keyframe timing, so
  *  nothing trails behind. */
-function glide(
-  sheet: HTMLElement,
-  fromPx: number,
-  toPx: number,
-  edgeTo: number
-): Promise<void> {
+function glide(sheet: HTMLElement, fromPx: number, toPx: number, edgeTo: number): Promise<void> {
   const from = followed;
   if (fromPx > 0) moving = true;
   holdSheetAt(sheet, toPx);
@@ -251,12 +247,14 @@ function glide(
   }
   const timing = { duration: SETTLE_MS, easing: SETTLE_EASING };
   if (from.edge !== followed.edge) {
-    document.querySelectorAll<HTMLElement>(FOLLOWERS).forEach((el) =>
-      el.animate(
-        [{ translate: `0 ${from.edge}px` }, { translate: `0 ${followed.edge}px` }],
-        timing
-      )
-    );
+    document
+      .querySelectorAll<HTMLElement>(FOLLOWERS)
+      .forEach((el) =>
+        el.animate(
+          [{ translate: `0 ${from.edge}px` }, { translate: `0 ${followed.edge}px` }],
+          timing
+        )
+      );
   }
   const anim = sheet.animate(
     [{ transform: `translateY(${fromPx}px)` }, { transform: `translateY(${toPx}px)` }],
@@ -279,7 +277,11 @@ export async function settleOnMap(
   sheet: HTMLElement,
   fromPx: number,
   toPx: number,
-  { restLinePx, mapY, controlRidePx = 0 }: { restLinePx: number; mapY: number; controlRidePx?: number }
+  {
+    restLinePx,
+    mapY,
+    controlRidePx = 0,
+  }: { restLinePx: number; mapY: number; controlRidePx?: number }
 ): Promise<void> {
   await glide(sheet, fromPx, toPx, toPx - restLinePx + controlRidePx);
   /* `instant`, not `auto`: html carries scroll-behavior: smooth. The release
@@ -287,6 +289,22 @@ export async function settleOnMap(
   window.scrollTo({ top: mapY, behavior: 'instant' });
   hold(sheet, toPx - restLinePx);
   announceSettled();
+}
+
+/** Start a panel-only drag. The dock may travel upward to its sticky top,
+ * while document scroll and its native scroll timelines stay where they are. */
+export function grabForTransform(sheet: HTMLElement): { edge: number; minEdge: number } {
+  const dock = document.querySelector<HTMLElement>('[data-locate-dock]');
+  const stickyTop = dock ? parseFloat(getComputedStyle(dock).top) : NaN;
+  const minEdge =
+    dock && Number.isFinite(stickyTop)
+      ? followed.edge + stickyTop - dock.getBoundingClientRect().top
+      : -Infinity;
+  const edge = followed.edge;
+  clipAbove(sheet);
+  moving = true;
+  place(followed);
+  return { edge, minEdge };
 }
 
 /**

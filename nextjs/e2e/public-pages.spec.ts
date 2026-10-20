@@ -95,7 +95,6 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     ]);
     await page.goto('/');
     await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
-    await page.getByRole('button', { name: 'Karten auslegen', exact: true }).click();
     await expect(page.locator('[data-hub-musteats] ul')).toHaveAttribute('data-deal-state', 'spread');
     await page
       .getByRole('button', { name: 'Verdecktes Must Eat — anmelden und aufdecken', exact: true })

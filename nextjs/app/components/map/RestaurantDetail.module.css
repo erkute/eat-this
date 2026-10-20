@@ -1901,13 +1901,13 @@
 
 .detail,
 .detail .scroll {
-  background: var(--et-ink);
-  color: var(--et-white);
+  background: #fff;
+  color: #111;
 }
 
 [data-map-sheet][data-view='detail'] .detail,
 [data-map-sheet][data-view='detail'] .scroll {
-  background: var(--et-ink);
+  background: #fff;
 }
 
 .detail .rdBody {
@@ -2123,3 +2123,16 @@
 .rdOverlay {
   pointer-events: none;
 }
+
+/* The existing detail structure on the light map surface. Photo captions and
+   the red pack offer retain their dedicated contrast treatments. */
+.detail .scroll, .detail .rdBody { background: #fff; color: #111; }
+.detail .rdFacts, .detail .rdTipp { background: #f2f1ef; color: #111; }
+.detail .rdV, .detail .rdV a, .detail .rdHoursT, .detail .rdV a.rdContactPlainLink,
+.detail .rdHoursRowToday .rdHoursD, .detail .rdTippText, .detail .rdPager,
+.detail .rdStoryLead, .detail .rdMustSection, .detail .rdMustHead,
+.detail .rdMustGrid, .detail .rdMustGrid li, .detail .medish, .detail .medishPh { color: #111; }
+.detail .rdHoursD, .detail .rdVMeta, .detail .rdMustSub { color: #555; }
+.detail .rdActBtn, .detail .rdPagerBtn { background: #f2f1ef; color: #111; }
+.detail .rdActPrimary { background: #a82b2e; color: #fff; }
+.detail .rdHoursRowToday { background: rgba(21,18,14,.055); }

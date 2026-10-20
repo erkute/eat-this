@@ -1,143 +1,45 @@
-import type { CSSProperties } from 'react';
+'use client';
+import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import type { HubArticle } from '@/lib/home/getHomeData';
-import { deckKeyframes } from '@/lib/home/magazineDeck';
 import MagazineCover from './MagazineCover';
-import MagazineDeckDots from './MagazineDeckDots';
 import MagazineLink from './MagazineLink';
 import styles from './MagazineGrid.module.css';
 
-interface Props {
-  articles: HubArticle[];
-  locale: 'de' | 'en';
-}
-
-/** So viele Hefte, wie der Fächer zeigt (vorderes + `--fan-spread` 3):
- *  keins kommt beim Blättern aus dem Nichts (Betreiber, 14.10.2026). */
-const CARD_COUNT = 4;
-const DECK_ID = 'hub-magazine-deck';
-
-/**
- * „Auf dem Teller" als Stapel aus Magazinen (01.10.2026, nach „Card stack"
- * aus den GSAP-Demos). Jeder Artikel ist die Titelseite einer Ausgabe, gebaut
- * wie ein Heft: ganz oben klein „Issue 27 · September 2026" (gezählt ab dem
- * ältesten Artikel, siehe getHomeData), darunter das Eat-This-Logo als
- * Masthead, unten die Rubrik als Etikett über der ganzen Schlagzeile (nie
- * gekürzt, die Grösse richtet sich nach der Länge), ein Strichcode am Rand,
- * Glanz und Rücken — in drei wechselnden Stilen. Jedes Heft hat eine feine
- * Papierkante und ist leicht in den Raum gedreht (die acht Papierlagen vom
- * 01.10. wirkten am 02.10. „zu dick, eher wie ein Buch"). Sie liegen
- * als Stapel wie auf dem Tisch, die hinteren leicht verdreht und darüber
- * hinausragend. Quer wischen nimmt das oberste vom Stapel — es fliegt gedreht
- * nach links aus dem Bild —, die übrigen rücken eine Lage vor; zurückwischen
- * legt es wieder obenauf.
- *
- * Das Wischen ist nativ (Scroll-Snap, ein Einrastpunkt pro Cover), nicht
- * per Pointer-Handler: so fühlt es sich an wie Instagram, auch bei schrägem
- * Wisch (siehe wischen-nativ-statt-js). Alle Cover liegen in der ersten
- * Spalte des Querscrollers; dessen Scroll-Timeline (`--deck`) trägt sie um
- * genau den gescrollten Weg zurück und legt sie in den Stapel — die
- * Schlüsselbilder kommen aus `deckKeyframes`. Kein `sticky`: iOS 27 färbt
- * sonst die URL-Leiste. Ohne Scroll-Timelines ist es ein gewöhnlicher
- * Querstreifen mit Einrasten.
- *
- * Ab 768px liegt der Stapel als Fächer auf einem Tisch, der bis an den
- * Fensterrand reicht: bildschirmhoch, die nächsten vier Hefte nach links
- * aufgeblättert, der Stapel ist ein Ring. Dort hängt nichts am Scrollweg —
- * jedes Blättern ist eine getimte Bewegung wie in der GSAP-Demo: das oberste
- * wird angehoben und nach links aus dem Bild geworfen, die übrigen rücken
- * versetzt nach (lib/home/magazineTable.ts, HubMotion). Ziehen, Trackpad,
- * Punkte und ein Klick in den Fächer blättern; die Maus fächert auf.
- */
-export default function MagazineGrid({ articles, locale }: Props) {
-  if (!articles.length) return null;
-  const list = articles.slice(0, CARD_COUNT);
-  const count = list.length;
-  const labels = {
-    all: locale === 'en' ? 'More magazines' : 'Weitere Magazine',
-    kicker: locale === 'en' ? 'Magazine' : 'Magazin',
-    title: locale === 'en' ? 'On the plate' : 'Auf dem Teller',
-    intro: locale === 'en' ? 'Stories from Berlin’s food scene.' : 'Geschichten aus Berlins Food-Szene.',
-    dot: (n: number) => (locale === 'en' ? `Story ${n} of ${count}` : `Story ${n} von ${count}`),
-  };
-
+export default function MagazineGrid({ articles, locale }: { articles: HubArticle[]; locale: 'de' | 'en' }) {
+  const [selected, setSelected] = useState(0);
+  const list = articles.slice(0, 4);
+  if (!list.length) return null;
+  const en = locale === 'en';
   return (
-    <section
-      className={`homeV2 hv-section hv-wrap ${styles.section}`}
-      aria-label={labels.kicker}
-      data-hub-magazine=""
-    >
-      {/* Keyframes per cover and dot, for exactly this many covers — the
-          phone's deal-off stack (magazineDeck.ts). */}
-      <style>{deckKeyframes(count)}</style>
-      <div className={styles.layout}>
-        <div>
-          <div className={`hv-head ${styles.head}`}>
-            <span className={`hv-kicker ${styles.eyebrow}`}>{labels.kicker}</span>
-            <h2 className="hv-title">
-              {labels.title}
-            </h2>
-            <p className={styles.intro}>{labels.intro}</p>
-          </div>
-        </div>
-
-        <div
-          className={styles.stage}
-          style={{ '--count': count } as CSSProperties}
-          data-home-pointer=""
-          data-magazine-stage=""
-        >
-          <div id={DECK_ID} className={styles.deck} data-magazine-deck="">
-            <ol className={styles.track} role="list" aria-label={labels.kicker}>
-              {list.map((a, i) => (
-                <li
-                  key={a.slug}
-                  className={styles.card}
-                  data-deck-index={i}
-                  style={
-                    {
-                      '--i': i,
-                      '--deck-key': `mag-deck-${count}-${i}`,
-                      zIndex: count - i,
-                    } as CSSProperties
-                  }
-                >
-                  <MagazineLink href={`/news/${a.slug}`} className={styles.mag}>
-                    <MagazineCover
-                      title={a.title}
-                      image={a.image}
-                      issue={a.issue}
-                      date={a.date}
-                      locale={locale}
-                      cover={a.cover}
-                      sizes="(max-width: 767.98px) 80vw, (min-width: 1600px) min(35vw, 900px), (min-width: 1024px) min(40vw, 560px), 46vw"
-                      widths={[480, 800, 1200, 1800, 2400]}
-                    />
-                  </MagazineLink>
-                </li>
-              ))}
-              {/* One snap point per cover: the swipe distance between two. */}
-              {list.map((a, i) => (
-                <li
-                  key={`snap-${a.slug}`}
-                  className={styles.snap}
-                  style={{ gridColumn: i + 1 }}
-                  aria-hidden="true"
-                />
-              ))}
-            </ol>
-          </div>
-        </div>
-
-        <MagazineDeckDots deckId={DECK_ID} labels={list.map((_, i) => labels.dot(i + 1))}
-          stories={list.map((article) => ({ title: article.title, href: `/news/${article.slug}`, issue: article.issue }))} />
-
-        <div className={styles.foot}>
-          <Link href="/news" className={styles.allLink}>
-            {labels.all}
-          </Link>
+    <section className={styles.section} data-hub-magazine="" aria-labelledby="home-magazine-title">
+      <div className={styles.header}>
+        <h2 id="home-magazine-title">{en ? <>On the<br />plate.</> : <>Auf dem<br />Teller.</>}</h2>
+        <div className={styles.intro}>
+          <p className={styles.kicker}>{en ? 'THE EAT THIS MAGAZINE' : 'DAS EAT THIS MAGAZIN'}</p>
+          <p>{en ? 'Stories from Berlin’s food scene.' : 'Geschichten aus Berlins Food-Szene.'}</p>
+          <Link href="/news" className={`hv-btn ${styles.desktopLink}`}>{en ? 'More magazines' : 'Weitere Magazine'}</Link>
         </div>
       </div>
+      <ol className={styles.covers} aria-label={en ? 'Magazine' : 'Magazin'}>
+        {list.map((a, index) => (
+          <li key={a.slug} data-selected={index === selected}>
+            <MagazineLink href={`/news/${a.slug}`} className={styles.cover}>
+              <MagazineCover title={a.title} image={a.image} issue={a.issue} date={a.date} locale={locale} cover={a.cover}
+                sizes="(max-width: 767px) 80vw, 23vw" widths={[480, 800, 1200]} />
+            </MagazineLink>
+          </li>
+        ))}
+      </ol>
+      <div className={styles.thumbnails} role="group" aria-label={en ? 'Choose a magazine' : 'Magazin auswählen'}>
+        {list.map((a, index) => (
+          <button key={a.slug} type="button" aria-pressed={selected === index} onClick={() => setSelected(index)}
+            aria-label={`${en ? 'Issue' : 'Ausgabe'} ${a.issue}: ${a.title}`}>
+            <MagazineCover title={a.title} image={a.image} issue={a.issue} date={a.date} locale={locale} cover={a.cover} sizes="70px" widths={[180]} />
+          </button>
+        ))}
+      </div>
+      <Link href="/news" className={`hv-btn ${styles.mobileLink}`}>{en ? 'More magazines' : 'Weitere Magazine'}</Link>
     </section>
   );
 }

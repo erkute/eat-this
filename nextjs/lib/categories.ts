@@ -18,7 +18,7 @@ export interface CategoryDef {
   descriptionEn?: string;
   /**
    * Slugs of the curated best-of list, in editorial order. Only projected by
-   * `categoryBySlugQuery` and `homeMapCategoriesQuery`.
+   * `categoryBySlugQuery`.
    */
   topSpots?: string[];
   /** Homepage: Top-Spots plus article recommendations in this category. */

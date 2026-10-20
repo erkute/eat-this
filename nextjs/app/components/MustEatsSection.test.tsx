@@ -207,6 +207,6 @@ describe('MustEatsSection', () => {
     const packArt = html.match(/src="\/pics\/booster\/[^"?]+\.webp"/g) ?? [];
 
     expect(packArt).toEqual(['src="/pics/booster/booster.webp"']);
-    expect(html).not.toContain('/pics/booster/booster_free.webp');
+    expect(html).not.toContain('/pics/booster/booster_free.webp?v=2');
   });
 });

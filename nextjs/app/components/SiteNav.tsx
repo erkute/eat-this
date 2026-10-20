@@ -8,7 +8,6 @@ import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { openBurgerDrawer } from './burgerDrawerState';
 import styles from './SiteNav.module.css';
-import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 function pageSlugFromPath(path: string): string {
   if (path === '/') return 'start';
@@ -181,6 +180,7 @@ export default function SiteNav() {
           <MapIntentLink href="/map" className={styles.control} id="navMapBtn" aria-label="Map">
             <span className={styles.mapWord}>Map</span>
           </MapIntentLink>
+          <Link href="/news" className={styles.control}><span className={styles.mapWord}>{lang === 'de' ? 'Magazin' : 'Magazine'}</span></Link>
         </div>
         {/* Center: Logo */}
         <div className={styles.home}>
@@ -190,10 +190,10 @@ export default function SiteNav() {
               Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
           <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
-              src={BRAND_LOGO_SRC}
+              src="/pics/home/wordmark.webp?v=1"
               alt="Eat This"
-              width={1660}
-              height={667}
+              width={1124}
+              height={274}
               sizes="80px"
               loading="lazy"
               decoding="async"

@@ -10,8 +10,8 @@
      derselben Variable (globals.css). */
   height: var(--site-nav-h);
   padding: env(safe-area-inset-top, 0px) clamp(12px, 3vw, 32px) 0;
-  color: #fff;
-  background: #15120e;
+  color: #111;
+  background: #fff;
   border: 0;
   box-shadow: none;
 }
@@ -56,7 +56,7 @@
   width: auto;
   min-width: max-content;
   height: 44px;
-  color: #fff;
+  color: #111;
   text-decoration: none;
   transform: translate(-50%, -50%);
 }
@@ -75,7 +75,7 @@
   min-width: auto;
   height: 44px;
   padding: 0;
-  color: #fff;
+  color: #111;
   text-decoration: none;
   appearance: none;
   background: transparent;
@@ -88,7 +88,7 @@
 
 .control:active,
 .control:focus-visible {
-  color: #fff;
+  color: #111;
   background: transparent;
   box-shadow: none;
   transform: none;
@@ -96,7 +96,7 @@
 
 @media (hover: hover) {
   .control:hover {
-    color: #fff;
+    color: #111;
     background: transparent;
     box-shadow: none;
     transform: none;
@@ -130,7 +130,7 @@
 .menuWord {
   display: inline-block;
   font-family: var(--et-font-display);
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: 0;
@@ -141,7 +141,7 @@
 .control:focus-visible .mapWord,
 .control:active .menuWord,
 .control:focus-visible .menuWord {
-  color: #fff;
+  color: #111;
   text-shadow: none;
   animation: navHorrorShiver 220ms steps(2, end);
 }
@@ -149,7 +149,7 @@
 @media (hover: hover) {
   .control:hover .mapWord,
   .control:hover .menuWord {
-    color: #fff;
+    color: #111;
     text-shadow: none;
     animation: navHorrorShiver 220ms steps(2, end);
   }
@@ -171,7 +171,7 @@
     inset: 0;
     z-index: 0;
     display: block;
-    background: #15120e;
+    background: #fff;
     pointer-events: none;
     transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
@@ -227,7 +227,7 @@
 
   .mapWord,
   .menuWord {
-    font-size: 17px;
+    font-size: 14px;
   }
 
   .logoImg {
@@ -290,4 +290,11 @@
 .nav .actions { position: relative; z-index: 1; }
 
 .nav[data-nav-page='news-article'] .control:focus-visible,
-.nav[data-nav-page='restaurant'] .control:focus-visible { outline-color: var(--et-white); }
+.nav[data-nav-page='restaurant'] .control:focus-visible { outline-color: #111; }
+
+.actionsStart { gap: 24px; }
+.logoImg { height: 24px; }
+@media(max-width:600px) {
+  .actionsStart { gap: 12px; }
+  .nav .logoImg { height: 18px; }
+}

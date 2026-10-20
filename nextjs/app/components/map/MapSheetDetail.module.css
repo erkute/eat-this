@@ -138,5 +138,5 @@
   }
 }
 [data-map-sheet][data-view='detail'] .detailMount {
-  background: var(--et-ink);
+  background: var(--map-collage-paper, #fff);
 }

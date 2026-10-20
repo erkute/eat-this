@@ -9,11 +9,11 @@ import { categoryArt } from '@/lib/categoryArt';
 import styles from './Profile.module.css';
 
 const PACK_ART_VERSION = '1';
-const WELCOME_ART = '/pics/booster/booster_free.webp';
+const WELCOME_ART = '/pics/booster/booster_free.webp?v=2';
 const ALL_BERLIN_ART = '/pics/booster/booster.webp';
 
 function versionedPackArt(src: string): string {
-  return `${src}${src.includes('?') ? '&' : '?'}v=${PACK_ART_VERSION}`;
+  return src.includes('?v=') ? src : `${src}?v=${PACK_ART_VERSION}`;
 }
 
 function PackArt({ src }: { src: string }) {

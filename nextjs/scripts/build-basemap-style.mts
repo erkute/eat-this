@@ -1,46 +1,8 @@
-/* Baut `public/basemap/style.json` aus der eingefrorenen CARTO-Vorlage
-   `scripts/basemap/dark-matter.upstream.json`.
- *
- * Warum überhaupt ein eigener Style: Dark Matter zeichnet sein Straßennetz in
- * `rgba(65,71,88)` — gemessen b* −10,9 bei L* 30. Das ist die größte
- * zusammenhängende Fläche der Karte, und sie steht in einem Blauviolett, das
- * zu nichts in der Marke gehört (Ink #15120e ist warm, Gelb #FFC600 ist warm).
- * Auf einer hellen Grundkarte fiel das nicht auf, auf Ink schon.
- *
- * Was das Skript NICHT tut: an der Helligkeit drehen. Jeder Wert behält sein
- * L* auf die Nachkommastelle. Die Kontrasthierarchie des Styles — welche
- * Straßenklasse heller ist als welche — ist durchdacht und bleibt unangetastet;
- * geändert wird ausschließlich die Buntheit (Chroma und Farbwinkel). Deshalb
- * kann das Skript stumpf über ALLE Farbwerte laufen: neutrale Grautöne haben
- * kein Chroma und kommen unverändert wieder heraus.
- *
- * Der Zielwinkel ist der des Seiten-Inks, damit die Karte in derselben Familie
- * liegt wie das Blatt. Die Buntheit wird dabei deutlich gedämpft
- * (ROAD_CHROMA): mit voller Buntheit im warmen Winkel würden die Straßen
- * bräunlich-golden und träten in Konkurrenz zu den gelben Pins, die den
- * Inhalt tragen.
- *
- * Wasser hat einen eigenen Regler. Blau ist dort kein Fremdkörper, sondern die
- * Lesehilfe: auf einer Karte ohne Beschriftung erkennt man Spree und
- * Landwehrkanal an der Farbe. WATER_CHROMA dämpft sie nur, statt sie zu drehen.
- *
- * Der zweite Zweck des Skripts ist die Unabhängigkeit von CARTO. Die Vorlage
- * holt Kacheln, Schriften und Sprite von `cartocdn.com`; CARTO verlangt seit
- * Ende August 2026 bei den Rasterkarten API-Schlüssel und schreibt, sie
- * könnten die Pflicht ausweiten. Wir liefen dort ohne Schlüssel auf einem
- * Endpunkt, der uns jederzeit weggezogen werden konnte. Deshalb zeigen jetzt:
- *   Kacheln  → OpenFreeMap (kein Schlüssel, kommerziell erlaubt, dieselbe
- *              OpenMapTiles-Struktur — alle 14 source-layer der Vorlage sind
- *              dort vorhanden, gemessen). Und weil OpenFreeMap denselben
- *              Datensatz auch zum Selbsthosten herausgibt, ist das kein
- *              Umzug in die nächste Abhängigkeit, sondern der Schritt davor.
- *   Schriften → OpenFreeMap. Dort gibt es nur Noto Sans, also übersetzt
- *              FONT_STACKS die vier Montserrat-Stapel der Vorlage.
- *   Sprite   → ersatzlos raus, siehe DROP_ICONS.
- * Damit ist kein cartocdn.com-Aufruf mehr im Spiel; übrig bleibt der Style
- * selbst, und der liegt im Repo.
- *
- * Aufruf: npm run build:basemap  (die erzeugten Dateien mitcommitten)
+/* Builds the light Eat This map from the pinned CARTO layer structure.
+ * Sources, geometry, zoom hierarchy and transit overlays stay unchanged.
+ * CIE-Lab lightness maps the former dark canvas to paper and labels to ink;
+ * chroma is still restrained using the brand ink hue. Regenerate with
+ * npm run build:basemap and commit public/basemap/style.json.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -195,16 +157,16 @@ function formatColor(rgb: Rgb, original: string): string {
 const inkLab = rgbToLab(parseColor(INK)!);
 const INK_HUE = Math.atan2(inkLab[2], inkLab[1]);
 
-/** Hält L*, dreht den Farbwinkel auf den des Inks und dämpft die Buntheit. */
+/** Paper canvas, ink labels, restrained road and water colours. */
 function warm(value: string, chromaFactor: number, turnHue: boolean): string {
   const rgb = parseColor(value);
   if (!rgb) return value;
   const [L, a, b] = rgbToLab(rgb);
   const c = Math.hypot(a, b);
-  if (c < NEUTRAL_C) return value;
+  const lightness = 100 - L * 0.9;
   const hue = turnHue ? INK_HUE : Math.atan2(b, a);
-  const nc = c * chromaFactor;
-  const out = labToRgb([L, Math.cos(hue) * nc, Math.sin(hue) * nc], rgb.a);
+  const nc = c < NEUTRAL_C ? 0 : c * chromaFactor;
+  const out = labToRgb([lightness, Math.cos(hue) * nc, Math.sin(hue) * nc], rgb.a);
   return formatColor(out, value);
 }
 
@@ -231,7 +193,7 @@ function mapColors(node: Json, layerId: string, isWater: boolean): Json {
 
 const style = JSON.parse(readFileSync(UPSTREAM, 'utf8'));
 
-style.name = 'Eat This Ink';
+style.name = 'Eat This Light';
 style.metadata = {
   ...(style.metadata ?? {}),
   'eat-this:derived-from': 'CARTO Dark Matter (basemaps.cartocdn.com/gl/dark-matter-gl-style)',

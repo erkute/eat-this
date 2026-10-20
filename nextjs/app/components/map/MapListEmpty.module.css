@@ -22,8 +22,8 @@
   margin: 14px 14px 22px;
   padding: 22px 18px 18px;
   overflow: hidden;
-  background: var(--et-ink-quiet);
-  color: var(--et-white);
+  background: rgba(21, 18, 14, .055);
+  color: var(--map-collage-ink, #111);
   /* Fläche statt Rahmen, wie jede Tafel auf der Karte. */
   border: 0;
   border-radius: var(--et-radius-control);
@@ -67,7 +67,7 @@
   /* Ebenfalls Ink auf Ink, Kontrast 1,14 — die Ueberschrift war schlicht nicht
      da. Sichtbar blieben nur Unterzeile und Knopf, und deshalb konnte man
      diesen Zustand benutzen, ohne je gelesen zu haben, wie er heisst. */
-  color: var(--et-white);
+  color: var(--map-collage-ink, #111);
   font-family: var(--et-font-display);
   font-size: 32px;
   font-weight: 700;

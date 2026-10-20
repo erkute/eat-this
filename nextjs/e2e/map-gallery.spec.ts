@@ -38,7 +38,7 @@ for (const locale of ['de', 'en'] as const) {
       await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
       await expect(gallery.getByRole('link')).toHaveAttribute('href', /^https:\/\/(www\.)?instagram\.com\/gazzopizza\/?$/);
       const firstCredit = await gallery.getByRole('link').getAttribute('href');
-      expect(await gallery.getByRole('link').evaluate(el => getComputedStyle(el).fontFamily)).toContain('providence');
+      expect(await gallery.getByRole('link').evaluate(el => getComputedStyle(el).fontFamily)).toContain('neue-haas-grotesk');
       await expect(gallery.locator('span').filter({ hasText: /^Gazzo$/ })).toHaveCount(0);
       const creditBox = (await gallery.getByRole('link').boundingBox())!;
       expect(creditBox.x).toBeGreaterThan(page.viewportSize()!.width / 2);

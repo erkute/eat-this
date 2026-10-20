@@ -8,11 +8,11 @@
    ist das eine Objekt der Seite und traegt die leise Stufe (AllBerlinBoard). */
 
 .page {
-  --packs-ink: var(--et-ink);
-  --packs-fg: var(--et-white);
-  --packs-muted: var(--et-ink-soft);
+  --packs-ink: #fff;
+  --packs-fg: #111;
+  --packs-muted: #555;
   --packs-accent: var(--et-accent);
-  --packs-rule: var(--et-ink-line);
+  --packs-rule: #d4d4d4;
   min-height: 100%;
   overflow-x: clip;
   padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) 0 clamp(64px, 8vw, 120px);
@@ -145,12 +145,12 @@
 }
 
 .tileLink:focus-visible .tileName {
-  color: var(--et-accent-text);
+  color: #a82b2e;
 }
 
 @media (hover: hover) {
   .tileLink:hover .tileName {
-    color: var(--et-accent-text);
+    color: #a82b2e;
   }
 }
 
@@ -234,7 +234,7 @@
 
 .buyError {
   margin: 8px 0 0;
-  color: var(--et-accent-text);
+  color: #a82b2e;
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;

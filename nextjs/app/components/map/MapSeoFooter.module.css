@@ -10,7 +10,7 @@
    voneinander und nicht zwei Blöcke. */
 .block {
   margin: 24px 0 calc(24px + env(safe-area-inset-bottom, 0px));
-  color: var(--et-white);
+  color: var(--map-collage-ink, #111);
 }
 
 /* Zugeklappt ist der Block eine einzige leise Zeile: Überschrift in Weiß
@@ -23,7 +23,7 @@
   align-items: center;
   padding-block: 10px;
   cursor: pointer;
-  color: var(--et-ink-dim);
+  color: #666;
   list-style: none;
 }
 
@@ -45,7 +45,7 @@
 
 @media (hover: hover) {
   .toggle:hover {
-    color: var(--et-white);
+    color: var(--map-collage-ink, #111);
   }
 }
 
@@ -63,7 +63,7 @@
 
 .block[open] > .toggle {
   margin-bottom: 4px;
-  color: var(--et-white);
+  color: var(--map-collage-ink, #111);
 }
 
 .text {
@@ -78,7 +78,7 @@
 
 .faqHeading {
   margin: 18px 0 2px;
-  color: var(--et-white);
+  color: var(--map-collage-ink, #111);
   font-family: var(--et-font-display);
   font-size: var(--et-type-kicker);
   font-weight: 700;
@@ -97,7 +97,7 @@
    Text daneben (.faqQuestion) war korrekt mitgegangen, deshalb fiel nur die
    Gliederung weg und nicht der Inhalt. */
 .faqItem {
-  border-bottom: 1px solid var(--et-ink-line);
+  border-bottom: 1px solid rgba(21, 18, 14, .14);
 }
 
 .faqQuestion {
@@ -107,7 +107,7 @@
   align-items: center;
   padding-block: 11px;
   cursor: pointer;
-  color: var(--et-white);
+  color: var(--map-collage-ink, #111);
   font-family: var(--et-font-display);
   font-size: 13.5px;
   font-weight: 700;

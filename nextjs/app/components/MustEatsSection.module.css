@@ -18,8 +18,8 @@
 .page {
   --must-pad: var(--et-wrap-pad-mobile);
   --must-yellow: #ffc600;
-  --must-soft: var(--et-ink-soft);
-  --must-dim: var(--et-ink-dim);
+  --must-soft: #555;
+  --must-dim: #666;
   --must-gap: var(--et-section-gap-mobile);
   --must-card-shadow: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
   --must-lift: translateY(-4px);
@@ -27,8 +27,8 @@
   min-height: 100%;
   display: flow-root;
   overflow-x: clip;
-  background: var(--et-ink);
-  color: var(--et-white);
+  background: #fff;
+  color: #111;
   font-family: var(--et-font-display);
 }
 
@@ -56,7 +56,7 @@
 
 .kicker {
   margin: 0;
-  color: var(--et-accent-text);
+  color: #a82b2e;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
@@ -165,7 +165,7 @@
 
 .statValue {
   margin: 0;
-  color: var(--et-white);
+  color: #111;
   font-size: 36px;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -173,7 +173,7 @@
 }
 
 .statLabel {
-  color: var(--et-accent-text);
+  color: #a82b2e;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
@@ -224,7 +224,7 @@
 /* Die Seitentür als leise Fläche, wie „Wie funktioniert's?" daneben. */
 .secondary {
   background: rgba(255, 255, 255, 0.1);
-  color: var(--et-white);
+  color: #111;
 }
 
 .cta:focus-visible,
@@ -442,7 +442,7 @@
 
 .dish {
   margin: 0;
-  color: var(--et-white);
+  color: #111;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -476,7 +476,7 @@
 /* Der Spot ist ein Link, aber kein unterstrichenes Wort: Weiß gegen das
    gedämpfte Grau daneben, bei Hover und Fokus die rote Fläche. */
 .spotLink {
-  color: var(--et-white);
+  color: #111;
   text-decoration: none;
   border-radius: 2px;
   transition:
@@ -499,7 +499,7 @@
 
 .price {
   margin: 0;
-  color: var(--et-white);
+  color: #111;
   font-size: 15px;
   line-height: 1.4;
 }
@@ -534,7 +534,7 @@
    beide dürfen umbrechen — lieber zwei Zeilen als ein abgeschnittener Name. */
 .setName {
   max-width: 100%;
-  color: var(--et-white);
+  color: #111;
   font-weight: 700;
   overflow-wrap: anywhere;
   text-wrap: balance;
@@ -578,7 +578,7 @@
   margin-bottom: clamp(48px, 7vw, 96px);
   padding: 24px 18px;
   overflow: hidden;
-  background: var(--et-ink-raised);
+  background: #f2f1ef;
   border-radius: var(--et-radius-photo);
 }
 

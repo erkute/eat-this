@@ -74,7 +74,7 @@ test('brand description, recommendations, accessible image links and English nav
   await expect(page.getByRole('heading', { name: 'Unsere Empfehlungen', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Handverlesene/ })).toHaveCount(0);
   const description = page.locator('main > header p').first();
-  expect(await description.evaluate(node => getComputedStyle(node).fontFamily)).toContain('ff-providence');
+  expect(await description.evaluate(node => getComputedStyle(node).fontFamily)).toContain('neue-haas-grotesk');
   expect(await page.locator('body').evaluate(node => node.scrollWidth <= innerWidth + 1)).toBe(true);
   await expect(page.locator('main > header figure a')).toHaveCount(0);
   const result = await new AxeBuilder({ page }).include('main > header').analyze();

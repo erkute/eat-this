@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 
 /** Dasselbe Schwarz wie der Vorhang (LoginModalOverlay.module.css). */
-const LOGIN_CANVAS_COLOR = '#000';
+const LOGIN_CANVAS_COLOR = '#fff';
 
 /**
  * Scroll-Sperre und Leistenfarbe, solange das Login-Modal offen ist.

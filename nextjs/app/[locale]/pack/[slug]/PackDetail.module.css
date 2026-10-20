@@ -35,7 +35,7 @@
   padding: clamp(24px, 4vw, 56px);
   background: #f2f1ef;
   color: var(--pack-fg);
-  border-radius: var(--et-radius-photo);
+  border-radius: 0;
 }
 
 .copy {
@@ -52,7 +52,7 @@
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.86;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 /* Der Platz des Kaufknopfes bei einem Pack ohne Karte. Keine deaktivierte
@@ -66,7 +66,7 @@
   font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 /* „Holzofen. Pinsa. NY-Slice." — die Editor-Zeile des Packs, gelb wie die
@@ -77,7 +77,7 @@
   font-size: clamp(18px, 2vw, 26px);
   font-weight: 700;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .sub {
@@ -107,7 +107,7 @@
   background: var(--pack-accent);
   color: var(--et-on-accent);
   border: 0;
-  border-radius: var(--et-radius-control);
+  border-radius: 0;
   box-shadow: none;
   font-family: var(--et-font-display);
   font-size: clamp(16px, 1.4vw, 19px);
@@ -181,7 +181,7 @@
   width: min(100%, 400px);
   height: auto;
   transform: rotate(-5deg);
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.16));
 }
 
 /* ── All-Berlin-Upsell ─────────────────────────────────────────────────── */
@@ -203,7 +203,7 @@
 @media (min-width: 1600px) {
   .inner { width: min(100%, 1880px); }
   .copy { max-width: 780px; }
-  .name { font-size: clamp(88px, 5.4vw, 128px); }
+  .name { font-size: var(--et-type-page); }
   .packArt { width: min(100%, 520px); }
 }
 

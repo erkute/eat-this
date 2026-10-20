@@ -128,12 +128,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #fff;
+  color: var(--et-ink);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
   line-height: 1.3;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .pointLabel::before {
@@ -146,7 +146,7 @@
 
 .pointBody {
   margin: 0;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--et-copy);
   font-size: 15px;
   line-height: 1.4;
   text-wrap: pretty;
@@ -174,8 +174,8 @@
   min-height: 48px;
   margin-right: auto;
   padding: 12px 22px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--et-ink);
+  background: var(--et-quiet);
   border: 0;
   border-radius: var(--et-radius-control);
   cursor: pointer;
@@ -191,13 +191,14 @@
 }
 
 .second:focus-visible {
-  background: rgba(255, 255, 255, 0.18);
-  outline: 0;
+  background: var(--et-line);
+  outline: 2px solid var(--et-ink);
+  outline-offset: 3px;
 }
 
 @media (hover: hover) {
   .second:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--et-line);
   }
 }
 

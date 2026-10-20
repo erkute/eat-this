@@ -108,51 +108,16 @@
   outline-offset: 4px;
 }
 
-@keyframes navHorrorShiver {
-  0% {
-    transform: translate(0, 0) rotate(0deg) skewX(0deg);
-  }
-  22% {
-    transform: translate(-1px, 1px) rotate(-2deg) skewX(-5deg);
-  }
-  45% {
-    transform: translate(2px, -1px) rotate(1deg) skewX(4deg);
-  }
-  68% {
-    transform: translate(-1px, 0) rotate(-1deg) skewX(-3deg);
-  }
-  100% {
-    transform: translate(0, 0) rotate(0deg) skewX(0deg);
-  }
-}
 
 .mapWord,
 .menuWord {
   display: inline-block;
   font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 0.9;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
   letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.control:active .mapWord,
-.control:focus-visible .mapWord,
-.control:active .menuWord,
-.control:focus-visible .menuWord {
-  color: #111;
-  text-shadow: none;
-  animation: navHorrorShiver 220ms steps(2, end);
-}
-
-@media (hover: hover) {
-  .control:hover .mapWord,
-  .control:hover .menuWord {
-    color: #111;
-    text-shadow: none;
-    animation: navHorrorShiver 220ms steps(2, end);
-  }
+  text-transform: none;
 }
 
 @media (max-width: 767.98px) {
@@ -222,12 +187,12 @@
 
 @media (max-width: 520px) {
   .nav:not([data-nav-page='map']) {
-    padding-inline: 10px;
+    padding-inline: 20px;
   }
 
   .mapWord,
   .menuWord {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .logoImg {
@@ -295,6 +260,6 @@
 .actionsStart { gap: 24px; }
 .logoImg { height: 24px; }
 @media(max-width:600px) {
-  .actionsStart { gap: 12px; }
+  .actionsStart { gap: 16px; }
   .nav .logoImg { height: 18px; }
 }

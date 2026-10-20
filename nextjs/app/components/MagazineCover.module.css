@@ -258,7 +258,7 @@
 }
 .objectSoft {
   object-fit: contain;
-  filter: drop-shadow(0 2.2cqw 2.4cqw rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 2.2cqw 2.4cqw rgba(0, 0, 0, 0.16));
 }
 .cutoutShadow {
   filter: drop-shadow(0 1.2cqw 1.8cqw rgba(0, 0, 0, 0.45));

@@ -6,13 +6,13 @@
   gap: clamp(24px, 5vw, 64px);
   margin-top: clamp(64px, 8vw, 112px);
   padding: clamp(32px, 5vw, 64px) clamp(24px, 4vw, 56px);
-  background: var(--et-ink-raised);
-  border-radius: var(--et-radius-photo);
-  color: var(--et-white);
+  background: var(--et-quiet);
+  border-radius: 0;
+  color: var(--et-ink);
 }
 .cardLink {
   display: block;
-  border-radius: var(--et-radius-photo);
+  border-radius: 0;
 }
 .cardLink:focus-visible {
   outline: 2px solid var(--et-accent);
@@ -26,9 +26,9 @@
 }
 .kicker {
   margin: 0 0 12px;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-size: 12px;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .title {
   margin: 0;
@@ -37,7 +37,7 @@
 }
 .spot {
   margin: 0 0 6px;
-  color: var(--et-ink-soft);
+  color: var(--et-copy);
   font-size: 13px;
   line-height: 1.4;
 }
@@ -48,7 +48,7 @@
 }
 .note {
   margin: 16px 0 0;
-  color: var(--et-ink-soft);
+  color: var(--et-copy);
   font-size: 14px;
   line-height: 1.5;
 }

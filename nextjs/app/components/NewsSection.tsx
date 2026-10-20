@@ -54,7 +54,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
       <div className={`app-page active ${styles.page}`} data-page="news">
         <main id="news" className={styles.shell}>
           <header className={styles.intro}>
-            <span className={styles.kicker}>{labels.kicker}</span>
             <h1 className={styles.heroTitle}>{labels.title}</h1>
           </header>
           <p className={styles.empty}>{labels.empty}</p>
@@ -74,7 +73,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
       <main id="news" className={styles.shell}>
         <header className={styles.hero}>
           <div className={styles.intro}>
-            <span className={styles.kicker}>{labels.kicker}</span>
             <h1 className={styles.heroTitle}>{labels.title}</h1>
           </div>
 
@@ -146,7 +144,6 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
         {older.length > 0 && (
           <section className={styles.archive} aria-labelledby="news-archive">
             <div className={styles.sectionHead}>
-              <span className={styles.sectionMark} aria-hidden="true" />
               <h2 id="news-archive">{labels.archive}</h2>
             </div>
             <ul className={styles.shelf} role="list">

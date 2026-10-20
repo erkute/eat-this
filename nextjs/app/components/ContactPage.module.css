@@ -2,9 +2,9 @@
   display: flex;
   flex-direction: column;
   min-height: calc(100dvh - var(--site-nav-h));
-  padding: 0 clamp(20px, 5vw, 72px);
-  background: var(--et-ink);
-  color: var(--et-white);
+  padding: 0 var(--et-gutter);
+  background: var(--et-white);
+  color: var(--et-ink);
 }
 
 .page > :global(footer[role='contentinfo']) {
@@ -21,11 +21,11 @@
   max-width: 14ch;
   margin: 0 0 clamp(22px, 3vw, 36px);
   font-family: var(--et-font-display);
-  font-size: clamp(52px, 9vw, 116px);
+  font-size: var(--et-type-page);
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.035em;
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
 }
 
@@ -68,19 +68,19 @@
 
 .email:focus-visible,
 .topic a:focus-visible {
-  outline: 2px solid var(--et-white);
+  outline: 2px solid var(--et-accent);
   outline-offset: 6px;
 }
 
 @media (hover: hover) {
   .email:hover {
-    background: color-mix(in srgb, var(--et-accent) 85%, var(--et-ink));
+    background: color-mix(in srgb, var(--et-accent) 85%, var(--et-white));
   }
 }
 
 .reply {
   margin-top: 16px;
-  color: var(--et-ink-soft);
+  color: var(--et-copy);
   font-family: var(--et-font-body);
   font-size: 14px;
   line-height: 1.6;
@@ -96,7 +96,7 @@
 .topic {
   min-width: 0;
   padding-top: 24px;
-  color: var(--et-ink-soft);
+  color: var(--et-copy);
   font-family: var(--et-font-body);
   font-size: 17px;
   line-height: 1.65;
@@ -104,7 +104,7 @@
 
 .topic h2 {
   margin: 0 0 18px;
-  color: var(--et-white);
+  color: var(--et-ink);
   font-family: var(--et-font-display);
   font-size: clamp(26px, 2.5vw, 34px);
   font-weight: 700;
@@ -121,8 +121,8 @@
   margin-bottom: 0;
 }
 .topic a {
-  color: var(--et-accent-text);
-  text-decoration: underline;
+  color: var(--et-accent);
+  text-decoration: none;
   text-underline-offset: 4px;
 }
 

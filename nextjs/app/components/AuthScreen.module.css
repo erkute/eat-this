@@ -27,9 +27,9 @@
   gap: 22px;
   width: min(94vw, 560px);
   padding: clamp(26px, 4vw, 40px);
-  color: var(--et-white);
-  /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. */
-  background: var(--et-ink-raised);
+  color: var(--et-ink);
+  /* White panel shared with the editorial onboarding. */
+  background: #fff;
   box-shadow: var(--et-ink-raised-edge);
   border-radius: 10px;
   text-align: left;
@@ -90,8 +90,8 @@
   font-size: var(--et-type-kicker);
   font-weight: 700;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--et-accent-text);
+  text-transform: none;
+  color: var(--et-accent);
 }
 
 /* Drei Punkte am Kicker — die einzige Bewegung in der Schrift, und zwar an
@@ -145,8 +145,8 @@
   font-size: clamp(30px, 6vw, 42px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 0.92;
-  text-transform: uppercase;
+  line-height: 1.12;
+  text-transform: none;
 }
 
 /* ── Der Stapel ───────────────────────────────────────────────────────────── */

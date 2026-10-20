@@ -1,6 +1,6 @@
 .section { padding: 80px var(--home-gutter); border-bottom: 1px solid #d4d4d4; background: #fff; color: #111; }
 .header { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: end; max-width: 1400px; margin: auto; }
-.header h2 { margin: 0; font: 700 clamp(64px, 7.1vw, 102px)/.88 var(--et-font-body); letter-spacing: -.07em; }
+.header h2 { margin: 0; font: 700 clamp(40px, 5.6vw, 80px)/1.04 var(--et-font-body); letter-spacing: -.04em; }
 .intro { padding-bottom: 4px; }
 .intro p { max-width: 530px; margin: 0 0 24px; font-size: 20px; line-height: 1.4; }
 .intro .kicker { font-size: 12px; font-weight: 700; letter-spacing: .01em; margin-bottom: 16px; }
@@ -12,7 +12,7 @@
 @media(max-width:767.98px) {
   .section { padding-block: 48px; }
   .header { display: block; }
-  .header h2 { font-size: 56px; }
+  .header h2 { font-size: 40px; }
   .intro { margin-top: 24px; }
   .intro p { font-size: 17px; margin-bottom: 0; }
   .intro .kicker { font-size: 11px; margin-bottom: 12px; }

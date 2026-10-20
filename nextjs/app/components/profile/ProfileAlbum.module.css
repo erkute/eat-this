@@ -256,7 +256,7 @@ div.player {
 .playerName {
   margin: 0;
   padding: 6px 2px 3px;
-  color: var(--profile-ink, #15120e);
+  color: var(--et-ink);
   font-family: var(--album-display);
   font-size: clamp(13px, 13cqw, 21px);
   font-weight: 700;
@@ -273,42 +273,7 @@ div.player {
   text-overflow: ellipsis;
 }
 
-/* Der Punktestand am Fuss der Karte — die Zahl, die vorher als grosse
-   Ziffer am rechten Rand der Kopfzeile stand. Ein Ink-Streifen mit gelber
-   Zahl: dieselbe Sprache wie der Belohnungs-Screen nach der Anmeldung, wo
-   diese Zahl waechst. Auf einer Sammelkarte steht der Wert unten, nicht
-   zwei Spalten daneben.
-
-   Der Streifen laeuft bis an die Innenkante des Kartenrands, weil er die
-   Fusszeile IST und keine Kachel darin. */
-.playerScore {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 1px;
-  padding: 4px 6px 3px;
-  background: var(--profile-ink, #15120e);
-  border-radius: 3px;
-  font-family: var(--album-display);
-  font-size: clamp(11px, 10cqw, 15px);
-  font-weight: 700;
-  line-height: 1.15;
-  font-variant-numeric: tabular-nums;
-}
-
-.playerScore strong {
-  color: var(--et-accent-text);
-  font-weight: 700;
-}
-
-.playerScoreTotal {
-  color: color-mix(in srgb, var(--et-white) 62%, transparent);
-  font-weight: 400;
-}
-
-/* Der Zaehler steht seit dem 04.09.2026 auf der Spielerkarte (.playerScore).
-   Was hier bleibt, ist sein Satz fuer Screenreader: die Karte ist ein Knopf
-   mit dem Namen „Charakter aendern", ihr Inhalt wird also nie vorgelesen. */
+/* The collection count remains available to screen readers. */
 .srOnly {
   position: absolute;
   width: 1px;

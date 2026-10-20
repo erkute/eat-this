@@ -1,12 +1,3 @@
-/* Hinter dem Login-Modal: deckendes Schwarz, auf jeder Breite (Betreiber,
-   24.09.2026: „komplett schwarz … hinter URL- und Statusleiste auch").
-
-   Vorher ein halbdurchsichtiger Schleier (rgba(0,0,0,0.72)) mit
-   `backdrop-filter`. Genau das faerbt iOS-Safaris Leisten grau: ein
-   fixiertes Randelement mit Alpha < 0,75 wird gegen die Seite geblendet, ein
-   `backdrop-filter` gilt als „Multiple" und ergibt Systemgrau (siehe WebKit
-   `fixedContainerEdges`). Ein deckendes, fixiertes Vollbild-Element dagegen
-   gibt beiden Leisten seine Farbe. Also kein Blur, kein Alpha. */
 .overlay {
   position: fixed;
   inset: 0;
@@ -14,7 +5,7 @@
   display: grid;
   place-items: center;
   padding: 18px;
-  background: #000;
+  background: #fff;
   /* Ausdruecklich, nicht geerbt: bei offenem Remy-Chat steht `body` am
      Telefon auf `visibility: hidden` (globals.css, `html[data-buddy-open]`),
      und das Modal haengt per Portal in `body`. Ein Herz auf Remys Spot-Karte

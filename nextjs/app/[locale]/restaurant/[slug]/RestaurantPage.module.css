@@ -15,12 +15,12 @@
    ============================================================ */
 
 .page {
-  --et-muted: var(--et-ink-soft);
-  --et-quiet: var(--et-ink-raised);
-  --gut: clamp(18px, 4vw, 54px);
+  --et-muted: var(--et-copy);
+
+  --gut: var(--et-gutter);
   --nav-offset: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
   --restaurant-content-width: 768px;
-  --restaurant-section-size: clamp(32px, 3.4vw, 48px);
+  --restaurant-section-size: var(--et-type-heading);
   --rhythm: clamp(40px, 4.4vw, 64px);
 
   display: flow-root;
@@ -30,7 +30,7 @@
   min-height: 100dvh;
   padding: 0 var(--gut) clamp(80px, 9vw, 120px);
   overflow-x: clip;
-  color: var(--et-white);
+  color: var(--et-ink);
   font-family: var(--et-font-display);
 }
 
@@ -48,13 +48,13 @@
   /* Der Grad deckelt sich am längsten Wort (`--word-fit`, gesetzt im TSX):
      ein Eigenname wie „NATIONALGALERIE" soll ganz in die Spalte passen, statt
      mitten im Wort umzubrechen. `overflow-wrap` bleibt die Notbremse. */
-  font-size: max(36px, min(150px, 14cqi, var(--word-fit, 100cqi)));
+  font-size: min(var(--et-type-page), var(--word-fit, 100cqi));
   font-weight: 700;
   letter-spacing: -0.025em;
   /* Providence hängt weit unter die Grundlinie — unter 0.9 stösst das g einer
      Zeile an die Versalien der nächsten. */
-  line-height: 0.92;
-  text-transform: uppercase;
+  line-height: 1.12;
+  text-transform: none;
   text-wrap: balance;
   /* `anywhere`, nicht `break-word`: nur `anywhere` zählt in die
      min-content-Breite. Kein `hyphens: auto` — Eigennamen trennt man nicht. */
@@ -65,7 +65,7 @@
    (Ansage 07.10.2026). Das Telefon bleibt, wie es ist. */
 @media (min-width: 768px) {
   .title {
-    font-size: max(36px, calc(0.82 * min(150px, 14cqi, var(--word-fit, 100cqi))));
+    font-size: min(88px, 7vw, var(--word-fit, 100cqi));
   }
 }
 
@@ -73,18 +73,18 @@
 .district {
   display: inline-block;
   margin: 18px 0 0;
-  color: var(--et-white);
+  color: var(--et-ink);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.3;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 @media (hover: hover) {
   a.district:hover {
-    color: var(--et-accent-heading);
+    color: var(--et-ink);
   }
 }
 
@@ -129,7 +129,7 @@
   letter-spacing: 0.08em;
   line-height: 1.4;
   text-align: right;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .credit a {
@@ -163,12 +163,12 @@
 
 /* Zwischentitel klein, fett, versal — wie bei 032c. */
 .sub {
-  color: var(--et-accent-heading);
+  color: var(--et-ink);
   margin: 0 0 14px;
   font-size: 20px;
   font-weight: 700;
   line-height: 1.1;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .tip {
@@ -217,7 +217,7 @@
   letter-spacing: -0.01em;
   /* Providence hängt tief — unter 0.9 stiesse eine zweite Zeile an. */
   line-height: 0.95;
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
   overflow-wrap: anywhere;
 }
@@ -232,7 +232,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.4;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .briefMeta a {
@@ -242,12 +242,12 @@
 
 @media (hover: hover) {
   .briefMeta a:hover {
-    color: var(--et-accent-heading);
+    color: var(--et-ink);
   }
 }
 
 .briefMeta a:focus-visible {
-  outline: 2px solid var(--et-white);
+  outline: 2px solid var(--et-ink);
   outline-offset: 3px;
 }
 
@@ -256,12 +256,12 @@
   margin: 18px 0 0;
   padding: 3px 10px 1px;
   background: var(--et-accent);
-  color: var(--et-white);
+  color: var(--et-on-accent);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
   line-height: 1.4;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .briefBlock {
@@ -270,13 +270,13 @@
 
 /* Zwischentitel klein, fett, versal — wie „Insider-Tipp". */
 .kicker {
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.1em;
   line-height: 1.3;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .briefAddress {
@@ -345,7 +345,7 @@
      min-height. */
   line-height: 1.55;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
   transition:
     background-color var(--et-motion-fast),
@@ -353,14 +353,14 @@
 }
 
 .btnInk {
-  background: var(--et-ink-raised);
-  color: var(--et-white);
+  background: var(--et-quiet);
+  color: var(--et-ink);
 }
 
 @media (hover: hover) {
   .btn:hover {
-    background: var(--et-ink-raised);
-    color: var(--et-white);
+    background: var(--et-quiet);
+    color: var(--et-ink);
   }
 
   .btnInk:hover {
@@ -369,7 +369,7 @@
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--et-white);
+  outline: 2px solid var(--et-ink);
   outline-offset: 3px;
 }
 
@@ -418,10 +418,10 @@
 
 .imageGroup figure { min-width: 0; margin: 0; }
 
-.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; color: var(--et-white); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
+.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; color: var(--et-ink); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
 .caption .credit { display: block; margin: 0; text-align: left; }
 .sheet figure { margin: 0; }
-.imageGroup:focus-visible { outline: 2px solid var(--et-white); outline-offset: 6px; }
+.imageGroup:focus-visible { outline: 2px solid var(--et-ink); outline-offset: 6px; }
 @media (max-width:767px) {
   .imageGroup { width: 100vw; grid-template-columns: 1fr; gap: 32px; }
   .imageGroup .caption { padding-inline: var(--gut); }
@@ -429,4 +429,4 @@
   .imageGroup .credit { padding-inline: 0; }
 }
 
-.magazineHeading { margin: 0 0 24px; font-size: var(--restaurant-section-size); font-weight: 700; line-height: 1.05; text-transform: uppercase; }
+.magazineHeading { margin: 0 0 24px; font-size: var(--restaurant-section-size); font-weight: 700; line-height: 1.05; text-transform: none; }

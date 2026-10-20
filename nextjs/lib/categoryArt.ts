@@ -3,7 +3,7 @@ const CATEGORY_ART: Record<string, string> = {
   breakfast: '/pics/booster/booster_breakfast.webp?v=2',
   coffee: '/pics/booster/booster_coffee.webp?v=2',
   dinner: '/pics/booster/booster_dinner.webp?v=2',
-  drinks: '/pics/booster/booster_drinks.webp',
+  drinks: '/pics/booster/booster_drinks.webp?v=2',
   'fast-food': '/pics/booster/booster_fastfood.webp?v=2',
   'fine-dining': '/pics/booster/booster_finedining.webp?v=2',
   lunch: '/pics/booster/booster_lunch.webp?v=2',

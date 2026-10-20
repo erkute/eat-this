@@ -50,7 +50,7 @@
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: var(--et-leading-title);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 
@@ -100,7 +100,7 @@
 .tileLink:focus-visible {
   outline: 2px solid var(--packs-accent);
   outline-offset: 6px;
-  border-radius: var(--et-radius-photo);
+  border-radius: 0;
 }
 
 /* Der Pack steht frei auf dem Grund, mit dem Sheet-Schatten — nie auf einer
@@ -110,7 +110,7 @@
   width: min(84%, 320px);
   height: auto;
   margin: 6% 0 10%;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
   transform: rotate(-3deg);
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -139,8 +139,8 @@
   font-size: clamp(26px, 2.6vw, 36px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 0.9;
-  text-transform: uppercase;
+  line-height: 1.12;
+  text-transform: none;
   transition: color var(--et-motion-fast);
 }
 
@@ -175,7 +175,7 @@
   font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 /* Kaufaktionen verwenden auf allen Pack-Seiten dieselbe Akzentfarbe. */
@@ -189,7 +189,7 @@
   background: var(--packs-accent);
   color: var(--et-on-accent);
   border: 0;
-  border-radius: var(--et-radius-control);
+  border-radius: 0;
   box-shadow: none;
   font-family: var(--et-font-display);
   font-size: var(--et-type-button);

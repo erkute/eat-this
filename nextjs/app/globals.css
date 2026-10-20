@@ -172,6 +172,12 @@
      Schrift, leise Fläche, Trennlinie. Hier die Werte für hellen Grund. */
   --et-muted: rgba(21, 18, 14, 0.64);
   --et-quiet: #f2f1ef;
+  --et-copy: #45423e;
+  --et-line: #d6d4d1;
+  --et-type-page: clamp(40px, 5.2vw, 72px);
+  --et-type-heading: clamp(28px, 3vw, 40px);
+  --et-type-card: clamp(20px, 2vw, 28px);
+  --et-gutter: clamp(20px, 3.4vw, 48px);
   --et-rule: #15120e;
   --et-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
   --et-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
@@ -252,16 +258,16 @@
   /* Gemessen gegen Eater (40), Mit Vergnügen (40) und The Infatuation (64)
      auf 1280px. 80 lag über allen dreien. */
   --et-type-section-title: clamp(24px, 3.4vw, 42px);
-  --et-type-kicker: 10px;
+  --et-type-kicker: 12px;
   /* 12–14px war unter dem Band der Wettbewerber (15–18). */
-  --et-type-body: clamp(15px, 1.2vw, 17px);
+  --et-type-body: clamp(16px, 1.2vw, 18px);
   --et-type-lead: clamp(16px, 1.5vw, 21px);
-  --et-type-caption: 11px;
-  --et-type-chip: 12px;
-  --et-type-button: 13px;
+  --et-type-caption: 13px;
+  --et-type-chip: 14px;
+  --et-type-button: 16px;
 
   --et-leading-hero: 0.9;
-  --et-leading-title: 0.92;
+  --et-leading-title: 1.12;
   /* Alle drei gemessenen Wettbewerber fahren ausnahmslos 1.6–1.7 im
      Fließtext. 1.5 war der größte systematische Rückstand der Seite. */
   --et-leading-copy: 1.6;
@@ -364,76 +370,12 @@ body {
 [data-hub] {
   background: var(--et-white);
 }
-/* Die Startseite steht seit 03.09.2026 auf durchgehendem Ink: der Grund ist
-   die Flaeche, getrennt wird durch Raum, Type und die Fotos. Die Regel gehoert
-   hierher und nicht ins Modul — sie traegt (0,3,1) und schlaegt jede
-   Modul-Klasse. */
-html[data-active-page='start'] [data-hub] {
-  background: var(--et-ink);
-}
-/* Der Rahmen unter der Seite muss mit: beim Ueberscrollen (iOS) und auf sehr
-   hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
-   Seit 03.09.2026 stehen ALLE Inhaltsseiten auf diesem Grund — die Liste
-   ist die Wahrheit darueber, welche das sind; der Artikel steht seit
-   02.10.2026 auf weissem Grund, Bezirks- und Kategorieseiten samt ihren
-   Uebersichten seit 03.10.2026 (Bloecke darunter). Seit 04.09.2026 ist die Map
-   dabei: sie bleibt ein Werkzeug, aber ein Werkzeug in derselben Farbe.
-   Nicht dabei: die 404, der Badge-Generator und die Admin-Zahlen.
-   Die Seitenmodule malen ihren Grund zusaetzlich selbst; hier steht er nur,
-   weil `main` in layout.css auf transparent liegt und das Blatt sonst beim
-   Ueberscrollen weiss durchschaut. */
-html[data-active-page='start'],
-html[data-active-page='start'] body,
-html[data-active-page='start'] .app-pages,
-html[data-active-page='must-eats'],
-html[data-active-page='must-eats'] body,
-html[data-active-page='must-eats'] .app-pages,
-html[data-active-page='packs'],
-html[data-active-page='packs'] body,
-html[data-active-page='packs'] .app-pages,
-html[data-active-page='pack'],
-html[data-active-page='pack'] body,
-html[data-active-page='pack'] .app-pages,
-html[data-active-page='news'],
-html[data-active-page='news'] body,
-html[data-active-page='news'] .app-pages,
-html[data-active-page='about'],
-html[data-active-page='about'] body,
-html[data-active-page='about'] .app-pages,
-html[data-active-page='contact'],
-html[data-active-page='contact'] body,
-html[data-active-page='contact'] .app-pages,
-html[data-active-page='impressum'],
-html[data-active-page='impressum'] body,
-html[data-active-page='impressum'] .app-pages,
-html[data-active-page='datenschutz'],
-html[data-active-page='datenschutz'] body,
-html[data-active-page='datenschutz'] .app-pages,
-html[data-active-page='agb'],
-html[data-active-page='agb'] body,
-html[data-active-page='agb'] .app-pages,
-html[data-active-page='profile'],
-html[data-active-page='profile'] body,
-html[data-active-page='profile'] .app-pages,
-html[data-active-page='deck'],
-html[data-active-page='deck'] body,
-html[data-active-page='deck'] .app-pages,
-html[data-active-page='checkout'],
-html[data-active-page='checkout'] body,
-html[data-active-page='checkout'] .app-pages,
-html[data-active-page='map'],
-html[data-active-page='map'] body,
-html[data-active-page='map'] .app-pages {
-  background: var(--et-ink);
-}
-/* Die Ausnahme seit 02.10.2026: der Artikel steht auf weissem Grund wie die
-   Startseite (NewsArticleShell.module.css). Aus demselben Grund wie oben
-   hier und nicht im Modul — `main` und `.app-page` sind transparent. */
-html[data-active-page='news-article'],
-html[data-active-page='news-article'] body,
-html[data-active-page='news-article'] .app-pages {
+/* Public content shares the white editorial canvas. The article toggle below
+   owns its explicit dark reading state. */
+html[data-active-page], html[data-active-page] body, html[data-active-page] .app-pages {
   background: var(--et-white);
 }
+html[data-active-page='start'] [data-hub] { background: var(--et-white); }
 /* …ausser jemand stellt ihn dunkel (lib/articleTheme.ts). */
 html[data-active-page='news-article'][data-article-theme='dark'],
 html[data-active-page='news-article'][data-article-theme='dark'] body,
@@ -447,20 +389,6 @@ html[data-active-page][data-magazine-opening],
 html[data-active-page][data-magazine-opening] body,
 html[data-active-page][data-magazine-opening] .app-pages {
   background: var(--et-magazine-table);
-}
-/* Spot-Artikel und Entdecker-Rubriken teilen den Ink-Grund der Startseite. */
-html[data-active-page='restaurant'],
-html[data-active-page='restaurant'] body,
-html[data-active-page='restaurant'] .app-pages {
-  background: var(--et-ink);
-}
-html[data-active-page='bezirk'],
-html[data-active-page='bezirk'] body,
-html[data-active-page='bezirk'] .app-pages,
-html[data-active-page='kategorie'],
-html[data-active-page='kategorie'] body,
-html[data-active-page='kategorie'] .app-pages {
-  background: var(--et-ink);
 }
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
    erste Pfadsegment der falschen Adresse, und auf einem gestreamten
@@ -1013,8 +941,8 @@ html[data-auth='1'] [data-guest-only] {
   --cookie-panel-w: 520px;
   --cookie-panel-w-wide: 900px;
   --cookie-accent: var(--et-accent);
-  --cookie-soft: var(--et-ink-soft);
-  --cookie-dim: var(--et-ink-dim);
+  --cookie-soft: var(--et-copy);
+  --cookie-dim: var(--et-muted);
   --cookie-font: var(--et-font-display);
   position: fixed;
   inset: 0;
@@ -1049,10 +977,10 @@ html[data-auth='1'] [data-guest-only] {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding: clamp(28px, 3.4vw, 40px);
-  color: #fff;
-  background: var(--et-ink-raised);
+  color: var(--et-ink);
+  background: var(--et-white);
   border: 0;
-  border-radius: var(--et-radius-panel, 10px);
+  border-radius: 0;
   box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
   font-family: var(--cookie-font);
   transform: translateY(22px) scale(0.97);
@@ -1085,17 +1013,18 @@ html[data-auth='1'] [data-guest-only] {
   align-items: center;
   gap: 12px;
   margin: 0;
-  color: #fff;
+  color: var(--et-ink);
   font-family: var(--cookie-font);
   font-size: clamp(32px, 3.4vw, 42px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.02;
-  text-transform: uppercase;
+  line-height: 1.12;
+  text-transform: none;
 }
 /* Dasselbe Zeichen wie `hv-mk` vor den Abschnittstiteln und vor dem
    Insider-Tipp — gelb, nicht rot: Rot ist auf Ink raus. */
 .cookie-mark {
+  display: none;
   flex: none;
   width: 10px;
   height: 10px;
@@ -1121,7 +1050,7 @@ html[data-auth='1'] [data-guest-only] {
   margin-top: 14px;
   padding: 2px 0;
   cursor: pointer;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   background: none;
   border: 0;
   font-family: var(--cookie-font);
@@ -1131,12 +1060,12 @@ html[data-auth='1'] [data-guest-only] {
   text-transform: none;
 }
 .cookie-info-trigger:focus-visible {
-  color: #fff;
+  color: var(--et-ink);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-info-trigger:hover {
-    color: #fff;
+    color: var(--et-ink);
   }
 }
 /* Accept is the primary answer, decline the secondary one: yellow against a
@@ -1160,13 +1089,13 @@ html[data-auth='1'] [data-guest-only] {
   min-height: 52px;
   padding: 12px 18px;
   border: 0;
-  border-radius: var(--et-radius-control);
+  border-radius: 0;
   font-family: var(--cookie-font);
-  font-size: clamp(17px, 1.45vw, 19px);
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.12;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -1179,7 +1108,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 .cookie-btn-decline {
   color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--et-ink);
 }
 .cookie-btn-accept:focus-visible {
   background: #fff;
@@ -1217,12 +1146,12 @@ html[data-auth='1'] [data-guest-only] {
   text-decoration: none;
 }
 .cookie-legal a:focus-visible {
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-legal a:hover {
-    color: var(--et-accent-text);
+    color: var(--et-accent);
   }
 }
 @media (max-width: 640px) {
@@ -1287,13 +1216,13 @@ html[data-auth='1'] [data-guest-only] {
      mask the `scroll` layers once an end is reached, so the hint appears only
      where there is actually more to see. No JS, no listener. */
   background:
-    linear-gradient(var(--et-ink-raised) 30%, transparent) top / 100% 22px no-repeat local,
-    linear-gradient(transparent, var(--et-ink-raised) 72%) bottom / 100% 26px no-repeat local,
+    linear-gradient(var(--et-white) 30%, transparent) top / 100% 22px no-repeat local,
+    linear-gradient(transparent, var(--et-white) 72%) bottom / 100% 26px no-repeat local,
     radial-gradient(farthest-side at 50% 0, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)) top /
       100% 11px no-repeat scroll,
     radial-gradient(farthest-side at 50% 100%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0))
       bottom / 100% 13px no-repeat scroll;
-  background-color: var(--et-ink-raised);
+  background-color: var(--et-white);
 }
 /* Die Abschnitte als leise Felder im Fenster — Ueberschrift als gelbes
    Kreide-Label in Versalien, wie die Labels der Fakten-Tafel. */
@@ -1307,19 +1236,19 @@ html[data-auth='1'] [data-guest-only] {
   min-width: 0;
   margin: 0;
   padding: 14px 15px 15px;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--et-quiet);
   border: 0;
-  border-radius: var(--et-radius-control);
+  border-radius: 0;
 }
 .cookie-expand .cookie-info-body h3 {
   margin: 0 0 7px;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-family: var(--cookie-font);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.3;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .cookie-expand .cookie-info-body p,
 .cookie-expand .cookie-info-body ul li {
@@ -1351,11 +1280,11 @@ html[data-auth='1'] [data-guest-only] {
   background: var(--cookie-accent);
 }
 .cookie-expand .cookie-info-body strong {
-  color: #fff;
+  color: var(--et-ink);
   font-weight: 700;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-weight: 700;
   text-decoration: none;
 }
@@ -1546,8 +1475,7 @@ ol {
     padding-bottom: 0;
   }
   .app-page[data-page='start'] {
-    /* Keep the mobile document ink through Safari's translucent chrome. */
-    background: var(--et-ink);
+    background: var(--et-white);
   }
 }
 
@@ -1583,8 +1511,7 @@ ol {
     overflow-x: hidden;
   }
   .app-page[data-page='start'] {
-    /* Keep the mobile document ink through Safari's translucent chrome. */
-    background: var(--et-ink);
+    background: var(--et-white);
   }
 }
 
@@ -1725,7 +1652,7 @@ ol {
    No transforms or scroll locks: Safari keeps its native window scrolling. */
 @media (prefers-reduced-motion: no-preference) {
   html[data-hero-intro][data-active-page='start'] .app-pages {
-    z-index: 100100;
+    z-index: var(--et-z-above-nav);
   }
   html[data-hero-intro][data-active-page='start'],
   html[data-hero-intro][data-active-page='start'] body {
@@ -1760,11 +1687,5 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
   ::view-transition-group(category-pack) { animation-duration: 0s; }
 }
 
-/* New CI staging surfaces; the explicit article theme keeps its own canvas. */
-html[data-active-page='start'], html[data-active-page='start'] body, html[data-active-page='start'] .app-pages,
-html[data-active-page='map'], html[data-active-page='map'] body, html[data-active-page='map'] .app-pages,
-html[data-active-page='packs'], html[data-active-page='packs'] body,
-html[data-active-page='pack'], html[data-active-page='pack'] body,
-html[data-active-page='must-eats'], html[data-active-page='must-eats'] body, html[data-active-page='must-eats'] .app-pages {
-  background: #fff;
-}
+
+.cookie-consent :is(button,a):focus-visible { outline: 2px solid var(--et-ink); outline-offset: 3px; }

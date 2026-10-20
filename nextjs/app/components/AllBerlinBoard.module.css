@@ -14,7 +14,7 @@
   padding: clamp(24px, 4vw, 56px);
   background: #f2f1ef;
   color: var(--board-paper);
-  border-radius: var(--et-radius-photo);
+  border-radius: 0;
   font-family: var(--et-font-display);
 }
 
@@ -29,7 +29,7 @@
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
   line-height: 1.3;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .title {
@@ -39,7 +39,7 @@
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 0.86;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .lead {
@@ -106,7 +106,7 @@
   height: auto;
   margin: 0 -6%;
   transform-origin: 50% 90%;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
 }
 
 /* Die Reihen zwei und drei rücken hoch: die Packs liegen aufeinander wie auf

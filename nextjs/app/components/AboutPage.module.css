@@ -1,12 +1,11 @@
-/* Editorial rhythm: one portrait, scroll-driven objects and the Remy stage.
-   The same ink, Providence and red as the rest of Eat This. */
+/* White editorial surface; artwork retains its own palette. */
 .page {
   display: flex;
   flex-direction: column;
   min-height: calc(100dvh - var(--site-nav-h));
-  padding: 0 clamp(20px, 5vw, 72px);
-  background: var(--et-ink);
-  color: var(--et-white);
+  padding: 0 var(--et-gutter);
+  background: var(--et-white);
+  color: var(--et-ink);
 }
 
 .page > :global(footer[role='contentinfo']) {
@@ -34,11 +33,11 @@
   max-width: 9ch;
   margin: 0;
   font-family: var(--et-font-display);
-  font-size: clamp(56px, 8vw, 104px);
+  font-size: var(--et-type-page);
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.035em;
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
 }
 
@@ -55,7 +54,7 @@
   max-width: 38ch;
   margin: 28px 0 0;
   padding: 0;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-family: var(--et-font-display);
   font-size: clamp(20px, 1.8vw, 24px);
   font-weight: 700;
@@ -83,7 +82,7 @@
 
 .oneLiner {
   margin: 0;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-family: var(--et-font-display);
   font-size: clamp(26px, 3vw, 38px);
   font-weight: 700;
@@ -121,7 +120,7 @@
 .sectionNumber {
   display: block;
   margin-bottom: 20px;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-family: var(--et-font-display);
   font-size: 24px;
   line-height: 1.25;
@@ -130,7 +129,7 @@
 .sectionTitle {
   margin: 0 0 24px;
   font-family: var(--et-font-display);
-  font-size: clamp(30px, 3.4vw, 44px);
+  font-size: var(--et-type-heading);
   font-weight: 700;
   line-height: 1.2;
   text-wrap: balance;
@@ -138,7 +137,7 @@
 
 .body {
   max-width: 60ch;
-  color: var(--et-ink-soft);
+  color: var(--et-copy);
   font-family: var(--et-font-body);
   font-size: clamp(16px, 1.3vw, 18px);
   line-height: 1.7;
@@ -161,11 +160,11 @@
 }
 .body strong,
 .body b {
-  color: var(--et-white);
+  color: var(--et-ink);
 }
 .body a {
-  color: var(--et-accent-text);
-  text-decoration: underline;
+  color: var(--et-accent);
+  text-decoration: none;
   text-underline-offset: 4px;
 }
 .body a[href^='mailto:'] {
@@ -173,14 +172,14 @@
   font-weight: 700;
 }
 .body a:focus-visible {
-  outline: 2px solid var(--et-accent-text);
+  outline: 2px solid var(--et-accent);
   outline-offset: 4px;
 }
 
 .body blockquote {
   margin: 32px 0;
   padding-left: 24px;
-  color: var(--et-white);
+  color: var(--et-ink);
   font-family: var(--et-font-display);
   font-size: clamp(24px, 2.6vw, 34px);
   font-weight: 700;
@@ -227,7 +226,7 @@
 
 .caption {
   margin-top: 24px;
-  color: var(--et-ink-soft);
+  color: var(--et-copy);
   font-family: var(--et-font-body);
   font-size: 13px;
   line-height: 1.5;
@@ -261,7 +260,7 @@
   min-height: 44px;
   margin-block: 24px;
   padding-block: 6px;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-family: var(--et-font-display);
   font-size: clamp(22px, 4.2vw, 48px);
   font-weight: 700;
@@ -272,14 +271,14 @@
 }
 
 .email:focus-visible {
-  outline: 2px solid var(--et-accent-text);
+  outline: 2px solid var(--et-accent);
   outline-offset: 6px;
 }
 
 @media (hover: hover) {
   .body a:hover,
   .email:hover {
-    color: var(--et-white);
+    color: var(--et-ink);
   }
 }
 
@@ -294,7 +293,7 @@
     gap: 28px;
   }
   .title {
-    font-size: clamp(56px, 12vw, 88px);
+    font-size: var(--et-type-page);
   }
   .heroFigure {
     width: 200px;

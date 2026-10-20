@@ -6,8 +6,8 @@
 :global(.homeV2).page { background: #fff; color: #111; }
 .page :global(.hv-section) { margin: 0; }
 .page :global(.hv-title) {
-  color: #111; text-transform: none; letter-spacing: -.07em;
-  font: 700 clamp(56px, 8vw, 116px)/.94 var(--et-font-body);
+  color: #111; text-transform: none; letter-spacing: -.04em;
+  font: 700 clamp(40px, 5.6vw, 80px)/1.04 var(--et-font-body);
 }
 .page :global(.hv-btn) {
   display: inline-flex; align-items: center; justify-content: center;
@@ -68,8 +68,8 @@
   .heroMark { width: 100%; }
   .heroHeadline { order: 1; font-size: 15px; margin: 4px 0 24px; }
   .heroArt { order: 2; width: 264px; max-width: 90%; align-self: center; }
-  .heroLead { order: 3; max-width: 290px; margin: 24px 0 0; font-size: 15px; line-height: 1.4; }
+  .heroLead { order: 3; max-width: 290px; margin: 24px 0 0; font-size: 16px; line-height: 1.5; }
   .heroActions { order: 4; margin-top: 24px; justify-content: center; }
   .heroActionVariant { justify-content: center; }
-  .page :global(.hv-title) { font-size: 56px; }
+  .page :global(.hv-title) { font-size: 40px; }
 }

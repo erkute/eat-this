@@ -42,10 +42,11 @@ describe('AuthScreen.module.css — die Wartescreens fürs An- und Abmelden', ()
     }
   });
 
-  it('übernimmt die angehobene Ink-Fläche und den Radius aus dem Onboarding', () => {
-    expect(exact('.panel', 'background')).toBe('var(--et-ink-raised)');
+  it('hält das Anmeldepanel hell mit kontrastierendem Text', () => {
+    expect(exact('.panel', 'background')).toBe('#fff');
+    expect(exact('.panel', 'color')).toBe('var(--et-ink)');
     expect(exact('.panel', 'border-radius')).toBe('10px');
-    expect(exact('.kicker', 'color')).toBe('var(--et-accent-text)');
+    expect(exact('.kicker', 'color')).toBe('var(--et-accent)');
   });
 
   it('hat für den Abbruch eine eigene Rückwärtsbewegung', () => {

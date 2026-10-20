@@ -27,19 +27,19 @@
 }
 
 .trigger:focus-visible {
-  color: var(--et-ink);
+  color: var(--et-on-accent);
 }
 
 @media (hover: hover) {
   .trigger:hover {
-    color: var(--et-ink);
-    background: var(--et-accent-text);
+    color: var(--et-on-accent);
+    background: var(--et-accent);
   }
 }
 
 .trigger:focus-visible {
   outline: none;
-  background: var(--et-accent-text);
+  background: var(--et-accent);
 }
 
 .backdrop {
@@ -67,9 +67,9 @@
   overflow-y: auto;
   padding: clamp(24px, 3.4vw, 40px);
   /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. */
-  background: var(--et-ink-raised);
+  background: #fff;
   box-shadow: none;
-  color: var(--et-white);
+  color: var(--et-ink);
   border-radius: var(--et-radius-photo);
   font-family: var(--et-font-display);
   outline: none;
@@ -96,7 +96,7 @@
   background: none;
   border: 0;
   border-radius: var(--et-radius-control);
-  color: var(--et-white);
+  color: var(--et-ink);
   cursor: pointer;
   transition: color 0.16s ease;
 }
@@ -111,12 +111,12 @@
 }
 
 .x:focus-visible {
-  color: var(--et-accent-text);
+  color: var(--et-accent);
 }
 
 @media (hover: hover) {
   .x:hover {
-    color: var(--et-accent-text);
+    color: var(--et-accent);
   }
 }
 
@@ -127,13 +127,13 @@
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.05;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .lead {
   max-width: 44ch;
   margin: 14px 0 0;
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--et-copy);
   font-size: 15px;
   font-weight: 400;
   line-height: 1.5;
@@ -152,7 +152,7 @@
   display: grid;
   justify-items: center;
   gap: 6px;
-  color: var(--et-white);
+  color: var(--et-ink);
   text-align: center;
   text-decoration: none;
 }
@@ -185,13 +185,13 @@
   font-size: 12px;
   font-weight: 700;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
   transition: color var(--et-motion-fast);
 }
 
 @media (hover: hover) {
   .pack:hover .name {
-    color: var(--et-accent-text);
+    color: var(--et-accent);
   }
 }
 
@@ -256,7 +256,7 @@
 
 .ctaError {
   margin: 0;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;
@@ -346,7 +346,7 @@
 
 .paymentNote {
   margin: 0;
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--et-copy);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
@@ -365,7 +365,7 @@
 .comingSoon {
   display: block;
   margin-top: 4px;
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   font-size: 11px;
   text-transform: none;
 }

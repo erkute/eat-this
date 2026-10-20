@@ -99,9 +99,7 @@ export default function LegalPage({ doc, locale }: { doc: StaticPageDoc; locale:
               <details className={styles.mobileToc}>
                 <summary>
                   {contents}
-                  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <path d="m5 7 5 5 5-5" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
+                  <span className={styles.tocToggle} aria-hidden="true" />
                 </summary>
                 <nav aria-label={contents}>{tocList}</nav>
               </details>

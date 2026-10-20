@@ -12,10 +12,10 @@
   max-height: calc(100svh - 28px);
   padding: clamp(40px, 5vw, 60px) clamp(32px, 4.4vw, 60px);
   overflow: hidden;
-  background: var(--et-ink-raised);
+  background: #fff;
   /* Derselbe Radius wie das Onboarding-Fenster (Tour.module.css .panel). */
-  border-radius: var(--et-radius-panel, 10px);
-  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
+  border-radius: 0;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
 }
 
 .srOnly {
@@ -41,10 +41,10 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  color: #fff;
+  color: var(--et-ink);
   background: transparent;
   border: 0;
-  font-family: var(--et-font-condensed);
+  font-family: var(--et-font-body);
   font-size: 30px;
   font-weight: 700;
   line-height: 1;
@@ -52,14 +52,14 @@
 }
 
 .close:focus-visible {
-  color: var(--et-accent-text);
+  color: var(--et-accent);
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
   .close:hover {
-    color: var(--et-accent-text);
+    color: var(--et-accent);
   }
 }
 

@@ -4,17 +4,17 @@
   padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 40px);
 }
 .header { display: grid; grid-template-columns: 1fr; gap: 18px; }
-.header h1 { margin: 0; font-size: clamp(38px, 4.2vw, 60px); font-weight: 700; line-height: 1.1; letter-spacing: -.02em; text-transform: uppercase; text-wrap: balance; }
-.header p { max-width: 48ch; margin: 0; font-size: 21px; line-height: 1.55; }
+.header h1 { margin: 0; font-size: var(--et-type-page); font-weight: 700; line-height: 1.1; letter-spacing: -.02em; text-transform: none; text-wrap: balance; }
+.header p { max-width: 48ch; margin: 0; font-size: 18px; line-height: 1.55; }
 .packs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 38px 32px; margin: 40px 0 0; padding: 0; list-style: none; }
 .packs li { min-width: 0; }
-.packs a { display: grid; justify-items: center; gap: 14px; padding: 8px 0; color: var(--et-white); text-decoration: none; }
+.packs a { display: grid; justify-items: center; gap: 14px; padding: 8px 0; color: var(--et-ink); text-decoration: none; }
 .stage { display: grid; place-items: center; width: 100%; height: 264px; }
 .stage img { width: 170px; height: 250px; object-fit: contain; transform: rotate(-7deg); transition: transform 350ms cubic-bezier(.2,.8,.2,1); }
 .packs li:nth-child(even) img { transform: rotate(7deg); }
-.label { font-size: 27px; font-weight: 700; line-height: 1.2; text-align: center; text-transform: uppercase; }
-.packs a:focus-visible { outline: 2px solid var(--et-white); outline-offset: 5px; }
-@media (hover: hover) { .packs a:hover .label { color: var(--et-accent-text); } }
+.label { font-size: 24px; font-weight: 700; line-height: 1.2; text-align: center; text-transform: none; }
+.packs a:focus-visible { outline: 2px solid var(--et-ink); outline-offset: 5px; }
+@media (hover: hover) { .packs a:hover .label { color: var(--et-accent); } }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) { .packs a:hover img { transform: translateY(-8px) rotate(0); } }
 @media (max-width: 767px) {
   .gallery { padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 24px); }

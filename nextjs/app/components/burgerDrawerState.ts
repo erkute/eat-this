@@ -1,6 +1,6 @@
 'use client';
 
-const BURGER_CANVAS_COLOR = '#15120e';
+const BURGER_CANVAS_COLOR = '#ffffff';
 let focusBeforeDrawer: HTMLElement | null = null;
 
 function tintMobileCanvasForDrawer() {
@@ -104,7 +104,7 @@ export function closeBurgerDrawer(restoreScroll = true) {
   drawer.setAttribute('inert', '');
   openBtn?.setAttribute('aria-expanded', 'false');
   // iOS Safari can keep sampling an opacity-hidden fixed layer behind its URL
-  // and status bars. Remove the full-screen ink sheet from rendering before
+  // and status bars. Remove the full-screen sheet from rendering before
   // restoring the page canvas and scroll position.
   drawer.hidden = true;
   void drawer.offsetWidth;

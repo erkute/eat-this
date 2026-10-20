@@ -152,18 +152,9 @@ describe('IssueMagazine', () => {
 });
 
 describe('page ground', () => {
-  // The discovery rubrics share the home page's Ink canvas.
-  it('puts district and category pages on Ink', () => {
+  it('keeps public content light while preserving the explicit article dark toggle', () => {
     const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
-    for (const page of ['bezirk', 'kategorie']) {
-      expect(css).toMatch(
-        new RegExp(
-          `html\\[data-active-page='${page}'\\] \\.app-pages[,\\s\\S]*?\\{\\s*background: var\\(--et-ink\\);`
-        )
-      );
-      expect(css.match(new RegExp(`html\\[data-active-page='${page}'\\] body`, 'g'))).toHaveLength(
-        1
-      );
-    }
+    expect(css).toContain('html[data-active-page] .app-pages {\n  background: var(--et-white);');
+    expect(css).toContain("html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {\n  background: var(--et-ink);");
   });
 });

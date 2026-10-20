@@ -168,7 +168,7 @@
   min-height: 60px;
   padding: 0 0 5px;
   border: 0;
-  border-bottom: 3px solid transparent;
+  border-bottom: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
@@ -185,7 +185,6 @@
 }
 
 .galleryLbThumbnail[aria-pressed='true'] {
-  border-bottom-color: var(--et-accent);
   opacity: 1;
 }
 

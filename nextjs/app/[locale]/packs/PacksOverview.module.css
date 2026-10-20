@@ -12,7 +12,6 @@
   --packs-fg: #111;
   --packs-muted: #555;
   --packs-accent: var(--et-accent);
-  --packs-rule: #d4d4d4;
   min-height: 100%;
   overflow-x: clip;
   padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) 0 clamp(64px, 8vw, 120px);
@@ -39,7 +38,7 @@
   gap: 12px;
   margin-bottom: clamp(26px, 3.4vw, 44px);
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--packs-rule);
+  border-bottom: 0;
 }
 
 .sectionTitle {

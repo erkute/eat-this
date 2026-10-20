@@ -97,7 +97,7 @@
    Text daneben (.faqQuestion) war korrekt mitgegangen, deshalb fiel nur die
    Gliederung weg und nicht der Inhalt. */
 .faqItem {
-  border-bottom: 1px solid rgba(21, 18, 14, .14);
+  border-bottom: 0;
 }
 
 .faqQuestion {

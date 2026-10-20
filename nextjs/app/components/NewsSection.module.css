@@ -16,7 +16,7 @@
 .currentTitle { max-width: 24ch; margin: 0; font-size: clamp(28px, 3vw, 42px); font-weight: 700; line-height: 1.12; letter-spacing: -.025em; text-wrap: pretty; }
 .issueExcerpt { max-width: 48ch; margin: 0; color: var(--et-copy); font-size: 18px; line-height: 1.5; }
 .read { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 32px; color: #fff; background: var(--et-ink); font-size: 16px; line-height: 1.4; text-decoration: none; }
-.archive { margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--et-line); }
+.archive { margin-top: 64px; padding-top: 28px; border-top: 0; }
 .sectionHead { margin-bottom: 28px; }
 .sectionHead h2 { margin: 0; font-size: var(--et-type-heading); font-weight: 700; line-height: 1.15; letter-spacing: -.025em; }
 .shelf { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 40px 20px; margin: 0; padding: 0; list-style: none; }

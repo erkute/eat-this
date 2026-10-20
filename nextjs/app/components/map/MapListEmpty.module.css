@@ -2,7 +2,7 @@
 .esKicker {
   margin-bottom: 12px;
   padding-bottom: 12px;
-  border-bottom: 1.5px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 0;
 }
 .esActions {
   flex-direction: column;

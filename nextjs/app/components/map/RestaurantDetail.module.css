@@ -92,7 +92,7 @@
   font-size: 13px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  border-bottom: 1px solid currentColor;
+  border-bottom: 0;
   border-top: 0;
   transform: none;
   margin: 10px 14px 0;
@@ -289,11 +289,6 @@
   column-gap: 15px;
   filter: none;
 }
-@media (hover: hover) {
-  .btnPackPromo:hover {
-    border-color: var(--et-ink);
-  }
-}
 @media (max-width: 380px) {
   .packPromo {
     column-gap: 11px;
@@ -331,7 +326,7 @@
 .rdSecH {
   margin: 24px 20px 10px;
   padding-top: 12px;
-  border-top: 1px solid currentColor;
+  border-top: 0;
   font-size: 44px;
   line-height: 0.86;
 }
@@ -348,15 +343,15 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: flex-end;
-  border-bottom: 2px solid currentColor;
+  border-bottom: 0;
   display: block;
   border: 0;
   padding: 0 0 8px;
 }
 .rdMustGrid li {
   min-width: 0;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
+  border-right: 0;
+  border-bottom: 0;
 }
 .rdMustGrid li:nth-child(even),
 .rdMustGrid li:last-child {
@@ -483,7 +478,7 @@
   overflow: hidden;
 }
 .rdRowHours > .rdK {
-  border-bottom: 2px solid var(--et-ink);
+  border-bottom: 0;
   padding: 0;
   background: transparent;
   border: 0;
@@ -515,10 +510,6 @@
   inset: 0 auto 0 0;
   width: 7px;
   background: #d9382a;
-}
-.rdRow,
-.rdRowHours {
-  border-bottom-color: rgba(255, 255, 255, 0.16);
 }
 .rdRow:last-child {
   border-bottom: 0;
@@ -556,15 +547,11 @@
   text-decoration: none;
   position: relative;
   overflow: visible;
-  border-color: var(--et-ink);
 }
 .rdHero,
 .medish {
   border-radius: var(--et-radius-photo);
   box-shadow: none;
-}
-.rdTipp {
-  border-color: var(--et-red);
 }
 /* ============ Restaurant Detail (Chewy Screen 04) ============ */
 /* Detail polish pass: lighter, calmer, fewer boxes. */
@@ -970,7 +957,7 @@
   min-height: 0;
   margin: 0;
   background: transparent;
-  border-bottom: 1px solid rgba(21, 18, 14, 0.14);
+  border-bottom: 0;
 }
 
 .detail .rdFacts > :last-child {
@@ -983,7 +970,7 @@
 }
 
 .rdContactPlainLink {
-  border-bottom: 1px solid rgba(21, 18, 14, 0.28);
+  border-bottom: 0;
 }
 
 .detail .rdAddrLine,
@@ -1110,8 +1097,8 @@
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   position: relative;
-  border-top: 1px solid rgba(21, 18, 14, 0.16);
-  border-bottom: 1px solid rgba(21, 18, 14, 0.16);
+  border-top: 0;
+  border-bottom: 0;
   display: grid;
   grid-template-columns: 1fr;
   box-shadow: none;
@@ -1346,7 +1333,6 @@
 .detail .rdActStrong {
   background: var(--et-accent);
   color: var(--et-on-accent);
-  box-shadow: inset 0 0 0 2px var(--et-accent);
 }
 
 .rdActReserve {
@@ -1423,7 +1409,6 @@
   .detail .rdActStrong:hover {
     background: var(--et-red);
     color: var(--et-white);
-    box-shadow: inset 0 0 0 2px var(--et-red);
   }
 }
 
@@ -1496,7 +1481,6 @@
 @media (hover: hover) {
   .btnPackPromo:hover {
     transform: translateY(-1px);
-    box-shadow: inset 0 0 0 2px var(--et-red);
   }
 }
 
@@ -1795,14 +1779,12 @@
 .detail .rdActPrimary {
   background: var(--et-accent);
   color: var(--et-on-accent);
-  box-shadow: inset 0 0 0 2px var(--et-accent);
 }
 
 @media (hover: hover) {
   .detail .rdActPrimary:hover {
     background: var(--et-white);
     color: var(--et-ink);
-    box-shadow: inset 0 0 0 2px var(--et-white);
   }
 }
 

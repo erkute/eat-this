@@ -324,7 +324,7 @@ main.page .head {
   padding: 0 14px;
   color: var(--et-accent);
   background: var(--profile-raised);
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 999px;
   cursor: pointer;
   text-decoration: none;
@@ -416,7 +416,7 @@ main.page .head {
   margin: 0;
   padding-top: clamp(16px, 2vw, 22px);
   padding-left: 0;
-  border-top: 1px solid var(--profile-line);
+  border-top: 0;
   list-style: none;
 }
 
@@ -640,7 +640,7 @@ main.page .head {
   padding: 6px 12px 5px;
   color: var(--profile-muted);
   background: var(--profile-raised);
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 999px;
   cursor: pointer;
   font-family: var(--et-font-display);
@@ -718,13 +718,13 @@ main.page .head {
 /* Ein unsichtbares Feld sagt niemandem, dass man hineinschreiben kann. */
 @media (hover: hover) {
   .spotNote:hover {
-    box-shadow: 0 1px 0 var(--profile-ring);
+    background: var(--profile-raised);
   }
 }
 
 .spotNote:focus-visible {
-  outline: 0;
-  box-shadow: 0 2px 0 var(--profile-accent);
+  outline: 2px solid var(--profile-accent);
+  outline-offset: 3px;
 }
 
 .empty {
@@ -1050,7 +1050,7 @@ main.page .head {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-top: 1px solid var(--profile-line);
+  border-top: 0;
 }
 
 /* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands —

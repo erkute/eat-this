@@ -185,26 +185,14 @@ div.player {
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
-/* Das Bildfeld: eine feine Linie, die der Figur einen Rahmen gibt. Ein
-   AEUSSERER Rahmen waere auf dem dunklen Seitengrund unsichtbar — die weisse
-   Flaeche ist dort schon die Kante.
-
-   Der Grund ist ein warmer Sandton, kein kaltes Grau: die Figuren sind in
-   Hauttoenen und Rot gezeichnet, und auf Neutralgrau lagen sie wie
-   ausgeschnitten da. Die Linie steht bei 55 % Ink statt 82 — bei voller
-   Deckung war sie ein Trauerrand um die Figur.
-
-   Ausprobiert und verworfen: das Rueckseiten-Motiv als Grund. Der
-   Markenschriftzug liegt dort mittig und wurde von der Figur zerschnitten,
-   „WE TELL YOU…" ragte links daneben heraus. Das sah kaputt aus, nicht
-   gestaltet. */
+/* Der warme Sandton im Bildfeld greift die Haut- und Rottöne der Figuren auf. */
 .playerField {
   /* Anker fuer das absolut gesetzte Bild — siehe .playerImg. */
   position: relative;
   overflow: hidden;
   min-height: 0;
   background: color-mix(in srgb, #c8a06a 13%, #fff);
-  border: 1.5px solid color-mix(in srgb, var(--et-ink) 55%, transparent);
+  border: 0;
   border-radius: 4px;
 }
 
@@ -305,10 +293,9 @@ div.player {
   min-height: 34px;
   padding: 5px 14px;
   color: var(--album-muted);
-  /* Flaeche statt Ring, wie die Filter-Chips der Map (24.09.2026). Der
-     transparente Rand bleibt, damit kein Zustand die Groesse aendert. */
+  /* Fläche statt Ring, wie die Filter-Chips der Map. */
   background: var(--profile-raised, #25231f);
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 999px;
   cursor: pointer;
   font-family: var(--album-display);
@@ -365,21 +352,10 @@ div.player {
 
 /* „Fehlende" schneidet quer durch alle Bezirke und steht darum direkt hinter
    „Alle", nicht am Ende der Leiste: an `margin-left: auto` sprang er je nach
-   Zeilenumbruch mal ans Ende der ersten, mal ans Ende der zweiten Zeile. Die
-   Haarlinie davor trennt Schalter von Reitern. */
+   Zeilenumbruch mal ans Ende der ersten, mal ans Ende der zweiten Zeile. Der
+   Abstand davor trennt Schalter von Reitern. */
 .chipMissing {
-  position: relative;
   margin-left: 9px;
-}
-
-.chipMissing::before {
-  content: '';
-  position: absolute;
-  top: 6px;
-  bottom: 6px;
-  left: -9px;
-  width: 1px;
-  background: var(--profile-line, rgba(255, 255, 255, 0.14));
 }
 
 .chipMissing[aria-pressed='true'] {
@@ -425,7 +401,7 @@ div.player {
 .badge {
   padding: 6px 12px 5px;
   color: var(--et-accent-text);
-  border: 1px solid color-mix(in srgb, var(--album-accent, var(--et-accent)) 55%, transparent);
+  border: 0;
   border-radius: 999px;
   font-family: var(--album-display, var(--et-font-display));
   font-size: 12px;

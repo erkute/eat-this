@@ -246,14 +246,12 @@
      Seit die Seiten selbst auf Ink stehen, lag jedes dieser Fenster Ink auf
      Ink — der Schleier dunkelt Ink nicht ab, und ein schwarzer Schatten ist
      auf Schwarz unsichtbar. Deshalb eine Stufe heller als der Grund (Weiss
-     7 %, deckend — ein Fenster darf nicht durchscheinen) plus eine Haarlinie
-     als Kante, dieselbe wie am Filter-Sheet der Karte. `--et-ink-quiet`
+     7 %, deckend — ein Fenster darf nicht durchscheinen). `--et-ink-quiet`
      (5,5 %) legt sich darauf weiter als leise Stufe ab.
      Fest als Hex, nicht als color-mix: faellt color-mix aus, ist die ganze
      Deklaration ungueltig und das Fenster haette GAR keine Flaeche. #25231f
      ist exakt `color-mix(in srgb, #fff 7%, #15120e)`. */
   --et-ink-raised: #25231f;
-  --et-ink-raised-edge: inset 0 0 0 1px var(--et-ink-line);
 
   /* Gemessen gegen Eater (40), Mit Vergnügen (40) und The Infatuation (64)
      auf 1280px. 80 lag über allen dreien. */

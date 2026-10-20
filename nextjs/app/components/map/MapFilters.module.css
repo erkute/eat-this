@@ -176,12 +176,11 @@
     /* The sheet's edge lives here, not on the sheet (MapSheet.module.css:
        the sheet is see-through on phones so the slot this bar leaves when it
        sticks shows map, not a dark band). */
-    border-top: 1px solid rgba(21, 18, 14, .14);
+    border-top: 0;
     border-radius: 10px 10px 0 0;
     /* Seals the seam to the rows below. The sheet sits on fractional pixels,
        and with the see-through sheet behind the antialiased edge let a hair
        of map through between bar and rows. */
-    box-shadow: 0 1px 0 0 var(--et-ink);
     will-change: transform;
     transform: translateZ(0);
     /* Native swipes also work when they start on a filter chip. */

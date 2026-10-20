@@ -30,7 +30,6 @@
   color: var(--et-ink);
   /* White panel shared with the editorial onboarding. */
   background: #fff;
-  box-shadow: var(--et-ink-raised-edge);
   border-radius: 10px;
   text-align: left;
   /* Bewegung, nie ein Opacity-Fade — Brand-Regel fuer Markenflaechen. */

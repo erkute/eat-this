@@ -574,7 +574,7 @@ a.quiet {
   gap: 8px;
   min-width: 0;
   padding: min(4cqh, 16px) 6px min(3cqh, 12px);
-  border: 2px solid transparent;
+  border: 0;
   border-radius: 0;
   background: #fff;
   color: var(--et-ink);
@@ -582,12 +582,12 @@ a.quiet {
   cursor: pointer;
   transition:
     transform 180ms ease,
-    border-color 140ms ease;
+    background-color 140ms ease;
 }
-/* Gewaehlt: gelbe Kante und angehoben — nicht Farbe allein. */
+/* Die Auswahl hebt sich durch Fläche und Position ab. */
 .avatarActive {
-  border-color: var(--et-accent);
   transform: translateY(-4px);
+  background: var(--et-quiet);
 }
 @media (hover: hover) {
   .avatar:hover {
@@ -619,15 +619,15 @@ a.quiet {
   font-size: 13px;
   color: var(--et-copy);
 }
-/* A visible edge separates the field from the white panel. */
+/* Die getönte Fläche kennzeichnet das Eingabefeld. */
 .nameInput {
   width: 100%;
   box-sizing: border-box;
   min-height: 48px;
   padding: 12px 14px;
-  border: 1px solid #85817c;
+  border: 0;
   border-radius: var(--et-radius-control);
-  background: #fff;
+  background: var(--et-quiet);
   color: var(--et-ink);
   /* The input uses the same typeface as the login form. */
   font-family: var(--et-font-display);

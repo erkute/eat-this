@@ -11,7 +11,7 @@ const show = (locale = 'de') => render(<NextIntlClientProvider locale={locale} m
 describe('HubFragRemy', () => {
   it('offers three questions without categories or rotating copy', () => {
     show();
-    expect(screen.getByRole('heading').textContent).toBe('Worauf hast du Lust?');
+    expect(screen.getByRole('heading').textContent).toBe('Frag Remy.');
     expect(document.querySelectorAll('[data-fragremy-chips] button')).toHaveLength(3);
     expect(document.querySelector('[data-hub-categories]')).toBeNull();
     expect(document.querySelector('[data-remy-say]')).toBeNull();
@@ -32,7 +32,7 @@ describe('HubFragRemy', () => {
     const ask = vi.fn();
     window.addEventListener(BUDDY_ASK_EVENT, ask);
     show();
-    fireEvent.click(screen.getByRole('button', { name: 'Überrasch mich.' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Überrasch mich' }));
     expect(ask).toHaveBeenCalledOnce();
     expect(ask.mock.calls[0][0].detail).toEqual({ question: 'Überrasch mich.' });
     window.removeEventListener(BUDDY_ASK_EVENT, ask);
@@ -58,7 +58,7 @@ describe('HubFragRemy', () => {
   });
   it('offers English questions and an accessible input', () => {
     show('en');
-    expect(screen.getByRole('button', { name: 'Surprise me.' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Surprise me' })).toBeTruthy();
     expect(screen.getByRole('textbox', { name: 'Your question for Remy' })).toBeTruthy();
   });
 });

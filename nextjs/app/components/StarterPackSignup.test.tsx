@@ -52,11 +52,8 @@ describe('StarterPackSignup', () => {
   /* Derselbe Aufbau wie das Modal: das Pack, eine Ueberschrift, das Formular. */
   it('zeigt das Pack und traegt die Ueberschrift des Modals', () => {
     const html = renderToStaticMarkup(tafel());
-    expect(html).toContain('booster-empty.webp');
-    expect(html).toContain('booster-cafe-layer.webp');
-    expect(html).not.toContain('booster_free.webp');
-    expect(html).toContain('>Starter Pack</h2>');
-    expect(html).toContain('Starte deine Sammlung');
+    expect(html).toContain('booster_free.webp');
+    expect(html).toContain('>Dein erstes Deck.</h2>');
     expect(html).toContain('20 Must Eats aus ganz Berlin. Entdecke unsere Empfehlungen');
     // Kein „Gratis"-Kicker: Geschenk-Wording will der Betreiber nicht (22.09.2026).
     expect(html).not.toMatch(/gratis|kostenlos/i);

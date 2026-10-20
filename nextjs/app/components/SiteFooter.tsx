@@ -4,7 +4,6 @@ import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link } from '@/i18n/navigation';
 import styles from './SiteFooter.module.css';
-import { BRAND_LOGO_SRC } from '@/lib/constants';
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '@/lib/guestCardShake';
 
@@ -51,10 +50,10 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
               }}
             >
               <Image
-                src={BRAND_LOGO_SRC}
+                src="/pics/home/wordmark.webp"
                 alt="Eat This"
-                width={1660}
-                height={667}
+                width={1124}
+                height={274}
                 sizes={home ? '(min-width: 1000px) 800px, 82vw' : 'min(56vw, 230px)'}
                 loading="lazy"
                 decoding="async"

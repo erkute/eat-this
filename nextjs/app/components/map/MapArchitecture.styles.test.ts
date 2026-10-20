@@ -235,7 +235,7 @@ describe('Map CSS architecture', () => {
         /* lvh, not dvh: a dvh map resized with every step of Safari's
            collapsing toolbar and slid under the list (23.09.2026). */
         height: '100lvh',
-        'background-color': 'var(--et-ink)',
+        'background-color': 'var(--map-collage-paper, #fff)',
       }),
     ]);
   });

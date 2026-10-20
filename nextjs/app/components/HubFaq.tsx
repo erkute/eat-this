@@ -16,9 +16,9 @@ export default function HubFaq({ locale }: Props) {
             {locale === 'de' ? 'Noch Fragen?' : 'Any questions?'}
           </h2>
         </div>
-        <div className={styles.list}>
-          {faqs.map((f) => (
-            <details key={f.q} className={styles.item}>
+        <div>
+          {faqs.map((f, index) => (
+            <details key={f.q} className={styles.item} open={index === 0}>
               <summary className={styles.question}>{f.q}</summary>
               <p className={styles.answer}>{f.a}</p>
             </details>

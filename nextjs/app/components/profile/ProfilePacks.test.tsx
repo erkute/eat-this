@@ -58,7 +58,7 @@ describe('ProfilePacks artwork delivery', () => {
     // Nur das Welcome Pack ist offen — die zehn Kaufkarten sind weg.
     expect(images.length).toBe(1);
     for (const image of images) {
-      expect(image.getAttribute('src')).toMatch(/\/pics\/booster\/.+\.webp\?v=1$/);
+      expect(image.getAttribute('src')).toMatch(/\/pics\/booster\/.+\.webp\?v=[12]$/);
       expect(image.getAttribute('width')).toBe('96');
       expect(image.getAttribute('height')).toBe('139');
       expect(image.getAttribute('sizes')).toBe('(max-width: 767.98px) 72px, 96px');

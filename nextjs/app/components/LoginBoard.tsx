@@ -15,7 +15,7 @@ import AuthScreen, { AUTH_SCREEN_HOLD_MS } from './AuthScreen';
 import { announceSignedIn } from '@/lib/auth/afterSignIn';
 import styles from './LoginBoard.module.css';
 
-const PACK_ART = '/pics/booster/booster_free.webp';
+const PACK_ART = '/pics/booster/booster_free.webp?v=2';
 /* Ueber den Optimierer, nicht als rohes `img`: die Tafel steht auf jeder
    Startseite, und das Original wiegt 146 KB fuer eine 160–400 px hohe Tuete. */
 const PACK_WIDTH = 1008;
@@ -26,6 +26,7 @@ const CARD_BACK = '/pics/card-back.webp?v=8';
 interface LoginBoardProps {
   /** Die Szene links (LoginSceneArt) — reine Dekoration. */
   art: ReactNode;
+  editorial?: boolean;
   kicker?: string | null;
   title: string;
   lead?: string | null;
@@ -57,6 +58,7 @@ interface LoginBoardProps {
  */
 export default function LoginBoard({
   art,
+  editorial = false,
   kicker,
   title,
   lead,
@@ -118,7 +120,7 @@ export default function LoginBoard({
   const dsHref = locale === routing.defaultLocale ? '/datenschutz' : `/${locale}/datenschutz`;
 
   return (
-    <div className={styles.board} data-sent={sent ? '' : undefined}>
+    <div className={`${styles.board} ${editorial ? styles.editorial : ''} `} data-sent={sent ? '' : undefined}>
       {art}
 
       <div className={styles.side}>

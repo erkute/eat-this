@@ -132,7 +132,7 @@ describe('MapControls cascade', () => {
     const background = effective(CONTROLS, 'panelToggle', 'background');
     expect(background, '.panelToggle has no effective background').toBeDefined();
     expect(
-      background!.includes('--et-ink-raised'),
+      background === '#f2f1ef',
       `.panelToggle lost its surface — effective background is "${background}"`
     ).toBe(true);
   });

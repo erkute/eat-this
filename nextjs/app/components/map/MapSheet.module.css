@@ -10,8 +10,8 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  background: var(--et-ink);
-  color: var(--et-white);
+  background: var(--map-collage-paper, #fff);
+  color: var(--map-collage-ink, #111);
 }
 
 .handle {
@@ -34,7 +34,7 @@
    control. */
 .handle::before {
   content: '';
-  background: var(--et-ink-ring);
+  background: rgba(21, 18, 14, .28);
 }
 
 .listScroll {
@@ -92,7 +92,7 @@
     z-index: 4;
     height: 100%;
     /* The edge where the sheet meets the map. */
-    border-top: 1px solid var(--et-ink-line);
+    border-top: 1px solid rgba(21, 18, 14, .14);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     box-shadow: none;
@@ -201,7 +201,7 @@
     content: '';
     display: block;
     height: calc(100dvh - 100svh);
-    background: var(--et-ink);
+    background: var(--map-collage-paper, #fff);
   }
 
   /* The list sheet is see-through; its two parts carry the ink — the filter
@@ -215,7 +215,7 @@
   }
 
   .list[data-view='list'] .listScroll {
-    background: var(--et-ink);
+    background: var(--map-collage-paper, #fff);
     isolation: isolate;
   }
 
@@ -250,8 +250,8 @@
     position: sticky;
     top: var(--map-strip, env(safe-area-inset-top, 0px));
     z-index: 8;
-    background: var(--et-ink);
-    border-top: 1px solid var(--et-ink-line);
+    background: var(--map-collage-paper, #fff);
+    border-top: 1px solid rgba(21, 18, 14, .14);
     border-radius: 10px 10px 0 0;
     box-shadow: 0 1px 0 0 var(--et-ink);
   }

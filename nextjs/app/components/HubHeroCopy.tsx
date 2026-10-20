@@ -4,7 +4,6 @@ import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import MapIntentLink from './MapIntentLink';
 import styles from './HubSection.module.css';
-import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 interface Props {
   locale: 'de' | 'en';
@@ -24,7 +23,7 @@ const LEAD = {
 // Die Wortmarke steht im Aufmacher, nicht im Header: der Header hält seinen
 // Logoplatz frei, bis sie beim Scrollen dort ankommt (HeroMarkFlight). Die
 // Maße sind die des Assets, damit der Platz vor dem Laden reserviert ist.
-const MARK = { src: BRAND_LOGO_SRC, width: 1660, height: 667 } as const;
+const MARK = { src: '/pics/home/wordmark.webp', width: 1124, height: 274 } as const;
 
 /* Nur der Name, kein Verb. Der Knopf daneben heißt „Dein Profil" — auch ein
    Nomen —, und ein Linkziel zu benennen ist die bessere Beschriftung, als eine
@@ -122,7 +121,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         <LeadWords text={signedIn ? LEAD_AUTH[locale] : LEAD[locale]} />
       </p>
       <div className={styles.heroActions} data-hero-actions="">
-        <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
+        <MapIntentLink href="/map" className="hv-btn">
           {HERO_MAP_LABEL}
         </MapIntentLink>
         {signedIn ? (
@@ -130,7 +129,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
             href="/profile"
             rel="nofollow"
             prefetch={false}
-            className={`hv-btn ${styles.heroSecondaryBtn}`}
+            className="hv-btn"
           >
             {de ? 'Dein Profil' : 'Your profile'}
           </Link>
@@ -172,19 +171,19 @@ function LoadingHeroCopy({ locale }: Props) {
       </p>
       <div className={styles.heroActions} data-hero-actions="">
         <span className={styles.heroActionVariant} data-guest-only="">
-          <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
+          <MapIntentLink href="/map" className="hv-btn">
             {HERO_MAP_LABEL}
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
-          <MapIntentLink href="/map" className="hv-btn" data-magnetic="">
+          <MapIntentLink href="/map" className="hv-btn">
             {HERO_MAP_LABEL}
           </MapIntentLink>
           <Link
             href="/profile"
             rel="nofollow"
             prefetch={false}
-            className={`hv-btn ${styles.heroSecondaryBtn}`}
+            className="hv-btn"
           >
             {de ? 'Dein Profil' : 'Your profile'}
           </Link>
@@ -208,7 +207,11 @@ export default function HubHeroCopy({ locale }: Props) {
   // Element sein (Compositor) — ein neuer Knoten finge sie von vorn an.
   return (
     <div className={styles.heroCopy}>
-      <HeroMark />
+      <div className={styles.heroBrand}><HeroMark /></div>
+      <MapIntentLink href="/map" className={styles.heroArt} aria-label={locale === 'de' ? 'Berlin Food Map öffnen' : 'Open the Berlin food map'} data-hub-art="">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/pics/home/hero-must-eat.webp" width={470} height={646} alt="Hamachi Head — Must Eat Card" fetchPriority="high" decoding="async" />
+      </MapIntentLink>
       {loading ? (
         <LoadingHeroCopy locale={locale} />
       ) : (

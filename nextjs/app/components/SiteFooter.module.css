@@ -422,3 +422,10 @@
     padding-block: 36px 24px;
   }
 }
+
+.footer.home { --footer-bg: #111; padding: 64px 24px; }
+.home .megaImg { width: min(68vw, 572px); filter: invert(1); }
+.footer:not(.home) .megaImg { filter: invert(1); }
+.home .tagline { margin-top: 12px; font-size: clamp(12px, 1.8vw, 20px); }
+.home .socialLink { text-shadow: none; transform: none; font-size: 24px; }
+@media(max-width:767.98px) { .footer.home { padding: 40px 24px 96px; } .home .megaImg { width: 238px; max-width: 100%; } }

@@ -14,7 +14,7 @@
   min-width: 0;
   padding: 8px 10px 12px;
   box-sizing: border-box;
-  background: var(--et-ink);
+  background: var(--map-collage-paper, #fff);
 }
 
 .filterChipWrap {
@@ -41,8 +41,8 @@
   min-width: 0;
   min-height: 44px;
   padding: 8px 7px;
-  background: var(--et-ink-raised);
-  color: var(--et-white);
+  background: #f2f1ef;
+  color: var(--map-collage-ink, #111);
   border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;
@@ -100,7 +100,7 @@
   width: 22px;
   height: 22px;
   padding: 0;
-  background: var(--et-ink);
+  background: var(--map-collage-paper, #fff);
   color: var(--et-accent-text);
   border: 0;
   border-radius: 50%;
@@ -145,14 +145,14 @@
    Karte hebt sich nichts per Linie ab (keine-Konturen-Regel, 23.09.2026).
    Ein gesetzter (gelber) Chip bleibt gelb. */
 .filterChipRow .filterChip[aria-expanded='true']:not(.filterChipActive):not(.filterChipOpenActive) {
-  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
+  background: linear-gradient(rgba(21, 18, 14, .055), rgba(21, 18, 14, .055)), #f2f1ef;
 }
 @media (hover: hover) {
   .filterChipRow .filterChip:hover {
-    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
+    background: linear-gradient(rgba(21, 18, 14, .055), rgba(21, 18, 14, .055)), #f2f1ef;
   }
   .filterChipRow .filterChipActive:hover { background: rgba(21, 18, 14, 0.08); }
-  .filterChipClear:hover { background: var(--et-red); color: var(--et-white); }
+  .filterChipClear:hover { background: var(--et-red); color: var(--map-collage-ink, #111); }
   .filterChipRow .filterChipOpenActive:hover { background: #176f3c; }
 }
 .filterChipRow .filterChip:active,
@@ -172,11 +172,11 @@
     top: var(--map-strip, env(safe-area-inset-top, 0px));
     /* Above the rows (the sheet is a stacking context, MapSheet.module.css). */
     z-index: 8;
-    background: var(--et-ink);
+    background: var(--map-collage-paper, #fff);
     /* The sheet's edge lives here, not on the sheet (MapSheet.module.css:
        the sheet is see-through on phones so the slot this bar leaves when it
        sticks shows map, not a dark band). */
-    border-top: 1px solid var(--et-ink-line);
+    border-top: 1px solid rgba(21, 18, 14, .14);
     border-radius: 10px 10px 0 0;
     /* Seals the seam to the rows below. The sheet sits on fractional pixels,
        and with the see-through sheet behind the antialiased edge let a hair
@@ -254,8 +254,8 @@
   padding: 8px;
   /* Eine Stufe ueber dem Grund (--et-ink-raised in globals.css): das Sheet
      oeffnet auf der Karte, und die ist genauso dunkel. */
-  background: var(--et-ink-raised);
-  color: var(--et-white);
+  background: #f2f1ef;
+  color: var(--map-collage-ink, #111);
   /* Keine Haarlinie drumherum — die Flaeche traegt (User, 23.09.2026). */
   border: 0;
   border-radius: var(--et-radius-control);
@@ -311,14 +311,14 @@
 }
 
 .pickerClose:focus-visible {
-  background: var(--et-ink-quiet);
+  background: rgba(21, 18, 14, .055);
   color: var(--et-accent-text);
   outline: 0;
 }
 
 @media (hover: hover) {
   .pickerClose:hover {
-    background: var(--et-ink-quiet);
+    background: rgba(21, 18, 14, .055);
     color: var(--et-accent-text);
     outline: 0;
   }
@@ -360,8 +360,8 @@
   /* Die Fuellung traegt, kein Ring — wie die Chips, aus denen diese Liste
      aufklappt (User, 23.09.2026: keine Rahmen). Eine Spur heller als das
      Fenster (--et-ink-raised), auf dem sie liegt. */
-  background: var(--et-ink-quiet);
-  color: var(--et-white);
+  background: rgba(21, 18, 14, .055);
+  color: var(--map-collage-ink, #111);
   border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;
@@ -386,16 +386,16 @@
    nichts. Fokus und Hover waren damit seit dem Umbau unsichtbar, und der
    Druckzustand hat den Fehler zuerst geerbt. Weiss 14 % ergibt ΔL* 15,9. */
 .pickerItem:focus-visible {
-  background: var(--et-ink-line);
-  color: var(--et-white);
+  background: rgba(21, 18, 14, .14);
+  color: var(--map-collage-ink, #111);
   outline: 0;
   transform: none;
 }
 
 @media (hover: hover) {
   .pickerItem:hover {
-    background: var(--et-ink-line);
-    color: var(--et-white);
+    background: rgba(21, 18, 14, .14);
+    color: var(--map-collage-ink, #111);
     outline: 0;
     transform: none;
   }
@@ -406,8 +406,8 @@
    1px Absenkung aus globals.css gehen darin unter. Ungesperrt, denn genau auf
    dem Telefon ist sie die einzige, die es gibt. */
 .pickerItem:active {
-  background: var(--et-ink-line);
-  color: var(--et-white);
+  background: rgba(21, 18, 14, .14);
+  color: var(--map-collage-ink, #111);
   outline: 0;
 }
 
@@ -465,20 +465,20 @@
    oben oder einen anderen Chip — beide bleiben immer wählbar. */
 .pickerItemDead {
   background: transparent;
-  color: var(--et-ink-dim);
+  color: #666;
   box-shadow: none;
   cursor: default;
 }
 
 .pickerItemDead:focus-visible {
   background: transparent;
-  color: var(--et-ink-dim);
+  color: #666;
 }
 
 @media (hover: hover) {
   .pickerItemDead:hover {
     background: transparent;
-    color: var(--et-ink-dim);
+    color: #666;
   }
 }
 

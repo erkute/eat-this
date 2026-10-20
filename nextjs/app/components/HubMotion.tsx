@@ -3,8 +3,6 @@
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
-import { scrollProgress } from '@/lib/dom/scrollProgress';
-import { armMagazineTable } from '@/lib/home/magazineTable';
 import { enterLead } from '@/lib/home/leadEntrance';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
@@ -18,38 +16,10 @@ import { enterLead } from '@/lib/home/leadEntrance';
 gsap.registerPlugin(useGSAP);
 
 /**
- * Bewegung auf der Startseite. Alles nur ohne `prefers-reduced-motion` und nie
- * als Opacity-Fade (Hausregel für Brand-Flächen). Der Slogan stempelt ein
- * (das Hinschreiben vom 04.10.2026 ist seit 07.10.2026 wieder raus); Geräte
- * und Knöpfe bewegen sich als ganze Objekte.
- *
- * 1. **Auftritt beim Laden** (Aufmacher). Der Vorhang ist CSS: er muss ab
- *    dem ersten Paint laufen, nicht erst nach der Hydrierung (Begründung in
- *    HeroCurtain.module.css). Was er freilegt — die grosse Marke, die auf
- *    ihren Platz geschubst wird, die Stempel der Headline —, steuert
- *    `finishIntro`.
- *
- * 2. **Am Scrollweg:** Die räumlichen Bühnen (Magazin, Must Eats)
- *    steuern sich selbst. Nearby bleibt als ruhige Fotowand stehen.
- *    `armScrubFallback` ergänzt CSS-Scroll-Timelines, wo sie fehlen.
- *
- * 3. **Beim Hereinkommen:**
- *    - Remys Auftritt und Reaktionen gehören HubFragRemy.
- *    - Knöpfe werden gedrückt, jedes Mal, wenn ihre Section ins Bild kommt
- *      (`data-in-view`, CSS in HubSection.module.css; `armInView`), der im
- *      Aufmacher im Takt (`armHeroPress`).
- *    - Starter Pack: in das Adressfeld tippt sich eine Adresse, „Anmelden"
- *      wird gedrückt, das Feld leert sich — in Schleife, solange die Tafel im
- *      Bild ist (`armSignupDemo`).
- *    - FAQ: Antworten öffnen und schließen weich auf Klick (`armFaq`).
- *
- * 4. **Immer:** Remy redet, solange gescrollt wird — der große im Frag-Remy-
- *    Abschnitt und der schwebende unten rechts (`armScrollTalk`).
- *
- * 5. **Nur ab 768px:** die Telefone driften beim Herausscrollen auseinander,
- *    und der Magazin-Stapel blättert getimt wie ein Kartenstapel
- *    (`armMagazineTable`); mit echtem Zeiger kippen die Telefone zur Maus und
- *    der Knopf zieht magnetisch.
+ * The existing curtain, wordmark and headline entrance remain. Below the
+ * hero, Remy owns his entrance; this controller handles FAQ disclosure,
+ * the signup demonstration and scroll-triggered speech. Reduced motion
+ * always leaves the content in its resting state.
  */
 
 /** Die Headline-Zeilen schlagen als Stempel ein: riesig und gedreht, dann
@@ -130,7 +100,7 @@ function finishIntro(): (() => void) | void {
   const copyIn = () => {
     const lead = hero?.querySelectorAll<HTMLElement>('[data-hero-lead]');
     const actions = hero?.querySelector<HTMLElement>('[data-hero-actions]');
-    const phones = hero?.querySelector<HTMLElement>('[data-hub-phones]');
+    const art = hero?.querySelector<HTMLElement>('[data-hub-art]');
     // Über `translate`/`rotate`, nicht `transform`: der gehört dem Zittern
     // der Wörter beim Drüberfahren (SiteNav.module.css).
     (
@@ -160,7 +130,7 @@ function finishIntro(): (() => void) | void {
     // sichtbar macht — keine Maske, kein Sprung am Ziel.
     const entryY = (element: HTMLElement) => Math.max(80, window.innerHeight - element.getBoundingClientRect().top + 32);
     const leads = Array.from(lead ?? []).filter((element) => element.getClientRects().length > 0);
-    if (phones) gsap.set(phones, { y: entryY(phones) });
+    if (art) gsap.set(art, { y: entryY(art) });
     if (actions) gsap.set(actions, { scale: 0, transformOrigin: '50% 50%' });
     const entrance = enterLead(leads);
     motions.push(...entrance.animations);
@@ -173,7 +143,7 @@ function finishIntro(): (() => void) | void {
       .set(actions, { scale: 1.28, rotation: -7, y: -18 }, press)
       .to(actions, { scale: 0.96, rotation: 1, y: 2, duration: 0.18, ease: 'power3.in' }, press)
       .to(actions, { scale: 1, rotation: 0, y: 0, duration: 0.22, ease: 'back.out(1.8)', clearProps: 'transform,transformOrigin' });
-    if (phones) copyTimeline.to(phones, { y: 0, duration: 1.3, clearProps: 'transform' }, 0.12);
+    if (art) copyTimeline.to(art, { y: 0, duration: 1.3, clearProps: 'transform' }, 0.12);
   };
 
   /** Ist Remy rechts ganz aus dem Bild? Ohne Vorhang gilt er als weg. */
@@ -307,101 +277,6 @@ function finishIntro(): (() => void) | void {
  *  `translate/rotate/scale` inline auf `none` — am Ende alles wieder frei
  *  geben, sonst bleiben Druckzustände (`--et-press-tile`) tot. */
 const CLEAR_TRANSFORMS = 'transform,translate,rotate,scale';
-
-/** Oberkante und Höhe des sichtbaren Scrollbereichs: `.app-pages` ab 768px,
- *  darunter das Fenster. */
-function viewportOf(scroller: HTMLElement | Window): { top: number; height: number } {
-  return scroller instanceof HTMLElement
-    ? scroller.getBoundingClientRect()
-    : { top: 0, height: window.innerHeight };
-}
-
-/** Ruft `update` höchstens einmal pro Frame, solange gescrollt wird, und einmal
- *  gleich zu Beginn. */
-function onScrollFrame(scroller: HTMLElement | Window, update: () => void): () => void {
-  let frame = 0;
-  const schedule = () => {
-    if (!frame) frame = requestAnimationFrame(() => ((frame = 0), update()));
-  };
-  update();
-  scroller.addEventListener('scroll', schedule, { passive: true });
-  window.addEventListener('resize', schedule);
-  return () => {
-    cancelAnimationFrame(frame);
-    scroller.removeEventListener('scroll', schedule);
-    window.removeEventListener('resize', schedule);
-  };
-}
-
-/**
- * `data-in-view` an jeder Section mit einem Knopf, der gedrückt werden soll
- * (`data-press`), und am Aufmacher: `1` im Bild, `0` draussen. Das CSS dazu
- * (HubSection.module.css) startet den Druck neu, sobald es auf `1` springt:
- * wer zurückscrollt, sieht den Knopf wieder gedrückt. Am Aufmacher pausiert
- * die `0` das Schweben der Telefone. Beobachtet wird die Section, nicht der
- * Knopf: HubHeroCopy baut die Knöpfe neu, sobald `useAuth` steht.
- */
-function armInView(): () => void {
-  if (typeof IntersectionObserver === 'undefined') return () => {};
-  const sections = new Set<HTMLElement>();
-  const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  if (hero) sections.add(hero);
-  document.querySelectorAll<HTMLElement>('[data-hub] [data-press]').forEach((el) => {
-    const section = el.closest<HTMLElement>('section');
-    if (section) sections.add(section);
-  });
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        const el = entry.target as HTMLElement;
-        el.setAttribute('data-in-view', entry.isIntersecting ? '1' : '0');
-      }
-    },
-    { rootMargin: '0px 0px -20% 0px' }
-  );
-  sections.forEach((el) => io.observe(el));
-  return () => {
-    io.disconnect();
-    sections.forEach((el) => el.removeAttribute('data-in-view'));
-  };
-}
-
-/**
- * Der Knopf im Aufmacher wird gedrückt (`ctaPressOnce`, HubSection.module.css):
- * 3s nach dem Laden, danach alle 4,5s, solange der Aufmacher im Bild ist; wer
- * zurückscrollt, sieht ihn nach 0,3s wieder gedrückt. Im Takt statt als
- * endlose CSS-Animation, damit der Hauptthread zwischen zwei Drücken ruht.
- * Die Knöpfe werden bei jedem Druck neu gesucht: HubHeroCopy tauscht sie aus,
- * sobald `useAuth` steht.
- */
-function armHeroPress(): () => void {
-  const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  if (!hero || typeof IntersectionObserver === 'undefined') return () => {};
-  let next = 0;
-  let release = 0;
-  let seen = false;
-  const press = () => {
-    const buttons = hero.querySelectorAll<HTMLElement>('[data-magnetic]');
-    buttons.forEach((el) => el.setAttribute('data-hero-press', ''));
-    release = window.setTimeout(() => buttons.forEach((el) => el.removeAttribute('data-hero-press')), 500);
-    next = window.setTimeout(press, 4500);
-  };
-  const io = new IntersectionObserver(
-    ([entry]) => {
-      window.clearTimeout(next);
-      if (entry.isIntersecting) next = window.setTimeout(press, seen ? 300 : 3000);
-      seen = true;
-    },
-    { rootMargin: '0px 0px -20% 0px' }
-  );
-  io.observe(hero);
-  return () => {
-    io.disconnect();
-    window.clearTimeout(next);
-    window.clearTimeout(release);
-    hero.querySelectorAll('[data-hero-press]').forEach((el) => el.removeAttribute('data-hero-press'));
-  };
-}
 
 /** Animiert die Antworthöhe auf Klick; ohne Bewegung bleiben native Details. */
 function armFaq(): () => void {
@@ -590,174 +465,30 @@ function armScrollTalk(scroller: HTMLElement | Window): () => void {
   };
 }
 
-/**
- * Für Browser ohne Scroll-Timeline (`animation-timeline: view()`): dieselben
- * Werte, die sonst CSS am Scrollweg treibt, per Scroll-Listener. Jedes Element
- * sagt selbst, welche Variable von wo nach wo läuft (`data-scrub="--deal 0 1"`)
- * und über welche Strecke (`data-scrub-start/-end`, lib/dom/scrollProgress).
- * Ein Drittel Sekunde Nachlauf, damit es sich nicht wie eingerastet anfühlt.
- */
-function armScrubFallback(scroller: HTMLElement | Window): () => void {
-  if (typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()')) return () => {};
-  const scrubs = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-hub] [data-scrub]'),
-    (el) => {
-      const [prop, from, to] = (el.dataset.scrub ?? '').split(' ');
-      if (!prop?.startsWith('--')) return null;
-      const a = Number(from);
-      const b = Number(to);
-      const set = gsap.quickTo(el, prop, { duration: 0.3, ease: 'power1.out' });
-      const start = el.dataset.scrubStart ?? 'top bottom';
-      const end = el.dataset.scrubEnd ?? 'bottom top';
-      gsap.set(el, {
-        [prop]:
-          a +
-          (b - a) * scrollProgress(el.getBoundingClientRect(), viewportOf(scroller), start, end),
-      });
-      return {
-        el,
-        prop,
-        update: () =>
-          set(
-            a +
-              (b - a) * scrollProgress(el.getBoundingClientRect(), viewportOf(scroller), start, end)
-          ),
-      };
-    }
-  ).filter((s) => s !== null);
-  if (!scrubs.length) return () => {};
-  const stop = onScrollFrame(scroller, () => scrubs.forEach((s) => s.update()));
-  return () => {
-    stop();
-    scrubs.forEach(({ el, prop }) => {
-      gsap.killTweensOf(el);
-      gsap.set(el, { clearProps: prop });
-    });
-  };
-}
-
-/** Die Telefone driften auseinander, während der Aufmacher oben hinausläuft
- *  (`--phones-drift`, HubSection.module.css) — mit einem halben Takt Nachlauf:
- *  liest sich als Trägheit, nicht als Ruckeln. */
-function armPhonesDrift(scroller: HTMLElement | Window): () => void {
-  const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  if (!hero) return () => {};
-  const drift = gsap.quickTo(hero, '--phones-drift', { duration: 0.5, ease: 'power1.out' });
-  const progress = () =>
-    scrollProgress(hero.getBoundingClientRect(), viewportOf(scroller), 'top top', 'bottom top');
-  gsap.set(hero, { '--phones-drift': progress() });
-  const stop = onScrollFrame(scroller, () => drift(progress()));
-  return () => {
-    stop();
-    gsap.killTweensOf(hero);
-    gsap.set(hero, { clearProps: '--phones-drift' });
-  };
-}
-
-/**
- * Maus über dem Aufmacher (nur Desktop mit echtem Zeiger): die Telefone
- * kippen in 3D zur Maus und trennen sich in der Tiefe (`--px/--py`, die Bahn
- * steht in HubSection.module.css), der Knopf zieht magnetisch zum Zeiger.
- * Die Knöpfe werden bei jeder Bewegung neu gesucht: HubHeroCopy tauscht sie
- * aus, sobald `useAuth` steht.
- */
+/** The hero card follows a real pointer; touch and reduced motion stay still. */
 function armHeroPointer(): () => void {
   const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  const phones = hero?.querySelector<HTMLElement>('[data-hub-phones]');
-  if (!hero || !phones) return () => {};
-
-  gsap.set(phones, { transformPerspective: 1100 });
+  const art = hero?.querySelector<HTMLElement>('[data-hub-art]');
+  if (!hero || !art) return () => {};
+  gsap.set(art, { transformPerspective: 1100 });
   const follow = { duration: 0.9, ease: 'power3' };
-  const px = gsap.quickTo(hero, '--px', follow);
-  const py = gsap.quickTo(hero, '--py', follow);
-  const tiltX = gsap.quickTo(phones, 'rotationX', follow);
-  const tiltY = gsap.quickTo(phones, 'rotationY', follow);
-
-  type Pull = { x: (v: number) => void; y: (v: number) => void };
-  const pulls = new WeakMap<HTMLElement, Pull>();
-  const pull = (el: HTMLElement): Pull => {
-    let p = pulls.get(el);
-    if (!p) {
-      const snap = { duration: 0.5, ease: 'power3' };
-      p = { x: gsap.quickTo(el, '--mx', snap), y: gsap.quickTo(el, '--my', snap) };
-      pulls.set(el, p);
-    }
-    return p;
+  const tiltX = gsap.quickTo(art, 'rotationX', follow);
+  const tiltY = gsap.quickTo(art, 'rotationY', follow);
+  const move = (event: PointerEvent) => {
+    const rect = hero.getBoundingClientRect();
+    tiltY((((event.clientX - rect.left) / rect.width) * 2 - 1) * 12);
+    tiltX((((event.clientY - rect.top) / rect.height) * 2 - 1) * -8);
   };
-  const magnets = () => hero.querySelectorAll<HTMLElement>('[data-magnetic]');
-
-  const onMove = (e: PointerEvent) => {
-    const r = hero.getBoundingClientRect();
-    const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
-    const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
-    px(nx);
-    py(ny);
-    tiltY(nx * 12);
-    tiltX(ny * -8);
-    magnets().forEach((el) => {
-      const b = el.getBoundingClientRect();
-      const dx = e.clientX - (b.left + b.width / 2);
-      const dy = e.clientY - (b.top + b.height / 2);
-      // Fängt knapp vor dem Knopf an zu ziehen, nicht erst darauf — und nie
-      // weiter als ein paar Pixel: ein Knopf, der wegläuft, ist keiner.
-      const near = Math.hypot(dx, dy) < Math.max(b.width, b.height) * 0.8;
-      pull(el).x(near ? gsap.utils.clamp(-6, 6, dx * 0.1) : 0);
-      pull(el).y(near ? gsap.utils.clamp(-4, 4, dy * 0.12) : 0);
-    });
-  };
-  const onLeave = () => {
-    px(0);
-    py(0);
-    tiltX(0);
-    tiltY(0);
-    magnets().forEach((el) => {
-      pull(el).x(0);
-      pull(el).y(0);
-    });
-  };
-
-  hero.addEventListener('pointermove', onMove);
-  hero.addEventListener('pointerleave', onLeave);
+  const leave = () => { tiltX(0); tiltY(0); };
+  hero.addEventListener('pointermove', move);
+  hero.addEventListener('pointerleave', leave);
   return () => {
-    hero.removeEventListener('pointermove', onMove);
-    hero.removeEventListener('pointerleave', onLeave);
-    gsap.set(phones, { clearProps: CLEAR_TRANSFORMS });
-    gsap.set(hero, { clearProps: '--px,--py' });
-    magnets().forEach((el) => gsap.set(el, { clearProps: '--mx,--my' }));
+    hero.removeEventListener('pointermove', move);
+    hero.removeEventListener('pointerleave', leave);
+    tiltX.tween.kill();
+    tiltY.tween.kill();
+    gsap.set(art, { clearProps: CLEAR_TRANSFORMS });
   };
-}
-
-/** A small camera response, only on devices with a real hovering pointer. */
-function armDepthPointer(): () => void {
-  const cleanups = Array.from(
-    document.querySelectorAll<HTMLElement>('[data-home-pointer]'),
-    (el) => {
-      const options = { duration: 0.65, ease: 'power3.out' };
-      const x = gsap.quickTo(el, '--look-x', options);
-      const y = gsap.quickTo(el, '--look-y', options);
-      const move = (e: PointerEvent) => {
-        const rect = el.getBoundingClientRect();
-        if (!rect.width || !rect.height) return;
-        x(gsap.utils.clamp(-1, 1, ((e.clientX - rect.left) / rect.width) * 2 - 1));
-        y(gsap.utils.clamp(-1, 1, ((e.clientY - rect.top) / rect.height) * 2 - 1));
-      };
-      const leave = () => {
-        x(0);
-        y(0);
-      };
-      el.addEventListener('pointermove', move);
-      el.addEventListener('pointerleave', leave);
-      return () => {
-        el.removeEventListener('pointermove', move);
-        el.removeEventListener('pointerleave', leave);
-        x.tween.kill();
-        y.tween.kill();
-        el.style.removeProperty('--look-x');
-        el.style.removeProperty('--look-y');
-      };
-    }
-  );
-  return () => cleanups.forEach((stop) => stop());
 }
 
 /** Fotos vorladen, bevor die Sektionen ins Bild kommen. Der Desktop scrollt
@@ -780,18 +511,11 @@ function armPreload(): () => void {
     { root: appScroller(), rootMargin: '150% 0px' }
   );
   document
-    .querySelectorAll('[data-hub-map-preview], [data-hub-magazine], [data-hub-musteats]')
+    .querySelectorAll('[data-hub-magazine], [data-hub-musteats]')
     .forEach((section) => io.observe(section));
   return () => io.disconnect();
 }
 
-/** Der Magazin-Stapel auf dem Tisch: blättern, ziehen, aufblättern
- *  (lib/home/magazineTable.ts). */
-function armMagazine(): () => void {
-  const stage = document.querySelector<HTMLElement>('[data-magazine-stage]');
-  const deck = stage?.querySelector<HTMLElement>('[data-magazine-deck]');
-  return stage && deck ? armMagazineTable(stage, deck) : () => {};
-}
 
 export default function HubMotion() {
   useGSAP(() => {
@@ -811,22 +535,11 @@ export default function HubMotion() {
         if (!motion) return;
         const scroller = appScroller() ?? window;
         const stops: Array<() => void> = [];
-        stops.push(armScrubFallback(scroller));
-        stops.push(armInView());
-        stops.push(armHeroPress());
         stops.push(armSignupDemo());
         stops.push(armFaq());
         stops.push(armScrollTalk(scroller));
-        // Scroll-JS an der Position nur ab 768px: auf dem iPhone läuft es ein
-        // bis zwei Frames hinterher (siehe HeroMarkFlight) und zittert.
-        if (desk) {
-          stops.push(armPhonesDrift(scroller));
-          // Auch mit Finger (iPad): ohne ihn liegt der Fächer nur still da.
-          stops.push(armMagazine());
-        }
         if (desk && pointer) {
           stops.push(armHeroPointer());
-          stops.push(armDepthPointer());
         }
         return () => stops.forEach((stop) => stop());
       }

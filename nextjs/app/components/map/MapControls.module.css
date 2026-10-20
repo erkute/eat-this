@@ -26,7 +26,7 @@
 .panelToggle,
 .mapSearchClear {
   background: transparent;
-  color: var(--et-white);
+  color: var(--map-collage-ink, #111);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -70,8 +70,7 @@
 .mapSearchBtn .mapSearchIcon,
 .mapBurgerLines,
 .fabIcon {
-  filter: drop-shadow(0 0 1.5px var(--et-ink)) drop-shadow(0 0 3px var(--et-ink))
-    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 0 1px #fff);
   text-shadow: none;
 }
 
@@ -206,8 +205,8 @@
   height: 44px;
   padding: 0 10px 0 13px;
   overflow: hidden;
-  background: var(--et-ink-raised);
-  color: var(--et-white);
+  background: #f2f1ef;
+  color: var(--map-collage-ink, #111);
   border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;
@@ -297,8 +296,8 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 6px 0;
-  background: var(--et-ink-raised);
-  color: var(--et-white);
+  background: #f2f1ef;
+  color: var(--map-collage-ink, #111);
   border-radius: var(--et-radius-control);
 }
 
@@ -340,7 +339,7 @@
 
 .mapSearchSuggestionMeta,
 .mapSearchSuggestionNone {
-  color: var(--et-ink-soft);
+  color: #555;
   font-size: 13px;
   line-height: 1.3;
 }
@@ -353,13 +352,13 @@
 
 @media (hover: hover) {
   .mapSearchSuggestion:hover {
-    background: var(--et-ink-quiet);
+    background: rgba(21, 18, 14, .055);
   }
 }
 
 .mapSearchSuggestion:focus-visible {
   outline: 0;
-  background: var(--et-ink-quiet);
+  background: rgba(21, 18, 14, .055);
 }
 
 @media (max-width: 520px) {
@@ -541,8 +540,8 @@
   width: 20px;
   height: 44px;
   padding: 0;
-  background: var(--et-ink-raised);
-  color: var(--et-ink-soft);
+  background: #f2f1ef;
+  color: #555;
   border-radius: 8px 0 0 8px;
   filter: none;
   clip-path: none;
@@ -556,12 +555,12 @@
 /* Nach den gemeinsamen transparenten Zuständen oben: die Lasche behält ihre
    Fläche und hebt sich beim Hover um eine Stufe. */
 .panelToggle:focus-visible {
-  background: var(--et-ink-raised);
+  background: #f2f1ef;
   color: var(--et-accent-text);
 }
 @media (hover: hover) {
   .panelToggle:hover {
-    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
+    background: linear-gradient(rgba(21, 18, 14, .055), rgba(21, 18, 14, .055)), #f2f1ef;
     color: var(--et-accent-text);
   }
 }
@@ -577,7 +576,7 @@
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
-  color: var(--et-white);
+  color: var(--map-collage-ink, #111);
 }
 
 .panelToggle svg {
@@ -626,7 +625,7 @@
   width: 44px;
   height: 44px;
   /* Never yellow (Betreiber, 23.09.2026: „mag das Gelb nicht"). */
-  color: var(--et-white);
+  color: var(--map-collage-ink, #111);
   filter: none;
   clip-path: none;
   text-shadow: none;
@@ -643,7 +642,7 @@
 }
 
 .fab:focus-visible {
-  color: var(--et-ink-soft);
+  color: #555;
 }
 
 /* The press is only the shift, never a surface: an old ink background here
@@ -659,7 +658,7 @@
 
 @media (hover: hover) {
   .fab:hover {
-    color: var(--et-ink-soft);
+    color: #555;
     filter: none;
     transform: translateY(-2px);
   }

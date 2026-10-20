@@ -177,10 +177,8 @@
   --et-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 
   /* ── Schriften ── */
-  --et-font-display:
-    'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
-    sans-serif;
-  /* Einheitlicher Fließtext; Providence bleibt für Titel und Marken-Labels. */
+  --et-font-display: var(--et-font-body);
+  /* Neue CI: dieselbe Grotesk für Titel, Bedienelemente und Fließtext. */
   --et-font-body: 'neue-haas-grotesk-text-1', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --et-font-text: var(--et-font-body);
   --et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
@@ -1760,4 +1758,13 @@ html[data-category-entering]::view-transition-old(root) { animation-duration: 30
 html[data-category-entering]::view-transition-new(root) { animation-duration: 450ms; animation-delay: 150ms; }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(category-pack) { animation-duration: 0s; }
+}
+
+/* New CI staging surfaces; the explicit article theme keeps its own canvas. */
+html[data-active-page='start'], html[data-active-page='start'] body, html[data-active-page='start'] .app-pages,
+html[data-active-page='map'], html[data-active-page='map'] body, html[data-active-page='map'] .app-pages,
+html[data-active-page='packs'], html[data-active-page='packs'] body,
+html[data-active-page='pack'], html[data-active-page='pack'] body,
+html[data-active-page='must-eats'], html[data-active-page='must-eats'] body, html[data-active-page='must-eats'] .app-pages {
+  background: #fff;
 }

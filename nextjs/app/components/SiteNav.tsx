@@ -190,7 +190,7 @@ export default function SiteNav() {
               Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
           <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
-              src="/pics/home/wordmark.webp"
+              src="/pics/home/wordmark.webp?v=1"
               alt="Eat This"
               width={1124}
               height={274}

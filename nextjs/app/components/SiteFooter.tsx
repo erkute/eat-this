@@ -50,7 +50,7 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
               }}
             >
               <Image
-                src="/pics/home/wordmark.webp"
+                src="/pics/home/wordmark.webp?v=1"
                 alt="Eat This"
                 width={1124}
                 height={274}

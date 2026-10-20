@@ -23,7 +23,7 @@ const LEAD = {
 // Die Wortmarke steht im Aufmacher, nicht im Header: der Header hält seinen
 // Logoplatz frei, bis sie beim Scrollen dort ankommt (HeroMarkFlight). Die
 // Maße sind die des Assets, damit der Platz vor dem Laden reserviert ist.
-const MARK = { src: '/pics/home/wordmark.webp', width: 1124, height: 274 } as const;
+const MARK = { src: '/pics/home/wordmark.webp?v=1', width: 1124, height: 274 } as const;
 
 /* Nur der Name, kein Verb. Der Knopf daneben heißt „Dein Profil" — auch ein
    Nomen —, und ein Linkziel zu benennen ist die bessere Beschriftung, als eine

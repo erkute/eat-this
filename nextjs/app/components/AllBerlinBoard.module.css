@@ -1,20 +1,18 @@
-/* All Berlin: pack fan on the overview, compact upgrade on category pages.
-   Die leise Ink-Stufe hebt das Angebot vom Ink-Seitengrund ab; bei identischer
-   Farbe bliebe nur der Fächer sichtbar. */
+/* Shared light offer: pack fan on the overview, compact upgrade on category pages. */
 
 .board {
   --board-ink: var(--et-ink);
-  --board-paper: var(--et-white);
+  --board-paper: #111;
   --board-accent: var(--et-accent);
-  --board-soft: rgba(255, 255, 255, 0.76);
-  --board-quiet: rgba(255, 255, 255, 0.55);
+  --board-soft: #555;
+  --board-quiet: #666;
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: clamp(20px, 4vw, 48px);
   padding: clamp(24px, 4vw, 56px);
-  background: var(--et-ink-quiet);
+  background: #f2f1ef;
   color: var(--board-paper);
   border-radius: var(--et-radius-photo);
   font-family: var(--et-font-display);
@@ -26,7 +24,7 @@
 
 .kicker {
   margin: 0 0 clamp(14px, 1.6vw, 22px);
-  color: var(--et-accent-text);
+  color: #a82b2e;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);

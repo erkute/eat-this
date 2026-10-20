@@ -327,8 +327,8 @@
   margin: 24px 20px 10px;
   padding-top: 12px;
   border-top: 0;
-  font-size: 44px;
-  line-height: 0.86;
+  font-size: 1.75rem;
+  line-height: 1.1;
 }
 .rdTipp,
 .packPromo {
@@ -336,8 +336,7 @@
   backdrop-filter: none;
 }
 .rdBody p {
-  margin: 0 0 12px;
-  margin-bottom: 14px;
+  margin: 0 0 1em;
 }
 .rdMustHead {
   grid-template-columns: minmax(0, 1fr) auto;
@@ -389,15 +388,8 @@
   height: 16px;
 }
 .rdTippText {
-  /* Providence wie jeder andere Wert der Ink-Tafel. Der Tipp lief als
-     EINZIGES Feld darin auf Inter (`var(--et-font-body)`) — Label gezeichnet, Text
-     gesetzt, und der Bruch fiel genau dort auf, wo der Blick hängen bleibt.
-     Die Größe steht NICHT hier — `.detail .rdTippText` weiter unten ist
-     spezifischer und gewinnt jeden Wert an dieser Stelle. */
-  font-family: var(--et-font-display);
+  font-family: var(--et-font-body);
   margin: 0;
-  /* 13px, nicht 14.5: der Tipp ist eine Randnotiz neben der Story (15px),
-     nicht ihr zweiter Absatz (Nutzer, 30.08.2026). */
 }
 .rdRowHours > .rdHours {
   padding: 0;
@@ -409,8 +401,8 @@
   padding: 0;
   border: 0;
   margin: 0;
-  font-size: 30px;
-  line-height: 0.9;
+  font-size: 1.75rem;
+  line-height: 1.1;
 }
 
 /* Ein Satz unter der Überschrift, der sagt, was ein Must Eat überhaupt ist.
@@ -422,10 +414,9 @@
   max-width: 34ch;
   margin: 6px 0 0;
   font-family: var(--et-font-display);
-  font-size: 13px;
+  font-size: var(--et-type-caption);
   font-weight: 400;
-  /* Nicht unter 1.3 — sonst kappt Providence ihre Unterlängen. */
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .rdMustGrid li,
@@ -647,8 +638,8 @@
   margin-top: 10px;
   gap: 7px;
   font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
+  font-size: var(--et-type-caption);
+  font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -658,8 +649,8 @@
   display: inline-flex;
   align-items: center;
   font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
+  font-size: var(--et-type-caption);
+  font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
   -webkit-backdrop-filter: none;
@@ -769,8 +760,8 @@
   text-transform: none;
 }
 .rdBody {
-  padding: 18px 16px 6px;
-  font-size: 15px;
+  padding: 24px 16px 8px;
+  font-size: 1.125rem;
 }
 /* Im gesperrten Sheet bringt LockedDetail seine 18px Seitenrand schon mit; die
    16px hier kamen obendrauf und rückten die Geschichte gegen Kicker und
@@ -1030,8 +1021,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--et-type-caption);
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 1.55;
   text-transform: none;
@@ -1043,8 +1034,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--et-font-display);
-  font-size: 10px;
-  font-weight: 500;
+  font-size: var(--et-type-kicker);
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
   opacity: 0.62;
@@ -1114,9 +1105,9 @@
   opacity: 1;
   visibility: visible;
   font-family: var(--et-font-display);
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.18;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
   overflow-wrap: anywhere;
 }
 @media (max-width: 767.98px) {
@@ -1154,15 +1145,6 @@
     grid-template-columns: minmax(76px, max-content) minmax(0, 1fr);
     column-gap: 16px;
     row-gap: 8px;
-  }
-  .rdV,
-  .detail .rdV a,
-  .rdHoursT {
-    font-family: var(--et-font-display);
-    font-size: 19px;
-    font-weight: 700;
-    line-height: 1.18;
-    overflow-wrap: anywhere;
   }
   .detail .rdContactPlainLink {
     border-bottom: 0;
@@ -1473,9 +1455,9 @@
 .packPromoBody {
   max-width: 27ch;
   font-family: var(--et-font-display);
-  font-size: clamp(13.5px, 3.6vw, 14px);
-  font-weight: 500;
-  line-height: 1.34;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 @media (hover: hover) {
@@ -1489,28 +1471,13 @@
   outline-offset: 2px;
 }
 
-/* ── Desktop-Panel: Maße fürs 379px-Panel, nicht fürs 1440px-Fenster ──────────
-   Auf dem Desktop ist diese Sheet keine Seite, sondern eine 379px breite
-   Spalte — Telefonbreite. Alles, was hier an vw hing, lief in seinen Deckel
-   und wurde am Fenster groß statt am Panel (User, 2026-08-27).
-   Gegen echte Werte gelegt: Apple Maps fährt in einem 380px-Panel Ortsname 22
-   und Meta-Zeilen 14 in SF Pro; The Infatuation steht mobil bei H1 40 und
-   Fließtext 15. Wir sitzen dazwischen — Providence läuft optisch kleiner als
-   eine Systemschrift, und der Name liegt auf einem Foto, nicht in einer Liste.
-   Der Fließtext bleibt bei 15px: das ist der untere Rand des Bandes, darunter
-   wird die Geschichte zur Bildunterschrift.
-   Der Block steht hinter den übrigen Regeln für .rdV und .rdActBtn — weiter
-   vorn, im 1024px-Block oben, hätte er verloren. */
+/* The desktop detail is a phone-width column, so reading sizes stay the same
+   across breakpoints. Only the photo title and pack headline have their own cap. */
 
 @media (min-width: 1024px) {
   /* 34 statt 40 (User, 09.10.2026: „noch ein bisschen verkleinern"). */
   .rdNameOv {
     font-size: min(var(--rd-name-max, 34px), 34px);
-  }
-  .rdV,
-  .detail .rdV a,
-  .rdHoursT {
-    font-size: 17px;
   }
   .packPromoTitle {
     font-size: 30px;
@@ -1560,10 +1527,10 @@
 .detail .rdK {
   color: var(--et-accent-text);
   font-family: var(--et-font-display);
-  font-size: 14px;
+  font-size: var(--et-type-kicker);
   font-weight: 700;
-  letter-spacing: 0.03em;
-  line-height: 1.3;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
   text-transform: uppercase;
 }
 
@@ -1583,10 +1550,10 @@
 .detail .rdHoursD {
   color: rgba(255, 255, 255, 0.55);
   font-family: var(--et-font-display);
-  font-size: 19px;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 500;
   letter-spacing: 0;
-  line-height: 1.18;
+  line-height: 1.5;
   text-transform: none;
 }
 
@@ -1596,17 +1563,12 @@
   font-weight: 600;
 }
 
-/* Der einzige Link auf der Tafel — die Adresse ist hier, anders als auf der
-   Spot-Seite, keiner. Er trägt `.rdV a` in der Klammer, weil die Papier-Fassung
-   am Telefon `text-decoration: none` auf `.rdContactPlainLink` setzt: ohne das
-   zusätzliche Gewicht verliert die Unterstreichung. */
+/* Contact links use colour and a focus outline, matching the other actions. */
 
 .detail .rdV a.rdContactPlainLink {
   border-bottom: 0;
   color: var(--et-white);
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 
 .rdV a.rdContactPlainLink:focus-visible {
@@ -1648,15 +1610,6 @@
   color: var(--et-white);
 }
 
-/* Der Tag folgt dem Wert: das Desktop-Panel ist 379px breit, dort steht die
-   Uhrzeit auf 17px (Block darüber). */
-
-@media (min-width: 1024px) {
-  .detail .rdHoursD {
-    font-size: 17px;
-  }
-}
-
 /* ============ Insider-Tipp ============
    Der Tipp ist die einzige Stimme im Sheet, die nicht beschreibt, sondern
    raet. Er trug bisher eine graue Mono-Eyebrow — die Sprache von vor der
@@ -1681,10 +1634,10 @@
   gap: 8px;
   color: var(--et-accent-text);
   font-family: var(--et-font-display);
-  font-size: 14px;
+  font-size: var(--et-type-kicker);
   font-weight: 700;
-  letter-spacing: 0.03em;
-  line-height: 1.3;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
   text-transform: uppercase;
 }
 
@@ -1703,12 +1656,9 @@
 
 .detail .rdTippText {
   color: var(--et-white);
-  /* 14, nicht 13: seit der Tipp auf Providence läuft statt auf Inter, baut
-     dieselbe Zahl optisch kleiner. Randnotiz soll er bleiben (siehe den
-     13px-Kommentar oben) — Kleingedrucktes nicht. */
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.55;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1957,27 +1907,16 @@
   color: var(--et-white);
 }
 
-/* Der Fliesstext liest sich wie die Bezirks-Beschreibung (User, 04.09.2026:
-   „die liest sich am besten"). Uebernommen werden Schrift und STAERKE, nicht
-   die Groesse:
-
-   `.rdBody` stand auf `font-weight: 560` — eine halbfette Stufe, die den
-   Absatz auf der schmalen Sheet-Spalte kompakt aussehen liess, aber schwerer
-   zu lesen ist als der normale Schnitt. Die Bezirks-Beschreibung (damals
-   `HubPage.module.css .shelfBlurb`, bis 03.10.2026) liess die Stärke offen,
-   stand also auf 400, und nahm Zeilenhoehe 1.6.
-
-   Die Groesse dort ist `clamp(15px, 1.4vw, 17px)` und wird NICHT uebernommen:
-   vw misst am Fenster, nicht an der Spalte. Auf einem 1280er-Desktop kaeme
-   der Absatz damit auf 17px — in einer 380px breiten Sheet-Spalte. Dieselbe
-   Falle wie bei den Must-Eat-Namen im Rail. 15px bleiben. */
+/* Editorial reading scale, informed by 032c and Highsnobiety: 18px body,
+   compact labels, strong headings. Use the column width rather than viewport
+   width: the desktop map panel has the same reading measure as a phone. */
 
 .rdBody,
 .detail .rdBody p,
 .rdStoryLead {
   font-family: var(--et-font-body);
   font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 /* Full-size photo rail; title and restaurant controls stay in place.

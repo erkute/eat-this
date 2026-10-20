@@ -26,8 +26,8 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  /* + overhang so the last block scrolls clear above the iOS URL bar
-     (the scroll-port extends behind it — see .detailMount). */
+  /* Bottom spacing for details without the final pack block. Phone flow
+     and the pack block supply their own end spacing below. */
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;

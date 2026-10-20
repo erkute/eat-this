@@ -276,8 +276,8 @@
   min-height: 50px;
   padding: 0 15px;
   color: var(--et-ink);
-  background: #fff;
-  border: 1px solid #85817c;
+  background: var(--et-quiet);
+  border: 0;
   border-radius: 0;
   font-family: var(--et-font-display);
   font-size: 17px;
@@ -576,9 +576,9 @@
 .editorial .title { color: #111; font-size: clamp(40px, 5.6vw, 72px); letter-spacing: -.04em; line-height: 1.06; text-transform: none; max-width: 7ch; }
 .editorial .kicker { color: #111; }
 .editorial .lead { color: #111; font-size: 18px; font-weight: 400; line-height: 1.4; margin: 24px 0; }
-.editorial .input { color: #111; background: #fff; border: 1px solid #111; border-radius: 0; }
+.editorial .input { color: #111; background: var(--et-quiet); border: 0; border-radius: 0; }
 .editorial .input::placeholder { color: #666; }
-.editorial .ctaPrimary, .editorial .ctaGoogle { min-height: 48px; background: #111; color: #fff; border: 1px solid #111; border-radius: 0; font-size: 16px; }
+.editorial .ctaPrimary, .editorial .ctaGoogle { min-height: 48px; background: #111; color: #fff; border: 0; border-radius: 0; font-size: 16px; }
 .editorial .ctaGoogle { background: #fff; color: #111; }
 .editorial .legal, .editorial .legalLink, .editorial .or, .editorial .sub, .editorial .spam, .editorial .toLabel, .editorial .toValue, .editorial .textlink { color: #555; }
 .editorial .legalLink:focus-visible, .editorial button:focus-visible { outline: 3px solid #d9382a; outline-offset: 4px; }

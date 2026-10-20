@@ -168,8 +168,8 @@
 }
 .detail .fdMid {
   margin-top: clamp(18px, 3dvh, 30px);
-  border-top: 1.5px solid var(--et-ink);
-  border-bottom: 1.5px solid var(--et-ink);
+  border-top: 0;
+  border-bottom: 0;
 }
 .fdRest .fdK {
   font-family: var(--et-font-body);
@@ -1839,8 +1839,7 @@
    in der Copy-Zeile: eine Taste mit Pin, solange man den Browser noch fragen
    darf; gedimmt und ohne Taste, sobald er Nein gesagt hat — dann sagt der
    Hinweis darunter, wo es noch geht. Die Fassung ist der zweite Knopf des
-   Onboardings (.packLink): transparent, weißer Ring, gelb bei Hover. Der Ring
-   ist ein inset-Schatten, damit Taste und Status dieselbe Box haben. */
+   Onboardings (.packLink): eine ruhige Fläche, bei Hover in der Akzentfarbe. */
 
 .fdLocation {
   display: grid;
@@ -1860,9 +1859,8 @@
   appearance: none;
   border: 0;
   border-radius: var(--et-radius-control);
-  background: transparent;
+  background: var(--et-quiet);
   color: var(--me-ink);
-  box-shadow: inset 0 0 0 2px rgba(21, 18, 14, 0.28);
   font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 700;
@@ -1876,7 +1874,7 @@
   cursor: pointer;
   transition:
     transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.16s ease;
+    background-color 0.16s ease;
 }
 
 .fdLocationChip svg {
@@ -1888,7 +1886,8 @@
 @media (hover: hover) {
   button.fdLocationChip:hover {
     transform: translateY(-2px);
-    box-shadow: inset 0 0 0 2px var(--me-accent);
+    background: var(--me-accent);
+    color: var(--et-on-accent);
   }
 }
 

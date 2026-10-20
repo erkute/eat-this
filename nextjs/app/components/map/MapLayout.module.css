@@ -159,7 +159,7 @@
   background: rgba(255, 255, 255, .94);
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
   backdrop-filter: blur(14px) saturate(1.4);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 0;
   border-radius: 999px;
   /* Same height as collapsed pill (20px), wider for text. */
   padding: 0 10px 0 24px;

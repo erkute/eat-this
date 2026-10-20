@@ -37,12 +37,7 @@
   pointer-events: none;
 }
 .rcardActive {
-  box-shadow:
-    0 0 0 3px var(--map-collage-ink),
-    0 14px 24px rgba(43, 33, 28, 0.22);
-}
-.openPillClosed {
-  border-color: var(--map-collage-ink);
+  box-shadow: 0 14px 24px rgba(43, 33, 28, 0.22);
 }
 .rcardSlot:nth-child(odd) .rcard {
   --rcard-tilt: -0.7deg;
@@ -85,12 +80,6 @@
 .rcardMetaDistrict {
   max-width: min(100%, 190px);
 }
-.rcardMetaCuisine {
-  border-color: rgba(255, 255, 255, 0.34);
-}
-.rcardActive {
-  border-color: transparent;
-}
 .openPill {
   right: auto;
   z-index: 4;
@@ -103,9 +92,7 @@
 @media (hover: hover) {
   .rcard:hover {
     transform: translateY(-3px) rotate(var(--rcard-tilt, 0deg));
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.72) inset,
-      0 14px 28px rgba(23, 26, 23, 0.17);
+    box-shadow: 0 14px 28px rgba(23, 26, 23, 0.17);
   }
 
   .rcard:hover .rcardImg img {
@@ -160,7 +147,7 @@
   transform-origin: 58% 72%;
 }
 .rcard {
-  border-bottom: 3px solid var(--et-ink);
+  border-bottom: 0;
   transform: none;
 }
 .rcardBody {
@@ -227,10 +214,6 @@
     rgba(21, 18, 14, 0.22) 48%,
     rgba(21, 18, 14, 0) 72%
   );
-}
-.rcardActive {
-  outline: 4px solid #fff;
-  outline-offset: -8px;
 }
 .rcardBody {
   position: absolute;
@@ -422,7 +405,7 @@
 .rcardMetaChip > span:last-child {
   color: inherit;
 }
-/* Ringe statt gefuellter Pillen, wie die Chips der Hubs seit 03.09.2026. Sie
+/* Die rahmenlosen Angaben
    sitzen im Ink-Verlauf am unteren Kartenrand (`.rcard::after`), deshalb
    traegt weisse Schrift dort auch ueber einem hellen Foto. Gefuellt waeren sie
    auf der ansonsten ink-farbenen Liste die hellste Flaeche im Bild und zoegen
@@ -431,7 +414,7 @@
 .rcardMetaCuisine {
   background: transparent;
   color: #fff;
-  border: 1px solid var(--et-ink-ring);
+  border: 0;
   border-radius: var(--et-radius-control);
   box-shadow: none;
   font-family: var(--et-font-display);
@@ -582,4 +565,8 @@
   .rcardDotOn {
     transition: none;
   }
+}
+.rcardActive .rcardBody {
+  padding: 12px;
+  background: rgb(21 18 14 / .86);
 }

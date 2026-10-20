@@ -778,7 +778,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .editorialSpots > .cardSlot:first-child .text { max-width: 46ch; font-size: 17px; line-height: 1.6; }
 .editorialSpots > .cardSlot:first-child .tip { margin-bottom: 20px; }
 
-.guideInterlude { border-top: 1px solid var(--et-line);
+.guideInterlude { border-top: 0;
   max-width: var(--issue-wide);
   margin: 20px auto 0;
   padding: 32px;
@@ -823,7 +823,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   .editorialSpots > .cardSlot:first-child .spotName { font-size: 30px; }
   .editorialSpots > .cardSlot:first-child .text { font-size: 16px; line-height: 1.5; }
   .editorialSpots > .cardSlot:first-child .tip { margin-bottom: 0; }
-  .guideInterlude { border-top: 1px solid var(--et-line); margin-top: 36px; padding: 24px 18px; }
+  .guideInterlude { border-top: 0; margin-top: 36px; padding: 24px 18px; }
   .guideInterlude .guide { grid-template-columns: 88px minmax(0, 1fr); gap: 16px; }
   .guideInterlude .guideTitle { font-size: 20px; }
   .guideInterlude .guideCover { width: 88px; }
@@ -838,7 +838,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   }
 }
 
-.magazine.magazineIntro { margin-top: 80px; padding: 40px 0 0; border-top: 1px solid var(--et-line); background: transparent; border-radius: 0; }
+.magazine.magazineIntro { margin-top: 80px; padding: 40px 0 0; border-top: 0; background: transparent; border-radius: 0; }
 .magazineIntro .secTitle { margin-top: 0; font-size: clamp(30px, 3.2vw, 46px); }
 .magazineDescription { max-width: 52ch; margin: 20px 0 0; font-size: 21px; line-height: 1.5; }
 .categoryMenu { max-width: var(--issue-wide); margin: 96px auto 0; }
@@ -876,7 +876,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .districtSpots .spotPhoto:hover img { transform: none; }
 .secTitle.favoritesTitle { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
 .favoritesTitle img { display: block; width: 150px; height: auto; }
-.districtPage .guideInterlude { border-top: 1px solid var(--et-line); margin-top: 88px; padding: 40px; }
+.districtPage .guideInterlude { border-top: 0; margin-top: 88px; padding: 40px; }
 .moreSpots { margin-top: clamp(48px, 5vw, 72px); }
 .districtPage .moreSpots { margin-top: 88px; }
 @media (min-width:768px) and (max-width:1023px) {
@@ -889,6 +889,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   .districtSpots .text { font-size: 16px; margin-top: 14px; }
   .favoritesTitle img { width: 124px; }
   .secTitle.favoritesTitle { gap: 12px; font-size: 28px; }
-  .districtPage .guideInterlude { border-top: 1px solid var(--et-line); margin-top: 64px; padding: 28px 20px; }
+  .districtPage .guideInterlude { border-top: 0; margin-top: 64px; padding: 28px 20px; }
   .districtPage .moreSpots { margin-top: 64px; }
 }

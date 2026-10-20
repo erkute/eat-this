@@ -1,8 +1,7 @@
-.section:global(.hv-wrap) { max-width: none; padding: 64px var(--home-gutter); color: #111; background: #fff; border-bottom: 1px solid #d4d4d4; }
+.section:global(.hv-wrap) { max-width: none; padding: 64px var(--home-gutter); color: #111; background: #fff; border-bottom: 0; }
 .board { display: grid; grid-template-columns: .8fr 1.5fr; gap: 64px; max-width: 1400px; margin: auto; }
 .board :global(.hv-title) { max-width: 6ch; margin: 0; }
-.item { border-top: 1px solid #111; }
-.item:last-child { border-bottom: 1px solid #111; }
+.item { border-top: 0; padding-block: 4px; }
 .question { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 21px 0; cursor: pointer; list-style: none; font-size: 18px; font-weight: 700; line-height: 1.25; }
 .question::-webkit-details-marker { display: none; }
 .question::after { content: '+'; font-weight: 400; font-size: 25px; }

@@ -150,7 +150,7 @@ function pages(identity: Identity | null) {
 }
 
 const CARD_BACK = '/pics/card-back.webp?v=8';
-const CARD_FRONT = '/pics/card-front.webp?v=5';
+const CARD_FRONT = '/pics/card-front.webp?v=6';
 
 /** Das Kartenbild eines Must Eats — die Bild-Route, die auch Deck und Map
  *  benutzen; 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
@@ -191,8 +191,8 @@ const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
 const DECK_CARDS = [
   CARD_BACK,
   CARD_BACK,
-  '/pics/card-front.webp?v=5',
-  '/pics/card-front-sabich.webp?v=3',
+  '/pics/card-front.webp?v=6',
+  '/pics/card-front-sabich.webp?v=4',
 ] as const;
 
 /**
@@ -674,7 +674,7 @@ export default function SignInReward() {
                 {/* eslint-disable @next/next/no-img-element */}
                 <img
                   className={styles.face}
-                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp?v=3'}
+                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp?v=4'}
                   alt={t.reveal.alt}
                 />
                 <img

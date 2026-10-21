@@ -344,42 +344,91 @@ html[data-theme='dark'] {
 }
 
 /* Vintage-Look (Entwurf, 21.10.2026): Papier wie auf den Must-Eat-Karten.
-   Jede Section ist ein eigenes Blatt — Korn und Fasern plus die
-   Gebrauchsspuren der Karte (Ringe, Knick, abgestoßene Kanten) — und scrollt
-   mit ihrem Inhalt; keine Ebene über der ganzen Seite. Der Grund bleibt
+   Jede Section der Startseite ist ein eigenes Blatt — Korn und Fasern plus
+   die Gebrauchsspuren der Karte (Ringe, Knick, abgestoßene Kanten) — und
+   scrollt mit ihrem Inhalt; keine Ebene über der ganzen Seite. Unterseiten
+   (Magazin, Spots, Artikel) bleiben glatt weiß (Ansage 21.10.2026). Der Grund bleibt
    weiß (dunkel: Ink), Schrift und Spuren sind farbneutral — kein Creme.
    Gefüllte Knöpfe tragen feine Kratzer. */
 html[data-vintage] {
   --et-wear: url('/pics/vintage/button-wear.webp?v=2');
   /* Ein Blatt: Korn und Fasern gekachelt, darüber die Gebrauchsspuren der
      Karte einmal über die ganze Fläche. */
-  --et-sheet: url('/pics/vintage/paper-grain.webp?v=3'), url('/pics/vintage/section-wear.webp?v=5');
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=3'), url('/pics/vintage/section-wear.webp?v=6');
   --et-sheet-size: 192px, 100% 100%;
   --et-sheet-repeat: repeat, no-repeat;
-  /* Weißer Grund zwischen zwei Blättern. */
-  --et-sheet-gap: clamp(14px, 1.8vw, 28px);
 }
 html[data-vintage][data-theme='dark'] {
-  --et-sheet: url('/pics/vintage/paper-grain.webp?v=3'), url('/pics/vintage/section-wear-dark.webp?v=3');
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=3'), url('/pics/vintage/section-wear-dark.webp?v=4');
 }
 html[data-vintage] :is(.homeV2 > section, .homeV2 > footer, body > footer) {
   background-image: var(--et-sheet);
   background-size: var(--et-sheet-size);
   background-repeat: var(--et-sheet-repeat);
 }
-/* Lange Textseiten (Spot, Artikel) sind ein einziges Blatt: die Spuren in
-   Kartenproportion oben, darunter nur Korn — gestreckt würden die Ringe
-   zu Ellipsen. */
-html[data-vintage] main:not(:has(.homeV2)) {
-  background-image: var(--et-sheet);
+/* Unterseiten (Spots, Artikel …) sind nur leicht gealtert und bleiben weiß:
+   Korn plus die Gebrauchsspuren mit 40 % Deckkraft, in Kartenproportion
+   oben — gestreckt würden die Ringe zu Ellipsen. Das Blatt reicht bis an
+   den Rand: auf der vollen Seitenfläche — `.app-page` (Artikel; ihre <main>
+   ist eingerückt) oder die <main> direkt im body (Spots). Die Startseite hat
+   eigene Blätter, die Magazin-Übersicht (#news) bleibt ganz glatt (Ansage
+   21.10.2026). `:has()` darf nicht in `:has()` stehen, sonst fällt die
+   ganze Regel weg — deshalb zwei Ausschlüsse nebeneinander. */
+html[data-vintage] :is(.app-page:has(> main:not(#news)), body > main):not(:has(.homeV2)) {
+  background-image: url('/pics/vintage/paper-grain.webp?v=3'), url('/pics/vintage/section-wear-light.webp?v=2');
   background-size: 192px, 100% auto;
-  background-repeat: var(--et-sheet-repeat);
+  background-repeat: repeat, no-repeat;
   background-position: 0 0, top center;
 }
-/* Getrennt wird über den weißen Grund zwischen den Blättern, ohne Rahmen
-   oder Linie. */
-html[data-vintage] :is(.homeV2 > :is(section, footer) + :is(section, footer), body > footer) {
-  margin-top: var(--et-sheet-gap);
+html[data-vintage][data-theme='dark'] :is(.app-page:has(> main:not(#news)), body > main):not(:has(.homeV2)) {
+  background-image: url('/pics/vintage/paper-grain.webp?v=3'), url('/pics/vintage/section-wear-dark-light.webp?v=2');
+}
+/* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
+   21.10.2026: „mit verschiedenen Farben für die Sections, damit man diese
+   weisse Ebene nicht braucht"). Die Folge der Startseite: Gelb (Aufmacher) →
+   Papier (Magazin) → Ink (Must Eats) → Papier (Bezirke) → Rot (Remy) →
+   Papier (Fragen) → Rot (Starter Pack) → Ink (Fuss). Nie zwei gleiche
+   nebeneinander; den Abstand gibt das Innenpolster der Sections. Ink- und
+   Rot-Blätter setzen ihre Rollen-Farben selbst, damit Schrift, Knöpfe und
+   Felder darin stimmen. */
+html[data-vintage] .homeV2 > [data-hub-musteats] {
+  color-scheme: dark;
+  --et-ground: #15120e;
+  --et-fg: #fff;
+  --et-muted: #b7b3ae;
+  --et-copy: #d4d1cd;
+  --et-quiet: #25231f;
+  --et-line: #514e49;
+  --et-rule: #514e49;
+  --et-subtle: rgba(255, 255, 255, .075);
+  --et-link: #f29194;
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=3'), url('/pics/vintage/section-wear-dark.webp?v=4');
+}
+/* Im Dunkelmodus ist das Papier selbst Ink — Must Eats eine Stufe heller. */
+html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
+  --et-ground: #25231f;
+}
+/* Starter Pack im Rot des Packs selbst (Ansage 21.10.2026: „soll rot sein,
+   ähnlich wie das Starter Pack"): Schrift weiss, Feld und Google-Knopf weiss
+   mit Ink-Schrift, „Anmelden" Ink, Fokus weiss — Rot auf Rot sähe man nicht. */
+html[data-vintage] .homeV2 > [data-hub-starter] {
+  color-scheme: light;
+  --et-ground: #cf3f2f;
+  --et-fg: #fff;
+  --et-muted: rgba(255, 255, 255, .82);
+  --et-copy: #fff;
+  --et-quiet: rgba(255, 255, 255, .14);
+  --et-subtle: rgba(255, 255, 255, .14);
+  --et-link: #fff;
+  --et-solid: #15120e;
+  --et-on-solid: #fff;
+  --et-field: #fff;
+  --et-field-fg: #15120e;
+  --et-field-muted: rgba(21, 18, 14, .6);
+  --et-focus: #fff;
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=3'), url('/pics/vintage/section-wear.webp?v=6');
 }
 /* Nachbarblätter mit versetztem Korn, damit sich das Muster nicht wiederholt. */
 html[data-vintage] .homeV2 > :nth-child(even) {
@@ -522,7 +571,11 @@ html[data-active-page='map'] .app-page {
      thin canvas gap produced by margin + calculated viewport height. */
   html[data-active-page='start'] .app-pages {
     position: fixed;
-    inset: var(--site-nav-h) 0 0;
+    /* Bis unter den Kopf: der gelbe Aufmacher liegt oben hinter dem noch
+       durchsichtigen Kopf (SiteNav.module.css, Ansage 21.10.2026). Sprünge
+       zu Ankern halten trotzdem Abstand. */
+    inset: 0;
+    scroll-padding-top: var(--site-nav-h);
     height: auto;
     margin: 0;
     background-color: var(--et-ground);
@@ -1546,6 +1599,14 @@ ol {
   .app-page[data-page='start'] {
     background: var(--et-ground);
   }
+  /* Startseite: der Aufmacher reicht bis unter den durchsichtigen Kopf
+     (HubSection.module.css hält ihm dafür oben den Platz frei). */
+  html[data-active-page='start'] .app-pages {
+    padding-top: 0;
+  }
+  html[data-active-page='start'] {
+    scroll-padding-top: var(--site-nav-h);
+  }
 }
 
 /* ── Desktop app frame (≥ 768px) ── */
@@ -1581,6 +1642,14 @@ ol {
   }
   .app-page[data-page='start'] {
     background: var(--et-ground);
+  }
+  /* Startseite: der Aufmacher reicht bis unter den durchsichtigen Kopf
+     (HubSection.module.css hält ihm dafür oben den Platz frei). */
+  html[data-active-page='start'] .app-pages {
+    padding-top: 0;
+  }
+  html[data-active-page='start'] {
+    scroll-padding-top: var(--site-nav-h);
   }
 }
 

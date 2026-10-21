@@ -95,13 +95,16 @@
   margin: 0 auto;
 }
 
+/* Der Vorspann gehört zum Kopf und steht mittig wie Name und Bezirk; erst
+   der Lesetext darunter ist linksbündig (Ansage 21.10.2026). */
 .lede {
   font-family: var(--et-font-body);
   margin: clamp(32px, 3.6vw, 48px) 0 0;
   font-size: clamp(24px, 2.3vw, 32px);
   font-weight: 700;
   line-height: 1.18;
-  text-wrap: pretty;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .figure {
@@ -293,27 +296,54 @@
 
 .hours {
   display: grid;
-  gap: 2px;
-  margin: 0;
-  font-size: clamp(20px, 2vw, 26px);
-  line-height: 1.3;
+  gap: 6px;
+  width: min(100%, 420px);
+  margin: 0 auto;
+  font-size: clamp(19px, 1.8vw, 24px);
+  line-height: 1.25;
   font-variant-numeric: tabular-nums;
 }
 
-/* Tag und Zeit als eine Zeile, die als Ganzes mittig steht. */
+/* Wie auf einer Speisekarte (Ansage 21.10.2026: „geht das nicht besser?"):
+   links der Tag, rechts die Zeit, dazwischen eine gepunktete Führungslinie.
+   Mehrere Zeitspannen stehen rechtsbündig untereinander. */
 .hoursRow {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0 0.4em;
+  align-items: baseline;
+  gap: 10px;
+  text-align: left;
 }
 
 .hoursRow dt {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
   font-weight: 700;
+  white-space: nowrap;
+}
+
+.hoursRow dt::after {
+  content: '';
+  flex: 1;
+  min-width: 16px;
+  border-bottom: 2px dotted color-mix(in srgb, var(--et-fg) 35%, transparent);
+  translate: 0 -0.28em;
 }
 
 .hoursRow dd {
   margin: 0;
+  text-align: right;
+}
+
+.hoursRange {
+  display: block;
+  white-space: nowrap;
+}
+
+.hoursClosed {
+  color: var(--et-muted);
 }
 
 /* Buttons in der Form von 032c („Subscribe", gemessen 03.10.2026): volle

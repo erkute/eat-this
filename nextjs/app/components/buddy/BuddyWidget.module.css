@@ -27,6 +27,8 @@
   --buddy-surface: var(--et-ink-raised);
   --buddy-paper: var(--et-white);
   --buddy-accent: var(--et-accent);
+  /* Rot als Schrift (Hover, Fokus, Verweise): auf Ink aufgehellt. */
+  --buddy-accent-text: var(--et-accent-text);
   --buddy-soft: var(--et-ink-soft);
   --buddy-dim: var(--et-ink-dim);
   --buddy-ring: var(--et-ink-ring);
@@ -127,21 +129,33 @@
 
 .headerTitle {
   display: grid;
+  gap: 4px;
   min-width: 0;
   margin-right: auto;
   line-height: 1;
 }
 
-/* Weiss, nicht rot: auf Ink sind die Versalien Papier — wie jede Tafel-
-   Ueberschrift der Site. */
+/* Der Name wie auf der Startseite (HubFragRemy): gross, fett, eng — nicht
+   mehr in Versalien. Darunter in einem Satz, was er kann. */
 .headerTitle strong {
   color: var(--buddy-paper);
-  font-family: var(--buddy-display);
-  font-size: 2.95rem;
+  font-family: var(--et-font-body);
+  font-size: 2.6rem;
   font-weight: 700;
-  letter-spacing: var(--et-tracking-title);
-  line-height: 0.82;
-  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+.headerSub {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--buddy-soft);
+  font-family: var(--et-font-body);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 /* Flaechenstufe statt Ring, bei Hover eine Stufe heller mit gelber Schrift. */
@@ -170,7 +184,7 @@
 @media (hover: hover) {
   .close:hover,
   .reset:hover {
-    color: var(--et-accent-text);
+    color: var(--buddy-accent-text);
     background: var(--buddy-control-hi);
   }
 }
@@ -178,7 +192,7 @@
 .close:focus-visible,
 .reset:focus-visible {
   outline: none;
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
   background: var(--buddy-control-hi);
 }
 
@@ -320,7 +334,7 @@
 }
 
 .botList li::marker {
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
 }
 
 .chips {
@@ -354,13 +368,13 @@
 
 .chip:focus-visible {
   outline: none;
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
   background: var(--buddy-control-hi);
 }
 
 @media (hover: hover) {
   .chip:hover {
-    color: var(--et-accent-text);
+    color: var(--buddy-accent-text);
     background: var(--buddy-control-hi);
   }
 }
@@ -549,7 +563,7 @@
 
 @media (hover: hover) {
   .spotSave:hover {
-    color: var(--et-accent-text);
+    color: var(--buddy-accent-text);
   }
 }
 
@@ -627,7 +641,7 @@
   .spotCardLink:hover .spotName,
   .articleCard:hover .spotName,
   .packCard:hover .spotName {
-    color: var(--et-accent-text);
+    color: var(--buddy-accent-text);
   }
 }
 
@@ -636,7 +650,7 @@
 }
 
 .spotCardLink:focus-visible .spotName {
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
 }
 
 /* Die Fakten-Zeile: Kueche · Bezirk · Preis, in Weiss 55 %. Die Entfernung
@@ -658,7 +672,7 @@
 }
 
 .spotDist {
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
 }
 
 .spotDesc,
@@ -772,7 +786,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
   font-family: var(--buddy-display);
   font-size: 0.68rem;
   font-weight: 700;
@@ -835,14 +849,14 @@
 
 @media (hover: hover) {
   .geo:not(:disabled):hover {
-    color: var(--et-accent-text);
+    color: var(--buddy-accent-text);
     background: var(--buddy-control-hi);
   }
 }
 
 .geo:focus-visible {
   outline: none;
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
   background: var(--buddy-control-hi);
 }
 
@@ -940,13 +954,13 @@
 
 @media (hover: hover) {
   .stop:hover:not(:disabled) {
-    color: var(--et-accent-text);
+    color: var(--buddy-accent-text);
     background: var(--buddy-control-hi);
   }
 }
 
 .stop:focus-visible {
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
   background: var(--buddy-control-hi);
 }
 
@@ -963,7 +977,7 @@
   align-items: center;
   gap: 8px;
   padding: 4px 0;
-  color: var(--et-accent-text);
+  color: var(--buddy-accent-text);
   font-family: var(--buddy-display);
   font-size: 0.8rem;
   font-weight: 700;
@@ -1168,5 +1182,33 @@
   .send {
     min-width: 74px;
     padding: 0 12px;
+  }
+}
+
+/* Hell (Standard, lib/theme.ts; Ansage 21.10.2026: Chat für hell und dunkel):
+   dieselbe Tafel auf Papier. Nur die Stufen drehen sich um — der Verlauf
+   weiss, Kopf und Eingabe eine Spur Papiergrau, Schrift Ink; die eigenen
+   Nachrichten und „Senden" ink-gefüllt mit weisser Schrift. Dunkel bleibt
+   die Ink-Tafel von oben. */
+:global(html:not([data-theme='dark'])) .panel {
+  --buddy-ink: #fff;
+  --buddy-surface: #f2f1ef;
+  --buddy-paper: var(--et-ink);
+  --buddy-soft: rgba(21, 18, 14, 0.76);
+  --buddy-dim: rgba(21, 18, 14, 0.6);
+  --buddy-ring: rgba(21, 18, 14, 0.28);
+  --buddy-quiet: rgba(21, 18, 14, 0.045);
+  --buddy-quiet-hi: rgba(21, 18, 14, 0.08);
+  --buddy-control: rgba(21, 18, 14, 0.06);
+  --buddy-control-hi: rgba(21, 18, 14, 0.11);
+  --buddy-accent-text: var(--et-accent);
+  /* Auf Weiss das dunkle Grün; daneben steht immer das Wort („Geöffnet"). */
+  --buddy-open: #137b3f;
+  box-shadow: 0 30px 90px rgba(21, 18, 14, 0.28);
+}
+
+@media (max-width: 480px) {
+  :global(html:not([data-theme='dark'])) .scrim {
+    background: #f2f1ef;
   }
 }

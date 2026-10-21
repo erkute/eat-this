@@ -11,7 +11,7 @@ const show = (locale = 'de') => render(<NextIntlClientProvider locale={locale} m
 describe('HubFragRemy', () => {
   it('offers three questions without categories or rotating copy', () => {
     show();
-    expect(screen.getByRole('heading').textContent).toBe('Worauf hast du Lust?');
+    expect(screen.getByRole('heading').textContent).toBe('Hey, ich bin Remy.');
     expect(document.querySelectorAll('[data-fragremy-chips] button')).toHaveLength(3);
     expect(document.querySelector('[data-hub-categories]')).toBeNull();
     expect(document.querySelector('[data-remy-say]')).toBeNull();

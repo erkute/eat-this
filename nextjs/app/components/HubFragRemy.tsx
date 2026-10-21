@@ -160,8 +160,14 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
           </div>
         </div>
         <div className={styles.content}>
-          <p className={styles.intro}>{en ? 'Hey, I’m Remy. I’ll show you what to eat in Berlin.' : 'Hey, ich bin Remy. Ich zeig dir, was du in Berlin essen musst.'}</p>
-          <h2 className={`hv-title ${styles.title}`}>{en ? 'What are you craving?' : 'Worauf hast du Lust?'}</h2>
+          {/* Auf einen Blick, wer da spricht (Ansage 21.10.2026): der Name
+              gross, darunter in einem Satz, was er kann. */}
+          <h2 className={styles.title}>
+            <span className={styles.hello}>{en ? 'Hey, I’m' : 'Hey, ich bin'}</span>{' '}
+            <span className={styles.name}>Remy.</span>
+          </h2>
+          <p className={styles.intro}>{en ? 'I’ll show you what to eat in Berlin. Ask me about a dish, a district or an occasion.' : 'Ich zeig dir, was du in Berlin essen musst. Frag mich nach einem Gericht, einem Bezirk oder einem Anlass.'}</p>
+          <p className={styles.prompt}>{en ? 'What are you craving?' : 'Worauf hast du Lust?'}</p>
           <div className={styles.questions} data-fragremy-chips="">
             {questions.map((question, index) => (
               <button key={question} type="button" className={styles.question} disabled={busy} onPointerEnter={(event) => { if (event.pointerType === 'mouse') listen(true, index); }} onPointerLeave={() => listen(false)} onFocus={() => listen(true, index)} onBlur={() => listen(false)} onClick={() => ask(question, index)}>{question}</button>

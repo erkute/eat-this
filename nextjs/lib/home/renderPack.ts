@@ -256,11 +256,14 @@ export function renderPack(
 /** The idle sway at `seconds`: a slow turn left and right, a little nod and
  *  roll, floating up and down — never so far that the back shows; a tap
  *  turns it once all the way round. */
+/** How far the pack bobs up and down at rest, in world units. */
+export const IDLE_LIFT = 0.035;
+
 export function idlePose(seconds: number): PackPose {
   return {
     rotateY: 0.3 * Math.sin(seconds * 0.55),
     rotateX: 0.09 * Math.sin(seconds * 0.37 + 1.3),
     rotateZ: 0.035 * Math.sin(seconds * 0.29 + 0.7),
-    lift: 0.035 * Math.sin(seconds * 0.8),
+    lift: IDLE_LIFT * Math.sin(seconds * 0.8),
   };
 }

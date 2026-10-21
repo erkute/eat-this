@@ -139,7 +139,9 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-/* Der Vorspann in Grotesk wie der Lesetext; Headlines bleiben Providence. */
+/* Der Vorspann in Grotesk wie der Lesetext; Headlines bleiben Providence.
+   Er steht mittig wie Titel und Zwischenüberschriften, erst der Lesetext ist
+   linksbündig (Ansage 21.10.2026). */
 .lede {
   max-width: var(--article-measure);
   margin: clamp(48px, 5.6vw, 88px) auto 0;
@@ -149,8 +151,8 @@ div.page {
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.0125em;
-  text-align: left;
-  text-wrap: pretty;
+  text-align: center;
+  text-wrap: balance;
 }
 
 /* ------------------------------------------------------------ chapters --- */
@@ -583,26 +585,30 @@ div.page {
   text-align: left;
 }
 
-/* Die Spot-Karte wie ein Foto im Heft: oben das Bild ohne Schrift und ohne
-   Verlauf darauf, darunter die Bildunterschrift — Bezirk und Küche als
-   Etikett, der Name gross, darunter der Weg auf die Map. Vorher lag alles auf
-   dem Foto, und ein Verlauf dunkelte dafür die untere Hälfte ab. */
+/* Die Spot-Karte (Ansage 21.10.2026: „ein cooles passendes Label, wo Text
+   im Bild ist"): das Foto füllt die Karte und bleibt klar, ohne Verlauf.
+   Darauf kleben Etiketten wie im Menü — der Name als Ink-Etikett mit gelber
+   Schrift und den Kratzern der Knöpfe, leicht schief, darunter Bezirk ·
+   Küche als weisses Papier-Etikett. Rechts unten der Weg auf die Map. */
 .inlineSpot {
   position: relative;
   display: block;
+  aspect-ratio: 3 / 2;
+  margin: clamp(30px, 5vw, 60px) 0;
+  overflow: hidden;
+  /* Erhabenes Ink, bis das Foto da ist — dann liest sich die Karte als
+     Karte, nicht als Loch im Text. */
+  background: var(--et-ink-raised);
+  color: #fff;
   /* Steht im Lesetext (Neue Haas Grotesk Text), spricht aber mit der Stimme der Labels. */
   font-family: var(--et-font-display);
-  margin: clamp(30px, 5vw, 60px) 0;
-  /* Schneidet die kartenweite Trefferfläche des Namens (::after) ab. */
-  overflow: hidden;
-  color: var(--article-fg);
   text-decoration: none;
 }
 
 .inlineSpotPhoto {
+  position: absolute;
+  inset: 0;
   display: block;
-  aspect-ratio: 3 / 2;
-  background-color: var(--article-quiet);
 }
 
 .inlineSpotPhoto img {
@@ -610,52 +616,93 @@ div.page {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: scale 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Die Bildunterschrift wie die Credits bei Kaleidoscope: mittig, oben
-   klein das Label (Bezirk · Küche), darunter der Name, darunter der Weg auf
-   die Map. */
-.inlineSpotFoot {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  padding-top: 16px;
-  text-align: center;
-}
-
-/* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence in
-   Versalien, 0.04em. Diese Zeile war das letzte Versalien-Label des Artikels, das noch
-   auf der Body-Schrift lief — die übrigen vier (Hero, Must-Eat-Tag, Hub-
-   Kicker, Related-Heading) stehen längst auf Providence. Der Kommentar, der
-   hier früher stand, beschrieb eine Vereinheitlichung auf die Body-Schrift,
-   die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
-.inlineSpotMeta {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-size: 13px;
-  line-height: 1.2;
-  text-transform: none;
-}
-
-/* Die Meta-Zeile ist der einzige gefolgte Link der Karte — die Karte selbst
-   führt auf die noindex-Map. Zwei Dinge muss sie dafür tun: über der
-   kartenweiten Trefferfläche von .inlineSpotNameLink::after liegen (sonst
-   fängt die den Klick ab, derselbe Grund wie beim Map-Knopf), und sichtbar
-   nach Link aussehen — ein reiner SEO-Link, den niemand als Link erkennt,
-   wäre eine Falle für Klickende und für Google. */
-.inlineSpotMetaLink {
-  position: relative;
+/* Die ganze Karte führt auf die Map: eine Trefferfläche nur für Zeiger
+   (aria-hidden, nicht fokussierbar) — für Tastatur und Screenreader tragen
+   Name und Knopf dasselbe Ziel. */
+.inlineSpotHit {
+  position: absolute;
+  inset: 0;
   z-index: 2;
-  /* Ein leises Feld statt einer Unterstreichung (Ansage 02.10.2026: „mag das
-     Unterstrichene nicht") — dieselbe Fläche wie „Teilen" und der
-     Hell/Dunkel-Knopf, unter der Maus gelb. Ein reiner Hover-Hinweis käme
-     nicht in Frage: auf Mobil gibt es kein Hover, und Mobil ist rund die
-     Hälfte der Aufrufe. */
+}
+
+/* Text und Knopf über der Trefferfläche; dazwischen fällt der Klick auf die
+   Karte durch. */
+.inlineSpotBody {
+  position: absolute;
+  left: clamp(16px, 2.4vw, 28px);
+  right: clamp(16px, 2.4vw, 28px);
+  bottom: clamp(16px, 2.4vw, 26px);
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.inlineSpotBody a {
+  pointer-events: auto;
+}
+
+.inlineSpotText {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Ink-Etikett, schief aufgeklebt. Bricht der Name um, bekommt jede Zeile ihr
+   eigenes Stück Etikett (`box-decoration-break`). */
+.inlineSpotName {
+  max-width: 100%;
+  font-size: clamp(26px, 3.4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+  rotate: -1.5deg;
+  transform-origin: left bottom;
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.28));
+}
+
+.inlineSpotNameLink {
+  padding: 2px 12px 4px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: var(--et-ink) var(--et-wear, none) 0 0 / 200px auto;
+  color: #ffc600;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: none;
+}
+
+.inlineSpotNameLink:focus-visible {
+  outline: 2px solid #ffc600;
+  outline-offset: 3px;
+}
+
+/* Bezirk · Küche als Papier-Etikett, gegen den Namen gekippt. Es ist der
+   einzige gefolgte Link der Karte (auf die Spot-Seite) und muss nach Link
+   aussehen, ohne Unterstreichung (Ansage 02.10.2026): eine Fläche, unter der
+   Maus gelb. */
+.inlineSpotMeta {
+  rotate: 1deg;
+  font-family: var(--et-font-body);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.24));
+}
+
+.inlineSpotMetaLink {
   display: inline-block;
-  padding: 6px 9px 5px;
-  background: var(--article-quiet);
-  color: var(--article-fg);
+  padding: 7px 9px 6px;
+  background: #fff;
+  color: var(--et-ink);
   font: inherit;
   letter-spacing: inherit;
   text-decoration: none;
@@ -666,60 +713,40 @@ div.page {
 
 @media (hover: hover) {
   .inlineSpotMetaLink:hover {
-    background: var(--article-accent);
-    color: var(--et-on-accent);
+    background: #ffc600;
+  }
+
+  .inlineSpot:hover .inlineSpotPhoto img {
+    scale: 1.03;
   }
 }
 
 .inlineSpotMetaLink:focus-visible {
-  outline: 2px solid var(--article-fg);
+  outline: 2px solid #fff;
   outline-offset: 3px;
 }
 
-.inlineSpotName {
-  color: var(--article-head);
-  font-size: clamp(26px, 2.2vw, 32px);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-  text-transform: none;
+@media (prefers-reduced-motion: reduce) {
+  .inlineSpotPhoto img {
+    transition: none;
+  }
 }
 
-/* Der Name ist der gefolgte Link auf die Spot-Seite. Sein ::after spannt die
-   ganze Karte als Trefferfläche auf, Foto und Unterschrift: nichts dazwischen
-   ist positioniert, also misst es an .inlineSpot. */
-.inlineSpotNameLink {
-  color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  text-decoration: none;
-}
-.inlineSpotNameLink::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-}
-.inlineSpotNameLink:focus-visible::after {
-  outline: 2px solid var(--article-fg);
-  outline-offset: -6px;
-}
-
-/* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht
-   klickbar. Ein gelbes Feld wie die Etiketten, klein in Versalien. */
+/* Der Knopf wie die Etiketten der Seite, rechts unten auf dem Foto. */
 .inlineSpotCta {
   font-family: var(--et-font-display);
   font-weight: 700;
   letter-spacing: 0.04em;
-  position: relative;
-  z-index: 2;
+  flex: none;
   display: inline-flex;
   align-items: center;
-  min-height: 36px;
-  margin-top: 6px;
-  padding: 0 14px;
+  min-height: 40px;
+  padding: 0 16px;
   background: var(--article-accent);
+  background-image: var(--et-wear, none);
+  background-size: 200px auto;
   color: var(--et-on-accent);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1;
   /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
   text-decoration: none;
@@ -1150,19 +1177,11 @@ div.page {
     font-size: 15px;
   }
 
-  /* Das Spot-Foto mit demselben 10px-Rahmen wie die Fotos im Text. Die
-     Karte selbst nimmt sich den Rand, damit ihr `overflow: hidden` das Foto
-     nicht beschneidet. */
+  /* Die Spot-Karte mit demselben Rahmen wie die Fotos im Text, im
+     Seitenverhältnis der Map-Karten. */
   .inlineSpot {
     margin-inline: -6px;
-  }
-
-  .inlineSpotPhoto {
-    aspect-ratio: 4 / 3;
-  }
-
-  .inlineSpotFoot {
-    padding-inline: 6px;
+    aspect-ratio: 16 / 11.6;
   }
 
   /* Am Telefon ist die Textspalte der Tafel höher als das Pack — am Fuss
@@ -1230,8 +1249,9 @@ div.page {
 @media (min-width: 1024px) {
   .page {
     --article-measure: 768px;
-    /* Fotos und Spot-Bilder ragen links und rechts über die Lesespalte
-       hinaus (Betreiber, 14.10.2026); der Text bleibt bei 768px. */
+    /* Fotos ragen links und rechts über die Lesespalte hinaus (Betreiber,
+       14.10.2026); der Text bleibt bei 768px. Die Spot-Karte bleibt seit
+       21.10.2026 in der Spalte („desktop zu groß das Teil"). */
     --article-wide: min(1040px, calc(100vw - 108px));
   }
   .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }
@@ -1239,10 +1259,6 @@ div.page {
     --img-frame: var(--article-wide);
     --img-offset: calc((100% - var(--article-wide)) / 2);
     --img-max-h: min(78vh, 720px);
-  }
-  .inlineSpot {
-    width: var(--article-wide);
-    margin-inline: calc((100% - var(--article-wide)) / 2);
   }
 }
 @media (max-width: 767.98px) {

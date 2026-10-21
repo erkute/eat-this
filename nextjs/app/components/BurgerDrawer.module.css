@@ -1,4 +1,4 @@
-/* Editorial navigation: visible links, two levels, one scrollable sheet —
+/* Editorial navigation: one list of big words, one scrollable sheet —
    Markengelb mit dem zerknitterten Papier des Heros (Ansage 21.10.2026), in
    Hell und Dunkel gleich; Schrift, Marke und Knopf deshalb fest in Ink. */
 .drawer { position: fixed; inset: 0; z-index: var(--et-z-drawer); display: flex; justify-content: flex-end; pointer-events: none; }
@@ -10,34 +10,44 @@
 .topbar { display: flex; align-items: center; justify-content: space-between; flex: none; gap: 24px; padding: max(16px, env(safe-area-inset-top, 0px)) 40px 0; }
 .logo { display: flex; align-items: center; min-height: 44px; width: 120px; }
 .logo img { display: block; width: 100%; height: auto; }
-.close { min-height: 44px; padding: 0; color: inherit; font: inherit; font-size: 16px; }
+.close { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-right: -10px; padding: 0; color: inherit; }
+.close svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
 .scroller { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: clamp(32px, 6dvh, 64px) 40px max(24px, env(safe-area-inset-bottom, 0px)); }
-.nav { display: flex; flex-direction: column; gap: 12px; }
-.navItem { display: block; width: fit-content; max-width: 100%; padding: 3px 0; color: inherit; font-size: 40px; font-weight: 700; line-height: 1.2; letter-spacing: -.035em; text-decoration: none; overflow-wrap: break-word; }
-.secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; margin-top: 32px; padding-top: 24px; border-top: 0; }
-.secondaryItem { display: flex; align-items: center; min-height: 44px; padding: 0; color: inherit; font-size: 20px; font-weight: 400; line-height: 1.3; text-align: left; text-decoration: none; }
+.nav { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-left: -12px; }
+/* Jedes Wort gleich groß. Unter dem Zeiger, im Fokus und auf der Seite, auf
+   der man gerade steht, wird es zum Ink-Etikett mit gelber Schrift und der
+   Abnutzung der Knöpfe, leicht schief aufgeklebt — Fläche statt Linie. */
+.navItem { display: block; width: fit-content; max-width: 100%; padding: 4px 12px 6px; color: inherit; background: transparent; font-size: clamp(30px, calc((100dvh - 470px) / 8.2), 64px); font-weight: 700; line-height: 1.02; letter-spacing: -.035em; text-align: left; text-decoration: none; overflow-wrap: break-word; transition: background-color 120ms ease, color 120ms ease, rotate 160ms cubic-bezier(.2,.8,.2,1); }
+.navItem[aria-current='page'] { color: #ffc600; background: var(--et-solid) var(--et-wear, none) 0 0 / 200px auto; rotate: -1.5deg; }
+/* Beim Öffnen gleiten die Wörter nacheinander ins Blatt. */
+.drawer:not(:global(.active)) .navItem { opacity: 0; translate: 40px 0; }
+.drawer:global(.active) .navItem { transition: background-color 120ms ease, color 120ms ease, rotate 160ms cubic-bezier(.2,.8,.2,1), opacity 260ms ease var(--d, 0ms), translate 360ms cubic-bezier(.2,.8,.2,1) var(--d, 0ms); }
+.navItem:nth-child(2) { --d: 30ms; } .navItem:nth-child(3) { --d: 60ms; } .navItem:nth-child(4) { --d: 90ms; } .navItem:nth-child(5) { --d: 120ms; }
+.navItem:nth-child(6) { --d: 150ms; } .navItem:nth-child(7) { --d: 180ms; } .navItem:nth-child(8) { --d: 210ms; } .navItem:nth-child(9) { --d: 240ms; }
 .cta { align-self: flex-start; min-height: 48px; margin-top: 32px; padding: 12px 28px; background: var(--et-solid); color: var(--et-on-solid); background-image: var(--et-wear, none); background-size: 200px auto; border-radius: 0; font: inherit; font-size: 16px; line-height: 1.4; }
 .foot { margin-top: auto; padding-top: 48px; }
-.lang { display: flex; gap: 4px; margin-left: -10px; }
+.prefs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 28px; margin-left: -10px; }
+.lang { display: flex; gap: 4px; }
 .langBtn { min-width: 44px; min-height: 44px; color: var(--et-muted); font-size: 14px; }
 .langBtn[aria-pressed='true'] { color: var(--et-fg); font-weight: 700; }
 .legal { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 8px; }
 .footLink { display: inline-flex; align-items: center; min-height: 32px; color: inherit; font-size: 12px; line-height: 1.4; text-decoration: none; }
 .panel :is(a,button):focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.panel .navItem:focus-visible { outline: 0; color: #ffc600; background: var(--et-solid) var(--et-wear, none) 0 0 / 200px auto; rotate: -1.5deg; }
 .panel .cta:focus-visible { outline-color: var(--et-fg); }
-@media (hover:hover) { :is(.navItem,.secondaryItem,.close,.langBtn,.footLink):hover { color: var(--et-link); } .panel .cta:hover { background: var(--et-accent); color: #fff; } }
+@media (hover:hover) { .panel .navItem:hover { color: #ffc600; background: var(--et-solid) var(--et-wear, none) 0 0 / 200px auto; rotate: -1.5deg; } :is(.close,.langBtn,.footLink):hover { color: var(--et-link); } .panel .cta:hover { background: var(--et-accent); color: #fff; } }
 @media (max-width:767.98px) {
   .panel { width: 100%; }
   .topbar { padding-inline: 24px; }
   .logo { width: 104px; }
   .scroller { padding: 32px 24px max(20px, env(safe-area-inset-bottom, 0px)); }
-  .nav { gap: 10px; }
-  .navItem { font-size: 32px; min-height: 44px; }
-  .secondary { margin-top: 24px; padding-top: 18px; }
-  .secondaryItem { font-size: 18px; }
+  .nav { gap: 2px; }
+  /* So gross, dass „Booster Packs" die Breite fast füllt — aber nie höher, als
+     dass das ganze Menü ohne Scrollen in den Bildschirm passt. */
+  .navItem { font-size: clamp(22px, min(11.6vw, calc((100dvh - 412px) / 8.2)), 46px); min-height: 0; }
   .cta { margin-top: 24px; }
   .foot { padding-top: 36px; }
   .legal { gap: 4px 16px; }
 }
-@media (prefers-reduced-motion:reduce) { .panel { transition: none; } }
+@media (prefers-reduced-motion:reduce) { .panel, .drawer:global(.active) .navItem { transition: none; } .drawer:not(:global(.active)) .navItem { opacity: 1; translate: none; } }
 

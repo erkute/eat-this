@@ -294,6 +294,10 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   .spot:has(.spotName a:hover) img { transform: scale(1.045); }
 }
 
+.metaPart {
+  white-space: nowrap;
+}
+
 .deck {
   grid-row: 3;
   margin: 10px 0 0;
@@ -478,7 +482,9 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .guideTitle {
-  overflow-wrap: anywhere;
+  /* Überschriften trennt man nicht; ein Wort bricht nur, wenn es allein
+     breiter ist als die Zeile. */
+  overflow-wrap: break-word;
   font-size: clamp(21px, 1.7vw, 26px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -792,7 +798,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .guideInterlude .guides { gap: 28px; margin-top: 28px; }
 .guideInterlude .guide { grid-template-columns: 110px minmax(0, 1fr); grid-template-rows: auto; gap: 18px; align-items: center; }
 .guideInterlude .guideCover { width: 110px; }
-.guideInterlude .guideTitle { font-size: 22px; hyphens: auto; text-wrap: pretty; }
+.guideInterlude .guideTitle { font-size: 22px; text-wrap: pretty; }
 .guideInterlude .guideMeta { font-size: 13px; }
 .guideInterlude .guideMeta::before { display: none; }
 .guideInterlude .guide:only-child { max-width: 700px; grid-template-columns: 160px minmax(0, 1fr); }

@@ -21,6 +21,29 @@ export default function SiteNav() {
   const activePage = pageSlugFromPath(pathname);
   const reading = activePage === 'news-article' || activePage === 'restaurant';
   const progressRef = useRef<HTMLSpanElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+
+  // Oben auf der Startseite liegt der Kopf durchsichtig über dem gelben
+  // Aufmacher; sobald gescrollt ist, blendet seine Fläche ein
+  // (SiteNav.module.css, wie bei gucci.com — Ansage 21.10.2026).
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav || activePage !== 'start') return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const scroller = appScroller();
+      nav.toggleAttribute('data-scrolled', (scroller ? scroller.scrollTop : window.scrollY) > 4);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    document.addEventListener('scroll', schedule, { passive: true, capture: true });
+    return () => {
+      document.removeEventListener('scroll', schedule, { capture: true });
+      cancelAnimationFrame(frame);
+      nav.removeAttribute('data-scrolled');
+    };
+  }, [activePage]);
 
   useEffect(() => {
     if (!reading) return;
@@ -185,7 +208,7 @@ export default function SiteNav() {
       <a href="#main-content" className="skip-link">
         {t('a11y.skip')}
       </a>
-      <nav className={styles.nav} id="navbar" data-nav-page={activePage} data-visibility="visible">
+      <nav ref={navRef} className={styles.nav} id="navbar" data-nav-page={activePage} data-visibility="visible">
         {reading && <span ref={progressRef} className={styles.readingProgress} aria-hidden="true" data-reading-progress="" />}
         {/* Left: map text */}
         <div className={`${styles.actions} ${styles.actionsStart}`}>

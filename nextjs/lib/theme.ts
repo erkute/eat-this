@@ -19,7 +19,7 @@ export function setTheme(theme: Theme): void {
 }
 
 /** Meldet jeden Wechsel am Attribut — auch den, den der Bootstrap vor dem
- *  Hydrieren gesetzt hat, damit der Knopf im Kopf dieselbe Wahl zeigt. */
+ *  Hydrieren gesetzt hat, damit die Knöpfe im Menü dieselbe Wahl zeigen. */
 export function subscribeTheme(onChange: () => void): () => void {
   const observer = new MutationObserver(onChange);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: [ATTR] });

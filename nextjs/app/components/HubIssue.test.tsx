@@ -63,7 +63,9 @@ describe('IssueSpots', () => {
     expect(html).toContain('Sandwiches.');
     expect(html).toContain('Tipp');
     expect(html).toContain('Früh kommen.');
-    expect(html).toContain('Italienisch · 10–20 €');
+    expect(html.replace(/<[^>]+>/g, '')).toContain('Italienisch · 10–20 €');
+    // Jeder Teil bleibt beisammen: der Preis bricht nie mitten durch.
+    expect(html).toMatch(/metaPart[^"]*">10–20 €<\/span>/);
   });
 });
 
@@ -116,7 +118,7 @@ describe('IssueSpots on a category page', () => {
         showDistrict
       />
     );
-    expect(html).toContain('Italienisch · Kreuzberg · 10–20 €');
+    expect(html.replace(/<[^>]+>/g, '')).toContain('Italienisch · Kreuzberg · 10–20 €');
   });
 });
 

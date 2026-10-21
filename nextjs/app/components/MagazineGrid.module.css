@@ -1,6 +1,9 @@
 .section { padding: 80px var(--home-gutter); border-bottom: 0; background: var(--et-ground); color: var(--et-fg); }
 .header { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: end; max-width: 1400px; margin: auto; }
-.header h2 { margin: 0; font: 700 clamp(40px, 5.6vw, 80px)/1.04 var(--et-font-body); letter-spacing: -.04em; }
+.header { container-type: inline-size; }
+/* Höchstens so gross, dass „Teller." in die halbe Kopfbreite passt
+   (HubSection.module.css, --hv-display). */
+.header h2 { margin: 0; font: 700 min(var(--hv-display, clamp(40px, 5.6vw, 80px)), calc((100cqi - 70px) * .13))/.92 var(--et-font-body); letter-spacing: -.055em; overflow-wrap: normal; }
 .intro { padding-bottom: 4px; }
 .intro p { max-width: 530px; margin: 0 0 24px; font-size: 20px; line-height: 1.4; }
 .intro .kicker { font-size: 12px; font-weight: 700; letter-spacing: .01em; margin-bottom: 16px; }
@@ -12,7 +15,7 @@
 @media(max-width:767.98px) {
   .section { padding-block: 48px; }
   .header { display: block; }
-  .header h2 { font-size: 40px; }
+  .header h2 { font-size: min(var(--hv-display, 40px), 26cqi); }
   .intro { margin-top: 24px; }
   .intro p { font-size: 17px; margin-bottom: 0; }
   .intro .kicker { font-size: 11px; margin-bottom: 12px; }

@@ -61,10 +61,12 @@ test('English menu has readable contrast and routes to the magazine', async ({ p
   await page.goto('/en/about');
   await page.locator('#burgerBtn').click();
   const menu = page.getByRole('dialog', { name: 'Navigation' });
+  // Erst messen, wenn die Wörter eingeglitten sind — halb durchsichtig wäre jeder Kontrast falsch.
+  await menu.evaluate(el => Promise.all(el.getAnimations({ subtree: true }).map(a => a.finished)));
   const result = await new AxeBuilder({ page }).include('[role="dialog"][aria-label="Navigation"]')
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([]);
-  await menu.getByRole('link', { name: 'On the plate', exact: true }).click();
+  await menu.getByRole('link', { name: 'Magazine', exact: true }).click();
   await expect(menu).toBeHidden();
   await expect(page).toHaveURL(/\/en\/news$/);
 });

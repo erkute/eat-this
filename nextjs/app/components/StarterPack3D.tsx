@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { idlePose, renderPack, type PackPose, type PackRenderer } from '@/lib/home/renderPack';
+import { IDLE_LIFT, idlePose, renderPack, type PackPose, type PackRenderer } from '@/lib/home/renderPack';
 import styles from './StarterPackSignup.module.css';
 
 const PACK_SRC = '/pics/home/starter-pack-front.webp';
@@ -34,6 +34,7 @@ export default function StarterPack3D() {
   const stageRef = useRef<HTMLDivElement>(null);
   const rigRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const shadowRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -63,9 +64,16 @@ export default function StarterPack3D() {
         rotateX: idle.rotateX + tilt.y,
       };
     };
+    const shadow = shadowRef.current;
+    const paint = (now: number) => {
+      const current = pose(now);
+      renderer?.draw(current);
+      // Schwebehöhe 0 (tief) bis 1 (hoch) für den Schatten.
+      shadow?.style.setProperty('--lift', String((current.lift / IDLE_LIFT + 1) / 2));
+    };
     const draw = (now: number) => {
       if (!renderer) return;
-      renderer.draw(pose(now));
+      paint(now);
       frame = visible && !reduced ? requestAnimationFrame(draw) : 0;
     };
     const resume = () => {
@@ -80,7 +88,7 @@ export default function StarterPack3D() {
       // das Pack muss im selben Maß wie die Leinwand gezeichnet werden.
       const zoom = stage.offsetWidth ? box.width / stage.offsetWidth : 1;
       renderer.resize(box.width * ratio, box.height * ratio, rig.offsetWidth * zoom * ratio);
-      if (!frame) renderer.draw(pose(performance.now()));
+      if (!frame) paint(performance.now());
     };
 
     let io: IntersectionObserver | null = null;
@@ -145,7 +153,7 @@ export default function StarterPack3D() {
 
   return (
     <div ref={stageRef} className={styles.art} aria-hidden="true">
-      <span className={styles.shadow} />
+      <span ref={shadowRef} className={styles.shadow} />
       <div ref={rigRef} className={styles.packRig}>
         {/* The flat picture until WebGL is up. */}
         <div className={styles.packFlat}>

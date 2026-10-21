@@ -10,7 +10,6 @@ import { prefersReducedMotion } from '@/lib/guestCardShake';
 export default function SiteFooter({ home = false }: { home?: boolean }) {
   const { t, lang, setLang } = useTranslation();
   const de = lang === 'de';
-  const follow = de ? 'Folgen' : 'Follow';
   const logoAnimation = useRef<Animation | null>(null);
   useEffect(() => () => logoAnimation.current?.cancel(), []);
   return (
@@ -70,14 +69,18 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
       </div>
 
       <div className={styles.links}>
-        <div className={styles.linksKicker}>{follow}</div>
         <a
           href="https://www.instagram.com/eatthisdotcom/"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.socialLink}
+          aria-label={de ? 'Eat This auf Instagram' : 'Eat This on Instagram'}
         >
-          Instagram
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4.2" />
+            <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none" />
+          </svg>
         </a>
       </div>
 

@@ -16,7 +16,6 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleMotion from './ArticleMotion';
-import ThemeToggle from './ThemeToggle';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
@@ -280,8 +279,10 @@ export default function NewsArticleShell({
     // Map" klang doof (Ansage 02.10.2026).
     const cta = de ? 'Zur Map' : 'On the map';
 
-    // Wie im Heft: oben das Foto ohne Schrift darauf, darunter die
-    // Bildunterschrift mit Bezirk, Name und dem Weg auf die Map.
+    // Gebaut wie die Spot-Karten der Map-Liste (Ansage 21.10.2026: „das sind
+    // ja die Spot-Map-Labels"): das Foto, unten ein Ink-Verlauf, darauf der
+    // Name gross und Bezirk · Küche als kleine Etiketten, rechts der Weg auf
+    // die Map. Die ganze Karte führt auf die Map.
     return (
       <span className={styles.inlineSpot}>
         {block.restaurantPhoto && (
@@ -292,40 +293,49 @@ export default function NewsArticleShell({
             <img
               src={block.restaurantPhoto}
               srcSet={sanitySrcSet(block.restaurantPhoto, SPOT_PHOTO_WIDTHS)}
-              sizes={`(max-width: 700px) ${scaleSizes('100vw', coverImageScale(block.restaurantPhoto, 4 / 3))}, ${scaleSizes('(max-width: 1023.98px) 740px, 1040px', coverImageScale(block.restaurantPhoto, 3 / 2))}`}
+              sizes={`(max-width: 700px) ${scaleSizes('100vw', coverImageScale(block.restaurantPhoto, 16 / 11.6))}, ${scaleSizes('(max-width: 1023.98px) 740px, 768px', coverImageScale(block.restaurantPhoto, 3 / 2))}`}
               alt=""
               loading="lazy"
               decoding="async"
             />
           </span>
         )}
-        <span className={styles.inlineSpotFoot}>
-          {/* Die Meta-Zeile trägt den gefolgten Link auf die Spot-Seite. Die
-              Karte selbst führt auf die Map — ohne diesen Link gäben die
-              Guides ihre Relevanz an keine einzige Restaurantseite weiter.
-              Kein Ausfallrisiko: alle 177 in Artikeln referenzierten Spots
-              haben einen Bezirk, `meta` ist also nie leer. */}
-          {meta && (
-            <span className={styles.inlineSpotMeta}>
-              <Link
-                href={`/restaurant/${block.restaurantSlug}`}
-                className={styles.inlineSpotMetaLink}
-                aria-label={
-                  de ? `${restName}: Spot-Seite öffnen` : `Open the spot page for ${restName}`
-                }
+        <MapIntentLink
+          href={`/map?r=${block.restaurantSlug}`}
+          rel="nofollow"
+          className={styles.inlineSpotHit}
+          tabIndex={-1}
+          aria-hidden="true"
+        />
+        <span className={styles.inlineSpotBody}>
+          <span className={styles.inlineSpotText}>
+            <span className={styles.inlineSpotName}>
+              <MapIntentLink
+                href={`/map?r=${block.restaurantSlug}`}
+                rel="nofollow"
+                className={styles.inlineSpotNameLink}
               >
-                {meta}
-              </Link>
+                {restName}
+              </MapIntentLink>
             </span>
-          )}
-          <span className={styles.inlineSpotName}>
-            <MapIntentLink
-              href={`/map?r=${block.restaurantSlug}`}
-              rel="nofollow"
-              className={styles.inlineSpotNameLink}
-            >
-              {restName}
-            </MapIntentLink>
+            {/* Die Meta-Zeile trägt den gefolgten Link auf die Spot-Seite. Die
+                Karte selbst führt auf die Map — ohne diesen Link gäben die
+                Guides ihre Relevanz an keine einzige Restaurantseite weiter.
+                Kein Ausfallrisiko: alle 177 in Artikeln referenzierten Spots
+                haben einen Bezirk, `meta` ist also nie leer. */}
+            {meta && (
+              <span className={styles.inlineSpotMeta}>
+                <Link
+                  href={`/restaurant/${block.restaurantSlug}`}
+                  className={styles.inlineSpotMetaLink}
+                  aria-label={
+                    de ? `${restName}: Spot-Seite öffnen` : `Open the spot page for ${restName}`
+                  }
+                >
+                  {meta}
+                </Link>
+              </span>
+            )}
           </span>
           <MapIntentLink
             href={`/map?r=${block.restaurantSlug}`}
@@ -435,13 +445,12 @@ export default function NewsArticleShell({
   // Nicht „Kapitel" (Ansage 02.10.2026): die Zeile zählt die Spots auf.
   const chaptersLabel = de ? 'Die Spots' : 'The spots';
 
-  // Datum und Leseansicht teilen sich eine kompakte Zeile.
+  // Das Datum; Hell/Dunkel stellt man im Menü um.
   const byline = (
     <div className={styles.byline}>
       {dateFormatted && (
         <time className={styles.bylineMeta} dateTime={article.date}>{dateFormatted}</time>
       )}
-      <ThemeToggle de={de} />
     </div>
   );
 

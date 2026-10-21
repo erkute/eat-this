@@ -6,9 +6,9 @@
 .homeLink { display: block; }
 .megaImg { display: block; width: 220px; max-width: 100%; height: auto; filter: invert(1); }
 .tagline { margin: 12px 0 0; font-size: 13px; font-weight: 400; line-height: 1.4; }
-.links { display: flex; justify-content: center; align-items: baseline; gap: 12px; margin: 32px auto 0; }
-.linksKicker { font-size: 14px; color: #bcbab7; }
-.socialLink { display: inline-flex; align-items: center; min-height: 44px; color: #fff; font-size: 20px; line-height: 1.3; text-decoration: none; }
+.links { display: flex; justify-content: center; margin: 28px auto 0; }
+.socialLink { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; color: #fff; }
+.socialLink svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.9; }
 .legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 24px; margin: 24px auto 0; }
 .legalLink { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0; color: #fff; font-size: 14px; line-height: 1.4; text-decoration: none; }
 .legalBtn { appearance: none; border: 0; background: transparent; cursor: pointer; }

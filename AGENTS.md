@@ -57,6 +57,8 @@ Status nur so weit melden, wie er belegt ist: `committed` → `pushed` → `PR o
 
 ## Design-, Content- und Qualitätsabnahme
 
+**Figma:** Bei Figma-Aufträgen direkt über den offiziellen Figma-MCP auf die Datei [Eat This](https://www.figma.com/design/p5XEjPCeGlgtXxhreeIgnB/Eat-This) zugreifen. Sie ist die Standarddatei für Mockups, Grafiken, Logos und Booster Packs, sofern der Nutzer keine andere Datei nennt; den Link nicht erneut erfragen. Eine im Auftrag genannte Seite oder Node hat Vorrang, sonst die passende Seite anhand der aktuellen Dateistruktur wählen und die betroffenen Frames vor Änderungen lesen.
+
 **Navigation und CTAs:** Keine Pfeile oder Chevrons als Richtungszeichen (auch nicht für Zurück, Weiter oder externe Links). Keine unterstrichenen Wörter oder Links, auch nicht bei Hover oder Fokus. Interaktion und Fokus über Farbe, Fläche oder eine klare Umrandung kennzeichnen.
 
 Bei sichtbaren Änderungen den betroffenen Ablauf vor und nach dem Umbau auf einem schmalen Telefon und Desktop prüfen. Bestehende Komponenten und die `--et-*`-Tokens in `globals.css` sind die gestalterische Referenz; neue Richtungen erst anhand konkreter Screens/Referenzen ausarbeiten. Schrift, Abstände, Bildausschnitt, Fokus und leere/ladende Zustände gehören zur Abnahme. Animationen mit und ohne Reduced Motion prüfen; sichtbare Inhalte sollen nicht auf eine Animation oder Hydrierung warten müssen.

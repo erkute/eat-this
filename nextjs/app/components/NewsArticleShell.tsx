@@ -16,7 +16,7 @@ import { normalizeName } from '@/lib/normalizeName';
 import SiteFooter from './SiteFooter';
 import NewsArticleShare from './NewsArticleShare';
 import ArticleMotion from './ArticleMotion';
-import ArticleThemeToggle from './ArticleThemeToggle';
+import ThemeToggle from './ThemeToggle';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import MapIntentLink from './MapIntentLink';
@@ -441,7 +441,7 @@ export default function NewsArticleShell({
       {dateFormatted && (
         <time className={styles.bylineMeta} dateTime={article.date}>{dateFormatted}</time>
       )}
-      <ArticleThemeToggle de={de} />
+      <ThemeToggle de={de} />
     </div>
   );
 

@@ -41,7 +41,7 @@
   min-width: 0;
   min-height: 44px;
   padding: 8px 7px;
-  background: #f2f1ef;
+  background: var(--et-quiet);
   color: var(--map-collage-ink, #111);
   border: 0;
   border-radius: var(--et-radius-control);
@@ -145,11 +145,11 @@
    Karte hebt sich nichts per Linie ab (keine-Konturen-Regel, 23.09.2026).
    Ein gesetzter (gelber) Chip bleibt gelb. */
 .filterChipRow .filterChip[aria-expanded='true']:not(.filterChipActive):not(.filterChipOpenActive) {
-  background: linear-gradient(rgba(21, 18, 14, .055), rgba(21, 18, 14, .055)), #f2f1ef;
+  background: linear-gradient(var(--et-subtle), var(--et-subtle)), var(--et-quiet);
 }
 @media (hover: hover) {
   .filterChipRow .filterChip:hover {
-    background: linear-gradient(rgba(21, 18, 14, .055), rgba(21, 18, 14, .055)), #f2f1ef;
+    background: linear-gradient(var(--et-subtle), var(--et-subtle)), var(--et-quiet);
   }
   .filterChipRow .filterChipActive:hover { background: rgba(21, 18, 14, 0.08); }
   .filterChipClear:hover { background: var(--et-red); color: var(--map-collage-ink, #111); }
@@ -253,7 +253,7 @@
   padding: 8px;
   /* Eine Stufe ueber dem Grund (--et-ink-raised in globals.css): das Sheet
      oeffnet auf der Karte, und die ist genauso dunkel. */
-  background: #f2f1ef;
+  background: var(--et-quiet);
   color: var(--map-collage-ink, #111);
   /* Keine Haarlinie drumherum — die Flaeche traegt (User, 23.09.2026). */
   border: 0;
@@ -310,14 +310,14 @@
 }
 
 .pickerClose:focus-visible {
-  background: rgba(21, 18, 14, .055);
+  background: var(--et-subtle);
   color: var(--et-accent-text);
   outline: 0;
 }
 
 @media (hover: hover) {
   .pickerClose:hover {
-    background: rgba(21, 18, 14, .055);
+    background: var(--et-subtle);
     color: var(--et-accent-text);
     outline: 0;
   }
@@ -359,7 +359,7 @@
   /* Die Fuellung traegt, kein Ring — wie die Chips, aus denen diese Liste
      aufklappt (User, 23.09.2026: keine Rahmen). Eine Spur heller als das
      Fenster (--et-ink-raised), auf dem sie liegt. */
-  background: rgba(21, 18, 14, .055);
+  background: var(--et-subtle);
   color: var(--map-collage-ink, #111);
   border: 0;
   border-radius: var(--et-radius-control);
@@ -464,20 +464,20 @@
    oben oder einen anderen Chip — beide bleiben immer wählbar. */
 .pickerItemDead {
   background: transparent;
-  color: #666;
+  color: var(--et-muted);
   box-shadow: none;
   cursor: default;
 }
 
 .pickerItemDead:focus-visible {
   background: transparent;
-  color: #666;
+  color: var(--et-muted);
 }
 
 @media (hover: hover) {
   .pickerItemDead:hover {
     background: transparent;
-    color: #666;
+    color: var(--et-muted);
   }
 }
 

@@ -11,10 +11,14 @@
 .input { min-width: 0; flex: 1; width: 100%; min-height: 48px; padding: 12px 8px; background: #fff; color: #111; border: 0; border-radius: 0; font: 400 16px/1.4 var(--et-font-body); }
 .input::placeholder { color: #666; }
 .input:focus-visible { outline: 2px solid #111; outline-offset: -2px; }
-.send { flex-shrink: 0; padding: 12px 18px; background: #111; color: #fff; border: 0; border-radius: 0; cursor: pointer; font: 400 16px/1.2 var(--et-font-body); }
+.send { flex-shrink: 0; padding: 12px 18px; background: var(--et-solid); color: var(--et-on-solid); background-image: var(--et-wear, none); background-size: 200px auto; border: 0; border-radius: 0; cursor: pointer; font: 400 16px/1.2 var(--et-font-body); }
 .send:disabled { opacity: .65; cursor: default; }
 .portrait { position: absolute; right: 3%; bottom: 0; width: 38%; height: 500px; pointer-events: none; }
-.figure { position: absolute; inset: 0; transform-origin: 50% 85%; }
+/* Sein Bild endet unter der Brust mit einer geraden Kante. Die Figur reicht
+   deshalb wie live unter die Unterkante der Bühne, die sie abschneidet
+   (.body, overflow: hidden) — auch gekippt beim Auftritt und beim Hüpfer auf
+   eine Frage bleibt die Kante darunter. */
+.figure { position: absolute; inset: 0 0 -18%; transform-origin: 50% 85%; }
 .face, .laugh, .open { object-fit: contain; object-position: center bottom; }
 .laugh, .open { visibility: hidden; }
 .laugh { translate: 0 1.1%; }
@@ -27,15 +31,25 @@
 @keyframes speak { 0%,35%,70%,100% { visibility: hidden; } 12%,48%,82% { visibility: visible; } }
 @media (prefers-reduced-motion: reduce) { .figure[data-speaking] .open { animation: none; } }
 @media(max-width:767.98px) {
-  .body { padding: 48px 24px 0; min-height: 680px; }
-  .content { position: static; width: 100%; max-width: none; }
+  /* Wie live: Fragen und Eingabefeld oben untereinander, Remy steht darunter
+     auf der Unterkante der Bühne (Ansage 21.10.2026). */
+  .body { padding: 48px 24px 300px; min-height: 0; }
+  .content { position: relative; z-index: 1; width: 100%; max-width: none; }
   .body .title:global(.hv-title) { font-size: 40px; margin-bottom: 24px; }
   .intro { font-size: 17px; margin-bottom: 24px; }
   .questions { position: relative; z-index: 1; max-width: 320px; gap: 10px; }
   .question { padding: 12px 20px; font-size: 15px; }
-  .portrait { width: 340px; height: 340px; right: calc(50% - 170px); bottom: 32px; }
-  .form { position: absolute; z-index: 2; left: 24px; right: 24px; bottom: 32px; }
+  .portrait { width: 340px; height: 340px; right: calc(50% - 170px); bottom: 0; }
+  .figure { inset: 0 0 -24%; }
   .send { padding-inline: 12px; }
 }
 .section.embedded:global(.homeV2):global(.hv-wrap) { margin: 0; }
 .embedded .body { min-height: 540px; }
+/* Vintage-Entwurf: auch „Frag Remy" ist ein eigenes Blatt — Papier und
+   Gebrauchsspuren auf dem Rot, weißer Abstand davor (globals.css). */
+:global(html[data-vintage]) .section:not(.embedded):global(.homeV2):global(.hv-wrap) {
+  margin-top: var(--et-sheet-gap);
+  background-image: var(--et-sheet);
+  background-size: var(--et-sheet-size);
+  background-repeat: var(--et-sheet-repeat);
+}

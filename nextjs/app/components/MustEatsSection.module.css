@@ -18,8 +18,8 @@
 .page {
   --must-pad: var(--et-wrap-pad-mobile);
   --must-yellow: #ffc600;
-  --must-soft: #555;
-  --must-dim: #666;
+  --must-soft: var(--et-copy);
+  --must-dim: var(--et-muted);
   --must-gap: var(--et-section-gap-mobile);
   --must-card-shadow: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
   --must-lift: translateY(-4px);
@@ -27,8 +27,8 @@
   min-height: 100%;
   display: flow-root;
   overflow-x: clip;
-  background: #fff;
-  color: #111;
+  background: var(--et-ground);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
 }
 
@@ -56,7 +56,7 @@
 
 .kicker {
   margin: 0;
-  color: #a82b2e;
+  color: var(--et-link);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
@@ -165,7 +165,7 @@
 
 .statValue {
   margin: 0;
-  color: #111;
+  color: var(--et-fg);
   font-size: 36px;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -173,7 +173,7 @@
 }
 
 .statLabel {
-  color: #a82b2e;
+  color: var(--et-link);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
@@ -224,22 +224,22 @@
 /* Die Seitentür als leise Fläche, wie „Wie funktioniert's?" daneben. */
 .secondary {
   background: rgba(255, 255, 255, 0.1);
-  color: #111;
+  color: var(--et-fg);
 }
 
 .cta:focus-visible,
 .secondary:focus-visible {
   outline: none;
-  background: var(--et-white);
-  color: var(--et-ink);
+  background: var(--et-ground);
+  color: var(--et-fg);
   transform: translateY(-2px);
 }
 
 @media (hover: hover) {
   .cta:hover,
   .secondary:hover {
-    background: var(--et-white);
-    color: var(--et-ink);
+    background: var(--et-ground);
+    color: var(--et-fg);
     transform: translateY(-2px);
   }
 }
@@ -442,7 +442,7 @@
 
 .dish {
   margin: 0;
-  color: #111;
+  color: var(--et-fg);
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -476,7 +476,7 @@
 /* Der Spot ist ein Link, aber kein unterstrichenes Wort: Weiß gegen das
    gedämpfte Grau daneben, bei Hover und Fokus die rote Fläche. */
 .spotLink {
-  color: #111;
+  color: var(--et-fg);
   text-decoration: none;
   border-radius: 2px;
   transition:
@@ -499,7 +499,7 @@
 
 .price {
   margin: 0;
-  color: #111;
+  color: var(--et-fg);
   font-size: 15px;
   line-height: 1.4;
 }
@@ -534,7 +534,7 @@
    beide dürfen umbrechen — lieber zwei Zeilen als ein abgeschnittener Name. */
 .setName {
   max-width: 100%;
-  color: #111;
+  color: var(--et-fg);
   font-weight: 700;
   overflow-wrap: anywhere;
   text-wrap: balance;
@@ -578,7 +578,7 @@
   margin-bottom: clamp(48px, 7vw, 96px);
   padding: 24px 18px;
   overflow: hidden;
-  background: #f2f1ef;
+  background: var(--et-quiet);
   border-radius: 0;
 }
 

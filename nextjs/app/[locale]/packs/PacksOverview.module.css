@@ -8,9 +8,9 @@
    ist das eine Objekt der Seite und traegt die leise Stufe (AllBerlinBoard). */
 
 .page {
-  --packs-ink: #fff;
-  --packs-fg: #111;
-  --packs-muted: #555;
+  --packs-ink: var(--et-ground);
+  --packs-fg: var(--et-fg);
+  --packs-muted: var(--et-muted);
   --packs-accent: var(--et-accent);
   min-height: 100%;
   overflow-x: clip;
@@ -207,17 +207,17 @@
 }
 
 .buy:focus-visible {
-  background: var(--et-paper);
+  background: var(--et-ground);
   box-shadow: none;
-  color: var(--et-ink);
+  color: var(--et-fg);
   transform: translateY(-2px);
 }
 
 @media (hover: hover) {
   .buy:not(:disabled):hover {
-    background: var(--et-paper);
+    background: var(--et-ground);
     box-shadow: none;
-    color: var(--et-ink);
+    color: var(--et-fg);
     transform: translateY(-2px);
   }
 }

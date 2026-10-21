@@ -8,7 +8,7 @@
   padding: clamp(32px, 5vw, 64px) clamp(24px, 4vw, 56px);
   background: var(--et-quiet);
   border-radius: 0;
-  color: var(--et-ink);
+  color: var(--et-fg);
 }
 .cardLink {
   display: block;
@@ -26,7 +26,7 @@
 }
 .kicker {
   margin: 0 0 12px;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-size: 12px;
   text-transform: none;
 }

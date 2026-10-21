@@ -1,9 +1,11 @@
-/* Editorial navigation: visible links, two levels, one scrollable white sheet. */
+/* Editorial navigation: visible links, two levels, one scrollable sheet —
+   Markengelb mit dem zerknitterten Papier des Heros (Ansage 21.10.2026), in
+   Hell und Dunkel gleich; Schrift, Marke und Knopf deshalb fest in Ink. */
 .drawer { position: fixed; inset: 0; z-index: var(--et-z-drawer); display: flex; justify-content: flex-end; pointer-events: none; }
 .drawer[hidden] { display: none; pointer-events: none; }
 .drawer:global(.active) { pointer-events: auto; }
 .backdrop { position: absolute; inset: 0; border: 0; background: rgb(0 0 0 / .28); }
-.panel { position: relative; display: flex; flex-direction: column; width: min(100vw, 560px); height: 100dvh; color: var(--et-ink); background: #fff; transform: translateX(100%); transition: transform 220ms cubic-bezier(.2,.8,.2,1); }
+.panel { position: relative; display: flex; flex-direction: column; width: min(100vw, 560px); height: 100dvh; --et-fg: #15120e; --et-muted: rgba(21, 18, 14, .64); --et-link: #a82b2e; --et-quiet: rgba(21, 18, 14, .08); --et-solid: #15120e; --et-on-solid: #fff; color: var(--et-fg); background: url('/pics/home/hero-crumple-mobile.webp') center / 100% 100% no-repeat, url('/pics/vintage/paper-grain.webp?v=3') 0 0 / 192px repeat, #ffc600; transform: translateX(100%); transition: transform 220ms cubic-bezier(.2,.8,.2,1); }
 .drawer:global(.active) .panel { transform: none; }
 .topbar { display: flex; align-items: center; justify-content: space-between; flex: none; gap: 24px; padding: max(16px, env(safe-area-inset-top, 0px)) 40px 0; }
 .logo { display: flex; align-items: center; min-height: 44px; width: 120px; }
@@ -11,19 +13,19 @@
 .close { min-height: 44px; padding: 0; color: inherit; font: inherit; font-size: 16px; }
 .scroller { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: clamp(32px, 6dvh, 64px) 40px max(24px, env(safe-area-inset-bottom, 0px)); }
 .nav { display: flex; flex-direction: column; gap: 12px; }
-.navItem { display: block; width: fit-content; max-width: 100%; padding: 3px 0; color: inherit; font-size: 40px; font-weight: 400; line-height: 1.2; letter-spacing: -.035em; text-decoration: none; overflow-wrap: break-word; }
+.navItem { display: block; width: fit-content; max-width: 100%; padding: 3px 0; color: inherit; font-size: 40px; font-weight: 700; line-height: 1.2; letter-spacing: -.035em; text-decoration: none; overflow-wrap: break-word; }
 .secondary { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; margin-top: 32px; padding-top: 24px; border-top: 0; }
 .secondaryItem { display: flex; align-items: center; min-height: 44px; padding: 0; color: inherit; font-size: 20px; font-weight: 400; line-height: 1.3; text-align: left; text-decoration: none; }
-.cta { align-self: flex-start; min-height: 48px; margin-top: 32px; padding: 12px 28px; background: var(--et-ink); color: #fff; border-radius: 0; font: inherit; font-size: 16px; line-height: 1.4; }
+.cta { align-self: flex-start; min-height: 48px; margin-top: 32px; padding: 12px 28px; background: var(--et-solid); color: var(--et-on-solid); background-image: var(--et-wear, none); background-size: 200px auto; border-radius: 0; font: inherit; font-size: 16px; line-height: 1.4; }
 .foot { margin-top: auto; padding-top: 48px; }
 .lang { display: flex; gap: 4px; margin-left: -10px; }
 .langBtn { min-width: 44px; min-height: 44px; color: var(--et-muted); font-size: 14px; }
-.langBtn[aria-pressed='true'] { color: var(--et-ink); font-weight: 700; }
+.langBtn[aria-pressed='true'] { color: var(--et-fg); font-weight: 700; }
 .legal { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 8px; }
 .footLink { display: inline-flex; align-items: center; min-height: 32px; color: inherit; font-size: 12px; line-height: 1.4; text-decoration: none; }
 .panel :is(a,button):focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
-.panel .cta:focus-visible { outline-color: var(--et-ink); }
-@media (hover:hover) { .panel :is(a,button):hover { color: var(--et-accent); } .panel .cta:hover { background: var(--et-accent); color: #fff; } }
+.panel .cta:focus-visible { outline-color: var(--et-fg); }
+@media (hover:hover) { :is(.navItem,.secondaryItem,.close,.langBtn,.footLink):hover { color: var(--et-link); } .panel .cta:hover { background: var(--et-accent); color: #fff; } }
 @media (max-width:767.98px) {
   .panel { width: 100%; }
   .topbar { padding-inline: 24px; }
@@ -38,3 +40,4 @@
   .legal { gap: 4px 16px; }
 }
 @media (prefers-reduced-motion:reduce) { .panel { transition: none; } }
+

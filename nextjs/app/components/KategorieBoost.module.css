@@ -1,6 +1,6 @@
 .boost {
-  --boost-ink: var(--et-white);
-  --boost-paper: var(--et-ink);
+  --boost-ink: var(--et-ground);
+  --boost-paper: var(--et-fg);
   --boost-accent: var(--et-accent);
 
   display: grid;

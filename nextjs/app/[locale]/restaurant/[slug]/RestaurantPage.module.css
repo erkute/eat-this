@@ -30,7 +30,7 @@
   min-height: 100dvh;
   padding: 0 var(--gut) clamp(80px, 9vw, 120px);
   overflow-x: clip;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
 }
 
@@ -73,7 +73,7 @@
 .district {
   display: inline-block;
   margin: 18px 0 0;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -84,7 +84,7 @@
 
 @media (hover: hover) {
   a.district:hover {
-    color: var(--et-ink);
+    color: var(--et-fg);
   }
 }
 
@@ -163,7 +163,7 @@
 
 /* Zwischentitel klein, fett, versal — wie bei 032c. */
 .sub {
-  color: var(--et-ink);
+  color: var(--et-fg);
   margin: 0 0 14px;
   font-size: 20px;
   font-weight: 700;
@@ -242,12 +242,12 @@
 
 @media (hover: hover) {
   .briefMeta a:hover {
-    color: var(--et-ink);
+    color: var(--et-fg);
   }
 }
 
 .briefMeta a:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-fg);
   outline-offset: 3px;
 }
 
@@ -270,7 +270,7 @@
 
 /* Zwischentitel klein, fett, versal — wie „Insider-Tipp". */
 .kicker {
-  color: var(--et-accent);
+  color: var(--et-link);
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: 700;
@@ -354,13 +354,13 @@
 
 .btnInk {
   background: var(--et-quiet);
-  color: var(--et-ink);
+  color: var(--et-fg);
 }
 
 @media (hover: hover) {
   .btn:hover {
     background: var(--et-quiet);
-    color: var(--et-ink);
+    color: var(--et-fg);
   }
 
   .btnInk:hover {
@@ -369,7 +369,7 @@
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-fg);
   outline-offset: 3px;
 }
 
@@ -418,10 +418,10 @@
 
 .imageGroup figure { min-width: 0; margin: 0; }
 
-.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; color: var(--et-ink); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
+.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; color: var(--et-fg); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
 .caption .credit { display: block; margin: 0; text-align: left; }
 .sheet figure { margin: 0; }
-.imageGroup:focus-visible { outline: 2px solid var(--et-ink); outline-offset: 6px; }
+.imageGroup:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 6px; }
 @media (max-width:767px) {
   .imageGroup { width: 100vw; grid-template-columns: 1fr; gap: 32px; }
   .imageGroup .caption { padding-inline: var(--gut); }

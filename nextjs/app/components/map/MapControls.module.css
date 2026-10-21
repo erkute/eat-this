@@ -70,7 +70,7 @@
 .mapSearchBtn .mapSearchIcon,
 .mapBurgerLines,
 .fabIcon {
-  filter: drop-shadow(0 0 1px #fff);
+  filter: drop-shadow(0 0 1px var(--et-ground));
   text-shadow: none;
 }
 

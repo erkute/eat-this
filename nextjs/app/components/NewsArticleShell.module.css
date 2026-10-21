@@ -14,9 +14,9 @@
    (`--article-on-accent`). Fokusrahmen sind Ink — Gelb auf Weiss sähe man
    nicht. */
 .page {
-  --article-ground: var(--et-white);
-  --article-fg: var(--et-ink);
-  --article-head: var(--et-accent);
+  --article-ground: var(--et-ground);
+  --article-fg: var(--et-fg);
+  --article-head: var(--et-link);
   --article-accent: var(--et-accent);
   --article-muted: var(--et-muted);
   --article-quiet: var(--et-quiet);
@@ -34,7 +34,7 @@
 
 /* Dunkel auf Knopfdruck: Ink-Grund und weisser Lesetext. Die Kapitel und
    Spotnamen behalten das Markenrot; die Tafel nutzt die erhöhte Ink-Stufe. */
-:global(html[data-article-theme='dark']) .page {
+:global(html[data-theme='dark']) .page {
   --article-ground: var(--et-ink);
   --article-fg: var(--et-white);
   --article-head: var(--et-accent-heading);

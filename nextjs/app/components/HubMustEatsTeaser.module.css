@@ -1,4 +1,4 @@
-.section { padding: 64px var(--home-gutter); color: #111; background: #fff; border-bottom: 0; }
+.section { padding: 64px var(--home-gutter); color: var(--et-fg); background: var(--et-ground); border-bottom: 0; }
 .stage { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.5fr); grid-template-rows: auto 1fr; gap: 32px 64px; max-width: 1400px; margin: auto; }
 .intro { grid-column: 1; }
 .intro :global(.hv-head) { margin: 0 0 32px; }
@@ -15,7 +15,7 @@
 .cardLink:focus-visible { outline: 3px solid #d9382a; outline-offset: 5px; }
 .meta { display: none; }
 .foot { grid-column: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-.foot button { color: #111; }
+.foot button { color: var(--et-fg); }
 @media(max-width:899px) {
   .section { padding-block: 48px; }
   .stage { display: flex; flex-direction: column; gap: 28px; }

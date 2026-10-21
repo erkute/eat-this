@@ -12,7 +12,7 @@
   max-height: calc(100svh - 28px);
   padding: clamp(40px, 5vw, 60px) clamp(32px, 4.4vw, 60px);
   overflow: hidden;
-  background: #fff;
+  background: var(--et-ground);
   /* Derselbe Radius wie das Onboarding-Fenster (Tour.module.css .panel). */
   border-radius: 0;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
@@ -41,7 +41,7 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  color: var(--et-ink);
+  color: var(--et-fg);
   background: transparent;
   border: 0;
   font-family: var(--et-font-body);
@@ -52,14 +52,14 @@
 }
 
 .close:focus-visible {
-  color: var(--et-accent);
+  color: var(--et-link);
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
   .close:hover {
-    color: var(--et-accent);
+    color: var(--et-link);
   }
 }
 

@@ -5,7 +5,7 @@
   display: grid;
   place-items: center;
   padding: 18px;
-  background: #fff;
+  background: var(--et-ground);
   /* Ausdruecklich, nicht geerbt: bei offenem Remy-Chat steht `body` am
      Telefon auf `visibility: hidden` (globals.css, `html[data-buddy-open]`),
      und das Modal haengt per Portal in `body`. Ein Herz auf Remys Spot-Karte

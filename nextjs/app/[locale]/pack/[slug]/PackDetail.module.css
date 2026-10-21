@@ -5,16 +5,16 @@
 .page {
   --pack-paper: #fff;
   --pack-ink: var(--et-ink);
-  --pack-fg: #111;
+  --pack-fg: var(--et-fg);
   --pack-accent: var(--et-accent);
-  --pack-muted: #555;
-  --pack-soft: #555;
+  --pack-muted: var(--et-muted);
+  --pack-soft: var(--et-copy);
   display: flow-root;
   min-height: 100svh;
   overflow-x: clip;
   padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) var(--et-wrap-pad-mobile)
     clamp(48px, 7vw, 96px);
-  background: #fff;
+  background: var(--et-ground);
   color: var(--pack-fg);
   font-family: var(--et-font-display);
 }
@@ -33,7 +33,7 @@
   align-items: center;
   gap: clamp(16px, 4vw, 56px);
   padding: clamp(24px, 4vw, 56px);
-  background: #f2f1ef;
+  background: var(--et-quiet);
   color: var(--pack-fg);
   border-radius: 0;
 }
@@ -73,7 +73,7 @@
    Kreide-Labels der Tafel. */
 .spectrum {
   margin: clamp(14px, 1.8vw, 22px) 0 0;
-  color: #a82b2e;
+  color: var(--et-link);
   font-size: clamp(18px, 2vw, 26px);
   font-weight: 700;
   line-height: 1.2;

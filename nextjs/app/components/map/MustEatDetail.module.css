@@ -1490,10 +1490,10 @@
 .scroll {
   background-color: var(--map-collage-paper);
   background-image: none;
-  --me-ink: #111;
-  --me-paper: #fff;
-  --me-muted: #555;
-  --me-soft: #f2f1ef;
+  --me-ink: var(--et-fg);
+  --me-paper: var(--et-ground);
+  --me-muted: var(--et-muted);
+  --me-soft: var(--et-quiet);
   background: var(--me-paper);
   color: var(--me-ink);
 }
@@ -2169,7 +2169,7 @@ button.fdLocationChip:active {
 .fdKickerCount {
   flex: 0 0 auto;
   margin: 0 0 6px;
-  color: #666;
+  color: var(--et-muted);
   font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;

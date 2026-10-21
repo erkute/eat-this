@@ -9,10 +9,10 @@
   text-align: left;
   min-height: 44px;
   padding: 12px 20px;
-  background: var(--et-white);
+  background: var(--et-ground);
   border: 0;
   border-radius: var(--et-radius-control);
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
   font-size: var(--et-type-button);
   font-weight: 700;
@@ -67,9 +67,9 @@
   overflow-y: auto;
   padding: clamp(24px, 3.4vw, 40px);
   /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. */
-  background: #fff;
+  background: var(--et-ground);
   box-shadow: none;
-  color: var(--et-ink);
+  color: var(--et-fg);
   border-radius: var(--et-radius-photo);
   font-family: var(--et-font-display);
   outline: none;
@@ -96,7 +96,7 @@
   background: none;
   border: 0;
   border-radius: var(--et-radius-control);
-  color: var(--et-ink);
+  color: var(--et-fg);
   cursor: pointer;
   transition: color 0.16s ease;
 }
@@ -111,12 +111,12 @@
 }
 
 .x:focus-visible {
-  color: var(--et-accent);
+  color: var(--et-link);
 }
 
 @media (hover: hover) {
   .x:hover {
-    color: var(--et-accent);
+    color: var(--et-link);
   }
 }
 
@@ -152,7 +152,7 @@
   display: grid;
   justify-items: center;
   gap: 6px;
-  color: var(--et-ink);
+  color: var(--et-fg);
   text-align: center;
   text-decoration: none;
 }
@@ -191,7 +191,7 @@
 
 @media (hover: hover) {
   .pack:hover .name {
-    color: var(--et-accent);
+    color: var(--et-link);
   }
 }
 
@@ -230,15 +230,15 @@
 }
 
 .cta:focus-visible {
-  color: var(--et-ink);
-  background: var(--et-white);
+  color: var(--et-fg);
+  background: var(--et-ground);
   transform: translateY(-2px);
 }
 
 @media (hover: hover) {
   .cta:not(:disabled):hover {
-    color: var(--et-ink);
-    background: var(--et-white);
+    color: var(--et-fg);
+    background: var(--et-ground);
     transform: translateY(-2px);
   }
 }
@@ -256,7 +256,7 @@
 
 .ctaError {
   margin: 0;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;
@@ -365,7 +365,7 @@
 .comingSoon {
   display: block;
   margin-top: 4px;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-size: 11px;
   text-transform: none;
 }

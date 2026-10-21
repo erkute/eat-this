@@ -152,9 +152,8 @@ describe('IssueMagazine', () => {
 });
 
 describe('page ground', () => {
-  it('keeps public content light while preserving the explicit article dark toggle', () => {
+  it('uses the shared canvas for public content', () => {
     const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
-    expect(css).toContain('html[data-active-page] .app-pages {\n  background: var(--et-white);');
-    expect(css).toContain("html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {\n  background: var(--et-ink);");
+    expect(css).toContain('html[data-active-page] .app-pages {\n  background: var(--et-ground);');
   });
 });

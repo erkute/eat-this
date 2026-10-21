@@ -1,8 +1,8 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import LoginBoard from './LoginBoard';
-import Image from './SiteImage';
+import StarterPack3D from './StarterPack3D';
 import styles from './StarterPackSignup.module.css';
 
 /**
@@ -24,7 +24,6 @@ import styles from './StarterPackSignup.module.css';
  */
 export default function StarterPackSignup() {
   const t = useTranslations('modals.login');
-  const en = useLocale() === 'en';
 
   return (
     <section
@@ -39,10 +38,9 @@ export default function StarterPackSignup() {
       <div>
         <LoginBoard
           editorial
-          art={<Image className={styles.pack} src="/pics/booster/booster_free.webp?v=2" alt="" width={1038} height={1516} sizes="(max-width: 820px) 264px, 370px" />}
-
-
-          title={en ? 'Your first deck.' : 'Dein erstes Deck.'}
+          art={<StarterPack3D />}
+          kicker={t('packKicker')}
+          title={t('packTitle')}
           lead={t('packLead')}
           googleWarmup="intent"
         />

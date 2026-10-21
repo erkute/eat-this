@@ -14,7 +14,7 @@
 .meta { display: block; margin-top: 8px; color: var(--et-muted); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: none; }
 .discovery a:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; }
 @media (hover: hover) {
-  .spot:hover .name, .categories a:hover { color: var(--et-accent); }
+  .spot:hover .name, .categories a:hover { color: var(--et-link); }
   .categories a:hover .packArt { rotate: 0deg; translate: 0 -8px; }
   .spot:hover img { transform: scale(1.04); }
 }

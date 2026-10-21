@@ -1,6 +1,3 @@
-/* Derselbe leise Knopf wie „Teilen" in der Kapitel-Leiste: Providence in
-   Versalien auf der leisen Fläche, unter der Maus gelb. Farben aus den Tokens
-   der Artikelseite (NewsArticleShell.module.css, `.page`). */
 .toggle {
   font-family: var(--et-font-display);
   font-weight: 700;
@@ -12,8 +9,8 @@
   min-width: 92px;
   padding: 6px 10px 7px;
   border: 0;
-  background: var(--article-quiet);
-  color: var(--article-fg);
+  background: var(--et-quiet);
+  color: var(--et-fg);
   font-size: 12px;
   line-height: 1;
   text-transform: uppercase;
@@ -37,11 +34,11 @@
   display: none;
 }
 
-:global(html[data-article-theme='dark']) .toDark {
+:global(html[data-theme='dark']) .toDark {
   display: none;
 }
 
-:global(html[data-article-theme='dark']) .toLight {
+:global(html[data-theme='dark']) .toLight {
   display: inline-flex;
 }
 
@@ -57,13 +54,13 @@
 }
 
 .toggle:focus-visible {
-  outline: 2px solid var(--article-fg);
+  outline: 2px solid var(--et-fg);
   outline-offset: 3px;
 }
 
 @media (hover: hover) {
   .toggle:hover {
-    background: var(--article-accent);
+    background: var(--et-accent);
     color: var(--et-on-accent);
   }
 }

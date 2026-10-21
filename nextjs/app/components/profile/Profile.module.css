@@ -6,8 +6,8 @@
    control surfaces. The shared deck page also uses these tokens. */
 
 .page {
-  --profile-ground: #fff;
-  --profile-fg: var(--et-ink);
+  --profile-ground: var(--et-ground);
+  --profile-fg: var(--et-fg);
   --profile-muted: var(--et-copy);
   --profile-quiet: var(--et-quiet);
   --profile-line: var(--et-line);
@@ -17,7 +17,7 @@
   --profile-raised-on:
     var(--et-line);
   --profile-red: var(--et-red);
-  --profile-inverse: var(--et-ink);
+  --profile-inverse: var(--et-fg);
   --profile-radius: var(--et-radius-control);
   --profile-motion: var(--et-motion-card);
   min-height: 100svh;
@@ -276,7 +276,7 @@ main.page .head {
    dahinter — als eigene Zeile kostete die Beschriftung 26 px. */
 .moveLabel {
   margin-right: 9px;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
@@ -322,7 +322,7 @@ main.page .head {
   justify-content: center;
   min-height: 34px;
   padding: 0 14px;
-  color: var(--et-accent);
+  color: var(--et-link);
   background: var(--profile-raised);
   border: 0;
   border-radius: 999px;
@@ -994,7 +994,7 @@ main.page .head {
    Tafeln, klein und fett — er soll gelesen, nicht gerufen werden. */
 .inviteJoined {
   margin: 7px 0 0;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -1029,11 +1029,13 @@ main.page .head {
 /* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink — auf dem dunklen
    Grund verschwaenden sie. */
 .inviteButton:focus-visible {
+  color: var(--profile-ground);
   background: var(--profile-inverse);
 }
 
 @media (hover: hover) {
   .inviteButton:hover {
+    color: var(--profile-ground);
     background: var(--profile-inverse);
   }
 }

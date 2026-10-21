@@ -1,4 +1,4 @@
-.section { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: 'content map'; align-items: center; padding: 80px var(--home-gutter); gap: 50px; background: #fff; color: #111; }
+.section { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: 'content map'; align-items: center; padding: 80px var(--home-gutter); gap: 50px; background: var(--et-ground); color: var(--et-fg); }
 .content { grid-area: content; min-width: 0; }
 .map { grid-area: map; min-width: 0; }
 .map img { display: block; width: 100%; height: auto; }

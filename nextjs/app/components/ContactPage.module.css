@@ -3,8 +3,8 @@
   flex-direction: column;
   min-height: calc(100dvh - var(--site-nav-h));
   padding: 0 var(--et-gutter);
-  background: var(--et-white);
-  color: var(--et-ink);
+  background: var(--et-ground);
+  color: var(--et-fg);
 }
 
 .page > :global(footer[role='contentinfo']) {
@@ -104,7 +104,7 @@
 
 .topic h2 {
   margin: 0 0 18px;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
   font-size: clamp(26px, 2.5vw, 34px);
   font-weight: 700;
@@ -121,7 +121,7 @@
   margin-bottom: 0;
 }
 .topic a {
-  color: var(--et-accent);
+  color: var(--et-link);
   text-decoration: none;
   text-underline-offset: 4px;
 }

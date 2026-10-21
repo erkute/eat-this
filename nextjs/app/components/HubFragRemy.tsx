@@ -160,16 +160,16 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
           </div>
         </div>
         <div className={styles.content}>
-          <h2 className={`hv-title ${styles.title}`}>{en ? 'Ask Remy.' : 'Frag Remy.'}</h2>
-          <p className={styles.intro}>{en ? <>Tell me what you’re craving.<br />I’ll show you where to go.</> : <>Sag mir, worauf du Lust hast.<br />Ich zeig dir, wo du hingehen kannst.</>}</p>
+          <p className={styles.intro}>{en ? 'Hey, I’m Remy. I’ll show you what to eat in Berlin.' : 'Hey, ich bin Remy. Ich zeig dir, was du in Berlin essen musst.'}</p>
+          <h2 className={`hv-title ${styles.title}`}>{en ? 'What are you craving?' : 'Worauf hast du Lust?'}</h2>
           <div className={styles.questions} data-fragremy-chips="">
             {questions.map((question, index) => (
-              <button key={question} type="button" className={styles.question} disabled={busy} onPointerEnter={(event) => { if (event.pointerType === 'mouse') listen(true, index); }} onPointerLeave={() => listen(false)} onFocus={() => listen(true, index)} onBlur={() => listen(false)} onClick={() => ask(question, index)}>{(en ? ['Good pizza?', 'For a date?', 'Surprise me'] : ['Gute Pizza?', 'Fürs Date?', 'Überrasch mich'])[index]}</button>
+              <button key={question} type="button" className={styles.question} disabled={busy} onPointerEnter={(event) => { if (event.pointerType === 'mouse') listen(true, index); }} onPointerLeave={() => listen(false)} onFocus={() => listen(true, index)} onBlur={() => listen(false)} onClick={() => ask(question, index)}>{question}</button>
             ))}
           </div>
           <form className={styles.form} onSubmit={(event) => { event.preventDefault(); ask(draft); }} aria-label={en ? 'Ask Remy' : 'Frag Remy'}>
             <input className={styles.input} data-fragremy-input="" value={draft} onChange={(event) => setDraft(event.target.value)} onFocus={() => listen(true)} onBlur={() => listen(false)} placeholder={en ? 'Or ask me yourself …' : 'Oder frag mich selbst …'} aria-label={en ? 'Your question for Remy' : 'Deine Frage an Remy'} disabled={busy} />
-            <button className={styles.send} type="submit" disabled={busy || !draft.trim()}>{en ? 'Send' : 'Senden'}</button>
+            <button className={styles.send} type="submit" disabled={busy || !draft.trim()}>{en ? 'Ask' : 'Fragen'}</button>
           </form>
         </div>
       </div>

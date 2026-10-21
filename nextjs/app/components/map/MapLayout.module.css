@@ -4,17 +4,11 @@
    photos, markers and primary actions. Map geometry is unchanged. */
 .shell {
   --map-motion: var(--et-motion-base);
-  --map-collage-paper: #fff;
-  --map-collage-ink: #111;
-  --map-basemap-ground: #f4f4f4;
   --map-action: #a82b2e;
   --et-offer-red: #a82b2e;
-  --et-quiet: #f2f1ef;
-  --et-muted: #555;
-  --et-rule: rgba(21,18,14,.14);
-  --et-accent-text: #a82b2e;
-  background: #fff;
-  color: #111;
+  --et-accent-text: var(--et-link);
+  background: var(--et-ground);
+  color: var(--et-fg);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -109,12 +103,12 @@
 .mapWrap :global(.maplibregl-ctrl-attrib),
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact) {
   font-size: 10px;
-  background: rgba(255, 255, 255, .9);
-  color: #555;
+  background: var(--et-ground);
+  color: var(--et-muted);
 }
 
 .mapWrap :global(.maplibregl-ctrl-attrib a) {
-  color: #333;
+  color: var(--et-fg);
 }
 
 @media (max-width: 1023.98px) {
@@ -156,7 +150,7 @@
 }
 
 .mapWrap :global(.maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show) {
-  background: rgba(255, 255, 255, .94);
+  background: color-mix(in srgb, var(--et-ground) 94%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(1.4);
   backdrop-filter: blur(14px) saturate(1.4);
   border: 0;
@@ -451,3 +445,5 @@
     translate: 0 calc(-1 * var(--edge-ride));
   }
 }
+
+:global(html[data-theme='dark']) .mapWrap :global(.maplibregl-ctrl-attrib-button) { filter: invert(1); }

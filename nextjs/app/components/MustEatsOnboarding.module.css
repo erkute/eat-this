@@ -186,18 +186,18 @@
   padding: 0;
   min-height: 48px;
   background: transparent;
-  color: var(--onboarding-trigger-ink, var(--et-ink));
+  color: var(--onboarding-trigger-ink, var(--et-fg));
   font-size: 16px;
   font-weight: 700;
 }
 .howPlain .howBadge { animation: none; }
 .howPlain:focus-visible {
   background: transparent;
-  color: var(--onboarding-trigger-ink, var(--et-ink));
-  outline: 2px solid var(--onboarding-trigger-ink, var(--et-ink));
+  color: var(--onboarding-trigger-ink, var(--et-fg));
+  outline: 2px solid var(--onboarding-trigger-ink, var(--et-fg));
   outline-offset: 4px;
   transform: none;
 }
 @media (hover: hover) {
-  .howPlain:hover { background: transparent; color: var(--onboarding-trigger-ink, var(--et-ink)); transform: none; text-decoration: underline; text-underline-offset: 4px; }
+  .howPlain:hover { background: transparent; color: var(--onboarding-trigger-ink, var(--et-fg)); transform: none; text-decoration: none; }
 }

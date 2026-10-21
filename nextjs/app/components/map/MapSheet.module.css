@@ -34,7 +34,7 @@
    control. */
 .handle::before {
   content: '';
-  background: rgba(21, 18, 14, .28);
+  background: var(--et-muted);
 }
 
 .listScroll {

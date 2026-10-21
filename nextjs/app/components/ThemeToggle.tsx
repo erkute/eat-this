@@ -2,36 +2,29 @@
 
 import { useSyncExternalStore } from 'react';
 import {
-  currentArticleTheme,
-  setArticleTheme,
-  subscribeArticleTheme,
-  type ArticleTheme,
-} from '@/lib/articleTheme';
-import styles from './ArticleThemeToggle.module.css';
+  currentTheme,
+  setTheme,
+  subscribeTheme,
+  type Theme,
+} from '@/lib/theme';
+import styles from './ThemeToggle.module.css';
 
-const serverTheme = (): ArticleTheme => 'light';
+const serverTheme = (): Theme => 'light';
 
-/**
- * Der Knopf für hell/dunkel im Artikel (lib/articleTheme.ts). Er zeigt, wohin
- * er schaltet: „Dunkel" auf Weiss, „Hell" auf Ink. Welche Beschriftung zu
- * sehen ist, entscheidet das Stylesheet am Attribut an <html> — so stimmt sie
- * schon vor dem Hydrieren, auch wenn der Bootstrap den Artikel dunkel geladen
- * hat. Der sichtbare Text ist zugleich der zugängliche Aktionsname.
- */
-export default function ArticleThemeToggle({
+export default function ThemeToggle({
   de,
   className = '',
 }: {
   de: boolean;
   className?: string;
 }) {
-  const theme = useSyncExternalStore(subscribeArticleTheme, currentArticleTheme, serverTheme);
+  const theme = useSyncExternalStore(subscribeTheme, currentTheme, serverTheme);
   const dark = theme === 'dark';
   return (
     <button
       type="button"
       className={`${styles.toggle} ${className}`}
-      onClick={() => setArticleTheme(dark ? 'light' : 'dark')}
+      onClick={() => setTheme(dark ? 'light' : 'dark')}
     >
       <span className={styles.toDark}>
         <svg viewBox="0 0 24 24" aria-hidden="true">

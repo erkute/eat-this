@@ -10,8 +10,8 @@
 .covers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; max-width: 1400px; margin: 64px auto 0; padding: 0; list-style: none; }
 .covers li { min-width: 0; }
 .cover { display: block; width: 100%; color: inherit; }
-.cover:focus-visible, .thumbnails button:focus-visible { outline: 3px solid #d9382a; outline-offset: 5px; }
-.thumbnails, .section.section .mobileLink { display: none; }
+.cover:focus-visible { outline: 3px solid #d9382a; outline-offset: 5px; }
+.section.section .mobileLink { display: none; }
 @media(max-width:767.98px) {
   .section { padding-block: 48px; }
   .header { display: block; }
@@ -20,12 +20,11 @@
   .intro p { font-size: 17px; margin-bottom: 0; }
   .intro .kicker { font-size: 11px; margin-bottom: 12px; }
   .section .intro .desktopLink { display: none; }
-  .covers { display: block; margin-top: 32px; padding: 0 16px; }
-  .covers li:not([data-selected='true']) { display: none; }
-  .thumbnails { display: flex; gap: 14px; justify-content: center; margin-top: 24px; }
-  .thumbnails button { width: calc((100% - 42px) / 4); max-width: 78px; padding: 0; border: 0; background: transparent; cursor: pointer; }
-  .thumbnails button > :first-child { opacity: .55; }
-  .thumbnails button[aria-pressed='true'] { transform: translateY(-4px); }
-  .thumbnails button[aria-pressed='true'] > :first-child { opacity: 1; }
+  /* Der Stapel: alle Hefte in derselben Zelle, die Posen setzt GSAP
+     (MagazineGrid.tsx). Unten Luft für die Hefte, die darunter hervorschauen. */
+  .covers { display: grid; grid-template-columns: minmax(0, 1fr); margin-top: 32px; padding: 0 16px 36px; -webkit-user-select: none; user-select: none; }
+  .covers li { grid-area: 1 / 1; transform-origin: 50% 80%; will-change: transform; }
+  .covers li:not([data-selected='true']) { pointer-events: none; }
+  .covers img { -webkit-user-drag: none; }
   .section.section .mobileLink { display: inline-flex; margin-top: 32px; }
 }

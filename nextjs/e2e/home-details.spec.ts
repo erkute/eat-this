@@ -12,12 +12,19 @@ for (const reduced of [false, true]) {
     await page.goto('/');
     await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
     const magazine = page.locator('[data-hub-magazine]');
+    const cover = magazine.locator("ol > li[data-selected='true'] > a");
     if (page.viewportSize()!.width < 768) {
-      const choices = magazine.getByRole('group').getByRole('button');
-      await choices.nth(2).click();
-      await expect(choices.nth(2)).toHaveAttribute('aria-pressed','true');
+      // Am Telefon ein Stapel: das oberste Heft zur Seite wischen.
+      await cover.scrollIntoViewIfNeeded();
+      const first = await cover.getAttribute('href');
+      const box = (await cover.boundingBox())!;
+      await page.mouse.move(box.x + box.width * 0.6, box.y + box.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width * 0.05, box.y + box.height / 2, { steps: 8 });
+      await page.mouse.up();
+      await expect(cover).not.toHaveAttribute('href', first!);
+      await expect(page).toHaveURL(/\/$/);
     }
-    const cover = magazine.locator('ol > li:visible > a').first();
     const href = await cover.getAttribute('href');
     await cover.click();
     await expect(page).toHaveURL(new RegExp(`${href}$`));

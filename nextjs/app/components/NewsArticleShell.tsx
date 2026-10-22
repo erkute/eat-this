@@ -262,9 +262,9 @@ export default function NewsArticleShell({
   // „hokey pokey mauerpark") statt der Seite, die dem Laden gehört. Sein
   // ::after spannt sich über die ganze Karte, damit die Fläche tapbar bleibt;
   // `overflow: hidden` auf .inlineSpot beschneidet den Überstand.
-  // Der Map-Deeplink bleibt als Knopf darüber (z-index) erhalten — weiter
-  // nofollow, weil er eine Query trägt (`?r=`) und die Search Console sonst
-  // jede Variante einzeln aufzählt. Die Map selbst ist seit dem 01.09.2026
+  // Der Map-Deeplink (Fläche und Name) bleibt nofollow, weil er eine Query
+  // trägt (`?r=`) und die Search Console sonst jede Variante einzeln
+  // aufzählt. Die Map selbst ist seit dem 01.09.2026
   // indexierbar; das blanke /map darf gefolgt werden (siehe isMapLink).
   const renderSpotCard = (block: SpotCardBlock) => {
     if (!block.restaurantName || !block.restaurantSlug) return null;
@@ -275,14 +275,13 @@ export default function NewsArticleShell({
     ]
       .filter(Boolean)
       .join(' · ');
-    // Wie auf der Restaurantseite und überall sonst in der App — „Auf die
-    // Map" klang doof (Ansage 02.10.2026).
-    const cta = de ? 'Zur Map' : 'On the map';
 
     // Gebaut wie die Spot-Karten der Map-Liste (Ansage 21.10.2026: „das sind
     // ja die Spot-Map-Labels"): das Foto, unten ein Ink-Verlauf, darauf der
-    // Name gross und Bezirk · Küche als kleine Etiketten, rechts der Weg auf
-    // die Map. Die ganze Karte führt auf die Map.
+    // Name gross und Bezirk · Küche als kleine Etiketten. Die ganze Karte
+    // führt auf die Map; einen eigenen Knopf braucht sie nicht — der Name ist
+    // als dicker Aufkleber schon das Zeichen, und am Telefon stellte der
+    // Knopf die Karte zu (Ansage 22.10.2026).
     return (
       <span className={styles.inlineSpot}>
         {block.restaurantPhoto && (
@@ -337,14 +336,6 @@ export default function NewsArticleShell({
               </span>
             )}
           </span>
-          <MapIntentLink
-            href={`/map?r=${block.restaurantSlug}`}
-            rel="nofollow"
-            className={styles.inlineSpotCta}
-            aria-label={de ? `${restName} auf der Map öffnen` : `Open ${restName} on the map`}
-          >
-            <span>{cta}</span>
-          </MapIntentLink>
         </span>
       </span>
     );
@@ -548,7 +539,7 @@ export default function NewsArticleShell({
                 excerpt={excerpt}
                 label={shareLabel}
                 copiedLabel={copiedLabel}
-                className={styles.shareBtn}
+                className={`et-btn et-btn-sm ${styles.shareBtn}`}
               />
             </div>
 
@@ -579,7 +570,7 @@ export default function NewsArticleShell({
                     Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
                     Leerfläche"). Für Screenreader trägt der Link seinen
                     Namen schon in Kicker und Label. */}
-                <span className={styles.hubLinkCta} aria-hidden="true">
+                <span className={`et-btn et-btn-alt ${styles.hubLinkCta}`} aria-hidden="true">
                   {de ? 'Ansehen' : 'View'}
                 </span>
               </Link>

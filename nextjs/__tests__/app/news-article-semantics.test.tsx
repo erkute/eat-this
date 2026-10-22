@@ -72,7 +72,7 @@ describe('NewsArticleShell semantics', () => {
     // Guides ihre Relevanz überhaupt an Restaurantseiten weitergeben. Das
     // nofollow prüft der Shell-Test, der Link-Mock hier reicht nur href und
     // className durch.
-    expect(html.match(/href="\/map\?r=sofi"/g)).toHaveLength(3);
+    expect(html.match(/href="\/map\?r=sofi"/g)).toHaveLength(2);
     expect(html).toContain('href="/restaurant/sofi"');
   });
 });

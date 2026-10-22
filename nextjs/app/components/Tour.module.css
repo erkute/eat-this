@@ -168,26 +168,7 @@
   margin-top: 14px;
 }
 .action {
-  min-height: 48px;
   min-width: 160px;
-  padding: 12px 26px;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  font: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.action:disabled {
-  cursor: default;
-}
-a.action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
 }
 /* Die zweite Aktion am Ende steht als leiser Link dort, wo sonst Zurueck
    steht — der Hauptknopf bleibt so auf jeder Seite an seinem Platz. */
@@ -205,7 +186,6 @@ a.quiet {
   object-fit: contain;
   filter: drop-shadow(0 14px 18px #0005);
 }
-.action:focus-visible,
 .quiet:focus-visible {
   outline: 2px solid var(--et-accent);
   outline-offset: 4px;

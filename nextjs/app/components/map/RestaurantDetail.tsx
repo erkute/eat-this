@@ -740,11 +740,11 @@ export default function RestaurantDetail({
               </p>
               <div className={styles.packPromoActions}>
                 {isAnon ? (
-                  <button type="button" className={styles.btnPackPromo} onClick={openStarterLogin}>
+                  <button type="button" className={`et-btn ${styles.btnPackPromo}`} onClick={openStarterLogin}>
                     <span className={styles.btnPackPromoLbl}>{t('map.starterCta')}</span>
                   </button>
                 ) : (
-                  <a href={boosterHref} className={styles.btnPackPromo}>
+                  <a href={boosterHref} className={`et-btn ${styles.btnPackPromo}`}>
                     <span className={styles.btnPackPromoLbl}>{t('map.boosterCta')}</span>
                   </a>
                 )}

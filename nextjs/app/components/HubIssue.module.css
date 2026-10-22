@@ -75,42 +75,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* ------------------------------------------------- vorspann + knöpfe ---- */
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--et-btn-h);
-  padding: 0 var(--et-btn-pad);
-  border-radius: var(--et-radius-pill);
-  background: var(--et-solid);
-  color: var(--et-on-solid);
-  background-image: var(--et-btn-wear, none);
-  mask: var(--et-rough-edges-sm, none);
-  background-size: 200px auto;
-  font-family: var(--et-font-display);
-  font-size: var(--et-btn-font);
-  font-weight: 700;
-  line-height: 1.25;
-  text-decoration: none;
-  transition: background-color 160ms ease, color 160ms ease;
-}
-
-@media (hover: hover) {
-  .btn:hover {
-    background: var(--et-solid);
-    color: var(--et-on-solid);
-  }
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--et-fg);
-  outline-offset: 5px;
-}
-
-.btn:active {
-  transform: translateY(1px);
-}
-
 /* ------------------------------------------------- rubrikenzeile -------- */
 
 /* Auswahlflächen wie in der Map-Vorschau der Startseite. Am Telefon
@@ -698,7 +662,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn,
   .filterChip,
   .filterBar,
   .shelfIssue {

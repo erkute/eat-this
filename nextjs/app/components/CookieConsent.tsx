@@ -394,7 +394,7 @@ export default function CookieConsent() {
           <div className="cookie-buttons">
             <button
               type="button"
-              className="cookie-btn cookie-btn-accept"
+              className="et-btn cookie-btn"
               id="cookieAccept"
               onClick={handleAccept}
             >
@@ -402,7 +402,7 @@ export default function CookieConsent() {
             </button>
             <button
               type="button"
-              className="cookie-btn cookie-btn-decline"
+              className="et-btn et-btn-alt cookie-btn"
               id="cookieDecline"
               onClick={handleDecline}
             >

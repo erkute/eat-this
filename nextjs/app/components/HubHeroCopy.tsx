@@ -115,7 +115,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         <LeadWords text={signedIn ? LEAD_AUTH[locale] : LEAD[locale]} />
       </p>
       <div className={styles.heroActions} data-hero-actions="">
-        <MapIntentLink href="/map" className="hv-btn">
+        <MapIntentLink href="/map" className="et-btn">
           {HERO_MAP_LABEL}
         </MapIntentLink>
         {signedIn ? (
@@ -123,7 +123,7 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
             href="/profile"
             rel="nofollow"
             prefetch={false}
-            className="hv-btn"
+            className="et-btn"
           >
             {de ? 'Dein Profil' : 'Your profile'}
           </Link>
@@ -156,19 +156,19 @@ function LoadingHeroCopy({ locale }: Props) {
       </p>
       <div className={styles.heroActions} data-hero-actions="">
         <span className={styles.heroActionVariant} data-guest-only="">
-          <MapIntentLink href="/map" className="hv-btn">
+          <MapIntentLink href="/map" className="et-btn">
             {HERO_MAP_LABEL}
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
-          <MapIntentLink href="/map" className="hv-btn">
+          <MapIntentLink href="/map" className="et-btn">
             {HERO_MAP_LABEL}
           </MapIntentLink>
           <Link
             href="/profile"
             rel="nofollow"
             prefetch={false}
-            className="hv-btn"
+            className="et-btn"
           >
             {de ? 'Dein Profil' : 'Your profile'}
           </Link>

@@ -109,7 +109,7 @@ export default function AllBerlinSheet({ locale, contents, triggerLabel }: Props
       <button
         ref={triggerRef}
         type="button"
-        className={styles.trigger}
+        className={`et-btn et-btn-alt ${styles.trigger}`}
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}

@@ -20,13 +20,6 @@
    das Wort („Starte / r", 21.10.2026). */
 .page :global(.hv-head) { container-type: inline-size; }
 .page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
-.page :global(.hv-btn) {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); border-radius: var(--et-radius-pill);
-  background: var(--et-solid); color: var(--et-on-solid); font: 700 var(--et-btn-font)/1.25 var(--et-font-body);
-  background-image: var(--et-btn-wear, none); mask: var(--et-rough-edges-sm, none); background-size: 200px auto;
-}
-.page :global(.hv-btn:focus-visible) { outline: 3px solid #d9382a; outline-offset: 4px; }
 .hero { position: relative; overflow: hidden; box-sizing: border-box; padding-top: var(--site-nav-h); background: #ffc600; color: #111; }
 .hero::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;

@@ -35,7 +35,7 @@ export default function ProfileSpots({
     return (
       <div className={styles.empty}>
         <p className={styles.emptyLine}>{t('emptySpots')}</p>
-        <Link href="/map" className={`hv-btn ${styles.emptyCta}`}>
+        <Link href="/map" className="et-btn">
           {t('toMap')}
         </Link>
       </div>

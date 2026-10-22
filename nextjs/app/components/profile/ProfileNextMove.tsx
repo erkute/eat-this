@@ -131,7 +131,7 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
           Einstellungen abgelehnt, steht hier nichts mehr; der Weg auf die
           Map liegt in der Karte rechts. */}
       {canLocate && (
-        <button type="button" className={styles.moveCta} onClick={() => void request()}>
+        <button type="button" className={`et-btn ${styles.moveCta}`} onClick={() => void request()}>
           {/* Dieselbe Teilung wie beim Satz: „Standort freigeben" sprengt auf
               350 px die Zeile, „Standort" passt. Waehrend des Suchens steht in
               beiden dasselbe. */}

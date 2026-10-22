@@ -324,80 +324,13 @@
 .ctaPrimary,
 .ctaGoogle,
 .textlink {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  /* Im Formular so breit wie das Feld darüber und gleich hoch; als Pille
-     wie alle Knöpfe (Ansage 22.10.2026). */
   width: 100%;
-  min-height: var(--et-btn-h);
-  padding: 0 var(--et-btn-pad);
-  border: 0;
-  border-radius: var(--et-radius-pill);
-  font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-  cursor: pointer;
 }
 
 .ctaPrimary span,
 .ctaGoogle span {
   line-height: 1.12;
   white-space: nowrap;
-}
-
-.ctaPrimary {
-  color: var(--et-on-solid);
-  background: var(--login-accent);
-  background-image: var(--et-btn-wear, none);
-  mask: var(--et-rough-edges-sm, none);
-  background-size: 200px auto;
-}
-
-.ctaGoogle,
-.textlink {
-  color: var(--et-field-fg, var(--et-fg));
-  background: var(--et-field, var(--et-quiet));
-  mask: var(--et-rough-edges-sm, none);
-}
-
-.ctaPrimary:disabled,
-.ctaGoogle:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.ctaPrimary:focus-visible {
-  background: var(--et-accent);
-  outline: 2px solid var(--et-fg);
-  outline-offset: 3px;
-  color: #fff;
-}
-
-.ctaGoogle:focus-visible,
-.textlink:focus-visible {
-  color: var(--et-on-solid);
-  background: var(--login-accent);
-  outline: 2px solid var(--et-fg);
-  outline-offset: 3px;
-}
-
-@media (hover: hover) {
-  .ctaPrimary:hover {
-    background: var(--login-accent-hover, var(--et-accent));
-    color: #fff;
-  }
-
-  .ctaGoogle:hover,
-  .textlink:hover {
-    color: var(--et-on-solid);
-    background: var(--login-accent);
-  }
 }
 
 .or {
@@ -546,10 +479,7 @@
     gap: 12px;
   }
 
-  .input,
-  .ctaPrimary,
-  .ctaGoogle,
-  .textlink {
+  .input {
     min-height: 44px;
   }
 }
@@ -586,9 +516,14 @@
 .editorial .input::placeholder { color: var(--et-field-muted, var(--et-muted)); }
 /* Knöpfe als Pillen, das Feld bleibt eckig – so liest sich der weisse
    Google-Knopf nicht als zweites Feld (Ansage 21.10.2026). */
-.editorial .ctaPrimary, .editorial .ctaGoogle { min-height: var(--et-btn-h); background: var(--et-solid); color: var(--et-on-solid); border: 0; border-radius: var(--et-radius-pill); background-image: var(--et-btn-wear, none); mask: var(--et-rough-edges-sm, none); background-size: 200px auto; font-size: 16px; }
-.editorial .ctaGoogle { background: var(--et-field, var(--et-ground)); color: var(--et-field-fg, var(--et-fg)); }
-.editorial .legal, .editorial .legalLink, .editorial .or, .editorial .sub, .editorial .spam, .editorial .toLabel, .editorial .toValue, .editorial .textlink { color: var(--et-muted); }
+
+.editorial .legal,
+.editorial .legalLink,
+.editorial .or,
+.editorial .sub,
+.editorial .spam,
+.editorial .toLabel,
+.editorial .toValue { color: var(--et-muted); }
 .editorial .legalLink:focus-visible, .editorial button:focus-visible { outline: 3px solid var(--et-focus, #d9382a); outline-offset: 4px; }
 @media(max-width:820px) { .board.editorial { grid-template-columns: 1fr; gap: 32px; } .editorial .lead { font-size: 17px; } }
 

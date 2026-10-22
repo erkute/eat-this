@@ -287,7 +287,7 @@ export default function EmailLinkSignIn() {
       </div>
     );
     primary = (
-      <button type="button" className={styles.action} disabled={state.busy} onClick={confirm}>
+      <button type="button" className={`et-btn ${styles.action}`} disabled={state.busy} onClick={confirm}>
         {state.busy ? t.busy : t.cta}
       </button>
     );
@@ -347,7 +347,7 @@ export default function EmailLinkSignIn() {
       <button
         type="submit"
         form={EMAIL_FORM}
-        className={styles.action}
+        className={`et-btn ${styles.action}`}
         disabled={state.busy || !state.email.trim()}
       >
         {state.busy ? t.busy : t.cta}
@@ -370,7 +370,7 @@ export default function EmailLinkSignIn() {
       </div>
     );
     primary = (
-      <button type="button" className={styles.action} onClick={close}>
+      <button type="button" className={`et-btn ${styles.action}`} onClick={close}>
         {t.close}
       </button>
     );

@@ -258,7 +258,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
         <div className={styles.intro}>
           <p className={styles.kicker}>{en ? 'THE EAT THIS MAGAZINE' : 'DAS EAT THIS MAGAZIN'}</p>
           <p>{en ? 'Stories from Berlin’s food scene.' : 'Geschichten aus Berlins Food-Szene.'}</p>
-          <Link href="/news" className={`hv-btn ${styles.desktopLink}`}>{en ? 'More magazines' : 'Weitere Magazine'}</Link>
+          <Link href="/news" className={`et-btn ${styles.desktopLink}`}>{en ? 'More magazines' : 'Weitere Magazine'}</Link>
         </div>
       </div>
       <ol ref={coversRef} className={styles.covers} aria-label={en ? 'Magazine' : 'Magazin'}>
@@ -271,7 +271,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
           </li>
         ))}
       </ol>
-      <Link href="/news" className={`hv-btn ${styles.mobileLink}`}>{en ? 'More magazines' : 'Weitere Magazine'}</Link>
+      <Link href="/news" className={`et-btn ${styles.mobileLink}`}>{en ? 'More magazines' : 'Weitere Magazine'}</Link>
     </section>
   );
 }

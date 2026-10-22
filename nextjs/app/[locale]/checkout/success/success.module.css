@@ -86,38 +86,6 @@
 
 /* Gelb auf Ink — Ink auf Ink verschwände. Hover: Papier. */
 .cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: min(100%, 360px);
-  min-height: 56px;
   margin-top: 12px;
-  padding: 0 26px;
-  border-radius: var(--et-radius-control);
-  background: var(--conversion-accent);
-  color: var(--et-on-accent);
-  font-size: clamp(16px, 1.4vw, 19px);
-  font-weight: 700;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    background-color var(--conversion-motion),
-    transform var(--conversion-motion);
-}
-
-.cta:focus-visible {
-  background: var(--conversion-paper);
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .cta:hover {
-    background: var(--conversion-paper);
-    transform: translateY(-2px);
-  }
-}
-
-.cta:focus-visible {
-  outline: 2px solid var(--conversion-accent);
-  outline-offset: 3px;
 }

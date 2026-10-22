@@ -42,8 +42,6 @@
   max-width: 640px;
 }
 
-
-
 .name {
   margin: 0;
   color: var(--pack-fg);
@@ -97,61 +95,6 @@
 }
 
 /* Der Kauf: rote Pille mit leichten Kratzern. Hover und Fokus: Ink. */
-.cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--et-btn-h-lg);
-  padding: 0 var(--et-btn-pad-lg);
-  background: var(--pack-accent) var(--et-btn-wear, none) 0 0 / 200px auto;
-  mask: var(--et-rough-edges-sm, none);
-  color: var(--et-on-accent);
-  border: 0;
-  border-radius: var(--et-radius-pill);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: var(--et-btn-font-lg);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  text-decoration: none;
-  text-transform: none;
-  cursor: pointer;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
-}
-
-.cta:focus-visible {
-  color: var(--et-on-solid);
-  background: var(--et-solid);
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .cta:not(:disabled):hover {
-    color: var(--et-on-solid);
-    background: var(--et-solid);
-    transform: translateY(-2px);
-  }
-}
-
-.cta:active {
-  transform: translateY(0);
-}
-
-.cta:disabled {
-  background-color: var(--pack-accent);
-  color: var(--et-on-accent);
-  cursor: wait;
-  transform: none;
-}
-
-.cta:focus-visible {
-  outline: 2px solid var(--pack-fg);
-  outline-offset: 3px;
-}
 
 .ctaError {
   margin: 0;
@@ -247,9 +190,4 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cta { transition: none; }
-  .cta:focus-visible, .cta:not(:disabled):hover { transform: none; }
 }

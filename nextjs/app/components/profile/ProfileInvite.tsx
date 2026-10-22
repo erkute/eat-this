@@ -88,7 +88,7 @@ export default function ProfileInvite({ uid, cards }: Props) {
             man nicht"). Die Vorschau des eigenen Decks war ein zweiter,
             leiserer Ausgang neben dem einen, um den es geht. */}
         <ShareButton
-          className={styles.inviteButton}
+          className="et-btn"
           url={inviteUrl}
           title={t('inviteShareTitle')}
           slug={uid}

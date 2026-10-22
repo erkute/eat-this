@@ -82,45 +82,8 @@
 
 /* Gelb auf Ink — Ink auf Ink verschwände. Hover: Papier. */
 .cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   justify-self: start;
-  min-height: 56px;
   margin-top: clamp(10px, 1.6vw, 18px);
-  padding: 0 26px;
-  border-radius: 0;
-  background: var(--boost-accent);
-  color: var(--et-on-accent);
-  font-family: var(--et-font-display);
-  font-size: clamp(16px, 1.4vw, 19px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-decoration: none;
-  text-transform: none;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
-}
-
-.cta:focus-visible {
-  background: var(--boost-paper);
-  color: var(--boost-ink);
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .cta:hover {
-    background: var(--boost-paper);
-    color: var(--boost-ink);
-    transform: translateY(-2px);
-  }
-}
-
-.cta:focus-visible {
-  outline: 2px solid var(--boost-accent);
-  outline-offset: 3px;
 }
 
 @media (max-width: 839px) {
@@ -153,12 +116,6 @@
   .spectrum {
     font-size: 14px;
   }
-
-  .cta {
-    min-height: 46px;
-    padding: 0 18px;
-    font-size: 15px;
-  }
 }
 
 /* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
@@ -171,7 +128,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .posterImg, .cta { transition: none; }
+  .posterImg { transition: none; }
   .boost:hover .posterImg { transform: rotate(4deg); }
-  .cta:hover, .cta:focus-visible { transform: none; }
 }

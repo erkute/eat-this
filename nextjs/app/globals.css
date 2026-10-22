@@ -469,6 +469,7 @@ html[data-vintage] :is(.homeV2 > [data-hub-starter], [data-red-sheet]) {
   --et-field-fg: #15120e;
   --et-field-muted: rgba(21, 18, 14, .6);
   --et-focus: #fff;
+  --et-btn-hover: #2b2722;
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
 }
 /* Nachbarblätter mit versetztem Korn, damit sich das Muster nicht wiederholt. */
@@ -878,6 +879,12 @@ html[data-auth='1'] [data-guest-only] {
   --toast-ink: var(--et-white);
   --toast-muted: rgba(255, 255, 255, 0.76);
   --toast-accent: var(--et-accent);
+  /* Ink-Karte: Knöpfe (et-btn) weiss, der zweite eine leise Weiss-Stufe. */
+  --et-solid: #fff;
+  --et-on-solid: var(--et-ink);
+  --et-field: rgba(255, 255, 255, 0.12);
+  --et-field-fg: #fff;
+  --et-focus: #fff;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -997,7 +1004,8 @@ html[data-auth='1'] [data-guest-only] {
   color: var(--et-accent-text);
 }
 /* Knoepfe nur, wo es welche gibt — dann ist die Karte ein Layer. Gleich
-   breit nebeneinander, der gelbe rechts; allein nimmt er die ganze Breite. */
+   breit nebeneinander, der Hauptknopf rechts; allein nimmt er die ganze
+   Breite. Aussehen: et-btn. */
 .notification-actions {
   display: flex;
   gap: 8px;
@@ -1006,50 +1014,6 @@ html[data-auth='1'] [data-guest-only] {
 .notification-primary,
 .notification-quiet {
   flex: 1 1 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 16px;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.12;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 0.16s ease,
-    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.notification-primary {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-}
-.notification-quiet {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--toast-ink);
-}
-/* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink. */
-@media (hover: hover) {
-  .notification-primary:hover {
-    background: #fff;
-    color: var(--et-ink);
-  }
-  .notification-quiet:hover {
-    background: rgba(255, 255, 255, 0.16);
-  }
-}
-.notification-primary:focus-visible,
-.notification-quiet:focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 3px;
-}
-.notification-primary:active,
-.notification-quiet:active {
-  transform: translateY(1px);
 }
 @media (max-width: 420px) {
   .notification {
@@ -1239,44 +1203,7 @@ html[data-auth='1'] [data-guest-only] {
   width: 100%;
 }
 .cookie-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: var(--et-radius-pill);
-  background-image: var(--et-btn-wear, none);
-  background-size: 200px auto;
-  mask: var(--et-rough-edges-sm, none);
-  font-family: var(--cookie-font);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.12;
-  text-transform: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease;
-}
-.cookie-btn-accept {
-  color: var(--et-on-solid);
-  background-color: var(--et-solid);
-}
-.cookie-btn-decline {
-  color: var(--et-field-fg, var(--et-ink));
-  background-color: var(--et-field, #fff);
-}
-@media (hover: hover) {
-  .cookie-btn-accept:hover {
-    background-color: #2b2722;
-  }
-  .cookie-btn-decline:hover {
-    color: var(--et-on-solid);
-    background-color: var(--et-solid);
-  }
+  width: 100%;
 }
 .cookie-legal {
   display: flex;
@@ -1335,9 +1262,6 @@ html[data-auth='1'] [data-guest-only] {
   .cookie-buttons {
     grid-template-columns: 1fr;
     gap: 8px;
-  }
-  .cookie-btn {
-    min-height: 52px;
   }
 }
 
@@ -1463,7 +1387,7 @@ html[data-auth='1'] [data-guest-only] {
    Nebeneffekt, der passt: wo der Hover −1px hebt, steht der Druck auf 0 —
    dieselbe Bewegung wie vorher.
 
-   1px, weil das die Hausgeste ist (`.hv-btn`, `.hv-chip` und rund zwanzig
+   1px, weil das die Hausgeste ist (`.et-btn`, `.hv-chip` und rund zwanzig
    weitere Regeln machen das seit jeher so). Wer das ändert, ändert es hier.
 
    `summary` ist mit drin: die FAQ-Zeilen sind Knöpfe, auch wenn sie keine sind.
@@ -1472,7 +1396,7 @@ html[data-auth='1'] [data-guest-only] {
 button:not(:disabled):active,
 summary:active,
 [role='button']:not([aria-disabled='true']):active,
-.hv-btn:active,
+.et-btn:active,
 .hv-chip:active {
   translate: 0 1px;
 }
@@ -1755,31 +1679,81 @@ ol {
   font-size: var(--et-type-caption);
   color: var(--et-muted);
 }
-.homeV2 .hv-btn {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: var(--et-type-button);
-  padding: 11px 24px;
-  border-radius: 999px;
-  display: inline-block;
-  background: var(--et-solid);
-  color: var(--et-on-solid);
-  border: none;
+/* ---------------------------------------------------------------------------
+   Der Knopf. Eine Definition für jeden Text-Knopf der App (Ansage 22.10.2026:
+   „die müssen alle gleich sein, und ändere ich sie, ziehen alle mit"):
+   zerkratzte Pille mit leicht angestossener Kante, fett, Neue Haas Grotesk.
+   Module setzen nur noch, WO ein Knopf steht (Abstand, Breite, Raster) —
+   nie Farbe, Form, Schrift oder Hover. Gleich spezifische Modulregeln
+   gewönnen sonst gegen diese hier (globals lädt zuerst).
+
+   Farbe kommt aus den Rollen der Fläche: `--et-solid`/`--et-on-solid` —
+   Ink auf Papier, weiss auf Ink-Blättern, Ink auf den roten Blättern.
+   Größen: Standard; `et-btn-sm` auf Fotos, Karten und in Listen;
+   `et-btn-lg` für den einen Kauf einer Seite.
+   `et-btn-alt`: die zweite Antwort neben einem Hauptknopf (Google,
+   Ablehnen) und Knöpfe auf Fotos — weiss mit Ink-Schrift.
+   Symbol-Knöpfe, Chips, Filter und die Sprachwahl sind keine Knöpfe in
+   diesem Sinn und bleiben eigen. */
+.et-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: var(--et-btn-h);
+  padding: 0 var(--et-btn-pad);
+  border: 0;
+  border-radius: var(--et-radius-pill);
+  background-color: var(--et-btn-bg, var(--et-solid));
+  background-image: var(--et-btn-wear, none);
+  background-size: 200px auto;
+  mask: var(--et-rough-edges-sm, none);
+  color: var(--et-btn-fg, var(--et-on-solid));
+  font: 700 var(--et-btn-font) / 1.25 var(--et-font-body);
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
   cursor: pointer;
   transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
+    background-color var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
-.homeV2 .hv-btn:focus-visible {
-  transform: translateY(-2px);
+.et-btn-sm {
+  min-height: var(--et-btn-h-sm);
+  padding-inline: var(--et-btn-pad-sm);
+  font-size: var(--et-btn-font-sm);
+}
+.et-btn-lg {
+  min-height: var(--et-btn-h-lg);
+  padding-inline: var(--et-btn-pad-lg);
+  font-size: var(--et-btn-font-lg);
+}
+.et-btn-alt {
+  --et-btn-bg: var(--et-field, #fff);
+  --et-btn-fg: var(--et-field-fg, var(--et-ink));
+}
+.et-btn svg {
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
 }
 @media (hover: hover) {
-  .homeV2 .hv-btn:hover {
-    transform: translateY(-2px);
+  .et-btn:not(:disabled):hover {
+    background-color: var(--et-btn-hover, var(--et-accent));
+    color: #fff;
   }
 }
-.homeV2 .hv-btn:active {
-  transform: translateY(1px);
+.et-btn:focus-visible {
+  outline: 3px solid var(--et-focus, var(--et-fg));
+  outline-offset: 3px;
+}
+.et-btn:disabled,
+.et-btn[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 .homeV2 .hv-chip {
   font-family: var(--et-font-display);

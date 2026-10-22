@@ -24,7 +24,10 @@
 .drawer:global(.active) .navItem { transition: background-color 120ms ease, color 120ms ease, rotate 160ms cubic-bezier(.2,.8,.2,1), opacity 260ms ease var(--d, 0ms), translate 360ms cubic-bezier(.2,.8,.2,1) var(--d, 0ms); }
 .navItem:nth-child(2) { --d: 30ms; } .navItem:nth-child(3) { --d: 60ms; } .navItem:nth-child(4) { --d: 90ms; } .navItem:nth-child(5) { --d: 120ms; }
 .navItem:nth-child(6) { --d: 150ms; } .navItem:nth-child(7) { --d: 180ms; } .navItem:nth-child(8) { --d: 210ms; } .navItem:nth-child(9) { --d: 240ms; }
-.cta { display: inline-flex; align-items: center; align-self: flex-start; min-height: var(--et-btn-h); margin-top: 32px; padding: 0 var(--et-btn-pad); background: var(--et-solid); color: var(--et-on-solid); border-radius: var(--et-radius-pill); background-image: var(--et-btn-wear, none); mask: var(--et-rough-edges-sm, none); background-size: 200px auto; font: inherit; font-size: var(--et-btn-font); font-weight: 700; line-height: 1.4; }
+.cta {
+  align-self: flex-start;
+  margin-top: 32px;
+}
 .foot { margin-top: auto; padding-top: 48px; }
 .prefs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 28px; margin-left: -10px; }
 .lang { display: flex; gap: 4px; }
@@ -34,8 +37,7 @@
 .footLink { display: inline-flex; align-items: center; min-height: 32px; color: inherit; font-size: 12px; line-height: 1.4; text-decoration: none; }
 .panel :is(a,button):focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .panel .navItem:focus-visible { outline: 0; color: #ffc600; background: var(--et-solid) var(--et-wear, none) 0 0 / 200px auto; rotate: -1.5deg; }
-.panel .cta:focus-visible { outline-color: var(--et-fg); }
-@media (hover:hover) { .panel .navItem:hover { color: #ffc600; background: var(--et-solid) var(--et-wear, none) 0 0 / 200px auto; rotate: -1.5deg; } :is(.close,.langBtn,.footLink):hover { color: var(--et-link); } .panel .cta:hover { background: var(--et-accent); color: #fff; } }
+@media (hover:hover) { .panel .navItem:hover { color: #ffc600; background: var(--et-solid) var(--et-wear, none) 0 0 / 200px auto; rotate: -1.5deg; } :is(.close,.langBtn,.footLink):hover { color: var(--et-link); } }
 @media (max-width:767.98px) {
   .panel { width: 100%; }
   .topbar { padding-inline: 24px; }
@@ -45,7 +47,9 @@
   /* So gross, dass „Booster Packs" die Breite fast füllt — aber nie höher, als
      dass das ganze Menü ohne Scrollen in den Bildschirm passt. */
   .navItem { font-size: clamp(22px, min(11.6vw, calc((100dvh - 412px) / 8.2)), 46px); min-height: 0; }
-  .cta { margin-top: 24px; }
+  .cta {
+    margin-top: 24px;
+  }
   .foot { padding-top: 36px; }
   .legal { gap: 4px 16px; }
 }

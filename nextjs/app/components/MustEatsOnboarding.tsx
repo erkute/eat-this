@@ -383,7 +383,7 @@ export default function MustEatsOnboarding({
                     </button>
                     <button
                       type="button"
-                      className={tour.action}
+                      className={`et-btn ${tour.action}`}
                       onClick={() => setStep((s) => Math.min(s + 1, SLIDES.length - 1))}
                     >
                       {t('mustEats.onbNext')}
@@ -395,7 +395,7 @@ export default function MustEatsOnboarding({
                       <a className={tour.quiet} href={packsHref} onClick={close}>
                         {t('mustEats.onbPacksCta')}
                       </a>
-                      <button type="button" className={tour.action} onClick={close}>
+                      <button type="button" className={`et-btn ${tour.action}`} onClick={close}>
                         {t('mustEats.onbStart')}
                       </button>
                     </div>
@@ -413,7 +413,7 @@ export default function MustEatsOnboarding({
                           erst zur Startseite zu springen. */}
                       <button
                         type="button"
-                        className={tour.action}
+                        className={`et-btn ${tour.action}`}
                         onClick={() => {
                           close();
                           if (starterMustEatId) {

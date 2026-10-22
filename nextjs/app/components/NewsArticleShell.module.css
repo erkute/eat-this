@@ -423,7 +423,7 @@ div.page {
    die Kapitel.
    Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
    Bezirk · Küche). */
-.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue) {
+.content a:not(.inlineSpotNameLink):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue) {
   color: inherit;
   font-weight: 700;
   text-decoration: none;
@@ -432,7 +432,7 @@ div.page {
 
 @media (hover: hover) {
   .content
-    a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue):hover {
+    a:not(.inlineSpotNameLink):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue):hover {
     color: var(--article-head);
   }
 }
@@ -732,29 +732,6 @@ div.page {
   }
 }
 
-/* Der Knopf rechts unten auf dem Foto, als Pille wie alle Knöpfe. */
-.inlineSpotCta {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--et-btn-h-sm);
-  padding: 0 var(--et-btn-pad-sm);
-  border-radius: var(--et-radius-pill);
-  background: var(--article-accent);
-  background-image: var(--et-btn-wear, none);
-  mask: var(--et-rough-edges-sm, none);
-  background-size: 200px auto;
-  color: var(--et-on-accent);
-  font-size: var(--et-btn-font-sm);
-  line-height: 1;
-  /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
-  text-decoration: none;
-  text-transform: none;
-}
-
 /* ---------------------------------------------------------- hub link ---- */
 
 /* Der Ausgang am Artikelende als Ink-Tafel (Ansage 02.10.2026 „das besser
@@ -813,24 +790,11 @@ div.page {
   text-wrap: balance;
 }
 
+/* Auf der Ink-Tafel `et-btn et-btn-alt`; hier nur sein Platz. */
 .hubLinkCta {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  display: inline-flex;
   grid-column: 2;
   justify-self: start;
-  align-items: center;
-  min-height: 40px;
   margin-top: 6px;
-  padding: 0 16px;
-  background: var(--article-accent);
-  color: var(--et-on-accent);
-  font-size: 13px;
-  line-height: 1;
-  text-transform: none;
-  white-space: nowrap;
-  transition: background 180ms ease;
 }
 
 .hubLink:focus-visible {
@@ -839,8 +803,8 @@ div.page {
 }
 
 .hubLink:focus-visible .hubLinkCta {
-  background: var(--et-white);
-  color: var(--et-ink);
+  background-color: var(--et-btn-hover, var(--et-accent));
+  color: #fff;
 }
 
 @media (hover: hover) {
@@ -853,8 +817,8 @@ div.page {
   }
 
   .hubLink:hover .hubLinkCta {
-    background: var(--et-white);
-    color: var(--et-ink);
+    background-color: var(--et-btn-hover, var(--et-accent));
+    color: #fff;
   }
 }
 
@@ -866,32 +830,7 @@ div.page {
   margin-top: clamp(24px, 4vw, 44px);
 }
 
-.shareBtn {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 38px;
-  padding: 8px 13px 9px;
-  border: 0;
-  background: var(--article-quiet);
-  color: var(--article-fg);
-  font-size: 13px;
-  line-height: 1;
-  text-decoration: none;
-  text-transform: none;
-  cursor: pointer;
-  transition:
-    background 140ms ease,
-    color 140ms ease;
-}
-
 .shareBtn svg {
-  width: 16px;
-  height: 16px;
-  flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -1039,9 +978,7 @@ div.page {
 
 /* ------------------------------------------------------------ states ---- */
 
-.mustEat:focus-visible,
-.inlineSpotCta:focus-visible,
-.shareBtn:focus-visible {
+.mustEat:focus-visible {
   outline: 2px solid var(--article-fg);
   outline-offset: 4px;
 }
@@ -1064,12 +1001,6 @@ div.page {
     translate: 0 -8px;
     rotate: 0deg;
   }
-
-  .shareBtn:hover,
-  .shareBtn:focus-visible {
-    background: var(--article-accent);
-    color: var(--et-on-accent);
-  }
 }
 
 /* ------------------------------------------------------------ layout ---- */
@@ -1086,10 +1017,7 @@ div.page {
     grid-column: 3;
     grid-row: 1 / span 2;
     align-self: center;
-    min-height: 48px;
     margin-top: 0;
-    padding: 0 22px;
-    font-size: 14px;
   }
 }
 

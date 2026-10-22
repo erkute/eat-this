@@ -116,7 +116,6 @@ export default async function PackDetailPage({ params }: PageProps) {
                     packName={pack.displayName}
                     amountCents={pack.amountCents}
                     locale={loc}
-                    className={styles.cta}
                     errorClassName={styles.ctaError}
                     label={`${t.cta} · ${formatPackPrice(pack.amountCents)}`}
                     pendingLabel={t.pending}

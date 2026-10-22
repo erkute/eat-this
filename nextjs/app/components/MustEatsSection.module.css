@@ -192,59 +192,11 @@
 
 /* ------------------------------------------------------------ buttons -- */
 
-.cta,
-.secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--et-btn-h);
-  padding: 0 var(--et-btn-pad);
-  border: 0;
-  border-radius: var(--et-radius-pill);
-  font-family: var(--et-font-display);
-  font-size: var(--et-btn-font);
-  font-weight: 700;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    background-color var(--et-motion-fast),
-    color var(--et-motion-fast),
-    transform var(--et-motion-fast);
-}
-
 /* Pillen wie alle Knöpfe, der gefüllte mit den leichten Kratzern
    (Ansage 22.10.2026). Hover und Fokus: die Fläche wechselt zu Ink, kein
    Ring — Papier wie früher verschwand auf dem hellen Grund. */
-.cta {
-  background: var(--et-accent);
-  background-image: var(--et-btn-wear, none);
-  mask: var(--et-rough-edges-sm, none);
-  background-size: 200px auto;
-  color: var(--et-on-accent);
-}
 
 /* Die Seitentür als leise Fläche: Papier auf dem grauen Abschlussblock. */
-.secondary {
-  background: var(--et-ground);
-  color: var(--et-fg);
-}
-
-.cta:focus-visible,
-.secondary:focus-visible {
-  outline: none;
-  background: var(--et-solid);
-  color: var(--et-on-solid);
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .cta:hover,
-  .secondary:hover {
-    background: var(--et-solid);
-    color: var(--et-on-solid);
-    transform: translateY(-2px);
-  }
-}
 
 /* ------------------------------------------------------------- cards --- */
 
@@ -506,7 +458,6 @@
   line-height: 1.4;
 }
 
-
 /* --------------------------------------------------------------- set --- */
 
 .set {
@@ -673,7 +624,6 @@
     transform: rotate(3deg);
   }
 
-
   .sub {
     margin-top: clamp(20px, 2.4vw, 32px);
     font-size: var(--et-type-lead);
@@ -796,22 +746,16 @@
 @media (prefers-reduced-motion: reduce) {
   .card,
   .card img,
-  .cta,
-  .secondary,
   .spotLink {
     transition: none;
   }
 
-  .card:focus-visible,
-  .cta:focus-visible,
-  .secondary:focus-visible {
+  .card:focus-visible {
     transform: none;
   }
 
   @media (hover: hover) {
-    .card:hover,
-    .cta:hover,
-    .secondary:hover {
+    .card:hover {
       transform: none;
     }
   }

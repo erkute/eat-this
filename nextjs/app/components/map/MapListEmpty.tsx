@@ -70,7 +70,7 @@ export default function MapListEmpty({
       <p className={styles.esSub}>{text}</p>
       {onReset && (
         <div className={styles.esActions}>
-          <button type="button" className={styles.esBtnPrimary} onClick={onReset}>
+          <button type="button" className={`et-btn ${styles.esBtnPrimary}`} onClick={onReset}>
             {t(zustand === 'search' ? 'map.emptyResetSearch' : 'map.emptyReset')}
           </button>
         </div>

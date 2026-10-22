@@ -139,7 +139,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         )}
 
         <div className={styles.actions}>
-          <a href={mapHref} className={styles.cta}>
+          <a href={mapHref} className="et-btn">
             {c.headCta}
           </a>
           <MustEatsOnboarding initialMapData={initialMapData} tone="ink" />
@@ -167,10 +167,10 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           <h2 className={styles.closeTitle}>{c.closeTitle}</h2>
           <p className={styles.closeBody}>{c.closeBody}</p>
           <div className={styles.actions}>
-            <a href={mapHref} className={styles.cta}>
+            <a href={mapHref} className="et-btn">
               {c.closeCta}
             </a>
-            <a href={packsHref} className={styles.secondary}>
+            <a href={packsHref} className="et-btn">
               {c.closeSecondary}
             </a>
           </div>

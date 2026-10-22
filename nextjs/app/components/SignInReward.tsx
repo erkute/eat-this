@@ -420,7 +420,7 @@ export default function SignInReward() {
 
   let content: React.ReactNode;
   let primary: React.ReactNode = (
-    <button type="button" className={styles.action} onClick={() => setStep(step + 1)}>
+    <button type="button" className={`et-btn ${styles.action}`} onClick={() => setStep(step + 1)}>
       {t.next}
     </button>
   );
@@ -497,7 +497,7 @@ export default function SignInReward() {
       <button
         type="submit"
         form={IDENTITY_FORM}
-        className={styles.action}
+        className={`et-btn ${styles.action}`}
         disabled={identity.busy || !identity.name.trim()}
       >
         {identity.busy ? t.identity.saving : t.next}
@@ -597,7 +597,7 @@ export default function SignInReward() {
       primary = (
         <button
           type="button"
-          className={styles.action}
+          className={`et-btn ${styles.action}`}
           disabled={pack === 'opening'}
           onClick={() => setPack('opening')}
         >

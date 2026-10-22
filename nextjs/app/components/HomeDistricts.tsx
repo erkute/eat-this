@@ -64,7 +64,7 @@ export default function HomeDistricts({ locale }: { locale: 'de' | 'en' }) {
       <div className={styles.content}>
         <div className={styles.large} data-districts-large="">{districts.slice(0,4).map(link)}</div>
         <div className={styles.small} data-districts-small="">{districts.slice(4).map((district, index) => link(district, index + 4))}</div>
-        <MapIntentLink href="/map" className="hv-btn">{locale === 'de' ? 'Map entdecken' : 'Explore the map'}</MapIntentLink>
+        <MapIntentLink href="/map" className="et-btn">{locale === 'de' ? 'Map entdecken' : 'Explore the map'}</MapIntentLink>
       </div>
     </section>
   );

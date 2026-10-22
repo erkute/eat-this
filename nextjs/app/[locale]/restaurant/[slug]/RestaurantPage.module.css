@@ -111,6 +111,13 @@
   margin: var(--rhythm) 0 0;
 }
 
+/* Fotos hintereinander sind eine Strecke, kein neuer Abschnitt: dicht
+   untereinander, der Credit trennt sie (Ansage 22.10.2026: „so viel
+   Abstand"). */
+.figure + .figure {
+  margin-top: 24px;
+}
+
 /* Ungeschnitten in seinem eigenen Format; Breite und Höhe stehen am <img>,
    damit vor dem Laden schon der Platz reserviert ist. */
 .photo {
@@ -346,10 +353,8 @@
   color: var(--et-muted);
 }
 
-/* Buttons in der Form von 032c („Subscribe", gemessen 03.10.2026): volle
-   Fläche, eckig, ohne Rahmen, 50px hoch, in Versalien — aber in der eigenen
-   Button-Schrift Providence (Ansage 03.10.2026). Ink mit weisser Schrift;
-   „Zur Map" als Hauptweg in Gelb. Im Steckbrief zentriert wie alles dort. */
+/* Die Knöpfe im Steckbrief, zentriert wie alles dort. Wie sie aussehen,
+   bestimmt `et-btn` (globals.css); hier steht nur, wo sie stehen. */
 .buttons {
   display: flex;
   flex-wrap: wrap;
@@ -358,61 +363,12 @@
   margin-top: 34px;
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 50px;
-  padding: 0 26px;
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  /* 1.55 statt 1: Providence hängt tief, bei kleinerer Zeile fehlte der
-     Unterlänge der Platz (gemessen 30.08.2026). Die Höhe kommt aus
-     min-height. */
-  line-height: 1.55;
-  text-decoration: none;
-  text-transform: none;
-  white-space: nowrap;
-  transition:
-    background-color var(--et-motion-fast),
-    color var(--et-motion-fast);
-}
-
-.btnInk {
-  background: var(--et-quiet);
-  color: var(--et-fg);
-}
-
-@media (hover: hover) {
-  .btn:hover {
-    background: var(--et-quiet);
-    color: var(--et-fg);
-  }
-
-  .btnInk:hover {
-    background: var(--et-accent);
-  }
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--et-fg);
-  outline-offset: 3px;
-}
-
 /* ------------------------------------------------------------ telefon --- */
 
 @media (max-width: 767px) {
   /* Die Fotos randlos über den ganzen Bildschirm. */
   .figure {
     margin-inline: calc(-1 * var(--gut));
-  }
-
-  .figure .credit {
-    padding-inline: var(--gut);
   }
 
   .sheet {
@@ -424,12 +380,6 @@
   .buttons .btn {
     flex: 1 1 calc(50% - 5px);
     padding-inline: 12px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn {
-    transition: none;
   }
 }
 
@@ -448,7 +398,7 @@
 
 .imageGroup figure { min-width: 0; margin: 0; }
 
-.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; color: var(--et-fg); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
+.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; color: var(--et-fg); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
 .caption .credit { display: block; margin: 0; text-align: left; }
 .sheet figure { margin: 0; }
 .imageGroup:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 6px; }
@@ -456,7 +406,6 @@
   .imageGroup { width: 100vw; grid-template-columns: 1fr; gap: 32px; }
   .imageGroup .caption { padding-inline: var(--gut); }
   .figure > .caption { padding-inline: var(--gut); }
-  .imageGroup .credit { padding-inline: 0; }
 }
 
 .magazineHeading { margin: 0 0 24px; font-size: var(--restaurant-section-size); font-weight: 700; line-height: 1.05; text-transform: none; }

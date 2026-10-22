@@ -137,12 +137,12 @@ export default function LoginBoard({
             <p className={styles.spam}>{t('spamHint')}</p>
 
             <div className={styles.actions}>
-              <button type="button" className={styles.ctaPrimary} onClick={submit}>
+              <button type="button" className={`et-btn ${styles.ctaPrimary}`} onClick={submit}>
                 <span>{t('resendBtn')}</span>
               </button>
               <button
                 type="button"
-                className={styles.textlink}
+                className={`et-btn et-btn-alt ${styles.textlink}`}
                 onClick={() => {
                   reset();
                   setEmail('');
@@ -200,7 +200,7 @@ export default function LoginBoard({
               >
                 {feedback}
               </p>
-              <button type="submit" className={styles.ctaPrimary} disabled={state === 'sending'}>
+              <button type="submit" className={`et-btn ${styles.ctaPrimary}`} disabled={state === 'sending'}>
                 <span>{t('sendLinkBtn')}</span>
               </button>
             </form>
@@ -211,7 +211,7 @@ export default function LoginBoard({
 
             <button
               type="button"
-              className={styles.ctaGoogle}
+              className={`et-btn et-btn-alt ${styles.ctaGoogle}`}
               onClick={google.start}
               onPointerEnter={warmOnIntent}
               onPointerDown={warmOnIntent}

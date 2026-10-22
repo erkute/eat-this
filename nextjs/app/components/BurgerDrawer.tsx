@@ -169,7 +169,7 @@ export default function BurgerDrawer() {
             <DrawerLink href="/about" className={styles.navItem} aria-current={here('/about')}>{t('burger.about')}</DrawerLink>
             {isAdmin && <DrawerLink href="/admin/stats" className={styles.navItem} aria-current={here('/admin/stats')}>Stats</DrawerLink>}
           </nav>
-          <button type="button" className={styles.cta} id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
+          <button type="button" className={`et-btn ${styles.cta}`} id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
             <span suppressHydrationWarning>{user ? t('burger.profile') : t('burger.signIn')}</span>
           </button>
           <div className={styles.foot}>

@@ -27,11 +27,13 @@ const props = {
 };
 
 describe('PackBuyButton styling contract', () => {
-  it('lets an embedding surface own the complete button class', () => {
+  // Der Kauf ist immer der grosse Hausknopf (et-btn, globals.css); eine
+  // einbettende Fläche gibt nur ihre Layout-Klasse dazu (22.10.2026: „alle
+  // Buttons gleich").
+  it('is always the large house button; an embedding surface only adds layout', () => {
+    expect(renderToStaticMarkup(<PackBuyButton {...props} />)).toContain('class="et-btn et-btn-lg"');
     const html = renderToStaticMarkup(<PackBuyButton {...props} className="overview-buy" />);
-
-    expect(html).toContain('class="overview-buy"');
-    expect(html).not.toMatch(/class="[^"]+ overview-buy"/);
+    expect(html).toContain('class="et-btn et-btn-lg overview-buy"');
   });
 });
 

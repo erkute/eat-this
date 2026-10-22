@@ -7,10 +7,6 @@
 .esActions {
   flex-direction: column;
 }
-.esBtnPrimary {
-  height: 46px;
-  cursor: pointer;
-}
 .esKicker {
   opacity: 1;
 }
@@ -92,47 +88,12 @@
   gap: 10px;
 }
 .esBtnPrimary {
-  display: inline-flex;
   width: 100%;
-  min-height: 46px;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  text-decoration: none;
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.05;
-  text-transform: uppercase;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast),
-    color var(--et-motion-fast);
-}
-.esBtnPrimary:focus-visible {
-  color: var(--et-ink);
-  background: var(--et-white);
-  transform: translateX(-3px);
-}
-@media (hover: hover) {
-  .esBtnPrimary:hover {
-    color: var(--et-ink);
-    background: var(--et-white);
-    transform: translateX(-3px);
-  }
 }
 
 /* Der Hover schiebt zur Seite, der Druck nach unten — auf dem Telefon gibt es
    keinen Hover, und ohne das hier passierte beim Antippen sichtbar nichts. */
-.esBtnPrimary:active {
-  transform: translateY(1px);
-}
+
 @media (min-width: 1024px) {
   .esBlock {
     margin: 16px 16px 24px;

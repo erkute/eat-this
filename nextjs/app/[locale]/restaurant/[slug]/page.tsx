@@ -500,13 +500,13 @@ export default async function RestaurantPage({ params }: PageProps) {
               {/* nofollow: `mapHref` trägt eine Query, jede Variante würde
                   sonst einzeln gecrawlt. */}
               {onMap && (
-                <MapIntentLink href={mapHref} rel="nofollow" className={styles.btn}>
+                <MapIntentLink href={mapHref} rel="nofollow" className={`et-btn ${styles.btn}`}>
                   {de ? 'Zur Map' : 'On the map'}
                 </MapIntentLink>
               )}
               {r.reservationUrl && (
                 <a
-                  className={`${styles.btn} ${styles.btnInk}`}
+                  className={`et-btn ${styles.btn}`}
                   href={r.reservationUrl}
                   target="_blank"
                   rel="noopener nofollow noreferrer"
@@ -515,13 +515,13 @@ export default async function RestaurantPage({ params }: PageProps) {
                 </a>
               )}
               {telHref && (
-                <a className={`${styles.btn} ${styles.btnInk}`} href={telHref}>
+                <a className={`et-btn ${styles.btn}`} href={telHref}>
                   {de ? 'Anrufen' : 'Call'}
                 </a>
               )}
               {websiteUrl && (
                 <a
-                  className={`${styles.btn} ${styles.btnInk}`}
+                  className={`et-btn ${styles.btn}`}
                   href={websiteUrl}
                   target="_blank"
                   rel="noopener nofollow noreferrer"
@@ -531,7 +531,7 @@ export default async function RestaurantPage({ params }: PageProps) {
               )}
               {r.menuUrl && (
                 <a
-                  className={`${styles.btn} ${styles.btnInk}`}
+                  className={`et-btn ${styles.btn}`}
                   href={r.menuUrl}
                   target="_blank"
                   rel="noopener nofollow noreferrer"

@@ -33,7 +33,9 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
   const [selected, setSelected] = useState(0);
   const coversRef = useRef<HTMLOListElement>(null);
   const shown = useRef(0);
-  const flickDir = useRef(-1);
+  // Richtung und Tempo des letzten Wischs, damit der Wegflug den Finger
+  // nahtlos übernimmt (px/ms).
+  const flick = useRef<{ dir: number; speed: number } | null>(null);
   const list = articles.slice(0, 4);
   const count = list.length;
 
@@ -52,6 +54,11 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
       items.forEach((item, i) => gsap.set(item, pose(depthOf(i, shown.current, count), count)));
 
       let dragged = false;
+      // Gerechnet wird nur mit dem Weg seit dem Antippen: Draggable zählt die
+      // Position des Hilfselements über alle Züge weiter, und ab dem zweiten
+      // Heft startete das Ziehen sonst schon weit links („ab dem zweiten
+      // Magazin wieder zu schnell", 22.10.2026).
+      let startX = 0;
       let lastX = 0;
       let lastT = 0;
       let velocity = 0;
@@ -66,25 +73,28 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
           type: 'x',
           trigger: ol,
           allowNativeTouchScrolling: true,
-          minimumMovement: 6,
+          minimumMovement: 10,
           dragClickables: true,
-          onPress() {
+          onPress(this: { x: number }) {
             dragged = false;
             gsap.killTweensOf(top());
-            gsap.set(proxy, { x: 0 });
+            startX = this.x;
             lastX = 0;
             lastT = performance.now();
             velocity = 0;
           },
           onDrag(this: { x: number }) {
             dragged = true;
+            const dx = this.x - startX;
             const now = performance.now();
-            velocity = (this.x - lastX) / Math.max(1, now - lastT);
-            lastX = this.x;
+            // Geglättet: iOS liefert die Züge unregelmässig, ein einzelner
+            // kurzer Schritt am Ende hätte das Tempo sonst auf null gesetzt.
+            velocity = velocity * 0.4 + ((dx - lastX) / Math.max(1, now - lastT)) * 0.6;
+            lastX = dx;
             lastT = now;
             // Das Heft kippt mit dem Finger; das nächste hebt sich schon an.
-            const progress = Math.min(1, Math.abs(this.x) / (ol.clientWidth * 0.5));
-            gsap.set(top(), { x: this.x, rotation: this.x * 0.05, y: -Math.abs(this.x) * 0.04 });
+            const progress = Math.min(1, Math.abs(dx) / (ol.clientWidth * 0.5));
+            gsap.set(top(), { x: dx, rotation: dx * 0.05, y: -Math.abs(dx) * 0.04 });
             const next = items[(shown.current + 1) % count];
             const from = POSES[1];
             gsap.set(next, {
@@ -94,16 +104,22 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
           },
           onRelease(this: { x: number }) {
             if (!dragged) return;
-            const far = Math.abs(this.x) > ol.clientWidth * 0.28 || Math.abs(velocity) > 0.55;
+            const dx = this.x - startX;
+            // Weg ist es erst nach einem bewussten Zug: ein gutes Drittel der
+            // Breite, oder ein echter Wurf über mindestens 60 px. Ein schneller
+            // Fingeransatz beim Antippen reichte vorher schon (Ansage
+            // 22.10.2026: „wenn ich ziehen will, ist es schon längst links").
+            const far = Math.abs(dx) > ol.clientWidth * 0.36
+              || (Math.abs(dx) > 60 && Math.abs(velocity) > 0.9);
             if (far) {
-              flickDir.current = Math.sign(this.x || velocity) || -1;
+              flick.current = { dir: Math.sign(dx || velocity) || -1, speed: Math.abs(velocity) };
               setSelected(s => (s + 1) % count);
               return;
             }
             // Nicht weit genug: alles legt sich zurück.
             items.forEach((item, i) => gsap.to(item, {
               ...pose(depthOf(i, shown.current, count), count),
-              duration: reduced ? 0 : 0.5, ease: 'elastic.out(1, 0.6)',
+              duration: reduced ? 0.15 : 0.5, ease: reduced ? 'power1.out' : 'elastic.out(1, 0.6)',
             }));
           },
         }) as unknown as { kill: () => void }[];
@@ -186,27 +202,44 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
     if (from === selected) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const steps = depthOf(selected, from, count);
-    const dir = flickDir.current;
-    flickDir.current = -1;
+    const swipe = flick.current;
+    flick.current = null;
+    const dir = swipe?.dir ?? -1;
+    // Ohne Bewegung: das alte Heft blendet aus, der Stapel legt sich neu,
+    // dann ist es hinten wieder da — kein Sprung, aber auch kein Flug.
     if (reduced) {
-      items.forEach((item, i) => gsap.set(item, pose(depthOf(i, selected, count), count)));
-      return;
+      const old = items[from];
+      const tl = gsap.timeline()
+        .to(old, { autoAlpha: 0, duration: 0.18, ease: 'power1.out' })
+        .add(() => items.forEach((item, i) => gsap.set(item, pose(depthOf(i, selected, count), count))))
+        .to(old, { autoAlpha: 1, duration: 0.25, ease: 'power1.in' });
+      return () => { tl.progress(1).kill(); };
     }
     const tl = gsap.timeline();
     for (let step = 0; step < steps; step++) {
       const top = (from + step) % count;
-      const at = step * 0.16;
       const card = items[top];
+      // Nach einem Wisch übernimmt der Wegflug das Tempo des Fingers und
+      // läuft aus (power2.out beginnt mit doppelter Durchschnittsgeschwindig-
+      // keit) — vorher bremste ein ease-in das Heft beim Loslassen auf null
+      // und riss es dann weg (Ansage 22.10.2026: „sehr abrupt am iPhone").
+      const fromSwipe = swipe && step === 0;
+      const at = fromSwipe ? 0 : step * 0.16;
+      const distance = ol.clientWidth * 1.15 - Math.abs(Number(gsap.getProperty(card, 'x')) || 0);
+      const fly = fromSwipe
+        ? gsap.utils.clamp(0.35, 0.6, (2 * distance) / (Math.max(swipe.speed, 0.6) * 1000))
+        : 0.4;
       tl.set(card, { zIndex: count + 1 }, at)
         .to(card, {
-        x: dir * ol.clientWidth * 1.15, y: -30, rotation: dir * 24,
-        duration: 0.32, ease: 'power2.in',
-      }, at)
-        .set(card, { zIndex: 0 }, at + 0.32)
-        .to(card, { ...POSES[POSES.length - 1], duration: 0.55, ease: 'power3.out' }, at + 0.32);
+          x: dir * ol.clientWidth * 1.15, y: -30, rotation: dir * 24,
+          duration: fly, ease: fromSwipe ? 'power2.out' : 'power2.inOut',
+        }, at)
+        .set(card, { zIndex: 0 }, at + fly)
+        .to(card, { ...POSES[POSES.length - 1], duration: 0.55, ease: 'power3.out' }, at + fly);
+      // Das nächste Heft rückt sofort nach — es hob sich beim Ziehen schon an.
       items.forEach((item, i) => {
         if (i === top) return;
-        tl.to(item, { ...pose(depthOf(i, (top + 1) % count, count), count), duration: 0.5, ease: 'power3.out' }, at + 0.12);
+        tl.to(item, { ...pose(depthOf(i, (top + 1) % count, count), count), duration: 0.5, ease: 'power3.out' }, fromSwipe ? at : at + 0.12);
       });
     }
     // Zum Schluss liegt jedes Heft genau auf seinem Platz — beim Durchblättern

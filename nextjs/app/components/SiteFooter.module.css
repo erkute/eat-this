@@ -15,10 +15,17 @@
 .legalBtn { appearance: none; border: 0; background: transparent; cursor: pointer; }
 .meta { margin: 20px auto 0; font-size: 12px; line-height: 1.5; }
 .copy { color: #bcbab7; }
-.lang { display: flex; justify-content: center; align-items: center; gap: 4px; margin: 16px auto 0; }
+.prefs { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 24px; margin: 16px auto 0; }
+/* Ein kurzer Strich trennt Sprache und Hell/Dunkel — ohne ihn lasen sich
+   „DE · EN ☀ ☾" als vier gleiche Zeichen (22.10.2026). */
+.prefsSep { width: 1px; height: 18px; background: #777; }
+.lang { display: flex; justify-content: center; align-items: center; gap: 4px; }
 .langBtn { min-width: 44px; min-height: 44px; color: #bcbab7; font-size: 14px; }
 .langBtnActive { color: #fff; font-weight: 700; }
 .langSep { color: #777; }
+/* Sonne/Mond wie DE/EN: grau, der gewählte Modus weiss (und gefüllt). */
+.themeBtn { min-width: 44px; min-height: 44px; color: #bcbab7; }
+.themeBtn[aria-pressed='true'] { color: #fff; }
 .footer :is(a,button):focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 @media (hover:hover) { .footer :is(a,button):hover { color: #ffbd31; } }
 @media (max-width:767px) { .footer { padding-block: 40px 96px; } .megaImg { width: 238px; } .legal { gap: 4px 20px; } }

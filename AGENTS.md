@@ -61,6 +61,8 @@ Status nur so weit melden, wie er belegt ist: `committed` → `pushed` → `PR o
 
 **Knöpfe:** Jeder Text-Knopf trägt die globale Klasse `et-btn` (`globals.css`, Größen `et-btn-sm`/`et-btn-lg`, zweite Antwort und Fotos `et-btn-alt`). Module setzen nur Position (Abstand, Breite, Raster), nie Farbe, Form, Schrift oder Hover; die Farbe kommt aus `--et-solid`/`--et-on-solid` der Fläche. Änderungen am Knopf nur dort (Betreiber, 22.10.2026). Ausnahmen: Symbol-Knöpfe, Chips, Filter, Sprachwahl, Remy-Chat-Senden.
 
+**Etiketten:** Text auf Fotos und kleine Zwischentitel über die globalen Klassen `et-label` / `et-label-paper` / `et-label-title` (`globals.css`), immer gerade, nie schief. Fotos werden für Text nie abgedunkelt (Betreiber, 22.10.2026).
+
 **Navigation und CTAs:** Keine Pfeile oder Chevrons als Richtungszeichen (auch nicht für Zurück, Weiter oder externe Links). Keine unterstrichenen Wörter oder Links, auch nicht bei Hover oder Fokus. Interaktion und Fokus über Farbe, Fläche oder eine klare Umrandung kennzeichnen.
 
 Bei sichtbaren Änderungen den betroffenen Ablauf vor und nach dem Umbau auf einem schmalen Telefon und Desktop prüfen. Bestehende Komponenten und die `--et-*`-Tokens in `globals.css` sind die gestalterische Referenz; neue Richtungen erst anhand konkreter Screens/Referenzen ausarbeiten. Schrift, Abstände, Bildausschnitt, Fokus und leere/ladende Zustände gehören zur Abnahme. Animationen mit und ohne Reduced Motion prüfen; sichtbare Inhalte sollen nicht auf eine Animation oder Hydrierung warten müssen.

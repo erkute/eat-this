@@ -1,5 +1,5 @@
 'use client';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { trackEvent } from '@/lib/analytics';
 
 interface Props {
@@ -11,8 +11,6 @@ interface Props {
   className?: string;
   label: string;
   copiedLabel: string;
-  /** Optional leading glyph, so the button can sit in an icon'd action row. */
-  icon?: ReactNode;
   /** Share this URL instead of the current page — the profile's invite link
    *  is not the address the user is standing on. */
   url?: string;
@@ -33,7 +31,6 @@ export default function ShareButton({
   className,
   label,
   copiedLabel,
-  icon,
   url: shareUrl,
 }: Props) {
   const [done, setDone] = useState(false);
@@ -86,8 +83,7 @@ export default function ShareButton({
         window.setTimeout(() => setDone(false), 1800);
       }}
     >
-      {icon}
-      <span>{done ? copiedLabel : label}</span>
+      {done ? copiedLabel : label}
     </button>
   );
 }

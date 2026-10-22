@@ -230,9 +230,11 @@ const Item = memo(
           )}
         </div>
 
+        {/* Geöffnet: Ink mit gelber Schrift; geschlossen: Papier. Getragen
+            vom Wort und von Hell gegen Dunkel, nicht von Grün gegen Rot. */}
         {statusMain && (
           <span
-            className={`${styles.openPill} ${status?.isOpen ? '' : styles.openPillClosed}`}
+            className={`et-label ${status?.isOpen ? '' : 'et-label-paper'} ${styles.openPill}`}
             role="status"
           >
             {statusMain}
@@ -258,20 +260,15 @@ const Item = memo(
 
         <div className={styles.rcardBody}>
           <h3 ref={nameRef} className={styles.rcardName}>
-            {displayName}
+            <span className="et-label-title">{displayName}</span>
           </h3>
-          <p className={styles.rcardMeta}>
-            {district && (
-              <span className={`${styles.rcardMetaChip} ${styles.rcardMetaDistrict}`}>
-                <span>{district}</span>
+          {(district || cuisine) && (
+            <p className={styles.rcardMeta}>
+              <span className="et-label et-label-paper">
+                {[district, cuisine].filter(Boolean).join(' · ')}
               </span>
-            )}
-            {cuisine && (
-              <span className={`${styles.rcardMetaChip} ${styles.rcardMetaCuisine}`}>
-                <span>{cuisine}</span>
-              </span>
-            )}
-          </p>
+            </p>
+          )}
         </div>
       </div>
     );

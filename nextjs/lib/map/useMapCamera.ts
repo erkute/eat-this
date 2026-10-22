@@ -458,13 +458,12 @@ export function useMapCamera({
     [getFlyPadding]
   );
 
-  /* A pin tap opens the detail at its middle stage, whose height depends on
-     whether the pager row is there. */
+  /* A pin tap opens the detail at its middle stage: the photo. */
   const pinTapFlyPadding = useCallback(
-    (withPager: boolean) =>
+    () =>
       getFlyPadding(
         'peek',
-        estimateDetailMidVisiblePx(window.innerWidth, withPager, safeAreaBottomRef.current ?? 0)
+        estimateDetailMidVisiblePx(window.innerWidth, safeAreaBottomRef.current ?? 0)
       ),
     [getFlyPadding]
   );

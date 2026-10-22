@@ -396,8 +396,9 @@ html[data-vintage] {
 html[data-vintage][data-theme='dark'] {
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
 }
-/* Die Maske schnitte den Fokusring ab, der ausserhalb des Knopfs liegt. */
-html[data-vintage] :is(a, button, input):focus-visible {
+/* Die Maske schnitte den Fokusring ab, der ausserhalb des Knopfs liegt.
+   Hausknöpfe zeigen den Fokus als Fläche (unten) und behalten ihre Kante. */
+html[data-vintage] :is(a, button, input):not(.et-btn):focus-visible {
   mask: none;
 }
 html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
@@ -875,16 +876,16 @@ html[data-auth='1'] [data-guest-only] {
   touch-action: none;
 }
 .notification {
-  --toast-surface: var(--et-ink-raised);
-  --toast-ink: var(--et-white);
-  --toast-muted: rgba(255, 255, 255, 0.76);
-  --toast-accent: var(--et-accent);
-  /* Ink-Karte: Knöpfe (et-btn) weiss, der zweite eine leise Weiss-Stufe. */
-  --et-solid: #fff;
-  --et-on-solid: var(--et-ink);
-  --et-field: rgba(255, 255, 255, 0.12);
-  --et-field-fg: #fff;
-  --et-focus: #fff;
+  /* Ein Blatt wie der Anmelde-Layer, aber in der Farbe der Seite: hell
+     Papier mit Ink-Schrift, dunkel Ink mit weisser (Ansage 22.10.2026: „der
+     ist jetzt schwarz, passt nicht zum weissen Look"). Knöpfe folgen den
+     Rollen der Seite; der zweite ist eine leise Stufe der Schriftfarbe. */
+  --toast-surface: var(--et-ground);
+  --toast-ink: var(--et-fg);
+  --toast-muted: var(--et-muted);
+  --et-field: color-mix(in srgb, var(--et-fg) 10%, transparent);
+  --et-field-fg: var(--et-fg);
+  --et-focus: var(--et-fg);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -895,18 +896,18 @@ html[data-auth='1'] [data-guest-only] {
      Text — „Noch einer fuer deine Liste." stand schmaler als der Rest. Die
      40 px sind das Seitenpolster der Huelle. */
   width: min(360px, calc(100vw - 40px));
-  padding: 22px 22px 22px;
+  padding: 26px 24px 24px;
   color: var(--toast-ink);
   text-align: left;
-  background: var(--toast-surface);
+  background-color: var(--toast-surface);
+  background-image: var(--et-sheet, none);
+  background-size: var(--et-sheet-size, auto);
+  background-repeat: var(--et-sheet-repeat, repeat);
   border: 0;
-  /* Derselbe Radius wie Anmelde-Layer und Onboarding. */
-  border-radius: var(--et-radius-panel, 10px);
-  /* Keine Kante, wie der Anmelde-Layer — die Flaechenstufe traegt, dazu der
-     Schatten des Onboarding-Fensters (Tour.module.css .panel). Bis 24.09.2026
-     stand hier nur eine 1-px-Kante: der clip-path des damaligen Schlitzes
-     schnitt jeden aeusseren Schatten weg. */
-  box-shadow: 0 24px 80px #0008;
+  border-radius: 0;
+  /* Abgestossene Kante wie das Anmelde-Fenster (LoginPanel). Die Maske
+     schnitte einen eigenen Schatten ab — den wirft die Hülle (unten). */
+  mask: var(--et-rough-edges, none);
   pointer-events: none;
   transition: transform 0.26s ease-out;
 }
@@ -924,43 +925,34 @@ html[data-auth='1'] [data-guest-only] {
     transform: translateY(14px);
   }
 }
-/* Dieselbe Sprache wie der Anmelde-Layer (LoginBoard): gelber Kicker in
-   Providence-Versalien, weisser Versalien-Titel, eine Zeile in Weiss 76 %,
-   gefuellte Knoepfe ohne Kontur. Vor dem Kicker das gelbe Marken-Quadrat
-   (wie `hv-mk` und der Insider-Tipp); nur bei „kaputt" ist es rot. Rot als
-   Schrift waere auf Ink zu schwach (rund 2,9:1), das Quadrat traegt die
-   Farbe allein. Icons gibt es seit dem 24.09.2026 keine mehr — der Kicker
-   sagt, worum es geht. */
+/* Kicker als Etikett, darunter der Titel und eine leise Zeile, gefüllte
+   Knöpfe. Bei „kaputt" ist das Etikett rot. */
 .notification[data-tone='error'] {
   --toast-mark: var(--et-red);
+  --toast-mark-fg: #fff;
 }
 .notification-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--et-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1.2;
+  /* Der Kicker ist ein gerades Etikett wie in der Map (et-label): Ink mit
+     Kratzern und gelber Schrift, bei „kaputt" rot mit weisser. */
+  align-self: flex-start;
+  padding: 6px 9px 5px;
+  background: var(--toast-mark, var(--et-label-bg, var(--et-ink))) var(--et-wear, none) 0 0 / 200px auto;
+  color: var(--toast-mark-fg, #ffc600);
+  font: 900 11px / 1 var(--et-font-body);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--et-accent-text);
 }
-.notification-eyebrow::before {
-  content: '';
-  flex: none;
-  width: 9px;
-  height: 9px;
-  background: var(--toast-mark, var(--toast-accent));
+.notification-eyebrow:empty {
+  display: none;
 }
 .notification-title {
-  margin-top: 2px;
+  margin-top: 6px;
   font-family: var(--et-font-display);
   font-size: 26px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.02;
-  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-transform: none;
   text-wrap: balance;
   color: var(--toast-ink);
   overflow-wrap: anywhere;
@@ -1001,7 +993,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 .notification-steps li::before {
   content: counter(notice-step);
-  color: var(--et-accent-text);
+  color: var(--et-link);
 }
 /* Knoepfe nur, wo es welche gibt — dann ist die Karte ein Layer. Gleich
    breit nebeneinander, der Hauptknopf rechts; allein nimmt er die ganze
@@ -1015,9 +1007,14 @@ html[data-auth='1'] [data-guest-only] {
 .notification-quiet {
   flex: 1 1 0;
 }
+/* Der Schatten, den die Maske der Karte abschneiden würde, kommt von der
+   Hülle: so hebt sich das helle Blatt auch auf heller Seite ab. */
+.notification-layer[data-open] {
+  filter: drop-shadow(0 18px 40px rgb(0 0 0 / 0.28));
+}
 @media (max-width: 420px) {
   .notification {
-    padding: 20px 18px 18px;
+    padding: 24px 20px 20px;
   }
   .notification-title {
     font-size: 24px;
@@ -1746,14 +1743,56 @@ ol {
     color: #fff;
   }
 }
+/* Fokus als Fläche, kein Ring: ein Ring mit Abstand um die Pille las sich
+   als doppelter Rahmen (Ansage 22.10.2026: „kein doppelten Rahmen im
+   Button"). Gelb mit Ink-Schrift — dieselbe Fläche wie ein gesetzter Filter. */
 .et-btn:focus-visible {
-  outline: 3px solid var(--et-focus, var(--et-fg));
-  outline-offset: 3px;
+  outline: 0;
+  background-color: #ffc600;
+  color: var(--et-ink);
 }
 .et-btn:disabled,
 .et-btn[aria-disabled='true'] {
   opacity: 0.55;
   cursor: not-allowed;
+}
+/* ---------------------------------------------------------------------------
+   Das Etikett. Ein aufgeklebter Zettel wie der Spot-Name auf den
+   Spot-Karten im Artikel, aber gerade (Ansage 22.10.2026: „keine schiefen
+   Labels, nur noch gerade") (NewsArticleShell `.inlineSpotName`): Ink mit den
+   Kratzern, gelbe Schrift. So steht Text auf einem Foto, ohne dass das Foto
+   dunkler werden muss (Ansage 22.10.2026: „das Bild muss hell bleiben").
+   `et-label`: kleine Versalien (Bezirk, Küche, Status, Zwischentitel).
+   `et-label-paper`: dasselbe auf weissem Papier.
+   `et-label-title`: der Name als grosses Etikett; jede umbrochene Zeile
+   bekommt ihr eigenes Stück. */
+.et-label {
+  display: inline-block;
+  padding: 6px 9px 5px;
+  background: var(--et-label-bg, var(--et-ink)) var(--et-wear, none) 0 0 / 200px auto;
+  color: #ffc600;
+  font: 900 11px / 1 var(--et-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.et-label-paper {
+  background: #fff;
+  color: var(--et-ink);
+}
+.et-label-title {
+  padding: 2px 10px 4px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: var(--et-label-bg, var(--et-ink)) var(--et-wear, none) 0 0 / 200px auto;
+  color: #ffc600;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+/* Auf dem dunklen Grund verschwände das Ink-Etikett in der Fläche: eine
+   Stufe heller. Auf Fotos setzt das Bild `--et-label-bg` wieder auf Ink. */
+html[data-theme='dark'] {
+  --et-label-bg: var(--et-ink-raised);
 }
 .homeV2 .hv-chip {
   font-family: var(--et-font-display);
@@ -1821,4 +1860,4 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
 }
 
 
-.cookie-consent :is(button,a):focus-visible { outline: 2px solid var(--et-ink); outline-offset: 3px; }
+.cookie-consent :is(button,a):not(.et-btn):focus-visible { outline: 2px solid var(--et-ink); outline-offset: 3px; }

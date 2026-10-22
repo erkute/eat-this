@@ -8,155 +8,128 @@
 
 .filterChipRow {
   display: flex;
-  align-items: stretch;
-  gap: 8px;
+  flex-wrap: nowrap;
+  align-items: center;
+  /* Eng: die angestossene Kante der Pillen lässt schon Luft dazwischen. */
+  gap: 2px;
   width: 100%;
   min-width: 0;
-  padding: 8px 10px 12px;
+  padding: 6px 6px 8px;
   box-sizing: border-box;
-  background: var(--map-collage-paper, #fff);
 }
 
+/* Die Filter sehen aus wie die Hausknöpfe (et-btn): gefüllte Ink-Pille mit
+   Kratzern und angestossener Kante, fett, weiss. Gesetzt, aufgeklappt oder
+   unter der Maus wird die Pille gelb mit Ink-Schrift. Sie füllen die ganze
+   Breite und bleiben immer in EINER Zeile: wird es eng, werden die Pillen
+   schmaler und ein langer Wert kürzt sich (Ansage 22.10.2026). Kein Pfeil. */
 .filterChipWrap {
   position: relative;
   display: flex;
-  flex: 1 1 0;
-  min-width: min-content;
-  border-radius: var(--et-radius-control);
-  overflow: visible;
+  flex: 1 1 auto;
+  /* Nie schmaler als ein kurzes Wort mit Kreuz („Dinner ×"). */
+  min-width: 88px;
 }
-.filterChipWrapActive {
-  min-width: 0;
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-}
-.filterChipWrapLong { flex-grow: 1.25; min-width: max-content; }
 
 .filterChipRow .filterChip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 1 1 auto;
-  gap: 4px;
   min-width: 0;
-  min-height: 44px;
-  padding: 8px 7px;
-  background: var(--et-quiet);
-  color: var(--map-collage-ink, #111);
+  min-height: 40px;
+  padding: 0 12px;
   border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: 12px;
+  border-radius: var(--et-radius-pill);
+  background: var(--et-solid) var(--et-btn-wear, none) 0 0 / 200px auto;
+  mask: var(--et-rough-edges-sm, none);
+  color: var(--et-on-solid);
+  font-family: var(--et-font-body);
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.2;
   letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;
   cursor: pointer;
   appearance: none;
-  transform: none;
-  filter: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  text-shadow: none;
+  transition:
+    background-color var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
-.filterChipRow .filterChipActive {
-  background: transparent;
-  color: var(--et-on-accent);
-  padding-inline: 6px 10px;
-  border-radius: var(--et-radius-control);
+/* Preis und „Geöffnet" sind kurz und behalten ihre Breite; schmaler werden
+   nur Kategorie und Bezirk, und auch die nie unter ein kurzes Wort
+   („Dinner" bleibt ganz, „Prenzlauer Berg" kürzt sich). Nach der Regel
+   oben, weil sie gleich spezifisch ist. */
+.filterChipRow .filterChipWrapFixed,
+.filterChipRow > .filterChip {
+  flex: none;
+  min-width: 0;
 }
 .filterChipRow .filterChipLabel {
   display: block;
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
   font: inherit;
-  /* Keep Providence's descenders and the complete selected name. */
-  line-height: 1.4;
-  white-space: normal;
-  text-wrap: balance;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: inherit;
 }
-.filterChevron {
-  display: flex;
-  flex: 0 0 10px;
-  width: 10px;
-  height: 10px;
-  transform: rotate(-90deg);
-}
-.filterChevron svg { width: 100%; height: 100%; }
-.filterChip[aria-expanded='true'] .filterChevron { transform: rotate(90deg); }
 
-/* Small corner badge as requested. A separate sibling keeps button markup
-   valid; its hit area grows inward, never over the neighbouring filter. */
+/* Gelb: gesetzt (mit Wert), aufgeklappt, „Geöffnet" an. */
+.filterChipRow .filterChipActive,
+.filterChipRow .filterChipOpenActive,
+.filterChipRow .filterChip[aria-expanded='true'] {
+  background-color: #ffc600;
+  color: var(--et-ink);
+}
+/* Mit Wert bekommt die Pille rechts Platz für das Kreuz. */
+.filterChipRow .filterChipActive {
+  padding-right: 26px;
+}
+
+/* Das Kreuz zum Zurücksetzen sitzt in der Pille. Eigener Knopf neben dem
+   Filter-Knopf (ein Knopf im Knopf wäre ungültig), deshalb absolut darüber. */
 .filterChipClear {
   position: absolute;
-  top: -5px;
-  right: 0;
+  top: 50%;
+  right: 3px;
   z-index: 1;
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 28px;
   padding: 0;
-  background: var(--map-collage-paper, #fff);
-  color: var(--et-accent-text);
   border: 0;
   border-radius: 50%;
-  box-shadow: none;
+  background: transparent;
+  color: var(--et-ink);
   cursor: pointer;
   appearance: none;
   touch-action: manipulation;
-  transform: none;
+  transform: translateY(-50%);
 }
-.filterChipClear::before {
-  content: '';
-  position: absolute;
-  inset: -4px 0 -14px -9px;
-}
-.filterChipClear svg { width: 11px; height: 11px; }
+.filterChipClear svg { width: 10px; height: 10px; }
 
-.filterChipRow .filterOpenToggle {
-  flex: 0 0 auto;
-  gap: 5px;
-  padding-inline: 8px;
+/* Fokus als Fläche wie bei den Hausknöpfen, kein zweiter Rahmen. */
+.filterChipRow .filterChip:focus-visible {
+  outline: 0;
+  background-color: #ffc600;
+  color: var(--et-ink);
 }
-.filterOpenToggle::before {
-  content: '';
-  flex: 0 0 5px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #79d69b;
-}
-.filterChipRow .filterChipOpenActive {
-  background: #1f8f4d;
-  color: #fff;
-}
-.filterChipOpenActive::before { background: currentColor; }
-
-.filterChipRow .filterChip:focus-visible,
 .filterChipClear:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -3px;
-}
-/* Aufgeklappt: eine Flächenstufe wie beim Hover, kein Unterstrich — auf der
-   Karte hebt sich nichts per Linie ab (keine-Konturen-Regel, 23.09.2026).
-   Ein gesetzter (gelber) Chip bleibt gelb. */
-.filterChipRow .filterChip[aria-expanded='true']:not(.filterChipActive):not(.filterChipOpenActive) {
-  background: linear-gradient(var(--et-subtle), var(--et-subtle)), var(--et-quiet);
+  outline: 2px solid var(--et-ink);
+  outline-offset: -2px;
 }
 @media (hover: hover) {
   .filterChipRow .filterChip:hover {
-    background: linear-gradient(var(--et-subtle), var(--et-subtle)), var(--et-quiet);
+    background-color: #ffc600;
+    color: var(--et-ink);
   }
-  .filterChipRow .filterChipActive:hover { background: rgba(21, 18, 14, 0.08); }
-  .filterChipClear:hover { background: var(--et-red); color: var(--map-collage-ink, #111); }
-  .filterChipRow .filterChipOpenActive:hover { background: #176f3c; }
+  .filterChipClear:hover { color: var(--et-red); }
 }
 .filterChipRow .filterChip:active,
-.filterChipClear:active { transform: none; }
+.filterChipClear:active { translate: none; }
 
 /* ── Telefon ──────────────────────────────────────────────────────────────────
    Die Leiste klebt oben, sobald die Liste darunter scrollt. Eigene
@@ -189,7 +162,6 @@
     user-select: none;
   }
 
-  .filterChipRow { gap: 6px; }
 }
 
 /* ══ Picker ═══════════════════════════════════════════════════════════════════
@@ -251,10 +223,9 @@
   width: min(360px, calc(100vw - 24px));
   max-height: 70vh;
   padding: 8px;
-  /* Eine Stufe ueber dem Grund (--et-ink-raised in globals.css): das Sheet
-     oeffnet auf der Karte, und die ist genauso dunkel. */
-  background: var(--et-quiet);
-  color: var(--map-collage-ink, #111);
+  /* Papier wie die Liste, aus der es aufklappt. */
+  background: var(--et-ground) url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px;
+  color: var(--et-fg);
   /* Keine Haarlinie drumherum — die Flaeche traegt (User, 23.09.2026). */
   border: 0;
   border-radius: var(--et-radius-control);
@@ -281,11 +252,12 @@
 .pickerTitle {
   min-width: 0;
   overflow: hidden;
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0;
+  font-family: var(--et-font-body);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   line-height: 1.35;
+  text-transform: uppercase;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -335,7 +307,7 @@
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  gap: 7px;
+  gap: 6px;
   max-height: min(58vh, 470px);
   padding: 0 0 10px;
   overflow: auto;
@@ -346,178 +318,77 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Die Auswahl gebündelt als gefüllte Knöpfe ohne Rahmen, im Look der
+   Hausknöpfe (et-btn): Ink-Pille mit Kratzern und angestossener Kante,
+   weisse Schrift, die Anzahl leise rechts. Gewählt, unter der Maus oder im
+   Fokus wird die Pille gelb mit Ink-Schrift — wie der gesetzte Filter
+   darüber (Ansage 22.10.2026: „gebündelt wie Buttons, aber ohne Rahmen"). */
 .pickerItem {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 8px;
   width: 100%;
-  min-height: 42px;
-  padding: 10px 12px;
-  /* Die Fuellung traegt, kein Ring — wie die Chips, aus denen diese Liste
-     aufklappt (User, 23.09.2026: keine Rahmen). Eine Spur heller als das
-     Fenster (--et-ink-raised), auf dem sie liegt. */
-  background: var(--et-subtle);
-  color: var(--map-collage-ink, #111);
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 16px;
   border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
+  border-radius: var(--et-radius-pill);
+  background: var(--et-solid) var(--et-btn-wear, none) 0 0 / 200px auto;
+  mask: var(--et-rough-edges-sm, none);
+  color: var(--et-on-solid);
   appearance: none;
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.1;
+  font-family: var(--et-font-body);
   text-align: left;
-  text-transform: none;
   cursor: pointer;
   transition:
-    background 120ms ease,
+    background-color 120ms ease,
     color 120ms ease;
 }
-
-/* Weiss 14 % als Hervorhebung — Fokus, Hover und Druck teilen sie sich.
-   Vorher stand hier `rgba(21, 18, 14, 0.86)`, eine Ink-Fuellung aus der Zeit
-   vor dem Ink-Umbau der Map: auf dem hellen Sheet von damals war das die
-   Hervorhebung, auf dem dunklen von heute ist sie gemessen ΔL* 0,0 — also
-   nichts. Fokus und Hover waren damit seit dem Umbau unsichtbar, und der
-   Druckzustand hat den Fehler zuerst geerbt. Weiss 14 % ergibt ΔL* 15,9. */
-.pickerItem:focus-visible {
-  background: rgba(21, 18, 14, .14);
-  color: var(--map-collage-ink, #111);
-  outline: 0;
-  transform: none;
-}
-
-@media (hover: hover) {
-  .pickerItem:hover {
-    background: rgba(21, 18, 14, .14);
-    color: var(--map-collage-ink, #111);
-    outline: 0;
-    transform: none;
-  }
-}
-
-/* Druck: dieselbe Füllung wie Hover und Fokus. Auf einer Zeile über die ganze
-   Breite ist die Füllung die einzige Rückmeldung, die man wirklich sieht — die
-   1px Absenkung aus globals.css gehen darin unter. Ungesperrt, denn genau auf
-   dem Telefon ist sie die einzige, die es gibt. */
-.pickerItem:active {
-  background: rgba(21, 18, 14, .14);
-  color: var(--map-collage-ink, #111);
-  outline: 0;
-}
-
-/* Ausgewählte Zeile: Akzentfüllung mit Ink-Text. Vorher rendete sie mit
-   byte-identischen Werten wie eine normale Zeile — `font-weight: 900` hat auf
-   einer Schrift mit nur einem Schnitt keine Wirkung, und der Ink-Hintergrund
-   wurde weiter unten nochmal gesetzt. Man konnte nicht sehen, was man gewählt
-   hatte. */
 .pickerItemActive,
-.pickerItemActive:focus-visible {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  border-color: var(--et-accent);
-  box-shadow: none;
-  filter: none;
-  text-shadow: none;
-  transform: none;
+.pickerItem:focus-visible {
+  outline: 0;
+  background-color: #ffc600;
+  color: var(--et-ink);
 }
 @media (hover: hover) {
-  .pickerItemActive:hover {
-    background: var(--et-accent);
-    color: var(--et-on-accent);
-    border-color: var(--et-accent);
-    box-shadow: none;
-    filter: none;
-    text-shadow: none;
-    transform: none;
+  .pickerItem:not(:disabled):hover {
+    background-color: #ffc600;
+    color: var(--et-ink);
   }
 }
-
-/* Die gewählte Zeile bleibt beim Drücken gelb — sonst schlüge die Ink-Füllung
-   oben durch (`.pickerItem:active` ist spezifischer als `.pickerItemActive`)
-   und die Auswahl sähe für einen Moment aus wie eine gewöhnliche Zeile. */
-.pickerItemActive:active {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  border-color: var(--et-accent);
-  box-shadow: none;
-  filter: none;
-  text-shadow: none;
+.pickerItem:active {
+  translate: none;
 }
 
-/* Zeilen, hinter denen wirklich nichts steht — weder frei noch gesperrt. Sie
-   bleiben stehen (Weglassen sortiert den Picker zwischen zwei Öffnungen um,
-   und „Peruanisch: 0" ist eine echte Antwort), sind aber nicht mehr wählbar:
-   ein Tap führte auf eine Liste, die nur „0 Treffer" sagen konnte.
-
-   Erkennbar wird das an der weggenommenen Fläche. Jede wählbare Zeile ist
-   eine gefüllte Karte; diese hier verliert die Füllung und steht flach auf
-   dem Fenster, ohne Umriss (keine Rahmen, User 23.09.2026) — ein anderer
-   Zeilentyp, nicht dieselbe Zeile im Nebel. Der Text bleibt lesbar, denn die Zahl daneben ist die
-   Begründung; Deko, die man nicht mehr entziffert, erklärt nichts. Cursor und
-   Hover bestätigen es beim Anfassen, und `disabled` nimmt die Zeile aus der
-   Tab-Reihenfolge. Der Weg aus einer Null führt über die „Alle"-Zeile ganz
-   oben oder einen anderen Chip — beide bleiben immer wählbar. */
-.pickerItemDead {
-  background: transparent;
+/* Zeilen, hinter denen nichts steht: bleiben stehen (die Null ist eine
+   Antwort), sind aber eine leise Fläche und nicht wählbar. */
+.pickerItemDead,
+.pickerItemDead:hover {
+  background: var(--et-subtle);
   color: var(--et-muted);
-  box-shadow: none;
   cursor: default;
 }
 
-.pickerItemDead:focus-visible {
-  background: transparent;
-  color: var(--et-muted);
-}
-
-@media (hover: hover) {
-  .pickerItemDead:hover {
-    background: transparent;
-    color: var(--et-muted);
-  }
-}
-
-.pickerItemDead .pickerItemSub {
-  opacity: 0.8;
-}
-
-/* line-height 1.35, nicht 1.1: Providence hat bei 15px eine 7,3px tiefe
-   Unterlänge, die Zeile war aber nur 16,5px hoch — dem „g" in „Charlottenburg"
-   fehlten unten 1,2px, und `overflow: hidden` (das das Ellipsis trägt) hat sie
-   abgeschnitten (User, 2026-08-27). Die Zeile wächst dadurch nicht: 10px
-   Innenabstand + 20,25px + 10px bleiben unter den 42px Mindesthöhe. */
 .pickerItemLabel {
-  flex: 1 1 auto;
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
   color: inherit;
-  font-family: var(--et-font-display);
   font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.35;
-  text-transform: none;
-  white-space: normal;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pickerItemSub {
-  flex-shrink: 0;
+  flex: none;
   color: inherit;
-  opacity: 0.62;
-  font-family: var(--et-font-display);
+  opacity: 0.6;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.1;
-  text-transform: none;
-}
-
-.pickerItemActive .pickerItemSub {
-  opacity: 0.55;
+  line-height: 1;
 }
 
 /* ── Mobile: Bottom-Sheet, bündig an Unterkante und Rändern ─────────────────
@@ -549,9 +420,6 @@
 
   /* Zwei Pixel weniger Polster je Seite: „Prenzlauer Berg" ist der längste
      Wert im Katalog und braucht in der halbierten Spalte jeden davon. */
-  .pickerItem {
-    padding: 10px 10px;
-  }
 }
 
 /* ── Aufgeklappt statt schwebend ────────────────────────────────────────────
@@ -606,19 +474,31 @@
   overflow-y: auto;
 }
 
-/* Price follows its short label; category and district share the remaining room. */
-.filterChipWrap.filterChipCompact { flex: 0 0 auto; min-width: 58px; }
+/* Schmale Panels: die Wörter rücken enger zusammen, statt abzukürzen. */
 @container (max-width: 374px) {
-  .filterChipRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .filterChipRow .filterChip { font-size: 12px; }
+  .filterChipRow { gap: 2px; padding-inline: 4px; }
+  .filterChipRow .filterChip { padding-inline: 10px; font-size: 13px; }
+  .filterChipRow .filterChipActive { padding-right: 24px; }
 }
 @media (max-width: 374px) {
-  .pickerItemLabel { font-size: 13px; }
+  .pickerItemLabel { font-size: 14px; }
 }
 /* Providence descenders extend below the line box even at 1.35 line-height. */
-.filterChipRow .filterChipLabel,
 .pickerTitle,
 .pickerItemLabel {
   padding-bottom: 0.22em;
   margin-bottom: -0.22em;
+}
+
+/* Am Telefon klebt die Leiste über den Zeilen und trägt deren Papier mit,
+   dazu oben die abgerissene Kante des Blatts (MapSheet.module.css). */
+@media (max-width: 767.98px) {
+  :global(html[data-vintage]) .listHeader {
+    background-image: url('/pics/vintage/paper-grain.webp?v=4');
+    background-size: 192px;
+    border-radius: 0;
+    mask:
+      url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 12px repeat-x,
+      linear-gradient(#000 0 0) 0 10px / 100% calc(100% - 10px) no-repeat;
+  }
 }

@@ -22,7 +22,7 @@ import { metadataSource } from '@/lib/seo/metadataSource';
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
-import { isClosedSlot, localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
+import { isClosedSlot, localizeOpeningDays, localizeOpeningHours, withDash } from '@/lib/map/openingHours';
 import { buildSpotFlow } from '@/lib/spotFlow';
 import { sanityImageSize, sanitySrcSet } from '@/lib/sanity-image-presets';
 import HeartButton from '@/app/components/HeartButton';
@@ -51,11 +51,6 @@ function imageAssetKey(url: string | undefined): string {
 function titleFitStyle(name: string): CSSProperties {
   const longest = Math.max(...name.split(/\s+/).map((w) => w.length), 1);
   return { '--word-fit': `${(100 / (0.62 * longest)).toFixed(2)}cqi` } as CSSProperties;
-}
-
-/** Zeiten mit Halbgeviertstrich statt Bindestrich: 09:00–16:00. */
-function withDash(hours: string): string {
-  return hours.replace(/(\d)\s*-\s*(\d)/g, '$1–$2');
 }
 
 /** Foto-Nachweis unter einem Bild — als Link, wenn die Quelle eine sichere URL hat. */

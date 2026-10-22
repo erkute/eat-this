@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { Fragment, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'react';
+import { useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
@@ -18,19 +18,10 @@ import { routing } from '@/i18n/routing';
 import styles from './RestaurantDetail.module.css';
 import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import { HeartIcon, CloseIcon } from './icons';
-import {
-  RouteIcon,
-  ReserveIcon,
-  PhoneIcon,
-  WebsiteIcon,
-  MenuCardIcon,
-  ShareIcon,
-} from '../actionIcons';
 import { useHeartCount } from '@/lib/map/useHeartCount';
 import { heartCountShort } from '@/lib/map/heartLabel';
 import { classifyWebsite, formatPriceLabel } from './restaurantDetail.helpers';
 import { normalizeName } from '@/lib/normalizeName';
-import { hasAmbiguousDropCap } from '@/lib/dropCap';
 import { useLoginModal } from '@/lib/auth';
 import ShareButton from '../ShareButton';
 import RestaurantGallery from './RestaurantGallery';
@@ -39,10 +30,10 @@ import RestaurantDetailArticles from './RestaurantDetailArticles';
 import { trackEvent } from '@/lib/analytics';
 import {
   berlinNow,
-  getOpenStatus,
   localizeOpeningDays,
   localizeOpeningHours,
   slotCoversDay,
+  withDash,
 } from '@/lib/map/openingHours';
 import { useInkSafeLeading } from '@/lib/dom/inkSafeLeading';
 import { spotPhotoSrc } from '@/lib/map/spotPhoto';
@@ -113,10 +104,6 @@ interface RestaurantDetailProps {
   onMustEatClick: (m: MapMustEat) => void;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
-  prevRestaurant?: MapRestaurant | null;
-  nextRestaurant?: MapRestaurant | null;
-  onPagePrev?: () => void;
-  onPageNext?: () => void;
 }
 
 export default function RestaurantDetail({
@@ -132,10 +119,6 @@ export default function RestaurantDetail({
   onMustEatClick,
   isFavorite,
   onToggleFavorite,
-  prevRestaurant,
-  nextRestaurant,
-  onPagePrev,
-  onPageNext,
 }: RestaurantDetailProps) {
   const { t } = useTranslation();
   const locale = useLocale();
@@ -164,10 +147,6 @@ export default function RestaurantDetail({
 
   const hasHours = !!r.openingHours?.length;
   const minute = useSyncExternalStore(subscribeMinute, currentMinute, serverMinute);
-  const openNow =
-    hasHours && minute !== null
-      ? getOpenStatus(r.openingHours!, berlinNow(new Date(minute * 60_000))).isOpen
-      : null;
   /* Heute in Berlin, für die Markierung in den Öffnungszeiten. Erst nach der
      Hydrierung (minute ist auf dem Server null), und nur bei mehr als einer
      Zeile: steht da nur „Täglich", gibt es nichts zu unterscheiden. */
@@ -205,12 +184,6 @@ export default function RestaurantDetail({
   }, [detail, displayName, r._id, r.photo, r.photoCredit, r.photoCreditUrl, restaurant.photo]);
 
   const district = r.bezirk?.name ?? r.district ?? null;
-  /* Unter dem Namen im Blätterknopf der Bezirk: bei Ketten stand sonst
-     „‹ Bonanza Coffee…" neben „Bonanza Coffee… ›", und welcher welcher war,
-     sah man erst nach dem Tippen. */
-  const pagerDistrict = (spot: MapRestaurant) =>
-    spot.bezirk?.name ?? spot.district ?? null;
-
   const meters = userLocation
     ? haversineDistance(userLocation.lat, userLocation.lng, r.lat, r.lng)
     : null;
@@ -356,128 +329,38 @@ export default function RestaurantDetail({
               )}
             </button>
           )}
+          {/* Name und Angaben als Etiketten im Foto, wie auf den Karten der
+              Liste: das Foto bleibt hell, nichts wird abgedunkelt. Kein
+              „Geöffnet" hier — die Liste zeigt den Zustand, das Detail die
+              Woche mit dem heutigen Tag markiert (Ansage 22.10.2026). */}
           <div className={styles.rdOverlay}>
             {/* h2, nicht h1: die H1 der Seite ist „Berlin Food Map" und
                 schwebt über der Karte (MapIntro) — die URL bleibt /map, das
-                Detail ist ein Panel darin. Bis zum 01.09.2026 standen hier
-                zwei H1 nebeneinander. */}
+                Detail ist ein Panel darin. */}
             <h2
               ref={nameRef}
               className={styles.rdNameOv}
               style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}
             >
-              {displayName}
+              <span className="et-label-title">{displayName}</span>
             </h2>
             <div className={styles.rdTagsOv}>
-              {district && <span className={styles.rdTag}>{district}</span>}
-              {cuisine && <span className={styles.rdTagAlt}>{cuisine}</span>}
-              {/* Nur der Zustand, keine Uhrzeit: die Zeiten stehen
-                  vollständig auf der Tafel unten. Bis 09.10.2026 stand
-                  „Geöffnet bis 04:00" als eigene Pille zwischen Blätterleiste
-                  und Text (User: „ein dummer Platz"). */}
-              {openNow !== null && (
-                <span
-                  className={`${styles.rdTag} ${styles.rdTagState}`}
-                  data-open={openNow ? '' : undefined}
-                >
-                  {openNow ? t('map.open') : t('map.closed')}
+              {(district || cuisine) && (
+                <span className="et-label et-label-paper">
+                  {[district, cuisine].filter(Boolean).join(' · ')}
                 </span>
               )}
             </div>
           </div>
         </header>
 
-        {/* PAGER — prev/next restaurant in the filtered list */}
-        {(prevRestaurant || nextRestaurant) && (
-          <nav className={styles.rdPager} data-detail-pager aria-label="Restaurant pager">
-            <button
-              type="button"
-              className={styles.rdPagerBtn}
-              disabled={!prevRestaurant}
-              onClick={onPagePrev}
-            >
-              {prevRestaurant && (
-                <>
-                  <svg
-                    className={styles.rdPagerArrow}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M15 6l-6 6 6 6" />
-                  </svg>
-                  <span className={styles.rdPagerCopy}>
-                    <span className={styles.rdPagerName}>{normalizeName(prevRestaurant.name)}</span>
-                    {pagerDistrict(prevRestaurant) && (
-                      <span className={styles.rdPagerSub}>{pagerDistrict(prevRestaurant)}</span>
-                    )}
-                  </span>
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              className={`${styles.rdPagerBtn} ${styles.rdPagerBtnRight}`}
-              disabled={!nextRestaurant}
-              onClick={onPageNext}
-            >
-              {nextRestaurant && (
-                <>
-                  <span className={styles.rdPagerCopy}>
-                    <span className={styles.rdPagerName}>{normalizeName(nextRestaurant.name)}</span>
-                    {pagerDistrict(nextRestaurant) && (
-                      <span className={styles.rdPagerSub}>{pagerDistrict(nextRestaurant)}</span>
-                    )}
-                  </span>
-                  <svg
-                    className={styles.rdPagerArrow}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
-                </>
-              )}
-            </button>
-          </nav>
-        )}
-
-        {/* BODY — story prose with drop cap. While the on-demand detail fetch
-            is still in flight, hold the space with skeleton lines so the
-            sections below don't jump up and the text doesn't pop in. */}
+        {/* BODY — Fließtext wie auf der Spot-Seite. Solange das Detail noch
+            lädt, halten Platzhalterzeilen den Raum, damit nichts springt. */}
         {hasStory ? (
           <div className={styles.rdBody}>
-            {storyText.split('\n\n').map((para, idx) =>
-              /* The drop cap is a ::first-letter on the paragraph, not a
-                 <span> around para[0]. Splitting the text made screen readers
-                 announce it as its own word — "A", pause, "n der Torstraße" —
-                 and broke text selection across the first character. Every
-                 property the cap needs (float, font, colour, padding) is
-                 ::first-letter-legal, so nothing is lost visually. */
-              idx === 0 && para.length > 0 ? (
-                <p
-                  key={idx}
-                  className={`${styles.rdStoryLead} ${
-                    hasAmbiguousDropCap(para) && !/^[^\p{L}\p{N}]*I/u.test(para)
-                      ? styles.rdStoryLeadPlain
-                      : ''
-                  }`}
-                >
-                  {para}
-                </p>
-              ) : (
-                <p key={idx}>{para}</p>
-              )
-            )}
+            {storyText.split('\n\n').map((para, idx) => (
+              <p key={idx}>{para}</p>
+            ))}
           </div>
         ) : detailLoading ? (
           <div className={`${styles.rdBody} ${styles.rdBodySkel}`} aria-hidden="true">
@@ -488,19 +371,20 @@ export default function RestaurantDetail({
           </div>
         ) : null}
 
-        {/* INSIDER TIPP */}
+        {/* INSIDER-TIPP — kleiner Zwischentitel über grossem Zitat, wie auf
+            der Spot-Seite; kein Kasten. */}
         {hasTipp && (
-          <div className={styles.rdTipp}>
-            <span className={styles.rdTippLabel}>{t('map.insiderTip')}</span>
-            <p className={styles.rdTippText}>{tipText}</p>
-          </div>
+          <section className={styles.rdTipp}>
+            <h3 className={`et-label ${styles.rdSecH}`}>{t('map.insiderTip')}</h3>
+            <p className={styles.rdTippText}>„{tipText}“</p>
+          </section>
         )}
 
         {/* MUST EATS — reveal state mirrors the map/list (unlocked OR proximity-revealed) */}
         {mustEats.length > 0 && (
           <section className={styles.rdMustSection}>
             <div className={styles.rdMustHead}>
-              <h2 className={styles.rdSecH}>Must Eats</h2>
+              <h3 className={`et-label ${styles.rdSecH}`}>Must Eats</h3>
               {/* „Must Eat" ist ein Hauswort — wer zum ersten Mal auf der Karte
                   landet, sieht hier nur Karten und keine Erklärung.
 
@@ -523,34 +407,29 @@ export default function RestaurantDetail({
           </section>
         )}
 
-        {/* FACTS — opening hours shown in full, no expander */}
-        <div className={styles.rdFacts}>
+        {/* FAKTEN — eine Fläche für alles, was man zum Hingehen braucht:
+            Adresse, die Woche (heute fett), Preis und Instagram, darunter
+            die Knöpfe (Ansage 22.10.2026: „eine einheitliche Ebene, ein
+            bisschen dezenter"). Bezirk und Küche stehen schon im Foto. */}
+        <section className={styles.rdFacts} aria-label={locale === 'en' ? 'Details' : 'Steckbrief'}>
           {addressLines && (
-            <div className={styles.rdRow}>
-              <span className={styles.rdK}>{t('map.address')}</span>
-              <span className={styles.rdV}>
+            <div className={styles.rdBlock}>
+              <h3 className={styles.rdK}>{t('map.address')}</h3>
+              <p className={styles.rdAddress}>
                 {addressLines.street}
-                {addressLines.locality && (
-                  <span className={styles.rdAddrLine}>{addressLines.locality}</span>
-                )}
-                {walkingTime && (
-                  <span className={styles.rdVMeta}>
-                    {walkingTime} {t('map.walkMinutes')}
-                  </span>
-                )}
-              </span>
-            </div>
-          )}
-          {cuisine && (
-            <div className={styles.rdRow}>
-              <span className={styles.rdK}>{t('map.category')}</span>
-              <span className={styles.rdV}>{cuisine}</span>
+                {addressLines.locality && <span>{addressLines.locality}</span>}
+              </p>
+              {walkingTime && (
+                <p className={styles.rdVMeta}>
+                  {walkingTime} {t('map.walkMinutes')}
+                </p>
+              )}
             </div>
           )}
           {hasHours && (
-            <div className={`${styles.rdRow} ${styles.rdRowHours}`}>
-              <span className={styles.rdK}>{t('map.openingHours')}</span>
-              <div className={`${styles.rdV} ${styles.rdHours}`}>
+            <div className={styles.rdBlock}>
+              <h3 className={styles.rdK}>{t('map.openingHours')}</h3>
+              <dl className={styles.rdHours}>
                 {r.openingHours!.map((slot, i) => {
                   const isToday = today !== null && slotCoversDay(slot.days, today);
                   return (
@@ -559,65 +438,49 @@ export default function RestaurantDetail({
                       className={isToday ? styles.rdHoursRowToday : styles.rdHoursRow}
                       aria-current={isToday ? 'date' : undefined}
                     >
-                      <span className={styles.rdHoursD}>
-                        {localizeOpeningDays(slot.days, locale)}
-                      </span>
-                      {/* Geteilte Schichten („10:00-15:00, 18:00-01:00") kamen als
-                          EIN String an, und `overflow-wrap: anywhere` auf der Zelle
-                          durfte deshalb mitten in einer Uhrzeit umbrechen —
-                          „18:00-" / „01:00". Jede Spanne bekommt ihre eigene,
-                          unbrechbare Box; gebrochen wird nur noch am Komma. */}
-                      <span className={styles.rdHoursT}>
-                        {localizeOpeningHours(slot.hours, locale)
+                      <dt>{localizeOpeningDays(slot.days, locale)}</dt>
+                      {/* Jede Zeitspanne eine eigene, unbrechbare Zeile —
+                          „18:00-" / „01:00" bricht so nie mehr auseinander. */}
+                      <dd>
+                        {withDash(localizeOpeningHours(slot.hours, locale))
                           .split(/,\s*/)
-                          .map((range, j, all) => (
-                            <Fragment key={j}>
-                              {j > 0 ? ' ' : null}
-                              <span className={styles.rdHoursSpan}>
-                                {range}
-                                {j < all.length - 1 ? ',' : ''}
-                              </span>
-                            </Fragment>
+                          .map((range, j) => (
+                            <span key={j} className={styles.rdHoursSpan}>
+                              {range}
+                            </span>
                           ))}
-                      </span>
+                      </dd>
                     </div>
                   );
                 })}
-              </div>
+              </dl>
             </div>
           )}
-          {priceLabel && (
-            <div className={styles.rdRow}>
-              <span className={styles.rdK}>{t('map.price')}</span>
-              <span className={styles.rdV}>{priceLabel}</span>
-            </div>
-          )}
-          {igUrl && (
-            <div className={styles.rdRow}>
-              <span className={styles.rdK}>Instagram</span>
-              <span className={`${styles.rdV} ${styles.rdVHandle}`}>
-                <a
-                  className={styles.rdContactPlainLink}
-                  href={igUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {igHandle ? `@${igHandle}` : 'Profil ↗'}
-                </a>
-              </span>
+          {(priceLabel || igUrl) && (
+            <div className={`${styles.rdBlock} ${styles.rdPair}`}>
+              {priceLabel && (
+                <div>
+                  <h3 className={styles.rdK}>{t('map.price')}</h3>
+                  <p className={styles.rdV}>{priceLabel}</p>
+                </div>
+              )}
+              {igUrl && (
+                <div>
+                  <h3 className={styles.rdK}>Instagram</h3>
+                  <p className={styles.rdV}>
+                    <a className={styles.rdVLink} href={igUrl} target="_blank" rel="noopener noreferrer">
+                      {igHandle ? `@${igHandle}` : 'Profil'}
+                    </a>
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
-          {/* ACTIONS — same icon'd button system as the public /restaurant/[slug]
-              page, so a spot looks the same wherever you meet it. They sit ON
-              the ink board with the facts, one object like the spot page's
-              Tafel. Three weights: book a table (accent — ink on ink would
-              vanish here), go there (red), everything else paper. Phone and
-              website live here as buttons instead of as rows above. */}
           <div className={styles.rdActs}>
             {r.reservationUrl && (
               <a
-                className={`${styles.rdActBtn} ${styles.rdActStrong} ${styles.rdActReserve}`}
+                className={`et-btn et-btn-sm ${styles.rdActBtn}`}
                 href={r.reservationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -629,25 +492,12 @@ export default function RestaurantDetail({
                   })
                 }
               >
-                <span className={styles.rdActLabel}>
-                  <ReserveIcon />
-                  <span>{t('map.reserve')}</span>
-                </span>
-                {reservationProvider && (
-                  <span className={styles.rdActProvider}>
-                    {reservationProvider === 'OpenTable' && (
-                      <span className={styles.rdActProviderMark} aria-hidden="true">
-                        ot
-                      </span>
-                    )}
-                    <span className={styles.rdActProviderWord}>{reservationProvider}</span>
-                  </span>
-                )}
+                {t('map.reserve')}
               </a>
             )}
             {mapsHref && (
               <a
-                className={`${styles.rdActBtn} ${styles.rdActPrimary}`}
+                className={`et-btn et-btn-sm ${styles.rdActBtn}`}
                 href={mapsHref}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -658,39 +508,27 @@ export default function RestaurantDetail({
                   })
                 }
               >
-                <RouteIcon />
-                <span>{t('map.maps')}</span>
+                {t('map.maps')}
               </a>
             )}
-            <ShareButton
-              title={r.name}
-              slug={r.slug}
-              contentType="restaurant"
-              className={styles.rdActBtn}
-              label={t('map.share')}
-              copiedLabel={locale === 'en' ? 'Copied' : 'Kopiert'}
-              icon={<ShareIcon />}
-            />
             {r.phone && (
-              <a className={styles.rdActBtn} href={`tel:${r.phone.replace(/\s+/g, '')}`}>
-                <PhoneIcon />
-                <span>{locale === 'en' ? 'Call' : 'Anrufen'}</span>
+              <a className={`et-btn et-btn-sm ${styles.rdActBtn}`} href={`tel:${r.phone.replace(/\s+/g, '')}`}>
+                {locale === 'en' ? 'Call' : 'Anrufen'}
               </a>
             )}
             {websiteInfo?.kind === 'web' && (
               <a
-                className={styles.rdActBtn}
+                className={`et-btn et-btn-sm ${styles.rdActBtn}`}
                 href={websiteInfo.url}
                 target="_blank"
                 rel="noopener nofollow noreferrer"
               >
-                <WebsiteIcon />
-                <span>Website</span>
+                Website
               </a>
             )}
             {r.menuUrl && (
               <a
-                className={styles.rdActBtn}
+                className={`et-btn et-btn-sm ${styles.rdActBtn}`}
                 href={r.menuUrl}
                 target="_blank"
                 rel="noopener nofollow noreferrer"
@@ -701,12 +539,19 @@ export default function RestaurantDetail({
                   })
                 }
               >
-                <MenuCardIcon />
-                <span>{locale === 'en' ? 'Menu' : 'Speisekarte'}</span>
+                {locale === 'en' ? 'Menu' : 'Speisekarte'}
               </a>
             )}
+            <ShareButton
+              title={r.name}
+              slug={r.slug}
+              contentType="restaurant"
+              className={`et-btn et-btn-sm ${styles.rdActBtn}`}
+              label={t('map.share')}
+              copiedLabel={locale === 'en' ? 'Copied' : 'Kopiert'}
+            />
           </div>
-        </div>
+        </section>
 
         {/* IM MAGAZIN — die Artikel, in denen der Spot vorkommt; derselbe Block
             wie auf der Restaurant-Seite. Nach den Fakten: erst, was man zum

@@ -18,7 +18,6 @@ import { describe, expect, it } from 'vitest';
 
 const CONTROLS = 'MapControls.module.css';
 const FILTERS = 'MapFilters.module.css';
-const DETAILS = 'RestaurantDetail.module.css';
 
 function cssRoot(moduleName: string) {
   return postcss.parse(
@@ -180,79 +179,13 @@ describe('MapControls cascade', () => {
   });
 });
 
-/**
- * Does the rule that declares `prop: <value containing fragment>` still carry a
- * selector for `className`?
- *
- * For a declaration shared by several classes, `effective()` above is the wrong
- * instrument: it ignores selector context, so for `.rdActBtn { border }` it
- * reports the `0` from an unrelated context rather than the grouped `2px solid`
- * that actually paints the button. What needs pinning for those is structural —
- * the grouped declaration must keep serving the class that has no other source
- * for it.
- */
-function groupedDeclarationServes(
-  moduleName: string,
-  prop: string,
-  valueFragment: string,
-  className: string
-): boolean {
-  let serves = false;
-  cssRoot(moduleName).walkDecls(prop, (decl) => {
-    if (!decl.value.includes(valueFragment)) return;
-    const rule = decl.parent;
-    if (!rule || rule.type !== 'rule') return;
-    if (
-      'selectors' in rule &&
-      rule.selectors.some((sel) => new RegExp(`\\.${className}(?![\\w-])`).test(sel))
-    ) {
-      serves = true;
-    }
-  });
-  return serves;
-}
-
-describe('RestaurantDetail cascade', () => {
-  /* Declarations in this file that are reported dead by
-   * scripts/audit-css-cascade.mjs and are NOT: each is shared by several
-   * classes and only overridden later for some of them. A bulk prune deletes
-   * them. Each case below names the class that has no other source for the
-   * value, which is what makes the declaration load-bearing.
-   *
-   * scripts/cascade/triage.mjs is the tool that tells these apart — it asks
-   * whether a declaration is dead for EVERY class and context its rule
-   * produces, which is the question the audit does not answer.
-   */
-  const KEEPS: Array<[prop: string, fragment: string, className: string, why: string]> = [
-    [
-      'filter',
-      'drop-shadow(0 6px 5px',
-      'rdHeartToggle',
-      'the reset after it only covers .rdCloseGlass',
-    ],
-    /* Here stood three more: `width: 36px` for .rdCloseGlass and
-       `background: #fff` for .rdPager and .packPromo. The Ink layers at the
-       end of the file re-declare all three under the identical selector, so
-       they became dead for every class after all and went out (26.09.2026). */
-  ];
-
-  for (const [prop, fragment, className, why] of KEEPS) {
-    it(`keeps ${prop}: ${fragment} serving .${className}`, () => {
-      expect(
-        groupedDeclarationServes(DETAILS, prop, fragment, className),
-        `.${className} lost "${prop}: ${fragment}" — ${why}, so removing it changes how .${className} renders`
-      ).toBe(true);
-    });
-  }
-});
-
 describe('MapFilters cascade', () => {
-  it('lets a full district name wrap at spaces instead of truncating', () => {
-    // Districts such as Prenzlauer Berg must remain fully readable, including
-    // inside the narrow desktop sidebar and on a phone.
-    expect(effective(FILTERS, 'filterChipLabel', 'font')).toBe('inherit');
-    expect(effective(FILTERS, 'filterChipLabel', 'white-space')).toBe('normal');
-    expect(effective(FILTERS, 'filterChipLabel', 'overflow')).toBe('visible');
+  it('keeps the filter row on one line', () => {
+    // Ansage 22.10.2026: the filters never wrap into a second row — the pills
+    // narrow instead, and a long value ends in an ellipsis.
+    expect(effective(FILTERS, 'filterChipRow', 'flex-wrap')).toBe('nowrap');
+    expect(effective(FILTERS, 'filterChipLabel', 'white-space')).toBe('nowrap');
+    expect(effective(FILTERS, 'filterChipLabel', 'text-overflow')).toBe('ellipsis');
   });
 
   it('never breaks a chip label mid-word', () => {

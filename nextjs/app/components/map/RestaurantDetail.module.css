@@ -57,130 +57,13 @@
    on the hero photo, matched in size. The toggle sits top-left (its heart is
    outline-white until you heart the spot, then coral-filled; the number is the
    public count); the close X sits top-right. */
-/* Home-collage map icons — independent paper cut-outs with varied shapes. */
-.rdHeartToggle,
-.rdCloseGlass {
-  position: absolute;
-  top: 14px;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: transform 0.12s ease;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  filter: drop-shadow(0 6px 5px rgba(43, 33, 28, 0.3));
-}
-.rdHeartToggle svg,
-.rdCloseGlass svg {
-  width: 16px;
-  height: 16px;
-}
-.rdHeartToggleCount {
-  line-height: 1;
-  letter-spacing: 0.01em;
-}
-.rdPager {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  font-family: var(--et-font-moonblossom);
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  border-bottom: 0;
-  border-top: 0;
-  transform: none;
-  margin: 10px 14px 0;
-  padding: 0;
-  gap: 8px;
-}
-.rdPagerBtn {
-  display: flex;
-  align-items: center;
-  font: inherit;
-  cursor: pointer;
-}
-@media (min-width: 1024px) {
-  .rdPager {
-    font-size: 10px;
-    letter-spacing: 0.055em;
-  }
-}
-/* Skeleton lines while the on-demand detail fields are in flight — holds the
-   story block's space so Tipp/Facts/Must-Eats don't jump when the text lands.
-   Shimmer runs on background-position (no opacity animation, project rule). */
-.rdBodySkel {
-  display: grid;
-  gap: 11px;
-  padding-bottom: 16px;
-}
-.rdBodySkel span {
-  height: 13px;
-  border-radius: 7px;
-  background: linear-gradient(
-    90deg,
-    rgba(10, 10, 10, 0.08) 25%,
-    rgba(10, 10, 10, 0.15) 50%,
-    rgba(10, 10, 10, 0.08) 75%
-  );
-  background-size: 200% 100%;
-  animation: rdSkelShimmer 1.2s linear infinite;
-}
-.rdBodySkel span:nth-child(2) {
-  width: 94%;
-}
-.rdBodySkel span:nth-child(3) {
-  width: 88%;
-}
-.rdBodySkel span:nth-child(4) {
-  width: 55%;
-}
+
 @keyframes rdSkelShimmer {
   to {
     background-position: -200% 0;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .rdBodySkel span {
-    animation: none;
-  }
-}
 
-/* Die Initiale des Aufmachers. Sie steht in `::first-letter`, also in einem
-   Pseudo-Element — eine Messung ueber `getComputedStyle(el).color` sieht sie
-   nicht, und genau so ist sie beim ersten Durchgang durchgerutscht und stand
-   Ink auf Ink. Gelb, wie die Initiale auf den Inhaltsseiten seit 03.09.2026.
-   `.rdStoryLeadPlain` bleibt ausgenommen: dort ist der Anfangsbuchstabe ein
-   blosser Strich und erbt bewusst die Textfarbe (siehe lib/dropCap.ts). */
-
-.rdStoryLead::first-letter {
-  line-height: 0.82;
-  float: left;
-  font-size: 68px;
-  padding: 7px 9px 0 0;
-  color: var(--et-accent-text);
-}
-/* Eine Öffnungsspanne bricht nie in sich selbst. Die Zelle trägt
-   `overflow-wrap: anywhere` (gegen überlange Freitexte aus Sanity), und das
-   zerlegte bei Bar Basta die Samstags-Doppelschicht mitten in der Uhrzeit. */
-.rdHoursSpan {
-  white-space: nowrap;
-}
-.rdVHandle {
-  font-size: 13px;
-}
-.rdV > summary {
-  cursor: pointer;
-  list-style: none;
-}
-.rdV > summary::-webkit-details-marker {
-  display: none;
-}
 /* Must-Eat card images are FREIGESTELLT (cut-out, transparent corners) — take
    the image AS-IS, never clip/crop it. No artificial shadow: alpha WebPs can
    rasterize that shadow as a rectangular tile on Safari/3D transforms. */
@@ -228,60 +111,7 @@
   background-color: var(--map-collage-paper);
   background-image: none;
 }
-.rdHeartToggle:active,
-.rdCloseGlass:active {
-  transform: translate(2px, 2px);
-  box-shadow: none;
-}
-.rdCloseGlass {
-  right: 12px;
-  width: 42px;
-  height: 42px;
-  padding: 7px;
-  justify-content: center;
-  background: #fff;
-  color: #14100c;
-  clip-path: polygon(8% 0, 100% 10%, 90% 100%, 0 88%);
-  transform: rotate(4deg);
-}
-.rdHeartToggle {
-  left: 14px;
-  padding: 7px 12px;
-  clip-path: polygon(4% 10%, 93% 0, 100% 90%, 10% 100%);
-  transform: rotate(-4deg);
-  background: #fff;
-  color: #14100c;
-}
-.rdHeartToggle svg,
-.rdHeartToggleOn svg {
-  color: var(--et-heart);
-}
-.rdHero .rdHeartToggle svg,
-.rdHero .rdHeartToggleOn svg {
-  width: 26px;
-  height: 26px;
-  stroke-width: 2.05;
-  fill: transparent;
-}
-.rdHero .rdHeartToggleOn svg {
-  fill: var(--et-heart);
-  stroke: #fff8ea;
-  transform: none;
-}
-.rdCloseGlass,
-.rdPagerBtn {
-  box-shadow: none;
-  filter: none;
-  text-shadow: none;
-}
-@media (hover: hover) {
-  .rdCloseGlass:hover,
-  .rdPagerBtn:hover {
-    box-shadow: none;
-    filter: none;
-    text-shadow: none;
-  }
-}
+
 /* Restaurant detail actions — flatter, closer to the Home brand palette. */
 .packPromo {
   column-gap: 15px;
@@ -293,25 +123,7 @@
     padding-inline: 12px;
   }
 }
-.rdV {
-  max-width: 100%;
-  word-break: break-word;
-}
-.rdV a {
-  max-width: 100%;
-  word-break: break-word;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-.rdVHandle,
-.rdVHandle a {
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  white-space: normal;
-}
-.rdAddrLine {
-  margin-top: 2px;
-}
+
 /* iOS Safari occasionally rasterizes alpha WebP + drop-shadow as a rectangular
    layer during scroll/3D transforms. Keep these cut-outs flat on touch WebKit. */
 @supports (-webkit-touch-callout: none) {
@@ -321,30 +133,12 @@
     }
   }
 }
-.rdSecH {
-  margin: 24px 20px 10px;
-  padding-top: 12px;
-  border-top: 0;
-  font-size: 1.75rem;
-  line-height: 1.1;
-}
-.rdTipp,
+
 .packPromo {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-.rdBody p {
-  margin: 0 0 1em;
-}
-.rdMustHead {
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: flex-end;
-  border-bottom: 0;
-  display: block;
-  border: 0;
-  padding: 0 0 8px;
-}
+
 .rdMustGrid li {
   min-width: 0;
   border-right: 0;
@@ -358,63 +152,9 @@
 .rdMustGrid li:nth-last-child(2):nth-child(odd) {
   border-bottom: 0;
 }
-@media (max-width: 420px) {
-  .rdMustHead {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-.rdHero .rdHeartToggle:active,
-.rdHero .rdCloseGlass:active {
-  transform: scale(0.94);
-  box-shadow: none;
-}
-/* Ein <button> zentriert seinen Text von Haus aus (UA `text-align: center`).
-   Der Bezirk stand deshalb im linken Knopf mittig unter dem Namen statt
-   buendig an der Kante (Nutzer, 28.09.2026). Links buendig links, rechts
-   buendig rechts — fuer Name und Bezirk zugleich, hier am Knopf. */
-.rdPagerBtn {
-  gap: 5px;
-  text-align: left;
-}
-.rdPagerBtnRight {
-  justify-content: flex-end;
-  text-align: right;
-}
-.rdPagerArrow {
-  flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
-}
-.rdTippText {
-  font-family: var(--et-font-body);
-  margin: 0;
-}
-.rdRowHours > .rdHours {
-  padding: 0;
-}
+
 .rdMustSection {
   padding: 0;
-}
-.rdMustHead .rdSecH {
-  padding: 0;
-  border: 0;
-  margin: 0;
-  font-size: 1.75rem;
-  line-height: 1.1;
-}
-
-/* Ein Satz unter der Überschrift, der sagt, was ein Must Eat überhaupt ist.
-   Ohne ihn standen dort vier Karten und ein Hauswort. Bewusst leise: Providence
-   wie die Überschrift, aber klein und in der gedämpften Farbe — es ist eine
-   Erklärung, keine zweite Ansage. */
-
-.rdMustSub {
-  max-width: 34ch;
-  margin: 6px 0 0;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-caption);
-  font-weight: 400;
-  line-height: 1.5;
 }
 
 .rdMustGrid li,
@@ -423,57 +163,7 @@
 .rdMustGrid li:nth-last-child(2):nth-child(odd) {
   border: 0;
 }
-/* Feedback pass: no cream, no framed hero icons, tighter gallery, real buttons. */
-.rdHero .rdHeartToggle,
-.rdHero .rdCloseGlass {
-  min-height: 42px;
-  filter: none;
-}
-.rdHero .rdHeartToggle {
-  transform: none;
-  gap: 7px;
-}
-.rdHero .rdHeartToggleOn {
-  box-shadow: none;
-  color: #d9382a;
-  background: transparent;
-}
-.rdHero .rdHeartToggleCount {
-  margin-left: 0;
-  padding: 1px 0 0;
-  background: transparent;
-  border-radius: 0;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  text-shadow: none;
-  letter-spacing: 0;
-  min-width: auto;
-  font-family: var(--et-font-body);
-  line-height: 1;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 950;
-}
-.rdPagerBtn {
-  min-width: 0;
-  min-height: 46px;
-  padding: 6px 8px;
-  overflow: hidden;
-}
-.rdPagerCopy {
-  gap: 3px;
-  min-width: 0;
-  display: block;
-  overflow: hidden;
-}
-.rdRowHours > .rdK {
-  border-bottom: 0;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  color: color-mix(in srgb, var(--et-ink) 58%, transparent);
-  padding-right: 8px;
-}
+
 .rdMustSection {
   margin: 14px 14px 18px;
   overflow: visible;
@@ -494,29 +184,7 @@
   padding: 0;
   background: transparent;
 }
-.rdFacts::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 7px;
-  background: #d9382a;
-}
-.rdRow:last-child {
-  border-bottom: 0;
-}
-.rdFacts .rdK,
-.rdFacts .rdHoursD {
-  color: #ff5a4e;
-}
-.rdFacts .rdV,
-.rdFacts .rdV a,
-.rdFacts .rdHoursT,
-.rdFacts .rdVMeta {
-  color: #fff;
-}
-.rdTipp {
-  margin: 14px 14px 22px;
-  transform: rotate(-0.35deg);
-}
+
 .packPromo::after {
   position: absolute;
   inset: auto -18px -22px auto;
@@ -563,169 +231,8 @@
   border-radius: 0;
   box-shadow: none;
 }
-.rdHero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0) 34%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0) 42%, rgba(0, 0, 0, 0.86) 100%);
-}
-.rdOverlay {
-  position: absolute;
-  /* Bottom raised to 28px so the tags row clears the photo-credit line that
-     sits at the very bottom-right (they nearly touched at 18px).
-     Side inset trimmed 18→10px to widen the name's usable width on the narrow
-     360px desktop panel, so long single words (e.g. "Schüsseldienst") render
-     a few px larger before the per-name shrink kicks in. */
-  color: #fbf8ee;
-  z-index: 2;
-  inset: auto 14px 18px;
-}
-/* Der Name steht in Providence, und deren Unterlänge reicht weit unter die
-   Zeilenbox: bei 50px hängt das g der Tinte nach 10,7px unter dem Kasten. Von
-   den 18px, die zwischen Name und Tag-Zeile deklariert sind (8 + 10), blieben
-   sichtbar 6,6px — das g stand praktisch auf den Labels. Der Kasten bekommt
-   den Tintenraum als Marge dazu; die Grundlinie bleibt, wo sie ist.
-   Seit Zeilenhöhe 1.1 (09.10.2026) liegt ein Teil davon schon im Durchschuss
-   der Zeile: die Marge sinkt von 18 auf 15px, und die Grundlinie steht am
-   Telefon wie zuvor 28px über den Tags. */
-.rdNameOv {
-  /* Upper bound (--rd-name-max) is computed per-name from the longest word so
-     a long single word like "Schlüsseldienst" shrinks to fit on one line
-     instead of breaking mid-word. */
-  margin: 0 0 8px;
-  overflow-wrap: normal;
-  word-break: normal;
-  hyphens: manual;
-  max-width: 100%;
-  color: #fff;
-  font-family: var(--et-font-display);
-  /* Telefon und Tablet: mit der Breite, zwischen 28 und 36px — vorher
-     clamp(30px, 10vw, …), am iPhone 37–43px (User, 09.10.2026: „auch ein
-     bisschen verkleinern"). Der Wert pro Name (--rd-name-max) gewinnt immer,
-     damit ein langes Wort nie über den Rand läuft. */
-  font-size: min(var(--rd-name-max, 36px), 36px, max(28px, 8.8vw));
-  font-weight: 800;
-  /* 1.1 wie die Namen in der Liste (`.rcardName`, dort die Herleitung). Bei
-     0.95 fiel das g von „Burgermeister" in das l von „Schlesisches" darunter
-     (User, 09.10.2026). Die seltenen Fälle, in denen eine Unterlänge genau
-     über einer Oberlänge steht, zieht `--ink-lead` auseinander
-     (lib/dom/inkSafeLeading.ts) — nur dort, alle anderen Namen bleiben eng. */
-  line-height: max(1.1em, var(--ink-lead, 0px));
-  letter-spacing: 0;
-  margin-bottom: 15px;
-  text-transform: none;
-  text-shadow: none;
-}
-/* Desktop: the detail panel is only 360px wide, so a short name at the 56px
-   cap dwarfs a long name that had to shrink to ~36px to fit (User 2026-06-15:
-   "der Unterschied ist sehr stark"). Cap the upper bound at 34px (1024px
-   block below) so short and long names sit close together — still bold, just
-   harmonised. The per-name fit (--rd-name-max) still wins when it's smaller,
-   so nothing clips. Mobile keeps the full 56px range (wider hero, no disparity there). */
-.rdTagsOv {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 10px;
-  gap: 7px;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-caption);
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.rdTag,
-.rdTagAlt {
-  min-height: 28px;
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-caption);
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-/* Freie Symbole auf dem Foto, mit grosser unsichtbarer Trefferflaeche. */
-.detail .rdHero .rdHeartToggle,
-.detail .rdHero .rdCloseGlass {
-  top: 12px;
-  padding: 0;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  border: 0;
-  box-shadow: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  background: transparent;
-  border-radius: 0;
-  clip-path: none;
-  isolation: isolate;
-  min-width: 44px;
-  width: 44px;
-  height: 44px;
-}
-.detail .rdHero .rdHeartToggle {
-  left: 12px;
-  width: auto;
-  padding: 0 10px;
-}
-.detail .rdHero .rdCloseGlass {
-  transform: none;
-  filter: none;
-  right: 12px;
-}
-.rdHero .rdHeartToggle svg,
-.rdHero .rdCloseGlass svg {
-  stroke-width: 2.85;
-  clip-path: none;
-  color: currentColor;
-  stroke: currentColor;
-}
-.detail .rdHero .rdHeartToggle svg,
-.detail .rdHero .rdCloseGlass svg {
-  width: 22px;
-  height: 22px;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
-}
-.detail .rdHero .rdHeartToggleOn svg {
-  color: var(--et-red);
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
-}
-.detail .rdHeartToggleCount {
-  color: currentColor;
-  text-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 800;
-}
-/* Die Zahl steht frei neben dem Herz, so groß, dass sie mit ihm eine Zeile
-   bildet. Die Ink-Scheibe um die „1" ist weg (User, 09.10.2026: „den Kreis um
-   die Eins finde ich blöd"). Sie war da, weil die Zahl auf hellen Fotos
-   (Bonanza, Tresen) mit einem weichen Schatten nicht zu lesen war — jetzt
-   trägt sie den engen Ink-Hof der Karten-Symbole (Lupe, Burger, Fadenkreuz in
-   MapControls.module.css): zwei dichte Schatten lesen sich als
-   ausgeschnittene Kante, nicht als Glühen. */
-.detail .rdHero .rdHeartToggleCount {
-  padding: 2px 0 0;
-  border-radius: 0;
-  background: none;
-  color: var(--et-white);
-  font-size: 18px;
-  font-weight: 700;
-  text-shadow:
-    0 0 1.5px var(--et-ink),
-    0 0 3px var(--et-ink),
-    0 1px 2px rgba(0, 0, 0, 0.45);
-}
-.rdPager,
-.rdFacts,
+
 .rdMustSection,
-.rdTipp,
 .packPromo {
   margin-left: 14px;
   margin-right: 14px;
@@ -733,49 +240,7 @@
   border-radius: 0;
   box-shadow: none;
 }
-.rdPager:has(.rdPagerBtn:first-child:disabled) .rdPagerBtnRight,
-.rdPager:has(.rdPagerBtnRight:disabled) .rdPagerBtn:first-child {
-  grid-column: 1 / -1;
-}
-.rdPagerBtn:disabled {
-  visibility: hidden;
-  display: none;
-}
-.rdPagerBtn {
-  min-height: 40px;
-  border: 0;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.rdBody {
-  padding: 24px 16px 8px;
-  font-size: 1.125rem;
-}
-/* Im gesperrten Sheet bringt LockedDetail seine 18px Seitenrand schon mit; die
-   16px hier kamen obendrauf und rückten die Geschichte gegen Kicker und
-   Angebot ein — dieselbe Doppelung, die senkrecht 52px statt 30px ergab
-   (User, 2026-08-27). Oben und unten bleibt alles: die 18px sind der Abstand
-   unter dem Foto. */
-.rdBody[data-locked-excerpt] {
-  padding-right: 0;
-  padding-left: 0;
-}
-.rdStoryLead::first-letter,
-.detail .rdSecH {
-  font-family: var(--et-font-display);
-  font-weight: 800;
-  letter-spacing: 0;
-  text-transform: none;
-}
-.rdTipp {
-  color: #fff;
-}
-.detail .rdTipp * {
-  color: inherit;
-}
+
 .rdMustGrid {
   margin: 0;
   list-style: none;
@@ -808,14 +273,7 @@
     min-height: clamp(220px, 41dvh, 430px);
   }
 }
-@media (hover: hover) {
-  .detail .rdHero .rdHeartToggle:hover,
-  .detail .rdHero .rdCloseGlass:hover {
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-  }
-}
+
 .detail .packPromo {
   display: grid;
   grid-template-columns: 128px minmax(0, 1fr);
@@ -875,6 +333,12 @@
 .detail .btnPackPromo {
   width: auto;
 }
+/* „Anmelden" auf dem roten Pack-Angebot: ein helleres Rot, damit der Knopf
+   zum Angebot gehört (Ansage 22.10.2026). Farbe über die Rollen von et-btn. */
+.packPromo {
+  --et-btn-bg: var(--et-red);
+  --et-btn-fg: #fff;
+}
 
 .btnPackPromoLbl {
   line-height: 1;
@@ -905,111 +369,8 @@
   }
 }
 
-.rdFacts::before,
-.rdFacts::after {
-  content: none;
-}
-
-.detail .rdRow,
-.detail .rdRowHours {
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: start;
-  min-height: 0;
-  margin: 0;
-  background: transparent;
-  border-bottom: 0;
-}
-
-.detail .rdFacts > :last-child {
-  border-bottom: 0;
-}
-
-.rdK,
-.rdHoursD {
-  display: block;
-}
-
-.rdContactPlainLink {
-  border-bottom: 0;
-}
-
-.detail .rdAddrLine,
-.detail .rdVMeta {
-  display: block;
-  color: inherit;
-  opacity: 1;
-}
-
-.rdVMeta {
-  margin-top: 6px;
-}
-
-.rdHours {
-  font-variant-numeric: tabular-nums;
-  width: 100%;
-  overflow-wrap: normal;
-  word-break: normal;
-  display: grid;
-  grid-template-columns: minmax(68px, max-content) minmax(0, 1fr);
-  column-gap: 16px;
-  row-gap: 7px;
-  align-items: baseline;
-}
-
-.rdHoursD {
-  opacity: 1;
-  white-space: nowrap;
-}
-
-.rdHoursT {
-  justify-self: start;
-  text-align: left;
-  display: block;
-  white-space: normal;
-}
-
-@media (max-width: 380px) {
-  .detail .rdRow,
-  .detail .rdRowHours {
-    grid-template-columns: 1fr;
-  }
-}
 /* Name truncates; the arrow never shrinks away. */
-/* line-height 1.55, nicht 1: der Name traegt `overflow: hidden` fuer die
-   Ellipse, und Providence haengt sehr tief — bei 13px fehlten dem g in
-   „Zum Heiligen Teufel" 2,29px, der Bogen war abgeschnitten (Nutzer,
-   30.08.2026). 1.3 reicht NICHT: gemessen blieben davon 0,11px Luft, und
-   WebKit rechnet rund 0,4px knapper als Chromium — dort waere es wieder
-   negativ. 1.55 laesst 1,4px stehen. Die Zeile ist einzeilig und
-   flex-zentriert, die Hoehe aendert sich dadurch nicht. */
-.rdPagerName {
-  min-width: 0;
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-caption);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.55;
-  text-transform: none;
-}
-.rdPagerSub {
-  display: block;
-  margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-kicker);
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-  opacity: 0.62;
-}
+
 /* ══════════════════════════════════════════════════════════════════════
    IN-FLOW MAP LIST (phones ≤767.98px) — the list is window-scrolled in-flow
    content that OVERLAYS a sticky full-screen map, so its rows composite into
@@ -1053,74 +414,7 @@
   background: transparent;
 }
 /* Detail surface pass: kill white-on-white framed modules. */
-/* Facts block: menu-card rhythm, stacked like short menu entries. */
-.rdFacts {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  position: relative;
-  border-top: 0;
-  border-bottom: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  box-shadow: none;
-  overflow: visible;
-}
-.rdV,
-.detail .rdV a,
-.rdHoursT {
-  min-width: 0;
-  letter-spacing: 0;
-  text-decoration: none;
-  text-transform: none;
-  opacity: 1;
-  visibility: visible;
-  font-family: var(--et-font-display);
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-@media (max-width: 767.98px) {
-  .rdFacts {
-    grid-template-columns: 1fr;
-  }
-  .rdFacts::before {
-    content: none;
-  }
-  .rdFacts::after {
-    content: none;
-  }
-  .detail .rdRow,
-  .detail .rdRowHours {
-    display: grid;
-    grid-template-columns: 1fr;
-    align-content: start;
-    min-height: 0;
-    margin: 0;
-    background: transparent;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  .detail .rdFacts > :last-child {
-    padding-bottom: 0;
-  }
-  .detail .rdRowHours > .rdK {
-    display: block;
-    width: 100%;
-  }
-  .rdRowHours > .rdHours {
-    width: 100%;
-  }
-  .rdHours {
-    grid-template-columns: minmax(76px, max-content) minmax(0, 1fr);
-    column-gap: 16px;
-    row-gap: 8px;
-  }
-  .detail .rdContactPlainLink {
-    border-bottom: 0;
-    text-decoration: none;
-  }
-}
+
 @media (max-width: 767.98px) {
   [data-map-sheet][data-view='detail'] .detail .scroll {
     /* No inner scroll-port and no blank padding apron. */
@@ -1236,156 +530,6 @@
   }
 }
 
-/* ============ Restaurant detail actions ============
-   One definition for the whole action row — the same icon'd button system the
-   public /restaurant/[slug] page uses, scaled down for the ~350px map panel.
-   Three weights so six buttons don't read as a black wall: book a table (ink),
-   go there (red), everything else outlined against the paper.
-   The outline is an inset ring rather than a border so every tier occupies
-   exactly the same box and nothing shifts by a pixel between them. */
-
-.rdActs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  /* Kein Seitenrand: die Zeile sitzt IN der .rdFacts-Tafel (RestaurantDetail
-     .tsx), die polstert schon, und ihr 22px-Grid-Gap trennt die Knoepfe von
-     der letzten Faktenzeile. */
-  padding: 2px 0 0;
-}
-
-/* Fill the last row instead of leaving a half-width button next to a hole.
-   Which child needs it depends on whether the full-width Reservieren button
-   shifts the parity of everything after it. */
-
-.rdActs:has(.rdActReserve) > :last-child:nth-child(even),
-.rdActs:not(:has(.rdActReserve)) > :last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-}
-
-.detail .rdActBtn svg {
-  flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
-}
-
-/* The label is the only part allowed to shrink — a long menu or district word
-   ellipsises rather than pushing its glyph out of the button. */
-
-.detail .rdActBtn > span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* "Reservieren" — committal, volle Breite. Gelb, nicht Ink: die Zeile steht
-   auf der Ink-Tafel, dort waere Ink auf Ink unsichtbar geblieben (gleiche
-   Entscheidung wie `.actStrong` auf der Tafel der Spot-Seite). */
-
-.detail .rdActStrong {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-}
-
-.rdActReserve {
-  grid-column: 1 / -1;
-}
-
-/* With a booking provider the button is a lockup: action left, provider right.
-   Without one it is an ordinary centred button. */
-
-.detail .rdActReserve:has(.rdActProvider) {
-  justify-content: space-between;
-  padding: 0 14px;
-}
-
-.rdActLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-width: 0;
-}
-
-.rdActProvider {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-}
-
-/* OpenTable's red roundel, so the destination is recognisable before the tap. */
-
-.rdActProviderMark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding-bottom: 1px;
-  background: #da3743;
-  color: #fff;
-  border-radius: 50%;
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 11px;
-  font-style: italic;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  /* The button uppercases its label; the roundel's "ot" must not follow. */
-  text-transform: lowercase;
-}
-
-.rdActProviderWord {
-  font-family: var(--et-font-body);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-/* Every tier has to visibly change: outlined and red both fill with ink, and
-   the ink one — already filled — swaps to red. Hovering red into red would
-   have left the primary button with nothing but the lift. */
-
-@media (hover: hover) {
-  /* Ink-Fuellung, aber Ring in Papier: auf der Ink-Tafel waere ein Ink-Ring
-     unsichtbar, der Papier-Ring haelt die Form (wie `.board .act:hover` auf
-     der Spot-Seite). */
-  .rdActBtn:hover {
-    transform: translateY(-1px);
-  }
-
-  /* Der gelbe Knopf ist schon gefuellt — er wechselt auf Rot, sonst haette er
-     ausser dem Lift keine Hover-Antwort. */
-
-  .detail .rdActStrong:hover {
-    background: var(--et-red);
-    color: var(--et-white);
-  }
-}
-
-.rdActBtn:active {
-  transform: translateY(0);
-}
-
-/* Gelb statt Rot: der rote Ring saeuft auf der Ink-Tafel ab. */
-
-.rdActBtn:focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 2px;
-}
-
-/* The row stays two-up on every phone — a five-high stack of full-width slabs
-   is worse than a compact grid. The longest label ("SPEISEKARTE", 90px) plus
-   its glyph needs 137px, and half of a 320px sheet is 142px, so only the
-   spacing has to give at the bottom end. */
-
-@media (max-width: 359.98px) {
-  .rdActs {
-    gap: 7px;
-  }
-}
-
 /* ============ Pack promo — the "extra" panel ============
    Everything else in the sheet is about the spot you opened; this block is
    not. It is set apart by SURFACE, not by an outline: the action row directly
@@ -1434,190 +578,10 @@
    across breakpoints. Only the photo title and pack headline have their own cap. */
 
 @media (min-width: 1024px) {
-  /* 34 statt 40 (User, 09.10.2026: „noch ein bisschen verkleinern"). */
-  .rdNameOv {
-    font-size: min(var(--rd-name-max, 34px), 34px);
-  }
+  
   .packPromoTitle {
     font-size: 30px;
   }
-}
-
-/* ── Die Tafel im Map-Sheet ───────────────────────────────────────────────────
-   Adresse, Kategorie, Öffnungszeiten, Preis und Instagram standen hier als
-   helle Liste auf Papier — dieselben Angaben liegen auf /restaurant/<slug>
-   auf der Tafel (dort `.board`): Ink-Fläche, gelbe Labels in der Markenschrift,
-   weiße Werte in derselben Schrift. Ein Spot soll überall gleich aussehen, also
-   bekommt das Sheet dieselbe Fläche.
-
-   Der Block steht hinter der Papier-Fassung, die über mehrere Schichten
-   verteilt ist (Farben, Label-Grad und Zeilen-Trenner im 767.98px-Block) —
-   nur von hier aus gewinnt er ohne !important. */
-
-.detail .rdFacts {
-  gap: 22px;
-  /* 14px Seitenrand und 18px Polster wie bei Insider-Tipp, Must Eats, Pager und
-     Starter Pack: die Tafel stand mit 22/20 als einziger Block der Sheet weiter
-     innen, dadurch war sie schmaler als der gelbe Block direkt darunter und ihr
-     Text sprang gegenüber allem anderen um zwei Pixel ein. */
-  margin: 30px 14px 32px;
-  padding: 24px 18px 26px;
-  background: var(--et-ink-raised);
-  border: 0;
-  border-radius: var(--et-radius-photo);
-  color: var(--et-white);
-}
-
-/* Zeilen trennt jetzt der Abstand, nicht mehr eine Linie: die Ink-Linien der
-   Papier-Fassung wären auf der Tafel unsichtbar, und die Tafel der Spot-Seite
-   kommt ebenfalls ohne Trenner aus. */
-
-.detail .rdRow,
-.detail .rdRowHours {
-  gap: 8px;
-  padding: 0;
-  border: 0;
-  color: inherit;
-}
-
-/* Gelbe Kreide-Labels — Markenschrift statt der grauen Mono-Eyebrow, gleiche
-   Fassung wie `.factsKey` auf der Spot-Seite. */
-
-.detail .rdK {
-  color: var(--et-accent-text);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-kicker);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-/* Weiße Kreide-Werte. */
-
-.detail .rdV,
-.detail .rdV a,
-.detail .rdHoursT {
-  color: var(--et-white);
-}
-
-/* Der Tag ist auf der Tafel kein Label mehr, sondern die ruhige Hälfte des
-   Zeitpaars — gleicher Grad und gleiche Schrift wie die Uhrzeit daneben, nur
-   gedimmt (`.hoursDay` der Spot-Seite). Als kleine Versal-Eyebrow stand er
-   sonst als dritte Schriftgröße in einer Zeile mit zwei. */
-
-.detail .rdHoursD {
-  color: rgba(255, 255, 255, 0.55);
-  font-family: var(--et-font-display);
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 0;
-  line-height: 1.5;
-  text-transform: none;
-}
-
-.detail .rdVMeta {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* Contact links use colour and a focus outline, matching the other actions. */
-
-.detail .rdV a.rdContactPlainLink {
-  border-bottom: 0;
-  color: var(--et-white);
-  text-decoration: none;
-}
-
-.rdV a.rdContactPlainLink:focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 3px;
-}
-
-@media (hover: hover) {
-  .rdV a.rdContactPlainLink:hover {
-    color: var(--et-accent-text);
-  }
-}
-
-/* Heute: die ganze Zeile liegt auf einer helleren Fläche (Fläche statt
-   Rahmen, wie überall auf der Tafel), und ihr Tag ist so hell wie die Uhrzeit.
-   Die Zeile spannt das Raster der Tabelle über `subgrid` — Tage und Zeiten
-   bleiben in ihren Spalten; Rand und Polster heben sich auf, damit die Fläche
-   über die Schrift hinaussteht, ohne sie zu verschieben. */
-
-.rdHoursRow {
-  display: contents;
-}
-
-.rdHoursRowToday {
-  grid-column: 1 / -1;
-  display: grid;
-  /* Ohne subgrid (iOS < 16) stünden Tag und Zeit sonst untereinander. */
-  grid-template-columns: minmax(68px, max-content) minmax(0, 1fr);
-  grid-template-columns: subgrid;
-  column-gap: 16px;
-  align-items: baseline;
-  margin: -4px -10px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.09);
-}
-
-.detail .rdHoursRowToday .rdHoursD {
-  color: var(--et-white);
-}
-
-/* ============ Insider-Tipp ============
-   Der Tipp ist die einzige Stimme im Sheet, die nicht beschreibt, sondern
-   raet. Er trug bisher eine graue Mono-Eyebrow — die Sprache von vor der
-   Tafel. Jetzt spricht er wie die Tafel darunter: gelbes Providence-Label
-   mit dem Marken-Quadrat (dasselbe Zeichen wie die Kicker der Startseite),
-   weisser Satz auf Ink. Damit stehen Tipp und Tafel als zwei Objekte
-   derselben Familie untereinander, statt als zwei Entwuerfe.
-   Der Satz bleibt im Fliesstext: Providence traegt auf 13px keinen Absatz
-   (siehe Tipp-Groesse, Nutzer 30.08.2026). */
-
-.rdTipp {
-  display: grid;
-  gap: 10px;
-  padding: 18px 18px 20px;
-  background: var(--et-ink-raised);
-  border-radius: var(--et-radius-photo);
-}
-
-.detail .rdTippLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--et-accent-text);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-kicker);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-/* Das Marken-Quadrat als Merkzeichen — `flex: 0 0 auto`, damit es bei einem
-   umbrechenden Label nicht zum Strich zusammenfaellt. */
-
-.rdTippLabel::before {
-  font-size: 18px;
-  line-height: 1;
-  content: '';
-  flex: 0 0 auto;
-  width: 9px;
-  height: 9px;
-  background: var(--et-accent);
-}
-
-.detail .rdTippText {
-  color: var(--et-white);
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1636,131 +600,6 @@
    Das Must-Eat-Sheet ist seit dem 02.09.2026 eigenstaendig ink und hat
    seine eigenen --me-*-Tokens (MustEatDetail.module.css).
    ══════════════════════════════════════════════════════════════════════════ */
-
-/* Ruhige Aktionsflaechen auf Ink: gleiche Ausrichtung fuer Icon und Label,
-   ohne umlaufende Ringe. Maps bleibt die hervorgehobene Hauptaktion. */
-
-.detail .rdActBtn {
-  min-width: 0;
-  display: inline-flex;
-  align-items: center;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  cursor: pointer;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
-  letter-spacing: 0;
-  /* 1.55 statt 1: das Label traegt `overflow: hidden` (Ellipse), und darunter
-     braucht Providence Platz. Heute hat kein Label eine Unterlaenge, die Falle
-     stand aber scharf — dieselbe Ursache wie beim Pager-Namen daneben. Die
-     Knopfhoehe haengt an min-height, nicht an der Zeile. */
-  line-height: 1.55;
-  text-align: center;
-  text-decoration: none;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition:
-    transform var(--map-motion),
-    background-color var(--map-motion),
-    box-shadow var(--map-motion),
-    color var(--map-motion);
-  min-height: 52px;
-  justify-content: center;
-  gap: 10px;
-  padding: 0 16px;
-  background: rgba(255, 255, 255, 0.065);
-  color: var(--et-white);
-  box-shadow: none;
-}
-
-@media (hover: hover) {
-  .detail .rdActBtn:hover {
-    background: rgba(255, 255, 255, 0.11);
-    color: var(--et-accent-text);
-    box-shadow: none;
-  }
-}
-
-/* „Hinbringen" bleibt der eine gefuellte Knopf, nur gelb statt rot: Rot traegt
-   auf Ink rund 2,9:1 und faellt als Flaeche mit Schrift durch. */
-
-.detail .rdActPrimary {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-}
-
-@media (hover: hover) {
-  .detail .rdActPrimary:hover {
-    background: var(--et-white);
-    color: var(--et-ink);
-  }
-}
-
-@media (max-width: 359.98px) {
-  .detail .rdActBtn {
-    gap: 7px;
-    padding: 0 10px;
-  }
-}
-
-/* Kompakte Fakten auf dem Foto, mit derselben weichen Kante wie die Aktionen. */
-
-.detail .rdTag,
-.detail .rdTagAlt {
-  padding: 4px 9px;
-  background: rgba(21, 18, 14, 0.72);
-  color: var(--et-white);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  line-height: 1.55;
-}
-
-/* Der Öffnungszustand als dritter Tag: derselbe Grund, davor ein Punkt.
-   Offen grün und hell, geschlossen grau und gedämpft — der Unterschied liegt
-   im Wort und in der Helligkeit, nicht in Rot gegen Grün. */
-.detail .rdTagState {
-  gap: 7px;
-}
-.detail .rdTagState::before {
-  content: '';
-  flex: none;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.42);
-}
-.detail .rdTagState:not([data-open]) {
-  color: rgba(255, 255, 255, 0.72);
-}
-.detail .rdTagState[data-open]::before {
-  background: #3ecf7a;
-  box-shadow: 0 0 0 2px rgba(62, 207, 122, 0.28);
-}
-
-/* Der Blaetterbalken unter dem Kopf trug eine eigene Papierflaeche. Auf dem
-   Grund braucht er keine — eine Haarlinie haelt ihn ab. */
-
-.detail .rdPager {
-  background: transparent;
-  color: var(--et-white);
-}
-
-/* Fliesstext und Zwischentitel. Die Titel sind gelb, der Lauftext ist
-   Papier, die Unterzeile eine Stufe leiser. */
-
-.detail .rdStoryLead {
-  color: var(--et-white);
-}
-
-.detail .rdSecH,
-.detail .rdMustHead .rdSecH {
-  color: var(--et-accent-text);
-}
-
-.detail .rdMustSub {
-  color: var(--et-ink-soft);
-}
 
 /* Das Pack-Angebot traegt die Farbe des Produkts, nicht die leise Stufe
    (04.09.2026). Es zeigt dasselbe Starter Pack wie das Sheet eines verdeckten
@@ -1801,47 +640,8 @@
   background: var(--et-ground);
 }
 
-.detail .rdBody {
-  color: var(--et-white);
-}
-
-/* Restaurantwechsel und Aktionen teilen Flaeche, Kante und Hover. */
-
-.detail .rdPagerBtn {
-  background: rgba(255, 255, 255, 0.065);
-  color: var(--et-white);
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-}
-
-@media (hover: hover) {
-  .rdPagerBtn:hover {
-    background: rgba(255, 255, 255, 0.11);
-    color: var(--et-accent-text);
-    box-shadow: none;
-  }
-}
-
-.rdPagerBtn:focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 2px;
-}
-
 /* Die letzten drei roten Hover-Zustaende. Rot bleibt der Marke als Flaeche,
    aber nicht dort, wo im selben Moment Schrift darauf steht. */
-
-/* Capital I uses the same large brand initial as every other capital.
-   Other ambiguous initials still use normal text size (see lib/dropCap.ts). */
-
-.rdStoryLead.rdStoryLeadPlain::first-letter {
-  float: none;
-  padding: 0;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-  text-transform: none;
-  color: inherit;
-}
 
 /* Must-Eats-Block und Galerie. Beide Flaechen sind durchsichtig und standen
    damit direkt auf dem Grund, ihre Schrift war aber noch Ink — unsichtbar.
@@ -1849,24 +649,11 @@
    Bildunterschriften erben sie. */
 
 .detail .rdMustSection,
-.detail .rdMustHead,
 .detail .rdMustGrid,
 .detail .rdMustGrid li,
 .detail .medish,
 .detail .medishPh {
   color: var(--et-white);
-}
-
-/* Editorial reading scale, informed by 032c and Highsnobiety: 18px body,
-   compact labels, strong headings. Use the column width rather than viewport
-   width: the desktop map panel has the same reading measure as a phone. */
-
-.rdBody,
-.detail .rdBody p,
-.rdStoryLead {
-  font-family: var(--et-font-body);
-  font-weight: 400;
-  line-height: 1.5;
 }
 
 /* Full-size photo rail; title and restaurant controls stay in place.
@@ -1990,27 +777,329 @@
     animation: none;
   }
 }
-.rdHero::after,
-.rdOverlay {
-  pointer-events: none;
-}
 
 /* The existing detail structure on the light map surface. Photo captions and
    the red pack offer retain their dedicated contrast treatments. */
-.detail .scroll, .detail .rdBody { background: var(--et-ground); color: var(--et-fg); }
-.detail .rdFacts, .detail .rdTipp { background: var(--et-quiet); color: var(--et-fg); }
-.detail .rdV, .detail .rdV a, .detail .rdHoursT, .detail .rdV a.rdContactPlainLink,
-.detail .rdHoursRowToday .rdHoursD, .detail .rdTippText, .detail .rdPager,
-.detail .rdStoryLead, .detail .rdMustSection, .detail .rdMustHead,
-.detail .rdMustGrid, .detail .rdMustGrid li, .detail .medish, .detail .medishPh { color: var(--et-fg); }
-.detail .rdHoursD, .detail .rdVMeta, .detail .rdMustSub { color: var(--et-muted); }
-.detail .rdActBtn, .detail .rdPagerBtn { background: var(--et-quiet); color: var(--et-fg); }
-.detail .rdActPrimary { background: #a82b2e; color: #fff; }
-.detail .rdHoursRowToday { background: var(--et-subtle); }
+.detail .scroll { background: var(--et-ground); color: var(--et-fg); }
 
-/* Vintage-Entwurf: Text, Fakten und Pack-Hinweis sind je ein eigenes Blatt. */
-:global(html[data-vintage]) :is(.rdBody, .rdFacts, .packPromo) {
-  background-image: var(--et-sheet);
-  background-size: var(--et-sheet-size);
-  background-repeat: var(--et-sheet-repeat);
+.detail .rdMustSection,
+.detail .rdMustGrid,
+.detail .rdMustGrid li,
+.detail .medish,
+.detail .medishPh { color: var(--et-fg); }
+
+/* ==========================================================
+   Neu gefasst am 22.10.2026 („eigentlich muss alles besser werden"):
+   Foto hell mit Etiketten statt Abdunklung, kein Blättern zwischen Spots,
+   Fakten als ein Blatt, Hausknöpfe.
+   Etiketten: `et-label` / `et-label-paper` / `et-label-title` (globals.css).
+   ========================================================== */
+.detail {
+  --rd-gut: 20px;
+}
+.detail .scroll {
+  background-color: var(--et-ground);
+  color: var(--et-fg);
+}
+/* Das Blatt der Unterseiten: Korn plus leichte Gebrauchsspuren oben. */
+:global(html[data-vintage]) .detail .scroll {
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
+  background-size: 192px, 100% auto;
+  background-repeat: repeat, no-repeat;
+  background-position: 0 0, top center;
+}
+:global(html[data-vintage][data-theme='dark']) .detail .scroll {
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
+}
+
+/* ── Kopf: Name und Angaben im hellen Foto ─────────────────────────────── */
+.rdOverlay {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 20px;
+  z-index: 2;
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  pointer-events: none;
+}
+.rdNameOv {
+  max-width: 100%;
+  margin: 0;
+  /* Der Wert pro Name (--rd-name-max) gewinnt, damit ein langes Wort nie
+     über den Rand läuft. */
+  font-size: min(var(--rd-name-max, 34px), 34px, max(26px, 8vw));
+  font-weight: 700;
+  line-height: max(1.22em, var(--ink-lead, 0px));
+  overflow-wrap: anywhere;
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.28));
+}
+.rdTagsOv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.24));
+}
+.rdTagsOv > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Herz und X: durchsichtig, nur das weisse Symbol frei auf dem Foto — mit
+   dem engen Ink-Hof der Foto-Striche, der es auf hellen Bildern lesbar hält
+   (Ansage 22.10.2026). Die Trefferfläche bleibt 44px. */
+.rdHeartToggle,
+.rdCloseGlass {
+  position: absolute;
+  top: 12px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: 700 15px / 1 var(--et-font-body);
+  filter: drop-shadow(0 0 1.5px var(--et-ink)) drop-shadow(0 1px 3px rgb(0 0 0 / 0.5));
+  cursor: pointer;
+  transition: color var(--et-motion-fast);
+}
+.rdHeartToggle {
+  left: 8px;
+}
+.rdCloseGlass {
+  right: 8px;
+  width: 44px;
+  padding: 0;
+}
+.rdHeartToggle svg,
+.rdCloseGlass svg {
+  width: 24px;
+  height: 24px;
+}
+.rdHeartToggleOn {
+  color: #ffc600;
+}
+.rdHeartToggleOn .rdHeartToggleCount {
+  color: #fff;
+}
+@media (hover: hover) {
+  .rdHeartToggle:hover,
+  .rdCloseGlass:hover {
+    color: #ffc600;
+  }
+}
+.rdHeartToggle:focus-visible,
+.rdCloseGlass:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+
+/* ── Text und Tipp ─────────────────────────────────────────────────────── */
+.rdBody {
+  padding: 26px var(--rd-gut) 0;
+  font-family: var(--et-font-text);
+  font-size: 18px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.rdBody p + p {
+  margin-top: 1em;
+}
+.rdBodySkel {
+  display: grid;
+  gap: 10px;
+}
+.rdBodySkel span {
+  display: block;
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--et-subtle) 25%,
+    color-mix(in srgb, var(--et-fg) 12%, transparent) 50%,
+    var(--et-subtle) 75%
+  );
+  background-size: 200% 100%;
+  animation: rdSkelShimmer 1.2s linear infinite;
+}
+.rdBodySkel span:last-child {
+  width: 60%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rdBodySkel span {
+    animation: none;
+  }
+}
+
+/* Zwischentitel als Etikett (Aussehen: et-label). */
+.rdSecH {
+  margin: 0 0 14px;
+}
+.rdTipp {
+  margin-top: 44px;
+  padding-inline: var(--rd-gut);
+}
+.rdTippText {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.18;
+  text-wrap: pretty;
+}
+.detail .rdMustSection,
+.detail .packPromo {
+  margin-inline: var(--rd-gut);
+}
+.detail .rdMustSection {
+  margin-top: 44px;
+}
+.rdMustHead .rdSecH {
+  margin-bottom: 10px;
+}
+.rdMustSub {
+  margin: 0 0 16px;
+  color: var(--et-muted);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+/* ── Fakten: ein Blatt wie auf der Startseite ───────────────────────────
+   Adresse, Woche, Preis, Instagram und die Knöpfe liegen auf EINEM
+   Ink-Blatt wie die Must-Eats-Sektion der Startseite: Korn und
+   Gebrauchsspuren, angestossene Kante, gelbe Versalien über weissen Werten,
+   heute gelb. Die Knöpfe darauf sind weiss (Rollen wie auf den Ink-Blättern
+   in globals.css). Ansage 22.10.2026: „wie die Startseite-Objekte". */
+.rdFacts {
+  color-scheme: dark;
+  --et-fg: #fff;
+  --et-muted: #b7b3ae;
+  --et-link: #ffc600;
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  --et-focus: #fff;
+  margin: 48px 14px 0;
+  padding: 26px 22px 24px;
+  background-color: var(--et-ink);
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  background-size: 192px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+  color: var(--et-fg);
+}
+:global(html[data-theme='dark']) .rdFacts {
+  background-color: var(--et-ink-raised);
+}
+:global(html[data-vintage]) .rdFacts {
+  mask: var(--et-rough-edges-sm);
+}
+.rdBlock + .rdBlock {
+  margin-top: 24px;
+}
+.rdK {
+  margin: 0 0 8px;
+  color: #ffc600;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.rdAddress {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.rdAddress span {
+  display: block;
+}
+.rdVMeta {
+  margin: 6px 0 0;
+  color: var(--et-muted);
+  font-size: 13px;
+}
+
+/* Die Woche: Tag links, Zeit rechts, keine Linien und Punkte dazwischen.
+   Heute steht gelb und fett, die übrigen Tage leise. */
+.rdHours {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+.rdHoursRow,
+.rdHoursRowToday {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+}
+.rdHoursRow dd,
+.rdHoursRowToday dd {
+  margin: 0;
+  text-align: right;
+}
+.rdHoursRow {
+  color: var(--et-muted);
+}
+.rdHoursRow dt {
+  color: #fff;
+}
+.rdHoursRowToday {
+  color: #ffc600;
+  font-weight: 700;
+}
+.rdHoursSpan {
+  display: block;
+  white-space: nowrap;
+}
+
+/* Preis und Instagram nebeneinander. */
+.rdPair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.rdV {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.rdVLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--et-motion-fast);
+}
+@media (hover: hover) {
+  .rdVLink:hover {
+    color: var(--et-link);
+  }
+}
+
+/* Knöpfe paarweise, klein (et-btn-sm), auf der Fläche. */
+.rdActs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+.rdActBtn {
+  flex: 1 1 calc(50% - 5px);
+  padding-inline: 12px;
+}
+
+/* Etiketten auf dem Foto bleiben auch im Dunkelmodus Ink (globals.css). */
+.rdHero {
+  --et-label-bg: var(--et-ink);
 }

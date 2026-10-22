@@ -17,7 +17,7 @@ import { MUST_EATS_CATEGORY } from '@/lib/map/mapFilterParams';
 import type { MapCategory } from '@/lib/types';
 import MapFilterPickerSheet, { type PickerItem } from './MapFilterPickerSheet';
 import styles from './MapFilters.module.css';
-import { CloseIcon, PagerArrowIcon } from './icons';
+import { CloseIcon } from './icons';
 
 interface Props {
   headerRef: Ref<HTMLDivElement | null>;
@@ -157,7 +157,7 @@ export default function MapListHeader({
         {priceBucketIds.length > 0 && (
           <FilterChip
             ref={priceBtnRef}
-            compact
+            fixed
             label={price ? priceBucketChipLabel(price) : t('map.filterChipPrice')}
             ariaLabel={price ? t(priceBucketLabelKey(price)) : undefined}
             active={!!price}
@@ -169,7 +169,7 @@ export default function MapListHeader({
         )}
         <button
           type="button"
-          className={`${styles.filterChip} ${styles.filterOpenToggle} ${openOnly ? styles.filterChipOpenActive : ''}`}
+          className={`${styles.filterChip} ${openOnly ? styles.filterChipOpenActive : ''}`}
           onClick={() => onOpenOnly(!openOnly)}
           aria-pressed={openOnly}
         >
@@ -224,7 +224,9 @@ export default function MapListHeader({
 }
 
 interface FilterChipProps {
-  compact?: boolean;
+  /** Kurze Werte (Preis): die Pille behält ihre Breite, gekürzt werden die
+   *  langen daneben (Kategorie, Bezirk). */
+  fixed?: boolean;
   label: string;
   ariaLabel?: string;
   active: boolean;
@@ -237,11 +239,11 @@ interface FilterChipProps {
 }
 
 const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function FilterChip(
-  { label, ariaLabel, active, expanded, onClick, clearLabel, onClear, compact },
+  { fixed, label, ariaLabel, active, expanded, onClick, clearLabel, onClear },
   ref
 ) {
   return (
-    <span className={`${styles.filterChipWrap} ${compact ? styles.filterChipCompact : ''} ${active ? styles.filterChipWrapActive : ''} ${label.length > 10 ? styles.filterChipWrapLong : ''}`}>
+    <span className={`${styles.filterChipWrap} ${fixed ? styles.filterChipWrapFixed : ''}`}>
       <button
         ref={ref}
         type="button"
@@ -256,11 +258,6 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function Filte
         aria-haspopup="dialog"
       >
         <span className={styles.filterChipLabel}>{label}</span>
-        {!active && (
-          <span className={styles.filterChevron}>
-            <PagerArrowIcon />
-          </span>
-        )}
       </button>
       {/* Sibling, not a child: a button inside a button is invalid markup and
             makes screen readers announce two controls for one chip. Clearing a

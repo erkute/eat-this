@@ -47,7 +47,7 @@ describe('RestaurantList card meta', () => {
       />
     );
 
-    expect(screen.getByText('Japanisch')).toBeTruthy();
-    expect(screen.queryByText('Frühstück')).toBeNull();
+    expect(screen.getByText(/Japanisch/)).toBeTruthy();
+    expect(screen.queryByText(/Frühstück/)).toBeNull();
   });
 });

@@ -31,20 +31,21 @@
 }
 
 /* The pill. One colour for both views — list and detail read as the same
-   control. */
+   control. Ink, wie ein Strich auf dem Papier. */
 .handle::before {
   content: '';
-  background: var(--et-muted);
+  background: var(--et-fg);
 }
 
 .listScroll {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  /* 14px each side keeps the must-eat peek (rotated 11°, reaching ~6px out)
-     and card shadows inside the padding box: no horizontal scroll. The top
-     gives the first card's peek room below the filter bar. */
-  padding: 18px 14px 0;
+  /* 14px each side: the list cards run edge to edge over it
+     (RestaurantList.module.css .rcardSlot). The must-eat peek sits inside the
+     photo now, so the top needs no room for it — only a hair below the
+     filter bar (Ansage 22.10.2026: „zu viel Abstand"). */
+  padding: 4px 14px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -306,5 +307,45 @@
      claim its native pan before consulting the outer sheet's touch-action. */
   .list[data-sheet-lowered] [data-h-scroll] {
     touch-action: none;
+  }
+}
+
+/* Papier wie auf den Unterseiten (globals.css, „Vintage-Look"): das Korn
+   liegt über dem Grund. Am Telefon ist das Blatt selbst durchsichtig, dort
+   tragen es die Zeilen und die Filterleiste (MapFilters.module.css). Das
+   Restaurant-Detail legt sein eigenes Blatt (RestaurantDetail.module.css). */
+@media (min-width: 768px) {
+  :global(html[data-vintage]) .list {
+    background-image: url('/pics/vintage/paper-grain.webp?v=4');
+    background-size: 192px;
+  }
+}
+@media (max-width: 767.98px) {
+  :global(html[data-vintage]) .list[data-view='list'] .listScroll {
+    background-image: url('/pics/vintage/paper-grain.webp?v=4');
+    background-size: 192px;
+  }
+}
+
+/* Der Rand des Blatts: eine abgerissene Papierkante zur Karte hin, aus
+   denselben Kantenstreifen wie die Hausknöpfe und das Anmelde-Fenster
+   (globals.css `--et-rough-edges`). Am Telefon und Tablet oben, wo das Blatt
+   über die Karte geschoben wird (die Leiste mit dem Griff trägt die Kante,
+   MapFilters.module.css); am Desktop links, wo das Panel an der Karte
+   anliegt. Ansage 22.10.2026: „die ganze Liste muss einen coolen Look
+   drumherum haben". */
+@media (min-width: 1024px) {
+  :global(html[data-vintage]) .list {
+    mask:
+      url('/pics/vintage/edge-left.webp?v=1') 0 0 / 12px 256px repeat-y,
+      linear-gradient(#000 0 0) 10px 0 / calc(100% - 10px) 100% no-repeat;
+  }
+}
+@media (max-width: 1023.98px) {
+  :global(html[data-vintage]) .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
+    border-radius: 0;
+    mask:
+      url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 12px repeat-x,
+      linear-gradient(#000 0 0) 0 10px / 100% calc(100% - 10px) no-repeat;
   }
 }

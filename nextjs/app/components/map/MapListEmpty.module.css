@@ -1,75 +1,36 @@
 /* Map List Empty — isolated map subsystem. */
-.esKicker {
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 0;
-}
 .esActions {
   flex-direction: column;
-}
-.esKicker {
-  opacity: 1;
 }
 .esBlock {
   position: relative;
   display: grid;
   align-items: start;
   gap: 10px;
-  margin: 14px 14px 22px;
-  padding: 22px 18px 18px;
-  overflow: hidden;
-  background: rgba(21, 18, 14, .055);
-  color: var(--map-collage-ink, #111);
-  /* Fläche statt Rahmen, wie jede Tafel auf der Karte. */
-  border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
+  margin: 14px 0 22px;
+  padding: 24px 20px 20px;
+  background: var(--et-subtle);
+  color: var(--et-fg);
   text-align: left;
 }
-/* Der gelbe Balken oben rechts ist raus. Mit gelbem Kicker und gelbem Knopf
-   waere er der dritte Akzent auf einer Flaeche von 22px Hoehe Text — das
-   9px-Quadrat vor dem Kicker traegt die Marke hier allein, wie in jedem
-   anderen Kicker der Seite. Damit darf die Ueberschrift auch wieder ueber die
-   volle Breite laufen. */
-.esKicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  width: fit-content;
-  margin: 0;
-  padding: 0;
-  /* War Ink auf einer Ink-Flaeche: gemessen Kontrast 1,14, also unsichtbar.
-     Ein Rest aus der Zeit, als dieser Block auf Papier stand. Gelb ist die
-     Farbe, die jeder andere Kicker auf einer Ink-Tafel traegt. */
-  color: var(--et-accent-text);
-  border: 0;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-kicker);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-label);
-  line-height: 1;
-  text-transform: uppercase;
+/* Abgestossene Kante wie die Fakten im Detail und die Hinweis-Karte. */
+:global(html[data-vintage]) .esBlock {
+  mask: var(--et-rough-edges-sm);
 }
-.esKicker::before {
-  content: '';
-  display: inline-block;
-  width: 9px;
-  height: 9px;
-  background: var(--et-accent);
-  flex: 0 0 auto;
+/* Der Kicker ist ein gerades Etikett (et-label). */
+.esKicker {
+  justify-self: start;
+  margin: 0;
 }
 .esHeading {
   margin: 8px 0 0;
-  /* Ebenfalls Ink auf Ink, Kontrast 1,14 — die Ueberschrift war schlicht nicht
-     da. Sichtbar blieben nur Unterzeile und Knopf, und deshalb konnte man
-     diesen Zustand benutzen, ohne je gelesen zu haben, wie er heisst. */
-  color: var(--map-collage-ink, #111);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.92;
-  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-transform: none;
 }
 .esSub {
   max-width: 30ch;
@@ -91,16 +52,8 @@
   width: 100%;
 }
 
-/* Der Hover schiebt zur Seite, der Druck nach unten — auf dem Telefon gibt es
-   keinen Hover, und ohne das hier passierte beim Antippen sichtbar nichts. */
-
 @media (min-width: 1024px) {
-  .esBlock {
-    margin: 16px 16px 24px;
-    padding: 24px 20px 20px;
-  }
-
   .esHeading {
-    font-size: 36px;
+    font-size: 32px;
   }
 }

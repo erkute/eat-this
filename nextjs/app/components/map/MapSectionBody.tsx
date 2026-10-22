@@ -140,9 +140,6 @@ interface MapBodyHandlers {
      keinen Oeffnungs-Treffer melden. */
   onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => boolean | void;
   onMustEatClick: (m: MapMustEat) => void;
-  pagerPrev: MapRestaurant | null;
-  pagerNext: MapRestaurant | null;
-  onPageRestaurant: (dir: 'prev' | 'next') => void;
   onLocateMe: () => void;
   locateLoading: boolean;
   onRestaurantClose: () => void;
@@ -191,9 +188,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     getInitialCamera,
     listRestaurants,
     restaurantMustEats,
-    pagerPrev,
-    pagerNext,
-    onPageRestaurant,
     selectedRestaurant,
     selectedMustEat,
     primaryMustEats,
@@ -928,10 +922,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onMustEatClick={onMustEatClick}
                 isFavorite={favoriteIds.has(selectedRestaurant._id)}
                 onToggleFavorite={onToggleFavorite}
-                prevRestaurant={pagerPrev}
-                nextRestaurant={pagerNext}
-                onPagePrev={() => onPageRestaurant('prev')}
-                onPageNext={() => onPageRestaurant('next')}
               />
             ) : (
               <>

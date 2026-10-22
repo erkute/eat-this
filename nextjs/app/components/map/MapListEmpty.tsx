@@ -65,7 +65,7 @@ export default function MapListEmpty({
 
   return (
     <div className={styles.esBlock} role="status">
-      <span className={styles.esKicker}>{kicker}</span>
+      <span className={`et-label ${styles.esKicker}`}>{kicker}</span>
       <h3 className={styles.esHeading}>{t('map.emptyTitle')}</h3>
       <p className={styles.esSub}>{text}</p>
       {onReset && (

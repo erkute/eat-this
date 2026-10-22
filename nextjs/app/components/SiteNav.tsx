@@ -23,28 +23,6 @@ export default function SiteNav() {
   const progressRef = useRef<HTMLSpanElement>(null);
   const navRef = useRef<HTMLElement>(null);
 
-  // Oben auf der Startseite liegt der Kopf durchsichtig über dem gelben
-  // Aufmacher; sobald gescrollt ist, blendet seine Fläche ein
-  // (SiteNav.module.css, wie bei gucci.com — Ansage 21.10.2026).
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav || activePage !== 'start') return;
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const scroller = appScroller();
-      nav.toggleAttribute('data-scrolled', (scroller ? scroller.scrollTop : window.scrollY) > 4);
-    };
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
-    update();
-    document.addEventListener('scroll', schedule, { passive: true, capture: true });
-    return () => {
-      document.removeEventListener('scroll', schedule, { capture: true });
-      cancelAnimationFrame(frame);
-      nav.removeAttribute('data-scrolled');
-    };
-  }, [activePage]);
-
   useEffect(() => {
     if (!reading) return;
     let frame = 0;

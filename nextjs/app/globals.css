@@ -612,9 +612,8 @@ html[data-active-page='map'] .app-page {
      thin canvas gap produced by margin + calculated viewport height. */
   html[data-active-page='start'] .app-pages {
     position: fixed;
-    /* Bis unter den Kopf: der gelbe Aufmacher liegt oben hinter dem noch
-       durchsichtigen Kopf (SiteNav.module.css, Ansage 21.10.2026). Sprünge
-       zu Ankern halten trotzdem Abstand. */
+    /* Bis unter den Kopf: der Aufmacher hält ihn mit seinem oberen
+       Innenabstand frei. Sprünge zu Ankern halten trotzdem Abstand. */
     inset: 0;
     scroll-padding-top: var(--site-nav-h);
     height: auto;

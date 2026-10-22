@@ -1,15 +1,8 @@
-/* Gelb wie der Aufmacher, mit Papierkorn (Ansage 22.10.2026: „lass mal den
-   Header gelb") — in Hell und Dunkel gleich, deshalb setzt der Kopf seine
-   Schriftfarbe selbst: Ink auf Gelb. Darüber dieselbe durchsichtige
-   Knitterfolie wie auf dem Aufmacher, im selben Massstab (volle Breite,
-   eine Viewporthöhe) und oben angeschlagen — so läuft die Folie weiter,
-   wenn der Kopf beim Scrollen seine Fläche bekommt (Ansage 22.10.2026). */
+/* Reinweiss, ohne Papierkorn, Kanten oder Folie (Ansage 22.10.2026): die
+   Statusleiste am iPhone färbt Safari mit genau einer Vollfarbe nach dem
+   Kopf ein — Struktur kann sie nicht zeigen. Glatt sind Kopf und Leiste
+   eine Fläche. Dunkel dasselbe in Ink. */
 .nav {
-  --et-fg: #15120e;
-  --nav-ground: #ffc600;
-  --nav-foil: url('/pics/home/hero-crumple-mobile.webp');
-  --nav-paper: var(--nav-foil) center top / 100% 100svh no-repeat,
-    url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px repeat;
   position: fixed;
   inset: 0 0 auto;
   z-index: var(--et-z-nav);
@@ -27,29 +20,21 @@
   box-shadow: none;
 }
 
-@media (min-width: 768px) {
-  .nav { --nav-foil: url('/pics/home/hero-crumple-desktop.webp'); }
-}
-
 .nav::after {
   content: none;
 }
 
-/* Die Fläche des Kopfs. Eigene Ebene, damit sie ein- und ausblenden kann:
-   oben auf der Startseite liegt der Kopf durchsichtig über dem gelben
-   Aufmacher, ab dem ersten Scrollen steht er auf seinem Papier. */
+/* Die Fläche des Kopfs, eine eigene Ebene: am Telefon fährt sie mit dem
+   Inhalt weg (siehe unten). Auch oben auf der Startseite steht der Kopf auf
+   seiner Fläche, nicht durchsichtig über dem Aufmacher (Ansage 22.10.2026:
+   „nicht gelb am Anfang"). */
 .nav::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: var(--nav-paper), var(--nav-ground);
+  background: var(--et-ground);
   pointer-events: none;
-  transition: opacity 280ms ease;
-}
-
-:global(html[data-active-page='start']) .nav:not([data-scrolled])::before {
-  opacity: 0;
 }
 
 .nav[data-nav-page='map'] {
@@ -164,9 +149,7 @@
 
   .nav:not([data-nav-page='map'])::before {
     display: block;
-    transition:
-      transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      opacity 280ms ease;
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .nav:not([data-nav-page='map']) > * {
@@ -220,7 +203,10 @@
 
   .mapWord,
   .menuWord {
-    font-size: 16px;
+    /* Neben der 18 px hohen Wortmarke waren 16 px Versalien fast so laut
+       wie das Logo (22.10.2026) — kleiner, dafür etwas weiter gesperrt. */
+    font-size: 14px;
+    letter-spacing: 0.06em;
   }
 
   .logoImg {
@@ -309,3 +295,5 @@
   .nav .logoImg { height: 18px; }
   .readingProgress ~ .home .logo::after { mask-size: auto 18px; }
 }
+
+:global(html[data-theme='dark']) .logoImg { filter: invert(1); }

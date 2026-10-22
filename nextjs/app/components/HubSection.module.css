@@ -55,7 +55,7 @@
 .heroArt { grid-column: 1; grid-row: 1 / -1; align-self: center; }
 .heroArt img { display: block; width: 100%; max-width: 470px; height: auto; }
 .heroHeadline {
-  grid-column: 2; grid-row: 3; margin: 8px 0 0; color: #111;
+  grid-column: 2; grid-row: 3; margin: 18px 0 0; color: #111;
   font: 700 clamp(18px, 1.875vw, 27px)/1.15 var(--et-font-body);
   text-transform: uppercase; letter-spacing: -.02em;
 }
@@ -98,7 +98,7 @@
   .heroCopy { display: flex; flex-direction: column; align-items: center; height: 100%; min-height: 0; text-align: center; }
   .heroBrand { order: 0; max-width: 327px; flex: none; }
   .heroMark { width: 100%; }
-  .heroHeadline { order: 1; font-size: 15px; margin: 4px 0 0; }
+  .heroHeadline { order: 1; font-size: 15px; margin: 14px 0 0; }
   .heroGreeting { order: 2; margin: clamp(16px, 3svh, 28px) 0 0; font-size: 34px; }
   .heroLead { order: 3; max-width: 300px; margin: clamp(14px, 2.6svh, 24px) 0 0; font-size: 16px; line-height: 1.45; text-wrap: balance; }
   .heroLead.heroLeadAuth { margin-top: 6px; }

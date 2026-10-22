@@ -348,6 +348,7 @@ export default function CookieConsent() {
       <div
         ref={cardRef}
         className={`cookie-consent${expanded ? ' expanded' : ''}`}
+        data-red-sheet=""
         id="cookieConsent"
         role="dialog"
         aria-modal="true"
@@ -368,7 +369,6 @@ export default function CookieConsent() {
           <div className="cookie-copy">
             <div className="cookie-copy-main">
               <h2 className="cookie-title" id="cookieTitle">
-                <span className="cookie-mark" aria-hidden="true" />
                 {t('cookie.title')}
               </h2>
               <p className="cookie-text" id="cookieText">
@@ -383,18 +383,6 @@ export default function CookieConsent() {
                 onClick={() => setExpanded((e) => !e)}
               >
                 {t(expanded ? 'cookie.lessInfo' : 'cookie.moreInfo')}
-                <svg
-                  className="cookie-info-chevron"
-                  width={10}
-                  height={10}
-                  viewBox="0 0 10 10"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.6}
-                  aria-hidden="true"
-                >
-                  <path d="M2 3.5L5 6.5L8 3.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
               </button>
             </div>
           </div>

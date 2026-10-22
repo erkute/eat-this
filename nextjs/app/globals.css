@@ -1094,17 +1094,13 @@ html[data-auth='1'] [data-guest-only] {
    Motion is translate/scale only (brand rule: no opacity fades on brand
    surfaces). The scrim transitions its background-COLOR rather than opacity —
    it is a veil over the page, not a surface of its own. */
-/* Seit 24.09.2026 in der Sprache des Anmelde-Layers (LoginBoard/LoginPanel):
-   Fenster eine Stufe ueber Ink ohne Kontur, gelbes Marken-Quadrat vor der
-   Providence-Versalie, alles in Providence, Knoepfe gefuellt wie dort — der
-   gelbe hovert auf Papier, der zweite ist eine Weiss-Stufe und hovert gelb.
-   Kein Ring um "Ablehnen" (keine Konturen auf Ink), kein Rot. */
+/* Seit 22.10.2026 wie das Anmelde-Fenster: ein rotes Blatt (Farben aus
+   `[data-red-sheet]`), Papierkorn und Gebrauchsspuren, abgestossene Ränder;
+   Knöpfe als zerkratzte Pillen — „Akzeptieren" Ink, „Ablehnen" weiss mit
+   Ink-Schrift (Ansage: „mach den Cookie-Layer in meinem neuen Stil"). */
 .cookie-gate {
   --cookie-panel-w: 520px;
   --cookie-panel-w-wide: 900px;
-  --cookie-accent: var(--et-accent);
-  --cookie-soft: var(--et-copy);
-  --cookie-dim: var(--et-muted);
   --cookie-font: var(--et-font-display);
   position: fixed;
   inset: 0;
@@ -1131,6 +1127,12 @@ html[data-auth='1'] [data-guest-only] {
   background-color: var(--et-scrim);
 }
 .cookie-consent {
+  /* Hier, nicht an .cookie-gate: Variablen werden dort ausgerechnet, wo sie
+     stehen — an der Hülle griffen noch die Farben der Seite statt die des
+     roten Blatts (dunkelgrauer Text auf Rot). Volles Weiss auch für die
+     Rechtslinks: 82 % Weiss kam bei 14 px nur auf ~3,7:1. */
+  --cookie-soft: var(--et-copy);
+  --cookie-dim: var(--et-fg);
   position: relative;
   box-sizing: border-box;
   width: min(100%, var(--cookie-panel-w));
@@ -1140,10 +1142,14 @@ html[data-auth='1'] [data-guest-only] {
   -webkit-overflow-scrolling: touch;
   padding: clamp(28px, 3.4vw, 40px);
   color: var(--et-fg);
-  background: var(--et-ground);
+  background-color: var(--et-ground);
+  background-image: var(--et-sheet, none);
+  background-size: var(--et-sheet-size, auto);
+  background-repeat: var(--et-sheet-repeat, repeat);
   border: 0;
   border-radius: 0;
-  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
+  /* Die Maske schnitte einen Schatten ab — die Kanten tragen das Blatt. */
+  mask: var(--et-rough-edges, none);
   font-family: var(--cookie-font);
   transform: translateY(22px) scale(0.97);
   transition:
@@ -1183,18 +1189,6 @@ html[data-auth='1'] [data-guest-only] {
   line-height: 1.12;
   text-transform: none;
 }
-/* Dasselbe Zeichen wie `hv-mk` vor den Abschnittstiteln und vor dem
-   Insider-Tipp — gelb, nicht rot: Rot ist auf Ink raus. */
-.cookie-mark {
-  display: none;
-  flex: none;
-  width: 10px;
-  height: 10px;
-  /* Providence-Versalien stehen hoch in der Zeile; ohne den Zug sitzt das
-     Quadrat unter ihrer Mitte. */
-  translate: 0 -0.08em;
-  background: var(--cookie-accent);
-}
 .cookie-text {
   max-width: 44ch;
   margin: 12px 0 0;
@@ -1222,16 +1216,16 @@ html[data-auth='1'] [data-guest-only] {
   text-transform: none;
 }
 .cookie-info-trigger:focus-visible {
-  color: var(--et-fg);
+  color: var(--et-solid);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-info-trigger:hover {
-    color: var(--et-fg);
+    color: var(--et-solid);
   }
 }
-/* Accept is the primary answer, decline the secondary one: yellow against a
-   white step, both filled. What must NOT differ is everything the law looks
+/* Accept is the primary answer, decline the secondary one: ink against a
+   white pill, both filled. What must NOT differ is everything the law looks
    at — same box, same type, same weight, same single click, and decline keeps
    full-white label text so it stays as readable as accept. Do not shrink it,
    grey the label down or push it behind another click: a refusal that costs
@@ -1251,7 +1245,10 @@ html[data-auth='1'] [data-guest-only] {
   min-height: 52px;
   padding: 12px 18px;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--et-radius-pill);
+  background-image: var(--et-btn-wear, none);
+  background-size: 200px auto;
+  mask: var(--et-rough-edges-sm, none);
   font-family: var(--cookie-font);
   font-size: 16px;
   font-weight: 700;
@@ -1265,31 +1262,20 @@ html[data-auth='1'] [data-guest-only] {
     color 140ms ease;
 }
 .cookie-btn-accept {
-  color: var(--et-on-accent);
-  background: var(--cookie-accent);
+  color: var(--et-on-solid);
+  background-color: var(--et-solid);
 }
 .cookie-btn-decline {
-  color: #fff;
-  background: var(--et-ink);
-}
-.cookie-btn-accept:focus-visible {
-  background: #fff;
-  outline: 0;
-  color: var(--et-ink);
-}
-.cookie-btn-decline:focus-visible {
-  color: var(--et-on-accent);
-  background: var(--cookie-accent);
-  outline: 0;
+  color: var(--et-field-fg, var(--et-ink));
+  background-color: var(--et-field, #fff);
 }
 @media (hover: hover) {
   .cookie-btn-accept:hover {
-    background: #fff;
-    color: var(--et-ink);
+    background-color: #2b2722;
   }
   .cookie-btn-decline:hover {
-    color: var(--et-on-accent);
-    background: var(--cookie-accent);
+    color: var(--et-on-solid);
+    background-color: var(--et-solid);
   }
 }
 .cookie-legal {
@@ -1308,12 +1294,12 @@ html[data-auth='1'] [data-guest-only] {
   text-decoration: none;
 }
 .cookie-legal a:focus-visible {
-  color: var(--et-link);
+  color: var(--et-solid);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-legal a:hover {
-    color: var(--et-link);
+    color: var(--et-solid);
   }
 }
 @media (max-width: 640px) {
@@ -1356,12 +1342,6 @@ html[data-auth='1'] [data-guest-only] {
 }
 
 /* Cookie banner inline expand. */
-.cookie-info-chevron {
-  transition: transform 0.22s var(--ease);
-}
-.cookie-consent.expanded .cookie-info-chevron {
-  transform: rotate(180deg);
-}
 .cookie-expand {
   width: 100%;
   margin: 0;
@@ -1370,7 +1350,7 @@ html[data-auth='1'] [data-guest-only] {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.45) transparent;
   scrollbar-width: thin;
   /* Self-hiding scroll shadows. The panel is height-capped, so the card grid
      gets cut mid-row — without an edge cue that reads as a rendering bug
@@ -1378,16 +1358,17 @@ html[data-auth='1'] [data-guest-only] {
      mask the `scroll` layers once an end is reached, so the hint appears only
      where there is actually more to see. No JS, no listener. */
   background:
-    linear-gradient(var(--et-white) 30%, transparent) top / 100% 22px no-repeat local,
-    linear-gradient(transparent, var(--et-white) 72%) bottom / 100% 26px no-repeat local,
-    radial-gradient(farthest-side at 50% 0, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)) top /
+    linear-gradient(var(--et-ground) 30%, transparent) top / 100% 22px no-repeat local,
+    linear-gradient(transparent, var(--et-ground) 72%) bottom / 100% 26px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0)) top /
       100% 11px no-repeat scroll,
-    radial-gradient(farthest-side at 50% 100%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0))
+    radial-gradient(farthest-side at 50% 100%, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0))
       bottom / 100% 13px no-repeat scroll;
   background-color: var(--et-ground);
 }
-/* Die Abschnitte als leise Felder im Fenster — Ueberschrift als gelbes
-   Kreide-Label in Versalien, wie die Labels der Fakten-Tafel. */
+/* Die Abschnitte als leise Felder auf dem roten Blatt — dunkel getönt, nicht
+   hell: eine Weiss-Stufe hob das Rot so an, dass weisser 14-px-Text nur
+   noch ~3,9:1 hatte; mit Ink-Tönung sind es ~5,7:1. */
 .cookie-expand .cookie-info-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -1398,7 +1379,7 @@ html[data-auth='1'] [data-guest-only] {
   min-width: 0;
   margin: 0;
   padding: 14px 15px 15px;
-  background: var(--et-quiet);
+  background: rgba(21, 18, 14, 0.12);
   border: 0;
   border-radius: 0;
 }
@@ -1439,7 +1420,7 @@ html[data-auth='1'] [data-guest-only] {
   top: 0.62em;
   width: 4px;
   height: 4px;
-  background: var(--cookie-accent);
+  background: currentColor;
 }
 .cookie-expand .cookie-info-body strong {
   color: var(--et-fg);

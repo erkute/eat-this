@@ -22,9 +22,15 @@
   text-decoration: none;
   background: var(--tile, var(--et-ink)) url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px repeat;
 }
-.stage { position: absolute; inset: 7% 0 22%; display: grid; place-items: center; }
+/* Die Bühne endet über dem Namen; das Pack füllt ihre Höhe und bleibt
+   darin (absolut verankert: in einem Grid ohne feste Zeile griffe
+   height: 100% nicht, und das Pack lief über den Namen). */
+.stage { position: absolute; inset: 7% 0 25%; }
 .stage img {
   --tilt: -6deg;
+  position: absolute;
+  inset: 0;
+  margin: auto;
   width: auto;
   height: 100%;
   object-fit: contain;

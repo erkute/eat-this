@@ -10,14 +10,14 @@
   justify-content: center;
   gap: 10px;
   margin: clamp(22px, 3vw, 34px) 0 0;
-  min-height: 46px;
-  padding: 0 20px;
+  min-height: var(--et-btn-h);
+  padding: 0 var(--et-btn-pad);
   background: var(--et-ink);
   border: 0;
   border-radius: var(--et-radius-pill);
   font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 800;
+  font-size: var(--et-btn-font);
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
   text-transform: none;
@@ -50,11 +50,11 @@
    damit beide auf einer Linie stehen. */
 .howInk {
   margin: 0;
-  min-height: 56px;
-  padding: 0 26px;
+  min-height: var(--et-btn-h);
+  padding: 0 var(--et-btn-pad);
   background: var(--onboarding-trigger-bg, var(--et-quiet));
   color: var(--et-fg);
-  font-size: clamp(16px, 1.4vw, 19px);
+  font-size: var(--et-btn-font);
   font-weight: 700;
   transition:
     transform var(--et-motion-fast),
@@ -83,8 +83,8 @@
    dort, wo ein angemeldeter Besucher den Standort-Chip sieht. */
 .howSheet {
   margin: 0;
-  min-height: 40px;
-  padding: 0 16px 0 12px;
+  min-height: var(--et-btn-h-sm);
+  padding: 0 var(--et-btn-pad-sm) 0 12px;
   gap: 8px;
   background: rgba(255, 255, 255, 0.1);
   color: var(--et-white);

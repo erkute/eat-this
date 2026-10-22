@@ -11,7 +11,7 @@
 /* Die Fragen sind helle Pillen auf dem Rot, damit sie sich vom weissen,
    eckigen Eingabefeld darunter abheben (Ansage 21.10.2026: Knöpfe „richtig
    erkennbar als Buttons"). */
-.question { min-height: 48px; padding: 12px 22px; color: #fff; background: rgba(255, 255, 255, .16); border: 0; border-radius: var(--et-radius-pill); font: 700 16px/1.2 var(--et-font-body); cursor: pointer; transition: background-color var(--et-motion-fast), color var(--et-motion-fast); }
+.question { min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); color: #fff; background: rgba(255, 255, 255, .16); border: 0; border-radius: var(--et-radius-pill); font: 700 var(--et-btn-font)/1.2 var(--et-font-body); cursor: pointer; transition: background-color var(--et-motion-fast), color var(--et-motion-fast); }
 .question:focus-visible, .send:focus-visible { outline: 3px solid #111; outline-offset: 4px; }
 @media (hover: hover) { .question:hover { color: #111; background: #fff; } }
 .form { position: relative; display: flex; gap: 8px; padding: 7px; background: #fff; border: 0; }
@@ -45,7 +45,7 @@
   .name { font-size: clamp(84px, 27vw, 120px); }
   .intro { font-size: 20px; margin-bottom: 28px; }
   .questions { position: relative; z-index: 1; max-width: 320px; gap: 10px; }
-  .question { padding: 12px 20px; font-size: 15px; }
+  .question { padding: 0 20px; }
   .portrait { width: 420px; height: 420px; right: calc(50% - 210px); bottom: 0; }
   .figure { inset: 0 0 -24%; }
   .send { padding-inline: 12px; }

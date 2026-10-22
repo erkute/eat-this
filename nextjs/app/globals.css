@@ -300,6 +300,19 @@
   --et-radius-photo: 10px;
   --et-radius-control: 7px;
   --et-radius-pill: 999px;
+  /* Knöpfe in drei Grössen (Ansage 22.10.2026), alle als Pille:
+     Standard für alles Normale, gross nur für den einen Kauf einer Seite,
+     klein für Knöpfe auf Fotos, Karten und in Listen. Breite = Text plus
+     Polster. */
+  --et-btn-h: 48px;
+  --et-btn-pad: 24px;
+  --et-btn-font: 16px;
+  --et-btn-h-lg: 56px;
+  --et-btn-pad-lg: 32px;
+  --et-btn-font-lg: 18px;
+  --et-btn-h-sm: 40px;
+  --et-btn-pad-sm: 16px;
+  --et-btn-font-sm: 14px;
   --et-motion-fast: 140ms ease;
   --et-motion-base: 160ms ease;
   --et-motion-card: 180ms ease;

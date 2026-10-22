@@ -13,9 +13,11 @@ import styles from './AllBerlinSheet.module.css';
 /* „Was drin ist" — das Fenster hinter der All-Berlin-Tafel. Ersetzt die
    frühere Seite /pack/all-berlin, die nach dem Umbau nur noch die Tafel plus
    die neun Packs zeigte: die Tafel steht auf /packs schon oben, also bleibt
-   hier, was jemand vor 9,99 € wissen will — welche neun Packs genau. Man
-   bleibt im Laden und kauft von hier. Dieselbe Ink-Sheet wie das
-   Must-Eat-Onboarding; auf dem Telefon kommt sie von unten. */
+   hier, was jemand vor 9,99 € wissen will: was All Berlin bringt und welche
+   Packs drinstecken (Ansage 22.10.2026: „mehr Infos, was drin ist“). Zahlen
+   nennt es nicht, die Stichworte der Packs stehen auf deren eigener Seite.
+   Man bleibt im Laden und kauft von hier. Auf dem Telefon kommt das Fenster
+   von unten und steht ohne Scrollen. */
 
 interface Props {
   locale: 'de' | 'en';
@@ -28,7 +30,13 @@ const copy = {
     trigger: 'Enthaltene Packs ansehen',
     close: 'Schließen',
     title: 'Alles in All Berlin',
-    lead: 'Alle verfügbaren Packs sofort. Neue Packs und Karten kommen ohne weiteren Kauf dazu.',
+    inside: 'Das steckt drin',
+    points: [
+      'Alle Kategorie-Packs, von Frühstück bis Fine Dining.',
+      'Jedes Must Eat liegt sofort offen auf deiner Map. Du musst nicht erst hin.',
+      'Neue Packs und Karten kommen ohne weiteren Kauf dazu.',
+    ],
+    packs: 'Die Packs',
     cta: 'All Berlin freischalten',
     pending: 'Weiter zu Stripe …',
     owned: 'Zur Map',
@@ -39,7 +47,13 @@ const copy = {
     trigger: 'View included packs',
     close: 'Close',
     title: 'Everything in All Berlin',
-    lead: 'All available packs right away. New packs and cards are included at no extra cost.',
+    inside: 'What you get',
+    points: [
+      'Every category pack, from breakfast to fine dining.',
+      'Every Must Eat is revealed on your map right away. No need to go there first.',
+      'New packs and cards are included at no extra cost.',
+    ],
+    packs: 'The packs',
     cta: 'Unlock All Berlin',
     pending: 'Going to Stripe …',
     owned: 'Open map',
@@ -124,8 +138,15 @@ export default function AllBerlinSheet({ locale, contents, triggerLabel }: Props
               <h2 id="all-berlin-sheet-title" className={styles.title}>
                 {t.title}
               </h2>
-              <p className={styles.lead}>{t.lead}</p>
 
+              <p className={styles.label}>{t.inside}</p>
+              <ul className={styles.points} role="list">
+                {t.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+
+              <p className={styles.label}>{t.packs}</p>
               <ul className={styles.grid} role="list">
                 {orderedPacks.map((pack) => {
                   const art = pack.slug ? categoryArt(pack.slug) : null;

@@ -740,14 +740,14 @@ div.page {
   flex: none;
   display: inline-flex;
   align-items: center;
-  min-height: 40px;
-  padding: 0 16px;
+  min-height: var(--et-btn-h-sm);
+  padding: 0 var(--et-btn-pad-sm);
   border-radius: var(--et-radius-pill);
   background: var(--article-accent);
   background-image: var(--et-btn-wear, none);
   background-size: 200px auto;
   color: var(--et-on-accent);
-  font-size: 13px;
+  font-size: var(--et-btn-font-sm);
   line-height: 1;
   /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
   text-decoration: none;

@@ -41,7 +41,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HubFragRemy />
       <HubFaq locale={locale} />
       <StarterPackSignup />
-      <SiteFooter home />
+      <SiteFooter />
     </main>
   );
 }

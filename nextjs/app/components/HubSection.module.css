@@ -4,7 +4,7 @@
      21.10.2026) — eine Grösse für alle: Magazin, Must Eats, Fragen,
      Starter Pack. Am Telefon so, dass ein Wort mit sieben Zeichen
      („Teller.", „Fragen?") noch in die Spalte passt. */
-  --hv-display: clamp(72px, 9.5vw, 152px);
+  --hv-display: clamp(60px, 7.8vw, 124px);
   width: 100%; min-height: 100svh; overflow-x: clip;
   font-family: var(--et-font-body);
 }
@@ -22,8 +22,9 @@
 .page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
 .page :global(.hv-btn) {
   display: inline-flex; align-items: center; justify-content: center;
-  min-height: 48px; padding: 12px 24px; border-radius: 0;
-  background: var(--et-solid); color: var(--et-on-solid); font: 400 16px/1.25 var(--et-font-body); background-image: var(--et-wear, none); background-size: 200px auto;
+  min-height: 48px; padding: 12px 26px; border-radius: var(--et-radius-pill);
+  background: var(--et-solid); color: var(--et-on-solid); font: 700 16px/1.25 var(--et-font-body);
+  background-image: var(--et-btn-wear, none); background-size: 200px auto;
 }
 .page :global(.hv-btn:focus-visible) { outline: 3px solid #d9382a; outline-offset: 4px; }
 .hero { position: relative; overflow: hidden; box-sizing: border-box; padding-top: var(--site-nav-h); background: #ffc600; color: #111; }
@@ -90,5 +91,5 @@
   .heroLead { order: 3; max-width: 290px; margin: 24px 0 0; font-size: 16px; line-height: 1.5; }
   .heroActions { order: 4; margin-top: 24px; justify-content: center; }
   .heroActionVariant { justify-content: center; }
-  .page { --hv-display: clamp(52px, 18vw, 84px); }
+  .page { --hv-display: clamp(46px, 15vw, 72px); }
 }

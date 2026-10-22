@@ -63,7 +63,7 @@ export default function SiteNav() {
       const bar = progressRef.current;
       const nav = bar?.parentElement;
       if (!bar || !nav) return;
-      bar.style.transform = `scaleX(${progress})`;
+      bar.style.clipPath = `inset(0 ${(1 - progress) * 100}% 0 0)`;
       // Was die rote Fläche schon bedeckt, steht weiß: jedes Wort und die
       // Wortmarke bekommen ihren bedeckten Anteil als --fill (0–1).
       const box = nav.getBoundingClientRect();

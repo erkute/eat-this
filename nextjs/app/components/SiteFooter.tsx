@@ -7,14 +7,14 @@ import styles from './SiteFooter.module.css';
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '@/lib/guestCardShake';
 
-export default function SiteFooter({ home = false }: { home?: boolean }) {
+export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
   const de = lang === 'de';
   const logoAnimation = useRef<Animation | null>(null);
   useEffect(() => () => logoAnimation.current?.cancel(), []);
   return (
     <footer
-      className={`${styles.footer}${home ? ` ${styles.home}` : ''}`}
+      className={styles.footer}
       data-site-footer
       role="contentinfo"
       aria-label="Site footer"
@@ -53,7 +53,7 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
                 alt="Eat This"
                 width={1124}
                 height={274}
-                sizes={home ? '(min-width: 768px) 420px, 238px' : '220px'}
+                sizes="(min-width: 768px) 420px, 238px"
                 loading="lazy"
                 decoding="async"
                 className={styles.megaImg}

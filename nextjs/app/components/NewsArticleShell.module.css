@@ -732,7 +732,7 @@ div.page {
   }
 }
 
-/* Der Knopf wie die Etiketten der Seite, rechts unten auf dem Foto. */
+/* Der Knopf rechts unten auf dem Foto, als Pille wie alle Knöpfe. */
 .inlineSpotCta {
   font-family: var(--et-font-display);
   font-weight: 700;
@@ -742,8 +742,9 @@ div.page {
   align-items: center;
   min-height: 40px;
   padding: 0 16px;
+  border-radius: var(--et-radius-pill);
   background: var(--article-accent);
-  background-image: var(--et-wear, none);
+  background-image: var(--et-btn-wear, none);
   background-size: 200px auto;
   color: var(--et-on-accent);
   font-size: 13px;

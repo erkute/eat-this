@@ -14,8 +14,10 @@ for (const route of ['/news/vegane-restaurants-berlin', '/restaurant/standard-se
       if (scroller) scroller.scrollTop += bottom - scroller.getBoundingClientRect().bottom + 10;
       else window.scrollBy(0, bottom - innerHeight + 10);
     });
+    // Der Balken wird per clip-path aufgedeckt: sichtbar ist 1 − rechter Einzug.
     await expect.poll(() => progress.evaluate(element => {
-      return element.getBoundingClientRect().width / element.parentElement!.getBoundingClientRect().width;
+      const right = /inset\(\S+ ([\d.]+)%/.exec(getComputedStyle(element).clipPath);
+      return right ? 1 - Number(right[1]) / 100 : 0;
     })).toBeGreaterThan(.99);
     await expect(page.locator('#navbar')).toHaveAttribute('data-visibility', 'visible');
     await page.locator('#burgerBtn').focus();

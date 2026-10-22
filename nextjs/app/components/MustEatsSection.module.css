@@ -202,7 +202,7 @@
   min-height: 52px;
   padding: 0 24px;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--et-radius-pill);
   font-family: var(--et-font-display);
   font-size: 17px;
   font-weight: 700;
@@ -214,32 +214,35 @@
     transform var(--et-motion-fast);
 }
 
-/* Der eine gefüllte Knopf je Block. Hover und Fokus: Papier mit Ink-Schrift —
-   die Fläche wechselt, kein Ring auf Ink. */
+/* Pillen wie alle Knöpfe, der gefüllte mit den leichten Kratzern
+   (Ansage 22.10.2026). Hover und Fokus: die Fläche wechselt zu Ink, kein
+   Ring — Papier wie früher verschwand auf dem hellen Grund. */
 .cta {
   background: var(--et-accent);
+  background-image: var(--et-btn-wear, none);
+  background-size: 200px auto;
   color: var(--et-on-accent);
 }
 
-/* Die Seitentür als leise Fläche, wie „Wie funktioniert's?" daneben. */
+/* Die Seitentür als leise Fläche: Papier auf dem grauen Abschlussblock. */
 .secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--et-ground);
   color: var(--et-fg);
 }
 
 .cta:focus-visible,
 .secondary:focus-visible {
   outline: none;
-  background: var(--et-ground);
-  color: var(--et-fg);
+  background: var(--et-solid);
+  color: var(--et-on-solid);
   transform: translateY(-2px);
 }
 
 @media (hover: hover) {
   .cta:hover,
   .secondary:hover {
-    background: var(--et-ground);
-    color: var(--et-fg);
+    background: var(--et-solid);
+    color: var(--et-on-solid);
     transform: translateY(-2px);
   }
 }

@@ -85,6 +85,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   background: var(--et-solid);
   color: var(--et-on-solid);
   background-image: var(--et-btn-wear, none);
+  mask: var(--et-rough-edges-sm, none);
   background-size: 200px auto;
   font-family: var(--et-font-display);
   font-size: var(--et-btn-font);

@@ -51,7 +51,7 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
   }
 
   return (
-    <div className={styles.frame}>
+    <div className={styles.frame} data-red-sheet="">
       <button type="button" className={styles.close} onClick={onBack} aria-label={t('backBtn')}>
         <span aria-hidden="true">×</span>
       </button>

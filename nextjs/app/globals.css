@@ -374,9 +374,31 @@ html[data-vintage] {
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
   --et-sheet-size: 192px, 100% 100%;
   --et-sheet-repeat: repeat, no-repeat;
+  /* Abgestossene Ränder: eine Maske aus vier kachelbaren Kantenstreifen und
+     einer vollen Fläche dazwischen. Nur für Knöpfe und das Login-Fenster —
+     nicht für Fotos, Tafeln oder Etiketten (Ansage 22.10.2026: „nicht
+     überall"). Die Maske schneidet auch den eigenen box-shadow ab. */
+  --et-rough-edges:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 12px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 256px 12px repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 12px 256px repeat-y,
+    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 12px 256px repeat-y,
+    linear-gradient(#000 0 0) center / calc(100% - 20px) calc(100% - 20px) no-repeat;
+  /* Dieselben Kanten ein Drittel so tief, für Knöpfe und Felder — tiefer
+     zerfranst las sich eine Pille als Klebestreifen, nicht mehr als Knopf. */
+  --et-rough-edges-sm:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
+    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 4px 128px repeat-y,
+    linear-gradient(#000 0 0) center / calc(100% - 7px) calc(100% - 7px) no-repeat;
 }
 html[data-vintage][data-theme='dark'] {
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+}
+/* Die Maske schnitte den Fokusring ab, der ausserhalb des Knopfs liegt. */
+html[data-vintage] :is(a, button, input):focus-visible {
+  mask: none;
 }
 html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
   background-image: var(--et-sheet);
@@ -430,8 +452,9 @@ html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
 }
 /* Starter Pack im Rot des Packs selbst (Ansage 21.10.2026: „soll rot sein,
    ähnlich wie das Starter Pack"): Schrift weiss, Feld und Google-Knopf weiss
-   mit Ink-Schrift, „Anmelden" Ink, Fokus weiss — Rot auf Rot sähe man nicht. */
-html[data-vintage] .homeV2 > [data-hub-starter] {
+   mit Ink-Schrift, „Anmelden" Ink, Fokus weiss — Rot auf Rot sähe man nicht.
+   Das Anmelde-Modal trägt dasselbe Rot (`data-red-sheet`, Ansage 22.10.2026). */
+html[data-vintage] :is(.homeV2 > [data-hub-starter], [data-red-sheet]) {
   color-scheme: light;
   --et-ground: #cf3f2f;
   --et-fg: #fff;

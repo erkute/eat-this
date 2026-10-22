@@ -265,6 +265,7 @@
   min-height: var(--et-btn-h-lg);
   padding: 0 var(--et-btn-pad-lg);
   background: var(--et-accent) var(--et-btn-wear, none) 0 0 / 200px auto;
+  mask: var(--et-rough-edges-sm, none);
   color: var(--et-on-accent);
   border: 0;
   border-radius: var(--et-radius-pill);

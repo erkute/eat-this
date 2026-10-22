@@ -88,12 +88,13 @@ describe('HubHeroCopy', () => {
     expect(html).not.toContain('Entdecke Berlins beste Restaurants');
   });
 
-  it('keeps the same hero structure while restoring signed-in copy', () => {
+  it('keeps the brand claim and greets signed-in visitors on a line of their own', () => {
     authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
     const html = render();
-    expect(html).toContain('Hey Ersan');
-    expect(html).toContain('Deine Map');
-    expect(html).toContain('wartet.');
+    // Wortmarke und Claim gehören der Marke — angemeldet kein zweiter Claim.
+    expect(html).toContain('We tell you');
+    expect(html).not.toContain('Deine Map wartet');
+    expect(text(html)).toContain('Hey Ersan.');
     expect(html).toContain('href="/profile"');
     expect(html).toContain('Profil');
     expect(html).not.toContain('Was ist um mich?');
@@ -105,7 +106,6 @@ describe('HubHeroCopy', () => {
     expect(html).toContain('data-guest-only');
     expect(html).toContain('data-auth-only');
     expect(html).toContain('We tell you');
-    expect(html).toContain('Deine Map');
     expect(html.match(/<h1/g)).toHaveLength(1);
     // The explainer is guest copy — one copy only, behind the guest gate.
     expect(text(html).match(/Alles auf einer Map/g)).toHaveLength(1);

@@ -88,35 +88,30 @@ interface HeroCopyProps extends Props {
   variant: Variant;
 }
 
+/* Wortmarke und Claim gehören zur Marke und stehen für alle gleich. Wer
+   angemeldet ist, bekommt den Gruß als eigene Zeile über dem Lead — nicht als
+   Untertitel unter der Wortmarke und nicht als zweiter Claim (Ansage
+   22.10.2026: „da ist es ein bisschen broke"). */
+function HeroHeadline() {
+  return (
+    <h1 className={styles.heroHeadline} aria-label="We tell you what to eat">
+      <span>We tell you</span>
+      <span>what to eat</span>
+    </h1>
+  );
+}
+
 function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
   const signedIn = variant === 'auth';
   const de = locale === 'de';
-  const headline = signedIn
-    ? de
-      ? ['Deine Map', 'wartet.']
-      : ['Your map', 'is ready.']
-    : ['We tell you', 'what to eat'];
-  const headlineLabel = signedIn
-    ? de
-      ? 'Deine Map wartet.'
-      : 'Your map is ready.'
-    : 'We tell you what to eat';
 
   return (
     <>
-      {/* Der Gruß bleibt, die Gästezeile nicht: „Was du essen solltest." sagte
-          dasselbe wie die Headline darunter, und über der Wortmarke wurde die
-          Spalte damit dreistöckig. */}
+      <HeroHeadline />
       {signedIn ? (
-        <span className={`hv-kicker ${styles.heroKicker}`}>
-          {firstName ? `Hey ${firstName}` : 'Hey'}
-        </span>
+        <p className={styles.heroGreeting}>{firstName ? `Hey ${firstName}.` : 'Hey.'}</p>
       ) : null}
-      <h1 className={styles.heroHeadline} aria-label={headlineLabel}>
-        <span>{headline[0]}</span>
-        <span>{headline[1]}</span>
-      </h1>
-      <p className={styles.heroLead}>
+      <p className={signedIn ? `${styles.heroLead} ${styles.heroLeadAuth}` : styles.heroLead}>
         <LeadWords text={signedIn ? LEAD_AUTH[locale] : LEAD[locale]} />
       </p>
       <div className={styles.heroActions} data-hero-actions="">
@@ -149,23 +144,14 @@ function LoadingHeroCopy({ locale }: Props) {
 
   return (
     <>
-      <span className={`hv-kicker ${styles.heroKicker}`} data-auth-only="">
-        Hey
-      </span>
-      <h1 className={styles.heroHeadline}>
-        <span data-guest-only="">
-          <span>We tell you</span>
-          <span>what to eat</span>
-        </span>
-        <span data-auth-only="">
-          <span>{de ? 'Deine Map' : 'Your map'}</span>
-          <span>{de ? 'wartet.' : 'is ready.'}</span>
-        </span>
-      </h1>
+      <HeroHeadline />
+      <p className={styles.heroGreeting} data-auth-only="">
+        Hey.
+      </p>
       <p className={styles.heroLead} data-guest-only="">
         <LeadWords text={LEAD[locale]} />
       </p>
-      <p className={styles.heroLead} data-auth-only="">
+      <p className={`${styles.heroLead} ${styles.heroLeadAuth}`} data-auth-only="">
         <LeadWords text={LEAD_AUTH[locale]} />
       </p>
       <div className={styles.heroActions} data-hero-actions="">

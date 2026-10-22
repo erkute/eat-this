@@ -1,9 +1,12 @@
-/* Der Rahmen des Anmelde-Modals: eine Flaeche, eine Stufe ueber dem
-   Ink-Grund, ohne Kontur (siehe --et-ink-raised in globals.css). Was darin
-   steht, gehoert LoginBoard. */
+/* Der Rahmen des Anmelde-Modals: ein rotes Blatt wie die Starter-Tafel der
+   Startseite — Farben aus `[data-red-sheet]` (globals.css), Papierkorn und
+   Gebrauchsspuren darauf, die Ränder abgestossen (Ansage 22.10.2026). Die
+   Maske schnitte einen Schatten ab, deshalb keiner. Was darin steht, gehoert
+   LoginBoard. */
 
 .frame {
-  --login-accent: var(--et-accent);
+  --login-accent: var(--et-solid);
+  --login-accent-hover: #2b2722;
 
   position: relative;
   isolation: isolate;
@@ -12,10 +15,13 @@
   max-height: calc(100svh - 28px);
   padding: clamp(40px, 5vw, 60px) clamp(32px, 4.4vw, 60px);
   overflow: hidden;
-  background: var(--et-ground);
+  background-color: var(--et-ground);
+  background-image: var(--et-sheet, none);
+  background-size: var(--et-sheet-size, auto);
+  background-repeat: var(--et-sheet-repeat, repeat);
   /* Derselbe Radius wie das Onboarding-Fenster (Tour.module.css .panel). */
   border-radius: 0;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  mask: var(--et-rough-edges, none);
 }
 
 .srOnly {

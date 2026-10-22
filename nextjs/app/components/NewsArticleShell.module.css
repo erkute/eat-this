@@ -745,6 +745,7 @@ div.page {
   border-radius: var(--et-radius-pill);
   background: var(--article-accent);
   background-image: var(--et-btn-wear, none);
+  mask: var(--et-rough-edges-sm, none);
   background-size: 200px auto;
   color: var(--et-on-accent);
   font-size: var(--et-btn-font-sm);

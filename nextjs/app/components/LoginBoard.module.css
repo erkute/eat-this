@@ -275,9 +275,11 @@
   width: 100%;
   min-height: var(--et-btn-h);
   padding: 0 15px;
-  color: var(--et-fg);
-  background: var(--et-quiet);
+  /* Auf einem roten Blatt (--et-field gesetzt) weiss mit Ink-Schrift. */
+  color: var(--et-field-fg, var(--et-fg));
+  background: var(--et-field, var(--et-quiet));
   border: 0;
+  mask: var(--et-rough-edges-sm, none);
   border-radius: 0;
   font-family: var(--et-font-display);
   font-size: 17px;
@@ -287,7 +289,7 @@
 }
 
 .input::placeholder {
-  color: #666;
+  color: var(--et-field-muted, #666);
   font-family: inherit;
 }
 
@@ -353,13 +355,15 @@
   color: var(--et-on-solid);
   background: var(--login-accent);
   background-image: var(--et-btn-wear, none);
+  mask: var(--et-rough-edges-sm, none);
   background-size: 200px auto;
 }
 
 .ctaGoogle,
 .textlink {
-  color: var(--et-fg);
-  background: var(--et-quiet);
+  color: var(--et-field-fg, var(--et-fg));
+  background: var(--et-field, var(--et-quiet));
+  mask: var(--et-rough-edges-sm, none);
 }
 
 .ctaPrimary:disabled,
@@ -385,7 +389,7 @@
 
 @media (hover: hover) {
   .ctaPrimary:hover {
-    background: var(--et-accent);
+    background: var(--login-accent-hover, var(--et-accent));
     color: #fff;
   }
 
@@ -577,12 +581,12 @@
 .editorial .kicker { color: var(--et-fg); }
 .editorial .lead { color: var(--et-fg); font-size: 18px; font-weight: 400; line-height: 1.4; margin: 24px 0; }
 /* Auf dem Papiergrund braucht das Feld eine Kante, sonst liest es sich als Fläche, nicht als Eingabe. */
-.editorial .input { color: var(--et-field-fg, var(--et-fg)); background: var(--et-field, var(--et-ground)); border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--et-field-fg, var(--et-fg)); }
+.editorial .input { color: var(--et-field-fg, var(--et-fg)); background: var(--et-field, var(--et-ground)); border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--et-field-fg, var(--et-fg)); mask: none; }
 .editorial .input:focus { outline: 3px solid var(--et-focus, #d9382a); outline-offset: 4px; }
 .editorial .input::placeholder { color: var(--et-field-muted, var(--et-muted)); }
 /* Knöpfe als Pillen, das Feld bleibt eckig – so liest sich der weisse
    Google-Knopf nicht als zweites Feld (Ansage 21.10.2026). */
-.editorial .ctaPrimary, .editorial .ctaGoogle { min-height: var(--et-btn-h); background: var(--et-solid); color: var(--et-on-solid); border: 0; border-radius: var(--et-radius-pill); background-image: var(--et-btn-wear, none); background-size: 200px auto; font-size: 16px; }
+.editorial .ctaPrimary, .editorial .ctaGoogle { min-height: var(--et-btn-h); background: var(--et-solid); color: var(--et-on-solid); border: 0; border-radius: var(--et-radius-pill); background-image: var(--et-btn-wear, none); mask: var(--et-rough-edges-sm, none); background-size: 200px auto; font-size: 16px; }
 .editorial .ctaGoogle { background: var(--et-field, var(--et-ground)); color: var(--et-field-fg, var(--et-fg)); }
 .editorial .legal, .editorial .legalLink, .editorial .or, .editorial .sub, .editorial .spam, .editorial .toLabel, .editorial .toValue, .editorial .textlink { color: var(--et-muted); }
 .editorial .legalLink:focus-visible, .editorial button:focus-visible { outline: 3px solid var(--et-focus, #d9382a); outline-offset: 4px; }

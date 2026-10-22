@@ -267,6 +267,7 @@
   /* Zerkratzt wie die Knöpfe (Ansage 22.10.2026). Aufgedeckt per
      Ausschnitt statt scaleX, sonst stauchte die Breite die Kratzer mit. */
   background: var(--et-accent) var(--et-btn-wear, none) 0 0 / 200px auto;
+  mask: var(--et-rough-edges-sm, none);
   clip-path: inset(0 100% 0 0);
   z-index: 0;
   transition: none;

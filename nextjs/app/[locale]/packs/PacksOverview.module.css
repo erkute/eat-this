@@ -171,6 +171,7 @@
   margin-top: 4px;
   padding: 0 var(--et-btn-pad-sm);
   background: var(--et-solid) var(--et-btn-wear, none) 0 0 / 200px auto;
+  mask: var(--et-rough-edges-sm, none);
   color: var(--et-on-solid);
   border-radius: var(--et-radius-pill);
   font-family: var(--et-font-display);

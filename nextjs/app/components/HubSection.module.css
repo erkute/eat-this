@@ -24,7 +24,7 @@
   display: inline-flex; align-items: center; justify-content: center;
   min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); border-radius: var(--et-radius-pill);
   background: var(--et-solid); color: var(--et-on-solid); font: 700 var(--et-btn-font)/1.25 var(--et-font-body);
-  background-image: var(--et-btn-wear, none); background-size: 200px auto;
+  background-image: var(--et-btn-wear, none); mask: var(--et-rough-edges-sm, none); background-size: 200px auto;
 }
 .page :global(.hv-btn:focus-visible) { outline: 3px solid #d9382a; outline-offset: 4px; }
 .hero { position: relative; overflow: hidden; box-sizing: border-box; padding-top: var(--site-nav-h); background: #ffc600; color: #111; }
@@ -47,7 +47,7 @@
 .heroInner { position: relative; padding: 64px var(--home-gutter); max-width: 1600px; margin: auto; }
 .heroCopy {
   display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr);
-  grid-template-rows: 1fr auto auto auto auto 1fr; column-gap: clamp(40px, 7vw, 100px);
+  grid-template-rows: 1fr auto auto auto auto auto 1fr; column-gap: clamp(40px, 7vw, 100px);
   align-items: start; min-height: 692px;
 }
 .heroBrand { grid-column: 2; grid-row: 2; width: 100%; }
@@ -61,15 +61,22 @@
 }
 .heroHeadline span { display: inline; }
 .heroHeadline span + span::before { content: ' '; }
-.heroKicker { grid-column: 2; grid-row: 1; align-self: end; padding-bottom: 16px; font-size: 16px; }
+/* Der Gruß der Angemeldeten: eine eigene Zeile, so fett wie die Marke, an
+   der Stelle, an der Gäste den Erklärsatz lesen. Der Lead rückt dann an ihn
+   heran, statt mit Abstand frei zu stehen. */
+.heroGreeting {
+  grid-column: 2; grid-row: 4; margin: 64px 0 0; color: #111;
+  font: 700 clamp(34px, 3.4vw, 52px)/1.05 var(--et-font-body); letter-spacing: -.04em;
+}
 .heroLead {
-  grid-column: 2; grid-row: 4; max-width: 567px; margin: 70px 0 0;
+  grid-column: 2; grid-row: 5; max-width: 567px; margin: 70px 0 0;
   color: #111; font: 400 18px/1.5 var(--et-font-body);
 }
+.heroLead.heroLeadAuth { margin-top: 12px; }
 .heroLeadLine { display: inline; }
 .heroLeadLine + .heroLeadLine::before { content: ' '; }
 .heroLeadWord { display: inline-block; }
-.heroActions { grid-column: 2; grid-row: 5; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; width: fit-content; }
+.heroActions { grid-column: 2; grid-row: 6; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; width: fit-content; }
 .heroActionVariant { display: flex; flex-wrap: wrap; gap: 12px; }
 :global(html[data-hero-flight='on']:not([data-hero-rest])) .heroMark { visibility: hidden; }
 /* Am Desktop steht der ganze Hero im ersten Bild (Ansage 21.10.2026): er
@@ -81,15 +88,26 @@
   .heroArt { display: flex; justify-content: center; height: 100%; min-height: 0; }
   .heroArt img { width: auto; max-width: min(100%, 470px); max-height: 100%; object-fit: contain; }
 }
+/* Am Telefon steht der Hero ebenfalls ganz im ersten Bild (Ansage
+   22.10.2026): genau eine kleine Viewporthöhe (svh — auch mit eingeblendeten
+   Safari-Leisten), der Text über der Karte, und die Karte nimmt, was übrig
+   bleibt. Auf sehr niedrigen Telefonen hält min-height die Karte lesbar. */
 @media (max-width: 767.98px) {
-  .heroInner { padding: 32px 24px; }
-  .heroCopy { display: flex; flex-direction: column; align-items: center; min-height: 0; text-align: center; }
-  .heroBrand { order: 0; max-width: 327px; }
+  .hero { height: 100svh; min-height: calc(540px + var(--site-nav-h)); }
+  .heroInner { box-sizing: border-box; height: 100%; padding: clamp(16px, 3svh, 32px) 24px clamp(20px, 3.5svh, 36px); }
+  .heroCopy { display: flex; flex-direction: column; align-items: center; height: 100%; min-height: 0; text-align: center; }
+  .heroBrand { order: 0; max-width: 327px; flex: none; }
   .heroMark { width: 100%; }
-  .heroHeadline { order: 1; font-size: 15px; margin: 4px 0 24px; }
-  .heroArt { order: 2; width: 264px; max-width: 90%; align-self: center; }
-  .heroLead { order: 3; max-width: 290px; margin: 24px 0 0; font-size: 16px; line-height: 1.5; }
-  .heroActions { order: 4; margin-top: 24px; justify-content: center; }
+  .heroHeadline { order: 1; font-size: 15px; margin: 4px 0 0; }
+  .heroGreeting { order: 2; margin: clamp(16px, 3svh, 28px) 0 0; font-size: 34px; }
+  .heroLead { order: 3; max-width: 300px; margin: clamp(14px, 2.6svh, 24px) 0 0; font-size: 16px; line-height: 1.45; text-wrap: balance; }
+  .heroLead.heroLeadAuth { margin-top: 6px; }
+  .heroArt {
+    order: 4; flex: 1 1 0; min-height: 0; width: 100%;
+    display: flex; justify-content: center; margin-top: clamp(14px, 2.6svh, 24px);
+  }
+  .heroArt img { width: auto; height: 100%; max-width: min(100%, 290px); object-fit: contain; object-position: center top; }
+  .heroActions { order: 5; flex: none; margin-top: clamp(14px, 2.6svh, 24px); justify-content: center; }
   .heroActionVariant { justify-content: center; }
   .page { --hv-display: clamp(46px, 15vw, 72px); }
 }

@@ -349,16 +349,13 @@ export default function NewsArticleShell({
     const width = block.imageWidth || 1440;
     const height = block.imageHeight || 1080;
     return (
-      <figure
-        className={styles.inlineImage}
-        style={{ '--img-ratio': width / height } as React.CSSProperties}
-      >
+      <figure className={styles.inlineImage}>
         <Image
           src={block.imageUrl}
           alt={block.alt || ''}
           width={width}
           height={height}
-          sizes="(max-width: 767.98px) 100vw, (max-width: 1023.98px) 740px, 1040px"
+          sizes="(max-width: 767.98px) 100vw, 768px"
         />
         {block.caption && <figcaption>{block.caption}</figcaption>}
       </figure>

@@ -542,36 +542,26 @@ div.page {
 /* Inline editorial photo — square corners like every photo in the article,
    a small quiet caption. The img keeps its intrinsic ratio; next/image
    ships width/height so the column doesn't jump while it loads. */
-/* Die Höhe ist gedeckelt, nicht die Breite: ein Hochformat lief über die
-   volle Spalte und stand auf Desktop 660 × 920px da — höher als der
-   Bildschirm (Betreiber, 25.09.2026: „die Bilder wirken so riesig"). Jetzt
-   wird es schmaler und steht mittig über dem Text; ein Querformat füllt die
-   Spalte weiter. `--img-ratio` setzt die Komponente aus den Asset-Maßen,
-   `--img-frame` ist die Breite, in der mittig gerechnet wird — ab Desktop die
-   Lesebreite statt der ganzen Spalte. */
+/* Jedes Foto im Text so breit wie die Spot-Karten — die Spalte —, nur der
+   Aufmacher steht breiter (Ansage 22.10.2026: „die Bilder immer in der
+   gleichen Breite"). Vorher war die Höhe gedeckelt, und Hochformate standen
+   schmal und mittig. Damit sie nicht über den Bildschirm wachsen, werden sie
+   höchstens 4:5 gezeigt (Höhe ≤ 125 % der Breite, mittig beschnitten);
+   Querformate bleiben ganz. `--img-frame`/`--img-offset` setzt nur das
+   Telefon (siehe unten). */
 .inlineImage {
-  --img-max-h: 600px;
-  --img-w: min(var(--img-frame, 100%), calc(var(--img-max-h) * var(--img-ratio, 1.5)));
-  width: var(--img-w);
+  container-type: inline-size;
+  width: var(--img-frame, 100%);
   margin: clamp(30px, 5vw, 60px) 0;
-  margin-left: calc(var(--img-offset, 0px) + (var(--img-frame, 100%) - var(--img-w)) / 2);
-}
-
-/* Die Fensterhöhe zählt erst ab Desktop-Breite mit. Chrome auf dem iPhone
-   ändert `vh`, während es beim Scrollen seine Leisten ein- und ausblendet —
-   ein Hochformat, dessen Breite an `70vh` hing, wurde beim Hoch- und
-   Runterscrollen breiter und schmaler und sah aus wie gezoomt (Betreiber,
-   26.09.2026, Crapulix-Artikel). Am Telefon deckelt die feste Höhe; auf dem
-   Desktop steht `vh` beim Scrollen still. */
-@media (min-width: 1024px) {
-  .inlineImage {
-    --img-max-h: min(70vh, 600px);
-  }
+  margin-left: var(--img-offset, 0px);
 }
 
 .inlineImage img {
+  display: block;
   width: 100%;
   height: auto;
+  max-height: 125cqi;
+  object-fit: cover;
 }
 
 /* Bildunterschriften folgen dem 18px-Lesesatz der Referenz. */
@@ -1178,18 +1168,12 @@ div.page {
 }
 @media (min-width: 1024px) {
   .page {
+    /* Text, Fotos und Spot-Karten teilen eine Breite; nur der Aufmacher steht
+       breiter (22.10.2026). Die Spot-Karte war am Desktop schon „zu groß",
+       breiter als die Spalte (21.10.2026) — also gehen die Fotos auf ihr Mass. */
     --article-measure: 768px;
-    /* Fotos ragen links und rechts über die Lesespalte hinaus (Betreiber,
-       14.10.2026); der Text bleibt bei 768px. Die Spot-Karte bleibt seit
-       21.10.2026 in der Spalte („desktop zu groß das Teil"). */
-    --article-wide: min(1040px, calc(100vw - 108px));
   }
   .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }
-  .inlineImage {
-    --img-frame: var(--article-wide);
-    --img-offset: calc((100% - var(--article-wide)) / 2);
-    --img-max-h: min(78vh, 720px);
-  }
 }
 @media (max-width: 767.98px) {
   .imageRow { flex-direction: column; gap: 24px; }

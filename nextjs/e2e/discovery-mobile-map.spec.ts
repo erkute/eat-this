@@ -125,15 +125,16 @@ test('district glow cycles without a permanent tint and stops on interaction', a
   await page.screenshot({ path: `/tmp/eat-this-map-redesign/qa/${test.info().project.name}-glow.png` });
   await page.getByRole('link', { name: 'Mitte', exact: true }).press('Tab');
   await expect(preview).toHaveCount(0);
-  await expect(page.locator('[data-map-area="neukoelln"]')).toHaveCSS('fill', 'rgb(0, 0, 0)');
+  // Ruhend in der Schriftfarbe (--et-fg), hell also Ink, dunkel Weiss.
+  await expect(page.locator('[data-map-area="neukoelln"]')).toHaveCSS('fill', 'rgb(21, 18, 14)');
   await page.waitForTimeout(4500);
   await expect(preview).toHaveCount(0);
 });
 
-test('reduced motion keeps the idle map black without automatic glow', async ({ page }) => {
+test('reduced motion keeps the idle map in ink without automatic glow', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/bezirk');
   await page.waitForTimeout(2500);
   await expect(page.locator('[data-preview="true"]')).toHaveCount(0);
-  await expect(page.locator('[data-map-area="mitte"]')).toHaveCSS('fill', 'rgb(0, 0, 0)');
+  await expect(page.locator('[data-map-area="mitte"]')).toHaveCSS('fill', 'rgb(21, 18, 14)');
 });

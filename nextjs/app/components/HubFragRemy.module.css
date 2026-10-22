@@ -8,10 +8,11 @@
 .intro { max-width: 30ch; margin: 0 0 36px; font-size: clamp(20px, 1.8vw, 26px); font-weight: 700; line-height: 1.25; text-wrap: pretty; }
 .prompt { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .questions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
-/* Die Fragen sind helle Pillen auf dem Rot, damit sie sich vom weissen,
-   eckigen Eingabefeld darunter abheben (Ansage 21.10.2026: Knöpfe „richtig
-   erkennbar als Buttons"). */
-.question { min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); color: #fff; background: rgba(255, 255, 255, .16); border: 0; border-radius: var(--et-radius-pill); font: 700 var(--et-btn-font)/1.2 var(--et-font-body); cursor: pointer; transition: background-color var(--et-motion-fast), color var(--et-motion-fast); }
+/* Die Fragen sind Pillen auf dem Rot, damit sie sich vom weissen, eckigen
+   Eingabefeld darunter abheben (Ansage 21.10.2026: Knöpfe „richtig
+   erkennbar als Buttons"). Die Fläche ist eine Spur dunkler als das Rot, nicht
+   heller: weisse Schrift auf aufgehelltem Rot lag unter 4,5:1. */
+.question { min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); color: #fff; background: rgba(21, 18, 14, .22); border: 0; border-radius: var(--et-radius-pill); font: 700 var(--et-btn-font)/1.2 var(--et-font-body); cursor: pointer; transition: background-color var(--et-motion-fast), color var(--et-motion-fast); }
 .question:focus-visible, .send:focus-visible { outline: 3px solid #111; outline-offset: 4px; }
 @media (hover: hover) { .question:hover { color: #111; background: #fff; } }
 .form { position: relative; display: flex; gap: 8px; padding: 7px; background: #fff; border: 0; }

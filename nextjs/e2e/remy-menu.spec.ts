@@ -24,6 +24,16 @@ for (const route of ['/', '/news', '/en/news']) {
 
       const en = route.startsWith('/en');
       await page.locator('[data-site-footer]').scrollIntoViewIfNeeded();
+      // Am Telefon fährt der Kopf beim Herunterscrollen weg und kommt beim
+      // Hochscrollen zurück — wie ein Leser es tut.
+      // Zwei Frames Abstand: ohne Bewegung springt die Seite, und beide
+      // Sprünge im selben Frame läse der Kopf als einen nach unten.
+      await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+      await page.evaluate(() => window.scrollBy(0, -160));
+      // Erst klicken, wenn der Kopf ganz eingefahren ist — sonst scrollt der
+      // Klick selbst und schickt ihn wieder weg.
+      await expect(page.locator('#navbar')).toHaveAttribute('data-visibility', 'visible');
+      await expect.poll(() => page.locator('#burgerBtn').evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
       await page.locator('#burgerBtn').click();
       const menu = page.getByRole('dialog', { name: 'Navigation' });
       await menu.getByRole('button', { name: en ? 'Ask Remy' : 'Frag Remy', exact: true }).click();

@@ -1,4 +1,4 @@
-.section:global(.hv-wrap) { max-width: none; padding: 64px var(--home-gutter); color: #111; background: #fff; border-bottom: 0; }
+.section:global(.hv-wrap) { max-width: none; padding: 64px var(--home-gutter); color: var(--et-fg); background: var(--et-ground); border-bottom: 0; }
 .board { display: grid; grid-template-columns: .8fr 1.5fr; gap: 64px; max-width: 1400px; margin: auto; }
 .board :global(.hv-title) { max-width: 6ch; margin: 0; }
 .item { border-top: 0; padding-block: 4px; }
@@ -9,3 +9,24 @@
 .question:focus-visible { outline: 3px solid #d9382a; outline-offset: 4px; }
 .answer { margin: 0; padding: 0 32px 24px 0; font-size: 16px; line-height: 1.5; }
 @media(max-width:767.98px) { .section:global(.hv-wrap) { padding-block: 48px; } .board { grid-template-columns: 1fr; gap: 32px; } .board :global(.hv-title) { max-width: none; } .question { font-size: 16px; } .answer { font-size: 15px; } }
+/* Aufklappen ohne JavaScript (vorher maß HubMotion Höhen und schrieb sie
+   inline — das flackerte und legte Antworten übereinander, 21.10.2026):
+   wo der Browser `interpolate-size` kann, wächst der Inhalt in der Höhe und
+   schrumpft beim Zuklappen; überall gleitet die Antwort unter der Frage
+   hervor. Ohne Unterstützung steht sie einfach da. */
+.item { interpolate-size: allow-keywords; }
+.item::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition: block-size 280ms cubic-bezier(.2, .8, .2, 1), content-visibility 280ms allow-discrete;
+}
+.item[open]::details-content { block-size: auto; }
+.item[open] .answer { animation: faqAnswer 280ms cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes faqAnswer {
+  from { transform: translateY(-8px); clip-path: inset(0 0 100% 0); }
+  to { transform: none; clip-path: inset(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .item::details-content { transition: none; }
+  .item[open] .answer { animation: none; }
+}

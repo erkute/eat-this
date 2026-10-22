@@ -7,15 +7,14 @@ import styles from './SiteFooter.module.css';
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '@/lib/guestCardShake';
 
-export default function SiteFooter({ home = false }: { home?: boolean }) {
+export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
   const de = lang === 'de';
-  const follow = de ? 'Folgen' : 'Follow';
   const logoAnimation = useRef<Animation | null>(null);
   useEffect(() => () => logoAnimation.current?.cancel(), []);
   return (
     <footer
-      className={`${styles.footer}${home ? ` ${styles.home}` : ''}`}
+      className={styles.footer}
       data-site-footer
       role="contentinfo"
       aria-label="Site footer"
@@ -54,7 +53,7 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
                 alt="Eat This"
                 width={1124}
                 height={274}
-                sizes={home ? '(min-width: 768px) 420px, 238px' : '220px'}
+                sizes="(min-width: 768px) 420px, 238px"
                 loading="lazy"
                 decoding="async"
                 className={styles.megaImg}
@@ -70,14 +69,18 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
       </div>
 
       <div className={styles.links}>
-        <div className={styles.linksKicker}>{follow}</div>
         <a
           href="https://www.instagram.com/eatthisdotcom/"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.socialLink}
+          aria-label={de ? 'Eat This auf Instagram' : 'Eat This on Instagram'}
         >
-          Instagram
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4.2" />
+            <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none" />
+          </svg>
         </a>
       </div>
 

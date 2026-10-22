@@ -22,7 +22,7 @@ import { metadataSource } from '@/lib/seo/metadataSource';
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
-import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
+import { isClosedSlot, localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
 import { buildSpotFlow } from '@/lib/spotFlow';
 import { sanityImageSize, sanitySrcSet } from '@/lib/sanity-image-presets';
 import HeartButton from '@/app/components/HeartButton';
@@ -478,7 +478,19 @@ export default async function RestaurantPage({ params }: PageProps) {
                   {r.openingHours!.map((slot, i) => (
                     <div key={i} className={styles.hoursRow}>
                       <dt>{localizeOpeningDays(slot.days, loc)}</dt>
-                      <dd>{withDash(localizeOpeningHours(slot.hours, loc))}</dd>
+                      {/* Jede Zeitspanne eine Zeile, rechtsbündig. */}
+                      <dd>
+                        {withDash(localizeOpeningHours(slot.hours, loc))
+                          .split(/,\s*/)
+                          .map((range, j) => (
+                            <span
+                              key={j}
+                              className={`${styles.hoursRange} ${isClosedSlot(slot.hours) ? styles.hoursClosed : ''}`}
+                            >
+                              {range}
+                            </span>
+                          ))}
+                      </dd>
                     </div>
                   ))}
                 </dl>

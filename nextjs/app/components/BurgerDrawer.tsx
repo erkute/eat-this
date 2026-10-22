@@ -7,6 +7,7 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { closeBurgerDrawer } from './burgerDrawerState';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
+import { ThemeSwitch } from './ThemeSwitch';
 import styles from './BurgerDrawer.module.css';
 
 /* Ein Menü-Link, der erst auf Absicht lädt.
@@ -51,6 +52,9 @@ export default function BurgerDrawer() {
   const { open: openLogin } = useLoginModal();
   const pathname = usePathname();
   const router = useRouter();
+  // Die Seite, auf der man steht, trägt im Menü ihr Ink-Etikett.
+  const here = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`) ? ('page' as const) : undefined;
 
   const drawerRef = useCallback((node: HTMLDivElement | null) => {
     if (node && !node.classList.contains('active')) node.setAttribute('inert', '');
@@ -147,33 +151,36 @@ export default function BurgerDrawer() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/pics/home/wordmark.webp?v=1" alt="Eat This" width="1124" height="274" loading="lazy" decoding="async" />
           </DrawerLink>
-          <button type="button" className={styles.close} id="burgerClose" onClick={() => closeBurger(true)}>
-            {lang === 'de' ? 'Schließen' : 'Close'}
+          <button type="button" className={styles.close} id="burgerClose" aria-label={lang === 'de' ? 'Schließen' : 'Close'} onClick={() => closeBurger(true)}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" /></svg>
           </button>
         </div>
         <div className={styles.scroller}>
           <nav className={styles.nav} aria-label={lang === 'de' ? 'Hauptnavigation' : 'Primary'}>
-            <MapIntentLink prefetch={false} href="/map" className={styles.navItem}>{t('burger.map')}</MapIntentLink>
-            <DrawerLink href="/news" className={styles.navItem}>{t('burger.aufDemTeller')}</DrawerLink>
-            <DrawerLink href="/must-eats" className={styles.navItem}>{t('burger.mustEats')}</DrawerLink>
-            <DrawerLink href="/packs" className={styles.navItem}>{t('burger.boosterPacks')}</DrawerLink>
-          </nav>
-          <nav className={styles.secondary} aria-label={lang === 'de' ? 'Mehr entdecken' : 'Discover more'}>
-            <DrawerLink href="/kategorie" className={styles.secondaryItem}>{t('burger.categories')}</DrawerLink>
-            <button type="button" className={styles.secondaryItem} onClick={() => { closeBurger(true); dispatchBuddyAsk(); }}>
+            <MapIntentLink prefetch={false} href="/map" className={styles.navItem} aria-current={here('/map')}>{t('burger.map')}</MapIntentLink>
+            <DrawerLink href="/news" className={styles.navItem} aria-current={here('/news')}>{t('burger.magazine')}</DrawerLink>
+            <DrawerLink href="/must-eats" className={styles.navItem} aria-current={here('/must-eats')}>{t('burger.mustEats')}</DrawerLink>
+            <DrawerLink href="/packs" className={styles.navItem} aria-current={here('/packs')}>{t('burger.boosterPacks')}</DrawerLink>
+            <DrawerLink href="/kategorie" className={styles.navItem} aria-current={here('/kategorie')}>{t('burger.categories')}</DrawerLink>
+            <button type="button" className={styles.navItem} onClick={() => { closeBurger(true); dispatchBuddyAsk(); }}>
               {t('burger.fragRemy')}
             </button>
-            <DrawerLink href="/bezirk" className={styles.secondaryItem}>{t('burger.districts')}</DrawerLink>
-            <DrawerLink href="/about" className={styles.secondaryItem}>{t('burger.about')}</DrawerLink>
-            {isAdmin && <DrawerLink href="/admin/stats" className={styles.secondaryItem}>Stats</DrawerLink>}
+            <DrawerLink href="/bezirk" className={styles.navItem} aria-current={here('/bezirk')}>{t('burger.districts')}</DrawerLink>
+            <DrawerLink href="/about" className={styles.navItem} aria-current={here('/about')}>{t('burger.about')}</DrawerLink>
+            {isAdmin && <DrawerLink href="/admin/stats" className={styles.navItem} aria-current={here('/admin/stats')}>Stats</DrawerLink>}
           </nav>
           <button type="button" className={styles.cta} id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
             <span suppressHydrationWarning>{user ? t('burger.profile') : t('burger.signIn')}</span>
           </button>
           <div className={styles.foot}>
-            <div className={styles.lang} role="group" aria-label="Language / Sprache">
-              <button type="button" className={styles.langBtn} aria-pressed={lang === 'de'} aria-label="Deutsch" onClick={() => setLang('de')}>DE</button>
-              <button type="button" className={styles.langBtn} aria-pressed={lang === 'en'} aria-label="English" onClick={() => setLang('en')}>EN</button>
+            <div className={styles.prefs}>
+              <div className={styles.lang} role="group" aria-label="Language / Sprache">
+                <button type="button" className={styles.langBtn} aria-pressed={lang === 'de'} aria-label="Deutsch" onClick={() => setLang('de')}>DE</button>
+                <button type="button" className={styles.langBtn} aria-pressed={lang === 'en'} aria-label="English" onClick={() => setLang('en')}>EN</button>
+              </div>
+              <div className={styles.lang} role="group" aria-label={lang === 'de' ? 'Darstellung' : 'Appearance'}>
+                <ThemeSwitch de={lang === 'de'} className={styles.langBtn} />
+              </div>
             </div>
             <div className={styles.legal}>
               <DrawerLink href="/impressum" className={styles.footLink} id="openImpressum">{t('burger.impressum')}</DrawerLink>

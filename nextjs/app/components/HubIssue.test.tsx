@@ -63,7 +63,9 @@ describe('IssueSpots', () => {
     expect(html).toContain('Sandwiches.');
     expect(html).toContain('Tipp');
     expect(html).toContain('Früh kommen.');
-    expect(html).toContain('Italienisch · 10–20 €');
+    expect(html.replace(/<[^>]+>/g, '')).toContain('Italienisch · 10–20 €');
+    // Jeder Teil bleibt beisammen: der Preis bricht nie mitten durch.
+    expect(html).toMatch(/metaPart[^"]*">10–20 €<\/span>/);
   });
 });
 
@@ -116,7 +118,7 @@ describe('IssueSpots on a category page', () => {
         showDistrict
       />
     );
-    expect(html).toContain('Italienisch · Kreuzberg · 10–20 €');
+    expect(html.replace(/<[^>]+>/g, '')).toContain('Italienisch · Kreuzberg · 10–20 €');
   });
 });
 
@@ -152,9 +154,8 @@ describe('IssueMagazine', () => {
 });
 
 describe('page ground', () => {
-  it('keeps public content light while preserving the explicit article dark toggle', () => {
+  it('uses the shared canvas for public content', () => {
     const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
-    expect(css).toContain('html[data-active-page] .app-pages {\n  background: var(--et-white);');
-    expect(css).toContain("html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {\n  background: var(--et-ink);");
+    expect(css).toContain('html[data-active-page] .app-pages {\n  background: var(--et-ground);');
   });
 });

@@ -1,20 +1,32 @@
 .section:global(.homeV2):global(.hv-wrap) { width: 100%; max-width: none; margin: 0; padding: 0; background: #d9382a; color: #fff; }
-.body { position: relative; isolation: isolate; min-height: 640px; padding: 76px var(--home-gutter, 48px); overflow: hidden; }
+.body { position: relative; isolation: isolate; min-height: 720px; padding: 76px var(--home-gutter, 48px); overflow: hidden; }
 .content { position: relative; z-index: 1; max-width: 720px; width: 58%; }
-.body .title:global(.hv-title) { margin: 0 0 32px; color: #fff; font-size: clamp(40px, 5.6vw, 80px); line-height: 1.04; letter-spacing: -.04em; text-transform: none; }
-.intro { margin: 0 0 32px; font-size: 20px; line-height: 1.4; }
+.title { display: grid; margin: 0 0 20px; color: #fff; font-family: var(--et-font-body); font-weight: 700; }
+.hello { font-size: clamp(20px, 1.8vw, 26px); font-weight: 400; line-height: 1.2; }
+/* Der Name ist das Erste, was man sieht. */
+.name { font-size: clamp(88px, 13vw, 184px); line-height: .9; letter-spacing: -.055em; }
+.intro { max-width: 30ch; margin: 0 0 36px; font-size: clamp(20px, 1.8vw, 26px); font-weight: 700; line-height: 1.25; text-wrap: pretty; }
+.prompt { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .questions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
-.question { min-height: 48px; padding: 12px 22px; color: #111; background: #fff; border: 0; border-radius: 0; font: 400 16px/1.2 var(--et-font-body); cursor: pointer; }
+/* Die Fragen sind Pillen auf dem Rot, damit sie sich vom weissen, eckigen
+   Eingabefeld darunter abheben (Ansage 21.10.2026: Knöpfe „richtig
+   erkennbar als Buttons"). Die Fläche ist eine Spur dunkler als das Rot, nicht
+   heller: weisse Schrift auf aufgehelltem Rot lag unter 4,5:1. */
+.question { min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); color: #fff; background: rgba(21, 18, 14, .22); border: 0; border-radius: var(--et-radius-pill); font: 700 var(--et-btn-font)/1.2 var(--et-font-body); cursor: pointer; transition: background-color var(--et-motion-fast), color var(--et-motion-fast); }
 .question:focus-visible, .send:focus-visible { outline: 3px solid #111; outline-offset: 4px; }
-.question:hover { background: #ffc600; }
+@media (hover: hover) { .question:hover { color: #111; background: #fff; } }
 .form { position: relative; display: flex; gap: 8px; padding: 7px; background: #fff; border: 0; }
 .input { min-width: 0; flex: 1; width: 100%; min-height: 48px; padding: 12px 8px; background: #fff; color: #111; border: 0; border-radius: 0; font: 400 16px/1.4 var(--et-font-body); }
 .input::placeholder { color: #666; }
 .input:focus-visible { outline: 2px solid #111; outline-offset: -2px; }
-.send { flex-shrink: 0; padding: 12px 18px; background: #111; color: #fff; border: 0; border-radius: 0; cursor: pointer; font: 400 16px/1.2 var(--et-font-body); }
-.send:disabled { opacity: .65; cursor: default; }
-.portrait { position: absolute; right: 3%; bottom: 0; width: 38%; height: 500px; pointer-events: none; }
-.figure { position: absolute; inset: 0; transform-origin: 50% 85%; }
+.send { flex-shrink: 0; padding: 12px 18px; background: var(--et-solid); color: var(--et-on-solid); border: 0; border-radius: 0; cursor: pointer; font: 700 16px/1.2 var(--et-font-body); }
+.send:disabled { cursor: default; }
+.portrait { position: absolute; right: 2%; bottom: 0; width: 44%; height: 620px; pointer-events: none; }
+/* Sein Bild endet unter der Brust mit einer geraden Kante. Die Figur reicht
+   deshalb wie live unter die Unterkante der Bühne, die sie abschneidet
+   (.body, overflow: hidden) — auch gekippt beim Auftritt und beim Hüpfer auf
+   eine Frage bleibt die Kante darunter. */
+.figure { position: absolute; inset: 0 0 -18%; transform-origin: 50% 85%; }
 .face, .laugh, .open { object-fit: contain; object-position: center bottom; }
 .laugh, .open { visibility: hidden; }
 .laugh { translate: 0 1.1%; }
@@ -27,15 +39,24 @@
 @keyframes speak { 0%,35%,70%,100% { visibility: hidden; } 12%,48%,82% { visibility: visible; } }
 @media (prefers-reduced-motion: reduce) { .figure[data-speaking] .open { animation: none; } }
 @media(max-width:767.98px) {
-  .body { padding: 48px 24px 0; min-height: 680px; }
-  .content { position: static; width: 100%; max-width: none; }
-  .body .title:global(.hv-title) { font-size: 40px; margin-bottom: 24px; }
-  .intro { font-size: 17px; margin-bottom: 24px; }
+  /* Wie live: Fragen und Eingabefeld oben untereinander, Remy steht darunter
+     auf der Unterkante der Bühne (Ansage 21.10.2026). */
+  .body { padding: 48px 24px 380px; min-height: 0; }
+  .content { position: relative; z-index: 1; width: 100%; max-width: none; }
+  .name { font-size: clamp(84px, 27vw, 120px); }
+  .intro { font-size: 20px; margin-bottom: 28px; }
   .questions { position: relative; z-index: 1; max-width: 320px; gap: 10px; }
-  .question { padding: 12px 20px; font-size: 15px; }
-  .portrait { width: 340px; height: 340px; right: calc(50% - 170px); bottom: 32px; }
-  .form { position: absolute; z-index: 2; left: 24px; right: 24px; bottom: 32px; }
+  .question { padding: 0 20px; }
+  .portrait { width: 420px; height: 420px; right: calc(50% - 210px); bottom: 0; }
+  .figure { inset: 0 0 -24%; }
   .send { padding-inline: 12px; }
 }
 .section.embedded:global(.homeV2):global(.hv-wrap) { margin: 0; }
 .embedded .body { min-height: 540px; }
+/* Vintage-Entwurf: auch „Frag Remy" ist ein eigenes Blatt — Papier und
+   Gebrauchsspuren auf dem Rot, ohne Fuge davor (globals.css). */
+:global(html[data-vintage]) .section:not(.embedded):global(.homeV2):global(.hv-wrap) {
+  background-image: var(--et-sheet);
+  background-size: var(--et-sheet-size);
+  background-repeat: var(--et-sheet-repeat);
+}

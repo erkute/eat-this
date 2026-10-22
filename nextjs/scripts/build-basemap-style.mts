@@ -1,4 +1,4 @@
-/* Builds the light Eat This map from the pinned CARTO layer structure.
+/* Builds both Eat This map palettes from the pinned CARTO layer structure.
  * Sources, geometry, zoom hierarchy and transit overlays stay unchanged.
  * CIE-Lab lightness maps the former dark canvas to paper and labels to ink;
  * chroma is still restrained using the brand ink hue. Regenerate with
@@ -10,7 +10,8 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const UPSTREAM = join(here, 'basemap', 'dark-matter.upstream.json');
-const OUT = join(here, '..', 'public', 'basemap', 'style.json');
+const dark = process.argv.includes('--dark');
+const OUT = join(here, '..', 'public', 'basemap', dark ? 'style-dark.json' : 'style.json');
 
 /* Der Seiten-Ink. Sein Farbwinkel wird zum Winkel aller entfärbten Flächen. */
 const INK = '#15120e';
@@ -163,7 +164,7 @@ function warm(value: string, chromaFactor: number, turnHue: boolean): string {
   if (!rgb) return value;
   const [L, a, b] = rgbToLab(rgb);
   const c = Math.hypot(a, b);
-  const lightness = 100 - L * 0.9;
+  const lightness = dark ? L : 100 - L * 0.9;
   const hue = turnHue ? INK_HUE : Math.atan2(b, a);
   const nc = c < NEUTRAL_C ? 0 : c * chromaFactor;
   const out = labToRgb([lightness, Math.cos(hue) * nc, Math.sin(hue) * nc], rgb.a);
@@ -193,7 +194,7 @@ function mapColors(node: Json, layerId: string, isWater: boolean): Json {
 
 const style = JSON.parse(readFileSync(UPSTREAM, 'utf8'));
 
-style.name = 'Eat This Light';
+style.name = dark ? 'Eat This Dark' : 'Eat This Light';
 style.metadata = {
   ...(style.metadata ?? {}),
   'eat-this:derived-from': 'CARTO Dark Matter (basemaps.cartocdn.com/gl/dark-matter-gl-style)',

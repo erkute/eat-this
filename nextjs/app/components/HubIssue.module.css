@@ -14,8 +14,8 @@
   min-height: 100dvh;
   padding: 0 var(--issue-gutter) clamp(72px, 9vw, 120px);
   overflow-x: clip;
-  color: var(--et-ink);
-  background: var(--et-white);
+  color: var(--et-fg);
+  background: var(--et-ground);
   font-family: var(--et-font-display);
 }
 
@@ -46,7 +46,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 @media (hover: hover) {
   .spotName a:hover,
   .entry:hover .entryName {
-    color: var(--et-accent);
+    color: var(--et-link);
   }
   .spotPhoto:hover img,
   .entry:hover img {
@@ -58,7 +58,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .entry:focus-visible,
 .guide:focus-visible,
 .siblings a:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-fg);
   outline-offset: 4px;
 }
 
@@ -79,14 +79,16 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 10px 24px;
-  border-radius: 0;
-  background: var(--et-ink);
-  color: var(--et-on-accent);
+  min-height: var(--et-btn-h);
+  padding: 0 var(--et-btn-pad);
+  border-radius: var(--et-radius-pill);
+  background: var(--et-solid);
+  color: var(--et-on-solid);
+  background-image: var(--et-btn-wear, none);
+  background-size: 200px auto;
   font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 400;
+  font-size: var(--et-btn-font);
+  font-weight: 700;
   line-height: 1.25;
   text-decoration: none;
   transition: background-color 160ms ease, color 160ms ease;
@@ -94,13 +96,13 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (hover: hover) {
   .btn:hover {
-    background: var(--et-ink);
-    color: var(--et-white);
+    background: var(--et-solid);
+    color: var(--et-on-solid);
   }
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-fg);
   outline-offset: 5px;
 }
 
@@ -128,7 +130,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   z-index: 20;
   margin: 36px calc(-1 * var(--issue-gutter)) 0;
   padding: 10px var(--issue-gutter);
-  background: var(--et-white);
+  background: var(--et-ground);
   transition: top 0.2s ease;
 }
 
@@ -155,7 +157,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   border: 0;
   border-radius: 0;
   background: var(--et-quiet);
-  color: var(--et-ink);
+  color: var(--et-fg);
   cursor: pointer;
   font-family: var(--et-font-display);
   font-size: 16px;
@@ -167,8 +169,8 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .filterChip[aria-pressed='true'] {
-  background: var(--et-ink);
-  color: var(--et-on-accent);
+  background: var(--et-solid);
+  color: var(--et-on-solid);
 }
 
 @media (hover: hover) {
@@ -178,7 +180,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .filterChip:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid var(--et-fg);
   outline-offset: 3px;
 }
 
@@ -231,7 +233,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   overflow-wrap: anywhere;
   max-width: var(--issue-wide);
   margin: clamp(48px, 5vw, 72px) auto 0;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-size: clamp(26px, 2.5vw, 34px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -263,7 +265,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   grid-row: 2;
   overflow-wrap: anywhere;
   margin: 0;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-size: clamp(23px, 2vw, 28px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -285,11 +287,15 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   z-index: 1;
 }
 .spotName a:focus-visible { outline: none; }
-.spotName a:focus-visible::after { outline: 2px solid var(--et-ink); outline-offset: 6px; }
+.spotName a:focus-visible::after { outline: 2px solid var(--et-fg); outline-offset: 6px; }
 .tip { grid-row: 5; align-self: start; position: relative; z-index: 2; margin-top: 12px; font-family: var(--et-font-body); font-size: 16px; line-height: 1.5; }
 @media (hover: hover) {
-  .spot:has(.spotName a:hover) .spotName { color: var(--et-accent); }
+  .spot:has(.spotName a:hover) .spotName { color: var(--et-link); }
   .spot:has(.spotName a:hover) img { transform: scale(1.045); }
+}
+
+.metaPart {
+  white-space: nowrap;
 }
 
 .deck {
@@ -336,11 +342,11 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   min-height: 32px;
   list-style: none;
   cursor: pointer;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-size: 14px;
 }
 .tipLabel::-webkit-details-marker { display: none; }
-.tipLabel:focus-visible { outline: 2px solid var(--et-ink); outline-offset: 4px; }
+.tipLabel:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 4px; }
 .tip[open] p { margin-top: 8px; }
 
 .links {
@@ -394,7 +400,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 .letter {
   margin: 22px 0 6px;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-size: 22px;
   font-weight: 700;
   line-height: 1.2;
@@ -419,7 +425,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .entryCopy { display: grid; gap: 6px; }
 
 .entryName {
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-size: 18px;
   font-weight: 700;
   line-height: 1.2;
@@ -471,12 +477,14 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   width: 9px;
   height: 9px;
   margin-right: var(--et-control-gap);
-  background: var(--et-ink);
+  background: var(--et-fg);
   vertical-align: 0.12em;
 }
 
 .guideTitle {
-  overflow-wrap: anywhere;
+  /* Überschriften trennt man nicht; ein Wort bricht nur, wenn es allein
+     breiter ist als die Zeile. */
+  overflow-wrap: break-word;
   font-size: clamp(21px, 1.7vw, 26px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -487,7 +495,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (hover: hover) {
   .guide:hover .guideTitle {
-    color: var(--et-accent);
+    color: var(--et-link);
   }
 }
 
@@ -588,7 +596,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   display: block;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: var(--et-white);
+  background: var(--et-ground);
 }
 
 .contentsPhoto::after {
@@ -790,7 +798,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .guideInterlude .guides { gap: 28px; margin-top: 28px; }
 .guideInterlude .guide { grid-template-columns: 110px minmax(0, 1fr); grid-template-rows: auto; gap: 18px; align-items: center; }
 .guideInterlude .guideCover { width: 110px; }
-.guideInterlude .guideTitle { font-size: 22px; hyphens: auto; text-wrap: pretty; }
+.guideInterlude .guideTitle { font-size: 22px; text-wrap: pretty; }
 .guideInterlude .guideMeta { font-size: 13px; }
 .guideInterlude .guideMeta::before { display: none; }
 .guideInterlude .guide:only-child { max-width: 700px; grid-template-columns: 160px minmax(0, 1fr); }
@@ -842,13 +850,13 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 .magazineIntro .secTitle { margin-top: 0; font-size: clamp(30px, 3.2vw, 46px); }
 .magazineDescription { max-width: 52ch; margin: 20px 0 0; font-size: 21px; line-height: 1.5; }
 .categoryMenu { max-width: var(--issue-wide); margin: 96px auto 0; }
-.categoryMenu .secTitle { color: var(--et-ink); font-size: var(--et-type-heading); }
+.categoryMenu .secTitle { color: var(--et-fg); font-size: var(--et-type-heading); }
 .categoryMenu ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px; margin: 48px 0 0; padding: 0; list-style: none; }
-.categoryMenu a { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 16px 8px; color: var(--et-ink); font-size: 24px; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none; }
+.categoryMenu a { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 16px 8px; color: var(--et-fg); font-size: 24px; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none; }
 .categoryMenu .shelfPack { display: block; width: min(100%, 200px); height: auto; rotate: -5deg; transition: rotate 240ms ease, translate 240ms ease; }
 .categoryMenu li:nth-child(even) .shelfPack { rotate: 5deg; }
-.categoryMenu a:focus-visible { outline: 2px solid var(--et-ink); outline-offset: 6px; }
-@media (hover: hover) { .categoryMenu a:hover { color: var(--et-accent); } }
+.categoryMenu a:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 6px; }
+@media (hover: hover) { .categoryMenu a:hover { color: var(--et-link); } }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .categoryMenu a:hover .shelfPack { rotate: 0deg; translate: 0 -8px; }
 }

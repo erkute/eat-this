@@ -1,26 +1,49 @@
 .page {
   --home-gutter: clamp(24px, 4.45vw, 80px);
+  /* Die Section-Überschriften so gross und eng wie „Remy." (Ansage
+     21.10.2026) — eine Grösse für alle: Magazin, Must Eats, Fragen,
+     Starter Pack. Am Telefon so, dass ein Wort mit sieben Zeichen
+     („Teller.", „Fragen?") noch in die Spalte passt. */
+  --hv-display: clamp(60px, 7.8vw, 124px);
   width: 100%; min-height: 100svh; overflow-x: clip;
   font-family: var(--et-font-body);
 }
-:global(.homeV2).page { background: #fff; color: #111; }
+:global(.homeV2).page { background: var(--et-ground); color: var(--et-fg); }
 .page :global(.hv-section) { margin: 0; }
 .page :global(.hv-title) {
-  color: #111; text-transform: none; letter-spacing: -.04em;
-  font: 700 clamp(40px, 5.6vw, 80px)/1.04 var(--et-font-body);
+  color: var(--et-fg); text-transform: none; letter-spacing: -.055em;
+  font: 700 var(--hv-display)/.92 var(--et-font-body);
 }
+/* Nie breiter als die eigene Spalte: der Kopf ist ein Container, und die
+   Überschrift wird höchstens so gross, dass ein Wort mit sieben Zeichen
+   („Fragen?", „Teller.", „Starter") hineinpasst. Sonst zerlegte der Browser
+   das Wort („Starte / r", 21.10.2026). */
+.page :global(.hv-head) { container-type: inline-size; }
+.page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
 .page :global(.hv-btn) {
   display: inline-flex; align-items: center; justify-content: center;
-  min-height: 48px; padding: 12px 24px; border-radius: 0;
-  background: #111; color: #fff; font: 400 16px/1.25 var(--et-font-body);
+  min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); border-radius: var(--et-radius-pill);
+  background: var(--et-solid); color: var(--et-on-solid); font: 700 var(--et-btn-font)/1.25 var(--et-font-body);
+  background-image: var(--et-btn-wear, none); background-size: 200px auto;
 }
 .page :global(.hv-btn:focus-visible) { outline: 3px solid #d9382a; outline-offset: 4px; }
-.hero { position: relative; overflow: hidden; background: #ffc600; color: #111; }
+.hero { position: relative; overflow: hidden; box-sizing: border-box; padding-top: var(--site-nav-h); background: #ffc600; color: #111; }
 .hero::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background: url('/pics/home/paper-texture.webp') center / 615px 846px;
   mix-blend-mode: multiply; opacity: .2;
 }
+/* Zerknittertes, durchsichtiges Papier über dem ganzen Hero — die Ebene
+   „Oberfläche · transparentes Papier“ aus Figma, ungeändert übernommen. */
+.hero::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: url('/pics/home/hero-crumple-mobile.webp') center / 100% 100% no-repeat;
+}
+@media (min-width: 768px) {
+  .hero::after { background-image: url('/pics/home/hero-crumple-desktop.webp'); }
+}
+/* Der Hero trägt das Knitterpapier statt der Karten-Spuren der übrigen Blätter. */
+:global(html[data-vintage] .homeV2) > .hero { background-image: none; }
 .heroInner { position: relative; padding: 64px var(--home-gutter); max-width: 1600px; margin: auto; }
 .heroCopy {
   display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr);
@@ -48,18 +71,15 @@
 .heroLeadWord { display: inline-block; }
 .heroActions { grid-column: 2; grid-row: 5; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; width: fit-content; }
 .heroActionVariant { display: flex; flex-wrap: wrap; gap: 12px; }
-.heroIntroMark { display: none; }
 :global(html[data-hero-flight='on']:not([data-hero-rest])) .heroMark { visibility: hidden; }
-@media (prefers-reduced-motion: no-preference) {
-  :global(html[data-hero-intro]:not([data-intro-mark])) .heroIntroMark {
-    display: block; position: absolute; z-index: 2; width: min(72vw, 820px);
-    height: auto; top: 35%; left: 0; right: 0; margin: auto; pointer-events: none;
-  }
-  :global(html[data-hero-intro]:not([data-intro-mark])) .heroMark { visibility: hidden; }
-  :global(html[data-hero-intro]:not([data-intro-head])) .heroHeadline { clip-path: inset(0 0 100% 0); }
-  :global(html[data-hero-intro]:not([data-intro-copy])) .heroLead,
-  :global(html[data-hero-intro]:not([data-intro-copy])) .heroActions,
-  :global(html[data-hero-intro]:not([data-intro-copy])) .heroArt { visibility: hidden; }
+/* Am Desktop steht der ganze Hero im ersten Bild (Ansage 21.10.2026): er
+   nimmt die Höhe unter dem Kopf, die Karte schrumpft mit. */
+@media (min-width: 768px) {
+  .hero { --hero-pad: clamp(24px, 6svh, 64px); height: 100svh; min-height: calc(520px + var(--site-nav-h)); }
+  .heroInner { box-sizing: border-box; height: 100%; padding-block: var(--hero-pad); }
+  .heroCopy { height: 100%; min-height: 0; }
+  .heroArt { display: flex; justify-content: center; height: 100%; min-height: 0; }
+  .heroArt img { width: auto; max-width: min(100%, 470px); max-height: 100%; object-fit: contain; }
 }
 @media (max-width: 767.98px) {
   .heroInner { padding: 32px 24px; }
@@ -71,5 +91,5 @@
   .heroLead { order: 3; max-width: 290px; margin: 24px 0 0; font-size: 16px; line-height: 1.5; }
   .heroActions { order: 4; margin-top: 24px; justify-content: center; }
   .heroActionVariant { justify-content: center; }
-  .page :global(.hv-title) { font-size: 40px; }
+  .page { --hv-display: clamp(46px, 15vw, 72px); }
 }

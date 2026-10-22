@@ -687,6 +687,7 @@ export default function MagazineCover({
     >
       {body}
       <span className={styles.sheen} aria-hidden="true" />
+      <span className={`${styles.wear} ${issue && issue % 2 ? styles.wearB : ''}`} aria-hidden="true" />
     </span>
   );
 }

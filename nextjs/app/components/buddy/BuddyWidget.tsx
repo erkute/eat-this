@@ -750,8 +750,8 @@ export default function BuddyWidget() {
   // behind the chat. Desktop scrolls an inner `.app-pages` container; mobile
   // scrolls the document — lock both and restore on close.
   //
-  // Dieselbe Stelle setzt die Marke am <html>, an der der Anlege-Knopf
-  // erkennt, dass er gerade nichts zu suchen hat (RemyLauncher.module.css).
+  // Dieselbe Stelle setzt `data-buddy-open` am <html>; daran räumen
+  // globals.css und das Login-Modal am Telefon den Hintergrund weg.
   useEffect(() => {
     if (!open) return;
     const ap = document.querySelector('.app-pages') as HTMLElement | null;
@@ -917,6 +917,10 @@ export default function BuddyWidget() {
               </span>
               <span className={styles.headerTitle}>
                 <strong>{title}</strong>
+                {/* Derselbe Satz wie auf der Startseite (HubFragRemy). */}
+                <span className={styles.headerSub}>
+                  {locale === 'en' ? 'I’ll show you what to eat in Berlin.' : 'Ich zeig dir, was du in Berlin essen musst.'}
+                </span>
               </span>
               {/* Der Faden überlebt den Seitenwechsel (lib/buddy/thread.ts) —
                   also braucht es einen Weg, ihn beiseitezulegen. Erst sichtbar,

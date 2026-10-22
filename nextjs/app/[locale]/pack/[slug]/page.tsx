@@ -147,7 +147,7 @@ export default async function PackDetailPage({ params }: PageProps) {
                   alt={`${heroName} ${t.pack}`}
                   width={420}
                   height={656}
-                  sizes="(max-width: 767.98px) 160px, (min-width: 1600px) 520px, 400px"
+                  sizes="(max-width: 767.98px) 210px, (min-width: 1600px) 520px, 400px"
                   priority
                   className={styles.packArt}
                 />

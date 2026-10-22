@@ -16,7 +16,7 @@
   grid-template-columns: 112px minmax(0, 1fr);
   align-items: center;
   gap: 18px;
-  color: var(--et-ink);
+  color: var(--et-fg);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -42,7 +42,7 @@
   text-transform: uppercase;
 }
 .date {
-  color: #555;
+  color: var(--et-muted);
   font-family: var(--et-font-display);
   font-size: var(--et-type-kicker);
   font-weight: 400;

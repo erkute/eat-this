@@ -1,21 +1,35 @@
-/* Shared light offer: pack fan on the overview, compact upgrade on category pages. */
+/* Shared offer: pack fan on the overview, compact upgrade on category pages.
+   Eine Ink-Tafel mit Papierkorn und Kratzern (Ansage 22.10.2026) statt des
+   grauen Kastens, der auch im Dunkelmodus hell blieb; dunkel eine Stufe
+   über dem Ink-Grund. Schrift weiss, der Knopf eine weisse Pille. */
 
 .board {
   --board-ink: var(--et-ink);
-  --board-paper: #111;
+  --board-paper: #fff;
   --board-accent: var(--et-accent);
-  --board-soft: #555;
-  --board-quiet: #666;
+  --board-soft: #d4d1cd;
+  --board-quiet: #b7b3ae;
+  --sheet-trigger-bg: #fff;
+  --sheet-trigger-fg: var(--et-ink);
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: clamp(20px, 4vw, 48px);
   padding: clamp(24px, 4vw, 56px);
-  background: #f2f1ef;
+  background: var(--et-ink) url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px repeat;
   color: var(--board-paper);
   border-radius: 0;
   font-family: var(--et-font-display);
+}
+
+:global(html[data-vintage]) .board {
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  background-size: 192px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+}
+:global(html[data-theme='dark']) .board {
+  background-color: var(--et-ink-raised);
 }
 
 .copy {
@@ -24,7 +38,7 @@
 
 .kicker {
   margin: 0 0 clamp(14px, 1.6vw, 22px);
-  color: #a82b2e;
+  color: #ffc600;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
@@ -37,8 +51,8 @@
   color: var(--board-paper);
   font-size: clamp(52px, 6.4vw, 92px);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.86;
+  letter-spacing: -0.055em;
+  line-height: 0.88;
   text-transform: none;
 }
 
@@ -106,7 +120,7 @@
   height: auto;
   margin: 0 -6%;
   transform-origin: 50% 90%;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.4));
 }
 
 /* Die Reihen zwei und drei rücken hoch: die Packs liegen aufeinander wie auf

@@ -21,6 +21,29 @@ export default function SiteNav() {
   const activePage = pageSlugFromPath(pathname);
   const reading = activePage === 'news-article' || activePage === 'restaurant';
   const progressRef = useRef<HTMLSpanElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+
+  // Oben auf der Startseite liegt der Kopf durchsichtig über dem gelben
+  // Aufmacher; sobald gescrollt ist, blendet seine Fläche ein
+  // (SiteNav.module.css, wie bei gucci.com — Ansage 21.10.2026).
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav || activePage !== 'start') return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const scroller = appScroller();
+      nav.toggleAttribute('data-scrolled', (scroller ? scroller.scrollTop : window.scrollY) > 4);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    document.addEventListener('scroll', schedule, { passive: true, capture: true });
+    return () => {
+      document.removeEventListener('scroll', schedule, { capture: true });
+      cancelAnimationFrame(frame);
+      nav.removeAttribute('data-scrolled');
+    };
+  }, [activePage]);
 
   useEffect(() => {
     if (!reading) return;
@@ -37,7 +60,19 @@ export default function SiteNav() {
         ? scroller.scrollHeight - scroller.clientHeight
         : document.documentElement.scrollHeight - window.innerHeight;
       const progress = distance > 0 ? Math.min(1, Math.max(0, top / distance)) : 0;
-      if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`;
+      const bar = progressRef.current;
+      const nav = bar?.parentElement;
+      if (!bar || !nav) return;
+      bar.style.clipPath = `inset(0 ${(1 - progress) * 100}% 0 0)`;
+      // Was die rote Fläche schon bedeckt, steht weiß: jedes Wort und die
+      // Wortmarke bekommen ihren bedeckten Anteil als --fill (0–1).
+      const box = nav.getBoundingClientRect();
+      const edge = box.left + progress * box.width;
+      nav.querySelectorAll<HTMLElement>('[data-reading-fill]').forEach((el) => {
+        const word = el.getBoundingClientRect();
+        const fill = word.width > 0 ? Math.min(1, Math.max(0, (edge - word.left) / word.width)) : 0;
+        el.style.setProperty('--fill', String(fill));
+      });
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     document.addEventListener('scroll', schedule, { passive: true, capture: true });
@@ -173,14 +208,13 @@ export default function SiteNav() {
       <a href="#main-content" className="skip-link">
         {t('a11y.skip')}
       </a>
-      <nav className={styles.nav} id="navbar" data-nav-page={activePage} data-visibility="visible">
+      <nav ref={navRef} className={styles.nav} id="navbar" data-nav-page={activePage} data-visibility="visible">
         {reading && <span ref={progressRef} className={styles.readingProgress} aria-hidden="true" data-reading-progress="" />}
         {/* Left: map text */}
         <div className={`${styles.actions} ${styles.actionsStart}`}>
           <MapIntentLink href="/map" className={styles.control} id="navMapBtn" aria-label="Map">
-            <span className={styles.mapWord}>Map</span>
+            <span className={styles.mapWord} data-reading-fill="">Map</span>
           </MapIntentLink>
-          <Link href="/news" className={styles.control}><span className={styles.mapWord}>{lang === 'de' ? 'Magazin' : 'Magazine'}</span></Link>
         </div>
         {/* Center: Logo */}
         <div className={styles.home}>
@@ -188,7 +222,7 @@ export default function SiteNav() {
               (HeroMarkFlight misst diesen Slot aus). Der Link bleibt
               zugänglich — er trägt seinen Namen über aria-label —, nur das
               Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
-          <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
+          <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="" data-reading-fill="">
             <Image
               src="/pics/home/wordmark.webp?v=1"
               alt="Eat This"
@@ -212,7 +246,7 @@ export default function SiteNav() {
             aria-expanded="false"
             onClick={openBurgerDrawer}
           >
-            <span className={styles.menuWord}>{lang === 'de' ? 'Menü' : 'Menu'}</span>
+            <span className={styles.menuWord} data-reading-fill="">{lang === 'de' ? 'Menü' : 'Menu'}</span>
           </button>
         </div>
       </nav>

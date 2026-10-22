@@ -73,6 +73,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
       <main id="news" className={styles.shell}>
         <header className={styles.hero}>
           <div className={styles.intro}>
+            <p className={styles.kicker}>{labels.kicker}</p>
             <h1 className={styles.heroTitle}>{labels.title}</h1>
           </div>
 

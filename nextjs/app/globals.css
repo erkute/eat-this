@@ -300,6 +300,19 @@
   --et-radius-photo: 10px;
   --et-radius-control: 7px;
   --et-radius-pill: 999px;
+  /* Knöpfe in drei Grössen (Ansage 22.10.2026), alle als Pille:
+     Standard für alles Normale, gross nur für den einen Kauf einer Seite,
+     klein für Knöpfe auf Fotos, Karten und in Listen. Breite = Text plus
+     Polster. */
+  --et-btn-h: 48px;
+  --et-btn-pad: 24px;
+  --et-btn-font: 16px;
+  --et-btn-h-lg: 56px;
+  --et-btn-pad-lg: 32px;
+  --et-btn-font-lg: 18px;
+  --et-btn-h-sm: 40px;
+  --et-btn-pad-sm: 16px;
+  --et-btn-font-sm: 14px;
   --et-motion-fast: 140ms ease;
   --et-motion-base: 160ms ease;
   --et-motion-card: 180ms ease;
@@ -311,6 +324,138 @@
   --motion-slow: 320ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
+/* Interface roles change with the explicit selection; artwork keeps literal
+   --et-ink / --et-white and its own contrast pair. */
+:root {
+  --et-ground: #fff;
+  --et-fg: #15120e;
+  --et-subtle: rgba(21, 18, 14, .055);
+  --et-link: #a82b2e;
+  /* Gefüllter Knopf auf dem Seitengrund: hell Ink auf Weiß, dunkel Weiß auf
+     Ink — sonst verschwindet die Fläche im Grund. */
+  --et-solid: #15120e;
+  --et-on-solid: #fff;
+  --map-collage-paper: var(--et-ground);
+  --map-collage-ink: var(--et-fg);
+  --map-basemap-ground: #f4f4f4;
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --et-ground: #15120e;
+  --et-fg: #fff;
+  --et-muted: #b7b3ae;
+  --et-copy: #d4d1cd;
+  --et-quiet: #25231f;
+  --et-line: #514e49;
+  --et-rule: #514e49;
+  --et-subtle: rgba(255, 255, 255, .075);
+  --et-link: #f29194;
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  --map-basemap-ground: #0e0e0e;
+}
+
+/* Vintage-Look (Entwurf, 21.10.2026): Papier wie auf den Must-Eat-Karten.
+   Jede Section der Startseite ist ein eigenes Blatt — Korn und Fasern plus
+   die Gebrauchsspuren der Karte (Ringe, Knick, abgestoßene Kanten) — und
+   scrollt mit ihrem Inhalt; keine Ebene über der ganzen Seite. Unterseiten
+   (Magazin, Spots, Artikel) sind nur leicht gealtert (siehe unten). Der Grund bleibt
+   weiß (dunkel: Ink), Schrift und Spuren sind farbneutral — kein Creme.
+   Knöpfe sind fette Pillen, damit man sie als Knöpfe erkennt, mit leichten
+   Kratzern (--et-btn-wear); die vollen Kratzer tragen Etiketten (aktiver
+   Menüpunkt, Spot-Name im Artikel). Ansage 21.10.2026. */
+html[data-vintage] {
+  --et-wear: url('/pics/vintage/button-wear.webp?v=2');
+  /* Knöpfe tragen dieselben Kratzer, halb so stark (Ansage 21.10.2026). */
+  --et-btn-wear: url('/pics/vintage/button-wear-soft.webp?v=1');
+  /* Ein Blatt: Korn und Fasern gekachelt, darüber die Gebrauchsspuren der
+     Karte einmal über die ganze Fläche. */
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
+  --et-sheet-size: 192px, 100% 100%;
+  --et-sheet-repeat: repeat, no-repeat;
+}
+html[data-vintage][data-theme='dark'] {
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+}
+html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
+  background-image: var(--et-sheet);
+  background-size: var(--et-sheet-size);
+  background-repeat: var(--et-sheet-repeat);
+}
+/* Unterseiten (Spots, Artikel …) sind nur leicht gealtert und bleiben weiß:
+   Korn plus die Gebrauchsspuren mit 40 % Deckkraft, in Kartenproportion
+   oben — gestreckt würden die Ringe zu Ellipsen. Das Blatt reicht bis an
+   den Rand: auf der vollen Seitenfläche — `.app-page` (Artikel; ihre <main>
+   ist eingerückt) oder die <main> direkt im body (Spots). Die Startseite hat
+   eigene Blätter. Die Magazin-Übersicht war erst ganz glatt, liegt jetzt
+   wie die übrigen Unterseiten auf Papier (Ansage 21.10.2026: „mit Kratzer
+   wie echte Magazine“). `:has()` darf nicht in `:has()` stehen, sonst fällt
+   die ganze Regel weg. */
+html[data-vintage] :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
+  background-size: 192px, 100% auto;
+  background-repeat: repeat, no-repeat;
+  background-position: 0 0, top center;
+}
+html[data-vintage][data-theme='dark'] :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
+}
+/* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
+   21.10.2026: „mit verschiedenen Farben für die Sections, damit man diese
+   weisse Ebene nicht braucht"). Die Folge der Startseite: Gelb (Aufmacher) →
+   Papier (Magazin) → Ink (Must Eats) → Papier (Bezirke) → Rot (Remy) →
+   Papier (Fragen) → Rot (Starter Pack) → Ink (Fuss). Nie zwei gleiche
+   nebeneinander; den Abstand gibt das Innenpolster der Sections. Ink- und
+   Rot-Blätter setzen ihre Rollen-Farben selbst, damit Schrift, Knöpfe und
+   Felder darin stimmen. */
+html[data-vintage] .homeV2 > [data-hub-musteats] {
+  color-scheme: dark;
+  --et-ground: #15120e;
+  --et-fg: #fff;
+  --et-muted: #b7b3ae;
+  --et-copy: #d4d1cd;
+  --et-quiet: #25231f;
+  --et-line: #514e49;
+  --et-rule: #514e49;
+  --et-subtle: rgba(255, 255, 255, .075);
+  --et-link: #f29194;
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+}
+/* Im Dunkelmodus ist das Papier selbst Ink — Must Eats eine Stufe heller. */
+html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
+  --et-ground: #25231f;
+}
+/* Starter Pack im Rot des Packs selbst (Ansage 21.10.2026: „soll rot sein,
+   ähnlich wie das Starter Pack"): Schrift weiss, Feld und Google-Knopf weiss
+   mit Ink-Schrift, „Anmelden" Ink, Fokus weiss — Rot auf Rot sähe man nicht. */
+html[data-vintage] .homeV2 > [data-hub-starter] {
+  color-scheme: light;
+  --et-ground: #cf3f2f;
+  --et-fg: #fff;
+  --et-muted: rgba(255, 255, 255, .82);
+  --et-copy: #fff;
+  --et-quiet: rgba(255, 255, 255, .14);
+  --et-subtle: rgba(255, 255, 255, .14);
+  --et-link: #fff;
+  --et-solid: #15120e;
+  --et-on-solid: #fff;
+  --et-field: #fff;
+  --et-field-fg: #15120e;
+  --et-field-muted: rgba(21, 18, 14, .6);
+  --et-focus: #fff;
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
+}
+/* Nachbarblätter mit versetztem Korn, damit sich das Muster nicht wiederholt. */
+html[data-vintage] .homeV2 > :nth-child(even) {
+  background-position: 96px 61px, center;
+}
+html[data-vintage] .homeV2 > :nth-child(3n) {
+  background-position: 37px 140px, center;
+}
+
 *,
 *::before,
 *::after {
@@ -350,14 +495,14 @@ html {
   /* Matches the page surface so the side strips that appear on Desktop when
      .page is centered with max-width blend in, and iOS rubber-band overscroll
      picks it up too. */
-  background-color: var(--et-white);
+  background-color: var(--et-ground);
 }
 body {
   font-family: var(--et-font-body);
-  background-color: var(--et-white);
+  background-color: var(--et-ground);
   background-image: none;
   background-size: auto;
-  color: var(--et-ink);
+  color: var(--et-fg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
@@ -366,20 +511,13 @@ body {
    sections; without a wrapper background those gaps expose the body. Fill
    the hub so the gaps read as one surface. */
 [data-hub] {
-  background: var(--et-white);
+  background: var(--et-ground);
 }
-/* Public content shares the white editorial canvas. The article toggle below
-   owns its explicit dark reading state. */
+/* Shared page canvas, including the browser overscroll area. */
 html[data-active-page], html[data-active-page] body, html[data-active-page] .app-pages {
-  background: var(--et-white);
+  background: var(--et-ground);
 }
-html[data-active-page='start'] [data-hub] { background: var(--et-white); }
-/* …ausser jemand stellt ihn dunkel (lib/articleTheme.ts). */
-html[data-active-page='news-article'][data-article-theme='dark'],
-html[data-active-page='news-article'][data-article-theme='dark'] body,
-html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {
-  background: var(--et-ink);
-}
+html[data-active-page='start'] [data-hub] { background: var(--et-ground); }
 /* The browser canvas stays dark throughout the magazine transition, even
    after navigation activates a light article. Its transformed page paints
    --article-ground itself until the overlay is removed (magazineOpen.ts). */
@@ -451,10 +589,14 @@ html[data-active-page='map'] .app-page {
      thin canvas gap produced by margin + calculated viewport height. */
   html[data-active-page='start'] .app-pages {
     position: fixed;
-    inset: var(--site-nav-h) 0 0;
+    /* Bis unter den Kopf: der gelbe Aufmacher liegt oben hinter dem noch
+       durchsichtigen Kopf (SiteNav.module.css, Ansage 21.10.2026). Sprünge
+       zu Ankern halten trotzdem Abstand. */
+    inset: 0;
+    scroll-padding-top: var(--site-nav-h);
     height: auto;
     margin: 0;
-    background-color: var(--et-white);
+    background-color: var(--et-ground);
     overscroll-behavior-y: none;
   }
 }
@@ -975,8 +1117,8 @@ html[data-auth='1'] [data-guest-only] {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding: clamp(28px, 3.4vw, 40px);
-  color: var(--et-ink);
-  background: var(--et-white);
+  color: var(--et-fg);
+  background: var(--et-ground);
   border: 0;
   border-radius: 0;
   box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
@@ -1011,7 +1153,7 @@ html[data-auth='1'] [data-guest-only] {
   align-items: center;
   gap: 12px;
   margin: 0;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-family: var(--cookie-font);
   font-size: clamp(32px, 3.4vw, 42px);
   font-weight: 700;
@@ -1048,7 +1190,7 @@ html[data-auth='1'] [data-guest-only] {
   margin-top: 14px;
   padding: 2px 0;
   cursor: pointer;
-  color: var(--et-accent);
+  color: var(--et-link);
   background: none;
   border: 0;
   font-family: var(--cookie-font);
@@ -1058,12 +1200,12 @@ html[data-auth='1'] [data-guest-only] {
   text-transform: none;
 }
 .cookie-info-trigger:focus-visible {
-  color: var(--et-ink);
+  color: var(--et-fg);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-info-trigger:hover {
-    color: var(--et-ink);
+    color: var(--et-fg);
   }
 }
 /* Accept is the primary answer, decline the secondary one: yellow against a
@@ -1144,12 +1286,12 @@ html[data-auth='1'] [data-guest-only] {
   text-decoration: none;
 }
 .cookie-legal a:focus-visible {
-  color: var(--et-accent);
+  color: var(--et-link);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-legal a:hover {
-    color: var(--et-accent);
+    color: var(--et-link);
   }
 }
 @media (max-width: 640px) {
@@ -1220,7 +1362,7 @@ html[data-auth='1'] [data-guest-only] {
       100% 11px no-repeat scroll,
     radial-gradient(farthest-side at 50% 100%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0))
       bottom / 100% 13px no-repeat scroll;
-  background-color: var(--et-white);
+  background-color: var(--et-ground);
 }
 /* Die Abschnitte als leise Felder im Fenster — Ueberschrift als gelbes
    Kreide-Label in Versalien, wie die Labels der Fakten-Tafel. */
@@ -1240,7 +1382,7 @@ html[data-auth='1'] [data-guest-only] {
 }
 .cookie-expand .cookie-info-body h3 {
   margin: 0 0 7px;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-family: var(--cookie-font);
   font-size: 12px;
   font-weight: 700;
@@ -1278,11 +1420,11 @@ html[data-auth='1'] [data-guest-only] {
   background: var(--cookie-accent);
 }
 .cookie-expand .cookie-info-body strong {
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-weight: 700;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--et-accent);
+  color: var(--et-link);
   font-weight: 700;
   text-decoration: none;
 }
@@ -1366,8 +1508,8 @@ summary:active,
   left: -9999px;
   top: 0;
   z-index: var(--et-z-above-nav);
-  background: #000;
-  color: #fff;
+  background: var(--et-solid);
+  color: var(--et-on-solid);
   padding: 12px 18px;
   font-weight: 700;
   text-decoration: none;
@@ -1386,7 +1528,7 @@ summary:active,
 body {
   max-width: 100%;
   overscroll-behavior: none;
-  background: var(--et-white);
+  background: var(--et-ground);
   overflow-x: hidden;
 }
 iframe {
@@ -1465,7 +1607,7 @@ ol {
     /* Pad for fixed app-footer + safe-area-inset-bottom so last content is reachable */
     padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
     overflow: visible;
-    background: var(--et-white);
+    background: var(--et-ground);
     overscroll-behavior: none;
   }
   /* Pages ending with the site footer let the footer own bottom clearance. */
@@ -1473,7 +1615,15 @@ ol {
     padding-bottom: 0;
   }
   .app-page[data-page='start'] {
-    background: var(--et-white);
+    background: var(--et-ground);
+  }
+  /* Startseite: der Aufmacher reicht bis unter den durchsichtigen Kopf
+     (HubSection.module.css hält ihm dafür oben den Platz frei). */
+  html[data-active-page='start'] .app-pages {
+    padding-top: 0;
+  }
+  html[data-active-page='start'] {
+    scroll-padding-top: var(--site-nav-h);
   }
 }
 
@@ -1504,19 +1654,27 @@ ol {
     height: auto;
     min-height: calc(100dvh - 48px);
     padding-bottom: 0;
-    background: var(--et-white);
+    background: var(--et-ground);
     overflow-y: visible;
     overflow-x: hidden;
   }
   .app-page[data-page='start'] {
-    background: var(--et-white);
+    background: var(--et-ground);
+  }
+  /* Startseite: der Aufmacher reicht bis unter den durchsichtigen Kopf
+     (HubSection.module.css hält ihm dafür oben den Platz frei). */
+  html[data-active-page='start'] .app-pages {
+    padding-top: 0;
+  }
+  html[data-active-page='start'] {
+    scroll-padding-top: var(--site-nav-h);
   }
 }
 
 /* ── Home vocabulary (scoped to .homeV2) ── */
 .homeV2 {
-  background: var(--et-white);
-  color: var(--et-ink);
+  background: var(--et-ground);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
 }
 .homeV2 .hv-wrap {
@@ -1533,7 +1691,7 @@ ol {
   font-size: var(--et-type-kicker);
   letter-spacing: var(--et-tracking-label);
   text-transform: uppercase;
-  color: var(--et-ink);
+  color: var(--et-fg);
 }
 .homeV2 .hv-head {
   display: flex;
@@ -1586,7 +1744,7 @@ ol {
   font-weight: 700;
   font-size: clamp(14px, 1.1vw, 16px);
   margin-top: var(--et-control-gap);
-  color: var(--et-ink);
+  color: var(--et-fg);
 }
 .homeV2 .hv-sub {
   font-family: var(--et-font-display);
@@ -1601,8 +1759,8 @@ ol {
   padding: 11px 24px;
   border-radius: 999px;
   display: inline-block;
-  background: var(--et-ink);
-  color: var(--et-white);
+  background: var(--et-solid);
+  color: var(--et-on-solid);
   border: none;
   cursor: pointer;
   transition:
@@ -1627,7 +1785,7 @@ ol {
   padding: 9px 15px;
   border-radius: var(--et-radius-control);
   background: var(--et-quiet);
-  color: var(--et-ink);
+  color: var(--et-fg);
   border: none;
   cursor: pointer;
   transition:

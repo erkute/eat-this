@@ -27,8 +27,6 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HubHashScroll />
       <section className={styles.hero} aria-label={locale === 'de' ? 'Eat This — die Food-Map für Berlin' : 'Eat This — the food map for Berlin'} data-hub-hero="">
         <HeroCurtain />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.heroIntroMark} data-hero-intro-mark="" src="/pics/home/wordmark.webp?v=1" width={1124} height={274} alt="" aria-hidden="true" />
         <div className={styles.heroInner}>
           <HubHeroCopy locale={locale} />
         </div>
@@ -43,7 +41,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HubFragRemy />
       <HubFaq locale={locale} />
       <StarterPackSignup />
-      <SiteFooter home />
+      <SiteFooter />
     </main>
   );
 }

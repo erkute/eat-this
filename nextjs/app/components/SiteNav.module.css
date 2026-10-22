@@ -1,4 +1,16 @@
+/* Weiss mit leichtem Vintage (Ansage 21.10.2026: „mit Vintage, aber leichter
+   und weiss", dann „die Ecken und Kanten sollen vintager aussehen"): die
+   Fläche bleibt hell mit Papierkorn, Kanten und Ecken sind ausgefranst und
+   abgegriffen. Drei Teile, damit es bei jeder Breite gleich aussieht: die
+   Endstücke links und rechts tragen die Ecken, dazwischen läuft ein
+   kachelbarer Streifen für die Oberkante. Die Unterkante bleibt sauber
+   (Ansage 21.10.2026: „unteren Rand ohne Dreck"), die Bilder laufen dort
+   aus. Dunkel dieselbe Fläche in Ink, nur mit Korn. */
 .nav {
+  --nav-paper: url('/pics/vintage/nav-edge-left.webp?v=4') left center / auto 100% no-repeat,
+    url('/pics/vintage/nav-edge-right.webp?v=4') right center / auto 100% no-repeat,
+    url('/pics/vintage/nav-edge-x.webp?v=4') 0 0 / auto 100% repeat-x,
+    url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px repeat;
   position: fixed;
   inset: 0 0 auto;
   z-index: var(--et-z-nav);
@@ -9,16 +21,36 @@
   /* Höhe und der Abstand, den die Seiten dafür freihalten, kommen aus
      derselben Variable (globals.css). */
   height: var(--site-nav-h);
-  padding: env(safe-area-inset-top, 0px) clamp(12px, 3vw, 32px) 0;
-  color: #111;
-  background: #fff;
+  padding: env(safe-area-inset-top, 0px) clamp(12px, 1.4vw, 20px) 0;
+  color: var(--et-fg);
+  background: transparent;
   border: 0;
   box-shadow: none;
 }
 
-.nav::before,
+:global(html[data-theme='dark']) .nav {
+  --nav-paper: url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px repeat;
+}
+
 .nav::after {
   content: none;
+}
+
+/* Die Fläche des Kopfs. Eigene Ebene, damit sie ein- und ausblenden kann:
+   oben auf der Startseite liegt der Kopf durchsichtig über dem gelben
+   Aufmacher, ab dem ersten Scrollen steht er auf seinem Papier. */
+.nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--nav-paper), var(--et-ground);
+  pointer-events: none;
+  transition: opacity 280ms ease;
+}
+
+:global(html[data-active-page='start']) .nav:not([data-scrolled])::before {
+  opacity: 0;
 }
 
 .nav[data-nav-page='map'] {
@@ -56,7 +88,7 @@
   width: auto;
   min-width: max-content;
   height: 44px;
-  color: #111;
+  color: var(--et-fg);
   text-decoration: none;
   transform: translate(-50%, -50%);
 }
@@ -75,7 +107,7 @@
   min-width: auto;
   height: 44px;
   padding: 0;
-  color: #111;
+  color: var(--et-fg);
   text-decoration: none;
   appearance: none;
   background: transparent;
@@ -88,7 +120,7 @@
 
 .control:active,
 .control:focus-visible {
-  color: #111;
+  color: var(--et-fg);
   background: transparent;
   box-shadow: none;
   transform: none;
@@ -96,7 +128,7 @@
 
 @media (hover: hover) {
   .control:hover {
-    color: #111;
+    color: var(--et-fg);
     background: transparent;
     box-shadow: none;
     transform: none;
@@ -114,7 +146,7 @@
   display: inline-block;
   font-family: var(--et-font-display);
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.25;
   letter-spacing: 0;
   text-transform: none;
@@ -131,14 +163,10 @@
   }
 
   .nav:not([data-nav-page='map'])::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
     display: block;
-    background: #fff;
-    pointer-events: none;
-    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition:
+      transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 280ms ease;
   }
 
   .nav:not([data-nav-page='map']) > * {
@@ -187,7 +215,7 @@
 
 @media (max-width: 520px) {
   .nav:not([data-nav-page='map']) {
-    padding-inline: 20px;
+    padding-inline: 12px;
   }
 
   .mapWord,
@@ -226,15 +254,6 @@
   visibility: hidden;
 }
 
-/* MAP und MENÜ stehen beim Ladeauftritt nicht schon über dem Vorhang: sie
-   fliegen im letzten Takt von links und rechts herein (HubMotion, `copyIn`,
-   Ansage 01.10.2026: „Map und Menü müssen auch reinfliegen"). */
-@media (prefers-reduced-motion: no-preference) {
-  :global(html[data-hero-intro][data-active-page='start']:not([data-intro-copy])) .control {
-    visibility: hidden;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .nav:not([data-nav-page='map'])::before,
   .nav:not([data-nav-page='map']) > * { transition: none; }
@@ -245,14 +264,39 @@
 .nav:not([data-nav-page='map']) > .readingProgress {
   position: absolute;
   inset: 0;
-  background: var(--et-accent);
-  transform: scaleX(0);
-  transform-origin: left center;
+  /* Zerkratzt wie die Knöpfe (Ansage 22.10.2026). Aufgedeckt per
+     Ausschnitt statt scaleX, sonst stauchte die Breite die Kratzer mit. */
+  background: var(--et-accent) var(--et-btn-wear, none) 0 0 / 200px auto;
+  clip-path: inset(0 100% 0 0);
   z-index: 0;
   transition: none;
   pointer-events: none;
 }
 .nav .actions { position: relative; z-index: 1; }
+/* Über der roten Fläche steht die Schrift weiß, Buchstabe für Buchstabe so
+   weit, wie die Fläche reicht (--fill setzt SiteNav beim Scrollen). */
+.readingProgress ~ .actions [data-reading-fill] {
+  color: transparent;
+  background: linear-gradient(90deg, #fff calc(var(--fill, 0) * 100%), var(--et-fg) 0);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+/* Die Wortmarke ist ein Bild: darüber liegt eine weiße Kopie, aufgedeckt wie
+   die Fläche. Ihre Höhe folgt der von .logoImg. */
+.readingProgress ~ .home .logo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  mask: url('/pics/home/wordmark.webp?v=1') center / auto 24px no-repeat;
+  clip-path: inset(0 calc((1 - var(--fill, 0)) * 100%) 0 0);
+  pointer-events: none;
+}
+/* …und die dunkle Marke darunter weicht an derselben Kante, sonst säumt sie
+   die weiße Kopie. */
+.readingProgress ~ .home .logoImg {
+  clip-path: inset(0 0 0 calc(var(--fill, 0) * 100%));
+}
 
 .nav[data-nav-page='news-article'] .control:focus-visible,
 .nav[data-nav-page='restaurant'] .control:focus-visible { outline-color: #111; }
@@ -262,4 +306,7 @@
 @media(max-width:600px) {
   .actionsStart { gap: 16px; }
   .nav .logoImg { height: 18px; }
+  .readingProgress ~ .home .logo::after { mask-size: auto 18px; }
 }
+
+:global(html[data-theme='dark']) .logoImg { filter: invert(1); }

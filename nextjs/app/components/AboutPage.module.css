@@ -4,8 +4,8 @@
   flex-direction: column;
   min-height: calc(100dvh - var(--site-nav-h));
   padding: 0 var(--et-gutter);
-  background: var(--et-white);
-  color: var(--et-ink);
+  background: var(--et-ground);
+  color: var(--et-fg);
 }
 
 .page > :global(footer[role='contentinfo']) {
@@ -54,7 +54,7 @@
   max-width: 38ch;
   margin: 28px 0 0;
   padding: 0;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: clamp(20px, 1.8vw, 24px);
   font-weight: 700;
@@ -82,7 +82,7 @@
 
 .oneLiner {
   margin: 0;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: clamp(26px, 3vw, 38px);
   font-weight: 700;
@@ -120,7 +120,7 @@
 .sectionNumber {
   display: block;
   margin-bottom: 20px;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: 24px;
   line-height: 1.25;
@@ -160,10 +160,10 @@
 }
 .body strong,
 .body b {
-  color: var(--et-ink);
+  color: var(--et-fg);
 }
 .body a {
-  color: var(--et-accent);
+  color: var(--et-link);
   text-decoration: none;
   text-underline-offset: 4px;
 }
@@ -179,7 +179,7 @@
 .body blockquote {
   margin: 32px 0;
   padding-left: 24px;
-  color: var(--et-ink);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
   font-size: clamp(24px, 2.6vw, 34px);
   font-weight: 700;
@@ -260,7 +260,7 @@
   min-height: 44px;
   margin-block: 24px;
   padding-block: 6px;
-  color: var(--et-accent);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: clamp(22px, 4.2vw, 48px);
   font-weight: 700;
@@ -278,7 +278,7 @@
 @media (hover: hover) {
   .body a:hover,
   .email:hover {
-    color: var(--et-ink);
+    color: var(--et-fg);
   }
 }
 

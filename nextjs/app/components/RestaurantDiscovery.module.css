@@ -14,7 +14,7 @@
 .meta { display: block; margin-top: 8px; color: var(--et-muted); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: none; }
 .discovery a:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; }
 @media (hover: hover) {
-  .spot:hover .name, .categories a:hover { color: var(--et-accent); }
+  .spot:hover .name, .categories a:hover { color: var(--et-link); }
   .categories a:hover .packArt { rotate: 0deg; translate: 0 -8px; }
   .spot:hover img { transform: scale(1.04); }
 }
@@ -34,7 +34,7 @@
   .spots { grid-template-columns: 1fr; }
   .spot { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px 14px; }
   .photo { grid-row: 1 / 3; aspect-ratio: 1; }
-  .name { margin: 0; font-size: 18px; hyphens: auto; overflow-wrap: break-word; }
+  .name { margin: 0; font-size: 18px; overflow-wrap: break-word; }
   .meta { margin: 0; }
 }
 @media (prefers-reduced-motion: reduce) {

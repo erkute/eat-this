@@ -14,3 +14,23 @@ const CATEGORY_ART: Record<string, string> = {
 export function categoryArt(slug: string): string | null {
   return CATEGORY_ART[slug] ?? null;
 }
+
+/** Kachelfarbe der Kategorie-Übersicht: die Grundfarbe des Packs (Median der
+ *  Fläche neben dem Motiv, aus den Bildern gemessen), 14 % dunkler, damit sich
+ *  das Pack abhebt – Fine Dining 14 % heller, Schwarz auf Schwarz sähe man
+ *  nicht. `ink`: Schrift darauf in Ink statt Weiss. */
+const CATEGORY_TILE: Record<string, { tile: string; ink: boolean }> = {
+  breakfast: { tile: '#344fb5', ink: false },
+  coffee: { tile: '#c9a306', ink: true },
+  dinner: { tile: '#978abf', ink: true },
+  drinks: { tile: '#9dafc2', ink: true },
+  'fast-food': { tile: '#bb3f31', ink: false },
+  'fine-dining': { tile: '#403e37', ink: false },
+  lunch: { tile: '#3653b8', ink: false },
+  pizza: { tile: '#c15f22', ink: true },
+  sweets: { tile: '#c48aa6', ink: true },
+};
+
+export function categoryTile(slug: string): { tile: string; ink: boolean } | null {
+  return CATEGORY_TILE[slug] ?? null;
+}

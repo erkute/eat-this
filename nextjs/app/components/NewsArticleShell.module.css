@@ -472,7 +472,6 @@ div.page {
   color: var(--et-fg);
   text-align: left;
   text-decoration: none;
-  transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .mustEatPh {
@@ -487,7 +486,6 @@ div.page {
   width: 100%;
   height: auto;
   transform: rotate(-5deg);
-  transition: transform 180ms ease;
 }
 
 .mustEatBody {
@@ -903,14 +901,6 @@ div.page {
 }
 
 @media (hover: hover) {
-  a.mustEat:hover {
-    transform: translateY(-3px);
-  }
-
-  a.mustEat:hover .mustEatPh img {
-    transform: rotate(-2deg) translateY(-3px);
-  }
-
   .relatedCard:hover {
     translate: 0 -8px;
     rotate: 0deg;

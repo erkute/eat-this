@@ -482,11 +482,10 @@
   text-wrap: balance;
 }
 
-/* Verdeckt: das Wort in gedämpftem Weiß statt des Gerichts, der Spot wie
-   bei den offenen darunter. */
-.setItem[data-face='down'] .setName {
-  color: var(--must-dim);
-  font-weight: 400;
+/* Covered cards emphasize both their status and restaurant. */
+.setItem[data-face='down'] .setName,
+.setItem[data-face='down'] .setSpot {
+  font-weight: 700;
 }
 
 /* Fokus auf einer Karte: ihr Name darunter wird zur gelben Fläche. */

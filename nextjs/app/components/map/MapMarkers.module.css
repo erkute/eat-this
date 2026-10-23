@@ -40,15 +40,15 @@
   display: grid;
   place-items: center;
   /* Kompakte, leicht gedrehte Folienfläche. */
-  width: 38px;
-  height: 42px;
+  width: 40px;
+  height: 48px;
   border: 0;
   border-radius: 0;
   box-shadow: none;
   background: transparent;
   clip-path: none;
   filter: none;
-  transform: rotate(-5deg);
+  transform: none;
   /* Zoomabhängig, gesetzt von MapCanvasLayer (`--map-pin-zoom`). Eigene
      `scale`-Eigenschaft statt Teil von `transform`: so bleiben Drehung,
      Hover und Drop-in unberührt, und sie läuft ohne Transition — sie folgt
@@ -84,10 +84,10 @@
 
 @keyframes pinDrop {
   from {
-    transform: translateY(-56px) rotate(-13deg);
+    transform: translateY(-56px);
   }
   to {
-    transform: translateY(0) rotate(-5deg);
+    transform: translateY(0);
   }
 }
 
@@ -102,57 +102,49 @@
 .pinLogoHasMust::after {
   content: '';
   position: absolute;
-  top: 2%;
-  right: -12%;
-  width: 40%;
+  top: -19%;
+  right: -21%;
+  width: 44%;
   aspect-ratio: 5 / 7;
   background: transparent url('/pics/card-back-sm.webp?v=7') center/contain no-repeat;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   transform: rotate(7deg);
-  z-index: 1;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .pinLogoShape {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-  padding-bottom: 5px;
-  background: var(--et-red) url('/pics/paper/folded-white.webp') center / 160px 240px;
-  background-blend-mode: multiply;
-  color: var(--et-white);
-  mask: url('/pics/paper/marker-bubble-balanced.svg') center / 100% 100% no-repeat;
-  box-shadow: 0 1px 3px rgb(0 0 0 / .2);
-}
-.pinLetter {
-  font: 800 13px / 0.95 var(--et-font-body);
-  letter-spacing: -.04em;
-  text-align: center;
+  z-index: 0;
   pointer-events: none;
-  transform: none;
+}
+.pinLogoArt {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 @media (hover: hover) {
   .pinLogo:hover {
-    transform: rotate(-5deg) translateY(-3px) scale(1.12);
+    transform: translateY(-3px) scale(1.08);
   }
 }
 
 /* Der gewählte Spot behält seine Folienfarbe und wird nur größer. */
 .pinLogoActive {
-  width: 48px;
-  height: 53px;
-  transform: rotate(-5deg);
+  width: 52px;
+  height: 63px;
+  transform: none;
   scale: none;
   z-index: 4;
 }
-.pinLogoActive .pinLetter { font-size: 16px; }
 @media (prefers-reduced-motion: reduce) {
   .pinLogoShape { transition: none; }
 }
 @media (hover: hover) {
-  .pinLogoActive:hover { transform: rotate(-5deg) translateY(-4px) scale(1.06); }
+  .pinLogoActive:hover { transform: translateY(-4px) scale(1.06); }
 }
 
 /* Informational user-location marker ----------------------------------- */
@@ -180,10 +172,8 @@
 
 @media (min-width: 1024px) {
   /* Kompakte Sprechblasen mit Platz für zwei Zeilen und einer kurzen Spitze. */
-  .pinLogo { width: 42px; height: 46px; }
-  .pinLetter { font-size: 14px; }
-  .pinLogoActive { width: 52px; height: 57px; }
-  .pinLogoActive .pinLetter { font-size: 17px; }
+  .pinLogo { width: 44px; height: 53px; }
+  .pinLogoActive { width: 56px; height: 67px; }
   .userLoc { width: clamp(58px, 3.5vw, 84px); height: clamp(88px, 5.3vw, 128px); }
 }
 

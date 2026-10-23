@@ -17,22 +17,6 @@ interface Props {
   restaurantName: string;
 }
 
-function Chevron({ dir }: { dir: 'left' | 'right' }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
-    </svg>
-  );
-}
-
 function PhotoCredit({ image }: { image: RestaurantGalleryImage }) {
   const credit = image.credit?.trim();
   if (!credit) return null;
@@ -309,7 +293,7 @@ function Viewer({
                       disabled={index === 0}
                       onClick={() => go(-1)}
                     >
-                      <Chevron dir="left" />
+                      <img src={images[Math.max(0, index - 1)].thumb} alt="" aria-hidden="true" />
                     </button>
                     <button
                       type="button"
@@ -319,7 +303,7 @@ function Viewer({
                       disabled={index === count - 1}
                       onClick={() => go(1)}
                     >
-                      <Chevron dir="right" />
+                      <img src={images[Math.min(count - 1, index + 1)].thumb} alt="" aria-hidden="true" />
                     </button>
                   </>
                 )}

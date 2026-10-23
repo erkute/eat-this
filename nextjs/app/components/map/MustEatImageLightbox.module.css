@@ -1,4 +1,7 @@
 .wrapper {
+  --et-scrim: var(--et-ink);
+  --et-zoom-cap: var(--et-ink);
+  --et-zoom-scrim-blur: none;
   position: fixed;
   inset: 0;
   z-index: var(--et-z-sheet);
@@ -91,6 +94,18 @@
   -webkit-user-select: none;
   -webkit-user-drag: none;
 }
+.imageFailure {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  min-height: 220px;
+  padding: 24px;
+  color: #fff;
+  font: 400 16px / 1.5 var(--et-font-body);
+  text-align: center;
+}
+.imageFailure p { margin: 0; }
 
 /* Avoid rectangular alpha-WebP shadow layers on touch WebKit. */
 @supports (-webkit-touch-callout: none) {
@@ -134,9 +149,8 @@
   cursor: pointer;
 }
 
-.navBtn svg {
-  width: 24px;
-  height: 24px;
+.navBtn {
+  font: 700 16px / 1 var(--et-font-body);
 }
 
 .navBtn:disabled {
@@ -231,32 +245,13 @@
   }
 }
 
-/* Same foil as the map filters, including the photo/detail overlay controls. */
+/* Beide Vollbildansichten nutzen ein freies weißes Schließen-Symbol. */
 :global(html[data-active-page='map']) .close {
   width: 40px;
   height: 40px;
-  border: 0;
-  border-radius: 0;
-  background-color: #fff;
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: 240px 360px;
-  background-position: center;
-  color: var(--et-ink);
-  filter: none;
 }
 :global(html[data-active-page='map']) .close svg { width: 24px; height: 24px; }
-:global(html[data-active-page='map']) .close:focus-visible {
-  outline: 2px solid var(--et-ink);
-  outline-offset: 2px;
-  background-blend-mode: difference;
-  color: #fff;
-}
-@media (hover: hover) {
-  :global(html[data-active-page='map']) .close:hover {
-    background-blend-mode: difference;
-    color: #fff;
-  }
-}
 @media (max-width: 767.98px) {
   :global(html[data-active-page='map']) .close { width: 48px; height: 48px; }
+  .navBtn { min-width: 48px; height: 48px; }
 }

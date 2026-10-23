@@ -233,7 +233,7 @@ const Item = memo(
             vom Wort und von Hell gegen Dunkel, nicht von Grün gegen Rot. */}
         {statusMain && (
           <span
-            className={`et-label et-label-paper ${styles.openPill}`}
+            className={`et-label ${status?.isOpen ? 'et-label-open' : 'et-label-closed'} ${styles.openPill}`}
             role="status"
           >
             {statusMain}

@@ -17,14 +17,6 @@ export function CloseIcon() {
   );
 }
 
-export function PagerArrowIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-      <path d="m14.5 5-7 7 7 7" />
-    </svg>
-  );
-}
-
 export function PinIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">

@@ -162,6 +162,8 @@
   --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
+  --et-status-open: #247348;
+  --et-status-closed: #b52d25;
   /* Ari’s Berlin: https://www.arisberlin.com/menu */
   --et-accent: #a82b2e;
   --et-on-accent: #fff;
@@ -1814,6 +1816,14 @@ ol {
 .et-label-paper {
   background: #fff;
   color: var(--et-ink);
+}
+.et-label-open {
+  background: var(--et-status-open);
+  color: #fff;
+}
+.et-label-closed {
+  background: var(--et-status-closed);
+  color: #fff;
 }
 /* Der Name steht wie bei 032c als schwarze Schrift in einem knappen weissen
    Kasten (Ansage 23.10.2026). */

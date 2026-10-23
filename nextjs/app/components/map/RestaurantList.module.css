@@ -33,7 +33,7 @@
 
 .rcardImg {
   position: relative;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   /* Bis das Foto da ist, steht die Fläche als Fläche da, nicht als Loch. */
   background: var(--et-quiet);

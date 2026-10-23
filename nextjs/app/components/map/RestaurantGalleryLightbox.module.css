@@ -135,10 +135,11 @@
   left: calc(100% + 24px);
 }
 
-.galleryLbArrow svg {
+.galleryLbArrow img {
+  display: block;
   width: 36px;
   height: 36px;
-  stroke-width: 1.6;
+  object-fit: cover;
 }
 
 .galleryLbArrow:disabled {

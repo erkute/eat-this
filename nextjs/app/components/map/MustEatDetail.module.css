@@ -1902,17 +1902,15 @@
   transition: opacity 0.15s ease-out;
 }
 
-.fdPagerPrev svg,
-.fdPagerNext svg {
+.fdPagerPrev img,
+.fdPagerNext img {
   display: block;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 34px;
+  object-fit: contain;
   transition: translate 0.15s ease-out;
 }
 
-.fdPagerNext svg {
-  transform: scaleX(-1);
-}
 
 .fdPagerPrev:disabled,
 .fdPagerNext:disabled {
@@ -2002,8 +2000,8 @@
 @media (prefers-reduced-motion: reduce) {
   .fdPagerPrev,
   .fdPagerNext,
-  .fdPagerPrev svg,
-  .fdPagerNext svg {
+  .fdPagerPrev img,
+  .fdPagerNext img {
     transition: none;
   }
   @media (hover: hover) {

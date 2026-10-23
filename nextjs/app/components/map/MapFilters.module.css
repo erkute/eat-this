@@ -68,13 +68,17 @@
 }
 /* Jeder gesetzte oder geöffnete Filter bleibt ein schwarzes Knitterblatt. */
 .filterChipRow .filterChipActive,
-.filterChipRow .filterChipOpenActive,
 .filterChipRow .filterChip[aria-expanded='true'] {
   background-color: #fff;
   background-image: url('/pics/paper/folded-white.webp');
   background-size: 400px 600px;
   background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
   background-blend-mode: difference;
+  color: #fff;
+}
+.filterChipRow .filterChipOpenActive {
+  background-color: var(--et-status-open);
+  background-blend-mode: multiply;
   color: #fff;
 }
 .filterChipRow .filterChipActive { padding-right: 40px; }

@@ -13,7 +13,7 @@ import MustEatsOnboarding from '../MustEatsOnboarding';
 import styles from './MustEatDetail.module.css';
 import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
-import { CloseIcon, PagerArrowIcon, PinIcon } from './icons';
+import { CloseIcon, PinIcon } from './icons';
 
 const CARD_BACK = '/pics/card-back.webp?v=8';
 /* Gesetzt, sobald jemand in DIESER Sitzung gewischt hat — danach ruht der
@@ -393,7 +393,7 @@ export default function MustEatDetailMobile({
                   previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
                 }
               >
-                <PagerArrowIcon />
+                <img src={prevUnlocked && prevMustEat?.image ? prevMustEat.image : CARD_BACK} alt="" aria-hidden="true" />
               </button>
             )}
             {(prevMustEat || nextMustEat) && (
@@ -404,7 +404,7 @@ export default function MustEatDetailMobile({
                 onClick={() => pageWithCard('next')}
                 aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
               >
-                <PagerArrowIcon />
+                <img src={nextUnlocked && nextMustEat?.image ? nextMustEat.image : CARD_BACK} alt="" aria-hidden="true" />
               </button>
             )}
             <img
@@ -591,6 +591,7 @@ export default function MustEatDetailMobile({
                 <div className={styles.fdLocation}>
                   <MustEatsOnboarding
                     initialMapData={explainerData}
+                    autoOpen={!state.zoomActive}
                     tone="sheet"
                     starterMustEatId={mustEat._id}
                   />

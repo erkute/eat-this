@@ -356,6 +356,23 @@ describe('MustEatDetailMobile proximity states', () => {
     expect(card?.style.visibility).toBe('hidden');
   });
 
+  it('defers the first-visit explainer until the zoom closes', () => {
+    window.localStorage.removeItem('mustEatsOnboardingSeen');
+    const props = {
+      mustEat,
+      isUnlocked: false,
+      onClose: vi.fn(),
+      guest: true,
+      onboardingData: { mustEats: [], revealedMustEatIds: [] },
+    };
+    const { rerender } = render(
+      <MustEatDetailMobile {...props} state={makeState({ zoomActive: true })} />
+    );
+    expect(screen.queryByRole('dialog', { name: 'mustEats.howItWorks' })).toBeNull();
+    rerender(<MustEatDetailMobile {...props} state={makeState({ zoomActive: false })} />);
+    expect(screen.getByRole('dialog', { name: 'mustEats.howItWorks' })).toBeTruthy();
+  });
+
   it('switches to a strong reveal-now state inside the unlock radius', () => {
     const { container } = render(
       <MustEatDetailMobile

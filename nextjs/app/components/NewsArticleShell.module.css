@@ -456,10 +456,8 @@ div.page {
 
 /* --------------------------------------------------------- must-eat ----- */
 
-/* A flat band, not a poster. The old block ran a 74px headline — louder than
-   the article's own h2 — and printed the identical teaser copy for every
-   must-eat in a guide. The restaurant now carries the headline, so two bands
-   in one piece can never read as the same block twice. */
+/* Dasselbe Knitterpapier wie die Katalog-Verweise; Etikett aus globals.css.
+   Die Kartenrückseite bleibt das Motiv, die Schrift folgt dem Seitenthema. */
 .mustEat {
   position: relative;
   font-family: var(--et-font-display);
@@ -469,8 +467,9 @@ div.page {
   gap: clamp(16px, 2.2vw, 26px);
   margin: clamp(30px, 4.5vw, 56px) 0;
   padding: clamp(16px, 2vw, 22px);
-  background: var(--article-quiet);
-  color: var(--article-fg);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 100% 100%;
+  background-blend-mode: multiply;
+  color: var(--et-fg);
   text-align: left;
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
@@ -498,24 +497,10 @@ div.page {
   gap: 7px;
 }
 
-/* Dieselbe Stimme wie die übrigen Labels der Seite: klein in Versalien. */
-.mustEatTag {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  display: inline-block;
-  padding: 5px 8px;
-  color: var(--et-on-accent);
-  background: var(--article-accent);
-  font-size: 11px;
-  line-height: 1;
-  text-transform: none;
-}
-
 .mustEat .mustEatName {
   max-width: 18ch;
   margin: 0;
-  color: var(--article-head);
+  color: var(--et-fg);
   font-size: clamp(24px, 2.2vw, 30px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -528,7 +513,7 @@ div.page {
 .mustEat .mustEatDesc {
   max-width: 34ch;
   margin: 0;
-  color: var(--article-fg);
+  color: var(--et-fg);
   font-size: clamp(16px, 1.25vw, 18px);
   font-weight: 400;
   line-height: 1.35;

@@ -274,6 +274,42 @@ describe('NewsArticleShell', () => {
     for (const link of mapLinks) expect(link).toContain('nofollow');
   });
 
+  it('puts each spot description before its map card and before the next heading', () => {
+    const html = render([
+      h2('Bonvivant'),
+      spot('Bonvivant', 'bonvivant'),
+      para('Bonvivant erster Absatz.'),
+      para('Bonvivant zweiter Absatz.'),
+      h2('Double Eye'),
+      spot('Double Eye', 'double-eye'),
+      para('Double Eye Beschreibung.'),
+    ]);
+    const body = document.createElement('div');
+    body.innerHTML = html;
+    const reading = body.querySelector('[data-article-content]')!;
+    const text = reading.textContent!;
+    expect(text.indexOf('Bonvivant erster Absatz.')).toBeLessThan(text.indexOf('Bonvivant zweiter Absatz.'));
+    const firstMap = reading.querySelector('a[href="/map?r=bonvivant"]')!;
+    const secondHeading = reading.querySelectorAll('h2')[1];
+    const paragraphs = reading.querySelectorAll('p');
+    expect(paragraphs[1].compareDocumentPosition(firstMap) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstMap.compareDocumentPosition(secondHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const secondMap = reading.querySelector('a[href="/map?r=double-eye"]')!;
+    expect(paragraphs[2].compareDocumentPosition(secondMap) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('keeps narrative cards in their authored position', () => {
+    const html = render([
+      h2('Ein Nachmittag im Kiez'),
+      para('Vor dem Kaffee.'),
+      spot('Double Eye', 'double-eye'),
+      para('Nach dem Kaffee.'),
+    ]);
+    const text = html.slice(html.indexOf('data-article-content'));
+    expect(text.indexOf('Vor dem Kaffee.')).toBeLessThan(text.indexOf('/map?r=double-eye'));
+    expect(text.indexOf('/map?r=double-eye')).toBeLessThan(text.indexOf('Nach dem Kaffee.'));
+  });
+
   it('lists the spots of a guide under the head, by name, each a jump', () => {
     const conclusion = {
       _type: 'block',

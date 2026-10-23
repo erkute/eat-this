@@ -198,12 +198,8 @@ export default function NewsArticleShell({
     return at < 0 ? null : relatedArticles.length - at;
   };
 
-  // Inline "Must Eat" band — a flat strip in the article column, not a poster.
-  // The restaurant carries the headline so two must-eats in one guide can't
-  // read as the same block twice; the reveal idea lives in the line below.
-  // The image is the collectible card's back, floating freigestellt with a
-  // tilt. The whole band links to the Must-Eat detail on the map (?me=<id>),
-  // mirroring an in-app tap.
+  // Must-Eat-Verweis auf dem gemeinsamen Knitterpapier: Kartenrückseite,
+  // globales Etikett und Spot-Name. Der Lesetext und das Linkziel bleiben ruhig.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.mustEatId && !block.restaurantName) return null;
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
@@ -226,7 +222,7 @@ export default function NewsArticleShell({
           <img src="/pics/card-back.webp?v=8" alt="" />
         </div>
         <div className={styles.mustEatBody}>
-          <span className={styles.mustEatTag}>Must Eat</span>
+          <span className="et-label">Must Eat</span>
           <h3 className={styles.mustEatName}>{heading}</h3>
           <p className={styles.mustEatDesc}>{description}</p>
         </div>
@@ -242,7 +238,6 @@ export default function NewsArticleShell({
       <Link
         href={href}
         className={styles.mustEat}
-        data-motion="slide"
         aria-label={
           de
             ? `Must Eat${restName ? ` bei ${restName}` : ''} ansehen`

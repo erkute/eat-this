@@ -149,8 +149,19 @@
   cursor: pointer;
 }
 
-.navBtn {
-  font: 700 16px / 1 var(--et-font-body);
+.navBtn svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Mobile blättert mit der Wischgeste; nur der Kartenstand bleibt sichtbar. */
+@media (max-width: 1023.98px) {
+  .navBtn { display: none; }
 }
 
 .navBtn:disabled {

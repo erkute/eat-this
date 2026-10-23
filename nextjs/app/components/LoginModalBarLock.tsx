@@ -1,5 +1,5 @@
 'use client';
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 
 /** Dasselbe Rot wie das Papier (LoginModalOverlay.module.css). */
@@ -8,18 +8,15 @@ const LOGIN_CANVAS_COLOR = '#cf3f2f';
 /**
  * Scroll-Sperre und Leistenfarbe, solange das Login-Modal offen ist.
  *
- * Die Leisten faerbt auf iOS 26 der deckend rote Papier selbst — ein
- * fixiertes Vollbild-Element mit voller Deckkraft gibt Status- und URL-Leiste
- * seine Farbe. Hier kommt nur der Rueckfall dazu: html/body rot (die
- * Farbe, auf die Safari ohne fixiertes Randelement zurueckgreift) und
- * `theme-color` fuer aeltere Safaris. Der Weichzeichner auf der Seite und die
- * Schleier-Schuerze sind weg: hinter einem deckenden Vorhang sieht sie keiner.
+ * Dokumentfläche, Browser-Farbschema und theme-color folgen derselben roten
+ * Palette wie der Vollbildvorhang, auch bei dunkler App. Das Layout-Effect
+ * setzt sie vor dem Zeichnen und gibt beim Schließen die Seitenfarben zurück.
  *
  * Inline-Stile mit Absicht — eine `:has()`-Regel im Stylesheet rechnete
  * richtig, faerbte die Leiste am Geraet aber nicht um.
  */
 export default function LoginModalBarLock() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const de = document.documentElement;
     const b = document.body;
     const mobile = window.matchMedia('(max-width: 1023.98px)').matches;
@@ -29,6 +26,7 @@ export default function LoginModalBarLock() {
     const prevBodyWidth = b.style.width;
     const prevHtmlBackground = snapshotStyle(de.style, 'background');
     const prevHtmlBackgroundColor = snapshotStyle(de.style, 'background-color');
+    const prevColorScheme = snapshotStyle(de.style, 'color-scheme');
     const prevBodyBackground = snapshotStyle(b.style, 'background');
     const prevBodyBackgroundColor = snapshotStyle(b.style, 'background-color');
     const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
@@ -43,6 +41,9 @@ export default function LoginModalBarLock() {
     b.style.overflow = 'hidden';
     b.style.touchAction = 'none';
     if (mobile) {
+      // Das rote Blatt hat in beiden App-Themes dieselbe Palette. Auch die
+      // Browser-Chrome soll hier nicht das dunkle Seitenschema übernehmen.
+      de.style.setProperty('color-scheme', 'light', 'important');
       de.style.setProperty('background', LOGIN_CANVAS_COLOR, 'important');
       de.style.setProperty('background-color', LOGIN_CANVAS_COLOR, 'important');
       b.style.setProperty('background', LOGIN_CANVAS_COLOR, 'important');
@@ -65,6 +66,7 @@ export default function LoginModalBarLock() {
       b.style.top = prevBodyTop;
       b.style.width = prevBodyWidth;
       if (mobile) {
+        restoreStyle(de.style, 'color-scheme', prevColorScheme);
         restoreStyle(de.style, 'background', prevHtmlBackground);
         restoreStyle(de.style, 'background-color', prevHtmlBackgroundColor);
         restoreStyle(b.style, 'background', prevBodyBackground);

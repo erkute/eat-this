@@ -4,7 +4,7 @@
 .drawer[hidden] { display: none; pointer-events: none; }
 .drawer:global(.active) { pointer-events: auto; }
 .backdrop { position: absolute; inset: 0; border: 0; background: rgb(0 0 0 / .28); }
-.panel { position: relative; display: flex; flex-direction: column; width: min(100vw, 560px); height: 100dvh; --et-fg: #15120e; --et-muted: rgba(21, 18, 14, .64); --et-link: #15120e; --et-quiet: rgba(21, 18, 14, .08); --et-solid: #15120e; --et-on-solid: #fff; --et-wear: none; --et-btn-wear: none; --et-rough-edges-sm: none; color: var(--et-fg); background: url('/pics/paper/menu-foil.webp') center / 110% 110% no-repeat, #e5e5e5; transform: translateX(100%); transition: transform 220ms cubic-bezier(.2,.8,.2,1); }
+.panel { position: relative; display: flex; flex-direction: column; width: min(100vw, 560px); height: 100dvh; --et-fg: #15120e; --et-muted: rgba(21, 18, 14, .64); --et-link: #15120e; --et-quiet: rgba(21, 18, 14, .08); --et-solid: #15120e; --et-on-solid: #fff; --et-wear: none; --et-btn-wear: none; --et-rough-edges-sm: none; color: var(--et-fg); background: url('/pics/paper/menu-foil.webp') center / 110% 110% no-repeat, #e5e5e5; transform: translateX(24px); transition: transform 180ms cubic-bezier(.16,1,.3,1); }
 .drawer:global(.active) .panel { transform: none; }
 .topbar { display: flex; align-items: center; justify-content: space-between; flex: none; gap: 24px; padding: max(16px, env(safe-area-inset-top, 0px)) 40px 0; }
 .logo { display: flex; align-items: center; min-height: 44px; width: 120px; }
@@ -13,18 +13,11 @@
 .close svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
 .scroller { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: clamp(32px, 6dvh, 64px) 40px max(24px, env(safe-area-inset-bottom, 0px)); }
 .nav { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-left: -12px; }
-/* Jedes Wort gleich groß. Unter dem Zeiger, im Fokus und auf der Seite, auf
-   der man gerade steht, wird es zum Ink-Etikett mit gelber Schrift und der
-   Abnutzung der Knöpfe, leicht schief aufgeklebt — Fläche statt Linie. */
+/* Die Schrift steht fest auf dem Papier und bewegt sich nur mit dem Blatt. */
 .navItem { display: block; width: fit-content; max-width: 100%; padding: 4px 12px 6px; color: inherit; background: transparent; font-size: clamp(30px, calc((100dvh - 470px) / 8.2), 64px); font-weight: 700; line-height: 1.02; letter-spacing: -.035em; text-align: left; text-decoration: none; overflow-wrap: break-word; transition: background-color 120ms ease, color 120ms ease; }
 /* Die aktuelle Seite steht umgekehrt im knappen Ink-Kasten, gerade, kein
    Gelb (Ansage 23.10.2026). */
 .navItem[aria-current='page'] { color: #fff; background: #15120e; }
-/* Beim Öffnen gleiten die Wörter nacheinander ins Blatt. */
-.drawer:not(:global(.active)) .navItem { opacity: 0; translate: 40px 0; }
-.drawer:global(.active) .navItem { transition: background-color 120ms ease, color 120ms ease, opacity 260ms ease var(--d, 0ms), translate 360ms cubic-bezier(.2,.8,.2,1) var(--d, 0ms); }
-.navItem:nth-child(2) { --d: 30ms; } .navItem:nth-child(3) { --d: 60ms; } .navItem:nth-child(4) { --d: 90ms; } .navItem:nth-child(5) { --d: 120ms; }
-.navItem:nth-child(6) { --d: 150ms; } .navItem:nth-child(7) { --d: 180ms; } .navItem:nth-child(8) { --d: 210ms; } .navItem:nth-child(9) { --d: 240ms; }
 .cta {
   align-self: flex-start;
   margin-top: 32px;
@@ -54,5 +47,5 @@
   .foot { padding-top: 36px; }
   .legal { gap: 4px 16px; }
 }
-@media (prefers-reduced-motion:reduce) { .panel, .drawer:global(.active) .navItem { transition: none; } .drawer:not(:global(.active)) .navItem { opacity: 1; translate: none; } }
+@media (prefers-reduced-motion:reduce) { .panel { transition: none; } }
 

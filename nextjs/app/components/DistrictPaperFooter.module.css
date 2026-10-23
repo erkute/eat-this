@@ -1,0 +1,36 @@
+.surface {
+  position: relative;
+  isolation: isolate;
+  background: #fff;
+}
+.surface > main,
+.surface > nav,
+.surface > :global([data-site-footer]) {
+  position: relative;
+  background: transparent;
+}
+.surface > main::before,
+.surface > nav::before,
+.surface > :global([data-site-footer])::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--et-ground);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.surface > nav {
+  max-width: none;
+  margin: 0;
+  font-family: var(--et-font-display);
+}
+.surface :global([data-discovery='bezirk']) {
+  background: transparent;
+}
+.surface > :global([data-site-footer]) {
+  --et-sheet: none;
+}
+.surface > :global([data-site-footer])::before {
+  background: #fff;
+}

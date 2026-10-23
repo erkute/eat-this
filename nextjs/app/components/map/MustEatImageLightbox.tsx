@@ -503,7 +503,9 @@ const Inner = memo(function Inner({
               page(-1);
             }}
           >
-            <span aria-hidden="true">{Math.max(1, position.index - 1)}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M19 12H5m6-6-6 6 6 6" />
+            </svg>
           </button>
           <span className={styles.counter}>
             {position.index} / {position.count}
@@ -518,7 +520,9 @@ const Inner = memo(function Inner({
               page(1);
             }}
           >
-            <span aria-hidden="true">{Math.min(position.count, position.index + 1)}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M5 12h14m-6-6 6 6-6 6" />
+            </svg>
           </button>
         </div>
       )}

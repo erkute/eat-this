@@ -10,7 +10,8 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.88);
+  background: color-mix(in srgb, var(--et-ground) 85%, transparent);
+  backdrop-filter: blur(12px);
   overscroll-behavior: contain;
   /* Die Karten des Packs fliegen ueber das Fenster hinaus — abgeschnitten
      wird erst am Bildschirmrand, nie gescrollt. */
@@ -24,33 +25,23 @@
   overflow: hidden;
   padding: 18px 34px 24px;
   border-radius: 0;
-  /* Ein Blatt wie der Anmelde-Layer und die Hinweis-Karte: Korn und
-     Gebrauchsspuren, im Vintage-Look mit abgerissener Kante (unten). */
+  /* Gefaltetes Papier mit geraden Kanten in allen Einführungen. */
   background-color: var(--et-ground);
-  background-image: var(--et-sheet, none);
-  background-size: var(--et-sheet-size, auto);
+  background-image: linear-gradient(var(--et-ground), var(--et-ground)), url(/pics/paper/folded-white.webp);
+  background-blend-mode: multiply;
+  background-size: cover;
   background-repeat: var(--et-sheet-repeat, repeat);
   color: var(--et-fg);
-  font-family: var(--et-font-display);
-  box-shadow: 0 24px 80px #0008;
+  font-family: var(--et-font-body);
+  box-shadow: 0 24px 80px #0002;
+  border: 1px solid var(--et-line);
   animation: arrive 260ms ease-out;
-}
-/* Die Maske schnitte den Schatten ab und die fliegenden Karten des Packs —
-   beim Flug bleibt die Kante glatt. */
-:global(html[data-vintage]) .panel:not([data-flying]) {
-  mask: var(--et-rough-edges, none);
 }
 /* Die Tour nach der Anmeldung deckt ganz: hinter ihr wechselt die Seite ins
    Profil, und das soll man erst nach der Tour sehen (Betreiber, 14.10.2026).
    Die Must-Eats-Erklaerung laesst ihre Seite durchscheinen. */
 .layerSolid {
   background: var(--et-ground);
-}
-/* Die Bestaetigung des Mail-Links (EmailLinkSignIn) liegt ueber jeder
-   Einfuehrung — das Must-Eats-Onboarding geht auf derselben Seite von selbst
-   auf und schob sich sonst davor. */
-.layerTop {
-  z-index: var(--et-z-email-link);
 }
 /* Waehrend das Pack aufgeht, schneidet das Fenster nichts ab. */
 .panel[data-flying] {
@@ -65,13 +56,7 @@
   color: var(--et-copy);
 }
 .quiet {
-  min-height: 44px;
-  padding: 8px 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
+  flex-shrink: 0;
 }
 .quiet:disabled {
   visibility: hidden;
@@ -103,19 +88,14 @@
 }
 /* Der Kicker als gerades Etikett, wie in der Map (et-label, globals.css). */
 .kicker {
-  display: inline-block;
-  margin: 0 0 14px;
-  padding: 6px 9px 5px;
-  background: var(--et-label-bg, var(--et-ink)) var(--et-wear, none) 0 0 / 200px auto;
-  color: #ffc600;
-  font: 900 11px / 1 var(--et-font-body);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  margin: 0 0 18px;
 }
 .headline {
   margin: 0;
   font: inherit;
-  font-size: clamp(28px, 3.2vw, 40px);
+  font-size: clamp(32px, 3.8vw, 52px);
+  letter-spacing: -.045em;
+  text-wrap: balance;
   font-weight: 700;
   line-height: 1.08;
   text-transform: none;
@@ -627,7 +607,7 @@ a.quiet {
   background: var(--et-quiet);
   color: var(--et-fg);
   /* The input uses the same typeface as the login form. */
-  font-family: var(--et-font-display);
+  font-family: var(--et-font-body);
   font-size: 17px;
   outline: none;
 }
@@ -784,12 +764,12 @@ a.quiet {
       'header header'
       'art copy'
       'art footer';
-    column-gap: 40px;
+    column-gap: 56px;
     /* Kompakt: groesser liess rechts und unten viel Leerraum (Nutzer,
        21.09.2026). */
-    width: min(800px, 100%);
-    height: min(500px, calc(100dvh - 48px));
-    padding-bottom: 28px;
+    width: min(1040px, 100%);
+    height: min(660px, calc(100dvh - 48px));
+    padding: 20px 40px 32px;
   }
   .header {
     grid-area: header;
@@ -999,7 +979,6 @@ a.quiet {
   background-size: 100% 100%;
   background-blend-mode: multiply;
 }
-:global(html[data-active-page='map']) .panel:not([data-flying]) { mask: none; }
 :global(html[data-active-page='map']) .kicker {
   padding: 0;
   background: none;
@@ -1010,3 +989,26 @@ a.quiet {
   letter-spacing: -0.03em;
 }
 :global(html[data-active-page='map']) .segments .active { background: var(--et-fg); }
+
+/* Der Mail-Link nutzt denselben roten Vollbildgrund wie die Anmeldung. */
+.panel[data-email-login][data-red-sheet] {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  mask: none;
+}
+.panel[data-email-login] .nameInput {
+  color: var(--et-field-fg);
+  background: var(--et-field);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  mask: none;
+}
+.panel[data-email-login] .nameInput::placeholder { color: var(--et-field-muted); }
+.panel[data-email-login] .nameInput:focus-visible {
+  background: color-mix(in srgb, var(--et-field-fg) 7%, var(--et-field));
+  box-shadow: none;
+  outline: 0;
+}

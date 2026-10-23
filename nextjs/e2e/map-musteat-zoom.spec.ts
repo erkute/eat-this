@@ -38,11 +38,24 @@ for (const english of [false, true]) {
     const a11y = await new AxeBuilder({ page }).include('[role="dialog"][aria-modal="true"]').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     expect(a11y.violations.map(({ id, nodes }) => ({ id, targets: nodes.map(node => node.target) }))).toEqual([]);
     const next = zoom.getByRole('button', { name: english ? 'Next card' : 'Nächste Karte', exact: true });
-    await next.click();
+    if (isMobile) {
+      await expect(next).toBeHidden();
+      const session = await page.context().newCDPSession(page);
+      const { width, height } = page.viewportSize()!;
+      const point = { x: width * .75, y: height * .5 };
+      await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] });
+      await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ ...point, x: width * .25 }] });
+      await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await session.detach();
+    } else {
+      await expect(next.locator('svg')).toBeVisible();
+      await expect(next).toHaveText('');
+      await next.click();
+    }
     await expect(zoom).toHaveAttribute('aria-label', english ? 'Covered' : 'Verdeckt');
     await expect(zoom.getByRole('img')).toHaveAttribute('alt', english ? 'Covered' : 'Verdeckt');
     await expect(page.getByRole('button', { name: english ? 'Skip' : 'Überspringen', exact: true })).toHaveCount(0);
-    await expect(next).toBeFocused();
+    if (!isMobile) await expect(next).toBeFocused();
     await page.screenshot({ path: `/tmp/eat-this-must-eat-arrows/zoom-${info.project.name}-${english ? 'en' : 'de'}.png` });
     await close.click();
     await expect(close).toHaveCount(0);

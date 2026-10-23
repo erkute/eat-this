@@ -236,7 +236,7 @@ export default function MustEatsOnboarding({
 
   const copy = (kicker: string, title: string, body: string) => (
     <>
-      <p className={tour.kicker}>{t(kicker)}</p>
+      <p className={`et-label ${tour.kicker}`}>{t(kicker)}</p>
       <h2 tabIndex={-1} className={tour.headline}>
         {t(title)}
       </h2>
@@ -253,18 +253,15 @@ export default function MustEatsOnboarding({
         aria-expanded={open}
         className={
           tone === 'ink'
-            ? `${styles.how} ${styles.howInk}`
+            ? `et-btn et-btn-text ${styles.how} ${styles.howInk}`
             : tone === 'sheet'
               ? `et-btn et-btn-text et-btn-sm ${styles.howSheet}`
               : tone === 'plain'
-                ? `${styles.how} ${styles.howPlain}`
-                : styles.how
+                ? `et-btn et-btn-text ${styles.how} ${styles.howPlain}`
+                : `et-btn et-btn-text ${styles.how}`
         }
         onClick={reopen}
       >
-        <span className={styles.howBadge} aria-hidden="true">
-          ?
-        </span>
         {t('mustEats.howItWorks')}
       </button>
 
@@ -283,7 +280,7 @@ export default function MustEatsOnboarding({
             >
               <header className={tour.header}>
                 <span>{t('mustEats.howItWorks')}</span>
-                <button type="button" className={tour.quiet} onClick={close}>
+                <button type="button" className={`et-btn et-btn-text et-btn-sm ${tour.quiet}`} onClick={close}>
                   {last ? t('mustEats.onbClose') : de ? 'Überspringen' : 'Skip'}
                 </button>
               </header>
@@ -375,7 +372,7 @@ export default function MustEatsOnboarding({
                   <div className={tour.actions}>
                     <button
                       type="button"
-                      className={tour.quiet}
+                      className={`et-btn et-btn-text et-btn-sm ${tour.quiet}`}
                       disabled={step === 0}
                       onClick={() => setStep((s) => Math.max(s - 1, 0))}
                     >
@@ -392,7 +389,7 @@ export default function MustEatsOnboarding({
                 ) : (
                   <>
                     <div className={tour.actions} data-testid="onb-actions-auth" data-auth-only="">
-                      <a className={tour.quiet} href={packsHref} onClick={close}>
+                      <a className={`et-btn et-btn-text et-btn-sm ${tour.quiet}`} href={packsHref} onClick={close}>
                         {t('mustEats.onbPacksCta')}
                       </a>
                       <button type="button" className={`et-btn ${tour.action}`} onClick={close}>
@@ -406,7 +403,7 @@ export default function MustEatsOnboarding({
                       data-testid="onb-actions-guest"
                       data-guest-only=""
                     >
-                      <button type="button" className={tour.quiet} onClick={close}>
+                      <button type="button" className={`et-btn et-btn-text et-btn-sm ${tour.quiet}`} onClick={close}>
                         {t('mustEats.onbStart')}
                       </button>
                       {/* Öffnet das Anmelde-Fenster direkt (Starter-Modus), statt

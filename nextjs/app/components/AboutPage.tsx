@@ -5,6 +5,7 @@ import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
 import HubFragRemy from './HubFragRemy';
 import SiteFooter from './SiteFooter';
 import AboutStoryMotion from './AboutStoryMotion';
+import FoldedPaperBackdrop from './FoldedPaperBackdrop';
 import styles from './AboutPage.module.css';
 
 type Locale = 'de' | 'en';
@@ -234,6 +235,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
   return (
     <main className={styles.page} data-page="about" id="staticPageAbout">
+      <FoldedPaperBackdrop id={`about-paper-${locale}`} />
       <AboutStoryMotion className={styles.inner}>
         <header className={styles.hero}>
           <div className={styles.heroCopy}>

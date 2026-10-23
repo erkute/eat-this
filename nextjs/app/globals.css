@@ -722,19 +722,18 @@ html[data-auth='1'] [data-guest-only] {
     z-index: var(--et-z-map-phone-active);
   }
 
-  /* Ink seit 04.09.2026. Diese beiden Blocks faerben auf dem Telefon die
-     Safari-Leisten (iOS 26 liest die background-color der Kante, nicht
-     theme-color) — sie waren Papier, solange die Map hell war. */
+  /* Der Dokumentabschluss färbt auch Safaris Browserleisten. Er folgt der
+     Map-Palette: Papier im hellen Modus, Ink im dunklen. */
   html:has(.app-page[data-page='map'].active),
   body:has(.app-page[data-page='map'].active) {
-    background: var(--et-ink);
+    background: var(--et-ground);
   }
 
   html:has(.app-page[data-page='map'][data-map-view='detail']),
   body:has(.app-page[data-page='map'][data-map-view='detail']),
   html:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'],
   body:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'] {
-    background: var(--et-ink);
+    background: var(--et-ground);
   }
 }
 
@@ -1093,10 +1092,8 @@ html[data-active-page='map'] .notification-layer[data-open] {
    Motion is translate/scale only (brand rule: no opacity fades on brand
    surfaces). The scrim transitions its background-COLOR rather than opacity —
    it is a veil over the page, not a surface of its own. */
-/* Seit 22.10.2026 wie das Anmelde-Fenster: ein rotes Blatt (Farben aus
-   `[data-red-sheet]`), Papierkorn und Gebrauchsspuren, abgestossene Ränder;
-   Knöpfe als zerkratzte Pillen — „Akzeptieren" Ink, „Ablehnen" weiss mit
-   Ink-Schrift (Ansage: „mach den Cookie-Layer in meinem neuen Stil"). */
+/* Knitterpapier in der Theme-Farbe der Map-Filter, mit geraden Blattkanten.
+   Beide Antworten bleiben gleich gross und gleich gut lesbar. */
 .cookie-gate {
   --cookie-panel-w: 520px;
   --cookie-panel-w-wide: 900px;
@@ -1126,10 +1123,7 @@ html[data-active-page='map'] .notification-layer[data-open] {
   background-color: var(--et-scrim);
 }
 .cookie-consent {
-  /* Hier, nicht an .cookie-gate: Variablen werden dort ausgerechnet, wo sie
-     stehen — an der Hülle griffen noch die Farben der Seite statt die des
-     roten Blatts (dunkelgrauer Text auf Rot). Volles Weiss auch für die
-     Rechtslinks: 82 % Weiss kam bei 14 px nur auf ~3,7:1. */
+  /* Text und Details folgen derselben Palette wie die Papierfläche. */
   --cookie-soft: var(--et-copy);
   --cookie-dim: var(--et-fg);
   position: relative;
@@ -1142,13 +1136,14 @@ html[data-active-page='map'] .notification-layer[data-open] {
   padding: clamp(28px, 3.4vw, 40px);
   color: var(--et-fg);
   background-color: var(--et-ground);
-  background-image: var(--et-sheet, none);
-  background-size: var(--et-sheet-size, auto);
-  background-repeat: var(--et-sheet-repeat, repeat);
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  background-repeat: no-repeat;
   border: 0;
   border-radius: 0;
-  /* Die Maske schnitte einen Schatten ab — die Kanten tragen das Blatt. */
-  mask: var(--et-rough-edges, none);
+  mask: none;
   font-family: var(--cookie-font);
   transform: translateY(22px) scale(0.97);
   transition:
@@ -1309,7 +1304,7 @@ html[data-active-page='map'] .notification-layer[data-open] {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: rgba(255, 255, 255, 0.45) transparent;
+  scrollbar-color: var(--et-muted) transparent;
   scrollbar-width: thin;
   /* Self-hiding scroll shadows. The panel is height-capped, so the card grid
      gets cut mid-row — without an edge cue that reads as a rendering bug
@@ -1325,9 +1320,7 @@ html[data-active-page='map'] .notification-layer[data-open] {
       bottom / 100% 13px no-repeat scroll;
   background-color: var(--et-ground);
 }
-/* Die Abschnitte als leise Felder auf dem roten Blatt — dunkel getönt, nicht
-   hell: eine Weiss-Stufe hob das Rot so an, dass weisser 14-px-Text nur
-   noch ~3,9:1 hatte; mit Ink-Tönung sind es ~5,7:1. */
+/* Dezente Detailflächen folgen ebenfalls der gewählten Theme-Palette. */
 .cookie-expand .cookie-info-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -1338,7 +1331,7 @@ html[data-active-page='map'] .notification-layer[data-open] {
   min-width: 0;
   margin: 0;
   padding: 14px 15px 15px;
-  background: rgba(21, 18, 14, 0.12);
+  background: var(--et-subtle);
   border: 0;
   border-radius: 0;
 }
@@ -1964,4 +1957,4 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
 }
 
 
-.cookie-consent :is(button,a):not(.et-btn):focus-visible { outline: 2px solid var(--et-ink); outline-offset: 3px; }
+.cookie-consent :is(button,a):not(.et-btn):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 3px; }

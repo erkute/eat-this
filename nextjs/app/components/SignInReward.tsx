@@ -466,7 +466,7 @@ export default function SignInReward() {
           </div>
         </div>
         <div className={styles.copy}>
-          <p className={styles.kicker}>{t.identity.tag}</p>
+          <p className={`et-label ${styles.kicker}`}>{t.identity.tag}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {t.identity.title}
           </h2>
@@ -572,7 +572,7 @@ export default function SignInReward() {
           </div>
         </div>
         <div className={styles.copy}>
-          <p className={styles.kicker}>{t.pack.tag}</p>
+          <p className={`et-label ${styles.kicker}`}>{t.pack.tag}</p>
           {/* Beide Texte liegen uebereinander in derselben Zelle — die Spalte
               ist auf beiden Schritten gleich hoch, und die Buehne darueber
               wird beim Weiterklicken nicht kleiner (Nutzer, 22.09.2026). */}
@@ -611,7 +611,7 @@ export default function SignInReward() {
     content = (
       <div className={styles.goContent}>
         <div className={styles.goHead}>
-          <p className={styles.kicker}>{t.go.tag}</p>
+          <p className={`et-label ${styles.kicker}`}>{t.go.tag}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {t.go.title}
           </h2>
@@ -692,7 +692,7 @@ export default function SignInReward() {
           </div>
         </div>
         <div className={styles.copy}>
-          <p className={styles.kicker}>{t.reveal.tag}</p>
+          <p className={`et-label ${styles.kicker}`}>{t.reveal.tag}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {t.reveal.title}
           </h2>
@@ -715,7 +715,7 @@ export default function SignInReward() {
           />
         </div>
         <div className={styles.copy}>
-          <p className={styles.kicker}>{slide.tag}</p>
+          <p className={`et-label ${styles.kicker}`}>{slide.tag}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {slide.title}
           </h2>
@@ -738,7 +738,7 @@ export default function SignInReward() {
       >
         <header className={styles.header}>
           <span>{t.welcome}</span>
-          <button type="button" className={styles.quiet} onClick={close}>
+          <button type="button" className={`et-btn et-btn-text et-btn-sm ${styles.quiet}`} onClick={close}>
             {last ? t.close : t.skip}
           </button>
         </header>
@@ -747,7 +747,7 @@ export default function SignInReward() {
           /* Am Ende keine Leiste mehr — die zwei Felder sind der Abschluss.
              Nur der Weg zurück bleibt, mittig und leise. */
           <footer className={`${styles.footer} ${styles.footerGo}`}>
-            <button type="button" className={styles.quiet} onClick={() => setStep(step - 1)}>
+            <button type="button" className={`et-btn et-btn-text et-btn-sm ${styles.quiet}`} onClick={() => setStep(step - 1)}>
               {t.back}
             </button>
           </footer>
@@ -769,7 +769,7 @@ export default function SignInReward() {
             <div className={styles.actions}>
               <button
                 type="button"
-                className={styles.quiet}
+                className={`et-btn et-btn-text et-btn-sm ${styles.quiet}`}
                 disabled={step === 0}
                 onClick={() => setStep(step - 1)}
               >

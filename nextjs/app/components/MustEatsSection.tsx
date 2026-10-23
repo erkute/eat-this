@@ -3,6 +3,7 @@ import { sortByCardNumber } from '@/lib/map/cardOrder';
 import MustEatsGallery from './MustEatsGallery';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import SiteFooter from './SiteFooter';
+import FoldedPaperBackdrop from './FoldedPaperBackdrop';
 import styles from './MustEatsSection.module.css';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
@@ -98,8 +99,9 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
   return (
     <main className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
+      <FoldedPaperBackdrop id="must-eats-paper" />
       <header className={`${styles.wrap} ${styles.head}`} data-cover={cover ? '' : undefined}>
-        <p className={styles.kicker}>{c.kicker}</p>
+        <p className={`et-label ${styles.kicker}`}>{c.kicker}</p>
         <h1 className={styles.title}>
           {c.title[0]}
           <br />
@@ -163,7 +165,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
       <section className={`${styles.wrap} ${styles.close}`}>
         <div className={styles.closeCopy}>
-          <p className={styles.kicker}>{c.closeKicker}</p>
+          <p className={`et-label ${styles.kicker}`}>{c.closeKicker}</p>
           <h2 className={styles.closeTitle}>{c.closeTitle}</h2>
           <p className={styles.closeBody}>{c.closeBody}</p>
           <div className={styles.actions}>

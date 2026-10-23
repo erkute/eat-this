@@ -348,7 +348,6 @@ export default function CookieConsent() {
       <div
         ref={cardRef}
         className={`cookie-consent${expanded ? ' expanded' : ''}`}
-        data-red-sheet=""
         id="cookieConsent"
         role="dialog"
         aria-modal="true"

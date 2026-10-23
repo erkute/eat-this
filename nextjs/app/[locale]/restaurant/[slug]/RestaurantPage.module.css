@@ -398,7 +398,7 @@
 
 .imageGroup figure { min-width: 0; margin: 0; }
 
-.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; color: var(--et-fg); font-family: var(--et-font-text); font-size: 13px; line-height: 1.5; }
+.caption { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; color: var(--et-fg); font-family: var(--et-font-text); font-size: var(--et-type-caption); line-height: 1.5; }
 .caption .credit { display: block; margin: 0; text-align: left; }
 .sheet figure { margin: 0; }
 .imageGroup:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 6px; }

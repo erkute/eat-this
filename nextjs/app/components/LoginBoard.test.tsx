@@ -53,7 +53,7 @@ function board(props: Props = {}, locale: 'de' | 'en' = 'de') {
       timeZone="Europe/Berlin"
     >
       <LoginBoard
-        art={<LoginSceneArt reason={null} />}
+        art={<LoginSceneArt />}
         title="Starter Pack"
         lead="20 Must Eats"
         googleWarmup="intent"
@@ -166,7 +166,7 @@ describe('LoginBoard — nach dem Absenden', () => {
     view.rerender(
       <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
         <LoginBoard
-          art={<LoginSceneArt reason={null} />}
+          art={<LoginSceneArt />}
           title="Starter Pack"
           googleWarmup="intent"
         />
@@ -278,28 +278,7 @@ describe('LoginBoard — nach der Google-Anmeldung', () => {
 
 describe('LoginSceneArt', () => {
   it('zeigt ohne Anlass das Pack', () => {
-    const { container } = render(<LoginSceneArt reason={null} />);
+    const { container } = render(<LoginSceneArt />);
     expect(container.innerHTML).toContain('starter-pack-front.webp');
-  });
-
-  it('legt die angetippte Karte vor das Pack', () => {
-    const { container } = render(<LoginSceneArt reason={{ kind: 'card', mustEatId: 'me-9' }} />);
-    expect(container.innerHTML).toContain('starter-pack-front.webp');
-    expect(container.innerHTML).toContain('card-back.webp');
-  });
-
-  it('legt beim Herz das Foto des Spots vor das Pack', () => {
-    const { container } = render(
-      <LoginSceneArt
-        reason={{
-          kind: 'heart',
-          restaurantId: 'sofi',
-          name: 'Sofi',
-          photo: 'https://cdn.sanity.io/images/p/d/a.jpg',
-        }}
-      />
-    );
-    expect(container.innerHTML).toContain('starter-pack-front.webp');
-    expect(container.innerHTML).toContain('cdn.sanity.io/images/p/d/a.jpg');
   });
 });

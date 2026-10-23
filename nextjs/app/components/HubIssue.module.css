@@ -196,6 +196,13 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 56px);
 }
 
+@media (max-width: 767px) {
+  /* 74px Filterleiste plus 30px Luft nach dem automatischen Listensprung. */
+  .spotList {
+    scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 104px);
+  }
+}
+
 /* ------------------------------------------------------------ kapitel --- */
 
 /* Smaller, left-aligned chapter titles keep the cards in view. */
@@ -871,5 +878,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   .districtPage .moreSpots { margin-top: 64px; }
 }
 
-/* The Berlin sheet reaches both viewport edges without a white mat. */
-.page.discoveryPage { padding-inline: 0; padding-bottom: 0; }
+/* Keep the sheet stable while mobile browser toolbars expand or collapse;
+   the shared page's 100dvh would move the entire footer on every change. */
+.page.discoveryPage { min-height: 100svh; padding-inline: 0; padding-bottom: 0; }

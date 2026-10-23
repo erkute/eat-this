@@ -240,7 +240,7 @@
      plus its hairline. */
   .list[data-view='detail'][data-detail-kind='restaurant'] {
     margin-top: -12px;
-    background: linear-gradient(transparent 0 27px, var(--et-ink) 27px);
+    background: linear-gradient(transparent 0 27px, var(--map-collage-paper, #fff) 27px);
     border-top: 0;
   }
 

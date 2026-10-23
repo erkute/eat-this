@@ -7,6 +7,7 @@ import { buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import styles from '@/app/components/HubIssue.module.css';
 import DiscoveryExplorer from '@/app/components/DiscoveryExplorer';
+import DistrictPaperFooter from '@/app/components/DistrictPaperFooter';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -97,19 +98,18 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className={`${styles.page} ${styles.discoveryPage}`}>
-        <DiscoveryExplorer
-          locale={loc}
-          entries={bezirke.map((b) => ({
-            slug: b.slug,
-            href: `/bezirk/${b.slug}`,
-            name: b.name,
-
-          }))}
-        />
-
-
-      </main>
+      <DistrictPaperFooter paperId={`district-index-paper-${loc}`}>
+        <main className={`${styles.page} ${styles.discoveryPage}`}>
+          <DiscoveryExplorer
+            locale={loc}
+            entries={bezirke.map((b) => ({
+              slug: b.slug,
+              href: `/bezirk/${b.slug}`,
+              name: b.name,
+            }))}
+          />
+        </main>
+      </DistrictPaperFooter>
     </>
   );
 }

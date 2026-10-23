@@ -13,6 +13,8 @@ import { arrivalDecided } from '@/lib/auth/signInArrival';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { trackEvent } from '@/lib/analytics';
 import styles from './Tour.module.css';
+import modalStyles from './LoginModalOverlay.module.css';
+import LoginModalBarLock from './LoginModalBarLock';
 
 const copy = {
   de: {
@@ -188,11 +190,6 @@ export default function EmailLinkSignIn() {
   useEffect(() => {
     if (!open) return;
     titleRef.current?.focus({ preventScroll: true });
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = overflow;
-    };
   }, [open, state?.kind]);
 
   if (!state) return null;
@@ -269,7 +266,7 @@ export default function EmailLinkSignIn() {
           <img className={styles.artImg} src="/pics/home/starter-pack-front.webp" alt={t.packAlt} />
         </div>
         <div className={styles.copy}>
-          <p className={styles.kicker}>{t.kicker}</p>
+          <p className={`et-label ${styles.kicker}`}>{t.kicker}</p>
           {/* Zwei Sätze, zwei Zeilen — nie umgebrochen (Betreiber, 22.09.2026). */}
           <h2 ref={titleRef} tabIndex={-1} className={`${styles.headline} ${styles.headlineLines}`}>
             <span>{t.title[0]}</span>
@@ -316,7 +313,7 @@ export default function EmailLinkSignIn() {
           <img className={styles.artImg} src="/pics/home/starter-pack-front.webp" alt={t.packAlt} />
         </div>
         <div className={styles.copy}>
-          <p className={styles.kicker}>{t.kicker}</p>
+          <p className={`et-label ${styles.kicker}`}>{t.kicker}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {t.emailTitle}
           </h2>
@@ -358,10 +355,10 @@ export default function EmailLinkSignIn() {
       <div className={styles.content}>
         <div className={styles.art}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.artImg} src="/pics/card-back.webp?v=8" alt="" />
+          <img className={styles.artImg} src="/pics/home/starter-pack-front.webp" alt={t.packAlt} />
         </div>
         <div className={styles.copy}>
-          <p className={styles.kicker}>{t.expiredKicker}</p>
+          <p className={`et-label ${styles.kicker}`}>{t.expiredKicker}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {t.expiredTitle}
           </h2>
@@ -377,10 +374,13 @@ export default function EmailLinkSignIn() {
   }
 
   return createPortal(
-    <div className={`${styles.layer} ${styles.layerTop}`}>
+    <div className={modalStyles.overlay} style={{ zIndex: 'var(--et-z-email-link)' }}>
+      <LoginModalBarLock />
       <div
         ref={panelRef}
         className={styles.panel}
+        data-email-login=""
+        data-red-sheet=""
         role="dialog"
         aria-modal="true"
         aria-label={t.label}
@@ -391,7 +391,7 @@ export default function EmailLinkSignIn() {
       >
         <header className={styles.header}>
           <span>{t.welcome}</span>
-          <button type="button" className={styles.quiet} onClick={close}>
+          <button type="button" className={`et-btn et-btn-text et-btn-sm ${styles.quiet}`} onClick={close}>
             {t.close}
           </button>
         </header>

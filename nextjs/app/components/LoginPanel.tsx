@@ -16,9 +16,8 @@ interface LoginPanelProps {
  * Das Anmelde-Modal: LoginBoard in einem Rahmen mit Kreuz, ueber der Seite,
  * auf der die Anmeldung angefangen hat.
  *
- * Die Szene folgt dem Grund, mit dem das Modal geoeffnet wurde (siehe
- * LoginReason): die angetippte Karte vor dem Pack, der Spot mit dem Herz vor
- * dem Pack — ohne Anlass das Starter Pack allein.
+ * Das Bild zeigt immer das Starter Pack. Anlass und Login-Intent bleiben
+ * für Texte und die Aktion nach der Anmeldung erhalten.
  */
 export default function LoginPanel({ onBack }: LoginPanelProps) {
   const t = useTranslations('modals.login');
@@ -77,7 +76,7 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
       <div className={styles.content}>
         <span className={styles.srOnly}>{t('heroHeadline')}</span>
         <LoginBoard
-          art={<LoginSceneArt reason={reason} />}
+          art={<LoginSceneArt />}
           kicker={kicker}
           title={title}
           lead={lead}

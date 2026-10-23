@@ -48,7 +48,7 @@ beforeEach(() => {
   modal.user = null;
 });
 
-describe('LoginPanel — die Szene zeigt, wonach der Gast gegriffen hat', () => {
+describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
   it('zeigt ohne Anlass das Starter Pack', () => {
     const { container } = panel();
     expect(title(container)).toBe('Starter Pack');
@@ -71,12 +71,14 @@ describe('LoginPanel — die Szene zeigt, wonach der Gast gegriffen hat', () => 
     expect(container.textContent).toContain(
       'Hinter jeder Karte steckt eine Empfehlung. Dein Starter Pack bringt dir 20 Must Eats aus ganz Berlin.'
     );
-    expect(container.innerHTML).toContain('card-back.webp');
+    expect(container.innerHTML).not.toContain('card-back.webp');
+    expect(container.querySelectorAll('img')).toHaveLength(1);
+    expect(container.innerHTML).toContain('starter-pack-front.webp');
   });
 
   /* Vorher bekam ein Gast mit Herz „Einloggen" und „Dein Deck wartet" — ohne
      je ein Deck gehabt zu haben. */
-  it('zeigt beim Herz den Spot vor dem Pack statt eines Decks', () => {
+  it('zeigt beim Herz nur das Starter Pack', () => {
     modal.reason = {
       kind: 'heart',
       restaurantId: 'sofi',
@@ -94,6 +96,9 @@ describe('LoginPanel — die Szene zeigt, wonach der Gast gegriffen hat', () => 
     );
     expect(container.textContent).not.toMatch(/Deck|Profil/);
     expect(container.innerHTML).toContain('starter-pack-front.webp');
+    expect(container.querySelectorAll('img')).toHaveLength(1);
+    expect(container.innerHTML).not.toContain('cdn.sanity.io/images/p/d/a.jpg');
+    expect(container.querySelector('img')?.parentElement?.querySelector('svg')).toBeNull();
   });
 });
 

@@ -9,6 +9,7 @@ for (const english of [false, true]) {
     await page.addInitScript(dark => localStorage.setItem('et-theme', dark ? 'dark' : 'light'), english);
     await page.emulateMedia({ reducedMotion: english ? 'reduce' : 'no-preference' });
     await page.goto(`${english ? '/en' : ''}/map?r=gazzo`, { waitUntil: 'domcontentloaded' });
+    await page.locator('.maplibregl-marker').first().waitFor({ state: 'visible' });
     const opener = page.locator('[data-detail-root="restaurant"]').getByRole('button', { name: english ? 'Heart this spot' : 'Spot herzen', exact: true });
     await opener.click();
     const dialog = page.getByRole('dialog').filter({ has: page.getByRole('textbox') });
@@ -16,10 +17,14 @@ for (const english of [false, true]) {
     const close = dialog.getByRole('button', { name: english ? 'Back' : 'Zurück', exact: true });
     await expect(dialog).toHaveAttribute('aria-modal', 'true');
     await expect(close).toBeFocused();
-    if (!isMobile) {
-      await expect(dialog).toHaveCSS('background-image', /folded-white\.webp/);
-      await expect(dialog.locator('..')).toHaveCSS('background-color', 'rgb(141, 41, 31)');
-    }
+    await expect(dialog).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(dialog).toHaveCSS('background-image', 'none');
+    await expect(dialog).toHaveCSS('border-width', '0px');
+    await expect(dialog).toHaveCSS('box-shadow', 'none');
+    await expect(dialog.locator('..')).toHaveCSS('background-image', /folded-white\.webp/);
+    await expect(dialog.locator('..')).toHaveCSS('background-color', 'rgb(207, 63, 47)');
+    await expect(dialog.locator('img')).toHaveCount(1);
+    await expect(dialog.locator('img')).toHaveAttribute('src', /starter-pack-front\.webp/);
     const sizes = isMobile ? [{ width: 390, height: 844 }] : [{ width: 1440, height: 1000 }, { width: 1024, height: 600 }];
     for (const viewport of sizes) {
       await page.setViewportSize(viewport);
@@ -33,6 +38,17 @@ for (const english of [false, true]) {
       if (!isMobile) await expect(close).toBeInViewport({ ratio: 1 });
     }
     await page.setViewportSize(sizes[0]);
+    const email = dialog.getByRole('textbox');
+    await expect(email).toHaveCSS('mask-image', 'none');
+    await expect(email).toHaveCSS('box-shadow', 'none');
+    const idleBackground = await email.evaluate(element => getComputedStyle(element).backgroundColor);
+    await email.click();
+    await expect(email).toBeFocused();
+    await expect(email).toHaveCSS('mask-image', 'none');
+    await expect(email).toHaveCSS('box-shadow', 'none');
+    await expect(email).toHaveCSS('outline-style', 'none');
+    await expect(email).not.toHaveCSS('background-color', idleBackground);
+    await page.screenshot({ path: `/tmp/eat-this-login-field/focus-${info.project.name}-${english ? 'en' : 'de'}.png` });
     await close.focus();
     await page.keyboard.press('Shift+Tab');
     await expect(dialog.getByRole('link').last()).toBeFocused();

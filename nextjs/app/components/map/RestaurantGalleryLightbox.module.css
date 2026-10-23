@@ -135,15 +135,19 @@
   left: calc(100% + 24px);
 }
 
-.galleryLbArrow img {
+.galleryLbArrow svg {
   display: block;
-  width: 36px;
-  height: 36px;
-  object-fit: cover;
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .galleryLbArrow:disabled {
-  color: var(--et-ink-ring);
+  opacity: 0.25;
   cursor: default;
 }
 

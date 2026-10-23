@@ -293,7 +293,7 @@ function Viewer({
                       disabled={index === 0}
                       onClick={() => go(-1)}
                     >
-                      <img src={images[Math.max(0, index - 1)].thumb} alt="" aria-hidden="true" />
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4m7-7-7 7 7 7" /></svg>
                     </button>
                     <button
                       type="button"
@@ -303,7 +303,7 @@ function Viewer({
                       disabled={index === count - 1}
                       onClick={() => go(1)}
                     >
-                      <img src={images[Math.min(count - 1, index + 1)].thumb} alt="" aria-hidden="true" />
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7" /></svg>
                     </button>
                   </>
                 )}

@@ -32,6 +32,8 @@ for (const locale of ['de', 'en'] as const) {
         await expect(next).toBeHidden();
       } else {
         await expect(previous).toBeDisabled();
+        await expect(next.locator('svg')).toBeVisible();
+        await expect(next.locator('img')).toHaveCount(0);
       }
       const photo = gallery.getByRole('img', { name: 'Gazzo', exact: true });
       await expect(photo).toBeVisible();
@@ -42,12 +44,27 @@ for (const locale of ['de', 'en'] as const) {
       await expect(gallery.locator('span').filter({ hasText: /^Gazzo$/ })).toHaveCount(0);
       const creditBox = (await gallery.getByRole('link').boundingBox())!;
       expect(creditBox.x).toBeGreaterThan(page.viewportSize()!.width / 2);
+      // Arrow navigation scrolls the strip smoothly; wait for it to settle.
+      await expect.poll(async () => {
+        const bounds = (await photo.boundingBox())!;
+        return Math.abs(bounds.x + bounds.width / 2 - page.viewportSize()!.width / 2);
+      }).toBeLessThan(2);
       const photoBox = (await photo.boundingBox())!;
-      expect(Math.abs(photoBox.x + photoBox.width / 2 - page.viewportSize()!.width / 2)).toBeLessThan(2);
       expect(Math.abs(photoBox.y + photoBox.height / 2 - page.viewportSize()!.height / 2)).toBeLessThan(2);
       expect(creditBox.y).toBeGreaterThan(photoBox.y + photoBox.height);
       expect(creditBox.y + creditBox.height).toBeLessThan((await first.boundingBox())!.y);
       await page.screenshot({ path: `/tmp/eat-this-gallery/refinement/${info.project.name}-${locale}-${reduced}.png` });
+
+      if (!isMobile) {
+        await next.click();
+        await expect(second).toHaveAttribute('aria-pressed', 'true');
+        await previous.click();
+        await expect(first).toHaveAttribute('aria-pressed', 'true');
+        await expect.poll(async () => {
+          const bounds = (await photo.boundingBox())!;
+          return Math.abs(bounds.x + bounds.width / 2 - page.viewportSize()!.width / 2);
+        }).toBeLessThan(2);
+      }
 
       if (isMobile) {
         const bounds = (await photo.boundingBox())!;

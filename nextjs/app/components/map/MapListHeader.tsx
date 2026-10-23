@@ -157,7 +157,6 @@ export default function MapListHeader({
         {priceBucketIds.length > 0 && (
           <FilterChip
             ref={priceBtnRef}
-            fixed
             label={price ? priceBucketChipLabel(price) : t('map.filterChipPrice')}
             ariaLabel={price ? t(priceBucketLabelKey(price)) : undefined}
             active={!!price}
@@ -224,9 +223,6 @@ export default function MapListHeader({
 }
 
 interface FilterChipProps {
-  /** Kurze Werte (Preis): die Pille behält ihre Breite, gekürzt werden die
-   *  langen daneben (Kategorie, Bezirk). */
-  fixed?: boolean;
   label: string;
   ariaLabel?: string;
   active: boolean;
@@ -239,17 +235,18 @@ interface FilterChipProps {
 }
 
 const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(function FilterChip(
-  { fixed, label, ariaLabel, active, expanded, onClick, clearLabel, onClear },
+  { label, ariaLabel, active, expanded, onClick, clearLabel, onClear },
   ref
 ) {
   return (
-    <span className={`${styles.filterChipWrap} ${fixed ? styles.filterChipWrapFixed : ''}`}>
+    <span className={styles.filterChipWrap}>
       <button
         ref={ref}
         type="button"
         className={`${styles.filterChip} ${active ? styles.filterChipActive : ''}`}
         onClick={onClick}
         aria-label={ariaLabel}
+        title={ariaLabel ?? label}
         aria-expanded={expanded}
         /* Without this, `aria-expanded` alone says the chip expands in place —
            it actually opens MapFilterPickerSheet, which is role="dialog"

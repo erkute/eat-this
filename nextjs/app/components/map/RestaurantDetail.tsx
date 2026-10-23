@@ -299,9 +299,7 @@ export default function RestaurantDetail({
             <CloseIcon />
           </button>
 
-          {/* Merged heart toggle + public count — one frosted pill, top-left.
-              Outline white heart when you haven't hearted it, filled coral when
-              you have; the number is the public count (≥ 1). Tapping toggles. */}
+          {/* Free heart icon and public count; tapping toggles the favorite. */}
           {onToggleFavorite && (
             <button
               type="button"

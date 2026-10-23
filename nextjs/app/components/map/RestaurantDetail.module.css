@@ -835,7 +835,7 @@
   text-overflow: ellipsis;
 }
 
-/* Präzise Symbole auf festen weissen Flächen bleiben auf jedem Foto lesbar. */
+/* Freie helle Symbole; der feine Schatten trennt sie auch von hellen Fotos. */
 .rdHeartToggle,
 .rdCloseGlass {
   position: absolute;
@@ -850,32 +850,30 @@
   padding: 0 10px;
   border: 0;
   border-radius: 0;
-  background-color: #fff;
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: 240px 360px;
-  background-position: center;
-  color: var(--et-ink);
+  background: transparent;
+  color: var(--et-white);
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.75));
   font: 700 13px / 1 var(--et-font-body);
   cursor: pointer;
-  transition: background-color var(--et-motion-fast), color var(--et-motion-fast);
+  transition: opacity var(--et-motion-fast);
 }
 .rdHeartToggle { left: 12px; }
 .rdCloseGlass { right: 12px; width: 44px; padding: 0; }
 .rdHeartToggle svg,
-.rdCloseGlass svg { width: 24px; height: 24px; }
+.rdCloseGlass svg { width: 22px; height: 22px; }
 .rdHeartToggleOn { color: var(--et-red); }
 @media (hover: hover) {
   .rdHeartToggle:hover,
-  .rdCloseGlass:hover { background-blend-mode: difference; color: #fff; }
+  .rdCloseGlass:hover { opacity: 0.72; }
 }
 .rdHeartToggle:focus-visible,
-.rdCloseGlass:focus-visible { outline: 2px solid var(--et-ink); outline-offset: 3px; }
+.rdCloseGlass:focus-visible { outline: 2px solid var(--et-white); outline-offset: -2px; }
 @media (max-width: 767.98px) {
   .rdHeartToggle,
   .rdCloseGlass {
-    min-width: 48px;
-    width: 48px;
-    height: 48px;
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
   }
 }
 

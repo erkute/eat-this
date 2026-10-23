@@ -162,7 +162,7 @@
   --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
-  --et-status-open: #247348;
+  --et-status-open: #dce8bf;
   --et-status-closed: #b52d25;
   /* Ari’s Berlin: https://www.arisberlin.com/menu */
   --et-accent: #a82b2e;
@@ -1818,8 +1818,9 @@ ol {
   color: var(--et-ink);
 }
 .et-label-open {
-  background: var(--et-status-open);
-  color: #fff;
+  background: linear-gradient(rgb(220 232 191 / 0.9), rgb(220 232 191 / 0.9)),
+    var(--et-status-open) url('/pics/paper/folded-white.webp') center / 240px 360px;
+  color: var(--et-ink);
 }
 .et-label-closed {
   background: var(--et-status-closed);
@@ -1838,6 +1839,12 @@ ol {
 }
 html[data-active-page='map'] .et-label {
   font-size: 12px;
+}
+html[data-active-page='map'] .et-label.et-label-open,
+html[data-active-page='map'] .et-label.et-label-closed {
+  padding: 4px 6px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
 }
 @media (max-width: 767.98px) {
   html[data-active-page='map'] {

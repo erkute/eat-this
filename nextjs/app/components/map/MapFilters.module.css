@@ -6,27 +6,23 @@
   container-type: inline-size;
   background: var(--et-ground);
   color: var(--et-fg);
-  padding-bottom: 14px;
+  padding-bottom: 10px;
 }
 .filterChipRow {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto auto;
   align-items: center;
   gap: 4px;
   width: 100%;
   min-width: 0;
   padding: 6px 8px 0;
   box-sizing: border-box;
-  overflow-x: auto;
-  scrollbar-width: none;
   touch-action: pan-x pan-y;
 }
-.filterChipRow::-webkit-scrollbar { display: none; }
 .filterChipWrap {
   position: relative;
   display: flex;
-  flex: 1 0 auto;
-  min-width: max-content;
+  min-width: 0;
 }
 .filterChipRow .filterChip {
   display: inline-flex;
@@ -34,8 +30,8 @@
   justify-content: center;
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 44px;
-  padding: 0 10px;
+  min-height: 40px;
+  padding: 0 7px;
   border: 0;
   border-radius: 0;
   background-color: var(--et-ground);
@@ -55,8 +51,6 @@
 .filterChipRow > :nth-child(2) { --filter-paper-x: -100px; --filter-paper-y: -400px; }
 .filterChipRow > :nth-child(3) { --filter-paper-x: -220px; --filter-paper-y: -80px; }
 .filterChipRow > :nth-child(4) { --filter-paper-x: -300px; --filter-paper-y: -480px; }
-.filterChipRow .filterChipWrapFixed,
-.filterChipRow > .filterChip { flex: none; min-width: 0; }
 .filterChipRow .filterChipLabel {
   display: block;
   min-width: 0;
@@ -79,9 +73,9 @@
 .filterChipRow .filterChipOpenActive {
   background-color: var(--et-status-open);
   background-blend-mode: multiply;
-  color: #fff;
+  color: var(--et-ink);
 }
-.filterChipRow .filterChipActive { padding-right: 40px; }
+.filterChipRow .filterChipActive { padding-right: 28px; }
 /* Separate sibling button, so clearing a filter never nests buttons. */
 .filterChipClear {
   position: absolute;
@@ -90,8 +84,8 @@
   z-index: 1;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 44px;
+  width: 28px;
+  height: 40px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -118,9 +112,8 @@
 .filterChipClear:active { translate: none; }
 
 @media (max-width: 767.98px) {
-  .filterChipRow .filterChip { min-height: 48px; }
-  .filterChipRow .filterChipActive { padding-right: 48px; }
-  .filterChipClear { width: 48px; height: 48px; }
+  .filterChipRow .filterChip { min-height: 44px; }
+  .filterChipClear { height: 44px; }
   .pickerClose { min-width: 48px; min-height: 48px; }
   .listHeader {
     position: sticky;
@@ -281,13 +274,13 @@
   overflow-y: auto;
 }
 @media (min-width: 1024px) {
-  .filterChipRow { padding: 14px 8px 0; }
-  .filterChipRow .filterChip { min-height: 48px; }
+  /* 40px Papierfläche und Burger liegen beide mittig auf y=36px. */
+  .filterChipRow { padding: 16px 8px 0; }
 }
 @container (max-width: 374px) {
   .filterChipRow { padding-inline: 4px; }
   .filterChipRow .filterChip { padding-inline: 6px; letter-spacing: 0; }
-  .filterChipRow .filterChipActive { padding-right: 48px; }
+  .filterChipRow .filterChipActive { padding-right: 28px; }
 }
 @media (max-width: 374px) { .pickerItemLabel { font-size: 14px; } }
 @media (prefers-reduced-motion: reduce) {

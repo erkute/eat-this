@@ -172,7 +172,7 @@ describe('MapFilters cascade', () => {
   it('keeps the filter row on one line', () => {
     // Ansage 22.10.2026: the filters never wrap into a second row — the pills
     // narrow instead, and a long value ends in an ellipsis.
-    expect(effective(FILTERS, 'filterChipRow', 'flex-wrap')).toBe('nowrap');
+    expect(effective(FILTERS, 'filterChipRow', 'grid-template-columns')).toBe('minmax(0, 1fr) minmax(0, 1.25fr) auto auto');
     expect(effective(FILTERS, 'filterChipLabel', 'white-space')).toBe('nowrap');
     expect(effective(FILTERS, 'filterChipLabel', 'text-overflow')).toBe('ellipsis');
   });

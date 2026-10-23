@@ -11,6 +11,7 @@
   background-size: 240px 360px;
   background-position: center;
   background-blend-mode: multiply;
+  background-clip: content-box;
   color: var(--et-fg);
   border: 0;
   border-radius: 0;
@@ -28,12 +29,12 @@
 .fab:focus-visible,
 .panelToggle:focus-visible,
 .mapSearchClear:focus-visible {
-  background-color: #fff;
+  background-color: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
   background-image: url('/pics/paper/folded-white.webp');
   background-size: 240px 360px;
   background-position: center;
-  background-blend-mode: difference;
-  color: #fff;
+  background-blend-mode: multiply;
+  color: var(--et-fg);
   outline: 2px solid var(--et-fg);
   outline-offset: 3px;
   border: 0;
@@ -46,12 +47,12 @@
   .fab:hover,
   .panelToggle:hover,
   .mapSearchClear:hover {
-    background-color: #fff;
+    background-color: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
     background-image: url('/pics/paper/folded-white.webp');
     background-size: 240px 360px;
     background-position: center;
-    background-blend-mode: difference;
-    color: #fff;
+    background-blend-mode: multiply;
+    color: var(--et-fg);
     border: 0;
     box-shadow: none;
   }
@@ -92,10 +93,10 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  padding: 0;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 2px;
   filter: none;
   clip-path: none;
   font-family: var(--et-font-display);
@@ -140,9 +141,9 @@
 }
 
 .mapSearchBtn .mapSearchIcon {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
   stroke-width: 1.75;
   transform-origin: 50% 50%;
 }
@@ -205,9 +206,9 @@
 }
 
 .mapSearchToolbar .mapSearchIcon {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .mapSearchInput {
@@ -385,8 +386,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
+  padding: 2px;
   filter: none;
   clip-path: none;
   transform: none;
@@ -428,16 +430,16 @@
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 5px;
-  width: 24px;
+  gap: 4px;
+  width: 20px;
   justify-items: center;
   color: currentColor;
 }
 
 .mapBurgerLines span {
   display: block;
-  width: 18px;
-  height: 2px;
+  width: 16px;
+  height: 1.75px;
   background: currentColor;
 }
 
@@ -528,6 +530,7 @@
   justify-content: center;
   width: 44px;
   height: 44px;
+  padding: 2px;
 
   color: var(--et-fg);
   filter: none;
@@ -642,11 +645,10 @@
   .panelToggle svg { transition: none; }
 }
 
-/* Google Maps web reference: 24px search/menu glyph box, 18px locate glyph.
-   A larger phone hit area is independent of the visible symbol size. */
+/* Compact paper surfaces keep a 44px touch target around the smaller glyphs. */
 @media (max-width: 767.98px) {
   .mapSearchBtn,
   .mapBurger,
-  .fab { width: 48px; min-width: 48px; height: 48px; }
+  .fab { width: 44px; min-width: 44px; height: 44px; }
   .mapSearchToolbar { height: 48px; }
 }

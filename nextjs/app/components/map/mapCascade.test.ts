@@ -82,7 +82,7 @@ describe('MapControls cascade', () => {
     cssRoot(CONTROLS).walkRules((rule) => {
       const sel = rule.selector;
       if (sel.includes(':')) return;
-      if (!['mapSearchBtn', 'mapBurger', 'fab', 'panelToggle'].every((c) => sel.includes(`.${c}`)))
+      if (!['mapSearchBtn', 'fab', 'panelToggle'].every((c) => sel.includes(`.${c}`)))
         return;
       rule.walkDecls('background-color', (d) => {
         surface = d.value;
@@ -125,20 +125,8 @@ describe('MapControls cascade', () => {
   });
 
 
-  it('keeps the hover lift on the controls that are not overridden later', () => {
-    /* Same shape as the case above, in the other direction. One
-     * `@media (hover: hover)` rule lifts `.mapSearchBtn`, `.mapBurger` and
-     * `.fab` by 2px; a later media-less rule re-declares the lift as 1px for
-     * `.mapSearchBtn` ONLY. So the 2px is dead for the search button and live
-     * for the other two, and the audit — which reports per class — flags it
-     * under `.mapSearchBtn`.
-     *
-     * Verified on the real elements with CDP-forced `:hover`: burger and FAB
-     * compute translateY(-2px), the search button translateY(-1px). Note that
-     * these transitions run 240ms, so a computed style read one frame after
-     * the state change still returns the OLD value.
-     */
-    for (const control of ['mapBurger', 'fab']) {
+  it('keeps the hover lift on the locate control', () => {
+    for (const control of ['fab']) {
       expect(
         effective(CONTROLS, control, 'transform', '(hover: hover)'),
         `.${control} lost its hover lift — it is not covered by the later 1px override`
@@ -146,17 +134,11 @@ describe('MapControls cascade', () => {
     }
   });
 
-  it('floats the locate FAB off the sheet edge on phones', () => {
-    /* Dieser Test sicherte die FAB gegen die Status-Leiste ab, die auf
-       derselben Bandbreite lag und sie verdeckte. Die Leiste gibt es nicht
-       mehr: die Meldung steht seit dem 30.08.2026 mittig in der zentralen
-       Info-Karte (MapDataNotice → window.showNotice) und kann den Knopf
-       nicht mehr treffen. Was zu sichern bleibt, ist die Lage der FAB. */
+  it('keeps the phone map credit geometry anchor at the sheet edge', () => {
     const phone = '(max-width: 767.98px)';
 
-    /* On phones the dock carries the position; the button rides inside it. */
-    /* Sticky in the page, from the top: the bottom edge moves with Safari's
-       toolbar, and a scroll timeline twitched when it did. */
+    // The locate button now lives in search. This anchor still carries the
+    // map credit's travel during a phone sheet gesture.
     expect(effective(CONTROLS, 'locateDock', 'top', phone)).toBe('calc(var(--edge-top) - var(--edge-ride))');
     /* The edge line, shared with the map credit: 14px above the resting edge. */
     const layout = readFileSync(fileURLToPath(new URL('./MapLayout.module.css', import.meta.url)), 'utf8');

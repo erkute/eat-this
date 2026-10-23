@@ -2,7 +2,6 @@
    Positioning preserves the phone visual viewport and sheet-edge dock;
    tablet controls retreat with transform, desktop controls follow the rail. */
 .mapSearchBtn,
-.mapBurger,
 .fab,
 .panelToggle,
 .mapSearchClear {
@@ -25,7 +24,6 @@
 }
 
 .mapSearchBtn:focus-visible,
-.mapBurger:focus-visible,
 .fab:focus-visible,
 .panelToggle:focus-visible,
 .mapSearchClear:focus-visible {
@@ -42,7 +40,6 @@
 
 @media (hover: hover) {
   .mapSearchBtn:hover,
-  .mapBurger:hover,
   .fab:hover,
   .panelToggle:hover,
   .mapSearchClear:hover {
@@ -163,7 +160,7 @@
   align-items: center;
   box-sizing: border-box;
   gap: 8px;
-  width: min(392px, calc(100vw - 92px));
+  width: min(392px, calc(100vw - 114px));
   min-height: 44px;
   height: 44px;
   padding: 0 10px 0 13px;
@@ -202,7 +199,7 @@
 
 @media (max-width: 520px) {
   .mapSearchToolbar {
-    width: calc(100vw - 86px);
+    width: calc(100vw - 110px);
     padding-left: 12px;
   }
 }
@@ -260,7 +257,7 @@
   left: 14px;
   z-index: 55;
   box-sizing: border-box;
-  width: min(392px, calc(100vw - 92px));
+  width: min(392px, calc(100vw - 114px));
   max-height: min(55vh, 380px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -336,7 +333,7 @@
 
 @media (max-width: 520px) {
   .mapSearchSuggestions {
-    width: calc(100vw - 86px);
+    width: calc(100vw - 110px);
   }
 }
 
@@ -385,27 +382,8 @@
   right: 14px;
   left: auto;
   z-index: 55;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 2px;
-  filter: none;
-  clip-path: none;
-  transform: none;
+  width: auto;
   transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.mapBurger:active {
-  transform: translate(1px, 1px);
-}
-
-@media (hover: hover) {
-  .mapBurger:hover {
-    filter: none;
-    transform: translateY(-2px);
-  }
 }
 
 @media (min-width: 768px) and (max-width: 1023.98px) {
@@ -415,8 +393,14 @@
 }
 
 @media (min-width: 1024px) {
+  .mapSearchToolbar {
+    top: 16px;
+    min-height: 40px;
+    height: 40px;
+  }
 
   .mapBurger {
+    top: 16px;
     right: calc(var(--map-desktop-panel-width) + 14px);
     transition:
       transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -523,27 +507,18 @@
 }
 
 .fab {
-  position: fixed;
-  right: 14px;
-  bottom: calc(min(var(--sheet-visible-px, 80px), 420px) + 14px + var(--map-bar-overhang, 0px));
-  z-index: 6;
+  position: static;
+  flex: 0 0 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 40px;
   padding: 2px;
+}
 
-  color: var(--et-fg);
-  filter: none;
-  clip-path: none;
-  text-shadow: none;
-  transform: none;
-  transition:
-    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    background-color 150ms var(--ease-standard),
-    border-color 150ms var(--ease-standard),
-    color 150ms var(--ease-standard);
+.mapSearchToolbar .fab {
+  background: transparent;
 }
 
 .fab:disabled {
@@ -597,44 +572,6 @@
     display: none;
   }
 
-  .fab {
-    position: relative;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    z-index: auto;
-    pointer-events: auto;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023.98px) {
-  .fab {
-    bottom: var(--locate-bottom, calc(var(--phone-list-sheet-visible, 28dvh) + 14px));
-
-    transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  :global([data-map-body][data-locate-gone='true']) .fab {
-    transform: translateX(calc(100% + 18px));
-    pointer-events: none;
-  }
-}
-
-@media (min-width: 1024px) {
-
-  .fab {
-    position: absolute;
-    top: auto;
-    right: calc(var(--map-desktop-panel-width, 0px) + 14px);
-    bottom: 12px;
-    transition:
-      transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      right var(--map-panel-slide);
-  }
-
-  :global([data-map-body][data-panel-hidden='true']) .fab {
-    right: 14px;
-  }
 }
 
 .mapSearchClear svg { width: 18px; height: 18px; }
@@ -649,8 +586,7 @@
 
 /* Compact paper surfaces keep a 44px touch target around the smaller glyphs. */
 @media (max-width: 767.98px) {
-  .mapSearchBtn,
-  .mapBurger,
-  .fab { width: 44px; min-width: 44px; height: 44px; }
-  .mapSearchToolbar { height: 48px; }
+  .mapSearchBtn { width: 44px; min-width: 44px; height: 44px; }
+  .fab { flex-basis: 44px; width: 44px; height: 44px; }
+  .mapSearchToolbar { height: 44px; }
 }

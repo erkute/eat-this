@@ -1777,6 +1777,18 @@ ol {
   background-color: var(--et-btn-hover);
   color: var(--et-btn-hover-fg);
 }
+/* Map menu follows the compact filter typography and paper height. */
+.et-btn.et-btn-map-control {
+  min-height: 40px;
+  padding-inline: 7px;
+  font: 800 11px / 1.2 var(--et-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+@media (max-width: 767.98px) {
+  .et-btn.et-btn-map-control { min-height: 44px; }
+}
+
 .et-btn.et-btn-paper:focus-visible {
   outline: 0;
 }

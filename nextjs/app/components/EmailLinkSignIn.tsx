@@ -266,7 +266,7 @@ export default function EmailLinkSignIn() {
       <div className={styles.content}>
         <div className={styles.art}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.artImg} src="/pics/booster/booster_free.webp?v=2" alt={t.packAlt} />
+          <img className={styles.artImg} src="/pics/home/starter-pack-front.webp" alt={t.packAlt} />
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{t.kicker}</p>
@@ -313,7 +313,7 @@ export default function EmailLinkSignIn() {
       <form id={EMAIL_FORM} className={styles.content} onSubmit={submit}>
         <div className={styles.art}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.artImg} src="/pics/booster/booster_free.webp?v=2" alt={t.packAlt} />
+          <img className={styles.artImg} src="/pics/home/starter-pack-front.webp" alt={t.packAlt} />
         </div>
         <div className={styles.copy}>
           <p className={styles.kicker}>{t.kicker}</p>

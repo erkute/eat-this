@@ -94,7 +94,7 @@ describe('MustEatsOnboarding', () => {
     const guest = row('guest');
     expect(guest.textContent).toContain('mustEats.onbStarterCta');
     expect(screen.getByTestId('onb-starter-pack').getAttribute('src')).toContain(
-      '/pics/booster/booster_free.webp?v=2'
+      '/pics/home/starter-pack-front.webp'
     );
 
     // …and the paid one stays for signed-in visitors.

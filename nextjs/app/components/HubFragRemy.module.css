@@ -52,11 +52,17 @@
   .portrait { width: 420px; height: 420px; right: calc(50% - 210px); bottom: 0; }
   .figure { inset: 0 0 -24%; }
 }
-.section.embedded:global(.homeV2):global(.hv-wrap) { margin: 0; }
-.embedded .body { min-height: 540px; }
+.compact .body { min-height: 560px; padding-block: 56px; }
+.compact .name { font-size: clamp(80px, 10vw, 136px); }
+.compact .portrait { width: 38%; height: 460px; }
+@media (max-width: 767.98px) {
+  .compact .body { min-height: 0; padding: 40px 24px 280px; }
+  .compact .name { font-size: clamp(80px, 25vw, 108px); }
+  .compact .portrait { width: 320px; height: 320px; right: calc(50% - 160px); }
+}
 /* Vintage-Entwurf: auch „Frag Remy" ist ein eigenes Blatt — Papier und
    Gebrauchsspuren auf dem Rot, ohne Fuge davor (globals.css). */
-:global(html[data-vintage]) .section:not(.embedded):global(.homeV2):global(.hv-wrap) {
+:global(html[data-vintage]) .section:global(.homeV2):global(.hv-wrap) {
   background-image: var(--et-sheet);
   background-size: var(--et-sheet-size);
   background-repeat: var(--et-sheet-repeat);

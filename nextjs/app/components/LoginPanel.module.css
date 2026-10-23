@@ -15,13 +15,9 @@
   max-height: calc(100svh - 28px);
   padding: clamp(40px, 5vw, 60px) clamp(32px, 4.4vw, 60px);
   overflow: hidden;
-  background-color: var(--et-ground);
-  background-image: var(--et-sheet, none);
-  background-size: var(--et-sheet-size, auto);
-  background-repeat: var(--et-sheet-repeat, repeat);
-  /* Derselbe Radius wie das Onboarding-Fenster (Tour.module.css .panel). */
+  background: transparent;
   border-radius: 0;
-  mask: var(--et-rough-edges, none);
+  mask: none;
 }
 
 .srOnly {

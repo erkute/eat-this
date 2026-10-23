@@ -15,11 +15,11 @@ import AuthScreen, { AUTH_SCREEN_HOLD_MS } from './AuthScreen';
 import { announceSignedIn } from '@/lib/auth/afterSignIn';
 import styles from './LoginBoard.module.css';
 
-const PACK_ART = '/pics/booster/booster_free.webp?v=2';
+const PACK_ART = '/pics/home/starter-pack-front.webp';
 /* Ueber den Optimierer, nicht als rohes `img`: die Tafel steht auf jeder
    Startseite, und das Original wiegt 146 KB fuer eine 160–400 px hohe Tuete. */
-const PACK_WIDTH = 1008;
-const PACK_HEIGHT = 1560;
+const PACK_WIDTH = 945;
+const PACK_HEIGHT = 1491;
 const PACK_SIZES = '(max-width: 820px) 160px, 260px';
 const CARD_BACK = '/pics/card-back.webp?v=8';
 

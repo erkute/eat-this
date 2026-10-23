@@ -551,12 +551,12 @@ export default function SignInReward() {
               <div className={styles.packWrapper}>
                 <img
                   className={styles.packBody}
-                  src="/pics/booster/booster_free.webp?v=2"
+                  src="/pics/home/starter-pack-front.webp"
                   alt={t.pack.packAlt}
                 />
                 <img
                   className={styles.packSeal}
-                  src="/pics/booster/booster_free.webp?v=2"
+                  src="/pics/home/starter-pack-front.webp"
                   alt=""
                   aria-hidden="true"
                 />

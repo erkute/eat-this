@@ -97,7 +97,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className={styles.page}>
+      <main className={`${styles.page} ${styles.discoveryPage}`}>
         <DiscoveryExplorer
           locale={loc}
           entries={bezirke.map((b) => ({

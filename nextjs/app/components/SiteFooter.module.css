@@ -1,6 +1,6 @@
 /* Ein Abschluss für jede Seite, überall wie auf der Startseite (Ansage
-   23.10.2026): dieselbe helle Folie wie Hero und Burger-Menü. */
-.footer { padding: 64px var(--et-gutter) max(32px, env(safe-area-inset-bottom, 0px)); --et-sheet: url('/pics/paper/menu-foil.webp'); --et-sheet-size: 100% 100%; --et-sheet-repeat: no-repeat; --et-fg: var(--et-ink); --et-muted: #57534e; background: #fff var(--et-sheet) center / var(--et-sheet-size) no-repeat; color: var(--et-fg); text-align: center; }
+   23.10.2026): dasselbe Knitterpapier wie die Map-Filter und Bezirksflächen. */
+.footer { padding: 64px var(--et-gutter) max(32px, env(safe-area-inset-bottom, 0px)); --et-sheet: url('/pics/paper/folded-white.webp'); --et-sheet-size: 100% 100%; --et-sheet-repeat: no-repeat; --et-fg: var(--et-ink); --et-muted: #57534e; background: #fff var(--et-sheet) center / var(--et-sheet-size) no-repeat; color: var(--et-fg); text-align: center; }
 /* Die Blatt-Versätze der Startseite gelten nicht für diese einzelne Folie. */
 :global(html[data-vintage] .homeV2) > .footer { background-position: center; }
 .top { max-width: 1280px; margin: auto; }

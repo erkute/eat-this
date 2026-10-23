@@ -95,7 +95,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   z-index: 20;
   margin: 36px calc(-1 * var(--issue-gutter)) 0;
   padding: 10px var(--issue-gutter);
-  background: var(--et-ground);
+  background: transparent;
   transition: top 0.2s ease;
 }
 
@@ -121,7 +121,8 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   padding: 10px 20px;
   border: 0;
   border-radius: 0;
-  background: var(--et-quiet);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') var(--hub-paper-position, center) / 400px 600px;
+  background-blend-mode: multiply;
   color: var(--et-fg);
   cursor: pointer;
   font-family: var(--et-font-display);
@@ -134,15 +135,19 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .filterChip[aria-pressed='true'] {
-  background: var(--et-solid);
-  color: var(--et-on-solid);
+  background-color: #fff;
+  background-blend-mode: difference;
+  color: #fff;
 }
 
 @media (hover: hover) {
   .filterChip:not([aria-pressed='true']):hover {
-    background: #443a34;
+    background-color: var(--et-quiet);
   }
 }
+
+.filterChip:nth-child(3n) { --hub-paper-position: -100px -400px; }
+.filterChip:nth-child(3n + 1) { --hub-paper-position: -220px -80px; }
 
 .filterChip:focus-visible {
   outline: 2px solid var(--et-fg);
@@ -755,7 +760,8 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   margin: 20px auto 0;
   padding: 32px;
   box-sizing: border-box;
-  background: var(--et-quiet);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / cover;
+  background-blend-mode: multiply;
   border-radius: 0;
 }
 .guideInterlude .secTitle { margin-top: 0; }
@@ -864,3 +870,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   .districtPage .guideInterlude { border-top: 0; margin-top: 64px; padding: 28px 20px; }
   .districtPage .moreSpots { margin-top: 64px; }
 }
+
+/* The Berlin sheet reaches both viewport edges without a white mat. */
+.page.discoveryPage { padding-inline: 0; padding-bottom: 0; }

@@ -19,7 +19,7 @@ const CARD_BACK = '/pics/card-back.webp?v=8';
 // spots. Which pack depends on whether the visitor has an account: the free
 // Starter Pack for guests, the paid Booster Packs once they're in.
 const BOOSTER_ART = '/pics/booster/booster.webp';
-const STARTER_ART = '/pics/booster/booster_free.webp?v=2';
+const STARTER_ART = '/pics/home/starter-pack-front.webp';
 export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen';
 
 // Dwell on the card back in slide 2 before it auto-flips open — the live

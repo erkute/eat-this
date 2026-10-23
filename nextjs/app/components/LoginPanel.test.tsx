@@ -93,7 +93,7 @@ describe('LoginPanel — die Szene zeigt, wonach der Gast gegriffen hat', () => 
       'Deine gespeicherten Spots an einem Ort. Dazu dein Starter Pack mit 20 Must Eats aus ganz Berlin.'
     );
     expect(container.textContent).not.toMatch(/Deck|Profil/);
-    expect(container.innerHTML).toContain('booster_free.webp');
+    expect(container.innerHTML).toContain('starter-pack-front.webp');
   });
 });
 

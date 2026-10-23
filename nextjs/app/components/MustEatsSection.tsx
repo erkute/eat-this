@@ -74,7 +74,7 @@ const COPY = {
 // wall of pack art at the end made the last impression "shop" instead of
 // "these dishes", and the same offer is already on slide 3 of the onboarding
 // and in the burger menu.
-const PACK_ART = '/pics/booster/booster.webp';
+const PACK_ART = '/pics/home/starter-pack-front.webp';
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale];
@@ -178,7 +178,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
         <div className={styles.packShot} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={PACK_ART} alt="" loading="lazy" width={600} height={800} />
+          <img src={PACK_ART} alt="" loading="lazy" width={945} height={1491} />
         </div>
       </section>
 

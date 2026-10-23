@@ -279,12 +279,12 @@ describe('LoginBoard — nach der Google-Anmeldung', () => {
 describe('LoginSceneArt', () => {
   it('zeigt ohne Anlass das Pack', () => {
     const { container } = render(<LoginSceneArt reason={null} />);
-    expect(container.innerHTML).toContain('booster_free.webp');
+    expect(container.innerHTML).toContain('starter-pack-front.webp');
   });
 
   it('legt die angetippte Karte vor das Pack', () => {
     const { container } = render(<LoginSceneArt reason={{ kind: 'card', mustEatId: 'me-9' }} />);
-    expect(container.innerHTML).toContain('booster_free.webp');
+    expect(container.innerHTML).toContain('starter-pack-front.webp');
     expect(container.innerHTML).toContain('card-back.webp');
   });
 
@@ -299,7 +299,7 @@ describe('LoginSceneArt', () => {
         }}
       />
     );
-    expect(container.innerHTML).toContain('booster_free.webp');
+    expect(container.innerHTML).toContain('starter-pack-front.webp');
     expect(container.innerHTML).toContain('cdn.sanity.io/images/p/d/a.jpg');
   });
 });

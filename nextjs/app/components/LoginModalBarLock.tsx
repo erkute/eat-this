@@ -2,15 +2,15 @@
 import { useEffect } from 'react';
 import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 
-/** Dasselbe Schwarz wie der Vorhang (LoginModalOverlay.module.css). */
-const LOGIN_CANVAS_COLOR = '#fff';
+/** Dasselbe Rot wie das Papier (LoginModalOverlay.module.css). */
+const LOGIN_CANVAS_COLOR = '#cf3f2f';
 
 /**
  * Scroll-Sperre und Leistenfarbe, solange das Login-Modal offen ist.
  *
- * Die Leisten faerbt auf iOS 26 der deckend schwarze Vorhang selbst — ein
+ * Die Leisten faerbt auf iOS 26 der deckend rote Papier selbst — ein
  * fixiertes Vollbild-Element mit voller Deckkraft gibt Status- und URL-Leiste
- * seine Farbe. Hier kommt nur der Rueckfall dazu: html/body schwarz (die
+ * seine Farbe. Hier kommt nur der Rueckfall dazu: html/body rot (die
  * Farbe, auf die Safari ohne fixiertes Randelement zurueckgreift) und
  * `theme-color` fuer aeltere Safaris. Der Weichzeichner auf der Seite und die
  * Schleier-Schuerze sind weg: hinter einem deckenden Vorhang sieht sie keiner.

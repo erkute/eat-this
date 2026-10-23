@@ -818,7 +818,7 @@
   margin: 0;
   /* Der Wert pro Name (--rd-name-max) gewinnt, damit ein langes Wort nie
      über den Rand läuft. */
-  font-size: min(var(--rd-name-max, 34px), 34px, max(26px, 8vw));
+  font-size: min(var(--rd-name-max, 22px), 22px);
   font-weight: 800;
   line-height: max(1.22em, var(--ink-lead, 0px));
   overflow-wrap: anywhere;
@@ -870,13 +870,21 @@
 }
 .rdHeartToggle:focus-visible,
 .rdCloseGlass:focus-visible { outline: 2px solid var(--et-ink); outline-offset: 3px; }
+@media (max-width: 767.98px) {
+  .rdHeartToggle,
+  .rdCloseGlass {
+    min-width: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
 
 /* ── Text und Tipp ─────────────────────────────────────────────────────── */
 .rdBody {
   padding: 26px var(--rd-gut) 0;
   font-family: var(--et-font-text);
-  font-size: 18px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.5;
   text-wrap: pretty;
 }
 .rdBody p + p {
@@ -918,9 +926,9 @@
 }
 .rdTippText {
   margin: 0;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
-  line-height: 1.18;
+  line-height: 1.35;
   text-wrap: pretty;
 }
 .detail .rdMustSection,
@@ -963,7 +971,7 @@
 }
 .rdAddress {
   margin: 0;
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1.25;
   overflow-wrap: anywhere;

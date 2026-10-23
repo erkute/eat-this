@@ -50,7 +50,7 @@ function RestaurantMarker({
       }
     >
       <span className={styles.pinLogoShape} aria-hidden="true">
-        <span className={styles.pinLetter}>eat</span>
+        <span className={styles.pinLetter}>eat<br />this</span>
       </span>
     </MarkerButton>
   );

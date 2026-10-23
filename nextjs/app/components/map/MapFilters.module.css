@@ -6,6 +6,7 @@
   container-type: inline-size;
   background: var(--et-ground);
   color: var(--et-fg);
+  padding-bottom: 14px;
 }
 .filterChipRow {
   display: flex;
@@ -14,14 +15,18 @@
   gap: 4px;
   width: 100%;
   min-width: 0;
-  padding: 6px 8px 10px;
+  padding: 6px 8px 0;
   box-sizing: border-box;
+  overflow-x: auto;
+  scrollbar-width: none;
+  touch-action: pan-x pan-y;
 }
+.filterChipRow::-webkit-scrollbar { display: none; }
 .filterChipWrap {
   position: relative;
   display: flex;
-  flex: 1 1 auto;
-  min-width: 88px;
+  flex: 1 0 auto;
+  min-width: max-content;
 }
 .filterChipRow .filterChip {
   display: inline-flex;
@@ -72,7 +77,7 @@
   background-blend-mode: difference;
   color: #fff;
 }
-.filterChipRow .filterChipActive { padding-right: 28px; }
+.filterChipRow .filterChipActive { padding-right: 40px; }
 /* Separate sibling button, so clearing a filter never nests buttons. */
 .filterChipClear {
   position: absolute;
@@ -81,7 +86,7 @@
   z-index: 1;
   display: grid;
   place-items: center;
-  width: 28px;
+  width: 40px;
   height: 44px;
   padding: 0;
   border: 0;
@@ -109,6 +114,10 @@
 .filterChipClear:active { translate: none; }
 
 @media (max-width: 767.98px) {
+  .filterChipRow .filterChip { min-height: 48px; }
+  .filterChipRow .filterChipActive { padding-right: 48px; }
+  .filterChipClear { width: 48px; height: 48px; }
+  .pickerClose { min-width: 48px; min-height: 48px; }
   .listHeader {
     position: sticky;
     top: var(--map-strip, env(safe-area-inset-top, 0px));
@@ -257,7 +266,7 @@
   position: static;
   width: auto;
   max-height: none;
-  margin: 0 0 8px;
+  margin: 14px 0 8px;
   padding: 8px;
   animation: none;
 }
@@ -268,12 +277,13 @@
   overflow-y: auto;
 }
 @media (min-width: 1024px) {
-  .filterChipRow { padding: 12px 8px; }
+  .filterChipRow { padding: 14px 8px 0; }
+  .filterChipRow .filterChip { min-height: 48px; }
 }
 @container (max-width: 374px) {
   .filterChipRow { padding-inline: 4px; }
   .filterChipRow .filterChip { padding-inline: 6px; letter-spacing: 0; }
-  .filterChipRow .filterChipActive { padding-right: 26px; }
+  .filterChipRow .filterChipActive { padding-right: 48px; }
 }
 @media (max-width: 374px) { .pickerItemLabel { font-size: 14px; } }
 @media (prefers-reduced-motion: reduce) {

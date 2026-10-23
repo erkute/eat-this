@@ -12,7 +12,7 @@
 .rcardSlot {
   margin-inline: -6px;
   padding-top: 10px;
-  padding-bottom: 16px;
+  padding-bottom: 0;
 }
 .rcardSlot:has(.rcard:focus-visible) {
   outline: 3px solid var(--et-focus, var(--et-fg));
@@ -33,7 +33,7 @@
 
 .rcardImg {
   position: relative;
-  aspect-ratio: 5 / 4;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
   /* Bis das Foto da ist, steht die Fläche als Fläche da, nicht als Loch. */
   background: var(--et-quiet);
@@ -119,11 +119,12 @@
   text-overflow: ellipsis;
 }
 
-/* Die Must-Eat-Karte ragt oben rechts leicht über die Fotokante. */
+/* Leichter Überstand; die Slot-Luft hält auch die erste Karte vollständig
+   innerhalb des Scrollbereichs. Der Abstand zwischen Fotos bleibt 10px. */
 .mustPeek {
   position: absolute;
-  top: -8px;
-  right: 2px;
+  top: -4px;
+  right: 4px;
   z-index: 4;
   width: clamp(54px, 15vw, 66px);
   aspect-ratio: 1539 / 2115;
@@ -159,7 +160,7 @@
 .rcardName {
   max-width: 100%;
   margin: 0;
-  font-size: clamp(26px, 7vw, 30px);
+  font-size: 22px;
   font-weight: 800;
   /* `--ink-lead` zieht die Zeilen nur dort auseinander, wo eine Unterlänge
      genau über einer Oberlänge steht (lib/dom/inkSafeLeading.ts). */

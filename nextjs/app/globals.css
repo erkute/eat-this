@@ -1826,12 +1826,13 @@ ol {
   font-weight: 800;
   letter-spacing: -0.02em;
 }
-/* Gerade Kreppband-Etiketten: die gerissenen Enden bleiben durch das
-   Neun-Schnitt-Bild bei kurzen und langen Namen gleich fein. */
-.et-label-tape {
-  background: none;
-  border: 0 solid transparent;
-  border-image: url('/pics/paper/label-tape.svg?v=2') 10 18 fill / 4px 7px / 2px 4px stretch;
+html[data-active-page='map'] .et-label {
+  font-size: 12px;
+}
+@media (max-width: 767.98px) {
+  html[data-active-page='map'] {
+    --et-btn-h-sm: 48px;
+  }
 }
 /* Auf dem dunklen Grund verschwände das Ink-Etikett in der Fläche: eine
    Stufe heller. Auf Fotos setzt das Bild `--et-label-bg` wieder auf Ink. */

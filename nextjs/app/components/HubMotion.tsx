@@ -16,7 +16,7 @@ import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/l
 gsap.registerPlugin(useGSAP);
 
 /**
- * The curtain Remy pushes away remains; the hero behind it stands still.
+ * The elevator doors open over the finished hero, which stands still.
  * Below the hero, Remy owns his entrance; this controller handles the
  * entrances of the magazine, the Must Eats and the districts map
  * (lib/home/dealIn.ts) and the signup demonstration (the FAQ opens in CSS,
@@ -24,12 +24,8 @@ gsap.registerPlugin(useGSAP);
  */
 
 /**
- * Der Auftritt beim Laden: Remy schiebt den Vorhang weg (CSS,
- * HeroCurtain.module.css, ab dem ersten Paint). Dahinter steht der Hero schon
- * fertig — Marke, Headline, Lead, Knöpfe und MAP/MENÜ fliegen nicht mehr ein
- * (Ansage 21.10.2026: „nur die Remy-Animation, das Schieben, soll bleiben").
- * Ist der Vorhang durch, fällt `data-hero-intro` — vorher misst
- * HeroMarkFlight die Marke nicht.
+ * Die Fahrstuhltüren geben den fertigen Hero frei. Nach ihrem Öffnen fällt
+ * `data-hero-intro`, damit HeroMarkFlight die Marke messen kann.
  */
 function finishIntro(): (() => void) | void {
   const html = document.documentElement;
@@ -54,11 +50,6 @@ function finishIntro(): (() => void) | void {
     }, 0);
   };
 }
-
-/** GSAP setzt beim Animieren von `transform` die CSS-Eigenschaften
- *  `translate/rotate/scale` inline auf `none` — am Ende alles wieder frei
- *  geben, sonst bleiben Druckzustände (`--et-press-tile`) tot. */
-const CLEAR_TRANSFORMS = 'transform,translate,rotate,scale';
 
 /**
  * Starter Pack: sobald die Tafel ins Bild kommt, tippt sich eine Adresse ins
@@ -149,32 +140,6 @@ function armSignupDemo(): () => void {
     section.removeEventListener('focusin', interrupt);
     section.removeEventListener('input', interrupt);
     stop();
-  };
-}
-
-/** The hero card follows a real pointer; touch and reduced motion stay still. */
-function armHeroPointer(): () => void {
-  const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  const art = hero?.querySelector<HTMLElement>('[data-hub-art]');
-  if (!hero || !art) return () => {};
-  gsap.set(art, { transformPerspective: 1100 });
-  const follow = { duration: 0.9, ease: 'power3' };
-  const tiltX = gsap.quickTo(art, 'rotationX', follow);
-  const tiltY = gsap.quickTo(art, 'rotationY', follow);
-  const move = (event: PointerEvent) => {
-    const rect = hero.getBoundingClientRect();
-    tiltY((((event.clientX - rect.left) / rect.width) * 2 - 1) * 12);
-    tiltX((((event.clientY - rect.top) / rect.height) * 2 - 1) * -8);
-  };
-  const leave = () => { tiltX(0); tiltY(0); };
-  hero.addEventListener('pointermove', move);
-  hero.addEventListener('pointerleave', leave);
-  return () => {
-    hero.removeEventListener('pointermove', move);
-    hero.removeEventListener('pointerleave', leave);
-    tiltX.tween.kill();
-    tiltY.tween.kill();
-    gsap.set(art, { clearProps: CLEAR_TRANSFORMS });
   };
 }
 
@@ -358,19 +323,15 @@ export default function HubMotion() {
       {
         motion: '(prefers-reduced-motion: no-preference)',
         desk: '(min-width: 768px)',
-        pointer: '(hover: hover) and (pointer: fine)',
       },
       (ctx) => {
-        const { motion, desk, pointer } = ctx.conditions as Record<string, boolean>;
+        const { motion, desk } = ctx.conditions as Record<string, boolean>;
         if (!motion) return;
         const stops: Array<() => void> = [];
         if (desk) stops.push(armMagazineDeal());
         stops.push(armMustEatsDeal());
         stops.push(armDistrictsDeal());
         stops.push(armSignupDemo());
-        if (desk && pointer) {
-          stops.push(armHeroPointer());
-        }
         return () => stops.forEach((stop) => stop());
       }
     );

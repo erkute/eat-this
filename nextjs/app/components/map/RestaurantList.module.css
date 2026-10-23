@@ -1,10 +1,7 @@
 /* Restaurant List — isolated map subsystem.
 
-   Jede Karte ist ein Foto auf einem ausgerissenen Blatt Papier (Ansage
-   23.10.2026, Vorbild: weisses Blatt mit Risskanten), und alles steht IM
-   Bild: der Name als Ink-Etikett, darunter Bezirk · Küche auf Papier, oben
-   der Öffnungszustand — alle gerade, nicht schief. Das Foto bleibt hell — kein Verlauf, keine
-   Abdunklung; die Etiketten tragen sich selbst (Ansage 22.10.2026).
+   Glatte Fotos mit kräftigen Namen und Angaben auf weissen Textflächen,
+   direkt im Bild (032c-Referenz, 23.10.2026). Keine Abdunklung.
 
    Kein `content-visibility: auto` auf den Zeilen (23.09.2026 entfernt).
    Safari legt einen solchen Slot erst aus, wenn er schon im Bild steht (in
@@ -13,13 +10,9 @@
    ruckte die Liste am unteren Rand (Betreiber am iPhone). Die Liste rendert
    ohnehin nur ein Fenster von Zeilen (lib/map/listWindow). */
 .rcardSlot {
-  /* Halb ins Polster der Liste (MapSheet.module.css `.listScroll`, 14px je
-     Seite): die Risskanten brauchen Luft zum Rand, sonst schneidet sie der
-     Bildschirm ab. Der Schatten liegt hier, weil die Masken der Karte ihn
-     sonst mit abschnitten. */
   margin-inline: -6px;
-  padding-bottom: 12px;
-  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.14)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.07));
+  padding-top: 10px;
+  padding-bottom: 16px;
 }
 .rcardSlot:has(.rcard:focus-visible) {
   outline: 3px solid var(--et-focus, var(--et-fg));
@@ -34,14 +27,6 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-/* Das Blatt: weisses Papier, ausgerissen. Die Maske ist gerendert
-   (`/pics/paper/torn-paper.webp`); das Foto darin hat eine eigene, etwas
-   tiefere Risskante (`torn-photo.webp`), dazwischen bleibt der weisse
-   Faserrand des Papiers stehen. */
-.rcard {
-  background: #fff;
-  mask: url('/pics/paper/torn-paper.webp?v=1') 0 0 / 100% 100% no-repeat;
-}
 .rcard:focus-visible {
   outline: 0;
 }
@@ -50,7 +35,6 @@
   position: relative;
   aspect-ratio: 5 / 4;
   overflow: hidden;
-  mask: url('/pics/paper/torn-photo.webp?v=1') 0 0 / 100% 100% no-repeat;
   /* Bis das Foto da ist, steht die Fläche als Fläche da, nicht als Loch. */
   background: var(--et-quiet);
 }
@@ -133,14 +117,13 @@
   max-width: calc(100% - 110px);
   overflow: hidden;
   text-overflow: ellipsis;
-  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.22));
 }
 
-/* Die Must-Eat-Karte steckt oben rechts im Foto, leicht gekippt. */
+/* Die Must-Eat-Karte ragt oben rechts leicht über die Fotokante. */
 .mustPeek {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: -8px;
+  right: 2px;
   z-index: 4;
   width: clamp(54px, 15vw, 66px);
   aspect-ratio: 1539 / 2115;
@@ -171,38 +154,30 @@
   z-index: 3;
   display: grid;
   justify-items: start;
-  gap: 8px;
+  gap: 6px;
 }
 .rcardName {
   max-width: 100%;
   margin: 0;
-  font-size: clamp(22px, 6vw, 26px);
-  font-weight: 700;
+  font-size: clamp(26px, 7vw, 30px);
+  font-weight: 800;
   /* `--ink-lead` zieht die Zeilen nur dort auseinander, wo eine Unterlänge
      genau über einer Oberlänge steht (lib/dom/inkSafeLeading.ts). */
   line-height: max(1.22em, var(--ink-lead, 0px));
   overflow-wrap: anywhere;
-  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.28));
 }
 .rcardMeta {
   max-width: 100%;
   margin: 0;
-  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.24));
 }
 .rcardMeta > span {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* Der gewählte Spot: das Namens-Etikett kehrt sich um, Ink mit weisser
-   Schrift — kein Gelb (Ansage 23.10.2026). */
-.rcardActive .rcardName > span {
-  background-color: var(--et-ink);
-  color: #fff;
-}
 
 @media (hover: hover) {
-  .rcard:hover .rcardImg img {
+  .rcard:hover .rcardPhoto img {
     transform: scale(1.04);
   }
 }
@@ -236,8 +211,7 @@
   }
 }
 
-/* Etiketten auf dem Foto bleiben auch im Dunkelmodus Ink (globals.css),
-   glatt ohne Kratzer. */
+/* Foto-Etiketten behalten ihren festen Kontrast auch im Dunkelmodus. */
 .rcard {
   --et-label-bg: var(--et-ink);
   --et-wear: none;

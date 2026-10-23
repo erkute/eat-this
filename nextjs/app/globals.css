@@ -362,20 +362,18 @@ html[data-theme='dark'] {
    scrollt mit ihrem Inhalt; keine Ebene über der ganzen Seite. Unterseiten
    (Magazin, Spots, Artikel) sind nur leicht gealtert (siehe unten). Der Grund bleibt
    weiß (dunkel: Ink), Schrift und Spuren sind farbneutral — kein Creme.
-   Knöpfe sind fette Pillen, damit man sie als Knöpfe erkennt, mit leichten
-   Kratzern (--et-btn-wear); die vollen Kratzer tragen Etiketten (aktiver
+   Knöpfe sind glatte, einfarbige Pillen. Die vollen Kratzer tragen
+   Etiketten (aktiver
    Menüpunkt, Spot-Name im Artikel). Ansage 21.10.2026. */
 html[data-vintage] {
   --et-wear: url('/pics/vintage/button-wear.webp?v=2');
-  /* Knöpfe tragen dieselben Kratzer, halb so stark (Ansage 21.10.2026). */
-  --et-btn-wear: url('/pics/vintage/button-wear-soft.webp?v=1');
   /* Ein Blatt: Korn und Fasern gekachelt, darüber die Gebrauchsspuren der
      Karte einmal über die ganze Fläche. */
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
   --et-sheet-size: 192px, 100% 100%;
   --et-sheet-repeat: repeat, no-repeat;
   /* Abgestossene Ränder: eine Maske aus vier kachelbaren Kantenstreifen und
-     einer vollen Fläche dazwischen. Nur für Knöpfe und das Login-Fenster —
+     einer vollen Fläche dazwischen. Nur für das Login-Fenster —
      nicht für Fotos, Tafeln oder Etiketten (Ansage 22.10.2026: „nicht
      überall"). Die Maske schneidet auch den eigenen box-shadow ab. */
   --et-rough-edges:
@@ -384,8 +382,7 @@ html[data-vintage] {
     url('/pics/vintage/edge-left.webp?v=1') 0 0 / 12px 256px repeat-y,
     url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 12px 256px repeat-y,
     linear-gradient(#000 0 0) center / calc(100% - 20px) calc(100% - 20px) no-repeat;
-  /* Dieselben Kanten ein Drittel so tief, für Knöpfe und Felder — tiefer
-     zerfranst las sich eine Pille als Klebestreifen, nicht mehr als Knopf. */
+  /* Flachere Kanten für Felder. Text-Knöpfe bleiben glatt. */
   --et-rough-edges-sm:
     url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
     url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
@@ -394,54 +391,6 @@ html[data-vintage] {
     linear-gradient(#000 0 0) center / calc(100% - 7px) calc(100% - 7px) no-repeat;
 }
 
-/* Glanzfolie der Map-Steuerung (Ansage 23.10.2026: „Icons schwarz auf
-   glossy Folie, durchsichtig"): Lupe, Burger, Standort, Lasche und Suche.
-   Durchsichtige Folie mit Druck darauf: ein Hauch Tönung, oben ein Glanz,
-   eine feine Kante. `--et-foil-tint` für die Knöpfe, `--et-foil-sheet` für
-   die Suche mit ihren Vorschlägen, damit die Karte dort nur noch
-   durchschimmert. Gedrückt ist eine dichtere Folie, kein Gelb; dunkel steht
-   der Druck weiss. Filter, Auswahl und Menü sind Silberpapier
-   (`/pics/paper/silver.webp`). */
-:root {
-  --et-foil-tint: rgb(226 232 236 / 0.38);
-  --et-foil-sheet: rgb(247 248 249 / 0.82);
-  --et-foil-active: rgb(150 158 164 / 0.55);
-  --et-foil-gloss: linear-gradient(
-    180deg,
-    rgb(255 255 255 / 0.85) 0%,
-    rgb(255 255 255 / 0.4) 44%,
-    rgb(255 255 255 / 0.06) 50%,
-    rgb(255 255 255 / 0) 78%,
-    rgb(255 255 255 / 0.22) 100%
-  );
-  --et-foil-edge: rgb(21 18 14 / 0.2);
-  --et-foil-ink: #15120e;
-  --et-foil-blur: blur(3px) saturate(1.2);
-  --et-foil-sheet-blur: blur(18px) saturate(1.3);
-  --et-foil-shadow:
-    inset 0 0 0 1px var(--et-foil-edge),
-    inset 0 1px 0 rgb(255 255 255 / 0.9),
-    0 2px 8px rgb(0 0 0 / 0.12);
-}
-html[data-theme='dark'] {
-  --et-foil-tint: rgb(21 18 14 / 0.42);
-  --et-foil-sheet: rgb(21 18 14 / 0.8);
-  --et-foil-gloss: linear-gradient(
-    180deg,
-    rgb(255 255 255 / 0.22) 0%,
-    rgb(255 255 255 / 0.09) 44%,
-    rgb(255 255 255 / 0.02) 50%,
-    rgb(255 255 255 / 0) 78%,
-    rgb(255 255 255 / 0.06) 100%
-  );
-  --et-foil-active: rgb(255 255 255 / 0.24);
-  --et-foil-edge: rgb(255 255 255 / 0.22);
-  --et-foil-ink: #fff;
-  --et-foil-shadow:
-    inset 0 0 0 1px var(--et-foil-edge),
-    inset 0 1px 0 rgb(255 255 255 / 0.18),
-    0 2px 8px rgb(0 0 0 / 0.35);
-}
 html[data-vintage][data-theme='dark'] {
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
 }
@@ -1074,6 +1023,44 @@ html[data-auth='1'] [data-guest-only] {
   .notification {
     transition: none;
   }
+}
+
+/* Map info layers share the folded-paper material of the map filters.
+   The page marker also reaches portals without changing notices elsewhere. */
+html[data-active-page='map'] .notification {
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+  mask: none;
+  gap: 12px;
+}
+html[data-active-page='map'] .notification-eyebrow {
+  padding: 0;
+  background: none;
+  color: var(--et-fg);
+  font-weight: 800;
+}
+html[data-active-page='map'] .notification[data-tone='error'] .notification-eyebrow {
+  color: var(--et-accent-text);
+}
+html[data-active-page='map'] .notification-title {
+  margin-top: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-wrap: pretty;
+}
+html[data-active-page='map'] .notification-detail,
+html[data-active-page='map'] .notification-steps li {
+  font-weight: 400;
+  color: var(--et-fg);
+}
+html[data-active-page='map'] .notification-steps li::before {
+  color: var(--et-fg);
+  font-weight: 800;
+}
+html[data-active-page='map'] .notification-layer[data-open] {
+  filter: drop-shadow(0 12px 32px rgb(0 0 0 / 0.2));
 }
 
 /* ── Consent gate: hold the page still while the question is up ─────────────
@@ -1728,7 +1715,7 @@ ol {
 /* ---------------------------------------------------------------------------
    Der Knopf. Eine Definition für jeden Text-Knopf der App (Ansage 22.10.2026:
    „die müssen alle gleich sein, und ändere ich sie, ziehen alle mit"):
-   zerkratzte Pille mit leicht angestossener Kante, fett, Neue Haas Grotesk.
+   glatte, einfarbige Pille, fett, Neue Haas Grotesk.
    Module setzen nur noch, WO ein Knopf steht (Abstand, Breite, Raster) —
    nie Farbe, Form, Schrift oder Hover. Gleich spezifische Modulregeln
    gewönnen sonst gegen diese hier (globals lädt zuerst).
@@ -1752,9 +1739,8 @@ ol {
   border: 0;
   border-radius: var(--et-radius-pill);
   background-color: var(--et-btn-bg, var(--et-solid));
-  background-image: var(--et-btn-wear, none);
-  background-size: 200px auto;
-  mask: var(--et-rough-edges-sm, none);
+  background-image: none;
+  mask: none;
   color: var(--et-btn-fg, var(--et-on-solid));
   font: 700 var(--et-btn-font) / 1.25 var(--et-font-body);
   letter-spacing: 0;
@@ -1832,13 +1818,20 @@ ol {
 /* Der Name steht wie bei 032c als schwarze Schrift in einem knappen weissen
    Kasten (Ansage 23.10.2026). */
 .et-label-title {
-  padding: 0 8px 2px;
+  padding: 1px 7px 3px;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   background: #fff;
   color: var(--et-ink);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.02em;
+}
+/* Gerade Kreppband-Etiketten: die gerissenen Enden bleiben durch das
+   Neun-Schnitt-Bild bei kurzen und langen Namen gleich fein. */
+.et-label-tape {
+  background: none;
+  border: 0 solid transparent;
+  border-image: url('/pics/paper/label-tape.svg?v=2') 10 18 fill / 4px 7px / 2px 4px stretch;
 }
 /* Auf dem dunklen Grund verschwände das Ink-Etikett in der Fläche: eine
    Stufe heller. Auf Fotos setzt das Bild `--et-label-bg` wieder auf Ink. */

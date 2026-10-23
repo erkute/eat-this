@@ -230,3 +230,33 @@
     color: var(--et-ink);
   }
 }
+
+/* Same foil as the map filters, including the photo/detail overlay controls. */
+:global(html[data-active-page='map']) .close {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 0;
+  background-color: #fff;
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 240px 360px;
+  background-position: center;
+  color: var(--et-ink);
+  filter: none;
+}
+:global(html[data-active-page='map']) .close svg { width: 24px; height: 24px; }
+:global(html[data-active-page='map']) .close:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 2px;
+  background-blend-mode: difference;
+  color: #fff;
+}
+@media (hover: hover) {
+  :global(html[data-active-page='map']) .close:hover {
+    background-blend-mode: difference;
+    color: #fff;
+  }
+}
+@media (max-width: 767.98px) {
+  :global(html[data-active-page='map']) .close { width: 48px; height: 48px; }
+}

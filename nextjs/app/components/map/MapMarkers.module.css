@@ -31,7 +31,7 @@
   z-index: 10;
 }
 
-/* Restaurant logo marker ----------------------------------------------- */
+/* Spot-Marker: Filterfolie mit eat ------------------------------------ */
 
 .pinLogo {
   cursor: pointer;
@@ -39,17 +39,16 @@
   position: relative;
   display: grid;
   place-items: center;
-  /* Kleiner wie bei Google Maps (Ansage 22.10.2026: „da ist alles viel
-     kleiner"): 32 statt 38px am Telefon. */
+  /* Kompakte, leicht gedrehte Folienfläche. */
   width: 32px;
-  height: 35px;
+  height: 32px;
   border: 0;
   border-radius: 0;
   box-shadow: none;
   background: transparent;
   clip-path: none;
   filter: none;
-  transform: rotate(-4deg);
+  transform: rotate(-5deg);
   /* Zoomabhängig, gesetzt von MapCanvasLayer (`--map-pin-zoom`). Eigene
      `scale`-Eigenschaft statt Teil von `transform`: so bleiben Drehung,
      Hover und Drop-in unberührt, und sie läuft ohne Transition — sie folgt
@@ -64,7 +63,7 @@
 }
 
 .pinLogo:focus-visible {
-  border-radius: 50%;
+  border-radius: 0;
   outline: 3px solid var(--et-accent);
   outline-offset: 4px;
 }
@@ -75,19 +74,9 @@
    them until MapLibre's first complete rendering, which means they have to
    ARRIVE rather than just be there.
 
-   Translate + rotate, never opacity: a fade reads as "appearing" and washes
-   out the brand presence (see CLAUDE.md). The keyframe lands on exactly the
-   base `rotate(-4deg)`, so when the animation is done and the class comes off
-   there is nothing to snap back to.
-
-   It sits on .pinLogo, NOT on .markerRoot — MapLibre owns that element's
-   transform to position the marker, and animating it would fight the map.
-
-   `backwards` fill matters: with a stagger the later pins would otherwise
-   stand at their resting spot for their whole delay and then jump up to
-   start. It is deliberately NOT `both` — a forwards fill would pin every
-   marker at `rotate(-4deg)` and override `.pinLogoActive`'s own
-   `rotate(3deg)` for a deep-linked selection. */
+   Die Bewegung gehört nur an den inneren Marker; MapLibre positioniert die
+   Wurzel. `backwards` hält verzögerte Marker vor dem ersten Animationsframe
+   oben und lässt nach der Animation den gewählten Zustand gelten. */
 .pinLogoEnter {
   animation: pinDrop 420ms cubic-bezier(0.18, 0.72, 0.28, 1.06) backwards;
   animation-delay: var(--pin-enter-delay, 0ms);
@@ -98,7 +87,7 @@
     transform: translateY(-56px) rotate(-13deg);
   }
   to {
-    transform: translateY(0) rotate(-4deg);
+    transform: translateY(0) rotate(-5deg);
   }
 }
 
@@ -128,66 +117,39 @@
 .pinLogoShape {
   position: absolute;
   inset: 0;
-  display: block;
-  background: var(--pin-color, var(--et-accent));
-  clip-path: polygon(5% 4%, 96% 0, 100% 82%, 62% 86%, 50% 100%, 38% 86%, 0 80%);
-  filter: drop-shadow(0 3px 2px rgba(20, 16, 12, 0.32));
-  transform: scale(var(--pin-scale, 1));
-  transform-origin: center bottom;
-  transition: transform 160ms ease, background-color 160ms ease;
+  display: grid;
+  place-items: center;
+  background: var(--et-red) url('/pics/paper/folded-white.webp') center / 160px 240px;
+  background-blend-mode: multiply;
+  color: var(--et-white);
+  box-shadow: 0 1px 3px rgb(0 0 0 / .2);
 }
-
-.pinLogoShape img {
-  position: absolute;
-  inset: 8% 9% 17%;
-  width: 82%;
-  height: 75%;
-  display: block;
-  object-fit: contain;
+.pinLetter {
+  font: 800 14px / 1 var(--et-font-body);
+  letter-spacing: -.04em;
   pointer-events: none;
 }
 
 @media (hover: hover) {
   .pinLogo:hover {
-    transform: rotate(3deg) translateY(-3px) scale(1.12);
+    transform: rotate(-5deg) translateY(-3px) scale(1.12);
   }
 }
 
-/* Der Spot der offenen Detailansicht: groß, unabhängig vom Zoom, und mit
-   leichtem Glanz im selben Rot (Betreiber, 14.10.2026 — Startseite und Map
-   gleich). Alle anderen bleiben in Listengröße; zwei Größen, kein drittes
-   „zurückgetreten“. Die Form schneidet `clip-path` an .pinLogoShape, der
-   Glanz bleibt also in ihr. */
+/* Der gewählte Spot behält seine Folienfarbe und wird nur größer. */
 .pinLogoActive {
   width: 44px;
-  height: 48px;
-  transform: rotate(3deg);
+  height: 44px;
+  transform: rotate(-5deg);
   scale: none;
   z-index: 4;
 }
-
-.pinLogoActive .pinLogoShape {
-  background:
-    linear-gradient(145deg, rgb(255 255 255 / 0.42) 0%, rgb(255 255 255 / 0.12) 30%, rgb(255 255 255 / 0) 48%),
-    linear-gradient(325deg, rgb(0 0 0 / 0.2) 0%, rgb(0 0 0 / 0) 38%),
-    var(--pin-color, var(--et-accent));
-  filter: drop-shadow(0 7px 5px rgba(20, 16, 12, 0.38));
-}
-
+.pinLogoActive .pinLetter { font-size: 18px; }
 @media (prefers-reduced-motion: reduce) {
   .pinLogoShape { transition: none; }
 }
-
-.pinLogoActive .pinLogoShape img {
-  inset: 7% 8% 17%;
-  width: 84%;
-  height: 76%;
-}
-
 @media (hover: hover) {
-  .pinLogoActive:hover {
-    transform: rotate(-2deg) translateY(-4px) scale(1.06);
-  }
+  .pinLogoActive:hover { transform: rotate(-5deg) translateY(-4px) scale(1.06); }
 }
 
 /* Informational user-location marker ----------------------------------- */
@@ -217,8 +179,8 @@
   /* Listengröße: so groß, wie bis 14.10.2026 die zurückgetretenen Pins neben
      einer offenen Detailansicht standen (0,8 × 52px) — die alten 52–76px
      wirkten am Desktop zu groß. */
-  .pinLogo { width: clamp(34px, 2vw, 44px); height: clamp(37px, 2.2vw, 48px); }
-  .pinLogoActive { width: clamp(52px, 3.2vw, 72px); height: clamp(57px, 3.5vw, 79px); }
+  .pinLogo { width: clamp(34px, 2vw, 44px); height: clamp(34px, 2vw, 44px); }
+  .pinLogoActive { width: clamp(52px, 3.2vw, 72px); height: clamp(52px, 3.2vw, 72px); }
   .userLoc { width: clamp(58px, 3.5vw, 84px); height: clamp(88px, 5.3vw, 128px); }
 }
 

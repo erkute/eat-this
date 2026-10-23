@@ -454,7 +454,7 @@ a.quiet {
   width: 48px;
   height: 56px;
   /* Weiß, nicht Gelb — Hand und Ring (Betreiber, 28.09.2026). */
-  color: var(--et-fg);
+  color: var(--et-white);
   pointer-events: none;
   animation: tapApproach 650ms ease-in-out both;
 }
@@ -462,6 +462,7 @@ a.quiet {
   position: relative;
   width: 100%;
   height: 100%;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / .25));
 }
 .tapRing {
   position: absolute;
@@ -989,3 +990,23 @@ a.quiet {
     animation: none;
   }
 }
+
+/* Map walkthrough: the same material and typography as map info cards.
+   Preserve the shared tour layout, card art and reduced-motion behavior. */
+:global(html[data-active-page='map']) .layer { background: var(--et-scrim); }
+:global(html[data-active-page='map']) .panel {
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+}
+:global(html[data-active-page='map']) .panel:not([data-flying]) { mask: none; }
+:global(html[data-active-page='map']) .kicker {
+  padding: 0;
+  background: none;
+  color: var(--et-fg);
+}
+:global(html[data-active-page='map']) .headline {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+:global(html[data-active-page='map']) .segments .active { background: var(--et-fg); }

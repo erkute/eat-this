@@ -1736,12 +1736,6 @@
 .detail .scroll > .fdRestInline:not(:has(.fdRestPhoto)) {
   grid-template-columns: minmax(0, 1fr);
 }
-@media (hover: hover) {
-  .detail .scroll > .fdRestInline:hover {
-    background: rgba(255, 255, 255, 0.11);
-    transform: translateY(-2px);
-  }
-}
 .detail .scroll > .fdRestInline:active {
   transform: translateY(1px);
 }
@@ -2131,40 +2125,37 @@
   }
 }
 
-/* ══ Hauslook (22.10.2026) ════════════════════════════════════════════════
-   Die Restaurant-Zeile ist ein Ink-Blatt wie die Fakten im Restaurant-Detail
-   (RestaurantDetail.module.css `.rdFacts`): Korn, Gebrauchsspuren,
-   angestossene Kante, gelbe Versalien über weissem Namen. Grösse und Raster
-   bleiben, wie die Blöcke oben sie setzen — die Zeile ist in jeder Karte
-   gleich hoch, damit der Stapel beim Blättern nicht springt. */
+/* Restaurant-Zeile im selben hellen Knitterlook wie die Map-Filter. */
 .detail .scroll > .fdRestInline:has(.fdRestPhoto),
 .detail .scroll > .fdRestInline {
   border-radius: 0;
-  color: #fff;
-  background-color: var(--et-ink);
+  color: var(--et-fg);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 400px 600px;
+  background-blend-mode: multiply;
 }
 :global(html[data-theme='dark']) .detail .scroll > .fdRestInline {
-  background-color: var(--et-ink-raised);
+  background-color: #fff;
+  background-blend-mode: difference;
 }
 @media (hover: hover) {
   .detail .scroll > .fdRestInline:hover {
-    background-color: var(--et-ink-raised);
+    box-shadow: inset 0 0 0 2px var(--et-fg);
     transform: none;
   }
 }
 .scroll > .fdRestInline:focus-visible {
-  outline: 0;
-  background-color: var(--et-ink-raised);
+  outline: 2px solid var(--et-fg);
+  outline-offset: 3px;
 }
 .scroll > .fdRestInline .fdK {
-  color: #ffc600;
+  color: var(--et-muted);
   font-family: var(--et-font-body);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.08em;
 }
 .scroll > .fdRestInline .fdV {
-  color: #fff;
+  color: var(--et-fg);
 }
 
 /* Das X frei, ohne Fläche (Ansage 22.10.2026: „beim X kein Rahmen"), als
@@ -2172,4 +2163,34 @@
 .fdClose svg {
   width: 20px;
   height: 20px;
+}
+
+/* Same foil as the map filters, including the photo/detail overlay controls. */
+:global(html[data-active-page='map']) .fdClose {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 0;
+  background-color: #fff;
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 240px 360px;
+  background-position: center;
+  color: var(--et-ink);
+  filter: none;
+}
+:global(html[data-active-page='map']) .fdClose svg { width: 24px; height: 24px; }
+:global(html[data-active-page='map']) .fdClose:focus-visible {
+  outline: 2px solid var(--et-ink);
+  outline-offset: 2px;
+  background-blend-mode: difference;
+  color: #fff;
+}
+@media (hover: hover) {
+  :global(html[data-active-page='map']) .fdClose:hover {
+    background-blend-mode: difference;
+    color: #fff;
+  }
+}
+@media (max-width: 767.98px) {
+  :global(html[data-active-page='map']) .fdClose { width: 48px; height: 48px; }
 }

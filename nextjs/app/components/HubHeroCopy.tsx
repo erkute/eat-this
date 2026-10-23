@@ -25,15 +25,7 @@ const LEAD = {
 // Maße sind die des Assets, damit der Platz vor dem Laden reserviert ist.
 const MARK = { src: '/pics/home/wordmark.webp?v=1', width: 1124, height: 274 } as const;
 
-/* Nur der Name, kein Verb. Der Knopf daneben heißt „Dein Profil" — auch ein
-   Nomen —, und ein Linkziel zu benennen ist die bessere Beschriftung, als eine
-   Handlung anzukündigen, die aus dem Kontext ohnehin klar ist. Nebenbei ist der
-   Ankertext damit exakt der Begriff, für den /map ranken soll.
-
-   In beiden Sprachen identisch: „Berlin Food Map" ist ein Eigenname, kein
-   übersetzbarer Satz — deshalb eine Konstante statt dreier Ternaries an den
-   drei Stellen, an denen der Hero sie rendert (Gast, geladen, FOUC-Variante). */
-const HERO_MAP_LABEL = 'Berlin Food Map';
+const HERO_MAP_LABEL = { de: 'Map entdecken', en: 'Explore the map' } as const;
 
 function HeroMark() {
   return (
@@ -63,22 +55,11 @@ const LEAD_AUTH = {
   en: 'Every spot on your map — and the Must Eats you have collected in your deck.',
 } as const;
 
-/** Der Lead Wort für Wort in eigenen Spans. Die Leerzeichen bleiben echter
- *  Text dazwischen, damit die Zeile normal umbricht und vorgelesen wird. Ein `\n`
- *  beginnt eine eigene Zeile – als Block, damit `text-wrap` jede für sich
- *  ohne Einzelwort am Ende umbricht. */
-function LeadWords({ text }: { text: string }) {
-  let index = 0;
-  return text.split('\n').map((line, lineIndex) => (
-    <span key={lineIndex} className={styles.heroLeadLine}>
-      {line.split(' ').map((word) => (
-        <span key={index}>
-          {index++ > 0 ? ' ' : null}
-          <span className={styles.heroLeadWord} data-lead-word="">
-            {word}
-          </span>
-        </span>
-      ))}
+/** Die beiden Sätze behalten ihren eigenen Umbruch, ohne Wort-Spans. */
+function LeadLines({ text }: { text: string }) {
+  return text.split('\n').map((line, index) => (
+    <span key={index} className={styles.heroLeadLine}>
+      {index > 0 ? ' ' : null}{line}
     </span>
   ));
 }
@@ -112,11 +93,11 @@ function HeroCopy({ firstName, locale, variant }: HeroCopyProps) {
         <p className={styles.heroGreeting}>{firstName ? `Hey ${firstName}.` : 'Hey.'}</p>
       ) : null}
       <p className={signedIn ? `${styles.heroLead} ${styles.heroLeadAuth}` : styles.heroLead}>
-        <LeadWords text={signedIn ? LEAD_AUTH[locale] : LEAD[locale]} />
+        <LeadLines text={signedIn ? LEAD_AUTH[locale] : LEAD[locale]} />
       </p>
       <div className={styles.heroActions} data-hero-actions="">
         <MapIntentLink href="/map" className="et-btn">
-          {HERO_MAP_LABEL}
+          {HERO_MAP_LABEL[locale]}
         </MapIntentLink>
         {signedIn ? (
           <Link
@@ -149,20 +130,20 @@ function LoadingHeroCopy({ locale }: Props) {
         Hey.
       </p>
       <p className={styles.heroLead} data-guest-only="">
-        <LeadWords text={LEAD[locale]} />
+        <LeadLines text={LEAD[locale]} />
       </p>
       <p className={`${styles.heroLead} ${styles.heroLeadAuth}`} data-auth-only="">
-        <LeadWords text={LEAD_AUTH[locale]} />
+        <LeadLines text={LEAD_AUTH[locale]} />
       </p>
       <div className={styles.heroActions} data-hero-actions="">
         <span className={styles.heroActionVariant} data-guest-only="">
           <MapIntentLink href="/map" className="et-btn">
-            {HERO_MAP_LABEL}
+            {HERO_MAP_LABEL[locale]}
           </MapIntentLink>
         </span>
         <span className={styles.heroActionVariant} data-auth-only="">
           <MapIntentLink href="/map" className="et-btn">
-            {HERO_MAP_LABEL}
+            {HERO_MAP_LABEL[locale]}
           </MapIntentLink>
           <Link
             href="/profile"
@@ -193,7 +174,7 @@ export default function HubHeroCopy({ locale }: Props) {
   return (
     <div className={styles.heroCopy}>
       <div className={styles.heroBrand}><HeroMark /></div>
-      <MapIntentLink href="/map" className={styles.heroArt} aria-label={locale === 'de' ? 'Berlin Food Map öffnen' : 'Open the Berlin food map'} data-hub-art="">
+      <MapIntentLink href="/map" className={styles.heroArt} aria-label={locale === 'de' ? 'Berlin Food Map öffnen' : 'Open the Berlin food map'}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/pics/home/hero-must-eat.webp" width={470} height={646} alt="Hamachi Head — Must Eat Card" fetchPriority="high" decoding="async" />
       </MapIntentLink>

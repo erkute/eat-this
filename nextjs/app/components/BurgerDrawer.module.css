@@ -1,10 +1,10 @@
-/* Helle, zerknitterte Folie aus der Menü-Referenz. Das ganze Blatt bleibt
-   samt weißem Rand sichtbar, in beiden Themes mit fester Ink-Schrift. */
+/* Helle, zerknitterte Folie aus der Menü-Referenz. Die Folie läuft ohne
+   weißen Außenrand bis an die Kanten; Schrift in beiden Themes Ink. */
 .drawer { position: fixed; inset: 0; z-index: var(--et-z-drawer); display: flex; justify-content: flex-end; pointer-events: none; }
 .drawer[hidden] { display: none; pointer-events: none; }
 .drawer:global(.active) { pointer-events: auto; }
 .backdrop { position: absolute; inset: 0; border: 0; background: rgb(0 0 0 / .28); }
-.panel { position: relative; display: flex; flex-direction: column; width: min(100vw, 560px); height: 100dvh; --et-fg: #15120e; --et-muted: rgba(21, 18, 14, .64); --et-link: #15120e; --et-quiet: rgba(21, 18, 14, .08); --et-solid: #15120e; --et-on-solid: #fff; --et-wear: none; --et-btn-wear: none; --et-rough-edges-sm: none; color: var(--et-fg); background: url('/pics/paper/menu-foil.webp') center / 100% 100% no-repeat, #fff; transform: translateX(100%); transition: transform 220ms cubic-bezier(.2,.8,.2,1); }
+.panel { position: relative; display: flex; flex-direction: column; width: min(100vw, 560px); height: 100dvh; --et-fg: #15120e; --et-muted: rgba(21, 18, 14, .64); --et-link: #15120e; --et-quiet: rgba(21, 18, 14, .08); --et-solid: #15120e; --et-on-solid: #fff; --et-wear: none; --et-btn-wear: none; --et-rough-edges-sm: none; color: var(--et-fg); background: url('/pics/paper/menu-foil.webp') center / 110% 110% no-repeat, #e5e5e5; transform: translateX(100%); transition: transform 220ms cubic-bezier(.2,.8,.2,1); }
 .drawer:global(.active) .panel { transform: none; }
 .topbar { display: flex; align-items: center; justify-content: space-between; flex: none; gap: 24px; padding: max(16px, env(safe-area-inset-top, 0px)) 40px 0; }
 .logo { display: flex; align-items: center; min-height: 44px; width: 120px; }

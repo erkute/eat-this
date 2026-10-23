@@ -333,12 +333,10 @@
 .detail .btnPackPromo {
   width: auto;
 }
-/* „Anmelden" auf dem roten Pack-Angebot: ein helleres Rot, damit der Knopf
-   zum Angebot gehört (Ansage 22.10.2026). Hell genug, dass er sich vom Rot
-   der Fläche (--et-offer-red) abhebt. Farbe über die Rollen von et-btn. */
+/* Auf dem roten Angebot trägt die Fläche die kontrastreichen Hausknopf-Rollen. */
 .packPromo {
-  --et-btn-bg: #e4574a;
-  --et-btn-fg: #fff;
+  --et-solid: var(--et-red);
+  --et-on-solid: #fff;
 }
 
 .btnPackPromoLbl {
@@ -812,7 +810,7 @@
   z-index: 2;
   display: grid;
   justify-items: start;
-  gap: 10px;
+  gap: 6px;
   pointer-events: none;
 }
 .rdNameOv {
@@ -821,17 +819,15 @@
   /* Der Wert pro Name (--rd-name-max) gewinnt, damit ein langes Wort nie
      über den Rand läuft. */
   font-size: min(var(--rd-name-max, 34px), 34px, max(26px, 8vw));
-  font-weight: 700;
+  font-weight: 800;
   line-height: max(1.22em, var(--ink-lead, 0px));
   overflow-wrap: anywhere;
-  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.28));
 }
 .rdTagsOv {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   max-width: 100%;
-  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.24));
 }
 .rdTagsOv > span {
   max-width: 100%;
@@ -839,9 +835,7 @@
   text-overflow: ellipsis;
 }
 
-/* Herz und X: durchsichtig, nur das weisse Symbol frei auf dem Foto — mit
-   dem engen Ink-Hof der Foto-Striche, der es auf hellen Bildern lesbar hält
-   (Ansage 22.10.2026). Die Trefferfläche bleibt 44px. */
+/* Präzise Symbole auf festen weissen Flächen bleiben auf jedem Foto lesbar. */
 .rdHeartToggle,
 .rdCloseGlass {
   position: absolute;
@@ -853,45 +847,29 @@
   gap: 6px;
   min-width: 44px;
   height: 44px;
-  padding: 0 8px;
+  padding: 0 10px;
   border: 0;
-  background: transparent;
-  color: #fff;
+  border-radius: 0;
+  background-color: #fff;
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 240px 360px;
+  background-position: center;
+  color: var(--et-ink);
   font: 700 13px / 1 var(--et-font-body);
-  filter: drop-shadow(0 0 1.5px var(--et-ink)) drop-shadow(0 1px 3px rgb(0 0 0 / 0.5));
   cursor: pointer;
-  transition: color var(--et-motion-fast);
+  transition: background-color var(--et-motion-fast), color var(--et-motion-fast);
 }
-.rdHeartToggle {
-  left: 8px;
-}
-.rdCloseGlass {
-  right: 8px;
-  width: 44px;
-  padding: 0;
-}
+.rdHeartToggle { left: 12px; }
+.rdCloseGlass { right: 12px; width: 44px; padding: 0; }
 .rdHeartToggle svg,
-.rdCloseGlass svg {
-  width: 20px;
-  height: 20px;
-}
-.rdHeartToggleOn {
-  color: #ffc600;
-}
-.rdHeartToggleOn .rdHeartToggleCount {
-  color: #fff;
-}
+.rdCloseGlass svg { width: 24px; height: 24px; }
+.rdHeartToggleOn { color: var(--et-red); }
 @media (hover: hover) {
   .rdHeartToggle:hover,
-  .rdCloseGlass:hover {
-    color: #ffc600;
-  }
+  .rdCloseGlass:hover { background-blend-mode: difference; color: #fff; }
 }
 .rdHeartToggle:focus-visible,
-.rdCloseGlass:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -2px;
-}
+.rdCloseGlass:focus-visible { outline: 2px solid var(--et-ink); outline-offset: 3px; }
 
 /* ── Text und Tipp ─────────────────────────────────────────────────────── */
 .rdBody {
@@ -962,34 +940,21 @@
   line-height: 1.35;
 }
 
-/* ── Fakten: ein Blatt wie auf der Startseite ───────────────────────────
-   Adresse, Woche, Preis, Instagram und die Knöpfe liegen auf EINEM
-   Ink-Blatt wie die Must-Eats-Sektion der Startseite: Korn und
-   Gebrauchsspuren, angestossene Kante, gelbe Versalien über weissen Werten,
-   heute gelb. Die Knöpfe darauf sind weiss (Rollen wie auf den Ink-Blättern
-   in globals.css). Ansage 22.10.2026: „wie die Startseite-Objekte". */
+/* Steckbrief auf demselben Knitterpapier wie die Map-Filter. */
 .rdFacts {
-  color-scheme: dark;
-  --et-fg: #fff;
-  --et-muted: #b7b3ae;
-  --et-link: #ffc600;
-  --et-solid: #fff;
-  --et-on-solid: #15120e;
-  --et-focus: #fff;
-  margin: 48px 14px 0;
-  padding: 26px 22px 24px;
-  background-color: var(--et-ink);
+  margin: 36px var(--rd-gut) 0;
+  padding: 20px;
+  border: 0;
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 100% 100% no-repeat;
+  background-blend-mode: multiply;
   color: var(--et-fg);
-}
-:global(html[data-theme='dark']) .rdFacts {
-  background-color: var(--et-ink-raised);
 }
 .rdBlock + .rdBlock {
   margin-top: 24px;
 }
 .rdK {
   margin: 0 0 8px;
-  color: #ffc600;
+  color: var(--et-muted);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -1012,8 +977,7 @@
   font-size: 13px;
 }
 
-/* Die Woche: Tag links, Zeit rechts, keine Linien und Punkte dazwischen.
-   Heute steht gelb und fett, die übrigen Tage leise. */
+/* Die Woche: Tag links, Zeit rechts; heute kräftig, die übrigen Tage leise. */
 .rdHours {
   display: grid;
   gap: 4px;
@@ -1037,10 +1001,10 @@
   color: var(--et-muted);
 }
 .rdHoursRow dt {
-  color: #fff;
+  color: var(--et-fg);
 }
 .rdHoursRowToday {
-  color: #ffc600;
+  color: var(--et-fg);
   font-weight: 700;
 }
 .rdHoursSpan {
@@ -1089,8 +1053,14 @@
   --et-label-bg: var(--et-ink);
 }
 
-/* Das Pack-Angebot ist ein Blatt wie die übrigen Flächen der Map: eckig
-   und glatt. */
+/* Rotes Knitterblatt für das Pack-Angebot. */
 .detail .packPromo {
   border-radius: 0;
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+}
+:global(html[data-theme='dark']) .rdFacts {
+  background-color: #fff;
+  background-blend-mode: difference;
 }

@@ -20,22 +20,13 @@
    das Wort („Starte / r", 21.10.2026). */
 .page :global(.hv-head) { container-type: inline-size; }
 .page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
-.hero { position: relative; overflow: hidden; box-sizing: border-box; padding-top: var(--site-nav-h); background: #ffc600; color: #111; }
+/* Dieselbe helle Folie wie im Burger-Menü, hinter dem Inhalt statt darüber. */
+.hero { position: relative; overflow: hidden; box-sizing: border-box; padding-top: var(--site-nav-h); --et-solid: #15120e; --et-on-solid: #fff; background: #fff; color: #111; }
 .hero::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: url('/pics/home/paper-texture.webp') center / 615px 846px;
-  mix-blend-mode: multiply; opacity: .2;
+  background: url('/pics/paper/menu-foil.webp') center / 100% 100% no-repeat;
 }
-/* Zerknittertes, durchsichtiges Papier über dem ganzen Hero — die Ebene
-   „Oberfläche · transparentes Papier“ aus Figma, ungeändert übernommen. */
-.hero::after {
-  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: url('/pics/home/hero-crumple-mobile.webp') center / 100% 100% no-repeat;
-}
-@media (min-width: 768px) {
-  .hero::after { background-image: url('/pics/home/hero-crumple-desktop.webp'); }
-}
-/* Der Hero trägt das Knitterpapier statt der Karten-Spuren der übrigen Blätter. */
+/* Die eigene Folie ersetzt die Gebrauchsspuren der übrigen Blätter. */
 :global(html[data-vintage] .homeV2) > .hero { background-image: none; }
 .heroInner { position: relative; padding: 64px var(--home-gutter); max-width: 1600px; margin: auto; }
 .heroCopy {
@@ -66,9 +57,7 @@
   color: #111; font: 400 18px/1.5 var(--et-font-body);
 }
 .heroLead.heroLeadAuth { margin-top: 12px; }
-.heroLeadLine { display: inline; }
-.heroLeadLine + .heroLeadLine::before { content: ' '; }
-.heroLeadWord { display: inline-block; }
+.heroLeadLine { display: block; text-wrap: balance; }
 .heroActions { grid-column: 2; grid-row: 6; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; width: fit-content; }
 .heroActionVariant { display: flex; flex-wrap: wrap; gap: 12px; }
 :global(html[data-hero-flight='on']:not([data-hero-rest])) .heroMark { visibility: hidden; }

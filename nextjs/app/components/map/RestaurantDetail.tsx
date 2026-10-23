@@ -323,7 +323,7 @@ export default function RestaurantDetail({
             >
               <HeartIcon filled={!!isFavorite} />
               {heartCount >= 1 && (
-                <span className={styles.rdHeartToggleCount}>
+                <span>
                   {heartCountShort(heartCount, locale)}
                 </span>
               )}
@@ -342,11 +342,11 @@ export default function RestaurantDetail({
               className={styles.rdNameOv}
               style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}
             >
-              <span className="et-label-title">{displayName}</span>
+              <span className="et-label-title et-label-tape">{displayName}</span>
             </h2>
             <div className={styles.rdTagsOv}>
               {(district || cuisine) && (
-                <span className="et-label et-label-paper">
+                <span className="et-label et-label-paper et-label-tape">
                   {[district, cuisine].filter(Boolean).join(' · ')}
                 </span>
               )}

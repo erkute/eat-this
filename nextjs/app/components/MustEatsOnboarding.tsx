@@ -255,7 +255,7 @@ export default function MustEatsOnboarding({
           tone === 'ink'
             ? `${styles.how} ${styles.howInk}`
             : tone === 'sheet'
-              ? `${styles.how} ${styles.howSheet}`
+              ? `et-btn et-btn-alt et-btn-sm ${styles.howSheet}`
               : tone === 'plain'
                 ? `${styles.how} ${styles.howPlain}`
                 : styles.how

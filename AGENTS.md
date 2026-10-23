@@ -63,7 +63,7 @@ Status nur so weit melden, wie er belegt ist: `committed` → `pushed` → `PR o
 
 **Etiketten:** Text auf Fotos und kleine Zwischentitel über die globalen Klassen `et-label` / `et-label-paper` / `et-label-title` (`globals.css`), immer gerade, nie schief. Fotos werden für Text nie abgedunkelt (Betreiber, 22.10.2026).
 
-**Navigation und CTAs:** Keine Pfeile oder Chevrons als Richtungszeichen (auch nicht für Zurück, Weiter oder externe Links). Keine unterstrichenen Wörter oder Links, auch nicht bei Hover oder Fokus. Interaktion und Fokus über Farbe, Fläche oder eine klare Umrandung kennzeichnen.
+**Navigation und CTAs:** Keine Pfeile oder Chevrons als Richtungszeichen (auch nicht für Zurück, Weiter oder externe Links). Einzige Ausnahme: die Lasche, die am Desktop das Listen-Panel der Map ein- und ausklappt, trägt nur einen Pfeil (Betreiber, 22.10.2026). Keine unterstrichenen Wörter oder Links, auch nicht bei Hover oder Fokus. Interaktion und Fokus über Farbe, Fläche oder eine klare Umrandung kennzeichnen.
 
 Bei sichtbaren Änderungen den betroffenen Ablauf vor und nach dem Umbau auf einem schmalen Telefon und Desktop prüfen. Bestehende Komponenten und die `--et-*`-Tokens in `globals.css` sind die gestalterische Referenz; neue Richtungen erst anhand konkreter Screens/Referenzen ausarbeiten. Schrift, Abstände, Bildausschnitt, Fokus und leere/ladende Zustände gehören zur Abnahme. Animationen mit und ohne Reduced Motion prüfen; sichtbare Inhalte sollen nicht auf eine Animation oder Hydrierung warten müssen.
 

@@ -6,20 +6,48 @@
   container-type: inline-size;
 }
 
+/* Die angestossene Kante der Hausknöpfe, aber nur oben und unten — die
+   Seiten bleiben gerade (Ansage 22.10.2026: „die Seiten nicht so gebogen").
+   Dieselben Kantenstreifen wie `--et-rough-edges-sm` (globals.css). */
+:global(html[data-vintage]) .listHeader,
+:global(html[data-vintage]) .pickerSheet {
+  --filter-edges:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
+    linear-gradient(#000 0 0) center / 100% calc(100% - 7px) no-repeat;
+}
+/* Aussen an der Leiste — links am ersten, rechts am letzten Filter — ist die
+   Kante angeknabbert wie bei den Fotos darunter (Ansage 22.10.2026). */
+:global(html[data-vintage]) .filterChipRow > :first-child .filterChip {
+  mask:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
+    linear-gradient(#000 0 0) right center / calc(100% - 3.5px) calc(100% - 7px) no-repeat;
+}
+:global(html[data-vintage]) .filterChipRow > .filterChip:last-child {
+  mask:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
+    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 4px 128px repeat-y,
+    linear-gradient(#000 0 0) left center / calc(100% - 3.5px) calc(100% - 7px) no-repeat;
+}
+
 .filterChipRow {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  /* Eng: die angestossene Kante der Pillen lässt schon Luft dazwischen. */
+  /* Eng: die angestossene Kante lässt schon Luft dazwischen. Ohne Seitenrand,
+     bis an die Kante wie die Fotos der Liste (Ansage 22.10.2026). */
   gap: 2px;
   width: 100%;
   min-width: 0;
-  padding: 6px 6px 8px;
+  padding: 6px 0 8px;
   box-sizing: border-box;
 }
 
-/* Die Filter sehen aus wie die Hausknöpfe (et-btn): gefüllte Ink-Pille mit
-   Kratzern und angestossener Kante, fett, weiss. Gesetzt, aufgeklappt oder
+/* Die Filter sehen aus wie die Hausknöpfe (et-btn): gefüllte Ink-Fläche mit
+   Kratzern und angestossener Kante, fett, weiss — aber eckig. Gesetzt, aufgeklappt oder
    unter der Maus wird die Pille gelb mit Ink-Schrift. Sie füllen die ganze
    Breite und bleiben immer in EINER Zeile: wird es eng, werden die Pillen
    schmaler und ein langer Wert kürzt sich (Ansage 22.10.2026). Kein Pfeil. */
@@ -40,9 +68,11 @@
   min-height: 40px;
   padding: 0 12px;
   border: 0;
-  border-radius: var(--et-radius-pill);
+  /* Eckig, nicht als Pille (Ansage 22.10.2026) — die angestossene Kante
+     bleibt. */
+  border-radius: 0;
   background: var(--et-solid) var(--et-btn-wear, none) 0 0 / 200px auto;
-  mask: var(--et-rough-edges-sm, none);
+  mask: var(--filter-edges, none);
   color: var(--et-on-solid);
   font-family: var(--et-font-body);
   font-size: 14px;
@@ -319,7 +349,7 @@
 }
 
 /* Die Auswahl gebündelt als gefüllte Knöpfe ohne Rahmen, im Look der
-   Hausknöpfe (et-btn): Ink-Pille mit Kratzern und angestossener Kante,
+   Hausknöpfe (et-btn), eckig: Ink-Fläche mit Kratzern und angestossener Kante,
    weisse Schrift, die Anzahl leise rechts. Gewählt, unter der Maus oder im
    Fokus wird die Pille gelb mit Ink-Schrift — wie der gesetzte Filter
    darüber (Ansage 22.10.2026: „gebündelt wie Buttons, aber ohne Rahmen"). */
@@ -334,9 +364,9 @@
   min-height: 44px;
   padding: 0 16px;
   border: 0;
-  border-radius: var(--et-radius-pill);
+  border-radius: 0;
   background: var(--et-solid) var(--et-btn-wear, none) 0 0 / 200px auto;
-  mask: var(--et-rough-edges-sm, none);
+  mask: var(--filter-edges, none);
   color: var(--et-on-solid);
   appearance: none;
   font-family: var(--et-font-body);
@@ -474,9 +504,17 @@
   overflow-y: auto;
 }
 
+/* Desktop: das Panel hat keinen Griff darüber — ohne Luft klebte die Leiste
+   6px unter der Fensterkante in der Ecke (Ansage 22.10.2026). */
+@media (min-width: 1024px) {
+  .filterChipRow {
+    padding: 16px 0 10px;
+  }
+}
+
 /* Schmale Panels: die Wörter rücken enger zusammen, statt abzukürzen. */
 @container (max-width: 374px) {
-  .filterChipRow { gap: 2px; padding-inline: 4px; }
+  .filterChipRow { gap: 2px; }
   .filterChipRow .filterChip { padding-inline: 10px; font-size: 13px; }
   .filterChipRow .filterChipActive { padding-right: 24px; }
 }

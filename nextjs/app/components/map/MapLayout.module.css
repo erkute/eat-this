@@ -447,3 +447,14 @@
 }
 
 :global(html[data-theme='dark']) .mapWrap :global(.maplibregl-ctrl-attrib-button) { filter: invert(1); }
+
+/* Die Grundkarte ist ein Druck (scripts/build-basemap-style.mts): dasselbe
+   Papierkorn wie die Seiten liegt über der Karte, unter den Pins (die stehen
+   im Marker-Container hinter dem Canvas). */
+:global(html[data-vintage]) .mapWrap :global(.maplibregl-canvas-container)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px;
+  pointer-events: none;
+}

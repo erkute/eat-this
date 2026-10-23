@@ -397,7 +397,7 @@
 .fdName,
 .fdNameText {
   font-family: var(--et-font-display);
-  text-transform: uppercase;
+  text-transform: none;
 }
 .fdName {
   font-size: clamp(38px, 10.2vw, 64px);
@@ -1452,7 +1452,7 @@
   height: 56px;
   min-height: 56px;
   align-self: center;
-  border-radius: 8px;
+  border-radius: 0;
   object-fit: cover;
   box-shadow: none;
 }
@@ -1552,20 +1552,13 @@
   overflow: visible;
 }
 
-/* Gelb, klein, Versalien: das Zeichen, unter dem im Onboarding jede Folie
-   steht (.kicker). Hier nennt es den Bezirk — die eine Angabe, die verdeckt
+/* Der Kicker ist ein gerades Etikett (et-label, globals.css) wie in der
+   Restaurant-Ansicht. Er nennt den Bezirk — die eine Angabe, die verdeckt
    wie aufgedeckt gilt und nicht schon im Restaurant-Streifen steht. */
 
 .fdKicker {
   flex: 0 0 auto;
   margin: 0;
-  color: var(--et-accent-text);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-kicker);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  text-transform: uppercase;
 }
 
 .fdName {
@@ -1838,8 +1831,7 @@
    („Noch nicht aufgedeckt."), der Standort sitzt darunter als eigenes Objekt
    in der Copy-Zeile: eine Taste mit Pin, solange man den Browser noch fragen
    darf; gedimmt und ohne Taste, sobald er Nein gesagt hat — dann sagt der
-   Hinweis darunter, wo es noch geht. Die Fassung ist der zweite Knopf des
-   Onboardings (.packLink): eine ruhige Fläche, bei Hover in der Akzentfarbe. */
+   Hinweis darunter, wo es noch geht. Aussehen: der Hausknopf (et-btn). */
 
 .fdLocation {
   display: grid;
@@ -1848,72 +1840,20 @@
   width: 100%;
 }
 
-.fdLocationChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-sizing: border-box;
-  min-height: 40px;
-  margin: 0;
-  padding: 0 16px 0 13px;
-  appearance: none;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  background: var(--et-quiet);
-  color: var(--me-ink);
-  font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0;
-  /* 1.55 statt 1: Providence braucht Platz unter der Zeile, sonst kappt der
-     Kasten das g (siehe .rdActBtn in RestaurantDetail.module.css). Die Höhe
-     kommt aus min-height. */
-  line-height: 1.55;
-  text-transform: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 0.16s ease;
-}
-
+/* Der Standort-Knopf ist ein Hausknopf (et-btn et-btn-sm) — hier steht nur
+   das Symbol darin. */
 .fdLocationChip svg {
   flex: 0 0 auto;
   width: 16px;
   height: 16px;
 }
 
-@media (hover: hover) {
-  button.fdLocationChip:hover {
-    transform: translateY(-2px);
-    background: var(--me-accent);
-    color: var(--et-on-accent);
-  }
-}
-
-button.fdLocationChip:active {
-  transform: translateY(1px);
-}
-
-.fdLocationChip:focus-visible {
-  outline: 2px solid var(--me-accent);
-  outline-offset: 2px;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .fdLocationChip,
   .detail .scroll > .fdRestInline {
     transition: none;
   }
-  button.fdLocationChip:active,
   .detail .scroll > .fdRestInline:active {
     transform: none;
-  }
-  @media (hover: hover) {
-    button.fdLocationChip:hover,
-    .detail .scroll > .fdRestInline:hover {
-      transform: none;
-    }
   }
 }
 
@@ -2189,4 +2129,54 @@ button.fdLocationChip:active {
     padding-top: calc(62px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
+}
+
+/* ══ Hauslook (22.10.2026) ════════════════════════════════════════════════
+   Die Restaurant-Zeile ist ein Ink-Blatt wie die Fakten im Restaurant-Detail
+   (RestaurantDetail.module.css `.rdFacts`): Korn, Gebrauchsspuren,
+   angestossene Kante, gelbe Versalien über weissem Namen. Grösse und Raster
+   bleiben, wie die Blöcke oben sie setzen — die Zeile ist in jeder Karte
+   gleich hoch, damit der Stapel beim Blättern nicht springt. */
+.detail .scroll > .fdRestInline:has(.fdRestPhoto),
+.detail .scroll > .fdRestInline {
+  border-radius: 0;
+  color: #fff;
+  background-color: var(--et-ink);
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  background-size: 192px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+}
+:global(html[data-theme='dark']) .detail .scroll > .fdRestInline {
+  background-color: var(--et-ink-raised);
+}
+:global(html[data-vintage]) .detail .scroll > .fdRestInline {
+  mask: var(--et-rough-edges-sm);
+}
+@media (hover: hover) {
+  .detail .scroll > .fdRestInline:hover {
+    background-color: var(--et-ink-raised);
+    transform: none;
+  }
+}
+.scroll > .fdRestInline:focus-visible {
+  outline: 0;
+  background-color: var(--et-ink-raised);
+}
+.scroll > .fdRestInline .fdK {
+  color: #ffc600;
+  font-family: var(--et-font-body);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.scroll > .fdRestInline .fdV {
+  color: #fff;
+}
+
+/* Das X frei, ohne Fläche (Ansage 22.10.2026: „beim X kein Rahmen"), als
+   gezeichnetes Zeichen (icons.tsx CloseIcon) in der Stärke der übrigen. */
+.fdClose svg {
+  stroke-width: 2.6;
+  width: 22px;
+  height: 22px;
 }

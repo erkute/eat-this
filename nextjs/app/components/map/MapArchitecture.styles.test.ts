@@ -14,7 +14,6 @@ const moduleNames = [
   'MapFilters.module.css',
   'MapListEmpty.module.css',
   'MapIntro.module.css',
-  'MapSeoFooter.module.css',
   'RestaurantList.module.css',
   'RestaurantGalleryLightbox.module.css',
   'MustEatImageLightbox.module.css',

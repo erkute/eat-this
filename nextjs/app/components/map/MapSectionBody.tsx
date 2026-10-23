@@ -33,7 +33,6 @@ import MapSheetDetail from './MapSheetDetail';
 import MapListHeader from './MapListHeader';
 import MapIntro from './MapIntro';
 import { SearchGlassIcon } from './icons';
-import MapSeoFooter from './MapSeoFooter';
 import MapDataNotice from './MapDataNotice';
 import MapSearchSuggestions from './MapSearchSuggestions';
 import type { InitialCamera } from '@/lib/map/useMapCamera';
@@ -832,17 +831,16 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             aria-expanded={!desktopPanelHidden}
             onClick={onToggleDesktopPanel}
           >
-            {/* Von Hand gezogen wie Lupe und Burger: ein Strich mit Bauch,
-                der Abstrich länger als der Aufstrich. Eingeklappt dreht er
-                sich um (MapControls.module.css). */}
+            {/* Nur ein Pfeil, kein Wort (Betreiber, 22.10.2026 — die Ausnahme
+                von der Pfeil-Regel in AGENTS.md). Von Hand gezogen wie Lupe,
+                Burger und X; eingeklappt dreht er sich um. */}
             <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M9.2 5.4c2.3 1.9 4.4 4 6.1 6.4-1.8 2.3-3.9 4.5-6 6.6" />
+              {/* Zwei Striche wie beim X: der Aufstrich zur Spitze, der
+                  Abstrich zurück eine Spur kräftiger und mit Bauch, beide
+                  überlappen an der Spitze. */}
+              <path d="M9.2 5.4c2.3 1.9 4.4 4 6.1 6.4" />
+              <path d="M15.6 11.6c-1.9 2.4-4 4.6-6.3 6.9" strokeWidth="3.8" />
             </svg>
-            {desktopPanelHidden && (
-              <span className={controlStyles.panelToggleLabel} aria-hidden="true">
-                {locale === 'en' ? 'List' : 'Liste'}
-              </span>
-            )}
           </button>
 
           <aside
@@ -957,7 +955,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}
                   />
-                  <MapSeoFooter locale={locale} />
                 </div>
               </>
             )}

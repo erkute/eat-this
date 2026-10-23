@@ -1,7 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { Layer, Source, useMap } from 'react-map-gl/maplibre';
 import type { LayerProps } from 'react-map-gl/maplibre';
+import { currentTheme, subscribeTheme } from '@/lib/theme';
 
 /* Die U- und S-Bahnhöfe Berlins als Orientierungshilfe unter den Pins.
  *
@@ -39,9 +40,10 @@ const BADGE_GAP = 2.5;
 const BADGE_PIXEL_RATIO = 3;
 
 /* Die Signalfarben der beiden Netze, je eine Spur dunkler als das Original —
-   auf dem Ink-Grund (#0e0e0e) trägt die volle Sättigung zu weit und tritt
-   gegen die gelben Pins an. Das Weiß der Buchstaben steht auf beiden über
-   5:1, bleibt also auch bei 10 px lesbar.
+   die volle Sättigung trägt zu weit und tritt gegen die Pins an. Auf der
+   Druckkarte die einzigen Buntfarben neben den Pins (Ansage 22.10.2026).
+   Das Weiß der Buchstaben steht auf beiden über 5:1, bleibt also auch bei
+   10 px lesbar.
    Blau und Grün sind hier keine Gestaltungsentscheidung, sondern die Sache
    selbst: nach genau diesen zwei Farben sucht man in Berlin. */
 const U_BAHN_BLUE = '#0a5ca9';
@@ -121,7 +123,9 @@ const BADGES: Record<string, ('u' | 's')[]> = {
   'et-transit-us': ['s', 'u'],
 };
 
-const badgeLayer: LayerProps = {
+type SymbolLayerProps = Extract<LayerProps, { type: 'symbol' }>;
+
+const badgeLayer: SymbolLayerProps = {
   id: 'transit-badge',
   type: 'symbol',
   source: SOURCE_ID,
@@ -155,17 +159,17 @@ const badgeLayer: LayerProps = {
     /* Etwas unter voll, damit die Zeichen auf dem dunklen Grund nicht härter
        stehen als die Pins darüber. */
     'icon-opacity': 0.92,
-    /* Wärmeres Grau als die Straßennamen der Grundkarte (rgba(181,180,180)),
-       eine Spur heller — der Bahnhofsname ist die nützlichere Auskunft. */
-    'text-color': '#c9c2b6',
-    'text-halo-color': '#0e0e0e',
+    /* Farbe und Hof setzt die Komponente nach Hell/Dunkel. */
     'text-halo-width': 1.2,
   },
 };
 
+const serverTheme = () => 'light' as const;
+
 export default function TransitLayer() {
   const { current: mapRef } = useMap();
   const [badgesReady, setBadgesReady] = useState(false);
+  const theme = useSyncExternalStore(subscribeTheme, currentTheme, serverTheme);
 
   useEffect(() => {
     const map = mapRef?.getMap();
@@ -197,9 +201,20 @@ export default function TransitLayer() {
 
   if (!badgesReady) return null;
 
+  /* Die Zeichen bleiben in den Farben der BVG (Ansage 22.10.2026), die Namen
+     stehen in Ink auf Papier wie die übrige Beschriftung der Grundkarte. */
+  const layer: SymbolLayerProps = {
+    ...badgeLayer,
+    paint: {
+      ...badgeLayer.paint,
+      'text-color': theme === 'dark' ? 'rgba(255, 255, 255, 0.72)' : 'rgba(21, 18, 14, 0.72)',
+      'text-halo-color': theme === 'dark' ? '#15120e' : '#ffffff',
+    },
+  };
+
   return (
     <Source id={SOURCE_ID} type="geojson" data={DATA_URL}>
-      <Layer {...badgeLayer} />
+      <Layer {...layer} />
     </Source>
   );
 }

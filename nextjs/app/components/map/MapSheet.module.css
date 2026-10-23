@@ -30,11 +30,14 @@
   user-select: none;
 }
 
-/* The pill. One colour for both views — list and detail read as the same
-   control. Ink, wie ein Strich auf dem Papier. */
+/* Der Griff: ein von Hand gezogener Ink-Strich wie Lupe, Burger und X
+   (Ansage 22.10.2026) — leicht gebogen, links dicker als rechts. Die Form
+   kommt als Maske, die Farbe aus der Schrift, damit hell und dunkel
+   mitgehen. Eine Farbe für Liste und Detail: derselbe Griff. */
 .handle::before {
   content: '';
   background: var(--et-fg);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 8'%3E%3Cpath d='M3 4.6C12 3.3 24 3 35.5 3.6 39.6 3.8 43 4.1 45.4 4.4' fill='none' stroke='%23000' stroke-width='3.6' stroke-linecap='round'/%3E%3Cpath d='M3.4 5.1C10 4.3 18 4.2 26 4.4' fill='none' stroke='%23000' stroke-width='4.4' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
 }
 
 .listScroll {
@@ -118,9 +121,8 @@
   }
 
   .handle::before {
-    width: 42px;
-    height: 3px;
-    border-radius: 999px;
+    width: 48px;
+    height: 8px;
   }
 
   .listScroll {

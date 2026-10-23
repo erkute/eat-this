@@ -24,11 +24,21 @@
   overflow: hidden;
   padding: 18px 34px 24px;
   border-radius: 0;
-  background: var(--et-ground);
+  /* Ein Blatt wie der Anmelde-Layer und die Hinweis-Karte: Korn und
+     Gebrauchsspuren, im Vintage-Look mit abgerissener Kante (unten). */
+  background-color: var(--et-ground);
+  background-image: var(--et-sheet, none);
+  background-size: var(--et-sheet-size, auto);
+  background-repeat: var(--et-sheet-repeat, repeat);
   color: var(--et-fg);
   font-family: var(--et-font-display);
   box-shadow: 0 24px 80px #0008;
   animation: arrive 260ms ease-out;
+}
+/* Die Maske schnitte den Schatten ab und die fliegenden Karten des Packs —
+   beim Flug bleibt die Kante glatt. */
+:global(html[data-vintage]) .panel:not([data-flying]) {
+  mask: var(--et-rough-edges, none);
 }
 /* Die Tour nach der Anmeldung deckt ganz: hinter ihr wechselt die Seite ins
    Profil, und das soll man erst nach der Tour sehen (Betreiber, 14.10.2026).
@@ -91,10 +101,16 @@
 .copy {
   min-width: 0;
 }
+/* Der Kicker als gerades Etikett, wie in der Map (et-label, globals.css). */
 .kicker {
-  margin: 0 0 12px;
-  color: var(--et-link);
-  font-size: 13px;
+  display: inline-block;
+  margin: 0 0 14px;
+  padding: 6px 9px 5px;
+  background: var(--et-label-bg, var(--et-ink)) var(--et-wear, none) 0 0 / 200px auto;
+  color: #ffc600;
+  font: 900 11px / 1 var(--et-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .headline {
   margin: 0;
@@ -873,8 +889,7 @@ a.quiet {
     text-align: center;
   }
   .kicker {
-    margin-bottom: 8px;
-    font-size: 12px;
+    margin-bottom: 10px;
   }
   .headline {
     font-size: 26px;

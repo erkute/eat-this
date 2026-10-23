@@ -539,7 +539,7 @@ export default function MustEatDetailMobile({
                 geblättert wird die Karte, nicht der Kicker.
                 `data-detail-pager` misst useMapSheet weiter. */}
             <div className={styles.fdKickerRow} data-detail-pager>
-              <p className={styles.fdKicker}>{kicker}</p>
+              <p className={`et-label ${styles.fdKicker}`}>{kicker}</p>
             </div>
             {/* h2 — siehe RestaurantDetail: die H1 gehört der Kartenseite. */}
             <h2 className={`${styles.fdName}${slotSizeClass ? ` ${slotSizeClass}` : ''}`}>
@@ -600,7 +600,7 @@ export default function MustEatDetailMobile({
                 <div className={styles.fdLocation} data-location-needed="ask">
                   <button
                     type="button"
-                    className={styles.fdLocationChip}
+                    className={`et-btn et-btn-sm ${styles.fdLocationChip}`}
                     onClick={requestLocation ?? undefined}
                   >
                     <PinIcon />

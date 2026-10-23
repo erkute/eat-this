@@ -536,14 +536,16 @@
   display: none;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  width: 20px;
-  height: 44px;
+  width: 26px;
+  height: 52px;
   padding: 0;
-  background: #f2f1ef;
-  color: #555;
-  border-radius: 8px 0 0 8px;
-  filter: none;
+  /* Ein Papier-Etikett wie Lupe, Burger und Standort (unten, „Papier-
+     Etiketten"), mit gezeichnetem Pfeil. Die Seite zur Karte ist leicht
+     angeknabbert. */
+  background: #fff;
+  color: var(--et-ink);
+  border-radius: 0;
+  filter: drop-shadow(-2px 3px 5px rgb(0 0 0 / 0.18));
   clip-path: none;
   transform: translate(var(--panel-toggle-x), -50%);
   transition:
@@ -551,17 +553,23 @@
     color 150ms var(--ease-standard),
     background-color 150ms var(--ease-standard);
 }
+:global(html[data-vintage]) .panelToggle {
+  mask:
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
+    linear-gradient(#000 0 0) right / calc(100% - 3px) 100% no-repeat;
+}
 
 /* Nach den gemeinsamen transparenten Zuständen oben: die Lasche behält ihre
-   Fläche und hebt sich beim Hover um eine Stufe. */
+   Fläche; Hover und Fokus machen sie gelb wie einen gesetzten Filter. */
 .panelToggle:focus-visible {
-  background: #f2f1ef;
-  color: var(--et-accent-text);
+  background-color: #ffc600;
+  color: var(--et-ink);
+  outline: 0;
 }
 @media (hover: hover) {
   .panelToggle:hover {
-    background: linear-gradient(rgba(21, 18, 14, .055), rgba(21, 18, 14, .055)), #f2f1ef;
-    color: var(--et-accent-text);
+    background-color: #ffc600;
+    color: var(--et-ink);
   }
 }
 
@@ -571,21 +579,13 @@
   transform: translate(var(--panel-toggle-x), calc(-50% + 1px));
 }
 
-.panelToggleLabel {
-  font-family: var(--et-font-display);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--map-collage-ink, #111);
-}
-
 .panelToggle svg {
   flex: 0 0 auto;
-  width: 13px;
-  height: 13px;
+  width: 16px;
+  height: 16px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 3.2;
+  stroke-width: 2.8;
   stroke-linecap: round;
   stroke-linejoin: round;
   transition: transform var(--map-panel-slide);
@@ -599,9 +599,6 @@
 
   :global([data-map-body][data-panel-hidden='true']) .panelToggle {
     --panel-toggle-x: var(--map-desktop-panel-width);
-    width: auto;
-    height: 34px;
-    padding: 0 10px 0 7px;
   }
 
   :global([data-map-body][data-panel-hidden='true']) .panelToggle svg {
@@ -761,5 +758,59 @@
 
   :global([data-map-body][data-panel-hidden='true']) .fab {
     right: 14px;
+  }
+}
+
+/* ── Papier-Etiketten (Ansage 22.10.2026, Variante 3) ──────────────────────
+   Lupe, Burger und Standort stehen auf einem weissen Zettel mit leichtem
+   Schatten, das Zeichen in Ink — wie Bezirk · Küche auf den Spotfotos. Gerade,
+   nicht gekippt. Hover und Fokus machen den Zettel gelb. Steht am Ende, damit
+   die gleich spezifischen Regeln oben („bare icon controls") verlieren. */
+.mapSearchBtn:focus-visible,
+.mapBurger:focus-visible,
+.fab:focus-visible {
+  outline: 0;
+  background: #ffc600;
+  color: var(--et-ink);
+}
+.mapSearchBtn,
+.mapBurger,
+.fab {
+  background: #fff;
+  color: var(--et-ink);
+  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.2));
+}
+.mapBurger {
+  transform: none;
+}
+.mapSearchBtn .mapSearchIcon {
+  flex-basis: 24px;
+  width: 24px;
+  height: 24px;
+  stroke-width: 3px;
+}
+.mapSearchBtn .mapSearchIcon,
+.mapBurgerLines,
+.fabIcon {
+  filter: none;
+}
+@media (hover: hover) {
+  .mapSearchBtn:hover,
+  .mapBurger:hover,
+  .fab:hover,
+  .panelToggle:hover {
+    background: #ffc600;
+    color: var(--et-ink);
+    filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.2));
+  }
+}
+/* Am Telefon standen die nackten Zeichen 14px vom Rand und die 44px-Fläche
+   reichte fast an die Kante. Mit Zettel steht die Fläche selbst 12px innen. */
+@media (max-width: 767.98px) {
+  .mapSearchBtn {
+    left: 12px;
+  }
+  .mapBurger {
+    right: 12px;
   }
 }

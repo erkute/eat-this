@@ -57,19 +57,24 @@ export function SearchGlassIcon({ className }: { className?: string }) {
   );
 }
 
+/* Das X von Hand gezogen wie Lupe, Burger und Fadenkreuz (Ansage
+   22.10.2026: „das X muss auch gezeichnet sein"): zwei Striche mit leichtem
+   Bauch, ungleich lang — ein konstruiertes X stand als einziges
+   technisches Zeichen zwischen lauter gezeichneten. Die Strichstärke kommt
+   weiter vom Ort, an dem es steht. */
 export function CloseIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.4"
+      strokeWidth="2.6"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
+      <path d="M6.2 6.4c4 3.6 7.9 7.4 11.7 11.3" />
+      <path d="M17.7 6.1c-3.9 3.9-7.8 7.8-11.5 11.7" />
     </svg>
   );
 }
@@ -132,6 +137,15 @@ export function HeartIcon({ filled }: { filled: boolean }) {
       aria-hidden="true"
     >
       <path d={HEART_PATH} />
+      {/* Der Abstrich: der linke Bogen von der Kerbe zur Spitze noch einmal,
+          kräftiger — wie eine Hand, die beim Herunterziehen stärker aufdrückt
+          (Ansage 22.10.2026, wie beim X). Liegt deckungsgleich auf der Kontur,
+          gefüllt verschwindet er in der Fläche. */}
+      <path
+        d="M12.1 6.5C10.8 4 7.5 3 5.1 4.4 2.5 5.9 2.2 9.4 3.9 12c1.9 3 5.1 5.7 8.3 8.7"
+        fill="none"
+        strokeWidth="3"
+      />
     </svg>
   );
 }

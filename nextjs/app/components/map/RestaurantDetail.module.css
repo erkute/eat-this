@@ -334,9 +334,10 @@
   width: auto;
 }
 /* „Anmelden" auf dem roten Pack-Angebot: ein helleres Rot, damit der Knopf
-   zum Angebot gehört (Ansage 22.10.2026). Farbe über die Rollen von et-btn. */
+   zum Angebot gehört (Ansage 22.10.2026). Hell genug, dass er sich vom Rot
+   der Fläche (--et-offer-red) abhebt. Farbe über die Rollen von et-btn. */
 .packPromo {
-  --et-btn-bg: var(--et-red);
+  --et-btn-bg: #e4574a;
   --et-btn-fg: #fff;
 }
 
@@ -1102,4 +1103,16 @@
 /* Etiketten auf dem Foto bleiben auch im Dunkelmodus Ink (globals.css). */
 .rdHero {
   --et-label-bg: var(--et-ink);
+}
+
+/* Das Pack-Angebot ist ein Blatt wie die übrigen Flächen der Map: eckig,
+   Korn und Gebrauchsspuren, im Vintage-Look die angestossene Kante. */
+.detail .packPromo {
+  border-radius: 0;
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
+  background-size: 192px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+}
+:global(html[data-vintage]) .detail .packPromo {
+  mask: var(--et-rough-edges-sm);
 }

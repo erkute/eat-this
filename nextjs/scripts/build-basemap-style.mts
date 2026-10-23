@@ -291,6 +291,36 @@ style.layers = style.layers.filter((layer: { id: string }) => !BUILDING_LAYERS.i
     }
     layer.paint = p;
   }
+
+  /* Schriftgrössen wie bei Google Maps (Ansage 22.10.2026; die Schrift
+     bleibt unsere): Strassen 10–12,5px ohne Sperrung, Ortsteile 10–12px,
+     Stadtnamen höchstens 16px statt bis 22, Parks und Gewässer 10–11px.
+     Zoom → Pixel, linear dazwischen. */
+  const stops = (...pairs: [number, number][]) => ({ stops: pairs });
+  const SIZES: Record<string, object> = {
+    roadname_minor: stops([15, 10], [17, 11]),
+    roadname_sec: stops([14, 10], [16, 11], [18, 12]),
+    roadname_pri: stops([13, 10.5], [15, 11.5], [17, 12.5]),
+    roadname_major: stops([13, 10.5], [15, 11.5], [17, 12.5]),
+    place_hamlet: stops([13, 10], [16, 11]),
+    place_suburbs: stops([12, 10], [14, 11], [16, 12]),
+    place_villages: stops([10, 10], [13, 11], [16, 12]),
+    place_town: stops([8, 11], [13, 13], [14, 14]),
+    place_city_r6: stops([8, 12], [10, 14], [13, 15], [14, 16]),
+    place_city_r5: stops([8, 13], [10, 15], [13, 16], [14, 16]),
+    poi_park: stops([15, 10], [18, 11]),
+    poi_stadium: stops([15, 10], [18, 11]),
+    waterway_label: stops([9, 9], [13, 10], [16, 11]),
+    watername_lake: stops([13, 10], [16, 11]),
+    watername_lake_line: stops([13, 10], [16, 11]),
+  };
+  for (const layer of style.layers) {
+    const size = SIZES[layer.id];
+    if (!size) continue;
+    layer.layout['text-size'] = size;
+    if (/^roadname_(pri|major)$/.test(layer.id)) layer.layout['text-letter-spacing'] = 0;
+    if (layer.id === 'roadname_minor') layer.minzoom = 15;
+  }
 }
 
 /* Alle drei Fremdadressen der Vorlage umhängen. Der Quellname `carto` bleibt

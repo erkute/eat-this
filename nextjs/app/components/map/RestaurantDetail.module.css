@@ -867,7 +867,7 @@
   border: 0;
   background: transparent;
   color: #fff;
-  font: 700 15px / 1 var(--et-font-body);
+  font: 700 13px / 1 var(--et-font-body);
   filter: drop-shadow(0 0 1.5px var(--et-ink)) drop-shadow(0 1px 3px rgb(0 0 0 / 0.5));
   cursor: pointer;
   transition: color var(--et-motion-fast);
@@ -882,8 +882,8 @@
 }
 .rdHeartToggle svg,
 .rdCloseGlass svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 .rdHeartToggleOn {
   color: #ffc600;

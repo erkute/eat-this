@@ -814,3 +814,107 @@
     right: 12px;
   }
 }
+
+/* ── Grössen wie bei Google Maps (Ansage 22.10.2026) ──────────────────────
+   Die Zettel 40px am Telefon, 36px am Desktop; die Zeichen darin um 20px
+   statt bis zu 29. Die Trefferfläche am Telefon bleibt mit dem Abstand
+   drumherum gross genug. */
+.mapSearchBtn,
+.mapBurger,
+.fab {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+}
+.mapSearchBtn .mapSearchIcon {
+  flex-basis: 20px;
+  width: 20px;
+  height: 20px;
+}
+.mapBurgerLines {
+  gap: 3px;
+  width: 18px;
+}
+.mapBurgerLines span {
+  height: 3px;
+}
+.mapBurgerLines span:nth-child(1) {
+  width: 16px;
+}
+.mapBurgerLines span:nth-child(2) {
+  width: 18px;
+}
+.mapBurgerLines span:nth-child(3) {
+  width: 12px;
+}
+.fabIcon {
+  width: 19px;
+  height: 19px;
+}
+@media (min-width: 1024px) {
+  .mapSearchBtn,
+  .mapBurger,
+  .fab {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+  }
+  .mapSearchBtn .mapSearchIcon {
+    flex-basis: 18px;
+    width: 18px;
+    height: 18px;
+  }
+  .fabIcon {
+    width: 17px;
+    height: 17px;
+  }
+  .panelToggle {
+    width: 22px;
+    height: 44px;
+  }
+  .panelToggle svg {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+/* Die Zettel angeknabbert wie Filter und Fotos (Ansage 22.10.2026), mit dem
+   Papierkorn der Seiten. Die Fläche liegt in `::before` mit der Maske — am
+   Knopf selbst schnitte die Maske den Schatten ab, und ohne Schatten
+   verschwand der weisse Zettel auf der hellen Karte. Hover und Fokus färben
+   die Fläche gelb. */
+:global(html[data-vintage]) :is(.mapSearchBtn, .mapBurger, .fab, .panelToggle) {
+  background: transparent;
+  /* Eigener Stapel, damit die Fläche in ::before (z-index −1) hinter dem
+     Zeichen, aber vor der Karte liegt — am Telefon hat .fab z-index: auto. */
+  isolation: isolate;
+}
+:global(html[data-vintage]) :is(.mapSearchBtn, .mapBurger, .fab, .panelToggle)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ctl-paper, #fff) url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px;
+  mask: var(--et-rough-edges-sm);
+  pointer-events: none;
+}
+:global(html[data-vintage]) .panelToggle::before {
+  mask:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
+    linear-gradient(#000 0 0) right center / calc(100% - 3.5px) calc(100% - 7px) no-repeat;
+}
+:global(html[data-vintage]) .panelToggle {
+  mask: none;
+}
+:global(html[data-vintage]) :is(.mapSearchBtn, .mapBurger, .fab, .panelToggle):focus-visible {
+  --ctl-paper: #ffc600;
+  background: transparent;
+}
+@media (hover: hover) {
+  :global(html[data-vintage]) :is(.mapSearchBtn, .mapBurger, .fab, .panelToggle):hover {
+    --ctl-paper: #ffc600;
+    background: transparent;
+  }
+}

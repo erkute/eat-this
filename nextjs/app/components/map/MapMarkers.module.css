@@ -39,8 +39,10 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 42px;
+  /* Kleiner wie bei Google Maps (Ansage 22.10.2026: „da ist alles viel
+     kleiner"): 32 statt 38px am Telefon. */
+  width: 32px;
+  height: 35px;
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -157,8 +159,8 @@
    „zurückgetreten“. Die Form schneidet `clip-path` an .pinLogoShape, der
    Glanz bleibt also in ihr. */
 .pinLogoActive {
-  width: 50px;
-  height: 55px;
+  width: 44px;
+  height: 48px;
   transform: rotate(3deg);
   scale: none;
   z-index: 4;
@@ -215,8 +217,8 @@
   /* Listengröße: so groß, wie bis 14.10.2026 die zurückgetretenen Pins neben
      einer offenen Detailansicht standen (0,8 × 52px) — die alten 52–76px
      wirkten am Desktop zu groß. */
-  .pinLogo { width: clamp(42px, 2.5vw, 56px); height: clamp(46px, 2.75vw, 62px); }
-  .pinLogoActive { width: clamp(64px, 4vw, 96px); height: clamp(71px, 4.4vw, 106px); }
+  .pinLogo { width: clamp(34px, 2vw, 44px); height: clamp(37px, 2.2vw, 48px); }
+  .pinLogoActive { width: clamp(52px, 3.2vw, 72px); height: clamp(57px, 3.5vw, 79px); }
   .userLoc { width: clamp(58px, 3.5vw, 84px); height: clamp(88px, 5.3vw, 128px); }
 }
 

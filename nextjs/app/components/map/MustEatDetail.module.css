@@ -2176,7 +2176,6 @@
 /* Das X frei, ohne Fläche (Ansage 22.10.2026: „beim X kein Rahmen"), als
    gezeichnetes Zeichen (icons.tsx CloseIcon) in der Stärke der übrigen. */
 .fdClose svg {
-  stroke-width: 2.6;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }

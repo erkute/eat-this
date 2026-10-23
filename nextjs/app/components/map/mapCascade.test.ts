@@ -77,17 +77,22 @@ describe('MapControls cascade', () => {
     }
   });
 
-  it('keeps search, burger and locate on their paper label', () => {
-    // Since 22.10.2026 the glyphs stand on a white paper label (variant 3).
-    // The shared transparent rules at the top of the file must not win, or a
-    // bare glyph vanishes under a pin again.
-    for (const control of ['mapSearchBtn', 'mapBurger', 'fab']) {
-      const background = effective(CONTROLS, control, 'background');
-      expect(
-        background,
-        `.${control} lost its paper label — effective background is "${background}"`
-      ).toBe('#fff');
-    }
+  it('keeps search, burger, locate and the panel tab on their paper label', () => {
+    // Since 22.10.2026 the glyphs stand on a nibbled white paper label. The
+    // surface lives in ::before (the mask would cut the button's own shadow);
+    // without it a bare glyph vanishes under a pin again.
+    let surface: string | undefined;
+    cssRoot(CONTROLS).walkRules((rule) => {
+      const sel = rule.selector;
+      if (!sel.includes('::before')) return;
+      if (!['mapSearchBtn', 'mapBurger', 'fab', 'panelToggle'].every((c) => sel.includes(`.${c}`)))
+        return;
+      rule.walkDecls('background', (d) => {
+        surface = d.value;
+      });
+    });
+    expect(surface, 'the paper surface of the controls is gone').toBeDefined();
+    expect(surface!.startsWith('var(--ctl-paper, #fff)')).toBe(true);
   });
 
   it('pins the phone controls to the VISUAL viewport, not just the layout one', () => {
@@ -122,14 +127,6 @@ describe('MapControls cascade', () => {
     ).toBe(1);
   });
 
-  it('keeps the panel disclosure on its own surface', () => {
-    /* Die Lasche ist ein Papier-Etikett wie Lupe, Burger und Standort
-     * (22.10.2026). Die gemeinsamen Regeln oben setzen `.fab, .panelToggle,
-     * .mapSearchClear` auf `background: transparent` — gewinnt eine davon,
-     * steht wieder ein nackter Pfeil am Kartenrand, den niemand findet. */
-    const background = effective(CONTROLS, 'panelToggle', 'background');
-    expect(background, `.panelToggle lost its surface — effective background is "${background}"`).toBe('#fff');
-  });
 
   it('keeps the hover lift on the controls that are not overridden later', () => {
     /* Same shape as the case above, in the other direction. One

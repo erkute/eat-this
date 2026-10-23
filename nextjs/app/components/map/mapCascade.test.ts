@@ -77,22 +77,22 @@ describe('MapControls cascade', () => {
     }
   });
 
-  it('keeps search, burger, locate and the panel tab on their paper label', () => {
-    // Since 22.10.2026 the glyphs stand on a nibbled white paper label. The
-    // surface lives in ::before (the mask would cut the button's own shadow);
-    // without it a bare glyph vanishes under a pin again.
+  it('keeps search, burger, locate and the panel tab on their foil', () => {
+    // Since 23.10.2026 the glyphs stand on a piece of clear glossy foil
+    // (`--et-foil-*` in globals.css); without a surface a bare glyph vanishes
+    // under a pin again.
     let surface: string | undefined;
     cssRoot(CONTROLS).walkRules((rule) => {
       const sel = rule.selector;
-      if (!sel.includes('::before')) return;
+      if (sel.includes(':')) return;
       if (!['mapSearchBtn', 'mapBurger', 'fab', 'panelToggle'].every((c) => sel.includes(`.${c}`)))
         return;
       rule.walkDecls('background', (d) => {
         surface = d.value;
       });
     });
-    expect(surface, 'the paper surface of the controls is gone').toBeDefined();
-    expect(surface!.startsWith('var(--ctl-paper, #fff)')).toBe(true);
+    expect(surface, 'the foil surface of the controls is gone').toBeDefined();
+    expect(surface).toBe('var(--et-foil-gloss) var(--et-foil-tint)');
   });
 
   it('pins the phone controls to the VISUAL viewport, not just the layout one', () => {

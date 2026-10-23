@@ -205,14 +205,15 @@
   height: 44px;
   padding: 0 10px 0 13px;
   overflow: hidden;
-  background: #f2f1ef;
-  color: var(--map-collage-ink, #111);
+  /* Folie wie die Knöpfe, dichter getönt, damit die Eingabe lesbar bleibt. */
+  background: var(--et-foil-gloss) var(--et-foil-sheet);
+  color: var(--et-foil-ink);
   border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
+  border-radius: 4px;
+  box-shadow: var(--et-foil-shadow);
   filter: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  -webkit-backdrop-filter: var(--et-foil-sheet-blur);
+  backdrop-filter: var(--et-foil-sheet-blur);
   animation: none;
   clip-path: none;
   pointer-events: auto;
@@ -225,7 +226,7 @@
 
 .mapSearchToolbar:focus-within {
   outline: 0;
-  box-shadow: none;
+  box-shadow: var(--et-foil-shadow);
 }
 
 @media (max-width: 520px) {
@@ -296,9 +297,12 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 6px 0;
-  background: #f2f1ef;
-  color: var(--map-collage-ink, #111);
-  border-radius: var(--et-radius-control);
+  background: var(--et-foil-sheet);
+  color: var(--et-foil-ink);
+  border-radius: 4px;
+  box-shadow: var(--et-foil-shadow);
+  -webkit-backdrop-filter: var(--et-foil-sheet-blur);
+  backdrop-filter: var(--et-foil-sheet-blur);
 }
 
 .mapSearchSuggestions ul {
@@ -539,13 +543,8 @@
   width: 26px;
   height: 52px;
   padding: 0;
-  /* Ein Papier-Etikett wie Lupe, Burger und Standort (unten, „Papier-
-     Etiketten"), mit gezeichnetem Pfeil. Die Seite zur Karte ist leicht
-     angeknabbert. */
-  background: #fff;
-  color: var(--et-ink);
-  border-radius: 0;
-  filter: drop-shadow(-2px 3px 5px rgb(0 0 0 / 0.18));
+  /* Folie wie Lupe, Burger und Standort (unten, „Glanzfolie"), mit
+     gezeichnetem Pfeil. */
   clip-path: none;
   transform: translate(var(--panel-toggle-x), -50%);
   transition:
@@ -553,25 +552,7 @@
     color 150ms var(--ease-standard),
     background-color 150ms var(--ease-standard);
 }
-:global(html[data-vintage]) .panelToggle {
-  mask:
-    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
-    linear-gradient(#000 0 0) right / calc(100% - 3px) 100% no-repeat;
-}
 
-/* Nach den gemeinsamen transparenten Zuständen oben: die Lasche behält ihre
-   Fläche; Hover und Fokus machen sie gelb wie einen gesetzten Filter. */
-.panelToggle:focus-visible {
-  background-color: #ffc600;
-  color: var(--et-ink);
-  outline: 0;
-}
-@media (hover: hover) {
-  .panelToggle:hover {
-    background-color: #ffc600;
-    color: var(--et-ink);
-  }
-}
 
 /* Nur die Verschiebung — ohne das -50% sprang die Lasche beim Druck nach
    unten. */
@@ -761,24 +742,30 @@
   }
 }
 
-/* ── Papier-Etiketten (Ansage 22.10.2026, Variante 3) ──────────────────────
-   Lupe, Burger und Standort stehen auf einem weissen Zettel mit leichtem
-   Schatten, das Zeichen in Ink — wie Bezirk · Küche auf den Spotfotos. Gerade,
-   nicht gekippt. Hover und Fokus machen den Zettel gelb. Steht am Ende, damit
+/* ── Glanzfolie (Ansage 23.10.2026) ─────────────────────────────────────────
+   Lupe, Burger, Standort und die Lasche sind Stücke durchsichtiger, glänzender
+   Folie mit schwarzem Druck (Tokens `--et-foil-*` in globals.css); die Karte
+   schimmert durch. Hover und Fokus machen die Folie dichter, kein Gelb. Steht am Ende, damit
    die gleich spezifischen Regeln oben („bare icon controls") verlieren. */
-.mapSearchBtn:focus-visible,
-.mapBurger:focus-visible,
-.fab:focus-visible {
-  outline: 0;
-  background: #ffc600;
-  color: var(--et-ink);
-}
 .mapSearchBtn,
 .mapBurger,
-.fab {
-  background: #fff;
-  color: var(--et-ink);
-  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.2));
+.fab,
+.panelToggle {
+  border-radius: 4px;
+  background: var(--et-foil-gloss) var(--et-foil-tint);
+  color: var(--et-foil-ink);
+  box-shadow: var(--et-foil-shadow);
+  filter: none;
+  -webkit-backdrop-filter: var(--et-foil-blur);
+  backdrop-filter: var(--et-foil-blur);
+}
+.mapSearchBtn:focus-visible,
+.mapBurger:focus-visible,
+.fab:focus-visible,
+.panelToggle:focus-visible {
+  outline: 0;
+  background-color: var(--et-foil-active);
+  color: var(--et-foil-ink);
 }
 .mapBurger {
   transform: none;
@@ -799,13 +786,13 @@
   .mapBurger:hover,
   .fab:hover,
   .panelToggle:hover {
-    background: #ffc600;
-    color: var(--et-ink);
-    filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.2));
+    background-color: var(--et-foil-active);
+    color: var(--et-foil-ink);
+    filter: none;
   }
 }
 /* Am Telefon standen die nackten Zeichen 14px vom Rand und die 44px-Fläche
-   reichte fast an die Kante. Mit Zettel steht die Fläche selbst 12px innen. */
+   reichte fast an die Kante. Mit Folie steht die Fläche selbst 12px innen. */
 @media (max-width: 767.98px) {
   .mapSearchBtn {
     left: 12px;
@@ -878,43 +865,3 @@
   }
 }
 
-/* Die Zettel angeknabbert wie Filter und Fotos (Ansage 22.10.2026), mit dem
-   Papierkorn der Seiten. Die Fläche liegt in `::before` mit der Maske — am
-   Knopf selbst schnitte die Maske den Schatten ab, und ohne Schatten
-   verschwand der weisse Zettel auf der hellen Karte. Hover und Fokus färben
-   die Fläche gelb. */
-:global(html[data-vintage]) :is(.mapSearchBtn, .mapBurger, .fab, .panelToggle) {
-  background: transparent;
-  /* Eigener Stapel, damit die Fläche in ::before (z-index −1) hinter dem
-     Zeichen, aber vor der Karte liegt — am Telefon hat .fab z-index: auto. */
-  isolation: isolate;
-}
-:global(html[data-vintage]) :is(.mapSearchBtn, .mapBurger, .fab, .panelToggle)::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--ctl-paper, #fff) url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px;
-  mask: var(--et-rough-edges-sm);
-  pointer-events: none;
-}
-:global(html[data-vintage]) .panelToggle::before {
-  mask:
-    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
-    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
-    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
-    linear-gradient(#000 0 0) right center / calc(100% - 3.5px) calc(100% - 7px) no-repeat;
-}
-:global(html[data-vintage]) .panelToggle {
-  mask: none;
-}
-:global(html[data-vintage]) :is(.mapSearchBtn, .mapBurger, .fab, .panelToggle):focus-visible {
-  --ctl-paper: #ffc600;
-  background: transparent;
-}
-@media (hover: hover) {
-  :global(html[data-vintage]) :is(.mapSearchBtn, .mapBurger, .fab, .panelToggle):hover {
-    --ctl-paper: #ffc600;
-    background: transparent;
-  }
-}

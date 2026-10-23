@@ -802,16 +802,6 @@
   background-color: var(--et-ground);
   color: var(--et-fg);
 }
-/* Das Blatt der Unterseiten: Korn plus leichte Gebrauchsspuren oben. */
-:global(html[data-vintage]) .detail .scroll {
-  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
-  background-size: 192px, 100% auto;
-  background-repeat: repeat, no-repeat;
-  background-position: 0 0, top center;
-}
-:global(html[data-vintage][data-theme='dark']) .detail .scroll {
-  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
-}
 
 /* ── Kopf: Name und Angaben im hellen Foto ─────────────────────────────── */
 .rdOverlay {
@@ -989,16 +979,10 @@
   margin: 48px 14px 0;
   padding: 26px 22px 24px;
   background-color: var(--et-ink);
-  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
-  background-size: 192px, 100% 100%;
-  background-repeat: repeat, no-repeat;
   color: var(--et-fg);
 }
 :global(html[data-theme='dark']) .rdFacts {
   background-color: var(--et-ink-raised);
-}
-:global(html[data-vintage]) .rdFacts {
-  mask: var(--et-rough-edges-sm);
 }
 .rdBlock + .rdBlock {
   margin-top: 24px;
@@ -1105,14 +1089,8 @@
   --et-label-bg: var(--et-ink);
 }
 
-/* Das Pack-Angebot ist ein Blatt wie die übrigen Flächen der Map: eckig,
-   Korn und Gebrauchsspuren, im Vintage-Look die angestossene Kante. */
+/* Das Pack-Angebot ist ein Blatt wie die übrigen Flächen der Map: eckig
+   und glatt. */
 .detail .packPromo {
   border-radius: 0;
-  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
-  background-size: 192px, 100% 100%;
-  background-repeat: repeat, no-repeat;
-}
-:global(html[data-vintage]) .detail .packPromo {
-  mask: var(--et-rough-edges-sm);
 }

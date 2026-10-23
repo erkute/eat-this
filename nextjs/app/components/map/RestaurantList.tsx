@@ -230,7 +230,7 @@ const Item = memo(
           )}
         </div>
 
-        {/* Geöffnet: Ink mit gelber Schrift; geschlossen: Papier. Getragen
+        {/* Geöffnet: Ink mit weisser Schrift; geschlossen: Papier. Getragen
             vom Wort und von Hell gegen Dunkel, nicht von Grün gegen Rot. */}
         {statusMain && (
           <span
@@ -264,7 +264,7 @@ const Item = memo(
           </h3>
           {(district || cuisine) && (
             <p className={styles.rcardMeta}>
-              <span className="et-label et-label-paper">
+              <span className="et-label">
                 {[district, cuisine].filter(Boolean).join(' · ')}
               </span>
             </p>

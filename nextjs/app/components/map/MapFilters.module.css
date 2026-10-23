@@ -6,49 +6,24 @@
   container-type: inline-size;
 }
 
-/* Die angestossene Kante der Hausknöpfe, aber nur oben und unten — die
-   Seiten bleiben gerade (Ansage 22.10.2026: „die Seiten nicht so gebogen").
-   Dieselben Kantenstreifen wie `--et-rough-edges-sm` (globals.css). */
-:global(html[data-vintage]) .listHeader,
-:global(html[data-vintage]) .pickerSheet {
-  --filter-edges:
-    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
-    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
-    linear-gradient(#000 0 0) center / 100% calc(100% - 7px) no-repeat;
-}
-/* Aussen an der Leiste — links am ersten, rechts am letzten Filter — ist die
-   Kante angeknabbert wie bei den Fotos darunter (Ansage 22.10.2026). */
-:global(html[data-vintage]) .filterChipRow > :first-child .filterChip {
-  mask:
-    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
-    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
-    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
-    linear-gradient(#000 0 0) right center / calc(100% - 3.5px) calc(100% - 7px) no-repeat;
-}
-:global(html[data-vintage]) .filterChipRow > .filterChip:last-child {
-  mask:
-    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
-    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
-    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 4px 128px repeat-y,
-    linear-gradient(#000 0 0) left center / calc(100% - 3.5px) calc(100% - 7px) no-repeat;
-}
-
 .filterChipRow {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  /* Eng: die angestossene Kante lässt schon Luft dazwischen. Ohne Seitenrand,
-     bis an die Kante wie die Fotos der Liste (Ansage 22.10.2026). */
-  gap: 2px;
+  /* Eng: schlichte Rechtecke, bis an die Kante wie die Fotos der Liste. */
+  gap: 3px;
   width: 100%;
   min-width: 0;
   padding: 6px 0 8px;
   box-sizing: border-box;
 }
 
-/* Die Filter sehen aus wie die Hausknöpfe (et-btn): gefüllte Ink-Fläche mit
-   Kratzern und angestossener Kante, fett, weiss — aber eckig. Gesetzt, aufgeklappt oder
-   unter der Maus wird die Pille gelb mit Ink-Schrift. Sie füllen die ganze
+/* Die Filter sind schlichte Rechtecke aus gefaltetem Silberpapier mit
+   schwarzer, gesperrter Versalschrift (Ansage 23.10.2026, Vorbild:
+   Silberplakat mit Falzen; das Knitterplastik davor gefiel nicht). Die
+   Textur ist gerendert (`/pics/paper/silver.webp`); jeder Filter zeigt ein
+   anderes Stück davon, als wären sie aus einem Bogen geschnitten. Gesetzt
+   oder aufgeklappt steht der Filter umgekehrt in Ink — kein Gelb. Sie füllen die ganze
    Breite und bleiben immer in EINER Zeile: wird es eng, werden die Pillen
    schmaler und ein langer Wert kürzt sich (Ansage 22.10.2026). Kein Pfeil. */
 .filterChipWrap {
@@ -66,27 +41,28 @@
   flex: 1 1 auto;
   min-width: 0;
   min-height: 40px;
-  padding: 0 12px;
+  padding: 0 10px;
   border: 0;
-  /* Eckig, nicht als Pille (Ansage 22.10.2026) — die angestossene Kante
-     bleibt. */
   border-radius: 0;
-  background: var(--et-solid) var(--et-btn-wear, none) 0 0 / 200px auto;
-  mask: var(--filter-edges, none);
-  color: var(--et-on-solid);
+  background:
+    linear-gradient(var(--silver-shade, transparent), var(--silver-shade, transparent)),
+    url('/pics/paper/silver.webp?v=1') var(--silver-x, 0) var(--silver-y, 0) / 600px auto;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+  color: var(--et-ink);
   font-family: var(--et-font-body);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   line-height: 1.2;
-  letter-spacing: 0;
-  text-transform: none;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   appearance: none;
-  transition:
-    background-color var(--et-motion-fast),
-    color var(--et-motion-fast);
 }
+.filterChipRow > :nth-child(1) { --silver-y: -230px; }
+.filterChipRow > :nth-child(2) { --silver-x: -120px; --silver-y: -410px; }
+.filterChipRow > :nth-child(3) { --silver-x: -250px; --silver-y: -120px; }
+.filterChipRow > :nth-child(4) { --silver-x: -360px; --silver-y: -520px; }
 /* Preis und „Geöffnet" sind kurz und behalten ihre Breite; schmaler werden
    nur Kategorie und Bezirk, und auch die nie unter ein kurzes Wort
    („Dinner" bleibt ganz, „Prenzlauer Berg" kürzt sich). Nach der Regel
@@ -106,14 +82,14 @@
   color: inherit;
 }
 
-/* Gelb: gesetzt (mit Wert), aufgeklappt, „Geöffnet" an. */
+/* Gesetzt (mit Wert), aufgeklappt, „Geöffnet" an: umgekehrt in Ink. */
 .filterChipRow .filterChipActive,
 .filterChipRow .filterChipOpenActive,
 .filterChipRow .filterChip[aria-expanded='true'] {
-  background-color: #ffc600;
-  color: var(--et-ink);
+  background: var(--et-ink);
+  color: #fff;
 }
-/* Mit Wert bekommt die Pille rechts Platz für das Kreuz. */
+/* Mit Wert bekommt der Filter rechts Platz für das Kreuz. */
 .filterChipRow .filterChipActive {
   padding-right: 26px;
 }
@@ -133,7 +109,7 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: var(--et-ink);
+  color: #fff;
   cursor: pointer;
   appearance: none;
   touch-action: manipulation;
@@ -143,20 +119,18 @@
 
 /* Fokus als Fläche wie bei den Hausknöpfen, kein zweiter Rahmen. */
 .filterChipRow .filterChip:focus-visible {
-  outline: 0;
-  background-color: #ffc600;
-  color: var(--et-ink);
+  outline: 2px solid var(--et-fg);
+  outline-offset: 2px;
 }
 .filterChipClear:focus-visible {
-  outline: 2px solid var(--et-ink);
+  outline: 2px solid #fff;
   outline-offset: -2px;
 }
 @media (hover: hover) {
   .filterChipRow .filterChip:hover {
-    background-color: #ffc600;
-    color: var(--et-ink);
+    --silver-shade: rgb(21 18 14 / 0.1);
   }
-  .filterChipClear:hover { color: var(--et-red); }
+  .filterChipClear:hover { opacity: 0.7; }
 }
 .filterChipRow .filterChip:active,
 .filterChipClear:active { translate: none; }
@@ -253,13 +227,16 @@
   width: min(360px, calc(100vw - 24px));
   max-height: 70vh;
   padding: 8px;
-  /* Papier wie die Liste, aus der es aufklappt. */
-  background: var(--et-ground) url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px;
-  color: var(--et-fg);
+  /* Derselbe Silberbogen wie die Filter, aus denen es aufklappt; Schrift
+     fest in Ink, auch dunkel — das Silber bleibt Silber. */
+  --et-fg: var(--et-ink);
+  --et-muted: rgb(21 18 14 / 0.6);
+  background: url('/pics/paper/silver.webp?v=1') center / cover;
+  color: var(--et-ink);
   /* Keine Haarlinie drumherum — die Flaeche traegt (User, 23.09.2026). */
   border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: var(--et-ink-shadow);
+  border-radius: 0;
+  box-shadow: 0 -2px 12px rgb(0 0 0 / 0.18);
   animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
 }
 
@@ -348,11 +325,9 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* Die Auswahl gebündelt als gefüllte Knöpfe ohne Rahmen, im Look der
-   Hausknöpfe (et-btn), eckig: Ink-Fläche mit Kratzern und angestossener Kante,
-   weisse Schrift, die Anzahl leise rechts. Gewählt, unter der Maus oder im
-   Fokus wird die Pille gelb mit Ink-Schrift — wie der gesetzte Filter
-   darüber (Ansage 22.10.2026: „gebündelt wie Buttons, aber ohne Rahmen"). */
+/* Die Auswahl gebündelt als hellere Felder auf dem Silber, schwarze Schrift,
+   die Anzahl leise rechts. Gewählt steht der Wert umgekehrt in Ink, kein
+   Gelb (Ansage 23.10.2026). */
 .pickerItem {
   position: relative;
   display: flex;
@@ -365,9 +340,9 @@
   padding: 0 16px;
   border: 0;
   border-radius: 0;
-  background: var(--et-solid) var(--et-btn-wear, none) 0 0 / 200px auto;
-  mask: var(--filter-edges, none);
-  color: var(--et-on-solid);
+  background: rgb(255 255 255 / 0.32);
+  box-shadow: inset 0 0 0 1px rgb(21 18 14 / 0.1);
+  color: var(--et-ink);
   appearance: none;
   font-family: var(--et-font-body);
   text-align: left;
@@ -376,16 +351,17 @@
     background-color 120ms ease,
     color 120ms ease;
 }
-.pickerItemActive,
+.pickerItemActive {
+  background: var(--et-ink);
+  color: #fff;
+}
 .pickerItem:focus-visible {
-  outline: 0;
-  background-color: #ffc600;
-  color: var(--et-ink);
+  outline: 2px solid var(--et-ink);
+  outline-offset: 2px;
 }
 @media (hover: hover) {
-  .pickerItem:not(:disabled):hover {
-    background-color: #ffc600;
-    color: var(--et-ink);
+  .pickerItem:not(:disabled):not(.pickerItemActive):hover {
+    background-color: rgb(255 255 255 / 0.6);
   }
 }
 .pickerItem:active {
@@ -396,7 +372,8 @@
    Antwort), sind aber eine leise Fläche und nicht wählbar. */
 .pickerItemDead,
 .pickerItemDead:hover {
-  background: var(--et-subtle);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgb(21 18 14 / 0.1);
   color: var(--et-muted);
   cursor: default;
 }
@@ -471,20 +448,13 @@
   width: auto;
   max-height: none;
   margin: 8px 0 2px;
-  /* Aufgeklappt steht die Liste IM weißen Panel, nicht über der Karte: sie ist
-     kein eigenes Objekt, das dort aufliegt, sondern die Fortsetzung der
-     Chip-Zeile. Deshalb gar keine Fläche — die Haarlinie davor las sich als
-     aufgezeichneter Kasten, eine getönte Wanne als grauer Fremdkörper auf
-     Weiß, und beide brachten eine Rundung mit, die es hier nicht zu runden
-     gibt. Getrennt wird über Abstand; die Kanten machen die Knöpfe selbst,
-     die auf derselben Linie stehen wie die Chips darüber. Der Seitenrand ist
-     der der Chip-Zeile (12px), sonst stehen Titel und Knöpfe 12px weiter
-     links als die Chips, aus denen sie kommen. */
-  padding: 0 12px;
-  background: transparent;
+  /* Aufgeklappt steht die Liste als Silberbogen im Panel, wie die Filter,
+     aus denen sie kommt (Ansage 23.10.2026: „wenn man draufklickt brauche
+     ich den Look auch"). Das Silber kommt aus `.pickerSheet`. */
+  padding: 12px;
   border: 0;
   border-radius: 0;
-  box-shadow: none;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
   animation: none;
 }
 
@@ -514,8 +484,7 @@
 
 /* Schmale Panels: die Wörter rücken enger zusammen, statt abzukürzen. */
 @container (max-width: 374px) {
-  .filterChipRow { gap: 2px; }
-  .filterChipRow .filterChip { padding-inline: 10px; font-size: 13px; }
+  .filterChipRow .filterChip { padding-inline: 8px; letter-spacing: 0.06em; }
   .filterChipRow .filterChipActive { padding-right: 24px; }
 }
 @media (max-width: 374px) {
@@ -530,13 +499,3 @@
 
 /* Am Telefon klebt die Leiste über den Zeilen und trägt deren Papier mit,
    dazu oben die abgerissene Kante des Blatts (MapSheet.module.css). */
-@media (max-width: 767.98px) {
-  :global(html[data-vintage]) .listHeader {
-    background-image: url('/pics/vintage/paper-grain.webp?v=4');
-    background-size: 192px;
-    border-radius: 0;
-    mask:
-      url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 12px repeat-x,
-      linear-gradient(#000 0 0) 0 10px / 100% calc(100% - 10px) no-repeat;
-  }
-}

@@ -13,10 +13,6 @@
   color: var(--et-fg);
   text-align: left;
 }
-/* Abgestossene Kante wie die Fakten im Detail und die Hinweis-Karte. */
-:global(html[data-vintage]) .esBlock {
-  mask: var(--et-rough-edges-sm);
-}
 /* Der Kicker ist ein gerades Etikett (et-label). */
 .esKicker {
   justify-self: start;

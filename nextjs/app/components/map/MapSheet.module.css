@@ -30,14 +30,13 @@
   user-select: none;
 }
 
-/* Der Griff: ein von Hand gezogener Ink-Strich wie Lupe, Burger und X
-   (Ansage 22.10.2026) — leicht gebogen, links dicker als rechts. Die Form
-   kommt als Maske, die Farbe aus der Schrift, damit hell und dunkel
-   mitgehen. Eine Farbe für Liste und Detail: derselbe Griff. */
+/* Der Griff: ein schmaler, glatter Balken in leisem Grau (Ansage 23.10.2026:
+   der gezeichnete Strich gefiel nicht). Die Farbe kommt aus der Schrift,
+   damit hell und dunkel mitgehen. Eine Farbe für Liste und Detail. */
 .handle::before {
   content: '';
-  background: var(--et-fg);
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 8'%3E%3Cpath d='M3 4.6C12 3.3 24 3 35.5 3.6 39.6 3.8 43 4.1 45.4 4.4' fill='none' stroke='%23000' stroke-width='3.6' stroke-linecap='round'/%3E%3Cpath d='M3.4 5.1C10 4.3 18 4.2 26 4.4' fill='none' stroke='%23000' stroke-width='4.4' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--et-fg) 22%, transparent);
 }
 
 .listScroll {
@@ -121,8 +120,8 @@
   }
 
   .handle::before {
-    width: 48px;
-    height: 8px;
+    width: 36px;
+    height: 4px;
   }
 
   .listScroll {
@@ -316,18 +315,6 @@
    liegt über dem Grund. Am Telefon ist das Blatt selbst durchsichtig, dort
    tragen es die Zeilen und die Filterleiste (MapFilters.module.css). Das
    Restaurant-Detail legt sein eigenes Blatt (RestaurantDetail.module.css). */
-@media (min-width: 768px) {
-  :global(html[data-vintage]) .list {
-    background-image: url('/pics/vintage/paper-grain.webp?v=4');
-    background-size: 192px;
-  }
-}
-@media (max-width: 767.98px) {
-  :global(html[data-vintage]) .list[data-view='list'] .listScroll {
-    background-image: url('/pics/vintage/paper-grain.webp?v=4');
-    background-size: 192px;
-  }
-}
 
 /* Der Rand des Blatts: eine abgerissene Papierkante zur Karte hin, aus
    denselben Kantenstreifen wie die Hausknöpfe und das Anmelde-Fenster
@@ -336,18 +323,3 @@
    MapFilters.module.css); am Desktop links, wo das Panel an der Karte
    anliegt. Ansage 22.10.2026: „die ganze Liste muss einen coolen Look
    drumherum haben". */
-@media (min-width: 1024px) {
-  :global(html[data-vintage]) .list {
-    mask:
-      url('/pics/vintage/edge-left.webp?v=1') 0 0 / 12px 256px repeat-y,
-      linear-gradient(#000 0 0) 10px 0 / calc(100% - 10px) 100% no-repeat;
-  }
-}
-@media (max-width: 1023.98px) {
-  :global(html[data-vintage]) .list[data-view='detail'][data-detail-kind='restaurant'] > .handle {
-    border-radius: 0;
-    mask:
-      url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 12px repeat-x,
-      linear-gradient(#000 0 0) 0 10px / 100% calc(100% - 10px) no-repeat;
-  }
-}

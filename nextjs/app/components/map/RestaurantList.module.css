@@ -1,7 +1,8 @@
 /* Restaurant List — isolated map subsystem.
 
-   Jede Karte ist ein randloses Foto mit dezent abgegriffenen Kanten, und
-   alles steht IM Bild: der Name als Ink-Etikett, darunter Bezirk · Küche auf Papier, oben
+   Jede Karte ist ein Foto auf einem ausgerissenen Blatt Papier (Ansage
+   23.10.2026, Vorbild: weisses Blatt mit Risskanten), und alles steht IM
+   Bild: der Name als Ink-Etikett, darunter Bezirk · Küche auf Papier, oben
    der Öffnungszustand — alle gerade, nicht schief. Das Foto bleibt hell — kein Verlauf, keine
    Abdunklung; die Etiketten tragen sich selbst (Ansage 22.10.2026).
 
@@ -12,10 +13,17 @@
    ruckte die Liste am unteren Rand (Betreiber am iPhone). Die Liste rendert
    ohnehin nur ein Fenster von Zeilen (lib/map/listWindow). */
 .rcardSlot {
-  /* Randlos: über das Polster der Liste (MapSheet.module.css `.listScroll`,
-     14px je Seite) hinaus. Innerhalb der Polster-Box schneidet nichts ab. */
-  margin-inline: -14px;
-  padding-bottom: 10px;
+  /* Halb ins Polster der Liste (MapSheet.module.css `.listScroll`, 14px je
+     Seite): die Risskanten brauchen Luft zum Rand, sonst schneidet sie der
+     Bildschirm ab. Der Schatten liegt hier, weil die Masken der Karte ihn
+     sonst mit abschnitten. */
+  margin-inline: -6px;
+  padding-bottom: 12px;
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.14)) drop-shadow(0 6px 10px rgb(0 0 0 / 0.07));
+}
+.rcardSlot:has(.rcard:focus-visible) {
+  outline: 3px solid var(--et-focus, var(--et-fg));
+  outline-offset: 2px;
 }
 .rcard {
   position: relative;
@@ -26,37 +34,25 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+/* Das Blatt: weisses Papier, ausgerissen. Die Maske ist gerendert
+   (`/pics/paper/torn-paper.webp`); das Foto darin hat eine eigene, etwas
+   tiefere Risskante (`torn-photo.webp`), dazwischen bleibt der weisse
+   Faserrand des Papiers stehen. */
+.rcard {
+  background: #fff;
+  mask: url('/pics/paper/torn-paper.webp?v=1') 0 0 / 100% 100% no-repeat;
+}
 .rcard:focus-visible {
-  outline: 3px solid var(--et-focus, var(--et-fg));
-  outline-offset: -3px;
+  outline: 0;
 }
 
 .rcardImg {
   position: relative;
   aspect-ratio: 5 / 4;
   overflow: hidden;
+  mask: url('/pics/paper/torn-photo.webp?v=1') 0 0 / 100% 100% no-repeat;
   /* Bis das Foto da ist, steht die Fläche als Fläche da, nicht als Loch. */
   background: var(--et-quiet);
-}
-/* Vintage: das Foto als abgegriffener Abzug — ganz dezent abgestossene
-   Kanten wie die Hausknöpfe (`--et-rough-edges-sm`; die tiefe Fassung des
-   Anmelde-Fensters frass zu viel vom Bild, Ansage 22.10.2026) und darüber die Gebrauchsspuren der
-   Magazin-Cover (Knick, Kratzer, Ecken), abwechselnd zwei Fassungen, damit
-   untereinander nicht jedes Foto gleich verkratzt ist. Ansage 22.10.2026:
-   „die Bilder brauchen drumherum dieses Vintage-Ding". */
-:global(html[data-vintage]) .rcardImg {
-  mask: var(--et-rough-edges-sm);
-}
-:global(html[data-vintage]) .rcardImg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: url('/pics/vintage/cover-wear-a.webp?v=1') 0 0 / 100% 100% no-repeat;
-  pointer-events: none;
-}
-:global(html[data-vintage]) .rcardSlot:nth-child(even) .rcardImg::after {
-  background-image: url('/pics/vintage/cover-wear-b.webp?v=1');
 }
 .rcardImg img {
   display: block;
@@ -198,10 +194,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* Der gewählte Spot: das Namens-Etikett wird gelb mit Ink-Schrift. */
+/* Der gewählte Spot: das Namens-Etikett kehrt sich um, Ink mit weisser
+   Schrift — kein Gelb (Ansage 23.10.2026). */
 .rcardActive .rcardName > span {
-  background-color: #ffc600;
-  color: var(--et-ink);
+  background-color: var(--et-ink);
+  color: #fff;
 }
 
 @media (hover: hover) {
@@ -239,7 +236,9 @@
   }
 }
 
-/* Etiketten auf dem Foto bleiben auch im Dunkelmodus Ink (globals.css). */
+/* Etiketten auf dem Foto bleiben auch im Dunkelmodus Ink (globals.css),
+   glatt ohne Kratzer. */
 .rcard {
   --et-label-bg: var(--et-ink);
+  --et-wear: none;
 }

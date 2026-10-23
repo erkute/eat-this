@@ -2142,15 +2142,9 @@
   border-radius: 0;
   color: #fff;
   background-color: var(--et-ink);
-  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
-  background-size: 192px, 100% 100%;
-  background-repeat: repeat, no-repeat;
 }
 :global(html[data-theme='dark']) .detail .scroll > .fdRestInline {
   background-color: var(--et-ink-raised);
-}
-:global(html[data-vintage]) .detail .scroll > .fdRestInline {
-  mask: var(--et-rough-edges-sm);
 }
 @media (hover: hover) {
   .detail .scroll > .fdRestInline:hover {

@@ -249,50 +249,18 @@
 .nav:not([data-nav-page='map']) > .readingProgress {
   position: absolute;
   inset: 0;
-  /* Zerkratzt wie die Knöpfe (Ansage 22.10.2026). Aufgedeckt per
-     Ausschnitt statt scaleX, sonst stauchte die Breite die Kratzer mit. */
-  background: var(--et-accent) var(--et-btn-wear, none) 0 0 / 200px auto;
-  mask: var(--et-rough-edges-sm, none);
+  background: color-mix(in srgb, var(--et-fg) 16%, var(--et-ground));
   clip-path: inset(0 100% 0 0);
   z-index: 0;
   transition: none;
   pointer-events: none;
 }
 .nav .actions { position: relative; z-index: 1; }
-/* Über der roten Fläche steht die Schrift weiß, Buchstabe für Buchstabe so
-   weit, wie die Fläche reicht (--fill setzt SiteNav beim Scrollen). */
-.readingProgress ~ .actions [data-reading-fill] {
-  color: transparent;
-  background: linear-gradient(90deg, #fff calc(var(--fill, 0) * 100%), var(--et-fg) 0);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-/* Die Wortmarke ist ein Bild: darüber liegt eine weiße Kopie, aufgedeckt wie
-   die Fläche. Ihre Höhe folgt der von .logoImg. */
-.readingProgress ~ .home .logo::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  mask: url('/pics/home/wordmark.webp?v=1') center / auto 24px no-repeat;
-  clip-path: inset(0 calc((1 - var(--fill, 0)) * 100%) 0 0);
-  pointer-events: none;
-}
-/* …und die dunkle Marke darunter weicht an derselben Kante, sonst säumt sie
-   die weiße Kopie. */
-.readingProgress ~ .home .logoImg {
-  clip-path: inset(0 0 0 calc(var(--fill, 0) * 100%));
-}
-
-.nav[data-nav-page='news-article'] .control:focus-visible,
-.nav[data-nav-page='restaurant'] .control:focus-visible { outline-color: #111; }
-
 .actionsStart { gap: 24px; }
 .logoImg { height: 24px; }
 @media(max-width:600px) {
   .actionsStart { gap: 16px; }
   .nav .logoImg { height: 18px; }
-  .readingProgress ~ .home .logo::after { mask-size: auto 18px; }
 }
 
 :global(html[data-theme='dark']) .logoImg { filter: invert(1); }

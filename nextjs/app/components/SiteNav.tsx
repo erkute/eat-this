@@ -39,18 +39,8 @@ export default function SiteNav() {
         : document.documentElement.scrollHeight - window.innerHeight;
       const progress = distance > 0 ? Math.min(1, Math.max(0, top / distance)) : 0;
       const bar = progressRef.current;
-      const nav = bar?.parentElement;
-      if (!bar || !nav) return;
+      if (!bar) return;
       bar.style.clipPath = `inset(0 ${(1 - progress) * 100}% 0 0)`;
-      // Was die rote Fläche schon bedeckt, steht weiß: jedes Wort und die
-      // Wortmarke bekommen ihren bedeckten Anteil als --fill (0–1).
-      const box = nav.getBoundingClientRect();
-      const edge = box.left + progress * box.width;
-      nav.querySelectorAll<HTMLElement>('[data-reading-fill]').forEach((el) => {
-        const word = el.getBoundingClientRect();
-        const fill = word.width > 0 ? Math.min(1, Math.max(0, (edge - word.left) / word.width)) : 0;
-        el.style.setProperty('--fill', String(fill));
-      });
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     document.addEventListener('scroll', schedule, { passive: true, capture: true });
@@ -191,7 +181,7 @@ export default function SiteNav() {
         {/* Left: map text */}
         <div className={`${styles.actions} ${styles.actionsStart}`}>
           <MapIntentLink href="/map" className={styles.control} id="navMapBtn" aria-label="Map">
-            <span className={styles.mapWord} data-reading-fill="">Map</span>
+            <span className={styles.mapWord}>Map</span>
           </MapIntentLink>
         </div>
         {/* Center: Logo */}
@@ -200,7 +190,7 @@ export default function SiteNav() {
               (HeroMarkFlight misst diesen Slot aus). Der Link bleibt
               zugänglich — er trägt seinen Namen über aria-label —, nur das
               Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
-          <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="" data-reading-fill="">
+          <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
               src="/pics/home/wordmark.webp?v=1"
               alt="Eat This"
@@ -224,7 +214,7 @@ export default function SiteNav() {
             aria-expanded="false"
             onClick={openBurgerDrawer}
           >
-            <span className={styles.menuWord} data-reading-fill="">{lang === 'de' ? 'Menü' : 'Menu'}</span>
+            <span className={styles.menuWord}>{lang === 'de' ? 'Menü' : 'Menu'}</span>
           </button>
         </div>
       </nav>

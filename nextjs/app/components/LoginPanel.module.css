@@ -1,8 +1,6 @@
-/* Der Rahmen des Anmelde-Modals: ein rotes Blatt wie die Starter-Tafel der
-   Startseite — Farben aus `[data-red-sheet]` (globals.css), Papierkorn und
-   Gebrauchsspuren darauf, die Ränder abgestossen (Ansage 22.10.2026). Die
-   Maske schnitte einen Schatten ab, deshalb keiner. Was darin steht, gehoert
-   LoginBoard. */
+/* Das Anmeldefenster: rotes Knitterpapier vor einem dunkleren roten Grund
+   auf Desktop. Die Farben im Formular kommen aus `[data-red-sheet]`.
+   Auf dem Telefon trägt weiterhin der ganze Vorhang das Papier. */
 
 .frame {
   --login-accent: var(--et-solid);
@@ -54,14 +52,33 @@
 }
 
 .close:focus-visible {
-  color: var(--et-link);
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  color: var(--et-fg);
+  outline: 0;
+  font-weight: 900;
 }
 
 @media (hover: hover) {
   .close:hover {
     color: var(--et-link);
+  }
+}
+
+@media (min-width: 1024px) {
+  .frame {
+    width: min(900px, calc(100vw - 64px));
+    max-height: calc(100dvh - 64px);
+    padding: 0;
+    overflow: hidden;
+    background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 100% 100%;
+    background-blend-mode: multiply;
+    box-shadow: 0 24px 64px rgb(64 12 8 / 0.3);
+  }
+  .content {
+    box-sizing: border-box;
+    max-height: calc(100dvh - 64px);
+    padding: clamp(40px, 5vw, 60px) clamp(32px, 4.4vw, 60px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 

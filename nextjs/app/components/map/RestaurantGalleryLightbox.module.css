@@ -90,8 +90,7 @@
   border: 0;
 }
 
-.galleryLbClose,
-.galleryLbArrow {
+.galleryLbClose {
   display: grid;
   place-items: center;
   width: 48px;
@@ -119,36 +118,6 @@
   stroke: currentColor;
   stroke-width: 1.6;
   stroke-linecap: round;
-}
-
-.galleryLbArrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.galleryLbArrow[data-direction='previous'] {
-  right: calc(100% + 24px);
-}
-
-.galleryLbArrow[data-direction='next'] {
-  left: calc(100% + 24px);
-}
-
-.galleryLbArrow svg {
-  display: block;
-  width: 26px;
-  height: 26px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.galleryLbArrow:disabled {
-  opacity: 0.25;
-  cursor: default;
 }
 
 .galleryLbThumbnails {
@@ -213,7 +182,6 @@
 }
 
 .galleryLbClose:focus-visible,
-.galleryLbArrow:focus-visible,
 .galleryLbThumbnail:focus-visible,
 .galleryLbCredit a:focus-visible {
   outline: 2px solid var(--et-accent-text);
@@ -222,7 +190,6 @@
 
 @media (hover: hover) {
   .galleryLbClose:hover,
-  .galleryLbArrow:hover:not(:disabled),
   .galleryLbCredit a:hover {
     color: var(--et-accent-text);
   }
@@ -252,11 +219,6 @@
   .galleryLbSlide {
     padding-right: 0;
     padding-left: 0;
-  }
-
-  /* Auf Touch reichen Wischen und die direkt anwählbaren Vorschaubilder. */
-  .galleryLbArrow {
-    display: none;
   }
 
   .galleryLbThumbnails {

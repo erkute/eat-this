@@ -27,14 +27,8 @@ for (const locale of ['de', 'en'] as const) {
       const second = gallery.getByRole('button', { name: english ? 'Photo 2 of 2' : 'Foto 2 von 2', exact: true });
       await expect(close).toBeFocused();
       await expect(first).toHaveAttribute('aria-pressed', 'true');
-      if (isMobile) {
-        await expect(previous).toBeHidden();
-        await expect(next).toBeHidden();
-      } else {
-        await expect(previous).toBeDisabled();
-        await expect(next.locator('svg')).toBeVisible();
-        await expect(next.locator('img')).toHaveCount(0);
-      }
+      await expect(previous).toHaveCount(0);
+      await expect(next).toHaveCount(0);
       const photo = gallery.getByRole('img', { name: 'Gazzo', exact: true });
       await expect(photo).toBeVisible();
       await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
@@ -44,7 +38,7 @@ for (const locale of ['de', 'en'] as const) {
       await expect(gallery.locator('span').filter({ hasText: /^Gazzo$/ })).toHaveCount(0);
       const creditBox = (await gallery.getByRole('link').boundingBox())!;
       expect(creditBox.x).toBeGreaterThan(page.viewportSize()!.width / 2);
-      // Arrow navigation scrolls the strip smoothly; wait for it to settle.
+      // Wait for the initial photo to settle in the track.
       await expect.poll(async () => {
         const bounds = (await photo.boundingBox())!;
         return Math.abs(bounds.x + bounds.width / 2 - page.viewportSize()!.width / 2);
@@ -54,17 +48,6 @@ for (const locale of ['de', 'en'] as const) {
       expect(creditBox.y).toBeGreaterThan(photoBox.y + photoBox.height);
       expect(creditBox.y + creditBox.height).toBeLessThan((await first.boundingBox())!.y);
       await page.screenshot({ path: `/tmp/eat-this-gallery/refinement/${info.project.name}-${locale}-${reduced}.png` });
-
-      if (!isMobile) {
-        await next.click();
-        await expect(second).toHaveAttribute('aria-pressed', 'true');
-        await previous.click();
-        await expect(first).toHaveAttribute('aria-pressed', 'true');
-        await expect.poll(async () => {
-          const bounds = (await photo.boundingBox())!;
-          return Math.abs(bounds.x + bounds.width / 2 - page.viewportSize()!.width / 2);
-        }).toBeLessThan(2);
-      }
 
       if (isMobile) {
         const bounds = (await photo.boundingBox())!;
@@ -81,6 +64,7 @@ for (const locale of ['de', 'en'] as const) {
         await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
         await cdp.detach();
         await expect(second).toHaveAttribute('aria-pressed', 'true');
+        await expect.poll(() => photoRegion.evaluate(track => Math.abs(track.scrollLeft - track.clientWidth))).toBeLessThan(1);
         await expect(close).toBeVisible();
         await first.click();
         await expect(first).toHaveAttribute('aria-pressed', 'true');
@@ -90,7 +74,6 @@ for (const locale of ['de', 'en'] as const) {
       await second.click();
       await expect(second).toHaveAttribute('aria-pressed', 'true');
       await expect(gallery.getByRole('status')).toHaveText(english ? 'Photo 2 of 2' : 'Foto 2 von 2');
-      if (!isMobile) await expect(next).toBeDisabled();
       await expect(gallery.getByRole('link')).not.toHaveAttribute('href', firstCredit!);
 
       // Reflow must retain the chosen photo (especially phone rotation).
@@ -104,24 +87,18 @@ for (const locale of ['de', 'en'] as const) {
       await page.setViewportSize(viewport);
       await expect(second).toHaveAttribute('aria-pressed', 'true');
 
-      // Desktop arrows retain focus; touch uses thumbnails without hidden controls.
-      if (isMobile) {
-        await first.click();
-        await expect(first).toHaveAttribute('aria-pressed', 'true');
-        await close.focus();
-        await page.keyboard.press('Tab');
-        await expect(photoRegion).toBeFocused();
-      } else {
-        await previous.click();
-        await expect(first).toHaveAttribute('aria-pressed', 'true');
-        await expect(next).toBeFocused();
-      }
+      // Keyboard paging keeps focus on the photo track on every viewport.
+      await first.click();
+      await expect(first).toHaveAttribute('aria-pressed', 'true');
+      await close.focus();
+      await page.keyboard.press('Tab');
+      await expect(photoRegion).toBeFocused();
       await page.keyboard.press('ArrowRight');
       await expect(second).toHaveAttribute('aria-pressed', 'true');
-      await expect(isMobile ? photoRegion : previous).toBeFocused();
+      await expect(photoRegion).toBeFocused();
       await page.keyboard.press('ArrowLeft');
       await expect(first).toHaveAttribute('aria-pressed', 'true');
-      await expect(isMobile ? photoRegion : next).toBeFocused();
+      await expect(photoRegion).toBeFocused();
 
       // Tab wraps inside the dialog; hidden slides cannot receive focus.
       await close.focus();

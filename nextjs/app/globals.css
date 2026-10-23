@@ -1769,6 +1769,39 @@ ol {
   --et-btn-bg: var(--et-field, #fff);
   --et-btn-fg: var(--et-field-fg, var(--et-ink));
 }
+.et-btn-paper {
+  --et-btn-bg: var(--et-ground);
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
+  --et-btn-hover-fg: var(--et-fg);
+  border-radius: 0;
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+}
+.et-btn.et-btn-paper:focus-visible,
+.et-paper-link:is(:hover, :focus-visible) .et-btn-paper {
+  background-color: var(--et-btn-hover);
+  color: var(--et-btn-hover-fg);
+}
+.et-btn.et-btn-paper:focus-visible {
+  outline: 0;
+}
+.et-btn-text {
+  --et-btn-bg: transparent;
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover: transparent;
+  --et-btn-hover-fg: color-mix(in srgb, var(--et-fg) 68%, var(--et-ground));
+  padding-inline: 0;
+}
+html[data-theme='dark'] .et-btn-text {
+  --et-btn-fg: var(--et-muted);
+  --et-btn-hover-fg: var(--et-white);
+}
+.et-btn-light-hover {
+  --et-btn-hover: var(--et-white);
+  --et-btn-hover-fg: var(--et-ink);
+}
 .et-btn svg {
   flex: none;
   width: 1.1em;
@@ -1777,7 +1810,7 @@ ol {
 @media (hover: hover) {
   .et-btn:not(:disabled):hover {
     background-color: var(--et-btn-hover, var(--et-accent));
-    color: #fff;
+    color: var(--et-btn-hover-fg, #fff);
   }
 }
 /* Fokus als Fläche, kein Ring: ein Ring mit Abstand um die Pille las sich
@@ -1786,6 +1819,15 @@ ol {
 .et-btn:focus-visible {
   outline: 0;
   background-color: #ffc600;
+  color: var(--et-ink);
+}
+.et-btn.et-btn-text:focus-visible {
+  background-color: transparent;
+  color: var(--et-btn-hover-fg);
+  font-weight: 900;
+}
+.et-btn.et-btn-light-hover:focus-visible {
+  background-color: var(--et-white);
   color: var(--et-ink);
 }
 .et-btn:disabled,

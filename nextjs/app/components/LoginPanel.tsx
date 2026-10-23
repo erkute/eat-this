@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import { trackEvent } from '@/lib/analytics';
+import { useDialogFocus } from '@/lib/useDialogFocus';
 import LoginBoard, { LoginSceneArt } from './LoginBoard';
 import styles from './LoginPanel.module.css';
 
@@ -23,6 +24,9 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
   const t = useTranslations('modals.login');
   const { user, loading } = useAuth();
   const { reason, intent } = useLoginModal();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement>(null);
+  useDialogFocus(true, panelRef, triggerRef);
 
   const sceneKind = reason?.kind ?? 'pack';
   useEffect(() => {
@@ -51,24 +55,39 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
   }
 
   return (
-    <div className={styles.frame} data-red-sheet="">
+    <div
+      ref={panelRef}
+      className={styles.frame}
+      data-red-sheet=""
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      tabIndex={-1}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape') return;
+        event.preventDefault();
+        event.stopPropagation();
+        onBack();
+      }}
+    >
       <button type="button" className={styles.close} onClick={onBack} aria-label={t('backBtn')}>
         <span aria-hidden="true">×</span>
       </button>
 
-      <span className={styles.srOnly}>{t('heroHeadline')}</span>
-
-      <LoginBoard
-        art={<LoginSceneArt reason={reason} />}
-        kicker={kicker}
-        title={title}
-        lead={lead}
-        intent={intent}
-        googleWarmup={reason?.kind === 'map-prompt' ? 'intent' : 'mount'}
-        /* Ein Login, der waehrend des offenen Modals durchgeht, haelt den
-           Wartescreen, bis BridgeAuth das Modal nach der Haltezeit schliesst. */
-        holdScreen={!loading && Boolean(user)}
-      />
+      <div className={styles.content}>
+        <span className={styles.srOnly}>{t('heroHeadline')}</span>
+        <LoginBoard
+          art={<LoginSceneArt reason={reason} />}
+          kicker={kicker}
+          title={title}
+          lead={lead}
+          intent={intent}
+          googleWarmup={reason?.kind === 'map-prompt' ? 'intent' : 'mount'}
+          /* Ein Login, der waehrend des offenen Modals durchgeht, haelt den
+             Wartescreen, bis BridgeAuth das Modal nach der Haltezeit schliesst. */
+          holdScreen={!loading && Boolean(user)}
+        />
+      </div>
     </div>
   );
 }

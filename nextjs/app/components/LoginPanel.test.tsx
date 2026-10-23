@@ -98,6 +98,12 @@ describe('LoginPanel — die Szene zeigt, wonach der Gast gegriffen hat', () => 
 });
 
 describe('LoginPanel — Rahmen', () => {
+  it('schliesst das Fenster mit Escape', () => {
+    const { getByRole } = panel();
+    fireEvent.keyDown(getByRole('dialog'), { key: 'Escape' });
+    expect(onBack).toHaveBeenCalledOnce();
+  });
+
   it('schliesst über den Kreuz-Knopf', () => {
     const { container } = panel();
     fireEvent.click(container.querySelector('button[aria-label="Zurück"]')!);

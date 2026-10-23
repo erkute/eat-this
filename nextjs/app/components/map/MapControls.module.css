@@ -29,14 +29,13 @@
 .fab:focus-visible,
 .panelToggle:focus-visible,
 .mapSearchClear:focus-visible {
-  background-color: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
+  background-color: color-mix(in srgb, var(--et-fg) 20%, var(--et-ground));
   background-image: url('/pics/paper/folded-white.webp');
   background-size: 240px 360px;
   background-position: center;
   background-blend-mode: multiply;
   color: var(--et-fg);
-  outline: 2px solid var(--et-fg);
-  outline-offset: 3px;
+  outline: 0;
   border: 0;
   box-shadow: none;
 }
@@ -64,6 +63,9 @@
   filter: none;
   text-shadow: none;
 }
+.mapSearchBtn:focus-visible .mapSearchIcon,
+.fab:focus-visible .fabIcon { stroke-width: 2.5; }
+.mapBurger:focus-visible .mapBurgerLines span { height: 3px; }
 
 .mapSearchBtn,
 .mapSearchToolbar,
@@ -194,8 +196,8 @@
   box-shadow: none;
 }
 .mapSearchToolbar:has(:focus-visible) {
-  outline: 1px solid var(--et-accent-heading);
-  outline-offset: 2px;
+  outline: 0;
+  background-color: color-mix(in srgb, var(--et-fg) 8%, var(--et-ground));
 }
 
 @media (max-width: 520px) {
@@ -249,6 +251,7 @@
 
 .mapSearchToolbar .mapSearchInput:focus-visible {
   outline: 0;
+  font-weight: 800;
 }
 
 .mapSearchSuggestions {
@@ -359,10 +362,9 @@
 }
 
 .mapSearchClear:focus-visible {
-  background: transparent;
+  background: var(--et-subtle);
   color: currentColor;
-  outline: 2px solid currentColor;
-  outline-offset: -5px;
+  outline: 0;
 }
 
 .mapSearchClear:active {

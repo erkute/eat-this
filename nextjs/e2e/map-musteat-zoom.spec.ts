@@ -9,11 +9,19 @@ test.beforeEach(async ({ page, context, baseURL }) => {
 });
 
 for (const english of [false, true]) {
-  test(`Must Eat zoom defers onboarding and preserves paging (${english ? 'EN' : 'DE'})`, async ({ page }, info) => {
+  test(`Must Eat zoom defers onboarding and preserves paging (${english ? 'EN' : 'DE'})`, async ({ page, isMobile }, info) => {
     await page.emulateMedia({ reducedMotion: english ? 'reduce' : 'no-preference' });
     // Public face-up example: the first-visit explainer belongs to the next,
     // covered card, and must wait until its zoom has closed.
     await page.goto(`${english ? '/en' : ''}/map?me=mustead-main-6`);
+    const detail = page.locator('[data-detail-root="must-eat"]');
+    const nextDetail = detail.getByRole('button', { name: new RegExp(`^${english ? 'Next Must Eat' : 'Nächstes Must Eat'}`) });
+    if (isMobile) {
+      await expect(nextDetail).toBeHidden();
+    } else {
+      await expect(nextDetail.locator('svg')).toBeVisible();
+      await expect(nextDetail.locator('img')).toHaveCount(0);
+    }
     const opener = page.getByRole('button', { name: english ? 'Zoom card' : 'Karte vergrößern', exact: true });
     await opener.click();
     const closeName = english ? 'Close enlarged view' : 'Großansicht schließen';
@@ -35,7 +43,7 @@ for (const english of [false, true]) {
     await expect(zoom.getByRole('img')).toHaveAttribute('alt', english ? 'Covered' : 'Verdeckt');
     await expect(page.getByRole('button', { name: english ? 'Skip' : 'Überspringen', exact: true })).toHaveCount(0);
     await expect(next).toBeFocused();
-    await page.screenshot({ path: `/tmp/eat-this-map-design/zoom-regression-${info.project.name}-${english ? 'en' : 'de'}.png` });
+    await page.screenshot({ path: `/tmp/eat-this-must-eat-arrows/zoom-${info.project.name}-${english ? 'en' : 'de'}.png` });
     await close.click();
     await expect(close).toHaveCount(0);
     await expect(page.getByRole('button', { name: english ? 'Skip' : 'Überspringen', exact: true })).toBeVisible();

@@ -264,8 +264,8 @@
   backdrop-filter: none;
   top: 12px;
   right: 12px;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   color: var(--me-ink);
   background: transparent;
   border: 0;
@@ -1502,11 +1502,13 @@
 /* Das X wie im Onboarding (.x): weiß, gelb bei Hover. */
 
 .fdClose:focus-visible {
+  outline: 0;
   box-shadow: none;
   background: transparent;
-  transform: translateY(-1px);
-  color: var(--et-accent-text);
+  transform: none;
+  color: var(--me-ink);
 }
+.fdClose:focus-visible svg { stroke-width: 3; }
 
 @media (hover: hover) {
   .fdClose:hover {
@@ -1514,8 +1516,8 @@
     text-shadow: none;
     box-shadow: none;
     background: transparent;
-    transform: translateY(-1px);
-    color: var(--et-accent-text);
+    transform: none;
+    color: color-mix(in srgb, var(--me-ink) 68%, var(--me-paper));
   }
 }
 
@@ -1739,10 +1741,6 @@
 .detail .scroll > .fdRestInline:active {
   transform: translateY(1px);
 }
-.scroll > .fdRestInline:focus-visible {
-  outline: 2px solid var(--me-accent);
-  outline-offset: 2px;
-}
 .scroll > .fdRestInline .fdK {
   height: auto;
   min-height: 0;
@@ -1902,12 +1900,16 @@
   transition: opacity 0.15s ease-out;
 }
 
-.fdPagerPrev img,
-.fdPagerNext img {
+.fdPagerPrev svg,
+.fdPagerNext svg {
   display: block;
   width: 24px;
-  height: 34px;
-  object-fit: contain;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   transition: translate 0.15s ease-out;
 }
 
@@ -2000,8 +2002,8 @@
 @media (prefers-reduced-motion: reduce) {
   .fdPagerPrev,
   .fdPagerNext,
-  .fdPagerPrev img,
-  .fdPagerNext img {
+  .fdPagerPrev svg,
+  .fdPagerNext svg {
     transition: none;
   }
   @media (hover: hover) {
@@ -2131,20 +2133,19 @@
   background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 400px 600px;
   background-blend-mode: multiply;
 }
-:global(html[data-theme='dark']) .detail .scroll > .fdRestInline {
-  background-color: #fff;
-  background-blend-mode: difference;
-}
 @media (hover: hover) {
   .detail .scroll > .fdRestInline:hover {
-    box-shadow: inset 0 0 0 2px var(--et-fg);
+    background-color: color-mix(in srgb, var(--et-ground) 90%, var(--et-fg));
+    box-shadow: none;
     transform: none;
   }
 }
-.scroll > .fdRestInline:focus-visible {
-  outline: 2px solid var(--et-fg);
-  outline-offset: 3px;
+.detail .scroll > .fdRestInline:focus-visible {
+  outline: 0;
+  background-color: color-mix(in srgb, var(--et-ground) 80%, var(--et-fg));
+  box-shadow: none;
 }
+.detail .scroll > .fdRestInline:focus-visible .fdV { font-weight: 900; }
 .scroll > .fdRestInline .fdK {
   color: var(--et-muted);
   font-family: var(--et-font-body);
@@ -2159,36 +2160,6 @@
 /* Das X frei, ohne Fläche (Ansage 22.10.2026: „beim X kein Rahmen"), als
    gezeichnetes Zeichen (icons.tsx CloseIcon) in der Stärke der übrigen. */
 .fdClose svg {
-  width: 20px;
-  height: 20px;
-}
-
-/* Same foil as the map filters, including the photo/detail overlay controls. */
-:global(html[data-active-page='map']) .fdClose {
-  width: 40px;
-  height: 40px;
-  border: 0;
-  border-radius: 0;
-  background-color: #fff;
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: 240px 360px;
-  background-position: center;
-  color: var(--et-ink);
-  filter: none;
-}
-:global(html[data-active-page='map']) .fdClose svg { width: 24px; height: 24px; }
-:global(html[data-active-page='map']) .fdClose:focus-visible {
-  outline: 2px solid var(--et-ink);
-  outline-offset: 2px;
-  background-blend-mode: difference;
-  color: #fff;
-}
-@media (hover: hover) {
-  :global(html[data-active-page='map']) .fdClose:hover {
-    background-blend-mode: difference;
-    color: #fff;
-  }
-}
-@media (max-width: 767.98px) {
-  :global(html[data-active-page='map']) .fdClose { width: 48px; height: 48px; }
+  width: 24px;
+  height: 24px;
 }

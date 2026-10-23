@@ -78,7 +78,7 @@
   outline-offset: 3px;
 }
 
-/* Im Must-Eat-Detail: globaler Sekundärknopf, lesbar auf hellem und dunklem Grund. */
+/* Im Must-Eat-Detail: reine Textaktion aus globals.css. */
 .howSheet {
   margin: 0;
   gap: 8px;

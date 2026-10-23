@@ -312,7 +312,7 @@ export default function NewsArticleShell({
               <MapIntentLink
                 href={`/map?r=${block.restaurantSlug}`}
                 rel="nofollow"
-                className={styles.inlineSpotNameLink}
+                className={`et-label-title ${styles.inlineSpotNameLink}`}
               >
                 {restName}
               </MapIntentLink>
@@ -323,10 +323,10 @@ export default function NewsArticleShell({
                 Kein Ausfallrisiko: alle 177 in Artikeln referenzierten Spots
                 haben einen Bezirk, `meta` ist also nie leer. */}
             {meta && (
-              <span className={styles.inlineSpotMeta}>
+              <span>
                 <Link
                   href={`/restaurant/${block.restaurantSlug}`}
-                  className={styles.inlineSpotMetaLink}
+                  className={`et-label et-label-paper ${styles.inlineSpotMetaLink}`}
                   aria-label={
                     de ? `${restName}: Spot-Seite öffnen` : `Open the spot page for ${restName}`
                   }
@@ -536,12 +536,12 @@ export default function NewsArticleShell({
                 excerpt={excerpt}
                 label={shareLabel}
                 copiedLabel={copiedLabel}
-                className={`et-btn et-btn-sm ${styles.shareBtn}`}
+                className={`et-btn et-btn-paper et-btn-sm ${styles.shareBtn}`}
               />
             </div>
 
             {hubLink && (
-              <Link href={hubLink.href} className={styles.hubLink} data-motion="toss">
+              <Link href={hubLink.href} className={`et-paper-link ${styles.hubLink}`} data-motion="toss">
                 {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
                     davor — dieselbe Art wie auf /packs und in der
                     „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
@@ -567,7 +567,7 @@ export default function NewsArticleShell({
                     Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
                     Leerfläche"). Für Screenreader trägt der Link seinen
                     Namen schon in Kicker und Label. */}
-                <span className={`et-btn et-btn-alt ${styles.hubLinkCta}`} aria-hidden="true">
+                <span className={`et-btn et-btn-paper ${styles.hubLinkCta}`} aria-hidden="true">
                   {de ? 'Ansehen' : 'View'}
                 </span>
               </Link>

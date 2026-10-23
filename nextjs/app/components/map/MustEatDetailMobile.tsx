@@ -393,7 +393,7 @@ export default function MustEatDetailMobile({
                   previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
                 }
               >
-                <img src={prevUnlocked && prevMustEat?.image ? prevMustEat.image : CARD_BACK} alt="" aria-hidden="true" />
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4m7-7-7 7 7 7" /></svg>
               </button>
             )}
             {(prevMustEat || nextMustEat) && (
@@ -404,7 +404,7 @@ export default function MustEatDetailMobile({
                 onClick={() => pageWithCard('next')}
                 aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
               >
-                <img src={nextUnlocked && nextMustEat?.image ? nextMustEat.image : CARD_BACK} alt="" aria-hidden="true" />
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7" /></svg>
               </button>
             )}
             <img

@@ -102,3 +102,25 @@
   .heroActionVariant { justify-content: center; }
   .page { --hv-display: clamp(46px, 15vw, 72px); }
 }
+
+/* The red signup and pale footer share one uninterrupted paper sheet. */
+.paperEnd {
+  position: relative;
+  isolation: isolate;
+  background: #fff;
+}
+.page .paperEnd > :global([data-hub-starter]),
+.paperEnd > :global([data-site-footer]) {
+  --et-sheet: none;
+  position: relative;
+  background: transparent;
+}
+.paperEnd > :global([data-hub-starter])::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--et-ground);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}

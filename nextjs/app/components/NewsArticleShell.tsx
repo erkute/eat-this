@@ -149,6 +149,31 @@ function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): bo
   );
 }
 
+// Sanity guides mark each spot with h2 → spotCard → description. In the
+// reading column the description comes first, then the photo and map label.
+// Keep narrative cards and other editorial blocks in their authored positions.
+function articleReadingOrder(blocks: PortableTextBlock[]): PortableTextBlock[] {
+  const ordered: PortableTextBlock[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    ordered.push(block);
+    if (!('style' in block) || block.style !== 'h2' || blocks[i + 1]?._type !== 'spotCard') {
+      continue;
+    }
+    const card = blocks[++i];
+    while (i + 1 < blocks.length) {
+      const next = blocks[i + 1];
+      if (next._type !== 'block' || (next.style && next.style !== 'normal' && next.style !== 'blockquote')) {
+        break;
+      }
+      ordered.push(next);
+      i++;
+    }
+    ordered.push(card);
+  }
+  return ordered;
+}
+
 // Article detail — magazine feature, the inside of the issue: a tap on a cover
 // opens the magazine and lands here (MagazineLink), so the cover itself does
 // not appear again. On desktop the header splits like Highsnobiety's: title,
@@ -512,7 +537,7 @@ export default function NewsArticleShell({
               data-lede={showLede ? '' : undefined}
             >
               <PortableTextRenderer
-                blocks={content}
+                blocks={articleReadingOrder(content)}
                 renderMustEatCard={renderMustEatCard}
                 renderSpotCard={renderSpotCard}
                 renderImage={renderImage}

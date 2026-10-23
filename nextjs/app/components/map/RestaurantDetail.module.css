@@ -835,7 +835,7 @@
   text-overflow: ellipsis;
 }
 
-/* Freie helle Symbole; der feine Schatten trennt sie auch von hellen Fotos. */
+/* Immer weiße Symbole auf den Fotos, ohne Schatten. */
 .rdHeartToggle,
 .rdCloseGlass {
   position: absolute;
@@ -852,7 +852,7 @@
   border-radius: 0;
   background: transparent;
   color: var(--et-white);
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.75));
+  filter: none;
   font: 700 13px / 1 var(--et-font-body);
   cursor: pointer;
   transition: opacity var(--et-motion-fast);
@@ -861,13 +861,12 @@
 .rdCloseGlass { right: 12px; width: 44px; padding: 0; }
 .rdHeartToggle svg,
 .rdCloseGlass svg { width: 22px; height: 22px; }
-.rdHeartToggleOn { color: var(--et-red); }
 @media (hover: hover) {
   .rdHeartToggle:hover,
   .rdCloseGlass:hover { opacity: 0.72; }
 }
 .rdHeartToggle:focus-visible,
-.rdCloseGlass:focus-visible { outline: 2px solid var(--et-white); outline-offset: -2px; }
+.rdCloseGlass:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 @media (max-width: 767.98px) {
   .rdHeartToggle,
   .rdCloseGlass {

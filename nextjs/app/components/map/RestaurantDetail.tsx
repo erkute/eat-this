@@ -303,7 +303,7 @@ export default function RestaurantDetail({
           {onToggleFavorite && (
             <button
               type="button"
-              className={`${styles.rdHeartToggle} ${isFavorite ? styles.rdHeartToggleOn : ''}`}
+              className={styles.rdHeartToggle}
               aria-label={
                 isFavorite
                   ? locale === 'en'

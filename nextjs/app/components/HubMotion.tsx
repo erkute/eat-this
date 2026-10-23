@@ -3,7 +3,7 @@
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
-import { CLEAR_DEAL, TILTS, dealFromPile, onFirstView, stackOnPile, visible } from '@/lib/home/dealIn';
+import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/lib/home/dealIn';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -16,7 +16,7 @@ import { CLEAR_DEAL, TILTS, dealFromPile, onFirstView, stackOnPile, visible } fr
 gsap.registerPlugin(useGSAP);
 
 /**
- * The curtain Remy pushes away remains; the hero behind it stands still.
+ * The elevator doors open over the finished hero, which stands still.
  * Below the hero, Remy owns his entrance; this controller handles the
  * entrances of the magazine, the Must Eats and the districts map
  * (lib/home/dealIn.ts) and the signup demonstration (the FAQ opens in CSS,
@@ -24,12 +24,8 @@ gsap.registerPlugin(useGSAP);
  */
 
 /**
- * Der Auftritt beim Laden: Remy schiebt den Vorhang weg (CSS,
- * HeroCurtain.module.css, ab dem ersten Paint). Dahinter steht der Hero schon
- * fertig — Marke, Headline, Lead, Knöpfe und MAP/MENÜ fliegen nicht mehr ein
- * (Ansage 21.10.2026: „nur die Remy-Animation, das Schieben, soll bleiben").
- * Ist der Vorhang durch, fällt `data-hero-intro` — vorher misst
- * HeroMarkFlight die Marke nicht.
+ * Die Fahrstuhltüren geben den fertigen Hero frei. Nach ihrem Öffnen fällt
+ * `data-hero-intro`, damit HeroMarkFlight die Marke messen kann.
  */
 function finishIntro(): (() => void) | void {
   const html = document.documentElement;
@@ -54,11 +50,6 @@ function finishIntro(): (() => void) | void {
     }, 0);
   };
 }
-
-/** GSAP setzt beim Animieren von `transform` die CSS-Eigenschaften
- *  `translate/rotate/scale` inline auf `none` — am Ende alles wieder frei
- *  geben, sonst bleiben Druckzustände (`--et-press-tile`) tot. */
-const CLEAR_TRANSFORMS = 'transform,translate,rotate,scale';
 
 /**
  * Starter Pack: sobald die Tafel ins Bild kommt, tippt sich eine Adresse ins
@@ -152,32 +143,6 @@ function armSignupDemo(): () => void {
   };
 }
 
-/** The hero card follows a real pointer; touch and reduced motion stay still. */
-function armHeroPointer(): () => void {
-  const hero = document.querySelector<HTMLElement>('[data-hub-hero]');
-  const art = hero?.querySelector<HTMLElement>('[data-hub-art]');
-  if (!hero || !art) return () => {};
-  gsap.set(art, { transformPerspective: 1100 });
-  const follow = { duration: 0.9, ease: 'power3' };
-  const tiltX = gsap.quickTo(art, 'rotationX', follow);
-  const tiltY = gsap.quickTo(art, 'rotationY', follow);
-  const move = (event: PointerEvent) => {
-    const rect = hero.getBoundingClientRect();
-    tiltY((((event.clientX - rect.left) / rect.width) * 2 - 1) * 12);
-    tiltX((((event.clientY - rect.top) / rect.height) * 2 - 1) * -8);
-  };
-  const leave = () => { tiltX(0); tiltY(0); };
-  hero.addEventListener('pointermove', move);
-  hero.addEventListener('pointerleave', leave);
-  return () => {
-    hero.removeEventListener('pointermove', move);
-    hero.removeEventListener('pointerleave', leave);
-    tiltX.tween.kill();
-    tiltY.tween.kill();
-    gsap.set(art, { clearProps: CLEAR_TRANSFORMS });
-  };
-}
-
 const CARD_BACK_SRC = '/pics/card-back.webp?v=8';
 
 function centreOf(el: Element) {
@@ -186,13 +151,13 @@ function centreOf(el: Element) {
 }
 
 /** Auf dem Teller: die Hefte liegen als Stapel auf dem ersten Platz und
- *  werden auf ihre Plätze ausgeteilt; am Telefon landet das eine Heft, die
- *  Vorschauen darunter rutschen nach. */
+ *  werden auf ihre Plätze ausgeteilt. Nur am Desktop — am Telefon bleiben
+ *  sie ein Stapel, dessen Posen MagazineGrid selbst setzt; das Austeilen und
+ *  sein Aufräumen dürfen die Hefte dort nicht anfassen. */
 function armMagazineDeal(): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-magazine]');
   if (!section) return () => {};
   const covers = () => visible(section.querySelectorAll<HTMLElement>('ol > li'));
-  const thumbs = () => visible(section.querySelectorAll<HTMLElement>('[role="group"] > button'));
   const lift = 70;
   let timeline: gsap.core.Timeline | null = null;
   const stop = onFirstView(
@@ -201,30 +166,18 @@ function armMagazineDeal(): () => void {
       const list = covers();
       if (!list.length) return;
       stackOnPile(list, centreOf(list[0]), lift);
-      thumbs().forEach((thumb, index) => gsap.set(thumb, { y: 40, rotation: TILTS[index % TILTS.length] }));
     },
     () => {
       const list = covers();
-      const small = thumbs();
-      gsap.set([...list, ...small], { clearProps: CLEAR_DEAL });
+      gsap.set(list, { clearProps: CLEAR_DEAL });
       if (!list.length) return;
       timeline = dealFromPile(list, centreOf(list[0]), { lift, duration: 0.9, stagger: 0.1 });
-      if (small.length) {
-        timeline.fromTo(
-          small,
-          { y: 40, rotation: (index: number) => TILTS[index % TILTS.length] },
-          { y: 0, rotation: 0, duration: 0.6, ease: 'back.out(1.6)', stagger: 0.06, clearProps: 'transform' },
-          0.3,
-        );
-      }
     },
   );
   return () => {
     stop();
     timeline?.kill();
-    gsap.set([...section.querySelectorAll('ol > li'), ...section.querySelectorAll('[role="group"] > button')], {
-      clearProps: CLEAR_DEAL,
-    });
+    gsap.set(section.querySelectorAll('ol > li'), { clearProps: CLEAR_DEAL });
   };
 }
 
@@ -370,19 +323,15 @@ export default function HubMotion() {
       {
         motion: '(prefers-reduced-motion: no-preference)',
         desk: '(min-width: 768px)',
-        pointer: '(hover: hover) and (pointer: fine)',
       },
       (ctx) => {
-        const { motion, desk, pointer } = ctx.conditions as Record<string, boolean>;
+        const { motion, desk } = ctx.conditions as Record<string, boolean>;
         if (!motion) return;
         const stops: Array<() => void> = [];
-        stops.push(armMagazineDeal());
+        if (desk) stops.push(armMagazineDeal());
         stops.push(armMustEatsDeal());
         stops.push(armDistrictsDeal());
         stops.push(armSignupDemo());
-        if (desk && pointer) {
-          stops.push(armHeroPointer());
-        }
         return () => stops.forEach((stop) => stop());
       }
     );

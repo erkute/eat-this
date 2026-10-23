@@ -488,27 +488,22 @@ div.player {
     drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-accent) 70%, transparent));
 }
 
-/* Der leere Platz — seit dem 24.09.2026 die gedaempfte Rueckseite, dieselbe
-   wie fuer eine fehlende Karte auf dem geteilten Deck. Keine gestrichelte
-   Kante, keine Nummer, kein eingelassener Schatten: die Karte ist schon da,
-   nur noch nicht umgedreht. Sie hebt sich beim Anfassen nicht, sie hellt
-   sich auf — Faerbung, keine Bewegung. */
-.empty {
-  background: var(--profile-raised, #25231f);
-}
-
+/* Der leere Platz — die Rueckseite der Karte, so rot wie sie gedruckt ist
+   (Ansage 22.10.2026: „kein schwarzer Schimmer"; bis dahin war sie auf ein
+   Drittel abgedunkelt). Keine gestrichelte Kante, keine Nummer: die Karte ist
+   schon da, nur noch nicht umgedreht. Sie hebt sich beim Anfassen nicht, sie
+   hellt sich leicht auf — Faerbung, keine Bewegung. */
 .empty .backImg {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: brightness(0.34) saturate(0.4);
   transition: filter 180ms ease;
 }
 
 @media (hover: hover) {
   .empty:hover .backImg {
-    filter: brightness(0.5) saturate(0.55);
+    filter: brightness(1.08);
   }
 }
 
@@ -518,22 +513,27 @@ div.player {
 }
 
 .empty:focus-visible .backImg {
-  filter: brightness(0.5) saturate(0.55);
+  filter: brightness(1.08);
 }
 
 /* Der Spot, in dem die Karte liegt — unten auf der Karte, wo auf einer
    offenen Karte die Beschreibung steht. */
 .slotWhere {
   position: absolute;
-  right: 8px;
-  bottom: 9px;
-  left: 8px;
-  color: var(--album-ink);
+  right: 6px;
+  bottom: 8px;
+  left: 6px;
+  /* Auf dem vollen Rot mit „EAT THIS"-Muster braucht der Name ein Etikett:
+     Ink-Fläche, weisse Schrift — in beiden Modi gleich, die Karte ist Druck. */
+  padding: 4px 3px 3px;
+  background: var(--et-ink);
+  border-radius: 3px;
+  color: var(--et-white);
   font-family: var(--album-display);
   /* Fit long words to the card, including letter spacing and side insets. */
   font-size: min(
     clamp(10px, 0.9vw, 12px),
-    max(8px, calc((100cqw - 20px) / var(--slot-name-units, 1)))
+    max(8px, calc((100cqw - 22px) / var(--slot-name-units, 1)))
   );
   font-weight: 700;
   letter-spacing: 0.06em;

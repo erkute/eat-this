@@ -337,7 +337,7 @@ export function IssueMagazine({
         ))}
       </ul>
       <div className={styles.links}>
-        <Link href="/news" className={styles.btn}>
+        <Link href="/news" className="et-btn">
           {/* „Ausgaben" wie die Hefte selbst („Issue 27") und „Weitere
               Ausgaben" unter dem Artikel — „Alle Stories" passte nicht
               (Ansage 03.10.2026). */}

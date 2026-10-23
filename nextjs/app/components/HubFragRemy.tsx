@@ -7,7 +7,7 @@ import { useLocale } from 'next-intl';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import styles from './HubFragRemy.module.css';
 
-export default function HubFragRemy({ embedded = false }: { embedded?: boolean }) {
+export default function HubFragRemy({ compact = false }: { compact?: boolean }) {
   const en = useLocale() === 'en';
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
@@ -150,7 +150,7 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
   }
 
   return (
-    <section className={`homeV2 hv-section hv-wrap ${styles.section}${embedded ? ` ${styles.embedded}` : ''}`} id="hub-fragremy" data-hub-fragremy="">
+    <section className={`homeV2 hv-section hv-wrap ${styles.section}${compact ? ` ${styles.compact}` : ''}`} id="hub-fragremy" data-hub-fragremy="">
       <div className={styles.body} ref={stage}>
         <div className={styles.portrait} aria-hidden="true">
           <div className={styles.figure} ref={figure} data-expression={expression}>
@@ -175,7 +175,7 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
           </div>
           <form className={styles.form} onSubmit={(event) => { event.preventDefault(); ask(draft); }} aria-label={en ? 'Ask Remy' : 'Frag Remy'}>
             <input className={styles.input} data-fragremy-input="" value={draft} onChange={(event) => setDraft(event.target.value)} onFocus={() => listen(true)} onBlur={() => listen(false)} placeholder={en ? 'Or ask me yourself …' : 'Oder frag mich selbst …'} aria-label={en ? 'Your question for Remy' : 'Deine Frage an Remy'} disabled={busy} />
-            <button className={styles.send} type="submit" disabled={busy || !draft.trim()}>{en ? 'Ask' : 'Fragen'}</button>
+            <button className={`et-btn ${styles.send}`} type="submit" disabled={busy || !draft.trim()}>{en ? 'Ask' : 'Fragen'}</button>
           </form>
         </div>
       </div>

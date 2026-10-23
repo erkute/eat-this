@@ -1,4 +1,7 @@
 .wrapper {
+  --et-scrim: var(--et-ink);
+  --et-zoom-cap: var(--et-ink);
+  --et-zoom-scrim-blur: none;
   position: fixed;
   inset: 0;
   z-index: var(--et-z-sheet);
@@ -91,6 +94,18 @@
   -webkit-user-select: none;
   -webkit-user-drag: none;
 }
+.imageFailure {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  min-height: 220px;
+  padding: 24px;
+  color: #fff;
+  font: 400 16px / 1.5 var(--et-font-body);
+  text-align: center;
+}
+.imageFailure p { margin: 0; }
 
 /* Avoid rectangular alpha-WebP shadow layers on touch WebKit. */
 @supports (-webkit-touch-callout: none) {
@@ -137,6 +152,16 @@
 .navBtn svg {
   width: 24px;
   height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Mobile blättert mit der Wischgeste; nur der Kartenstand bleibt sichtbar. */
+@media (max-width: 1023.98px) {
+  .navBtn { display: none; }
 }
 
 .navBtn:disabled {
@@ -229,4 +254,15 @@
     background: #fff;
     color: var(--et-ink);
   }
+}
+
+/* Beide Vollbildansichten nutzen ein freies weißes Schließen-Symbol. */
+:global(html[data-active-page='map']) .close {
+  width: 40px;
+  height: 40px;
+}
+:global(html[data-active-page='map']) .close svg { width: 24px; height: 24px; }
+@media (max-width: 767.98px) {
+  :global(html[data-active-page='map']) .close { width: 48px; height: 48px; }
+  .navBtn { min-width: 48px; height: 48px; }
 }

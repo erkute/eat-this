@@ -24,11 +24,9 @@ export function generateStaticParams() {
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
 // Runs synchronously in <head>: sets data-active-page (read by CSS selectors
 // like [data-active-page="map"] .app-pages), locks portrait orientation on mobile,
-// marks the home page for its intro (data-hero-intro: Remy pushes the curtain
-// away, HeroCurtain.module.css — set here so it starts with the first paint;
-// the hero behind it stands still, nothing flies in, Ansage 21.10.2026; the
-// curtain waits for Remy's legs — data-remy-go, set by HeroCurtain once its
-// mesh draws, at the latest after 3 s from here; skipped when the address
+// marks the home page for its elevator-door intro (data-hero-intro,
+// HeroCurtain.module.css). The finished page sits behind the opening doors.
+// A timeout clears the intro flag if hydration fails. Skipped when the address
 // carries a sign-in link from the mail: then the confirmation board
 // (EmailLinkSignIn) is the first thing on screen; data-email-link holds back
 // what opens by itself until the board closes, lib/auth/emailLinkPending.ts),
@@ -60,7 +58,7 @@ const CRITICAL_BOOTSTRAP = `(function(){
   document.documentElement.setAttribute('data-active-page',slug);
   var emailLink=/[?&]mode=signIn(&|$)/.test(location.search)&&/[?&]oobCode=[^&]/.test(location.search);
   if(emailLink)document.documentElement.setAttribute('data-email-link','');
-  try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.setAttribute('data-remy-go','');},3000);}}catch(_){}
+  try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.removeAttribute('data-hero-intro');},6500);}}catch(_){}
   try{if(slug==='news-article'&&document.visibilityState==='visible'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-article-intro','');}catch(_){}
   try{if(localStorage.getItem('et-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(_){}
   try{if(slug==='start'&&'scrollRestoration' in history)history.scrollRestoration='manual';}catch(_){}

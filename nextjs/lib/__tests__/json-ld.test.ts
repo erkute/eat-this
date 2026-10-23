@@ -9,7 +9,6 @@ import {
   serializeJsonLd,
 } from '../json-ld';
 import { schemaImageUrl } from '../sanity-image-presets';
-import { getMapSeoCopy } from '../map/mapSeoCopy';
 import type { MapRestaurant, Restaurant, RestaurantCard, SpotCardBlock } from '../types';
 
 describe('serializeJsonLd', () => {
@@ -235,7 +234,6 @@ describe('buildMapJsonLd', () => {
     JSON.parse(
       buildMapJsonLd({
         locale,
-        faqs: getMapSeoCopy(locale).faqs,
         listName: 'Restaurants auf der Berlin Food Map',
         restaurants,
       })
@@ -253,14 +251,8 @@ describe('buildMapJsonLd', () => {
     );
   });
 
-  it('mirrors the FAQ the page actually renders, word for word', () => {
-    const faq = node(build(), 'FAQPage') as unknown as {
-      mainEntity: { name: string; acceptedAnswer: { text: string } }[];
-    };
-    expect(faq.mainEntity.map((q) => q.name)).toEqual(getMapSeoCopy('de').faqs.map((f) => f.q));
-    expect(faq.mainEntity.map((q) => q.acceptedAnswer.text)).toEqual(
-      getMapSeoCopy('de').faqs.map((f) => f.a)
-    );
+  it('carries no FAQPage — the map shows no questions any more', () => {
+    expect(build().some((n: { '@type': string }) => n['@type'] === 'FAQPage')).toBe(false);
   });
 
   it('lists only the spots it was handed, and calls the order unordered', () => {
@@ -288,7 +280,6 @@ describe('buildMapJsonLd', () => {
   it('invents no ratings, reviews or prices', () => {
     const raw = buildMapJsonLd({
       locale: 'de',
-      faqs: getMapSeoCopy('de').faqs,
       listName: 'x',
       restaurants: [spot()],
     });

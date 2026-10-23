@@ -3,11 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import MapIntro from './MapIntro';
-import MapSeoFooter from './MapSeoFooter';
 import { getMapSeoCopy } from '@/lib/map/mapSeoCopy';
 
 const intro = (locale: string) => renderToStaticMarkup(<MapIntro locale={locale} />);
-const footer = (locale: string) => renderToStaticMarkup(<MapSeoFooter locale={locale} />);
 
 describe('MapIntro', () => {
   it('carries the page H1, exactly once, in both locales', () => {
@@ -21,7 +19,7 @@ describe('MapIntro', () => {
   it('carries the title and nothing else — no subtitle over the map', () => {
     // Die Zeile unter dem Titel stand am 01.09.2026 kurz hier und flog auf
     // Wunsch wieder raus: über der Karte soll nur die Marke stehen. Ihre
-    // Begriffe trägt die Meta-Description und der Block am Listenende.
+    // Begriffe trägt die Meta-Description.
     expect(intro('de')).not.toContain('<p');
     // Der Name ist in beiden Sprachen derselbe, also auch das Markup.
     expect(intro('de')).toBe(intro('en'));
@@ -37,36 +35,12 @@ describe('MapIntro', () => {
   });
 });
 
-describe('MapSeoFooter', () => {
-  it('opens at h2 — the H1 belongs to the page, not to this block', () => {
-    const html = footer('de');
-    expect(html).not.toContain('<h1');
-    expect(html).toContain(`>${getMapSeoCopy('de').outroHeading}</h2>`);
-  });
-
-  it('prints every FAQ question AND answer, so the FAQPage claim is true', () => {
-    for (const locale of ['de', 'en']) {
-      const html = footer(locale);
-      for (const { q, a } of getMapSeoCopy(locale).faqs) {
-        expect(html).toContain(q);
-        expect(html).toContain(a);
-      }
-    }
-  });
-
-  it('keeps the answers in the markup even while collapsed', () => {
-    // <details> without `open`: der Text steht im HTML, nur nicht im Bild.
-    expect(footer('de')).toContain('<details');
-    expect(footer('de')).not.toContain('<details open');
-  });
-});
-
 describe('map page H1 wiring', () => {
   const read = (name: string) =>
     readFileSync(fileURLToPath(new URL(`./${name}`, import.meta.url)), 'utf8');
   const body = read('MapSectionBody.tsx');
 
-  it('floats MapIntro over the map, and MapSeoFooter at the end of the list', () => {
+  it('floats MapIntro over the map', () => {
     // MapIntro steht zwischen `.mapWrap` und der Live-Karten-Ebene, also in
     // der Kartenfläche und außerhalb des Sheets — damit rendert die H1 in
     // jedem Zustand, auch im Detail, und kostet der Liste keinen Pixel.
@@ -75,8 +49,6 @@ describe('map page H1 wiring', () => {
     const intro = body.indexOf('<MapIntro');
     expect(intro).toBeGreaterThan(mapWrap);
     expect(intro).toBeLessThan(liveLayer);
-    // Der Abbinder dagegen gehört ans Ende des Listen-Scrollbereichs.
-    expect(body.slice(body.indexOf('<MapListHeader'))).toContain('<MapSeoFooter');
   });
 
   it('keeps exactly one h1 across the whole map subsystem', () => {

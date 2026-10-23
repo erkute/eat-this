@@ -1,8 +1,7 @@
 /* The four-colour Google "G", shared by every surface that offers Google
-   sign-in — the login layer and the locked map sheet. Deliberately NOT in
-   actionIcons.tsx: that module is a stroke system drawn in currentColor, and
-   this is a brand mark whose colours are fixed and must not be restyled by the
-   button around it. One copy, because a redrawn logo is a wrong logo. */
+   sign-in — the login layer and the locked map sheet. A brand mark whose
+   colours are fixed and must not be restyled by the button around it. One
+   copy, because a redrawn logo is a wrong logo. */
 export function GoogleMark({ size = 18 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" focusable="false">

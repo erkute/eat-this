@@ -1,7 +1,8 @@
 /* Height math for the mobile detail sheet's bottom anchor (the "middle
    stage"): everything from the sheet's top edge down to the bottom of the
-   prev/next pager (or the hero photo when no pager is rendered), plus a
-   small buffer and the iOS safe area.
+   hero photo (a restaurant has no pager since 22.10.2026; the must-eat
+   detail's measured kicker row stands in for it there), plus a small
+   buffer and the iOS safe area.
 
    The measured path (useMapSheet) feeds the live bottom-edge offset of the
    last visible element into `detailMidVisiblePx` — measuring the offset
@@ -16,10 +17,6 @@
 /** Sheet top edge → hero top: handle pip zone + the hero's 14px top margin
  *  (map.module.css .rdHero). Calibrated against the rendered layout. */
 export const DETAIL_SHEET_TOP_TO_HERO_PX = 50;
-/** Gap between hero bottom and pager top = the hero's 14px bottom margin. */
-export const DETAIL_HERO_MARGIN_BOTTOM_PX = 14;
-/** Pager row estimate: 2×10px padding + ~21px content line (map.module.css .rdPager). */
-export const DETAIL_PAGER_ESTIMATE_PX = 41;
 /** Sub-pixel rounding buffer below the last visible element. */
 export const DETAIL_PEEK_BUFFER_PX = 4;
 /** Hero horizontal margins: 14px each side (map.module.css .rdHero). */
@@ -33,15 +30,7 @@ export function detailMidVisiblePx(contentBottomPx: number, safeAreaBottom: numb
   return contentBottomPx + DETAIL_PEEK_BUFFER_PX + safeAreaBottom;
 }
 
-export function estimateDetailMidVisiblePx(
-  viewportW: number,
-  hasPager: boolean,
-  safeAreaBottom: number
-): number {
+export function estimateDetailMidVisiblePx(viewportW: number, safeAreaBottom: number): number {
   const heroPx = Math.round((viewportW - HERO_SIDE_MARGINS_PX) * HERO_HEIGHT_RATIO);
-  const contentBottom =
-    DETAIL_SHEET_TOP_TO_HERO_PX +
-    heroPx +
-    (hasPager ? DETAIL_HERO_MARGIN_BOTTOM_PX + DETAIL_PAGER_ESTIMATE_PX : 0);
-  return detailMidVisiblePx(contentBottom, safeAreaBottom);
+  return detailMidVisiblePx(DETAIL_SHEET_TOP_TO_HERO_PX + heroPx, safeAreaBottom);
 }

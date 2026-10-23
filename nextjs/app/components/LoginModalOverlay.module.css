@@ -5,7 +5,8 @@
   display: grid;
   place-items: center;
   padding: 18px;
-  background: var(--et-ground);
+  background: #cf3f2f url('/pics/paper/folded-white.webp') center / cover;
+  background-blend-mode: multiply;
   /* Ausdruecklich, nicht geerbt: bei offenem Remy-Chat steht `body` am
      Telefon auf `visibility: hidden` (globals.css, `html[data-buddy-open]`),
      und das Modal haengt per Portal in `body`. Ein Herz auf Remys Spot-Karte
@@ -21,5 +22,11 @@
 @media (max-width: 1023.98px) {
   .overlay {
     padding: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .overlay {
+    padding: 32px;
   }
 }

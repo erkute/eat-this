@@ -65,12 +65,12 @@ export default function MapListEmpty({
 
   return (
     <div className={styles.esBlock} role="status">
-      <span className={styles.esKicker}>{kicker}</span>
+      <span className={`et-label ${styles.esKicker}`}>{kicker}</span>
       <h3 className={styles.esHeading}>{t('map.emptyTitle')}</h3>
       <p className={styles.esSub}>{text}</p>
       {onReset && (
         <div className={styles.esActions}>
-          <button type="button" className={styles.esBtnPrimary} onClick={onReset}>
+          <button type="button" className={`et-btn ${styles.esBtnPrimary}`} onClick={onReset}>
             {t(zustand === 'search' ? 'map.emptyResetSearch' : 'map.emptyReset')}
           </button>
         </div>

@@ -75,41 +75,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* ------------------------------------------------- vorspann + knöpfe ---- */
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--et-btn-h);
-  padding: 0 var(--et-btn-pad);
-  border-radius: var(--et-radius-pill);
-  background: var(--et-solid);
-  color: var(--et-on-solid);
-  background-image: var(--et-btn-wear, none);
-  background-size: 200px auto;
-  font-family: var(--et-font-display);
-  font-size: var(--et-btn-font);
-  font-weight: 700;
-  line-height: 1.25;
-  text-decoration: none;
-  transition: background-color 160ms ease, color 160ms ease;
-}
-
-@media (hover: hover) {
-  .btn:hover {
-    background: var(--et-solid);
-    color: var(--et-on-solid);
-  }
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--et-fg);
-  outline-offset: 5px;
-}
-
-.btn:active {
-  transform: translateY(1px);
-}
-
 /* ------------------------------------------------- rubrikenzeile -------- */
 
 /* Auswahlflächen wie in der Map-Vorschau der Startseite. Am Telefon
@@ -130,7 +95,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   z-index: 20;
   margin: 36px calc(-1 * var(--issue-gutter)) 0;
   padding: 10px var(--issue-gutter);
-  background: var(--et-ground);
+  background: transparent;
   transition: top 0.2s ease;
 }
 
@@ -156,7 +121,8 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   padding: 10px 20px;
   border: 0;
   border-radius: 0;
-  background: var(--et-quiet);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') var(--hub-paper-position, center) / 400px 600px;
+  background-blend-mode: multiply;
   color: var(--et-fg);
   cursor: pointer;
   font-family: var(--et-font-display);
@@ -169,15 +135,19 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .filterChip[aria-pressed='true'] {
-  background: var(--et-solid);
-  color: var(--et-on-solid);
+  background-color: #fff;
+  background-blend-mode: difference;
+  color: #fff;
 }
 
 @media (hover: hover) {
   .filterChip:not([aria-pressed='true']):hover {
-    background: #443a34;
+    background-color: var(--et-quiet);
   }
 }
+
+.filterChip:nth-child(3n) { --hub-paper-position: -100px -400px; }
+.filterChip:nth-child(3n + 1) { --hub-paper-position: -220px -80px; }
 
 .filterChip:focus-visible {
   outline: 2px solid var(--et-fg);
@@ -224,6 +194,13 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
    frei. */
 .spotList {
   scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 56px);
+}
+
+@media (max-width: 767px) {
+  /* 74px Filterleiste plus 30px Luft nach dem automatischen Listensprung. */
+  .spotList {
+    scroll-margin-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 104px);
+  }
 }
 
 /* ------------------------------------------------------------ kapitel --- */
@@ -697,7 +674,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn,
   .filterChip,
   .filterBar,
   .shelfIssue {
@@ -791,7 +767,8 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   margin: 20px auto 0;
   padding: 32px;
   box-sizing: border-box;
-  background: var(--et-quiet);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / cover;
+  background-blend-mode: multiply;
   border-radius: 0;
 }
 .guideInterlude .secTitle { margin-top: 0; }
@@ -900,3 +877,7 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
   .districtPage .guideInterlude { border-top: 0; margin-top: 64px; padding: 28px 20px; }
   .districtPage .moreSpots { margin-top: 64px; }
 }
+
+/* Keep the sheet stable while mobile browser toolbars expand or collapse;
+   the shared page's 100dvh would move the entire footer on every change. */
+.page.discoveryPage { min-height: 100svh; padding-inline: 0; padding-bottom: 0; }

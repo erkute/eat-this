@@ -24,9 +24,8 @@ export function readSafeAreaBottom(): number {
 /* Base content heights (above any iOS safe-area). Per-view peek sizes
    reflect what's actually rendered at the top of the sheet:
    - detail ("middle stage" / bottom anchor): everything from the sheet's
-     top down to the bottom of the last element visible there — the
-     prev/next pager for a restaurant (photo + pager), or the dish-name
-     block for a must-eat (card + name). That bottom edge is measured live
+     top down to the bottom of the last element visible there — the photo
+     for a restaurant, or the dish-name block for a must-eat (card + name). That bottom edge is measured live
      via ResizeObservers on the [data-detail-hero] / [data-detail-pager]
      elements (see effect below). Before the first measurement lands a
      viewport-width estimate (estimateDetailMidVisiblePx) stands in so the
@@ -68,20 +67,20 @@ export function useMapSheet(onDetailDismiss?: () => void, initialView: SheetView
      once at mount. */
   const viewConfig = useMemo(() => {
     const safeAreaBottom = readSafeAreaBottom();
-    /* Middle stage = sheet top → pager bottom (restaurant) or dish-name
+    /* Middle stage = sheet top → photo bottom (restaurant) or dish-name
        bottom (must-eat), +4px sub-pixel buffer, + safe area — the formula
        lives in detailSnap.ts. Pre-measurement the viewport-width estimate
-       stands in (assumes a restaurant photo + pager; the measurement
+       stands in (assumes a restaurant photo; the measurement
        corrects within a frame of the detail mounting, must-eat included). */
     const detailPeek =
       detailContentBottomPx != null
         ? detailMidVisiblePx(detailContentBottomPx, safeAreaBottom)
         : typeof window !== 'undefined'
-          ? estimateDetailMidVisiblePx(window.innerWidth, true, safeAreaBottom)
+          ? estimateDetailMidVisiblePx(window.innerWidth, safeAreaBottom)
           : DETAIL_PEEK_BASE_PX + safeAreaBottom;
     const detailSnaps: SheetSnap[] = ['full', 'peek'];
     // Detail: TWO anchors — 'full' at the top (minimal map strip) and 'peek'
-    // lower down (restaurant: photo + pager; must-eat: card + dish name ≈
+    // lower down (restaurant: the photo; must-eat: card + dish name ≈
     // half height). No 'mid'. A downward swipe settles at peek; only a swipe
     // well BELOW peek dismisses (back to the list) via onDismiss. List:
     // full/mid/peek (snaps undefined = default), no dismiss. Both keys set

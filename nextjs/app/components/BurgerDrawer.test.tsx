@@ -50,8 +50,14 @@ vi.mock('./MapIntentLink', () => ({
 import BurgerDrawer from './BurgerDrawer';
 import { openBurgerDrawer } from './burgerDrawerState';
 
+const frames: FrameRequestCallback[] = [];
+function paintFrame() {
+  for (const callback of frames.splice(0)) callback(0);
+}
+
 describe('BurgerDrawer scroll handover', () => {
   beforeEach(() => {
+    frames.length = 0;
     document.documentElement.removeAttribute('style');
     document.body.removeAttribute('style');
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
@@ -63,8 +69,8 @@ describe('BurgerDrawer scroll handover', () => {
     Object.defineProperty(window, 'requestAnimationFrame', {
       configurable: true,
       value: vi.fn((callback: FrameRequestCallback) => {
-        callback(0);
-        return 1;
+        frames.push(callback);
+        return frames.length;
       }),
     });
     Object.defineProperty(window, 'scrollTo', { configurable: true, value: vi.fn() });
@@ -78,6 +84,7 @@ describe('BurgerDrawer scroll handover', () => {
   it('gibt einem Menü-Link keine Scrollposition mit — die Zielseite beginnt oben', () => {
     render(<BurgerDrawer />);
     openBurgerDrawer();
+    paintFrame();
     expect(document.body.dataset.burgerLockMode).toBe('fixed');
 
     fireEvent.click(screen.getByText('burger.categories'));
@@ -90,6 +97,7 @@ describe('BurgerDrawer scroll handover', () => {
   it('legt die Position zurück, wenn das Menü nur weggetippt wird', () => {
     render(<BurgerDrawer />);
     openBurgerDrawer();
+    paintFrame();
 
     fireEvent.click(document.getElementById('burgerClose') as HTMLButtonElement);
 

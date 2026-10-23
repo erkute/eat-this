@@ -4,6 +4,8 @@ import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
 import HubFragRemy from './HubFragRemy';
 import SiteFooter from './SiteFooter';
+import AboutStoryMotion from './AboutStoryMotion';
+import FoldedPaperBackdrop from './FoldedPaperBackdrop';
 import styles from './AboutPage.module.css';
 
 type Locale = 'de' | 'en';
@@ -64,15 +66,15 @@ const FIGURES: (Figure | null)[] = [
     },
   },
   {
-    src: '/pics/home-dishes/bubar-galette-print.webp',
-    width: 871,
-    height: 856,
-    renderWidth: 290,
-    tilt: 1.5,
-    caption: { de: 'Galette bei Bubar.', en: 'Galette at Bubar.' },
+    src: '/pics/card-front-sabich.webp',
+    width: 760,
+    height: 1044,
+    renderWidth: 300,
+    tilt: 5,
+    caption: { de: 'Jeder Spot bewusst ausgewählt.', en: 'Every spot deliberately chosen.' },
     alt: {
-      de: 'Eine Buchweizen-Galette mit Eigelb auf einem Pappteller',
-      en: 'A buckwheat galette with an egg yolk on a paper plate',
+      de: 'Eine aufgedeckte Eat-This-Sammelkarte mit dem Sabich',
+      en: 'A revealed Eat This trading card featuring sabich',
     },
   },
   {
@@ -83,10 +85,8 @@ const FIGURES: (Figure | null)[] = [
     width: 760,
     height: 1044,
     partner: { src: '/pics/card-front.webp?v=6', width: 760, height: 1044, tilt: 7 },
-    // The pair spans the rail; each card lands near 62% of it. Two overlapping
-    // cards carry more weight than one plate, hence narrower than the 290 the
-    // galette gets.
-    renderWidth: 260,
+    // Let the pair fan across the artwork column as the story scrolls.
+    renderWidth: 400,
     tilt: -8,
     remyAfter: true,
     caption: {
@@ -235,7 +235,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
   return (
     <main className={styles.page} data-page="about" id="staticPageAbout">
-      <div className={styles.inner}>
+      <FoldedPaperBackdrop id={`about-paper-${locale}`} />
+      <AboutStoryMotion className={styles.inner}>
         <header className={styles.hero}>
           <div className={styles.heroCopy}>
             <h1 className={styles.title} id="staticPageAbout-title">
@@ -255,7 +256,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               )
             )}
           </div>
-          <div className={styles.heroArt}>
+          <div className={styles.heroArt} data-about-art="">
             <Image
               src="/pics/founder-cafe.webp"
               alt={
@@ -293,11 +294,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           const flipped = Boolean(figure) && index % 2 === 0;
           return (
             <Fragment key={section.title || index}>
-              <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}`}>
+              <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}${index === 1 ? ` ${styles.selection}` : ''}`} data-about-chapter="">
                 <div className={styles.sectionCopy}>
-                  <span className={styles.sectionNumber} aria-hidden="true">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
                   <h2 className={styles.sectionTitle}>{section.title}</h2>
                   <div className={styles.body}>
                     <PortableTextRenderer blocks={section.blocks} />
@@ -307,6 +305,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                 {figure && (
                   <figure
                     className={styles.figure}
+                    data-about-art=""
                     style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
                   >
                     <div>
@@ -323,6 +322,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                             sizes={`${figure.renderWidth}px`}
                             loading="lazy"
                             className={styles.pairBack}
+                            data-about-card="back"
                             style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
                           />
                           <Image
@@ -333,6 +333,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                             sizes={`${figure.renderWidth}px`}
                             loading="lazy"
                             className={styles.pairFront}
+                            data-about-card="front"
                             style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
                           />
                         </div>
@@ -357,7 +358,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               </section>
               {figure?.remyAfter && (
                 <div className={styles.remy}>
-                  <HubFragRemy embedded />
+                  <HubFragRemy compact />
                 </div>
               )}
             </Fragment>
@@ -373,7 +374,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
             ))}
           </div>
         )}
-      </div>
+      </AboutStoryMotion>
       <SiteFooter />
     </main>
   );

@@ -17,22 +17,6 @@ interface Props {
   restaurantName: string;
 }
 
-function Chevron({ dir }: { dir: 'left' | 'right' }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
-    </svg>
-  );
-}
-
 function PhotoCredit({ image }: { image: RestaurantGalleryImage }) {
   const credit = image.credit?.trim();
   if (!credit) return null;
@@ -52,7 +36,7 @@ function PhotoCredit({ image }: { image: RestaurantGalleryImage }) {
 
 // Flat, swipeable photo viewer for the restaurant gallery. Unlike the
 // must-eat lightbox (a 3D-tilt "playing card"), this is a plain image you
-// page through — touch-swipe, arrow keys, or the on-screen chevrons.
+// page through — touch-swipe, arrow keys, or the thumbnail strip.
 function Viewer({
   images,
   startIndex,
@@ -80,7 +64,6 @@ function Viewer({
   const trackRef = useRef<HTMLDivElement>(null);
   const thumbsRef = useRef<HTMLDivElement>(null);
   const trackWidthRef = useRef(0);
-  const focusDirectionRef = useRef<string | null>(null);
   const dismissTouchRef = useRef<{ x: number; y: number; axis: 'x' | 'y' | null } | null>(null);
   const pageRef = useRef(startIndex);
   pageRef.current = page;
@@ -105,7 +88,6 @@ function Viewer({
       const track = trackRef.current;
       if (!track) return;
       if (next < 0 || next >= count) return;
-      focusDirectionRef.current = document.activeElement?.getAttribute('data-direction') ?? null;
       track.scrollTo({
         left: next * track.clientWidth,
         behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -119,18 +101,6 @@ function Viewer({
   const go = useCallback((direction: number) => goTo(pageRef.current + direction), [goTo]);
 
   useEffect(() => {
-    // Ein Pfeilklick darf den Fokus nicht auf der nun inaktiven Folie verlieren.
-    const direction = focusDirectionRef.current;
-    if (direction) {
-      const activeSlide = trackRef.current?.children[page];
-      const arrows = Array.from(activeSlide?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])
-        .filter((button) => button.getClientRects().length > 0);
-      const nextFocus = arrows.find((button) => button.dataset.direction === direction)
-        ?? arrows[0]
-        ?? closeRef.current;
-      nextFocus?.focus({ preventScroll: true });
-      focusDirectionRef.current = null;
-    }
     const strip = thumbsRef.current;
     const selected = strip?.children[page] as HTMLElement | undefined;
     if (!strip || !selected) return;
@@ -299,30 +269,6 @@ function Viewer({
                   decoding="async"
                   fetchPriority={index === page ? 'high' : 'auto'}
                 />
-                {count > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      className={styles.galleryLbArrow}
-                      data-direction="previous"
-                      aria-label={english ? 'Previous photo' : 'Vorheriges Foto'}
-                      disabled={index === 0}
-                      onClick={() => go(-1)}
-                    >
-                      <Chevron dir="left" />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.galleryLbArrow}
-                      data-direction="next"
-                      aria-label={english ? 'Next photo' : 'Nächstes Foto'}
-                      disabled={index === count - 1}
-                      onClick={() => go(1)}
-                    >
-                      <Chevron dir="right" />
-                    </button>
-                  </>
-                )}
                 <PhotoCredit image={img} />
               </div>
             </div>

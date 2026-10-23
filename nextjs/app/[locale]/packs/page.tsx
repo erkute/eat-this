@@ -123,7 +123,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                       ) : (
                         <Link
                           href={href}
-                          className={styles.view}
+                          className={`et-btn et-btn-sm ${styles.view}`}
                           aria-label={`${pack.displayName} ${t.view.toLowerCase()}`}
                         >
                           {t.view}

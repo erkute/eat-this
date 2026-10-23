@@ -3,6 +3,7 @@ import { sortByCardNumber } from '@/lib/map/cardOrder';
 import MustEatsGallery from './MustEatsGallery';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import SiteFooter from './SiteFooter';
+import FoldedPaperBackdrop from './FoldedPaperBackdrop';
 import styles from './MustEatsSection.module.css';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
@@ -74,7 +75,7 @@ const COPY = {
 // wall of pack art at the end made the last impression "shop" instead of
 // "these dishes", and the same offer is already on slide 3 of the onboarding
 // and in the burger menu.
-const PACK_ART = '/pics/booster/booster.webp';
+const PACK_ART = '/pics/home/starter-pack-front.webp';
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale];
@@ -98,8 +99,9 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
   return (
     <main className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
+      <FoldedPaperBackdrop id="must-eats-paper" />
       <header className={`${styles.wrap} ${styles.head}`} data-cover={cover ? '' : undefined}>
-        <p className={styles.kicker}>{c.kicker}</p>
+        <p className={`et-label ${styles.kicker}`}>{c.kicker}</p>
         <h1 className={styles.title}>
           {c.title[0]}
           <br />
@@ -139,7 +141,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         )}
 
         <div className={styles.actions}>
-          <a href={mapHref} className={styles.cta}>
+          <a href={mapHref} className="et-btn">
             {c.headCta}
           </a>
           <MustEatsOnboarding initialMapData={initialMapData} tone="ink" />
@@ -163,14 +165,14 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
       <section className={`${styles.wrap} ${styles.close}`}>
         <div className={styles.closeCopy}>
-          <p className={styles.kicker}>{c.closeKicker}</p>
+          <p className={`et-label ${styles.kicker}`}>{c.closeKicker}</p>
           <h2 className={styles.closeTitle}>{c.closeTitle}</h2>
           <p className={styles.closeBody}>{c.closeBody}</p>
           <div className={styles.actions}>
-            <a href={mapHref} className={styles.cta}>
+            <a href={mapHref} className="et-btn">
               {c.closeCta}
             </a>
-            <a href={packsHref} className={styles.secondary}>
+            <a href={packsHref} className="et-btn">
               {c.closeSecondary}
             </a>
           </div>
@@ -178,7 +180,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
         <div className={styles.packShot} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={PACK_ART} alt="" loading="lazy" width={600} height={800} />
+          <img src={PACK_ART} alt="" loading="lazy" width={945} height={1491} />
         </div>
       </section>
 

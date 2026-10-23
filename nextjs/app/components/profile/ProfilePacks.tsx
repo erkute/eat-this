@@ -9,7 +9,7 @@ import { categoryArt } from '@/lib/categoryArt';
 import styles from './Profile.module.css';
 
 const PACK_ART_VERSION = '1';
-const WELCOME_ART = '/pics/booster/booster_free.webp?v=2';
+const WELCOME_ART = '/pics/home/starter-pack-front.webp';
 const ALL_BERLIN_ART = '/pics/booster/booster.webp';
 
 function versionedPackArt(src: string): string {
@@ -22,7 +22,7 @@ function PackArt({ src }: { src: string }) {
       src={versionedPackArt(src)}
       alt=""
       width={96}
-      height={139}
+      height={src === WELCOME_ART ? 152 : 139}
       sizes="(max-width: 767.98px) 72px, 96px"
       loading="lazy"
     />

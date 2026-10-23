@@ -132,7 +132,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
               {currentExcerpt && <p className={styles.issueExcerpt}>{currentExcerpt}</p>}
               <MagazineLink
                 href={`/news/${current.slug}`}
-                className={styles.read}
+                className="et-btn"
                 coverFrom="[data-current-issue]"
                 aria-label={`${labels.read}: ${currentTitle}`}
               >

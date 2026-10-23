@@ -30,21 +30,24 @@
   user-select: none;
 }
 
-/* The pill. One colour for both views — list and detail read as the same
-   control. */
+/* Der Griff: ein schmaler, glatter Balken in leisem Grau (Ansage 23.10.2026:
+   der gezeichnete Strich gefiel nicht). Die Farbe kommt aus der Schrift,
+   damit hell und dunkel mitgehen. Eine Farbe für Liste und Detail. */
 .handle::before {
   content: '';
-  background: var(--et-muted);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--et-fg) 22%, transparent);
 }
 
 .listScroll {
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  /* 14px each side keeps the must-eat peek (rotated 11°, reaching ~6px out)
-     and card shadows inside the padding box: no horizontal scroll. The top
-     gives the first card's peek room below the filter bar. */
-  padding: 18px 14px 0;
+  /* 14px each side: the list cards run edge to edge over it
+     (RestaurantList.module.css .rcardSlot). The must-eat peek sits inside the
+     photo now, so the top needs no room for it — only a hair below the
+     filter bar (Ansage 22.10.2026: „zu viel Abstand"). */
+  padding: 4px 14px 0;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -93,8 +96,8 @@
     height: 100%;
     /* The edge where the sheet meets the map. */
     border-top: 0;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
     box-shadow: none;
     transform: translateY(var(--sheet-y, calc(100% - 68px)));
     /* Snaps mechanically into place rather than bouncing; the drag itself
@@ -117,9 +120,8 @@
   }
 
   .handle::before {
-    width: 42px;
-    height: 3px;
-    border-radius: 999px;
+    width: 36px;
+    height: 4px;
   }
 
   .listScroll {
@@ -238,7 +240,7 @@
      plus its hairline. */
   .list[data-view='detail'][data-detail-kind='restaurant'] {
     margin-top: -12px;
-    background: linear-gradient(transparent 0 27px, var(--et-ink) 27px);
+    background: linear-gradient(transparent 0 27px, var(--map-collage-paper, #fff) 27px);
     border-top: 0;
   }
 
@@ -252,7 +254,7 @@
     z-index: 8;
     background: var(--map-collage-paper, #fff);
     border-top: 0;
-    border-radius: 10px 10px 0 0;
+    border-radius: 0;
   }
 
   /* The must-eat takeover stays in document flow: iOS Safari samples the

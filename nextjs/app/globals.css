@@ -162,6 +162,8 @@
   --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
+  --et-status-open: #dce8bf;
+  --et-status-closed: #b52d25;
   /* Ari’s Berlin: https://www.arisberlin.com/menu */
   --et-accent: #a82b2e;
   --et-on-accent: #fff;
@@ -362,21 +364,42 @@ html[data-theme='dark'] {
    scrollt mit ihrem Inhalt; keine Ebene über der ganzen Seite. Unterseiten
    (Magazin, Spots, Artikel) sind nur leicht gealtert (siehe unten). Der Grund bleibt
    weiß (dunkel: Ink), Schrift und Spuren sind farbneutral — kein Creme.
-   Knöpfe sind fette Pillen, damit man sie als Knöpfe erkennt, mit leichten
-   Kratzern (--et-btn-wear); die vollen Kratzer tragen Etiketten (aktiver
+   Knöpfe sind glatte, einfarbige Pillen. Die vollen Kratzer tragen
+   Etiketten (aktiver
    Menüpunkt, Spot-Name im Artikel). Ansage 21.10.2026. */
 html[data-vintage] {
   --et-wear: url('/pics/vintage/button-wear.webp?v=2');
-  /* Knöpfe tragen dieselben Kratzer, halb so stark (Ansage 21.10.2026). */
-  --et-btn-wear: url('/pics/vintage/button-wear-soft.webp?v=1');
   /* Ein Blatt: Korn und Fasern gekachelt, darüber die Gebrauchsspuren der
      Karte einmal über die ganze Fläche. */
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
   --et-sheet-size: 192px, 100% 100%;
   --et-sheet-repeat: repeat, no-repeat;
+  /* Abgestossene Ränder: eine Maske aus vier kachelbaren Kantenstreifen und
+     einer vollen Fläche dazwischen. Nur für das Login-Fenster —
+     nicht für Fotos, Tafeln oder Etiketten (Ansage 22.10.2026: „nicht
+     überall"). Die Maske schneidet auch den eigenen box-shadow ab. */
+  --et-rough-edges:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 12px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 256px 12px repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 12px 256px repeat-y,
+    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 12px 256px repeat-y,
+    linear-gradient(#000 0 0) center / calc(100% - 20px) calc(100% - 20px) no-repeat;
+  /* Flachere Kanten für Felder. Text-Knöpfe bleiben glatt. */
+  --et-rough-edges-sm:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
+    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 4px 128px repeat-y,
+    linear-gradient(#000 0 0) center / calc(100% - 7px) calc(100% - 7px) no-repeat;
 }
+
 html[data-vintage][data-theme='dark'] {
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+}
+/* Die Maske schnitte den Fokusring ab, der ausserhalb des Knopfs liegt.
+   Hausknöpfe zeigen den Fokus als Fläche (unten) und behalten ihre Kante. */
+html[data-vintage] :is(a, button, input):not(.et-btn):focus-visible {
+  mask: none;
 }
 html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
   background-image: var(--et-sheet);
@@ -430,8 +453,9 @@ html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
 }
 /* Starter Pack im Rot des Packs selbst (Ansage 21.10.2026: „soll rot sein,
    ähnlich wie das Starter Pack"): Schrift weiss, Feld und Google-Knopf weiss
-   mit Ink-Schrift, „Anmelden" Ink, Fokus weiss — Rot auf Rot sähe man nicht. */
-html[data-vintage] .homeV2 > [data-hub-starter] {
+   mit Ink-Schrift, „Anmelden" Ink, Fokus weiss — Rot auf Rot sähe man nicht.
+   Das Anmelde-Modal trägt dasselbe Rot (`data-red-sheet`, Ansage 22.10.2026). */
+html[data-vintage] :is(.homeV2 > [data-hub-starter], [data-red-sheet]) {
   color-scheme: light;
   --et-ground: #cf3f2f;
   --et-fg: #fff;
@@ -446,6 +470,7 @@ html[data-vintage] .homeV2 > [data-hub-starter] {
   --et-field-fg: #15120e;
   --et-field-muted: rgba(21, 18, 14, .6);
   --et-focus: #fff;
+  --et-btn-hover: #2b2722;
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
 }
 /* Nachbarblätter mit versetztem Korn, damit sich das Muster nicht wiederholt. */
@@ -589,9 +614,8 @@ html[data-active-page='map'] .app-page {
      thin canvas gap produced by margin + calculated viewport height. */
   html[data-active-page='start'] .app-pages {
     position: fixed;
-    /* Bis unter den Kopf: der gelbe Aufmacher liegt oben hinter dem noch
-       durchsichtigen Kopf (SiteNav.module.css, Ansage 21.10.2026). Sprünge
-       zu Ankern halten trotzdem Abstand. */
+    /* Bis unter den Kopf: der Aufmacher hält ihn mit seinem oberen
+       Innenabstand frei. Sprünge zu Ankern halten trotzdem Abstand. */
     inset: 0;
     scroll-padding-top: var(--site-nav-h);
     height: auto;
@@ -698,19 +722,18 @@ html[data-auth='1'] [data-guest-only] {
     z-index: var(--et-z-map-phone-active);
   }
 
-  /* Ink seit 04.09.2026. Diese beiden Blocks faerben auf dem Telefon die
-     Safari-Leisten (iOS 26 liest die background-color der Kante, nicht
-     theme-color) — sie waren Papier, solange die Map hell war. */
+  /* Der Dokumentabschluss färbt auch Safaris Browserleisten. Er folgt der
+     Map-Palette: Papier im hellen Modus, Ink im dunklen. */
   html:has(.app-page[data-page='map'].active),
   body:has(.app-page[data-page='map'].active) {
-    background: var(--et-ink);
+    background: var(--et-ground);
   }
 
   html:has(.app-page[data-page='map'][data-map-view='detail']),
   body:has(.app-page[data-page='map'][data-map-view='detail']),
   html:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'],
   body:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'] {
-    background: var(--et-ink);
+    background: var(--et-ground);
   }
 }
 
@@ -852,10 +875,16 @@ html[data-auth='1'] [data-guest-only] {
   touch-action: none;
 }
 .notification {
-  --toast-surface: var(--et-ink-raised);
-  --toast-ink: var(--et-white);
-  --toast-muted: rgba(255, 255, 255, 0.76);
-  --toast-accent: var(--et-accent);
+  /* Ein Blatt wie der Anmelde-Layer, aber in der Farbe der Seite: hell
+     Papier mit Ink-Schrift, dunkel Ink mit weisser (Ansage 22.10.2026: „der
+     ist jetzt schwarz, passt nicht zum weissen Look"). Knöpfe folgen den
+     Rollen der Seite; der zweite ist eine leise Stufe der Schriftfarbe. */
+  --toast-surface: var(--et-ground);
+  --toast-ink: var(--et-fg);
+  --toast-muted: var(--et-muted);
+  --et-field: color-mix(in srgb, var(--et-fg) 10%, transparent);
+  --et-field-fg: var(--et-fg);
+  --et-focus: var(--et-fg);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -866,18 +895,18 @@ html[data-auth='1'] [data-guest-only] {
      Text — „Noch einer fuer deine Liste." stand schmaler als der Rest. Die
      40 px sind das Seitenpolster der Huelle. */
   width: min(360px, calc(100vw - 40px));
-  padding: 22px 22px 22px;
+  padding: 26px 24px 24px;
   color: var(--toast-ink);
   text-align: left;
-  background: var(--toast-surface);
+  background-color: var(--toast-surface);
+  background-image: var(--et-sheet, none);
+  background-size: var(--et-sheet-size, auto);
+  background-repeat: var(--et-sheet-repeat, repeat);
   border: 0;
-  /* Derselbe Radius wie Anmelde-Layer und Onboarding. */
-  border-radius: var(--et-radius-panel, 10px);
-  /* Keine Kante, wie der Anmelde-Layer — die Flaechenstufe traegt, dazu der
-     Schatten des Onboarding-Fensters (Tour.module.css .panel). Bis 24.09.2026
-     stand hier nur eine 1-px-Kante: der clip-path des damaligen Schlitzes
-     schnitt jeden aeusseren Schatten weg. */
-  box-shadow: 0 24px 80px #0008;
+  border-radius: 0;
+  /* Abgestossene Kante wie das Anmelde-Fenster (LoginPanel). Die Maske
+     schnitte einen eigenen Schatten ab — den wirft die Hülle (unten). */
+  mask: var(--et-rough-edges, none);
   pointer-events: none;
   transition: transform 0.26s ease-out;
 }
@@ -895,43 +924,34 @@ html[data-auth='1'] [data-guest-only] {
     transform: translateY(14px);
   }
 }
-/* Dieselbe Sprache wie der Anmelde-Layer (LoginBoard): gelber Kicker in
-   Providence-Versalien, weisser Versalien-Titel, eine Zeile in Weiss 76 %,
-   gefuellte Knoepfe ohne Kontur. Vor dem Kicker das gelbe Marken-Quadrat
-   (wie `hv-mk` und der Insider-Tipp); nur bei „kaputt" ist es rot. Rot als
-   Schrift waere auf Ink zu schwach (rund 2,9:1), das Quadrat traegt die
-   Farbe allein. Icons gibt es seit dem 24.09.2026 keine mehr — der Kicker
-   sagt, worum es geht. */
+/* Kicker als Etikett, darunter der Titel und eine leise Zeile, gefüllte
+   Knöpfe. Bei „kaputt" ist das Etikett rot. */
 .notification[data-tone='error'] {
   --toast-mark: var(--et-red);
+  --toast-mark-fg: #fff;
 }
 .notification-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--et-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1.2;
+  /* Der Kicker ist ein gerades Etikett wie in der Map (et-label): Ink mit
+     Kratzern und gelber Schrift, bei „kaputt" rot mit weisser. */
+  align-self: flex-start;
+  padding: 6px 9px 5px;
+  background: var(--toast-mark, var(--et-label-bg, var(--et-ink))) var(--et-wear, none) 0 0 / 200px auto;
+  color: var(--toast-mark-fg, #ffc600);
+  font: 900 11px / 1 var(--et-font-body);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--et-accent-text);
 }
-.notification-eyebrow::before {
-  content: '';
-  flex: none;
-  width: 9px;
-  height: 9px;
-  background: var(--toast-mark, var(--toast-accent));
+.notification-eyebrow:empty {
+  display: none;
 }
 .notification-title {
-  margin-top: 2px;
+  margin-top: 6px;
   font-family: var(--et-font-display);
   font-size: 26px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.02;
-  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-transform: none;
   text-wrap: balance;
   color: var(--toast-ink);
   overflow-wrap: anywhere;
@@ -972,10 +992,11 @@ html[data-auth='1'] [data-guest-only] {
 }
 .notification-steps li::before {
   content: counter(notice-step);
-  color: var(--et-accent-text);
+  color: var(--et-link);
 }
 /* Knoepfe nur, wo es welche gibt — dann ist die Karte ein Layer. Gleich
-   breit nebeneinander, der gelbe rechts; allein nimmt er die ganze Breite. */
+   breit nebeneinander, der Hauptknopf rechts; allein nimmt er die ganze
+   Breite. Aussehen: et-btn. */
 .notification-actions {
   display: flex;
   gap: 8px;
@@ -984,54 +1005,15 @@ html[data-auth='1'] [data-guest-only] {
 .notification-primary,
 .notification-quiet {
   flex: 1 1 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 16px;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.12;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 0.16s ease,
-    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.notification-primary {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-}
-.notification-quiet {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--toast-ink);
-}
-/* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink. */
-@media (hover: hover) {
-  .notification-primary:hover {
-    background: #fff;
-    color: var(--et-ink);
-  }
-  .notification-quiet:hover {
-    background: rgba(255, 255, 255, 0.16);
-  }
-}
-.notification-primary:focus-visible,
-.notification-quiet:focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 3px;
-}
-.notification-primary:active,
-.notification-quiet:active {
-  transform: translateY(1px);
+/* Der Schatten, den die Maske der Karte abschneiden würde, kommt von der
+   Hülle: so hebt sich das helle Blatt auch auf heller Seite ab. */
+.notification-layer[data-open] {
+  filter: drop-shadow(0 18px 40px rgb(0 0 0 / 0.28));
 }
 @media (max-width: 420px) {
   .notification {
-    padding: 20px 18px 18px;
+    padding: 24px 20px 20px;
   }
   .notification-title {
     font-size: 24px;
@@ -1042,6 +1024,44 @@ html[data-auth='1'] [data-guest-only] {
   .notification {
     transition: none;
   }
+}
+
+/* Map info layers share the folded-paper material of the map filters.
+   The page marker also reaches portals without changing notices elsewhere. */
+html[data-active-page='map'] .notification {
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+  mask: none;
+  gap: 12px;
+}
+html[data-active-page='map'] .notification-eyebrow {
+  padding: 0;
+  background: none;
+  color: var(--et-fg);
+  font-weight: 800;
+}
+html[data-active-page='map'] .notification[data-tone='error'] .notification-eyebrow {
+  color: var(--et-accent-text);
+}
+html[data-active-page='map'] .notification-title {
+  margin-top: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-wrap: pretty;
+}
+html[data-active-page='map'] .notification-detail,
+html[data-active-page='map'] .notification-steps li {
+  font-weight: 400;
+  color: var(--et-fg);
+}
+html[data-active-page='map'] .notification-steps li::before {
+  color: var(--et-fg);
+  font-weight: 800;
+}
+html[data-active-page='map'] .notification-layer[data-open] {
+  filter: drop-shadow(0 12px 32px rgb(0 0 0 / 0.2));
 }
 
 /* ── Consent gate: hold the page still while the question is up ─────────────
@@ -1072,17 +1092,11 @@ html[data-auth='1'] [data-guest-only] {
    Motion is translate/scale only (brand rule: no opacity fades on brand
    surfaces). The scrim transitions its background-COLOR rather than opacity —
    it is a veil over the page, not a surface of its own. */
-/* Seit 24.09.2026 in der Sprache des Anmelde-Layers (LoginBoard/LoginPanel):
-   Fenster eine Stufe ueber Ink ohne Kontur, gelbes Marken-Quadrat vor der
-   Providence-Versalie, alles in Providence, Knoepfe gefuellt wie dort — der
-   gelbe hovert auf Papier, der zweite ist eine Weiss-Stufe und hovert gelb.
-   Kein Ring um "Ablehnen" (keine Konturen auf Ink), kein Rot. */
+/* Knitterpapier in der Theme-Farbe der Map-Filter, mit geraden Blattkanten.
+   Beide Antworten bleiben gleich gross und gleich gut lesbar. */
 .cookie-gate {
   --cookie-panel-w: 520px;
   --cookie-panel-w-wide: 900px;
-  --cookie-accent: var(--et-accent);
-  --cookie-soft: var(--et-copy);
-  --cookie-dim: var(--et-muted);
   --cookie-font: var(--et-font-display);
   position: fixed;
   inset: 0;
@@ -1109,6 +1123,9 @@ html[data-auth='1'] [data-guest-only] {
   background-color: var(--et-scrim);
 }
 .cookie-consent {
+  /* Text und Details folgen derselben Palette wie die Papierfläche. */
+  --cookie-soft: var(--et-copy);
+  --cookie-dim: var(--et-fg);
   position: relative;
   box-sizing: border-box;
   width: min(100%, var(--cookie-panel-w));
@@ -1118,10 +1135,15 @@ html[data-auth='1'] [data-guest-only] {
   -webkit-overflow-scrolling: touch;
   padding: clamp(28px, 3.4vw, 40px);
   color: var(--et-fg);
-  background: var(--et-ground);
+  background-color: var(--et-ground);
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  background-repeat: no-repeat;
   border: 0;
   border-radius: 0;
-  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
+  mask: none;
   font-family: var(--cookie-font);
   transform: translateY(22px) scale(0.97);
   transition:
@@ -1161,18 +1183,6 @@ html[data-auth='1'] [data-guest-only] {
   line-height: 1.12;
   text-transform: none;
 }
-/* Dasselbe Zeichen wie `hv-mk` vor den Abschnittstiteln und vor dem
-   Insider-Tipp — gelb, nicht rot: Rot ist auf Ink raus. */
-.cookie-mark {
-  display: none;
-  flex: none;
-  width: 10px;
-  height: 10px;
-  /* Providence-Versalien stehen hoch in der Zeile; ohne den Zug sitzt das
-     Quadrat unter ihrer Mitte. */
-  translate: 0 -0.08em;
-  background: var(--cookie-accent);
-}
 .cookie-text {
   max-width: 44ch;
   margin: 12px 0 0;
@@ -1200,16 +1210,16 @@ html[data-auth='1'] [data-guest-only] {
   text-transform: none;
 }
 .cookie-info-trigger:focus-visible {
-  color: var(--et-fg);
+  color: var(--et-solid);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-info-trigger:hover {
-    color: var(--et-fg);
+    color: var(--et-solid);
   }
 }
-/* Accept is the primary answer, decline the secondary one: yellow against a
-   white step, both filled. What must NOT differ is everything the law looks
+/* Accept is the primary answer, decline the secondary one: ink against a
+   white pill, both filled. What must NOT differ is everything the law looks
    at — same box, same type, same weight, same single click, and decline keeps
    full-white label text so it stays as readable as accept. Do not shrink it,
    grey the label down or push it behind another click: a refusal that costs
@@ -1223,52 +1233,7 @@ html[data-auth='1'] [data-guest-only] {
   width: 100%;
 }
 .cookie-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 0;
-  font-family: var(--cookie-font);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.12;
-  text-transform: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease;
-}
-.cookie-btn-accept {
-  color: var(--et-on-accent);
-  background: var(--cookie-accent);
-}
-.cookie-btn-decline {
-  color: #fff;
-  background: var(--et-ink);
-}
-.cookie-btn-accept:focus-visible {
-  background: #fff;
-  outline: 0;
-  color: var(--et-ink);
-}
-.cookie-btn-decline:focus-visible {
-  color: var(--et-on-accent);
-  background: var(--cookie-accent);
-  outline: 0;
-}
-@media (hover: hover) {
-  .cookie-btn-accept:hover {
-    background: #fff;
-    color: var(--et-ink);
-  }
-  .cookie-btn-decline:hover {
-    color: var(--et-on-accent);
-    background: var(--cookie-accent);
-  }
+  width: 100%;
 }
 .cookie-legal {
   display: flex;
@@ -1286,12 +1251,12 @@ html[data-auth='1'] [data-guest-only] {
   text-decoration: none;
 }
 .cookie-legal a:focus-visible {
-  color: var(--et-link);
+  color: var(--et-solid);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-legal a:hover {
-    color: var(--et-link);
+    color: var(--et-solid);
   }
 }
 @media (max-width: 640px) {
@@ -1328,18 +1293,9 @@ html[data-auth='1'] [data-guest-only] {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  .cookie-btn {
-    min-height: 52px;
-  }
 }
 
 /* Cookie banner inline expand. */
-.cookie-info-chevron {
-  transition: transform 0.22s var(--ease);
-}
-.cookie-consent.expanded .cookie-info-chevron {
-  transform: rotate(180deg);
-}
 .cookie-expand {
   width: 100%;
   margin: 0;
@@ -1348,7 +1304,7 @@ html[data-auth='1'] [data-guest-only] {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-color: var(--et-muted) transparent;
   scrollbar-width: thin;
   /* Self-hiding scroll shadows. The panel is height-capped, so the card grid
      gets cut mid-row — without an edge cue that reads as a rendering bug
@@ -1356,16 +1312,15 @@ html[data-auth='1'] [data-guest-only] {
      mask the `scroll` layers once an end is reached, so the hint appears only
      where there is actually more to see. No JS, no listener. */
   background:
-    linear-gradient(var(--et-white) 30%, transparent) top / 100% 22px no-repeat local,
-    linear-gradient(transparent, var(--et-white) 72%) bottom / 100% 26px no-repeat local,
-    radial-gradient(farthest-side at 50% 0, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)) top /
+    linear-gradient(var(--et-ground) 30%, transparent) top / 100% 22px no-repeat local,
+    linear-gradient(transparent, var(--et-ground) 72%) bottom / 100% 26px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0)) top /
       100% 11px no-repeat scroll,
-    radial-gradient(farthest-side at 50% 100%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0))
+    radial-gradient(farthest-side at 50% 100%, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0))
       bottom / 100% 13px no-repeat scroll;
   background-color: var(--et-ground);
 }
-/* Die Abschnitte als leise Felder im Fenster — Ueberschrift als gelbes
-   Kreide-Label in Versalien, wie die Labels der Fakten-Tafel. */
+/* Dezente Detailflächen folgen ebenfalls der gewählten Theme-Palette. */
 .cookie-expand .cookie-info-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -1376,7 +1331,7 @@ html[data-auth='1'] [data-guest-only] {
   min-width: 0;
   margin: 0;
   padding: 14px 15px 15px;
-  background: var(--et-quiet);
+  background: var(--et-subtle);
   border: 0;
   border-radius: 0;
 }
@@ -1417,7 +1372,7 @@ html[data-auth='1'] [data-guest-only] {
   top: 0.62em;
   width: 4px;
   height: 4px;
-  background: var(--cookie-accent);
+  background: currentColor;
 }
 .cookie-expand .cookie-info-body strong {
   color: var(--et-fg);
@@ -1460,7 +1415,7 @@ html[data-auth='1'] [data-guest-only] {
    Nebeneffekt, der passt: wo der Hover −1px hebt, steht der Druck auf 0 —
    dieselbe Bewegung wie vorher.
 
-   1px, weil das die Hausgeste ist (`.hv-btn`, `.hv-chip` und rund zwanzig
+   1px, weil das die Hausgeste ist (`.et-btn`, `.hv-chip` und rund zwanzig
    weitere Regeln machen das seit jeher so). Wer das ändert, ändert es hier.
 
    `summary` ist mit drin: die FAQ-Zeilen sind Knöpfe, auch wenn sie keine sind.
@@ -1469,7 +1424,7 @@ html[data-auth='1'] [data-guest-only] {
 button:not(:disabled):active,
 summary:active,
 [role='button']:not([aria-disabled='true']):active,
-.hv-btn:active,
+.et-btn:active,
 .hv-chip:active {
   translate: 0 1px;
 }
@@ -1752,31 +1707,189 @@ ol {
   font-size: var(--et-type-caption);
   color: var(--et-muted);
 }
-.homeV2 .hv-btn {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: var(--et-type-button);
-  padding: 11px 24px;
-  border-radius: 999px;
-  display: inline-block;
-  background: var(--et-solid);
-  color: var(--et-on-solid);
-  border: none;
+/* ---------------------------------------------------------------------------
+   Der Knopf. Eine Definition für jeden Text-Knopf der App (Ansage 22.10.2026:
+   „die müssen alle gleich sein, und ändere ich sie, ziehen alle mit"):
+   glatte, einfarbige Pille, fett, Neue Haas Grotesk.
+   Module setzen nur noch, WO ein Knopf steht (Abstand, Breite, Raster) —
+   nie Farbe, Form, Schrift oder Hover. Gleich spezifische Modulregeln
+   gewönnen sonst gegen diese hier (globals lädt zuerst).
+
+   Farbe kommt aus den Rollen der Fläche: `--et-solid`/`--et-on-solid` —
+   Ink auf Papier, weiss auf Ink-Blättern, Ink auf den roten Blättern.
+   Größen: Standard; `et-btn-sm` auf Fotos, Karten und in Listen;
+   `et-btn-lg` für den einen Kauf einer Seite.
+   `et-btn-alt`: die zweite Antwort neben einem Hauptknopf (Google,
+   Ablehnen) und Knöpfe auf Fotos — weiss mit Ink-Schrift.
+   Symbol-Knöpfe, Chips, Filter und die Sprachwahl sind keine Knöpfe in
+   diesem Sinn und bleiben eigen. */
+.et-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: var(--et-btn-h);
+  padding: 0 var(--et-btn-pad);
+  border: 0;
+  border-radius: var(--et-radius-pill);
+  background-color: var(--et-btn-bg, var(--et-solid));
+  background-image: none;
+  mask: none;
+  color: var(--et-btn-fg, var(--et-on-solid));
+  font: 700 var(--et-btn-font) / 1.25 var(--et-font-body);
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
   cursor: pointer;
   transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
+    background-color var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
-.homeV2 .hv-btn:focus-visible {
-  transform: translateY(-2px);
+.et-btn-sm {
+  min-height: var(--et-btn-h-sm);
+  padding-inline: var(--et-btn-pad-sm);
+  font-size: var(--et-btn-font-sm);
+}
+.et-btn-lg {
+  min-height: var(--et-btn-h-lg);
+  padding-inline: var(--et-btn-pad-lg);
+  font-size: var(--et-btn-font-lg);
+}
+.et-btn-alt {
+  --et-btn-bg: var(--et-field, #fff);
+  --et-btn-fg: var(--et-field-fg, var(--et-ink));
+}
+.et-btn-paper {
+  --et-btn-bg: var(--et-ground);
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
+  --et-btn-hover-fg: var(--et-fg);
+  border-radius: 0;
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+}
+.et-btn.et-btn-paper:focus-visible,
+.et-paper-link:is(:hover, :focus-visible) .et-btn-paper {
+  background-color: var(--et-btn-hover);
+  color: var(--et-btn-hover-fg);
+}
+.et-btn.et-btn-paper:focus-visible {
+  outline: 0;
+}
+.et-btn-text {
+  --et-btn-bg: transparent;
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover: transparent;
+  --et-btn-hover-fg: color-mix(in srgb, var(--et-fg) 68%, var(--et-ground));
+  padding-inline: 0;
+}
+html[data-theme='dark'] .et-btn-text {
+  --et-btn-fg: var(--et-muted);
+  --et-btn-hover-fg: var(--et-white);
+}
+.et-btn-light-hover {
+  --et-btn-hover: var(--et-white);
+  --et-btn-hover-fg: var(--et-ink);
+}
+.et-btn svg {
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
 }
 @media (hover: hover) {
-  .homeV2 .hv-btn:hover {
-    transform: translateY(-2px);
+  .et-btn:not(:disabled):hover {
+    background-color: var(--et-btn-hover, var(--et-accent));
+    color: var(--et-btn-hover-fg, #fff);
   }
 }
-.homeV2 .hv-btn:active {
-  transform: translateY(1px);
+/* Fokus als Fläche, kein Ring: ein Ring mit Abstand um die Pille las sich
+   als doppelter Rahmen (Ansage 22.10.2026: „kein doppelten Rahmen im
+   Button"). Gelb mit Ink-Schrift — dieselbe Fläche wie ein gesetzter Filter. */
+.et-btn:focus-visible {
+  outline: 0;
+  background-color: #ffc600;
+  color: var(--et-ink);
+}
+.et-btn.et-btn-text:focus-visible {
+  background-color: transparent;
+  color: var(--et-btn-hover-fg);
+  font-weight: 900;
+}
+.et-btn.et-btn-light-hover:focus-visible {
+  background-color: var(--et-white);
+  color: var(--et-ink);
+}
+.et-btn:disabled,
+.et-btn[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* ---------------------------------------------------------------------------
+   Das Etikett. Ein aufgeklebter Zettel wie der Spot-Name auf den
+   Spot-Karten im Artikel, aber gerade (Ansage 22.10.2026: „keine schiefen
+   Labels, nur noch gerade") (NewsArticleShell `.inlineSpotName`): Ink mit den
+   Kratzern, weisse Schrift (Ansage 23.10.2026, vorher gelb). So steht Text auf einem Foto, ohne dass das Foto
+   dunkler werden muss (Ansage 22.10.2026: „das Bild muss hell bleiben").
+   `et-label`: kleine Versalien (Bezirk, Küche, Status, Zwischentitel).
+   `et-label-paper`: dasselbe auf weissem Papier.
+   `et-label-title`: der Name als grosses Etikett; jede umbrochene Zeile
+   bekommt ihr eigenes Stück. */
+.et-label {
+  display: inline-block;
+  padding: 6px 9px 5px;
+  background: var(--et-label-bg, var(--et-ink)) var(--et-wear, none) 0 0 / 200px auto;
+  color: #fff;
+  font: 900 11px / 1 var(--et-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.et-label-paper {
+  background: #fff;
+  color: var(--et-ink);
+}
+.et-label-open {
+  background: linear-gradient(rgb(220 232 191 / 0.9), rgb(220 232 191 / 0.9)),
+    var(--et-status-open) url('/pics/paper/folded-white.webp') center / 240px 360px;
+  color: var(--et-ink);
+}
+.et-label-closed {
+  background: var(--et-status-closed);
+  color: #fff;
+}
+/* Der Name steht wie bei 032c als schwarze Schrift in einem knappen weissen
+   Kasten (Ansage 23.10.2026). */
+.et-label-title {
+  padding: 1px 7px 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: #fff;
+  color: var(--et-ink);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+html[data-active-page='map'] .et-label {
+  font-size: 12px;
+}
+html[data-active-page='map'] .et-label.et-label-open,
+html[data-active-page='map'] .et-label.et-label-closed {
+  padding: 4px 6px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+@media (max-width: 767.98px) {
+  html[data-active-page='map'] {
+    --et-btn-h-sm: 48px;
+  }
+}
+/* Auf dem dunklen Grund verschwände das Ink-Etikett in der Fläche: eine
+   Stufe heller. Auf Fotos setzt das Bild `--et-label-bg` wieder auf Ink. */
+html[data-theme='dark'] {
+  --et-label-bg: var(--et-ink-raised);
 }
 .homeV2 .hv-chip {
   font-family: var(--et-font-display);
@@ -1844,4 +1957,4 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
 }
 
 
-.cookie-consent :is(button,a):focus-visible { outline: 2px solid var(--et-ink); outline-offset: 3px; }
+.cookie-consent :is(button,a):not(.et-btn):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 3px; }

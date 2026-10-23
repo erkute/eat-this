@@ -13,7 +13,7 @@ import MustEatsOnboarding from '../MustEatsOnboarding';
 import styles from './MustEatDetail.module.css';
 import { type MustEatDetailState } from './useMustEatDetailState';
 import { useSwipePager } from './useSwipePager';
-import { CloseIcon, PagerArrowIcon, PinIcon } from './icons';
+import { CloseIcon, PinIcon } from './icons';
 
 const CARD_BACK = '/pics/card-back.webp?v=8';
 /* Gesetzt, sobald jemand in DIESER Sitzung gewischt hat — danach ruht der
@@ -393,7 +393,7 @@ export default function MustEatDetailMobile({
                   previousName ? `${t('map.pagerPrev')}: ${previousName}` : t('map.pagerPrev')
                 }
               >
-                <PagerArrowIcon />
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4m7-7-7 7 7 7" /></svg>
               </button>
             )}
             {(prevMustEat || nextMustEat) && (
@@ -404,7 +404,7 @@ export default function MustEatDetailMobile({
                 onClick={() => pageWithCard('next')}
                 aria-label={nextName ? `${t('map.pagerNext')}: ${nextName}` : t('map.pagerNext')}
               >
-                <PagerArrowIcon />
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7" /></svg>
               </button>
             )}
             <img
@@ -539,7 +539,7 @@ export default function MustEatDetailMobile({
                 geblättert wird die Karte, nicht der Kicker.
                 `data-detail-pager` misst useMapSheet weiter. */}
             <div className={styles.fdKickerRow} data-detail-pager>
-              <p className={styles.fdKicker}>{kicker}</p>
+              <p className={`et-label ${styles.fdKicker}`}>{kicker}</p>
             </div>
             {/* h2 — siehe RestaurantDetail: die H1 gehört der Kartenseite. */}
             <h2 className={`${styles.fdName}${slotSizeClass ? ` ${slotSizeClass}` : ''}`}>
@@ -591,6 +591,7 @@ export default function MustEatDetailMobile({
                 <div className={styles.fdLocation}>
                   <MustEatsOnboarding
                     initialMapData={explainerData}
+                    autoOpen={!state.zoomActive}
                     tone="sheet"
                     starterMustEatId={mustEat._id}
                   />
@@ -600,7 +601,7 @@ export default function MustEatDetailMobile({
                 <div className={styles.fdLocation} data-location-needed="ask">
                   <button
                     type="button"
-                    className={styles.fdLocationChip}
+                    className={`et-btn et-btn-sm ${styles.fdLocationChip}`}
                     onClick={requestLocation ?? undefined}
                   >
                     <PinIcon />

@@ -1,32 +1,18 @@
-/* Map controls: search, menu, location, panel disclosure.
- *
- * One section per control, each value set once; breakpoints inside the
- * section. Rewritten 27.09.2026 from the effective values of the old file,
- * where a control was spread over up to 15 grouped blocks and source order
- * decided ties — measured unchanged over every class × viewport × map state
- * (scripts/cascade: sweep-controls.js, hover.js).
- *
- * Breakpoints: phone ≤767.98px, tablet 768–1023.98px, desktop ≥1024px.
- *
- * Two traps worth knowing:
- *   `transition` is a shorthand — a control that retreats must list
- *   `transform` in it, or it jumps where the others glide.
- *   `border: 0` resets border-color to currentColor.
- * mapCascade.test.ts pins what must come out.
- */
-
-/* ── The bare icon controls ──────────────────────────────────────────────
-   Search, burger, locate, panel toggle and the search clear: glyphs straight
-   on the dark map, white, no plate, no outline (plates removed 04.06.2026,
-   paper → white glyphs 04.09.2026). Hover and focus turn them yellow, as
-   everywhere on ink. */
+/* Map controls: folded foil surfaces and precise, straight icons.
+   Positioning preserves the phone visual viewport and sheet-edge dock;
+   tablet controls retreat with transform, desktop controls follow the rail. */
 .mapSearchBtn,
 .mapBurger,
 .fab,
 .panelToggle,
 .mapSearchClear {
-  background: transparent;
-  color: var(--map-collage-ink, #111);
+  background-color: var(--et-ground);
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 240px 360px;
+  background-position: center;
+  background-blend-mode: multiply;
+  background-clip: content-box;
+  color: var(--et-fg);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -43,8 +29,13 @@
 .fab:focus-visible,
 .panelToggle:focus-visible,
 .mapSearchClear:focus-visible {
-  background: transparent;
-  color: var(--et-accent-text);
+  background-color: color-mix(in srgb, var(--et-fg) 20%, var(--et-ground));
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 240px 360px;
+  background-position: center;
+  background-blend-mode: multiply;
+  color: var(--et-fg);
+  outline: 0;
   border: 0;
   box-shadow: none;
 }
@@ -55,35 +46,27 @@
   .fab:hover,
   .panelToggle:hover,
   .mapSearchClear:hover {
-    background: transparent;
-    color: var(--et-accent-text);
+    background-color: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
+    background-image: url('/pics/paper/folded-white.webp');
+    background-size: 240px 360px;
+    background-position: center;
+    background-blend-mode: multiply;
+    color: var(--et-fg);
     border: 0;
     box-shadow: none;
   }
 }
 
-/* Free-standing icons get an ink halo: a yellow pin sliding under them on a
-   refit would otherwise swallow them. Tight stacked shadows read as a cut-out,
-   a wide blur as a glow. Ink since the map went dark (04.09.2026) — a white
-   halo around a white glyph glowed. Not on the open search toolbar's icon,
-   which has its own surface. */
 .mapSearchBtn .mapSearchIcon,
 .mapBurgerLines,
 .fabIcon {
-  filter: drop-shadow(0 0 1px var(--et-ground));
+  filter: none;
   text-shadow: none;
 }
+.mapSearchBtn:focus-visible .mapSearchIcon,
+.fab:focus-visible .fabIcon { stroke-width: 2.5; }
+.mapBurger:focus-visible .mapBurgerLines span { height: 3px; }
 
-/* ── Top corner: search button, open search toolbar, burger ──────────────
-   Tablet: they leave off the top edge while the drag sheet is full, or a
-   detail is open (its sheet is transformed, no scroll position to key off).
-   Phone: they stay at every depth, in the map strip the sheet leaves at the
-   top (user, 23.09.2026), and hang off the viewport, not the map, so they do
-   not drift apart while iOS collapses its URL bar. `fixed` anchors to the
-   LAYOUT viewport, which iOS does not shrink for the keyboard — it slides the
-   visual viewport inside it (iPhone 16e: offsetTop 96, toolbar at -82).
-   MapSection republishes that offset as --map-visual-offset-top; it must land
-   on `top`, never on `transform`, which the tablet retreat owns. */
 .mapSearchBtn,
 .mapSearchToolbar,
 .mapBurger {
@@ -103,7 +86,6 @@
   }
 }
 
-/* Search button (collapsed search) */
 .mapSearchBtn {
   position: absolute;
   left: 14px;
@@ -116,7 +98,7 @@
   width: 44px;
   min-width: 44px;
   height: 44px;
-  padding: 0;
+  padding: 2px;
   filter: none;
   clip-path: none;
   font-family: var(--et-font-display);
@@ -134,12 +116,6 @@
     color 150ms var(--ease-standard);
 }
 
-.mapSearchBtn:focus-visible {
-  outline: 2px solid #15120e;
-  outline-offset: 3px;
-  transform: translateY(-1px);
-}
-
 @media (hover: hover) {
   .mapSearchBtn:hover {
     filter: none;
@@ -151,46 +127,33 @@
   transform: translateY(1px);
 }
 
-/* The magnifier, both in the button and the open toolbar. ONE tilt for both:
-   the button used to override it, and opening the search flipped the glyph. */
 .mapSearchIcon {
   flex: 0 0 auto;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   fill: none;
   color: currentColor;
   stroke: currentColor;
-  stroke-width: 3;
+  stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: none;
   text-shadow: none;
-  transform: rotate(-14deg);
+  transform: none;
 }
 
 .mapSearchBtn .mapSearchIcon {
-  flex: 0 0 27px;
-  width: 31px;
-  height: 31px;
-  stroke-width: 2.75px;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.75;
   transform-origin: 50% 50%;
 }
 
-@media (max-width: 360px) {
-  .mapSearchBtn .mapSearchIcon {
-    flex-basis: 25px;
-  }
-}
-
 .mapSearchBtn:active .mapSearchIcon {
-  transform: rotate(-14deg) scale(0.92);
+  transform: scale(0.96);
 }
 
-/* Open search toolbar — the surface of the filter chips below it, white
-   type, no outline and no focus bar (user, 23.09.2026): it is only open while
-   someone types or a search applies, and then the caret blinks. Same height
-   and line as the button it replaces. 392px max: 430 ran into the centred
-   desktop title. */
 .mapSearchToolbar {
   position: absolute;
   left: 14px;
@@ -200,15 +163,20 @@
   align-items: center;
   box-sizing: border-box;
   gap: 8px;
-  width: min(392px, calc(100vw - 84px));
+  width: min(392px, calc(100vw - 92px));
   min-height: 44px;
   height: 44px;
   padding: 0 10px 0 13px;
   overflow: hidden;
-  background: #f2f1ef;
-  color: var(--map-collage-ink, #111);
+
+  background-color: var(--et-ground);
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 240px 360px;
+  background-position: center;
+  background-blend-mode: multiply;
+  color: var(--et-fg);
   border: 0;
-  border-radius: var(--et-radius-control);
+  border-radius: 0;
   box-shadow: none;
   filter: none;
   -webkit-backdrop-filter: none;
@@ -227,18 +195,22 @@
   outline: 0;
   box-shadow: none;
 }
+.mapSearchToolbar:has(:focus-visible) {
+  outline: 0;
+  background-color: color-mix(in srgb, var(--et-fg) 8%, var(--et-ground));
+}
 
 @media (max-width: 520px) {
   .mapSearchToolbar {
-    width: calc(100vw - 78px);
+    width: calc(100vw - 86px);
     padding-left: 12px;
   }
 }
 
 .mapSearchToolbar .mapSearchIcon {
-  flex: 0 0 17px;
-  width: 17px;
-  height: 17px;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .mapSearchInput {
@@ -254,7 +226,7 @@
   color: currentColor;
   caret-color: currentColor;
   font-family: var(--et-font-display);
-  /* iOS zooms into anything under 16px on focus. */
+
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0;
@@ -277,28 +249,32 @@
   display: none;
 }
 
-/* The late-loaded global focus rule would draw its outline here, and the
-   toolbar clips its sides into two stray vertical lines. */
 .mapSearchToolbar .mapSearchInput:focus-visible {
   outline: 0;
+  font-weight: 800;
 }
 
-/* Suggestions under the open search field (MapSearchSuggestions): the
-   field's own window, one step down. Outside the field, which clips. */
 .mapSearchSuggestions {
   position: absolute;
   top: calc(14px + env(safe-area-inset-top, 0px) + 50px);
   left: 14px;
   z-index: 55;
   box-sizing: border-box;
-  width: min(392px, calc(100vw - 84px));
+  width: min(392px, calc(100vw - 92px));
   max-height: min(55vh, 380px);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 6px 0;
-  background: #f2f1ef;
-  color: var(--map-collage-ink, #111);
-  border-radius: var(--et-radius-control);
+  background-color: var(--et-ground);
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 240px 360px;
+  background-position: center;
+  background-blend-mode: multiply;
+  color: var(--et-fg);
+  border-radius: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .mapSearchSuggestions ul {
@@ -329,17 +305,14 @@
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
-  /* Providence-Unterlängen reichen unter die Zeile, und `overflow: hidden`
-     (trägt das Ellipsis) schnitt dem „g“ in „Bürgermeister“ den Bogen ab
-     (Betreiber, 14.10.2026). Das Polster liegt innerhalb der Kappung, der
-     negative Rand hält den Abstand zur Bezirkszeile gleich. */
+
   padding-bottom: 0.22em;
   margin-bottom: -0.22em;
 }
 
 .mapSearchSuggestionMeta,
 .mapSearchSuggestionNone {
-  color: #555;
+  color: var(--et-muted);
   font-size: 13px;
   line-height: 1.3;
 }
@@ -352,43 +325,44 @@
 
 @media (hover: hover) {
   .mapSearchSuggestion:hover {
-    background: rgba(21, 18, 14, .055);
+    background: var(--et-subtle);
   }
 }
 
 .mapSearchSuggestion:focus-visible {
   outline: 0;
-  background: rgba(21, 18, 14, .055);
+  background: var(--et-subtle);
 }
 
 @media (max-width: 520px) {
   .mapSearchSuggestions {
-    width: calc(100vw - 78px);
+    width: calc(100vw - 86px);
   }
 }
 
-/* Phone: fixed like the field above it, and over the sheet's bars (8). */
 @media (max-width: 767.98px) {
   .mapSearchSuggestions {
     position: fixed;
-    top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px) + 50px);
+    top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px) + 54px);
     z-index: 9;
   }
 }
 
 .mapSearchClear {
+  background: transparent;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
   padding: 0;
   color: currentColor;
   touch-action: manipulation;
 }
 
 .mapSearchClear:focus-visible {
+  background: var(--et-subtle);
   color: currentColor;
   outline: 0;
 }
@@ -406,7 +380,6 @@
   }
 }
 
-/* Burger */
 .mapBurger {
   position: absolute;
   right: 14px;
@@ -417,9 +390,10 @@
   justify-content: center;
   width: 44px;
   height: 44px;
+  padding: 2px;
   filter: none;
   clip-path: none;
-  transform: rotate(4deg);
+  transform: none;
   transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -441,7 +415,7 @@
 }
 
 @media (min-width: 1024px) {
-  /* Rides the panel's edge as it slides (--map-panel-slide, MapLayout). */
+
   .mapBurger {
     right: calc(var(--map-desktop-panel-width) + 14px);
     transition:
@@ -459,57 +433,36 @@
   z-index: 1;
   display: grid;
   gap: 4px;
-  width: 22px;
+  width: 20px;
+  justify-items: center;
   color: currentColor;
 }
 
 .mapBurgerLines span {
   display: block;
-  height: 4px;
+  width: 16px;
+  height: 1.75px;
   background: currentColor;
-  border-radius: 999px;
 }
 
-.mapBurgerLines span:nth-child(1) {
-  width: 19px;
-  transform: rotate(-3deg);
-}
-
-.mapBurgerLines span:nth-child(2) {
-  width: 22px;
-  transform: rotate(2deg);
-}
-
-.mapBurgerLines span:nth-child(3) {
-  width: 15px;
-  transform: rotate(-2deg);
-  justify-self: end;
-}
-
-/* Phone: fixed to the viewport, over the map strip (see the section head).
-   After the controls' own blocks, which set `position: absolute`. */
 @media (max-width: 767.98px) {
   .mapSearchBtn,
   .mapSearchToolbar,
   .mapBurger {
     position: fixed;
     top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
-    /* Over the sheet and the map strip it leaves (MapSheet.module.css). */
+
     z-index: 8;
   }
 
-  /* The glyphs, not the 44px buttons, stand 14px from the sides — the same
-     inset as the map credit and the locate crosshair below. The tap area
-     reaches almost to the edge. */
   .mapSearchBtn {
-    left: 3px;
+    left: 12px;
   }
 
   .mapBurger {
-    right: 3px;
+    right: 12px;
   }
 
-  /* The must-eat detail is a takeover with no map behind it. */
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchBtn,
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchToolbar,
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapBurger {
@@ -518,16 +471,6 @@
   }
 }
 
-/* ── Panel disclosure (desktop) ────────────────────────────────────────── */
-/* Die Lasche an der Kante des Desktop-Panels. Bis 28.09.2026 ein 11-px-Pfeil
-   ohne Fläche am Kartenrand — kaum zu finden. Dann eine 34×64-Ink-Lasche mit
-   geometrischem Pfeil: dem Betreiber zu präsent, und der Pfeil passte nicht zu
-   den gezeichneten Zeichen daneben (29.09.2026). Jetzt ein schmaler Reiter,
-   der am Panel hängt, mit einem von Hand gezogenen Winkel wie Lupe und Burger;
-   eingeklappt sagt er „Liste", damit man weiß, was dahinter liegt.
-
-   Er fährt mit dem Panel, per transform und mit --map-panel-slide
-   (MapLayout.module.css). */
 .panelToggle {
   --panel-toggle-x: 0px;
   position: absolute;
@@ -536,14 +479,10 @@
   display: none;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  width: 20px;
-  height: 44px;
+  width: 26px;
+  height: 52px;
   padding: 0;
-  background: #f2f1ef;
-  color: #555;
-  border-radius: 8px 0 0 8px;
-  filter: none;
+
   clip-path: none;
   transform: translate(var(--panel-toggle-x), -50%);
   transition:
@@ -552,40 +491,17 @@
     background-color 150ms var(--ease-standard);
 }
 
-/* Nach den gemeinsamen transparenten Zuständen oben: die Lasche behält ihre
-   Fläche und hebt sich beim Hover um eine Stufe. */
-.panelToggle:focus-visible {
-  background: #f2f1ef;
-  color: var(--et-accent-text);
-}
-@media (hover: hover) {
-  .panelToggle:hover {
-    background: linear-gradient(rgba(21, 18, 14, .055), rgba(21, 18, 14, .055)), #f2f1ef;
-    color: var(--et-accent-text);
-  }
-}
-
-/* Nur die Verschiebung — ohne das -50% sprang die Lasche beim Druck nach
-   unten. */
 .panelToggle:active {
   transform: translate(var(--panel-toggle-x), calc(-50% + 1px));
 }
 
-.panelToggleLabel {
-  font-family: var(--et-font-display);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--map-collage-ink, #111);
-}
-
 .panelToggle svg {
   flex: 0 0 auto;
-  width: 13px;
-  height: 13px;
+  width: 16px;
+  height: 16px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 3.2;
+  stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
   transition: transform var(--map-panel-slide);
@@ -599,9 +515,6 @@
 
   :global([data-map-body][data-panel-hidden='true']) .panelToggle {
     --panel-toggle-x: var(--map-desktop-panel-width);
-    width: auto;
-    height: 34px;
-    padding: 0 10px 0 7px;
   }
 
   :global([data-map-body][data-panel-hidden='true']) .panelToggle svg {
@@ -609,11 +522,6 @@
   }
 }
 
-/* ── Locate button ─────────────────────────────────────────────────────
-   Phone: in its dock, see `.locateDock` below.
-   Tablet: it rides the drag sheet's edge (--locate-bottom from
-   MapSectionBody) and steps aside before the burger. Desktop: bottom right
-   of the map. */
 .fab {
   position: fixed;
   right: 14px;
@@ -624,8 +532,9 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  /* Never yellow (Betreiber, 23.09.2026: „mag das Gelb nicht"). */
-  color: var(--map-collage-ink, #111);
+  padding: 2px;
+
+  color: var(--et-fg);
   filter: none;
   clip-path: none;
   text-shadow: none;
@@ -641,83 +550,49 @@
   cursor: wait;
 }
 
-.fab:focus-visible {
-  color: #555;
-}
-
-/* The press is only the shift, never a surface: an old ink background here
-   flashed a black square around the bare icon on every tap. */
 .fab:active {
   transform: translate(1px, 1px);
 }
 
-/* Keine Scheibe hinter dem Fadenkreuz. Vom 28.09. bis 09.10.2026 lag dort
-   eine Ink-Scheibe, weil das Zeichen über gelben Pins verschwand — der User
-   mochte den Kreis nicht. Lesbar hält es jetzt allein der Ink-Hof, den es mit
-   Lupe und Burger teilt (oben, „Free-standing icons"). */
-
 @media (hover: hover) {
   .fab:hover {
-    color: #555;
     filter: none;
     transform: translateY(-2px);
   }
 }
 
 .fabIcon {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   fill: none;
   color: currentColor;
   stroke: currentColor;
-  /* Same weight as the burger beside it (4px on 22px). */
-  stroke-width: 3;
+
+  stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
-  /* Burger and magnifier lean one way, the crosshair the other. */
-  transform: rotate(3deg);
+
+  transform: none;
 }
 
-/* Phone: the Google Maps way. The button stands above the sheet's resting
-   edge, rides up with the sheet 1:1, stops where its top is 104px below the
-   safe area, clear of search and burger, and the sheet slides over it.
-   --edge-ride is that distance from rest. A sheet pulled below its rest
-   takes the dock along (sheetSlide.ts followSheet). Elsewhere the dock has
-   no box. */
 .locateDock {
   display: contents;
 }
 
 @media (max-width: 767.98px) {
-  /* The dock is sticky, not fixed: it rides with the sheet because it is
-     laid out with the page, and sticks where the ride ends. A fixed dock
-     riding a scroll timeline twitched on iOS whenever Safari's toolbar
-     unfolded at the end of a scroll back to the map — the compositor saw a
-     scroll offset for a few frames that the page never had (iOS 27
-     simulator, 28.09.2026; without the timeline the button stood still).
 
-     It lives in the map's frame (MapLayout.module.css, "The map frame"),
-     next to the fixed map: its top margin puts it on the edge line
-     (--edge-top, shared with the map credit), its bottom margin lets the
-     frame's lower edge — the sheet's top — pass over it, so the sheet
-     slides over the button. 2.5px: the crosshair's ink then stands
-     14px from the edge, like the credit, the magnifier and the burger. The
-     dock spans the width: only the button takes taps, the rest belongs to
-     the map. */
   .locateDock {
     position: sticky;
     top: calc(var(--edge-top) - var(--edge-ride));
     display: flex;
     justify-content: flex-end;
     height: 44px;
-    /* The bottom margin gives it all back, so the frame's end never pushes
-       the dock. */
+
     margin: var(--edge-top) 0 calc(-1 * var(--edge-top) - 44px);
-    padding-right: 2.5px;
+    padding-right: 12px;
     pointer-events: none;
   }
 
-  /* The must-eat detail is a takeover with no map behind it. */
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .locateDock {
     display: none;
   }
@@ -735,8 +610,7 @@
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .fab {
     bottom: var(--locate-bottom, calc(var(--phone-list-sheet-visible, 28dvh) + 14px));
-    /* No transition on `bottom`: it runs exactly as fast as the edge it sits
-       on. The transform keeps one — that is the exit, not the ride. */
+
     transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
@@ -747,8 +621,7 @@
 }
 
 @media (min-width: 1024px) {
-  /* Anchored to the map's right edge, not the window's: its frame is the whole
-     body grid, so it subtracts the panel column itself. */
+
   .fab {
     position: absolute;
     top: auto;
@@ -762,4 +635,22 @@
   :global([data-map-body][data-panel-hidden='true']) .fab {
     right: 14px;
   }
+}
+
+.mapSearchClear svg { width: 18px; height: 18px; }
+@media (prefers-reduced-motion: reduce) {
+  .mapSearchBtn,
+  .mapSearchToolbar,
+  .mapBurger,
+  .fab,
+  .panelToggle,
+  .panelToggle svg { transition: none; }
+}
+
+/* Compact paper surfaces keep a 44px touch target around the smaller glyphs. */
+@media (max-width: 767.98px) {
+  .mapSearchBtn,
+  .mapBurger,
+  .fab { width: 44px; min-width: 44px; height: 44px; }
+  .mapSearchToolbar { height: 48px; }
 }

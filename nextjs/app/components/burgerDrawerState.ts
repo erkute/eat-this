@@ -79,12 +79,12 @@ export function openBurgerDrawer() {
   // Record the off-canvas panel state after leaving display:none so adding
   // .active below still animates the opening transform.
   void drawer.offsetWidth;
-  // Bewegung SOFORT: Tür und Wörter starten im Klick-Frame (Nutzer,
+  // Bewegung SOFORT: Das Menü startet im Klick-Frame (Nutzer,
   // 30.08.2026 — jede Verzögerung fühlt sich zäh an). Was diesen Frame
   // vorher teuer machte, war nicht die Animation, sondern lockBody():
   // `position: fixed` auf den Body ist ein Reflow der ganzen Seite, dazu
-  // der Canvas-Tint. Das läuft jetzt einen Frame SPÄTER — da laufen Tür
-  // und Wörter schon im Compositor und merken davon nichts. Ein Frame
+  // der Canvas-Tint. Das läuft jetzt einen Frame SPÄTER — da läuft das Blatt
+  // schon im Compositor und merkt davon nichts. Ein Frame
   // ohne Scroll-Sperre ist unkritisch: die Sperre hält die sichtbare
   // Position ohnehin identisch (top: -scrollY).
   drawer.classList.add('active');

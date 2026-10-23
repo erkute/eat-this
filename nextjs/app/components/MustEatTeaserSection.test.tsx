@@ -78,7 +78,7 @@ describe('MustEatTeaserSection', () => {
   it('offers „Aufdecken" as a real link to the first card, without a how-to line', () => {
     const html = render(mustEats('me-1', 'me-2'));
     expect(html).toMatch(
-      /<a[^>]*class="button"[^>]*href="\/map\?me=me-1"[^>]*>Aufdecken<\/a>|<a[^>]*href="\/map\?me=me-1"[^>]*class="button"[^>]*>Aufdecken<\/a>/
+      /<a[^>]*class="et-btn button"[^>]*href="\/map\?me=me-1"[^>]*>Aufdecken<\/a>|<a[^>]*href="\/map\?me=me-1"[^>]*class="et-btn button"[^>]*>Aufdecken<\/a>/
     );
     expect(html).not.toContain('Tipp eine Karte an');
   });

@@ -1,24 +1,39 @@
 /* Ein Abschluss für jede Seite, überall wie auf der Startseite (Ansage
-   22.10.2026): grosse Wortmarke auf dem Ink-Blatt. */
-.footer { padding: 64px var(--et-gutter) max(32px, env(safe-area-inset-bottom, 0px)); background: var(--et-ink); color: #fff; text-align: center; }
+   23.10.2026): dasselbe Knitterpapier wie die Map-Filter und Bezirksflächen. */
+.footer { padding: 64px var(--et-gutter) max(32px, env(safe-area-inset-bottom, 0px)); --et-sheet: url('/pics/paper/folded-white.webp'); --et-sheet-size: 100% 100%; --et-sheet-repeat: no-repeat; --et-fg: var(--et-ink); --et-muted: #57534e; background: #fff var(--et-sheet) center / var(--et-sheet-size) var(--et-sheet-repeat); color: var(--et-fg); text-align: center; }
+/* Die Blatt-Versätze der Startseite gelten nicht für diese einzelne Folie. */
+:global(html[data-vintage] .homeV2) > .footer { background-position: center; }
 .top { max-width: 1280px; margin: auto; }
 .brand { display: grid; justify-items: center; }
-.mega { margin: 0; font-size: 0; line-height: 0; }
+.mega { width: min(100%, 420px); margin: 0; font-size: 0; line-height: 0; }
 .homeLink { display: block; }
-.megaImg { display: block; width: min(100%, 420px); height: auto; filter: invert(1); }
+/* Reserve the lazy logo's space before its intrinsic size is available. */
+.megaImg { display: block; width: 100%; height: auto; aspect-ratio: 1124 / 274; }
 .tagline { margin: 12px 0 0; font-size: 13px; font-weight: 400; line-height: 1.4; }
 .links { display: flex; justify-content: center; margin: 28px auto 0; }
-.socialLink { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; color: #fff; }
+.socialLink { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; color: var(--et-fg); }
 .socialLink svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.9; }
 .legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 24px; margin: 24px auto 0; }
-.legalLink { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0; color: #fff; font-size: 14px; line-height: 1.4; text-decoration: none; }
+.legalLink { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0; color: var(--et-fg); font-size: 14px; line-height: 1.4; text-decoration: none; }
 .legalBtn { appearance: none; border: 0; background: transparent; cursor: pointer; }
 .meta { margin: 20px auto 0; font-size: 12px; line-height: 1.5; }
-.copy { color: #bcbab7; }
-.lang { display: flex; justify-content: center; align-items: center; gap: 4px; margin: 16px auto 0; }
-.langBtn { min-width: 44px; min-height: 44px; color: #bcbab7; font-size: 14px; }
-.langBtnActive { color: #fff; font-weight: 700; }
+.copy { color: var(--et-muted); }
+.prefs { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 24px; margin: 16px auto 0; }
+/* Ein kurzer Strich trennt Sprache und Hell/Dunkel — ohne ihn lasen sich
+   „DE · EN ☀ ☾" als vier gleiche Zeichen (22.10.2026). */
+.prefsSep { width: 1px; height: 18px; background: #777; }
+.lang { display: flex; justify-content: center; align-items: center; gap: 4px; }
+.langBtn { min-width: 44px; min-height: 44px; color: var(--et-muted); font-size: 14px; }
+.langBtnActive { color: var(--et-fg); font-weight: 700; }
 .langSep { color: #777; }
-.footer :is(a,button):focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
-@media (hover:hover) { .footer :is(a,button):hover { color: #ffbd31; } }
-@media (max-width:767px) { .footer { padding-block: 40px 96px; } .megaImg { width: 238px; } .legal { gap: 4px 20px; } }
+/* Sonne/Mond wie DE/EN: grau, der gewählte Modus Ink (und gefüllt). */
+.themeBtn { min-width: 44px; min-height: 44px; color: var(--et-muted); }
+.themeBtn[aria-pressed='true'] { color: var(--et-fg); }
+.footer :is(a,button):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 4px; }
+@media (hover:hover) { .footer :is(a,button):hover { color: var(--et-muted); } }
+@media (max-width:767px) { .footer { padding-block: 40px 96px; } .mega { width: min(100%, 238px); } .legal { gap: 4px 20px; } }
+
+/* Native 2:3 paper proportions: desktop width must not stretch the folds. */
+@media (min-width: 768px) {
+  .footer { --et-sheet-size: 640px 960px; --et-sheet-repeat: repeat; }
+}

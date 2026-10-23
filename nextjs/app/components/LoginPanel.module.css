@@ -1,10 +1,7 @@
-/* Der Rahmen des Anmelde-Modals: eine Flaeche, eine Stufe ueber dem
-   Ink-Grund, ohne Kontur (siehe --et-ink-raised in globals.css). Was darin
-   steht, gehoert LoginBoard. */
+/* Ein durchgehender roter Papiergrund auf allen Geräten, ohne eigene
+   Kartenfläche oder Rahmen. Die Formularfarben kommen aus `[data-red-sheet]`. */
 
 .frame {
-  --login-accent: var(--et-accent);
-
   position: relative;
   isolation: isolate;
   box-sizing: border-box;
@@ -12,10 +9,11 @@
   max-height: calc(100svh - 28px);
   padding: clamp(40px, 5vw, 60px) clamp(32px, 4.4vw, 60px);
   overflow: hidden;
-  background: var(--et-ground);
-  /* Derselbe Radius wie das Onboarding-Fenster (Tour.module.css .panel). */
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   border-radius: 0;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  mask: none;
 }
 
 .srOnly {
@@ -52,14 +50,30 @@
 }
 
 .close:focus-visible {
-  color: var(--et-link);
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  color: var(--et-fg);
+  outline: 0;
+  font-weight: 900;
 }
 
 @media (hover: hover) {
   .close:hover {
     color: var(--et-link);
+  }
+}
+
+@media (min-width: 1024px) {
+  .frame {
+    width: min(900px, calc(100vw - 64px));
+    max-height: calc(100dvh - 64px);
+    padding: 0;
+    overflow: hidden;
+  }
+  .content {
+    box-sizing: border-box;
+    max-height: calc(100dvh - 64px);
+    padding: clamp(40px, 5vw, 60px) clamp(32px, 4.4vw, 60px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 

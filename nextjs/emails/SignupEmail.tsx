@@ -136,9 +136,9 @@ export default function SignupEmail({
         >
           <ArtImage
             art={{
-              id: 'booster_free',
+              id: 'starter-pack',
               width: 150,
-              height: 232,
+              height: 237,
               alt: 'Eat This Starter Pack',
               version: EMAIL_ASSET_VERSION,
             }}

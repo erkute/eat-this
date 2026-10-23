@@ -1,7 +1,9 @@
 .explorer {
   width: 100%;
-  max-width: 1380px;
-  min-height: calc(100svh - 80px);
+  max-width: none;
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / cover;
+  background-blend-mode: multiply;
+  min-height: 100svh;
   margin-inline: auto;
   padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 8px);
 }
@@ -37,7 +39,7 @@
 .hintAction { display: block; margin-top: 5px; font-size: 16px; }
 .mapSection[data-map-opening='true'] .geography { pointer-events: none; }
 @media (max-width: 767px) {
-  .explorer { min-height: calc(100svh - 72px); padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px); }
+  .explorer { min-height: 100svh; padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px); }
   .mapSection { margin-top: 24px; }
   .geography { height: auto; min-height: 0; aspect-ratio: 640 / 550; }
   .mapHint { margin-top: 22px; }

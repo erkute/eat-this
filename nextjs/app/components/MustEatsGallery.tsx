@@ -223,7 +223,7 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
           {/* This header defines the term. It deliberately does NOT repeat the
               count: the head already states it and the cards show it. */}
           <header className={styles.sectionHead}>
-            <p className={styles.kicker}>{copy.openKicker}</p>
+            <p className={`et-label ${styles.kicker}`}>{copy.openKicker}</p>
             <h2 className={styles.sectionTitle}>{copy.openTitle}</h2>
             <p className={styles.sectionBody}>{copy.openBody}</p>
           </header>
@@ -275,7 +275,7 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
       {all.length > 0 && (
         <section className={`${styles.wrap} ${styles.section}`} data-band="set">
           <header className={styles.sectionHead}>
-            <p className={styles.kicker}>{copy.setKicker}</p>
+            <p className={`et-label ${styles.kicker}`}>{copy.setKicker}</p>
             <h2 className={styles.sectionTitle}>{copy.coveredTitle}</h2>
             <p className={styles.sectionBody}>{copy.coveredBody}</p>
           </header>

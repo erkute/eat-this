@@ -1,493 +1,59 @@
 /* Restaurant List — isolated map subsystem.
 
+   Glatte Fotos mit kräftigen Namen und Angaben auf weissen Textflächen,
+   direkt im Bild (032c-Referenz, 23.10.2026). Keine Abdunklung.
+
    Kein `content-visibility: auto` auf den Zeilen (23.09.2026 entfernt).
    Safari legt einen solchen Slot erst aus, wenn er schon im Bild steht (in
    WebKit gemessen: Oberkante 13px über dem unteren Rand), und der Slot
    springt dann von der geschätzten auf seine echte Höhe — beim Scrollen
    ruckte die Liste am unteren Rand (Betreiber am iPhone). Die Liste rendert
    ohnehin nur ein Fenster von Zeilen (lib/map/listWindow). */
-.rcardSlot .rcard {
-  margin: 0;
+.rcardSlot {
+  margin-inline: -6px;
+  padding-top: 10px;
+  padding-bottom: 0;
+}
+.rcardSlot:has(.rcard:focus-visible) {
+  outline: 3px solid var(--et-focus, var(--et-fg));
+  outline-offset: 2px;
 }
 .rcard {
+  position: relative;
+  display: block;
   width: 100%;
-  margin: 0 0 12px;
-  cursor: pointer;
+  color: var(--et-fg);
   text-align: left;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.rcardImg {
-  background-color: #1a1a1a;
+.rcard:focus-visible {
+  outline: 0;
 }
-.rcardImg img {
-  object-position: center;
-}
-.openPill {
-  position: absolute;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.openPill::before {
-  content: '';
-  border-radius: 999px;
-}
-.mustPeek {
-  position: absolute;
-  pointer-events: none;
-}
-.rcardActive {
-  box-shadow: 0 14px 24px rgba(43, 33, 28, 0.22);
-}
-.rcardSlot:nth-child(odd) .rcard {
-  --rcard-tilt: -0.7deg;
-}
-.rcardSlot:nth-child(even) .rcard {
-  --rcard-tilt: 0.55deg;
-}
-.rcard {
-  grid-template-rows: auto minmax(72px, auto);
-  gap: 10px;
-  min-height: 0;
-  transition:
-    transform 0.16s ease,
-    box-shadow 0.16s ease;
-}
-.rcardImg {
-  min-height: 0;
-}
-.rcardImg img {
-  transition: transform 0.28s ease;
-}
-.rcardBody {
-  inset: auto;
-  display: grid;
-  align-content: start;
-  min-height: 0;
-}
-.rcardName {
-  margin: 0;
-}
-.rcardMeta {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-}
-.rcardMetaChip,
-.rcardMetaChip > span:last-child {
-  min-width: 0;
-}
-.rcardMetaDistrict {
-  max-width: min(100%, 190px);
-}
-.openPill {
-  right: auto;
-  z-index: 4;
-  width: max-content;
-  max-width: calc(100% - 20px);
-}
-.mustPeek {
-  left: auto;
-}
-@media (hover: hover) {
-  .rcard:hover {
-    transform: translateY(-3px) rotate(var(--rcard-tilt, 0deg));
-    box-shadow: 0 14px 28px rgba(23, 26, 23, 0.17);
-  }
 
-  .rcard:hover .rcardImg img {
-    transform: scale(1.04);
-  }
-}
-@media (min-width: 1024px) {
-  .rcard {
-    min-height: 248px;
-  }
-
-  .rcardImg {
-    min-height: 158px;
-  }
-}
-@media (max-width: 420px) {
-  .rcard {
-    min-height: 242px;
-  }
-}
-.rcardMeta {
-  margin-top: 8px;
-}
-.rcard {
-  display: block;
+.rcardImg {
   position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  /* Bis das Foto da ist, steht die Fläche als Fläche da, nicht als Loch. */
+  background: var(--et-quiet);
 }
 .rcardImg img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-.rcardName {
-  max-width: 100%;
-}
-.rcardMeta {
-  flex-wrap: wrap;
-  width: auto;
-  max-width: 100%;
-  padding: 0;
-  background: transparent;
-}
-.rcardMetaChip + .rcardMetaChip::before {
-  margin: 0 7px;
-  color: var(--et-ink-dim);
-}
-.openPill {
-  box-shadow: none;
-}
-.mustPeek {
-  transform-origin: 58% 72%;
-}
-.rcard {
-  border-bottom: 0;
-  transform: none;
-}
-.rcardBody {
-  background: transparent;
-}
-.rcardSlot {
-  padding: 10px 14px 12px;
-  margin: -10px -14px 8px;
-}
-.rcard {
-  aspect-ratio: 16 / 11.6;
-  padding: 0;
-  overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: #15120e;
-  color: #fff;
-  box-shadow: none;
-}
-.rcardImg {
-  position: absolute;
-  inset: 0;
-  aspect-ratio: auto;
-  border-radius: 0;
-  /* Raised ink, not the page's own: until the photo is in, the card reads as
-     a card and not as a hole in the list (user, 23.09.2026: „da ist so
-     schwarz und dann kommen die Bilder"). */
-  background: var(--et-ink-raised);
-}
-/* Der Name liegt direkt auf dem Foto, und welches Foto das ist, entscheidet
-   die Redaktion — nicht das Layout. Auf einem hellen Bild (Tageslicht durch
-   Fensterfronten, weiße Wand) trug der text-shadow allein nicht mehr: bei
-   „Five Elephant Neue Nationalgalerie" verschwand die Schrift halb in den
-   Fenstern. Ein Schatten reagiert auf die Helligkeit dahinter nicht, ein
-   Verlauf schiebt sie nach unten fest.
-
-   Diese Ebene gab es schon — leer, korrekt gestapelt zwischen Foto (0) und
-   Text (2) und auf `pointer-events: none`. Sie brauchte nur noch einen Grund.
-
-   Vier Stopps statt zwei: eine lineare Rampe auf so großer Fläche bandet
-   sichtbar, die Zwischenstopps nähern eine Ease-Kurve an. Ink statt Schwarz,
-   damit der Verlauf in denselben Ton läuft, auf dem die Karte ohnehin steht
-   (`.rcard { background: #15120e }`) — sonst legt sich ein kalter Rand über
-   den unteren Bildrand. Der text-shadow bleibt: er fängt den Fall ab, dass es
-   ausgerechnet unter der Schrift hell ist.
-
-   Bis 72 % hinauf, nicht knapper: der Name ist `clamp(30px, 7vw, 38px)` ohne
-   line-clamp, „Five Elephant Neue Nationalgalerie" belegt schon drei Zeilen und
-   seine Oberkante liegt bei 58 % der Kartenhöhe. Bei einem früheren Ende säße
-   die erste Zeile eines noch längeren Namens im Klaren. Die oberen 28 % — und
-   damit `.openPill` (top: 14px) und `.mustPeek` (z-index: 4) — bleiben
-   unberührt. */
-.rcard::after {
-  content: '';
-  display: block;
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    to top,
-    rgba(21, 18, 14, 0.78) 0%,
-    rgba(21, 18, 14, 0.58) 22%,
-    rgba(21, 18, 14, 0.22) 48%,
-    rgba(21, 18, 14, 0) 72%
-  );
-}
-.rcardBody {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
-  z-index: 2;
-  margin: 0;
-  padding: 0;
-  color: #fff;
-}
-.rcardName {
-  color: #fff;
-  /* Providence haengt weit unter die Grundlinie: gemessen bei 30px sind das
-     0,484em Unterlaenge gegen 0,684em Versalhoehe und 0,447em x-Hoehe.
-
-     Daraus folgt die Zeilenhoehe. `0.94` war enger als die Schrift hoch ist —
-     das g von „Hugos" fiel in das „Dining" darunter (User, 04.09.2026).
-     Kollisionsfrei ueber einem GROSSBUCHSTABEN waeren erst 1,168 (0,484 +
-     0,684), aber so weit aufgezogen standen zweizeilige Namen „uebelst mit
-     Abstand" da — die zweite Ansage desselben Tages, und sie wiegt schwerer:
-     der Fall tritt nur ein, wenn eine Versalie DIREKT unter einer Unterlaenge
-     steht.
-
-     1.1 ist der Kompromiss und gemessen, nicht geraten:
-       ueber Kleinbuchstaben   +5,1px Luft  (der haeufige Fall, auch „Hugos")
-       ueber einer Versalie    −2px         (streift, kracht nicht)
-     Wer hier hochgeht, kauft den seltenen Fall mit Luft in JEDER Zeile.
-     Den seltenen Fall — Unterlaenge genau ueber einer Oberlaenge, das g von
-     „Burgermeister" ueber dem l von „Schlesisches" — zieht seit 09.10.2026
-     `--ink-lead` auseinander (lib/dom/inkSafeLeading.ts), und zwar nur in den
-     Namen, in denen es vorkommt.
-
-     Das Polster darunter ist eine zweite, getrennte Sache: auch bei 1.1 ragt
-     die Tinte der letzten Zeile unter die Zeilenbox, und `.rcardMeta` bringt
-     nur 9px mit. Es steht HIER und in em, nicht als groesserer margin an
-     `.rcardMeta`: dort waere em die 9px der Mono-Zeile statt der Schriftgrad
-     des Namens, und der Name skaliert ueber drei Stufen (clamp, Desktop,
-     380px). Gemessen bleiben damit 8,1px bis zu den Chips. */
-  padding-bottom: 0.12em;
-  font-family: var(--et-font-display);
-  /* Kleiner seit 04.09.2026 (User: „mach die font der spots kleiner"). Die
-     Stufen sind gemeinsam runter, damit das Verhaeltnis zwischen Telefon,
-     Rail und Desktop bleibt. Nebeneffekt, der hilft: der Name hat kein
-     line-clamp, und „Five Elephant Neue Nationalgalerie" belegte bei 38px drei
-     Zeilen — der Ink-Verlauf darunter reicht bis 72 % Kartenhoehe und traegt
-     das jetzt mit Luft. Am 09.10.2026 noch eine Stufe runter, wieder alle
-     zusammen: Telefon ~25 → 23px, Desktop 29 → 26px. */
-  font-size: clamp(23px, 5.8vw, 28px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: max(1.1em, var(--ink-lead, 0px));
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
-}
-.rcardMeta {
-  display: flex;
-  align-items: center;
-  margin: 9px 0 0;
-  color: #fff;
-  font-family: var(--et-font-body);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-.rcardMetaChip,
-.rcardMetaCuisine {
-  display: inline-flex;
-  align-items: center;
-  overflow: hidden;
-}
-.rcardMetaChip > span:last-child {
-  padding: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.rcardMetaChip + .rcardMetaChip::before {
-  content: none;
-}
-.openPill {
-  top: 14px;
-  left: 14px;
-  border: 0;
-}
-.mustPeek {
-  z-index: 4;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.mustPeek span {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--et-font-body);
-  font-size: 9px;
-  font-weight: 950;
-  letter-spacing: 0.09em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-@media (min-width: 1024px) {
-  /* 26 statt 29 (User, 09.10.2026), im selben Zug wie der Name im Detail. */
-  .rcardName {
-    font-size: 26px;
-  }
-}
-@media (max-width: 380px) {
-  .rcardName {
-    font-size: clamp(22px, 6.2vw, 24px);
-  }
-
-  .rcardBody {
-    left: 14px;
-    right: 14px;
-    bottom: 14px;
-  }
-
-  .rcardMeta {
-    font-size: 8px;
-  }
-}
-.openPill {
-  border-radius: 0;
-}
-.rcardImg img {
-  filter: none;
-  transform: scale(1.01);
-}
-.mustPeek {
-  color: #fff;
-}
-.openPill {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-}
-.openPill::before {
-  background: #15120e;
-}
-.openPillClosed {
-  background: #d9382a;
-  color: #fff;
-}
-.openPillClosed::before {
-  background: #fff;
-}
-.mustPeek {
-  right: -8px;
-  width: clamp(54px, 15vw, 68px);
-  height: auto;
-  aspect-ratio: 1539 / 2115;
-  max-width: calc(100% - 12px);
-  max-height: calc(100% - 12px);
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  overflow: visible;
-  filter: none;
-  transform: rotate(5deg);
-}
-.mustPeek img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  max-width: none;
-  max-height: none;
-  object-fit: contain;
-  filter: none;
-  transform: none;
-}
-.rcardMetaChip,
-.rcardMetaCuisine {
-  text-align: center;
-  text-decoration: none;
-}
-.rcardMeta {
-  gap: 7px;
-}
-.rcardMetaChip,
-.rcardMetaCuisine {
-  max-width: min(100%, 18ch);
-  white-space: nowrap;
-}
-.rcardMetaChip > span:last-child {
-  color: inherit;
-}
-/* Die rahmenlosen Angaben
-   sitzen im Ink-Verlauf am unteren Kartenrand (`.rcard::after`), deshalb
-   traegt weisse Schrift dort auch ueber einem hellen Foto. Gefuellt waeren sie
-   auf der ansonsten ink-farbenen Liste die hellste Flaeche im Bild und zoegen
-   mehr Blick als der Name darueber. */
-.rcardMetaChip,
-.rcardMetaCuisine {
-  background: transparent;
-  color: #fff;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: none;
-}
-/* line-height 1.5, nicht 1.1: Providence hat eine sehr tiefe Unterlänge — bei
-   11px steht die Tinte des „g" 5,3px unter der Grundlinie, eine 12,1px-Zeile
-   bietet darunter nur 4,1px. Zusammen mit dem `overflow: hidden`, das der Chip
-   fürs Ellipsis braucht, war „Steglitz" unten angeschnitten (User,
-   29.08.2026). Ein Pixel kommt aus dem Polster zurück, damit der Sticker seine
-   Höhe behält. */
-.rcardMetaChip,
-.rcardMetaCuisine {
-  min-height: 28px;
-  padding: 6px 11px;
-  font-size: 11px;
-  line-height: 1.5;
-}
-.rcard {
-  overflow: visible;
-}
-.rcardImg {
-  overflow: hidden;
-}
-.rcard .rcardImg img {
-  filter: none;
-}
-.openPill,
-.openPillClosed {
-  min-height: 26px;
-  padding: 0 10px;
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: none;
-}
-.openPill::before {
-  width: 5px;
-  height: 5px;
-}
-.mustPeek {
-  top: -2px;
-}
-.openPill:not(.openPillClosed) {
-  background: #1f8f4d;
-  color: #fff;
-}
-.openPill:not(.openPillClosed)::before {
-  background: #fff;
-}
-
-/* Der Nachlade-Messpunkt. Nimmt keinen sichtbaren Platz ein, braucht aber eine
-   Höhe: ein 0px hohes Element meldet dem IntersectionObserver nie eine
-   Kreuzung. */
-.moreSentinel {
-  height: 1px;
-  margin: 0;
-  padding: 0;
-  pointer-events: none;
+  object-position: center;
+  transition: transform 0.3s ease;
 }
 
 /* Der Foto-Streifen der Karte: dieselbe Mechanik wie im Detail
    (`.rdHeroPhotos`, usePhotoRail) — nativer Scroll mit Snap, ein Wisch ein
    Foto. `pan-x pan-y`: senkrecht scrollt weiter die Liste, der Browser sperrt
    die Achse. Jedes Foto steckt in einem eigenen Rahmen mit `overflow:
-   hidden`, weil `.rcardImg img` leicht vergrößert (und beim Hover mehr) —
-   sonst ragte das Foto in den Nachbarn. */
+   hidden`, weil das Foto beim Hover vergrößert — sonst ragte es in den
+   Nachbarn. */
 .rcardPhotos {
-  touch-action: pan-x pan-y;
   position: absolute;
   inset: 0;
   display: flex;
@@ -496,6 +62,7 @@
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
+  touch-action: pan-x pan-y;
 }
 .rcardPhotos::-webkit-scrollbar {
   display: none;
@@ -509,20 +76,13 @@
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
-/* Name, Chips und Öffnungs-Pille liegen über dem Streifen. Ohne das hier
-   finge ein Wisch, der auf dem Namen beginnt, nicht beim Foto an. Der Tipp
-   landet trotzdem bei der Karte: er geht durch auf den Streifen, und der
-   liegt in der Karte. */
-.rcardBody,
-.openPill {
-  pointer-events: none;
-}
+
 /* Striche wie im Detail (`.rdHeroPhotoDots`): oben mittig, frei auf dem
    Foto, der enge Ink-Hof hält sie auf hellen Fotos lesbar. Senkrecht
-   mittig zur Öffnungs-Pille (top 14px, 26px hoch → Mitte bei 27px). */
+   mittig zur Öffnungs-Angabe (top 14px, ~22px hoch → Mitte bei 25px). */
 .rcardDots {
   position: absolute;
-  top: 27px;
+  top: 25px;
   left: 50%;
   z-index: 3;
   display: flex;
@@ -547,26 +107,113 @@
   width: 24px;
   background: #fff;
 }
+
+/* Öffnungszustand oben links (Aussehen: et-label). */
+.openPill {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 4;
+  max-width: calc(100% - 110px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Leichter Überstand; die Slot-Luft hält auch die erste Karte vollständig
+   innerhalb des Scrollbereichs. Der Abstand zwischen Fotos bleibt 10px. */
+.mustPeek {
+  position: absolute;
+  top: -4px;
+  right: 4px;
+  z-index: 4;
+  width: clamp(54px, 15vw, 66px);
+  aspect-ratio: 1539 / 2115;
+  transform: rotate(5deg);
+  transform-origin: 58% 72%;
+  filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.25));
+  pointer-events: none;
+}
+.mustPeek img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Name und Bezirk · Küche unten links im Foto. Ohne pointer-events, damit ein Wisch, der auf
+   einem Etikett beginnt, beim Foto-Streifen ankommt; der Tipp landet
+   trotzdem bei der Karte. */
+.rcardBody,
+.openPill {
+  pointer-events: none;
+}
+.rcardBody {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 16px;
+  z-index: 3;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+.rcardName {
+  max-width: 100%;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  /* `--ink-lead` zieht die Zeilen nur dort auseinander, wo eine Unterlänge
+     genau über einer Oberlänge steht (lib/dom/inkSafeLeading.ts). */
+  line-height: max(1.22em, var(--ink-lead, 0px));
+  overflow-wrap: anywhere;
+}
+.rcardMeta {
+  max-width: 100%;
+  margin: 0;
+}
+.rcardMeta > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (hover: hover) {
+  .rcard:hover .rcardPhoto img {
+    transform: scale(1.04);
+  }
+}
+
+/* Der Nachlade-Messpunkt. Nimmt keinen sichtbaren Platz ein, braucht aber eine
+   Höhe: ein 0px hohes Element meldet dem IntersectionObserver nie eine
+   Kreuzung. */
+.moreSentinel {
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
 /* Kein Druckzustand auf der Karte. Die globale Regel in globals.css
    (`[role='button']:active { translate: 0 1px }`) verschob beim Aufsetzen des
    Fingers die ganze Karte — und damit den Foto-Streifen, der in ihr liegt.
    WebKit (Safari und jeder Browser auf dem iPhone) verliert dabei die
    waagerechte Geste: der Streifen stand unter dem Finger still (25.09.2026,
-   im Simulator eingegrenzt). Im Detail liegt der Druck auf den Fotos, also
-   IM Streifen, deshalb wischt es dort. Auf das Tippen antwortet die Karte
-   ohnehin sofort mit dem Detail. Vier Selektor-Teile, damit die Regel gegen
-   die globale (0,3,0) gewinnt, egal in welcher Reihenfolge die Dateien
-   laden. */
+   im Simulator eingegrenzt). Auf das Tippen antwortet die Karte ohnehin
+   sofort mit dem Detail. Vier Selektor-Teile, damit die Regel gegen die
+   globale (0,3,0) gewinnt, egal in welcher Reihenfolge die Dateien laden. */
 .rcardSlot > .rcard[role='button']:active {
   translate: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .rcardDot,
-  .rcardDotOn {
+  .rcardDotOn,
+  .rcardImg img {
     transition: none;
   }
 }
-.rcardActive .rcardBody {
-  padding: 12px;
-  background: rgb(21 18 14 / .86);
+
+/* Foto-Etiketten behalten ihren festen Kontrast auch im Dunkelmodus. */
+.rcard {
+  --et-label-bg: var(--et-ink);
+  --et-wear: none;
 }

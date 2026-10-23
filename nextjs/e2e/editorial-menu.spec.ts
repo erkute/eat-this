@@ -10,11 +10,34 @@ for (const motion of ['reduce', 'no-preference'] as const) {
   test(`editorial menu keeps all destinations reachable and restores focus (${motion})`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion: motion });
     if (isMobile) await page.setViewportSize({ width: 320, height: 568 });
-    await page.goto('/news');
+    await page.goto('/news', { waitUntil: 'domcontentloaded' });
     const trigger = page.locator('#burgerBtn');
+    await expect(page.locator('#burgerDrawer')).toHaveAttribute('inert', '');
     await trigger.click();
     const menu = page.getByRole('dialog', { name: 'Navigation' });
     await expect(menu).toBeVisible();
+    const motionState = await menu.evaluate(async panel => {
+      const words = Array.from(panel.querySelectorAll('nav a, nav button'));
+      let movedWord = false;
+      let maxTravel = 0;
+      const start = performance.now();
+      await new Promise<void>(resolve => {
+        const sample = () => {
+          const transform = getComputedStyle(panel).transform;
+          maxTravel = Math.max(maxTravel, Math.abs(new DOMMatrixReadOnly(transform === 'none' ? undefined : transform).m41));
+          movedWord ||= words.some(word => {
+            const style = getComputedStyle(word);
+            return style.transform !== 'none' || style.translate !== 'none' || style.rotate !== 'none' || style.opacity !== '1';
+          });
+          if (performance.now() - start < 260) requestAnimationFrame(sample);
+          else resolve();
+        };
+        sample();
+      });
+      return { movedWord, maxTravel };
+    });
+    expect(motionState.movedWord).toBe(false);
+    expect(motionState.maxTravel).toBeLessThanOrEqual(motion === 'reduce' ? 0 : 24.1);
     await expect(page.locator('#burgerClose')).toBeFocused();
     for (const href of ['/map', '/news', '/must-eats', '/packs', '/kategorie', '/bezirk', '/about', '/contact']) {
       const link = menu.locator(`a[href="${href}"]`);
@@ -36,7 +59,8 @@ for (const motion of ['reduce', 'no-preference'] as const) {
 
 test('menu stays above the active intro canvas and hands off to the starter login', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#burgerDrawer')).toHaveAttribute('inert', '');
   await page.locator('#burgerBtn').click();
   const menu = page.getByRole('dialog', { name: 'Navigation' });
   await expect(menu).toBeVisible();
@@ -58,10 +82,11 @@ test('menu stays above the active intro canvas and hands off to the starter logi
 });
 
 test('English menu has readable contrast and routes to the magazine', async ({ page }) => {
-  await page.goto('/en/about');
+  await page.goto('/en/about', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#burgerDrawer')).toHaveAttribute('inert', '');
   await page.locator('#burgerBtn').click();
   const menu = page.getByRole('dialog', { name: 'Navigation' });
-  // Erst messen, wenn die Wörter eingeglitten sind — halb durchsichtig wäre jeder Kontrast falsch.
+  // Die Papierbewegung muss vor der Kontrastmessung abgeschlossen sein.
   await menu.evaluate(el => Promise.all(el.getAnimations({ subtree: true }).map(a => a.finished)));
   const result = await new AxeBuilder({ page }).include('[role="dialog"][aria-label="Navigation"]')
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();

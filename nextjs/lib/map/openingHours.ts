@@ -81,6 +81,11 @@ export function isClosedSlot(hours: string | undefined): boolean {
 }
 
 /** Same treatment for the time column: "closed" and the run-together "24Stundengeöffnet". */
+/** Zeiten mit Halbgeviertstrich statt Bindestrich: 09:00–16:00. */
+export function withDash(hours: string): string {
+  return hours.replace(/(\d)\s*-\s*(\d)/g, '$1–$2');
+}
+
 export function localizeOpeningHours(hours: string | undefined, locale: string): string {
   const lang = locale === 'en' ? 'en' : 'de';
   const raw = (hours ?? '').trim();

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './MapFilters.module.css';
+import { CloseIcon } from './icons';
 
 export interface PickerItem {
   value: string;
@@ -182,7 +183,7 @@ export default function MapFilterPickerSheet({
           onClick={onClose}
           aria-label={closeAriaLabel}
         >
-          ×
+          <CloseIcon />
         </button>
       </div>
       <div className={styles.pickerList}>

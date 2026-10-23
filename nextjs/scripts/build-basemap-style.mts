@@ -1,8 +1,11 @@
 /* Builds both Eat This map palettes from the pinned CARTO layer structure.
  * Sources, geometry, zoom hierarchy and transit overlays stay unchanged.
- * CIE-Lab lightness maps the former dark canvas to paper and labels to ink;
- * chroma is still restrained using the brand ink hue. Regenerate with
- * npm run build:basemap and commit public/basemap/style.json.
+ * Seit 22.10.2026 die „Druckfassung" (Betreiber-Wahl gegen die bisherige
+ * Karte): Papier und Ink wie die Seite — keine Strassenkonturen, Strassen als
+ * Ink-Striche in wenigen Stärken, Wasser und Grün nur leise, Gebäude flach,
+ * Beschriftung in Ink auf Papier-Hof. Das Papierkorn darüber legt
+ * MapLayout.module.css. Regenerate with npm run build:basemap and commit
+ * public/basemap/style.json and style-dark.json.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -218,16 +221,10 @@ for (const layer of style.layers) {
   }
 }
 
-/* Gebäude stehen in 3D. Die Vorlage zeichnet sie als zwei flache Flächen —
-   einen unsichtbaren Grundriss und ein um 2 px versetztes „Dach", das bei
-   Draufsicht einen Hauch Tiefe andeutet. Bei gekippter Kamera (MapCanvas)
-   liest sich das als verrutschte Pappe. Beide fliegen raus; an ihre Stelle
-   tritt eine Extrusion auf die Höhe, die OpenMapTiles pro Gebäude mitliefert
-   (`render_height`, `render_min_height` für Aufbauten und Brücken).
-   Die Häuser wachsen zwischen Zoom 14 und 15.5 aus dem Boden, statt bei
-   einem Schwellwert aufzuploppen. Farbe: das Dach der Vorlage, damit die
-   Helligkeitsordnung zu Straßen und Grund bleibt; die Seitenwände schattiert
-   MapLibre selbst über `light`. */
+/* Gebäude flach: die Vorlage zeichnet sie als zwei Flächen (Grundriss und
+   ein um 2 px versetztes „Dach"); beide fliegen raus, an ihre Stelle tritt
+   unten ein leiser Ink-Ton ab Zoom 14 — Grundrisse wie auf einem gedruckten
+   Stadtplan statt grauer Klötze (bis 22.10.2026 standen sie in 3D). */
 const BUILDING_LAYERS = ['building', 'building-top'];
 const buildingAt = style.layers.findIndex(
   (layer: { id: string }) => layer.id === BUILDING_LAYERS[0]
@@ -235,37 +232,96 @@ const buildingAt = style.layers.findIndex(
 if (buildingAt < 0) throw new Error('Gebäude-Layer der Vorlage nicht gefunden');
 const buildingTop = style.layers.find((layer: { id: string }) => layer.id === 'building-top');
 style.layers = style.layers.filter((layer: { id: string }) => !BUILDING_LAYERS.includes(layer.id));
-style.layers.splice(buildingAt, 0, {
-  id: 'building-3d',
-  type: 'fill-extrusion',
-  source: buildingTop.source,
-  'source-layer': 'building',
-  minzoom: 14,
-  paint: {
-    'fill-extrusion-color': buildingTop.paint['fill-color'],
-    'fill-extrusion-height': [
-      'interpolate',
-      ['linear'],
-      ['zoom'],
-      14,
-      0,
-      15.5,
-      ['coalesce', ['get', 'render_height'], 10],
-    ],
-    'fill-extrusion-base': [
-      'interpolate',
-      ['linear'],
-      ['zoom'],
-      14,
-      0,
-      15.5,
-      ['coalesce', ['get', 'render_min_height'], 0],
-    ],
-    'fill-extrusion-opacity': 0.92,
-    'fill-extrusion-vertical-gradient': true,
-  },
-});
-style.light = { anchor: 'viewport', color: '#ffffff', intensity: 0.35, position: [1.15, 210, 30] };
+
+// ------------------------------------------------------------- Druckfassung
+{
+  const paper = dark ? '#15120e' : '#ffffff';
+  const inkRgb = dark ? '255, 255, 255' : '21, 18, 14';
+  const ink = (alpha: number) => `rgba(${inkRgb}, ${alpha})`;
+  const water = dark ? '#262d33' : '#e1e6ea';
+
+  style.layers.splice(buildingAt, 0, {
+    id: 'building-flat',
+    type: 'fill',
+    source: buildingTop.source,
+    'source-layer': 'building',
+    minzoom: 14,
+    paint: { 'fill-color': ink(dark ? 0.09 : 0.07), 'fill-antialias': true },
+  });
+
+  /* Deckkraft eines Strassenstrichs nach Rang. */
+  const roadAlpha = (id: string) =>
+    /_mot_|_trunk_/.test(id)
+      ? 0.6
+      : /_pri_/.test(id)
+        ? 0.5
+        : /_sec_/.test(id)
+          ? 0.38
+          : /_minor_/.test(id)
+            ? 0.24
+            : 0.16;
+
+  const hidden = 'rgba(0, 0, 0, 0)';
+  for (const layer of style.layers) {
+    const id: string = layer.id;
+    const p = layer.paint ?? {};
+    if (layer.type === 'background') p['background-color'] = paper;
+    else if (/^boundary/.test(id)) p['line-color'] = hidden;
+    else if (id === 'water') p['fill-color'] = water;
+    else if (id === 'waterway') p['line-color'] = water;
+    else if (id === 'water_shadow') p['fill-color'] = hidden;
+    else if (/^(landcover|park_)/.test(id)) p['fill-color'] = ink(dark ? 0.06 : 0.045);
+    else if (id === 'landuse_residential') p['fill-color'] = hidden;
+    else if (id === 'landuse') p['fill-color'] = ink(0.03);
+    else if (/^aeroway/.test(id)) p['line-color'] = ink(0.12);
+    else if (/_case(_|$)/.test(id)) p['line-color'] = hidden;
+    else if (/rail_dash$/.test(id)) p['line-color'] = hidden;
+    else if (/(^|_)rail$/.test(id)) p['line-color'] = ink(/^tunnel/.test(id) ? 0.18 : 0.42);
+    else if (/_path$/.test(id)) p['line-color'] = ink(0.14);
+    else if (/_fill/.test(id)) {
+      p['line-color'] = ink(roadAlpha(id) * (/^tunnel/.test(id) ? 0.55 : 1));
+    } else if (layer.type === 'symbol') {
+      if (p['text-color'] !== undefined && p['text-color'] !== 'transparent') {
+        p['text-color'] = /^(roadname|waterway_label|watername|poi)/.test(id)
+          ? ink(0.62)
+          : ink(0.85);
+        p['text-halo-color'] = paper;
+      }
+      if (p['icon-color'] !== undefined) p['icon-color'] = ink(0.6);
+    }
+    layer.paint = p;
+  }
+
+  /* Schriftgrössen wie bei Google Maps (Ansage 22.10.2026; die Schrift
+     bleibt unsere): Strassen 10–12,5px ohne Sperrung, Ortsteile 10–12px,
+     Stadtnamen höchstens 16px statt bis 22, Parks und Gewässer 10–11px.
+     Zoom → Pixel, linear dazwischen. */
+  const stops = (...pairs: [number, number][]) => ({ stops: pairs });
+  const SIZES: Record<string, object> = {
+    roadname_minor: stops([15, 10], [17, 11]),
+    roadname_sec: stops([14, 10], [16, 11], [18, 12]),
+    roadname_pri: stops([13, 10.5], [15, 11.5], [17, 12.5]),
+    roadname_major: stops([13, 10.5], [15, 11.5], [17, 12.5]),
+    place_hamlet: stops([13, 10], [16, 11]),
+    place_suburbs: stops([12, 10], [14, 11], [16, 12]),
+    place_villages: stops([10, 10], [13, 11], [16, 12]),
+    place_town: stops([8, 11], [13, 13], [14, 14]),
+    place_city_r6: stops([8, 12], [10, 14], [13, 15], [14, 16]),
+    place_city_r5: stops([8, 13], [10, 15], [13, 16], [14, 16]),
+    poi_park: stops([15, 10], [18, 11]),
+    poi_stadium: stops([15, 10], [18, 11]),
+    waterway_label: stops([9, 9], [13, 10], [16, 11]),
+    watername_lake: stops([13, 10], [16, 11]),
+    watername_lake_line: stops([13, 10], [16, 11]),
+  };
+  for (const layer of style.layers) {
+    const size = SIZES[layer.id];
+    if (!size) continue;
+    layer.layout['text-size'] = size;
+    if (/^roadname_(pri|major)$/.test(layer.id)) layer.layout['text-letter-spacing'] = 0;
+    if (layer.id === 'roadname_minor') layer.minzoom = 15;
+  }
+}
 
 /* Alle drei Fremdadressen der Vorlage umhängen. Der Quellname `carto` bleibt
    stehen: jede der 93 Layer-Definitionen verweist darauf, und ein Umbenennen

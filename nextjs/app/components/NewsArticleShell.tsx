@@ -149,6 +149,31 @@ function ledeDuplicatesOpening(excerpt: string, blocks: PortableTextBlock[]): bo
   );
 }
 
+// Sanity guides mark each spot with h2 → spotCard → description. In the
+// reading column the description comes first, then the photo and map label.
+// Keep narrative cards and other editorial blocks in their authored positions.
+function articleReadingOrder(blocks: PortableTextBlock[]): PortableTextBlock[] {
+  const ordered: PortableTextBlock[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    ordered.push(block);
+    if (!('style' in block) || block.style !== 'h2' || blocks[i + 1]?._type !== 'spotCard') {
+      continue;
+    }
+    const card = blocks[++i];
+    while (i + 1 < blocks.length) {
+      const next = blocks[i + 1];
+      if (next._type !== 'block' || (next.style && next.style !== 'normal' && next.style !== 'blockquote')) {
+        break;
+      }
+      ordered.push(next);
+      i++;
+    }
+    ordered.push(card);
+  }
+  return ordered;
+}
+
 // Article detail — magazine feature, the inside of the issue: a tap on a cover
 // opens the magazine and lands here (MagazineLink), so the cover itself does
 // not appear again. On desktop the header splits like Highsnobiety's: title,
@@ -198,12 +223,8 @@ export default function NewsArticleShell({
     return at < 0 ? null : relatedArticles.length - at;
   };
 
-  // Inline "Must Eat" band — a flat strip in the article column, not a poster.
-  // The restaurant carries the headline so two must-eats in one guide can't
-  // read as the same block twice; the reveal idea lives in the line below.
-  // The image is the collectible card's back, floating freigestellt with a
-  // tilt. The whole band links to the Must-Eat detail on the map (?me=<id>),
-  // mirroring an in-app tap.
+  // Must-Eat-Verweis auf dem gemeinsamen Knitterpapier: Kartenrückseite,
+  // globales Etikett und Spot-Name. Der Lesetext und das Linkziel bleiben ruhig.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.mustEatId && !block.restaurantName) return null;
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
@@ -226,7 +247,7 @@ export default function NewsArticleShell({
           <img src="/pics/card-back.webp?v=8" alt="" />
         </div>
         <div className={styles.mustEatBody}>
-          <span className={styles.mustEatTag}>Must Eat</span>
+          <span className="et-label">Must Eat</span>
           <h3 className={styles.mustEatName}>{heading}</h3>
           <p className={styles.mustEatDesc}>{description}</p>
         </div>
@@ -242,7 +263,6 @@ export default function NewsArticleShell({
       <Link
         href={href}
         className={styles.mustEat}
-        data-motion="slide"
         aria-label={
           de
             ? `Must Eat${restName ? ` bei ${restName}` : ''} ansehen`
@@ -262,9 +282,9 @@ export default function NewsArticleShell({
   // „hokey pokey mauerpark") statt der Seite, die dem Laden gehört. Sein
   // ::after spannt sich über die ganze Karte, damit die Fläche tapbar bleibt;
   // `overflow: hidden` auf .inlineSpot beschneidet den Überstand.
-  // Der Map-Deeplink bleibt als Knopf darüber (z-index) erhalten — weiter
-  // nofollow, weil er eine Query trägt (`?r=`) und die Search Console sonst
-  // jede Variante einzeln aufzählt. Die Map selbst ist seit dem 01.09.2026
+  // Der Map-Deeplink (Fläche und Name) bleibt nofollow, weil er eine Query
+  // trägt (`?r=`) und die Search Console sonst jede Variante einzeln
+  // aufzählt. Die Map selbst ist seit dem 01.09.2026
   // indexierbar; das blanke /map darf gefolgt werden (siehe isMapLink).
   const renderSpotCard = (block: SpotCardBlock) => {
     if (!block.restaurantName || !block.restaurantSlug) return null;
@@ -275,14 +295,13 @@ export default function NewsArticleShell({
     ]
       .filter(Boolean)
       .join(' · ');
-    // Wie auf der Restaurantseite und überall sonst in der App — „Auf die
-    // Map" klang doof (Ansage 02.10.2026).
-    const cta = de ? 'Zur Map' : 'On the map';
 
     // Gebaut wie die Spot-Karten der Map-Liste (Ansage 21.10.2026: „das sind
     // ja die Spot-Map-Labels"): das Foto, unten ein Ink-Verlauf, darauf der
-    // Name gross und Bezirk · Küche als kleine Etiketten, rechts der Weg auf
-    // die Map. Die ganze Karte führt auf die Map.
+    // Name gross und Bezirk · Küche als kleine Etiketten. Die ganze Karte
+    // führt auf die Map; einen eigenen Knopf braucht sie nicht — der Name ist
+    // als dicker Aufkleber schon das Zeichen, und am Telefon stellte der
+    // Knopf die Karte zu (Ansage 22.10.2026).
     return (
       <span className={styles.inlineSpot}>
         {block.restaurantPhoto && (
@@ -313,7 +332,7 @@ export default function NewsArticleShell({
               <MapIntentLink
                 href={`/map?r=${block.restaurantSlug}`}
                 rel="nofollow"
-                className={styles.inlineSpotNameLink}
+                className={`et-label-title ${styles.inlineSpotNameLink}`}
               >
                 {restName}
               </MapIntentLink>
@@ -324,10 +343,10 @@ export default function NewsArticleShell({
                 Kein Ausfallrisiko: alle 177 in Artikeln referenzierten Spots
                 haben einen Bezirk, `meta` ist also nie leer. */}
             {meta && (
-              <span className={styles.inlineSpotMeta}>
+              <span>
                 <Link
                   href={`/restaurant/${block.restaurantSlug}`}
-                  className={styles.inlineSpotMetaLink}
+                  className={`et-label et-label-paper ${styles.inlineSpotMetaLink}`}
                   aria-label={
                     de ? `${restName}: Spot-Seite öffnen` : `Open the spot page for ${restName}`
                   }
@@ -337,14 +356,6 @@ export default function NewsArticleShell({
               </span>
             )}
           </span>
-          <MapIntentLink
-            href={`/map?r=${block.restaurantSlug}`}
-            rel="nofollow"
-            className={styles.inlineSpotCta}
-            aria-label={de ? `${restName} auf der Map öffnen` : `Open ${restName} on the map`}
-          >
-            <span>{cta}</span>
-          </MapIntentLink>
         </span>
       </span>
     );
@@ -358,16 +369,13 @@ export default function NewsArticleShell({
     const width = block.imageWidth || 1440;
     const height = block.imageHeight || 1080;
     return (
-      <figure
-        className={styles.inlineImage}
-        style={{ '--img-ratio': width / height } as React.CSSProperties}
-      >
+      <figure className={styles.inlineImage}>
         <Image
           src={block.imageUrl}
           alt={block.alt || ''}
           width={width}
           height={height}
-          sizes="(max-width: 767.98px) 100vw, (max-width: 1023.98px) 740px, 1040px"
+          sizes="(max-width: 767.98px) 100vw, 768px"
         />
         {block.caption && <figcaption>{block.caption}</figcaption>}
       </figure>
@@ -529,7 +537,7 @@ export default function NewsArticleShell({
               data-lede={showLede ? '' : undefined}
             >
               <PortableTextRenderer
-                blocks={content}
+                blocks={articleReadingOrder(content)}
                 renderMustEatCard={renderMustEatCard}
                 renderSpotCard={renderSpotCard}
                 renderImage={renderImage}
@@ -548,12 +556,12 @@ export default function NewsArticleShell({
                 excerpt={excerpt}
                 label={shareLabel}
                 copiedLabel={copiedLabel}
-                className={styles.shareBtn}
+                className={`et-btn et-btn-paper et-btn-sm ${styles.shareBtn}`}
               />
             </div>
 
             {hubLink && (
-              <Link href={hubLink.href} className={styles.hubLink} data-motion="toss">
+              <Link href={hubLink.href} className={`et-paper-link ${styles.hubLink}`} data-motion="toss">
                 {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
                     davor — dieselbe Art wie auf /packs und in der
                     „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
@@ -579,7 +587,7 @@ export default function NewsArticleShell({
                     Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
                     Leerfläche"). Für Screenreader trägt der Link seinen
                     Namen schon in Kicker und Label. */}
-                <span className={styles.hubLinkCta} aria-hidden="true">
+                <span className={`et-btn et-btn-paper ${styles.hubLinkCta}`} aria-hidden="true">
                   {de ? 'Ansehen' : 'View'}
                 </span>
               </Link>

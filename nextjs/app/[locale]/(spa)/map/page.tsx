@@ -7,7 +7,6 @@ import { setRequestLocale } from 'next-intl/server';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
 import { getInitialAnonMapData } from '@/lib/map/server-initial-map-data';
-import { getMapSeoCopy } from '@/lib/map/mapSeoCopy';
 import { byMustEatsThenName, openFirst } from '@/lib/map/listOrder';
 import { berlinNow } from '@/lib/map/openingHours';
 import { buildMapJsonLd } from '@/lib/json-ld';
@@ -122,7 +121,6 @@ export default async function MapPage({ params, searchParams }: PageProps) {
     : null;
 
   const loc = locale === 'en' ? 'en' : 'de';
-  const copy = getMapSeoCopy(loc);
   // Genau die Zeilen, die im ausgelieferten HTML stehen: dieselbe Menge und
   // dieselbe Reihenfolge, aus der `useMapFilters` ohne Standort und ohne Filter
   // startet, auf `INITIAL_LIST_ROWS` geschnitten wie RestaurantList selbst.
@@ -135,7 +133,6 @@ export default async function MapPage({ params, searchParams }: PageProps) {
   ).slice(0, INITIAL_LIST_ROWS);
   const jsonLd = buildMapJsonLd({
     locale: loc,
-    faqs: copy.faqs,
     listName:
       loc === 'de' ? 'Restaurants auf der Berlin Food Map' : 'Restaurants on the Berlin food map',
     restaurants: listedRestaurants,

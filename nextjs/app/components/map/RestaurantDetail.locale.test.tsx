@@ -68,14 +68,14 @@ describe('RestaurantDetail prose locale', () => {
     locale = 'de';
     renderDetail();
     expect(screen.getByText('Deutsche Beschreibung.')).toBeTruthy();
-    expect(screen.getByText('Deutscher Tipp.')).toBeTruthy();
+    expect(screen.getByText('„Deutscher Tipp.“')).toBeTruthy();
   });
 
   it('renders the English override on /en', () => {
     locale = 'en';
     renderDetail();
     expect(screen.getByText('English description.')).toBeTruthy();
-    expect(screen.getByText('English tip.')).toBeTruthy();
+    expect(screen.getByText('„English tip.“')).toBeTruthy();
     expect(screen.queryByText('Deutsche Beschreibung.')).toBeNull();
   });
 });

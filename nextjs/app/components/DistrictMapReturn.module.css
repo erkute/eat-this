@@ -1,11 +1,11 @@
-.return { max-width: var(--issue-wide); margin: 104px auto 0; padding: 56px 24px; background: var(--et-ink-raised); }
-.link { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--et-white); text-align: center; text-decoration: none; }
+.return { max-width: var(--issue-wide); margin: 104px auto 0; padding: 56px 24px; background: var(--et-ground) url('/pics/paper/folded-white.webp') center / cover; background-blend-mode: multiply; }
+.link { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--et-fg); text-align: center; text-decoration: none; }
 .link svg { width: min(100%, 320px); height: auto; margin-bottom: 20px; overflow: visible; }
 .link path { fill: none; stroke: currentColor; stroke-width: 1.6; vector-effect: non-scaling-stroke; }
 .title { font-size: clamp(28px, 3vw, 40px); font-weight: 700; line-height: 1.2; }
-.link:hover, .link:active { color: var(--et-white); text-decoration: none; }
-.link:focus-visible { outline: 2px solid var(--et-white); outline-offset: 8px; border-radius: 8px; }
+.link:hover, .link:active { color: var(--et-fg); text-decoration: none; }
+.link:focus-visible { outline: 2px solid var(--et-fg); outline-offset: 8px; border-radius: 8px; }
 @media (max-width:767px) { .return { margin-top: 72px; padding: 40px 20px; } .link svg { width: 240px; } }
 
-.link .silhouette { fill: #000; }
+.link .silhouette { fill: var(--et-fg); }
 .link .boundaries path { stroke-opacity: .45; stroke-width: .8; }

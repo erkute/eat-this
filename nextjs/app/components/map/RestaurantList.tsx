@@ -30,7 +30,6 @@ const PHOTO_LEAD_PX = 3200;
 
 interface ItemProps {
   restaurant: MapRestaurant;
-  isSelected: boolean;
   peek: Peek;
   /** Browser time, populated only after hydration. Keeping the SSR value null
    *  prevents Cloud Run's UTC clock and the visitor's local timezone from
@@ -50,7 +49,7 @@ function peekEqual(a: Peek, b: Peek): boolean {
 }
 
 const Item = memo(
-  function Item({ restaurant, isSelected, peek, now, priority, onClick }: ItemProps) {
+  function Item({ restaurant, peek, now, priority, onClick }: ItemProps) {
     const { t, lang } = useTranslation();
     const loc = lang === 'de' ? 'de' : 'en';
     const statusLabels = {
@@ -167,7 +166,7 @@ const Item = memo(
         ref={cardRef}
         role="button"
         tabIndex={0}
-        className={`${styles.rcard} ${isSelected ? styles.rcardActive : ''}`}
+        className={styles.rcard}
         onClick={() => onClick(restaurant)}
         onKeyDown={(event) => {
           if (event.target !== event.currentTarget) return;
@@ -230,9 +229,11 @@ const Item = memo(
           )}
         </div>
 
+        {/* Geöffnet: Ink mit weisser Schrift; geschlossen: Papier. Getragen
+            vom Wort und von Hell gegen Dunkel, nicht von Grün gegen Rot. */}
         {statusMain && (
           <span
-            className={`${styles.openPill} ${status?.isOpen ? '' : styles.openPillClosed}`}
+            className={`et-label ${status?.isOpen ? 'et-label-open' : 'et-label-closed'} ${styles.openPill}`}
             role="status"
           >
             {statusMain}
@@ -258,27 +259,21 @@ const Item = memo(
 
         <div className={styles.rcardBody}>
           <h3 ref={nameRef} className={styles.rcardName}>
-            {displayName}
+            <span className="et-label-title">{displayName}</span>
           </h3>
-          <p className={styles.rcardMeta}>
-            {district && (
-              <span className={`${styles.rcardMetaChip} ${styles.rcardMetaDistrict}`}>
-                <span>{district}</span>
+          {(district || cuisine) && (
+            <p className={styles.rcardMeta}>
+              <span className="et-label et-label-paper">
+                {[district, cuisine].filter(Boolean).join(' · ')}
               </span>
-            )}
-            {cuisine && (
-              <span className={`${styles.rcardMetaChip} ${styles.rcardMetaCuisine}`}>
-                <span>{cuisine}</span>
-              </span>
-            )}
-          </p>
+            </p>
+          )}
         </div>
       </div>
     );
   },
   (prev, next) =>
     prev.restaurant === next.restaurant &&
-    prev.isSelected === next.isSelected &&
     prev.now === next.now &&
     prev.onClick === next.onClick &&
     peekEqual(prev.peek, next.peek)
@@ -379,7 +374,6 @@ export default function RestaurantList({
         <div key={r._id} className={styles.rcardSlot} data-list-row={r._id}>
           <Item
             restaurant={r}
-            isSelected={selectedId === r._id}
             /* The first row already peeks above the fold at the sheet's
                  resting stop, so it is the map page's LCP candidate —
                  lazy-loading it made the browser discover it a round-trip

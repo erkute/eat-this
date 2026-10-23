@@ -1,3 +1,3 @@
 import { siteLayout } from '@/app/components/SiteChrome';
 
-export default siteLayout();
+export default siteLayout({ footer: false });

@@ -3,44 +3,11 @@
    Bewegung über translate, nie über Opacity — Markenregel. */
 
 .trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   justify-self: start;
-  min-height: var(--et-btn-h);
-  padding: 0 var(--et-btn-pad);
-  background: var(--sheet-trigger-bg, var(--et-ground));
-  border: 0;
-  border-radius: var(--et-radius-pill);
-  color: var(--sheet-trigger-fg, var(--et-fg));
-  font-family: var(--et-font-display);
-  font-size: var(--et-btn-font);
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color var(--et-motion-fast);
 }
 
 .triggerLabel {
   font-size: var(--et-btn-font);
-}
-
-.trigger:focus-visible {
-  color: var(--et-on-accent);
-}
-
-@media (hover: hover) {
-  .trigger:hover {
-    color: var(--et-on-accent);
-    background: var(--et-accent);
-  }
-}
-
-.trigger:focus-visible {
-  outline: none;
-  background: var(--et-accent);
 }
 
 .backdrop {
@@ -258,55 +225,6 @@
 
 /* Hier wird gekauft: die rote Pille mit leichten Kratzern wie alle
    Kaufknöpfe; Hover und Fokus weiss mit Ink-Schrift. */
-.cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--et-btn-h-lg);
-  padding: 0 var(--et-btn-pad-lg);
-  background: var(--et-accent) var(--et-btn-wear, none) 0 0 / 200px auto;
-  color: var(--et-on-accent);
-  border: 0;
-  border-radius: var(--et-radius-pill);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: var(--et-btn-font-lg);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  text-decoration: none;
-  text-transform: none;
-  cursor: pointer;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
-}
-
-.cta:focus-visible {
-  color: var(--et-ink);
-  background: #fff;
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .cta:not(:disabled):hover {
-    color: var(--et-ink);
-    background: #fff;
-    transform: translateY(-2px);
-  }
-}
-
-.cta:active {
-  transform: translateY(0);
-}
-
-.cta:disabled {
-  background-color: var(--et-accent);
-  color: var(--et-on-accent);
-  cursor: wait;
-  transform: none;
-}
 
 .ctaError {
   margin: 0;
@@ -447,16 +365,6 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cta {
-    transition: none;
-  }
-  .cta:focus-visible,
-  .cta:not(:disabled):hover {
-    transform: none;
-  }
 }
 
 .comingSoon {

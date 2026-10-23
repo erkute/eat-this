@@ -32,8 +32,7 @@ import { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from '@/lib/map/listWindow';
 import MapSheetDetail from './MapSheetDetail';
 import MapListHeader from './MapListHeader';
 import MapIntro from './MapIntro';
-import { SearchGlassIcon } from './icons';
-import MapSeoFooter from './MapSeoFooter';
+import { CloseIcon, SearchGlassIcon } from './icons';
 import MapDataNotice from './MapDataNotice';
 import MapSearchSuggestions from './MapSearchSuggestions';
 import type { InitialCamera } from '@/lib/map/useMapCamera';
@@ -140,9 +139,6 @@ interface MapBodyHandlers {
      keinen Oeffnungs-Treffer melden. */
   onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => boolean | void;
   onMustEatClick: (m: MapMustEat) => void;
-  pagerPrev: MapRestaurant | null;
-  pagerNext: MapRestaurant | null;
-  onPageRestaurant: (dir: 'prev' | 'next') => void;
   onLocateMe: () => void;
   locateLoading: boolean;
   onRestaurantClose: () => void;
@@ -191,9 +187,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     getInitialCamera,
     listRestaurants,
     restaurantMustEats,
-    pagerPrev,
-    pagerNext,
-    onPageRestaurant,
     selectedRestaurant,
     selectedMustEat,
     primaryMustEats,
@@ -590,32 +583,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
         viewBox="0 0 24 24"
         aria-hidden="true"
       >
-        {/* Dasselbe Handwerk wie bei Lupe und Burger: geschlossener Ring,
-                  dicker Punkt, vier kurze Striche mit runden Enden — und wie
-                  dort von Hand geführt statt konstruiert (siehe die Lupe oben).
-                  Der Ring läuft am Schluss über seinen Anfang, der Punkt ist
-                  keine exakte Scheibe, und die vier Striche sind
-                  unterschiedlich lang: ein perfektes Fadenkreuz stand als
-                  einziges technisches Zeichen zwischen lauter gezeichneten. */}
-        <path
-          d="M7.1 15.4C5.4 13.1 5.8 9.6 8.2 7.8c2.4-1.8 6-1.4 7.7.9 1.7 2.3 1.2 5.8-1.3 7.4-2.1 1.4-5.1 1-6.9-.7"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-        />
-        <path
-          d="M10.9 10.9c1.2-.9 3-.2 3.1 1.2.1 1.4-1.4 2.3-2.6 1.7-1.1-.6-1.4-2.2-.5-2.9Z"
-          fill="currentColor"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M12.2 2.4 12 5M11.7 19.2l.2 2.3M2.5 11.6l2.7.3M19 12.3l2.4-.3"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-        />
+        <circle cx="12" cy="12" r="6.5" />
+        <circle cx="12" cy="12" r="2" />
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
       </svg>
     </button>
   );
@@ -764,23 +734,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   }}
                   aria-label={locale === 'en' ? 'Clear search' : 'Suche zurücksetzen'}
                 >
-                  {/* Zwei Striche, ungleich lang und je eigen gekippt — dieselbe
-                    Handschrift wie die Lupe links daneben und die drei
-                    Burger-Balken (19/22/15px). Als exaktes, symmetrisches
-                    Kreuz war es das einzige konstruierte Zeichen in der
-                    Reihe. */}
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M6.6 6.2c3.6 3.9 7.4 7.6 11.2 11.4" strokeWidth="2.6" />
-                    <path d="M17.4 6.8c-3.3 3.4-6.8 6.8-10.3 10.1" strokeWidth="2.1" />
-                  </svg>
+                  <CloseIcon />
                 </button>
               </form>
               {suggesting && (
@@ -838,17 +792,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             aria-expanded={!desktopPanelHidden}
             onClick={onToggleDesktopPanel}
           >
-            {/* Von Hand gezogen wie Lupe und Burger: ein Strich mit Bauch,
-                der Abstrich länger als der Aufstrich. Eingeklappt dreht er
-                sich um (MapControls.module.css). */}
+            {/* Einzige Richtungsmarke der Map: die Desktop-Panel-Lasche. */}
             <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M9.2 5.4c2.3 1.9 4.4 4 6.1 6.4-1.8 2.3-3.9 4.5-6 6.6" />
+              <path d="m9 5 7 7-7 7" />
             </svg>
-            {desktopPanelHidden && (
-              <span className={controlStyles.panelToggleLabel} aria-hidden="true">
-                {locale === 'en' ? 'List' : 'Liste'}
-              </span>
-            )}
           </button>
 
           <aside
@@ -928,10 +875,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onMustEatClick={onMustEatClick}
                 isFavorite={favoriteIds.has(selectedRestaurant._id)}
                 onToggleFavorite={onToggleFavorite}
-                prevRestaurant={pagerPrev}
-                nextRestaurant={pagerNext}
-                onPagePrev={() => onPageRestaurant('prev')}
-                onPageNext={() => onPageRestaurant('next')}
               />
             ) : (
               <>
@@ -967,7 +910,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}
                   />
-                  <MapSeoFooter locale={locale} />
                 </div>
               </>
             )}

@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import styles from './SiteFooter.module.css';
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '@/lib/guestCardShake';
+import { ThemeSwitch } from './ThemeSwitch';
 
 export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
@@ -112,24 +113,32 @@ export default function SiteFooter() {
         </button>
       </nav>
 
-      <div className={styles.lang} role="group" aria-label="Language / Sprache">
-        <button
-          type="button"
-          className={`${styles.langBtn} ${lang === 'de' ? styles.langBtnActive : ''}`}
-          onClick={() => setLang('de')}
-          aria-label="DE — Deutsch"
-        >
-          DE
-        </button>
-        <span className={styles.langSep}>·</span>
-        <button
-          type="button"
-          className={`${styles.langBtn} ${lang === 'en' ? styles.langBtnActive : ''}`}
-          onClick={() => setLang('en')}
-          aria-label="EN — English"
-        >
-          EN
-        </button>
+      {/* Sprache und Hell/Dunkel in einer Zeile, wie im Menü (Ansage
+          22.10.2026: den Schalter auch im Footer). */}
+      <div className={styles.prefs}>
+        <div className={styles.lang} role="group" aria-label="Language / Sprache">
+          <button
+            type="button"
+            className={`${styles.langBtn} ${lang === 'de' ? styles.langBtnActive : ''}`}
+            onClick={() => setLang('de')}
+            aria-label="DE — Deutsch"
+          >
+            DE
+          </button>
+          <span className={styles.langSep}>·</span>
+          <button
+            type="button"
+            className={`${styles.langBtn} ${lang === 'en' ? styles.langBtnActive : ''}`}
+            onClick={() => setLang('en')}
+            aria-label="EN — English"
+          >
+            EN
+          </button>
+        </div>
+        <span className={styles.prefsSep} aria-hidden="true" />
+        <div className={styles.lang} role="group" aria-label={de ? 'Darstellung' : 'Appearance'}>
+          <ThemeSwitch de={de} className={styles.themeBtn} />
+        </div>
       </div>
 
       <div className={styles.meta}>

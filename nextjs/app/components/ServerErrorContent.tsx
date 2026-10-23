@@ -59,13 +59,13 @@ export default function ServerErrorContent({ onRetry }: { onRetry: () => void })
             <button
               type="button"
               onClick={onRetry}
-              className={`${styles.primaryCta} ${styles.ctaButton}`}
+              className={`et-btn ${styles.primaryCta}`}
             >
               {copy.retry}
             </button>
             {/* Ein echter Seitenaufruf statt Soft-Nav: der Router kann Teil
                 des Fehlers sein. */}
-            <a href={locale === 'en' ? '/en' : '/'} className={styles.secondaryCta}>
+            <a href={locale === 'en' ? '/en' : '/'} className={`et-btn ${styles.secondaryCta}`}>
               {copy.home}
             </a>
           </div>

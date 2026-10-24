@@ -20,6 +20,32 @@ describe('normalizeForSearch', () => {
   });
 });
 
+describe('Suche über den gesamten öffentlichen Spot-Inhalt', () => {
+  it('findet Gerichte aus dem öffentlichen Suchtext, auch ohne offene Must-Eat-Karte', () => {
+    const entry = entryFor({ name: 'Lunchlokal', searchText: 'hausgemachte tomatensuppe spaghetti' });
+    for (const query of ['Suppe', 'soup', 'Suppen', 'Nudeln']) {
+      expect(matchesSearch(entry, parseQuery(query)), query).toBe(true);
+    }
+    expect(matchesSearch(entryFor({ cuisineType: 'Bakery' }), parseQuery('Suppe'))).toBe(false);
+  });
+
+  it('durchsucht Bezirk und Kiez gemeinsam statt nur einen davon', () => {
+    const entry = entryFor({ bezirk: { name: 'Pankow' }, district: 'Prenzlauer Berg' });
+    for (const query of ['Pankow', 'Prenzlauer Berg', 'Pberg']) {
+      expect(matchesSearch(entry, parseQuery(query)), query).toBe(true);
+    }
+  });
+
+  it('kombiniert Gericht, Straße, Hausnummer und Bezirk auch mit Kommas', () => {
+    const entry = entryFor({
+      searchText: 'döner mit hausgemachtem brot',
+      address: 'Weserstraße 21',
+      bezirk: { name: 'Neukölln' },
+    });
+    expect(matchesSearch(entry, parseQuery('Doener, Weserstr. 21, Neukoelln'))).toBe(true);
+  });
+});
+
 describe('matchesSearch, Tippfehler-Durchgang', () => {
   const pizza = entryFor({ name: 'Standard Serious Pizza' });
   const hit = (q: string) => matchesSearch(pizza, parseQuery(q), true);

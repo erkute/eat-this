@@ -57,7 +57,7 @@ const pinZoomScale = (zoom: number) => {
 
 /* The entire react-map-gl / maplibre-gl surface — the canvas plus every
    marker — lives behind this single component so it can be code-split into
-   one lazy chunk (see the `next/dynamic` boundary in MapSectionBody). The
+   one lazy chunk (see LazyMapCanvasLayer). The
    ~800 KB maplibre-gl bundle + its CSS then load only after /map mounts on
    the client, instead of blocking hydration of the SSR'd list/sheet. */
 interface MapCanvasLayerProps {
@@ -93,13 +93,34 @@ export default function MapCanvasLayer({
   const [painted, setPainted] = useState(false);
   const [entering, setEntering] = useState(false);
   const paintedRef = useRef(false);
+  const [bounds, setBounds] = useState<[number, number, number, number] | null>(null);
+  const readBounds = useCallback(() => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const b = map.getBounds();
+    const padX = (b.getEast() - b.getWest()) * VIEWPORT_MARGIN;
+    const padY = (b.getNorth() - b.getSouth()) * VIEWPORT_MARGIN;
+    const next: [number, number, number, number] = [
+      b.getWest() - padX,
+      b.getSouth() - padY,
+      b.getEast() + padX,
+      b.getNorth() + padY,
+    ];
+    setBounds((previous) =>
+      previous && next.every((value, index) => value === previous[index]) ? previous : next
+    );
+  }, [mapRef]);
 
   const reveal = useCallback(() => {
     if (paintedRef.current) return;
     paintedRef.current = true;
+    // Read before revealing: the lazy Map ref does not exist in our mount
+    // effect. Revealing first used to mount the entire catalogue, then remove
+    // every offscreen marker in a second commit.
+    readBounds();
     setPainted(true);
     setEntering(true);
-  }, []);
+  }, [readBounds]);
 
   useEffect(() => {
     const id = window.setTimeout(reveal, FIRST_PAINT_FALLBACK_MS);
@@ -121,34 +142,17 @@ export default function MapCanvasLayer({
       : null);
   const focusedId = focusedRestaurant?._id ?? null;
 
-  /* Culling window, refreshed when the camera settles. `null` until the map
-     reports in — everything renders then, which is also the fallback if the
-     listener never attaches. Kept as plain numbers rather than a LngLatBounds
-     so the memos below can compare it by value. */
-  const [bounds, setBounds] = useState<[number, number, number, number] | null>(null);
-
+  /* Refresh the padded window only when the camera settles. The first
+     read is batched with reveal, before any markers mount. */
   useEffect(() => {
     const map = mapRef.current?.getMap();
     if (!map) return;
-    const read = () => {
-      const b = map.getBounds();
-      const padX = (b.getEast() - b.getWest()) * VIEWPORT_MARGIN;
-      const padY = (b.getNorth() - b.getSouth()) * VIEWPORT_MARGIN;
-      setBounds([
-        b.getWest() - padX,
-        b.getSouth() - padY,
-        b.getEast() + padX,
-        b.getNorth() + padY,
-      ]);
-    };
-    read();
-    /* `moveend`, not `move`: recomputing per frame of a drag would cost more
-       than the markers it saves. */
-    map.on('moveend', read);
+    readBounds();
+    map.on('moveend', readBounds);
     return () => {
-      map.off('moveend', read);
+      map.off('moveend', readBounds);
     };
-  }, [mapRef, painted]);
+  }, [mapRef, painted, readBounds]);
 
   useEffect(() => {
     const map = mapRef.current?.getMap();

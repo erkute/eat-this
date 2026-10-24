@@ -1,7 +1,7 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import type { Metadata, Viewport } from 'next';
-import { preconnect } from 'react-dom';
+import { preconnect, preload } from 'react-dom';
 import { Saira_Condensed } from 'next/font/google';
 import { setRequestLocale } from 'next-intl/server';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
@@ -109,6 +109,9 @@ export default async function MapPage({ params, searchParams }: PageProps) {
      chunk, so without this the tile host's DNS + TLS only start once
      MapLibre has loaded and asks for its first tile. */
   preconnect('https://tiles.openfreemap.org', { crossOrigin: 'anonymous' });
+  // The initial sheet and cookie dialog use this same paper. Discover it in
+  // the document instead of waiting for their background-image CSS.
+  preload('/pics/paper/folded-white.webp', { as: 'image', fetchPriority: 'high' });
 
   const [{ default: MapSection }, initialMapData] = await Promise.all([
     import('@/app/components/MapSection'),

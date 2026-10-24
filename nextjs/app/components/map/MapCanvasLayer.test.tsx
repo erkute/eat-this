@@ -1,18 +1,19 @@
 // @vitest-environment jsdom
 import { useEffect } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { MapRestaurant } from '@/lib/types';
+
+const startup = vi.hoisted(() => ({ autoPaint: true, firstPaint: () => {}, mounted: [] as string[] }));
 
 // Stand-in for the maplibre surface: each Marker becomes a plain element so
 // the assertions below are about what MapCanvasLayer renders and in which
 // order, not about maplibre itself.
 vi.mock('react-map-gl/maplibre', () => ({
-  Marker: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div data-marker className={className}>
-      {children}
-    </div>
-  ),
+  Marker: ({ children, className }: { children: React.ReactNode; className?: string }) => {
+    startup.mounted.push((children as React.ReactElement<{ 'aria-label': string }>).props['aria-label']);
+    return <div data-marker className={className}>{children}</div>;
+  },
 }));
 // Reports first paint immediately, the way a healthy basemap does — otherwise
 // every case here would sit out the 2.5s "CDN never reported" fallback.
@@ -24,7 +25,8 @@ vi.mock('./MapCanvas', () => {
     children: React.ReactNode;
     onFirstPaint: () => void;
   }) {
-    useEffect(() => onFirstPaint(), [onFirstPaint]);
+    startup.firstPaint = onFirstPaint;
+    useEffect(() => { if (startup.autoPaint) onFirstPaint(); }, [onFirstPaint]);
     return <div data-canvas>{children}</div>;
   }
   return { default: MapCanvasStub };
@@ -119,6 +121,23 @@ describe('MapCanvasLayer viewport culling', () => {
      Icons pro Spot auf jedem Seitenaufruf. */
   const nearby = () => spot('nearby', { lat: 52.52, lng: 13.405 });
   const faraway = () => spot('faraway', { lat: 52.9, lng: 14.9 });
+
+  it('never mounts offscreen markers while the lazy map reports its first frame', () => {
+    startup.autoPaint = false;
+    startup.mounted = [];
+    const ref = { current: null } as { current: unknown };
+    try {
+      render(layerWithRef([nearby(), faraway()], ref as never));
+      act(() => {
+        ref.current = (mapRefWithBounds(13.3, 52.45, 13.5, 52.58) as { current: unknown }).current;
+        startup.firstPaint();
+      });
+      expect(startup.mounted).toContain('nearby');
+      expect(startup.mounted).not.toContain('faraway');
+    } finally {
+      startup.autoPaint = true;
+    }
+  });
 
   it('skips spots outside the padded viewport', async () => {
     render(layerWithRef([nearby(), faraway()], mapRefWithBounds(13.3, 52.45, 13.5, 52.58)));

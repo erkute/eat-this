@@ -153,7 +153,6 @@ function pages(identity: Identity | null) {
 }
 
 const CARD_BACK = '/pics/card-back.webp?v=8';
-const CARD_FRONT = '/pics/card-front.webp?v=6';
 
 /** Das Kartenbild eines Must Eats — die Bild-Route, die auch Deck und Map
  *  benutzen; 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
@@ -229,9 +228,9 @@ export default function SignInReward() {
   /* Die offenen Karten des Packs, wie /api/starter-pack sie gezogen hat —
      dieselben zehn, die danach im Deck offen liegen. */
   const [faceUpIds, setFaceUpIds] = useState<string[]>([]);
-  /* Welche davon schon geladen sind. Die Bild-Route rechnet ein Bild beim
-     ersten Mal (lokal um 1 s) — eine Karte, deren Bild noch fehlt, flog
-     unsichtbar mit. Bis ihr Bild da ist, steht die Beispielkarte. */
+  /* Welche davon für die spätere Aufdeck-Vorführung schon geladen sind.
+     Im Pack lädt jedes Bild direkt im DOM; sein Hintergrund zeigt bis dahin
+     den Kartenrücken statt zehnmal derselben fremden Beispielkarte. */
   const [loadedFaces, setLoadedFaces] = useState<ReadonlySet<string>>(new Set());
   /* Der Aufdeck-Schritt fuehrt vor, was am Spot passiert: verdeckt rein,
      nach kurzem Moment dreht sich die Karte. Antippen dreht sie selbst —
@@ -546,9 +545,9 @@ export default function SignInReward() {
                 src={
                   card.covered
                     ? CARD_BACK
-                    : loadedFaces.has(faceUpIds[card.level] ?? '')
+                    : faceUpIds[card.level]
                       ? mustEatCard(faceUpIds[card.level]!)
-                      : CARD_FRONT
+                      : CARD_BACK
                 }
                 alt=""
                 aria-hidden="true"

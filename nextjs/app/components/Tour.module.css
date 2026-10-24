@@ -234,6 +234,7 @@ a.quiet {
    Reihenfolge aus dem Pack, --level die Hoehe im Stapel, --tilt der Versatz. */
 .revealCard {
   position: absolute;
+  background: url('/pics/card-back.webp?v=8') center / contain no-repeat;
   width: var(--card-width);
   height: calc(var(--card-width) * 1.375);
   object-fit: contain;

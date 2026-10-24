@@ -40,9 +40,6 @@ export default function ProfileNavigation({
             document.getElementById(`profile-tab-${PROFILE_TABS[next]}`)?.focus();
           }}
         >
-          <span className={styles.tabIndex} aria-hidden="true">
-            {String(index + 1).padStart(2, '0')}
-          </span>
           <span>{t(`tab_${id}`)}</span>
         </button>
       ))}

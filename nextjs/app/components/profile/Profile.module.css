@@ -662,11 +662,7 @@ main.page .packsHeading {
   opacity: 0.18;
   pointer-events: none;
 }
-.tabIndex {
-  font: 400 11px / 1.2 var(--et-font-display);
-  letter-spacing: 0.08em;
-  opacity: 0.65;
-}
+
 .tab[aria-selected='true'] {
   color: var(--et-white);
   background-color: var(--profile-red);

@@ -34,7 +34,7 @@ describe('burger drawer mobile canvas state', () => {
     });
   });
 
-  it('removes the fixed ink layer before restoring the mobile page canvas', () => {
+  it('removes the fixed menu layer before restoring the mobile page canvas', () => {
     const drawer = document.getElementById('burgerDrawer') as HTMLDivElement;
     const openButton = document.getElementById('burgerBtn') as HTMLButtonElement;
 
@@ -46,8 +46,8 @@ describe('burger drawer mobile canvas state', () => {
     expect(openButton.getAttribute('aria-expanded')).toBe('true');
     expect(document.body.dataset.burgerLockMode).toBe('fixed');
     expect(document.body.style.position).toBe('fixed');
-    expect(document.documentElement.style.backgroundColor).toBe('rgb(21, 18, 14)');
-    expect(document.body.style.backgroundColor).toBe('rgb(21, 18, 14)');
+    expect(document.documentElement.style.backgroundColor).toBe('rgb(255, 255, 255)');
+    expect(document.body.style.backgroundColor).toBe('rgb(255, 255, 255)');
 
     closeBurgerDrawer();
 

@@ -19,7 +19,7 @@ const CARD_BACK = '/pics/card-back.webp?v=8';
 // spots. Which pack depends on whether the visitor has an account: the free
 // Starter Pack for guests, the paid Booster Packs once they're in.
 const BOOSTER_ART = '/pics/booster/booster.webp';
-const STARTER_ART = '/pics/booster/booster_free.webp';
+const STARTER_ART = '/pics/home/starter-pack-front.webp';
 export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen';
 
 // Dwell on the card back in slide 2 before it auto-flips open — the live
@@ -236,7 +236,7 @@ export default function MustEatsOnboarding({
 
   const copy = (kicker: string, title: string, body: string) => (
     <>
-      <p className={tour.kicker}>{t(kicker)}</p>
+      <p className={`et-label ${tour.kicker}`}>{t(kicker)}</p>
       <h2 tabIndex={-1} className={tour.headline}>
         {t(title)}
       </h2>
@@ -253,18 +253,15 @@ export default function MustEatsOnboarding({
         aria-expanded={open}
         className={
           tone === 'ink'
-            ? `${styles.how} ${styles.howInk}`
+            ? `et-btn et-btn-text ${styles.how} ${styles.howInk}`
             : tone === 'sheet'
-              ? `${styles.how} ${styles.howSheet}`
+              ? `et-btn et-btn-text et-btn-sm ${styles.howSheet}`
               : tone === 'plain'
-                ? `${styles.how} ${styles.howPlain}`
-                : styles.how
+                ? `et-btn et-btn-text ${styles.how} ${styles.howPlain}`
+                : `et-btn et-btn-text ${styles.how}`
         }
         onClick={reopen}
       >
-        <span className={styles.howBadge} aria-hidden="true">
-          ?
-        </span>
         {t('mustEats.howItWorks')}
       </button>
 
@@ -283,7 +280,7 @@ export default function MustEatsOnboarding({
             >
               <header className={tour.header}>
                 <span>{t('mustEats.howItWorks')}</span>
-                <button type="button" className={tour.quiet} onClick={close}>
+                <button type="button" className={`et-btn et-btn-text et-btn-sm ${tour.quiet}`} onClick={close}>
                   {last ? t('mustEats.onbClose') : de ? 'Überspringen' : 'Skip'}
                 </button>
               </header>
@@ -375,7 +372,7 @@ export default function MustEatsOnboarding({
                   <div className={tour.actions}>
                     <button
                       type="button"
-                      className={tour.quiet}
+                      className={`et-btn et-btn-text et-btn-sm ${tour.quiet}`}
                       disabled={step === 0}
                       onClick={() => setStep((s) => Math.max(s - 1, 0))}
                     >
@@ -383,7 +380,7 @@ export default function MustEatsOnboarding({
                     </button>
                     <button
                       type="button"
-                      className={tour.action}
+                      className={`et-btn ${tour.action}`}
                       onClick={() => setStep((s) => Math.min(s + 1, SLIDES.length - 1))}
                     >
                       {t('mustEats.onbNext')}
@@ -392,10 +389,10 @@ export default function MustEatsOnboarding({
                 ) : (
                   <>
                     <div className={tour.actions} data-testid="onb-actions-auth" data-auth-only="">
-                      <a className={tour.quiet} href={packsHref} onClick={close}>
+                      <a className={`et-btn et-btn-text et-btn-sm ${tour.quiet}`} href={packsHref} onClick={close}>
                         {t('mustEats.onbPacksCta')}
                       </a>
-                      <button type="button" className={tour.action} onClick={close}>
+                      <button type="button" className={`et-btn ${tour.action}`} onClick={close}>
                         {t('mustEats.onbStart')}
                       </button>
                     </div>
@@ -406,14 +403,14 @@ export default function MustEatsOnboarding({
                       data-testid="onb-actions-guest"
                       data-guest-only=""
                     >
-                      <button type="button" className={tour.quiet} onClick={close}>
+                      <button type="button" className={`et-btn et-btn-text et-btn-sm ${tour.quiet}`} onClick={close}>
                         {t('mustEats.onbStart')}
                       </button>
                       {/* Öffnet das Anmelde-Fenster direkt (Starter-Modus), statt
                           erst zur Startseite zu springen. */}
                       <button
                         type="button"
-                        className={tour.action}
+                        className={`et-btn ${tour.action}`}
                         onClick={() => {
                           close();
                           if (starterMustEatId) {

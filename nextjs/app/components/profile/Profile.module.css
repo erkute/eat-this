@@ -2,31 +2,22 @@
    Layout only: the element vocabulary (hv-wrap/-section/-head/-title/-rail/
    -photo/-btn) comes from the homeV2 block in globals.css, so the two pages
    stay one system instead of two that resemble each other.
-   Seit 03.09.2026 auf demselben durchgehenden Ink-Grund wie die Startseite:
-   `--profile-ink` bleibt die dunkle Farbe und ist der GRUND, `--profile-fg`
-   die Schrift darauf, Muted und Linien sind Weiss-Stufen.
-
-   Bedienelemente heben sich seit dem 24.09.2026 per Flaeche ab, nicht per
-   Ring — wie auf der Map (`--et-ink-raised`, darueber `--et-ink-quiet` fuer
-   Hover und Fokus). Nutzer, 23.09.2026: „Nimm diese ganzen Linien drumherum
-   weg … lieber eine andere Farbe, ganz leicht abgewandt von der
-   darunterliegenden." `--profile-raised-on` ist die hellere Stufe als
-   fertiger Hintergrund-Stapel. Die geteilte Deck-Seite (/deck) liest diese
-   Regeln mit — was nur sie braucht, steht in ihrem eigenen Deck.module.css. */
+   Public and account pages share a white ground, dark copy and quiet grey
+   control surfaces. The shared deck page also uses these tokens. */
 
 .page {
-  --profile-ink: var(--et-ink);
-  --profile-fg: var(--et-white);
-  --profile-muted: var(--et-ink-soft);
-  --profile-quiet: rgba(255, 255, 255, 0.12);
-  --profile-line: var(--et-ink-line);
-  --profile-ring: var(--et-ink-ring);
+  --profile-ground: var(--et-ground);
+  --profile-fg: var(--et-fg);
+  --profile-muted: var(--et-copy);
+  --profile-quiet: var(--et-quiet);
+  --profile-line: var(--et-line);
+  --profile-ring: var(--et-line);
   --profile-accent: var(--et-accent);
-  --profile-raised: var(--et-ink-raised);
+  --profile-raised: var(--et-quiet);
   --profile-raised-on:
-    linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--profile-raised);
+    var(--et-line);
   --profile-red: var(--et-red);
-  --profile-inverse: var(--et-white);
+  --profile-inverse: var(--et-fg);
   --profile-radius: var(--et-radius-control);
   --profile-motion: var(--et-motion-card);
   min-height: 100svh;
@@ -39,7 +30,7 @@
    Ladereihenfolge. */
 main.page {
   color: var(--profile-fg);
-  background: var(--profile-ink);
+  background: var(--profile-ground);
 }
 
 /* Das geteilte Vokabular faerbt fuer Papier (roter Titel, Ink-Kicker, Ink-
@@ -59,23 +50,6 @@ main.page :global(.hv-cap) {
 
 main.page :global(.hv-sub) {
   color: var(--profile-muted);
-}
-
-main.page :global(.hv-btn) {
-  background: var(--profile-accent);
-  color: var(--et-on-accent);
-}
-
-main.page :global(.hv-btn):focus-visible {
-  background: var(--profile-inverse);
-  color: var(--profile-ink);
-}
-
-@media (hover: hover) {
-  main.page :global(.hv-btn):hover {
-    background: var(--profile-inverse);
-    color: var(--profile-ink);
-  }
 }
 
 /* Wo die Seite mit der Konto-Zeile endet, bringt die Zeile ihr eigenes
@@ -158,6 +132,7 @@ main.page .head {
 
 .dataNoticeError {
   background: var(--profile-red);
+  color: var(--et-on-accent);
 }
 
 .dataNoticeAction {
@@ -284,12 +259,12 @@ main.page .head {
    dahinter — als eigene Zeile kostete die Beschriftung 26 px. */
 .moveLabel {
   margin-right: 9px;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
 }
 
@@ -325,43 +300,6 @@ main.page .head {
    Reiter. */
 .moveCta {
   flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 34px;
-  padding: 0 14px;
-  color: var(--et-accent-text);
-  background: var(--profile-raised);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  cursor: pointer;
-  text-decoration: none;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition:
-    color var(--profile-motion),
-    background-color var(--profile-motion);
-}
-
-.moveCta:focus-visible {
-  color: var(--et-on-accent);
-  background: var(--profile-accent);
-  outline: 0;
-}
-
-@media (hover: hover) {
-  .moveCta:hover {
-    color: var(--et-on-accent);
-    background: var(--profile-accent);
-  }
-}
-
-.moveCta:active {
-  transform: translateY(1px);
 }
 /* Auf dem Telefon EINE Zeile, nicht ein Block (Nutzer, 05.09.2026: „viel zu
    viel Text ... das naechste Must Eat muss eine Zeile auf mobile").
@@ -405,12 +343,6 @@ main.page .head {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  .moveCta {
-    min-height: 30px;
-    padding: 0 11px;
-    font-size: 11px;
-  }
 }
 
 /* ── recently revealed ──────────────────────────────────── */
@@ -424,7 +356,7 @@ main.page .head {
   margin: 0;
   padding-top: clamp(16px, 2vw, 22px);
   padding-left: 0;
-  border-top: 1px solid var(--profile-line);
+  border-top: 0;
   list-style: none;
 }
 
@@ -437,7 +369,7 @@ main.page .head {
   font-weight: 700;
   letter-spacing: var(--et-tracking-label);
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .recentItem {
@@ -582,7 +514,7 @@ main.page .head {
   font-size: clamp(15px, 1.4vw, 20px);
   font-weight: 700;
   line-height: 1.02;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .spotMeta {
@@ -648,7 +580,7 @@ main.page .head {
   padding: 6px 12px 5px;
   color: var(--profile-muted);
   background: var(--profile-raised);
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 999px;
   cursor: pointer;
   font-family: var(--et-font-display);
@@ -656,7 +588,7 @@ main.page .head {
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
   transition:
     color var(--profile-motion),
     background-color var(--profile-motion);
@@ -695,7 +627,7 @@ main.page .head {
 
 @media (hover: hover) {
   .spotVisitedOn:hover:not(:disabled) {
-    color: var(--profile-ink);
+    color: var(--profile-ground);
     background: var(--profile-inverse);
   }
 }
@@ -726,13 +658,13 @@ main.page .head {
 /* Ein unsichtbares Feld sagt niemandem, dass man hineinschreiben kann. */
 @media (hover: hover) {
   .spotNote:hover {
-    box-shadow: 0 1px 0 var(--profile-ring);
+    background: var(--profile-raised);
   }
 }
 
 .spotNote:focus-visible {
-  outline: 0;
-  box-shadow: 0 2px 0 var(--profile-accent);
+  outline: 2px solid var(--profile-accent);
+  outline-offset: 3px;
 }
 
 .empty {
@@ -749,10 +681,6 @@ main.page .head {
   font-size: var(--et-type-lead);
   font-weight: 400;
   line-height: 1.3;
-}
-
-.emptyCta {
-  text-decoration: none;
 }
 
 /* ── packs: Trophaeenreihe ──────────────────────────────────
@@ -886,7 +814,7 @@ main.page .head {
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: none;
   transition:
     color var(--profile-motion),
     background-color var(--profile-motion);
@@ -985,7 +913,7 @@ main.page .head {
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .inviteLine {
@@ -1002,13 +930,13 @@ main.page .head {
    Tafeln, klein und fett — er soll gelesen, nicht gerufen werden. */
 .inviteJoined {
   margin: 7px 0 0;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .inviteAction {
@@ -1016,39 +944,8 @@ main.page .head {
   min-width: 0;
 }
 
-.inviteButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 0 20px;
-  color: var(--et-on-accent);
-  background: var(--profile-accent);
-  border: 0;
-  border-radius: var(--profile-radius);
-  cursor: pointer;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
-  white-space: nowrap;
-  transition: background-color var(--profile-motion);
-}
-
 /* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink — auf dem dunklen
    Grund verschwaenden sie. */
-.inviteButton:focus-visible {
-  background: var(--profile-inverse);
-}
-
-@media (hover: hover) {
-  .inviteButton:hover {
-    background: var(--profile-inverse);
-  }
-}
-
-.inviteButton:active {
-  transform: translateY(1px);
-}
 
 /* ── foot ───────────────────────────────────────────────── */
 
@@ -1058,7 +955,7 @@ main.page .head {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-top: 1px solid var(--profile-line);
+  border-top: 0;
 }
 
 /* Beats .homeV2 .hv-wrap's `margin: 0 auto` / `padding: 0 …` shorthands —

@@ -182,7 +182,7 @@ export default async function CheckoutSuccessPage({
         {t.packTag && <span className={styles.packTag}>{t.packTag}</span>}
         <p className={styles.body}>{t.body}</p>
         <p className={styles.check}>{t.check}</p>
-        <Link href={t.backHref} className={styles.cta}>
+        <Link href={t.backHref} className={`et-btn ${styles.cta}`}>
           {t.backLabel}
         </Link>
       </div>

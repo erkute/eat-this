@@ -385,8 +385,6 @@ export default function MapSection({
     setSelectedRestaurant,
     selectedMustEat,
     setSelectedMustEat,
-    freezePager,
-    pagerAdjacent,
     mustEatPagerAdjacent,
     mustEatPagerPosition,
     mustEatCollection,
@@ -399,7 +397,6 @@ export default function MapSection({
     sheetView,
     restaurants,
     mustEats,
-    listRestaurants,
     unlockedIds,
     scrollListToAnchor,
     dismissDetailRef,
@@ -831,9 +828,6 @@ export default function MapSection({
       prefetchRestaurantDetail(r.slug);
       const isMobile = isSheetViewport();
       const isPhone = isPhoneViewport();
-      // Freeze the list the user is browsing before the query is cleared —
-      // the pager walks this snapshot, not the refilled full list.
-      freezePager();
       // Selecting a search result implicitly accepts it — clear the query so
       // when the user later goes back to "alle Must Eats" or the list, they
       // see the full data set, not the still-filtered subset.
@@ -848,7 +842,7 @@ export default function MapSection({
       // desktop no longer uses a centered floating modal that hid the marker.
       setSheetView('detail');
       // List/search/deep-link → open fully (the user clicked to read content).
-      // Pin-tap on the map → open at the middle stage (photo + pager) so the
+      // Pin-tap on the map → open at the middle stage (the photo) so the
       // map context stays visible; pull up for the full detail.
       const openAtPeek = isMobile && origin === 'map';
       const target = openAtPeek ? 'peek' : 'full';
@@ -860,7 +854,7 @@ export default function MapSection({
         flyToSpot(r, {
           duration: 500,
           padding: openAtPeek
-            ? pinTapFlyPadding(displayedRestaurants.length > 1)
+            ? pinTapFlyPadding()
             : getFlyPadding(isMobile ? 'full' : undefined),
         });
       }
@@ -871,7 +865,6 @@ export default function MapSection({
       mapTapOnlyDismisses,
       collapseSheetToPeek,
       rememberListOrigin,
-      freezePager,
       setSelectedRestaurant,
       setSelectedMustEat,
       flyToSpot,
@@ -883,31 +876,12 @@ export default function MapSection({
       setSnap,
       sheetView,
       sheetElRef,
-      displayedRestaurants.length,
     ]
   );
 
   /* In welche Richtung zuletzt geblättert wurde — dorthin lädt der Effekt
      unter den Pager-Handlern die nächste Kachel vor. */
   const pageDirRef = useRef<'prev' | 'next'>('next');
-
-  const handlePageRestaurant = useCallback(
-    (dir: 'prev' | 'next') => {
-      const target = dir === 'prev' ? pagerAdjacent.prev : pagerAdjacent.next;
-      if (!target) return;
-      pageDirRef.current = dir;
-      userInteractedRef.current = true;
-      trackEvent('restaurant_opened', {
-        restaurant_id: target._id,
-        restaurant_slug: target.slug,
-        origin: 'pager',
-        direction: dir,
-      });
-      setSelectedRestaurant(target);
-      flyToSpot(target, { duration: 400, padding: detailFlyPadding() });
-    },
-    [pagerAdjacent, setSelectedRestaurant, flyToSpot, detailFlyPadding]
-  );
 
   const handlePageMustEat = useCallback(
     (dir: 'prev' | 'next') => {
@@ -930,19 +904,15 @@ export default function MapSection({
     [mustEatPagerAdjacent, setSelectedMustEat, flyToSpot, detailFlyPadding, unlockedIds]
   );
 
-  /* Solange ein Detail offen ist, liegt die Kachel des nächsten Spots in
-     Blätterrichtung schon im Cache, wenn die Kamera dort ankommt
+  /* Solange ein Must-Eat-Detail offen ist, liegt die Kachel des nächsten
+     Spots in Blätterrichtung schon im Cache, wenn die Kamera dort ankommt
      (lib/map/tilePreload.ts). Erst wenn die Karte ruht: sonst stünde das
      Vorladen in der Leitung neben den Kacheln, auf die gerade jemand wartet.
      Gepollt wird, weil die Karte beim Öffnen per Link noch nicht steht. */
   useEffect(() => {
     const ahead = <T,>(adj: { prev: T | null; next: T | null }) =>
       pageDirRef.current === 'prev' ? adj.prev : adj.next;
-    const spot = selectedRestaurant
-      ? ahead(pagerAdjacent)
-      : selectedMustEat
-        ? (ahead(mustEatPagerAdjacent)?.restaurant ?? null)
-        : null;
+    const spot = selectedMustEat ? (ahead(mustEatPagerAdjacent)?.restaurant ?? null) : null;
     if (!spot) return;
     let unwatch = () => {};
     const cancelPoll = pollUntilMapReady({
@@ -959,7 +929,7 @@ export default function MapSection({
       cancelPoll();
       unwatch();
     };
-  }, [selectedRestaurant, selectedMustEat, pagerAdjacent, mustEatPagerAdjacent]);
+  }, [selectedMustEat, mustEatPagerAdjacent]);
 
   const handleMustEatClick = useCallback(
     (m: MapMustEat) => {
@@ -1639,9 +1609,6 @@ export default function MapSection({
       displayedRestaurants={displayedRestaurants}
       getInitialCamera={getInitialCamera}
       listRestaurants={listRestaurants}
-      pagerPrev={pagerAdjacent.prev}
-      pagerNext={pagerAdjacent.next}
-      onPageRestaurant={handlePageRestaurant}
       restaurantMustEats={restaurantMustEats}
       selectedRestaurant={selectedRestaurant}
       listFocusId={listFocusId}

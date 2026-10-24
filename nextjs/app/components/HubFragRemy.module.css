@@ -1,192 +1,69 @@
-.section { scroll-margin-top: var(--site-nav-h); }
-.body {
-  --stage-pad: clamp(30px, 4.5vw, 72px);
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  grid-template-areas: "content portrait";
-  align-items: stretch;
-  column-gap: clamp(16px, 2.5vw, 40px);
-  overflow: hidden;
-  padding: var(--stage-pad);
-  background: var(--et-ink-raised);
-  color: var(--et-white);
-  border-radius: var(--et-radius-photo);
-}
-.content {
-  grid-area: content;
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  align-self: center;
-  padding-block: 8px;
-}
-.intro {
-  margin: 0 0 22px;
-  max-width: 30ch;
-  color: var(--et-accent-heading);
-  font-family: var(--et-font-display);
-  font-size: clamp(20px, 2vw, 28px);
-  font-weight: 700;
-  line-height: 1.3;
-}
-.body .title:global(.hv-title) {
-  margin: 0 0 30px;
-  max-width: 12ch;
-  color: var(--et-white);
-  font-size: var(--et-type-section-title);
-  line-height: 0.98;
-  white-space: normal;
-  text-wrap: balance;
-}
-.questions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 26px;
-}
-.question {
-  max-width: 100%;
-  min-height: 48px;
-  padding: 13px 20px;
-  border: none;
-  border-radius: 16px 16px 16px 4px;
-  font-family: var(--et-font-display);
-  font-size: clamp(18px, 1.75vw, 25px);
-  line-height: 1.25;
-  text-align: left;
-  color: var(--et-white);
-  background: rgba(255,255,255,0.09);
-  cursor: pointer;
-  transform-origin: left center;
-  transition: transform 320ms cubic-bezier(0.22, 1.4, 0.36, 1);
-}
-.question:nth-child(2) { margin-left: 16px; max-width: calc(100% - 16px); }
-.question:focus-visible, .input:focus-visible {
-  outline: none;
-  background: rgba(255,255,255,0.18);
-}
-@media (hover: hover) {
-  .question:hover:not(:disabled) { transform: translate3d(8px, -3px, 0) rotate(-1.5deg) scale(1.035); background: rgba(255,255,255,0.14); color: var(--et-white); }
-}
-.question:focus-visible:not(:disabled) {
-  transform: translate3d(8px, -3px, 0) rotate(-1.5deg) scale(1.035);
-  background: rgba(255,255,255,0.14);
-  color: var(--et-white);
-}
-.form { display: flex; align-items: stretch; gap: 8px; max-width: 650px; }
-.input {
-  flex: 1; width: 100%; min-width: 0; min-height: 56px; padding: 12px 16px;
-  border: none; border-radius: var(--et-radius-control);
-  background: rgba(255,255,255,0.09); color: var(--et-white);
-  font-family: var(--et-font-display); font-size: 16px;
-}
-.input::placeholder { color: rgba(255,255,255,0.65); }
+.section:global(.homeV2):global(.hv-wrap) { width: 100%; max-width: none; margin: 0; padding: 0; background: #d9382a; color: #fff; }
+.body { position: relative; isolation: isolate; min-height: 720px; padding: 76px var(--home-gutter, 48px); overflow: hidden; }
+.content { position: relative; z-index: 1; max-width: 720px; width: 58%; }
+.title { display: grid; margin: 0 0 20px; color: #fff; font-family: var(--et-font-body); font-weight: 700; }
+.hello { font-size: clamp(20px, 1.8vw, 26px); font-weight: 400; line-height: 1.2; }
+/* Der Name ist das Erste, was man sieht. */
+.name { font-size: clamp(88px, 13vw, 184px); line-height: .9; letter-spacing: -.055em; }
+.intro { max-width: 30ch; margin: 0 0 36px; font-size: clamp(20px, 1.8vw, 26px); font-weight: 700; line-height: 1.25; text-wrap: pretty; }
+.prompt { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.questions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+/* Die Fragen sind Pillen auf dem Rot, damit sie sich vom weissen, eckigen
+   Eingabefeld darunter abheben (Ansage 21.10.2026: Knöpfe „richtig
+   erkennbar als Buttons"). Die Fläche ist eine Spur dunkler als das Rot, nicht
+   heller: weisse Schrift auf aufgehelltem Rot lag unter 4,5:1. */
+.question { min-height: var(--et-btn-h); padding: 0 var(--et-btn-pad); color: #fff; background: rgba(21, 18, 14, .22); border: 0; border-radius: var(--et-radius-pill); font: 700 var(--et-btn-font)/1.2 var(--et-font-body); cursor: pointer; transition: background-color var(--et-motion-fast), color var(--et-motion-fast); }
+.question:focus-visible { outline: 3px solid #111; outline-offset: 4px; }
+@media (hover: hover) { .question:hover { color: #111; background: #fff; } }
+.form { position: relative; display: flex; gap: 8px; padding: 7px; background: #fff; border: 0; }
+.input { min-width: 0; flex: 1; width: 100%; min-height: 48px; padding: 12px 8px; background: #fff; color: #111; border: 0; border-radius: 0; font: 400 16px/1.4 var(--et-font-body); }
+.input::placeholder { color: #666; }
+.input:focus-visible { outline: 2px solid #111; outline-offset: -2px; }
+/* Der Knopf ist `et-btn` (globals.css); das Feld daneben bleibt eckig — wie auf der Starter-Tafel. */
 .send {
-  flex-shrink: 0; padding: 10px 18px; border: none; border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display); font-size: 16px;
-  background: var(--et-accent); color: var(--et-on-accent); cursor: pointer;
+  flex-shrink: 0;
 }
-.send:disabled { cursor: default; }
-.send:focus-visible { outline: 2px solid var(--et-white); outline-offset: 4px; }
-@media (hover: hover) {
-  .send:hover:not(:disabled) { background: var(--et-white); color: var(--et-ink); }
-}
-.portrait {
-  grid-area: portrait;
-  position: relative;
-  min-width: 0;
-  min-height: 450px;
-  margin: 0 calc(-1 * var(--stage-pad)) calc(-1 * var(--stage-pad)) -20px;
-  pointer-events: none;
-}
-.figure {
-  position: absolute;
-  inset: -5% -3% -12%;
-  transform-origin: 50% 85%;
-}
-/* The decorative figure must be offstage before hydration and observation. */
-@media (prefers-reduced-motion: no-preference) {
-  .figure { transform: translate(120%, 22%) rotate(18deg); }
-}
+.portrait { position: absolute; right: 2%; bottom: 0; width: 44%; height: 620px; pointer-events: none; }
+/* Sein Bild endet unter der Brust mit einer geraden Kante. Die Figur reicht
+   deshalb wie live unter die Unterkante der Bühne, die sie abschneidet
+   (.body, overflow: hidden) — auch gekippt beim Auftritt und beim Hüpfer auf
+   eine Frage bleibt die Kante darunter. */
+.figure { position: absolute; inset: 0 0 -18%; transform-origin: 50% 85%; }
 .face, .laugh, .open { object-fit: contain; object-position: center bottom; }
-.laugh { visibility: hidden; translate: 0 1.1%; }
-.open { visibility: hidden; translate: 0 -0.9%; }
-.figure[data-expression="laugh"] .laugh,
-.figure[data-expression="open"] .open { visibility: visible; }
-.figure[data-expression="laugh"] .face,
-.figure[data-expression="open"] .face { visibility: hidden; }
+.laugh, .open { visibility: hidden; }
+.laugh { translate: 0 1.1%; }
+.open { translate: 0 -.9%; }
+.figure[data-expression="laugh"] .laugh, .figure[data-expression="open"] .open { visibility: visible; }
+.figure[data-expression="laugh"] .face, .figure[data-expression="open"] .face { visibility: hidden; }
 .figure[data-speaking] .face { visibility: visible; }
 .figure[data-speaking] .laugh { visibility: hidden; }
 .figure[data-speaking] .open { animation: speak 640ms steps(1) infinite; }
-@keyframes speak {
-  0%, 35%, 70%, 100% { visibility: hidden; }
-  12%, 48%, 82% { visibility: visible; }
+@keyframes speak { 0%,35%,70%,100% { visibility: hidden; } 12%,48%,82% { visibility: visible; } }
+@media (prefers-reduced-motion: reduce) { .figure[data-speaking] .open { animation: none; } }
+@media(max-width:767.98px) {
+  /* Wie live: Fragen und Eingabefeld oben untereinander, Remy steht darunter
+     auf der Unterkante der Bühne (Ansage 21.10.2026). */
+  .body { padding: 48px 24px 380px; min-height: 0; }
+  .content { position: relative; z-index: 1; width: 100%; max-width: none; }
+  .name { font-size: clamp(84px, 27vw, 120px); }
+  .intro { font-size: 20px; margin-bottom: 28px; }
+  .questions { position: relative; z-index: 1; max-width: 320px; gap: 10px; }
+  .question { padding: 0 20px; }
+  .portrait { width: 420px; height: 420px; right: calc(50% - 210px); bottom: 0; }
+  .figure { inset: 0 0 -24%; }
 }
-@media (min-width: 1024px) {
-  .section:global(.homeV2):global(.hv-wrap) {
-    width: 100%; max-width: 1800px;
-    padding-inline: clamp(24px, 2.5vw, 48px);
-  }
+.compact .body { min-height: 560px; padding-block: 56px; }
+.compact .name { font-size: clamp(80px, 10vw, 136px); }
+.compact .portrait { width: 38%; height: 460px; }
+@media (max-width: 767.98px) {
+  .compact .body { min-height: 0; padding: 40px 24px 280px; }
+  .compact .name { font-size: clamp(80px, 25vw, 108px); }
+  .compact .portrait { width: 320px; height: 320px; right: calc(50% - 160px); }
 }
-@media (max-width: 899px) {
-  .body {
-    --stage-pad: 26px;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "content" "portrait";
-    padding: var(--stage-pad);
-    gap: 0;
-  }
-  .content { width: 100%; max-width: 580px; justify-self: center; padding: 0; }
-  .intro { max-width: 29ch; font-size: 21px; margin-bottom: 18px; }
-  .body .title:global(.hv-title) { font-size: var(--et-type-section-title); margin-bottom: 24px; }
-  .questions { gap: 9px; margin-bottom: 20px; }
-  .question { font-size: 18px; padding: 12px 16px; }
-  .send { padding-inline: 12px; }
-  .input { padding-inline: 12px; }
-  .portrait {
-    width: min(100% + 32px, 480px);
-    height: clamp(240px, 66vw, 340px);
-    min-height: 0;
-    justify-self: center;
-    margin: 12px -16px calc(-1 * var(--stage-pad));
-  }
-  .figure { inset: 0 0 -18%; }
-}
-@media (max-width: 380px) {
-  .body { --stage-pad: 20px; }
-  .question:nth-child(2) { margin-left: 0; max-width: 100%; }
-  .input { font-size: 16px; }
-}
-/* Vor der Hydrierung nicht schon dastehen: GSAP setzt Remy neben die Bühne
-   und markiert ihn dann mit data-staged. Ohne Bewegung bleibt er einfach da. */
-@media (prefers-reduced-motion: no-preference) {
-  .figure:not([data-staged]) { opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .question { transition: none; }
-  .question:hover:not(:disabled), .question:focus-visible:not(:disabled) { transform: none; }
-  .figure[data-speaking] .open { animation: none; }
-}
-
-@media (min-width: 900px) {
-  .section:global(.homeV2):global(.hv-wrap) { max-width: var(--et-wrap-max); }
-  .body { --stage-pad: clamp(28px, 3vw, 48px); grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
-  .body .title:global(.hv-title) { font-size: var(--et-type-section-title); margin-bottom: 22px; }
-  .intro { font-size: clamp(20px, 1.6vw, 23px); margin-bottom: 16px; }
-  .question { font-size: clamp(17px, 1.4vw, 21px); min-height: 44px; padding: 10px 16px; }
-  .portrait { min-height: 340px; max-height: 460px; align-self: end; height: 100%; }
-  .figure { inset: 0 0 -10%; }
-}
-
-/* About supplies its own content measure and spacing. Keep this in the
-   owning module, above the specificity of the homepage wrap rules. */
-.section.embedded:global(.homeV2):global(.hv-wrap) {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  background: transparent;
+/* Vintage-Entwurf: auch „Frag Remy" ist ein eigenes Blatt — Papier und
+   Gebrauchsspuren auf dem Rot, ohne Fuge davor (globals.css). */
+:global(html[data-vintage]) .section:global(.homeV2):global(.hv-wrap) {
+  background-image: var(--et-sheet);
+  background-size: var(--et-sheet-size);
+  background-repeat: var(--et-sheet-repeat);
 }

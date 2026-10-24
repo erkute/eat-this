@@ -44,7 +44,7 @@ export default async function KategorieBoost({ categorySlug, categoryName, local
         {/* Ein Ausgang, ein Knopf, Preis im Label — wie „All Berlin
             freischalten · 9,99 €" auf der All-Berlin-Tafel. Der Pfeil ist weg:
             die Fläche selbst ist die Affordanz. */}
-        <Link href={`/pack/${categorySlug}`} className={styles.cta}>
+        <Link href={`/pack/${categorySlug}`} className={`et-btn ${styles.cta}`}>
           {de ? 'Pack ansehen' : 'View pack'} · {priceLabel}
         </Link>
       </div>

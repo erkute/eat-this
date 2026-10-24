@@ -32,11 +32,13 @@ export default function StarterPackSignup() {
       id="hub-starter"
       className={`homeV2 hv-section hv-wrap ${styles.scene}`}
       data-hub-starter=""
+      data-red-sheet=""
       data-guest-only=""
       aria-label={t('packTitle')}
     >
-      <div className={styles.inner}>
+      <div>
         <LoginBoard
+          editorial
           art={<StarterPack3D />}
           kicker={t('packKicker')}
           title={t('packTitle')}

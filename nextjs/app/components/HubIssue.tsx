@@ -1,3 +1,4 @@
+import { Fragment, type ReactNode } from 'react';
 import Image from './SiteImage';
 import { categoryArt } from '@/lib/categoryArt';
 import { Link } from '@/i18n/navigation';
@@ -44,14 +45,21 @@ export function latestMonth(restaurants: RestaurantCard[], locale: 'de' | 'en'):
 export const spotAnchor = (slug: string) => `spot-${slug}`;
 
 /** Küche, Bezirk (nur wo er nicht schon die Seite ist) und Preis. */
-function metaLine(r: Spot, locale: Locale, showDistrict = false): string {
-  return [
+function metaLine(r: Spot, locale: Locale, showDistrict = false): ReactNode {
+  const parts = [
     r.cuisineType && localizedCuisine(r.cuisineType, locale),
     showDistrict && (r.district || r.bezirk?.name),
     formatPriceLabel(r, locale),
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  ].filter((part): part is string => Boolean(part));
+  if (!parts.length) return null;
+  // Jeder Teil bleibt beisammen — umbrochen wird nur am „·", nie mitten in
+  // „Prenzlauer Berg" oder „20–30 €" (21.10.2026).
+  return parts.map((part, index) => (
+    <Fragment key={part}>
+      {index > 0 && ' · '}
+      <span className={styles.metaPart}>{part}</span>
+    </Fragment>
+  ));
 }
 
 function Photo({
@@ -329,7 +337,7 @@ export function IssueMagazine({
         ))}
       </ul>
       <div className={styles.links}>
-        <Link href="/news" className={styles.btn}>
+        <Link href="/news" className="et-btn">
           {/* „Ausgaben" wie die Hefte selbst („Issue 27") und „Weitere
               Ausgaben" unter dem Artikel — „Alle Stories" passte nicht
               (Ansage 03.10.2026). */}

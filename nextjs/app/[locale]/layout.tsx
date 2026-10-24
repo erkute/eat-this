@@ -24,20 +24,17 @@ export function generateStaticParams() {
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
 // Runs synchronously in <head>: sets data-active-page (read by CSS selectors
 // like [data-active-page="map"] .app-pages), locks portrait orientation on mobile,
-// marks the home page for its intro (data-hero-intro, HubSection.module.css —
-// set here so the CSS animation starts with the first paint, not after hydration;
-// the curtain itself waits for Remy's legs — data-remy-go, set by HeroCurtain
-// once its mesh draws, at the latest after 3 s from here; skipped when the
-// address carries a sign-in link from the mail: then the confirmation board
-// (EmailLinkSignIn) is the first thing on screen, and the sign-in leads to the
-// profile anyway; data-email-link holds back what opens by itself until the
-// board closes, lib/auth/emailLinkPending.ts),
+// marks the home page for its elevator-door intro (data-hero-intro,
+// HeroCurtain.module.css). The finished page sits behind the opening doors.
+// A timeout clears the intro flag if hydration fails. Skipped when the address
+// carries a sign-in link from the mail: then the confirmation board
+// (EmailLinkSignIn) is the first thing on screen; data-email-link holds back
+// what opens by itself until the board closes, lib/auth/emailLinkPending.ts),
 // marks a freshly loaded article the same way (data-article-intro,
 // NewsArticleShell.module.css — only on a real load: an article opened from a
 // magazine has the opening as its intro, and a tab loaded out of sight would
 // never run it and keep the head blank; lib/articleMotion.ts drops the mark),
-// restores a dark article (data-article-theme, lib/articleTheme.ts) on every
-// page, so an article reached from inside the app is dark from its first frame,
+// restores the shared theme before first paint on every route (lib/theme.ts),
 // starts the home page at the top on every load (scrollRestoration — Safari
 // restores the old position before hydration otherwise; Ansage 01.10.2026:
 // „bei einem Reload fängt die Seite wieder oben an", the intro plays there —
@@ -61,9 +58,9 @@ const CRITICAL_BOOTSTRAP = `(function(){
   document.documentElement.setAttribute('data-active-page',slug);
   var emailLink=/[?&]mode=signIn(&|$)/.test(location.search)&&/[?&]oobCode=[^&]/.test(location.search);
   if(emailLink)document.documentElement.setAttribute('data-email-link','');
-  try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.setAttribute('data-remy-go','');},3000);}}catch(_){}
+  try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.removeAttribute('data-hero-intro');},6500);}}catch(_){}
   try{if(slug==='news-article'&&document.visibilityState==='visible'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-article-intro','');}catch(_){}
-  try{if(localStorage.getItem('et-article-theme')==='dark')document.documentElement.setAttribute('data-article-theme','dark');}catch(_){}
+  try{if(localStorage.getItem('et-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(_){}
   try{if(slug==='start'&&'scrollRestoration' in history)history.scrollRestoration='manual';}catch(_){}
   try{if(slug==='start'&&location.hash){var nv=performance.getEntriesByType('navigation')[0];if(nv&&nv.type==='reload')history.replaceState(history.state,'',location.pathname+location.search);}}catch(_){}
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}
@@ -93,6 +90,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       data-scroll-behavior="smooth"
+      data-vintage=""
       suppressHydrationWarning
     >
       <head suppressHydrationWarning>

@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
-import type { CSSProperties, Ref, RefObject } from 'react';
+import type { Ref, RefObject } from 'react';
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
 import type { CategoryDef } from '@/lib/categories';
@@ -32,8 +32,7 @@ import { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from '@/lib/map/listWindow';
 import MapSheetDetail from './MapSheetDetail';
 import MapListHeader from './MapListHeader';
 import MapIntro from './MapIntro';
-import { SearchGlassIcon } from './icons';
-import MapSeoFooter from './MapSeoFooter';
+import { CloseIcon, SearchGlassIcon } from './icons';
 import MapDataNotice from './MapDataNotice';
 import MapSearchSuggestions from './MapSearchSuggestions';
 import type { InitialCamera } from '@/lib/map/useMapCamera';
@@ -140,9 +139,6 @@ interface MapBodyHandlers {
      keinen Oeffnungs-Treffer melden. */
   onRestaurantClick: (r: MapRestaurant, origin?: 'list' | 'map') => boolean | void;
   onMustEatClick: (m: MapMustEat) => void;
-  pagerPrev: MapRestaurant | null;
-  pagerNext: MapRestaurant | null;
-  onPageRestaurant: (dir: 'prev' | 'next') => void;
   onLocateMe: () => void;
   locateLoading: boolean;
   onRestaurantClose: () => void;
@@ -191,9 +187,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     getInitialCamera,
     listRestaurants,
     restaurantMustEats,
-    pagerPrev,
-    pagerNext,
-    onPageRestaurant,
     selectedRestaurant,
     selectedMustEat,
     primaryMustEats,
@@ -439,73 +432,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     handleDismissLocationStatus,
   ]);
 
-  /* Tablets: der Standort-Knopf reitet auf der Oberkante des Drag-Sheets —
-     er wandert mit, wenn es hochkommt. Gerechnet wird hier, nicht in CSS: die
-     Kante hängt an einem transformierten Sheet, davon weiß ein Stylesheet
-     nichts. Nach oben gedeckelt, damit er nicht in Lupe und Burger läuft.
-
-     On phones the sticky list header carries its own control above the edge.
-     Native scrolling keeps both together without per-frame measurements. */
-  const [locateBottom, setLocateBottom] = useState<number | null>(null);
-  const [locateGone, setLocateGone] = useState(false);
-  useEffect(() => {
-    if (!window.matchMedia('(min-width: 768px) and (max-width: 1023.98px)').matches) {
-      setLocateBottom(null);
-      setLocateGone(false);
-      return;
-    }
-    let frame = 0;
-    let lastTop: number | null = null;
-    let settle = 0;
-    /* Wie weit die Listenkante zwischen zwei Frames wandern darf, bevor der
-       Knopf aufgibt. Das Scrollen läuft auf dem Compositor, seine Position
-       kommt aus JS auf dem Hauptthread — bei einem schnellen Wisch ist sie
-       Frames zu spät, und die Liste überholt ihn. Dagegen hilft kein größerer
-       Abstand: ein Fling schiebt pro Frame dreistellige Pixelwerte. Also
-       weicht er ab hier zur Seite (dieselbe Geste wie am Burger) und kommt
-       zurück, sobald der Wisch steht. 10px/Frame ≈ 600px/s — deutlich über
-       allem, was ein bewusster Wisch erreicht. */
-    const MAX_STEP_PX = 10;
-    const measure = () => {
-      frame = 0;
-      const sheet = document.querySelector<HTMLElement>('[data-map-sheet]');
-      const fab = document.querySelector<HTMLElement>('[data-locate-fab]');
-      if (!sheet || !fab) return;
-      const sheetTop = sheet.getBoundingClientRect().top;
-      const step = lastTop === null ? 0 : Math.abs(sheetTop - lastTop);
-      lastTop = sheetTop;
-      const wanted = Math.max(0, window.innerHeight - sheetTop + 14);
-      /* Die Fahrt wird nicht gedeckelt — der Knopf verschwindet, kurz bevor er
-         den Burger erreicht, statt darunter zu parken. Die Linie liest sich
-         aus dem Burger selbst, damit sie nicht wegdriftet, wenn der umzieht. */
-      const burger = document.querySelector<HTMLElement>('[data-map-burger]');
-      const vanishTop = (burger ? burger.getBoundingClientRect().bottom : 58) + 14;
-      setLocateBottom(Math.round(wanted));
-      setLocateGone(
-        window.innerHeight - wanted - fab.offsetHeight < vanishTop || step > MAX_STEP_PX
-      );
-    };
-    const onScroll = () => {
-      if (!frame) frame = window.requestAnimationFrame(measure);
-      /* Nach dem letzten Scroll-Ereignis einmal ohne Schrittweite nachrechnen:
-         steht der Wisch, gehört der Knopf zurück an die Kante. */
-      window.clearTimeout(settle);
-      settle = window.setTimeout(() => {
-        lastTop = null;
-        measure();
-      }, 140);
-    };
-    measure();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    return () => {
-      if (frame) window.cancelAnimationFrame(frame);
-      window.clearTimeout(settle);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, [sheetView, snap]);
-
   /* What is typed but not sent yet. The suggestions follow it; the list and
      the pins wait for Enter — a list that changed with every letter was
      restless, and what you look for is usually one spot (Betreiber,
@@ -590,32 +516,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
         viewBox="0 0 24 24"
         aria-hidden="true"
       >
-        {/* Dasselbe Handwerk wie bei Lupe und Burger: geschlossener Ring,
-                  dicker Punkt, vier kurze Striche mit runden Enden — und wie
-                  dort von Hand geführt statt konstruiert (siehe die Lupe oben).
-                  Der Ring läuft am Schluss über seinen Anfang, der Punkt ist
-                  keine exakte Scheibe, und die vier Striche sind
-                  unterschiedlich lang: ein perfektes Fadenkreuz stand als
-                  einziges technisches Zeichen zwischen lauter gezeichneten. */}
-        <path
-          d="M7.1 15.4C5.4 13.1 5.8 9.6 8.2 7.8c2.4-1.8 6-1.4 7.7.9 1.7 2.3 1.2 5.8-1.3 7.4-2.1 1.4-5.1 1-6.9-.7"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-        />
-        <path
-          d="M10.9 10.9c1.2-.9 3-.2 3.1 1.2.1 1.4-1.4 2.3-2.6 1.7-1.1-.6-1.4-2.2-.5-2.9Z"
-          fill="currentColor"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M12.2 2.4 12 5M11.7 19.2l.2 2.3M2.5 11.6l2.7.3M19 12.3l2.4-.3"
-          fill="none"
-          stroke="currentColor"
-          strokeLinecap="round"
-        />
+        <circle cx="12" cy="12" r="6.5" />
+        <circle cx="12" cy="12" r="2" />
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
       </svg>
     </button>
   );
@@ -658,12 +561,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
              Titel. Statt sie zu kürzen, bis sie irgendwo gerade so vorbeikommt,
              tritt der Titel zur Seite — siehe MapIntro.module.css. */
           data-search-open={searchOpen || search ? '' : undefined}
-          data-locate-gone={locateGone ? 'true' : undefined}
-          style={
-            locateBottom == null
-              ? undefined
-              : ({ '--locate-bottom': `${locateBottom}px` } as CSSProperties)
-          }
+
         >
           {/* The map's frame. On the phone it lies OVER the sheet and ends
               where the sheet begins — at its top edge, and never above the
@@ -702,30 +600,15 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 selected marker stays visible on the map. */}
             </div>
 
-            {/* Der Standort-Knopf steht bewusst AUSSERHALB von `.mapWrap`.
-              Der Wrapper trägt `isolation: isolate` (damit der Standort-Marker
-              mit z-index 1000 im Kartenfenster bleibt) — darin kann kein
-              z-index nach draußen wirken. */}
-            {/* The dock is the button's frame on phones: sticky above the
-              sheet's resting edge, it rides up with the sheet and then stays;
-              the frame's lower edge is the sheet's top, so the sheet slides
-              over it (MapControls.module.css). Elsewhere it has no box. */}
-            <div className={controlStyles.locateDock} data-locate-dock="">
-              {renderLocateControl()}
-            </div>
+            {/* Geometry anchor for the map credit during phone sheet gestures. */}
+            <div className={controlStyles.locateDock} data-locate-dock="" aria-hidden="true" />
           </div>
 
-          {/* Floating search — collapsed to a square icon button by
-              default (2026-06-04: the always-on toolbar read too loud over
-              the tiles). Tapping expands the full input; it stays open
-              while a query is active so the filter is never invisible.
-              Outside the map wrapper: that is a stacking context under the
-              list, and on phones the search has to stand above the sheet. */}
-          {searchOpen || search ? (
-            /* Ein Formular, damit Enter bzw. „Suchen" auf der Handy-Tastatur
+          {/* Search stays visible above the map and the phone sheet. */}
+          {/* Ein Formular, damit Enter bzw. „Suchen" auf der Handy-Tastatur
                etwas tut: erst das Abschicken filtert Liste und Karte, und die
                Tastatur geht und gibt den Blick darauf frei. Ohne <form> lief
-               die Taste ins Leere (23.09.2026). */
+               die Taste ins Leere (23.09.2026). */}
             <>
               <form
                 role="search"
@@ -746,6 +629,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   name="map-search"
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
+                  onFocus={onSearchOpen}
                   onBlur={() => {
                     if (!search && !draft) setSearchOpen(false);
                   }}
@@ -754,7 +638,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   aria-label={searchLabel}
                   autoComplete="off"
                 />
-                <button
+                {!draft && renderLocateControl()}
+                {(draft || search) && <button
                   type="button"
                   className={controlStyles.mapSearchClear}
                   onClick={() => {
@@ -764,24 +649,8 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   }}
                   aria-label={locale === 'en' ? 'Clear search' : 'Suche zurücksetzen'}
                 >
-                  {/* Zwei Striche, ungleich lang und je eigen gekippt — dieselbe
-                    Handschrift wie die Lupe links daneben und die drei
-                    Burger-Balken (19/22/15px). Als exaktes, symmetrisches
-                    Kreuz war es das einzige konstruierte Zeichen in der
-                    Reihe. */}
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M6.6 6.2c3.6 3.9 7.4 7.6 11.2 11.4" strokeWidth="2.6" />
-                    <path d="M17.4 6.8c-3.3 3.4-6.8 6.8-10.3 10.1" strokeWidth="2.1" />
-                  </svg>
-                </button>
+                  <CloseIcon />
+                </button>}
               </form>
               {suggesting && (
                 <MapSearchSuggestions
@@ -791,33 +660,20 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 />
               )}
             </>
-          ) : (
-            <button
-              type="button"
-              className={controlStyles.mapSearchBtn}
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSearchOpen();
-              }}
-              aria-label={searchLabel}
-            >
-              <SearchGlassIcon className={controlStyles.mapSearchIcon} />
-            </button>
-          )}
 
           <button
             type="button"
-            className={controlStyles.mapBurger}
+            className={`et-btn et-btn-paper et-btn-map-control ${controlStyles.mapBurger}`}
             data-map-burger=""
             onClick={openBurgerMenu}
-            aria-label="Menu"
+            aria-label={locale === 'en' ? 'Menu' : 'Menü'}
           >
             <span className={controlStyles.mapBurgerLines} aria-hidden="true">
               <span />
               <span />
               <span />
             </span>
+            <span>{locale === 'en' ? 'Menu' : 'Menü'}</span>
           </button>
 
           {/* Desktop disclosure sits before its controlled panel in the DOM so
@@ -838,17 +694,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             aria-expanded={!desktopPanelHidden}
             onClick={onToggleDesktopPanel}
           >
-            {/* Von Hand gezogen wie Lupe und Burger: ein Strich mit Bauch,
-                der Abstrich länger als der Aufstrich. Eingeklappt dreht er
-                sich um (MapControls.module.css). */}
+            {/* Einzige Richtungsmarke der Map: die Desktop-Panel-Lasche. */}
             <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M9.2 5.4c2.3 1.9 4.4 4 6.1 6.4-1.8 2.3-3.9 4.5-6 6.6" />
+              <path d="m9 5 7 7-7 7" />
             </svg>
-            {desktopPanelHidden && (
-              <span className={controlStyles.panelToggleLabel} aria-hidden="true">
-                {locale === 'en' ? 'List' : 'Liste'}
-              </span>
-            )}
           </button>
 
           <aside
@@ -928,10 +777,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                 onMustEatClick={onMustEatClick}
                 isFavorite={favoriteIds.has(selectedRestaurant._id)}
                 onToggleFavorite={onToggleFavorite}
-                prevRestaurant={pagerPrev}
-                nextRestaurant={pagerNext}
-                onPagePrev={() => onPageRestaurant('prev')}
-                onPageNext={() => onPageRestaurant('next')}
               />
             ) : (
               <>
@@ -967,7 +812,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                     visibleRows={listRows}
                     onNeedMoreRows={showMoreRows}
                   />
-                  <MapSeoFooter locale={locale} />
                 </div>
               </>
             )}

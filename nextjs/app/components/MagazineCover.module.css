@@ -258,7 +258,7 @@
 }
 .objectSoft {
   object-fit: contain;
-  filter: drop-shadow(0 2.2cqw 2.4cqw rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 2.2cqw 2.4cqw rgba(0, 0, 0, 0.16));
 }
 .cutoutShadow {
   filter: drop-shadow(0 1.2cqw 1.8cqw rgba(0, 0, 0, 0.45));
@@ -391,6 +391,20 @@
   white-space: nowrap;
 }
 
+/* Gebrauchsspuren wie auf einem echten Heft (Ansage 21.10.2026): Knick am
+   Rücken, abgestossene Kanten und Ecken, feine Kratzer im Glanz, ein
+   Eselsohr unten rechts. Zwei Fassungen, damit nebeneinander liegende Hefte
+   nicht gleich verkratzt sind; nur im Vintage-Look. */
+.wear {
+  inset: 0;
+  pointer-events: none;
+}
+:global(html[data-vintage]) .wear {
+  background: url('/pics/vintage/cover-wear-a.webp?v=1') 0 0 / 100% 100% no-repeat;
+}
+:global(html[data-vintage]) .wearB {
+  background-image: url('/pics/vintage/cover-wear-b.webp?v=1');
+}
 /* Glanz des Umschlags und der Rücken links, wo er gefalzt ist. */
 .sheen {
   inset: 0;

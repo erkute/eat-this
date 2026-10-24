@@ -63,7 +63,9 @@ describe('IssueSpots', () => {
     expect(html).toContain('Sandwiches.');
     expect(html).toContain('Tipp');
     expect(html).toContain('Früh kommen.');
-    expect(html).toContain('Italienisch · 10–20 €');
+    expect(html.replace(/<[^>]+>/g, '')).toContain('Italienisch · 10–20 €');
+    // Jeder Teil bleibt beisammen: der Preis bricht nie mitten durch.
+    expect(html).toMatch(/metaPart[^"]*">10–20 €<\/span>/);
   });
 });
 
@@ -116,7 +118,7 @@ describe('IssueSpots on a category page', () => {
         showDistrict
       />
     );
-    expect(html).toContain('Italienisch · Kreuzberg · 10–20 €');
+    expect(html.replace(/<[^>]+>/g, '')).toContain('Italienisch · Kreuzberg · 10–20 €');
   });
 });
 
@@ -152,18 +154,8 @@ describe('IssueMagazine', () => {
 });
 
 describe('page ground', () => {
-  // The discovery rubrics share the home page's Ink canvas.
-  it('puts district and category pages on Ink', () => {
+  it('uses the shared canvas for public content', () => {
     const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8');
-    for (const page of ['bezirk', 'kategorie']) {
-      expect(css).toMatch(
-        new RegExp(
-          `html\\[data-active-page='${page}'\\] \\.app-pages[,\\s\\S]*?\\{\\s*background: var\\(--et-ink\\);`
-        )
-      );
-      expect(css.match(new RegExp(`html\\[data-active-page='${page}'\\] body`, 'g'))).toHaveLength(
-        1
-      );
-    }
+    expect(css).toContain('html[data-active-page] .app-pages {\n  background: var(--et-ground);');
   });
 });

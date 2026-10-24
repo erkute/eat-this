@@ -1,7 +1,9 @@
 .explorer {
   width: 100%;
-  max-width: 1380px;
-  min-height: calc(100svh - 80px);
+  max-width: none;
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / cover;
+  background-blend-mode: multiply;
+  min-height: 100svh;
   margin-inline: auto;
   padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 8px);
 }
@@ -14,7 +16,7 @@
   overflow: hidden;
   touch-action: pan-y pinch-zoom;
 }
-.cityFill, .inertRegion, .region { fill: #000; }
+.cityFill, .inertRegion, .region { fill: var(--et-fg); }
 .cityFill { pointer-events: none; }
 .inertRegion { pointer-events: none; }
 .region {
@@ -26,18 +28,18 @@
 }
 .region[data-highlighted='true'], .region[data-selected='true'] {
   fill: var(--et-accent);
-  stroke: var(--et-white);
+  stroke: var(--et-ground);
 }
 .region:focus { outline: none; }
-.region:focus-visible { fill: var(--et-accent); stroke: var(--et-white); stroke-width: 3; }
-.boundaries { fill: none; stroke: var(--et-white); stroke-opacity: .24; stroke-width: .7; pointer-events: none; }
-.cityBoundary { fill: none; stroke: var(--et-white); stroke-opacity: .85; stroke-width: 1.4; pointer-events: none; }
+.region:focus-visible { fill: var(--et-accent); stroke: var(--et-ground); stroke-width: 3; }
+.boundaries { fill: none; stroke: var(--et-ground); stroke-opacity: .24; stroke-width: .7; pointer-events: none; }
+.cityBoundary { fill: none; stroke: var(--et-ground); stroke-opacity: .85; stroke-width: 1.4; pointer-events: none; }
 .mapHint { min-height: 66px; margin: 14px 0 0; text-align: center; font-size: 18px; line-height: 1.4; }
 .districtName { display: block; font-size: 24px; line-height: 1.2; }
 .hintAction { display: block; margin-top: 5px; font-size: 16px; }
 .mapSection[data-map-opening='true'] .geography { pointer-events: none; }
 @media (max-width: 767px) {
-  .explorer { min-height: calc(100svh - 72px); padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px); }
+  .explorer { min-height: 100svh; padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px); }
   .mapSection { margin-top: 24px; }
   .geography { height: auto; min-height: 0; aspect-ratio: 640 / 550; }
   .mapHint { margin-top: 22px; }
@@ -50,9 +52,9 @@
   .region[data-preview='true'] { animation: districtEmber 4.2s ease-in-out both; }
 }
 @keyframes districtEmber {
-  0%, 100% { fill: #000; stroke: transparent; }
+  0%, 100% { fill: var(--et-fg); stroke: transparent; }
   38%, 55% { fill: var(--et-accent); stroke: var(--et-accent); }
-  90% { fill: #000; stroke: transparent; }
+  90% { fill: var(--et-fg); stroke: transparent; }
 }
 
 @media (min-width: 768px) {
@@ -68,5 +70,5 @@
 }
 
 @media (hover: none) {
-  .region[data-selected='true']:not(:focus-visible) { fill: #000; stroke: transparent; }
+  .region[data-selected='true']:not(:focus-visible) { fill: var(--et-fg); stroke: transparent; }
 }

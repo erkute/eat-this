@@ -196,7 +196,6 @@ describe('CSS architecture contracts', () => {
       'slogan',
     ])
       expect(localClasses.has(className), className).toBe(false);
-    expect(declarationsFor(root, '.frame').get('--login-accent')).toBeTruthy();
     expect(declarationsFor(root, '.srOnly').get('position')).toContain('absolute');
   });
 });

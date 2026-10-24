@@ -1,18 +1,17 @@
 /* /packs — der Laden. Die Seite beginnt direkt mit der All-Berlin-Tafel
    (AllBerlinBoard, dort sitzt die H1); darunter die neun Kategorie-Packs
-   randlos auf dem Grund. Keine grauen Kacheln, kein Aufmacher, der die Tafel
-   nur wiederholt.
+   frei auf dem Papier (Ansage 22.10.2026: ohne Rahmen). Kein Aufmacher, der
+   die Tafel nur wiederholt.
    Seit 03.09.2026 auf durchgehendem Ink wie Startseite und Spot-Seite:
    `--packs-ink` bleibt die dunkle Farbe und ist der GRUND, `--packs-fg` die
    Schrift darauf; Muted und Linien sind Weiss-Stufen. Die All-Berlin-Tafel
    ist das eine Objekt der Seite und traegt die leise Stufe (AllBerlinBoard). */
 
 .page {
-  --packs-ink: var(--et-ink);
-  --packs-fg: var(--et-white);
-  --packs-muted: var(--et-ink-soft);
+  --packs-ink: var(--et-ground);
+  --packs-fg: var(--et-fg);
+  --packs-muted: var(--et-muted);
   --packs-accent: var(--et-accent);
-  --packs-rule: var(--et-ink-line);
   min-height: 100%;
   overflow-x: clip;
   padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) 0 clamp(64px, 8vw, 120px);
@@ -38,22 +37,26 @@
   justify-items: start;
   gap: 12px;
   margin-bottom: clamp(26px, 3.4vw, 44px);
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--packs-rule);
 }
 
-.sectionTitle {
-  position: relative;
-  margin: 0;
-  color: var(--packs-fg);
-  font-size: var(--et-type-section-title);
+.kicker {
+  margin: 0 0 -2px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-title);
+  letter-spacing: .08em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
-
+.sectionTitle {
+  margin: 0;
+  color: var(--packs-fg);
+  font-size: clamp(40px, 5vw, 80px);
+  font-weight: 700;
+  letter-spacing: -.055em;
+  line-height: .92;
+  text-transform: none;
+}
 
 .sectionLead {
   margin: 0;
@@ -65,102 +68,80 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(40px, 5vw, 64px) clamp(20px, 3vw, 40px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 40px) clamp(24px, 4vw, 56px);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* Kachel = Link oben, Knopf unten. Die Kacheln einer Reihe sind gleich hoch,
-   und der Link bekommt den Rest — so steht der Knopf in jeder Reihe auf
-   derselben Linie, egal ob die Spectrum-Zeile ein- oder zweizeilig läuft. */
+/* Eine Zeile pro Pack (Ansage 22.10.2026): gross links, rechts Name,
+   Spectrum-Zeile und Kaufknopf linksbündig auf einer Achse, mittig zum Pack.
+   Am Desktop zwei Zeilen nebeneinander, sonst bliebe rechts eine leere Bahn. */
 .tile {
+  --pack-w: 170px;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  justify-items: center;
+  grid-template-columns: var(--pack-w) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(20px, 3vw, 36px);
+  min-width: 0;
+}
+
+.packLink {
+  display: block;
+}
+
+/* In der Liste alle gleich und nur leicht gekippt; abwechselnd sah es
+   schief statt nach Auslage aus. */
+.art {
+  --tilt: -2deg;
+  display: block;
+  width: 100%;
+  height: auto;
+  rotate: var(--tilt);
+  filter: drop-shadow(0 16px 18px rgb(0 0 0 / .3));
+  transition: rotate 350ms cubic-bezier(.2,.8,.2,1), translate 350ms cubic-bezier(.2,.8,.2,1);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tile:has(a:hover) .art { rotate: 0deg; translate: 0 -8px; }
+}
+
+.info {
+  display: grid;
+  justify-items: start;
+  align-content: center;
   gap: 8px;
   min-width: 0;
-  text-align: center;
-}
-
-/* Die ganze Kachel ist der Weg zur Detailseite — Pack, Name und Zeile in
-   einem Link, ohne „Details"-Textlink daneben. Die Fläche selbst ist die
-   Affordanz; der Pack hebt sich beim Hover, der Name wird rot. */
-.tileLink {
-  display: grid;
-  align-content: start;
-  justify-items: center;
-  gap: 8px;
-  width: 100%;
-  color: var(--packs-fg);
-  text-decoration: none;
-}
-
-.tileLink:focus-visible {
-  outline: 2px solid var(--packs-accent);
-  outline-offset: 6px;
-  border-radius: var(--et-radius-photo);
-}
-
-/* Der Pack steht frei auf dem Grund, mit dem Sheet-Schatten — nie auf einer
-   Fläche. */
-.art {
-  display: block;
-  width: min(84%, 320px);
-  height: auto;
-  margin: 6% 0 10%;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
-  transform: rotate(-3deg);
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.tile:nth-child(3n + 2) .art {
-  transform: rotate(2deg);
-}
-
-.tile:nth-child(3n) .art {
-  transform: rotate(-1deg);
-}
-
-.tileLink:focus-visible .art {
-  transform: translateY(-6px) rotate(-5deg) scale(1.03);
-}
-
-@media (hover: hover) {
-  .tileLink:hover .art {
-    transform: translateY(-6px) rotate(-5deg) scale(1.03);
-  }
 }
 
 .tileName {
-  display: block;
   color: var(--packs-fg);
-  font-size: clamp(26px, 2.6vw, 36px);
+  font-size: clamp(28px, 3vw, 44px);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  text-transform: uppercase;
-  transition: color var(--et-motion-fast);
+  letter-spacing: -.045em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: none;
 }
 
-.tileLink:focus-visible .tileName {
-  color: var(--et-accent-text);
-}
-
-@media (hover: hover) {
-  .tileLink:hover .tileName {
-    color: var(--et-accent-text);
-  }
+.tileName:focus-visible {
+  outline: 3px solid var(--packs-fg);
+  outline-offset: 4px;
 }
 
 /* Die Spectrum-Zeile ist die Headline des Packs — „Holzofen. Pinsa. NY-Slice." */
 .spectrum {
-  display: block;
+  margin: 0 0 6px;
   color: var(--packs-muted);
   font-size: var(--et-type-body);
   font-weight: 700;
   line-height: 1.3;
+  text-wrap: balance;
+}
+
+@media (hover: hover) {
+  .tileName:hover { color: var(--et-link); }
 }
 
 /* Der Platz des Kaufknopfes bei einem Pack, das noch keine Karte hat. Keine
@@ -170,79 +151,25 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-top: 16px;
+  margin-top: 4px;
   color: var(--packs-muted);
   font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
-  text-transform: uppercase;
-}
-
-/* Kaufaktionen verwenden auf allen Pack-Seiten dieselbe Akzentfarbe. */
-.buy {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  margin-top: 16px;
-  padding: 0 20px;
-  background: var(--packs-accent);
-  color: var(--et-on-accent);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-decoration: none;
   text-transform: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast),
-    box-shadow var(--et-motion-fast),
-    color var(--et-motion-fast);
 }
 
-.buy:focus-visible {
-  background: var(--et-paper);
-  box-shadow: none;
-  color: var(--et-ink);
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .buy:not(:disabled):hover {
-    background: var(--et-paper);
-    box-shadow: none;
-    color: var(--et-ink);
-    transform: translateY(-2px);
-  }
-}
-
-.buy:active {
-  transform: translateY(0);
-}
-
-.buy:disabled {
-  cursor: wait;
-  transform: none;
-}
-
-.buyError {
-  margin: 8px 0 0;
-  color: var(--et-accent-text);
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.35;
+/* Der Weg zur Detailseite — Preis und Kauf stehen erst dort. Eine ruhige
+   Ink-Pille in der kleinen Grösse (in einer Liste von neun reicht sie);
+   das Rot bleibt dem Kauf vorbehalten.
+   Hover und Fokus: Akzentrot. */
+.view {
+  margin-top: 4px;
 }
 
 @media (max-width: 980px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -256,27 +183,24 @@
   }
 
   .grid {
-    gap: 32px 14px;
+    gap: 20px;
   }
 
-  .art {
-    width: 88%;
+  /* Etwas Luft links, damit das gekippte Pack nicht am Rand klebt. */
+  .tile {
+    --pack-w: 112px;
+    gap: 20px;
+    padding-left: 4px;
   }
-
 
   .tileName {
-    font-size: 22px;
+    font-size: 28px;
   }
 
   .spectrum {
-    font-size: 13px;
+    font-size: 14px;
   }
 
-  .buy {
-    width: 100%;
-    padding-inline: 8px;
-    margin-top: 12px;
-  }
 }
 
 @media (min-width: 1600px) {
@@ -293,7 +217,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .art, .tileName, .buy { transition: none; }
-  .tileLink:focus-visible .art, .tileLink:hover .art { transform: none; }
-  .buy:focus-visible, .buy:hover { transform: none; }
+  .art { transition: none; }
 }

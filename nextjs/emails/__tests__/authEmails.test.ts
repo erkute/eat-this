@@ -159,7 +159,7 @@ describe('SignupEmail', () => {
     expect(html).toContain('DEIN STARTER PACK');
     expect(html).toContain('20 MUST EATS. FÜR DEINEN START.');
     expect(html).not.toContain('GEHT AUF UNS');
-    expect(html).toContain('/pics/email/booster_free.png');
+    expect(html).toContain('/pics/email/starter-pack.png');
     expect(html).toContain('Anmeldelink öffnen');
     expect(SIGNUP_SUBJECT.de).toBe('Dein Anmeldelink für Eat This');
   });

@@ -17,6 +17,10 @@
   --nf-raised: var(--et-ink-raised);
   --nf-display: var(--et-font-display);
   --nf-label: var(--et-font-display);
+  /* Ink-Seite: die Knöpfe (et-btn) stehen weiss darauf. */
+  --et-solid: var(--et-white);
+  --et-on-solid: var(--et-ink);
+  --et-focus: var(--et-white);
 
   box-sizing: border-box;
   display: grid;
@@ -190,63 +194,7 @@
    Cookie-Dialog). Gelb geht beim Zeigen auf Papier, nie auf Ink. */
 .primaryCta,
 .secondaryCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   min-width: 148px;
-  min-height: 50px;
-  padding: 0 24px;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  font-family: var(--nf-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease;
-}
-
-.primaryCta {
-  background: var(--nf-accent);
-  color: var(--et-on-accent);
-}
-
-.secondaryCta {
-  background: var(--nf-raised);
-  color: var(--nf-ink);
-}
-
-.primaryCta:focus-visible {
-  background: var(--nf-ink);
-  color: var(--et-ink);
-  outline: 0;
-}
-
-.secondaryCta:focus-visible {
-  background: var(--nf-accent);
-  color: var(--et-on-accent);
-  outline: 0;
-}
-
-@media (hover: hover) {
-  .primaryCta:hover {
-    background: var(--nf-ink);
-    color: var(--et-ink);
-  }
-
-  .secondaryCta:hover {
-    background: var(--nf-accent);
-    color: var(--et-on-accent);
-  }
-}
-
-.primaryCta:active,
-.secondaryCta:active {
-  transform: translateY(1px);
 }
 
 /* The error boundary renders its retry CTA as a <button> — strip the UA
@@ -254,10 +202,6 @@
    Familie setzen (das UA-Stylesheet setzt sonst Arial); `font: inherit`
    setzte die Groesse gleich mit zurueck, und der Knopf stand sichtbar
    anders hoch als der Link daneben. */
-.ctaButton {
-  cursor: pointer;
-  font-family: var(--nf-display);
-}
 
 /* Eine Sackgasse, die trotzdem Wege anbietet — als leise Textzeile, nicht
    als dritte Reihe Knoepfe. */
@@ -340,7 +284,6 @@
     flex: 1 1 0;
     min-width: 0;
     max-width: 200px;
-    padding: 0 12px;
   }
 }
 
@@ -350,8 +293,6 @@
     transform: rotate(var(--nf-tilt));
   }
 
-  .primaryCta,
-  .secondaryCta,
   .moreLink {
     transition: none;
   }

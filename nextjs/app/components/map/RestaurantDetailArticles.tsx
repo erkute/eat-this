@@ -21,7 +21,7 @@ export default function RestaurantDetailArticles({ articles, locale }: Props) {
   return (
     <section className={detail.rdMustSection} aria-label={heading}>
       <div className={`${detail.rdMustHead} ${styles.header}`}>
-        <h2 className={detail.rdSecH}>{heading}</h2>
+        <h3 className={`et-label ${detail.rdSecH}`}>{heading}</h3>
         <p className={detail.rdMustSub}>
           {de ? 'Hier haben wir über diesen Spot geschrieben.' : 'We wrote about this place.'}
         </p>
@@ -45,9 +45,10 @@ export default function RestaurantDetailArticles({ articles, locale }: Props) {
                   />
                 </span>
                 <span className={styles.copy}>
-                  {kicker && <span className={styles.kicker}>{kicker}</span>}
+                  {(kicker || date) && (
+                    <span className={styles.meta}>{[kicker, date].filter(Boolean).join(' · ')}</span>
+                  )}
                   <span className={styles.title}>{title}</span>
-                  {date && <time className={styles.date} dateTime={article.date}>{date}</time>}
                 </span>
               </MagazineLink>
             </li>

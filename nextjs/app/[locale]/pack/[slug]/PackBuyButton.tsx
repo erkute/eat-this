@@ -97,7 +97,7 @@ export default function PackBuyButton({
 
   if (alreadyOwned || (state === 'owned' && conflictUid === (user?.uid ?? null))) {
     return (
-      <Link className={className ?? styles.cta} href={ownedHref}>
+      <Link className={className ? `et-btn et-btn-lg ${className}` : 'et-btn et-btn-lg'} href={ownedHref}>
         {ownedLabel}
       </Link>
     );
@@ -107,7 +107,7 @@ export default function PackBuyButton({
     <>
       <button
         type="button"
-        className={className ?? styles.cta}
+        className={className ? `et-btn et-btn-lg ${className}` : 'et-btn et-btn-lg'}
         onClick={onBuy}
         disabled={state === 'pending' || owned === null}
         aria-busy={state === 'pending' || owned === null}

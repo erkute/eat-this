@@ -4,12 +4,9 @@ import { localeUrl } from '@/lib/locale-url';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { schemaImageUrl } from '@/lib/sanity-image-presets';
 import type { MapRestaurant } from '@/lib/types';
-import type { MapFaqEntry } from '@/lib/map/mapSeoCopy';
 
 interface BuildMapJsonLdArgs {
   locale: 'de' | 'en';
-  /** Wörtlich die FAQ, die MapSeoFooter rendert — siehe lib/map/mapSeoCopy.ts. */
-  faqs: MapFaqEntry[];
   /** Name der ItemList, in der Sprache der Seite. */
   listName: string;
   /** Genau die Spots, die im ausgelieferten HTML als Zeilen stehen. */
@@ -17,7 +14,9 @@ interface BuildMapJsonLdArgs {
 }
 
 /**
- * WebPage + FAQPage + ItemList für `/map`.
+ * WebPage + ItemList für `/map`. Kein FAQPage mehr: der Textblock mit den
+ * Fragen am Listenende ist seit 22.10.2026 weg (Betreiber), und ein FAQPage
+ * ohne sichtbare Fragen wäre eine Behauptung über die Seite.
  *
  * Das Seitenbild ist die Markenkarte, nicht ein Restaurantfoto: die Karte zeigt
  * keinen Ort, sondern alle, und `primaryImageOfPage` soll sagen, was Google als
@@ -33,7 +32,6 @@ interface BuildMapJsonLdArgs {
  */
 export function buildMapJsonLd({
   locale,
-  faqs,
   listName,
   restaurants,
 }: BuildMapJsonLdArgs): string {
@@ -49,18 +47,6 @@ export function buildMapJsonLd({
         image: brandCard,
         caption: 'EAT THIS – We tell you what to eat',
       }),
-      ...(faqs.length > 0
-        ? [
-            {
-              '@type': 'FAQPage',
-              mainEntity: faqs.map(({ q, a }) => ({
-                '@type': 'Question',
-                name: q,
-                acceptedAnswer: { '@type': 'Answer', text: a },
-              })),
-            },
-          ]
-        : []),
       ...(restaurants.length > 0
         ? [
             {

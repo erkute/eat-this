@@ -163,13 +163,13 @@ export default function NotificationToast() {
             <span className="notification-actions">
               {notice.action ? (
                 <>
-                  <button type="button" className="notification-quiet" onClick={dismiss}>
+                  <button type="button" className="et-btn et-btn-alt notification-quiet" onClick={dismiss}>
                     {dismissLabel}
                   </button>
                   <button
                     ref={primaryRef}
                     type="button"
-                    className="notification-primary"
+                    className="et-btn notification-primary"
                     onClick={() => {
                       const run = notice.action?.onClick;
                       present(null);
@@ -183,7 +183,7 @@ export default function NotificationToast() {
                 <button
                   ref={primaryRef}
                   type="button"
-                  className="notification-primary"
+                  className="et-btn notification-primary"
                   onClick={dismiss}
                 >
                   {dismissLabel}

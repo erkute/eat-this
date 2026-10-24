@@ -1,245 +1,143 @@
-/* Full labels stay visible. Long selections get more room; very narrow
-   panels use two rows rather than abbreviating district names. */
+/* Folded white paper, heavy black type; dark mode uses the same material
+   multiplied into the ground. Phone pickers remain modal, desktop inline. */
 .listHeader {
   position: relative;
   flex-shrink: 0;
   container-type: inline-size;
+  background: var(--et-ground);
+  color: var(--et-fg);
+  padding-bottom: 10px;
 }
-
 .filterChipRow {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto auto;
+  align-items: center;
+  gap: 4px;
   width: 100%;
   min-width: 0;
-  padding: 8px 10px 12px;
+  padding: 6px 8px 0;
   box-sizing: border-box;
-  background: var(--et-ink);
+  touch-action: pan-x pan-y;
 }
-
 .filterChipWrap {
   position: relative;
   display: flex;
-  flex: 1 1 0;
-  min-width: min-content;
-  border-radius: var(--et-radius-control);
-  overflow: visible;
-}
-.filterChipWrapActive {
   min-width: 0;
-  background: var(--et-accent);
-  color: var(--et-on-accent);
 }
-.filterChipWrapLong { flex-grow: 1.25; min-width: max-content; }
-
 .filterChipRow .filterChip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 1 1 auto;
-  gap: 4px;
   min-width: 0;
-  min-height: 44px;
-  padding: 8px 7px;
-  background: var(--et-ink-raised);
-  color: var(--et-white);
+  min-height: 40px;
+  padding: 0 7px;
   border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: 0;
-  text-transform: none;
+  border-radius: 0;
+  background-color: var(--et-ground);
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 400px 600px;
+  background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
+  background-blend-mode: multiply;
+  color: var(--et-fg);
+  font: 800 11px / 1.2 var(--et-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   appearance: none;
-  transform: none;
-  filter: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  text-shadow: none;
+  transition: background-color 120ms ease, color 120ms ease;
 }
-.filterChipRow .filterChipActive {
-  background: transparent;
-  color: var(--et-on-accent);
-  padding-inline: 6px 10px;
-  border-radius: var(--et-radius-control);
-}
+.filterChipRow > :nth-child(2) { --filter-paper-x: -100px; --filter-paper-y: -400px; }
+.filterChipRow > :nth-child(3) { --filter-paper-x: -220px; --filter-paper-y: -80px; }
+.filterChipRow > :nth-child(4) { --filter-paper-x: -300px; --filter-paper-y: -480px; }
 .filterChipRow .filterChipLabel {
   display: block;
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
   font: inherit;
-  /* Keep Providence's descenders and the complete selected name. */
-  line-height: 1.4;
-  white-space: normal;
-  text-wrap: balance;
   color: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.filterChevron {
-  display: flex;
-  flex: 0 0 10px;
-  width: 10px;
-  height: 10px;
-  transform: rotate(-90deg);
+/* Jeder gesetzte oder geöffnete Filter bleibt ein schwarzes Knitterblatt. */
+.filterChipRow .filterChipActive,
+.filterChipRow .filterChip[aria-expanded='true'] {
+  background-color: #fff;
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 400px 600px;
+  background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
+  background-blend-mode: difference;
+  color: #fff;
 }
-.filterChevron svg { width: 100%; height: 100%; }
-.filterChip[aria-expanded='true'] .filterChevron { transform: rotate(90deg); }
-
-/* Small corner badge as requested. A separate sibling keeps button markup
-   valid; its hit area grows inward, never over the neighbouring filter. */
+.filterChipRow .filterChipOpenActive {
+  background-color: var(--et-status-open);
+  background-blend-mode: multiply;
+  color: var(--et-ink);
+}
+.filterChipRow .filterChipActive { padding-right: 28px; }
+/* Separate sibling button, so clearing a filter never nests buttons. */
 .filterChipClear {
   position: absolute;
-  top: -5px;
+  top: 50%;
   right: 0;
   z-index: 1;
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 40px;
   padding: 0;
-  background: var(--et-ink);
-  color: var(--et-accent-text);
   border: 0;
-  border-radius: 50%;
-  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
+  color: #fff;
   cursor: pointer;
   appearance: none;
   touch-action: manipulation;
-  transform: none;
+  transform: translateY(-50%);
 }
-.filterChipClear::before {
-  content: '';
-  position: absolute;
-  inset: -4px 0 -14px -9px;
+.filterChipClear svg { width: 12px; height: 12px; }
+.filterChipRow .filterChip:focus-visible {
+  outline: 2px solid var(--et-fg);
+  outline-offset: -2px;
 }
-.filterChipClear svg { width: 11px; height: 11px; }
-
-.filterChipRow .filterOpenToggle {
-  flex: 0 0 auto;
-  gap: 5px;
-  padding-inline: 8px;
-}
-.filterOpenToggle::before {
-  content: '';
-  flex: 0 0 5px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #79d69b;
-}
-.filterChipRow .filterChipOpenActive {
-  background: #1f8f4d;
-  color: #fff;
-}
-.filterChipOpenActive::before { background: currentColor; }
-
-.filterChipRow .filterChip:focus-visible,
-.filterChipClear:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -3px;
-}
-/* Aufgeklappt: eine Flächenstufe wie beim Hover, kein Unterstrich — auf der
-   Karte hebt sich nichts per Linie ab (keine-Konturen-Regel, 23.09.2026).
-   Ein gesetzter (gelber) Chip bleibt gelb. */
-.filterChipRow .filterChip[aria-expanded='true']:not(.filterChipActive):not(.filterChipOpenActive) {
-  background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
-}
+.filterChipClear:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
 @media (hover: hover) {
-  .filterChipRow .filterChip:hover {
-    background: linear-gradient(var(--et-ink-quiet), var(--et-ink-quiet)), var(--et-ink-raised);
+  .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):not([aria-expanded='true']):hover {
+    background-color: color-mix(in srgb, var(--et-fg) 8%, var(--et-ground));
   }
-  .filterChipRow .filterChipActive:hover { background: rgba(21, 18, 14, 0.08); }
-  .filterChipClear:hover { background: var(--et-red); color: var(--et-white); }
-  .filterChipRow .filterChipOpenActive:hover { background: #176f3c; }
+  .filterChipClear:hover { opacity: 0.65; }
 }
 .filterChipRow .filterChip:active,
-.filterChipClear:active { transform: none; }
+.filterChipClear:active { translate: none; }
 
-/* ── Telefon ──────────────────────────────────────────────────────────────────
-   Die Leiste klebt oben, sobald die Liste darunter scrollt. Eigene
-   Compositing-Ebene, weil der sticky Header sonst pro Scrollschritt neu
-   rastert und die rechte Kachel veralteten Text malt — der letzte Chip zeigte
-   beim Scrollen verstümmelte Glyphen (User 2026-07-04). */
 @media (max-width: 767.98px) {
+  .filterChipRow .filterChip { min-height: 44px; }
+  .filterChipClear { height: 44px; }
+  .pickerClose { min-width: 48px; min-height: 48px; }
   .listHeader {
     position: sticky;
-    /* Below the map strip (MapLayout.module.css), which also covers the
-       status-bar band — carrying the inset here as padding reserved the
-       space at every scroll position and left dead space above the chips. */
     top: var(--map-strip, env(safe-area-inset-top, 0px));
-    /* Above the rows (the sheet is a stacking context, MapSheet.module.css). */
     z-index: 8;
-    background: var(--et-ink);
-    /* The sheet's edge lives here, not on the sheet (MapSheet.module.css:
-       the sheet is see-through on phones so the slot this bar leaves when it
-       sticks shows map, not a dark band). */
-    border-top: 1px solid var(--et-ink-line);
-    border-radius: 10px 10px 0 0;
-    /* Seals the seam to the rows below. The sheet sits on fractional pixels,
-       and with the see-through sheet behind the antialiased edge let a hair
-       of map through between bar and rows. */
-    box-shadow: 0 1px 0 0 var(--et-ink);
+    border-radius: 0;
+    /* Retain the compositor layer while the sheet moves on Safari. */
     will-change: transform;
     transform: translateZ(0);
-    /* Native swipes also work when they start on a filter chip. */
     touch-action: pan-y pinch-zoom;
     -webkit-user-select: none;
     user-select: none;
   }
-
-  .filterChipRow { gap: 6px; }
 }
-
-/* ══ Picker ═══════════════════════════════════════════════════════════════════
-   Die Auswahl-Liste hinter jedem Chip. Unter 1024px ein Bottom-Sheet, ab
-   1024px klappt sie in der Kopfzeile auf (`.pickerSheetInline`) — dieselbe
-   Komponente, den Modus wählt MapListHeader per matchMedia.
-
-   Diese Sektion ist bewusst konfliktfrei geschrieben: ein Block pro Element und
-   Zustand, Zustände über sich ausschließende Selektoren getrennt. Vorher lag
-   `.pickerList` in fünf Blöcken über die Datei verteilt, `.pickerItem` in fünf,
-   `.pickerSheet` in vier — mit dem Ergebnis, dass Regeln einander unbemerkt
-   überschrieben (der Desktop-Scroll-Bug kam genau daher). Wer hier etwas ändert,
-   ändert es an genau einer Stelle. */
-
-@keyframes pickerBackdropIn {
-  from {
-    background: rgba(0, 0, 0, 0);
-  }
-  to {
-    background: rgba(0, 0, 0, 0.36);
-  }
-}
-
 @keyframes pickerSheetIn {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
+  from { transform: translateY(24px); }
+  to { transform: translateY(0); }
 }
-
-/* Gerade genug, um den Rest des Bildschirms als inaktiv zu markieren, nicht
-   genug, um wie eine Milchglasscheibe über der Karte zu wirken. 8 % war
-   unsichtbar, 42 % (29.07.2026 probiert) sah aus, als hätte jemand die Karte
-   vernebelt. Nur das Bottom-Sheet hat einen Backdrop; aufgeklappt gibt es
-   keinen. */
 .pickerBackdrop {
   position: fixed;
   inset: 0;
-  /* Modals müssen über die Navbar (--et-z-nav), um sie zu decken. */
   z-index: var(--et-z-picker);
-  /* Schwarz, nicht Ink: der Vorhang liegt auf einer Ink-Seite, und
-     rgba(21,18,14,…) IST diese Seite — jede Deckkraft aendert dort exakt
-     nichts. Siehe --et-scrim in globals.css. */
-  background: rgba(0, 0, 0, 0.16);
-  animation: pickerBackdropIn 0.18s ease-out;
+  background: rgb(0 0 0 / 0.24);
 }
-
 .pickerSheet {
   position: fixed;
   left: 0;
@@ -251,18 +149,16 @@
   overflow: visible;
   width: min(360px, calc(100vw - 24px));
   max-height: 70vh;
-  padding: 8px;
-  /* Eine Stufe ueber dem Grund (--et-ink-raised in globals.css): das Sheet
-     oeffnet auf der Karte, und die ist genauso dunkel. */
-  background: var(--et-ink-raised);
-  color: var(--et-white);
-  /* Keine Haarlinie drumherum — die Flaeche traegt (User, 23.09.2026). */
+  padding: 12px;
+  background-color: var(--et-ground);
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+  color: var(--et-fg);
   border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: var(--et-ink-shadow);
-  animation: pickerSheetIn 0.22s cubic-bezier(0.16, 0.84, 0.44, 1);
+  border-radius: 0;
+  animation: pickerSheetIn 180ms ease-out;
 }
-
 .pickerHead {
   position: relative;
   z-index: 1;
@@ -270,27 +166,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 36px;
-  padding: 0 4px 8px 8px;
-  color: inherit;
+  min-height: 44px;
+  padding: 0 0 12px 8px;
 }
-
-/* line-height 1.35 wie bei den Zeilen darunter: bei 1 war die Zeile 15px hoch,
-   Providence braucht 17,7px, und `overflow: hidden` fürs Ellipsis hat dem „g"
-   in „Kategorie wählen" die Unterlänge abgeschnitten (User, 2026-08-27). Der
-   Kopf wächst nicht — er hat 36px Mindesthöhe, gebraucht werden 28. */
 .pickerTitle {
   min-width: 0;
-  overflow: hidden;
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin: 0;
+  font: 800 24px / 1.15 var(--et-font-body);
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
 }
-
 .pickerClose {
   display: inline-flex;
   align-items: center;
@@ -302,324 +187,104 @@
   background: transparent;
   color: inherit;
   border: 0;
-  border-radius: 50%;
-  font-family: var(--et-font-display);
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
+  border-radius: 0;
   cursor: pointer;
 }
-
-.pickerClose:focus-visible {
-  background: var(--et-ink-quiet);
-  color: var(--et-accent-text);
-  outline: 0;
-}
-
+.pickerClose svg { width: 24px; height: 24px; }
+.pickerClose:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
 @media (hover: hover) {
-  .pickerClose:hover {
-    background: var(--et-ink-quiet);
-    color: var(--et-accent-text);
-    outline: 0;
-  }
+  .pickerClose:hover { background: var(--et-subtle); }
 }
-
-/* `min-height: 0` ist der Flexbox-Overflow-Trick: ohne ihn weigert sich das
-   Flex-Item, unter seine Inhaltshöhe zu schrumpfen, und `overflow-y` hat nichts
-   zu kappen — die Liste wird auf iOS unscrollbar. `touch-action: pan-y` sagt dem
-   Browser, dass hier gescrollt und nicht das Map-Sheet gezogen werden soll.
-
-   Das `padding-bottom` ist der „da kommt noch was"-Hinweis: die letzte Zeile
-   endet kurz vor der Kante statt bündig daran. Ein Mask-Fade war die Alternative
-   (29.07.2026) und sah aus, als löse sich die Zeile auf. */
 .pickerList {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  gap: 7px;
+  gap: 0 12px;
   max-height: min(58vh, 470px);
   padding: 0 0 10px;
   overflow: auto;
-  background: transparent;
   scroll-padding-bottom: 14px;
   overscroll-behavior: contain;
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
 }
-
 .pickerItem {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 8px;
   width: 100%;
-  min-height: 42px;
-  padding: 10px 12px;
-  /* Die Fuellung traegt, kein Ring — wie die Chips, aus denen diese Liste
-     aufklappt (User, 23.09.2026: keine Rahmen). Eine Spur heller als das
-     Fenster (--et-ink-raised), auf dem sie liegt. */
-  background: var(--et-ink-quiet);
-  color: var(--et-white);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  appearance: none;
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.1;
-  text-align: left;
-  text-transform: none;
-  cursor: pointer;
-  transition:
-    background 120ms ease,
-    color 120ms ease;
-}
-
-/* Weiss 14 % als Hervorhebung — Fokus, Hover und Druck teilen sie sich.
-   Vorher stand hier `rgba(21, 18, 14, 0.86)`, eine Ink-Fuellung aus der Zeit
-   vor dem Ink-Umbau der Map: auf dem hellen Sheet von damals war das die
-   Hervorhebung, auf dem dunklen von heute ist sie gemessen ΔL* 0,0 — also
-   nichts. Fokus und Hover waren damit seit dem Umbau unsichtbar, und der
-   Druckzustand hat den Fehler zuerst geerbt. Weiss 14 % ergibt ΔL* 15,9. */
-.pickerItem:focus-visible {
-  background: var(--et-ink-line);
-  color: var(--et-white);
-  outline: 0;
-  transform: none;
-}
-
-@media (hover: hover) {
-  .pickerItem:hover {
-    background: var(--et-ink-line);
-    color: var(--et-white);
-    outline: 0;
-    transform: none;
-  }
-}
-
-/* Druck: dieselbe Füllung wie Hover und Fokus. Auf einer Zeile über die ganze
-   Breite ist die Füllung die einzige Rückmeldung, die man wirklich sieht — die
-   1px Absenkung aus globals.css gehen darin unter. Ungesperrt, denn genau auf
-   dem Telefon ist sie die einzige, die es gibt. */
-.pickerItem:active {
-  background: var(--et-ink-line);
-  color: var(--et-white);
-  outline: 0;
-}
-
-/* Ausgewählte Zeile: Akzentfüllung mit Ink-Text. Vorher rendete sie mit
-   byte-identischen Werten wie eine normale Zeile — `font-weight: 900` hat auf
-   einer Schrift mit nur einem Schnitt keine Wirkung, und der Ink-Hintergrund
-   wurde weiter unten nochmal gesetzt. Man konnte nicht sehen, was man gewählt
-   hatte. */
-.pickerItemActive,
-.pickerItemActive:focus-visible {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  border-color: var(--et-accent);
-  box-shadow: none;
-  filter: none;
-  text-shadow: none;
-  transform: none;
-}
-@media (hover: hover) {
-  .pickerItemActive:hover {
-    background: var(--et-accent);
-    color: var(--et-on-accent);
-    border-color: var(--et-accent);
-    box-shadow: none;
-    filter: none;
-    text-shadow: none;
-    transform: none;
-  }
-}
-
-/* Die gewählte Zeile bleibt beim Drücken gelb — sonst schlüge die Ink-Füllung
-   oben durch (`.pickerItem:active` ist spezifischer als `.pickerItemActive`)
-   und die Auswahl sähe für einen Moment aus wie eine gewöhnliche Zeile. */
-.pickerItemActive:active {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  border-color: var(--et-accent);
-  box-shadow: none;
-  filter: none;
-  text-shadow: none;
-}
-
-/* Zeilen, hinter denen wirklich nichts steht — weder frei noch gesperrt. Sie
-   bleiben stehen (Weglassen sortiert den Picker zwischen zwei Öffnungen um,
-   und „Peruanisch: 0" ist eine echte Antwort), sind aber nicht mehr wählbar:
-   ein Tap führte auf eine Liste, die nur „0 Treffer" sagen konnte.
-
-   Erkennbar wird das an der weggenommenen Fläche. Jede wählbare Zeile ist
-   eine gefüllte Karte; diese hier verliert die Füllung und steht flach auf
-   dem Fenster, ohne Umriss (keine Rahmen, User 23.09.2026) — ein anderer
-   Zeilentyp, nicht dieselbe Zeile im Nebel. Der Text bleibt lesbar, denn die Zahl daneben ist die
-   Begründung; Deko, die man nicht mehr entziffert, erklärt nichts. Cursor und
-   Hover bestätigen es beim Anfassen, und `disabled` nimmt die Zeile aus der
-   Tab-Reihenfolge. Der Weg aus einer Null führt über die „Alle"-Zeile ganz
-   oben oder einen anderen Chip — beide bleiben immer wählbar. */
-.pickerItemDead {
-  background: transparent;
-  color: var(--et-ink-dim);
-  box-shadow: none;
-  cursor: default;
-}
-
-.pickerItemDead:focus-visible {
-  background: transparent;
-  color: var(--et-ink-dim);
-}
-
-@media (hover: hover) {
-  .pickerItemDead:hover {
-    background: transparent;
-    color: var(--et-ink-dim);
-  }
-}
-
-.pickerItemDead .pickerItemSub {
-  opacity: 0.8;
-}
-
-/* line-height 1.35, nicht 1.1: Providence hat bei 15px eine 7,3px tiefe
-   Unterlänge, die Zeile war aber nur 16,5px hoch — dem „g" in „Charlottenburg"
-   fehlten unten 1,2px, und `overflow: hidden` (das das Ellipsis trägt) hat sie
-   abgeschnitten (User, 2026-08-27). Die Zeile wächst dadurch nicht: 10px
-   Innenabstand + 20,25px + 10px bleiben unter den 42px Mindesthöhe. */
-.pickerItemLabel {
-  flex: 1 1 auto;
   min-width: 0;
-  overflow: visible;
+  min-height: 48px;
+  padding: 8px;
+  border: 0;
+  border-bottom: 1px solid var(--et-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--et-fg);
+  appearance: none;
+  font-family: var(--et-font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.pickerItemActive { background: var(--et-fg); color: var(--et-ground); }
+.pickerItem:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
+@media (hover: hover) {
+  .pickerItem:not(:disabled):not(.pickerItemActive):hover { background: var(--et-subtle); }
+}
+.pickerItem:active { translate: none; }
+.pickerItemDead,
+.pickerItemDead:hover { color: var(--et-muted); cursor: default; }
+.pickerItemLabel {
+  min-width: 0;
   color: inherit;
-  font-family: var(--et-font-display);
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.35;
-  text-transform: none;
-  white-space: normal;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
-
 .pickerItemSub {
-  flex-shrink: 0;
+  flex: none;
   color: inherit;
-  opacity: 0.62;
-  font-family: var(--et-font-display);
+  opacity: 0.65;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.1;
-  text-transform: none;
+  font-variant-numeric: tabular-nums;
 }
-
-.pickerItemActive .pickerItemSub {
-  opacity: 0.55;
-}
-
-/* ── Mobile: Bottom-Sheet, bündig an Unterkante und Rändern ─────────────────
-   Kein Abstand zur URL-Leiste und keiner zu den Seiten: Fenster und Leiste
-   sollen eine Fläche sein (User, 23.09.2026). iOS 26 Safari färbt seine
-   untere Leiste nach einem deckenden fixierten Element, das die Kante
-   berührt und fast die ganze Breite hat — genau das ist dieses Sheet, also
-   steht die Leiste in seinem --et-ink-raised. Die Farbe klebt nicht nach:
-   Safari behält sie nur, solange das Element gerendert bleibt, und
-   MapListHeader hängt das Sheet beim Schließen ganz aus. Nur die oberen Ecken
-   sind rund; unten hält das Polster die Kacheln über dem Home-Balken. */
 @media (max-width: 1023.98px) {
   .pickerSheet {
     width: auto;
     max-height: min(66dvh, 560px);
-    padding: 8px 12px calc(12px + env(safe-area-inset-bottom, 0px));
-    border-radius: 10px 10px 0 0;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px));
   }
-
-  /* Zwei Spalten, wie im aufgeklappten Panel und aus demselben Grund: die elf
-     Bezirke plus "Alle" brauchten einspaltig 591px in einer 470px hohen Liste,
-     drei Zeilen standen also unter der Kante (User, 29.08.2026). Zweispaltig
-     sind es sechs Zeilen und 297px — die ganze Auswahl steht auf einmal da,
-     auch auf einem 667px-Telefon. `overflow-y: auto` bleibt als Ventil, falls
-     eine Liste doch einmal über den Deckel hinauswächst. */
-  .pickerList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* Zwei Pixel weniger Polster je Seite: „Prenzlauer Berg" ist der längste
-     Wert im Katalog und braucht in der halbierten Spalte jeden davon. */
-  .pickerItem {
-    padding: 10px 10px;
-  }
+  .pickerList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-
-/* ── Aufgeklappt statt schwebend ────────────────────────────────────────────
-   Die Auswahl steht in der Leiste und schiebt die Ergebnisse nach unten
-   (User, 2026-08-27), statt darüber zu schweben. Alles, was das Bottom-Sheet
-   ausmacht, fällt weg: feste Position, Fläche, Schatten, Einflug.
-
-   Bewusst OHNE Media Query, obwohl nur der Desktop so aufklappt: über den
-   Modus entscheidet `matchMedia` in MapListHeader, und wenn die Styles an
-   einem Breakpoint hängen statt an der Klasse, können beide auseinanderlaufen
-   — beim Verkleinern stand genau deshalb kurz eine Mischform da, ein
-   `role="group"` im Bottom-Sheet-Layout ohne Backdrop. Die Klasse kommt jetzt
-   nur, wenn der Modus gilt, und bringt ihr Aussehen selbst mit.
-
-   Steht am Ende der Sektion, also nach `.pickerSheet`: gleiche Spezifität,
-   die Reihenfolge entscheidet. */
 .pickerSheetInline {
   position: static;
   width: auto;
   max-height: none;
-  margin: 8px 0 2px;
-  /* Aufgeklappt steht die Liste IM weißen Panel, nicht über der Karte: sie ist
-     kein eigenes Objekt, das dort aufliegt, sondern die Fortsetzung der
-     Chip-Zeile. Deshalb gar keine Fläche — die Haarlinie davor las sich als
-     aufgezeichneter Kasten, eine getönte Wanne als grauer Fremdkörper auf
-     Weiß, und beide brachten eine Rundung mit, die es hier nicht zu runden
-     gibt. Getrennt wird über Abstand; die Kanten machen die Knöpfe selbst,
-     die auf derselben Linie stehen wie die Chips darüber. Der Seitenrand ist
-     der der Chip-Zeile (12px), sonst stehen Titel und Knöpfe 12px weiter
-     links als die Chips, aus denen sie kommen. */
-  padding: 0 12px;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  margin: 14px 0 8px;
+  padding: 8px;
   animation: none;
 }
-
-/* Titelzeile bündig zu den Knöpfen darunter — das 8px-Polster gehört dem
-   Bottom-Sheet, das eine eigene Fläche hat. */
-.pickerSheetInline .pickerHead {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-/* Zwei Spalten: die aufgeklappte Liste ist so breit wie das Panel (379px).
-   Bei drei Spalten blieben ~115px pro Zeile, und „unter 10 €" brach zu
-   „unter 1…" ab. */
+.pickerSheetInline .pickerHead { padding-left: 8px; padding-right: 0; }
 .pickerSheetInline .pickerList {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-height: none;
+  max-height: min(52vh, 480px);
   overflow-y: auto;
 }
-
-/* Price follows its short label; category and district share the remaining room. */
-.filterChipWrap.filterChipCompact { flex: 0 0 auto; min-width: 58px; }
+@media (min-width: 1024px) {
+  /* 40px Papierfläche und Burger liegen beide mittig auf y=36px. */
+  .filterChipRow { padding: 16px 8px 0; }
+}
 @container (max-width: 374px) {
-  .filterChipRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .filterChipRow .filterChip { font-size: 12px; }
+  .filterChipRow { padding-inline: 4px; }
+  .filterChipRow .filterChip { padding-inline: 6px; letter-spacing: 0; }
+  .filterChipRow .filterChipActive { padding-right: 28px; }
 }
-@media (max-width: 374px) {
-  .pickerItemLabel { font-size: 13px; }
-}
-/* Providence descenders extend below the line box even at 1.35 line-height. */
-.filterChipRow .filterChipLabel,
-.pickerTitle,
-.pickerItemLabel {
-  padding-bottom: 0.22em;
-  margin-bottom: -0.22em;
+@media (max-width: 374px) { .pickerItemLabel { font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) {
+  .pickerSheet { animation: none; }
+  .filterChipRow .filterChip,
+  .pickerItem { transition: none; }
 }

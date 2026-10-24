@@ -3,8 +3,8 @@
  * sich leicht bewegt"). A small WebGL renderer, no library: one grid per side,
  * bulged into a pillow — flat at the crimped seals top and bottom, rounded
  * between the side folds — printed with the pack art on the front and the
- * pack's back on the back (01.10.2026, the operator's back-side picture:
- * logo, the four lines, „20 Must Eats", barcode). The colours stay those of
+ * pack's back on the back (since 21.10.2026 the red Starter Pack: wordmark,
+ * claim, the four lines of the old back, barcode). The colours stay those of
  * the pictures; light only
  * shades the bulge a little where the foil turns away. Earlier passes with
  * reflections, crinkles and highlights read as glow and glitter.
@@ -31,8 +31,8 @@ const COLS = 48;
 const ROWS = 74;
 const FOV = (30 * Math.PI) / 180;
 const DISTANCE = 3.2;
-/** Pack art 1008 × 1560: width 1, height in proportion. */
-const HEIGHT = 1560 / 1008;
+/** Pack art 945 × 1491 (starter-pack-front.webp): width 1, height in proportion. */
+const HEIGHT = 1491 / 945;
 const BULGE = 0.075;
 
 const VERTEX = `
@@ -81,7 +81,7 @@ void main() {
   // light only lets the bulge read: a little darker where the foil turns
   // away, never brighter than the print.
   // The back picture is stored mirrored, so the same uv reads right way
-  // round from behind; it has the front's silhouette (booster-back.webp).
+  // round from behind; it has the front's silhouette (starter-pack-back.webp).
   vec3 base = vSide > 0.0 ? art.rgb : texture2D(uBack, vUv).rgb;
   vec3 n = normalize(vNormal);
   float facing = max(dot(n, normalize(vec3(-0.3, 0.45, 1.0))), 0.0);
@@ -256,11 +256,14 @@ export function renderPack(
 /** The idle sway at `seconds`: a slow turn left and right, a little nod and
  *  roll, floating up and down — never so far that the back shows; a tap
  *  turns it once all the way round. */
+/** How far the pack bobs up and down at rest, in world units. */
+export const IDLE_LIFT = 0.035;
+
 export function idlePose(seconds: number): PackPose {
   return {
     rotateY: 0.3 * Math.sin(seconds * 0.55),
     rotateX: 0.09 * Math.sin(seconds * 0.37 + 1.3),
     rotateZ: 0.035 * Math.sin(seconds * 0.29 + 0.7),
-    lift: 0.035 * Math.sin(seconds * 0.8),
+    lift: IDLE_LIFT * Math.sin(seconds * 0.8),
   };
 }

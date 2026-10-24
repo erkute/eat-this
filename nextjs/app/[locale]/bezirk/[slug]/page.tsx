@@ -23,6 +23,7 @@ import {
 } from '@/app/components/HubIssue';
 import DistrictHeader from '@/app/components/DistrictHeader';
 import DistrictMapReturn from '@/app/components/DistrictMapReturn';
+import DistrictPaperFooter from '@/app/components/DistrictPaperFooter';
 import Image from '@/app/components/SiteImage';
 import {
   HubFilterProvider,
@@ -236,9 +237,10 @@ export default async function BezirkDetailPage({ params }: PageProps) {
           </div>
         </HubFilterProvider>
 
-        {/* Zuletzt der Ausgang: wer unten ankommt, fragt „und wo noch?". */}
-        <DistrictMapReturn locale={loc} />
       </main>
+      <DistrictPaperFooter paperId={`district-paper-${loc}-${slug}`}>
+        <DistrictMapReturn locale={loc} />
+      </DistrictPaperFooter>
     </>
   );
 }

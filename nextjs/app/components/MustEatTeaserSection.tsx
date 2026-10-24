@@ -122,7 +122,7 @@ export default function MustEatTeaserSection({ mustEats, name, locale, className
       <div className={styles.actions}>
         <MapIntentLink
           href={`/map?me=${first}`}
-          className={classNames.button}
+          className={`et-btn ${classNames.button}`}
           onClick={(event) => handleClick(event, first)}
         >
           {t.reveal}

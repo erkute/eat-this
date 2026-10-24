@@ -1,3 +1,7 @@
+/* Reinweiss, ohne Papierkorn, Kanten oder Folie (Ansage 22.10.2026): die
+   Statusleiste am iPhone färbt Safari mit genau einer Vollfarbe nach dem
+   Kopf ein — Struktur kann sie nicht zeigen. Glatt sind Kopf und Leiste
+   eine Fläche. Dunkel dasselbe in Ink. */
 .nav {
   position: fixed;
   inset: 0 0 auto;
@@ -9,16 +13,28 @@
   /* Höhe und der Abstand, den die Seiten dafür freihalten, kommen aus
      derselben Variable (globals.css). */
   height: var(--site-nav-h);
-  padding: env(safe-area-inset-top, 0px) clamp(12px, 3vw, 32px) 0;
-  color: #fff;
-  background: #15120e;
+  padding: env(safe-area-inset-top, 0px) clamp(12px, 1.4vw, 20px) 0;
+  color: var(--et-fg);
+  background: transparent;
   border: 0;
   box-shadow: none;
 }
 
-.nav::before,
 .nav::after {
   content: none;
+}
+
+/* Die Fläche des Kopfs, eine eigene Ebene: am Telefon fährt sie mit dem
+   Inhalt weg (siehe unten). Auch oben auf der Startseite steht der Kopf auf
+   seiner Fläche, nicht durchsichtig über dem Aufmacher (Ansage 22.10.2026:
+   „nicht gelb am Anfang"). */
+.nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--et-ground);
+  pointer-events: none;
 }
 
 .nav[data-nav-page='map'] {
@@ -56,7 +72,7 @@
   width: auto;
   min-width: max-content;
   height: 44px;
-  color: #fff;
+  color: var(--et-fg);
   text-decoration: none;
   transform: translate(-50%, -50%);
 }
@@ -75,7 +91,7 @@
   min-width: auto;
   height: 44px;
   padding: 0;
-  color: #fff;
+  color: var(--et-fg);
   text-decoration: none;
   appearance: none;
   background: transparent;
@@ -88,7 +104,7 @@
 
 .control:active,
 .control:focus-visible {
-  color: #fff;
+  color: var(--et-fg);
   background: transparent;
   box-shadow: none;
   transform: none;
@@ -96,7 +112,7 @@
 
 @media (hover: hover) {
   .control:hover {
-    color: #fff;
+    color: var(--et-fg);
     background: transparent;
     box-shadow: none;
     transform: none;
@@ -108,51 +124,16 @@
   outline-offset: 4px;
 }
 
-@keyframes navHorrorShiver {
-  0% {
-    transform: translate(0, 0) rotate(0deg) skewX(0deg);
-  }
-  22% {
-    transform: translate(-1px, 1px) rotate(-2deg) skewX(-5deg);
-  }
-  45% {
-    transform: translate(2px, -1px) rotate(1deg) skewX(4deg);
-  }
-  68% {
-    transform: translate(-1px, 0) rotate(-1deg) skewX(-3deg);
-  }
-  100% {
-    transform: translate(0, 0) rotate(0deg) skewX(0deg);
-  }
-}
 
 .mapWord,
 .menuWord {
   display: inline-block;
   font-family: var(--et-font-display);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: 0;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-}
-
-.control:active .mapWord,
-.control:focus-visible .mapWord,
-.control:active .menuWord,
-.control:focus-visible .menuWord {
-  color: #fff;
-  text-shadow: none;
-  animation: navHorrorShiver 220ms steps(2, end);
-}
-
-@media (hover: hover) {
-  .control:hover .mapWord,
-  .control:hover .menuWord {
-    color: #fff;
-    text-shadow: none;
-    animation: navHorrorShiver 220ms steps(2, end);
-  }
 }
 
 @media (max-width: 767.98px) {
@@ -166,13 +147,7 @@
   }
 
   .nav:not([data-nav-page='map'])::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
     display: block;
-    background: #15120e;
-    pointer-events: none;
     transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
@@ -222,12 +197,15 @@
 
 @media (max-width: 520px) {
   .nav:not([data-nav-page='map']) {
-    padding-inline: 10px;
+    padding-inline: 12px;
   }
 
   .mapWord,
   .menuWord {
-    font-size: 17px;
+    /* Neben der 18 px hohen Wortmarke waren 16 px Versalien fast so laut
+       wie das Logo (22.10.2026) — kleiner, dafür etwas weiter gesperrt. */
+    font-size: 14px;
+    letter-spacing: 0.06em;
   }
 
   .logoImg {
@@ -261,15 +239,6 @@
   visibility: hidden;
 }
 
-/* MAP und MENÜ stehen beim Ladeauftritt nicht schon über dem Vorhang: sie
-   fliegen im letzten Takt von links und rechts herein (HubMotion, `copyIn`,
-   Ansage 01.10.2026: „Map und Menü müssen auch reinfliegen"). */
-@media (prefers-reduced-motion: no-preference) {
-  :global(html[data-hero-intro][data-active-page='start']:not([data-intro-copy])) .control {
-    visibility: hidden;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .nav:not([data-nav-page='map'])::before,
   .nav:not([data-nav-page='map']) > * { transition: none; }
@@ -280,14 +249,18 @@
 .nav:not([data-nav-page='map']) > .readingProgress {
   position: absolute;
   inset: 0;
-  background: var(--et-accent);
-  transform: scaleX(0);
-  transform-origin: left center;
+  background: color-mix(in srgb, var(--et-fg) 16%, var(--et-ground));
+  clip-path: inset(0 100% 0 0);
   z-index: 0;
   transition: none;
   pointer-events: none;
 }
 .nav .actions { position: relative; z-index: 1; }
+.actionsStart { gap: 24px; }
+.logoImg { height: 24px; }
+@media(max-width:600px) {
+  .actionsStart { gap: 16px; }
+  .nav .logoImg { height: 18px; }
+}
 
-.nav[data-nav-page='news-article'] .control:focus-visible,
-.nav[data-nav-page='restaurant'] .control:focus-visible { outline-color: var(--et-white); }
+:global(html[data-theme='dark']) .logoImg { filter: invert(1); }

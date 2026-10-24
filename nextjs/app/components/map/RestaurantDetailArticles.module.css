@@ -1,9 +1,10 @@
-/* Mehr Luft unter der Providence-Headline, deren Unterlängen weit reichen. */
+/* Space between the section headline and its explanatory caption. */
 .header > p {
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
-/* Same magazine artwork as the restaurant page, sized for the map detail. */
+/* Same magazine artwork and type as the restaurant page (Rubrik · Datum über
+   dem Titel), sized for the map detail. */
 .list {
   display: grid;
   gap: 24px;
@@ -16,40 +17,31 @@
   grid-template-columns: 112px minmax(0, 1fr);
   align-items: center;
   gap: 18px;
-  color: var(--et-white);
+  color: var(--et-fg);
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
 .cover { display: block; min-width: 0; }
-.copy { display: grid; min-width: 0; gap: 7px; }
+.copy { display: grid; min-width: 0; gap: 10px; }
 .title {
   font-family: var(--et-font-display);
   font-size: 20px;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.015em;
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
-.kicker {
-  color: var(--et-accent-text);
-  font-family: var(--et-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.date {
-  color: var(--et-ink-soft);
+.meta {
   font-family: var(--et-font-display);
   font-size: 13px;
   font-weight: 700;
+  letter-spacing: 0.04em;
   line-height: 1.3;
-  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
-.issue:focus-visible { outline: 2px solid var(--et-accent); outline-offset: 5px; }
+.issue:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
 @media (hover: hover) {
-  .issue:hover .title { color: var(--et-accent-text); }
+  .issue:hover .title { color: var(--et-accent-heading); }
 }

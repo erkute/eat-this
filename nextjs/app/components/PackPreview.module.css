@@ -5,14 +5,13 @@
   justify-content: center;
   gap: clamp(24px, 5vw, 64px);
   margin-top: clamp(64px, 8vw, 112px);
-  padding: clamp(32px, 5vw, 64px) clamp(24px, 4vw, 56px);
-  background: var(--et-ink-raised);
-  border-radius: var(--et-radius-photo);
-  color: var(--et-white);
+  padding: clamp(8px, 2vw, 24px) 0;
+  /* Randlos auf dem Papier, kein grauer Kasten (Ansage 22.10.2026). */
+  color: var(--et-fg);
 }
 .cardLink {
   display: block;
-  border-radius: var(--et-radius-photo);
+  border-radius: 0;
 }
 .cardLink:focus-visible {
   outline: 2px solid var(--et-accent);
@@ -23,11 +22,14 @@
   width: 100%;
   height: auto;
   transform: rotate(-3deg);
+  filter: drop-shadow(0 16px 18px rgb(0 0 0 / .28));
 }
 .kicker {
   margin: 0 0 12px;
-  color: var(--et-accent-text);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 .title {
@@ -37,7 +39,7 @@
 }
 .spot {
   margin: 0 0 6px;
-  color: var(--et-ink-soft);
+  color: var(--et-copy);
   font-size: 13px;
   line-height: 1.4;
 }
@@ -48,7 +50,7 @@
 }
 .note {
   margin: 16px 0 0;
-  color: var(--et-ink-soft);
+  color: var(--et-copy);
   font-size: 14px;
   line-height: 1.5;
 }

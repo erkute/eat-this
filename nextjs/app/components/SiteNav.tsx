@@ -8,7 +8,6 @@ import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { openBurgerDrawer } from './burgerDrawerState';
 import styles from './SiteNav.module.css';
-import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 function pageSlugFromPath(path: string): string {
   if (path === '/') return 'start';
@@ -22,6 +21,7 @@ export default function SiteNav() {
   const activePage = pageSlugFromPath(pathname);
   const reading = activePage === 'news-article' || activePage === 'restaurant';
   const progressRef = useRef<HTMLSpanElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!reading) return;
@@ -38,7 +38,9 @@ export default function SiteNav() {
         ? scroller.scrollHeight - scroller.clientHeight
         : document.documentElement.scrollHeight - window.innerHeight;
       const progress = distance > 0 ? Math.min(1, Math.max(0, top / distance)) : 0;
-      if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`;
+      const bar = progressRef.current;
+      if (!bar) return;
+      bar.style.clipPath = `inset(0 ${(1 - progress) * 100}% 0 0)`;
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     document.addEventListener('scroll', schedule, { passive: true, capture: true });
@@ -174,7 +176,7 @@ export default function SiteNav() {
       <a href="#main-content" className="skip-link">
         {t('a11y.skip')}
       </a>
-      <nav className={styles.nav} id="navbar" data-nav-page={activePage} data-visibility="visible">
+      <nav ref={navRef} className={styles.nav} id="navbar" data-nav-page={activePage} data-visibility="visible">
         {reading && <span ref={progressRef} className={styles.readingProgress} aria-hidden="true" data-reading-progress="" />}
         {/* Left: map text */}
         <div className={`${styles.actions} ${styles.actionsStart}`}>
@@ -190,10 +192,10 @@ export default function SiteNav() {
               Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
           <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
-              src={BRAND_LOGO_SRC}
+              src="/pics/home/wordmark.webp?v=1"
               alt="Eat This"
-              width={1660}
-              height={667}
+              width={1124}
+              height={274}
               sizes="80px"
               loading="lazy"
               decoding="async"

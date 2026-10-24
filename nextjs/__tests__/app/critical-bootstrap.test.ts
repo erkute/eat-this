@@ -30,13 +30,13 @@ describe('critical auth bootstrap', () => {
   // Wer den Artikel dunkel gestellt hat, sieht ihn beim Laden gleich dunkel —
   // ohne einen hellen ersten Frame. Gesetzt auf jeder Seite, damit auch ein
   // Artikel, in den man aus der App navigiert, schon dunkel ist.
-  it('restores the dark article before the first paint', () => {
+  it('restores the shared dark theme before the first paint', () => {
     const source = readFileSync(join(process.cwd(), 'app/[locale]/layout.tsx'), 'utf8')
     const bootstrap = source.match(/const CRITICAL_BOOTSTRAP = `([\s\S]*?)`;/)?.[1] ?? ''
-    const line = bootstrap.split('\n').find((l) => l.includes('data-article-theme')) ?? ''
+    const line = bootstrap.split('\n').find((l) => l.includes('data-theme')) ?? ''
 
-    expect(line).toContain("localStorage.getItem('et-article-theme')==='dark'")
-    expect(line).toContain("setAttribute('data-article-theme','dark')")
+    expect(line).toContain("localStorage.getItem('et-theme')==='dark'")
+    expect(line).toContain("setAttribute('data-theme','dark')")
   })
 
   /* Adobe's kit stylesheet used to be linked here and loaded with media="print"

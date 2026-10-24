@@ -1,14 +1,12 @@
 'use client';
 
-import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, useId, type CSSProperties, type MouseEvent } from 'react';
+import { Fragment, useEffect, useMemo, useRef, type MouseEvent } from 'react';
 import gsap from 'gsap';
 import { useLoginModal } from '@/lib/auth';
 import { guardSwipeClick } from '@/lib/home/guardSwipeClick';
-import { dealMustEatCards, readPileSnapshot, type PileSnapshot } from '@/lib/home/mustEatCardMotion';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import MustEatsOnboarding from './MustEatsOnboarding';
-import CardTapCue from './CardTapCue';
 import { GUEST_SHAKE_MS, prefersReducedMotion } from '@/lib/guestCardShake';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
@@ -18,14 +16,22 @@ import { useHomeMapData } from './HomeMapDataContext';
 import styles from './HubMustEatsTeaser.module.css';
 
 const TEASER_COUNT = 5;
+// Compact Figma artwork for these already-public examples. All other cards
+// keep the image supplied by the authorized data boundary.
+const HOME_CARD_ART: Readonly<Record<string, string>> = {
+  'mustead-main-14': '/pics/home/must-eat-007.webp',
+  'mustead-main-13': '/pics/home/must-eat-008.webp',
+  'mustead-main-11': '/pics/home/must-eat-010.webp',
+  'mustead-main-10': '/pics/home/must-eat-011.webp',
+  'mustead-main-9': '/pics/home/must-eat-012.webp',
+};
 const CARD_WIDTHS = [180, 360, 440, 720] as const;
 
 function cardSrcSet(url: string): string {
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
-const CARD_SIZES =
-  '(min-width: 1400px) calc((96vw - 232px) / 6), (min-width: 1280px) calc((88vw - 120px) / 6), (min-width: 768px) min(280px, calc((92vw - 60px) / 3)), calc((100vw - 64px) / 2)';
+const CARD_SIZES = '(min-width: 900px) 17vw, calc((100vw - 64px) / 2)';
 
 export default function HubMustEatsTeaser() {
   const { initialMapData, uid } = useHomeMapData();
@@ -86,26 +92,6 @@ export default function HubMustEatsTeaser() {
     if (!deck) return;
     return guardSwipeClick(deck);
   }, [cards]);
-  const [dealState, setDealState] = useState<'stacked' | 'dealing' | 'spread'>('stacked');
-  const deckId = useId();
-  const pileSnapshot = useRef<PileSnapshot | null>(null);
-  const keyboardDeal = useRef(false);
-  const deal = (event: MouseEvent<HTMLButtonElement>) => {
-    if (dealState !== 'stacked') return;
-    const pile = event.currentTarget;
-    pileSnapshot.current = readPileSnapshot(pile, pile.parentElement!);
-    keyboardDeal.current = event.detail === 0;
-    setDealState(prefersReducedMotion() ? 'spread' : 'dealing');
-  };
-  useLayoutEffect(() => {
-    const deck = deckRef.current;
-    if (!deck) return;
-    if (dealState === 'spread' && keyboardDeal.current) {
-      deck.querySelector<HTMLElement>('a, button')?.focus({ preventScroll: true });
-    }
-    if (dealState !== 'dealing' || !pileSnapshot.current) return;
-    return dealMustEatCards(deck, pileSnapshot.current, () => setDealState('spread'));
-  }, [dealState]);
 
   if (!cards.length) return null;
 
@@ -137,7 +123,7 @@ export default function HubMustEatsTeaser() {
         ) : (
           <button
             type="button"
-            className={`${styles.cardLink} ${styles.coveredButton}`}
+            className={styles.cardLink}
             onClick={animateCoveredClick}
             aria-label={
               lang === 'de'
@@ -159,8 +145,8 @@ export default function HubMustEatsTeaser() {
           </button>
         )}
         <span className={styles.meta} data-stack-caption="">
-          <span className={styles.dish}>{t('mustEats.teaserMystery')}</span>
-          <span className={styles.tapHint}>{t('mustEats.teaserTap')}</span>
+          <span>{t('mustEats.teaserMystery')}</span>
+          <span>{t('mustEats.teaserTap')}</span>
         </span>
       </article>
     </li>
@@ -168,40 +154,24 @@ export default function HubMustEatsTeaser() {
 
   return (
     <section
-      className="homeV2 hv-section hv-wrap"
+      className={styles.section}
       data-hub-musteats=""
       aria-labelledby="home-musteats-title"
     >
-      <div className={styles.runway}>
+      <div>
         <div className={styles.stage}>
           <div className={styles.intro}>
             <div className="hv-head">
               <h2 className="hv-title" id="home-musteats-title">
-                {t('mustEats.teaserTitle')}
+                Must Eats.
               </h2>
             </div>
             <p className={styles.lead}>{t('mustEats.teaserSub')}</p>
           </div>
           <div className={styles.collection}>
-            {dealState === 'stacked' && (
-              <button type="button" className={styles.pile} onClick={deal}
-                aria-controls={deckId} aria-expanded={false} aria-label={t('mustEats.teaserDeal')} data-deal-pile="">
-                <span className={styles.pileCards} aria-hidden="true">
-                  {Array.from({ length: cards.length + (covered ? 1 : 0) }, (_, index) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img key={index} src="/pics/card-back.webp?v=8" alt="" width={760} height={1044}
-                      draggable={false} style={{ '--pile-index': index } as CSSProperties} />
-                  ))}
-                  <CardTapCue hint />
-                </span>
-              </button>
-            )}
             <ul
               ref={deckRef}
-              id={deckId}
-              hidden={dealState === 'stacked'}
-              inert={dealState === 'dealing'}
-              data-deal-state={dealState}
+              data-deal-state="spread"
               className={styles.deck}
               role="list"
               aria-label={t('mustEats.teaserTitle')}
@@ -212,6 +182,7 @@ export default function HubMustEatsTeaser() {
                   m.restaurant.district
                 );
                 const dish = normalizeName(m.dish ?? '');
+                const image = HOME_CARD_ART[m._id] ?? m.image!;
                 const cardAria = `${dish} ${mustEatAria}`;
                 return (
                   <Fragment key={m._id}>
@@ -226,8 +197,8 @@ export default function HubMustEatsTeaser() {
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               className={styles.card}
-                              src={mustEatCardSrc(m.image!, 360)}
-                              srcSet={cardSrcSet(m.image!)}
+                              src={mustEatCardSrc(image, 360)}
+                              srcSet={image.startsWith('/api/') ? cardSrcSet(image) : undefined}
                               sizes={CARD_SIZES}
                               alt={dish}
                               draggable={false}
@@ -237,27 +208,19 @@ export default function HubMustEatsTeaser() {
                               fetchPriority="low"
                               decoding="async"
                             />
-                            {dealState === 'dealing' && (
-                              <span className={styles.dealBack} data-deal-back="" aria-hidden="true">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img className={styles.card} src="/pics/card-back.webp?v=8" alt=""
-                                  width={760} height={1044} draggable={false} />
-                              </span>
-                            )}
+
                           </span>
                         </MapIntentLink>
                         <span className={styles.meta} data-stack-caption="">
                           <MapIntentLink
                             href={`/map?me=${m._id}`}
-                            className={styles.dishLink}
                             aria-label={cardAria}
                           >
-                            <span className={styles.dish}>{dish}</span>
+                            <span>{dish}</span>
                           </MapIntentLink>
                           {m.restaurant.name && m.restaurant.slug && (
                             <Link
                               href={`/restaurant/${m.restaurant.slug}`}
-                              className={styles.restaurantLink}
                               aria-label={`${restaurant} ${restaurantAria}`}
                             >
                               <span className="hv-sub">{restaurant}</span>
@@ -271,10 +234,9 @@ export default function HubMustEatsTeaser() {
                 );
               })}
             </ul>
-            <p className={styles.browseHint} data-deal-hint="">{t('mustEats.teaserBrowse')}</p>
           </div>
           <div className={styles.foot}>
-            <MapIntentLink href="/must-eats" className={`hv-btn ${styles.cta}`}>
+            <MapIntentLink href="/must-eats" className="et-btn">
               {t('mustEats.teaserCta')}
             </MapIntentLink>
             <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="plain" />

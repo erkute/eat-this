@@ -4,19 +4,18 @@ import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link } from '@/i18n/navigation';
 import styles from './SiteFooter.module.css';
-import { BRAND_LOGO_SRC } from '@/lib/constants';
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '@/lib/guestCardShake';
+import { ThemeSwitch } from './ThemeSwitch';
 
-export default function SiteFooter({ home = false }: { home?: boolean }) {
+export default function SiteFooter() {
   const { t, lang, setLang } = useTranslation();
   const de = lang === 'de';
-  const follow = de ? 'Folgen' : 'Follow';
   const logoAnimation = useRef<Animation | null>(null);
   useEffect(() => () => logoAnimation.current?.cancel(), []);
   return (
     <footer
-      className={`${styles.footer}${home ? ` ${styles.home}` : ''}`}
+      className={styles.footer}
       data-site-footer
       role="contentinfo"
       aria-label="Site footer"
@@ -51,11 +50,11 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
               }}
             >
               <Image
-                src={BRAND_LOGO_SRC}
+                src="/pics/home/wordmark.webp?v=1"
                 alt="Eat This"
-                width={1660}
-                height={667}
-                sizes={home ? '(min-width: 1000px) 800px, 82vw' : 'min(56vw, 230px)'}
+                width={1124}
+                height={274}
+                sizes="(min-width: 768px) 420px, 238px"
                 loading="lazy"
                 decoding="async"
                 className={styles.megaImg}
@@ -71,14 +70,18 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
       </div>
 
       <div className={styles.links}>
-        <div className={styles.linksKicker}>{follow}</div>
         <a
           href="https://www.instagram.com/eatthisdotcom/"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.socialLink}
+          aria-label={de ? 'Eat This auf Instagram' : 'Eat This on Instagram'}
         >
-          Instagram
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4.2" />
+            <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none" />
+          </svg>
         </a>
       </div>
 
@@ -110,24 +113,32 @@ export default function SiteFooter({ home = false }: { home?: boolean }) {
         </button>
       </nav>
 
-      <div className={styles.lang} role="group" aria-label="Language / Sprache">
-        <button
-          type="button"
-          className={`${styles.langBtn} ${lang === 'de' ? styles.langBtnActive : ''}`}
-          onClick={() => setLang('de')}
-          aria-label="DE — Deutsch"
-        >
-          DE
-        </button>
-        <span className={styles.langSep}>·</span>
-        <button
-          type="button"
-          className={`${styles.langBtn} ${lang === 'en' ? styles.langBtnActive : ''}`}
-          onClick={() => setLang('en')}
-          aria-label="EN — English"
-        >
-          EN
-        </button>
+      {/* Sprache und Hell/Dunkel in einer Zeile, wie im Menü (Ansage
+          22.10.2026: den Schalter auch im Footer). */}
+      <div className={styles.prefs}>
+        <div className={styles.lang} role="group" aria-label="Language / Sprache">
+          <button
+            type="button"
+            className={`${styles.langBtn} ${lang === 'de' ? styles.langBtnActive : ''}`}
+            onClick={() => setLang('de')}
+            aria-label="DE — Deutsch"
+          >
+            DE
+          </button>
+          <span className={styles.langSep}>·</span>
+          <button
+            type="button"
+            className={`${styles.langBtn} ${lang === 'en' ? styles.langBtnActive : ''}`}
+            onClick={() => setLang('en')}
+            aria-label="EN — English"
+          >
+            EN
+          </button>
+        </div>
+        <span className={styles.prefsSep} aria-hidden="true" />
+        <div className={styles.lang} role="group" aria-label={de ? 'Darstellung' : 'Appearance'}>
+          <ThemeSwitch de={de} className={styles.themeBtn} />
+        </div>
       </div>
 
       <div className={styles.meta}>

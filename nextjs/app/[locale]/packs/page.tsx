@@ -6,10 +6,9 @@ import { setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import { formatPackPrice, packUrlSlug } from '@/lib/pack/packDetail';
+import { packUrlSlug } from '@/lib/pack/packDetail';
 import { getPackContents } from '@/lib/sanity.server';
 import { hreflangAlternates } from '@/lib/seo/metadata';
-import PackBuyButton from '../pack/[slug]/PackBuyButton';
 import AllBerlinBoard from '@/app/components/AllBerlinBoard';
 import styles from './PacksOverview.module.css';
 
@@ -39,24 +38,18 @@ const categoryPacks = Object.values(CATALOG).filter((p) => p.type === 'category'
 
 const copy = {
   de: {
+    kicker: 'Einzeln',
     categoryTitle: 'Kategorie-Packs',
     categoryLead: 'Kaffee, Dinner oder Drinks – finde das Pack, auf das du Lust hast.',
-    buy: 'Kaufen',
-    pending: 'Weiter zu Stripe …',
-    owned: 'Zur Map',
-    error: 'Da ging was schief. Versuch es nochmal.',
+    view: 'Ansehen',
     soon: 'Kommt bald',
-    map: '/map',
   },
   en: {
+    kicker: 'One by one',
     categoryTitle: 'Category Packs',
     categoryLead: 'Coffee, dinner or drinks – find the pack you’re in the mood for.',
-    buy: 'Buy',
-    pending: 'Going to Stripe …',
-    owned: 'Open map',
-    error: 'Something went wrong. Please try again.',
+    view: 'View',
     soon: 'Coming soon',
-    map: '/map',
   },
 } as const;
 
@@ -81,6 +74,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
 
           <section className={styles.catalog} aria-labelledby="packs-catalog-title">
             <div className={styles.catalogHead}>
+              <p className={styles.kicker}>{t.kicker}</p>
               <h2 id="packs-catalog-title" className={styles.sectionTitle}>
                 {t.categoryTitle}
               </h2>
@@ -102,38 +96,40 @@ export default async function PacksOverviewPage({ params }: PageProps) {
 
                 return (
                   <li key={pack.packId} className={styles.tile}>
-                    <Link href={href} className={styles.tileLink}>
+                    {/* Eine Zeile pro Pack: gross links, rechts Name, Zeile und
+                        „Ansehen“ auf einer Achse. Das Pack ist für die Maus
+                        mitverlinkt; Tastatur und Vorleser nehmen den Namen. */}
+                    <Link href={href} className={styles.packLink} tabIndex={-1} aria-hidden="true">
                       {art && (
                         <Image
                           src={art}
                           alt=""
-                          width={420}
-                          height={656}
-                          sizes="(max-width: 559px) 42vw, 320px"
+                          width={550}
+                          height={813}
+                          sizes="(max-width: 559px) 120px, 170px"
                           className={styles.art}
                         />
                       )}
-                      <span className={styles.tileName}>{pack.displayName}</span>
-                      <span className={styles.spectrum}>{pack.spectrum[loc]}</span>
                     </Link>
+                    <div className={styles.info}>
+                      <Link href={href} className={styles.tileName}>{pack.displayName}</Link>
+                      <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
 
-                    {empty ? (
-                      <span className={styles.soon}>{t.soon}</span>
-                    ) : (
-                      <PackBuyButton
-                        packId={pack.packId}
-                        packName={pack.displayName}
-                        amountCents={pack.amountCents}
-                        locale={loc}
-                        className={styles.buy}
-                        errorClassName={styles.buyError}
-                        label={`${t.buy} · ${formatPackPrice(pack.amountCents)}`}
-                        pendingLabel={t.pending}
-                        ownedLabel={t.owned}
-                        ownedHref={t.map}
-                        errorLabel={t.error}
-                      />
-                    )}
+                      {/* Gekauft wird auf der Detailseite, nach dem Blick hinein
+                          (Ansage 22.10.2026) — hier nur der Weg dorthin; der
+                          Preis steht erst dort. */}
+                      {empty ? (
+                        <span className={styles.soon}>{t.soon}</span>
+                      ) : (
+                        <Link
+                          href={href}
+                          className={`et-btn et-btn-sm ${styles.view}`}
+                          aria-label={`${pack.displayName} ${t.view.toLowerCase()}`}
+                        >
+                          {t.view}
+                        </Link>
+                      )}
+                    </div>
                   </li>
                 );
               })}

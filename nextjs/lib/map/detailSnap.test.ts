@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   DETAIL_SHEET_TOP_TO_HERO_PX,
-  DETAIL_HERO_MARGIN_BOTTOM_PX,
-  DETAIL_PAGER_ESTIMATE_PX,
   DETAIL_PEEK_BUFFER_PX,
   detailMidVisiblePx,
   estimateDetailMidVisiblePx,
@@ -19,15 +17,10 @@ describe('detailMidVisiblePx', () => {
 });
 
 describe('estimateDetailMidVisiblePx', () => {
-  it('estimates handle zone + 4:5 hero + hero bottom margin + pager', () => {
+  it('estimates handle zone + 4:5 hero, ending at the hero bottom', () => {
     // 390px viewport: hero width 390-28=362 → height 362*5/4=452.5 → round 453
-    const contentBottom =
-      DETAIL_SHEET_TOP_TO_HERO_PX + 453 + DETAIL_HERO_MARGIN_BOTTOM_PX + DETAIL_PAGER_ESTIMATE_PX;
-    expect(estimateDetailMidVisiblePx(390, true, 34)).toBe(detailMidVisiblePx(contentBottom, 34));
-  });
-
-  it('ends at the hero bottom when hasPager is false', () => {
     const contentBottom = DETAIL_SHEET_TOP_TO_HERO_PX + 453;
-    expect(estimateDetailMidVisiblePx(390, false, 0)).toBe(detailMidVisiblePx(contentBottom, 0));
+    expect(estimateDetailMidVisiblePx(390, 34)).toBe(detailMidVisiblePx(contentBottom, 34));
+    expect(estimateDetailMidVisiblePx(390, 0)).toBe(detailMidVisiblePx(contentBottom, 0));
   });
 });

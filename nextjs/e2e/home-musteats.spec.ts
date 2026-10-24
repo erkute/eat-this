@@ -15,7 +15,7 @@ for (const locale of ['de', 'en'] as const) {
     await page.emulateMedia({ reducedMotion: locale === 'en' ? 'reduce' : 'no-preference' });
     await page.goto(locale === 'de' ? '/' : '/en');
     await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
-    const section = page.getByRole('region', { name: 'Must Eats', exact: true });
+    const section = page.getByRole('region', { name: 'Must Eats.', exact: true });
     await expect(
       section.getByText(
         locale === 'de'
@@ -24,10 +24,16 @@ for (const locale of ['de', 'en'] as const) {
         { exact: true }
       )
     ).toBeVisible();
-    await section.getByRole('button', { name: locale === 'de' ? 'Karten auslegen' : 'Deal the cards', exact: true }).click();
     await expect(section.locator('ul')).toHaveAttribute('data-deal-state', 'spread');
     const deck = section.getByRole('list', { name: 'Must Eats', exact: true });
     const mobile = page.viewportSize()!.width < 768;
+    // Die Karten werden beim Hereinscrollen ausgeteilt; gemessen wird, wenn
+    // sie liegen.
+    await deck.scrollIntoViewIfNeeded();
+    await expect.poll(() => deck.locator('li:visible').evaluateAll((items) => {
+      const [a, b] = items.map((item) => item.getBoundingClientRect().y);
+      return Math.abs(a - b);
+    })).toBeLessThan(1);
     // Die ganze Auslage, ohne Seitwärts-Scrollen: am Telefon im Zweierraster.
     const cards = await deck.locator('li:visible').evaluateAll((items) => items.map((item) => {
       const box = item.getBoundingClientRect();

@@ -1,10 +1,9 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import type { MapMustEat, MapRestaurant } from '@/lib/types';
 import type { SheetView } from './useMapSheet';
 import { freshestMustEat } from './freshestMustEat';
-import { resolveAdjacent, resolvePagerAdjacent } from './pager';
-import { prefetchRestaurantDetail } from './useRestaurantDetail';
+import { resolveAdjacent } from './pager';
 import { currentUrl, urlWithParams } from './mapFilterParams';
 import { resolveDetailHistory } from './detailHistory';
 
@@ -21,8 +20,6 @@ interface Options {
   sheetView: SheetView;
   restaurants: MapRestaurant[];
   mustEats: MapMustEat[];
-  /** The list as the user sees it right now — what the pager freezes. */
-  listRestaurants: MapRestaurant[];
   unlockedIds: Set<string>;
   scrollListToAnchor: (target: 'peek' | 'mid' | 'full', behavior?: ScrollBehavior) => void;
   /** Closes whichever detail is open (MapSection keeps it pointed right). */
@@ -43,7 +40,6 @@ export function useDetailSelection({
   sheetView,
   restaurants,
   mustEats,
-  listRestaurants,
   unlockedIds,
   scrollListToAnchor,
   dismissDetailRef,
@@ -57,18 +53,6 @@ export function useDetailSelection({
     () => initialRestaurant
   );
   const [selectedMustEat, setSelectedMustEat] = useState<MapMustEat | null>(null);
-
-  /* Die Liste, aus der ein Detail geöffnet wurde, eingefroren für den Pager.
-     Das Öffnen leert die Suche (siehe handleRestaurantClick in MapSection), und damit
-     sprang `listRestaurants` sofort auf den vollen Datensatz zurück: wer
-     „Pizza" suchte, das erste Ergebnis öffnete und weiterblätterte, landete
-     beim Nachbarn aus der ungefilterten Liste statt beim zweiten Treffer.
-     Jeder Öffnungsweg läuft durch handleRestaurantClick und setzt den
-     Schnappschuss neu; Blättern lässt ihn stehen. */
-  const [pagerList, setPagerList] = useState<MapRestaurant[] | null>(null);
-  const listRestaurantsRef = useRef(listRestaurants);
-  listRestaurantsRef.current = listRestaurants;
-  const freezePager = useCallback(() => setPagerList(listRestaurantsRef.current), []);
 
   const sheetViewRef = useRef(sheetView);
   sheetViewRef.current = sheetView;
@@ -155,28 +139,6 @@ export function useDetailSelection({
     const fresh = restaurants.find((r) => r._id === selectedRestaurant._id);
     if (fresh && fresh !== selectedRestaurant) setSelectedRestaurant(fresh);
   }, [restaurants, selectedRestaurant]);
-
-  // Pager: neighbours of the open restaurant within the list the user was
-  // browsing when the detail opened (same order as the list view). Falls
-  // back to the live list only if the snapshot doesn't hold the spot (it
-  // was refetched away, or the detail opened without a click). Paging swaps
-  // the selection in place — no list↔detail view switch (already in detail).
-  const pagerAdjacent = useMemo(
-    () =>
-      selectedRestaurant
-        ? resolvePagerAdjacent(pagerList, listRestaurants, selectedRestaurant._id)
-        : { index: -1, prev: null, next: null },
-    [pagerList, listRestaurants, selectedRestaurant]
-  );
-
-  // Warm the neighbours' detail fields while a detail pane is open, so a
-  // pager swipe lands on fully-populated content instead of popping the
-  // story text in after the transition.
-  useEffect(() => {
-    if (!selectedRestaurant) return;
-    if (pagerAdjacent.prev) prefetchRestaurantDetail(pagerAdjacent.prev.slug);
-    if (pagerAdjacent.next) prefetchRestaurantDetail(pagerAdjacent.next.slug);
-  }, [selectedRestaurant, pagerAdjacent]);
 
   /* Das geöffnete Must Eat folgt der frischesten Payload. Der Deep-Link greift
      den Datensatz, den die Seite beim ersten Effekt-Durchlauf hat — und der
@@ -275,8 +237,6 @@ export function useDetailSelection({
     setSelectedRestaurant,
     selectedMustEat,
     setSelectedMustEat,
-    freezePager,
-    pagerAdjacent,
     mustEatPagerAdjacent,
     mustEatPagerPosition,
     mustEatCollection,

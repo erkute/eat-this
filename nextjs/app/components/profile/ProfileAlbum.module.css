@@ -185,26 +185,14 @@ div.player {
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
 }
 
-/* Das Bildfeld: eine feine Linie, die der Figur einen Rahmen gibt. Ein
-   AEUSSERER Rahmen waere auf dem dunklen Seitengrund unsichtbar — die weisse
-   Flaeche ist dort schon die Kante.
-
-   Der Grund ist ein warmer Sandton, kein kaltes Grau: die Figuren sind in
-   Hauttoenen und Rot gezeichnet, und auf Neutralgrau lagen sie wie
-   ausgeschnitten da. Die Linie steht bei 55 % Ink statt 82 — bei voller
-   Deckung war sie ein Trauerrand um die Figur.
-
-   Ausprobiert und verworfen: das Rueckseiten-Motiv als Grund. Der
-   Markenschriftzug liegt dort mittig und wurde von der Figur zerschnitten,
-   „WE TELL YOU…" ragte links daneben heraus. Das sah kaputt aus, nicht
-   gestaltet. */
+/* Der warme Sandton im Bildfeld greift die Haut- und Rottöne der Figuren auf. */
 .playerField {
   /* Anker fuer das absolut gesetzte Bild — siehe .playerImg. */
   position: relative;
   overflow: hidden;
   min-height: 0;
   background: color-mix(in srgb, #c8a06a 13%, #fff);
-  border: 1.5px solid color-mix(in srgb, var(--et-ink) 55%, transparent);
+  border: 0;
   border-radius: 4px;
 }
 
@@ -256,7 +244,7 @@ div.player {
 .playerName {
   margin: 0;
   padding: 6px 2px 3px;
-  color: var(--profile-ink, #15120e);
+  color: var(--et-ink);
   font-family: var(--album-display);
   font-size: clamp(13px, 13cqw, 21px);
   font-weight: 700;
@@ -273,42 +261,7 @@ div.player {
   text-overflow: ellipsis;
 }
 
-/* Der Punktestand am Fuss der Karte — die Zahl, die vorher als grosse
-   Ziffer am rechten Rand der Kopfzeile stand. Ein Ink-Streifen mit gelber
-   Zahl: dieselbe Sprache wie der Belohnungs-Screen nach der Anmeldung, wo
-   diese Zahl waechst. Auf einer Sammelkarte steht der Wert unten, nicht
-   zwei Spalten daneben.
-
-   Der Streifen laeuft bis an die Innenkante des Kartenrands, weil er die
-   Fusszeile IST und keine Kachel darin. */
-.playerScore {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 1px;
-  padding: 4px 6px 3px;
-  background: var(--profile-ink, #15120e);
-  border-radius: 3px;
-  font-family: var(--album-display);
-  font-size: clamp(11px, 10cqw, 15px);
-  font-weight: 700;
-  line-height: 1.15;
-  font-variant-numeric: tabular-nums;
-}
-
-.playerScore strong {
-  color: var(--et-accent-text);
-  font-weight: 700;
-}
-
-.playerScoreTotal {
-  color: color-mix(in srgb, var(--et-white) 62%, transparent);
-  font-weight: 400;
-}
-
-/* Der Zaehler steht seit dem 04.09.2026 auf der Spielerkarte (.playerScore).
-   Was hier bleibt, ist sein Satz fuer Screenreader: die Karte ist ein Knopf
-   mit dem Namen „Charakter aendern", ihr Inhalt wird also nie vorgelesen. */
+/* The collection count remains available to screen readers. */
 .srOnly {
   position: absolute;
   width: 1px;
@@ -340,10 +293,9 @@ div.player {
   min-height: 34px;
   padding: 5px 14px;
   color: var(--album-muted);
-  /* Flaeche statt Ring, wie die Filter-Chips der Map (24.09.2026). Der
-     transparente Rand bleibt, damit kein Zustand die Groesse aendert. */
+  /* Fläche statt Ring, wie die Filter-Chips der Map. */
   background: var(--profile-raised, #25231f);
-  border: 1px solid transparent;
+  border: 0;
   border-radius: 999px;
   cursor: pointer;
   font-family: var(--album-display);
@@ -400,21 +352,10 @@ div.player {
 
 /* „Fehlende" schneidet quer durch alle Bezirke und steht darum direkt hinter
    „Alle", nicht am Ende der Leiste: an `margin-left: auto` sprang er je nach
-   Zeilenumbruch mal ans Ende der ersten, mal ans Ende der zweiten Zeile. Die
-   Haarlinie davor trennt Schalter von Reitern. */
+   Zeilenumbruch mal ans Ende der ersten, mal ans Ende der zweiten Zeile. Der
+   Abstand davor trennt Schalter von Reitern. */
 .chipMissing {
-  position: relative;
   margin-left: 9px;
-}
-
-.chipMissing::before {
-  content: '';
-  position: absolute;
-  top: 6px;
-  bottom: 6px;
-  left: -9px;
-  width: 1px;
-  background: var(--profile-line, rgba(255, 255, 255, 0.14));
 }
 
 .chipMissing[aria-pressed='true'] {
@@ -460,7 +401,7 @@ div.player {
 .badge {
   padding: 6px 12px 5px;
   color: var(--et-accent-text);
-  border: 1px solid color-mix(in srgb, var(--album-accent, var(--et-accent)) 55%, transparent);
+  border: 0;
   border-radius: 999px;
   font-family: var(--album-display, var(--et-font-display));
   font-size: 12px;
@@ -547,27 +488,22 @@ div.player {
     drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-accent) 70%, transparent));
 }
 
-/* Der leere Platz — seit dem 24.09.2026 die gedaempfte Rueckseite, dieselbe
-   wie fuer eine fehlende Karte auf dem geteilten Deck. Keine gestrichelte
-   Kante, keine Nummer, kein eingelassener Schatten: die Karte ist schon da,
-   nur noch nicht umgedreht. Sie hebt sich beim Anfassen nicht, sie hellt
-   sich auf — Faerbung, keine Bewegung. */
-.empty {
-  background: var(--profile-raised, #25231f);
-}
-
+/* Der leere Platz — die Rueckseite der Karte, so rot wie sie gedruckt ist
+   (Ansage 22.10.2026: „kein schwarzer Schimmer"; bis dahin war sie auf ein
+   Drittel abgedunkelt). Keine gestrichelte Kante, keine Nummer: die Karte ist
+   schon da, nur noch nicht umgedreht. Sie hebt sich beim Anfassen nicht, sie
+   hellt sich leicht auf — Faerbung, keine Bewegung. */
 .empty .backImg {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: brightness(0.34) saturate(0.4);
   transition: filter 180ms ease;
 }
 
 @media (hover: hover) {
   .empty:hover .backImg {
-    filter: brightness(0.5) saturate(0.55);
+    filter: brightness(1.08);
   }
 }
 
@@ -577,22 +513,27 @@ div.player {
 }
 
 .empty:focus-visible .backImg {
-  filter: brightness(0.5) saturate(0.55);
+  filter: brightness(1.08);
 }
 
 /* Der Spot, in dem die Karte liegt — unten auf der Karte, wo auf einer
    offenen Karte die Beschreibung steht. */
 .slotWhere {
   position: absolute;
-  right: 8px;
-  bottom: 9px;
-  left: 8px;
-  color: var(--album-ink);
+  right: 6px;
+  bottom: 8px;
+  left: 6px;
+  /* Auf dem vollen Rot mit „EAT THIS"-Muster braucht der Name ein Etikett:
+     Ink-Fläche, weisse Schrift — in beiden Modi gleich, die Karte ist Druck. */
+  padding: 4px 3px 3px;
+  background: var(--et-ink);
+  border-radius: 3px;
+  color: var(--et-white);
   font-family: var(--album-display);
   /* Fit long words to the card, including letter spacing and side insets. */
   font-size: min(
     clamp(10px, 0.9vw, 12px),
-    max(8px, calc((100cqw - 20px) / var(--slot-name-units, 1)))
+    max(8px, calc((100cqw - 22px) / var(--slot-name-units, 1)))
   );
   font-weight: 700;
   letter-spacing: 0.06em;

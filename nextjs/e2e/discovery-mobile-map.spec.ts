@@ -7,6 +7,22 @@ test.beforeEach(async ({ page, context, baseURL, isMobile }) => {
   await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
 });
 
+async function expectPaperFooter(page: Page, screenshot: string) {
+  const footer = page.locator('[data-site-footer]');
+  await expect(footer).toHaveCount(1);
+  const surface = page.locator('[data-district-paper]');
+  await expect(surface.locator('[data-folded-paper]')).toHaveCount(1);
+  const preceding = footer.locator('xpath=preceding-sibling::*[1]');
+  expect(await preceding.evaluate(element => {
+    const next = element.nextElementSibling!;
+    return Math.abs(next.getBoundingClientRect().top - element.getBoundingClientRect().bottom);
+  })).toBeLessThan(1);
+  await expect(preceding).toHaveCSS('background-image', 'none');
+  await expect(footer).toHaveCSS('background-image', 'none');
+  await footer.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: screenshot });
+}
+
 /** Use an actual point inside the polygon, including WebKit's SVG hit test. */
 async function selectDistrict(page: Page, slug: string, touch: boolean) {
   const point = await page.locator(`[data-map-area="${slug}"] path`).evaluate(node => {
@@ -69,10 +85,12 @@ for (const locale of ['de', 'en'] as const) {
         expect(widths.every((width, index) => index === 0 || width <= widths[index - 1])).toBe(true);
       }
       await page.screenshot({ path: `/tmp/eat-this-map-redesign/qa/${isMobile ? 'phone' : 'desktop'}-${locale}-${motion}-mitte.png` });
+      await expectPaperFooter(page, `/tmp/eat-this-district-paper/${test.info().project.name}-${locale}-${motion}-detail.png`);
       await page.getByRole('navigation', { name: locale === 'de' ? 'Zur Berlin-Karte' : 'Back to the Berlin map', exact: true }).getByRole('link').click();
       await expect(page).toHaveURL(`${prefix}/bezirk`);
       await expect(map).toHaveAttribute('viewBox', '0 0 640 550');
       await expect(page.locator('[data-map-opening]')).toHaveAttribute('data-map-opening', 'false');
+      await expectPaperFooter(page, `/tmp/eat-this-district-paper/${test.info().project.name}-${locale}-${motion}-index.png`);
       expect(errors).toEqual([]);
     });
   }
@@ -125,15 +143,16 @@ test('district glow cycles without a permanent tint and stops on interaction', a
   await page.screenshot({ path: `/tmp/eat-this-map-redesign/qa/${test.info().project.name}-glow.png` });
   await page.getByRole('link', { name: 'Mitte', exact: true }).press('Tab');
   await expect(preview).toHaveCount(0);
-  await expect(page.locator('[data-map-area="neukoelln"]')).toHaveCSS('fill', 'rgb(0, 0, 0)');
+  // Ruhend in der Schriftfarbe (--et-fg), hell also Ink, dunkel Weiss.
+  await expect(page.locator('[data-map-area="neukoelln"]')).toHaveCSS('fill', 'rgb(21, 18, 14)');
   await page.waitForTimeout(4500);
   await expect(preview).toHaveCount(0);
 });
 
-test('reduced motion keeps the idle map black without automatic glow', async ({ page }) => {
+test('reduced motion keeps the idle map in ink without automatic glow', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/bezirk');
   await page.waitForTimeout(2500);
   await expect(page.locator('[data-preview="true"]')).toHaveCount(0);
-  await expect(page.locator('[data-map-area="mitte"]')).toHaveCSS('fill', 'rgb(0, 0, 0)');
+  await expect(page.locator('[data-map-area="mitte"]')).toHaveCSS('fill', 'rgb(21, 18, 14)');
 });

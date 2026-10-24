@@ -1,22 +1,17 @@
 'use client';
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState, useSyncExternalStore } from 'react';
 import Map, {
   AttributionControl,
   type MapRef,
   type ViewStateChangeEvent,
 } from 'react-map-gl/maplibre';
+import { currentTheme, subscribeTheme } from '@/lib/theme';
 import { BERLIN_VIEW } from '@/lib/map/defaultView';
 import type { InitialCamera } from '@/lib/map/useMapCamera';
 
-/* Der eigene Style: `public/basemap/style.json` wird von `npm run build:basemap`
-   aus CARTOs Dark-Matter-Vorlage erzeugt — entblaut (das Straßennetz stand in
-   einem Blauviolett, das zu nichts in der Marke gehört) und von cartocdn.com
-   gelöst. Kacheln und Schriften kommen von OpenFreeMap, das Sprite aus dem
-   eigenen Haus; die Attribution liefert OpenFreeMaps TileJSON.
-   Der Grund des Styles ist #0e0e0e — dieselbe Farbe steht als
-   `--map-basemap-ground` hinter dem Canvas, damit der Ladezustand nicht
-   aufblitzt. Wer den Style tauscht, zieht die Farbe mit. */
-const BASEMAP_STYLE = '/basemap/style.json';
+/* Both generated palettes share sources and layer IDs. MapLibre diffs the
+   style in place, preserving camera, markers and transit overlays. */
+const serverTheme = () => 'light' as const;
 
 interface MapCanvasProps {
   /** Asked once, on mount: the camera that frames the spots on this canvas.
@@ -38,6 +33,7 @@ interface MapCanvasProps {
 
 const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
   ({ getInitialCamera, onMapClick, onFirstPaint, onMoveEnd, children }, ref) => {
+    const theme = useSyncExternalStore(subscribeTheme, currentTheme, serverTheme);
     /* Before the first frame, so the map opens on the spots instead of
        flying there from somewhere else. The canvas container already has its
        size — MapCanvasLayer mounts into the laid-out map wrap. */
@@ -45,13 +41,11 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
       ...BERLIN_VIEW,
       ...getInitialCamera?.(),
     }));
-    // MapLibre opens the compact attribution by default on mount. Collapse it
-    // so only the small ⓘ button stays visible until the user taps it. Then
-    // observe attribute changes for ~3 s after we find the element, undoing
-    // any maplibre-internal re-open before user interaction.
+    // Keep automatic MapLibre updates collapsed for the whole mount, not just
+    // the first three seconds. The user can still open the sources explicitly.
     useEffect(() => {
       let observer: MutationObserver | null = null;
-      let observerStart = 0;
+      let detachClick: (() => void) | undefined;
       const collapseEl = (el: HTMLDetailsElement) => {
         el.open = false;
         el.classList.remove('maplibregl-compact-show');
@@ -62,13 +56,18 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
         ) as HTMLDetailsElement | null;
         if (!el) return false;
         collapseEl(el);
-        observerStart = Date.now();
+        let openedByUser = false;
+        const onClick = (event: MouseEvent) => {
+          if (!(event.target instanceof Element) || !event.target.closest('summary')) return;
+          // Capture the intent before MapLibre mutates the details element:
+          // browsers may deliver mutations between individual click listeners.
+          openedByUser = !el.classList.contains('maplibregl-compact-show');
+        };
+        el.addEventListener('click', onClick, true);
+        detachClick = () => el.removeEventListener('click', onClick, true);
         observer = new MutationObserver(() => {
-          if (Date.now() - observerStart > 3000) {
-            observer?.disconnect();
-            return;
-          }
-          if (el.open) collapseEl(el);
+          if (!el.classList.contains('maplibregl-compact-show')) openedByUser = false;
+          if (!openedByUser && (el.open || el.classList.contains('maplibregl-compact-show'))) collapseEl(el);
         });
         observer.observe(el, { attributes: true, attributeFilter: ['open', 'class'] });
         return true;
@@ -81,6 +80,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
       return () => {
         window.clearInterval(id);
         observer?.disconnect();
+        detachClick?.();
       };
     }, []);
 
@@ -89,7 +89,7 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
         ref={ref}
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}
-        mapStyle={BASEMAP_STYLE}
+        mapStyle={theme === 'dark' ? '/basemap/style-dark.json' : '/basemap/style.json'}
         attributionControl={false}
         onClick={() => onMapClick?.()}
         onMoveEnd={onMoveEnd}

@@ -1,20 +1,21 @@
 /* Category pack hero, public card example and compact All Berlin upgrade.
-   Die Angebote stehen auf der leisen Ink-Stufe: Ink auf Ink würde ihre
-   Fläche verschwinden lassen. Pack-Art bleibt freigestellt, ohne Bildkasten. */
+   Der Kopf steht randlos auf dem Papier wie die Packs auf /packs (Ansage
+   22.10.2026: ohne Rahmen, frischer Look); Pack-Art freigestellt, ohne
+   Bildkasten. Hier wird gekauft: die rote Pille mit leichten Kratzern. */
 
 .page {
-  --pack-paper: var(--et-white);
+  --pack-paper: #fff;
   --pack-ink: var(--et-ink);
-  --pack-fg: var(--et-white);
+  --pack-fg: var(--et-fg);
   --pack-accent: var(--et-accent);
-  --pack-muted: var(--et-ink-soft);
-  --pack-soft: rgba(255, 255, 255, 0.76);
+  --pack-muted: var(--et-muted);
+  --pack-soft: var(--et-copy);
   display: flow-root;
   min-height: 100svh;
   overflow-x: clip;
   padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) var(--et-wrap-pad-mobile)
     clamp(48px, 7vw, 96px);
-  background: var(--pack-ink);
+  background: var(--et-ground);
   color: var(--pack-fg);
   font-family: var(--et-font-display);
 }
@@ -25,17 +26,15 @@
   padding-top: clamp(16px, 3vw, 40px);
 }
 
-/* ── Hero-Tafel ────────────────────────────────────────────────────────── */
+/* ── Kopf ──────────────────────────────────────────────────────────────── */
 
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: clamp(16px, 4vw, 56px);
-  padding: clamp(24px, 4vw, 56px);
-  background: var(--et-ink-quiet);
-  color: var(--pack-paper);
-  border-radius: var(--et-radius-photo);
+  padding: clamp(8px, 2vw, 24px) 0;
+  color: var(--pack-fg);
 }
 
 .copy {
@@ -43,16 +42,14 @@
   max-width: 640px;
 }
 
-
-
 .name {
   margin: 0;
-  color: var(--pack-paper);
-  font-size: clamp(48px, 6vw, 88px);
+  color: var(--pack-fg);
+  font-size: clamp(52px, 6.8vw, 108px);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.86;
-  text-transform: uppercase;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  text-transform: none;
 }
 
 /* Der Platz des Kaufknopfes bei einem Pack ohne Karte. Keine deaktivierte
@@ -66,17 +63,18 @@
   font-size: var(--et-type-button);
   font-weight: 700;
   letter-spacing: var(--et-tracking-meta);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
-/* „Holzofen. Pinsa. NY-Slice." — die Editor-Zeile des Packs, gelb wie die
-   Kreide-Labels der Tafel. */
+/* „Holzofen. Pinsa. NY-Slice." — die Editor-Zeile des Packs, als Label in
+   Versalien wie die Kicker der übrigen Seiten. */
 .spectrum {
-  margin: clamp(14px, 1.8vw, 22px) 0 0;
-  color: var(--et-accent-text);
-  font-size: clamp(18px, 2vw, 26px);
+  margin: clamp(16px, 2vw, 24px) 0 0;
+  color: var(--pack-fg);
+  font-size: 13px;
   font-weight: 700;
-  line-height: 1.2;
+  letter-spacing: .08em;
+  line-height: 1.3;
   text-transform: uppercase;
 }
 
@@ -96,66 +94,11 @@
   margin-top: clamp(22px, 3vw, 34px);
 }
 
-/* Gelb auf Ink — Ink auf Ink verschwände. Hover: Papier. */
-.cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: min(100%, 460px);
-  min-height: 56px;
-  padding: 0 22px;
-  background: var(--pack-accent);
-  color: var(--et-on-accent);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: clamp(16px, 1.4vw, 19px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  text-decoration: none;
-  text-transform: none;
-  cursor: pointer;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
-}
-
-.cta:focus-visible {
-  color: var(--pack-ink);
-  background: var(--pack-paper);
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .cta:not(:disabled):hover {
-    color: var(--pack-ink);
-    background: var(--pack-paper);
-    transform: translateY(-2px);
-  }
-}
-
-.cta:active {
-  transform: translateY(0);
-}
-
-.cta:disabled {
-  background: var(--pack-accent);
-  color: var(--et-on-accent);
-  cursor: wait;
-  transform: none;
-}
-
-.cta:focus-visible {
-  outline: 2px solid var(--pack-accent);
-  outline-offset: 3px;
-}
+/* Der Kauf: rote Pille mit leichten Kratzern. Hover und Fokus: Ink. */
 
 .ctaError {
   margin: 0;
-  color: var(--et-accent-text);
+  color: #a82b2e;
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;
@@ -180,8 +123,8 @@
 .packArt {
   width: min(100%, 400px);
   height: auto;
-  transform: rotate(-5deg);
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45));
+  transform: rotate(-4deg);
+  filter: drop-shadow(0 22px 26px rgba(0, 0, 0, 0.3));
 }
 
 /* ── All-Berlin-Upsell ─────────────────────────────────────────────────── */
@@ -203,7 +146,7 @@
 @media (min-width: 1600px) {
   .inner { width: min(100%, 1880px); }
   .copy { max-width: 780px; }
-  .name { font-size: clamp(88px, 5.4vw, 128px); }
+  .name { font-size: var(--et-type-page); }
   .packArt { width: min(100%, 520px); }
 }
 
@@ -222,17 +165,14 @@
   }
 
   .packArt {
-    width: min(38vw, 160px);
+    width: min(52vw, 210px);
   }
 
   .name {
-    font-size: clamp(36px, 9vw, 44px);
-    line-height: 0.98;
+    font-size: clamp(46px, 14vw, 68px);
+    line-height: 0.9;
   }
 
-  .cta {
-    width: 100%;
-  }
 }
 
 /* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
@@ -250,9 +190,4 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cta { transition: none; }
-  .cta:focus-visible, .cta:not(:disabled):hover { transform: none; }
 }

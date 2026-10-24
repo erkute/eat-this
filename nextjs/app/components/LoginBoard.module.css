@@ -4,7 +4,6 @@
    Aufrufer — das Modal seinen Rahmen, die Seiten ihre Ink-Tafel. */
 
 .board {
-  --login-accent: var(--et-accent);
   --login-art-h: clamp(260px, 50vh, 400px);
 
   display: grid;
@@ -13,7 +12,7 @@
   gap: clamp(28px, 4vw, 56px);
   width: min(100%, 780px);
   margin-inline: auto;
-  color: #fff;
+  color: var(--et-fg);
   text-align: left;
 }
 
@@ -105,116 +104,6 @@
   }
 }
 
-/* Die angetippte Karte vor ihrem Pack: sie liegt drin, und sie liegt vorn. */
-.artDuo {
-  width: calc(var(--login-art-h) * 0.92);
-}
-
-.duoPack {
-  position: absolute;
-  top: 2%;
-  left: 0;
-  height: calc(var(--login-art-h) * 0.84);
-  width: auto;
-  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.26));
-  transform: rotate(-9deg);
-}
-
-.cardBack {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 54%;
-  height: auto;
-  border-radius: 6%/4.4%;
-  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.36));
-  transform: rotate(7deg);
-  transform-origin: 50% 80%;
-}
-
-/* Der Spot, den man sich merken wollte: sein Foto vor dem Pack, an der
-   Stelle der Karte, mit dem Herz daran. */
-.spotCard {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 56%;
-  aspect-ratio: 4 / 5;
-  background: var(--et-ink-quiet);
-  border-radius: var(--et-radius-photo);
-  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.36);
-  transform: rotate(6deg);
-  transform-origin: 50% 80%;
-}
-
-.spotCard img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-}
-
-.heartBadge {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 22px;
-  height: 22px;
-  color: var(--et-heart);
-  /* Auf einem hellen Foto braucht das Herz denselben Halt wie am Spot selbst
-     (HeartButton: text-shadow auf weissem Grund). */
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
-}
-
-.heartBadge svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* Das Herz wird vergeben, nicht hingestellt: es springt kurz nach dem Layer
-   auf das Foto und schlaegt dann weiter — ein Doppelschlag, dann Ruhe. Nur
-   ueber `transform`, nie ueber Opacity (CLAUDE.md). Die zweite Animation
-   beginnt erst, wenn die erste steht; bis dahin haelt `both` den Sprung. */
-.heartBadge {
-  transform-origin: 50% 60%;
-  animation:
-    loginHeartPop 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 420ms both,
-    loginHeartBeat 2400ms ease-in-out 1400ms infinite;
-}
-
-@keyframes loginHeartPop {
-  from {
-    transform: scale(0) rotate(-24deg);
-  }
-  to {
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-@keyframes loginHeartBeat {
-  0%,
-  30%,
-  100% {
-    transform: scale(1);
-  }
-  8% {
-    transform: scale(1.22);
-  }
-  15% {
-    transform: scale(1);
-  }
-  22% {
-    transform: scale(1.14);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heartBadge {
-    animation: none;
-  }
-}
-
 /* ── Seite rechts ────────────────────────────────────────────────────── */
 
 .side {
@@ -232,34 +121,34 @@
 
 .kicker {
   margin: 0;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   font-family: var(--et-font-display);
   font-size: var(--et-type-kicker);
   font-weight: 700;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .title {
   margin: 0;
-  color: #fff;
+  color: var(--et-fg);
   font-family: var(--et-font-display);
   font-size: var(--login-title-size, clamp(32px, 3.6vw, 46px));
   font-weight: 700;
   letter-spacing: 0;
   /* Zweizeilig liefen die Versalien bei 1.02 ineinander. */
   line-height: 1.1;
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
   overflow-wrap: anywhere;
 }
 
 .lead {
   margin: 6px 0 8px;
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--et-copy);
   font-family: var(--et-font-display);
-  font-size: clamp(17px, 1.6vw, 20px);
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 400;
   line-height: 1.45;
   text-wrap: pretty;
 }
@@ -271,14 +160,18 @@
 }
 
 .input {
+  --login-input-bg: var(--et-field, var(--et-quiet));
   box-sizing: border-box;
   width: 100%;
-  min-height: 50px;
+  min-height: var(--et-btn-h);
   padding: 0 15px;
-  color: var(--et-ink);
-  background: #fff;
+  /* Auf einem roten Blatt (--et-field gesetzt) weiss mit Ink-Schrift. */
+  color: var(--et-field-fg, var(--et-fg));
+  background: var(--login-input-bg);
   border: 0;
-  border-radius: var(--et-radius-control);
+  mask: none;
+  border-radius: 0;
+  box-shadow: none;
   font-family: var(--et-font-display);
   font-size: 17px;
   font-weight: 400;
@@ -287,7 +180,7 @@
 }
 
 .input::placeholder {
-  color: rgba(21, 18, 14, 0.46);
+  color: var(--et-field-muted, #666);
   font-family: inherit;
 }
 
@@ -295,18 +188,20 @@
    Platzhalter, nie in den Wert — das Feld bleibt leer und nichts wird
    abgeschickt. Solange sie tippt, steht der Platzhalter wie echte Eingabe. */
 .input[data-demo-typing]::placeholder {
-  color: var(--et-ink);
+  color: var(--et-fg);
 }
 
 .input:focus {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--login-accent) 64%, transparent);
+  background: color-mix(in srgb, var(--et-field-fg, var(--et-fg)) 7%, var(--login-input-bg));
+  box-shadow: none;
+  outline: 0;
 }
 
 .feedback {
   /* Genau eine Zeile hoch: die Meldung erscheint, ohne dass der Knopf ruckt. */
   min-height: 1.22em;
   margin: -1px 0 0;
-  color: #fff;
+  color: var(--et-fg);
   font-family: var(--et-font-display);
   font-size: 14px;
   font-weight: 400;
@@ -316,29 +211,13 @@
 /* Wer das Google-Fenster selbst zumacht, hat nichts falsch gemacht: dieselbe
    Zeile, aber leise statt im Ton einer echten Stoerung. */
 .feedbackQuiet {
-  color: rgba(255, 255, 255, 0.64);
+  color: var(--et-copy);
 }
 
 .ctaPrimary,
 .ctaGoogle,
 .textlink {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
   width: 100%;
-  min-height: 50px;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: clamp(17px, 1.45vw, 20px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
-  cursor: pointer;
 }
 
 .ctaPrimary span,
@@ -347,63 +226,20 @@
   white-space: nowrap;
 }
 
-.ctaPrimary {
-  color: var(--et-on-accent);
-  background: var(--login-accent);
-}
-
-.ctaGoogle,
-.textlink {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.ctaPrimary:disabled,
-.ctaGoogle:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.ctaPrimary:focus-visible {
-  background: #fff;
-  outline: 0;
-  color: var(--et-ink);
-}
-
-.ctaGoogle:focus-visible,
-.textlink:focus-visible {
-  color: var(--et-on-accent);
-  background: var(--login-accent);
-  outline: 0;
-}
-
-@media (hover: hover) {
-  .ctaPrimary:hover {
-    background: #fff;
-    color: var(--et-ink);
-  }
-
-  .ctaGoogle:hover,
-  .textlink:hover {
-    color: var(--et-on-accent);
-    background: var(--login-accent);
-  }
-}
-
 .or {
   margin: 0;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--et-copy);
   font-family: var(--et-font-display);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .legal {
   margin: 2px 0 0;
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--et-copy);
   font-family: var(--et-font-display);
   font-size: 12px;
   line-height: 1.28;
@@ -411,11 +247,9 @@
 }
 
 .legalLink {
-  color: #fff;
-  font-weight: 800;
-  text-decoration: underline;
-  text-decoration-color: var(--login-accent);
-  text-decoration-thickness: 2px;
+  color: var(--et-fg);
+  font-weight: 700;
+  text-decoration: none;
   text-underline-offset: 3px;
 }
 
@@ -430,18 +264,18 @@
   display: grid;
   gap: 5px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--et-radius-control);
+  background: var(--et-quiet);
+  border-radius: 0;
 }
 
 .toLabel {
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--et-copy);
   font-family: var(--et-font-display);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.1em;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .toValue {
@@ -461,12 +295,12 @@
 }
 
 .sub {
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--et-copy);
   font-size: clamp(15px, 1.3vw, 17px);
 }
 
 .spam {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--et-copy);
   font-size: 14px;
 }
 
@@ -520,20 +354,6 @@
     max-width: 30ch;
     font-size: clamp(14px, 3.8vw, 17px);
   }
-
-  .input,
-  .ctaPrimary,
-  .ctaGoogle,
-  .textlink {
-    min-height: 48px;
-  }
-
-  .heartBadge {
-    right: 6px;
-    bottom: 6px;
-    width: 16px;
-    height: 16px;
-  }
 }
 
 @media (max-width: 820px) and (max-height: 700px) {
@@ -545,10 +365,7 @@
     gap: 12px;
   }
 
-  .input,
-  .ctaPrimary,
-  .ctaGoogle,
-  .textlink {
+  .input {
     min-height: 44px;
   }
 }
@@ -571,3 +388,28 @@
     justify-self: center;
   }
 }
+
+.board.editorial { width: 100%; max-width: 1312px; grid-template-columns: .9fr 1fr; gap: 80px; color: var(--et-fg); }
+.editorial .copy { container-type: inline-size; }
+/* Höchstens so gross, dass „Starter" in die Spalte passt; die Tafel erlaubt
+   sonst Umbrüche mitten im Wort (overflow-wrap: anywhere für lange Adressen). */
+.editorial .title { color: var(--et-fg); font-size: min(var(--hv-display, clamp(40px, 5.6vw, 72px)), 26cqi); font-family: var(--et-font-body); letter-spacing: -.055em; line-height: .92; text-transform: none; max-width: 7ch; overflow-wrap: normal; }
+.editorial .kicker { color: var(--et-fg); }
+.editorial .lead { color: var(--et-fg); font-size: 18px; font-weight: 400; line-height: 1.4; margin: 24px 0; }
+/* Auch auf der Startseite bleibt das E-Mail-Feld glatt und ohne Linienrahmen. */
+.editorial .input { --login-input-bg: var(--et-field, var(--et-ground)); }
+.editorial .input::placeholder { color: var(--et-field-muted, var(--et-muted)); }
+/* Knöpfe als Pillen, das Feld bleibt eckig – so liest sich der weisse
+   Google-Knopf nicht als zweites Feld (Ansage 21.10.2026). */
+
+.editorial .legal,
+.editorial .legalLink,
+.editorial .or,
+.editorial .sub,
+.editorial .spam,
+.editorial .toLabel,
+.editorial .toValue { color: var(--et-muted); }
+.editorial .legalLink:focus-visible, .editorial button:focus-visible { outline: 3px solid var(--et-focus, #d9382a); outline-offset: 4px; }
+@media(max-width:820px) { .board.editorial { grid-template-columns: 1fr; gap: 32px; } .editorial .lead { font-size: 17px; } }
+
+.board :is(button,a):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 3px; }

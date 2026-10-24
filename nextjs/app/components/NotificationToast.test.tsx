@@ -223,7 +223,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(document.querySelector('.notification-primary')?.textContent).toBe('Nochmal');
   });
 
-  it('macht „Alles klar" gelb, wenn es die einzige Antwort ist', () => {
+  it('macht „Alles klar" zum Hauptknopf, wenn es die einzige Antwort ist', () => {
     render(<NotificationToast />);
 
     act(() => {
@@ -232,7 +232,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
 
     const buttons = document.querySelectorAll('.notification-actions button');
     expect(buttons).toHaveLength(1);
-    expect(buttons[0].className).toBe('notification-primary');
+    expect(buttons[0].className).toBe('et-btn notification-primary');
     expect(buttons[0].textContent).toBe('Alles klar');
   });
 

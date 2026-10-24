@@ -66,9 +66,8 @@ describe('HubHeroCopy', () => {
     expect(html).not.toContain('Was du essen solltest.');
     expect(html).toContain('We tell you');
     // One CTA only — the nearby prompt lives in the Nearby section now.
-    // Beschriftet mit dem Namen des Ziels, ohne Verb: der Knopf daneben heißt
-    // „Dein Profil" und ist auch eins.
-    expect(html).toContain('Berlin Food Map');
+    expect(html).toContain('Map entdecken');
+    expect(render('en')).toContain('Explore the map');
     expect(html).not.toContain('Map öffnen');
     expect(html).not.toContain('Was ist um mich?');
     expect(html).not.toContain('Deine Map');
@@ -88,12 +87,13 @@ describe('HubHeroCopy', () => {
     expect(html).not.toContain('Entdecke Berlins beste Restaurants');
   });
 
-  it('keeps the same hero structure while restoring signed-in copy', () => {
+  it('keeps the brand claim and greets signed-in visitors on a line of their own', () => {
     authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
     const html = render();
-    expect(html).toContain('Hey Ersan');
-    expect(html).toContain('Deine Map');
-    expect(html).toContain('wartet.');
+    // Wortmarke und Claim gehören der Marke — angemeldet kein zweiter Claim.
+    expect(html).toContain('We tell you');
+    expect(html).not.toContain('Deine Map wartet');
+    expect(text(html)).toContain('Hey Ersan.');
     expect(html).toContain('href="/profile"');
     expect(html).toContain('Profil');
     expect(html).not.toContain('Was ist um mich?');
@@ -105,7 +105,6 @@ describe('HubHeroCopy', () => {
     expect(html).toContain('data-guest-only');
     expect(html).toContain('data-auth-only');
     expect(html).toContain('We tell you');
-    expect(html).toContain('Deine Map');
     expect(html.match(/<h1/g)).toHaveLength(1);
     // The explainer is guest copy — one copy only, behind the guest gate.
     expect(text(html).match(/Alles auf einer Map/g)).toHaveLength(1);

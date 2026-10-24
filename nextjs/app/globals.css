@@ -162,6 +162,8 @@
   --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
+  --et-status-open: #dce8bf;
+  --et-status-closed: #b52d25;
   /* Ari’s Berlin: https://www.arisberlin.com/menu */
   --et-accent: #a82b2e;
   --et-on-accent: #fff;
@@ -172,15 +174,19 @@
      Schrift, leise Fläche, Trennlinie. Hier die Werte für hellen Grund. */
   --et-muted: rgba(21, 18, 14, 0.64);
   --et-quiet: #f2f1ef;
+  --et-copy: #45423e;
+  --et-line: #d6d4d1;
+  --et-type-page: clamp(40px, 5.2vw, 72px);
+  --et-type-heading: clamp(28px, 3vw, 40px);
+  --et-type-card: clamp(20px, 2vw, 28px);
+  --et-gutter: clamp(20px, 3.4vw, 48px);
   --et-rule: #15120e;
   --et-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
   --et-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 
   /* ── Schriften ── */
-  --et-font-display:
-    'ff-providence-sans-web-pro-1', 'ff-providence-sans-web-pro-2', 'Providence Fallback',
-    sans-serif;
-  /* Einheitlicher Fließtext; Providence bleibt für Titel und Marken-Labels. */
+  --et-font-display: var(--et-font-body);
+  /* Neue CI: dieselbe Grotesk für Titel, Bedienelemente und Fließtext. */
   --et-font-body: 'neue-haas-grotesk-text-1', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --et-font-text: var(--et-font-body);
   --et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
@@ -242,28 +248,26 @@
      Seit die Seiten selbst auf Ink stehen, lag jedes dieser Fenster Ink auf
      Ink — der Schleier dunkelt Ink nicht ab, und ein schwarzer Schatten ist
      auf Schwarz unsichtbar. Deshalb eine Stufe heller als der Grund (Weiss
-     7 %, deckend — ein Fenster darf nicht durchscheinen) plus eine Haarlinie
-     als Kante, dieselbe wie am Filter-Sheet der Karte. `--et-ink-quiet`
+     7 %, deckend — ein Fenster darf nicht durchscheinen). `--et-ink-quiet`
      (5,5 %) legt sich darauf weiter als leise Stufe ab.
      Fest als Hex, nicht als color-mix: faellt color-mix aus, ist die ganze
      Deklaration ungueltig und das Fenster haette GAR keine Flaeche. #25231f
      ist exakt `color-mix(in srgb, #fff 7%, #15120e)`. */
   --et-ink-raised: #25231f;
-  --et-ink-raised-edge: inset 0 0 0 1px var(--et-ink-line);
 
   /* Gemessen gegen Eater (40), Mit Vergnügen (40) und The Infatuation (64)
      auf 1280px. 80 lag über allen dreien. */
   --et-type-section-title: clamp(24px, 3.4vw, 42px);
-  --et-type-kicker: 10px;
+  --et-type-kicker: 12px;
   /* 12–14px war unter dem Band der Wettbewerber (15–18). */
-  --et-type-body: clamp(15px, 1.2vw, 17px);
+  --et-type-body: clamp(16px, 1.2vw, 18px);
   --et-type-lead: clamp(16px, 1.5vw, 21px);
-  --et-type-caption: 11px;
-  --et-type-chip: 12px;
-  --et-type-button: 13px;
+  --et-type-caption: 13px;
+  --et-type-chip: 14px;
+  --et-type-button: 16px;
 
   --et-leading-hero: 0.9;
-  --et-leading-title: 0.92;
+  --et-leading-title: 1.12;
   /* Alle drei gemessenen Wettbewerber fahren ausnahmslos 1.6–1.7 im
      Fließtext. 1.5 war der größte systematische Rückstand der Seite. */
   --et-leading-copy: 1.6;
@@ -298,6 +302,19 @@
   --et-radius-photo: 10px;
   --et-radius-control: 7px;
   --et-radius-pill: 999px;
+  /* Knöpfe in drei Grössen (Ansage 22.10.2026), alle als Pille:
+     Standard für alles Normale, gross nur für den einen Kauf einer Seite,
+     klein für Knöpfe auf Fotos, Karten und in Listen. Breite = Text plus
+     Polster. */
+  --et-btn-h: 48px;
+  --et-btn-pad: 24px;
+  --et-btn-font: 16px;
+  --et-btn-h-lg: 56px;
+  --et-btn-pad-lg: 32px;
+  --et-btn-font-lg: 18px;
+  --et-btn-h-sm: 40px;
+  --et-btn-pad-sm: 16px;
+  --et-btn-font-sm: 14px;
   --et-motion-fast: 140ms ease;
   --et-motion-base: 160ms ease;
   --et-motion-card: 180ms ease;
@@ -309,6 +326,154 @@
   --motion-slow: 320ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
+/* Interface roles change with the explicit selection; artwork keeps literal
+   --et-ink / --et-white and its own contrast pair. */
+:root {
+  --et-ground: #fff;
+  --et-fg: #15120e;
+  --et-subtle: rgba(21, 18, 14, .055);
+  --et-link: #a82b2e;
+  /* Gefüllter Knopf auf dem Seitengrund: hell Ink auf Weiß, dunkel Weiß auf
+     Ink — sonst verschwindet die Fläche im Grund. */
+  --et-solid: #15120e;
+  --et-on-solid: #fff;
+  --map-collage-paper: var(--et-ground);
+  --map-collage-ink: var(--et-fg);
+  --map-basemap-ground: #f4f4f4;
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --et-ground: #15120e;
+  --et-fg: #fff;
+  --et-muted: #b7b3ae;
+  --et-copy: #d4d1cd;
+  --et-quiet: #25231f;
+  --et-line: #514e49;
+  --et-rule: #514e49;
+  --et-subtle: rgba(255, 255, 255, .075);
+  --et-link: #f29194;
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  --map-basemap-ground: #0e0e0e;
+}
+
+/* Vintage-Look (Entwurf, 21.10.2026): Papier wie auf den Must-Eat-Karten.
+   Jede Section der Startseite ist ein eigenes Blatt — Korn und Fasern plus
+   die Gebrauchsspuren der Karte (Ringe, Knick, abgestoßene Kanten) — und
+   scrollt mit ihrem Inhalt; keine Ebene über der ganzen Seite. Unterseiten
+   (Magazin, Spots, Artikel) sind nur leicht gealtert (siehe unten). Der Grund bleibt
+   weiß (dunkel: Ink), Schrift und Spuren sind farbneutral — kein Creme.
+   Knöpfe tragen dezentes Druckkorn auf glatten, runden Flächen. Die vollen Kratzer tragen
+   Etiketten (aktiver
+   Menüpunkt, Spot-Name im Artikel). Ansage 21.10.2026. */
+html[data-vintage] {
+  --et-wear: url('/pics/vintage/button-wear.webp?v=2');
+  /* Ein Blatt: Korn und Fasern gekachelt, darüber die Gebrauchsspuren der
+     Karte einmal über die ganze Fläche. */
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
+  --et-sheet-size: 192px, 100% 100%;
+  --et-sheet-repeat: repeat, no-repeat;
+  /* Abgestossene Ränder: eine Maske aus vier kachelbaren Kantenstreifen und
+     einer vollen Fläche dazwischen. Nur für das Login-Fenster —
+     nicht für Fotos, Tafeln oder Etiketten (Ansage 22.10.2026: „nicht
+     überall"). Die Maske schneidet auch den eigenen box-shadow ab. */
+  --et-rough-edges:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 12px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 256px 12px repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 12px 256px repeat-y,
+    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 12px 256px repeat-y,
+    linear-gradient(#000 0 0) center / calc(100% - 20px) calc(100% - 20px) no-repeat;
+}
+
+html[data-vintage][data-theme='dark'] {
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+}
+/* Die Maske schnitte den Fokusring ab, der ausserhalb des Knopfs liegt.
+   Hausknöpfe zeigen den Fokus als Fläche (unten) und behalten ihre Kante. */
+html[data-vintage] :is(a, button, input):not(.et-btn):focus-visible {
+  mask: none;
+}
+html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
+  background-image: var(--et-sheet);
+  background-size: var(--et-sheet-size);
+  background-repeat: var(--et-sheet-repeat);
+}
+/* Unterseiten (Spots, Artikel …) sind nur leicht gealtert und bleiben weiß:
+   Korn plus die Gebrauchsspuren mit 40 % Deckkraft, in Kartenproportion
+   oben — gestreckt würden die Ringe zu Ellipsen. Das Blatt reicht bis an
+   den Rand: auf der vollen Seitenfläche — `.app-page` (Artikel; ihre <main>
+   ist eingerückt) oder die <main> direkt im body (Spots). Die Startseite hat
+   eigene Blätter. Die Magazin-Übersicht war erst ganz glatt, liegt jetzt
+   wie die übrigen Unterseiten auf Papier (Ansage 21.10.2026: „mit Kratzer
+   wie echte Magazine“). `:has()` darf nicht in `:has()` stehen, sonst fällt
+   die ganze Regel weg. */
+html[data-vintage] :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
+  background-size: 192px, 100% auto;
+  background-repeat: repeat, no-repeat;
+  background-position: 0 0, top center;
+}
+html[data-vintage][data-theme='dark'] :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
+}
+/* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
+   21.10.2026: „mit verschiedenen Farben für die Sections, damit man diese
+   weisse Ebene nicht braucht"). Die Folge der Startseite: Gelb (Aufmacher) →
+   Papier (Magazin) → Ink (Must Eats) → Papier (Bezirke) → Rot (Remy) →
+   Papier (Fragen) → Rot (Starter Pack) → Ink (Fuss). Nie zwei gleiche
+   nebeneinander; den Abstand gibt das Innenpolster der Sections. Ink- und
+   Rot-Blätter setzen ihre Rollen-Farben selbst, damit Schrift, Knöpfe und
+   Felder darin stimmen. */
+html[data-vintage] .homeV2 > [data-hub-musteats] {
+  color-scheme: dark;
+  --et-ground: #15120e;
+  --et-fg: #fff;
+  --et-muted: #b7b3ae;
+  --et-copy: #d4d1cd;
+  --et-quiet: #25231f;
+  --et-line: #514e49;
+  --et-rule: #514e49;
+  --et-subtle: rgba(255, 255, 255, .075);
+  --et-link: #f29194;
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+}
+/* Im Dunkelmodus ist das Papier selbst Ink — Must Eats eine Stufe heller. */
+html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
+  --et-ground: #25231f;
+}
+/* Starter Pack im Rot des Packs selbst (Ansage 21.10.2026: „soll rot sein,
+   ähnlich wie das Starter Pack"): Schrift weiss, Feld und Google-Knopf weiss
+   mit Ink-Schrift, „Anmelden" Ink, Fokus weiss — Rot auf Rot sähe man nicht.
+   Das Anmelde-Modal trägt dasselbe Rot (`data-red-sheet`, Ansage 22.10.2026). */
+html[data-vintage] :is(.homeV2 > [data-hub-starter], [data-red-sheet]) {
+  color-scheme: light;
+  --et-ground: #cf3f2f;
+  --et-fg: #fff;
+  --et-muted: rgba(255, 255, 255, .82);
+  --et-copy: #fff;
+  --et-quiet: rgba(255, 255, 255, .14);
+  --et-subtle: rgba(255, 255, 255, .14);
+  --et-link: #fff;
+  --et-solid: #15120e;
+  --et-on-solid: #fff;
+  --et-field: #fff;
+  --et-field-fg: #15120e;
+  --et-field-muted: rgba(21, 18, 14, .6);
+  --et-focus: #fff;
+  --et-btn-hover: #2b2722;
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
+}
+/* Nachbarblätter mit versetztem Korn, damit sich das Muster nicht wiederholt. */
+html[data-vintage] .homeV2 > :nth-child(even) {
+  background-position: 96px 61px, center;
+}
+html[data-vintage] .homeV2 > :nth-child(3n) {
+  background-position: 37px 140px, center;
+}
+
 *,
 *::before,
 *::after {
@@ -348,14 +513,14 @@ html {
   /* Matches the page surface so the side strips that appear on Desktop when
      .page is centered with max-width blend in, and iOS rubber-band overscroll
      picks it up too. */
-  background-color: var(--et-white);
+  background-color: var(--et-ground);
 }
 body {
   font-family: var(--et-font-body);
-  background-color: var(--et-white);
+  background-color: var(--et-ground);
   background-image: none;
   background-size: auto;
-  color: var(--et-ink);
+  color: var(--et-fg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
@@ -364,84 +529,13 @@ body {
    sections; without a wrapper background those gaps expose the body. Fill
    the hub so the gaps read as one surface. */
 [data-hub] {
-  background: var(--et-white);
+  background: var(--et-ground);
 }
-/* Die Startseite steht seit 03.09.2026 auf durchgehendem Ink: der Grund ist
-   die Flaeche, getrennt wird durch Raum, Type und die Fotos. Die Regel gehoert
-   hierher und nicht ins Modul — sie traegt (0,3,1) und schlaegt jede
-   Modul-Klasse. */
-html[data-active-page='start'] [data-hub] {
-  background: var(--et-ink);
+/* Shared page canvas, including the browser overscroll area. */
+html[data-active-page], html[data-active-page] body, html[data-active-page] .app-pages {
+  background: var(--et-ground);
 }
-/* Der Rahmen unter der Seite muss mit: beim Ueberscrollen (iOS) und auf sehr
-   hohen Fenstern schaut sonst das Papier des Blatts unter dem Ink hervor.
-   Seit 03.09.2026 stehen ALLE Inhaltsseiten auf diesem Grund — die Liste
-   ist die Wahrheit darueber, welche das sind; der Artikel steht seit
-   02.10.2026 auf weissem Grund, Bezirks- und Kategorieseiten samt ihren
-   Uebersichten seit 03.10.2026 (Bloecke darunter). Seit 04.09.2026 ist die Map
-   dabei: sie bleibt ein Werkzeug, aber ein Werkzeug in derselben Farbe.
-   Nicht dabei: die 404, der Badge-Generator und die Admin-Zahlen.
-   Die Seitenmodule malen ihren Grund zusaetzlich selbst; hier steht er nur,
-   weil `main` in layout.css auf transparent liegt und das Blatt sonst beim
-   Ueberscrollen weiss durchschaut. */
-html[data-active-page='start'],
-html[data-active-page='start'] body,
-html[data-active-page='start'] .app-pages,
-html[data-active-page='must-eats'],
-html[data-active-page='must-eats'] body,
-html[data-active-page='must-eats'] .app-pages,
-html[data-active-page='packs'],
-html[data-active-page='packs'] body,
-html[data-active-page='packs'] .app-pages,
-html[data-active-page='pack'],
-html[data-active-page='pack'] body,
-html[data-active-page='pack'] .app-pages,
-html[data-active-page='news'],
-html[data-active-page='news'] body,
-html[data-active-page='news'] .app-pages,
-html[data-active-page='about'],
-html[data-active-page='about'] body,
-html[data-active-page='about'] .app-pages,
-html[data-active-page='contact'],
-html[data-active-page='contact'] body,
-html[data-active-page='contact'] .app-pages,
-html[data-active-page='impressum'],
-html[data-active-page='impressum'] body,
-html[data-active-page='impressum'] .app-pages,
-html[data-active-page='datenschutz'],
-html[data-active-page='datenschutz'] body,
-html[data-active-page='datenschutz'] .app-pages,
-html[data-active-page='agb'],
-html[data-active-page='agb'] body,
-html[data-active-page='agb'] .app-pages,
-html[data-active-page='profile'],
-html[data-active-page='profile'] body,
-html[data-active-page='profile'] .app-pages,
-html[data-active-page='deck'],
-html[data-active-page='deck'] body,
-html[data-active-page='deck'] .app-pages,
-html[data-active-page='checkout'],
-html[data-active-page='checkout'] body,
-html[data-active-page='checkout'] .app-pages,
-html[data-active-page='map'],
-html[data-active-page='map'] body,
-html[data-active-page='map'] .app-pages {
-  background: var(--et-ink);
-}
-/* Die Ausnahme seit 02.10.2026: der Artikel steht auf weissem Grund wie die
-   Startseite (NewsArticleShell.module.css). Aus demselben Grund wie oben
-   hier und nicht im Modul — `main` und `.app-page` sind transparent. */
-html[data-active-page='news-article'],
-html[data-active-page='news-article'] body,
-html[data-active-page='news-article'] .app-pages {
-  background: var(--et-white);
-}
-/* …ausser jemand stellt ihn dunkel (lib/articleTheme.ts). */
-html[data-active-page='news-article'][data-article-theme='dark'],
-html[data-active-page='news-article'][data-article-theme='dark'] body,
-html[data-active-page='news-article'][data-article-theme='dark'] .app-pages {
-  background: var(--et-ink);
-}
+html[data-active-page='start'] [data-hub] { background: var(--et-ground); }
 /* The browser canvas stays dark throughout the magazine transition, even
    after navigation activates a light article. Its transformed page paints
    --article-ground itself until the overlay is removed (magazineOpen.ts). */
@@ -449,20 +543,6 @@ html[data-active-page][data-magazine-opening],
 html[data-active-page][data-magazine-opening] body,
 html[data-active-page][data-magazine-opening] .app-pages {
   background: var(--et-magazine-table);
-}
-/* Spot-Artikel und Entdecker-Rubriken teilen den Ink-Grund der Startseite. */
-html[data-active-page='restaurant'],
-html[data-active-page='restaurant'] body,
-html[data-active-page='restaurant'] .app-pages {
-  background: var(--et-ink);
-}
-html[data-active-page='bezirk'],
-html[data-active-page='bezirk'] body,
-html[data-active-page='bezirk'] .app-pages,
-html[data-active-page='kategorie'],
-html[data-active-page='kategorie'] body,
-html[data-active-page='kategorie'] .app-pages {
-  background: var(--et-ink);
 }
 /* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
    erste Pfadsegment der falschen Adresse, und auf einem gestreamten
@@ -527,10 +607,13 @@ html[data-active-page='map'] .app-page {
      thin canvas gap produced by margin + calculated viewport height. */
   html[data-active-page='start'] .app-pages {
     position: fixed;
-    inset: var(--site-nav-h) 0 0;
+    /* Bis unter den Kopf: der Aufmacher hält ihn mit seinem oberen
+       Innenabstand frei. Sprünge zu Ankern halten trotzdem Abstand. */
+    inset: 0;
+    scroll-padding-top: var(--site-nav-h);
     height: auto;
     margin: 0;
-    background-color: var(--et-white);
+    background-color: var(--et-ground);
     overscroll-behavior-y: none;
   }
 }
@@ -632,19 +715,18 @@ html[data-auth='1'] [data-guest-only] {
     z-index: var(--et-z-map-phone-active);
   }
 
-  /* Ink seit 04.09.2026. Diese beiden Blocks faerben auf dem Telefon die
-     Safari-Leisten (iOS 26 liest die background-color der Kante, nicht
-     theme-color) — sie waren Papier, solange die Map hell war. */
+  /* Der Dokumentabschluss färbt auch Safaris Browserleisten. Er folgt der
+     Map-Palette: Papier im hellen Modus, Ink im dunklen. */
   html:has(.app-page[data-page='map'].active),
   body:has(.app-page[data-page='map'].active) {
-    background: var(--et-ink);
+    background: var(--et-ground);
   }
 
   html:has(.app-page[data-page='map'][data-map-view='detail']),
   body:has(.app-page[data-page='map'][data-map-view='detail']),
   html:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'],
   body:has(.app-page[data-page='map'][data-map-view='detail']) .app-page[data-page='map'] {
-    background: var(--et-ink);
+    background: var(--et-ground);
   }
 }
 
@@ -786,10 +868,16 @@ html[data-auth='1'] [data-guest-only] {
   touch-action: none;
 }
 .notification {
-  --toast-surface: var(--et-ink-raised);
-  --toast-ink: var(--et-white);
-  --toast-muted: rgba(255, 255, 255, 0.76);
-  --toast-accent: var(--et-accent);
+  /* Ein Blatt wie der Anmelde-Layer, aber in der Farbe der Seite: hell
+     Papier mit Ink-Schrift, dunkel Ink mit weisser (Ansage 22.10.2026: „der
+     ist jetzt schwarz, passt nicht zum weissen Look"). Knöpfe folgen den
+     Rollen der Seite; der zweite ist eine leise Stufe der Schriftfarbe. */
+  --toast-surface: var(--et-ground);
+  --toast-ink: var(--et-fg);
+  --toast-muted: var(--et-muted);
+  --et-field: color-mix(in srgb, var(--et-fg) 10%, transparent);
+  --et-field-fg: var(--et-fg);
+  --et-focus: var(--et-fg);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -800,18 +888,18 @@ html[data-auth='1'] [data-guest-only] {
      Text — „Noch einer fuer deine Liste." stand schmaler als der Rest. Die
      40 px sind das Seitenpolster der Huelle. */
   width: min(360px, calc(100vw - 40px));
-  padding: 22px 22px 22px;
+  padding: 26px 24px 24px;
   color: var(--toast-ink);
   text-align: left;
-  background: var(--toast-surface);
+  background-color: var(--toast-surface);
+  background-image: var(--et-sheet, none);
+  background-size: var(--et-sheet-size, auto);
+  background-repeat: var(--et-sheet-repeat, repeat);
   border: 0;
-  /* Derselbe Radius wie Anmelde-Layer und Onboarding. */
-  border-radius: var(--et-radius-panel, 10px);
-  /* Keine Kante, wie der Anmelde-Layer — die Flaechenstufe traegt, dazu der
-     Schatten des Onboarding-Fensters (Tour.module.css .panel). Bis 24.09.2026
-     stand hier nur eine 1-px-Kante: der clip-path des damaligen Schlitzes
-     schnitt jeden aeusseren Schatten weg. */
-  box-shadow: 0 24px 80px #0008;
+  border-radius: 0;
+  /* Abgestossene Kante wie das Anmelde-Fenster (LoginPanel). Die Maske
+     schnitte einen eigenen Schatten ab — den wirft die Hülle (unten). */
+  mask: var(--et-rough-edges, none);
   pointer-events: none;
   transition: transform 0.26s ease-out;
 }
@@ -829,43 +917,34 @@ html[data-auth='1'] [data-guest-only] {
     transform: translateY(14px);
   }
 }
-/* Dieselbe Sprache wie der Anmelde-Layer (LoginBoard): gelber Kicker in
-   Providence-Versalien, weisser Versalien-Titel, eine Zeile in Weiss 76 %,
-   gefuellte Knoepfe ohne Kontur. Vor dem Kicker das gelbe Marken-Quadrat
-   (wie `hv-mk` und der Insider-Tipp); nur bei „kaputt" ist es rot. Rot als
-   Schrift waere auf Ink zu schwach (rund 2,9:1), das Quadrat traegt die
-   Farbe allein. Icons gibt es seit dem 24.09.2026 keine mehr — der Kicker
-   sagt, worum es geht. */
+/* Kicker als Etikett, darunter der Titel und eine leise Zeile, gefüllte
+   Knöpfe. Bei „kaputt" ist das Etikett rot. */
 .notification[data-tone='error'] {
   --toast-mark: var(--et-red);
+  --toast-mark-fg: #fff;
 }
 .notification-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--et-font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1.2;
+  /* Der Kicker ist ein gerades Etikett wie in der Map (et-label): Ink mit
+     Kratzern und gelber Schrift, bei „kaputt" rot mit weisser. */
+  align-self: flex-start;
+  padding: 6px 9px 5px;
+  background: var(--toast-mark, var(--et-label-bg, var(--et-ink))) var(--et-wear, none) 0 0 / 200px auto;
+  color: var(--toast-mark-fg, #ffc600);
+  font: 900 11px / 1 var(--et-font-body);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--et-accent-text);
 }
-.notification-eyebrow::before {
-  content: '';
-  flex: none;
-  width: 9px;
-  height: 9px;
-  background: var(--toast-mark, var(--toast-accent));
+.notification-eyebrow:empty {
+  display: none;
 }
 .notification-title {
-  margin-top: 2px;
+  margin-top: 6px;
   font-family: var(--et-font-display);
   font-size: 26px;
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.02;
-  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-transform: none;
   text-wrap: balance;
   color: var(--toast-ink);
   overflow-wrap: anywhere;
@@ -906,10 +985,11 @@ html[data-auth='1'] [data-guest-only] {
 }
 .notification-steps li::before {
   content: counter(notice-step);
-  color: var(--et-accent-text);
+  color: var(--et-link);
 }
 /* Knoepfe nur, wo es welche gibt — dann ist die Karte ein Layer. Gleich
-   breit nebeneinander, der gelbe rechts; allein nimmt er die ganze Breite. */
+   breit nebeneinander, der Hauptknopf rechts; allein nimmt er die ganze
+   Breite. Aussehen: et-btn. */
 .notification-actions {
   display: flex;
   gap: 8px;
@@ -918,54 +998,15 @@ html[data-auth='1'] [data-guest-only] {
 .notification-primary,
 .notification-quiet {
   flex: 1 1 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 12px 16px;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  font-family: var(--et-font-display);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.12;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 0.16s ease,
-    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.notification-primary {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-}
-.notification-quiet {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--toast-ink);
-}
-/* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink. */
-@media (hover: hover) {
-  .notification-primary:hover {
-    background: #fff;
-    color: var(--et-ink);
-  }
-  .notification-quiet:hover {
-    background: rgba(255, 255, 255, 0.16);
-  }
-}
-.notification-primary:focus-visible,
-.notification-quiet:focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 3px;
-}
-.notification-primary:active,
-.notification-quiet:active {
-  transform: translateY(1px);
+/* Der Schatten, den die Maske der Karte abschneiden würde, kommt von der
+   Hülle: so hebt sich das helle Blatt auch auf heller Seite ab. */
+.notification-layer[data-open] {
+  filter: drop-shadow(0 18px 40px rgb(0 0 0 / 0.28));
 }
 @media (max-width: 420px) {
   .notification {
-    padding: 20px 18px 18px;
+    padding: 24px 20px 20px;
   }
   .notification-title {
     font-size: 24px;
@@ -976,6 +1017,44 @@ html[data-auth='1'] [data-guest-only] {
   .notification {
     transition: none;
   }
+}
+
+/* Map info layers share the folded-paper material of the map filters.
+   The page marker also reaches portals without changing notices elsewhere. */
+html[data-active-page='map'] .notification {
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+  mask: none;
+  gap: 12px;
+}
+html[data-active-page='map'] .notification-eyebrow {
+  padding: 0;
+  background: none;
+  color: var(--et-fg);
+  font-weight: 800;
+}
+html[data-active-page='map'] .notification[data-tone='error'] .notification-eyebrow {
+  color: var(--et-accent-text);
+}
+html[data-active-page='map'] .notification-title {
+  margin-top: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-wrap: pretty;
+}
+html[data-active-page='map'] .notification-detail,
+html[data-active-page='map'] .notification-steps li {
+  font-weight: 400;
+  color: var(--et-fg);
+}
+html[data-active-page='map'] .notification-steps li::before {
+  color: var(--et-fg);
+  font-weight: 800;
+}
+html[data-active-page='map'] .notification-layer[data-open] {
+  filter: drop-shadow(0 12px 32px rgb(0 0 0 / 0.2));
 }
 
 /* ── Consent gate: hold the page still while the question is up ─────────────
@@ -1006,17 +1085,11 @@ html[data-auth='1'] [data-guest-only] {
    Motion is translate/scale only (brand rule: no opacity fades on brand
    surfaces). The scrim transitions its background-COLOR rather than opacity —
    it is a veil over the page, not a surface of its own. */
-/* Seit 24.09.2026 in der Sprache des Anmelde-Layers (LoginBoard/LoginPanel):
-   Fenster eine Stufe ueber Ink ohne Kontur, gelbes Marken-Quadrat vor der
-   Providence-Versalie, alles in Providence, Knoepfe gefuellt wie dort — der
-   gelbe hovert auf Papier, der zweite ist eine Weiss-Stufe und hovert gelb.
-   Kein Ring um "Ablehnen" (keine Konturen auf Ink), kein Rot. */
+/* Knitterpapier in der Theme-Farbe der Map-Filter, mit geraden Blattkanten.
+   Beide Antworten bleiben gleich gross und gleich gut lesbar. */
 .cookie-gate {
   --cookie-panel-w: 520px;
   --cookie-panel-w-wide: 900px;
-  --cookie-accent: var(--et-accent);
-  --cookie-soft: var(--et-ink-soft);
-  --cookie-dim: var(--et-ink-dim);
   --cookie-font: var(--et-font-display);
   position: fixed;
   inset: 0;
@@ -1043,6 +1116,9 @@ html[data-auth='1'] [data-guest-only] {
   background-color: var(--et-scrim);
 }
 .cookie-consent {
+  /* Text und Details folgen derselben Palette wie die Papierfläche. */
+  --cookie-soft: var(--et-copy);
+  --cookie-dim: var(--et-fg);
   position: relative;
   box-sizing: border-box;
   width: min(100%, var(--cookie-panel-w));
@@ -1051,11 +1127,16 @@ html[data-auth='1'] [data-guest-only] {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding: clamp(28px, 3.4vw, 40px);
-  color: #fff;
-  background: var(--et-ink-raised);
+  color: var(--et-fg);
+  background-color: var(--et-ground);
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  background-repeat: no-repeat;
   border: 0;
-  border-radius: var(--et-radius-panel, 10px);
-  box-shadow: 0 28px 78px rgba(0, 0, 0, 0.34);
+  border-radius: 0;
+  mask: none;
   font-family: var(--cookie-font);
   transform: translateY(22px) scale(0.97);
   transition:
@@ -1087,24 +1168,13 @@ html[data-auth='1'] [data-guest-only] {
   align-items: center;
   gap: 12px;
   margin: 0;
-  color: #fff;
+  color: var(--et-fg);
   font-family: var(--cookie-font);
   font-size: clamp(32px, 3.4vw, 42px);
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.02;
-  text-transform: uppercase;
-}
-/* Dasselbe Zeichen wie `hv-mk` vor den Abschnittstiteln und vor dem
-   Insider-Tipp — gelb, nicht rot: Rot ist auf Ink raus. */
-.cookie-mark {
-  flex: none;
-  width: 10px;
-  height: 10px;
-  /* Providence-Versalien stehen hoch in der Zeile; ohne den Zug sitzt das
-     Quadrat unter ihrer Mitte. */
-  translate: 0 -0.08em;
-  background: var(--cookie-accent);
+  line-height: 1.12;
+  text-transform: none;
 }
 .cookie-text {
   max-width: 44ch;
@@ -1123,7 +1193,7 @@ html[data-auth='1'] [data-guest-only] {
   margin-top: 14px;
   padding: 2px 0;
   cursor: pointer;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   background: none;
   border: 0;
   font-family: var(--cookie-font);
@@ -1133,16 +1203,16 @@ html[data-auth='1'] [data-guest-only] {
   text-transform: none;
 }
 .cookie-info-trigger:focus-visible {
-  color: #fff;
+  color: var(--et-solid);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-info-trigger:hover {
-    color: #fff;
+    color: var(--et-solid);
   }
 }
-/* Accept is the primary answer, decline the secondary one: yellow against a
-   white step, both filled. What must NOT differ is everything the law looks
+/* Accept is the primary answer, decline the secondary one: ink against a
+   white pill, both filled. What must NOT differ is everything the law looks
    at — same box, same type, same weight, same single click, and decline keeps
    full-white label text so it stays as readable as accept. Do not shrink it,
    grey the label down or push it behind another click: a refusal that costs
@@ -1156,52 +1226,7 @@ html[data-auth='1'] [data-guest-only] {
   width: 100%;
 }
 .cookie-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  font-family: var(--cookie-font);
-  font-size: clamp(17px, 1.45vw, 19px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.12;
-  text-transform: uppercase;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 140ms ease,
-    color 140ms ease;
-}
-.cookie-btn-accept {
-  color: var(--et-on-accent);
-  background: var(--cookie-accent);
-}
-.cookie-btn-decline {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-}
-.cookie-btn-accept:focus-visible {
-  background: #fff;
-  outline: 0;
-  color: var(--et-ink);
-}
-.cookie-btn-decline:focus-visible {
-  color: var(--et-on-accent);
-  background: var(--cookie-accent);
-  outline: 0;
-}
-@media (hover: hover) {
-  .cookie-btn-accept:hover {
-    background: #fff;
-    color: var(--et-ink);
-  }
-  .cookie-btn-decline:hover {
-    color: var(--et-on-accent);
-    background: var(--cookie-accent);
-  }
+  width: 100%;
 }
 .cookie-legal {
   display: flex;
@@ -1219,12 +1244,12 @@ html[data-auth='1'] [data-guest-only] {
   text-decoration: none;
 }
 .cookie-legal a:focus-visible {
-  color: var(--et-accent-text);
+  color: var(--et-solid);
   outline: 0;
 }
 @media (hover: hover) {
   .cookie-legal a:hover {
-    color: var(--et-accent-text);
+    color: var(--et-solid);
   }
 }
 @media (max-width: 640px) {
@@ -1261,18 +1286,9 @@ html[data-auth='1'] [data-guest-only] {
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  .cookie-btn {
-    min-height: 52px;
-  }
 }
 
 /* Cookie banner inline expand. */
-.cookie-info-chevron {
-  transition: transform 0.22s var(--ease);
-}
-.cookie-consent.expanded .cookie-info-chevron {
-  transform: rotate(180deg);
-}
 .cookie-expand {
   width: 100%;
   margin: 0;
@@ -1281,7 +1297,7 @@ html[data-auth='1'] [data-guest-only] {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  scrollbar-color: var(--et-muted) transparent;
   scrollbar-width: thin;
   /* Self-hiding scroll shadows. The panel is height-capped, so the card grid
      gets cut mid-row — without an edge cue that reads as a rendering bug
@@ -1289,16 +1305,15 @@ html[data-auth='1'] [data-guest-only] {
      mask the `scroll` layers once an end is reached, so the hint appears only
      where there is actually more to see. No JS, no listener. */
   background:
-    linear-gradient(var(--et-ink-raised) 30%, transparent) top / 100% 22px no-repeat local,
-    linear-gradient(transparent, var(--et-ink-raised) 72%) bottom / 100% 26px no-repeat local,
-    radial-gradient(farthest-side at 50% 0, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)) top /
+    linear-gradient(var(--et-ground) 30%, transparent) top / 100% 22px no-repeat local,
+    linear-gradient(transparent, var(--et-ground) 72%) bottom / 100% 26px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0)) top /
       100% 11px no-repeat scroll,
-    radial-gradient(farthest-side at 50% 100%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0))
+    radial-gradient(farthest-side at 50% 100%, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0))
       bottom / 100% 13px no-repeat scroll;
-  background-color: var(--et-ink-raised);
+  background-color: var(--et-ground);
 }
-/* Die Abschnitte als leise Felder im Fenster — Ueberschrift als gelbes
-   Kreide-Label in Versalien, wie die Labels der Fakten-Tafel. */
+/* Dezente Detailflächen folgen ebenfalls der gewählten Theme-Palette. */
 .cookie-expand .cookie-info-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -1309,19 +1324,19 @@ html[data-auth='1'] [data-guest-only] {
   min-width: 0;
   margin: 0;
   padding: 14px 15px 15px;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--et-subtle);
   border: 0;
-  border-radius: var(--et-radius-control);
+  border-radius: 0;
 }
 .cookie-expand .cookie-info-body h3 {
   margin: 0 0 7px;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   font-family: var(--cookie-font);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.3;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .cookie-expand .cookie-info-body p,
 .cookie-expand .cookie-info-body ul li {
@@ -1350,14 +1365,14 @@ html[data-auth='1'] [data-guest-only] {
   top: 0.62em;
   width: 4px;
   height: 4px;
-  background: var(--cookie-accent);
+  background: currentColor;
 }
 .cookie-expand .cookie-info-body strong {
-  color: #fff;
+  color: var(--et-fg);
   font-weight: 700;
 }
 .cookie-expand .cookie-info-body a {
-  color: var(--et-accent-text);
+  color: var(--et-link);
   font-weight: 700;
   text-decoration: none;
 }
@@ -1393,7 +1408,7 @@ html[data-auth='1'] [data-guest-only] {
    Nebeneffekt, der passt: wo der Hover −1px hebt, steht der Druck auf 0 —
    dieselbe Bewegung wie vorher.
 
-   1px, weil das die Hausgeste ist (`.hv-btn`, `.hv-chip` und rund zwanzig
+   1px, weil das die Hausgeste ist (`.et-btn`, `.hv-chip` und rund zwanzig
    weitere Regeln machen das seit jeher so). Wer das ändert, ändert es hier.
 
    `summary` ist mit drin: die FAQ-Zeilen sind Knöpfe, auch wenn sie keine sind.
@@ -1402,7 +1417,7 @@ html[data-auth='1'] [data-guest-only] {
 button:not(:disabled):active,
 summary:active,
 [role='button']:not([aria-disabled='true']):active,
-.hv-btn:active,
+.et-btn:active,
 .hv-chip:active {
   translate: 0 1px;
 }
@@ -1441,8 +1456,8 @@ summary:active,
   left: -9999px;
   top: 0;
   z-index: var(--et-z-above-nav);
-  background: #000;
-  color: #fff;
+  background: var(--et-solid);
+  color: var(--et-on-solid);
   padding: 12px 18px;
   font-weight: 700;
   text-decoration: none;
@@ -1461,7 +1476,7 @@ summary:active,
 body {
   max-width: 100%;
   overscroll-behavior: none;
-  background: var(--et-white);
+  background: var(--et-ground);
   overflow-x: hidden;
 }
 iframe {
@@ -1540,7 +1555,7 @@ ol {
     /* Pad for fixed app-footer + safe-area-inset-bottom so last content is reachable */
     padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom, 0px)));
     overflow: visible;
-    background: var(--et-white);
+    background: var(--et-ground);
     overscroll-behavior: none;
   }
   /* Pages ending with the site footer let the footer own bottom clearance. */
@@ -1548,8 +1563,15 @@ ol {
     padding-bottom: 0;
   }
   .app-page[data-page='start'] {
-    /* Keep the mobile document ink through Safari's translucent chrome. */
-    background: var(--et-ink);
+    background: var(--et-ground);
+  }
+  /* Startseite: der Aufmacher reicht bis unter den durchsichtigen Kopf
+     (HubSection.module.css hält ihm dafür oben den Platz frei). */
+  html[data-active-page='start'] .app-pages {
+    padding-top: 0;
+  }
+  html[data-active-page='start'] {
+    scroll-padding-top: var(--site-nav-h);
   }
 }
 
@@ -1580,20 +1602,27 @@ ol {
     height: auto;
     min-height: calc(100dvh - 48px);
     padding-bottom: 0;
-    background: var(--et-white);
+    background: var(--et-ground);
     overflow-y: visible;
     overflow-x: hidden;
   }
   .app-page[data-page='start'] {
-    /* Keep the mobile document ink through Safari's translucent chrome. */
-    background: var(--et-ink);
+    background: var(--et-ground);
+  }
+  /* Startseite: der Aufmacher reicht bis unter den durchsichtigen Kopf
+     (HubSection.module.css hält ihm dafür oben den Platz frei). */
+  html[data-active-page='start'] .app-pages {
+    padding-top: 0;
+  }
+  html[data-active-page='start'] {
+    scroll-padding-top: var(--site-nav-h);
   }
 }
 
 /* ── Home vocabulary (scoped to .homeV2) ── */
 .homeV2 {
-  background: var(--et-white);
-  color: var(--et-ink);
+  background: var(--et-ground);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
 }
 .homeV2 .hv-wrap {
@@ -1610,7 +1639,7 @@ ol {
   font-size: var(--et-type-kicker);
   letter-spacing: var(--et-tracking-label);
   text-transform: uppercase;
-  color: var(--et-ink);
+  color: var(--et-fg);
 }
 .homeV2 .hv-head {
   display: flex;
@@ -1663,7 +1692,7 @@ ol {
   font-weight: 700;
   font-size: clamp(14px, 1.1vw, 16px);
   margin-top: var(--et-control-gap);
-  color: var(--et-ink);
+  color: var(--et-fg);
 }
 .homeV2 .hv-sub {
   font-family: var(--et-font-display);
@@ -1671,31 +1700,207 @@ ol {
   font-size: var(--et-type-caption);
   color: var(--et-muted);
 }
-.homeV2 .hv-btn {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: var(--et-type-button);
-  padding: 11px 24px;
-  border-radius: 999px;
-  display: inline-block;
-  background: var(--et-ink);
-  color: var(--et-white);
-  border: none;
+/* ---------------------------------------------------------------------------
+   Der Knopf. Eine Definition für jeden Text-Knopf der App (Ansage 22.10.2026:
+   „die müssen alle gleich sein, und ändere ich sie, ziehen alle mit"):
+   Pille wie alter Magazindruck: feines Korn, leichte Druckspuren,
+   fett, Neue Haas Grotesk.
+   Module setzen nur noch, WO ein Knopf steht (Abstand, Breite, Raster) —
+   nie Farbe, Form, Schrift oder Hover. Gleich spezifische Modulregeln
+   gewönnen sonst gegen diese hier (globals lädt zuerst).
+
+   Farbe kommt aus den Rollen der Fläche: `--et-solid`/`--et-on-solid` —
+   Ink auf Papier, weiss auf Ink-Blättern, Ink auf den roten Blättern.
+   Größen: Standard; `et-btn-sm` auf Fotos, Karten und in Listen;
+   `et-btn-lg` für den einen Kauf einer Seite.
+   `et-btn-alt`: die zweite Antwort neben einem Hauptknopf (Google,
+   Ablehnen) und Knöpfe auf Fotos — weiss mit Ink-Schrift.
+   Symbol-Knöpfe, Chips, Filter und die Sprachwahl sind keine Knöpfe in
+   diesem Sinn und bleiben eigen. */
+.et-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: var(--et-btn-h);
+  padding: 0 var(--et-btn-pad);
+  border: 0;
+  border-radius: var(--et-radius-pill);
+  background-color: var(--et-btn-bg, var(--et-solid));
+  background-image: url('/pics/vintage/button-wear-soft.webp');
+  background-size: 200px auto;
+  background-position: center;
+  mask: none;
+  color: var(--et-btn-fg, var(--et-on-solid));
+  font: 700 var(--et-btn-font) / 1.25 var(--et-font-body);
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
   cursor: pointer;
   transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
+    background-color var(--et-motion-fast),
+    color var(--et-motion-fast);
 }
-.homeV2 .hv-btn:focus-visible {
-  transform: translateY(-2px);
+.et-btn-sm {
+  min-height: var(--et-btn-h-sm);
+  padding-inline: var(--et-btn-pad-sm);
+  font-size: var(--et-btn-font-sm);
+}
+.et-btn-lg {
+  min-height: var(--et-btn-h-lg);
+  padding-inline: var(--et-btn-pad-lg);
+  font-size: var(--et-btn-font-lg);
+}
+.et-btn-alt {
+  --et-btn-bg: var(--et-field, #fff);
+  --et-btn-fg: var(--et-field-fg, var(--et-ink));
+}
+.et-btn-paper {
+  --et-btn-bg: var(--et-ground);
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
+  --et-btn-hover-fg: var(--et-fg);
+  border-radius: 0;
+  mask: none;
+  background-image: url('/pics/paper/folded-white.webp');
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+}
+.et-btn.et-btn-paper:focus-visible,
+.et-paper-link:is(:hover, :focus-visible) .et-btn-paper {
+  background-color: var(--et-btn-hover);
+  color: var(--et-btn-hover-fg);
+}
+.et-btn.et-btn-paper:focus-visible {
+  outline: 0;
+}
+/* Map menu follows the compact filter typography and paper height. */
+.et-btn.et-btn-map-control {
+  min-height: 40px;
+  padding-inline: 7px;
+  font: 800 11px / 1.2 var(--et-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+@media (max-width: 767.98px) {
+  .et-btn.et-btn-map-control { min-height: 44px; }
+}
+
+.et-btn-text {
+  --et-btn-bg: transparent;
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover: transparent;
+  --et-btn-hover-fg: color-mix(in srgb, var(--et-fg) 68%, var(--et-ground));
+  padding-inline: 0;
+  background-image: none;
+  mask: none;
+}
+html[data-theme='dark'] .et-btn-text {
+  --et-btn-fg: var(--et-muted);
+  --et-btn-hover-fg: var(--et-white);
+}
+.et-btn-light-hover {
+  --et-btn-hover: var(--et-white);
+  --et-btn-hover-fg: var(--et-ink);
+}
+.et-btn svg {
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
 }
 @media (hover: hover) {
-  .homeV2 .hv-btn:hover {
-    transform: translateY(-2px);
+  .et-btn:not(:disabled):hover {
+    background-color: var(--et-btn-hover, var(--et-accent));
+    color: var(--et-btn-hover-fg, #fff);
   }
 }
-.homeV2 .hv-btn:active {
-  transform: translateY(1px);
+/* Fokus als Fläche, kein Ring: ein Ring mit Abstand um die Pille las sich
+   als doppelter Rahmen (Ansage 22.10.2026: „kein doppelten Rahmen im
+   Button"). Gelb mit Ink-Schrift — dieselbe Fläche wie ein gesetzter Filter. */
+.et-btn:focus-visible {
+  outline: 0;
+  background-color: #ffc600;
+  color: var(--et-ink);
+}
+.et-btn.et-btn-text:focus-visible {
+  background-color: transparent;
+  color: var(--et-btn-hover-fg);
+  font-weight: 900;
+}
+.et-btn.et-btn-light-hover:focus-visible {
+  background-color: var(--et-white);
+  color: var(--et-ink);
+}
+.et-btn:disabled,
+.et-btn[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* ---------------------------------------------------------------------------
+   Das Etikett. Ein aufgeklebter Zettel wie der Spot-Name auf den
+   Spot-Karten im Artikel, aber gerade (Ansage 22.10.2026: „keine schiefen
+   Labels, nur noch gerade") (NewsArticleShell `.inlineSpotName`): Ink mit den
+   Kratzern, weisse Schrift (Ansage 23.10.2026, vorher gelb). So steht Text auf einem Foto, ohne dass das Foto
+   dunkler werden muss (Ansage 22.10.2026: „das Bild muss hell bleiben").
+   `et-label`: kleine Versalien (Bezirk, Küche, Status, Zwischentitel).
+   `et-label-paper`: dasselbe auf weissem Papier.
+   `et-label-title`: der Name als grosses Etikett; jede umbrochene Zeile
+   bekommt ihr eigenes Stück. */
+.et-label {
+  display: inline-block;
+  padding: 6px 9px 5px;
+  background: var(--et-label-bg, var(--et-ink)) var(--et-wear, none) 0 0 / 200px auto;
+  color: #fff;
+  font: 900 11px / 1 var(--et-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.et-label-paper {
+  background: #fff;
+  color: var(--et-ink);
+}
+.et-label-open {
+  background: linear-gradient(rgb(220 232 191 / 0.9), rgb(220 232 191 / 0.9)),
+    var(--et-status-open) url('/pics/paper/folded-white.webp') center / 240px 360px;
+  color: var(--et-ink);
+}
+.et-label-closed {
+  background: var(--et-status-closed);
+  color: #fff;
+}
+/* Der Name steht wie bei 032c als schwarze Schrift in einem knappen weissen
+   Kasten (Ansage 23.10.2026). */
+.et-label-title {
+  padding: 1px 7px 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: #fff;
+  color: var(--et-ink);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+html[data-active-page='map'] .et-label {
+  font-size: 12px;
+}
+html[data-active-page='map'] .et-label.et-label-open,
+html[data-active-page='map'] .et-label.et-label-closed {
+  padding: 4px 6px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+@media (max-width: 767.98px) {
+  html[data-active-page='map'] {
+    --et-btn-h-sm: 48px;
+  }
+}
+/* Auf dem dunklen Grund verschwände das Ink-Etikett in der Fläche: eine
+   Stufe heller. Auf Fotos setzt das Bild `--et-label-bg` wieder auf Ink. */
+html[data-theme='dark'] {
+  --et-label-bg: var(--et-ink-raised);
 }
 .homeV2 .hv-chip {
   font-family: var(--et-font-display);
@@ -1704,7 +1909,7 @@ ol {
   padding: 9px 15px;
   border-radius: var(--et-radius-control);
   background: var(--et-quiet);
-  color: var(--et-ink);
+  color: var(--et-fg);
   border: none;
   cursor: pointer;
   transition:
@@ -1727,14 +1932,13 @@ ol {
    No transforms or scroll locks: Safari keeps its native window scrolling. */
 @media (prefers-reduced-motion: no-preference) {
   html[data-hero-intro][data-active-page='start'] .app-pages {
-    z-index: 100100;
+    z-index: var(--et-z-above-nav);
   }
   html[data-hero-intro][data-active-page='start'],
   html[data-hero-intro][data-active-page='start'] body {
-    background-color: #000;
+    background-color: #ffc600;
   }
 }
-
 /* One continuous map between the district footer and Berlin overview. */
 [data-map-view] { view-transition-name: berlin-map; }
 ::view-transition-group(berlin-map) { animation-duration: 700ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
@@ -1761,3 +1965,6 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(category-pack) { animation-duration: 0s; }
 }
+
+
+.cookie-consent :is(button,a):not(.et-btn):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 3px; }

@@ -1,71 +1,26 @@
-/* Die Ink-Tafel um die Anmeldung auf der Startseite. Was darauf steht,
-   gehoert LoginBoard; hier nur die Flaeche und das Pack. */
-.inner {
-  --login-title-size: var(--et-type-section-title);
-  /* Nur `--et-board-quiet-pad` lesen, nie `--et-board-pad`: das zweite Token
-     ist seit dem Ink-Umbau `0px` und löst die Tafeln auf, die auf dem Grund
-     stehen. */
-  padding: var(--et-board-quiet-pad);
-  overflow: hidden;
-  background: transparent;
-  color: var(--et-white);
-  border-radius: var(--et-radius-photo);
-}
+.scene:global(.hv-wrap) { max-width: none; padding: 64px var(--home-gutter); color: var(--et-fg); background: var(--et-ground); }
+@media(max-width:820px) { .scene:global(.hv-wrap) { padding-block: 48px; } }
 
-/* Ab 768px eine schmalere Tafel, mittig: über die ganze Satzbreite standen
-   Pack und Formular mit viel leerem Ink links und rechts in ihren Hälften
-   (Rückmeldung 01.10.2026: „sehr viel Abstand, Layer schmaler"). */
-@media (min-width: 768px) {
-  .inner {
-    max-width: 1000px;
-    margin-inline: auto;
-  }
-}
-
-/* Am Telefon eine randlose Bahn statt eines gerundeten Kastens. Ein Kasten,
-   der nur 16px vom Bildschirmrand entfernt steht, liest sich als Rahmen und
-   nimmt dem Formular noch einmal 2x22px. Die negative Rinne ist exakt die von
-   `hv-wrap` (`--et-wrap-pad-mobile`, dieselbe 768px-Grenze wie die Navigation) — der Inhalt
-   steht damit auf derselben Satzkante wie der Rest der Seite. */
-@media (max-width: 767.98px) {
-  .inner {
-    margin-inline: calc(-1 * var(--et-wrap-pad-mobile));
-    padding: 30px var(--et-wrap-pad-mobile) 32px;
-    border-radius: 0;
-  }
-}
-/* Auf der Startseite steht das Starter Pack seit 01.10.2026 in einem
-   eigenen Ink-Band zwischen zwei helleren (HubSection.module.css, „Kapitel").
-   Dort ist das Band die Tafel: eine zweite, fast gleich helle Bahn darin
-   las sich als Streifen zwischen Streifen. Ab 768px bleibt die schmale
-   Tafel in der Mitte des Bandes stehen. */
-@media (max-width: 767.98px) {
-  :global([data-hub-starter]) .inner {
-    background: transparent;
-  }
-}
-
-/* Die Bühne des Packs. Darin das flache Bild (`.packRig`) — erst Platzhalter,
-   dann nur noch Maß: die WebGL-Leinwand (`.gl`) liegt über der ganzen
-   Bühne, damit das gedrehte Pack nirgends anstösst, und zeichnet es so breit
-   wie `.packRig` (StarterPack3D). */
+/* Die Bühne des 3D-Packs (StarterPack3D). Darin das flache Bild
+   (`.packRig`) — erst Platzhalter, dann nur noch Maß: die WebGL-Leinwand
+   (`.gl`) liegt über der ganzen Bühne, damit das gedrehte Pack nirgends
+   anstösst, und zeichnet es so breit wie `.packRig`. */
 .art {
   position: relative;
   width: 100%;
-  height: 430px;
+  height: 540px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .packRig {
   position: absolute;
-  width: min(76%, 230px);
-  aspect-ratio: 1008 / 1560;
+  width: min(76%, 300px);
+  aspect-ratio: 945 / 1491;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
-.pack {
-  position: relative;
+.packFlat {
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 18px 18px #0005);
@@ -75,18 +30,6 @@
   width: 100%;
   height: 100%;
 }
-.character {
-  position: absolute;
-  left: 19.4%;
-  top: 30.8%;
-  width: 59.8%;
-  height: 66%;
-}
-.character img {
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-}
 .gl {
   position: absolute;
   inset: 0;
@@ -95,45 +38,26 @@
   visibility: hidden;
 }
 /* Steht WebGL, zeichnet nur noch die Leinwand; das Bild hält den Platz. */
-.art[data-gl] .gl {
-  visibility: visible;
-}
-.art[data-gl] .packRig {
-  visibility: hidden;
-}
-/* Der Schatten unter dem schwebenden Pack: eine weiche Ellipse auf der
-   Tafel, kein Teil der 3D-Szene. */
+.art[data-gl] .gl { visibility: visible; }
+.art[data-gl] .packRig { visibility: hidden; }
+/* Der Schatten unter dem schwebenden Pack: kein Teil der 3D-Szene, sondern
+   ein weicher, breiter Fleck mit Abstand unter der Unterkante. Er folgt dem
+   Schweben (`--lift` 0–1, StarterPack3D): steigt das Pack, wird er kleiner
+   und blasser, sinkt es, dichter. */
 .shadow {
   position: absolute;
   left: 50%;
-  bottom: 6%;
-  width: min(60%, 200px);
-  height: 22px;
+  bottom: 0;
+  width: min(80%, 290px);
+  height: 30px;
   translate: -50% 0;
+  scale: calc(1.04 - var(--lift, 0.5) * 0.16) 1;
+  opacity: calc(1 - var(--lift, 0.5) * 0.4);
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent);
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.24), rgb(0 0 0 / 0.1) 55%, transparent);
+  filter: blur(5px);
 }
-.scene .inner {
-  padding-block: 12px 32px;
-}
-/* Nebeneinander (ab 821px, dieselbe Grenze wie LoginBoard) ist das Formular
-   die hoehere Spalte; mit 12px oben klebte der Kicker an der Tafelkante. */
-@media (min-width: 821px) {
-  .scene .inner {
-    padding-block: 0;
-  }
-}
-
-@media (max-width: 767.98px) {
-  .art {
-    width: min(100%, 330px);
-    height: 340px;
-    margin: 0 auto;
-  }
-  /* 180 statt 220px (Ansage 30.09.2026: „am Handy etwas kleiner") — mit
-     220px fuellte das Pack am 390er-Telefon den Bildschirm, bevor
-     Ueberschrift und Feld kamen. */
-  .packRig {
-    width: 180px;
-  }
+@media (max-width: 820px) {
+  .art { width: min(100%, 330px); height: 400px; margin: 0 auto; }
+  .packRig { width: 220px; }
 }

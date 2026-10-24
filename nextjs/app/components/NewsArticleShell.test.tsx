@@ -242,12 +242,16 @@ describe('NewsArticleShell', () => {
   // Spot-Seite — auf einer Karte, deren sichtbarer Knopf „Zur Map“ heißt,
   // ist das für niemanden vorhersehbar, zumal die Trefferfläche des Namens
   // über die ganze Karte reicht.
-  it('sends both the spot name and the map button to the map', () => {
+  // Name, Knopf und die kartenweite Trefferfläche (nur für Zeiger) führen auf
+  // die Map.
+  // Kein eigener „Zur Map"-Knopf mehr (22.10.2026): der Name ist als dicker
+  // Aufkleber das Zeichen, die ganze Karte die Fläche.
+  it('sends the spot name and the card to the map, without a separate button', () => {
     const html = render([spot('Spumante', 'spumante')]);
     expect(html.match(/href="\/map\?r=spumante"/g)).toHaveLength(2);
-    // „Zur Map" wie überall in der App — „Auf die Map" klang doof (02.10.2026).
-    expect(html).toContain('Zur Map');
-    expect(html).not.toContain('Auf die Map');
+    const hit = html.match(/<a[^>]*href="\/map\?r=spumante"[^>]*aria-hidden="true"[^>]*>|<a[^>]*aria-hidden="true"[^>]*href="\/map\?r=spumante"[^>]*>/)?.[0] ?? '';
+    expect(hit).toContain('tabindex="-1"');
+    expect(html).not.toContain('Zur Map');
   });
 
   // Der gefolgte Link auf die Spot-Seite sitzt jetzt auf der Meta-Zeile. Ohne
@@ -260,7 +264,7 @@ describe('NewsArticleShell', () => {
     expect(metaLink).not.toContain('nofollow');
   });
 
-  it('nofollows both map links — they carry a query', () => {
+  it('nofollows every map link — they carry a query', () => {
     const html = render([spot('Spumante', 'spumante')]);
     // Nicht mehr, weil die Map noindex wäre — sie ist seit dem 01.09.2026
     // indexierbar. Beide Links tragen `?r=`, und jede Query-Variante zählt die
@@ -268,6 +272,42 @@ describe('NewsArticleShell', () => {
     const mapLinks = html.match(/<a[^>]*href="\/map\?r=spumante"[^>]*>/g) ?? [];
     expect(mapLinks).toHaveLength(2);
     for (const link of mapLinks) expect(link).toContain('nofollow');
+  });
+
+  it('puts each spot description before its map card and before the next heading', () => {
+    const html = render([
+      h2('Bonvivant'),
+      spot('Bonvivant', 'bonvivant'),
+      para('Bonvivant erster Absatz.'),
+      para('Bonvivant zweiter Absatz.'),
+      h2('Double Eye'),
+      spot('Double Eye', 'double-eye'),
+      para('Double Eye Beschreibung.'),
+    ]);
+    const body = document.createElement('div');
+    body.innerHTML = html;
+    const reading = body.querySelector('[data-article-content]')!;
+    const text = reading.textContent!;
+    expect(text.indexOf('Bonvivant erster Absatz.')).toBeLessThan(text.indexOf('Bonvivant zweiter Absatz.'));
+    const firstMap = reading.querySelector('a[href="/map?r=bonvivant"]')!;
+    const secondHeading = reading.querySelectorAll('h2')[1];
+    const paragraphs = reading.querySelectorAll('p');
+    expect(paragraphs[1].compareDocumentPosition(firstMap) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstMap.compareDocumentPosition(secondHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const secondMap = reading.querySelector('a[href="/map?r=double-eye"]')!;
+    expect(paragraphs[2].compareDocumentPosition(secondMap) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('keeps narrative cards in their authored position', () => {
+    const html = render([
+      h2('Ein Nachmittag im Kiez'),
+      para('Vor dem Kaffee.'),
+      spot('Double Eye', 'double-eye'),
+      para('Nach dem Kaffee.'),
+    ]);
+    const text = html.slice(html.indexOf('data-article-content'));
+    expect(text.indexOf('Vor dem Kaffee.')).toBeLessThan(text.indexOf('/map?r=double-eye'));
+    expect(text.indexOf('/map?r=double-eye')).toBeLessThan(text.indexOf('Nach dem Kaffee.'));
   });
 
   it('lists the spots of a guide under the head, by name, each a jump', () => {

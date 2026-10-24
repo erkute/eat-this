@@ -110,7 +110,7 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
       </div>
 
       <div>
-        <h3 className={styles.subTitle}>Der Weg</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Der Weg</h3>
         <div className={styles.dayTiles}>
           {DAY_STEPS.map((key) => (
             <Tile key={key} label={labelFor(key)} value={NUMBER.format(steps.get(key) ?? 0)} />
@@ -120,7 +120,7 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
 
       {day.people && (
         <div>
-          <h3 className={styles.subTitle}>Aus Firestore</h3>
+          <h3 className={`et-label ${styles.subTitle}`}>Aus Firestore</h3>
           <div className={styles.dayTiles}>
             <Tile label="Neue Konten" value={NUMBER.format(day.people.newAccounts)} />
             <Tile label="Starter Packs" value={NUMBER.format(day.people.starterPacks)} />
@@ -133,22 +133,22 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
       )}
 
       <div>
-        <h3 className={styles.subTitle}>Einstiegsseiten</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Einstiegsseiten</h3>
         <BarRows rows={day.entryPaths} empty="Noch nicht erfasst." />
       </div>
 
       <div>
-        <h3 className={styles.subTitle}>Meistgesehen</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Meistgesehen</h3>
         <BarRows rows={day.paths} empty="Nichts gezählt." />
       </div>
 
       <div>
-        <h3 className={styles.subTitle}>Herkunft</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Herkunft</h3>
         <BarRows rows={day.referrers} empty="Keine externen Verweise." />
       </div>
 
       <div>
-        <h3 className={styles.subTitle}>Wo Besuche enden</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Wo Besuche enden</h3>
         {day.hasExits ? (
           <ExitTable rows={day.exits} compact />
         ) : (
@@ -157,7 +157,7 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
       </div>
 
       <div>
-        <h3 className={styles.subTitle}>Alle Ereignisse</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Alle Ereignisse</h3>
         <BarRows
           rows={day.events.map((e) => ({ key: e.key, label: labelFor(e.key), count: e.count }))}
           empty="Keine Ereignisse gezählt."
@@ -171,7 +171,7 @@ function SearchDay({ detail }: { detail: SearchDayDetail }) {
   return (
     <div className={styles.stack}>
       <div>
-        <h3 className={styles.subTitle}>{dayTitle(detail.day)}</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>{dayTitle(detail.day)}</h3>
         <div className={styles.dayTiles}>
           <Tile label="Klicks" value={NUMBER.format(detail.totals.clicks)} />
           <Tile label="Impressionen" value={NUMBER.format(detail.totals.impressions)} />
@@ -180,11 +180,11 @@ function SearchDay({ detail }: { detail: SearchDayDetail }) {
         </div>
       </div>
       <div>
-        <h3 className={styles.subTitle}>Suchbegriffe des Tages</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Suchbegriffe des Tages</h3>
         <SearchRows rows={detail.queries} empty="Keine Anfragen mit Klicks an diesem Tag." />
       </div>
       <div>
-        <h3 className={styles.subTitle}>Gefundene Seiten</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Gefundene Seiten</h3>
         <SearchRows rows={detail.pages} empty="Keine Seiten mit Klicks an diesem Tag." />
       </div>
     </div>

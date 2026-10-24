@@ -2,8 +2,10 @@
 
 // Remys Anlegestelle — der EINE Mount für die ganze Site.
 //
-// Sie lädt zunächst nichts: kein Chat, kein Chunk, nur ein Knopf und ein
-// Listener. Erst das erste BUDDY_ASK_EVENT holt das Widget (~108 KB:
+// Sie lädt zunächst nichts: kein Chat, kein Chunk, nur einen Listener. Einen
+// Knopf in der Ecke gibt es nicht mehr (Ansage 21.10.2026) — gefragt wird
+// über „Frag Remy" im Menü und die Bühne der Startseite. Erst das erste
+// BUDDY_ASK_EVENT holt das Widget (~108 KB:
 // Streaming, Nachrichten-Rendering, die Buddy-Hooks). Die Frage, die den Mount
 // auslöst, puffert homeStage (pendingBuddyAsk) — sie überlebt das Nachladen.
 //
@@ -18,7 +20,6 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { usePathname } from '@/i18n/navigation';
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage';
-import RemyLauncher from './RemyLauncher';
 
 export const preloadBuddyWidget = () => import('./BuddyWidget');
 const BuddyWidget = dynamic(preloadBuddyWidget, { ssr: false });
@@ -50,10 +51,5 @@ export default function RemyDock() {
     };
   }, [mount, isHome]);
 
-  return (
-    <>
-      <RemyLauncher />
-      {mount && <BuddyWidget />}
-    </>
-  );
+  return mount ? <BuddyWidget /> : null;
 }

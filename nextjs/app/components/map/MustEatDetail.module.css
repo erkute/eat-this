@@ -168,12 +168,12 @@
 }
 .detail .fdMid {
   margin-top: clamp(18px, 3dvh, 30px);
-  border-top: 1.5px solid var(--et-ink);
-  border-bottom: 1.5px solid var(--et-ink);
+  border-top: 0;
+  border-bottom: 0;
 }
 .fdRest .fdK {
   font-family: var(--et-font-body);
-  color: rgba(255, 255, 255, 0.66);
+  color: #555;
 }
 .fdHeroWrap {
   padding-top: clamp(56px, 8.5dvh, 76px);
@@ -264,8 +264,8 @@
   backdrop-filter: none;
   top: 12px;
   right: 12px;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   color: var(--me-ink);
   background: transparent;
   border: 0;
@@ -397,7 +397,7 @@
 .fdName,
 .fdNameText {
   font-family: var(--et-font-display);
-  text-transform: uppercase;
+  text-transform: none;
 }
 .fdName {
   font-size: clamp(38px, 10.2vw, 64px);
@@ -1452,7 +1452,7 @@
   height: 56px;
   min-height: 56px;
   align-self: center;
-  border-radius: 8px;
+  border-radius: 0;
   object-fit: cover;
   box-shadow: none;
 }
@@ -1490,10 +1490,10 @@
 .scroll {
   background-color: var(--map-collage-paper);
   background-image: none;
-  --me-ink: var(--et-white);
-  --me-paper: var(--et-ink);
-  --me-muted: rgba(255, 255, 255, 0.76);
-  --me-soft: rgba(255, 255, 255, 0.07);
+  --me-ink: var(--et-fg);
+  --me-paper: var(--et-ground);
+  --me-muted: var(--et-muted);
+  --me-soft: var(--et-quiet);
   background: var(--me-paper);
   color: var(--me-ink);
 }
@@ -1502,11 +1502,13 @@
 /* Das X wie im Onboarding (.x): weiß, gelb bei Hover. */
 
 .fdClose:focus-visible {
+  outline: 0;
   box-shadow: none;
   background: transparent;
-  transform: translateY(-1px);
-  color: var(--et-accent-text);
+  transform: none;
+  color: var(--me-ink);
 }
+.fdClose:focus-visible svg { stroke-width: 3; }
 
 @media (hover: hover) {
   .fdClose:hover {
@@ -1514,8 +1516,8 @@
     text-shadow: none;
     box-shadow: none;
     background: transparent;
-    transform: translateY(-1px);
-    color: var(--et-accent-text);
+    transform: none;
+    color: color-mix(in srgb, var(--me-ink) 68%, var(--me-paper));
   }
 }
 
@@ -1552,20 +1554,13 @@
   overflow: visible;
 }
 
-/* Gelb, klein, Versalien: das Zeichen, unter dem im Onboarding jede Folie
-   steht (.kicker). Hier nennt es den Bezirk — die eine Angabe, die verdeckt
+/* Der Kicker ist ein gerades Etikett (et-label, globals.css) wie in der
+   Restaurant-Ansicht. Er nennt den Bezirk — die eine Angabe, die verdeckt
    wie aufgedeckt gilt und nicht schon im Restaurant-Streifen steht. */
 
 .fdKicker {
   flex: 0 0 auto;
   margin: 0;
-  color: var(--et-accent-text);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-kicker);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  line-height: 1;
-  text-transform: uppercase;
 }
 
 .fdName {
@@ -1743,18 +1738,8 @@
 .detail .scroll > .fdRestInline:not(:has(.fdRestPhoto)) {
   grid-template-columns: minmax(0, 1fr);
 }
-@media (hover: hover) {
-  .detail .scroll > .fdRestInline:hover {
-    background: rgba(255, 255, 255, 0.11);
-    transform: translateY(-2px);
-  }
-}
 .detail .scroll > .fdRestInline:active {
   transform: translateY(1px);
-}
-.scroll > .fdRestInline:focus-visible {
-  outline: 2px solid var(--me-accent);
-  outline-offset: 2px;
 }
 .scroll > .fdRestInline .fdK {
   height: auto;
@@ -1838,9 +1823,7 @@
    („Noch nicht aufgedeckt."), der Standort sitzt darunter als eigenes Objekt
    in der Copy-Zeile: eine Taste mit Pin, solange man den Browser noch fragen
    darf; gedimmt und ohne Taste, sobald er Nein gesagt hat — dann sagt der
-   Hinweis darunter, wo es noch geht. Die Fassung ist der zweite Knopf des
-   Onboardings (.packLink): transparent, weißer Ring, gelb bei Hover. Der Ring
-   ist ein inset-Schatten, damit Taste und Status dieselbe Box haben. */
+   Hinweis darunter, wo es noch geht. Aussehen: der Hausknopf (et-btn). */
 
 .fdLocation {
   display: grid;
@@ -1849,72 +1832,20 @@
   width: 100%;
 }
 
-.fdLocationChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-sizing: border-box;
-  min-height: 40px;
-  margin: 0;
-  padding: 0 16px 0 13px;
-  appearance: none;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  background: transparent;
-  color: var(--me-ink);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
-  font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0;
-  /* 1.55 statt 1: Providence braucht Platz unter der Zeile, sonst kappt der
-     Kasten das g (siehe .rdActBtn in RestaurantDetail.module.css). Die Höhe
-     kommt aus min-height. */
-  line-height: 1.55;
-  text-transform: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.16s ease;
-}
-
+/* Der Standort-Knopf ist ein Hausknopf (et-btn et-btn-sm) — hier steht nur
+   das Symbol darin. */
 .fdLocationChip svg {
   flex: 0 0 auto;
   width: 16px;
   height: 16px;
 }
 
-@media (hover: hover) {
-  button.fdLocationChip:hover {
-    transform: translateY(-2px);
-    box-shadow: inset 0 0 0 2px var(--me-accent);
-  }
-}
-
-button.fdLocationChip:active {
-  transform: translateY(1px);
-}
-
-.fdLocationChip:focus-visible {
-  outline: 2px solid var(--me-accent);
-  outline-offset: 2px;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .fdLocationChip,
   .detail .scroll > .fdRestInline {
     transition: none;
   }
-  button.fdLocationChip:active,
   .detail .scroll > .fdRestInline:active {
     transform: none;
-  }
-  @media (hover: hover) {
-    button.fdLocationChip:hover,
-    .detail .scroll > .fdRestInline:hover {
-      transform: none;
-    }
   }
 }
 
@@ -1972,14 +1903,16 @@ button.fdLocationChip:active {
 .fdPagerPrev svg,
 .fdPagerNext svg {
   display: block;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   transition: translate 0.15s ease-out;
 }
 
-.fdPagerNext svg {
-  transform: scaleX(-1);
-}
 
 .fdPagerPrev:disabled,
 .fdPagerNext:disabled {
@@ -2170,7 +2103,7 @@ button.fdLocationChip:active {
 .fdKickerCount {
   flex: 0 0 auto;
   margin: 0 0 6px;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--et-muted);
   font-family: var(--et-font-display);
   font-size: 11px;
   font-weight: 700;
@@ -2190,4 +2123,43 @@ button.fdLocationChip:active {
     padding-top: calc(62px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px));
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
+}
+
+/* Restaurant-Zeile im selben hellen Knitterlook wie die Map-Filter. */
+.detail .scroll > .fdRestInline:has(.fdRestPhoto),
+.detail .scroll > .fdRestInline {
+  border-radius: 0;
+  color: var(--et-fg);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 400px 600px;
+  background-blend-mode: multiply;
+}
+@media (hover: hover) {
+  .detail .scroll > .fdRestInline:hover {
+    background-color: color-mix(in srgb, var(--et-ground) 90%, var(--et-fg));
+    box-shadow: none;
+    transform: none;
+  }
+}
+.detail .scroll > .fdRestInline:focus-visible {
+  outline: 0;
+  background-color: color-mix(in srgb, var(--et-ground) 80%, var(--et-fg));
+  box-shadow: none;
+}
+.detail .scroll > .fdRestInline:focus-visible .fdV { font-weight: 900; }
+.scroll > .fdRestInline .fdK {
+  color: var(--et-muted);
+  font-family: var(--et-font-body);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.scroll > .fdRestInline .fdV {
+  color: var(--et-fg);
+}
+
+/* Das X frei, ohne Fläche (Ansage 22.10.2026: „beim X kein Rahmen"), als
+   gezeichnetes Zeichen (icons.tsx CloseIcon) in der Stärke der übrigen. */
+.fdClose svg {
+  width: 24px;
+  height: 24px;
 }

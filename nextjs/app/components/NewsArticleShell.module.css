@@ -14,14 +14,12 @@
    (`--article-on-accent`). Fokusrahmen sind Ink — Gelb auf Weiss sähe man
    nicht. */
 .page {
-  --article-ground: var(--et-white);
-  --article-fg: var(--et-ink);
-  --article-head: var(--et-accent);
+  --article-ground: var(--et-ground);
+  --article-fg: var(--et-fg);
+  --article-head: var(--et-link);
   --article-accent: var(--et-accent);
   --article-muted: var(--et-muted);
   --article-quiet: var(--et-quiet);
-  /* Die Tafel am Artikelende (Katalog-Ausgang): Ink auf Weiss. */
-  --article-board: var(--et-ink);
   /* Text keeps a reading measure; headlines and photo spreads use the desktop width independently. */
   --article-measure: 660px;
   /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
@@ -33,14 +31,13 @@
 }
 
 /* Dunkel auf Knopfdruck: Ink-Grund und weisser Lesetext. Die Kapitel und
-   Spotnamen behalten das Markenrot; die Tafel nutzt die erhöhte Ink-Stufe. */
-:global(html[data-article-theme='dark']) .page {
+   Überschriften behalten das Markenrot; Papierflächen folgen dem Thema. */
+:global(html[data-theme='dark']) .page {
   --article-ground: var(--et-ink);
   --article-fg: var(--et-white);
   --article-head: var(--et-accent-heading);
   --article-muted: var(--et-ink-soft);
   --article-quiet: var(--et-ink-raised);
-  --article-board: var(--et-ink-raised);
 }
 
 /* `.app-page` (globals.css) pairs overflow-x:hidden with overflow-y:visible
@@ -91,11 +88,11 @@ div.page {
      darunter bleiben rot. */
   color: var(--article-fg);
   /* The headline spans the page while the prose keeps its reading width. */
-  font-size: clamp(44px, 6vw, 128px);
+  font-size: clamp(40px, 5.2vw, 80px);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: var(--et-leading-title);
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
 }
 
@@ -120,7 +117,7 @@ div.page {
   color: var(--article-fg);
   font-size: 13px;
   line-height: 1.3;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 /* Das Foto über die ganze Fensterbreite, ringsum 10px Rahmen — wie die
@@ -139,18 +136,20 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-/* Der Vorspann in Grotesk wie der Lesetext; Headlines bleiben Providence. */
+/* Der Vorspann in Grotesk wie der Lesetext; Headlines bleiben Providence.
+   Er steht mittig wie Titel und Zwischenüberschriften, erst der Lesetext ist
+   linksbündig (Ansage 21.10.2026). */
 .lede {
   max-width: var(--article-measure);
   margin: clamp(48px, 5.6vw, 88px) auto 0;
   color: var(--article-fg);
   font-family: var(--et-font-body);
-  font-size: clamp(24px, 2.3vw, 32px);
+  font-size: clamp(22px, 2vw, 28px);
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.25;
   letter-spacing: -0.0125em;
-  text-align: left;
-  text-wrap: pretty;
+  text-align: center;
+  text-wrap: balance;
 }
 
 /* ------------------------------------------------------------ chapters --- */
@@ -173,7 +172,7 @@ div.page {
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .chapterList {
@@ -311,9 +310,9 @@ div.page {
 .content:not([data-lede]) > p:first-of-type {
   margin-bottom: 32px;
   font-family: var(--et-font-body);
-  font-size: clamp(24px, 2.3vw, 32px);
+  font-size: clamp(22px, 2vw, 28px);
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.25;
   letter-spacing: -0.0125em;
   text-align: left;
   text-wrap: pretty;
@@ -338,7 +337,7 @@ div.page {
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .content [data-block='conclusion'] p:not([data-block='conclusion-label']) {
@@ -361,7 +360,7 @@ div.page {
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title);
   text-align: center;
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
   scroll-margin-top: 104px;
 }
@@ -421,7 +420,7 @@ div.page {
    die Kapitel.
    Die Links in der Spot-Karte tragen ihr eigenes Aussehen (Name, Knopf,
    Bezirk · Küche). */
-.content a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue) {
+.content a:not(.inlineSpotNameLink):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue) {
   color: inherit;
   font-weight: 700;
   text-decoration: none;
@@ -430,7 +429,7 @@ div.page {
 
 @media (hover: hover) {
   .content
-    a:not(.inlineSpotNameLink):not(.inlineSpotCta):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue):hover {
+    a:not(.inlineSpotNameLink):not(.inlineSpotMetaLink):not(.mustEat):not(.inlineIssue):hover {
     color: var(--article-head);
   }
 }
@@ -449,7 +448,7 @@ div.page {
   font-size: clamp(28px, 2.8vw, 38px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 1.15;
+  line-height: 1.25;
   text-align: left;
   text-wrap: balance;
   border: 0;
@@ -457,10 +456,8 @@ div.page {
 
 /* --------------------------------------------------------- must-eat ----- */
 
-/* A flat band, not a poster. The old block ran a 74px headline — louder than
-   the article's own h2 — and printed the identical teaser copy for every
-   must-eat in a guide. The restaurant now carries the headline, so two bands
-   in one piece can never read as the same block twice. */
+/* Dasselbe Knitterpapier wie die Katalog-Verweise; Etikett aus globals.css.
+   Die Kartenrückseite bleibt das Motiv, die Schrift folgt dem Seitenthema. */
 .mustEat {
   position: relative;
   font-family: var(--et-font-display);
@@ -470,11 +467,11 @@ div.page {
   gap: clamp(16px, 2.2vw, 26px);
   margin: clamp(30px, 4.5vw, 56px) 0;
   padding: clamp(16px, 2vw, 22px);
-  background: var(--article-quiet);
-  color: var(--article-fg);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 100% 100%;
+  background-blend-mode: multiply;
+  color: var(--et-fg);
   text-align: left;
   text-decoration: none;
-  transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
 
 .mustEatPh {
@@ -489,7 +486,6 @@ div.page {
   width: 100%;
   height: auto;
   transform: rotate(-5deg);
-  transition: transform 180ms ease;
 }
 
 .mustEatBody {
@@ -499,24 +495,10 @@ div.page {
   gap: 7px;
 }
 
-/* Dieselbe Stimme wie die übrigen Labels der Seite: klein in Versalien. */
-.mustEatTag {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  display: inline-block;
-  padding: 5px 8px;
-  color: var(--et-on-accent);
-  background: var(--article-accent);
-  font-size: 11px;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
 .mustEat .mustEatName {
   max-width: 18ch;
   margin: 0;
-  color: var(--article-head);
+  color: var(--et-fg);
   font-size: clamp(24px, 2.2vw, 30px);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -529,7 +511,7 @@ div.page {
 .mustEat .mustEatDesc {
   max-width: 34ch;
   margin: 0;
-  color: var(--article-fg);
+  color: var(--et-fg);
   font-size: clamp(16px, 1.25vw, 18px);
   font-weight: 400;
   line-height: 1.35;
@@ -540,69 +522,63 @@ div.page {
 /* Inline editorial photo — square corners like every photo in the article,
    a small quiet caption. The img keeps its intrinsic ratio; next/image
    ships width/height so the column doesn't jump while it loads. */
-/* Die Höhe ist gedeckelt, nicht die Breite: ein Hochformat lief über die
-   volle Spalte und stand auf Desktop 660 × 920px da — höher als der
-   Bildschirm (Betreiber, 25.09.2026: „die Bilder wirken so riesig"). Jetzt
-   wird es schmaler und steht mittig über dem Text; ein Querformat füllt die
-   Spalte weiter. `--img-ratio` setzt die Komponente aus den Asset-Maßen,
-   `--img-frame` ist die Breite, in der mittig gerechnet wird — ab Desktop die
-   Lesebreite statt der ganzen Spalte. */
+/* Jedes Foto im Text so breit wie die Spot-Karten — die Spalte —, nur der
+   Aufmacher steht breiter (Ansage 22.10.2026: „die Bilder immer in der
+   gleichen Breite"). Vorher war die Höhe gedeckelt, und Hochformate standen
+   schmal und mittig. Damit sie nicht über den Bildschirm wachsen, werden sie
+   höchstens 4:5 gezeigt (Höhe ≤ 125 % der Breite, mittig beschnitten);
+   Querformate bleiben ganz. `--img-frame`/`--img-offset` setzt nur das
+   Telefon (siehe unten). */
 .inlineImage {
-  --img-max-h: 600px;
-  --img-w: min(var(--img-frame, 100%), calc(var(--img-max-h) * var(--img-ratio, 1.5)));
-  width: var(--img-w);
+  container-type: inline-size;
+  width: var(--img-frame, 100%);
   margin: clamp(30px, 5vw, 60px) 0;
-  margin-left: calc(var(--img-offset, 0px) + (var(--img-frame, 100%) - var(--img-w)) / 2);
-}
-
-/* Die Fensterhöhe zählt erst ab Desktop-Breite mit. Chrome auf dem iPhone
-   ändert `vh`, während es beim Scrollen seine Leisten ein- und ausblendet —
-   ein Hochformat, dessen Breite an `70vh` hing, wurde beim Hoch- und
-   Runterscrollen breiter und schmaler und sah aus wie gezoomt (Betreiber,
-   26.09.2026, Crapulix-Artikel). Am Telefon deckelt die feste Höhe; auf dem
-   Desktop steht `vh` beim Scrollen still. */
-@media (min-width: 1024px) {
-  .inlineImage {
-    --img-max-h: min(70vh, 600px);
-  }
+  margin-left: var(--img-offset, 0px);
 }
 
 .inlineImage img {
+  display: block;
   width: 100%;
   height: auto;
+  max-height: 125cqi;
+  object-fit: cover;
 }
 
-/* Bildunterschriften folgen dem 18px-Lesesatz der Referenz. */
+/* Bildunterschriften stehen im gemeinsamen, kleineren Caption-Satz. */
 .inlineImage figcaption {
   margin-top: 6px;
   color: var(--article-muted);
   font-family: var(--et-font-body);
-  font-size: 18px;
+  font-size: var(--et-type-caption);
   font-weight: 400;
   line-height: 1.4;
   text-align: left;
 }
 
-/* Die Spot-Karte wie ein Foto im Heft: oben das Bild ohne Schrift und ohne
-   Verlauf darauf, darunter die Bildunterschrift — Bezirk und Küche als
-   Etikett, der Name gross, darunter der Weg auf die Map. Vorher lag alles auf
-   dem Foto, und ein Verlauf dunkelte dafür die untere Hälfte ab. */
+/* Die Spot-Karte (Ansage 21.10.2026: „ein cooles passendes Label, wo Text
+   im Bild ist"): das Foto füllt die Karte und bleibt klar, ohne Verlauf.
+   Darauf kleben Etiketten wie im Menü — der Name als Ink-Etikett mit gelber
+   Schrift und den Kratzern der Knöpfe, leicht schief, darunter Bezirk ·
+   Küche als weisses Papier-Etikett. Rechts unten der Weg auf die Map. */
 .inlineSpot {
   position: relative;
   display: block;
+  aspect-ratio: 3 / 2;
+  margin: clamp(30px, 5vw, 60px) 0;
+  overflow: hidden;
+  /* Erhabenes Ink, bis das Foto da ist — dann liest sich die Karte als
+     Karte, nicht als Loch im Text. */
+  background: var(--et-ink-raised);
+  color: #fff;
   /* Steht im Lesetext (Neue Haas Grotesk Text), spricht aber mit der Stimme der Labels. */
   font-family: var(--et-font-display);
-  margin: clamp(30px, 5vw, 60px) 0;
-  /* Schneidet die kartenweite Trefferfläche des Namens (::after) ab. */
-  overflow: hidden;
-  color: var(--article-fg);
   text-decoration: none;
 }
 
 .inlineSpotPhoto {
+  position: absolute;
+  inset: 0;
   display: block;
-  aspect-ratio: 3 / 2;
-  background-color: var(--article-quiet);
 }
 
 .inlineSpotPhoto img {
@@ -610,131 +586,83 @@ div.page {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: scale 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Die Bildunterschrift wie die Credits bei Kaleidoscope: mittig, oben
-   klein das Label (Bezirk · Küche), darunter der Name, darunter der Weg auf
-   die Map. */
-.inlineSpotFoot {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  padding-top: 16px;
-  text-align: center;
-}
-
-/* Gleiches Label-System wie .mustEatTag und .hubLinkKicker: Providence in
-   Versalien, 0.04em. Diese Zeile war das letzte Versalien-Label des Artikels, das noch
-   auf der Body-Schrift lief — die übrigen vier (Hero, Must-Eat-Tag, Hub-
-   Kicker, Related-Heading) stehen längst auf Providence. Der Kommentar, der
-   hier früher stand, beschrieb eine Vereinheitlichung auf die Body-Schrift,
-   die es so nicht mehr gibt; sie war zuletzt nur noch ein Ausreißer. */
-.inlineSpotMeta {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-size: 13px;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-/* Die Meta-Zeile ist der einzige gefolgte Link der Karte — die Karte selbst
-   führt auf die noindex-Map. Zwei Dinge muss sie dafür tun: über der
-   kartenweiten Trefferfläche von .inlineSpotNameLink::after liegen (sonst
-   fängt die den Klick ab, derselbe Grund wie beim Map-Knopf), und sichtbar
-   nach Link aussehen — ein reiner SEO-Link, den niemand als Link erkennt,
-   wäre eine Falle für Klickende und für Google. */
-.inlineSpotMetaLink {
-  position: relative;
+/* Die ganze Karte führt auf die Map: eine Trefferfläche nur für Zeiger
+   (aria-hidden, nicht fokussierbar) — für Tastatur und Screenreader tragen
+   Name und Knopf dasselbe Ziel. */
+.inlineSpotHit {
+  position: absolute;
+  inset: 0;
   z-index: 2;
-  /* Ein leises Feld statt einer Unterstreichung (Ansage 02.10.2026: „mag das
-     Unterstrichene nicht") — dieselbe Fläche wie „Teilen" und der
-     Hell/Dunkel-Knopf, unter der Maus gelb. Ein reiner Hover-Hinweis käme
-     nicht in Frage: auf Mobil gibt es kein Hover, und Mobil ist rund die
-     Hälfte der Aufrufe. */
-  display: inline-block;
-  padding: 6px 9px 5px;
-  background: var(--article-quiet);
-  color: var(--article-fg);
-  font: inherit;
-  letter-spacing: inherit;
+}
+
+/* Text und Knopf über der Trefferfläche; dazwischen fällt der Klick auf die
+   Karte durch. */
+.inlineSpotBody {
+  position: absolute;
+  left: clamp(16px, 2.4vw, 28px);
+  right: clamp(16px, 2.4vw, 28px);
+  bottom: clamp(16px, 2.4vw, 26px);
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.inlineSpotBody a {
+  pointer-events: auto;
+}
+
+.inlineSpotText {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Gerade weiße Etiketten wie auf den Spot-Fotos der Map. */
+.inlineSpotName {
+  max-width: 100%;
+  font-size: clamp(26px, 3.4vw, 44px);
+  line-height: 1.18;
+}
+
+.inlineSpotNameLink,
+.inlineSpotMetaLink {
   text-decoration: none;
-  transition:
-    background 140ms ease,
-    color 140ms ease;
+}
+
+.inlineSpotNameLink:focus-visible,
+.inlineSpotMetaLink:focus-visible {
+  outline: 0;
+  background-color: #d4d3d2;
 }
 
 @media (hover: hover) {
+  .inlineSpotNameLink:hover,
   .inlineSpotMetaLink:hover {
-    background: var(--article-accent);
-    color: var(--et-on-accent);
+    background-color: #e5e4e3;
+  }
+
+  .inlineSpot:hover .inlineSpotPhoto img {
+    scale: 1.03;
   }
 }
 
-.inlineSpotMetaLink:focus-visible {
-  outline: 2px solid var(--article-fg);
-  outline-offset: 3px;
-}
-
-.inlineSpotName {
-  color: var(--article-head);
-  font-size: clamp(26px, 2.2vw, 32px);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-  text-transform: none;
-}
-
-/* Der Name ist der gefolgte Link auf die Spot-Seite. Sein ::after spannt die
-   ganze Karte als Trefferfläche auf, Foto und Unterschrift: nichts dazwischen
-   ist positioniert, also misst es an .inlineSpot. */
-.inlineSpotNameLink {
-  color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  text-decoration: none;
-}
-.inlineSpotNameLink::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-}
-.inlineSpotNameLink:focus-visible::after {
-  outline: 2px solid var(--article-fg);
-  outline-offset: -6px;
-}
-
-/* Über der Trefferfläche des Namens, sonst wäre der Map-Knopf nicht
-   klickbar. Ein gelbes Feld wie die Etiketten, klein in Versalien. */
-.inlineSpotCta {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  position: relative;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  margin-top: 6px;
-  padding: 0 14px;
-  background: var(--article-accent);
-  color: var(--et-on-accent);
-  font-size: 12px;
-  line-height: 1;
-  /* War bis eben ein <span>; als <a> bringt er die UA-Unterstreichung mit. */
-  text-decoration: none;
-  text-transform: uppercase;
+@media (prefers-reduced-motion: reduce) {
+  .inlineSpotPhoto img {
+    transition: none;
+  }
 }
 
 /* ---------------------------------------------------------- hub link ---- */
 
-/* Der Ausgang am Artikelende als Ink-Tafel (Ansage 02.10.2026 „das besser
-   designen"): das Booster-Pack der Kategorie liegt schräg auf der Tafel und
-   ragt oben über ihre Kante, daneben der Kicker mit dem gelben Quadrat, das
-   Ziel gross in Versalien und der gelbe Knopf — dieselben Teile wie die
-   Tafeln der Startseite. Die ganze Fläche ist der Link, der Knopf nur ihre
-   sichtbare Kante (`aria-hidden`); seit heute auch am Telefon.
-   Bezirks-Hubs bringen kein Pack mit; `auto` fällt dann auf null zusammen. */
+/* Der Katalog-Ausgang liegt auf demselben Knitterpapier wie die Map.
+   Bezirks-Hubs kommen ohne Booster-Pack aus. */
 .hubLink {
   position: relative;
   display: grid;
@@ -745,8 +673,9 @@ div.page {
   /* Luft nach oben für das Pack, das über die Kante ragt. */
   margin: clamp(64px, 8vw, 96px) 0 0;
   padding: clamp(20px, 2.6vw, 30px) clamp(18px, 2.6vw, 32px);
-  background: var(--article-board);
-  color: var(--et-white);
+  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 100% 100%;
+  background-blend-mode: multiply;
+  color: var(--et-fg);
   text-decoration: none;
   transition: transform 180ms cubic-bezier(0.16, 0.92, 0.18, 1);
 }
@@ -768,10 +697,9 @@ div.page {
   font-weight: 700;
   letter-spacing: 0.04em;
   grid-column: 2;
-  color: var(--et-white);
   font-size: 12px;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .hubLinkLabel {
@@ -780,38 +708,20 @@ div.page {
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title);
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
 }
 
+/* Das Aussehen des Knopfes kommt aus globals.css; hier nur sein Platz. */
 .hubLinkCta {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  display: inline-flex;
   grid-column: 2;
   justify-self: start;
-  align-items: center;
-  min-height: 40px;
   margin-top: 6px;
-  padding: 0 16px;
-  background: var(--article-accent);
-  color: var(--et-on-accent);
-  font-size: 13px;
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition: background 180ms ease;
 }
 
 .hubLink:focus-visible {
-  outline: 2px solid var(--article-fg);
-  outline-offset: 4px;
-}
-
-.hubLink:focus-visible .hubLinkCta {
-  background: var(--et-white);
-  color: var(--et-ink);
+  outline: 0;
+  background-color: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
 }
 
 @media (hover: hover) {
@@ -821,11 +731,6 @@ div.page {
 
   .hubLink:hover .hubLinkPack {
     transform: translateY(-6px) rotate(5deg);
-  }
-
-  .hubLink:hover .hubLinkCta {
-    background: var(--et-white);
-    color: var(--et-ink);
   }
 }
 
@@ -837,32 +742,7 @@ div.page {
   margin-top: clamp(24px, 4vw, 44px);
 }
 
-.shareBtn {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 38px;
-  padding: 8px 13px 9px;
-  border: 0;
-  background: var(--article-quiet);
-  color: var(--article-fg);
-  font-size: 13px;
-  line-height: 1;
-  text-decoration: none;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    background 140ms ease,
-    color 140ms ease;
-}
-
 .shareBtn svg {
-  width: 16px;
-  height: 16px;
-  flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -891,7 +771,7 @@ div.page {
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--et-leading-title);
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .relatedGrid {
@@ -974,7 +854,7 @@ div.page {
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.3;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .inlineIssueTitle {
@@ -984,7 +864,7 @@ div.page {
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.1;
-  text-transform: uppercase;
+  text-transform: none;
   text-wrap: balance;
 }
 
@@ -1010,9 +890,7 @@ div.page {
 
 /* ------------------------------------------------------------ states ---- */
 
-.mustEat:focus-visible,
-.inlineSpotCta:focus-visible,
-.shareBtn:focus-visible {
+.mustEat:focus-visible {
   outline: 2px solid var(--article-fg);
   outline-offset: 4px;
 }
@@ -1023,23 +901,9 @@ div.page {
 }
 
 @media (hover: hover) {
-  a.mustEat:hover {
-    transform: translateY(-3px);
-  }
-
-  a.mustEat:hover .mustEatPh img {
-    transform: rotate(-2deg) translateY(-3px);
-  }
-
   .relatedCard:hover {
     translate: 0 -8px;
     rotate: 0deg;
-  }
-
-  .shareBtn:hover,
-  .shareBtn:focus-visible {
-    background: var(--article-accent);
-    color: var(--et-on-accent);
   }
 }
 
@@ -1057,10 +921,7 @@ div.page {
     grid-column: 3;
     grid-row: 1 / span 2;
     align-self: center;
-    min-height: 48px;
     margin-top: 0;
-    padding: 0 22px;
-    font-size: 14px;
   }
 }
 
@@ -1150,19 +1011,11 @@ div.page {
     font-size: 15px;
   }
 
-  /* Das Spot-Foto mit demselben 10px-Rahmen wie die Fotos im Text. Die
-     Karte selbst nimmt sich den Rand, damit ihr `overflow: hidden` das Foto
-     nicht beschneidet. */
+  /* Die Spot-Karte mit demselben Rahmen wie die Fotos im Text, im
+     Seitenverhältnis der Map-Karten. */
   .inlineSpot {
     margin-inline: -6px;
-  }
-
-  .inlineSpotPhoto {
-    aspect-ratio: 4 / 3;
-  }
-
-  .inlineSpotFoot {
-    padding-inline: 6px;
+    aspect-ratio: 16 / 11.6;
   }
 
   /* Am Telefon ist die Textspalte der Tafel höher als das Pack — am Fuss
@@ -1224,26 +1077,17 @@ div.page {
   margin-top: 6px;
   color: var(--article-muted);
   font-family: var(--et-font-body);
-  font-size: 18px;
+  font-size: var(--et-type-caption);
   line-height: 1.4;
 }
 @media (min-width: 1024px) {
   .page {
+    /* Text, Fotos und Spot-Karten teilen eine Breite; nur der Aufmacher steht
+       breiter (22.10.2026). Die Spot-Karte war am Desktop schon „zu groß",
+       breiter als die Spalte (21.10.2026) — also gehen die Fotos auf ihr Mass. */
     --article-measure: 768px;
-    /* Fotos und Spot-Bilder ragen links und rechts über die Lesespalte
-       hinaus (Betreiber, 14.10.2026); der Text bleibt bei 768px. */
-    --article-wide: min(1040px, calc(100vw - 108px));
   }
   .imageSpread { width: calc(100vw - 36px); margin-inline: calc(50% - 50vw + 18px); }
-  .inlineImage {
-    --img-frame: var(--article-wide);
-    --img-offset: calc((100% - var(--article-wide)) / 2);
-    --img-max-h: min(78vh, 720px);
-  }
-  .inlineSpot {
-    width: var(--article-wide);
-    margin-inline: calc((100% - var(--article-wide)) / 2);
-  }
 }
 @media (max-width: 767.98px) {
   .imageRow { flex-direction: column; gap: 24px; }

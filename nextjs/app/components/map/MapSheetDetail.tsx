@@ -50,10 +50,6 @@ type RestaurantProps = CommonProps & {
   onMustEatClick: (m: MapMustEat) => void;
   isFavorite: boolean;
   onToggleFavorite: () => void;
-  prevRestaurant: MapRestaurant | null;
-  nextRestaurant: MapRestaurant | null;
-  onPagePrev: () => void;
-  onPageNext: () => void;
 };
 
 type Props = MustEatProps | RestaurantProps;
@@ -105,10 +101,6 @@ export default function MapSheetDetail(props: Props) {
           onMustEatClick={props.onMustEatClick}
           isFavorite={props.isFavorite}
           onToggleFavorite={props.onToggleFavorite}
-          prevRestaurant={props.prevRestaurant}
-          nextRestaurant={props.nextRestaurant}
-          onPagePrev={props.onPagePrev}
-          onPageNext={props.onPageNext}
         />
       )}
     </div>

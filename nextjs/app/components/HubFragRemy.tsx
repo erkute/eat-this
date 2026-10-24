@@ -7,7 +7,7 @@ import { useLocale } from 'next-intl';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
 import styles from './HubFragRemy.module.css';
 
-export default function HubFragRemy({ embedded = false }: { embedded?: boolean }) {
+export default function HubFragRemy({ compact = false }: { compact?: boolean }) {
   const en = useLocale() === 'en';
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
@@ -150,7 +150,7 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
   }
 
   return (
-    <section className={`homeV2 hv-section hv-wrap ${styles.section}${embedded ? ` ${styles.embedded}` : ''}`} id="hub-fragremy" data-hub-fragremy="">
+    <section className={`homeV2 hv-section hv-wrap ${styles.section}${compact ? ` ${styles.compact}` : ''}`} id="hub-fragremy" data-hub-fragremy="">
       <div className={styles.body} ref={stage}>
         <div className={styles.portrait} aria-hidden="true">
           <div className={styles.figure} ref={figure} data-expression={expression}>
@@ -160,8 +160,14 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
           </div>
         </div>
         <div className={styles.content}>
-          <p className={styles.intro}>{en ? 'Hey, I’m Remy. I’ll show you what to eat in Berlin.' : 'Hey, ich bin Remy. Ich zeig dir, was du in Berlin essen musst.'}</p>
-          <h2 className={`hv-title ${styles.title}`}>{en ? 'What are you craving?' : 'Worauf hast du Lust?'}</h2>
+          {/* Auf einen Blick, wer da spricht (Ansage 21.10.2026): der Name
+              gross, darunter in einem Satz, was er kann. */}
+          <h2 className={styles.title}>
+            <span className={styles.hello}>{en ? 'Hey, I’m' : 'Hey, ich bin'}</span>{' '}
+            <span className={styles.name}>Remy.</span>
+          </h2>
+          <p className={styles.intro}>{en ? 'I’ll show you what to eat in Berlin. Ask me about a dish, a district or an occasion.' : 'Ich zeig dir, was du in Berlin essen musst. Frag mich nach einem Gericht, einem Bezirk oder einem Anlass.'}</p>
+          <p className={styles.prompt}>{en ? 'What are you craving?' : 'Worauf hast du Lust?'}</p>
           <div className={styles.questions} data-fragremy-chips="">
             {questions.map((question, index) => (
               <button key={question} type="button" className={styles.question} disabled={busy} onPointerEnter={(event) => { if (event.pointerType === 'mouse') listen(true, index); }} onPointerLeave={() => listen(false)} onFocus={() => listen(true, index)} onBlur={() => listen(false)} onClick={() => ask(question, index)}>{question}</button>
@@ -169,7 +175,7 @@ export default function HubFragRemy({ embedded = false }: { embedded?: boolean }
           </div>
           <form className={styles.form} onSubmit={(event) => { event.preventDefault(); ask(draft); }} aria-label={en ? 'Ask Remy' : 'Frag Remy'}>
             <input className={styles.input} data-fragremy-input="" value={draft} onChange={(event) => setDraft(event.target.value)} onFocus={() => listen(true)} onBlur={() => listen(false)} placeholder={en ? 'Or ask me yourself …' : 'Oder frag mich selbst …'} aria-label={en ? 'Your question for Remy' : 'Deine Frage an Remy'} disabled={busy} />
-            <button className={styles.send} type="submit" disabled={busy || !draft.trim()}>{en ? 'Ask' : 'Fragen'}</button>
+            <button className={`et-btn ${styles.send}`} type="submit" disabled={busy || !draft.trim()}>{en ? 'Ask' : 'Fragen'}</button>
           </form>
         </div>
       </div>

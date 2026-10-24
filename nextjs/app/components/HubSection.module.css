@@ -1,797 +1,125 @@
 .page {
-  /* ── Durchgehender Ink-Grund statt einzelner Tafeln ──
-     Neun gleich grosse schwarze Rechtecke untereinander sind ein Katalog,
-     kein Aufbau: der Kasten ist ein starkes Signal, und wenn ihn jeder
-     Abschnitt traegt, sagt er nichts mehr. Jetzt ist die ganze Seite der
-     Grund; getrennt wird durch Raum, Type und die Fotos, die aus dem Dunkel
-     leuchten. Die Tafel-Tokens (`--et-board-pad/-bg/-radius`) und die leise
-     Stufe (`--et-ink-quiet`) stehen seit 03.09.2026 in globals.css — der
-     Grund gilt site-weit, nicht nur hier; die `.board`-Regeln der Module
-     lesen sie mit Fallback auf ihre Tafel-Werte. */
-  /* Section titles: same curve as the global token, higher floor. At 24px the
-     mobile headings sat barely above the 19px lead and nothing announced that
-     a new section had started. Above ~880px this resolves identically. */
-  --et-type-section-title: clamp(30px, 3.4vw, 42px);
-  /* Global 0.92: bricht ein Titel um, stehen Providence-Versalien aneinander.
-     Die Startseite gibt ihnen Luft. */
-  --et-leading-title: 1.05;
-  /* Farbwechsel und ein gleichmäßiger Innenabstand gliedern die Abschnitte.
-     Auf Desktop wächst die Luft mit den breiteren Inhaltsflächen. */
-  --home-section-gap: 40px;
-  width: 100%;
-  min-height: 100svh;
-  /* Kein Kopfpolster mehr: der Aufmacher ist eine randlose Farbfläche und
-     bringt seinen Abstand selbst mit. Ein Polster hier hinterließe einen
-     weißen Streifen zwischen Navigation und Gelb. */
-  padding-top: 0;
+  --home-gutter: clamp(24px, 4.45vw, 80px);
+  /* Die Section-Überschriften so gross und eng wie „Remy." (Ansage
+     21.10.2026) — eine Grösse für alle: Magazin, Must Eats, Fragen,
+     Starter Pack. Am Telefon so, dass ein Wort mit sieben Zeichen
+     („Teller.", „Fragen?") noch in die Spalte passt. */
+  --hv-display: clamp(60px, 7.8vw, 124px);
+  width: 100%; min-height: 100svh; overflow-x: clip;
   font-family: var(--et-font-body);
-  letter-spacing: var(--et-tracking-none);
-  /* Die Bänder (Magazin, Must Eats) reichen per `100vw` bis an die Fensterkante;
-     mit klassischem Scrollbalken ist 100vw breiter als die Seite. `clip`
-     schneidet diesen Überstand seitlich ab, ohne die Seite zum
-     Scroll-Container zu machen — Sticky und der Logo-Fall nach oben bleiben
-     heil. */
-  overflow-x: clip;
 }
-
-/* Doppelte Klasse gegen `.homeV2` (globals.css, Rang 0,1,0), das Papier
-   malt — so entscheidet der Rang, nicht die Ladereihenfolge. */
-:global(.homeV2).page {
-  color: var(--et-white);
-  background: var(--et-ink);
+:global(.homeV2).page { background: var(--et-ground); color: var(--et-fg); }
+.page :global(.hv-section) { margin: 0; }
+.page :global(.hv-title) {
+  color: var(--et-fg); text-transform: none; letter-spacing: -.055em;
+  font: 700 var(--hv-display)/.92 var(--et-font-body);
 }
-
-/* ── homeV2 hero ─────────────────────────────────────────── */
-/* Der Aufmacher ist eine Ink-Fläche über die volle Breite — „komplett
-   schwarz": sie schließt ohne Rand und Rundung an die Ink-Navigation an, der
-   erste Bildschirm ist eine Fläche. Darauf die Wortmarke in Creme wie im
-   Header, weiße Versalien, gelber Knopf, die Telefone mit schwarzem Schatten.
-   Vorher eine gelbe Fläche; seit die Site überall Tafeln spricht, war sie
-   die letzte gelbe Vollfläche.
-   Die Höhe berücksichtigt die gemeinsame Navigationshöhe: ab 768px scrollt
-   nicht das Fenster, sondern `.app-pages`, und das sitzt unter der Navigation an der
-   Oberkante (globals.css, Desktop app frame). Mit vollem dvh wäre die
-   Fläche um genau diese Navhöhe zu hoch und liefe unten aus dem Bild. */
-.hero {
-  margin-top: 0;
-  display: flex;
-  align-items: center;
-  min-height: calc(100dvh - var(--site-nav-h));
-  padding: clamp(24px, 4vw, 56px) 0;
-  overflow: hidden;
-  color: var(--et-white);
+/* Nie breiter als die eigene Spalte: der Kopf ist ein Container, und die
+   Überschrift wird höchstens so gross, dass ein Wort mit sieben Zeichen
+   („Fragen?", „Teller.", „Starter") hineinpasst. Sonst zerlegte der Browser
+   das Wort („Starte / r", 21.10.2026). */
+.page :global(.hv-head) { container-type: inline-size; }
+.page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
+.hero { position: relative; overflow: hidden; box-sizing: border-box; padding-top: var(--site-nav-h); --et-solid: #15120e; --et-on-solid: #fff; background: #ffc600; color: #111; }
+.hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: url('/pics/home/paper-texture.webp') center / 615px 846px;
+  mix-blend-mode: multiply; opacity: .2;
 }
-
-.heroInner {
-  width: 100%;
+/* Zerknittertes, durchsichtiges Papier über dem ganzen Hero — die Ebene
+   „Oberfläche · transparentes Papier“ aus Figma, ungeändert übernommen. */
+.hero::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: url('/pics/home/hero-crumple-mobile.webp') center / 100% 100% no-repeat;
 }
-
-/* Die Wortmarke führt die Spalte an, die Headline schlägt darunter ein
-   (Ansage 30.09.2026: „Eat This muss über We tell …"; die Marke stand für
-   einen Tag als Antwort darunter).
-   Die Wortmarke trägt links 120px von 1660px transparenten Rand (7,23 %).
-   Ohne Ausgleich stünde sie sichtbar eingerückt gegenüber der Headline und
-   allem anderen in der Spalte. Der Faktor ist am Asset gemessen; wird das
-   Logo je neu exportiert, muss er nachgemessen werden. */
-.heroMark {
-  --hero-mark-w: clamp(240px, 23vw, 330px);
-  width: var(--hero-mark-w);
-  height: auto;
-  margin: 0 0 clamp(20px, 2vw, 28px) calc(var(--hero-mark-w) * -0.0723);
+@media (min-width: 768px) {
+  .hero::after { background-image: url('/pics/home/hero-crumple-desktop.webp'); }
 }
-
-/* Solange die Marke fliegt, hält das Original hier nur noch den Platz frei.
-   Das muss über das Attribut laufen und darf keine Klasse sein, die jemand
-   nachträglich anhängt: HubHeroCopy hängt an `useAuth`, und sobald der
-   Anmeldezustand steht, rendert React neu und schreibt `className` frisch —
-   eine imperativ gesetzte Klasse ist in dem Moment weg, und dann stehen zwei
-   Wortmarken gleichzeitig auf der Seite. Genau das war der Fehler.
-   `visibility` statt `display`, damit die Spalte ihre Höhe behält.
-   Ganz oben (`data-hero-rest`) bleibt das Original stehen und der Flieger
-   wartet unsichtbar: nur das Original federt mit, wenn jemand die Seite auf
-   dem iPhone über den Anschlag zieht. */
-:global(html[data-hero-flight='on']:not([data-hero-rest])) .heroMark {
-  visibility: hidden;
-}
-
-/* Ein Abstand für jede Grenze der Seite. Die Ausnahme nach dem Aufmacher
-   (+8px für den überstehenden Schatten der gekippten Telefone) ist weg: der
-   Hero ist eine Fläche mit `overflow: hidden`, es steht nichts mehr über. */
-.page :global(.hv-section) {
-  margin-top: var(--home-section-gap);
-}
-
-.heroGrid {
-  display: grid;
-  /* The phone column is sized to its content, not to half the page: an even
-     split left a 240px void between the copy and the mockups. */
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: clamp(40px, 4.2vw, 64px);
-  align-items: center;
-}
-
+/* Der Hero trägt das Knitterpapier statt der Karten-Spuren der übrigen Blätter. */
+:global(html[data-vintage] .homeV2) > .hero { background-image: none; }
+.heroInner { position: relative; padding: 64px var(--home-gutter); max-width: 1600px; margin: auto; }
 .heroCopy {
-  display: flex;
-  flex-direction: column;
-  /* Center the copy block against the tall photo so the CTAs stay anchored to
-     the headline instead of being pushed to the bottom with a void between. */
-  justify-content: center;
+  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr);
+  grid-template-rows: 1fr auto auto auto auto auto 1fr; column-gap: clamp(40px, 7vw, 100px);
+  align-items: start; min-height: 692px;
 }
-
-/* Der Gruß stand ohne jeden Abstand auf der Headline: zwischen Marke und Gruß
-   liegen 29px, zwischen Headline und Lead 38px, dazwischen war es auf 1512px
-   minus 3,5px — das y von „Hey" lief in das D von „DEINE". Providence bringt
-   das mit, weil beide Zeilen ihre Tinte über die Zeilenbox hinausschieben
-   (Gruß line-height 1, Headline 0.9). Der Abstand ist deshalb bewusst knapper
-   gesetzt als er aussieht: 18px Marge werden zu rund 14px sichtbarer Luft. */
-.page .heroKicker:global(.hv-kicker) {
-  color: var(--et-accent-text);
-  font-family: var(--et-font-display);
-  font-size: clamp(17px, 2.2vw, 24px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-none);
-  line-height: 1;
-  margin-bottom: clamp(10px, 1.2vw, 18px);
-  text-transform: none;
-  /* So breit wie der Gruß: der Stift beim Laden (Auftritt unten) schreibt
-     über den Text, nicht über die leere Spalte daneben. */
-  width: fit-content;
-}
-
+.heroBrand { grid-column: 2; grid-row: 2; width: 100%; }
+.heroMark { display: block; width: min(100%, 572px); height: auto; margin: 0; }
+.heroArt { grid-column: 1; grid-row: 1 / -1; align-self: center; }
+.heroArt img { display: block; width: 100%; max-width: 470px; height: auto; }
 .heroHeadline {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  /* Papier auf Ink, wie die Versalien jeder Tafel. Die Section-Titel weiter
-     unten stehen auf Weiß und bleiben rot. */
-  color: var(--et-white);
-  text-transform: uppercase;
-  letter-spacing: -0.025em;
-  line-height: var(--et-leading-hero);
-  font-size: clamp(46px, 4.9vw, 64px);
-  margin: 0;
+  grid-column: 2; grid-row: 3; margin: 18px 0 0; color: #111;
+  font: 700 clamp(18px, 1.875vw, 27px)/1.15 var(--et-font-body);
+  text-transform: uppercase; letter-spacing: -.02em;
 }
-
-.heroHeadline span {
-  display: block;
-  white-space: nowrap;
+.heroHeadline span { display: inline; }
+/* Der Gruß der Angemeldeten: eine eigene Zeile, so fett wie die Marke, an
+   der Stelle, an der Gäste den Erklärsatz lesen. Der Lead rückt dann an ihn
+   heran, statt mit Abstand frei zu stehen. */
+.heroGreeting {
+  grid-column: 2; grid-row: 4; margin: 64px 0 0; color: #111;
+  font: 700 clamp(34px, 3.4vw, 52px)/1.05 var(--et-font-body); letter-spacing: -.04em;
 }
-
-/* One-line explainer under the headline, set in the brand face like the
-   kicker above it. */
 .heroLead {
-  max-width: 30em;
-  margin: clamp(16px, 1.8vw, 22px) 0 0;
-  color: rgba(255, 255, 255, 0.76);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-lead);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: var(--et-leading-copy);
+  grid-column: 2; grid-row: 5; max-width: 567px; margin: 70px 0 0;
+  color: #111; font: 400 18px/1.5 var(--et-font-body);
 }
-
-/* Eigene Box je Wort, damit `clip-path` beim Tippen greift
-   (lib/home/leadEntrance.ts). */
-.heroLeadWord {
-  display: inline-block;
+.heroLead.heroLeadAuth { margin-top: 12px; }
+.heroLeadLine { display: block; text-wrap: balance; }
+.heroActions { grid-column: 2; grid-row: 6; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; width: fit-content; }
+.heroActionVariant { display: flex; flex-wrap: wrap; gap: 12px; }
+:global(html[data-hero-flight='on']:not([data-hero-rest])) .heroMark { visibility: hidden; }
+/* Am Desktop steht der ganze Hero im ersten Bild (Ansage 21.10.2026): er
+   nimmt die Höhe unter dem Kopf, die Karte schrumpft mit. */
+@media (min-width: 768px) {
+  .hero { --hero-pad: clamp(24px, 6svh, 64px); height: 100svh; min-height: calc(520px + var(--site-nav-h)); }
+  .heroInner { box-sizing: border-box; height: 100%; padding-block: var(--hero-pad); }
+  .heroCopy { height: 100%; min-height: 0; }
+  .heroArt { display: flex; justify-content: center; height: 100%; min-height: 0; }
+  .heroArt img { width: auto; max-width: min(100%, 470px); max-height: 100%; object-fit: contain; }
 }
-
-/* Jeder Satz ausgeglichen umbrochen: kein einzelnes Wort allein unten. */
-.heroLeadLine {
-  display: block;
-  text-wrap: balance;
-}
-
-.heroActions {
-  display: flex;
-  gap: var(--et-rail-gap);
-  align-items: center;
-  /* So breit wie die Knöpfe, nicht wie die Spalte: der Knopf beim Laden
-     (siehe unten) senkt sich um ihre Mitte, nicht um die Mitte der Spalte. */
-  width: fit-content;
-  margin-top: clamp(26px, 3vw, 38px);
-}
-
-.heroActionVariant {
-  display: flex;
-  gap: var(--et-rail-gap);
-  align-items: center;
-}
-
-/* Gelb auf Ink, eckig wie jeder Tafel-Knopf — die runde `.hv-btn`-Pille
-   gehört den weißen Abschnitten. Hover: Papier. */
-.page .heroActions :global(.hv-btn) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 56px;
-  padding: 0 26px;
-  border-radius: var(--et-radius-control);
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  font-size: clamp(16px, 1.4vw, 19px);
-  line-height: 1;
-}
-
-.page .heroActions :global(.hv-btn):focus-visible {
-  color: var(--et-ink);
-  background: var(--et-white);
-}
-
-@media (hover: hover) {
-  .page .heroActions :global(.hv-btn):hover {
-    color: var(--et-ink);
-    background: var(--et-white);
+/* Am Telefon steht der Hero ebenfalls ganz im ersten Bild (Ansage
+   22.10.2026): genau eine kleine Viewporthöhe (svh — auch mit eingeblendeten
+   Safari-Leisten), der Text über der Karte, und die Karte nimmt, was übrig
+   bleibt. Auf sehr niedrigen Telefonen hält min-height die Karte lesbar. */
+@media (max-width: 767.98px) {
+  .hero { height: 100svh; min-height: calc(540px + var(--site-nav-h)); }
+  .heroInner { box-sizing: border-box; height: 100%; padding: clamp(16px, 3svh, 32px) 24px clamp(20px, 3.5svh, 36px); }
+  .heroCopy { display: flex; flex-direction: column; align-items: center; height: 100%; min-height: 0; text-align: center; }
+  .heroBrand { order: 0; max-width: 327px; flex: none; }
+  .heroMark { width: 100%; }
+  .heroHeadline { order: 1; font-size: 15px; margin: 14px 0 0; }
+  .heroGreeting { order: 2; margin: clamp(16px, 3svh, 28px) 0 0; font-size: 34px; }
+  .heroLead { order: 3; width: 100%; max-width: 300px; margin: clamp(14px, 2.6svh, 24px) 0 0; font-size: 16px; line-height: 1.45; text-wrap: balance; }
+  .heroLead.heroLeadAuth { margin-top: 6px; }
+  .heroArt {
+    order: 4; flex: 1 1 0; min-height: 0; width: 100%;
+    display: flex; justify-content: center; margin-top: clamp(14px, 2.6svh, 24px);
   }
+  .heroArt img { width: auto; height: 100%; max-width: min(100%, 290px); object-fit: contain; object-position: center top; }
+  .heroActions { order: 5; flex: none; margin-top: clamp(14px, 2.6svh, 24px); justify-content: center; }
+  .heroActionVariant { justify-content: center; }
+  .page { --hv-display: clamp(46px, 15vw, 72px); }
 }
 
-.page .heroActions :global(.hv-btn):focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 3px;
-}
-
-.page .heroActions :global(.hv-btn):active {
-  transform: translateY(1px);
-}
-
-/* Die Seitentür als leise Fläche ohne Rahmen — Weiß 10 %, wie „Ablehnen" im
-   Cookie-Dialog; bei Hover gelb mit Ink-Schrift. */
-.page .heroActions .heroSecondaryBtn:global(.hv-btn) {
-  color: var(--et-white);
-  background: rgba(255, 255, 255, 0.1);
-  text-decoration: none;
-}
-
-.page .heroActions .heroSecondaryBtn:global(.hv-btn):focus-visible {
-  color: var(--et-on-accent);
-  background: var(--et-accent);
-}
-
-@media (hover: hover) {
-  .page .heroActions .heroSecondaryBtn:global(.hv-btn):hover {
-    color: var(--et-on-accent);
-    background: var(--et-accent);
-  }
-}
-
-/* Two device cutouts, the map phone in front and slightly lower, the spot page
-   peeking out behind it. No frame, no shadow box — they are already rendered
-   with their own hardware edges; on ink they carry the sheet's black shadow. */
-
-.heroPhones {
+/* The red signup and pale footer share one uninterrupted paper sheet. */
+.paperEnd {
   position: relative;
-  justify-self: end;
-  /* Auf breiten Fenstern rückt das Paar vom Rand zum Text: an der Kante blieb
-     zwischen Lead und Telefonen ein Loch, und das hintere stand schräg über
-     die Spalte hinaus. Unter 1200px ist kein Platz dafür. */
-  margin-right: clamp(0px, (100vw - 1200px) * 0.4, 120px);
-  display: block;
-  /* Über die Höhe gedeckelt, nicht über die Breite: auf der bildschirmhohen
-     Fläche muss das Paar vollständig innerhalb des Gelbs bleiben, und bei
-     einer Breitenvorgabe läuft es auf flachen Fenstern unten heraus. */
-  height: min(70vh, 660px);
-  width: auto;
-  /* Mockups are 985×2000 (0.492). Sized by height and heavily overlapped, the
-     stacked pair needs ~0.74 of its height in width. Driving them off the
-     container width instead blows them past the box on narrow screens. */
-  aspect-ratio: 0.74;
+  isolation: isolate;
+  background: #fff;
 }
-
-.phoneFront,
-.phoneBack {
-  position: absolute;
-  object-fit: contain;
-  transition: transform 260ms ease;
+.page .paperEnd > :global([data-hub-starter]),
+.paperEnd > :global([data-site-footer]) {
+  --et-sheet: none;
+  position: relative;
+  background: transparent;
 }
-
-/* Tilted and deeply overlapped, like two phones tossed on a table — the
-   earlier side-by-side pair read as a spec sheet. */
-.phoneFront {
-  left: 0;
-  bottom: 0;
-  z-index: 1;
-  height: 94%;
-  width: auto;
-  transform: rotate(-5deg);
-  filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.5));
-}
-
-.phoneBack {
-  right: 0;
-  top: 0;
-  height: 88%;
-  width: auto;
-  transform: rotate(6deg);
-  filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45));
-}
-
-/* Beim Herausscrollen driften die Telefone auseinander: das vordere steigt
-   schneller und richtet sich auf, das hintere kippt weiter weg — Tiefe statt
-   einer flachen Bildstrecke. `--phones-drift` läuft 0 → 1 über die Höhe des
-   Aufmachers und kommt von HubMotion (Scroll-Listener mit GSAP-Nachlauf, nur
-   ab 768px und ohne reduced motion); ohne JS bleibt es 0. Über die Einzel-Eigenschaften
-   `translate`/`rotate`, nicht über `transform`: die gehört dem Hover und
-   ihrer Transition, und beide addieren sich, statt sich zu überschreiben. */
-/* Dazu zwei Eingänge mehr: `--px/--py` (-1…1) folgen auf dem Desktop der
-   Maus über dem Aufmacher (HubMotion) — das vordere Telefon wandert weiter
-   als das hintere, die beiden trennen sich in der Tiefe. Das Schweben im
-   Leerlauf liegt eine Ebene höher, an `.phoneFloat`. */
-.phoneFront {
-  translate: calc(var(--px, 0) * 26px)
-    calc(var(--phones-drift, 0) * -84px + var(--py, 0) * 18px);
-  rotate: calc(var(--phones-drift, 0) * 3deg + var(--px, 0) * 2deg);
-}
-
-.phoneBack {
-  translate: calc(var(--px, 0) * -12px)
-    calc(var(--phones-drift, 0) * -24px + var(--py, 0) * -8px);
-  rotate: calc(var(--phones-drift, 0) * 4deg - var(--px, 0) * 1.5deg);
-}
-
-/* Im Leerlauf schweben die Telefone gegeneinander. Jedes in seiner eigenen
-   Hülle, die nur `transform` animiert — das rechnet die GPU. Vorher trug eine
-   animierte Variable (`--float`) das Schweben: die rechnete der Hauptthread
-   jedes Frame, solange der Aufmacher im Bild war, und hielt die Seite für
-   Lighthouse nie still (10.10.2026). Die Hülle deckt die ganze Fläche ab,
-   die Telefone liegen darin wie vorher im Link. */
-.phoneFloat {
+.paperEnd > :global([data-hub-starter])::before {
+  content: '';
   position: absolute;
   inset: 0;
-  animation: 6.5s ease-in-out infinite;
-}
-
-.phoneFloatBack {
-  animation-name: phoneFloatBack;
-}
-
-.phoneFloatFront {
-  z-index: 1;
-  animation-name: phoneFloatFront;
-}
-
-@keyframes phoneFloatBack {
-  50% {
-    transform: translateY(7px);
-  }
-}
-
-@keyframes phoneFloatFront {
-  50% {
-    transform: translateY(-9px);
-  }
-}
-
-/* Draussen pausiert das Schweben; `data-in-view` setzt HubMotion
-   (`armInView`). */
-.hero[data-in-view='0'] .phoneFloat {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .phoneFloat {
-    animation: none;
-  }
-}
-
-/* Der Knopf im Aufmacher zieht zur Maus (HubMotion schreibt `--mx/--my` in
-   px) und wird kurz nach dem Laden gedrückt: `--press` lässt ihn einsinken,
-   beim Loslassen federt er knapp über seine Ruhelage zurück (negativer
-   Wert). Keine Hand, kein Ring — nur der Knopf (Ansage
-   28.09.2026). Alle 4,5s, der erste Druck, sobald er hingelegt ist. Alles über `translate`/`scale`, damit `:active` seinen
-   `transform` behält; nie per GSAP-`transform`, das setzte beides inline auf
-   `none`. */
-@property --press {
-  syntax: '<number>';
-  inherits: false;
-  initial-value: 0;
-}
-
-/* Der magnetische Knopf senkt sich beim Druck leicht in seinen Schatten. */
-.heroActions [data-magnetic] {
-  translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px + var(--press) * 4px);
-  scale: calc(1 - var(--press) * 0.04);
-  box-shadow: 0 calc(8px - var(--press) * 5px) 22px -10px color-mix(in srgb, var(--et-accent) 30%, transparent);
-}
-
-/* Den Takt gibt HubMotion (`armHeroPress`): 3s nach dem Laden, danach alle
-   4,5s, solange der Aufmacher im Bild ist, und 0,3s nach dem Zurückkommen
-   (Ansagen 28./29.09.2026). Jeder Druck setzt kurz `data-hero-press` und
-   spielt nur die Bewegung selbst, 0,43s. Vorher lief `ctaPress` endlos mit
-   4,5s Takt: die animierte Variable kostete den Hauptthread auch in den vier
-   Sekunden Ruhe jedes Frame (Lighthouse, 10.10.2026). */
-.heroActions [data-magnetic][data-hero-press] {
-  animation: ctaPressOnce 427.5ms linear;
-}
-
-/* Die ersten 9,5% von `ctaPress` (4,5s) auf ihre eigene Dauer gestreckt:
-   dieselbe Kurve, ohne die Ruhe danach. */
-@keyframes ctaPressOnce {
-  0% {
-    --press: 0;
-    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
-  }
-  23.16% {
-    --press: 1;
-    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
-  }
-  52.63% {
-    --press: -0.35;
-    animation-timing-function: ease-in-out;
-  }
-  78.95% {
-    --press: 0.08;
-    animation-timing-function: ease-out;
-  }
-  100% {
-    --press: 0;
-  }
-}
-
-/* Dasselbe für andere Knöpfe der Startseite (`data-press`): einmal gedrückt, jedes Mal, wenn ihre Section ins
-   Bild kommt. Und einmalig auf Zuruf (`data-pressing`, die Anmelde-Demo in
-   HubMotion). Über `translate`/`scale`, nie über `transform` — den tragen
-   die `:active`-Zustände. */
-.page :global([data-press]),
-.page :global([data-pressing]) {
-  translate: 0 calc(var(--press) * 5px);
-  scale: calc(1 - var(--press) * 0.07);
-}
-
-.page :global([data-in-view='1']) :global([data-press]) {
-  animation: ctaPress 7s linear 0.7s 1 both;
-}
-
-.page :global([data-pressing]) {
-  animation: ctaPress 7s linear -0.1s 1 both;
-}
-
-@keyframes ctaPress {
-  0% {
-    --press: 0;
-    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
-  }
-  2.2% {
-    --press: 1;
-    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
-  }
-  5% {
-    --press: -0.35;
-    animation-timing-function: ease-in-out;
-  }
-  7.5% {
-    --press: 0.08;
-    animation-timing-function: ease-out;
-  }
-  9.5%,
-  100% {
-    --press: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heroActions [data-magnetic][data-hero-press],
-  .page :global([data-in-view='1']) :global([data-press]),
-  .page :global([data-pressing]) {
-    animation: none;
-  }
-}
-
-.heroPhones:focus-visible .phoneFront {
-  transform: rotate(-3deg) translateY(-8px);
-}
-
-@media (hover: hover) {
-  .heroPhones:hover .phoneFront {
-    transform: rotate(-3deg) translateY(-8px);
-  }
-}
-
-.heroPhones:focus-visible .phoneBack {
-  transform: rotate(4deg) translateY(-4px);
-}
-
-@media (hover: hover) {
-  .heroPhones:hover .phoneBack {
-    transform: rotate(4deg) translateY(-4px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heroPhones:focus-visible .phoneFront {
-    transform: rotate(-5deg);
-  }
-  @media (hover: hover) {
-    .heroPhones:hover .phoneFront {
-      transform: rotate(-5deg);
-    }
-  }
-
-  .heroPhones:focus-visible .phoneBack {
-    transform: rotate(6deg);
-  }
-
-  @media (hover: hover) {
-    .heroPhones:hover .phoneBack {
-      transform: rotate(6deg);
-    }
-  }
-}
-
-.heroPhones:focus-visible {
-  outline: 3px solid var(--et-accent);
-  outline-offset: 8px;
-  border-radius: var(--et-radius-photo);
-}
-
-/* Druckzustand: der grösste Link der Seite hatte keinen. Die Telefone spreizen
-   sich auf Hover, auf dem Telefon gibt es keinen — also drückt sich die ganze
-   Gruppe. Siehe `--et-press-tile` in globals.css. */
-.heroPhones:active {
-  scale: var(--et-press-tile);
-}
-
-@media (max-width: 920px) {
-  .heroGrid {
-    grid-template-columns: 1fr;
-    /* Der Abstand trennt hier Aufruf und Produktbild, nicht zwei Spalten:
-       bei 28px klebten die Telefone am Button. */
-    gap: clamp(46px, 9vw, 68px);
-  }
-
-  .heroHeadline {
-    font-size: clamp(34px, 9.5vw, 44px);
-  }
-
-  .heroLead {
-    margin-top: 14px;
-    font-size: 19px;
-    line-height: 1.15;
-  }
-
-  .heroPhones {
-    height: auto;
-    width: min(100%, 320px);
-    justify-self: center;
-    margin-top: 8px;
-  }
-
-  .heroCopy {
-    align-items: flex-start;
-  }
-}
-
-/* Gleiche Titelgröße für alle Kapitel. Längere Titel dürfen in ihren
-   Komponenten umbrechen, ohne auf dem Telefon kleiner zu werden. */
-@media (max-width: 560px) {
-  .page {
-    --et-type-section-title: clamp(28px, 7.2vw, 32px);
-  }
-
-  .page :global(.hv-title) {
-    white-space: nowrap;
-  }
-}
-
-/* ── Aufmacher auf dem Telefon ───────────────────────────────────────────────
-   Unter 768px scrollt das Fenster selbst und `.app-pages` hält den Platz für
-   die Navigation schon frei — die Tafel startet also unter der Leiste und
-   füllt bewusst *nicht* den Bildschirm. Bildschirmhoch wäre hier die komplette
-   erste Seite Ink, bevor ein einziger Spot zu sehen ist. */
-@media (max-width: 767.98px) {
-  .hero {
-    display: block;
-    min-height: 0;
-    padding: 26px 0 38px;
-  }
-
-  /* Zentriert: gestapelt sitzt die Wortmarke sonst links und die Telefone
-     mittig, und nichts steht auf einer Kante. */
-  .heroCopy {
-    align-items: center;
-    text-align: center;
-  }
-
-  .heroHeadline {
-    align-items: center;
-  }
-
-  .heroMark {
-    --hero-mark-w: min(62vw, 250px);
-    /* Zentriert braucht es den Kantenausgleich nicht — der transparente Rand
-       ist links wie rechts fast gleich (120 zu 104 von 1660). */
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .heroLead {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .heroActions {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-}
-
-/* Compact transitions around the first gallery, without a viewport of air. */
-/* Ab 1600px wächst die Satzspalte mit (Regel am Dateiende; Ansage
-   01.10.2026: „Desktop wirklich komplett benutzen"). Der Aufmacher wächst
-   mit — Wortmarke, Headline und Telefone —, damit Text und Telefone die
-   Breite tragen und keine leere Mitte zwischen sich lassen.
-   Die Masse laufen in `--u` (siehe unten): bei 1600px die alten Werte, auf
-   27-Zoll-Monitoren (2560 × 1440) das 1,6-Fache. Mit 480px Marke, 68px
-   Headline und 640px hohen Telefonen stand der Aufmacher dort als kleine
-   Insel im Schwarz (10.10.2026). Die Telefone richten sich nach der
-   Fensterhöhe. */
-@media (min-width: 1600px) {
-  .heroMark {
-    --hero-mark-w: calc(336 * var(--u));
-  }
-  .heroLead {
-    max-width: 34em;
-    font-size: calc(21 * var(--u));
-  }
-  .heroPhones {
-    height: min(74vh, 1000px);
-    margin-right: calc(120 * var(--u));
-  }
-  .page .heroActions :global(.hv-btn) {
-    min-height: calc(64 * var(--u));
-    padding: 0 calc(32 * var(--u));
-    font-size: calc(20 * var(--u));
-  }
-}
-
-/* ── Ab 1600px wächst die ganze Startseite mit ──
-   Auf 23- und 27-Zoll-Monitoren stand sonst alles in den Grössen von 1600px
-   in einer breiteren Spalte, mit viel leerem Ink (Ansage 10.10.2026: „alles
-   soll mitskalieren"). `--home-zoom` steigt in Stufen von 1 (1600px) bis 1,6
-   (2560px, 27 Zoll) und bleibt darüber stehen; Ultrawide bekommt Rand statt
-   riesiger Schrift. `--u` ist ein Pixel in dieser Stufe.
-   Wo nur Text, Bilder und Formulare stehen, skaliert `zoom` den Inhalt
-   eines Abschnitts im Ganzen. Aufmacher, Magazin und Map-Vorschau rechnen
-   ihre Masse selbst in `--u`: `zoom` vergrössert auch `vw`/`vh`, und Map
-   und Kartenstapel rechnen mit Zeigerpositionen. */
-.page {
-  --home-zoom: 1;
-  --u: calc(var(--home-zoom) * 1px);
-}
-@media (min-width: 1760px) { .page { --home-zoom: 1.1; } }
-@media (min-width: 1920px) { .page { --home-zoom: 1.2; } }
-@media (min-width: 2080px) { .page { --home-zoom: 1.3; } }
-@media (min-width: 2240px) { .page { --home-zoom: 1.4; } }
-@media (min-width: 2400px) { .page { --home-zoom: 1.5; } }
-@media (min-width: 2560px) { .page { --home-zoom: 1.6; } }
-.page > :global([data-hub-musteats]) > *,
-.page > :global([data-hub-fragremy]) > *,
-.page > :global([data-hub-faq]) > *,
-.page > :global([data-hub-starter]) > *,
-.page > :global(footer) {
-  zoom: var(--home-zoom);
-}
-
-/* Farbwechsel gliedern den Scrollweg: Ink-Spots, graue Kartenbühne,
-   Remys graue Fläche, dunkle Fragen, Starter Pack auf Ink. Keine Trennlinien.
-   Jede Sektion besitzt ihren Abstand einmal; die alte Sticky-Bühne braucht
-   weder Überstände noch negative Ausgleichsränder. */
-.page > section:global(.homeV2) {
-  background: transparent;
-  color: inherit;
-}
-.page > section:global([data-hub-magazine]) {
-  position: relative;
-  z-index: 2;
-  margin-top: 0;
-  padding-block: var(--home-section-gap);
-  background: var(--et-ink-raised);
-  border-image: conic-gradient(var(--et-ink-raised) 0 0) fill 0 / / 0 100vw;
-}
-.page > :global([data-hub-map-preview]) {
-  margin-top: 0;
-  padding-block: var(--home-section-gap);
-}
-.page > section:global([data-hub-musteats]) {
-  --must-eats-surface: var(--et-ink-raised);
-  margin-top: 0;
-  padding-block: var(--home-section-gap);
-  background: var(--must-eats-surface);
-  color: var(--et-white);
-  border-image: conic-gradient(var(--must-eats-surface) 0 0) fill 0 / / 0 100vw;
-}
-.page > :global([data-hub-fragremy]) {
-  margin-top: 0;
-  padding-block: var(--home-section-gap);
-}
-.page > :global([data-hub-starter]) {
-  position: relative;
-  margin-top: 0;
-  padding-block: var(--home-section-gap);
-}
-
-/* ── Auftritt beim Laden: die Marke wird nach oben geschubst ──
-   Idee des Betreibers (01.10.2026): erst ein grosses EAT THIS, das dann
-   „an seinen Platz gedrängt wird, nach oben, und dann kommt We tell you what
-   to eat". Remy legt die grosse Marke beim Wegschieben des Vorhangs in der
-   Mitte frei; kurz bevor er hinaus ist, duckt sie sich und wird auf den
-   Platz der echten Marke geschubst (HubMotion, `finishIntro`). Bei der
-   Landung tauscht sie mit der echten, und die Headline stempelt darunter
-   ein; danach kommen Lead, Knopf und Telefone. Die Takte stehen als
-   Attribute an <html>, nicht als Inline-Stil an den Elementen: HubHeroCopy
-   baut Headline und Knöpfe neu, sobald `useAuth` steht — ein neuer Knoten
-   hätte keinen Inline-Stil, er läse aber dieselbe Regel.
-   - `data-intro-mark`: die echte Marke steht, die grosse tritt ab
-   - `data-intro-head`: Headline (und Gruß) dürfen einstempeln
-   - `data-intro-copy`: Lead, Knöpfe, Telefone
-   Alles hängt an `data-hero-intro` (Kopf-Skript, nur ohne reduced motion);
-   fällt das am Ende, gilt keine dieser Regeln mehr. */
-.hero {
-  position: relative;
-}
-.heroIntroMark {
-  display: none;
-}
-@media (prefers-reduced-motion: no-preference) {
-  :global(html[data-hero-intro]:not([data-intro-mark])) .heroIntroMark {
-    /* Grösse mal 667/1660/2 = halbe Höhe: mittig in der Fläche. */
-    --intro-mark-w: min(56vw, 820px);
-    display: block;
-    position: absolute;
-    z-index: 2;
-    top: calc(50% - var(--intro-mark-w) * 0.2009);
-    left: 0;
-    right: 0;
-    width: var(--intro-mark-w);
-    height: auto;
-    margin-inline: auto;
-    pointer-events: none;
-  }
-  :global(html[data-hero-intro]:not([data-intro-mark])) .heroMark {
-    visibility: hidden;
-  }
-  :global(html[data-hero-intro]:not([data-intro-head])) .heroHeadline {
-    clip-path: inset(0 0 100% 0);
-  }
-  :global(html[data-hero-intro]:not([data-intro-head])) .heroKicker,
-  :global(html[data-hero-intro]:not([data-intro-copy])) .heroLead,
-  :global(html[data-hero-intro]:not([data-intro-copy])) .heroActions,
-  :global(html[data-hero-intro]:not([data-intro-copy])) .heroPhones {
-    visibility: hidden;
-  }
-}
-/* Am Telefon ist der Aufmacher so hoch wie sein Inhalt, nicht wie der
-   Bildschirm: die Marke steht in der Mitte des sichtbaren Teils unter der
-   Navigation. */
-@media (prefers-reduced-motion: no-preference) and (max-width: 767.98px) {
-  :global(html[data-hero-intro]:not([data-intro-mark])) .heroIntroMark {
-    --intro-mark-w: 92vw;
-    top: calc((100svh - var(--site-nav-h)) / 2 - var(--intro-mark-w) * 0.2009);
-  }
-}
-
-@media (min-width: 900px) {
-  .page {
-    --et-wrap-max: min(1680px, 96vw);
-    --home-section-gap: clamp(64px, 5vw, 80px);
-  }
-  .heroHeadline { font-size: clamp(42px, 3.6vw, 64px); }
-  .heroGrid { gap: clamp(24px, 3vw, 48px); }
-  .page > :global([data-hub-faq]) { margin-bottom: 0; }
-}
-
-/* Spalte, Rand, Abstand der Abschnitte und die Headline wachsen ab 1600px
-   mit (`--u`, siehe oben). Am Dateiende, weil die Regel ab 900px dieselben
-   Werte setzt und sonst gewinnt — so stand die frühere Breite von 1840px
-   nie: die Spalte blieb bei 1680px. */
-@media (min-width: 1600px) {
-  .page {
-    --et-wrap-max: min(96vw, 1680 * var(--u));
-    --et-wrap-pad: calc(56 * var(--u));
-    --home-section-gap: calc(80 * var(--u));
-  }
-  .heroHeadline {
-    font-size: calc(57.6 * var(--u));
-  }
+  z-index: -1;
+  background: var(--et-ground);
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }

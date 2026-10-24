@@ -7,8 +7,8 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
 import { closeBurgerDrawer } from './burgerDrawerState';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
+import { ThemeSwitch } from './ThemeSwitch';
 import styles from './BurgerDrawer.module.css';
-import { BRAND_LOGO_SRC } from '@/lib/constants';
 
 /* Ein Menü-Link, der erst auf Absicht lädt.
  *
@@ -52,6 +52,9 @@ export default function BurgerDrawer() {
   const { open: openLogin } = useLoginModal();
   const pathname = usePathname();
   const router = useRouter();
+  // Die Seite, auf der man steht, trägt im Menü ihr Ink-Etikett.
+  const here = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`) ? ('page' as const) : undefined;
 
   const drawerRef = useCallback((node: HTMLDivElement | null) => {
     if (node && !node.classList.contains('active')) node.setAttribute('inert', '');
@@ -138,162 +141,53 @@ export default function BurgerDrawer() {
 
   return (
     <div ref={drawerRef} className={styles.drawer} id="burgerDrawer" aria-hidden="true" hidden>
-      <button
-        className={styles.backdrop}
-        id="burgerBackdrop"
-        type="button"
-        tabIndex={-1}
-        aria-label="Close menu"
-        onClick={() => closeBurger(true)}
-      ></button>
-      <div className={styles.panel} onClick={onPanelClick}>
-        <button
-          type="button"
-          className={styles.close}
-          id="burgerClose"
-          aria-label="Close"
-          onClick={() => closeBurger(true)}
-        >
-          ×
-        </button>
-
-        <div className={styles.scroller}>
-          {/* In-flow (not pinned): scrolls with the menu so it never collides
-              with the logo when the drawer content scrolls. */}
-          <div className={styles.topbar}>
-            <div className={styles.lang} role="group" aria-label="Language / Sprache">
-              <button
-                type="button"
-                className={`${styles.langBtn}${lang === 'de' ? ` ${styles.langBtnOn}` : ''}`}
-                aria-label="Deutsch"
-                onClick={() => setLang('de')}
-              >
-                DE
-              </button>
-              <span className={styles.langSep} aria-hidden="true">
-                /
-              </span>
-              <button
-                type="button"
-                className={`${styles.langBtn}${lang === 'en' ? ` ${styles.langBtnOn}` : ''}`}
-                aria-label="English"
-                onClick={() => setLang('en')}
-              >
-                EN
-              </button>
-            </div>
-          </div>
-
-          <DrawerLink
-            href="/"
-            className={styles.logo}
-            aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}
-          >
-            {/* The drawer sits translated off-screen until opened, so lazy here
-                genuinely defers: eager cost every page load 50KB of wordmark
-                nobody had asked to see yet. */}
+      <button className={styles.backdrop} id="burgerBackdrop" type="button" tabIndex={-1}
+        aria-label={lang === 'de' ? 'Menü schließen' : 'Close menu'} onClick={() => closeBurger(true)} />
+      <div className={styles.panel} onClick={onPanelClick} role="dialog" aria-modal="true"
+        aria-label="Navigation">
+        <div className={styles.topbar}>
+          <DrawerLink href="/" className={styles.logo}
+            aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={BRAND_LOGO_SRC}
-              alt="Eat This"
-              width="660"
-              height="265"
-              loading="lazy"
-              decoding="async"
-            />
+            <img src="/pics/home/wordmark.webp?v=1" alt="Eat This" width="1124" height="274" loading="lazy" decoding="async" />
           </DrawerLink>
-
-          {/* Alle Einträge sind DrawerLinks: kein Prefetch beim Sichtbarwerden
-              (das war der Sturm während der Tür-Animation), dafür einer, sobald
-              der Finger auf dem Wort liegt — siehe DrawerLink oben. */}
-          <nav className={styles.nav} aria-label="Primary">
-            <MapIntentLink prefetch={false} href="/map" className={styles.navItem}>
-              {t('burger.map')}
-            </MapIntentLink>
-            {/* Profile/login is a primary action, not footer furniture. Keep it
-                high in the stack so signed-in users can reach their deck fast. */}
-            <button
-              type="button"
-              className={`${styles.navItem} ${styles.cta}`}
-              id="loginBtn"
-              onClick={handleLoginBtn}
-              suppressHydrationWarning
-            >
-              <span suppressHydrationWarning>
-                {user ? t('burger.profile') : t('burger.signIn')}
-              </span>
-            </button>
-            <DrawerLink href="/must-eats" className={styles.navItem}>
-              {t('burger.mustEats')}
-            </DrawerLink>
-            {/* Der Kategorie-Hub stand bis 24.08.2026 in keinem Menü, keinem
-                Footer und keiner Rail — erreichbar war er nur über die
-                Brotkrume einer Kategorieseite, also erst, wenn man schon drin
-                war. Ergebnis: drei Aufrufe in vier Tagen, null Impressionen.
-                Hier ist der Eingang. */}
-            <DrawerLink href="/kategorie" className={styles.navItem}>
-              {t('burger.categories')}
-            </DrawerLink>
-            {/* Dasselbe für den Bezirks-Hub, gleiche Ursache, gleicher Tag: 20
-                Aufrufe in vier Tagen bei 3.115 Pageviews gesamt. Anders als bei
-                den Kategorien gibt es auf der Startseite keine Bezirks-Rail, an
-                deren Ende ein Chip passen würde — dieser Eintrag ist der ganze
-                Eingang. */}
-            <DrawerLink href="/bezirk" className={styles.navItem}>
-              {t('burger.districts')}
-            </DrawerLink>
-            {/* „Frag Remy" öffnet den Chat dort, wo man gerade ist — derselbe
-                Weg wie der Knopf unten rechts (BUDDY_ASK_EVENT, RemyDock).
-                Bis 01.10.2026 sprang der Eintrag zur Startseite, zur
-                Eingabe unter „Worauf hast du Lust?"; die steht dort weiter,
-                aber von jeder anderen Seite aus war der Sprung ein Umweg. Die
-                Seite bleibt, wo sie war — also mit Scroll-Rückgabe. */}
-            <button
-              type="button"
-              className={styles.navItem}
-              onClick={() => {
-                closeBurger(true);
-                dispatchBuddyAsk();
-              }}
-            >
+          <button type="button" className={styles.close} id="burgerClose" aria-label={lang === 'de' ? 'Schließen' : 'Close'} onClick={() => closeBurger(true)}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" /></svg>
+          </button>
+        </div>
+        <div className={styles.scroller}>
+          <nav className={styles.nav} aria-label={lang === 'de' ? 'Hauptnavigation' : 'Primary'}>
+            <MapIntentLink prefetch={false} href="/map" className={styles.navItem} aria-current={here('/map')}>{t('burger.map')}</MapIntentLink>
+            <DrawerLink href="/news" className={styles.navItem} aria-current={here('/news')}>{t('burger.magazine')}</DrawerLink>
+            <DrawerLink href="/must-eats" className={styles.navItem} aria-current={here('/must-eats')}>{t('burger.mustEats')}</DrawerLink>
+            <DrawerLink href="/packs" className={styles.navItem} aria-current={here('/packs')}>{t('burger.boosterPacks')}</DrawerLink>
+            <DrawerLink href="/kategorie" className={styles.navItem} aria-current={here('/kategorie')}>{t('burger.categories')}</DrawerLink>
+            <button type="button" className={styles.navItem} onClick={() => { closeBurger(true); dispatchBuddyAsk(); }}>
               {t('burger.fragRemy')}
             </button>
-            <DrawerLink href="/news" className={styles.navItem}>
-              {t('burger.aufDemTeller')}
-            </DrawerLink>
-            <DrawerLink href="/packs" className={styles.navItem}>
-              {t('burger.boosterPacks')}
-            </DrawerLink>
-            <DrawerLink href="/about" className={styles.navItem}>
-              {t('burger.about')}
-            </DrawerLink>
-            {/* Nur für Admins, sonst verriete der Link, dass unter /admin
-                etwas liegt — Fremde bekommen dort die 404. Ohne Übersetzung:
-                die Seite hat genau einen Leser. */}
-            {isAdmin && (
-              <DrawerLink href="/admin/stats" className={styles.navItem}>
-                Stats
-              </DrawerLink>
-            )}
+            <DrawerLink href="/bezirk" className={styles.navItem} aria-current={here('/bezirk')}>{t('burger.districts')}</DrawerLink>
+            <DrawerLink href="/about" className={styles.navItem} aria-current={here('/about')}>{t('burger.about')}</DrawerLink>
+            {isAdmin && <DrawerLink href="/admin/stats" className={styles.navItem} aria-current={here('/admin/stats')}>Stats</DrawerLink>}
           </nav>
-
+          <button type="button" className={`et-btn ${styles.cta}`} id="loginBtn" onClick={handleLoginBtn} suppressHydrationWarning>
+            <span suppressHydrationWarning>{user ? t('burger.profile') : t('burger.signIn')}</span>
+          </button>
           <div className={styles.foot}>
-            <DrawerLink href="/impressum" className={styles.footLink} id="openImpressum">
-              {t('burger.impressum')}
-            </DrawerLink>
-            <DrawerLink
-              href="/datenschutz"
-              className={styles.footLink}
-              id="openDatenschutzFromBurger"
-            >
-              {t('modals.datenschutz.title')}
-            </DrawerLink>
-            <DrawerLink href="/agb" className={styles.footLink} id="openAgbFromBurger">
-              {t('modals.agb.title')}
-            </DrawerLink>
-            <DrawerLink href="/contact" className={styles.footLink} id="openContact">
-              {t('burger.contact')}
-            </DrawerLink>
+            <div className={styles.prefs}>
+              <div className={styles.lang} role="group" aria-label="Language / Sprache">
+                <button type="button" className={styles.langBtn} aria-pressed={lang === 'de'} aria-label="Deutsch" onClick={() => setLang('de')}>DE</button>
+                <button type="button" className={styles.langBtn} aria-pressed={lang === 'en'} aria-label="English" onClick={() => setLang('en')}>EN</button>
+              </div>
+              <div className={styles.lang} role="group" aria-label={lang === 'de' ? 'Darstellung' : 'Appearance'}>
+                <ThemeSwitch de={lang === 'de'} className={styles.langBtn} />
+              </div>
+            </div>
+            <div className={styles.legal}>
+              <DrawerLink href="/impressum" className={styles.footLink} id="openImpressum">{t('burger.impressum')}</DrawerLink>
+              <DrawerLink href="/datenschutz" className={styles.footLink} id="openDatenschutzFromBurger">{t('modals.datenschutz.title')}</DrawerLink>
+              <DrawerLink href="/agb" className={styles.footLink} id="openAgbFromBurger">{t('modals.agb.title')}</DrawerLink>
+              <DrawerLink href="/contact" className={styles.footLink} id="openContact">{t('burger.contact')}</DrawerLink>
+            </div>
           </div>
         </div>
       </div>

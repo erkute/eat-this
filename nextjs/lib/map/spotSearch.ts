@@ -7,10 +7,6 @@ import { CUISINE_LABELS_DE } from '@/lib/cuisineLabels';
  * useMapFilters; hier steht nur die Sprache der Suche.
  */
 
-function districtOf(r: MapRestaurant): string | null {
-  return r.bezirk?.name ?? r.district ?? null;
-}
-
 /* Kleinschreibung reicht für eine Suche über Restaurantnamen nicht.
  * „banh mi" fand die beiden „Saveur de Bánh Mì" nicht, weil `includes` Zeichen
  * für Zeichen vergleicht und `a` nicht `á` ist. Dasselbe trifft Döner, Café,
@@ -80,8 +76,11 @@ const SYNONYMS: [string[], string[]][] = [
     ['nudeln', 'nudel', 'noodle', 'noodles'],
     /* „italienisch", nicht „italian": Pizzerien stehen als „Italian / Pizza"
        im Index und heissen auf Deutsch „Pizza" — die sind hier nicht gemeint. */
-    ['pasta', 'noodle', 'ramen', 'udon', 'italienisch'],
+    ['nudel', 'nudeln', 'pasta', 'noodle', 'ramen', 'udon', 'soba', 'spaghetti',
+      'tagliatelle', 'linguine', 'fettuccine', 'penne', 'rigatoni', 'vermicelli',
+      'lasagne', 'lasagna', 'italienisch'],
   ],
+  [['suppe', 'suppen', 'soup', 'soups'], ['suppe', 'suppen', 'soup', 'ramen', 'pho', 'laksa']],
   [['pho'], ['vietnamese', 'vietnamesisch']],
   [
     ['asiatisch', 'asiate', 'asia', 'asian'],
@@ -141,7 +140,7 @@ export function parseQuery(query: string): QueryWord[] {
      Index als „prenzlaur". */
   for (const [pattern, name] of KIEZ_NAMES) q = q.replace(pattern, normalizeForSearch(name));
   return q
-    .split(/\s+/)
+    .split(/[\s,;]+/)
     .filter(Boolean)
     .map((text) => ({ text, alternatives: SYNONYMS_BY_WORD.get(text) ?? [] }));
 }
@@ -180,11 +179,13 @@ export function buildSearchIndex(
   for (const r of restaurants) {
     const fields = [
       r.name,
-      districtOf(r),
+      r.bezirk?.name,
+      r.district,
       /* Die Strasse. Seit 28.09.2026 wieder im Kartenpayload
          (mapRestaurantsQuery) — davor stand sie nur hier, und
          „kastanienallee" fand nichts. */
       r.address,
+      r.searchText,
       r.cuisineType,
       /* Die Küche steht in Sanity ENGLISCH („Vietnamese"), auf den
          deutschen Seiten liest man aber das Label („Vietnamesisch") — und
@@ -241,9 +242,16 @@ function nearWordStart(words: string[], token: string): boolean {
   );
 }
 
+/* Deutsche Gerichte stehen oft als Kompositum im Text: Tomatensuppe,
+   Reisnudeln. Diese Endungen dürfen auch die englischen Suchwörter treffen. */
+const FOOD_ENDINGS = new Set(['suppe', 'suppen', 'nudel', 'nudeln']);
+
 function wordMatches(entry: SearchEntry, word: QueryWord, fuzzy: boolean): boolean {
   if (entry.all.includes(word.text)) return true;
-  if (word.alternatives.some((alt) => startsWord(entry.all, alt))) return true;
+  if (word.alternatives.some((alt) =>
+    startsWord(entry.all, alt) ||
+    (FOOD_ENDINGS.has(alt) && entry.words.some((term) => term.endsWith(alt)))
+  )) return true;
   return fuzzy && nearWordStart(entry.words, word.text);
 }
 

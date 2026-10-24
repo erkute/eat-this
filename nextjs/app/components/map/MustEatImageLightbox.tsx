@@ -9,6 +9,7 @@ import {
   useSpring,
   useTransform,
 } from 'framer-motion';
+import { useLocale } from 'next-intl';
 import { whenImageReady } from '@/lib/dom/imageReady';
 import styles from './MustEatImageLightbox.module.css';
 import ZoomCurtain from './ZoomCurtain';
@@ -70,22 +71,6 @@ interface InnerProps {
   action?: React.ReactNode;
 }
 
-function Chevron({ dir }: { dir: 'left' | 'right' }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
-    </svg>
-  );
-}
-
 const SWIPE_PX = 60;
 
 // Open from origin → settle in centre with Apple-style ease-out,
@@ -108,6 +93,7 @@ const Inner = memo(function Inner({
   position,
   action,
 }: InnerProps) {
+  const english = useLocale() === 'en';
   const canPage = Boolean(onPrev || onNext);
   const cardAspect = originRect.width / originRect.height;
   const maxW = Math.min(420, window.innerWidth * 0.88);
@@ -344,6 +330,8 @@ const Inner = memo(function Inner({
   }, [placeholderFor]);
   const showPlaceholder =
     placeholderUrl && shown.imageUrl === placeholderFor && sharpUrl !== placeholderFor;
+  const displayImageUrl = showPlaceholder ? placeholderUrl : shown.imageUrl;
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   /* Beim Zumachen fliegt die KARTE zurück in ihren Slot — ein Wurf, der genau
      dann noch unterwegs ist, würde sie schräg und versetzt landen lassen. */
   useEffect(() => {
@@ -400,7 +388,7 @@ const Inner = memo(function Inner({
       <button
         type="button"
         className={styles.close}
-        aria-label="Großansicht schließen"
+        aria-label={english ? 'Close enlarged view' : 'Großansicht schließen'}
         onPointerDown={(event) => event.stopPropagation()}
         onPointerUp={(event) => event.stopPropagation()}
         onClick={(event) => {
@@ -451,12 +439,32 @@ const Inner = memo(function Inner({
         <motion.div className={styles.clip} style={{ width: overlayW }} animate={dealControls}>
           {/* Ein eigenes <img> pro Karte — ein wiederverwendetes zeigt nach dem
               `src`-Wechsel weiter das alte Bild. */}
-          <img
-            key={showPlaceholder ? `${shown.key}:placeholder` : shown.key}
-            src={showPlaceholder ? placeholderUrl : shown.imageUrl}
-            alt={shown.alt}
-            className={styles.image}
-          />
+          {failedImageUrl === displayImageUrl ? (
+            <div className={styles.imageFailure} role="status">
+              <p>{english ? 'The card image could not be loaded.' : 'Das Kartenbild konnte nicht geladen werden.'}</p>
+              <button type="button" className="et-btn et-btn-alt et-btn-sm" onClick={(event) => {
+                event.stopPropagation();
+                setFailedImageUrl(null);
+              }}>{english ? 'Try again' : 'Erneut versuchen'}</button>
+            </div>
+          ) : (
+            <img
+              key={showPlaceholder ? `${shown.key}:placeholder` : shown.key}
+              src={displayImageUrl}
+              alt={shown.alt}
+              className={styles.image}
+              onError={(event) => {
+                const image = event.currentTarget;
+                if (image.dataset.retried) {
+                  setFailedImageUrl(displayImageUrl);
+                  return;
+                }
+                image.dataset.retried = 'true';
+                const separator = displayImageUrl.includes('?') ? '&' : '?';
+                image.src = `${displayImageUrl}${separator}retry=1`;
+              }}
+            />
+          )}
         </motion.div>
       </motion.div>
 
@@ -488,14 +496,16 @@ const Inner = memo(function Inner({
           <button
             type="button"
             className={styles.navBtn}
-            aria-label="Vorherige Karte"
+            aria-label={english ? 'Previous card' : 'Vorherige Karte'}
             disabled={!hasPrev}
             onClick={(e) => {
               e.stopPropagation();
               page(-1);
             }}
           >
-            <Chevron dir="left" />
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M19 12H5m6-6-6 6 6 6" />
+            </svg>
           </button>
           <span className={styles.counter}>
             {position.index} / {position.count}
@@ -503,14 +513,16 @@ const Inner = memo(function Inner({
           <button
             type="button"
             className={styles.navBtn}
-            aria-label="Nächste Karte"
+            aria-label={english ? 'Next card' : 'Nächste Karte'}
             disabled={!hasNext}
             onClick={(e) => {
               e.stopPropagation();
               page(1);
             }}
           >
-            <Chevron dir="right" />
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M5 12h14m-6-6 6 6-6 6" />
+            </svg>
           </button>
         </div>
       )}

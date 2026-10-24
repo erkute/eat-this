@@ -3,43 +3,11 @@
    Bewegung über translate, nie über Opacity — Markenregel. */
 
 .trigger {
-  display: grid;
-  gap: 4px;
-  justify-items: start;
-  text-align: left;
-  min-height: 44px;
-  padding: 12px 20px;
-  background: var(--et-white);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  color: var(--et-ink);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-button);
-  font-weight: 700;
-  line-height: 1.55;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color var(--et-motion-fast);
+  justify-self: start;
 }
 
 .triggerLabel {
-  font-size: var(--et-type-body);
-}
-
-.trigger:focus-visible {
-  color: var(--et-ink);
-}
-
-@media (hover: hover) {
-  .trigger:hover {
-    color: var(--et-ink);
-    background: var(--et-accent-text);
-  }
-}
-
-.trigger:focus-visible {
-  outline: none;
-  background: var(--et-accent-text);
+  font-size: var(--et-btn-font);
 }
 
 .backdrop {
@@ -60,20 +28,34 @@
 .panel {
   position: relative;
   width: min(94vw, 960px);
-  /* Kein Scrollen im Layer: die Packs sind über dvh so bemessen, dass alles
-     auf einen Blick passt — Desktop eine Reihe, Telefon drei. Das overflow
-     ist nur die Reserve für Querformat auf sehr niedrigen Fenstern. */
+  /* Alles soll ohne Scrollen auf einen Blick stehen (Ansage 22.10.2026):
+     die Packhöhe hängt am Viewport. Das overflow ist nur die Reserve für
+     sehr niedrige Fenster. */
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
   padding: clamp(24px, 3.4vw, 40px);
-  /* Eine Stufe ueber dem Grund — siehe --et-ink-raised in globals.css. */
-  background: var(--et-ink-raised);
+  /* Dieselbe Ink-Tafel wie das All-Berlin-Angebot, aus dem das Fenster
+     kommt (Ansage 22.10.2026: „neuer frischer Look“): Papierkorn und
+     Kratzer, Schrift weiss; dunkel eine Stufe über dem Ink-Grund. */
+  --et-fg: #fff;
+  --et-copy: #d4d1cd;
+  --et-link: #ffc600;
+  background: var(--et-ink) url('/pics/vintage/paper-grain.webp?v=4') 0 0 / 192px repeat;
   box-shadow: none;
-  color: var(--et-white);
+  color: var(--et-fg);
   border-radius: var(--et-radius-photo);
   font-family: var(--et-font-display);
   outline: none;
   animation: sheetRise 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:global(html[data-vintage]) .panel {
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  background-size: 192px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+}
+:global(html[data-theme='dark']) .panel {
+  background-color: var(--et-ink-raised);
 }
 
 @keyframes sheetRise {
@@ -96,7 +78,7 @@
   background: none;
   border: 0;
   border-radius: var(--et-radius-control);
-  color: var(--et-white);
+  color: var(--et-fg);
   cursor: pointer;
   transition: color 0.16s ease;
 }
@@ -111,39 +93,71 @@
 }
 
 .x:focus-visible {
-  color: var(--et-accent-text);
+  color: var(--et-link);
 }
 
 @media (hover: hover) {
   .x:hover {
-    color: var(--et-accent-text);
+    color: var(--et-link);
   }
 }
 
 .title {
   margin: 0;
   padding-right: 44px;
-  font-size: clamp(28px, 3vw, 38px);
+  font-size: clamp(36px, 4.4vw, 60px);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.05;
+  letter-spacing: -0.055em;
+  line-height: 0.92;
+  text-transform: none;
+}
+
+.label {
+  margin: clamp(22px, 3vw, 32px) 0 12px;
+  color: var(--et-link);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
-.lead {
-  max-width: 44ch;
-  margin: 14px 0 0;
-  color: rgba(255, 255, 255, 0.76);
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.5;
+/* Was All Berlin bringt, drei Punkte mit gelbem Quadrat als Marke. */
+.points {
+  display: grid;
+  gap: 10px;
+  max-width: 56ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
+.points li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--et-fg);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.points li::before {
+  content: '';
+  position: absolute;
+  top: .5em;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background: #ffc600;
+}
+
+/* Die Packs im Raster, spaltenweise leicht gefächert wie auf der Tafel.
+   Jedes führt zu seiner Seite. */
 .grid {
   display: grid;
   grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 12px 8px;
-  margin: clamp(20px, 3vw, 30px) 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -152,30 +166,37 @@
   display: grid;
   justify-items: center;
   gap: 6px;
-  color: var(--et-white);
+  color: var(--et-fg);
   text-align: center;
   text-decoration: none;
 }
 
 .art {
+  --tilt: -4deg;
   width: min(100%, 96px, 16dvh);
   height: auto;
-  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.45));
+  rotate: var(--tilt);
+  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.55));
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.grid li:nth-child(3n + 2) .art { --tilt: 0deg; }
+.grid li:nth-child(3n) .art { --tilt: 4deg; }
+
 .pack:focus-visible .art {
-  transform: translateY(-4px) rotate(-3deg);
+  transform: translateY(-6px);
+  rotate: 0deg;
 }
 
 @media (hover: hover) {
   .pack:hover .art {
-    transform: translateY(-4px) rotate(-3deg);
+    transform: translateY(-6px);
+    rotate: 0deg;
   }
 }
 
 .pack:focus-visible {
-  outline: 2px solid var(--et-accent);
+  outline: 2px solid #fff;
   outline-offset: 4px;
   border-radius: var(--et-radius-control);
 }
@@ -185,13 +206,13 @@
   font-size: 12px;
   font-weight: 700;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
   transition: color var(--et-motion-fast);
 }
 
 @media (hover: hover) {
   .pack:hover .name {
-    color: var(--et-accent-text);
+    color: var(--et-link);
   }
 }
 
@@ -202,61 +223,12 @@
   margin-top: clamp(32px, 4vw, 44px);
 }
 
-/* Derselbe gelbe Knopf wie auf der Tafel. */
-.cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 56px;
-  padding: 0 22px;
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  border: 0;
-  border-radius: var(--et-radius-control);
-  box-shadow: none;
-  font-family: var(--et-font-display);
-  font-size: clamp(16px, 1.4vw, 19px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-align: center;
-  text-decoration: none;
-  text-transform: none;
-  cursor: pointer;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
-}
-
-.cta:focus-visible {
-  color: var(--et-ink);
-  background: var(--et-white);
-  transform: translateY(-2px);
-}
-
-@media (hover: hover) {
-  .cta:not(:disabled):hover {
-    color: var(--et-ink);
-    background: var(--et-white);
-    transform: translateY(-2px);
-  }
-}
-
-.cta:active {
-  transform: translateY(0);
-}
-
-.cta:disabled {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
-  cursor: wait;
-  transform: none;
-}
+/* Hier wird gekauft: die rote Pille mit leichten Kratzern wie alle
+   Kaufknöpfe; Hover und Fokus weiss mit Ink-Schrift. */
 
 .ctaError {
   margin: 0;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;
@@ -273,7 +245,7 @@
   }
 
   .art {
-    width: min(70%, 10dvh);
+    width: min(70%, 8.5dvh);
   }
 }
 
@@ -293,23 +265,29 @@
   }
 
   .title {
-    font-size: 28px;
+    font-size: 34px;
   }
 
-  .lead {
-    font-size: 14px;
+  .label {
+    margin: 12px 0 8px;
   }
 
-  .grid {
-    margin-top: 16px;
+  .points {
+    gap: 6px;
+  }
+
+  .points li {
+    font-size: 15px;
+    line-height: 1.4;
   }
 
   .actions {
-    margin-top: 28px;
+    margin-top: 20px;
   }
 
+  /* Am Telefon schliesst der Kauf das Sheet unten ab – nur hier volle Breite. */
   .cta {
-    min-height: 52px;
+    width: 100%;
   }
 
   @keyframes sheetUp {
@@ -319,6 +297,43 @@
     to {
       transform: translateY(0);
     }
+  }
+}
+
+/* Niedrige Telefone (iPhone SE & Co.): dieselbe Ordnung, nur enger, damit
+   auch dort alles ohne Scrollen steht. */
+@media (max-width: 559px) and (max-height: 720px) {
+  .panel {
+    padding-top: 16px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .points {
+    gap: 4px;
+  }
+
+  .points li {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .grid {
+    gap: 6px 12px;
+  }
+
+  .art {
+    width: min(70%, 7dvh);
+  }
+
+  .name {
+    margin-top: 2px;
+  }
+
+  .actions {
+    margin-top: 14px;
   }
 }
 
@@ -346,26 +361,16 @@
 
 .paymentNote {
   margin: 0;
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--et-copy);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cta {
-    transition: none;
-  }
-  .cta:focus-visible,
-  .cta:not(:disabled):hover {
-    transform: none;
-  }
-}
-
 .comingSoon {
   display: block;
   margin-top: 4px;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   font-size: 11px;
   text-transform: none;
 }

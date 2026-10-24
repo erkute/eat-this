@@ -67,8 +67,8 @@ describe('NewsArticleShell semantics', () => {
     expect(html.match(/<main\b/g)).toHaveLength(1);
     expect(html).toMatch(/<main\b[^>]*><article>/);
     expect(html).toContain('<h1');
-    // Die Kartenfläche führt auf die Map — Name und Knopf beide. Der gefolgte
-    // Link auf die Spot-Seite sitzt auf der Meta-Zeile darüber, damit die
+    // Die Karte führt auf die Map — Trefferfläche, Name und Knopf. Der
+    // gefolgte Link auf die Spot-Seite sitzt auf der Meta-Zeile, damit die
     // Guides ihre Relevanz überhaupt an Restaurantseiten weitergeben. Das
     // nofollow prüft der Shell-Test, der Link-Mock hier reicht nur href und
     // className durch.

@@ -76,11 +76,16 @@ export function localizeOpeningDays(days: string | undefined, locale: string): s
  * A slot that names a rest day rather than a time range. Editors type this in
  * either language, hence the three spellings.
  */
-function isClosedSlot(hours: string | undefined): boolean {
+export function isClosedSlot(hours: string | undefined): boolean {
   return /closed|ruhetag|geschlossen/i.test(hours ?? '');
 }
 
 /** Same treatment for the time column: "closed" and the run-together "24Stundengeöffnet". */
+/** Zeiten mit Halbgeviertstrich statt Bindestrich: 09:00–16:00. */
+export function withDash(hours: string): string {
+  return hours.replace(/(\d)\s*-\s*(\d)/g, '$1–$2');
+}
+
 export function localizeOpeningHours(hours: string | undefined, locale: string): string {
   const lang = locale === 'en' ? 'en' : 'de';
   const raw = (hours ?? '').trim();

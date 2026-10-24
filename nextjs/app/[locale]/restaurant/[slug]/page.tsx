@@ -22,7 +22,7 @@ import { metadataSource } from '@/lib/seo/metadataSource';
 import { routing } from '@/i18n/routing';
 import { pickLocale, hasEnContent } from '@/lib/i18n/pickLocale';
 import { formatPriceLabel, classifyWebsite } from '@/app/components/map/restaurantDetail.helpers';
-import { localizeOpeningDays, localizeOpeningHours } from '@/lib/map/openingHours';
+import { isClosedSlot, localizeOpeningDays, localizeOpeningHours, withDash } from '@/lib/map/openingHours';
 import { buildSpotFlow } from '@/lib/spotFlow';
 import { sanityImageSize, sanitySrcSet } from '@/lib/sanity-image-presets';
 import HeartButton from '@/app/components/HeartButton';
@@ -51,11 +51,6 @@ function imageAssetKey(url: string | undefined): string {
 function titleFitStyle(name: string): CSSProperties {
   const longest = Math.max(...name.split(/\s+/).map((w) => w.length), 1);
   return { '--word-fit': `${(100 / (0.62 * longest)).toFixed(2)}cqi` } as CSSProperties;
-}
-
-/** Zeiten mit Halbgeviertstrich statt Bindestrich: 09:00–16:00. */
-function withDash(hours: string): string {
-  return hours.replace(/(\d)\s*-\s*(\d)/g, '$1–$2');
 }
 
 /** Foto-Nachweis unter einem Bild — als Link, wenn die Quelle eine sichere URL hat. */
@@ -478,7 +473,19 @@ export default async function RestaurantPage({ params }: PageProps) {
                   {r.openingHours!.map((slot, i) => (
                     <div key={i} className={styles.hoursRow}>
                       <dt>{localizeOpeningDays(slot.days, loc)}</dt>
-                      <dd>{withDash(localizeOpeningHours(slot.hours, loc))}</dd>
+                      {/* Jede Zeitspanne eine Zeile, rechtsbündig. */}
+                      <dd>
+                        {withDash(localizeOpeningHours(slot.hours, loc))
+                          .split(/,\s*/)
+                          .map((range, j) => (
+                            <span
+                              key={j}
+                              className={`${styles.hoursRange} ${isClosedSlot(slot.hours) ? styles.hoursClosed : ''}`}
+                            >
+                              {range}
+                            </span>
+                          ))}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -488,13 +495,13 @@ export default async function RestaurantPage({ params }: PageProps) {
               {/* nofollow: `mapHref` trägt eine Query, jede Variante würde
                   sonst einzeln gecrawlt. */}
               {onMap && (
-                <MapIntentLink href={mapHref} rel="nofollow" className={styles.btn}>
+                <MapIntentLink href={mapHref} rel="nofollow" className={`et-btn ${styles.btn}`}>
                   {de ? 'Zur Map' : 'On the map'}
                 </MapIntentLink>
               )}
               {r.reservationUrl && (
                 <a
-                  className={`${styles.btn} ${styles.btnInk}`}
+                  className={`et-btn ${styles.btn}`}
                   href={r.reservationUrl}
                   target="_blank"
                   rel="noopener nofollow noreferrer"
@@ -503,13 +510,13 @@ export default async function RestaurantPage({ params }: PageProps) {
                 </a>
               )}
               {telHref && (
-                <a className={`${styles.btn} ${styles.btnInk}`} href={telHref}>
+                <a className={`et-btn ${styles.btn}`} href={telHref}>
                   {de ? 'Anrufen' : 'Call'}
                 </a>
               )}
               {websiteUrl && (
                 <a
-                  className={`${styles.btn} ${styles.btnInk}`}
+                  className={`et-btn ${styles.btn}`}
                   href={websiteUrl}
                   target="_blank"
                   rel="noopener nofollow noreferrer"
@@ -519,7 +526,7 @@ export default async function RestaurantPage({ params }: PageProps) {
               )}
               {r.menuUrl && (
                 <a
-                  className={`${styles.btn} ${styles.btnInk}`}
+                  className={`et-btn ${styles.btn}`}
                   href={r.menuUrl}
                   target="_blank"
                   rel="noopener nofollow noreferrer"

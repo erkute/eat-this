@@ -90,8 +90,7 @@
   border: 0;
 }
 
-.galleryLbClose,
-.galleryLbArrow {
+.galleryLbClose {
   display: grid;
   place-items: center;
   width: 48px;
@@ -121,31 +120,6 @@
   stroke-linecap: round;
 }
 
-.galleryLbArrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.galleryLbArrow[data-direction='previous'] {
-  right: calc(100% + 24px);
-}
-
-.galleryLbArrow[data-direction='next'] {
-  left: calc(100% + 24px);
-}
-
-.galleryLbArrow svg {
-  width: 36px;
-  height: 36px;
-  stroke-width: 1.6;
-}
-
-.galleryLbArrow:disabled {
-  color: var(--et-ink-ring);
-  cursor: default;
-}
-
 .galleryLbThumbnails {
   position: fixed;
   left: 50%;
@@ -168,7 +142,7 @@
   min-height: 60px;
   padding: 0 0 5px;
   border: 0;
-  border-bottom: 3px solid transparent;
+  border-bottom: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
@@ -185,7 +159,6 @@
 }
 
 .galleryLbThumbnail[aria-pressed='true'] {
-  border-bottom-color: var(--et-accent);
   opacity: 1;
 }
 
@@ -209,7 +182,6 @@
 }
 
 .galleryLbClose:focus-visible,
-.galleryLbArrow:focus-visible,
 .galleryLbThumbnail:focus-visible,
 .galleryLbCredit a:focus-visible {
   outline: 2px solid var(--et-accent-text);
@@ -218,7 +190,6 @@
 
 @media (hover: hover) {
   .galleryLbClose:hover,
-  .galleryLbArrow:hover:not(:disabled),
   .galleryLbCredit a:hover {
     color: var(--et-accent-text);
   }
@@ -248,11 +219,6 @@
   .galleryLbSlide {
     padding-right: 0;
     padding-left: 0;
-  }
-
-  /* Auf Touch reichen Wischen und die direkt anwählbaren Vorschaubilder. */
-  .galleryLbArrow {
-    display: none;
   }
 
   .galleryLbThumbnails {
@@ -308,5 +274,21 @@
 
   .galleryLbThumbnails {
     bottom: max(14px, calc(env(safe-area-inset-bottom, 0px) + 6px));
+  }
+}
+
+/* Freies Schließen-Symbol auf dem dunklen Galerie-Hintergrund. */
+:global(html[data-active-page='map']) .galleryLbClose {
+  width: 40px;
+  height: 40px;
+}
+:global(html[data-active-page='map']) .galleryLbClose svg {
+  width: 24px;
+  height: 24px;
+}
+@media (max-width: 767.98px) {
+  :global(html[data-active-page='map']) .galleryLbClose {
+    width: 48px;
+    height: 48px;
   }
 }

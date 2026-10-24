@@ -83,10 +83,10 @@ export default function NotFoundContent({ locale = 'de' }: { locale?: Locale }) 
           <p className={styles.sub}>{copy.sub}</p>
 
           <div className={styles.actions} aria-label={copy.actionsLabel}>
-            <a href={linkTo(locale, '/map')} className={styles.primaryCta}>
+            <a href={linkTo(locale, '/map')} className={`et-btn ${styles.primaryCta}`}>
               {copy.primary}
             </a>
-            <a href={linkTo(locale, '/must-eats')} className={styles.secondaryCta}>
+            <a href={linkTo(locale, '/must-eats')} className={`et-btn ${styles.secondaryCta}`}>
               {copy.secondary}
             </a>
           </div>

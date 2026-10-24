@@ -1,16 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { idlePose, renderPack, type PackPose, type PackRenderer } from '@/lib/home/renderPack';
+import { IDLE_LIFT, idlePose, renderPack, type PackPose, type PackRenderer } from '@/lib/home/renderPack';
 import styles from './StarterPackSignup.module.css';
 
-const PACK_SRC = '/pics/home/booster-empty.webp';
-const FIGURE_SRC = '/pics/home/booster-cafe-layer.webp';
+const PACK_SRC = '/pics/home/starter-pack-front.webp';
 /** The back of the pack, stored mirrored with the front's silhouette, so the
  *  renderer reads it with the front's uv (lib/home/renderPack.ts). */
-const BACK_SRC = '/pics/home/booster-back.webp';
-/** Where the figure sits on the foil, as fractions of the pack. */
-const FIGURE = { left: 0.194, top: 0.308, width: 0.598, height: 0.66 };
+const BACK_SRC = '/pics/home/starter-pack-back.webp';
 const SPIN_MS = 1400;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -21,24 +18,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     image.onerror = reject;
     image.src = src;
   });
-}
-
-/** Pack and figure flattened into the one picture printed on the foil. */
-async function packArt(): Promise<HTMLCanvasElement> {
-  const [pack, figure] = await Promise.all([loadImage(PACK_SRC), loadImage(FIGURE_SRC)]);
-  const canvas = document.createElement('canvas');
-  canvas.width = 756;
-  canvas.height = 1170;
-  const context = canvas.getContext('2d')!;
-  context.drawImage(pack, 0, 0, canvas.width, canvas.height);
-  context.drawImage(
-    figure,
-    FIGURE.left * canvas.width,
-    FIGURE.top * canvas.height,
-    FIGURE.width * canvas.width,
-    FIGURE.height * canvas.height
-  );
-  return canvas;
 }
 
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
@@ -55,6 +34,7 @@ export default function StarterPack3D() {
   const stageRef = useRef<HTMLDivElement>(null);
   const rigRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const shadowRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -84,9 +64,16 @@ export default function StarterPack3D() {
         rotateX: idle.rotateX + tilt.y,
       };
     };
+    const shadow = shadowRef.current;
+    const paint = (now: number) => {
+      const current = pose(now);
+      renderer?.draw(current);
+      // Schwebehöhe 0 (tief) bis 1 (hoch) für den Schatten.
+      shadow?.style.setProperty('--lift', String((current.lift / IDLE_LIFT + 1) / 2));
+    };
     const draw = (now: number) => {
       if (!renderer) return;
-      renderer.draw(pose(now));
+      paint(now);
       frame = visible && !reduced ? requestAnimationFrame(draw) : 0;
     };
     const resume = () => {
@@ -101,7 +88,7 @@ export default function StarterPack3D() {
       // das Pack muss im selben Maß wie die Leinwand gezeichnet werden.
       const zoom = stage.offsetWidth ? box.width / stage.offsetWidth : 1;
       renderer.resize(box.width * ratio, box.height * ratio, rig.offsetWidth * zoom * ratio);
-      if (!frame) renderer.draw(pose(performance.now()));
+      if (!frame) paint(performance.now());
     };
 
     let io: IntersectionObserver | null = null;
@@ -129,7 +116,7 @@ export default function StarterPack3D() {
       stage.removeAttribute('data-gl');
     };
 
-    Promise.all([packArt(), loadImage(BACK_SRC)])
+    Promise.all([loadImage(PACK_SRC), loadImage(BACK_SRC)])
       .then(([art, back]) => {
         if (cancelled) return;
         renderer = renderPack(canvas, art, back);
@@ -166,16 +153,12 @@ export default function StarterPack3D() {
 
   return (
     <div ref={stageRef} className={styles.art} aria-hidden="true">
-      <span className={styles.shadow} />
+      <span ref={shadowRef} className={styles.shadow} />
       <div ref={rigRef} className={styles.packRig}>
-        {/* The flat picture until WebGL is up: pack, figure printed on it. */}
-        <div className={styles.pack}>
+        {/* The flat picture until WebGL is up. */}
+        <div className={styles.packFlat}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.packFront} src={PACK_SRC} alt="" width={1008} height={1560} />
-          <div className={styles.character}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={FIGURE_SRC} alt="" width={960} height={1600} />
-          </div>
+          <img className={styles.packFront} src={PACK_SRC} alt="" width={945} height={1491} />
         </div>
       </div>
       <canvas ref={canvasRef} className={styles.gl} />

@@ -13,21 +13,6 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   nameEn
 }`;
 
-/** The homepage preview follows the same editorial lists as category pages. */
-export const homeMapCategoriesQuery = `
-  {
-    "categories": *[_type == "category" && slug.current in $slugs] {
-      name,
-      "slug": slug.current,
-      "topSpots": topSpots[defined(@->slug.current)]->slug.current
-    },
-    "articles": *[_type == "newsArticle" && defined(slug.current)] {
-      "slug": slug.current,
-      "spots": coalesce(contentDe, content)[_type == "spotCard"].restaurantRef->slug.current
-    }
-  }
-`;
-
 // Map list/marker payload — deliberately WITHOUT the detail-only fields
 // (phone, website, menuUrl, reservationUrl, mapsUrl, instagramHandle, tip,
 // description, photoCredit*). Those are fetched on demand when the detail
@@ -39,6 +24,8 @@ export const homeMapCategoriesQuery = `
 // while the search code still read the field (audit 28.09.2026). ~9 KB raw
 // for the whole catalogue; it is public anyway, and no spot is locked since
 // the map went free.
+// Public descriptions feed the search too. cached-sanity compacts them into
+// unique words before sending the map payload; detail text still loads on demand.
 export const mapRestaurantsQuery = `
   *[_type == "restaurant" && ${liveRestaurant()}] {
     _id,
@@ -48,6 +35,9 @@ export const mapRestaurantsQuery = `
     district,
     "bezirk": bezirkRef->{ name, "slug": slug.current },
     address,
+    "searchText": array::join(array::compact([
+      shortDescription, shortDescriptionEn, description, descriptionEn, tip, tipEn
+    ]), " "),
     ${CATEGORY_PROJECTION},
     cuisineType,
     priceRange,

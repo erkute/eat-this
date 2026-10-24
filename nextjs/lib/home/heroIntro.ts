@@ -1,12 +1,6 @@
-/* Der Auftritt der Startseite: Remy schiebt den Vorhang weg, die Marke wird
- * auf ihren Platz geschubst, die Headline stempelt ein. Solange er läuft,
- * steht `data-hero-intro` am <html> — gesetzt vom Kopf-Skript in
- * app/[locale]/layout.tsx, genommen von HubMotion (`finishIntro`). Ohne
- * Auftritt (andere Seiten, reduzierte Bewegung) fehlt es von Anfang an.
- *
- * Wer erst danach auftauchen soll, wartet hier: der Remy-Knopf unten rechts
- * (Ansage 30.09.2026) und der Cookie-Dialog (Ansage 02.10.2026: „die Cookies
- * kommen zu früh" — am Telefon lag er ab ~2 s über dem schiebenden Remy). */
+/* Solange die Fahrstuhltüren den Hero freigeben, steht `data-hero-intro`
+ * am <html>. Remy-Dock und Cookie-Dialog warten auf das Ende des Auftritts.
+ * Bei reduzierter Bewegung wird das Attribut gar nicht gesetzt. */
 
 const ATTR = 'data-hero-intro';
 

@@ -15,7 +15,7 @@
   touch-action: pan-y;
   overscroll-behavior: contain;
 }
-/* Cap the mount to the *visible* sheet slice on mobile so the inner
+/* Cap the mount to the *visible* sheet slice on tablets so the inner
    scroller's height matches what the user can actually see. Without this
    the aside extends past the viewport (its height is the full body grid
    cell, only translated down), and the scroller — a flex:1 child — uses
@@ -26,10 +26,10 @@
    at any snap. */
 @media (max-width: 1023.98px) {
   .detailMount {
-    /* The resting scroll port uses the settled visible height.
-       + overhang: the detail scroll-port extends into the URL-bar zone;
-       the detail's .scroll bottom padding compensates. */
-    max-height: calc(var(--sheet-visible-px, 100dvh) - 24px + var(--map-bar-overhang, 0px));
+    /* --sheet-visible-px already measures the visible viewport. Subtract
+       the 26px handle; an extra URL-bar overhang puts the scroll port's
+       bottom off-screen and leaves the final content unreachable. */
+    max-height: calc(var(--sheet-visible-px, 100dvh) - 26px);
   }
   /* Must-Eat-Detail: KEIN URL-Bar-Apron. Das Layout ist fix (Karte + Text,
      kein Scrollen) — der Overhang stünde als toter Weißraum unterm Pager
@@ -43,7 +43,7 @@
    the gesture. Attribute scope outranks the resting rule within this module. */
 @media (min-width: 768px) and (max-width: 1023.98px) {
   :global([data-map-sheet][data-dragging='true']) .detailMount {
-    max-height: calc(100dvh - 24px + var(--map-bar-overhang, 0px));
+    max-height: calc(100dvh - 26px);
   }
   :global([data-map-sheet][data-dragging='true']) .detailMountMustEat {
     max-height: calc(100dvh - 36px);
@@ -138,5 +138,5 @@
   }
 }
 [data-map-sheet][data-view='detail'] .detailMount {
-  background: var(--et-ink);
+  background: var(--map-collage-paper, #fff);
 }

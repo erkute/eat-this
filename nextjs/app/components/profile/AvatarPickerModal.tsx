@@ -31,6 +31,7 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
   const t = useTranslations('profile');
   const [selected, setSelected] = useState<AvatarChoice>(current);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -54,9 +55,12 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
   async function apply() {
     if (saving) return;
     setSaving(true);
+    setError(false);
     try {
       await onApply(selected);
       onClose();
+    } catch {
+      setError(true);
     } finally {
       setSaving(false);
     }
@@ -117,8 +121,28 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
                   type="button"
                   role="radio"
                   aria-checked={checked}
+                  disabled={saving}
+                  tabIndex={checked ? 0 : -1}
+                  onKeyDown={(event) => {
+                    const index = CHOICES.indexOf(c);
+                    let next: number;
+                    if (event.key === 'Home') next = 0;
+                    else if (event.key === 'End') next = CHOICES.length - 1;
+                    else if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+                      next = (index + 1) % CHOICES.length;
+                    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
+                      next = (index - 1 + CHOICES.length) % CHOICES.length;
+                    else return;
+                    event.preventDefault();
+                    setSelected(CHOICES[next]);
+                    setError(false);
+                    event.currentTarget.parentElement?.querySelectorAll('button')[next]?.focus();
+                  }}
                   className={checked ? `${styles.avatar} ${styles.avatarActive}` : styles.avatar}
-                  onClick={() => setSelected(c)}
+                  onClick={() => {
+                    setSelected(c);
+                    setError(false);
+                  }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img className={styles.avatarImg} src={`/pics/avatar/${c}.webp?v=4`} alt="" />
@@ -128,6 +152,11 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
             })}
           </div>
         </div>
+        {error && (
+          <p role="alert" className={styles.nameError}>
+            {t('avatarError')}
+          </p>
+        )}
         <div className={`${styles.actions} ${own.actions}`}>
           <button
             type="button"

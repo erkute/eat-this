@@ -5,6 +5,7 @@
  *   npx tsx scripts/replace-must-eat-cards.ts --cards ../CARDS --dry-run
  *   npx tsx scripts/replace-must-eat-cards.ts --cards ../CARDS --apply
  *
+ * --images-only bewahrt alle bestehenden Texte.
  * Optional: --map <json> (Standard: scripts/data/must-eat-cards.json),
  * --manifest <json> (schreibt die getauschten Einträge im Migrations-Manifest
  * fort, damit migrate-must-eats-private.ts verify weiter durchläuft).
@@ -107,6 +108,7 @@ async function main() {
   loadEnv({ path: arg('--env-file') ?? '.env.local', quiet: true });
 
   const apply = hasFlag('--apply');
+  const imagesOnly = hasFlag('--images-only');
   if (apply === hasFlag('--dry-run')) {
     throw new Error('Genau eines von --dry-run oder --apply waehlen');
   }
@@ -196,14 +198,14 @@ async function main() {
       throw new Error(`Firestore-Dokument ${mustEat._id} hat kein restaurantId`);
     }
     const label = `${String(card.order).padStart(3, '0')} ${card.spot} — ${card.dish}`;
-    const textChanges = TEXT_FIELDS.filter((field) => data[field] !== card[field]);
+    const textChanges = (imagesOnly ? [] : TEXT_FIELDS).filter((field) => data[field] !== card[field]);
     const imageChanged = data.imageObjectPath !== objectPath;
     if (!imageChanged && textChanges.length === 0) {
       console.log(`unveraendert  ${label} (${mustEat._id})`);
       continue;
     }
 
-    const text = Object.fromEntries(TEXT_FIELDS.map((field) => [field, card[field]]));
+    const text = Object.fromEntries((imagesOnly ? [] : TEXT_FIELDS).map((field) => [field, card[field]]));
     const next = {
       ...data,
       ...text,

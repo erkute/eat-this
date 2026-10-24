@@ -19,11 +19,11 @@ const TEASER_COUNT = 5;
 // Compact Figma artwork for these already-public examples. All other cards
 // keep the image supplied by the authorized data boundary.
 const HOME_CARD_ART: Readonly<Record<string, string>> = {
-  'mustead-main-14': '/pics/home/must-eat-007.webp',
-  'mustead-main-13': '/pics/home/must-eat-008.webp',
-  'mustead-main-11': '/pics/home/must-eat-010.webp',
-  'mustead-main-10': '/pics/home/must-eat-011.webp',
-  'mustead-main-9': '/pics/home/must-eat-012.webp',
+  'mustead-main-14': '/pics/home/must-eat-007.webp?v=3',
+  'mustead-main-13': '/pics/home/must-eat-008.webp?v=3',
+  'mustead-main-11': '/pics/home/must-eat-010.webp?v=3',
+  'mustead-main-10': '/pics/home/must-eat-011.webp?v=3',
+  'mustead-main-9': '/pics/home/must-eat-012.webp?v=3',
 };
 const CARD_WIDTHS = [180, 360, 440, 720] as const;
 
@@ -239,7 +239,7 @@ export default function HubMustEatsTeaser() {
             <MapIntentLink href="/must-eats" className="et-btn">
               {t('mustEats.teaserCta')}
             </MapIntentLink>
-            <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="plain" />
+            <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="ink" />
           </div>
         </div>
       </div>

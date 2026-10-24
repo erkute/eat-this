@@ -442,14 +442,18 @@ await sharp(join(process.cwd(), 'public/pics/home/starter-pack-front.webp'))
 const manifest: Record<string, { width: number; height: number; alt: string; version: string }> =
   {};
 for (const spec of ART) {
-  const renderSpec = spec.id.startsWith('lead-') ? {...spec, size: 16, wrap: 300, width: 300, bg: undefined} : spec;
+  const renderSpec = spec.id.startsWith('lead-')
+    ? {...spec, size: 16, wrap: 300, width: 300, bg: undefined}
+    : spec.id.includes('-starter') ? {...spec, bg: undefined} : spec;
   manifest[spec.id] = await renderOne(renderSpec, faces);
   const { width, height } = manifest[spec.id];
   console.log(`  ${spec.id}.png  ${width}×${height}`);
 }
 
 // Die weiße Folie stammt aus der vom Betreiber gelieferten Vorlage.
-// Text und Folie werden gemeinsam gerendert, ohne weiße Kästen um die Zeilen.
+// Die Folie liegt durchgehend hinter Intro, CTA und Starter-Pack.
+// Die Intro-Schrift bleibt transparent, damit kein separater Folienausschnitt
+// den gemeinsamen Hintergrund unterbricht.
 const foil = await sharp(join(process.cwd(), 'public/pics/paper/mail-foil.webp'))
   .resize({width: 1200}).png().toBuffer();
 // Große Wortmarke, darunter später die Karte: Reihenfolge der mobilen Startseite.
@@ -487,7 +491,7 @@ for (const [id, ...parts] of introParts) {
     copy.push(spec.lines.join(' '));
   }
   const height = Math.ceil(y);
-  const image = await sharp(introFoil).extract({left: 0, top: 0, width: 1200, height: height * 2})
+  const image = await sharp({create: {width: 1200, height: height * 2, channels: 4, background: '#00000000'}})
     .composite(layers).png({palette: true}).toBuffer();
   await writeFile(join(OUT_DIR, `${id}.png`), image);
   manifest[id] = {width: 600, height, alt: copy.join(' '), version: createHash('sha1').update(image).digest('hex').slice(0, 8)};
@@ -517,26 +521,28 @@ for (const en of [false, true]) {
     width: width * 2, height: height * 2, alignItems: 'center', justifyContent: 'center',
     fontFamily: BRAND_FONT_NAME, fontSize: size * 2, fontWeight: 400, color: COLOR.text,
   }}, value);
-  const poster = new ImageResponse(React.createElement('div', {style: {display: 'flex', position: 'relative', width: 1200, height: 632, overflow: 'hidden', backgroundColor: '#fff'}},
+  // 64 px Luft vor der Wortmarke wie im Desktop-Footer der Website.
+  const footerTopExtra = 44;
+  const poster = new ImageResponse(React.createElement('div', {style: {display: 'flex', position: 'relative', width: 1200, height: (316 + footerTopExtra) * 2, overflow: 'hidden', backgroundColor: '#fff'}},
     React.createElement('img', {src: data(footerPaper), width: 1200, height: 1800, style: {position: 'absolute', left: 0, top: 0}}),
-    React.createElement('img', {src: data(footerLogo), width: 600, height: 146, style: {position: 'absolute', left: 300, top: 40}}),
-    text('we tell you what to eat', 0, 101, 600, 24, 16),
-    React.createElement('img', {src: data(instagram), width: 64, height: 64, style: {position: 'absolute', left: 568, top: 296}}),
-    text(labels[0]!, 0, 190, 300, 34, 18), text(labels[1]!, 300, 190, 300, 34, 18),
-    text(labels[2]!, 0, 224, 200, 34, 18), text(labels[3]!, 200, 224, 200, 34, 18), text(labels[4]!, 400, 224, 200, 34, 18),
-    text(copyright, 0, 270, 600, 28, 14),
-  ), {width: 1200, height: 632, fonts: faces});
+    React.createElement('img', {src: data(footerLogo), width: 600, height: 146, style: {position: 'absolute', left: 300, top: (20 + footerTopExtra) * 2}}),
+    text('we tell you what to eat', 0, 101 + footerTopExtra, 600, 24, 16),
+    React.createElement('img', {src: data(instagram), width: 64, height: 64, style: {position: 'absolute', left: 568, top: (148 + footerTopExtra) * 2}}),
+    text(labels[0]!, 0, 190 + footerTopExtra, 300, 34, 18), text(labels[1]!, 300, 190 + footerTopExtra, 300, 34, 18),
+    text(labels[2]!, 0, 224 + footerTopExtra, 200, 34, 18), text(labels[3]!, 200, 224 + footerTopExtra, 200, 34, 18), text(labels[4]!, 400, 224 + footerTopExtra, 200, 34, 18),
+    text(copyright, 0, 270 + footerTopExtra, 600, 28, 14),
+  ), {width: 1200, height: (316 + footerTopExtra) * 2, fonts: faces});
   const png = Buffer.from(await poster.arrayBuffer());
   const suffix = en ? '-en' : '';
   const cells: [string, number, number, number, number, string][] = [
-    ['footer-brand', 0, 0, 600, 138, 'Eat This — we tell you what to eat'],
-    ['footer-instagram', 0, 138, 600, 52, 'Instagram'],
-    [`footer-about${suffix}`, 0, 190, 300, 34, labels[0]!],
-    [`footer-contact${suffix}`, 300, 190, 300, 34, labels[1]!],
-    ['footer-impressum', 0, 224, 200, 34, labels[2]!],
-    [`footer-datenschutz${suffix}`, 200, 224, 200, 34, labels[3]!],
-    [`footer-agb${suffix}`, 400, 224, 200, 34, labels[4]!],
-    [`footer-copyright${suffix}`, 0, 258, 600, 58, copyright],
+    ['footer-brand', 0, 0, 600, 138 + footerTopExtra, 'Eat This — we tell you what to eat'],
+    ['footer-instagram', 0, 138 + footerTopExtra, 600, 52, 'Instagram'],
+    [`footer-about${suffix}`, 0, 190 + footerTopExtra, 300, 34, labels[0]!],
+    [`footer-contact${suffix}`, 300, 190 + footerTopExtra, 300, 34, labels[1]!],
+    ['footer-impressum', 0, 224 + footerTopExtra, 200, 34, labels[2]!],
+    [`footer-datenschutz${suffix}`, 200, 224 + footerTopExtra, 200, 34, labels[3]!],
+    [`footer-agb${suffix}`, 400, 224 + footerTopExtra, 200, 34, labels[4]!],
+    [`footer-copyright${suffix}`, 0, 258 + footerTopExtra, 600, 58, copyright],
   ];
   for (const [id, left, top, width, height, alt] of cells) {
     const image = await sharp(png).extract({left: left * 2, top: top * 2, width: width * 2, height: height * 2}).png({palette: true}).toBuffer();

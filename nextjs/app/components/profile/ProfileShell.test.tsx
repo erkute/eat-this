@@ -75,14 +75,8 @@ vi.mock('./ProfileSpots', () => ({ default: () => <div>Profile spots</div> }));
 /* Zieht sonst den echten UserLocationContext mit — der wirft ausserhalb
    seines Providers, und dieser Test rendert die Shell blank. */
 vi.mock('./ProfileNextMove', () => ({ default: () => <div>Next move</div> }));
-vi.mock('./ProfileAlbum', () => ({
-  default: ({ tabs }: { tabs?: React.ReactNode }) => (
-    <div>
-      Profile album
-      {tabs}
-    </div>
-  ),
-}));
+vi.mock('./ProfileAlbum', () => ({ default: () => <div>Profile album</div> }));
+vi.mock('./ProfileHeader', () => ({ default: () => <h1>Profile</h1> }));
 vi.mock('./ProfilePacks', () => ({ default: () => <div>Profile packs</div> }));
 vi.mock('./AvatarPickerModal', () => ({ default: () => null }));
 vi.mock('../SiteFooter', () => ({ default: () => <footer>Footer</footer> }));
@@ -182,6 +176,19 @@ describe('ProfileShell tabs', () => {
     expect(window.location.hash).toBe('');
   });
 
+  it('wechselt per Tastatur durch alle Bereiche und verknüpft Reiter mit ihrem Panel', () => {
+    render(<ProfileShell publicFaceUpIds={[]} />);
+    const deck = screen.getByRole('tab', { name: 'tab_deck' });
+    fireEvent.keyDown(deck, { key: 'End' });
+    const account = screen.getByRole('tab', { name: 'tab_account' });
+    expect(document.activeElement).toBe(account);
+    expect(window.location.hash).toBe('#account');
+    expect(screen.getByRole('tabpanel').id).toBe(account.getAttribute('aria-controls'));
+    fireEvent.keyDown(account, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(deck);
+    expect(window.location.hash).toBe('');
+  });
+
   it('oeffnet den Reiter aus dem Anker', () => {
     window.history.replaceState(null, '', '/profile#packs');
     render(<ProfileShell publicFaceUpIds={[]} />);
@@ -198,6 +205,7 @@ describe('ProfileShell sign-out', () => {
     vi.useFakeTimers();
 
     render(<ProfileShell publicFaceUpIds={[]} />);
+    fireEvent.click(screen.getByRole('tab', { name: 'tab_account' }));
     fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
 
     expect(screen.getByTestId('auth-screen').textContent).toBe('out');
@@ -223,6 +231,7 @@ describe('ProfileShell sign-out', () => {
     state.signOut.mockImplementation(() => Promise.reject(new Error('network')));
 
     render(<ProfileShell publicFaceUpIds={[]} />);
+    fireEvent.click(screen.getByRole('tab', { name: 'tab_account' }));
     fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
     /* Waehrend der Haltezeit liegt noch nichts bereit — ein zwischendurch
        geschlossener Tab soll nicht "Du bist abgemeldet" nachreichen. */

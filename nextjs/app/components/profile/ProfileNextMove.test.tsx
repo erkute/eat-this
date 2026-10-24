@@ -10,6 +10,11 @@ const location = vi.hoisted(() => ({
   request: vi.fn(),
 }));
 
+vi.mock('@/app/components/SiteImage', () => ({
+  // eslint-disable-next-line @next/next/no-img-element
+  default: ({ src, alt }: { src: string; alt: string }) => <img src={src} alt={alt} />,
+}));
+
 vi.mock('next-intl', () => ({
   useLocale: () => 'de',
   /* Gibt Schluessel plus Werte zurueck, damit die Tests pruefen koennen,
@@ -81,44 +86,31 @@ describe('ProfileNextMove', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  /* Eine Fassung fuer alle, seit der Slogan ueber dem Deck steht
-     (05.09.2026). Fuer Konten ohne eigene Aufdeckung stand hier bis dahin
-     „Must Eats deckst du vor Ort auf. Das naechste wartet in Mitte" — und
-     genau das sagt der Slogan zwei Zeilen darueber jetzt besser. Die Zahl der
-     verdeckten Karten sagt er nicht, also bleibt sie hier. */
-  it('zaehlt die verdeckten Karten des Bezirks', () => {
-    const { container } = renderMove();
-
-    expect(container.textContent).toContain('moveLabel');
-    expect(container.textContent).toContain('"count":3');
-    expect(container.textContent).toContain('"district":"Kreuzberg"');
-  });
-
-  /* Auf dem Telefon zeigt die Zeile nur, WO die naechste Karte liegt — der
-     lange Satz waere dort vier Zeilen hoch. Beide Fassungen stehen im DOM,
-     die Auswahl trifft eine Media Query; das kann ein jsdom-Test nicht sehen,
-     also prueft er nur, dass die kurze ueberhaupt da ist. */
-  it('haelt neben dem Satz eine Kurzfassung fuer schmale Schirme bereit', () => {
-    const { container } = renderMove();
-
+  it('macht aus dem Hinweis einen konkreten Spot mit öffentlichem Foto', () => {
+    const target = mustEat('a');
+    target.restaurant.photo = '/spot-photo.webp';
+    const { container } = renderMove({ mustEats: [target] });
+    expect(screen.getByRole('heading', { name: 'Spot a' })).toBeTruthy();
     expect(container.textContent).toContain('Kreuzberg');
+    expect(container.textContent).toContain('moveInvitation');
+    expect(container.querySelector('img[src="/spot-photo.webp"]')).toBeTruthy();
+    expect(container.querySelector('img[src*="must-eat-image"]')).toBeNull();
   });
 
   it('nennt die Entfernung, sobald der Standort da ist', () => {
     location.value = HERE;
     const { container } = renderMove();
 
-    expect(container.textContent).toContain('moveCoveredNear:');
-    expect(container.textContent).toMatch(/"distance":"1\d\d m"/);
+    expect(container.textContent).toMatch(/1\d\d m/);
   });
 
   /* Ein Schritt pro Zustand: ohne Standort ist das Freigeben der Schritt,
      denn es ist das, was aus dem Bezirk eine Entfernung macht. */
-  it('fragt ohne Standort nach dem Standort, statt auf die Map zu schicken', () => {
+  it('sucht auf Wunsch in der Nähe und lässt den Weg zum Spot auch ohne Standort offen', () => {
     const { container } = renderMove();
 
     expect(screen.getByRole('button')).toBeTruthy();
-    expect(container.textContent).toContain('moveLocateCta');
+    expect(container.textContent).toContain('moveFindNear');
     fireEvent.click(screen.getByRole('button'));
     expect(location.request).toHaveBeenCalledOnce();
   });
@@ -143,9 +135,7 @@ describe('ProfileNextMove', () => {
      des Albums. */
   it('macht die Karte zum Weg auf den Spot — mit und ohne Standort', () => {
     const { container } = renderMove();
-    expect(container.querySelector('[data-href]')?.getAttribute('data-href')).toBe(
-      '/map?r=spot-a'
-    );
+    expect(container.querySelector('[data-href]')?.getAttribute('data-href')).toBe('/map?r=spot-a');
 
     cleanup();
     location.value = HERE;
@@ -160,5 +150,6 @@ describe('ProfileNextMove', () => {
     const { container } = renderMove();
 
     expect(container.textContent).toContain('Standort wird gesucht');
+    expect((screen.getByRole('button') as HTMLButtonElement).disabled).toBe(true);
   });
 });

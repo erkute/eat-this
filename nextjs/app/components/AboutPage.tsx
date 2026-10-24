@@ -7,6 +7,7 @@ import SiteFooter from './SiteFooter';
 import AboutStoryMotion from './AboutStoryMotion';
 import FoldedPaperBackdrop from './FoldedPaperBackdrop';
 import styles from './AboutPage.module.css';
+import MapPhoneArtwork from './MapPhoneArtwork';
 
 type Locale = 'de' | 'en';
 
@@ -52,21 +53,21 @@ type Figure = {
    contact sheet. */
 const FIGURES: (Figure | null)[] = [
   {
-    src: '/pics/home-phones/phone-map-red.webp?v=3',
-    width: 985,
-    height: 2000,
+    src: '/pics/home-map/phone-1.webp',
+    width: 534,
+    height: 1044,
     // A tall object: anything wider than this and the phone runs
     // past the copy beside it.
     renderWidth: 225,
     tilt: -2,
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
-      de: 'Die Eat-This-App zeigt Berliner Spots auf der roten Karte',
-      en: 'The Eat This app showing Berlin spots on the red map',
+      de: 'Die Eat-This-Map mit Berliner Spots und Avatar',
+      en: 'The Eat This map showing Berlin spots and an avatar',
     },
   },
   {
-    src: '/pics/card-front-sabich.webp',
+    src: '/pics/card-front-sabich.webp?v=6',
     width: 760,
     height: 1044,
     renderWidth: 300,
@@ -84,7 +85,7 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/card-back.webp',
     width: 760,
     height: 1044,
-    partner: { src: '/pics/card-front.webp?v=6', width: 760, height: 1044, tilt: 7 },
+    partner: { src: '/pics/card-front.webp?v=8', width: 760, height: 1044, tilt: 7 },
     // Let the pair fan across the artwork column as the story scrolls.
     renderWidth: 400,
     tilt: -8,
@@ -337,6 +338,8 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                             style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
                           />
                         </div>
+                      ) : figure.src === '/pics/home-map/phone-1.webp' ? (
+                        <div className={styles.figureImg}><MapPhoneArtwork alt={de ? figure.alt.de : figure.alt.en} /></div>
                       ) : (
                         <Image
                           src={figure.src}

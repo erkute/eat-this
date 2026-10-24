@@ -1,0 +1,4 @@
+.mount { display: block; position: relative; width: 100%; aspect-ratio: 472 / 988; perspective: 1400px; }
+.frame { display: block; position: relative; width: 100%; aspect-ratio: 472 / 988; overflow: hidden; border-radius: 14.83% / 7.09%; transform: rotateY(-12deg) rotateZ(3deg); box-shadow: 1px 0 0 1px #777, 3px 1px 0 1px #343434, 5px 2px 0 1px #222, 7px 3px 0 1px #505050, 9px 4px 0 1px #171717, 16px 24px 38px #0003; }
+.image { position: absolute; left: -6.57%; top: -1.42%; width: 113.14%; height: 105.67%; max-width: none; }
+.fit { position: absolute; top: 50%; left: 50%; width: min(88cqw, 43cqh); transform: translate(-50%, -50%); }

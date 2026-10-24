@@ -49,11 +49,11 @@ const FOOTER_LINKS: Record<MailLocale, { art: ArtAsset; path: string }[]> = {
 const FOOTER_COPY = {
   de: {
     copyright: ART.footerCopyright,
-    reason: 'Du hast keine Anmeldung angefordert? Dann kannst du diese E-Mail ignorieren.',
+    reason: 'Falls du diesen Anmeldelink nicht angefordert hast, kannst du diese E-Mail einfach löschen.',
   },
   en: {
     copyright: ART.footerCopyrightEn,
-    reason: 'Didn’t request a sign-in? Then you can ignore this email.',
+    reason: 'If you didn’t request this sign-in link, you can simply delete this email.',
   },
 } as const;
 
@@ -120,7 +120,7 @@ export function Shell({ preview, appUrl, locale, children }: ShellProps) {
           <Section
             style={{
               backgroundColor: COLOR.surface,
-              padding: '32px 0 0',
+              padding: '12px 0 0',
               textAlign: 'center',
             }}
           >

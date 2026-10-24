@@ -144,6 +144,19 @@ describe('Ankunft nach der Anmeldung', () => {
     expect(sources.filter((src) => src?.startsWith('/pics/card-back'))).toHaveLength(10);
   });
 
+  it('zeigt beim Öffnen die eigenen Karten auch bevor die Bilder geladen sind', async () => {
+    // Kalter Bildcache: kein Image.onload vor oder während des Öffnens.
+    render(<SignInReward />);
+    const faceUp = Array.from({ length: 10 }, (_, i) => `cold-${i}`);
+    await act(async () => announceStarterPackGranted(faceUp));
+    fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
+
+    const sources = [...document.querySelectorAll('img')].map((img) => img.getAttribute('src'));
+    for (const id of faceUp)
+      expect(sources).toContain(`/api/must-eat-image/${id}?w=440&auto=format&q=80`);
+    expect(sources).not.toContain('/pics/card-front.webp?v=8');
+  });
+
   it('fuehrt nach den Stapeln das Aufdecken vor: verdeckt, dann umgedreht, antippbar', async () => {
     render(<SignInReward />);
     await arrive();

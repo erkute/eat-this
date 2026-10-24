@@ -12,6 +12,9 @@ import {
 import { FALLBACK_DISTRICT } from '@/lib/profile/nextMove';
 import MapDataNotice from '../map/MapDataNotice';
 import ProfileSpots from './ProfileSpots';
+import ProfileHeader from './ProfileHeader';
+import ProfileNavigation, { PROFILE_TABS, type ProfileTab } from './ProfileNavigation';
+import ProfileAccount from './ProfileAccount';
 import ProfileAlbum from './ProfileAlbum';
 import ProfileNextMove from './ProfileNextMove';
 import ProfilePacks from './ProfilePacks';
@@ -29,21 +32,8 @@ interface Props {
   publicFaceUpIds: string[];
 }
 
-// The profile speaks the home's visual language: one white page, the homeV2
-// element vocabulary (hv-wrap / hv-section / hv-head / hv-title / hv-rail),
-// photos straight on the paper. No dossier panels, no polaroid, no menu dots —
-// those were three metaphors the rest of the site doesn't use.
-//
-// Order follows why someone opens this page: the deck first, then what they
-// just turned over, then their spots, their packs, and the invite.
-/* Die drei Reiter der Seite (Nutzer, 24.09.2026: „sollte man oben noch die
-   Moeglichkeit haben, Tabs zu wechseln?"). Die Seite war vier Bildschirme
-   lang: Deck, Einladen, gespeicherte Spots, Packs untereinander. */
-const TABS = ['deck', 'spots', 'packs'] as const;
-type Tab = (typeof TABS)[number];
-
 export default function ProfileShell({ publicFaceUpIds }: Props) {
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, loading: authLoading, signOut, updateDisplayName } = useAuth();
   /* Das Abmelden hatte bisher keinen sichtbaren Zustand: das Profil verschwand
      wortlos, und der Toast meldete es erst nach dem Reload nach. */
   const [signingOut, setSigningOut] = useState(false);
@@ -51,12 +41,12 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const [pickerOpen, setPickerOpen] = useState(false);
   /* Der Reiter steht im Anker (#spots, #packs), damit ein Neuladen und der
      Zurueck-Weg aus einem Spot dort landen, wo man war. */
-  const [tab, setTab] = useState<Tab>('deck');
+  const [tab, setTab] = useState<ProfileTab>('deck');
   useEffect(() => {
     const fromHash = window.location.hash.slice(1);
-    if (fromHash === 'spots' || fromHash === 'packs') setTab(fromHash);
+    if (PROFILE_TABS.some((id) => id === fromHash)) setTab(fromHash as ProfileTab);
   }, []);
-  const pickTab = (next: Tab) => {
+  const pickTab = (next: ProfileTab) => {
     setTab(next);
     const { pathname, search } = window.location;
     window.history.replaceState(
@@ -146,7 +136,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           <div className="hv-wrap">
             <div className={`${styles.dataNotice} ${styles.dataNoticeError}`} role="alert">
               <p>{t('dataError')}</p>
-              <button type="button" className={styles.dataNoticeAction} onClick={refetchMapData}>
+              <button type="button" className="et-btn" onClick={refetchMapData}>
                 {t('dataRetry')}
               </button>
             </div>
@@ -160,7 +150,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   const avatarIdx = profile.avatar ?? defaultAvatarFromUid(user.uid);
   const firstName =
     (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || t('heroTitle');
-  const accountLabel = user.email ?? t('heroLine');
 
   async function handleAvatarChange(choice: AvatarChoice) {
     if (choice === avatarIdx) return;
@@ -216,54 +205,29 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
             Balken ueber einem. */}
         <MapDataNotice error={mapDataError} hasData={hasMapData} onRetry={refetchMapData} />
 
-        {/* No counters here on purpose: a raw spot tally is a receipt, not a
-            profile — and the product deliberately doesn't state its numbers.
-            The only count that stays is the deck's own progress. */}
-        {/* Kein eigener Seitenkopf mehr (Prototyp, 04.09.2026). Die Ink-Bank
-            war 315 px hoch (Desktop 1440) und trug drei Angaben: Kicker,
-            Name, Berlin-Zahl, dazu die Figur als Gegenstand in der rechten
-            Ecke. Auf dem Telefon frass sie 43 % des ersten Bildschirms, und
-            die Sammlung — der Grund, diese Seite zu oeffnen — fing darunter
-            an (Nutzer, 04.09.2026: „viel zu gross", „der Avatar ist nicht
-            richtig geil eingesetzt").
-
-            Alle drei Angaben stehen jetzt AUF der Spielerkarte, im Format
-            jeder Must-Eat-Karte, und die steht in der Kopfzeile des Albums.
-            Der Charakter ist damit selbst eine Karte statt Zierrat neben
-            einer Ueberschrift. */}
-        <section className={`hv-section hv-wrap ${styles.section} ${styles.firstSection}`}>
+        <div className={`hv-wrap ${styles.profileTop}`}>
+          <ProfileHeader
+            name={firstName}
+            avatarIdx={avatarIdx}
+            onPick={() => setPickerOpen(true)}
+          />
+          <ProfileNavigation tab={tab} onChange={pickTab} />
+        </div>
+        <div
+          className={`hv-wrap ${styles.tabPanel}`}
+          id="profile-panel-deck"
+          role="tabpanel"
+          aria-labelledby="profile-tab-deck"
+          hidden={tab !== 'deck'}
+          tabIndex={0}
+        >
           <ProfileAlbum
             mustEats={ownedMustEats}
             faceUpIds={unlockedIds}
-            /* Nur die eigenen Aufdeckungen vor Ort — nicht der oeffentliche
-               Satz und nicht die gekauften Karten. Genau die drei Quellen
-               vereinigt `unlockedIds` darueber, und deshalb kann der Stempel
-               nicht daraus kommen. */
             stampedIds={storedUnlockedIds}
             groupOf={(m) =>
               districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
             }
-            player={{ name: firstName, avatarIdx, onPick: () => setPickerOpen(true) }}
-            /* Der einzige Zug nach vorn auf dieser Seite — und er handelt vom
-               Deck, steht also im Deck. In der Ink-Tafel des Kopfes war er ein
-               Untermieter zwischen Name und Berlin-Zahl. */
-            tabs={
-              <div className={styles.tabs} role="tablist" aria-label={t('tabsLabel')}>
-                {TABS.map((id) => (
-                  <button
-                    key={id}
-                    type="button"
-                    role="tab"
-                    aria-selected={tab === id}
-                    className={styles.tab}
-                    onClick={() => pickTab(id)}
-                  >
-                    {t(`tab_${id}`)}
-                  </button>
-                ))}
-              </div>
-            }
-            showCollection={tab === 'deck'}
             nextMove={
               <ProfileNextMove
                 mustEats={ownedMustEats}
@@ -272,53 +236,75 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
               />
             }
           />
-        </section>
-
-        {tab === 'deck' && (
-          <>
-            {/* Direkt unter dem Deck, nicht am Seitenende (Nutzer, 04.09.2026:
+          {tab === 'deck' && (
+            <>
+              {/* Direkt unter dem Deck, nicht am Seitenende (Nutzer, 04.09.2026:
             „ist der Knopf da unten irgendwie versteckt? Vielleicht muss der
             kleiner sein, unter dem Deck"). Geteilt wird das Deck — die
             Aufforderung dazu stand vier Bildschirme davon entfernt, hinter
             den gespeicherten Spots und den Packs, und war der letzte Block
             vor dem Fuss. */}
-            <section className={`hv-section hv-wrap ${styles.section}`}>
-              <ProfileInvite uid={user.uid} cards={inviteCards} />
-            </section>
+              <section className={styles.deckInvite}>
+                <ProfileInvite uid={user.uid} cards={inviteCards} />
+              </section>
 
-            {/* Direkt darunter, weil es die Antwort auf den Kasten darueber ist:
+              {/* Direkt darunter, weil es die Antwort auf den Kasten darueber ist:
             dort wird gebeten, hier stehen die, die gekommen sind. Rendert
             nichts, solange niemand da ist. */}
-            <ProfileFriends uid={user.uid} />
+              <ProfileFriends uid={user.uid} />
 
-            <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
-          </>
-        )}
-
-        {tab === 'spots' && (
-          <section className={`hv-section hv-wrap ${styles.section}`}>
-            <div className={`hv-head ${styles.head}`}>
-              <h2 className="hv-title">{t('savedHeading')}</h2>
-            </div>
-            <ProfileSpots uid={user.uid} restaurantSlugs={ownedRestaurantSlugs} />
-          </section>
-        )}
-
-        {tab === 'packs' && (
-          <section className={`hv-section hv-wrap ${styles.section}`}>
-            <ProfilePacks uid={user.uid} fullCatalog={fullCatalog} />
-          </section>
-        )}
-
-        {/* Account chrome belongs at the bottom, quiet: it is the one thing
-            nobody comes to this page for. */}
-        <div className={`hv-wrap ${styles.foot}`}>
-          <span className={styles.footAccount}>
-            {t('fieldAccount')}: {accountLabel}
-          </span>
-          <button type="button" className={styles.logout} onClick={handleSignOut}>
-            {t('signOut')}
-          </button>
+              <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
+            </>
+          )}
+        </div>
+        <div
+          className={`hv-wrap ${styles.tabPanel}`}
+          id="profile-panel-spots"
+          role="tabpanel"
+          aria-labelledby="profile-tab-spots"
+          hidden={tab !== 'spots'}
+          tabIndex={0}
+        >
+          {tab === 'spots' && (
+            <section className={styles.section}>
+              <div className={`hv-head ${styles.head}`}>
+                <h2 className={styles.sectionTitle}>{t('savedHeading')}</h2>
+              </div>
+              <ProfileSpots uid={user.uid} restaurantSlugs={ownedRestaurantSlugs} />
+            </section>
+          )}
+        </div>
+        <div
+          className={`hv-wrap ${styles.tabPanel}`}
+          id="profile-panel-packs"
+          role="tabpanel"
+          aria-labelledby="profile-tab-packs"
+          hidden={tab !== 'packs'}
+          tabIndex={0}
+        >
+          {tab === 'packs' && (
+            <section className={styles.section}>
+              <ProfilePacks uid={user.uid} fullCatalog={fullCatalog} />
+            </section>
+          )}
+        </div>
+        <div
+          className={`hv-wrap ${styles.tabPanel}`}
+          id="profile-panel-account"
+          role="tabpanel"
+          aria-labelledby="profile-tab-account"
+          hidden={tab !== 'account'}
+          tabIndex={0}
+        >
+          {tab === 'account' && (
+            <ProfileAccount
+              name={user.displayName ?? ''}
+              email={user.email}
+              onSaveName={updateDisplayName}
+              onPickAvatar={() => setPickerOpen(true)}
+              onSignOut={handleSignOut}
+            />
+          )}
         </div>
       </main>
       <SiteFooter />

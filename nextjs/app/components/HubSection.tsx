@@ -7,6 +7,7 @@ import HeroMarkFlight from './HeroMarkFlight';
 import HubHashScroll from './HubHashScroll';
 import HeroCurtain from './HeroCurtain';
 import HubMotion from './HubMotion';
+import HubMapIntro from './HubMapIntro';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
 import HomeDistricts from './HomeDistricts';
 import MagazineGrid from './MagazineGrid';
@@ -34,6 +35,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       </section>
       <HeroMarkFlight />
       <HubMotion />
+      <HubMapIntro locale={locale} />
       <HomeMapDataProvider initialMapData={initialMapData}>
         <MagazineGrid articles={initialData.magazine} locale={locale} />
         <HubMustEatsTeaser />

@@ -59,9 +59,9 @@ describe('ProfilePacks artwork delivery', () => {
     expect(images.length).toBe(1);
     for (const image of images) {
       expect(image.getAttribute('src')).toContain('/pics/home/starter-pack-front.webp');
-      expect(image.getAttribute('width')).toBe('96');
-      expect(image.getAttribute('height')).toBe('152');
-      expect(image.getAttribute('sizes')).toBe('(max-width: 767.98px) 72px, 96px');
+      expect(image.getAttribute('width')).toBe('160');
+      expect(image.getAttribute('height')).toBe('253');
+      expect(image.getAttribute('sizes')).toBe('160px');
       expect(image.getAttribute('loading')).toBe('lazy');
     }
   });

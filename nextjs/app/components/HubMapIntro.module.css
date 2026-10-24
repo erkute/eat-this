@@ -1,0 +1,43 @@
+.section { display: grid; grid-template-columns: 1.15fr 1fr; align-items: center; gap: clamp(40px, 7vw, 120px); padding: clamp(64px, 7vw, 112px) var(--home-gutter); background: var(--et-ground); color: var(--et-fg); }
+.header { max-width: 720px; }
+.title { padding-block: .08em .18em; margin: -.08em 0 14px; font-size: clamp(56px, 6.8vw, 108px); font-weight: 700; line-height: .95; letter-spacing: -.065em; }
+.copy { max-width: 440px; }
+.copy p { margin: 0 0 28px; font-size: clamp(18px, 1.8vw, 26px); line-height: 1.4; letter-spacing: -.025em; }
+.showcase { width: min(100%, 360px); justify-self: center; perspective: 1400px; }
+.phone { display: block; position: relative; padding: 9px; border-radius: 54px; background: #111; border: 2px solid #696969; transform: rotateY(-12deg) rotateZ(3deg); box-shadow: 1px 0 0 2px #777, 3px 1px 0 2px #343434, 6px 2px 0 2px #222, 9px 3px 0 2px #505050, 11px 4px 0 2px #171717, 20px 30px 48px #0003; }
+.display { position: relative; overflow: hidden; border-radius: 43px; background: #fff; }
+.status { height: 37px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; color: #111; font: 600 10px/1 Arial, sans-serif; }
+.status i { position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 30%; height: 23px; border-radius: 20px; background: #050505; }
+.viewport { overflow: hidden; }
+.track { display: flex; width: 400%; }
+.slide { width: 25%; flex: 0 0 25%; }
+.screen { display: block; width: 100%; height: auto; }
+.homeBar { position: absolute; bottom: 7px; left: 34%; width: 32%; height: 4px; border-radius: 4px; background: #111; box-shadow: 0 0 2px #fff; }
+.controls { display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 34px; }
+.dot, .pause { width: 40px; height: 40px; display: grid; place-items: center; border: 0; background: transparent; color: var(--et-fg); cursor: pointer; }
+.dot::after { content: ''; width: 6px; height: 6px; border-radius: 10px; background: currentColor; opacity: .3; }
+.dot[aria-pressed='true']::after { width: 22px; opacity: 1; }
+.phone:focus-visible, .dot:focus-visible, .pause:focus-visible { outline: 3px solid var(--et-fg); outline-offset: 5px; }
+@media (max-width: 767.98px) {
+  .section { grid-template-columns: 1fr; padding-block: 56px 40px; gap: 40px; }
+  .title { font-size: clamp(48px, 13.5vw, 76px); margin-bottom: 16px; }
+  .copy p { font-size: 20px; }
+  .showcase { width: min(76vw, 340px); }
+}
+
+.cta { display: flex; justify-content: center; margin-top: 12px; }
+
+/* Leicht abgeriebene Druckfarbe, ohne die Kontur der Buchstaben aufzulösen. */
+@supports (background-clip: text) {
+  :global(html[data-vintage]) .title {
+    background-color: var(--et-fg);
+    background-image: linear-gradient(rgb(21 18 14 / .65), rgb(21 18 14 / .65)), url('/pics/vintage/section-wear-dark.webp?v=4');
+    background-size: auto, 320px auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+}
+@media (forced-colors: active) {
+  :global(html[data-vintage]) .title { background: none; color: CanvasText; }
+}

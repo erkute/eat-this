@@ -17,6 +17,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
   const entrance = useRef<gsap.core.Timeline | null>(null);
   const reaction = useRef<gsap.core.Timeline | null>(null);
   const pending = useRef(false);
+  const portraitReady = useRef(false);
   const motion = () => !!window.matchMedia?.('(prefers-reduced-motion: no-preference)').matches;
   const questions = en
     ? ['Where can I get really good pizza?', 'Where should I go on a date?', 'Surprise me.']
@@ -30,11 +31,16 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
       const avatar = figure.current!;
       let visit = 0;
       let inside = false;
+      let alive = true;
+      let ready = false;
+      const image = avatar.querySelector<HTMLImageElement>('img')!;
+      portraitReady.current = false;
       const settle = { x: 0, y: 0, xPercent: 0, yPercent: 0, rotation: 0, scale: 1 };
       const tuckedRight = { ...settle, xPercent: 120, yPercent: 22, rotation: 18 };
       gsap.set(avatar, tuckedRight);
       avatar.setAttribute('data-staged', '');
       const arrive = () => {
+        if (!alive || !ready || !inside) return;
         entrance.current?.kill();
         gsap.killTweensOf(avatar);
         avatar.removeAttribute('data-speaking');
@@ -53,6 +59,21 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
         tl.call(() => avatar.setAttribute('data-speaking', ''))
           .call(() => avatar.removeAttribute('data-speaking'), [], '+=2');
       };
+      const loaded = async () => {
+        try { await image.decode?.(); } catch { /* A loaded image may still be displayable after decode rejects. */ }
+        if (!alive || ready) return;
+        ready = true;
+        portraitReady.current = true;
+        arrive();
+      };
+      image.addEventListener('load', loaded);
+      if (image.complete && image.naturalWidth > 0) void loaded();
+      const preload = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        avatar.querySelectorAll('img').forEach(img => { img.loading = 'eager'; });
+        preload.disconnect();
+      }, { rootMargin: '100% 0px' });
+      preload.observe(avatar.parentElement!);
       // Zwei Schwellen verhindern Flackern beim langsamen Scrollen.
       // Der Abgang beginnt, solange Remy noch teilweise sichtbar ist.
       const observer = new IntersectionObserver(([entry]) => {
@@ -63,6 +84,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
           reaction.current?.kill();
           gsap.killTweensOf(avatar);
           avatar.removeAttribute('data-speaking');
+          if (!ready) return;
           entrance.current = gsap.timeline().to(avatar, {
             ...tuckedRight,
             duration: 0.45, ease: 'power2.in',
@@ -74,7 +96,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
         arrive();
       }, { threshold: [0, 0.4, 0.6] });
       observer.observe(avatar.parentElement!);
-      return () => { observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-speaking'); avatar.removeAttribute('data-staged'); gsap.set(avatar, { clearProps: 'transform' }); };
+      return () => { alive = false; portraitReady.current = false; preload.disconnect(); image.removeEventListener('load', loaded); observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-speaking'); avatar.removeAttribute('data-staged'); gsap.set(avatar, { clearProps: 'transform' }); };
     });
     return () => {
       media.revert();
@@ -86,7 +108,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
   function listen(active: boolean, choice = -1) {
     if (pending.current) return;
     setExpression(active ? (choice === 2 ? 'laugh' : choice === 0 ? 'open' : 'neutral') : 'neutral');
-    if (!figure.current || !motion()) return;
+    if (!figure.current || !motion() || !portraitReady.current) return;
     const avatar = figure.current;
     // Auch während der Verzögerung vor dem Auftritt nicht dazwischenfunken.
     if (entrance.current && entrance.current.progress() < 1 && entrance.current.time() < 1.85) return;

@@ -12,6 +12,7 @@ import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
 import { AVATAR_CHOICES, avatarSrc } from './avatarChoices';
 import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './Tour.module.css';
+import StarterPack3D from './StarterPack3D';
 import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
 
 /** So lange sieht man die gelandeten Stapel, bevor die Erklaerung kommt. */
@@ -35,7 +36,6 @@ const copy = {
       title: 'Wer bist du?',
       lead: 'Wähle deinen Charakter.',
       name: 'Dein Name',
-      placeholder: 'Dein Name oder Spitzname',
       avatars: 'Charakter auswählen',
       saving: 'Speichert …',
       error: 'Etwas ist schiefgelaufen. Versuch es nochmal.',
@@ -44,8 +44,8 @@ const copy = {
       tag: 'Starter Pack',
       sealed: 'Öffne dein Starter Pack.',
       opened: 'Deine ersten 20 Must Eats.',
-      lead: '20 Must Eats aus ganz Berlin.',
-      explain: 'Hinter jeder Karte steckt eine Empfehlung.',
+      lead: 'Deine ersten Empfehlungen warten auf dich.',
+      explain: '10 Karten sind offen. Die anderen 10 deckst du am jeweiligen Spot auf.',
       openStack: '10 offen',
       coveredStack: '10 verdeckt',
       open: 'Öffnen',
@@ -55,7 +55,7 @@ const copy = {
     reveal: {
       tag: 'Am Spot',
       title: 'Antippen. Aufdecken.',
-      body: 'Bist du am Spot, tippe auf die verdeckte Karte. Sie zeigt dir unsere Empfehlung und landet dann in deinem Deck.',
+      body: 'Am Spot deckst du die Karte durch Antippen auf. Sie zeigt dir, was du dort bestellen solltest, und bleibt offen in deinem Deck.',
       flip: 'Karte umdrehen',
       alt: 'Eine aufgedeckte Must Eat Karte',
     },
@@ -71,6 +71,8 @@ const copy = {
       title: 'Wohin zuerst?',
       deck: 'Deck',
       map: 'Map',
+      mapHint: 'Spots entdecken',
+      deckHint: 'Deine Must Eats ansehen',
     },
   },
   en: {
@@ -85,9 +87,8 @@ const copy = {
     identity: {
       tag: 'Your profile',
       title: 'Who are you?',
-      lead: 'Pick your character.',
+      lead: 'Choose your character.',
       name: 'Your name',
-      placeholder: 'Your name or nickname',
       avatars: 'Choose a character',
       saving: 'Saving …',
       error: 'Something went wrong. Please try again.',
@@ -96,8 +97,8 @@ const copy = {
       tag: 'Starter Pack',
       sealed: 'Open your Starter Pack.',
       opened: 'Your first 20 Must Eats.',
-      lead: '20 Must Eats from all over Berlin.',
-      explain: 'Behind every card there’s a pick.',
+      lead: 'Your first picks are waiting for you.',
+      explain: '10 cards are face up. You reveal the other 10 at their spots.',
       openStack: '10 open',
       coveredStack: '10 covered',
       open: 'Open',
@@ -107,7 +108,7 @@ const copy = {
     reveal: {
       tag: 'At the spot',
       title: 'Tap. Reveal.',
-      body: 'At the spot, tap the covered card. It shows you our recommendation and then joins your deck.',
+      body: 'Tap the card at the spot to reveal it. It shows you what to order and stays face up in your deck.',
       flip: 'Flip the card',
       alt: 'A revealed Must Eat card',
     },
@@ -123,6 +124,8 @@ const copy = {
       title: 'Where to first?',
       deck: 'Deck',
       map: 'Map',
+      mapHint: 'Discover spots',
+      deckHint: 'See your Must Eats',
     },
   },
 } as const;
@@ -242,6 +245,11 @@ export default function SignInReward() {
   useEffect(() => {
     if (!flipping) {
       setCardDown(true);
+      setShowTapCue(false);
+      return;
+    }
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setCardDown(false);
       setShowTapCue(false);
       return;
     }
@@ -398,7 +406,7 @@ export default function SignInReward() {
     justOpened.current = false;
     const timer = window.setTimeout(() => {
       setStep((current) => (pageRef.current === 'pack' ? current + 1 : current));
-    }, STACKS_PAUSE_MS);
+    }, window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : STACKS_PAUSE_MS);
     return () => window.clearTimeout(timer);
   }, [pack]);
 
@@ -446,7 +454,7 @@ export default function SignInReward() {
       <form id={IDENTITY_FORM} className={styles.content} onSubmit={submit}>
         <div className={styles.art}>
           <div className={styles.avatars} role="radiogroup" aria-label={t.identity.avatars}>
-            {AVATAR_CHOICES.map((choice) => {
+            {AVATAR_CHOICES.map((choice, index) => {
               const checked = choice.id === identity.avatar;
               return (
                 <button
@@ -454,6 +462,18 @@ export default function SignInReward() {
                   type="button"
                   role="radio"
                   aria-checked={checked}
+                  disabled={identity.busy}
+                  tabIndex={checked ? 0 : -1}
+                  onKeyDown={(event) => {
+                    const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+                    if (!keys.includes(event.key)) return;
+                    event.preventDefault();
+                    const direction = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
+                    const next = event.key === 'Home' ? 0 : event.key === 'End' ? AVATAR_CHOICES.length - 1
+                      : (index + direction + AVATAR_CHOICES.length) % AVATAR_CHOICES.length;
+                    setIdentity({...identity, avatar: AVATAR_CHOICES[next]!.id});
+                    event.currentTarget.parentElement?.querySelectorAll('button')[next]?.focus();
+                  }}
                   className={checked ? `${styles.avatar} ${styles.avatarActive}` : styles.avatar}
                   onClick={() => setIdentity({ ...identity, avatar: choice.id })}
                 >
@@ -479,8 +499,8 @@ export default function SignInReward() {
             className={styles.nameInput}
             type="text"
             autoComplete="given-name"
-            placeholder={t.identity.placeholder}
             value={identity.name}
+            disabled={identity.busy}
             onChange={(event) => setIdentity({ ...identity, name: event.target.value })}
             required
             maxLength={40}
@@ -547,7 +567,12 @@ export default function SignInReward() {
                 }
               />
             ))}
-            {pack !== 'open' && (
+            {pack === 'sealed' && (
+              <div className={styles.packPreview} role="img" aria-label={t.pack.packAlt}>
+                <StarterPack3D fit />
+              </div>
+            )}
+            {pack === 'opening' && (
               <div className={styles.packWrapper}>
                 <img
                   className={styles.packBody}
@@ -631,6 +656,7 @@ export default function SignInReward() {
               </span>
             </span>
             <span className={styles.halfLabel}>{t.go.map}</span>
+            <span className={styles.halfHint}>{t.go.mapHint}</span>
           </Link>
           <Link href="/profile" className={styles.half} onClick={close}>
             <span className={styles.halfArt}>
@@ -642,6 +668,7 @@ export default function SignInReward() {
               {/* eslint-enable @next/next/no-img-element */}
             </span>
             <span className={styles.halfLabel}>{t.go.deck}</span>
+            <span className={styles.halfHint}>{t.go.deckHint}</span>
           </Link>
         </div>
       </div>
@@ -754,15 +781,12 @@ export default function SignInReward() {
         ) : (
           <footer className={styles.footer}>
             <div
-              className={styles.progress}
+              className={`${styles.progress} ${styles.welcomeProgress}`}
               aria-label={`${t.step} ${step + 1} ${t.of} ${steps.length}`}
             >
-              <span>
-                {step + 1} / {steps.length}
-              </span>
               <div className={styles.segments} aria-hidden="true">
                 {steps.map((item, index) => (
-                  <span key={item} className={index <= step ? styles.active : undefined} />
+                  <span key={item} className={index === step ? styles.active : undefined} />
                 ))}
               </div>
             </div>

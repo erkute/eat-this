@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({ lang: 'de', t: (key: string) => key, setLang: vi.fn() }),
@@ -16,6 +16,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 function card() {
@@ -189,6 +190,29 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(card().className).not.toContain('show');
     expect(layer.hasAttribute('data-layer')).toBe(false);
     expect(document.querySelector('.notification-scrim')).toBeNull();
+  });
+
+  it('hält Tab im Info-Layer und gibt den Fokus beim Schließen zurück', () => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue({ length: 1 } as DOMRectList);
+    render(<><button>Auslöser</button><NotificationToast /></>);
+    const trigger = screen.getByText('Auslöser');
+    trigger.focus();
+    act(() => {
+      window.showNotice?.({
+        eyebrow: 'Standort', title: 'Standort', duration: 0,
+        action: { label: 'Freigeben', onClick: vi.fn() },
+        onDismiss: vi.fn(), dismissLabel: 'Später',
+      });
+    });
+    const primary = screen.getByText('Freigeben');
+    const secondary = screen.getByText('Später');
+    expect(document.activeElement).toBe(primary);
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(document.activeElement).toBe(secondary);
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(primary);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(document.activeElement).toBe(trigger);
   });
 
   it('laesst die kurze Bestaetigung ohne Scrim durch', () => {

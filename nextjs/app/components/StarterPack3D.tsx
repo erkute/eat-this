@@ -30,7 +30,7 @@ const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 
  * (dann steht es still, leicht gedreht) — liegt das flache Bild da; es gibt
  * auch die Grösse vor, an der sich das 3D-Pack ausrichtet.
  */
-export default function StarterPack3D() {
+export default function StarterPack3D({ fit = false }: { fit?: boolean }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const rigRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -152,7 +152,7 @@ export default function StarterPack3D() {
   }, []);
 
   return (
-    <div ref={stageRef} className={styles.art} aria-hidden="true">
+    <div ref={stageRef} className={fit ? `${styles.art} ${styles.fitted}` : styles.art} aria-hidden="true">
       <span ref={shadowRef} className={styles.shadow} />
       <div ref={rigRef} className={styles.packRig}>
         {/* The flat picture until WebGL is up. */}

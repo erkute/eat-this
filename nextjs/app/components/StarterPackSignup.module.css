@@ -61,3 +61,15 @@
   .art { width: min(100%, 330px); height: 400px; margin: 0 auto; }
   .packRig { width: 220px; }
 }
+
+/* In Tour-Fenstern gibt die vorhandene Bildfläche die Bühne vor. Höhere
+   Spezifität als .art in allen Breakpoints, ohne Reihenfolge-Abhängigkeit. */
+.art.fitted {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  container-type: size;
+}
+.fitted .packRig {
+  width: min(68cqw, 48cqh, 300px);
+}

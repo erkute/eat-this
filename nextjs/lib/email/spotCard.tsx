@@ -1,6 +1,6 @@
 // Server-composed email spot card — the JSX tree Satori (next/og ImageResponse)
-// renders into one flat 1072×804 image: restaurant photo, bottom scrim, name and
-// district in the brand font, and the spot's open Must Eat card beside it.
+// renders into one flat 1072×804 image: restaurant photo, solid name and district labels, and
+// the spot's open Must Eat card beside them.
 //
 // It is the `.hv-photo` card from home, flattened. Composing server-side is the
 // only way this survives email clients: Gmail strips position/transform/filter/
@@ -77,22 +77,6 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
         style={{ objectFit: 'cover' }}
       />
 
-      {/* scrim — --et-photo-overlay, so the type stays readable on any photo */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          bottom: 0,
-          width: SPOT_CARD_WIDTH,
-          height: 480,
-          // Deliberately heavy: restaurant photos are often bright (white
-          // plates, daylight), and a polite scrim leaves the name unreadable
-          // exactly on the images people like most.
-          backgroundImage:
-            'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 52%, rgba(0,0,0,0.88) 100%)',
-        }}
-      />
-
       {/* die Must-Eat-Karte — oben rechts, gekippt wie auf der Restaurantliste.
           Gmail entfernt `transform`, hier ist sie eingebacken. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -127,7 +111,10 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
             fontSize: 66,
             lineHeight: 1.05,
             letterSpacing: -1,
-            color: PALETTE.paper,
+            color: PALETTE.ink,
+            backgroundColor: PALETTE.paper,
+            alignSelf: 'flex-start',
+            padding: '8px 16px',
           }}
         >
           {spot.name}
@@ -136,11 +123,15 @@ export function SpotCardImage({ spot }: { spot: SpotCardData }) {
           <div
             style={{
               fontFamily: BRAND_FONT_NAME,
-              fontWeight: 400,
-              fontSize: 34,
+              fontWeight: 700,
+              fontSize: 26,
               marginTop: 8,
               color: PALETTE.paper,
-              opacity: 0.82,
+              backgroundColor: PALETTE.ink,
+              alignSelf: 'flex-start',
+              padding: '8px 12px',
+              letterSpacing: 1,
+              textTransform: 'uppercase',
             }}
           >
             {meta}

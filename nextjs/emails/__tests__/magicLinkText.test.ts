@@ -25,7 +25,7 @@ describe('auth mail plain-text parts', () => {
     const t = buildSignupText('https://x/verify', 'de');
     expect(t).toContain('20 Must Eats');
     // Nicht nur wohin, sondern was bestellen — das Versprechen seit 22.09.2026.
-    expect(t).toContain('was du');
+    expect(t).toContain('Alles auf einer Map.');
     expect(t).not.toContain('Gute Spots findest du überall');
     // „auf deiner Map" war das alte Versprechen — Spots gibt es gratis.
     expect(t).not.toContain('Spots samt');
@@ -50,7 +50,7 @@ describe('auth mail plain-text parts', () => {
     const login = buildLoginText('https://x/v', 'en');
     const signup = buildSignupText('https://x/v', 'en');
     expect(login).toContain('Welcome back.');
-    expect(signup).toContain('20 Must Eats to get you started.');
+    expect(signup).toContain('20 Must Eats.');
     for (const t of [login, signup]) {
       expect(t).toContain('https://x/v');
       expect(t).toContain('one hour');

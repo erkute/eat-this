@@ -375,7 +375,7 @@ export default function CookieConsent() {
               </p>
               <button
                 type="button"
-                className="cookie-info-trigger"
+                className="et-btn et-btn-text et-btn-sm cookie-info-trigger"
                 id="cookieInfoTrigger"
                 aria-expanded={expanded}
                 aria-controls="cookieInfoPanel"

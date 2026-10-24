@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useId, useRef } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import type { Notice } from '@/lib/notice';
+import { useDialogFocus } from '@/lib/useDialogFocus';
 
 /**
  * Die eine Infoflaeche der App.
@@ -86,13 +87,12 @@ export default function NotificationToast() {
   const titleId = useId();
   const detailId = useId();
   const primaryRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement>(null);
+  useDialogFocus(isLayer, panelRef, triggerRef);
   useEffect(() => {
     if (!isLayer) return;
-    const before = document.activeElement as HTMLElement | null;
     primaryRef.current?.focus({ preventScroll: true });
-    return () => {
-      if (before?.isConnected) before.focus({ preventScroll: true });
-    };
   }, [isLayer, notice]);
 
   /* Escape raeumt den Layer ab wie ein Tipp daneben. Nur den Layer: eine
@@ -132,6 +132,8 @@ export default function NotificationToast() {
           <div className="notification-scrim" onClick={dismiss} aria-hidden="true" />
         )}
         <div
+          ref={panelRef}
+          tabIndex={isLayer ? -1 : undefined}
           className={`notification${visible ? ' show' : ''}`}
           data-tone={notice?.tone}
           data-buttons={hasButtons ? '' : undefined}
@@ -140,7 +142,7 @@ export default function NotificationToast() {
           aria-labelledby={isLayer ? titleId : undefined}
           aria-describedby={isLayer && notice?.detail ? detailId : undefined}
         >
-          <span className="notification-eyebrow">{notice?.eyebrow ?? ''}</span>
+          <span className="et-label notification-eyebrow">{notice?.eyebrow ?? ''}</span>
           <span className="notification-title" id={titleId}>
             {notice?.title ?? ''}
           </span>

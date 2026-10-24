@@ -17,21 +17,21 @@ export const SPOT_DISPLAY_WIDTH = 536;
 
 export const EMAIL_SPOTS: readonly EmailSpot[] = [
   {
-    slug: 'jones-ice-cream',
-    name: 'Jones Ice Cream',
-    meta: 'Schöneberg',
-    version: '10087d1c',
+    "slug": "bursa-uludag-kebapcisi",
+    "name": "Bursa Uludağ Kebapçısı",
+    "meta": "Schöneberg",
+    "version": "fa90024a"
   },
   {
-    slug: 'hasir',
-    name: 'Hasir',
-    meta: 'Schöneberg',
-    version: 'b150eb6b',
+    "slug": "bar-basta",
+    "name": "Bar Basta",
+    "meta": "Mitte",
+    "version": "265fdb31"
   },
   {
-    slug: 'schuesseldienst',
-    name: 'Schüsseldienst',
-    meta: 'Schöneberg',
-    version: '0fb4acdc',
-  },
+    "slug": "jones-ice-cream",
+    "name": "Jones Ice Cream",
+    "meta": "Schöneberg",
+    "version": "fd79420a"
+  }
 ];

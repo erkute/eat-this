@@ -39,7 +39,7 @@ export const SIGNUP_SUBJECT: Record<MailLocale, string> = {
 const COPY = {
   de: {
     preview: '20 Must Eats für deinen Start in Berlin.',
-    kicker: ART.kickerSignup,
+    intro: ART.introSignup,
     lead: ART.leadSignup,
     cta: ART.ctaAnmelden,
     fineprint:
@@ -51,7 +51,7 @@ const COPY = {
   },
   en: {
     preview: '20 Must Eats to get you started in Berlin.',
-    kicker: ART.kickerSignupEn,
+    intro: ART.introSignupEn,
     lead: ART.leadSignupEn,
     cta: ART.ctaSignUp,
     fineprint:
@@ -80,42 +80,25 @@ export default function SignupEmail({
       {/* HERO — Kicker, Claim, der Satz, was Eat This ist, der Knopf. Der
           Knopf ist die einzige Hauptaktion; alles darunter macht Lust, soll
           ihn aber nicht zwischen Bildern verstecken. */}
-      <Paper padding="40px 32px 40px">
-        <ArtImage
-          art={copy.kicker}
-          appUrl={appUrl}
-          altStyle={{
-            color: COLOR.accent,
-            fontSize: '11px',
-            fontWeight: 700,
-            letterSpacing: '0.16em',
-          }}
-          style={{ margin: '0 auto 14px' }}
-        />
-
-        <ArtImage
-          art={ART.headlineSignup}
-          appUrl={appUrl}
-          altStyle={{ color: COLOR.text, fontSize: '30px', fontWeight: 700 }}
-          style={{ margin: '0 auto 18px' }}
-        />
-
-        <ArtImage
-          art={copy.lead}
-          appUrl={appUrl}
-          altStyle={{ color: COLOR.text, fontSize: '16px' }}
-          style={{ margin: '0 auto 26px' }}
-        />
-
+      <Paper foil appUrl={appUrl} padding="0">
+        <ArtImage art={copy.intro} appUrl={appUrl}
+          altStyle={{color: COLOR.text, fontSize: '16px'}} style={{width: '100%', margin: 0}} />
+        <Section className="et-pad" style={{padding: '0 32px 40px'}}>
+        <ArtImage art={copy.lead} appUrl={appUrl}
+          altStyle={{color: COLOR.text, fontSize: '16px'}} style={{margin: '0 auto 20px'}} />
+        <ArtImage art={ART.heroMustEat} appUrl={appUrl}
+          altStyle={{color: COLOR.text, fontSize: '14px'}} style={{margin: '0 auto 24px'}} />
         <CtaButton href={magicLink} art={copy.cta} appUrl={appUrl} />
 
         <Fineprint>
-          {copy.fineprint}{' '}
-          <Link href={magicLink} style={{ color: COLOR.text, textDecoration: 'underline' }}>
+          {copy.fineprint}
+          <br />
+          <Link href={magicLink} style={{ color: COLOR.text, textDecoration: 'none', fontWeight: 700 }}>
             {copy.plainLink}
           </Link>
           .
         </Fineprint>
+        </Section>
       </Paper>
 
       {/* STARTER PACK — die Tafel aus der Tour: Pack, Kicker, Titel, Satz.
@@ -149,7 +132,7 @@ export default function SignupEmail({
           <ArtImage
             art={copy.starterKicker}
             appUrl={appUrl}
-            altStyle={{ color: COLOR.accent, fontSize: '11px', fontWeight: 700 }}
+            altStyle={{ color: COLOR.text, fontSize: '11px', fontWeight: 700 }}
             style={{ margin: '0 auto 8px' }}
           />
           <ArtImage
@@ -167,7 +150,7 @@ export default function SignupEmail({
         </Section>
       </Section>
 
-      {/* SPOTS — jede Karte ist EIN lokal vorgerendertes Bild (Foto + Scrim +
+      {/* SPOTS — jede Karte ist EIN lokal vorgerendertes Bild (Foto + Etiketten +
           Name in der Markenschrift, siehe scripts/build-email-spots.mts),
           verpackt in einen /map?r=-Deeplink. Die Must-Eat-Karte ist mit
           eingebacken, nur Karten aus dem öffentlichen Schaufenster. Ein flaches Bild ist die einzige

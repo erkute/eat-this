@@ -51,8 +51,8 @@
 
 .close:focus-visible {
   color: var(--et-fg);
-  outline: 0;
-  font-weight: 900;
+  outline: 2px solid currentColor;
+  outline-offset: -4px;
 }
 
 @media (hover: hover) {

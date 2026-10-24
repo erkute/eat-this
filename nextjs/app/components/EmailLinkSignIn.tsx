@@ -15,6 +15,7 @@ import { trackEvent } from '@/lib/analytics';
 import styles from './Tour.module.css';
 import modalStyles from './LoginModalOverlay.module.css';
 import LoginModalBarLock from './LoginModalBarLock';
+import StarterPack3D from './StarterPack3D';
 
 const copy = {
   de: {
@@ -262,8 +263,9 @@ export default function EmailLinkSignIn() {
     content = (
       <div className={styles.content}>
         <div className={styles.art}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.artImg} src="/pics/home/starter-pack-front.webp" alt={t.packAlt} />
+          <div className={styles.packPreview} role="img" aria-label={t.packAlt}>
+            <StarterPack3D fit />
+          </div>
         </div>
         <div className={styles.copy}>
           <p className={`et-label ${styles.kicker}`}>{t.kicker}</p>
@@ -309,8 +311,9 @@ export default function EmailLinkSignIn() {
     content = (
       <form id={EMAIL_FORM} className={styles.content} onSubmit={submit}>
         <div className={styles.art}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.artImg} src="/pics/home/starter-pack-front.webp" alt={t.packAlt} />
+          <div className={styles.packPreview} role="img" aria-label={t.packAlt}>
+            <StarterPack3D fit />
+          </div>
         </div>
         <div className={styles.copy}>
           <p className={`et-label ${styles.kicker}`}>{t.kicker}</p>
@@ -354,8 +357,9 @@ export default function EmailLinkSignIn() {
     content = (
       <div className={styles.content}>
         <div className={styles.art}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.artImg} src="/pics/home/starter-pack-front.webp" alt={t.packAlt} />
+          <div className={styles.packPreview} role="img" aria-label={t.packAlt}>
+            <StarterPack3D fit />
+          </div>
         </div>
         <div className={styles.copy}>
           <p className={`et-label ${styles.kicker}`}>{t.expiredKicker}</p>

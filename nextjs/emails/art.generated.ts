@@ -18,249 +18,228 @@ export interface ArtAsset {
 }
 
 export const ART = {
-  headlineSignup: {
-    id: 'headline-signup',
-    width: 470,
-    height: 112,
-    alt: 'WE TELL YOU WHAT TO EAT.',
-    version: 'e9789d86',
+  "leadSignup": {
+    "id": "lead-signup",
+    "width": 295,
+    "height": 84,
+    "alt": "Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must Eats und sammle sie in deinem Deck. Alles auf einer Map.",
+    "version": "35095af6"
   },
-  headlineLogin: {
-    id: 'headline-login',
-    width: 470,
-    height: 113,
-    alt: 'WILLKOMMEN ZURÜCK',
-    version: '85ae6e5a',
+  "leadLogin": {
+    "id": "lead-login",
+    "width": 274,
+    "height": 38,
+    "alt": "Hier geht’s zurück zu deiner Map und deiner Sammlung.",
+    "version": "771fc29e"
   },
-  kickerSignup: {
-    id: 'kicker-signup',
-    width: 240,
-    height: 23,
-    alt: 'DEIN ZUGANG ZU EAT THIS',
-    version: '6c9e661b',
+  "kickerStarter": {
+    "id": "kicker-starter",
+    "width": 196,
+    "height": 24,
+    "alt": "DEIN STARTER PACK",
+    "version": "61ce1d1a"
   },
-  kickerLogin: {
-    id: 'kicker-login',
-    width: 296,
-    height: 27,
-    alt: 'SCHÖN, DASS DU WIEDER DA BIST',
-    version: '78794ace',
+  "titleStarter": {
+    "id": "title-starter",
+    "width": 350,
+    "height": 51,
+    "alt": "20 Must Eats.",
+    "version": "9193f36d"
   },
-  leadSignup: {
-    id: 'lead-signup',
-    width: 333,
-    height: 74,
-    alt: 'Wir empfehlen dir gute Spots in Berlin und unsere Must Eat Gerichte, für die sich der Besuch lohnt.',
-    version: '837ad147',
+  "bodyStarter": {
+    "id": "body-starter",
+    "width": 346,
+    "height": 78,
+    "alt": "10 Karten liegen sofort offen in deinem Deck. Die anderen 10 deckst du direkt am Spot auf.",
+    "version": "f1152884"
   },
-  leadLogin: {
-    id: 'lead-login',
-    width: 349,
-    height: 57,
-    alt: 'Ein Klick und deine Map ist offen — mit allem, was du schon freigeschaltet hast.',
-    version: '9cd65b41',
+  "ctaAnmelden": {
+    "id": "cta-anmelden",
+    "width": 103,
+    "height": 34,
+    "alt": "Anmelden",
+    "version": "3780968d"
   },
-  kickerStarter: {
-    id: 'kicker-starter',
-    width: 183,
-    height: 23,
-    alt: 'DEIN STARTER PACK',
-    version: 'b3e7b8b5',
+  "ctaSignUp": {
+    "id": "cta-sign-up",
+    "width": 81,
+    "height": 34,
+    "alt": "Sign up",
+    "version": "871f1dbc"
   },
-  titleStarter: {
-    id: 'title-starter',
-    width: 350,
-    height: 72,
-    alt: '20 MUST EATS. FÜR DEINEN START.',
-    version: 'bb269448',
+  "ctaSignIn": {
+    "id": "cta-sign-in",
+    "width": 75,
+    "height": 34,
+    "alt": "Sign in",
+    "version": "1d507ec6"
   },
-  bodyStarter: {
-    id: 'body-starter',
-    width: 346,
-    height: 123,
-    alt: 'Starte mit 20 Must Eat Empfehlungen in Berlin. Jede Karte verrät dir, was du an einem Spot bestellen solltest. Manche sind schon offen, andere deckst du erst vor Ort auf.',
-    version: 'f2f3d478',
+  "leadSignupEn": {
+    "id": "lead-signup-en",
+    "width": 298,
+    "height": 85,
+    "alt": "Discover Berlin’s best restaurants, cafés and bars, try their Must Eats and collect them in your deck. All on one map.",
+    "version": "5732473e"
   },
-  sloganInverse: {
-    id: 'slogan-inverse',
-    width: 192,
-    height: 20,
-    alt: 'WE TELL YOU WHAT TO EAT',
-    version: '5808536e',
+  "leadLoginEn": {
+    "id": "lead-login-en",
+    "width": 278,
+    "height": 15,
+    "alt": "Back to your map and your collection.",
+    "version": "71572ffd"
   },
-  ctaAnmelden: {
-    id: 'cta-anmelden',
-    width: 98,
-    height: 34,
-    alt: 'Anmelden',
-    version: '4afa1368',
+  "kickerStarterEn": {
+    "id": "kicker-starter-en",
+    "width": 204,
+    "height": 24,
+    "alt": "YOUR STARTER PACK",
+    "version": "74bff22f"
   },
-  ctaSignUp: {
-    id: 'cta-sign-up',
-    width: 79,
-    height: 34,
-    alt: 'Sign up',
-    version: '08ced7cd',
+  "titleStarterEn": {
+    "id": "title-starter-en",
+    "width": 355,
+    "height": 52,
+    "alt": "20 Must Eats.",
+    "version": "e2453fbb"
   },
-  ctaSignIn: {
-    id: 'cta-sign-in',
-    width: 76,
-    height: 34,
-    alt: 'Sign in',
-    version: 'd31d96bc',
+  "bodyStarterEn": {
+    "id": "body-starter-en",
+    "width": 332,
+    "height": 53,
+    "alt": "10 cards go straight into your deck face up. Reveal the other 10 at the spots.",
+    "version": "f60e577e"
   },
-  footerFollow: {
-    id: 'footer-follow',
-    width: 73,
-    height: 22,
-    alt: 'FOLGEN',
-    version: 'cc4e79ec',
+  "masthead": {
+    "id": "masthead",
+    "width": 600,
+    "height": 170,
+    "alt": "Eat This",
+    "version": "7e5ce455"
   },
-  footerInstagram: {
-    id: 'footer-instagram',
-    width: 194,
-    height: 35,
-    alt: 'INSTAGRAM',
-    version: '9ab626cd',
+  "heroMustEat": {
+    "id": "hero-must-eat",
+    "width": 180,
+    "height": 248,
+    "alt": "Hamachi Head — Must Eat Card",
+    "version": "a5bb98d8"
   },
-  footerAbout: {
-    id: 'footer-about',
-    width: 87,
-    height: 24,
-    alt: 'ÜBER UNS',
-    version: '35d4bde4',
+  "introSignup": {
+    "id": "intro-signup",
+    "width": 600,
+    "height": 151,
+    "alt": "DEIN ANMELDELINK WE TELL YOU WHAT TO EAT.",
+    "version": "42af29bc"
   },
-  footerContact: {
-    id: 'footer-contact',
-    width: 87,
-    height: 22,
-    alt: 'KONTAKT',
-    version: 'fc0d9025',
+  "introSignupEn": {
+    "id": "intro-signup-en",
+    "width": 600,
+    "height": 152,
+    "alt": "YOUR SIGN-IN LINK WE TELL YOU WHAT TO EAT.",
+    "version": "5be30d5b"
   },
-  footerImpressum: {
-    id: 'footer-impressum',
-    width: 101,
-    height: 22,
-    alt: 'IMPRESSUM',
-    version: 'ec18883d',
+  "introLogin": {
+    "id": "intro-login",
+    "width": 600,
+    "height": 222,
+    "alt": "SCHÖN, DASS DU WIEDER DA BIST Willkommen zurück.",
+    "version": "f6ca0c1e"
   },
-  footerDatenschutz: {
-    id: 'footer-datenschutz',
-    width: 120,
-    height: 22,
-    alt: 'DATENSCHUTZ',
-    version: 'c4f9a3a2',
+  "introLoginEn": {
+    "id": "intro-login-en",
+    "width": 600,
+    "height": 216,
+    "alt": "GOOD TO SEE YOU AGAIN Welcome back.",
+    "version": "ce1cbdaa"
   },
-  footerAgb: {
-    id: 'footer-agb',
-    width: 46,
-    height: 22,
-    alt: 'AGB',
-    version: '8fd8d21a',
+  "footerBrand": {
+    "id": "footer-brand",
+    "width": 600,
+    "height": 138,
+    "alt": "Eat This — we tell you what to eat",
+    "version": "aea4ceec"
   },
-  footerCopyright: {
-    id: 'footer-copyright',
-    width: 315,
-    height: 21,
-    alt: '© 2026 EAT THIS. ALLE RECHTE VORBEHALTEN.',
-    version: 'e3cf4d9f',
+  "footerInstagram": {
+    "id": "footer-instagram",
+    "width": 600,
+    "height": 52,
+    "alt": "Instagram",
+    "version": "bc64b6d2"
   },
-  headlineLoginEn: {
-    id: 'headline-login-en',
-    width: 326,
-    height: 113,
-    alt: 'WELCOME BACK',
-    version: '353e143b',
+  "footerAbout": {
+    "id": "footer-about",
+    "width": 300,
+    "height": 34,
+    "alt": "Über uns",
+    "version": "8e01e192"
   },
-  kickerSignupEn: {
-    id: 'kicker-signup-en',
-    width: 237,
-    height: 23,
-    alt: 'YOUR ACCESS TO EAT THIS',
-    version: '76367fa3',
+  "footerContact": {
+    "id": "footer-contact",
+    "width": 300,
+    "height": 34,
+    "alt": "Kontakt",
+    "version": "c07ba295"
   },
-  kickerLoginEn: {
-    id: 'kicker-login-en',
-    width: 227,
-    height: 23,
-    alt: 'GOOD TO SEE YOU AGAIN',
-    version: '38d73f8a',
+  "footerImpressum": {
+    "id": "footer-impressum",
+    "width": 200,
+    "height": 34,
+    "alt": "Impressum",
+    "version": "cde765a1"
   },
-  leadSignupEn: {
-    id: 'lead-signup-en',
-    width: 346,
-    height: 74,
-    alt: 'We recommend great spots in Berlin and our Must Eat dishes that make the visit worth it.',
-    version: '3b3ba1d7',
+  "footerDatenschutz": {
+    "id": "footer-datenschutz",
+    "width": 200,
+    "height": 34,
+    "alt": "Datenschutz",
+    "version": "c764c9d2"
   },
-  leadLoginEn: {
-    id: 'lead-login-en',
-    width: 317,
-    height: 57,
-    alt: 'One click and your map is open, with everything you’ve already unlocked.',
-    version: 'f9a91844',
+  "footerAgb": {
+    "id": "footer-agb",
+    "width": 200,
+    "height": 34,
+    "alt": "AGB",
+    "version": "2e40e969"
   },
-  kickerStarterEn: {
-    id: 'kicker-starter-en',
-    width: 186,
-    height: 23,
-    alt: 'YOUR STARTER PACK',
-    version: '7215b230',
+  "footerCopyright": {
+    "id": "footer-copyright",
+    "width": 600,
+    "height": 58,
+    "alt": "© 2026 Eat This. Alle Rechte vorbehalten.",
+    "version": "680f3527"
   },
-  titleStarterEn: {
-    id: 'title-starter-en',
-    width: 396,
-    height: 72,
-    alt: '20 MUST EATS. TO GET YOU STARTED.',
-    version: '9c1bffef',
+  "footerAboutEn": {
+    "id": "footer-about-en",
+    "width": 300,
+    "height": 34,
+    "alt": "About",
+    "version": "64c5ebc4"
   },
-  bodyStarterEn: {
-    id: 'body-starter-en',
-    width: 340,
-    height: 99,
-    alt: 'Start with 20 Must Eat picks in Berlin. Every card tells you what to order at a spot. Some are already open, others you reveal on site.',
-    version: '10429f4f',
+  "footerContactEn": {
+    "id": "footer-contact-en",
+    "width": 300,
+    "height": 34,
+    "alt": "Contact",
+    "version": "7ab96e13"
   },
-  footerFollowEn: {
-    id: 'footer-follow-en',
-    width: 75,
-    height: 21,
-    alt: 'FOLLOW',
-    version: 'caad09b9',
+  "footerDatenschutzEn": {
+    "id": "footer-datenschutz-en",
+    "width": 200,
+    "height": 34,
+    "alt": "Privacy",
+    "version": "a1228970"
   },
-  footerAboutEn: {
-    id: 'footer-about-en',
-    width: 66,
-    height: 22,
-    alt: 'ABOUT',
-    version: 'e0f1d8f8',
+  "footerAgbEn": {
+    "id": "footer-agb-en",
+    "width": 200,
+    "height": 34,
+    "alt": "Terms",
+    "version": "a9735996"
   },
-  footerContactEn: {
-    id: 'footer-contact-en',
-    width: 84,
-    height: 22,
-    alt: 'CONTACT',
-    version: 'cc4f356f',
-  },
-  footerDatenschutzEn: {
-    id: 'footer-datenschutz-en',
-    width: 78,
-    height: 22,
-    alt: 'PRIVACY',
-    version: 'd6546aef',
-  },
-  footerAgbEn: {
-    id: 'footer-agb-en',
-    width: 66,
-    height: 22,
-    alt: 'TERMS',
-    version: '9b07460c',
-  },
-  footerCopyrightEn: {
-    id: 'footer-copyright-en',
-    width: 278,
-    height: 21,
-    alt: '© 2026 EAT THIS. ALL RIGHTS RESERVED.',
-    version: '39b1d975',
-  },
+  "footerCopyrightEn": {
+    "id": "footer-copyright-en",
+    "width": 600,
+    "height": 58,
+    "alt": "© 2026 Eat This. All rights reserved.",
+    "version": "efb7393c"
+  }
 } as const satisfies Record<string, ArtAsset>;

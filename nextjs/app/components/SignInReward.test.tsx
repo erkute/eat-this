@@ -46,6 +46,7 @@ async function freshModule() {
 }
 
 beforeEach(() => {
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
   vi.useFakeTimers();
   identityStep.identityStepPrefill.mockReset().mockResolvedValue(null);
   identityStep.saveIdentity.mockReset().mockResolvedValue(undefined);
@@ -60,6 +61,7 @@ async function arrive() {
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
 describe('Ankunft nach der Anmeldung', () => {
@@ -115,8 +117,8 @@ describe('Ankunft nach der Anmeldung', () => {
 
     expect(screen.getByRole('heading').textContent).toBe('Wohin zuerst?');
     expect(screen.queryByRole('button', { name: 'Weiter' })).toBeNull();
-    expect(screen.getByRole('link', { name: 'Deck' }).getAttribute('href')).toBe('/profile');
-    fireEvent.click(screen.getByRole('link', { name: 'Map' }));
+    expect(screen.getByRole('link', { name: 'Deck Deine Must Eats ansehen' }).getAttribute('href')).toBe('/profile');
+    fireEvent.click(screen.getByRole('link', { name: 'Map Spots entdecken' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.body.style.overflow).not.toBe('hidden');
   });
@@ -162,6 +164,18 @@ describe('Ankunft nach der Anmeldung', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Karte umdrehen' }));
     expect(flipper.className).toContain('flipped');
+  });
+
+  it('zeigt die Empfehlung bei Reduced Motion ohne verzögerte Tap-Vorführung', async () => {
+    vi.stubGlobal('matchMedia', () => ({matches: true}));
+    render(<SignInReward />);
+    await arrive();
+    fireEvent.click(screen.getByRole('button', {name: 'Öffnen'}));
+    act(() => void vi.advanceTimersByTime(3600));
+    act(() => void vi.advanceTimersByTime(700));
+    fireEvent.click(screen.getByRole('button', {name: 'Weiter'}));
+    expect(screen.getByTestId('tour-flipper').className).not.toContain('flipped');
+    expect(screen.queryByTestId('tour-tap-cue')).toBeNull();
   });
 
   it('ueberspringt nichts, wenn jemand vor der Automatik selbst weiterklickt', async () => {
@@ -216,7 +230,7 @@ describe('Wer bist du? — fuer jedes Konto ohne Charakter, Magic-Link wie Googl
     await arrive();
 
     expect(screen.getByRole('heading').textContent).toBe('Wer bist du?');
-    expect(screen.getByText('1 / 6')).toBeTruthy();
+    expect(screen.getByLabelText('Schritt 1 von 6')).toBeTruthy();
     const name = screen.getByLabelText('Dein Name') as HTMLInputElement;
     expect(name.value).toBe('Alex');
 
@@ -229,7 +243,23 @@ describe('Wer bist du? — fuer jedes Konto ohne Charakter, Magic-Link wie Googl
 
     expect(identityStep.saveIdentity).toHaveBeenCalledWith('Alexa', 3);
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('2 / 6')).toBeTruthy();
+    expect(screen.getByLabelText('Schritt 2 von 6')).toBeTruthy();
+  });
+
+  it('wählt den Charakter per Tastatur und hält nur die Auswahl in der Tab-Reihenfolge', async () => {
+    identityStep.identityStepPrefill.mockResolvedValue({name: 'Alex'});
+    render(<SignInReward />);
+    await arrive();
+    const selected = screen.getByRole('radio', {name: 'Spice Diva'});
+    selected.focus();
+    fireEvent.keyDown(selected, {key: 'ArrowRight'});
+    const next = screen.getByRole('radio', {name: 'Chef Slice'});
+    expect(document.activeElement).toBe(next);
+    expect(next.getAttribute('aria-checked')).toBe('true');
+    expect(next.tabIndex).toBe(0);
+    expect(selected.tabIndex).toBe(-1);
+    fireEvent.keyDown(next, {key: 'Home'});
+    expect(document.activeElement).toBe(screen.getByRole('radio', {name: 'Spot Scout'}));
   });
 
   it('startet beim Magic-Link leer und laesst ohne Namen nicht weiter', async () => {
@@ -257,7 +287,7 @@ describe('Wer bist du? — fuer jedes Konto ohne Charakter, Magic-Link wie Googl
     render(<SignInReward />);
     await arrive();
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('1 / 5')).toBeTruthy();
+    expect(screen.getByLabelText('Schritt 1 von 5')).toBeTruthy();
   });
 });
 

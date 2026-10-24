@@ -5,7 +5,7 @@
 // small, and reads as transactional to spam filters. The signup mail
 // (SignupEmail.tsx) is the one that sells.
 
-import { Link } from '@react-email/components';
+import { Link, Section } from '@react-email/components';
 import { Shell } from './components/Shell';
 import { ArtImage, CtaButton, Fineprint, Paper } from './components/Pieces';
 import { ART } from './art.generated';
@@ -28,8 +28,7 @@ export const LOGIN_SUBJECT: Record<MailLocale, string> = {
 const COPY = {
   de: {
     preview: 'Ein Klick und du bist drin — dein Login-Link.',
-    kicker: ART.kickerLogin,
-    headline: ART.headlineLogin,
+    intro: ART.introLogin,
     lead: ART.leadLogin,
     cta: ART.ctaAnmelden,
     fineprint:
@@ -38,8 +37,7 @@ const COPY = {
   },
   en: {
     preview: 'One click and you’re in — your sign-in link.',
-    kicker: ART.kickerLoginEn,
-    headline: ART.headlineLoginEn,
+    intro: ART.introLoginEn,
     lead: ART.leadLoginEn,
     cta: ART.ctaSignIn,
     fineprint:
@@ -52,47 +50,27 @@ export default function LoginEmail({ magicLink, appUrl, locale }: LoginEmailProp
   const copy = COPY[locale];
   return (
     <Shell appUrl={appUrl} locale={locale} preview={copy.preview}>
-      <Paper padding="40px 32px 44px">
-        {/* Kicker als Markenschrift-Art, wie die Zeile auf home: dort ist
-            `.hv-kicker` ebenfalls Providence. Blockiert der Client Bilder,
-            faellt sie auf den getrackten Alt-Text zurueck. */}
-        <ArtImage
-          art={copy.kicker}
-          appUrl={appUrl}
-          altStyle={{
-            color: COLOR.accent,
-            fontSize: '11px',
-            fontWeight: 700,
-            letterSpacing: '0.16em',
-          }}
-          style={{ margin: '0 auto 14px' }}
-        />
-
-        <ArtImage
-          art={copy.headline}
-          appUrl={appUrl}
-          altStyle={{ color: COLOR.text, fontSize: '30px', fontWeight: 700 }}
-          style={{ margin: '0 auto 20px' }}
-        />
-
-        <ArtImage
-          art={copy.lead}
-          appUrl={appUrl}
-          altStyle={{ color: COLOR.text, fontSize: '16px' }}
-          style={{ margin: '0 auto 26px' }}
-        />
-
+      <Paper foil appUrl={appUrl} padding="0">
+        <ArtImage art={copy.intro} appUrl={appUrl}
+          altStyle={{color: COLOR.text, fontSize: '16px'}} style={{width: '100%', margin: 0}} />
+        <Section className="et-pad" style={{padding: '0 32px 40px'}}>
+        <ArtImage art={copy.lead} appUrl={appUrl}
+          altStyle={{color: COLOR.text, fontSize: '16px'}} style={{margin: '0 auto 20px'}} />
+        <ArtImage art={ART.heroMustEat} appUrl={appUrl}
+          altStyle={{color: COLOR.text, fontSize: '14px'}} style={{margin: '0 auto 24px'}} />
         <CtaButton href={magicLink} art={copy.cta} appUrl={appUrl} />
 
         <Fineprint>
-          {copy.fineprint}{' '}
+          {copy.fineprint}
+          <br />
           {/* Second target for clients that mangle the styled anchor — the same
               href, as plain underlined text. */}
-          <Link href={magicLink} style={{ color: COLOR.text, textDecoration: 'underline' }}>
+          <Link href={magicLink} style={{ color: COLOR.text, textDecoration: 'none', fontWeight: 700 }}>
             {copy.plainLink}
           </Link>
           .
         </Fineprint>
+        </Section>
       </Paper>
     </Shell>
   );

@@ -1,7 +1,6 @@
 // Renders every brand-font surface of the auth emails into transparent PNGs.
 //
-// Why images: Gmail strips @font-face, so live text can never carry FF
-// Providence Sans Pro — the face the whole home design rests on. Baking the
+// Why images: Gmail strips @font-face, so live text can never carry Neue Haas Grotesk Text Pro — the face the whole home design rests on. Baking the
 // headlines keeps the brand voice in the inbox; everything else in the mails
 // stays live text (see emails/theme.ts).
 //
@@ -11,14 +10,14 @@
 // which carries the trimmed 1x dimensions so the templates never hardcode a
 // width that drifts when the copy changes.
 //
-// The face comes from lib/email/brandFont.ts — drop the Providence desktop
+// The face comes from lib/email/brandFont.ts — drop the Neue Haas Grotesk Text Pro desktop
 // font into assets/fonts/ and re-run; until then it renders in Schoolbell and
 // says so loudly.
 
 import React from 'react';
 import { ImageResponse } from 'next/og';
 import sharp from 'sharp';
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir, unlink } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { loadBrandFont, BRAND_FONT_NAME } from '../lib/email/brandFont.ts';
@@ -49,7 +48,7 @@ interface ArtSpec {
   /**
    * Exact rendered width at 1x. The renderer measures the first pass and
    * re-renders at a corrected font size to hit it, so swapping the display
-   * face (Schoolbell stand-in → FF Providence Sans Pro) changes the letter
+   * face (Schoolbell stand-in → Neue Haas Grotesk Text Pro) changes the letter
    * shapes but never the layout of the mail around them.
    */
   width: number;
@@ -80,19 +79,19 @@ interface ArtSpec {
 // also sind auch die Grafiken mittig gesetzt.
 //
 // Seit 22.09.2026 steht ALLES Gestaltete der Mail in der Markenschrift, auch
-// Fliesstext und Footer — die Seite setzt beides in Providence, und die Mail
+// Fliesstext und Footer — die Seite setzt beides in Neue Haas Grotesk, und die Mail
 // wirkte daneben wie ein Fremdkoerper (Betreiber: "da wird nicht ueberall
 // meine Font benutzt"). Live-Text bleiben nur der Knopf, der Ersatz-Link
 // darunter und der Satz, warum die Mail kommt: ohne Bilder muss sich die Mail
 // noch bedienen lassen, und Spamfilter misstrauen Mails ohne echten Text.
-const KICKER = { color: COLOR.accent, bg: COLOR.surface, size: 14, letterSpacing: 1.2 } as const;
+const KICKER = { color: COLOR.text, bg: COLOR.surface, size: 14, letterSpacing: 1.2 } as const;
 
 /** Fliesstext: feste Groesse, Umbruch bei `wrap`. 340 px statt der vollen
  *  Spaltenbreite, weil ein Bild auf dem Telefon mitschrumpft — so bleibt die
  *  Schrift dort bei ihrer Groesse, statt auf 11 px zu fallen. */
 const PARAGRAPH = { weight: 400, size: 17, lineHeight: 1.45, wrap: 340, width: 340 } as const;
 
-/** Knopf-Wort wie `.action` in der Tour: Providence fett, Ink auf Gelb. */
+/** Knopf-Wort wie `.action` in der Tour: Neue Haas fett, Ink auf Gelb. */
 const CTA_LABEL = {
   color: COLOR.onAccent,
   bg: COLOR.accent,
@@ -103,34 +102,23 @@ const CTA_LABEL = {
   lineBox: 22,
 } as const;
 
-/** Footer-Zeilen wie im SiteFooter: Versalien, fett, leicht gesperrt. */
-const FOOTER_LINK = {
-  color: COLOR.text,
-  bg: COLOR.surface,
-  size: 13,
-  letterSpacing: 0.5,
-  // Mittig: dann hat jede Grafik links und rechts dieselbe Luft, und die
-  // Punkte zwischen den Links sitzen in der Mitte.
-  align: 'center',
-  wrap: 600,
-  width: 600,
-} as const;
-
 const ART: ArtSpec[] = [
   {
     id: 'headline-signup',
     lines: ['WE TELL YOU', 'WHAT TO EAT.'],
     color: COLOR.text,
+    bg: COLOR.surface,
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
     align: 'center',
-    width: 470,
+    width: 300,
   },
   {
     id: 'headline-login',
-    lines: ['WILLKOMMEN', 'ZURÜCK'],
+    lines: ['Willkommen', 'zurück.'],
     color: COLOR.text,
+    bg: COLOR.surface,
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
@@ -139,10 +127,10 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'kicker-signup',
-    lines: ['DEIN ZUGANG ZU EAT THIS'],
+    lines: ['DEIN ANMELDELINK'],
     ...KICKER,
     align: 'center',
-    width: 220,
+    width: 170,
   },
   {
     id: 'kicker-login',
@@ -154,7 +142,8 @@ const ART: ArtSpec[] = [
   {
     id: 'lead-signup',
     lines: [
-      'Wir empfehlen dir gute Spots in Berlin und unsere Must Eat Gerichte, für die sich der Besuch lohnt.',
+      'Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must\u00a0Eats und sammle sie in deinem Deck.',
+      'Alles auf einer Map.',
     ],
     ...PARAGRAPH,
     color: COLOR.muted,
@@ -163,7 +152,7 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'lead-login',
-    lines: ['Ein Klick und deine Map ist offen — mit allem, was du schon freigeschaltet hast.'],
+    lines: ['Hier geht’s zurück zu deiner Map und deiner Sammlung.'],
     ...PARAGRAPH,
     color: COLOR.muted,
     bg: COLOR.surface,
@@ -180,7 +169,7 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'title-starter',
-    lines: ['20 MUST EATS.', 'FÜR DEINEN START.'],
+    lines: ['20 Must Eats.'],
     color: COLOR.text,
     bg: COLOR.raised,
     size: 30,
@@ -192,7 +181,7 @@ const ART: ArtSpec[] = [
   {
     id: 'body-starter',
     lines: [
-      'Starte mit 20 Must Eat Empfehlungen in Berlin. Jede Karte verrät dir, was du an einem Spot bestellen solltest. Manche sind schon offen, andere deckst du erst vor Ort auf.',
+      '10 Karten liegen sofort offen in deinem Deck. Die anderen 10 deckst du direkt am Spot auf.',
     ],
     ...PARAGRAPH,
     color: COLOR.text,
@@ -200,16 +189,6 @@ const ART: ArtSpec[] = [
     align: 'center',
   },
 
-  {
-    id: 'slogan-inverse',
-    lines: ['WE TELL YOU WHAT TO EAT'],
-    color: COLOR.text,
-    bg: COLOR.surface,
-    size: 12,
-    letterSpacing: 2,
-    align: 'center',
-    width: 172,
-  },
   // Die Beschriftung des Knopfs. Der Knopf selbst bleibt ein echter Link mit
   // gelber Flaeche; nur das Wort ist Bild, damit es in der Markenschrift steht
   // wie jeder Knopf der Seite (Betreiber, 22.09.2026). Bei blockierten Bildern
@@ -217,36 +196,14 @@ const ART: ArtSpec[] = [
   { id: 'cta-anmelden', lines: ['Anmelden'], ...CTA_LABEL },
   { id: 'cta-sign-up', lines: ['Sign up'], ...CTA_LABEL },
   { id: 'cta-sign-in', lines: ['Sign in'], ...CTA_LABEL },
-  // FOOTER — dieselben Zeilen wie SiteFooter, in derselben Schrift.
-  { id: 'footer-follow', lines: ['FOLGEN'], ...FOOTER_LINK, color: COLOR.accent },
-  {
-    id: 'footer-instagram',
-    lines: ['INSTAGRAM'],
-    ...FOOTER_LINK,
-    weight: 400,
-    size: 30,
-    letterSpacing: 0,
-  },
-  { id: 'footer-about', lines: ['ÜBER UNS'], ...FOOTER_LINK },
-  { id: 'footer-contact', lines: ['KONTAKT'], ...FOOTER_LINK },
-  { id: 'footer-impressum', lines: ['IMPRESSUM'], ...FOOTER_LINK },
-  { id: 'footer-datenschutz', lines: ['DATENSCHUTZ'], ...FOOTER_LINK },
-  { id: 'footer-agb', lines: ['AGB'], ...FOOTER_LINK },
-  {
-    id: 'footer-copyright',
-    lines: ['© 2026 EAT THIS. ALLE RECHTE VORBEHALTEN.'],
-    ...FOOTER_LINK,
-    size: 11,
-    letterSpacing: 0.66,
-  },
-
   // EN-Fassungen. Gleiche Schriftgröße wie die DE-Grafik, die Breite ergibt
   // sich aus dem Text. Was in beiden Sprachen gleich lautet (Headline der
   // Anmeldung, Slogan, Impressum), gibt es nur einmal.
   {
     id: 'headline-login-en',
-    lines: ['WELCOME', 'BACK'],
+    lines: ['Welcome', 'back.'],
     color: COLOR.text,
+    bg: COLOR.surface,
     size: 54,
     lineHeight: 0.92,
     letterSpacing: -1,
@@ -256,7 +213,7 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'kicker-signup-en',
-    lines: ['YOUR ACCESS TO EAT THIS'],
+    lines: ['YOUR SIGN-IN LINK'],
     ...KICKER,
     align: 'center',
     width: 220,
@@ -273,7 +230,8 @@ const ART: ArtSpec[] = [
   {
     id: 'lead-signup-en',
     lines: [
-      'We recommend great spots in Berlin and our Must Eat dishes that make the visit worth it.',
+      'Discover Berlin’s best restaurants, cafés and bars, try their Must\u00a0Eats and collect them in your deck.',
+      'All on one map.',
     ],
     ...PARAGRAPH,
     color: COLOR.muted,
@@ -282,7 +240,7 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'lead-login-en',
-    lines: ['One click and your map is open, with everything you’ve already unlocked.'],
+    lines: ['Back to your map and your collection.'],
     ...PARAGRAPH,
     color: COLOR.muted,
     bg: COLOR.surface,
@@ -299,7 +257,7 @@ const ART: ArtSpec[] = [
   },
   {
     id: 'title-starter-en',
-    lines: ['20 MUST EATS.', 'TO GET YOU STARTED.'],
+    lines: ['20 Must Eats.'],
     color: COLOR.text,
     bg: COLOR.raised,
     size: 30,
@@ -312,7 +270,7 @@ const ART: ArtSpec[] = [
   {
     id: 'body-starter-en',
     lines: [
-      'Start with 20 Must Eat picks in Berlin. Every card tells you what to order at a spot. Some are already open, others you reveal on site.',
+      '10 cards go straight into your deck face up. Reveal the other 10 at the spots.',
     ],
     ...PARAGRAPH,
     color: COLOR.text,
@@ -320,18 +278,6 @@ const ART: ArtSpec[] = [
     align: 'center',
   },
 
-  { id: 'footer-follow-en', lines: ['FOLLOW'], ...FOOTER_LINK, color: COLOR.accent },
-  { id: 'footer-about-en', lines: ['ABOUT'], ...FOOTER_LINK },
-  { id: 'footer-contact-en', lines: ['CONTACT'], ...FOOTER_LINK },
-  { id: 'footer-datenschutz-en', lines: ['PRIVACY'], ...FOOTER_LINK },
-  { id: 'footer-agb-en', lines: ['TERMS'], ...FOOTER_LINK },
-  {
-    id: 'footer-copyright-en',
-    lines: ['© 2026 EAT THIS. ALL RIGHTS RESERVED.'],
-    ...FOOTER_LINK,
-    size: 11,
-    letterSpacing: 0.66,
-  },
 ];
 
 const OUT_DIR = join(process.cwd(), 'public', 'pics', 'email');
@@ -479,8 +425,8 @@ async function renderOne(spec: ArtSpec, faces: Awaited<ReturnType<typeof loadBra
 const { faces, isBrandFace, files } = await loadBrandFont();
 if (!isBrandFace) {
   console.warn(
-    '\n⚠️  FF Providence Sans Pro nicht gefunden — gerendert wird mit Schoolbell.\n' +
-      '   Lege die Desktop-Datei als assets/fonts/Providence…​.otf|ttf ab (Adobe CC → Schriften\n' +
+    '\n⚠️  Neue Haas Grotesk Text Pro nicht gefunden — gerendert wird mit Schoolbell.\n' +
+      '   Lege die Desktop-Datei als assets/fonts/NeueHaasGroteskTextPro…​.otf|ttf ab (Adobe CC → Schriften\n' +
       '   synchronisieren → aus ~/Library/Application Support/Adobe/… kopieren) und starte\n' +
       '   `npm run build:email-art` erneut. WOFF2 kann Satori nicht lesen.\n'
   );
@@ -489,12 +435,114 @@ if (!isBrandFace) {
 }
 
 await mkdir(OUT_DIR, { recursive: true });
+// Kein WebP in der Mail; Gmail/Outlook benötigen lokale PNG-Fassungen.
+await sharp(join(process.cwd(), 'public/pics/home/starter-pack-front.webp'))
+  .resize({ width: 300 }).png().toFile(join(OUT_DIR, 'starter-pack.png'));
+
 const manifest: Record<string, { width: number; height: number; alt: string; version: string }> =
   {};
 for (const spec of ART) {
-  manifest[spec.id] = await renderOne(spec, faces);
+  const renderSpec = spec.id.startsWith('lead-') ? {...spec, size: 16, wrap: 300, width: 300, bg: undefined} : spec;
+  manifest[spec.id] = await renderOne(renderSpec, faces);
   const { width, height } = manifest[spec.id];
   console.log(`  ${spec.id}.png  ${width}×${height}`);
+}
+
+// Die weiße Folie stammt aus der vom Betreiber gelieferten Vorlage.
+// Text und Folie werden gemeinsam gerendert, ohne weiße Kästen um die Zeilen.
+const foil = await sharp(join(process.cwd(), 'public/pics/paper/mail-foil.webp'))
+  .resize({width: 1200}).png().toBuffer();
+// Große Wortmarke, darunter später die Karte: Reihenfolge der mobilen Startseite.
+const mark = await sharp(join(process.cwd(), 'public/pics/home/wordmark.webp'))
+  .resize({width: 940}).png().toBuffer();
+const masthead = await sharp(foil).extract({left: 0, top: 0, width: 1200, height: 340})
+  .composite([{input: mark, left: 130, top: 56}]).png({palette: true}).toBuffer();
+await writeFile(join(OUT_DIR, 'masthead.png'), masthead);
+manifest.masthead = {width: 600, height: 170, alt: 'Eat This', version: createHash('sha1').update(masthead).digest('hex').slice(0, 8)};
+const heroCard = await sharp(join(process.cwd(), 'public/pics/home/hero-must-eat.webp'))
+  .resize({width: 360}).png().toBuffer();
+const heroMeta = await sharp(heroCard).metadata();
+await writeFile(join(OUT_DIR, 'hero-must-eat.png'), heroCard);
+manifest['hero-must-eat'] = {width: 180, height: Math.round(heroMeta.height! / 2), alt: 'Hamachi Head — Must Eat Card', version: createHash('sha1').update(heroCard).digest('hex').slice(0, 8)};
+const foilMeta = await sharp(foil).metadata();
+const introFoil = await sharp(foil).extract({left: 0, top: 340, width: 1200, height: foilMeta.height! - 340}).png().toBuffer();
+await writeFile(join(OUT_DIR, 'mail-foil.png'), introFoil);
+const introParts = [
+  ['intro-signup', 'kicker-signup', 'headline-signup'],
+  ['intro-signup-en', 'kicker-signup-en', 'headline-signup'],
+  ['intro-login', 'kicker-login', 'headline-login'],
+  ['intro-login-en', 'kicker-login-en', 'headline-login-en'],
+] as const;
+for (const [id, ...parts] of introParts) {
+  let y = 24;
+  const layers: sharp.OverlayOptions[] = [];
+  const copy: string[] = [];
+  for (const [index, part] of parts.entries()) {
+    const spec = ART.find(item => item.id === part)!;
+    const size = index === 0 ? 18 : renderedSize.get(part)!;
+    const image = await rasterise(spec, size, faces);
+    const meta = await sharp(image).metadata();
+    layers.push({input: image, left: Math.round((1200 - meta.width!) / 2), top: Math.round(y * 2)});
+    y += meta.height! / 2 + [18, 22][index]!;
+    copy.push(spec.lines.join(' '));
+  }
+  const height = Math.ceil(y);
+  const image = await sharp(introFoil).extract({left: 0, top: 0, width: 1200, height: height * 2})
+    .composite(layers).png({palette: true}).toBuffer();
+  await writeFile(join(OUT_DIR, `${id}.png`), image);
+  manifest[id] = {width: 600, height, alt: copy.join(' '), version: createHash('sha1').update(image).digest('hex').slice(0, 8)};
+}
+// Die Einzelzeilen sind nur Render-Zutaten, ausgeliefert wird der Folienblock.
+for (const part of new Set(introParts.flatMap(([, ...parts]) => parts))) {
+  delete manifest[part];
+  await unlink(join(OUT_DIR, `${part}.png`));
+}
+
+// Der App-Footer wird als zusammenhängendes Papierblatt gerendert und dann
+// in verlinkbare Tabellenzellen geschnitten. So bleiben Papier, Schrift und
+// Instagram-Symbol in Gmail/Outlook unverändert; jeder Link bleibt ein Link.
+const footerPaper = await sharp(join(process.cwd(), 'public/pics/paper/folded-white.webp'))
+  .resize({ width: 1200 }).png().toBuffer();
+const footerLogo = await sharp(join(process.cwd(), 'public/pics/home/wordmark.webp'))
+  .resize({ width: 840 }).png().toBuffer();
+// Dasselbe Instagram-Symbol wie in SiteFooter.tsx, lokal rasterisiert.
+const instagram = await sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#15120e" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="#15120e" stroke="none"/></svg>`))
+  .resize(88, 88).png().toBuffer();
+const data = (buffer: Buffer) => `data:image/png;base64,${buffer.toString('base64')}`;
+for (const en of [false, true]) {
+  const labels = en ? ['About', 'Contact', 'Impressum', 'Privacy', 'Terms'] : ['Über uns', 'Kontakt', 'Impressum', 'Datenschutz', 'AGB'];
+  const copyright = en ? '© 2026 Eat This. All rights reserved.' : '© 2026 Eat This. Alle Rechte vorbehalten.';
+  const text = (value: string, left: number, top: number, width: number, height: number, size: number) => React.createElement('div', {style: {
+    display: 'flex', position: 'absolute', left: left * 2, top: top * 2,
+    width: width * 2, height: height * 2, alignItems: 'center', justifyContent: 'center',
+    fontFamily: BRAND_FONT_NAME, fontSize: size * 2, fontWeight: 400, color: COLOR.text,
+  }}, value);
+  const poster = new ImageResponse(React.createElement('div', {style: {display: 'flex', position: 'relative', width: 1200, height: 632, overflow: 'hidden', backgroundColor: '#fff'}},
+    React.createElement('img', {src: data(footerPaper), width: 1200, height: 1800, style: {position: 'absolute', left: 0, top: 0}}),
+    React.createElement('img', {src: data(footerLogo), width: 600, height: 146, style: {position: 'absolute', left: 300, top: 40}}),
+    text('we tell you what to eat', 0, 101, 600, 24, 16),
+    React.createElement('img', {src: data(instagram), width: 64, height: 64, style: {position: 'absolute', left: 568, top: 296}}),
+    text(labels[0]!, 0, 190, 300, 34, 18), text(labels[1]!, 300, 190, 300, 34, 18),
+    text(labels[2]!, 0, 224, 200, 34, 18), text(labels[3]!, 200, 224, 200, 34, 18), text(labels[4]!, 400, 224, 200, 34, 18),
+    text(copyright, 0, 270, 600, 28, 14),
+  ), {width: 1200, height: 632, fonts: faces});
+  const png = Buffer.from(await poster.arrayBuffer());
+  const suffix = en ? '-en' : '';
+  const cells: [string, number, number, number, number, string][] = [
+    ['footer-brand', 0, 0, 600, 138, 'Eat This — we tell you what to eat'],
+    ['footer-instagram', 0, 138, 600, 52, 'Instagram'],
+    [`footer-about${suffix}`, 0, 190, 300, 34, labels[0]!],
+    [`footer-contact${suffix}`, 300, 190, 300, 34, labels[1]!],
+    ['footer-impressum', 0, 224, 200, 34, labels[2]!],
+    [`footer-datenschutz${suffix}`, 200, 224, 200, 34, labels[3]!],
+    [`footer-agb${suffix}`, 400, 224, 200, 34, labels[4]!],
+    [`footer-copyright${suffix}`, 0, 258, 600, 58, copyright],
+  ];
+  for (const [id, left, top, width, height, alt] of cells) {
+    const image = await sharp(png).extract({left: left * 2, top: top * 2, width: width * 2, height: height * 2}).png({palette: true}).toBuffer();
+    await writeFile(join(OUT_DIR, `${id}.png`), image);
+    manifest[id] = {width, height, alt, version: createHash('sha1').update(image).digest('hex').slice(0, 8)};
+  }
 }
 
 await writeFile(

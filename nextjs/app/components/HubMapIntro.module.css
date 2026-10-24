@@ -4,15 +4,20 @@
 .copy { max-width: 440px; }
 .copy p { margin: 0 0 28px; font-size: clamp(18px, 1.8vw, 26px); line-height: 1.4; letter-spacing: -.025em; }
 .showcase { width: min(100%, 360px); justify-self: center; perspective: 1400px; }
-.phone { display: block; position: relative; padding: 9px; border-radius: 54px; background: #111; border: 2px solid #696969; transform: rotateY(-12deg) rotateZ(3deg); box-shadow: 1px 0 0 2px #777, 3px 1px 0 2px #343434, 6px 2px 0 2px #222, 9px 3px 0 2px #505050, 11px 4px 0 2px #171717, 20px 30px 48px #0003; }
-.display { position: relative; overflow: hidden; border-radius: 43px; background: #fff; }
-.status { height: 37px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; color: #111; font: 600 10px/1 Arial, sans-serif; }
-.status i { position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 30%; height: 23px; border-radius: 20px; background: #050505; }
-.viewport { overflow: hidden; }
-.track { display: flex; width: 400%; }
-.slide { width: 25%; flex: 0 0 25%; }
+.phone { display: block; position: relative; padding: 6px; border-radius: 15% / 7%; background: #090a0b; border: 1px solid #969695; transform: rotateY(-7deg) rotateZ(2deg); box-shadow: inset 0 0 0 1px #383a3c, 1px 0 0 1px #656667, 3px 1px 0 1px #292b2d, 4px 2px 0 1px #737474, 14px 22px 35px #0005; }
+.phone::before, .phone::after { content: ''; position: absolute; width: 3px; border-radius: 2px; background: linear-gradient(90deg, #777, #252729); }
+.phone::before { left: -3px; top: 21%; height: 7%; box-shadow: 0 46px 0 #4b4d4f; }
+.phone::after { right: -6px; top: 28%; height: 12%; }
+.display { position: relative; overflow: hidden; border-radius: 13% / 6%; background: #fff; aspect-ratio: 9 / 19.5; display: flex; flex-direction: column; }
+.status { position: relative; flex: 0 0 auto; height: 36px; padding: 0 7%; display: flex; align-items: center; justify-content: space-between; color: #111; font: 600 9px/1 Arial, sans-serif; }
+.status i { position: absolute; top: 7px; left: 50%; transform: translateX(-50%); width: 29%; height: 19px; border-radius: 20px; background: #050505; }
+.status i::after { content: ''; position: absolute; right: 7px; top: 6px; width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #202c40, #080b11 65%); }
+.statusIcons { width: 19%; height: auto; }
+.viewport { overflow: hidden; flex: 1; min-height: 0; }
+.track { display: flex; width: 400%; height: 100%; }
+.slide { width: 25%; flex: 0 0 25%; overflow: hidden; }
 .screen { display: block; width: 100%; height: auto; }
-.homeBar { position: absolute; bottom: 7px; left: 34%; width: 32%; height: 4px; border-radius: 4px; background: #111; box-shadow: 0 0 2px #fff; }
+.homeBar { position: absolute; bottom: 6px; left: 34%; width: 32%; height: 3px; border-radius: 4px; background: #111; box-shadow: 0 0 2px #fff; }
 .controls { display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 34px; }
 .dot, .pause { width: 40px; height: 40px; display: grid; place-items: center; border: 0; background: transparent; color: var(--et-fg); cursor: pointer; }
 .dot::after { content: ''; width: 6px; height: 6px; border-radius: 10px; background: currentColor; opacity: .3; }
@@ -21,14 +26,16 @@
 /* Wie der Hero: eine Bildschirmhöhe, mit vollständig sichtbarem Telefon und CTA. */
 @media (min-width: 768px) {
   .section { box-sizing: border-box; min-height: 570px; height: 100svh; padding-block: clamp(24px, 5svh, 56px); }
-  .showcase { width: clamp(180px, calc((100svh - 260px) / 2.18), 340px); }
+  .showcase { width: clamp(180px, calc((100svh - 160px) / 2.18), 340px); }
   .controls { margin-top: 12px; }
+  .showcase .cta { display: none; }
 }
 @media (max-width: 767.98px) {
   .section { grid-template-columns: 1fr; padding-block: 56px 40px; gap: 40px; }
   .title { font-size: clamp(48px, 13.5vw, 76px); margin-bottom: 16px; }
   .copy p { font-size: 20px; }
   .showcase { width: min(76vw, 340px); }
+  .desktopCta { display: none; }
 }
 
 .cta { display: flex; justify-content: center; margin-top: 12px; }

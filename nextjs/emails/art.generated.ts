@@ -121,7 +121,7 @@ export const ART = {
     "width": 180,
     "height": 248,
     "alt": "Hamachi Head — Must Eat Card",
-    "version": "a5bb98d8"
+    "version": "e7a8551e"
   },
   "introSignup": {
     "id": "intro-signup",

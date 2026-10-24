@@ -424,7 +424,7 @@ html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], 
 }
 /* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
    21.10.2026: „mit verschiedenen Farben für die Sections, damit man diese
-   weisse Ebene nicht braucht"). Die Folge der Startseite: Gelb (Aufmacher) →
+   weisse Ebene nicht braucht"). Die Folge der Startseite: Gelb (Aufmacher) → Rot (Map) →
    Papier (Magazin) → Ink (Must Eats) → Papier (Bezirke) → Rot (Remy) →
    Papier (Fragen) → Rot (Starter Pack) → Ink (Fuss). Nie zwei gleiche
    nebeneinander; den Abstand gibt das Innenpolster der Sections. Ink- und
@@ -448,6 +448,19 @@ html[data-vintage] .homeV2 > [data-hub-musteats] {
 /* Im Dunkelmodus ist das Papier selbst Ink — Must Eats eine Stufe heller. */
 html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
   --et-ground: #25231f;
+}
+/* Classic Döner: rotes Kartenpapier für die Map. */
+html[data-vintage] .homeV2 > [data-hub-map-intro] {
+  color-scheme: light;
+  --et-ground: #d9382a;
+  --et-fg: #15120e;
+  --et-copy: #15120e;
+  --et-muted: #15120e;
+  --et-solid: #15120e;
+  --et-on-solid: #f1ead6;
+  --et-focus: #f1ead6;
+  --et-link: #15120e;
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
 }
 /* Starter Pack im Rot des Packs selbst (Ansage 21.10.2026: „soll rot sein,
    ähnlich wie das Starter Pack"): Schrift weiss, Feld und Google-Knopf weiss
@@ -473,10 +486,20 @@ html[data-vintage] :is(.homeV2 > [data-hub-starter], [data-red-sheet]) {
 }
 /* Nachbarblätter mit versetztem Korn, damit sich das Muster nicht wiederholt. */
 html[data-vintage] .homeV2 > :nth-child(even) {
-  background-position: 96px 61px, center;
+  background-position: 0 0, 96px 61px, center;
 }
 html[data-vintage] .homeV2 > :nth-child(3n) {
-  background-position: 37px 140px, center;
+  background-position: 0 0, 37px 140px, center;
+}
+
+/* Startseite: sichtbares Druckkorn und Gebrauchsspuren wie auf den Must Eat Karten. */
+html[data-vintage] .homeV2 > section {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--et-ground) 38%, transparent), color-mix(in srgb, var(--et-ground) 38%, transparent)),
+    var(--et-sheet);
+  background-size: auto, var(--et-sheet-size);
+  background-repeat: no-repeat, var(--et-sheet-repeat);
+  background-position: 0 0;
 }
 
 *,

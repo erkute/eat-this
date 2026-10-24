@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import Image from '@/app/components/SiteImage';
+import MapPhoneArtwork from './MapPhoneArtwork';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useDialogFocus } from '@/lib/useDialogFocus';
@@ -63,7 +63,6 @@ const copy = {
       tag: 'Die Map',
       title: 'Die Berlin Food Map.',
       body: 'Die besten Restaurants, Cafés und Bars. Entdecke, was um dich herum ist – und filtere nach Kategorie, Preis oder „Jetzt geöffnet“.',
-      image: '/pics/home-phones/phone-map-red.webp?v=3',
       alt: 'Die Eat-This-Map mit Berliner Spots',
     },
     go: {
@@ -116,7 +115,6 @@ const copy = {
       tag: 'The map',
       title: 'Find your next great spot.',
       body: 'The best restaurants, cafés and bars. Discover what’s around you – and filter by category, price or open now.',
-      image: '/pics/home-phones/phone-map-red.webp?v=3',
       alt: 'The Eat This map with Berlin food spots',
     },
     go: {
@@ -193,8 +191,8 @@ const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
 const DECK_CARDS = [
   CARD_BACK,
   CARD_BACK,
-  '/pics/card-front.webp?v=6',
-  '/pics/card-front-sabich.webp?v=4',
+  '/pics/card-front.webp?v=8',
+  '/pics/card-front-sabich.webp?v=6',
 ] as const;
 
 /**
@@ -644,14 +642,7 @@ export default function SignInReward() {
           <Link href="/map" className={styles.half} onClick={close}>
             <span className={styles.halfArt}>
               <span className={styles.phone}>
-                <Image
-                  src="/pics/home-phones/phone-map-red.webp?v=3"
-                  alt=""
-                  fill
-                  sizes="(max-width: 600px) 30vw, 220px"
-                  loading="eager"
-                  className={styles.image}
-                />
+                <MapPhoneArtwork alt="" />
               </span>
             </span>
             <span className={styles.halfLabel}>{t.go.map}</span>
@@ -700,7 +691,7 @@ export default function SignInReward() {
                 {/* eslint-disable @next/next/no-img-element */}
                 <img
                   className={styles.face}
-                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp?v=4'}
+                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp?v=6'}
                   alt={t.reveal.alt}
                 />
                 <img
@@ -731,14 +722,7 @@ export default function SignInReward() {
     content = (
       <div className={styles.content}>
         <div className={styles.art}>
-          <Image
-            src={slide.image}
-            alt={slide.alt}
-            fill
-            sizes="(max-width: 600px) 220px, 480px"
-            className={styles.image}
-            priority
-          />
+          <MapPhoneArtwork alt={slide.alt} fit />
         </div>
         <div className={styles.copy}>
           <p className={`et-label ${styles.kicker}`}>{slide.tag}</p>

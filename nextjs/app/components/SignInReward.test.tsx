@@ -154,7 +154,7 @@ describe('Ankunft nach der Anmeldung', () => {
     const sources = [...document.querySelectorAll('img')].map((img) => img.getAttribute('src'));
     for (const id of faceUp)
       expect(sources).toContain(`/api/must-eat-image/${id}?w=440&auto=format&q=80`);
-    expect(sources).not.toContain('/pics/card-front.webp?v=6');
+    expect(sources).not.toContain('/pics/card-front.webp?v=8');
   });
 
   it('fuehrt nach den Stapeln das Aufdecken vor: verdeckt, dann umgedreht, antippbar', async () => {

@@ -177,7 +177,7 @@ export default function HubHeroCopy({ locale }: Props) {
       <div className={styles.heroBrand}><HeroMark /></div>
       <MapIntentLink href="/map" className={styles.heroArt} aria-label={locale === 'de' ? 'Berlin Food Map öffnen' : 'Open the Berlin food map'}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/pics/home/hero-must-eat.webp" width={470} height={646} alt="Hamachi Head — Must Eat Card" fetchPriority="high" decoding="async" />
+        <img src="/pics/home/hero-must-eat.webp?v=3" width={470} height={646} alt="Hamachi Head — Must Eat Card" fetchPriority="high" decoding="async" />
       </MapIntentLink>
       {loading ? (
         <LoadingHeroCopy locale={locale} />

@@ -1,4 +1,4 @@
-.section:global(.homeV2):global(.hv-wrap) { width: 100%; max-width: none; margin: 0; padding: 0; background: #d9382a; color: #fff; }
+.section:global(.homeV2):global(.hv-wrap) { width: 100%; max-width: none; margin: 0; padding: 0; --et-ground: #d9382a; background-color: var(--et-ground); color: #fff; }
 .body { position: relative; isolation: isolate; min-height: 720px; padding: 76px var(--home-gutter, 48px); overflow: hidden; }
 .content { position: relative; z-index: 1; max-width: 720px; width: 58%; }
 .title { display: grid; margin: 0 0 20px; color: #fff; font-family: var(--et-font-body); font-weight: 700; }
@@ -60,10 +60,6 @@
   .compact .name { font-size: clamp(80px, 25vw, 108px); }
   .compact .portrait { width: 320px; height: 320px; right: calc(50% - 160px); }
 }
-/* Vintage-Entwurf: auch „Frag Remy" ist ein eigenes Blatt — Papier und
-   Gebrauchsspuren auf dem Rot, ohne Fuge davor (globals.css). */
-:global(html[data-vintage]) .section:global(.homeV2):global(.hv-wrap) {
-  background-image: var(--et-sheet);
-  background-size: var(--et-sheet-size);
-  background-repeat: var(--et-sheet-repeat);
-}
+/* Die Startseite legt ihre Papiertextur zentral in globals.css auf.
+   Hier keine zweite Ebenenliste: sie würde die drei Hintergrundpositionen
+   der Startseite auf nur zwei Texturen verschieben. */

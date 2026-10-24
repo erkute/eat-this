@@ -18,6 +18,12 @@
 .dot::after { content: ''; width: 6px; height: 6px; border-radius: 10px; background: currentColor; opacity: .3; }
 .dot[aria-pressed='true']::after { width: 22px; opacity: 1; }
 .phone:focus-visible, .dot:focus-visible, .pause:focus-visible { outline: 3px solid var(--et-fg); outline-offset: 5px; }
+/* Wie der Hero: eine Bildschirmhöhe, mit vollständig sichtbarem Telefon und CTA. */
+@media (min-width: 768px) {
+  .section { box-sizing: border-box; min-height: 570px; height: 100svh; padding-block: clamp(24px, 5svh, 56px); }
+  .showcase { width: clamp(180px, calc((100svh - 260px) / 2.18), 340px); }
+  .controls { margin-top: 12px; }
+}
 @media (max-width: 767.98px) {
   .section { grid-template-columns: 1fr; padding-block: 56px 40px; gap: 40px; }
   .title { font-size: clamp(48px, 13.5vw, 76px); margin-bottom: 16px; }
@@ -29,15 +35,15 @@
 
 /* Leicht abgeriebene Druckfarbe, ohne die Kontur der Buchstaben aufzulösen. */
 @supports (background-clip: text) {
-  :global(html[data-vintage]) .title {
+  :global(html[data-vintage]) :is(.title, .copy p) {
     background-color: var(--et-fg);
-    background-image: linear-gradient(rgb(21 18 14 / .65), rgb(21 18 14 / .65)), url('/pics/vintage/section-wear-dark.webp?v=4');
-    background-size: auto, 320px auto;
+    background-image: linear-gradient(color-mix(in srgb, var(--et-fg) 45%, transparent), color-mix(in srgb, var(--et-fg) 45%, transparent)), url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+    background-size: auto, 192px auto, 320px auto;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
   }
 }
 @media (forced-colors: active) {
-  :global(html[data-vintage]) .title { background: none; color: CanvasText; }
+  :global(html[data-vintage]) :is(.title, .copy p) { background: none; color: CanvasText; }
 }

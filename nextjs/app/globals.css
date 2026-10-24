@@ -424,7 +424,7 @@ html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], 
 }
 /* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
    21.10.2026: „mit verschiedenen Farben für die Sections, damit man diese
-   weisse Ebene nicht braucht"). Die Folge der Startseite: Gelb (Aufmacher) → Rot (Map) →
+   weisse Ebene nicht braucht"). Die Folge der Startseite: Gelb (Aufmacher) → Ink (Map) →
    Papier (Magazin) → Ink (Must Eats) → Papier (Bezirke) → Rot (Remy) →
    Papier (Fragen) → Rot (Starter Pack) → Ink (Fuss). Nie zwei gleiche
    nebeneinander; den Abstand gibt das Innenpolster der Sections. Ink- und
@@ -449,17 +449,17 @@ html[data-vintage] .homeV2 > [data-hub-musteats] {
 html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
   --et-ground: #25231f;
 }
-/* Classic Döner: rotes Kartenpapier für die Map. */
+/* Schwarzes Kartenpapier und weisse Druckfarbe für die Map. */
 html[data-vintage] .homeV2 > [data-hub-map-intro] {
-  color-scheme: light;
-  --et-ground: #d9382a;
-  --et-fg: #15120e;
-  --et-copy: #15120e;
-  --et-muted: #15120e;
-  --et-solid: #15120e;
-  --et-on-solid: #f1ead6;
-  --et-focus: #f1ead6;
-  --et-link: #15120e;
+  color-scheme: dark;
+  --et-ground: #15120e;
+  --et-fg: #fff;
+  --et-copy: #fff;
+  --et-muted: #d4d1cd;
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  --et-focus: #fff;
+  --et-link: #fff;
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
 }
 /* Starter Pack im Rot des Packs selbst (Ansage 21.10.2026: „soll rot sein,

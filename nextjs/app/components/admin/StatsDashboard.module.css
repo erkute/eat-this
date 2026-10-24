@@ -1,33 +1,18 @@
-/* Internes Zahlenbrett im Stil eines Analytics-Werkzeugs: Seitenleiste mit
- * Berichten, Kopfzeile mit Zeitraum, darunter Kacheln und Karten.
- *
- * Seit 25.09.2026 in der Sprache der Seite: Ink-Grund, Providence durchweg,
- * Gelb als einziger Akzent. Keine Rahmen — Karten heben sich per Fläche ab
- * (--et-ink-raised), was IN einer Karte ein eigenes Feld ist, eine Stufe
- * heller darüber (--et-ink-quiet). Haarlinien nur noch dort, wo sie Daten
- * lesbar machen: Diagrammraster und Tabellenzeilen.
- *
- * Die Farbnamen unten sind Rollen: --ink ist die SCHRIFT, --ground der Grund.
- * Light-only gilt weiter für die App — das hier ist kein Dark Mode, sondern
- * dieselbe Ink-Fläche wie auf jeder Inhaltsseite. */
-
+/* Stats verwenden dieselben Flächen, Schriften und Kontraste wie die App. */
 .app {
-  --ground: var(--et-ink);
-  --raised: var(--et-ink-raised);
-  --quiet: var(--et-ink-quiet);
-  --ink: var(--et-white);
-  --on-accent: var(--et-ink);
-  --muted: var(--et-ink-soft);
-  --faint: var(--et-ink-dim);
-  --hair: rgba(255, 255, 255, 0.08);
-  --field: #f7f5f1;
-  --yellow: var(--et-accent);
-  /* Auf Ink gemessen: das alte Rot #d9382a und Grün #1e7f4f lagen unter 3:1.
-     Grün wie im Remy-Chat („Offen"), Rot und Blau auf dieselbe Helligkeit. */
-  --red: #ff7a6b;
-  --green: #6fcf8b;
-  --blue: #8fb0ff;
-  --display: var(--et-font-display), sans-serif;
+  --ground: var(--et-ground);
+  --raised: var(--et-quiet);
+  --quiet: var(--et-subtle);
+  --ink: var(--et-fg);
+  --muted: var(--et-copy);
+  --faint: var(--et-muted);
+  --hair: var(--et-line);
+  --field: var(--et-ground);
+  --chart-accent: var(--et-link);
+  --red: var(--et-link);
+  --green: color-mix(in srgb, #287044 60%, var(--et-fg));
+  --blue: color-mix(in srgb, #496fb5 75%, var(--et-fg));
+  --display: var(--et-font-body);
   display: grid;
   grid-template-columns: 236px minmax(0, 1fr);
   min-height: 100dvh;
@@ -53,8 +38,8 @@
    Wörter im Burger — Bewegung statt Opacity. */
 .home {
   display: block;
-  width: 132px;
-  margin: 22px 22px 14px;
+  width: 112px;
+  margin: 26px 22px 14px;
   border-radius: var(--et-radius-control);
   transition: transform 160ms ease;
 }
@@ -71,10 +56,10 @@
   }
 }
 
-/* Kein Ring (siehe Kontur-Regel), der Fokus zeigt sich wie der Hover. */
+/* Ein klarer Fokus bleibt auch ohne Bewegung sichtbar. */
 .home:focus-visible {
-  outline: 0;
-  transform: translateY(-2px) rotate(-1.5deg);
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -108,7 +93,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--et-accent-text);
+  color: var(--et-link);
 }
 
 .navItem,
@@ -129,15 +114,15 @@
   cursor: pointer;
 }
 
-/* Gewählt = gelb gefüllt, wie ein gesetzter Filter-Chip. Kein Balken. */
+/* Gewählte Berichte übernehmen das Kontrastpaar der App. */
 .navItemOn {
-  background: var(--yellow);
-  color: var(--et-on-accent);
+  background: var(--et-solid);
+  color: var(--et-on-solid);
   font-weight: 700;
 }
 
 .navItemOn .navCount {
-  color: var(--on-accent);
+  color: inherit;
 }
 
 @media (hover: hover) {
@@ -185,7 +170,6 @@
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  text-transform: uppercase;
 }
 
 .titleSub {
@@ -230,7 +214,7 @@
 }
 
 .segBtnOn {
-  background: var(--yellow);
+  background: var(--et-accent);
   color: var(--et-on-accent);
   font-weight: 700;
 }
@@ -241,64 +225,16 @@
   }
 }
 
-/* Eingabefelder auf Ink sind papierhell mit Ink-Schrift — sonst erkennt man
-   nicht, dass man etwas eingeben kann. Das Kalender-Symbol des Browsers
-   bleibt so auch lesbar. */
+/* Eingaben übernehmen das Kontrastpaar des gewählten Modus. */
 .dateInput {
   min-height: 38px;
   padding: 6px 10px;
   border: 0;
   border-radius: var(--et-radius-control);
   background: var(--field);
-  color: var(--on-accent);
+  color: var(--ink);
   font: inherit;
   font-size: 14px;
-}
-
-.btn,
-.btnGhost {
-  min-height: 38px;
-  padding: 7px 14px;
-  border: 0;
-  border-radius: var(--et-radius-control);
-  background: var(--yellow);
-  color: var(--et-on-accent);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.btnGhost {
-  background: var(--raised);
-  color: var(--ink);
-}
-
-/* Gelb geht beim Zeigen auf Papier, die leise Fläche auf Gelb. */
-@media (hover: hover) {
-  .btn:hover:not(:disabled) {
-    background: var(--ink);
-    color: var(--on-accent);
-  }
-
-  .btnGhost:hover:not(:disabled) {
-    background: var(--yellow);
-    color: var(--et-on-accent);
-  }
-}
-
-.btn:active:not(:disabled),
-.btnGhost:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.btn:disabled,
-.btnGhost:disabled {
-  color: var(--faint);
-  background: var(--raised);
-  cursor: default;
 }
 
 .meta {
@@ -358,26 +294,14 @@
   margin-bottom: 14px;
 }
 
-/* Kreide-Label wie auf den Tafeln: gelbe Versalien mit Marken-Quadrat. */
 .cardTitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin: 0;
-  color: var(--et-accent-text);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  line-height: 1.3;
-  text-transform: uppercase;
+  max-width: 100%;
 }
 
-.cardTitle::before {
-  content: '';
-  flex: none;
-  width: 8px;
-  height: 8px;
-  background: var(--yellow);
+.cardTitle > span {
+  white-space: normal;
+  line-height: 1.4;
 }
 
 .cardSub {
@@ -404,7 +328,7 @@
   border: 0;
   border-radius: var(--et-radius-control);
   background: var(--field);
-  color: var(--on-accent);
+  color: var(--ink);
   font: inherit;
   font-size: 13px;
 }
@@ -466,7 +390,7 @@
 
 .sparkLine {
   fill: none;
-  stroke: var(--yellow);
+  stroke: var(--chart-accent);
   stroke-width: 1.75;
   stroke-linejoin: round;
 }
@@ -569,7 +493,7 @@
 
 /* Die laufende Reihe trägt den Akzent, alles andere tritt zurück. */
 .lineNow {
-  stroke: var(--yellow);
+  stroke: var(--chart-accent);
 }
 
 .lineSecond {
@@ -583,12 +507,12 @@
 }
 
 .areaNow {
-  fill: var(--yellow);
+  fill: var(--chart-accent);
   fill-opacity: 0.12;
 }
 
 .dotNow {
-  fill: var(--yellow);
+  fill: var(--chart-accent);
 }
 
 .dotSecond {
@@ -601,7 +525,7 @@
 
 .dotOpen {
   fill: var(--raised);
-  stroke: var(--yellow);
+  stroke: var(--chart-accent);
   stroke-width: 2;
 }
 
@@ -625,7 +549,7 @@
 .swatchBefore {
   width: 14px;
   height: 0;
-  border-top: 2px solid var(--yellow);
+  border-top: 2px solid var(--chart-accent);
 }
 
 .swatchSecond {
@@ -673,7 +597,7 @@
   display: block;
   width: 100%;
   min-height: 2px;
-  background: var(--yellow);
+  background: var(--chart-accent);
   border-radius: 4px 4px 0 0;
 }
 
@@ -717,7 +641,7 @@
   display: block;
   height: 100%;
   min-width: 2px;
-  background: var(--yellow);
+  background: var(--chart-accent);
   border-radius: 4px;
 }
 
@@ -756,7 +680,7 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-align: right;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   white-space: nowrap;
 }
 
@@ -825,7 +749,7 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--yellow);
+  background: var(--et-accent);
   color: var(--et-on-accent);
   font-size: 13px;
   font-weight: 700;
@@ -836,7 +760,6 @@
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  text-transform: uppercase;
 }
 
 .stageOffer {
@@ -872,7 +795,7 @@
   display: block;
   height: 100%;
   min-width: 2px;
-  background: var(--yellow);
+  background: var(--chart-accent);
   border-radius: 4px;
 }
 
@@ -911,7 +834,7 @@
 
 .rateValue {
   display: block;
-  color: var(--et-accent-text);
+  color: var(--et-link);
   font-size: 24px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -960,7 +883,6 @@
   font-size: 22px;
   font-weight: 700;
   line-height: 1.25;
-  text-transform: uppercase;
 }
 
 .dayTiles {
@@ -995,11 +917,6 @@
 
 .subTitle {
   margin: 0 0 10px;
-  color: var(--et-accent-text);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
 }
 
 .stack {
@@ -1035,7 +952,7 @@
 }
 
 .pillYellow {
-  background: var(--yellow);
+  background: var(--et-accent);
   color: var(--et-on-accent);
 }
 
@@ -1070,14 +987,12 @@
 }
 
 .gate {
-  --ground: var(--et-ink);
-  --raised: var(--et-ink-raised);
   display: grid;
   place-items: center;
   min-height: 100dvh;
   padding: 40px 20px;
-  background: var(--ground);
-  color: var(--et-white);
+  background: var(--et-ground);
+  color: var(--et-fg);
   font-family: var(--et-font-display), sans-serif;
 }
 
@@ -1090,15 +1005,28 @@
 }
 
 .optOutButton {
-  padding: 0;
+  margin-top: 8px;
+}
+
+.themeControls button {
+  min-width: 44px;
+  min-height: 44px;
   border: 0;
-  background: none;
-  color: var(--et-accent-text);
-  font: inherit;
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  border-radius: var(--et-radius-pill);
+  background: transparent;
+  color: var(--ink);
   cursor: pointer;
+}
+
+.themeControls button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.themeControls {
+  display: flex;
+  gap: 4px;
+  padding: 0 22px 12px;
 }
 
 .muted {
@@ -1143,7 +1071,7 @@
   }
 
   .navItemOn {
-    background: var(--yellow);
+    background: var(--et-solid);
   }
 
   .navCount {
@@ -1179,5 +1107,9 @@
 
 /* Häkchen im Akzent statt Browser-Blau. */
 .app input[type='checkbox'] {
-  accent-color: var(--yellow);
+  accent-color: var(--chart-accent);
+}
+
+:global(html[data-theme='dark']) .home img {
+  filter: invert(1);
 }

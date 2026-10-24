@@ -765,6 +765,7 @@ export default function SignInReward() {
           <footer className={styles.footer}>
             <div
               className={`${styles.progress} ${styles.welcomeProgress}`}
+                  role="group"
               aria-label={`${t.step} ${step + 1} ${t.of} ${steps.length}`}
             >
               <div className={styles.segments} aria-hidden="true">

@@ -15,6 +15,7 @@ vi.mock('@/lib/queries', () => ({
 import { client } from '@/lib/sanity'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
 import { SANITY_LIVE_SURFACE_SECONDS } from '@/lib/constants'
+import { buildSearchIndex, matchesSearch, parseQuery } from '@/lib/map/spotSearch'
 
 const fetchSpy = vi.mocked(client.fetch)
 
@@ -34,6 +35,15 @@ beforeEach(() => {
 })
 
 describe('getCachedMapData', () => {
+  it('sends compact public search words instead of full descriptions', async () => {
+    mockFetchReturns([{ _id: 'r1', name: 'Lunchlokal', searchText: 'Döner und Suppe. Suppe und noodles! Queue' }], [], [])
+    const data = await getCachedMapData()
+    expect(data.restaurants[0].searchText).toBe('döner und suppe noodles queue')
+    const entry = buildSearchIndex(data.restaurants, []).get('r1')!
+    for (const query of ['doener', 'soup', 'queue']) {
+      expect(matchesSearch(entry, parseQuery(query)), query).toBe(true)
+    }
+  })
   it('fetches all three queries through the tagged shared Next cache', async () => {
     mockFetchReturns([{ _id: 'r1' }], [{ _id: 'm1' }], [{ slug: 'pizza' }])
     const data = await getCachedMapData()

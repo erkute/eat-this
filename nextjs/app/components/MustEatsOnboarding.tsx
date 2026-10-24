@@ -354,6 +354,7 @@ export default function MustEatsOnboarding({
               <footer className={tour.footer}>
                 <div
                   className={tour.progress}
+                  role="group"
                   aria-label={de ? `Schritt ${step + 1} von 3` : `Step ${step + 1} of 3`}
                 >
                   <div className={tour.segments} aria-hidden="true">

@@ -250,6 +250,8 @@ export interface MapRestaurant {
   district?: string;
   bezirk?: { name: string; slug?: string };
   address?: string;
+  /** Kompakte Suchwörter aus den öffentlichen DE/EN-Spot-Texten. */
+  searchText?: string;
   categories?: CategoryRef[];
   cuisineType?: string;
   priceRange?: PriceRange;

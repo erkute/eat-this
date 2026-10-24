@@ -24,6 +24,8 @@ const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
 // while the search code still read the field (audit 28.09.2026). ~9 KB raw
 // for the whole catalogue; it is public anyway, and no spot is locked since
 // the map went free.
+// Public descriptions feed the search too. cached-sanity compacts them into
+// unique words before sending the map payload; detail text still loads on demand.
 export const mapRestaurantsQuery = `
   *[_type == "restaurant" && ${liveRestaurant()}] {
     _id,
@@ -33,6 +35,9 @@ export const mapRestaurantsQuery = `
     district,
     "bezirk": bezirkRef->{ name, "slug": slug.current },
     address,
+    "searchText": array::join(array::compact([
+      shortDescription, shortDescriptionEn, description, descriptionEn, tip, tipEn
+    ]), " "),
     ${CATEGORY_PROJECTION},
     cuisineType,
     priceRange,

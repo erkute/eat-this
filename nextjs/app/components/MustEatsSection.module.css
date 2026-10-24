@@ -65,7 +65,6 @@
 .closeBody { margin-top: 20px; max-width: 42ch; }
 .packShot { display: flex; justify-content: center; order: -1; }
 .packShot img { width: min(48vw, 240px); height: auto; transform: rotate(-4deg); filter: var(--must-card-shadow); }
-.page > :global([data-site-footer]) { --et-sheet: none; background: transparent; }
 @media (min-width: 768px) {
   .page { --must-pad: var(--et-wrap-pad); }
   .head { align-content: start; grid-template-rows: auto auto auto auto 1fr; grid-template-columns: 1.2fr 1fr; grid-template-areas: 'kicker cover' 'title cover' 'sub cover' 'actions cover' 'stats cover'; padding-top: 20px; column-gap: clamp(40px, 7vw, 100px); }

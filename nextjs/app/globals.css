@@ -1046,7 +1046,9 @@ html[data-auth='1'] [data-guest-only] {
    scrim's own `touch-action: none` (unten) is what covers iOS Safari,
    which ignores overflow:hidden on the scroll container. */
 :root[data-consent-gate='open'],
-:root[data-consent-gate='open'] body {
+:root[data-consent-gate='open'] body,
+:root[data-consent-pending]:not([data-hero-intro]),
+:root[data-consent-pending]:not([data-hero-intro]) body {
   overflow: hidden;
 }
 
@@ -1085,6 +1087,10 @@ html[data-auth='1'] [data-guest-only] {
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
     max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
 }
+/* No initial flash for an existing answer, even with application JS delayed.
+   The head bootstrap only marks an unanswered visitor. Home keeps its intro. */
+.cookie-gate.cookie-bootstrap { display: none; }
+html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap { display: grid; }
 .cookie-scrim {
   position: absolute;
   inset: 0;
@@ -1094,8 +1100,14 @@ html[data-auth='1'] [data-guest-only] {
   touch-action: none;
   transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.cookie-gate.show .cookie-scrim {
+.cookie-gate.show .cookie-scrim,
+html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap .cookie-scrim {
   background-color: var(--et-scrim);
+  animation: cookie-scrim-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes cookie-scrim-enter {
+  from { background-color: rgba(0, 0, 0, 0); }
+  to { background-color: var(--et-scrim); }
 }
 .cookie-consent {
   /* Text und Details folgen derselben Palette wie die Papierfläche. */
@@ -1132,8 +1144,14 @@ html[data-auth='1'] [data-guest-only] {
 .cookie-consent.expanded {
   width: min(100%, var(--cookie-panel-w-wide));
 }
-.cookie-gate.show .cookie-consent {
+.cookie-gate.show .cookie-consent,
+html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap .cookie-consent {
   transform: translateY(0) scale(1);
+  animation: cookie-window-enter 0.46s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes cookie-window-enter {
+  from { transform: translateY(22px) scale(0.97); }
+  to { transform: translateY(0) scale(1); }
 }
 .cookie-consent:focus,
 .cookie-consent:focus-visible {

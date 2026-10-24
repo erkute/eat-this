@@ -49,7 +49,7 @@ function clearCookies() {
 
 const gate = () => screen.queryByRole('dialog', { name: 'Cookies' });
 
-/** The gate mounts at once but transitions in over two frames. */
+/** The native entrance keeps the question usable as soon as it opens. */
 function openGate() {
   return waitFor(() => {
     expect(document.documentElement.getAttribute('data-consent-gate')).toBe('open');
@@ -199,14 +199,6 @@ describe('CookieConsent', () => {
     expect(readConsent(), 'the old answer should be cleared while re-asking').toBeNull();
   });
 
-  /* The gate must not exist in the server HTML. The answer lives in a cookie
-   * this component can only read after mounting, so anything rendered server-
-   * side is rendered for everyone — and .cookie-consent is a solid panel that
-   * without .show is merely transform-offset, not hidden. Rendering it on the
-   * server therefore painted the dialog for one frame on every page load, for
-   * visitors who had long since answered. An assertion on the client render
-   * cannot catch that: RTL flushes effects, so the gate is already gone by the
-   * time the test looks. Only the server output shows it. */
   it.each(['Akzeptieren', 'Ablehnen'])('dismisses expanded details without showing the compact banner after %s', async (answer) => {
     render(<CookieConsent />);
     await openGate();
@@ -222,10 +214,14 @@ describe('CookieConsent', () => {
     expect(gate()).toBeNull();
   });
 
-  it('renders nothing on the server, so no visitor gets a flash of the dialog', async () => {
+  it('prerenders the initially hidden question without waiting for hydration', async () => {
     const { renderToStaticMarkup } = await import('react-dom/server');
 
-    expect(renderToStaticMarkup(<CookieConsent />)).toBe('');
+    const html = renderToStaticMarkup(<CookieConsent />);
+    expect(html).toContain('class="cookie-gate cookie-bootstrap"');
+    expect(html).toContain('id="cookieConsent"');
+    // Actual visibility for saved answers is covered before app JS loads in
+    // cookie-first-paint.spec.ts; jsdom does not apply the bootstrap CSS.
   });
 });
 
@@ -266,7 +262,7 @@ describe('CookieConsent während des Startseiten-Auftritts', () => {
   it('fragt erst, wenn der Auftritt vorbei ist', async () => {
     document.documentElement.setAttribute('data-hero-intro', '');
     render(<CookieConsent />);
-    expect(gate(), 'nicht über dem schiebenden Remy').toBeNull();
+    expect(document.querySelector('.cookie-gate.show'), 'nicht über dem schiebenden Remy').toBeNull();
 
     document.documentElement.removeAttribute('data-hero-intro');
     await waitFor(() => expect(gate()).not.toBeNull());
@@ -278,7 +274,7 @@ describe('CookieConsent während des Startseiten-Auftritts', () => {
     document.documentElement.setAttribute('data-hero-intro', '');
     render(<CookieConsent />);
     vi.advanceTimersByTime(14_999);
-    expect(gate()).toBeNull();
+    expect(document.querySelector('.cookie-gate.show')).toBeNull();
     await act(async () => {
       vi.advanceTimersByTime(1);
     });

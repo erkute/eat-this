@@ -1,5 +1,6 @@
 'use client';
 import { forwardRef, useEffect, useState, useSyncExternalStore } from 'react';
+import maplibre from 'maplibre-gl';
 import Map, {
   AttributionControl,
   type MapRef,
@@ -86,6 +87,9 @@ const MapCanvas = forwardRef<MapRef, MapCanvasProps>(
 
     return (
       <Map
+        // Load MapLibre alongside this lazy surface. Without mapLib,
+        // react-map-gl starts a second import only after this component mounts.
+        mapLib={maplibre}
         ref={ref}
         initialViewState={initialViewState}
         style={{ width: '100%', height: '100%' }}

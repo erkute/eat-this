@@ -26,7 +26,7 @@ import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { openBurgerDrawer } from '../burgerDrawerState';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
-import dynamic from 'next/dynamic';
+import MapCanvasLayer from './LazyMapCanvasLayer';
 import RestaurantList from './RestaurantList';
 import { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from '@/lib/map/listWindow';
 import MapSheetDetail from './MapSheetDetail';
@@ -41,15 +41,6 @@ import type { InitialCamera } from '@/lib/map/useMapCamera';
 import styles from './MapLayout.module.css';
 import controlStyles from './MapControls.module.css';
 import sheetStyles from './MapSheet.module.css';
-
-/* The map canvas pulls in react-map-gl + maplibre-gl (~800 KB) and only runs
-   in the browser. Lazy-load it (ssr: false) so the SSR'd list/sheet paints and
-   hydrates immediately, with the heavy maplibre chunk streaming in behind a
-   neutral placeholder. */
-const MapCanvasLayer = dynamic(() => import('./MapCanvasLayer'), {
-  ssr: false,
-  loading: () => <div className={styles.mapLoading} aria-hidden="true" />,
-});
 
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 

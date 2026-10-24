@@ -1,8 +1,5 @@
 /* Full-screen typographic error poster, following the supplied reference. */
 .page[data-page] {
-  --et-ground: var(--et-white);
-  --et-fg: var(--et-ink);
-  --et-copy: var(--et-ink);
   position: relative;
   isolation: isolate;
   display: grid;
@@ -20,7 +17,8 @@
   position: absolute;
   inset: 0;
   z-index: -2;
-  background: #fff url('/pics/paper/folded-white.webp') center / 640px 960px repeat;
+  background: var(--et-ground) var(--et-window-paper) center / 640px 960px repeat;
+  background-blend-mode: multiply;
   pointer-events: none;
 }
 

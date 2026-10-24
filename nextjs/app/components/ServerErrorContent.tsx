@@ -8,6 +8,7 @@
 import { usePathname } from 'next/navigation';
 import styles from '../not-found.module.css';
 import ErrorNumeral from './ErrorNumeral';
+import ErrorTheme from './ErrorTheme';
 
 const COPY = {
   de: {
@@ -36,6 +37,7 @@ export default function ServerErrorContent({ onRetry }: { onRetry: () => void })
       data-page="error"
       aria-labelledby="error-title"
     >
+      <ErrorTheme />
       <section className={styles.hero}>
         <p className={styles.edition} aria-hidden="true">500<br />Eat This</p>
         <ErrorNumeral value="500" />

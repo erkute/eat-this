@@ -572,13 +572,10 @@ html[data-active-page][data-magazine-opening] body,
 html[data-active-page][data-magazine-opening] .app-pages {
   background: var(--et-magazine-table);
 }
-/* Error posters own their footer-paper surface; the outer canvas stays white. */
+/* Error posters and browser overscroll follow the saved page theme. */
 html:has(main:is([data-page='not-found'], [data-page='error'])),
 html:has(main:is([data-page='not-found'], [data-page='error'])) body {
-  background: var(--et-white);
-}
-html:has(main:is([data-page='not-found'], [data-page='error'])) {
-  --et-window-paper: none;
+  background: var(--et-ground);
 }
 html:has(main:is([data-page='not-found'], [data-page='error'])) .et-btn {
   background-image: none;

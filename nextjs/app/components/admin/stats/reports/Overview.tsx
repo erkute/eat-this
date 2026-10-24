@@ -264,8 +264,12 @@ export default function Overview({
               </p>
             )}
             <p className={styles.note}>
-              <button type="button" className={styles.optOutButton} onClick={() => onOpen('days')}>
-                Beide Tage ausgebreitet →
+              <button
+                type="button"
+                className={`et-btn et-btn-sm et-btn-alt ${styles.optOutButton}`}
+                onClick={() => onOpen('days')}
+              >
+                Beide Tage ausgebreitet
               </button>
             </p>
           </>
@@ -284,8 +288,12 @@ export default function Overview({
           <RateTile rate={checkoutRate?.rate ?? null} label="der begonnenen Käufe werden bezahlt" />
         </div>
         <p className={styles.note}>
-          <button type="button" className={styles.optOutButton} onClick={() => onOpen('funnel')}>
-            Ganzer Funnel →
+          <button
+            type="button"
+            className={`et-btn et-btn-sm et-btn-alt ${styles.optOutButton}`}
+            onClick={() => onOpen('funnel')}
+          >
+            Ganzer Funnel
           </button>
         </p>
       </Card>
@@ -310,8 +318,12 @@ export default function Overview({
       <Card title="Meistgesehen" sub="Aufrufe je Seite.">
         <BarRows rows={data.paths.slice(0, 8)} empty="Nichts gezählt." />
         <p className={styles.note}>
-          <button type="button" className={styles.optOutButton} onClick={() => onOpen('content')}>
-            Alle Seiten →
+          <button
+            type="button"
+            className={`et-btn et-btn-sm et-btn-alt ${styles.optOutButton}`}
+            onClick={() => onOpen('content')}
+          >
+            Alle Seiten
           </button>
         </p>
       </Card>
@@ -321,10 +333,10 @@ export default function Overview({
         <p className={styles.note}>
           <button
             type="button"
-            className={styles.optOutButton}
+            className={`et-btn et-btn-sm et-btn-alt ${styles.optOutButton}`}
             onClick={() => onOpen('acquisition')}
           >
-            Herkunft und Einstiege →
+            Herkunft und Einstiege
           </button>
         </p>
       </Card>
@@ -339,8 +351,12 @@ export default function Overview({
             empty="Noch keine Klicks aus der Suche."
           />
           <p className={styles.note}>
-            <button type="button" className={styles.optOutButton} onClick={() => onOpen('search')}>
-              Anfragen, Seiten, Trends →
+            <button
+              type="button"
+              className={`et-btn et-btn-sm et-btn-alt ${styles.optOutButton}`}
+              onClick={() => onOpen('search')}
+            >
+              Anfragen, Seiten, Trends
             </button>
           </p>
         </Card>

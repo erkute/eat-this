@@ -117,7 +117,7 @@ export default function Search({ data }: { data: StatsSummary }) {
           }))}
           empty="Keine Daten."
         />
-        <h3 className={styles.subTitle} style={{ marginTop: 18 }}>
+        <h3 className={`et-label ${styles.subTitle}`} style={{ marginTop: 18 }}>
           Länder
         </h3>
         <BarRows

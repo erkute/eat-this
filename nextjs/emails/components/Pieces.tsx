@@ -131,7 +131,7 @@ export function Paper({
       className={foil ? undefined : 'et-pad'}
       style={{ backgroundColor: COLOR.surface, padding, textAlign: 'center',
         backgroundImage: foil && appUrl ? `url(${appUrl}/pics/email/mail-foil.png?v=${EMAIL_ASSET_VERSION})` : undefined,
-        backgroundSize: foil ? '100% auto' : undefined,
+        backgroundSize: foil ? '100% 100%' : undefined,
         backgroundRepeat: foil ? 'no-repeat' : undefined,
       }}
     >

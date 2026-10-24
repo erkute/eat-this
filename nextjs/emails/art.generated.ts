@@ -34,24 +34,24 @@ export const ART = {
   },
   "kickerStarter": {
     "id": "kicker-starter",
-    "width": 196,
-    "height": 24,
+    "width": 176,
+    "height": 12,
     "alt": "DEIN STARTER PACK",
-    "version": "61ce1d1a"
+    "version": "0b067e53"
   },
   "titleStarter": {
     "id": "title-starter",
-    "width": 350,
-    "height": 51,
+    "width": 330,
+    "height": 39,
     "alt": "20 Must Eats.",
-    "version": "9193f36d"
+    "version": "af8b4fc3"
   },
   "bodyStarter": {
     "id": "body-starter",
-    "width": 346,
-    "height": 78,
+    "width": 326,
+    "height": 66,
     "alt": "10 Karten liegen sofort offen in deinem Deck. Die anderen 10 deckst du direkt am Spot auf.",
-    "version": "f1152884"
+    "version": "0d8b20a2"
   },
   "ctaAnmelden": {
     "id": "cta-anmelden",
@@ -90,24 +90,24 @@ export const ART = {
   },
   "kickerStarterEn": {
     "id": "kicker-starter-en",
-    "width": 204,
-    "height": 24,
+    "width": 184,
+    "height": 12,
     "alt": "YOUR STARTER PACK",
-    "version": "74bff22f"
+    "version": "f4a9c91c"
   },
   "titleStarterEn": {
     "id": "title-starter-en",
-    "width": 355,
-    "height": 52,
+    "width": 335,
+    "height": 40,
     "alt": "20 Must Eats.",
-    "version": "e2453fbb"
+    "version": "3b5f24bb"
   },
   "bodyStarterEn": {
     "id": "body-starter-en",
-    "width": 332,
-    "height": 53,
+    "width": 312,
+    "height": 41,
     "alt": "10 cards go straight into your deck face up. Reveal the other 10 at the spots.",
-    "version": "f60e577e"
+    "version": "e3559a2f"
   },
   "masthead": {
     "id": "masthead",
@@ -128,118 +128,118 @@ export const ART = {
     "width": 600,
     "height": 151,
     "alt": "DEIN ANMELDELINK WE TELL YOU WHAT TO EAT.",
-    "version": "42af29bc"
+    "version": "e383c222"
   },
   "introSignupEn": {
     "id": "intro-signup-en",
     "width": 600,
     "height": 152,
     "alt": "YOUR SIGN-IN LINK WE TELL YOU WHAT TO EAT.",
-    "version": "5be30d5b"
+    "version": "f0068f52"
   },
   "introLogin": {
     "id": "intro-login",
     "width": 600,
     "height": 222,
     "alt": "SCHÖN, DASS DU WIEDER DA BIST Willkommen zurück.",
-    "version": "f6ca0c1e"
+    "version": "45550ac8"
   },
   "introLoginEn": {
     "id": "intro-login-en",
     "width": 600,
     "height": 216,
     "alt": "GOOD TO SEE YOU AGAIN Welcome back.",
-    "version": "ce1cbdaa"
+    "version": "e8b27ec1"
   },
   "footerBrand": {
     "id": "footer-brand",
     "width": 600,
-    "height": 138,
+    "height": 182,
     "alt": "Eat This — we tell you what to eat",
-    "version": "aea4ceec"
+    "version": "29ed5078"
   },
   "footerInstagram": {
     "id": "footer-instagram",
     "width": 600,
     "height": 52,
     "alt": "Instagram",
-    "version": "bc64b6d2"
+    "version": "8fa3948f"
   },
   "footerAbout": {
     "id": "footer-about",
     "width": 300,
     "height": 34,
     "alt": "Über uns",
-    "version": "8e01e192"
+    "version": "7f444c36"
   },
   "footerContact": {
     "id": "footer-contact",
     "width": 300,
     "height": 34,
     "alt": "Kontakt",
-    "version": "c07ba295"
+    "version": "281051ef"
   },
   "footerImpressum": {
     "id": "footer-impressum",
     "width": 200,
     "height": 34,
     "alt": "Impressum",
-    "version": "cde765a1"
+    "version": "705a73ca"
   },
   "footerDatenschutz": {
     "id": "footer-datenschutz",
     "width": 200,
     "height": 34,
     "alt": "Datenschutz",
-    "version": "c764c9d2"
+    "version": "d142100f"
   },
   "footerAgb": {
     "id": "footer-agb",
     "width": 200,
     "height": 34,
     "alt": "AGB",
-    "version": "2e40e969"
+    "version": "be1baaf7"
   },
   "footerCopyright": {
     "id": "footer-copyright",
     "width": 600,
     "height": 58,
     "alt": "© 2026 Eat This. Alle Rechte vorbehalten.",
-    "version": "680f3527"
+    "version": "2311e617"
   },
   "footerAboutEn": {
     "id": "footer-about-en",
     "width": 300,
     "height": 34,
     "alt": "About",
-    "version": "64c5ebc4"
+    "version": "9683a58c"
   },
   "footerContactEn": {
     "id": "footer-contact-en",
     "width": 300,
     "height": 34,
     "alt": "Contact",
-    "version": "7ab96e13"
+    "version": "162c2fdd"
   },
   "footerDatenschutzEn": {
     "id": "footer-datenschutz-en",
     "width": 200,
     "height": 34,
     "alt": "Privacy",
-    "version": "a1228970"
+    "version": "4c795e8b"
   },
   "footerAgbEn": {
     "id": "footer-agb-en",
     "width": 200,
     "height": 34,
     "alt": "Terms",
-    "version": "a9735996"
+    "version": "2e82ed61"
   },
   "footerCopyrightEn": {
     "id": "footer-copyright-en",
     "width": 600,
     "height": 58,
     "alt": "© 2026 Eat This. All rights reserved.",
-    "version": "efb7393c"
+    "version": "e92e6cb7"
   }
 } as const satisfies Record<string, ArtAsset>;

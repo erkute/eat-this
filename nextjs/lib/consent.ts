@@ -72,11 +72,8 @@ const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 /** The id outlives any single decision so the log can chain them together. */
 const ID_MAX_AGE_SECONDS = ONE_YEAR_SECONDS * 2;
 
-function isConsentValue(value: string | null | undefined): value is ConsentValue {
-  return value === 'accepted' || value === 'declined';
-}
-
-/** Pure half of readConsent, so the format has tests that need no document. */
+/** Pure half of readConsent. Keep this body self-contained: the head
+ * bootstrap embeds the same parser before application JavaScript loads. */
 export function parseConsentCookie(raw: string | null): ConsentDecision | null {
   if (!raw) return null;
   const parts = raw.split('.');
@@ -85,7 +82,7 @@ export function parseConsentCookie(raw: string | null): ConsentDecision | null {
   // 'accepted.' and 'accepted.2.5' as valid answers.
   if (parts.length !== 2) return null;
   const [value, version] = parts;
-  if (!isConsentValue(value) || !/^\d+$/.test(version)) return null;
+  if ((value !== 'accepted' && value !== 'declined') || !/^\d+$/.test(version)) return null;
   return { value, version: Number(version) };
 }
 

@@ -22,7 +22,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
     {
       name: 'mobile-safari',
-      testMatch: ['remy-menu.spec.ts', 'home-scroll-motion.spec.ts'],
+      testMatch: ['remy-menu.spec.ts', 'home-scroll-motion.spec.ts', 'cookie-first-paint.spec.ts'],
       use: { ...devices['iPhone 13'] },
     },
     {

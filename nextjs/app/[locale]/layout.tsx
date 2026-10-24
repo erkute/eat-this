@@ -10,6 +10,7 @@ import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
 import CookieConsent from '@/app/components/CookieConsent';
+import { CONSENT_BOOTSTRAP } from '@/lib/consentBootstrap';
 import { buildSiteJsonLd } from '@/lib/json-ld';
 
 const PROVIDENCE_REGULAR_WOFF2 =
@@ -110,8 +111,10 @@ export default async function LocaleLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        {/* Safe: hardcoded constant, no user input */}
+        <link rel="preload" href="/pics/paper/folded-white.webp" as="image" fetchPriority="high" />
+        {/* Safe: hardcoded constants and the shared pure consent parser. */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
+        <script dangerouslySetInnerHTML={{ __html: CONSENT_BOOTSTRAP }} />
       </head>
       <body suppressHydrationWarning>
         <script

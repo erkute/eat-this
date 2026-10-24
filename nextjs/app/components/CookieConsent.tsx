@@ -7,6 +7,7 @@ import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translati
 import { countEvent, getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
 import { clearConsent, readConsent, recordConsent, writeConsent } from '@/lib/consent';
 import { afterHeroIntro } from '@/lib/home/heroIntro';
+import { CONSENT_FOCUSABLE, CONSENT_INTERACTIVE_EVENT } from '@/lib/consentBootstrap';
 
 /* Der Auftritt dauert ~9 s (Vorhang 5,4 s, bis 3 s Warten auf Remys Beine,
    dann Marke und Headline); länger wartet die Frage nicht. */
@@ -119,8 +120,6 @@ const COOKIE_SECTIONS_EN: ModalBodySection[] = [
   { h: 'Contact', p: 'Questions? {mail}' },
 ];
 
-const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-
 // Best-effort removal of GA's first-party cookies when consent is withdrawn.
 // The injected GA script can't be "unloaded" in-place, so handleDecline also
 // reloads the page after calling this — next load sees 'declined' and never
@@ -200,15 +199,11 @@ export default function CookieConsent() {
   // linger in the bottom-URL-bar zone until a reload. Dropping it from the DOM
   // clears that layer immediately. Reset when the gate reopens.
   //
-  // Starts closed, and that is load-bearing: the answer lives in a cookie this
-  // component can only read after mounting. Starting open rendered the gate
-  // into the SSR HTML on every request, and .cookie-consent is a solid panel —
-  // without .show it is merely offset by a transform, not hidden. So every
-  // visitor, including everyone who had already answered, got the dialog
-  // painted for one frame until hydration read the cookie and unmounted it.
-  // Closed-first costs the undecided a few ms before the question appears;
-  // open-first cost everyone else a flash on every single page load.
-  const [closed, setClosed] = useState(true);
+  // The initial HTML is hidden by default. The head bootstrap reveals it
+  // only for an unanswered visitor, before application hydration can compete
+  // with the map renderer. Answered visitors never paint the initial gate.
+  const [closed, setClosed] = useState(false);
+  const [bootstrap, setBootstrap] = useState(true);
   const sections = lang === 'de' ? COOKIE_SECTIONS_DE : COOKIE_SECTIONS_EN;
   const cardRef = useRef<HTMLDivElement | null>(null);
   const closeTimer = useRef<number | undefined>(undefined);
@@ -225,10 +220,10 @@ export default function CookieConsent() {
     countEvent('consent_gate_shown');
     window.clearTimeout(closeTimer.current);
     setClosed(false);
-    // Two frames: mount at the off-screen transform, then transition in. One
-    // frame is not enough — the style would be coalesced with the insertion
-    // and the card would simply appear.
-    requestAnimationFrame(() => requestAnimationFrame(() => setShow(true)));
+    setBootstrap(false);
+    // CSS starts the same entrance on insertion, including the server HTML.
+    // No animation-frame callbacks need to compete with WebGL initialization.
+    setShow(true);
   }, []);
 
   // On mount: if the user already answered, load GA (or don't) and stay out of
@@ -244,12 +239,17 @@ export default function CookieConsent() {
   useEffect(() => {
     const stored = readConsent();
     if (stored) {
+      setBootstrap(false);
       setClosed(true);
       if (stored === 'accepted') loadAnalytics();
       return;
     }
     return afterHeroIntro(open, HERO_INTRO_MAX_WAIT_MS);
   }, [open]);
+
+  useEffect(() => {
+    if (!bootstrap) document.documentElement.removeAttribute('data-consent-pending');
+  }, [bootstrap]);
 
   // Lock the page behind the gate. `touch-action: none` on the scrim is what
   // stops iOS Safari scrolling the page under it; the attribute below carries
@@ -274,7 +274,7 @@ export default function CookieConsent() {
         return;
       }
       if (e.key !== 'Tab') return;
-      const items = Array.from(card.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+      const items = Array.from(card.querySelectorAll<HTMLElement>(CONSENT_FOCUSABLE)).filter(
         (el) => el.offsetParent !== null || el === document.activeElement
       );
       if (!items.length) return;
@@ -349,10 +349,16 @@ export default function CookieConsent() {
     return () => window.removeEventListener('eatthis:open-cookie-settings', reopen);
   }, [open]);
 
+  // The DOM and the focus handlers now belong to React. Replay any click
+  // made while its scripts were loading through these same choice handlers.
+  useEffect(() => {
+    if (!bootstrap) window.dispatchEvent(new Event(CONSENT_INTERACTIVE_EVENT));
+  }, [bootstrap]);
+
   if (closed) return null;
 
   return (
-    <div className={`cookie-gate${show ? ' show' : ''}`}>
+    <div className={`cookie-gate${bootstrap ? ' cookie-bootstrap' : ''}${show ? ' show' : ''}`}>
       {/* Not a dismiss target: clicking the scrim does nothing on purpose. */}
       <div className="cookie-scrim" aria-hidden="true" />
       <div

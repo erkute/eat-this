@@ -53,7 +53,6 @@
   text-transform: uppercase; letter-spacing: -.02em;
 }
 .heroHeadline span { display: inline; }
-.heroHeadline span + span::before { content: ' '; }
 /* Der Gruß der Angemeldeten: eine eigene Zeile, so fett wie die Marke, an
    der Stelle, an der Gäste den Erklärsatz lesen. Der Lead rückt dann an ihn
    heran, statt mit Abstand frei zu stehen. */
@@ -91,7 +90,7 @@
   .heroMark { width: 100%; }
   .heroHeadline { order: 1; font-size: 15px; margin: 14px 0 0; }
   .heroGreeting { order: 2; margin: clamp(16px, 3svh, 28px) 0 0; font-size: 34px; }
-  .heroLead { order: 3; max-width: 300px; margin: clamp(14px, 2.6svh, 24px) 0 0; font-size: 16px; line-height: 1.45; text-wrap: balance; }
+  .heroLead { order: 3; width: 100%; max-width: 300px; margin: clamp(14px, 2.6svh, 24px) 0 0; font-size: 16px; line-height: 1.45; text-wrap: balance; }
   .heroLead.heroLeadAuth { margin-top: 6px; }
   .heroArt {
     order: 4; flex: 1 1 0; min-height: 0; width: 100%;

@@ -364,7 +364,7 @@ html[data-theme='dark'] {
    scrollt mit ihrem Inhalt; keine Ebene über der ganzen Seite. Unterseiten
    (Magazin, Spots, Artikel) sind nur leicht gealtert (siehe unten). Der Grund bleibt
    weiß (dunkel: Ink), Schrift und Spuren sind farbneutral — kein Creme.
-   Knöpfe sind glatte, einfarbige Pillen. Die vollen Kratzer tragen
+   Knöpfe tragen dezentes Druckkorn auf glatten, runden Flächen. Die vollen Kratzer tragen
    Etiketten (aktiver
    Menüpunkt, Spot-Name im Artikel). Ansage 21.10.2026. */
 html[data-vintage] {
@@ -384,13 +384,6 @@ html[data-vintage] {
     url('/pics/vintage/edge-left.webp?v=1') 0 0 / 12px 256px repeat-y,
     url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 12px 256px repeat-y,
     linear-gradient(#000 0 0) center / calc(100% - 20px) calc(100% - 20px) no-repeat;
-  /* Flachere Kanten für Felder. Text-Knöpfe bleiben glatt. */
-  --et-rough-edges-sm:
-    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 128px 4px repeat-x,
-    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 128px 4px repeat-x,
-    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 4px 128px repeat-y,
-    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 4px 128px repeat-y,
-    linear-gradient(#000 0 0) center / calc(100% - 7px) calc(100% - 7px) no-repeat;
 }
 
 html[data-vintage][data-theme='dark'] {
@@ -1710,7 +1703,8 @@ ol {
 /* ---------------------------------------------------------------------------
    Der Knopf. Eine Definition für jeden Text-Knopf der App (Ansage 22.10.2026:
    „die müssen alle gleich sein, und ändere ich sie, ziehen alle mit"):
-   glatte, einfarbige Pille, fett, Neue Haas Grotesk.
+   Pille wie alter Magazindruck: feines Korn, leichte Druckspuren,
+   fett, Neue Haas Grotesk.
    Module setzen nur noch, WO ein Knopf steht (Abstand, Breite, Raster) —
    nie Farbe, Form, Schrift oder Hover. Gleich spezifische Modulregeln
    gewönnen sonst gegen diese hier (globals lädt zuerst).
@@ -1734,7 +1728,9 @@ ol {
   border: 0;
   border-radius: var(--et-radius-pill);
   background-color: var(--et-btn-bg, var(--et-solid));
-  background-image: none;
+  background-image: url('/pics/vintage/button-wear-soft.webp');
+  background-size: 200px auto;
+  background-position: center;
   mask: none;
   color: var(--et-btn-fg, var(--et-on-solid));
   font: 700 var(--et-btn-font) / 1.25 var(--et-font-body);
@@ -1768,6 +1764,7 @@ ol {
   --et-btn-hover: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
   --et-btn-hover-fg: var(--et-fg);
   border-radius: 0;
+  mask: none;
   background-image: url('/pics/paper/folded-white.webp');
   background-size: 100% 100%;
   background-blend-mode: multiply;
@@ -1780,12 +1777,26 @@ ol {
 .et-btn.et-btn-paper:focus-visible {
   outline: 0;
 }
+/* Map menu follows the compact filter typography and paper height. */
+.et-btn.et-btn-map-control {
+  min-height: 40px;
+  padding-inline: 7px;
+  font: 800 11px / 1.2 var(--et-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+@media (max-width: 767.98px) {
+  .et-btn.et-btn-map-control { min-height: 44px; }
+}
+
 .et-btn-text {
   --et-btn-bg: transparent;
   --et-btn-fg: var(--et-fg);
   --et-btn-hover: transparent;
   --et-btn-hover-fg: color-mix(in srgb, var(--et-fg) 68%, var(--et-ground));
   padding-inline: 0;
+  background-image: none;
+  mask: none;
 }
 html[data-theme='dark'] .et-btn-text {
   --et-btn-fg: var(--et-muted);
@@ -1925,10 +1936,9 @@ html[data-theme='dark'] {
   }
   html[data-hero-intro][data-active-page='start'],
   html[data-hero-intro][data-active-page='start'] body {
-    background-color: #000;
+    background-color: #ffc600;
   }
 }
-
 /* One continuous map between the district footer and Berlin overview. */
 [data-map-view] { view-transition-name: berlin-map; }
 ::view-transition-group(berlin-map) { animation-duration: 700ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }

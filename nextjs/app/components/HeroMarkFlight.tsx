@@ -222,7 +222,7 @@ export default function HeroMarkFlight() {
        vorher ist sie 0 und der Flieger landet auf der falschen Größe. Und erst
        nach dem Ladeauftritt: dort steht eine grosse Marke in der Mitte und
        wird auf den Platz der echten geschubst (HubMotion, `finishIntro`),
-       jede Messung davor läge daneben. HubMotion nimmt `data-hero-intro` ab,
+       jede Messung davor läge daneben. HeroCurtain nimmt `data-hero-intro` ab,
        sobald Vorhang und Auftritt durch sind; wer vorher scrollt, hat bis
        dahin die Marke im Aufmacher statt des Fliegers. */
     const start = () => {

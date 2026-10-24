@@ -303,7 +303,7 @@ export default function RestaurantDetail({
           {onToggleFavorite && (
             <button
               type="button"
-              className={`${styles.rdHeartToggle} ${isFavorite ? styles.rdHeartToggleOn : ''}`}
+              className={styles.rdHeartToggle}
               aria-label={
                 isFavorite
                   ? locale === 'en'
@@ -413,10 +413,19 @@ export default function RestaurantDetail({
           {addressLines && (
             <div className={styles.rdBlock}>
               <h3 className={styles.rdK}>{t('map.address')}</h3>
-              <p className={styles.rdAddress}>
+              <a
+                className={styles.rdAddress}
+                href={mapsHref ?? undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent('restaurant_maps_clicked', {
+                  restaurant_id: r._id,
+                  restaurant_slug: r.slug,
+                })}
+              >
                 {addressLines.street}
                 {addressLines.locality && <span>{addressLines.locality}</span>}
-              </p>
+              </a>
               {walkingTime && (
                 <p className={styles.rdVMeta}>
                   {walkingTime} {t('map.walkMinutes')}

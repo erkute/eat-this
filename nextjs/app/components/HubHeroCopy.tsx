@@ -55,7 +55,7 @@ const LEAD_AUTH = {
   en: 'Every spot on your map — and the Must Eats you have collected in your deck.',
 } as const;
 
-/** Die beiden Sätze behalten ihren eigenen Umbruch, ohne Wort-Spans. */
+/** Die beiden Sätze behalten ihren eigenen Umbruch. */
 function LeadLines({ text }: { text: string }) {
   return text.split('\n').map((line, index) => (
     <span key={index} className={styles.heroLeadLine}>
@@ -77,6 +77,7 @@ function HeroHeadline() {
   return (
     <h1 className={styles.heroHeadline} aria-label="We tell you what to eat">
       <span>We tell you</span>
+      {' '}
       <span>what to eat</span>
     </h1>
   );

@@ -835,7 +835,7 @@
   text-overflow: ellipsis;
 }
 
-/* Freie helle Symbole; der feine Schatten trennt sie auch von hellen Fotos. */
+/* Weiße Symbole mit einem schmalen dunklen Schatten für helle Fotos. */
 .rdHeartToggle,
 .rdCloseGlass {
   position: absolute;
@@ -852,7 +852,7 @@
   border-radius: 0;
   background: transparent;
   color: var(--et-white);
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.75));
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.65));
   font: 700 13px / 1 var(--et-font-body);
   cursor: pointer;
   transition: opacity var(--et-motion-fast);
@@ -860,14 +860,14 @@
 .rdHeartToggle { left: 12px; }
 .rdCloseGlass { right: 12px; width: 44px; padding: 0; }
 .rdHeartToggle svg,
-.rdCloseGlass svg { width: 22px; height: 22px; }
-.rdHeartToggleOn { color: var(--et-red); }
+.rdCloseGlass svg { width: 22px; height: 22px; flex-shrink: 0; }
+.rdHeartToggle span { flex-shrink: 0; white-space: nowrap; }
 @media (hover: hover) {
   .rdHeartToggle:hover,
   .rdCloseGlass:hover { opacity: 0.72; }
 }
 .rdHeartToggle:focus-visible,
-.rdCloseGlass:focus-visible { outline: 2px solid var(--et-white); outline-offset: -2px; }
+.rdCloseGlass:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 @media (max-width: 767.98px) {
   .rdHeartToggle,
   .rdCloseGlass {
@@ -875,6 +875,7 @@
     width: 44px;
     height: 44px;
   }
+  .rdHeartToggle { width: auto; }
 }
 
 /* ── Text und Tipp ─────────────────────────────────────────────────────── */
@@ -968,6 +969,9 @@
   text-transform: uppercase;
 }
 .rdAddress {
+  display: block;
+  color: inherit;
+  text-decoration: none;
   margin: 0;
   font-size: 16px;
   font-weight: 700;
@@ -1070,3 +1074,7 @@
   background-color: #fff;
   background-blend-mode: difference;
 }
+
+/* Die Adresse ist selbst das Maps-Ziel, mit unverändertem Lesesatz. */
+.rdAddress:is(:hover, :focus-visible) { color: var(--et-link); text-decoration: none; }
+.rdAddress:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }

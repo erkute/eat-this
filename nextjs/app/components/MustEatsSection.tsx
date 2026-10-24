@@ -1,9 +1,9 @@
+import { Link } from '@/i18n/navigation';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import { sortByCardNumber } from '@/lib/map/cardOrder';
 import MustEatsGallery from './MustEatsGallery';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import SiteFooter from './SiteFooter';
-import FoldedPaperBackdrop from './FoldedPaperBackdrop';
 import styles from './MustEatsSection.module.css';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 
@@ -79,8 +79,8 @@ const PACK_ART = '/pics/home/starter-pack-front.webp';
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale];
-  const mapHref = locale === 'en' ? '/en/map' : '/map';
-  const packsHref = locale === 'en' ? '/en/packs' : '/packs';
+  const mapHref = '/map';
+  const packsHref = '/packs';
 
   const faceUp = new Set(initialMapData.revealedMustEatIds);
   const total = initialMapData.mustEats.length;
@@ -99,13 +99,14 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
   return (
     <main className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
-      <FoldedPaperBackdrop id="must-eats-paper" />
+      <nav className={`${styles.wrap} ${styles.flowNav}`} aria-label={locale === 'de' ? 'Must Eats und Packs' : 'Must Eats and packs'}>
+        <Link href="/must-eats" aria-current="page">Must Eats</Link>
+        <Link href="/packs">Booster Packs</Link>
+      </nav>
       <header className={`${styles.wrap} ${styles.head}`} data-cover={cover ? '' : undefined}>
         <p className={`et-label ${styles.kicker}`}>{c.kicker}</p>
         <h1 className={styles.title}>
-          {c.title[0]}
-          <br />
-          {c.title[1]}
+          {c.title.join(' ')}
         </h1>
 
         {cover && (
@@ -141,9 +142,9 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         )}
 
         <div className={styles.actions}>
-          <a href={mapHref} className="et-btn">
+          <Link href={mapHref} className="et-btn">
             {c.headCta}
-          </a>
+          </Link>
           <MustEatsOnboarding initialMapData={initialMapData} tone="ink" />
         </div>
       </header>
@@ -169,12 +170,12 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           <h2 className={styles.closeTitle}>{c.closeTitle}</h2>
           <p className={styles.closeBody}>{c.closeBody}</p>
           <div className={styles.actions}>
-            <a href={mapHref} className="et-btn">
+            <Link href={mapHref} className="et-btn">
               {c.closeCta}
-            </a>
-            <a href={packsHref} className="et-btn">
+            </Link>
+            <Link href={packsHref} className="et-btn">
               {c.closeSecondary}
-            </a>
+            </Link>
           </div>
         </div>
 

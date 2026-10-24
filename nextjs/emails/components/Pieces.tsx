@@ -4,7 +4,7 @@
 
 import { Button, Img, Section, Text } from '@react-email/components';
 import type { ArtAsset } from '../art.generated';
-import { COLOR, LAYOUT } from '../theme';
+import { COLOR, LAYOUT, EMAIL_ASSET_VERSION } from '../theme';
 
 /**
  * Der gelbe Knopf — `.action` aus der Tour.
@@ -114,18 +114,26 @@ export function Fineprint({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Ein Block auf der Ink-Fläche, mittig gesetzt wie die ganze Mail. */
+/** Ein Block auf hellem Papier, mittig gesetzt wie die ganze Mail. */
 export function Paper({
   children,
   padding = '38px 32px',
+  foil = false,
+  appUrl,
 }: {
   children: React.ReactNode;
   padding?: string;
+  foil?: boolean;
+  appUrl?: string;
 }) {
   return (
     <Section
-      className="et-pad"
-      style={{ backgroundColor: COLOR.surface, padding, textAlign: 'center' }}
+      className={foil ? undefined : 'et-pad'}
+      style={{ backgroundColor: COLOR.surface, padding, textAlign: 'center',
+        backgroundImage: foil && appUrl ? `url(${appUrl}/pics/email/mail-foil.png?v=${EMAIL_ASSET_VERSION})` : undefined,
+        backgroundSize: foil ? '100% auto' : undefined,
+        backgroundRepeat: foil ? 'no-repeat' : undefined,
+      }}
     >
       {children}
     </Section>

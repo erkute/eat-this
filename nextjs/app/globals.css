@@ -294,6 +294,11 @@
      zurueck. Schwarz auf Ink dunkelt sichtbar ab (#15120e → #080705 bei
      62 %). Die Deckkraft bleibt je Ebene, wie sie war — sie ist ausgemessen. */
   --et-scrim: rgba(0, 0, 0, 0.62);
+  /* Gemeinsame Fensterfläche für Tour, Hinweise, Cookies und Auth-Status. */
+  --et-window-paper: url('/pics/paper/folded-white.webp');
+  --et-window-shadow: 0 16px 48px rgb(0 0 0 / 0.2);
+  --et-window-padding: clamp(24px, 3.4vw, 40px);
+  --et-window-title: clamp(28px, 3.4vw, 42px);
   --et-zoom-scrim-blur: blur(12px) saturate(1);
   /* Die deckenden Kappen des Zooms an Status- und URL-Leiste (ZoomCurtain):
      exakt der Vorhang ueber Ink, damit der Uebergang nicht springt. */
@@ -408,13 +413,13 @@ html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
    wie die übrigen Unterseiten auf Papier (Ansage 21.10.2026: „mit Kratzer
    wie echte Magazine“). `:has()` darf nicht in `:has()` stehen, sonst fällt
    die ganze Regel weg. */
-html[data-vintage] :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+html[data-vintage]:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
   background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
   background-size: 192px, 100% auto;
   background-repeat: repeat, no-repeat;
   background-position: 0 0, top center;
 }
-html[data-vintage][data-theme='dark'] :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
   background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
 }
 /* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
@@ -544,15 +549,33 @@ html[data-active-page][data-magazine-opening] body,
 html[data-active-page][data-magazine-opening] .app-pages {
   background: var(--et-magazine-table);
 }
-/* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
-   erste Pfadsegment der falschen Adresse, und auf einem gestreamten
-   notFound() laeuft der Bootstrap gar nicht erst. Also am Inhalt erkennen.
-   Das Zahlenbrett (/admin/stats) hat kein SPA-Geruest und haengt deshalb
-   ebenfalls hier. */
-html:has(main[data-page='not-found']),
-html:has(main[data-page='not-found']) body,
-html:has(main[data-page='error']),
-html:has(main[data-page='error']) body,
+/* Error posters and browser overscroll follow the saved page theme. */
+html:has(main:is([data-page='not-found'], [data-page='error'])),
+html:has(main:is([data-page='not-found'], [data-page='error'])) body {
+  background: var(--et-ground);
+}
+html:has(main:is([data-page='not-found'], [data-page='error'])) .et-btn {
+  background-image: none;
+}
+/* Compact actions on the full-screen error poster. */
+.et-btn.et-btn-error {
+  --et-btn-bg: transparent;
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover: var(--et-fg);
+  --et-btn-hover-fg: var(--et-ground);
+  min-height: 44px;
+  padding-inline: 12px;
+  border-radius: 0;
+  font: 700 16px / 1.1 var(--et-font-body);
+  text-transform: uppercase;
+  background-image: none;
+}
+html:has(main:is([data-page='not-found'], [data-page='error'])) main .et-btn:focus-visible {
+  outline: 2px solid var(--et-fg);
+  outline-offset: 4px;
+  background-color: var(--et-ground);
+  color: var(--et-fg);
+}
 html:has([data-page='admin']),
 html:has([data-page='admin']) body {
   background: var(--et-ink);
@@ -881,25 +904,29 @@ html[data-auth='1'] [data-guest-only] {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   box-sizing: border-box;
   /* Feste Breite, am Viewport gemessen: `100%` loeste im zentrierten Grid
      der Huelle gegen den Inhalt auf, und jede Meldung war so breit wie ihr
      Text — „Noch einer fuer deine Liste." stand schmaler als der Rest. Die
      40 px sind das Seitenpolster der Huelle. */
-  width: min(360px, calc(100vw - 40px));
+  width: min(400px, calc(100vw - 40px));
+  max-height: calc(100dvh - 40px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 26px 24px 24px;
   color: var(--toast-ink);
   text-align: left;
   background-color: var(--toast-surface);
-  background-image: var(--et-sheet, none);
-  background-size: var(--et-sheet-size, auto);
-  background-repeat: var(--et-sheet-repeat, repeat);
+  background-image: var(--et-window-paper);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
   border: 0;
   border-radius: 0;
   /* Abgestossene Kante wie das Anmelde-Fenster (LoginPanel). Die Maske
      schnitte einen eigenen Schatten ab — den wirft die Hülle (unten). */
-  mask: var(--et-rough-edges, none);
+  mask: none;
   pointer-events: none;
   transition: transform 0.26s ease-out;
 }
@@ -920,30 +947,23 @@ html[data-auth='1'] [data-guest-only] {
 /* Kicker als Etikett, darunter der Titel und eine leise Zeile, gefüllte
    Knöpfe. Bei „kaputt" ist das Etikett rot. */
 .notification[data-tone='error'] {
-  --toast-mark: var(--et-red);
-  --toast-mark-fg: #fff;
+  --et-label-bg: var(--et-red);
 }
 .notification-eyebrow {
-  /* Der Kicker ist ein gerades Etikett wie in der Map (et-label): Ink mit
-     Kratzern und gelber Schrift, bei „kaputt" rot mit weisser. */
   align-self: flex-start;
-  padding: 6px 9px 5px;
-  background: var(--toast-mark, var(--et-label-bg, var(--et-ink))) var(--et-wear, none) 0 0 / 200px auto;
-  color: var(--toast-mark-fg, #ffc600);
-  font: 900 11px / 1 var(--et-font-body);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  max-width: 100%;
+  white-space: normal;
 }
 .notification-eyebrow:empty {
   display: none;
 }
 .notification-title {
-  margin-top: 6px;
-  font-family: var(--et-font-display);
-  font-size: 26px;
+  margin-top: 0;
+  font-family: var(--et-font-body);
+  font-size: 30px;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
   text-transform: none;
   text-wrap: balance;
   color: var(--toast-ink);
@@ -952,7 +972,7 @@ html[data-auth='1'] [data-guest-only] {
 .notification-detail {
   font-family: var(--et-font-display);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0;
   /* Providence traegt lange Unterlaengen: bei 1.2 stiess das g von „liegt"
      an die Zeile darunter (24.09.2026). 1.4 wie der Fliesstext des
@@ -978,8 +998,8 @@ html[data-auth='1'] [data-guest-only] {
   gap: 8px;
   font-family: var(--et-font-display);
   font-size: 15px;
-  font-weight: 700;
-  line-height: 1.4;
+  font-weight: 400;
+  line-height: 1.5;
   color: var(--toast-muted);
   counter-increment: notice-step;
 }
@@ -1002,7 +1022,7 @@ html[data-auth='1'] [data-guest-only] {
 /* Der Schatten, den die Maske der Karte abschneiden würde, kommt von der
    Hülle: so hebt sich das helle Blatt auch auf heller Seite ab. */
 .notification-layer[data-open] {
-  filter: drop-shadow(0 18px 40px rgb(0 0 0 / 0.28));
+  filter: drop-shadow(0 12px 32px rgb(0 0 0 / 0.2));
 }
 @media (max-width: 420px) {
   .notification {
@@ -1017,44 +1037,6 @@ html[data-auth='1'] [data-guest-only] {
   .notification {
     transition: none;
   }
-}
-
-/* Map info layers share the folded-paper material of the map filters.
-   The page marker also reaches portals without changing notices elsewhere. */
-html[data-active-page='map'] .notification {
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: 100% 100%;
-  background-blend-mode: multiply;
-  mask: none;
-  gap: 12px;
-}
-html[data-active-page='map'] .notification-eyebrow {
-  padding: 0;
-  background: none;
-  color: var(--et-fg);
-  font-weight: 800;
-}
-html[data-active-page='map'] .notification[data-tone='error'] .notification-eyebrow {
-  color: var(--et-accent-text);
-}
-html[data-active-page='map'] .notification-title {
-  margin-top: 0;
-  font-size: 30px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  text-wrap: pretty;
-}
-html[data-active-page='map'] .notification-detail,
-html[data-active-page='map'] .notification-steps li {
-  font-weight: 400;
-  color: var(--et-fg);
-}
-html[data-active-page='map'] .notification-steps li::before {
-  color: var(--et-fg);
-  font-weight: 800;
-}
-html[data-active-page='map'] .notification-layer[data-open] {
-  filter: drop-shadow(0 12px 32px rgb(0 0 0 / 0.2));
 }
 
 /* ── Consent gate: hold the page still while the question is up ─────────────
@@ -1119,24 +1101,27 @@ html[data-active-page='map'] .notification-layer[data-open] {
   /* Text und Details folgen derselben Palette wie die Papierfläche. */
   --cookie-soft: var(--et-copy);
   --cookie-dim: var(--et-fg);
+  display: flex;
+  flex-direction: column;
   position: relative;
   box-sizing: border-box;
   width: min(100%, var(--cookie-panel-w));
-  max-height: min(88dvh, 780px);
+  max-height: min(calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 780px);
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding: clamp(28px, 3.4vw, 40px);
+  padding: var(--et-window-padding);
   color: var(--et-fg);
   background-color: var(--et-ground);
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: cover;
+  background-image: var(--et-window-paper);
+  background-size: 100% 100%;
   background-position: center;
   background-blend-mode: multiply;
   background-repeat: no-repeat;
   border: 0;
   border-radius: 0;
   mask: none;
+  box-shadow: var(--et-window-shadow);
   font-family: var(--cookie-font);
   transform: translateY(22px) scale(0.97);
   transition:
@@ -1155,13 +1140,20 @@ html[data-active-page='map'] .notification-layer[data-open] {
   outline: none;
 }
 .cookie-content {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   gap: 22px;
   width: 100%;
 }
 .cookie-copy,
 .cookie-copy-main {
   min-width: 0;
+}
+.cookie-copy,
+.cookie-buttons,
+.cookie-legal {
+  flex-shrink: 0;
 }
 .cookie-title {
   display: flex;
@@ -1170,9 +1162,9 @@ html[data-active-page='map'] .notification-layer[data-open] {
   margin: 0;
   color: var(--et-fg);
   font-family: var(--cookie-font);
-  font-size: clamp(32px, 3.4vw, 42px);
+  font-size: var(--et-window-title);
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -0.03em;
   line-height: 1.12;
   text-transform: none;
 }
@@ -1187,29 +1179,7 @@ html[data-active-page='map'] .notification-layer[data-open] {
   text-wrap: pretty;
 }
 .cookie-info-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
   margin-top: 14px;
-  padding: 2px 0;
-  cursor: pointer;
-  color: var(--et-link);
-  background: none;
-  border: 0;
-  font-family: var(--cookie-font);
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.2;
-  text-transform: none;
-}
-.cookie-info-trigger:focus-visible {
-  color: var(--et-solid);
-  outline: 0;
-}
-@media (hover: hover) {
-  .cookie-info-trigger:hover {
-    color: var(--et-solid);
-  }
 }
 /* Accept is the primary answer, decline the secondary one: ink against a
    white pill, both filled. What must NOT differ is everything the law looks
@@ -1244,8 +1214,9 @@ html[data-active-page='map'] .notification-layer[data-open] {
   text-decoration: none;
 }
 .cookie-legal a:focus-visible {
-  color: var(--et-solid);
-  outline: 0;
+  color: var(--et-fg);
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
 }
 @media (hover: hover) {
   .cookie-legal a:hover {
@@ -1257,7 +1228,7 @@ html[data-active-page='map'] .notification-layer[data-open] {
      inset on every side, so the scrim frames it as a dialog and it can never
      be mistaken for the page's own footer. */
   .cookie-gate {
-    align-items: end;
+    align-items: center;
     padding: 16px max(10px, env(safe-area-inset-right, 0px))
       calc(10px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
   }
@@ -1290,6 +1261,8 @@ html[data-active-page='map'] .notification-layer[data-open] {
 
 /* Cookie banner inline expand. */
 .cookie-expand {
+  flex: 0 1 auto;
+  min-height: 0;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -1332,9 +1305,9 @@ html[data-active-page='map'] .notification-layer[data-open] {
   margin: 0 0 7px;
   color: var(--et-link);
   font-family: var(--cookie-font);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   line-height: 1.3;
   text-transform: none;
 }

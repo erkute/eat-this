@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { getLocale } from 'next-intl/server';
-import NotFoundAppFrame from '../components/NotFoundAppFrame';
 import NotFoundContent from '../components/NotFoundContent';
 
 export const metadata: Metadata = {
@@ -9,13 +8,9 @@ export const metadata: Metadata = {
 };
 
 // Locale-scoped 404. The [locale]/layout.tsx wraps this with html/body
-// + i18n provider, so we only render the inner card here.
+// + i18n provider, so we only render the poster here.
 export default async function LocaleNotFound() {
   const locale = await getLocale();
 
-  return (
-    <NotFoundAppFrame>
-      <NotFoundContent locale={locale === 'en' ? 'en' : 'de'} />
-    </NotFoundAppFrame>
-  );
+  return <NotFoundContent locale={locale === 'en' ? 'en' : 'de'} />;
 }

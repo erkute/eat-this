@@ -109,7 +109,7 @@ export default function AuthScreen({ mode, leaving = false }: Props) {
           </div>
         </div>
         <div>
-          <p className={styles.kicker}>
+          <p className={`et-label ${styles.kicker}`}>
             {kicker}
             <span className={styles.dots} aria-hidden="true">
               <i />

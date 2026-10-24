@@ -10,8 +10,7 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: color-mix(in srgb, var(--et-ground) 85%, transparent);
-  backdrop-filter: blur(12px);
+  background: var(--et-scrim);
   overscroll-behavior: contain;
   /* Die Karten des Packs fliegen ueber das Fenster hinaus — abgeschnitten
      wird erst am Bildschirmrand, nie gescrollt. */
@@ -27,14 +26,14 @@
   border-radius: 0;
   /* Gefaltetes Papier mit geraden Kanten in allen Einführungen. */
   background-color: var(--et-ground);
-  background-image: linear-gradient(var(--et-ground), var(--et-ground)), url(/pics/paper/folded-white.webp);
+  background-image: var(--et-window-paper);
   background-blend-mode: multiply;
-  background-size: cover;
+  background-size: 100% 100%;
   background-repeat: var(--et-sheet-repeat, repeat);
   color: var(--et-fg);
   font-family: var(--et-font-body);
-  box-shadow: 0 24px 80px #0002;
-  border: 1px solid var(--et-line);
+  box-shadow: var(--et-window-shadow);
+  border: 0;
   animation: arrive 260ms ease-out;
 }
 /* Die Tour nach der Anmeldung deckt ganz: hinter ihr wechselt die Seite ins
@@ -94,7 +93,7 @@
   margin: 0;
   font: inherit;
   font-size: clamp(32px, 3.8vw, 52px);
-  letter-spacing: -.045em;
+  letter-spacing: -0.03em;
   text-wrap: balance;
   font-weight: 700;
   line-height: 1.08;
@@ -142,18 +141,21 @@
 }
 .segments {
   display: flex;
-  flex: 1;
+  margin-left: auto;
   gap: 6px;
 }
 .segments span {
-  height: 3px;
-  flex: 1;
-  border-radius: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   background: var(--et-line);
 }
 .segments .active {
-  background: var(--et-accent);
-  color: var(--et-on-accent);
+  background: var(--et-fg);
+}
+.welcomeProgress .segments {
+  margin-inline: auto;
+  gap: 10px;
 }
 .actions {
   display: flex;
@@ -174,6 +176,10 @@ a.quiet {
   text-decoration: none;
 }
 /* Ein schlichtes <img> fuellt die Bildflaeche wie ein next/image mit `fill`. */
+.packPreview {
+  position: absolute;
+  inset: 0;
+}
 .artImg {
   position: absolute;
   inset: 6%;
@@ -534,7 +540,7 @@ a.quiet {
   transform: rotateY(180deg);
 }
 
-/* ── Wer bist du? (Google-Konten, erste Seite) ─────────────────────────── */
+/* ── Wer bist du? (neue Konten, beide Anmeldewege) ─────────────────────────── */
 /* Die drei Charaktere stehen in der Bildflaeche und rechnen wie das Pack aus
    ihr (cqw/cqh) — Name und Knopf behalten ihre Groesse. */
 .avatars {
@@ -565,6 +571,7 @@ a.quiet {
 .avatarActive {
   transform: translateY(-4px);
   background: var(--et-quiet);
+  box-shadow: inset 0 0 0 2px var(--et-fg);
 }
 @media (hover: hover) {
   .avatar:hover {
@@ -602,7 +609,7 @@ a.quiet {
   box-sizing: border-box;
   min-height: 48px;
   padding: 12px 14px;
-  border: 0;
+  border: 2px solid var(--et-fg);
   border-radius: var(--et-radius-control);
   background: var(--et-quiet);
   color: var(--et-fg);
@@ -616,7 +623,7 @@ a.quiet {
   font-family: inherit;
 }
 .nameInput:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--et-accent);
+  box-shadow: inset 0 0 0 1px var(--et-fg);
 }
 /* Die Adresse auf der Anmelde-Tafel (EmailLinkSignIn) — gross, weil der
    Klick darauf die Frage beantwortet, als wer man sich anmeldet. */
@@ -660,16 +667,15 @@ a.quiet {
   gap: 14px;
   min-height: 0;
 }
-/* Jede Haelfte ist ein dunkles Feld (Ink-Grund, eine Stufe unter dem
-   Panel) — keine Linien, keine Rahmen (Nutzer, 21.09.2026). */
+/* Map und Deck stehen direkt auf dem Papier, ohne eigene Kachelflaechen. */
 .half {
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto auto;
   gap: 14px;
   min-height: 0;
   padding: 20px 16px 18px;
   border-radius: 0;
-  background: var(--et-ground);
+  background: transparent;
   color: var(--et-fg);
   text-decoration: none;
 }
@@ -686,6 +692,13 @@ a.quiet {
   text-align: center;
   text-transform: none;
   transition: color 160ms ease;
+}
+.halfHint {
+  margin-top: -6px;
+  color: var(--et-copy);
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: center;
 }
 @media (hover: hover) {
   .half:hover .halfArt {
@@ -971,25 +984,6 @@ a.quiet {
   }
 }
 
-/* Map walkthrough: the same material and typography as map info cards.
-   Preserve the shared tour layout, card art and reduced-motion behavior. */
-:global(html[data-active-page='map']) .layer { background: var(--et-scrim); }
-:global(html[data-active-page='map']) .panel {
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: 100% 100%;
-  background-blend-mode: multiply;
-}
-:global(html[data-active-page='map']) .kicker {
-  padding: 0;
-  background: none;
-  color: var(--et-fg);
-}
-:global(html[data-active-page='map']) .headline {
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-:global(html[data-active-page='map']) .segments .active { background: var(--et-fg); }
-
 /* Der Mail-Link nutzt denselben roten Vollbildgrund wie die Anmeldung. */
 .panel[data-email-login][data-red-sheet] {
   background: transparent;
@@ -1011,4 +1005,43 @@ a.quiet {
   background: color-mix(in srgb, var(--et-field-fg) 7%, var(--et-field));
   box-shadow: none;
   outline: 0;
+}
+
+/* The explainer has fixed text/art slots so its illustrations and controls
+   do not move when a heading wraps differently on the next step. */
+.panel[data-must-eats-onboarding] { background-image: none; }
+.panel[data-must-eats-onboarding] .copy { align-self: start; height: 280px; overflow-y: auto; padding-top: 24px; }
+.panel[data-must-eats-onboarding] .footer { grid-column: 1 / -1; width: min(440px, 100%); margin-inline: auto; padding-top: 16px; }
+.panel[data-must-eats-onboarding] .progress { justify-content: center; }
+.panel[data-must-eats-onboarding] .segments { margin: 0; gap: 10px; }
+@media (min-width: 601px) {
+ .panel[data-must-eats-onboarding] { grid-template-areas: 'header header' 'art copy' 'footer footer'; column-gap: 32px; width: min(900px, 100%); }
+ .panel[data-must-eats-onboarding] .art { height: 100%; }
+}
+@media (max-width: 600px) {
+ .panel[data-must-eats-onboarding] { max-height: 632px; }
+ .panel[data-must-eats-onboarding] .content { grid-template-rows: minmax(0, 1fr) 144px; gap: 12px; }
+ .panel[data-must-eats-onboarding] .copy { height: 144px; padding-top: 0; }
+ .panel[data-must-eats-onboarding] .footer { padding-top: 0; }
+}
+@media (max-height: 620px) and (max-width: 600px) {
+ .panel[data-must-eats-onboarding] .content { grid-template-rows: minmax(0, 1fr) 144px; }
+ .panel[data-must-eats-onboarding] .copy { height: 144px; }
+}
+@media (min-width: 420px) and (max-width: 600px) {
+ .panel[data-must-eats-onboarding] { max-height: 608px; }
+ .panel[data-must-eats-onboarding] .content { grid-template-rows: minmax(0, 1fr) 120px; }
+ .panel[data-must-eats-onboarding] .copy { height: 120px; }
+}
+@media (min-width: 601px) {
+ .panel[data-must-eats-onboarding] { width: min(820px, 100%); height: min(500px, calc(100dvh - 48px)); padding: 16px 32px 24px; }
+ .panel[data-must-eats-onboarding] .copy { align-self: center; height: 220px; padding-top: 0; }
+ .panel[data-must-eats-onboarding] .headline { font-size: 36px; }
+ .panel[data-must-eats-onboarding] .body { font-size: 16px; margin-top: 12px; }
+ .panel[data-must-eats-onboarding] .footer { padding-top: 12px; }
+}
+@media (min-width: 601px) {
+ .panel[data-must-eats-onboarding] { height: min(440px, calc(100dvh - 48px)); grid-template-areas: 'header header' 'art copy' 'art footer'; }
+ .panel[data-must-eats-onboarding] .copy { height: 180px; align-self: end; }
+ .panel[data-must-eats-onboarding] .footer { grid-column: 2; width: 100%; padding-top: 12px; }
 }

@@ -35,7 +35,7 @@ import { describe, expect, it } from 'vitest';
 const SERVER_COMPONENTS_IN_NOT_FOUND_TREE = [
   'app/not-found.tsx',
   'app/components/NotFoundContent.tsx',
-  'app/components/NotFoundAppFrame.tsx',
+  'app/components/ErrorNumeral.tsx',
 ];
 
 const LOCALE_RESOLVING_IMPORTS = [

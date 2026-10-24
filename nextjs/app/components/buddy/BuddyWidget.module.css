@@ -1,309 +1,286 @@
-/* nextjs/app/components/buddy/BuddyWidget.module.css
-   Remys Chat spricht dieselbe Ink-Tafel wie der Rest der Seite: Ink-Grund,
-   weisse Providence-Versalien, gelber Akzent, die leise Weiss-Stufe fuer alles,
-   was ein eigenes Objekt ist (Karten, Angebote). Bis zum 08.09.2026 war das
-   Panel mintgruen (#eaf2ed) — dieselbe Farbe, die die Remy-Buehne auf der
-   Startseite und der Remy-Block der Spot-Seite am 03.09.2026 abgelegt haben.
-   Damit oeffnete ein Tap auf einer Ink-Tafel eine mintgruene Flaeche; der Chat
-   war die letzte Stelle der Site ausserhalb von Weiss, Ink, Gelb und Rot.
-
-   Rot bleibt hier draussen: auf Ink ist Rot Typo-Farbe, kein Knopf (siehe
-   /packs und die Must-Eat-Tafeln — der eine gefuellte Knopf ist gelb). */
-.scrim {
+/* Windows 95 window chrome over the user-selected desktop wallpaper. */
+.session {
   position: fixed;
   inset: 0;
   z-index: var(--et-z-above-nav);
-  /* Der eine Vorhang der Site — dieselben Tokens wie hinter jedem Zoom. */
-  background: var(--et-scrim);
-  -webkit-backdrop-filter: var(--et-zoom-scrim-blur);
-  backdrop-filter: var(--et-zoom-scrim-blur);
+  display: grid;
+  place-items: center;
+  visibility: visible;
 }
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / .18);
+  backdrop-filter: blur(1px);
+}
+.screen {
+  position: relative;
+  width: min(1180px, calc(100vw - 96px));
+  height: min(900px, calc(100dvh - 80px));
+  overflow: hidden;
+  border: 2px solid #c0c0c0;
+  box-shadow: 0 16px 64px rgb(0 0 0 / .4), inset 1px 1px #fff;
+}
+.desktopBackdrop { position: absolute; inset: 0; }
 
 .panel {
-  --buddy-ink: var(--et-ink);
-  /* Die Flaeche des Panels: eine Stufe ueber dem Grund (--et-ink-raised in
-     globals.css) — auf den Ink-Seiten hatte der Chat sonst keine Kante.
-     --buddy-ink bleibt die Schriftfarbe auf Gelb und Papier. */
-  --buddy-surface: var(--et-ink-raised);
-  --buddy-paper: var(--et-white);
-  --buddy-accent: var(--et-accent);
-  /* Rot als Schrift (Hover, Fokus, Verweise): auf Ink aufgehellt. */
-  --buddy-accent-text: var(--et-accent-text);
-  --buddy-soft: var(--et-ink-soft);
-  --buddy-dim: var(--et-ink-dim);
-  --buddy-ring: var(--et-ink-ring);
-  /* Die leise Stufe: alles, was ein eigenes OBJEKT ist (Spot, Artikel, Pack),
-     steht eine Spur heller als der Grund. Fliesstext steht auf dem Grund. */
-  --buddy-quiet: var(--et-ink-quiet);
-  --buddy-quiet-hi: rgba(255, 255, 255, 0.1);
-  /* Bedienelemente (Feld, Knöpfe, Chips) heben sich per FLÄCHE ab, nie per
-     Ring (Ansage 23.09.2026: „keine grauen Rahmen"). Eine Spur kräftiger als
-     die Karten-Stufe, weil sie auf dem helleren Kopf/Fuß stehen. */
-  --buddy-control: rgba(255, 255, 255, 0.08);
-  --buddy-control-hi: rgba(255, 255, 255, 0.14);
-  /* #137b3f aus der hellen Fassung kam auf Ink auf 1.9:1. Dieses Gruen misst
-     9.6:1 auf #15120e. */
-  --buddy-open: #6fcf8b;
-  /* Das Abstandsraster einer Antwort (19.09.2026). Vorher standen sieben
-     Einzelwerte im Stylesheet, und der Pack-Hinweis hing mit 14px an der
-     letzten Empfehlung — kaum mehr als ein Absatzwechsel, er las sich als
-     deren Fortsetzung.
-     - tight: was zusammengehört (Karte + ihr Satz, Pack-Satz + Pack-Karte)
-     - text:  Absatz zu Absatz
-     - cut:   eine neue Einheit beginnt — vor jeder Karte, vor dem Pack-Block
-     - close: vor den Chips, dem Abschluss der Antwort
-     - turn:  zwischen einer Antwort und der nächsten Frage */
-  --buddy-gap-tight: 8px;
-  --buddy-gap-text: 10px;
-  --buddy-gap-cut: 36px;
-  --buddy-gap-close: 20px;
-  --buddy-gap-turn: 28px;
-  --buddy-display: var(--et-font-display);
-  --buddy-copy: var(--et-font-display);
-  position: fixed;
-  right: 28px;
-  bottom: 28px;
+  --buddy-ink: var(--et-ground);
+  --buddy-paper: var(--et-fg);
+  --buddy-surface: #c0c0c0;
+  --retro-edge: #808080;
+  --retro-deep: #000;
+  --retro-control-top: #fff;
+  --retro-control-bottom: #c0c0c0;
+  --buddy-accent: #000080;
+  --buddy-accent-text: #000080;
+  --buddy-soft: color-mix(in srgb, var(--et-fg) 78%, var(--et-ground));
+  --buddy-dim: color-mix(in srgb, var(--et-fg) 64%, var(--et-ground));
+  --buddy-ring: color-mix(in srgb, var(--et-fg) 24%, transparent);
+  --buddy-quiet: var(--et-subtle);
+  --buddy-quiet-hi: color-mix(in srgb, var(--et-fg) 9%, var(--et-ground));
+  --buddy-control: var(--et-subtle);
+  --buddy-control-hi: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
+  --buddy-open: #137b3f;
+  --buddy-gap-tight: 10px;
+  --buddy-gap-text: 14px;
+  --buddy-gap-cut: 28px;
+  --buddy-gap-close: 24px;
+  --buddy-gap-turn: 36px;
+  --buddy-display: "Microsoft Sans Serif", "MS Sans Serif", Arial, sans-serif;
+  --buddy-copy: "Microsoft Sans Serif", "MS Sans Serif", Arial, sans-serif;
+  position: absolute;
+  inset: 12px 12px 56px 112px;
+  margin: auto;
   z-index: var(--et-z-remy);
-  width: 540px;
-  max-width: calc(100vw - 40px);
-  height: min(760px, calc(100dvh - 56px));
+  width: min(840px, calc(100% - 144px));
+  height: calc(100% - 68px);
+  container: remy / size;
+  max-height: 820px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   color: var(--buddy-paper);
   background: var(--buddy-surface);
-  border: none;
-  border-radius: var(--et-radius-photo);
-  /* Keine Kante: der Vorhang dahinter ist schwarz, die Fläche hebt sich von
-     selbst ab. */
-  box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.44),
-    var(--et-ink-shadow);
-  animation: buddyPanelIn 0.22s cubic-bezier(0.2, 0.92, 0.22, 1);
+  padding: 3px;
+  border: 1px solid;
+  border-color: #dfdfdf #000 #000 #dfdfdf;
+  border-radius: 0;
+  box-shadow: inset 1px 1px #fff, inset -1px -1px #808080, 4px 4px 0 rgb(0 0 0 / .35);
+  animation: buddyPanelIn 220ms ease-out;
+}
+
+:global(html[data-theme='dark']) .panel {
+  --buddy-surface: #292d35;
+  --buddy-accent-text: #a9caff;
+  --buddy-open: #6fcf8b;
+  --retro-edge: #68758b;
+  --retro-deep: #111;
+  --retro-control-top: #454d5b;
+  --retro-control-bottom: #292e37;
 }
 
 @keyframes buddyPanelIn {
-  from {
-    transform: translate3d(18px, 24px, 0);
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-/* Auf dem Telefon steigt der Vollbild-Chat von unten auf, wie ein Sheet. */
-@keyframes buddyPanelInPhone {
-  from {
-    transform: translate3d(0, 40px, 0);
-    clip-path: inset(40px 0 0 0);
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-    clip-path: inset(0 0 0 0);
-  }
+  from { transform: translateY(16px); }
+  to { transform: translateY(0); }
 }
 
 .header {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 86px;
-  padding: 14px 16px 12px 18px;
-  color: var(--buddy-paper);
-  background: var(--buddy-surface);
+  flex-shrink: 0;
+  gap: 6px;
+  min-height: 32px;
+  padding: 2px 3px 2px 5px;
+  color: #fff;
+  background: #000080;
+  border-radius: 0;
+  font-family: var(--buddy-copy);
 }
 
 .avatarFrame {
-  display: inline-grid;
-  place-items: center;
-  width: 60px;
-  height: 60px;
-  flex: 0 0 60px;
-  overflow: hidden;
-  background: transparent;
-  border: none;
-  border-radius: var(--et-radius-photo);
-  box-shadow: none;
-}
-
-.headerTitle {
+  position: relative;
+  z-index: 2;
   display: grid;
-  gap: 4px;
-  min-width: 0;
-  margin-right: auto;
-  line-height: 1;
-}
-
-/* Der Name wie auf der Startseite (HubFragRemy): gross, fett, eng — nicht
-   mehr in Versalien. Darunter in einem Satz, was er kann. */
-.headerTitle strong {
-  color: var(--buddy-paper);
-  font-family: var(--et-font-body);
-  font-size: 2.6rem;
-  font-weight: 700;
-  letter-spacing: -0.05em;
-  line-height: 0.9;
-}
-
-.headerSub {
-  display: -webkit-box;
-  overflow: hidden;
-  color: var(--buddy-soft);
-  font-family: var(--et-font-body);
-  font-size: 0.8rem;
-  line-height: 1.2;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-}
-
-/* Flaechenstufe statt Ring, bei Hover eine Stufe heller mit gelber Schrift. */
-.close,
-.reset {
-  display: inline-grid;
   place-items: center;
-  min-width: 42px;
-  height: 42px;
-  flex: 0 0 auto;
-  padding: 0;
-  color: var(--buddy-paper);
-  background: var(--buddy-control);
-  border: none;
-  border-radius: var(--et-radius-control);
-  cursor: pointer;
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  overflow: hidden;
+  transform-origin: top left;
+}
+
+.avatarFrame img:first-child,
+.avatarFrame[data-buddy-motion] img { animation: none; }
+
+.headerTitle { margin-right: auto; min-width: 0; }
+.headerTitle strong {
+  display: block;
+  color: #fff;
   font-family: var(--buddy-display);
-  transition:
-    background var(--et-motion-fast),
-    color var(--et-motion-fast);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-shadow: none;
 }
 
-@media (hover: hover) {
-  .close:hover,
-  .reset:hover {
-    color: var(--buddy-accent-text);
-    background: var(--buddy-control-hi);
-  }
+.close {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  padding: 0;
+  background: #c0c0c0;
+  color: #000;
+  border: 1px solid;
+  border-color: #fff #404040 #404040 #fff;
+  border-radius: 0;
+  box-shadow: inset 1px 1px #fff, inset -1px -1px #808080;
+  cursor: pointer;
 }
-
-.close:focus-visible,
-.reset:focus-visible {
-  outline: none;
-  color: var(--buddy-accent-text);
-  background: var(--buddy-control-hi);
+.close svg { width: 12px; height: 12px; }
+.close:active { border-color: #404040 #fff #fff #404040; box-shadow: inset 1px 1px #808080; }
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--buddy-paper) 20%, var(--buddy-surface));
+  box-shadow: inset 0 -1px var(--retro-control-top);
+  font: 13px / 1.4 var(--buddy-copy);
 }
-
-.close svg {
-  width: 17px;
-  height: 17px;
-  color: currentColor;
+.reset { padding: 6px 12px; min-height: 34px; font: 13px / 1.2 var(--buddy-copy); cursor: pointer; }
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin: 0 8px 6px;
+  padding: 5px 8px;
+  min-height: 28px;
+  border: 1px solid;
+  border-color: var(--retro-edge) var(--retro-control-top) var(--retro-control-top) var(--retro-edge);
+  color: var(--buddy-soft);
+  font: 12px / 1.4 var(--buddy-copy);
 }
-
-/* „Neu" steht links neben dem X; die beiden bilden die Werkzeuggruppe am
-   rechten Rand. Nach rechts geschoben werden sie vom Titel (margin-right:
-   auto) — nicht von einem `margin-left: auto` an einem der Knöpfe, das je
-   nachdem, ob „Neu" gerade da ist, am falschen säße. */
-.reset {
-  padding: 0 12px;
-  font-size: 0.82rem;
-  letter-spacing: var(--et-tracking-meta);
-  text-transform: uppercase;
+.statusLight {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  border: 1px solid #44830a;
+  border-radius: 50%;
+  background: #00b000;
+  box-shadow: inset 1px 1px #80ff80, inset -1px -1px #006000;
 }
+.close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (hover: hover) { .close:hover { filter: brightness(1.12); } }
 
+.conversation {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  margin: 8px 8px 0;
+  border: 2px solid;
+  border-color: var(--retro-edge) var(--retro-control-top) var(--retro-control-top) var(--retro-edge);
+  background: var(--buddy-ink);
+  box-shadow: inset 1px 1px var(--retro-deep);
+  overflow: hidden;
+}
+.portraitRail {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 300px;
+}
 .log {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* Das Mitlaufen setzt scrollTop direkt. Global steht `scroll-behavior:
-     smooth` — damit haette jeder Token eine eigene Animation angestossen und
-     der Log waere dem Strom hinterhergeruckelt. */
   scroll-behavior: auto;
-  padding: 18px;
-  color: var(--buddy-paper);
-  /* Der Verlauf liegt eine Stufe TIEFER als Kopf und Eingabe — die Zonen
-     trennt die Farbe, keine Linie. */
+  scrollbar-width: auto;
+  scrollbar-color: var(--retro-control-bottom) var(--buddy-surface);
+  padding: 24px;
   background: var(--buddy-ink);
+  color: var(--buddy-paper);
   font-family: var(--buddy-copy);
-  font-size: var(--et-type-body);
+  font-size: 15px;
 }
-
-/* Der Inhalt in eigener Hülle: sie trägt `--buddy-anchor-min`, und an ihr
-   sucht BuddyWidget.tsx die verankerte Frage. */
 .logContent {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   min-height: 100%;
-}
-
-.log::-webkit-scrollbar {
-  width: 10px;
-}
-
-.log::-webkit-scrollbar-thumb {
-  background: var(--buddy-ring);
-  border-radius: var(--et-radius-pill);
 }
 
 .intro {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  text-align: center;
+}
+.introPortrait { width: 300px; height: 300px; }
+.introFigure { width: 300px; height: 300px; transform-origin: top left; }
+.introTitle {
+  margin: 0 0 14px;
+  color: var(--buddy-accent-text);
+  font-family: var(--buddy-display);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.introGreeting {
+  max-width: 620px;
+  color: var(--buddy-soft);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.introSuggestions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 620px;
+  margin-top: 20px;
 }
 
-/* Was der Nutzer schreibt, steht auf Papier — dieselbe Flaeche wie das Feld,
-   aus dem es kommt. Remy spricht direkt auf der Tafel. */
 .msgUser {
   align-self: flex-end;
-  max-width: 86%;
-  padding: 11px 14px 12px;
-  color: var(--buddy-ink);
-  background: var(--buddy-paper);
-  border: none;
-  border-radius: var(--et-radius-control);
-  font-family: var(--buddy-display);
-  font-weight: 700;
-  line-height: 1.34;
+  max-width: 85%;
+  padding: 14px 18px;
+  color: var(--buddy-paper);
+  background: color-mix(in srgb, #75b5ff 20%, var(--buddy-ink));
+  border: 1px solid var(--retro-edge);
+  border-radius: 0;
+  font-weight: 500;
+  line-height: 1.5;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
-
 .msgBot {
   position: relative;
   align-self: stretch;
+  min-width: 0;
   max-width: 100%;
   color: var(--buddy-paper);
-  background: transparent;
-  border: none;
-  font-weight: 700;
-  line-height: var(--et-leading-copy);
+  font-weight: 400;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
 }
-
-/* Die Antwort auf die eben gestellte Frage hält das Fenster voll, damit die
-   Frage am oberen Rand stehen kann, auch wenn Remy nur zwei Sätze sagt. Die
-   Höhe misst BuddyWidget.tsx (Fensterhöhe minus Frage). */
-.msgBotAnchored {
-  min-height: var(--buddy-anchor-min, 0px);
-}
-
+.msgBotAnchored { min-height: var(--buddy-anchor-min, 0px); }
 .botP {
   margin: 0 0 var(--buddy-gap-text);
 }
 
-/* ── Einblenden, der Standard ─────────────────────────────────────────────
-   Wörter und Karten blenden ein, wie man es von Chat-Ausgaben kennt
-   (Streamdown / Vercel AI Elements: `fadeIn` 150 ms `ease` pro Wort; Karten
-   und Widgets werden eingehängt und blenden ein, der Text läuft weiter).
-   Das ist die EINE bewusste Ausnahme von „keine Opacity-Fades auf
-   Brand-Flächen" — ausdrücklich so bestellt am 18.09.2026, nachdem Wischen
-   (clip-path) und Aufrollen (grid-rows) beide als „ruckelig, plötzlich"
-   durchfielen. Nicht auf andere Flächen übertragen. */
-/* 0,5 s statt der 150 ms aus Streamdown: bei 16 Wörtern pro Sekunde blitzte
-   mit 150 ms jedes Wort einzeln auf („zu schnell und blinkend", 18.09.2026).
-   Mit 0,5 s sind immer ~8 Wörter gleichzeitig im Übergang — aus einzelnen
-   Blitzen wird eine weiche Kante, die durch den Absatz wandert. */
 .word {
   animation: buddyFadeIn 0.5s ease-out both;
 }
@@ -337,115 +314,48 @@
   color: var(--buddy-accent-text);
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip,
-.chipNear {
-  border: none;
-  border-radius: var(--et-radius-control);
-  font-family: var(--buddy-display);
-  font-size: 0.86rem;
-  font-weight: 700;
-  line-height: 1.18;
-  cursor: pointer;
-  box-shadow: none;
-  transition:
-    background var(--et-motion-fast),
-    color var(--et-motion-fast);
-}
-
-/* Flaeche statt Ring — wie die Antwort-Chips der Remy-Buehne. */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
-  padding: 11px 14px;
+  padding: 13px 16px;
+  min-height: 48px;
+  border: 1px solid;
+  border-color: var(--retro-control-top) var(--retro-edge) var(--retro-edge) var(--retro-control-top);
+  border-radius: 0;
   color: var(--buddy-paper);
-  background: var(--buddy-quiet-hi);
+  background: var(--retro-control-bottom);
+  box-shadow: inset 1px 1px var(--retro-control-top), inset -1px -1px #c6c0ae;
+  font-family: var(--buddy-copy);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
   text-align: left;
+  cursor: pointer;
+  transition: background var(--et-motion-fast);
 }
-
+.introSuggestions .chip { text-align: center; }
 .chip:focus-visible {
-  outline: none;
-  color: var(--buddy-accent-text);
-  background: var(--buddy-control-hi);
+  outline: 2px solid var(--buddy-paper);
+  outline-offset: 2px;
 }
-
 @media (hover: hover) {
-  .chip:hover {
-    color: var(--buddy-accent-text);
-    background: var(--buddy-control-hi);
-  }
+  .chip:hover { background: var(--buddy-control-hi); }
 }
 
-/* Der eine gefuellte Knopf der Chip-Reihe: „In meiner Nähe" ist die Aktion,
-   die etwas kostet (Standortfreigabe). */
-.chipNear {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 11px 14px;
-  color: var(--et-on-accent);
-  background: var(--buddy-accent);
-}
-
-.chipNear:focus-visible {
-  outline: none;
-  color: var(--buddy-ink);
-  background: var(--buddy-paper);
-}
-
-@media (hover: hover) {
-  .chipNear:hover {
-    color: var(--buddy-ink);
-    background: var(--buddy-paper);
-  }
-}
-
-.chipNear:disabled {
-  color: var(--buddy-dim);
-  background: var(--buddy-quiet);
-  cursor: default;
-}
-
-/* Ein empfohlener Spot ist ZWEI Dinge: die Karte und Remys Satz darunter
-   (Karte zuerst seit 18.09.2026 — Foto und Name lassen sich überfliegen, der
-   Satz ist die Begründung). Mit gleichem Abstand oben wie unten lief die
-   Antwort als ein Band durch, man sah nicht, welcher Satz zu welcher Karte
-   gehört. Die Karte gehört zum Text UNTER ihr: 8px dazwischen, der engste
-   Abstand der Antwort. */
 .spots {
-  display: flex;
-  flex-direction: column;
-  /* Der Stapel der Sammelausgabe ist eine Liste — der bleibt eng. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   margin: 0 0 var(--buddy-gap-tight);
 }
 
-/* Der Schnitt sitzt VOR der Karte: der Absatz, auf den eine Karte folgt, ist
-   das Ende der vorigen Empfehlung (oder der Einleiter). `cut` ist gut das
-   Vierfache des Abstands innerhalb einer Empfehlung. (30px waren am
-   09.09.2026 zu wenig — damals stand der Absatz VOR der hohen Karte, und wo
-   eine Empfehlung anfing, war nur am Abstand zu erkennen. Jetzt beginnt jede
-   mit der Karte, einer gefüllten Fläche; die trägt den Schnitt mit.) Die Regel greift in dem
-   Moment, in dem die Karte eingehängt wird; verschoben wird dabei nichts, was
-   schon dasteht — die Karte erscheint einfach 48px tiefer. */
 .botP:has(+ .spots) {
   margin-bottom: var(--buddy-gap-cut);
 }
 
-/* Am Ende der Antwort schneidet nichts mehr — dort folgt der Pack-Block oder
-   die Chip-Reihe mit eigenem Abstand. */
 .spots:last-child {
   margin-bottom: 0;
 }
 
-/* ── Karten: die leise Stufe, ein Ausgang ─────────────────────────────────
-   Die Flaeche selbst ist der Knopf. Pfeil, Verb und Ring sind an dieser Stelle
-   der Site dreimal abgelehnt worden (Must-Eat-Sheet, 02.09.2026) — und vier
-   schwarze „Auf der Map ansehen"-Balken unter einer Antwort waren genau das:
-   vier Verben unter vier Flaechen, die schon Knoepfe sind. */
 .spotCard,
 .articleCard,
 .packCard {
@@ -454,17 +364,14 @@
   flex-direction: column;
   min-width: 0;
   color: var(--buddy-paper);
-  background: var(--buddy-quiet);
-  border: none;
-  border-radius: var(--et-radius-photo);
+  background: var(--buddy-ink);
+  border: 1px solid var(--retro-edge);
+  border-radius: 0;
   text-decoration: none;
   box-shadow: none;
   transition: background var(--et-motion-card);
 }
 
-/* Karten, Pack und Chips: einhängen und einblenden, mit einem Hauch Weg nach
-   oben. Der Kasten steht sofort in voller Höhe — die Bewegung macht der Log,
-   der an seiner Feder nachzieht. */
 .spotCard,
 .articleCard,
 .packBlock,
@@ -488,14 +395,9 @@
   padding: 0;
 }
 
-/* Kompakt: Foto links, Angaben rechts (19.09.2026). Die hohe Karte (Foto
-   168px über voller Breite, 253px gesamt) ließ genau EINE Empfehlung ins
-   Chatfenster (~540px); eine Antwort mit vier Spots war drei Fenster lang.
-   So ist die Karte ~100px hoch, und wer „Lust auf Pizza" sagt, sieht alle
-   Läden auf einen Blick. Das große Foto gibt es einen Tipp weiter, auf der
-   Map. */
 .spotCardLink {
   display: flex;
+  flex-direction: column;
   min-width: 0;
   min-height: 100px;
   align-items: stretch;
@@ -523,10 +425,6 @@
   }
 }
 
-/* Der Fokusring sitzt auf der KARTE, nicht auf dem Link darin: die Karte
-   klippt (`overflow: hidden`), ein Ring am Link wäre halb abgeschnitten.
-   `:has(:focus-visible)` statt `:focus-within` — sonst zöge jeder Mausklick
-   den Ring mit. */
 .spotCard:has(:focus-visible),
 .articleCard:focus-visible,
 .packCard:focus-visible {
@@ -534,41 +432,39 @@
   outline-offset: 2px;
 }
 
-/* Blank auf dem Foto, rot wenn geherzt — derselbe Knopf wie im Karten-Detail.
-   Vorher eine weisse Pille mit dem Wort „Merken" darin. */
 .spotSave {
   position: absolute;
-  top: 50%;
+  top: 8px;
   right: 8px;
-  transform: translateY(-50%);
   z-index: 3;
   display: inline-grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  color: var(--buddy-paper);
+  color: #fff;
   background: transparent;
-  border: none;
-  border-radius: var(--et-radius-control);
+  border: 0;
+  border-radius: 0;
   cursor: pointer;
 }
 
 .spotSave svg {
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 1px 2px #000) drop-shadow(0 0 1px #000);
   color: currentColor;
   stroke: currentColor;
 }
 
 @media (hover: hover) {
   .spotSave:hover {
-    color: var(--buddy-accent-text);
+    color: var(--et-heart);
   }
 }
 
 .spotSave[data-saved='true'] {
-  color: var(--et-red);
+  color: var(--et-heart);
 }
 
 .spotSave:focus-visible {
@@ -576,17 +472,14 @@
   outline-offset: 2px;
 }
 
-/* Der Rahmen gibt dem Foto die Breite, die KARTE gibt ihm die Höhe: das Bild
-   liegt absolut darin. Als Flex-Kind mit `height: auto` drückte ein
-   Hochformat-Foto die Karte auf 143px auf — die `width`/`height`-Attribute
-   gelten nur, bis die Datei ihr echtes Seitenverhältnis mitbringt. */
 .spotThumb {
   position: relative;
-  width: 108px;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   flex-shrink: 0;
-  /* Ruhefarbe statt des roten Blocks, den ein fehlendes Foto vorher zeigte. */
   background: var(--buddy-quiet-hi);
-  border-radius: var(--et-radius-photo) 0 0 var(--et-radius-photo);
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -598,7 +491,6 @@
   height: 100%;
   object-fit: cover;
   border: none;
-  /* Blendet ein, sobald geladen — kein Plopp in die stehende Karte. */
   transition: opacity 0.3s ease;
 }
 
@@ -616,9 +508,17 @@
   padding: 11px 14px 13px;
 }
 
-/* Rechts sitzt das Herz — der Text hält ihm den Platz frei. */
 .spotCardLink .spotBody {
-  padding-right: 48px;
+  padding: 14px 16px 16px;
+}
+
+.spotCard:not(:has(.spotThumb)) .spotBody { padding-right: 56px; }
+.spotCard:not(:has(.spotThumb)) .spotSave { color: var(--buddy-paper); }
+.spotCard:not(:has(.spotThumb)) .spotSave svg { filter: none; }
+.spotCard:not(:has(.spotThumb)) .spotSave[data-saved='true'] { color: var(--et-heart); }
+
+@container remy (min-width: 620px) {
+  .spots:has(.spotCard) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .articleCard .spotBody,
@@ -630,10 +530,9 @@
   color: var(--buddy-paper);
   font-family: var(--buddy-display);
   font-weight: 700;
-  font-size: 1.18rem;
-  line-height: 1.02;
+  font-size: 1.125rem;
+  line-height: 1.25;
   letter-spacing: var(--et-tracking-title);
-  text-transform: uppercase;
   transition: color var(--et-motion-fast);
 }
 
@@ -653,9 +552,6 @@
   color: var(--buddy-accent-text);
 }
 
-/* Die Fakten-Zeile: Kueche · Bezirk · Preis, in Weiss 55 %. Die Entfernung
-   steht gelb daneben — sie ist die einzige Angabe, die vom Nutzer selbst
-   abhaengt. */
 .spotMeta {
   display: flex;
   flex-wrap: wrap;
@@ -664,11 +560,9 @@
   min-width: 0;
   color: var(--buddy-dim);
   font-family: var(--buddy-display);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 .spotDist {
@@ -682,9 +576,6 @@
   line-height: 1.35;
 }
 
-/* Nur in der Sammelausgabe am Ende einer Antwort, in der Remy ueber die Spots
-   nicht geschrieben hat. Unter seinem Absatz stand hier vorher dieselbe
-   Beschreibung ein zweites Mal — er formuliert sie ja aus genau diesem Feld. */
 .spotDesc {
   display: -webkit-box;
   overflow: hidden;
@@ -709,13 +600,6 @@
   color: var(--buddy-dim);
 }
 
-/* ── Booster-Pack-Teaser ──────────────────────────────────────────────────
-   Wie eine Kachel auf /packs: die Karte steht frei mit dem Sheet-Schatten,
-   der Pack-Name ist die Ueberschrift, die Spectrum-Zeile die Unterzeile.
-   Vorher stand das Spectrum als Name da und der echte Name nur klein im
-   Kicker — die Hierarchie war vertauscht. */
-/* Der Pack-Hinweis ist eine eigene Einheit, keine Fortsetzung der letzten
-   Empfehlung: derselbe Schnitt wie vor einer Karte. */
 .packBlock {
   display: flex;
   flex-direction: column;
@@ -723,17 +607,12 @@
   margin: var(--buddy-gap-cut) 0 0;
 }
 
-/* Die Chips schließen die Antwort ab — Luft nach oben, egal ob ein Satz, eine
-   Karte oder der Pack-Block davorsteht (die Ränder fallen zusammen, der
-   größere gewinnt). */
 .msgBot > .chips {
   margin-top: var(--buddy-gap-close);
 }
 
-/* Ein neuer Wortwechsel: die nächste Frage rückt von der Antwort davor ab.
-   Der Log hält 16px zwischen allen Nachrichten; hier kommt der Rest dazu. */
 .msgBot + .msgUser {
-  margin-top: calc(var(--buddy-gap-turn) - 16px);
+  margin-top: calc(var(--buddy-gap-turn) - 20px);
 }
 
 .packIntro {
@@ -780,8 +659,6 @@
   color: var(--buddy-dim);
 }
 
-/* Das gelbe 9px-Quadrat der Kicker — dasselbe Zeichen wie `hv-mk` auf der
-   Startseite und vor jedem Insider-Tipp. */
 .kicker {
   display: flex;
   align-items: center;
@@ -795,10 +672,6 @@
   text-transform: uppercase;
 }
 
-/* Über einem Kartentitel braucht der Kicker Luft: die 5px Zeilenabstand der
-   Karte reichen zwischen zwei Textzeilen, aber der Titel darunter ist groß
-   (Pack: 1.62rem) und eng gesetzt (line-height 1.02) — der Kicker klebte an
-   seinen Versalien (Ansage 19.09.2026). Zusammen 11px. */
 .spotBody > .kicker {
   margin-bottom: 6px;
 }
@@ -814,163 +687,84 @@
 
 .form {
   display: flex;
+  align-items: center;
+  flex-shrink: 0;
   gap: 10px;
-  padding: 12px;
+  margin: 0;
+  padding: 14px 10px;
   background: var(--buddy-surface);
-  box-shadow: none;
 }
-
-/* Der Standort-Schalter links im Feld-Riegel: Flaeche wie jeder Knopf, gelb
-   gefüllt sobald Remy weiß, wo du bist. Er ist Zustand und Schalter zugleich —
-   vorher gab es die Freigabe nur als Chip im leeren Chat, ab der ersten Frage
-   kam man nicht mehr heran. */
+.form:focus-within { outline: none; }
 .geo {
-  display: inline-grid;
+  display: grid;
   place-items: center;
   width: 44px;
-  min-height: 52px;
-  flex: 0 0 auto;
+  height: 48px;
+  flex: 0 0 44px;
   padding: 0;
-  color: var(--buddy-paper);
-  background: var(--buddy-control);
-  border: none;
-  border-radius: var(--et-radius-control);
-  cursor: pointer;
-  transition:
-    color var(--et-motion-fast),
-    background var(--et-motion-fast);
-}
-
-.geo svg {
-  width: 19px;
-  height: 19px;
-  color: currentColor;
-}
-
-@media (hover: hover) {
-  .geo:not(:disabled):hover {
-    color: var(--buddy-accent-text);
-    background: var(--buddy-control-hi);
-  }
-}
-
-.geo:focus-visible {
-  outline: none;
   color: var(--buddy-accent-text);
-  background: var(--buddy-control-hi);
+  cursor: pointer;
 }
-
-/* Papier statt Gelb (Betreiber, 23.09.2026: „immer noch gelb, wenn Standort
-   aktiv"): weiß gefüllt wie der Senden-Knopf, sobald Remy weiß, wo du bist.
-   Er verschwindet nicht — die gefüllte Nadel ist die Antwort auf „weiß er,
-   wo ich bin?". */
-.geo[data-on='true'] {
-  color: var(--buddy-ink);
-  background: var(--buddy-paper);
-  cursor: default;
-}
-
-.geo[data-on='false']:disabled {
-  color: var(--buddy-dim);
-  cursor: wait;
-}
-
-/* Das Feld ist eine dunkle Flaeche mit weisser Schrift, ohne Ring — auch im
-   Fokus: dann wird es eine Stufe heller, der Cursor zeigt den Rest. Bis zum
-   23.09.2026 Papier mit gelbem Fokusring („gefällt mir nicht"). Zeile fuer
-   Zeile die Eingabe der Remy-Buehne auf der Startseite. */
+.geo svg { width: 21px; height: 21px; }
+.geo[data-on='true'] { color: var(--buddy-accent-text); background: var(--buddy-control-hi); cursor: default; }
+.geo[data-on='false']:disabled { cursor: wait; }
+.geo:focus-visible { outline: 2px solid var(--buddy-paper); outline-offset: -2px; }
+@media (hover: hover) { .geo:not(:disabled):hover { color: var(--buddy-paper); background: var(--buddy-control-hi); } }
 .input {
   flex: 1;
   min-width: 0;
-  min-height: 52px;
-  padding: 12px 15px;
+  min-height: 48px;
+  padding: 10px 12px;
   color: var(--buddy-paper);
-  caret-color: var(--buddy-accent);
-  background: var(--buddy-control);
-  border: none;
-  border-radius: var(--et-radius-control);
+  caret-color: var(--buddy-paper);
+  background: var(--buddy-ink);
+  border: 2px solid;
+  border-color: var(--retro-edge) var(--retro-control-top) var(--retro-control-top) var(--retro-edge);
+  border-radius: 0;
+  box-shadow: inset 1px 1px var(--retro-deep);
   font-family: var(--buddy-copy);
-  font-size: 1rem;
-  font-weight: 700;
-  transition: background var(--et-motion-fast);
+  font-size: 16px;
+  line-height: 1.5;
 }
-
-.input::placeholder {
-  color: var(--buddy-dim);
-}
-
-.input:focus {
-  outline: none;
-  background: var(--buddy-control-hi);
-}
-
+.input::placeholder { color: var(--buddy-dim); opacity: 1; }
+.input:focus { outline: 1px solid var(--buddy-accent); outline-offset: -3px; }
 .send {
-  display: inline-grid;
+  display: grid;
   place-items: center;
-  min-width: 82px;
-  min-height: 52px;
-  flex: 0 0 auto;
-  padding: 0 16px;
-  /* Papier, nicht Gelb: der Knopf leuchtet erst auf, wenn es etwas zu senden
-     gibt — leer steht er als dunkle Flaeche da wie das Feld. */
-  color: var(--buddy-ink);
-  background: var(--buddy-paper);
-  border: none;
-  border-radius: var(--et-radius-control);
-  cursor: pointer;
-  font-family: var(--buddy-display);
-  font-size: 0.9rem;
-  font-weight: 700;
-  box-shadow: none;
-  transition:
-    background var(--et-motion-fast),
-    color var(--et-motion-fast);
-}
-
-@media (hover: hover) {
-  .send:hover:not(:disabled) {
-    color: var(--buddy-ink);
-    background: var(--buddy-soft);
-  }
-}
-
-.send:disabled {
-  color: var(--buddy-dim);
-  background: var(--buddy-control);
-  cursor: default;
-}
-
-.send:focus-visible {
-  outline: none;
-  background: var(--buddy-soft);
-}
-
-/* Waehrend Remy schreibt, ist derselbe Knopf der Abbruch — dunkle Flaeche,
-   kein zweiter heller Knopf daneben. */
-.stop {
+  min-width: 88px;
+  min-height: 48px;
+  padding: 0 18px;
+  flex-shrink: 0;
   color: var(--buddy-paper);
-  background: var(--buddy-control);
+  font-family: var(--buddy-copy);
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
 }
-
+.send:disabled { color: var(--buddy-dim); cursor: default; }
+.send:focus-visible { outline: 2px solid var(--buddy-paper); outline-offset: 2px; }
+@media (hover: hover) { .send:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--buddy-paper); } }
+.stop { color: var(--buddy-accent-text); }
+@media (hover: hover) { .stop:hover:not(:disabled) { color: var(--buddy-ink); background: var(--buddy-paper); } }
+.reset, .geo, .send {
+  border: 1px solid;
+  border-color: var(--retro-control-top) var(--retro-edge) var(--retro-edge) var(--retro-control-top);
+  border-radius: 0;
+  background: var(--retro-control-bottom);
+  box-shadow: inset 1px 1px var(--retro-control-top), inset -1px -1px color-mix(in srgb, var(--retro-edge) 55%, transparent);
+}
+.reset:focus-visible, .geo:focus-visible, .send:focus-visible {
+  outline: 2px dotted var(--buddy-paper);
+  outline-offset: -5px;
+}
+.reset:active, .geo:not(:disabled):active, .send:not(:disabled):active {
+  background: var(--retro-control-bottom);
+  box-shadow: inset 1px 1px 2px var(--retro-edge);
+}
 @media (hover: hover) {
-  .stop:hover:not(:disabled) {
-    color: var(--buddy-accent-text);
-    background: var(--buddy-control-hi);
-  }
+  .reset:hover { box-shadow: inset 0 0 0 1px var(--buddy-paper); }
 }
-
-.stop:focus-visible {
-  color: var(--buddy-accent-text);
-  background: var(--buddy-control-hi);
-}
-
-.panel:focus {
-  outline: none;
-}
-
-.panel:focus-visible {
-  outline: none;
-}
+.panel:focus { outline: none; }
 
 .typing {
   display: inline-flex;
@@ -990,8 +784,6 @@
   gap: 4px;
 }
 
-/* Bewegung ueber translate, nicht ueber Opacity — die Regel gilt auf allen
-   Marken-Flaechen. */
 .typingDots i {
   display: block;
   width: 5px;
@@ -1021,7 +813,6 @@
   }
 }
 
-/* Nur fuers Vorlese-Ohr: die fertige Antwort einmal, statt jedes Tokens. */
 .srOnly {
   position: absolute;
   width: 1px;
@@ -1036,179 +827,79 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel,
-  .word,
-  .spotCard,
-  .articleCard,
-  .packBlock,
-  .msgBot > .chips {
-    animation: none;
-  }
-
-  .spotImg {
-    transition: none;
-  }
-
-  .close,
-  .reset,
-  .geo,
-  .input,
-  .chip,
-  .chipNear,
-  .spotCard,
-  .spotName,
-  .articleCard,
-  .packCard,
-  .packArt,
-  .send {
-    transition: none;
-  }
-
-  .typingDots i {
-    animation: none;
-  }
-
-  @media (hover: hover) {
-    .packCard:hover .packArt {
-      transform: rotate(-3deg);
-    }
-  }
-
-  .packCard:focus-visible .packArt {
-    transform: rotate(-3deg);
-  }
+  .panel, .word, .spotCard, .articleCard, .packBlock, .msgBot > .chips, .typingDots i { animation: none; }
+  .panel * { transition: none; }
+  .packCard:hover .packArt, .packCard:focus-visible .packArt { transform: rotate(-3deg); }
 }
 
-@media (max-width: 480px) {
-  /* Deckend, in der Farbe der Eingabeleiste. Das Panel deckt nur den
-     sichtbaren Ausschnitt; zwischen Feld und Tastatur legt iOS 26 aber seine
-     GLÄSERNEN Leisten (Adresspille, Formular-Leiste ^ ∨ ✓), und durch die
-     schien mit dem halbdurchsichtigen Vorhang die Startseite (am iPhone,
-     23.09.2026). Der Vorhang liegt über dem ganzen Layout-Viewport — unter
-     dem Glas steht jetzt die Chat-Fläche, das Feld läuft nahtlos weiter. */
-  .scrim {
-    background: var(--et-ink-raised);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+@media (max-width: 600px) {
+  .screen {
+    position: fixed;
+    top: calc(var(--buddy-vv-top, 0px) + 8px);
+    left: 8px;
+    width: calc(100vw - 16px);
+    height: calc(var(--buddy-vv-height, 100dvh) - 16px);
   }
-
-  /* Die Seite dahinter ist bei offenem Chat unsichtbar (globals.css,
-     `html[data-buddy-open]`); Vorhang und Panel nehmen das für sich zurück. */
-  .scrim,
   .panel {
-    visibility: visible;
-  }
-
-  /* Vollbild, wie eine Chat-App: kein Rand, hinter dem die Seite hervorschaut.
-     Oberkante und Höhe folgen dem sichtbaren Ausschnitt (BuddyWidget.tsx,
-     `visualViewport`) — so sitzt das Feld bei offener Tastatur direkt auf ihr.
-     Ohne die Variablen (vor dem ersten Messen) füllt `100dvh`. */
-  .panel {
-    top: var(--buddy-vv-top, 0px);
-    right: 0;
-    bottom: auto;
-    left: 0;
-    width: auto;
-    max-width: none;
-    height: var(--buddy-vv-height, 100dvh);
+    inset: 6px 6px 56px;
+    margin: 0;
+    width: calc(100% - 12px);
+    height: calc(100% - 62px);
     max-height: none;
-    border-radius: 0;
     box-shadow: none;
-    animation: buddyPanelInPhone 0.26s cubic-bezier(0.2, 0.92, 0.22, 1);
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    .panel {
-      animation: none;
-    }
-  }
-
-  /* Die Tastatur deckt den Home-Indikator — der Abstand dafür wäre über ihr
-     nur eine Lücke. */
-  .panel[data-keyboard] .form {
-    padding-bottom: 10px;
-  }
-
-  .header {
-    min-height: 78px;
-    padding: calc(10px + env(safe-area-inset-top, 0px)) 10px 10px 12px;
-    gap: 10px;
-  }
-
-  .avatarFrame {
-    width: 54px;
-    height: 54px;
-    flex-basis: 54px;
-  }
-
-  .headerTitle strong {
-    font-size: 2.08rem;
-  }
-
-  .close {
-    min-width: 44px;
-    height: 40px;
-    flex-basis: auto;
-    padding: 0 10px;
-  }
-
-  .log {
-    padding: 13px 12px;
-  }
-
-  .msgUser {
-    max-width: 94%;
-  }
-
-  .packArt {
-    width: 66px;
-  }
-
-  .packName {
-    font-size: 1.44rem;
-  }
-
-  .form {
-    gap: 8px;
-    padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
-  }
-
-  /* 359px Panel − 20 Innenrand − 2×8 Luft − 40 Nadel − 74 Senden = 201px für
-     das Feld. Darunter passt „Schreib Remy…" nicht mehr in eine Zeile. */
-  .geo {
-    width: 40px;
-  }
-
-  .send {
-    min-width: 74px;
-    padding: 0 12px;
-  }
+  .portraitRail { height: 240px; }
+  .introPortrait { width: 240px; height: 240px; }
+  .introFigure { transform: scale(0.8); }
+  .header { min-height: 44px; padding: calc(2px + env(safe-area-inset-top, 0px)) 4px 2px 6px; gap: 6px; }
+  .headerTitle strong { font-size: 15px; }
+  .close { width: 36px; height: 36px; flex-basis: 36px; }
+  .conversation { margin: 6px 5px 0; }
+  .log { padding: 20px 14px; }
+  .intro { padding: 8px 0 24px; }
+  .introTitle { font-size: 27px; }
+  .introGreeting { font-size: 14px; }
+  .introSuggestions { gap: 8px; margin-top: 24px; }
+  .introSuggestions .chip { padding: 12px 10px; font-size: 13px; }
+  .msgUser { max-width: 90%; padding: 12px 16px; }
+  .spotName { font-size: 1.08rem; }
+  .spotMeta { letter-spacing: 0.03em; }
+  .spotBody { padding-left: 12px; }
+  .packArt { width: 66px; }
+  .packName { font-size: 1.44rem; }
+  .form { gap: 6px; margin: 0; padding: 10px 6px; }
+  .statusBar { margin-bottom: calc(4px + env(safe-area-inset-bottom, 0px)); font-size: 11px; }
+  .panel[data-keyboard] .statusBar { display: none; }
+  .geo { width: 36px; flex-basis: 36px; }
+  .send { min-width: 72px; padding: 0 12px; }
 }
 
-/* Hell (Standard, lib/theme.ts; Ansage 21.10.2026: Chat für hell und dunkel):
-   dieselbe Tafel auf Papier. Nur die Stufen drehen sich um — der Verlauf
-   weiss, Kopf und Eingabe eine Spur Papiergrau, Schrift Ink; die eigenen
-   Nachrichten und „Senden" ink-gefüllt mit weisser Schrift. Dunkel bleibt
-   die Ink-Tafel von oben. */
-:global(html:not([data-theme='dark'])) .panel {
-  --buddy-ink: #fff;
-  --buddy-surface: #f2f1ef;
-  --buddy-paper: var(--et-ink);
-  --buddy-soft: rgba(21, 18, 14, 0.76);
-  --buddy-dim: rgba(21, 18, 14, 0.6);
-  --buddy-ring: rgba(21, 18, 14, 0.28);
-  --buddy-quiet: rgba(21, 18, 14, 0.045);
-  --buddy-quiet-hi: rgba(21, 18, 14, 0.08);
-  --buddy-control: rgba(21, 18, 14, 0.06);
-  --buddy-control-hi: rgba(21, 18, 14, 0.11);
-  --buddy-accent-text: var(--et-accent);
-  /* Auf Weiss das dunkle Grün; daneben steht immer das Wort („Geöffnet"). */
-  --buddy-open: #137b3f;
-  box-shadow: 0 30px 90px rgba(21, 18, 14, 0.28);
+/* Respond to the actual nested chat window, including short laptops. */
+@container remy (max-height: 640px) {
+  .log { padding: 12px 20px; }
+  .intro { padding: 0; }
+  .introTitle { font-size: 26px; margin-bottom: 8px; }
+  .introGreeting { max-width: 620px; font-size: 14px; line-height: 1.45; }
+  .introSuggestions { gap: 8px; margin-top: 16px; }
+  .introSuggestions .chip { min-height: 44px; padding: 8px 12px; }
+  .portraitRail { height: 180px; }
+  .introPortrait { width: 180px; height: 180px; }
+  .introFigure { transform: scale(0.6); }
+  .toolbar { min-height: 36px; padding-block: 4px; }
+  .form { padding-block: 8px; }
+  .statusBar { min-height: 22px; padding-block: 3px; margin-bottom: 4px; font-size: 11px; }
 }
 
-@media (max-width: 480px) {
-  :global(html:not([data-theme='dark'])) .scrim {
-    background: #f2f1ef;
-  }
+@container remy (max-height: 520px) {
+  .portraitRail { height: 140px; }
+  .introPortrait { width: 140px; height: 140px; }
+  .introFigure { transform: scale(0.4666667); }
+  .introGreeting { display: none; }
+  .introTitle { font-size: 22px; }
+  .introSuggestions { margin-top: 12px; }
+  .introSuggestions .chip { padding: 6px 8px; font-size: 12px; line-height: 1.25; }
+}
+
+@media (min-width: 601px) and (max-width: 1050px) {
+  .panel { left: 104px; right: 12px; width: calc(100% - 116px); }
 }

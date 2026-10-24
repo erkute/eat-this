@@ -1,6 +1,4 @@
-// The frame both auth mails share: ink masthead, white paper, ink footer —
-// the site's own chrome, in an inbox. Home stays the source of truth (see
-// emails/theme.ts); this is the part of it that survives an email client.
+// Gemeinsamer heller Rahmen beider Auth-Mails, ohne dekorative Trennlinien.
 
 import {
   Body,
@@ -14,7 +12,7 @@ import {
   Text,
 } from '@react-email/components';
 import { ART, type ArtAsset } from '../art.generated';
-import { BODY_FONT, COLOR, LAYOUT, EMAIL_ASSET_VERSION } from '../theme';
+import { BODY_FONT, COLOR, LAYOUT } from '../theme';
 import type { MailLocale } from '../locale';
 
 interface ShellProps {
@@ -25,8 +23,8 @@ interface ShellProps {
   children: React.ReactNode;
 }
 
-/** White at ~64% over ink — the footer's muted tone, as a solid hex. */
-const FOOTER_MUTED = '#a6a09a';
+/** Ruhiger, lesbarer Fließtext auf hellem Papier. */
+const FOOTER_MUTED = COLOR.muted;
 
 /* Die Links des Website-Footers, in derselben Reihenfolge und Schrift — als
    Bilder, weil Gmail keine Webfonts laedt. Die Cookie-Einstellungen sind dort
@@ -50,12 +48,10 @@ const FOOTER_LINKS: Record<MailLocale, { art: ArtAsset; path: string }[]> = {
 
 const FOOTER_COPY = {
   de: {
-    follow: ART.footerFollow,
     copyright: ART.footerCopyright,
     reason: 'Du hast keine Anmeldung angefordert? Dann kannst du diese E-Mail ignorieren.',
   },
   en: {
-    follow: ART.footerFollowEn,
     copyright: ART.footerCopyrightEn,
     reason: 'Didn’t request a sign-in? Then you can ignore this email.',
   },
@@ -71,8 +67,8 @@ export function Shell({ preview, appUrl, locale, children }: ShellProps) {
   return (
     <Html lang={locale}>
       <Head>
-        {/* The app is light-only (CLAUDE.md). Without these, Apple Mail and
-            Outlook auto-invert the palette and the yellow accent turns muddy. */}
+        {/* Die Mail nutzt eine feste helle Palette. Die App selbst unterstützt
+            beide Themes; Mail-Clients bestimmen ihren Dunkelmodus unabhängig davon. */}
         <meta name="color-scheme" content="light" />
         <meta name="supported-color-schemes" content="light" />
         <style
@@ -110,43 +106,21 @@ export function Shell({ preview, appUrl, locale, children }: ShellProps) {
             backgroundColor: COLOR.surface,
           }}
         >
-          {/* MASTHEAD — the site's black bar. The wordmark PNG is cream with an
-              ink outline, so it reads on ink exactly as it does in the header.
-              PNG, not WebP: Gmail's proxy flattens WebP alpha and Outlook
-              can't decode it at all. */}
-          <Section
-            style={{ backgroundColor: COLOR.surface, padding: '18px 0', textAlign: 'center' }}
-          >
-            <Link href={appUrl}>
-              <Img
-                src={`${appUrl}/pics/email/eat-this-logo.png?v=${EMAIL_ASSET_VERSION}`}
-                alt="Eat This"
-                width="122"
-                style={{
-                  display: 'block',
-                  margin: '0 auto',
-                  height: 'auto',
-                  border: 0,
-                  // Alt-Text erbt Farbe und Schnitt vom img. Ohne das steht er
-                  // bei blockierten Bildern schwarz auf der Ink-Fläche.
-                  color: COLOR.text,
-                  fontSize: '20px',
-                  fontWeight: 700,
-                }}
-              />
-            </Link>
-          </Section>
+          {/* Durchgehende Folie mit Wortmarke und Must-Eat-Karte. */}
+          <Link href={appUrl} style={{display: 'block'}}>
+            <FooterArt art={ART.masthead} appUrl={appUrl} />
+          </Link>
 
           {children}
 
-          {/* FOOTER — wie SiteFooter: Wortmarke, Claim, „Folgen" gelb über
-              INSTAGRAM, die Links in einer Reihe, Copyright. Alles in der
+          {/* FOOTER — wie SiteFooter: große Wortmarke, kleiner Claim, Instagram-Symbol,
+              rechtliche Links und Copyright auf demselben Papier. Alles in der
               Markenschrift, also als Bild; nur der Satz, warum diese Mail
               kommt, bleibt echter Text. */}
           <Section
             style={{
               backgroundColor: COLOR.surface,
-              padding: '40px 24px 32px',
+              padding: '32px 0 0',
               textAlign: 'center',
             }}
           >
@@ -161,61 +135,22 @@ export function Shell({ preview, appUrl, locale, children }: ShellProps) {
             >
               {footer.reason}
             </Text>
-            <Link href={appUrl}>
-              <Img
-                src={`${appUrl}/pics/email/eat-this-logo.png?v=${EMAIL_ASSET_VERSION}`}
-                alt="Eat This"
-                width="150"
-                style={{
-                  display: 'block',
-                  margin: '0 auto 10px',
-                  height: 'auto',
-                  border: 0,
-                  color: COLOR.text,
-                  fontSize: '22px',
-                  fontWeight: 700,
-                }}
-              />
+            <Link href={appUrl} style={{display: 'block'}}>
+              <FooterArt art={ART.footerBrand} appUrl={appUrl} />
             </Link>
-            <FooterArt art={ART.sloganInverse} appUrl={appUrl} margin="0 auto 30px" />
-
-            <FooterArt art={footer.follow} appUrl={appUrl} margin="0 auto 6px" />
-            <Link href={INSTAGRAM}>
-              <FooterArt art={ART.footerInstagram} appUrl={appUrl} margin="0 auto 30px" />
+            <Link href={INSTAGRAM} style={{display: 'block'}}>
+              <FooterArt art={ART.footerInstagram} appUrl={appUrl} />
             </Link>
-
-            {/* Zwei Reihen Tabellenzellen statt einer umbrechenden Zeile: die
-                fünf Links sind zusammen breiter als ein Telefon, und ein
-                Bild bricht nicht um. Die Abstände und die Punkte dazwischen
-                hält in Tabellen jeder Client gleich. */}
             {[FOOTER_LINKS[locale].slice(0, 2), FOOTER_LINKS[locale].slice(2)].map((row, r) => (
-              <table
-                key={r}
-                role="presentation"
-                cellPadding={0}
-                cellSpacing={0}
-                style={{ margin: '0 auto 10px', borderCollapse: 'collapse' }}
-              >
-                <tbody>
-                  <tr>
-                    {row.map(({ art, path }, i) => (
-                      <td key={art.id} style={{ verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
-                        {i > 0 && (
-                          <span style={{ color: FOOTER_MUTED, fontSize: '12px', padding: '0 1px' }}>
-                            ·
-                          </span>
-                        )}
-                        <Link href={`${appUrl}${path}`} style={{ display: 'inline-block' }}>
-                          <FooterArt art={art} appUrl={appUrl} inline />
-                        </Link>
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
+              <table key={r} role="presentation" width="100%" cellPadding={0} cellSpacing={0} style={{borderCollapse: 'collapse', tableLayout: 'fixed'}}>
+                <tbody><tr>{row.map(({art, path}) => (
+                  <td key={art.id} width={`${100 / row.length}%`} style={{padding: 0}}>
+                    <Link href={`${appUrl}${path}`} style={{display: 'block'}}><FooterArt art={art} appUrl={appUrl} /></Link>
+                  </td>
+                ))}</tr></tbody>
               </table>
             ))}
-
-            <FooterArt art={footer.copyright} appUrl={appUrl} margin="18px auto 0" />
+            <FooterArt art={footer.copyright} appUrl={appUrl} />
           </Section>
         </Container>
       </Body>
@@ -228,13 +163,9 @@ export function Shell({ preview, appUrl, locale, children }: ShellProps) {
 function FooterArt({
   art,
   appUrl,
-  margin,
-  inline = false,
 }: {
   art: ArtAsset;
   appUrl: string;
-  margin?: string;
-  inline?: boolean;
 }) {
   return (
     <Img
@@ -242,10 +173,11 @@ function FooterArt({
       alt={art.alt}
       width={art.width}
       style={{
-        display: inline ? 'inline-block' : 'block',
+        display: 'block',
         verticalAlign: 'middle',
-        margin: inline ? 0 : margin,
+        margin: 0,
         height: 'auto',
+        width: '100%',
         maxWidth: '100%',
         border: 0,
         ...FOOTER_ALT,

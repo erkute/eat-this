@@ -6,13 +6,13 @@
 // any per-route error boundary.
 //
 // Ersetzt das Root-Layout samt <html>/<body>, also ist hier nichts von dort
-// garantiert: globals.css (Tokens, Providence-@font-face) wird darum selbst
-// importiert, und der Ink-Grund steht zusätzlich inline am <body> — steht
-// das Stylesheet nicht, bleibt die Seite trotzdem dunkel statt weiß.
+// garantiert: globals.css (Tokens, @font-face) wird darum selbst
+// importiert, und der Seitengrund steht zusätzlich inline am <body>.
 import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
 import ServerErrorContent from './components/ServerErrorContent';
 import './globals.css';
+import { ERROR_THEME_BOOTSTRAP } from '@/lib/theme';
 
 export default function GlobalError({
   error,
@@ -26,8 +26,11 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="de">
-      <body style={{ margin: 0, padding: 0, backgroundColor: '#15120e' }}>
+    <html lang="de" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: ERROR_THEME_BOOTSTRAP }} />
+      </head>
+      <body style={{ margin: 0, padding: 0, backgroundColor: 'var(--et-ground, #fff)' }}>
         <ServerErrorContent onRetry={reset} />
       </body>
     </html>

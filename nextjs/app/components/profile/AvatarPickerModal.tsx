@@ -102,7 +102,7 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
           </button>
         </header>
         <div className={own.intro}>
-          <p className={styles.kicker}>{t('avatarModalKicker')}</p>
+          <p className={`et-label ${styles.kicker}`}>{t('avatarModalKicker')}</p>
           <h2 ref={titleRef} tabIndex={-1} className={styles.headline}>
             {t('avatarModalHeadline')}
           </h2>
@@ -131,7 +131,7 @@ export default function AvatarPickerModal({ current, onApply, onClose }: Props) 
         <div className={`${styles.actions} ${own.actions}`}>
           <button
             type="button"
-            className={styles.action}
+            className={`et-btn ${styles.action}`}
             disabled={saving}
             onClick={() => void apply()}
           >

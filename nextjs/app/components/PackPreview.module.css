@@ -1,66 +1,10 @@
-.preview {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 560px);
-  align-items: center;
-  justify-content: center;
-  gap: clamp(24px, 5vw, 64px);
-  margin-top: clamp(64px, 8vw, 112px);
-  padding: clamp(8px, 2vw, 24px) 0;
-  /* Randlos auf dem Papier, kein grauer Kasten (Ansage 22.10.2026). */
-  color: var(--et-fg);
-}
-.cardLink {
-  display: block;
-  border-radius: 0;
-}
-.cardLink:focus-visible {
-  outline: 2px solid var(--et-accent);
-  outline-offset: 6px;
-}
-.card {
-  display: block;
-  width: 100%;
-  height: auto;
-  transform: rotate(-3deg);
-  filter: drop-shadow(0 16px 18px rgb(0 0 0 / .28));
-}
-.kicker {
-  margin: 0 0 12px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-.title {
-  margin: 0;
-  font-size: clamp(28px, 3vw, 42px);
-  line-height: 1.1;
-}
-.spot {
-  margin: 0 0 6px;
-  color: var(--et-copy);
-  font-size: 13px;
-  line-height: 1.4;
-}
-.description {
-  margin: 16px 0 0;
-  font-size: var(--et-type-body);
-  line-height: 1.5;
-}
-.note {
-  margin: 16px 0 0;
-  color: var(--et-copy);
-  font-size: 14px;
-  line-height: 1.5;
-}
-@media (max-width: 699px) {
-  .preview {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-  }
-  .cardLink {
-    width: 170px;
-    justify-self: center;
-  }
-}
+.preview { display: grid; grid-template-columns: 220px minmax(0, 560px); align-items: center; justify-content: center; gap: clamp(24px, 4vw, 48px); margin-top: 24px; padding: clamp(24px, 4vw, 40px); color: var(--et-fg); background: color-mix(in srgb, var(--et-ground) 93%, var(--et-fg)); border-radius: 12px; }
+.cardLink { display: block; }
+.cardLink:focus-visible { outline: 2px solid var(--et-link); outline-offset: 6px; }
+.card { display: block; width: 100%; height: auto; transform: rotate(-2deg); filter: drop-shadow(0 12px 16px rgb(0 0 0 / .15)); }
+.kicker { margin: 0 0 20px; }
+.title { margin: 0; font-size: clamp(36px, 4vw, 56px); line-height: 1; font-weight: 700; letter-spacing: -.04em; }
+.spot { margin: 0 0 8px; color: var(--et-copy); font-size: 14px; line-height: 1.4; }
+.description { margin: 20px 0 0; font-size: var(--et-type-body); line-height: 1.5; }
+.note { margin: 16px 0 0; color: var(--et-copy); font-size: 14px; line-height: 1.5; }
+@media (max-width: 699px) { .preview { grid-template-columns: 1fr; gap: 20px; padding: 24px 20px; } .cardLink { width: 190px; justify-self: center; } }

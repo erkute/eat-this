@@ -1531,7 +1531,7 @@
 .fdHero,
 .fdStackCard {
   border-radius: 12px;
-  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 10px 20px rgb(0 0 0 / .2);
 }
 
 /* Kicker + Gerichtsname bilden EIN Objekt im Namens-Slot: der Kicker hängt
@@ -1579,7 +1579,7 @@
 .fdNameText {
   color: var(--me-ink);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
 }
 
 .fdText,
@@ -2125,13 +2125,12 @@
   }
 }
 
-/* Restaurant-Zeile im selben hellen Knitterlook wie die Map-Filter. */
+/* The restaurant continues the open paper layout of the Must Eat catalog. */
 .detail .scroll > .fdRestInline:has(.fdRestPhoto),
 .detail .scroll > .fdRestInline {
   border-radius: 0;
   color: var(--et-fg);
-  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / 400px 600px;
-  background-blend-mode: multiply;
+  background: var(--et-ground);
 }
 @media (hover: hover) {
   .detail .scroll > .fdRestInline:hover {
@@ -2141,8 +2140,9 @@
   }
 }
 .detail .scroll > .fdRestInline:focus-visible {
-  outline: 0;
-  background-color: color-mix(in srgb, var(--et-ground) 80%, var(--et-fg));
+  outline: 2px solid var(--et-link);
+  outline-offset: -2px;
+  background-color: color-mix(in srgb, var(--et-ground) 95%, var(--et-fg));
   box-shadow: none;
 }
 .detail .scroll > .fdRestInline:focus-visible .fdV { font-weight: 900; }

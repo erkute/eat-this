@@ -3,10 +3,13 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import BuddyAvatar, { type BuddyMood } from './BuddyAvatar';
+import RemyDesktop from './RemyDesktop';
+import RemyStartMenu from './RemyStartMenu';
 import { useBuddyChat, type BuddyDisplayMessage } from './useBuddyChat';
 import { splitAnswerSegments, extractFollowups } from '@/lib/buddy/stream';
 import { stickStep, prefersReducedMotion, FRAME_MS } from '@/lib/buddy/reveal';
 import { greetingFor } from '@/lib/buddy/greeting';
+import { animatePortraitHandoff } from '@/lib/buddy/portraitMotion';
 import { localizedCuisine } from '@/lib/cuisineLabels';
 import { isNearbyIntent } from '@/lib/buddy/nearbyIntent';
 import {
@@ -18,7 +21,7 @@ import { useAuth } from '@/lib/auth';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { notify } from '@/lib/notice';
-import { CloseIcon, HeartIcon, PinIcon } from '@/app/components/map/icons';
+import { HeartIcon, PinIcon } from '@/app/components/map/icons';
 import type { Locale, SpotCandidate, ArticleResult, PackTeaser } from '@/lib/buddy/types';
 import { sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from './BuddyWidget.module.css';
@@ -137,10 +140,9 @@ function Kicker({ children }: { children: React.ReactNode }) {
  * abgelehnt worden, und vier schwarze Balken unter einer Antwort waren vier
  * Verben unter vier Flächen, die schon Knöpfe sind.
  */
-// Das Foto steht 108px breit links in der Karte.
-const SPOT_IMG_SIZES = '108px';
-// 108px mal Pixeldichte: 2x braucht 216, 3x braucht 324.
-const spotSrcSet = (image: string) => sanitySrcSet(image, [240, 360, 480], 82);
+// Large landscape photos; wide chat windows show two cards side by side.
+const SPOT_IMG_SIZES = '(max-width: 600px) calc(100vw - 76px), 390px';
+const spotSrcSet = (image: string) => sanitySrcSet(image, [400, 800, 1200], 82);
 
 function SpotCard({
   spot,
@@ -456,6 +458,33 @@ export default function BuddyWidget() {
   const t = T[locale];
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
+  // Capture the old position before React removes the greeting portrait.
+  // Only the newly mounted header portrait moves; there is never a duplicate.
+  const previousPortrait = useRef<{ rect: DOMRect; position: string | undefined } | null>(null);
+  // React Strict Mode reattaches the same ref after a cleanup. Keep its
+  // original source so the replacement GSAP timeline can restart correctly.
+  const portraitOrigins = useRef(new WeakMap<HTMLElement, DOMRect>());
+  const placePortrait = useCallback((node: HTMLDivElement | null) => {
+    if (!node) return;
+    const previous = previousPortrait.current;
+    const origin = previous?.position === 'intro'
+      ? previous.rect
+      : portraitOrigins.current.get(node);
+    if (node.dataset.buddyAvatar === 'header' && origin) portraitOrigins.current.set(node, origin);
+    const stopMotion = node.dataset.buddyAvatar === 'header' && origin
+      ? animatePortraitHandoff(node, origin)
+      : undefined;
+    return () => {
+      previousPortrait.current = {
+        rect: node.getBoundingClientRect(),
+        position: node.dataset.buddyAvatar,
+      };
+      stopMotion?.();
+    };
+  }, []);
+  useEffect(() => {
+    if (!open) previousPortrait.current = null;
+  }, [open]);
   const { messages, isStreaming, send, stop, reset, setGeo } = useBuddyChat();
   /* Die zuletzt gestellte Frage — aber nur eine aus dieser Sitzung: was beim
      Laden schon im Faden stand, wird nicht verankert (siehe das Scrollen
@@ -487,6 +516,7 @@ export default function BuddyWidget() {
   }, [lastSpots]);
   const { location, loading: locating, request: requestLocation } = useUserLocationContext();
   const panelRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const logContentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -643,7 +673,7 @@ export default function BuddyWidget() {
     const goal = () => {
       const q = question();
       const max = el.scrollHeight - el.clientHeight;
-      if (!q) return max;
+      if (!q) return content.querySelector('[data-buddy-intro]') ? 0 : max;
       const top = el.scrollTop + q.getBoundingClientRect().top - el.getBoundingClientRect().top;
       return Math.max(0, Math.min(max, top - padding().top));
     };
@@ -678,9 +708,9 @@ export default function BuddyWidget() {
       pos = el.scrollTop;
       glideRef.current = requestAnimationFrame(tick);
     };
-    // Öffnen: der Faden steht am Ende, ohne Abrollen.
+    // A new conversation starts at its greeting; a restored thread at its end.
     measure();
-    el.scrollTop = el.scrollHeight;
+    el.scrollTop = content.querySelector('[data-buddy-intro]') ? 0 : el.scrollHeight;
     lastTopRef.current = el.scrollTop;
     // Die Mindesthöhe hängt an der Fensterhöhe — Tastatur des Telefons, Drehen.
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
@@ -727,7 +757,7 @@ export default function BuddyWidget() {
      Taste auf — ohne das lief Tab hinter den Vorhang in die Seite darunter. */
   const onPanelKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== 'Tab') return;
-    const panel = panelRef.current;
+    const panel = dialogRef.current ?? panelRef.current;
     if (!panel) return;
     const focusable = [
       ...panel.querySelectorAll<HTMLElement>(
@@ -780,18 +810,19 @@ export default function BuddyWidget() {
     const vv = window.visualViewport;
     const panel = panelRef.current;
     if (!vv || !panel) return;
-    const phone = window.matchMedia('(max-width: 480px)');
+    const viewportRoot = dialogRef.current ?? panel;
+    const phone = window.matchMedia('(max-width: 600px)');
     const apply = () => {
       if (!phone.matches) {
-        panel.style.removeProperty('--buddy-vv-top');
-        panel.style.removeProperty('--buddy-vv-height');
+        viewportRoot.style.removeProperty('--buddy-vv-top');
+        viewportRoot.style.removeProperty('--buddy-vv-height');
         delete panel.dataset.keyboard;
         return;
       }
       const log = logRef.current;
       const atEnd = log ? log.scrollHeight - log.clientHeight - log.scrollTop < 4 : false;
-      panel.style.setProperty('--buddy-vv-top', `${vv.offsetTop}px`);
-      panel.style.setProperty('--buddy-vv-height', `${vv.height}px`);
+      viewportRoot.style.setProperty('--buddy-vv-top', `${vv.offsetTop}px`);
+      viewportRoot.style.setProperty('--buddy-vv-height', `${vv.height}px`);
       if (window.innerHeight - vv.height > 120) panel.dataset.keyboard = '';
       else delete panel.dataset.keyboard;
       if (log && atEnd) log.scrollTop = log.scrollHeight;
@@ -857,14 +888,6 @@ export default function BuddyWidget() {
     void sendWithLocationIfNeeded(text);
   };
 
-  // "Near me": locate the user (with visible feedback), then ask. On failure we
-  // tell the user what happened instead of silently searching city-wide.
-  const askNearby = () => {
-    if (isStreaming || locating) return;
-    const q = locale === 'en' ? "What's good near me right now?" : 'Was Gutes in meiner Nähe?';
-    void sendWithLocationIfNeeded(q);
-  };
-
   /* Standort aus der Eingabezeile heraus freigeben. „In meiner Nähe" stand nur
      im leeren Chat: ab der ersten Frage kam man an die Freigabe nicht mehr
      heran, und wer sie nicht erteilt hat, bekam stillschweigend stadtweite
@@ -898,34 +921,39 @@ export default function BuddyWidget() {
   return (
     <>
       {open && (
-        <>
+        <div className={styles.session} ref={dialogRef} role="dialog" aria-modal="true" aria-label={title} onKeyDown={onPanelKeyDown}>
           <div className={styles.scrim} onClick={closePanel} aria-hidden="true" />
+          <div className={styles.screen}>
+            <div className={styles.desktopBackdrop} aria-hidden="true"><RemyDesktop en={locale === 'en'} /></div>
           <div
             ref={panelRef}
             id="buddy-panel"
             className={styles.panel}
             data-buddy-panel="open"
-            role="dialog"
-            aria-modal="true"
-            aria-label={title}
             tabIndex={-1}
-            onKeyDown={onPanelKeyDown}
           >
             <div className={styles.header}>
-              <span className={styles.avatarFrame}>
-                <BuddyAvatar mood={panelMood} size={58} />
-              </span>
-              <span className={styles.headerTitle}>
-                <strong>{title}</strong>
-                {/* Derselbe Satz wie auf der Startseite (HubFragRemy). */}
-                <span className={styles.headerSub}>
-                  {locale === 'en' ? 'I’ll show you what to eat in Berlin.' : 'Ich zeig dir, was du in Berlin essen musst.'}
-                </span>
-              </span>
-              {/* Der Faden überlebt den Seitenwechsel (lib/buddy/thread.ts) —
-                  also braucht es einen Weg, ihn beiseitezulegen. Erst sichtbar,
-                  wenn etwas dasteht, das man wegräumen könnte. */}
               {messages.length > 0 && (
+                <div className={styles.avatarFrame} ref={placePortrait} data-buddy-avatar="header" aria-hidden="true">
+                  <BuddyAvatar mood={panelMood} size={56} />
+                </div>
+              )}
+              <span className={styles.headerTitle}>
+                <strong>{locale === 'en' ? 'Ask Remy' : 'Frag Remy'}</strong>
+              </span>
+              <button
+                className={styles.close}
+                type="button"
+                aria-label={t.close}
+                onClick={closePanel}
+              >
+                <svg viewBox="0 0 12 12" aria-hidden="true" shapeRendering="crispEdges">
+                  <path fill="currentColor" d="M1 1h2v1h1v1h1v1h2V3h1V2h1V1h2v2h-1v1H9v1H8v2h1v1h1v1h1v2H9v-1H8V9H7V8H5v1H4v1H3v1H1V9h1V8h1V7h1V5H3V4H2V3H1z" />
+                </svg>
+              </button>
+            </div>
+            {messages.length > 0 && (
+              <div className={styles.toolbar}>
                 <button
                   className={styles.reset}
                   type="button"
@@ -935,103 +963,92 @@ export default function BuddyWidget() {
                 >
                   <span aria-hidden="true">{t.reset}</span>
                 </button>
-              )}
-              <button
-                className={styles.close}
-                type="button"
-                aria-label={t.close}
-                onClick={closePanel}
-              >
-                {/* Das Zeichen der Site, nicht das Schriftzeichen ✕: Providence
-                    hat keine eigene Glyphe dafür und fiel auf eine Fremdschrift
-                    zurück. */}
-                <CloseIcon />
-              </button>
-            </div>
+              </div>
+            )}
             {/* Kein `aria-live` auf dem ganzen Log: der Vorleser hätte bei
                 jedem Token die komplette Unterhaltung neu vorgelesen. Die
                 fertige Antwort steht einmal in der Statuszeile unter dem
                 Formular. */}
-            <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
-              <div className={styles.logContent} ref={logContentRef}>
-                {messages.length === 0 &&
-                  (() => {
-                    // Time-of-day opener + starter chips (computed client-side; the
-                    // intro only renders after the user opens the panel).
-                    const intro = greetingFor(new Date().getHours(), locale);
-                    return (
-                      <div className={styles.intro}>
-                        <div className={styles.msgBot}>
-                          <FormattedText text={intro.greeting} />
+            <div className={styles.conversation}>
+              <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
+                <div className={styles.logContent} ref={logContentRef}>
+                  {messages.length === 0 &&
+                    (() => {
+                      // Time-of-day opener + starter chips (computed client-side; the
+                      // intro only renders after the user opens the panel).
+                      const intro = greetingFor(new Date().getHours(), locale);
+                      return (
+                        <div className={styles.intro} data-buddy-intro="">
+                          <h2 className={styles.introTitle}>
+                            {locale === 'en' ? 'What are you craving?' : 'Worauf hast du Lust?'}
+                          </h2>
+                          <div className={styles.introGreeting}>
+                            <FormattedText text={intro.greeting} />
+                          </div>
+                          <div className={styles.introSuggestions}>
+                            {intro.suggestions.map((s) => (
+                              <button
+                                key={s}
+                                type="button"
+                                className={styles.chip}
+                                onClick={() => ask(s)}
+                              >
+                                {s}
+                              </button>
+                            ))}
+
+                          </div>
                         </div>
-                        <div className={styles.chips}>
-                          <button
-                            type="button"
-                            className={styles.chipNear}
-                            onClick={askNearby}
-                            disabled={locating}
-                            aria-busy={locating}
-                          >
-                            {locating
-                              ? locale === 'en'
-                                ? 'Locating…'
-                                : 'Standort…'
-                              : locale === 'en'
-                                ? 'Near me'
-                                : 'In meiner Nähe'}
-                          </button>
-                          {intro.suggestions.map((s) => (
-                            <button
-                              key={s}
-                              type="button"
-                              className={styles.chip}
-                              onClick={() => ask(s)}
-                            >
-                              {s}
-                            </button>
-                          ))}
-                        </div>
+                      );
+                    })()}
+                  {messages.map((m, i) =>
+                    m.role === 'user' ? (
+                      <div
+                        key={i}
+                        className={styles.msgUser}
+                        data-buddy-anchor={i === anchorIdx ? '' : undefined}
+                      >
+                        {m.content}
                       </div>
-                    );
-                  })()}
-                {messages.map((m, i) =>
-                  m.role === 'user' ? (
-                    <div
-                      key={i}
-                      className={styles.msgUser}
-                      data-buddy-anchor={i === anchorIdx ? '' : undefined}
-                    >
-                      {m.content}
-                    </div>
-                  ) : (
-                    <div
-                      key={i}
-                      className={
-                        anchorIdx !== null && i === anchorIdx + 1
-                          ? `${styles.msgBot} ${styles.msgBotAnchored}`
-                          : styles.msgBot
-                      }
-                    >
-                      <BotMessage
-                        m={m}
-                        locale={locale}
-                        streaming={isStreaming && i === messages.length - 1}
-                        isLast={i === messages.length - 1}
-                        onSpotSelect={() => setOpen(false)}
-                        onFollowup={ask}
-                        savedIds={favoriteIds}
-                        onSaveSpot={onSaveSpot}
-                        thinkingLabel={t.thinking}
-                        pack={i === firstPackIdx ? m.pack : undefined}
-                      />
-                    </div>
-                  )
-                )}
+                    ) : (
+                      <div
+                        key={i}
+                        className={
+                          anchorIdx !== null && i === anchorIdx + 1
+                            ? `${styles.msgBot} ${styles.msgBotAnchored}`
+                            : styles.msgBot
+                        }
+                      >
+                        <BotMessage
+                          m={m}
+                          locale={locale}
+                          streaming={isStreaming && i === messages.length - 1}
+                          isLast={i === messages.length - 1}
+                          onSpotSelect={() => setOpen(false)}
+                          onFollowup={ask}
+                          savedIds={favoriteIds}
+                          onSaveSpot={onSaveSpot}
+                          thinkingLabel={t.thinking}
+                          pack={i === firstPackIdx ? m.pack : undefined}
+                        />
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
+              {messages.length === 0 && (
+                <div className={styles.portraitRail}>
+                  <div className={styles.introPortrait} aria-hidden="true">
+                    <div className={styles.introFigure} ref={placePortrait} data-buddy-avatar="intro">
+                      <BuddyAvatar mood={panelMood} size={300} />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <form className={styles.form} onSubmit={onSubmit}>
-              {/* Zustand UND Schalter in einem: erloschen heißt „er weiß nicht,
-                  wo du bist", gelb heißt „er sortiert nach Entfernung". */}
+              {/* The pin stays available throughout the conversation. Its
+                  active state confirms that location has been shared. */}
               <button
                 type="button"
                 className={styles.geo}
@@ -1077,11 +1094,17 @@ export default function BuddyWidget() {
                 </button>
               )}
             </form>
+            <div className={styles.statusBar}>
+              <span className={styles.statusLight} aria-hidden="true" />
+              <span>{isStreaming ? t.thinking : locating ? t.geoBusy : locale === 'en' ? 'Remy is here for you.' : 'Remy ist für dich da.'}</span>
+            </div>
             <p className={styles.srOnly} role="status">
               {srStatus}
             </p>
           </div>
-        </>
+            <RemyStartMenu en={locale === 'en'} onLeave={closePanel} onChat={() => inputRef.current?.focus()} />
+          </div>
+        </div>
       )}
     </>
   );

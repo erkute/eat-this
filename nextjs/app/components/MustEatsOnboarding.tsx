@@ -10,6 +10,7 @@ import { pickOnboardingDemoCard } from '@/lib/home/mustEatsGallery';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import styles from './MustEatsOnboarding.module.css';
 import tour from './Tour.module.css';
+import StarterPack3D from './StarterPack3D';
 import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import { afterEmailLink } from '@/lib/auth/emailLinkPending';
@@ -188,12 +189,9 @@ export default function MustEatsOnboarding({
   useEffect(() => {
     if (!open) return;
     const prevOverflow = document.body.style.overflow;
-    const prevTouchAction = document.body.style.touchAction;
     document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'none';
     return () => {
       document.body.style.overflow = prevOverflow;
-      document.body.style.touchAction = prevTouchAction;
     };
   }, [open]);
 
@@ -274,6 +272,7 @@ export default function MustEatsOnboarding({
               ref={panelRef}
               tabIndex={-1}
               className={tour.panel}
+              data-must-eats-onboarding=""
               role="dialog"
               aria-modal="true"
               aria-label={t('mustEats.howItWorks')}
@@ -300,17 +299,15 @@ export default function MustEatsOnboarding({
                         decoding="sync"
                         fetchPriority="high"
                       />
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <div
                         data-testid="onb-starter-pack"
                         data-guest-only=""
-                        className={tour.artImg}
-                        src={STARTER_ART}
-                        alt="Eat This Starter Pack"
-                        loading="eager"
-                        decoding="sync"
-                        fetchPriority="high"
-                      />
+                        className={tour.packPreview}
+                        role="img"
+                        aria-label="Eat This Starter Pack"
+                      >
+                        <StarterPack3D fit />
+                      </div>
                     </>
                   ) : (
                     <div className={tour.cardBox}>
@@ -357,12 +354,12 @@ export default function MustEatsOnboarding({
               <footer className={tour.footer}>
                 <div
                   className={tour.progress}
+                  role="group"
                   aria-label={de ? `Schritt ${step + 1} von 3` : `Step ${step + 1} of 3`}
                 >
-                  <span>{step + 1} / 3</span>
                   <div className={tour.segments} aria-hidden="true">
                     {SLIDES.map((s, i) => (
-                      <span key={s.title} className={i <= step ? tour.active : undefined} />
+                      <span key={s.title} className={i === step ? tour.active : undefined} />
                     ))}
                   </div>
                 </div>

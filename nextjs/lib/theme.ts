@@ -25,3 +25,7 @@ export function subscribeTheme(onChange: () => void): () => void {
   observer.observe(document.documentElement, { attributes: true, attributeFilter: [ATTR] });
   return () => observer.disconnect();
 }
+
+/** Standalone error documents have no locale layout to restore the preference. */
+export const ERROR_THEME_BOOTSTRAP =
+  "try{if(localStorage.getItem('et-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(_){}";

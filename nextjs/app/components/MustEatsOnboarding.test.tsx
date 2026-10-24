@@ -93,7 +93,7 @@ describe('MustEatsOnboarding', () => {
     // free pack — a paid Booster Pack is a rung that needs an account first.
     const guest = row('guest');
     expect(guest.textContent).toContain('mustEats.onbStarterCta');
-    expect(screen.getByTestId('onb-starter-pack').getAttribute('src')).toContain(
+    expect(screen.getByTestId('onb-starter-pack').querySelector('img')?.getAttribute('src')).toContain(
       '/pics/home/starter-pack-front.webp'
     );
 

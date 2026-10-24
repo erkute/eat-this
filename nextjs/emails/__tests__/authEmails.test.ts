@@ -24,14 +24,15 @@ const signupEn = () => render(SignupEmail({ magicLink, appUrl, locale: 'en', spo
 const loginEn = () => render(LoginEmail({ magicLink, appUrl, locale: 'en' }));
 
 describe('shared shell', () => {
-  it('opens on the ink masthead and closes on the ink footer with the wordmark', async () => {
+  it('uses the light paper palette and current wordmark', async () => {
     for (const html of [await signup(), await login()]) {
-      // The site chrome: ink bar + ink footer, both carrying the wordmark.
-      expect(html.match(/\/pics\/email\/eat-this-logo\.png/g)?.length).toBe(2);
+      // Kopf und Footer tragen dieselbe aktuelle Wortmarke.
+      expect(html).toContain('/pics/email/masthead.png');
+      expect(html).toContain('/pics/email/footer-brand.png');
       expect(html).toContain('#15120e');
-      expect(html).toContain('WE TELL YOU WHAT TO EAT');
-      expect(html).toContain('IMPRESSUM');
-      expect(html).toContain('DATENSCHUTZ');
+      expect(html).toContain('we tell you what to eat');
+      expect(html).toContain('Impressum');
+      expect(html).toContain('Datenschutz');
     }
   });
 
@@ -66,10 +67,8 @@ describe('shared shell', () => {
     // wordmark on the ink masthead and footer renders black on black, and the
     // headline degrades to small body text.
     //
-    // Seit die Mail auf Ink steht, ist die Liste zugleich eine Kontrastprobe:
-    // erlaubt sind nur Weiss und Gelb. Ein Alt-Text in `surface` oder
-    // `onAccent` (#15120e) waere auf dieser Flaeche exakt der Fehler, den
-    // dieser Test verhindern soll — unsichtbar statt bloss unschoen.
+    // Auf dem hellen Papier tragen auch blockierte Bilder einen dunklen,
+    // lesbaren Alt-Text. Der Anmeldelink behält seine gelbe Fläche.
     for (const html of [await signup(), await login()]) {
       const onYellow: string[] = cta(html).match(/<img[^>]*>/g) ?? [];
       for (const img of html.match(/<img[^>]*>/g) ?? []) {
@@ -84,7 +83,7 @@ describe('shared shell', () => {
         // Ohne Ausnahme: auch die Spot-Fotos. Ihr Name steckt zwar im Bitmap,
         // aber bei blockierten Bildern bleibt nur der Alt-Text — und der
         // steckt in einem <Link>, erbt also sonst dessen Blau.
-        expect(img).toMatch(/color:#(?:ffffff|ffc600)/i);
+        expect(img).toMatch(/color:#15120e/i);
       }
     }
   });
@@ -128,7 +127,7 @@ describe('LoginEmail', () => {
     // Ein Wort im Knopf, dasselbe wie überall in der App (CLAUDE.md).
     expect(cta(html)).toContain('alt="Anmelden"');
     expect(html).not.toContain('Einloggen');
-    expect(html).toContain('WILLKOMMEN');
+    expect(html).toContain('Willkommen');
     expect(html).toContain('eine Stunde gültig');
     expect(LOGIN_SUBJECT.de).toContain('Login-Link');
   });
@@ -151,13 +150,14 @@ describe('SignupEmail', () => {
     const html = await signup();
     expect(html).toContain(magicLink);
     expect(cta(html)).toContain('alt="Anmelden"');
-    expect(html).toContain('DEIN ZUGANG ZU EAT THIS');
+    expect(html).toContain('DEIN ANMELDELINK');
     expect(html).toContain('WE TELL YOU WHAT TO EAT.');
     // Nicht nur wohin, sondern was bestellen (Betreiber, 22.09.2026).
-    expect(html).toContain('unsere Must Eat Gerichte, für die sich der Besuch lohnt');
+    expect(html).toContain('Entdecke Berlins beste Restaurants, Cafés und Bars');
+    expect(html).toContain('Alles auf einer Map.');
     expect(html).not.toContain('Gute Spots findest du überall');
     expect(html).toContain('DEIN STARTER PACK');
-    expect(html).toContain('20 MUST EATS. FÜR DEINEN START.');
+    expect(html).toContain('20 Must Eats.');
     expect(html).not.toContain('GEHT AUF UNS');
     expect(html).toContain('/pics/email/starter-pack.png');
     expect(html).toContain('Anmeldelink öffnen');
@@ -281,7 +281,7 @@ describe('EN-Fassung', () => {
       expect(html).toContain('lang="en"');
       for (const word of GERMAN) expect(html).not.toContain(word);
       expect(html).toContain('one hour');
-      expect(html).toContain('ALL RIGHTS RESERVED.');
+      expect(html).toContain('All rights reserved.');
       expect(html).toContain('/en/datenschutz');
     }
   });
@@ -289,8 +289,8 @@ describe('EN-Fassung', () => {
   it('Anmelde-Mail: ein Wort im Knopf, Starter-Pack-Satz der Seite, EN-Grafiken', async () => {
     const html = await signupEn();
     expect(cta(html)).toContain('alt="Sign up"');
-    expect(html).toContain('20 MUST EATS. TO GET YOU STARTED.');
-    expect(html).toContain('/pics/email/kicker-signup-en.png');
+    expect(html).toContain('20 Must Eats.');
+    expect(html).toContain('/pics/email/intro-signup-en.png');
     expect(html).toContain('/pics/email/body-starter-en.png');
     expect(html).toContain('/en/map?r=sofi');
     expect(SIGNUP_SUBJECT.en).toBe('Your Eat This sign-in link');
@@ -299,8 +299,8 @@ describe('EN-Fassung', () => {
   it('Login-Mail: Sign in, WELCOME BACK', async () => {
     const html = await loginEn();
     expect(cta(html)).toContain('alt="Sign in"');
-    expect(html).toContain('WELCOME BACK');
-    expect(html).toContain('/pics/email/headline-login-en.png');
+    expect(html).toContain('Welcome back.');
+    expect(html).toContain('/pics/email/intro-login-en.png');
     expect(LOGIN_SUBJECT.en).toBe('Your Eat This sign-in link');
   });
 });

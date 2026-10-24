@@ -1,7 +1,7 @@
 // Rendert die Spot-Cards der Anmelde-Mail vor.
 //
 // Warum lokal statt zur Laufzeit: die Karten setzen die Restaurantnamen in der
-// Markenschrift, und FF Providence Sans Pro liegt unter einer Desktop-Lizenz —
+// Markenschrift, und Neue Haas Grotesk Text Pro liegt unter einer Desktop-Lizenz —
 // die deckt das Erstellen von Grafiken ab, nicht das Ausliefern der Schrift auf
 // einem Server. Vorrendern hält die Schrift auf diesem Rechner und legt nur
 // fertige Bilder ins Repo. Nebeneffekt: auf Staging waren die Karten hinter der
@@ -118,7 +118,7 @@ if (spots.length === 0) {
 const { faces, isBrandFace, files } = await loadBrandFont();
 if (!isBrandFace) {
   console.warn(
-    '\n⚠️  FF Providence Sans Pro fehlt — die Namen setzen in Schoolbell.\n' +
+    '\n⚠️  Neue Haas Grotesk Text Pro fehlt — die Namen setzen in Schoolbell.\n' +
       '   Erst `npm run sync:brand-font`, dann hier erneut.\n'
   );
 } else {

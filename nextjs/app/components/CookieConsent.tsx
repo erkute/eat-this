@@ -211,6 +211,9 @@ export default function CookieConsent() {
   const [closed, setClosed] = useState(true);
   const sections = lang === 'de' ? COOKIE_SECTIONS_DE : COOKIE_SECTIONS_EN;
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const closeTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   const open = useCallback(() => {
     /* Die Frage, die vorher niemand beantworten konnte: WIE OFT wird gefragt?
@@ -220,6 +223,7 @@ export default function CookieConsent() {
      * zu unterscheiden. Bewusst countEvent statt trackEvent: das hier ist
      * consent-freie Messung und gehoert nicht zusaetzlich zu Google. */
     countEvent('consent_gate_shown');
+    window.clearTimeout(closeTimer.current);
     setClosed(false);
     // Two frames: mount at the off-screen transform, then transition in. One
     // frame is not enough — the style would be coalesced with the insertion
@@ -289,6 +293,14 @@ export default function CookieConsent() {
     return () => document.removeEventListener('keydown', onKey, true);
   }, [closed, show]);
 
+  const dismiss = () => {
+    setShow(false);
+    // Preserve the current size until it leaves; collapsing details here
+    // briefly paints the compact banner after an answer to the large one.
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    closeTimer.current = window.setTimeout(() => setClosed(true), reduced ? 0 : 500);
+  };
+
   const handleAccept = () => {
     writeConsent('accepted');
     recordConsent('accepted', lang);
@@ -296,8 +308,7 @@ export default function CookieConsent() {
     // Abbruchquote am Dialog. Der Nachweis in consent_records bleibt davon
     // unberuehrt — der ist Rechtsdokument, das hier ist Messung.
     countEvent('consent_accepted');
-    setShow(false);
-    setExpanded(false);
+    dismiss();
     setTimeout(() => {
       loadAnalytics();
       const { pageLocation, pagePath } = getAnalyticsPageLocation(window.location.href);
@@ -316,8 +327,7 @@ export default function CookieConsent() {
     writeConsent('declined');
     recordConsent('declined', lang);
     countEvent('consent_declined');
-    setShow(false);
-    setExpanded(false);
+    dismiss();
     // Consent withdrawn while GA was already running this session (reopened via
     // the footer "Cookies verwalten" link): drop the GA cookies and reload so
     // the script stops — on reload, 'declined' prevents re-injection.
@@ -375,7 +385,7 @@ export default function CookieConsent() {
               </p>
               <button
                 type="button"
-                className="cookie-info-trigger"
+                className="et-btn et-btn-text et-btn-sm cookie-info-trigger"
                 id="cookieInfoTrigger"
                 aria-expanded={expanded}
                 aria-controls="cookieInfoPanel"

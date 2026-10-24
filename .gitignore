@@ -64,3 +64,6 @@ playwright-report/
 # Lokale Kreativ-Exporte und Bildvorlagen (keine App-Assets)
 /output/
 /pics/
+
+# Lokal aktivierte App-Schrift für Mail-Grafiken; nie ausliefern.
+nextjs/assets/fonts/NeueHaasGroteskTextPro*

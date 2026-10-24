@@ -49,3 +49,23 @@
 }
 @media (prefers-reduced-motion:reduce) { .panel { transition: none; } }
 
+
+/* The admin-only destination is a ninth row; reserve room for it and the footer. */
+.panel:has(a[href$='/admin/stats']) .navItem {
+  font-size: clamp(22px, calc((100dvh - 490px) / 9.2), 64px);
+}
+@media (max-width: 767.98px) {
+  .panel:has(a[href$='/admin/stats']) .navItem {
+    font-size: clamp(22px, min(11.6vw, calc((100dvh - 420px) / 9.2)), 46px);
+  }
+}
+@media (max-height: 850px) {
+  .panel:has(a[href$='/admin/stats']) .scroller { padding-top: 24px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
+  .panel:has(a[href$='/admin/stats']) .cta { margin-top: 16px; }
+  .panel:has(a[href$='/admin/stats']) .foot { padding-top: 20px; }
+}
+@media (max-height: 650px) {
+  .panel:has(a[href$='/admin/stats']) .scroller { padding-top: 16px; padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
+  .panel:has(a[href$='/admin/stats']) .navItem { font-size: 20px; padding-block: 2px 3px; }
+  .panel:has(a[href$='/admin/stats']) .foot { padding-top: 12px; }
+}

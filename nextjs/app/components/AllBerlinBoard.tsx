@@ -1,16 +1,15 @@
 import Image from '@/app/components/SiteImage';
-import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt } from '@/lib/categoryArt';
-import { type PackContentsIndex, formatPackPrice, bundleSavings } from '@/lib/pack/packDetail';
+import { formatPackPrice } from '@/lib/pack/packDetail';
+import { CATALOG } from '@/lib/stripe-catalog';
+import PackBuyButton from '@/app/[locale]/pack/[slug]/PackBuyButton';
 import { PaymentMarks, PAYMENT_MARK_NAMES } from './PaymentMarks';
-import AllBerlinSheet from './AllBerlinSheet';
 import styles from './AllBerlinBoard.module.css';
 
 /* Shared offer: a visual hero on /packs and a compact upgrade on detail pages.
-   The contents sheet opens only on request. */
+   Details and checkout stay on the page. */
 
-// Reihenfolge des 3×3-Fächers: die Farben verteilen sich so, dass keine zwei
-// gleichfarbigen Packs nebeneinander liegen.
+// Shared color order for the wide fan and its two-row mobile version.
 const FAN: string[] = [
   'breakfast',
   'fine-dining',
@@ -25,7 +24,6 @@ const FAN: string[] = [
 
 interface Props {
   locale: 'de' | 'en';
-  contents: PackContentsIndex;
   /** `hero` shows the pack fan and payment marks; `upsell` stays compact. */
   variant: 'hero' | 'upsell';
   headingLevel: 'h1' | 'h2';
@@ -46,67 +44,47 @@ const copy = {
 
 export default function AllBerlinBoard({
   locale,
-  contents,
   variant,
   headingLevel,
   priority = false,
 }: Props) {
   const t = copy[locale];
-  const pack = CATALOG['all-berlin'];
   const Heading = headingLevel;
   const hero = variant === 'hero';
-  const savings = bundleSavings(contents);
+  const pack = CATALOG['all-berlin'];
+  const benefits = locale === 'de' ? [
+    ['Alle Packs', 'Alle Kategorie-Packs für Berlin – von Frühstück bis Fine Dining.'],
+    ['Sofort offen', 'Alle Must Eats sind direkt auf deiner Map aufgedeckt.'],
+    ['Wächst mit', 'Neue Packs und Must Eats kommen ohne weiteren Kauf dazu.'],
+  ] : [
+    ['Every pack', 'Every category pack for Berlin, from breakfast to fine dining.'],
+    ['Already revealed', 'Every Must Eat is revealed on your map right away.'],
+    ['Keeps growing', 'New packs and Must Eats are added at no extra cost.'],
+  ];
 
   return (
     <section
-      className={`${styles.board} ${hero ? styles.boardHero : styles.boardUpsell}`}
+      className={hero ? styles.board : `${styles.board} ${styles.boardUpsell}`}
       aria-labelledby="all-berlin-board-title"
     >
       <div className={styles.copy}>
-        {!hero && <p className={styles.kicker}>{t.kickerUpsell}</p>}
+        {!hero && <p className={`et-label ${styles.kicker}`}>{t.kickerUpsell}</p>}
         <Heading id="all-berlin-board-title" className={styles.title}>
-          All{hero ? <br /> : ' '}Berlin
+          All Berlin
         </Heading>
 
         <p className={styles.lead}>
-          {hero
-            ? locale === 'de'
-              ? 'Alle Must Eats für Berlin: was du wo bestellen solltest. Alle Kategorie-Packs und zukünftigen Karten inklusive.'
-              : 'Every Must Eat in Berlin: what to order and where. All category packs and future cards included.'
-            : locale === 'de'
-              ? 'Alle Kategorie-Packs für Berlin. Neue Packs und Karten kommen ohne weiteren Kauf dazu.'
-              : 'All category packs for Berlin. New packs and cards are included at no extra cost.'}
+          {locale === 'de'
+            ? 'Was du wo bestellen solltest. In ganz Berlin.'
+            : 'What to order and where. Across Berlin.'}
         </p>
 
-        <div className={styles.actions}>
-          <AllBerlinSheet
-            locale={locale}
-            contents={contents}
-            triggerLabel={`${locale === 'de' ? 'All Berlin ansehen' : 'Explore All Berlin'} · ${formatPackPrice(pack.amountCents)}`}
-          />
-          <p className={styles.paymentNote}>
-            {locale === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
-          </p>
-          {hero && savings.savedCents > 0 && (
-            <p className={styles.savings}>
-              {locale === 'de'
-                ? `${savings.percent} % günstiger als die verfügbaren Einzelpacks`
-                : `${savings.percent}% less than the available packs bought separately`}
-            </p>
-          )}
-          {hero && (
-            <PaymentMarks
-              height={24}
-              label={`${t.trust}: ${PAYMENT_MARK_NAMES.join(', ')}`}
-              className={styles.pay}
-            />
-          )}
-        </div>
+
       </div>
 
       <div className={styles.stage} aria-hidden="true">
         <div className={styles.fan}>
-          {(hero ? FAN : ['breakfast', 'pizza', 'sweets']).map((slug) => {
+          {FAN.map((slug) => {
             const art = categoryArt(slug);
             return art ? (
               <Image
@@ -123,6 +101,34 @@ export default function AllBerlinBoard({
           })}
         </div>
       </div>
+      <div className={styles.benefits}>
+        {benefits.map(([title, body]) => <div key={title}>
+          <h3>{title}</h3><p>{body}</p>
+        </div>)}
+      </div>
+      <div className={styles.actions}>
+          <PackBuyButton
+            className={styles.buyButton}
+            packId={pack.packId}
+            packName={pack.displayName}
+            amountCents={pack.amountCents}
+            locale={locale}
+            label={`${locale === 'de' ? 'All Berlin freischalten' : 'Unlock All Berlin'} · ${formatPackPrice(pack.amountCents)}`}
+            pendingLabel={locale === 'de' ? 'Weiter zu Stripe …' : 'Going to Stripe …'}
+            ownedLabel={locale === 'de' ? 'Zur Map' : 'Open map'}
+            ownedHref="/map"
+            errorLabel={locale === 'de' ? 'Da ging was schief. Versuch es nochmal.' : 'Something went wrong. Please try again.'}
+            errorClassName={styles.error}
+          />
+          <p className={styles.paymentNote}>
+            {locale === 'de' ? 'Einmalzahlung, kein Abo' : 'One-time payment, no subscription'}
+          </p>
+          <PaymentMarks
+              height={24}
+              label={`${t.trust}: ${PAYMENT_MARK_NAMES.join(', ')}`}
+              className={styles.pay}
+            />
+        </div>
     </section>
   );
 }

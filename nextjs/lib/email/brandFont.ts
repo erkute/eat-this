@@ -1,14 +1,14 @@
 // Resolves the brand display face for everything Satori rasterises (email
 // headline art, composed spot cards).
 //
-// The site's display font is FF Providence Sans Pro, served at runtime from the
+// The site's display font is Neue Haas Grotesk Text Pro, served at runtime from the
 // Adobe Fonts kit `kgb1lmh`. That kit covers the *website* only — the licence
 // does not extend to email, and Gmail strips @font-face anyway. So the brand
 // face never travels as a webfont: it is baked into images here, from a desktop
 // font file the owner syncs into `assets/fonts/`.
 //
 // Until that file exists the pipeline stays green and falls back to Schoolbell,
-// the previous email face. Drop `Providence*.otf|ttf` into `assets/fonts/` and
+// the previous email face. Drop `NeueHaasGroteskTextPro*.otf|ttf` into `assets/fonts/` and
 // re-run `npm run build:email-art` to switch every surface at once.
 //
 // Satori reads OTF/TTF/WOFF — NOT WOFF2. A .woff2 in this folder is ignored.
@@ -31,7 +31,7 @@ export interface BrandFont {
 }
 
 const SATORI_READABLE = /\.(otf|ttf|woff)$/i;
-const PROVIDENCE = /providence/i;
+const APP_FONT = /neuehaasgrotesktextpro/i;
 const BOLD = /(bold|700|black|heavy)/i;
 
 let cached: Promise<BrandFont> | null = null;
@@ -47,13 +47,13 @@ export function loadBrandFont(): Promise<BrandFont> {
 
 async function resolve(): Promise<BrandFont> {
   const entries = await readdir(FONT_DIR).catch(() => [] as string[]);
-  const providence = entries.filter((f) => PROVIDENCE.test(f) && SATORI_READABLE.test(f)).sort();
+  const appFonts = entries.filter((f) => APP_FONT.test(f) && SATORI_READABLE.test(f)).sort();
 
-  if (providence.length > 0) {
+  if (appFonts.length > 0) {
     // A single file serves both weights when only one was supplied — Satori
     // needs an exact weight match or it falls back to the first face.
-    const boldFile = providence.find((f) => BOLD.test(f)) ?? providence[0];
-    const regularFile = providence.find((f) => !BOLD.test(f)) ?? providence[0];
+    const boldFile = appFonts.find((f) => BOLD.test(f)) ?? appFonts[0];
+    const regularFile = appFonts.find((f) => !BOLD.test(f)) ?? appFonts[0];
     const [bold, regular] = await Promise.all([
       readFile(join(FONT_DIR, boldFile)),
       readFile(join(FONT_DIR, regularFile)),

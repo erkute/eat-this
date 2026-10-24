@@ -58,7 +58,7 @@ function render(locale: 'de' | 'en' = 'de', data: InitialMustEatsData = EMPTY) {
 describe('MustEatsSection', () => {
   it('renders the Must Eats H1', () => {
     const html = render();
-    expect(html).toMatch(/<h1[^>]*>Must<br\/?>Eats<\/h1>/);
+    expect(html).toMatch(/<h1[^>]*>Must Eats<\/h1>/);
   });
 
   it('renders the explanatory sub copy (de)', () => {
@@ -178,7 +178,8 @@ describe('MustEatsSection', () => {
     expect(html).toMatch(/href="\/map"/);
     expect(html).toMatch(/href="\/packs"/);
     // The map link is the primary action, so it comes first in the DOM.
-    expect(html.indexOf('href="/map"')).toBeLessThan(html.indexOf('href="/packs"'));
+    const closingSection = html.slice(html.lastIndexOf('<section'));
+    expect(closingSection.indexOf('href="/map"')).toBeLessThan(closingSection.indexOf('href="/packs"'));
   });
 
   it('says the deck keeps growing, not just where new cards come from', () => {

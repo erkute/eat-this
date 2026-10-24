@@ -43,11 +43,10 @@ describe('AuthScreen.module.css — die Wartescreens fürs An- und Abmelden', ()
   });
 
   it('folgt im Anmeldepanel dem gemeinsamen Theme', () => {
-    expect(exact('.panel', 'background')).toBe('var(--et-ground)');
+    expect(exact('.panel', 'background')).toContain('var(--et-ground) var(--et-window-paper)');
     expect(exact('.panel', 'color')).toBe('var(--et-fg)');
-    expect(exact('.panel', 'border-radius')).toBe('10px');
-    // Hell = Akzentrot, dunkel aufgehellt — sonst säuft das Rot auf Ink ab.
-    expect(exact('.kicker', 'color')).toBe('var(--et-link)');
+    expect(exact('.panel', 'border-radius')).toBe('0');
+    expect(exact('.panel', 'box-shadow')).toBe('var(--et-window-shadow)');
   });
 
   it('hat für den Abbruch eine eigene Rückwärtsbewegung', () => {

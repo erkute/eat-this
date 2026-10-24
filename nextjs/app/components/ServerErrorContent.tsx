@@ -7,10 +7,8 @@
 // Übersetzung, kein BuddyAvatar.
 import { usePathname } from 'next/navigation';
 import styles from '../not-found.module.css';
-
-// Remys O-Mund aus dem 'thinking'-Frame — schaut, wie man schaut, wenn man
-// sich verschluckt hat (User, 2026-08-27).
-const REMY_CHOKING = '/buddy/buddy-think.webp';
+import ErrorNumeral from './ErrorNumeral';
+import ErrorTheme from './ErrorTheme';
 
 const COPY = {
   de: {
@@ -35,41 +33,35 @@ export default function ServerErrorContent({ onRetry }: { onRetry: () => void })
 
   return (
     <main
-      className={`${styles.page} ${styles.errorPage}`}
+      className={styles.page}
       data-page="error"
       aria-labelledby="error-title"
     >
+      <ErrorTheme />
       <section className={styles.hero}>
-        {/* Die letzte Null ist Remys Kopf. Reines Dekor — die Überschrift
-            trägt die Aussage. */}
-        <p className={styles.numeral} aria-hidden="true">
-          <span>5</span>
-          <span>0</span>
-          <span className={`${styles.zero} ${styles.zeroRemy}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={REMY_CHOKING} alt="" width={927} height={997} decoding="async" />
-          </span>
-        </p>
+        <p className={styles.edition} aria-hidden="true">500<br />Eat This</p>
+        <ErrorNumeral value="500" />
         <div className={styles.copy}>
-          <h1 className={`${styles.title} ${styles.errorTitle}`} id="error-title">
+          <p className={styles.code} aria-hidden="true">500</p>
+          <h1 className={styles.title} id="error-title">
             {copy.headline}
           </h1>
-          <p className={styles.sub}>{copy.sub}</p>
           <div className={styles.actions}>
             <button
               type="button"
               onClick={onRetry}
-              className={`et-btn ${styles.primaryCta}`}
+              className={`et-btn et-btn-error ${styles.primaryCta}`}
             >
               {copy.retry}
             </button>
             {/* Ein echter Seitenaufruf statt Soft-Nav: der Router kann Teil
                 des Fehlers sein. */}
-            <a href={locale === 'en' ? '/en' : '/'} className={`et-btn ${styles.secondaryCta}`}>
+            <a href={locale === 'en' ? '/en' : '/'} className={`et-btn et-btn-error ${styles.secondaryCta}`}>
               {copy.home}
             </a>
           </div>
         </div>
+        <p className={styles.sub}>{copy.sub}</p>
       </section>
     </main>
   );

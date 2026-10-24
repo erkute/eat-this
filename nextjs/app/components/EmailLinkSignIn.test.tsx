@@ -43,6 +43,7 @@ async function mount() {
 }
 
 beforeEach(() => {
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
   vi.stubGlobal('matchMedia', () => ({ matches: false }));
   vi.clearAllMocks();
   locale.current = 'de';
@@ -212,7 +213,7 @@ describe('Link aus der Anmelde-Mail', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
     });
     expect(screen.getByText('Dieser Link geht nicht mehr')).toBeTruthy();
-    expect(screen.getByRole('img').getAttribute('src')).toContain('starter-pack-front.webp');
+    expect(screen.getByRole('img').querySelector('img')?.getAttribute('src')).toContain('starter-pack-front.webp');
   });
 
   it('bleibt bei einem Netzfehler stehen und laesst nochmal druecken', async () => {

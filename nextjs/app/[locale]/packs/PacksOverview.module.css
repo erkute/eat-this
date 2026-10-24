@@ -14,22 +14,22 @@
   --packs-accent: var(--et-accent);
   min-height: 100%;
   overflow-x: clip;
-  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) 0 clamp(64px, 8vw, 120px);
+  padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) 0 clamp(32px, 4vw, 56px);
   background: var(--packs-ink);
   color: var(--packs-fg);
-  font-family: var(--et-font-display);
+  font-family: var(--et-font-body);
 }
 
 .wrap {
   width: min(100% - clamp(28px, 5vw, 72px), var(--et-wrap-max));
   margin: 0 auto;
-  padding-top: clamp(16px, 3vw, 40px);
+  padding-top: 12px;
 }
 
 /* ── Kategorie-Packs ───────────────────────────────────────────────────── */
 
 .catalog {
-  padding-top: clamp(56px, 7vw, 104px);
+  padding-top: 32px;
 }
 
 .catalogHead {
@@ -69,7 +69,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(24px, 3vw, 40px) clamp(24px, 4vw, 56px);
+  gap: 16px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -79,7 +79,10 @@
    Spectrum-Zeile und Kaufknopf linksbündig auf einer Achse, mittig zum Pack.
    Am Desktop zwei Zeilen nebeneinander, sonst bliebe rechts eine leere Bahn. */
 .tile {
-  --pack-w: 170px;
+  --pack-w: 150px;
+  padding: 24px;
+  background: color-mix(in srgb, var(--et-ground) 96%, var(--et-fg));
+  border-radius: 12px;
   display: grid;
   grid-template-columns: var(--pack-w) minmax(0, 1fr);
   align-items: center;
@@ -179,18 +182,18 @@
   }
 
   .catalog {
-    padding-top: 48px;
+    padding-top: 28px;
   }
 
   .grid {
-    gap: 20px;
+    gap: 12px;
   }
 
   /* Etwas Luft links, damit das gekippte Pack nicht am Rand klebt. */
   .tile {
-    --pack-w: 112px;
-    gap: 20px;
-    padding-left: 4px;
+    --pack-w: 106px;
+    gap: 16px;
+    padding: 20px 16px;
   }
 
   .tileName {
@@ -219,3 +222,10 @@
 @media (prefers-reduced-motion: reduce) {
   .art { transition: none; }
 }
+
+.flowNav { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; padding-block: 4px 12px; font-size: 14px; font-weight: 700; }
+.flowNav a, .flowNav span { display: inline-flex; align-items: center; min-height: 44px; color: var(--et-copy); text-decoration: none; }
+.flowNav a[aria-current], .flowNav span, .flowNav a:hover { color: var(--et-link); }
+.flowNav a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
+:global(html[data-vintage]) main.page.page.page { background: var(--et-ground); }

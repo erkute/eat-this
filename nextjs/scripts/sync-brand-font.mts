@@ -9,7 +9,7 @@
 //
 // Run:  npm run sync:brand-font          (danach: npm run build:email-art)
 //
-// Die kopierte Datei bleibt lokal — assets/fonts/Providence* ist in
+// Die kopierte Datei bleibt lokal — assets/fonts/NeueHaasGroteskTextPro* ist in
 // .gitignore. Eine lizenzierte Schrift gehört nicht ins Repository; gerendert
 // wird sie hier zu PNGs, und nur die werden ausgeliefert.
 
@@ -26,7 +26,7 @@ const SEARCH_DIRS = [
 ];
 
 /** Was wir suchen — die Familie, auf der das Home-Design steht. */
-const WANTED = /providence/i;
+const WANTED = /neue.*haas.*grotesk.*text/i;
 
 // ---------------------------------------------------------------------------
 // Minimaler sfnt-Parser: nur die `name`-Tabelle, nur die Records, die wir
@@ -121,10 +121,10 @@ for (const dir of SEARCH_DIRS) hits.push(...(await scan(dir)));
 
 if (hits.length === 0) {
   console.error(
-    '\n❌ Keine Providence-Schnitte gefunden. Durchsucht:\n' +
+    '\n❌ Keine Neue Haas Grotesk Text Pro-Schnitte gefunden. Durchsucht:\n' +
       SEARCH_DIRS.map((d) => `   ${d}`).join('\n') +
       '\n\nSo kommt die Datei dorthin:\n' +
-      '  1. fonts.adobe.com/fonts/ff-providence-sans öffnen\n' +
+      '  1. fonts.adobe.com/fonts/neue-haas-grotesk öffnen\n' +
       '  2. Bei den Schnitten auf „Schriften aktivieren" (nicht „Zu Web-Projekt hinzufügen")\n' +
       '     — Regular 400 und Bold 700 genügen\n' +
       '  3. Creative-Cloud-App muss laufen und angemeldet sein; sie synchronisiert\n' +
@@ -140,8 +140,8 @@ const regular = hits.find((h) => !h.bold) ?? hits[0];
 const bold = hits.find((h) => h.bold) ?? regular;
 
 for (const [target, hit] of [
-  ['ProvidenceSansPro-Regular.otf', regular],
-  ['ProvidenceSansPro-Bold.otf', bold],
+  ['NeueHaasGroteskTextPro-Regular.otf', regular],
+  ['NeueHaasGroteskTextPro-Bold.otf', bold],
 ] as const) {
   await writeFile(join(FONT_DIR, target), await readFile(hit.path));
   console.log(`  ${target}  ←  ${hit.family} ${hit.style}`);

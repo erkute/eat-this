@@ -207,6 +207,21 @@ describe('CookieConsent', () => {
    * visitors who had long since answered. An assertion on the client render
    * cannot catch that: RTL flushes effects, so the gate is already gone by the
    * time the test looks. Only the server output shows it. */
+  it.each(['Akzeptieren', 'Ablehnen'])('dismisses expanded details without showing the compact banner after %s', async (answer) => {
+    render(<CookieConsent />);
+    await openGate();
+    fireEvent.click(screen.getByRole('button', { name: 'Details anzeigen' }));
+    expect(document.getElementById('cookieInfoPanel')).not.toBeNull();
+    vi.useFakeTimers();
+
+    fireEvent.click(screen.getByRole('button', { name: answer }));
+
+    const closingGate = document.getElementById('cookieConsent');
+    if (closingGate) expect(closingGate.classList.contains('expanded')).toBe(true);
+    act(() => vi.advanceTimersByTime(600));
+    expect(gate()).toBeNull();
+  });
+
   it('renders nothing on the server, so no visitor gets a flash of the dialog', async () => {
     const { renderToStaticMarkup } = await import('react-dom/server');
 

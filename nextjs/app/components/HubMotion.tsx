@@ -24,34 +24,6 @@ gsap.registerPlugin(useGSAP);
  */
 
 /**
- * Die Fahrstuhltüren geben den fertigen Hero frei. Nach ihrem Öffnen fällt
- * `data-hero-intro`, damit HeroMarkFlight die Marke messen kann.
- */
-function finishIntro(): (() => void) | void {
-  const html = document.documentElement;
-  if (!html.hasAttribute('data-hero-intro')) return;
-  const curtain = document.querySelector<HTMLElement>('[data-hub-hero] [data-hero-curtain]');
-  const running = curtain?.getAnimations() ?? [];
-  let cancelled = false;
-  const end = () => html.removeAttribute('data-hero-intro');
-
-  Promise.all(running.map((a) => a.finished))
-    .then(() => !cancelled && end())
-    // Abgebrochen (Attribut schon weg, Seite verlassen) — nichts mehr zu tun.
-    .catch(() => {});
-
-  return () => {
-    cancelled = true;
-    // Wer die Startseite mitten im Auftritt verlässt, nimmt nichts davon mit
-    // (Logo im Header). Nicht sofort: React baut im Entwicklungsmodus jeden
-    // Effekt einmal ab und gleich wieder auf — dann steht der Aufmacher noch.
-    window.setTimeout(() => {
-      if (!document.querySelector('[data-hub-hero]')) end();
-    }, 0);
-  };
-}
-
-/**
  * Starter Pack: sobald die Tafel ins Bild kommt, tippt sich eine Adresse ins
  * Feld, „Anmelden" wird gedrückt, das Feld leert sich wieder (Ansage
  * 28.09.2026). Getippt wird in den Platzhalter, nie in den Wert — es wird
@@ -314,9 +286,6 @@ function armPreload(): () => void {
 
 export default function HubMotion() {
   useGSAP(() => {
-    // Ausserhalb von matchMedia: aufräumen muss es auch, wenn jemand während
-    // des Auftritts auf reduced motion umschaltet.
-    const stopIntro = finishIntro();
     const stopPreload = armPreload();
     const mm = gsap.matchMedia();
     mm.add(
@@ -336,7 +305,6 @@ export default function HubMotion() {
       }
     );
     return () => {
-      stopIntro?.();
       stopPreload();
       mm.revert();
     };

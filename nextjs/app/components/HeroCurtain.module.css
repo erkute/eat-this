@@ -1,38 +1,14 @@
-/* Zwei scharfe Türflügel ohne gestreckte Metallstruktur öffnen sich vor der fertigen Startseite. */
-.scene {
-  position: fixed;
-  inset: 0;
-  z-index: 100100;
-  overflow: clip;
-  pointer-events: none;
-  visibility: hidden;
-}
-.door {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  background-color: #777;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
+/* Nur die Türen bewegen sich; dahinter steht der fertige Hero. */
+.scene { position: fixed; inset: 0; z-index: 100100; overflow: clip; pointer-events: none; visibility: hidden; }
+.door { position: absolute; top: 0; bottom: 0; width: 50%; background-color: #777; background-repeat: no-repeat; background-size: cover; }
 .left { left: 0; background-image: url('/pics/home/elevator-left.webp'); background-position: right center; }
 .right { right: 0; background-image: url('/pics/home/elevator-right.webp'); background-position: left center; }
-@keyframes openLeft {
-  from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
-}
-@keyframes openRight {
-  from { transform: translateX(0); }
-  to { transform: translateX(100%); }
-}
-@keyframes lifetime {
-  from { visibility: visible; }
-  to { visibility: hidden; }
-}
+@keyframes openLeft { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes openRight { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes lifetime { from { visibility: visible; } to { visibility: hidden; } }
 @media (prefers-reduced-motion: no-preference) {
-  .scene { animation: lifetime 4.7s step-end both; }
-  .door { animation: openLeft 3.8s .8s cubic-bezier(.65, 0, .35, 1) both; will-change: transform; }
+  :global(html[data-hero-intro]) .scene { animation: lifetime 4.7s step-end both; }
+  .door { animation: openLeft 3.8s .8s cubic-bezier(.65, 0, .35, 1) both; }
   .right { animation-name: openRight; }
 }
 :global(html:not([data-hero-intro])) .scene { display: none; }

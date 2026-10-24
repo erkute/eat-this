@@ -25,7 +25,7 @@ interface Props {
   nextMove?: React.ReactNode;
 }
 
-// Vollständig sichtbare Karten, getrennt nach offenen und verdeckten Plätzen.
+// Alle Karten stehen in der gedruckten Nummernfolge im Album.
 export default function ProfileAlbum({
   mustEats,
   faceUpIds,
@@ -60,19 +60,6 @@ export default function ProfileAlbum({
     if (!expandedRef.current) setHiddenId(null);
   };
 
-  const hands = [
-    {
-      id: 'open',
-      label: t('deckFaceUp'),
-      cards: allSlots.filter((slot) => slot.collected && slot.mustEat?.image),
-    },
-    {
-      id: 'covered',
-      label: t('deckFaceDown'),
-      cards: allSlots.filter((slot) => !slot.collected || !slot.mustEat?.image),
-    },
-  ].filter((hand) => hand.cards.length > 0);
-
   /* Abzeichen — was das Deck ueber den Stand hinaus hergibt. Rechnet sich
      aus dem Album aus, das hier ohnehin steht: kein Firestore-Feld, nichts
      nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts).
@@ -100,105 +87,113 @@ export default function ProfileAlbum({
       <div className={styles.deckIntro}>
         <div className={styles.collectionHead}>
           <h2 className={styles.collectionTitle}>{t('albumHeading')}</h2>
-          <p className={styles.collectionCount}>
-            {t('collectionProgress', { done: collected, total: allSlots.length })}
-          </p>
+          {allSlots.length > 0 && (
+            <div
+              className={styles.collectionProgress}
+              role="progressbar"
+              aria-label={t('collectionProgress', { done: collected, total: allSlots.length })}
+              aria-valuemin={0}
+              aria-valuemax={allSlots.length}
+              aria-valuenow={collected}
+            >
+              <div className={styles.collectionCount} aria-hidden="true">
+                <strong>{collected}</strong>
+                <span className={styles.collectionTotal}>/ {allSlots.length}</span>
+              </div>
+              <div className={styles.collectionTrack} aria-hidden="true">
+                {allSlots.map((slot, index) => (
+                  <span key={slot.id} data-filled={index < collected} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         {nextMove && <div className={styles.albumMove}>{nextMove}</div>}
       </div>
       {allSlots.length === 0 ? (
         <p className={styles.emptyText}>{t('emptyMustEats')}</p>
       ) : (
-        <div className={styles.deckTable}>
-          {hands.map((hand) => (
-            <section key={hand.id} className={styles.hand} aria-labelledby={`deck-hand-${hand.id}`}>
-              <h3 id={`deck-hand-${hand.id}`} className={styles.handTitle}>
-                {hand.label}
-              </h3>
-              <div className={styles.grid}>
-                {hand.cards.map((slot) => {
-                  const open = slot.collected && !!slot.mustEat?.image;
-                  const imageUrl = (open && slot.mustEat?.image) || CARD_BACK;
-                  const alt = (open ? slot.mustEat?.dish : undefined) ?? '';
-                  return (
-                    <button
-                      key={slot.id}
-                      type="button"
-                      aria-label={
-                        open
-                          ? slot.stamped
-                            ? `${alt} — ${t('albumStamped')}`
-                            : alt
-                          : `${t('lockedSubhead')}${slot.no ? ` — ${slot.no}` : ''}`
-                      }
-                      className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
-                      style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
-                      onClick={(e) => {
-                        setExpanded({
-                          imageUrl,
-                          /* Das Raster laedt nur Daumennaegel — der Zoom fliegt
+        <div className={styles.grid}>
+          {allSlots.map((slot) => {
+            const open = slot.collected && !!slot.mustEat?.image;
+            const imageUrl = (open && slot.mustEat?.image) || CARD_BACK;
+            const alt = (open ? slot.mustEat?.dish : undefined) ?? '';
+            return (
+              <button
+                key={slot.id}
+                type="button"
+                aria-label={
+                  open
+                    ? slot.stamped
+                      ? `${alt} — ${t('albumStamped')}`
+                      : alt
+                    : `${t('albumCard')}${slot.no ? ` ${slot.no}` : ''}`
+                }
+                className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
+                style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
+                onClick={(e) => {
+                  setExpanded({
+                    imageUrl,
+                    /* Das Raster laedt nur Daumennaegel — der Zoom fliegt
                            mit dem, was schon auf dem Schirm liegt, und holt
                            das Original nach. */
-                          placeholderUrl: e.currentTarget.querySelector('img')?.currentSrc || null,
-                          alt,
-                          rect: e.currentTarget.getBoundingClientRect(),
-                          id: slot.id,
-                        });
-                      }}
-                    >
-                      {open && slot.mustEat?.image ? (
-                        <>
-                          {/* The protected image route authorizes the browser's
+                    placeholderUrl: e.currentTarget.querySelector('img')?.currentSrc || null,
+                    alt,
+                    rect: e.currentTarget.getBoundingClientRect(),
+                    id: slot.id,
+                  });
+                }}
+              >
+                {open && slot.mustEat?.image ? (
+                  <>
+                    {/* The protected image route authorizes the browser's
                         HttpOnly capability cookie. next/image's internal
                         optimizer does not forward that cookie, so private
                         album art must load directly. */}
-                          {/* Eigener `key`, damit React beim Aufdecken ein NEUES
+                    {/* Eigener `key`, damit React beim Aufdecken ein NEUES
                         <img> baut, statt das der Rueckseite umzuschreiben: dann
                         setzt es nacheinander src, srcset, sizes, und Safari
                         waehlt bei jedem Schritt neu — erst die 360er, dann
                         (srcset ohne sizes = 100vw) die 720er. Ein iPhone lud so
                         jede Karte doppelt (Prod-Log 26.09.2026). Chrome waehlt
                         einmal und zeigt es nicht. */}
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            key="card"
-                            src={mustEatCardSrc(slot.mustEat.image, 360)}
-                            srcSet={mustEatCardSrcSet(slot.mustEat.image)}
-                            sizes={GRID_SIZES}
-                            alt=""
-                            className={styles.img}
-                            loading="lazy"
-                            decoding="async"
-                          />
-                          {/* Der Stempel. Er sitzt auf der Karte, leicht schief wie
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      key="card"
+                      src={mustEatCardSrc(slot.mustEat.image, 360)}
+                      srcSet={mustEatCardSrcSet(slot.mustEat.image)}
+                      sizes={GRID_SIZES}
+                      alt=""
+                      className={styles.img}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {/* Der Stempel. Er sitzt auf der Karte, leicht schief wie
                         ein echter, und sagt das Einzige, was ein Kauf nicht
                         kann: da war jemand. */}
-                          {slot.stamped && (
-                            <span className={styles.stamp} aria-hidden="true">
-                              {t('albumStamped')}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        /* Verdeckt bleibt nur der Kartenrücken. Der Spot ist
+                    {slot.stamped && (
+                      <span className={styles.stamp} aria-hidden="true">
+                        {t('albumStamped')}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  /* Verdeckt bleibt nur der Kartenrücken. Der Spot ist
                      nach dem Antippen über den Zoom erreichbar. */
-                        <>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            key="back"
-                            className={styles.backImg}
-                            src={CARD_BACK}
-                            alt=""
-                            loading="lazy"
-                          />
-                        </>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      key="back"
+                      className={styles.backImg}
+                      src={CARD_BACK}
+                      alt=""
+                      loading="lazy"
+                    />
+                  </>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 

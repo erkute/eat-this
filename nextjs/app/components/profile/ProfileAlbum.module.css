@@ -44,10 +44,50 @@
   letter-spacing: -0.03em;
 }
 
+.collectionProgress {
+  width: min(230px, 100%);
+  margin-top: 6px;
+}
+
 .collectionCount {
-  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--album-ink);
+  font-family: var(--album-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.collectionCount strong {
+  color: var(--album-red);
+  font-size: clamp(42px, 4.5vw, 60px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.collectionTotal {
   color: var(--album-muted);
-  font: 400 15px / 1.4 var(--album-display);
+  font-size: 20px;
+}
+
+.collectionTrack {
+  display: flex;
+  gap: 3px;
+  height: 8px;
+  margin-top: 10px;
+}
+
+.collectionTrack span {
+  flex: 1;
+  min-width: 0;
+  background: var(--album-ink);
+  opacity: 0.15;
+}
+
+.collectionTrack span[data-filled='true'] {
+  background: var(--album-red);
+  opacity: 1;
 }
 
 .albumMove {
@@ -248,19 +288,6 @@ div.player {
   text-transform: uppercase;
 }
 
-.deckTable {
-  display: grid;
-  gap: clamp(28px, 4vw, 44px);
-}
-.hand {
-  min-width: 0;
-}
-.handTitle {
-  margin: 0 0 4px;
-  color: var(--album-ink);
-  font: 700 clamp(21px, 2vw, 28px) / 1.15 var(--album-display);
-  letter-spacing: -0.025em;
-}
 .grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -341,10 +368,7 @@ div.player {
     gap: 22px;
   }
   .collectionHead {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
+    justify-items: start;
   }
 }
 @media (max-width: 767.98px) {

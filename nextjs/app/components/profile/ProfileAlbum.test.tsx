@@ -24,6 +24,31 @@ import ProfileAlbum from './ProfileAlbum';
 afterEach(cleanup);
 
 describe('ProfileAlbum', () => {
+  it('keeps numbered slots in one sequence regardless of whether their images are available', () => {
+    const restaurant = { _id: 'r1', name: 'Spot', slug: 'spot', lat: 0, lng: 0 };
+    render(
+      <ProfileAlbum
+        mustEats={[
+          { _id: 'third', order: 3, dish: 'Third', image: '/api/must-eat-image/third', restaurant },
+          { _id: 'first', order: 1, restaurant },
+          {
+            _id: 'second',
+            order: 2,
+            dish: 'Second',
+            image: '/api/must-eat-image/second',
+            restaurant,
+          },
+        ]}
+        faceUpIds={new Set(['second', 'third'])}
+        stampedIds={new Set()}
+        groupOf={() => 'Mitte'}
+      />
+    );
+    expect(
+      screen.getAllByRole('button').map((button) => button.getAttribute('aria-label'))
+    ).toEqual(['albumCard 001', 'Second', 'Third']);
+  });
+
   /* Zwei Wege, eine Karte zu bekommen — und nur einer hinterlaesst eine Spur.
      Der Stempel ist die einzige Auszeichnung im Deck, die es nicht zu kaufen
      gibt; verschwindet er aus dem Markup, ist der Unterschied wieder
@@ -203,7 +228,7 @@ describe('ProfileAlbum', () => {
       />
     );
 
-    const slot = screen.getByLabelText('lockedSubhead — 026');
+    const slot = screen.getByLabelText('albumCard 026');
     expect(slot.textContent).toBe('');
     expect(slot.querySelector('img')?.getAttribute('src')).toContain('/pics/card-back.webp');
     /* Und weiterhin kein Gericht, kein Bild der Karte: nur die Rueckseite. */
@@ -233,7 +258,7 @@ describe('ProfileAlbum', () => {
       />
     );
 
-    fireEvent.click(screen.getByLabelText('lockedSubhead — 004'));
+    fireEvent.click(screen.getByLabelText('albumCard 004'));
     expect(screen.getByRole('link', { name: 'albumOpenDetail' }).getAttribute('href')).toBe(
       '/map?me=m3'
     );

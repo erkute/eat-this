@@ -1078,3 +1078,9 @@
 /* Die Adresse ist selbst das Maps-Ziel, mit unverändertem Lesesatz. */
 .rdAddress:is(:hover, :focus-visible) { color: var(--et-link); text-decoration: none; }
 .rdAddress:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
+/* Ohne Pack-Werbung (All Berlin) endet das Detail nach dem Magazin oder
+   Steckbrief. Auch im Telefonfluss braucht dieser Abschluss Luft. */
+.detail .scroll:not(:has(> .packPromo:last-child)) {
+  padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+}

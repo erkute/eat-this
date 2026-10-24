@@ -18,7 +18,7 @@ import Content from './stats/reports/Content';
 import EventsReport from './stats/reports/EventsReport';
 import ConsentReport from './stats/reports/ConsentReport';
 import styles from './StatsDashboard.module.css';
-import { BRAND_LOGO_SRC } from '@/lib/constants';
+import { ThemeSwitch } from '../ThemeSwitch';
 
 /**
  * Die Leseseite des einwilligungsfreien Zählers — als Werkzeug mit Berichten
@@ -236,9 +236,12 @@ export default function StatsDashboard() {
             zur Startseite führt. Die Stats-Seite hat sonst keine Leiste. */}
         <Link href="/" className={styles.home} aria-label="Eat This — Startseite">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={BRAND_LOGO_SRC} alt="Eat This" width={660} height={265} />
+          <img src="/pics/home/wordmark.webp?v=1" alt="Eat This" width={1124} height={274} />
         </Link>
         <h1 className={styles.brand}>Stats</h1>
+        <div className={styles.themeControls}>
+          <ThemeSwitch de />
+        </div>
         <nav className={styles.nav} aria-label="Berichte">
           {REPORTS.map((r) => (
             <NavEntry key={r.key} report={r} active={r.key === report} data={data} onOpen={open} />
@@ -290,7 +293,7 @@ export default function StatsDashboard() {
             />
             <button
               type="button"
-              className={range.kind === 'custom' ? styles.btn : styles.btnGhost}
+              className={`et-btn et-btn-sm${range.kind === 'custom' ? '' : ' et-btn-alt'}`}
               onClick={applyCustom}
               disabled={!draft.from || !draft.to || draft.from > draft.to}
             >
@@ -298,7 +301,7 @@ export default function StatsDashboard() {
             </button>
             <button
               type="button"
-              className={styles.btnGhost}
+              className="et-btn et-btn-sm et-btn-alt"
               onClick={() => void load(range)}
               disabled={loading}
             >
@@ -442,7 +445,11 @@ function NoCountToggle() {
       {off
         ? 'Dieser Browser wird nicht mitgezählt.'
         : 'Dieser Browser zählt mit — jeder eigene Klick landet in den Zahlen.'}{' '}
-      <button type="button" className={styles.optOutButton} onClick={toggle}>
+      <button
+        type="button"
+        className={`et-btn et-btn-sm et-btn-alt ${styles.optOutButton}`}
+        onClick={toggle}
+      >
         {off ? 'Wieder mitzählen' : 'Nicht mitzählen'}
       </button>
     </p>

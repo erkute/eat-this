@@ -35,7 +35,7 @@
   border: 0;
   border-radius: 0;
   background-color: var(--et-ground);
-  background-image: url('/pics/paper/folded-white.webp');
+  background-image: var(--et-window-paper);
   background-size: 400px 600px;
   background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
   background-blend-mode: multiply;
@@ -64,7 +64,7 @@
 .filterChipRow .filterChipActive,
 .filterChipRow .filterChip[aria-expanded='true'] {
   background-color: #fff;
-  background-image: url('/pics/paper/folded-white.webp');
+  background-image: var(--et-window-paper);
   background-size: 400px 600px;
   background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
   background-blend-mode: difference;
@@ -136,7 +136,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--et-z-picker);
-  background: rgb(0 0 0 / 0.24);
+  background: var(--et-scrim);
 }
 .pickerSheet {
   position: fixed;
@@ -151,7 +151,7 @@
   max-height: 70vh;
   padding: 12px;
   background-color: var(--et-ground);
-  background-image: url('/pics/paper/folded-white.webp');
+  background-image: var(--et-window-paper);
   background-size: 100% 100%;
   background-blend-mode: multiply;
   color: var(--et-fg);

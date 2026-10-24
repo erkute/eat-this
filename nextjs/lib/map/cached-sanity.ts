@@ -28,5 +28,12 @@ export async function getCachedMapData(): Promise<CachedMapData> {
     client.fetch<MapMustEat[]>(mapMustEatsQuery, {}, MAP_CACHE_OPTIONS),
     client.fetch<CategoryDef[]>(allCategoriesQuery, {}, MAP_CACHE_OPTIONS),
   ]);
-  return { restaurants, mustEats, categories };
+  return {
+    restaurants: restaurants.map((r) => r.searchText ? {
+      ...r,
+      searchText: [...new Set(r.searchText.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean))].join(' '),
+    } : r),
+    mustEats,
+    categories,
+  };
 }

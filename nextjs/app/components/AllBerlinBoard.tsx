@@ -64,7 +64,7 @@ export default function AllBerlinBoard({
 
   return (
     <section
-      className={`${styles.board} ${hero ? styles.boardHero : styles.boardUpsell}`}
+      className={hero ? styles.board : `${styles.board} ${styles.boardUpsell}`}
       aria-labelledby="all-berlin-board-title"
     >
       <div className={styles.copy}>

@@ -360,7 +360,9 @@ export function Card({
     >
       <header className={styles.cardHead}>
         <div>
-          <h2 className={styles.cardTitle}>{title}</h2>
+          <h2 className={styles.cardTitle}>
+            <span className="et-label">{title}</span>
+          </h2>
           {sub && <p className={styles.cardSub}>{sub}</p>}
         </div>
         {tools && <div className={styles.cardTools}>{tools}</div>}

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { CONSENT_VERSION } from '../lib/consent';
 
 for (const theme of ['light', 'dark']) {
-  test(`map actions stay free of frames (${theme})`, async ({ page, context, baseURL, isMobile }, info) => {
+  test(`map actions stay free of frames and retain keyboard focus (${theme})`, async ({ page, context, baseURL, isMobile }, info) => {
     const english = theme === 'dark';
     const prefix = english ? '/en' : '';
     await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
@@ -31,7 +31,8 @@ for (const theme of ['light', 'dark']) {
     await expect(restaurant).toHaveCSS('box-shadow', 'none');
     await page.keyboard.press('Tab');
     await restaurant.focus();
-    await expect(restaurant).toHaveCSS('outline-style', 'none');
+    await expect(restaurant).toHaveCSS('outline-style', 'solid');
+    await expect(restaurant).toHaveCSS('outline-width', '2px');
     const close = detail.getByRole('button', { name: english ? 'To the spot' : 'Zum Spot', exact: true });
     await close.focus();
     await expect(close).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');

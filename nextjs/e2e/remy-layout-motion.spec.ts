@@ -1,6 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 import { CONSENT_VERSION } from '../lib/consent';
 
+// Exercise the same dayparts on developer machines and UTC CI runners.
+test.use({ timezoneId: 'UTC' });
+
 test.beforeEach(async ({ page, context, baseURL }) => {
   await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
   await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
@@ -18,8 +21,8 @@ async function openRemy(page: Page) {
   await expect(page.locator('#buddy-panel')).toBeVisible();
 }
 
-for (const [width, height, hour] of [[1440, 900, 10], [1366, 768, 10], [1280, 720, 10], [1280, 600, 10], [390, 844, 6], [320, 568, 6]]) {
-  test(`Remy suggestions fit without scrolling at ${width}×${height}`, async ({ page }) => {
+for (const [width, height, hour] of [[1440, 900, 10], [1440, 900, 12], [1440, 900, 16], [1440, 900, 20], [1440, 900, 1], [1366, 768, 10], [1280, 720, 10], [1280, 600, 10], [390, 844, 6], [320, 568, 6]]) {
+  test(`Remy suggestions fit without scrolling at ${width}×${height}, hour ${hour}`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await page.clock.setFixedTime(new Date(`2026-10-24T${String(hour).padStart(2, '0')}:00:00Z`));
     await openRemy(page);

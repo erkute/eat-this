@@ -39,10 +39,10 @@ interface Props {
 type Surface = 'open' | 'set';
 
 // Daumennägel nach Spaltenbreite (MustEatsSection.module.css): das Feature
-// läuft am Telefon als Band mit ~74vw, am Desktop in vier Spalten; das Set
-// am Telefon in vier, ab 768px in sechs, ab 1120px in acht Spalten.
-const OPEN_SIZES = '(max-width: 767px) 74vw, (max-width: 1023px) 46vw, 300px';
-const SET_SIZES = '(max-width: 767px) 23vw, (max-width: 1119px) 15vw, 160px';
+// läuft am Telefon als Band mit ~70vw, am Desktop in vier Spalten; das Set
+// am Telefon in drei, ab 768px in fünf, ab 1024px in sechs Spalten.
+const OPEN_SIZES = '(max-width: 767px) 70vw, (max-width: 1023px) 46vw, 300px';
+const SET_SIZES = '(max-width: 767px) 30vw, (max-width: 1023px) 18vw, 210px';
 
 export default function MustEatsGallery({ initialMapData, copy }: Props) {
   const { t } = useTranslation();

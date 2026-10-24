@@ -1,761 +1,91 @@
-/* Must-Eats: folded paper, large body-type headings and freestanding card artwork. */
-
+/* One editorial rhythm for the catalog, its open cards and the complete set. */
 .page {
   --must-pad: var(--et-wrap-pad-mobile);
-  --must-yellow: #ffc600;
   --must-soft: var(--et-copy);
   --must-dim: var(--et-muted);
-  --must-gap: var(--et-section-gap-mobile);
-  --must-card-shadow: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
-  --must-lift: translateY(-4px);
-
-  min-height: 100%;
-  display: flow-root;
-  overflow-x: clip;
+  --must-gap: clamp(32px, 4vw, 56px);
+  --must-card-shadow: drop-shadow(0 12px 16px rgb(0 0 0 / .15));
   position: relative;
   isolation: isolate;
+  display: flow-root;
+  min-height: 100%;
+  overflow-x: clip;
   background: var(--et-ground);
   color: var(--et-fg);
-  font-family: var(--et-font-body);
 }
+:global(.page).page { font-family: var(--et-font-body); }
 
-/* `.page` carries no global rule today, but this surface has been bitten by
-   module-vs-stylesheet order before — equal specificity resolves differently in
-   a production build than in dev. The doubled selector keeps the font decision
-   here regardless of which sheet lands last. */
-:global(.page).page {
-  font-family: var(--et-font-body);
-}
-
-@media (min-width: 768px) {
-  .page {
-    --must-pad: var(--et-wrap-pad);
-    --must-gap: var(--et-section-gap);
-  }
-}
-
-.wrap {
-  width: min(100% - 2 * var(--must-pad), var(--et-wrap-max));
-  margin-inline: auto;
-}
-
-/* ------------------------------------------------------------- type ---- */
-
+.wrap { width: min(100% - 2 * var(--must-pad), var(--et-wrap-max)); margin-inline: auto; }
+.flowNav { display: flex; gap: 24px; padding-block: 8px; font-size: 14px; font-weight: 700; }
+.flowNav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--et-copy); text-decoration: none; }
+.flowNav a[aria-current], .flowNav a:hover { color: var(--et-link); }
+.flowNav a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .kicker { margin: 0; justify-self: start; }
-
-.page > :global([data-folded-paper]) { mix-blend-mode: multiply; }
-
-.title,
-.sectionTitle,
-.closeTitle {
-  margin: 0;
-  color: var(--et-fg);
-  font-weight: 700;
-  letter-spacing: -.055em;
-  text-transform: none;
-  text-wrap: balance;
-}
-
-.sub,
-.sectionBody,
-.closeBody {
-  margin: 0;
-  color: var(--must-soft);
-  font-size: var(--et-type-lead);
-  font-weight: 400;
-  line-height: 1.5;
-  text-wrap: pretty;
-}
-
-/* ------------------------------------------------------------- head ---- */
-
-/* Telefon: Titel links, die Titelkarte rechts daneben wie auf einem Cover;
-   darunter Vorspann, Zahlen und Knöpfe über die volle Breite. */
-.head {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 36%;
-  grid-template-areas:
-    'kicker cover'
-    'title cover'
-    'sub sub'
-    'stats stats'
-    'actions actions';
-  grid-template-rows: auto auto;
-  column-gap: 14px;
-  padding-top: 40px;
-}
-
-.head:not([data-cover]) {
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'kicker' 'title' 'sub' 'stats' 'actions';
-}
-
-.head > .kicker {
-  grid-area: kicker;
-  align-self: end;
-  margin-bottom: 12px;
-}
-
-.title {
-  grid-area: title;
-  align-self: start;
-  font-size: clamp(64px, 18vw, 88px);
-  line-height: .94;
-}
-
-.cover {
-  grid-area: cover;
-  align-self: start;
-  margin: 10px 0 0;
-}
-
-.cover img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 760 / 1044;
-  object-fit: contain;
-  transform: rotate(4deg);
-  filter: var(--must-card-shadow);
-}
-
-.sub {
-  grid-area: sub;
-  max-width: 44ch;
-  margin-top: 22px;
-  font-size: 16px;
-}
-
-/* The deck stated as three numbers. This is the advertisement: a visitor knows
-   the size and the shape of the collection before reading any body copy. */
-.stats {
-  grid-area: stats;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 26px;
-  margin: 24px 0 0;
-}
-
-.stat {
-  display: flex;
-  /* dt (the label) is first in the DOM so the <dl> stays a term/description
-     pair; reversing here puts the number on top where it belongs visually. */
-  flex-direction: column-reverse;
-  gap: 6px;
-}
-
-.statValue {
-  margin: 0;
-  color: var(--et-fg);
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-}
-
-.statLabel {
-  color: var(--et-link);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1;
-  text-transform: none;
-}
-
-.actions {
-  grid-area: actions;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-top: 26px;
-}
-
-/* ------------------------------------------------------------ buttons -- */
-
-/* Pillen wie alle Knöpfe, der gefüllte mit den leichten Kratzern
-   (Ansage 22.10.2026). Hover und Fokus: die Fläche wechselt zu Ink, kein
-   Ring — Papier wie früher verschwand auf dem hellen Grund. */
-
-/* Die Seitentür als leise Fläche: Papier auf dem grauen Abschlussblock. */
-
-/* ------------------------------------------------------------- cards --- */
-
-/* Cards are complete artworks — dish, spot and number are printed on them.
-   Show them freestanding: no frames or panels. */
-.card {
-  appearance: none;
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  cursor: pointer;
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.card img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 760 / 1044;
-  object-fit: contain;
-  filter: var(--must-card-shadow);
-}
-
-.card:focus-visible {
-  outline: none;
-  transform: var(--must-lift);
-}
-
-@media (hover: hover) {
-  .card:hover {
-    transform: var(--must-lift);
-  }
-}
-
-/* --------------------------------------------------------- sections ---- */
-
-.section {
-  margin-top: var(--must-gap);
-}
-
-.sectionHead {
-  display: grid;
-  gap: 12px;
-  max-width: 60ch;
-  margin-bottom: 26px;
-}
-
-.sectionTitle {
-  font-size: clamp(30px, 8.6vw, 36px);
-  line-height: 1.05;
-}
-
-.sectionBody {
-  max-width: 52ch;
-  font-size: 16px;
-}
-
-/* ---------------------------------------------------------- feature ---- */
-
-/* Am Telefon ein Band zum Wischen, randlos bis an den Bildschirmrand; die
-   nächste Karte schaut rechts hinein. Oben Luft für das Anheben, unten für
-   den Schatten. */
-.feature {
-  display: flex;
-  gap: 30px;
-  margin: 0 calc(-1 * var(--must-pad));
-  padding: 22px var(--must-pad) 28px;
-  list-style: none;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: var(--must-pad);
-  scrollbar-width: none;
-}
-
-.feature::-webkit-scrollbar {
-  display: none;
-}
-
-.featureItem {
-  --tilt: -2.5deg;
-
-  flex: 0 0 min(74vw, 300px);
-  min-width: 0;
-  scroll-snap-align: start;
-}
-
-/* Die Karten liegen wie ausgeteilt: jede ein wenig anders schräg, im
-   Wechsel nach links und rechts. Bei Hover und Fokus richtet sich die Karte
-   auf. Die Neigung sitzt am Bild, die Bewegung beim Scrollen am Knopf —
-   so kommen sich Übergang und Animation nicht in die Quere. */
-.featureItem:nth-child(3n + 2) {
-  --tilt: 2deg;
-}
-
-.featureItem:nth-child(3n + 3) {
-  --tilt: -1deg;
-}
-
-.feature .card img {
-  rotate: var(--tilt);
-  transition: rotate 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.feature .card:focus-visible img {
-  rotate: 0deg;
-}
-
-@media (hover: hover) {
-  .feature .card:hover img {
-    rotate: 0deg;
-  }
-}
-
-/* Am Telefon schwingt die Karte durchs Band: von rechts kommt sie schräg und
-   etwas kleiner herein, an ihrem Platz liegt sie gerade, nach links kippt
-   sie wieder weg. Gekoppelt an den Scroll des Bands (Scroll-Timeline, kein
-   JS); wo das fehlt, bleibt die ruhige Neigung. Ab 768px werden die Karten
-   beim Hereinscrollen der Seite ausgeteilt. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .feature .card {
-      animation: swing linear both;
-      animation-timeline: view(inline);
-    }
-
-    @media (min-width: 768px) {
-      .feature .card {
-        animation-name: deal;
-        animation-timeline: view();
-        animation-range: entry 0% entry 100%;
-      }
-
-      .featureItem:nth-child(even) .card {
-        animation-range: entry 10% entry 110%;
-      }
-    }
-  }
-}
-
-/* Angelegt liegt die Karte bei gut der Hälfte der Strecke (Kartenbreite plus
-   Band). Gedreht wird um die Mitte, und je schräger die Karte, desto kleiner:
-   so bleibt sie in jeder Lage in ihrem eigenen Feld und ragt weder in die
-   Nachbarin noch in den Namen darunter. */
-@keyframes swing {
-  0% {
-    rotate: 7deg;
-    scale: 0.84;
-  }
-
-  30% {
-    rotate: 3deg;
-    scale: 0.92;
-  }
-
-  55% {
-    rotate: 0deg;
-    scale: 1;
-  }
-
-  80% {
-    rotate: -3deg;
-    scale: 0.92;
-  }
-
-  100% {
-    rotate: -7deg;
-    scale: 0.84;
-  }
-}
-
-@keyframes deal {
-  from {
-    rotate: 7deg;
-    translate: 0 56px;
-  }
-
-  to {
-    rotate: 0deg;
-    translate: 0 0;
-  }
-}
-
-/* Die Bildunterschrift wie im Heft: Gericht und Spot. Nummer und was auf
-   dem Teller liegt, stehen schon auf der Karte. */
-.caption {
-  display: grid;
-  justify-items: start;
-  gap: 6px;
-  padding: 20px 2px 0;
-}
-
-.dish {
-  margin: 0;
-  color: var(--et-fg);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.05;
-  text-transform: none;
-  overflow-wrap: anywhere;
-}
-
-.where {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 10px;
-  margin: 0;
-  color: var(--must-soft);
-  font-size: 15px;
-  line-height: 1.4;
-}
-
-/* Der Bezirk als Versalien-Etikett neben dem Spot, wie oben rechts auf der
-   Karte — ohne Trennpunkt, der beim Umbruch allein am Zeilenanfang stünde. */
-.district {
-  color: var(--must-dim);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  text-transform: none;
-  white-space: nowrap;
-}
-
-/* Der Spot ist ein Link, aber kein unterstrichenes Wort: Weiß gegen das
-   gedämpfte Grau daneben, bei Hover und Fokus die rote Fläche. */
-.spotLink {
-  color: var(--et-fg);
-  text-decoration: none;
-  border-radius: 2px;
-  transition:
-    background-color var(--et-motion-fast),
-    box-shadow var(--et-motion-fast);
-}
-
-.spotLink:focus-visible {
-  outline: none;
-  background: var(--et-accent);
-  box-shadow: 0 0 0 3px var(--et-accent);
-}
-
-@media (hover: hover) {
-  .spotLink:hover {
-    background: var(--et-accent);
-    box-shadow: 0 0 0 3px var(--et-accent);
-  }
-}
-
-.price {
-  margin: 0;
-  color: var(--et-fg);
-  font-size: 15px;
-  line-height: 1.4;
-}
-
-/* --------------------------------------------------------------- set --- */
-
-.set {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 22px 10px;
-  margin: 0;
-  padding: 6px 0 0;
-  list-style: none;
-}
-
-.setItem {
-  min-width: 0;
-}
-
-.setCaption {
-  display: grid;
-  justify-items: start;
-  gap: 3px;
-  min-width: 0;
-  margin: 10px 0 0;
-  font-size: 12px;
-  line-height: 1.25;
-}
-
-/* Die Bildunterschrift im Kleinen: Gericht in Weiß, Spot gedämpft darunter,
-   beide dürfen umbrechen — lieber zwei Zeilen als ein abgeschnittener Name. */
-.setName {
-  max-width: 100%;
-  color: var(--et-fg);
-  font-weight: 700;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-
-.setSpot {
-  max-width: 100%;
-  color: var(--must-soft);
-  font-size: 11px;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-
-/* Covered cards emphasize both their status and restaurant. */
-.setItem[data-face='down'] .setName,
-.setItem[data-face='down'] .setSpot {
-  font-weight: 700;
-}
-
-/* Fokus auf einer Karte: ihr Name darunter wird zur gelben Fläche. */
-.featureItem:has(.card:focus-visible) .dish,
-.setItem:has(.card:focus-visible) .setName {
-  background: var(--must-yellow);
-  color: var(--et-ink);
-  border-radius: 2px;
-  box-shadow: 0 0 0 4px var(--must-yellow);
-}
-
-/* ------------------------------------------------------------- close --- */
-
-/* Der Schluss ist die eine Tafel, die bleibt: das Angebot der Seite, also
-   ein Objekt, eine Stufe heller als der Grund. Die Tüte steht am Telefon
-   oben, am Desktop rechts. */
-.close {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: center;
-  gap: 18px;
-  margin-top: var(--must-gap);
-  margin-bottom: 0;
-  padding: 24px 18px;
-  overflow: hidden;
-  background: transparent;
-  border-radius: 0;
-}
-
-.closeCopy {
-  min-width: 0;
-}
-
-.closeTitle {
-  margin-top: 12px;
-  font-size: clamp(40px, 12vw, 54px);
-  line-height: 1.05;
-}
-
-.closeBody {
-  max-width: 42ch;
-  margin-top: 14px;
-  font-size: 16px;
-}
-
-.packShot {
-  order: -1;
-  display: flex;
-  justify-content: center;
-  min-width: 0;
-  padding-top: 4px;
-}
-
-.packShot img {
-  display: block;
-  width: min(54vw, 240px);
-  height: auto;
-  transform: rotate(-5deg);
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.16));
-}
-
-/* ---------------------------------------------------------- ≥ 560px ---- */
-
-@media (min-width: 560px) {
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .actions > * {
-    width: auto;
-  }
-
-  .set {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-/* ---------------------------------------------------------- ≥ 768px ---- */
-
+.title, .sectionTitle, .closeTitle { margin: 0; font-weight: 800; letter-spacing: -.055em; text-wrap: balance; }
+.title { grid-area: title; font-size: clamp(58px, 15vw, 88px); line-height: .88; align-self: start; }
+.sub, .sectionBody, .closeBody { margin: 0; color: var(--must-soft); font-size: 16px; line-height: 1.5; text-wrap: pretty; }
+.head { display: grid; grid-template-columns: minmax(0, 1fr) 38%; grid-template-areas: 'kicker cover' 'title cover' 'sub sub' 'actions actions' 'stats stats'; gap: 0 16px; padding-top: 16px; }
+.head:not([data-cover]) { grid-template-columns: 1fr; grid-template-areas: 'kicker' 'title' 'sub' 'actions' 'stats'; }
+.head > .kicker { grid-area: kicker; margin-bottom: 18px; align-self: end; }
+.cover { grid-area: cover; margin: 8px 0 0; align-self: center; }
+.cover img { display: block; width: 100%; height: auto; aspect-ratio: 760 / 1044; object-fit: contain; transform: rotate(3deg); filter: var(--must-card-shadow); }
+.sub { grid-area: sub; max-width: 43ch; margin-top: 26px; }
+.actions { grid-area: actions; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 24px; }
+.stats { grid-area: stats; display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px 0 0; padding-block: 12px; }
+.stat { display: flex; flex-direction: column-reverse; gap: 8px; padding-inline: 16px; }
+.stat:first-child { padding-left: 0; border: 0; }
+.statValue { margin: 0; font-size: clamp(32px, 5vw, 48px); font-weight: 700; letter-spacing: -.04em; line-height: 1; }
+.statLabel { font-size: 12px; color: var(--must-soft); }
+.section { margin-top: var(--must-gap); }
+.sectionHead { display: grid; gap: 16px; margin-bottom: 20px; }
+.sectionTitle { font-size: clamp(34px, 5vw, 64px); line-height: 1.02; }
+.sectionBody { max-width: 48ch; }
+.card { appearance: none; display: block; width: 100%; margin: 0; padding: 0; background: transparent; border: 0; cursor: pointer; transition: transform .2s ease; }
+.card img { display: block; width: 100%; height: auto; aspect-ratio: 760 / 1044; object-fit: contain; filter: var(--must-card-shadow); }
+.card:focus-visible { outline: 3px solid var(--et-link); outline-offset: 6px; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .card:hover { transform: translateY(-6px); } }
+.feature { display: flex; gap: 24px; margin: 0 calc(-1 * var(--must-pad)); padding: 12px var(--must-pad) 24px; list-style: none; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--must-pad); }
+.featureItem { flex: 0 0 min(70vw, 290px); min-width: 0; scroll-snap-align: start; }
+.caption { display: grid; justify-items: start; gap: 8px; padding-top: 20px; }
+.dish { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: anywhere; }
+.where { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 0; font-size: 14px; color: var(--must-soft); }
+.district { color: var(--must-dim); font-size: 12px; }
+.spotLink { color: var(--et-fg); text-decoration: none; }
+.spotLink:hover { color: var(--et-link); }
+.spotLink:focus-visible { outline: 2px solid var(--et-link); outline-offset: 3px; }
+.price { margin: 0; font-size: 14px; }
+.set { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 16px; margin: 0; padding: 0; list-style: none; }
+.setItem { min-width: 0; }
+.setCaption { display: grid; gap: 5px; margin: 12px 0 0; font-size: 12px; line-height: 1.3; }
+.setName { font-weight: 700; overflow-wrap: anywhere; }
+.setSpot { color: var(--must-soft); overflow-wrap: anywhere; }
+.close { display: grid; align-items: center; gap: 32px; margin-top: var(--must-gap); padding-block: 24px; }
+.closeCopy { min-width: 0; }
+.closeTitle { margin-top: 20px; font-size: clamp(48px, 7vw, 88px); line-height: 1; }
+.closeBody { margin-top: 20px; max-width: 42ch; }
+.packShot { display: flex; justify-content: center; order: -1; }
+.packShot img { width: min(48vw, 240px); height: auto; transform: rotate(-4deg); filter: var(--must-card-shadow); }
+.page > :global([data-site-footer]) { --et-sheet: none; background: transparent; }
 @media (min-width: 768px) {
-  /* Desktop-Cover: Titel, Vorspann, Zahlen und Knöpfe links, die Titelkarte
-     groß und mittig rechts. */
-  .head {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    grid-template-areas:
-      'kicker cover'
-      'title cover'
-      'sub cover'
-      'stats cover'
-      'actions cover';
-    grid-template-rows: auto auto auto auto 1fr;
-    column-gap: clamp(32px, 5vw, 96px);
-    padding-top: clamp(48px, 6vw, 88px);
-  }
-
-  .head > .kicker {
-    margin-bottom: clamp(14px, 1.6vw, 22px);
-  }
-
-  .title {
-    font-size: clamp(88px, 10vw, 144px);
-  }
-
-  .cover {
-    align-self: center;
-    justify-self: center;
-    width: min(100%, 340px);
-    margin: 0;
-    padding: 24px 0;
-  }
-
-  .cover img {
-    transform: rotate(3deg);
-  }
-
-  .sub {
-    margin-top: clamp(20px, 2.4vw, 32px);
-    font-size: var(--et-type-lead);
-  }
-
-  .stats {
-    gap: 20px clamp(28px, 3.4vw, 52px);
-    margin-top: clamp(24px, 2.8vw, 36px);
-  }
-
-  .statValue {
-    font-size: clamp(40px, 3.6vw, 52px);
-  }
-
-  .actions {
-    margin-top: clamp(26px, 3vw, 38px);
-  }
-
-  .sectionHead {
-    gap: 14px;
-    margin-bottom: clamp(30px, 3.4vw, 48px);
-  }
-
-  .sectionTitle {
-    font-size: clamp(36px, 4.4vw, 60px);
-    line-height: 1.05;
-  }
-
-  .sectionBody {
-    font-size: clamp(16px, 1.3vw, 19px);
-  }
-
-  /* Das Feature als Raster: kein Seitwärts-Scrollen am Desktop. */
-  .feature {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 56px clamp(24px, 3vw, 40px);
-    margin: 0;
-    padding: 0;
-    overflow: visible;
-    scroll-snap-type: none;
-  }
-
-  .featureItem {
-    flex: none;
-  }
-
-  .dish {
-    font-size: clamp(22px, 1.8vw, 26px);
-  }
-
-  .set {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 34px clamp(16px, 1.8vw, 26px);
-  }
-
-  .close {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.5fr);
-    gap: clamp(24px, 4vw, 56px);
-    padding: clamp(32px, 4vw, 56px);
-  }
-
-  .closeTitle {
-    font-size: var(--et-type-heading);
-  }
-
-  .closeBody {
-    font-size: var(--et-type-lead);
-  }
-
-  .packShot {
-    order: 0;
-    padding: 0;
-  }
-
-  .packShot img {
-    width: min(100%, 300px);
-  }
+  .page { --must-pad: var(--et-wrap-pad); }
+  .head { align-content: start; grid-template-rows: auto auto auto auto 1fr; grid-template-columns: 1.2fr 1fr; grid-template-areas: 'kicker cover' 'title cover' 'sub cover' 'actions cover' 'stats cover'; padding-top: 20px; column-gap: clamp(40px, 7vw, 100px); }
+  .title { font-size: clamp(80px, 9vw, 132px); }
+  .cover { width: min(100%, 280px); justify-self: center; margin: 12px 0 24px; }
+  .sub { font-size: 20px; }
+  .stats { margin-top: 24px; padding-block: 12px; }
+  .stat { padding-inline: 16px; }
+  .statLabel { font-size: 14px; }
+  .feature { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; margin: 0; padding: 0; overflow: visible; }
+  .set { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px 20px; }
+  .sectionHead { grid-template-columns: 1fr; grid-template-areas: 'kicker' 'title' 'body'; align-items: start; gap: 10px; margin-bottom: 24px; }
+  .sectionHead > .kicker { grid-area: kicker; }
+  .sectionTitle { grid-area: title; }
+  .sectionBody { grid-area: body; max-width: 65ch; font-size: 18px; }
+  .close { grid-template-columns: 1fr .65fr; padding-block: 24px; }
+  .closeBody { font-size: 20px; }
+  .packShot { order: 0; }
+  .packShot img { width: min(100%, 280px); }
 }
-
-@media (min-width: 1024px) {
-  /* Kopf eines Abschnitts wie eine Heftseite: Titel links, der Vorspann
-     rechts auf der Grundlinie des Titels. */
-  .sectionHead {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    grid-template-areas:
-      'kicker .'
-      'title body';
-    align-items: end;
-    column-gap: clamp(32px, 5vw, 96px);
-    max-width: none;
-  }
-
-  .sectionHead > .kicker {
-    grid-area: kicker;
-  }
-
-  .sectionTitle {
-    grid-area: title;
-  }
-
-  .sectionBody {
-    grid-area: body;
-    padding-bottom: 0.3em;
-  }
-
-  .feature {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1120px) {
-  .set {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-  }
-}
-
-/* ------------------------------------------------------------ motion --- */
-
-@media (prefers-reduced-motion: reduce) {
-  .card,
-  .card img,
-  .spotLink {
-    transition: none;
-  }
-
-  .card:focus-visible {
-    transform: none;
-  }
-
-  @media (hover: hover) {
-    .card:hover {
-      transform: none;
-    }
-  }
-}
-
-/* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
-@supports (-webkit-touch-callout: none) {
-  @media (pointer: coarse) {
-    .cover img,
-    .card img,
-    .packShot img {
-      filter: none;
-    }
-  }
-}
-
-/* One continuous sheet from the catalog through its closing section and footer. */
-.page > :global([data-site-footer]) {
-  --et-sheet: none;
-  --et-fg: inherit;
-  --et-muted: inherit;
-  background: transparent;
-}
+@media (min-width: 1024px) { .feature { grid-template-columns: repeat(4, minmax(0, 1fr)); } .set { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+@supports (-webkit-touch-callout: none) { @media (pointer: coarse) { .cover img, .card img, .packShot img { filter: none; } } }

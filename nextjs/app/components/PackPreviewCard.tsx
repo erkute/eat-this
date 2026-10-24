@@ -37,7 +37,7 @@ export default function PackPreviewCard({
         />
       </Link>
       <div>
-        <p className={styles.kicker}>
+        <p className={`et-label ${styles.kicker}`}>
           {de ? 'So sehen deine Must Eats aus' : 'Meet your Must Eats'}
         </p>
         <p className={styles.spot}>{card.restaurant.name}</p>

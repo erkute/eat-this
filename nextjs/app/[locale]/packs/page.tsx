@@ -64,8 +64,11 @@ export default async function PacksOverviewPage({ params }: PageProps) {
     <PackOwnershipProvider>
       <main className={styles.page}>
         <div className={styles.wrap}>
+          <nav className={styles.flowNav} aria-label={loc === 'de' ? 'Must Eats und Packs' : 'Must Eats and packs'}>
+            <Link href="/must-eats">Must Eats</Link>
+            <Link href="/packs" aria-current="page">Booster Packs</Link>
+          </nav>
           <AllBerlinBoard
-            contents={packContents}
             locale={loc}
             variant="hero"
             headingLevel="h1"
@@ -74,7 +77,7 @@ export default async function PacksOverviewPage({ params }: PageProps) {
 
           <section className={styles.catalog} aria-labelledby="packs-catalog-title">
             <div className={styles.catalogHead}>
-              <p className={styles.kicker}>{t.kicker}</p>
+              <p className={`et-label ${styles.kicker}`}>{t.kicker}</p>
               <h2 id="packs-catalog-title" className={styles.sectionTitle}>
                 {t.categoryTitle}
               </h2>

@@ -14,16 +14,16 @@
   min-height: 100svh;
   overflow-x: clip;
   padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) var(--et-wrap-pad-mobile)
-    clamp(48px, 7vw, 96px);
+    40px;
   background: var(--et-ground);
   color: var(--pack-fg);
-  font-family: var(--et-font-display);
+  font-family: var(--et-font-body);
 }
 
 .inner {
   width: min(100%, var(--et-wrap-max));
   margin: 0 auto;
-  padding-top: clamp(16px, 3vw, 40px);
+  padding-top: 12px;
 }
 
 /* ── Kopf ──────────────────────────────────────────────────────────────── */
@@ -33,7 +33,7 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: clamp(16px, 4vw, 56px);
-  padding: clamp(8px, 2vw, 24px) 0;
+  padding: 20px 0;
   color: var(--pack-fg);
 }
 
@@ -45,7 +45,7 @@
 .name {
   margin: 0;
   color: var(--pack-fg);
-  font-size: clamp(52px, 6.8vw, 108px);
+  font-size: clamp(64px, 8vw, 112px);
   font-weight: 700;
   letter-spacing: -0.055em;
   line-height: 0.9;
@@ -70,12 +70,7 @@
    Versalien wie die Kicker der übrigen Seiten. */
 .spectrum {
   margin: clamp(16px, 2vw, 24px) 0 0;
-  color: var(--pack-fg);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  line-height: 1.3;
-  text-transform: uppercase;
+  width: fit-content;
 }
 
 .sub {
@@ -90,8 +85,8 @@
 .actions {
   display: grid;
   justify-items: start;
-  gap: 12px;
-  margin-top: clamp(22px, 3vw, 34px);
+  gap: 8px;
+  margin-top: 20px;
 }
 
 /* Der Kauf: rote Pille mit leichten Kratzern. Hover und Fokus: Ink. */
@@ -109,7 +104,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
+  margin-top: 0;
 }
 
 .stage {
@@ -121,7 +116,7 @@
 }
 
 .packArt {
-  width: min(100%, 400px);
+  width: min(78%, 300px);
   height: auto;
   transform: rotate(-4deg);
   filter: drop-shadow(0 22px 26px rgba(0, 0, 0, 0.3));
@@ -130,7 +125,10 @@
 /* ── All-Berlin-Upsell ─────────────────────────────────────────────────── */
 
 .upsell {
-  padding-top: clamp(56px, 7vw, 104px);
+  margin-top: 20px;
+  padding: clamp(20px, 3vw, 32px);
+  background: color-mix(in srgb, var(--et-ground) 97%, var(--et-fg));
+  border-radius: 12px;
 }
 
 @media (min-width: 768px) {
@@ -147,12 +145,12 @@
   .inner { width: min(100%, 1880px); }
   .copy { max-width: 780px; }
   .name { font-size: var(--et-type-page); }
-  .packArt { width: min(100%, 520px); }
+  .packArt { width: min(100%, 360px); }
 }
 
 @media (max-width: 767.98px) {
   .hero {
-    row-gap: 36px;
+    row-gap: 20px;
   }
 
   .copy {
@@ -160,7 +158,7 @@
   }
 
   .stage {
-    order: -1;
+    grid-row: 2;
     padding: 6px 0 0;
   }
 
@@ -190,4 +188,33 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
+}
+
+.flowNav { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; padding-block: 4px 12px; font-size: 14px; font-weight: 700; }
+.flowNav a, .flowNav span { display: inline-flex; align-items: center; min-height: 44px; color: var(--et-copy); text-decoration: none; }
+.flowNav a[aria-current], .flowNav span, .flowNav a:hover { color: var(--et-link); }
+.flowNav a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
+:global(html[data-vintage]) main.page.page.page { background: var(--et-ground); }
+
+.hero > .actions { margin-top: 0; }
+@media (min-width: 768px) {
+ .hero { grid-template-areas: 'copy art' 'actions art'; gap: 20px 40px; }
+ .hero > .copy { grid-area: copy; align-self: end; }
+ .hero > .stage { grid-area: art; }
+ .hero > .actions { grid-area: actions; align-self: start; }
+}
+@media (max-width: 767.98px) {
+ .hero > .actions { justify-items: center; text-align: center; }
+ .paymentLogos { justify-content: center; }
+}
+@media (max-width: 767.98px) {
+ .hero { justify-items: center; gap: 20px; padding-block: 20px 28px; }
+ .hero > .copy { text-align: center; width: 100%; }
+ .hero .name { font-size: clamp(44px, 12vw, 60px); line-height: .98; }
+ .hero .spectrum { margin: 16px auto 0; }
+ .hero .sub { max-width: 34ch; margin: 14px auto 0; font-size: 17px; line-height: 1.45; }
+ .hero > .stage { width: 100%; padding: 0; }
+ .hero .packArt { width: min(54vw, 250px); transform: none; filter: drop-shadow(0 8px 10px rgb(0 0 0 / .15)); }
+ .hero > .actions { gap: 8px; width: 100%; }
 }

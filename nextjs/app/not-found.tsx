@@ -1,13 +1,6 @@
 import type { Metadata } from 'next';
-import ClientIntlProvider from './[locale]/ClientIntlProvider';
-import NotFoundAppFrame from './components/NotFoundAppFrame';
+import { ERROR_THEME_BOOTSTRAP } from '@/lib/theme';
 import NotFoundContent from './components/NotFoundContent';
-import { translations } from '@/lib/i18n/translations';
-
-const PROVIDENCE_REGULAR_WOFF2 =
-  'https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3';
-const PROVIDENCE_BOLD_WOFF2 =
-  'https://use.typekit.net/af/98d132/0000000000000000773599ea/31/l?subset_id=2&fvd=n7&v=3';
 
 export const metadata: Metadata = {
   title: '404 — Eat This',
@@ -19,30 +12,12 @@ export const metadata: Metadata = {
 // layout is a pass-through.
 export default function NotFound() {
   return (
-    <html lang="de">
+    <html lang="de" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
-        <link
-          rel="preload"
-          href={PROVIDENCE_REGULAR_WOFF2}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href={PROVIDENCE_BOLD_WOFF2}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        <script dangerouslySetInnerHTML={{ __html: ERROR_THEME_BOOTSTRAP }} />
       </head>
-      <body style={{ margin: 0, padding: 0, backgroundColor: '#15120e' }}>
-        <ClientIntlProvider locale="de" messages={translations.de}>
-          <NotFoundAppFrame>
-            <NotFoundContent locale="de" />
-          </NotFoundAppFrame>
-        </ClientIntlProvider>
+      <body style={{ margin: 0, padding: 0, backgroundColor: 'var(--et-ground, #fff)' }}>
+        <NotFoundContent locale="de" />
       </body>
     </html>
   );

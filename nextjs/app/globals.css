@@ -413,13 +413,13 @@ html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
    wie die übrigen Unterseiten auf Papier (Ansage 21.10.2026: „mit Kratzer
    wie echte Magazine“). `:has()` darf nicht in `:has()` stehen, sonst fällt
    die ganze Regel weg. */
-html[data-vintage] :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+html[data-vintage]:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
   background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
   background-size: 192px, 100% auto;
   background-repeat: repeat, no-repeat;
   background-position: 0 0, top center;
 }
-html[data-vintage][data-theme='dark'] :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
   background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
 }
 /* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
@@ -549,15 +549,36 @@ html[data-active-page][data-magazine-opening] body,
 html[data-active-page][data-magazine-opening] .app-pages {
   background: var(--et-magazine-table);
 }
-/* 404 und 500 haben keinen festen Slug — `data-active-page` traegt dort das
-   erste Pfadsegment der falschen Adresse, und auf einem gestreamten
-   notFound() laeuft der Bootstrap gar nicht erst. Also am Inhalt erkennen.
-   Das Zahlenbrett (/admin/stats) hat kein SPA-Geruest und haengt deshalb
-   ebenfalls hier. */
-html:has(main[data-page='not-found']),
-html:has(main[data-page='not-found']) body,
-html:has(main[data-page='error']),
-html:has(main[data-page='error']) body,
+/* Error posters own their footer-paper surface; the outer canvas stays white. */
+html:has(main:is([data-page='not-found'], [data-page='error'])),
+html:has(main:is([data-page='not-found'], [data-page='error'])) body {
+  background: var(--et-white);
+}
+html:has(main:is([data-page='not-found'], [data-page='error'])) {
+  --et-window-paper: none;
+}
+html:has(main:is([data-page='not-found'], [data-page='error'])) .et-btn {
+  background-image: none;
+}
+/* Compact actions on the full-screen error poster. */
+.et-btn.et-btn-error {
+  --et-btn-bg: transparent;
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover: var(--et-fg);
+  --et-btn-hover-fg: var(--et-ground);
+  min-height: 44px;
+  padding-inline: 12px;
+  border-radius: 0;
+  font: 700 16px / 1.1 var(--et-font-body);
+  text-transform: uppercase;
+  background-image: none;
+}
+html:has(main:is([data-page='not-found'], [data-page='error'])) main .et-btn:focus-visible {
+  outline: 2px solid var(--et-fg);
+  outline-offset: 4px;
+  background-color: var(--et-ground);
+  color: var(--et-fg);
+}
 html:has([data-page='admin']),
 html:has([data-page='admin']) body {
   background: var(--et-ink);

@@ -1,299 +1,150 @@
-/* 404 + 500 zwischen echter Kopfleiste und Footer, Ink wie jede Inhaltsseite.
-   Seit 25.09.2026 traegt die Zahl selbst das Bild: bei der 404 ist die Null
-   eine verdeckte Must-Eat-Karte, bei der 500 die letzte Null Remys Kopf.
-   Kein Kartenraster, kein Pin, keine Ringe mehr — Knoepfe setzen sich per
-   Flaeche ab (gelb bzw. --et-ink-raised), wie im Anmelde-Layer.
-   Der Grund selbst liegt an html/body (globals.css,
-   `:has([data-page='not-found'|'error'])`) — ein `background` hier auf dem
-   `<main>` griffe nie. NotFoundContent und [locale]/error.tsx teilen sich
-   diese Datei: Klassen nicht umbenennen, ohne beide anzufassen. */
-
-.page {
-  --nf-paper: var(--et-ink);
-  --nf-ink: var(--et-white);
-  --nf-muted: var(--et-ink-soft);
-  --nf-dim: var(--et-ink-dim);
-  --nf-accent: var(--et-accent);
-  --nf-raised: var(--et-ink-raised);
-  --nf-display: var(--et-font-display);
-  --nf-label: var(--et-font-display);
-  /* Ink-Seite: die Knöpfe (et-btn) stehen weiss darauf. */
-  --et-solid: var(--et-white);
-  --et-on-solid: var(--et-ink);
-  --et-focus: var(--et-white);
-
-  box-sizing: border-box;
+/* Full-screen typographic error poster, following the supplied reference. */
+.page[data-page] {
+  --et-ground: var(--et-white);
+  --et-fg: var(--et-ink);
+  --et-copy: var(--et-ink);
+  position: relative;
+  isolation: isolate;
   display: grid;
-  place-items: center;
-  min-height: 0;
-  padding: clamp(28px, 5vw, 64px) 0 clamp(36px, 5vw, 72px);
-  background: var(--nf-paper);
-  color: var(--nf-ink);
-  font-family: var(--nf-display);
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--et-ground);
+  color: var(--et-fg);
+  font-family: var(--et-font-body);
+  font-weight: 700;
 }
 
-/* Die Fehlergrenze haengt nicht im NotFoundAppFrame, sondern direkt im
-   <body> — ohne dessen .app-pages hat .page gar keine Hoehe, und das
-   `place-items: center` darueber zentriert ins Leere. Erst die volle
-   Viewport-Hoehe macht die Zentrierung wirksam; die 404 bekommt ihre Hoehe
-   vom Rahmen und bleibt unberuehrt. Steht hinter .page, damit dessen
-   `min-height: 0` bei gleicher Spezifitaet nicht gewinnt. */
-.errorPage {
-  min-height: 100dvh;
+/* Same asset and desktop paper proportions as SiteFooter. */
+.page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: #fff url('/pics/paper/folded-white.webp') center / 640px 960px repeat;
+  pointer-events: none;
 }
 
-.page *,
-.page *::before,
-.page *::after {
+.page,
+.page * {
   box-sizing: border-box;
 }
 
 .hero {
+  position: relative;
   display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: clamp(20px, 2.6vw, 32px);
-  width: min(100% - 48px, 760px);
-  min-height: clamp(420px, 60vh, 620px);
-  margin: 0 auto;
+  place-items: center;
+  min-height: 100svh;
+  padding: 100px 24px 120px;
   text-align: center;
 }
 
-/* Die Zahl als Plakat. Ziffern haben in Providence keine Unterlaengen, die
-   enge Zeilenhoehe kappt also nichts (anders als bei Woertern, siehe die
-   gekappten Unterlaengen anderswo) — und es gibt hier kein overflow. */
 .numeral {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.03em;
-  margin: 0;
-  color: var(--nf-ink);
-  font-family: var(--nf-display);
-  font-size: clamp(120px, 21vw, 236px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  user-select: none;
-}
-
-/* Die Null, die keine Ziffer ist. Die Hoehe haengt an der Schriftgroesse,
-   damit Karte bzw. Kopf mit den Ziffern daneben mitwachsen. */
-.zero {
-  position: relative;
-  display: block;
-  flex: none;
-  margin-inline: 0.05em;
-  animation: nf-zero-in 720ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms both;
-}
-
-.zero img {
-  display: block;
-}
-
-/* Verdeckte Karte, leicht gekippt, als laege sie gerade gespielt da. Der
-   Schatten folgt per drop-shadow den runden Ecken der Karte — ein box-shadow
-   waere ein Rechteck dahinter. */
-.zeroCard {
-  --nf-tilt: -8deg;
-  height: 0.94em;
-  aspect-ratio: 760 / 1044;
-  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.5));
-}
-
-.zeroCard img {
-  width: 100%;
-  height: 100%;
-}
-
-/* Remys Kopf im gelben Kreis — derselbe Kreis wie der Remy-Knopf unten
-   rechts. Das Bild ist Brustbild, der Kreis zeigt nur Kopf und O-Mund. */
-.zeroRemy {
-  --nf-tilt: 7deg;
-  width: 0.74em;
-  height: 0.74em;
-  overflow: hidden;
-  border-radius: 50%;
-  background: var(--nf-accent);
-  box-shadow: 0 14px 22px rgba(0, 0, 0, 0.5);
-}
-
-.zeroRemy img {
   position: absolute;
-  top: -8%;
+  z-index: -1;
+  top: 50%;
   left: 50%;
-  width: 150%;
-  height: auto;
-  max-width: none;
-  transform: translateX(-50%);
+  width: max-content;
+  margin: 0;
+  color: #ffc600;
+  font-size: min(125svh, 64vw);
+  font-weight: 700;
+  letter-spacing: -.055em;
+  line-height: 1;
+  transform: translate(-50%, -50%) scaleY(1.7);
+  user-select: none;
+  pointer-events: none;
 }
 
-/* Die Null faellt an ihren Platz und dreht sich dabei in ihre Schraege.
-   Nur transform — kein Opacity-Fade auf Markenflaechen. */
-@keyframes nf-zero-in {
-  from {
-    transform: translateY(-0.28em) rotate(calc(var(--nf-tilt) * -2.4));
-  }
+.mobileNumeral {
+  display: none;
+}
 
-  to {
-    transform: rotate(var(--nf-tilt));
-  }
+.edition {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  right: 24px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .copy {
+  width: min(100%, 520px);
   display: grid;
   justify-items: center;
-  gap: clamp(12px, 1.6vw, 18px);
-  min-width: 0;
+  gap: 2px;
+}
+
+.code {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .title {
-  max-width: 16ch;
   margin: 0;
-  color: var(--nf-ink);
-  font-family: var(--nf-display);
-  font-size: clamp(34px, 5vw, 60px);
+  max-width: 32ch;
+  font-size: clamp(18px, 2vw, 22px);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  /* Providence haengt tief: unter 1 stossen die Unterlaengen der ersten
-     Versalzeile in die zweite. */
-  line-height: 1.02;
+  line-height: 1.1;
   text-transform: uppercase;
   text-wrap: balance;
 }
 
-/* The 500 boundary keeps the same shape, only the headline runs longer (EN). */
-.errorTitle {
-  max-width: 18ch;
-}
-
 .sub {
-  max-width: 40ch;
+  position: absolute;
+  bottom: max(40px, env(safe-area-inset-bottom));
+  left: 50%;
+  width: min(calc(100% - 48px), 300px);
   margin: 0;
-  color: var(--nf-muted);
-  font-family: var(--nf-display);
-  font-size: clamp(16px, 1.4vw, 19px);
-  font-weight: 400;
-  /* Providence haengt tief: bei 1.34 beruehrte das g von "schiefgelaufen"
-     die naechste Zeile. */
-  line-height: 1.52;
-  text-wrap: pretty;
+  transform: translateX(-50%);
+  font-size: 14px;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-wrap: balance;
 }
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   justify-content: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   margin-top: 8px;
 }
 
-/* Zwei gefuellte Knoepfe gleicher Groesse, kein Ring: gelb fuer den Weg
-   raus, --et-ink-raised fuer die Alternative (wie „Ablehnen" im
-   Cookie-Dialog). Gelb geht beim Zeigen auf Papier, nie auf Ink. */
 .primaryCta,
 .secondaryCta {
-  min-width: 148px;
+  min-width: 100px;
 }
 
-/* The error boundary renders its retry CTA as a <button> — strip the UA
-   button chrome so it reads exactly like the anchor CTAs next to it. Nur die
-   Familie setzen (das UA-Stylesheet setzt sonst Arial); `font: inherit`
-   setzte die Groesse gleich mit zurueck, und der Knopf stand sichtbar
-   anders hoch als der Link daneben. */
-
-/* Eine Sackgasse, die trotzdem Wege anbietet — als leise Textzeile, nicht
-   als dritte Reihe Knoepfe. */
-.more {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 22px;
-}
-
-.moreLink {
-  padding: 6px 0;
-  color: var(--nf-dim);
-  font-family: var(--nf-label);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  line-height: 1;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: color 140ms ease;
-}
-
-.moreLink:focus-visible {
-  color: var(--et-accent-text);
-  outline: 0;
-}
-
-@media (hover: hover) {
-  .moreLink:hover {
-    color: var(--et-accent-text);
-  }
-}
-
-@media (max-width: 720px) {
-  .page {
-    padding-top: calc(78px + env(safe-area-inset-top, 0px));
-    padding-bottom: 40px;
-  }
-
-  /* Die Fehlergrenze rendert bewusst ohne NotFoundAppFrame — keine SiteNav,
-     kein Footer (siehe den Kopf von app/[locale]/error.tsx). Das Polster
-     oben ist Platz fuer genau diese Leiste; ohne sie ist es toter Raum, und
-     der Block haengt sichtbar zu hoch. Die 404 behaelt das Polster, sie hat
-     die Leiste wirklich. Steht hinter .page, damit es bei gleicher
-     Spezifitaet gewinnt. */
-  .errorPage {
-    padding-top: clamp(20px, 6vw, 40px);
-  }
-
-  .hero {
-    width: calc(100% - 32px);
-    min-height: clamp(380px, 56vh, 520px);
-    gap: 22px;
-  }
-
+@media (max-width: 767.98px) {
   .numeral {
-    font-size: clamp(104px, 33vw, 150px);
+    display: none;
+  }
+
+  .mobileNumeral {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    fill: #ffc600;
+    font-family: var(--et-font-body);
+    font-size: 1370px;
+    font-weight: 700;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .page::before {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
   }
 
   .title {
-    font-size: clamp(32px, 9.6vw, 44px);
-  }
-
-  .sub {
-    max-width: 32ch;
-    font-size: 16px;
-  }
-
-  /* Nebeneinander, gleich breit. Ohne volle Breite schrumpft die Reihe im
-     zentrierten Grid auf ihren Inhalt, und die Knoepfe brechen untereinander. */
-  .actions {
-    flex-wrap: nowrap;
-    width: 100%;
-    gap: 10px;
-  }
-
-  .primaryCta,
-  .secondaryCta {
-    flex: 1 1 0;
-    min-width: 0;
-    max-width: 200px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .zero {
-    animation: none;
-    transform: rotate(var(--nf-tilt));
-  }
-
-  .moreLink {
-    transition: none;
+    max-width: 28ch;
   }
 }

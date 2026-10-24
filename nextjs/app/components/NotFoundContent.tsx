@@ -1,4 +1,5 @@
 import styles from '../not-found.module.css';
+import ErrorNumeral from './ErrorNumeral';
 
 // Plain <a> with a hand-built prefix instead of next-intl's `Link`.
 //
@@ -19,10 +20,6 @@ type Locale = 'de' | 'en';
 
 const linkTo = (locale: Locale, href: string) => (locale === 'en' ? `/en${href}` : href);
 
-// Dieselbe Rueckseite wie im Deck und im Teaser, samt Cache-Stand — der Browser
-// hat sie meist schon.
-const CARD_BACK = '/pics/card-back.webp?v=8';
-
 const COPY = {
   de: {
     headline: 'Falsch abgebogen.',
@@ -30,12 +27,6 @@ const COPY = {
     primary: 'Zur Map',
     secondary: 'Must Eats',
     actionsLabel: 'Weiter',
-    moreLabel: 'Oder direkt',
-    more: [
-      { href: '/bezirk', label: 'Bezirke' },
-      { href: '/packs', label: 'Packs' },
-      { href: '/news', label: 'Magazin' },
-    ],
   },
   en: {
     headline: 'Wrong turn.',
@@ -43,12 +34,6 @@ const COPY = {
     primary: 'Open map',
     secondary: 'Must Eats',
     actionsLabel: 'Continue',
-    moreLabel: 'Or try',
-    more: [
-      { href: '/bezirk', label: 'Districts' },
-      { href: '/packs', label: 'Packs' },
-      { href: '/news', label: 'Magazine' },
-    ],
   },
 } satisfies Record<Locale, unknown>;
 
@@ -63,42 +48,26 @@ export default function NotFoundContent({ locale = 'de' }: { locale?: Locale }) 
       aria-labelledby="not-found-title"
     >
       <section className={styles.hero} aria-labelledby="not-found-title">
-        {/* Die Null ist eine verdeckte Must-Eat-Karte: die Karte, die es nicht
-            gibt. Reines Bild — die Überschrift trägt die Aussage, der Titel
-            des Tabs die Zahl. */}
-        <p className={styles.numeral} aria-hidden="true">
-          <span>4</span>
-          <span className={`${styles.zero} ${styles.zeroCard}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={CARD_BACK} alt="" width={760} height={1044} decoding="async" />
-          </span>
-          <span>4</span>
-        </p>
+        <p className={styles.edition} aria-hidden="true">404<br />Eat This</p>
+        <ErrorNumeral value="404" />
 
         <div className={styles.copy}>
+          <p className={styles.code} aria-hidden="true">404</p>
           <h1 className={styles.title} id="not-found-title">
             {copy.headline}
           </h1>
 
-          <p className={styles.sub}>{copy.sub}</p>
-
           <div className={styles.actions} aria-label={copy.actionsLabel}>
-            <a href={linkTo(locale, '/map')} className={`et-btn ${styles.primaryCta}`}>
+            <a href={linkTo(locale, '/map')} className={`et-btn et-btn-error ${styles.primaryCta}`}>
               {copy.primary}
             </a>
-            <a href={linkTo(locale, '/must-eats')} className={`et-btn ${styles.secondaryCta}`}>
+            <a href={linkTo(locale, '/must-eats')} className={`et-btn et-btn-error ${styles.secondaryCta}`}>
               {copy.secondary}
             </a>
           </div>
         </div>
 
-        <nav className={styles.more} aria-label={copy.moreLabel}>
-          {copy.more.map((item) => (
-            <a key={item.href} href={linkTo(locale, item.href)} className={styles.moreLink}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
+        <p className={styles.sub}>{copy.sub}</p>
       </section>
     </main>
   );

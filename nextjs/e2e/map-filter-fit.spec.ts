@@ -21,7 +21,7 @@ for (const locale of ['de', 'en']) {
       })).toBe(true);
       if (width >= 1024) {
         await expect.poll(async () => {
-          const menu = await page.getByRole('button', { name: 'Menu', exact: true }).boundingBox();
+          const menu = await page.getByRole('button', { name: locale === 'en' ? 'Menu' : 'Menü', exact: true }).boundingBox();
           const chip = await district.boundingBox();
           return Math.abs(menu!.y + menu!.height / 2 - chip!.y - chip!.height / 2);
         }).toBeLessThan(1);

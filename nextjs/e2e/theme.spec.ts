@@ -21,7 +21,7 @@ for (const en of [false, true]) {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     const canvas = await page.locator('.maplibregl-canvas').elementHandle();
     await expect(page.locator('.maplibregl-canvas')).toBeVisible();
-    await page.getByRole('button', { name: 'Menu', exact: true }).click();
+    await page.getByRole('button', { name: en ? 'Menu' : 'Menü', exact: true }).click();
     await menu.getByRole('button', { name: en ? 'Light' : 'Hell', exact: true }).click();
     await menu.getByRole('button', { name: en ? 'Close' : 'Schließen', exact: true }).click();
     await expect(page.locator('html')).toHaveCSS('color-scheme', 'light');

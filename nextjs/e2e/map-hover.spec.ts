@@ -41,8 +41,8 @@ for (const theme of ['light', 'dark']) {
 
     await page.goto(`${prefix}/map`, { waitUntil: 'domcontentloaded' });
     await page.locator('.maplibregl-marker').first().waitFor({ state: 'visible' });
-    await page.getByRole('button', { name: english ? 'Search' : 'Suche', exact: true }).click();
     const search = page.getByRole('searchbox', { name: english ? 'Search' : 'Suche', exact: true });
+    await search.click();
     await expect(search).toBeFocused();
     const toolbar = search.locator('..');
     await expect(toolbar).toHaveCSS('outline-style', 'none');

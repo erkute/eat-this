@@ -5,24 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
 
 vi.mock('next-intl', () => ({
-  useLocale: () => 'de',
-  useTranslations: () => (key: string, vars?: Record<string, unknown>) => {
-    if (key === 'albumGroupProgress')
-      return `${vars?.group}: ${vars?.done} von ${vars?.total} aufgedeckt`;
-    if (key === 'albumToSpot') return `Zu ${vars?.name}`;
-    if (key === 'albumShareTitle') return `${vars?.dish} bei ${vars?.name}`;
-    return key;
-  },
-}));
-vi.mock('@/lib/constants', () => ({ SITE_URL: 'https://www.eatthisdot.com' }));
-/* Der Teilen-Knopf hat seinen eigenen Test — hier interessiert nur, WAS das
-   Album ihm mitgibt. */
-vi.mock('@/app/components/ShareButton', () => ({
-  default: ({ url, title, label }: { url: string; title: string; label: string }) => (
-    <button type="button" data-testid="share" data-url={url} data-title={title}>
-      {label}
-    </button>
-  ),
+  useTranslations: () => (key: string) => key,
 }));
 /* Der Zoom selbst ist hier nicht der Gegenstand — nur, WAS das Album ihm als
    Ausgang mitgibt. Der Mock rendert darum genau diesen Slot. */
@@ -37,8 +20,6 @@ vi.mock('@/app/components/MapIntentLink', () => ({
 }));
 
 import ProfileAlbum from './ProfileAlbum';
-
-const player = { name: 'Ersan', avatarIdx: 1, onPick: () => {} };
 
 afterEach(cleanup);
 
@@ -71,7 +52,6 @@ describe('ProfileAlbum', () => {
         faceUpIds={new Set(['onsite', 'bought'])}
         stampedIds={new Set(['onsite'])}
         groupOf={() => 'Mitte'}
-        player={player}
       />
     );
 
@@ -112,7 +92,6 @@ describe('ProfileAlbum', () => {
         faceUpIds={new Set(['onsite', 'gifted'])}
         stampedIds={new Set()}
         groupOf={() => 'Mitte'}
-        player={player}
       />
     );
     expect(screen.queryByText('badgesHeading')).toBeNull();
@@ -125,7 +104,6 @@ describe('ProfileAlbum', () => {
         faceUpIds={new Set(['onsite', 'gifted'])}
         stampedIds={new Set(['onsite'])}
         groupOf={() => 'Mitte'}
-        player={player}
       />
     );
     expect(screen.getByText('badgesHeading')).toBeTruthy();
@@ -155,7 +133,6 @@ describe('ProfileAlbum', () => {
         faceUpIds={new Set(['m1'])}
         stampedIds={new Set()}
         groupOf={() => 'Mitte'}
-        player={player}
       />
     );
 
@@ -190,7 +167,6 @@ describe('ProfileAlbum', () => {
       faceUpIds: new Set<string>(),
       stampedIds: new Set<string>(),
       groupOf: () => 'Mitte',
-      player,
     };
     // Der Platz im Raster — nicht die Spielerkarte, die ebenfalls ein Knopf ist.
     const slotImage = () =>
@@ -211,54 +187,7 @@ describe('ProfileAlbum', () => {
     expect(order.indexOf('srcset')).toBeLessThan(order.indexOf('src'));
   });
 
-  /* Die Bezirke gab es hier immer; bis zum 04.09.2026 brachen sie das Raster
-     in sieben angebrochene Zeilen. Jetzt sind sie Reiter — die Gruppierung
-     lebt in der Filterleiste weiter, nicht mehr im Rost. */
-  it('stellt die Bezirke als Reiter mit eigenem Zaehler und filtert danach', () => {
-    const at = (id: string, district: string, open: boolean, order: number): MapMustEat => ({
-      _id: id,
-      dish: id,
-      order,
-      ...(open ? { image: `/api/must-eat-image/${id}` } : {}),
-      restaurant: { _id: `r-${id}`, name: 'R', slug: 'r', lat: 0, lng: 0, district },
-    });
-    const mustEats = [
-      at('a', 'Kreuzberg', true, 5),
-      at('b', 'Kreuzberg', false, 12),
-      at('c', 'Mitte', false, 7),
-    ];
-
-    render(
-      <ProfileAlbum
-        mustEats={mustEats}
-        faceUpIds={new Set(['a'])}
-        stampedIds={new Set()}
-        groupOf={(m) => m.restaurant.district ?? 'Berlin'}
-        player={player}
-      />
-    );
-
-    /* Der Zaehler steht im aria-label, nicht nur als „1/2" im Text: „ein
-       Zweitel" ist keine Ansage. */
-    const kreuzberg = screen.getByRole('button', { name: 'Kreuzberg: 1 von 2 aufgedeckt' });
-    expect(screen.getByRole('button', { name: 'Mitte: 0 von 1 aufgedeckt' })).toBeTruthy();
-
-    /* Die Nummer ist die der KARTE (`order`), dreistellig wie im Druck —
-       nicht die laufende Position im Raster. */
-    expect(screen.getByLabelText('lockedSubhead — 007')).toBeTruthy();
-
-    fireEvent.click(kreuzberg);
-    expect(kreuzberg.getAttribute('aria-pressed')).toBe('true');
-    /* Karte 007 liegt in Mitte und ist mit dem Kreuzberg-Reiter aus dem Rost. */
-    expect(screen.queryByLabelText('lockedSubhead — 007')).toBeNull();
-    expect(screen.getByLabelText('lockedSubhead — 012')).toBeTruthy();
-  });
-
-  /* Ein leerer Platz ohne Beschriftung ist ein Loch; mit dem Lokal darauf ist
-     er eine Aufgabe. Der Name kommt aus der Huelle der verdeckten Karte —
-     die traegt kein Gericht und kein Bild, aber sehr wohl ihren Spot. Die
-     Nummer steht seit dem 24.09.2026 nur noch im Namen fuer Vorleser. */
-  it('beschriftet den leeren Platz mit dem Lokal, die Nummer nur fuer Vorleser', () => {
+  it('zeigt verdeckte Karten ohne Spotnamen oder sichtbare Nummer', () => {
     const covered: MapMustEat = {
       _id: 'm2',
       order: 26,
@@ -271,30 +200,17 @@ describe('ProfileAlbum', () => {
         faceUpIds={new Set()}
         stampedIds={new Set()}
         groupOf={() => 'Mitte'}
-        player={player}
       />
     );
 
     const slot = screen.getByLabelText('lockedSubhead — 026');
-    expect(slot.textContent).toBe('Cafe Kranzler');
+    expect(slot.textContent).toBe('');
+    expect(slot.querySelector('img')?.getAttribute('src')).toContain('/pics/card-back.webp');
     /* Und weiterhin kein Gericht, kein Bild der Karte: nur die Rueckseite. */
     expect(container.querySelector('img[src^="/api/must-eat-image"]')).toBeNull();
   });
 
-  /* Der Zoom einer verdeckten Karte war eine Sackgasse: Rueckseite gross, und
-     der einzige Weg weiter war Zumachen. Er fuehrt jetzt auf den SPOT — ein
-     Spot traegt mehrere Karten, und wer hier steht, will wissen, wo er hin
-     muss. Aufgedeckte Karten bekommen den Ausgang nicht: dort ist nichts
-     mehr zu holen. */
-  /* Zwei Wege aus dem Zoom, und sie duerfen sich nicht vertauschen.
-
-     VERDECKT: zum Spot — die Karte gehoert einem noch nicht, sie
-     weiterzuschicken waere die falsche Geste.
-     OFFEN: weitersagen. Panini-Tauschen hat hier kein Gegenstueck (keine
-     Doppelten); das Aequivalent ist, jemandem die Karte zu schicken, die man
-     selbst umgedreht hat — als SPOT-SEITE, denn die ist oeffentlich und
-     traegt den Must-Eat-Teaser. */
-  it('fuehrt aus dem Zoom einer verdeckten Karte zum Spot', () => {
+  it('öffnet aus einer verdeckten Karte das zugehörige Must-Eat-Detail', () => {
     const covered: MapMustEat = {
       _id: 'm3',
       order: 4,
@@ -314,18 +230,16 @@ describe('ProfileAlbum', () => {
         faceUpIds={new Set(['m4'])}
         stampedIds={new Set()}
         groupOf={() => 'Mitte'}
-        player={player}
       />
     );
 
     fireEvent.click(screen.getByLabelText('lockedSubhead — 004'));
-    expect(screen.getByRole('link', { name: 'Zu Atelier Dough' }).getAttribute('href')).toBe(
-      '/map?r=atelier-dough'
+    expect(screen.getByRole('link', { name: 'albumOpenDetail' }).getAttribute('href')).toBe(
+      '/map?me=m3'
     );
-    expect(screen.queryByTestId('share')).toBeNull();
   });
 
-  it('bietet aus dem Zoom einer offenen Karte das Weiterschicken an', () => {
+  it('öffnet auch aus einer offenen Karte das zugehörige Must-Eat-Detail', () => {
     const open: MapMustEat = {
       _id: 'm4',
       dish: 'Donut',
@@ -340,17 +254,12 @@ describe('ProfileAlbum', () => {
         faceUpIds={new Set(['m4'])}
         stampedIds={new Set()}
         groupOf={() => 'Mitte'}
-        player={player}
       />
     );
 
     fireEvent.click(screen.getByLabelText('Donut'));
-    const share = screen.getByTestId('share');
-    /* Die Herkunft, auf der der Nutzer steht — nicht der kanonische Host: eine
-       von Staging verschickte Karte darf nicht auf die Live-Domain zeigen. */
-    expect(share.getAttribute('data-url')).toBe(`${window.location.origin}/restaurant/bubar`);
-    // Das Gericht steht im Text der Nachricht, nicht in der URL.
-    expect(share.getAttribute('data-title')).toBe('Donut bei Bubar');
-    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.getByRole('link', { name: 'albumOpenDetail' }).getAttribute('href')).toBe(
+      '/map?me=m4'
+    );
   });
 });

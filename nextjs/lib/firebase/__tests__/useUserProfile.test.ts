@@ -15,6 +15,7 @@ import { useUserProfile } from '../useUserProfile';
 describe('useUserProfile', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   it('returns avatar from snapshot', async () => {
@@ -64,6 +65,21 @@ describe('useUserProfile', () => {
       { avatar: 3 },
       { merge: true }
     );
+  });
+
+  it('keeps the current avatar and cache when saving fails', async () => {
+    vi.mocked(onSnapshot).mockImplementation((_ref, onNext) => {
+      (onNext as (s: { data: () => unknown }) => void)({ data: () => ({ avatar: 2 }) });
+      return () => {};
+    });
+    vi.mocked(setDoc).mockRejectedValueOnce(new Error('offline'));
+    const { result } = renderHook(() => useUserProfile('u1'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    await act(async () => {
+      await expect(result.current.setAvatar(3)).rejects.toThrow('offline');
+    });
+    expect(result.current.profile.avatar).toBe(2);
+    expect(localStorage.getItem('eatthis_avatar_u1')).toBe('2');
   });
 
   it('setAvatar is no-op without uid', async () => {

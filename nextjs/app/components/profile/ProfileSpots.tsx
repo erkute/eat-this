@@ -26,10 +26,33 @@ export default function ProfileSpots({
   uid: string;
   restaurantSlugs: ReadonlyMap<string, string>;
 }) {
-  const t = useTranslations('profile');
-  const { favorites, loading, toggle, updateNote, setVisited } = useFavorites(uid);
+  const saved = useFavorites(uid);
+  return <ProfileSpotsContent {...saved} restaurantSlugs={restaurantSlugs} />;
+}
 
-  if (loading) return null;
+export function ProfileSpotsContent({
+  favorites,
+  loading,
+  toggle,
+  updateNote,
+  setVisited,
+  restaurantSlugs,
+}: Pick<
+  ReturnType<typeof useFavorites>,
+  'favorites' | 'loading' | 'toggle' | 'updateNote' | 'setVisited'
+> & {
+  restaurantSlugs: ReadonlyMap<string, string>;
+}) {
+  const t = useTranslations('profile');
+  const locale = useLocale();
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<'all' | 'want' | 'visited'>('all');
+  if (loading)
+    return (
+      <p className={styles.emptyLine} role="status">
+        {t('dataLoading')}
+      </p>
+    );
 
   if (favorites.length === 0) {
     return (
@@ -42,71 +65,118 @@ export default function ProfileSpots({
     );
   }
 
+  const terms = query.trim().toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
+  const shown = favorites.filter((spot) => {
+    if (filter === 'visited' && !spot.visited) return false;
+    if (filter === 'want' && spot.visited) return false;
+    const text = [spot.name, spot.district, spot.note]
+      .filter(Boolean)
+      .join(' ')
+      .toLocaleLowerCase(locale);
+    return terms.every((term) => text.includes(term));
+  });
   return (
-    <div className={styles.spotsCards}>
-      {favorites.map((f) => {
-        const slug = restaurantSlugs.get(f.restaurantId) ?? f.slug;
-        return (
-          <div key={f.restaurantId} className={styles.spotCardWrap}>
-            <MapIntentLink
-              href={slug ? `/map?r=${encodeURIComponent(slug)}` : '/map'}
-              className={`hv-photo ${styles.spotCard}`}
-              rel="nofollow"
-            >
-              {f.photo && (
-                <div className={styles.spotImg} style={{ backgroundImage: `url(${f.photo})` }} />
-              )}
-              <div className={styles.spotBody}>
-                <h3 className={styles.spotName}>{normalizeName(f.name)}</h3>
-                {f.district && <div className={styles.spotMeta}>{f.district}</div>}
-              </div>
-            </MapIntentLink>
+    <>
+      <div className={styles.spotsToolbar}>
+        <label className={styles.searchField}>
+          <span>{t('spotsSearch')}</span>
+          <input
+            type="search"
+            value={query}
+            placeholder={t('spotsSearch')}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+        <div className={styles.spotsFilters} role="group" aria-label={t('spotsFilterLabel')}>
+          {(['all', 'want', 'visited'] as const).map((id) => (
             <button
+              key={id}
               type="button"
-              className={styles.spotRemove}
-              aria-label={t('removeSaved', { name: normalizeName(f.name) })}
-              onClick={() =>
-                void toggle({
-                  _id: f.restaurantId,
-                  name: f.name,
-                  slug: f.slug,
-                  photo: f.photo,
-                  district: f.district,
-                })
-              }
+              className={styles.spotsFilter}
+              aria-pressed={filter === id}
+              onClick={() => setFilter(id)}
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                aria-hidden="true"
-              >
-                <path d="M6 6l12 12" />
-                <path d="M18 6L6 18" />
-              </svg>
+              {t(id === 'all' ? 'spotsAll' : id === 'want' ? 'spotWantTo' : 'spotWasThere')}
             </button>
-            <VisitedToggle
-              visited={f.visited === true}
-              label={t(f.visited ? 'spotWasThere' : 'spotWantTo')}
-              ariaLabel={t(f.visited ? 'spotUnmarkVisited' : 'spotMarkVisited', {
-                name: normalizeName(f.name),
-              })}
-              onToggle={(next) => setVisited(f.restaurantId, next)}
-            />
-            <SpotNote
-              initialNote={f.note ?? ''}
-              label={t('spotNoteLabel', { name: normalizeName(f.name) })}
-              placeholder={t('spotNotePlaceholder')}
-              onSave={(note) => updateNote(f.restaurantId, note)}
-            />
-          </div>
-        );
-      })}
-    </div>
+          ))}
+        </div>
+      </div>
+      {shown.length === 0 && (
+        <p className={styles.emptyLine} role="status">
+          {t(query.trim() ? 'searchEmpty' : 'spotsFilterEmpty')}
+        </p>
+      )}
+      <div className={styles.spotsCards}>
+        {shown.map((f) => {
+          const slug = restaurantSlugs.get(f.restaurantId) ?? f.slug;
+          return (
+            <div key={f.restaurantId} className={styles.spotCardWrap}>
+              <MapIntentLink
+                href={slug ? `/map?r=${encodeURIComponent(slug)}` : '/map'}
+                className={`hv-photo ${styles.spotCard}`}
+                rel="nofollow"
+              >
+                {f.photo && (
+                  <div className={styles.spotImg} style={{ backgroundImage: `url(${f.photo})` }} />
+                )}
+                <div className={styles.spotBody}>
+                  <h3 className={`et-label et-label-paper ${styles.spotName}`}>
+                    {normalizeName(f.name)}
+                  </h3>
+                </div>
+              </MapIntentLink>
+              <button
+                type="button"
+                className={styles.spotRemove}
+                aria-label={t('removeSaved', { name: normalizeName(f.name) })}
+                onClick={async () => {
+                  try {
+                    await toggle({
+                      _id: f.restaurantId,
+                      name: f.name,
+                      slug: f.slug,
+                      photo: f.photo,
+                      district: f.district,
+                    });
+                  } catch {
+                    notify('actionFailed', locale);
+                  }
+                }}
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 6l12 12" />
+                  <path d="M18 6L6 18" />
+                </svg>
+              </button>
+              {f.district && <div className={styles.spotMeta}>{f.district}</div>}
+              <VisitedToggle
+                visited={f.visited === true}
+                label={t(f.visited ? 'spotWasThere' : 'spotWantTo')}
+                ariaLabel={t(f.visited ? 'spotUnmarkVisited' : 'spotMarkVisited', {
+                  name: normalizeName(f.name),
+                })}
+                onToggle={(next) => setVisited(f.restaurantId, next)}
+              />
+              <SpotNote
+                initialNote={f.note ?? ''}
+                label={t('spotNoteLabel', { name: normalizeName(f.name) })}
+                placeholder={t('spotNotePlaceholder')}
+                onSave={(note) => updateNote(f.restaurantId, note)}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
 

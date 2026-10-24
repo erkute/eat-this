@@ -62,9 +62,9 @@ export default function ProfileFriends({ uid }: { uid: string | null }) {
   if (friends.length === 0) return null;
 
   return (
-    <section className={`hv-section hv-wrap ${styles.section}`}>
+    <section className={styles.deckSection}>
       <div className={`hv-head ${styles.head}`}>
-        <h2 className="hv-title">{t('friendsHeading')}</h2>
+        <h2 className={styles.sectionTitle}>{t('friendsHeading')}</h2>
       </div>
       <p className={styles.friendsLine}>{t('friendsLine')}</p>
 

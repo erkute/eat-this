@@ -204,7 +204,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
     const steps = depthOf(selected, from, count);
     const swipe = flick.current;
     flick.current = null;
-    const dir = swipe?.dir ?? -1;
+    const dir = -1; // Jedes Heft geht links hinaus und kommt unten wieder hinein.
     // Ohne Bewegung: das alte Heft blendet aus, der Stapel legt sich neu,
     // dann ist es hinten wieder da — kein Sprung, aber auch kein Flug.
     if (reduced) {

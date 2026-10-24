@@ -63,9 +63,9 @@ export default function ProfileRecentReveals({
   if (recent.length === 0) return null;
 
   return (
-    <section className={`hv-section hv-wrap ${styles.section}`}>
+    <section className={styles.deckSection}>
       <div className={`hv-head ${styles.head}`}>
-        <h2 className="hv-title">{t('recentHeading')}</h2>
+        <h2 className={styles.sectionTitle}>{t('recentHeading')}</h2>
       </div>
       {/* Die Linie traegt den Abschnitt ueber die volle Breite, auch wenn
           nur ein Eintrag daran haengt. Dasselbe Mittel wie die

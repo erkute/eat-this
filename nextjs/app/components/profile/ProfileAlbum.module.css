@@ -1,4 +1,4 @@
-/* Die Sammlung als Album — Prototyp, 04.09.2026.
+/* Die Sammlung als ausgelegte Kartenhand.
 
    Drei Aenderungen gegenueber dem Stand davor:
    1. Der Seitenkopf ist eine Karte geworden (.player) und sitzt in der
@@ -25,94 +25,73 @@
   background: transparent;
 }
 
-/* ── Kopfzeile: Spielerkarte + Titel + Reiter ─────────────── */
-
-/* ── Kopf: die Buehne ─────────────────────────────────────
-   Spielerkarte in der Mitte, dahinter offene Karten nach beiden Seiten
-   gefaechert, darunter Gruss und Titel. Mittig und ohne Kasten — dieselbe
-   Buehne wie der Kopf des geteilten Decks. */
-.masthead {
-  --album-player-w: clamp(96px, 26vw, 140px);
-  display: grid;
-  justify-items: center;
-  gap: clamp(14px, 2vw, 22px);
-  min-width: 0;
-  padding-top: 8px;
-  text-align: center;
-}
-
-.art {
-  position: relative;
+.deckIntro {
   display: flex;
-  justify-content: center;
-  width: min(100%, calc(var(--album-player-w) * 3.3));
-  padding: 10px 0 14px;
-}
-
-.art > .player {
-  position: relative;
-  z-index: 5;
-}
-
-/* Position und Drehung je Karte ueber `--art-i` (Abstand zur Mitte) aus
-   ProfileAlbum.tsx; der Stapelrang als `z-index`, die Mitte liegt oben. */
-.artCard {
-  position: absolute;
-  top: 16px;
-  left: calc(50% - var(--album-player-w) * 0.44 + var(--art-i) * var(--album-player-w) * 0.52);
-  display: block;
-  width: calc(var(--album-player-w) * 0.88);
-  aspect-ratio: 1539 / 2115;
-  object-fit: cover;
-  border-radius: 6px;
-  transform: rotate(calc(var(--art-i) * 9deg));
-  transform-origin: 50% 100%;
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5));
-}
-
-.masthead > .head {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  min-width: 0;
+  justify-content: space-between;
+  gap: 24px;
+}
+.collectionHead {
+  display: grid;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-.hello {
-  color: var(--et-accent-text);
+.collectionTitle {
+  margin: 0;
+  color: var(--album-ink);
+  font: 700 clamp(28px, 3.6vw, 44px) / 1.05 var(--album-display);
+  letter-spacing: -0.03em;
+}
+
+.collectionProgress {
+  width: min(230px, 100%);
+  margin-top: 6px;
+}
+
+.collectionCount {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--album-ink);
   font-family: var(--album-display);
-  font-size: clamp(12px, 1vw, 14px);
+  font-variant-numeric: tabular-nums;
+}
+
+.collectionCount strong {
+  color: var(--album-red);
+  font-size: clamp(42px, 4.5vw, 60px);
   font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: -0.05em;
 }
 
-@media (min-width: 900px) {
-  .masthead {
-    --album-player-w: clamp(130px, 11vw, 160px);
-  }
-
-  /* Mit `main` qualifiziert: `.homeV2 .hv-title` aus globals.css hat denselben
-     Rang (0,2,0). */
-  main .masthead :global(.hv-title) {
-    font-size: clamp(40px, 5vw, 72px);
-  }
+.collectionTotal {
+  color: var(--album-muted);
+  font-size: 20px;
 }
 
-/* Der naechste Zug: eigene Zeile unter dem Kopf. */
+.collectionTrack {
+  display: flex;
+  gap: 3px;
+  height: 8px;
+  margin-top: 10px;
+}
+
+.collectionTrack span {
+  flex: 1;
+  min-width: 0;
+  background: var(--album-ink);
+  opacity: 0.15;
+}
+
+.collectionTrack span[data-filled='true'] {
+  background: var(--album-red);
+  opacity: 1;
+}
+
 .albumMove {
   min-width: 0;
-  margin-top: clamp(6px, 1vw, 12px);
-}
-
-/* `hv-head` ist eine Zeile mit zwei Enden; hier stapeln sich Titel und
-   Slogan, also eine Spalte. */
-.head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
 }
 
 /* ── Die Spielerkarte ─────────────────────────────────────
@@ -261,108 +240,6 @@ div.player {
   text-overflow: ellipsis;
 }
 
-/* The collection count remains available to screen readers. */
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-/* ── Reiterleiste: die Bezirke ────────────────────────────── */
-
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* `align-items: center` statt `baseline` (Nutzer, 04.09.2026: „die sind
-   irgendwo zu weit links oben"). Auf der Grundlinie ausgerichtet haengt das
-   Paar aus Name und Zaehler an der Unterkante der Schrift — und Providence
-   laesst ueber ihren Versalien deutlich mehr Luft als darunter, also sass
-   die Zeile sichtbar zu hoch in der Pille. Zentriert misst der Browser die
-   ganze Zeilenbox und stellt sie mittig. */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 34px;
-  padding: 5px 14px;
-  color: var(--album-muted);
-  /* Fläche statt Ring, wie die Filter-Chips der Map. */
-  background: var(--profile-raised, #25231f);
-  border: 0;
-  border-radius: 999px;
-  cursor: pointer;
-  font-family: var(--album-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
-  transition:
-    color 140ms ease,
-    background-color 140ms ease;
-}
-
-/* Der Name traegt, der Zaehler erklaert — dieselbe Rollenteilung wie beim
-   grossen Zaehler in der Kopfzeile. Ohne eigene Regel rendert React fuer
-   `styles.chipName` gar kein class-Attribut: CSS Modules kennen nur, was im
-   Stylesheet steht, und das faellt nirgends auf ausser hier. */
-.chipName {
-  white-space: nowrap;
-}
-
-.chipCount {
-  color: inherit;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.72;
-}
-
-@media (hover: hover) {
-  .chip:hover {
-    color: var(--album-ink);
-    background: var(--profile-raised-on, #2d2b27);
-  }
-}
-
-/* Kein gelber Ring (Nutzer, 23.09.2026) — Fokus hellt die Flaeche auf wie
-   Hover, und die Schrift wird voll. */
-.chip:focus-visible {
-  color: var(--album-ink);
-  background: var(--profile-raised-on, #2d2b27);
-  outline: 0;
-}
-
-/* Der gewaehlte Reiter ist gelb gefuellt — dieselbe Umkehr wie jeder
-   aktive Zustand auf Ink. */
-.chip[aria-pressed='true'] {
-  color: var(--et-on-accent);
-  background: var(--album-accent);
-}
-
-.chip[aria-pressed='true'] .chipCount {
-  opacity: 0.65;
-}
-
-/* „Fehlende" schneidet quer durch alle Bezirke und steht darum direkt hinter
-   „Alle", nicht am Ende der Leiste: an `margin-left: auto` sprang er je nach
-   Zeilenumbruch mal ans Ende der ersten, mal ans Ende der zweiten Zeile. Der
-   Abstand davor trennt Schalter von Reitern. */
-.chipMissing {
-  margin-left: 9px;
-}
-
-.chipMissing[aria-pressed='true'] {
-  color: var(--album-ink);
-  background: var(--album-red);
-}
-
 /* ── Das Raster ───────────────────────────────────────────── */
 
 /* ── Abzeichen ──────────────────────────────────────────
@@ -413,34 +290,47 @@ div.player {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
-  gap: clamp(12px, 1.6vw, 20px);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: start;
+  gap: clamp(18px, 2.6vw, 36px);
+  padding-block: 18px 12px;
 }
-
 .slot {
-  container-type: inline-size;
   position: relative;
+  min-width: 0;
   aspect-ratio: 1539 / 2115;
-  overflow: hidden;
   padding: 0;
   background: transparent;
   border: 0;
-  border-radius: 7px;
+  border-radius: 0;
   cursor: pointer;
   font: inherit;
-  transition:
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 180ms ease;
+  transition: transform 180ms ease;
+}
+@media (hover: hover) {
+  .slot:hover {
+    transform: translateY(-4px);
+    z-index: 3;
+  }
+}
+.slot:focus-visible {
+  transform: translateY(-4px);
+  outline: 2px solid var(--album-ink);
+  outline-offset: 5px;
+  z-index: 3;
+}
+.filled,
+.empty {
+  filter: drop-shadow(0 6px 7px #0003);
+}
+.img,
+.backImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-/* Der Stempel: quer über die Ecke der Karte, leicht schief wie ein echter,
-   Ink auf Gelb. Er sagt das Einzige, was ein Kauf nicht kann — da war jemand.
-   Er sitzt AUF der Karte und nicht daneben, weil er zu ihr gehört wie der
-   Poststempel zur Marke.
-
-   `overflow: hidden` am Slot schneidet ihn an den Kanten ab; deshalb sitzt er
-   innen und nicht über der Ecke hinaus. */
 .stamp {
   position: absolute;
   right: 6%;
@@ -462,90 +352,6 @@ div.player {
   transform: rotate(-7deg);
 }
 
-/* Die gesammelte Karte liegt AUF dem Album: Schlagschatten, und beim
-   Anfassen hebt sie sich. */
-.filled {
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
-}
-
-.filled .img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-@media (hover: hover) {
-  .filled:hover {
-    transform: translateY(-6px) rotate(-1deg);
-  }
-}
-
-.filled:focus-visible {
-  transform: translateY(-6px) rotate(-1deg);
-  outline: 0;
-  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45))
-    drop-shadow(0 0 0 3px color-mix(in srgb, var(--album-accent) 70%, transparent));
-}
-
-/* Der leere Platz — die Rueckseite der Karte, so rot wie sie gedruckt ist
-   (Ansage 22.10.2026: „kein schwarzer Schimmer"; bis dahin war sie auf ein
-   Drittel abgedunkelt). Keine gestrichelte Kante, keine Nummer: die Karte ist
-   schon da, nur noch nicht umgedreht. Sie hebt sich beim Anfassen nicht, sie
-   hellt sich leicht auf — Faerbung, keine Bewegung. */
-.empty .backImg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: filter 180ms ease;
-}
-
-@media (hover: hover) {
-  .empty:hover .backImg {
-    filter: brightness(1.08);
-  }
-}
-
-/* Kein gelber Ring (Nutzer, 23.09.2026) — Fokus hellt auf wie Hover. */
-.empty:focus-visible {
-  outline: 0;
-}
-
-.empty:focus-visible .backImg {
-  filter: brightness(1.08);
-}
-
-/* Der Spot, in dem die Karte liegt — unten auf der Karte, wo auf einer
-   offenen Karte die Beschreibung steht. */
-.slotWhere {
-  position: absolute;
-  right: 6px;
-  bottom: 8px;
-  left: 6px;
-  /* Auf dem vollen Rot mit „EAT THIS"-Muster braucht der Name ein Etikett:
-     Ink-Fläche, weisse Schrift — in beiden Modi gleich, die Karte ist Druck. */
-  padding: 4px 3px 3px;
-  background: var(--et-ink);
-  border-radius: 3px;
-  color: var(--et-white);
-  font-family: var(--album-display);
-  /* Fit long words to the card, including letter spacing and side insets. */
-  font-size: min(
-    clamp(10px, 0.9vw, 12px),
-    max(8px, calc((100cqw - 22px) / var(--slot-name-units, 1)))
-  );
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  /* Providence needs room below the baseline. */
-  line-height: 1.35;
-  text-align: center;
-  text-transform: uppercase;
-  text-wrap: balance;
-  /* Keep every name visible, even beyond two lines or at the minimum size. */
-  overflow-wrap: anywhere;
-}
-
 .emptyText {
   max-width: 42rem;
   margin: 0;
@@ -556,60 +362,32 @@ div.player {
   line-height: var(--et-leading-copy);
 }
 
-/* ── schmal ───────────────────────────────────────────────── */
-
 @media (max-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr));
+  .deckIntro {
+    display: grid;
+    gap: 22px;
+  }
+  .collectionHead {
+    justify-items: start;
   }
 }
-
-@media (max-width: 640px) {
+@media (max-width: 767.98px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
   .player {
     width: var(--album-player-w, clamp(108px, 30vw, 132px));
   }
-
-  /* Eine Zeile, die seitlich laeuft: sieben Bezirke umgebrochen waeren auf
-     390 px vier Zeilen Reiter ueber der ersten Karte. Die negativen Raender
-     lassen sie an den Bildschirmkanten anfangen und enden, damit die Zeile
-     als Band lesbar ist und nicht als abgeschnittene Liste.
-
-     Der Rand MUSS derselbe sein wie das Polster von `hv-wrap`, sonst haengt
-     die Zeile ueber. Hier stand `--et-gutter` — ein Token, das es nicht gibt:
-     der Rueckfall 20px zog die Zeile ueber ein 16px-Polster hinaus, und das
-     Dokument war auf 390 px vier Pixel breiter als das Fenster (gemessen
-     06.09.2026). Ein waagerechter Scrollweg auf jeder Profilseite, fuer
-     nichts. */
-  .filters {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    margin: 0 calc(var(--et-wrap-pad-mobile) * -1);
-    padding: 2px var(--et-wrap-pad-mobile);
-    scrollbar-width: none;
-    scroll-snap-type: x proximity;
-  }
-
-  .filters::-webkit-scrollbar {
-    display: none;
-  }
-
-  .chip {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
-  }
-
-  .chipMissing {
-    margin-left: 0;
-  }
-
-  .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-  }
 }
 
-@media (max-width: 360px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (prefers-reduced-motion: reduce) {
+  .slot,
+  .empty .backImg {
+    transition: none;
+  }
+  .slot:hover,
+  .slot:focus-visible {
+    transform: none;
   }
 }

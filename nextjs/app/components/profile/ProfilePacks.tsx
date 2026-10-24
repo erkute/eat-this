@@ -21,9 +21,9 @@ function PackArt({ src }: { src: string }) {
     <Image
       src={versionedPackArt(src)}
       alt=""
-      width={96}
-      height={src === WELCOME_ART ? 152 : 139}
-      sizes="(max-width: 767.98px) 72px, 96px"
+      width={160}
+      height={src === WELCOME_ART ? 253 : 232}
+      sizes="160px"
       loading="lazy"
     />
   );
@@ -44,12 +44,22 @@ function PackArt({ src }: { src: string }) {
  * gleich darunter zehn verschlossene Packs.
  */
 export default function ProfilePacks({ uid, fullCatalog }: { uid: string; fullCatalog: boolean }) {
-  const t = useTranslations('profile');
   const owned = useOwnedEntitlements(uid);
+  return <ProfilePacksContent owned={owned} fullCatalog={fullCatalog} />;
+}
+
+export function ProfilePacksContent({
+  owned,
+  fullCatalog,
+}: {
+  owned: ReadonlySet<string> | null;
+  fullCatalog: boolean;
+}) {
+  const t = useTranslations('profile');
 
   const head = (
-    <div className={`hv-head ${styles.head}`}>
-      <h2 className="hv-title">{t('packsHeading')}</h2>
+    <div className={`hv-head ${styles.head} ${styles.packsHeading}`}>
+      <h2 className={styles.sectionTitle}>{t('packsHeading')}</h2>
     </div>
   );
 
@@ -79,7 +89,7 @@ export default function ProfilePacks({ uid, fullCatalog }: { uid: string; fullCa
         {/* Das Welcome Pack hat jedes Konto — es eroeffnet die Reihe. */}
         <li className={styles.trophy}>
           <PackArt src={WELCOME_ART} />
-          <span className={styles.trophyName}>Welcome Pack</span>
+          <span className={styles.trophyName}>{t('starterPack')}</span>
         </li>
         {opened.map((p) => (
           <li key={p.packId} className={styles.trophy}>
@@ -95,7 +105,7 @@ export default function ProfilePacks({ uid, fullCatalog }: { uid: string; fullCa
           sind offen" -- also genau verkehrt herum. Und eine Zahl kann falsch
           werden, waehrend der Weg zum Sortiment immer stimmt. */}
       {remaining > 0 && (
-        <Link href="/packs" className={styles.packsMore}>
+        <Link href="/packs" className={`et-btn ${styles.packsMore}`}>
           {t('packsMore')}
         </Link>
       )}

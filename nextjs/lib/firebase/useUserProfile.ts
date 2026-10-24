@@ -89,13 +89,12 @@ export function useUserProfile(uid: string | null) {
   const setAvatar = useCallback(
     async (choice: AvatarChoice) => {
       if (!uid) return;
-      // Optimistic local cache + state — covers the case where the user
-      // picks an avatar and immediately navigates to /profile before the
-      // Firestore snapshot has fired.
-      writeCachedAvatar(uid, choice);
-      setProfile({ avatar: choice });
       const [{ doc, setDoc }, db] = await Promise.all([import('firebase/firestore'), getDb()]);
       await setDoc(doc(db, 'users', uid), { avatar: choice }, { merge: true });
+      // Erst nach erfolgreichem Speichern: ein Fehler darf keinen neuen
+      // Charakter im lokalen Cache und im Profil zurücklassen.
+      writeCachedAvatar(uid, choice);
+      setProfile({ avatar: choice });
     },
     [uid]
   );

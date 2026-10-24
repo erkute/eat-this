@@ -23,13 +23,8 @@
   border-radius: 2px;
   background: var(--ground);
   color: var(--type);
-  /* Dünn wie ein Magazin, nicht wie ein Buch (Ansage 02.10.2026): eine feine
-     Papierkante rechts unten und der weiche Schatten auf dem Tisch.
-     `overflow` schneidet nur den Inhalt, nicht den Schatten. */
-  box-shadow:
-    1px 1px 0 #ece6da,
-    2px 2px 0 #cdc5b4,
-    0 14px 26px rgba(0, 0, 0, 0.45);
+  /* Keine helle Kontur um das Heft: nur ein weicher Kontaktschatten. */
+  box-shadow: 0 9px 18px rgba(0, 0, 0, .28);
 }
 .cover img {
   display: block;
@@ -418,4 +413,15 @@
     ),
     linear-gradient(118deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 36%);
   pointer-events: none;
+}
+
+/* Ausgefranste Papierkante als echte Transparenz statt heller Außenfläche. */
+:global(html[data-vintage]) .cover {
+  mask:
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 3px repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 256px 3px repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 3px 256px repeat-y,
+    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 3px 256px repeat-y,
+    linear-gradient(#000 0 0) center / calc(100% - 4px) calc(100% - 4px) no-repeat;
+  box-shadow: none;
 }

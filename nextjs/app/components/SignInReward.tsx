@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import Image from '@/app/components/SiteImage';
+import MapPhoneArtwork from './MapPhoneArtwork';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useDialogFocus } from '@/lib/useDialogFocus';
@@ -63,7 +63,6 @@ const copy = {
       tag: 'Die Map',
       title: 'Die Berlin Food Map.',
       body: 'Die besten Restaurants, Cafés und Bars. Entdecke, was um dich herum ist – und filtere nach Kategorie, Preis oder „Jetzt geöffnet“.',
-      image: '/pics/home-phones/phone-map-red.webp?v=3',
       alt: 'Die Eat-This-Map mit Berliner Spots',
     },
     go: {
@@ -116,7 +115,6 @@ const copy = {
       tag: 'The map',
       title: 'Find your next great spot.',
       body: 'The best restaurants, cafés and bars. Discover what’s around you – and filter by category, price or open now.',
-      image: '/pics/home-phones/phone-map-red.webp?v=3',
       alt: 'The Eat This map with Berlin food spots',
     },
     go: {
@@ -153,7 +151,6 @@ function pages(identity: Identity | null) {
 }
 
 const CARD_BACK = '/pics/card-back.webp?v=8';
-const CARD_FRONT = '/pics/card-front.webp?v=6';
 
 /** Das Kartenbild eines Must Eats — die Bild-Route, die auch Deck und Map
  *  benutzen; 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
@@ -194,8 +191,8 @@ const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
 const DECK_CARDS = [
   CARD_BACK,
   CARD_BACK,
-  '/pics/card-front.webp?v=6',
-  '/pics/card-front-sabich.webp?v=4',
+  '/pics/card-front.webp?v=8',
+  '/pics/card-front-sabich.webp?v=6',
 ] as const;
 
 /**
@@ -229,9 +226,9 @@ export default function SignInReward() {
   /* Die offenen Karten des Packs, wie /api/starter-pack sie gezogen hat —
      dieselben zehn, die danach im Deck offen liegen. */
   const [faceUpIds, setFaceUpIds] = useState<string[]>([]);
-  /* Welche davon schon geladen sind. Die Bild-Route rechnet ein Bild beim
-     ersten Mal (lokal um 1 s) — eine Karte, deren Bild noch fehlt, flog
-     unsichtbar mit. Bis ihr Bild da ist, steht die Beispielkarte. */
+  /* Welche davon für die spätere Aufdeck-Vorführung schon geladen sind.
+     Im Pack lädt jedes Bild direkt im DOM; sein Hintergrund zeigt bis dahin
+     den Kartenrücken statt zehnmal derselben fremden Beispielkarte. */
   const [loadedFaces, setLoadedFaces] = useState<ReadonlySet<string>>(new Set());
   /* Der Aufdeck-Schritt fuehrt vor, was am Spot passiert: verdeckt rein,
      nach kurzem Moment dreht sich die Karte. Antippen dreht sie selbst —
@@ -546,9 +543,9 @@ export default function SignInReward() {
                 src={
                   card.covered
                     ? CARD_BACK
-                    : loadedFaces.has(faceUpIds[card.level] ?? '')
+                    : faceUpIds[card.level]
                       ? mustEatCard(faceUpIds[card.level]!)
-                      : CARD_FRONT
+                      : CARD_BACK
                 }
                 alt=""
                 aria-hidden="true"
@@ -645,14 +642,7 @@ export default function SignInReward() {
           <Link href="/map" className={styles.half} onClick={close}>
             <span className={styles.halfArt}>
               <span className={styles.phone}>
-                <Image
-                  src="/pics/home-phones/phone-map-red.webp?v=3"
-                  alt=""
-                  fill
-                  sizes="(max-width: 600px) 30vw, 220px"
-                  loading="eager"
-                  className={styles.image}
-                />
+                <MapPhoneArtwork alt="" />
               </span>
             </span>
             <span className={styles.halfLabel}>{t.go.map}</span>
@@ -701,7 +691,7 @@ export default function SignInReward() {
                 {/* eslint-disable @next/next/no-img-element */}
                 <img
                   className={styles.face}
-                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp?v=4'}
+                  src={shown ? mustEatCard(shown) : '/pics/card-front-sabich.webp?v=6'}
                   alt={t.reveal.alt}
                 />
                 <img
@@ -732,14 +722,7 @@ export default function SignInReward() {
     content = (
       <div className={styles.content}>
         <div className={styles.art}>
-          <Image
-            src={slide.image}
-            alt={slide.alt}
-            fill
-            sizes="(max-width: 600px) 220px, 480px"
-            className={styles.image}
-            priority
-          />
+          <MapPhoneArtwork alt={slide.alt} fit />
         </div>
         <div className={styles.copy}>
           <p className={`et-label ${styles.kicker}`}>{slide.tag}</p>

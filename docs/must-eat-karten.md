@@ -51,6 +51,7 @@ Taucht etwas anderes auf (z. B. `fontName`, `fontSize`, `visible`, `opacity`), i
 Die App zeigt nicht die Figma-Datei, sondern exportierte Bilder. **Jede Änderung an Main oder an einer Karte ist erst nach Export und Einspielen live.**
 
 1. **Export:** PNG in doppelter Größe (1026 × 1410), die Export-Einstellung steht auf jeder Karte. Ein Ordner, Dateiname = Kartennummer: `001.png`, `002.png`, …
+   **Transparenz prüfen:** Außerhalb der runden Kartenkanten muss der Alphakanal 0 sein. Der MCP-Export kann die graue Figma-Section mitrendern, auch als PNG. In diesem Fall den SVG-Export auf die eigentliche Kartengruppe samt `defs` beschränken und daraus das transparente PNG rendern; keine Seiten- oder Section-Flächen übernehmen. Vor dem Einspielen auf hellem und farbigem Hintergrund prüfen.
    Ohne Ersan exportiert Claude so: temporäre, doppelt große Kopien auf einer Hilfsseite, davon Screenshots in voller Größe, danach die Hilfsseite löschen. Der Screenshot der Schnittstelle liefert höchstens die einfache Größe.
 2. **Zuordnung:** `nextjs/scripts/data/must-eat-cards.json` hält pro Karte `order`, `file`, `spot`, `dish`, `descriptionEn` (Wortlaut der Karte) und `description` (deutsche Übersetzung).
 3. **Neue Karte** (Sanity-Dokument und Firestore-Datensatz gibt es noch nicht): `scripts/curate-must-eats.ts --spec <json> --cards <ordner>`, erst `--dry-run`, dann `--apply`. Das legt Firestore, Storage und einen **Sanity-Draft** an. Publiziert wird nur auf Ersans „setz das live“.
@@ -60,6 +61,7 @@ Die App zeigt nicht die Figma-Datei, sondern exportierte Bilder. **Jede Änderun
    npx tsx scripts/replace-must-eat-cards.ts --cards <ordner> --apply
    ```
    Der Probelauf muss jede Karte zuordnen (z. B. „39 von 39 Karten“). Nach `--apply` meldet ein zweiter Probelauf `changed: 0`.
+   Für einen reinen Bild-/Logo-Austausch bei beiden Aufrufen `--images-only` ergänzen: Dann bleiben die vorhandenen Texte in Firestore erhalten.
 5. **Aufräumen** (optional): `scripts/prune-must-eat-images.ts --dry-run`, dann `--apply`. Das löscht alte Bilder, auf die nichts mehr zeigt, und prüft danach jede Karte. Danach gibt es keinen schnellen Rückweg zu den alten Bildern mehr.
 
 Alle drei Skripte arbeiten mit `.env.local`, also auf **prod**.

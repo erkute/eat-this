@@ -99,7 +99,6 @@ export default function SignupEmail({
           .
         </Fineprint>
         </Section>
-      </Paper>
 
       {/* STARTER PACK — die Tafel aus der Tour: Pack, Kicker, Titel, Satz.
           Bis 22.09.2026 stand davor noch das Bild mit den zwei Telefonen;
@@ -107,11 +106,10 @@ export default function SignupEmail({
           (Betreiber). Die Spots darunter zeigen die Map ohnehin. */}
       <Section
         className="et-pad"
-        style={{ backgroundColor: COLOR.surface, padding: '0 32px 36px' }}
+        style={{ padding: '0 32px 36px' }}
       >
         <Section
           style={{
-            backgroundColor: COLOR.raised,
             borderRadius: `${LAYOUT.radiusPhoto}px`,
             padding: '30px 20px 30px',
             textAlign: 'center',
@@ -149,6 +147,7 @@ export default function SignupEmail({
           />
         </Section>
       </Section>
+      </Paper>
 
       {/* SPOTS — jede Karte ist EIN lokal vorgerendertes Bild (Foto + Etiketten +
           Name in der Markenschrift, siehe scripts/build-email-spots.mts),
@@ -157,16 +156,16 @@ export default function SignupEmail({
           Komposition, die kein Mail-Client zerlegen kann: Gmail entfernt
           position/transform/filter/box-shadow und lädt nie Webfonts. */}
       {spots.length > 0 && (
-        <Paper padding="0 32px 40px">
+        <Paper padding="12px 32px 12px">
           {/* Ohne Überschrift (Betreiber, 22.09.2026): es sind Beispiele,
               keine „ersten Spots". Jede Karte zeigt den Spot mit seiner
               offenen Must-Eat-Karte daneben — dass beides zusammengehört,
               soll man sehen, nicht lesen. */}
-          {spots.map((s) => (
+          {spots.map((s, index) => (
             <Link
               key={s.slug}
               href={`${appUrl}${locale === 'en' ? '/en' : ''}/map?r=${s.slug}`}
-              style={{ display: 'block', margin: '0 0 14px' }}
+              style={{ display: 'block', margin: index === spots.length - 1 ? 0 : '0 0 14px' }}
             >
               {/* next/image has no meaning in an inbox — the markup leaves this
                   process as an HTML string, and there is no runtime to optimise.

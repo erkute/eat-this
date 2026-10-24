@@ -12,12 +12,14 @@ for (const prefix of ['', '/en']) {
     expect(response?.status()).toBe(404);
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    const colors = await page.locator('main').evaluate(el => ({
-      page: getComputedStyle(el).backgroundColor,
-      canvas: getComputedStyle(document.documentElement).backgroundColor,
-    }));
-    expect(colors.page).toBe(colors.canvas);
-    expect(colors.page).not.toBe('rgb(255, 255, 255)');
+    // The streamed root and its background transition settle after the
+    // preference attribute is restored; measure the finished canvas.
+    await expect.poll(() => page.locator('main').evaluate(el => {
+      const root = getComputedStyle(document.documentElement).backgroundColor;
+      const canvas = root === 'rgba(0, 0, 0, 0)' ? getComputedStyle(document.body).backgroundColor : root;
+      const ground = getComputedStyle(el).backgroundColor;
+      return { same: ground === canvas, dark: ground !== 'rgb(255, 255, 255)' && ground !== 'rgba(0, 0, 0, 0)' };
+    })).toEqual({ same: true, dark: true });
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });

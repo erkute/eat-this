@@ -12,7 +12,6 @@ export default function LegalPage({ doc, locale }: { doc: StaticPageDoc; locale:
   const title = TITLES[doc.slug]?.[locale] ?? doc.title;
   return (
     <InfoPage slug={doc.slug} title={title}>
-      {doc.title && doc.title !== title && <p>{doc.title}</p>}
       <PortableTextRenderer blocks={doc.body ?? []} />
     </InfoPage>
   );

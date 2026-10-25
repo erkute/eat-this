@@ -129,25 +129,15 @@ main.page .head {
 
 /* ── naechster Zug ──────────────────────────────────────── */
 
-/* Die Einleitung des Decks: zwischen „Dein Deck" und den Bezirken. Vorher
-   die dritte Bank der Ink-Tafel — dort oben war er ein Untermieter zwischen
-   Name und Berlin-Zahl, obwohl er vom Deck handelt (Nutzer, 31.08.2026).
-
-   Eine Zeile, kein Kasten (Nutzer, 04.09.2026: „uebelst dick geloest ... das
-   muss kleiner sein, einfach nur mit nem Standort"). Kicker, Satz und ein
-   gefuellter 44-px-Knopf untereinander kosteten 110 px Hoehe fuer eine
-   Auskunft — mehr als eine Kartenreihe im Deck darunter.
-
-   Jetzt laufen Karte, Beschriftung, Satz und Standort-Freigabe in EINER
-   Zeile, umbruchfaehig. Keine Trennlinie mehr: die Zeile steht zwischen
-   Ueberschrift und Reiterleiste, und eine Haarlinie mittendrin haette den
-   Kopf in zwei Haelften geschnitten. */
+/* Breite Empfehlung unter dem Deck-Fortschritt. Die Aktionen stehen direkt
+   unter dem Spot-Text, damit sie auch am Desktop zum Spot gehören. */
 .move {
   display: grid;
-  grid-template-columns: 132px minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: 208px minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 40px);
   align-items: center;
-  max-width: 720px;
+  padding-block: clamp(20px, 2.4vw, 28px);
+  border-block: 1px solid var(--profile-line);
 }
 .moveMedia {
   position: relative;
@@ -155,7 +145,7 @@ main.page .head {
 }
 .movePhoto {
   display: block;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: var(--et-radius-photo);
   background: var(--profile-raised);
@@ -192,7 +182,7 @@ main.page .head {
 .moveTitle {
   margin: 0;
   color: var(--profile-fg);
-  font: 700 clamp(21px, 2vw, 28px) / 1.08 var(--et-font-display);
+  font: 700 clamp(24px, 2.6vw, 36px) / 1.08 var(--et-font-display);
   letter-spacing: -0.025em;
   overflow-wrap: anywhere;
 }
@@ -201,21 +191,22 @@ main.page .head {
   color: var(--profile-muted);
   font: 400 14px / 1.3 var(--et-font-display);
 }
-.moveTease {
-  margin: 8px 0 12px;
-  color: var(--profile-fg);
-  font: 400 15px / 1.35 var(--et-font-display);
-}
 .moveActions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-start;
   gap: 8px;
+  margin-top: 16px;
 }
 @media (max-width: 640px) {
   .move {
     grid-template-columns: 104px minmax(0, 1fr);
-    gap: 22px;
+    column-gap: 22px;
+    align-items: start;
+  }
+  .movePhoto {
+    aspect-ratio: 3 / 4;
   }
   .moveCard {
     width: 38px;

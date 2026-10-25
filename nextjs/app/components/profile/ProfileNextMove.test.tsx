@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { MapMustEat } from '@/lib/types';
 
 const location = vi.hoisted(() => ({
@@ -80,6 +80,39 @@ afterEach(() => {
 });
 
 describe('ProfileNextMove', () => {
+  it('behält den sichtbaren Spot, wenn der Standort nach dem Öffnen eintrifft', () => {
+    const a = mustEat('a');
+    a.restaurant.lat = HERE.lat + 0.05;
+    const b = mustEat('b');
+    const props = { mustEats: [a, b], faceUpIds: new Set<string>(), districtByRest: DISTRICTS };
+    const { rerender, container } = render(<ProfileNextMove {...props} />);
+    expect(screen.getByRole('heading').textContent).toBe('Spot a');
+
+    location.value = HERE;
+    rerender(<ProfileNextMove {...props} />);
+    expect(screen.getByRole('heading').textContent).toBe('Spot a');
+    expect(container.textContent).toContain('km');
+    expect(container.querySelector('[data-href]')?.getAttribute('data-href')).toBe('/map?r=spot-a');
+  });
+
+  it('wählt nach bewusstem Suchen den näheren Spot', async () => {
+    const a = mustEat('a');
+    a.restaurant.lat = HERE.lat + 0.05;
+    renderMove({ mustEats: [a, mustEat('b')] });
+    location.request.mockResolvedValue(HERE);
+    expect(screen.getByRole('heading').textContent).toBe('Spot a');
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() => expect(screen.getByRole('heading').textContent).toBe('Spot b'));
+  });
+
+  it('ersetzt die Empfehlung, wenn ihre Karte aufgedeckt wurde', () => {
+    const props = { mustEats: [mustEat('a'), mustEat('b')], faceUpIds: new Set<string>(), districtByRest: DISTRICTS };
+    const { rerender } = render(<ProfileNextMove {...props} />);
+    expect(screen.getByRole('heading').textContent).toBe('Spot a');
+    rerender(<ProfileNextMove {...props} faceUpIds={new Set(['a'])} />);
+    expect(screen.getByRole('heading').textContent).toBe('Spot b');
+  });
+
   it('bleibt weg, wenn nichts mehr verdeckt ist', () => {
     const { container } = renderMove({ mustEats: [mustEat('a', true)] });
 
@@ -92,7 +125,7 @@ describe('ProfileNextMove', () => {
     const { container } = renderMove({ mustEats: [target] });
     expect(screen.getByRole('heading', { name: 'Spot a' })).toBeTruthy();
     expect(container.textContent).toContain('Kreuzberg');
-    expect(container.textContent).toContain('moveInvitation');
+    expect(container.textContent).not.toContain('moveInvitation');
     expect(container.querySelector('img[src="/spot-photo.webp"]')).toBeTruthy();
     expect(container.querySelector('img[src*="must-eat-image"]')).toBeNull();
   });

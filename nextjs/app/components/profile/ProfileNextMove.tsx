@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState } from 'react';
 import Image from '@/app/components/SiteImage';
 import { useLocale, useTranslations } from 'next-intl';
 import MapIntentLink from '@/app/components/MapIntentLink';
@@ -28,17 +28,26 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
   const locale = useLocale();
   const { location, loading, error, request } = useUserLocationContext();
 
-  const move = useMemo(
-    () =>
-      pickNextMove({
-        mustEats,
-        faceUpIds,
-        districtOf: (m) =>
-          districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT,
-        location,
-      }),
-    [mustEats, faceUpIds, districtByRest, location]
-  );
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const input = {
+    mustEats,
+    faceUpIds,
+    districtOf: (m: MapMustEat) =>
+      districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT,
+    location,
+  };
+  const move = pickNextMove({ ...input, selectedId });
+  // Nur eine weggefallene/aufgedeckte Karte ersetzen, bevor React den Stand
+  // zeichnet. Spät eintreffende Standortdaten ergänzen nur die Entfernung.
+  const nextId = move?.target._id ?? null;
+  if (nextId !== selectedId) setSelectedId(nextId);
+
+  async function findNear() {
+    const position = await request();
+    if (position) {
+      setSelectedId(pickNextMove({ ...input, location: position })?.target._id ?? null);
+    }
+  }
 
   if (!move) return null;
 
@@ -47,7 +56,7 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
       ? null
       : formatLocalizedDistance(move.meters, locale === 'en' ? 'en' : 'de');
 
-  const canLocate = !location && error !== 'denied';
+  const canLocate = error !== 'denied';
   const spot = move.target.restaurant;
   const name = normalizeName(spot.name);
   const href = `/map?r=${encodeURIComponent(spot.slug)}`;
@@ -66,9 +75,9 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
             <Image
               src={spot.photo}
               alt=""
-              width={132}
-              height={176}
-              sizes="(max-width: 640px) 104px, 132px"
+              width={208}
+              height={156}
+              sizes="(max-width: 640px) 104px, 208px"
               loading="lazy"
             />
           ) : (
@@ -98,7 +107,6 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
         <p className={styles.moveMeta} aria-live="polite">
           {meta}
         </p>
-        <p className={styles.moveTease}>{t('moveInvitation')}</p>
         <div className={styles.moveActions}>
           <MapIntentLink href={href} rel="nofollow" className="et-btn et-btn-sm">
             {t('moveGo')}
@@ -108,7 +116,7 @@ export default function ProfileNextMove({ mustEats, faceUpIds, districtByRest }:
               type="button"
               disabled={loading}
               className="et-btn et-btn-alt et-btn-sm"
-              onClick={() => void request()}
+              onClick={() => void findNear()}
             >
               {loading ? getLocatingCopy(locale) : t('moveFindNear')}
             </button>

@@ -1010,7 +1010,6 @@ a.quiet {
 
 /* The explainer has fixed text/art slots so its illustrations and controls
    do not move when a heading wraps differently on the next step. */
-.panel[data-must-eats-onboarding] { background-image: none; }
 .panel[data-must-eats-onboarding] .copy { align-self: start; height: 280px; overflow-y: auto; padding-top: 24px; }
 .panel[data-must-eats-onboarding] .footer { grid-column: 1 / -1; width: min(440px, 100%); margin-inline: auto; padding-top: 16px; }
 .panel[data-must-eats-onboarding] .progress { justify-content: center; }

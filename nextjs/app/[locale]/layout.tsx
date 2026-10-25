@@ -27,7 +27,10 @@ export function generateStaticParams() {
 // like [data-active-page="map"] .app-pages), locks portrait orientation on mobile,
 // marks the home page for its elevator-door intro (data-hero-intro,
 // HeroCurtain.module.css). The finished page sits behind the opening doors.
-// A timeout clears the intro flag if hydration fails. Skipped when the address
+// A timeout clears the intro flag if hydration fails: after 6.5 s when Remy
+// has not started (data-remy-go), otherwise 6 s later — his 5.4 s run starts
+// only once hydrated, and a fixed 6.5 s from load cut it off mid-push on slow
+// loads (HeroCurtain clears the flag itself on animationend). Skipped when the address
 // carries a sign-in link from the mail: then the confirmation board
 // (EmailLinkSignIn) is the first thing on screen; data-email-link holds back
 // what opens by itself until the board closes, lib/auth/emailLinkPending.ts),
@@ -59,7 +62,7 @@ const CRITICAL_BOOTSTRAP = `(function(){
   document.documentElement.setAttribute('data-active-page',slug);
   var emailLink=/[?&]mode=signIn(&|$)/.test(location.search)&&/[?&]oobCode=[^&]/.test(location.search);
   if(emailLink)document.documentElement.setAttribute('data-email-link','');
-  try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-hero-intro','');setTimeout(function(){document.documentElement.removeAttribute('data-hero-intro');},6500);}}catch(_){}
+  try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){var h=document.documentElement;h.setAttribute('data-hero-intro','');var end=function(){h.removeAttribute('data-hero-intro');};setTimeout(function(){if(h.hasAttribute('data-remy-go'))setTimeout(end,6000);else end();},6500);}}catch(_){}
   try{if(slug==='news-article'&&document.visibilityState==='visible'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-article-intro','');}catch(_){}
   try{if(localStorage.getItem('et-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(_){}
   try{if(slug==='start'&&'scrollRestoration' in history)history.scrollRestoration='manual';}catch(_){}

@@ -52,8 +52,9 @@
      Vorhang schon, schob bei langsamem Laden ein starres Bild — „seine
      Beine bewegen sich nicht" (Rückmeldung 01.10.2026). Beide Animationen
      stehen auf Zeit 0 (Remy noch links ausserhalb, nur Schwarz), bis
-     HeroCurtain `data-remy-go` setzt; spätestens nach 3 s setzt es das
-     Kopf-Skript ([locale]/layout.tsx), damit nichts hängen bleibt. */
+     HeroCurtain `data-remy-go` setzt (ohne WebGL spätestens 0,9 s nach dem
+     Mount). Kommt es nie, räumt das Kopf-Skript ([locale]/layout.tsx) den
+     Auftritt nach 6,5 s ab, damit nichts hängen bleibt. */
   :global(html:not([data-remy-go])) .scene,
   :global(html:not([data-remy-go])) .travel {
     animation-play-state: paused;

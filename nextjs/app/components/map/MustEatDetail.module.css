@@ -2125,12 +2125,18 @@
   }
 }
 
-/* The restaurant continues the open paper layout of the Must Eat catalog. */
+/* The restaurant continues the open paper layout of the Must Eat catalog —
+   on the same folded paper as the map's filter chips (MapFilters.module.css,
+   Ansage 25.10.2026). Hover and focus only change the colour underneath. */
 .detail .scroll > .fdRestInline:has(.fdRestPhoto),
 .detail .scroll > .fdRestInline {
   border-radius: 0;
   color: var(--et-fg);
-  background: var(--et-ground);
+  background-color: var(--et-ground);
+  background-image: var(--et-window-paper);
+  background-size: 400px 600px;
+  background-position: -100px -400px;
+  background-blend-mode: multiply;
 }
 @media (hover: hover) {
   .detail .scroll > .fdRestInline:hover {

@@ -3,10 +3,6 @@
 
   --issue-gutter: var(--et-gutter);
   --issue-wide: 1180px;
-  /* Die Rubrikenzeile klebt am Telefon unter der Navigation und folgt ihr,
-     wenn sie wegklappt (SiteNav, data-visibility) — wie auf den übrigen
-     Hub-Seiten. */
-  --issue-sticky-top: var(--staging-banner-h, 0px);
   display: flow-root;
   box-sizing: border-box;
   width: 100%;
@@ -17,10 +13,6 @@
   color: var(--et-fg);
   background: var(--et-ground);
   font-family: var(--et-font-display);
-}
-
-body:has(:global(#navbar[data-visibility='visible'])) .page {
-  --issue-sticky-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px));
 }
 
 /* Editorial labels shared by cards, the register and guides. */
@@ -77,8 +69,9 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 /* ------------------------------------------------- rubrikenzeile -------- */
 
-/* Auswahlflächen wie in der Map-Vorschau der Startseite. Am Telefon
-   wischen sie unter der Navigation; ab Tablet dürfen sie umbrechen. */
+/* Auswahlflächen wie in der Map-Vorschau der Startseite. Am Telefon wischen
+   sie, ab Tablet brechen sie um. Seit 25.10.2026 stehen sie auch am Telefon
+   im Fluss: klebend unter der Navigation nahmen sie den Fotos Fläche weg. */
 .filterStatus {
   position: absolute;
   width: 1px;
@@ -90,13 +83,9 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 .filterBar {
-  position: sticky;
-  top: var(--issue-sticky-top);
-  z-index: 20;
-  margin: 36px calc(-1 * var(--issue-gutter)) 0;
-  padding: 10px var(--issue-gutter);
-  background: transparent;
-  transition: top 0.2s ease;
+  margin: 36px auto 0;
+  max-width: var(--issue-wide);
+  padding-block: 10px;
 }
 
 .filterRail {
@@ -155,26 +144,14 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 }
 
 @media (min-width: 768px) {
-  .filterBar {
-    position: static;
-    margin-inline: auto;
-    max-width: var(--issue-wide);
-    padding-inline: 0;
-  }
-
   .filterRail {
     flex-wrap: wrap;
-    justify-content: flex-start;
     margin-inline: 0;
     padding-inline: 0;
     overflow: visible;
   }
 }
 
-/* Die Provider-Hülle ist der Bereich, in dem die Leiste klebt: Leiste plus
-   Listen. Bis 25.09.2026 löste sie sich per `display: contents` auf — die
-   Leiste klebte dann an `main` und lief über Magazin und FAQ bis zum
-   Seitenende mit, obwohl sie dort nichts mehr filtert. */
 .filterScope {
   display: block;
 }
@@ -675,7 +652,6 @@ body:has(:global(#navbar[data-visibility='visible'])) .page {
 
 @media (prefers-reduced-motion: reduce) {
   .filterChip,
-  .filterBar,
   .shelfIssue {
     transition: none;
   }

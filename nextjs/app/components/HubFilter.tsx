@@ -84,10 +84,10 @@ export function HubFilterUnfiltered({ children }: { children: ReactNode }) {
 
 /**
  * Die Rubrikenzeile über der Liste (seit 03.10.2026 Wörter statt Knöpfe, das
- * aktive mit dem gelben Quadrat). Klebt seit 25.09.2026 auf dem Telefon unter
- * der Navigation: eine Bezirksseite ist lang, und wer mittendrin die Kategorie
- * wechseln will, soll nicht erst zurück nach oben. Ab Tablet steht sie im
- * Fluss und bricht um. Die Zählzeile ist nur für Vorleser da.
+ * aktive mit dem gelben Quadrat). Steht über der Liste im Fluss — am Telefon
+ * als Wischzeile, ab Tablet umbrechend. Bis 25.10.2026 klebte sie am Telefon
+ * unter der Navigation und nahm den Fotos Fläche weg. Die Zählzeile ist nur
+ * für Vorleser da.
  */
 export function HubFilterBar({
   facets,
@@ -105,8 +105,6 @@ export function HubFilterBar({
   const { active, select } = useContext(HubFilterContext);
   const current = facets.find((f) => f.slug === active) ?? null;
 
-  // Statuszeile und Leiste als Geschwister: die Leiste klebt (`sticky`) und
-  // muss dafür direktes Kind des hohen Seitenblocks sein.
   return (
     <>
       <p className={styles.filterStatus} role="status">

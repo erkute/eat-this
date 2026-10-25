@@ -35,11 +35,12 @@
 .boundaries { fill: none; stroke: var(--et-ground); stroke-opacity: .24; stroke-width: .7; pointer-events: none; }
 .cityBoundary { fill: none; stroke: var(--et-ground); stroke-opacity: .85; stroke-width: 1.4; pointer-events: none; }
 .mapHint { min-height: 66px; margin: 14px 0 0; text-align: center; font-size: 18px; line-height: 1.4; }
-.districtName { display: block; font-size: 24px; line-height: 1.2; }
+.districtName { display: block; font-size: 24px; font-weight: 700; line-height: 1.2; }
 .hintAction { display: block; margin-top: 5px; font-size: 16px; }
 .mapSection[data-map-opening='true'] .geography { pointer-events: none; }
 @media (max-width: 767px) {
-  .explorer { min-height: 100svh; padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px); }
+  /* Auch mit eingeklappter Browserleiste bleibt der Footer unter dem Einstieg. */
+  .explorer { min-height: var(--discovery-mobile-min-height, 100lvh); padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px); }
   .mapSection { margin-top: 24px; }
   .geography { height: auto; min-height: 0; aspect-ratio: 640 / 550; }
   .mapHint { margin-top: 22px; }

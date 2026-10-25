@@ -32,8 +32,13 @@ test('Berlin overview keeps footer position when the mobile browser bar changes 
   test.skip(!isMobile || browserName !== 'chromium', 'Chromium CDP simulates browser toolbar height.');
   const session = await context.newCDPSession(page);
   await page.goto('/bezirk', { waitUntil: 'domcontentloaded' });
+  // Simulate scrolling/browser chrome after the mobile surface has hydrated.
+  await expect.poll(() => page.locator('[data-discovery]').evaluate(node =>
+    (node as HTMLElement).style.getPropertyValue('--discovery-mobile-min-height')
+  )).not.toBe('');
   await session.send('Emulation.setSmallViewportHeightDifferenceOverride', { difference: 100 });
   const footer = page.locator('[data-site-footer]');
+  expect(await footer.evaluate(node => node.getBoundingClientRect().top >= innerHeight - 1)).toBe(true);
   await footer.scrollIntoViewIfNeeded();
   const documentTop = () => footer.evaluate(node => node.getBoundingClientRect().top + scrollY);
   const before = await documentTop();
@@ -46,4 +51,12 @@ test('Berlin overview keeps footer position when the mobile browser bar changes 
   await session.send('Emulation.setSmallViewportHeightDifferenceOverride', { difference: 0 });
   expect(await documentTop()).toBeCloseTo(before, 1);
   expect(await footer.evaluate(node => Math.abs(node.getBoundingClientRect().top - node.previousElementSibling!.getBoundingClientRect().bottom))).toBeLessThan(1);
+  await session.send('Emulation.setDeviceMetricsOverride', {
+    width: viewport.width, height: viewport.height + 100,
+    screenWidth: viewport.width, screenHeight: viewport.height + 100,
+    deviceScaleFactor: 1, mobile: true,
+  });
+  await expect.poll(() => footer.evaluate(node =>
+    node.getBoundingClientRect().top + scrollY >= innerHeight - 1
+  )).toBe(true);
 });

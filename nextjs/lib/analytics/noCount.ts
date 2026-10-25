@@ -8,7 +8,8 @@
  * Erweiterung — darum ein Cookie, das die Route wie GPC behandelt.
  *
  * Das Cookie gehört NICHT zum Zähler: der bleibt speicherfrei (siehe
- * lib/analytics.ts). Gesetzt wird es allein auf Knopfdruck in /admin/stats,
+ * lib/analytics.ts). Gesetzt wird es auf Knopfdruck in /no-count (ohne Login)
+ * oder /admin/stats,
  * gelesen serverseitig aus dem Cookie-Header — kein Skript des Zählers fasst
  * das Gerät an.
  */

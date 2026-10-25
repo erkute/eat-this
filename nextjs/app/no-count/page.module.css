@@ -1,0 +1,40 @@
+.page {
+  display: grid;
+  align-items: center;
+  min-height: 100svh;
+  padding: 48px 24px;
+  color: var(--et-fg);
+}
+
+.content {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.content h1 {
+  margin: 20px 0;
+  font-size: clamp(32px, 7vw, 52px);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.content p {
+  margin: 20px 0;
+  line-height: 1.6;
+}
+
+.content form {
+  margin: 24px 0;
+}
+
+.cookie {
+  overflow-wrap: anywhere;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}

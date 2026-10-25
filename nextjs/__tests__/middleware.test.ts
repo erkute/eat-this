@@ -231,3 +231,47 @@ describe('middleware: legacy 404 cleanup (post-rebuild re-slug)', () => {
     expect((await middleware(makeReq('/restaurant/borchardt'))).status).not.toBe(410)
   })
 })
+
+describe('middleware: public counting settings', () => {
+  afterEach(() => vi.resetModules())
+
+  it.each([
+    ['/no-count', 'de'],
+    ['/en/no-count', 'en'],
+  ])('serves %s outside the analytics-bearing locale layout', async (path, locale) => {
+    vi.resetModules()
+    const { default: middleware } = await import('@/middleware')
+    const res = await middleware(new NextRequest(`http://127.0.0.1${path}`, {
+      headers: { 'x-eatthis-no-count-locale': 'spoofed' },
+    }))
+    expect(res.status).toBe(200)
+    expect(res.headers.get('x-middleware-request-x-eatthis-no-count-locale')).toBe(locale)
+    if (locale === 'en') {
+      expect(new URL(res.headers.get('x-middleware-rewrite')!).pathname).toBe('/no-count')
+    } else {
+      expect(res.headers.get('x-middleware-next')).toBe('1')
+      expect(res.headers.get('x-middleware-rewrite')).toBeNull()
+    }
+  })
+
+  it('keeps the staging authentication gate on the public settings', async () => {
+    const previous = process.env.NEXT_PUBLIC_ENV
+    try {
+      process.env.NEXT_PUBLIC_ENV = 'staging'
+      vi.resetModules()
+      const { default: middleware } = await import('@/middleware')
+      expect((await middleware(makeReq('/no-count'))).status).toBe(401)
+    } finally {
+      process.env.NEXT_PUBLIC_ENV = previous
+    }
+  })
+
+  it('preserves English when Next processes the rewritten request again', async () => {
+    vi.resetModules()
+    const { default: middleware } = await import('@/middleware')
+    const res = await middleware(new NextRequest('http://127.0.0.1/no-count', {
+      headers: { 'x-eatthis-no-count-locale': 'en' },
+    }))
+    expect(res.headers.get('x-middleware-request-x-eatthis-no-count-locale')).toBe('en')
+  })
+})

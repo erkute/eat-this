@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAuth, useLoginModal } from '@/lib/auth';
+import { useLoginModal } from '@/lib/auth';
 import { trackEvent } from '@/lib/analytics';
 import { useDialogFocus } from '@/lib/useDialogFocus';
 import LoginBoard, { LoginSceneArt } from './LoginBoard';
@@ -21,7 +21,6 @@ interface LoginPanelProps {
  */
 export default function LoginPanel({ onBack }: LoginPanelProps) {
   const t = useTranslations('modals.login');
-  const { user, loading } = useAuth();
   const { reason, intent } = useLoginModal();
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement>(null);
@@ -82,9 +81,6 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
           lead={lead}
           intent={intent}
           googleWarmup={reason?.kind === 'map-prompt' ? 'intent' : 'mount'}
-          /* Ein Login, der waehrend des offenen Modals durchgeht, haelt den
-             Wartescreen, bis BridgeAuth das Modal nach der Haltezeit schliesst. */
-          holdScreen={!loading && Boolean(user)}
         />
       </div>
     </div>

@@ -15,9 +15,12 @@ export default function ProfileAccount({
   email: string | null;
   onSaveName: (name: string) => Promise<void>;
   onPickAvatar: () => void;
-  onSignOut: () => void;
+  onSignOut: () => Promise<void>;
 }) {
   const t = useTranslations('profile');
+  const tAuth = useTranslations('auth');
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutFailed, setSignOutFailed] = useState(false);
   const [value, setValue] = useState(name);
   const [savedName, setSavedName] = useState(name);
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -87,10 +90,26 @@ export default function ProfileAccount({
       <button
         type="button"
         className={`et-btn et-btn-alt ${styles.accountSignOut}`}
-        onClick={onSignOut}
+        disabled={signingOut}
+        aria-busy={signingOut}
+        onClick={async () => {
+          if (signingOut) return;
+          setSigningOut(true);
+          setSignOutFailed(false);
+          try {
+            await onSignOut();
+          } catch {
+            setSignOutFailed(true);
+          } finally {
+            setSigningOut(false);
+          }
+        }}
       >
         {t('signOut')}
       </button>
+      {signOutFailed && (
+        <p className={styles.formError} role="alert">{tAuth('errGeneric')}</p>
+      )}
     </div>
   );
 }

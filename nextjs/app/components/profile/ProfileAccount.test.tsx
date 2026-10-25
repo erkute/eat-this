@@ -12,7 +12,7 @@ it('saves a trimmed name and preserves edits after a failed save for retry', asy
       email="alex@example.test"
       onSaveName={save}
       onPickAvatar={() => {}}
-      onSignOut={() => {}}
+      onSignOut={async () => {}}
     />
   );
   const input = screen.getByLabelText('fieldName');

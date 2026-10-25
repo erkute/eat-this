@@ -49,13 +49,6 @@ vi.mock('@/lib/auth', () => ({
     signOut: state.signOut,
   }),
 }));
-// Der echte AuthScreen zieht ueber useTranslation den next-intl-Router mit;
-// hier zaehlt nur, dass er da ist. AUTH_SCREEN_HOLD_MS bleibt echt — die
-// Haltezeit ist der Gegenstand des Tests.
-vi.mock('../AuthScreen', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../AuthScreen')>()),
-  default: ({ mode }: { mode: 'in' | 'out' }) => <div data-testid="auth-screen">{mode}</div>,
-}));
 vi.mock('@/lib/map', () => ({
   useUnlockedMustEats: () => ({ unlockedIds: new Set<string>(), unlockedAt: new Map() }),
   useMapData: () => ({
@@ -82,7 +75,6 @@ vi.mock('./AvatarPickerModal', () => ({ default: () => null }));
 vi.mock('../SiteFooter', () => ({ default: () => <footer>Footer</footer> }));
 
 import ProfileShell from './ProfileShell';
-import { AUTH_SCREEN_HOLD_MS } from '../AuthScreen';
 
 beforeEach(() => {
   state.authLoading = false;
@@ -197,51 +189,32 @@ describe('ProfileShell tabs', () => {
 });
 
 describe('ProfileShell sign-out', () => {
-  /* Ohne Haltezeit war der Abmelde-Screen wieder weg, bevor man ihn gelesen
-     hatte: Firebase ist in Millisekunden fertig, und dann nimmt
-     ProfileAuthGuard diesen Baum samt Screen aus dem DOM (Nutzer,
-     29.08.2026). Deshalb erst der Screen, dann das Abmelden. */
-  it('shows the sign-out screen first and signs out only after the hold', () => {
-    vi.useFakeTimers();
-
+  it('starts immediately and disables the button only while the request is pending', async () => {
+    let finish!: () => void;
+    state.signOut.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
     render(<ProfileShell publicFaceUpIds={[]} />);
     fireEvent.click(screen.getByRole('tab', { name: 'tab_account' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
-
-    expect(screen.getByTestId('auth-screen').textContent).toBe('out');
-    expect(state.signOut).not.toHaveBeenCalled();
-
-    act(() => {
-      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS - 1);
-    });
-    expect(state.signOut).not.toHaveBeenCalled();
-
-    act(() => {
-      vi.advanceTimersByTime(1);
-    });
+    const button = screen.getByRole<HTMLButtonElement>('button', { name: 'Sign out' });
+    fireEvent.click(button);
     expect(state.signOut).toHaveBeenCalledOnce();
-    expect(screen.getByTestId('auth-screen')).toBeTruthy();
+    expect(button.disabled).toBe(true);
+    fireEvent.click(button);
+    expect(state.signOut).toHaveBeenCalledOnce();
+    expect(screen.queryByText('Du wirst abgemeldet')).toBeNull();
+    await act(async () => { finish(); });
+    expect(button.disabled).toBe(false);
   });
 
-  /* Der Screen liegt als fixed-Layer ohne Schliessweg ueber der Seite — ein
-     gescheitertes Abmelden muss ihn wieder abraeumen, sonst ist man
-     angemeldet, aber vom eigenen Profil ausgesperrt. */
-  it('takes the screen and the parked toast back when signing out fails', async () => {
-    vi.useFakeTimers();
-    state.signOut.mockImplementation(() => Promise.reject(new Error('network')));
-
+  it('keeps the account usable and offers retry when signing out fails', async () => {
+    state.signOut.mockRejectedValueOnce(new Error('network'));
     render(<ProfileShell publicFaceUpIds={[]} />);
     fireEvent.click(screen.getByRole('tab', { name: 'tab_account' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Sign out' }));
-    /* Waehrend der Haltezeit liegt noch nichts bereit — ein zwischendurch
-       geschlossener Tab soll nicht "Du bist abgemeldet" nachreichen. */
-    expect(sessionStorage.getItem('eatthis_toast')).toBeNull();
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(AUTH_SCREEN_HOLD_MS);
-    });
-
-    expect(screen.queryByTestId('auth-screen')).toBeNull();
-    expect(sessionStorage.getItem('eatthis_toast')).toBeNull();
+    const button = screen.getByRole<HTMLButtonElement>('button', { name: 'Sign out' });
+    await act(async () => { fireEvent.click(button); });
+    expect(screen.getByRole('alert').textContent).toBe('errGeneric');
+    expect(button.disabled).toBe(false);
+    await act(async () => { fireEvent.click(button); });
+    expect(state.signOut).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });

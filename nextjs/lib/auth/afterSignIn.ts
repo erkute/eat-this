@@ -17,7 +17,7 @@ export function shouldGoToProfile(pathname: string): boolean {
 }
 
 /**
- * Die Google-Anmeldung passiert in der Anmelde-Tafel (LoginBoard) oder kommt
+ * Die Google-Anmeldung wird in AuthContext bestaetigt oder kommt
  * ueber den Redirect zurueck (AuthContext) — beides ohne eigenen Router. Sie
  * meldet deshalb nur, dass jemand angekommen ist; weiter schickt
  * EmailLinkSignIn, das in jedem Seitenlayout haengt.

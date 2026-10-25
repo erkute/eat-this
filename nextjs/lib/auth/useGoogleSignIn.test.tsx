@@ -18,7 +18,6 @@ vi.mock('./AuthContext', () => ({
   }),
 }));
 vi.mock('@/lib/analytics', () => ({ trackEvent }));
-vi.mock('@/app/components/AuthScreen', () => ({ AUTH_SCREEN_HOLD_MS: 2200 }));
 
 import { useGoogleSignIn } from './useGoogleSignIn';
 
@@ -39,37 +38,25 @@ describe('useGoogleSignIn', () => {
     vi.useRealTimers();
   });
 
-  it('holds the wait screen after the answer, then settles', async () => {
-    authState.signInWithGoogle.mockResolvedValue(undefined);
+  it('disables Google only while the popup request is pending', async () => {
+    let finish!: () => void;
+    authState.signInWithGoogle.mockReturnValue(new Promise(resolve => { finish = resolve; }));
     const { result } = renderHook(() => useGoogleSignIn());
-
-    await act(async () => {
-      await result.current.start();
-    });
-    expect(result.current.phase).toBe('done');
-    expect(trackEvent).toHaveBeenCalledWith('login_start', { method: 'google' });
-
-    act(() => vi.advanceTimersByTime(2199));
-    expect(result.current.phase).toBe('done');
-
-    act(() => vi.advanceTimersByTime(1));
+    let request!: Promise<void>;
+    act(() => { request = result.current.start(); });
+    expect(result.current.phase).toBe('busy');
+    await act(async () => { finish(); await request; });
     expect(result.current.phase).toBe('idle');
+    expect(trackEvent).toHaveBeenCalledWith('login_start', { method: 'google' });
   });
 
-  it('treats a closed window as a decision: quiet note, short retreat', async () => {
+  it('immediately restores the form with a quiet note when Google is cancelled', async () => {
     authState.signInWithGoogle.mockRejectedValue(firebaseError('auth/popup-closed-by-user'));
     const { result } = renderHook(() => useGoogleSignIn());
-
-    await act(async () => {
-      await result.current.start();
-    });
-    expect(result.current.phase).toBe('leaving');
-    expect(result.current.note).toBe('cancelled');
-    expect(result.current.noteKey).toBe('auth.googleCancelled');
-
-    act(() => vi.advanceTimersByTime(260));
+    await act(async () => { await result.current.start(); });
     expect(result.current.phase).toBe('idle');
     expect(result.current.note).toBe('cancelled');
+    expect(result.current.noteKey).toBe('auth.googleCancelled');
   });
 
   it('names a blocked window and a failed handover differently', async () => {

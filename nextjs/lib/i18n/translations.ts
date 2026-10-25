@@ -222,7 +222,6 @@ const en = {
   },
   profile: {
     avatarError: 'Your character could not be saved. Please try again.',
-    moveInvitation: 'Your next card is waiting here.',
     moveGo: 'Take me there',
     moveFindNear: 'Near me',
     albumCard: 'Card',
@@ -628,7 +627,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   },
   profile: {
     avatarError: 'Dein Charakter konnte nicht gespeichert werden. Versuch es nochmal.',
-    moveInvitation: 'Deine nächste Karte wartet hier.',
     moveGo: 'Da will ich hin',
     moveFindNear: 'In meiner Nähe',
     albumCard: 'Karte',

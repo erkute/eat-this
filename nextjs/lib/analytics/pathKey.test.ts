@@ -56,7 +56,7 @@ describe('pathKey', () => {
   /* Das Zahlenbrett zaehlte seinen einzigen Leser: /admin/stats stand mit 67
      Aufrufen in der eigenen Ausstiegstabelle. Es steht in keiner Allowlist,
      faellt also schon an der Route durch — kein eigener Regex mehr noetig. */
-  it.each(['/admin', '/admin/stats', '/en/admin/stats'])(
+  it.each(['/admin', '/admin/stats', '/en/admin/stats', '/no-count', '/en/no-count'])(
     'zaehlt das interne Werkzeug %s nicht',
     (raw) => {
       expect(pathKey(raw)).toBeNull();

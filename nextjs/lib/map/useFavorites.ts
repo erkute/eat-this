@@ -160,9 +160,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           favorites: entries,
           loading: false,
         });
-        /* Laenger als die Standardmeldung: beim Google-Weg liegt bis kurz
-           vorher noch der Wartescreen (AUTH_SCREEN_HOLD_MS) darueber, und die
-           Bestaetigung soll danach noch zu lesen sein. */
+        /* Nach dem Login genug Zeit lassen, das gespeicherte Herz zu sehen. */
         if (hearted && claimPendingHeartNotice(uid)) {
           notify(entries.length > 1 ? 'spotSaved' : 'spotSavedFirstAfterLogin', localeRef.current, {
             duration: 5000,

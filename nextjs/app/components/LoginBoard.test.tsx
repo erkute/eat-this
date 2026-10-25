@@ -15,14 +15,10 @@ const magic = vi.hoisted(() => ({
 const google = vi.hoisted(() => ({
   start: vi.fn(),
   prepare: vi.fn(),
-  phase: 'idle' as 'idle' | 'busy' | 'done' | 'leaving',
+  phase: 'idle' as 'idle' | 'busy',
   note: null as 'cancelled' | 'blocked' | 'failed' | null,
   noteKey: null as string | null,
-  outcome: null as 'sign_up' | 'login' | null,
 }));
-
-const arrived = vi.hoisted(() => ({ announce: vi.fn() }));
-vi.mock('@/lib/auth/afterSignIn', () => ({ announceSignedIn: arrived.announce }));
 
 vi.mock('@/lib/auth', () => ({
   useMagicLink: () => ({
@@ -33,14 +29,6 @@ vi.mock('@/lib/auth', () => ({
   }),
   useGoogleSignIn: () => google,
 }));
-/* Der Wartescreen hat seine eigenen Tests; hier zaehlt nur, ob er da ist. */
-vi.mock('./AuthScreen', () => ({
-  AUTH_SCREEN_HOLD_MS: 900,
-  default: ({ leaving }: { leaving?: boolean }) => (
-    <div data-testid="auth-screen" data-leaving={leaving ? '1' : '0'} />
-  ),
-}));
-
 import LoginBoard, { LoginSceneArt } from './LoginBoard';
 
 type Props = Partial<Parameters<typeof LoginBoard>[0]>;
@@ -75,7 +63,6 @@ beforeEach(() => {
   google.phase = 'idle';
   google.note = null;
   google.noteKey = null;
-  google.outcome = null;
   window.history.replaceState(null, '', '/map?r=sofi');
 });
 
@@ -226,16 +213,13 @@ describe('LoginBoard — Google', () => {
     expect(google.prepare).toHaveBeenCalled();
   });
 
-  it('sperrt den Knopf und zeigt den Wartescreen, solange Google offen ist', () => {
+  it('sperrt nur den Google-Knopf, solange das Fenster offen ist', () => {
     google.phase = 'busy';
     board();
     expect(googleButton().disabled).toBe(true);
-    expect(screen.getByTestId('auth-screen').getAttribute('data-leaving')).toBe('0');
-  });
-
-  it('haelt den Wartescreen auf Wunsch auch ohne Google', () => {
-    board({ holdScreen: true });
-    expect(screen.getByTestId('auth-screen')).toBeTruthy();
+    expect(googleButton().getAttribute('aria-busy')).toBe('true');
+    expect(screen.getByLabelText('E-Mail')).toBeTruthy();
+    expect(screen.queryByText('Du wirst angemeldet')).toBeNull();
   });
 
   it('sagt ein selbst zugeklicktes Fenster leise an, ein geblocktes laut', () => {
@@ -250,29 +234,6 @@ describe('LoginBoard — Google', () => {
     google.noteKey = 'auth.errGooglePopupBlocked';
     board();
     expect(screen.getByRole('alert').textContent).toBe(translations.de.auth.errGooglePopupBlocked);
-  });
-});
-
-/* Nach jeder Anmeldung geht es ins Profil (Betreiber, 14.10.2026). Die
-   Tafel meldet nur, dass jemand angekommen ist — weiter schickt
-   EmailLinkSignIn (afterSignIn.ts). */
-describe('LoginBoard — nach der Google-Anmeldung', () => {
-  beforeEach(() => vi.useFakeTimers());
-  afterEach(() => vi.useRealTimers());
-
-  it('meldet die Ankunft erst nach dem Wartescreen', () => {
-    google.outcome = 'login';
-    board();
-    expect(arrived.announce).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(900);
-    expect(arrived.announce).toHaveBeenCalledTimes(1);
-  });
-
-  it('meldet auch ein neues Konto und eine Anmeldung mit Anlass', () => {
-    google.outcome = 'sign_up';
-    board({ intent: { starterMustEatId: 'me-1' } });
-    vi.advanceTimersByTime(900);
-    expect(arrived.announce).toHaveBeenCalledTimes(1);
   });
 });
 

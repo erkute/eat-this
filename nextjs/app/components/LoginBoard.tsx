@@ -8,8 +8,6 @@ import { isEmailish } from '@/lib/auth/emailShape';
 import { buildLoginContinueUrl, type LoginIntent } from '@/lib/auth/loginContinueUrl';
 import { routing } from '@/i18n/routing';
 import { GoogleMark } from './GoogleMark';
-import AuthScreen, { AUTH_SCREEN_HOLD_MS } from './AuthScreen';
-import { announceSignedIn } from '@/lib/auth/afterSignIn';
 import styles from './LoginBoard.module.css';
 
 const PACK_ART = '/pics/home/starter-pack-front.webp';
@@ -36,8 +34,6 @@ interface LoginBoardProps {
    * es nutzt", also erst, wenn die Hand zum Knopf geht.
    */
   googleWarmup: 'mount' | 'intent';
-  /** Wartescreen stehen lassen, auch wenn Google ihn nicht ausgeloest hat. */
-  holdScreen?: boolean;
 }
 
 /**
@@ -60,7 +56,6 @@ export default function LoginBoard({
   lead,
   intent = null,
   googleWarmup,
-  holdScreen = false,
 }: LoginBoardProps) {
   const t = useTranslations('modals.login');
   const tRoot = useTranslations();
@@ -73,16 +68,6 @@ export default function LoginBoard({
     if (googleWarmup === 'mount') prepareGoogle();
   }, [googleWarmup, prepareGoogle]);
   const warmOnIntent = googleWarmup === 'intent' ? prepareGoogle : undefined;
-
-  /* Nach der Google-Anmeldung melden, dass jemand angekommen ist — nach der
-     Haltezeit des Wartescreens. Ins Profil schickt dann EmailLinkSignIn
-     (afterSignIn.ts). Ohne Aufraeumen beim Unmount: das Modal schliesst sich,
-     sobald das Konto da ist, die Meldung soll trotzdem raus. */
-  const { outcome } = google;
-  useEffect(() => {
-    if (!outcome) return;
-    window.setTimeout(announceSignedIn, AUTH_SCREEN_HOLD_MS);
-  }, [outcome]);
 
   /* Der Link fuehrt dorthin zurueck, wo die Anmeldung angefangen hat — nicht
      auf die Startseite. Wird erst beim Absenden gelesen, damit `window` nicht
@@ -213,6 +198,7 @@ export default function LoginBoard({
               onPointerDown={warmOnIntent}
               onFocus={warmOnIntent}
               disabled={google.phase === 'busy'}
+              aria-busy={google.phase === 'busy'}
             >
               <GoogleMark />
               <span>{t('googleBtn')}</span>
@@ -232,12 +218,6 @@ export default function LoginBoard({
           </>
         )}
       </div>
-
-      {/* Der Wartescreen liegt als Portal ueber der Seite (siehe AuthScreen) —
-          er bleibt also auch stehen, wenn die Tafel selbst verborgen wird. */}
-      {(google.phase !== 'idle' || holdScreen) && (
-        <AuthScreen mode="in" leaving={google.phase === 'leaving'} />
-      )}
     </div>
   );
 }

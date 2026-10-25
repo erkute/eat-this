@@ -58,6 +58,19 @@ describe('signInWithGoogle — wenn der Browser das Fenster blockt', () => {
     window.history.replaceState(null, '', '/');
   });
 
+  it('announces successful popup sign-in directly from the provider', async () => {
+    const arrived = vi.fn();
+    window.addEventListener('eatthis:signed-in', arrived);
+    try {
+      mocks.signInWithPopup.mockResolvedValueOnce({ user: { uid: 'u1' } });
+      const { result } = await mountAuth();
+      await act(async () => { await result.current.signInWithGoogle(); });
+      expect(arrived).toHaveBeenCalledOnce();
+    } finally {
+      window.removeEventListener('eatthis:signed-in', arrived);
+    }
+  });
+
   /* Der Kern der Sache: auf iOS Safari kommt `auth/popup-blocked` auch dann,
      wenn vorgewärmt wurde — das Vorwärmen verkürzt die Wartezeit, garantiert
      sie aber nicht weg (Nutzer, 28.08.2026). Eine Navigation braucht keine

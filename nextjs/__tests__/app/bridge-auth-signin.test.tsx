@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 
 const state = vi.hoisted(() => ({
   user: null as { uid: string; displayName: string; email: string } | null,
@@ -30,7 +30,6 @@ vi.mock('@/app/components/LoginModalBarLock', () => ({ default: () => null }));
 vi.mock('next/dynamic', () => ({ default: () => () => <div>Login panel</div> }));
 
 import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
-import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
 
 const showNotice = vi.fn();
 
@@ -51,55 +50,30 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-/* Der Wartescreen (AuthScreen) haengt im Panel, also am Modal. Schloss
-   BridgeAuth es in derselben Runde, in der Firebase den Nutzer meldet, war der
-   Screen weg, bevor er gelesen war — beim Google-Popup bekommt er ueberhaupt
-   erst nach dem Popup-Fenster seinen Auftritt (Nutzer, 29.08.2026). */
-describe('BridgeAuth — Haltezeit nach dem Anmelden', () => {
-  it('laesst das Modal die Haltezeit des Wartescreens abwarten', () => {
+describe('BridgeAuth — direct sign-in', () => {
+  it('closes immediately when the verified account arrives, without a confirmation screen', () => {
     render(<BridgeAuth />);
-
-    expect(state.close).not.toHaveBeenCalled();
-    expect(showNotice).not.toHaveBeenCalled();
-
-    act(() => {
-      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS - 1);
-    });
-    expect(state.close).not.toHaveBeenCalled();
-    expect(showNotice).not.toHaveBeenCalled();
-
-    act(() => {
-      vi.advanceTimersByTime(1);
-    });
     expect(state.close).toHaveBeenCalledOnce();
-    /* Keine Bestaetigung danach: der Wartescreen hat es schon gesagt
-       (24.09.2026 gestrichen). */
     expect(showNotice).not.toHaveBeenCalled();
-  });
-
-  /* Wer auf einem Spot stand und sich dort anmeldete, landete vorher auf der
-     Startseite. Es wird nichts mehr weitergeleitet — das Modal liegt ueber der
-     Seite, die gemeint ist. */
-  it('bleibt auf der Seite, auf der der Login angefangen hat', () => {
-    render(<BridgeAuth />);
-    act(() => {
-      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS);
-    });
-
-    // Kein Router, keine Weiterleitung: schon der Griff zum Router waere die
-    // Rueckkehr des Sprungs auf die Startseite.
     expect(state.useRouter).not.toHaveBeenCalled();
   });
 
-  it('schliesst nicht nach, wenn das Modal waehrend der Haltezeit zugeht', () => {
+  it('waits for auth to resolve', () => {
+    state.loading = true;
     const { rerender } = render(<BridgeAuth />);
-
-    state.loginOpen = false;
+    expect(state.close).not.toHaveBeenCalled();
+    state.loading = false;
     rerender(<BridgeAuth />);
+    expect(state.close).toHaveBeenCalledOnce();
+  });
 
-    act(() => {
-      vi.advanceTimersByTime(AUTH_SCREEN_HOLD_MS * 2);
-    });
+  it('keeps the form open for guests and leaves closed modals alone', () => {
+    state.user = null;
+    const { rerender } = render(<BridgeAuth />);
+    expect(state.close).not.toHaveBeenCalled();
+    state.loginOpen = false;
+    state.user = { uid: 'u1', displayName: 'Food Fan', email: 'food@example.com' };
+    rerender(<BridgeAuth />);
     expect(state.close).not.toHaveBeenCalled();
   });
 });

@@ -35,7 +35,6 @@ const identityStep = vi.hoisted(() => ({
 vi.mock('@/lib/auth/identityStep', () => identityStep);
 
 import SignInReward from './SignInReward';
-import AuthScreen from './AuthScreen';
 import { announceStarterPackGranted } from '@/lib/auth/signInArrival';
 
 /* Das Modul haelt seinen Zustand pro Seitenleben — zwischen zwei Faellen muss
@@ -199,18 +198,6 @@ describe('Ankunft nach der Anmeldung', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     act(() => void vi.advanceTimersByTime(700));
     expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Must Eats.');
-  });
-
-  it('startet nicht unter dem Wartescreen — der ist fast deckend', async () => {
-    const screenView = render(<AuthScreen mode="in" />);
-    render(<SignInReward />);
-    await arrive();
-
-    /* The tour must wait until the sign-in screen is gone. */
-    expect(screen.queryByText(/Willkommen bei Eat This/)).toBeNull();
-
-    await act(async () => screenView.unmount());
-    expect(screen.getByText(/Willkommen bei Eat This/)).toBeTruthy();
   });
 
   /* Hinter der Tour wechselt die Seite ins Profil — das soll man erst

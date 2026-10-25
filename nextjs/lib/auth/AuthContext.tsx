@@ -202,6 +202,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // it drags in Google's gapi iframe, which must not load for visitors who
       // never sign in (see lib/firebase/config.ts).
       await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
+      announceSignedIn();
       return;
     } catch (error) {
       /* Reported HERE rather than in the two call sites, both of which used to

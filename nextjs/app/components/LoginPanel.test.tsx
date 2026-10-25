@@ -25,7 +25,6 @@ vi.mock('@/lib/auth', () => ({
   }),
 }));
 vi.mock('@/lib/analytics', () => ({ trackEvent: modal.track }));
-vi.mock('./AuthScreen', () => ({ default: () => <div data-testid="auth-screen" /> }));
 
 import LoginPanel from './LoginPanel';
 
@@ -127,13 +126,7 @@ describe('LoginPanel — Rahmen', () => {
     expect(modal.track).toHaveBeenCalledWith('login_view', { surface: 'modal', context: 'card' });
   });
 
-  /* Ein Login, der während des offenen Modals durchgeht, hält den
-     Wartescreen, bis BridgeAuth das Modal schliesst. */
-  it('hält den Wartescreen, sobald jemand angemeldet ist', () => {
-    modal.user = { uid: 'u1' };
-    const { getByTestId } = panel();
-    expect(getByTestId('auth-screen')).toBeTruthy();
-  });
+
 });
 
 it('offers the automatic pack invitation with a working close button', () => {

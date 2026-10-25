@@ -33,7 +33,6 @@ import dynamic from 'next/dynamic';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import { useTranslation } from '@/lib/i18n';
 import LoginModalBarLock from '@/app/components/LoginModalBarLock';
-import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
 import modalStyles from '@/app/components/LoginModalOverlay.module.css';
 
 const LoginPanel = dynamic(() => import('@/app/components/LoginPanel'), { ssr: false });
@@ -43,24 +42,11 @@ export default function BridgeAuth() {
   const { t } = useTranslation();
   const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
 
-  // Ein Login, der waehrend des offenen Modals durchgeht (Google-Popup),
-  // schliesst das Modal; ins Profil schickt danach EmailLinkSignIn, auf das
-  // Signal der Anmelde-Tafel hin (lib/auth/afterSignIn.ts). Die Absicht des
-  // Griffs (Karte, Herz) loest das Profil ein.
-  //
-  // Gehalten wird vorher: der Wartescreen (AuthScreen) haengt im Panel, also
-  // an genau diesem Modal. Schliesst es in derselben Runde, in der Firebase
-  // den Nutzer meldet, ist der Screen weg, bevor er gelesen ist — beim
-  // Google-Popup bekommt er sowieso erst nach dem Popup-Fenster seinen
-  // Auftritt. Deshalb raeumt erst dieser Timer ab.
-  //
-  // Danach kommt keine Bestaetigung mehr: der Wartescreen hat „Du wirst
-  // angemeldet" gesagt. Bis 24.09.2026 folgte „Du bist drin" als Info-Karte —
-  // dieselbe Nachricht zweimal.
+  // Close as soon as Firebase confirms the account. AuthContext announces
+  // successful Google sign-in independently of this modal's lifetime.
   useEffect(() => {
     if (loading || !user || !loginOpen) return;
-    const timer = window.setTimeout(closeLogin, AUTH_SCREEN_HOLD_MS);
-    return () => window.clearTimeout(timer);
+    closeLogin();
   }, [user, loading, loginOpen, closeLogin]);
 
   // Scroll lock + iOS bar recolor live in <LoginModalBarLock /> inside the
@@ -96,9 +82,6 @@ export default function BridgeAuth() {
           JSON.stringify({ n: firstName, u: user.uid, ...(avatar ? { a: avatar } : {}) })
         );
       } catch {}
-      // Das Schliessen liegt im Effekt darueber — es faellt mit der
-      // Weiterleitung zusammen und wartet mit ihr die Haltezeit des
-      // Wartescreens ab.
     } else {
       loginBtn?.classList.remove('logged-in');
       if (loginSpan) loginSpan.textContent = t('footer.signIn');

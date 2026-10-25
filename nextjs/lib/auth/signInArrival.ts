@@ -10,9 +10,6 @@
  * Google-Popup — Magic-Link und Redirect laden hart neu und kamen früher
  * wortlos an.
  *
- * Bis 24.09.2026 entschied dieses Modul auch über die Info-Karte „Du bist
- * drin" für Wiederkehrer (announceSignIn). Die ist gestrichen: der
- * Wartescreen davor sagt schon „Du wirst angemeldet".
  */
 
 /** Bekommt die offenen Karten des frisch vergebenen Packs (Must-Eat-IDs). */

@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { describeGoogleSignInError } from './googleSignInError';
 import { trackEvent } from '@/lib/analytics';
-import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
 
 /**
  * Der Google-Knopf hinter jeder Oberfläche, die ihn anbietet — das
@@ -16,22 +15,9 @@ import { AUTH_SCREEN_HOLD_MS } from '@/app/components/AuthScreen';
  * zweite Abschrift geworden — samt der Stelle, an der ein zugeklicktes
  * Fenster und eine gescheiterte Übergabe denselben Code tragen
  * (googleSignInError.ts). Ein Hook, zwei Knöpfe.
- *
- * Phasen:
- * - `busy`: das Fenster ist offen oder geht gerade auf — der Wartescreen
- *   liegt über der Seite.
- * - `done`: Firebase hat geantwortet. Der Wartescreen bleibt noch die
- *   Haltezeit stehen (AUTH_SCREEN_HOLD_MS), sonst ist er weg, bevor man ihn
- *   gelesen hat.
- * - `leaving`: Abbruch oder Fehler — der Wartescreen fährt zurück und räumt
- *   sich nach der Rückfahrt selbst ab. Eine eigene Phase statt eines
- *   Schalters, weil das Panel vorher auf einen Schlag wegsprang und ein
- *   selbst zugeklicktes Google-Fenster wie ein Aussetzer aussah.
  */
-export type GoogleSignInPhase = 'idle' | 'busy' | 'done' | 'leaving';
+export type GoogleSignInPhase = 'idle' | 'busy';
 export type GoogleSignInNote = 'cancelled' | 'blocked' | 'failed' | null;
-
-const LEAVE_MS = 260;
 
 /** Die Zeile zu jeder Note — Schlüssel in translations.ts, mit `auth.`-Präfix:
  *  ohne findet next-intl den Text nicht und schreibt dem Leser den Schlüssel
@@ -50,16 +36,11 @@ export function useGoogleSignIn(): {
   /** Lädt Firebases Popup-Helfer vor — siehe googlePopupWarmup.ts. */
   prepare: () => void;
   start: () => Promise<void>;
-  /** Wie die Google-Anmeldung ausging: neues Konto oder Wiederkehr — null,
-   *  solange keine durch ist. Entscheidet mit, ob es danach ins Profil geht
-   *  (afterSignIn.ts). */
-  outcome: 'sign_up' | 'login' | null;
 } {
   const { user, signInWithGoogle, prepareGoogleSignIn } = useAuth();
   const [phase, setPhase] = useState<GoogleSignInPhase>('idle');
   const [note, setNote] = useState<GoogleSignInNote>(null);
   const viaGoogle = useRef(false);
-  const [outcome, setOutcome] = useState<'sign_up' | 'login' | null>(null);
 
   useEffect(() => {
     if (!user || !viaGoogle.current) return;
@@ -68,7 +49,6 @@ export function useGoogleSignIn(): {
     const signedIn = new Date(user.metadata.lastSignInTime ?? 0).getTime();
     const event = Math.abs(signedIn - created) < 10_000 ? 'sign_up' : 'login';
     trackEvent(event, { method: 'google' });
-    setOutcome(event);
   }, [user]);
 
   const start = useCallback(async () => {
@@ -78,27 +58,18 @@ export function useGoogleSignIn(): {
     setNote(null);
     try {
       await signInWithGoogle();
-      setPhase('done');
     } catch (error) {
       viaGoogle.current = false;
-      setPhase('leaving');
       /* Auch der Abbruch bekommt eine Zeile — nur eine ruhige. Firebase
          meldet ein zugeklicktes Fenster und eine gescheiterte Übergabe mit
          demselben Code; wer danach stumm wieder vor dem Knopf stand, wusste
          nicht, ob er selbst schuld war. */
       const { benign, blocked } = describeGoogleSignInError(error);
       setNote(benign ? 'cancelled' : blocked ? 'blocked' : 'failed');
+    } finally {
+      setPhase('idle');
     }
   }, [signInWithGoogle]);
-
-  useEffect(() => {
-    if (phase !== 'leaving' && phase !== 'done') return;
-    const timer = window.setTimeout(
-      () => setPhase('idle'),
-      phase === 'done' ? AUTH_SCREEN_HOLD_MS : LEAVE_MS
-    );
-    return () => window.clearTimeout(timer);
-  }, [phase]);
 
   return {
     phase,
@@ -106,6 +77,5 @@ export function useGoogleSignIn(): {
     noteKey: note ? NOTE_KEY[note] : null,
     prepare: prepareGoogleSignIn,
     start,
-    outcome,
   };
 }

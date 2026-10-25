@@ -23,6 +23,39 @@ export default function DiscoveryMap({ entries, de }: { entries: DiscoveryEntry[
   const entriesBySlug = new Map(entries.map(entry => [entry.slug, entry]));
 
   useEffect(() => {
+    const surface = svg.current?.closest<HTMLElement>('[data-discovery]');
+    if (!surface) return;
+    let width = window.innerWidth;
+    const reserveHeight = () => {
+      surface.style.removeProperty('--discovery-mobile-min-height');
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        // Freeze the initial large viewport height: browser bars must neither
+        // reveal the footer nor move it. A width change recalculates for rotation.
+        surface.style.setProperty('--discovery-mobile-min-height', getComputedStyle(surface).minHeight);
+      }
+    };
+    reserveHeight();
+    const resize = () => {
+      if (window.innerWidth === width) {
+        const reserved = parseFloat(surface.style.getPropertyValue('--discovery-mobile-min-height'));
+        if (!Number.isFinite(reserved) || window.innerHeight <= reserved) return;
+      }
+      width = window.innerWidth;
+      reserveHeight();
+    };
+    const restoreHeight = (event: PageTransitionEvent) => {
+      if (event.persisted) reserveHeight();
+    };
+    window.addEventListener('resize', resize);
+    window.addEventListener('pageshow', restoreHeight);
+    return () => {
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('pageshow', restoreHeight);
+      surface.style.removeProperty('--discovery-mobile-min-height');
+    };
+  }, []);
+
+  useEffect(() => {
     const element = svg.current;
     if (!element) return;
     districtMapReady();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Link, useRouter } from '@/i18n/navigation';
 import geography from '@/lib/berlin-discovery-map.json';
@@ -11,21 +11,24 @@ export default function DistrictMapReturn({ locale }: { locale: 'de' | 'en' }) {
   const router = useRouter();
   const navigating = useRef(false);
   const root = useRef<HTMLElement>(null);
+  const [active, setActive] = useState(0);
   useEffect(() => {
     const element = root.current;
     if (!element) return;
     const media = gsap.matchMedia();
     media.add('(prefers-reduced-motion: no-preference)', () => {
       let tween: gsap.core.Tween | undefined;
+      let timer = 0;
       const observer = new IntersectionObserver(entries => {
+        window.clearInterval(timer);
         if (!entries.some(entry => entry.isIntersecting)) return;
-        observer.disconnect();
-        tween = gsap.fromTo(element.querySelector('[data-return-outline]'),
+        timer = window.setInterval(() => setActive(index => (index + 1) % geography.regions.length), 2200);
+        if (!tween) tween = gsap.fromTo(element.querySelector('[data-return-outline]'),
           { strokeDasharray: 1, strokeDashoffset: 1 },
           { strokeDashoffset: 0, duration: 1.6, ease: 'power2.out', clearProps: 'strokeDasharray,strokeDashoffset' });
       }, { threshold: .25 });
       observer.observe(element);
-      return () => { observer.disconnect(); tween?.revert(); };
+      return () => { observer.disconnect(); window.clearInterval(timer); tween?.revert(); };
     });
     const restore = () => { navigating.current = false; };
     window.addEventListener('pageshow', restore);
@@ -45,10 +48,10 @@ export default function DistrictMapReturn({ locale }: { locale: 'de' | 'en' }) {
       <svg data-map-view="return" viewBox="0 0 640 550" aria-hidden="true">
         <path className={styles.silhouette} d={geography.outline} pathLength="1" data-return-outline />
         <g className={styles.boundaries}>
-          {geography.regions.map(area => <path key={area.slug} d={area.path} />)}
+          {geography.regions.map((area, index) => <path key={area.slug} d={area.path} data-active={index === active || undefined} />)}
         </g>
       </svg>
-      <span className={styles.title}>{locale === 'de' ? 'Entdecke die anderen Bezirke' : 'Explore the other districts'}</span>
+      <span className={styles.title}>{locale === 'de' ? 'Zur Bezirksübersicht' : 'View all districts'}</span>
     </Link>
   </nav>;
 }

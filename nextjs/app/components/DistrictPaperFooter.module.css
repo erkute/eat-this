@@ -25,6 +25,9 @@
   margin: 0;
   font-family: var(--et-font-display);
 }
+.surface > nav::before {
+  background: var(--district-return-surface, var(--et-ground));
+}
 .surface :global([data-discovery='bezirk']) {
   background: transparent;
 }

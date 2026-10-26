@@ -1792,15 +1792,57 @@ ol {
 .et-btn.et-btn-paper:focus-visible {
   outline: 0;
 }
-/* Map menu follows the compact filter typography and paper height. */
+/* Zerknittertes weißes Zettelpapier mit gerissenem Ende (Ersans lizenzierte
+   Vorlage, pics/tape) für die
+   Bedienung über der Map: Filter, Suche, Menü, ihre Listen und die Etiketten
+   der Spots (Ersan 26.10.2026). Gesetzt wird `border-image`: die gerissenen
+   Enden bleiben bei jeder Breite gleich, nur die Mitte dehnt sich. Gesetzte
+   Filter sind dasselbe Papier abgedunkelt. Varianten (-b gespiegelt, -c
+   gekippt) über --et-tape-img / --et-tape-slice / --et-tape-width. */
+:root {
+  --et-tape-fg: #000;
+  --et-tape-active-fg: #fff;
+  --et-tape-img: url('/pics/tape/receipt.webp');
+  --et-tape-active-img: url('/pics/tape/receipt-black.webp');
+  --et-tape-slice: 2 12 2 2 fill;
+  --et-tape-width: 1px 3px 1px 1px;
+  /* Untergrund der Map-Liste: weiß (Ersan 26.10.2026). */
+  --et-list-paper: #fff;
+  --et-list-paper-tile: #fff;
+}
+html[data-theme='dark'] {
+  /* Im Dunkelmodus ist das Papier dunkel, gesetzte Filter hell (Ersan). */
+  --et-tape-fg: #fff;
+  --et-tape-active-fg: #000;
+  --et-tape-img: url('/pics/tape/receipt-black.webp');
+  --et-tape-active-img: url('/pics/tape/receipt.webp');
+  --et-list-paper:
+    linear-gradient(rgb(21 18 14 / 0.86), rgb(21 18 14 / 0.86)),
+    url('/pics/home/silver-hero/paper.webp') center / cover, #15120e;
+  --et-list-paper-tile:
+    linear-gradient(rgb(21 18 14 / 0.86), rgb(21 18 14 / 0.86)),
+    url('/pics/home/silver-hero/paper.webp') center top / 1024px auto repeat, #15120e;
+}
+
+/* Map menu follows the compact filter typography on a strip of tape. */
 .et-btn.et-btn-map-control {
-  background-image: url('/pics/home/silver-hero/paper.webp');
-  background-size: 400px auto;
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--et-tape-fg);
   min-height: 40px;
-  padding-inline: 7px;
+  padding-inline: 12px;
   font: 800 11px / 1.2 var(--et-font-body);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+.et-btn.et-btn-map-control:not(:disabled):is(:hover, :focus-visible) {
+  background: none;
+  filter: brightness(0.95);
+  color: var(--et-tape-fg);
 }
 @media (max-width: 767.98px) {
   .et-btn.et-btn-map-control { min-height: 44px; }
@@ -1898,6 +1940,30 @@ html[data-theme='dark'] .et-btn-text {
   color: var(--et-ink);
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+/* Name, Bezirk und Küche der Map-Spots auf klarem Klebestreifen (Ersan
+   26.10.2026), dasselbe weiße Band wie Filter und Suche; Schrift schwarz. */
+.et-label-tape {
+  /* The whitest cut of the paper: labels sit on photos (Ersan 26.10.2026). */
+  --et-tape-img: url('/pics/tape/receipt-white.webp');
+  padding-inline: 11px;
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  color: #000;
+}
+.et-label-paper.et-label-tape {
+  --et-tape-img: url('/pics/tape/receipt-white-b.webp');
+  --et-tape-slice: 2 2 2 12 fill;
+  --et-tape-width: 1px 1px 1px 3px;
+}
+html[data-theme='dark'] .et-label-tape {
+  --et-tape-img: url('/pics/tape/receipt-black.webp');
+  color: #fff;
+}
+html[data-theme='dark'] .et-label-paper.et-label-tape {
+  --et-tape-img: url('/pics/tape/receipt-black-b.webp');
 }
 html[data-active-page='map'] .et-label {
   font-size: 12px;

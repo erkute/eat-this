@@ -35,8 +35,7 @@ for (const locale of ['de', 'en']) {
     await open.scrollIntoViewIfNeeded();
     await expect(open).toHaveAttribute('aria-pressed', 'true');
     await expect(open).toHaveCSS('color', 'rgb(255, 255, 255)');
-    await expect(open).toHaveCSS('background-blend-mode', 'difference');
-    await expect(open).toHaveCSS('background-image', /silver-hero\/paper/);
+    await expect(open).toHaveCSS('border-image-source', /tape\/receipt-black/);
     await open.click();
     await expect(open).toHaveAttribute('aria-pressed', 'false');
     await open.click();

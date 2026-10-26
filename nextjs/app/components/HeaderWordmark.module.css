@@ -1,4 +1,10 @@
+/* Lettering from Figma (Fonts › „Header · MAP / MENÜ · Runde 3“): narrow
+   capitals in Sofia Sans Extra Condensed Black, +2 % tracking. SVG units are
+   the Figma master with cap height 100; --k scales them to the header
+   (15 px caps on desktop). Each box is the cap height, so the words centre on
+   their capitals like the logo; the umlaut dots hang above the box. */
 .wordmark {
+  --k: 0.15;
   display: block;
   flex: none;
   background: currentColor;
@@ -7,31 +13,27 @@
   mask-size: 100% 100%;
 }
 
-.menu,
-.menuEn {
-  height: 18px;
-}
-
 .menu {
-  width: 62.64px;
-  mask-image: url('/pics/navigation/menu.webp');
+  width: calc(294.963px * var(--k));
+  height: calc(131.603px * var(--k));
+  margin-top: calc(-30.687px * var(--k));
+  margin-bottom: calc(-0.916px * var(--k));
+  mask-image: url('/pics/navigation/menu-caps.svg');
 }
 
 .menuEn {
-  width: 64.62px;
-  mask-image: url('/pics/navigation/menu-en.webp');
+  width: calc(294.963px * var(--k));
+  height: calc(100.916px * var(--k));
+  margin-bottom: calc(-0.916px * var(--k));
+  mask-image: url('/pics/navigation/menu-en-caps.svg');
 }
 
-/* The p extends below the baseline; match the capital M, not the full box. */
 .map {
-  width: 48.96px;
-  height: 23.04px;
-  margin-bottom: -5.04px;
-  mask-image: url('/pics/navigation/map.webp');
+  width: calc(222.583px * var(--k));
+  height: calc(100px * var(--k));
+  mask-image: url('/pics/navigation/map-caps.svg');
 }
 
 @media (max-width: 520px) {
-  .menu { width: 55.68px; height: 16px; }
-  .menuEn { width: 57.44px; height: 16px; }
-  .map { width: 43.52px; height: 20.48px; margin-bottom: -4.48px; }
+  .wordmark { --k: 0.13; }
 }

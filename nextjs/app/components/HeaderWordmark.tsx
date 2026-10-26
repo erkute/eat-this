@@ -1,6 +1,6 @@
 import styles from './HeaderWordmark.module.css';
 
-/** The navigation lettering follows the raster brand study from Figma. */
+/** Map/Menü lettered like the logo; sources and sizing in the CSS module. */
 export default function HeaderWordmark({ word, locale = 'de' }: {
   word: 'map' | 'menu';
   locale?: string;

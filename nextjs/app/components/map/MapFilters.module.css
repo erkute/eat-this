@@ -1,12 +1,14 @@
-/* Silver hero paper, heavy black type; dark mode uses the same material
-   multiplied into the ground. Phone pickers remain modal, desktop inline. */
+/* Tape chips (tokens in globals.css), heavy black type; set filters are
+   black tape. Phone pickers remain modal, desktop inline. */
 .listHeader {
   position: relative;
   flex-shrink: 0;
+  z-index: 2;
   container-type: inline-size;
-  background: var(--et-ground);
+  /* The bar stays put on the list's paper; rows swipe away behind it, not
+     through it (Ersan 26.10.2026). */
+  background: var(--et-list-paper-tile);
   color: var(--et-fg);
-  padding-bottom: 10px;
 }
 .filterChipRow {
   display: flex;
@@ -14,10 +16,11 @@
   overflow-x: auto;
   scrollbar-width: none;
   align-items: stretch;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
   min-width: 0;
-  padding: 6px 8px 0;
+  /* Room below the chips: the scrolling row clips its overflow. */
+  padding: 6px 8px 12px;
   box-sizing: border-box;
   touch-action: pan-x pan-y;
 }
@@ -35,26 +38,44 @@
   flex: 1 0 auto;
   min-width: max-content;
   min-height: 40px;
-  padding: 8px 7px;
+  padding: 8px 11px;
   border: 0;
   border-radius: 0;
-  background-color: var(--et-ground);
-  background-image: linear-gradient(#ffffff4d, #ffffff4d), url('/pics/home/silver-hero/paper.webp');
-  background-size: 400px 600px;
-  background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
-  background-blend-mode: multiply;
-  color: var(--et-fg);
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  box-shadow: none;
+  color: var(--et-tape-fg);
   font: 800 11px / 1.2 var(--et-font-body);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   appearance: none;
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: color 120ms ease;
 }
-.filterChipRow > :nth-child(2) { --filter-paper-x: -100px; --filter-paper-y: -400px; }
-.filterChipRow > :nth-child(3) { --filter-paper-x: -220px; --filter-paper-y: -80px; }
-.filterChipRow > :nth-child(4) { --filter-paper-x: -300px; --filter-paper-y: -480px; }
+/* Each filter is its own piece of paper: mirrored, flipped, original. */
+.filterChipRow > :nth-child(2),
+.filterChipRow > :nth-child(4) {
+  --et-tape-img: url('/pics/tape/receipt-b.webp');
+  --et-tape-active-img: url('/pics/tape/receipt-black-b.webp');
+  --et-tape-slice: 2 2 2 12 fill;
+  --et-tape-width: 1px 1px 1px 3px;
+}
+.filterChipRow > :nth-child(3) {
+  --et-tape-img: url('/pics/tape/receipt-c.webp');
+  --et-tape-active-img: url('/pics/tape/receipt-black-c.webp');
+}
+:global(html[data-theme='dark']) .filterChipRow > :nth-child(2),
+:global(html[data-theme='dark']) .filterChipRow > :nth-child(4) {
+  --et-tape-img: url('/pics/tape/receipt-black-b.webp');
+  --et-tape-active-img: url('/pics/tape/receipt-b.webp');
+}
+:global(html[data-theme='dark']) .filterChipRow > :nth-child(3) {
+  --et-tape-img: url('/pics/tape/receipt-black-c.webp');
+  --et-tape-active-img: url('/pics/tape/receipt-c.webp');
+}
 .filterChipRow .filterChipLabel {
   display: block;
   min-width: 0;
@@ -64,23 +85,20 @@
   text-overflow: clip;
   white-space: nowrap;
 }
-/* Jeder gesetzte oder geöffnete Filter bleibt ein schwarzes Knitterblatt. */
+/* Jeder gesetzte oder geöffnete Filter ist schwarzes Band. */
 .filterChipRow .filterChipActive,
 .filterChipRow .filterChipOpenActive,
 .filterChipRow .filterChip[aria-expanded='true'] {
-  background-color: #fff;
-  background-image: url('/pics/home/silver-hero/paper.webp');
-  background-size: 400px 600px;
-  background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
-  background-blend-mode: difference;
-  color: #fff;
+  border-image-source: var(--et-tape-active-img);
+  color: var(--et-tape-active-fg);
 }
-.filterChipRow .filterChipActive { padding-right: 28px; }
+.filterChipRow .filterChipActive { padding-right: 30px; }
 /* Separate sibling button, so clearing a filter never nests buttons. */
 .filterChipClear {
   position: absolute;
   top: 50%;
-  right: 0;
+  /* Clear of the torn end of the strip. */
+  right: 3px;
   z-index: 1;
   display: grid;
   place-items: center;
@@ -90,7 +108,7 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: #fff;
+  color: var(--et-tape-active-fg);
   cursor: pointer;
   appearance: none;
   touch-action: manipulation;
@@ -104,7 +122,8 @@
 .filterChipClear:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
 @media (hover: hover) {
   .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):not([aria-expanded='true']):hover {
-    background-color: color-mix(in srgb, var(--et-fg) 8%, var(--et-ground));
+    background: none;
+    filter: brightness(0.95);
   }
   .filterChipClear:hover { opacity: 0.65; }
 }
@@ -150,12 +169,12 @@
   width: min(360px, calc(100vw - 24px));
   max-height: 70vh;
   padding: 12px;
-  background-color: var(--et-ground);
-  background-image: linear-gradient(#ffffff4d, #ffffff4d), url('/pics/home/silver-hero/paper.webp');
-  background-size: 100% 100%;
-  background-blend-mode: multiply;
-  color: var(--et-fg);
-  border: 0;
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  box-shadow: none;
+  color: var(--et-tape-fg);
   border-radius: 0;
   animation: pickerSheetIn 180ms ease-out;
 }
@@ -221,14 +240,20 @@
   border-bottom: 1px solid var(--et-line);
   border-radius: 0;
   background: transparent;
-  color: var(--et-fg);
+  color: var(--et-tape-fg);
   appearance: none;
   font-family: var(--et-font-body);
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, color 120ms ease;
 }
-.pickerItemActive { background: var(--et-fg); color: var(--et-ground); }
+.pickerItemActive {
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-active-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  color: var(--et-tape-active-fg);
+}
 .pickerItem:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
 @media (hover: hover) {
   .pickerItem:not(:disabled):not(.pickerItemActive):hover { background: var(--et-subtle); }
@@ -263,7 +288,8 @@
   position: static;
   width: auto;
   max-height: none;
-  margin: 14px 0 8px;
+  /* Same 8px inset as the chips and the photo list below. */
+  margin: 14px 8px 8px;
   padding: 8px;
   animation: none;
 }
@@ -274,8 +300,10 @@
   overflow-y: auto;
 }
 @media (min-width: 1024px) {
-  /* 40px Papierfläche und Burger liegen beide mittig auf y=36px. */
-  .filterChipRow { padding: 16px 8px 0; }
+  /* 40px Klebestreifen und Burger liegen beide mittig auf y=36px. */
+  .filterChipRow { padding: 16px 8px 12px; }
+  /* On the rail the panel itself carries the paper. */
+  .listHeader { background: transparent; }
 }
 /* Keep full labels on one rail; narrow panels scroll instead of truncating. */
 @container (max-width: 374px) {

@@ -24,7 +24,6 @@ import { notify, type NoticeKind } from '@/lib/notice';
 import { locationBlockedOptions } from '@/lib/map/locationHelp';
 import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
 import { openBurgerDrawer } from '../burgerDrawerState';
-import HeaderWordmark from '../HeaderWordmark';
 import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
 import MapCanvasLayer from './LazyMapCanvasLayer';
@@ -665,7 +664,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <span />
               <span />
             </span>
-            <HeaderWordmark word="menu" locale={locale} />
+            <span>{locale === 'en' ? 'Menu' : 'Menü'}</span>
           </button>
 
           {/* Desktop disclosure sits before its controlled panel in the DOM so

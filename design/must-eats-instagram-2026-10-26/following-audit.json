@@ -1,0 +1,572 @@
+{
+  "account": "eatthisdotcom",
+  "checkedAt": "2026-10-26",
+  "scope": "All 113 following profiles visited; initial visible post grid only, not full historical archive. Captions not exposed on every post.",
+  "accounts": [
+    {
+      "handle": "goldies.bar",
+      "url": "https://www.instagram.com/goldies.bar/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "basta.berlin",
+      "url": "https://www.instagram.com/basta.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "tipberlin_food",
+      "url": "https://www.instagram.com/tipberlin_food/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "arturo.bistro.berlin",
+      "url": "https://www.instagram.com/arturo.bistro.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "romeosberlin",
+      "url": "https://www.instagram.com/romeosberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "saveurbanhmi",
+      "url": "https://www.instagram.com/saveurbanhmi/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "schuesseldienstberlin",
+      "url": "https://www.instagram.com/schuesseldienstberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "slicesociety",
+      "url": "https://www.instagram.com/slicesociety/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "aris__berlin",
+      "url": "https://www.instagram.com/aris__berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "gemello.berlin",
+      "url": "https://www.instagram.com/gemello.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "nomi_winebar",
+      "url": "https://www.instagram.com/nomi_winebar/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "kitten.deli",
+      "url": "https://www.instagram.com/kitten.deli/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "neumanns.berlin",
+      "url": "https://www.instagram.com/neumanns.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "trio.berlin",
+      "url": "https://www.instagram.com/trio.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "goldies______",
+      "url": "https://www.instagram.com/goldies______/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "bestebagel",
+      "url": "https://www.instagram.com/bestebagel/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "otto_fieldnotes",
+      "url": "https://www.instagram.com/otto_fieldnotes/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "jungbluth_restaurant",
+      "url": "https://www.instagram.com/jungbluth_restaurant/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "file_asto",
+      "url": "https://www.instagram.com/file_asto/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "common.berlin",
+      "url": "https://www.instagram.com/common.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "everythingbagels.bln",
+      "url": "https://www.instagram.com/everythingbagels.bln/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "jonesicecream",
+      "url": "https://www.instagram.com/jonesicecream/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "breda.berlin",
+      "url": "https://www.instagram.com/breda.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "fukagawaramen",
+      "url": "https://www.instagram.com/fukagawaramen/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "johann_baeckerei",
+      "url": "https://www.instagram.com/johann_baeckerei/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "pinci.berlin",
+      "url": "https://www.instagram.com/pinci.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "sironi_lapizza",
+      "url": "https://www.instagram.com/sironi_lapizza/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "brasserietorbar",
+      "url": "https://www.instagram.com/brasserietorbar/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "sorrel.berlin",
+      "url": "https://www.instagram.com/sorrel.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "sathutu.berlin",
+      "url": "https://www.instagram.com/sathutu.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "archipel.berlin",
+      "url": "https://www.instagram.com/archipel.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "marktlokal",
+      "url": "https://www.instagram.com/marktlokal/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "_parggg_",
+      "url": "https://www.instagram.com/_parggg_/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "claerchens_ballhaus",
+      "url": "https://www.instagram.com/claerchens_ballhaus/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "restaurant_merold",
+      "url": "https://www.instagram.com/restaurant_merold/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "ei.berlin",
+      "url": "https://www.instagram.com/ei.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "plutoberlin",
+      "url": "https://www.instagram.com/plutoberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "fukagawaberlin",
+      "url": "https://www.instagram.com/fukagawaberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "ezsra.berlin",
+      "url": "https://www.instagram.com/ezsra.berlin/",
+      "status": "no posts loaded"
+    },
+    {
+      "handle": "tacos.el.rey.berlin",
+      "url": "https://www.instagram.com/tacos.el.rey.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "amatoberlin",
+      "url": "https://www.instagram.com/amatoberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "orangerie_nk",
+      "url": "https://www.instagram.com/orangerie_nk/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "blumental_berlin",
+      "url": "https://www.instagram.com/blumental_berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "wencheng_handpullednoodles",
+      "url": "https://www.instagram.com/wencheng_handpullednoodles/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "aerde.berlin",
+      "url": "https://www.instagram.com/aerde.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "foodtechniqueberlin",
+      "url": "https://www.instagram.com/foodtechniqueberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "la_bolognina",
+      "url": "https://www.instagram.com/la_bolognina/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "clay.eatery",
+      "url": "https://www.instagram.com/clay.eatery/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "thisiskureme",
+      "url": "https://www.instagram.com/thisiskureme/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "21gramm_berlin",
+      "url": "https://www.instagram.com/21gramm_berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "forkk.studio",
+      "url": "https://www.instagram.com/forkk.studio/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "mrsrobinsonsberlin",
+      "url": "https://www.instagram.com/mrsrobinsonsberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "kink.bar.restaurant",
+      "url": "https://www.instagram.com/kink.bar.restaurant/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "berlinramensociety",
+      "url": "https://www.instagram.com/berlinramensociety/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "cremeguides",
+      "url": "https://www.instagram.com/cremeguides/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "berlinfoodguide",
+      "url": "https://www.instagram.com/berlinfoodguide/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "schluck_magazin",
+      "url": "https://www.instagram.com/schluck_magazin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "stoke.berlin",
+      "url": "https://www.instagram.com/stoke.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "ceeceeberlin",
+      "url": "https://www.instagram.com/ceeceeberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "bababubblezz",
+      "url": "https://www.instagram.com/bababubblezz/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "julius.ernst.berlin",
+      "url": "https://www.instagram.com/julius.ernst.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "lobb.berlin",
+      "url": "https://www.instagram.com/lobb.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "bertieberlin",
+      "url": "https://www.instagram.com/bertieberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "studioschmaus",
+      "url": "https://www.instagram.com/studioschmaus/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "tobiasbeck__",
+      "url": "https://www.instagram.com/tobiasbeck__/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "labourriche.berlin",
+      "url": "https://www.instagram.com/labourriche.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "markthalleneun",
+      "url": "https://www.instagram.com/markthalleneun/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "standardseriouspizza",
+      "url": "https://www.instagram.com/standardseriouspizza/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "loumidining",
+      "url": "https://www.instagram.com/loumidining/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "shizuku_berlin",
+      "url": "https://www.instagram.com/shizuku_berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "boiiboiiberlin",
+      "url": "https://www.instagram.com/boiiboiiberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "bonanzacoffee",
+      "url": "https://www.instagram.com/bonanzacoffee/",
+      "status": "no posts loaded"
+    },
+    {
+      "handle": "codaberlin",
+      "url": "https://www.instagram.com/codaberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "ernst.cave",
+      "url": "https://www.instagram.com/ernst.cave/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "gazzopizza",
+      "url": "https://www.instagram.com/gazzopizza/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "nomad_berlin",
+      "url": "https://www.instagram.com/nomad_berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "pars.berlin",
+      "url": "https://www.instagram.com/pars.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "lacoteberlin",
+      "url": "https://www.instagram.com/lacoteberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "otto_berlin",
+      "url": "https://www.instagram.com/otto_berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "idangilony",
+      "url": "https://www.instagram.com/idangilony/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "remi.restaurant",
+      "url": "https://www.instagram.com/remi.restaurant/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "cafeschroederberlin",
+      "url": "https://www.instagram.com/cafeschroederberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "0800naturescalling",
+      "url": "https://www.instagram.com/0800naturescalling/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "ita.bistro",
+      "url": "https://www.instagram.com/ita.bistro/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "barra_berlin",
+      "url": "https://www.instagram.com/barra_berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "bar____sway",
+      "url": "https://www.instagram.com/bar____sway/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "dotori.berlin",
+      "url": "https://www.instagram.com/dotori.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "elfvierundzwanzig",
+      "url": "https://www.instagram.com/elfvierundzwanzig/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "cafe_frieda",
+      "url": "https://www.instagram.com/cafe_frieda/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "rram.berlin",
+      "url": "https://www.instagram.com/rram.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "sfera.berlin",
+      "url": "https://www.instagram.com/sfera.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "fergy_deep",
+      "url": "https://www.instagram.com/fergy_deep/",
+      "status": "no posts loaded"
+    },
+    {
+      "handle": "estelle_dining",
+      "url": "https://www.instagram.com/estelle_dining/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "_eeeat_",
+      "url": "https://www.instagram.com/_eeeat_/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "november.berlin",
+      "url": "https://www.instagram.com/november.berlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "hiromitsu_mizuhara",
+      "url": "https://www.instagram.com/hiromitsu_mizuhara/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "kidamsterdam",
+      "url": "https://www.instagram.com/kidamsterdam/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "downtimedowntimedowntime",
+      "url": "https://www.instagram.com/downtimedowntimedowntime/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "altavolo20",
+      "url": "https://www.instagram.com/altavolo20/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "hallmannundklee",
+      "url": "https://www.instagram.com/hallmannundklee/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "thebarnberlin",
+      "url": "https://www.instagram.com/thebarnberlin/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "cabincorn",
+      "url": "https://www.instagram.com/cabincorn/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "eatenmag",
+      "url": "https://www.instagram.com/eatenmag/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "thegourmand",
+      "url": "https://www.instagram.com/thegourmand/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "chungkingnoodles",
+      "url": "https://www.instagram.com/chungkingnoodles/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "bistrodefles_amsterdam",
+      "url": "https://www.instagram.com/bistrodefles_amsterdam/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "acid.cafe",
+      "url": "https://www.instagram.com/acid.cafe/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "endlessfoodcompany",
+      "url": "https://www.instagram.com/endlessfoodcompany/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "oficina.amsterdam",
+      "url": "https://www.instagram.com/oficina.amsterdam/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "aurensdeli",
+      "url": "https://www.instagram.com/aurensdeli/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "frederikbillebrahe",
+      "url": "https://www.instagram.com/frederikbillebrahe/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "we.are.ona",
+      "url": "https://www.instagram.com/we.are.ona/",
+      "status": "initial profile grid inspected"
+    },
+    {
+      "handle": "cafebinnenvisser",
+      "url": "https://www.instagram.com/cafebinnenvisser/",
+      "status": "initial profile grid inspected"
+    }
+  ]
+}

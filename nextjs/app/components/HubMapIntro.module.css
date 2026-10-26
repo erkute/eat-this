@@ -34,7 +34,7 @@
   .section { grid-template-columns: 1fr; padding-block: 56px 40px; gap: 40px; }
   .title { font-size: clamp(48px, 13.5vw, 76px); margin-bottom: 16px; }
   .copy p { font-size: 20px; }
-  .showcase { width: min(76vw, 340px); }
+  .showcase { width: min(68vw, 280px); }
   .desktopCta { display: none; }
 }
 

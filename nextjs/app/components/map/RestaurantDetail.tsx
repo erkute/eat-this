@@ -340,11 +340,11 @@ export default function RestaurantDetail({
               className={styles.rdNameOv}
               style={{ ['--rd-name-max' as string]: `${nameMaxPx}px` }}
             >
-              <span className="et-label-title">{displayName}</span>
+              <span className="et-label-title et-label-tape">{displayName}</span>
             </h2>
             <div className={styles.rdTagsOv}>
               {(district || cuisine) && (
-                <span className="et-label et-label-paper">
+                <span className="et-label et-label-paper et-label-tape">
                   {[district, cuisine].filter(Boolean).join(' · ')}
                 </span>
               )}
@@ -576,7 +576,7 @@ export default function RestaurantDetail({
             <div className={styles.packPromoCardWrap} aria-hidden="true">
               <img
                 src={
-                  isAnon ? '/pics/home/starter-pack-front.webp' : '/pics/booster/booster_lunch.webp?v=2'
+                  isAnon ? '/pics/home/starter-pack-front.webp' : '/pics/booster/booster_lunch.webp?v=3'
                 }
                 alt=""
                 loading="lazy"
@@ -590,17 +590,19 @@ export default function RestaurantDetail({
               <p className={styles.packPromoBody}>
                 {isAnon ? t('map.starterPromoBody') : t('map.boosterDesc')}
               </p>
-              <div className={styles.packPromoActions}>
-                {isAnon ? (
-                  <button type="button" className={`et-btn et-btn-light-hover ${styles.btnPackPromo}`} onClick={openStarterLogin}>
-                    <span className={styles.btnPackPromoLbl}>{t('map.starterCta')}</span>
-                  </button>
-                ) : (
-                  <a href={boosterHref} className={`et-btn et-btn-light-hover ${styles.btnPackPromo}`}>
-                    <span className={styles.btnPackPromoLbl}>{t('map.boosterCta')}</span>
-                  </a>
-                )}
-              </div>
+            </div>
+            {/* Full-width row under pack and copy, like the action row above:
+                inside the copy column „Mehr freischalten" overflowed the offer. */}
+            <div className={styles.packPromoActions}>
+              {isAnon ? (
+                <button type="button" className={`et-btn et-btn-light-hover ${styles.btnPackPromo}`} onClick={openStarterLogin}>
+                  <span className={styles.btnPackPromoLbl}>{t('map.starterCta')}</span>
+                </button>
+              ) : (
+                <a href={boosterHref} className={`et-btn et-btn-light-hover ${styles.btnPackPromo}`}>
+                  <span className={styles.btnPackPromoLbl}>{t('map.boosterCta')}</span>
+                </a>
+              )}
             </div>
           </section>
         )}

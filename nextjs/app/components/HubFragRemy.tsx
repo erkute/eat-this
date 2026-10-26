@@ -176,9 +176,9 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
       <div className={styles.body} ref={stage}>
         <div className={styles.portrait} aria-hidden="true">
           <div className={styles.figure} ref={figure} data-expression={expression}>
-            <Image className={styles.face} src="/buddy/buddy.webp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
-            <Image className={styles.open} src="/buddy/buddy-open.webp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
-            <Image className={styles.laugh} src="/buddy/buddy-laugh.webp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+            <Image className={styles.face} src="/buddy/buddy.webp?v=feinripp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+            <Image className={styles.open} src="/buddy/buddy-open.webp?v=feinripp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+            <Image className={styles.laugh} src="/buddy/buddy-laugh.webp?v=feinripp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
           </div>
         </div>
         <div className={styles.content}>
@@ -188,7 +188,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
             <span className={styles.hello}>{en ? 'Hey, I’m' : 'Hey, ich bin'}</span>{' '}
             <span className={styles.name}>Remy.</span>
           </h2>
-          <p className={styles.intro}>{en ? 'I’ll show you what to eat in Berlin. Ask me about a dish, a district or an occasion.' : 'Ich zeig dir, was du in Berlin essen musst. Frag mich nach einem Gericht, einem Bezirk oder einem Anlass.'}</p>
+          <p className={styles.intro}>{en ? 'I’ll show you what to eat in Berlin.' : 'Ich zeig dir, was du in Berlin essen musst.'}</p>
           <p className={styles.prompt}>{en ? 'What are you craving?' : 'Worauf hast du Lust?'}</p>
           <div className={styles.questions} data-fragremy-chips="">
             {questions.map((question, index) => (

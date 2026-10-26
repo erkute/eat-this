@@ -101,9 +101,9 @@
 .body blockquote { margin: 28px 0; padding: 0; color: var(--et-fg); font: 700 clamp(24px, 2.5vw, 34px)/1.2 var(--et-font-body); letter-spacing: -.03em; }
 .figure { width: min(100%, 440px); margin: 0; justify-self: center; }
 .figureImg { display: block; width: var(--fig-w, 290px); max-width: 100%; height: auto; margin-inline: auto; transform: rotate(var(--tilt, 0deg)); }
-.section.cardChapter { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-.cardChapter .sectionCopy { grid-column: 1; grid-row: 1; max-width: 780px; }
-.cardChapter .fanFigure { grid-column: 1; grid-row: 2; width: min(100%, 1000px); }
+.section.cardChapter { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+.cardChapter .sectionCopy { grid-column: 2; grid-row: 1; }
+.cardChapter .fanFigure { grid-column: 1; grid-row: 1; width: 100%; }
 .fan { position: relative; width: 100%; aspect-ratio: 1.55; }
 .fanCard {
   position: absolute;
@@ -129,6 +129,9 @@
 .email { display: block; width: fit-content; max-width: 100%; min-height: 44px; margin-block: 24px; padding-block: 6px; color: var(--et-link); font: 700 clamp(24px, 3vw, 42px)/1.2 var(--et-font-body); letter-spacing: -.035em; overflow-wrap: anywhere; text-decoration: none; }
 @media (hover: hover) { .body a:hover, .email:hover { color: var(--et-fg); } }
 @media (max-width: 767px) {
+  .section.cardChapter { grid-template-columns: minmax(0, 1fr); }
+  .cardChapter .sectionCopy { grid-column: 1; grid-row: 1; }
+  .cardChapter .fanFigure { grid-column: 1; grid-row: 2; }
   .hero, .bridge, .section, .flip, .coda { grid-template-columns: minmax(0, 1fr); }
   .hero { gap: 36px; padding-top: 36px; padding-bottom: 40px; }
   .lede { font-size: 20px; margin-top: 24px; }

@@ -125,17 +125,6 @@
 }
 
 
-.mapWord,
-.menuWord {
-  display: inline-block;
-  font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 @media (max-width: 767.98px) {
   /* Ein- und Ausfahren schiebt Fläche (::before) und Inhalt, nicht die Leiste
      selbst; nach dem Ausfahren nimmt `collapsed` sie ganz aus dem Rendering.
@@ -200,50 +189,20 @@
     padding-inline: 12px;
   }
 
-  .mapWord,
-  .menuWord {
-    /* Neben der 18 px hohen Wortmarke waren 16 px Versalien fast so laut
-       wie das Logo (22.10.2026) — kleiner, dafür etwas weiter gesperrt. */
-    font-size: 14px;
-    letter-spacing: 0.06em;
-  }
-
   .logoImg {
     height: 30px;
   }
 }
 
-/* Solange die Wortmarke aus dem Aufmacher unterwegs in den Header ist, besetzt
-   sie dessen Logoplatz — das eingebaute Bild stünde sonst doppelt. Gesetzt wird
-   das Attribut von HeroMarkFlight, also nur auf der Startseite und nur unter
-   768px. `visibility` statt `display`, damit der Slot seine Maße behält: der
-   Flieger misst sich genau an ihnen aus. */
-/* … aber nur, solange die Marke unterwegs ist. Ist sie angekommen
-   (`data-hero-landed`), übernimmt wieder das eingebaute Bild — und nur so
-   fährt die Marke mit dem Header nach oben weg, wenn der beim Weiterscrollen
-   wegklappt. Der Flieger ist `position: fixed` am body und würde allein
-   stehen bleiben. */
-:global(html[data-hero-flight='on']:not([data-hero-landed])) .logoImg {
-  visibility: hidden;
-}
-
-/* Während des Ladeauftritts (HubSection.module.css) wird die Wortmarke im
-   Aufmacher gerade aufgezogen — HeroMarkFlight steht da oft noch gar nicht,
-   es wartet auf die Hydrierung. Ohne diese Regel stünde oben die zweite Marke
-   daneben und verschwände dann mitten im Auftritt. Danach übernimmt die Regel
-   darüber.
-   Nur auf der Startseite: verlässt jemand sie mitten im Auftritt, bleibt das
-   Attribut stehen (das Aufräumen in HubMotion läuft dann nicht mehr), und ohne
-   die Seitenbedingung fehlte das Logo auf jeder weiteren Seite. */
-:global(html[data-hero-intro][data-active-page='start']) .logoImg {
+/* No flying duplicate: reveal the header mark once the hero mark is out of view.
+   The default also prevents a duplicate before hydration. */
+:global(html[data-active-page='start']:not([data-hero-mark-out])) .logoImg {
   visibility: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nav:not([data-nav-page='map'])::before,
   .nav:not([data-nav-page='map']) > * { transition: none; }
-  .control:is(:hover, :active, :focus-visible) .mapWord,
-  .control:is(:hover, :active, :focus-visible) .menuWord { animation: none; }
 }
 /* Die Lesefläche füllt den Header; die Bedienung bleibt darüber. */
 .nav:not([data-nav-page='map']) > .readingProgress {

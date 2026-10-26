@@ -1,5 +1,5 @@
-import { BRAND_WORDMARK } from '@/lib/constants';
 import { Fragment, type CSSProperties } from 'react';
+import { BRAND_WORDMARK } from '@/lib/constants';
 import Image from '@/app/components/SiteImage';
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
@@ -63,6 +63,7 @@ const FIGURES: (Figure | null)[] = [
     height: 1044,
     renderWidth: 300,
     tilt: 5,
+    caption: { de: 'Sabich bei Kitten Deli in Neukölln.', en: 'Sabich at Kitten Deli in Neukölln.' },
     alt: {
       de: 'Eine aufgedeckte Eat-This-Sammelkarte mit dem Sabich',
       en: 'A revealed Eat This trading card featuring sabich',
@@ -77,6 +78,7 @@ const FIGURES: (Figure | null)[] = [
     renderWidth: 1000,
     tilt: 0,
     remyAfter: true,
+    caption: { de: 'Berliner Must Eats für deine Sammlung.', en: 'Berlin Must Eats for your collection.' },
     alt: {
       de: 'Fünf Eat-This-Sammelkarten als Fächer: eine Rückseite, Hamachi Head, Rinderschaufel, Cappuccino und ODB Sandwich',
       en: 'Five Eat This trading cards in a fan: a card back, Hamachi Head, Rinderschaufel, Cappuccino and ODB Sandwich',

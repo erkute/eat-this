@@ -162,7 +162,6 @@
   --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
-  --et-status-open: #dce8bf;
   --et-status-closed: #b52d25;
   /* Ari’s Berlin: https://www.arisberlin.com/menu */
   --et-accent: #a82b2e;
@@ -1758,6 +1757,8 @@ ol {
     background-color var(--et-motion-fast),
     color var(--et-motion-fast);
 }
+/* The homepage shares the angular button shape across its sections. */
+.homeV2 .et-btn { border-radius: 2px; }
 .et-btn-sm {
   min-height: var(--et-btn-h-sm);
   padding-inline: var(--et-btn-pad-sm);
@@ -1791,13 +1792,56 @@ ol {
 .et-btn.et-btn-paper:focus-visible {
   outline: 0;
 }
-/* Map menu follows the compact filter typography and paper height. */
+/* Gewebeband (Ersans Adobe-Stock-Lizenz, pics/tape, design/tape-2026-10-26)
+   für die Bedienung über der Map: Filter, Suche, Menü, ihre Listen, die Lasche
+   und die Etiketten der Spots (Ersan 26.10.2026). Sechs freigestellte Stücke,
+   jedes als Schwarz (Original, Glanz gedämpft) und Weiß (umgefärbt). Hell: weißes
+   Band, gesetzte Filter schwarz; dunkel umgekehrt. Gesetzt wird `border-image`:
+   die Risse bleiben bei jeder Breite gleich, nur die Mitte dehnt sich. Ein
+   Stück = --et-tape-img/-active-img + --et-tape-slice/-width (gemessen). */
+:root {
+  --et-tape-fg: #000;
+  --et-tape-active-fg: #fff;
+  --et-tape-img: url('/pics/tape/gaffer-2-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-2-black.webp');
+  --et-tape-slice: 9 13 9 17 fill;
+  --et-tape-width: 2px 3px 2px 4px;
+  /* Untergrund der Map-Liste: weiß (Ersan 26.10.2026). */
+  --et-list-paper: #fff;
+  --et-list-paper-tile: #fff;
+}
+html[data-theme='dark'] {
+  --et-tape-fg: #fff;
+  --et-tape-active-fg: #000;
+  --et-tape-img: url('/pics/tape/gaffer-2-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-2-white.webp');
+  --et-list-paper:
+    linear-gradient(rgb(21 18 14 / 0.86), rgb(21 18 14 / 0.86)),
+    url('/pics/home/silver-hero/paper.webp') center / cover, #15120e;
+  --et-list-paper-tile:
+    linear-gradient(rgb(21 18 14 / 0.86), rgb(21 18 14 / 0.86)),
+    url('/pics/home/silver-hero/paper.webp') center top / 1024px auto repeat, #15120e;
+}
+
+/* Map menu follows the compact filter typography on a strip of tape. */
 .et-btn.et-btn-map-control {
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--et-tape-fg);
   min-height: 40px;
-  padding-inline: 7px;
+  padding-inline: 12px;
   font: 800 11px / 1.2 var(--et-font-body);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+.et-btn.et-btn-map-control:not(:disabled):is(:hover, :focus-visible) {
+  background: none;
+  filter: brightness(0.95);
+  color: var(--et-tape-fg);
 }
 @media (max-width: 767.98px) {
   .et-btn.et-btn-map-control { min-height: 44px; }
@@ -1877,10 +1921,9 @@ html[data-theme='dark'] .et-btn-text {
   background: #fff;
   color: var(--et-ink);
 }
+/* „Geöffnet" ist schwarz wie ein gesetzter Filter, nicht mehr grün (26.10.2026). */
 .et-label-open {
-  background: linear-gradient(rgb(220 232 191 / 0.9), rgb(220 232 191 / 0.9)),
-    var(--et-status-open) url('/pics/paper/folded-white.webp') center / 240px 360px;
-  color: var(--et-ink);
+  --et-label-bg: var(--et-ink);
 }
 .et-label-closed {
   background: var(--et-status-closed);
@@ -1897,6 +1940,36 @@ html[data-theme='dark'] .et-btn-text {
   font-weight: 800;
   letter-spacing: -0.02em;
 }
+/* Name, Bezirk und Küche der Map-Spots auf Gewebeband (Ersan 26.10.2026):
+   hell die weißeste Fassung mit Gewebe, dunkel schwarz. */
+.et-label-tape {
+  --et-tape-img: url('/pics/tape/gaffer-2-label.webp');
+  padding-inline: 11px;
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  color: var(--et-tape-fg);
+}
+.et-label-paper.et-label-tape {
+  /* The name's piece mirrored: the straightest bottom edge of the sheet. */
+  --et-tape-img: url('/pics/tape/gaffer-2m-label.webp');
+  --et-tape-slice: 9 17 9 13 fill;
+  --et-tape-width: 2px 4px 2px 3px;
+}
+html[data-theme='dark'] .et-label-tape {
+  --et-tape-img: url('/pics/tape/gaffer-2-black.webp');
+}
+html[data-theme='dark'] .et-label-paper.et-label-tape {
+  --et-tape-img: url('/pics/tape/gaffer-2m-black.webp');
+}
+/* Bezirk · Küche: etwas höher, damit die Schrift nicht an den Riss stößt. */
+.et-label-paper.et-label-tape { padding-block: 8px 9px; }
+/* „Geöffnet" ist das Band eines gesetzten Filters. */
+.et-label.et-label-open.et-label-tape {
+  --et-tape-img: var(--et-tape-active-img);
+  color: var(--et-tape-active-fg);
+}
 html[data-active-page='map'] .et-label {
   font-size: 12px;
 }
@@ -1905,6 +1978,9 @@ html[data-active-page='map'] .et-label.et-label-closed {
   padding: 4px 6px;
   font-size: 10px;
   letter-spacing: 0.05em;
+}
+html[data-active-page='map'] .et-label.et-label-open.et-label-tape {
+  padding: 6px 10px 7px;
 }
 @media (max-width: 767.98px) {
   html[data-active-page='map'] {

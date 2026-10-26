@@ -7,6 +7,7 @@ import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
+import HeaderWordmark from './HeaderWordmark';
 import { openBurgerDrawer } from './burgerDrawerState';
 import styles from './SiteNav.module.css';
 
@@ -130,12 +131,8 @@ export default function SiteNav() {
       const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
       const delta = y - lastY;
 
-      // Auf der Startseite fliegt die Wortmarke beim Scrollen in den Header
-      // (HeroMarkFlight setzt `data-nav-hold`, solange das läuft). Klappte die
-      // Leiste dabei wie sonst nach 36px weg, würde die Marke im selben Moment
-      // mit verschwinden, in dem sie ankommt. Andere Seiten setzen das
-      // Attribut nie und verhalten sich unverändert.
-      const hold = document.documentElement.hasAttribute('data-nav-hold');
+      // Keep the home header visible so its logo can take over as the hero leaves.
+      const hold = document.documentElement.dataset.activePage === 'start';
 
       if (!media.matches || y < 36 || hold) {
         show();
@@ -182,15 +179,12 @@ export default function SiteNav() {
         {/* Left: map text */}
         <div className={`${styles.actions} ${styles.actionsStart}`}>
           <MapIntentLink href="/map" className={styles.control} id="navMapBtn" aria-label="Map">
-            <span className={styles.mapWord}>Map</span>
+            <HeaderWordmark word="map" />
           </MapIntentLink>
         </div>
         {/* Center: Logo */}
         <div className={styles.home}>
-          {/* `data-nav-logo` ist der Landepunkt der fliegenden Wortmarke
-              (HeroMarkFlight misst diesen Slot aus). Der Link bleibt
-              zugänglich — er trägt seinen Namen über aria-label —, nur das
-              Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
+          {/* The home hero observes this header to reveal its logo after scrolling. */}
           <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
               {...BRAND_WORDMARK}
@@ -213,7 +207,7 @@ export default function SiteNav() {
             aria-expanded="false"
             onClick={openBurgerDrawer}
           >
-            <span className={styles.menuWord}>{lang === 'de' ? 'Menü' : 'Menu'}</span>
+            <HeaderWordmark word="menu" locale={lang} />
           </button>
         </div>
       </nav>

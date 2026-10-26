@@ -207,10 +207,10 @@ jobs:
           path: /tmp
       - run: tar --zstd -xf /tmp/next-verify.tar.zst
 
-      # Sonst rund 25 s. Am 07.10.2026 hing der Schritt 23 Minuten (apt) und
-      # hielt das Release fest, ohne rot zu werden.
+      # apt can exceed five minutes on a slow mirror while still downloading.
+      # Keep a bounded installation so a stuck mirror cannot hold the release.
       - name: Install Chromium and WebKit
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium webkit
 
       - uses: actions/setup-java@v4
@@ -271,7 +271,7 @@ jobs:
       - run: tar --zstd -xf /tmp/next-verify.tar.zst
 
       - name: Install Chromium
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
 
       - uses: actions/setup-java@v4

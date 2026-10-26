@@ -9,11 +9,11 @@ export type BuddyMood = 'idle' | 'talking' | 'thinking' | 'happy' | 'greeting';
 // slightly different zoom — the head sits a touch differently, which reads as
 // an intentional pose change between moods rather than a glitch.
 const BASE_SRC: Record<BuddyMood, string> = {
-  idle: '/buddy/buddy.webp',
-  talking: '/buddy/buddy.webp',
-  thinking: '/buddy/buddy-think.webp',
-  happy: '/buddy/buddy-laugh.webp',
-  greeting: '/buddy/buddy-smile.webp',
+  idle: '/buddy/buddy.webp?v=feinripp',
+  talking: '/buddy/buddy.webp?v=feinripp',
+  thinking: '/buddy/buddy-think.webp?v=feinripp',
+  happy: '/buddy/buddy-laugh.webp?v=feinripp',
+  greeting: '/buddy/buddy-smile.webp?v=feinripp',
 };
 
 export function BuddyAvatarFallback({ mood, size = 56 }: { mood: BuddyMood; size?: number }) {
@@ -32,7 +32,7 @@ export function BuddyAvatarFallback({ mood, size = 56 }: { mood: BuddyMood; size
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         className={styles.faceOpen}
-        src="/buddy/buddy-open.webp"
+        src="/buddy/buddy-open.webp?v=feinripp"
         alt=""
         width={size}
         height={size}

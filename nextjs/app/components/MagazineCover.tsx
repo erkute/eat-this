@@ -1,3 +1,4 @@
+import { BRAND_WORDMARK } from '@/lib/constants';
 import type { CSSProperties, ReactNode } from 'react';
 import {
   FRONT_LOGO,
@@ -23,7 +24,7 @@ import { sanitySrcSet, coverImageScale } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import styles from './MagazineCover.module.css';
 
-const LOGO = '/pics/cover/logo.webp';
+const LOGO = BRAND_WORDMARK.src;
 const TONES: Record<CoverTone, string> = {
   yellow: styles.yellow,
   red: styles.red,
@@ -164,9 +165,14 @@ export default function MagazineCover({
     // eslint-disable-next-line @next/next/no-img-element
     <img className={className} style={style} src={LOGO} alt="" loading={loading} decoding="async" />
   );
-  // Das Logo einfarbig: nur die Buchstabenflächen, ohne Kontur und Schatten.
+  // Cover colours remain, with the new wordmark's folds drawn over the fill.
   const flatLogo = (fill: string, style: CSSProperties) => (
-    <span className={styles.flatLogo} style={{ ...style, '--fill': fill } as CSSProperties} />
+    <span className={styles.flatLogo} style={{
+      ...style,
+      '--fill': fill,
+      '--texture-filter': fill === 'var(--et-ink)' ? 'none' : 'invert(1)',
+      '--texture-blend': fill === 'var(--et-ink)' ? 'screen' : 'multiply',
+    } as CSSProperties} />
   );
   const meta = (text: ReactNode, style: CSSProperties, className = styles.meta) => (
     <span className={className} style={style} aria-hidden="true" data-cover-folio="">

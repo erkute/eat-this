@@ -10,7 +10,6 @@ import { subscribeStarterPackGranted } from '@/lib/auth/signInArrival';
 import { identityStepPrefill, saveIdentity } from '@/lib/auth/identityStep';
 import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
 import { AVATAR_CHOICES, avatarSrc } from './avatarChoices';
-import { authScreenActive, subscribeAuthScreen } from './AuthScreen';
 import styles from './Tour.module.css';
 import StarterPack3D from './StarterPack3D';
 import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
@@ -274,7 +273,6 @@ export default function SignInReward() {
   useDialogFocus(open, panelRef, triggerRef);
 
   useEffect(() => {
-    let stopWaiting: (() => void) | undefined;
     let alive = true;
     const reveal = (prefill: { name: string; preview?: boolean } | null, cards: string[] = []) => {
       if (!alive) return;
@@ -299,16 +297,7 @@ export default function SignInReward() {
         () => reveal(null, cards)
       );
     };
-    const unsubscribe = subscribeStarterPackGranted((cards) => {
-      if (!authScreenActive()) return show(cards);
-      stopWaiting?.();
-      stopWaiting = subscribeAuthScreen((active) => {
-        if (active) return;
-        stopWaiting?.();
-        stopWaiting = undefined;
-        show(cards);
-      });
-    });
+    const unsubscribe = subscribeStarterPackGranted(show);
     if (process.env.NODE_ENV === 'development') {
       const query = new URLSearchParams(window.location.search);
       const preview = query.get('preview');
@@ -346,7 +335,6 @@ export default function SignInReward() {
     return () => {
       alive = false;
       unsubscribe();
-      stopWaiting?.();
     };
   }, []);
 

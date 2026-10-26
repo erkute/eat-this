@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND_WORDMARK } from '@/lib/constants';
 import { useEffect, useRef } from 'react';
 import { appScroller } from '@/lib/dom/appScroller';
 import Image from '@/app/components/SiteImage';
@@ -129,12 +130,8 @@ export default function SiteNav() {
       const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
       const delta = y - lastY;
 
-      // Auf der Startseite fliegt die Wortmarke beim Scrollen in den Header
-      // (HeroMarkFlight setzt `data-nav-hold`, solange das läuft). Klappte die
-      // Leiste dabei wie sonst nach 36px weg, würde die Marke im selben Moment
-      // mit verschwinden, in dem sie ankommt. Andere Seiten setzen das
-      // Attribut nie und verhalten sich unverändert.
-      const hold = document.documentElement.hasAttribute('data-nav-hold');
+      // Keep the home header visible so its logo can take over as the hero leaves.
+      const hold = document.documentElement.dataset.activePage === 'start';
 
       if (!media.matches || y < 36 || hold) {
         show();
@@ -186,17 +183,12 @@ export default function SiteNav() {
         </div>
         {/* Center: Logo */}
         <div className={styles.home}>
-          {/* `data-nav-logo` ist der Landepunkt der fliegenden Wortmarke
-              (HeroMarkFlight misst diesen Slot aus). Der Link bleibt
-              zugänglich — er trägt seinen Namen über aria-label —, nur das
-              Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
+          {/* The home hero observes this header to reveal its logo after scrolling. */}
           <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
-              src="/pics/home/wordmark.webp?v=1"
+              {...BRAND_WORDMARK}
               alt="Eat This"
-              width={1124}
-              height={274}
-              sizes="80px"
+              sizes="(min-width: 768px) 108px, 81px"
               loading="lazy"
               decoding="async"
               className={styles.logoImg}

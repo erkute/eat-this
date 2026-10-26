@@ -222,7 +222,6 @@ const en = {
   },
   profile: {
     avatarError: 'Your character could not be saved. Please try again.',
-    moveInvitation: 'Your next card is waiting here.',
     moveGo: 'Take me there',
     moveFindNear: 'Near me',
     albumCard: 'Card',
@@ -317,9 +316,6 @@ const en = {
     errGooglePopup: "Google didn't work out. Use your email for now.",
     errGooglePopupBlocked: 'Your browser blocked the Google window. Allow it, or use your email.',
     googleCancelled: 'Cancelled. Try again, or use your email.',
-    signingInKicker: 'Almost there',
-    signingOutKicker: 'See you',
-    signingOutTitle: 'Signing you out',
     errService: 'Service error — please try again later.',
     errNetwork: 'Network error — please try again.',
     errRateLimited: 'Too many attempts. Check your inbox — or try again in an hour.',
@@ -342,7 +338,6 @@ const en = {
     login: {
       emailPlaceholder: 'your@email.com',
       googleBtn: 'Sign in with Google',
-      googleSigningIn: 'Signing you in',
       termsLink: 'Terms',
       privacyLink: 'Privacy Policy',
       sendLinkBtn: 'Sign in',
@@ -628,7 +623,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   },
   profile: {
     avatarError: 'Dein Charakter konnte nicht gespeichert werden. Versuch es nochmal.',
-    moveInvitation: 'Deine nächste Karte wartet hier.',
     moveGo: 'Da will ich hin',
     moveFindNear: 'In meiner Nähe',
     albumCard: 'Karte',
@@ -741,9 +735,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     errGooglePopupBlocked:
       'Dein Browser hat das Google-Fenster blockiert. Lass es zu oder nimm deine E-Mail.',
     googleCancelled: 'Abgebrochen. Versuch es nochmal oder nimm deine E-Mail.',
-    signingInKicker: 'Gleich da',
-    signingOutKicker: 'Bis gleich',
-    signingOutTitle: 'Du wirst abgemeldet',
     errService: 'Service-Fehler \u2013 bitte sp\u00e4ter nochmal versuchen.',
     errNetwork: 'Netzwerkfehler \u2013 bitte erneut versuchen.',
     errRateLimited:
@@ -759,7 +750,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     login: {
       emailPlaceholder: 'deine@email.com',
       googleBtn: 'Mit Google anmelden',
-      googleSigningIn: 'Du wirst angemeldet',
       termsLink: 'AGB',
       privacyLink: 'Datenschutzerkl\u00e4rung',
       sendLinkBtn: 'Anmelden',

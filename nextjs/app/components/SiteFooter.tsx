@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND_WORDMARK } from '@/lib/constants';
 import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link } from '@/i18n/navigation';
@@ -50,10 +51,8 @@ export default function SiteFooter() {
               }}
             >
               <Image
-                src="/pics/home/wordmark.webp?v=1"
+                {...BRAND_WORDMARK}
                 alt="Eat This"
-                width={1124}
-                height={274}
                 sizes="(min-width: 768px) 420px, 238px"
                 loading="lazy"
                 decoding="async"

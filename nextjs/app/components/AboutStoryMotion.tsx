@@ -3,7 +3,8 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { appScroller } from '@/lib/dom/appScroller';
 
-/** Only artwork moves. The entire Sanity story is readable before hydration. */
+/** Only the cards fan out. All other artwork stays still; CSS supplies the
+ * open fan before hydration and for reduced motion. */
 export default function AboutStoryMotion({ children, className }: { children: ReactNode; className: string }) {
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -15,23 +16,23 @@ export default function AboutStoryMotion({ children, className }: { children: Re
       if (disposed) return;
       gsap.registerPlugin(ScrollTrigger);
       const media = gsap.matchMedia();
+      // Rebuild when the breakpoint changes: desktop uses the app scroller,
+      // mobile the document. The animation itself is the same in both.
       media.add({ motion: '(prefers-reduced-motion: no-preference)', desktop: '(min-width: 768px)' }, (context) => {
         if (!context.conditions?.motion) return;
         const scroller = appScroller() ?? undefined;
-        element.querySelectorAll<HTMLElement>('[data-about-art]').forEach((art) => {
-          gsap.fromTo(art, { y: 36 }, {
-            y: -16,
-            ease: 'none',
-            scrollTrigger: { scroller, trigger: art, start: 'top bottom', end: 'bottom top', scrub: 0.8 },
-          });
-        });
-        element.querySelectorAll<HTMLElement>('[data-about-card]').forEach((card) => {
-          const front = card.dataset.aboutCard === 'front';
-          gsap.fromTo(card, { rotation: front ? 0 : -2, xPercent: front ? -12 : 12 }, {
-            rotation: front ? 9 : -9,
+        element.querySelectorAll<HTMLElement>('[data-about-fan]').forEach((fan) => {
+          const cards = Array.from(fan.querySelectorAll<HTMLElement>('[data-about-card]'));
+          gsap.fromTo(cards, {
+            rotation: (index) => Number(cards[index].dataset.fanAngle) / 8,
             xPercent: 0,
-            ease: 'none',
-            scrollTrigger: { scroller, trigger: card.closest('[data-about-chapter]'), start: 'top 85%', end: 'center 40%', scrub: 0.6 },
+            x: 0,
+          }, {
+            rotation: (index) => Number(cards[index].dataset.fanAngle),
+            xPercent: (index) => Number(cards[index].dataset.fanX),
+            x: 0,
+            ease: 'power1.out',
+            scrollTrigger: { scroller, trigger: fan, start: 'top 90%', end: 'top 20%', scrub: 0.6 },
           });
         });
       });

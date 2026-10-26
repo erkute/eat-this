@@ -168,6 +168,21 @@ export default async function middleware(req: NextRequest) {
     return finalizeResponse(res);
   }
 
+  // Standalone opt-out: no locale layout, consent dialog or analytics. Keep
+  // both public languages on the same server-rendered tool, outside /admin.
+  if (pathname === '/no-count' || pathname === '/en/no-count') {
+    const headers = new Headers(req.headers);
+    // Next may run the rewritten /no-count request through middleware again.
+    const en = pathname === '/en/no-count' || req.headers.get('x-eatthis-no-count-locale') === 'en';
+    headers.set('x-eatthis-no-count-locale', en ? 'en' : 'de');
+    if (pathname === '/no-count') {
+      return finalizeResponse(NextResponse.next({ request: { headers } }));
+    }
+    const url = req.nextUrl.clone();
+    url.pathname = '/no-count';
+    return finalizeResponse(NextResponse.rewrite(url, { request: { headers } }));
+  }
+
   // Referral capture — ?ref=<inviterUid>. Strip the param (clean URL, 308
   // like ?lang) and, if it's a plausible uid, set a 30-day HttpOnly cookie
   // that /api/referral/confirm consumes after the friend signs up.

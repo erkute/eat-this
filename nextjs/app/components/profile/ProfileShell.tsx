@@ -21,7 +21,6 @@ import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
 import ProfileFriends from './ProfileFriends';
-import AuthScreen, { AUTH_SCREEN_HOLD_MS } from '../AuthScreen';
 import AvatarPickerModal from './AvatarPickerModal';
 import SiteFooter from '../SiteFooter';
 import styles from './Profile.module.css';
@@ -34,9 +33,6 @@ interface Props {
 
 export default function ProfileShell({ publicFaceUpIds }: Props) {
   const { user, loading: authLoading, signOut, updateDisplayName } = useAuth();
-  /* Das Abmelden hatte bisher keinen sichtbaren Zustand: das Profil verschwand
-     wortlos, und der Toast meldete es erst nach dem Reload nach. */
-  const [signingOut, setSigningOut] = useState(false);
   const t = useTranslations('profile');
   const [pickerOpen, setPickerOpen] = useState(false);
   /* Der Reiter steht im Anker (#spots, #packs), damit ein Neuladen und der
@@ -154,34 +150,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   async function handleAvatarChange(choice: AvatarChoice) {
     if (choice === avatarIdx) return;
     await setAvatar(choice);
-  }
-
-  /**
-   * Abmelden mit sichtbarem Wartescreen.
-   *
-   * Erst halten, dann abmelden — nicht umgekehrt. Sobald Firebase `user` auf
-   * null setzt, nimmt ProfileAuthGuard diesen Baum aus dem DOM, und mit ihm den
-   * Screen; das Abmelden selbst ist in Millisekunden durch. Der Screen war
-   * darum weg, bevor man ihn gelesen hatte (Nutzer, 29.08.2026).
-   */
-  function handleSignOut() {
-    setSigningOut(true);
-    /* Der Timer wird beim Unmount bewusst nicht abgeraeumt: wer waehrend der
-       Haltezeit per Back-Taste rausgeht, hat das Abmelden trotzdem verlangt. */
-    /* Keine Bestaetigung danach: der Wartescreen sagt „Du wirst abgemeldet",
-       und die Startseite danach zeigt es. Bis 24.09.2026 kam zusaetzlich
-       „Abgemeldet" als Info-Karte, ueber sessionStorage durch das Neuladen
-       gerettet — dieselbe Nachricht zweimal. */
-    window.setTimeout(() => {
-      void signOut().catch(() => {
-        /* clearPremiumAccess wirft bei einem fehlgeschlagenen Request —
-           AuthContext reicht den Fehler bewusst an den Aufrufer durch.
-           Ohne diesen Zweig bliebe der Wartescreen als fixed-Layer ueber
-           der Seite stehen, ohne Schliessweg: angemeldet, aber vom
-           eigenen Profil ausgesperrt. */
-        setSigningOut(false);
-      });
-    }, AUTH_SCREEN_HOLD_MS);
   }
 
   return (
@@ -302,7 +270,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
               email={user.email}
               onSaveName={updateDisplayName}
               onPickAvatar={() => setPickerOpen(true)}
-              onSignOut={handleSignOut}
+              onSignOut={signOut}
             />
           )}
         </div>
@@ -315,10 +283,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           onClose={() => setPickerOpen(false)}
         />
       )}
-      {/* Hier, nicht im Fehler-Zweig: der Abmelden-Knopf steht in genau diesem
-          Baum. Im Zweig ohne Kartendaten gibt es ihn nicht, dort konnte
-          `signingOut` also nie wahr werden — der Screen war unerreichbar. */}
-      {signingOut && <AuthScreen mode="out" />}
     </>
   );
 }

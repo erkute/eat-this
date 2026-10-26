@@ -313,6 +313,38 @@
       "dish": "Wagyu Ramen",
       "descriptionEn": "Japanese A5 wagyu in a clear broth with bamboo shoots, egg and nori.",
       "description": "Japanisches A5-Wagyu in klarer Brühe mit Bambussprossen, Ei und Nori."
+    },
+    {
+      "order": 40,
+      "file": "040.png",
+      "spot": "Bar Basta",
+      "dish": "Olive Oil Gin Fizz",
+      "descriptionEn": "Gin, lemon, bay leaf syrup, olive brine & a hint of pastis.",
+      "description": "Gin, Zitrone, Lorbeersirup, Olivenlake und ein Hauch Pastis."
+    },
+    {
+      "order": 41,
+      "file": "041.png",
+      "spot": "Ari’s",
+      "dish": "Green Goddess",
+      "descriptionEn": "Iceberg lettuce, herb dressing, crispy chilli & chives.",
+      "description": "Eisbergsalat, Kräuterdressing, Crispy Chili und Schnittlauch."
+    },
+    {
+      "order": 42,
+      "file": "042.png",
+      "spot": "Ari’s",
+      "dish": "Lima Kreuzburger",
+      "descriptionEn": "Beef patty, crispy potato sticks & ají amarillo.",
+      "description": "Rindfleisch-Patty, knusprige Kartoffelstäbchen und Ají Amarillo."
+    },
+    {
+      "order": 43,
+      "file": "043.png",
+      "spot": "Bonanza Coffee Heroes",
+      "dish": "Cappuccino",
+      "descriptionEn": "Espresso & steamed milk.",
+      "description": "Espresso und aufgeschäumte Milch."
     }
   ]
 }

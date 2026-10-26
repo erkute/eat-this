@@ -20,10 +20,6 @@ const KEYS = [
   'auth.errGooglePopup',
   'auth.errGooglePopupBlocked',
   'auth.googleCancelled',
-  // Die Wartescreens (AuthScreen.tsx) — beim Anlegen der Texte vergessen.
-  'auth.signingInKicker',
-  'auth.signingOutKicker',
-  'auth.signingOutTitle',
 ] as const;
 
 function translator(lang: Lang) {

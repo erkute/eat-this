@@ -1,3 +1,4 @@
+import { BRAND_WORDMARK } from '@/lib/constants';
 /**
  * Ein Heft aufschlagen (02.10.2026, Ansage: „wenn man auf einen Artikel
  * klickt, öffnet sich das Magazin, und man landet im Artikel"). Läuft auf
@@ -322,7 +323,7 @@ async function run({ link, cover, slug, navigate, classes }: Options) {
     }
     const mark = document.createElement('img');
     mark.className = classes.backMark;
-    mark.src = '/pics/eat-this-logo.webp';
+    mark.src = BRAND_WORDMARK.src;
     mark.alt = '';
     el.append(mark);
     return el;

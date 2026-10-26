@@ -1,4 +1,5 @@
 import { Fragment, type CSSProperties } from 'react';
+import { BRAND_WORDMARK } from '@/lib/constants';
 import Image from '@/app/components/SiteImage';
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
@@ -17,21 +18,11 @@ type Block = PortableTextBlock & {
   children?: { text?: string }[];
 };
 
-type Objekt = {
-  src: string;
-  width: number;
-  height: number;
-  tilt: number;
-};
-
 type Figure = {
   src: string;
   width: number;
   height: number;
-  /** A second object, laid over the first as an overlapping pair. The card
-   *  section argues about two states of one thing — face-down and face-up —
-   *  and a single card cannot show a pair. */
-  partner?: Objekt;
+  cards?: string[];
   /** Rendered width in px. Not uniform on purpose — optical weight is not
    *  area. The card back is a solid field of yellow, black and red; at the
    *  plate's width it shouted down the section it belongs to. */
@@ -39,7 +30,7 @@ type Figure = {
   tilt: number;
   /** The homepage Remy stage follows this section. */
   remyAfter?: true;
-  caption: { de: string; en: string };
+  caption?: { de: string; en: string };
   alt: { de: string; en: string };
 };
 
@@ -72,31 +63,25 @@ const FIGURES: (Figure | null)[] = [
     height: 1044,
     renderWidth: 300,
     tilt: 5,
-    caption: { de: 'Jeder Spot bewusst ausgewählt.', en: 'Every spot deliberately chosen.' },
+    caption: { de: 'Sabich bei Kitten Deli in Neukölln.', en: 'Sabich at Kitten Deli in Neukölln.' },
     alt: {
       de: 'Eine aufgedeckte Eat-This-Sammelkarte mit dem Sabich',
       en: 'A revealed Eat This trading card featuring sabich',
     },
   },
   {
-    // The pair belongs here and nowhere else: this is the section that says
-    // some cards lie open and some stay hidden. One card could only ever
-    // illustrate half of that sentence.
+    // Original card artwork, including the back, opens into a five-card fan.
     src: '/pics/card-back.webp',
     width: 760,
     height: 1044,
-    partner: { src: '/pics/card-front.webp?v=8', width: 760, height: 1044, tilt: 7 },
-    // Let the pair fan across the artwork column as the story scrolls.
-    renderWidth: 400,
-    tilt: -8,
+    cards: ['/pics/card-back.webp', '/pics/home/hero-must-eat.webp', '/pics/home/must-eat-008.webp', '/pics/home/must-eat-012.webp', '/pics/home/must-eat-011.webp'],
+    renderWidth: 1000,
+    tilt: 0,
     remyAfter: true,
-    caption: {
-      de: 'Manche liegen offen, manche verdeckt.',
-      en: 'Some lie face up, some face down.',
-    },
+    caption: { de: 'Berliner Must Eats für deine Sammlung.', en: 'Berlin Must Eats for your collection.' },
     alt: {
-      de: 'Zwei Eat-This-Sammelkarten nebeneinander, eine mit der Rückseite nach oben, eine aufgedeckt',
-      en: 'Two Eat This trading cards side by side, one face down and one face up',
+      de: 'Fünf Eat-This-Sammelkarten als Fächer: eine Rückseite, Hamachi Head, Rinderschaufel, Cappuccino und ODB Sandwich',
+      en: 'Five Eat This trading cards in a fan: a card back, Hamachi Head, Rinderschaufel, Cappuccino and ODB Sandwich',
     },
   },
 ];
@@ -116,10 +101,8 @@ function isPlainParagraph(block: PortableTextBlock | undefined): boolean {
   return b._type === 'block' && !b.listItem && (b.style ?? 'normal') === 'normal';
 }
 
-/* The opening paragraphs that belong to the hero, beside the person. Two, by
-   order like the figures: the first says why the page exists, the second who
-   is speaking — and the second used to fall under the hero rule as small body
-   copy, a line away from the picture it describes. */
+/* The first opening paragraph introduces the story above the portrait;
+   the second becomes the founder's quote below it. Both remain in Sanity. */
 const LEDE_PARAGRAPHS = 2;
 
 /* A short plain paragraph in the intro is a line, not a paragraph — "Das
@@ -241,37 +224,36 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
         <header className={styles.hero}>
           <div className={styles.heroCopy}>
             <h1 className={styles.title} id="staticPageAbout-title">
-              {doc.title || ''}
+              <Image
+                {...BRAND_WORDMARK}
+                alt="eat this."
+                sizes="(min-width: 1248px) 1200px, calc(100vw - 48px)"
+                priority
+                className={styles.wordmark}
+              />
             </h1>
-            {ledes.map((text, index) =>
-              index === 0 ? (
-                <p key={index} className={styles.lede}>
-                  {text}
-                </p>
-              ) : (
-                <blockquote key={index} className={styles.ledeQuote}>
-                  {de ? '„' : '“'}
-                  {text}
-                  {de ? '“' : '”'}
-                </blockquote>
-              )
-            )}
+            {ledes[0] && <p className={styles.lede}>{ledes[0]}</p>}
           </div>
-          <div className={styles.heroArt} data-about-art="">
+          <figure className={styles.heroArt}>
             <Image
-              src="/pics/founder-cafe.webp"
+              src="/pics/founder-table-cartoon-final.webp"
               alt={
                 de
-                  ? 'Der Gründer von Eat This an einem Cafétisch, mit Kaffee und zwei Eat-This-Karten in der Hand'
-                  : 'The founder of Eat This at a café table with a coffee and two Eat This cards'
+                  ? 'Ersan als Cartoon im grauen Anzug bei Bar Basta: Gin Fizz in der Hand, ODB Sandwich auf dem Tisch'
+                  : 'A cartoon of Ersan in a grey suit at Bar Basta, holding a Gin Fizz with an ODB Sandwich on the table'
               }
-              width={760}
-              height={1327}
-              sizes="(min-width: 900px) 320px, 200px"
+              width={1145}
+              height={1374}
+              sizes="(min-width: 768px) 680px, calc(100vw - 48px)"
               priority
               className={styles.heroFigure}
             />
-          </div>
+          </figure>
+          {ledes[1] && (
+            <blockquote className={styles.ledeQuote}>
+              {de ? '„' : '“'}{ledes[1]}{de ? '“' : '”'}
+            </blockquote>
+          )}
         </header>
 
         {bridge.length > 0 && (
@@ -295,7 +277,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           const flipped = Boolean(figure) && index % 2 === 0;
           return (
             <Fragment key={section.title || index}>
-              <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}${index === 1 ? ` ${styles.selection}` : ''}`} data-about-chapter="">
+              <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}${index === 1 ? ` ${styles.selection}` : ''}${figure?.cards ? ` ${styles.cardChapter}` : ''}`} data-about-chapter="">
                 <div className={styles.sectionCopy}>
                   <h2 className={styles.sectionTitle}>{section.title}</h2>
                   <div className={styles.body}>
@@ -305,38 +287,31 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
 
                 {figure && (
                   <figure
-                    className={styles.figure}
-                    data-about-art=""
+                    className={`${styles.figure}${figure.cards ? ` ${styles.fanFigure}` : ''}`}
                     style={{ '--fig-w': `${figure.renderWidth}px` } as CSSProperties}
                   >
                     <div>
-                      {figure.partner ? (
-                        /* Two objects, one measure. They overlap on purpose: a
-                         pair set side by side with a gap reads as two products
-                         in a catalogue, not as one deck you are holding. */
-                        <div className={styles.pair}>
-                          <Image
-                            src={figure.src}
-                            alt={de ? figure.alt.de : figure.alt.en}
-                            width={figure.width}
-                            height={figure.height}
-                            sizes={`${figure.renderWidth}px`}
-                            loading="lazy"
-                            className={styles.pairBack}
-                            data-about-card="back"
-                            style={{ '--tilt': `${figure.tilt}deg` } as CSSProperties}
-                          />
-                          <Image
-                            src={figure.partner.src}
-                            alt=""
-                            width={figure.partner.width}
-                            height={figure.partner.height}
-                            sizes={`${figure.renderWidth}px`}
-                            loading="lazy"
-                            className={styles.pairFront}
-                            data-about-card="front"
-                            style={{ '--tilt': `${figure.partner.tilt}deg` } as CSSProperties}
-                          />
+                      {figure.cards ? (
+                        <div className={styles.fan} data-about-fan="" role="img" aria-label={de ? figure.alt.de : figure.alt.en}>
+                          {figure.cards.map((src, cardIndex) => {
+                            const offset = cardIndex - (figure.cards!.length - 1) / 2;
+                            return (
+                              <Image
+                                key={src}
+                                src={src}
+                                alt=""
+                                width={760}
+                                height={1044}
+                                sizes="(min-width: 768px) 320px, 120px"
+                                loading="lazy"
+                                className={styles.fanCard}
+                                data-about-card=""
+                                data-fan-angle={offset * 12}
+                                data-fan-x={offset * 14}
+                                style={{ '--fan-angle': `${offset * 12}deg`, '--fan-x': `${offset * 14}%` } as CSSProperties}
+                              />
+                            );
+                          })}
                         </div>
                       ) : figure.src === '/pics/home-map/phone-1.webp' ? (
                         <div className={styles.figureImg}><MapPhoneArtwork alt={de ? figure.alt.de : figure.alt.en} /></div>
@@ -353,9 +328,11 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                         />
                       )}
                     </div>
-                    <figcaption className={styles.caption}>
-                      {de ? figure.caption.de : figure.caption.en}
-                    </figcaption>
+                    {figure.caption && (
+                      <figcaption className={styles.caption}>
+                        {de ? figure.caption.de : figure.caption.en}
+                      </figcaption>
+                    )}
                   </figure>
                 )}
               </section>

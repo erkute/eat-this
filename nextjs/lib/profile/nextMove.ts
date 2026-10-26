@@ -35,6 +35,8 @@ interface Input {
   faceUpIds: ReadonlySet<string>;
   districtOf: (m: MapMustEat) => string;
   location: { lat: number; lng: number } | null;
+  /** Bereits sichtbare Empfehlung festhalten, solange ihre Karte verdeckt ist. */
+  selectedId?: string | null;
 }
 
 /**
@@ -59,12 +61,27 @@ export function pickNextMove({
   faceUpIds,
   districtOf,
   location,
+  selectedId,
 }: Input): NextMove | null {
   /* Dasselbe Praedikat wie das Deck darunter (`isAlbumMustEatCollected`):
      sonst zaehlt dieser Satz Karten als verdeckt, die zwei Zentimeter
      weiter offen liegen. */
   const covered = mustEats.filter((m) => !isAlbumMustEatCollected(m, faceUpIds));
   if (covered.length === 0) return null;
+
+  const selected = covered.find((m) => m._id === selectedId);
+  if (selected) {
+    const district = districtOf(selected);
+    const meters = location
+      ? haversineDistance(location.lat, location.lng, selected.restaurant.lat, selected.restaurant.lng)
+      : Infinity;
+    return {
+      target: selected,
+      district,
+      covered: covered.filter((m) => districtOf(m) === district).length,
+      meters: meters <= OUT_OF_TOWN_M ? Math.round(meters) : null,
+    };
+  }
 
   if (location) {
     let nearest: MapMustEat | null = null;

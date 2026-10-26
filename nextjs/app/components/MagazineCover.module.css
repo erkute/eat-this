@@ -156,12 +156,29 @@
 .logoAt {
   height: auto;
 }
-/* Einfarbig: nur die Buchstabenflächen aus der Maske, ohne Kontur. */
+/* The new artwork is black; preserve its paper texture on dark cover areas. */
+.cover.ink .logo,
+.cover.ink .logoAt,
+.cover .bandLogo,
+.cover[data-cover-look='front'] .logo,
+.cover[data-cover-look='system'] .logo {
+  filter: invert(1);
+}
+/* Keep the cover palette and the wordmark's crumpled-paper texture. */
 .flatLogo {
-  aspect-ratio: 1436 / 480;
+  isolation: isolate;
+  aspect-ratio: 2172 / 724;
   background: var(--fill);
-  -webkit-mask: url('/pics/cover/logo-face.webp') center / contain no-repeat;
-  mask: url('/pics/cover/logo-face.webp') center / contain no-repeat;
+  -webkit-mask: url('/pics/eat-this-crumpled-wordmark.webp') center / contain no-repeat;
+  mask: url('/pics/eat-this-crumpled-wordmark.webp') center / contain no-repeat;
+}
+.flatLogo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/pics/eat-this-crumpled-wordmark.webp') center / contain no-repeat;
+  filter: var(--texture-filter);
+  mix-blend-mode: var(--texture-blend);
 }
 .logoShadow {
   inset: 0;

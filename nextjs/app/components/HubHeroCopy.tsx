@@ -1,5 +1,6 @@
 import MapIntentLink from './MapIntentLink';
 import styles from './HubSection.module.css';
+import BrandSlogan from './BrandSlogan';
 
 interface Props { locale: 'de' | 'en' }
 const ART = '/pics/home/silver-hero';
@@ -15,8 +16,7 @@ export default function HubHeroCopy({ locale }: Props) {
       <h1 className={styles.heroHeadline}>
         <span className={styles.heroAccessible}>We tell you what to eat</span>
         <span className={styles.heroSloganDesktop} aria-hidden="true">
-          <span className={styles.heroSloganFirst}><span /></span>
-          <span className={styles.heroSloganSecond}><span /></span>
+          <BrandSlogan />
         </span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className={styles.heroSloganMobile} src={`${ART}/slogan-mobile.webp`} width={2172} height={724} alt="" aria-hidden="true" />
@@ -24,14 +24,23 @@ export default function HubHeroCopy({ locale }: Props) {
       <MapIntentLink href="/must-eats" className={styles.heroArt} aria-label={locale === 'de' ? 'Must Eats entdecken' : 'Discover Must Eats'}>
         <span className={styles.heroFan}>
         {/* eslint-disable @next/next/no-img-element */}
-        <img className={styles.heroCardLeft} src={`${ART}/sausage.webp`} width={1026} height={1410} alt="Spicy Thai Sausage · Bar Basta" fetchPriority="high" decoding="async" />
-        <img className={styles.heroCardRight} src={`${ART}/sabich.webp`} width={1026} height={1410} alt="Sabich · Kitten Deli" fetchPriority="high" decoding="async" />
-        <img className={styles.heroCardFront} src={`${ART}/fish.webp`} width={513} height={705} alt="Kinmedai Sashimi · November Brasserie" fetchPriority="high" decoding="async" />
+        {[
+          [styles.heroCardLeft, 'sausage.webp', 'Spicy Thai Sausage · Bar Basta'],
+          [styles.heroCardRight, 'sabich.webp', 'Sabich · Kitten Deli'],
+          [styles.heroCardFront, 'fish.webp', 'Kinmedai Sashimi · November Brasserie'],
+        ].map(([position, file, alt]) => (
+          <span key={file} className={`${styles.heroCard} ${position}`}>
+            <span className={styles.heroCardFlip}>
+              <img src={`${ART}/${file}`} width={1026} height={1410} alt={alt} fetchPriority="high" decoding="async" />
+              <img className={styles.heroCardBack} src="/pics/card-back.webp?v=8" width={1026} height={1410} alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
+            </span>
+          </span>
+        ))}
         {/* eslint-enable @next/next/no-img-element */}
         </span>
       </MapIntentLink>
       <div className={styles.heroActions} data-hero-actions="">
-        <MapIntentLink href="/must-eats" className="et-btn et-btn-lg et-btn-editorial">
+        <MapIntentLink href="/must-eats" className="et-btn et-btn-lg">
           {locale === 'de' ? 'Must Eats entdecken' : 'Discover Must Eats'}
         </MapIntentLink>
       </div>

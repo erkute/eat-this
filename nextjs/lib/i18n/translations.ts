@@ -124,15 +124,15 @@ const en = {
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
        "Reset filters" was wrong for someone who had only typed something. */
-    emptyTitle: 'Nothing here.',
+    emptyTitle: 'This plate stays empty.',
     emptyKickerSearch: 'Your search',
     emptyKickerFilter: 'Your filters',
-    emptyKickerBoth: 'Your search and filters',
-    emptyBodySearch: 'Nothing matches “{query}”. Try a name, a cuisine, a district or a street.',
-    emptyBodyFilter: 'Together these leave nothing. Loosen one — or start over.',
-    emptyBodyBoth:
-      'With these filters nothing matches “{query}”. Loosen one — or search without them.',
-    emptyReset: 'Reset filters',
+    emptyKickerBoth: 'Search and filters',
+    emptyBodySearch: 'Nothing on the map for “{query}”. Try a spot, a dish or a neighbourhood.',
+    emptyBodyFilter:
+      'We didn’t find any spots for this combination of filters. Remove a filter and keep looking.',
+    emptyBodyBoth: 'With these filters nothing fits “{query}”. Drop one.',
+    emptyReset: 'Clear all filters',
     emptyResetSearch: 'Clear search',
     // Card metaphor, matching the reveal mechanic. The map list no longer has a
     // locked variant of its own — every match is a row, and this is the one
@@ -517,16 +517,16 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        sondern nur etwas eingetippt hatte. Der Kicker benennt jetzt, worin man
        steckt, und der Suchtext nennt die Anfrage beim Namen — sonst bleibt
        offen, ob man sich vertippt hat oder ob es das wirklich nicht gibt. */
-    emptyTitle: 'Nichts dabei.',
+    emptyTitle: 'Hier bleibt der Teller leer.',
     emptyKickerSearch: 'Deine Suche',
     emptyKickerFilter: 'Deine Filter',
-    emptyKickerBoth: 'Deine Suche und Filter',
+    emptyKickerBoth: 'Suche und Filter',
     emptyBodySearch:
-      'Zu „{query}" haben wir nichts. Probier einen Namen, eine Küche, einen Bezirk oder eine Straße.',
-    emptyBodyFilter: 'Zusammen lassen sie nichts übrig. Lockere einen — oder fang neu an.',
-    emptyBodyBoth:
-      'Mit diesen Filtern haben wir zu „{query}" nichts. Lockere einen — oder such ohne sie.',
-    emptyReset: 'Filter zurücksetzen',
+      'Zu „{query}" steht nichts auf der Karte. Versuch einen Spot, ein Gericht oder einen Kiez.',
+    emptyBodyFilter:
+      'Für diese Filterkombination haben wir keine Spots gefunden. Entferne einen Filter und schau dich weiter um.',
+    emptyBodyBoth: 'Zu „{query}" passt mit diesen Filtern nichts. Nimm einen raus.',
+    emptyReset: 'Alle Filter raus',
     emptyResetSearch: 'Suche löschen',
     lockedDetailKicker: 'Noch verdeckt',
     hiddenMustEatAria: 'Verdecktes Must Eat',

@@ -1,4 +1,5 @@
-/* Map controls: folded foil surfaces and precise, straight icons.
+/* Map controls: search, menu and panel tab on tape (globals.css), paper for the rest,
+   precise straight icons.
    Positioning preserves the phone visual viewport and sheet-edge dock;
    tablet controls retreat with transform, desktop controls follow the rail. */
 .mapSearchBtn,
@@ -23,9 +24,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.mapSearchBtn:focus-visible,
 .fab:focus-visible,
-.panelToggle:focus-visible,
 .mapSearchClear:focus-visible {
   background-color: color-mix(in srgb, var(--et-fg) 20%, var(--et-ground));
   background-image: url('/pics/paper/folded-white.webp');
@@ -39,9 +38,7 @@
 }
 
 @media (hover: hover) {
-  .mapSearchBtn:hover,
   .fab:hover,
-  .panelToggle:hover,
   .mapSearchClear:hover {
     background-color: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
     background-image: url('/pics/paper/folded-white.webp');
@@ -51,6 +48,46 @@
     color: var(--et-fg);
     border: 0;
     box-shadow: none;
+  }
+}
+
+/* Search is tape like the filters and the menu (tokens in globals.css). */
+.mapSearchBtn {
+  color: var(--et-tape-fg);
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  border-radius: 0;
+  box-shadow: none;
+}
+.mapSearchBtn:focus-visible {
+  background: none;
+  filter: brightness(0.95);
+}
+@media (hover: hover) {
+  .mapSearchBtn:hover {
+    background: none;
+    filter: brightness(0.95);
+  }
+}
+
+/* The desktop panel tab is a short piece of the same tape. */
+.panelToggle {
+  color: var(--et-tape-fg);
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+}
+.panelToggle:focus-visible {
+  background: none;
+  filter: brightness(0.95);
+}
+@media (hover: hover) {
+  .panelToggle:hover {
+    background: none;
+    filter: brightness(0.95);
   }
 }
 
@@ -166,18 +203,14 @@
   padding: 0 10px 0 13px;
   overflow: hidden;
 
-  background-color: var(--et-ground);
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: 240px 360px;
-  background-position: center;
-  background-blend-mode: multiply;
-  color: var(--et-fg);
-  border: 0;
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  color: var(--et-tape-fg);
   border-radius: 0;
   box-shadow: none;
   filter: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
   animation: none;
   clip-path: none;
   pointer-events: auto;
@@ -190,11 +223,11 @@
 
 .mapSearchToolbar:focus-within {
   outline: 0;
-  box-shadow: none;
 }
 .mapSearchToolbar:has(:focus-visible) {
   outline: 0;
-  background-color: color-mix(in srgb, var(--et-fg) 8%, var(--et-ground));
+  background: none;
+  filter: brightness(0.95);
 }
 
 @media (max-width: 520px) {
@@ -252,6 +285,10 @@
 }
 
 .mapSearchSuggestions {
+  /* Large sheets take the high-resolution cut of the same piece. */
+  --et-tape-img: url('/pics/tape/gaffer-2-white-hd.webp');
+  --et-tape-slice: 38 27 34 36 fill;
+  --et-tape-width: 6px 4px 6px 5px;
   position: absolute;
   top: calc(14px + env(safe-area-inset-top, 0px) + 50px);
   left: 14px;
@@ -262,16 +299,13 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 6px 0;
-  background-color: var(--et-ground);
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: 240px 360px;
-  background-position: center;
-  background-blend-mode: multiply;
-  color: var(--et-fg);
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  color: var(--et-tape-fg);
   border-radius: 0;
   box-shadow: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
 }
 
 .mapSearchSuggestions ul {
@@ -589,4 +623,7 @@
   .mapSearchBtn { width: 44px; min-width: 44px; height: 44px; }
   .fab { flex-basis: 44px; width: 44px; height: 44px; }
   .mapSearchToolbar { height: 44px; }
+}
+:global(html[data-theme='dark']) .mapSearchSuggestions {
+  --et-tape-img: url('/pics/tape/gaffer-2-black-hd.webp');
 }

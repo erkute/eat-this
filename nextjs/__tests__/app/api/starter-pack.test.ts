@@ -177,6 +177,20 @@ describe('/api/starter-pack', () => {
     for (const id of ['m01', 'm02', 'm03']) expect(all).not.toContain(id);
   });
 
+  it('adds 20 distinct cards on top of the eight public cards', async () => {
+    const publicIds = Array.from({ length: 8 }, (_, i) => `m${String(i + 1).padStart(2, '0')}`);
+    faceUp.ids = new Set(publicIds);
+
+    const response = await POST(req());
+    expect(await response.json()).toMatchObject({ granted: true, count: 20, faceUp: 10 });
+    const doc = mocks.created[0] as { mustEatIds: string[]; coveredMustEatIds: string[] };
+    const added = [...doc.mustEatIds, ...doc.coveredMustEatIds];
+    expect(added).toHaveLength(20);
+    expect(doc.coveredMustEatIds).toHaveLength(10);
+    expect(new Set([...publicIds, ...added]).size).toBe(28);
+    for (const id of publicIds) expect(added).not.toContain(id);
+  });
+
   /* Reicht der Stapel nicht, bekommt die offene Hälfte den Vorrang: lieber
      weniger zu holen als weniger zu sehen. */
   it('gives out what is left when the deck is smaller than the pack', async () => {

@@ -50,7 +50,7 @@ function RestaurantMarker({
       }
     >
       <span className={styles.pinLogoShape} aria-hidden="true">
-        <img className={styles.pinLogoArt} src="/pics/map/spot-marker.webp?v=2" alt="" width={192} height={219} draggable={false} />
+        <img className={styles.pinLogoArt} src="/pics/map/spot-marker.webp?v=4" alt="" width={192} height={219} draggable={false} />
       </span>
     </MarkerButton>
   );

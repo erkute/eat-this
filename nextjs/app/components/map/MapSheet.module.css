@@ -75,6 +75,11 @@
     transform: translateX(100%);
   }
 
+  /* The list lies on the hero's silver paper (globals.css). */
+  .list[data-view='list'] {
+    background: var(--et-list-paper);
+  }
+
   .handle {
     display: none;
   }
@@ -217,7 +222,7 @@
   }
 
   .list[data-view='list'] .listScroll {
-    background: var(--map-collage-paper, #fff);
+    background: var(--et-list-paper-tile);
     isolation: isolate;
   }
 

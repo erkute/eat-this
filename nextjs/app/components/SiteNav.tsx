@@ -7,6 +7,7 @@ import Image from '@/app/components/SiteImage';
 import { useTranslation } from '@/lib/i18n';
 import { Link, usePathname } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
+import HeaderWordmark from './HeaderWordmark';
 import { openBurgerDrawer } from './burgerDrawerState';
 import styles from './SiteNav.module.css';
 
@@ -178,7 +179,7 @@ export default function SiteNav() {
         {/* Left: map text */}
         <div className={`${styles.actions} ${styles.actionsStart}`}>
           <MapIntentLink href="/map" className={styles.control} id="navMapBtn" aria-label="Map">
-            <span className={styles.mapWord}>Map</span>
+            <HeaderWordmark word="map" />
           </MapIntentLink>
         </div>
         {/* Center: Logo */}
@@ -206,7 +207,7 @@ export default function SiteNav() {
             aria-expanded="false"
             onClick={openBurgerDrawer}
           >
-            <span className={styles.menuWord}>{lang === 'de' ? 'Menü' : 'Menu'}</span>
+            <HeaderWordmark word="menu" locale={lang} />
           </button>
         </div>
       </nav>

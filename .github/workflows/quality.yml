@@ -207,11 +207,25 @@ jobs:
           path: /tmp
       - run: tar --zstd -xf /tmp/next-verify.tar.zst
 
-      # apt can exceed five minutes on a slow mirror while still downloading.
-      # Keep a bounded installation so a stuck mirror cannot hold the release.
+      # The runner's Azure mirror list crawled on 26.10.2026 (one package took
+      # 90s; the step hit its limit three runs in a row), while the main
+      # archive answered at once — so apt uses the main archive. A timed-out
+      # try leaves apt-get holding the dpkg lock (timeout only stops npx), so
+      # a retry first clears the stuck processes and locks.
       - name: Install Chromium and WebKit
-        timeout-minutes: 10
-        run: npx playwright install --with-deps chromium webkit
+        timeout-minutes: 18
+        run: |
+          sudo sed -i 's#mirror+file:/etc/apt/apt-mirrors.txt#http://archive.ubuntu.com/ubuntu/#g' \
+            /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list 2>/dev/null || true
+          for attempt in 1 2; do
+            if timeout 8m npx playwright install --with-deps chromium webkit; then exit 0; fi
+            echo "::warning::Browser install attempt $attempt failed"
+            sudo pkill -9 -x apt-get || true
+            sudo pkill -9 -x dpkg || true
+            sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock /var/lib/apt/lists/lock
+            sudo dpkg --configure -a || true
+          done
+          exit 1
 
       - uses: actions/setup-java@v4
         with:

@@ -257,10 +257,10 @@
 }
 .nav .actions { position: relative; z-index: 1; }
 .actionsStart { gap: 24px; }
-.logoImg { height: 24px; }
+.logoImg { height: 36px; }
 @media(max-width:600px) {
   .actionsStart { gap: 16px; }
-  .nav .logoImg { height: 18px; }
+  .nav .logoImg { height: 27px; }
 }
 
 :global(html[data-theme='dark']) .logoImg { filter: invert(1); }

@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND_WORDMARK } from '@/lib/constants';
 import { useCallback, useEffect, type ComponentProps } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useLoginModal } from '@/lib/auth';
@@ -149,7 +150,7 @@ export default function BurgerDrawer() {
           <DrawerLink href="/" className={styles.logo}
             aria-label={lang === 'de' ? 'Eat This — Start' : 'Eat This — Home'}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/pics/home/wordmark.webp?v=1" alt="Eat This" width="1124" height="274" loading="lazy" decoding="async" />
+            <img {...BRAND_WORDMARK} alt="Eat This" loading="lazy" decoding="async" />
           </DrawerLink>
           <button type="button" className={styles.close} id="burgerClose" aria-label={lang === 'de' ? 'Schließen' : 'Close'} onClick={() => closeBurger(true)}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" /></svg>

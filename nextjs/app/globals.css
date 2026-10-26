@@ -162,7 +162,6 @@
   --et-magazine-table: #0b0a08;
   --et-white: #fff;
   --et-red: #d9382a;
-  --et-status-open: #dce8bf;
   --et-status-closed: #b52d25;
   /* Ari’s Berlin: https://www.arisberlin.com/menu */
   --et-accent: #a82b2e;
@@ -1795,6 +1794,8 @@ ol {
 }
 /* Map menu follows the compact filter typography and paper height. */
 .et-btn.et-btn-map-control {
+  background-image: url('/pics/home/silver-hero/paper.webp');
+  background-size: 400px auto;
   min-height: 40px;
   padding-inline: 7px;
   font: 800 11px / 1.2 var(--et-font-body);
@@ -1879,10 +1880,9 @@ html[data-theme='dark'] .et-btn-text {
   background: #fff;
   color: var(--et-ink);
 }
+/* „Geöffnet" ist schwarz wie ein gesetzter Filter, nicht mehr grün (26.10.2026). */
 .et-label-open {
-  background: linear-gradient(rgb(220 232 191 / 0.9), rgb(220 232 191 / 0.9)),
-    var(--et-status-open) url('/pics/paper/folded-white.webp') center / 240px 360px;
-  color: var(--et-ink);
+  --et-label-bg: var(--et-ink);
 }
 .et-label-closed {
   background: var(--et-status-closed);

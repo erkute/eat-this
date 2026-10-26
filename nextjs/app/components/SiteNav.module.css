@@ -125,17 +125,6 @@
 }
 
 
-.mapWord,
-.menuWord {
-  display: inline-block;
-  font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 @media (max-width: 767.98px) {
   /* Ein- und Ausfahren schiebt Fläche (::before) und Inhalt, nicht die Leiste
      selbst; nach dem Ausfahren nimmt `collapsed` sie ganz aus dem Rendering.
@@ -200,14 +189,6 @@
     padding-inline: 12px;
   }
 
-  .mapWord,
-  .menuWord {
-    /* Neben der 18 px hohen Wortmarke waren 16 px Versalien fast so laut
-       wie das Logo (22.10.2026) — kleiner, dafür etwas weiter gesperrt. */
-    font-size: 14px;
-    letter-spacing: 0.06em;
-  }
-
   .logoImg {
     height: 30px;
   }
@@ -222,8 +203,6 @@
 @media (prefers-reduced-motion: reduce) {
   .nav:not([data-nav-page='map'])::before,
   .nav:not([data-nav-page='map']) > * { transition: none; }
-  .control:is(:hover, :active, :focus-visible) .mapWord,
-  .control:is(:hover, :active, :focus-visible) .menuWord { animation: none; }
 }
 /* Die Lesefläche füllt den Header; die Bedienung bleibt darüber. */
 .nav:not([data-nav-page='map']) > .readingProgress {

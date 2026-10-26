@@ -1,4 +1,4 @@
-/* Folded white paper, heavy black type; dark mode uses the same material
+/* Silver hero paper, heavy black type; dark mode uses the same material
    multiplied into the ground. Phone pickers remain modal, desktop inline. */
 .listHeader {
   position: relative;
@@ -9,9 +9,11 @@
   padding-bottom: 10px;
 }
 .filterChipRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto auto;
-  align-items: center;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  align-items: stretch;
   gap: 4px;
   width: 100%;
   min-width: 0;
@@ -19,6 +21,8 @@
   box-sizing: border-box;
   touch-action: pan-x pan-y;
 }
+.filterChipRow::-webkit-scrollbar { display: none; }
+.filterChipRow > * { flex: 1 0 max-content; }
 .filterChipWrap {
   position: relative;
   display: flex;
@@ -28,14 +32,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1 0 auto;
+  min-width: max-content;
   min-height: 40px;
-  padding: 0 7px;
+  padding: 8px 7px;
   border: 0;
   border-radius: 0;
   background-color: var(--et-ground);
-  background-image: var(--et-window-paper);
+  background-image: linear-gradient(#ffffff4d, #ffffff4d), url('/pics/home/silver-hero/paper.webp');
   background-size: 400px 600px;
   background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
   background-blend-mode: multiply;
@@ -54,26 +58,22 @@
 .filterChipRow .filterChipLabel {
   display: block;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   font: inherit;
   color: inherit;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   white-space: nowrap;
 }
 /* Jeder gesetzte oder geöffnete Filter bleibt ein schwarzes Knitterblatt. */
 .filterChipRow .filterChipActive,
+.filterChipRow .filterChipOpenActive,
 .filterChipRow .filterChip[aria-expanded='true'] {
   background-color: #fff;
-  background-image: var(--et-window-paper);
+  background-image: url('/pics/home/silver-hero/paper.webp');
   background-size: 400px 600px;
   background-position: var(--filter-paper-x, 0px) var(--filter-paper-y, -180px);
   background-blend-mode: difference;
   color: #fff;
-}
-.filterChipRow .filterChipOpenActive {
-  background-color: var(--et-status-open);
-  background-blend-mode: multiply;
-  color: var(--et-ink);
 }
 .filterChipRow .filterChipActive { padding-right: 28px; }
 /* Separate sibling button, so clearing a filter never nests buttons. */
@@ -151,7 +151,7 @@
   max-height: 70vh;
   padding: 12px;
   background-color: var(--et-ground);
-  background-image: var(--et-window-paper);
+  background-image: linear-gradient(#ffffff4d, #ffffff4d), url('/pics/home/silver-hero/paper.webp');
   background-size: 100% 100%;
   background-blend-mode: multiply;
   color: var(--et-fg);
@@ -277,6 +277,7 @@
   /* 40px Papierfläche und Burger liegen beide mittig auf y=36px. */
   .filterChipRow { padding: 16px 8px 0; }
 }
+/* Keep full labels on one rail; narrow panels scroll instead of truncating. */
 @container (max-width: 374px) {
   .filterChipRow { padding-inline: 4px; }
   .filterChipRow .filterChip { padding-inline: 6px; letter-spacing: 0; }

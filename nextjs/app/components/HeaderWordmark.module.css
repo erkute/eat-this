@@ -1,0 +1,37 @@
+.wordmark {
+  display: block;
+  flex: none;
+  background: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: 100% 100%;
+}
+
+.menu,
+.menuEn {
+  height: 18px;
+}
+
+.menu {
+  width: 62.64px;
+  mask-image: url('/pics/navigation/menu.webp');
+}
+
+.menuEn {
+  width: 64.62px;
+  mask-image: url('/pics/navigation/menu-en.webp');
+}
+
+/* The p extends below the baseline; match the capital M, not the full box. */
+.map {
+  width: 48.96px;
+  height: 23.04px;
+  margin-bottom: -5.04px;
+  mask-image: url('/pics/navigation/map.webp');
+}
+
+@media (max-width: 520px) {
+  .menu { width: 55.68px; height: 16px; }
+  .menuEn { width: 57.44px; height: 16px; }
+  .map { width: 43.52px; height: 20.48px; margin-bottom: -4.48px; }
+}

@@ -1,3 +1,4 @@
+import { BRAND_WORDMARK } from '@/lib/constants';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
@@ -209,7 +210,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               <section>
                 <h2 className={`${styles.secTitle} ${styles.favoritesTitle}`}>
                   {top.length > 0
-                    ? <><Image src="/pics/home/wordmark.webp?v=1" alt="Eat This" width={1124} height={274} sizes="(max-width: 767px) 124px, 150px" /><span>Favorites</span></>
+                    ? <><Image {...BRAND_WORDMARK} alt="Eat This" sizes="(max-width: 767px) 124px, 150px" /><span>Favorites</span></>
                     : de
                       ? 'Wo du essen solltest'
                       : 'Where to eat'}

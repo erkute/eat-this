@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getArticleBySlug, getAllArticleSlugs, getAllNewsArticles } from '@/lib/sanity.server';
 import { serializeJsonLd, buildArticleSpotsItemList } from '@/lib/json-ld';
-import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
+import { BRAND_WORDMARK, OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { localeUrl } from '@/lib/locale-url';
 import { INDEXABLE_ROBOTS, toOgLocale } from '@/lib/seo/metadata';
 import { metadataSource } from '@/lib/seo/metadataSource';
@@ -122,7 +122,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
           '@type': 'Organization',
           name: 'Eat This Berlin',
           url: SITE_URL,
-          logo: { '@type': 'ImageObject', url: `${SITE_URL}/pics/logo.webp` },
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}${BRAND_WORDMARK.src}` },
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': localeUrl(locale, `/news/${slug}`) },
         inLanguage: de ? 'de' : 'en',

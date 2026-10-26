@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND_WORDMARK } from '@/lib/constants';
 import { useEffect, useRef } from 'react';
 import { appScroller } from '@/lib/dom/appScroller';
 import Image from '@/app/components/SiteImage';
@@ -192,11 +193,9 @@ export default function SiteNav() {
               Bild tritt zurück, solange der Flieger seinen Platz besetzt. */}
           <Link href="/" className={styles.logo} aria-label="Eat This — Start" data-nav-logo="">
             <Image
-              src="/pics/home/wordmark.webp?v=1"
+              {...BRAND_WORDMARK}
               alt="Eat This"
-              width={1124}
-              height={274}
-              sizes="80px"
+              sizes="(min-width: 768px) 108px, 81px"
               loading="lazy"
               decoding="async"
               className={styles.logoImg}

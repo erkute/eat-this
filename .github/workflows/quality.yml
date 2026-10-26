@@ -207,11 +207,19 @@ jobs:
           path: /tmp
       - run: tar --zstd -xf /tmp/next-verify.tar.zst
 
-      # apt can exceed five minutes on a slow mirror while still downloading.
-      # Keep a bounded installation so a stuck mirror cannot hold the release.
+      # apt can crawl on a slow Azure mirror (one package took 90s and the
+      # whole step hit its limit twice in a row on 26.10.2026). Bounded tries;
+      # after a failed one, apt leaves the mirror list for the main archive.
       - name: Install Chromium and WebKit
-        timeout-minutes: 10
-        run: npx playwright install --with-deps chromium webkit
+        timeout-minutes: 20
+        run: |
+          for attempt in 1 2 3; do
+            if timeout 6m npx playwright install --with-deps chromium webkit; then exit 0; fi
+            echo "::warning::Browser install attempt $attempt failed; switching apt to archive.ubuntu.com"
+            sudo sed -i 's#mirror+file:/etc/apt/apt-mirrors.txt#http://archive.ubuntu.com/ubuntu/#g' \
+              /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list 2>/dev/null || true
+          done
+          exit 1
 
       - uses: actions/setup-java@v4
         with:

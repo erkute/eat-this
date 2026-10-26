@@ -576,7 +576,7 @@ export default function RestaurantDetail({
             <div className={styles.packPromoCardWrap} aria-hidden="true">
               <img
                 src={
-                  isAnon ? '/pics/home/starter-pack-front.webp' : '/pics/booster/booster_lunch.webp?v=2'
+                  isAnon ? '/pics/home/starter-pack-front.webp' : '/pics/booster/booster_lunch.webp?v=3'
                 }
                 alt=""
                 loading="lazy"

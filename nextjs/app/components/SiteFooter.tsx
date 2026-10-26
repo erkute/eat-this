@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation';
 import styles from './SiteFooter.module.css';
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '@/lib/guestCardShake';
+import BrandSlogan from './BrandSlogan';
 import { ThemeSwitch } from './ThemeSwitch';
 
 export default function SiteFooter() {
@@ -60,11 +61,10 @@ export default function SiteFooter() {
               />
             </Link>
           </h2>
-          {/* Echter Text statt des früheren slogan.webp: das Bild war in einer
-              kondensierten Fremdschrift gesetzt und stach damit aus dem
-              Providence-Footer heraus. Als Text ist der Claim außerdem
-              auswählbar, skaliert mit und spart einen Bild-Request. */}
-          <p className={styles.tagline}>we tell you what to eat</p>
+          <p className={styles.tagline}>
+            <span className={styles.accessible}>We tell you what to eat</span>
+            <BrandSlogan />
+          </p>
         </div>
       </div>
 

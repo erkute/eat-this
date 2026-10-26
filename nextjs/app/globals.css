@@ -1758,11 +1758,8 @@ ol {
     background-color var(--et-motion-fast),
     color var(--et-motion-fast);
 }
-/* Flat editorial CTA, shared button behavior with a quiet artwork surface. */
-.et-btn.et-btn-editorial {
-  border-radius: 2px;
-  background-image: none;
-}
+/* The homepage shares the angular button shape across its sections. */
+.homeV2 .et-btn { border-radius: 2px; }
 .et-btn-sm {
   min-height: var(--et-btn-h-sm);
   padding-inline: var(--et-btn-pad-sm);

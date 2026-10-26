@@ -58,7 +58,7 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
               <div ref={track} className={styles.track}>
                 {descriptions.map((description, index) => (
                   <div key={description} className={styles.slide} aria-hidden={index !== active}>
-                    <Image src={`/pics/home-map/screen-${index + 1}.webp`} alt={description} width={660} height={1434} unoptimized loading={visible ? 'eager' : 'lazy'} sizes="(max-width: 767px) 76vw, 360px" className={styles.screen} />
+                    <Image src={`/pics/home-map/screen-${index + 1}.webp`} alt={description} width={660} height={1434} unoptimized loading={visible ? 'eager' : 'lazy'} sizes="(max-width: 411px) 68vw, (max-width: 767px) 280px, 360px" className={styles.screen} />
                   </div>
                 ))}
               </div>

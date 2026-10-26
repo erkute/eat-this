@@ -317,34 +317,186 @@
     {
       "order": 40,
       "file": "040.png",
-      "spot": "Bar Basta",
       "dish": "Olive Oil Gin Fizz",
       "descriptionEn": "Gin, lemon, bay leaf syrup, olive brine & a hint of pastis.",
-      "description": "Gin, Zitrone, Lorbeersirup, Olivenlake und ein Hauch Pastis."
+      "description": "Gin, Zitrone, Lorbeersirup, Olivenlake und ein Hauch Pastis.",
+      "spot": "Bar Basta"
     },
     {
       "order": 41,
       "file": "041.png",
-      "spot": "Ari’s",
       "dish": "Green Goddess",
       "descriptionEn": "Iceberg lettuce, herb dressing, crispy chilli & chives.",
-      "description": "Eisbergsalat, Kräuterdressing, Crispy Chili und Schnittlauch."
+      "description": "Eisbergsalat, Kräuterdressing, Crispy Chili und Schnittlauch.",
+      "spot": "Ari's"
     },
     {
       "order": 42,
       "file": "042.png",
-      "spot": "Ari’s",
       "dish": "Lima Kreuzburger",
       "descriptionEn": "Beef patty, crispy potato sticks & ají amarillo.",
-      "description": "Rindfleisch-Patty, knusprige Kartoffelstäbchen und Ají Amarillo."
+      "description": "Rindfleisch-Patty, knusprige Kartoffelstäbchen und Ají Amarillo.",
+      "spot": "Ari's"
     },
     {
       "order": 43,
       "file": "043.png",
-      "spot": "Bonanza Coffee Heroes",
       "dish": "Cappuccino",
       "descriptionEn": "Espresso & steamed milk.",
-      "description": "Espresso und aufgeschäumte Milch."
+      "description": "Espresso und aufgeschäumte Milch.",
+      "spot": "Bonanza Coffee Heroes"
+    },
+    {
+      "order": 44,
+      "file": "044.png",
+      "dish": "Super Smash TS",
+      "descriptionEn": "Beef, cheese, special sauce, lettuce, pickles, tomato & onion.",
+      "description": "Rindfleisch, Käse, Special Sauce, Salat, Essiggurken, Tomate und Zwiebel.",
+      "spot": "goldies"
+    },
+    {
+      "order": 45,
+      "file": "045.png",
+      "dish": "Hojicha Cheesecake",
+      "descriptionEn": "Hojicha, hazelnut & hazelnut crunch.",
+      "description": "Hojicha, Haselnuss und Haselnuss-Crunch.",
+      "spot": "amatō"
+    },
+    {
+      "order": 46,
+      "file": "046.png",
+      "dish": "Octopus Tagliolini",
+      "descriptionEn": "Tagliolini with octopus.",
+      "description": "Tagliolini mit Oktopus.",
+      "spot": "Arturo"
+    },
+    {
+      "order": 47,
+      "file": "047.png",
+      "dish": "Wok Aubergine",
+      "descriptionEn": "Wok aubergine with onsen egg.",
+      "description": "Aubergine aus dem Wok mit Onsen-Ei.",
+      "spot": "Boii Boii"
+    },
+    {
+      "order": 48,
+      "file": "048.png",
+      "dish": "Cardamom Bun",
+      "descriptionEn": "Sourdough brioche with fresh cardamom.",
+      "description": "Sauerteig-Brioche mit frischem Kardamom.",
+      "spot": "ACID Mitte"
+    },
+    {
+      "order": 49,
+      "file": "049.png",
+      "dish": "Carrot Cake",
+      "descriptionEn": "Cream cheese ice cream, carrot caramel & pistachio gremolata.",
+      "description": "Frischkäse-Eis, Karottenkaramell und Pistazien-Gremolata.",
+      "spot": "Bertie"
+    },
+    {
+      "order": 50,
+      "file": "050.png",
+      "dish": "Chicken Fat Flatbread",
+      "descriptionEn": "Wood-fired flatbread made with chicken fat & chicken soup.",
+      "description": "Fladenbrot aus dem Holzofen mit Hühnerfett und Hühnersuppe.",
+      "spot": "stoke"
+    },
+    {
+      "order": 51,
+      "file": "051.png",
+      "dish": "Spring Chicken",
+      "descriptionEn": "Hot sauce, corn velouté, corn miso & lemon basil.",
+      "description": "Hot Sauce, Mais-Velouté, Mais-Miso und Zitronenbasilikum.",
+      "spot": "aerde restaurant"
+    },
+    {
+      "order": 52,
+      "file": "052.png",
+      "dish": "Chicken Melt",
+      "descriptionEn": "Tarragon chicken, cheese, pickled onions & tarragon mayo.",
+      "description": "Estragon-Hähnchen, Käse, eingelegte Zwiebeln und Estragon-Mayo.",
+      "spot": "Romeo's Sandwiches"
+    },
+    {
+      "order": 53,
+      "file": "053.png",
+      "dish": "Shepherd’s Salad",
+      "descriptionEn": "Tomato, cucumber & red onion.",
+      "description": "Tomate, Gurke und rote Zwiebel.",
+      "spot": "Kitten Deli"
+    },
+    {
+      "order": 54,
+      "file": "054.png",
+      "dish": "Chicken of the Woods",
+      "descriptionEn": "Sherry, mushroom stock, whiskey, parsley & chamomile.",
+      "description": "Sherry, Pilzfond, Whiskey, Petersilie und Kamille.",
+      "spot": "Velvet"
+    },
+    {
+      "order": 55,
+      "file": "055.png",
+      "dish": "Papa Rellena",
+      "descriptionEn": "Papa rellena with salsa criolla.",
+      "description": "Papa Rellena mit Salsa Criolla.",
+      "spot": "KINK Bar & Restaurant"
+    },
+    {
+      "order": 56,
+      "file": "056.png",
+      "dish": "Iced V60",
+      "descriptionEn": "Kenyan filter coffee served over ice.",
+      "description": "Kenianischer Filterkaffee auf Eis.",
+      "spot": "BEN RAHIM Berlin"
+    },
+    {
+      "order": 57,
+      "file": "057.png",
+      "dish": "Scallops & Greens",
+      "descriptionEn": "Scallops, green tomato & green strawberry.",
+      "description": "Jakobsmuscheln, grüne Tomate und grüne Erdbeere.",
+      "spot": "Barra"
+    },
+    {
+      "order": 58,
+      "file": "058.png",
+      "dish": "Carrot Risotto",
+      "descriptionEn": "Carrot risotto with goat cheese & honey.",
+      "description": "Karottenrisotto mit Ziegenkäse und Honig.",
+      "spot": "Bergmanns"
+    },
+    {
+      "order": 59,
+      "file": "059.png",
+      "dish": "Vadouvan Scallops",
+      "descriptionEn": "Scallops with vadouvan.",
+      "description": "Jakobsmuscheln mit Vadouvan.",
+      "spot": "Bottega Seppel"
+    },
+    {
+      "order": 60,
+      "file": "060.png",
+      "dish": "Chicken Ramen",
+      "descriptionEn": "Ramen with chicken chashu.",
+      "description": "Ramen mit Hähnchen-Chashu.",
+      "spot": "SORI Ramen"
+    },
+    {
+      "order": 61,
+      "file": "061.png",
+      "dish": "Aji Fry",
+      "descriptionEn": "Panko horse mackerel, plum ketchup, lemon & chives.",
+      "description": "Stöcker in Panko, Pflaumenketchup, Zitrone und Schnittlauch.",
+      "spot": "Julius Ernst"
+    },
+    {
+      "order": 62,
+      "file": "062.png",
+      "dish": "Bibim Gugsu",
+      "descriptionEn": "Buckwheat noodles, perilla, seaweed marinade & perilla oil.",
+      "description": "Buchweizennudeln, Perilla, Algenmarinade und Perillaöl.",
+      "spot": "NaNum"
     }
   ]
 }

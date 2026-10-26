@@ -49,7 +49,7 @@
   color: var(--et-tape-fg);
   /* All four set must fit the panel without swiping (Ersan 26.10.2026):
      the type follows the bar's width, 11px at most. */
-  font: 800 clamp(8px, 2.35cqi, 11px) / 1.2 var(--et-font-body);
+  font: 800 clamp(8px, 2.25cqi, 11px) / 1.2 var(--et-font-body);
   letter-spacing: 0.02em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -114,17 +114,18 @@
   border-image-source: var(--et-tape-active-img);
   color: var(--et-tape-active-fg);
 }
-.filterChipRow .filterChipActive { padding-right: 21px; }
+.filterChipRow .filterChipActive { padding-right: 24px; }
 /* Separate sibling button, so clearing a filter never nests buttons. */
 .filterChipClear {
   position: absolute;
   top: 50%;
   /* Clear of the torn end of the strip. */
-  right: 2px;
+  right: 0;
   z-index: 1;
   display: grid;
   place-items: center;
-  width: 20px;
+  /* 24px: the smallest target the a11y check allows. */
+  width: 24px;
   height: 40px;
   padding: 0;
   border: 0;
@@ -337,8 +338,8 @@
 /* Keep full labels on one rail; narrow panels scroll instead of truncating. */
 @container (max-width: 374px) {
   .filterChipRow { padding-inline: 4px; }
-  .filterChipRow .filterChip { padding-inline: 6px; letter-spacing: 0; }
-  .filterChipRow .filterChipActive { padding-right: 22px; }
+  .filterChipRow .filterChip { padding-inline: 5px; letter-spacing: 0; }
+  .filterChipRow .filterChipActive { padding-right: 24px; }
 }
 @media (max-width: 374px) { .pickerItemLabel { font-size: 14px; } }
 @media (prefers-reduced-motion: reduce) {

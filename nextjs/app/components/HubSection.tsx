@@ -3,7 +3,7 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import HubFaq from './HubFaq';
 import HubFragRemy from './HubFragRemy';
 import HubHeroCopy from './HubHeroCopy';
-import HeroMarkFlight from './HeroMarkFlight';
+import HeroHeaderLogo from './HeroHeaderLogo';
 import HubHashScroll from './HubHashScroll';
 import HeroCurtain from './HeroCurtain';
 import HubMotion from './HubMotion';
@@ -33,7 +33,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
           <HubHeroCopy locale={locale} />
         </div>
       </section>
-      <HeroMarkFlight />
+      <HeroHeaderLogo />
       <HubMotion />
       <HubMapIntro locale={locale} />
       <HomeMapDataProvider initialMapData={initialMapData}>

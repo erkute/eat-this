@@ -213,29 +213,9 @@
   }
 }
 
-/* Solange die Wortmarke aus dem Aufmacher unterwegs in den Header ist, besetzt
-   sie dessen Logoplatz — das eingebaute Bild stünde sonst doppelt. Gesetzt wird
-   das Attribut von HeroMarkFlight, also nur auf der Startseite und nur unter
-   768px. `visibility` statt `display`, damit der Slot seine Maße behält: der
-   Flieger misst sich genau an ihnen aus. */
-/* … aber nur, solange die Marke unterwegs ist. Ist sie angekommen
-   (`data-hero-landed`), übernimmt wieder das eingebaute Bild — und nur so
-   fährt die Marke mit dem Header nach oben weg, wenn der beim Weiterscrollen
-   wegklappt. Der Flieger ist `position: fixed` am body und würde allein
-   stehen bleiben. */
-:global(html[data-hero-flight='on']:not([data-hero-landed])) .logoImg {
-  visibility: hidden;
-}
-
-/* Während des Ladeauftritts (HubSection.module.css) wird die Wortmarke im
-   Aufmacher gerade aufgezogen — HeroMarkFlight steht da oft noch gar nicht,
-   es wartet auf die Hydrierung. Ohne diese Regel stünde oben die zweite Marke
-   daneben und verschwände dann mitten im Auftritt. Danach übernimmt die Regel
-   darüber.
-   Nur auf der Startseite: verlässt jemand sie mitten im Auftritt, bleibt das
-   Attribut stehen (das Aufräumen in HubMotion läuft dann nicht mehr), und ohne
-   die Seitenbedingung fehlte das Logo auf jeder weiteren Seite. */
-:global(html[data-hero-intro][data-active-page='start']) .logoImg {
+/* No flying duplicate: reveal the header mark once the hero mark is out of view.
+   The default also prevents a duplicate before hydration. */
+:global(html[data-active-page='start']:not([data-hero-mark-out])) .logoImg {
   visibility: hidden;
 }
 

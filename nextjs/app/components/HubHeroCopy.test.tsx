@@ -45,68 +45,31 @@ function render(locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(<HubHeroCopy locale={locale} />);
 }
 
-/** Der Lead steht Wort für Wort in eigenen Spans (er tippt sich hin) —
- *  Sätze darin also am Text prüfen, nicht am Markup. */
-function text(html: string): string {
-  return html.replace(/<[^>]+>/g, '');
-}
-
 describe('HubHeroCopy', () => {
-  beforeEach(() => {
-    authState.user = null;
-    authState.loading = false;
-  });
+  beforeEach(() => { authState.user = null; authState.loading = false; });
 
-  it('renders the reference copy for signed-out visitors', () => {
+  it('renders one accessible headline and the three selected Must Eats', () => {
     const html = render();
-    // Die Wortmarke steht jetzt dort, wo „Was du essen solltest." stand — die
-    // Zeile sagte dasselbe wie die Headline direkt darunter. `data-hero-mark`
-    // ist zugleich der Anker, an dem HeroMarkFlight sie findet.
-    expect(html).toContain('data-hero-mark');
-    expect(html).not.toContain('Was du essen solltest.');
-    expect(html).toContain('We tell you');
-    // One CTA only — the nearby prompt lives in the Nearby section now.
-    expect(html).toContain('Map entdecken');
-    expect(render('en')).toContain('Explore the map');
-    expect(html).not.toContain('Map öffnen');
-    expect(html).not.toContain('Was ist um mich?');
-    expect(html).not.toContain('Deine Map');
-  });
-
-  it('explains what this is — guests only', () => {
-    const html = text(render());
-    expect(html).toContain('Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must\u00a0Eats und sammle sie in deinem Deck. Alles auf einer Map');
-
-    const en = text(render('en'));
-    expect(en).toContain("Discover Berlin’s best restaurants, cafés and bars, try their Must\u00a0Eats and collect them in your deck. All on one map");
-  });
-
-  it('drops the explainer once a visitor is signed in', () => {
-    authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
-    const html = text(render());
-    expect(html).not.toContain('Entdecke Berlins beste Restaurants');
-  });
-
-  it('keeps the brand claim and greets signed-in visitors on a line of their own', () => {
-    authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
-    const html = render();
-    // Wortmarke und Claim gehören der Marke — angemeldet kein zweiter Claim.
-    expect(html).toContain('We tell you');
-    expect(html).not.toContain('Deine Map wartet');
-    expect(text(html)).toContain('Hey Ersan.');
-    expect(html).toContain('href="/profile"');
-    expect(html).toContain('Profil');
-    expect(html).not.toContain('Was ist um mich?');
-  });
-
-  it('renders matched pre-paint shells while auth is loading', () => {
-    authState.loading = true;
-    const html = render();
-    expect(html).toContain('data-guest-only');
-    expect(html).toContain('data-auth-only');
-    expect(html).toContain('We tell you');
     expect(html.match(/<h1/g)).toHaveLength(1);
-    // The explainer is guest copy — one copy only, behind the guest gate.
-    expect(text(html).match(/Alles auf einer Map/g)).toHaveLength(1);
+    expect(html).toContain('We tell you what to eat');
+    expect(html).toContain('data-hero-mark');
+    expect(html).toContain('Spicy Thai Sausage · Bar Basta');
+    expect(html).toContain('Kinmedai Sashimi · November Brasserie');
+    expect(html).toContain('Sabich · Kitten Deli');
+    expect(html).toContain('href="/must-eats"');
+    expect(html).toContain('Must Eats entdecken');
+    expect(render('en')).toContain('Discover Must Eats');
+  });
+
+  it('keeps exactly the same hero before and after sign-in, including hydration', () => {
+    const guest = render();
+    authState.loading = true;
+    expect(render()).toBe(guest);
+    authState.loading = false;
+    authState.user = { displayName: 'Ersan Tester', email: 'ersan@example.com' };
+    expect(render()).toBe(guest);
+    expect(guest).not.toContain('data-auth-only');
+    expect(guest).not.toContain('data-guest-only');
+    expect(guest).not.toContain('href="/profile"');
   });
 });

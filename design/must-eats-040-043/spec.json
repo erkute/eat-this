@@ -1,0 +1,49 @@
+{
+  "add": [
+    {
+      "order": 40,
+      "id": "must-eat-bar-basta-olive-oil-gin-fizz",
+      "restaurantId": "restaurant-bar-basta",
+      "revealedForAnon": false,
+      "file": "040.png",
+      "dish": "Olive Oil Gin Fizz",
+      "descriptionEn": "Gin, lemon, bay leaf syrup, olive brine & a hint of pastis.",
+      "description": "Gin, Zitrone, Lorbeersirup, Olivenlake und ein Hauch Pastis.",
+      "price": ""
+    },
+    {
+      "order": 41,
+      "id": "must-eat-aris-green-goddess",
+      "restaurantId": "restaurant-ari-s",
+      "revealedForAnon": false,
+      "file": "041.png",
+      "dish": "Green Goddess",
+      "descriptionEn": "Iceberg lettuce, herb dressing, crispy chilli & chives.",
+      "description": "Eisbergsalat, Kräuterdressing, Crispy Chili und Schnittlauch.",
+      "price": ""
+    },
+    {
+      "order": 42,
+      "id": "must-eat-aris-lima-kreuzburger",
+      "restaurantId": "restaurant-ari-s",
+      "revealedForAnon": false,
+      "file": "042.png",
+      "dish": "Lima Kreuzburger",
+      "descriptionEn": "Beef patty, crispy potato sticks & ají amarillo.",
+      "description": "Rindfleisch-Patty, knusprige Kartoffelstäbchen und Ají Amarillo.",
+      "price": ""
+    },
+    {
+      "order": 43,
+      "id": "must-eat-bonanza-coffee-heroes-cappuccino",
+      "restaurantId": "restaurant-bonanza-coffee-heroes",
+      "revealedForAnon": false,
+      "file": "043.png",
+      "dish": "Cappuccino",
+      "descriptionEn": "Espresso & steamed milk.",
+      "description": "Espresso und aufgeschäumte Milch.",
+      "price": ""
+    }
+  ],
+  "retire": []
+}

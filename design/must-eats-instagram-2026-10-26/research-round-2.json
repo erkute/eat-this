@@ -1,0 +1,75 @@
+{
+  "checkedAt": "2026-10-26",
+  "status": "STOKE 050 und Aerde 051 in Figma angelegt, nicht veröffentlicht; weitere Kandidaten recherchiert.",
+  "method": "Restaurant-Eigenposts in Instagram geöffnet, sichtbaren Inhalt und datetime geprüft; Fotos visuell geprüft.",
+  "candidates": [
+    {
+      "restaurant": "STOKE",
+      "dish": "Chicken fat flatbread",
+      "source": "https://www.instagram.com/stoke.berlin/p/DdjCPWtDNOa/?img_index=11",
+      "date": "2026-09-21",
+      "priority": 1,
+      "photo": "Slide 11: vollständiges Fladenbrot auf ovalem Teller, keine Hände, 1440 x 1920",
+      "facts": "Mit Hühnersuppe und Hühnerfett, im Holzofen gebacken. Caption bezeichnet es als dauerhaftes Menügericht; Beilagen wechseln."
+    },
+    {
+      "restaurant": "Aerde",
+      "dish": "Corn-fed spring chicken",
+      "source": "https://www.instagram.com/aerde.berlin/p/DdygBEgCply/",
+      "date": "2026-09-27",
+      "priority": 2,
+      "photo": "Slide 1: vollständiger dunkler Teller, klare Kontur, keine Hände",
+      "facts": "Hot Sauce, Maisvelouté, Maismiso, grüne Koriandersamen, Zitronenbasilikum.",
+      "open": "Aktuelle saisonale Verfügbarkeit vor Veröffentlichung prüfen."
+    }
+  ],
+  "heldBack": [
+    {
+      "restaurant": "Wen Cheng",
+      "dish": "Orange Chicken",
+      "source": "https://www.instagram.com/wencheng_handpullednoodles/p/DeuU3O-lLO6/",
+      "date": "2026-10-20",
+      "reason": "Alle fünf Medien geprüft. Hände verdecken Schale, Gericht teils klein; anderes Originalfoto erforderlich."
+    },
+    {
+      "restaurant": "Estelle",
+      "dish": "Chicken Caesar Sando",
+      "source": "https://www.instagram.com/estelle_dining/reel/DdJlh1ogMCg/",
+      "date": "2026-09-11",
+      "facts": "Brunch samstags und sonntags ab 11 Uhr laut Caption.",
+      "reason": "Reel mit Händen am Gericht; scharfes separates Originalfoto erforderlich."
+    },
+    {
+      "restaurant": "Gemello",
+      "dish": "Pizza Assassina",
+      "source": "https://www.instagram.com/gemello.berlin/p/DbapZDdDNZa/",
+      "date": "2026-07-30",
+      "reason": "Gerichtname nur im Alt-Text. Erstes Medium zeigt Hand am Teller und Schere; weitere Bilder und Menübezeichnung noch prüfen."
+    },
+    {
+      "restaurant": "Gemello",
+      "dish": "Vegan cheesecake",
+      "source": "https://www.instagram.com/gemello.berlin/p/DdmBkR8DBLK/",
+      "date": "2026-09-22",
+      "reason": "Gutes Tellerfoto, aber Caption beschreibt noch Rezeptentwicklung und fragt nach Topping. Kein gesichertes fertiges Menüangebot."
+    }
+  ],
+  "nextCandidates": [
+    {
+      "restaurant": "Kitten Deli",
+      "dish": "Shepherd’s Salad",
+      "source": "https://www.instagram.com/kitten.deli/p/Ddjh2W0jYO0/",
+      "date": "2026-09-21",
+      "photo": "Erstes Bild: vollständiger weißer Teller, keine Hände, natürliches Sonnenlicht. Gut freistellbar.",
+      "open": "Zutaten und aktuelle Verfügbarkeit noch anhand der Speisekarte prüfen."
+    },
+    {
+      "restaurant": "Romeo’s",
+      "dish": "Vegan Szechuan Tofu Sandwich",
+      "source": "https://www.instagram.com/romeosberlin/p/DdYmNprHPWi/",
+      "date": "2026-09-17",
+      "photo": "Erstes Bild: zwei Sandwichhälften im Papier auf vollständigem Teller; keine Hände, klar erkennbare Textur.",
+      "facts": "Tofu, chilli crisp oil, coriander mayo, lettuce, cucumber, fried onions, peanuts, lime & ginger dressing. Lausitzer Straße 47 laut Eigenpost."
+    }
+  ]
+}

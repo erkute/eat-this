@@ -20,85 +20,77 @@
    das Wort („Starte / r", 21.10.2026). */
 .page :global(.hv-head) { container-type: inline-size; }
 .page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
-.hero { position: relative; overflow: hidden; box-sizing: border-box; padding-top: var(--site-nav-h); --et-solid: #15120e; --et-on-solid: #fff; background: #ffc600; color: #111; }
-.hero::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: url('/pics/home/paper-texture.webp') center / 615px 846px;
-  mix-blend-mode: multiply; opacity: .2;
+/* Silver poster paper: the same artwork and hero for guests and members. */
+.hero {
+  position: relative; overflow: hidden; box-sizing: border-box;
+  padding-top: var(--site-nav-h); height: 100dvh;
+  --et-solid: #1b1f1f; --et-on-solid: #f0f2f0;
+  background: #dfe3e3 url('/pics/home/silver-hero/paper.webp') center / cover;
+  color: var(--et-ink);
 }
-/* Zerknittertes, durchsichtiges Papier über dem ganzen Hero — die Ebene
-   „Oberfläche · transparentes Papier“ aus Figma, ungeändert übernommen. */
-.hero::after {
-  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: url('/pics/home/hero-crumple-mobile.webp') center / 100% 100% no-repeat;
+:global(html[data-vintage] .homeV2) > .hero {
+  background-image: url('/pics/home/silver-hero/paper.webp');
 }
-@media (min-width: 768px) {
-  .hero::after { background-image: url('/pics/home/hero-crumple-desktop.webp'); }
-}
-/* Der Hero trägt das Knitterpapier statt der Karten-Spuren der übrigen Blätter. */
-:global(html[data-vintage] .homeV2) > .hero { background-image: none; }
-.heroInner { position: relative; padding: 64px var(--home-gutter); max-width: 1600px; margin: auto; }
+.heroInner { position: relative; padding: clamp(20px, 4dvh, 48px) 56px; height: 100%; max-width: 1440px; margin: auto; box-sizing: border-box; }
 .heroCopy {
-  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr);
-  grid-template-rows: 1fr auto auto auto auto auto 1fr; column-gap: clamp(40px, 7vw, 100px);
-  align-items: start; min-height: 692px;
+  display: grid; grid-template-columns: minmax(0, 560fr) minmax(0, 728fr);
+  grid-template-rows: 1fr auto auto auto 1fr; column-gap: 40px;
+  align-items: center; height: 100%; min-height: 0;
 }
-.heroBrand { grid-column: 2; grid-row: 2; width: 100%; }
-.heroMark { display: block; width: min(100%, 572px); height: auto; margin: 0; }
-.heroArt { grid-column: 1; grid-row: 1 / -1; align-self: center; }
-.heroArt img { display: block; width: 100%; max-width: 470px; height: auto; }
-.heroHeadline {
-  grid-column: 2; grid-row: 3; margin: 18px 0 0; color: #111;
-  font: 700 clamp(18px, 1.875vw, 27px)/1.15 var(--et-font-body);
-  text-transform: uppercase; letter-spacing: -.02em;
+.heroBrand { grid-column: 1; grid-row: 2; width: 100%; min-height: 0; }
+.heroMark { display: block; width: 100%; aspect-ratio: 560 / 168; max-height: 24dvh; object-fit: contain; }
+.heroHeadline { grid-column: 1; grid-row: 3; margin: 16px auto 0; width: 97%; }
+.heroAccessible { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.heroSloganDesktop { display: flex; width: 100%; container-type: inline-size; }
+.heroSloganFirst, .heroSloganSecond { display: block; position: relative; flex: 0 0 51.565%; height: 11.396cqi; overflow: hidden; }
+.heroSloganFirst { margin-right: -3.13%; }
+.heroSloganFirst > span, .heroSloganSecond > span {
+  position: absolute; display: block; width: 100%; aspect-ratio: 3;
+  background: url('/pics/home/silver-hero/slogan-mobile.webp') center / 100% 100%;
+  mask-repeat: no-repeat; mask-mode: alpha;
 }
-.heroHeadline span { display: inline; }
-/* Der Gruß der Angemeldeten: eine eigene Zeile, so fett wie die Marke, an
-   der Stelle, an der Gäste den Erklärsatz lesen. Der Lead rückt dann an ihn
-   heran, statt mit Abstand frei zu stehen. */
-.heroGreeting {
-  grid-column: 2; grid-row: 4; margin: 64px 0 0; color: #111;
-  font: 700 clamp(34px, 3.4vw, 52px)/1.05 var(--et-font-body); letter-spacing: -.04em;
+.heroSloganFirst > span { mask-image: url('/pics/home/silver-hero/mask-first.svg'); mask-size: 100.046% 65.884%; mask-position: -.024% -.069%; }
+.heroSloganSecond > span { top: -7.572cqi; mask-image: url('/pics/home/silver-hero/mask-second.svg'); mask-size: 100.046% 51.243%; mask-position: 0 108%; }
+.heroSloganMobile { display: none; }
+.heroActions { grid-column: 1; grid-row: 4; display: flex; justify-content: center; margin-top: 36px; }
+.heroArt { grid-column: 2; grid-row: 1 / -1; display: block; position: relative; width: 100%; height: 100%; min-height: 0; container-type: size; }
+.heroFan { position: absolute; display: block; width: min(100cqw, 154.894cqh); aspect-ratio: 728 / 470; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.heroArt img { position: absolute; display: block; width: 37.088%; height: auto; border-radius: 5.85% / 4.26%; }
+.heroCardLeft { left: 13.736%; top: 14.144%; transform: rotate(-14deg); }
+.heroCardRight { left: 49.176%; top: 14.144%; transform: rotate(14deg); }
+.heroCardFront { left: 31.456%; top: 7.547%; }
+@media (prefers-reduced-motion: no-preference) {
+  .heroArt img { transform-origin: 50% 90%; transition: transform .55s cubic-bezier(.2,.8,.2,1); }
+  :global(html:not([data-hero-intro])) .heroCardLeft { animation: dealLeft 1s cubic-bezier(.16,1,.3,1); }
+  :global(html:not([data-hero-intro])) .heroCardRight { animation: dealRight 1.15s cubic-bezier(.16,1,.3,1); }
+  :global(html:not([data-hero-intro])) .heroCardFront { animation: dealFront .85s cubic-bezier(.16,1,.3,1); }
+  .heroArt:focus-visible .heroCardLeft { transform: translate(-3%, -2%) rotate(-19deg); }
+  .heroArt:focus-visible .heroCardRight { transform: translate(3%, -2%) rotate(19deg); }
+  .heroArt:focus-visible .heroCardFront { transform: translateY(-4%) rotate(-2deg); }
 }
-.heroLead {
-  grid-column: 2; grid-row: 5; max-width: 567px; margin: 70px 0 0;
-  color: #111; font: 400 18px/1.5 var(--et-font-body);
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .heroArt:hover .heroCardLeft { transform: translate(-3%, -2%) rotate(-19deg); }
+  .heroArt:hover .heroCardRight { transform: translate(3%, -2%) rotate(19deg); }
+  .heroArt:hover .heroCardFront { transform: translateY(-4%) rotate(-2deg); }
 }
-.heroLead.heroLeadAuth { margin-top: 12px; }
-.heroLeadLine { display: block; text-wrap: balance; }
-.heroActions { grid-column: 2; grid-row: 6; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; width: fit-content; }
-.heroActionVariant { display: flex; flex-wrap: wrap; gap: 12px; }
-:global(html[data-hero-flight='on']:not([data-hero-rest])) .heroMark { visibility: hidden; }
-/* Am Desktop steht der ganze Hero im ersten Bild (Ansage 21.10.2026): er
-   nimmt die Höhe unter dem Kopf, die Karte schrumpft mit. */
-@media (min-width: 768px) {
-  .hero { --hero-pad: clamp(24px, 6svh, 64px); height: 100svh; min-height: calc(520px + var(--site-nav-h)); }
-  .heroInner { box-sizing: border-box; height: 100%; padding-block: var(--hero-pad); }
-  .heroCopy { height: 100%; min-height: 0; }
-  .heroArt { display: flex; justify-content: center; height: 100%; min-height: 0; }
-  .heroArt img { width: auto; max-width: min(100%, 470px); max-height: 100%; object-fit: contain; }
-}
-/* Am Telefon steht der Hero ebenfalls ganz im ersten Bild (Ansage
-   22.10.2026): genau eine kleine Viewporthöhe (svh — auch mit eingeblendeten
-   Safari-Leisten), der Text über der Karte, und die Karte nimmt, was übrig
-   bleibt. Auf sehr niedrigen Telefonen hält min-height die Karte lesbar. */
+@keyframes dealLeft { from { transform: translate(40%, 8%) rotate(-3deg); } to { transform: rotate(-14deg); } }
+@keyframes dealRight { from { transform: translate(-40%, 8%) rotate(3deg); } to { transform: rotate(14deg); } }
+@keyframes dealFront { from { transform: translateY(9%) rotate(4deg); } to { transform: none; } }
 @media (max-width: 767.98px) {
-  .hero { height: 100svh; min-height: calc(540px + var(--site-nav-h)); }
-  .heroInner { box-sizing: border-box; height: 100%; padding: clamp(16px, 3svh, 32px) 24px clamp(20px, 3.5svh, 36px); }
-  .heroCopy { display: flex; flex-direction: column; align-items: center; height: 100%; min-height: 0; text-align: center; }
-  .heroBrand { order: 0; max-width: 327px; flex: none; }
-  .heroMark { width: 100%; }
-  .heroHeadline { order: 1; font-size: 15px; margin: 14px 0 0; }
-  .heroGreeting { order: 2; margin: clamp(16px, 3svh, 28px) 0 0; font-size: 34px; }
-  .heroLead { order: 3; width: 100%; max-width: 300px; margin: clamp(14px, 2.6svh, 24px) 0 0; font-size: 16px; line-height: 1.45; text-wrap: balance; }
-  .heroLead.heroLeadAuth { margin-top: 6px; }
-  .heroArt {
-    order: 4; flex: 1 1 0; min-height: 0; width: 100%;
-    display: flex; justify-content: center; margin-top: clamp(14px, 2.6svh, 24px);
-  }
-  .heroArt img { width: auto; height: 100%; max-width: min(100%, 290px); object-fit: contain; object-position: center top; }
-  .heroActions { order: 5; flex: none; margin-top: clamp(14px, 2.6svh, 24px); justify-content: center; }
-  .heroActionVariant { justify-content: center; }
+  .heroInner { padding: clamp(12px, 2.8dvh, 24px) 24px clamp(16px, 3.8dvh, 32px); }
+  .heroCopy { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 112fr) minmax(0, 91fr) minmax(0, 286fr) auto; gap: 16px; justify-items: center; }
+  .heroBrand { grid-column: 1; grid-row: 1; max-width: 342px; height: 100%; display: flex; align-items: end; justify-content: center; }
+  .heroMark { width: auto; max-width: 100%; height: 100%; max-height: 112px; aspect-ratio: 342 / 112; }
+  .heroHeadline { grid-row: 2; width: min(100%, 272px); height: 100%; margin: 0; display: flex; align-items: start; justify-content: center; min-height: 0; }
+  .heroSloganDesktop { display: none; }
+  .heroSloganMobile { display: block; width: auto; max-width: 100%; height: 100%; max-height: 91px; object-fit: contain; }
+  .heroArt { grid-column: 1; grid-row: 3; width: 100%; height: 100%; margin: 0; }
+  .heroFan { width: min(100cqw, 119.58cqh, 342px); aspect-ratio: 342 / 286; }
+  .heroArt img { width: 46.784%; }
+  .heroCardLeft { left: 5.848%; top: 16.104%; }
+  .heroCardRight { left: 47.368%; top: 16.104%; }
+  .heroCardFront { left: 26.608%; top: 10.16%; }
+  .heroActions { grid-row: 4; margin-top: 24px; }
   .page { --hv-display: clamp(46px, 15vw, 72px); }
 }
 

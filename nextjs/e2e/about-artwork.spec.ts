@@ -28,6 +28,6 @@ for (const locale of ['de', 'en']) {
     await fan.scrollIntoViewIfNeeded();
     expect(await angles()).toEqual([-24, -12, 0, 12, 24]);
     await expect(portrait).toHaveCSS('transform', 'none');
-    await expect(page.locator('figcaption')).toHaveCount(1);
+    await expect(page.locator('figcaption')).toHaveCount(3);
   });
 }

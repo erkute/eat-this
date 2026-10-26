@@ -329,6 +329,11 @@
 
 .detail .btnPackPromo {
   width: 100%;
+  /* Same butterbrot paper as the offer around it (Ersan 26.10.2026). */
+  background-image: url('/pics/paper/butterbrot.webp');
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
 }
 /* Auf dem roten Angebot trägt die Fläche die kontrastreichen Hausknopf-Rollen. */
 .packPromo {
@@ -1060,11 +1065,14 @@
   --et-label-bg: var(--et-ink);
 }
 
-/* Rotes Knitterblatt für das Pack-Angebot. */
+/* Rotes Butterbrotpapier für das Pack-Angebot, wie die Instagram-Cover
+   (Figma › Instagram › Vol-I/01, Ebene „Butterbrotpapier · matte Knicke";
+   die 65 % Deckkraft dort sind ins Bild eingerechnet). */
 .detail .packPromo {
   border-radius: 0;
-  background-image: url('/pics/paper/folded-white.webp');
-  background-size: 100% 100%;
+  background-image: url('/pics/paper/butterbrot.webp');
+  background-size: cover;
+  background-position: center;
   background-blend-mode: multiply;
 }
 :global(html[data-theme='dark']) .rdFacts {

@@ -229,11 +229,12 @@ const Item = memo(
           )}
         </div>
 
-        {/* Geöffnet: Ink mit weisser Schrift; geschlossen: Papier. Getragen
-            vom Wort und von Hell gegen Dunkel, nicht von Grün gegen Rot. */}
+        {/* Geöffnet: ein Streifen schwarzes Band wie ein gesetzter Filter;
+            geschlossen: Rot. Getragen vom Wort und von Hell gegen Dunkel,
+            nicht von Grün gegen Rot. */}
         {statusMain && (
           <span
-            className={`et-label ${status?.isOpen ? 'et-label-open' : 'et-label-closed'} ${styles.openPill}`}
+            className={`et-label ${status?.isOpen ? 'et-label-open et-label-tape' : 'et-label-closed'} ${styles.openPill}`}
             role="status"
           >
             {statusMain}

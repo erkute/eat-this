@@ -1,14 +1,15 @@
-# Papierstreifen für die Map · 26.10.2026
+# Gewebeband für die Map · 26.10.2026
 
-In der App: `original-receipt.webp`, zerknitterter weißer Zettel mit gerissener Kante, Vorlage von Ersan (nach seiner Angabe lizenziert, 26.10.2026).
+In der App: Adobe Stock 336467615 (sechs Stücke schwarzes Gewebeband, von Ersan lizenziert). Das Original liegt nur lokal (`~/Downloads/AdobeStock_336467615.jpeg`) und gehört nicht ins öffentliche Repo.
 
-Daraus in `nextjs/public/pics/tape/`:
-- `receipt.webp`: Papier oberhalb der Strichellinie (y 150–1255) und unterhalb des Barcodes (y 1650–1850, mit der gerissenen Kante) zusammengesetzt, Naht über 40 px überblendet, um 90° gedreht (Riss rechts), auf 303 × 180 px verkleinert, aufgehellt (`255 - (255 - v) * 0.5`).
-- `receipt-black.webp`: dasselbe abgedunkelt (`v * 0.22 + 6`) für gesetzte Filter.
-- `-b`: gespiegelt (Riss links), `-c`: gekippt.
+Daraus in `nextjs/public/pics/tape/` (Stücke 2–6; Stück 1 ist zu stark verknittert):
+- Freigestellt per Flutfüllung vom weißen Grund (Schwelle 170), Schattenreste am Rand entfernt, gerade gerichtet (Hauptachse), quer gedreht, auf 180 px Höhe.
+- `gaffer-N-black.webp`: Original, Glanz gedämpft (`L > 55 → 55 + (L - 55) * 0.35`), damit weiße Schrift lesbar bleibt.
+- `gaffer-N-white.webp`: dieselbe Struktur weiß umgefärbt (`246 + (L - Median) * 0.55`).
+- Ränder je Stück gemessen (85. Perzentil), daraus `--et-tape-slice` / `--et-tape-width` in `globals.css` und `MapFilters.module.css`.
 
-Eingesetzt per `border-image` (Slices `2 12 2 2`, Breiten `1px 3px 1px 1px`), Tokens `--et-tape-*` in `globals.css`.
+Verteilung: Stück 2 Standard (Suche, Menü, Listen, Lasche, Spot-Name), Filter 1–4 = Stücke 3, 5, 4, 6, Bezirk/Küche = Stück 2 gespiegelt (`gaffer-2m-*`, geradeste Unterkante).
 
-Vorher verworfen: `original-white-tape.png` (weißes Stoffband), `original-silver-tape.png` (Silber-Gaffer).
+Vorher verworfen: weißes Stoffband, Silber-Gaffer, Kassenzettel (Originale nur lokal in diesem Ordner).
 
-Für Name, Bezirk und Küche auf den Spot-Fotos: `receipt-white(-b).webp`, so weiß wie möglich (`255 - (255 - v) * 0.3` auf dem Zettel), nur ein Hauch Knitter.
+Für große Flächen (aufgeklappte Listen, Suchvorschläge): Stück 2 in hoher Auflösung, `gaffer-2-{black,white}-hd.webp` (1280 × 720, Slices `38 27 34 36`), damit nichts pixelig wird.

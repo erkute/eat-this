@@ -1,48 +1,42 @@
-/* Map List Empty — isolated map subsystem. */
-.esActions {
-  flex-direction: column;
-}
+/* Map List Empty — no grey box (house rule): the state lies on the list's
+   ground, its heading on the same strip of tape as the spot names. */
 .esBlock {
   position: relative;
   display: grid;
-  align-items: start;
-  gap: 10px;
-  margin: 14px 0 22px;
-  padding: 24px 20px 20px;
-  background: var(--et-subtle);
+  justify-items: start;
+  gap: 12px;
+  margin: 18px 0 28px;
+  padding: 8px 6px 0;
   color: var(--et-fg);
   text-align: left;
 }
-/* Der Kicker ist ein gerades Etikett (et-label). */
 .esKicker {
-  justify-self: start;
   margin: 0;
 }
 .esHeading {
-  margin: 8px 0 0;
-  color: var(--et-fg);
+  margin: 2px 0 0;
   font-family: var(--et-font-display);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.05;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
   text-transform: none;
 }
 .esSub {
   max-width: 30ch;
-  margin: 0 0 6px;
-  color: var(--et-muted);
+  margin: 2px 0 4px;
+  color: var(--et-fg);
   font-family: var(--et-font-display);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0;
-  line-height: 1.34;
-  opacity: 1;
+  line-height: 1.38;
 }
 .esActions {
   display: flex;
+  flex-direction: column;
   align-items: stretch;
-  gap: 10px;
+  justify-self: stretch;
 }
 .esBtnPrimary {
   width: 100%;
@@ -50,6 +44,6 @@
 
 @media (min-width: 1024px) {
   .esHeading {
-    font-size: 32px;
+    font-size: 34px;
   }
 }

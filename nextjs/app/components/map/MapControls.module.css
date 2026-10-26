@@ -285,6 +285,10 @@
 }
 
 .mapSearchSuggestions {
+  /* Large sheets take the high-resolution cut of the same piece. */
+  --et-tape-img: url('/pics/tape/gaffer-2-white-hd.webp');
+  --et-tape-slice: 38 27 34 36 fill;
+  --et-tape-width: 6px 4px 6px 5px;
   position: absolute;
   top: calc(14px + env(safe-area-inset-top, 0px) + 50px);
   left: 14px;
@@ -619,4 +623,7 @@
   .mapSearchBtn { width: 44px; min-width: 44px; height: 44px; }
   .fab { flex-basis: 44px; width: 44px; height: 44px; }
   .mapSearchToolbar { height: 44px; }
+}
+:global(html[data-theme='dark']) .mapSearchSuggestions {
+  --et-tape-img: url('/pics/tape/gaffer-2-black-hd.webp');
 }

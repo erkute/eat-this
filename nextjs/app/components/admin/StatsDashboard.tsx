@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND_WORDMARK } from '@/lib/constants';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
@@ -236,7 +237,7 @@ export default function StatsDashboard() {
             zur Startseite führt. Die Stats-Seite hat sonst keine Leiste. */}
         <Link href="/" className={styles.home} aria-label="Eat This — Startseite">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/home/wordmark.webp?v=1" alt="Eat This" width={1124} height={274} />
+          <img {...BRAND_WORDMARK} alt="Eat This" />
         </Link>
         <h1 className={styles.brand}>Stats</h1>
         <div className={styles.themeControls}>

@@ -1,4 +1,4 @@
-import { SITE_URL } from '@/lib/constants';
+import { BRAND_WORDMARK, SITE_URL } from '@/lib/constants';
 import { serializeJsonLd } from './serialize';
 
 export function buildSiteJsonLd(locale: 'de' | 'en'): string {
@@ -22,9 +22,9 @@ export function buildSiteJsonLd(locale: 'de' | 'en'): string {
         areaServed: { '@type': 'City', name: 'Berlin' },
         logo: {
           '@type': 'ImageObject',
-          url: `${SITE_URL}/pics/logo.webp`,
-          width: 512,
-          height: 512,
+          url: `${SITE_URL}${BRAND_WORDMARK.src}`,
+          width: BRAND_WORDMARK.width,
+          height: BRAND_WORDMARK.height,
         },
         sameAs: ['https://www.instagram.com/eatthisdotcom/', 'https://www.tiktok.com/@eatthis'],
       },

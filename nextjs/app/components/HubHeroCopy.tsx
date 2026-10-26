@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND_WORDMARK } from '@/lib/constants';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import MapIntentLink from './MapIntentLink';
@@ -23,7 +24,7 @@ const LEAD = {
 // Die Wortmarke steht im Aufmacher, nicht im Header: der Header hält seinen
 // Logoplatz frei, bis sie beim Scrollen dort ankommt (HeroMarkFlight). Die
 // Maße sind die des Assets, damit der Platz vor dem Laden reserviert ist.
-const MARK = { src: '/pics/home/wordmark.webp?v=1', width: 1124, height: 274 } as const;
+const MARK = BRAND_WORDMARK;
 
 const HERO_MAP_LABEL = { de: 'Map entdecken', en: 'Explore the map' } as const;
 

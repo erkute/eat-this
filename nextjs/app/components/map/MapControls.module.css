@@ -79,15 +79,16 @@
   border-style: solid;
   border-width: 0;
   border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  filter: var(--et-tape-lift);
 }
 .panelToggle:focus-visible {
   background: none;
-  filter: brightness(0.95);
+  filter: brightness(0.95) var(--et-tape-lift);
 }
 @media (hover: hover) {
   .panelToggle:hover {
     background: none;
-    filter: brightness(0.95);
+    filter: brightness(0.95) var(--et-tape-lift);
   }
 }
 
@@ -210,7 +211,7 @@
   color: var(--et-tape-fg);
   border-radius: 0;
   box-shadow: none;
-  filter: none;
+  filter: var(--et-tape-lift);
   animation: none;
   clip-path: none;
   pointer-events: auto;
@@ -227,7 +228,7 @@
 .mapSearchToolbar:has(:focus-visible) {
   outline: 0;
   background: none;
-  filter: brightness(0.95);
+  filter: brightness(0.95) var(--et-tape-lift);
 }
 
 @media (max-width: 520px) {
@@ -295,9 +296,11 @@
   z-index: 55;
   box-sizing: border-box;
   width: min(392px, calc(100vw - 114px));
-  max-height: min(55vh, 380px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /* Die Liste darin scrollt (MapSearchSuggestions). */
+  display: flex;
+  flex-direction: column;
+  max-height: min(70vh, 460px);
+  overflow: hidden;
   padding: 6px 0;
   background: none;
   border-style: solid;
@@ -306,12 +309,17 @@
   color: var(--et-tape-fg);
   border-radius: 0;
   box-shadow: none;
+  filter: var(--et-tape-lift);
 }
 
-.mapSearchSuggestions ul {
+.mapSearchSuggestionList {
+  flex: 0 1 auto;
+  min-height: 0;
   margin: 0;
   padding: 0;
   list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .mapSearchSuggestion {
@@ -376,6 +384,11 @@
     position: fixed;
     top: calc(14px + env(safe-area-inset-top, 0px) + var(--map-visual-offset-top, 0px) + 54px);
     z-index: 9;
+    /* Bis knapp über die Tastatur: --map-search-room ist die Höhe des
+       sichtbaren Ausschnitts (visualViewport), oben steht das Suchfeld. */
+    max-height: calc(
+      var(--map-search-room, 100svh) - 14px - env(safe-area-inset-top, 0px) - 54px - 12px
+    );
   }
 }
 

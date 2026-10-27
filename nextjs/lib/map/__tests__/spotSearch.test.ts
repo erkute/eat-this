@@ -115,9 +115,60 @@ describe('suggestSpots', () => {
     expect(ids('bonanaza')).toEqual(['d']);
   });
 
-  it('begrenzt die Zahl und hält sich an den Filter des Aufrufers', () => {
-    expect(ids('italienisch', { limit: 2 })).toHaveLength(2);
+  it('zeigt alle Treffer und hält sich an den Filter des Aufrufers', () => {
+    expect(ids('italienisch')).toHaveLength(3);
     expect(ids('pizza', { keep: (r) => r._id !== 'c' })).toEqual(['a']);
+  });
+});
+
+describe('Bezirke und Kieze', () => {
+  const spots = [
+    { _id: 'k1', name: 'Zola', bezirk: { name: 'Kreuzberg' }, district: 'Kreuzberg' },
+    { _id: 'k2', name: 'Kreuzberger Himmel', bezirk: { name: 'Kreuzberg' } },
+    /* Der Bezirk steht nur in der Beschreibung (Katalog 27.10.2026). */
+    {
+      _id: 'm1',
+      name: 'Bonanza Coffee Mitte',
+      bezirk: { name: 'Mitte' },
+      searchText: 'Single Origins aus der eigenen Kreuzberger Röstung',
+    },
+    { _id: 'n1', name: 'TiER', bezirk: { name: 'Neukölln' }, searchText: 'wie das Bellman in Kreuzberg' },
+    { _id: 'n2', name: 'Mittelmeer Grill', bezirk: { name: 'Neukölln' } },
+    { _id: 'p1', name: 'Pizza Nostra', bezirk: { name: 'Pankow' }, district: 'Prenzlauer Berg', searchText: 'pizza wie in kreuzberg' },
+  ].map((r) => ({ lat: 0, lng: 0, ...r }) as MapRestaurant);
+  const index = buildSearchIndex(spots, []);
+  const hits = (q: string) =>
+    spots.filter((r) => matchesSearch(index.get(r._id)!, parseQuery(q, index))).map((r) => r._id);
+
+  it('meint mit einem Bezirk, wo der Spot liegt, nicht wo seine Beschreibung hinzeigt', () => {
+    expect(hits('Kreuzberg')).toEqual(['k1', 'k2']);
+    expect(hits('X-Berg')).toEqual(['k1', 'k2']);
+    expect(hits('neukoelln')).toEqual(['n1', 'n2']);
+    expect(hits('nkln')).toEqual(['n1', 'n2']);
+  });
+
+  it('trifft Ortswörter auch am Anfang eines Namens, während man ihn tippt', () => {
+    expect(hits('Mitte')).toEqual(['m1', 'n2']);
+  });
+
+  it('erkennt Kiez und Bezirk zusammen mit anderen Wörtern', () => {
+    expect(hits('Pberg')).toEqual(['p1']);
+    expect(hits('Pizza Pankow')).toEqual(['p1']);
+    expect(hits('pizza kreuzberg')).toEqual([]);
+  });
+
+  it('lässt Wörter, die kein Bezirk sind, weiter im ganzen Text suchen', () => {
+    expect(hits('Röstung')).toEqual(['m1']);
+    expect(hits('bellman')).toEqual(['n1']);
+  });
+
+  it('liest einen vertippten Bezirk als den Bezirk', () => {
+    expect(hits('Kreutzberg')).toEqual(['k1', 'k2']);
+    expect(hits('Neuköln')).toEqual(['n1', 'n2']);
+  });
+
+  it('schlägt nur die Spots im Bezirk vor', () => {
+    expect(suggestSpots(spots, index, 'kreuzberg').map((r) => r._id)).toEqual(['k2', 'k1']);
   });
 });
 

@@ -36,6 +36,8 @@ const COPY = {
     coveredBody: 'Hinter jeder Karte steckt unsere Empfehlung — ein Gericht, das du probieren musst. Bist du am Spot, drehst du sie mit einem Tap um. Dann liegt sie in deinem Deck.',
     coveredLabel: 'Verdeckt',
     spotAria: 'Spot-Seite öffnen',
+    mapAria: 'auf der Map zeigen',
+    setMore: 'Alle Karten zeigen',
     closeKicker: 'Und jetzt',
     closeTitle: 'Hol sie dir.',
     closeBody:
@@ -61,6 +63,8 @@ const COPY = {
     coveredBody: 'Behind every card is our recommendation — a dish you have to try. Once you are at the spot, one tap flips it. Then it is in your deck.',
     coveredLabel: 'Face-down',
     spotAria: 'open the spot page',
+    mapAria: 'show on the map',
+    setMore: 'Show all cards',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',
     closeBody:
@@ -161,6 +165,8 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           coveredBody: c.coveredBody,
           coveredLabel: c.coveredLabel,
           spotAria: c.spotAria,
+          mapAria: c.mapAria,
+          setMore: c.setMore,
         }}
       />
 

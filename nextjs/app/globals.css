@@ -1,7 +1,11 @@
 /* Neue Haas Grotesk Text — der Fließtext der gesamten App, wie bei 032c
-   (Wahl 03.10.2026). Aus dem Adobe-Fonts-Webprojekt
-   (Kit kgb1lmh); im Kit stehen 55 Roman und 75 Bold. Geladen wird nur, wo
-   eine Regel die Familie wirklich benutzt. */
+   (Wahl 03.10.2026). Aus dem Adobe-Fonts-Webprojekt (Kit kgb1lmh); im Kit
+   stehen 55 Roman und 75 Bold. Geladen wird nur, wo eine Regel die Familie
+   wirklich benutzt. Die Faces stehen hier statt über die Kit-CSS
+   (use.typekit.net/kgb1lmh.css): die lädt per @import Adobes Zähl-Beacon
+   p.typekit.net/p.css, für jeden Besuch und vor der Cookie-Entscheidung.
+   Die URLs stammen aus der Kit-CSS; dort auffrischen, wenn Adobe das Kit
+   ändert. */
 @font-face {
   font-family: 'neue-haas-grotesk-text-1';
   src: url('https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3')
@@ -38,58 +42,6 @@
   font-weight: 700;
 }
 
-/* chauncy-pro-1 (--et-font-condensed) and moonblossom-1 (--et-font-moonblossom) used to
-   arrive via Adobe's kit stylesheet, use.typekit.net/kgb1lmh.css. That kit CSS
-   @imports p.typekit.net/p.css — Adobe's usage beacon, not a font — which fired
-   for every visitor on every page before the consent dialog was answered.
-   Declaring the faces here points straight at the same font files and drops the
-   beacon. Kit families corsairpe-1 and salted-1 were in the kit but used
-   nowhere, so they are not carried over. URLs come from the kit; refresh them
-   from https://use.typekit.net/kgb1lmh.css if the Adobe kit changes. */
-@font-face {
-  font-family: 'chauncy-pro-1';
-  src: url('https://use.typekit.net/af/1ae4b9/000000000000000077584744/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'chauncy-pro-1';
-  src: url('https://use.typekit.net/af/5f7188/0000000000000000773597e1/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 700;
-}
-
-@font-face {
-  font-family: 'chauncy-pro-1';
-  src: url('https://use.typekit.net/af/d1b4c8/0000000000000000773597da/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i4&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: italic;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'chauncy-pro-1';
-  src: url('https://use.typekit.net/af/432b35/0000000000000000773597e3/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i7&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: italic;
-  font-weight: 700;
-}
-
-@font-face {
-  font-family: 'moonblossom-1';
-  src: url('https://use.typekit.net/af/075816/00000000000000007735fbe5/31/l?subset_id=2&fvd=n4&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-}
 /* Design tokens */
 :root {
   /* ── Farben ── Eine Farbe, ein Name. Bis 26.09.2026 hatte Ink zwölf Namen
@@ -127,9 +79,6 @@
   /* Neue CI: dieselbe Grotesk für Titel, Bedienelemente und Fließtext. */
   --et-font-body: 'neue-haas-grotesk-text-1', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --et-font-text: var(--et-font-body);
-  --et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
-  --et-font-moonblossom:
-    'moonblossom-1', 'moonblossom-2', 'moonblossom', sans-serif;
   /* Schmale Hauptleiste: dieselbe Höhe für Navigation und Seitenabstand. */
   --site-nav-h: calc(52px + env(safe-area-inset-top, 0px));
 

@@ -225,8 +225,7 @@ div.player {
   font-size: clamp(13px, 13cqw, 21px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  /* Providence haengt unter die Grundlinie: unter 1.2 kappt der Clip der
-     Karte das g. */
+  /* Unter 1.2 kappt der Clip der Karte das g. */
   line-height: 1.2;
   text-align: center;
   text-transform: uppercase;

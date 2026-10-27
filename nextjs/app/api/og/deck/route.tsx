@@ -31,8 +31,8 @@ const PAPER = '#ffffff';
 const ACCENT = '#a82b2e';
 
 // Satori kennt keine Systemschriften; beide Schnitte liegen als Repo-Assets
-// (über outputFileTracingIncludes in den Standalone-Build gezogen). Providence
-// ist hier bewusst NICHT dabei: die Lizenz deckt den Server nicht, und die
+// (über outputFileTracingIncludes in den Standalone-Build gezogen). Die
+// Markenschrift ist hier bewusst NICHT dabei: die Lizenz deckt den Server nicht, und die
 // Datei darf nach .gitignore gar nicht erst hier liegen — dieselbe Regel wie
 // bei den E-Mail-Bildern.
 let fontsPromise: Promise<{ saira: Buffer; schoolbell: Buffer }> | null = null;

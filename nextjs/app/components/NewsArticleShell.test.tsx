@@ -431,7 +431,7 @@ describe('NewsArticleShell', () => {
       expect(at('Wo Berlin seinen Döner')).toBeLessThan(at('</header>'));
     });
 
-    // Nur ein Auftakt in Providence: mit Vorspann beginnt der Text normal.
+    // Nur ein Auftakt: mit Vorspann beginnt der Text normal.
     it('marks the text as led when the head carries a lede', () => {
       const led = renderWith(issues(['doener']), { excerptDe: 'Wo Berlin seinen Döner isst.' });
       expect(led).toMatch(/data-article-content=""[^>]*data-lede=""/);

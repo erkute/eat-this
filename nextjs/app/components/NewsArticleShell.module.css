@@ -5,7 +5,7 @@
    dem Rot-Gelb-Stil von mir, keine neuen Farben"): dieselbe Sprache wie die
    Startseite (`.homeV2` in globals.css) — weisser Grund, Ink für Text,
    Überschriften in Rot wie `.hv-title`, Gelb als Akzent;
-   Providence für alles Plakative und die Labels, Neue Haas Grotesk Text für den Lesetext.
+   Neue Haas Grotesk Text für Plakatives, Labels und Lesetext.
    Davor stand der Artikel auf Ink.
 
    `--article-ground` ist der Grund, `--article-fg` die Schrift darauf,
@@ -62,8 +62,8 @@ div.page {
 
 /* ---------------------------------------------------------------- head --- */
 
-/* Der Kopf wie bei Kaleidoscope: mittig die Rubrik, die Schlagzeile gross in
-   Providence, klein die Credits; darunter das Foto randlos mit 10px Rahmen,
+/* Der Kopf wie bei Kaleidoscope: mittig die Rubrik, die Schlagzeile gross,
+   klein die Credits; darunter das Foto randlos mit 10px Rahmen,
    dann der Vorspann als Auftakt. */
 .header {
   display: grid;
@@ -136,7 +136,7 @@ div.page {
   filter: saturate(1.04) contrast(1.03);
 }
 
-/* Der Vorspann in Grotesk wie der Lesetext; Headlines bleiben Providence.
+/* Der Vorspann wie der Lesetext.
    Er steht mittig wie Titel und Zwischenüberschriften, erst der Lesetext ist
    linksbündig (Ansage 21.10.2026). */
 .lede {
@@ -318,7 +318,7 @@ div.page {
   text-wrap: pretty;
 }
 
-/* Schlusswort in Leseschrift, mit einer eigenen Providence-Überschrift. */
+/* Schlusswort in Leseschrift, mit einer eigenen Überschrift. */
 .content [data-block='conclusion'] {
   /* Mehr Luft als vor einer Kapitelueberschrift (clamp(38px, 5vw, 66px)): der
      Block beendet den Text, er reiht sich nicht ein. Mit dem gleichen Abstand
@@ -387,8 +387,8 @@ div.page {
   white-space: nowrap;
 }
 
-/* Die Unterzeile in Providence Regular, gerade: Providence hat keine
-   Kursive, und eine vom Browser schräg gestellte sah nach Fehler aus. */
+/* Die Unterzeile in Regular, gerade: eine vom Browser schräg gestellte
+   Kursive sah nach Fehler aus. */
 .content h2 [data-heading='deck'] {
   margin-top: 14px;
   color: var(--article-head);
@@ -434,7 +434,7 @@ div.page {
   }
 }
 
-/* Zitate sprechen wie Headlines und Insider-Tipps in Providence. */
+/* Zitate sprechen wie Headlines und Insider-Tipps. */
 .content q {
   font-family: var(--et-font-display);
 }
@@ -967,8 +967,8 @@ div.page {
 
   /* Lange Komposita („Mitternachtshunger") sind in Versalien breiter als
      die Spalte. Statt zu trennen wird die Schlagzeile so weit kleiner, dass
-     ihr längstes Wort passt: Providence-Versalien laufen 0,60–0,68em pro
-     Zeichen, 0,7 lässt Luft. `anywhere` fängt den Rest ab (MMMM, WWWW). */
+     ihr längstes Wort passt: Versalien liefen in der früheren Titelschrift
+     0,60–0,68em pro Zeichen, 0,7 lässt Luft. `anywhere` fängt den Rest ab (MMMM, WWWW). */
   .introCopy {
     container-type: inline-size;
   }

@@ -32,11 +32,11 @@
     "test:watch": "vitest",
     "start:verify": "NEXT_DIST_DIR=.next-verify next start --hostname 127.0.0.1 --port 3100",
     "test:e2e": "playwright test",
-    "audit:preview": "lhci autorun --config=../lighthouserc.preview.cjs",
+    "audit:preview": "npx --yes @lhci/cli@0.15.1 autorun --config=../lighthouserc.preview.cjs",
     "audit:field": "tsx scripts/audit-field-vitals.mts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.94.0",
+    "@anthropic-ai/sdk": "^0.99.0",
     "@google-cloud/firestore": "^7.11.6",
     "@gsap/react": "^2.1.2",
     "@react-email/components": "^1.0.12",
@@ -70,7 +70,6 @@
     "@axe-core/playwright": "^4.13.0",
     "@eslint/eslintrc": "^3",
     "@firebase/rules-unit-testing": "^5.0.1",
-    "@lhci/cli": "0.15.1",
     "@playwright/test": "^1.63.0",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20.19.42",

@@ -84,6 +84,9 @@ const nextConfig: NextConfig = {
     // in `headers()`. Der Optimierer erbt deren Spanne und nimmt diesen Wert
     // als Untergrenze: ein Tag, statt bei jedem Abruf neu zu rechnen.
     minimumCacheTTL: 86400,
+    // SiteImage setzt 80, Next selbst 75. Mehr Stufen lässt der Optimierer
+    // nicht zu, und Next 16 verlangt die Liste.
+    qualities: [75, 80],
     // Sanity-Bilder gehen direkt an die Sanity-CDN (app/components/SiteImage.tsx
     // setzt für sie `sanityNextImageLoader`), nur eigene Bilder laufen über den
     // Optimierer. Gemessen am 25.09.2026 (Standalone-Build, lokal): 510

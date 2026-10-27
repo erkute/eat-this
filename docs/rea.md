@@ -12,7 +12,7 @@ npm run --silent rea -- --help
 npm run --silent rea -- list-browser-targets http://127.0.0.1:9337 --format json
 ```
 
-Der npm-Befehl lädt REA 6.4.0 und eine separate Node-22.22.2-Laufzeit in den npm-Cache. Die App behält Node 20 und ihre bestehenden Lockfiles. Beim ersten Download kann npm unter Node 20 Engine-Warnungen für die heruntergeladenen Pakete ausgeben; der gestartete REA-Prozess verwendet die separate Node-Version.
+Der npm-Befehl lädt REA 6.4.0 und eine separate Node-22.22.2-Laufzeit in den npm-Cache. Sie ist unabhängig von der Node-Version der App (`.nvmrc`) und ändert deren Lockfiles nicht; der gestartete REA-Prozess verwendet immer die separate Node-Version.
 
 Die Projektkonfigurationen `.codex/config.toml` und `.mcp.json` registrieren denselben Startbefehl für Codex beziehungsweise Claude Code. Nach dem Neuladen der MCP-Server bzw. einem Client-Neustart stehen die Werkzeuge im Agenten zur Verfügung. Die CLI funktioniert sofort. Versionen bei einem Update in diesen beiden Konfigurationen und im Root-`package.json` gemeinsam ändern.
 

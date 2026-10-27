@@ -36,6 +36,9 @@ node_modules/
 test-results/
 .qa-tmp/
 .private/
+# Design-Originale (Blender, Fotos, Freisteller) bleiben lokal: das Repo ist
+# öffentlich. Was die App braucht, liegt fertig unter nextjs/public/.
+design/
 studio/.sanity/
 
 # Workflow screenshots from browser sessions — stay local

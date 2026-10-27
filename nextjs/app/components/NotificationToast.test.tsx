@@ -28,14 +28,14 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     render(<NotificationToast />);
 
     act(() => {
-      notify('spotSaved', 'de');
+      notify('spotSavedFirst', 'de');
     });
 
     expect(card().className).toContain('show');
     expect(card().dataset.tone).toBeUndefined();
     expect(screen.getByText('Spot')).toBeTruthy();
     expect(screen.getByText('Gespeichert')).toBeTruthy();
-    expect(screen.getByText('Noch einer für deine Liste.')).toBeTruthy();
+    expect(screen.getByText('Deine Spots findest du im Profil.')).toBeTruthy();
   });
 
   /* Bis 24.09.2026 las die Karte freie Saetze nach Stichworten: „Konnte
@@ -57,7 +57,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     render(<NotificationToast />);
 
     act(() => {
-      notify('spotSaved', 'de');
+      notify('spotSavedFirst', 'de');
     });
     act(() => {
       vi.advanceTimersByTime(3000);
@@ -80,7 +80,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(layer().hasAttribute('data-open')).toBe(false);
 
     act(() => {
-      notify('spotSaved', 'de');
+      notify('spotSavedFirst', 'de');
     });
     expect(layer().hasAttribute('data-open')).toBe(true);
 
@@ -102,7 +102,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     expect(card().hasAttribute('aria-live')).toBe(false);
 
     act(() => {
-      notify('spotSaved', 'de');
+      notify('spotSavedFirst', 'de');
     });
     expect(live().textContent).toContain('Gespeichert');
 
@@ -152,7 +152,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
       });
     });
     act(() => {
-      notify('spotSaved', 'de');
+      notify('spotSavedFirst', 'de');
     });
     act(() => {
       release?.();
@@ -219,7 +219,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
     render(<NotificationToast />);
 
     act(() => {
-      notify('spotSaved', 'de');
+      notify('spotSavedFirst', 'de');
     });
 
     expect(document.querySelector('.notification-scrim')).toBeNull();
@@ -310,7 +310,7 @@ describe('NotificationToast — die eine Infoflaeche', () => {
   it('laesst die kurze Bestaetigung ohne Dialog-Rolle', () => {
     render(<NotificationToast />);
     act(() => {
-      notify('spotSaved', 'de');
+      notify('spotSavedFirst', 'de');
     });
     expect(screen.queryByRole('dialog')).toBeNull();
   });

@@ -864,6 +864,10 @@
 .rdHeartToggle svg,
 .rdCloseGlass svg { width: 22px; height: 22px; flex-shrink: 0; }
 .rdHeartToggle span { flex-shrink: 0; white-space: nowrap; }
+/* Geherzt füllt sich das Herz in der Herz-Farbe, wie auf der Spot-Seite
+   (HeartDraw); die Fläche trägt die Bedeutung, das Rot kommt dazu. Die
+   Zahl daneben bleibt weiß. */
+.rdHeartToggle[aria-pressed='true'] svg { color: var(--et-heart); }
 @media (hover: hover) {
   .rdHeartToggle:hover,
   .rdCloseGlass:hover { opacity: 0.72; }

@@ -48,7 +48,7 @@ export default function ProfilePacks({ uid, fullCatalog }: { uid: string; fullCa
   return <ProfilePacksContent owned={owned} fullCatalog={fullCatalog} />;
 }
 
-export function ProfilePacksContent({
+function ProfilePacksContent({
   owned,
   fullCatalog,
 }: {

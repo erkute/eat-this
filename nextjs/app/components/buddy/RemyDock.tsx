@@ -21,7 +21,7 @@ import dynamic from 'next/dynamic';
 import { usePathname } from '@/i18n/navigation';
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage';
 
-export const preloadBuddyWidget = () => import('./BuddyWidget');
+const preloadBuddyWidget = () => import('./BuddyWidget');
 const BuddyWidget = dynamic(preloadBuddyWidget, { ssr: false });
 
 export default function RemyDock() {

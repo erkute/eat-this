@@ -51,7 +51,7 @@ const centre = (el: Element) => {
 };
 
 /** Wie ausgeteilte Karten leicht schief, nie zweimal gleich. */
-export const TILTS = [-7, 5, -3, 6, -5, 4];
+const TILTS = [-7, 5, -3, 6, -5, 4];
 
 /**
  * Teilt `items` von einem Stapel aus auf ihre Plätze im Layout aus. Der Stapel

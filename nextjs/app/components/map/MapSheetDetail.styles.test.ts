@@ -179,7 +179,7 @@ describe('Map sheet detail CSS contracts', () => {
   });
 
   it('keeps the whole Must Eat panel on the brand display face', () => {
-    /* Das Panel spricht durchgehend in Providence: Gerichtsname, Zustands-
+    /* Das Panel spricht durchgehend in der Markenschrift: Gerichtsname, Zustands-
      * Headline, der Zustands-Satz darunter UND die Gerichtsbeschreibung. Ein
      * DM-Sans-Block mittendrin las sich wie ein Fremdkörper.
      *
@@ -189,7 +189,7 @@ describe('Map sheet detail CSS contracts', () => {
       const family = effective(mustEat, brand, 'font-family');
       expect(family, `.${brand} hat keine effektive font-family`).toBeDefined();
       expect(
-        family!.includes('providence') || family!.includes('et-font-display'),
+        family!.includes('et-font-display'),
         `.${brand} hat die Markenschrift verloren — effektiv: ${family}`
       ).toBe(true);
     }

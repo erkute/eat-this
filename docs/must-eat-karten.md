@@ -34,7 +34,7 @@ Am 15.10.2026 hatten deshalb 14 von 38 Karten eine eigene Titelschrift oder -gr�
 1. **Foto freistellen.** Das macht Ersan selbst in Figma mit „Hintergrund entfernen“. Das ist besser als automatische Freisteller wie `Cards/cutout.swift` (Apple Vision) und lässt sich über die Schnittstelle nicht auslösen. Ablauf: Originalfotos in eine Section legen, Ersan stellt sie frei, danach übernimmt Claude das freigestellte Rohbild in voller Auflösung (`download_assets` → `rawImages`). Es wird die Bildfüllung des Fotorahmens.
 2. **Karte als Instanz von Main anlegen.** Eine bestehende Karte duplizieren (⌘D) oder eine Instanz aus Main ziehen. **Nie „Detach instance“.** Neue Karten kommen ans Ende der untersten Reihe.
 3. **Inhalt setzen:** die fünf Texte, das Foto, beide Farben. Keine Schrift, keine Größe, keine Position.
-4. **Texte tippt Ersan in Figma Desktop.** Claude kann über die Figma-Schnittstelle Karten duplizieren, Fotos und Farben setzen, aber keine Texte: Dort fehlen die Markenschriften (Providence Sans Pro, Profile Pro). Texte, die Claude setzen soll, gehen nur über ein lokales Entwickler-Plugin, das Ersan in Figma startet.
+4. **Texte tippt Ersan in Figma Desktop.** Claude kann über die Figma-Schnittstelle Karten duplizieren, Fotos und Farben setzen, aber keine Texte: Dort fehlen die Adobe-Markenschriften. Texte, die Claude setzen soll, gehen nur über ein lokales Entwickler-Plugin, das Ersan in Figma startet.
 
 ## Prüfen, ob die Vererbung intakt ist
 

@@ -32,8 +32,7 @@ Captures, Screenshots und Browserprofile bleiben unter `/tmp/eat-this-*`. Für v
 
 REA liefert Grenzen der Aufzeichnung mit: spätes Anhängen erfasst frühere Netzwerkanfragen nicht; noch laufende Requests machen eine Aufnahme unvollständig. Bei `cleanup_incomplete` die gemeldeten Ressourcen und verbleibenden Prozesse prüfen. Ein fehlgeschlagener Schritt ist kein Beleg für fehlende Produktfunktionalität.
 
-## Quellen und erste Untersuchung
+## Quellen
 
 - [REA](https://github.com/morluto/rea), [Browseranalyse](https://rea.tools/guides/browser/)
 - [Projektbezogene MCP-Konfiguration in Codex](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)
-- [Google Maps: erste Beobachtungen](research/google-maps-2026-10-13.md)

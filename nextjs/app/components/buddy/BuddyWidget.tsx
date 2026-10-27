@@ -115,8 +115,8 @@ function TypingDots({ label }: { label: string }) {
   );
 }
 
-// Das gelbe 9px-Quadrat vor jedem Kicker — dasselbe Zeichen wie `hv-mk` auf
-// der Startseite und vor jedem Insider-Tipp.
+// Das gelbe 9px-Quadrat vor jedem Kicker — dasselbe Zeichen wie vor jedem
+// Insider-Tipp.
 function Kicker({ children }: { children: React.ReactNode }) {
   return (
     <span className={styles.kicker}>

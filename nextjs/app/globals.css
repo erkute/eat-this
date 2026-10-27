@@ -262,7 +262,6 @@
   --et-type-body: clamp(16px, 1.2vw, 18px);
   --et-type-lead: clamp(16px, 1.5vw, 21px);
   --et-type-caption: 13px;
-  --et-type-chip: 14px;
   --et-type-button: 16px;
 
   --et-leading-hero: 0.9;
@@ -1421,7 +1420,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
    Nebeneffekt, der passt: wo der Hover −1px hebt, steht der Druck auf 0 —
    dieselbe Bewegung wie vorher.
 
-   1px, weil das die Hausgeste ist (`.et-btn`, `.hv-chip` und rund zwanzig
+   1px, weil das die Hausgeste ist (`.et-btn` und rund zwanzig
    weitere Regeln machen das seit jeher so). Wer das ändert, ändert es hier.
 
    `summary` ist mit drin: die FAQ-Zeilen sind Knöpfe, auch wenn sie keine sind.
@@ -1430,8 +1429,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
 button:not(:disabled):active,
 summary:active,
 [role='button']:not([aria-disabled='true']):active,
-.et-btn:active,
-.hv-chip:active {
+.et-btn:active {
   translate: 0 1px;
 }
 
@@ -1646,14 +1644,6 @@ ol {
 .homeV2 .hv-section {
   margin-top: var(--et-section-gap);
 }
-.homeV2 .hv-kicker {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: var(--et-type-kicker);
-  letter-spacing: var(--et-tracking-label);
-  text-transform: uppercase;
-  color: var(--et-fg);
-}
 .homeV2 .hv-head {
   display: flex;
   justify-content: space-between;
@@ -1699,13 +1689,6 @@ ol {
 }
 .homeV2 .hv-photo img {
   object-fit: var(--et-img-photo-fit);
-}
-.homeV2 .hv-cap {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: clamp(14px, 1.1vw, 16px);
-  margin-top: var(--et-control-gap);
-  color: var(--et-fg);
 }
 .homeV2 .hv-sub {
   font-family: var(--et-font-display);
@@ -1991,23 +1974,6 @@ html[data-active-page='map'] .et-label.et-label-open.et-label-tape {
    Stufe heller. Auf Fotos setzt das Bild `--et-label-bg` wieder auf Ink. */
 html[data-theme='dark'] {
   --et-label-bg: var(--et-ink-raised);
-}
-.homeV2 .hv-chip {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: var(--et-type-chip);
-  padding: 9px 15px;
-  border-radius: var(--et-radius-control);
-  background: var(--et-quiet);
-  color: var(--et-fg);
-  border: none;
-  cursor: pointer;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
-}
-.homeV2 .hv-chip:active {
-  transform: translateY(1px);
 }
 @media (max-width: 767.98px) {
   .homeV2 .hv-wrap {

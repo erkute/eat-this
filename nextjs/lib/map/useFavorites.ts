@@ -3,8 +3,32 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocale } from 'next-intl';
 import { auth, getDb } from '@/lib/firebase/config';
 import { useLoginModal } from '@/lib/auth';
-import { claimPendingHeartNotice, rememberPendingHeart, settlePendingHeart } from './pendingHeart';
+import { rememberPendingHeart, settlePendingHeart } from './pendingHeart';
 import { notify } from '@/lib/notice';
+
+/* Beim Speichern sagt das gefuellte Herz alles (Betreiber, 27.10.2026). Nur
+   der allererste Spot erfaehrt einmal, dass die gespeicherten Spots im Profil
+   liegen — die Map markiert sie sonst nirgends. Gemerkt pro Geraet im
+   localStorage: ein Profilflag kostete fuer einen Satz einen Schreibvorgang
+   mehr, und auf einem neuen Geraet kommt der Hinweis ohnehin nur, wenn die
+   Liste dort leer ist. Ohne Speicher lieber kein Hinweis als jedes Mal einer. */
+const PROFILE_HINT_KEY = 'eatthis_saved_spots_hint';
+
+function profileHintSeen(): boolean {
+  try {
+    return window.localStorage.getItem(PROFILE_HINT_KEY) === '1';
+  } catch {
+    return true;
+  }
+}
+
+function markProfileHintSeen(): void {
+  try {
+    window.localStorage.setItem(PROFILE_HINT_KEY, '1');
+  } catch {
+    /* unavailable storage */
+  }
+}
 
 interface FavoriteEntry {
   restaurantId: string;
@@ -91,11 +115,15 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
   // instantly on first paint instead of waiting on auth-resolve + the Firestore
   // read. The live getDocs reconciles + refreshes the cache right after.
   const [state, setState] = useState<FavoritesState>(() => emptyState(uid, !!uid));
-  /* Die Sprache haengt nicht am Ladeeffekt — sie beschriftet nur die Meldung
-     des eingeloesten Herzens. Ueber einen Ref, damit ein Sprachwechsel nicht
-     die Favoritenliste neu liest. */
+  /* Die Sprache haengt nicht am Ladeeffekt — sie beschriftet nur die
+     Fehlermeldung des eingeloesten Herzens. Ueber einen Ref, damit ein
+     Sprachwechsel nicht die Favoritenliste neu liest. */
   const localeRef = useRef(locale);
   localeRef.current = locale;
+  /* Spots, deren Herz gerade zum Server unterwegs ist: ein zweiter Tipp
+     wuerde gegen den optimistischen Stand umschalten, nicht gegen den
+     gespeicherten. */
+  const inFlight = useRef(new Set<string>());
 
   useEffect(() => {
     if (!uid) {
@@ -160,12 +188,9 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           favorites: entries,
           loading: false,
         });
-        /* Nach dem Login genug Zeit lassen, das gespeicherte Herz zu sehen. */
-        if (hearted && claimPendingHeartNotice(uid)) {
-          notify(entries.length > 1 ? 'spotSaved' : 'spotSavedFirstAfterLogin', localeRef.current, {
-            duration: 5000,
-          });
-        }
+        /* Die Anmeldung endet im Profil, der Spot steht dort in der Liste:
+           wo gespeicherte Spots liegen, ist damit gezeigt. */
+        if (hearted) markProfileHintSeen();
         try {
           window.localStorage.setItem(key, JSON.stringify(entries));
         } catch {
@@ -176,11 +201,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           setState((current) =>
             current.ownerUid === uid ? { ...current, loading: false } : current
           );
-          /* Gespeichert ist das Herz trotzdem — nur die Liste kam nicht.
-             Direkt nach dem Anmelden ist es fast immer der erste Spot. */
-          if (hearted && claimPendingHeartNotice(uid)) {
-            notify('spotSavedFirstAfterLogin', localeRef.current, { duration: 5000 });
-          }
+          if (hearted) markProfileHintSeen();
         }
       }
     })();
@@ -218,19 +239,47 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
       // writer of both the favorite doc and the public restaurants/{id}.heartCount
       // aggregate — the two move in one transaction so the count can't drift.
       // (Replaces the old client-side setDoc/deleteDoc + the removed Cloud
-      // Function trigger.) Local state + cache update only after the call lands.
+      // Function trigger.)
+      /* Optimistisch: das Herz fuellt sich beim Tippen, nicht erst nach
+         /api/heart — in der Map stand es sonst bis zur Antwort leer da.
+         Scheitert der Aufruf, springt es zurueck. */
+      if (inFlight.current.has(r._id)) return false;
       const adding = !favoriteIds.has(r._id);
-      /* Der erste Spot bekommt die Meldung mit dem Weg ins Profil. Solange die
-         Liste noch laedt, ist leer nicht dasselbe wie keine — dann die kurze
-         Fassung, ein falsches „Dein erster Spot" waere schlimmer. */
+      const previous = favorites.find((favorite) => favorite.restaurantId === r._id);
+      /* Leer heisst erst nach dem Laden „noch keiner": waehrend die Liste
+         laedt, lieber kein Hinweis als ein falscher. */
       const firstSpot = !loading && favoriteIds.size === 0;
-      const writeCache = (next: FavoriteEntry[]) => {
-        try {
-          window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify(next));
-        } catch {
-          /* quota */
-        }
-      };
+      const apply = (hearted: boolean) =>
+        setState((current) => {
+          if (current.ownerUid !== uid) return current;
+          const nextIds = new Set(current.favoriteIds);
+          const rest = current.favorites.filter((favorite) => favorite.restaurantId !== r._id);
+          let next = rest;
+          if (hearted) {
+            nextIds.add(r._id);
+            next = [
+              ...rest,
+              previous ?? {
+                restaurantId: r._id,
+                name: r.name,
+                slug: r.slug,
+                photo: r.photo,
+                district: r.district,
+              },
+            ];
+          } else {
+            nextIds.delete(r._id);
+          }
+          try {
+            window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify(next));
+          } catch {
+            /* quota */
+          }
+          return { ...current, favoriteIds: nextIds, favorites: next };
+        });
+
+      inFlight.current.add(r._id);
+      apply(adding);
       try {
         const token = await auth.currentUser.getIdToken();
         const res = await fetch('/api/heart', {
@@ -243,43 +292,19 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
         });
         if (!res.ok) throw new Error(`heart ${res.status}`);
       } catch {
+        apply(!adding);
         notify('actionFailed', locale);
         return false;
+      } finally {
+        inFlight.current.delete(r._id);
       }
       if (adding) {
-        setState((current) => {
-          if (current.ownerUid !== uid) return current;
-          const next = [
-            ...current.favorites,
-            {
-              restaurantId: r._id,
-              name: r.name,
-              slug: r.slug,
-              photo: r.photo,
-              district: r.district,
-            },
-          ];
-          writeCache(next);
-          return {
-            ...current,
-            favoriteIds: new Set([...current.favoriteIds, r._id]),
-            favorites: next,
-          };
-        });
-        notify(firstSpot ? 'spotSavedFirst' : 'spotSaved', locale);
-      } else {
-        setState((current) => {
-          if (current.ownerUid !== uid) return current;
-          const nextIds = new Set(current.favoriteIds);
-          nextIds.delete(r._id);
-          const next = current.favorites.filter((favorite) => favorite.restaurantId !== r._id);
-          writeCache(next);
-          return { ...current, favoriteIds: nextIds, favorites: next };
-        });
+        if (firstSpot && !profileHintSeen()) notify('spotSavedFirst', locale);
+        markProfileHintSeen();
       }
       return true;
     },
-    [uid, favoriteIds, loading, locale, openLoginModal]
+    [uid, favoriteIds, favorites, loading, locale, openLoginModal]
   );
 
   const updateNote = useCallback(

@@ -158,12 +158,11 @@ describe('useFavorites uid isolation', () => {
   });
 });
 
-/* Die Bestaetigung unterscheidet den ersten Spot vom zehnten (lib/notice:
-   spotSavedFirst sagt, wo er landet; spotSaved nickt nur). */
-describe('useFavorites — Bestaetigung beim Speichern', () => {
+/* Das Herz fuellt sich beim Tippen, nicht erst nach /api/heart; gemeldet
+   wird nur der allererste Spot, einmal je Geraet (Betreiber, 27.10.2026). */
+describe('useFavorites — Speichern', () => {
   const showNotice = vi.fn();
   const fetchMock = vi.fn(() => Promise.resolve({ ok: true }));
-  const detail = () => showNotice.mock.calls.at(-1)?.[0]?.detail;
 
   /* Eigene Konten je Test: pendingHeart merkt sich das eingeloeste Herz pro
      Seite und uid, und ein frueherer Test dieser Datei hinterlaesst eines
@@ -173,11 +172,12 @@ describe('useFavorites — Bestaetigung beim Speichern', () => {
     window.localStorage.clear();
     window.sessionStorage.clear();
     window.showNotice = showNotice;
+    fetchMock.mockImplementation(() => Promise.resolve({ ok: true }));
     vi.stubGlobal('fetch', fetchMock);
     mocks.getDb.mockResolvedValue({});
   });
 
-  it('erklaert beim ersten Spot, wo er landet', async () => {
+  it('sagt beim allerersten Spot einmal, wo die Spots liegen', async () => {
     mocks.getDocs.mockResolvedValue({ docs: [] });
     const { result } = renderHook(() => useFavorites('user-first'));
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -185,11 +185,21 @@ describe('useFavorites — Bestaetigung beim Speichern', () => {
     await act(async () => {
       await result.current.toggle({ _id: 'r-1', name: 'Spot 1' });
     });
+    expect(showNotice).toHaveBeenCalledOnce();
+    expect(showNotice.mock.calls[0][0].detail).toBe('Deine Spots findest du im Profil.');
 
-    expect(detail()).toBe('Dein erster Spot. Du findest ihn in deinem Profil.');
+    /* Entfernt und neu gespeichert ist die Liste wieder leer — der Hinweis
+       kommt trotzdem nicht noch einmal. */
+    await act(async () => {
+      await result.current.toggle({ _id: 'r-1', name: 'Spot 1' });
+    });
+    await act(async () => {
+      await result.current.toggle({ _id: 'r-1', name: 'Spot 1' });
+    });
+    expect(showNotice).toHaveBeenCalledOnce();
   });
 
-  it('nickt ab dem zweiten Spot nur', async () => {
+  it('meldet ab dem zweiten Spot nichts', async () => {
     mocks.getDocs.mockResolvedValue({
       docs: [{ id: 'r-0', data: () => ({ name: 'Spot 0' }) }],
     });
@@ -200,35 +210,62 @@ describe('useFavorites — Bestaetigung beim Speichern', () => {
       await result.current.toggle({ _id: 'r-1', name: 'Spot 1' });
     });
 
-    expect(detail()).toBe('Noch einer für deine Liste.');
+    expect(showNotice).not.toHaveBeenCalled();
   });
 
-  /* Das Herz von vor dem Login: erst nach dem Lesen der Liste steht fest, ob
-     es der erste Spot war. */
-  it('zaehlt beim Herz von vor dem Login die gelesene Liste', async () => {
-    window.sessionStorage.setItem(
-      'eatthis_pending_heart',
-      JSON.stringify({ id: 'r-9', at: Date.now() })
+  it('fuellt das Herz sofort und nimmt es zurueck, wenn der Server ablehnt', async () => {
+    mocks.getDocs.mockResolvedValue({ docs: [] });
+    let answer: (value: { ok: boolean }) => void = () => {};
+    fetchMock.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          answer = resolve;
+        })
     );
-    mocks.getDocs.mockResolvedValue({
-      docs: [
-        { id: 'r-0', data: () => ({ name: 'Spot 0' }) },
-        { id: 'r-9', data: () => ({ name: 'Spot 9' }) },
-      ],
-    });
+    const { result } = renderHook(() => useFavorites('user-optimistic'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
-    renderHook(() => useFavorites('user-pending'));
-
-    await waitFor(() => expect(showNotice).toHaveBeenCalledOnce());
-    expect(showNotice.mock.calls[0][0]).toMatchObject({
-      detail: 'Noch einer für deine Liste.',
-      duration: 5000,
+    let done: Promise<boolean> = Promise.resolve(false);
+    act(() => {
+      done = result.current.toggle({ _id: 'r-1', name: 'Spot 1' });
     });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    expect(result.current.favoriteIds.has('r-1')).toBe(true);
+
+    /* Ein zweiter Tipp, solange der erste laeuft, schaltet nicht zurueck. */
+    await act(async () => {
+      await expect(result.current.toggle({ _id: 'r-1', name: 'Spot 1' })).resolves.toBe(false);
+    });
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    await act(async () => {
+      answer({ ok: false });
+      await expect(done).resolves.toBe(false);
+    });
+    expect(result.current.favoriteIds.has('r-1')).toBe(false);
+    expect(showNotice).toHaveBeenCalledWith(expect.objectContaining({ tone: 'error' }));
   });
 
-  /* Nach dem Login geht es ins Profil, der Spot steht dort schon in der
-     Liste — die Meldung verweist nicht noch einmal aufs Profil. */
-  it('verweist beim ersten Spot von vor dem Login nicht aufs Profil', async () => {
+  it('behaelt die Notiz, wenn das Entfernen scheitert', async () => {
+    mocks.getDocs.mockResolvedValue({
+      docs: [{ id: 'r-1', data: () => ({ name: 'Spot 1', note: 'Mittags hin' }) }],
+    });
+    fetchMock.mockImplementation(() => Promise.resolve({ ok: false }));
+    const { result } = renderHook(() => useFavorites('user-keep-note'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.toggle({ _id: 'r-1', name: 'Spot 1' });
+    });
+
+    expect(result.current.favorites).toEqual([
+      { restaurantId: 'r-1', name: 'Spot 1', note: 'Mittags hin' },
+    ]);
+  });
+
+  /* Das Herz von vor dem Login: die Anmeldung endet im Profil, der Spot steht
+     dort in der Liste. Keine Meldung — und auch spaeter kein Hinweis mehr. */
+  it('meldet das Herz von vor dem Login nicht und zaehlt es als gezeigt', async () => {
     window.sessionStorage.setItem(
       'eatthis_pending_heart',
       JSON.stringify({ id: 'r-9', at: Date.now() })
@@ -237,12 +274,11 @@ describe('useFavorites — Bestaetigung beim Speichern', () => {
       docs: [{ id: 'r-9', data: () => ({ name: 'Spot 9' }) }],
     });
 
-    renderHook(() => useFavorites('user-pending-first'));
+    const { result } = renderHook(() => useFavorites('user-pending-first'));
 
-    await waitFor(() => expect(showNotice).toHaveBeenCalledOnce());
-    expect(showNotice.mock.calls[0][0]).toMatchObject({
-      detail: 'Dein erster Spot.',
-      duration: 5000,
-    });
+    await waitFor(() => expect(result.current.favoriteIds.has('r-9')).toBe(true));
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(showNotice).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem('eatthis_saved_spots_hint')).toBe('1');
   });
 });

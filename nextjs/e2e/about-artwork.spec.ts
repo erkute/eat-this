@@ -10,7 +10,7 @@ for (const locale of ['de', 'en']) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(locale === 'de' ? '/about' : '/en/about');
     await expect(page.getByRole('heading', { name: 'eat this.', exact: true })).toBeVisible();
-    const portrait = page.locator('img[src*="founder-table-cartoon-final"]');
+    const portrait = page.locator('img[src*="founder-cutout"]');
     await expect(portrait).toBeVisible();
     await expect(portrait).toHaveCSS('transform', 'none');
 

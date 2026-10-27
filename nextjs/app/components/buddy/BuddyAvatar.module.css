@@ -8,103 +8,109 @@
   box-shadow: none;
   flex-shrink: 0;
 }
-/* Matched moods (neutral/teeth/laugh) share framing so only the mouth differs;
-   think/greeting swap the whole base frame (slightly different zoom = pose change). */
-.face,
-.faceOpen {
+/* Face and mouth scale together, pinned to the top edge (no gap under the
+   header frame). */
+.stage {
+  position: absolute;
+  inset: 0;
+  transform: scale(1.15);
+  transform-origin: 50% 0%;
+}
+.face {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 0%;
-  transform: scale(1.15);
-  transform-origin: 50% 0%;
   display: block;
 }
-.faceOpen {
-  opacity: 0;
+/* Window over the mouth in the base drawing (pixels 404–616 × 357–533 of
+   1024). The sprite holds four frames side by side: empty (the base's own
+   closed mouth shows through), open, wide, O. */
+.mouth {
+  position: absolute;
+  left: 39.453%;
+  top: 34.863%;
+  width: 20.703%;
+  height: 17.188%;
+  overflow: hidden;
 }
-/* Mouth flap while talking. Two uneven opens per cycle (not a metronome 50/50)
-   so the rhythm reads like speech rather than a robotic blink. */
-.wrap[data-mood='talking'] .faceOpen {
-  animation: buddyFlap 0.42s infinite;
+.mouths {
+  display: block;
+  width: 400%;
+  max-width: none;
+  height: 100%;
 }
-@keyframes buddyFlap {
+.wrap[data-mood='happy'] .mouths {
+  transform: translateX(-50%);
+}
+/* Speech: hard cuts between mouth shapes in an uneven rhythm with pauses,
+   so it reads like words rather than a metronome flap. */
+.wrap[data-mood='talking'] .mouths {
+  animation: buddySpeak 2.2s step-end infinite;
+}
+@keyframes buddySpeak {
+  0% { transform: translateX(-25%); }
+  6% { transform: translateX(0); }
+  10% { transform: translateX(-75%); }
+  17% { transform: translateX(-25%); }
+  23% { transform: translateX(0); }
+  27% { transform: translateX(-50%); }
+  35% { transform: translateX(-25%); }
+  40% { transform: translateX(0); }
+  48% { transform: translateX(-75%); }
+  53% { transform: translateX(0); }
+  57% { transform: translateX(-25%); }
+  63% { transform: translateX(-50%); }
+  69% { transform: translateX(0); }
+  74% { transform: translateX(-25%); }
+  79% { transform: translateX(0); }
+  100% { transform: translateX(0); }
+}
+/* While talking the head swells a little with the phrasing. */
+.wrap[data-mood='talking'] .stage {
+  animation: buddyTalk 2.2s ease-in-out infinite;
+}
+@keyframes buddyTalk {
   0%,
-  18% {
-    opacity: 0;
-  }
-  26%,
-  44% {
-    opacity: 1;
-  } /* first open */
-  52%,
-  60% {
-    opacity: 0;
-  } /* brief close */
-  66%,
-  82% {
-    opacity: 1;
-  } /* second, slightly shorter open */
-  92%,
-  100% {
-    opacity: 0;
-  }
+  100% { transform: scale(1.15); }
+  30% { transform: scale(1.158); }
+  55% { transform: scale(1.152); }
+  72% { transform: scale(1.16); }
 }
-/* Idle: Remy breathes (slow scale swell) with a quick squash "blink" tick once
-   per cycle, so the resting launcher/avatar feels alive instead of frozen.
-   Scale-only swell keeps the top edge pinned (no gap under the circle mask). */
-.wrap[data-mood='idle'] .face {
+/* Idle: Remy breathes (slow scale swell) with a quick squash "blink" tick
+   once per cycle, so the resting avatar feels alive instead of frozen. */
+.wrap[data-mood='idle'] .stage {
   animation: buddyIdle 4.6s ease-in-out infinite;
-  transform-box: fill-box;
 }
 @keyframes buddyIdle {
   0%,
-  100% {
-    transform: scale(1.15);
-  }
-  18% {
-    transform: scale(1.166);
-  } /* inhale */
+  100% { transform: scale(1.15); }
+  18% { transform: scale(1.166); } /* inhale */
   36%,
-  40% {
-    transform: scale(1.15);
-  } /* exhale, settle */
-  43% {
-    transform: scale(1.15) scaleY(0.92);
-  } /* quick blink squash */
+  40% { transform: scale(1.15); } /* exhale, settle */
+  43% { transform: scale(1.15) scaleY(0.92); } /* quick blink squash */
   46%,
-  70% {
-    transform: scale(1.15);
-  }
-  82% {
-    transform: scale(1.16);
-  } /* soft second breath */
+  70% { transform: scale(1.15); }
+  82% { transform: scale(1.16); } /* soft second breath */
 }
-/* tiny scale pop when Remy laughs after delivering an answer */
-.wrap[data-mood='happy'] .face {
+/* Tiny scale pop when Remy laughs after delivering an answer. */
+.wrap[data-mood='happy'] .stage {
   animation: buddyPop 0.5s ease-out;
 }
 @keyframes buddyPop {
-  0% {
-    transform: scale(1.15);
-  }
-  40% {
-    transform: scale(1.24);
-  }
-  100% {
-    transform: scale(1.15);
-  }
+  0% { transform: scale(1.15); }
+  40% { transform: scale(1.24); }
+  100% { transform: scale(1.15); }
 }
+.wrap[data-breathe='off'] .stage {
+  animation: none;
+}
+/* Reduced motion: Remy holds still with his mouth closed; the laugh stays
+   as a still. */
 @media (prefers-reduced-motion: reduce) {
-  .wrap[data-mood='talking'] .faceOpen {
-    animation: none;
-  }
-  .wrap[data-mood='idle'] .face {
-    animation: none;
-  }
-  .wrap[data-mood='happy'] .face {
+  .wrap[data-mood] .stage,
+  .wrap[data-mood='talking'] .mouths {
     animation: none;
   }
 }

@@ -155,7 +155,7 @@
 .logoAt {
   height: auto;
 }
-/* The new artwork is black; preserve its paper texture on dark cover areas. */
+/* The wordmark is ink; invert it on dark cover areas. */
 .cover.ink .logo,
 .cover.ink .logoAt,
 .cover .bandLogo,
@@ -163,21 +163,12 @@
 .cover[data-cover-look='system'] .logo {
   filter: invert(1);
 }
-/* Keep the cover palette and the wordmark's crumpled-paper texture. */
+/* The wordmark in the cover palette. */
 .flatLogo {
-  isolation: isolate;
   aspect-ratio: 2172 / 724;
   background: var(--fill);
-  -webkit-mask: url('/pics/eat-this-crumpled-wordmark.webp') center / contain no-repeat;
-  mask: url('/pics/eat-this-crumpled-wordmark.webp') center / contain no-repeat;
-}
-.flatLogo::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('/pics/eat-this-crumpled-wordmark.webp') center / contain no-repeat;
-  filter: var(--texture-filter);
-  mix-blend-mode: var(--texture-blend);
+  -webkit-mask: url('/pics/eat-this-wordmark.svg') center / contain no-repeat;
+  mask: url('/pics/eat-this-wordmark.svg') center / contain no-repeat;
 }
 .logoShadow {
   inset: 0;

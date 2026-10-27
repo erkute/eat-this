@@ -7,9 +7,6 @@ import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import type { MapMustEat } from '@/lib/types';
 import { translations } from '@/lib/i18n/translations';
 
-// The zoom is a lazy client-only layer; this test targets the two surfaces.
-vi.mock('@/app/components/map/LazyMustEatImageLightbox', () => ({ default: () => null }));
-
 import MustEatsGallery from '@/app/components/MustEatsGallery';
 
 const COPY = {
@@ -22,6 +19,8 @@ const COPY = {
   coveredBody: 'Covered body',
   coveredLabel: 'Verdeckt',
   spotAria: 'Spot-Seite öffnen',
+  mapAria: 'auf der Map zeigen',
+  setMore: 'Alle Karten zeigen',
 };
 
 /** Face-up: dish, image, text. Covered: what stripCoveredMustEats and
@@ -39,7 +38,7 @@ const open = (order: number, o: Partial<MapMustEat> = {}): MapMustEat => ({
 const covered = (order: number): MapMustEat => ({
   _id: `m${order}`,
   order,
-  restaurant: { _id: `r${order}`, name: `Hidden ${order} Mitte`, slug: '', district: 'Mitte', lat: 0, lng: 0 },
+  restaurant: { _id: `r${order}`, name: `Hidden ${order} Mitte`, slug: `hidden-${order}`, district: 'Mitte', lat: 0, lng: 0 },
 });
 
 // Arrives face-up first, the way selectMustEatsCatalog hands it over.
@@ -77,11 +76,39 @@ describe('MustEatsGallery', () => {
   it('lays the whole set out by card number, face-up and covered mixed', () => {
     const labels = [...section(render(), 'set').matchAll(/aria-label="([^"]+)"/g)].map((m) => m[1]);
     expect(labels).toEqual([
-      'Nr. 001, Verdeckt, Hidden 1',
-      'Nr. 002, Dish 2, Spot 2',
-      'Nr. 003, Verdeckt, Hidden 3',
-      'Nr. 005, Dish 5, Spot 5',
+      'Nr. 001, Verdeckt, Hidden 1, auf der Map zeigen',
+      'Nr. 002, Dish 2, Spot 2, auf der Map zeigen',
+      'Nr. 003, Verdeckt, Hidden 3, auf der Map zeigen',
+      'Nr. 005, Dish 5, Spot 5, auf der Map zeigen',
     ]);
+  });
+
+  it('links every card, face-up or covered, to its spot on the map', () => {
+    const html = render();
+    const set = section(html, 'set');
+    expect(set).toContain('href="/map?r=hidden-1"');
+    expect(set).toContain('href="/map?r=spot-2"');
+    expect(section(html, 'open')).toContain('href="/map?r=spot-2"');
+    expect(render(DATA, 'en')).toContain('href="/en/map?r=hidden-1"');
+  });
+
+  it('falls back to the card itself on the map when the spot has no slug', () => {
+    const noSlug = covered(7);
+    noSlug.restaurant.slug = '';
+    const html = render({ mustEats: [noSlug], revealedMustEatIds: [] });
+    expect(html).toContain('href="/map?me=m7"');
+  });
+
+  it('starts the set collapsed to one row, with a button for the rest', () => {
+    const many = Array.from({ length: 8 }, (_, i) => covered(i + 1));
+    const set = section(render({ mustEats: many, revealedMustEatIds: [] }), 'set');
+    expect(set).toMatch(/<ol[^>]*data-collapsed=""/);
+    expect(set).toMatch(/<button[^>]*class="et-btn"[^>]*aria-expanded="false"[^>]*>Alle Karten zeigen<\/button>/);
+  });
+
+  it('drops the button when the set already fits one phone row', () => {
+    const set = section(render({ mustEats: [covered(1), covered(2), covered(3)], revealedMustEatIds: [] }), 'set');
+    expect(set).not.toContain('Alle Karten zeigen');
   });
 
   it('captions each face-up card with dish and spot link — no number, no description', () => {
@@ -107,7 +134,7 @@ describe('MustEatsGallery', () => {
     expect(html).not.toMatch(/>€</);
   });
 
-  it('names the spot under a covered card, without its district and without a link', () => {
+  it('names the spot under a covered card, without its district and without a text link', () => {
     const set = section(render(), 'set');
     expect(set).toContain('>Hidden 1<');
     expect(set).not.toContain('Hidden 1 Mitte');

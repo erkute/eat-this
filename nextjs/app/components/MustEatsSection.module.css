@@ -40,7 +40,7 @@
 .sectionHead { display: grid; gap: 16px; margin-bottom: 20px; }
 .sectionTitle { font-size: clamp(34px, 5vw, 64px); line-height: 1.02; }
 .sectionBody { max-width: 48ch; }
-.card { appearance: none; display: block; width: 100%; margin: 0; padding: 0; background: transparent; border: 0; cursor: pointer; transition: transform .2s ease; }
+.card { display: block; width: 100%; color: inherit; text-decoration: none; transition: transform .2s ease; }
 .card img { display: block; width: 100%; height: auto; aspect-ratio: 760 / 1044; object-fit: contain; filter: var(--must-card-shadow); }
 .card:focus-visible { outline: 3px solid var(--et-link); outline-offset: 6px; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) { .card:hover { transform: translateY(-6px); } }
@@ -59,6 +59,9 @@
 .setCaption { display: grid; gap: 5px; margin: 12px 0 0; font-size: 12px; line-height: 1.3; }
 .setName { font-weight: 700; overflow-wrap: anywhere; }
 .setSpot { color: var(--must-soft); overflow-wrap: anywhere; }
+/* Zugeklappt eine Reihe: so viele Karten, wie das Raster Spalten hat. */
+.set[data-collapsed] > .setItem:nth-child(n + 4) { display: none; }
+.setMore { display: flex; justify-content: center; margin-top: 28px; }
 .close { display: grid; align-items: center; gap: 32px; margin-top: var(--must-gap); padding-block: 24px; }
 .closeCopy { min-width: 0; }
 .closeTitle { margin-top: 20px; font-size: clamp(48px, 7vw, 88px); line-height: 1; }
@@ -76,6 +79,9 @@
   .statLabel { font-size: 14px; }
   .feature { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; margin: 0; padding: 0; overflow: visible; }
   .set { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px 20px; }
+  .set[data-collapsed] > .setItem:nth-child(n + 4) { display: block; }
+  .set[data-collapsed] > .setItem:nth-child(n + 6) { display: none; }
+  .setMore[data-fits='tablet'] { display: none; }
   .sectionHead { grid-template-columns: 1fr; grid-template-areas: 'kicker' 'title' 'body'; align-items: start; gap: 10px; margin-bottom: 24px; }
   .sectionHead > .kicker { grid-area: kicker; }
   .sectionTitle { grid-area: title; }
@@ -85,6 +91,12 @@
   .packShot { order: 0; }
   .packShot img { width: min(100%, 280px); }
 }
-@media (min-width: 1024px) { .feature { grid-template-columns: repeat(4, minmax(0, 1fr)); } .set { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (min-width: 1024px) {
+  .feature { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .set { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .set[data-collapsed] > .setItem:nth-child(n + 6) { display: block; }
+  .set[data-collapsed] > .setItem:nth-child(n + 7) { display: none; }
+  .setMore[data-fits='desktop'] { display: none; }
+}
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
 @supports (-webkit-touch-callout: none) { @media (pointer: coarse) { .cover img, .card img, .packShot img { filter: none; } } }

@@ -4,14 +4,21 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 const mocks = vi.hoisted(() => ({ timeline: vi.fn(), cleanups: [] as Array<() => void> }));
 vi.mock('gsap', () => ({ default: {
-  matchMedia: () => ({ add: (_query: string, setup: () => () => void) => mocks.cleanups.push(setup()), revert: () => mocks.cleanups.splice(0).forEach(fn => fn()) }),
+  matchMedia: () => ({
+    add: (queries: Record<string, string>, setup: (context: { conditions: Record<string, boolean> }) => (() => void) | undefined) => {
+      const conditions = Object.fromEntries(Object.entries(queries).map(([name, query]) => [name, window.matchMedia(query).matches]));
+      const dispose = setup({ conditions });
+      if (dispose) mocks.cleanups.push(dispose);
+    },
+    revert: () => mocks.cleanups.splice(0).forEach(fn => fn()),
+  }),
   set: vi.fn(), killTweensOf: vi.fn(), timeline: mocks.timeline,
 } }));
 import HubFragRemy from './HubFragRemy';
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.clearAllMocks(); });
-it('waits for the portrait to decode before playing its entrance in view', async () => {
+it.each([false, true])('waits for the portrait to decode before playing its entrance in view (mobile: %s)', async (mobile) => {
   const callbacks: IntersectionObserverCallback[] = [];
-  vi.stubGlobal('matchMedia', () => ({ matches: true }));
+  vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('max-width') ? mobile : true }));
   vi.stubGlobal('IntersectionObserver', class {
     constructor(callback: IntersectionObserverCallback) { callbacks.push(callback); }
     observe() {} disconnect() {}

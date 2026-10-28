@@ -26,9 +26,6 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  /* Bottom spacing for details without the final pack block. Phone flow
-     and the pack block supply their own end spacing below. */
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px) + var(--map-bar-overhang, 0px));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   /* Vertical content scrolling; the nested photo rail owns horizontal gestures. */
@@ -43,15 +40,6 @@
   transition:
     transform var(--map-motion),
     filter var(--map-motion);
-}
-/* Desktop sized-ups (rail variant) */
-@media (min-width: 1024px) {
-  /* Desktop has no iOS URL bar, so the --map-bar-overhang apron (80px) would
-     just be dead white space below the last block (e.g. the booster banner).
-     Drop it from the detail scroll padding here; iOS keeps the apron. */
-  .scroll {
-    padding-bottom: 20px;
-  }
 }
 
 @keyframes rdSkelShimmer {
@@ -278,12 +266,6 @@
   color: #15120e;
   box-shadow: none;
 }
-.scroll > .packPromo:last-child {
-  margin-bottom: 28px;
-}
-.detail .scroll:has(> .packPromo:last-child) {
-  padding-bottom: 0;
-}
 .packPromo::before,
 .packPromo::after {
   content: none;
@@ -398,10 +380,6 @@
     max-height: none;
     overflow-x: clip;
     overflow-y: visible;
-    /* Keep the scroll-port itself free of a blank apron; the last real block
-       below is extended instead so Safari's translucent URL bar samples
-       content, not the page background. */
-    padding-bottom: 0;
   }
 }
 /* Etwas Luft über der "Must Eats"-Sektion im Restaurant-Detail — sie klebte
@@ -414,19 +392,9 @@
 
 @media (max-width: 767.98px) {
   [data-map-sheet][data-view='detail'] .detail .scroll {
-    /* No inner scroll-port and no blank padding apron. */
-    padding-bottom: 0;
     overscroll-behavior: auto;
   }
 
-  /* Last block on the phone sheet: drop its bottom margin so it closes the
-     scroll instead of floating above an apron. It used to be painted white
-     with a hairline under it to look terminated; the warm panel does that on
-     its own now, so neither is repeated here. */
-
-  [data-map-sheet][data-view='detail'] .scroll > .packPromo:last-child {
-    margin-bottom: 0;
-  }
 }
 /* Phone restaurant detail must be real document flow, like the restaurant
    list. If any older sheet rule leaves the detail as a flex/auto scroll-port,
@@ -458,13 +426,6 @@
     overflow-y: visible;
   }
 
-  /* iOS URL-bar frosting for the phone detail: MapLibre is constrained to the
-     real top peek instead of remaining a full-viewport compositor behind this
-     in-flow content. Safari can therefore sample the detail at the bottom. */
-
-  [data-map-sheet][data-view='detail'] .scroll:has(> .packPromo:last-child) {
-    padding-bottom: 28px;
-  }
 }
 @keyframes fdRevealReadyShake {
   0%,
@@ -1139,8 +1100,11 @@
 .rdAddress:is(:hover, :focus-visible) { color: var(--et-link); text-decoration: none; }
 .rdAddress:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 
-/* Ohne Pack-Werbung (All Berlin) endet das Detail nach dem Magazin oder
-   Steckbrief. Auch im Telefonfluss braucht dieser Abschluss Luft. */
-.detail .scroll:not(:has(> .packPromo:last-child)) {
-  padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+/* Ein Abschluss für Anmeldung, Booster-Pack und das letzte Magazin/Steckbrief:
+   Außenabstände nicht mit dem Scroll-Abstand stapeln. Die Safe Area bleibt frei. */
+.detail .scroll {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+.detail .scroll > :last-child {
+  margin-bottom: 0;
 }

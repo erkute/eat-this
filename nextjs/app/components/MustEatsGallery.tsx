@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { resolveUnlockedMustEatIds } from '@/lib/map';
 import { cardNumber, sortByCardNumber } from '@/lib/map/cardOrder';
+import { mustEatMapHref } from '@/lib/map/mustEatMapHref';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
@@ -29,6 +30,7 @@ interface GalleryCopy {
 }
 
 interface Props {
+  coverIds: string[];
   initialMapData: InitialMustEatsData;
   /** Composed on the server: the set heading carries a live count, and the
    *  shared t() cannot format ICU placeholders. See MustEatsSection. */
@@ -44,16 +46,7 @@ const SET_SIZES = '(max-width: 767px) 30vw, (max-width: 1023px) 18vw, 210px';
 /** Spalten des Sets je Breite — zugeklappt zeigt es genau eine Reihe davon. */
 const SET_ROW = { phone: 3, tablet: 5, desktop: 6 } as const;
 
-/** Jede Karte führt auf ihren Spot in der Map: dort liegt sie im
- *  Restaurant-Detail, und eine verdeckte verhält sich wie überall auf der Map
- *  (ohne Konto: Zittern, dann Login). Ohne Slug bleibt nur die Karte selbst. */
-function mapHref(m: MapMustEat): string {
-  return m.restaurant.slug
-    ? `/map?r=${encodeURIComponent(m.restaurant.slug)}`
-    : `/map?me=${encodeURIComponent(m._id)}`;
-}
-
-export default function MustEatsGallery({ initialMapData, copy }: Props) {
+export default function MustEatsGallery({ initialMapData, copy, coverIds }: Props) {
   const { t } = useTranslation();
 
   // Deterministic public catalog: every visitor — guest or signed-in — sees
@@ -76,7 +69,10 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
   // bis zum 27.10.2026 lag hier das ganze Set gemischt, die offenen Karten
   // standen damit zweimal auf der Seite, unter „54 warten vor Ort“ lagen 62.
   const all = useMemo(() => sortByCardNumber(initialMapData.mustEats), [initialMapData]);
-  const open = useMemo(() => all.filter((m) => faceUp.has(m._id)), [all, faceUp]);
+  const open = useMemo(
+    () => all.filter((m) => faceUp.has(m._id) && !coverIds.includes(m._id)),
+    [all, faceUp, coverIds]
+  );
   const covered = useMemo(() => all.filter((m) => !faceUp.has(m._id)), [all, faceUp]);
 
   /* Eine verdeckte Karte nennt hier ihren Spot, sonst nichts: Gericht und
@@ -114,7 +110,7 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
     const alt = (isOpen ? m.dish : undefined) ?? t('mustEats.covered');
     return (
       <MapIntentLink
-        href={mapHref(m)}
+        href={mustEatMapHref(m)}
         className={styles.card}
         aria-label={`${label}, ${copy.mapAria}`}
         // Both faces are the same object — a complete card artwork, drawn
@@ -181,9 +177,6 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
                           </Link>
                         ) : (
                           spot
-                        )}
-                        {m.restaurant.district && (
-                          <span className={styles.district}>{m.restaurant.district}</span>
                         )}
                       </p>
                     )}

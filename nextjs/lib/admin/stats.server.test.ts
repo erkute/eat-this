@@ -733,7 +733,7 @@ describe('summarizeDeck', () => {
       cards: 2,
       publicCards: 1,
       spots: 4,
-      freeCards: 8,
+      freeCards: 10,
       starterCards: 20,
       starterFaceUp: 20,
     });

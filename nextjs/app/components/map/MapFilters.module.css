@@ -1,5 +1,5 @@
-/* Tape chips (tokens in globals.css), heavy black type; set filters are
-   black tape. Phone pickers remain modal, desktop inline. */
+/* Black tape in both themes; set/open filters invert to white tape.
+   Phone pickers remain modal, desktop inline. */
 .listHeader {
   position: relative;
   flex-shrink: 0;
@@ -11,6 +11,8 @@
   color: var(--et-fg);
 }
 .filterChipRow {
+  --et-tape-fg: #fff;
+  --et-tape-active-fg: #000;
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
@@ -20,7 +22,7 @@
   width: 100%;
   min-width: 0;
   /* Room below the chips: the scrolling row clips its overflow. */
-  padding: 6px 8px 12px;
+  padding: 6px 8px 4px;
   box-sizing: border-box;
   touch-action: pan-x pan-y;
 }
@@ -60,44 +62,28 @@
 }
 /* Each filter is its own piece of tape from the stock sheet. */
 .filterChipRow > :nth-child(1) {
-  --et-tape-img: url('/pics/tape/gaffer-3-white.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-3-black.webp');
+  --et-tape-img: url('/pics/tape/gaffer-3-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-3-white.webp');
   --et-tape-slice: 9 11 12 31 fill;
   --et-tape-width: 2px 2px 3px 7px;
 }
 .filterChipRow > :nth-child(2) {
-  --et-tape-img: url('/pics/tape/gaffer-5-white.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-5-black.webp');
+  --et-tape-img: url('/pics/tape/gaffer-5-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-5-white.webp');
   --et-tape-slice: 17 31 14 17 fill;
   --et-tape-width: 4px 7px 3px 4px;
 }
 .filterChipRow > :nth-child(3) {
-  --et-tape-img: url('/pics/tape/gaffer-4-white.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-4-black.webp');
+  --et-tape-img: url('/pics/tape/gaffer-4-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-4-white.webp');
   --et-tape-slice: 13 9 33 21 fill;
   --et-tape-width: 3px 2px 7px 5px;
 }
 .filterChipRow > :nth-child(4) {
-  --et-tape-img: url('/pics/tape/gaffer-6-white.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-6-black.webp');
-  --et-tape-slice: 11 11 20 8 fill;
-  --et-tape-width: 2px 2px 4px 2px;
-}
-:global(html[data-theme='dark']) .filterChipRow > :nth-child(1) {
-  --et-tape-img: url('/pics/tape/gaffer-3-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-3-white.webp');
-}
-:global(html[data-theme='dark']) .filterChipRow > :nth-child(2) {
-  --et-tape-img: url('/pics/tape/gaffer-5-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-5-white.webp');
-}
-:global(html[data-theme='dark']) .filterChipRow > :nth-child(3) {
-  --et-tape-img: url('/pics/tape/gaffer-4-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-4-white.webp');
-}
-:global(html[data-theme='dark']) .filterChipRow > :nth-child(4) {
   --et-tape-img: url('/pics/tape/gaffer-6-black.webp');
   --et-tape-active-img: url('/pics/tape/gaffer-6-white.webp');
+  --et-tape-slice: 11 11 20 8 fill;
+  --et-tape-width: 2px 2px 4px 2px;
 }
 .filterChipRow .filterChipLabel {
   display: block;
@@ -108,7 +94,7 @@
   text-overflow: clip;
   white-space: nowrap;
 }
-/* Jeder gesetzte oder geöffnete Filter ist schwarzes Band. */
+/* Gesetzte oder geöffnete Filter heben sich als weißes Band ab. */
 .filterChipRow .filterChipActive,
 .filterChipRow .filterChipOpenActive,
 .filterChipRow .filterChip[aria-expanded='true'] {
@@ -140,7 +126,7 @@
 }
 .filterChipClear svg { width: 12px; height: 12px; }
 .filterChipRow .filterChip:focus-visible {
-  outline: 2px solid var(--et-fg);
+  outline: 2px solid currentColor;
   outline-offset: -2px;
 }
 .filterChipClear:focus-visible { outline: 2px solid currentColor; outline-offset: -4px; }
@@ -332,7 +318,7 @@
 }
 @media (min-width: 1024px) {
   /* 40px Klebestreifen und Burger liegen beide mittig auf y=36px. */
-  .filterChipRow { padding: 16px 8px 12px; }
+  .filterChipRow { padding: 16px 8px 4px; }
   /* On the rail the panel itself carries the paper. */
   .listHeader { background: transparent; }
 }

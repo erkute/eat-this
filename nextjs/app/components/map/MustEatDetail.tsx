@@ -176,7 +176,7 @@ export default function MustEatDetail({
 
   return (
     <>
-      {/* Browserleisten auf dem Telefon so dunkel wie das Sheet — solange es
+      {/* Browserleisten auf dem Telefon in der Farbe des Sheets — solange es
           offen ist (siehe MustEatSheetBarLock). */}
       <MustEatSheetBarLock />
       <MustEatDetailMobile

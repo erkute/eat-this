@@ -3,6 +3,7 @@ import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import { sortByCardNumber } from '@/lib/map/cardOrder';
 import MustEatsGallery from './MustEatsGallery';
 import MustEatsOnboarding from './MustEatsOnboarding';
+import MustEatsStarterButton from './MustEatsStarterButton';
 import SiteFooter from './SiteFooter';
 import styles from './MustEatsSection.module.css';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
@@ -17,58 +18,66 @@ interface Props {
 // shared t() cannot format ICU placeholders — it answers an unformatted one
 // with the key path (see MustEatsOnboarding) — so the counts are composed here
 // and handed to the client island as finished strings.
+// Seitentext wörtlich von Ersan (28.10.2026), EN sinngemäß danach.
 const COPY = {
   de: {
-    kicker: 'In Berlin',
+    kicker: 'Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Unsere Auswahl der Gerichte, die du in Berlin bestellen solltest. Einige sind bereits aufgedeckt, die anderen entdeckst du direkt am Spot.',
-    statCards: 'Karten',
-    statOpen: 'liegen offen',
-    statCovered: 'vor Ort',
+    sub: 'Berlin hat viel auf der Karte. Wir sagen dir, was du bestellen solltest. Entdecke unsere Must Eats und sammle die Empfehlungen als Karten in deinem eigenen Deck.',
+    howItWorks: 'So funktioniert’s',
     numberLabel: 'Nr.',
-    openKicker: 'Must Eat?',
-    // Wörtlich aus /about (Betreiber, 15.10.2026), EN ebenso.
-    openTitle: 'Weil Entdecken mehr Spaß macht als Suchen.',
+    openKicker: 'Schon aufgedeckt',
+    openTitle: 'Das solltest du bestellen.',
     openBody:
-      'Must Eats sind die Gerichte, für die sich der Weg durch Berlin lohnt. Am Spot bestellst du das Gericht und deckst seine Karte auf. So wächst deine Sammlung mit jedem Teller.',
-    setKicker: 'Das Set',
-    coveredTitle: (n: number) => `${n} warten vor Ort.`,
-    coveredBody: 'Hinter jeder Karte steckt unsere Empfehlung — ein Gericht, das du probieren musst. Bist du am Spot, drehst du sie mit einem Tap um. Dann liegt sie in deinem Deck.',
-    coveredLabel: 'Verdeckt',
+      'Hier bekommst du einen ersten Vorgeschmack. Jede Karte zeigt dir, was wir empfehlen und wo du es findest.',
+    setKicker: 'Vor Ort entdecken',
+    coveredTitle: (n: number) => `${n} gute Gründe, loszugehen.`,
+    coveredBody: (n: number) =>
+      `Weitere ${n} Karten sind noch verdeckt. Such dir auf der Map einen Spot aus und schau vorbei. Vor Ort deckst du die Karte mit einem Tap auf und erfährst, was du dort bestellen solltest. Danach gehört sie zu deinem Deck.`,
     spotAria: 'Spot-Seite öffnen',
     mapAria: 'auf der Map zeigen',
-    setMore: 'Alle Karten zeigen',
+    setMore: 'Alle Karten anzeigen',
+    // Gast: das Konto ist der nächste Schritt, nicht die Map.
+    closeGuestKicker: 'Dein Starter Pack',
+    closeGuestTitle: 'Deine Sammlung beginnt hier.',
+    closeGuestBody:
+      'Erstelle dein Konto und starte mit 20 Must Eats. Zehn Karten landen sofort in deinem Deck. Und weil Berlin noch einiges auf der Karte hat, kommen laufend neue Empfehlungen dazu.',
+    closeGuestCta: 'Konto erstellen',
+    // Mit Konto ist die Sammlung längst angefangen: Map und Booster Packs.
     closeKicker: 'Und jetzt',
     closeTitle: 'Hol sie dir.',
     closeBody:
-      'Jedes Must Eat gehört zu einem Spot auf der Map. Einige sind schon aufgedeckt, die anderen entdeckst du vor Ort — oder du schaltest sie mit einem Booster Pack frei. Und es kommen laufend neue dazu.',
+      'Jedes Must Eat gehört zu einem Spot auf der Map. Wer nicht bis zum nächsten Besuch warten will, deckt Karten mit einem Booster Pack auf. Und es kommen laufend neue dazu.',
     closeCta: 'Zur Map',
     closeSecondary: 'Booster Packs ansehen',
     headCta: 'Zur Map',
   },
   en: {
-    kicker: 'In Berlin',
+    kicker: 'Berlin',
     title: ['Must', 'Eats'],
-    sub: 'Our pick of the dishes you should order in Berlin. Some are already face-up, the rest you discover right at the spot.',
-    statCards: 'cards',
-    statOpen: 'face-up',
-    statCovered: 'on site',
+    sub: 'Berlin has a lot on the menu. We tell you what to order. Discover our Must Eats and collect the recommendations as cards in your own deck.',
+    howItWorks: 'How it works',
     numberLabel: 'No.',
-    openKicker: 'Must Eat?',
-    openTitle: 'Because discovering is more fun than searching.',
+    openKicker: 'Already face-up',
+    openTitle: 'This is what you should order.',
     openBody:
-      'Must Eats are the dishes worth crossing Berlin for. At the spot you order the dish and flip its card. Your collection grows with every plate.',
-    setKicker: 'The set',
-    coveredTitle: (n: number) => `${n} are waiting on site.`,
-    coveredBody: 'Behind every card is our recommendation — a dish you have to try. Once you are at the spot, one tap flips it. Then it is in your deck.',
-    coveredLabel: 'Face-down',
+      'Here is a first taste. Every card shows you what we recommend and where to find it.',
+    setKicker: 'Discover on site',
+    coveredTitle: (n: number) => `${n} good reasons to head out.`,
+    coveredBody: (n: number) =>
+      `Another ${n} cards are still face-down. Pick a spot on the map and drop by. On site, one tap turns the card over and tells you what to order there. After that, it belongs to your deck.`,
     spotAria: 'open the spot page',
     mapAria: 'show on the map',
     setMore: 'Show all cards',
+    closeGuestKicker: 'Your Starter Pack',
+    closeGuestTitle: 'Your collection starts here.',
+    closeGuestBody:
+      'Create your account and start with 20 Must Eats. Ten cards go straight into your deck. And because Berlin still has plenty on the menu, new recommendations keep coming.',
+    closeGuestCta: 'Create account',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',
     closeBody:
-      'Every Must Eat belongs to a spot on the map. Some are already face-up, the rest you discover at the spot — or unlock them with a Booster Pack. And new ones keep coming.',
+      'Every Must Eat belongs to a spot on the map. If you would rather not wait for your next visit, a Booster Pack flips cards for you. And new ones keep coming.',
     closeCta: 'To the map',
     closeSecondary: 'See Booster Packs',
     headCta: 'To the map',
@@ -78,8 +87,10 @@ const COPY = {
 // One bag, not the full nine-pack fan. The page advertises the Must Eats; a
 // wall of pack art at the end made the last impression "shop" instead of
 // "these dishes", and the same offer is already on slide 3 of the onboarding
-// and in the burger menu.
-const PACK_ART = '/pics/home/starter-pack-front.webp';
+// and in the burger menu. Which bag follows the closing copy: the Starter
+// Pack for guests, a Booster Pack once there is an account.
+const STARTER_ART = '/pics/home/starter-pack-front.webp';
+const BOOSTER_ART = '/pics/booster/booster.webp';
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale];
@@ -91,15 +102,11 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
   const openCount = initialMapData.mustEats.filter((m) => faceUp.has(m._id)).length;
   const coveredCount = total - openCount;
 
-  // Das Titelbild ist die offene Karte mit der kleinsten Nummer — die Seite
-  // zählt von dort an, wie das Set weiter unten.
-  const cover = sortByCardNumber(initialMapData.mustEats.filter((m) => faceUp.has(m._id) && m.image))[0];
-
-  const stats: Array<[string, string]> = [
-    [String(total), c.statCards],
-    [String(openCount), c.statOpen],
-    [String(coveredCount), c.statCovered],
-  ];
+  // Das Titelbild ist ein Fächer aus den offenen Karten mit den kleinsten
+  // Nummern (Betreiber, 27.10.2026: „zeig hier nicht nur eins“). Vorn liegt
+  // die kleinste — die Seite zählt von dort an.
+  const covers = sortByCardNumber(initialMapData.mustEats.filter((m) => faceUp.has(m._id) && m.image)).slice(0, 3);
+  const cover = covers[0];
 
   return (
     <main className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
@@ -114,42 +121,34 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         </h1>
 
         {cover && (
-          <figure className={styles.cover} aria-hidden="true">
-            {/* Daumennagel statt Original: die Titelkarte ist am Telefon ~130 px,
-                am Desktop höchstens 400 px breit. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              sizes="(max-width: 767px) 38vw, 400px"
-              srcSet={mustEatCardSrcSet(cover.image)}
-              src={mustEatCardSrc(cover.image, 440)}
-              alt=""
-              width={760}
-              height={1044}
-              fetchPriority="high"
-            />
+          <figure className={styles.cover} aria-hidden="true" data-count={covers.length}>
+            {/* Daumennägel statt Originale: eine Fächerkarte ist am Telefon
+                ~100 px, am Desktop höchstens ~220 px breit. Die vorderste
+                Karte kommt zuletzt, damit sie oben liegt. */}
+            {[...covers].reverse().map((m, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={m._id}
+                sizes="(max-width: 767px) 30vw, 240px"
+                srcSet={mustEatCardSrcSet(m.image)}
+                src={mustEatCardSrc(m.image, 440)}
+                alt=""
+                width={760}
+                height={1044}
+                fetchPriority={i === covers.length - 1 ? 'high' : undefined}
+              />
+            ))}
           </figure>
         )}
 
         <p className={styles.sub}>{c.sub}</p>
 
-        {/* The numbers are the ad. A visitor who sees "39 / 8 / 31" knows the
-            shape of the thing before reading a word of body copy. */}
-        {total > 0 && (
-          <dl className={styles.stats}>
-            {stats.map(([value, label]) => (
-              <div key={label} className={styles.stat}>
-                <dt className={styles.statLabel}>{label}</dt>
-                <dd className={styles.statValue}>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
 
         <div className={styles.actions}>
           <Link href={mapHref} className="et-btn">
             {c.headCta}
           </Link>
-          <MustEatsOnboarding initialMapData={initialMapData} tone="ink" />
+          <MustEatsOnboarding initialMapData={initialMapData} tone="ink" triggerLabel={c.howItWorks} />
         </div>
       </header>
 
@@ -162,8 +161,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           openBody: c.openBody,
           setKicker: c.setKicker,
           coveredTitle: c.coveredTitle(coveredCount),
-          coveredBody: c.coveredBody,
-          coveredLabel: c.coveredLabel,
+          coveredBody: c.coveredBody(coveredCount),
           spotAria: c.spotAria,
           mapAria: c.mapAria,
           setMore: c.setMore,
@@ -172,22 +170,39 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
       <section className={`${styles.wrap} ${styles.close}`}>
         <div className={styles.closeCopy}>
-          <p className={`et-label ${styles.kicker}`}>{c.closeKicker}</p>
-          <h2 className={styles.closeTitle}>{c.closeTitle}</h2>
-          <p className={styles.closeBody}>{c.closeBody}</p>
-          <div className={styles.actions}>
-            <Link href={mapHref} className="et-btn">
-              {c.closeCta}
-            </Link>
-            <Link href={packsHref} className="et-btn">
-              {c.closeSecondary}
-            </Link>
+          {/* Beide Fassungen kommen vom Server; welche steht, entscheidet das
+              Auth-Flag vor dem ersten Paint (globals.css) — kein Flackern. */}
+          <div data-guest-only="">
+            <p className={`et-label ${styles.kicker}`}>{c.closeGuestKicker}</p>
+            <h2 className={styles.closeTitle}>{c.closeGuestTitle}</h2>
+            <p className={styles.closeBody}>{c.closeGuestBody}</p>
+            <div className={styles.actions}>
+              <MustEatsStarterButton label={c.closeGuestCta} />
+              <Link href={mapHref} className="et-btn">
+                {c.closeCta}
+              </Link>
+            </div>
+          </div>
+          <div data-auth-only="">
+            <p className={`et-label ${styles.kicker}`}>{c.closeKicker}</p>
+            <h2 className={styles.closeTitle}>{c.closeTitle}</h2>
+            <p className={styles.closeBody}>{c.closeBody}</p>
+            <div className={styles.actions}>
+              <Link href={mapHref} className="et-btn">
+                {c.closeCta}
+              </Link>
+              <Link href={packsHref} className="et-btn">
+                {c.closeSecondary}
+              </Link>
+            </div>
           </div>
         </div>
 
         <div className={styles.packShot} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={PACK_ART} alt="" loading="lazy" width={945} height={1491} />
+          <img src={STARTER_ART} alt="" loading="lazy" width={945} height={1491} data-guest-only="" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={BOOSTER_ART} alt="" loading="lazy" width={1008} height={1560} data-auth-only="" />
         </div>
       </section>
 

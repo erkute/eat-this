@@ -99,6 +99,10 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <head suppressHydrationWarning>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261028a" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/pics/favicon-48.png?v=20261028a" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/pics/favicon-192.png?v=20261028a" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20261028a" />
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.sanity.io" />
         <link rel="preload" href="/pics/paper/folded-white.webp?v=20261028-hq" as="image" fetchPriority="high" />

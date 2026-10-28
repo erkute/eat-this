@@ -37,4 +37,4 @@ export const LAYOUT = {
  * Ohne Version liefert Gmails Bild-Proxy eine einmal geholte URL dauerhaft aus
  * seinem Cache aus — eine ersetzte Datei erreicht den Empfaenger dann nie.
  */
-export const EMAIL_ASSET_VERSION = '6';
+export const EMAIL_ASSET_VERSION = '20261028hero2';

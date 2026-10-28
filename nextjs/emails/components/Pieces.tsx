@@ -1,141 +1,28 @@
-// The home element vocabulary (`.hv-*` in app/globals.css), rebuilt with the
-// handful of constructs every email client renders the same way: tables,
-// inline styles, flat colour.
-
-import { Button, Img, Section, Text } from '@react-email/components';
+import { Button, Img, Link, Section, Text } from '@react-email/components';
 import type { ArtAsset } from '../art.generated';
-import { COLOR, LAYOUT, EMAIL_ASSET_VERSION } from '../theme';
+import { COLOR } from '../theme';
+import type { MailLocale } from '../locale';
 
-/**
- * Der gelbe Knopf — `.action` aus der Tour.
- *
- * Der Knopf selbst ist ein echter Link mit gelber Fläche; nur sein Wort ist ein
- * Bild in der Markenschrift (`art`), wie jede andere Zeile der Mail. Blockiert
- * ein Client Bilder (Outlook, viele Gmail-Konten), steht der Alt-Text in Ink
- * auf dem Gelb: der Knopf ist dann in Systemschrift beschriftet, aber nie
- * leer — und der Ersatz-Link darunter ist ohnehin echter Text.
- *
- * react-email's Button carries the mso padding hack so the slab keeps its
- * height in Outlook's Word engine.
- */
-export function CtaButton({ href, art, appUrl }: { href: string; art: ArtAsset; appUrl: string }) {
-  return (
-    <Button
-      href={href}
-      className="et-cta"
-      style={{
-        /* So breit wie sein Wort plus Luft, nicht die ganze Spalte — ein
-           Balken über 536 px war zu viel (Betreiber, 22.09.2026). Mittig
-           steht er, weil der Block drumherum mittig gesetzt ist. */
-        display: 'inline-block',
-        minWidth: '200px',
-        boxSizing: 'border-box',
-        backgroundColor: COLOR.accent,
-        color: COLOR.onAccent,
-        borderRadius: `${LAYOUT.radiusControl}px`,
-        textAlign: 'center',
-        textDecoration: 'none',
-        padding: '10px 40px',
-      }}
-    >
-      <Img
-        src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`}
-        alt={art.alt}
-        width={art.width}
-        style={{
-          display: 'inline-block',
-          verticalAlign: 'middle',
-          border: 0,
-          height: 'auto',
-          color: COLOR.onAccent,
-          fontSize: '17px',
-          fontWeight: 700,
-        }}
-      />
-    </Button>
-  );
+export function ArtImage({ art, appUrl, className, style }: {art:ArtAsset;appUrl:string;className?:string;style?:React.CSSProperties}) {
+ return <Img className={className} src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`} alt={art.alt} width={art.width} style={{display:'block',height:'auto',width:'100%',maxWidth:'100%',border:0,color:COLOR.text,fontSize:14,...style}} />;
 }
 
-/**
- * Brand-font art, sized from the generated manifest so copy edits can't skew it.
- *
- * Two things here exist purely for recipients whose client blocks images —
- * Outlook by default, and a large share of Gmail accounts:
- *
- *  * No `height` attribute. With one, a blocked image reserves its full box and
- *    leaves a conspicuous hole above the copy; without it the row collapses to
- *    the height of the alt text and the mail still reads as a mail.
- *  * `altStyle` colours and sizes the alt text. Clients render alt text in the
- *    img's own font and colour, so an unstyled headline degrades to small black
- *    body text — and on the ink masthead and footer, to black on black.
- */
-export function ArtImage({
-  art,
-  appUrl,
-  style,
-  altStyle,
-}: {
-  art: ArtAsset;
-  appUrl: string;
-  style?: React.CSSProperties;
-  altStyle?: Pick<React.CSSProperties, 'color' | 'fontSize' | 'fontWeight' | 'letterSpacing'>;
-}) {
-  return (
-    <Img
-      src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`}
-      alt={art.alt}
-      width={art.width}
-      style={{
-        display: 'block',
-        border: 0,
-        height: 'auto',
-        maxWidth: '100%',
-        ...altStyle,
-        ...style,
-      }}
-    />
-  );
+/** Media-query clients get the phone composition; Outlook retains the desktop image. */
+export function ResponsiveArt({desktop,mobile,appUrl}:{desktop:ArtAsset;mobile:ArtAsset;appUrl:string}) {
+ return <><ArtImage art={desktop} appUrl={appUrl} className="et-desktop-art" /><ArtImage art={mobile} appUrl={appUrl} className="et-mobile-art" style={{display:'none',maxHeight:0,overflow:'hidden',...({msoHide:'all'} as React.CSSProperties)}} /></>;
 }
 
-/** The fine print directly under the CTA. */
-export function Fineprint({ children }: { children: React.ReactNode }) {
-  return (
-    <Text
-      style={{
-        margin: '14px 0 0',
-        fontSize: '13px',
-        lineHeight: 1.55,
-        color: COLOR.muted,
-        textAlign: 'center',
-      }}
-    >
-      {children}
-    </Text>
-  );
+/** Real yellow link, with only its label rendered as an image. */
+export function CtaButton({href,art,appUrl}:{href:string;art:ArtAsset;appUrl:string}) {
+ return <Button href={href} style={{display:'block',boxSizing:'border-box',width:'100%',padding:'15px 0',borderRadius:28,backgroundColor:COLOR.accent,color:COLOR.text,textAlign:'center',textDecoration:'none'}}>
+  <Img src={`${appUrl}/pics/email/${art.id}.png?v=${art.version}`} alt={art.alt} width={art.width} style={{display:'inline-block',verticalAlign:'middle',height:'auto',border:0,color:COLOR.text,fontSize:18,fontWeight:700}} />
+ </Button>;
 }
 
-/** Ein Block auf hellem Papier, mittig gesetzt wie die ganze Mail. */
-export function Paper({
-  children,
-  padding = '38px 32px',
-  foil = false,
-  appUrl,
-}: {
-  children: React.ReactNode;
-  padding?: string;
-  foil?: boolean;
-  appUrl?: string;
-}) {
-  return (
-    <Section
-      className={foil ? undefined : 'et-pad'}
-      style={{ backgroundColor: COLOR.surface, padding, textAlign: 'center',
-        backgroundImage: foil && appUrl ? `url(${appUrl}/pics/email/mail-foil.png?v=${EMAIL_ASSET_VERSION})` : undefined,
-        backgroundSize: foil ? '100% 100%' : undefined,
-        backgroundRepeat: foil ? 'no-repeat' : undefined,
-      }}
-    >
-      {children}
-    </Section>
-  );
+export function LinkNote({href,locale}:{href:string;locale:MailLocale}) {
+ return <Section><Text style={{margin:'26px 0',fontSize:12,lineHeight:1.35,color:COLOR.text}}>
+ {locale==='en'?'The link is valid for one hour.':'Der Link ist eine Stunde gültig.'}<br />
+ {locale==='en'?'Button not working? ':'Button funktioniert nicht? '}
+ <Link href={href} style={{color:COLOR.text,textDecoration:'none'}}>{locale==='en'?'Open sign-in link':'Anmeldelink öffnen'}</Link>.
+ </Text></Section>;
 }

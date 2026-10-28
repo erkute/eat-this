@@ -8,6 +8,16 @@ import { useTranslation } from '@/lib/i18n';
 import { pickLocale } from '@/lib/i18n/pickLocale';
 import { normalizeName } from '@/lib/normalizeName';
 import { whenImageReady } from '@/lib/dom/imageReady';
+import {
+  DEAL_IN_DELAY_MS,
+  DEAL_IN_EASE,
+  DEAL_IN_MS,
+  DEAL_OUT_EASE,
+  DEAL_OUT_MS,
+  DEAL_TILT_DEG,
+  cssEase,
+} from '@/lib/cardDeal';
+import { prefersReducedMotion } from '@/lib/guestCardShake';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import MustEatsOnboarding from '../MustEatsOnboarding';
 import styles from './MustEatDetail.module.css';
@@ -123,42 +133,72 @@ export default function MustEatDetailMobile({
   // neighbouring must-eat — same gesture as the restaurant detail.
   const rootRef = useRef<HTMLDivElement>(null);
   const topCardRef = useRef<HTMLDivElement>(null);
-  const cardEnterDirRef = useRef<'prev' | 'next' | null>(null);
-  const [cardHiddenForPage, setCardHiddenForPage] = useState(false);
+  /* Der Wechsel spielt zwei Karten zugleich (siehe lib/cardDeal): die
+     abfahrende ist ein eigenes, kurzlebiges Element mit dem Bild, das eben
+     noch oben lag, die einfahrende ist die echte Top-Karte, die schon das
+     neue Must Eat trägt. So steht Text und Karte des neuen Must Eats sofort
+     da — nichts wartet auf die Animation. */
+  const [leaving, setLeaving] = useState<{
+    id: number;
+    src: string;
+    dir: 'prev' | 'next';
+    fromX: number;
+  } | null>(null);
+  const leavingRef = useRef<HTMLDivElement>(null);
+  const cardEnterRef = useRef<{ dir: 'prev' | 'next'; ready: Promise<void> } | null>(null);
   useLayoutEffect(() => {
     const target = topCardRef.current;
-    const enterDir = cardEnterDirRef.current;
-    cardEnterDirRef.current = null;
-    setCardHiddenForPage(false);
+    const enter = cardEnterRef.current;
+    cardEnterRef.current = null;
     if (!target) return;
 
     target.style.removeProperty('transition');
     target.style.removeProperty('transform');
+    if (!enter) return;
 
-    if (enterDir) {
-      const root = rootRef.current;
-      const startX =
-        enterDir === 'next'
-          ? (root?.clientWidth ?? window.innerWidth)
-          : -(root?.clientWidth ?? window.innerWidth);
-
-      target.style.setProperty('transition', 'none', 'important');
-      target.style.setProperty('transform', `translateX(${startX}px)`, 'important');
-      void target.offsetWidth;
-      window.requestAnimationFrame(() => {
-        target.style.setProperty(
-          'transition',
-          'transform .34s cubic-bezier(0.2, 0.8, 0.2, 1)',
-          'important'
-        );
-        target.style.setProperty('transform', 'translateX(0)', 'important');
-        window.setTimeout(() => {
-          target.style.removeProperty('transition');
-          target.style.removeProperty('transform');
-        }, 360);
-      });
-    }
+    const width = rootRef.current?.clientWidth ?? window.innerWidth;
+    const sign = enter.dir === 'next' ? 1 : -1;
+    /* Bis das neue Bild zeichenbar ist, wartet die Karte draußen (`fill:
+       backwards` hält den ersten Keyframe) — sie kommt nie leer herein. Mit
+       vorgeladenen Nachbarn ist das sofort. */
+    const enterAnim = target.animate(
+      [
+        { transform: `translateX(${sign * width}px) rotate(${sign * DEAL_TILT_DEG}deg)` },
+        { transform: 'none' },
+      ],
+      {
+        duration: DEAL_IN_MS,
+        delay: DEAL_IN_DELAY_MS,
+        easing: cssEase(DEAL_IN_EASE),
+        fill: 'backwards',
+      }
+    );
+    enterAnim.pause();
+    let cancelled = false;
+    void enter.ready.then(() => {
+      if (!cancelled) enterAnim.play();
+    });
+    return () => {
+      cancelled = true;
+      enterAnim.cancel();
+    };
   }, [mustEat._id]);
+  useLayoutEffect(() => {
+    const el = leavingRef.current;
+    if (!leaving || !el) return;
+    const width = rootRef.current?.clientWidth ?? window.innerWidth;
+    const sign = leaving.dir === 'next' ? -1 : 1;
+    const leaveAnim = el.animate(
+      [
+        { transform: `translateX(${leaving.fromX}px)` },
+        { transform: `translateX(${sign * width}px) rotate(${sign * DEAL_TILT_DEG}deg)` },
+      ],
+      { duration: DEAL_OUT_MS, easing: cssEase(DEAL_OUT_EASE), fill: 'forwards' }
+    );
+    leaveAnim.onfinish = () =>
+      setLeaving((current) => (current?.id === leaving.id ? null : current));
+    return () => leaveAnim.cancel();
+  }, [leaving]);
   /* Auf dem Phone gibt es keine Pager-Tasten mehr (siehe MustEatDetail.module.css,
      "Phone: gewischt wird, nicht getippt") — die Geste muss sich selbst zeigen:
      die oberste Karte ruckt zur Seite und federt zurück, wodurch die Karten
@@ -208,53 +248,57 @@ export default function MustEatDetailMobile({
     return (unlocked && neighbour?.image) || CARD_BACK;
   };
 
+  /* Die Nachbarbilder liegen per <link rel=preload> schon im Cache, dekodiert
+     sind sie damit noch nicht — und die einfahrende Karte wartet draußen, bis
+     ihr Bild zeichenbar ist. Vorab dekodiert kommt sie ohne Zögern. */
+  const prevFace = prevMustEat ? neighbourFace('prev') : null;
+  const nextFace = nextMustEat ? neighbourFace('next') : null;
+  const decodedFacesRef = useRef<HTMLImageElement[]>([]);
+  useEffect(() => {
+    decodedFacesRef.current = [prevFace, nextFace]
+      .filter((src): src is string => Boolean(src))
+      .map((src) => {
+        const img = new window.Image();
+        img.src = src;
+        img.decode?.().catch(() => undefined);
+        return img;
+      });
+  }, [prevFace, nextFace]);
+
   useSwipePager(rootRef, {
-    onPrev:
-      onPagePrev &&
-      (() => {
-        markSwiped();
-        onPagePrev();
-      }),
-    onNext:
-      onPageNext &&
-      (() => {
-        markSwiped();
-        onPageNext();
-      }),
+    onCommit: (dir, offsetPx) => {
+      markSwiped();
+      pageWithCard(dir, offsetPx);
+    },
     hasPrev: !!prevMustEat,
     hasNext: !!nextMustEat,
     transformRef: topCardRef,
-    flushPage: true,
-    /* Der Wisch tauscht erst, wenn das neue Bild zeichenbar ist — sonst
-       wischt man die alte Karte heraus und dieselbe wieder herein (siehe
-       whenImageReady). */
-    prepare: (dir) => whenImageReady(neighbourFace(dir)),
   });
 
-  const pageWithCard = (dir: 'prev' | 'next') => {
-    const target = topCardRef.current;
-    const root = rootRef.current;
+  const pageWithCard = (dir: 'prev' | 'next', fromX = 0) => {
     const page = dir === 'prev' ? onPagePrev : onPageNext;
-    if (!target || !root || !page) {
-      page?.();
+    if (!page) return;
+    const card = topCardRef.current;
+    const face = card?.querySelector('img');
+    /* Ohne Bewegung wechselt die Karte sofort, ohne Flug. */
+    if (!card || !face || prefersReducedMotion()) {
+      card?.style.removeProperty('transition');
+      card?.style.removeProperty('transform');
+      page();
       return;
     }
-    /* Das Bild der nächsten Karte lädt WÄHREND die alte hinausfliegt: der
-       Abgang dauert 300ms, die Deckelung wartet höchstens bis IMAGE_READY_CAP_MS.
-       Kommt das Bild nicht rechtzeitig, blättert die Karte trotzdem weiter und
-       füllt sich unterwegs — eine falsche zeigt sie nie (whenImageReady). */
-    const ready = whenImageReady(neighbourFace(dir));
-    const outX = dir === 'next' ? -root.clientWidth : root.clientWidth;
-    target.style.setProperty(
-      'transition',
-      'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)',
-      'important'
-    );
-    target.style.setProperty('transform', `translateX(${outX}px)`, 'important');
-    const flown = new Promise<void>((resolve) => window.setTimeout(resolve, 300));
-    void Promise.all([ready, flown]).then(() => {
-      cardEnterDirRef.current = dir;
-      flushSync(() => page());
+    flushSync(() => {
+      setLeaving({ id: performance.now(), src: face.currentSrc || face.src, dir, fromX });
+      const src = neighbourFace(dir);
+      /* Schon vorab dekodiert (siehe decodedFacesRef): sofort los. Jede
+         weitere Zusage kostet unter Last ein, zwei Frames, und die Karte
+         käme der abfahrenden erst hinterher. */
+      const href = new URL(src, window.location.href).href;
+      const decoded = decodedFacesRef.current.find((img) => img.src === href);
+      const ready =
+        decoded?.complete && decoded.naturalWidth > 0 ? Promise.resolve() : whenImageReady(src);
+      cardEnterRef.current = { dir, ready };
+      page();
     });
   };
 
@@ -430,8 +474,20 @@ export default function MustEatDetailMobile({
                 der Hinweis zeigt dasselbe, was eine echte Wischgeste tut
                 (useSwipePager animiert ebenfalls topCardRef). Am Stapel als
                 Ganzem sah man nur "die Karte wackelt". */}
+            {leaving && (
+              <div
+                key={leaving.id}
+                ref={leavingRef}
+                className={`${styles.fdTopCard} ${styles.fdTopCardLeaving}`}
+                aria-hidden="true"
+              >
+                <span className={styles.fdHero}>
+                  <img src={leaving.src} alt="" />
+                </span>
+              </div>
+            )}
             <div
-              className={`${styles.fdTopCard}${cardHiddenForPage ? ` ${styles.fdTopCardHidden}` : ''}${swipeHint ? ` ${styles.fdTopCardHint}` : ''}`}
+              className={`${styles.fdTopCard}${swipeHint ? ` ${styles.fdTopCardHint}` : ''}`}
               ref={topCardRef}
             >
               {open ? (

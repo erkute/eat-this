@@ -1,46 +1,31 @@
 'use client';
 import { useEffect, useRef, type RefObject } from 'react';
-import { flushSync } from 'react-dom';
 
 interface SwipePagerOptions {
-  onPrev?: () => void;
-  onNext?: () => void;
+  /** Ein Wisch weit genug in eine Richtung, in der es weitergeht. Der Aufrufer
+   *  spielt den Wechsel selbst (Must Eat: alte Karte raus, neue rein,
+   *  gleichzeitig) und bekommt mit, wo die Vorschau-Karte gerade steht, damit
+   *  die Abfahrt dort weitermacht statt zu springen. */
+  onCommit: (dir: 'next' | 'prev', offsetPx: number) => void;
   /** Whether a neighbour exists in that direction — swiping into a missing
-   *  neighbour rubber-bands back instead of playing the page animation. */
+   *  neighbour rubber-bands back instead of paging. */
   hasPrev: boolean;
   hasNext: boolean;
   /** Optional element to animate while the root still owns the gesture. */
   transformRef?: RefObject<HTMLElement | null>;
-  /** Where to find the INCOMING card once the page has swapped. A ref cannot
-   *  carry across a swap that exchanges one component for another — an open
-   *  spot pages onto a locked one and back, and React has nulled the outgoing
-   *  ref by then, so the entry animation would land on a detached node and the
-   *  new sheet would cut in. The selector is re-resolved against the document
-   *  instead, and it implies `flushPage`: the incoming pane has to exist before
-   *  the entry transform can be put on it. */
-  entrySelector?: string;
-  /** Force the page state swap before the entry transform is applied. */
-  flushPage?: boolean;
-  /** Was erledigt sein muss, BEVOR getauscht wird — beim Must Eat das Bild der
-   *  Nachbarkarte. Ein <img> behält nach einem `src`-Wechsel das alte Bild, bis
-   *  das neue dekodiert ist: ohne dieses Warten wischt man dieselbe Karte
-   *  heraus und wieder herein (siehe lib/dom/imageReady). Die Zusage kommt
-   *  gedeckelt zurück, die Geste kann daran also nicht hängenbleiben. */
-  prepare?: (dir: 'next' | 'prev') => Promise<unknown>;
 }
 
-/* Horizontal swipe paging for the detail sheets (restaurant + must-eat).
+/* Horizontal swipe paging for the must-eat detail sheet.
    Swipe left → next, right → prev. Axis-locked so it never fights the
    vertical sheet-drag / content scroll: the first significant move decides
    the axis; only a clearly-horizontal gesture pages (and preventDefault's).
-   Touch-only — mouse drags bail (desktop uses the pager arrows). No opacity
-   fades (project rule): the page transition is a translate.
+   Touch-only — mouse drags bail (desktop uses the pager arrows).
 
-   ACHTUNG beim Einbau: die Karte wird um eine volle Viewport-Breite
-   verschoben. Ein Vorfahr MUSS die x-Achse klemmen (`overflow-x: clip`),
-   sonst waechst das Dokument waehrend der Bewegung um diese Breite. Auf dem
-   Desktop faellt das nicht auf (`.app-pages` klemmt dort ohnehin), auf iOS
-   Safari zieht es die ganze Seite klein und beim Loslassen wieder gross. */
+   ACHTUNG beim Einbau: der Aufrufer schiebt die Karte beim Wechsel um eine
+   volle Viewport-Breite. Ein Vorfahr MUSS die x-Achse klemmen (`overflow-x:
+   clip`), sonst waechst das Dokument waehrend der Bewegung um diese Breite.
+   Auf dem Desktop faellt das nicht auf (`.app-pages` klemmt dort ohnehin), auf
+   iOS Safari zieht es die ganze Seite klein und beim Loslassen wieder gross. */
 export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePagerOptions) {
   const optsRef = useRef(opts);
   optsRef.current = opts;
@@ -49,23 +34,11 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     const el = ref.current;
     if (!el) return;
     const animatedEl = () => optsRef.current.transformRef?.current ?? el;
-    /* The pane that comes in is not always the one that went out (see
-       `entrySelector`), so the incoming card is looked up fresh. */
-    const enteringEl = () => {
-      const sel = optsRef.current.entrySelector;
-      const found = sel ? document.querySelector<HTMLElement>(sel) : null;
-      return found ?? animatedEl();
-    };
     const setTransform = (target: HTMLElement, value: string) =>
       target.style.setProperty('transform', value, 'important');
-    const setTransition = (target: HTMLElement, value: string) =>
-      target.style.setProperty('transition', value, 'important');
-    const clearMotion = (target: HTMLElement) => {
-      target.style.removeProperty('transition');
-      target.style.removeProperty('transform');
-    };
     let startX = 0,
       startY = 0,
+      offset = 0,
       axis: 'h' | 'v' | null = null,
       active = false;
     const onDown = (e: PointerEvent) => {
@@ -77,6 +50,7 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
       if ((e.target as Element | null)?.closest?.('[data-h-scroll]')) return;
       startX = e.clientX;
       startY = e.clientY;
+      offset = 0;
       axis = null;
       active = true;
     };
@@ -92,7 +66,10 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
         e.preventDefault();
         // Keep the composition calm: drag previews the top card, not the
         // whole sheet, and with enough resistance that text/content stays put.
-        setTransform(animatedEl(), `translateX(${dx * 0.24}px)`);
+        offset = dx * 0.24;
+        const target = animatedEl();
+        target.style.removeProperty('transition');
+        setTransform(target, `translateX(${offset}px)`);
       }
     };
     /* preventDefault on pointermove does NOT stop native scrolling — once a
@@ -105,10 +82,11 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
     };
     const settle = () => {
       const target = animatedEl();
-      setTransition(target, 'transform .2s ease-out');
+      target.style.setProperty('transition', 'transform .2s ease-out', 'important');
       setTransform(target, 'translateX(0)');
       window.setTimeout(() => {
-        clearMotion(target);
+        target.style.removeProperty('transition');
+        target.style.removeProperty('transform');
       }, 220);
     };
     const end = (e: PointerEvent) => {
@@ -117,45 +95,11 @@ export function useSwipePager(ref: RefObject<HTMLElement | null>, opts: SwipePag
       const wasH = axis === 'h';
       active = false;
       axis = null;
+      if (!wasH) return;
       const dir: 'next' | 'prev' = dx < 0 ? 'next' : 'prev';
       const canPage = dir === 'next' ? optsRef.current.hasNext : optsRef.current.hasPrev;
-      if (wasH && Math.abs(dx) > 60 && canPage) {
-        // Instagram-style page: current pane slides out, the new one slides
-        // in from the opposite edge (translate only — no opacity fade).
-        const target = animatedEl();
-        const w = el.clientWidth || window.innerWidth;
-        const outX = dir === 'next' ? -w : w;
-        setTransition(target, 'transform .3s cubic-bezier(0.2, 0.8, 0.2, 1)');
-        setTransform(target, `translateX(${outX}px)`);
-        /* Das neue Bild lädt, während die alte Karte hinausfliegt. */
-        const prepared = optsRef.current.prepare?.(dir) ?? Promise.resolve();
-        const flown = new Promise<void>((resolve) => window.setTimeout(resolve, 300));
-        void Promise.all([prepared, flown]).then(() => {
-          const page = () => {
-            if (dir === 'next') optsRef.current.onNext?.();
-            else optsRef.current.onPrev?.();
-          };
-          if (optsRef.current.flushPage || optsRef.current.entrySelector) flushSync(page);
-          else page();
-          // Place the freshly-swapped content on the opposite edge, then in.
-          const nextTarget = enteringEl();
-          nextTarget.style.setProperty('transition', 'none', 'important');
-          setTransform(nextTarget, `translateX(${-outX}px)`);
-          void nextTarget.offsetWidth; // force reflow so the next transition animates
-          // Der Timeout landet mitten zwischen zwei Frames; direkt hier die
-          // Transition zu starten kostet den ersten Frame der Einfahrt. Ein
-          // rAF richtet den Start am Frame-Takt aus.
-          window.requestAnimationFrame(() => {
-            setTransition(nextTarget, 'transform .34s cubic-bezier(0.2, 0.8, 0.2, 1)');
-            setTransform(nextTarget, 'translateX(0)');
-            window.setTimeout(() => {
-              clearMotion(nextTarget);
-            }, 360);
-          });
-        });
-      } else {
-        settle();
-      }
+      if (Math.abs(dx) > 60 && canPage) optsRef.current.onCommit(dir, offset);
+      else settle();
     };
     el.addEventListener('pointerdown', onDown);
     el.addEventListener('pointermove', onMove, { passive: false });

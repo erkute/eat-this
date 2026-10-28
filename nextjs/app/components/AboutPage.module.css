@@ -43,7 +43,9 @@
   max-width: 100%;
   margin: 0;
 }
-.wordmark { display: block; width: 100%; height: auto; }
+/* The page's title, not its poster: at the full 1200px column it took the
+   whole first screen on desktop. */
+.wordmark { display: block; width: min(100%, 560px); height: auto; }
 :global(html[data-theme='dark']) .wordmark { filter: invert(1); }
 .lede {
   max-width: 54ch;
@@ -60,7 +62,7 @@
   text-wrap: pretty;
 }
 .heroArt { min-width: 0; margin: 0; }
-.heroFigure { display: block; width: min(100%, 680px); height: auto; margin-inline: auto; }
+.heroFigure { display: block; width: min(100%, 420px); height: auto; margin-inline: auto; }
 .bridge {
   --et-ground: #cf3f2f;
   --et-fg: #fff;
@@ -104,11 +106,15 @@
 .section.cardChapter { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
 .cardChapter .sectionCopy { grid-column: 2; grid-row: 1; }
 .cardChapter .fanFigure { grid-column: 1; grid-row: 1; width: 100%; }
-.fan { position: relative; width: 100%; aspect-ratio: 1.55; }
+/* The box hugs the fanned cards, so the caption sits the same distance below
+   them as below every other figure. The cards pivot on their bottom edge: the
+   outer pair rise above the straight card and their inner corners dip below
+   the pivot by 12.2% of this height, at either card width. */
+.fan { position: relative; width: 100%; aspect-ratio: 1.88; }
 .fanCard {
   position: absolute;
   left: 50%;
-  top: 15%;
+  bottom: 12.2%;
   width: 32%;
   height: auto;
   margin-left: -16%;
@@ -123,7 +129,7 @@
   --et-sheet: none;
   background: transparent;
 }
-.coda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(40px, 7vw, 100px); padding: clamp(56px, 7vw, 96px) var(--about-gutter); }
+.coda { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(40px, 7vw, 100px); padding: clamp(56px, 7vw, 96px) var(--about-gutter); }
 .codaSection { min-width: 0; }
 .coda .sectionTitle { font-size: clamp(32px, 3.5vw, 48px); }
 .email { display: block; width: fit-content; max-width: 100%; min-height: 44px; margin-block: 24px; padding-block: 6px; color: var(--et-link); font: 700 clamp(24px, 3vw, 42px)/1.2 var(--et-font-body); letter-spacing: -.035em; overflow-wrap: anywhere; text-decoration: none; }
@@ -132,14 +138,16 @@
   .section.cardChapter { grid-template-columns: minmax(0, 1fr); }
   .cardChapter .sectionCopy { grid-column: 1; grid-row: 1; }
   .cardChapter .fanFigure { grid-column: 1; grid-row: 2; }
-  .hero, .bridge, .section, .flip, .coda { grid-template-columns: minmax(0, 1fr); }
+  .hero, .bridge, .section, .flip { grid-template-columns: minmax(0, 1fr); }
   .hero { gap: 36px; padding-top: 36px; padding-bottom: 40px; }
   .lede { font-size: 20px; margin-top: 24px; }
+  .heroFigure { width: min(100%, 280px); }
   .bridge { gap: 32px; }
   .section { gap: 40px; padding-block: 56px; }
   .flip .sectionCopy, .flip .figure { grid-column: auto; grid-row: auto; }
   .figure { width: min(100%, 340px); }
   .figureImg { width: min(var(--fig-w, 290px), 240px); }
+  .fan { aspect-ratio: 1.67; }
   .fanCard { width: 36%; margin-left: -18%; }
   .coda { gap: 48px; }
 }

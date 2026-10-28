@@ -1,7 +1,7 @@
 /**
  * Jede Meldung der zentralen Info-Karte (NotificationToast), mit ihren Worten.
  *
- * Aufrufer nennen die Lage, nicht den Text: `notify('spotSaved', locale)`.
+ * Aufrufer nennen die Lage, nicht den Text: `notify('mapDataError', locale)`.
  * Bis zum 24.09.2026 kam jede Meldung als freier Satz an und wurde in der
  * Karte über Stichworte einsortiert — „Konnte nicht gespeichert werden."
  * enthielt „gespeichert" und lief dadurch als grüne Bestätigung „Spot
@@ -11,7 +11,8 @@
  * Bewusst NICHT im Katalog (24.09.2026 gestrichen), weil die Seite es selbst
  * schon sagt: „Standort sitzt" (die Liste sortiert sich um), „Wir suchen dich"
  * auf der Startseite (der Knopf zeigt es), „Spot entfernt" (das Herz leert
- * sich), „Karte wird geladen" (die Map kommt mit Server-Daten), „Du bist
+ * sich), „Gespeichert" ab dem zweiten Spot (das Herz füllt sich, seit
+ * 27.10.2026), „Karte wird geladen" (die Map kommt mit Server-Daten), „Du bist
  * drin" und „Abgemeldet" (der Wartescreen davor sagt beides schon).
  */
 
@@ -25,8 +26,6 @@ export type NoticeKind =
   | 'mapDataError'
   | 'mapDataStale'
   | 'spotSavedFirst'
-  | 'spotSavedFirstAfterLogin'
-  | 'spotSaved'
   | 'actionFailed'
   | 'inviteCard';
 
@@ -137,31 +136,13 @@ const COPY: Record<NoticeKind, { de: Copy; en: Copy }> = {
     de: { eyebrow: 'Karte', title: 'Nicht aktuell', detail: 'Du siehst ältere Kartendaten.' },
     en: { eyebrow: 'Map', title: 'Not current', detail: 'You are looking at older map data.' },
   },
-  /* Zwei Fassungen (24.09.2026): der erste Spot sagt, wo er landet — die Map
-     markiert gespeicherte Spots nicht, man findet sie im Profil. Ab dem
-     zweiten reicht ein Nicken; wer speichert, weiss dann, wohin. */
+  /* Beim Speichern meldet sich nur der allererste Spot, einmal je Gerät
+     (Betreiber, 27.10.2026; useFavorites): die Map markiert gespeicherte
+     Spots nicht, man findet sie im Profil. Danach sagt das gefüllte Herz
+     genug. */
   spotSavedFirst: {
-    de: {
-      eyebrow: 'Spot',
-      title: 'Gespeichert',
-      detail: 'Dein erster Spot. Du findest ihn in deinem Profil.',
-    },
-    en: {
-      eyebrow: 'Spot',
-      title: 'Saved',
-      detail: "Your first spot. You'll find it in your profile.",
-    },
-  },
-  /* Das Herz von vor dem Login: die Anmeldung endet im Profil, der Spot steht
-     schon in der Liste darunter — der Hinweis aufs Profil fiele dort schief
-     (Betreiber, 14.10.2026). */
-  spotSavedFirstAfterLogin: {
-    de: { eyebrow: 'Spot', title: 'Gespeichert', detail: 'Dein erster Spot.' },
-    en: { eyebrow: 'Spot', title: 'Saved', detail: 'Your first spot.' },
-  },
-  spotSaved: {
-    de: { eyebrow: 'Spot', title: 'Gespeichert', detail: 'Noch einer für deine Liste.' },
-    en: { eyebrow: 'Spot', title: 'Saved', detail: 'One more for your list.' },
+    de: { eyebrow: 'Spot', title: 'Gespeichert', detail: 'Deine Spots findest du im Profil.' },
+    en: { eyebrow: 'Spot', title: 'Saved', detail: 'Your spots are in your profile.' },
   },
   actionFailed: {
     de: {

@@ -53,10 +53,6 @@
     padding-bottom: 20px;
   }
 }
-/* Merged heart toggle + count, and the close button — both frosted-glass pills
-   on the hero photo, matched in size. The toggle sits top-left (its heart is
-   outline-white until you heart the spot, then coral-filled; the number is the
-   public count); the close X sits top-right. */
 
 @keyframes rdSkelShimmer {
   to {
@@ -837,9 +833,11 @@
   text-overflow: ellipsis;
 }
 
-/* Weiße Symbole mit einem schmalen dunklen Schatten für helle Fotos. */
+/* Pfeil zurück links, Herz rechts, wie bei Airbnb, aber ohne Fläche: weiße
+   Symbole mit einem schmalen dunklen Schatten für helle Fotos (Ersan,
+   28.10.2026). Das Foto bleibt hell. */
 .rdHeartToggle,
-.rdCloseGlass {
+.rdBack {
   position: absolute;
   top: 12px;
   z-index: 3;
@@ -859,25 +857,82 @@
   cursor: pointer;
   transition: opacity var(--et-motion-fast);
 }
-.rdHeartToggle { left: 12px; }
-.rdCloseGlass { right: 12px; width: 44px; padding: 0; }
+.rdBack { left: 12px; width: 44px; padding: 0; }
+.rdHeartToggle { right: 12px; }
 .rdHeartToggle svg,
-.rdCloseGlass svg { width: 22px; height: 22px; flex-shrink: 0; }
+.rdBack svg { width: 22px; height: 22px; flex-shrink: 0; }
+.rdBack svg { stroke-width: 2; }
 .rdHeartToggle span { flex-shrink: 0; white-space: nowrap; }
+/* Geherzt füllt sich das Herz in der Herz-Farbe, wie auf der Spot-Seite
+   (HeartDraw); die Fläche trägt die Bedeutung, das Rot kommt dazu. Die
+   Zahl daneben bleibt weiß. */
+.rdHeartToggle[aria-pressed='true'] svg { color: var(--et-heart); }
 @media (hover: hover) {
   .rdHeartToggle:hover,
-  .rdCloseGlass:hover { opacity: 0.72; }
+  .rdBack:hover { opacity: 0.72; }
 }
 .rdHeartToggle:focus-visible,
-.rdCloseGlass:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+.rdBack:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+
+/* Feste Leiste für das gescrollte Detail am Telefon (RestaurantDetail.tsx).
+   Sie klebt unter Kartenstreifen und Griff (26px, MapSheet.module.css) und
+   nimmt keinen Platz ein; sichtbar erst, wenn der Pfeil im Foto verdeckt ist. */
+.rdBar { display: none; }
 @media (max-width: 767.98px) {
-  .rdHeartToggle,
-  .rdCloseGlass {
-    min-width: 44px;
+  .rdBar {
+    display: block;
+    position: sticky;
+    top: calc(var(--map-strip, env(safe-area-inset-top, 0px)) + 26px);
+    z-index: 40;
+    height: 0;
+  }
+  .rdBarInner {
+    position: absolute;
+    inset: 0 0 auto;
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 8px;
+    background: var(--et-ground);
+    color: var(--et-fg);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--et-fg) 10%, transparent);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 160ms ease-out,
+      visibility 0s linear 160ms;
+  }
+  .rdBar[data-shown] .rdBarInner {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 160ms ease-out;
+  }
+  .rdBarBtn {
+    display: grid;
+    place-items: center;
     width: 44px;
     height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
   }
-  .rdHeartToggle { width: auto; }
+  .rdBarBtn svg { width: 22px; height: 22px; }
+  .rdBarBtn[aria-pressed='true'] svg { color: var(--et-heart); }
+  .rdBarName {
+    overflow: hidden;
+    font: 700 16px / 1.2 var(--et-font-body);
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 767.98px) and (prefers-reduced-motion: reduce) {
+  .rdBarInner,
+  .rdBar[data-shown] .rdBarInner { transition: none; }
 }
 
 /* ── Text und Tipp ─────────────────────────────────────────────────────── */

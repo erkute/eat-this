@@ -165,14 +165,9 @@ export default function MagazineCover({
     // eslint-disable-next-line @next/next/no-img-element
     <img className={className} style={style} src={LOGO} alt="" loading={loading} decoding="async" />
   );
-  // Cover colours remain, with the new wordmark's folds drawn over the fill.
+  // The wordmark in the cover's own colour.
   const flatLogo = (fill: string, style: CSSProperties) => (
-    <span className={styles.flatLogo} style={{
-      ...style,
-      '--fill': fill,
-      '--texture-filter': fill === 'var(--et-ink)' ? 'none' : 'invert(1)',
-      '--texture-blend': fill === 'var(--et-ink)' ? 'screen' : 'multiply',
-    } as CSSProperties} />
+    <span className={styles.flatLogo} style={{ ...style, '--fill': fill } as CSSProperties} />
   );
   const meta = (text: ReactNode, style: CSSProperties, className = styles.meta) => (
     <span className={className} style={style} aria-hidden="true" data-cover-folio="">

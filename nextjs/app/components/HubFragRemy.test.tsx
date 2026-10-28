@@ -27,6 +27,21 @@ describe('HubFragRemy', () => {
       expect(figure.getAttribute('data-expression')).toBe('neutral');
     });
   });
+  // Whole open/laugh drawings over the base showed his shoulders twice:
+  // there is one body, and only the mouth follows the expression.
+  it('draws one body and changes only the mouth', () => {
+    show();
+    const figure = document.querySelector('[data-expression]')!;
+    const bodies = [...figure.querySelectorAll('img')].filter((img) => !img.src.includes('buddy-mouths'));
+    expect(bodies).toHaveLength(1);
+    const mouth = () => figure.querySelector('[data-mouth]')!.getAttribute('data-mouth');
+    const buttons = document.querySelectorAll('[data-fragremy-chips] button');
+    expect(mouth()).toBe('closed');
+    fireEvent.focus(buttons[0]);
+    expect(mouth()).toBe('open');
+    fireEvent.focus(buttons[2]);
+    expect(mouth()).toBe('wide');
+  });
   it('opens the selected question immediately with reduced motion', () => {
     vi.stubGlobal('matchMedia', () => ({ matches: false, addListener: vi.fn(), removeListener: vi.fn() }));
     const ask = vi.fn();

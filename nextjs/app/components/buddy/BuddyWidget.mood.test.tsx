@@ -81,6 +81,9 @@ describe('BuddyWidget expression policy', () => {
     chat.isStreaming = true;
     renderOpenWidget();
     expect(panelMood()).toBe('talking');
+    // The small header portrait keeps its head still; only the mouth moves.
+    const header = document.querySelector('[data-buddy-avatar="header"] [data-mood]');
+    expect(header?.getAttribute('data-breathe')).toBe('off');
   });
 
   it('idles when nothing is streaming', () => {

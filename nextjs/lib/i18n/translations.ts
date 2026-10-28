@@ -169,7 +169,7 @@ const en = {
   breadcrumb: {},
   footer: {
     signIn: 'Sign in',
-    about: 'About',
+    about: 'About me',
     contact: 'Contact',
     impressum: 'Impressum',
     datenschutz: 'Privacy',
@@ -178,7 +178,7 @@ const en = {
     copyright: '\u00a9 2026 Eat This. All rights reserved.',
   },
   burger: {
-    about: 'About',
+    about: 'About me',
     contact: 'Contact',
     impressum: 'Impressum',
     map: 'Map',
@@ -564,7 +564,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   breadcrumb: {},
   footer: {
     signIn: 'Anmelden',
-    about: '\u00dcber uns',
+    about: '\u00dcber mich',
     contact: 'Kontakt',
     datenschutz: 'Datenschutz',
     agb: 'AGB',
@@ -572,7 +572,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     copyright: '\u00a9 2026 Eat This. Alle Rechte vorbehalten.',
   },
   burger: {
-    about: '\u00dcber uns',
+    about: '\u00dcber mich',
     contact: 'Kontakt',
     impressum: 'Impressum',
     map: 'Map',

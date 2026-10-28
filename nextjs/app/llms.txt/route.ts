@@ -73,7 +73,7 @@ export async function GET(): Promise<Response> {
     de('Bezirke', '/bezirk'),
     de('Kategorien', '/kategorie'),
     de('Magazin / News', '/news'),
-    de('Über uns', '/about'),
+    de('Über mich', '/about'),
     '',
     '## Kategorien',
     ...categories.map((c) => de(c.name, `/kategorie/${c.slug}`)),
@@ -93,7 +93,7 @@ export async function GET(): Promise<Response> {
     en('Districts', '/bezirk'),
     en('Categories', '/kategorie'),
     en('Magazine', '/news'),
-    en('About', '/about'),
+    en('About me', '/about'),
     '',
     '### Categories',
     // Die GROQ-Sortierung ist die deutsche (`order(name asc)`); fuer die

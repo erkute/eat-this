@@ -15,13 +15,13 @@
     "sanity"
   ],
   "dependencies": {
-    "@sanity/locale-de-de": "^1.1.37",
     "@sanity/icons": "^3.7.4",
-    "@sanity/ui": "^3.2.0",
-    "@sanity/vision": "^5.31.2",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "sanity": "^5.31.2",
+    "@sanity/locale-de-de": "^1.1.37",
+    "@sanity/ui": "^4.4.10",
+    "@sanity/vision": "^6.20.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "sanity": "^6.20.0",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
@@ -39,5 +39,8 @@
     "printWidth": 100,
     "semi": false,
     "singleQuote": true
+  },
+  "engines": {
+    "node": ">=22.12 <23"
   }
 }

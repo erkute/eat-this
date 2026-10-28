@@ -8,7 +8,7 @@
 .mega { width: min(100%, 420px); margin: 0; font-size: 0; line-height: 0; }
 .homeLink { display: block; }
 /* Reserve the lazy logo's space before its intrinsic size is available. */
-.megaImg { display: block; width: 100%; height: auto; aspect-ratio: 2172 / 724; }
+.megaImg { display: block; width: 100%; height: auto; aspect-ratio: 2600 / 645; }
 .tagline { width: min(100%, 420px); margin: 12px 0 0; }
 .links { display: flex; justify-content: center; margin: 28px auto 0; }
 .socialLink { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; color: var(--et-fg); }

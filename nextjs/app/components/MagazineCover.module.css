@@ -165,10 +165,10 @@
 }
 /* The wordmark in the cover palette. */
 .flatLogo {
-  aspect-ratio: 2172 / 724;
+  aspect-ratio: 2600 / 645;
   background: var(--fill);
-  -webkit-mask: url('/pics/eat-this-wordmark.svg') center / contain no-repeat;
-  mask: url('/pics/eat-this-wordmark.svg') center / contain no-repeat;
+  -webkit-mask: url('/pics/eat-this-crumpled-wordmark.webp') center / contain no-repeat;
+  mask: url('/pics/eat-this-crumpled-wordmark.webp') center / contain no-repeat;
 }
 .logoShadow {
   inset: 0;

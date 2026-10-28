@@ -5,7 +5,7 @@ export const SITE_URL = 'https://www.eatthisdot.com';
 // and each carried its own version, one of them hardcoded. Social crawlers
 // cache these hard, so a stale copy sticks around for a long time. Single
 // source of truth: BUMP THIS whenever a file in public/pics/og/ changes.
-export const OG_PACK_VERSION = 4;
+export const OG_PACK_VERSION = 5;
 
 // Cache-bust for the brand share cards (public/pics/og-card.png, 1200×630, and
 // og-card-square.png, 1200×1200). Twelve call sites emit these two files and
@@ -13,15 +13,13 @@ export const OG_PACK_VERSION = 4;
 // OG_PACK_VERSION was introduced to kill. Social crawlers cache share images
 // hard, so a stale copy sticks around for a long time: BUMP THIS whenever
 // either file changes.
-export const OG_CARD_VERSION = 5;
+export const OG_CARD_VERSION = 6;
 
-// Shared website wordmark (vector, drawn in Figma page "Logo") and its
-// intrinsic dimensions. The canvas keeps the old raster's padding, so every
-// slot sized for it stays the same.
+// Shared Figma wordmark: cleaned a, supplied paper texture, intrinsic dimensions.
 export const BRAND_WORDMARK = {
-  src: '/pics/eat-this-wordmark.svg',
-  width: 2172,
-  height: 724,
+  src: '/pics/eat-this-crumpled-wordmark.webp',
+  width: 2600,
+  height: 645,
 } as const;
 
 /**

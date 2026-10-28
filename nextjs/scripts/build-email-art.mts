@@ -507,6 +507,7 @@ for (const part of new Set(introParts.flatMap(([, ...parts]) => parts))) {
 // Instagram-Symbol in Gmail/Outlook unverändert; jeder Link bleibt ein Link.
 const footerPaper = await sharp(join(process.cwd(), 'public/pics/paper/folded-white.webp'))
   .resize({ width: 1200 }).png().toBuffer();
+const footerClaim = await sharp(join(process.cwd(), 'public/pics/home/silver-hero/slogan-desktop.webp')).resize({width: 840}).png().toBuffer();
 const footerLogo = await sharp(join(process.cwd(), 'public/pics/home/wordmark.webp'))
   .resize({ width: 840 }).png().toBuffer();
 // Dasselbe Instagram-Symbol wie in SiteFooter.tsx, lokal rasterisiert.
@@ -525,8 +526,8 @@ for (const en of [false, true]) {
   const footerTopExtra = 44;
   const poster = new ImageResponse(React.createElement('div', {style: {display: 'flex', position: 'relative', width: 1200, height: (316 + footerTopExtra) * 2, overflow: 'hidden', backgroundColor: '#fff'}},
     React.createElement('img', {src: data(footerPaper), width: 1200, height: 1800, style: {position: 'absolute', left: 0, top: 0}}),
-    React.createElement('img', {src: data(footerLogo), width: 600, height: 146, style: {position: 'absolute', left: 300, top: (20 + footerTopExtra) * 2}}),
-    text('we tell you what to eat', 0, 101 + footerTopExtra, 600, 24, 16),
+    React.createElement('img', {src: data(footerLogo), width: 600, height: 149, style: {position: 'absolute', left: 300, top: (20 + footerTopExtra) * 2}}),
+    React.createElement('img', {src: data(footerClaim), width: 680, height: 77, style: {position: 'absolute', left: 260, top: (99 + footerTopExtra) * 2}}),
     React.createElement('img', {src: data(instagram), width: 64, height: 64, style: {position: 'absolute', left: 568, top: (148 + footerTopExtra) * 2}}),
     text(labels[0]!, 0, 190 + footerTopExtra, 300, 34, 18), text(labels[1]!, 300, 190 + footerTopExtra, 300, 34, 18),
     text(labels[2]!, 0, 224 + footerTopExtra, 200, 34, 18), text(labels[3]!, 200, 224 + footerTopExtra, 200, 34, 18), text(labels[4]!, 400, 224 + footerTopExtra, 200, 34, 18),

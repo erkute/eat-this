@@ -12,7 +12,7 @@ export default function HubHeroCopy({ locale }: Props) {
     <div className={styles.heroCopy}>
       <div className={styles.heroBrand}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.heroMark} data-hero-mark="" src={BRAND_WORDMARK.src} width={2172} height={724} alt="Eat This" fetchPriority="high" decoding="async" />
+        <img className={styles.heroMark} data-hero-mark="" src={BRAND_WORDMARK.src} width={2600} height={645} alt="Eat This" fetchPriority="high" decoding="async" />
       </div>
       <h1 className={styles.heroHeadline}>
         <span className={styles.heroAccessible}>We tell you what to eat</span>
@@ -20,7 +20,7 @@ export default function HubHeroCopy({ locale }: Props) {
           <BrandSlogan />
         </span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.heroSloganMobile} src={`${ART}/slogan-mobile.webp`} width={2172} height={724} alt="" aria-hidden="true" />
+        <img className={styles.heroSloganMobile} src={`${ART}/slogan-mobile.webp`} width={1200} height={468} alt="" aria-hidden="true" />
       </h1>
       <MapIntentLink href="/must-eats" className={styles.heroArt} aria-label={locale === 'de' ? 'Must Eats entdecken' : 'Discover Must Eats'}>
         <span className={styles.heroFan}>

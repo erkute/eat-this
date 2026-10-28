@@ -123,16 +123,11 @@ export async function GET(request: Request) {
             'linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.40) 40%, rgba(0,0,0,0) 68%)',
         }}
       />
-      {/* Brand wordmark — the actual Eat This logo, top-left. Its built-in
-            black outline keeps it legible over the (un-scrimmed) top of the photo. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={logo}
-        width={216}
-        height={86}
-        style={{ position: 'absolute', top: 44, left: 50 }}
-        alt=""
-      />
+      {/* A paper label keeps the textured wordmark legible on every photo. */}
+      <div style={{ position: 'absolute', top: 44, left: 50, display: 'flex', padding: 12, backgroundColor: '#f6f3eb' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={logo} width={216} height={54} alt="" />
+      </div>
       {/* Content — cuisine/district eyebrow + restaurant name, bottom-left. */}
       <div
         style={{

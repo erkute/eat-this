@@ -1,5 +1,6 @@
+# Die Node-Version wählt der Buildpack aus `engines` in package.json
+# (Build-Log: „Installing Node.js v…“); ein `runtime` kennt runConfig nicht.
 runConfig:
-  runtime: nodejs20
   maxInstances: 10
   minInstances: 0
   concurrency: 80

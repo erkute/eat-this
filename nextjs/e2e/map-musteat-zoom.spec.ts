@@ -80,3 +80,43 @@ test('Must Eat zoom recovers from an unavailable image service', async ({ page }
   await zoom.getByRole('button', { name: 'Großansicht schließen', exact: true }).click();
   await expect(zoom).toHaveCount(0);
 });
+
+test('Must Eat zoom keeps its height while the next image loads', async ({ page, isMobile }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const imagePath = resolve('public/pics/card-back-sm.webp');
+  let releaseImage!: () => void;
+  const gate = new Promise<void>(resolve => { releaseImage = resolve; });
+  await page.route('**/api/must-eat-image/**', route => route.fulfill({ path: imagePath, contentType: 'image/webp' }));
+  await page.route('**/pics/card-back.webp*', async route => {
+    await gate;
+    await route.fulfill({ path: imagePath, contentType: 'image/webp' });
+  });
+  try {
+    await page.goto('/map?me=mustead-main-6', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: 'Karte vergrößern', exact: true }).click();
+    const zoom = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: 'Großansicht schließen' }) });
+    await expect.poll(() => zoom.getByRole('img').last().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    await page.waitForTimeout(600); // Let the opening flight settle.
+    const card = zoom.locator('[class*="_card_"]');
+    const before = await card.boundingBox();
+    if (isMobile) {
+      const session = await page.context().newCDPSession(page);
+      const { width, height } = page.viewportSize()!;
+      await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: width * .75, y: height * .5 }] });
+      await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: width * .25, y: height * .5 }] });
+      await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await session.detach();
+    } else {
+      await zoom.getByRole('button', { name: 'Nächste Karte', exact: true }).click();
+    }
+    await expect(zoom).toHaveAttribute('aria-label', 'Verdeckt');
+    await expect.poll(async () => Math.abs((await card.boundingBox())!.y - before!.y)).toBeLessThan(2);
+    expect((await card.boundingBox())!.height).toBeCloseTo(before!.height, 0);
+    releaseImage();
+    await expect.poll(() => zoom.getByRole('img').last().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    await expect.poll(() => zoom.getByRole('img').last().evaluate(img => img.parentElement!.style.transform)).toBe('none');
+    await page.screenshot({ path: `/tmp/eat-this-zoom-stable-${isMobile ? 'mobile' : 'desktop'}.png` });
+  } finally {
+    releaseImage();
+  }
+});

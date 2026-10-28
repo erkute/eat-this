@@ -1,7 +1,7 @@
 .explorer {
   width: 100%;
   max-width: none;
-  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / cover;
+  background: var(--et-ground) url('/pics/paper/folded-white.webp?v=20261028-hq') center / cover;
   background-blend-mode: multiply;
   min-height: 100svh;
   margin-inline: auto;

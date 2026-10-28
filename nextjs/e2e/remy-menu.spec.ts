@@ -24,6 +24,7 @@ for (const route of ['/', '/news', '/en/news']) {
 
       const en = route.startsWith('/en');
       await page.locator('[data-site-footer]').scrollIntoViewIfNeeded();
+      if (page.viewportSize()!.width < 768) await expect(page.locator('#navbar')).toHaveAttribute('data-visibility', 'collapsed');
       // Am Telefon fährt der Kopf beim Herunterscrollen weg und kommt beim
       // Hochscrollen zurück — wie ein Leser es tut.
       // Zwei Frames Abstand: ohne Bewegung springt die Seite, und beide

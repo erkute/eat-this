@@ -968,7 +968,7 @@ a.quiet {
 
 /* Der Mail-Link liegt wie die Anmeldung auf einer eigenen roten Papierfläche. */
 .panel[data-email-login][data-red-sheet] {
-  background: #cf3f2f url('/pics/paper/folded-white.webp') center / cover;
+  background: #cf3f2f url('/pics/paper/folded-white.webp?v=20261028-hq') center / cover;
   background-blend-mode: multiply;
   border: 0;
   border-radius: 0;

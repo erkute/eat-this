@@ -181,7 +181,7 @@
      62 %). Die Deckkraft bleibt je Ebene, wie sie war — sie ist ausgemessen. */
   --et-scrim: rgba(0, 0, 0, 0.62);
   /* Gemeinsame Fensterfläche für Tour, Hinweise, Cookies und Auth-Status. */
-  --et-window-paper: url('/pics/paper/folded-white.webp');
+  --et-window-paper: url('/pics/paper/folded-white.webp?v=20261028-hq');
   --et-window-shadow: 0 16px 48px rgb(0 0 0 / 0.2);
   --et-window-padding: clamp(24px, 3.4vw, 40px);
   --et-window-title: clamp(28px, 3.4vw, 42px);
@@ -1651,7 +1651,7 @@ ol {
   --et-btn-hover-fg: var(--et-fg);
   border-radius: 0;
   mask: none;
-  background-image: url('/pics/paper/folded-white.webp');
+  background-image: url('/pics/paper/folded-white.webp?v=20261028-hq');
   background-size: 100% 100%;
   background-blend-mode: multiply;
 }

@@ -634,7 +634,7 @@ main.page .packsHeading {
   padding: 9px 18px;
   border: 0;
   border-radius: 9px 9px 0 0;
-  background: var(--profile-raised) url('/pics/paper/folded-white.webp') center / 240px 360px;
+  background: var(--profile-raised) url('/pics/paper/folded-white.webp?v=20261028-hq') center / 240px 360px;
   background-blend-mode: multiply;
   color: var(--profile-fg);
   font: 700 17px / 1.15 var(--et-font-display);

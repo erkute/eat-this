@@ -5,9 +5,9 @@ test.beforeEach(async ({ context, baseURL }) => {
   await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
 });
 
-test('hero cards open together from a closed fan after Remy finishes', async ({ page }) => {
+test('hero cards fan out and reveal in sequence after Remy finishes', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   const cards = page.locator('[class*="heroCardFlip"]');
   await expect(cards).toHaveCount(3);
   await expect(page.locator('[data-hero-actions] .et-btn')).toHaveCSS('background-image', /button-wear-soft/);
@@ -16,18 +16,16 @@ test('hero cards open together from a closed fan after Remy finishes', async ({ 
     const box = node.parentElement!.getBoundingClientRect();
     return { x: box.x, width: box.width, transform: getComputedStyle(node.parentElement!).transform };
   }));
-  expect(Math.max(...stack.map((card) => card.x)) - Math.min(...stack.map((card) => card.x))).toBeGreaterThan(stack[0].width * .35);
+  expect(Math.max(...stack.map((card) => card.x)) - Math.min(...stack.map((card) => card.x))).toBeLessThan(stack[0].width * .2);
   expect(stack.every((card) => card.transform !== 'none')).toBe(true);
   for (const card of await cards.all()) {
     await expect(card).toHaveCSS('transform', 'matrix3d(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)');
   }
   await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '', { timeout: 15_000 });
-  const reveal = await cards.evaluateAll((nodes) => nodes.map((node) => {
-    const animation = node.getAnimations()[0];
-    return { start: animation?.startTime, delay: animation?.effect?.getTiming().delay };
-  }));
-  expect(reveal.every((card) => card.start !== null && card.start !== undefined && card.delay === 0)).toBe(true);
-  expect(Math.max(...reveal.map((card) => Number(card.start))) - Math.min(...reveal.map((card) => Number(card.start)))).toBeLessThan(20);
+  // Each face has a different turn during the staggered reveal.
+  await page.waitForTimeout(350);
+  const turns = await cards.evaluateAll(nodes => nodes.map(node => getComputedStyle(node).transform));
+  expect(new Set(turns).size).toBeGreaterThan(1);
   for (const card of await cards.all()) await expect(card).toHaveCSS('transform', 'none');
   await expect.poll(async () => cards.evaluateAll((nodes) => {
     const boxes = nodes.map((node) => node.parentElement!.getBoundingClientRect());
@@ -37,7 +35,7 @@ test('hero cards open together from a closed fan after Remy finishes', async ({ 
 
 test('reduced motion shows the cards immediately', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
   const cards = page.locator('[class*="heroCardFlip"]');
   await expect(cards).toHaveCount(3);

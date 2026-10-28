@@ -509,7 +509,7 @@ const Inner = memo(function Inner({
           <motion.div
             key={leaving.id}
             className={`${styles.clip} ${styles.clipLeaving}`}
-            style={{ width: overlayW }}
+            style={{ width: overlayW, aspectRatio: cardAspect }}
             aria-hidden="true"
             initial={{ x: leaving.fromX, rotateZ: leaving.fromRotate }}
             animate={{ x: leaving.toX, rotateZ: leaving.toRotate }}
@@ -524,7 +524,9 @@ const Inner = memo(function Inner({
         {/* Inner clip wrapper keeps the card's rounded shape while it deals. */}
         <motion.div
           className={styles.clip}
-          style={{ width: overlayW, x: dealX, rotateZ: dealRotate }}
+          // Reserve the card's full size while the next image loads: otherwise
+          // the centred parent collapses and takes the leaving card down with it.
+          style={{ width: overlayW, aspectRatio: cardAspect, x: dealX, rotateZ: dealRotate }}
         >
           {/* Ein eigenes <img> pro Karte — ein wiederverwendetes zeigt nach dem
               `src`-Wechsel weiter das alte Bild. */}

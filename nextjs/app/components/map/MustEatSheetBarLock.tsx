@@ -1,28 +1,20 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
+import { currentTheme, subscribeTheme } from '@/lib/theme';
 import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 
-const INK = '#15120e';
+const serverTheme = () => 'light' as const;
 
-/**
- * Dunkle Browserleisten zum dunklen Must-Eat-Sheet (Telefon und Tablet).
- *
- * Die Map fährt bewusst ohne theme-color (map/page.tsx): ihre Liste scrollt
- * unter Safaris durchscheinenden Leisten, die sollen die echten Seitenpixel
- * zeigen. Das Must-Eat-Sheet ist aber eine fixe Ebene, und fixe Ebenen
- * komponiert Safari nie in die Leisten (siehe LoginModalBarLock) — die Leisten
- * zeigten das weiße Dokument dahinter, über einem Ink-Sheet. Solange das Sheet
- * offen ist, sind html und body deshalb Ink und ein theme-color sagt es Chrome
- * auf Android (und Safari mit Tönung) direkt. Beim Schließen wird alles
- * zurückgesetzt, damit Liste und Restaurant-Sheet wieder auf Weiß liegen.
- *
- * Nur unter 1024px: im Desktop-Rail steht das Sheet neben der hellen Karte.
- */
+/** Browsergrund und theme-color folgen der Must-Eat-Fläche im aktuellen Theme.
+ * Beim Schließen werden die vorherigen Seitenfarben wiederhergestellt.
+ * Nur unter 1024px: der Desktop-Rail färbt die Browserleisten nicht ein. */
 export default function MustEatSheetBarLock() {
+  const theme = useSyncExternalStore(subscribeTheme, currentTheme, serverTheme);
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return;
     if (!window.matchMedia('(max-width: 1023.98px)').matches) return;
     const de = document.documentElement;
+    const ground = getComputedStyle(de).getPropertyValue('--et-ground').trim();
     const b = document.body;
     const prev = [
       ['background', snapshotStyle(de.style, 'background')],
@@ -37,13 +29,13 @@ export default function MustEatSheetBarLock() {
     const meta = existingMeta ?? document.createElement('meta');
     const prevThemeColor = meta.getAttribute('content');
 
-    for (const [prop] of prev) de.style.setProperty(prop, INK, 'important');
-    for (const [prop] of prevBody) b.style.setProperty(prop, INK, 'important');
+    for (const [prop] of prev) de.style.setProperty(prop, ground, 'important');
+    for (const [prop] of prevBody) b.style.setProperty(prop, ground, 'important');
     if (createdMeta) {
       meta.setAttribute('name', 'theme-color');
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content', INK);
+    meta.setAttribute('content', ground);
 
     return () => {
       for (const [prop, snap] of prev) restoreStyle(de.style, prop, snap);
@@ -52,6 +44,6 @@ export default function MustEatSheetBarLock() {
       else if (prevThemeColor == null) meta.removeAttribute('content');
       else meta.setAttribute('content', prevThemeColor);
     };
-  }, []);
+  }, [theme]);
   return null;
 }

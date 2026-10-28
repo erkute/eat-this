@@ -11,7 +11,7 @@ import { identityStepPrefill, saveIdentity } from '@/lib/auth/identityStep';
 import type { AvatarChoice } from '@/lib/firebase/useUserProfile';
 import { AVATAR_CHOICES, avatarSrc } from './avatarChoices';
 import styles from './Tour.module.css';
-import StarterPack3D from './StarterPack3D';
+import { BRAND_WORDMARK } from '@/lib/constants';
 import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
 
 /** So lange sieht man die gelandeten Stapel, bevor die Erklaerung kommt. */
@@ -42,11 +42,9 @@ const copy = {
     pack: {
       tag: 'Starter Pack',
       sealed: 'Öffne dein Starter Pack.',
-      opened: 'Deine ersten 20 Must Eats.',
-      lead: 'Deine ersten Empfehlungen warten auf dich.',
-      explain: 'Alle 20 Karten sind offen. Entdecke, was du als Nächstes probieren willst.',
-      openStack: '10 offen',
-      rightStack: '10 offen',
+      opened: '20 zusätzliche Must Eats.',
+      lead: '20 weitere Gerichte aus Berlin warten auf dich.',
+      explain: 'Diese Empfehlungen gehören jetzt zu deiner Sammlung. Jede Karte zeigt dir ein Gericht und den passenden Spot dazu.',
       open: 'Öffnen',
       opening: 'Öffnet …',
       packAlt: 'Eat This Starter Pack',
@@ -54,14 +52,14 @@ const copy = {
     reveal: {
       tag: 'Am Spot',
       title: 'Antippen. Aufdecken.',
-      body: 'Am Spot deckst du die Karte durch Antippen auf. Sie zeigt dir, was du dort bestellen solltest, und bleibt offen in deinem Deck.',
+      body: 'Weitere Must Eats sind noch verdeckt. Bist du am Spot, tippst du auf die Karte. Sie zeigt dir unsere Empfehlung und landet in deinem Deck.',
       flip: 'Karte umdrehen',
       alt: 'Eine aufgedeckte Must Eat Karte',
     },
     map: {
       tag: 'Die Map',
       title: 'Die Berlin Food Map.',
-      body: 'Die besten Restaurants, Cafés und Bars. Entdecke, was um dich herum ist – und filtere nach Kategorie, Preis oder „Jetzt geöffnet“.',
+      body: 'Die besten Restaurants, Cafés und Bars. Entdecke, was um dich herum ist.',
       alt: 'Die Eat-This-Map mit Berliner Spots',
     },
     go: {
@@ -94,11 +92,9 @@ const copy = {
     pack: {
       tag: 'Starter Pack',
       sealed: 'Open your Starter Pack.',
-      opened: 'Your first 20 Must Eats.',
-      lead: 'Your first picks are waiting for you.',
-      explain: 'All 20 cards are face up. Find what you want to try next.',
-      openStack: '10 open',
-      rightStack: '10 open',
+      opened: '20 more Must Eats.',
+      lead: '20 more dishes in Berlin are waiting for you.',
+      explain: 'These recommendations are now part of your collection. Each card pairs a dish with the spot where you can try it.',
       open: 'Open',
       opening: 'Opening …',
       packAlt: 'Eat This Starter Pack',
@@ -106,14 +102,14 @@ const copy = {
     reveal: {
       tag: 'At the spot',
       title: 'Tap. Reveal.',
-      body: 'Tap the card at the spot to reveal it. It shows you what to order and stays face up in your deck.',
+      body: 'More Must Eats are still hidden. When you’re at the spot, tap the card. It reveals our recommendation and goes into your deck.',
       flip: 'Flip the card',
       alt: 'A revealed Must Eat card',
     },
     map: {
       tag: 'The map',
       title: 'Find your next great spot.',
-      body: 'The best restaurants, cafés and bars. Discover what’s around you – and filter by category, price or open now.',
+      body: 'The best restaurants, cafés and bars. Discover what’s around you.',
       alt: 'The Eat This map with Berlin food spots',
     },
     go: {
@@ -186,11 +182,11 @@ const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
     inSpin: (order % 3 === 0 ? 1 : -1) * (90 + ((order * 29) % 120)),
   };
 });
-/* Im Deck liegen ausschließlich offene Beispielkarten. */
+/* Fallback ohne geladene Pack-Karten: zwei Motive und ihre Rueckseiten. */
 const DECK_CARDS = [
   '/pics/card-front.webp?v=8',
-  '/pics/card-front-sabich.webp?v=6',
-  '/pics/card-front.webp?v=8',
+  CARD_BACK,
+  CARD_BACK,
   '/pics/card-front-sabich.webp?v=6',
 ] as const;
 
@@ -519,7 +515,6 @@ export default function SignInReward() {
           <div
             className={styles.packStage}
             data-phase={pack}
-            data-labelled={explaining ? '' : undefined}
           >
             {/* Alle Bilder liegen schon vor dem Klick im DOM — die Animation
                 wartet nie auf ein Bild. */}
@@ -550,12 +545,7 @@ export default function SignInReward() {
                 }
               />
             ))}
-            {pack === 'sealed' && (
-              <div className={styles.packPreview} role="img" aria-label={t.pack.packAlt}>
-                <StarterPack3D fit />
-              </div>
-            )}
-            {pack === 'opening' && (
+            {pack !== 'open' && (
               <div className={styles.packWrapper}>
                 <img
                   className={styles.packBody}
@@ -571,12 +561,6 @@ export default function SignInReward() {
               </div>
             )}
             {/* eslint-enable @next/next/no-img-element */}
-            <p className={styles.stackLabel} data-side="open" aria-hidden={!explaining}>
-              {t.pack.openStack}
-            </p>
-            <p className={styles.stackLabel} data-side="right" aria-hidden={!explaining}>
-              {t.pack.rightStack}
-            </p>
           </div>
         </div>
         <div className={styles.copy}>
@@ -636,9 +620,9 @@ export default function SignInReward() {
           </Link>
           <Link href="/profile" className={styles.half} onClick={close}>
             <span className={styles.halfArt}>
-              {/* Zwei offen, zwei verdeckt — so sieht ein Deck nach dem Pack aus. */}
+              {/* Vier unterschiedliche Karten aus dem gerade vergebenen Pack. */}
               {/* eslint-disable @next/next/no-img-element */}
-              {DECK_CARDS.map((src, index) => (
+              {(new Set(faceUpIds).size >= 4 ? [...new Set(faceUpIds)].slice(0, 4).map(mustEatCard) : DECK_CARDS).map((src, index) => (
                 <img key={index} className={styles.deckCard} src={src} alt="" />
               ))}
               {/* eslint-enable @next/next/no-img-element */}
@@ -733,7 +717,8 @@ export default function SignInReward() {
         tabIndex={-1}
       >
         <header className={styles.header}>
-          <span>{t.welcome}</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className={styles.brand} {...BRAND_WORDMARK} alt={t.welcome} />
           <button type="button" className={`et-btn et-btn-text et-btn-sm ${styles.quiet}`} onClick={close}>
             {last ? t.close : t.skip}
           </button>

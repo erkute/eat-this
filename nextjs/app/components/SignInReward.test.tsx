@@ -74,7 +74,7 @@ describe('Ankunft nach der Anmeldung', () => {
       announceStarterPackGranted();
     });
 
-    expect(screen.getByText(/Willkommen bei Eat This/)).toBeTruthy();
+    expect(screen.getByRole('img', { name: 'Willkommen bei Eat This' })).toBeTruthy();
   });
 
   it('bleibt sichtbar, bis der Nutzer selbst weitergeht', async () => {
@@ -97,13 +97,12 @@ describe('Ankunft nach der Anmeldung', () => {
     /* Waehrend die Karten fliegen, bleibt der Text stehen ... */
     act(() => void vi.advanceTimersByTime(3600));
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getAllByText('10 offen')[1]!.getAttribute('aria-hidden')).toBe('true');
+    expect(screen.queryByText('10 offen')).toBeNull();
 
     /* ... und kurz nachdem die Stapel liegen, kommt die Erklaerung von selbst. */
     act(() => void vi.advanceTimersByTime(700));
-    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Must Eats.');
-    expect(screen.getAllByText('10 offen')[0]!.getAttribute('aria-hidden')).toBe('false');
-    expect(screen.getAllByText('10 offen')[1]!.getAttribute('aria-hidden')).toBe('false');
+    expect(screen.getByRole('heading').textContent).toBe('20 zusätzliche Must Eats.');
+    expect(screen.queryByText('10 offen')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
@@ -197,7 +196,7 @@ describe('Ankunft nach der Anmeldung', () => {
     act(() => void vi.advanceTimersByTime(3600));
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     act(() => void vi.advanceTimersByTime(700));
-    expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Must Eats.');
+    expect(screen.getByRole('heading').textContent).toBe('20 zusätzliche Must Eats.');
   });
 
   /* Hinter der Tour wechselt die Seite ins Profil — das soll man erst

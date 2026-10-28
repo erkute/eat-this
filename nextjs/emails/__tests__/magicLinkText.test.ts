@@ -14,7 +14,7 @@ describe('auth mail plain-text parts', () => {
 
   it('the login part stays transactional — no product pitch', () => {
     const t = buildLoginText('https://x/verify', 'de');
-    expect(t).toContain('Willkommen zurück');
+    expect(t).toContain('Schön, dass du wieder da bist');
     expect(t).not.toContain('Starter Pack');
     expect(t).not.toContain('Must Eats');
   });
@@ -23,9 +23,9 @@ describe('auth mail plain-text parts', () => {
      06.09.2026 Karten, nicht mehr Spots: die Map liegt fuer jeden ganz da. */
   it('the signup part names what an account is actually worth', () => {
     const t = buildSignupText('https://x/verify', 'de');
-    expect(t).toContain('20 Must Eats');
+    expect(t).toContain('20 zusätzliche Must Eats');
     // Nicht nur wohin, sondern was bestellen — das Versprechen seit 22.09.2026.
-    expect(t).toContain('Alles auf einer Map.');
+    expect(t).toContain('ein Gericht und den passenden Spot');
     expect(t).not.toContain('Gute Spots findest du überall');
     // „auf deiner Map" war das alte Versprechen — Spots gibt es gratis.
     expect(t).not.toContain('Spots samt');
@@ -49,8 +49,8 @@ describe('auth mail plain-text parts', () => {
   it('EN: gleiche Teile, kein Deutsch', () => {
     const login = buildLoginText('https://x/v', 'en');
     const signup = buildSignupText('https://x/v', 'en');
-    expect(login).toContain('Welcome back.');
-    expect(signup).toContain('20 Must Eats.');
+    expect(login).toContain('Good to have you back.');
+    expect(signup).toContain('20 additional Must Eats');
     for (const t of [login, signup]) {
       expect(t).toContain('https://x/v');
       expect(t).toContain('one hour');

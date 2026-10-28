@@ -9,24 +9,24 @@ const TEXT = {
   de: {
     signOff: ['—', 'Du hast keine Anmeldung angefordert? Dann kannst du diese E-Mail ignorieren.'],
     validity: 'Dein Anmeldelink ist eine Stunde gültig und gilt nur für deine E-Mail-Adresse.',
-    loginIntro: 'Willkommen zurück. Hier ist dein Anmeldelink:',
+    loginIntro: 'Schön, dass du wieder da bist. Hier ist dein Anmeldelink:',
     signupLead:
-      'Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must\u00a0Eats und sammle sie in deinem Deck. Alles auf einer Map.',
+      'Mit deiner Anmeldung kommen 20 zusätzliche Must Eats in dein Deck.',
     signupIntro: 'Bei Eat This anmelden:',
     signupAfter: [
-      'Dein Starter Pack: 20 Must Eats.',
+      'Jede Karte zeigt dir ein Gericht und den passenden Spot dazu.',
       'Alle 20 Karten liegen sofort offen in deinem Deck.',
     ],
   },
   en: {
     signOff: ['—', 'Didn’t request a sign-in? Then you can ignore this email.'],
     validity: 'Your sign-in link is valid for one hour and only works for your email address.',
-    loginIntro: 'Welcome back. Here’s your sign-in link:',
+    loginIntro: 'Good to have you back. Here’s your sign-in link:',
     signupLead:
-      'Discover Berlin’s best restaurants, cafés and bars, try their Must\u00a0Eats and collect them in your deck. All on one map.',
+      'Sign up and add 20 additional Must Eats to your deck.',
     signupIntro: 'Sign up for Eat This:',
     signupAfter: [
-      'Your Starter Pack: 20 Must Eats.',
+      'Each card pairs a dish with the spot where you can try it.',
       'All 20 cards go straight into your deck face up.',
     ],
   },

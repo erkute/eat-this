@@ -204,7 +204,7 @@ export default function HubMustEatsTeaser() {
                               draggable={false}
                               width={760}
                               height={1044}
-                              loading="eager"
+                              loading="lazy"
                               fetchPriority="low"
                               decoding="async"
                             />

@@ -278,16 +278,14 @@ export default function CookieConsent() {
         (el) => el.offsetParent !== null || el === document.activeElement
       );
       if (!items.length) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement;
-      if (e.shiftKey && (active === first || active === card)) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      }
+      // Match the bootstrap cycle: Safari can otherwise move Tab from the
+      // initially focused card out of the document after hydration.
+      const index = items.indexOf(document.activeElement as HTMLElement);
+      const next = e.shiftKey
+        ? (index <= 0 ? items.length - 1 : index - 1)
+        : (index + 1) % items.length;
+      e.preventDefault();
+      items[next].focus();
     };
     document.addEventListener('keydown', onKey, true);
     return () => document.removeEventListener('keydown', onKey, true);

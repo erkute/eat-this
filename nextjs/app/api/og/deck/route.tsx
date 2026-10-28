@@ -138,7 +138,7 @@ export async function GET(request: Request) {
       <img
         src={logo}
         width={200}
-        height={80}
+        height={50}
         style={{ position: 'absolute', top: 46, left: 54 }}
         alt=""
       />

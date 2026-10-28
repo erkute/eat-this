@@ -4,10 +4,10 @@ import { useEffect, useRef } from 'react';
 import { IDLE_LIFT, idlePose, renderPack, type PackPose, type PackRenderer } from '@/lib/home/renderPack';
 import styles from './StarterPackSignup.module.css';
 
-const PACK_SRC = '/pics/home/starter-pack-front.webp';
+const PACK_SRC = '/pics/home/starter-pack-front.webp?v=20261028';
 /** The back of the pack, stored mirrored with the front's silhouette, so the
  *  renderer reads it with the front's uv (lib/home/renderPack.ts). */
-const BACK_SRC = '/pics/home/starter-pack-back.webp';
+const BACK_SRC = '/pics/home/starter-pack-back.webp?v=20261028';
 const SPIN_MS = 1400;
 
 function loadImage(src: string): Promise<HTMLImageElement> {

@@ -114,14 +114,14 @@ export const ART = {
     "width": 600,
     "height": 170,
     "alt": "Eat This",
-    "version": "7e5ce455"
+    "version": "58bc7ef1"
   },
   "heroMustEat": {
     "id": "hero-must-eat",
     "width": 180,
     "height": 248,
     "alt": "Hamachi Head — Must Eat Card",
-    "version": "e7a8551e"
+    "version": "6a0c1670"
   },
   "introSignup": {
     "id": "intro-signup",
@@ -156,90 +156,90 @@ export const ART = {
     "width": 600,
     "height": 182,
     "alt": "Eat This — we tell you what to eat",
-    "version": "29ed5078"
+    "version": "9e564b16"
   },
   "footerInstagram": {
     "id": "footer-instagram",
     "width": 600,
     "height": 52,
     "alt": "Instagram",
-    "version": "8fa3948f"
+    "version": "8b66d4c2"
   },
   "footerAbout": {
     "id": "footer-about",
     "width": 300,
     "height": 34,
     "alt": "Über uns",
-    "version": "7f444c36"
+    "version": "f1f3246e"
   },
   "footerContact": {
     "id": "footer-contact",
     "width": 300,
     "height": 34,
     "alt": "Kontakt",
-    "version": "281051ef"
+    "version": "290d07ba"
   },
   "footerImpressum": {
     "id": "footer-impressum",
     "width": 200,
     "height": 34,
     "alt": "Impressum",
-    "version": "705a73ca"
+    "version": "33678638"
   },
   "footerDatenschutz": {
     "id": "footer-datenschutz",
     "width": 200,
     "height": 34,
     "alt": "Datenschutz",
-    "version": "d142100f"
+    "version": "76898175"
   },
   "footerAgb": {
     "id": "footer-agb",
     "width": 200,
     "height": 34,
     "alt": "AGB",
-    "version": "be1baaf7"
+    "version": "c4dde140"
   },
   "footerCopyright": {
     "id": "footer-copyright",
     "width": 600,
     "height": 58,
     "alt": "© 2026 Eat This. Alle Rechte vorbehalten.",
-    "version": "2311e617"
+    "version": "f4adc559"
   },
   "footerAboutEn": {
     "id": "footer-about-en",
     "width": 300,
     "height": 34,
     "alt": "About",
-    "version": "9683a58c"
+    "version": "8f9c08d0"
   },
   "footerContactEn": {
     "id": "footer-contact-en",
     "width": 300,
     "height": 34,
     "alt": "Contact",
-    "version": "162c2fdd"
+    "version": "105f338e"
   },
   "footerDatenschutzEn": {
     "id": "footer-datenschutz-en",
     "width": 200,
     "height": 34,
     "alt": "Privacy",
-    "version": "4c795e8b"
+    "version": "0b49ecf8"
   },
   "footerAgbEn": {
     "id": "footer-agb-en",
     "width": 200,
     "height": 34,
     "alt": "Terms",
-    "version": "2e82ed61"
+    "version": "df439e1b"
   },
   "footerCopyrightEn": {
     "id": "footer-copyright-en",
     "width": 600,
     "height": 58,
     "alt": "© 2026 Eat This. All rights reserved.",
-    "version": "e92e6cb7"
+    "version": "00b187fa"
   }
 } as const satisfies Record<string, ArtAsset>;

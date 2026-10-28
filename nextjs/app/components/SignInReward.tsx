@@ -149,7 +149,7 @@ function pages(identity: Identity | null) {
     : (['pack', 'cards', 'reveal', 'map', 'go'] as const);
 }
 
-const CARD_BACK = '/pics/card-back.webp?v=8';
+const CARD_BACK = '/pics/card-back.webp?v=20261028';
 
 /** Das Kartenbild eines Must Eats — die Bild-Route, die auch Deck und Map
  *  benutzen; 440 ist die Sprosse fuer eine Karte bis 220 px bei 2x. */
@@ -559,12 +559,12 @@ export default function SignInReward() {
               <div className={styles.packWrapper}>
                 <img
                   className={styles.packBody}
-                  src="/pics/home/starter-pack-front.webp"
+                  src="/pics/home/starter-pack-front.webp?v=20261028"
                   alt={t.pack.packAlt}
                 />
                 <img
                   className={styles.packSeal}
-                  src="/pics/home/starter-pack-front.webp"
+                  src="/pics/home/starter-pack-front.webp?v=20261028"
                   alt=""
                   aria-hidden="true"
                 />

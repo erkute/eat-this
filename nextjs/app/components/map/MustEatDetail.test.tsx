@@ -290,7 +290,7 @@ describe('MustEatDetail zoom paging', () => {
     );
 
     const props = lightboxProps.mock.calls.at(-1)?.[0];
-    expect(props.imageUrl).toBe('/pics/card-back.webp?v=8');
+    expect(props.imageUrl).toBe('/pics/card-back.webp?v=20261028');
     expect(props.alt).toBe('Verdeckt');
   });
 });

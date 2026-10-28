@@ -10,7 +10,7 @@ import { routing } from '@/i18n/routing';
 import { GoogleMark } from './GoogleMark';
 import styles from './LoginBoard.module.css';
 
-const PACK_ART = '/pics/home/starter-pack-front.webp';
+const PACK_ART = '/pics/home/starter-pack-front.webp?v=20261028';
 /* Ueber den Optimierer, nicht als rohes `img`: die Tafel steht auf jeder
    Startseite, und das Original wiegt 146 KB fuer eine 160–400 px hohe Tuete. */
 const PACK_WIDTH = 945;

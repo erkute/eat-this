@@ -88,7 +88,7 @@ describe('ProfileInvite', () => {
     expect(srcs).toEqual([
       '/api/must-eat-image/m1?w=180&auto=format&q=80',
       '/api/must-eat-image/m2?w=180&auto=format&q=80',
-      '/pics/card-back.webp?v=8',
+      '/pics/card-back.webp?v=20261028',
     ]);
   });
 

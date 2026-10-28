@@ -19,12 +19,12 @@ describe('public pack examples', () => {
       'pizza',
       'sweets',
     ].map((slug) => card(slug, slug));
-    const all = [card('unselected'), ...examples];
-    expect([...composeRevealedMustEats(all)].sort()).toEqual(examples.map((c) => c._id).sort());
+    const all = [card('unselected-a'), card('unselected-b'), ...examples];
+    expect([...composeRevealedMustEats(all)].sort()).toEqual(all.map((c) => c._id).sort());
     expect(composeRevealedMustEats([...all].reverse())).toEqual(composeRevealedMustEats(all));
   });
   it('fills free slots with flagged cards independent of input order', () => {
-    // Nur zwei Pack-Beispiele: sechs Plaetze bleiben fuer markierte Karten,
+    // Nur zwei Pack-Beispiele: acht Plaetze bleiben fuer markierte Karten,
     // und von zehn markierten kommen nicht alle rein. Welche, darf nicht an
     // der Reihenfolge haengen, in der die Map die Liste sortiert.
     const all = [
@@ -38,9 +38,9 @@ describe('public pack examples', () => {
     const all = [card('other', undefined, 'spot'), card('selected', 'lunch', 'spot')];
     expect([...composeRevealedMustEats(all)]).toEqual(['selected']);
   });
-  it('keeps every explicit example when a ninth pack becomes available', () => {
-    const examples = Array.from({ length: 9 }, (_, i) => card(`card-${i}`, `category-${i}`));
-    expect(composeRevealedMustEats(examples).size).toBe(9);
+  it('keeps every explicit example even beyond the general target', () => {
+    const examples = Array.from({ length: REVEALED_TARGET + 1 }, (_, i) => card(`card-${i}`, `category-${i}`));
+    expect(composeRevealedMustEats(examples).size).toBe(REVEALED_TARGET + 1);
   });
   it('keeps explicit examples from different packs at the same restaurant', () => {
     expect([
@@ -51,7 +51,8 @@ describe('public pack examples', () => {
       ]),
     ]).toEqual(['coffee', 'sweets']);
   });
-  it('caps general shop-window curation', () => {
+  it('opens ten cards and caps general shop-window curation', () => {
+    expect(REVEALED_TARGET).toBe(10);
     expect(
       composeRevealedMustEats(Array.from({ length: 20 }, (_, i) => card(String(i)))).size
     ).toBe(REVEALED_TARGET);

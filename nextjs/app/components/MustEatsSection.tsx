@@ -2,6 +2,7 @@ import { Link } from '@/i18n/navigation';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import { sortByCardNumber } from '@/lib/map/cardOrder';
 import MustEatsGallery from './MustEatsGallery';
+import { mustEatMapHref } from '@/lib/map/mustEatMapHref';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import MustEatsStarterButton from './MustEatsStarterButton';
 import SiteFooter from './SiteFooter';
@@ -90,7 +91,7 @@ const COPY = {
 // and in the burger menu. Which bag follows the closing copy: the Starter
 // Pack for guests, a Booster Pack once there is an account.
 const STARTER_ART = '/pics/home/starter-pack-front.webp?v=20261028';
-const BOOSTER_ART = '/pics/booster/booster.webp?v=20261028';
+const BOOSTER_ART = '/pics/booster/booster_lunch.webp?v=20261028';
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale];
@@ -102,18 +103,13 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
   const openCount = initialMapData.mustEats.filter((m) => faceUp.has(m._id)).length;
   const coveredCount = total - openCount;
 
-  // Das Titelbild ist ein Fächer aus den offenen Karten mit den kleinsten
-  // Nummern (Betreiber, 27.10.2026: „zeig hier nicht nur eins“). Vorn liegt
-  // die kleinste — die Seite zählt von dort an.
-  const covers = sortByCardNumber(initialMapData.mustEats.filter((m) => faceUp.has(m._id) && m.image)).slice(0, 3);
+  // Die letzten zwei offenen Karten stehen im Fächer; die Galerie lässt sie
+  // aus, damit jedes Motiv nur einmal auf der Seite vorkommt.
+  const covers = sortByCardNumber(initialMapData.mustEats.filter((m) => faceUp.has(m._id) && m.image)).slice(-2);
   const cover = covers[0];
 
   return (
     <main className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
-      <nav className={`${styles.wrap} ${styles.flowNav}`} aria-label={locale === 'de' ? 'Must Eats und Packs' : 'Must Eats and packs'}>
-        <Link href="/must-eats" aria-current="page">Must Eats</Link>
-        <Link href="/packs">Booster Packs</Link>
-      </nav>
       <header className={`${styles.wrap} ${styles.head}`} data-cover={cover ? '' : undefined}>
         <p className={`et-label ${styles.kicker}`}>{c.kicker}</p>
         <h1 className={styles.title}>
@@ -121,22 +117,23 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         </h1>
 
         {cover && (
-          <figure className={styles.cover} aria-hidden="true" data-count={covers.length}>
+          <figure className={styles.cover} data-count={covers.length}>
             {/* Daumennägel statt Originale: eine Fächerkarte ist am Telefon
                 ~100 px, am Desktop höchstens ~220 px breit. Die vorderste
                 Karte kommt zuletzt, damit sie oben liegt. */}
             {[...covers].reverse().map((m, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={m._id}
-                sizes="(max-width: 767px) 30vw, 240px"
-                srcSet={mustEatCardSrcSet(m.image)}
-                src={mustEatCardSrc(m.image, 440)}
-                alt=""
-                width={760}
-                height={1044}
-                fetchPriority={i === covers.length - 1 ? 'high' : undefined}
-              />
+              <Link key={m._id} href={mustEatMapHref(m)} aria-label={`${m.dish ?? 'Must Eat'}, ${c.mapAria}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  sizes="(max-width: 767px) 30vw, 240px"
+                  srcSet={mustEatCardSrcSet(m.image)}
+                  src={mustEatCardSrc(m.image, 440)}
+                  alt=""
+                  width={760}
+                  height={1044}
+                  fetchPriority={i === covers.length - 1 ? 'high' : undefined}
+                />
+              </Link>
             ))}
           </figure>
         )}
@@ -153,6 +150,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
       </header>
 
       <MustEatsGallery
+        coverIds={covers.map((m) => m._id)}
         initialMapData={initialMapData}
         copy={{
           numberLabel: c.numberLabel,
@@ -202,7 +200,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={STARTER_ART} alt="" loading="lazy" width={945} height={1491} data-guest-only="" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={BOOSTER_ART} alt="" loading="lazy" width={1008} height={1560} data-auth-only="" />
+          <img src={BOOSTER_ART} alt="" loading="lazy" width={945} height={1490} data-auth-only="" />
         </div>
       </section>
 

@@ -115,6 +115,16 @@ for (const width of [390, 820, 1440]) {
           const box = (await lastSection.boundingBox())!;
           return box.y + box.height <= 1001;
         }).toBe(true);
+        // Anmeldung, Pack-Angebot und Magazin sollen gleich knapp abschließen.
+        await expect.poll(async () => {
+          await scrollToEnd(page, '[data-detail-scroll]', width < 768);
+          return detail.locator('[data-detail-scroll]').evaluate(element => {
+            const last = element.lastElementChild!;
+            const edge = getComputedStyle(element).overflowY === 'auto'
+              ? element.getBoundingClientRect().bottom : innerHeight;
+            return edge - last.getBoundingClientRect().bottom;
+          });
+        }).toBeLessThanOrEqual(16);
         await expect(finalLink).toBeInViewport({ ratio: 1 });
         await finalLink.click({ trial: true });
         await expect(page.locator('html')).toHaveCSS('background-color', expected);

@@ -120,19 +120,23 @@ describe('MustEatsSection', () => {
     expect(copy.openBody).not.toMatch(/\d/);
   });
 
-  it('fans the three lowest-numbered face-up cards on the cover, the lowest in front', () => {
-    // The catalog may arrive in any order; the front card is card 1.
+  it('fans the two last face-up cards on the cover, the lowest of those in front', () => {
+    // The catalog may arrive in any order; cards 3 and 9 form the cover.
     const data = catalog();
     data.mustEats.push(mustEat('9', true));
     data.revealedMustEatIds.push('9');
     const html = render('de', { ...data, mustEats: [...data.mustEats].reverse() });
     const figure = html.slice(html.indexOf('<figure'), html.indexOf('</figure>'));
 
-    expect(figure).toContain('data-count="3"');
-    expect(figure).not.toContain('https://cdn/9.png');
+    expect(figure).toContain('data-count="2"');
+    expect(figure).not.toContain('aria-hidden');
+    expect(figure).toContain('href="/map?r=3"');
+    expect(figure).toContain('aria-label="Dish 3, auf der Map zeigen"');
+    expect(figure).not.toContain('https://cdn/1.png');
+    expect(figure).toContain('https://cdn/9.png');
     // Hinten → vorn im DOM: die vorderste Karte steht zuletzt.
-    expect(figure.lastIndexOf('https://cdn/1.png')).toBeGreaterThan(figure.lastIndexOf('https://cdn/2.png'));
-    expect(figure.lastIndexOf('https://cdn/2.png')).toBeGreaterThan(figure.lastIndexOf('https://cdn/3.png'));
+    expect(figure).not.toContain('https://cdn/2.png');
+    expect(figure.lastIndexOf('https://cdn/3.png')).toBeGreaterThan(figure.lastIndexOf('https://cdn/9.png'));
   });
 
   it('shows no cover and no card back up top when nothing is face-up', () => {
@@ -195,5 +199,7 @@ describe('MustEatsSection', () => {
 
     expect(packArt).toEqual(['src="/pics/home/starter-pack-front.webp?v=20261028"']);
     expect(html).not.toContain('/pics/booster/booster_free.webp');
+    expect(html).not.toContain('/pics/booster/booster.webp');
+    expect(html).toContain('/pics/booster/booster_lunch.webp?v=20261028');
   });
 });

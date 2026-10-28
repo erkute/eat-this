@@ -55,11 +55,11 @@ const routerStub = {
   prefetch: vi.fn(),
 } as unknown as AppRouterInstance;
 
-function render(data: InitialMustEatsData = DATA, locale: 'de' | 'en' = 'de') {
+function render(data: InitialMustEatsData = DATA, locale: 'de' | 'en' = 'de', coverIds: string[] = []) {
   return renderToStaticMarkup(
     <AppRouterContext.Provider value={routerStub}>
       <NextIntlClientProvider locale={locale} messages={translations[locale]} timeZone="Europe/Berlin">
-        <MustEatsGallery initialMapData={data} copy={COPY} />
+        <MustEatsGallery coverIds={coverIds} initialMapData={data} copy={COPY} />
       </NextIntlClientProvider>
     </AppRouterContext.Provider>
   );
@@ -78,6 +78,12 @@ describe('MustEatsGallery', () => {
       'Nr. 001, Verdeckt, Hidden 1, auf der Map zeigen',
       'Nr. 003, Verdeckt, Hidden 3, auf der Map zeigen',
     ]);
+  });
+
+  it('does not repeat cover cards in the face-up gallery', () => {
+    const feature = section(render(DATA, 'de', ['m2']), 'open');
+    expect(feature).not.toContain('Dish 2');
+    expect(feature).toContain('Dish 5');
   });
 
   it('captions a covered card with its spot only, not „Verdeckt“ again', () => {
@@ -117,7 +123,7 @@ describe('MustEatsGallery', () => {
     expect(feature).not.toMatch(/>Nr\. 002</);
     expect(feature).toContain('Dish 2');
     expect(feature).toContain('href="/restaurant/spot-2"');
-    expect(feature).toContain('Mitte');
+    expect(feature).not.toContain('Mitte');
     expect(feature).not.toContain('Text 2');
     expect(feature).not.toContain('Verdeckt');
   });

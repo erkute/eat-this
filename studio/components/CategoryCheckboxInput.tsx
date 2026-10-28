@@ -97,7 +97,7 @@ export function CategoryCheckboxInput(props: ArrayOfObjectsInputProps) {
   }
 
   return (
-    <Stack space={2}>
+    <Stack gap={2}>
       {cats.map((c) => {
         const checked = checkedIds.has(c._id)
         const showEn = c.nameEn && c.nameEn !== c.name

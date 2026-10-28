@@ -10,8 +10,8 @@ import {
   Stack,
   Text,
   TextArea,
-  useToast,
 } from '@sanity/ui'
+import {useToast} from '@sanity/ui/toast'
 import {ComposeSparklesIcon, EyeOpenIcon} from '@sanity/icons'
 import {useClient, useFormValue, type ObjectInputProps} from 'sanity'
 import {

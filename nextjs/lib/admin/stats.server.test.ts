@@ -185,7 +185,7 @@ describe('buildFunnel — die vier Stufen des Produkts', () => {
 
     expect(funnel.stages.map((s) => s.key)).toEqual(['free', 'account', 'onsite', 'packs']);
     expect(funnel.stages[0].steps[0]).toEqual({ key: 'visitors', count: 100, share: 1 });
-    expect(funnel.stages[1].offer).toBe('+20 Karten, 10 davon offen');
+    expect(funnel.stages[1].offer).toBe('+20 Karten, 20 davon offen');
     const onsite = funnel.stages[2].steps;
     expect(onsite.find((s) => s.key === 'must_eat_reveal_too_far')).toEqual({
       key: 'must_eat_reveal_too_far',
@@ -735,7 +735,7 @@ describe('summarizeDeck', () => {
       spots: 4,
       freeCards: 8,
       starterCards: 20,
-      starterFaceUp: 10,
+      starterFaceUp: 20,
     });
     // Mehrfachkategorisiert: m1 zählt in Pizza UND Dinner.
     expect(deck.byCategory).toEqual([

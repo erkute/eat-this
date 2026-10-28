@@ -476,7 +476,7 @@ export default function NewsArticleShell({
         <article>
           {/* Der Kopf wie bei Kaleidoscope (Ansage 02.10.2026, Vorbild
               manifesto.kaleidoscope.media): mittig Rubrik, die Schlagzeile
-              gross in Providence, klein die Credits; darunter das Foto
+              gross, klein die Credits; darunter das Foto
               randlos mit schmalem Rahmen, dann der Vorspann als Auftakt. */}
           <header className={styles.header}>
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und

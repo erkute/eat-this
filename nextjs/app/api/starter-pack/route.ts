@@ -12,7 +12,6 @@ import {
   STARTER_PACK_CARDS,
   STARTER_PACK_DOC_ID,
   placeWantedFirst,
-  splitStarterPack,
   starterPackPool,
 } from '@/lib/starter-pack';
 
@@ -34,11 +33,7 @@ export const dynamic = 'force-dynamic';
  * damit zwei Konten nicht denselben Stapel bekommen — ein Album, das bei jedem
  * gleich aussieht, ist keine Sammlung.
  *
- * Die Hälfte kommt verdeckt. Ein Pack, das alles sofort zeigt, ist zu Ende,
- * bevor es angefangen hat; die verdeckten stehen mit Nummer und Lokal im
- * Album und gehen vor Ort auf. Welche der beiden Hälften eine Karte erwischt,
- * entscheidet dieselbe Ziehung — `sampleN` mischt, der Schnitt liegt einfach
- * in der Mitte.
+ * Alle gezogenen Karten sind sofort offen.
  *
  * Eine Ausnahme vom Zufall: `mustEatId` im Body. Das ist die Karte, die der
  * Gast auf der Map angetippt hat, bevor die Anmelde-Tafel kam — sie hat ihm
@@ -99,13 +94,13 @@ export async function POST(req: Request) {
     alreadyHas
   );
   const drawn = placeWantedFirst(sampleN(pool, STARTER_PACK_CARDS), pool, wanted);
-  const { faceUp: mustEatIds, covered: coveredMustEatIds } = splitStarterPack(drawn);
+  const mustEatIds = drawn;
 
   const doc: WithFieldValue<Entitlement> = {
     type: 'starter',
     slug: null,
     mustEatIds,
-    coveredMustEatIds,
+    coveredMustEatIds: [],
     purchasedAt: FieldValue.serverTimestamp(),
     stripeSessionId: null,
     source: 'signup',

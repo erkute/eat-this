@@ -97,9 +97,6 @@
   align-items: flex-start;
   padding: clamp(16px, 3svh, 28px) 8px clamp(10px, 1.6svh, 16px);
 }
-.fdTopCardHidden {
-  visibility: hidden;
-}
 /* Tap when out of range → a firm "nope" shake (reuses the marker keyframes). */
 .fdHeroLocked.mustEatCardTapping {
   animation: mustEatTapShake 520ms cubic-bezier(0.3, 0.7, 0.4, 1) 1;
@@ -350,6 +347,12 @@
      pageWithCard). Ohne Promotion baut der Browser den Layer erst beim ersten
      Frame der Bewegung — das ist der sichtbare Ruckler am Animationsstart. */
   will-change: transform;
+}
+/* Die abfahrende Karte beim Blättern (siehe MustEatDetailMobile, lib/cardDeal):
+   über dem Stapel, unter der einfahrenden Karte, nicht antippbar. */
+.fdTopCardLeaving {
+  z-index: 3;
+  pointer-events: none;
 }
 .fdHero {
   position: relative;
@@ -1358,9 +1361,8 @@
 
 /* Die Copy im Must-Eat-Detail steht komplett in der Markenschrift: der
    Zustands-Satz ("Komm auf 50 m …") ebenso wie die Gerichtsbeschreibung.
-   Beide sind kurz genug, dass Providence' gezeichneter Look trägt — ein
-   DM-Sans-Block mittendrin wirkte wie ein Fremdkörper im Panel. Die
-   Zeilenhöhe bleibt auf Providence gerechnet (1.24 aus den Blöcken oben). */
+   Ein zweiter Schriftblock mittendrin wirkte wie ein Fremdkörper im Panel.
+   Die Zeilenhöhe kommt aus den Blöcken oben (1.24). */
 
 .fdText {
   font-family: var(--et-font-display);
@@ -1474,7 +1476,7 @@
 /* ── Must-Eat-Sheet: Ink-Panel wie das Onboarding ────────────────────────────
    Das Sheet war die einzige Must-Eat-Fläche auf Papier. Das Onboarding
    (MustEatsOnboarding.module.css), das denselben Kartenstapel erklärt, steht
-   auf Ink: dunkler Grund, weiße Providence-Versalien, gelber Kicker, gelber
+   auf Ink: dunkler Grund, weiße Versalien, gelber Kicker, gelber
    Knopf, Karte mit Schlagschatten, alles auf einer Mittelachse. Beide zeigen
    dieselbe Karte, also bekommen sie dieselbe Bühne (Nutzer, 02.09.2026: „mach
    mehr wie das Must-Eat-Onboarding").
@@ -1664,7 +1666,7 @@
  * Sheet und stand als zweite "Karte" gegen die Must-Eat-Karte, um die es geht.
  *
  * Jetzt Markensprache: keine Fläche, Struktur aus Weißraum und Typo. Foto
- * quadratisch, Name in Providence, die Aktion als kompakte Ink-Pille in
+ * quadratisch, Name in der Markenschrift, die Aktion als kompakte Ink-Pille in
  * Inhaltsbreite — alles auf EINER Zeile. Der Block ist damit rund 30px
  * flacher; die gehen an die Karte darüber.
  *

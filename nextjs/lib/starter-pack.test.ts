@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   STARTER_PACK_FACE_UP,
   placeWantedFirst,
-  splitStarterPack,
   starterPackPool,
 } from './starter-pack';
 
@@ -18,7 +17,7 @@ describe('placeWantedFirst', () => {
     expect(out[0]).toBe('m25');
     expect(out).toHaveLength(20);
     expect(new Set(out).size).toBe(20);
-    expect(splitStarterPack(out).faceUp[0]).toBe('m25');
+    expect(out[0]).toBe('m25');
   });
 
   it('verdoppelt eine Karte nicht, die ohnehin gezogen war', () => {
@@ -44,7 +43,7 @@ describe('placeWantedFirst', () => {
     const out = placeWantedFirst(drawn, smallPool, 'm4');
 
     expect(out).toEqual(['m4', 'm1', 'm2', 'm3']);
-    expect(splitStarterPack(out).faceUp).toHaveLength(Math.min(4, STARTER_PACK_FACE_UP));
+    expect(out).toHaveLength(Math.min(4, STARTER_PACK_FACE_UP));
   });
 });
 
@@ -52,4 +51,8 @@ describe('starterPackPool', () => {
   it('nimmt nur, was das Konto noch nicht sieht', () => {
     expect(starterPackPool(['a', 'b', 'c'], new Set(['b']))).toEqual(['a', 'c']);
   });
+});
+
+it('opens all twenty starter cards', () => {
+  expect(STARTER_PACK_FACE_UP).toBe(20);
 });

@@ -45,7 +45,8 @@ function imageAssetKey(url: string | undefined): string {
 
 /**
  * Obergrenze für den Titelgrad aus dem längsten Wort des Namens, in `cqi` der
- * Kopfspalte. Versalien in Providence laufen rund 0,62em breit; ein Wort mit n
+ * Kopfspalte. Versalien laufen rund 0,62em breit (gemessen an der früheren
+ * Titelschrift); ein Wort mit n
  * Zeichen passt also bis 100cqi / (0,62·n) in eine Zeile.
  */
 function titleFitStyle(name: string): CSSProperties {
@@ -428,7 +429,7 @@ export default async function RestaurantPage({ params }: PageProps) {
           {/* Der Steckbrief (Wahl 07.10.2026 im Steckbrief-Labor, Fassung
               „Heft"): in der Typografie der Seite selbst, zentriert wie der
               Kopf — der Name, darunter Bezirk · Küche · Preis, dann wie beim
-              Insider-Tipp kleine Zwischentitel über grosser Providence. Jede
+              Insider-Tipp kleine Zwischentitel über grosser Schrift. Jede
               Zeile für sich mittig. Abgelehnt: Ink-Tafel mit gelben Labels
               („zu schwarz") und ein Datenblatt mit Haarlinien. */}
           <section className={styles.brief} aria-labelledby="spot-facts">

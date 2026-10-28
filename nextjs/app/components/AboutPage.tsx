@@ -227,7 +227,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
               <Image
                 {...BRAND_WORDMARK}
                 alt="eat this."
-                sizes="(min-width: 1248px) 1200px, calc(100vw - 48px)"
+                sizes="(min-width: 608px) 560px, calc(100vw - 48px)"
                 priority
                 className={styles.wordmark}
               />
@@ -236,15 +236,15 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           </div>
           <figure className={styles.heroArt}>
             <Image
-              src="/pics/founder-table-cartoon-final.webp"
+              src="/pics/founder-cutout.webp"
               alt={
                 de
-                  ? 'Ersan als Cartoon im grauen Anzug bei Bar Basta: Gin Fizz in der Hand, ODB Sandwich auf dem Tisch'
-                  : 'A cartoon of Ersan in a grey suit at Bar Basta, holding a Gin Fizz with an ODB Sandwich on the table'
+                  ? 'Ersan als Cartoon im braunen Anzug mit Sonnenbrille: zurückgelehnt auf einem Holzstuhl, ein Glas in der Hand, zwei Teller auf dem Tisch daneben'
+                  : 'A cartoon of Ersan in a brown suit and sunglasses, leaning back on a wooden chair with a glass in hand and two plates on the table beside him'
               }
-              width={1145}
-              height={1374}
-              sizes="(min-width: 768px) 680px, calc(100vw - 48px)"
+              width={1040}
+              height={1228}
+              sizes="(min-width: 768px) 420px, 280px"
               priority
               className={styles.heroFigure}
             />

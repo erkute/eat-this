@@ -15,9 +15,11 @@ export const OG_PACK_VERSION = 4;
 // either file changes.
 export const OG_CARD_VERSION = 5;
 
-// Shared website wordmark and its intrinsic dimensions.
+// Shared website wordmark (vector, drawn in Figma page "Logo") and its
+// intrinsic dimensions. The canvas keeps the old raster's padding, so every
+// slot sized for it stays the same.
 export const BRAND_WORDMARK = {
-  src: '/pics/eat-this-crumpled-wordmark.webp',
+  src: '/pics/eat-this-wordmark.svg',
   width: 2172,
   height: 724,
 } as const;

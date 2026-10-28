@@ -1,7 +1,8 @@
 import { useLayoutEffect, type RefObject } from 'react';
 
-/* Spot-Namen stehen eng (line-height 1.1), weil Providence weit unter die
-   Grundlinie hängt: das g reicht 0,484em hinunter, ein l 0,699em hinauf.
+/* Spot-Namen stehen eng (line-height 1.1), weil die Titelschrift weit unter
+   die Grundlinie hängen kann (in der früheren Schrift reichte das g 0,484em
+   hinunter, ein l 0,699em hinauf).
    Kollisionsfrei für jeden Fall wären 1,18 — so weit aufgezogen stehen
    zweizeilige Namen aber sichtbar auseinander (User, 04.09.2026). Kracht es
    trotzdem, dann nur, wo eine Unterlänge genau über einer Oberlänge steht:
@@ -110,7 +111,7 @@ export function useInkSafeLeading(ref: RefObject<HTMLElement | null>, text: stri
     });
     ro.observe(el);
     /* Vor der Markenschrift misst der Canvas die Ersatzschrift — wie das
-       Layout auch. Kommt Providence, gilt beides nicht mehr. */
+       Layout auch. Kommt die Markenschrift, gilt beides nicht mehr. */
     const onFonts = () => {
       glyphs.clear();
       apply();

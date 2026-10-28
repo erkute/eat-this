@@ -109,9 +109,6 @@
   transform-origin: top left;
 }
 
-.avatarFrame img:first-child,
-.avatarFrame[data-buddy-motion] img { animation: none; }
-
 .headerTitle { margin-right: auto; min-width: 0; }
 .headerTitle strong {
   display: block;

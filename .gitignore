@@ -36,6 +36,9 @@ node_modules/
 test-results/
 .qa-tmp/
 .private/
+# Design-Originale (Blender, Fotos, Freisteller) bleiben lokal: das Repo ist
+# öffentlich. Was die App braucht, liegt fertig unter nextjs/public/.
+design/
 studio/.sanity/
 
 # Workflow screenshots from browser sessions — stay local
@@ -52,10 +55,6 @@ rive-src/
 # scripts/replace-must-eat-cards.ts (--cards ../CARDS). Die Karten selbst sind
 # Produktionsdaten in Firestore + Cloud Storage, kein Deploy-Artefakt.
 /CARDS/
-
-# Lizenzierte Desktop-Schrift — nur lokal, aus ihr entstehen die E-Mail-PNGs
-# (npm run sync:brand-font). Die Schrift selbst gehört nicht ins Repo.
-nextjs/assets/fonts/Providence*
 
 # Local Lighthouse runs and Playwright reports
 .lighthouseci/

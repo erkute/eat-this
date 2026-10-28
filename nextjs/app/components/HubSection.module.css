@@ -20,25 +20,37 @@
    das Wort („Starte / r", 21.10.2026). */
 .page :global(.hv-head) { container-type: inline-size; }
 .page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
-/* Silver poster paper: the same artwork and hero for guests and members. */
+/* Silver poster paper: the same artwork and hero for guests and members.
+   Höhe in `svh`, nicht `dvh`: am Telefon wächst `dvh`, sobald die
+   Adressleiste beim Scrollen einklappt — der Aufmacher wurde höher, das
+   Raster verteilte sich neu, und Marke, Slogan und Karten rutschten mit
+   (Rückmeldung 27.10.2026). `svh` bleibt beim Scrollen stehen. */
 .hero {
   position: relative; overflow: hidden; box-sizing: border-box;
-  padding-top: var(--site-nav-h); height: 100dvh;
+  padding-top: var(--site-nav-h); height: 100svh;
   --et-solid: #1b1f1f; --et-on-solid: #f0f2f0;
-  background: #dfe3e3 url('/pics/home/silver-hero/paper.webp') center / cover;
+  background: #f1f1ef url('/pics/home/silver-hero/hero-paper.webp') center / cover no-repeat;
   color: var(--et-ink);
 }
+/* Die Papierblätter der Startseite (globals.css, `.homeV2 > section`)
+   setzen Grösse, Wiederholung und Lage mit höherer Spezifität. Nur das Bild
+   zu tauschen liess das 1536 × 1024 px grosse Papier in Originalgrösse oben
+   links liegen: ab 1537 px Breite oder 1025 px Höhe blieb rechts bzw. unten
+   ein Streifen ohne Papier (Rückmeldung 27.10.2026). */
 :global(html[data-vintage] .homeV2) > .hero {
-  background-image: url('/pics/home/silver-hero/paper.webp');
+  background-image: url('/pics/home/silver-hero/hero-paper.webp');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 }
-.heroInner { position: relative; padding: clamp(20px, 4dvh, 48px) 56px; height: 100%; max-width: 1440px; margin: auto; box-sizing: border-box; }
+.heroInner { position: relative; padding: clamp(20px, 4svh, 48px) 56px; height: 100%; max-width: 1440px; margin: auto; box-sizing: border-box; }
 .heroCopy {
   display: grid; grid-template-columns: minmax(0, 560fr) minmax(0, 728fr);
   grid-template-rows: 1fr auto auto auto 1fr; column-gap: 40px;
   align-items: center; height: 100%; min-height: 0;
 }
 .heroBrand { grid-column: 1; grid-row: 2; width: 100%; min-height: 0; }
-.heroMark { display: block; width: 100%; aspect-ratio: 560 / 168; max-height: 24dvh; object-fit: contain; }
+.heroMark { display: block; width: 100%; aspect-ratio: 560 / 168; max-height: 24svh; object-fit: contain; }
 .heroHeadline { grid-column: 1; grid-row: 3; margin: 16px auto 0; width: 97%; }
 .heroAccessible { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .heroSloganDesktop { display: block; width: 100%; }
@@ -73,11 +85,11 @@
   to { transform: rotateY(0deg); }
 }
 @media (max-width: 767.98px) {
-  .heroInner { padding: clamp(12px, 2.8dvh, 24px) 24px clamp(16px, 3.8dvh, 32px); }
+  .heroInner { padding: clamp(12px, 2.8svh, 24px) 24px clamp(16px, 3.8svh, 32px); }
   .heroCopy { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 112fr) minmax(0, 91fr) minmax(0, 286fr) auto; gap: 16px; justify-items: center; }
-  .heroBrand { grid-column: 1; grid-row: 1; max-width: 342px; height: 100%; display: flex; align-items: end; justify-content: center; }
+  .heroBrand { grid-column: 1; grid-row: 1; max-width: 342px; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
   .heroMark { width: auto; max-width: 100%; height: 100%; max-height: 112px; aspect-ratio: 342 / 112; }
-  .heroHeadline { grid-row: 2; width: min(100%, 272px); height: 100%; margin: 0; display: flex; align-items: start; justify-content: center; min-height: 0; }
+  .heroHeadline { grid-row: 2; width: min(100%, 272px); height: 100%; margin: 0; display: flex; align-items: flex-start; justify-content: center; min-height: 0; }
   .heroSloganDesktop { display: none; }
   .heroSloganMobile { display: block; width: auto; max-width: 100%; height: 100%; max-height: 91px; object-fit: contain; }
   .heroArt { grid-column: 1; grid-row: 3; width: 100%; height: 100%; margin: 0; }

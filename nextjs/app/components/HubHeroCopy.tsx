@@ -1,6 +1,7 @@
 import MapIntentLink from './MapIntentLink';
 import styles from './HubSection.module.css';
 import BrandSlogan from './BrandSlogan';
+import { BRAND_WORDMARK } from '@/lib/constants';
 
 interface Props { locale: 'de' | 'en' }
 const ART = '/pics/home/silver-hero';
@@ -11,7 +12,7 @@ export default function HubHeroCopy({ locale }: Props) {
     <div className={styles.heroCopy}>
       <div className={styles.heroBrand}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.heroMark} data-hero-mark="" src={`${ART}/wordmark.webp`} width={2172} height={724} alt="Eat This" fetchPriority="high" decoding="async" />
+        <img className={styles.heroMark} data-hero-mark="" src={BRAND_WORDMARK.src} width={2172} height={724} alt="Eat This" fetchPriority="high" decoding="async" />
       </div>
       <h1 className={styles.heroHeadline}>
         <span className={styles.heroAccessible}>We tell you what to eat</span>

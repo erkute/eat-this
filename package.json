@@ -6,7 +6,7 @@
   "author": "EAT THIS",
   "type": "module",
   "engines": {
-    "node": ">=20.19 <21"
+    "node": ">=22.12 <23"
   },
   "scripts": {
     "rea": "npx --yes --package=node@22.22.2 --package=rea-agents@6.4.0 -- rea",

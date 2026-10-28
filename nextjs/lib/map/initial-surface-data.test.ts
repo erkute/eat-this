@@ -101,7 +101,8 @@ describe('initial surface data selectors', () => {
     const covered = selected.mustEats[1].restaurant;
     expect(covered.name).toBe('Spot 2');
     expect(covered.district).toBe('Mitte');
-    expect(covered.slug).toBe('');
+    // Der Slug reist mit: die Karte verlinkt ihren Spot auf der Map.
+    expect(covered.slug).toBe(data.mustEats[1].restaurant.slug);
     expect(covered.lat).toBe(0);
     expect(covered.address).toBeUndefined();
     expect(covered.photo).toBeUndefined();

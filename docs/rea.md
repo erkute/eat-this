@@ -12,7 +12,7 @@ npm run --silent rea -- --help
 npm run --silent rea -- list-browser-targets http://127.0.0.1:9337 --format json
 ```
 
-Der npm-Befehl lädt REA 6.4.0 und eine separate Node-22.22.2-Laufzeit in den npm-Cache. Die App behält Node 20 und ihre bestehenden Lockfiles. Beim ersten Download kann npm unter Node 20 Engine-Warnungen für die heruntergeladenen Pakete ausgeben; der gestartete REA-Prozess verwendet die separate Node-Version.
+Der npm-Befehl lädt REA 6.4.0 und eine separate Node-22.22.2-Laufzeit in den npm-Cache. Sie ist unabhängig von der Node-Version der App (`.nvmrc`) und ändert deren Lockfiles nicht; der gestartete REA-Prozess verwendet immer die separate Node-Version.
 
 Die Projektkonfigurationen `.codex/config.toml` und `.mcp.json` registrieren denselben Startbefehl für Codex beziehungsweise Claude Code. Nach dem Neuladen der MCP-Server bzw. einem Client-Neustart stehen die Werkzeuge im Agenten zur Verfügung. Die CLI funktioniert sofort. Versionen bei einem Update in diesen beiden Konfigurationen und im Root-`package.json` gemeinsam ändern.
 
@@ -32,8 +32,7 @@ Captures, Screenshots und Browserprofile bleiben unter `/tmp/eat-this-*`. Für v
 
 REA liefert Grenzen der Aufzeichnung mit: spätes Anhängen erfasst frühere Netzwerkanfragen nicht; noch laufende Requests machen eine Aufnahme unvollständig. Bei `cleanup_incomplete` die gemeldeten Ressourcen und verbleibenden Prozesse prüfen. Ein fehlgeschlagener Schritt ist kein Beleg für fehlende Produktfunktionalität.
 
-## Quellen und erste Untersuchung
+## Quellen
 
 - [REA](https://github.com/morluto/rea), [Browseranalyse](https://rea.tools/guides/browser/)
 - [Projektbezogene MCP-Konfiguration in Codex](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)
-- [Google Maps: erste Beobachtungen](research/google-maps-2026-10-13.md)

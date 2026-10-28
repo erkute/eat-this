@@ -92,7 +92,7 @@ async function applyPendingHeart(restaurantId: string, locale: string): Promise<
   return true;
 }
 
-let settling: { uid: string; promise: Promise<boolean>; announced: boolean } | null = null;
+let settling: { uid: string; promise: Promise<boolean> } | null = null;
 
 /**
  * Loest ein ausstehendes Herz ein und meldet, ob dabei ein Spot gespeichert
@@ -103,26 +103,14 @@ let settling: { uid: string; promise: Promise<boolean>; announced: boolean } | n
  * Herz waere im ersten Bild wieder leer. Mehrere useFavorites auf einer Seite
  * (Karte und Buddy-Widget) teilen sich dieselbe Zusage: eingeloest wird einmal.
  *
- * Die Bestaetigung kommt nicht von hier, sondern von useFavorites nach dem
- * Lesen: erst die gelesene Liste sagt, ob das der erste Spot war (lib/notice:
- * spotSavedFirst gegen spotSaved). Nur ein Fehlschlag meldet sich hier.
+ * Eine Bestaetigung gibt es nicht: die Anmeldung endet im Profil, der Spot
+ * steht dort in der Liste. Nur ein Fehlschlag meldet sich hier.
  */
 export function settlePendingHeart(uid: string, locale: string): Promise<boolean> {
   if (settling?.uid === uid) return settling.promise;
   const restaurantId = takeFromUrl() ?? takeFromStorage();
   if (!restaurantId) return Promise.resolve(false);
   const promise = applyPendingHeart(restaurantId, locale);
-  settling = { uid, promise, announced: false };
+  settling = { uid, promise };
   return promise;
-}
-
-/**
- * Ob diese Liste die Bestaetigung des eingeloesten Herzens zeigen soll. Genau
- * eine darf — die erste, die fragt —, sonst stuende dieselbe Meldung einmal
- * pro useFavorites auf der Seite an.
- */
-export function claimPendingHeartNotice(uid: string): boolean {
-  if (!settling || settling.uid !== uid || settling.announced) return false;
-  settling.announced = true;
-  return true;
 }

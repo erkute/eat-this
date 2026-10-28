@@ -1,25 +1,11 @@
-@font-face {
-  font-family: 'ff-providence-sans-web-pro-1';
-  src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'ff-providence-sans-web-pro-1';
-  src: url('https://use.typekit.net/af/98d132/0000000000000000773599ea/31/l?subset_id=2&fvd=n7&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 700;
-}
-
 /* Neue Haas Grotesk Text — der Fließtext der gesamten App, wie bei 032c
-   (Wahl 03.10.2026). Aus demselben Adobe-Fonts-Webprojekt wie Providence
-   (Kit kgb1lmh); im Kit stehen 55 Roman und 75 Bold. Geladen wird nur, wo
-   eine Regel die Familie wirklich benutzt. */
+   (Wahl 03.10.2026). Aus dem Adobe-Fonts-Webprojekt (Kit kgb1lmh); im Kit
+   stehen 55 Roman und 75 Bold. Geladen wird nur, wo eine Regel die Familie
+   wirklich benutzt. Die Faces stehen hier statt über die Kit-CSS
+   (use.typekit.net/kgb1lmh.css): die lädt per @import Adobes Zähl-Beacon
+   p.typekit.net/p.css, für jeden Besuch und vor der Cookie-Entscheidung.
+   Die URLs stammen aus der Kit-CSS; dort auffrischen, wenn Adobe das Kit
+   ändert. */
 @font-face {
   font-family: 'neue-haas-grotesk-text-1';
   src: url('https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3')
@@ -56,108 +42,13 @@
   font-weight: 700;
 }
 
-/* Metrisch angepasster Fallback für Providence. Providence kommt von Typekit
-   mit `font-display: swap`, also rendert der erste Frame in der Systemschrift
-   und der Text springt beim Tausch — auf /news waren das 0.06 CLS, gemessen
-   bei 559 ms. Arial (bzw. Helvetica/Liberation Sans, metrisch identisch) wird
-   hier auf Providence' Maße gestreckt, damit vorher und nachher gleich viel
-   Platz gebraucht wird.
-
-   Zahlen sind gemessen, nicht geraten: Canvas-`measureText` bei 100px über
-   einen Sample-String, mittlere Vorschubbreite Providence/Arial = 105.8 %
-   (n4) bzw. 102.1 % (n7); `fontBoundingBox` gibt Providence 95 % Ascent und
-   51 % Descent, geteilt durch das jeweilige size-adjust. Neu messen, wenn
-   Adobe die Schriftdateien austauscht. Ohne den Fallback drifteten die 32
-   Providence-Elemente über dem Fold auf /news zusammen um 1103 px, mit ihm
-   um 96 px. */
-@font-face {
-  font-family: 'Providence Fallback';
-  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
-  font-weight: 400;
-  size-adjust: 105.8%;
-  ascent-override: 89.8%;
-  descent-override: 48.2%;
-  line-gap-override: 0%;
-}
-
-@font-face {
-  font-family: 'Providence Fallback';
-  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
-  font-weight: 700;
-  size-adjust: 102.1%;
-  ascent-override: 93%;
-  descent-override: 49.9%;
-  line-gap-override: 0%;
-}
-
-/* chauncy-pro-1 (--et-font-condensed) and moonblossom-1 (--et-font-moonblossom) used to
-   arrive via Adobe's kit stylesheet, use.typekit.net/kgb1lmh.css. That kit CSS
-   @imports p.typekit.net/p.css — Adobe's usage beacon, not a font — which fired
-   for every visitor on every page before the consent dialog was answered.
-   Declaring the faces here points straight at the same font files and drops the
-   beacon. Kit families corsairpe-1 and salted-1 were in the kit but used
-   nowhere, so they are not carried over. URLs come from the kit; refresh them
-   from https://use.typekit.net/kgb1lmh.css if the Adobe kit changes. */
-@font-face {
-  font-family: 'chauncy-pro-1';
-  src: url('https://use.typekit.net/af/1ae4b9/000000000000000077584744/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'chauncy-pro-1';
-  src: url('https://use.typekit.net/af/5f7188/0000000000000000773597e1/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 700;
-}
-
-@font-face {
-  font-family: 'chauncy-pro-1';
-  src: url('https://use.typekit.net/af/d1b4c8/0000000000000000773597da/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i4&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: italic;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'chauncy-pro-1';
-  src: url('https://use.typekit.net/af/432b35/0000000000000000773597e3/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i7&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: italic;
-  font-weight: 700;
-}
-
-@font-face {
-  font-family: 'moonblossom-1';
-  src: url('https://use.typekit.net/af/075816/00000000000000007735fbe5/31/l?subset_id=2&fvd=n4&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'Providence Sans Pro Regular';
-  src: url('https://use.typekit.net/af/4b2e2d/0000000000000000773599f0/31/l?subset_id=2&fvd=n4&v=3')
-    format('woff2');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-}
 /* Design tokens */
 :root {
   /* ── Farben ── Eine Farbe, ein Name. Bis 26.09.2026 hatte Ink zwölf Namen
      (darunter --gray-100 und --brand-muted), Weiss dreizehn (darunter
      --et-yellow), verbunden über bis zu fünf Alias-Ebenen. Home bleibt die
      Vorlage: weisses Papier, fast schwarzes Ink, roter Akzent, flache
-     Flächen, Providence. */
+     Flächen, Neue Haas Grotesk. */
   --et-ink: #15120e;
   --et-magazine-table: #0b0a08;
   --et-white: #fff;
@@ -188,9 +79,6 @@
   /* Neue CI: dieselbe Grotesk für Titel, Bedienelemente und Fließtext. */
   --et-font-body: 'neue-haas-grotesk-text-1', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --et-font-text: var(--et-font-body);
-  --et-font-condensed: 'chauncy-pro-1', 'chauncy-pro-2', Impact, sans-serif;
-  --et-font-moonblossom:
-    'moonblossom-1', 'moonblossom-2', 'moonblossom', 'Providence Sans Pro Regular', sans-serif;
   /* Schmale Hauptleiste: dieselbe Höhe für Navigation und Seitenabstand. */
   --site-nav-h: calc(52px + env(safe-area-inset-top, 0px));
 
@@ -262,7 +150,6 @@
   --et-type-body: clamp(16px, 1.2vw, 18px);
   --et-type-lead: clamp(16px, 1.5vw, 21px);
   --et-type-caption: 13px;
-  --et-type-chip: 14px;
   --et-type-button: 16px;
 
   --et-leading-hero: 0.9;
@@ -615,7 +502,7 @@ html:has([data-page='admin']) body {
   --et-board-radius: 0;
   --et-board-quiet-pad: clamp(22px, 3.4vw, 44px);
 }
-/* Sitewide Providence collage language. */
+/* Sitewide collage language. */
 html:not([data-active-page='map']) .app-pages,
 html:not([data-active-page='map']) main,
 html:not([data-active-page='map']) .app-page {
@@ -996,14 +883,14 @@ html[data-auth='1'] [data-guest-only] {
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0;
-  /* Providence traegt lange Unterlaengen: bei 1.2 stiess das g von „liegt"
+  /* Lange Unterlaengen: bei 1.2 stiess das g von „liegt"
      an die Zeile darunter (24.09.2026). 1.4 wie der Fliesstext des
      Onboardings (Tour.module.css, 1.45). */
   line-height: 1.4;
   text-wrap: pretty;
   color: var(--toast-muted);
 }
-/* Die Schritte der Standort-Anleitung: gelbe Ziffern in Providence, der Text
+/* Die Schritte der Standort-Anleitung: gelbe Ziffern in der Markenschrift, der Text
    in der Detailfarbe. Eigene Zaehlung statt `list-style`, damit die Ziffer
    die Markenfarbe traegt und buendig mit dem Kicker-Quadrat steht. */
 .notification-steps {
@@ -1421,7 +1308,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
    Nebeneffekt, der passt: wo der Hover −1px hebt, steht der Druck auf 0 —
    dieselbe Bewegung wie vorher.
 
-   1px, weil das die Hausgeste ist (`.et-btn`, `.hv-chip` und rund zwanzig
+   1px, weil das die Hausgeste ist (`.et-btn` und rund zwanzig
    weitere Regeln machen das seit jeher so). Wer das ändert, ändert es hier.
 
    `summary` ist mit drin: die FAQ-Zeilen sind Knöpfe, auch wenn sie keine sind.
@@ -1430,8 +1317,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
 button:not(:disabled):active,
 summary:active,
 [role='button']:not([aria-disabled='true']):active,
-.et-btn:active,
-.hv-chip:active {
+.et-btn:active {
   translate: 0 1px;
 }
 
@@ -1646,14 +1532,6 @@ ol {
 .homeV2 .hv-section {
   margin-top: var(--et-section-gap);
 }
-.homeV2 .hv-kicker {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: var(--et-type-kicker);
-  letter-spacing: var(--et-tracking-label);
-  text-transform: uppercase;
-  color: var(--et-fg);
-}
 .homeV2 .hv-head {
   display: flex;
   justify-content: space-between;
@@ -1699,13 +1577,6 @@ ol {
 }
 .homeV2 .hv-photo img {
   object-fit: var(--et-img-photo-fit);
-}
-.homeV2 .hv-cap {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: clamp(14px, 1.1vw, 16px);
-  margin-top: var(--et-control-gap);
-  color: var(--et-fg);
 }
 .homeV2 .hv-sub {
   font-family: var(--et-font-display);
@@ -1806,6 +1677,10 @@ ol {
   --et-tape-active-img: url('/pics/tape/gaffer-2-black.webp');
   --et-tape-slice: 9 13 9 17 fill;
   --et-tape-width: 2px 3px 2px 4px;
+  /* Das Band liegt auf der Fläche. Weiß auf Weiß zeigte nur seine Falten, und
+     das las sich, als schaue man hindurch (Ersan 27.10.2026). Der Schatten
+     folgt den Rissen (drop-shadow, nicht box-shadow). */
+  --et-tape-lift: drop-shadow(0 1px 1px rgb(21 18 14 / 0.2)) drop-shadow(0 2px 5px rgb(21 18 14 / 0.12));
   /* Untergrund der Map-Liste: weiß (Ersan 26.10.2026). */
   --et-list-paper: #fff;
   --et-list-paper-tile: #fff;
@@ -1815,6 +1690,7 @@ html[data-theme='dark'] {
   --et-tape-active-fg: #000;
   --et-tape-img: url('/pics/tape/gaffer-2-black.webp');
   --et-tape-active-img: url('/pics/tape/gaffer-2-white.webp');
+  --et-tape-lift: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)) drop-shadow(0 2px 5px rgb(0 0 0 / 0.35));
   --et-list-paper:
     linear-gradient(rgb(21 18 14 / 0.86), rgb(21 18 14 / 0.86)),
     url('/pics/home/silver-hero/paper.webp') center / cover, #15120e;
@@ -1831,6 +1707,7 @@ html[data-theme='dark'] {
   border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
   border-radius: 0;
   box-shadow: none;
+  filter: var(--et-tape-lift);
   color: var(--et-tape-fg);
   min-height: 40px;
   padding-inline: 12px;
@@ -1840,7 +1717,7 @@ html[data-theme='dark'] {
 }
 .et-btn.et-btn-map-control:not(:disabled):is(:hover, :focus-visible) {
   background: none;
-  filter: brightness(0.95);
+  filter: brightness(0.95) var(--et-tape-lift);
   color: var(--et-tape-fg);
 }
 @media (max-width: 767.98px) {
@@ -1991,23 +1868,6 @@ html[data-active-page='map'] .et-label.et-label-open.et-label-tape {
    Stufe heller. Auf Fotos setzt das Bild `--et-label-bg` wieder auf Ink. */
 html[data-theme='dark'] {
   --et-label-bg: var(--et-ink-raised);
-}
-.homeV2 .hv-chip {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  font-size: var(--et-type-chip);
-  padding: 9px 15px;
-  border-radius: var(--et-radius-control);
-  background: var(--et-quiet);
-  color: var(--et-fg);
-  border: none;
-  cursor: pointer;
-  transition:
-    transform var(--et-motion-fast),
-    background-color var(--et-motion-fast);
-}
-.homeV2 .hv-chip:active {
-  transform: translateY(1px);
 }
 @media (max-width: 767.98px) {
   .homeV2 .hv-wrap {

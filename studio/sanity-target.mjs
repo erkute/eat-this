@@ -1,3 +1,4 @@
+/* global process */
 const PRODUCTION_PROJECT_ID = 'ehwjnjr2'
 const PRODUCTION_DATASET = 'production'
 

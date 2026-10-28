@@ -21,6 +21,9 @@ vi.mock('@/app/components/SiteFooter', () => ({
 vi.mock('@/app/components/MustEatsOnboarding', () => ({
   default: () => null,
 }));
+vi.mock('@/app/components/MustEatsStarterButton', () => ({
+  default: ({ label }: { label: string }) => <button type="button">{label}</button>,
+}));
 
 import MustEatsSection from '@/app/components/MustEatsSection';
 
@@ -63,14 +66,12 @@ describe('MustEatsSection', () => {
 
   it('renders the explanatory sub copy (de)', () => {
     const html = render();
-    expect(html).toContain('Unsere Auswahl der Gerichte');
-    expect(html).toContain('die anderen entdeckst du direkt am Spot.');
+    expect(html).toContain('Berlin hat viel auf der Karte. Wir sagen dir, was du bestellen solltest.');
   });
 
   it('renders the explanatory sub copy (en)', () => {
     const html = render('en');
-    expect(html).toContain('Our pick of the dishes');
-    expect(html).toContain('the rest you discover right at the spot.');
+    expect(html).toContain('Berlin has a lot on the menu. We tell you what to order.');
   });
 
   it('never states a Must Eat in the singular per spot', () => {
@@ -93,64 +94,45 @@ describe('MustEatsSection', () => {
     }
   });
 
-  it('keeps the band copy free of command chains', () => {
-    // Copy-Regel des Owners: kurze Hauptsätze, keine aneinandergereihten
-    // Imperative ("Steh vor dem Spot, tipp die Karte an — offen").
-    // Die Band-Copy geht als Prop in die (gemockte) Gallery, nicht ins Markup.
+  it('hands the covered band its copy with the live count', () => {
+    // Text wörtlich vom Betreiber (28.10.2026). Die Band-Copy geht als Prop in
+    // die (gemockte) Gallery, nicht ins Markup.
     galleryCopy.mockClear();
-    render();
+    render('de', catalog());
 
     expect(galleryCopy).toHaveBeenCalledWith(
       expect.objectContaining({
-        coveredBody: 'Hinter jeder Karte steckt unsere Empfehlung — ein Gericht, das du probieren musst. Bist du am Spot, drehst du sie mit einem Tap um. Dann liegt sie in deinem Deck.',
+        coveredTitle: '5 gute Gründe, loszugehen.',
+        coveredBody:
+          'Weitere 5 Karten sind noch verdeckt. Such dir auf der Map einen Spot aus und schau vorbei. Vor Ort deckst du die Karte mit einem Tap auf und erfährst, was du dort bestellen solltest. Danach gehört sie zu deinem Deck.',
       })
     );
   });
 
-  it('states the deck as total / face-up / covered', () => {
-    const html = render('de', catalog());
-
-    // 8 cards, 3 of them face-up, so 5 are still covered.
-    expect(html).toMatch(/>8<\/dd>/);
-    expect(html).toMatch(/>3<\/dd>/);
-    expect(html).toMatch(/>5<\/dd>/);
-    expect(html).toContain('Karten');
-    expect(html).toContain('liegen offen');
-  });
-
-  it('hands the gallery band headings with the live counts', () => {
-    galleryCopy.mockClear();
-    render('de', catalog());
-
-    expect(galleryCopy).toHaveBeenCalledWith(
-      expect.objectContaining({ coveredTitle: '5 warten vor Ort.' })
-    );
-  });
-
-  it('defines the term in the face-up band instead of restating the count', () => {
-    // Wie viele offen liegen, sagt die Kopfzeile und zeigt das Raster. Was ein
-    // Must Eat IST, stand nirgends auf der Seite — das ist die Aufgabe dieses
-    // Kopfes. Zahlen gehören deshalb nicht hinein.
+  it('heads the face-up band without a count', () => {
     galleryCopy.mockClear();
     render('de', catalog());
 
     const copy = galleryCopy.mock.calls[0][0];
-    expect(copy.openKicker).toBe('Must Eat?');
-    expect(copy.openTitle).toBe('Weil Entdecken mehr Spaß macht als Suchen.');
-    expect(copy.openBody).toBe(
-      'Must Eats sind die Gerichte, für die sich der Weg durch Berlin lohnt. Am Spot bestellst du das Gericht und deckst seine Karte auf. So wächst deine Sammlung mit jedem Teller.'
-    );
+    expect(copy.openKicker).toBe('Schon aufgedeckt');
+    expect(copy.openTitle).toBe('Das solltest du bestellen.');
     expect(copy.openTitle).not.toMatch(/\d/);
     expect(copy.openBody).not.toMatch(/\d/);
   });
 
-  it('puts the lowest-numbered face-up card on the cover', () => {
-    // The catalog may arrive in any order; the cover is card 2, not card 3.
+  it('fans the three lowest-numbered face-up cards on the cover, the lowest in front', () => {
+    // The catalog may arrive in any order; the front card is card 1.
     const data = catalog();
+    data.mustEats.push(mustEat('9', true));
+    data.revealedMustEatIds.push('9');
     const html = render('de', { ...data, mustEats: [...data.mustEats].reverse() });
+    const figure = html.slice(html.indexOf('<figure'), html.indexOf('</figure>'));
 
-    expect(html).toContain('https://cdn/1.png');
-    expect(html).not.toContain('https://cdn/3.png');
+    expect(figure).toContain('data-count="3"');
+    expect(figure).not.toContain('https://cdn/9.png');
+    // Hinten → vorn im DOM: die vorderste Karte steht zuletzt.
+    expect(figure.lastIndexOf('https://cdn/1.png')).toBeGreaterThan(figure.lastIndexOf('https://cdn/2.png'));
+    expect(figure.lastIndexOf('https://cdn/2.png')).toBeGreaterThan(figure.lastIndexOf('https://cdn/3.png'));
   });
 
   it('shows no cover and no card back up top when nothing is face-up', () => {
@@ -171,15 +153,19 @@ describe('MustEatsSection', () => {
     expect(html).toContain('Hol sie dir.');
   });
 
-  it('sends the primary closing CTA to the map, packs second', () => {
+  it('closes with sign-up for guests and the map for accounts', () => {
     const html = render();
+    const closing = html.slice(html.lastIndexOf('<section'));
+    const guest = closing.slice(closing.indexOf('data-guest-only'), closing.indexOf('data-auth-only'));
+    const auth = closing.slice(closing.indexOf('data-auth-only'));
 
-    expect(html).toContain('Hol sie dir.');
-    expect(html).toMatch(/href="\/map"/);
-    expect(html).toMatch(/href="\/packs"/);
-    // The map link is the primary action, so it comes first in the DOM.
-    const closingSection = html.slice(html.lastIndexOf('<section'));
-    expect(closingSection.indexOf('href="/map"')).toBeLessThan(closingSection.indexOf('href="/packs"'));
+    expect(closing).toContain('Hol sie dir.');
+    // Gast: das Starter Pack zuerst, die Map als zweite Antwort, keine Packs.
+    expect(guest).toContain('Starter Pack');
+    expect(guest.indexOf('>Konto erstellen<')).toBeLessThan(guest.indexOf('href="/map"'));
+    expect(guest).not.toContain('href="/packs"');
+    // Konto: die Map vorn, Booster Packs dahinter.
+    expect(auth.indexOf('href="/map"')).toBeLessThan(auth.indexOf('href="/packs"'));
   });
 
   it('says the deck keeps growing, not just where new cards come from', () => {

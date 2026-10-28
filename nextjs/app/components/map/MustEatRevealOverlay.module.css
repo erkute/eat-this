@@ -425,7 +425,7 @@
 /* Die Beute: was man bekommen hat, auf der Bühne unter der Karte. Jede Zeile
    gleitet aus ihrer eigenen Unterkante herauf (und beim Heimflug wieder
    hinein) — Bewegung, kein Überblenden. Die Zeilen haben Luft nach unten,
-   damit Providence-Unterlängen nicht an der Kante hängen bleiben. */
+   damit Unterlängen nicht an der Kante hängen bleiben. */
 .caption {
   position: absolute;
   left: 50%;

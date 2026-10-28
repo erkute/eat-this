@@ -1,13 +1,13 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { resolveUnlockedMustEatIds } from '@/lib/map';
 import { cardNumber, sortByCardNumber } from '@/lib/map/cardOrder';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
-import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLightbox';
+import MapIntentLink from './MapIntentLink';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import type { MapMustEat } from '@/lib/types';
 import styles from './MustEatsSection.module.css';
@@ -23,8 +23,9 @@ interface GalleryCopy {
   setKicker: string;
   coveredTitle: string;
   coveredBody: string;
-  coveredLabel: string;
   spotAria: string;
+  mapAria: string;
+  setMore: string;
 }
 
 interface Props {
@@ -34,15 +35,23 @@ interface Props {
   copy: GalleryCopy;
 }
 
-/** Zwei Flächen zeigen dieselben Karten: das Feature mit den offenen, das Set
- *  mit allen. Jede blättert im Zoom durch ihre eigene Liste. */
-type Surface = 'open' | 'set';
-
 // Daumennägel nach Spaltenbreite (MustEatsSection.module.css): das Feature
-// läuft am Telefon als Band mit ~70vw, am Desktop in vier Spalten; das Set
+// liegt am Telefon und Tablet in zwei Spalten, am Desktop in vier; das Set
 // am Telefon in drei, ab 768px in fünf, ab 1024px in sechs Spalten.
-const OPEN_SIZES = '(max-width: 767px) 70vw, (max-width: 1023px) 46vw, 300px';
+const OPEN_SIZES = '(max-width: 1023px) 46vw, 300px';
 const SET_SIZES = '(max-width: 767px) 30vw, (max-width: 1023px) 18vw, 210px';
+
+/** Spalten des Sets je Breite — zugeklappt zeigt es genau eine Reihe davon. */
+const SET_ROW = { phone: 3, tablet: 5, desktop: 6 } as const;
+
+/** Jede Karte führt auf ihren Spot in der Map: dort liegt sie im
+ *  Restaurant-Detail, und eine verdeckte verhält sich wie überall auf der Map
+ *  (ohne Konto: Zittern, dann Login). Ohne Slug bleibt nur die Karte selbst. */
+function mapHref(m: MapMustEat): string {
+  return m.restaurant.slug
+    ? `/map?r=${encodeURIComponent(m.restaurant.slug)}`
+    : `/map?me=${encodeURIComponent(m._id)}`;
+}
 
 export default function MustEatsGallery({ initialMapData, copy }: Props) {
   const { t } = useTranslation();
@@ -63,139 +72,54 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
   );
 
   // Beide Flächen liegen in Kartennummer-Reihenfolge — die Nummer steht unten
-  // rechts auf jeder Karte, und das Set ist genau diese Zählung. Im Set liegen
-  // offene und verdeckte Karten deshalb gemischt: jede Rückseite trägt ihre
-  // Nummer darunter und liest sich als Lücke im Album, nicht als Ladefehler.
+  // rechts auf jeder Karte. Oben die offenen, darunter nur die verdeckten:
+  // bis zum 27.10.2026 lag hier das ganze Set gemischt, die offenen Karten
+  // standen damit zweimal auf der Seite, unter „54 warten vor Ort“ lagen 62.
   const all = useMemo(() => sortByCardNumber(initialMapData.mustEats), [initialMapData]);
   const open = useMemo(() => all.filter((m) => faceUp.has(m._id)), [all, faceUp]);
-  const lists = useMemo(() => ({ open, set: all }), [open, all]);
-  const listsRef = useRef(lists);
-  listsRef.current = lists;
+  const covered = useMemo(() => all.filter((m) => !faceUp.has(m._id)), [all, faceUp]);
 
   /* Eine verdeckte Karte nennt hier ihren Spot, sonst nichts: Gericht und
      Bild bleiben auf dem Server (`stripCoveredMustEats`), vom Spot kommen nur
-     Name und Bezirk mit (`trimCoveredSpot`). */
+     Name, Bezirk und Slug mit (`trimCoveredSpot`). */
 
-  /* Die Slots — aus ihnen fliegt die Karte heraus und in sie fliegt sie
-     zurück. Je Fläche eigene Schlüssel, weil eine offene Karte zweimal liegt. */
-  const cardRefs = useRef(new Map<string, HTMLButtonElement>());
-  const slotKey = (surface: Surface, id: string) => `${surface}:${id}`;
-  const cardFace = useCallback(
-    (m: MapMustEat) => {
-      const isOpen = faceUp.has(m._id);
-      return {
-        imageUrl: (isOpen && m.image) || CARD_BACK,
-        alt: (isOpen ? m.dish : undefined) ?? t('mustEats.covered'),
-      };
-    },
-    [faceUp, t]
-  );
-
-  // Tap a card → deck-style fly-out zoom (same lightbox the profile deck and
-  // the map detail use). Works for open cards (the dish art) AND locked cards
-  // (the card-back). Tapping the zoomed card flies it back to its slot.
-  const [expanded, setExpanded] = useState<{
-    imageUrl: string;
-    placeholderUrl?: string | null;
-    alt: string;
-    rect: DOMRect;
-    id: string;
-    surface: Surface;
-  } | null>(null);
-  // The origin card is hidden while its zoomed clone is on screen so it doesn't
-  // show twice; revealed again in onExitComplete — the same frame the fly-back
-  // clone unmounts — so there's no blink between clone and origin.
-  const [hiddenKey, setHiddenKey] = useState<string | null>(null);
-  const expandedRef = useRef(expanded);
-  expandedRef.current = expanded;
-  const handleOpenReady = useCallback(() => {
-    const current = expandedRef.current;
-    if (current) setHiddenKey(slotKey(current.surface, current.id));
-  }, []);
-  const closeExpanded = () => setExpanded(null);
-  /* Im Zoom durch die Karten blättern — gewischt, geklickt oder mit den
-     Pfeiltasten. Der Zoom selbst kennt die Reihenfolge nicht: er meldet nur
-     die Richtung, hier steht die Liste. */
-  const pageTo = useCallback(
-    (delta: number) => {
-      const current = expandedRef.current;
-      if (!current) return;
-      const list = listsRef.current[current.surface];
-      const index = list.findIndex((m) => m._id === current.id);
-      const target = list[index + delta];
-      if (!target) return;
-      const key = slotKey(current.surface, target._id);
-      const slot = cardRefs.current.get(key);
-      if (!slot) return;
-      // Das Band am Telefon scrollt seitwärts: die nächste Karte ins Bild
-      // holen, damit sie beim Zurückfliegen einen Platz auf dem Schirm hat.
-      // Nur quer — die Seite selbst bleibt unter dem Zoom stehen.
-      const band = slot.closest('ol');
-      if (band && band.scrollWidth > band.clientWidth) {
-        const bandRect = band.getBoundingClientRect();
-        const slotRect = slot.getBoundingClientRect();
-        if (slotRect.left < bandRect.left || slotRect.right > bandRect.right) {
-          const pad = parseFloat(getComputedStyle(band).scrollPaddingInlineStart) || 0;
-          band.scrollLeft += slotRect.left - bandRect.left - pad;
-        }
-      }
-      const face = cardFace(target);
-      setExpanded({
-        ...face,
-        rect: slot.getBoundingClientRect(),
-        id: target._id,
-        surface: current.surface,
-      });
-      // Der neue Ursprung verschwindet, der alte kommt im selben Zug zurück.
-      setHiddenKey(key);
-    },
-    [cardFace]
-  );
-  const expandedList = expanded ? lists[expanded.surface] : [];
-  const expandedIndex = expanded ? expandedList.findIndex((m) => m._id === expanded.id) : -1;
-  /* Die Nachbarn des Zooms vorladen, wie es das Map-Detail tut: der Tausch
-     wartet auf das neue Bild (siehe lib/dom/imageReady), und ein Bild, das
-     schon da ist, lässt ihn gar nicht erst warten. */
-  const zoomNeighbours =
-    expandedIndex >= 0
-      ? [expandedList[expandedIndex - 1], expandedList[expandedIndex + 1]]
-          .filter((m): m is MapMustEat => Boolean(m))
-          .map((m) => cardFace(m).imageUrl)
-          .filter((url) => url !== CARD_BACK)
-      : [];
-  const handleExitComplete = () => {
-    // If another card was opened mid fly-back, its origin must stay hidden.
-    if (!expandedRef.current) setHiddenKey(null);
+  /* Die verdeckten Karten zeigen zuerst eine Reihe; „Mehr“ klappt den Rest auf. Welche
+     Karten zugeklappt fehlen, entscheidet das CSS je Spaltenzahl — der Knopf
+     merkt sich beim Tippen die erste davon, damit der Fokus dort weiterliest
+     statt mit dem verschwundenen Knopf ins Leere zu fallen. */
+  const setId = useId();
+  const setRef = useRef<HTMLOListElement>(null);
+  const [setOpen, setSetOpen] = useState(false);
+  const focusAfterOpen = useRef<number | null>(null);
+  useEffect(() => {
+    if (!setOpen || focusAfterOpen.current === null) return;
+    const item = setRef.current?.children[focusAfterOpen.current];
+    focusAfterOpen.current = null;
+    item?.querySelector('a')?.focus();
+  }, [setOpen]);
+  const openSet = () => {
+    const items = [...(setRef.current?.children ?? [])];
+    const firstHidden = items.findIndex((el) => getComputedStyle(el).display === 'none');
+    focusAfterOpen.current = firstHidden >= 0 ? firstHidden : null;
+    setSetOpen(true);
   };
+  // Passen sie schon in eine Reihe, fehlt dort nichts — der Knopf auch nicht.
+  const n = covered.length;
+  const setFits =
+    n <= SET_ROW.phone ? 'phone' : n <= SET_ROW.tablet ? 'tablet' : n <= SET_ROW.desktop ? 'desktop' : undefined;
 
-  const renderCard = (m: MapMustEat, surface: Surface, sizes: string, label: string) => {
-    const key = slotKey(surface, m._id);
-    const { imageUrl, alt } = cardFace(m);
+  const renderCard = (m: MapMustEat, sizes: string, label: string) => {
+    const isOpen = faceUp.has(m._id);
+    const imageUrl = (isOpen && m.image) || CARD_BACK;
+    const alt = (isOpen ? m.dish : undefined) ?? t('mustEats.covered');
     return (
-      <button
-        type="button"
-        ref={(el) => {
-          if (el) cardRefs.current.set(key, el);
-          else cardRefs.current.delete(key);
-        }}
+      <MapIntentLink
+        href={mapHref(m)}
         className={styles.card}
-        aria-label={label}
+        aria-label={`${label}, ${copy.mapAria}`}
         // Both faces are the same object — a complete card artwork, drawn
         // freestanding — so the face is data, not a style hook.
-        data-face={faceUp.has(m._id) ? 'up' : 'down'}
-        style={{ visibility: hiddenKey === key ? 'hidden' : undefined }}
-        onClick={(e) => {
-          setExpanded({
-            imageUrl,
-            // Das Raster laedt nur Daumennaegel — der Zoom fliegt mit dem, was
-            // schon auf dem Schirm liegt, und holt das Original nach.
-            placeholderUrl: e.currentTarget.querySelector('img')?.currentSrc || null,
-            alt,
-            rect: e.currentTarget.getBoundingClientRect(),
-            id: m._id,
-            surface,
-          });
-        }}
+        data-face={isOpen ? 'up' : 'down'}
       >
         {/* `key` je Motiv, damit Safari beim Wechsel Rueckseite → Karte nicht
             zwei Varianten laedt (siehe ProfileAlbum.tsx). Die Rueckseite aus
@@ -212,7 +136,7 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
           loading="lazy"
           decoding="async"
         />
-      </button>
+      </MapIntentLink>
     );
   };
 
@@ -227,8 +151,9 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
             <h2 className={styles.sectionTitle}>{copy.openTitle}</h2>
             <p className={styles.sectionBody}>{copy.openBody}</p>
           </header>
-          {/* Am Telefon ein Band zum Wischen, ab 768px ein Raster, das nur nach
-              unten läuft. Unter jeder Karte die Bildunterschrift wie im Heft:
+          {/* Ein Raster, das nur nach unten läuft — am Telefon zwei Karten
+              je Reihe (Betreiber, 27.10.2026; vorher ein Band zum Wischen).
+              Unter jeder Karte die Bildunterschrift wie im Heft:
               Gericht und Spot. Die Nummer steht schon auf der Karte; im
               aria-label bleibt sie, als Orientierung beim Vorlesen. */}
           <ol className={styles.feature}>
@@ -241,7 +166,7 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
               );
               return (
                 <li key={m._id} className={styles.featureItem}>
-                  {renderCard(m, 'open', OPEN_SIZES, [no && `${copy.numberLabel} ${no}`, dish].filter(Boolean).join(', '))}
+                  {renderCard(m, OPEN_SIZES, [no && `${copy.numberLabel} ${no}`, dish].filter(Boolean).join(', '))}
                   <div className={styles.caption}>
                     <h3 className={styles.dish}>{dish}</h3>
                     {spot && (
@@ -272,64 +197,57 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
         </section>
       )}
 
-      {all.length > 0 && (
+      {covered.length > 0 && (
         <section className={`${styles.wrap} ${styles.section}`} data-band="set">
           <header className={styles.sectionHead}>
             <p className={`et-label ${styles.kicker}`}>{copy.setKicker}</p>
             <h2 className={styles.sectionTitle}>{copy.coveredTitle}</h2>
             <p className={styles.sectionBody}>{copy.coveredBody}</p>
           </header>
-          {/* Das ganze Set in Nummern-Reihenfolge, wie die Seite eines Albums:
-              offene Karten zeigen ihr Gericht, verdeckte ihre Rückseite —
-              darunter Gericht und Spot, bei verdeckten „Verdeckt“ und der
-              Spot. Der Unterschied hängt so nie nur an Bild oder Farbe. */}
-          <ol className={styles.set}>
-            {all.map((m) => {
-              const isOpen = faceUp.has(m._id);
+          {/* Nur Rückseiten, darunter der Spot. „Verdeckt“ steht schon über
+              dem Abschnitt und auf jeder Karte; vorgelesen wird es im
+              aria-label trotzdem, weil die Rückseite dort nichts sagt. */}
+          <ol
+            ref={setRef}
+            id={setId}
+            className={styles.set}
+            data-collapsed={setOpen ? undefined : ''}
+          >
+            {covered.map((m) => {
               const no = cardNumber(m.order);
-              const name = isOpen ? normalizeName(m.dish ?? '') : copy.coveredLabel;
-              // Auch die verdeckte Karte nennt ihren Spot — ohne Bezirk, wie
+              // Die verdeckte Karte nennt ihren Spot — ohne Bezirk, wie
               // überall unter einem Must Eat.
               const spot = spotNameWithoutDistrict(
                 normalizeName(m.restaurant.name),
                 m.restaurant.district
               );
               return (
-                <li key={m._id} className={styles.setItem} data-face={isOpen ? 'up' : 'down'}>
-                  {renderCard(m, 'set', SET_SIZES, [no && `${copy.numberLabel} ${no}`, name, spot].filter(Boolean).join(', '))}
-                  <p className={styles.setCaption} aria-hidden="true">
-                    <span className={styles.setName}>{name}</span>
-                    {spot && <span className={styles.setSpot}>{spot}</span>}
-                  </p>
+                <li key={m._id} className={styles.setItem}>
+                  {renderCard(m, SET_SIZES, [no && `${copy.numberLabel} ${no}`, t('mustEats.covered'), spot].filter(Boolean).join(', '))}
+                  {spot && (
+                    <p className={styles.setCaption} aria-hidden="true">
+                      <span className={styles.setSpot}>{spot}</span>
+                    </p>
+                  )}
                 </li>
               );
             })}
           </ol>
+          {!setOpen && setFits !== 'phone' && (
+            <div className={styles.setMore} data-fits={setFits}>
+              <button
+                type="button"
+                className="et-btn"
+                aria-expanded="false"
+                aria-controls={setId}
+                onClick={openSet}
+              >
+                {copy.setMore}
+              </button>
+            </div>
+          )}
         </section>
       )}
-
-      {/* React hoisted die link-Tags in den <head>. */}
-      {zoomNeighbours.map((url) => (
-        <link key={url} rel="preload" as="image" href={url} />
-      ))}
-
-      <LazyMustEatImageLightbox
-        active={Boolean(expanded || hiddenKey)}
-        imageUrl={expanded?.imageUrl ?? null}
-        placeholderUrl={expanded?.placeholderUrl ?? null}
-        alt={expanded?.alt ?? ''}
-        originRect={expanded?.rect ?? null}
-        onClose={closeExpanded}
-        onOpenReady={handleOpenReady}
-        onExitComplete={handleExitComplete}
-        onPrev={() => pageTo(-1)}
-        onNext={() => pageTo(1)}
-        hasPrev={expandedIndex > 0}
-        hasNext={expandedIndex >= 0 && expandedIndex < expandedList.length - 1}
-        position={
-          expandedIndex >= 0 ? { index: expandedIndex + 1, count: expandedList.length } : undefined
-        }
-      />
     </>
   );
 }

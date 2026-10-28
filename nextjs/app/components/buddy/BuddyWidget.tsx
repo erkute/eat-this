@@ -115,8 +115,8 @@ function TypingDots({ label }: { label: string }) {
   );
 }
 
-// Das gelbe 9px-Quadrat vor jedem Kicker — dasselbe Zeichen wie `hv-mk` auf
-// der Startseite und vor jedem Insider-Tipp.
+// Das gelbe 9px-Quadrat vor jedem Kicker — dasselbe Zeichen wie vor jedem
+// Insider-Tipp.
 function Kicker({ children }: { children: React.ReactNode }) {
   return (
     <span className={styles.kicker}>
@@ -935,7 +935,7 @@ export default function BuddyWidget() {
             <div className={styles.header}>
               {messages.length > 0 && (
                 <div className={styles.avatarFrame} ref={placePortrait} data-buddy-avatar="header" aria-hidden="true">
-                  <BuddyAvatar mood={panelMood} size={56} />
+                  <BuddyAvatar mood={panelMood} size={56} breathe={false} />
                 </div>
               )}
               <span className={styles.headerTitle}>

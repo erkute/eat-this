@@ -6,7 +6,7 @@
    Bezirk, dann der Vorspann gross und fett. Die Fotos stehen spaltenbreit und
    ungeschnitten zwischen dem Text, bei wenig Text in Bildgruppen. Am Telefon
    bleiben sie randlos untereinander (lib/spotFlow.ts). Lesetext in Neue Haas Grotesk Text wie
-   bei 032c, alles Gesetzte in Providence. Zwischentitel klein, fett,
+   bei 032c, alles Gesetzte in derselben Grotesk. Zwischentitel klein, fett,
    versal. RestaurantDiscovery setzt den redaktionellen Abschluss.
 
    Dunkler Grund wie Bezirke und Kategorien — den Grund selbst
@@ -51,8 +51,7 @@
   font-size: min(var(--et-type-page), var(--word-fit, 100cqi));
   font-weight: 700;
   letter-spacing: -0.025em;
-  /* Providence hängt weit unter die Grundlinie — unter 0.9 stösst das g einer
-     Zeile an die Versalien der nächsten. */
+  /* Unter 0.9 stösst das g einer Zeile an die Versalien der nächsten. */
   line-height: 1.12;
   text-transform: none;
   text-wrap: balance;
@@ -210,7 +209,7 @@
 /* Der Steckbrief (Wahl 07.10.2026 im Steckbrief-Labor, Fassung „Heft"): in
    der Typografie der Seite selbst und zentriert wie der Kopf. Oben der Name,
    darunter Bezirk · Küche · Preis wie der Bezirk unter dem grossen Namen;
-   dann wie beim Insider-Tipp kleine Zwischentitel über grosser Providence.
+   dann wie beim Insider-Tipp kleine Zwischentitel über grosser Schrift.
    Jede Zeile steht für sich mittig — auch die Zeiten: an einer Mittelachse
    (Tage rechts, Zeiten links) wirkte der Block nach rechts versetzt.
    Abgelehnt: eine Ink-Tafel mit gelben Labels („zu schwarz" für die weisse
@@ -225,7 +224,7 @@
   font-size: clamp(30px, 3.6vw, 44px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  /* Providence hängt tief — unter 0.9 stiesse eine zweite Zeile an. */
+  /* Unter 0.9 stiesse eine zweite Zeile an. */
   line-height: 0.95;
   text-transform: none;
   text-wrap: balance;

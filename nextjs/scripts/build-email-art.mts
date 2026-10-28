@@ -181,7 +181,7 @@ const ART: ArtSpec[] = [
   {
     id: 'body-starter',
     lines: [
-      '10 Karten liegen sofort offen in deinem Deck. Die anderen 10 deckst du direkt am Spot auf.',
+      'Alle 20 Karten liegen sofort offen in deinem Deck.',
     ],
     ...PARAGRAPH,
     color: COLOR.text,
@@ -270,7 +270,7 @@ const ART: ArtSpec[] = [
   {
     id: 'body-starter-en',
     lines: [
-      '10 cards go straight into your deck face up. Reveal the other 10 at the spots.',
+      'All 20 cards go straight into your deck face up.',
     ],
     ...PARAGRAPH,
     color: COLOR.text,

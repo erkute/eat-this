@@ -46,7 +46,7 @@ const en = {
     // actually applies to them.
     onbStarterKicker: '20 Must Eats',
     onbStarterTitle: 'Starter Pack.',
-    onbStarterBody: '10 straight into your deck. 10 more are waiting out in Berlin for you.',
+    onbStarterBody: '20 Must Eats, all face up in your deck straight away.',
     onbStarterCta: 'Sign up',
     onbNext: 'Next',
     onbStart: "Let's go",
@@ -438,7 +438,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbFlipAria: 'Karte umdrehen',
     onbStarterKicker: '20 Must Eats',
     onbStarterTitle: 'Starter Pack.',
-    onbStarterBody: '10 direkt im Deck. 10 weitere warten draußen in Berlin auf dich.',
+    onbStarterBody: '20 Must Eats, alle sofort offen in deinem Deck.',
     onbStarterCta: 'Anmelden',
     onbNext: 'Weiter',
     onbStart: "Los geht's",

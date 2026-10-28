@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import Image from '@/app/components/SiteImage';
 import { useLocale } from 'next-intl';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
+import BuddyMouth from '@/app/components/buddy/BuddyMouth';
 import styles from './HubFragRemy.module.css';
 
 export default function HubFragRemy({ compact = false }: { compact?: boolean }) {
@@ -43,7 +44,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
         if (!alive || !ready || !inside) return;
         entrance.current?.kill();
         gsap.killTweensOf(avatar);
-        avatar.removeAttribute('data-speaking');
+        avatar.removeAttribute('data-buddy-speaking');
         const tl = gsap.timeline({ delay: 0.35 });
         entrance.current = tl;
         // Zwei von drei Auftritten kommen von rechts, jeder dritte von unten.
@@ -56,8 +57,8 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
           tl.fromTo(avatar, { ...settle, yPercent: 110 },
             { ...settle, duration: 1.15, ease: 'power3.out' });
         }
-        tl.call(() => avatar.setAttribute('data-speaking', ''))
-          .call(() => avatar.removeAttribute('data-speaking'), [], '+=2');
+        tl.call(() => avatar.setAttribute('data-buddy-speaking', ''))
+          .call(() => avatar.removeAttribute('data-buddy-speaking'), [], '+=2');
       };
       const loaded = async () => {
         try { await image.decode?.(); } catch { /* A loaded image may still be displayable after decode rejects. */ }
@@ -83,7 +84,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
           entrance.current?.kill();
           reaction.current?.kill();
           gsap.killTweensOf(avatar);
-          avatar.removeAttribute('data-speaking');
+          avatar.removeAttribute('data-buddy-speaking');
           if (!ready) return;
           entrance.current = gsap.timeline().to(avatar, {
             ...tuckedRight,
@@ -96,7 +97,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
         arrive();
       }, { threshold: [0, 0.4, 0.6] });
       observer.observe(avatar.parentElement!);
-      return () => { alive = false; portraitReady.current = false; preload.disconnect(); image.removeEventListener('load', loaded); observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-speaking'); avatar.removeAttribute('data-staged'); gsap.set(avatar, { clearProps: 'transform' }); };
+      return () => { alive = false; portraitReady.current = false; preload.disconnect(); image.removeEventListener('load', loaded); observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-buddy-speaking'); avatar.removeAttribute('data-staged'); gsap.set(avatar, { clearProps: 'transform' }); };
     });
     return () => {
       media.revert();
@@ -113,7 +114,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
     // Auch während der Verzögerung vor dem Auftritt nicht dazwischenfunken.
     if (entrance.current && entrance.current.progress() < 1 && entrance.current.time() < 1.85) return;
     entrance.current?.progress(1);
-    avatar.removeAttribute('data-speaking');
+    avatar.removeAttribute('data-buddy-speaking');
     reaction.current?.kill();
     gsap.killTweensOf(avatar);
     const rest = { x: 0, y: 0, rotation: 0, scale: 1 };
@@ -176,9 +177,11 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
       <div className={styles.body} ref={stage}>
         <div className={styles.portrait} aria-hidden="true">
           <div className={styles.figure} ref={figure} data-expression={expression}>
-            <Image className={styles.face} src="/buddy/buddy.webp?v=feinripp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
-            <Image className={styles.open} src="/buddy/buddy-open.webp?v=feinripp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
-            <Image className={styles.laugh} src="/buddy/buddy-laugh.webp?v=feinripp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+            {/* One body; only the mouth changes with the expression. */}
+            <div className={styles.head}>
+              <Image className={styles.face} src="/buddy/buddy.webp?v=feinripp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+              <BuddyMouth shape={expression === 'laugh' ? 'wide' : expression === 'open' ? 'open' : 'closed'} />
+            </div>
           </div>
         </div>
         <div className={styles.content}>

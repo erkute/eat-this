@@ -1677,6 +1677,10 @@ ol {
   --et-tape-active-img: url('/pics/tape/gaffer-2-black.webp');
   --et-tape-slice: 9 13 9 17 fill;
   --et-tape-width: 2px 3px 2px 4px;
+  /* Das Band liegt auf der Fläche. Weiß auf Weiß zeigte nur seine Falten, und
+     das las sich, als schaue man hindurch (Ersan 27.10.2026). Der Schatten
+     folgt den Rissen (drop-shadow, nicht box-shadow). */
+  --et-tape-lift: drop-shadow(0 1px 1px rgb(21 18 14 / 0.2)) drop-shadow(0 2px 5px rgb(21 18 14 / 0.12));
   /* Untergrund der Map-Liste: weiß (Ersan 26.10.2026). */
   --et-list-paper: #fff;
   --et-list-paper-tile: #fff;
@@ -1686,6 +1690,7 @@ html[data-theme='dark'] {
   --et-tape-active-fg: #000;
   --et-tape-img: url('/pics/tape/gaffer-2-black.webp');
   --et-tape-active-img: url('/pics/tape/gaffer-2-white.webp');
+  --et-tape-lift: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)) drop-shadow(0 2px 5px rgb(0 0 0 / 0.35));
   --et-list-paper:
     linear-gradient(rgb(21 18 14 / 0.86), rgb(21 18 14 / 0.86)),
     url('/pics/home/silver-hero/paper.webp') center / cover, #15120e;
@@ -1702,6 +1707,7 @@ html[data-theme='dark'] {
   border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
   border-radius: 0;
   box-shadow: none;
+  filter: var(--et-tape-lift);
   color: var(--et-tape-fg);
   min-height: 40px;
   padding-inline: 12px;
@@ -1711,7 +1717,7 @@ html[data-theme='dark'] {
 }
 .et-btn.et-btn-map-control:not(:disabled):is(:hover, :focus-visible) {
   background: none;
-  filter: brightness(0.95);
+  filter: brightness(0.95) var(--et-tape-lift);
   color: var(--et-tape-fg);
 }
 @media (max-width: 767.98px) {

@@ -46,6 +46,7 @@
   border-width: 0;
   border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
   box-shadow: none;
+  filter: var(--et-tape-lift);
   color: var(--et-tape-fg);
   /* All four set must fit the panel without swiping (Ersan 26.10.2026):
      the type follows the bar's width, 11px at most. */
@@ -146,7 +147,7 @@
 @media (hover: hover) {
   .filterChipRow .filterChip:not(.filterChipActive):not(.filterChipOpenActive):not([aria-expanded='true']):hover {
     background: none;
-    filter: brightness(0.95);
+    filter: brightness(0.95) var(--et-tape-lift);
   }
   .filterChipClear:hover { opacity: 0.65; }
 }

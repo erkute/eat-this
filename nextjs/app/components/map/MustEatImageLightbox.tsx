@@ -2,8 +2,8 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
+  animate,
   motion,
-  useAnimationControls,
   useMotionValue,
   useReducedMotion,
   useSpring,
@@ -11,6 +11,14 @@ import {
 } from 'framer-motion';
 import { useLocale } from 'next-intl';
 import { whenImageReady } from '@/lib/dom/imageReady';
+import {
+  DEAL_IN_DELAY_MS,
+  DEAL_IN_EASE,
+  DEAL_IN_MS,
+  DEAL_OUT_EASE,
+  DEAL_OUT_MS,
+  DEAL_TILT_DEG,
+} from '@/lib/cardDeal';
 import styles from './MustEatImageLightbox.module.css';
 import ZoomCurtain from './ZoomCurtain';
 
@@ -68,10 +76,15 @@ interface InnerProps {
   hasPrev?: boolean;
   hasNext?: boolean;
   position?: { index: number; count: number };
+  /** Platz im Stapel, der zu `imageUrl` gehört — gemeinsam mit dem Bild
+   *  gesetzt, damit Wurf und Bild nie auseinanderlaufen. */
+  pageIndex?: number;
   action?: React.ReactNode;
 }
 
 const SWIPE_PX = 60;
+/** Neigung der Karte unter dem Finger, Grad je Pixel. */
+const DRAG_TILT = 0.04;
 
 // Open from origin → settle in centre with Apple-style ease-out,
 // pointer-driven 3D-tilt, body scroll/touch locked. Click anywhere closes.
@@ -91,6 +104,7 @@ const Inner = memo(function Inner({
   hasPrev = false,
   hasNext = false,
   position,
+  pageIndex,
   action,
 }: InnerProps) {
   const english = useLocale() === 'en';
@@ -123,7 +137,13 @@ const Inner = memo(function Inner({
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = cardRef.current;
-    if (!el) return;
+    if (!el || draggingRef.current) return;
+    /* Ein Finger, der eher waagerecht zieht, blättert — er kippt nicht. Sonst
+       stand die Karte schon schief, bevor der Wisch als Wisch erkannt war. */
+    const down = downRef.current;
+    if (canPage && down && e.pointerType !== 'mouse') {
+      if (Math.abs(e.clientX - down.x) >= Math.abs(e.clientY - down.y)) return;
+    }
     const rect = el.getBoundingClientRect();
     pointerX.set((e.clientX - rect.left) / rect.width - 0.5);
     pointerY.set((e.clientY - rect.top) / rect.height - 0.5);
@@ -148,24 +168,64 @@ const Inner = memo(function Inner({
      der Karte steigt ohnehin zum Vorhang auf — ein Handler fuer beides. */
   const downRef = useRef<{ x: number; y: number } | null>(null);
   const swipedRef = useRef(false);
+  /* Waagerecht gezogen folgt die Karte dem Finger und neigt sich mit — wie
+     eine Karte, die man vom Tisch zieht. Solange gezogen wird, ruht das
+     3D-Kippen: es nahm den Wisch als Kippgeste und warf die Karte schief
+     hinaus (gemessen bis 14° um die Hochachse). */
+  const draggingRef = useRef(false);
+  const dealX = useMotionValue(0);
+  const dealRotate = useMotionValue(0);
+  const reducedMotion = useReducedMotion();
+  const springBack = () => {
+    const back = { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const };
+    void animate(dealX, 0, back);
+    void animate(dealRotate, 0, back);
+  };
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     downRef.current = { x: e.clientX, y: e.clientY };
     swipedRef.current = false;
+    draggingRef.current = false;
+  };
+  const handleDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const down = downRef.current;
+    if (!canPage || !down || reducedMotion) return;
+    const dx = e.clientX - down.x;
+    const dy = e.clientY - down.y;
+    if (!draggingRef.current) {
+      if (Math.abs(dx) < 8 || Math.abs(dx) <= Math.abs(dy)) return;
+      draggingRef.current = true;
+      pointerX.set(0);
+      pointerY.set(0);
+      rotateXSpring.jump(0);
+      rotateYSpring.jump(0);
+    }
+    dealX.stop();
+    dealRotate.stop();
+    dealX.set(dx);
+    dealRotate.set(dx * DRAG_TILT);
   };
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     const down = downRef.current;
+    const dragged = draggingRef.current;
     downRef.current = null;
+    draggingRef.current = false;
     if (!canPage || !down) return;
     const dx = e.clientX - down.x;
     const dy = e.clientY - down.y;
     /* Waagerecht und weit genug: blaettern statt schliessen. Die Achsensperre
        verhindert, dass ein Daumen, der die Karte nur kippt, versehentlich
        weiterblaettert. Am Stapelende blaettert `page` nicht — der Wisch bleibt
-       trotzdem ein Wisch und schliesst nichts. */
+       trotzdem ein Wisch und schliesst nichts, die Karte federt zurueck. */
     if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy)) {
       swipedRef.current = true;
-      page(dx < 0 ? 1 : -1);
+      if (page(dx < 0 ? 1 : -1)) return;
     }
+    if (dragged) springBack();
+  };
+  const handlePointerCancel = () => {
+    downRef.current = null;
+    if (draggingRef.current) springBack();
+    draggingRef.current = false;
   };
   const handleWrapperClick = () => {
     if (swipedRef.current) {
@@ -180,10 +240,14 @@ const Inner = memo(function Inner({
       if (d < 0 && hasPrev) {
         dirRef.current = -1;
         onPrev?.();
-      } else if (d > 0 && hasNext) {
+        return true;
+      }
+      if (d > 0 && hasNext) {
         dirRef.current = 1;
         onNext?.();
+        return true;
       }
+      return false;
     },
     [hasPrev, hasNext, onPrev, onNext]
   );
@@ -235,13 +299,17 @@ const Inner = memo(function Inner({
   }, []);
 
   /* ── Der Wurf ───────────────────────────────────────────────────────────────
-     Geblättert wird wie in einem Deck: die liegende Karte wird schräg zur
-     Seite weggezogen, dann kommt die nächste aus der Gegenrichtung
-     hereingeflogen und federt gerade. Das Bild hinkt der Auswahl deshalb um
-     die Dauer des Abgangs hinterher — `shown` ist der Stand, der wirklich auf
-     dem Tisch liegt, `imageUrl` der, der hinsoll.
+     Geblättert wird wie in einem Deck: die liegende Karte fliegt schräg zur
+     Seite aus dem Bild, und WÄHREND sie fliegt, kommt die nächste aus der
+     Gegenrichtung herein und landet gerade (lib/cardDeal). Bis 27.10.2026
+     lief das nacheinander, dazwischen stand der Vorhang leer.
 
-     Der Wurf sitzt auf dem Clip, nicht auf der Karte: die Karte trägt die
+     Die abfahrende Karte ist ein eigener Clip (`leaving`) mit dem Bild, das
+     eben noch zu sehen war; der feste Clip trägt sofort das neue Bild und
+     wartet draußen, bis es zeichenbar ist — er kommt nie leer und nie mit dem
+     alten Bild herein (lib/dom/imageReady).
+
+     Der Wurf sitzt auf den Clips, nicht auf der Karte: die Karte trägt die
      Fly-In/Fly-Back-Geometrie und die beiden Kipp-Federn, und zwei
      Animationen auf einem `transform` schlagen sich. Der Clip hat kein
      eigenes Overflow über sich, die Karte darf also aus ihrem Kasten
@@ -249,70 +317,19 @@ const Inner = memo(function Inner({
   /* Der Wurf haengt am PLATZ im Stapel, nicht am Bild: alle verdeckten Karten
      tragen dieselbe Rueckseite, zwei davon hintereinander haetten sonst
      denselben `src` — und die Karte blieb einfach stehen. */
-  const pageKey = position ? String(position.index) : imageUrl;
+  const pageKey = pageIndex !== undefined ? String(pageIndex) : imageUrl;
   const [shown, setShown] = useState({ imageUrl, alt, key: pageKey });
-  const dealControls = useAnimationControls();
-  /* Der globale `prefers-reduced-motion`-Reset in globals.css setzt nur
-     CSS-Transitions und -Animationen still; eine framer-motion-Sequenz läuft
-     davon unbeirrt weiter. Für den Wurf gilt deshalb dieselbe Abfrage wie im
-     Reveal-Overlay nebenan: wer keine Bewegung will, bekommt den Kartentausch
-     ohne Flug. */
-  const reducedMotion = useReducedMotion();
-  useEffect(() => {
-    if (pageKey === shown.key) return;
-    let cancelled = false;
-    if (reducedMotion) {
-      /* Ohne Flug wechselt die Karte einfach — aber erst, wenn das neue Bild
-         zeichenbar ist, sonst steht dort weiter das alte (whenImageReady). */
-      void whenImageReady(imageUrl).then(() => {
-        if (cancelled) return;
-        setShown({ imageUrl, alt, key: pageKey });
-        dealControls.set({ x: 0, rotateZ: 0, scale: 1 });
-      });
-      return () => {
-        cancelled = true;
-      };
-    }
-    const dir = dirRef.current;
-    void (async () => {
-      /* Das neue Bild lädt, WÄHREND die alte Karte weggezogen wird. Ohne das
-         Warten trägt die hereinfliegende Karte weiter das alte Bild: ein <img>
-         behält seinen alten Rahmen, bis der neue `src` dekodiert ist (siehe
-         lib/dom/imageReady). */
-      const ready = whenImageReady(imageUrl);
-      await Promise.all([
-        dealControls.start({
-          x: dir >= 0 ? '-62%' : '62%',
-          rotateZ: dir >= 0 ? -9 : 9,
-          scale: 0.86,
-          transition: { duration: 0.19, ease: [0.4, 0, 1, 1] },
-        }),
-        ready,
-      ]);
-      if (cancelled) return;
-      setShown({ imageUrl, alt, key: pageKey });
-      dealControls.set({
-        x: dir >= 0 ? '62%' : '-62%',
-        rotateZ: dir >= 0 ? 9 : -9,
-        scale: 0.86,
-      });
-      /* Bewusst KEINE Feder für den Einflug. Federn erben die Geschwindigkeit
-         der vorigen Animation, und die zeigte gerade mit voller Wucht nach
-         draußen: gemessen schoss die Karte dadurch auf x −2100px und drehte
-         sich um 140°, bevor sie nach ~900ms zurückfand. Eine Kurve mit
-         leichtem Überschwung (y > 1 im zweiten Griff) landet dieselbe Geste
-         deterministisch. */
-      await dealControls.start({
-        x: 0,
-        rotateZ: 0,
-        scale: 1,
-        transition: { duration: 0.42, ease: [0.17, 1.06, 0.34, 1] },
-      });
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [pageKey, imageUrl, alt, shown.key, dealControls, reducedMotion]);
+  const [leaving, setLeaving] = useState<{
+    id: number;
+    imageUrl: string;
+    fromX: number;
+    fromRotate: number;
+    toX: number;
+    toRotate: number;
+  } | null>(null);
+  /* Zählt die Würfe; ein Bild, das erst nach dem nächsten Wurf oder nach dem
+     Zumachen fertig wird, startet keine Einfahrt mehr. */
+  const dealTokenRef = useRef(0);
   /* Der Platzhalter haelt nur fuer das Bild, mit dem der Zoom aufging. Der
      Deckel ist grosszuegig: laeuft er ab, stuende sonst ein leeres <img> da,
      wo eben noch der Daumennagel lag. */
@@ -332,13 +349,62 @@ const Inner = memo(function Inner({
     placeholderUrl && shown.imageUrl === placeholderFor && sharpUrl !== placeholderFor;
   const displayImageUrl = showPlaceholder ? placeholderUrl : shown.imageUrl;
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  useLayoutEffect(() => {
+    if (pageKey === shown.key) return;
+    const token = ++dealTokenRef.current;
+    /* Der globale `prefers-reduced-motion`-Reset in globals.css setzt nur
+       CSS-Transitions und -Animationen still; eine framer-motion-Sequenz
+       läuft davon unbeirrt weiter. Wer keine Bewegung will, bekommt den
+       Kartentausch deshalb ohne Flug — sobald das neue Bild zeichenbar ist,
+       sonst stünde dort kurz eine leere Karte. */
+    if (reducedMotion) {
+      void whenImageReady(imageUrl).then(() => {
+        if (token !== dealTokenRef.current) return;
+        setLeaving(null);
+        setShown({ imageUrl, alt, key: pageKey });
+        dealX.set(0);
+        dealRotate.set(0);
+      });
+      return;
+    }
+    const sign = dirRef.current >= 0 ? 1 : -1;
+    // Ganz aus dem Bild, samt Neigung — auch am breiten Desktop.
+    const out = (window.innerWidth + overlayW) / 2 + 48;
+    setLeaving({
+      id: token,
+      imageUrl: displayImageUrl,
+      fromX: dealX.get(),
+      fromRotate: dealRotate.get(),
+      toX: -sign * out,
+      toRotate: -sign * DEAL_TILT_DEG,
+    });
+    setShown({ imageUrl, alt, key: pageKey });
+    dealX.stop();
+    dealRotate.stop();
+    dealX.set(sign * out);
+    dealRotate.set(sign * DEAL_TILT_DEG);
+    void whenImageReady(imageUrl).then(() => {
+      if (token !== dealTokenRef.current) return;
+      const land = {
+        duration: DEAL_IN_MS / 1000,
+        delay: DEAL_IN_DELAY_MS / 1000,
+        ease: DEAL_IN_EASE,
+      };
+      void animate(dealX, 0, land);
+      void animate(dealRotate, 0, land);
+    });
+  }, [pageKey, imageUrl, alt, shown.key, displayImageUrl, overlayW, dealX, dealRotate, reducedMotion]);
   /* Beim Zumachen fliegt die KARTE zurück in ihren Slot — ein Wurf, der genau
      dann noch unterwegs ist, würde sie schräg und versetzt landen lassen. */
   useEffect(() => {
     if (open) return;
-    dealControls.stop();
-    dealControls.set({ x: 0, rotateZ: 0, scale: 1 });
-  }, [open, dealControls]);
+    dealTokenRef.current += 1;
+    dealX.stop();
+    dealRotate.stop();
+    dealX.set(0);
+    dealRotate.set(0);
+    setLeaving(null);
+  }, [open, dealX, dealRotate]);
 
   // Escape closes; die Pfeiltasten blättern, wenn es etwas zu blättern gibt.
   useEffect(() => {
@@ -357,7 +423,9 @@ const Inner = memo(function Inner({
       className={closing ? `${styles.wrapper} ${styles.closing}` : styles.wrapper}
       onClick={handleWrapperClick}
       onPointerDown={handlePointerDown}
+      onPointerMove={handleDragMove}
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
       role="dialog"
       aria-modal="true"
       aria-label={alt || 'Must Eat'}
@@ -435,8 +503,29 @@ const Inner = memo(function Inner({
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >
+        {/* Die abfahrende Karte steht VOR dem festen Clip im DOM: unter
+            `preserve-3d` zählt die Reihenfolge, die einfahrende liegt oben. */}
+        {leaving && (
+          <motion.div
+            key={leaving.id}
+            className={`${styles.clip} ${styles.clipLeaving}`}
+            style={{ width: overlayW }}
+            aria-hidden="true"
+            initial={{ x: leaving.fromX, rotateZ: leaving.fromRotate }}
+            animate={{ x: leaving.toX, rotateZ: leaving.toRotate }}
+            transition={{ duration: DEAL_OUT_MS / 1000, ease: DEAL_OUT_EASE }}
+            onAnimationComplete={() =>
+              setLeaving((current) => (current?.id === leaving.id ? null : current))
+            }
+          >
+            <img src={leaving.imageUrl} alt="" className={styles.image} />
+          </motion.div>
+        )}
         {/* Inner clip wrapper keeps the card's rounded shape while it deals. */}
-        <motion.div className={styles.clip} style={{ width: overlayW }} animate={dealControls}>
+        <motion.div
+          className={styles.clip}
+          style={{ width: overlayW, x: dealX, rotateZ: dealRotate }}
+        >
           {/* Ein eigenes <img> pro Karte — ein wiederverwendetes zeigt nach dem
               `src`-Wechsel weiter das alte Bild. */}
           {failedImageUrl === displayImageUrl ? (
@@ -554,6 +643,7 @@ export default function MustEatImageLightbox({
     placeholderUrl?: string | null;
     originRect: DOMRect;
     open: boolean;
+    pageIndex?: number;
   } | null>(null);
 
   useEffect(() => {
@@ -572,7 +662,14 @@ export default function MustEatImageLightbox({
           document.activeElement instanceof HTMLElement ? document.activeElement : null;
         openingRef.current = true;
       }
-      setRendered({ imageUrl, alt, placeholderUrl, originRect, open: true });
+      setRendered({
+        imageUrl,
+        alt,
+        placeholderUrl,
+        originRect,
+        open: true,
+        pageIndex: position?.index,
+      });
       onOpenReady?.();
       return;
     }
@@ -580,7 +677,7 @@ export default function MustEatImageLightbox({
     // map data refreshes. Never create an image clone without a real source.
     if (originRect) return;
     setRendered((current) => (current ? { ...current, open: false } : null));
-  }, [alt, imageUrl, placeholderUrl, mounted, onOpenReady, originRect]);
+  }, [alt, imageUrl, placeholderUrl, mounted, onOpenReady, originRect, position?.index]);
 
   if (!mounted) return null;
 
@@ -598,6 +695,7 @@ export default function MustEatImageLightbox({
         hasPrev={hasPrev}
         hasNext={hasNext}
         position={position}
+        pageIndex={rendered.pageIndex}
         action={action}
         onClose={onClose}
         onClosed={() => {

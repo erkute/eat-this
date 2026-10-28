@@ -130,19 +130,61 @@ const SYNONYMS_BY_WORD = new Map(
 export interface QueryWord {
   text: string;
   alternatives: string[];
+  /** Ein Bezirk oder Kiez des Katalogs. Trifft nur Lage und Namen, nicht den
+   *  Text (siehe parseQuery). */
+  place?: boolean;
+}
+
+/* Die Wörter aller Bezirke und Kieze im Katalog, je Index einmal. */
+const PLACE_WORDS = new WeakMap<Map<string, SearchEntry>, Set<string>>();
+function placeWordsOf(index: Map<string, SearchEntry>): Set<string> {
+  let words = PLACE_WORDS.get(index);
+  if (!words) {
+    words = new Set([...index.values()].flatMap((e) => e.area.split(/[^a-z0-9]+/).filter(Boolean)));
+    PLACE_WORDS.set(index, words);
+  }
+  return words;
+}
+
+/* Ein vertippter Bezirk wird der Bezirk. „Kreutzberg" holte über den
+   Tippfehler-Rückfall sonst wieder jede Beschreibung, die „Kreuzberger" sagt.
+   Erst ab sechs Buchstaben — „burg" ist nicht „berg" — und nur, wenn das
+   Getippte selbst nirgends im Katalog steht. */
+const PLACE_FUZZY_MIN_LENGTH = 6;
+function correctPlace(word: string, places: Set<string>, index: Map<string, SearchEntry>): string {
+  if (word.length < PLACE_FUZZY_MIN_LENGTH || places.has(word)) return word;
+  const near = [...places].find((p) => withinOneEdit(word, p));
+  if (!near) return word;
+  for (const entry of index.values()) if (entry.all.includes(word)) return word;
+  return near;
 }
 
 /** Die Anfrage als Woerter. Jedes muss irgendwo am Spot stehen — nicht der
- *  ganze Satz in einem Feld: „pizza neukölln" fand sonst nichts. */
-export function parseQuery(query: string): QueryWord[] {
+ *  ganze Satz in einem Feld: „pizza neukölln" fand sonst nichts.
+ *
+ *  Mit `index` werden Bezirke und Kieze erkannt. „Kreuzberg" fand 71 Spots
+ *  statt der 50 in Kreuzberg: 21 Beschreibungen anderswo erwähnen den Bezirk
+ *  („aus der eigenen Kreuzberger Röstung", Katalog 27.10.2026). Ein Ortswort
+ *  meint, wo der Spot liegt. */
+export function parseQuery(query: string, index?: Map<string, SearchEntry>): QueryWord[] {
   let q = normalizeForSearch(query.trim());
   /* Der volle Name wird gefaltet wie alles andere — „Prenzlauer" steht im
      Index als „prenzlaur". */
   for (const [pattern, name] of KIEZ_NAMES) q = q.replace(pattern, normalizeForSearch(name));
+  const places = index ? placeWordsOf(index) : null;
   return q
     .split(/[\s,;]+/)
     .filter(Boolean)
-    .map((text) => ({ text, alternatives: SYNONYMS_BY_WORD.get(text) ?? [] }));
+    .map((typed) => {
+      const text = index && places ? correctPlace(typed, places, index) : typed;
+      const alternatives = SYNONYMS_BY_WORD.get(text) ?? [];
+      /* „nkln" ist selbst kein Ortswort, meint aber nur eins. */
+      const place = Boolean(
+        places &&
+          (places.has(text) || (alternatives.length > 0 && alternatives.every((a) => places.has(a))))
+      );
+      return place ? { text, alternatives, place } : { text, alternatives };
+    });
 }
 
 /** Steht `token` in `hay` am Anfang eines Wortes? */
@@ -156,6 +198,8 @@ function startsWord(hay: string, token: string): boolean {
 /** Was ein Spot fuer die Suche hergibt, einmal gefaltet. */
 export interface SearchEntry {
   name: string;
+  /** Bezirk und Kiez, durch „ | " getrennt. */
+  area: string;
   /** Alle durchsuchten Felder, durch „ | " getrennt, damit kein Wort ueber
    *  eine Feldgrenze hinweg entsteht. */
   all: string;
@@ -199,6 +243,7 @@ export function buildSearchIndex(
     const all = fields.filter(Boolean).map(normalizeForSearch).join(' | ');
     index.set(r._id, {
       name: normalizeForSearch(r.name),
+      area: [r.bezirk?.name, r.district].filter(Boolean).map(normalizeForSearch).join(' | '),
       all,
       words: [...new Set(all.split(/[^a-z0-9]+/).filter(Boolean))],
     });
@@ -247,6 +292,13 @@ function nearWordStart(words: string[], token: string): boolean {
 const FOOD_ENDINGS = new Set(['suppe', 'suppen', 'nudel', 'nudeln']);
 
 function wordMatches(entry: SearchEntry, word: QueryWord, fuzzy: boolean): boolean {
+  if (word.place) {
+    /* Die Lage oder der Name — sonst verschwände „Bergmanns" aus den
+       Vorschlägen, sobald „berg" getippt ist. */
+    return [word.text, ...word.alternatives].some(
+      (t) => startsWord(entry.area, t) || startsWord(entry.name, t)
+    );
+  }
   if (entry.all.includes(word.text)) return true;
   if (word.alternatives.some((alt) =>
     startsWord(entry.all, alt) ||
@@ -294,15 +346,15 @@ export function searchRank(entry: SearchEntry, query: QueryWord[]): number {
   return 2;
 }
 
-/** Wie viele Vorschläge unter dem Suchfeld stehen. */
-const SUGGESTION_LIMIT = 6;
-
 /**
  * Die Vorschläge unter dem Suchfeld: dieselben Treffer, die ein Abschicken
  * der Anfrage in die Liste holt (useMapFilters), nach Passung und dann nach
  * Namen geordnet — die Entfernung, nach der die Liste sortiert, kennt ein
  * Vorschlag nicht. Tippen filtert die Liste nicht mehr, erst das Abschicken
  * (Betreiber, 29.09.2026).
+ *
+ * Alle Treffer, die Vorschläge scrollen. Bis 27.10.2026 standen dort höchstens
+ * sechs, und „Kreuzberg" sah aus, als gäbe es nur sechs Spots (Betreiber).
  *
  * Der Tippfehler-Rückfall wie in der Liste (needsFuzzy) — gezählt ohne
  * `keep`, die Chips des Aufrufers.
@@ -311,12 +363,9 @@ export function suggestSpots(
   restaurants: MapRestaurant[],
   index: Map<string, SearchEntry>,
   query: string,
-  {
-    limit = SUGGESTION_LIMIT,
-    keep = () => true,
-  }: { limit?: number; keep?: (r: MapRestaurant) => boolean } = {}
+  { keep = () => true }: { keep?: (r: MapRestaurant) => boolean } = {}
 ): MapRestaurant[] {
-  const words = parseQuery(query);
+  const words = parseQuery(query, index);
   if (!words.length) return [];
   const fuzzy = needsFuzzy(index, words);
   const hits: { r: MapRestaurant; rank: number }[] = [];
@@ -327,6 +376,5 @@ export function suggestSpots(
   }
   return hits
     .sort((a, b) => a.rank - b.rank || a.r.name.localeCompare(b.r.name, 'de'))
-    .slice(0, limit)
     .map((h) => h.r);
 }

@@ -178,7 +178,7 @@ export function useMapFilters({
     [restaurants, mustEats]
   );
 
-  const tokens = useMemo(() => parseQuery(search), [search]);
+  const tokens = useMemo(() => parseQuery(search, searchIndex), [search, searchIndex]);
 
   /* Findet die exakte Suche im ganzen Katalog nichts, darf jedes Wort einen
      Buchstaben danebenliegen (needsFuzzy, dieselbe Regel wie die Vorschläge). */

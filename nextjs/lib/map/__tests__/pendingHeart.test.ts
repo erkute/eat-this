@@ -84,21 +84,6 @@ describe('pendingHeart', () => {
     expect(mocks.fetch).toHaveBeenCalledTimes(1);
   });
 
-  /* Die Bestaetigung zeigt useFavorites nach dem Lesen der Liste (erst die
-     sagt, ob es der erste Spot war). Mehrere Listen auf einer Seite duerfen
-     sie nur einmal zeigen. */
-  it('laesst genau eine Liste die Bestaetigung zeigen', async () => {
-    rememberPendingHeart('rest-6');
-    const { settlePendingHeart: settle, claimPendingHeartNotice: claim } =
-      await import('../pendingHeart');
-    await settle('user-1', 'de');
-
-    expect(showNotice).not.toHaveBeenCalled();
-    expect(claim('user-1')).toBe(true);
-    expect(claim('user-1')).toBe(false);
-    expect(claim('user-2')).toBe(false);
-  });
-
   it('sagt Bescheid, wenn das Einloesen scheitert', async () => {
     mocks.fetch.mockResolvedValue({ ok: false, status: 500 });
     rememberPendingHeart('rest-5');

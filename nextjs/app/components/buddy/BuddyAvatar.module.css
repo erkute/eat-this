@@ -24,49 +24,6 @@
   object-fit: cover;
   display: block;
 }
-/* Window over the mouth in the base drawing (pixels 404–616 × 357–533 of
-   1024). The sprite holds four frames side by side: empty (the base's own
-   closed mouth shows through), open, wide, O. */
-.mouth {
-  position: absolute;
-  left: 39.453%;
-  top: 34.863%;
-  width: 20.703%;
-  height: 17.188%;
-  overflow: hidden;
-}
-.mouths {
-  display: block;
-  width: 400%;
-  max-width: none;
-  height: 100%;
-}
-.wrap[data-mood='happy'] .mouths {
-  transform: translateX(-50%);
-}
-/* Speech: hard cuts between mouth shapes in an uneven rhythm with pauses,
-   so it reads like words rather than a metronome flap. */
-.wrap[data-mood='talking'] .mouths {
-  animation: buddySpeak 2.2s step-end infinite;
-}
-@keyframes buddySpeak {
-  0% { transform: translateX(-25%); }
-  6% { transform: translateX(0); }
-  10% { transform: translateX(-75%); }
-  17% { transform: translateX(-25%); }
-  23% { transform: translateX(0); }
-  27% { transform: translateX(-50%); }
-  35% { transform: translateX(-25%); }
-  40% { transform: translateX(0); }
-  48% { transform: translateX(-75%); }
-  53% { transform: translateX(0); }
-  57% { transform: translateX(-25%); }
-  63% { transform: translateX(-50%); }
-  69% { transform: translateX(0); }
-  74% { transform: translateX(-25%); }
-  79% { transform: translateX(0); }
-  100% { transform: translateX(0); }
-}
 /* While talking the head swells a little with the phrasing. */
 .wrap[data-mood='talking'] .stage {
   animation: buddyTalk 2.2s ease-in-out infinite;
@@ -106,11 +63,9 @@
 .wrap[data-breathe='off'] .stage {
   animation: none;
 }
-/* Reduced motion: Remy holds still with his mouth closed; the laugh stays
-   as a still. */
+/* Reduced motion: Remy holds still (BuddyMouth keeps the mouth closed). */
 @media (prefers-reduced-motion: reduce) {
-  .wrap[data-mood] .stage,
-  .wrap[data-mood='talking'] .mouths {
+  .wrap[data-mood] .stage {
     animation: none;
   }
 }

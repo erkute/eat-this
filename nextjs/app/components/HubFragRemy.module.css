@@ -28,18 +28,11 @@
    deshalb wie live unter die Unterkante der Bühne, die sie abschneidet
    (.body, overflow: hidden) — auch gekippt beim Auftritt und beim Hüpfer auf
    eine Frage bleibt die Kante darunter. */
-.figure { position: absolute; inset: 0 0 -18%; transform-origin: 50% 85%; }
-.face, .laugh, .open { object-fit: contain; object-position: center bottom; }
-.laugh, .open { visibility: hidden; }
-.laugh { translate: 0 1.1%; }
-.open { translate: 0 -.9%; }
-.figure[data-expression="laugh"] .laugh, .figure[data-expression="open"] .open { visibility: visible; }
-.figure[data-expression="laugh"] .face, .figure[data-expression="open"] .face { visibility: hidden; }
-.figure[data-speaking] .face { visibility: visible; }
-.figure[data-speaking] .laugh { visibility: hidden; }
-.figure[data-speaking] .open { animation: speak 640ms steps(1) infinite; }
-@keyframes speak { 0%,35%,70%,100% { visibility: hidden; } 12%,48%,82% { visibility: visible; } }
-@media (prefers-reduced-motion: reduce) { .figure[data-speaking] .open { animation: none; } }
+.figure { position: absolute; inset: 0 0 -18%; transform-origin: 50% 85%; container-type: size; }
+/* The square drawing, as large as fits and standing on the lower edge, so
+   the mouth window (BuddyMouth) lands on the face. */
+.head { position: absolute; bottom: 0; left: 50%; width: min(100cqw, 100cqh); aspect-ratio: 1; translate: -50% 0; }
+.face { object-fit: cover; }
 @media(max-width:767.98px) {
   /* Wie live: Fragen und Eingabefeld oben untereinander, Remy steht darunter
      auf der Unterkante der Bühne (Ansage 21.10.2026). */

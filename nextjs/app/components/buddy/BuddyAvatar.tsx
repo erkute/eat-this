@@ -1,3 +1,4 @@
+import BuddyMouth, { type BuddyMouthShape } from './BuddyMouth';
 import styles from './BuddyAvatar.module.css';
 
 // Remy's moods. 'talking' and 'happy' keep the neutral base and only change
@@ -14,11 +15,13 @@ const BASE_SRC: Record<BuddyMood, string> = {
   greeting: '/buddy/buddy-smile.webp?v=feinripp',
 };
 
-// Mouth shapes cut from the open/laugh/think drawings and registered onto
-// the base face (empty, open, wide, O). The open and laugh drawings are
-// framed ~9 % larger than the base, so laying them over it whole showed
-// shoulders and outline twice.
-const MOUTHS_SRC = '/buddy/buddy-mouths.webp?v=1';
+const MOUTH: Record<BuddyMood, BuddyMouthShape> = {
+  idle: 'closed',
+  talking: 'talk',
+  thinking: 'closed',
+  happy: 'wide',
+  greeting: 'closed',
+};
 
 export function BuddyAvatarFallback({
   mood,
@@ -41,10 +44,7 @@ export function BuddyAvatarFallback({
       <div className={styles.stage}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className={styles.face} src={BASE_SRC[mood]} alt="" width={size} height={size} />
-        <span className={styles.mouth}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.mouths} src={MOUTHS_SRC} alt="" />
-        </span>
+        <BuddyMouth shape={MOUTH[mood]} />
       </div>
     </div>
   );

@@ -44,7 +44,7 @@ type Figure = {
    contact sheet. */
 const FIGURES: (Figure | null)[] = [
   {
-    src: '/pics/home-map/phone-1.webp',
+    src: '/pics/home-map/iphone-screen-4-frame.webp',
     width: 534,
     height: 1044,
     // A tall object: anything wider than this and the phone runs
@@ -53,8 +53,8 @@ const FIGURES: (Figure | null)[] = [
     tilt: -2,
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
-      de: 'Die Eat-This-Map mit Berliner Spots und Avatar',
-      en: 'The Eat This map showing Berlin spots and an avatar',
+      de: 'Die Spot-Liste mit Slice Society, Gazzo und Romeo’s Sandwiches',
+      en: 'The spot list with Slice Society, Gazzo and Romeo’s Sandwiches',
     },
   },
   {
@@ -313,7 +313,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                             );
                           })}
                         </div>
-                      ) : figure.src === '/pics/home-map/phone-1.webp' ? (
+                      ) : figure.src === '/pics/home-map/iphone-screen-4-frame.webp' ? (
                         <div className={styles.figureImg}><MapPhoneArtwork alt={de ? figure.alt.de : figure.alt.en} /></div>
                       ) : (
                         <Image

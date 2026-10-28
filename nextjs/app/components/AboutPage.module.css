@@ -1,4 +1,5 @@
 .page {
+  --about-heading-size: clamp(36px, 3.5vw, 50px);
   --about-gutter: max(24px, calc((100vw - 1200px) / 2));
   position: relative;
   isolation: isolate;
@@ -42,11 +43,9 @@
 .title {
   max-width: 100%;
   margin: 0;
+  font: 700 var(--about-heading-size)/1.05 var(--et-font-body);
+  letter-spacing: -.055em;
 }
-/* The page's title, not its poster: at the full 1200px column it took the
-   whole first screen on desktop. */
-.wordmark { display: block; width: min(100%, 560px); height: auto; }
-:global(html[data-theme='dark']) .wordmark { filter: invert(1); }
 .lede {
   max-width: 54ch;
   margin: 24px 0 0;
@@ -54,15 +53,14 @@
   text-wrap: pretty;
 }
 .ledeQuote {
-  max-width: 30ch;
+  max-width: 54ch;
   margin: 0;
   color: var(--et-link);
-  font: 700 clamp(28px, 3.8vw, 50px)/1.15 var(--et-font-body);
-  letter-spacing: -.04em;
+  font: 400 clamp(20px, 2vw, 26px)/1.4 var(--et-font-body);
   text-wrap: pretty;
 }
 .heroArt { min-width: 0; margin: 0; }
-.heroFigure { display: block; width: min(100%, 420px); height: auto; margin-inline: auto; }
+.heroFigure { display: block; width: min(100%, 360px); height: auto; margin-inline: auto; }
 .bridge {
   --et-ground: #cf3f2f;
   --et-fg: #fff;
@@ -73,7 +71,7 @@
   gap: clamp(32px, 6vw, 88px);
   padding: clamp(48px, 6vw, 80px) var(--about-gutter);
 }
-.oneLiner { margin: 0; font: 700 clamp(30px, 3.5vw, 50px)/1.05 var(--et-font-body); letter-spacing: -.045em; text-wrap: balance; }
+.oneLiner { margin: 0; font: 700 var(--about-heading-size)/1.05 var(--et-font-body); letter-spacing: -.045em; text-wrap: balance; }
 .section {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
@@ -91,7 +89,7 @@
   --et-link: #f29194;
 }
 .sectionCopy { min-width: 0; }
-.sectionTitle { margin: 0 0 28px; font: 700 clamp(36px, 4.5vw, 64px)/1.02 var(--et-font-body); letter-spacing: -.05em; text-wrap: balance; }
+.sectionTitle { margin: 0 0 28px; font: 700 var(--about-heading-size)/1.05 var(--et-font-body); letter-spacing: -.05em; text-wrap: balance; }
 .body { max-width: 60ch; color: var(--et-copy); font: 400 clamp(16px, 1.4vw, 19px)/1.65 var(--et-font-body); overflow-wrap: anywhere; }
 .body p { margin: 0 0 1.2em; }
 .body p:last-child { margin-bottom: 0; }
@@ -122,6 +120,7 @@
   transform: translateX(var(--fan-x)) rotate(var(--fan-angle));
   filter: drop-shadow(0 6px 8px rgb(0 0 0 / .14));
 }
+.fanFigure .caption { margin-top: 12px; }
 .caption { margin-top: 32px; color: var(--et-copy); font: 400 var(--et-type-caption)/1.5 var(--et-font-body); text-align: center; text-wrap: balance; }
 .remy { --home-gutter: var(--about-gutter); --et-ground: #d9382a; }
 /* Mehr Spezifität als das eigenständige Remy-Modul, unabhängig von der Ladefolge. */
@@ -129,9 +128,8 @@
   --et-sheet: none;
   background: transparent;
 }
-.coda { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(40px, 7vw, 100px); padding: clamp(56px, 7vw, 96px) var(--about-gutter); }
+.coda { --et-ground: #ffc600; --et-fg: var(--et-ink); --et-copy: var(--et-ink); --et-link: var(--et-ink); display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(40px, 7vw, 100px); padding: clamp(56px, 7vw, 96px) var(--about-gutter); }
 .codaSection { min-width: 0; }
-.coda .sectionTitle { font-size: clamp(32px, 3.5vw, 48px); }
 .email { display: block; width: fit-content; max-width: 100%; min-height: 44px; margin-block: 24px; padding-block: 6px; color: var(--et-link); font: 700 clamp(24px, 3vw, 42px)/1.2 var(--et-font-body); letter-spacing: -.035em; overflow-wrap: anywhere; text-decoration: none; }
 @media (hover: hover) { .body a:hover, .email:hover { color: var(--et-fg); } }
 @media (max-width: 767px) {
@@ -150,4 +148,17 @@
   .fan { aspect-ratio: 1.67; }
   .fanCard { width: 36%; margin-left: -18%; }
   .coda { gap: 48px; }
+}
+
+@media (min-width: 768px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 28px 56px;
+    align-items: center;
+    padding-block: 48px;
+  }
+  .section.cardChapter { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); column-gap: 56px; }
+  .heroCopy { grid-column: 1; grid-row: 1; }
+  .heroArt { grid-column: 2; grid-row: 1 / span 2; }
+  .ledeQuote { grid-column: 1; grid-row: 2; }
 }

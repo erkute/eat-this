@@ -7,7 +7,7 @@
 .panelToggle,
 .mapSearchClear {
   background-color: var(--et-ground);
-  background-image: url('/pics/paper/folded-white.webp');
+  background-image: url('/pics/paper/folded-white.webp?v=20261028-hq');
   background-size: 240px 360px;
   background-position: center;
   background-blend-mode: multiply;
@@ -27,7 +27,7 @@
 .fab:focus-visible,
 .mapSearchClear:focus-visible {
   background-color: color-mix(in srgb, var(--et-fg) 20%, var(--et-ground));
-  background-image: url('/pics/paper/folded-white.webp');
+  background-image: url('/pics/paper/folded-white.webp?v=20261028-hq');
   background-size: 240px 360px;
   background-position: center;
   background-blend-mode: multiply;
@@ -41,7 +41,7 @@
   .fab:hover,
   .mapSearchClear:hover {
     background-color: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
-    background-image: url('/pics/paper/folded-white.webp');
+    background-image: url('/pics/paper/folded-white.webp?v=20261028-hq');
     background-size: 240px 360px;
     background-position: center;
     background-blend-mode: multiply;

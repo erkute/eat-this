@@ -110,7 +110,7 @@
   padding: 10px 20px;
   border: 0;
   border-radius: 0;
-  background: var(--et-ground) url('/pics/paper/folded-white.webp') var(--hub-paper-position, center) / 400px 600px;
+  background: var(--et-ground) url('/pics/paper/folded-white.webp?v=20261028-hq') var(--hub-paper-position, center) / 400px 600px;
   background-blend-mode: multiply;
   color: var(--et-fg);
   cursor: pointer;
@@ -743,7 +743,7 @@
   margin: 20px auto 0;
   padding: 32px;
   box-sizing: border-box;
-  background: var(--et-ground) url('/pics/paper/folded-white.webp') center / cover;
+  background: var(--et-ground) url('/pics/paper/folded-white.webp?v=20261028-hq') center / cover;
   background-blend-mode: multiply;
   border-radius: 0;
 }

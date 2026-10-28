@@ -35,7 +35,8 @@ for (const reduced of [false, true]) {
     await page.goto('/');
     await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
     const figure=page.locator('[data-hub-fragremy] [data-expression]');
-    await figure.locator('..').scrollIntoViewIfNeeded();
+    await page.locator('[data-hub-fragremy]').evaluate(el => el.scrollIntoView({ block: 'start', behavior: 'instant' }));
+    await expect.poll(() => figure.locator('img').first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     await expect.poll(()=>figure.evaluate(el=>getComputedStyle(el).transform)).toBe(reduced ? 'none' : 'matrix(1, 0, 0, 1, 0, 0)');
     await expect(page.getByRole('textbox', {name:'Deine Frage an Remy'})).toBeVisible();
   });

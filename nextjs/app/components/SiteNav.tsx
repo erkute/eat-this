@@ -131,10 +131,7 @@ export default function SiteNav() {
       const y = Math.max(0, window.scrollY || window.pageYOffset || 0);
       const delta = y - lastY;
 
-      // Keep the home header visible so its logo can take over as the hero leaves.
-      const hold = document.documentElement.dataset.activePage === 'start';
-
-      if (!media.matches || y < 36 || hold) {
+      if (!media.matches || y < 36) {
         show();
       } else if (delta > 6) {
         hide();

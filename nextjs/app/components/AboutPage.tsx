@@ -1,5 +1,4 @@
 import { Fragment, type CSSProperties } from 'react';
-import { BRAND_WORDMARK } from '@/lib/constants';
 import Image from '@/app/components/SiteImage';
 import { PortableTextRenderer } from '@/lib/PortableTextRenderer';
 import type { PortableTextBlock, StaticPageDoc } from '@/lib/types';
@@ -224,13 +223,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
         <header className={styles.hero}>
           <div className={styles.heroCopy}>
             <h1 className={styles.title} id="staticPageAbout-title">
-              <Image
-                {...BRAND_WORDMARK}
-                alt="eat this."
-                sizes="(min-width: 608px) 560px, calc(100vw - 48px)"
-                priority
-                className={styles.wordmark}
-              />
+              {de ? 'Über mich' : 'About me'}
             </h1>
             {ledes[0] && <p className={styles.lede}>{ledes[0]}</p>}
           </div>

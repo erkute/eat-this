@@ -7,8 +7,8 @@ export default function FoldedPaperBackdrop({ id }: { id: string }) {
     <svg className={styles.paper} aria-hidden="true" focusable="false" data-folded-paper="">
       <defs>
         <pattern id={id} width="100%" height="300vw" patternUnits="userSpaceOnUse">
-          <image href="/pics/paper/folded-white.webp" width="100%" height="150vw" preserveAspectRatio="none" />
-          <image href="/pics/paper/folded-white.webp" y="-300vw" width="100%" height="150vw" transform="scale(1 -1)" preserveAspectRatio="none" />
+          <image href="/pics/paper/folded-white.webp?v=20261028-hq" width="100%" height="150vw" preserveAspectRatio="none" />
+          <image href="/pics/paper/folded-white.webp?v=20261028-hq" y="-300vw" width="100%" height="150vw" transform="scale(1 -1)" preserveAspectRatio="none" />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill={`url(#${id})`} />

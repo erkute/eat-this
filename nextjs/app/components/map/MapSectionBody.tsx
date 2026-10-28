@@ -282,6 +282,25 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const openBurgerMenu = useCallback(() => {
     openBurgerDrawer();
   }, []);
+  /* Esc schließt das Spot-Detail wie sein Zurück-Knopf. Offene Ebenen darüber
+     (Galerie, Zoom, Menü, Login) haben eigene Esc-Handler und gehen vor. */
+  const restaurantDetailOpen = sheetView === 'detail' && !selectedMustEat && !!selectedRestaurant;
+  useEffect(() => {
+    if (!restaurantDetailOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      /* Das Menü liegt verborgen immer im DOM — nur sichtbare Ebenen zählen. */
+      const layerOpen = [...document.querySelectorAll('[aria-modal="true"]')].some(
+        (el) => el.getClientRects().length > 0
+      );
+      if (layerOpen) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+      onRestaurantClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [restaurantDetailOpen, onRestaurantClose]);
   const rawLocationStatus = getLocationStatus({
     locale,
     location,

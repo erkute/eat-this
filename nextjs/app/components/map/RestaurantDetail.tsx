@@ -1,6 +1,6 @@
 'use client';
 import type { CSSProperties } from 'react';
-import { useLayoutEffect, useMemo, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useRestaurantDetail, type RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import { localizedCuisine } from '@/lib/cuisineLabels';
@@ -17,7 +17,7 @@ import { useLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import styles from './RestaurantDetail.module.css';
 import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
-import { HeartIcon, CloseIcon } from './icons';
+import { HeartIcon, BackIcon } from './icons';
 import { useHeartCount } from '@/lib/map/useHeartCount';
 import { heartCountShort } from '@/lib/map/heartLabel';
 import { classifyWebsite, formatPriceLabel } from './restaurantDetail.helpers';
@@ -143,6 +143,31 @@ export default function RestaurantDetail({
   const scrollRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [restaurant._id]);
+
+  /* Am Telefon scrollt das Foto mit seinen Knöpfen weg. Sobald der Pfeil
+     darin unter Kartenstreifen und Griff verschwindet, übernimmt die feste
+     Leiste Zurück, Name und Herz, wie bei Airbnb (Ersan, 28.10.2026). */
+  const backRef = useRef<HTMLButtonElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [barShown, setBarShown] = useState(false);
+  useEffect(() => {
+    const back = backRef.current;
+    const bar = barRef.current;
+    if (!back || !bar || typeof IntersectionObserver === 'undefined') return;
+    if (!window.matchMedia?.('(max-width: 767.98px)').matches) return;
+    /* Die Oberkante der Leiste ist die Linie, über der der Pfeil im Foto
+       verdeckt ist. */
+    const line = Math.round(parseFloat(getComputedStyle(bar).top));
+    const io = new IntersectionObserver(
+      ([entry]) => setBarShown(entry.intersectionRatio < 1 && entry.boundingClientRect.top < line),
+      { rootMargin: `-${line}px 0px 0px 0px`, threshold: [0, 1] }
+    );
+    io.observe(back);
+    return () => {
+      io.disconnect();
+      setBarShown(false);
+    };
   }, [restaurant._id]);
 
   const hasHours = !!r.openingHours?.length;
@@ -282,6 +307,32 @@ export default function RestaurantDetail({
   return (
     <div className={styles.detail} data-detail-root="restaurant" role="dialog" aria-label={r.name}>
       <div ref={scrollRef} className={styles.scroll} data-detail-scroll>
+        {/* Nur am Telefon. Sie doppelt die Knöpfe im Foto für den Daumen und
+            bleibt deshalb aus Vorlesern und Tab-Folge heraus. */}
+        <div
+          ref={barRef}
+          className={styles.rdBar}
+          data-shown={barShown ? '' : undefined}
+          aria-hidden="true"
+        >
+          <div className={styles.rdBarInner}>
+            <button type="button" tabIndex={-1} className={styles.rdBarBtn} onClick={onClose}>
+              <BackIcon />
+            </button>
+            <span className={styles.rdBarName}>{displayName}</span>
+            {onToggleFavorite && (
+              <button
+                type="button"
+                tabIndex={-1}
+                className={styles.rdBarBtn}
+                aria-pressed={!!isFavorite}
+                onClick={onToggleFavorite}
+              >
+                <HeartIcon filled={!!isFavorite} />
+              </button>
+            )}
+          </div>
+        </div>
         {/* HERO — full-bleed photo, save bookmark, name. */}
         <header className={styles.rdHero} data-detail-hero style={heroStyle}>
           <RestaurantGallery
@@ -291,12 +342,13 @@ export default function RestaurantDetail({
             slug={r.slug}
           />
           <button
+            ref={backRef}
             type="button"
-            className={styles.rdCloseGlass}
+            className={styles.rdBack}
             aria-label={backLabel}
             onClick={onClose}
           >
-            <CloseIcon />
+            <BackIcon />
           </button>
 
           {/* Free heart icon and public count; tapping toggles the favorite. */}

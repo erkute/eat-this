@@ -132,10 +132,10 @@ describe('HubMustEatsTeaser', () => {
     expect(html).not.toContain('/map?r=');
   });
 
-  it('starts preview downloads early at low priority and reserves their dimensions', () => {
+  it('defers below-fold preview downloads and reserves their dimensions', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toContain('Smash Burger');
-    expect(html).toContain('loading="eager"');
+    expect(html).toContain('loading="lazy"');
     expect(html).toContain('fetchPriority="low"');
     expect(html).toContain('width="760" height="1044"');
     expect(html).toContain('src="/api/must-eat-image/m1?v=0123456789ab&amp;w=360');

@@ -60,6 +60,12 @@ const CRITICAL_BOOTSTRAP = `(function(){
   try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){var h=document.documentElement;h.setAttribute('data-hero-intro','');var end=function(){h.removeAttribute('data-hero-intro');};setTimeout(function(){if(h.hasAttribute('data-remy-go'))setTimeout(end,6000);else end();},6500);}}catch(_){}
   try{if(slug==='news-article'&&document.visibilityState==='visible'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-article-intro','');}catch(_){}
   try{if(localStorage.getItem('et-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(_){}
+  // CSS discovers the large paper background too late on editorial pages.
+  // Use the restored theme so the other palette is never preloaded as well.
+  if(slug!=='start'&&slug!=='map'){
+    var paper=['/pics/vintage/paper-grain.webp?v=4',document.documentElement.getAttribute('data-theme')==='dark'?'/pics/vintage/section-wear-dark-light.webp?v=3':'/pics/vintage/section-wear-light.webp?v=3'];
+    paper.forEach(function(src){var link=document.createElement('link');link.rel='preload';link.as='image';link.fetchPriority='high';link.href=src;document.head.appendChild(link);});
+  }
   try{if(slug==='start'&&'scrollRestoration' in history)history.scrollRestoration='manual';}catch(_){}
   try{if(slug==='start'&&location.hash){var nv=performance.getEntriesByType('navigation')[0];if(nv&&nv.type==='reload')history.replaceState(history.state,'',location.pathname+location.search);}}catch(_){}
   if(window.innerWidth<=767&&screen.orientation&&screen.orientation.lock){screen.orientation.lock('portrait').catch(function(){});}

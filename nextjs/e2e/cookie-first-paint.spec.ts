@@ -99,3 +99,28 @@ test('an outdated answer is asked again before application JavaScript', async ({
   await page.goto('/map', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#cookieConsent')).toBeVisible();
 });
+
+
+test('keeps forward and backward focus inside across hydration', async ({ page }) => {
+  let release!: () => void;
+  const scriptsReady = new Promise<void>((resolve) => { release = resolve; });
+  await page.route('**/_next/static/**/*.js', async (route) => {
+    await scriptsReady;
+    await route.continue();
+  });
+  await page.goto('/agb', { waitUntil: 'commit' });
+  const dialog = page.locator('#cookieConsent');
+  await expect(dialog).toBeVisible();
+  for (const hydrated of [false, true]) {
+    if (hydrated) {
+      release();
+      await expect(page.locator('html')).not.toHaveAttribute('data-consent-pending');
+    }
+    for (const key of ['Tab', 'Shift+Tab']) {
+      for (let i = 0; i < 8; i++) {
+        await page.keyboard.press(key);
+        await expect.poll(() => dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+      }
+    }
+  }
+});

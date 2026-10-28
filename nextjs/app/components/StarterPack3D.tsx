@@ -40,7 +40,8 @@ export default function StarterPack3D({ fit = false }: { fit?: boolean }) {
     const stage = stageRef.current;
     const rig = rigRef.current;
     const canvas = canvasRef.current;
-    if (!stage || !rig || !canvas) return;
+    // Keep the flat artwork when viewport observation is unavailable.
+    if (!stage || !rig || !canvas || !('IntersectionObserver' in window)) return;
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
     let renderer: PackRenderer | null = null;
     let frame = 0;
@@ -116,30 +117,39 @@ export default function StarterPack3D({ fit = false }: { fit?: boolean }) {
       stage.removeAttribute('data-gl');
     };
 
-    Promise.all([loadImage(PACK_SRC), loadImage(BACK_SRC)])
-      .then(([art, back]) => {
-        if (cancelled) return;
-        renderer = renderPack(canvas, art, back);
-        if (!renderer) return;
-        resize();
-        stage.setAttribute('data-gl', '');
-        io = new IntersectionObserver(([entry]) => {
-          visible = entry.isIntersecting;
-          if (visible) resume();
-        });
-        io.observe(stage);
-        ro = new ResizeObserver(resize);
-        ro.observe(stage);
-        stage.addEventListener('pointermove', onPointerMove);
-        stage.addEventListener('pointerleave', onPointerLeave);
-        stage.addEventListener('click', onClick);
-        canvas.addEventListener('webglcontextlost', onContextLost);
-      })
-      .catch(() => {});
+    // The home signup sits several screens below the hero. Prepare the pack
+    // shortly before it enters view, instead of downloading both sides and
+    // compiling a second WebGL renderer during the entrance.
+    const prepare = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      prepare.disconnect();
+      void Promise.all([loadImage(PACK_SRC), loadImage(BACK_SRC)])
+        .then(([art, back]) => {
+          if (cancelled) return;
+          renderer = renderPack(canvas, art, back);
+          if (!renderer) return;
+          resize();
+          stage.setAttribute('data-gl', '');
+          io = new IntersectionObserver(([entry]) => {
+            visible = entry.isIntersecting;
+            if (visible) resume();
+          });
+          io.observe(stage);
+          ro = new ResizeObserver(resize);
+          ro.observe(stage);
+          stage.addEventListener('pointermove', onPointerMove);
+          stage.addEventListener('pointerleave', onPointerLeave);
+          stage.addEventListener('click', onClick);
+          canvas.addEventListener('webglcontextlost', onContextLost);
+        })
+        .catch(() => {});
+    }, { rootMargin: '600px' });
+    prepare.observe(stage);
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(frame);
+      prepare.disconnect();
       io?.disconnect();
       ro?.disconnect();
       stage.removeEventListener('pointermove', onPointerMove);
@@ -158,7 +168,7 @@ export default function StarterPack3D({ fit = false }: { fit?: boolean }) {
         {/* The flat picture until WebGL is up. */}
         <div className={styles.packFlat}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className={styles.packFront} src={PACK_SRC} alt="" width={945} height={1491} />
+          <img className={styles.packFront} src={PACK_SRC} alt="" width={945} height={1491} loading="lazy" decoding="async" />
         </div>
       </div>
       <canvas ref={canvasRef} className={styles.gl} />

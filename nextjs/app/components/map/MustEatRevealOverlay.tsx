@@ -422,7 +422,7 @@ export default function MustEatRevealOverlay({
             >
               <img
                 className={styles.faceBack}
-                src="/pics/card-back.webp?v=8"
+                src="/pics/card-back.webp?v=20261028"
                 alt=""
                 aria-hidden="true"
               />

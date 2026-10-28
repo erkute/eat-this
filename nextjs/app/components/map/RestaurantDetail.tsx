@@ -68,7 +68,7 @@ function MustEatMiniCard({
       >
         <div className={styles.medishPh}>
           <img
-            src={unlocked && mustEat.image ? mustEat.image : '/pics/card-back.webp?v=8'}
+            src={unlocked && mustEat.image ? mustEat.image : '/pics/card-back.webp?v=20261028'}
             alt={unlocked ? dish : ''}
             loading="lazy"
           />
@@ -628,7 +628,7 @@ export default function RestaurantDetail({
             <div className={styles.packPromoCardWrap} aria-hidden="true">
               <img
                 src={
-                  isAnon ? '/pics/home/starter-pack-front.webp' : '/pics/booster/booster_lunch.webp?v=3'
+                  isAnon ? '/pics/home/starter-pack-front.webp?v=20261028' : '/pics/booster/booster_lunch.webp?v=20261028'
                 }
                 alt=""
                 loading="lazy"

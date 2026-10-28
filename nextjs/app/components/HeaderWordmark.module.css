@@ -9,7 +9,7 @@
   mask-position: center;
   mask-size: contain;
 }
-.map { width: calc(var(--lettering-height) * 231 / 120); mask-image: url('/pics/navigation/map-caps.svg'); }
-.menu { width: calc(var(--lettering-height) * 304 / 120); mask-image: url('/pics/navigation/menu-caps.svg'); }
-.menuEn { width: calc(var(--lettering-height) * 304 / 120); mask-image: url('/pics/navigation/menu-en-caps.svg'); }
+.map { width: calc(var(--lettering-height) * 231 / 120); mask-image: url('/pics/navigation/map-caps.svg?v=20261028'); }
+.menu { width: calc(var(--lettering-height) * 304 / 120); mask-image: url('/pics/navigation/menu-caps.svg?v=20261028'); }
+.menuEn { width: calc(var(--lettering-height) * 304 / 120); mask-image: url('/pics/navigation/menu-en-caps.svg?v=20261028'); }
 @media (max-width: 520px) { .wordmark { --lettering-height: 21px; } }

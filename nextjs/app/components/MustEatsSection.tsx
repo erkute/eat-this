@@ -89,8 +89,8 @@ const COPY = {
 // "these dishes", and the same offer is already on slide 3 of the onboarding
 // and in the burger menu. Which bag follows the closing copy: the Starter
 // Pack for guests, a Booster Pack once there is an account.
-const STARTER_ART = '/pics/home/starter-pack-front.webp';
-const BOOSTER_ART = '/pics/booster/booster.webp';
+const STARTER_ART = '/pics/home/starter-pack-front.webp?v=20261028';
+const BOOSTER_ART = '/pics/booster/booster.webp?v=20261028';
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale];

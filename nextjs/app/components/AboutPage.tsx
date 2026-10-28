@@ -71,10 +71,10 @@ const FIGURES: (Figure | null)[] = [
   },
   {
     // Original card artwork, including the back, opens into a five-card fan.
-    src: '/pics/card-back.webp',
+    src: '/pics/card-back.webp?v=20261028',
     width: 760,
     height: 1044,
-    cards: ['/pics/card-back.webp', '/pics/home/hero-must-eat.webp', '/pics/home/must-eat-008.webp', '/pics/home/must-eat-012.webp', '/pics/home/must-eat-011.webp'],
+    cards: ['/pics/card-back.webp?v=20261028', '/pics/home/hero-must-eat.webp?v=20261028', '/pics/home/must-eat-008.webp?v=20261028', '/pics/home/must-eat-012.webp?v=20261028', '/pics/home/must-eat-011.webp?v=20261028'],
     renderWidth: 1000,
     tilt: 0,
     remyAfter: true,

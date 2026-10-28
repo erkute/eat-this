@@ -15,12 +15,12 @@ import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import { afterEmailLink } from '@/lib/auth/emailLinkPending';
 
-const CARD_BACK = '/pics/card-back.webp?v=8';
+const CARD_BACK = '/pics/card-back.webp?v=20261028';
 // Slide 3 replaces the demo card with the pack art — the thing that brings new
 // spots. Which pack depends on whether the visitor has an account: the free
 // Starter Pack for guests, the paid Booster Packs once they're in.
-const BOOSTER_ART = '/pics/booster/booster.webp';
-const STARTER_ART = '/pics/home/starter-pack-front.webp';
+const BOOSTER_ART = '/pics/booster/booster.webp?v=20261028';
+const STARTER_ART = '/pics/home/starter-pack-front.webp?v=20261028';
 export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen';
 
 // Dwell on the card back in slide 2 before it auto-flips open — the live

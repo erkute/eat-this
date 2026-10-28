@@ -115,7 +115,7 @@ function armSignupDemo(): () => void {
   };
 }
 
-const CARD_BACK_SRC = '/pics/card-back.webp?v=8';
+const CARD_BACK_SRC = '/pics/card-back.webp?v=20261028';
 
 function centreOf(el: Element) {
   const box = el.getBoundingClientRect();

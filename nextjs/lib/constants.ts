@@ -17,7 +17,7 @@ export const OG_CARD_VERSION = 6;
 
 // Shared Figma wordmark: cleaned a, supplied paper texture, intrinsic dimensions.
 export const BRAND_WORDMARK = {
-  src: '/pics/eat-this-crumpled-wordmark.webp',
+  src: '/pics/eat-this-crumpled-wordmark.webp?v=20261028',
   width: 2600,
   height: 645,
 } as const;

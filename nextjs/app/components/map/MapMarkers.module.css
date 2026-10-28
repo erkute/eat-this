@@ -106,7 +106,7 @@
   right: -21%;
   width: 44%;
   aspect-ratio: 5 / 7;
-  background: transparent url('/pics/card-back-sm.webp?v=7') center/contain no-repeat;
+  background: transparent url('/pics/card-back-sm.webp?v=20261028') center/contain no-repeat;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
   transform: rotate(7deg);
   z-index: 2;

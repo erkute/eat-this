@@ -46,9 +46,8 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/home-map/iphone-screen-4-frame.webp',
     width: 534,
     height: 1044,
-    // A tall object: anything wider than this and the phone runs
-    // past the copy beside it.
-    renderWidth: 225,
+    // Wide enough to read as a phone beside the desktop copy.
+    renderWidth: 300,
     tilt: -2,
     caption: { de: 'Alle Empfehlungen an einem Ort.', en: 'Every recommendation in one place.' },
     alt: {
@@ -193,7 +192,7 @@ function CodaContent({ blocks }: { blocks: PortableTextBlock[] }) {
           <PortableTextRenderer blocks={before} />
         </div>
       )}
-      <a className={styles.email} href={`mailto:${match[0]}`}>
+      <a className={`et-btn et-btn-lg et-btn-light-hover ${styles.email}`} href={`mailto:${match[0]}`}>
         {match[0]}
       </a>
       {after.length > 0 && (
@@ -307,7 +306,7 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                           })}
                         </div>
                       ) : figure.src === '/pics/home-map/iphone-screen-4-frame.webp' ? (
-                        <div className={styles.figureImg}><MapPhoneArtwork alt={de ? figure.alt.de : figure.alt.en} /></div>
+                        <div className={`${styles.figureImg} ${styles.phoneFigure}`}><MapPhoneArtwork alt={de ? figure.alt.de : figure.alt.en} /></div>
                       ) : (
                         <Image
                           src={figure.src}

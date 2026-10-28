@@ -56,7 +56,7 @@
   max-width: 54ch;
   margin: 0;
   color: var(--et-link);
-  font: 400 clamp(20px, 2vw, 26px)/1.4 var(--et-font-body);
+  font: 700 clamp(20px, 2vw, 26px)/1.4 var(--et-font-body);
   text-wrap: pretty;
 }
 .heroArt { min-width: 0; margin: 0; }
@@ -97,9 +97,10 @@
 .body li { margin-bottom: .4em; }
 .body strong, .body b { color: var(--et-fg); }
 .body a { color: var(--et-link); text-decoration: none; }
-.body a:focus-visible, .email:focus-visible { outline: 3px solid var(--et-fg); outline-offset: 5px; }
+.body a:focus-visible { outline: 3px solid var(--et-fg); outline-offset: 5px; }
 .body blockquote { margin: 28px 0; padding: 0; color: var(--et-fg); font: 700 clamp(24px, 2.5vw, 34px)/1.2 var(--et-font-body); letter-spacing: -.03em; }
 .figure { width: min(100%, 440px); margin: 0; justify-self: center; }
+.figureImg.phoneFigure { width: min(100%, 300px); }
 .figureImg { display: block; width: var(--fig-w, 290px); max-width: 100%; height: auto; margin-inline: auto; transform: rotate(var(--tilt, 0deg)); }
 .section.cardChapter { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
 .cardChapter .sectionCopy { grid-column: 2; grid-row: 1; }
@@ -128,10 +129,10 @@
   --et-sheet: none;
   background: transparent;
 }
-.coda { --et-ground: #ffc600; --et-fg: var(--et-ink); --et-copy: var(--et-ink); --et-link: var(--et-ink); display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(40px, 7vw, 100px); padding: clamp(56px, 7vw, 96px) var(--about-gutter); }
+.coda { --et-ground: #ffc600; --et-solid: var(--et-ink); --et-on-solid: var(--et-white); --et-fg: var(--et-ink); --et-copy: var(--et-ink); --et-link: var(--et-ink); display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(40px, 7vw, 100px); padding: clamp(56px, 7vw, 96px) var(--about-gutter); }
 .codaSection { min-width: 0; }
-.email { display: block; width: fit-content; max-width: 100%; min-height: 44px; margin-block: 24px; padding-block: 6px; color: var(--et-link); font: 700 clamp(24px, 3vw, 42px)/1.2 var(--et-font-body); letter-spacing: -.035em; overflow-wrap: anywhere; text-decoration: none; }
-@media (hover: hover) { .body a:hover, .email:hover { color: var(--et-fg); } }
+.email { width: fit-content; max-width: 100%; margin-block: 24px; }
+@media (hover: hover) { .body a:hover { color: var(--et-fg); } }
 @media (max-width: 767px) {
   .section.cardChapter { grid-template-columns: minmax(0, 1fr); }
   .cardChapter .sectionCopy { grid-column: 1; grid-row: 1; }
@@ -145,6 +146,7 @@
   .flip .sectionCopy, .flip .figure { grid-column: auto; grid-row: auto; }
   .figure { width: min(100%, 340px); }
   .figureImg { width: min(var(--fig-w, 290px), 240px); }
+  .figureImg.phoneFigure { width: min(100%, 260px); }
   .fan { aspect-ratio: 1.67; }
   .fanCard { width: 36%; margin-left: -18%; }
   .coda { gap: 48px; }

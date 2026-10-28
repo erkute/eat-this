@@ -97,13 +97,13 @@ describe('Ankunft nach der Anmeldung', () => {
     /* Waehrend die Karten fliegen, bleibt der Text stehen ... */
     act(() => void vi.advanceTimersByTime(3600));
     expect(screen.getByRole('heading').textContent).toBe('Öffne dein Starter Pack.');
-    expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('true');
+    expect(screen.getAllByText('10 offen')[1]!.getAttribute('aria-hidden')).toBe('true');
 
     /* ... und kurz nachdem die Stapel liegen, kommt die Erklaerung von selbst. */
     act(() => void vi.advanceTimersByTime(700));
     expect(screen.getByRole('heading').textContent).toBe('Deine ersten 20 Must Eats.');
-    expect(screen.getByText('10 offen').getAttribute('aria-hidden')).toBe('false');
-    expect(screen.getByText('10 verdeckt').getAttribute('aria-hidden')).toBe('false');
+    expect(screen.getAllByText('10 offen')[0]!.getAttribute('aria-hidden')).toBe('false');
+    expect(screen.getAllByText('10 offen')[1]!.getAttribute('aria-hidden')).toBe('false');
 
     fireEvent.click(screen.getByRole('button', { name: 'Weiter' }));
     expect(screen.getByRole('heading').textContent).toBe('Antippen. Aufdecken.');
@@ -132,7 +132,7 @@ describe('Ankunft nach der Anmeldung', () => {
     }
     vi.stubGlobal('Image', LoadingImage);
     render(<SignInReward />);
-    const faceUp = Array.from({ length: 10 }, (_, i) => `me-${i}`);
+    const faceUp = Array.from({ length: 20 }, (_, i) => `me-${i}`);
     await act(async () => announceStarterPackGranted(faceUp));
     await act(async () => {});
     vi.unstubAllGlobals();
@@ -140,13 +140,13 @@ describe('Ankunft nach der Anmeldung', () => {
     const sources = [...document.querySelectorAll('img')].map((img) => img.getAttribute('src'));
     for (const id of faceUp)
       expect(sources).toContain(`/api/must-eat-image/${id}?w=440&auto=format&q=80`);
-    expect(sources.filter((src) => src?.startsWith('/pics/card-back'))).toHaveLength(10);
+    expect(sources.filter((src) => src?.startsWith('/pics/card-back'))).toHaveLength(0);
   });
 
   it('zeigt beim Öffnen die eigenen Karten auch bevor die Bilder geladen sind', async () => {
     // Kalter Bildcache: kein Image.onload vor oder während des Öffnens.
     render(<SignInReward />);
-    const faceUp = Array.from({ length: 10 }, (_, i) => `cold-${i}`);
+    const faceUp = Array.from({ length: 20 }, (_, i) => `cold-${i}`);
     await act(async () => announceStarterPackGranted(faceUp));
     fireEvent.click(screen.getByRole('button', { name: 'Öffnen' }));
 

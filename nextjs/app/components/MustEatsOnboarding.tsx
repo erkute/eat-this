@@ -290,6 +290,18 @@ export default function MustEatsOnboarding({
 
               <div className={tour.content}>
                 <div className={tour.art}>
+                  {/* Prepare WebGL while the earlier slides are visible. */}
+                      <div
+                        data-testid="onb-starter-pack"
+                        data-guest-only=""
+                        className={tour.packPreview}
+                        style={last ? undefined : { opacity: 0, pointerEvents: 'none' }}
+                        aria-hidden={!last}
+                        role="img"
+                        aria-label="Eat This Starter Pack"
+                      >
+                        <StarterPack3D fit />
+                      </div>
                   {last ? (
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -303,15 +315,7 @@ export default function MustEatsOnboarding({
                         decoding="sync"
                         fetchPriority="high"
                       />
-                      <div
-                        data-testid="onb-starter-pack"
-                        data-guest-only=""
-                        className={tour.packPreview}
-                        role="img"
-                        aria-label="Eat This Starter Pack"
-                      >
-                        <StarterPack3D fit />
-                      </div>
+
                     </>
                   ) : (
                     <div className={tour.cardBox}>

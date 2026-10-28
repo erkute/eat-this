@@ -44,9 +44,9 @@ const copy = {
       sealed: 'Öffne dein Starter Pack.',
       opened: 'Deine ersten 20 Must Eats.',
       lead: 'Deine ersten Empfehlungen warten auf dich.',
-      explain: '10 Karten sind offen. Die anderen 10 deckst du am jeweiligen Spot auf.',
+      explain: 'Alle 20 Karten sind offen. Entdecke, was du als Nächstes probieren willst.',
       openStack: '10 offen',
-      coveredStack: '10 verdeckt',
+      rightStack: '10 offen',
       open: 'Öffnen',
       opening: 'Öffnet …',
       packAlt: 'Eat This Starter Pack',
@@ -96,9 +96,9 @@ const copy = {
       sealed: 'Open your Starter Pack.',
       opened: 'Your first 20 Must Eats.',
       lead: 'Your first picks are waiting for you.',
-      explain: '10 cards are face up. You reveal the other 10 at their spots.',
+      explain: 'All 20 cards are face up. Find what you want to try next.',
       openStack: '10 open',
-      coveredStack: '10 covered',
+      rightStack: '10 open',
       open: 'Open',
       opening: 'Opening …',
       packAlt: 'Eat This Starter Pack',
@@ -161,7 +161,7 @@ const mustEatCard = (id: string) =>
   `/api/must-eat-image/${encodeURIComponent(id)}?w=440&auto=format&q=80`;
 
 /* Die 20 Karten des Starter Packs, in der Reihenfolge, in der sie aus dem Pack
-   kommen: abwechselnd auf den offenen (links) und den verdeckten Stapel
+   kommen: abwechselnd auf den linken und den rechten Stapel
    (rechts), damit beide gleichzeitig wachsen. `level` ist die Hoehe im Stapel,
    `tilt` ein kleiner Versatz, damit der Stapel nach Karten aussieht. */
 const TILTS = [-1.5, 0.8, -0.4, 1.2, -1, 0.3, 1.5, -0.7, 0.6, -1.2];
@@ -170,13 +170,13 @@ const TILTS = [-1.5, 0.8, -0.4, 1.2, -1, 0.3, 1.5, -0.7, 0.6, -1.2];
    Stapel. Die Rueckkehr-Richtungen sind im goldenen Winkel verteilt: links,
    rechts, oben, unten, schraeg, nie zweimal gleich. */
 const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
-  const covered = order % 2 === 1;
+  const right = order % 2 === 1;
   const level = Math.floor(order / 2);
   const angle = (order * 137.5 * Math.PI) / 180;
   const round = (n: number) => Math.round(n * 100) / 100;
   return {
     order,
-    covered,
+    right,
     level,
     tilt: TILTS[level] ?? 0,
     outX: ((order * 7) % 11) * 6 - 30,
@@ -186,10 +186,10 @@ const PACK_CARDS = Array.from({ length: 20 }, (_, order) => {
     inSpin: (order % 3 === 0 ? 1 : -1) * (90 + ((order * 29) % 120)),
   };
 });
-/* Die verdeckten liegen unten, die offenen obenauf — man soll Gerichte sehen. */
+/* Im Deck liegen ausschließlich offene Beispielkarten. */
 const DECK_CARDS = [
-  CARD_BACK,
-  CARD_BACK,
+  '/pics/card-front.webp?v=8',
+  '/pics/card-front-sabich.webp?v=6',
   '/pics/card-front.webp?v=8',
   '/pics/card-front-sabich.webp?v=6',
 ] as const;
@@ -223,7 +223,7 @@ export default function SignInReward() {
      erste Seite. */
   const [identity, setIdentity] = useState<Identity | null>(null);
   /* Die offenen Karten des Packs, wie /api/starter-pack sie gezogen hat —
-     dieselben zehn, die danach im Deck offen liegen. */
+     dieselben zwanzig, die danach im Deck offen liegen. */
   const [faceUpIds, setFaceUpIds] = useState<string[]>([]);
   /* Welche davon für die spätere Aufdeck-Vorführung schon geladen sind.
      Im Pack lädt jedes Bild direkt im DOM; sein Hintergrund zeigt bis dahin
@@ -302,7 +302,7 @@ export default function SignInReward() {
       const query = new URLSearchParams(window.location.search);
       const preview = query.get('preview');
       /* Ohne Konto zieht niemand ein Pack — die Vorschau legt deshalb die
-         oeffentlichen Must Eats hinein (reihum, bis zehn Plaetze voll sind),
+         oeffentlichen Must Eats hinein (reihum, bis zwanzig Plaetze voll sind),
          sonst laege zehnmal dieselbe Beispielkarte offen. `&cards=<id>,<id>`
          gibt die Karten stattdessen vor. */
       const previewCards = async () => {
@@ -312,7 +312,7 @@ export default function SignInReward() {
           revealedMustEatIds?: string[];
         };
         const ids = data.revealedMustEatIds ?? [];
-        return ids.length ? Array.from({ length: 10 }, (_, i) => ids[i % ids.length]!) : [];
+        return ids.length ? Array.from({ length: 20 }, (_, i) => ids[i % ids.length]!) : [];
       };
       /* `welcome` zeigt die Tour wie nach einem Magic-Link (leeres Namensfeld),
          `welcome-google` mit vorbelegtem Vornamen, `welcome-returning` ohne
@@ -529,17 +529,15 @@ export default function SignInReward() {
                 key={card.order}
                 className={styles.revealCard}
                 src={
-                  card.covered
-                    ? CARD_BACK
-                    : faceUpIds[card.level]
-                      ? mustEatCard(faceUpIds[card.level]!)
-                      : CARD_BACK
+                  faceUpIds[card.order]
+                    ? mustEatCard(faceUpIds[card.order]!)
+                    : CARD_BACK
                 }
                 alt=""
                 aria-hidden="true"
                 style={
                   {
-                    '--side': card.covered ? 1 : -1,
+                    '--side': card.right ? 1 : -1,
                     '--order': card.order,
                     '--level': card.level,
                     '--tilt': `${card.tilt}deg`,
@@ -576,8 +574,8 @@ export default function SignInReward() {
             <p className={styles.stackLabel} data-side="open" aria-hidden={!explaining}>
               {t.pack.openStack}
             </p>
-            <p className={styles.stackLabel} data-side="covered" aria-hidden={!explaining}>
-              {t.pack.coveredStack}
+            <p className={styles.stackLabel} data-side="right" aria-hidden={!explaining}>
+              {t.pack.rightStack}
             </p>
           </div>
         </div>

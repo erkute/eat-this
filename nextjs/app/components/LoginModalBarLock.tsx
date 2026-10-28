@@ -1,20 +1,7 @@
 'use client';
 import { useLayoutEffect } from 'react';
-import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 
-/** Dasselbe Rot wie das Papier (LoginModalOverlay.module.css). */
-const LOGIN_CANVAS_COLOR = '#cf3f2f';
-
-/**
- * Scroll-Sperre und Leistenfarbe, solange das Login-Modal offen ist.
- *
- * Dokumentfläche, Browser-Farbschema und theme-color folgen derselben roten
- * Palette wie der Vollbildvorhang, auch bei dunkler App. Das Layout-Effect
- * setzt sie vor dem Zeichnen und gibt beim Schließen die Seitenfarben zurück.
- *
- * Inline-Stile mit Absicht — eine `:has()`-Regel im Stylesheet rechnete
- * richtig, faerbte die Leiste am Geraet aber nicht um.
- */
+/** Sperrt den Seiten-Scroll; die sichtbare Seite behält ihre Farben. */
 export default function LoginModalBarLock() {
   useLayoutEffect(() => {
     const de = document.documentElement;
@@ -24,16 +11,6 @@ export default function LoginModalBarLock() {
     const prevBodyPosition = b.style.position;
     const prevBodyTop = b.style.top;
     const prevBodyWidth = b.style.width;
-    const prevHtmlBackground = snapshotStyle(de.style, 'background');
-    const prevHtmlBackgroundColor = snapshotStyle(de.style, 'background-color');
-    const prevColorScheme = snapshotStyle(de.style, 'color-scheme');
-    const prevBodyBackground = snapshotStyle(b.style, 'background');
-    const prevBodyBackgroundColor = snapshotStyle(b.style, 'background-color');
-    const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    const createdThemeMeta = !themeMeta;
-    const activeThemeMeta = themeMeta ?? document.createElement('meta');
-    const prevThemeColor = activeThemeMeta.getAttribute('content');
-
     // Scroll lock (all viewports) — single source of truth for the login
     // modal; BridgeAuth's old snapshot-restore lock raced with the closing
     // burger drawer and could re-apply its stale overflow:hidden.
@@ -41,21 +18,9 @@ export default function LoginModalBarLock() {
     b.style.overflow = 'hidden';
     b.style.touchAction = 'none';
     if (mobile) {
-      // Das rote Blatt hat in beiden App-Themes dieselbe Palette. Auch die
-      // Browser-Chrome soll hier nicht das dunkle Seitenschema übernehmen.
-      de.style.setProperty('color-scheme', 'light', 'important');
-      de.style.setProperty('background', LOGIN_CANVAS_COLOR, 'important');
-      de.style.setProperty('background-color', LOGIN_CANVAS_COLOR, 'important');
-      b.style.setProperty('background', LOGIN_CANVAS_COLOR, 'important');
-      b.style.setProperty('background-color', LOGIN_CANVAS_COLOR, 'important');
       b.style.position = 'fixed';
       b.style.top = `-${scrollY}px`;
       b.style.width = '100%';
-      if (createdThemeMeta) {
-        activeThemeMeta.setAttribute('name', 'theme-color');
-        document.head.appendChild(activeThemeMeta);
-      }
-      activeThemeMeta.setAttribute('content', LOGIN_CANVAS_COLOR);
     }
     return () => {
       // Clear instead of restore-previous (see race note above).
@@ -66,18 +31,6 @@ export default function LoginModalBarLock() {
       b.style.top = prevBodyTop;
       b.style.width = prevBodyWidth;
       if (mobile) {
-        restoreStyle(de.style, 'color-scheme', prevColorScheme);
-        restoreStyle(de.style, 'background', prevHtmlBackground);
-        restoreStyle(de.style, 'background-color', prevHtmlBackgroundColor);
-        restoreStyle(b.style, 'background', prevBodyBackground);
-        restoreStyle(b.style, 'background-color', prevBodyBackgroundColor);
-        if (createdThemeMeta) {
-          activeThemeMeta.remove();
-        } else if (prevThemeColor == null) {
-          activeThemeMeta.removeAttribute('content');
-        } else {
-          activeThemeMeta.setAttribute('content', prevThemeColor);
-        }
         requestAnimationFrame(() => window.scrollTo(0, scrollY));
       }
     };

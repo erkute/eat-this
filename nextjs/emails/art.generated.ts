@@ -48,10 +48,10 @@ export const ART = {
   },
   "bodyStarter": {
     "id": "body-starter",
-    "width": 326,
-    "height": 66,
-    "alt": "10 Karten liegen sofort offen in deinem Deck. Die anderen 10 deckst du direkt am Spot auf.",
-    "version": "0d8b20a2"
+    "width": 280,
+    "height": 38,
+    "alt": "Alle 20 Karten liegen sofort offen in deinem Deck.",
+    "version": "45c9ab26"
   },
   "ctaAnmelden": {
     "id": "cta-anmelden",
@@ -104,10 +104,10 @@ export const ART = {
   },
   "bodyStarterEn": {
     "id": "body-starter-en",
-    "width": 312,
+    "width": 300,
     "height": 41,
-    "alt": "10 cards go straight into your deck face up. Reveal the other 10 at the spots.",
-    "version": "e3559a2f"
+    "alt": "All 20 cards go straight into your deck face up.",
+    "version": "3a3b3a83"
   },
   "masthead": {
     "id": "masthead",

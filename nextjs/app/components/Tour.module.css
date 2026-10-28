@@ -54,6 +54,16 @@
   font-size: 13px;
   color: var(--et-copy);
 }
+.brand {
+  display: block;
+  width: 90px;
+  height: 30px;
+  object-fit: contain;
+  object-position: left center;
+}
+:global(html[data-theme='dark']) .brand {
+  filter: invert(1);
+}
 .quiet {
   flex-shrink: 0;
 }
@@ -222,9 +232,6 @@ a.quiet {
   height: 100%;
   object-fit: contain;
 }
-.packBody {
-  filter: drop-shadow(0 12px 15px #0005);
-}
 .packSeal {
   clip-path: inset(0 0 92% 0);
   transform-origin: 85% 8%;
@@ -234,7 +241,8 @@ a.quiet {
    Reihenfolge aus dem Pack, --level die Hoehe im Stapel, --tilt der Versatz. */
 .revealCard {
   position: absolute;
-  background: var(--et-ground);
+  background: transparent;
+  border-radius: 5%;
   width: var(--card-width);
   height: calc(var(--card-width) * 1.375);
   object-fit: contain;
@@ -263,35 +271,6 @@ a.quiet {
   visibility: visible;
   transform: var(--stack);
 }
-/* Die Stapel-Namen stehen nur auf dem Erklaer-Schritt — erst dann weiss man,
-   wozu die zwei Stapel da sind. Sie schieben sich von unten herein. */
-.stackLabel {
-  position: absolute;
-  top: calc(50% + var(--card-width) * 0.72 + 10px);
-  left: 50%;
-  width: calc(var(--card-width) * 1.1);
-  margin: 0;
-  color: var(--et-link);
-  font-size: clamp(15px, 2vw, 18px);
-  line-height: 1.1;
-  text-align: center;
-  white-space: nowrap;
-  visibility: hidden;
-  transform: translate(calc(-50% + var(--side) * var(--card-width) * 0.58), 8px);
-  transition: transform 220ms ease-out;
-}
-.stackLabel[data-side='open'] {
-  --side: -1;
-}
-.stackLabel[data-side='right'] {
-  --side: 1;
-}
-.packStage[data-labelled] .stackLabel {
-  visibility: visible;
-  transform: translate(calc(-50% + var(--side) * var(--card-width) * 0.58), 0);
-}
-/* Erst die Naht loesen; die Huelle bleibt davor geschlossen. Die Lasche
-   fliegt danach aus dem Bildschirm. */
 @keyframes tearSeal {
   0%,
   5% {
@@ -533,7 +512,8 @@ a.quiet {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 5%;
+  clip-path: inset(0.6% round 5%);
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
   backface-visibility: hidden;
 }
@@ -734,6 +714,7 @@ a.quiet {
   height: min(76cqh, 60cqw);
   aspect-ratio: 1 / 1.375;
   object-fit: contain;
+  border-radius: 5%;
   filter: drop-shadow(0 10px 14px #0006);
   transform: translate(var(--x), var(--y)) rotate(var(--r));
 }

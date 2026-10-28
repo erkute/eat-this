@@ -234,7 +234,7 @@ a.quiet {
    Reihenfolge aus dem Pack, --level die Hoehe im Stapel, --tilt der Versatz. */
 .revealCard {
   position: absolute;
-  background: url('/pics/card-back.webp?v=8') center / contain no-repeat;
+  background: var(--et-ground);
   width: var(--card-width);
   height: calc(var(--card-width) * 1.375);
   object-fit: contain;
@@ -283,7 +283,7 @@ a.quiet {
 .stackLabel[data-side='open'] {
   --side: -1;
 }
-.stackLabel[data-side='covered'] {
+.stackLabel[data-side='right'] {
   --side: 1;
 }
 .packStage[data-labelled] .stackLabel {
@@ -985,9 +985,10 @@ a.quiet {
   }
 }
 
-/* Der Mail-Link nutzt denselben roten Vollbildgrund wie die Anmeldung. */
+/* Der Mail-Link liegt wie die Anmeldung auf einer eigenen roten Papierfläche. */
 .panel[data-email-login][data-red-sheet] {
-  background: transparent;
+  background: #cf3f2f url('/pics/paper/folded-white.webp') center / cover;
+  background-blend-mode: multiply;
   border: 0;
   border-radius: 0;
   box-shadow: none;

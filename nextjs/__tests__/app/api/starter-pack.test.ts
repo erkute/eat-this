@@ -111,7 +111,7 @@ describe('/api/starter-pack', () => {
   /* Zwanzig Karten, halb offen, halb verdeckt — und die zwei Hälften sind
      disjunkt. Eine Karte, die in beiden Listen steht, wäre offen UND eine
      Aufgabe; das Album zeigte sie dann als erledigt und als ausstehend. */
-  it('grants the pack once: half face up, half covered, no overlap', async () => {
+  it('grants the pack once: all cards face up, no overlap', async () => {
     const res = await POST(req());
 
     expect(res.status).toBe(200);
@@ -182,11 +182,11 @@ describe('/api/starter-pack', () => {
     faceUp.ids = new Set(publicIds);
 
     const response = await POST(req());
-    expect(await response.json()).toMatchObject({ granted: true, count: 20, faceUp: 10 });
+    expect(await response.json()).toMatchObject({ granted: true, count: 20, faceUp: 20 });
     const doc = mocks.created[0] as { mustEatIds: string[]; coveredMustEatIds: string[] };
     const added = [...doc.mustEatIds, ...doc.coveredMustEatIds];
     expect(added).toHaveLength(20);
-    expect(doc.coveredMustEatIds).toHaveLength(10);
+    expect(doc.coveredMustEatIds).toHaveLength(0);
     expect(new Set([...publicIds, ...added]).size).toBe(28);
     for (const id of publicIds) expect(added).not.toContain(id);
   });

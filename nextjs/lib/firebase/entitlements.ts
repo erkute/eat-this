@@ -13,8 +13,8 @@ export interface Entitlement {
   /** Karten, die offen liegen. */
   mustEatIds: string[];
   /** Karten, die dem Konto gehoeren, aber verdeckt bleiben — sie stehen im
-   *  Album als Ruecken und gehen vor Ort auf. Nur das Starter Pack vergibt
-   *  welche; ein Kauf legt alles offen hin. */
+   *  Album als Ruecken und gehen vor Ort auf. Alte Starter-Packs
+   *  werden beim Lesen vollständig geöffnet. */
   coveredMustEatIds?: string[];
   purchasedAt: FirebaseFirestore.Timestamp;
   stripeSessionId: string | null;
@@ -58,7 +58,9 @@ export function reduceEntitlements(
       out.categorySlugs.add(data.slug);
     }
     for (const id of data.mustEatIds ?? []) out.mustEatIds.add(id);
-    for (const id of data.coveredMustEatIds ?? []) out.coveredMustEatIds.add(id);
+    for (const id of data.coveredMustEatIds ?? []) {
+      (data.type === 'starter' ? out.mustEatIds : out.coveredMustEatIds).add(id);
+    }
   }
   for (const b of bonuses) {
     for (const id of b.mustEatIds ?? []) out.mustEatIds.add(id);

@@ -41,7 +41,7 @@ const COPY = {
     closeGuestKicker: 'Dein Starter Pack',
     closeGuestTitle: 'Deine Sammlung beginnt hier.',
     closeGuestBody:
-      'Erstelle dein Konto und starte mit 20 Must Eats. Zehn Karten landen sofort in deinem Deck. Und weil Berlin noch einiges auf der Karte hat, kommen laufend neue Empfehlungen dazu.',
+      'Erstelle dein Konto und starte mit 20 Must Eats. Alle 20 Karten liegen sofort offen in deinem Deck. Und weil Berlin noch einiges auf der Karte hat, kommen laufend neue Empfehlungen dazu.',
     closeGuestCta: 'Konto erstellen',
     // Mit Konto ist die Sammlung längst angefangen: Map und Booster Packs.
     closeKicker: 'Und jetzt',
@@ -72,7 +72,7 @@ const COPY = {
     closeGuestKicker: 'Your Starter Pack',
     closeGuestTitle: 'Your collection starts here.',
     closeGuestBody:
-      'Create your account and start with 20 Must Eats. Ten cards go straight into your deck. And because Berlin still has plenty on the menu, new recommendations keep coming.',
+      'Create your account and start with 20 Must Eats. All 20 cards go straight into your deck face up. And because Berlin still has plenty on the menu, new recommendations keep coming.',
     closeGuestCta: 'Create account',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',

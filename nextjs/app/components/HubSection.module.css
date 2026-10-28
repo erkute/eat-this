@@ -29,7 +29,7 @@
   position: relative; overflow: hidden; box-sizing: border-box;
   padding-top: var(--site-nav-h); height: 100svh;
   --et-solid: #1b1f1f; --et-on-solid: #f0f2f0;
-  background: #dfe3e3 url('/pics/home/silver-hero/paper.webp') center / cover no-repeat;
+  background: #f1f1ef url('/pics/home/silver-hero/hero-paper.webp') center / cover no-repeat;
   color: var(--et-ink);
 }
 /* Die Papierblätter der Startseite (globals.css, `.homeV2 > section`)
@@ -38,7 +38,7 @@
    links liegen: ab 1537 px Breite oder 1025 px Höhe blieb rechts bzw. unten
    ein Streifen ohne Papier (Rückmeldung 27.10.2026). */
 :global(html[data-vintage] .homeV2) > .hero {
-  background-image: url('/pics/home/silver-hero/paper.webp');
+  background-image: url('/pics/home/silver-hero/hero-paper.webp');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

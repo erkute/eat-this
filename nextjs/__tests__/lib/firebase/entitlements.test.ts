@@ -1,3 +1,4 @@
+import { Timestamp } from 'firebase-admin/firestore';
 import { describe, it, expect, afterEach } from 'vitest'
 import {
   reduceEntitlements,
@@ -156,3 +157,13 @@ describe('ownsCategoryOf', () => {
     expect(ownsCategoryOf({}, baseEnt)).toBe(false)
   })
 })
+
+it('opens previously covered starter cards in existing starter packs', () => {
+  const base = { slug: null, purchasedAt: Timestamp.now(), stripeSessionId: null, source: 'signup' as const };
+  const result = reduceEntitlements([
+    { ...base, type: 'starter', mustEatIds: ['a'], coveredMustEatIds: ['b'] },
+    { ...base, type: 'starter', mustEatIds: ['c'], coveredMustEatIds: ['d'] },
+  ] as Entitlement[]);
+  expect([...result.mustEatIds]).toEqual(['a', 'b', 'c', 'd']);
+  expect(result.coveredMustEatIds.size).toBe(0);
+});

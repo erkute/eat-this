@@ -1,4 +1,3 @@
-import { Link } from '@/i18n/navigation';
 import PackPreview from '@/app/components/PackPreview';
 import { notFound } from 'next/navigation';
 import { PackOwnershipProvider } from '@/app/components/PackOwnership';
@@ -90,11 +89,6 @@ export default async function PackDetailPage({ params }: PageProps) {
     <PackOwnershipProvider>
       <main className={styles.page}>
         <div className={styles.inner}>
-          <nav className={styles.flowNav} aria-label={loc === 'de' ? 'Must Eats und Packs' : 'Must Eats and packs'}>
-            <Link href="/must-eats">Must Eats</Link>
-            <Link href="/packs">Booster Packs</Link>
-            <span aria-current="page">{heroName}</span>
-          </nav>
           <section className={styles.hero}>
             <div className={styles.copy}>
               <h1 className={styles.name}>
@@ -162,6 +156,8 @@ export default async function PackDetailPage({ params }: PageProps) {
           </section>
 
           {!empty && <PackPreview locale={loc} category={categorySlug} />}
+
+
 
           <div className={styles.upsell}>
             <AllBerlinBoard

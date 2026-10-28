@@ -59,7 +59,7 @@ export default function FunnelReport({ data }: { data: StatsSummary }) {
         )}
         <p className={styles.note}>
           Die Anmeldung schenkt {data.deck?.starterCards ?? 20} Karten,{' '}
-          {data.deck?.starterFaceUp ?? 10} davon offen — der Rest geht vor Ort auf. Ohne Konto
+          {data.deck?.starterFaceUp ?? 20} davon sofort offen. Ohne Konto
           liegen {data.deck?.freeCards ?? 5} Karten offen.
         </p>
       </Card>

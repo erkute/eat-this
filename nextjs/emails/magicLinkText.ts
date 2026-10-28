@@ -15,8 +15,7 @@ const TEXT = {
     signupIntro: 'Bei Eat This anmelden:',
     signupAfter: [
       'Dein Starter Pack: 20 Must Eats.',
-      '10 Karten liegen sofort offen in deinem Deck.',
-      'Die anderen 10 deckst du direkt am Spot auf.',
+      'Alle 20 Karten liegen sofort offen in deinem Deck.',
     ],
   },
   en: {
@@ -28,8 +27,7 @@ const TEXT = {
     signupIntro: 'Sign up for Eat This:',
     signupAfter: [
       'Your Starter Pack: 20 Must Eats.',
-      '10 cards go straight into your deck face up.',
-      'Reveal the other 10 at the spots.',
+      'All 20 cards go straight into your deck face up.',
     ],
   },
 } as const;

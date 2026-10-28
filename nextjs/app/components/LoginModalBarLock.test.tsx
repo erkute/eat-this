@@ -11,7 +11,7 @@ afterEach(() => {
   document.querySelectorAll('meta[name="theme-color"]').forEach(meta => meta.remove());
 });
 
-it('uses the red login palette for mobile browser chrome and restores the dark page', () => {
+it('preserves the mobile page palette behind the blurred overlay', () => {
   vi.stubGlobal('matchMedia', () => ({ matches: true }));
   vi.stubGlobal('requestAnimationFrame', vi.fn());
   const html = document.documentElement;
@@ -23,11 +23,11 @@ it('uses the red login palette for mobile browser chrome and restores the dark p
   meta.content = '#15120e';
   document.head.appendChild(meta);
   const { unmount } = render(<LoginModalBarLock />);
-  expect(html.style.colorScheme).toBe('light');
+  expect(html.style.colorScheme).toBe('dark');
   expect(html.style.getPropertyPriority('color-scheme')).toBe('important');
-  expect(html.style.backgroundColor).toBe('rgb(207, 63, 47)');
-  expect(document.body.style.backgroundColor).toBe('rgb(207, 63, 47)');
-  expect(meta.content).toBe('#cf3f2f');
+  expect(html.style.backgroundColor).toBe('rgb(21, 18, 14)');
+  expect(document.body.style.backgroundColor).toBe('rgb(21, 18, 14)');
+  expect(meta.content).toBe('#15120e');
   unmount();
   expect(html.style.colorScheme).toBe('dark');
   expect(html.style.getPropertyPriority('color-scheme')).toBe('important');
@@ -36,11 +36,12 @@ it('uses the red login palette for mobile browser chrome and restores the dark p
   expect(meta.content).toBe('#15120e');
 });
 
-it('removes its temporary browser color when the light page has no theme meta', () => {
+it('locks mobile scrolling without adding a browser color', () => {
   vi.stubGlobal('matchMedia', () => ({ matches: true }));
   vi.stubGlobal('requestAnimationFrame', vi.fn());
   const { unmount } = render(<LoginModalBarLock />);
-  expect(document.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe('#cf3f2f');
+  expect(document.querySelector('meta[name="theme-color"]')).toBeNull();
+  expect(document.body.style.position).toBe('fixed');
   unmount();
   expect(document.querySelector('meta[name="theme-color"]')).toBeNull();
   expect(document.documentElement.style.colorScheme).toBe('');

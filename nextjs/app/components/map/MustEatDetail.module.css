@@ -97,9 +97,6 @@
   align-items: flex-start;
   padding: clamp(16px, 3svh, 28px) 8px clamp(10px, 1.6svh, 16px);
 }
-.fdTopCardHidden {
-  visibility: hidden;
-}
 /* Tap when out of range → a firm "nope" shake (reuses the marker keyframes). */
 .fdHeroLocked.mustEatCardTapping {
   animation: mustEatTapShake 520ms cubic-bezier(0.3, 0.7, 0.4, 1) 1;
@@ -350,6 +347,12 @@
      pageWithCard). Ohne Promotion baut der Browser den Layer erst beim ersten
      Frame der Bewegung — das ist der sichtbare Ruckler am Animationsstart. */
   will-change: transform;
+}
+/* Die abfahrende Karte beim Blättern (siehe MustEatDetailMobile, lib/cardDeal):
+   über dem Stapel, unter der einfahrenden Karte, nicht antippbar. */
+.fdTopCardLeaving {
+  z-index: 3;
+  pointer-events: none;
 }
 .fdHero {
   position: relative;

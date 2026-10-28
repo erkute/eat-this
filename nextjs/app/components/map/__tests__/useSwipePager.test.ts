@@ -19,7 +19,7 @@ function mount() {
 
   const ref = { current: container };
   renderHook(() =>
-    useSwipePager(ref, { onPrev: () => {}, onNext: () => {}, hasPrev: true, hasNext: true })
+    useSwipePager(ref, { onCommit: () => {}, hasPrev: true, hasNext: true })
   );
   return { container, thumb, plain };
 }
@@ -55,107 +55,46 @@ describe('useSwipePager — horizontal-scroll opt-out', () => {
   });
 });
 
-/* Auf der Map liegen zwei verschiedene Sheets in derselben Reihe: der offene
-   Spot und der gesperrte. Wischt man von einem auf den anderen, tauscht React
-   die ganze Komponente aus — der Ref, der die abfahrende Karte trug, ist dann
-   leer, und die einfahrende Karte stünde ohne Animation einfach da. Deshalb
-   sucht der Pager sie nach dem Tausch im Dokument. */
-describe('useSwipePager — page onto a different component', () => {
-  it('animates the card that came in, not the one that went out', async () => {
-    vi.useFakeTimers();
-    try {
-      const container = document.createElement('div');
-      const oldCard = document.createElement('header');
-      oldCard.setAttribute('data-detail-hero', '');
-      container.appendChild(oldCard);
-      document.body.appendChild(container);
+/* Den Wechsel selbst spielt der Aufrufer — der Pager meldet nur, wohin und
+   wo die Vorschau-Karte beim Loslassen stand, damit die Abfahrt dort
+   weitermacht statt zu springen. */
+describe('useSwipePager — commit', () => {
+  function mountCard(hasNext: boolean) {
+    const container = document.createElement('div');
+    const card = document.createElement('header');
+    container.appendChild(card);
+    document.body.appendChild(container);
+    const onCommit = vi.fn();
+    renderHook(() =>
+      useSwipePager(
+        { current: container },
+        { onCommit, hasPrev: false, hasNext, transformRef: { current: card } }
+      )
+    );
+    return { card, onCommit };
+  }
 
-      const cardRef = { current: oldCard as HTMLElement | null };
-      const newCard = document.createElement('header');
-      newCard.setAttribute('data-detail-hero', '');
-
-      renderHook(() =>
-        useSwipePager(
-          { current: container },
-          {
-            // Was React beim Komponententausch tut: alte Karte raus, neue rein,
-            // Ref leer.
-            onNext: () => {
-              oldCard.remove();
-              container.appendChild(newCard);
-              cardRef.current = null;
-            },
-            hasPrev: false,
-            hasNext: true,
-            transformRef: cardRef,
-            entrySelector: '[data-detail-hero]',
-          }
-        )
-      );
-
-      firePointer('pointerdown', oldCard, 200, 100);
-      firePointer('pointermove', oldCard, 100, 100);
-      firePointer('pointerup', oldCard, 100, 100);
-      expect(oldCard.style.transform).toContain('translateX(-');
-
-      /* Der Tausch wartet auf die Ausfahrt UND auf `prepare` — beides läuft
-         über Zusagen, deshalb die async-Variante: sie lässt die Microtasks
-         dazwischen durch. */
-      await vi.advanceTimersByTimeAsync(300); // Ausfahrt vorbei → Tausch + Einfahrt setzen
-      expect(newCard.style.transform).toBe(`translateX(${window.innerWidth}px)`);
-
-      vi.advanceTimersToNextFrame(); // rAF startet die Einfahrt
-      expect(newCard.style.transform).toBe('translateX(0)');
-    } finally {
-      vi.useRealTimers();
-    }
+  it('meldet Richtung und Versatz der Vorschau-Karte', () => {
+    const { card, onCommit } = mountCard(true);
+    firePointer('pointerdown', card, 200, 100);
+    firePointer('pointermove', card, 100, 100);
+    firePointer('pointerup', card, 100, 100);
+    expect(onCommit).toHaveBeenCalledWith('next', -24);
   });
-});
 
-/* Das Bild der Nachbarkarte muss da sein, BEVOR getauscht wird: ein <img>
-   behält nach einem `src`-Wechsel das alte Bild, bis das neue dekodiert ist —
-   sonst wischt man dieselbe Karte heraus und wieder herein (Nutzer,
-   12.09.2026). Siehe lib/dom/imageReady. */
-describe('useSwipePager — prepare', () => {
-  it('tauscht erst, wenn die Vorbereitung fertig ist', async () => {
-    vi.useFakeTimers();
-    try {
-      const container = document.createElement('div');
-      const card = document.createElement('header');
-      container.appendChild(card);
-      document.body.appendChild(container);
+  it('blättert nicht, wenn der Wisch zu kurz ist', () => {
+    const { card, onCommit } = mountCard(true);
+    firePointer('pointerdown', card, 200, 100);
+    firePointer('pointermove', card, 160, 100);
+    firePointer('pointerup', card, 160, 100);
+    expect(onCommit).not.toHaveBeenCalled();
+  });
 
-      let release: () => void = () => {};
-      const prepared = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      const paged: string[] = [];
-
-      renderHook(() =>
-        useSwipePager(
-          { current: container },
-          {
-            onNext: () => paged.push('next'),
-            hasPrev: false,
-            hasNext: true,
-            transformRef: { current: card },
-            prepare: () => prepared,
-          }
-        )
-      );
-
-      firePointer('pointerdown', card, 200, 100);
-      firePointer('pointermove', card, 100, 100);
-      firePointer('pointerup', card, 100, 100);
-
-      await vi.advanceTimersByTimeAsync(400); // Ausfahrt längst vorbei
-      expect(paged).toEqual([]); // …das Bild fehlt noch
-
-      release();
-      await vi.advanceTimersByTimeAsync(0);
-      expect(paged).toEqual(['next']);
-    } finally {
-      vi.useRealTimers();
-    }
+  it('blättert nicht ins Leere', () => {
+    const { card, onCommit } = mountCard(false);
+    firePointer('pointerdown', card, 200, 100);
+    firePointer('pointermove', card, 100, 100);
+    firePointer('pointerup', card, 100, 100);
+    expect(onCommit).not.toHaveBeenCalled();
   });
 });

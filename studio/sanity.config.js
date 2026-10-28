@@ -1,3 +1,4 @@
+import '@sanity/ui/styles.css'
 import {defineConfig, isDev} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'

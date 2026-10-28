@@ -114,8 +114,10 @@ export function MustEatCardInput(props: ObjectInputProps) {
     }
   }, [client, file, id, text])
 
-  const set = (key: keyof MustEatCardText) => (event: {currentTarget: {value: string}}) =>
-    setText((current) => ({...current, [key]: event.currentTarget.value}))
+  const set = (key: keyof MustEatCardText) => (event: {currentTarget: {value: string}}) => {
+    const value = event.currentTarget.value
+    setText((current) => ({...current, [key]: value}))
+  }
 
   const previewSrc = file?.url ?? card?.preview ?? null
 

@@ -1,11 +1,6 @@
 import styles from './BrandSlogan.module.css';
 
-/** The hero artwork arranged on one line, also used in the footer. */
+/** Approved live lettering, sentence case; shared by the hero and footer. */
 export default function BrandSlogan() {
-  return (
-    <span className={styles.slogan} aria-hidden="true">
-      <span className={styles.first}><span /></span>
-      <span className={styles.second}><span /></span>
-    </span>
-  );
+  return <span className={styles.slogan} aria-hidden="true" />;
 }

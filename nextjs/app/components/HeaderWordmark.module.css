@@ -1,39 +1,15 @@
-/* Lettering from Figma (Fonts › „Header · MAP / MENÜ · Runde 3“): narrow
-   capitals in Sofia Sans Extra Condensed Black, +2 % tracking. SVG units are
-   the Figma master with cap height 100; --k scales them to the header
-   (15 px caps on desktop). Each box is the cap height, so the words centre on
-   their capitals like the logo; the umlaut dots hang above the box. */
+/* Approved Neue Haas Grotesk lettering exported from the Figma masters. */
 .wordmark {
-  --k: 0.15;
+  --lettering-height: 24px;
   display: block;
   flex: none;
+  height: var(--lettering-height);
   background: currentColor;
   mask-repeat: no-repeat;
   mask-position: center;
-  mask-size: 100% 100%;
+  mask-size: contain;
 }
-
-.menu {
-  width: calc(294.963px * var(--k));
-  height: calc(131.603px * var(--k));
-  margin-top: calc(-30.687px * var(--k));
-  margin-bottom: calc(-0.916px * var(--k));
-  mask-image: url('/pics/navigation/menu-caps.svg');
-}
-
-.menuEn {
-  width: calc(294.963px * var(--k));
-  height: calc(100.916px * var(--k));
-  margin-bottom: calc(-0.916px * var(--k));
-  mask-image: url('/pics/navigation/menu-en-caps.svg');
-}
-
-.map {
-  width: calc(222.583px * var(--k));
-  height: calc(100px * var(--k));
-  mask-image: url('/pics/navigation/map-caps.svg');
-}
-
-@media (max-width: 520px) {
-  .wordmark { --k: 0.13; }
-}
+.map { width: calc(var(--lettering-height) * 231 / 120); mask-image: url('/pics/navigation/map-caps.svg?v=20261028'); }
+.menu { width: calc(var(--lettering-height) * 304 / 120); mask-image: url('/pics/navigation/menu-caps.svg?v=20261028'); }
+.menuEn { width: calc(var(--lettering-height) * 304 / 120); mask-image: url('/pics/navigation/menu-en-caps.svg?v=20261028'); }
+@media (max-width: 520px) { .wordmark { --lettering-height: 21px; } }

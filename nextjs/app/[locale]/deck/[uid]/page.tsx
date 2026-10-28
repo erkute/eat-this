@@ -15,7 +15,7 @@ import DeckActions from './DeckActions';
 import tour from '@/app/components/Tour.module.css';
 import deck from './Deck.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=8';
+const CARD_BACK = '/pics/card-back.webp?v=20261028';
 const FAN_ORDER = { shown: 0, held: 1, missing: 2 } as const;
 /* Vier Karten plus die Spielerkarte — mehr passt am Telefon nicht in die
    Bildflaeche, ohne dass eine Karte zur Briefmarke wird. */

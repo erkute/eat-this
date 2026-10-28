@@ -247,7 +247,7 @@ const Item = memo(
               src={
                 peek.kind === 'open'
                   ? sanityImageLoader({ src: peek.image, width: 180 })
-                  : '/pics/card-back-sm.webp?v=7'
+                  : '/pics/card-back-sm.webp?v=20261028'
               }
               alt=""
               aria-hidden="true"

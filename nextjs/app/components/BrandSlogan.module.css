@@ -1,10 +1,7 @@
-.slogan { display: flex; width: 100%; container-type: inline-size; }
-.first, .second { display: block; position: relative; flex: 0 0 51.565%; height: 11.396cqi; overflow: hidden; }
-.first { margin-right: -3.13%; }
-.first > span, .second > span {
-  position: absolute; display: block; width: 100%; aspect-ratio: 3;
-  background: url('/pics/home/silver-hero/slogan-mobile.webp') center / 100% 100%;
-  mask-repeat: no-repeat; mask-mode: alpha;
+.slogan {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1235 / 140;
+  background: currentColor;
+  mask: url('/pics/home/silver-hero/slogan-desktop.webp?v=20261028') center / contain no-repeat;
 }
-.first > span { mask-image: url('/pics/home/silver-hero/mask-first.svg'); mask-size: 100.046% 65.884%; mask-position: -.024% -.069%; }
-.second > span { top: -7.572cqi; mask-image: url('/pics/home/silver-hero/mask-second.svg'); mask-size: 100.046% 51.243%; mask-position: 0 108%; }

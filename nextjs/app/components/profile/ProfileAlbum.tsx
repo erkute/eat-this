@@ -10,7 +10,7 @@ import { computeBadges } from '@/lib/profile/badges';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import styles from './ProfileAlbum.module.css';
 
-const CARD_BACK = '/pics/card-back.webp?v=8';
+const CARD_BACK = '/pics/card-back.webp?v=20261028';
 // Vollständig sichtbare Albumplätze: vier Spalten am Desktop, zwei am Telefon.
 const GRID_SIZES =
   '(max-width: 767.98px) calc((100vw - 50px) / 2), (max-width: 1440px) 22vw, 330px';

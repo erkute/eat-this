@@ -191,9 +191,9 @@ describe('MustEatsSection', () => {
     // last impression "shop" rather than "these dishes", and the same offer is
     // already on onboarding slide 3 and in the burger menu.
     const html = render();
-    const packArt = html.match(/src="\/pics\/home\/starter-pack-front\.webp"/g) ?? [];
+    const packArt = html.match(/src="\/pics\/home\/starter-pack-front\.webp\?v=20261028"/g) ?? [];
 
-    expect(packArt).toEqual(['src="/pics/home/starter-pack-front.webp"']);
+    expect(packArt).toEqual(['src="/pics/home/starter-pack-front.webp?v=20261028"']);
     expect(html).not.toContain('/pics/booster/booster_free.webp');
   });
 });

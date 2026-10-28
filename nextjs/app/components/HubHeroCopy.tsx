@@ -12,7 +12,7 @@ export default function HubHeroCopy({ locale }: Props) {
     <div className={styles.heroCopy}>
       <div className={styles.heroBrand}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.heroMark} data-hero-mark="" src={BRAND_WORDMARK.src} width={2172} height={724} alt="Eat This" fetchPriority="high" decoding="async" />
+        <img className={styles.heroMark} data-hero-mark="" src={BRAND_WORDMARK.src} width={2600} height={645} alt="Eat This" fetchPriority="high" decoding="async" />
       </div>
       <h1 className={styles.heroHeadline}>
         <span className={styles.heroAccessible}>We tell you what to eat</span>
@@ -20,20 +20,20 @@ export default function HubHeroCopy({ locale }: Props) {
           <BrandSlogan />
         </span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className={styles.heroSloganMobile} src={`${ART}/slogan-mobile.webp`} width={2172} height={724} alt="" aria-hidden="true" />
+        <img className={styles.heroSloganMobile} src={`${ART}/slogan-mobile.webp?v=20261028`} width={1200} height={468} alt="" aria-hidden="true" />
       </h1>
       <MapIntentLink href="/must-eats" className={styles.heroArt} aria-label={locale === 'de' ? 'Must Eats entdecken' : 'Discover Must Eats'}>
         <span className={styles.heroFan}>
         {/* eslint-disable @next/next/no-img-element */}
         {[
-          [styles.heroCardLeft, 'sausage.webp', 'Spicy Thai Sausage · Bar Basta'],
-          [styles.heroCardRight, 'sabich.webp', 'Sabich · Kitten Deli'],
-          [styles.heroCardFront, 'fish.webp', 'Kinmedai Sashimi · November Brasserie'],
+          [styles.heroCardLeft, 'sausage.webp?v=20261028', 'Spicy Thai Sausage · Bar Basta'],
+          [styles.heroCardRight, 'sabich.webp?v=20261028', 'Sabich · Kitten Deli'],
+          [styles.heroCardFront, 'fish.webp?v=20261028', 'Kinmedai Sashimi · November Brasserie'],
         ].map(([position, file, alt]) => (
           <span key={file} className={`${styles.heroCard} ${position}`}>
             <span className={styles.heroCardFlip}>
               <img src={`${ART}/${file}`} width={1026} height={1410} alt={alt} fetchPriority="high" decoding="async" />
-              <img className={styles.heroCardBack} src="/pics/card-back.webp?v=8" width={1026} height={1410} alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
+              <img className={styles.heroCardBack} src="/pics/card-back.webp?v=20261028" width={1026} height={1410} alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
             </span>
           </span>
         ))}

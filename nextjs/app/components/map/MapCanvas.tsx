@@ -1,6 +1,6 @@
 'use client';
 import { forwardRef, useEffect, useState, useSyncExternalStore } from 'react';
-import maplibre from 'maplibre-gl';
+import * as maplibre from 'maplibre-gl';
 import Map, {
   AttributionControl,
   type MapRef,
@@ -13,6 +13,10 @@ import type { InitialCamera } from '@/lib/map/useMapCamera';
 /* Both generated palettes share sources and layer IDs. MapLibre diffs the
    style in place, preserving camera, markers and transit overlays. */
 const serverTheme = () => 'light' as const;
+
+/* MapLibre 6 ships its worker separately. Let Webpack emit the module as an
+   asset so the worker URL also resolves in the production bundle. */
+maplibre.setWorkerUrl(new URL('maplibre-gl/dist/maplibre-gl-worker.mjs', import.meta.url).href);
 
 interface MapCanvasProps {
   /** Asked once, on mount: the camera that frames the spots on this canvas.

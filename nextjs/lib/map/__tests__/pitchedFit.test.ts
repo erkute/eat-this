@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { medianPoint, pitchedCameraForPoints, projectToScreen, type FitView } from '../pitchedFit';
 
@@ -126,8 +128,10 @@ describe('projectToScreen', () => {
   let MercatorTransform: new () => Transform;
   let LngLat: new (lng: number, lat: number) => unknown;
   beforeAll(async () => {
-    const transformPath = 'maplibre-gl/src/geo/projection/mercator_transform';
-    const lngLatPath = 'maplibre-gl/src/geo/lng_lat';
+    // MapLibre 6 does not export its source subpaths. Resolve the package first.
+    const root = dirname(createRequire(import.meta.url).resolve('maplibre-gl/package.json'));
+    const transformPath = join(root, 'src/geo/projection/mercator_transform.ts');
+    const lngLatPath = join(root, 'src/geo/lng_lat.ts');
     ({ MercatorTransform } = await import(/* @vite-ignore */ transformPath));
     ({ LngLat } = await import(/* @vite-ignore */ lngLatPath));
   });

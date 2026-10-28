@@ -62,27 +62,16 @@
 .heroCardFlip { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; }
 .heroCard img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: 5.85% / 4.26%; backface-visibility: hidden; }
 .heroCard .heroCardBack { transform: rotateY(180deg); }
-.heroCardLeft { left: 5%; top: 35%; transform: rotate(-8deg); --closed-x: 41.4286%; --closed-y: -14.77%; --closed-turn: -12deg; }
-.heroCardRight { left: 60%; top: 35%; transform: rotate(8deg); --flip-start: -180deg; --closed-x: -41.4286%; --closed-y: -14.77%; --closed-turn: 12deg; }
+.heroCardLeft { left: 5%; top: 35%; transform: rotate(-8deg); --open-turn: -8deg; --closed-x: 41.4286%; --closed-y: -14.77%; --closed-turn: -12deg; }
+.heroCardRight { left: 60%; top: 35%; transform: rotate(8deg); --open-turn: 8deg; --flip-start: -180deg; --closed-x: -41.4286%; --closed-y: -14.77%; --closed-turn: 12deg; }
 .heroCardFront { left: 32.5%; top: 4%; --closed-x: 0%; --closed-y: 13.43%; --closed-turn: -2deg; }
 @media (prefers-reduced-motion: no-preference) {
-  .heroCard {
-    will-change: transform;
-    transition: transform 1.2s cubic-bezier(.22,.75,.22,1);
-  }
-  .heroCardFlip { will-change: transform; }
-  :global(html:not([data-hero-intro])) .heroCardFlip { animation: heroReveal 1.2s cubic-bezier(.3,.05,.2,1); }
-  /* Keep layout fixed throughout the reveal. One continuous turn and one
-     composited travel replace the segmented lift/overshoot and left/top tweens. */
+  /* Pre-hydration pose behind the curtain; GSAP takes over the reveal.
+     Without JavaScript the front faces return as soon as the intro ends. */
   :global(html[data-hero-intro]) .heroCard {
     transform: translate3d(var(--closed-x), var(--closed-y), 0) rotate(var(--closed-turn));
-    transition: none;
   }
   :global(html[data-hero-intro]) .heroCardFlip { transform: rotateY(var(--flip-start, 180deg)); }
-}
-@keyframes heroReveal {
-  from { transform: rotateY(var(--flip-start, 180deg)); }
-  to { transform: rotateY(0deg); }
 }
 @media (max-width: 767.98px) {
   .heroInner { padding: clamp(12px, 2.8svh, 24px) 24px clamp(16px, 3.8svh, 32px); }

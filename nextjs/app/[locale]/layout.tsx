@@ -101,7 +101,7 @@ export default async function LocaleLayout({
       <head suppressHydrationWarning>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.sanity.io" />
-        <link rel="preload" href="/pics/paper/folded-white.webp" as="image" fetchPriority="high" />
+        <link rel="preload" href="/pics/paper/folded-white.webp?v=20261028-hq" as="image" fetchPriority="high" />
         {/* Safe: hardcoded constants and the shared pure consent parser. */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
         <script dangerouslySetInnerHTML={{ __html: CONSENT_BOOTSTRAP }} />

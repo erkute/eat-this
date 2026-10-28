@@ -63,7 +63,7 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
       <div className={styles.header}>
         <h2 id="home-map-title" className={styles.title}>{de ? 'Wo wir' : 'Where we'}<br />{de ? 'essen gehen.' : 'eat.'}</h2>
         <div className={styles.copy}>
-          <p>{de ? 'Auf dieser Map stehen die Läden, die wir dir empfehlen. Vom schnellen Slice bis zum langen Abendessen.' : 'These are the places we recommend. From a quick slice to a long dinner.'}</p>
+          <p>{de ? 'Entdecke Berlins beste Restaurants, Cafés und Bars, probiere ihre Must Eats und sammle sie in deinem Deck. Alles auf einer Map.' : 'Discover Berlin’s best restaurants, cafés and bars, try their Must Eats and collect them in your deck. All on one map.'}</p>
         </div>
         <div className={styles.desktopCta}><MapIntentLink href="/map" className="et-btn">{de ? 'Zur Map' : 'Explore the map'}</MapIntentLink></div>
       </div>

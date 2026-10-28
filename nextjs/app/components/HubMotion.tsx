@@ -3,6 +3,7 @@
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
+import { afterHeroIntro } from '@/lib/home/heroIntro';
 import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/lib/home/dealIn';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
@@ -16,7 +17,7 @@ import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/l
 gsap.registerPlugin(useGSAP);
 
 /**
- * The elevator doors open over the finished hero, which stands still.
+ * The hero cards fan out and turn over after Remy opens the elevator doors.
  * Below the hero, Remy owns his entrance; this controller handles the
  * entrances of the magazine, the Must Eats and the districts map
  * (lib/home/dealIn.ts) and the signup demonstration (the FAQ opens in CSS,
@@ -284,6 +285,37 @@ function armPreload(): () => void {
 }
 
 
+function armHeroReveal(): () => void {
+  const fan = document.querySelector<HTMLElement>('[data-hero-fan]');
+  if (!fan) return () => {};
+  const cards = Array.from(fan.querySelectorAll<HTMLElement>('[data-hero-card]'));
+  const flips = cards.map(card => card.firstElementChild as HTMLElement);
+  const poses = cards.map(card => ({
+    x: fan.clientWidth / 2 - card.offsetLeft - card.offsetWidth / 2,
+    y: fan.clientHeight * .55 - card.offsetTop - card.offsetHeight / 2,
+    rotation: parseFloat(getComputedStyle(card).getPropertyValue('--open-turn')) || 0,
+  }));
+  const timeline = gsap.timeline({ paused: true });
+  cards.forEach((card, index) => {
+    gsap.set(card, { x: poses[index].x, y: poses[index].y + index * 3, rotation: (index - 1) * 3, scale: .94 });
+    gsap.set(flips[index], { rotationY: index === 1 ? -180 : 180 });
+    timeline
+      .to(card, { y: poses[index].y - 22, scale: 1.02, duration: .24, ease: 'power2.out' }, index * .13)
+      .to(card, { x: 0, y: 0, rotation: poses[index].rotation, scale: 1, duration: .85, ease: 'power3.inOut' }, .22 + index * .13)
+      .to(flips[index], { rotationY: 0, duration: .8, ease: 'power2.inOut' }, .32 + index * .17);
+  });
+  timeline.set([...cards, ...flips], { clearProps: 'transform,willChange' });
+  const stopWaiting = afterHeroIntro(() => {
+    gsap.set([...cards, ...flips], { willChange: 'transform' });
+    timeline.play();
+  });
+  return () => {
+    stopWaiting();
+    timeline.kill();
+    gsap.set([...cards, ...flips], { clearProps: 'transform,willChange' });
+  };
+}
+
 export default function HubMotion() {
   useGSAP(() => {
     const stopPreload = armPreload();
@@ -297,6 +329,7 @@ export default function HubMotion() {
         const { motion, desk } = ctx.conditions as Record<string, boolean>;
         if (!motion) return;
         const stops: Array<() => void> = [];
+        stops.push(armHeroReveal());
         if (desk) stops.push(armMagazineDeal());
         stops.push(armMustEatsDeal());
         stops.push(armDistrictsDeal());

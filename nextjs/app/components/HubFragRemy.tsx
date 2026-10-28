@@ -28,8 +28,12 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
     if (!stage.current || !figure.current || !window.matchMedia) return;
     const avatarElement = figure.current;
     const media = gsap.matchMedia();
-    media.add('(prefers-reduced-motion: no-preference)', () => {
+    media.add({ motion: '(prefers-reduced-motion: no-preference)', mobile: '(max-width: 767.98px)' }, (context) => {
+      if (!context.conditions?.motion) return;
       const avatar = figure.current!;
+      const mobile = Boolean(context.conditions.mobile);
+      const enterRatio = mobile ? 0.15 : 0.6;
+      const leaveRatio = mobile ? 0.05 : 0.4;
       let visit = 0;
       let inside = false;
       let alive = true;
@@ -38,7 +42,8 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
       portraitReady.current = false;
       const settle = { x: 0, y: 0, xPercent: 0, yPercent: 0, rotation: 0, scale: 1 };
       const tuckedRight = { ...settle, xPercent: 120, yPercent: 22, rotation: 18 };
-      gsap.set(avatar, tuckedRight);
+      const tucked = mobile ? { ...settle, yPercent: 110 } : tuckedRight;
+      gsap.set(avatar, tucked);
       avatar.setAttribute('data-staged', '');
       const arrive = () => {
         if (!alive || !ready || !inside) return;
@@ -47,9 +52,8 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
         avatar.removeAttribute('data-buddy-speaking');
         const tl = gsap.timeline({ delay: 0.35 });
         entrance.current = tl;
-        // Zwei von drei Auftritten kommen von rechts, jeder dritte von unten.
-        // Beide beginnen vollständig hinter der Bühne und enden ohne Hochsprung.
-        if (visit++ % 3 !== 2) {
+        // Mobile always rises from the lower edge. Desktop keeps its varied entrance.
+        if (!mobile && visit++ % 3 !== 2) {
           tl.fromTo(avatar, tuckedRight,
             { ...settle, xPercent: 24, yPercent: 8, rotation: -8, duration: 0.65, ease: 'power3.out' })
             .to(avatar, { ...settle, duration: 0.65, ease: 'power2.inOut' }, '+=0.15');
@@ -79,7 +83,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
       // Der Abgang beginnt, solange Remy noch teilweise sichtbar ist.
       const observer = new IntersectionObserver(([entry]) => {
         if (pending.current) return;
-        if (inside && (!entry.isIntersecting || entry.intersectionRatio < 0.4)) {
+        if (inside && (!entry.isIntersecting || entry.intersectionRatio < leaveRatio)) {
           inside = false;
           entrance.current?.kill();
           reaction.current?.kill();
@@ -87,15 +91,15 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
           avatar.removeAttribute('data-buddy-speaking');
           if (!ready) return;
           entrance.current = gsap.timeline().to(avatar, {
-            ...tuckedRight,
+            ...tucked,
             duration: 0.45, ease: 'power2.in',
           });
           return;
         }
-        if (inside || !entry.isIntersecting || entry.intersectionRatio < 0.6) return;
+        if (inside || !entry.isIntersecting || entry.intersectionRatio < enterRatio) return;
         inside = true;
         arrive();
-      }, { threshold: [0, 0.4, 0.6] });
+      }, { threshold: [0, leaveRatio, enterRatio] });
       observer.observe(avatar.parentElement!);
       return () => { alive = false; portraitReady.current = false; preload.disconnect(); image.removeEventListener('load', loaded); observer.disconnect(); entrance.current?.kill(); avatar.removeAttribute('data-buddy-speaking'); avatar.removeAttribute('data-staged'); gsap.set(avatar, { clearProps: 'transform' }); };
     });
@@ -179,7 +183,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
           <div className={styles.figure} ref={figure} data-expression={expression}>
             {/* One body; only the mouth changes with the expression. */}
             <div className={styles.head}>
-              <Image className={styles.face} src="/buddy/buddy.webp?v=feinripp" alt="" fill sizes="(max-width: 899px) min(100vw, 480px), 50vw" loading="lazy" />
+              <Image className={styles.face} src="/buddy/buddy.webp?v=feinripp" alt="" fill unoptimized sizes={compact ? '(max-width: 767px) 320px, 38vw' : '(max-width: 767px) 340px, 44vw'} loading="lazy" />
               <BuddyMouth shape={expression === 'laugh' ? 'wide' : expression === 'open' ? 'open' : 'closed'} />
             </div>
           </div>

@@ -257,7 +257,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
         <h2 id="home-magazine-title">{en ? <>On the<br />plate.</> : <>Auf dem<br />Teller.</>}</h2>
         <div className={styles.intro}>
           <p className={styles.kicker}>{en ? 'THE EAT THIS MAGAZINE' : 'DAS EAT THIS MAGAZIN'}</p>
-          <p>{en ? 'Stories from Berlin’s food scene.' : 'Geschichten aus Berlins Food-Szene.'}</p>
+          <p>{en ? 'What’s on the plate and who’s behind it. Restaurant visits, kitchens and stories from Berlin.' : 'Was auf den Teller kommt und wer dahintersteht. Restaurantbesuche, Küchen und Geschichten aus Berlin.'}</p>
           <Link href="/news" className={`et-btn ${styles.desktopLink}`}>{en ? 'More magazines' : 'Weitere Magazine'}</Link>
         </div>
       </div>

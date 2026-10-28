@@ -19,7 +19,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'Wie wählt ihr die Spots aus?',
-      a: 'Wir besuchen die Spots persönlich und testen anonym. Auf die Map kommt, was uns überzeugt. Restaurants können sich keinen Platz kaufen.',
+      a: 'Wir sind Foodies und gehen einfach gern essen. Dabei sind wir ziemlich wählerisch. Auf die Map kommen die Restaurants, Cafés und Bars, die uns selbst überzeugen – und die wir auch unseren Freunden empfehlen.',
     },
     {
       q: 'Gibt’s Eat This auch außerhalb von Berlin?',
@@ -41,7 +41,7 @@ const FAQS: { de: LandingFaqEntry[]; en: LandingFaqEntry[] } = {
     },
     {
       q: 'How do you choose the spots?',
-      a: 'We visit the spots in person and test anonymously. Only places that win us over make it onto the map. Restaurants cannot buy a place on it.',
+      a: 'We love going out to eat, and we’re pretty particular about what’s on our plates. Our map features the restaurants, cafés and bars that win us over – the ones we recommend to our friends.',
     },
     {
       q: 'Is Eat This available outside Berlin?',

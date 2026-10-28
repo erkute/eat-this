@@ -23,14 +23,14 @@ export default function HubHeroCopy({ locale }: Props) {
         <img className={styles.heroSloganMobile} src={`${ART}/slogan-mobile.webp?v=20261028`} width={1200} height={468} alt="" aria-hidden="true" />
       </h1>
       <MapIntentLink href="/must-eats" className={styles.heroArt} aria-label={locale === 'de' ? 'Must Eats entdecken' : 'Discover Must Eats'}>
-        <span className={styles.heroFan}>
+        <span className={styles.heroFan} data-hero-fan="">
         {/* eslint-disable @next/next/no-img-element */}
         {[
           [styles.heroCardLeft, 'sausage.webp?v=20261028', 'Spicy Thai Sausage · Bar Basta'],
           [styles.heroCardRight, 'sabich.webp?v=20261028', 'Sabich · Kitten Deli'],
           [styles.heroCardFront, 'fish.webp?v=20261028', 'Kinmedai Sashimi · November Brasserie'],
         ].map(([position, file, alt]) => (
-          <span key={file} className={`${styles.heroCard} ${position}`}>
+          <span key={file} className={`${styles.heroCard} ${position}`} data-hero-card="">
             <span className={styles.heroCardFlip}>
               <img src={`${ART}/${file}`} width={1026} height={1410} alt={alt} fetchPriority="high" decoding="async" />
               <img className={styles.heroCardBack} src="/pics/card-back.webp?v=20261028" width={1026} height={1410} alt="" aria-hidden="true" fetchPriority="high" decoding="async" />

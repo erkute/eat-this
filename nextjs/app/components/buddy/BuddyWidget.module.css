@@ -89,7 +89,7 @@
   align-items: center;
   flex-shrink: 0;
   gap: 6px;
-  min-height: 32px;
+  height: 32px;
   padding: 2px 3px 2px 5px;
   color: #fff;
   background: #000080;
@@ -102,9 +102,9 @@
   z-index: 2;
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
-  flex: 0 0 56px;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
   overflow: hidden;
   transform-origin: top left;
 }

@@ -47,12 +47,12 @@ const PAGE_META: Record<string, SlugMeta> = {
   },
   about: {
     de: {
-      title: 'Über uns',
+      title: 'Über mich',
       description:
         'Was Eat This ist, wer dahinter steckt und warum wir Berlins Restaurants kuratieren – plus Remy, der jeden Spot auf der Map kennt.',
     },
     en: {
-      title: 'About',
+      title: 'About me',
       description:
         "What Eat This is, who's behind it, why we curate Berlin's restaurants – plus Remy, who knows every spot on the map.",
     },

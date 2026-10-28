@@ -169,8 +169,8 @@ export const ART = {
     "id": "footer-about",
     "width": 300,
     "height": 34,
-    "alt": "Über uns",
-    "version": "f1f3246e"
+    "alt": "Über mich",
+    "version": "47645b0c"
   },
   "footerContact": {
     "id": "footer-contact",
@@ -211,8 +211,8 @@ export const ART = {
     "id": "footer-about-en",
     "width": 300,
     "height": 34,
-    "alt": "About",
-    "version": "8f9c08d0"
+    "alt": "About me",
+    "version": "f0311833"
   },
   "footerContactEn": {
     "id": "footer-contact-en",

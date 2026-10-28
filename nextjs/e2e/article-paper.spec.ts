@@ -72,6 +72,8 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(hub).toHaveAttribute('href', `${prefix}/bezirk/schoeneberg`);
     await hub.scrollIntoViewIfNeeded();
     await expect(hub).toHaveCSS('background-image', /folded-white/);
+    await hub.hover();
+    await expect(hub).toHaveCSS('transform', 'none');
     await expect(hub).toHaveCSS('color', english ? 'rgb(255, 255, 255)' : 'rgb(21, 18, 14)');
     await hub.focus();
     await expect(hub).toBeFocused();

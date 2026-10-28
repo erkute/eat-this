@@ -515,7 +515,7 @@ const instagram = await sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/sv
   .resize(88, 88).png().toBuffer();
 const data = (buffer: Buffer) => `data:image/png;base64,${buffer.toString('base64')}`;
 for (const en of [false, true]) {
-  const labels = en ? ['About', 'Contact', 'Impressum', 'Privacy', 'Terms'] : ['Über uns', 'Kontakt', 'Impressum', 'Datenschutz', 'AGB'];
+  const labels = en ? ['About me', 'Contact', 'Impressum', 'Privacy', 'Terms'] : ['Über mich', 'Kontakt', 'Impressum', 'Datenschutz', 'AGB'];
   const copyright = en ? '© 2026 Eat This. All rights reserved.' : '© 2026 Eat This. Alle Rechte vorbehalten.';
   const text = (value: string, left: number, top: number, width: number, height: number, size: number) => React.createElement('div', {style: {
     display: 'flex', position: 'absolute', left: left * 2, top: top * 2,

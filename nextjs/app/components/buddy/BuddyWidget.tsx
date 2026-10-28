@@ -935,7 +935,7 @@ export default function BuddyWidget() {
             <div className={styles.header}>
               {messages.length > 0 && (
                 <div className={styles.avatarFrame} ref={placePortrait} data-buddy-avatar="header" aria-hidden="true">
-                  <BuddyAvatar mood={panelMood} size={56} breathe={false} />
+                  <BuddyAvatar mood={panelMood} size={24} breathe={false} />
                 </div>
               )}
               <span className={styles.headerTitle}>

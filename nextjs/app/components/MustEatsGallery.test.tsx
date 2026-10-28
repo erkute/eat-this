@@ -17,7 +17,6 @@ const COPY = {
   setKicker: 'Das Set',
   coveredTitle: '2 warten vor Ort.',
   coveredBody: 'Covered body',
-  coveredLabel: 'Verdeckt',
   spotAria: 'Spot-Seite öffnen',
   mapAria: 'auf der Map zeigen',
   setMore: 'Alle Karten zeigen',
@@ -73,21 +72,23 @@ function section(html: string, band: string): string {
 }
 
 describe('MustEatsGallery', () => {
-  it('lays the whole set out by card number, face-up and covered mixed', () => {
+  it('lays out only the covered cards below, by card number — face-up ones stay above', () => {
     const labels = [...section(render(), 'set').matchAll(/aria-label="([^"]+)"/g)].map((m) => m[1]);
     expect(labels).toEqual([
       'Nr. 001, Verdeckt, Hidden 1, auf der Map zeigen',
-      'Nr. 002, Dish 2, Spot 2, auf der Map zeigen',
       'Nr. 003, Verdeckt, Hidden 3, auf der Map zeigen',
-      'Nr. 005, Dish 5, Spot 5, auf der Map zeigen',
     ]);
+  });
+
+  it('captions a covered card with its spot only, not „Verdeckt“ again', () => {
+    const set = section(render(), 'set');
+    expect(set).not.toMatch(/>Verdeckt</);
   });
 
   it('links every card, face-up or covered, to its spot on the map', () => {
     const html = render();
     const set = section(html, 'set');
     expect(set).toContain('href="/map?r=hidden-1"');
-    expect(set).toContain('href="/map?r=spot-2"');
     expect(section(html, 'open')).toContain('href="/map?r=spot-2"');
     expect(render(DATA, 'en')).toContain('href="/en/map?r=hidden-1"');
   });
@@ -139,6 +140,10 @@ describe('MustEatsGallery', () => {
     expect(set).toContain('>Hidden 1<');
     expect(set).not.toContain('Hidden 1 Mitte');
     expect(set).not.toMatch(/<a[^>]*>Hidden/);
+  });
+
+  it('drops the covered section when every card is face-up', () => {
+    expect(render({ mustEats: [open(2)], revealedMustEatIds: ['m2'] })).not.toContain('data-band="set"');
   });
 
   it('renders nothing for an empty catalog', () => {

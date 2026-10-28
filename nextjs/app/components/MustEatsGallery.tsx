@@ -23,7 +23,6 @@ interface GalleryCopy {
   setKicker: string;
   coveredTitle: string;
   coveredBody: string;
-  coveredLabel: string;
   spotAria: string;
   mapAria: string;
   setMore: string;
@@ -37,9 +36,9 @@ interface Props {
 }
 
 // Daumennägel nach Spaltenbreite (MustEatsSection.module.css): das Feature
-// läuft am Telefon als Band mit ~70vw, am Desktop in vier Spalten; das Set
+// liegt am Telefon und Tablet in zwei Spalten, am Desktop in vier; das Set
 // am Telefon in drei, ab 768px in fünf, ab 1024px in sechs Spalten.
-const OPEN_SIZES = '(max-width: 767px) 70vw, (max-width: 1023px) 46vw, 300px';
+const OPEN_SIZES = '(max-width: 1023px) 46vw, 300px';
 const SET_SIZES = '(max-width: 767px) 30vw, (max-width: 1023px) 18vw, 210px';
 
 /** Spalten des Sets je Breite — zugeklappt zeigt es genau eine Reihe davon. */
@@ -73,17 +72,18 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
   );
 
   // Beide Flächen liegen in Kartennummer-Reihenfolge — die Nummer steht unten
-  // rechts auf jeder Karte, und das Set ist genau diese Zählung. Im Set liegen
-  // offene und verdeckte Karten deshalb gemischt: jede Rückseite trägt ihre
-  // Nummer darunter und liest sich als Lücke im Album, nicht als Ladefehler.
+  // rechts auf jeder Karte. Oben die offenen, darunter nur die verdeckten:
+  // bis zum 27.10.2026 lag hier das ganze Set gemischt, die offenen Karten
+  // standen damit zweimal auf der Seite, unter „54 warten vor Ort“ lagen 62.
   const all = useMemo(() => sortByCardNumber(initialMapData.mustEats), [initialMapData]);
   const open = useMemo(() => all.filter((m) => faceUp.has(m._id)), [all, faceUp]);
+  const covered = useMemo(() => all.filter((m) => !faceUp.has(m._id)), [all, faceUp]);
 
   /* Eine verdeckte Karte nennt hier ihren Spot, sonst nichts: Gericht und
      Bild bleiben auf dem Server (`stripCoveredMustEats`), vom Spot kommen nur
      Name, Bezirk und Slug mit (`trimCoveredSpot`). */
 
-  /* Das Set zeigt zuerst eine Reihe; „Mehr“ klappt den Rest auf. Welche
+  /* Die verdeckten Karten zeigen zuerst eine Reihe; „Mehr“ klappt den Rest auf. Welche
      Karten zugeklappt fehlen, entscheidet das CSS je Spaltenzahl — der Knopf
      merkt sich beim Tippen die erste davon, damit der Fokus dort weiterliest
      statt mit dem verschwundenen Knopf ins Leere zu fallen. */
@@ -103,9 +103,10 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
     focusAfterOpen.current = firstHidden >= 0 ? firstHidden : null;
     setSetOpen(true);
   };
-  // Passt das Set schon in eine Reihe, fehlt dort nichts — der Knopf auch nicht.
+  // Passen sie schon in eine Reihe, fehlt dort nichts — der Knopf auch nicht.
+  const n = covered.length;
   const setFits =
-    all.length <= SET_ROW.phone ? 'phone' : all.length <= SET_ROW.tablet ? 'tablet' : all.length <= SET_ROW.desktop ? 'desktop' : undefined;
+    n <= SET_ROW.phone ? 'phone' : n <= SET_ROW.tablet ? 'tablet' : n <= SET_ROW.desktop ? 'desktop' : undefined;
 
   const renderCard = (m: MapMustEat, sizes: string, label: string) => {
     const isOpen = faceUp.has(m._id);
@@ -150,8 +151,9 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
             <h2 className={styles.sectionTitle}>{copy.openTitle}</h2>
             <p className={styles.sectionBody}>{copy.openBody}</p>
           </header>
-          {/* Am Telefon ein Band zum Wischen, ab 768px ein Raster, das nur nach
-              unten läuft. Unter jeder Karte die Bildunterschrift wie im Heft:
+          {/* Ein Raster, das nur nach unten läuft — am Telefon zwei Karten
+              je Reihe (Betreiber, 27.10.2026; vorher ein Band zum Wischen).
+              Unter jeder Karte die Bildunterschrift wie im Heft:
               Gericht und Spot. Die Nummer steht schon auf der Karte; im
               aria-label bleibt sie, als Orientierung beim Vorlesen. */}
           <ol className={styles.feature}>
@@ -195,40 +197,38 @@ export default function MustEatsGallery({ initialMapData, copy }: Props) {
         </section>
       )}
 
-      {all.length > 0 && (
+      {covered.length > 0 && (
         <section className={`${styles.wrap} ${styles.section}`} data-band="set">
           <header className={styles.sectionHead}>
             <p className={`et-label ${styles.kicker}`}>{copy.setKicker}</p>
             <h2 className={styles.sectionTitle}>{copy.coveredTitle}</h2>
             <p className={styles.sectionBody}>{copy.coveredBody}</p>
           </header>
-          {/* Das ganze Set in Nummern-Reihenfolge, wie die Seite eines Albums:
-              offene Karten zeigen ihr Gericht, verdeckte ihre Rückseite —
-              darunter Gericht und Spot, bei verdeckten „Verdeckt“ und der
-              Spot. Der Unterschied hängt so nie nur an Bild oder Farbe. */}
+          {/* Nur Rückseiten, darunter der Spot. „Verdeckt“ steht schon über
+              dem Abschnitt und auf jeder Karte; vorgelesen wird es im
+              aria-label trotzdem, weil die Rückseite dort nichts sagt. */}
           <ol
             ref={setRef}
             id={setId}
             className={styles.set}
             data-collapsed={setOpen ? undefined : ''}
           >
-            {all.map((m) => {
-              const isOpen = faceUp.has(m._id);
+            {covered.map((m) => {
               const no = cardNumber(m.order);
-              const name = isOpen ? normalizeName(m.dish ?? '') : copy.coveredLabel;
-              // Auch die verdeckte Karte nennt ihren Spot — ohne Bezirk, wie
+              // Die verdeckte Karte nennt ihren Spot — ohne Bezirk, wie
               // überall unter einem Must Eat.
               const spot = spotNameWithoutDistrict(
                 normalizeName(m.restaurant.name),
                 m.restaurant.district
               );
               return (
-                <li key={m._id} className={styles.setItem} data-face={isOpen ? 'up' : 'down'}>
-                  {renderCard(m, SET_SIZES, [no && `${copy.numberLabel} ${no}`, name, spot].filter(Boolean).join(', '))}
-                  <p className={styles.setCaption} aria-hidden="true">
-                    <span className={styles.setName}>{name}</span>
-                    {spot && <span className={styles.setSpot}>{spot}</span>}
-                  </p>
+                <li key={m._id} className={styles.setItem}>
+                  {renderCard(m, SET_SIZES, [no && `${copy.numberLabel} ${no}`, t('mustEats.covered'), spot].filter(Boolean).join(', '))}
+                  {spot && (
+                    <p className={styles.setCaption} aria-hidden="true">
+                      <span className={styles.setSpot}>{spot}</span>
+                    </p>
+                  )}
                 </li>
               );
             })}

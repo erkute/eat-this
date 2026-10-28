@@ -55,6 +55,9 @@ interface Props {
    *  Detail der Karte). „Anmelden" auf der letzten Folie nimmt sie dann als
    *  Absicht mit ins Starter Pack — wie der Tipp auf die Karte selbst. */
   starterMustEatId?: string;
+  /** Eigene Beschriftung des Auslösers; sonst „Wie funktioniert's?“. Die
+   *  Must-Eats-Seite sagt „So funktioniert’s“ (Betreiber, 28.10.2026). */
+  triggerLabel?: string;
 }
 
 // First-visit onboarding for the Must-Eats page: 3 steps around a demo card
@@ -67,6 +70,7 @@ export default function MustEatsOnboarding({
   autoOpen = true,
   tone = 'paper',
   starterMustEatId,
+  triggerLabel,
 }: Props) {
   const { lang, t } = useTranslation();
   const { open: openLogin } = useLoginModal();
@@ -260,7 +264,7 @@ export default function MustEatsOnboarding({
         }
         onClick={reopen}
       >
-        {t('mustEats.howItWorks')}
+        {triggerLabel ?? t('mustEats.howItWorks')}
       </button>
 
       {open &&

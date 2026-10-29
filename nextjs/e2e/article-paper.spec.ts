@@ -78,7 +78,9 @@ for (const theme of ['light', 'dark'] as const) {
     await hub.focus();
     await expect(hub).toBeFocused();
     await expect(hub).toHaveCSS('outline-style', 'none');
-    await expect(hub.locator('.et-btn-paper')).toHaveCSS('background-image', /folded-white/);
+    const catalogueButton = hub.locator('.et-btn');
+    await expect(catalogueButton).not.toHaveClass(/et-btn-paper/);
+    await expect(catalogueButton).toHaveCSS('background-color', english ? 'rgb(255, 255, 255)' : 'rgb(21, 18, 14)');
     await page.screenshot({ path: `/tmp/eat-this-article-paper/hub-${info.project.name}-${theme}.png` });
     expect(errors).toEqual([]);
   });

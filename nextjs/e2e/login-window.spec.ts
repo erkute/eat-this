@@ -11,7 +11,10 @@ for (const english of [false, true]) {
     await page.goto(`${english ? '/en' : ''}/map?r=gazzo`, { waitUntil: 'domcontentloaded' });
     await page.locator('.maplibregl-marker').first().waitFor({ state: 'visible' });
     const opener = page.locator('[data-detail-root="restaurant"]').getByRole('button', { name: english ? 'Heart this spot' : 'Spot herzen', exact: true });
-    await opener.click();
+    // WebKit does not focus buttons on pointer clicks. Enter from an
+    // explicitly focused trigger to verify keyboard focus restoration.
+    await opener.focus();
+    await page.keyboard.press('Enter');
     const dialog = page.getByRole('dialog').filter({ has: page.getByRole('textbox') });
     await expect(dialog).toHaveAccessibleName(/.+/);
     const close = dialog.getByRole('button', { name: english ? 'Back' : 'Zurück', exact: true });
@@ -27,13 +30,17 @@ for (const english of [false, true]) {
     await expect(backdrop).toHaveCSS('backdrop-filter', 'blur(12px)');
     await expect(dialog.locator('img')).toHaveCount(1);
     await expect(dialog.locator('img')).toHaveAttribute('src', /starter-pack-front\.webp/);
-    const sizes = isMobile ? [{ width: 390, height: 844 }] : [{ width: 1440, height: 1000 }, { width: 1024, height: 600 }];
+    const sizes = isMobile ? [{ width: 390, height: 844 }, { width: 390, height: 710 }, { width: 375, height: 667 }, { width: 320, height: 568 }] : [{ width: 1440, height: 1000 }, { width: 1024, height: 600 }];
     for (const viewport of sizes) {
       await page.setViewportSize(viewport);
       await expect.poll(() => dialog.evaluate((element, size) => {
         const bounds = element.getBoundingClientRect();
         return bounds.left >= 0 && bounds.top >= 0 && bounds.right <= size.width && bounds.bottom <= size.height;
       }, viewport)).toBe(true);
+      if (isMobile) {
+        await expect.poll(() => dialog.evaluate(el => el.scrollHeight - el.clientHeight)).toBeLessThanOrEqual(1);
+        await expect(dialog.getByRole('link').last()).toBeInViewport({ ratio: 1 });
+      }
       const submit = dialog.locator('button[type="submit"]');
       await submit.scrollIntoViewIfNeeded();
       await expect(submit).toBeInViewport({ ratio: 1 });
@@ -66,7 +73,8 @@ for (const english of [false, true]) {
     await page.keyboard.press('Escape');
     await expect(dialog).toHaveCount(0);
     await expect(opener).toBeFocused();
-    await opener.click();
+    await opener.focus();
+    await page.keyboard.press('Enter');
     await expect(dialog).toBeVisible();
     await page.mouse.click(2, 2);
     await expect(dialog).toHaveCount(0);

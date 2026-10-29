@@ -34,7 +34,7 @@ const COPY = {
     setKicker: 'Vor Ort entdecken',
     coveredTitle: (n: number) => `${n} gute Gründe, loszugehen.`,
     coveredBody: (n: number) =>
-      `Weitere ${n} Karten sind noch verdeckt. Such dir auf der Map einen Spot aus und schau vorbei. Vor Ort deckst du die Karte mit einem Tap auf und erfährst, was du dort bestellen solltest. Danach gehört sie zu deinem Deck.`,
+      `Weitere ${n} Karten sind noch verdeckt. Auf der Map findest du ihre Spots. Mit deinem Konto und freigegebenem Standort deckst du sie direkt vor Ort mit einem Tap auf und sammelst die Empfehlungen in deinem Deck.`,
     spotAria: 'Spot-Seite öffnen',
     mapAria: 'auf der Map zeigen',
     setMore: 'Alle Karten anzeigen',
@@ -42,13 +42,13 @@ const COPY = {
     closeGuestKicker: 'Dein Starter Pack',
     closeGuestTitle: 'Deine Sammlung beginnt hier.',
     closeGuestBody:
-      'Erstelle dein Konto und starte mit 20 Must Eats. Alle 20 Karten liegen sofort offen in deinem Deck. Und weil Berlin noch einiges auf der Karte hat, kommen laufend neue Empfehlungen dazu.',
+      'Erstelle dein Konto und starte mit 20 Must Eats. Nach und nach kommen neue Gerichte dazu, die du entdecken und als Karten sammeln kannst.',
     closeGuestCta: 'Konto erstellen',
     // Mit Konto ist die Sammlung längst angefangen: Map und Booster Packs.
     closeKicker: 'Und jetzt',
     closeTitle: 'Hol sie dir.',
     closeBody:
-      'Jedes Must Eat gehört zu einem Spot auf der Map. Wer nicht bis zum nächsten Besuch warten will, deckt Karten mit einem Booster Pack auf. Und es kommen laufend neue dazu.',
+      'Jedes Must Eat gehört zu einem Spot auf der Map. Weitere Karten sammelst du vor Ort oder mit Booster Packs. Nach und nach kommen neue Gerichte dazu, die du entdecken und als Karten sammeln kannst.',
     closeCta: 'Zur Map',
     closeSecondary: 'Booster Packs ansehen',
     headCta: 'Zur Map',
@@ -66,19 +66,19 @@ const COPY = {
     setKicker: 'Discover on site',
     coveredTitle: (n: number) => `${n} good reasons to head out.`,
     coveredBody: (n: number) =>
-      `Another ${n} cards are still face-down. Pick a spot on the map and drop by. On site, one tap turns the card over and tells you what to order there. After that, it belongs to your deck.`,
+      `Another ${n} cards are still hidden. Find their spots on the map. With an account and location access enabled, you can reveal them on site with a tap and collect the recommendations in your deck.`,
     spotAria: 'open the spot page',
     mapAria: 'show on the map',
     setMore: 'Show all cards',
     closeGuestKicker: 'Your Starter Pack',
     closeGuestTitle: 'Your collection starts here.',
     closeGuestBody:
-      'Create your account and start with 20 Must Eats. All 20 cards go straight into your deck face up. And because Berlin still has plenty on the menu, new recommendations keep coming.',
+      'Create your account and start with 20 Must Eats. More dishes will be added over time for you to discover and collect as cards.',
     closeGuestCta: 'Create account',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',
     closeBody:
-      'Every Must Eat belongs to a spot on the map. If you would rather not wait for your next visit, a Booster Pack flips cards for you. And new ones keep coming.',
+      'Every Must Eat belongs to a spot on the map. Collect more cards on site or with Booster Packs. More dishes will be added over time for you to discover and collect as cards.',
     closeCta: 'To the map',
     closeSecondary: 'See Booster Packs',
     headCta: 'To the map',

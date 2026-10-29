@@ -6,7 +6,6 @@ import LazyMustEatImageLightbox from '@/app/components/map/LazyMustEatImageLight
 import MapIntentLink from '@/app/components/MapIntentLink';
 import type { MapMustEat } from '@/lib/types';
 import { buildAlbum } from '@/lib/profile/mustEatAlbum';
-import { computeBadges } from '@/lib/profile/badges';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
 import styles from './ProfileAlbum.module.css';
 
@@ -17,28 +16,13 @@ const GRID_SIZES =
 interface Props {
   mustEats: MapMustEat[];
   faceUpIds: Set<string>;
-  /** Die Karten, die dieses Konto VOR ORT umgedreht hat — der Stempel. Kaufen
-   *  legt eine Karte ins Album, hingehen stempelt sie ab; das ist die einzige
-   *  Auszeichnung im Deck, die es nicht zu kaufen gibt. */
-  stampedIds: ReadonlySet<string>;
-  groupOf: (m: MapMustEat) => string;
   nextMove?: React.ReactNode;
 }
 
 // Alle Karten stehen in der gedruckten Nummernfolge im Album.
-export default function ProfileAlbum({
-  mustEats,
-  faceUpIds,
-  stampedIds,
-  groupOf,
-  nextMove,
-}: Props) {
+export default function ProfileAlbum({ mustEats, faceUpIds, nextMove }: Props) {
   const t = useTranslations('profile');
-  const album = useMemo(
-    () => buildAlbum(mustEats, faceUpIds, stampedIds, groupOf),
-    [mustEats, faceUpIds, stampedIds, groupOf]
-  );
-  const { slots: allSlots, groups } = album;
+  const { slots: allSlots } = useMemo(() => buildAlbum(mustEats, faceUpIds), [mustEats, faceUpIds]);
   const collected = allSlots.filter((slot) => slot.collected).length;
   const [expanded, setExpanded] = useState<{
     imageUrl: string;
@@ -59,28 +43,6 @@ export default function ProfileAlbum({
   const handleExitComplete = () => {
     if (!expandedRef.current) setHiddenId(null);
   };
-
-  /* Abzeichen — was das Deck ueber den Stand hinaus hergibt. Rechnet sich
-     aus dem Album aus, das hier ohnehin steht: kein Firestore-Feld, nichts
-     nachzuhalten, nie veraltet. Bewusst keine Rangliste (siehe badges.ts).
-
-     Gezaehlt werden die STEMPEL, nicht die offenen Karten: das Starter Pack
-     legt in jedes frische Deck fuenfzehn offene Karten, ein Kauf weitere —
-     ein Abzeichen dafuer waere eine Quittung fuer die Anmeldung. Die Reiter
-     darueber zaehlen weiter offen gegen alle; das ist der Stand des Decks,
-     das hier ist, was jemand dafuer getan hat. */
-  const badges = useMemo(
-    () =>
-      computeBadges({
-        stamped: allSlots.filter((slot) => slot.stamped).length,
-        groups: groups.map((g) => ({
-          group: g.group,
-          done: g.slots.filter((s) => s.stamped).length,
-          total: g.slots.length,
-        })),
-      }),
-    [allSlots, groups]
-  );
 
   return (
     <div className={styles.panel}>
@@ -122,13 +84,7 @@ export default function ProfileAlbum({
               <button
                 key={slot.id}
                 type="button"
-                aria-label={
-                  open
-                    ? slot.stamped
-                      ? `${alt} — ${t('albumStamped')}`
-                      : alt
-                    : `${t('albumCard')}${slot.no ? ` ${slot.no}` : ''}`
-                }
+                aria-label={open ? alt : `${t('albumCard')}${slot.no ? ` ${slot.no}` : ''}`}
                 className={`${styles.slot} ${open ? styles.filled : styles.empty}`}
                 style={{ visibility: hiddenId === slot.id ? 'hidden' : undefined }}
                 onClick={(e) => {
@@ -168,14 +124,6 @@ export default function ProfileAlbum({
                       loading="lazy"
                       decoding="async"
                     />
-                    {/* Der Stempel. Er sitzt auf der Karte, leicht schief wie
-                        ein echter, und sagt das Einzige, was ein Kauf nicht
-                        kann: da war jemand. */}
-                    {slot.stamped && (
-                      <span className={styles.stamp} aria-hidden="true">
-                        {t('albumStamped')}
-                      </span>
-                    )}
                   </>
                 ) : (
                   /* Verdeckt bleibt nur der Kartenrücken. Der Spot ist
@@ -194,32 +142,6 @@ export default function ProfileAlbum({
               </button>
             );
           })}
-        </div>
-      )}
-
-      {/* Unter dem Raster, nicht darueber: ein Abzeichen ist das Ergebnis
-          der Karten, nicht ihre Ueberschrift. Leer rendert die Zeile gar
-          nichts — eine Reihe verschlossener Abzeichen waere eine Liste
-          dessen, was fehlt, und die steht auf dieser Seite schon zweimal. */}
-      {badges.length > 0 && (
-        <div className={styles.badges}>
-          <span className={styles.badgesLabel}>{t('badgesHeading')}</span>
-          <ul className={styles.badgeList}>
-            {badges.map((badge) => (
-              <li
-                className={styles.badge}
-                key={badge.kind === 'district' ? `d:${badge.value}` : badge.kind}
-              >
-                {badge.kind === 'cards'
-                  ? badge.value === 1
-                    ? t('badgeFirstCard')
-                    : t('badgeCards', { count: badge.value })
-                  : badge.kind === 'district'
-                    ? t('badgeDistrict', { district: badge.value })
-                    : t('badgeAllBerlin')}
-              </li>
-            ))}
-          </ul>
         </div>
       )}
 

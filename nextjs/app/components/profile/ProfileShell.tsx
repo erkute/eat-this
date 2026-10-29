@@ -192,10 +192,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           <ProfileAlbum
             mustEats={ownedMustEats}
             faceUpIds={unlockedIds}
-            stampedIds={storedUnlockedIds}
-            groupOf={(m) =>
-              districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
-            }
             nextMove={
               <ProfileNextMove
                 mustEats={ownedMustEats}

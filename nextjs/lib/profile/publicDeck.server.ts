@@ -165,12 +165,9 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
   /* Dieselbe Funktion wie im eigenen Deck, nicht eine zweite Rechnung
      daneben: Reihenfolge und Nummerierung muessen zwischen /profile und
      /deck/<uid> uebereinstimmen, sonst traegt dieselbe Karte zwei Zahlen. */
-  /* Ohne Stempel-Menge: ob eine Karte vor Ort umgedreht oder gekauft wurde,
-     bleibt dem eigenen Album vorbehalten. */
   const album = buildAlbum(
     ownedMustEats,
     surface.faceUpIds,
-    new Set(),
     (m) => districtByRest.get(m.restaurant._id) ?? FALLBACK_DISTRICT
   );
 

@@ -12,7 +12,6 @@
   --album-ink: var(--profile-fg, var(--et-white));
   --album-muted: var(--profile-muted, rgba(255, 255, 255, 0.76));
   --album-red: var(--profile-red, var(--et-red));
-  --album-accent: var(--profile-accent, var(--et-accent));
   --album-display: var(--et-font-display);
   position: relative;
   z-index: 1;
@@ -101,7 +100,6 @@
      Deck (/deck/<uid>), und dort gibt es kein `.panel` darum herum, das
      diese Token setzt. Ein `var()` ohne Wert waere dort ungueltig — die
      gelbe Zahl faerbte sich still nicht mehr. */
-  --album-accent: var(--profile-accent, var(--et-accent));
   --album-display: var(--et-font-display);
   display: grid;
   /* Ueber eine Variable, damit die Freundesreihe kleinere Karten stellen
@@ -238,52 +236,6 @@ div.player {
 
 /* ── Das Raster ───────────────────────────────────────────── */
 
-/* ── Abzeichen ──────────────────────────────────────────
-   Eine Zeile unter dem Raster. Bewusst KEINE Knoepfe: die Reiter darueber
-   sind welche, und zwei Reihen Pillen, von denen nur eine reagiert, sind
-   eine Falle. Also Ring statt Flaeche, gelb auf Ink — dieselbe Farbe wie
-   der volle Balken, und dieselbe Bedeutung. */
-.badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px clamp(12px, 1.4vw, 18px);
-  margin-top: clamp(22px, 3vw, 34px);
-}
-
-.badgesLabel {
-  flex: 0 0 auto;
-  color: var(--profile-muted, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.badgeList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.badge {
-  padding: 6px 12px 5px;
-  color: var(--et-accent-text);
-  border: 0;
-  border-radius: 999px;
-  font-family: var(--album-display, var(--et-font-display));
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -325,27 +277,6 @@ div.player {
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-.stamp {
-  position: absolute;
-  right: 6%;
-  bottom: 8%;
-  z-index: 2;
-  padding: 3px 8px;
-  background: var(--album-accent);
-  /* NICHT --album-ink: das ist auf dieser Fläche die SCHRIFTfarbe (weiß auf
-     Ink), und weiß auf Gelb wäre unleserlich. Auf einer gelben Fläche ist die
-     Tinte die Tinte. */
-  color: var(--et-on-accent);
-  border-radius: 3px;
-  font-family: var(--et-font-display);
-  font-size: clamp(8px, 1vw, 11px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1;
-  text-transform: uppercase;
-  transform: rotate(-7deg);
 }
 
 .emptyText {

@@ -267,15 +267,8 @@ const en = {
     tab_packs: 'Packs',
     albumHeading: 'Your deck',
     albumHello: 'Hey {name}',
-    albumCount: 'of {total} Must Eats',
-    albumStamped: 'Been there',
     albumToSpot: 'To {name}',
     albumOpenDetail: 'View Must Eat',
-    badgesHeading: 'Badges',
-    badgeFirstCard: 'First card',
-    badgeCards: '{count} cards',
-    badgeDistrict: '{district} complete',
-    badgeAllBerlin: 'All of Berlin',
     recentHeading: 'Just revealed',
     moveLabel: 'Your next Must Eat',
     moveLocateCta: 'Share location',
@@ -672,23 +665,8 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     albumHeading: 'Dein Deck',
     /* Der Gruss wie im Hero der Startseite (angemeldet). */
     albumHello: 'Hey {name}',
-    albumCount: 'von {total} Must Eats',
-    /* Der Stempel auf einer Karte, die vor Ort umgedreht wurde. Kurz, weil er
-       quer über eine Karte läuft — und Vergangenheit, weil er eine Tat
-       bezeugt, keinen Zustand. Gekaufte Karten tragen ihn nicht: das ist der
-       ganze Unterschied. */
-    albumStamped: 'War da',
     albumToSpot: 'Zu {name}',
     albumOpenDetail: 'Must Eat ansehen',
-    /* Abzeichen statt Rangliste: Eat This nennt seine Spot-Zahlen bewusst
-       nicht, und bei einer Sammlung ist „du bist Letzter" die falsche
-       Nachricht. Ein Abzeichen misst gegen die Sammlung, nicht gegen
-       andere Leute. */
-    badgesHeading: 'Abzeichen',
-    badgeFirstCard: 'Erste Karte',
-    badgeCards: '{count} Karten',
-    badgeDistrict: '{district} komplett',
-    badgeAllBerlin: 'Ganz Berlin',
     recentHeading: 'Zuletzt aufgedeckt',
     moveLabel: 'N\u00e4chstes Must Eat',
     moveLocateCta: 'Standort freigeben',

@@ -1108,3 +1108,10 @@
 .detail .scroll > :last-child {
   margin-bottom: 0;
 }
+/* Am Telefon endet das Detail mit derselben Luft wie die Liste
+   (MapSheet.module.css `.listScroll`). */
+@media (max-width: 767.98px) {
+  .detail .scroll {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+}

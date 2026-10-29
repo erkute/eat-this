@@ -301,8 +301,9 @@
   .listScroll {
     max-height: none;
     overflow: visible;
-    /* The end of the list clears the home indicator. */
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    /* The end of the list clears the home indicator, with the same air as
+       the end of the spot detail (RestaurantDetail.module.css `.scroll`). */
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Held below the map stop (lib/map/sheetSlide.ts): the whole sheet is the

@@ -587,7 +587,7 @@ export default function NewsArticleShell({
                     Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
                     Leerfläche"). Für Screenreader trägt der Link seinen
                     Namen schon in Kicker und Label. */}
-                <span className={`et-btn et-btn-paper ${styles.hubLinkCta}`} aria-hidden="true">
+                <span className={`et-btn ${styles.hubLinkCta}`} aria-hidden="true">
                   {de ? 'Ansehen' : 'View'}
                 </span>
               </Link>

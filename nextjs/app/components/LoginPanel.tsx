@@ -57,6 +57,7 @@ export default function LoginPanel({ onBack }: LoginPanelProps) {
       ref={panelRef}
       className={styles.frame}
       data-red-sheet=""
+      data-login-panel=""
       role="dialog"
       aria-modal="true"
       aria-label={title}

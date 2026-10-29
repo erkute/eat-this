@@ -1,6 +1,6 @@
 // Was /api/must-eat-reveal einem angemeldeten Konto herausgibt. Die Herausgabe
 // ist bewusst offen (Betreiber, 02.10.2026; AGENTS.md): wer eine
-// Karte anfragt, bekommt sie und ihren Stempel — begrenzt nur über das
+// Karte anfragt, bekommt sie — begrenzt nur über das
 // Ratenlimit. Ändert sich das, ändert sich dieser Test mit.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -68,14 +68,13 @@ describe('POST /api/must-eat-reveal', () => {
     vi.unstubAllEnvs();
     m.catalog = { restaurants: cards.map((c) => c.restaurant), mustEats: cards };
     m.rateLimit.mockResolvedValue({ allowed: true });
-    // Ein frisches Gratis-Konto: kein Kauf, kein Starter Pack, kein Stempel.
+    // Ein frisches Gratis-Konto: kein Kauf, kein Starter Pack, keine Aufdeckung.
     m.verifyIdToken.mockResolvedValue({ uid: 'free-user', email: 'a@b.c' });
     m.resolveEntitlements.mockResolvedValue({
       isAdmin: false,
       hasAllBerlin: false,
       categorySlugs: new Set(),
       mustEatIds: new Set(),
-      coveredMustEatIds: new Set(),
     });
     m.getUnlockedMustEatIds.mockResolvedValue([]);
     m.hydrate.mockImplementation(async (list: MapMustEat[]) =>
@@ -83,7 +82,7 @@ describe('POST /api/must-eat-reveal', () => {
     );
   });
 
-  it('gibt einem Gratis-Konto den Inhalt einer verdeckten Karte und stempelt sie', async () => {
+  it('gibt einem Gratis-Konto den Inhalt einer verdeckten Karte und speichert sie', async () => {
     const covered = cards.find((c) => !composeRevealedMustEats(cards).has(c._id))!;
 
     const res = await reveal(covered._id);
@@ -103,7 +102,7 @@ describe('POST /api/must-eat-reveal', () => {
     );
   });
 
-  it('gibt über dem Limit nichts heraus und stempelt nicht', async () => {
+  it('gibt über dem Limit nichts heraus und speichert nichts', async () => {
     m.rateLimit.mockResolvedValue({ allowed: false, reason: 'day' });
 
     const res = await reveal(cards[0]._id);

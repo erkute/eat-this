@@ -119,10 +119,18 @@
   z-index: 0;
   pointer-events: none;
 }
+/* The white paper needs a shadow on the white basemap. It is baked into the
+   WebP (CSS drop-shadow on alpha WebP turns into a rectangle on iOS): the
+   192×216 bubble sits in a 228×254 canvas, 18/14/18/24 px of shadow around
+   it, so the bubble keeps the box size and the shadow spills past it. */
 .pinLogoArt {
+  position: absolute;
+  left: -9.375%;
+  top: -6.4815%;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 118.75%;
+  max-width: none;
+  height: 117.5926%;
   object-fit: contain;
 }
 

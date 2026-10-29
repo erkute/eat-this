@@ -8,7 +8,9 @@
 
 .inner {
   width: 100%;
-  padding: 0 12px 80px;
+  /* Abstand zum fixen Kopf: Kopf und Seite sind beide weiß, ohne ihn
+     klebt der Titel an der Kante und wirkt wie darunter geschoben. */
+  padding: clamp(40px, 5vw, 72px) 12px 80px;
 }
 
 .title {

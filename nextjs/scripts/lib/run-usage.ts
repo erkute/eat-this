@@ -11,7 +11,7 @@
  * search on top of tokens.
  */
 
-export interface ModelPrices {
+interface ModelPrices {
   /** USD per million input tokens. */
   input: number;
   /** USD per million output tokens. */
@@ -25,7 +25,7 @@ const WEB_SEARCH_PER_1000 = 10;
 const CACHE_READ_MULTIPLIER = 0.1;
 const CACHE_WRITE_MULTIPLIER = 1.25;
 
-export interface Usage {
+interface Usage {
   in: number;
   cachedIn: number;
   cacheWrite: number;
@@ -38,7 +38,7 @@ export function newUsage(): Usage {
 }
 
 /** Shape of the `usage` object the SDK returns on every message. */
-export interface ApiUsage {
+interface ApiUsage {
   input_tokens?: number;
   output_tokens?: number;
   cache_read_input_tokens?: number | null;

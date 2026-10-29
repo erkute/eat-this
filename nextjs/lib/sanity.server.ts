@@ -118,7 +118,7 @@ interface RestaurantPageRow extends Restaurant {
   siblingsWrap?: RestaurantCard[];
 }
 
-export interface RestaurantPageData {
+interface RestaurantPageData {
   restaurant: Restaurant;
   mustEats: MustEatPreview[];
   articles: RestaurantArticleCard[];

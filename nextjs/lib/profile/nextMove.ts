@@ -19,7 +19,7 @@ export const FALLBACK_DISTRICT = 'Berlin';
  */
 export const OUT_OF_TOWN_M = 30_000;
 
-export interface NextMove {
+interface NextMove {
   /** Die Karte, auf die der Weg zeigt (/map?me=<id>). */
   target: MapMustEat;
   district: string;

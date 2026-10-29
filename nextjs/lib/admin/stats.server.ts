@@ -773,7 +773,7 @@ function summarizeDay(
 
 /* ── Das Fenster ──────────────────────────────────────────────────────── */
 
-export interface SummarizeOptions {
+interface SummarizeOptions {
   /** Heutiger Kalendertag in Berlin. Trennt den laufenden Tag vom juengsten
    *  abgeschlossenen, damit ein halber Tag nicht wie ein Einbruch aussieht. */
   today?: string;
@@ -1117,7 +1117,7 @@ export function summarizeAccounts(
   };
 }
 
-export interface DeckInput {
+interface DeckInput {
   restaurants: { _id: string; categories?: { slug: string; name?: string }[] }[];
   mustEats: {
     _id: string;

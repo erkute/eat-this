@@ -31,7 +31,7 @@ export type PublicDeckCard =
  * E-Mail. Ein Deck sagt oeffentlich, WIE VIEL jemand hat und WO — nicht, was
  * drauf steht und nicht, wo er isst.
  */
-export interface PublicDeck {
+interface PublicDeck {
   /** Vorname aus dem Anzeigenamen. Null, wenn das Konto keinen gepflegt hat. */
   name: string | null;
   avatar: 1 | 2 | 3;

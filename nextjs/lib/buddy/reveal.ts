@@ -65,7 +65,7 @@ export const FRAME_MS = 1000 / 60;
 
 /** Der Zustand des Takts: gefahrenes Tempo (Zeichen/s) und der Bruchteil
  *  eines Zeichens, der beim Abrunden übrig blieb. */
-export interface RevealPace {
+interface RevealPace {
   v: number;
   carry: number;
 }

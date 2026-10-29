@@ -16,8 +16,8 @@ import { trackEvent } from '@/lib/analytics';
  * Fenster und eine gescheiterte Übergabe denselben Code tragen
  * (googleSignInError.ts). Ein Hook, zwei Knöpfe.
  */
-export type GoogleSignInPhase = 'idle' | 'busy';
-export type GoogleSignInNote = 'cancelled' | 'blocked' | 'failed' | null;
+type GoogleSignInPhase = 'idle' | 'busy';
+type GoogleSignInNote = 'cancelled' | 'blocked' | 'failed' | null;
 
 /** Die Zeile zu jeder Note — Schlüssel in translations.ts, mit `auth.`-Präfix:
  *  ohne findet next-intl den Text nicht und schreibt dem Leser den Schlüssel

@@ -218,7 +218,7 @@ export function bookGeometry(vw: number, vh: number) {
   };
 }
 
-export interface Rect {
+interface Rect {
   x: number;
   y: number;
   w: number;

@@ -4,10 +4,7 @@
    Bildkasten. Hier wird gekauft: die rote Pille mit leichten Kratzern. */
 
 .page {
-  --pack-paper: #fff;
-  --pack-ink: var(--et-ink);
   --pack-fg: var(--et-fg);
-  --pack-accent: var(--et-accent);
   --pack-muted: var(--et-muted);
   --pack-soft: var(--et-copy);
   display: flow-root;

@@ -13,7 +13,7 @@ interface AttemptData {
   sessionUrl?: string;
 }
 
-export type CheckoutAttempt =
+type CheckoutAttempt =
   | { kind: 'create'; attemptId: string; expiresAtSeconds: number }
   | { kind: 'reuse'; url: string };
 

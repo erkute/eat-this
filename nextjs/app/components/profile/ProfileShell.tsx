@@ -26,7 +26,7 @@ import SiteFooter from '../SiteFooter';
 import styles from './Profile.module.css';
 
 interface Props {
-  /** Server-computed anon face-up set (trial-10 ∪ spot-of-day). Publicly
+  /** Server-computed anon face-up set (the 10 curated cards). Publicly
    *  face-up cards stay face-up in the collection too. */
   publicFaceUpIds: string[];
 }
@@ -52,7 +52,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     );
   };
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
-  // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
+  // public face-up set (the 10 curated cards) so anything publicly revealed
   // is open in the collection too, even right after first signup.
   const { unlockedIds: storedUnlockedIds, unlockedAt } = useUnlockedMustEats(user?.uid ?? null);
   const { profile, setAvatar } = useUserProfile(user?.uid ?? null);

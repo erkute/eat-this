@@ -127,7 +127,7 @@ const SYNONYMS_BY_WORD = new Map(
 );
 
 /** Ein Wort der Anfrage und was es noch meinen darf. */
-export interface QueryWord {
+interface QueryWord {
   text: string;
   alternatives: string[];
   /** Ein Bezirk oder Kiez des Katalogs. Trifft nur Lage und Namen, nicht den
@@ -196,7 +196,7 @@ function startsWord(hay: string, token: string): boolean {
 }
 
 /** Was ein Spot fuer die Suche hergibt, einmal gefaltet. */
-export interface SearchEntry {
+interface SearchEntry {
   name: string;
   /** Bezirk und Kiez, durch „ | " getrennt. */
   area: string;

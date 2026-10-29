@@ -20,7 +20,7 @@
 // `sitemapEntries()` bewusst eine leere Liste — dort waere gar nichts mehr
 // gezaehlt worden.
 
-export type BudgetedMap = 'paths' | 'entryPaths' | 'continuations' | 'referrers';
+type BudgetedMap = 'paths' | 'entryPaths' | 'continuations' | 'referrers';
 
 const BUDGETED_MAPS: readonly BudgetedMap[] = ['paths', 'entryPaths', 'continuations', 'referrers'];
 
@@ -34,7 +34,7 @@ export const MAP_KEY_BUDGET = 1200;
 export const OVERFLOW_PATH = '/other';
 export const OVERFLOW_HOST = 'other';
 
-export type DayKeys = Record<BudgetedMap, Set<string>>;
+type DayKeys = Record<BudgetedMap, Set<string>>;
 
 function emptyKeys(): DayKeys {
   return {

@@ -30,7 +30,7 @@ const BENIGN = new Set([
   'auth/no-auth-event',
 ]);
 
-export interface GoogleSignInFailure {
+interface GoogleSignInFailure {
   /** Firebase-Fehlercode, z. B. `auth/unauthorized-domain`. */
   code: string;
   /** Abbruch durch den Leser — keine rote Meldung (gemeldet wird trotzdem). */

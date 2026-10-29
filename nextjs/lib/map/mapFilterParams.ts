@@ -65,7 +65,7 @@ export function isDefaultFilterState(state: MapFilterState): boolean {
 
 /** Slug ⇄ display-value lookups, built from the restaurant rows themselves so
  *  a param only ever resolves to a value the filters can actually match. */
-export interface MapFilterIndex {
+interface MapFilterIndex {
   bezirkNameBySlug: Map<string, string>;
   bezirkSlugByName: Map<string, string>;
   categorySlugByLower: Map<string, string>;

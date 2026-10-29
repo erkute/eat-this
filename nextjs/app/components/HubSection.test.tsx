@@ -113,12 +113,6 @@ describe('HubSection home', () => {
 
   });
 
-  it('has no Spot des Tages any more (removed 01.10.2026)', () => {
-    const html = renderHome();
-    expect(html).not.toContain('Spot des Tages');
-    expect(html).not.toContain('hub-spot');
-  });
-
   it('sells no packs on the home page', () => {
     const html = renderHome();
     expect(html).not.toContain('/pack/');

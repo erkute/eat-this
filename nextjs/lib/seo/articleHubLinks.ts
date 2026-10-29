@@ -10,7 +10,7 @@
  * ohne Eintrag sind kein Versäumnis — die Lücken-Guides (Italiener,
  * Vietnamesisch, Vegan, …) HABEN keinen Hub, genau deshalb gibt es sie.
  */
-export interface ArticleHubLink {
+interface ArticleHubLink {
   /** i18n-Pfad, wird durch den `Link` aus i18n/navigation lokalisiert. */
   href: string;
   labelDe: string;

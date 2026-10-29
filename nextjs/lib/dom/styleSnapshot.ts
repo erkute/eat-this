@@ -2,7 +2,7 @@
    `!important`. Gebraucht von den beiden Bar-Locks (Login-Modal, Must-Eat-Sheet),
    die html/body auf dem Telefon vorübergehend einfärben, damit Safaris
    durchscheinende Leisten die richtige Farbe sehen. */
-export type StyleSnapshot = {
+type StyleSnapshot = {
   priority: string;
   value: string;
 };

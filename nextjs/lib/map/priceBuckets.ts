@@ -48,7 +48,7 @@ export const PRICE_BUCKETS = [
   { id: '100', min: 100, max: null, labelKey: 'map.priceFrom100' },
 ] as const;
 
-export type PriceBucketId = (typeof PRICE_BUCKETS)[number]['id'];
+type PriceBucketId = (typeof PRICE_BUCKETS)[number]['id'];
 
 const BY_ID = new Map<string, (typeof PRICE_BUCKETS)[number]>(PRICE_BUCKETS.map((b) => [b.id, b]));
 

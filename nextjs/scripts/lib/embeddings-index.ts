@@ -151,7 +151,7 @@ export function checkIndexShape(
   return findings;
 }
 
-export interface DriftReport {
+interface DriftReport {
   live: number;
   indexed: number;
   /** Live, aber ohne Vektor. */

@@ -40,7 +40,7 @@ import { notify, type Notice } from '@/lib/notice';
  * eine Freigabe sofort wirken lässt (Chrome).
  */
 
-export type LocationPlatform =
+type LocationPlatform =
   | 'ios-safari'
   | 'ios-chrome'
   | 'ios-other'

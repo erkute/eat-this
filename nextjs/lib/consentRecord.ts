@@ -6,7 +6,7 @@
  * parser from route.ts fails the generated route types. Being its own module
  * also means the validation has tests that never touch Firestore.
  */
-export interface ConsentRecord {
+interface ConsentRecord {
   id: string;
   value: 'accepted' | 'declined';
   version: number;

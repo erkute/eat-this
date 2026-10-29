@@ -2,7 +2,7 @@ import 'server-only';
 
 import type { SanityClient } from '@sanity/client';
 
-export interface RestaurantImportResult {
+interface RestaurantImportResult {
   docId: string;
   name: string;
 }

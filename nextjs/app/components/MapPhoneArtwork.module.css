@@ -1,4 +1,4 @@
-.mount { display: block; position: relative; width: 100%; perspective: 1400px; }
+.mount { container-type: inline-size; --phone-unit: min(1px, .333333cqw); display: block; position: relative; width: 100%; perspective: 1400px; }
 .viewport { display: block; flex: 1; min-height: 0; overflow: clip; }
 .image { display: block; width: 100%; height: auto; }
-.fit { position: absolute; top: 50%; left: 50%; width: min(88cqw, 43cqh); transform: translate(-50%, -50%); }
+.fit { position: absolute; top: 50%; left: 50%; width: var(--phone-fit-width, min(88cqw, 43cqh)); transform: translate(-50%, -50%); }

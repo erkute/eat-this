@@ -83,7 +83,12 @@ export default function StarterPack3D({ fit = false }: { fit?: boolean }) {
     const resize = () => {
       if (!renderer) return;
       const box = stage.getBoundingClientRect();
-      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      // The small onboarding pack needs supersampling even on 1x previews;
+      // its fine type otherwise aliases as the foil rotates. Home keeps its
+      // existing rendering budget, while fitted previews use 2–3x pixels.
+      const ratio = fit
+        ? Math.min(3, Math.max(2, window.devicePixelRatio || 1))
+        : Math.min(window.devicePixelRatio || 1, 2);
       // `box` misst sichtbare Pixel, `offsetWidth` CSS-Pixel. Unter dem Zoom
       // der Startseite (ab 1600px, HubSection.module.css) weichen sie ab —
       // das Pack muss im selben Maß wie die Leinwand gezeichnet werden.
@@ -159,7 +164,7 @@ export default function StarterPack3D({ fit = false }: { fit?: boolean }) {
       renderer?.dispose();
       renderer = null;
     };
-  }, []);
+  }, [fit]);
 
   return (
     <div ref={stageRef} className={fit ? `${styles.art} ${styles.fitted}` : styles.art} aria-hidden="true">

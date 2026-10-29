@@ -2,18 +2,19 @@
 .board { display: grid; grid-template-columns: .8fr 1.5fr; gap: 64px; max-width: 1400px; margin: auto; }
 .board :global(.hv-title) { max-width: 6ch; margin: 0; }
 .item { border-top: 0; padding-block: 4px; }
-.question { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 21px 0; cursor: pointer; list-style: none; font-size: 18px; font-weight: 700; line-height: 1.25; }
+.question { position: relative; display: block; padding: 21px 36px 21px 0; cursor: pointer; list-style: none; font-size: 18px; font-weight: 700; line-height: 1.25; -webkit-tap-highlight-color: transparent; transition: color 160ms ease; }
 .question::-webkit-details-marker { display: none; }
-.question::after { content: '+'; font-weight: 400; font-size: 25px; }
-.item[open] .question::after { content: '−'; }
-.question:focus-visible { outline: 3px solid #d9382a; outline-offset: 4px; }
+.question::before, .question::after { content: ''; position: absolute; top: 50%; background: currentColor; }
+.question::before { right: 0; width: 16px; height: 2px; transform: translateY(-50%); }
+.question::after { right: 7px; width: 2px; height: 16px; transform: translateY(-50%) scaleY(1); transition: transform 220ms ease; }
+.item[open] .question::after { transform: translateY(-50%) scaleY(0); }
+.question:active { translate: none; }
+.question:focus-visible { outline: 0; background: var(--et-subtle); box-shadow: -4px 0 0 var(--et-fg); }
+@media (hover: hover) { .question:hover { color: var(--et-link); } }
 .answer { margin: 0; padding: 0 32px 24px 0; font-size: 16px; line-height: 1.5; }
 @media(max-width:767.98px) { .section:global(.hv-wrap) { padding-block: 48px; } .board { grid-template-columns: 1fr; gap: 32px; } .board :global(.hv-title) { max-width: none; } .question { font-size: 16px; } .answer { font-size: 15px; } }
-/* Aufklappen ohne JavaScript (vorher maß HubMotion Höhen und schrieb sie
-   inline — das flackerte und legte Antworten übereinander, 21.10.2026):
-   wo der Browser `interpolate-size` kann, wächst der Inhalt in der Höhe und
-   schrumpft beim Zuklappen; überall gleitet die Antwort unter der Frage
-   hervor. Ohne Unterstützung steht sie einfach da. */
+/* Native details keeps its keyboard semantics and SSR content. Only the
+   content height animates; no clipping mask flashes over the answer. */
 .item { interpolate-size: allow-keywords; }
 .item::details-content {
   block-size: 0;
@@ -21,12 +22,6 @@
   transition: block-size 280ms cubic-bezier(.2, .8, .2, 1), content-visibility 280ms allow-discrete;
 }
 .item[open]::details-content { block-size: auto; }
-.item[open] .answer { animation: faqAnswer 280ms cubic-bezier(.2, .8, .2, 1) both; }
-@keyframes faqAnswer {
-  from { transform: translateY(-8px); clip-path: inset(0 0 100% 0); }
-  to { transform: none; clip-path: inset(0); }
-}
 @media (prefers-reduced-motion: reduce) {
-  .item::details-content { transition: none; }
-  .item[open] .answer { animation: none; }
+  .item::details-content, .question, .question::after { transition: none; }
 }

@@ -611,9 +611,7 @@ export default function SignInReward() {
         <div className={styles.halves}>
           <Link href="/map" className={styles.half} onClick={close}>
             <span className={styles.halfArt}>
-              <span className={styles.phone}>
-                <MapPhoneArtwork alt="" />
-              </span>
+              <MapPhoneArtwork alt="" fit />
             </span>
             <span className={styles.halfLabel}>{t.go.map}</span>
             <span className={styles.halfHint}>{t.go.mapHint}</span>

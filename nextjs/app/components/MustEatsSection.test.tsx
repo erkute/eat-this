@@ -104,7 +104,7 @@ describe('MustEatsSection', () => {
       expect.objectContaining({
         coveredTitle: '5 gute Gründe, loszugehen.',
         coveredBody:
-          'Weitere 5 Karten sind noch verdeckt. Such dir auf der Map einen Spot aus und schau vorbei. Vor Ort deckst du die Karte mit einem Tap auf und erfährst, was du dort bestellen solltest. Danach gehört sie zu deinem Deck.',
+          'Weitere 5 Karten sind noch verdeckt. Auf der Map findest du ihre Spots. Mit deinem Konto und freigegebenem Standort deckst du sie direkt vor Ort mit einem Tap auf und sammelst die Empfehlungen in deinem Deck.',
       })
     );
   });
@@ -172,16 +172,11 @@ describe('MustEatsSection', () => {
     expect(auth.indexOf('href="/map"')).toBeLessThan(auth.indexOf('href="/packs"'));
   });
 
-  it('says the deck keeps growing, not just where new cards come from', () => {
-    // Die Zahlen oben ("24 Karten") lesen sich sonst wie ein abgeschlossenes
-    // Set. Der Katalog wächst aber laufend weiter, unabhängig davon, was heute
-    // auf dieser Seite steht — der Abschluss ist die Stelle, an der ein
-    // Besucher fragt, ob das schon alles war. „Und wir entdecken immer wieder
-    // neue" machte dabei die Redaktion zum Sammler (Betreiber, 07.09.2026:
-    // „kann raus oder muss besser formuliert werden") — jetzt wächst der
-    // Katalog, ohne dass jemand im Satz steht.
-    expect(render()).toContain('Und es kommen laufend neue dazu.');
-    expect(render('en')).toContain('And new ones keep coming.');
+  it('describes the growing catalogue without promising automatically opened cards', () => {
+    expect(render()).toContain('Nach und nach kommen neue Gerichte dazu, die du entdecken und als Karten sammeln kannst.');
+    expect(render('en')).toContain('More dishes will be added over time for you to discover and collect as cards.');
+    expect(render()).not.toContain('Alle 20 Karten liegen sofort offen');
+    expect(render('en')).not.toContain('All 20 cards go straight into your deck face up');
   });
 
   it('locale-prefixes both closing links for en', () => {

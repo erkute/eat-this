@@ -9,11 +9,35 @@ const DEVELOPMENT_COOKIE = 'eatthis_premium_access';
  *  ein verdecktes Bild behalten darf (siehe app/api/must-eat-image). */
 export const PREMIUM_ACCESS_TTL_SECONDS = 30 * 60;
 
+// Browser verwerfen ein Cookie ueber 4096 Byte stillschweigend — dann waere
+// jedes verdeckte Bild ein 403. Volle IDs (~45 Zeichen) reissen diese Grenze
+// schon bei rund 90 Karten. Deshalb traegt das Token je Karte nur einen
+// 6-Byte-Fingerabdruck der ID, aneinandergehaengt: 8 Zeichen pro Karte, Platz
+// fuer weit ueber 300 Karten. Die Signatur schuetzt die Liste; bei 48 Bit ist
+// eine zufaellige Kollision zweier Karten-IDs praktisch ausgeschlossen.
+const DIGEST_BYTES = 6;
+const DIGEST_CHARS = 8;
+
 interface PremiumAccessPayload {
-  v: 1;
+  v: 2;
   exp: number;
   sub: string;
-  ids: string[];
+  h: string;
+}
+
+export interface PremiumAccess {
+  has(id: string): boolean;
+}
+
+const NO_ACCESS: PremiumAccess = { has: () => false };
+
+function idDigest(id: string): string {
+  return crypto
+    .createHash('sha256')
+    .update(id)
+    .digest()
+    .subarray(0, DIGEST_BYTES)
+    .toString('base64url');
 }
 
 function secret(): string {
@@ -44,10 +68,10 @@ export function createPremiumAccessToken(
   const nowMs = options.nowMs ?? Date.now();
   const ttlSeconds = options.ttlSeconds ?? PREMIUM_ACCESS_TTL_SECONDS;
   const payload: PremiumAccessPayload = {
-    v: 1,
+    v: 2,
     exp: Math.floor(nowMs / 1000) + ttlSeconds,
     sub: subject,
-    ids: [...new Set(ids)].sort(),
+    h: [...new Set([...ids].map(idDigest))].sort().join(''),
   };
   const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
   return `${encoded}.${signature(encoded)}`;
@@ -57,29 +81,33 @@ export function readPremiumAccessToken(
   token: string | undefined,
   expectedSubject: string,
   nowMs = Date.now()
-): Set<string> {
-  if (!token) return new Set();
+): PremiumAccess {
+  if (!token) return NO_ACCESS;
   const [encoded, providedSignature, extra] = token.split('.');
-  if (!encoded || !providedSignature || extra) return new Set();
-  if (!timingSafeEqual(providedSignature, signature(encoded))) return new Set();
+  if (!encoded || !providedSignature || extra) return NO_ACCESS;
+  if (!timingSafeEqual(providedSignature, signature(encoded))) return NO_ACCESS;
 
   try {
     const payload = JSON.parse(
       Buffer.from(encoded, 'base64url').toString('utf8')
     ) as Partial<PremiumAccessPayload>;
     if (
-      payload.v !== 1 ||
+      payload.v !== 2 ||
       typeof payload.exp !== 'number' ||
       payload.exp < Math.floor(nowMs / 1000) ||
       payload.sub !== expectedSubject ||
-      !Array.isArray(payload.ids) ||
-      payload.ids.some((id) => typeof id !== 'string')
+      typeof payload.h !== 'string' ||
+      payload.h.length % DIGEST_CHARS !== 0
     ) {
-      return new Set();
+      return NO_ACCESS;
     }
-    return new Set(payload.ids);
+    const digests = new Set<string>();
+    for (let i = 0; i < payload.h.length; i += DIGEST_CHARS) {
+      digests.add(payload.h.slice(i, i + DIGEST_CHARS));
+    }
+    return { has: (id) => digests.has(idDigest(id)) };
   } catch {
-    return new Set();
+    return NO_ACCESS;
   }
 }
 

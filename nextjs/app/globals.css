@@ -421,6 +421,8 @@ html[data-vintage] .homeV2 > section {
 
 html {
   color-scheme: light;
+  /* Touch feedback comes from :active; keyboard focus keeps :focus-visible. */
+  -webkit-tap-highlight-color: transparent;
   font-synthesis-weight: none;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
@@ -1706,7 +1708,7 @@ ol {
   background-blend-mode: multiply;
 }
 .et-btn.et-btn-paper:focus-visible,
-.et-paper-link:is(:hover, :focus-visible) .et-btn-paper {
+.et-paper-link:focus-visible .et-btn-paper {
   background-color: var(--et-btn-hover);
   color: var(--et-btn-hover-fg);
 }
@@ -1765,7 +1767,7 @@ html[data-theme='dark'] {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.et-btn.et-btn-map-control:not(:disabled):is(:hover, :focus-visible) {
+.et-btn.et-btn-map-control:not(:disabled):focus-visible {
   background: none;
   filter: brightness(0.95) var(--et-tape-lift);
   color: var(--et-tape-fg);
@@ -1800,6 +1802,15 @@ html[data-theme='dark'] .et-btn-text {
   .et-btn:not(:disabled):hover {
     background-color: var(--et-btn-hover, var(--et-accent));
     color: var(--et-btn-hover-fg, #fff);
+  }
+  .et-paper-link:hover .et-btn-paper {
+    background-color: var(--et-btn-hover);
+    color: var(--et-btn-hover-fg);
+  }
+  .et-btn.et-btn-map-control:not(:disabled):hover {
+    background: none;
+    filter: brightness(0.95) var(--et-tape-lift);
+    color: var(--et-tape-fg);
   }
 }
 /* Fokus als Fläche, kein Ring: ein Ring mit Abstand um die Pille las sich

@@ -47,7 +47,7 @@
 .dish { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: anywhere; }
 .where { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 0; font-size: 14px; color: var(--must-soft); }
 .spotLink { color: var(--et-fg); text-decoration: none; }
-.spotLink:hover { color: var(--et-link); }
+@media (hover: hover) { .spotLink:hover { color: var(--et-link); } }
 .spotLink:focus-visible { outline: 2px solid var(--et-link); outline-offset: 3px; }
 .price { margin: 0; font-size: 14px; }
 .set { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 16px; margin: 0; padding: 0; list-style: none; }

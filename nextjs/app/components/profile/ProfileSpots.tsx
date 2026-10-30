@@ -122,8 +122,8 @@ export function ProfileSpotsContent({
                   )}
                 </span>
                 <span className={styles.spotCaption}>
-                  <h3 className={styles.spotName}>{normalizeName(f.name)}</h3>
                   {f.district && <p className={styles.spotDistrict}>{f.district}</p>}
+                  <h3 className={styles.spotName}>{normalizeName(f.name)}</h3>
                 </span>
               </MapIntentLink>
               <button

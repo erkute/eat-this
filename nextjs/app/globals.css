@@ -982,7 +982,7 @@ html[data-auth='1'] [data-guest-only] {
    Beide Antworten bleiben gleich gross und gleich gut lesbar. */
 .cookie-gate {
   --cookie-panel-w: 520px;
-  --cookie-panel-w-wide: 900px;
+  --cookie-panel-w-wide: 680px;
   --cookie-font: var(--et-font-display);
   position: fixed;
   inset: 0;
@@ -1028,9 +1028,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
   box-sizing: border-box;
   width: min(100%, var(--cookie-panel-w));
   max-height: min(calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 780px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
   padding: var(--et-window-padding);
   color: var(--et-fg);
   background-color: var(--et-ground);
@@ -1069,6 +1067,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
 .cookie-content {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   min-height: 0;
   gap: 22px;
   width: 100%;
@@ -1078,8 +1077,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
   min-width: 0;
 }
 .cookie-copy,
-.cookie-buttons,
-.cookie-legal {
+.cookie-actions {
   flex-shrink: 0;
 }
 .cookie-title {
@@ -1116,6 +1114,34 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
    more than a yes makes the consent invalid, and invalid consent makes the
    analytics it buys unusable. Den Druck (1px) setzt die globale :active-Regel
    weiter unten. */
+.cookie-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+/* Text und Details scrollen in diesem Bereich, die zwei Antworten darunter
+   stehen fest auf dem Papier. Das Ausblenden am unteren Rand gibt es nur
+   aufgeklappt — zugeklappt passt alles, und der Rand würde den Knopf
+   „Details anzeigen" anschneiden. */
+.cookie-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.cookie-scroll::-webkit-scrollbar {
+  display: none;
+}
+.cookie-consent.expanded .cookie-scroll {
+  padding-bottom: 28px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+}
 .cookie-buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1131,7 +1157,6 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-top: -8px;
   color: var(--cookie-dim);
   font-family: var(--cookie-font);
   font-size: 14px;
@@ -1186,106 +1211,131 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
   }
 }
 
-/* Cookie banner inline expand. */
+/* Details: ruhige Zeilen wie die FAQ der Startseite — Titel mit Plus, ein Tipp
+   öffnet. Keine Kästen, kein zweiter Scrollbereich: die Karte scrollt als
+   Ganzes, die Antworten kleben unten (.cookie-actions). */
 .cookie-expand {
-  flex: 0 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
   width: 100%;
   margin: 0;
   padding: 0;
-  max-height: min(46dvh, 420px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-color: var(--et-muted) transparent;
-  scrollbar-width: thin;
-  /* Self-hiding scroll shadows. The panel is height-capped, so the card grid
-     gets cut mid-row — without an edge cue that reads as a rendering bug
-     rather than "keep scrolling". The `local` layers ride with the content and
-     mask the `scroll` layers once an end is reached, so the hint appears only
-     where there is actually more to see. No JS, no listener. */
-  background:
-    linear-gradient(var(--et-ground) 30%, transparent) top / 100% 22px no-repeat local,
-    linear-gradient(transparent, var(--et-ground) 72%) bottom / 100% 26px no-repeat local,
-    radial-gradient(farthest-side at 50% 0, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0)) top /
-      100% 11px no-repeat scroll,
-    radial-gradient(farthest-side at 50% 100%, rgba(21, 18, 14, 0.28), rgba(21, 18, 14, 0))
-      bottom / 100% 13px no-repeat scroll;
-  background-color: var(--et-ground);
 }
-/* Dezente Detailflächen folgen ebenfalls der gewählten Theme-Palette. */
-.cookie-expand .cookie-info-body {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  align-items: start;
-  gap: 8px;
+.cookie-info-item {
+  border-top: 1px solid color-mix(in srgb, var(--et-fg) 14%, transparent);
+  interpolate-size: allow-keywords;
 }
-.cookie-info-card {
-  min-width: 0;
-  margin: 0;
-  padding: 14px 15px 15px;
-  background: var(--et-subtle);
-  border: 0;
-  border-radius: 0;
+.cookie-info-item:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--et-fg) 14%, transparent);
 }
-.cookie-expand .cookie-info-body h3 {
-  margin: 0 0 7px;
-  color: var(--et-link);
+.cookie-info-item::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    content-visibility 280ms allow-discrete;
+}
+.cookie-info-item[open]::details-content {
+  block-size: auto;
+}
+.cookie-info-item summary {
+  position: relative;
+  display: block;
+  padding: 16px 34px 16px 0;
+  cursor: pointer;
+  list-style: none;
+  color: var(--et-fg);
   font-family: var(--cookie-font);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0;
   line-height: 1.3;
-  text-transform: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 160ms ease;
 }
-.cookie-expand .cookie-info-body p,
-.cookie-expand .cookie-info-body ul li {
+.cookie-info-item summary::-webkit-details-marker {
+  display: none;
+}
+.cookie-info-item summary::before,
+.cookie-info-item summary::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  background: currentColor;
+}
+.cookie-info-item summary::before {
+  right: 0;
+  width: 14px;
+  height: 2px;
+  transform: translateY(-50%);
+}
+.cookie-info-item summary::after {
+  right: 6px;
+  width: 2px;
+  height: 14px;
+  transform: translateY(-50%) scaleY(1);
+  transition: transform 220ms ease;
+}
+.cookie-info-item[open] summary::after {
+  transform: translateY(-50%) scaleY(0);
+}
+.cookie-info-item summary:active {
+  translate: none;
+}
+.cookie-info-item summary:focus-visible {
+  outline: 0;
+  background: var(--et-subtle);
+  box-shadow: -4px 0 0 var(--et-fg);
+}
+@media (hover: hover) {
+  .cookie-info-item summary:hover {
+    color: var(--et-link);
+  }
+}
+.cookie-info-answer {
+  padding: 0 0 18px;
+}
+.cookie-info-answer p,
+.cookie-info-answer li {
   margin: 0;
   color: var(--cookie-soft);
   font-family: var(--cookie-font);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
-  line-height: 1.42;
+  line-height: 1.5;
 }
-.cookie-expand .cookie-info-body ul {
-  margin: 8px 0 0;
+.cookie-info-answer ul {
+  margin: 10px 0 0;
   padding: 0;
   list-style: none;
 }
-.cookie-expand .cookie-info-body ul li {
+.cookie-info-answer li {
   position: relative;
-  margin-bottom: 5px;
-  padding-left: 13px;
+  margin-bottom: 6px;
+  padding-left: 14px;
 }
 /* Square bullet — brand is square/sticker, no circles. */
-.cookie-expand .cookie-info-body ul li::before {
+.cookie-info-answer li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.62em;
+  top: 0.64em;
   width: 4px;
   height: 4px;
   background: currentColor;
 }
-.cookie-expand .cookie-info-body strong {
+.cookie-info-answer strong {
   color: var(--et-fg);
   font-weight: 700;
 }
-.cookie-expand .cookie-info-body a {
+.cookie-info-answer a {
   color: var(--et-link);
   font-weight: 700;
   text-decoration: none;
 }
-
-@media (max-width: 640px) {
-  .cookie-expand {
-    max-height: min(36dvh, 320px);
-  }
-  .cookie-expand .cookie-info-body {
-    grid-template-columns: 1fr;
-  }
-  .cookie-info-card {
-    padding: 13px 14px 14px;
+@media (prefers-reduced-motion: reduce) {
+  .cookie-info-item::details-content,
+  .cookie-info-item summary,
+  .cookie-info-item summary::after {
+    transition: none;
   }
 }
 

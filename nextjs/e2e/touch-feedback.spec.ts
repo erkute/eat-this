@@ -43,6 +43,55 @@ test('footer opens cookie preferences without native tap frames', async ({ page,
   expect(await nativeTapHighlights(dialog.locator('a[href], button, summary'))).toEqual([]);
 });
 
+for (const route of ['/bezirk/neukoelln', '/bezirk/schoeneberg', '/kategorie/sweets', '/kategorie/pizza', '/en/bezirk/neukoelln', '/en/kategorie/pizza']) {
+  for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+    test(`spot photos visibly confirm a press: ${route} (${reducedMotion})`, async ({ page, isMobile }) => {
+      await page.emulateMedia({ reducedMotion });
+      await page.goto(route);
+      const cards = page.locator('[data-spot-card]');
+      for (const [index, theme] of [[0, 'light'], [await cards.count() - 1, 'dark']] as const) {
+        await page.evaluate(value => document.documentElement.setAttribute('data-theme', value), theme);
+        const card = cards.nth(index);
+        const photo = card.locator('[data-spot-photo]');
+        const link = card.locator('h3 a');
+        await photo.scrollIntoViewIfNeeded();
+        const restingOpacity = await photo.evaluate(element => getComputedStyle(element).opacity);
+        // The transparent link surface covers the photo. Inspect the painted
+        // photo itself, not just the link text, before allowing navigation.
+        await link.evaluate(element => {
+          element.addEventListener('pointerdown', () => {
+            const photo = element.closest('[data-spot-card]')!.querySelector('[data-spot-photo]')!;
+            element.setAttribute('data-test-photo-opacity', getComputedStyle(photo).opacity);
+          }, { once: true });
+          element.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            element.setAttribute('data-test-photo-click', 'true');
+          }, { capture: true, once: true });
+        });
+        const box = (await photo.boundingBox())!;
+        const x = box.x + box.width / 2;
+        const y = box.y + box.height / 2;
+        if (isMobile) await page.touchscreen.tap(x, y);
+        else await page.mouse.click(x, y);
+        await expect(link).toHaveAttribute('data-test-photo-click', 'true');
+        const pressedOpacity = await link.getAttribute('data-test-photo-opacity');
+        expect(pressedOpacity).not.toBeNull();
+        expect(Number(pressedOpacity)).toBeLessThan(Number(restingOpacity) - 0.1);
+        await expect(photo).toHaveCSS('opacity', restingOpacity);
+        await expect(link).not.toHaveAttribute('data-et-pressed');
+      }
+      const card = cards.last();
+      const href = (await card.locator('h3 a').getAttribute('href'))!;
+      const box = (await card.locator('[data-spot-photo]').boundingBox())!;
+      if (isMobile) await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+      else await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+      await expect(page).toHaveURL(new RegExp(`${href}$`));
+      await expect(page.locator('[data-spot-hero]')).toBeVisible();
+    });
+  }
+}
+
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`touch is frame-free and keyboard focus stays visible (${reducedMotion})`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion });

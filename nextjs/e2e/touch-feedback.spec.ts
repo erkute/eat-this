@@ -67,25 +67,24 @@ test('map menu hover only responds to a mouse', async ({ page, isMobile }) => {
   await expect(menu).toBeHidden();
 });
 
-test('article paper link separates touch, mouse hover and keyboard focus', async ({ page, isMobile }) => {
+test('article link separates touch, mouse hover and keyboard focus', async ({ page, isMobile }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/news/essen-trinken-schoeneberg');
   const link = page.locator('.et-paper-link');
-  const label = link.locator('.et-btn-paper');
   await expect(link).toBeVisible();
-  const restingColor = await label.evaluate(element => getComputedStyle(element).backgroundColor);
+  const restingColor = await link.evaluate(element => getComputedStyle(element).backgroundColor);
   if (isMobile) {
     // Stay on this page to inspect the synthetic hover left behind by a tap.
     await link.evaluate(element => element.addEventListener('click', event => event.preventDefault(), { once: true }));
     await link.tap();
-    await expect(label).toHaveCSS('background-color', restingColor);
+    await expect(link).toHaveCSS('background-color', restingColor);
   } else {
     await link.hover();
-    await expect(label).not.toHaveCSS('background-color', restingColor);
+    await expect(link).not.toHaveCSS('background-color', restingColor);
     await page.mouse.move(0, 0);
-    await expect(label).toHaveCSS('background-color', restingColor);
+    await expect(link).toHaveCSS('background-color', restingColor);
   }
   await page.keyboard.press('Tab');
   await link.focus();
-  await expect(label).not.toHaveCSS('background-color', restingColor);
+  await expect(link).not.toHaveCSS('background-color', restingColor);
 });

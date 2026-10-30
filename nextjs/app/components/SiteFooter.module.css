@@ -32,7 +32,7 @@
 .footer :is(a,button):where(:not(:global(.et-btn))):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 4px; }
 @media (hover:hover) { .footer :is(a,button):where(:not(:global(.et-btn))):hover { color: var(--et-muted); } }
 /* Footer links and preferences answer a tap with the readable brand accent. */
-.footer :is(.legalLink,.socialLink,.langBtn,.themeBtn):is(:active,[data-et-pressed]) { color: var(--et-accent); opacity: 1; }
+.footer :is(.legalLink,.socialLink,.langBtn,.themeBtn):not(:disabled,[aria-disabled='true']):is(:active,[data-et-pressed]) { color: var(--et-accent); opacity: 1; }
 @media (max-width:767px) { .footer { padding-block: 32px max(28px, env(safe-area-inset-bottom, 0px)); } .mega, .tagline { width: min(100%, 238px); } .legal { gap: 4px 20px; } }
 
 /* Native 2:3 paper proportions: desktop width must not stretch the folds. */

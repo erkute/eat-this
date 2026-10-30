@@ -88,3 +88,38 @@ test('article link separates touch, mouse hover and keyboard focus', async ({ pa
   await link.focus();
   await expect(link).not.toHaveCSS('background-color', restingColor);
 });
+
+for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+  test(`press feedback is visible and clears after release (${reducedMotion})`, async ({ page, isMobile }) => {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/news');
+    const controls = [
+      page.getByRole('button', { name: 'Menü', exact: true }),
+      page.locator('main .et-btn').first(),
+      page.locator('main a[href^="/news/"]:not(.et-btn)').first(),
+    ];
+    for (const control of controls) {
+      await control.scrollIntoViewIfNeeded();
+      const restingOpacity = await control.evaluate(element => getComputedStyle(element).opacity);
+      await control.evaluate(element => element.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        element.setAttribute('data-test-press-opacity', getComputedStyle(element).opacity);
+      }, { capture: true, once: true }));
+      let pressedOpacity: string | null;
+      if (isMobile) {
+        await control.tap();
+        pressedOpacity = await control.getAttribute('data-test-press-opacity');
+      } else {
+        await control.hover();
+        await page.mouse.down();
+        pressedOpacity = await control.evaluate(element => getComputedStyle(element).opacity);
+        await page.mouse.up();
+        await page.mouse.move(0, 0);
+      }
+      expect(pressedOpacity).not.toBeNull();
+      expect(Number(pressedOpacity)).toBeLessThan(Number(restingOpacity) - 0.1);
+      await expect(control).toHaveCSS('opacity', restingOpacity);
+    }
+  });
+}

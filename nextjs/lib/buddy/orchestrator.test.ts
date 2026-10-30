@@ -124,7 +124,7 @@ describe('runBuddyTurn', () => {
     );
     expect(packs).toHaveLength(1); // capped at one per request despite two searches
     expect(packs[0]).toMatchObject({
-      value: { packId: 'category-pizza', art: '/pics/booster/booster_pizza.webp?v=20261028' },
+      value: { packId: 'category-pizza', art: '/pics/booster/booster_pizza.webp?v=20261030' },
     });
     // teaser carries no price — the chat never names one
     expect('priceLabel' in packs[0].value).toBe(false);

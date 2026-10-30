@@ -325,10 +325,11 @@ export function useHandleScrollDrag(
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      // A photo rail is its own native scroll container. On iPhone Safari
-      // it can take over a lowered-sheet swipe despite pointer capture and
-      // touch-action on the outer sheet. Keep native scrolling out only
-      // while this hook owns the gesture; ordinary content swipes stay native.
+      /* While the grip owns a gesture nothing scrolls natively — not the page
+         under a lowered sheet, not a photo rail in it. Done here and not with
+         `touch-action: none` on the lowered sheet: iOS Safari kept that block
+         after the sheet came back up, and the article no longer scrolled
+         until the view changed (user, 30.10.2026). Other swipes stay native. */
       if (drag && e.cancelable) e.preventDefault();
     };
 

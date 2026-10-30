@@ -58,7 +58,8 @@ for (const theme of ['light', 'dark']) {
       await page.keyboard.press('Tab');
       await cta.focus();
     }
-    await expect(cta).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-    await expect(cta).toHaveCSS('color', 'rgb(21, 18, 14)');
+    // On the red pack poster the white button turns ink on hover; focus is the house yellow.
+    await expect(cta).toHaveCSS('background-color', isMobile ? 'rgb(255, 198, 0)' : 'rgb(21, 18, 14)');
+    await expect(cta).toHaveCSS('color', isMobile ? 'rgb(21, 18, 14)' : 'rgb(255, 255, 255)');
   });
 }

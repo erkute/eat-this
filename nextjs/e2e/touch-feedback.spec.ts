@@ -90,6 +90,47 @@ test('article link separates touch, mouse hover and keyboard focus', async ({ pa
 });
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+  test(`footer links and preferences visibly respond to touch (${reducedMotion})`, async ({ page, isMobile }) => {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/about');
+    const footer = page.locator('[data-site-footer]');
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate(theme => document.documentElement.setAttribute('data-theme', theme), theme);
+      for (const control of [
+        footer.getByRole('link', { name: 'Kontakt', exact: true }),
+        footer.getByRole('button', { name: 'Cookies verwalten', exact: true }),
+        footer.getByRole('button', { name: 'EN — English', exact: true }),
+        footer.getByRole('button', { name: 'Dunkel', exact: true }),
+      ]) {
+        await control.scrollIntoViewIfNeeded();
+        const restingColor = await control.evaluate(element => getComputedStyle(element).color);
+        await control.evaluate(element => element.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          element.setAttribute('data-test-press-color', getComputedStyle(element).color);
+        }, { capture: true, once: true }));
+        let pressedColor: string | null;
+        let beforePressColor = restingColor;
+        if (isMobile) {
+          await control.tap();
+          pressedColor = await control.getAttribute('data-test-press-color');
+        } else {
+          await control.hover();
+          beforePressColor = await control.evaluate(element => getComputedStyle(element).color);
+          await page.mouse.down();
+          pressedColor = await control.evaluate(element => getComputedStyle(element).color);
+          await page.mouse.up();
+          await page.mouse.move(0, 0);
+        }
+        expect(pressedColor).not.toBeNull();
+        expect(pressedColor).not.toBe(restingColor);
+        expect(pressedColor).not.toBe(beforePressColor);
+        await expect(control).toHaveCSS('color', restingColor);
+        await expect(control).toHaveCSS('opacity', '1');
+      }
+    }
+  });
+
   test(`press feedback is visible and clears after release (${reducedMotion})`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion });
     await page.goto('/news');

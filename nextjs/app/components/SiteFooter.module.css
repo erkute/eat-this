@@ -15,7 +15,7 @@
 .socialLink svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.9; }
 .legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 24px; margin: 12px auto 0; }
 .legalLink { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0; color: var(--et-fg); font-size: 14px; line-height: 1.4; text-decoration: none; }
-.legalBtn { appearance: none; border: 0; background: transparent; cursor: pointer; }
+.legalBtn { min-height: 44px; }
 .meta { margin: 12px auto 0; font-size: 12px; line-height: 1.5; }
 .copy { color: var(--et-muted); }
 .prefs { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 24px; margin: 12px auto 0; }
@@ -29,8 +29,10 @@
 /* Sonne/Mond wie DE/EN: grau, der gewählte Modus Ink (und gefüllt). */
 .themeBtn { min-width: 44px; min-height: 44px; color: var(--et-muted); }
 .themeBtn[aria-pressed='true'] { color: var(--et-fg); }
-.footer :is(a,button):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 4px; }
-@media (hover:hover) { .footer :is(a,button):hover { color: var(--et-muted); } }
+.footer :is(a,button):where(:not(:global(.et-btn))):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 4px; }
+@media (hover:hover) { .footer :is(a,button):where(:not(:global(.et-btn))):hover { color: var(--et-muted); } }
+/* Footer links and preferences answer a tap with the readable brand accent. */
+.footer :is(.legalLink,.socialLink,.langBtn,.themeBtn):is(:active,[data-et-pressed]) { color: var(--et-accent); opacity: 1; }
 @media (max-width:767px) { .footer { padding-block: 32px max(28px, env(safe-area-inset-bottom, 0px)); } .mega, .tagline { width: min(100%, 238px); } .legal { gap: 4px 20px; } }
 
 /* Native 2:3 paper proportions: desktop width must not stretch the folds. */

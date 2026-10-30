@@ -1809,6 +1809,19 @@ html[data-theme='dark'] .et-btn-text {
   opacity: 0.55;
   cursor: not-allowed;
 }
+/* The footer stays on light paper in both themes. */
+[data-site-footer] .et-btn.et-btn-text {
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover-fg: var(--et-muted);
+}
+[data-site-footer] .et-btn.et-btn-text:focus-visible {
+  outline: 2px solid var(--et-fg);
+  outline-offset: 4px;
+}
+[data-site-footer] .et-btn.et-btn-text:is(:active, [data-et-pressed]) {
+  color: var(--et-accent);
+  opacity: 1;
+}
 /* ---------------------------------------------------------------------------
    Das Etikett. Ein aufgeklebter Zettel wie der Spot-Name auf den
    Spot-Karten im Artikel, aber gerade (Ansage 22.10.2026: „keine schiefen

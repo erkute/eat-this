@@ -497,6 +497,310 @@
       "descriptionEn": "Buckwheat noodles, perilla, seaweed marinade & perilla oil.",
       "description": "Buchweizennudeln, Perilla, Algenmarinade und Perillaöl.",
       "spot": "NaNum"
+    },
+    {
+      "order": 63,
+      "file": "063.png",
+      "spot": "FABELEI Cocktailbar",
+      "dish": "Quarter Martini",
+      "descriptionEn": "Quarter Martini served with an olive.",
+      "description": "Quarter Martini mit einer Olive serviert."
+    },
+    {
+      "order": 64,
+      "file": "064.png",
+      "spot": "Bostich",
+      "dish": "Salade Niçoise",
+      "descriptionEn": "Vegetables, eggs & tuna.",
+      "description": "Gemüse, Eier und Thunfisch."
+    },
+    {
+      "order": 65,
+      "file": "065.png",
+      "spot": "barlevain",
+      "dish": "Plum Tart",
+      "descriptionEn": "Plum tart with bread ice cream.",
+      "description": "Zwetschgentarte mit Broteis."
+    },
+    {
+      "order": 66,
+      "file": "066.png",
+      "spot": "Jolie Bistrot",
+      "dish": "Crispy Potato",
+      "descriptionEn": "Crispy potatoes with Comté cheese sauce.",
+      "description": "Knusprige Kartoffeln mit Comté-Käsesauce."
+    },
+    {
+      "order": 67,
+      "file": "067.png",
+      "spot": "The Grain",
+      "dish": "Kokos Sorbet",
+      "descriptionEn": "Coconut sorbet, whipped cream & roasted almonds.",
+      "description": "Kokossorbet, Schlagsahne und geröstete Mandeln."
+    },
+    {
+      "order": 68,
+      "file": "068.png",
+      "spot": "St. Bart",
+      "dish": "Broccolini",
+      "descriptionEn": "Broccolini, labneh & Aleppo.",
+      "description": "Broccolini, Labneh und Aleppo-Pfeffer."
+    },
+    {
+      "order": 69,
+      "file": "069.png",
+      "spot": "BEN RAHIM Berlin",
+      "dish": "Affogato",
+      "descriptionEn": "Vanilla ice cream & espresso.",
+      "description": "Vanilleeis und Espresso."
+    },
+    {
+      "order": 70,
+      "file": "070.png",
+      "spot": "Frühstück 3000",
+      "dish": "Pear Pavlova",
+      "descriptionEn": "Vegan pavlova: pear sorbet, anise meringue, blackcurrants & chocolate cream.",
+      "description": "Vegane Pavlova: Birnensorbet, Anis-Baiser, schwarze Johannisbeeren und Schokoladencreme."
+    },
+    {
+      "order": 71,
+      "file": "071.png",
+      "spot": "LA MAISON",
+      "dish": "Banana Danish",
+      "descriptionEn": "Banoffee Danish: toffee-banana filling, white chocolate caramel & banana chips.",
+      "description": "Banoffee-Plunder: Toffee-Bananen-Füllung, Karamell aus weißer Schokolade und Bananenchips."
+    },
+    {
+      "order": 72,
+      "file": "072.png",
+      "spot": "Capvin Weinbergsweg",
+      "dish": "Pizza Classic",
+      "descriptionEn": "38 cm Margherita Classica. Capvin Weinbergsweg.",
+      "description": "Margherita Classica im 38-cm-Format. Capvin Weinbergsweg."
+    },
+    {
+      "order": 73,
+      "file": "073.png",
+      "spot": "Anima",
+      "dish": "Berry Bowl",
+      "descriptionEn": "Granola bowl: Greek yoghurt, homemade granola & fresh berries.",
+      "description": "Granola Bowl mit griechischem Joghurt, hausgemachter Granola und frischen Beeren."
+    },
+    {
+      "order": 74,
+      "file": "074.png",
+      "spot": "soopoollim",
+      "dish": "Red Ginseng",
+      "descriptionEn": "Hongsam latte: red ginseng extract, warm milk & a touch of sweetness.",
+      "description": "Hongsam Latte mit rotem Ginsengextrakt, warmer Milch und etwas Süße."
+    },
+    {
+      "order": 75,
+      "file": "075.png",
+      "spot": "jaja",
+      "dish": "Mackerel",
+      "descriptionEn": "Mackerel, fermented green chilli, cucumber & Szechuan leaf oil.",
+      "description": "Makrele, fermentierte grüne Chili, Gurke und Szechuan-Blattöl."
+    },
+    {
+      "order": 76,
+      "file": "076.png",
+      "spot": "westberlin",
+      "dish": "Hot Cacao",
+      "descriptionEn": "Barista cacao by Reclaem.",
+      "description": "Barista-Kakao von Reclaem."
+    },
+    {
+      "order": 77,
+      "file": "077.png",
+      "spot": "Estelle",
+      "dish": "French Toast",
+      "descriptionEn": "French toast with figs.",
+      "description": "French Toast mit Feigen."
+    },
+    {
+      "order": 78,
+      "file": "078.png",
+      "spot": "Mamida",
+      "dish": "Zucca Pizza",
+      "descriptionEn": "Pumpkin, mozzarella, bacon jam, ricotta, sage, pumpkin seeds & amarettini.",
+      "description": "Kürbis, Mozzarella, Bacon-Jam, Ricotta, Salbei, Kürbiskerne und Amarettini."
+    },
+    {
+      "order": 79,
+      "file": "079.png",
+      "spot": "JOHANN Bäckerei",
+      "dish": "Croissant",
+      "descriptionEn": "Croissant with herder’s cheese from Erdhof Seewalde & tomatoes.",
+      "description": "Croissant mit Hirtenkäse vom Erdhof Seewalde und Tomaten."
+    },
+    {
+      "order": 80,
+      "file": "080.png",
+      "spot": "Oukan",
+      "dish": "Tokoroten",
+      "descriptionEn": "Seaweed & agar noodles, tomato essence, lotus root & finger lime.",
+      "description": "Nudeln aus Algen und Agar, Tomatenessenz, Lotuswurzel und Fingerlimette."
+    },
+    {
+      "order": 81,
+      "file": "081.png",
+      "spot": "Distrikt",
+      "dish": "Chia Pudding",
+      "descriptionEn": "Almond butter, mango & yuzu, coconut chips & fresh raspberries.",
+      "description": "Mandelbutter, Mango und Yuzu, Kokoschips und frische Himbeeren."
+    },
+    {
+      "order": 82,
+      "file": "082.png",
+      "spot": "Chipperfield Kantine",
+      "dish": "Pumpkin Rösti",
+      "descriptionEn": "Potato & pumpkin rösti, Frankfurt green sauce, lamb’s lettuce & salmon trout.",
+      "description": "Kartoffel-Kürbis-Rösti, Frankfurter Grüne Soße, Feldsalat und Lachsforelle."
+    },
+    {
+      "order": 83,
+      "file": "083.png",
+      "spot": "Brammibal's Donuts",
+      "dish": "Cherry Donut",
+      "descriptionEn": "October special: cherry crumble. Cherry compote, vanilla custard, crumble & freeze-dried cherries.",
+      "description": "Oktober-Sorte: Cherry Crumble. Kirschkompott, Vanillecreme, Streusel und gefriergetrocknete Kirschen."
+    },
+    {
+      "order": 84,
+      "file": "084.png",
+      "spot": "Almi Bistro",
+      "dish": "Lobster",
+      "descriptionEn": "Thursday special: Canadian lobster, fregola in bisque & brown butter. Pre-order recommended.",
+      "description": "Donnerstags-Special: kanadischer Hummer, Fregola in Bisque und braune Butter. Vorbestellen empfohlen."
+    },
+    {
+      "order": 85,
+      "file": "085.png",
+      "spot": "Gorilla Bäckerei Neukölln",
+      "dish": "Cinnamon Roll",
+      "descriptionEn": "Cinnamon roll made with soft brioche dough.",
+      "description": "Zimtschnecke aus weichem Briocheteig."
+    },
+    {
+      "order": 86,
+      "file": "086.png",
+      "spot": "Bonvivant Cocktail Bistro",
+      "dish": "Bitter & Blüte",
+      "descriptionEn": "Rhubarb, lavender, gentian & tonic water.",
+      "description": "Rhabarber, Lavendel, Enzian und Tonic Water."
+    },
+    {
+      "order": 87,
+      "file": "087.png",
+      "spot": "Comedor",
+      "dish": "Sea Bream",
+      "descriptionEn": "Sea bream a la Veracruzana. Peppers, tomatoes, olives & fresh herbs.",
+      "description": "Dorade a la Veracruzana. Paprika, Tomaten, Oliven und frische Kräuter."
+    },
+    {
+      "order": 88,
+      "file": "088.png",
+      "spot": "Klinke",
+      "dish": "Kohlroulade",
+      "descriptionEn": "Vegan cabbage roll. Potato & braised onion filling, herb jus.",
+      "description": "Vegane Kohlroulade mit Kartoffel-Schmorzwiebel-Füllung und Kräuterjus."
+    },
+    {
+      "order": 89,
+      "file": "089.png",
+      "spot": "Brasserie Colette Tim Raue",
+      "dish": "Beetroot",
+      "descriptionEn": "Beetroot bourguignon. Wild mushrooms & rosemary.",
+      "description": "Beete Bourguignon mit Waldpilzen und Rosmarin."
+    },
+    {
+      "order": 90,
+      "file": "090.png",
+      "spot": "Mater",
+      "dish": "Pumpkin Pizza",
+      "descriptionEn": "October special: pumpkin pizza. Rosemary, guanciale, Taleggio & roasted mushrooms.",
+      "description": "Oktober-Special: Kürbispizza mit Rosmarin, Guanciale, Taleggio und gerösteten Pilzen."
+    },
+    {
+      "order": 91,
+      "file": "091.png",
+      "spot": "Saint Farah",
+      "dish": "Crudo",
+      "descriptionEn": "Yellowtail crudo. Lovage dressing, citrus oil & sumac.",
+      "description": "Yellowtail-Crudo mit Liebstöckeldressing, Zitrusöl und Sumach."
+    },
+    {
+      "order": 92,
+      "file": "092.png",
+      "spot": "Theke",
+      "dish": "Ham & Egg",
+      "descriptionEn": "Grilled honey-glazed ham, fried egg & fried potatoes.",
+      "description": "Gegrillter Schinken mit Honigglasur, Spiegelei und Bratkartoffeln."
+    },
+    {
+      "order": 93,
+      "file": "093.png",
+      "spot": "OKA Onigiri",
+      "dish": "Egg Onigiri",
+      "descriptionEn": "Beef sukiyaki egg or spicy egg yolk. Japanese rice balls in nori.",
+      "description": "Onigiri in Nori, wahlweise Beef Sukiyaki Egg mit Rind und Eigelb oder Spicy Egg Yolk mit würzigem Eigelb."
+    },
+    {
+      "order": 94,
+      "file": "094.png",
+      "spot": "Mogg",
+      "dish": "Truffle Burger",
+      "descriptionEn": "180 g beef, truffle mayo & cheddar. Onion compote & crispy onions in a brioche bun.",
+      "description": "180-Gramm-Rindfleischpatty mit Trüffelmayonnaise, Cheddar, Zwiebelkompott und knusprigen Zwiebeln im Briochebun."
+    },
+    {
+      "order": 95,
+      "file": "095.png",
+      "spot": "Warawul Coffee",
+      "dish": "Cappuccino",
+      "descriptionEn": "Cappuccino with latte art. Coffee roasted in Neukölln.",
+      "description": "Cappuccino mit Latte Art. Kaffee aus der eigenen Rösterei in Neukölln."
+    },
+    {
+      "order": 96,
+      "file": "096.png",
+      "spot": "Soi & Co. Plant-Based Cafe",
+      "dish": "Pumpkin Cake",
+      "descriptionEn": "Tofu cheesecake with pumpkin, cinnamon & vanilla. Topped with pumpkin–tamari caramel crémeux.",
+      "description": "Tofu-Cheesecake mit geröstetem Kürbis, Zimt und Vanille. Mit Kürbis-Tamari-Karamell-Crémeux."
+    },
+    {
+      "order": 97,
+      "file": "097.png",
+      "spot": "Bistro Gri Gri",
+      "dish": "King Prawns",
+      "descriptionEn": "King prawns with white wine, tomato & chilli–fennel stock.",
+      "description": "King Prawns mit Weißwein, Tomate und Chili-Fenchel-Fond."
+    },
+    {
+      "order": 98,
+      "file": "098.png",
+      "spot": "La Miche",
+      "dish": "Jambon Beurre",
+      "descriptionEn": "Ham & butter in a wheat sourdough baguette.",
+      "description": "Schinken und Butter im Weizensauerteig-Baguette."
+    },
+    {
+      "order": 99,
+      "file": "099.png",
+      "spot": "Crackers",
+      "dish": "Katsu",
+      "descriptionEn": "Aubergine & king oyster mushrooms. Mushroom reduction, sour cream & balsamic–lavender gel.",
+      "description": "Panierte Aubergine mit gebratenen Kräuterseitlingen, Pilzreduktion, Schmand und Balsamico-Lavendel-Gel."
+    },
+    {
+      "order": 100,
+      "file": "100.png",
+      "spot": "Al Catzone - Pizzeria",
+      "dish": "Truffle Pizza",
+      "descriptionEn": "Alba. Vegan pizza with fresh truffle. Mushrooms, mozzarella & Parmesan. Creamy base, truffle oil & parsley.",
+      "description": "Alba. Vegane Pizza mit frischem Trüffel. Pilze, Mozzarella und Parmesan. Cremige Basis, Trüffelöl und Petersilie."
     }
   ]
 }

@@ -1,22 +1,33 @@
-/* Solange die Fahrstuhltüren den Hero freigeben, steht `data-hero-intro`
- * am <html>. Remy-Dock und Cookie-Dialog warten auf das Ende des Auftritts.
- * Bei reduzierter Bewegung wird das Attribut gar nicht gesetzt. */
+/* `data-hero-intro` hält Remys Auftritt fest, `data-hero-cards` das folgende
+ * Auffächern und Aufdecken der Karten. Bei reduzierter Bewegung entfallen
+ * beide Phasen. */
 
 const ATTR = 'data-hero-intro';
+export const HERO_CARDS_ATTR = 'data-hero-cards';
 
 /** Ruft `run` auf, sobald kein Auftritt (mehr) läuft — ohne Auftritt sofort.
  *  Mit `maxWaitMs` spätestens dann, falls der Auftritt hängen bleibt. Gibt
  *  eine Funktion zurück, die das Warten abbricht. */
 export function afterHeroIntro(run: () => void, maxWaitMs?: number): () => void {
+  return afterHeroPhases([ATTR], run, maxWaitMs);
+}
+
+/** Der Cookie-Dialog wartet auf Remy und die fertig aufgedeckten Karten. */
+export function afterHeroReveal(run: () => void, maxWaitMs?: number): () => void {
+  return afterHeroPhases([ATTR, HERO_CARDS_ATTR], run, maxWaitMs);
+}
+
+function afterHeroPhases(attributes: string[], run: () => void, maxWaitMs?: number): () => void {
   const html = document.documentElement;
-  if (!html.hasAttribute(ATTR)) {
+  const pending = () => attributes.some((attribute) => html.hasAttribute(attribute));
+  if (!pending()) {
     run();
     return () => {};
   }
   let settled = false;
   let timer = 0;
   const watch = new MutationObserver(() => {
-    if (!html.hasAttribute(ATTR)) finish();
+    if (!pending()) finish();
   });
   const cancel = () => {
     settled = true;
@@ -28,7 +39,7 @@ export function afterHeroIntro(run: () => void, maxWaitMs?: number): () => void 
     cancel();
     run();
   }
-  watch.observe(html, { attributes: true, attributeFilter: [ATTR] });
+  watch.observe(html, { attributes: true, attributeFilter: attributes });
   if (maxWaitMs !== undefined) timer = window.setTimeout(finish, maxWaitMs);
   return cancel;
 }

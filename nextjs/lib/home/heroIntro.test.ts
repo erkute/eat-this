@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { afterHeroIntro } from './heroIntro';
+import { afterHeroIntro, afterHeroReveal } from './heroIntro';
 
 const html = document.documentElement;
 const flush = () => new Promise((r) => setTimeout(r, 0));
@@ -9,6 +9,7 @@ const flush = () => new Promise((r) => setTimeout(r, 0));
 describe('afterHeroIntro', () => {
   afterEach(() => {
     html.removeAttribute('data-hero-intro');
+    html.removeAttribute('data-hero-cards');
     vi.useRealTimers();
   });
 
@@ -54,5 +55,41 @@ describe('afterHeroIntro', () => {
     html.removeAttribute('data-hero-intro');
     await flush();
     expect(run).not.toHaveBeenCalled();
+  });
+});
+
+describe('afterHeroReveal', () => {
+  afterEach(() => {
+    html.removeAttribute('data-hero-intro');
+    html.removeAttribute('data-hero-cards');
+  });
+
+  it('wartet nach Remy noch auf das Ende der Kartenanimation', async () => {
+    html.setAttribute('data-hero-intro', '');
+    html.setAttribute('data-hero-cards', '');
+    const run = vi.fn();
+    afterHeroReveal(run);
+    html.removeAttribute('data-hero-intro');
+    await flush();
+    expect(run).not.toHaveBeenCalled();
+    html.removeAttribute('data-hero-cards');
+    await flush();
+    expect(run).toHaveBeenCalledTimes(1);
+  });
+
+  it('wartet auch bei später Hydrierung nur noch auf die Karten', async () => {
+    html.setAttribute('data-hero-cards', '');
+    const run = vi.fn();
+    afterHeroReveal(run);
+    expect(run).not.toHaveBeenCalled();
+    html.removeAttribute('data-hero-cards');
+    await flush();
+    expect(run).toHaveBeenCalledTimes(1);
+  });
+
+  it('läuft ohne Animation sofort', () => {
+    const run = vi.fn();
+    afterHeroReveal(run);
+    expect(run).toHaveBeenCalledTimes(1);
   });
 });

@@ -956,8 +956,8 @@ html[data-auth='1'] [data-guest-only] {
    which ignores overflow:hidden on the scroll container. */
 :root[data-consent-gate='open'],
 :root[data-consent-gate='open'] body,
-:root[data-consent-pending]:not([data-hero-intro]),
-:root[data-consent-pending]:not([data-hero-intro]) body {
+:root[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]),
+:root[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) body {
   overflow: hidden;
 }
 
@@ -999,7 +999,7 @@ html[data-auth='1'] [data-guest-only] {
 /* No initial flash for an existing answer, even with application JS delayed.
    The head bootstrap only marks an unanswered visitor. Home keeps its intro. */
 .cookie-gate.cookie-bootstrap { display: none; }
-html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap { display: grid; }
+html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie-gate.cookie-bootstrap { display: grid; }
 .cookie-scrim {
   position: absolute;
   inset: 0;
@@ -1010,7 +1010,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
   transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cookie-gate.show .cookie-scrim,
-html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap .cookie-scrim {
+html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie-gate.cookie-bootstrap .cookie-scrim {
   background-color: var(--et-scrim);
   animation: cookie-scrim-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1052,7 +1052,7 @@ html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap 
   width: min(100%, var(--cookie-panel-w-wide));
 }
 .cookie-gate.show .cookie-consent,
-html[data-consent-pending]:not([data-hero-intro]) .cookie-gate.cookie-bootstrap .cookie-consent {
+html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie-gate.cookie-bootstrap .cookie-consent {
   transform: translateY(0) scale(1);
   animation: cookie-window-enter 0.46s cubic-bezier(0.16, 1, 0.3, 1);
 }

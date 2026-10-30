@@ -17,7 +17,7 @@ function createConsentBootstrap() {
     if(!pending)return;
     html.setAttribute('data-consent-pending','');
     var actions=[],chosen=false,focused=false;
-    function gate(){return html.hasAttribute('data-hero-intro')?null:document.getElementById('cookieConsent');}
+    function gate(){return html.hasAttribute('data-hero-intro')||html.hasAttribute('data-hero-cards')?null:document.getElementById('cookieConsent');}
     function focusGate(){var card=gate();if(card&&!focused){focused=true;card.focus({preventScroll:true});}}
     // Keep bootstrap-owned focus out of React's dehydrated event replay queue.
     // Focus still moves normally and stays trapped; handover removes this listener.
@@ -42,7 +42,7 @@ function createConsentBootstrap() {
       actions.push(id);if(id!=='cookieInfoTrigger')chosen=true;
     }
     var observer=new MutationObserver(focusGate);
-    observer.observe(html,{childList:true,subtree:true,attributes:true,attributeFilter:['data-hero-intro']});
+    observer.observe(html,{childList:true,subtree:true,attributes:true,attributeFilter:['data-hero-intro','data-hero-cards']});
     document.addEventListener('focusin',focusInside,true);
     document.addEventListener('keydown',key,true);
     document.addEventListener('click',click,true);

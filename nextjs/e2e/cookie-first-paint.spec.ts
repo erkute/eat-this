@@ -77,6 +77,10 @@ test('the initial question still waits for the home entrance', async ({ page }) 
   await expect(page.locator('#cookieConsent')).toBeAttached();
   await expect(page.locator('#cookieConsent')).not.toBeVisible();
   await page.evaluate(() => document.documentElement.removeAttribute('data-hero-intro'));
+  await expect(page.locator('html')).toHaveAttribute('data-hero-cards');
+  await expect(page.locator('#cookieConsent')).not.toBeVisible();
+  await expect(page.locator('#cookieConsent')).not.toBeFocused();
+  await page.evaluate(() => document.documentElement.removeAttribute('data-hero-cards'));
   await expect(page.locator('#cookieConsent')).toBeVisible();
 });
 

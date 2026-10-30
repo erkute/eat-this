@@ -261,8 +261,7 @@ describe('CookieConsent — die Detailzeilen sind mit der Tastatur erreichbar', 
   });
 });
 
-/* Auf der Startseite wartet die Frage, bis Remy den Vorhang weggeschoben hat
- * und die Headline steht (Ansage 02.10.2026: „die Cookies kommen zu früh"). */
+/* Auf der Startseite wartet die Frage auf Remy und die aufgedeckten Karten. */
 describe('CookieConsent während des Startseiten-Auftritts', () => {
   beforeEach(() => {
     clearCookies();
@@ -270,23 +269,30 @@ describe('CookieConsent während des Startseiten-Auftritts', () => {
   });
   afterEach(() => {
     document.documentElement.removeAttribute('data-hero-intro');
+    document.documentElement.removeAttribute('data-hero-cards');
     cleanup();
     vi.useRealTimers();
   });
 
   it('fragt erst, wenn der Auftritt vorbei ist', async () => {
     document.documentElement.setAttribute('data-hero-intro', '');
+    document.documentElement.setAttribute('data-hero-cards', '');
     render(<CookieConsent />);
     expect(document.querySelector('.cookie-gate.show'), 'nicht über dem schiebenden Remy').toBeNull();
 
     document.documentElement.removeAttribute('data-hero-intro');
+    await act(async () => {});
+    expect(document.querySelector('.cookie-gate.show'), 'nicht über den drehenden Karten').toBeNull();
+    expect(document.documentElement.hasAttribute('data-consent-gate')).toBe(false);
+
+    document.documentElement.removeAttribute('data-hero-cards');
     await waitFor(() => expect(gate()).not.toBeNull());
     await openGate();
   });
 
   it('fragt spätestens nach 15 s, falls der Auftritt hängt', async () => {
     vi.useFakeTimers();
-    document.documentElement.setAttribute('data-hero-intro', '');
+    document.documentElement.setAttribute('data-hero-cards', '');
     render(<CookieConsent />);
     vi.advanceTimersByTime(14_999);
     expect(document.querySelector('.cookie-gate.show')).toBeNull();

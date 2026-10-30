@@ -6,11 +6,11 @@ import { useTranslation } from '@/lib/i18n';
 import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
 import { countEvent, getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
 import { clearConsent, readConsent, recordConsent, writeConsent } from '@/lib/consent';
-import { afterHeroIntro } from '@/lib/home/heroIntro';
+import { afterHeroReveal } from '@/lib/home/heroIntro';
 import { CONSENT_FOCUSABLE, CONSENT_INTERACTIVE_EVENT } from '@/lib/consentBootstrap';
 
-/* Der Auftritt dauert ~9 s (Vorhang 5,4 s, bis 3 s Warten auf Remys Beine,
-   dann Marke und Headline); länger wartet die Frage nicht. */
+/* Remy öffnet den Hero, danach fächern sich die Karten auf und drehen sich.
+   Falls eine der Phasen hängt, wartet die Frage höchstens 15 Sekunden. */
 const HERO_INTRO_MAX_WAIT_MS = 15_000;
 
 // Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
@@ -228,12 +228,8 @@ export default function CookieConsent() {
     setShow(true);
   }, []);
 
-  // On mount: if the user already answered, load GA (or don't) and stay out of
-  // the way. If they haven't, put the question up immediately — the old bar
-  // waited 1.5s, which only gave the eye time to settle somewhere else.
-  // Except during the home page's entrance: the question waits until Remy has
-  // pushed the curtain away and the headline has landed (Ansage 02.10.2026:
-  // „die Cookies kommen zu früh" — on phones it covered him from ~2 s on).
+  // Saved answers load GA only when accepted. Otherwise ask immediately,
+  // except on home: Remy and the card reveal both finish before the question.
   // At most 15 s, should the entrance ever hang.
   //
   // The answer lives in a cookie (lib/consent.ts); an answer given before that
@@ -246,7 +242,7 @@ export default function CookieConsent() {
       if (stored === 'accepted') loadAnalytics();
       return;
     }
-    return afterHeroIntro(open, HERO_INTRO_MAX_WAIT_MS);
+    return afterHeroReveal(open, HERO_INTRO_MAX_WAIT_MS);
   }, [open]);
 
   useEffect(() => {

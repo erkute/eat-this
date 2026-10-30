@@ -1,5 +1,18 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import { CONSENT_VERSION } from '../lib/consent';
+
+function nativeTapHighlights(controls: Locator) {
+  return controls.evaluateAll(elements => elements
+    // Only rendered controls can produce a visible tap highlight.
+    .filter(element => element.getClientRects().length > 0 && getComputedStyle(element).visibility === 'visible')
+    .filter(element => getComputedStyle(element).getPropertyValue('-webkit-tap-highlight-color') !== 'rgba(0, 0, 0, 0)')
+    .map(element => ({
+      tag: element.tagName,
+      label: element.getAttribute('aria-label'),
+      text: element.textContent?.slice(0, 60),
+      highlight: getComputedStyle(element).getPropertyValue('-webkit-tap-highlight-color'),
+    })));
+}
 
 test.beforeEach(async ({ page, context, baseURL }) => {
   await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
@@ -14,12 +27,21 @@ for (const route of ['/', '/en/news', '/news/gazzo-pizza-neukoelln', '/map?r=gaz
     await expect(page.locator('main')).toBeVisible();
     const controls = page.locator('a[href], button, summary, input, select, textarea, [role="button"]');
     expect(await controls.count()).toBeGreaterThan(0);
-    const nativeHighlights = await controls.evaluateAll(elements => elements
-      .filter(element => getComputedStyle(element).getPropertyValue('-webkit-tap-highlight-color') !== 'rgba(0, 0, 0, 0)')
-      .map(element => ({ tag: element.tagName, label: element.getAttribute('aria-label'), text: element.textContent?.slice(0, 60) })));
-    expect(nativeHighlights).toEqual([]);
+    expect(await nativeTapHighlights(controls)).toEqual([]);
   });
 }
+
+test('footer opens cookie preferences without native tap frames', async ({ page, isMobile }) => {
+  await page.goto('/about');
+  const settings = page.locator('[data-site-footer]').getByRole('button', { name: 'Cookies verwalten', exact: true });
+  if (isMobile) await settings.tap();
+  else await settings.click();
+  const dialog = page.locator('#cookieConsent');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Akzeptieren', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Ablehnen', exact: true })).toBeVisible();
+  expect(await nativeTapHighlights(dialog.locator('a[href], button, summary'))).toEqual([]);
+});
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`touch is frame-free and keyboard focus stays visible (${reducedMotion})`, async ({ page, isMobile }) => {
@@ -88,3 +110,84 @@ test('article link separates touch, mouse hover and keyboard focus', async ({ pa
   await link.focus();
   await expect(link).not.toHaveCSS('background-color', restingColor);
 });
+
+for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+  test(`footer links and preferences visibly respond to touch (${reducedMotion})`, async ({ page, isMobile }) => {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/about');
+    const footer = page.locator('[data-site-footer]');
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate(theme => document.documentElement.setAttribute('data-theme', theme), theme);
+      for (const control of [
+        footer.getByRole('link', { name: 'Kontakt', exact: true }),
+        footer.getByRole('button', { name: 'Cookies verwalten', exact: true }),
+        footer.getByRole('button', { name: 'EN — English', exact: true }),
+        footer.getByRole('button', { name: 'Dunkel', exact: true }),
+      ]) {
+        await control.scrollIntoViewIfNeeded();
+        const restingColor = await control.evaluate(element => getComputedStyle(element).color);
+        await control.evaluate(element => element.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          element.setAttribute('data-test-press-color', getComputedStyle(element).color);
+          element.setAttribute('data-test-press-opacity', getComputedStyle(element).opacity);
+        }, { capture: true, once: true }));
+        let pressedColor: string | null;
+        let pressedOpacity: string | null;
+        let beforePressColor = restingColor;
+        if (isMobile) {
+          await control.tap();
+          pressedColor = await control.getAttribute('data-test-press-color');
+          pressedOpacity = await control.getAttribute('data-test-press-opacity');
+        } else {
+          await control.hover();
+          beforePressColor = await control.evaluate(element => getComputedStyle(element).color);
+          await page.mouse.down();
+          pressedColor = await control.evaluate(element => getComputedStyle(element).color);
+          pressedOpacity = await control.evaluate(element => getComputedStyle(element).opacity);
+          await page.mouse.up();
+          await page.mouse.move(0, 0);
+        }
+        expect(pressedColor).not.toBeNull();
+        expect(pressedColor).not.toBe(restingColor);
+        expect(pressedColor).not.toBe(beforePressColor);
+        expect(pressedOpacity).toBe('1');
+        await expect(control).toHaveCSS('color', restingColor);
+        await expect(control).toHaveCSS('opacity', '1');
+      }
+    }
+  });
+
+  test(`press feedback is visible and clears after release (${reducedMotion})`, async ({ page, isMobile }) => {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/news');
+    const controls = [
+      page.getByRole('button', { name: 'Menü', exact: true }),
+      page.locator('main .et-btn').first(),
+      page.locator('main a[href^="/news/"]:not(.et-btn)').first(),
+    ];
+    for (const control of controls) {
+      await control.scrollIntoViewIfNeeded();
+      const restingOpacity = await control.evaluate(element => getComputedStyle(element).opacity);
+      await control.evaluate(element => element.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        element.setAttribute('data-test-press-opacity', getComputedStyle(element).opacity);
+      }, { capture: true, once: true }));
+      let pressedOpacity: string | null;
+      if (isMobile) {
+        await control.tap();
+        pressedOpacity = await control.getAttribute('data-test-press-opacity');
+      } else {
+        await control.hover();
+        await page.mouse.down();
+        pressedOpacity = await control.evaluate(element => getComputedStyle(element).opacity);
+        await page.mouse.up();
+        await page.mouse.move(0, 0);
+      }
+      expect(pressedOpacity).not.toBeNull();
+      expect(Number(pressedOpacity)).toBeLessThan(Number(restingOpacity) - 0.1);
+      await expect(control).toHaveCSS('opacity', restingOpacity);
+    }
+  });
+}

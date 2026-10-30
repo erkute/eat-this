@@ -32,6 +32,8 @@
 .panel :is(a,button):focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .panel .navItem:focus-visible { outline: 0; color: #fff; background: #15120e; }
 @media (hover:hover) { .panel .navItem:hover { color: #fff; background: #15120e; } :is(.close,.langBtn,.footLink):hover { color: var(--et-muted); } }
+/* Small labels keep full ink contrast during the shared press feedback. */
+.panel :is(.close,.langBtn,.footLink):is(:active,[data-et-pressed]) { color: var(--et-fg); }
 @media (max-width:767.98px) {
   .panel { width: 100%; }
   .topbar { padding-inline: 24px; }

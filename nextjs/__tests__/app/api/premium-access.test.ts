@@ -51,11 +51,13 @@ describe('/api/auth/premium-access', () => {
     expect(mocks.setSession).not.toHaveBeenCalled()
   })
 
-  it('clears both cookies on logout', async () => {
+  it('clears both cookies without an unread response body on logout', async () => {
     const response = await DELETE()
-    expect(response.status).toBe(200)
-    expect(mocks.clearAccess).toHaveBeenCalledOnce()
-    expect(mocks.clearSession).toHaveBeenCalledOnce()
+    expect(response.status).toBe(204)
+    expect(response.body).toBeNull()
+    expect(response.headers.get('Cache-Control')).toBe('private, no-store')
+    expect(mocks.clearAccess).toHaveBeenCalledExactlyOnceWith(response)
+    expect(mocks.clearSession).toHaveBeenCalledExactlyOnceWith(response)
   })
 })
 

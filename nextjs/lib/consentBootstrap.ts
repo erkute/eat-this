@@ -1,7 +1,7 @@
 import { CONSENT_VERSION, parseConsentCookie } from './consent';
 
 export const CONSENT_INTERACTIVE_EVENT = 'eatthis:consent-interactive';
-export const CONSENT_FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+export const CONSENT_FOCUSABLE = 'button, summary, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 /** The initial question must be usable while application JS is downloading.
  * Keep early intent in memory, then replay it through the original handlers.

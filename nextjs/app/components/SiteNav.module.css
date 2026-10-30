@@ -80,7 +80,7 @@
 .logoImg {
   display: block;
   width: auto;
-  height: 32px;
+  height: 30px;
 }
 
 .control {
@@ -100,6 +100,13 @@
   box-shadow: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Map und Menü sprechen wie das Logo: klein, fett, eng. */
+.word {
+  font: 700 16px / 1 var(--et-font-body);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
 }
 
 .control:active,
@@ -188,10 +195,6 @@
   .nav:not([data-nav-page='map']) {
     padding-inline: 12px;
   }
-
-  .logoImg {
-    height: 30px;
-  }
 }
 
 /* No flying duplicate: reveal the header mark once the hero mark is out of view.
@@ -216,10 +219,9 @@
 }
 .nav .actions { position: relative; z-index: 1; }
 .actionsStart { gap: 24px; }
-.logoImg { height: 36px; }
 @media(max-width:600px) {
   .actionsStart { gap: 16px; }
-  .nav .logoImg { height: 27px; }
+  .nav .logoImg { height: 23px; }
 }
 
 :global(html[data-theme='dark']) .logoImg { filter: invert(1); }

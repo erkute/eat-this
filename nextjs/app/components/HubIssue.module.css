@@ -242,6 +242,20 @@
 }
 .spotName a:focus-visible { outline: none; }
 .spotName a:focus-visible::after { outline: 2px solid var(--et-fg); outline-offset: 6px; }
+
+/* Keep the stretched link above the photo during the whole press. Opacity
+   on the link would trap its overlay in a separate stacking context. */
+.spot .spotName a:is(:active, [data-et-pressed]) {
+  opacity: 1;
+  color: var(--et-link);
+}
+
+/* The title link covers the card; its press must also reach the photo. */
+.spot:has(.spotName a:is(:active, [data-et-pressed])) .spotPhotoCrop {
+  opacity: 0.85;
+  transition-property: none;
+}
+
 .tip { grid-row: 5; align-self: start; position: relative; z-index: 2; margin-top: 12px; font-family: var(--et-font-body); font-size: 16px; line-height: 1.5; }
 @media (hover: hover) {
   .spot:has(.spotName a:hover) .spotName { color: var(--et-link); }

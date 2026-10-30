@@ -43,6 +43,109 @@ test('footer opens cookie preferences without native tap frames', async ({ page,
   expect(await nativeTapHighlights(dialog.locator('a[href], button, summary'))).toEqual([]);
 });
 
+for (const route of ['/bezirk/neukoelln', '/bezirk/schoeneberg', '/kategorie/sweets', '/kategorie/pizza', '/en/bezirk/neukoelln', '/en/kategorie/pizza']) {
+  for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+    test(`spot photos visibly confirm a press: ${route} (${reducedMotion})`, async ({ page, isMobile }) => {
+      await page.emulateMedia({ reducedMotion });
+      await page.goto(route);
+      const cards = page.locator('[data-spot-card]');
+      for (const [index, theme] of [[0, 'light'], [await cards.count() - 1, 'dark']] as const) {
+        await page.evaluate(value => document.documentElement.setAttribute('data-theme', value), theme);
+        const card = cards.nth(index);
+        const photo = card.locator('[data-spot-photo]');
+        const link = card.locator('h3 a');
+        await photo.scrollIntoViewIfNeeded();
+        const restingOpacity = await photo.evaluate(element => getComputedStyle(element).opacity);
+        // The transparent link surface covers the photo. Inspect the painted
+        // photo itself, not just the link text, before allowing navigation.
+        await link.evaluate(element => {
+          element.addEventListener('pointerdown', () => {
+            const photo = element.closest('[data-spot-card]')!.querySelector('[data-spot-photo]')!;
+            element.setAttribute('data-test-photo-opacity', getComputedStyle(photo).opacity);
+          }, { once: true });
+          element.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            element.setAttribute('data-test-photo-click', 'true');
+          }, { capture: true, once: true });
+        });
+        const box = (await photo.boundingBox())!;
+        const x = box.x + box.width / 2;
+        const y = box.y + box.height / 2;
+        if (isMobile) await page.touchscreen.tap(x, y);
+        else await page.mouse.click(x, y);
+        await expect(link).toHaveAttribute('data-test-photo-click', 'true');
+        const pressedOpacity = await link.getAttribute('data-test-photo-opacity');
+        expect(pressedOpacity).not.toBeNull();
+        expect(Number(pressedOpacity)).toBeLessThan(Number(restingOpacity) - 0.1);
+        await expect(photo).toHaveCSS('opacity', restingOpacity);
+        await expect(link).not.toHaveAttribute('data-et-pressed');
+      }
+      const card = cards.last();
+      const href = (await card.locator('h3 a').getAttribute('href'))!;
+      const box = (await card.locator('[data-spot-photo]').boundingBox())!;
+      if (isMobile) await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+      else await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+      await expect(page).toHaveURL(new RegExp(`${href}$`));
+      await expect(page.locator('[data-spot-hero]')).toBeVisible();
+    });
+  }
+}
+
+for (const { route, location, selector } of [
+  { route: '/', location: 'home stack', selector: '[data-hub-magazine] ol > li > a' },
+  { route: '/news', location: 'current issue', selector: '[data-current-issue]' },
+  { route: '/en/news', location: 'current issue', selector: '[data-current-issue]' },
+  { route: '/news', location: 'archive', selector: 'section[aria-labelledby="news-archive"] a' },
+]) {
+  for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+    test(`magazine press stays opaque over the other issues: ${route} ${location} (${reducedMotion})`, async ({ page, isMobile }) => {
+      await page.emulateMedia({ reducedMotion });
+      await page.goto(route);
+      const link = page.locator(selector).first();
+      if (route === '/') {
+        await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
+        await link.focus();
+      }
+      const cover = link.locator('[data-magazine-cover]');
+      const href = (await link.getAttribute('href'))!;
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate(value => document.documentElement.setAttribute('data-theme', value), theme);
+        await link.scrollIntoViewIfNeeded();
+        const restingFilter = await cover.evaluate(element => getComputedStyle(element).filter);
+        const restingTransition = await cover.evaluate(element => getComputedStyle(element).transitionProperty);
+        await link.evaluate(element => {
+          element.addEventListener('pointerdown', () => {
+            element.setAttribute('data-test-press-opacity', getComputedStyle(element).opacity);
+            const cover = element.querySelector('[data-magazine-cover]')!;
+            element.setAttribute('data-test-press-filter', getComputedStyle(cover).filter);
+            element.setAttribute('data-test-press-transition', getComputedStyle(cover).transitionProperty);
+          }, { once: true });
+          element.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }, { capture: true, once: true });
+        });
+        if (isMobile) await link.tap();
+        else await link.click();
+        // Transparency reveals the previous cover's title through this one.
+        expect(await link.getAttribute('data-test-press-opacity')).toBe('1');
+        expect(await link.getAttribute('data-test-press-filter')).toBe('brightness(0.85)');
+        if (reducedMotion === 'no-preference') {
+          expect(await link.getAttribute('data-test-press-transition')).toBe(restingTransition);
+        }
+        await expect(cover).toHaveCSS('filter', restingFilter);
+        await expect(link).not.toHaveAttribute('data-et-pressed');
+      }
+      if (isMobile) await link.tap();
+      else await link.click();
+      await expect(page).toHaveURL(new RegExp(`${href}$`));
+      await expect(page.locator('[data-page="news-article"] h1')).toBeVisible();
+      await expect(page.locator('html')).not.toHaveAttribute('data-magazine-opening', '');
+    });
+  }
+}
+
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`touch is frame-free and keyboard focus stays visible (${reducedMotion})`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion });
@@ -164,7 +267,6 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
     const controls = [
       page.getByRole('button', { name: 'Menü', exact: true }),
       page.locator('main .et-btn').first(),
-      page.locator('main a[href^="/news/"]:not(.et-btn)').first(),
     ];
     for (const control of controls) {
       await control.scrollIntoViewIfNeeded();

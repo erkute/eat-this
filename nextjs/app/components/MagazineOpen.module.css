@@ -2,6 +2,23 @@
    Lage und Grösse setzt das Skript; hier stehen nur Farben, Papier und 3D.
    Ein Magazin, kein Buch (Ansage 02.10.2026): dünn, ohne Seitenblock, der
    Umschlag biegt sich beim Umblättern. */
+
+/* Ein gedrücktes Heft bleibt deckend, damit die Ausgaben darunter nicht
+   durchscheinen. Die Helligkeit am Umschlag lässt den Hover-Schatten am Link. */
+a.link:has([data-magazine-cover]):is(:active, [data-et-pressed]) {
+  opacity: 1;
+}
+
+.link:is(:active, [data-et-pressed]) [data-magazine-cover] {
+  filter: brightness(0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link:is(:active, [data-et-pressed]) [data-magazine-cover] {
+    transition-property: none;
+  }
+}
+
 .overlay {
   /* Der Tisch, eine Spur dunkler als die Seite — so hebt sich die rechte
      Seite (die Seite mit dem Artikel) ab, die selbst Ink ist. */

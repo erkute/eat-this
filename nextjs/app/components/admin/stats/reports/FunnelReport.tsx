@@ -1,6 +1,6 @@
 import type { FunnelStage, PeopleFunnel, StatsSummary } from '@/lib/admin/stats.server';
-import { BarRows, Card, MoverList } from '../charts';
-import { NUMBER, labelFor, percent } from '../format';
+import { BarRows, Card, MoverList, Kpi } from '../charts';
+import { NUMBER, labelFor, percent, decimal } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
 /**
@@ -13,10 +13,28 @@ export default function FunnelReport({ data }: { data: StatsSummary }) {
 
   return (
     <>
+      <div className={styles.kpis}>
+        <Kpi label="Tagesbesucher" value={NUMBER.format(visitors)} hint="Summe im Zeitraum" />
+        <Kpi
+          label="Neue Konten"
+          value={accounts ? NUMBER.format(accounts.newInWindow) : '—'}
+          hint="aus der Kontenverwaltung"
+        />
+        <Kpi
+          label="Karten aufgedeckt"
+          value={accounts ? NUMBER.format(accounts.reveals.inWindow) : '—'}
+          hint="vor Ort, im Zeitraum"
+        />
+        <Kpi
+          label="Bezahlte Packs"
+          value={accounts ? NUMBER.format(accounts.purchases.inWindow) : '—'}
+          hint="bestätigte Käufe im Zeitraum"
+        />
+      </div>
       <Card
-        title="Die Reise in vier Stufen"
+        title="Entdecken und sammeln"
         span={3}
-        sub={`Ereignisse im Zeitraum, Balken und kleine Zahl je 100 Besucher (${NUMBER.format(visitors)} Besucher). Wer die Karte dreimal öffnet, zählt dreimal — der Zähler kennt keine Person.`}
+        sub="Vier Bereiche des Produkts. Vor Ort aufdecken und Booster Packs kaufen sind alternative Wege. Ereignisse zählen wiederholte Handlungen; sie bilden keine durchgehende Personenreise ab."
       >
         <div className={styles.stages}>
           {funnel.stages.map((stage, i) => (
@@ -26,15 +44,15 @@ export default function FunnelReport({ data }: { data: StatsSummary }) {
       </Card>
 
       <Card
-        title="Quoten zwischen Stufen"
+        title="Verhältnisse zwischen Ereignissen"
         span={2}
-        sub="Nur Paare, die wirklich aufeinander folgen. Eine Quote je Vorstufe für jeden Schritt gäbe es nicht: /packs feuert „Pack-Angebot gesehen“ je Pack an jeden Besucher."
+        sub="Je 100 Ereignisse der Ausgangsstufe. Keine Nutzer-Conversion: Wiederholungen und verschiedene Einstiege können Werte über 100 ergeben."
       >
         <div className={styles.rates}>
           {funnel.rates.map((r) => (
             <div key={r.key} className={styles.rate}>
               <span className={styles.rateValue}>
-                {r.rate === null ? '—' : percent(r.rate, r.rate < 0.1 ? 1 : 0)}
+                {r.rate === null ? '—' : decimal(r.rate * 100, 1)}
               </span>
               <span className={styles.rateLabel}>
                 {labelFor(r.from)} → {labelFor(r.to)}
@@ -49,8 +67,8 @@ export default function FunnelReport({ data }: { data: StatsSummary }) {
       </Card>
 
       <Card
-        title="Personen statt Ereignisse"
-        sub="Aus Firestore, alle Konten seit Bestehen. Wer wie weit gekommen ist."
+        title="Konten seit Bestehen"
+        sub="Eindeutige Konten, unabhängig vom gewählten Zeitraum. Die Gruppen überschneiden sich."
       >
         {accounts ? (
           <PeopleRows people={accounts.people} />
@@ -58,9 +76,8 @@ export default function FunnelReport({ data }: { data: StatsSummary }) {
           <p className={styles.empty}>Konten nicht geladen.</p>
         )}
         <p className={styles.note}>
-          Die Anmeldung schenkt {data.deck?.starterCards ?? 20} Karten,{' '}
-          {data.deck?.starterFaceUp ?? 20} davon sofort offen. Ohne Konto
-          liegen {data.deck?.freeCards ?? 5} Karten offen.
+          Das Starter Pack enthält bis zu {data.deck?.starterCards ?? 20} Karten. Öffentlich
+          sichtbare Karten und die persönliche Sammlung können sich überschneiden.
         </p>
       </Card>
 
@@ -95,6 +112,7 @@ function Stage({
           <p className={styles.stageOffer}>{stage.offer}</p>
         </div>
       </div>
+      <p className={styles.stageColumns}>Ereignis · Anzahl · je 100 Tagesbesucher</p>
       {stage.steps.map((step) => (
         <div key={step.key} className={styles.step}>
           <span className={styles.stepLabel} title={labelFor(step.key)}>
@@ -110,7 +128,7 @@ function Stage({
           <span className={styles.stepShare} title="je 100 Besucher">
             {step.key === 'visitors' || visitors === 0
               ? ''
-              : NUMBER.format(Math.round(step.share * 100))}
+              : decimal(step.share * 100, step.share > 0 && step.share < 0.01 ? 1 : 0)}
           </span>
         </div>
       ))}

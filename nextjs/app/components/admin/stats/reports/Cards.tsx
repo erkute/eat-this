@@ -79,8 +79,9 @@ export default function Cards({ data }: { data: StatsSummary }) {
           empty="Keine Konten."
         />
         <p className={styles.note}>
-          {NUMBER.format(accounts.activeInWindow)} Konten waren im Zeitraum aktiv. „Aktiv“ heißt:
-          die App hat ein Token erneuert — die Seite war offen.
+          {NUMBER.format(accounts.activeInWindow)} Konten haben ihre letzte registrierte Aktivität
+          im Zeitraum. Frühere Besuche lassen sich daraus nicht ableiten. Erfasst wird, wann die App
+          zuletzt ein Token erneuert hat.
         </p>
       </Card>
 
@@ -89,10 +90,7 @@ export default function Cards({ data }: { data: StatsSummary }) {
           <Card title="Der Stapel" sub="Was es heute zu sammeln gibt — aus Sanity, live.">
             <div className={styles.dayTiles}>
               <Tile label="Karten" value={NUMBER.format(deck.cards)} />
-              <Tile
-                label="offen ohne Konto"
-                value={`${NUMBER.format(deck.publicCards)} / ${NUMBER.format(deck.freeCards)}`}
-              />
+              <Tile label="offen ohne Konto" value={NUMBER.format(deck.publicCards)} />
               <Tile label="Spots" value={NUMBER.format(deck.spots)} />
               <Tile
                 label="Starter Pack"
@@ -100,12 +98,9 @@ export default function Cards({ data }: { data: StatsSummary }) {
               />
             </div>
             <p className={styles.note}>
-              Ohne Konto {deck.freeCards} Karten offen, mit Konto{' '}
-              {deck.freeCards + deck.starterCards} sichtbar ({deck.freeCards + deck.starterFaceUp}{' '}
-              offen, {deck.starterCards - deck.starterFaceUp} als Rücken). Bei{' '}
-              {NUMBER.format(deck.cards)} Karten im Stapel bleiben{' '}
-              {NUMBER.format(Math.max(0, deck.cards - deck.freeCards - deck.starterCards))} für die
-              Packs.
+              Aktuell sind {deck.publicCards} Karten öffentlich sichtbar. Das Starter Pack enthält
+              bis zu {deck.starterCards} Karten. Weitere Karten lassen sich vor Ort aufdecken oder
+              über Booster Packs freischalten; die Auswahl kann sich überschneiden.
             </p>
           </Card>
 
@@ -114,7 +109,12 @@ export default function Cards({ data }: { data: StatsSummary }) {
             span={2}
             sub="Ein Pack verkauft die Karten seiner Kategorie; ohne Karte ist es nicht käuflich. Karten sind mehrfachkategorisiert, die Spalte summiert sich darum nicht zur Stapelgröße."
           >
-            <div className={styles.scroll}>
+            <div
+              className={styles.scroll}
+              tabIndex={0}
+              role="region"
+              aria-label="Tabelle horizontal scrollen"
+            >
               <table className={styles.table}>
                 <thead>
                   <tr>

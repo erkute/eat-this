@@ -1,13 +1,14 @@
 'use client';
 
 import { BRAND_WORDMARK } from '@/lib/constants';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth';
 import { auth } from '@/lib/firebase/config';
 import type { StatsSummary } from '@/lib/admin/stats.server';
 import { hasNoCountCookie, NO_COUNT_COOKIE } from '@/lib/analytics/noCount';
-import { NUMBER, longDay } from './stats/format';
+import { dayBefore, sinceDay } from '@/lib/admin/stats.server';
+import { NUMBER, longDay, shortDay } from './stats/format';
 import Overview from './stats/reports/Overview';
 import Days from './stats/reports/Days';
 import FunnelReport from './stats/reports/FunnelReport';
@@ -56,20 +57,20 @@ const REPORTS: Report[] = [
     key: 'overview',
     label: 'Übersicht',
     group: 'Berichte',
-    sub: 'Besucher, Konten, Karten, Umsatz auf einen Blick',
+    sub: 'Besuche, neue Konten, Karten und Google-Suche',
   },
   {
     key: 'days',
-    label: 'Heute & Gestern',
-    sub: 'Zwei Tage, ganz ausgebreitet — mit der Suche des frischesten Tages',
+    label: 'Letzter Tag',
+    sub: 'Der letzte abgeschlossene Tag im Zeitraum und die jüngsten Suchdaten',
   },
-  { key: 'funnel', label: 'Funnel', sub: 'Frei → Konto (+20 Karten) → vor Ort → Pack' },
+  { key: 'funnel', label: 'Funnel', sub: 'Entdecken, anmelden, sammeln und Booster Packs kaufen' },
   {
     key: 'cards',
     label: 'Karten & Konten',
     sub: 'Der Stapel, wer ihn sammelt, und wer wiederkommt',
   },
-  { key: 'revenue', label: 'Umsatz', sub: 'Packs, Käufe, Checkouts' },
+  { key: 'revenue', label: 'Käufe', sub: 'Käufe, Katalogwerte und gespeicherte Checkouts' },
   {
     key: 'search',
     label: 'Google-Suche',
@@ -91,7 +92,7 @@ const REPORTS: Report[] = [
   {
     key: 'consent',
     label: 'Cookie-Dialog',
-    sub: 'Wie viele Menschen zustimmen — und wie viele Google Analytics sieht',
+    sub: 'Gezählte Zustimmungen, Ablehnungen und Einblendungen',
   },
 ];
 
@@ -134,11 +135,12 @@ function readHash(): ReportKey {
 export default function StatsDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [report, setReport] = useState<ReportKey>('overview');
-  const [range, setRangeChoice] = useState<RangeChoice>({ kind: 'preset', days: 30 });
+  const [range, setRangeChoice] = useState<RangeChoice>({ kind: 'preset', days: 7 });
   const [draft, setDraft] = useState<{ from: string; to: string }>({ from: '', to: '' });
   const [data, setData] = useState<StatsSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const requestId = useRef(0);
   const [loadedAt, setLoadedAt] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -156,6 +158,7 @@ export default function StatsDashboard() {
 
   const load = useCallback(async (current: RangeChoice) => {
     if (!auth.currentUser) return;
+    const id = ++requestId.current;
     setLoading(true);
     setError(null);
     try {
@@ -163,6 +166,7 @@ export default function StatsDashboard() {
       const response = await fetch(`/api/admin/stats?${queryOf(current)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (id !== requestId.current) return;
       if (response.status === 404) {
         // Die Route antwortet Nicht-Admins bewusst mit 404. Hier heißt das
         // nicht „weg", sondern „nicht für dieses Konto".
@@ -171,13 +175,16 @@ export default function StatsDashboard() {
         return;
       }
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      setData((await response.json()) as StatsSummary);
+      const result = (await response.json()) as StatsSummary;
+      if (id !== requestId.current) return;
+      setData(result);
       setLoadedAt(new Date());
     } catch (cause) {
+      if (id !== requestId.current) return;
       setError(`Die Zahlen ließen sich nicht laden: ${(cause as Error).message}`);
       setData(null);
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
   }, []);
 
@@ -276,30 +283,36 @@ export default function StatsDashboard() {
                 );
               })}
             </div>
-            <input
-              type="date"
-              className={styles.dateInput}
-              aria-label="Von"
-              value={draft.from}
-              max={draft.to || undefined}
-              onChange={(e) => setDraft((d) => ({ ...d, from: e.target.value }))}
-            />
-            <input
-              type="date"
-              className={styles.dateInput}
-              aria-label="Bis"
-              value={draft.to}
-              min={draft.from || undefined}
-              onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value }))}
-            />
-            <button
-              type="button"
-              className={`et-btn et-btn-sm${range.kind === 'custom' ? '' : ' et-btn-alt'}`}
-              onClick={applyCustom}
-              disabled={!draft.from || !draft.to || draft.from > draft.to}
-            >
-              Zeitraum
-            </button>
+            <details className={styles.customRange}>
+              <summary className="et-btn et-btn-sm et-btn-alt">Eigener Zeitraum</summary>
+              <div>
+                <input
+                  type="date"
+                  className={styles.dateInput}
+                  aria-label="Von"
+                  value={draft.from}
+                  max={draft.to || undefined}
+                  onChange={(e) => setDraft((d) => ({ ...d, from: e.target.value }))}
+                />
+                <input
+                  type="date"
+                  className={styles.dateInput}
+                  aria-label="Bis"
+                  value={draft.to}
+                  min={draft.from || undefined}
+                  max={data ? dayBefore(data.range.today) : undefined}
+                  onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value }))}
+                />
+                <button
+                  type="button"
+                  className={`et-btn et-btn-sm${range.kind === 'custom' ? '' : ' et-btn-alt'}`}
+                  onClick={applyCustom}
+                  disabled={!draft.from || !draft.to || draft.from > draft.to}
+                >
+                  Anwenden
+                </button>
+              </div>
+            </details>
             <button
               type="button"
               className="et-btn et-btn-sm et-btn-alt"
@@ -312,8 +325,9 @@ export default function StatsDashboard() {
           {data && (
             <p className={styles.meta}>
               {longDay(data.range.start)} – {longDay(data.range.end)} ·{' '}
-              {NUMBER.format(data.range.days)} Tage · Vergleich mit den{' '}
-              {NUMBER.format(data.range.days)} Tagen davor
+              {NUMBER.format(data.range.days)} volle Tage · Vergleich:{' '}
+              {shortDay(sinceDay(data.range.days * 2, data.range.end))}–
+              {shortDay(dayBefore(data.range.start))}
               {loadedAt && (
                 <>
                   {' '}
@@ -327,8 +341,16 @@ export default function StatsDashboard() {
 
         <div className={loading && data ? styles.stale : undefined}>
           <div className={styles.grid}>
-            {error && <p className={styles.error}>{error}</p>}
-            {loading && !data && <p className={styles.notice}>Wird geladen …</p>}
+            {error && (
+              <p className={styles.error} role="alert">
+                {error}
+              </p>
+            )}
+            {loading && !data && (
+              <p className={styles.notice} role="status">
+                Wird geladen …
+              </p>
+            )}
             {data && <ReportBody report={report} data={data} onOpen={open} />}
           </div>
         </div>
@@ -377,7 +399,7 @@ function navCount(key: ReportKey, data: StatsSummary | null): string | null {
     case 'overview':
       return NUMBER.format(data.totals.visitors);
     case 'days':
-      return data.today ? NUMBER.format(data.today.visitors) : null;
+      return data.latest.day ? NUMBER.format(data.latest.day.visitors) : null;
     case 'funnel': {
       const signed = data.funnel.stages.flatMap((s) => s.steps).find((s) => s.key === 'signed_in');
       return signed ? NUMBER.format(signed.count) : null;

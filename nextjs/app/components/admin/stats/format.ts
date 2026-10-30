@@ -25,15 +25,7 @@ export function decimal(value: number, digits = 1): string {
   return value.toFixed(digits).replace('.', ',');
 }
 
-const WEEKDAYS = [
-  'Sonntag',
-  'Montag',
-  'Dienstag',
-  'Mittwoch',
-  'Donnerstag',
-  'Freitag',
-  'Samstag',
-];
+const WEEKDAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 export const WEEKDAYS_SHORT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
 /** Tagesbeschriftung „28.08." — der Verlauf braucht kein Jahr. */
@@ -89,7 +81,7 @@ const EVENT_LABELS: Record<string, string> = {
   login_start: 'Anmeldung begonnen',
   login_start_google: 'Anmeldung: Google',
   login_start_email_link: 'Anmeldung: Magic Link',
-  login_start_home_covered_card: 'Anmeldung von verdeckter Karte (Start)',
+  login_start_home_covered_card: 'Historisch: Anmeldung von Startseiten-Karte',
   login_start_starter_pack_banner: 'Anmeldung von Starter-Pack-Tafel',
   login_link_sent: 'Magic Link verschickt',
   login: 'Angemeldet (bestehendes Konto)',
@@ -98,6 +90,7 @@ const EVENT_LABELS: Record<string, string> = {
   starter_pack_granted: 'Starter Pack erhalten',
   packs_page: 'Pack-Übersicht gesehen',
   pack_page: 'Pack-Seite gesehen',
+  pack_visits: 'Pack-Übersicht und Pack-Seiten',
   // GA-Ecommerce-Name: feuert je Pack-Angebot, sobald es im Bild ist.
   view_item: 'Pack-Angebot gesehen',
   begin_checkout: 'Kauf begonnen',

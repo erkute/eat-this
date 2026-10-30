@@ -22,7 +22,12 @@ export default function EventsReport({ data }: { data: StatsSummary }) {
       {data.events.length === 0 ? (
         <p className={styles.empty}>Keine Ereignisse gezählt.</p>
       ) : (
-        <div className={styles.scroll}>
+        <div
+          className={styles.scroll}
+          tabIndex={0}
+          role="region"
+          aria-label="Tabelle horizontal scrollen"
+        >
           <table className={styles.table}>
             <thead>
               <tr>

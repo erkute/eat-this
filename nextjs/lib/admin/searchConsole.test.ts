@@ -184,6 +184,15 @@ describe('summarizeSearch', () => {
     expect(result.before?.clicks).toBe(6);
   });
 
+  it('behält bei einem finalen Nullzeitraum die Vergleichswerte und Rückgänge', () => {
+    const result = summarizeSearch({ ...input, byDay: [], byQuery: [] });
+    expect(result.totals.clicks).toBe(0);
+    expect(result.before?.clicks).toBe(6);
+    expect(result.movers.falling.some((row) => row.clicks === 0 && row.clicksBefore > 0)).toBe(
+      true
+    );
+  });
+
   it('laesst die Vorperiode weg, wenn dort nichts lag', () => {
     expect(summarizeSearch({ ...input, byDayBefore: [] }).before).toBeNull();
   });

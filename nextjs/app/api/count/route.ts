@@ -3,7 +3,11 @@ import { FieldValue, Timestamp, type DocumentReference } from 'firebase-admin/fi
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { clientIpFromXff } from '@/lib/clientIp';
 import { isAutomated } from '@/lib/analytics/botFilter';
-import { hasNoCountCookie } from '@/lib/analytics/noCount';
+import {
+  hasNoCountCookie,
+  isLocalAnalyticsHost,
+  isLocalAnalyticsUrl,
+} from '@/lib/analytics/noCount';
 import { berlinDay, countSalt, visitorHash } from '@/lib/analytics/visitorHash';
 import { pathKey } from '@/lib/analytics/pathKey';
 import {
@@ -174,6 +178,15 @@ function referrerHost(raw: unknown): string | null {
 }
 
 export async function POST(request: Request) {
+  const origin = request.headers.get('origin');
+  if (origin) {
+    try {
+      if (isLocalAnalyticsHost(new URL(origin).hostname))
+        return new NextResponse(null, { status: 204 });
+    } catch {
+      /* Ungültige Origins liefern keine zusätzliche Ausschlussinformation. */
+    }
+  }
   // A storage-free opt-out: both headers say "do not profile me", and honouring
   // them costs nothing. No cookie needed to remember the choice - the browser
   // re-sends it on every request.
@@ -200,6 +213,8 @@ export async function POST(request: Request) {
   } catch {
     return new NextResponse(null, { status: 400 });
   }
+
+  if (isLocalAnalyticsUrl(body.referrer)) return new NextResponse(null, { status: 204 });
 
   const userAgent = userAgentOf(body, request.headers.get('user-agent'));
   if (isAutomated(userAgent)) return new NextResponse(null, { status: 204 });

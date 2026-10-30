@@ -88,6 +88,7 @@ function accounts(overrides: Partial<Accounts> = {}): Accounts {
 
 function search(): SearchSummary {
   return {
+    previousDays: [],
     property: 'sc-domain:eatthisdot.com',
     range: { start: '2026-08-06', end: '2026-09-02', days: 28 },
     totals: { clicks: 303, impressions: 54472, ctr: 0.0056, position: 12.9 },
@@ -163,7 +164,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
       {
         key: 'account',
         title: 'Konto',
-        offer: '+20 Karten, 10 davon offen',
+        offer: 'Starter Pack mit bis zu 20 Karten',
         steps: [
           step('must_eat_reveal_login_required', 40),
           step('login_view', 60),
@@ -326,6 +327,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
     },
     paths: [{ key: '/map', count: 492 }],
     entryPaths: [{ key: '/', count: 96 }],
+    referrerPageviews: 329,
     referrers: [{ key: 'www.google.com', count: 329 }],
     events: [...events.entries()].map(([key, c]) => ({ key, count: c })),
     exits: [{ key: '/map', views: 492, continued: 56, exits: 436, rate: 436 / 492 }],
@@ -336,11 +338,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
       shown: 1139,
       accepted: 57,
       declined: 44,
-      visitors: 346,
-      days: 4,
-      rate: 57 / 346,
       ratePerView: 57 / 1139,
-      viewsPerVisitor: 1139 / 346,
     },
     ...overrides,
   };
@@ -395,10 +393,10 @@ describe('StatsDashboard', () => {
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
     expect(screen.getByText('8.629')).toBeTruthy();
     expect(
-      screen.getByText('Umsatz', { selector: 'span[class*="kpiLabel"]' }).nextElementSibling
-        ?.textContent
+      screen.getByText('Katalogwert der Käufe', { selector: 'span[class*="kpiLabel"]' })
+        .nextElementSibling?.textContent
     ).toBe('2,99\u00a0€');
-    expect(fetchMock).toHaveBeenCalledWith('/api/admin/stats?days=30', {
+    expect(fetchMock).toHaveBeenCalledWith('/api/admin/stats?days=7', {
       headers: { Authorization: `Bearer token-123` },
     });
   });
@@ -446,7 +444,8 @@ describe('StatsDashboard', () => {
     const label = await screen.findByText('GA-Nutzer', { selector: 'span[class*="kpiLabel"]' });
     expect(label.nextElementSibling?.textContent).toBe('400');
     // 400 von 1.147 Besuchern.
-    expect(screen.getByText(/35\s?% der Besucher/)).toBeTruthy();
+    expect(screen.queryByText(/% der Besucher/)).toBeNull();
+    expect(screen.getByText(/Aktive Nutzer mit Einwilligung/)).toBeTruthy();
   });
 
   it('führt über die Wortmarke zurück zur Startseite', async () => {
@@ -478,9 +477,10 @@ describe('StatsDashboard', () => {
       expect(fetchMock).toHaveBeenLastCalledWith('/api/admin/stats?days=7', expect.anything())
     );
 
+    fireEvent.click(screen.getByText('Eigener Zeitraum'));
     fireEvent.change(screen.getByLabelText('Von'), { target: { value: '2026-08-01' } });
     fireEvent.change(screen.getByLabelText('Bis'), { target: { value: '2026-08-15' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Zeitraum' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Anwenden' }));
     await waitFor(() =>
       expect(fetchMock).toHaveBeenLastCalledWith(
         '/api/admin/stats?from=2026-08-01&to=2026-08-15',
@@ -508,7 +508,7 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Heute & Gestern');
+    openReport('Letzter Tag');
 
     const heute = await screen.findByRole('region', { name: 'Montag, 31.08.' });
     expect(within(heute).getByText('läuft noch')).toBeTruthy();
@@ -538,7 +538,7 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Heute & Gestern');
+    openReport('Letzter Tag');
 
     expect(await screen.findByRole('region', { name: 'Freitag, 28.08.' })).toBeTruthy();
     expect(screen.getByText(/Für gestern liegen keine Zahlen vor/).textContent).toContain(
@@ -553,8 +553,8 @@ describe('StatsDashboard', () => {
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
     openReport('Funnel');
 
-    expect(await screen.findByText('Die Reise in vier Stufen')).toBeTruthy();
-    expect(screen.getByText('+20 Karten, 10 davon offen')).toBeTruthy();
+    expect(await screen.findByText('Entdecken und sammeln')).toBeTruthy();
+    expect(screen.getByText('Starter Pack mit bis zu 20 Karten')).toBeTruthy();
     // purchase=0 ist der Befund, nicht eine Luecke.
     const row = screen.getByText('Gekauft').closest('div');
     expect(row?.textContent).toContain('0');
@@ -580,10 +580,10 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Umsatz');
+    openReport('Käufe');
 
-    expect(await screen.findByText('Umsatz insgesamt')).toBeTruthy();
-    expect(screen.getByText('Umsatz insgesamt').nextElementSibling?.textContent).toBe(
+    expect(await screen.findByText('Katalogwert insgesamt')).toBeTruthy();
+    expect(screen.getByText('Katalogwert insgesamt').nextElementSibling?.textContent).toBe(
       '18,96\u00a0€'
     );
     expect(screen.getByText('All Berlin').closest('tr')?.textContent).toContain('9,99');
@@ -621,16 +621,16 @@ describe('StatsDashboard', () => {
     expect(await screen.findByText('sa@eat-this.iam')).toBeTruthy();
   });
 
-  it('rechnet die Zustimmung gegen Besucher, nicht gegen Einblendungen', async () => {
+  it('trennt Cookie-Antworten von Personen und Einblendungen', async () => {
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
     openReport('Cookie-Dialog');
 
-    // 57 von 346 Besuchern = 16,5 %; je Einblendung waeren es 5,0 % — die
-    // Zahl steht dabei, aber als das, was sie ist.
-    expect((await screen.findAllByText('16,5 %')).length).toBeGreaterThan(0);
+    // Antworten und Einblendungen sind Ereignisse mit getrennten Nennern.
+    expect(await screen.findByText(/Anteil an den gezählten Antworten/)).toBeTruthy();
+    expect(screen.queryByText('antworten nicht')).toBeNull();
     expect(
       screen.getByText('Zustimmungen je Einblendung').previousElementSibling?.textContent
     ).toBe('5,0 %');

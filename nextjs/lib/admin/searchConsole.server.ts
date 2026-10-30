@@ -1,5 +1,5 @@
 import { GoogleAuth } from 'google-auth-library';
-import { sinceDay, type Range } from '@/lib/admin/stats.server';
+import { sinceDay, dayBefore, type Range } from '@/lib/admin/stats.server';
 import { summarizeSearch, type ApiRow, type SearchResult } from '@/lib/admin/searchConsole';
 
 /**
@@ -64,18 +64,27 @@ interface QueryBody {
   endDate: string;
   dimensions: string[];
   rowLimit: number;
-  /** `all` nimmt die frischen, noch nicht endgueltigen Tage mit. */
-  dataState: 'all';
+  /** `final` schließt noch unvollständige Suchdaten aus. */
+  dataState: 'all' | 'final';
 }
 
-async function query(auth: GoogleAuth, body: QueryBody): Promise<ApiRow[]> {
+interface QueryResult {
+  rows?: ApiRow[];
+  metadata?: { firstIncompleteDate?: string };
+}
+
+async function queryResult(auth: GoogleAuth, body: QueryBody): Promise<QueryResult> {
   const client = await auth.getClient();
-  const response = await client.request<{ rows?: ApiRow[] }>({
+  const response = await client.request<QueryResult>({
     url: ENDPOINT,
     method: 'POST',
     data: body,
   });
-  return response.data.rows ?? [];
+  return response.data;
+}
+
+async function query(auth: GoogleAuth, body: QueryBody): Promise<ApiRow[]> {
+  return (await queryResult(auth, body)).rows ?? [];
 }
 
 function statusOf(error: unknown): number | null {
@@ -92,8 +101,7 @@ const cache = new Map<string, { at: number; result: SearchResult }>();
 export type SearchRange = Range;
 
 /**
- * @param range Das Fenster, YYYY-MM-DD, beide Tage einschließlich. `end` darf
- *              heute sein — Google liefert dann eben nichts für die letzten Tage.
+ * @param range Das Fenster, YYYY-MM-DD, beide Tage einschließlich. Das Suchfenster endet spätestens am letzten endgültigen Tag mit Daten.
  */
 export async function loadSearch(range: SearchRange): Promise<SearchResult> {
   const cacheKey = `${range.start}:${range.end}`;
@@ -109,21 +117,35 @@ export async function loadSearch(range: SearchRange): Promise<SearchResult> {
 
 async function fetchSearch(range: SearchRange): Promise<SearchResult> {
   const auth = getAuth();
-  const { start, end, days } = range;
-  const beforeStart = sinceDay(days * 2, end);
-  const beforeEnd = sinceDay(days + 1, end);
-  const freshStart = sinceDay(FRESH_DAYS, end);
-  const base = { rowLimit: ROW_LIMIT, dataState: 'all' as const };
-  const now = { ...base, startDate: start, endDate: end };
-  const before = { ...base, startDate: beforeStart, endDate: beforeEnd };
-  const fresh = {
-    rowLimit: DAY_ROW_LIMIT,
-    dataState: 'all' as const,
-    startDate: freshStart,
-    endDate: end,
-  };
-
   try {
+    // Googles Grenze zu unvollständigen Daten bestimmen. Tage ohne
+    // Impressionen sind kein Grund, den Zeitraum zu verschieben. Beide
+    // Vergleichsfenster behalten ihre volle Länge, auch bei Google-Verzug.
+    const available = await queryResult(auth, {
+      startDate: sinceDay(range.days + 7, range.end),
+      endDate: range.end,
+      dimensions: ['date'],
+      rowLimit: ROW_LIMIT,
+      dataState: 'all',
+    });
+    const incomplete = available.metadata?.firstIncompleteDate;
+    const end = incomplete && incomplete <= range.end ? dayBefore(incomplete) : range.end;
+    const days = range.days;
+    const start = sinceDay(days, end);
+    const effectiveRange = { start, end, days };
+    const beforeStart = sinceDay(days * 2, end);
+    const beforeEnd = sinceDay(days + 1, end);
+    const freshStart = sinceDay(FRESH_DAYS, end);
+    const base = { rowLimit: ROW_LIMIT, dataState: 'final' as const };
+    const now = { ...base, startDate: start, endDate: end };
+    const before = { ...base, startDate: beforeStart, endDate: beforeEnd };
+    const fresh = {
+      rowLimit: DAY_ROW_LIMIT,
+      dataState: 'final' as const,
+      startDate: freshStart,
+      endDate: end,
+    };
+
     const [
       byDay,
       byDayBefore,
@@ -149,7 +171,7 @@ async function fetchSearch(range: SearchRange): Promise<SearchResult> {
       ok: true,
       data: summarizeSearch({
         property: SEARCH_CONSOLE_PROPERTY,
-        range,
+        range: effectiveRange,
         byDay,
         byDayBefore,
         byQuery,

@@ -1,4 +1,5 @@
 import MapIntentLink from './MapIntentLink';
+import SiteImage from './SiteImage';
 import styles from './HubSection.module.css';
 import BrandSlogan from './BrandSlogan';
 import { BRAND_WORDMARK } from '@/lib/constants';
@@ -24,7 +25,6 @@ export default function HubHeroCopy({ locale }: Props) {
       </h1>
       <MapIntentLink href="/must-eats" className={styles.heroArt} aria-label={locale === 'de' ? 'Must Eats entdecken' : 'Discover Must Eats'}>
         <span className={styles.heroFan} data-hero-fan="">
-        {/* eslint-disable @next/next/no-img-element */}
         {[
           [styles.heroCardLeft, 'sausage.webp?v=20261028', 'Spicy Thai Sausage · Bar Basta'],
           [styles.heroCardRight, 'sabich.webp?v=20261028', 'Sabich · Kitten Deli'],
@@ -32,12 +32,11 @@ export default function HubHeroCopy({ locale }: Props) {
         ].map(([position, file, alt]) => (
           <span key={file} className={`${styles.heroCard} ${position}`} data-hero-card="">
             <span className={styles.heroCardFlip}>
-              <img src={`${ART}/${file}`} width={1026} height={1410} alt={alt} fetchPriority="high" decoding="async" />
-              <img className={styles.heroCardBack} src="/pics/card-back.webp?v=20261028" width={1026} height={1410} alt="" aria-hidden="true" fetchPriority="high" decoding="async" />
+              <SiteImage src={`${ART}/${file}`} width={1026} height={1410} sizes="(max-width: 767px) 137px, 17vw" alt={alt} priority />
+              <SiteImage className={styles.heroCardBack} src="/pics/card-back.webp?v=20261028" width={1026} height={1410} sizes="(max-width: 767px) 137px, 17vw" alt="" aria-hidden="true" priority />
             </span>
           </span>
         ))}
-        {/* eslint-enable @next/next/no-img-element */}
         </span>
       </MapIntentLink>
       <div className={styles.heroActions} data-hero-actions="">

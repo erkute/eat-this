@@ -1,4 +1,4 @@
-import { remyPose } from './remyDeformation';
+import { prepareRemyPoint, remyPose } from './remyDeformation';
 
 /** Lightweight mesh renderer, scoped to the intro's lifetime. */
 export function renderRemy(canvas: HTMLCanvasElement, source: HTMLImageElement) {
@@ -47,11 +47,11 @@ export function renderRemy(canvas: HTMLCanvasElement, source: HTMLImageElement) 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
     const cols = 56, rows = 70;
     const vertices = new Float32Array((cols + 1) * (rows + 1) * 4);
-    const rest: Array<{ x: number; y: number }> = [];
+    const rest: ReturnType<typeof prepareRemyPoint>[] = [];
     const triangles: number[] = [];
     for (let y = 0; y <= rows; y++) for (let x = 0; x <= cols; x++) {
       const i = y * (cols + 1) + x;
-      rest.push({ x: x / cols * 1145, y: y / rows * 1374 });
+      rest.push(prepareRemyPoint({ x: x / cols * 1145, y: y / rows * 1374 }));
       vertices[i * 4 + 2] = x / cols;
       vertices[i * 4 + 3] = y / rows;
       if (x < cols && y < rows) triangles.push(i, i + 1, i + cols + 1, i + 1, i + cols + 2, i + cols + 1);

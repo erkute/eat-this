@@ -42,7 +42,7 @@ export default function Days({ data }: { data: StatsSummary }) {
         <Card
           title="Google-Suche: der frischeste Tag"
           span={3}
-          sub="Die Search Console liefert zwei bis drei Tage nach; das hier ist der jüngste Tag mit Zahlen, daneben der Tag davor."
+          sub="Google liefert zeitversetzt: gezeigt werden die beiden jüngsten Tage mit Suchdaten. Tage ohne Impressionen können dazwischen liegen."
         >
           {search.latestDay ? (
             <div className={styles.split}>
@@ -194,7 +194,12 @@ function SearchDay({ detail }: { detail: SearchDayDetail }) {
 export function SearchRows({ rows, empty }: { rows: SearchRow[]; empty: string }) {
   if (rows.length === 0) return <p className={styles.empty}>{empty}</p>;
   return (
-    <div className={styles.scroll}>
+    <div
+      className={styles.scroll}
+      tabIndex={0}
+      role="region"
+      aria-label="Tabelle horizontal scrollen"
+    >
       <table className={styles.table}>
         <thead>
           <tr>

@@ -188,12 +188,14 @@ describe('GET /api/admin/stats', () => {
 
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('no-store');
-    expect(body.totals).toEqual({ pageviews: 150, visitors: 30, days: 2, closedDays: 2 });
-    expect(body.days.map((d: { day: string }) => d.day)).toEqual(['2026-08-27', '2026-08-28']);
+    expect(body.totals).toEqual({ pageviews: 150, visitors: 30, days: 7, closedDays: 7 });
+    expect(body.days).toHaveLength(7);
+    expect(body.days[0].day).toBe('2026-08-24');
+    expect(body.days[6].day).toBe('2026-08-30');
     expect(body.range).toEqual({
-      start: '2026-08-02',
-      end: '2026-08-31',
-      days: 30,
+      start: '2026-08-24',
+      end: '2026-08-30',
+      days: 7,
       today: '2026-08-31',
       includesToday: false,
     });
@@ -213,7 +215,7 @@ describe('GET /api/admin/stats', () => {
 
     const body = await (await GET(request({ authorization: 'Bearer abc' }))).json();
 
-    expect(body.days[0].day).toBe('2026-08-28');
+    expect(body.days.find((d: { pageviews: number }) => d.pageviews === 5)?.day).toBe('2026-08-28');
   });
 
   it('holt doppelt so weit zurück wie angefragt — für den Vorperiodenvergleich', async () => {
@@ -221,8 +223,8 @@ describe('GET /api/admin/stats', () => {
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=7'));
 
-    // 14 Tage zurück: 7 für das Fenster, 7 für den Vergleich davor — bis heute.
-    expect(bounds()).toEqual({ from: '2026-08-18', to: '2026-08-31' });
+    // 14 Tage zurück: 7 für das Fenster, 7 für den Vergleich davor — bis gestern.
+    expect(bounds()).toEqual({ from: '2026-08-17', to: '2026-08-30' });
   });
 
   it('teilt die Dokumente in Zeitraum und Vorperiode', async () => {
@@ -230,7 +232,7 @@ describe('GET /api/admin/stats', () => {
     mocks.get.mockResolvedValue(
       snapshot([
         { id: '2026-08-20', data: { visitors: 10 } }, // vor dem Fenster
-        { id: '2026-08-30', data: { visitors: 40 } }, // im Fenster (ab 25.08.)
+        { id: '2026-08-30', data: { visitors: 40 } }, // im Fenster (ab 24.08.)
       ])
     );
 
@@ -238,21 +240,21 @@ describe('GET /api/admin/stats', () => {
 
     expect(body.totals.visitors).toBe(40);
     expect(body.period).toEqual({
-      visitors: { now: 40, before: 10, change: 3 },
+      visitors: { now: 40 / 7, before: 10 / 7, change: 3 },
       pageviews: { now: 0, before: 0, change: null },
-      days: 1,
-      daysNow: 1,
+      days: 7,
+      daysNow: 7,
     });
   });
 
-  it('deckelt den days-Parameter und fällt bei Unsinn auf 30 zurück', async () => {
+  it('deckelt den days-Parameter und fällt bei Unsinn auf 7 zurück', async () => {
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=99999'));
-    expect(bounds().from).toBe('2024-09-01'); // 2 × 365 Tage
+    expect(bounds().from).toBe('2024-08-31'); // 2 × 365 Tage
 
     await GET(request({ authorization: 'Bearer abc' }, '?days=schwurbel'));
-    expect(bounds().from).toBe('2026-07-03'); // 2 × 30 Tage
+    expect(bounds().from).toBe('2026-08-17'); // 2 × 7 Tage
   });
 
   it('nimmt ein eigenes Fenster über from und to — und schneidet die Vorperiode davor', async () => {
@@ -271,8 +273,8 @@ describe('GET /api/admin/stats', () => {
 
     expect(bounds()).toEqual({ from: '2026-08-08', to: '2026-08-21' });
     expect(body.range).toMatchObject({ start: '2026-08-15', end: '2026-08-21', days: 7 });
-    expect(body.totals.visitors).toBe(106);
-    expect(body.period?.visitors.before).toBe(3);
+    expect(body.totals.visitors).toBe(7);
+    expect(body.period?.visitors.before).toBe(3 / 7);
   });
 
   it('zählt Konten aus Firebase Auth — ohne das Admin-Konto, mit Karten, Käufen und Favoriten', async () => {
@@ -281,6 +283,10 @@ describe('GET /api/admin/stats', () => {
     mocks.listUsers.mockResolvedValue({
       users: [
         authUser('chef@eatthisdot.com', '2026-07-01T10:00:00Z', '2026-08-31T10:00:00Z'),
+        {
+          ...authUser('claim-admin@example.com', '2026-08-29T10:00:00Z', '2026-08-30T10:00:00Z'),
+          customClaims: { admin: true },
+        },
         authUser('a@example.com', '2026-08-29T10:00:00Z', '2026-08-30T10:00:00Z', 'google.com'),
         authUser('b@example.com', '2026-07-01T10:00:00Z', '2026-07-02T10:00:00Z'),
       ],
@@ -511,7 +517,7 @@ describe('parseRange', () => {
   const today = '2026-08-31';
   const params = (query: string) => new URLSearchParams(query);
 
-  it('nimmt from/to, kappt die Zukunft auf heute und begrenzt auf ein Jahr', () => {
+  it('nimmt from/to, kappt die Zukunft auf gestern und begrenzt auf ein Jahr', () => {
     expect(parseRange(params('from=2026-08-01&to=2026-08-10'), today)).toEqual({
       start: '2026-08-01',
       end: '2026-08-10',
@@ -519,18 +525,31 @@ describe('parseRange', () => {
     });
     expect(parseRange(params('from=2026-08-25&to=2026-09-30'), today)).toEqual({
       start: '2026-08-25',
-      end: '2026-08-31',
-      days: 7,
+      end: '2026-08-30',
+      days: 6,
     });
     expect(parseRange(params('from=2020-01-01&to=2026-08-31'), today).days).toBe(365);
   });
 
   it('fällt bei kaputten oder verdrehten Daten auf days zurück', () => {
     expect(parseRange(params('from=2026-08-20&to=2026-08-10&days=7'), today)).toEqual({
-      start: '2026-08-25',
-      end: '2026-08-31',
+      start: '2026-08-24',
+      end: '2026-08-30',
       days: 7,
     });
-    expect(parseRange(params('from=gestern&to=heute'), today).days).toBe(30);
+    expect(parseRange(params('from=gestern&to=heute'), today).days).toBe(7);
   });
+});
+
+describe('ungültige Kalendertage', () => {
+  it.each(['2026-02-30', '2026-13-01', '2026-00-01'])(
+    'ignoriert %s statt den Zeitraum still zu verschieben',
+    (from) => {
+      expect(parseRange(new URLSearchParams({ from, to: '2026-12-31' }), '2026-10-30')).toEqual({
+        start: '2026-10-23',
+        end: '2026-10-29',
+        days: 7,
+      });
+    }
+  );
 });

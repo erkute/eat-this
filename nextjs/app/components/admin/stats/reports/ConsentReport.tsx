@@ -1,52 +1,37 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
 import { BarRows, Card } from '../charts';
-import { NUMBER, decimal, percent } from '../format';
+import { NUMBER, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
-/**
- * Der Cookie-Dialog: wie viele Menschen zustimmen — und damit, welchen
- * Bruchteil der Wirklichkeit Google Analytics sieht. Zwei Nenner, siehe
- * StatsSummary.consent.
- */
+/** Der Cookie-Bericht zählt Antworten und Einblendungen, keine eindeutigen Personen. */
 export default function ConsentReport({ data }: { data: StatsSummary }) {
   const { consent } = data;
-  if (consent.rate === null) {
+  const answers = consent.accepted + consent.declined;
+  if (consent.shown === 0 && answers === 0) {
     return <p className={styles.notice}>Der Dialog wurde in diesem Zeitraum nicht gezählt.</p>;
   }
-  const silent = Math.max(0, consent.visitors - consent.accepted - consent.declined);
-
   return (
     <>
-      <Card
-        title="Zustimmung"
-        sub={`Über ${NUMBER.format(consent.days)} Tage mit gezähltem Dialog.`}
-      >
-        <p className={styles.big}>{percent(consent.rate)}</p>
+      <Card title="Zustimmung" sub="Anteil an den gezählten Antworten im Zeitraum.">
+        <p className={styles.big}>{answers > 0 ? percent(consent.accepted / answers) : '—'}</p>
         <p className={styles.note}>
-          der Besucher stimmen zu — {NUMBER.format(consent.accepted)} von{' '}
-          {NUMBER.format(consent.visitors)}. Nur die Zustimmenden sieht Google Analytics; dieses
-          Brett sieht alle.
+          {NUMBER.format(consent.accepted)} Zustimmungen bei {NUMBER.format(answers)} Antworten.
+          Wiederholte Entscheidungen zählen erneut; dies ist keine Quote eindeutiger Personen.
         </p>
       </Card>
-
-      <Card title="Antworten" span={2} sub="Besucher der Tage, die den Dialog zählen.">
+      <Card title="Antworten" span={2} sub="Gezählte Entscheidungen im Zeitraum.">
         <BarRows
           rows={[
             { key: 'accepted', label: 'stimmen zu', count: consent.accepted },
             { key: 'declined', label: 'lehnen ab', count: consent.declined },
-            { key: 'silent', label: 'antworten nicht', count: silent },
-          ].map((row) => ({
-            ...row,
-            share: consent.visitors > 0 ? percent(row.count / consent.visitors, 0) : '',
-          }))}
+          ].map((row) => ({ ...row, share: answers > 0 ? percent(row.count / answers) : '' }))}
           empty="Keine Antworten."
         />
       </Card>
-
       <Card
         title="Einblendungen"
         span={3}
-        sub="Der Dialog blockiert und erscheint bei jedem Seitenaufruf erneut, solange niemand antwortet — darum liegt die Quote je Einblendung weit unter der je Besucher."
+        sub="Mit gespeicherter Entscheidung erscheint der Dialog nicht erneut automatisch. Auf der Startseite wartet er auf das Intro."
       >
         <div className={styles.rates}>
           <div className={styles.rate}>
@@ -55,21 +40,16 @@ export default function ConsentReport({ data }: { data: StatsSummary }) {
           </div>
           <div className={styles.rate}>
             <span className={styles.rateValue}>
-              {consent.viewsPerVisitor === null ? '—' : decimal(consent.viewsPerVisitor)}
-            </span>
-            <span className={styles.rateLabel}>Einblendungen je Besucher</span>
-          </div>
-          <div className={styles.rate}>
-            <span className={styles.rateValue}>
               {consent.ratePerView === null ? '—' : percent(consent.ratePerView)}
             </span>
             <span className={styles.rateLabel}>Zustimmungen je Einblendung</span>
           </div>
-          <div className={styles.rate}>
-            <span className={styles.rateValue}>{percent(consent.rate)}</span>
-            <span className={styles.rateLabel}>Zustimmungen je Besucher — die ehrliche Zahl</span>
-          </div>
         </div>
+        <p className={styles.note}>
+          Google Analytics kann auch wiederkehrende Besucher mit früher gespeicherter Zustimmung
+          erfassen. Wie viele Menschen den Dialog unbeantwortet lassen, lässt sich aus diesen Summen
+          nicht bestimmen.
+        </p>
       </Card>
     </>
   );

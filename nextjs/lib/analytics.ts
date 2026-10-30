@@ -3,7 +3,11 @@
 import { readConsent } from '@/lib/consent';
 import { EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
 import { isAutomated } from '@/lib/analytics/botFilter';
-import { hasNoCountCookie } from '@/lib/analytics/noCount';
+import {
+  hasNoCountCookie,
+  isLocalAnalyticsHost,
+  isLocalAnalyticsUrl,
+} from '@/lib/analytics/noCount';
 
 type AnalyticsParams = Record<string, string | number | boolean | undefined>;
 
@@ -77,7 +81,12 @@ export function isAnalyticsHost(hostname: string): boolean {
  * 281 Aufrufe der Startseite — der Betreiber, sein Test-Konto und der
  * Browser der Claude-App, der bei jedem Smoke-Test zustimmt. */
 function isOwnOrAutomated(): boolean {
-  if (hasNoCountCookie(document.cookie)) return true;
+  if (hasNoCountCookie(document.cookie) || isLocalAnalyticsUrl(document.referrer)) return true;
+  if (
+    navigator.doNotTrack === '1' ||
+    (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl
+  )
+    return true;
   if (isAutomated(navigator.userAgent)) return true;
   return /^\/(en\/)?admin(\/|$)/.test(window.location.pathname);
 }
@@ -97,10 +106,9 @@ function gaEnabled(): boolean {
  * instead of it. GA needs consent and consent is a minority, so on its own it
  * reported about a third of the real traffic with no way to tell which third.
  *
- * Nothing here reads or writes the device: no cookie, no localStorage, no
- * sessionStorage, no fingerprint. That is not an implementation detail, it is
- * the whole reason this needs no banner (TDDDG 25). If you ever add a client-
- * side id here, the endpoint moves behind the consent dialog with it.
+ * The counter creates no client identifier and writes no browser storage.
+ * It reads only the explicit no-count preference to suppress test visits,
+ * alongside the browser's privacy signals and automation checks.
  *
  * sendBeacon rather than fetch: it survives the page being closed, which is
  * exactly when the last page view of a visit happens. connect-src 'self'
@@ -131,6 +139,7 @@ function userAgent(): string | undefined {
 
 function sendCount(payload: Record<string, string>): void {
   if (typeof window === 'undefined') return;
+  if (isLocalAnalyticsHost(window.location.hostname) || isOwnOrAutomated()) return;
   const ua = userAgent();
   const body = JSON.stringify(ua ? { ...payload, ua } : payload);
   try {

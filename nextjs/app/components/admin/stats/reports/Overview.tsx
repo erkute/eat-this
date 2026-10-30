@@ -1,9 +1,18 @@
 import { useMemo, useState } from 'react';
-import { delta, type StatsSummary } from '@/lib/admin/stats.server';
+import { delta, eachDay, dayBefore, sinceDay, type StatsSummary } from '@/lib/admin/stats.server';
 import type { ReportKey } from '../../StatsDashboard';
 import { BOT_FILTER_LIVE_SINCE, LIGHTHOUSE_FILTER_LIVE_SINCE } from '../../StatsDashboard';
 import { BarRows, Card, Change, Columns, Kpi, LineChart, type Series } from '../charts';
-import { NUMBER, WEEKDAYS_SHORT, dayTitle, decimal, euro, labelFor, percent } from '../format';
+import {
+  NUMBER,
+  WEEKDAYS_SHORT,
+  dayTitle,
+  decimal,
+  euro,
+  labelFor,
+  percent,
+  shortDay,
+} from '../format';
 import styles from '../../StatsDashboard.module.css';
 
 type Metric =
@@ -15,7 +24,7 @@ type Metric =
   | `event:${string}`;
 
 const METRIC_LABELS: Record<string, string> = {
-  visitors: 'Besucher',
+  visitors: 'Tagesbesucher',
   pageviews: 'Seitenaufrufe',
   ga_users: 'GA-Nutzer',
   search_clicks: 'Google-Klicks',
@@ -61,38 +70,49 @@ export default function Overview({
   }, [data.events]);
 
   const chart = useMemo(() => {
-    const days = data.days.map((d) => d.day);
+    const days = eachDay(data.range.start, data.range.end);
     if (metric === 'visitors' || metric === 'pageviews') {
       return {
         days,
-        now: data.days.map((d) => d[metric]),
-        before: data.previousDays.map((d) => d[metric]),
+        now: days.map((day) => data.days.find((d) => d.day === day)?.[metric] ?? 0),
+        before: eachDay(
+          sinceDay(data.range.days * 2, data.range.end),
+          dayBefore(data.range.start)
+        ).map((day) => data.previousDays.find((d) => d.day === day)?.[metric] ?? 0),
         label: METRIC_LABELS[metric],
       };
     }
     if (metric === 'ga_users') {
-      // Gegen die Besucher gezeichnet: der Abstand ist genau die Einwilligung.
+      // GA dedupliziert Nutzer anders als der eigene Tageszähler.
       const gaByDay = new Map(ga?.days.map((d) => [d.day, d.users]) ?? []);
       return {
         days,
-        now: data.days.map((d) => gaByDay.get(d.day) ?? 0),
+        now: days.map((day) => gaByDay.get(day) ?? 0),
         before: [],
         label: METRIC_LABELS[metric],
       };
     }
     if (metric === 'search_clicks' || metric === 'search_impressions') {
       const field = metric === 'search_clicks' ? 'clicks' : 'impressions';
+      const searchDays = search ? eachDay(search.range.start, search.range.end) : [];
       return {
-        days: search?.days.map((d) => d.day) ?? [],
-        now: search?.days.map((d) => d[field]) ?? [],
-        before: [],
+        days: searchDays,
+        now: searchDays.map((day) => search?.days.find((d) => d.day === day)?.[field] ?? 0),
+        before: search?.before
+          ? searchDays.map(
+              (day) =>
+                search.previousDays.find((b) => b.day === dayBefore(day, search.range.days))?.[
+                  field
+                ] ?? 0
+            )
+          : [],
         label: METRIC_LABELS[metric],
       };
     }
     const key = metric.slice('event:'.length);
     return {
       days,
-      now: data.eventsByDay.map((d) => d.counts[key] ?? 0),
+      now: days.map((day) => data.eventsByDay.find((d) => d.day === day)?.counts[key] ?? 0),
       before: [],
       label: labelFor(key),
     };
@@ -101,7 +121,14 @@ export default function Overview({
   const openIndex = data.today ? chart.days.indexOf(data.today.day) : -1;
   const series: Series[] = [{ label: chart.label, values: chart.now }];
   if (compare && chart.before.length > 0) {
-    series.push({ label: 'Vorperiode', values: chart.before, dashed: true });
+    series.push({
+      label: 'Vorperiode',
+      values: chart.before,
+      dashed: true,
+      days: chart.days.map((day) =>
+        dayBefore(day, metric.startsWith('search_') && search ? search.range.days : data.range.days)
+      ),
+    });
   }
 
   const revealShare = data.funnel.rates.find((r) => r.key === 'login_view_signed');
@@ -111,45 +138,31 @@ export default function Overview({
   return (
     <>
       <div className={styles.kpis}>
-        {data.live && (
-          <Kpi
-            label="Gerade aktiv"
-            value={NUMBER.format(data.live.activeNow)}
-            hint={[
-              `letzte ${data.live.minutes} Min`,
-              data.live.ga !== null ? `GA ${NUMBER.format(data.live.ga)}` : null,
-              `Stand ${new Date(data.live.at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`,
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          />
-        )}
         <Kpi
-          label="Besucher"
+          label="Tagesbesucher"
           value={NUMBER.format(totals.visitors)}
           delta={period?.visitors ?? null}
-          hint={`${NUMBER.format(perDay)} je vollem Tag`}
+          hint={`Summe · Ø ${NUMBER.format(perDay)} pro Tag`}
           spark={data.days.map((d) => d.visitors)}
         />
-        {ga && (
-          <Kpi
-            label="GA-Nutzer"
-            value={NUMBER.format(ga.users)}
-            hint={
-              totals.visitors > 0
-                ? `${percent(ga.users / totals.visitors, 0)} der Besucher · nur mit Zustimmung`
-                : 'nur mit Zustimmung'
-            }
-            spark={ga.days.map((d) => d.users)}
-          />
-        )}
         <Kpi
           label="Seitenaufrufe"
           value={NUMBER.format(totals.pageviews)}
           delta={period?.pageviews ?? null}
-          hint={`${decimal(perVisitor)} je Besucher`}
+          hint={`${decimal(perVisitor)} je Tagesbesucher`}
           spark={data.days.map((d) => d.pageviews)}
         />
+        {search && (
+          <Kpi
+            label="Google-Klicks"
+            value={NUMBER.format(search.totals.clicks)}
+            delta={search.before ? delta(search.totals.clicks, search.before.clicks) : null}
+            hint={`${shortDay(search.range.start)}–${shortDay(search.range.end)} · endgültige Suchdaten`}
+            spark={eachDay(search.range.start, search.range.end).map(
+              (day) => search.days.find((d) => d.day === day)?.clicks ?? 0
+            )}
+          />
+        )}
         {accounts && (
           <>
             <Kpi
@@ -170,21 +183,7 @@ export default function Overview({
               hint={`${NUMBER.format(accounts.purchases.total)} insgesamt`}
               spark={accounts.byDay.map((d) => d.purchases)}
             />
-            <Kpi
-              label="Umsatz"
-              value={euro(accounts.revenue.inWindowCents)}
-              hint={`${euro(accounts.revenue.totalCents)} insgesamt`}
-            />
           </>
-        )}
-        {search && (
-          <Kpi
-            label="Google-Klicks"
-            value={NUMBER.format(search.totals.clicks)}
-            delta={search.before ? delta(search.totals.clicks, search.before.clicks) : null}
-            hint={`${NUMBER.format(search.totals.impressions)} Impressionen`}
-            spark={search.days.map((d) => d.clicks)}
-          />
         )}
       </div>
 
@@ -192,9 +191,11 @@ export default function Overview({
         title="Verlauf"
         span={2}
         sub={
-          period
-            ? `Gestrichelt die ${NUMBER.format(period.days)} Tage davor, nach Tag überlagert. Der letzte Punkt ist hohl, wenn der Tag noch läuft.`
-            : 'Der letzte Punkt ist hohl, wenn der Tag noch läuft.'
+          metric.startsWith('search_') && search
+            ? `Google: ${shortDay(search.range.start)}–${shortDay(search.range.end)} Endgültige Daten; gestrichelt die gleich lange Vorperiode.`
+            : chart.before.length > 0
+              ? 'Abgeschlossene Tage. Gestrichelt die gleich lange Vorperiode, nach Tagen überlagert.'
+              : 'Abgeschlossene Tage. Für diese Kennzahl liegt keine Vergleichsreihe vor.'
         }
         tools={
           <>
@@ -204,7 +205,7 @@ export default function Overview({
               value={metric}
               onChange={(e) => setMetric(e.target.value as Metric)}
             >
-              <option value="visitors">Besucher</option>
+              <option value="visitors">Tagesbesucher</option>
               <option value="pageviews">Seitenaufrufe</option>
               {ga && <option value="ga_users">GA-Nutzer</option>}
               {search && (
@@ -269,7 +270,7 @@ export default function Overview({
                 className={`et-btn et-btn-sm et-btn-alt ${styles.optOutButton}`}
                 onClick={() => onOpen('days')}
               >
-                Beide Tage ausgebreitet
+                Tag im Detail
               </button>
             </p>
           </>
@@ -278,14 +279,14 @@ export default function Overview({
         )}
       </Card>
 
-      <Card title="Der Trichter in drei Zahlen" sub="Ereignisse je Besucher, nicht Personen.">
+      <Card
+        title="Der Trichter in drei Zahlen"
+        sub="Verhältnisse gezählter Ereignisse, keine Personen-Conversions."
+      >
         <div className={styles.rates}>
-          <RateTile rate={mapRate?.rate ?? null} label="der Besucher öffnen die Karte" />
-          <RateTile
-            rate={revealShare?.rate ?? null}
-            label="der Anmeldeformulare enden angemeldet"
-          />
-          <RateTile rate={checkoutRate?.rate ?? null} label="der begonnenen Käufe werden bezahlt" />
+          <RateTile rate={mapRate?.rate ?? null} label="Map-Aufrufe je 100 Tagesbesucher" />
+          <RateTile rate={revealShare?.rate ?? null} label="Anmeldungen je 100 Formularaufrufe" />
+          <RateTile rate={checkoutRate?.rate ?? null} label="Käufe je 100 Checkout-Starts" />
         </div>
         <p className={styles.note}>
           <button
@@ -328,7 +329,7 @@ export default function Overview({
         </p>
       </Card>
 
-      <Card title="Herkunft" sub="Externe Verweise, einmal je Besuch gezählt.">
+      <Card title="Herkunft" sub="Seitenaufrufe mit externem Verweis, keine eindeutigen Personen.">
         <BarRows rows={data.referrers.slice(0, 8)} empty="Keine externen Verweise." />
         <p className={styles.note}>
           <button
@@ -362,9 +363,48 @@ export default function Overview({
         </Card>
       )}
 
+      <Card
+        title="Weitere Kennzahlen"
+        span={3}
+        sub="Live-Aktivität ist getrennt vom abgeschlossenen Zeitraum. GA zählt nur mit Einwilligung."
+      >
+        <div className={styles.kpis}>
+          {data.live && (
+            <Kpi
+              label="Gerade aktiv"
+              value={NUMBER.format(data.live.activeNow)}
+              hint={[
+                `letzte ${data.live.minutes} Min`,
+                data.live.ga !== null ? `GA ${NUMBER.format(data.live.ga)}` : null,
+                `Stand ${new Date(data.live.at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            />
+          )}
+          {ga && (
+            <Kpi
+              label="GA-Nutzer"
+              value={NUMBER.format(ga.users)}
+              hint="Aktive Nutzer mit Einwilligung · im Zeitraum dedupliziert"
+              spark={eachDay(data.range.start, data.range.end).map(
+                (day) => ga.days.find((d) => d.day === day)?.users ?? 0
+              )}
+            />
+          )}
+          {accounts && (
+            <Kpi
+              label="Katalogwert der Käufe"
+              value={euro(accounts.revenue.inWindowCents)}
+              hint={`${euro(accounts.revenue.totalCents)} insgesamt`}
+            />
+          )}
+        </div>
+      </Card>
+
       <p className={styles.notice}>
-        Alle Besuche, ohne Cookie-Zustimmung. Pfeile an den Kacheln: Schnitt je vollem Tag gegen die
-        Periode davor. Bis {BOT_FILTER_LIVE_SINCE} zählten Bots mit, bis{' '}
+        Tagesbesucher sind über mehrere Tage nicht eindeutig. Veränderungen an den Kacheln: Schnitt
+        je vollem Tag gegen die Periode davor. Bis {BOT_FILTER_LIVE_SINCE} zählten Bots mit, bis{' '}
         {LIGHTHOUSE_FILTER_LIVE_SINCE} die eigene Lighthouse-CI.
       </p>
     </>
@@ -374,7 +414,7 @@ export default function Overview({
 function RateTile({ rate, label }: { rate: number | null; label: string }) {
   return (
     <div className={styles.rate}>
-      <span className={styles.rateValue}>{rate === null ? '—' : percent(rate, 0)}</span>
+      <span className={styles.rateValue}>{rate === null ? '—' : decimal(rate * 100, 1)}</span>
       <span className={styles.rateLabel}>{label}</span>
     </div>
   );

@@ -452,3 +452,51 @@ describe('countEvent — Auffaecherung nach Parameter', () => {
     expect(beacon).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('eigene Browser senden keine Zähl-Beacons', () => {
+  afterEach(() => {
+    document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
+    vi.unstubAllGlobals();
+  });
+  it('unterdrückt Seiten und Ereignisse mit Ausschluss-Cookie', () => {
+    const sendBeacon = vi.fn();
+    vi.stubGlobal('navigator', { userAgent: TEST_UA, sendBeacon });
+    document.cookie = 'eatthis_nocount=1; Path=/';
+    countView();
+    countEvent('map_opened');
+    expect(sendBeacon).not.toHaveBeenCalled();
+  });
+  it.each(['localhost', '127.0.0.1', '[::1]'])(
+    'unterdrückt lokale Produktionsvorschauen auf %s',
+    (hostname) => {
+      const sendBeacon = vi.fn();
+      vi.stubGlobal('navigator', { userAgent: TEST_UA, sendBeacon });
+      vi.stubGlobal('location', { ...window.location, hostname });
+      countView();
+      countEvent('map_opened');
+      expect(sendBeacon).not.toHaveBeenCalled();
+    }
+  );
+});
+
+it('sendet aus lokalen Vorschauen weder Zählereignisse noch GA', () => {
+  const referrer = vi.spyOn(document, 'referrer', 'get').mockReturnValue('http://127.0.0.1:4178/');
+  const beacon = vi.fn();
+  const gtag = vi.fn();
+  vi.stubGlobal('navigator', { userAgent: TEST_UA, sendBeacon: beacon });
+  vi.stubGlobal('location', { hostname: 'www.eatthisdot.com', pathname: '/' });
+  document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
+  document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
+  (window as Window & { gtag?: unknown }).gtag = gtag;
+  try {
+    countView();
+    countEvent('map_opened');
+    trackEvent('map_opened');
+    expect(beacon).not.toHaveBeenCalled();
+    expect(gtag).not.toHaveBeenCalled();
+  } finally {
+    referrer.mockRestore();
+    vi.unstubAllGlobals();
+    delete (window as Window & { gtag?: unknown }).gtag;
+  }
+});

@@ -9,14 +9,9 @@
  * vor dem 28.08.2026 nicht gibt; Referrer-Hosts mit ersetzten Punkten; ein
  * Trichter, der Ereignisse zählt und keine Personen).
  *
- * Das Produkt, das hier gemessen wird (Stand 07.09.2026):
- *
- *     frei      alle Spots auf der Karte, 5 Must-Eat-Karten offen
- *     Konto     +20 Karten (Starter Pack: 10 offen, 10 als Rücken)
- *     vor Ort   ein Rücken geht im 50-m-Radius auf
- *     Pack      alle Karten einer Kategorie, oder All Berlin
- *
- * Der Trichter folgt genau diesen vier Stufen.
+ * Produktbereiche: entdecken, Konto und Starter Pack, vor Ort aufdecken,
+ * Booster Packs. Aufdecken und Kaufen sind alternative Wege zur Sammlung.
+ * Ereignisverhältnisse sind keine verknüpften Personen-Conversions.
  */
 
 import type { GaResult } from '@/lib/admin/googleAnalytics.server';
@@ -388,6 +383,8 @@ export interface StatsSummary {
   movers: { paths: Mover[]; referrers: Mover[]; events: Mover[] };
   paths: Entry[];
   entryPaths: Entry[];
+  /** Alle Seitenaufrufe mit externem Referrer, vor der Top-Liste. */
+  referrerPageviews: number;
   referrers: Entry[];
   events: Entry[];
   exits: ExitEntry[];
@@ -401,34 +398,12 @@ export interface StatsSummary {
   funnel: Funnel;
   /** Heute (falls im Fenster) und der jüngste abgeschlossene Tag, ausgebreitet. */
   dayDetails: { today: DaySummary | null; latest: DaySummary | null };
-  /**
-   * Der Cookie-Dialog. Zwei Nenner, weil zwei verschiedene Fragen dahinter
-   * stehen — und weil der naheliegende der falsche ist.
-   *
-   * `shown` zaehlt ERSCHEINUNGEN, nicht gefragte Menschen: der Dialog
-   * blockiert (kein Escape, kein Aussenklick, siehe CookieConsent.tsx) und
-   * erscheint bei jedem Seitenaufruf erneut, solange niemand geantwortet hat
-   * — gemessen 3,3 Mal je Besucher. Eine Quote gegen `shown` beantwortet
-   * darum „wie oft wird auf eine Einblendung geklickt", nicht „wie viele
-   * Menschen stimmen zu", und faellt um rund zwei Drittel zu niedrig aus.
-   *
-   * `visitors` sind die Besucher **der Tage, die den Dialog ueberhaupt
-   * zaehlen** — `consent_gate_shown` gibt es erst seit dem 28.08.2026.
-   * Dieselbe Falle wie bei den Ausstiegen: ueber alle Tage gerechnet stuenden
-   * Zaehler und Nenner auf verschiedenen Zeitraeumen.
-   */
+  /** Gezählte Dialog-Einblendungen und Antworten, keine eindeutigen Personen. */
   consent: {
     shown: number;
     accepted: number;
     declined: number;
-    visitors: number;
-    days: number;
-    /** Zustimmungen je Besucher — die Antwort auf „wie viele Menschen". */
-    rate: number | null;
-    /** Zustimmungen je Einblendung — deutlich niedriger, siehe oben. */
     ratePerView: number | null;
-    /** Einblendungen je Besucher. Ueber 1 heisst: mehrfach gefragt. */
-    viewsPerVisitor: number | null;
   };
 }
 
@@ -440,7 +415,7 @@ export interface Range {
   days: number;
 }
 
-const DEFAULT_DAYS = 30;
+const DEFAULT_DAYS = 7;
 const MAX_DAYS = 365;
 const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -452,23 +427,32 @@ function parseDays(raw: string | null): number {
 }
 
 /**
- * Der Zeitraum aus der Anfrage: `?days=30` (endet heute) oder
+ * Der Zeitraum aus der Anfrage: `?days=7` (endet gestern) oder
  * `?from=…&to=…`. `from`/`to` schlagen `days`; ein Fenster, das in der
- * Zukunft endet, wird auf heute gekappt, eins, das länger als ein Jahr ist,
+ * Zukunft endet, wird auf gestern gekappt, eins, das länger als ein Jahr ist,
  * am Anfang. Liegt hier und nicht in der Route, weil Next aus einer
  * Route-Datei nur die Handler exportiert sehen will.
  */
 export function parseRange(params: URLSearchParams, today: string): Range {
+  const lastClosedDay = dayBefore(today);
   const from = params.get('from');
   const to = params.get('to');
-  if (from && to && DAY_KEY.test(from) && DAY_KEY.test(to) && from <= to) {
-    const end = to > today ? today : to;
+  if (
+    from &&
+    to &&
+    DAY_KEY.test(from) &&
+    DAY_KEY.test(to) &&
+    dayBefore(from, 0) === from &&
+    dayBefore(to, 0) === to &&
+    from <= to
+  ) {
+    const end = to > lastClosedDay ? lastClosedDay : to;
     const spanned = daysBetween(from, end);
     const days = Math.min(Math.max(spanned, 1), MAX_DAYS);
     return { start: sinceDay(days, end), end, days };
   }
   const days = parseDays(params.get('days'));
-  return { start: sinceDay(days, today), end: today, days };
+  return { start: sinceDay(days, lastClosedDay), end: lastClosedDay, days };
 }
 
 /**
@@ -643,7 +627,7 @@ export function buildFunnel(
     {
       key: 'free',
       title: 'Frei',
-      offer: `Alle Spots, ${REVEALED_TARGET} Karten offen`,
+      offer: 'Map, Spots und öffentliche Must Eats',
       steps: [
         step('visitors', visitors),
         step('map_opened', count('map_opened')),
@@ -654,7 +638,7 @@ export function buildFunnel(
     {
       key: 'account',
       title: 'Konto',
-      offer: `+${STARTER_PACK_CARDS} Karten, ${STARTER_PACK_FACE_UP} davon offen`,
+      offer: `Starter Pack mit bis zu ${STARTER_PACK_CARDS} Karten`,
       steps: [
         step('must_eat_reveal_login_required', count('must_eat_reveal_login_required')),
         step('login_view', count('login_view')),
@@ -667,7 +651,7 @@ export function buildFunnel(
     {
       key: 'onsite',
       title: 'Vor Ort',
-      offer: 'Ein Rücken geht im 50-m-Radius auf',
+      offer: 'Mit Konto am Spot aufdecken',
       steps: [
         step('must_eat_reveal_location_requested', count('must_eat_reveal_location_requested')),
         step('must_eat_reveal_too_far', count('must_eat_reveal_too_far')),
@@ -678,7 +662,7 @@ export function buildFunnel(
     },
     {
       key: 'packs',
-      title: 'Packs',
+      title: 'Booster Packs',
       offer: 'Alle Karten einer Kategorie, oder All Berlin',
       steps: [
         step('packs_page', packsPage),
@@ -723,7 +707,13 @@ export function buildFunnel(
       // jedes Konto von vor dem 06.09.2026 bei seiner naechsten Anmeldung
       // (ReferralToastListener), also mehr Vergaben als Neuanmeldungen —
       // die Quote stuende ueber 100 %, bis alle Altkonten einmal da waren.
-      rate('pack_checkout', 'pack_page', packPage, 'begin_checkout', count('begin_checkout')),
+      rate(
+        'pack_checkout',
+        'pack_visits',
+        packsPage + packPage,
+        'begin_checkout',
+        count('begin_checkout')
+      ),
       rate(
         'checkout_purchase',
         'begin_checkout',
@@ -814,8 +804,21 @@ export function summarize(
     live = null,
     ga = null,
   } = options;
-  const sorted = [...docs].sort((a, b) => a.day.localeCompare(b.day));
-  const sortedBefore = [...before].sort((a, b) => a.day.localeCompare(b.day));
+  const fill = (input: DailyDoc[], start: string, end: string): DailyDoc[] => {
+    const byDay = new Map(input.map((doc) => [doc.day, doc]));
+    return eachDay(start, end).map((day) => byDay.get(day) ?? { day });
+  };
+  const window = options.range;
+  const sorted = window
+    ? fill(docs, window.start, window.end)
+    : [...docs].sort((a, b) => a.day.localeCompare(b.day));
+  const sortedBefore = window
+    ? fill(
+        before,
+        dayBefore(window.start, daysBetween(window.start, window.end)),
+        dayBefore(window.start)
+      )
+    : [...before].sort((a, b) => a.day.localeCompare(b.day));
   const start = options.range?.start ?? sorted[0]?.day ?? today;
   const end = options.range?.end ?? sorted.at(-1)?.day ?? today;
 
@@ -834,10 +837,7 @@ export function summarize(
   const eventsByDay: EventDay[] = [];
   let pageviews = 0;
   let visitors = 0;
-  // Getrennt gezaehlt, damit die Zustimmungsquote denselben Zeitraum trifft
-  // wie ihr Zaehler — `consent_gate_shown` gibt es erst seit dem 28.08.2026.
-  let consentVisitors = 0;
-  let consentDays = 0;
+  // Einblendungen und Antworten sind getrennte Ereigniszähler.
   let consentShown = 0;
   let consentAccepted = 0;
   let consentDeclined = 0;
@@ -867,9 +867,9 @@ export function summarize(
     }
 
     if (fullDay && num(doc.events?.consent_gate_shown) > 0) {
-      consentDays += 1;
-      consentVisitors += point.visitors;
       consentShown += num(doc.events?.consent_gate_shown);
+    }
+    if (fullDay) {
       consentAccepted += num(doc.events?.consent_accepted);
       consentDeclined += num(doc.events?.consent_declined);
     }
@@ -966,6 +966,7 @@ export function summarize(
     },
     paths: topEntries(paths),
     entryPaths: topEntries(entryPaths),
+    referrerPageviews: [...referrers.values()].reduce((total, count) => total + count, 0),
     referrers: topEntries(referrers).map((entry) => ({
       key: restoreHost(entry.key),
       count: entry.count,
@@ -985,11 +986,7 @@ export function summarize(
       shown: consentShown,
       accepted: consentAccepted,
       declined: consentDeclined,
-      visitors: consentVisitors,
-      days: consentDays,
-      rate: consentVisitors > 0 ? consentAccepted / consentVisitors : null,
       ratePerView: consentShown > 0 ? consentAccepted / consentShown : null,
-      viewsPerVisitor: consentVisitors > 0 ? consentShown / consentVisitors : null,
     },
   };
 }
@@ -1106,7 +1103,7 @@ export function summarizeAccounts(
     },
     checkouts: {
       inWindow: checkoutsInWindow.length,
-      open: checkoutsInWindow.filter((c) => c.status === 'open').length,
+      open: checkoutsInWindow.filter((c) => c.status !== 'completed').length,
       completed: checkoutsInWindow.filter((c) => c.status === 'completed').length,
     },
     people: {
@@ -1122,7 +1119,12 @@ export function summarizeAccounts(
 
 export interface DeckInput {
   restaurants: { _id: string; categories?: { slug: string; name?: string }[] }[];
-  mustEats: { _id: string; restaurant: { _id: string }; revealedForAnon?: boolean; previewCategory?: string }[];
+  mustEats: {
+    _id: string;
+    restaurant: { _id: string };
+    revealedForAnon?: boolean;
+    previewCategory?: string;
+  }[];
   categories: { slug: string; name: string }[];
 }
 

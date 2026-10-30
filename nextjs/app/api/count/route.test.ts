@@ -88,6 +88,16 @@ describe('POST /api/count', () => {
     expect(mocks.create).not.toHaveBeenCalled();
   });
 
+  it.each(['http://127.0.0.1:4178/', 'http://localhost:3100/', 'http://[::1]:3100/'])(
+    'zählt Live-Aufrufe aus der lokalen Vorschau %s nicht',
+    async (referrer) => {
+      const res = await POST(request({ path: '/', referrer }));
+      expect(res.status).toBe(204);
+      expect(mocks.set).not.toHaveBeenCalled();
+      expect(mocks.create).not.toHaveBeenCalled();
+    }
+  );
+
   it('counts a page view and its referrer host', async () => {
     const res = await POST(
       request({
@@ -495,3 +505,19 @@ describe('POST /api/count', () => {
     expect(written).not.toContain('84.13.22.9');
   });
 });
+
+it.each(['http://localhost:3100', 'http://127.0.0.1:3100', 'http://[::1]:3100'])(
+  'schreibt auch im Produktionsbuild nichts für Vorschau-Origin %s',
+  async (origin) => {
+    mocks.set.mockClear();
+    mocks.create.mockClear();
+    mocks.update.mockClear();
+    vi.stubEnv('NODE_ENV', 'production');
+    const response = await POST(request({ path: '/' }, { origin }));
+    expect(response.status).toBe(204);
+    expect(mocks.set).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.update).not.toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  }
+);

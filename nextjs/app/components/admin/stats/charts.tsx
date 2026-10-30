@@ -16,6 +16,8 @@ import styles from '../StatsDashboard.module.css';
 export interface Series {
   label: string;
   values: number[];
+  /** Eigene Datumswerte, besonders für die Vorperiode. */
+  days?: string[];
   /** Die Vorperiode: gestrichelt, gleiche Länge, nach Index überlagert. */
   dashed?: boolean;
 }
@@ -186,7 +188,7 @@ export function LineChart({
                   }
                 >
                   <title>
-                    {`${s.label} · ${days[i] ? shortDay(days[i]) : `Tag ${i + 1}`}: ${fmt(v)}${
+                    {`${s.label} · ${s.days?.[i] ? shortDay(s.days[i]) : days[i] ? shortDay(days[i]) : `Tag ${i + 1}`}: ${fmt(v)}${
                       openIndex === i && !s.dashed ? ' (läuft noch)' : ''
                     }`}
                   </title>
@@ -196,6 +198,44 @@ export function LineChart({
           );
         })}
       </svg>
+      <details className={styles.chartData}>
+        <summary className="et-btn et-btn-sm et-btn-alt">Alle Tageswerte</summary>
+        <div
+          className={styles.scroll}
+          tabIndex={0}
+          role="region"
+          aria-label="Tabelle horizontal scrollen"
+        >
+          <table className={styles.table}>
+            <caption>Tageswerte zum Diagramm</caption>
+            <thead>
+              <tr>
+                <th scope="col">Tag</th>
+                {series.map((s) => (
+                  <th scope="col" key={s.label}>
+                    {s.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {days.map((day, i) => (
+                <tr key={day}>
+                  <th scope="row">{shortDay(day)}</th>
+                  {series.map((s) => (
+                    <td className={styles.cellNum} key={s.label}>
+                      {s.values[i] === undefined ? '—' : fmt(s.values[i])}
+                      {s.days?.[i] && (
+                        <small className={styles.comparisonDate}>{shortDay(s.days[i])}</small>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
       <div className={styles.legend}>
         {series.map((s, si) => (
           <span key={s.label} className={styles.legendItem}>
@@ -406,7 +446,12 @@ export function MoverList({
 }) {
   if (rows.length === 0) return <p className={styles.empty}>Keine Vorperiode im Zeitraum.</p>;
   return (
-    <div className={styles.scroll}>
+    <div
+      className={styles.scroll}
+      tabIndex={0}
+      role="region"
+      aria-label="Tabelle horizontal scrollen"
+    >
       <table className={styles.table}>
         <thead>
           <tr>
@@ -437,7 +482,12 @@ export function MoverList({
  *  Quote — für die schmale Tagesspalte. */
 export function ExitTable({ rows, compact = false }: { rows: ExitEntry[]; compact?: boolean }) {
   return (
-    <div className={styles.scroll}>
+    <div
+      className={styles.scroll}
+      tabIndex={0}
+      role="region"
+      aria-label="Tabelle horizontal scrollen"
+    >
       <table className={styles.table}>
         <thead>
           <tr>

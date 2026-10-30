@@ -15,7 +15,8 @@
 .small a { font-size: 16px; font-weight: 700; color: inherit; }
 .section a:focus-visible { outline: 3px solid #d9382a; outline-offset: 4px; }
 .large a, .small a { transition: color 300ms ease; }
-.large a:hover, .small a:hover, .large a[data-active], .small a[data-active] { color: #d9382a; }
+.large a[data-active], .small a[data-active] { color: #d9382a; }
+@media (hover: hover) { .large a:hover, .small a:hover { color: #d9382a; } }
 @media (prefers-reduced-motion: reduce) { .marks path, .large a, .small a { transition: none; } }
 @media(max-width:767.98px) {
   .section { grid-template-columns: 1fr; grid-template-areas: 'map' 'content'; padding-block: 40px; gap: 32px; }

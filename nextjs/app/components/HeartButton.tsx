@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { useHeartCount } from '@/lib/map/useHeartCount';
@@ -58,12 +58,30 @@ export default function HeartButton({
   const de = locale !== 'en';
   const { user } = useAuth();
   const signedIn = Boolean(user);
+  const root = useRef<HTMLElement>(null);
+  const [nearViewport, setNearViewport] = useState(false);
   const { favoriteIds, toggle } = useFavorites(user?.uid ?? null);
-  const { count } = useHeartCount(restaurantId);
+  const { count } = useHeartCount(nearViewport ? restaurantId : null);
   const [optimistic, setOptimistic] = useState<Optimistic | null>(null);
   // Zählt die eigenen Tipps dieses Besuchs: nur sie lassen das Herz sich
   // zeichnen und die Zahl einstempeln — nicht das Laden der Favoriten.
   const [taps, setTaps] = useState(0);
+
+  // Der Satz steht nach dem Steckbrief: SDK und Live-Verbindung erst vor
+  // dem Erreichen laden. Danach bleibt der Zähler bis zum Verlassen live.
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      setNearViewport(true);
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      setNearViewport(true);
+      observer.disconnect();
+    }, { rootMargin: '600px' });
+    if (root.current) observer.observe(root.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Hat sich der Live-Zähler nach der Bestätigung bewegt, gilt er wieder.
   const live = optimistic && !(optimistic.settled && count !== optimistic.base) ? optimistic : null;
@@ -101,7 +119,7 @@ export default function HeartButton({
       : `Heart ${displayName}`;
 
   return (
-    <section className={styles.love} aria-label={de ? 'Herz' : 'Heart'}>
+    <section ref={root} className={styles.love} aria-label={de ? 'Herz' : 'Heart'} onFocusCapture={() => setNearViewport(true)}>
       {/* „Ich ♥" bleibt beisammen, der Name rutscht als Ganzes in die nächste
           Zeile — nie „ICH ♥ KOLO / COFFEE". */}
       <p className={styles.line}>

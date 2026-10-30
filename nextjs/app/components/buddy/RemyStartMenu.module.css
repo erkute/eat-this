@@ -72,7 +72,8 @@
   text-decoration: none;
   font: inherit;
 }
-.items :is(a, button):focus, .items :is(a, button):hover { outline: 0; color: #fff; background: #000080; }
+.items :is(a, button):focus { outline: 0; color: #fff; background: #000080; }
+@media (hover: hover) { .items :is(a, button):hover { outline: 0; color: #fff; background: #000080; } }
 .separator { height: 2px; margin: 4px 6px; background: var(--start-shadow); border-bottom: 1px solid var(--start-light); }
 .start:focus-visible, .activeTask:focus-visible { outline: 1px dotted var(--start-text); outline-offset: -5px; }
 @media (max-width: 600px) {

@@ -77,8 +77,10 @@
   text-decoration: none;
 }
 
-.inner a:hover {
-  color: var(--et-link);
+@media (hover: hover) {
+  .inner a:hover {
+    color: var(--et-link);
+  }
 }
 
 .inner a:focus-visible {

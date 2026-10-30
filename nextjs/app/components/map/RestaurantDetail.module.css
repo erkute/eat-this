@@ -1097,7 +1097,8 @@
 }
 
 /* Die Adresse ist selbst das Maps-Ziel, mit unverändertem Lesesatz. */
-.rdAddress:is(:hover, :focus-visible) { color: var(--et-link); text-decoration: none; }
+.rdAddress:focus-visible { color: var(--et-link); text-decoration: none; }
+@media (hover: hover) { .rdAddress:hover { color: var(--et-link); text-decoration: none; } }
 .rdAddress:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 
 /* Ein Abschluss für Anmeldung, Booster-Pack und das letzte Magazin/Steckbrief:

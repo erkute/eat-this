@@ -92,6 +92,60 @@ for (const route of ['/bezirk/neukoelln', '/bezirk/schoeneberg', '/kategorie/swe
   }
 }
 
+for (const { route, location, selector } of [
+  { route: '/', location: 'home stack', selector: '[data-hub-magazine] ol > li > a' },
+  { route: '/news', location: 'current issue', selector: '[data-current-issue]' },
+  { route: '/en/news', location: 'current issue', selector: '[data-current-issue]' },
+  { route: '/news', location: 'archive', selector: 'section[aria-labelledby="news-archive"] a' },
+]) {
+  for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+    test(`magazine press stays opaque over the other issues: ${route} ${location} (${reducedMotion})`, async ({ page, isMobile }) => {
+      await page.emulateMedia({ reducedMotion });
+      await page.goto(route);
+      const link = page.locator(selector).first();
+      if (route === '/') {
+        await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
+        await link.focus();
+      }
+      const cover = link.locator('[data-magazine-cover]');
+      const href = (await link.getAttribute('href'))!;
+      for (const theme of ['light', 'dark']) {
+        await page.evaluate(value => document.documentElement.setAttribute('data-theme', value), theme);
+        await link.scrollIntoViewIfNeeded();
+        const restingFilter = await cover.evaluate(element => getComputedStyle(element).filter);
+        const restingTransition = await cover.evaluate(element => getComputedStyle(element).transitionProperty);
+        await link.evaluate(element => {
+          element.addEventListener('pointerdown', () => {
+            element.setAttribute('data-test-press-opacity', getComputedStyle(element).opacity);
+            const cover = element.querySelector('[data-magazine-cover]')!;
+            element.setAttribute('data-test-press-filter', getComputedStyle(cover).filter);
+            element.setAttribute('data-test-press-transition', getComputedStyle(cover).transitionProperty);
+          }, { once: true });
+          element.addEventListener('click', event => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }, { capture: true, once: true });
+        });
+        if (isMobile) await link.tap();
+        else await link.click();
+        // Transparency reveals the previous cover's title through this one.
+        expect(await link.getAttribute('data-test-press-opacity')).toBe('1');
+        expect(await link.getAttribute('data-test-press-filter')).toBe('brightness(0.85)');
+        if (reducedMotion === 'no-preference') {
+          expect(await link.getAttribute('data-test-press-transition')).toBe(restingTransition);
+        }
+        await expect(cover).toHaveCSS('filter', restingFilter);
+        await expect(link).not.toHaveAttribute('data-et-pressed');
+      }
+      if (isMobile) await link.tap();
+      else await link.click();
+      await expect(page).toHaveURL(new RegExp(`${href}$`));
+      await expect(page.locator('[data-page="news-article"] h1')).toBeVisible();
+      await expect(page.locator('html')).not.toHaveAttribute('data-magazine-opening', '');
+    });
+  }
+}
+
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`touch is frame-free and keyboard focus stays visible (${reducedMotion})`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion });
@@ -213,7 +267,6 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
     const controls = [
       page.getByRole('button', { name: 'Menü', exact: true }),
       page.locator('main .et-btn').first(),
-      page.locator('main a[href^="/news/"]:not(.et-btn)').first(),
     ];
     for (const control of controls) {
       await control.scrollIntoViewIfNeeded();

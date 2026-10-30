@@ -34,10 +34,8 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
 
   // Jeder Spot — die Spots sind frei. Vom KARTENSTAPEL sieht ein Besucher
   // ohne Konto seit dem 07.09.2026 jede Karte, aber offen nur das
-  // Schaufenster. (Bis 01.10.2026 kam täglich der Spot des Tages dazu; die
-  // Freigabe ist mit seiner Sektion auf der Startseite gegangen.) Dieselbe
-  // Regel wie composeAccountSurface für ein Konto ohne alles — die
-  // SSR-Nutzlast und der spätere Fetch müssen dasselbe meinen, sonst springt
+  // Schaufenster. Dieselbe Regel wie composeAccountSurface für ein Konto ohne
+  // alles — die SSR-Nutzlast und der spätere Fetch müssen dasselbe meinen, sonst springt
   // die Karte beim Hydrieren. Die Rücken sind der Anlass zur Anmeldung; was
   // darunter liegt, bleibt auf dem Server (getInitialAnonMapData strippt).
   const revealedMustEatIds = composeRevealedMustEats(allMustEats);
@@ -137,7 +135,7 @@ export async function getInitialAnonMapData(): Promise<InitialMapData> {
 
   return {
     ...metadata,
-    // Anonymous HTML receives only the curated set plus the spot-of-day gift.
+    // Anonymous HTML receives only the curated set.
     // Covered cards are metadata-only and premium fields come exclusively
     // from the private store after this server-side authorization decision.
     mustEats: stripCoveredMustEats(hydrated, faceUpIds),

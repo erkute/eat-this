@@ -237,7 +237,7 @@ export function findPageImage(html: string, pageUrl: URL): string | null {
   return null;
 }
 
-export interface RemoteImage {
+interface RemoteImage {
   body: Buffer;
   contentType: string;
   filename: string;

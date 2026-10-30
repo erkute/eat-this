@@ -40,14 +40,14 @@ export function firebaseServesDataset(projectId: string, dataset: string): boole
   return Boolean(expected) && getAdminProjectId() === expected;
 }
 
-export interface MustEatCardText {
+interface MustEatCardText {
   dish: string;
   description: string;
   descriptionEn: string;
   price: string;
 }
 
-export interface MustEatCardState extends MustEatCardText {
+interface MustEatCardState extends MustEatCardText {
   exists: boolean;
   restaurantId: string | null;
   /** Kleines Vorschaubild als data:-URL; die Karte selbst bleibt privat. */

@@ -126,7 +126,7 @@ export default function MapSection({
   } = useUserLocation();
   const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid);
   // Free-and-open map: anon visitors see exactly the server-revealed set
-  // face-up — 10 curated cards (one per spot) + the daily spot-of-day gift.
+  // face-up — the 10 curated cards.
   // Everything else stays card-back until revealed on site (50 m). Authed
   // users keep the stored Firestore unlock set ∪ the public anon face-up
   // set — what a guest sees open on /must-eats never flips back after signup

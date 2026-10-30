@@ -23,7 +23,7 @@ import type { RestaurantCard } from './types';
  */
 export const MIN_CURATED = 3;
 
-export interface CuratedRanking {
+interface CuratedRanking {
   /** Kuratierte Spots in redaktioneller Reihenfolge. Leer = keine Bestenliste. */
   top: RestaurantCard[];
   /** Alle übrigen Spots, alphabetisch, Ziffern-Namen am Ende. */

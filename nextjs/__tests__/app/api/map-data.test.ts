@@ -68,7 +68,6 @@ const baseEnt = {
   hasAllBerlin: false,
   categorySlugs: new Set<string>(),
   mustEatIds: new Set<string>(),
-  coveredMustEatIds: new Set<string>(),
 }
 
 beforeEach(() => {
@@ -163,7 +162,6 @@ describe('/api/map-data — welche Karten offen liegen', () => {
     })
     vi.mocked(resolveEntitlements).mockResolvedValue({
       ...baseEnt,
-      coveredMustEatIds: new Set(['m2b']),
     })
 
     const json = await (await GET(mkReq('valid-token'))).json()
@@ -200,9 +198,6 @@ describe('/api/map-data — welche Karten offen liegen', () => {
     vi.mocked(resolveEntitlements).mockResolvedValue({
       ...baseEnt,
       mustEatIds: new Set(['m2b']),
-      // Sichtbar, aber verdeckt — sonst waere m3b gar nicht in der Nutzlast
-      // und die Behauptung „bleibt verdeckt" nicht pruefbar.
-      coveredMustEatIds: new Set(['m3b']),
     })
     vi.mocked(getUnlockedMustEatIds).mockResolvedValueOnce(new Set(['m1b']))
 

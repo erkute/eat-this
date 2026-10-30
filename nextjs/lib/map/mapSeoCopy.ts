@@ -6,7 +6,7 @@
  * `useTranslation`, und das JSON-LD wird auf dem Server gebaut.
  */
 
-export interface MapSeoCopy {
+interface MapSeoCopy {
   /** Die einzige H1 der Seite. */
   h1: string;
 }

@@ -82,6 +82,8 @@ interface InnerProps {
   action?: React.ReactNode;
 }
 
+/** Platz für den Ausgang unten: Knopf 44 + 20 Rand + 12 Luft zur Karte. */
+const ACTION_RESERVE_PX = 76;
 const SWIPE_PX = 60;
 /** Neigung der Karte unter dem Finger, Grad je Pixel. */
 const DRAG_TILT = 0.04;
@@ -111,7 +113,12 @@ const Inner = memo(function Inner({
   const canPage = Boolean(onPrev || onNext);
   const cardAspect = originRect.width / originRect.height;
   const maxW = Math.min(420, window.innerWidth * 0.88);
-  const maxH = window.innerHeight * 0.78;
+  /* Der Slot sitzt unten am Rand (20 px Abstand, 12 px Luft zur Karte); die
+     Karte steht mittig, also braucht oben dasselbe. So bleibt alles im Bild,
+     auch auf einem kleinen Telefon. */
+  const maxH = action
+    ? Math.min(window.innerHeight * 0.78, window.innerHeight - 2 * ACTION_RESERVE_PX)
+    : window.innerHeight * 0.78;
   const overlayW = Math.min(maxW, maxH * cardAspect);
   const screenCx = window.innerWidth / 2;
   const screenCy = window.innerHeight / 2;

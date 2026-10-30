@@ -68,11 +68,7 @@
   --et-line: #d6d4d1;
   --et-type-page: clamp(40px, 5.2vw, 72px);
   --et-type-heading: clamp(28px, 3vw, 40px);
-  --et-type-card: clamp(20px, 2vw, 28px);
   --et-gutter: clamp(20px, 3.4vw, 48px);
-  --et-rule: #15120e;
-  --et-photo-overlay: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
-  --et-photo-text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 
   /* ── Schriften ── */
   --et-font-display: var(--et-font-body);
@@ -107,7 +103,6 @@
   --et-z-sheet: 10020; /* Vollbild-Layer: AllBerlin-Sheet, Must-Eat-Zoom */
   --et-z-tour: 10025; /* Einführungs-Layer (Tour, Must-Eats-Onboarding) */
   --et-z-email-link: 10027; /* Bestätigung des Mail-Links — über jeder Einführung */
-  --et-z-auth: 10030; /* Wartescreen beim An- und Abmelden */
   --et-z-picker: 11000; /* Filter-Picker der Karte: Vorhang … */
   --et-z-picker-sheet: 11010; /* … und Blatt */
   --et-z-gallery: 2147483000; /* Foto-Galerie im Spot-Detail: Vorhang, */
@@ -118,18 +113,13 @@
      Anmelde-Layer (Betreiber, 26.09.2026). Eigenes Token, weil es vom
      Marken-Rot abweicht und an drei Modulen hängt. */
   --et-heart: #ef3108;
-  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   /* Die Weiss-Stufen auf dem Ink-Grund. Seit 03.09.2026 stehen alle
      Inhaltsseiten auf durchgehendem Ink (siehe die Rahmen-Regel weiter
      unten); Text, Linien und die eine Flaeche, die sich abheben darf, sind
      dann keine Grautoene mehr, sondern Weiss in fuenf Staerken. Eine Quelle
      fuer alle Module — vorher stand jede Zahl in jedem Modul noch einmal. */
   --et-ink-soft: rgba(255, 255, 255, 0.76);
-  --et-ink-dim: rgba(255, 255, 255, 0.55);
-  --et-ink-ring: rgba(255, 255, 255, 0.28);
-  --et-ink-line: rgba(255, 255, 255, 0.14);
   --et-ink-quiet: rgba(255, 255, 255, 0.055);
-  --et-ink-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
   /* Die schwebende Flaeche: alles, was sich UEBER der Seite oeffnet
      (Info-Karte, Cookie-Dialog, Login, Onboarding, Sheets, Remys Chat).
      Seit die Seiten selbst auf Ink stehen, lag jedes dieser Fenster Ink auf
@@ -152,12 +142,10 @@
   --et-type-caption: 13px;
   --et-type-button: 16px;
 
-  --et-leading-hero: 0.9;
   --et-leading-title: 1.12;
   /* Alle drei gemessenen Wettbewerber fahren ausnahmslos 1.6–1.7 im
      Fließtext. 1.5 war der größte systematische Rückstand der Seite. */
   --et-leading-copy: 1.6;
-  --et-tracking-none: 0;
   --et-tracking-title: -0.02em;
   --et-tracking-label: 0.16em;
   --et-tracking-meta: 0.1em;
@@ -209,11 +197,9 @@
   --et-motion-fast: 140ms ease;
   --et-motion-base: 160ms ease;
   --et-motion-card: 180ms ease;
-  --et-hover-lift-sm: translateY(-2px);
 
   --et-img-photo-fit: cover;
 
-  --radius-sm: 4px;
   --motion-slow: 320ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -241,7 +227,6 @@ html[data-theme='dark'] {
   --et-copy: #d4d1cd;
   --et-quiet: #25231f;
   --et-line: #514e49;
-  --et-rule: #514e49;
   --et-subtle: rgba(255, 255, 255, .075);
   --et-link: #f29194;
   --et-solid: #fff;
@@ -265,25 +250,10 @@ html[data-vintage] {
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
   --et-sheet-size: 192px, 100% 100%;
   --et-sheet-repeat: repeat, no-repeat;
-  /* Abgestossene Ränder: eine Maske aus vier kachelbaren Kantenstreifen und
-     einer vollen Fläche dazwischen. Nur für das Login-Fenster —
-     nicht für Fotos, Tafeln oder Etiketten (Ansage 22.10.2026: „nicht
-     überall"). Die Maske schneidet auch den eigenen box-shadow ab. */
-  --et-rough-edges:
-    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 12px repeat-x,
-    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 256px 12px repeat-x,
-    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 12px 256px repeat-y,
-    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 12px 256px repeat-y,
-    linear-gradient(#000 0 0) center / calc(100% - 20px) calc(100% - 20px) no-repeat;
 }
 
 html[data-vintage][data-theme='dark'] {
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
-}
-/* Die Maske schnitte den Fokusring ab, der ausserhalb des Knopfs liegt.
-   Hausknöpfe zeigen den Fokus als Fläche (unten) und behalten ihre Kante. */
-html[data-vintage] :is(a, button, input):not(.et-btn):focus-visible {
-  mask: none;
 }
 html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
   background-image: var(--et-sheet);
@@ -324,7 +294,6 @@ html[data-vintage] .homeV2 > [data-hub-musteats] {
   --et-copy: #d4d1cd;
   --et-quiet: #25231f;
   --et-line: #514e49;
-  --et-rule: #514e49;
   --et-subtle: rgba(255, 255, 255, .075);
   --et-link: #f29194;
   --et-solid: #fff;
@@ -500,9 +469,6 @@ html:has([data-page='admin']) body {
    ganze Site, deshalb steht es hier und nicht in jedem Seitenmodul. */
 :root {
   --et-board-pad: 0px;
-  --et-board-bg: transparent;
-  --et-board-radius: 0;
-  --et-board-quiet-pad: clamp(22px, 3.4vw, 44px);
 }
 /* Sitewide collage language. */
 html:not([data-active-page='map']) .app-pages,
@@ -835,9 +801,6 @@ html[data-auth='1'] [data-guest-only] {
   background-blend-mode: multiply;
   border: 0;
   border-radius: 0;
-  /* Abgestossene Kante wie das Anmelde-Fenster (LoginPanel). Die Maske
-     schnitte einen eigenen Schatten ab — den wirft die Hülle (unten). */
-  mask: none;
   pointer-events: none;
   transition: transform 0.26s ease-out;
 }
@@ -930,8 +893,8 @@ html[data-auth='1'] [data-guest-only] {
 .notification-quiet {
   flex: 1 1 0;
 }
-/* Der Schatten, den die Maske der Karte abschneiden würde, kommt von der
-   Hülle: so hebt sich das helle Blatt auch auf heller Seite ab. */
+/* Den Schatten wirft die Hülle: so hebt sich das helle Blatt auch auf
+   heller Seite ab. */
 .notification-layer[data-open] {
   filter: drop-shadow(0 12px 32px rgb(0 0 0 / 0.2));
 }
@@ -1041,7 +1004,6 @@ html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie
   background-repeat: no-repeat;
   border: 0;
   border-radius: 0;
-  mask: none;
   box-shadow: var(--et-window-shadow);
   font-family: var(--cookie-font);
   transform: translateY(22px) scale(0.97);
@@ -1632,7 +1594,6 @@ ol {
   background-image: url('/pics/vintage/button-wear-soft.webp');
   background-size: 200px auto;
   background-position: center;
-  mask: none;
   color: var(--et-btn-fg, var(--et-on-solid));
   font: 700 var(--et-btn-font) / 1.25 var(--et-font-body);
   letter-spacing: 0;
@@ -1748,7 +1709,6 @@ html[data-theme='dark'] {
   --et-btn-hover-fg: color-mix(in srgb, var(--et-fg) 68%, var(--et-ground));
   padding-inline: 0;
   background-image: none;
-  mask: none;
 }
 html[data-theme='dark'] .et-btn-text {
   --et-btn-fg: var(--et-muted);

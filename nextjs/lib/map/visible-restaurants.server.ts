@@ -5,7 +5,7 @@ import { composeRevealedMustEats } from './revealed-must-eats';
 type Entitlements = Awaited<ReturnType<typeof resolveEntitlements>>;
 
 /** Was ein Konto sieht — die eine Ableitung, die alle Aufrufer teilen. */
-export interface AccountSurface {
+interface AccountSurface {
   restaurants: MapRestaurant[];
   /** Die Karten, die für dieses Konto offen liegen. Der Stapel selbst ist für
    *  jeden derselbe — `allMustEats` des Aufrufers. */

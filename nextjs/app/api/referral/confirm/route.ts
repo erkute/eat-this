@@ -124,14 +124,8 @@ export async function POST(req: NextRequest) {
 
     const { inviterPool, friendPool } = computeReferralPools({
       allMustEatIds: allMustEats.map((m) => m._id),
-      inviter: {
-        faceUpIds: inviterSurface.faceUpIds,
-        coveredIds: inviterEnt.coveredMustEatIds,
-      },
-      friend: {
-        faceUpIds: friendSurface.faceUpIds,
-        coveredIds: friendEnt.coveredMustEatIds,
-      },
+      inviter: { faceUpIds: inviterSurface.faceUpIds },
+      friend: { faceUpIds: friendSurface.faceUpIds },
     });
     const friendPicks = sampleN(friendPool, REFERRAL_BONUS_CARDS);
     const inviterPicks = sampleN(inviterPool, REFERRAL_BONUS_CARDS);

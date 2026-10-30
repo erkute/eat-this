@@ -16,7 +16,7 @@ import { useOwnedEntitlements } from '@/lib/firebase/useOwnedEntitlements';
 export type UserTier = 'anon' | 'pending' | 'starter' | 'allBerlin';
 
 /** Was Auth und Server über dieses Konto bisher gesagt haben. */
-export interface MapSurface {
+interface MapSurface {
   /** Firebase hat den Nutzer noch nicht gemeldet. Solange ist `uid === null`
       nicht „Gast", sondern „unbekannt" — und ein angemeldeter Besucher sah in
       diesem Fenster auf jedem Laden das Banner, das im SSR-HTML ohnehin steht. */

@@ -61,9 +61,9 @@ export const CONSENT_ID_COOKIE = 'consentId';
  */
 export const CONSENT_VERSION = 4;
 
-export type ConsentValue = 'accepted' | 'declined';
+type ConsentValue = 'accepted' | 'declined';
 
-export interface ConsentDecision {
+interface ConsentDecision {
   value: ConsentValue;
   version: number;
 }

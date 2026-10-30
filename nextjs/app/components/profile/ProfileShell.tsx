@@ -1,22 +1,21 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth';
 import { useUnlockedMustEats, useMapData } from '@/lib/map';
+import { useFavorites } from '@/lib/map/useFavorites';
+import { FALLBACK_DISTRICT } from '@/lib/profile/mustEatAlbum';
 import {
   defaultAvatarFromUid,
   useUserProfile,
   type AvatarChoice,
 } from '@/lib/firebase/useUserProfile';
-import { FALLBACK_DISTRICT } from '@/lib/profile/nextMove';
 import MapDataNotice from '../map/MapDataNotice';
 import ProfileSpots from './ProfileSpots';
-import ProfileHeader from './ProfileHeader';
 import ProfileNavigation, { PROFILE_TABS, type ProfileTab } from './ProfileNavigation';
 import ProfileAccount from './ProfileAccount';
 import ProfileAlbum from './ProfileAlbum';
-import ProfileNextMove from './ProfileNextMove';
 import ProfilePacks from './ProfilePacks';
 import ProfileRecentReveals from './ProfileRecentReveals';
 import ProfileInvite from './ProfileInvite';
@@ -26,7 +25,7 @@ import SiteFooter from '../SiteFooter';
 import styles from './Profile.module.css';
 
 interface Props {
-  /** Server-computed anon face-up set (trial-10 ∪ spot-of-day). Publicly
+  /** Server-computed anon face-up set (the 10 curated cards). Publicly
    *  face-up cards stay face-up in the collection too. */
   publicFaceUpIds: string[];
 }
@@ -52,10 +51,11 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     );
   };
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
-  // public face-up set (trial-10 ∪ spot-of-day) so anything publicly revealed
+  // public face-up set (the 10 curated cards) so anything publicly revealed
   // is open in the collection too, even right after first signup.
   const { unlockedIds: storedUnlockedIds, unlockedAt } = useUnlockedMustEats(user?.uid ?? null);
   const { profile, setAvatar } = useUserProfile(user?.uid ?? null);
+  const { favorites } = useFavorites(user?.uid ?? null);
   // Owned spots (the user's map tier) → drives which must-eats appear in the
   // collected grid. Fetches /api/map-data on mount; cached for instant repaint.
   // The same per-user payload also feeds the deck itself — covered cards come
@@ -76,6 +76,17 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
     () => new Set<string>([...storedUnlockedIds, ...publicFaceUpIds, ...revealedMustEatIds]),
     [storedUnlockedIds, publicFaceUpIds, revealedMustEatIds]
   );
+  /* Der Zwischenspeicher malt zuerst, und dort sind nur die zehn öffentlichen
+     Karten offen: die Zahl käme als „10 von 63" und spränge nach dem Abruf auf
+     den echten Stand. Sie zeigt sich erst, wenn der erste Abruf dieses Besuchs
+     durch ist — danach rechnet sie bei jedem neuen Abruf einfach weiter. */
+  const sawFetch = useRef(false);
+  const [freshData, setFreshData] = useState(false);
+  useEffect(() => {
+    if (mapDataLoading) sawFetch.current = true;
+    else if (sawFetch.current) setFreshData(true);
+  }, [mapDataLoading]);
+
   const hasMapData = ownedRestaurants.length > 0 || mustEats.length > 0;
   const ownedRestaurantIds = useMemo(
     () => new Set(ownedRestaurants.map((r) => r._id)),
@@ -144,8 +155,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   }
 
   const avatarIdx = profile.avatar ?? defaultAvatarFromUid(user.uid);
-  const firstName =
-    (user.displayName ?? '').split(' ')[0] || (user.email ?? '').split('@')[0] || t('heroTitle');
 
   async function handleAvatarChange(choice: AvatarChoice) {
     if (choice === avatarIdx) return;
@@ -155,31 +164,21 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   return (
     <>
       <main className={`homeV2 ${styles.page}`} data-menu>
-        {/* Meldungen liegen ueber der Seite, nicht in ihr (Nutzer, 04.09.2026:
-            „keine Meldungen mehr oben oder unten im Bild, sondern als Layer,
-            wie wir das sonst haben"). Hier stand ein Balken im Fluss, der beim
-            Erscheinen die ganze Seite nach unten schob — die Sammlung sprang,
-            waehrend man sie ansah.
+        {/* Meldungen liegen als Layer über der Seite, nicht in ihr.
 
-            Dieselbe Komponente wie auf der Map, nicht eine zweite mit
-            derselben Aufgabe: sie kennt die vier Zustaende schon (laedt,
-            aktualisiert, Fehler, veraltet), waehlt Ton und Zeichen und haengt
-            den Wiederholen-Knopf an. Die Texte liegen im `map`-Namespace, und
-            das ist ehrlich — es sind dieselben Kartendaten, dieselbe
-            /api/map-data-Antwort.
+            Dieselbe Komponente wie auf der Map: sie kennt die vier Zustände
+            (lädt, aktualisiert, Fehler, veraltet), wählt Ton und Zeichen und
+            hängt den Wiederholen-Knopf an. Die Texte liegen im `map`-Namespace —
+            es ist dieselbe /api/map-data-Antwort.
 
             Nur im Normalfall: der Zweig ganz ohne Kartendaten rendert weiter
-            oben seine eigene Seite, und dort IST die Meldung der Inhalt, kein
-            Balken ueber einem. */}
+            oben seine eigene Seite, und dort ist die Meldung der Inhalt. */}
         <MapDataNotice error={mapDataError} hasData={hasMapData} onRetry={refetchMapData} />
 
+        <h1 className={styles.srOnly}>{t('pageTitle')}</h1>
+
         <div className={`hv-wrap ${styles.profileTop}`}>
-          <ProfileHeader
-            name={firstName}
-            avatarIdx={avatarIdx}
-            onPick={() => setPickerOpen(true)}
-          />
-          <ProfileNavigation tab={tab} onChange={pickTab} />
+          <ProfileNavigation tab={tab} onChange={pickTab} counts={{ spots: favorites.length }} />
         </div>
         <div
           className={`hv-wrap ${styles.tabPanel}`}
@@ -192,37 +191,13 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           <ProfileAlbum
             mustEats={ownedMustEats}
             faceUpIds={unlockedIds}
-            stampedIds={storedUnlockedIds}
             groupOf={(m) =>
               districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
             }
-            nextMove={
-              <ProfileNextMove
-                mustEats={ownedMustEats}
-                faceUpIds={unlockedIds}
-                districtByRest={districtByRest}
-              />
-            }
+            countReady={freshData}
           />
           {tab === 'deck' && (
-            <>
-              {/* Direkt unter dem Deck, nicht am Seitenende (Nutzer, 04.09.2026:
-            „ist der Knopf da unten irgendwie versteckt? Vielleicht muss der
-            kleiner sein, unter dem Deck"). Geteilt wird das Deck — die
-            Aufforderung dazu stand vier Bildschirme davon entfernt, hinter
-            den gespeicherten Spots und den Packs, und war der letzte Block
-            vor dem Fuss. */}
-              <section className={styles.deckInvite}>
-                <ProfileInvite uid={user.uid} cards={inviteCards} />
-              </section>
-
-              {/* Direkt darunter, weil es die Antwort auf den Kasten darueber ist:
-            dort wird gebeten, hier stehen die, die gekommen sind. Rendert
-            nichts, solange niemand da ist. */}
-              <ProfileFriends uid={user.uid} />
-
-              <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
-            </>
+            <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />
           )}
         </div>
         <div
@@ -235,9 +210,6 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
         >
           {tab === 'spots' && (
             <section className={styles.section}>
-              <div className={`hv-head ${styles.head}`}>
-                <h2 className={styles.sectionTitle}>{t('savedHeading')}</h2>
-              </div>
               <ProfileSpots uid={user.uid} restaurantSlugs={ownedRestaurantSlugs} />
             </section>
           )}
@@ -267,10 +239,24 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
           {tab === 'account' && (
             <ProfileAccount
               name={user.displayName ?? ''}
+              avatarIdx={avatarIdx}
               email={user.email}
+              memberSince={user.metadata?.creationTime ?? null}
               onSaveName={updateDisplayName}
               onPickAvatar={() => setPickerOpen(true)}
               onSignOut={signOut}
+              invite={
+                <>
+                  {/* „Zeig dein Deck“ steht im Konto-Reiter: das Deck wächst nach unten,
+                      der Kasten bliebe darunter nicht zu finden. */}
+                  <section className={styles.deckInvite}>
+                    <ProfileInvite uid={user.uid} cards={inviteCards} />
+                  </section>
+                  {/* Direkt darunter: dort wird gebeten, hier stehen die, die
+                      gekommen sind. Rendert nichts, solange niemand da ist. */}
+                  <ProfileFriends uid={user.uid} />
+                </>
+              }
             />
           )}
         </div>

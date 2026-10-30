@@ -25,22 +25,19 @@ const copy: Record<string, string> = {
   dataError: 'Your collection could not be loaded',
   dataRetry: 'Retry',
   profileTitle: 'Profile',
-  heroKicker: 'Your collection',
   fieldName: 'Name',
-  fieldAccount: 'Account',
-  avatarKicker: 'Character',
   changeAvatar: 'Change',
   heroTitle: 'Your Berlin HQ',
-  heroLine: 'Eat save repeat',
   tabSpots: 'Spots',
-  tabMustEats: 'Must Eats',
-  savedHeading: 'Saved Spots',
   signOut: 'Sign out',
 };
 
 vi.mock('next-intl', () => ({
   useLocale: () => 'en',
   useTranslations: () => (key: string) => copy[key] ?? key,
+}));
+vi.mock('@/lib/map/useFavorites', () => ({
+  useFavorites: () => ({ favorites: [], toggle: vi.fn(), loading: false }),
 }));
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({
@@ -67,9 +64,7 @@ vi.mock('@/lib/firebase/useUserProfile', () => ({
 vi.mock('./ProfileSpots', () => ({ default: () => <div>Profile spots</div> }));
 /* Zieht sonst den echten UserLocationContext mit — der wirft ausserhalb
    seines Providers, und dieser Test rendert die Shell blank. */
-vi.mock('./ProfileNextMove', () => ({ default: () => <div>Next move</div> }));
 vi.mock('./ProfileAlbum', () => ({ default: () => <div>Profile album</div> }));
-vi.mock('./ProfileHeader', () => ({ default: () => <h1>Profile</h1> }));
 vi.mock('./ProfilePacks', () => ({ default: () => <div>Profile packs</div> }));
 vi.mock('./AvatarPickerModal', () => ({ default: () => null }));
 vi.mock('../SiteFooter', () => ({ default: () => <footer>Footer</footer> }));
@@ -168,6 +163,12 @@ describe('ProfileShell tabs', () => {
     expect(window.location.hash).toBe('');
   });
 
+  it('hat eine Hauptüberschrift', () => {
+    render(<ProfileShell publicFaceUpIds={[]} />);
+
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('pageTitle');
+  });
+
   it('wechselt per Tastatur durch alle Bereiche und verknüpft Reiter mit ihrem Panel', () => {
     render(<ProfileShell publicFaceUpIds={[]} />);
     const deck = screen.getByRole('tab', { name: 'tab_deck' });
@@ -191,7 +192,12 @@ describe('ProfileShell tabs', () => {
 describe('ProfileShell sign-out', () => {
   it('starts immediately and disables the button only while the request is pending', async () => {
     let finish!: () => void;
-    state.signOut.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    state.signOut.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        })
+    );
     render(<ProfileShell publicFaceUpIds={[]} />);
     fireEvent.click(screen.getByRole('tab', { name: 'tab_account' }));
     const button = screen.getByRole<HTMLButtonElement>('button', { name: 'Sign out' });
@@ -201,7 +207,9 @@ describe('ProfileShell sign-out', () => {
     fireEvent.click(button);
     expect(state.signOut).toHaveBeenCalledOnce();
     expect(screen.queryByText('Du wirst abgemeldet')).toBeNull();
-    await act(async () => { finish(); });
+    await act(async () => {
+      finish();
+    });
     expect(button.disabled).toBe(false);
   });
 
@@ -210,10 +218,14 @@ describe('ProfileShell sign-out', () => {
     render(<ProfileShell publicFaceUpIds={[]} />);
     fireEvent.click(screen.getByRole('tab', { name: 'tab_account' }));
     const button = screen.getByRole<HTMLButtonElement>('button', { name: 'Sign out' });
-    await act(async () => { fireEvent.click(button); });
+    await act(async () => {
+      fireEvent.click(button);
+    });
     expect(screen.getByRole('alert').textContent).toBe('errGeneric');
     expect(button.disabled).toBe(false);
-    await act(async () => { fireEvent.click(button); });
+    await act(async () => {
+      fireEvent.click(button);
+    });
     expect(state.signOut).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole('alert')).toBeNull();
   });

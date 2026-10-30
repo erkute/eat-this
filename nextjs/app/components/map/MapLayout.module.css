@@ -6,8 +6,6 @@
   /* Die Map ist clean wie 032c (Ansage 23.10.2026): Knöpfe, Etiketten und
      Flächen ohne Kratzer und ohne angestossene Kanten. */
   --et-wear: none;
-  --et-btn-wear: none;
-  --et-rough-edges: none;
   --map-motion: var(--et-motion-base);
   --map-action: #a82b2e;
   --et-offer-red: #a82b2e;

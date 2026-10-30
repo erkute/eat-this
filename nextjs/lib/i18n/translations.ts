@@ -9,12 +9,6 @@ const en = {
     skip: 'Skip to content',
   },
   hub: {
-    hero: {},
-    packs: {},
-    categories: {},
-    bezirke: {},
-    allBerlin: {},
-    newOnMap: {},
     fragRemy: {
       // Remys erster Satz auf seiner Tafel, solange die Tageszeit noch nicht
       // feststeht (Server-Render); danach greeting.ts `stageLeadFor`.
@@ -22,7 +16,6 @@ const en = {
       inputPlaceholder: '…or just ask Remy',
       sendAria: 'Send',
     },
-    magazine: {},
   },
   mustEats: {
     // "Covered" wie auf der Pack-Seite — dieselbe Sache hieß dort schon so.
@@ -55,8 +48,6 @@ const en = {
     teaserTitle: 'Must Eats',
     teaserSub: 'Berlin has a lot on the menu. We tell you what to order – and you collect the recommendations as cards in your own deck.',
     teaserCta: 'All Must Eats',
-    teaserBrowse: 'Go there. Flip it. Collect it.',
-    teaserDeal: 'Deal the cards',
     teaserMystery: 'What’s inside?',
     teaserTap: 'Tap the card.',
   },
@@ -137,7 +128,6 @@ const en = {
     // Card metaphor, matching the reveal mechanic. The map list no longer has a
     // locked variant of its own — every match is a row, and this is the one
     // place that names the state.
-    lockedDetailKicker: 'Still face down',
     hiddenMustEatAria: 'Hidden Must Eat',
     mustEatAtAria: 'Must Eat at {name}',
     // The covered card carries two lines: state on top, action below — and no
@@ -201,8 +191,6 @@ const en = {
       '{done} of {total} cards flipped. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
     metaDescriptionNamed:
       '{name} has flipped {done} of {total} cards. Over a hundred spots in Berlin, and because discovering beats searching, every Must Eat is a card.',
-    deckHeadingNamed: "{name}'s deck",
-    deckHeading: 'The deck',
     /* Der Stand als Herausforderung. */
     challenge:
       '{done, plural, =0 {{name} is just getting started.} one {{name} has 1 of {total} Must Eats.} other {{name} has # of {total} Must Eats.}}',
@@ -222,15 +210,11 @@ const en = {
   },
   profile: {
     avatarError: 'Your character could not be saved. Please try again.',
-    moveGo: 'Take me there',
-    moveFindNear: 'Near me',
     albumCard: 'Card',
-    profileHeading: 'Your profile.',
+    albumCount: 'of {total} Must Eats',
     tab_account: 'Account',
-    accountHeading: 'Your account.',
     fieldName: 'Name',
     fieldEmail: 'Email',
-    nameSave: 'Save',
     nameSaving: 'Saving …',
     nameSaved: 'Name saved.',
     nameError: 'Your name could not be saved. Please try again.',
@@ -241,14 +225,10 @@ const en = {
     spotsFilterLabel: 'Filter saved spots',
     spotsFilterEmpty: 'No spots in this selection yet.',
     starterPack: 'Starter Pack',
-    heroKicker: 'Your profile',
     heroTitle: 'Your Berlin HQ',
-    heroLine: 'Eat · save · repeat',
-    fieldAccount: 'Account',
     avatarChoice1: 'Spot Scout',
     avatarChoice2: 'Spice Diva',
     avatarChoice3: 'Chef Slice',
-    savedHeading: 'Saved Spots',
     emptySpots: 'Nothing saved yet. Tap a spot on the map and hit the heart — it lands here.',
     toMap: 'To the map',
     removeSaved: 'Remove {name} from saved',
@@ -256,36 +236,27 @@ const en = {
     spotNotePlaceholder: 'Add a note …',
     spotWantTo: 'Want to go',
     spotWasThere: 'Been there',
+    spotWasThereAsk: 'Been there?',
+    accountSince: 'Here since {date}',
+    packLockedLabel: '{name}, not yet yours. Open the Booster Packs',
     spotMarkVisited: '{name}: mark as visited',
     spotUnmarkVisited: '{name}: mark as not visited yet',
-    lockedSubhead: 'Still face-down',
     emptyMustEats:
       'Your deck is still empty. Must Eats are out in Berlin and in the Booster Packs.',
     tabsLabel: 'Profile sections',
+    pageTitle: 'Your profile',
+    accountYou: 'You',
+    accountLogin: 'Sign-in',
     tab_deck: 'Deck',
     tab_spots: 'Spots',
     tab_packs: 'Packs',
-    albumHeading: 'Your deck',
-    albumHello: 'Hey {name}',
-    albumCount: 'of {total} Must Eats',
-    albumStamped: 'Been there',
+    albumOpenSpot: 'View spot',
+    albumOpenMap: 'To the map',
     albumToSpot: 'To {name}',
-    albumOpenDetail: 'View Must Eat',
-    badgesHeading: 'Badges',
-    badgeFirstCard: 'First card',
-    badgeCards: '{count} cards',
-    badgeDistrict: '{district} complete',
-    badgeAllBerlin: 'All of Berlin',
     recentHeading: 'Just revealed',
-    moveLabel: 'Your next Must Eat',
-    moveLocateCta: 'Share location',
-    moveLocateShort: 'Location',
-    moveCovered:
-      '{count, plural, one {# Must Eat still face-down in {district}.} other {# Must Eats still face-down in {district}.}}',
-    moveCoveredNear:
-      '{count, plural, one {# Must Eat still face-down in {district} — {distance} from here.} other {# Must Eats still face-down in {district} — the nearest {distance} from here.}}',
-    packsHeading: 'My Packs',
     packsMore: 'View Booster Packs',
+    packsMoreTitle: 'Booster Packs.',
+    packsMoreLine: 'More Must Eats for your deck, without visiting each spot first.',
     inviteHeading: 'Show your deck',
     inviteLine: 'Send it to someone you like eating with. You both get a card for it.',
     inviteJoinedOne: '1 friend joined through your link',
@@ -297,7 +268,6 @@ const en = {
     inviteCopied: 'Link copied',
     inviteShareTitle: 'My deck on the Eat This map',
     changeAvatar: 'Change character',
-    changeAvatarShort: 'Change',
     avatarModalTitle: 'Your character',
     /* Dieselben Worte wie der Schritt „Wer bist du?" der Tour (SignInReward). */
     avatarModalKicker: 'Your profile',
@@ -409,18 +379,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     skip: 'Zum Inhalt springen',
   },
   hub: {
-    hero: {},
-    packs: {},
-    categories: {},
-    bezirke: {},
-    allBerlin: {},
-    newOnMap: {},
     fragRemy: {
       sub: 'Ich kenne die besten Spots in Berlin.',
       inputPlaceholder: '…oder frag Remy direkt',
       sendAria: 'Senden',
     },
-    magazine: {},
   },
   mustEats: {
     covered: 'Verdeckt',
@@ -447,8 +410,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     teaserTitle: 'Must Eats',
     teaserSub: 'Berlin hat viel auf der Karte. Wir sagen dir, was du bestellen solltest – und du sammelst die Empfehlungen als Karten in deinem eigenen Deck.',
     teaserCta: 'Alle Must Eats',
-    teaserBrowse: 'Hingehen. Aufdecken. Sammeln.',
-    teaserDeal: 'Karten auslegen',
     teaserMystery: 'Was steckt drin?',
     teaserTap: 'Tipp auf die Karte.',
   },
@@ -528,7 +489,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     emptyBodyBoth: 'Zu „{query}" passt mit diesen Filtern nichts. Nimm einen raus.',
     emptyReset: 'Alle Filter raus',
     emptyResetSearch: 'Suche löschen',
-    lockedDetailKicker: 'Noch verdeckt',
     hiddenMustEatAria: 'Verdecktes Must Eat',
     mustEatAtAria: 'Must Eat bei {name}',
     // Die verdeckte Karte trägt zwei Zeilen: oben der Zustand, unten die
@@ -600,8 +560,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       '{done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
     metaDescriptionNamed:
       '{name} hat {done} von {total} Karten umgedreht. \u00dcber hundert Spots in Berlin, und weil Entdecken mehr Spa\u00df macht als Suchen, ist jedes Must Eat eine Karte.',
-    deckHeadingNamed: '{name}s Deck',
-    deckHeading: 'Das Deck',
     /* Der Stand als Herausforderung (Nutzer, 24.09.2026: „es muss wie eine
        Challenge klingen, so: Ersan hat 14 von … Must Eats"). */
     challenge:
@@ -623,15 +581,11 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   },
   profile: {
     avatarError: 'Dein Charakter konnte nicht gespeichert werden. Versuch es nochmal.',
-    moveGo: 'Da will ich hin',
-    moveFindNear: 'In meiner Nähe',
     albumCard: 'Karte',
-    profileHeading: 'Dein Profil.',
+    albumCount: 'von {total} Must Eats',
     tab_account: 'Konto',
-    accountHeading: 'Dein Konto.',
     fieldName: 'Name',
     fieldEmail: 'E-Mail',
-    nameSave: 'Speichern',
     nameSaving: 'Speichert …',
     nameSaved: 'Name gespeichert.',
     nameError: 'Dein Name konnte nicht gespeichert werden. Versuch es nochmal.',
@@ -642,14 +596,10 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     spotsFilterLabel: 'Gespeicherte Spots filtern',
     spotsFilterEmpty: 'Noch keine Spots in dieser Auswahl.',
     starterPack: 'Starter Pack',
-    heroKicker: 'Dein Profil',
     heroTitle: 'Deine Berlin-Zentrale',
-    heroLine: 'Eat · save · repeat',
-    fieldAccount: 'Account',
     avatarChoice1: 'Spot Scout',
     avatarChoice2: 'Spice Diva',
     avatarChoice3: 'Chef Slice',
-    savedHeading: 'Gespeicherte Spots',
     emptySpots:
       'Noch nichts gespeichert. Tipp auf der Map einen Spot an und dr\u00fcck aufs Herz — er landet hier.',
     toMap: 'Zur Map',
@@ -660,45 +610,27 @@ const deOverrides: DeepPartial<TranslationsShape> = {
        ist der Spot ueberhaupt gespeichert —, „war da" der gedrueckte. */
     spotWantTo: 'Will hin',
     spotWasThere: 'War da',
+    spotWasThereAsk: 'War da?',
+    accountSince: 'Dabei seit {date}',
+    packLockedLabel: '{name}, noch nicht deins. Zu den Booster Packs',
     spotMarkVisited: '{name}: als besucht markieren',
     spotUnmarkVisited: '{name}: doch noch nicht da gewesen',
-    lockedSubhead: 'Noch verdeckt',
     emptyMustEats:
       'Dein Deck ist noch leer. Must Eats findest du drau\u00dfen in Berlin und in den Booster Packs.',
     tabsLabel: 'Bereiche des Profils',
+    pageTitle: 'Dein Profil',
+    accountYou: 'Du',
+    accountLogin: 'Anmeldung',
     tab_deck: 'Deck',
     tab_spots: 'Spots',
     tab_packs: 'Packs',
-    albumHeading: 'Dein Deck',
-    /* Der Gruss wie im Hero der Startseite (angemeldet). */
-    albumHello: 'Hey {name}',
-    albumCount: 'von {total} Must Eats',
-    /* Der Stempel auf einer Karte, die vor Ort umgedreht wurde. Kurz, weil er
-       quer über eine Karte läuft — und Vergangenheit, weil er eine Tat
-       bezeugt, keinen Zustand. Gekaufte Karten tragen ihn nicht: das ist der
-       ganze Unterschied. */
-    albumStamped: 'War da',
+    albumOpenSpot: 'Zum Spot',
+    albumOpenMap: 'Zur Map',
     albumToSpot: 'Zu {name}',
-    albumOpenDetail: 'Must Eat ansehen',
-    /* Abzeichen statt Rangliste: Eat This nennt seine Spot-Zahlen bewusst
-       nicht, und bei einer Sammlung ist „du bist Letzter" die falsche
-       Nachricht. Ein Abzeichen misst gegen die Sammlung, nicht gegen
-       andere Leute. */
-    badgesHeading: 'Abzeichen',
-    badgeFirstCard: 'Erste Karte',
-    badgeCards: '{count} Karten',
-    badgeDistrict: '{district} komplett',
-    badgeAllBerlin: 'Ganz Berlin',
     recentHeading: 'Zuletzt aufgedeckt',
-    moveLabel: 'N\u00e4chstes Must Eat',
-    moveLocateCta: 'Standort freigeben',
-    moveLocateShort: 'Standort',
-    moveCovered:
-      '{count, plural, one {Noch # Must Eat in {district} verdeckt.} other {Noch # Must Eats in {district} verdeckt.}}',
-    moveCoveredNear:
-      '{count, plural, one {Noch # Must Eat in {district} verdeckt \u2014 {distance} von hier.} other {Noch # Must Eats in {district} verdeckt \u2014 das n\u00e4chste {distance} von hier.}}',
-    packsHeading: 'Meine Packs',
     packsMore: 'Booster Packs ansehen',
+    packsMoreTitle: 'Booster Packs.',
+    packsMoreLine: 'Mehr Must Eats für dein Deck, ohne erst am Spot gewesen zu sein.',
     inviteHeading: 'Zeig dein Deck',
     inviteLine:
       'Schick es jemandem, mit dem du gern essen gehst. Ihr bekommt beide eine Karte dafür.',
@@ -715,7 +647,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     inviteCopied: 'Link kopiert',
     inviteShareTitle: 'Mein Deck auf der Eat This Map',
     changeAvatar: 'Charakter \u00e4ndern',
-    changeAvatarShort: '\u00c4ndern',
     avatarModalTitle: 'Dein Charakter',
     /* Dieselben Worte wie der Schritt „Wer bist du?" der Tour (SignInReward). */
     avatarModalKicker: 'Dein Profil',

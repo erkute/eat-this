@@ -2,6 +2,7 @@
 
 `nextjs/` = die Live-App (Next.js App Router, Firebase App Hosting). `studio/` = Sanity Studio.
 Frühes Stadium, praktisch keine echten User: alten/toten Code ersatzlos rausschmeißen, keine Kompatibilitäts-Shims.
+Fällt ein Feature oder eine Mechanik weg, geht im selben Commit alles mit: Code, i18n-Texte, CSS, Tests, Kommentare, Doku. Vorher nach dem Namen suchen (`rg`), danach `typecheck`, `lint` (meldet ungenutzte Variablen) und `audit:css-modules`. Kommentare beschreiben, was gilt – nicht, was früher war.
 
 Einzige Regeldatei; `CLAUDE.md` importiert sie nur. Neue Branches: `claude/`.
 

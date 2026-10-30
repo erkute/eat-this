@@ -98,7 +98,7 @@ function statusOf(error: unknown): number | null {
 const cache = new Map<string, { at: number; result: SearchResult }>();
 
 /** Dasselbe Fenster wie das des Zaehlers — `parseRange` liefert es. */
-export type SearchRange = Range;
+type SearchRange = Range;
 
 /**
  * @param range Das Fenster, YYYY-MM-DD, beide Tage einschließlich. Das Suchfenster endet spätestens am letzten endgültigen Tag mit Daten.

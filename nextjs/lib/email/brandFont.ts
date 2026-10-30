@@ -21,7 +21,7 @@ const FONT_DIR = join(process.cwd(), 'assets', 'fonts');
 /** Satori font name used by every brand-font surface. */
 export const BRAND_FONT_NAME = 'EatThisDisplay';
 
-export interface BrandFont {
+interface BrandFont {
   /** Ready to spread into ImageResponse's `fonts` option. */
   faces: { name: string; data: Buffer; weight: 400 | 700; style: 'normal' }[];
   /** False while running on the Schoolbell stand-in. */

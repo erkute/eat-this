@@ -41,7 +41,7 @@ export interface RateLimitDecision {
  * gar keine Fehlerpolitik, eine Firestore-Stoerung flog ungefangen durch und
  * machte aus einem 204 einen 500 in Sentry.
  */
-export type RateLimitFailurePolicy = 'allow' | 'deny';
+type RateLimitFailurePolicy = 'allow' | 'deny';
 
 const MINUTE = 60_000;
 const DAY = 86_400_000;

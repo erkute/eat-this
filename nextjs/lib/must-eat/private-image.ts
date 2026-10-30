@@ -112,7 +112,7 @@ export interface ImageVariant {
   webp: boolean;
 }
 
-export interface RenderedMustEatImage {
+interface RenderedMustEatImage {
   body: Buffer;
   contentType: string;
   /** Fertig fuer den Header, mit Anfuehrungszeichen und Varianten-Suffix —
@@ -121,7 +121,7 @@ export interface RenderedMustEatImage {
   etag: string | null;
 }
 
-export interface PrivateMustEatImageDeps {
+interface PrivateMustEatImageDeps {
   readContent: (id: string) => Promise<PrivateMustEatContent>;
   download: (objectPath: string) => Promise<StoredImage>;
   resize: (original: StoredImage, variant: ImageVariant) => Promise<StoredImage>;
@@ -131,7 +131,7 @@ export interface PrivateMustEatImageDeps {
 /** Laeuft vor jeder Arbeit, die Geld kostet (Bucket-Download, sharp) — und
  *  nur davor. Wirft, um die Arbeit zu verhindern; ein Treffer aus dem
  *  Speicher ruft sie nicht. */
-export type PaidWorkGate = () => Promise<void>;
+type PaidWorkGate = () => Promise<void>;
 
 function variantSuffix(variant: ImageVariant): string {
   return `-w${variant.width}-q${variant.quality}${variant.webp ? '-webp' : ''}`;

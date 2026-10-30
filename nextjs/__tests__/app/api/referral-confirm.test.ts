@@ -72,7 +72,6 @@ const EMPTY_ENT = {
   hasAllBerlin: false,
   categorySlugs: new Set<string>(),
   mustEatIds: new Set<string>(),
-  coveredMustEatIds: new Set<string>(),
 }
 
 /** Was für dieses Konto offen liegt — die einzige Quelle, aus der die Route

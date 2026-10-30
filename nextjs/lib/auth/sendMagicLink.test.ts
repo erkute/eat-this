@@ -32,7 +32,7 @@ vi.mock('@/emails/magicLinkText', () => ({
   buildSignupText: () => 'text',
 }));
 
-import { landingLink, sendMagicLinkEmail } from './sendMagicLink';
+import { firebaseContinueUrl, landingLink, sendMagicLinkEmail } from './sendMagicLink';
 
 beforeEach(() => {
   mocks.send.mockReset();
@@ -153,10 +153,7 @@ describe('landingLink', () => {
 
   it('laesst continueUrl und Firebases lang weg', () => {
     const out = new URL(
-      landingLink(
-        `https://x.firebaseapp.com/__/auth/action${OOB}`,
-        'https://staging.example/'
-      )
+      landingLink(`https://x.firebaseapp.com/__/auth/action${OOB}`, 'https://staging.example/')
     );
     expect(out.searchParams.has('continueUrl')).toBe(false);
     expect(out.searchParams.has('lang')).toBe(false);
@@ -165,5 +162,49 @@ describe('landingLink', () => {
   it('schickt lieber den unveraenderten Link als gar keine Mail', () => {
     const raw = `https://x.firebaseapp.com/__/auth/action${OOB}`;
     expect(landingLink(raw, '/map')).toBe(raw);
+  });
+});
+
+describe('firebaseContinueUrl', () => {
+  it('lets Firebase generate links for a phone on the LAN through localhost', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    expect(firebaseContinueUrl('http://192.168.178.49:3000/profile?x=1')).toBe(
+      'http://localhost:3000/profile?x=1'
+    );
+    expect(firebaseContinueUrl('http://10.0.0.7:3000/')).toBe('http://localhost:3000/');
+    expect(firebaseContinueUrl('http://172.20.1.2:3000/')).toBe('http://localhost:3000/');
+  });
+
+  it('leaves every other address alone', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    expect(firebaseContinueUrl('http://localhost:3000/')).toBe('http://localhost:3000/');
+    expect(firebaseContinueUrl('https://www.eatthisdot.com/')).toBe('https://www.eatthisdot.com/');
+    expect(firebaseContinueUrl('http://172.32.0.1:3000/')).toBe('http://172.32.0.1:3000/');
+    expect(firebaseContinueUrl('kein url')).toBe('kein url');
+  });
+
+  it('never rewrites anything in production', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    expect(firebaseContinueUrl('http://192.168.178.49:3000/')).toBe('http://192.168.178.49:3000/');
+  });
+
+  it('generates the link for localhost but lands on the LAN address', async () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    mocks.generateLink.mockResolvedValue(
+      'https://www.eatthisdot.com/welcome?apiKey=k&mode=signIn&oobCode=abc&continueUrl=x'
+    );
+
+    const result = await sendMagicLinkEmail({
+      email: 'a@b.c',
+      continueUrl: 'http://192.168.178.49:3000/',
+      appUrl: 'https://www.eatthisdot.com',
+      locale: 'de',
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(mocks.generateLink).toHaveBeenCalledWith('a@b.c', {
+      url: 'http://localhost:3000/',
+      handleCodeInApp: true,
+    });
   });
 });

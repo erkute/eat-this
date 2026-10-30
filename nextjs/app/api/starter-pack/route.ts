@@ -88,7 +88,7 @@ export async function POST(req: Request) {
      öffentliche Schaufenster, gekaufte Karten, eigene Aufdeckungen. Ein Pack
      aus Karten, die der Beschenkte längst hat, ist um diese Karten kleiner. */
   const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds });
-  const alreadyHas = new Set([...surface.faceUpIds, ...ent.coveredMustEatIds]);
+  const alreadyHas = surface.faceUpIds;
   const pool = starterPackPool(
     allMustEats.map((m) => m._id),
     alreadyHas
@@ -100,7 +100,6 @@ export async function POST(req: Request) {
     type: 'starter',
     slug: null,
     mustEatIds,
-    coveredMustEatIds: [],
     purchasedAt: FieldValue.serverTimestamp(),
     stripeSessionId: null,
     source: 'signup',
@@ -119,7 +118,6 @@ export async function POST(req: Request) {
   const res = NextResponse.json({
     granted: true,
     count: drawn.length,
-    faceUp: mustEatIds.length,
     /* Die offenen Karten selbst: die Tour zeigt beim Öffnen genau die, die
        danach im Deck offen liegen — nicht irgendein Beispielgericht. */
     faceUpIds: mustEatIds,

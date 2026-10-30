@@ -9,9 +9,12 @@ export type ProfileTab = (typeof PROFILE_TABS)[number];
 export default function ProfileNavigation({
   tab,
   onChange,
+  counts = {},
 }: {
   tab: ProfileTab;
   onChange: (tab: ProfileTab) => void;
+  /** Was hinter einem Reiter liegt, wenn es etwas zu zählen gibt. */
+  counts?: Partial<Record<ProfileTab, number>>;
 }) {
   const t = useTranslations('profile');
   return (
@@ -40,7 +43,10 @@ export default function ProfileNavigation({
             document.getElementById(`profile-tab-${PROFILE_TABS[next]}`)?.focus();
           }}
         >
-          <span>{t(`tab_${id}`)}</span>
+          <span className={styles.tabInner}>
+            <span>{t(`tab_${id}`)}</span>
+            {(counts[id] ?? 0) > 0 && <span className={styles.tabCount}>{counts[id]}</span>}
+          </span>
         </button>
       ))}
     </div>

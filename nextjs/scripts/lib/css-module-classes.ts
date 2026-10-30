@@ -13,7 +13,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
 import postcss from 'postcss';
 
-export interface Finding {
+interface Finding {
   /** Quelldatei, relativ zu `nextjs/`. */
   source: string;
   line: number;

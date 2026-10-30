@@ -17,6 +17,27 @@ import { buildLoginText, buildSignupText } from '@/emails/magicLinkText';
 import type { MailLocale } from '@/emails/locale';
 import { EMAIL_LINK_EMAIL_PARAM, EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
 
+/* Am Handy im WLAN läuft die App unter einer Adresse wie 192.168.x.x. Firebase
+   kennt für Anmelde-Links nur freigegebene Domains und `localhost`
+   (auth/unauthorized-continue-uri), die Erzeugung schlüge also fehl. Von
+   Firebase braucht der Link nur den Code; den Host setzt `landingLink` aus der
+   Continue-URL. Darum läuft die Erzeugung über localhost, und das Ziel bleibt
+   die LAN-Adresse. Nur außerhalb der Produktion. */
+const LAN_HOST =
+  /^(192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})$/;
+
+export function firebaseContinueUrl(continueUrl: string): string {
+  if (process.env.NODE_ENV === 'production') return continueUrl;
+  try {
+    const url = new URL(continueUrl);
+    if (!LAN_HOST.test(url.hostname)) return continueUrl;
+    url.hostname = 'localhost';
+    return url.toString();
+  } catch {
+    return continueUrl;
+  }
+}
+
 type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'send-failed';
 
 /**
@@ -75,7 +96,7 @@ export async function sendMagicLinkEmail(params: {
   try {
     magicLink = landingLink(
       await getAdminAuth().generateSignInWithEmailLink(email, {
-        url: continueUrl,
+        url: firebaseContinueUrl(continueUrl),
         handleCodeInApp: true,
       }),
       continueUrl

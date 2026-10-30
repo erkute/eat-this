@@ -11,7 +11,6 @@
   --packs-ink: var(--et-ground);
   --packs-fg: var(--et-fg);
   --packs-muted: var(--et-muted);
-  --packs-accent: var(--et-accent);
   min-height: 100%;
   overflow-x: clip;
   padding: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)) 0 clamp(32px, 4vw, 56px);

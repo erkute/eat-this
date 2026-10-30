@@ -152,7 +152,7 @@ interface MapBodyAria {
   restaurantsListAriaLabel: string;
 }
 
-export type MapSectionBodyProps = MapBodyRefs &
+type MapSectionBodyProps = MapBodyRefs &
   MapBodyState &
   MapBodyFilterState &
   MapBodyHandlers &

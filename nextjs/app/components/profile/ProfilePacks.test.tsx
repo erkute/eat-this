@@ -53,14 +53,14 @@ afterEach(() => {
 describe('ProfilePacks artwork delivery', () => {
   it('uses lazy responsive Next images with a stable asset version', () => {
     const { container } = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
-    const images = [...container.querySelectorAll('img')];
+    const images = [...container.querySelectorAll('ul img')];
 
-    // Nur das Welcome Pack ist offen — die zehn Kaufkarten sind weg.
-    expect(images.length).toBe(1);
+    // Das Welcome Pack steht vorn, die übrigen Packs folgen ausgegraut.
+    expect(images.length).toBe(10);
+    expect(images[0].getAttribute('src')).toContain('/pics/home/starter-pack-front.webp');
+    expect(images[0].getAttribute('height')).toBe('253');
     for (const image of images) {
-      expect(image.getAttribute('src')).toContain('/pics/home/starter-pack-front.webp');
       expect(image.getAttribute('width')).toBe('160');
-      expect(image.getAttribute('height')).toBe('253');
       expect(image.getAttribute('sizes')).toBe('160px');
       expect(image.getAttribute('loading')).toBe('lazy');
     }
@@ -83,9 +83,21 @@ describe('ProfilePacks zeigt Besitz, nicht das Sortiment', () => {
     state.owned = new Set(['category-pizza']);
     const { container } = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
 
-    expect(container.querySelectorAll('img')).toHaveLength(2);
-    const more = container.querySelector('a[href="/packs"]');
-    expect(more?.textContent).toBe('Booster Packs ansehen');
+    const more = container.querySelectorAll('a.et-btn[href="/packs"]');
+    expect(more).toHaveLength(1);
+    expect(more[0].textContent).toBe('Booster Packs ansehen');
+  });
+
+  /* Was noch fehlt, steht ausgegraut da und führt in den Laden — der Knopf
+     allein verkaufte nichts. */
+  it('zeigt die übrigen Packs als Anreiz, jedes mit Weg zum Sortiment', () => {
+    state.owned = new Set(['category-pizza']);
+    const { container } = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
+
+    // Starter + Pizza gehören; die übrigen sieben Packs sind gesperrte Links.
+    const locked = container.querySelectorAll('a:not(.et-btn)[href="/packs"]');
+    expect(locked).toHaveLength(8);
+    expect(locked[0].querySelector('img')).not.toBeNull();
   });
 
   /* „Noch 9 Packs offen" hiess gemeint „neun stehen noch aus", stand aber
@@ -95,12 +107,12 @@ describe('ProfilePacks zeigt Besitz, nicht das Sortiment', () => {
   it('sagt dasselbe, egal wie viel schon jemandem gehoert', () => {
     state.owned = new Set<string>();
     const nichts = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
-    const a = nichts.container.querySelector('a[href="/packs"]')?.textContent;
+    const a = nichts.container.querySelector('a.et-btn[href="/packs"]')?.textContent;
     cleanup();
 
     state.owned = new Set(['category-pizza', 'category-coffee']);
     const zwei = render(<ProfilePacks uid="user-1" fullCatalog={false} />);
-    const b = zwei.container.querySelector('a[href="/packs"]')?.textContent;
+    const b = zwei.container.querySelector('a.et-btn[href="/packs"]')?.textContent;
 
     expect(a).toBe('Booster Packs ansehen');
     expect(b).toBe(a);

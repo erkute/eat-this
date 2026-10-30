@@ -50,7 +50,7 @@ export default function MustEatsGallery({ initialMapData, copy, coverIds }: Prop
   const { t } = useTranslation();
 
   // Deterministic public catalog: every visitor — guest or signed-in — sees
-  // the same anon view (10 curated cards + spot-of-day face-up, rest covered).
+  // the same anon view (the 10 curated cards face-up, rest covered).
   // The personal collection lives in the profile; this page never
   // personalizes. Pure function of `initialMapData` → identical on server and
   // client, no hydration risk.

@@ -10,7 +10,6 @@
   --conversion-accent: var(--et-accent);
   --conversion-soft: rgba(255, 255, 255, 0.76);
   --conversion-quiet: rgba(255, 255, 255, 0.55);
-  --conversion-motion: var(--et-motion-fast);
 
   min-height: 100svh;
   display: flex;

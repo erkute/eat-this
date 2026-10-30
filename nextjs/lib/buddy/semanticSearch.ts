@@ -25,7 +25,7 @@ interface EmbeddingsFile {
 /** Welcher Index gefragt ist. Die Spezifizierer stehen als Literale da, damit
  *  der Bundler sie findet — ein aus einer Variable gebauter Pfad wuerde zur
  *  Laufzeit ins Leere greifen. */
-export type SemanticIndexName = 'restaurants' | 'articles';
+type SemanticIndexName = 'restaurants' | 'articles';
 
 const LOADERS: Record<SemanticIndexName, () => Promise<{ default: unknown }>> = {
   restaurants: () => import('./restaurant-embeddings.json'),

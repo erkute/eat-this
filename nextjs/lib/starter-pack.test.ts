@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  STARTER_PACK_FACE_UP,
+  STARTER_PACK_CARDS,
   placeWantedFirst,
   starterPackPool,
 } from './starter-pack';
@@ -37,13 +37,13 @@ describe('placeWantedFirst', () => {
     expect(placeWantedFirst(drawn, POOL, null)).toEqual(drawn);
   });
 
-  it('haelt die offene Haelfte auch bei einem kleinen Stapel', () => {
+  it('behaelt die angetippte Karte auch bei einem kleinen Stapel', () => {
     const smallPool = POOL.slice(0, 4);
     const drawn = smallPool.slice(0, 4);
     const out = placeWantedFirst(drawn, smallPool, 'm4');
 
     expect(out).toEqual(['m4', 'm1', 'm2', 'm3']);
-    expect(out).toHaveLength(Math.min(4, STARTER_PACK_FACE_UP));
+    expect(out).toHaveLength(Math.min(4, STARTER_PACK_CARDS));
   });
 });
 
@@ -54,5 +54,5 @@ describe('starterPackPool', () => {
 });
 
 it('opens all twenty starter cards', () => {
-  expect(STARTER_PACK_FACE_UP).toBe(20);
+  expect(STARTER_PACK_CARDS).toBe(20);
 });

@@ -39,6 +39,7 @@ vi.mock('@/lib/i18n', () => ({
 
 import CookieConsent from './CookieConsent';
 import { CONSENT_COOKIE, CONSENT_VERSION, readConsent } from '@/lib/consent';
+import { CONSENT_FOCUSABLE } from '@/lib/consentBootstrap';
 
 function clearCookies() {
   for (const part of document.cookie.split(';')) {
@@ -243,6 +244,20 @@ describe('CookieConsent — der Detailbereich nennt die eigene Zählung', () => 
     expect(panel?.textContent).toMatch(/läuft auch weiter, wenn du unten .?Ablehnen.? wählst/);
     // Und die entscheidende Eigenschaft, die ihn einwilligungsfrei macht.
     expect(panel?.textContent).toMatch(/kein Cookie bei dir/);
+  });
+});
+
+describe('CookieConsent — die Detailzeilen sind mit der Tastatur erreichbar', () => {
+  /** Der Dialog fängt Tab selbst ab und läuft nur durch CONSENT_FOCUSABLE. */
+  it('nimmt die aufklappbaren Zeilen in den Tab-Lauf auf', async () => {
+    render(<CookieConsent />);
+    await openGate();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Details anzeigen' }));
+
+    const rows = document.querySelectorAll('#cookieInfoPanel summary');
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) expect(row.matches(CONSENT_FOCUSABLE)).toBe(true);
   });
 });
 

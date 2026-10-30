@@ -152,20 +152,22 @@ function ModalBody({ sections }: { sections: ModalBodySection[] }) {
   return (
     <div className="cookie-info-body">
       {sections.map((s, i) => (
-        <section className="cookie-info-card" key={i}>
-          <h3>{s.h}</h3>
-          <Paragraph text={s.p} />
-          {s.list && (
-            <ul>
-              {s.list.map((item, j) => (
-                <li key={j}>
-                  <strong>{item.strong}</strong>
-                  {item.text}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        <details className="cookie-info-item" key={i}>
+          <summary>{s.h}</summary>
+          <div className="cookie-info-answer">
+            <Paragraph text={s.p} />
+            {s.list && (
+              <ul>
+                {s.list.map((item, j) => (
+                  <li key={j}>
+                    <strong>{item.strong}</strong>
+                    {item.text}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </details>
       ))}
     </div>
   );
@@ -379,58 +381,64 @@ export default function CookieConsent() {
         }}
       >
         <div className="cookie-content">
-          <div className="cookie-copy">
-            <div className="cookie-copy-main">
-              <h2 className="cookie-title" id="cookieTitle">
-                {t('cookie.title')}
-              </h2>
-              <p className="cookie-text" id="cookieText">
-                {t('cookie.text')}
-              </p>
+          {/* Text und Details scrollen zusammen; die zwei Antworten darunter
+              bleiben beim Lesen fest im Bild. */}
+          <div className="cookie-scroll">
+            <div className="cookie-copy">
+              <div className="cookie-copy-main">
+                <h2 className="cookie-title" id="cookieTitle">
+                  {t('cookie.title')}
+                </h2>
+                <p className="cookie-text" id="cookieText">
+                  {t('cookie.text')}
+                </p>
+                <button
+                  type="button"
+                  className="et-btn et-btn-text et-btn-sm cookie-info-trigger"
+                  id="cookieInfoTrigger"
+                  aria-expanded={expanded}
+                  aria-controls="cookieInfoPanel"
+                  onClick={() => setExpanded((e) => !e)}
+                >
+                  {t(expanded ? 'cookie.lessInfo' : 'cookie.moreInfo')}
+                </button>
+              </div>
+            </div>
+            {expanded && (
+              <div className="cookie-expand" id="cookieInfoPanel">
+                <ModalBody sections={sections} />
+              </div>
+            )}
+          </div>
+          <div className="cookie-actions">
+            <div className="cookie-buttons">
               <button
                 type="button"
-                className="et-btn et-btn-text et-btn-sm cookie-info-trigger"
-                id="cookieInfoTrigger"
-                aria-expanded={expanded}
-                aria-controls="cookieInfoPanel"
-                onClick={() => setExpanded((e) => !e)}
+                className="et-btn cookie-btn"
+                id="cookieAccept"
+                onClick={handleAccept}
               >
-                {t(expanded ? 'cookie.lessInfo' : 'cookie.moreInfo')}
+                {t('cookie.accept')}
+              </button>
+              <button
+                type="button"
+                className="et-btn et-btn-alt cookie-btn"
+                id="cookieDecline"
+                onClick={handleDecline}
+              >
+                {t('cookie.decline')}
               </button>
             </div>
+            {/* Datenschutzerklärung and Impressum have to be reachable at all
+                times, and this dialog is over everything. Without these two the
+                only way to the policy would be to answer the question first —
+                which is exactly the pressure that voids the consent. */}
+            <nav className="cookie-legal" aria-label={lang === 'de' ? 'Rechtliches' : 'Legal'}>
+              <Link href="/datenschutz">{t('footer.datenschutz')}</Link>
+              <span aria-hidden="true">·</span>
+              <Link href="/impressum">{t('burger.impressum')}</Link>
+            </nav>
           </div>
-          {expanded && (
-            <div className="cookie-expand" id="cookieInfoPanel">
-              <ModalBody sections={sections} />
-            </div>
-          )}
-          <div className="cookie-buttons">
-            <button
-              type="button"
-              className="et-btn cookie-btn"
-              id="cookieAccept"
-              onClick={handleAccept}
-            >
-              {t('cookie.accept')}
-            </button>
-            <button
-              type="button"
-              className="et-btn et-btn-alt cookie-btn"
-              id="cookieDecline"
-              onClick={handleDecline}
-            >
-              {t('cookie.decline')}
-            </button>
-          </div>
-          {/* Datenschutzerklärung and Impressum have to be reachable at all
-              times, and this dialog is over everything. Without these two the
-              only way to the policy would be to answer the question first —
-              which is exactly the pressure that voids the consent. */}
-          <nav className="cookie-legal" aria-label={lang === 'de' ? 'Rechtliches' : 'Legal'}>
-            <Link href="/datenschutz">{t('footer.datenschutz')}</Link>
-            <span aria-hidden="true">·</span>
-            <Link href="/impressum">{t('burger.impressum')}</Link>
-          </nav>
         </div>
       </div>
     </div>

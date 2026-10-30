@@ -549,12 +549,12 @@ export default function SignInReward() {
               <div className={styles.packWrapper}>
                 <img
                   className={styles.packBody}
-                  src="/pics/home/starter-pack-front.webp?v=20261028"
+                  src="/pics/home/starter-pack-front.webp?v=20261030"
                   alt={t.pack.packAlt}
                 />
                 <img
                   className={styles.packSeal}
-                  src="/pics/home/starter-pack-front.webp?v=20261028"
+                  src="/pics/home/starter-pack-front.webp?v=20261030"
                   alt=""
                   aria-hidden="true"
                 />

@@ -9,8 +9,8 @@ import { categoryArt } from '@/lib/categoryArt';
 import styles from './Profile.module.css';
 
 const PACK_ART_VERSION = '1';
-const WELCOME_ART = '/pics/home/starter-pack-front.webp?v=20261028';
-const ALL_BERLIN_ART = '/pics/booster/booster.webp?v=20261028';
+const WELCOME_ART = '/pics/home/starter-pack-front.webp?v=20261030';
+const ALL_BERLIN_ART = '/pics/booster/booster.webp?v=20261030';
 
 function versionedPackArt(src: string): string {
   return src.includes('?v=') ? src : `${src}?v=${PACK_ART_VERSION}`;

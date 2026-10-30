@@ -1,14 +1,14 @@
 /** Category slug → booster pack art (public path). Canonical source for category art. */
 const CATEGORY_ART: Record<string, string> = {
-  breakfast: '/pics/booster/booster_breakfast.webp?v=20261028',
-  coffee: '/pics/booster/booster_coffee.webp?v=20261028',
-  dinner: '/pics/booster/booster_dinner.webp?v=20261028',
-  drinks: '/pics/booster/booster_drinks.webp?v=20261028',
-  'fast-food': '/pics/booster/booster_fastfood.webp?v=20261028',
-  'fine-dining': '/pics/booster/booster_finedining.webp?v=20261028',
-  lunch: '/pics/booster/booster_lunch.webp?v=20261028',
-  pizza: '/pics/booster/booster_pizza.webp?v=20261028',
-  sweets: '/pics/booster/booster_sweets.webp?v=20261028',
+  breakfast: '/pics/booster/booster_breakfast.webp?v=20261030',
+  coffee: '/pics/booster/booster_coffee.webp?v=20261030',
+  dinner: '/pics/booster/booster_dinner.webp?v=20261030',
+  drinks: '/pics/booster/booster_drinks.webp?v=20261030',
+  'fast-food': '/pics/booster/booster_fastfood.webp?v=20261030',
+  'fine-dining': '/pics/booster/booster_finedining.webp?v=20261030',
+  lunch: '/pics/booster/booster_lunch.webp?v=20261030',
+  pizza: '/pics/booster/booster_pizza.webp?v=20261030',
+  sweets: '/pics/booster/booster_sweets.webp?v=20261030',
 };
 
 export function categoryArt(slug: string): string | null {

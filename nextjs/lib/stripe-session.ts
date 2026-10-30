@@ -6,7 +6,7 @@ import { resolvePriceId } from './stripe-price';
 export type CheckoutMode = 'auth' | 'guest';
 type CheckoutLocale = 'de' | 'en';
 
-export interface VerifiedCheckoutSession {
+interface VerifiedCheckoutSession {
   session: Stripe.Checkout.Session;
   pack: PackDef;
   mode: CheckoutMode;

@@ -275,7 +275,6 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
       spots: 465,
       freeCards: 5,
       starterCards: 20,
-      starterFaceUp: 10,
       byCategory: [
         {
           slug: 'lunch',

@@ -104,7 +104,7 @@ export async function getPrivateMustEatContent(id: string): Promise<PrivateMustE
  * Returns a plain record rather than a Map so the result survives being
  * serialized into a cache.
  */
-export type PrivateMustEatReader = (
+type PrivateMustEatReader = (
   ids: string[]
 ) => Promise<Record<string, PrivateMustEatContent>>;
 

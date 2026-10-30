@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { resolveUnlockedMustEatIds } from './unlockedMustEats';
 
 describe('resolveUnlockedMustEatIds', () => {
-  it('anon: exactly the server-revealed set (curated 10 + spot-of-day)', () => {
+  it('anon: exactly the server-revealed set (the curated 10)', () => {
     const out = resolveUnlockedMustEatIds({
       uid: null,
       storedUnlockedIds: new Set(),

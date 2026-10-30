@@ -9,7 +9,6 @@
 
 /** Alle 20 Karten des Starter Packs sind sofort offen (28.10.2026). */
 export const STARTER_PACK_CARDS = 20;
-export const STARTER_PACK_FACE_UP = STARTER_PACK_CARDS;
 
 /** Die Doc-ID des Entitlements — sie IST der Riegel: ein `create()` auf einen
  *  belegten Pfad schlägt fehl, und genau das heißt „schon bekommen". */

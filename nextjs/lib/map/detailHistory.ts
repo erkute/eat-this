@@ -1,5 +1,5 @@
 /** What the map should do with the browser history when the open detail changes. */
-export type DetailHistoryAction = 'none' | 'push' | 'replace' | 'back';
+type DetailHistoryAction = 'none' | 'push' | 'replace' | 'back';
 
 interface DetailHistoryState {
   /** A detail is open in this render. */

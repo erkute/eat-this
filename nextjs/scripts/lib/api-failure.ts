@@ -30,7 +30,7 @@ export function isFatalApiMessage(message: string): boolean {
   return FATAL_API.test(message);
 }
 
-export interface RunStats {
+interface RunStats {
   ok: number;
   failed: number;
 }

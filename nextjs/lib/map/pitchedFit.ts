@@ -32,7 +32,7 @@ export interface FitView {
   maxZoom: number;
 }
 
-export interface FitCamera {
+interface FitCamera {
   center: LngLat;
   zoom: number;
 }

@@ -11,7 +11,6 @@
   --profile-muted: var(--et-copy);
   --profile-quiet: var(--et-quiet);
   --profile-line: var(--et-line);
-  --profile-ring: var(--et-line);
   --profile-accent: var(--et-accent);
   --profile-raised: var(--et-quiet);
   --profile-raised-on: var(--et-line);
@@ -32,9 +31,9 @@ main.page {
   background: var(--profile-ground);
 }
 
-/* Das geteilte Vokabular faerbt fuer Papier (roter Titel, Ink-Kicker, Ink-
-   Knopf). Auf dem Grund: Papier-Versalien, weiche Kicker, gelber Knopf mit
-   Hover auf Papier — dieselbe Uebersetzung wie auf der Startseite. */
+/* Das geteilte Vokabular färbt für Papier (roter Titel, Ink-Kicker, Ink-
+   Knopf). Auf dem Grund: Papier-Versalien, weiche Kicker, Knopf mit Hover auf
+   Papier — dieselbe Übersetzung wie auf der Startseite. */
 main.page :global(.hv-title) {
   color: var(--profile-fg);
 }
@@ -116,111 +115,15 @@ main.page .head {
   color: var(--et-on-accent);
 }
 
-/* Die Ink-Bank (Figur, Name, Berlin-Zahl) ist am 04.09.2026 entfallen — die
-   drei Angaben stehen jetzt auf der Spielerkarte in der Kopfzeile des Albums
-   (ProfilePlayerCard + ProfileAlbum.module.css). Mit ihr sind .bank*, .city*
-   und ProfileCityProgress weg.
-
-   Die geteilte Deck-Seite las beide Gruppen mit und stand nach dem Umbau
-   ohne Kopfzeilen-Stile da — ohne Fehlermeldung, denn React laesst
-   `className={undefined}` stumm weg. Die Regeln liegen jetzt in
-   app/[locale]/deck/[uid]/Deck.module.css. Wer hier wieder etwas
-   herausnimmt: `npm run audit:css-modules` sagt, wer es noch anfasst. */
-
-/* ── naechster Zug ──────────────────────────────────────── */
-
-/* Breite Empfehlung unter dem Deck-Fortschritt. Die Aktionen stehen direkt
-   unter dem Spot-Text, damit sie auch am Desktop zum Spot gehören. */
-.move {
-  display: grid;
-  grid-template-columns: 208px minmax(0, 1fr);
-  gap: clamp(24px, 3vw, 40px);
-  align-items: center;
-  padding-block: clamp(20px, 2.4vw, 28px);
-  border-block: 1px solid var(--profile-line);
-}
-.moveMedia {
-  position: relative;
-  min-width: 0;
-}
-.movePhoto {
-  display: block;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border-radius: var(--et-radius-photo);
-  background: var(--profile-raised);
-}
-.movePhoto > img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.movePhoto > .moveFallback {
-  object-fit: contain;
-}
-.movePhoto:focus-visible {
-  outline: 2px solid var(--profile-fg);
-  outline-offset: 4px;
-}
-.moveCard {
-  position: absolute;
-  right: -14px;
-  bottom: -10px;
-  width: 46px;
-  height: auto;
-  transform: rotate(10deg);
-  filter: drop-shadow(0 4px 5px #0003);
-  pointer-events: none;
-}
-.moveCopy {
-  min-width: 0;
-}
-.moveKicker {
-  margin: 0 0 8px;
-}
-.moveTitle {
-  margin: 0;
-  color: var(--profile-fg);
-  font: 700 clamp(24px, 2.6vw, 36px) / 1.08 var(--et-font-display);
-  letter-spacing: -0.025em;
-  overflow-wrap: anywhere;
-}
-.moveMeta {
-  margin: 7px 0 0;
-  color: var(--profile-muted);
-  font: 400 14px / 1.3 var(--et-font-display);
-}
-.moveActions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  margin-top: 16px;
-}
-@media (max-width: 640px) {
-  .move {
-    grid-template-columns: 104px minmax(0, 1fr);
-    column-gap: 22px;
-    align-items: start;
-  }
-  .movePhoto {
-    aspect-ratio: 3 / 4;
-  }
-  .moveCard {
-    width: 38px;
-    right: -12px;
-  }
-}
+/* Die Kopfzeile der geteilten Deck-Seite hat ihre Regeln in
+   app/[locale]/deck/[uid]/Deck.module.css. `npm run audit:css-modules` sagt,
+   wer eine Klasse hier noch anfasst. */
 
 /* ── recently revealed ──────────────────────────────────── */
 
-/* Die Zeitleiste: eine Linie ueber die volle Breite, die Eintraege haengen
-   daran. Sie ist der Grund, dass der Abschnitt ab der ERSTEN Karte rendern
-   kann — vorher stand dort eine einzelne Karte unter einer Ueberschrift ueber
-   1200 px, und die Schwelle von drei Karten liess ausgerechnet die Neuen ohne
-   den Abschnitt. Dasselbe Mittel wie die Bezirks-Trenner im Deck. */
+/* Die Zeitleiste: eine Linie über die volle Breite, die Einträge hängen daran —
+   so rendert der Abschnitt schon ab der ersten Karte. Dasselbe Mittel wie die
+   Bezirks-Trenner im Deck. */
 .recentRail {
   margin: 0;
   padding-top: clamp(16px, 2vw, 22px);
@@ -332,21 +235,49 @@ main.page .head {
 }
 
 .spotCardWrap {
+  /* Eine Ink-Tafel wie das Zählerband im Deck: Foto oben, darunter auf Ink der
+     Name, der Bezirk und die zwei Handgriffe. Die Rollenfarben der Tafel gelten
+     für alles darin, auch für die Knöpfe. */
+  --et-ground: #15120e;
+  --et-fg: #fff;
+  --et-muted: #d4d1cd;
+  --et-copy: #d4d1cd;
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  --et-focus: #fff;
   position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
   min-width: 0;
+  overflow: hidden;
+  background-color: var(--et-ink);
+  background-image:
+    url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  background-size:
+    192px,
+    100% 100%;
+  background-repeat: repeat, no-repeat;
+  border-radius: var(--et-radius-photo);
+  color: var(--et-white);
 }
 
 .spotCard {
-  aspect-ratio: 4 / 3;
-  color: #fff;
+  display: block;
+  color: inherit;
   text-decoration: none;
 }
-
 .spotCard:focus-visible {
-  outline: 2px solid var(--profile-fg);
-  outline-offset: 4px;
+  outline: 2px solid #fff;
+  outline-offset: -4px;
 }
 
+.spotPhoto {
+  position: relative;
+  display: block;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #2b2722;
+}
 .spotImg {
   position: absolute;
   inset: 0;
@@ -354,139 +285,86 @@ main.page .head {
   background-size: cover;
 }
 
-.spotBody {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  left: 12px;
-  z-index: 1;
+/* Der rote Strich zwischen Foto und Tafel ist das Rot der Marke. */
+.spotCaption {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  padding: 12px 14px 0;
+  border-top: 4px solid var(--et-red);
 }
-
 .spotName {
+  display: -webkit-box;
   margin: 0;
   max-width: 100%;
-  white-space: normal;
+  overflow: hidden;
+  font: 800 clamp(15px, 4.2vw, 19px) / 1.15 var(--et-font-display);
+  letter-spacing: -0.02em;
   overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
-.spotMeta {
-  margin-top: 10px;
-  color: var(--profile-muted);
-  font: 400 14px / 1.3 var(--et-font-display);
+.spotDistrict {
+  margin: 0;
+  color: var(--et-muted);
+  font: 800 11px / 1.2 var(--et-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .spotRemove {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: var(--et-ink);
-  background: var(--et-white);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: var(--et-white);
+  background: none;
   border: 0;
-  border-radius: var(--profile-radius);
   cursor: pointer;
-  transition: background-color var(--profile-motion);
+  /* Das X steht frei auf dem Foto, ohne Kasten. Der Schatten liegt nur um das
+     Zeichen, das Foto selbst bleibt unangetastet. */
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.7));
+}
+.spotRemove svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 3;
 }
 
 .spotRemove:focus-visible {
-  background: var(--profile-red);
+  outline: 2px solid var(--et-white);
+  outline-offset: -4px;
 }
 
-@media (hover: hover) {
-  .spotRemove:hover {
-    background: var(--profile-red);
-  }
-}
-
-/* A written line under the spot, not a form field.
-
-   Eine Stufe groesser als vorher (13-15 px): die Notiz war der kleinste Text
-   des Abschnitts und gleichzeitig der einzige, der vom Nutzer selbst stammt.
-   Sie sitzt jetzt zwischen dem Bezirk (13 px) und dem Namen auf der Karte.
-
-   Die Hoehe setzt SpotNote, nicht das Stylesheet — `rows` deckelte eine
-   180-Zeichen-Notiz bei zwei Zeilen. `overflow-y: hidden` haelt den
-   Scrollbalken weg, den es damit nicht mehr braucht; die 2 px unten sind
-   Platz fuer die Unterlaengen der letzten Zeile, die eine auf scrollHeight
-   gesetzte Hoehe sonst knapp abschneidet. */
-/* „War da" / „will hin". Ungedrueckt die angehobene Flaeche, gedrueckt eine
-   gelbe Flaeche mit Haken — derselbe Unterschied wie zwischen leerem und
-   gefuelltem Album-Platz, und dieselbe Farbe wie jeder volle Balken auf
-   dieser Seite. Der Haken ist ungedrueckt blass statt weg: sonst springt die
-   Beschriftung beim Umschalten seitlich. */
+/* Eine geschriebene Zeile unter dem Spot, kein Formularfeld. Die Höhe setzt
+   SpotNote, nicht das Stylesheet; `overflow-y: hidden` hält den Scrollbalken
+   weg, den das Feld damit nicht braucht. */
+/* „War da?": ungedrückt die zweite Antwort, gedrückt der gefüllte Knopf mit
+   Haken — der Zustand steht nie nur in der Farbe. */
 .spotVisited {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  /* Über die ganze Tafel: jeder Knopf gleich breit, ob „War da?" oder „War da". */
+  justify-self: stretch;
   align-self: start;
-  margin-top: 10px;
-  padding: 6px 12px 5px;
-  color: var(--profile-muted);
-  background: var(--profile-raised);
-  border: 0;
-  border-radius: 999px;
-  cursor: pointer;
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: none;
-  transition:
-    color var(--profile-motion),
-    background-color var(--profile-motion);
-}
-
-.spotVisited svg {
-  flex: 0 0 auto;
-  opacity: 0.35;
-  transition: opacity var(--profile-motion);
-}
-
-.spotVisited:disabled {
-  cursor: default;
-}
-
-.spotVisited:focus-visible {
-  color: var(--profile-fg);
-  background: var(--profile-raised-on);
-}
-
-@media (hover: hover) {
-  .spotVisited:hover:not(:disabled) {
-    color: var(--profile-fg);
-    background: var(--profile-raised-on);
-  }
-}
-
-.spotVisitedOn {
-  color: var(--et-on-accent);
-  background: var(--profile-accent);
-}
-
-.spotVisitedOn svg {
-  opacity: 1;
-}
-
-@media (hover: hover) {
-  .spotVisitedOn:hover:not(:disabled) {
-    color: var(--profile-ground);
-    background: var(--profile-inverse);
-  }
+  justify-content: center;
+  margin: 12px 14px 0;
+  gap: 6px;
 }
 
 .spotNote {
   display: block;
+  box-sizing: border-box;
   width: 100%;
-  margin-top: 9px;
-  padding: 0 0 2px;
+  margin-top: 4px;
+  padding: 8px 14px 14px;
   overflow-y: hidden;
   resize: none;
-  color: var(--profile-fg);
+  color: var(--et-fg);
   background: transparent;
   border: 0;
   font-family: var(--et-font-display);
@@ -498,20 +376,20 @@ main.page .head {
 /* Deutlich leiser als eine geschriebene Notiz: ueber einer Reihe Karten soll
    auf einen Blick zu sehen sein, welche davon eigene Worte tragen. */
 .spotNote::placeholder {
-  color: color-mix(in srgb, var(--profile-muted) 52%, transparent);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 13px;
 }
 
 /* Ein unsichtbares Feld sagt niemandem, dass man hineinschreiben kann. */
 @media (hover: hover) {
   .spotNote:hover {
-    background: var(--profile-raised);
+    background: rgba(255, 255, 255, 0.08);
   }
 }
 
 .spotNote:focus-visible {
-  outline: 2px solid var(--profile-accent);
-  outline-offset: 3px;
+  outline: 2px solid #fff;
+  outline-offset: -4px;
 }
 
 .empty {
@@ -530,32 +408,31 @@ main.page .head {
   line-height: 1.3;
 }
 
-/* ── packs: Trophaeenreihe ──────────────────────────────────
-   Kein Rail und kein Raster aus Kaufkarten mehr. Was hier stand, waren elf
-   190-px-Packs, zehn davon mit schwarzem Kaufknopf — der lauteste Block der
-   Seite zeigte fremdes Inventar. Jetzt: nur der Besitz, klein, umbrechend. */
-
-main.page .packsHeading {
-  margin-bottom: 20px;
-}
+/* ── packs: Trophäenreihe ──────────────────────────────────
+   Nur der Besitz, kein Laden. Die Packs hängen wie Poster an der Wand: jedes
+   mit einem Streifen Gewebeband oben, abwechselnd schief, die geraden
+   Spalten ein Stück tiefer. Der Name klebt als Band darunter, in der
+   Umkehrfarbe der Seite (hell schwarz, dunkel weiß), damit er auf dem
+   Papier steht. */
 
 .trophies {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 160px);
-  align-items: end;
-  gap: 28px 24px;
+  grid-template-columns: repeat(auto-fill, 190px);
+  align-items: start;
+  gap: 40px 32px;
   margin: 0;
-  padding: 6px;
+  padding: 18px 6px 6px;
   list-style: none;
 }
 
 .trophy {
-  --profile-pack-height: 232px;
+  --profile-pack-height: 276px;
+  --trophy-tape: url('/pics/tape/gaffer-2-black.webp');
+  position: relative;
   display: grid;
   grid-template-rows: var(--profile-pack-height) auto;
-  align-items: end;
   justify-items: center;
-  gap: 12px;
+  gap: 16px;
   min-width: 0;
   color: var(--profile-fg);
   text-align: center;
@@ -563,28 +440,75 @@ main.page .packsHeading {
 
 .trophy img {
   transform: rotate(-3deg);
-  transition: transform 180ms ease;
   width: 100%;
-  max-width: 160px;
+  max-width: 190px;
   height: var(--profile-pack-height);
   object-fit: contain;
-  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.24));
+  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.26));
 }
 
+/* Der Streifen, der das Pack hält. */
+.trophy::before {
+  content: '';
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  z-index: 1;
+  width: 76px;
+  height: 22px;
+  background: var(--trophy-tape) center / 100% 100% no-repeat;
+  transform: translateX(-50%) rotate(-5deg);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  pointer-events: none;
+}
+
+.trophyLocked {
+  grid-template-rows: auto;
+}
+.trophyLocked img {
+  filter: grayscale(1) contrast(0.9) drop-shadow(0 12px 16px rgba(0, 0, 0, 0.18));
+  opacity: 0.38;
+}
+.trophyLocked::before {
+  opacity: 0.45;
+}
+.trophyLink {
+  display: grid;
+  grid-template-rows: var(--profile-pack-height) auto;
+  justify-items: center;
+  gap: 16px;
+  color: inherit;
+  text-decoration: none;
+}
+.trophyLink:focus-visible {
+  outline: 2px solid var(--profile-fg);
+  outline-offset: 6px;
+}
+.trophyLocked .trophyName {
+  opacity: 0.55;
+}
 .trophyName {
-  font-family: var(--et-font-display);
-  font-size: clamp(12px, 1vw, 14px);
-  font-weight: 700;
-  line-height: 1.14;
+  --et-tape-img: var(--et-tape-active-img);
+  --et-tape-fg: var(--et-tape-active-fg);
+  font-size: clamp(14px, 1.2vw, 16px);
+  line-height: 1.2;
 }
 
-/* Der eine Knopf, der vom Laden uebrig bleibt — in derselben Form wie
-   „Abmelden": die angehobene Flaeche, gelb gefuellt beim Hover. Leise
-   Flaeche und nicht Gelb, weil der Laden hier ein Angebot ist und keine
-   Aufforderung;
-   das Profil zeigt Besitz. */
-.packsMore {
-  margin-top: 24px;
+.packsCta {
+  margin-top: 40px;
+  transform: rotate(-0.6deg);
+}
+.packsCta .inviteFan img {
+  width: clamp(54px, 7vw, 76px);
+  aspect-ratio: 160 / 232;
+  object-fit: contain;
+  border-radius: 0;
+}
+.packsCta .inviteFan img:first-child {
+  transform: rotate(-12deg);
+}
+.packsCta .inviteFan img:last-child {
+  transform: rotate(12deg);
 }
 
 /* ── Freunde ────────────────────────────────────────────
@@ -615,78 +539,113 @@ main.page .packsHeading {
   text-wrap: pretty;
 }
 
-/* Printed chapter tabs along the edge of the album. */
+/* Die Reiter sind Knöpfe im Hausstil (et-btn): der aktive gefüllt, die anderen
+   die zweite Antwort. Das Modul setzt nur die Anordnung. */
 .tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 148px));
-  gap: 6px;
-  padding-top: 8px;
-  border-bottom: 2px solid var(--profile-line);
-}
-.tab {
-  position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* Gewebeband wie über der Map (pics/tape): jeder Reiter ein eigenes Stück, der
+   aktive in der umgekehrten Farbe. Hell weißes Band mit Schatten, dunkel
+   schwarzes; die Schrift folgt über --et-tape-fg. */
+.tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  gap: 3px;
-  min-height: 66px;
-  padding: 9px 18px;
+  min-height: 44px;
+  padding: 8px 14px;
   border: 0;
-  border-radius: 9px 9px 0 0;
-  background: var(--profile-raised) url('/pics/paper/folded-white.webp?v=20261028-hq') center / 240px 360px;
-  background-blend-mode: multiply;
-  color: var(--profile-fg);
-  font: 700 17px / 1.15 var(--et-font-display);
+  border-radius: 0;
+  background: none;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  box-shadow: none;
+  filter: var(--et-tape-lift);
+  color: var(--et-tape-fg);
+  font: 800 12px / 1.2 var(--et-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
   cursor: pointer;
-  transition:
-    background-color 140ms ease,
-    transform 140ms ease;
+  appearance: none;
+  touch-action: manipulation;
 }
-.tab::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 5px;
-  border-bottom: 1px dashed currentColor;
-  opacity: 0.18;
-  pointer-events: none;
+.tab:nth-child(1) {
+  --et-tape-img: url('/pics/tape/gaffer-3-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-3-black.webp');
+  --et-tape-slice: 9 11 12 31 fill;
+  --et-tape-width: 2px 2px 3px 7px;
 }
-
+.tab:nth-child(2) {
+  --et-tape-img: url('/pics/tape/gaffer-5-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-5-black.webp');
+  --et-tape-slice: 17 31 14 17 fill;
+  --et-tape-width: 4px 7px 3px 4px;
+}
+.tab:nth-child(3) {
+  --et-tape-img: url('/pics/tape/gaffer-4-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-4-black.webp');
+  --et-tape-slice: 13 9 33 21 fill;
+  --et-tape-width: 3px 2px 7px 5px;
+}
+.tab:nth-child(4) {
+  --et-tape-img: url('/pics/tape/gaffer-6-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-6-black.webp');
+  --et-tape-slice: 11 11 20 8 fill;
+  --et-tape-width: 2px 2px 4px 2px;
+}
+html[data-theme='dark'] .tab:nth-child(1) {
+  --et-tape-img: url('/pics/tape/gaffer-3-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-3-white.webp');
+}
+html[data-theme='dark'] .tab:nth-child(2) {
+  --et-tape-img: url('/pics/tape/gaffer-5-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-5-white.webp');
+}
+html[data-theme='dark'] .tab:nth-child(3) {
+  --et-tape-img: url('/pics/tape/gaffer-4-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-4-white.webp');
+}
+html[data-theme='dark'] .tab:nth-child(4) {
+  --et-tape-img: url('/pics/tape/gaffer-6-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-6-white.webp');
+}
 .tab[aria-selected='true'] {
-  color: var(--et-white);
-  background-color: var(--profile-red);
-  transform: translateY(-5px);
-  box-shadow: 0 5px 0 var(--profile-red);
+  border-image-source: var(--et-tape-active-img);
+  color: var(--et-tape-active-fg);
 }
 .tab:focus-visible {
-  outline: 2px solid var(--profile-fg);
-  outline-offset: 3px;
-  z-index: 1;
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
 @media (hover: hover) {
-  .tab:hover:not([aria-selected='true']) {
-    background-color: var(--profile-raised-on);
-    transform: translateY(-2px);
+  .tab[aria-selected='false']:hover {
+    filter: brightness(0.95) var(--et-tape-lift);
   }
+}
+.tabInner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.tabCount {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.72;
 }
 
 /* ── invite ─────────────────────────────────────────────── */
 
-/* Seit dem Abend des 04.09.2026 steht der Kasten DIREKT unter dem Deck und
-   ist auf eine Zeile zusammengezogen (Nutzer: „ist der Knopf da unten
-   irgendwie versteckt? Vielleicht muss der kleiner sein, unter dem Deck").
-
-   Bis zum 24.09.2026 war er eine gelbe Vollflaeche — und damit lauter als das
-   Deck, das er teilt. Jetzt spricht er wie jedes Angebot der Seite: Ink-Tafel
-   eine Stufe ueber dem Grund, weisse Versalien, der eine gelbe Knopf. Das
-   Gelb gehoert der Handlung, nicht dem Kasten. */
+/* „Zeig dein Deck" und die Packs-Kachel teilen sich diese Klassen: ein rotes
+   Blatt mit Fächer, Text und einem großen Knopf. Die Rollenfarben setzt
+   `data-red-sheet` (globals.css). */
 .invite {
-  /* Ein Raster statt Umbruch-Flex: Faecher links, daneben Text und Knopf.
-     Mit `flex-wrap` landete der Knopf auf schmalen Breiten allein in der
-     rechten unteren Ecke, weit weg vom Text, zu dem er gehoert (Nutzer,
-     24.09.2026: „muss besser ausgerichtet sein"). */
+  /* Ein Raster statt Umbruch-Flex: Fächer, Text und Knopf bleiben beisammen;
+     auf dem Telefon stehen sie untereinander. */
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-areas: 'fan copy action';
@@ -694,9 +653,16 @@ main.page .packsHeading {
   align-items: center;
   /* Etwas mehr Luft als die uebrigen Leisten: links liegt ein Kartenfaecher,
      und der braucht Rand, sonst stossen die gedrehten Ecken an die Kanten. */
-  padding: clamp(18px, 2vw, 26px) clamp(16px, 1.8vw, 24px);
-  background: var(--profile-raised);
+  padding: clamp(26px, 3.2vw, 42px) clamp(20px, 2.6vw, 36px);
+  transform: rotate(-0.6deg);
+  /* Ein rotes Blatt wie das Starter Pack der Startseite: die Rollenfarben
+     setzt data-red-sheet (globals.css). */
+  background-color: var(--et-ground);
+  background-image: var(--et-sheet);
+  background-size: var(--et-sheet-size);
+  background-repeat: var(--et-sheet-repeat);
   border-radius: var(--et-radius-photo);
+  color: var(--et-fg);
 }
 
 /* Der Faecher: drei Karten, leicht gedreht, mit Schlagschatten auf der Tafel.
@@ -714,7 +680,7 @@ main.page .packsHeading {
 .inviteFan img {
   position: relative;
   display: block;
-  width: clamp(52px, 5.2vw, 68px);
+  width: clamp(64px, 7vw, 92px);
   aspect-ratio: 1539 / 2115;
   object-fit: cover;
   border-radius: 5px;
@@ -742,30 +708,30 @@ main.page .packsHeading {
 
 .inviteTitle {
   margin: 0;
-  color: var(--profile-fg);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
-  font-size: clamp(19px, 1.9vw, 26px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: var(--et-leading-title);
+  font-size: clamp(28px, 7.4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
   text-transform: none;
 }
 
 .inviteLine {
   max-width: 48ch;
   margin: 7px 0 0;
-  color: var(--profile-muted);
+  color: var(--et-copy);
   font-family: var(--et-font-display);
-  font-size: clamp(13px, 1.15vw, 16px);
+  font-size: clamp(15px, 4vw, 18px);
   font-weight: 400;
   line-height: 1.3;
 }
 
-/* Der Beleg, dass der Link je etwas bewirkt hat. Gelb wie die Kicker der
-   Tafeln, klein und fett — er soll gelesen, nicht gerufen werden. */
+/* Der Beleg, dass der Link etwas bewirkt hat: klein und fett, er soll gelesen,
+   nicht gerufen werden. */
 .inviteJoined {
   margin: 7px 0 0;
-  color: var(--et-link);
+  color: var(--et-fg);
   font-family: var(--et-font-display);
   font-size: 12px;
   font-weight: 700;
@@ -778,9 +744,12 @@ main.page .packsHeading {
   grid-area: action;
   min-width: 0;
 }
-
-/* Gelbe Knoepfe gehen bei Hover auf Papier, nie auf Ink — auf dem dunklen
-   Grund verschwaenden sie. */
+.inviteAction {
+  display: grid;
+}
+.inviteAction .et-btn {
+  width: 100%;
+}
 
 /* ── narrow ─────────────────────────────────────────────── */
 
@@ -800,95 +769,30 @@ main.page .packsHeading {
     gap: 14px 12px;
   }
 
-  .spotCard {
-    aspect-ratio: 1 / 1;
-  }
-
   /* Auf dem Telefon steht der Knopf unter dem Text, buendig mit dessen
      linker Kante — der Faecher bleibt links daneben. */
   .invite {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      'fan copy'
-      'fan action';
+      'fan'
+      'copy'
+      'action';
+    gap: 18px;
     align-items: start;
   }
 
-  /* Eine Stufe groesser, damit der Faecher die Hoehe von Text und Knopf
-     traegt. */
+  /* Der Fächer steht allein über dem Text und trägt die Kachel. */
+  .inviteFan {
+    justify-self: start;
+  }
   .inviteFan img {
-    width: 60px;
+    width: 78px;
   }
 }
 
 .profileTop {
   display: grid;
   gap: 24px;
-}
-.profileHeader {
-  display: flex;
-  align-items: center;
-  gap: clamp(24px, 4vw, 56px);
-  padding-block: 8px;
-}
-.profileAvatar {
-  position: relative;
-  flex: 0 0 clamp(120px, 13vw, 168px);
-  display: grid;
-  place-items: center;
-  width: clamp(120px, 13vw, 168px);
-  height: clamp(150px, 13vw, 174px);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-.profileAvatar::after {
-  content: '';
-  position: absolute;
-  left: 28%;
-  right: 28%;
-  bottom: 2px;
-  height: 8px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--profile-fg) 16%, transparent);
-  filter: blur(5px);
-}
-.profileAvatar img {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  filter: drop-shadow(0 4px 2px #0002);
-  transition: transform 180ms ease;
-}
-.profileAvatar:focus-visible {
-  outline: 2px solid var(--profile-fg);
-  outline-offset: 6px;
-}
-@media (hover: hover) {
-  .profileAvatar:hover img {
-    transform: translateY(-4px);
-  }
-}
-.profileIntro {
-  min-width: 0;
-}
-.profileTitle {
-  margin: 0;
-  color: var(--profile-fg);
-  font: 700 clamp(42px, 6vw, 76px) / 0.98 var(--et-font-display);
-  letter-spacing: -0.055em;
-  overflow-wrap: anywhere;
-}
-.profileName {
-  margin: 10px 0 8px;
-  color: var(--profile-fg);
-  font: 700 clamp(19px, 2.5vw, 32px) / 1.1 var(--et-font-display);
-  letter-spacing: -0.025em;
 }
 main.page .tabPanel {
   margin-top: 32px;
@@ -910,13 +814,105 @@ main.page .tabPanel {
 .deckInvite {
   margin-top: 32px;
 }
+/* Nur für Screenreader: die Hauptüberschrift der Seite. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .account {
   max-width: 600px;
+}
+/* Der Charakter steht frei auf dem Papier, mit weichem Schatten am Boden. */
+.accountWho {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(20px, 4vw, 40px);
+}
+.accountFigure {
+  position: relative;
+  flex: 0 0 clamp(84px, 22vw, 112px);
+  width: clamp(84px, 22vw, 112px);
+  height: clamp(108px, 28vw, 144px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.accountFigure::after {
+  content: '';
+  position: absolute;
+  right: 18%;
+  bottom: 2px;
+  left: 18%;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--profile-fg) 18%, transparent);
+  filter: blur(6px);
+}
+.accountFigure img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 2px #0002);
+}
+.accountFigure:focus-visible {
+  outline: 2px solid var(--profile-fg);
+  outline-offset: 6px;
+}
+.accountIntro {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  min-width: 0;
+  padding-bottom: 8px;
 }
 .accountForm {
   display: grid;
   gap: 12px;
-  margin-top: 28px;
+  margin-top: 24px;
+}
+/* Zwei Abschnitte, jeder mit Überschrift: „Du" (Charakter, Name) und
+   „Anmeldung" (E-Mail, Abmelden). */
+.accountGroup {
+  margin-top: clamp(28px, 4vw, 40px);
+  padding-top: 24px;
+  border-top: 1px solid var(--profile-line);
+}
+.account > .accountGroup:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+/* Der Name ist die Überschrift des Abschnitts, groß, neben der Figur. */
+.accountName {
+  margin: 0;
+  font: 800 clamp(40px, 12vw, 64px) / 0.98 var(--et-font-display);
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+.accountSince {
+  margin: 0;
+}
+/* Die Überschrift klebt als Band, wie die Namen der Spots und Packs. */
+.accountGroupTitle {
+  display: inline-block;
+  margin: 0 0 20px;
+  --et-tape-img: var(--et-tape-active-img);
+  --et-tape-fg: var(--et-tape-active-fg);
+  font: 800 18px / 1.2 var(--et-font-display);
+  letter-spacing: -0.01em;
 }
 .accountForm label,
 .accountRow h3 {
@@ -928,24 +924,28 @@ main.page .tabPanel {
   width: 100%;
   min-height: 44px;
   padding: 10px 14px;
-  background: var(--profile-ground);
+  background: var(--profile-raised);
   color: var(--profile-fg);
-  border: 1px solid var(--profile-line);
-  border-radius: var(--et-radius-control);
-  font: 400 16px / 1.3 var(--et-font-display);
+  border: 0;
+  border-radius: 0;
+  font: 700 16px / 1.3 var(--et-font-display);
 }
-.accountForm input:focus-visible,
-.searchField input:focus-visible {
-  outline: 2px solid var(--profile-fg);
-  outline-offset: 3px;
+/* Eine Fläche statt eines Rahmens, auch im Fokus: sie wird dunkler und der Grund
+   bekommt einen kräftigen Strich unten. Kein Ring um das Feld. */
+.accountForm input:focus,
+.searchField input:focus {
+  outline: 0;
+  background: color-mix(in srgb, var(--profile-fg) 9%, var(--profile-raised));
+  box-shadow: inset 0 -3px 0 var(--profile-fg);
+}
+.accountForm input::placeholder,
+.searchField input::placeholder {
+  color: var(--profile-muted);
+  font-weight: 400;
 }
 .accountSave {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-}
-.accountSave span {
+  min-height: 1.4em;
+  margin: 0;
   color: var(--profile-muted);
   font-size: 15px;
 }
@@ -956,17 +956,14 @@ main.page .tabPanel {
 .accountRow {
   display: grid;
   justify-items: start;
-  gap: 12px;
-  padding-top: 28px;
-  margin-top: 28px;
-  border-top: 1px solid var(--profile-line);
+  gap: 6px;
 }
 .accountRow p {
   margin: 0;
   overflow-wrap: anywhere;
 }
 .accountSignOut {
-  margin-top: 32px;
+  margin-top: 24px;
 }
 .spotsToolbar {
   display: grid;
@@ -986,51 +983,22 @@ main.page .tabPanel {
   white-space: nowrap;
 }
 .spotsFilters {
-  display: flex;
-  flex-wrap: wrap;
+  /* Drei gleich große Knöpfe, nicht je nach Wort. */
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-}
-.spotsFilter {
-  min-height: 40px;
-  padding: 8px 16px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--profile-raised);
-  color: var(--profile-fg);
-  font: 700 14px / 1.2 var(--et-font-display);
-  cursor: pointer;
-}
-.spotsFilter[aria-pressed='true'] {
-  background: var(--profile-fg);
-  color: var(--profile-ground);
-}
-.spotsFilter:focus-visible {
-  outline: 2px solid var(--profile-fg);
-  outline-offset: 3px;
+  max-width: 480px;
 }
 @media (max-width: 767.98px) {
-  .profileHeader {
-    gap: 20px;
-    padding-block: 0;
-  }
-  .profileAvatar {
-    flex-basis: 100px;
-    width: 100px;
-    height: 142px;
-  }
-  .profileTitle {
-    font-size: clamp(34px, 9vw, 44px);
-  }
-  .profileName {
-    margin-top: 8px;
-    margin-bottom: 4px;
-    font-size: 21px;
-  }
   .tabs {
+    display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
   }
   .tab {
-    padding-inline: 10px;
+    min-width: 0;
+    padding-inline: 4px;
+    font-size: clamp(10px, 2.9vw, 12px);
   }
   .profileTop {
     gap: 20px;
@@ -1040,12 +1008,12 @@ main.page .tabPanel {
   }
   .trophies {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 24px;
-    max-width: 356px;
+    gap: 36px 20px;
+    max-width: 420px;
   }
   .trophy {
-    --profile-pack-height: clamp(200px, 44vw, 232px);
-    gap: 12px;
+    --profile-pack-height: clamp(210px, 52vw, 268px);
+    gap: 14px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1061,19 +1029,17 @@ main.page .tabPanel {
 .trophy:nth-child(even) img {
   transform: rotate(3deg);
 }
-@media (hover: hover) {
-  .trophy:hover img {
-    transform: translateY(-5px) rotate(0deg);
-  }
+.trophy:nth-child(even)::before {
+  transform: translateX(-50%) rotate(4deg);
 }
-@media (prefers-reduced-motion: reduce) {
-  .profileAvatar img,
-  .trophy img,
-  .tab {
-    transition: none;
-  }
-  .profileAvatar:hover img,
-  .trophy:hover img {
-    transform: none;
+.trophy:nth-child(3n + 2) {
+  --trophy-tape: url('/pics/tape/gaffer-4-black.webp');
+}
+.trophy:nth-child(3n) {
+  --trophy-tape: url('/pics/tape/gaffer-6-black.webp');
+}
+@media (min-width: 768px) {
+  .trophy:nth-child(even) {
+    margin-top: 28px;
   }
 }

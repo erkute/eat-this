@@ -73,7 +73,7 @@ export function measureSheetTop(): number | undefined {
 }
 
 /** What the map/list toggle offers at a given scroll position, or nothing. */
-export type ToggleMode = 'toMap' | 'toList' | null;
+type ToggleMode = 'toMap' | 'toList' | null;
 
 /* Slack around a stop. Rounded stop offsets and iOS rubber-banding both land a
    few px off the exact value. */
@@ -109,7 +109,7 @@ export function resolveToggleMode(
 }
 
 /** What the phone list does with its scroll position when a detail closes. */
-export type ListReturn = 'restore' | 'toList' | 'toMap' | 'stay';
+type ListReturn = 'restore' | 'toList' | 'toMap' | 'stay';
 
 /** Where a detail was opened from — decides where closing it lands. */
 export type DetailOrigin = 'list' | 'map';

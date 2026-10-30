@@ -9,15 +9,12 @@ import { normalizeName } from '@/lib/normalizeName';
 import { notify } from '@/lib/notice';
 import styles from './Profile.module.css';
 
-// Saved spots (Firestore favorites) as full-image cards → tap opens the map.
-// Each card carries a remove button so spots can be un-saved here too (not
-// only via the heart toggle on the map / restaurant page).
+// Gespeicherte Spots (Firestore-Favoriten) als Ink-Tafeln mit Foto → Tipp öffnet
+// die Map. Jede Tafel trägt einen Knopf zum Entfernen, damit man Spots auch hier
+// loswird (nicht nur über das Herz auf der Map und der Spot-Seite).
 //
-// Seit dem 06.09.2026 hat ein gespeicherter Spot zwei Zustaende: „will hin"
-// (der Normalfall — deshalb hat man ihn gespeichert) und „war da". Bis dahin
-// war die Liste ein Stapel Absichten, der nie kleiner wurde: wer irgendwann
-// dort gegessen hatte, konnte den Spot entweder loeschen oder ihn fuer immer
-// als offen stehen lassen. Beides falsch — der Besuch ist der Punkt der
+// Ein gespeicherter Spot hat zwei Zustände: „will hin" (der Normalfall —
+// deshalb hat man ihn gespeichert) und „war da". Der Besuch ist der Punkt der
 // Liste, nicht ihr Ende.
 export default function ProfileSpots({
   uid,
@@ -92,7 +89,7 @@ export function ProfileSpotsContent({
             <button
               key={id}
               type="button"
-              className={styles.spotsFilter}
+              className={`et-btn et-btn-sm${filter === id ? '' : ' et-btn-alt'}`}
               aria-pressed={filter === id}
               onClick={() => setFilter(id)}
             >
@@ -113,17 +110,21 @@ export function ProfileSpotsContent({
             <div key={f.restaurantId} className={styles.spotCardWrap}>
               <MapIntentLink
                 href={slug ? `/map?r=${encodeURIComponent(slug)}` : '/map'}
-                className={`hv-photo ${styles.spotCard}`}
+                className={styles.spotCard}
                 rel="nofollow"
               >
-                {f.photo && (
-                  <div className={styles.spotImg} style={{ backgroundImage: `url(${f.photo})` }} />
-                )}
-                <div className={styles.spotBody}>
-                  <h3 className={`et-label et-label-paper ${styles.spotName}`}>
-                    {normalizeName(f.name)}
-                  </h3>
-                </div>
+                <span className={styles.spotPhoto}>
+                  {f.photo && (
+                    <span
+                      className={styles.spotImg}
+                      style={{ backgroundImage: `url(${f.photo})` }}
+                    />
+                  )}
+                </span>
+                <span className={styles.spotCaption}>
+                  <h3 className={styles.spotName}>{normalizeName(f.name)}</h3>
+                  {f.district && <p className={styles.spotDistrict}>{f.district}</p>}
+                </span>
               </MapIntentLink>
               <button
                 type="button"
@@ -157,10 +158,9 @@ export function ProfileSpotsContent({
                   <path d="M18 6L6 18" />
                 </svg>
               </button>
-              {f.district && <div className={styles.spotMeta}>{f.district}</div>}
               <VisitedToggle
                 visited={f.visited === true}
-                label={t(f.visited ? 'spotWasThere' : 'spotWantTo')}
+                label={t(f.visited ? 'spotWasThere' : 'spotWasThereAsk')}
                 ariaLabel={t(f.visited ? 'spotUnmarkVisited' : 'spotMarkVisited', {
                   name: normalizeName(f.name),
                 })}
@@ -181,12 +181,12 @@ export function ProfileSpotsContent({
 }
 
 /**
- * „War da" / „will hin" — ein Schalter, zwei Zustaende.
+ * „War da?" — ein Schalter unter dem Foto, zwei Zustaende.
  *
- * Kein Paar aus zwei Knoepfen: von zwei gleich lauten Pillen ist immer eine
- * die falsche Antwort, und der Normalfall („will hin") braucht keinen Knopf,
- * er ist schon dadurch gesagt, dass der Spot ueberhaupt gespeichert ist.
- * Also ein Schalter, der seinen Zustand traegt — gedrueckt heisst „war da".
+ * Der Normalfall („will hin") braucht kein Etikett, er ist schon dadurch
+ * gesagt, dass der Spot ueberhaupt gespeichert ist. Offen ist die Frage
+ * „War da?" als zweite Antwort, gedrueckt ist es „War da" als gefuellter Knopf
+ * mit Haken — der Zustand steht also nie nur in der Farbe.
  *
  * `aria-pressed` sagt den Zustand, `aria-label` die Handlung: ein Knopf,
  * dessen sichtbare Beschriftung zwischen zwei Zustaenden wechselt, ist ohne
@@ -212,7 +212,7 @@ function VisitedToggle({
   return (
     <button
       type="button"
-      className={`${styles.spotVisited} ${visited ? styles.spotVisitedOn : ''}`}
+      className={`et-btn et-btn-sm${visited ? '' : ' et-btn-alt'} ${styles.spotVisited}`}
       aria-pressed={visited}
       aria-label={ariaLabel}
       disabled={busy}
@@ -227,35 +227,30 @@ function VisitedToggle({
         }
       }}
     >
-      <svg
-        width="13"
-        height="13"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M4 12.5l5.5 5.5L20 6.5" />
-      </svg>
+      {visited && (
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 12.5l5.5 5.5L20 6.5" />
+        </svg>
+      )}
       {label}
     </button>
   );
 }
 
 /**
- * Die Notiz ist das Persoenlichste auf dieser Seite — und war das Einzige,
- * das nicht ganz zu sehen war. Das Feld nahm 180 Zeichen an und zeigte zwei
- * Zeilen (`rows={value ? 2 : 1}`): eine volle Notiz brach mitten im Satz ab,
- * ohne Auslassung, ohne Scrollbalken, ohne irgendein Zeichen, dass da noch
- * etwas steht. Wer den Rest lesen wollte, musste ins Feld klicken und
- * blaettern.
- *
- * Jetzt waechst das Feld mit seinem Inhalt. Es bleibt ein <textarea>, damit
- * das Schreiben ohne Moduswechsel geht — der Zeilenumbruch ist der einzige
- * Unterschied zu vorher, und er ist der ganze Punkt.
+ * Die Notiz zu einem Spot: ein <textarea>, das mit seinem Inhalt wächst, damit
+ * eine volle Notiz (bis 180 Zeichen) ganz zu sehen ist. Es bleibt ein Feld, das
+ * Schreiben geht ohne Moduswechsel.
  */
 function SpotNote({
   initialNote,

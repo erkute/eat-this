@@ -1,8 +1,7 @@
-/* Was die Charakterwahl anders macht als die Tour, deren Huelle sie traegt
-   (Tour.module.css): sie ist ein einzelner Schritt und deshalb so hoch wie
-   ihr Inhalt, nicht bildschirmhoch (Nutzer, 24.09.2026: „zu gross"). Die
-   Selektoren sind doppelt, damit sie gegen `.panel` der Tour gewinnen, egal
-   in welcher Reihenfolge die beiden Module laden. */
+/* Die Charakterwahl trägt die Hülle der Tour (Tour.module.css), ist aber ein
+   einzelner Schritt und deshalb so hoch wie ihr Inhalt, nicht bildschirmhoch.
+   Die Selektoren sind doppelt, damit sie gegen `.panel` der Tour gewinnen,
+   egal in welcher Reihenfolge die beiden Module laden. */
 .picker.picker {
   display: flex;
   flex-direction: column;
@@ -62,11 +61,13 @@
   margin-top: 0;
 }
 
-/* Die Charaktere bleiben auf Weiß, auch wenn einer ausgewählt ist. */
+/* Die Figuren stehen frei auf dem gefalteten Papier, keine weißen Kacheln. Die
+   Wahl zeigt eine Ink-Kante (`.picker [role]` schlägt `.avatar` der Tour). */
 .picker [role='radio'] {
-  background: var(--et-white);
-  color: var(--et-ink);
+  background: none;
+  color: var(--et-fg);
 }
 .picker [role='radio'][aria-checked='true'] {
-  box-shadow: inset 0 0 0 2px var(--et-ink);
+  background: none;
+  box-shadow: inset 0 0 0 2px var(--et-fg);
 }

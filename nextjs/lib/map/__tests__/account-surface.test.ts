@@ -43,7 +43,6 @@ const EMPTY_ENT = {
   hasAllBerlin: false,
   categorySlugs: new Set<string>(),
   mustEatIds: new Set<string>(),
-  coveredMustEatIds: new Set<string>(),
 };
 
 function compose(over: Record<string, unknown> = {}) {
@@ -81,17 +80,6 @@ describe('composeAccountSurface', () => {
 
     expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
     for (const id of COVERED) expect(s.faceUpIds.has(id)).toBe(false);
-  });
-
-  /* Das Starter Pack: was es verdeckt vergibt, bleibt ein Ruecken, bis man
-     vor Ort ist. */
-  it('legt verdeckt vergebene Karten nicht offen', async () => {
-    const s = await compose({
-      ent: { ...EMPTY_ENT, coveredMustEatIds: new Set(['m11', 'm12']) },
-    });
-
-    expect(s.faceUpIds.has('m11')).toBe(false);
-    expect(s.faceUpIds.size).toBe(REVEALED_TARGET);
   });
 
   it('gibt dem Admin den ganzen Katalog, und zwar offen', async () => {

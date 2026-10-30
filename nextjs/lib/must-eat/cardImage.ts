@@ -9,7 +9,7 @@ const ROUTE_PREFIX = '/api/must-eat-image/';
 const CARD_WIDTHS = [180, 360, 440, 720] as const;
 const VERSION_LENGTH = 12;
 
-export type MustEatCardWidth = (typeof CARD_WIDTHS)[number];
+type MustEatCardWidth = (typeof CARD_WIDTHS)[number];
 
 /** Die Adresse eines Kartenbilds, versioniert mit dem Hash des Motivs.
  *  Die Route antwortet mit bis zu `max-age=1800` — ohne `?v=` zeigte ein

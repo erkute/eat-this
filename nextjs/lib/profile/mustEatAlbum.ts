@@ -9,24 +9,12 @@ import { sortByCardNumber } from '@/lib/map/cardOrder';
 
 interface AlbumSlot {
   /** Die Nummer, die unten rechts auf der Karte steht — `order` aus Sanity,
-   *  dreistellig wie im Druck. Bis zum 04.09.2026 stand hier die laufende
-   *  Position im Album, und die stimmte mit keiner einzigen Karte ueberein:
-   *  Platz 1 trug die 1, die Karte darin die 005 (Nutzer, 04.09.2026). Ein
-   *  leerer Platz mit erfundener Nummer ist schlimmer als einer ohne — er
-   *  schickt einen mit der falschen Zahl auf die Suche. Null, wo ein
-   *  Dokument keine `order` traegt. */
+   *  dreistellig wie im Druck. Ein leerer Platz mit erfundener Nummer wäre
+   *  schlimmer als einer ohne — er schickt einen mit der falschen Zahl auf die
+   *  Suche. Null, wo ein Dokument keine `order` trägt. */
   no: string | null;
   id: string;
   collected: boolean;
-  /** Vor Ort umgedreht — der Beleg, dass man da war.
-   *
-   *  Es gibt zwei Wege, eine Karte zu bekommen, und sie sind nicht dasselbe:
-   *  kaufen (oder geschenkt bekommen) legt sie ins Album, hingehen stempelt
-   *  sie ab. Die Daten trennen das seit jeher — `entitlements.mustEatIds`
-   *  gegen `users/<uid>/unlockedMustEats`, in das nur die 50-m-Route schreibt
-   *  —, nur die Anzeige hat beides zu einem Zustand verschmolzen. Damit war
-   *  die einzige Auszeichnung, die man sich nicht kaufen kann, unsichtbar. */
-  stamped: boolean;
   mustEat: MapMustEat | null;
   /** Das Lokal, in dem diese Karte liegt — auch bei verdeckten Plaetzen.
    *  `mustEat` ist dort bewusst null (kein Gericht, kein Bild), aber Name
@@ -35,10 +23,14 @@ interface AlbumSlot {
    *  Aufgabe — und ohne Weg dorthin. */
   where: string | null;
   slug: string | null;
+  /** Der Bezirk des Lokals, wie ihn der Aufrufer zählt (`groupOf`). Wie `where`
+   *  keine bezahlte Angabe: er steht auf der Map. */
+  district: string;
+  /** Das Lokal selbst — der Schlüssel der gemerkten Spots. */
+  restaurantId: string | null;
 }
 
-/** Ein Bezirk — seit 04.09.2026 nur noch die Reiterleiste, nicht mehr ein
- *  eigener Abschnitt im Raster. Wer die Gruppen stellt, entscheidet der
+/** Ein Bezirk: eine Seite im Album. Wer die Gruppen stellt, entscheidet der
  *  Aufrufer über `groupOf`. */
 interface AlbumGroup {
   group: string;
@@ -55,19 +47,18 @@ interface Album {
 
 /* MapMustEat.restaurant traegt ein district — das reicht als Rueckfall, wenn
    der Aufrufer nichts Besseres weiss. */
-const defaultGroupOf = (m: MapMustEat): string => m.restaurant?.district ?? 'Berlin';
+/* Ein Spot ohne gepflegten Bezirk faellt nicht raus, er sammelt sich unter der Stadt. */
+export const FALLBACK_DISTRICT = 'Berlin';
 
-export function isAlbumMustEatCollected(
-  mustEat: MapMustEat,
-  faceUpIds: ReadonlySet<string>
-): boolean {
+const defaultGroupOf = (m: MapMustEat): string => m.restaurant?.district ?? FALLBACK_DISTRICT;
+
+function isAlbumMustEatCollected(mustEat: MapMustEat, faceUpIds: ReadonlySet<string>): boolean {
   return faceUpIds.has(mustEat._id) || Boolean(mustEat.image);
 }
 
 export function buildAlbum(
   all: MapMustEat[],
   faceUpIds: Set<string>,
-  stampedIds: ReadonlySet<string> = new Set(),
   groupOf: (m: MapMustEat) => string = defaultGroupOf
 ): Album {
   /* Nach der Kartennummer, nicht nach Bezirk. Solange die Bezirke eigene
@@ -83,10 +74,11 @@ export function buildAlbum(
       no: m.order == null ? null : String(m.order).padStart(3, '0'),
       id: m._id,
       collected,
-      stamped: collected && stampedIds.has(m._id),
       mustEat: collected ? m : null,
       where: m.restaurant?.name ?? null,
       slug: m.restaurant?.slug ?? null,
+      district: groupOf(m),
+      restaurantId: m.restaurant?._id ?? null,
     };
   });
 

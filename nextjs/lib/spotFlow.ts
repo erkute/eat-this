@@ -2,7 +2,7 @@
  * collect photos into matching pairs instead of manufacturing text separators.
  * The cover remains separate from the gallery. */
 
-export type SpotFlowBlock =
+type SpotFlowBlock =
   | { kind: 'text'; text: string; short: boolean }
   | { kind: 'tip' }
   | { kind: 'mustEats' }

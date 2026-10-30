@@ -1,6 +1,6 @@
 /** The face-up must-eat set — mirrors the map exactly.
- *  Anonymous: the server-revealed set only — 10 curated cards (one per spot,
- *  see `composeRevealedMustEats`) plus the daily spot-of-day gift on top.
+ *  Anonymous: the server-revealed set only — the 10 curated cards
+ *  (see `composeRevealedMustEats`).
  *  Signed-in: stored Firestore unlocks ∪ server-authorized face-up set
  *  (public demos, purchases and all-Berlin). Everything else stays face-down
  *  until revealed on site (50 m proximity).

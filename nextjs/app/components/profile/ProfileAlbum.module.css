@@ -1,94 +1,89 @@
-/* Die Sammlung als ausgelegte Kartenhand.
-
-   Drei Aenderungen gegenueber dem Stand davor:
-   1. Der Seitenkopf ist eine Karte geworden (.player) und sitzt in der
-      Kopfzeile des Albums statt als eigene Tafel darueber.
-   2. Die Bezirke sind aus dem Raster in eine Reiterleiste gewandert
-      (.filters) — das Raster laeuft durch, ohne angebrochene Zeilen.
-   3. Leerer Platz und gesammelte Karte unterscheiden sich haptisch: der
-      Platz liegt IM Album, die Karte DARAUF. */
+/* Die Sammlung als ausgelegte Kartenhand: eine Seite pro Bezirk (.page), darin
+   die Plaetze in der gedruckten Nummernfolge. Leerer Platz und gesammelte Karte
+   unterscheiden sich haptisch: der Platz liegt IM Album, die Karte DARAUF. */
 
 .panel {
   --album-ink: var(--profile-fg, var(--et-white));
   --album-muted: var(--profile-muted, rgba(255, 255, 255, 0.76));
   --album-red: var(--profile-red, var(--et-red));
-  --album-accent: var(--profile-accent, var(--et-accent));
   --album-display: var(--et-font-display);
   position: relative;
   z-index: 1;
   display: grid;
-  /* Der Grundabstand zwischen den Baendern der Seite. Kopfzeile und naechster
-     Zug legen je noch etwas drauf, damit die Reiterleiste am DICHTESTEN am
-     Raster steht — sie schaltet es, alles andere steht daneben. */
-  gap: clamp(18px, 2.2vw, 22px);
+  /* Der Abstand zwischen dem naechsten Zug und den Bezirksseiten. */
+  gap: clamp(28px, 4vw, 48px);
   color: var(--album-ink);
   background: transparent;
 }
 
-.deckIntro {
-  display: grid;
-  gap: clamp(24px, 3vw, 36px);
+/* „x von y": ein Ink-Band mit großer Zahl und der eigenen Kartenhand — die
+   Marken-Ink-Farbe, auch im Dunkelmodus, wie jedes Angebot der Startseite. */
+.hand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: clamp(22px, 3vw, 36px);
+  overflow: hidden;
+  background-color: var(--et-ink);
+  background-image:
+    url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  background-size:
+    192px,
+    100% 100%;
+  background-repeat: repeat, no-repeat;
+  border-radius: var(--et-radius-photo);
+  color: var(--et-white);
 }
-.collectionHead {
+.handCount {
   display: grid;
   gap: 8px;
-}
-
-.collectionTitle {
+  min-width: 0;
   margin: 0;
-  color: var(--album-ink);
-  font: 700 clamp(28px, 3.6vw, 44px) / 1.05 var(--album-display);
-  letter-spacing: -0.03em;
-}
-
-.collectionProgress {
-  width: min(230px, 100%);
-  margin-top: 6px;
-}
-
-.collectionCount {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  color: var(--album-ink);
   font-family: var(--album-display);
   font-variant-numeric: tabular-nums;
 }
-
-.collectionCount strong {
-  color: var(--album-red);
-  font-size: clamp(42px, 4.5vw, 60px);
+.handCount strong {
+  font-size: clamp(76px, 18vw, 140px);
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.05em;
+  line-height: 0.85;
+  letter-spacing: -0.06em;
 }
-
-.collectionTotal {
-  color: var(--album-muted);
-  font-size: 20px;
+.handTotal {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: clamp(17px, 2.4vw, 26px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
-
-.collectionTrack {
+/* Die Kartenbreite steht an einer Variablen: ein Prozent-Rand bezöge sich auf
+   den Fächer selbst, nicht auf die Karte. */
+.handFan {
+  --hand-card: clamp(62px, 17vw, 112px);
   display: flex;
-  gap: 3px;
-  height: 8px;
-  margin-top: 10px;
+  flex: 0 0 auto;
+  align-items: center;
+  padding-right: 4px;
 }
-
-.collectionTrack span {
-  flex: 1;
-  min-width: 0;
-  background: var(--album-ink);
-  opacity: 0.15;
+.handFan img {
+  position: relative;
+  display: block;
+  width: var(--hand-card);
+  aspect-ratio: 1539 / 2115;
+  object-fit: cover;
+  border-radius: 6px;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
 }
-
-.collectionTrack span[data-filled='true'] {
-  background: var(--album-red);
-  opacity: 1;
+.handFan img:nth-child(1) {
+  transform: rotate(-9deg);
 }
-
-.albumMove {
-  min-width: 0;
+.handFan img:nth-child(2) {
+  z-index: 1;
+  margin-left: calc(var(--hand-card) * -0.26);
+}
+.handFan img:nth-child(3) {
+  margin-left: calc(var(--hand-card) * -0.26);
+  transform: rotate(9deg);
 }
 
 /* ── Die Spielerkarte ─────────────────────────────────────
@@ -97,11 +92,9 @@
    Tafel ueber die volle Seite. */
 
 .player {
-  /* Die Karte traegt ihr Vokabular selbst: sie steht auch auf dem geteilten
-     Deck (/deck/<uid>), und dort gibt es kein `.panel` darum herum, das
-     diese Token setzt. Ein `var()` ohne Wert waere dort ungueltig — die
-     gelbe Zahl faerbte sich still nicht mehr. */
-  --album-accent: var(--profile-accent, var(--et-accent));
+  /* Die Karte trägt ihr Vokabular selbst: sie steht auch auf dem geteilten Deck
+     (/deck/<uid>), wo kein `.panel` darum herum diese Token setzt. Ein `var()`
+     ohne Wert wäre dort ungültig. */
   --album-display: var(--et-font-display);
   display: grid;
   /* Ueber eine Variable, damit die Freundesreihe kleinere Karten stellen
@@ -124,13 +117,9 @@ div.player {
   cursor: default;
 }
 
-/* Zwei Zeilen statt einer Flaeche mit aufgelegtem Zeichen: die Figur steht
-   oben, der Name hat eine eigene Zeile darunter. Als absolut positioniertes
-   Zeichen lag „Aendern" auf 132 px Kartenbreite auf dem Fuss der Figur
-   (Nutzer, 04.09.2026: „das beruehrt den Avatar") — auf dem Desktop ging es
-   knapp auf, weil dort 186 px zur Verfuegung stehen. Eine echte Fusszeile
-   kann auf keiner Breite kollidieren, und die Must-Eat-Karten daneben haben
-   ihre Beschriftungszone unten ebenso. */
+/* Zwei Zeilen: die Figur steht oben, der Name hat eine eigene Zeile darunter.
+   Eine echte Fußzeile kann auf keiner Breite mit der Figur kollidieren, und die
+   Must-Eat-Karten daneben haben ihre Beschriftungszone ebenso unten. */
 .playerFrame {
   /* Der Container fuer die Namensgroesse unten. Er muss am RAHMEN haengen,
      nicht am Namen selbst: `cqw` misst immer den naechsten Vorfahren-
@@ -143,19 +132,9 @@ div.player {
   aspect-ratio: 1539 / 2115;
   overflow: hidden;
   padding: 7px;
-  /* Papier, nicht Gelb (Nutzer, 04.09.2026: „zu aggressiv"). Drei Anlaeufe
-     bis hierher, und die beiden davor waren beide falsch aus demselben
-     Grund — sie haben um Aufmerksamkeit mit dem Raster konkurriert, das
-     sie anfuehren soll. Ink las sich wie die leeren Plaetze darunter,
-     Vollgelb wie eine 27. Speisekarte: mehrere Must-Eat-Karten sind selbst
-     gelb, und Gelb ist hier ausserdem die Farbe der Labels und des einen
-     Knopfes.
-
-     Weiss ist die Grundfarbe der Marke und im ganzen Album die einzige
-     Flaeche, die sonst niemand hat. Die Figur ist ohnehin fuer hellen
-     Grund gezeichnet — auf der Startseite steht sie genauso. Der Rahmen
-     liegt jetzt INNEN um das Bildfeld statt bunt aussen herum: das ist der
-     Griff jeder gedruckten Sammelkarte, und er kostet keine Signalfarbe. */
+  /* Papier statt Signalfarbe: Weiß ist die Grundfarbe der Marke, und die Figur
+     ist für hellen Grund gezeichnet. Der Rahmen liegt innen um das Bildfeld,
+     wie bei jeder gedruckten Sammelkarte. */
   background: var(--et-white);
   border-radius: 7px;
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.45));
@@ -172,24 +151,12 @@ div.player {
   border-radius: 4px;
 }
 
-/* Absolut gesetzt, nicht im Fluss — und das ist keine Kosmetik.
-   `height: 100%` an einem Bild IM Raster loeste sich nicht auf: die Zeile
-   ist `minmax(0, 1fr)`, ihre Hoehe steht also erst nach dem Layout fest, und
-   fuer die Prozentangabe gilt sie als unbestimmt. Chrome fiel damit auf die
-   Eigenhoehe des Bildes zurueck — gemessen 194 px in einem 169 px hohen
-   Feld. `object-fit: contain` hatte nichts mehr zu tun (die Box trug schon
-   das Seitenverhaeltnis der Datei), und `overflow: hidden` schnitt die
-   unteren 25 px weg: den Sockel und die Fuesse der Figur.
-
-   Genau das war zu sehen (Nutzer, 04.09.2026: „ich will die Charaktere gut
-   erkennbar mit Fuessen haben") — und es traf jede Figur anders stark, weil
-   der Zuschnitt vom Seitenverhaeltnis der Einzeldatei abhing.
-
-   Absolut positioniert ist der Bezug der Prozentangabe der Polsterkasten des
-   Feldes, und der ist bestimmt. Das Innenpolster sitzt am Bild selbst: bei
-   einem ersetzten Element fuellt `object-fit` den INHALTS-Kasten, das
-   Polster wirkt also als Luft um die Figur — unten ein Rest weniger, damit
-   sie auf der Linie STEHT statt auf ihr zu kleben. */
+/* Absolut gesetzt, nicht im Fluss: `height: 100%` an einem Bild im Raster löst
+   sich nicht auf, weil die Zeile `minmax(0, 1fr)` ihre Höhe erst nach dem
+   Layout kennt. Absolut ist der Bezug der Prozentangabe der Polsterkasten des
+   Feldes, und der ist bestimmt. Das Innenpolster sitzt am Bild selbst:
+   `object-fit` füllt den Inhaltskasten, das Polster wirkt also als Luft um die
+   Figur — unten ein Rest weniger, damit sie auf der Linie steht. */
 .playerImg {
   position: absolute;
   inset: 0;
@@ -204,19 +171,9 @@ div.player {
   object-position: bottom;
 }
 
-/* Die Beschriftung der Karte, wie der Spielername auf einer Sammelkarte.
-   Unter der Karte war der Name eine Bildunterschrift und stand damit auf
-   derselben Stufe wie die Gerichtnamen im Raster daneben.
-
-   Ohne Trennstrich (Nutzer, 04.09.2026): auf der gelben Flaeche zerschnitt
-   die Linie die Karte in zwei Haelften, statt eine Fusszeile abzusetzen —
-   der Abstand allein traegt das.
-
-   Die Schriftgroesse folgt der Kartenbreite (cqw), nicht dem Fenster: eine
-   132 px schmale Karte auf dem Telefon und eine 186 px breite auf dem
-   Desktop sollen ihren Namen gleich gross ANTEILIG tragen. Ohne
-   Container-Query waere „Konstantin" auf dem Telefon zweizeilig und auf dem
-   Desktop verloren klein. */
+/* Die Beschriftung der Karte, wie der Spielername auf einer Sammelkarte, ohne
+   Trennstrich. Die Schriftgröße folgt der Kartenbreite (cqw), nicht dem
+   Fenster: der Name fällt auf jeder Kartengröße gleich anteilig aus. */
 .playerName {
   margin: 0;
   padding: 6px 2px 3px;
@@ -237,52 +194,6 @@ div.player {
 }
 
 /* ── Das Raster ───────────────────────────────────────────── */
-
-/* ── Abzeichen ──────────────────────────────────────────
-   Eine Zeile unter dem Raster. Bewusst KEINE Knoepfe: die Reiter darueber
-   sind welche, und zwei Reihen Pillen, von denen nur eine reagiert, sind
-   eine Falle. Also Ring statt Flaeche, gelb auf Ink — dieselbe Farbe wie
-   der volle Balken, und dieselbe Bedeutung. */
-.badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px clamp(12px, 1.4vw, 18px);
-  margin-top: clamp(22px, 3vw, 34px);
-}
-
-.badgesLabel {
-  flex: 0 0 auto;
-  color: var(--profile-muted, rgba(255, 255, 255, 0.76));
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.badgeList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.badge {
-  padding: 6px 12px 5px;
-  color: var(--et-accent-text);
-  border: 0;
-  border-radius: 999px;
-  font-family: var(--album-display, var(--et-font-display));
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.2;
-  text-transform: uppercase;
-}
 
 .grid {
   display: grid;
@@ -327,25 +238,52 @@ div.player {
   object-fit: contain;
 }
 
-.stamp {
+/* Nummer und Spot liegen als Klebeband auf dem Rücken — dieselben
+   Etiketten wie in der Map-Liste, der Spot unten. Die Namens-Etikette erbt ihre
+   Schriftgröße von hier. */
+.coveredLabels {
   position: absolute;
-  right: 6%;
-  bottom: 8%;
-  z-index: 2;
-  padding: 3px 8px;
-  background: var(--album-accent);
-  /* NICHT --album-ink: das ist auf dieser Fläche die SCHRIFTfarbe (weiß auf
-     Ink), und weiß auf Gelb wäre unleserlich. Auf einer gelben Fläche ist die
-     Tinte die Tinte. */
-  color: var(--et-on-accent);
-  border-radius: 3px;
-  font-family: var(--et-font-display);
-  font-size: clamp(8px, 1vw, 11px);
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1;
-  text-transform: uppercase;
-  transform: rotate(-7deg);
+  right: 7%;
+  bottom: 6%;
+  left: 7%;
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+  font-size: clamp(13px, 1.3vw, 16px);
+  line-height: 1.2;
+  text-align: left;
+  pointer-events: none;
+}
+/* Ein langer Name bricht um, statt über den Kartenrand zu ragen. */
+.coveredName {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.zoomLink {
+  max-width: min(84vw, 380px);
+}
+.zoomLinkText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page {
+  display: grid;
+  gap: 2px;
+  gap: 2px;
+}
+
+.pageTitle {
+  margin: 0;
+  color: var(--album-ink);
+  font: 700 clamp(28px, 3.6vw, 44px) / 1.05 var(--album-display);
+  letter-spacing: -0.03em;
 }
 
 .emptyText {

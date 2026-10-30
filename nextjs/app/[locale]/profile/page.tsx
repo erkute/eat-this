@@ -26,7 +26,7 @@ export default async function ProfileRoute({ params }: PageProps) {
   // fetch inside ProfileShell — the page only precomputes the public face-up
   // set. The old unauthenticated full-album fetch leaked every dish + image.
   const anon = await getInitialAnonMapData();
-  // The publicly face-up set (10 curated cards + spot-of-day) — "publicly
+  // The publicly face-up set (the 10 curated cards) — "publicly
   // face-up means face-up everywhere", so the collected grid shows these open
   // even before the user revealed anything on site.
   const publicFaceUpIds = Array.from(

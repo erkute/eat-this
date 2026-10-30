@@ -92,10 +92,7 @@ export default function Cards({ data }: { data: StatsSummary }) {
               <Tile label="Karten" value={NUMBER.format(deck.cards)} />
               <Tile label="offen ohne Konto" value={NUMBER.format(deck.publicCards)} />
               <Tile label="Spots" value={NUMBER.format(deck.spots)} />
-              <Tile
-                label="Starter Pack"
-                value={`${deck.starterCards} · ${deck.starterFaceUp} offen`}
-              />
+              <Tile label="Starter Pack" value={NUMBER.format(deck.starterCards)} />
             </div>
             <p className={styles.note}>
               Aktuell sind {deck.publicCards} Karten öffentlich sichtbar. Das Starter Pack enthält

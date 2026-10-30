@@ -7,7 +7,7 @@ import { STARTER_PARAM } from './loginContinueUrl';
  * Die Anmelde-Tafel auf der Karte verspricht: „20 Must Eats — diese ist
  * dabei." Damit das stimmt, muss die Karte den Weg zum Konto überleben und
  * beim Einlösen des Starter Packs (POST /api/starter-pack) mitfahren, wo sie
- * garantiert in die offene Hälfte kommt.
+ * garantiert dabei ist.
  *
  * Zwei Träger, aus demselben Grund wie beim Herz (lib/map/pendingHeart.ts):
  *   sessionStorage — Google. Das Popup bleibt im selben Dokument.

@@ -10,7 +10,7 @@
  * Startseite und geteiltes Deck. Der Text zum Code steht dort
  * (`modals.login.emptyEmail` / `invalidEmail`).
  */
-export type EmailShape = 'ok' | 'empty' | 'malformed';
+type EmailShape = 'ok' | 'empty' | 'malformed';
 
 export function isEmailish(value: string): EmailShape {
   const trimmed = value.trim();

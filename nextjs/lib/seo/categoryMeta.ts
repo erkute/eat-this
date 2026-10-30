@@ -115,7 +115,7 @@ export function buildCategoryDescription({
  */
 type CategoryTermKind = 'meal' | 'venue';
 
-export interface CategorySearchTerm {
+interface CategorySearchTerm {
   term: string;
   kind: CategoryTermKind;
 }

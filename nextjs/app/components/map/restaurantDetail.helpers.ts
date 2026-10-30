@@ -2,7 +2,7 @@
    component file so the .tsx reads as render-only and these are testable
    in isolation. None of them touch React or the DOM. */
 
-export type WebsiteInfo =
+type WebsiteInfo =
   | { kind: 'instagram'; url: string; handle: string | null }
   | { kind: 'web'; url: string; display: string };
 

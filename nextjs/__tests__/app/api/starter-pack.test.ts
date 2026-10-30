@@ -49,7 +49,6 @@ vi.mock('@/lib/firebase/entitlements', () => ({
     hasAllBerlin: false,
     categorySlugs: new Set(),
     mustEatIds: new Set(),
-    coveredMustEatIds: new Set(),
   }),
 }));
 
@@ -73,7 +72,7 @@ vi.mock('@/lib/must-eat/premium-access', () => ({
 }));
 
 import { POST } from '@/app/api/starter-pack/route';
-import { STARTER_PACK_CARDS, STARTER_PACK_FACE_UP } from '@/lib/starter-pack';
+import { STARTER_PACK_CARDS } from '@/lib/starter-pack';
 
 function req(token: string | null = 'tok', body?: Record<string, unknown>): Request {
   const headers = new Headers();
@@ -108,10 +107,8 @@ describe('/api/starter-pack', () => {
     expect((await POST(req())).status).toBe(401);
   });
 
-  /* Zwanzig Karten, halb offen, halb verdeckt — und die zwei Hälften sind
-     disjunkt. Eine Karte, die in beiden Listen steht, wäre offen UND eine
-     Aufgabe; das Album zeigte sie dann als erledigt und als ausstehend. */
-  it('grants the pack once: all cards face up, no overlap', async () => {
+  /* Zwanzig Karten, alle offen, jede nur einmal. */
+  it('grants the pack once: all cards face up, no duplicates', async () => {
     const res = await POST(req());
 
     expect(res.status).toBe(200);
@@ -120,21 +117,17 @@ describe('/api/starter-pack', () => {
       type: string;
       source: string;
       mustEatIds: string[];
-      coveredMustEatIds: string[];
     };
     expect(body).toEqual({
       granted: true,
       count: STARTER_PACK_CARDS,
-      faceUp: STARTER_PACK_FACE_UP,
       faceUpIds: doc.mustEatIds,
       wanted: false,
     });
     expect(doc.type).toBe('starter');
     expect(doc.source).toBe('signup');
-    expect(doc.mustEatIds).toHaveLength(STARTER_PACK_FACE_UP);
-    expect(doc.coveredMustEatIds).toHaveLength(STARTER_PACK_CARDS - STARTER_PACK_FACE_UP);
-    const all = [...doc.mustEatIds, ...doc.coveredMustEatIds];
-    expect(new Set(all).size).toBe(STARTER_PACK_CARDS);
+    expect(doc.mustEatIds).toHaveLength(STARTER_PACK_CARDS);
+    expect(new Set(doc.mustEatIds).size).toBe(STARTER_PACK_CARDS);
   });
 
   /* Die Anmelde-Tafel auf der Map verspricht „diese ist dabei" — die Karte,
@@ -144,11 +137,10 @@ describe('/api/starter-pack', () => {
     const res = await POST(req('tok', { mustEatId: 'm27' }));
 
     expect((await res.json()).wanted).toBe(true);
-    const doc = mocks.created[0] as { mustEatIds: string[]; coveredMustEatIds: string[] };
+    const doc = mocks.created[0] as { mustEatIds: string[] };
     expect(doc.mustEatIds[0]).toBe('m27');
-    expect(doc.coveredMustEatIds).not.toContain('m27');
-    expect(doc.mustEatIds).toHaveLength(STARTER_PACK_FACE_UP);
-    expect(new Set([...doc.mustEatIds, ...doc.coveredMustEatIds]).size).toBe(STARTER_PACK_CARDS);
+    expect(doc.mustEatIds).toHaveLength(STARTER_PACK_CARDS);
+    expect(new Set(doc.mustEatIds).size).toBe(STARTER_PACK_CARDS);
   });
 
   /* Eine Karte, die es nicht gibt oder die schon offen liegt, bricht nichts:
@@ -161,7 +153,7 @@ describe('/api/starter-pack', () => {
     expect((await res.json()).wanted).toBe(false);
     const doc = mocks.created[0] as { mustEatIds: string[] };
     expect(doc.mustEatIds).not.toContain('m01');
-    expect(doc.mustEatIds).toHaveLength(STARTER_PACK_FACE_UP);
+    expect(doc.mustEatIds).toHaveLength(STARTER_PACK_CARDS);
   });
 
   /* Was ohnehin für jeden offen liegt, ist kein Geschenk — sonst besteht das
@@ -172,9 +164,8 @@ describe('/api/starter-pack', () => {
 
     await POST(req());
 
-    const doc = mocks.created[0] as { mustEatIds: string[]; coveredMustEatIds: string[] };
-    const all = [...doc.mustEatIds, ...doc.coveredMustEatIds];
-    for (const id of ['m01', 'm02', 'm03']) expect(all).not.toContain(id);
+    const doc = mocks.created[0] as { mustEatIds: string[] };
+    for (const id of ['m01', 'm02', 'm03']) expect(doc.mustEatIds).not.toContain(id);
   });
 
   it('adds 20 distinct cards on top of the eight public cards', async () => {
@@ -182,17 +173,15 @@ describe('/api/starter-pack', () => {
     faceUp.ids = new Set(publicIds);
 
     const response = await POST(req());
-    expect(await response.json()).toMatchObject({ granted: true, count: 20, faceUp: 20 });
-    const doc = mocks.created[0] as { mustEatIds: string[]; coveredMustEatIds: string[] };
-    const added = [...doc.mustEatIds, ...doc.coveredMustEatIds];
+    expect(await response.json()).toMatchObject({ granted: true, count: 20 });
+    const doc = mocks.created[0] as { mustEatIds: string[] };
+    const added = doc.mustEatIds;
     expect(added).toHaveLength(20);
-    expect(doc.coveredMustEatIds).toHaveLength(0);
     expect(new Set([...publicIds, ...added]).size).toBe(28);
     for (const id of publicIds) expect(added).not.toContain(id);
   });
 
-  /* Reicht der Stapel nicht, bekommt die offene Hälfte den Vorrang: lieber
-     weniger zu holen als weniger zu sehen. */
+  /* Reicht der Stapel nicht, gibt es, was übrig ist. */
   it('gives out what is left when the deck is smaller than the pack', async () => {
     faceUp.ids = new Set(
       Array.from({ length: 22 }, (_, i) => `m${String(i + 1).padStart(2, '0')}`)
@@ -200,15 +189,13 @@ describe('/api/starter-pack', () => {
 
     const res = await POST(req());
 
-    const doc = mocks.created[0] as { mustEatIds: string[]; coveredMustEatIds: string[] };
+    const doc = mocks.created[0] as { mustEatIds: string[] };
     expect(await res.json()).toEqual({
       granted: true,
       count: 8,
-      faceUp: 8,
       faceUpIds: doc.mustEatIds,
       wanted: false,
     });
-    expect(doc.coveredMustEatIds).toHaveLength(0);
   });
 
   /* Die Tour zeigt beim Oeffnen die echten offenen Karten — deren Bilder

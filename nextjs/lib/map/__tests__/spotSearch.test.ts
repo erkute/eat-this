@@ -10,7 +10,9 @@ import {
 } from '../spotSearch';
 
 const entryFor = (partial: Partial<MapRestaurant>) =>
-  buildSearchIndex([{ _id: 'x', name: 'x', lat: 0, lng: 0, ...partial } as MapRestaurant], []).get('x')!;
+  buildSearchIndex([{ _id: 'x', name: 'x', lat: 0, lng: 0, ...partial } as MapRestaurant], []).get(
+    'x'
+  )!;
 
 describe('normalizeForSearch', () => {
   it('bringt alle Strassen-Schreibweisen auf eine Form', () => {
@@ -22,7 +24,10 @@ describe('normalizeForSearch', () => {
 
 describe('Suche über den gesamten öffentlichen Spot-Inhalt', () => {
   it('findet Gerichte aus dem öffentlichen Suchtext, auch ohne offene Must-Eat-Karte', () => {
-    const entry = entryFor({ name: 'Lunchlokal', searchText: 'hausgemachte tomatensuppe spaghetti' });
+    const entry = entryFor({
+      name: 'Lunchlokal',
+      searchText: 'hausgemachte tomatensuppe spaghetti',
+    });
     for (const query of ['Suppe', 'soup', 'Suppen', 'Nudeln']) {
       expect(matchesSearch(entry, parseQuery(query)), query).toBe(true);
     }
@@ -132,9 +137,20 @@ describe('Bezirke und Kieze', () => {
       bezirk: { name: 'Mitte' },
       searchText: 'Single Origins aus der eigenen Kreuzberger Röstung',
     },
-    { _id: 'n1', name: 'TiER', bezirk: { name: 'Neukölln' }, searchText: 'wie das Bellman in Kreuzberg' },
+    {
+      _id: 'n1',
+      name: 'TiER',
+      bezirk: { name: 'Neukölln' },
+      searchText: 'wie das Bellman in Kreuzberg',
+    },
     { _id: 'n2', name: 'Mittelmeer Grill', bezirk: { name: 'Neukölln' } },
-    { _id: 'p1', name: 'Pizza Nostra', bezirk: { name: 'Pankow' }, district: 'Prenzlauer Berg', searchText: 'pizza wie in kreuzberg' },
+    {
+      _id: 'p1',
+      name: 'Pizza Nostra',
+      bezirk: { name: 'Pankow' },
+      district: 'Prenzlauer Berg',
+      searchText: 'pizza wie in kreuzberg',
+    },
   ].map((r) => ({ lat: 0, lng: 0, ...r }) as MapRestaurant);
   const index = buildSearchIndex(spots, []);
   const hits = (q: string) =>
@@ -202,5 +218,39 @@ describe('Alltagswörter, die so an keinem Spot stehen', () => {
     expect(finds('nudeln', { cuisineType: 'Bakery' })).toBe(false);
     expect(finds('nudeln', { cuisineType: 'Italian / Pizza' })).toBe(false);
     expect(finds('asiatisch', { cuisineType: 'Italian' })).toBe(false);
+  });
+});
+
+describe('Alltagswörter (Katalog 30.10.2026)', () => {
+  it('findet dasselbe Essen auf Deutsch und Englisch', () => {
+    const chicken = entryFor({ searchText: 'fried chicken mit kimchi' });
+    for (const q of ['Hähnchen', 'Huhn', 'chicken']) {
+      expect(matchesSearch(chicken, parseQuery(q)), q).toBe(true);
+    }
+    const pancakes = entryFor({ searchText: 'buttermilk pancakes am wochenende' });
+    expect(matchesSearch(pancakes, parseQuery('Pfannkuchen'))).toBe(true);
+  });
+
+  it('meint mit einem Kaffeegetränk das Café', () => {
+    const cafe = entryFor({ name: 'Oslo Kaffebar', cuisineType: 'Coffee' });
+    for (const q of ['Cappuccino', 'Espresso', 'Latte']) {
+      expect(matchesSearch(cafe, parseQuery(q)), q).toBe(true);
+    }
+  });
+
+  it('lässt ein kurzes Wort nicht mitten im Wort treffen', () => {
+    expect(matchesSearch(entryFor({ searchText: 'rindfleisch mit reis' }), parseQuery('eis'))).toBe(
+      false
+    );
+    expect(
+      matchesSearch(entryFor({ searchText: 'das team grillt steak' }), parseQuery('tea'))
+    ).toBe(false);
+    expect(matchesSearch(entryFor({ cuisineType: 'Ice Cream' }), parseQuery('eis'))).toBe(true);
+  });
+
+  it('sucht nicht im Land der Adresse', () => {
+    const entry = entryFor({ address: 'Weinbergsweg 24, 10119 Berlin, Deutschland' });
+    expect(matchesSearch(entry, parseQuery('deutsch'))).toBe(false);
+    expect(matchesSearch(entry, parseQuery('Weinbergsweg 24'))).toBe(true);
   });
 });

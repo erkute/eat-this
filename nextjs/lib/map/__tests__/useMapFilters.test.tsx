@@ -347,13 +347,16 @@ describe('useMapFilters list order', () => {
   });
 
   it('lässt bei einer Suche die Treffergüte vor offen/geschlossen', () => {
-    const nameHit = spot({ name: 'Eisbar', openingHours: EVENING });
-    const midWord = spot({ name: 'Speiselokal', openingHours: MORNING });
+    const nameHit = spot({ name: 'Pizzabar', openingHours: EVENING });
+    const midWord = spot({ name: 'Steinofenpizza', openingHours: MORNING });
     const { result } = renderHook(() =>
       useMapFilters({ restaurants: [midWord, nameHit], location: null, orderedAt: MON_9AM })
     );
-    act(() => result.current.setSearch('eis'));
-    expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Eisbar', 'Speiselokal']);
+    act(() => result.current.setSearch('pizza'));
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual([
+      'Pizzabar',
+      'Steinofenpizza',
+    ]);
   });
 
   it('lets the map centre outrank the visitor once the map has been moved', () => {
@@ -487,8 +490,8 @@ describe('useMapFilters Suche', () => {
  *   sie auf einer Tastatur ohne Umlaute tippt.
  * - „strasse" — alle Adressen schreiben „straße".
  * - „x-berg", „f'hain" — so heissen die Kieze im Alltag.
- * Und „eis" stellte „Speiselokal" und „Geist im Glas" vor die Eisdielen,
- * weil die Liste nach Entfernung sortiert und nicht nach Treffer.
+ * Und „eis" holte „Speiselokal" und „Geist im Glas" zu den Eisdielen: ein
+ * kurzes Wort zählt deshalb nur am Wortanfang.
  */
 describe('useMapFilters Suche, zweite Runde', () => {
   const KATALOG: MapRestaurant[] = [
@@ -543,10 +546,10 @@ describe('useMapFilters Suche, zweite Runde', () => {
     expect(liste('p-berg')).toEqual(['Standard Serious Pizza']);
   });
 
-  it('stellt Namen, die mit dem Wort anfangen, vor Treffer mitten im Wort', () => {
+  it('findet ein kurzes Wort nur am Wortanfang, nicht mitten im Wort', () => {
     /* Der Standort liegt am Speiselokal; nach Entfernung stuende es vorn. */
     const amSpeiselokal = { lat: 52.5, lng: 13.4 };
-    expect(liste('eis', amSpeiselokal)).toEqual(['Natur Eis', 'Speiselokal Tulus Lotrek']);
+    expect(liste('eis', amSpeiselokal)).toEqual(['Natur Eis']);
   });
 });
 

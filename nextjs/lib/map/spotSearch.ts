@@ -56,18 +56,27 @@ const KIEZ_NAMES: [RegExp, string][] = [
    getippten Formen, dann was stattdessen auch trifft — am Wortanfang, damit
    „eis" als Alternative nicht in „Reisbar" landet.
 
-   Bewusst schmal. Nicht drin ist sushi → Japanisch: das lieferte Ramen.
-   Und cocktail → Bar nicht, weil „bar" auch „barlevain" trifft, eine
-   Bäckerei. Gemessen am echten Katalog, 28.09.2026: „brunch", „kebab",
-   „nkln" fanden nichts. */
+   Jede Zeile ist am echten Katalog gemessen (zuletzt 30.10.2026, 249 Spots)
+   und zeigt nur auf Wörter, die dort vorkommen. Eine Alternative, die mehr
+   Falsches als Richtiges holt, fliegt raus: sushi → Japanisch lieferte Ramen,
+   cocktail → Bar die Bäckerei „barlevain", maki traf „making". */
 const SYNONYMS: [string[], string[]][] = [
   [['brunch'], ['fruhstuck', 'breakfast']],
-  [['kebab', 'kebap', 'doner', 'doener'], ['kebab', 'kebap', 'doner', 'turkish', 'turkisch']],
+  [
+    ['kebab', 'kebap', 'doner', 'doener'],
+    ['kebab', 'kebap', 'doner', 'turkish', 'turkisch'],
+  ],
   [['nkln'], ['neukolln']],
   [['gelato'], ['eisdiele', 'ice cream']],
-  [['wein', 'naturwein'], ['wine', 'wein']],
+  [
+    ['wein', 'naturwein'],
+    ['wine', 'wein'],
+  ],
   [['pasta'], ['italian', 'italienisch']],
-  [['vegetarisch', 'veggie'], ['vegan', 'vegetarisch']],
+  [
+    ['vegetarisch', 'veggie'],
+    ['vegan', 'vegetarisch'],
+  ],
   [['brot'], ['bakery', 'backerei']],
   /* Was man isst, nicht wie die Küche heisst — „Nudeln" stand an keinem Spot
      und fand nichts (Betreiber, 29.09.2026). Jede Zeile zeigt nur auf Küchen
@@ -76,11 +85,30 @@ const SYNONYMS: [string[], string[]][] = [
     ['nudeln', 'nudel', 'noodle', 'noodles'],
     /* „italienisch", nicht „italian": Pizzerien stehen als „Italian / Pizza"
        im Index und heissen auf Deutsch „Pizza" — die sind hier nicht gemeint. */
-    ['nudel', 'nudeln', 'pasta', 'noodle', 'ramen', 'udon', 'soba', 'spaghetti',
-      'tagliatelle', 'linguine', 'fettuccine', 'penne', 'rigatoni', 'vermicelli',
-      'lasagne', 'lasagna', 'italienisch'],
+    [
+      'nudel',
+      'nudeln',
+      'pasta',
+      'noodle',
+      'ramen',
+      'udon',
+      'soba',
+      'spaghetti',
+      'tagliatelle',
+      'linguine',
+      'fettuccine',
+      'penne',
+      'rigatoni',
+      'vermicelli',
+      'lasagne',
+      'lasagna',
+      'italienisch',
+    ],
   ],
-  [['suppe', 'suppen', 'soup', 'soups'], ['suppe', 'suppen', 'soup', 'ramen', 'pho', 'laksa']],
+  [
+    ['suppe', 'suppen', 'soup', 'soups'],
+    ['suppe', 'suppen', 'soup', 'ramen', 'pho', 'laksa'],
+  ],
   [['pho'], ['vietnamese', 'vietnamesisch']],
   [
     ['asiatisch', 'asiate', 'asia', 'asian'],
@@ -108,8 +136,8 @@ const SYNONYMS: [string[], string[]][] = [
     ['israeli', 'israelisch', 'middle eastern', 'orientalisch'],
   ],
   [
-    ['dumplings', 'dumpling', 'teigtaschen'],
-    ['chinese', 'chinesisch'],
+    ['dumplings', 'dumpling', 'teigtaschen', 'gyoza', 'wonton', 'wantan', 'jiaozi', 'baozi'],
+    ['dumpling', 'teigtasche', 'gyoza', 'wonton', 'jiaozi', 'chinese', 'chinesisch'],
   ],
   [
     ['kuchen', 'torte'],
@@ -119,6 +147,124 @@ const SYNONYMS: [string[], string[]][] = [
   [['eiscafe'], ['ice cream', 'eisdiele', 'gelato']],
   [['mittag', 'mittagessen'], ['lunch']],
   [['abendessen', 'abends'], ['dinner']],
+  /* Dasselbe Essen auf Deutsch und Englisch, in beide Richtungen: die Texte
+     stehen in beiden Sprachen, aber nicht jeder Spot nennt beide Wörter
+     (Katalog 30.10.2026: „Hähnchen" fand 15, „chicken" 27). */
+  [
+    ['hahnchen', 'huhn', 'chicken', 'hendl', 'poulet'],
+    ['hahnchen', 'huhn', 'chicken', 'hendl', 'poulet', 'geflugel'],
+  ],
+  [
+    ['fisch', 'fish'],
+    ['fisch', 'fish', 'seafood', 'meeresfruchte'],
+  ],
+  [
+    ['pommes', 'fries', 'frites'],
+    ['pommes', 'fries', 'frites'],
+  ],
+  [
+    ['eier', 'egg', 'eggs'],
+    ['eier', 'egg', 'spiegelei', 'omelett', 'shakshuka'],
+  ],
+  [
+    ['rind', 'rindfleisch', 'beef'],
+    ['rind', 'beef', 'wagyu', 'steak'],
+  ],
+  [
+    ['schwein', 'schweinefleisch', 'pork'],
+    ['schwein', 'pork'],
+  ],
+  [
+    ['lamm', 'lamb'],
+    ['lamm', 'lamb'],
+  ],
+  [
+    ['ente', 'duck'],
+    ['ente', 'duck'],
+  ],
+  [
+    ['tee', 'tea'],
+    ['tee', 'tea', 'matcha', 'chai'],
+  ],
+  [
+    ['kakao', 'cacao', 'cocoa'],
+    ['kakao', 'cacao', 'cocoa'],
+  ],
+  [
+    ['bier', 'beer'],
+    ['bier', 'beer', 'brauerei', 'brewery'],
+  ],
+  [
+    ['smoothie', 'smoothies', 'saft', 'juice'],
+    ['smoothie', 'saft', 'juice'],
+  ],
+  /* Ein Kaffeegetränk meint das Café, nicht nur die Spots, die das Wort
+     zufällig schreiben: „Cappuccino" fand einen einzigen. */
+  [
+    ['cappuccino', 'espresso', 'latte', 'kaffee', 'coffee', 'cortado'],
+    ['kaffee', 'coffee', 'cafe', 'espresso', 'cappuccino', 'roaster', 'rosterei'],
+  ],
+  [
+    ['eis', 'eiscreme', 'icecream', 'glace'],
+    ['ice cream', 'eisdiele', 'gelato', 'eiscafe', 'sorbet'],
+  ],
+  [
+    ['pfannkuchen', 'eierkuchen'],
+    ['pancake', 'pfannkuchen'],
+  ],
+  [
+    ['frikadelle', 'frikadellen', 'bulette', 'buletten', 'fleischpflanzerl'],
+    ['frikadelle', 'bulette', 'boulette'],
+  ],
+  [['cheeseburger', 'hamburger'], ['burger']],
+  [
+    ['sashimi', 'nigiri'],
+    ['sushi', 'sashimi', 'nigiri'],
+  ],
+  [
+    ['bulgogi', 'bibimbap'],
+    ['korean', 'koreanisch', 'bulgogi', 'bibimbap'],
+  ],
+  [
+    ['gyros', 'souvlaki', 'tzatziki'],
+    ['griechisch', 'greek', 'gyros', 'souvlaki'],
+  ],
+  [
+    ['lahmacun', 'pide'],
+    ['turkish', 'turkisch', 'lahmacun', 'pide'],
+  ],
+  [
+    ['tacos', 'taco', 'burrito', 'quesadilla', 'nachos'],
+    ['mexican', 'mexikanisch', 'taco', 'burrito', 'quesadilla'],
+  ],
+  [
+    ['khachapuri', 'khinkali'],
+    ['georgisch', 'georgian'],
+  ],
+  [
+    ['donut', 'donuts', 'doughnut', 'krapfen'],
+    ['donut', 'doughnut', 'krapfen', 'graffa'],
+  ],
+  [
+    ['zimtschnecke', 'zimtschnecken', 'kanelbulle'],
+    ['zimtschnecke', 'kanelbulle'],
+  ],
+  [
+    ['geback', 'pastry', 'pastries', 'plunder', 'teilchen'],
+    ['croissant', 'backerei', 'bakery', 'patisserie', 'plunder', 'zimtschnecke'],
+  ],
+  [
+    ['sandwich', 'sandwiches', 'stulle', 'panini'],
+    ['sandwich', 'stulle', 'panini', 'banh mi', 'bagel', 'deli'],
+  ],
+  [
+    ['bowl', 'bowls'],
+    ['bowl', 'poke'],
+  ],
+  [
+    ['pflanzlich', 'plantbased'],
+    ['vegan', 'plant'],
+  ],
 ];
 const SYNONYMS_BY_WORD = new Map(
   SYNONYMS.flatMap(([words, alternatives]) =>
@@ -181,7 +327,7 @@ export function parseQuery(query: string, index?: Map<string, SearchEntry>): Que
       /* „nkln" ist selbst kein Ortswort, meint aber nur eins. */
       const place = Boolean(
         places &&
-          (places.has(text) || (alternatives.length > 0 && alternatives.every((a) => places.has(a))))
+        (places.has(text) || (alternatives.length > 0 && alternatives.every((a) => places.has(a))))
       );
       return place ? { text, alternatives, place } : { text, alternatives };
     });
@@ -228,7 +374,9 @@ export function buildSearchIndex(
       /* Die Strasse. Seit 28.09.2026 wieder im Kartenpayload
          (mapRestaurantsQuery) — davor stand sie nur hier, und
          „kastanienallee" fand nichts. */
-      r.address,
+      /* Ohne das Land: importierte Adressen enden auf „, Deutschland", und
+         „deutsch" fand sonst 174 von 249 Spots. */
+      r.address?.replace(/,\s*(Deutschland|Germany)\s*$/i, ''),
       r.searchText,
       r.cuisineType,
       /* Die Küche steht in Sanity ENGLISCH („Vietnamese"), auf den
@@ -250,6 +398,8 @@ export function buildSearchIndex(
   }
   return index;
 }
+
+const SUBSTRING_MIN_LENGTH = 4;
 
 /* Ab dieser Länge darf ein Wort einen Buchstaben danebenliegen. Kürzer rät
    die Suche zu viel: „ruz" wäre „rutz", „reis", „rum". */
@@ -291,6 +441,27 @@ function nearWordStart(words: string[], token: string): boolean {
    Reisnudeln. Diese Endungen dürfen auch die englischen Suchwörter treffen. */
 const FOOD_ENDINGS = new Set(['suppe', 'suppen', 'nudel', 'nudeln']);
 
+/* Ein kurzes Wort steckt sonst überall mitten drin: „eis" in Fleisch, heißt
+   und weiße (123 von 249 Spots), „tea" in Team und Steak. Unter vier
+   Buchstaben zählt es deshalb im Text nur als ganzes Wort (auch im Plural)
+   und am Wortanfang nur im Namen — dort tippt man es an: „piz" findet die
+   Pizzeria. Ab vier Buchstaben darf es mitten im Wort stehen: „suppe" in
+   „Tomatensuppe". */
+function isWholeWord(entry: SearchEntry, token: string): boolean {
+  return entry.words.includes(token) || entry.words.includes(`${token}s`);
+}
+
+function textMatches(entry: SearchEntry, token: string): boolean {
+  if (token.length >= SUBSTRING_MIN_LENGTH) return entry.all.includes(token);
+  return startsWord(entry.name, token) || isWholeWord(entry, token);
+}
+
+/** Eine Alternative trifft am Wortanfang; kurze nur als ganzes Wort. */
+function altMatches(entry: SearchEntry, alt: string): boolean {
+  if (alt.length >= SUBSTRING_MIN_LENGTH || alt.includes(' ')) return startsWord(entry.all, alt);
+  return isWholeWord(entry, alt);
+}
+
 function wordMatches(entry: SearchEntry, word: QueryWord, fuzzy: boolean): boolean {
   if (word.place) {
     /* Die Lage oder der Name — sonst verschwände „Bergmanns" aus den
@@ -299,11 +470,15 @@ function wordMatches(entry: SearchEntry, word: QueryWord, fuzzy: boolean): boole
       (t) => startsWord(entry.area, t) || startsWord(entry.name, t)
     );
   }
-  if (entry.all.includes(word.text)) return true;
-  if (word.alternatives.some((alt) =>
-    startsWord(entry.all, alt) ||
-    (FOOD_ENDINGS.has(alt) && entry.words.some((term) => term.endsWith(alt)))
-  )) return true;
+  if (textMatches(entry, word.text)) return true;
+  if (
+    word.alternatives.some(
+      (alt) =>
+        altMatches(entry, alt) ||
+        (FOOD_ENDINGS.has(alt) && entry.words.some((term) => term.endsWith(alt)))
+    )
+  )
+    return true;
   return fuzzy && nearWordStart(entry.words, word.text);
 }
 
@@ -338,7 +513,8 @@ export function searchRank(entry: SearchEntry, query: QueryWord[]): number {
   if (query.every((w) => startsWord(entry.name, w.text))) return 0;
   if (
     query.every(
-      (w) => startsWord(entry.all, w.text) || w.alternatives.some((alt) => startsWord(entry.all, alt))
+      (w) =>
+        startsWord(entry.all, w.text) || w.alternatives.some((alt) => startsWord(entry.all, alt))
     )
   ) {
     return 1;

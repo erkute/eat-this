@@ -130,12 +130,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const sessionUid = await readPremiumSessionUid(
       request.cookies.get(premiumSessionCookieName())?.value
     );
-    const cookieIds = sessionUid
+    const cookieAccess = sessionUid
       ? readPremiumAccessToken(capability, sessionUid)
       : process.env.NODE_ENV !== 'production'
         ? readPremiumAccessToken(capability, 'development')
-        : new Set<string>();
-    allowed = cookieIds.has(id);
+        : null;
+    allowed = cookieAccess?.has(id) ?? false;
   }
   if (!allowed) {
     const response = NextResponse.json({ error: 'forbidden' }, { status: 403 });

@@ -539,6 +539,40 @@ describe.each(['list', 'detail'] as const)('phone touch grip gestures in a %s', 
     expect(sheet().style.transform).toBe('');
   });
 
+  it('lets go of a pull whose release never arrives', async () => {
+    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+    window.scrollY = DEEP;
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 100, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 220, 80, 'touch'));
+    // iOS Safari dropped the pointerup; only the touch end comes.
+    window.dispatchEvent(Object.assign(new Event('touchend'), { touches: [] }));
+    await settle();
+    expect(window.scrollY).toBe(REST_OFFSET - 120);
+    expect(sheet().style.transform).toBe('');
+    // The article scrolls natively again.
+    const move = new Event('touchmove', { bubbles: true, cancelable: true });
+    sheet().dispatchEvent(move);
+    expect(move.defaultPrevented).toBe(false);
+  });
+
+  it('frees the sheet on the next touch when the whole release went missing', async () => {
+    render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
+    window.scrollY = DEEP;
+    const handle = document.querySelector('[data-sheet-handle]')!;
+    handle.dispatchEvent(pointer('pointerdown', 100, 0, 'touch'));
+    handle.dispatchEvent(pointer('pointermove', 220, 80, 'touch'));
+    // A new finger on the article, with its own pointer.
+    const next = pointer('pointerdown', 500, 2000, 'touch');
+    Object.assign(next, { pointerId: 2, isPrimary: true });
+    document.querySelector('[data-sheet-content]')!.dispatchEvent(next);
+    await settle();
+    expect(window.scrollY).toBe(REST_OFFSET - 120);
+    const move = new Event('touchmove', { bubbles: true, cancelable: true });
+    sheet().dispatchEvent(move);
+    expect(move.defaultPrevented).toBe(false);
+  });
+
   it('keeps the touch tap shortcut', async () => {
     render(<Harness view={view} detailKind={view === 'detail' ? 'restaurant' : undefined} />);
     window.scrollY = DEEP;

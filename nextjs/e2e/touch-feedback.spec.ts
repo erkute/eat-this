@@ -1,5 +1,18 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 import { CONSENT_VERSION } from '../lib/consent';
+
+function nativeTapHighlights(controls: Locator) {
+  return controls.evaluateAll(elements => elements
+    // Only rendered controls can produce a visible tap highlight.
+    .filter(element => element.getClientRects().length > 0 && getComputedStyle(element).visibility === 'visible')
+    .filter(element => getComputedStyle(element).getPropertyValue('-webkit-tap-highlight-color') !== 'rgba(0, 0, 0, 0)')
+    .map(element => ({
+      tag: element.tagName,
+      label: element.getAttribute('aria-label'),
+      text: element.textContent?.slice(0, 60),
+      highlight: getComputedStyle(element).getPropertyValue('-webkit-tap-highlight-color'),
+    })));
+}
 
 test.beforeEach(async ({ page, context, baseURL }) => {
   await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
@@ -14,12 +27,21 @@ for (const route of ['/', '/en/news', '/news/gazzo-pizza-neukoelln', '/map?r=gaz
     await expect(page.locator('main')).toBeVisible();
     const controls = page.locator('a[href], button, summary, input, select, textarea, [role="button"]');
     expect(await controls.count()).toBeGreaterThan(0);
-    const nativeHighlights = await controls.evaluateAll(elements => elements
-      .filter(element => getComputedStyle(element).getPropertyValue('-webkit-tap-highlight-color') !== 'rgba(0, 0, 0, 0)')
-      .map(element => ({ tag: element.tagName, label: element.getAttribute('aria-label'), text: element.textContent?.slice(0, 60) })));
-    expect(nativeHighlights).toEqual([]);
+    expect(await nativeTapHighlights(controls)).toEqual([]);
   });
 }
+
+test('footer opens cookie preferences without native tap frames', async ({ page, isMobile }) => {
+  await page.goto('/about');
+  const settings = page.locator('[data-site-footer]').getByRole('button', { name: 'Cookies verwalten', exact: true });
+  if (isMobile) await settings.tap();
+  else await settings.click();
+  const dialog = page.locator('#cookieConsent');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Akzeptieren', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Ablehnen', exact: true })).toBeVisible();
+  expect(await nativeTapHighlights(dialog.locator('a[href], button, summary'))).toEqual([]);
+});
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {
   test(`touch is frame-free and keyboard focus stays visible (${reducedMotion})`, async ({ page, isMobile }) => {

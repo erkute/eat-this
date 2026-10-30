@@ -1341,57 +1341,22 @@ html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie
   }
 }
 
-/* ---------------------------------------------------------------------------
-   Druckzustand: jeder Knopf geht beim Drücken nach unten.
-
-   Bis 04.09.2026 kam die Rückmeldung auf dem Telefon versehentlich aus
-   `:hover` — der klebt auf Touch nach der Berührung. Seit die Hover-Stile
-   hinter `(hover: hover)` liegen, war das weg, und viele Knöpfe hatten gar
-   keine Rückmeldung mehr: die Filterzeilen hatten nie eine, und rund ein
-   Dutzend Knöpfe trug `:active { transform: translateY(0) }` — das war die
-   RÜCKKEHR aus einem Hover-Lift, ohne Hover also eine Anweisung, sich nicht
-   zu bewegen.
-
-   Bewusst die eigenständige `translate`-Eigenschaft statt `transform`: sie
-   VERRECHNET sich mit vorhandenen transform-Werten, statt sie zu überschreiben.
-   Ein `transform: rotate(-4deg)` (Pins), `translate(-50%, -50%)` (zentrierte
-   Ebenen) oder ein Hover-Lift bleibt damit stehen. Mit `transform` hätte eine
-   pauschale Regel genau die Elemente zerlegt, die schon eins tragen.
-   Nebeneffekt, der passt: wo der Hover −1px hebt, steht der Druck auf 0 —
-   dieselbe Bewegung wie vorher.
-
-   1px, weil das die Hausgeste ist (`.et-btn` und rund zwanzig
-   weitere Regeln machen das seit jeher so). Wer das ändert, ändert es hier.
-
-   `summary` ist mit drin: die FAQ-Zeilen sind Knöpfe, auch wenn sie keine sind.
-   Deaktivierte Knöpfe bleiben stehen — ein Druck, der nichts auslöst, darf auch
-   nicht so aussehen. */
-button:not(:disabled):active,
-summary:active,
-[role='button']:not([aria-disabled='true']):active,
-.et-btn:active {
-  translate: 0 1px;
+/* Beim Drücken werden Links, Karten und Bedienelemente sichtbar gedimmt.
+   Der Zustand erscheint sofort und bleibt auch mit Reduced Motion erkennbar.
+   Tastaturfokus hat seine eigene Markierung über :focus-visible. */
+:is(a[href], button, summary, [role='button']):not(:disabled, [aria-disabled='true']):is(:active, [data-et-pressed]) {
+  opacity: 0.85;
+  transition-property: none;
 }
 
-/* Kacheln drücken sich, statt zu nicken.
-
-   Die Regel darüber trifft nur Knöpfe. Die grossen Kacheln sind Links —
-   Restaurant, Magazin, Must-Eat-Karte, die Hero-Telefone —
-   und hatten damit auf dem Telefon gar keine Rückmeldung: ihre Antwort auf
-   eine Berührung war ein Hover, und der liegt seit 04.09.2026 hinter
-   `(hover: hover)`. Gemeldet als „ich klicke ein Restaurant an und es
-   passiert nichts".
-
-   1px wäre an einer 358x533-Kachel nicht zu sehen, deshalb eine eigene
-   Geste: die Kachel geht als Ganzes eine Spur zurück. Der Wert steht hier,
-   angewandt wird er in dem Modul, das den Hover der Kachel ohnehin
-   beschreibt — über die eigenständige `scale`-Eigenschaft, aus demselben
-   Grund wie `translate` oben: sie verrechnet sich mit einem vorhandenen
-   `transform` (gekippte Karten), statt es zu überschreiben.
-
-   Text-Links bekommen keine Bewegung, sondern den Farbwechsel, den ihr
-   Hover schon kennt — eine Zeile im Fliesstext, die beim Antippen springt,
-   liest sich als Fehler. */
+/* Die eigenständige translate-Eigenschaft erhält vorhandene Drehungen und
+   Zentrierungen. Karten setzen ihre zusätzliche Skalierung im jeweiligen Modul. */
+button:not(:disabled, [aria-disabled='true']):active,
+summary:active,
+[role='button']:not([aria-disabled='true']):active,
+.et-btn:not(:disabled, [aria-disabled='true']):active {
+  translate: 0 1px;
+}
 :root {
   --et-press-tile: 0.985;
 }
@@ -1813,6 +1778,15 @@ html[data-theme='dark'] .et-btn-text {
     color: var(--et-tape-fg);
   }
 }
+/* Textknöpfe antworten zusätzlich mit ihrer Flächenfarbe. Die Map-Bedienung
+   behält ihre freigestellte Bandform und nutzt das gemeinsame Dimm-Feedback. */
+.et-btn:not(:disabled, [aria-disabled='true'], .et-btn-map-control):is(:active, [data-et-pressed]) {
+  background-color: var(--et-btn-hover, var(--et-accent));
+  color: var(--et-btn-hover-fg, #fff);
+}
+.et-btn.et-btn-text:not(:disabled, [aria-disabled='true']):is(:active, [data-et-pressed]) {
+  color: var(--et-fg);
+}
 /* Fokus als Fläche, kein Ring: ein Ring mit Abstand um die Pille las sich
    als doppelter Rahmen (Ansage 22.10.2026: „kein doppelten Rahmen im
    Button"). Gelb mit Ink-Schrift — dieselbe Fläche wie ein gesetzter Filter. */
@@ -1834,6 +1808,19 @@ html[data-theme='dark'] .et-btn-text {
 .et-btn[aria-disabled='true'] {
   opacity: 0.55;
   cursor: not-allowed;
+}
+/* The footer stays on light paper in both themes. */
+[data-site-footer] .et-btn.et-btn-text {
+  --et-btn-fg: var(--et-fg);
+  --et-btn-hover-fg: var(--et-muted);
+}
+[data-site-footer] .et-btn.et-btn-text:focus-visible {
+  outline: 2px solid var(--et-fg);
+  outline-offset: 4px;
+}
+[data-site-footer] .et-btn.et-btn-text:is(:active, [data-et-pressed]) {
+  color: var(--et-accent);
+  opacity: 1;
 }
 /* ---------------------------------------------------------------------------
    Das Etikett. Ein aufgeklebter Zettel wie der Spot-Name auf den

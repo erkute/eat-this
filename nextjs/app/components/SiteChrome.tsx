@@ -8,6 +8,7 @@ import BridgeAuth from '@/app/[locale]/(spa)/BridgeAuth';
 import BurgerDrawer from './BurgerDrawer';
 import SiteFooter from './SiteFooter';
 import SiteNav from './SiteNav';
+import PressFeedback from './PressFeedback';
 import RemyDock from './buddy/RemyDock';
 
 interface ChromeOptions {
@@ -49,6 +50,7 @@ export default function SiteChrome({
   const body = (
     <>
       <BridgeAuth />
+      <PressFeedback />
       <SiteNav />
       <BurgerDrawer />
       {appPages ? (

@@ -105,7 +105,7 @@ export default function SiteFooter() {
         </Link>
         <button
           type="button"
-          className={`${styles.legalLink} ${styles.legalBtn}`}
+          className={`et-btn et-btn-sm et-btn-text ${styles.legalBtn}`}
           onClick={() => window.dispatchEvent(new Event('eatthis:open-cookie-settings'))}
         >
           {t('footer.cookieSettings')}

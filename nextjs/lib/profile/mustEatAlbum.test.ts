@@ -70,6 +70,15 @@ describe('buildAlbum', () => {
     expect(slots[0].slug).toBe('r');
   });
 
+  it('gives every slot its district, the covered ones too', () => {
+    const { slots } = buildAlbum(all, new Set(['b']));
+    expect(slots.map((s) => [s.no, s.district])).toEqual([
+      ['003', 'Mitte'],
+      ['007', 'Kreuzberg'],
+      ['012', 'Kreuzberg'],
+    ]);
+  });
+
   it('numbers are stable regardless of which are collected', () => {
     const a = buildAlbum(all, new Set());
     const b = buildAlbum(all, new Set(['b', 'c']));

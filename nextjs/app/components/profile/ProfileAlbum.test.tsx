@@ -5,7 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
 
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string, values?: Record<string, string>) =>
+    values ? `${key}:${Object.values(values).join(',')}` : key,
 }));
 /* Der Zoom selbst ist hier nicht der Gegenstand — nur, WAS das Album ihm als
    Ausgang mitgibt. Der Mock rendert darum genau diesen Slot. */
@@ -44,7 +45,85 @@ describe('ProfileAlbum', () => {
     );
     expect(
       screen.getAllByRole('button').map((button) => button.getAttribute('aria-label'))
-    ).toEqual(['albumCard 001', 'Second', 'Third']);
+    ).toEqual(['albumCard 001, Spot, Berlin', 'Second', 'Third']);
+  });
+
+  /* Der leere Platz sagt, wohin man muss: Spot, Bezirk und Nummer stehen auf dem
+     Rücken. Das Gericht kennt das Album nicht — es kommt gar nicht erst an. */
+  it('names spot and number on a covered card, the district only as page title', () => {
+    const covered: MapMustEat = {
+      _id: 'c1',
+      order: 31,
+      restaurant: { _id: 'r1', name: 'Bar Basta', slug: 'bar-basta', lat: 52.5, lng: 13.4 },
+    };
+    render(<ProfileAlbum mustEats={[covered]} faceUpIds={new Set()} groupOf={() => 'Mitte'} />);
+
+    expect(screen.getByText('Bar Basta')).toBeTruthy();
+    // Der Bezirk steht nur als Seitentitel, nicht noch einmal auf der Karte.
+    expect(screen.getAllByText('Mitte')).toHaveLength(1);
+    // Keine Nummer auf der Karte; nur im zugänglichen Namen.
+    expect(screen.queryByText(/031/)).toBeNull();
+    expect(screen.getByRole('button', { name: 'albumCard 031, Bar Basta, Mitte' })).toBeTruthy();
+  });
+
+  const spot = (id: string, name: string, order: number, restaurantId: string): MapMustEat => ({
+    _id: id,
+    order,
+    restaurant: { _id: restaurantId, name, slug: name.toLowerCase(), lat: 52.5, lng: 13.4 },
+  });
+
+  it('lays the album out as one page per district, each with its title', () => {
+    render(
+      <ProfileAlbum
+        mustEats={[
+          spot('a', 'Alpha', 1, 'r1'),
+          spot('b', 'Beta', 2, 'r2'),
+          spot('c', 'Gamma', 3, 'r3'),
+        ]}
+        faceUpIds={new Set()}
+        groupOf={(m) => (m._id === 'b' ? 'Wedding' : 'Mitte')}
+      />
+    );
+
+    const titles = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    expect(titles).toEqual(['Mitte', 'Wedding']);
+    expect(screen.getAllByRole('region')).toHaveLength(2);
+  });
+
+  it('holds back the count and the hand until the data of this visit is there', () => {
+    const open: MapMustEat = {
+      _id: 'o1',
+      order: 1,
+      dish: 'Ramen',
+      image: '/api/must-eat-image/o1',
+      restaurant: { _id: 'r1', name: 'Bar Basta', slug: 'bar-basta', lat: 52.5, lng: 13.4 },
+    };
+    const { container, rerender } = render(
+      <ProfileAlbum mustEats={[open]} faceUpIds={new Set(['o1'])} countReady={false} />
+    );
+    const bar = screen.getByRole('progressbar');
+    expect(bar.getAttribute('aria-busy')).toBe('true');
+    expect(bar.querySelector('strong')?.textContent).not.toMatch(/\d/);
+    expect(container.querySelector('[class*="handFan"]')).toBeNull();
+
+    rerender(<ProfileAlbum mustEats={[open]} faceUpIds={new Set(['o1'])} countReady />);
+    expect(screen.getByRole('progressbar').getAttribute('aria-busy')).toBe('false');
+    expect(screen.getByRole('progressbar').querySelector('strong')?.textContent).toBe('1');
+    expect(container.querySelector('[class*="handFan"]')).not.toBeNull();
+  });
+
+  it('shows no spot labels on an open card', () => {
+    const open: MapMustEat = {
+      _id: 'o1',
+      order: 5,
+      dish: 'Ramen',
+      image: '/api/must-eat-image/o1',
+      restaurant: { _id: 'r1', name: 'Bar Basta', slug: 'bar-basta', lat: 52.5, lng: 13.4 },
+    };
+    render(<ProfileAlbum mustEats={[open]} faceUpIds={new Set(['o1'])} />);
+
+    expect(screen.queryByText('Bar Basta')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Ramen' })).toBeTruthy();
   });
 
   it('loads protected Must-Eat images directly so the browser sends its capability cookie', () => {
@@ -114,7 +193,7 @@ describe('ProfileAlbum', () => {
     expect(order.indexOf('srcset')).toBeLessThan(order.indexOf('src'));
   });
 
-  it('zeigt verdeckte Karten ohne Spotnamen oder sichtbare Nummer', () => {
+  it('zeigt auf einer verdeckten Karte nur den Rücken, nie Gericht oder Bild', () => {
     const covered: MapMustEat = {
       _id: 'm2',
       order: 26,
@@ -123,10 +202,8 @@ describe('ProfileAlbum', () => {
 
     const { container } = render(<ProfileAlbum mustEats={[covered]} faceUpIds={new Set()} />);
 
-    const slot = screen.getByLabelText('albumCard 026');
-    expect(slot.textContent).toBe('');
+    const slot = screen.getByLabelText('albumCard 026, Cafe Kranzler, Berlin');
     expect(slot.querySelector('img')?.getAttribute('src')).toContain('/pics/card-back.webp');
-    /* Und weiterhin kein Gericht, kein Bild der Karte: nur die Rueckseite. */
     expect(container.querySelector('img[src^="/api/must-eat-image"]')).toBeNull();
   });
 
@@ -146,10 +223,10 @@ describe('ProfileAlbum', () => {
 
     render(<ProfileAlbum mustEats={[covered, open]} faceUpIds={new Set(['m4'])} />);
 
-    fireEvent.click(screen.getByLabelText('albumCard 004'));
-    expect(screen.getByRole('link', { name: 'albumOpenDetail' }).getAttribute('href')).toBe(
-      '/map?me=m3'
-    );
+    fireEvent.click(screen.getByLabelText('albumCard 004, Atelier Dough, Berlin'));
+    expect(
+      screen.getByRole('link', { name: 'albumToSpot:Atelier Dough' }).getAttribute('href')
+    ).toBe('/map?me=m3');
   });
 
   it('öffnet auch aus einer offenen Karte das zugehörige Must-Eat-Detail', () => {
@@ -164,7 +241,7 @@ describe('ProfileAlbum', () => {
     render(<ProfileAlbum mustEats={[open]} faceUpIds={new Set(['m4'])} />);
 
     fireEvent.click(screen.getByLabelText('Donut'));
-    expect(screen.getByRole('link', { name: 'albumOpenDetail' }).getAttribute('href')).toBe(
+    expect(screen.getByRole('link', { name: 'albumOpenSpot' }).getAttribute('href')).toBe(
       '/map?me=m4'
     );
   });

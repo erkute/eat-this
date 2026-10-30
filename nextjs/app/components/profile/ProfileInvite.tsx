@@ -11,21 +11,14 @@ import styles from './Profile.module.css';
 const CARD_BACK = '/pics/card-back.webp?v=20261028';
 const FAN_SIZE = 3;
 
-// The referral machinery has been complete on the server since day one
-// (middleware captures ?ref=<uid> → /api/referral/confirm awards both sides)
-// but had no front door anywhere in the app. This is it.
+// Der Einstieg ins Einladen: geteilt wird das eigene Deck
+// (/deck/<uid>?ref=<uid>), das erst zeigt, wie viel von Berlin auf der Map
+// liegt — die Einladung ist der Nebeneffekt. Die Middleware fängt `?ref` ab,
+// /api/referral/confirm schreibt beiden Seiten ihre Karte gut.
 //
-// Geteilt wird seit 31.08.2026 das eigene Deck, nicht mehr die Startseite.
-// Ein nackter Link auf `/` mit angehaengtem ?ref war eine Bitte: „mach das
-// hier auch mit". /deck/<uid> zeigt erst, wie viel von Berlin auf dieser Map
-// liegt — die Einladung ist der Nebeneffekt. Das `?ref` bleibt derselbe
-// Parameter an derselben Middleware, nur an einer URL, die fuer sich etwas
-// hergibt.
-//
-// The bonus size is deliberately absent from the copy — see the no-spot-counts
-// note on REFERRAL_BONUS_SIZE. Die Zahl der Eingeladenen ist etwas anderes:
-// sie zählt keine Spots, sondern beantwortet die einzige Frage, die der Kasten
-// bisher offen ließ — ist überhaupt je jemand über meinen Link gekommen?
+// Die Höhe des Bonus steht bewusst nicht im Text (siehe REFERRAL_BONUS_SIZE).
+// Die Zahl der Eingeladenen schon: sie zählt keine Spots, sondern sagt, ob je
+// jemand über den Link gekommen ist.
 interface Props {
   uid: string;
   /** Bis zu drei eigene Kartenbilder fuer den Faecher. Weniger ist erlaubt —
@@ -49,14 +42,11 @@ export default function ProfileInvite({ uid, cards }: Props) {
   const fan = [...cards, CARD_BACK, CARD_BACK, CARD_BACK].slice(0, FAN_SIZE);
 
   return (
-    <div className={styles.invite}>
-      {/* Ein paar Karten, aufgefaechert wie eine hingehaltene Hand.
-          Die Flaeche war eine gelbe Leiste mit zwei Zeilen und ging zwischen
-          Deck und gespeicherten Spots unter (Nutzer, 06.09.2026: „da koennte
-          man vielleicht noch so ein paar Karten zeigen"). Mit den Karten ist
-          sie ein Gegenstand — und sie zeigt, was der andere zu sehen bekommt.
+    <div className={styles.invite} data-red-sheet>
+      {/* Ein paar Karten, aufgefächert wie eine hingehaltene Hand: sie zeigen, was
+          der andere zu sehen bekommt.
 
-          `aria-hidden`: die Ueberschrift daneben sagt schon, worum es geht,
+          `aria-hidden`: die Überschrift daneben sagt schon, worum es geht,
           und die einzelnen Gerichte sind hier Dekor, keine Auskunft. */}
       <span className={styles.inviteFan} aria-hidden="true">
         {fan.map((src, i) => (
@@ -84,11 +74,9 @@ export default function ProfileInvite({ uid, cards }: Props) {
         )}
       </div>
       <div className={styles.inviteAction}>
-        {/* Kein „Ansehen" mehr daneben (Nutzer, 24.09.2026: „ansehen braucht
-            man nicht"). Die Vorschau des eigenen Decks war ein zweiter,
-            leiserer Ausgang neben dem einen, um den es geht. */}
+        {}
         <ShareButton
-          className="et-btn"
+          className="et-btn et-btn-lg"
           url={inviteUrl}
           title={t('inviteShareTitle')}
           slug={uid}

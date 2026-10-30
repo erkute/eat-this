@@ -20,22 +20,15 @@ function relativeDay(locale: string, then: number, now: number): string {
 }
 
 /**
- * The last cards the user turned face-up on site, newest first.
+ * Die letzten Karten, die jemand vor Ort aufgedeckt hat, neueste zuerst.
  *
- * Reveals are the one thing in this product that happens at a moment, in a
- * place — the deck above only ever shows a state. `unlockedAt` was already
- * being written on every reveal and never read.
+ * Aufdecken ist das Einzige im Produkt, das zu einem Zeitpunkt an einem Ort
+ * passiert — das Deck darüber zeigt nur einen Zustand. `unlockedAt` wird bei
+ * jedem Aufdecken geschrieben.
  *
- * Ab der ERSTEN Karte, nicht ab der dritten. Die Schwelle stand hier, weil
- * eine einzelne Karte unter einer Ueberschrift ueber die volle Breite
- * verloren aussah — und liess damit ausgerechnet die Neuen ohne den einen
- * Abschnitt, der die Seite lebendig macht. Repariert ist die Form, nicht die
- * Schwelle: das Datum steht ueber der Karte und alle Eintraege haengen an
- * einer Linie ueber die volle Breite. Mit einem Eintrag liest sich das als
- * Zeitleiste, die gerade anfaengt, nicht als Loch.
- *
- * Bei null Aufdeckungen bleibt der Abschnitt weg — da ist nichts zu zeigen,
- * und der Anstupser dafuer gehoert in ein „naechster Zug"-Modul.
+ * Der Abschnitt rendert ab der ersten Karte: das Datum steht über der Karte,
+ * und alle Einträge hängen an einer Linie über die volle Breite. Bei null
+ * Aufdeckungen bleibt er weg.
  */
 export default function ProfileRecentReveals({
   mustEats,

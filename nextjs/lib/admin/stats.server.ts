@@ -17,7 +17,7 @@
 import type { GaResult } from '@/lib/admin/googleAnalytics.server';
 import type { SearchResult } from '@/lib/admin/searchConsole';
 import { REVEALED_TARGET } from '@/lib/map/revealed-must-eats';
-import { STARTER_PACK_CARDS, STARTER_PACK_FACE_UP } from '@/lib/starter-pack';
+import { STARTER_PACK_CARDS } from '@/lib/starter-pack';
 import { CATALOG } from '@/lib/stripe-catalog';
 
 /** Ein Tagesdokument, so wie der Zähler es schreibt. Alle Zählfelder sind
@@ -273,7 +273,6 @@ export interface Deck {
   /** Die Sollzahl des Schaufensters. */
   freeCards: number;
   starterCards: number;
-  starterFaceUp: number;
   byCategory: DeckCategory[];
 }
 
@@ -1175,7 +1174,6 @@ export function summarizeDeck(input: DeckInput): Deck {
     spots: input.restaurants.length,
     freeCards: REVEALED_TARGET,
     starterCards: STARTER_PACK_CARDS,
-    starterFaceUp: STARTER_PACK_FACE_UP,
     byCategory,
   };
 }

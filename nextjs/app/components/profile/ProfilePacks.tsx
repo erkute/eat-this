@@ -30,18 +30,15 @@ function PackArt({ src }: { src: string }) {
 }
 
 /**
- * Was diesem Konto gehoert — eine Trophaeenreihe, kein Laden.
- *
- * Hier standen elf Packs, zehn davon mit schwarzem „Öffnen"-Kaufknopf: der
- * lauteste und farbigste Block der Seite zeigte zu neunzig Prozent fremdes
- * Inventar. Der Besitz gehoert ins Profil, der Laden nicht — was noch fehlt,
- * steht als EINE Zeile darunter und fuehrt nach /packs.
+ * Was diesem Konto gehört, vorn; was noch fehlt, ausgegraut dahinter, jedes
+ * Pack mit dem Weg in den Laden (/packs). Das Profil zeigt Besitz, der Laden
+ * liegt eine Seite weiter.
  *
  * `fullCatalog` kommt von oben und nicht aus useOwnedEntitlements: der Hook
  * liest nur users/<uid>/entitlements und kennt damit weder den Admin-Zugang
  * noch dessen Quelle (ADMIN_EMAILS plus verifizierte Adresse, server-only).
- * Auf einem Admin-Konto stand deshalb „466 von 466 Spots auf deiner Map" und
- * gleich darunter zehn verschlossene Packs.
+ * Ein Admin-Konto stünde sonst mit allen Spots auf der Map da und zehn
+ * verschlossenen Packs darunter.
  */
 export default function ProfilePacks({ uid, fullCatalog }: { uid: string; fullCatalog: boolean }) {
   const owned = useOwnedEntitlements(uid);
@@ -57,20 +54,11 @@ function ProfilePacksContent({
 }) {
   const t = useTranslations('profile');
 
-  const head = (
-    <div className={`hv-head ${styles.head} ${styles.packsHeading}`}>
-      <h2 className={styles.sectionTitle}>{t('packsHeading')}</h2>
-    </div>
-  );
-
   if (owned === null) {
     return (
-      <>
-        {head}
-        <div className={styles.dataNotice} role="status" aria-live="polite">
-          <p>{t('dataLoading')}</p>
-        </div>
-      </>
+      <div className={styles.dataNotice} role="status" aria-live="polite">
+        <p>{t('dataLoading')}</p>
+      </div>
     );
   }
 
@@ -79,35 +67,72 @@ function ProfilePacksContent({
     .map((id) => CATALOG[id])
     .filter((p): p is NonNullable<typeof p> => !!p && p.type === 'category');
 
-  const opened = boosters.filter((p) => allOpen || owned.has(p.packId));
-  const remaining = boosters.length - opened.length;
+  const isOpen = (p: (typeof boosters)[number]) => allOpen || owned.has(p.packId);
+  /* Erst alles, was dem Konto gehört, dann die übrigen — ausgegraut. Wer sie
+     sieht, sieht, was noch fehlt; ein Tipp führt in den Laden. */
+  const sorted = [...boosters.filter(isOpen), ...boosters.filter((p) => !isOpen(p))];
+  const remaining = boosters.length - boosters.filter(isOpen).length;
+  const artOf = (p: (typeof boosters)[number]) =>
+    p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART;
+  const lockedArt = boosters.filter((p) => !isOpen(p)).map((p) => artOf(p));
 
   return (
     <>
-      {head}
       <ul className={styles.trophies}>
         {/* Das Welcome Pack hat jedes Konto — es eroeffnet die Reihe. */}
         <li className={styles.trophy}>
           <PackArt src={WELCOME_ART} />
-          <span className={styles.trophyName}>{t('starterPack')}</span>
+          <span className={`et-label-title et-label-tape ${styles.trophyName}`}>
+            {t('starterPack')}
+          </span>
         </li>
-        {opened.map((p) => (
-          <li key={p.packId} className={styles.trophy}>
-            <PackArt src={p.slug ? (categoryArt(p.slug) ?? ALL_BERLIN_ART) : ALL_BERLIN_ART} />
-            <span className={styles.trophyName}>{p.displayName}</span>
-          </li>
-        ))}
+        {sorted.map((p) =>
+          isOpen(p) ? (
+            <li key={p.packId} className={styles.trophy}>
+              <PackArt src={artOf(p)} />
+              <span className={`et-label-title et-label-tape ${styles.trophyName}`}>
+                {p.displayName}
+              </span>
+            </li>
+          ) : (
+            <li key={p.packId} className={`${styles.trophy} ${styles.trophyLocked}`}>
+              <Link
+                href="/packs"
+                className={styles.trophyLink}
+                aria-label={t('packLockedLabel', { name: p.displayName })}
+              >
+                <PackArt src={artOf(p)} />
+                <span className={`et-label ${styles.trophyName}`}>{p.displayName}</span>
+              </Link>
+            </li>
+          )
+        )}
       </ul>
-      {/* Ein Knopf statt zehn Kaufkarten. Wer alles hat, sieht ihn nicht --
-          dass er ueberhaupt dasteht, ist die Auskunft „es gibt noch mehr".
-          Ohne Zahl: „Noch 9 Packs offen" hiess gemeint „neun stehen noch
-          aus", las sich ueber einer Reihe GEOEFFNETER Packs aber als „neun
-          sind offen" -- also genau verkehrt herum. Und eine Zahl kann falsch
-          werden, waehrend der Weg zum Sortiment immer stimmt. */}
       {remaining > 0 && (
-        <Link href="/packs" className={`et-btn ${styles.packsMore}`}>
-          {t('packsMore')}
-        </Link>
+        <div className={`${styles.invite} ${styles.packsCta}`} data-red-sheet>
+          <span className={styles.inviteFan} aria-hidden="true">
+            {lockedArt.slice(0, 3).map((src) => (
+              <Image
+                key={src}
+                src={versionedPackArt(src)}
+                alt=""
+                width={76}
+                height={110}
+                sizes="76px"
+                loading="lazy"
+              />
+            ))}
+          </span>
+          <div className={styles.inviteCopy}>
+            <h2 className={styles.inviteTitle}>{t('packsMoreTitle')}</h2>
+            <p className={styles.inviteLine}>{t('packsMoreLine')}</p>
+          </div>
+          <div className={styles.inviteAction}>
+            <Link href="/packs" className="et-btn et-btn-lg">
+              {t('packsMore')}
+            </Link>
+          </div>
+        </div>
       )}
     </>
   );

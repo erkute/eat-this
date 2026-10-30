@@ -7,8 +7,7 @@ import { getCachedMapData } from '@/lib/map/cached-sanity';
 import { composeAccountSurface } from '@/lib/map/visible-restaurants.server';
 import { UID_SHAPE } from '@/lib/referral/constants';
 import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
-import { buildAlbum } from './mustEatAlbum';
-import { FALLBACK_DISTRICT } from './nextMove';
+import { buildAlbum, FALLBACK_DISTRICT } from './mustEatAlbum';
 
 /** Ein Bezirk der oeffentlichen Ansicht — Name und Staende, sonst nichts. */
 interface PublicDeckGroup {
@@ -35,10 +34,9 @@ interface PublicDeck {
   /** Vorname aus dem Anzeigenamen. Null, wenn das Konto keinen gepflegt hat. */
   name: string | null;
   avatar: 1 | 2 | 3;
-  /** Wie viele Karten umgedreht sind, und wie viele es ueberhaupt gibt. Der
-   *  Satz, mit dem die Seite fuer das Produkt wirbt („hat 10 von 25
-   *  umgedreht, 15 fehlen noch") — nicht mehr der Punktestand auf der
-   *  Spielerkarte, den traegt sie seit dem 06.09.2026 nirgends mehr. */
+  /** Wie viele Karten umgedreht sind, und wie viele es ueberhaupt gibt: der Satz,
+   *  mit dem die Seite fuer das Produkt wirbt („hat 10 von 25 umgedreht, 15
+   *  fehlen noch"). */
   revealed: number;
   total: number;
   /**
@@ -54,12 +52,9 @@ interface PublicDeck {
    * - `held` — gesammelt, aber nicht fuer fremde Augen. Rueckseite, kein Bild.
    * - `missing` — noch nicht gesammelt.
    *
-   * Bis zum 24.09.2026 waren `held` und `missing` beide `null` und von aussen
-   * nicht zu unterscheiden — mit Absicht. Nur stand darueber der Satz „hat 26
-   * von 26 umgedreht", und darunter lagen 21 Rueckseiten: die Seite
-   * widersprach sich selbst. Die Unterscheidung verraet nichts, was der Satz
-   * nicht schon sagt — die Seite sortiert die Wand nach Zustand, die Position
-   * einer Karte (und damit, welche es ist) geht also nicht mit hinaus.
+   * Die Unterscheidung verraet nichts, was der Satz darueber nicht schon sagt:
+   * die Seite sortiert die Wand nach Zustand, die Position einer Karte (und
+   * damit, welche es ist) geht also nicht mit hinaus.
    *
    * Kein Gericht, keine Nummer, kein Spot: auch `held` traegt nur den Zustand.
    */
@@ -150,10 +145,8 @@ export const getPublicDeck = cache(async (uid: string): Promise<PublicDeck | nul
     getPublicMustEatIds(),
   ]);
 
-  /* Dieselbe Ableitung wie /api/map-data — eine Funktion, nicht zwei Kopien.
-     Bis zum 31.08.2026 stand die Formel hier ein zweites Mal, und der
-     Admin-Zweig fehlte: das geteilte Deck meldete „0 von 24", waehrend das
-     Profil desselben Kontos „24 von 24" zeigte. */
+  /* Dieselbe Ableitung wie /api/map-data — eine Funktion, nicht zwei Kopien: das
+     geteilte Deck und das Profil desselben Kontos zeigen dieselbe Zahl. */
   const surface = await composeAccountSurface({ all, allMustEats, ent, unlockedIds });
 
   const districtByRest = new Map(

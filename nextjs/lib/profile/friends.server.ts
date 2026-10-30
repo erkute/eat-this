@@ -21,11 +21,10 @@ function avatarOf(value: unknown): 1 | 2 | 3 {
 /**
  * Die Freunde, die ueber den eigenen Link gestartet sind — als Spielerkarten.
  *
- * Die Maschine dafuer laeuft seit dem ersten Tag: `?ref=<uid>` → Middleware →
- * `/api/referral/confirm` legt unter `users/{inviter}/referralBonuses` ein
- * Dokument `invited-<friendUid>` an, das die uid des Freundes in `partnerUid`
- * traegt. Gelesen hat davon bisher nur `useReferralCount`, und der zaehlt sie
- * bloss. Die Namen dahinter standen nirgends.
+ * Der Weg dafuer: `?ref=<uid>` → Middleware → `/api/referral/confirm` legt unter
+ * `users/{inviter}/referralBonuses` ein Dokument `invited-<friendUid>` an, das
+ * die uid des Freundes in `partnerUid` traegt. `useReferralCount` zaehlt sie nur;
+ * die Namen dahinter liefert diese Funktion.
  *
  * WER HIER GEFRAGT WIRD, ENTSCHEIDET DER SERVER. Der Aufrufer reicht nur
  * seine eigene uid herein (aus dem verifizierten ID-Token), und die Liste der

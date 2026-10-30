@@ -17,15 +17,12 @@ interface Props {
 const CHOICES: AvatarChoice[] = [1, 2, 3];
 
 /**
- * Charakter wechseln — ein Tipp auf die Spielerkarte im Profil.
+ * Charakter wechseln — ein Tipp auf die Figur im Konto-Reiter.
  *
- * Seit dem 24.09.2026 in der Huelle der Einfuehrungs-Layer (Tour.module.css),
- * nicht mehr als eigenes weisses Modal (Nutzer: „waehle deinen Charakter muss
- * in meinem Layout-Design"). Es ist derselbe Schritt wie „Wer bist du?" in der
- * Tour nach der Anmeldung (SignInReward): dieselben drei Figuren auf Ink,
- * dieselbe gelbe Kante fuer die Wahl, derselbe gelbe Knopf — aber kompakt,
- * so hoch wie der Inhalt, mit einem X statt „Schliessen" (Nutzer: „zu gross
- * und X, nicht Schliessen").
+ * Sitzt in der Hülle der Einführungs-Layer (Tour.module.css) und ist derselbe
+ * Schritt wie „Wer bist du?" in der Tour nach der Anmeldung (SignInReward):
+ * dieselben drei Figuren, dieselbe Kante für die Wahl, derselbe Knopf — aber
+ * kompakt, so hoch wie der Inhalt, mit einem X statt „Schließen".
  */
 export default function AvatarPickerModal({ current, onApply, onClose }: Props) {
   const t = useTranslations('profile');

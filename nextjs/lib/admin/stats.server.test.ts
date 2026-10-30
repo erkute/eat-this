@@ -730,7 +730,6 @@ describe('summarizeDeck', () => {
       spots: 4,
       freeCards: 10,
       starterCards: 20,
-      starterFaceUp: 20,
     });
     // Mehrfachkategorisiert: m1 zählt in Pizza UND Dinner.
     expect(deck.byCategory).toEqual([

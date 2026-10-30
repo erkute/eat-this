@@ -1,4 +1,4 @@
-type Point = { x: number; y: number };
+export type Point = { x: number; y: number };
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const smooth = (a: number, b: number, v: number) => {
   const t = Math.max(0, Math.min(1, (v - a) / (b - a)));

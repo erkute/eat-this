@@ -11,12 +11,9 @@ import styles from './Profile.module.css';
  * Die Freunde, die über den eigenen Link gestartet sind — als Reihe von
  * Spielerkarten, jede ein Weg auf ihr Deck.
  *
- * Der Referral-Weg läuft seit dem ersten Tag, aber sichtbar war davon nur
- * eine nackte Zahl im Einladen-Kasten („3 Freunde sind über deinen Link
- * gestartet"). Wen man geworben hat, stand nirgends, und es gab keinen Weg
- * zu ihnen — obwohl `/deck/<uid>` genau die Seite ist, die es dafür braucht.
- * Damit schließt sich der Kreis: Deck teilen → Freund meldet sich an →
- * seine Figur steht hier → sein Deck ist einen Klick weit weg.
+ * Wen man geworben hat, steht hier, und `/deck/<uid>` ist die Seite, auf die
+ * jede Karte führt: Deck teilen → Freund meldet sich an → seine Figur steht
+ * hier → sein Deck ist einen Klick weit weg.
  *
  * Kein Social-Backend: die Kennungen stehen in den eigenen Bonus-Dokumenten,
  * Namen und Figuren holt `/api/friends` mit dem Admin-SDK — und zwar nur für
@@ -26,8 +23,8 @@ import styles from './Profile.module.css';
  * sagt seine eigene Deck-Seite, und die entscheidet selbst, was sie zeigt.
  * Eine zweite Stelle, die das behauptet, wäre eine zweite Zugriffsgrenze.
  *
- * Leer rendert der Abschnitt gar nichts. „Noch keine Freunde" wäre eine
- * Bilanz, die niemand sehen will — und der gelbe Kasten direkt darüber
+ * Leer rendert der Abschnitt gar nichts: „Noch keine Freunde" wäre eine
+ * Bilanz, die niemand sehen will, und der Einladen-Kasten direkt darüber
  * fragt ohnehin schon danach.
  */
 export default function ProfileFriends({ uid }: { uid: string | null }) {

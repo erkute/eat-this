@@ -3,7 +3,7 @@
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
-import { afterHeroIntro } from '@/lib/home/heroIntro';
+import { afterHeroIntro, HERO_CARDS_ATTR } from '@/lib/home/heroIntro';
 import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/lib/home/dealIn';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
@@ -286,8 +286,14 @@ function armPreload(): () => void {
 
 
 function armHeroReveal(): () => void {
+  const html = document.documentElement;
+  const completed = () => html.removeAttribute(HERO_CARDS_ATTR);
   const fan = document.querySelector<HTMLElement>('[data-hero-fan]');
-  if (!fan) return () => {};
+  if (!fan) {
+    completed();
+    return () => {};
+  }
+  html.setAttribute(HERO_CARDS_ATTR, '');
   const cards = Array.from(fan.querySelectorAll<HTMLElement>('[data-hero-card]'));
   const flips = cards.map(card => card.firstElementChild as HTMLElement);
   const poses = cards.map(card => ({
@@ -295,7 +301,7 @@ function armHeroReveal(): () => void {
     y: fan.clientHeight * .55 - card.offsetTop - card.offsetHeight / 2,
     rotation: parseFloat(getComputedStyle(card).getPropertyValue('--open-turn')) || 0,
   }));
-  const timeline = gsap.timeline({ paused: true });
+  const timeline = gsap.timeline({ paused: true, onComplete: completed });
   cards.forEach((card, index) => {
     gsap.set(card, { x: poses[index].x, y: poses[index].y + index * 3, rotation: (index - 1) * 3, scale: .94 });
     gsap.set(flips[index], { rotationY: index === 1 ? -180 : 180 });
@@ -313,6 +319,7 @@ function armHeroReveal(): () => void {
     stopWaiting();
     timeline.kill();
     gsap.set([...cards, ...flips], { clearProps: 'transform,willChange' });
+    completed();
   };
 }
 
@@ -327,7 +334,10 @@ export default function HubMotion() {
       },
       (ctx) => {
         const { motion, desk } = ctx.conditions as Record<string, boolean>;
-        if (!motion) return;
+        if (!motion) {
+          document.documentElement.removeAttribute(HERO_CARDS_ATTR);
+          return;
+        }
         const stops: Array<() => void> = [];
         stops.push(armHeroReveal());
         if (desk) stops.push(armMagazineDeal());

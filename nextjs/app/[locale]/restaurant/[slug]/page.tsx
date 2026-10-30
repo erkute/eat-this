@@ -179,7 +179,7 @@ function SpotPhoto({
       <img
         data-spot-hero={priority ? '' : undefined}
         src={src}
-        srcSet={sanitySrcSet(src, [640, 960, 1280, 1600], priority ? 80 : 85)}
+        srcSet={sanitySrcSet(src, [480, 640, 768, 960, 1280, 1600], priority ? 80 : 85)}
         sizes="(max-width: 767px) 100vw, 768px"
         width={size?.width}
         height={size?.height}

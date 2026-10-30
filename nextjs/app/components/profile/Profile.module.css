@@ -293,10 +293,14 @@ main.page .head {
   padding: 12px 14px 0;
   border-top: 4px solid var(--et-red);
 }
+/* Der Bezirk steht über dem Namen, und der Name reserviert immer zwei Zeilen:
+   so sitzen „War da?" und die Notiz in jeder Tafel einer Reihe auf derselben
+   Höhe, egal wie lang der Name ist. */
 .spotName {
   display: -webkit-box;
   margin: 0;
   max-width: 100%;
+  min-height: 2.3em;
   overflow: hidden;
   font: 800 clamp(15px, 4.2vw, 19px) / 1.15 var(--et-font-display);
   letter-spacing: -0.02em;
@@ -306,6 +310,10 @@ main.page .head {
 }
 .spotDistrict {
   margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--et-muted);
   font: 800 11px / 1.2 var(--et-font-body);
   letter-spacing: 0.08em;

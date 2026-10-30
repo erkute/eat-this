@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { remyPose } from './remyDeformation';
+import { remyPose as framePose, prepareRemyPoint, type Point } from './remyDeformation';
+
+const remyPose = (seconds: number) => {
+  const frame = framePose(seconds);
+  return (point: Point) => frame(prepareRemyPoint(point));
+};
 
 describe('continuous Remy drawing', () => {
   it('keeps the rear knee forward of its hip–ankle axis throughout the push', () => {

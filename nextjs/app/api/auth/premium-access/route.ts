@@ -38,7 +38,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE() {
-  const response = NextResponse.json({ ok: true });
+  // The client only needs the cookie changes, so there is no body to leave unread.
+  const response = new NextResponse(null, { status: 204 });
   response.headers.set('Cache-Control', 'private, no-store');
   clearPremiumAccessCookie(response);
   clearPremiumSessionCookie(response);

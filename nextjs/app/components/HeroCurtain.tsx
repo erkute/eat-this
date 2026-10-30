@@ -53,12 +53,13 @@ export default function HeroCurtain() {
         // or slows the body. No separate loop can drift out of sync.
         const time = Number(animation?.currentTime ?? 0) / 1000;
         renderer.draw(time);
-        drawing.setAttribute('data-animated', '');
-        // The legs move from the first frame on: now the curtain may go.
-        document.documentElement.setAttribute('data-remy-go', '');
         frame = requestAnimationFrame(draw);
       };
       draw();
+      // Reveal once: repeating root-attribute writes invalidates styles every frame.
+      drawing.setAttribute('data-animated', '');
+      html.setAttribute('data-remy-go', '');
+      window.clearTimeout(fallback);
     };
     const motionChange = () => {
       if (reduced.matches) {

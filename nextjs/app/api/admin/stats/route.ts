@@ -34,7 +34,7 @@ import { getCachedMapData } from '@/lib/map/cached-sanity';
  * (der Besucher-Hash liegt in `analytics_seen` und wird hier nie angefasst),
  * aber Umsatz- und Trichterzahlen des ganzen Angebots gehören niemandem sonst.
  *
- * Zeitraum: `?days=30` (endet heute) oder `?from=2026-08-21&to=2026-09-06`.
+ * Zeitraum: `?days=7` (endet gestern) oder `?from=2026-08-21&to=2026-09-06`.
  * Höchstens 365 Tage; die Vorperiode ist immer gleich lang und liegt direkt
  * davor.
  */
@@ -98,7 +98,7 @@ async function loadAccounts(
   do {
     const page = await auth.listUsers(1000, pageToken);
     for (const user of page.users) {
-      if (isOwnAccount(user.email ?? null)) continue;
+      if (user.customClaims?.admin === true || isOwnAccount(user.email ?? null)) continue;
       accountByUid.set(user.uid, {
         createdDay: dayOf(user.metadata.creationTime) ?? '',
         lastActiveDay: dayOf(user.metadata.lastRefreshTime ?? user.metadata.lastSignInTime),

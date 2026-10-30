@@ -1,7 +1,7 @@
-import { delta, type StatsSummary } from '@/lib/admin/stats.server';
+import { delta, eachDay, dayBefore, sinceDay, type StatsSummary } from '@/lib/admin/stats.server';
 import type { SearchMover } from '@/lib/admin/searchConsole';
 import { BarRows, Card, DiffCell, Kpi, LineChart } from '../charts';
-import { DEVICE_LABELS, NUMBER, countryName, percent, position, shortDay } from '../format';
+import { DEVICE_LABELS, NUMBER, countryName, percent, position, longDay } from '../format';
 import { SearchRows } from './Days';
 import styles from '../../StatsDashboard.module.css';
 
@@ -33,22 +33,49 @@ export default function Search({ data }: { data: StatsSummary }) {
 
   const s = result.data;
   const { totals, before } = s;
-  const days = s.days.map((d) => d.day);
+  const days = eachDay(s.range.start, s.range.end);
+  const previousStart = sinceDay(s.range.days * 2, s.range.end);
+  const previousEnd = dayBefore(s.range.start);
+  const values = (field: 'clicks' | 'impressions', previous = false) =>
+    days.map(
+      (day) =>
+        (previous ? s.previousDays : s.days).find(
+          (row) => row.day === (previous ? dayBefore(day, s.range.days) : day)
+        )?.[field] ?? 0
+    );
 
   return (
     <>
+      <div className={styles.searchPeriod}>
+        <div>
+          <span className={styles.kpiLabel}>Endgültige Google-Daten</span>
+          <strong>
+            {longDay(s.range.start)} – {longDay(s.range.end)}
+          </strong>
+        </div>
+        <div>
+          <span className={styles.kpiLabel}>Vergleichszeitraum</span>
+          <strong>
+            {longDay(previousStart)} – {longDay(previousEnd)}
+          </strong>
+        </div>
+        <p>
+          Google liefert zeitversetzt. Beide Zeiträume umfassen {s.range.days} Tage. Suchdaten
+          verwenden die Google-Zeitzone (Pacific Time), die Besuchszahlen Berlin.
+        </p>
+      </div>
       <div className={styles.kpis}>
         <Kpi
           label="Klicks"
           value={NUMBER.format(totals.clicks)}
           delta={before ? delta(totals.clicks, before.clicks) : null}
-          spark={s.days.map((d) => d.clicks)}
+          spark={values('clicks')}
         />
         <Kpi
           label="Impressionen"
           value={NUMBER.format(totals.impressions)}
           delta={before ? delta(totals.impressions, before.impressions) : null}
-          spark={s.days.map((d) => d.impressions)}
+          spark={values('impressions')}
         />
         <Kpi
           label="Klickrate"
@@ -59,7 +86,11 @@ export default function Search({ data }: { data: StatsSummary }) {
         <Kpi
           label="Position"
           value={position(totals.position)}
-          delta={before ? delta(totals.position, before.position) : null}
+          delta={
+            before && before.impressions > 0 && totals.impressions > 0
+              ? delta(totals.position, before.position)
+              : null
+          }
           invert
           hint={before ? `vorher ${position(before.position)}` : undefined}
         />
@@ -78,32 +109,54 @@ export default function Search({ data }: { data: StatsSummary }) {
       <Card
         title="Klicks aus der Suche"
         span={2}
-        sub={`${shortDay(s.range.start)} bis ${shortDay(s.range.end)}, Pfeile an den Kacheln gegen die ${NUMBER.format(s.range.days)} Tage davor. Die letzten zwei bis drei Tage liefert Google nachträglich.`}
+        sub="Durchgezogen der gewählte Suchzeitraum, gestrichelt die gleich lange Vorperiode."
       >
         <LineChart
           days={days}
-          series={[{ label: 'Klicks', values: s.days.map((d) => d.clicks) }]}
+          series={[
+            { label: 'Klicks', values: values('clicks') },
+            ...(before
+              ? [
+                  {
+                    label: 'Vorperiode',
+                    values: values('clicks', true),
+                    dashed: true,
+                    days: days.map((day) => dayBefore(day, s.range.days)),
+                  },
+                ]
+              : []),
+          ]}
         />
       </Card>
 
       <Card
-        title="Impressionen und Position"
-        sub="Wie oft Google die Seite zeigt — und wie weit oben."
+        title="Sichtbarkeit in der Suche"
+        sub="Impressionen im Vergleich. Eine niedrigere Position bedeutet eine höhere Platzierung."
       >
         <LineChart
           days={days}
           height={150}
-          series={[{ label: 'Impressionen', values: s.days.map((d) => d.impressions) }]}
-        />
-        <LineChart
-          days={days}
-          height={120}
-          series={[{ label: 'Position (gewichtet)', values: s.days.map((d) => d.position) }]}
-          format={(v) => position(v)}
+          series={[
+            { label: 'Impressionen', values: values('impressions') },
+            ...(before
+              ? [
+                  {
+                    label: 'Vorperiode',
+                    values: values('impressions', true),
+                    dashed: true,
+                    days: days.map((day) => dayBefore(day, s.range.days)),
+                  },
+                ]
+              : []),
+          ]}
         />
       </Card>
 
-      <Card title="Welche Suche funktioniert" span={2} sub="Anfragen nach Klicks.">
+      <Card
+        title="Welche Suche funktioniert"
+        span={2}
+        sub="Top-Anfragen nach Klicks. Anonymisierte Suchen fehlen in dieser Liste; ihre Klicks bleiben in der Gesamtsumme enthalten."
+      >
         <SearchRows rows={s.queries} empty="Noch keine Klicks aus der Suche." />
       </Card>
 
@@ -165,8 +218,7 @@ export default function Search({ data }: { data: StatsSummary }) {
           hour: '2-digit',
           minute: '2-digit',
         })}
-        , eine Stunde gehalten. Der frischeste Tag mit Suchbegriffen steht unter „Heute &amp;
-        Gestern“.
+        , eine Stunde gehalten. Der frischeste Tag mit Suchbegriffen steht unter „Letzter Tag“.
       </p>
     </>
   );
@@ -175,7 +227,12 @@ export default function Search({ data }: { data: StatsSummary }) {
 function MoverTable({ rows, empty }: { rows: SearchMover[]; empty: string }) {
   if (rows.length === 0) return <p className={styles.empty}>{empty}</p>;
   return (
-    <div className={styles.scroll}>
+    <div
+      className={styles.scroll}
+      tabIndex={0}
+      role="region"
+      aria-label="Tabelle horizontal scrollen"
+    >
       <table className={styles.table}>
         <thead>
           <tr>

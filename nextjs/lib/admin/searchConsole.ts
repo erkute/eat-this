@@ -68,6 +68,8 @@ export interface SearchSummary {
   before: SearchTotals | null;
   /** Chronologisch aufsteigend, ein Punkt je Tag mit Daten. */
   days: SearchDay[];
+  /** Tageswerte der gleich langen Vorperiode. */
+  previousDays: SearchDay[];
   /** Suchanfragen nach Klicks. */
   queries: SearchRow[];
   /** Seiten nach Klicks. */
@@ -218,9 +220,7 @@ export function moversOf(
 
 /**
  * Die letzten Tage, aufgeschlüsselt nach Anfrage und Seite. Google liefert
- * mit `dataState: all` auch frische, noch nicht endgültige Tage — der
- * jüngste davon ist „heute", so nah, wie die Search Console an heute
- * herankommt. `dayTotals` liefert die exakten Tagessummen, weil die
+ * mit `dataState: final` ausschließlich abgeschlossene Tage. `dayTotals` liefert die exakten Tagessummen, weil die
  * Anfragezeilen anonymisierte Suchen nicht enthalten.
  */
 export function dayDetailsOf(
@@ -329,6 +329,9 @@ export function summarizeSearch(input: SearchInput): SearchSummary {
       ctr: row.ctr,
       position: row.position,
     })),
+    previousDays: before
+      .sort((a, b) => a.key.localeCompare(b.key))
+      .map((row) => ({ ...row, day: row.key })),
     queries: queries.slice(0, TOP_N),
     pages: pages.slice(0, TOP_N),
     opportunities: opportunitiesOf(queries),

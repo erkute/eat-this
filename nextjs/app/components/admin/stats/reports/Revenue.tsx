@@ -1,6 +1,6 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
 import { BarRows, Card, Kpi, LineChart } from '../charts';
-import { NUMBER, euro, labelFor, percent } from '../format';
+import { NUMBER, euro, labelFor, decimal } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
 /**
@@ -22,16 +22,21 @@ export default function Revenue({ data }: { data: StatsSummary }) {
 
   return (
     <>
+      <p className={styles.notice}>
+        Käufe sind gespeicherte Freischaltungen mit Stripe-Beleg. Geldbeträge sind zum aktuellen
+        Katalogpreis berechnet; Rabatte, Preisänderungen und Erstattungen sind darin nicht
+        berücksichtigt.
+      </p>
       <div className={styles.kpis}>
         <Kpi
-          label="Umsatz im Zeitraum"
+          label="Katalogwert im Zeitraum"
           value={euro(accounts.revenue.inWindowCents)}
           spark={accounts.byDay.map((d) => d.revenueCents)}
         />
         <Kpi
-          label="Umsatz insgesamt"
+          label="Katalogwert insgesamt"
           value={euro(accounts.revenue.totalCents)}
-          hint="brutto, seit Bestehen"
+          hint="Aktueller Listenpreis · seit Bestehen"
         />
         <Kpi
           label="Käufe"
@@ -39,28 +44,34 @@ export default function Revenue({ data }: { data: StatsSummary }) {
           hint={`${NUMBER.format(accounts.purchases.total)} insgesamt`}
           spark={accounts.byDay.map((d) => d.purchases)}
         />
-        <Kpi label="Käufer" value={NUMBER.format(accounts.people.buyers)} hint="Konten mit Kauf" />
-        <Kpi label="Ø je Kauf" value={euro(perPurchase)} />
         <Kpi
-          label="Besucher → Kauf"
+          label="Käufer"
+          value={NUMBER.format(accounts.people.buyers)}
+          hint="Konten mit Kauf · seit Bestehen"
+        />
+        <Kpi label="Ø Katalogwert je Kauf" value={euro(perPurchase)} hint="Seit Bestehen" />
+        <Kpi
+          label="Käufe je 100 Tagesbesucher"
           value={
-            visitRate?.rate === null || visitRate === undefined ? '—' : percent(visitRate.rate, 2)
+            visitRate?.rate === null || visitRate === undefined
+              ? '—'
+              : decimal(visitRate.rate * 100, 2)
           }
           hint="Ereignisse im Zeitraum"
         />
         <Kpi
-          label="Checkout → Kauf"
+          label="Käufe je 100 Checkout-Starts"
           value={
             checkoutRate?.rate === null || checkoutRate === undefined
               ? '—'
-              : percent(checkoutRate.rate, 0)
+              : decimal(checkoutRate.rate * 100, 1)
           }
-          hint={`${NUMBER.format(checkoutRate?.now ?? 0)} von ${NUMBER.format(checkoutRate?.base ?? 0)}`}
+          hint={`${NUMBER.format(checkoutRate?.now ?? 0)} Kauf-Ereignisse / ${NUMBER.format(checkoutRate?.base ?? 0)} Starts`}
         />
       </div>
 
       <Card
-        title="Umsatz je Tag"
+        title="Katalogwert je Tag"
         span={2}
         sub="Aus den Entitlements mit Stripe-Sitzung, bewertet zum Katalogpreis."
       >
@@ -69,7 +80,7 @@ export default function Revenue({ data }: { data: StatsSummary }) {
         ) : (
           <LineChart
             days={days}
-            series={[{ label: 'Umsatz', values: accounts.byDay.map((d) => d.revenueCents) }]}
+            series={[{ label: 'Katalogwert', values: accounts.byDay.map((d) => d.revenueCents) }]}
             openIndex={openIndex >= 0 ? openIndex : null}
             format={(v) => euro(v)}
           />
@@ -80,13 +91,18 @@ export default function Revenue({ data }: { data: StatsSummary }) {
         {accounts.purchases.byPack.length === 0 ? (
           <p className={styles.empty}>Noch kein Kauf.</p>
         ) : (
-          <div className={styles.scroll}>
+          <div
+            className={styles.scroll}
+            tabIndex={0}
+            role="region"
+            aria-label="Tabelle horizontal scrollen"
+          >
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th scope="col">Pack</th>
                   <th scope="col">Käufe</th>
-                  <th scope="col">Umsatz</th>
+                  <th scope="col">Katalogwert</th>
                 </tr>
               </thead>
               <tbody>
@@ -104,16 +120,16 @@ export default function Revenue({ data }: { data: StatsSummary }) {
       </Card>
 
       <Card
-        title="Stripe-Sitzungen im Zeitraum"
-        sub="Jeder Klick auf „Kaufen“ legt eine Sitzung an; „offen“ heißt: Stripe hat keinen Abschluss gemeldet."
+        title="Gespeicherte Checkout-Versuche"
+        sub="Je Konto und Pack bleibt nur der letzte Versuch gespeichert. Angezeigt werden Datensätze mit Anlagedatum im Zeitraum; frühere Versuche können überschrieben sein. Gast-Checkouts fehlen hier."
       >
         <BarRows
           rows={[
-            { key: 'all', label: 'angelegt', count: accounts.checkouts.inWindow },
+            { key: 'all', label: 'gespeichert', count: accounts.checkouts.inWindow },
             { key: 'completed', label: 'abgeschlossen', count: accounts.checkouts.completed },
-            { key: 'open', label: 'offen geblieben', count: accounts.checkouts.open },
+            { key: 'open', label: 'ohne gemeldeten Abschluss', count: accounts.checkouts.open },
           ]}
-          empty="Keine Sitzungen."
+          empty="Keine gespeicherten Versuche im Zeitraum."
         />
       </Card>
 

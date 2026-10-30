@@ -1,17 +1,8 @@
 /**
- * Der Aus-Schalter für den eigenen Browser.
- *
- * Wer die Zahlen liest, steht sonst selbst drin: rund 300 Beacons in 40
- * Stunden kamen im Edge-Log von der Adresse des Betreibers (02.09.2026), dazu
- * jede Test-Anmeldung als „Anmeldung begonnen". GPC und DNT wären der
- * vorgesehene Weg, aber Chrome bietet DNT nicht mehr an und GPC nur per
- * Erweiterung — darum ein Cookie, das die Route wie GPC behandelt.
- *
- * Das Cookie gehört NICHT zum Zähler: der bleibt speicherfrei (siehe
- * lib/analytics.ts). Gesetzt wird es auf Knopfdruck in /no-count (ohne Login)
- * oder /admin/stats,
- * gelesen serverseitig aus dem Cookie-Header — kein Skript des Zählers fasst
- * das Gerät an.
+ * Ausschluss für den eigenen Browser. /no-count und /admin/stats setzen
+ * diese ausdrückliche Präferenz auf Knopfdruck. Client und API lesen sie,
+ * damit weder der eigene Zähler noch Google Analytics Testbesuche erfassen.
+ * Der Zähler selbst setzt keine Kennung im Browser.
  */
 export const NO_COUNT_COOKIE = 'eatthis_nocount';
 
@@ -20,4 +11,25 @@ export const NO_COUNT_COOKIE = 'eatthis_nocount';
 export function hasNoCountCookie(raw: string | null | undefined): boolean {
   if (!raw) return false;
   return raw.split(';').some((part) => part.trim() === `${NO_COUNT_COOKIE}=1`);
+}
+
+/** Lokale Vorschauen dürfen auch als Produktionsbuild keine Besuche zählen. */
+export function isLocalAnalyticsHost(hostname: string): boolean {
+  return (
+    hostname === 'localhost' ||
+    hostname.endsWith('.localhost') ||
+    hostname === '127.0.0.1' ||
+    hostname === '[::1]' ||
+    hostname === '::1'
+  );
+}
+
+/** Ein Aufruf aus einer lokalen Vorschau ist Testverkehr, auch auf der Live-Domain. */
+export function isLocalAnalyticsUrl(raw: unknown): boolean {
+  if (typeof raw !== 'string' || !raw) return false;
+  try {
+    return isLocalAnalyticsHost(new URL(raw).hostname);
+  } catch {
+    return false;
+  }
 }

@@ -23,8 +23,8 @@ vi.mock('google-auth-library', () => ({
 import { loadSearch, resetSearchCache } from './searchConsole.server';
 
 const RANGE = { start: '2026-08-28', end: '2026-09-03', days: 7 };
-/** Neun parallele Abfragen je Lauf. */
-const QUERIES_PER_LOAD = 9;
+/** Eine Verfügbarkeitsprüfung und neun parallele Abfragen je Lauf. */
+const QUERIES_PER_LOAD = 10;
 
 function rows(keys: string[][]) {
   return {
@@ -56,7 +56,7 @@ describe('loadSearch', () => {
           return Promise.resolve(rows([[data.endDate, 'frisch']]));
         }
         if (data.dimensions.join() === 'date,page') return Promise.resolve(rows([]));
-        if (data.dimensions[0] === 'date') return Promise.resolve(rows([[data.startDate]]));
+        if (data.dimensions[0] === 'date') return Promise.resolve(rows([[data.endDate]]));
         if (data.dimensions[0] === 'query') return Promise.resolve(rows([['best lunch berlin']]));
         if (data.dimensions[0] === 'device') return Promise.resolve(rows([['MOBILE']]));
         if (data.dimensions[0] === 'country') return Promise.resolve(rows([['deu']]));
@@ -77,7 +77,7 @@ describe('loadSearch', () => {
     expect(result.data.latestDay?.queries[0].key).toBe('frisch');
 
     const calls = mocks.request.mock.calls.map(([options]) => options.data);
-    expect(calls.map((c) => c.dimensions.join())).toEqual([
+    expect(calls.slice(1).map((c) => c.dimensions.join())).toEqual([
       'date',
       'date',
       'query',
@@ -89,15 +89,47 @@ describe('loadSearch', () => {
       'date,page',
     ]);
     // Vorperiode: die 7 Tage direkt davor, ohne Ueberlappung.
-    expect(calls[1]).toMatchObject({ startDate: '2026-08-21', endDate: '2026-08-27' });
-    expect(calls[3]).toMatchObject({ startDate: '2026-08-21', endDate: '2026-08-27' });
+    expect(calls[2]).toMatchObject({ startDate: '2026-08-21', endDate: '2026-08-27' });
+    expect(calls[4]).toMatchObject({ startDate: '2026-08-21', endDate: '2026-08-27' });
     // Die frischen Tage: die letzten fuenf des Fensters, mit mehr Zeilen.
-    expect(calls[7]).toMatchObject({
+    expect(calls[8]).toMatchObject({
       startDate: '2026-08-30',
       endDate: '2026-09-03',
       rowLimit: 2000,
     });
     expect(calls[0].dataState).toBe('all');
+    expect(calls.slice(1).every((call) => call.dataState === 'final')).toBe(true);
+  });
+
+  it('verschiebt beide Fenster vor Googles ersten unvollständigen Tag', async () => {
+    mocks.request.mockImplementation(({ data }) =>
+      Promise.resolve({
+        data: {
+          rows: [{ keys: [data.endDate], clicks: 2, impressions: 20 }],
+          ...(data.dataState === 'all' ? { metadata: { firstIncompleteDate: '2026-09-02' } } : {}),
+        },
+      })
+    );
+    const result = await loadSearch(RANGE);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.range).toEqual({ start: '2026-08-26', end: '2026-09-01', days: 7 });
+    expect(mocks.request.mock.calls[2][0].data).toMatchObject({
+      startDate: '2026-08-19',
+      endDate: '2026-08-25',
+      dataState: 'final',
+    });
+    expect(result.data.previousDays).toHaveLength(1);
+  });
+
+  it('verschiebt abgeschlossene Tage ohne Impressionen nicht', async () => {
+    mocks.request.mockResolvedValue(rows([]));
+    const result = await loadSearch(RANGE);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.range).toEqual(RANGE);
+    expect(result.data.before).toBeNull();
+    expect(result.data.movers).toEqual({ rising: [], falling: [] });
   });
 
   it('meldet bei 403 den fehlenden Zugang samt Dienstkonto', async () => {
@@ -130,7 +162,7 @@ describe('loadSearch', () => {
     expect(second).toBe(first);
     // Der gescheiterte Lauf plus der gelungene; der zweite Aufruf kam aus dem
     // Cache und fragte nichts mehr.
-    expect(mocks.request).toHaveBeenCalledTimes(QUERIES_PER_LOAD * 2);
+    expect(mocks.request).toHaveBeenCalledTimes(QUERIES_PER_LOAD + 1);
   });
 
   it('cacht je Fenster, nicht je Laenge', async () => {

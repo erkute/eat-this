@@ -1,41 +1,36 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
 import { BarRows, Card, MoverList } from '../charts';
-import { NUMBER, percent } from '../format';
+import { NUMBER, percent, shortDay } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
-/**
- * Woher die Besucher kommen. Der Zähler kennt nur den Host des Verweises,
- * einmal je Besuch — und die Einstiegsseite, den ersten gezählten Aufruf.
- * Die Google-Suche selbst steht im eigenen Bericht; hier steht, wie sie sich
- * gegen die anderen Quellen ausnimmt.
- */
+/** Seitenaufrufe nach externem Verweis und erste Einstiege pro Tagesbesucher. */
 export default function Acquisition({ data }: { data: StatsSummary }) {
-  const visitors = data.totals.visitors;
+  const pageviews = data.totals.pageviews;
   const search = data.search?.ok ? data.search.data : null;
-  const referred = data.referrers.reduce((t, r) => t + r.count, 0);
-  const share = (count: number): string => (visitors > 0 ? percent(count / visitors, 0) : '');
+  const referred = data.referrerPageviews;
+  const share = (count: number): string => (pageviews > 0 ? percent(count / pageviews, 0) : '');
 
   return (
     <>
       <div className={styles.kpis}>
         <div className={styles.kpi}>
-          <span className={styles.kpiLabel}>Besucher</span>
-          <strong className={styles.kpiValue}>{NUMBER.format(visitors)}</strong>
+          <span className={styles.kpiLabel}>Seitenaufrufe</span>
+          <strong className={styles.kpiValue}>{NUMBER.format(pageviews)}</strong>
         </div>
         <div className={styles.kpi}>
           <span className={styles.kpiLabel}>Mit externem Verweis</span>
           <strong className={styles.kpiValue}>{NUMBER.format(referred)}</strong>
           <span className={styles.kpiFoot}>
-            <span className={styles.kpiHint}>{share(referred)} der Besucher</span>
+            <span className={styles.kpiHint}>{share(referred)} der Seitenaufrufe</span>
           </span>
         </div>
         <div className={styles.kpi}>
-          <span className={styles.kpiLabel}>Direkt oder ohne Verweis</span>
+          <span className={styles.kpiLabel}>Ohne externen Verweis</span>
           <strong className={styles.kpiValue}>
-            {NUMBER.format(Math.max(0, visitors - referred))}
+            {NUMBER.format(Math.max(0, pageviews - referred))}
           </strong>
           <span className={styles.kpiFoot}>
-            <span className={styles.kpiHint}>Lesezeichen, Apps, Messenger</span>
+            <span className={styles.kpiHint}>Auch interne Navigation und Reloads</span>
           </span>
         </div>
         {search && (
@@ -43,7 +38,9 @@ export default function Acquisition({ data }: { data: StatsSummary }) {
             <span className={styles.kpiLabel}>Google-Klicks (GSC)</span>
             <strong className={styles.kpiValue}>{NUMBER.format(search.totals.clicks)}</strong>
             <span className={styles.kpiFoot}>
-              <span className={styles.kpiHint}>Referenz für die Suche</span>
+              <span className={styles.kpiHint}>
+                {shortDay(search.range.start)}–{shortDay(search.range.end)} · Google-Zeitraum
+              </span>
             </span>
           </div>
         )}
@@ -52,12 +49,12 @@ export default function Acquisition({ data }: { data: StatsSummary }) {
       <Card
         title="Herkunft"
         span={2}
-        sub="Externe Verweise, der Host einmal je Besuch. Die eigene Domain und localhost zählen nicht."
+        sub="Seitenaufrufe mit externem Verweis. Mehrere Aufrufe derselben Person zählen mehrfach. Die Liste zeigt die häufigsten Quellen."
       >
         <BarRows
           rows={data.referrers.map((r) => ({ ...r, share: share(r.count) }))}
           empty="Keine externen Verweise."
-          share="Anteil an den Besuchern"
+          share="Anteil an den Seitenaufrufen"
         />
       </Card>
 
@@ -66,7 +63,10 @@ export default function Acquisition({ data }: { data: StatsSummary }) {
         sub="Der erste gezählte Aufruf eines Besuchers am Tag — wo die Leute wirklich reinkommen."
       >
         <BarRows
-          rows={data.entryPaths.map((e) => ({ ...e, share: share(e.count) }))}
+          rows={data.entryPaths.map((e) => ({
+            ...e,
+            share: data.totals.visitors > 0 ? percent(e.count / data.totals.visitors, 0) : '',
+          }))}
           empty="Noch nicht erfasst."
         />
       </Card>

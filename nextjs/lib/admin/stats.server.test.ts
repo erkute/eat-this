@@ -94,7 +94,7 @@ describe('summarize', () => {
     ]);
   });
 
-  it('rechnet die Zustimmung gegen Besucher, nicht gegen Einblendungen', () => {
+  it('zählt Antworten und Einblendungen nur ab dem ersten vollständig erfassten Tag', () => {
     const result = summarize(docs());
 
     // Nur der 29.: der 28. zaehlte den Dialog erst ab dem Abend, seine 20
@@ -103,15 +103,11 @@ describe('summarize', () => {
       shown: 10,
       accepted: 2,
       declined: 0,
-      visitors: 10,
-      days: 1,
-      rate: 0.2,
       ratePerView: 0.2,
-      viewsPerVisitor: 1,
     });
   });
 
-  it('nimmt als Nenner nur die Besucher der Tage, die den Dialog ganztägig zählen', () => {
+  it('vermischt Dialogereignisse nicht mit den Besucherzahlen', () => {
     const result = summarize([
       { day: '2026-08-27', visitors: 500 },
       { day: '2026-08-28', visitors: 400, events: { consent_gate_shown: 30, consent_accepted: 1 } },
@@ -122,16 +118,15 @@ describe('summarize', () => {
       },
     ]);
 
-    expect(result.consent.visitors).toBe(100);
-    expect(result.consent.days).toBe(1);
-    expect(result.consent.rate).toBe(0.2);
-    expect(result.consent.viewsPerVisitor).toBe(3);
+    expect(result.consent.shown).toBe(300);
+    expect(result.consent.accepted).toBe(20);
+    expect(result.consent.ratePerView).toBeCloseTo(20 / 300);
   });
 
   it('liefert keine Zustimmungsquote ohne Nenner', () => {
     const result = summarize([{ day: '2026-08-29', events: { consent_accepted: 4 } }]);
 
-    expect(result.consent.rate).toBeNull();
+    expect(result.consent.accepted).toBe(4);
     expect(result.consent.ratePerView).toBeNull();
   });
 
@@ -152,7 +147,6 @@ describe('summarize', () => {
     expect(result.accounts).toBeNull();
     expect(result.deck).toBeNull();
     expect(result.exits).toEqual([]);
-    expect(result.consent.rate).toBeNull();
     expect(result.dayDetails).toEqual({ today: null, latest: null });
   });
 });
@@ -185,7 +179,7 @@ describe('buildFunnel — die vier Stufen des Produkts', () => {
 
     expect(funnel.stages.map((s) => s.key)).toEqual(['free', 'account', 'onsite', 'packs']);
     expect(funnel.stages[0].steps[0]).toEqual({ key: 'visitors', count: 100, share: 1 });
-    expect(funnel.stages[1].offer).toBe('+20 Karten, 20 davon offen');
+    expect(funnel.stages[1].offer).toBe('Starter Pack mit bis zu 20 Karten');
     const onsite = funnel.stages[2].steps;
     expect(onsite.find((s) => s.key === 'must_eat_reveal_too_far')).toEqual({
       key: 'must_eat_reveal_too_far',
@@ -591,6 +585,7 @@ describe('summarizeAccounts', () => {
         checkouts: [
           { day: '2026-08-30', status: 'open', packId: 'category-pizza' },
           { day: '2026-08-30', status: 'completed', packId: 'category-pizza' },
+          { day: '2026-08-30', status: 'creating', packId: 'category-dinner' },
           { day: '2026-08-01', status: 'open', packId: 'all-berlin' },
         ],
       },
@@ -608,7 +603,7 @@ describe('summarizeAccounts', () => {
       ],
     });
     expect(result.revenue).toEqual({ totalCents: 1298, inWindowCents: 299 });
-    expect(result.checkouts).toEqual({ inWindow: 2, open: 1, completed: 1 });
+    expect(result.checkouts).toEqual({ inWindow: 3, open: 2, completed: 1 });
     // Das Starter Pack ist kein Kauf, aber eine eigene Zahl.
     expect(result.starterPacks).toEqual({ total: 1, inWindow: 1 });
   });
@@ -765,5 +760,44 @@ describe('summarizeDeck', () => {
       },
       { slug: 'ohne-pack', name: 'Ohne Pack', cards: 0, spots: 0, packId: null, sellable: false },
     ]);
+  });
+});
+
+describe('abgeschlossene Kalenderfenster', () => {
+  it('hält Nulltage und Wochentage im Vergleich an derselben Position', () => {
+    const result = summarize(
+      [{ day: '2026-10-28', visitors: 70 }],
+      [{ day: '2026-10-21', visitors: 35 }],
+      { today: '2026-10-30', range: { start: '2026-10-23', end: '2026-10-29' } }
+    );
+    expect(result.days).toHaveLength(7);
+    expect(result.previousDays).toHaveLength(7);
+    expect(result.latest.day?.day).toBe('2026-10-29');
+    expect(result.latest.day?.visitors).toBe(0);
+    expect(result.period?.visitors).toEqual({ now: 10, before: 5, change: 1 });
+  });
+  it('berücksichtigt Käufe direkt von der Pack-Übersicht', () => {
+    const funnel = buildFunnel(
+      new Map([['begin_checkout', 4]]),
+      new Map([
+        ['/packs', 30],
+        ['/pack/pizza', 10],
+      ]),
+      100
+    );
+    expect(funnel.rates.find((r) => r.key === 'pack_checkout')).toMatchObject({
+      base: 40,
+      now: 4,
+      rate: 0.1,
+    });
+  });
+});
+
+describe('Herkunft ohne abgeschnittene Summen', () => {
+  it('summiert alle externen Referrer vor dem Kürzen der Top-Liste', () => {
+    const referrers = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [`source_${i}`, 2]));
+    const result = summarize([{ day: '2026-10-29', visitors: 10, pageviews: 60, referrers }]);
+    expect(result.referrers).toHaveLength(15);
+    expect(result.referrerPageviews).toBe(40);
   });
 });

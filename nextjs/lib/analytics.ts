@@ -88,6 +88,9 @@ function isOwnOrAutomated(): boolean {
   )
     return true;
   if (isAutomated(navigator.userAgent)) return true;
+  // Eingebettet zählt nie: die Heatmap in /admin/stats zeigt die Startseite in
+  // einem iframe, und jeder Blick darauf wäre sonst ein Besuch.
+  if (window.self !== window.top) return true;
   return /^\/(en\/)?admin(\/|$)/.test(window.location.pathname);
 }
 
@@ -137,7 +140,7 @@ function userAgent(): string | undefined {
   return ua ? ua.slice(0, UA_MAX) : undefined;
 }
 
-function sendCount(payload: Record<string, string>): void {
+function sendCount(payload: Record<string, string | number | string[]>): void {
   if (typeof window === 'undefined') return;
   if (isLocalAnalyticsHost(window.location.hostname) || isOwnOrAutomated()) return;
   const ua = userAgent();
@@ -224,6 +227,13 @@ export function countView(): void {
   }
   lastCountedPath = path;
   sendCount(payload);
+}
+
+/** Scrolltiefe oder Klick auf der Startseite (lib/analytics/homeHeat.ts) —
+ *  derselbe Beacon, dieselben Riegel wie ein Seitenaufruf. */
+export function countHome(payload: Record<string, string | number | string[]>): void {
+  if (typeof window === 'undefined') return;
+  sendCount({ ...payload, path: window.location.pathname });
 }
 
 /** Nur fuer Tests: den Dokument-Zustand zuruecksetzen. */

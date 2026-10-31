@@ -17,6 +17,12 @@ import {
   OVERFLOW_PATH,
 } from '@/lib/analytics/dayKeyBudget';
 import { checkWindowedRateLimit } from '@/lib/rateLimitWindow';
+import {
+  homeTargetKeys,
+  homeTargetWithinBudget,
+  parseHomeBeacon,
+  type HomeBeacon,
+} from '@/lib/analytics/homeHeat';
 
 /**
  * Consent-free measurement.
@@ -147,7 +153,49 @@ async function markActive(seen: DocumentReference): Promise<void> {
   }
 }
 
-type Body = { path?: unknown; referrer?: unknown; event?: unknown; from?: unknown; ua?: unknown };
+type Body = {
+  path?: unknown;
+  referrer?: unknown;
+  event?: unknown;
+  from?: unknown;
+  ua?: unknown;
+} & Record<string, unknown>;
+
+/** Nur diese Pfade tragen Scroll- und Klick-Beacons: die Startseite in beiden
+ *  Sprachen. */
+const HOME_PATHS = new Set(['/', '/en']);
+
+/** Summen fuer Scrolltiefe und Klicks der Startseite (lib/analytics/homeHeat.ts). */
+async function homeUpdate(
+  beacon: HomeBeacon,
+  day: string,
+  ref: DocumentReference
+): Promise<Record<string, unknown>> {
+  const inc = FieldValue.increment(1);
+  const { device } = beacon;
+  if (beacon.kind === 'scroll') {
+    return {
+      day,
+      views: { [device]: inc },
+      depth: { [device]: { [String(beacon.depth)]: inc } },
+      ...(beacon.reached.length > 0 && {
+        reached: { [device]: Object.fromEntries(beacon.reached.map((s) => [s, inc])) },
+      }),
+    };
+  }
+  const update: Record<string, unknown> = {
+    day,
+    heat: { [device]: { [beacon.section]: { [beacon.cell]: inc } } },
+  };
+  if (beacon.target) {
+    // Die Ziele sind freie Schluessel (Beschriftungen) — derselbe Deckel wie
+    // im Tagesdokument, siehe lib/analytics/dayKeyBudget.ts.
+    const known = await homeTargetKeys(day, async () => (await ref.get()).data());
+    const target = homeTargetWithinBudget(known, device, beacon.section, beacon.target);
+    update.clicks = { [device]: { [beacon.section]: { [target]: inc } } };
+  }
+  return update;
+}
 
 /**
  * Der User-Agent aus dem Body, nicht aus dem Header — der Header ist hier
@@ -250,6 +298,26 @@ export async function POST(request: Request) {
   if (!limit.allowed) return new NextResponse(null, { status: 429 });
 
   const db = getAdminFirestore();
+
+  // Scrolltiefe und Klicks der Startseite: ein eigenes Dokument, kein
+  // Seitenaufruf. Steht vor dem Seitenaufruf-Zweig, sonst zaehlte jeder Klick
+  // als Aufruf.
+  const home = HOME_PATHS.has(path) && !event ? parseHomeBeacon(body) : null;
+  if (home) {
+    const homeRef = db.collection('analytics_home').doc(day);
+    try {
+      await homeRef.set(await homeUpdate(home, day, homeRef), { merge: true });
+    } catch (error) {
+      console.error(
+        '[count] home document write failed',
+        error instanceof Error ? error.name : 'UnknownError'
+      );
+    }
+    await markActive(db.collection('analytics_seen').doc(hash));
+    return new NextResponse(null, { status: 204 });
+  }
+  if (typeof body.home === 'string') return new NextResponse(null, { status: 204 });
+
   const dayRef = db.collection('analytics_daily').doc(day);
   const inc = FieldValue.increment(1);
   const update: Record<string, unknown> = { day };

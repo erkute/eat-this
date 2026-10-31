@@ -21,6 +21,7 @@ import {
 import { loadGa, loadGaRealtime } from '@/lib/admin/googleAnalytics.server';
 import { loadSearch } from '@/lib/admin/searchConsole.server';
 import { berlinDay } from '@/lib/analytics/visitorHash';
+import { summarizeHome, type HomeDoc } from '@/lib/analytics/homeHeat';
 import { getAdminAuth, getAdminFirestore } from '@/lib/firebase/admin';
 import { isAdminEmail, isAdminToken } from '@/lib/firebase/entitlements';
 import { getCachedMapData } from '@/lib/map/cached-sanity';
@@ -253,6 +254,22 @@ export async function GET(request: Request) {
 
   const today = berlinDay();
   const range = parseRange(params, today);
+
+  // Scrolltiefe und Klicks der Startseite — nur für ihren Reiter, und
+  // einschließlich des laufenden Tages: eine Heatmap braucht Klicks, keinen
+  // abgeschlossenen Tag.
+  if (params.get('only') === 'home') {
+    const home = await db
+      .collection('analytics_home')
+      .where(FieldPath.documentId(), '>=', range.start)
+      .where(FieldPath.documentId(), '<=', today)
+      .get();
+    const docs: HomeDoc[] = home.docs.map((doc) => ({
+      ...(doc.data() as Omit<HomeDoc, 'day'>),
+      day: doc.id,
+    }));
+    return NextResponse.json({ home: summarizeHome(docs) }, { headers: NO_STORE });
+  }
 
   // Doppelt so weit zurück wie angefragt: die zweite Hälfte ist der gewählte
   // Zeitraum, die erste die gleich lange Periode davor, gegen die verglichen

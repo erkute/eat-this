@@ -65,6 +65,11 @@
   translate: -50% 0;
   rotate: -3deg;
 }
+.packImg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {

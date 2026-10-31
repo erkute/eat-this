@@ -46,15 +46,10 @@ export default async function KategorieBoost({ categorySlug, categoryName, local
             <img key={fan} src={CARD_BACK} alt="" loading="lazy" className={styles.card}
               style={{ '--fan': fan } as CSSProperties} />
           ))}
-          <Image
-            src={image}
-            alt=""
-            width={420}
-            height={630}
-            sizes="160px"
-            className={styles.pack}
-            data-discovery-pack
-          />
+          {/* Der Rahmen trägt den Wurf aus DiscoveryMotion, das Bild die Lage. */}
+          <div className={styles.pack} data-discovery-pack>
+            <Image src={image} alt="" width={420} height={630} sizes="160px" className={styles.packImg} />
+          </div>
         </div>
       )}
       <p className={styles.kicker}>{de ? 'Der passende Booster' : 'The matching booster'}</p>

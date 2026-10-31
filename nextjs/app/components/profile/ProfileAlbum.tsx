@@ -170,6 +170,7 @@ export default function ProfileAlbum({
 
   return (
     <div className={styles.panel}>
+      <h2 className={styles.deckTitle}>{t('deckHeading')}</h2>
       {allSlots.length > 0 && (
         <div className={styles.hand}>
           <p
@@ -229,9 +230,9 @@ export default function ProfileAlbum({
             className={styles.page}
             aria-labelledby={`album-page-${index}`}
           >
-            <h2 id={`album-page-${index}`} className={styles.pageTitle}>
+            <h3 id={`album-page-${index}`} className={styles.pageTitle}>
               {group.group}
-            </h2>
+            </h3>
             <div className={styles.grid}>{group.slots.map(renderSlot)}</div>
           </section>
         ))

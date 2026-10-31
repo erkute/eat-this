@@ -85,7 +85,9 @@ describe('ProfileAlbum', () => {
       />
     );
 
-    const titles = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    // Über allem steht „Dein Deck“, die Bezirke sind seine Unterabschnitte.
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('deckHeading');
+    const titles = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
     expect(titles).toEqual(['Mitte', 'Wedding']);
     expect(screen.getAllByRole('region')).toHaveLength(2);
   });

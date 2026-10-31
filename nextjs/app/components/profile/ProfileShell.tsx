@@ -195,6 +195,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
               districtByRest.get(m.restaurant._id) ?? m.restaurant.district ?? FALLBACK_DISTRICT
             }
             countReady={freshData}
+            unlockedAt={unlockedAt}
           />
           {tab === 'deck' && (
             <ProfileRecentReveals mustEats={ownedMustEats} unlockedAt={unlockedAt} />

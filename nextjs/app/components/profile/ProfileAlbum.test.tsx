@@ -246,3 +246,54 @@ describe('ProfileAlbum', () => {
     );
   });
 });
+
+describe('ProfileAlbum – Hand im Zählerband', () => {
+  const restaurant = { _id: 'r1', name: 'Spot', slug: 'spot', lat: 0, lng: 0 };
+  const card = (id: string, order: number): MapMustEat => ({
+    _id: id,
+    order,
+    dish: id,
+    image: `/api/must-eat-image/${id}`,
+    restaurant,
+  });
+  const handOrder = (container: HTMLElement) =>
+    [...container.querySelectorAll('[aria-hidden="true"] button img')].map(
+      (img) => img.getAttribute('src')?.match(/must-eat-image\/(\w+)/)?.[1]
+    );
+
+  it('zeigt die zuletzt aufgedeckten Karten, die neueste in der Mitte', () => {
+    const mustEats = ['a', 'b', 'c', 'd', 'e'].map((id, i) => card(id, i + 1));
+    const { container } = render(
+      <ProfileAlbum
+        mustEats={mustEats}
+        faceUpIds={new Set(['a', 'b', 'c', 'd', 'e'])}
+        unlockedAt={
+          new Map([
+            ['a', 3_000],
+            ['b', 1_000],
+            ['c', 2_000],
+          ])
+        }
+      />
+    );
+    expect(handOrder(container)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('füllt ohne Zeitpunkte mit den höchsten Nummern auf', () => {
+    const mustEats = ['a', 'b', 'c', 'd'].map((id, i) => card(id, i + 1));
+    const { container } = render(
+      <ProfileAlbum mustEats={mustEats} faceUpIds={new Set(['a', 'b', 'c', 'd'])} />
+    );
+    expect(handOrder(container)).toEqual(['c', 'd', 'b']);
+  });
+
+  it('öffnet eine Karte aus der Hand wie aus dem Raster', () => {
+    const { container } = render(
+      <ProfileAlbum mustEats={[card('m4', 17)]} faceUpIds={new Set(['m4'])} />
+    );
+    fireEvent.click(container.querySelector('[aria-hidden="true"] button')!);
+    expect(screen.getByRole('link', { name: 'albumOpenSpot' }).getAttribute('href')).toBe(
+      '/map?me=m4'
+    );
+  });
+});

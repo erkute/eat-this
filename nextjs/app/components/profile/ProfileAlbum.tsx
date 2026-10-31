@@ -23,26 +23,54 @@ interface Props {
   /** Erst wenn die Daten dieses Besuchs da sind, zeigt das Band die Zahl und
    *  die Kartenhand; bis dahin hält es nur seinen Platz. */
   countReady?: boolean;
+  /** Wann eine Karte vor Ort aufgedeckt wurde (users/<uid>/unlockedMustEats).
+   *  Bestimmt, welche Karten die Hand im Zählerband zeigt. */
+  unlockedAt?: ReadonlyMap<string, number>;
 }
+
+const NO_REVEALS: ReadonlyMap<string, number> = new Map();
 
 /* Das Album: eine Seite pro Bezirk, darin die Karten in der gedruckten
    Nummernfolge. Kein Zähler und kein Fortschritt — der Bestand wächst, und
    offene wie verdeckte Plätze zeigen von selbst, was fehlt. */
-export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, countReady = true }: Props) {
+export default function ProfileAlbum({
+  mustEats,
+  faceUpIds,
+  groupOf,
+  countReady = true,
+  unlockedAt = NO_REVEALS,
+}: Props) {
   const t = useTranslations('profile');
   const { slots: allSlots, groups } = useMemo(
     () => buildAlbum(mustEats, faceUpIds, groupOf),
     [mustEats, faceUpIds, groupOf]
   );
   const collected = allSlots.filter((slot) => slot.collected).length;
-  /* Die Hand im Zählerband: drei offene Karten, die mit der höchsten Nummer. */
-  const handSlots = allSlots.filter((slot) => slot.collected && slot.mustEat?.image).slice(-3);
+  /* Die Hand im Zählerband: die drei zuletzt aufgedeckten Karten, die neueste
+     oben in der Mitte. Einen Zeitpunkt hat nur, was vor Ort aufgedeckt wurde;
+     fehlen welche (Starter Pack, öffentliche Karten), füllen die offenen mit
+     der höchsten Nummer auf. */
+  const handSlots = useMemo(() => {
+    const open = allSlots.filter((slot) => slot.collected && slot.mustEat?.image);
+    const byNumber = [...open].reverse();
+    const ranked = [
+      ...open
+        .filter((slot) => (unlockedAt.get(slot.id) ?? 0) > 0)
+        .sort((a, b) => (unlockedAt.get(b.id) ?? 0) - (unlockedAt.get(a.id) ?? 0)),
+      ...byNumber.filter((slot) => !unlockedAt.get(slot.id)),
+    ].slice(0, 3);
+    const [newest, second, third] = ranked;
+    return [second, newest, third].filter((slot) => slot !== undefined);
+  }, [allSlots, unlockedAt]);
   const [expanded, setExpanded] = useState<{
     imageUrl: string;
     placeholderUrl: string | null;
     alt: string;
     rect: DOMRect;
     id: string;
+    /** Welcher Platz während des Zooms verschwindet — die Karte im Raster
+     *  oder dieselbe in der Hand. */
+    hideKey: string;
     open: boolean;
     where: string | null;
   } | null>(null);
@@ -53,13 +81,15 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, countReady 
   expandedRef.current = expanded;
   const handleOpenReady = useCallback(() => {
     const current = expandedRef.current;
-    if (current) setHiddenId(current.id);
+    if (current) setHiddenId(current.hideKey);
   }, []);
   const handleExitComplete = () => {
     if (!expandedRef.current) setHiddenId(null);
   };
 
-  const openZoom = (slot: (typeof allSlots)[number], element: HTMLElement) => {
+  /* `key` trennt die Karte im Fächer von derselben Karte im Raster: versteckt
+     wird während des Zooms nur die, aus der er aufgeht. */
+  const openZoom = (slot: (typeof allSlots)[number], element: HTMLElement, key = slot.id) => {
     const open = slot.collected && !!slot.mustEat?.image;
     setExpanded({
       imageUrl: (open && slot.mustEat?.image) || CARD_BACK,
@@ -70,6 +100,7 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, countReady 
       alt: (open ? slot.mustEat?.dish : undefined) ?? '',
       rect: element.getBoundingClientRect(),
       id: slot.id,
+      hideKey: key,
       open,
       where: slot.where ?? null,
     });
@@ -160,18 +191,30 @@ export default function ProfileAlbum({ mustEats, faceUpIds, groupOf, countReady 
             </span>
           </p>
           {countReady && handSlots.length > 0 && (
+            /* Dieselben drei Karten liegen auch im Raster darunter, dort mit
+               Namen und Tastaturfokus. Die Hand ist der Griff für Maus und
+               Finger und bleibt für Hilfstechnik verborgen, sonst stünde jede
+               Karte doppelt im Vorlesefluss. */
             <span className={styles.handFan} aria-hidden="true">
               {handSlots.map((slot) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <button
                   key={slot.id}
-                  src={mustEatCardSrc(slot.mustEat?.image ?? '', 180)}
-                  srcSet={mustEatCardSrcSet(slot.mustEat?.image ?? '')}
-                  sizes="112px"
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
+                  type="button"
+                  tabIndex={-1}
+                  className={styles.handCard}
+                  style={{ visibility: hiddenId === `hand-${slot.id}` ? 'hidden' : undefined }}
+                  onClick={(e) => openZoom(slot, e.currentTarget, `hand-${slot.id}`)}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={mustEatCardSrc(slot.mustEat?.image ?? '', 180)}
+                    srcSet={mustEatCardSrcSet(slot.mustEat?.image ?? '')}
+                    sizes="(max-width: 767.98px) 112px, 190px"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
               ))}
             </span>
           )}

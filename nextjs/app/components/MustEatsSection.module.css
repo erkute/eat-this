@@ -16,9 +16,9 @@
 
 .wrap { width: min(100% - 2 * var(--must-pad), var(--et-wrap-max)); margin-inline: auto; }
 .kicker { margin: 0; justify-self: start; }
-.title, .sectionTitle, .closeTitle { margin: 0; font-weight: 800; letter-spacing: -.055em; text-wrap: balance; }
+.title, .sectionTitle { margin: 0; font-weight: 800; letter-spacing: -.055em; text-wrap: balance; }
 .title { grid-area: title; font-size: clamp(58px, 15vw, 88px); line-height: .88; align-self: start; }
-.sub, .sectionBody, .closeBody { margin: 0; color: var(--must-soft); font-size: 16px; line-height: 1.5; text-wrap: pretty; }
+.sub, .sectionBody { margin: 0; color: var(--must-soft); font-size: 16px; line-height: 1.5; text-wrap: pretty; }
 .head { display: grid; grid-template-columns: minmax(0, 1fr) 38%; grid-template-areas: 'kicker cover' 'title cover' 'sub sub' 'actions actions'; gap: 0 16px; padding-top: 16px; }
 .head:not([data-cover]) { grid-template-columns: 1fr; grid-template-areas: 'kicker' 'title' 'sub' 'actions'; }
 .head > .kicker { grid-area: kicker; margin-bottom: 18px; align-self: end; }
@@ -57,12 +57,10 @@
 /* Zugeklappt eine Reihe: so viele Karten, wie das Raster Spalten hat. */
 .set[data-collapsed] > .setItem:nth-child(n + 4) { display: none; }
 .setMore { display: flex; justify-content: center; margin-top: 28px; }
-.close { display: grid; align-items: center; gap: 32px; margin-top: var(--must-gap); padding-block: 24px; }
-.closeCopy { min-width: 0; }
-.closeTitle { margin-top: 20px; font-size: clamp(48px, 7vw, 88px); line-height: 1; }
-.closeBody { margin-top: 20px; max-width: 42ch; }
-.packShot { display: flex; justify-content: center; order: -1; }
-.packShot img { width: min(48vw, 240px); height: auto; transform: rotate(-4deg); filter: var(--must-card-shadow); }
+/* The closing pack poster (PackPoster) runs across the page; its copy keeps
+   to the page's column, and the packs breaking out above it need the room. */
+.close { --poster-max: var(--et-wrap-max); --poster-gut: var(--must-pad); --poster-top: calc(var(--must-gap) + 168px); }
+@media (min-width: 768px) { .close { --poster-top: var(--must-gap); } }
 @media (min-width: 768px) {
   .page { --must-pad: var(--et-wrap-pad); }
   .head { align-content: start; grid-template-rows: auto auto auto 1fr; grid-template-columns: 1.2fr 1fr; grid-template-areas: 'kicker cover' 'title cover' 'sub cover' 'actions cover'; padding-top: 20px; column-gap: clamp(40px, 7vw, 100px); }
@@ -80,10 +78,6 @@
   .sectionHead > .kicker { grid-area: kicker; }
   .sectionTitle { grid-area: title; }
   .sectionBody { grid-area: body; max-width: 65ch; font-size: 18px; }
-  .close { grid-template-columns: 1fr .65fr; padding-block: 24px; }
-  .closeBody { font-size: 20px; }
-  .packShot { order: 0; }
-  .packShot img { width: min(100%, 280px); }
 }
 @media (min-width: 1024px) {
   .cover { width: min(100%, 22vw, 320px); }
@@ -96,4 +90,4 @@
   .setMore[data-fits='desktop'] { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
-@supports (-webkit-touch-callout: none) { @media (pointer: coarse) { .cover img, .card img, .packShot img { filter: none; } } }
+@supports (-webkit-touch-callout: none) { @media (pointer: coarse) { .cover img, .card img { filter: none; } } }

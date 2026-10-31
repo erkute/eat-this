@@ -24,7 +24,7 @@ const en = {
     covered: 'Covered',
     howItWorks: 'How does it work?',
     onb1Kicker: 'Must Eat?',
-    onb1Title: 'You gotta try this.',
+    onb1Title: 'Order exactly this.',
     onb1Body: 'Lots of dishes. One reason to go. We tell you which.',
     onb2Kicker: 'How it works',
     onb2Title: 'Reveal it at the spot.',
@@ -148,8 +148,7 @@ const en = {
     locationBlocked: 'Location blocked',
     proximityTapReveal: 'Tap it and see what to order here.',
     // Makes the card worth wanting instead of just explaining the rule: it names
-    // the prize first ("the one dish") and puts the condition second. Echoes the
-    // onboarding's "You gotta try this."
+    // the prize first and puts the condition second.
     proximityHint:
       'What to order here, you find out right at the spot. That is where you flip the card and add it to your deck.',
     revealCollected: 'New in your collection',
@@ -389,7 +388,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     covered: 'Verdeckt',
     howItWorks: "Wie funktioniert's?",
     onb1Kicker: 'Must Eat?',
-    onb1Title: 'Musst du probieren.',
+    onb1Title: 'Bestell genau das.',
     onb1Body: 'Viele Gerichte. Ein Grund hinzugehen. Wir zeigen dir, welchen.',
     onb2Kicker: "So geht's",
     onb2Title: 'Vor Ort aufdecken.',

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { MapMustEat } from '@/lib/types';
 import type { MustEatDetailState } from './useMustEatDetailState';
 
@@ -118,32 +118,16 @@ describe('MustEatDetailMobile guest pitch', () => {
     expect(handleCardClick).toHaveBeenCalledTimes(1);
   });
 
-  /* Was eine verdeckte Karte ist, erklaeren die Folien der Must-Eats-Seite:
-     beim ersten Mal von selbst, danach ueber den Knopf unter der Karte
-     (Betreiber, 28.09.2026). */
+  /* Was eine verdeckte Karte ist, erklaeren die Folien der Must-Eats-Seite,
+     geoeffnet ueber den Knopf unter der Karte — nie von selbst (Betreiber,
+     31.10.2026). */
   describe('explainer', () => {
     const onboardingData = {
       mustEats: [{ ...mustEat, _id: 'open-1', dish: 'Klopse', image: '/open.webp' }],
       revealedMustEatIds: ['open-1'],
     };
-    beforeEach(() => window.localStorage.clear());
 
-    it("opens the Must Eats slides on a guest's first covered card", () => {
-      render(
-        <MustEatDetailMobile
-          mustEat={mustEat}
-          isUnlocked={false}
-          onClose={vi.fn()}
-          state={makeState({ needsLocation: true })}
-          guest
-          onboardingData={onboardingData}
-        />
-      );
-      expect(screen.getByRole('dialog', { name: 'mustEats.howItWorks' })).toBeTruthy();
-    });
-
-    it('keeps a way back to the slides once they were seen', () => {
-      window.localStorage.setItem('mustEatsOnboardingSeen', '1');
+    it('opens the Must Eats slides from the button, never by itself', () => {
       render(
         <MustEatDetailMobile
           mustEat={mustEat}
@@ -354,23 +338,6 @@ describe('MustEatDetailMobile proximity states', () => {
 
     const card = container.querySelector<HTMLElement>('[data-detail-hero] button');
     expect(card?.style.visibility).toBe('hidden');
-  });
-
-  it('defers the first-visit explainer until the zoom closes', () => {
-    window.localStorage.removeItem('mustEatsOnboardingSeen');
-    const props = {
-      mustEat,
-      isUnlocked: false,
-      onClose: vi.fn(),
-      guest: true,
-      onboardingData: { mustEats: [], revealedMustEatIds: [] },
-    };
-    const { rerender } = render(
-      <MustEatDetailMobile {...props} state={makeState({ zoomActive: true })} />
-    );
-    expect(screen.queryByRole('dialog', { name: 'mustEats.howItWorks' })).toBeNull();
-    rerender(<MustEatDetailMobile {...props} state={makeState({ zoomActive: false })} />);
-    expect(screen.getByRole('dialog', { name: 'mustEats.howItWorks' })).toBeTruthy();
   });
 
   it('switches to a strong reveal-now state inside the unlock radius', () => {

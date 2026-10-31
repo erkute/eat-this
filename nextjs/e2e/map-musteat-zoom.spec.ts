@@ -9,10 +9,10 @@ test.beforeEach(async ({ page, context, baseURL }) => {
 });
 
 for (const english of [false, true]) {
-  test(`Must Eat zoom defers onboarding and preserves paging (${english ? 'EN' : 'DE'})`, async ({ page, isMobile }, info) => {
+  test(`Must Eat zoom preserves paging and opens no explainer by itself (${english ? 'EN' : 'DE'})`, async ({ page, isMobile }, info) => {
     await page.emulateMedia({ reducedMotion: english ? 'reduce' : 'no-preference' });
-    // Public face-up example: the first-visit explainer belongs to the next,
-    // covered card, and must wait until its zoom has closed.
+    // Public face-up example, then the next, covered card: the explainer
+    // opens only from its button, never by itself.
     await page.goto(`${english ? '/en' : ''}/map?me=mustead-main-6`);
     const detail = page.locator('[data-detail-root="must-eat"]');
     const nextDetail = detail.getByRole('button', { name: new RegExp(`^${english ? 'Next Must Eat' : 'Nächstes Must Eat'}`) });
@@ -59,7 +59,7 @@ for (const english of [false, true]) {
     await page.screenshot({ path: `/tmp/eat-this-must-eat-arrows/zoom-${info.project.name}-${english ? 'en' : 'de'}.png` });
     await close.click();
     await expect(close).toHaveCount(0);
-    await expect(page.getByRole('button', { name: english ? 'Skip' : 'Überspringen', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: english ? 'Skip' : 'Überspringen', exact: true })).toHaveCount(0);
   });
 }
 

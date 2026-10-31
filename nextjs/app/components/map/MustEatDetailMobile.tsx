@@ -637,17 +637,14 @@ export default function MustEatDetailMobile({
                   die Taste macht nur sichtbar, dass es etwas zu tun gibt. */}
               {/* Ein Gast weiß nicht, was eine verdeckte Karte ist — der
                   Tipp darauf führt ihn direkt zur Anmeldung. Erklärt wird
-                  deshalb hier, mit den Folien der Must-Eats-Seite: beim ersten
-                  Mal legen sie sich von selbst über das Detail (derselbe
-                  „gesehen"-Merker wie auf /must-eats), danach holt dieser
-                  Knopf sie zurück. Er steht, wo ein angemeldeter Besucher den
+                  deshalb hier, mit den Folien der Must-Eats-Seite, die dieser
+                  Knopf öffnet — nie von selbst (Betreiber, 31.10.2026). Er steht, wo ein angemeldeter Besucher den
                   Standort-Chip hat — den bekommt ein Gast nie (Betreiber,
                   28.09.2026). */}
               {explainerData && (
                 <div className={styles.fdLocation}>
                   <MustEatsOnboarding
                     initialMapData={explainerData}
-                    autoOpen={!state.zoomActive}
                     tone="sheet"
                     starterMustEatId={mustEat._id}
                   />

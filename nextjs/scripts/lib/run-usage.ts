@@ -20,6 +20,7 @@ interface ModelPrices {
 
 export const SONNET_5: ModelPrices = { input: 2, output: 10 };
 export const SONNET_4_6: ModelPrices = { input: 3, output: 15 };
+export const OPUS_5_5: ModelPrices = { input: 4, output: 20 };
 
 const WEB_SEARCH_PER_1000 = 10;
 const CACHE_READ_MULTIPLIER = 0.1;

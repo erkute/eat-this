@@ -59,12 +59,15 @@ const KIEZ_NAMES: [RegExp, string][] = [
    Jede Zeile ist am echten Katalog gemessen (zuletzt 30.10.2026, 249 Spots)
    und zeigt nur auf Wörter, die dort vorkommen. Eine Alternative, die mehr
    Falsches als Richtiges holt, fliegt raus: sushi → Japanisch lieferte Ramen,
-   cocktail → Bar die Bäckerei „barlevain", maki traf „making". */
+   cocktail → Bar die Bäckerei „barlevain", maki traf „making", döner →
+   Türkisch Osmans Töchter (kein Döner), nudeln → Italienisch und pasta →
+   Italienisch jede Pizzeria, nudeln → spaghetti das „Spaghetti-Eis" einer
+   Eisdiele. Den Rest kennt der Suchindex (search-terms.json). */
 const SYNONYMS: [string[], string[]][] = [
   [['brunch'], ['fruhstuck', 'breakfast']],
   [
     ['kebab', 'kebap', 'doner', 'doener'],
-    ['kebab', 'kebap', 'doner', 'turkish', 'turkisch'],
+    ['kebab', 'kebap', 'doner'],
   ],
   [['nkln'], ['neukolln']],
   [['gelato'], ['eisdiele', 'ice cream']],
@@ -72,7 +75,6 @@ const SYNONYMS: [string[], string[]][] = [
     ['wein', 'naturwein'],
     ['wine', 'wein'],
   ],
-  [['pasta'], ['italian', 'italienisch']],
   [
     ['vegetarisch', 'veggie'],
     ['vegan', 'vegetarisch'],
@@ -83,8 +85,6 @@ const SYNONYMS: [string[], string[]][] = [
      und Kategorien, die es im Bestand gibt (cuisineLabels.ts). */
   [
     ['nudeln', 'nudel', 'noodle', 'noodles'],
-    /* „italienisch", nicht „italian": Pizzerien stehen als „Italian / Pizza"
-       im Index und heissen auf Deutsch „Pizza" — die sind hier nicht gemeint. */
     [
       'nudel',
       'nudeln',
@@ -93,16 +93,20 @@ const SYNONYMS: [string[], string[]][] = [
       'ramen',
       'udon',
       'soba',
-      'spaghetti',
       'tagliatelle',
       'linguine',
       'fettuccine',
       'penne',
       'rigatoni',
       'vermicelli',
+      'ravioli',
+      'tortellini',
+      'pappardelle',
+      'orecchiette',
+      'paccheri',
+      'bucatini',
       'lasagne',
       'lasagna',
-      'italienisch',
     ],
   ],
   [
@@ -143,7 +147,8 @@ const SYNONYMS: [string[], string[]][] = [
     ['kuchen', 'torte'],
     ['bakery', 'backerei', 'desserts', 'konditorei'],
   ],
-  [['fleisch'], ['steak', 'steakhouse', 'grill']],
+  /* Nicht „grill": das trifft jedes „Grilled Cheese". */
+  [['fleisch'], ['steak', 'steakhouse']],
   [['eiscafe'], ['ice cream', 'eisdiele', 'gelato']],
   [['mittag', 'mittagessen'], ['lunch']],
   [['abendessen', 'abends'], ['dinner']],
@@ -266,6 +271,25 @@ const SYNONYMS: [string[], string[]][] = [
     ['vegan', 'plant'],
   ],
 ];
+/* Küchen und Kategorien, wie sie am Spot als Etikett stehen. Zeigt ein
+   Synonym auf eines davon, meint es das Etikett, nicht jede Erwähnung im
+   Text: „Turkish Eggs" bei Father Carpenter und „italienisches Eis" bei
+   Hokey Pokey sind weder Döner noch Nudeln (30.10.2026). */
+const LABELS = new Set(
+  [
+    ...Object.entries(CUISINE_LABELS_DE).flat(),
+    'fruhstuck',
+    'breakfast',
+    'lunch',
+    'dinner',
+    'drinks',
+    'kaffee',
+    'coffee',
+    'sweets',
+    'susses',
+  ].map(normalizeForSearch)
+);
+
 const SYNONYMS_BY_WORD = new Map(
   SYNONYMS.flatMap(([words, alternatives]) =>
     words.map((w) => [normalizeForSearch(w), alternatives.map(normalizeForSearch)] as const)
@@ -341,6 +365,20 @@ function startsWord(hay: string, token: string): boolean {
   return false;
 }
 
+/** Steht `token` in `hay` als ganzes Wort? */
+function isWord(hay: string, token: string): boolean {
+  for (let i = hay.indexOf(token); i !== -1; i = hay.indexOf(token, i + 1)) {
+    const end = i + token.length;
+    if (
+      (i === 0 || !/[a-z0-9]/.test(hay[i - 1])) &&
+      (end === hay.length || !/[a-z0-9]/.test(hay[end]))
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /** Was ein Spot fuer die Suche hergibt, einmal gefaltet. */
 interface SearchEntry {
   name: string;
@@ -349,6 +387,8 @@ interface SearchEntry {
   /** Alle durchsuchten Felder, durch „ | " getrennt, damit kein Wort ueber
    *  eine Feldgrenze hinweg entsteht. */
   all: string;
+  /** Was als Etikett am Spot steht: Name, Küche, Kategorien, Gerichte. */
+  labels: string;
   /** Die einzelnen Woerter aus `all`, fuer den Tippfehler-Durchgang. */
   words: string[];
 }
@@ -389,8 +429,16 @@ export function buildSearchIndex(
       ...(r.categories ?? []).flatMap((c) => [c.name, c.nameEn, c.slug]),
     ];
     const all = fields.filter(Boolean).map(normalizeForSearch).join(' | ');
+    const labels = [
+      r.name,
+      r.cuisineType,
+      r.cuisineType ? CUISINE_LABELS_DE[r.cuisineType] : null,
+      ...(dishes.get(r._id) ?? []),
+      ...(r.categories ?? []).flatMap((c) => [c.name, c.nameEn, c.slug]),
+    ];
     index.set(r._id, {
       name: normalizeForSearch(r.name),
+      labels: labels.filter(Boolean).map(normalizeForSearch).join(' | '),
       area: [r.bezirk?.name, r.district].filter(Boolean).map(normalizeForSearch).join(' | '),
       all,
       words: [...new Set(all.split(/[^a-z0-9]+/).filter(Boolean))],
@@ -398,8 +446,6 @@ export function buildSearchIndex(
   }
   return index;
 }
-
-const SUBSTRING_MIN_LENGTH = 4;
 
 /* Ab dieser Länge darf ein Wort einen Buchstaben danebenliegen. Kürzer rät
    die Suche zu viel: „ruz" wäre „rutz", „reis", „rum". */
@@ -441,25 +487,20 @@ function nearWordStart(words: string[], token: string): boolean {
    Reisnudeln. Diese Endungen dürfen auch die englischen Suchwörter treffen. */
 const FOOD_ENDINGS = new Set(['suppe', 'suppen', 'nudel', 'nudeln']);
 
-/* Ein kurzes Wort steckt sonst überall mitten drin: „eis" in Fleisch, heißt
-   und weiße (123 von 249 Spots), „tea" in Team und Steak. Unter vier
-   Buchstaben zählt es deshalb im Text nur als ganzes Wort (auch im Plural)
-   und am Wortanfang nur im Namen — dort tippt man es an: „piz" findet die
-   Pizzeria. Ab vier Buchstaben darf es mitten im Wort stehen: „suppe" in
-   „Tomatensuppe". */
-function isWholeWord(entry: SearchEntry, token: string): boolean {
-  return entry.words.includes(token) || entry.words.includes(`${token}s`);
-}
-
-function textMatches(entry: SearchEntry, token: string): boolean {
-  if (token.length >= SUBSTRING_MIN_LENGTH) return entry.all.includes(token);
-  return startsWord(entry.name, token) || isWholeWord(entry, token);
-}
-
-/** Eine Alternative trifft am Wortanfang; kurze nur als ganzes Wort. */
-function altMatches(entry: SearchEntry, alt: string): boolean {
-  if (alt.length >= SUBSTRING_MIN_LENGTH || alt.includes(' ')) return startsWord(entry.all, alt);
-  return isWholeWord(entry, alt);
+/* Ein Wort trifft am Wortanfang, nie mitten im Wort: „döner" fand sonst
+   „Londoner", „wein" das „Schwein", „eis" das „Speiselokal". Unter vier
+   Buchstaben zählt es im Text nur als ganzes Wort (auch im Plural): „eis"
+   steckte am Wortanfang in jedem Eiskaffee, „pho" in „photo". Am Etikett —
+   Name, Küche, Gerichte — reicht auch dann der Wortanfang: „piz" findet beim
+   Tippen schon die Pizzeria. */
+const SHORT_WORD = 3;
+function inText(entry: SearchEntry, token: string): boolean {
+  if (token.length > SHORT_WORD || token.includes(' ')) return startsWord(entry.all, token);
+  return (
+    startsWord(entry.labels, token) ||
+    entry.words.includes(token) ||
+    entry.words.includes(`${token}s`)
+  );
 }
 
 function wordMatches(entry: SearchEntry, word: QueryWord, fuzzy: boolean): boolean {
@@ -470,12 +511,15 @@ function wordMatches(entry: SearchEntry, word: QueryWord, fuzzy: boolean): boole
       (t) => startsWord(entry.area, t) || startsWord(entry.name, t)
     );
   }
-  if (textMatches(entry, word.text)) return true;
+  if (inText(entry, word.text)) return true;
   if (
-    word.alternatives.some(
-      (alt) =>
-        altMatches(entry, alt) ||
-        (FOOD_ENDINGS.has(alt) && entry.words.some((term) => term.endsWith(alt)))
+    word.alternatives.some((alt) =>
+      /* Eine Küche oder Kategorie meint das Etikett, nicht jede Erwähnung im
+         Text: „Turkish Eggs" sind kein Döner. */
+      LABELS.has(alt)
+        ? startsWord(entry.labels, alt)
+        : inText(entry, alt) ||
+          (FOOD_ENDINGS.has(alt) && entry.words.some((term) => term.endsWith(alt)))
     )
   )
     return true;
@@ -510,16 +554,16 @@ export function needsFuzzy(index: Map<string, SearchEntry>, query: QueryWord[]):
  * Eisdiele. Innerhalb einer Stufe bleibt die Entfernung.
  */
 export function searchRank(entry: SearchEntry, query: QueryWord[]): number {
-  if (query.every((w) => startsWord(entry.name, w.text))) return 0;
-  if (
-    query.every(
-      (w) =>
-        startsWord(entry.all, w.text) || w.alternatives.some((alt) => startsWord(entry.all, alt))
-    )
-  ) {
-    return 1;
-  }
-  return 2;
+  const every = (test: (token: string) => boolean) =>
+    query.every((w) => test(w.text) || w.alternatives.some(test));
+  /* Das ganze Wort im Namen: „bar" stellt die Wax On Bar vor „The Barn". */
+  if (query.every((w) => isWord(entry.name, w.text))) return 0;
+  /* Als Etikett — Küche, Kategorie, Gericht: bei „eis" die Eisdielen vor
+     den Restaurants, die auch Eis haben. */
+  if (every((t) => isWord(entry.labels, t))) return 1;
+  if (every((t) => startsWord(entry.labels, t))) return 2;
+  if (every((t) => startsWord(entry.all, t))) return 3;
+  return 4;
 }
 
 /**

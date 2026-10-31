@@ -211,6 +211,7 @@ const en = {
   profile: {
     avatarError: 'Your character could not be saved. Please try again.',
     albumCard: 'Card',
+    deckHeading: 'Your deck',
     albumCount: 'of {total} Must Eats',
     tab_account: 'Account',
     fieldName: 'Name',
@@ -246,7 +247,7 @@ const en = {
     tabsLabel: 'Profile sections',
     pageTitle: 'Your profile',
     accountYou: 'You',
-    accountLogin: 'Sign-in',
+    accountSettings: 'Account settings',
     tab_deck: 'Deck',
     tab_spots: 'Spots',
     tab_packs: 'Packs',
@@ -582,6 +583,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
   profile: {
     avatarError: 'Dein Charakter konnte nicht gespeichert werden. Versuch es nochmal.',
     albumCard: 'Karte',
+    deckHeading: 'Dein Deck',
     albumCount: 'von {total} Must Eats',
     tab_account: 'Konto',
     fieldName: 'Name',
@@ -620,7 +622,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     tabsLabel: 'Bereiche des Profils',
     pageTitle: 'Dein Profil',
     accountYou: 'Du',
-    accountLogin: 'Anmeldung',
+    accountSettings: 'Kontoeinstellungen',
     tab_deck: 'Deck',
     tab_spots: 'Spots',
     tab_packs: 'Packs',

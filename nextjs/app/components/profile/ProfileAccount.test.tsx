@@ -121,7 +121,7 @@ describe('name autosave', () => {
   });
 });
 
-it('shows the character free-standing and lets a tap on it change it', () => {
+it('zeigt den Charakter frei mit dem Namen als Überschrift und wechselt ihn per Tipp', () => {
   const onPickAvatar = vi.fn();
   render(
     <ProfileAccount
@@ -136,7 +136,7 @@ it('shows the character free-standing and lets a tap on it change it', () => {
   expect(screen.getAllByRole('button', { name: 'changeAvatar' })).toHaveLength(2);
   const imgs = document.querySelectorAll('img[src^="/pics/avatar/3.webp"]');
   expect(imgs).toHaveLength(1);
-  // Das rote Blatt trägt den Namen als Überschrift, nicht „Du".
+  // Der Name ist die Überschrift neben der Figur, nicht „Du".
   expect(screen.getByRole('heading', { level: 2, name: 'Alex' })).toBeTruthy();
   fireEvent.click(imgs[0].closest('button')!);
   expect(onPickAvatar).toHaveBeenCalledTimes(1);

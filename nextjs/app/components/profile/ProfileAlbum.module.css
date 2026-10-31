@@ -16,6 +16,14 @@
   background: transparent;
 }
 
+/* Die Überschrift des Reiters, gleich gross wie der Name im Konto. */
+.deckTitle {
+  margin: 0;
+  color: var(--album-ink);
+  font: 800 clamp(40px, 12vw, 96px) / 0.95 var(--album-display);
+  letter-spacing: -0.04em;
+}
+
 /* „x von y": ein Ink-Band mit großer Zahl und der eigenen Kartenhand — die
    Marken-Ink-Farbe, auch im Dunkelmodus, wie jedes Angebot der Startseite. */
 .hand {

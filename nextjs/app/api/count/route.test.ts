@@ -32,6 +32,7 @@ vi.mock('firebase-admin/firestore', () => ({
 
 import { POST } from './route';
 import { MAP_KEY_BUDGET, resetDayKeysCache } from '@/lib/analytics/dayKeyBudget';
+import { resetHomeTargetsCache } from '@/lib/analytics/homeHeat';
 
 const CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36';
@@ -65,6 +66,7 @@ describe('POST /api/count', () => {
     // Ein leeres Tagesdokument: jeder Schluessel ist neu und passt ins Budget.
     mocks.get.mockReset().mockReturnValue(undefined);
     resetDayKeysCache();
+    resetHomeTargetsCache();
     process.env.COUNT_SALT = 'test-salt';
     // The route refuses to write outside production on purpose (see below);
     // every counting assertion here is about the production path.
@@ -485,6 +487,53 @@ describe('POST /api/count', () => {
   /* Ein Beacon ist ein Aufruf, den niemand wiederholen kann und dessen
    * Ergebnis niemand liest. Ein 500 daraus landet ueber `onRequestError` als
    * Vorfall in Sentry, ohne dass irgendjemandem geholfen waere. */
+  describe('Scrolltiefe und Klicks der Startseite', () => {
+    const homeWrite = () =>
+      mocks.set.mock.calls.find(([collection]) => collection === 'analytics_home')?.[2] as
+        | Record<string, unknown>
+        | undefined;
+
+    it('zaehlt einen Klick in analytics_home, nicht als Seitenaufruf', async () => {
+      const response = await POST(
+        request({
+          path: '/',
+          home: 'click',
+          device: 'phone',
+          section: 'faq',
+          x: 0.12,
+          y: 0.5,
+          target: 'Was kostet Eat This?',
+        })
+      );
+      expect(response.status).toBe(204);
+      expect(dayWrite()).toBeUndefined();
+      expect(homeWrite()).toMatchObject({
+        heat: { phone: { faq: { '2_10': { __inc: 1 } } } },
+        clicks: { phone: { faq: { 'Was kostet Eat This?': { __inc: 1 } } } },
+      });
+    });
+
+    it('zaehlt die Scrolltiefe eines Aufrufs auf /en', async () => {
+      await POST(
+        request({ path: '/en', home: 'scroll', device: 'desktop', depth: 0.93, reached: ['hero'] })
+      );
+      expect(homeWrite()).toMatchObject({
+        views: { desktop: { __inc: 1 } },
+        depth: { desktop: { '90': { __inc: 1 } } },
+        reached: { desktop: { hero: { __inc: 1 } } },
+      });
+      expect(dayWrite()).toBeUndefined();
+    });
+
+    it('verwirft einen Startseiten-Beacon von einer anderen Seite ganz', async () => {
+      await POST(
+        request({ path: '/map', home: 'click', device: 'phone', section: 'hero', x: 0, y: 0 })
+      );
+      expect(homeWrite()).toBeUndefined();
+      expect(dayWrite()).toBeUndefined();
+    });
+  });
+
   it('antwortet 204, wenn der Schreibvorgang scheitert', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     mocks.set.mockRejectedValue(new Error('UNAVAILABLE'));

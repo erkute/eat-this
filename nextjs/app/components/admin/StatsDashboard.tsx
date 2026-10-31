@@ -17,6 +17,7 @@ import Revenue from './stats/reports/Revenue';
 import Search from './stats/reports/Search';
 import Acquisition from './stats/reports/Acquisition';
 import Content from './stats/reports/Content';
+import HomeReport from './stats/reports/HomeReport';
 import EventsReport from './stats/reports/EventsReport';
 import ConsentReport from './stats/reports/ConsentReport';
 import styles from './StatsDashboard.module.css';
@@ -41,6 +42,7 @@ export type ReportKey =
   | 'search'
   | 'acquisition'
   | 'content'
+  | 'home'
   | 'events'
   | 'consent';
 
@@ -83,6 +85,11 @@ const REPORTS: Report[] = [
     label: 'Inhalte',
     group: 'Verhalten',
     sub: 'Welche Seiten gesehen werden und wo Besuche enden',
+  },
+  {
+    key: 'home',
+    label: 'Startseite',
+    sub: 'Wie weit gescrollt wird, was geklickt wird, und die Heatmap',
   },
   {
     key: 'events',
@@ -383,6 +390,8 @@ function ReportBody({
       return <Acquisition data={data} />;
     case 'content':
       return <Content data={data} />;
+    case 'home':
+      return <HomeReport data={data} />;
     case 'events':
       return <EventsReport data={data} />;
     case 'consent':

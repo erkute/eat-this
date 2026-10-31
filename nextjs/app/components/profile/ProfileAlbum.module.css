@@ -37,36 +37,70 @@
 }
 .handCount {
   display: grid;
-  gap: 8px;
+  gap: 12px;
   min-width: 0;
   margin: 0;
   font-family: var(--album-display);
-  font-variant-numeric: tabular-nums;
 }
+/* Die eigene Zahl gross und allein. Proportionale Ziffern, damit die „1" von
+   „100" nicht mitten in einer Ziffernbreite steht und die Zahl einrückt; der
+   negative Rand gleicht den Vorlauf der grossen Schrift aus, damit sie
+   optisch mit der Zeile darunter beginnt. */
 .handCount strong {
-  font-size: clamp(76px, 18vw, 140px);
+  margin-left: -0.05em;
+  font-size: clamp(64px, 19vw, 140px);
   font-weight: 700;
-  line-height: 0.85;
+  line-height: 0.82;
   letter-spacing: -0.06em;
 }
+/* Der Bestand als kleine Versalzeile, im Ton der Etiketten (et-label). */
 .handTotal {
-  color: rgba(255, 255, 255, 0.74);
-  font-size: clamp(17px, 2.4vw, 26px);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.7);
+  font: 900 clamp(11px, 1.1vw, 14px) / 1 var(--et-font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+/* Am Desktop eine Zeile über die volle Breite: die Zahl grösser, der Bestand
+   auf ihrer Grundlinie daneben, die Hand grösser. */
+@media (min-width: 768px) {
+  .handCount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9em;
+  }
+  .handCount strong {
+    font-size: clamp(120px, 15vw, 260px);
+  }
+  .handTotal {
+    font-size: clamp(14px, 3.6vw - 14px, 40px);
+  }
 }
 /* Die Kartenbreite steht an einer Variablen: ein Prozent-Rand bezöge sich auf
    den Fächer selbst, nicht auf die Karte. */
 .handFan {
-  --hand-card: clamp(62px, 17vw, 112px);
+  --hand-card: clamp(56px, 15vw, 104px);
   display: flex;
   flex: 0 0 auto;
   align-items: center;
   padding-right: 4px;
 }
-.handFan img {
+.handCard {
   position: relative;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  transition: translate 0.2s ease;
+}
+@media (hover: hover) {
+  .handCard:hover {
+    translate: 0 -6px;
+  }
+}
+.handFan img {
   display: block;
   width: var(--hand-card);
   aspect-ratio: 1539 / 2115;
@@ -74,16 +108,21 @@
   border-radius: 6px;
   filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
 }
-.handFan img:nth-child(1) {
+.handCard:nth-child(1) {
   transform: rotate(-9deg);
 }
-.handFan img:nth-child(2) {
+.handCard:nth-child(2) {
   z-index: 1;
   margin-left: calc(var(--hand-card) * -0.26);
 }
-.handFan img:nth-child(3) {
+.handCard:nth-child(3) {
   margin-left: calc(var(--hand-card) * -0.26);
   transform: rotate(9deg);
+}
+@media (min-width: 768px) {
+  .handFan {
+    --hand-card: clamp(96px, 11vw, 190px);
+  }
 }
 
 /* ── Die Spielerkarte ─────────────────────────────────────
@@ -308,11 +347,15 @@ div.player {
 
 @media (prefers-reduced-motion: reduce) {
   .slot,
-  .empty .backImg {
+  .empty .backImg,
+  .handCard {
     transition: none;
   }
   .slot:hover,
   .slot:focus-visible {
     transform: none;
+  }
+  .handCard:hover {
+    translate: none;
   }
 }

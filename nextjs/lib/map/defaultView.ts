@@ -1,14 +1,13 @@
-/* Gekippt und leicht gedreht: die Karte steht schräg wie eine Isometrie, und
-   die Gebäude (Extrusion im Style, build:basemap) bekommen Seitenwände.
-   Kameraflüge setzen nur Mitte und Zoom — Neigung und Drehung bleiben, bis
-   jemand sie mit zwei Fingern ändert.
+/* Flach und genordet: die Karte steht von oben, wie man einen Stadtplan
+   liest (Betreiber, 30.10.2026). Neigen und drehen lässt sie sich weiter mit
+   zwei Fingern; Kameraflüge setzen nur Mitte und Zoom und behalten das bei.
 
    Mitte und Zoom sind nur der Rückfall: normalerweise passt die Karte beim
    Einhängen den ganzen Bestand ein (useMapCamera.initialCamera). Liegt hier
    statt in MapCanvas, weil der Kamera-Code im Haupt-Bundle rechnet und
    MapCanvas mit maplibre-gl erst im Lazy-Chunk kommt. */
-export const MAP_PITCH = 50;
-export const MAP_BEARING = -15;
+export const MAP_PITCH = 0;
+export const MAP_BEARING = 0;
 export const BERLIN_VIEW = {
   longitude: 13.405,
   latitude: 52.52,

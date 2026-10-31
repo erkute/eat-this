@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Link } from '@/i18n/navigation';
+import type { MouseEvent } from 'react';
+import { Link, useRouter } from '@/i18n/navigation';
+import { transitionToDistrict } from '@/lib/districtMapTransition';
 import { DISTRICT_PATHS } from '@/lib/home/districtPaths';
 import MapIntentLink from './MapIntentLink';
 import styles from './HomeDistricts.module.css';
@@ -14,13 +16,18 @@ const STEP_MS = 2200;
  * Die Bezirke der Startseite. Auf der Karte wandert die rote Fläche
  * fortlaufend von Bezirk zu Bezirk der Liste, der Name daneben wird mit rot
  * (Ansage 21.10.2026: „hier sollte fortlaufend was passieren"). Zeigt jemand
- * auf einen Namen, hält sie dort an. Ausser Sicht und mit reduzierter
- * Bewegung steht sie still auf Mitte.
+ * auf einen Namen oder eine Fläche, hält sie dort an. Ein Klick auf eine
+ * Fläche zoomt wie auf /bezirk in den Bezirk hinein und landet auf seiner
+ * Seite; für Tastatur und Screenreader stehen nur die Namen, die Karte bleibt
+ * ausgeblendet. Ausser Sicht und mit reduzierter Bewegung steht sie still auf
+ * Mitte.
  */
 export default function HomeDistricts({ locale }: { locale: 'de' | 'en' }) {
   const [active, setActive] = useState(0);
   const [held, setHeld] = useState<number | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const opening = useRef(false);
+  const router = useRouter();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -39,13 +46,33 @@ export default function HomeDistricts({ locale }: { locale: 'de' | 'en' }) {
     };
   }, [held]);
 
+  useEffect(() => {
+    const reset = (event: PageTransitionEvent) => { if (event.persisted) opening.current = false; };
+    window.addEventListener('pageshow', reset);
+    return () => window.removeEventListener('pageshow', reset);
+  }, []);
+
   const shown = held ?? active;
+  const release = (index: number) => { setActive(index); setHeld(null); };
   const hold = (index: number) => ({
     onPointerEnter: () => setHeld(index),
-    onPointerLeave: () => { setActive(index); setHeld(null); },
+    onPointerLeave: () => release(index),
     onFocus: () => setHeld(index),
-    onBlur: () => { setActive(index); setHeld(null); },
+    onBlur: () => release(index),
   });
+  const open = (event: MouseEvent<HTMLAnchorElement>, slug: string, index: number) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const path = event.currentTarget.querySelector('path');
+    if (!path) return;
+    event.preventDefault();
+    if (opening.current) return;
+    opening.current = true;
+    setHeld(index);
+    const go = () => router.push(`/bezirk/${slug}`);
+    if (typeof document.startViewTransition !== 'function'
+      || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { go(); return; }
+    transitionToDistrict(path, slug, go, getComputedStyle(path).fill);
+  };
   const link = ([slug, name]: string[], index: number) => (
     <Link key={slug} href={`/bezirk/${slug}`} data-active={index === shown || undefined} {...hold(index)}>{name}</Link>
   );
@@ -57,7 +84,12 @@ export default function HomeDistricts({ locale }: { locale: 'de' | 'en' }) {
         <img src="/pics/home/berlin.svg?v=2" width={640} height={550} alt={locale === 'de' ? 'Die Berliner Bezirke' : 'Berlin districts'} loading="lazy" />
         <svg className={styles.marks} viewBox="0 0 640 550" preserveAspectRatio="none" aria-hidden="true">
           {districts.map(([slug], index) => (
-            <path key={slug} d={DISTRICT_PATHS[slug]} fillRule="evenodd" data-active={index === shown || undefined} />
+            <Link key={slug} href={`/bezirk/${slug}`} tabIndex={-1}
+              onPointerEnter={() => { setHeld(index); router.prefetch(`/bezirk/${slug}`); }}
+              onPointerLeave={() => release(index)}
+              onClick={event => open(event, slug, index)}>
+              <path d={DISTRICT_PATHS[slug]} fillRule="evenodd" data-active={index === shown || undefined} />
+            </Link>
           ))}
         </svg>
       </div>

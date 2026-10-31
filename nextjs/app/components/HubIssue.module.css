@@ -88,67 +88,157 @@
   padding-block: 10px;
 }
 
+/* Die Filter brechen um statt seitwärts zu wischen. Jeder Chip ist ein Stück
+   Gewebeband wie die Reiter im Profil, der gesetzte in der umgekehrten Farbe
+   (Tokens --et-tape-* in globals.css). */
 .filterRail {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-inline: calc(-1 * var(--issue-gutter));
-  padding-inline: var(--issue-gutter);
   padding-block: 5px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.filterRail::-webkit-scrollbar {
-  display: none;
 }
 
 .filterChip {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
-  padding: 10px 20px;
+  padding: 8px 14px;
   border: 0;
   border-radius: 0;
-  background: var(--et-ground) url('/pics/paper/folded-white.webp?v=20261028-hq') var(--hub-paper-position, center) / 400px 600px;
-  background-blend-mode: multiply;
-  color: var(--et-fg);
+  border-style: solid;
+  background: none;
+  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  filter: var(--et-tape-lift);
+  color: var(--et-tape-fg);
   cursor: pointer;
-  font-family: var(--et-font-display);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.2;
+  font: 800 12px / 1.2 var(--et-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
+  appearance: none;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color 160ms ease;
+}
+.filterChip:nth-child(4n + 1) {
+  --et-tape-img: url('/pics/tape/gaffer-3-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-3-black.webp');
+  --et-tape-slice: 9 11 12 31 fill;
+  --et-tape-width: 2px 2px 3px 7px;
+}
+.filterChip:nth-child(4n + 2) {
+  --et-tape-img: url('/pics/tape/gaffer-5-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-5-black.webp');
+  --et-tape-slice: 17 31 14 17 fill;
+  --et-tape-width: 4px 7px 3px 4px;
+}
+.filterChip:nth-child(4n + 3) {
+  --et-tape-img: url('/pics/tape/gaffer-4-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-4-black.webp');
+  --et-tape-slice: 13 9 33 21 fill;
+  --et-tape-width: 3px 2px 7px 5px;
+}
+.filterChip:nth-child(4n) {
+  --et-tape-img: url('/pics/tape/gaffer-6-white.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-6-black.webp');
+  --et-tape-slice: 11 11 20 8 fill;
+  --et-tape-width: 2px 2px 4px 2px;
+}
+html[data-theme='dark'] .filterChip:nth-child(4n + 1) {
+  --et-tape-img: url('/pics/tape/gaffer-3-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-3-white.webp');
+}
+html[data-theme='dark'] .filterChip:nth-child(4n + 2) {
+  --et-tape-img: url('/pics/tape/gaffer-5-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-5-white.webp');
+}
+html[data-theme='dark'] .filterChip:nth-child(4n + 3) {
+  --et-tape-img: url('/pics/tape/gaffer-4-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-4-white.webp');
+}
+html[data-theme='dark'] .filterChip:nth-child(4n) {
+  --et-tape-img: url('/pics/tape/gaffer-6-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-6-white.webp');
 }
 
 .filterChip[aria-pressed='true'] {
-  background-color: #fff;
-  background-blend-mode: difference;
-  color: #fff;
+  border-image-source: var(--et-tape-active-img);
+  color: var(--et-tape-active-fg);
 }
 
 @media (hover: hover) {
   .filterChip:not([aria-pressed='true']):hover {
-    background-color: var(--et-quiet);
+    filter: brightness(0.95) var(--et-tape-lift);
   }
 }
 
-.filterChip:nth-child(3n) { --hub-paper-position: -100px -400px; }
-.filterChip:nth-child(3n + 1) { --hub-paper-position: -220px -80px; }
-
 .filterChip:focus-visible {
-  outline: 2px solid var(--et-fg);
-  outline-offset: 3px;
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
 }
 
-@media (min-width: 768px) {
-  .filterRail {
-    flex-wrap: wrap;
-    margin-inline: 0;
-    padding-inline: 0;
-    overflow: visible;
+/* Der Weg zurück zur Leiste: ein Stück schwarzes Band unten in der Mitte, nur
+   solange die Leiste über dem Bild liegt (HubFilterBar). */
+.filterReturn {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: var(--et-z-below-nav);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 0;
+  border-style: solid;
+  border-radius: 0;
+  background: none;
+  border-image: url('/pics/tape/gaffer-5-black.webp') 17 31 14 17 fill / 4px 7px 3px 4px / 0 stretch;
+  filter: var(--et-tape-lift);
+  color: #fff;
+  cursor: pointer;
+  font: 800 13px / 1.2 var(--et-font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  appearance: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transform: translate(-50%, calc(100% + 24px));
+  visibility: hidden;
+  transition: transform 260ms cubic-bezier(.22, 1, .36, 1), visibility 0s linear 260ms;
+}
+.filterReturn[data-shown] {
+  transform: translate(-50%, 0);
+  visibility: visible;
+  transition: transform 260ms cubic-bezier(.22, 1, .36, 1), visibility 0s;
+}
+html[data-theme='dark'] .filterReturn {
+  border-image-source: url('/pics/tape/gaffer-5-white.webp');
+  color: #000;
+}
+.filterReturn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .filterReturn, .filterReturn[data-shown] { transition: none; }
+}
+
+/* Am Telefon ein Raster: gleich breite Stücke, jede Reihe geht bündig auf,
+   kein Wort bricht um. In drei Spalten passt „Prenzlauer Berg" nur in normaler
+   Schreibweise (Versalien bräuchten ~117px bei ~107px Spalte); die Schrift
+   schrumpft unter 375px mit. */
+@media (max-width: 767px) {
+  .filterRail { display: grid; gap: 6px; }
+  .filterRail[data-columns='2'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filterRail[data-columns='3'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .filterChip { font-size: 13px; }
+  .filterRail[data-columns='3'] .filterChip {
+    padding-inline: 6px;
+    font-size: min(12px, 3.2vw);
+    letter-spacing: 0;
+    text-transform: none;
   }
 }
 
@@ -651,7 +741,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .filterChip,
   .shelfIssue {
     transition: none;
   }

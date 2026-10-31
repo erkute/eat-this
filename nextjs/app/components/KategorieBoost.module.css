@@ -1,131 +1,131 @@
+/* Plakat wie die Pack-Werbung im Spot-Detail der Map (RestaurantDetail
+   .packPromo): volle Breite, das Pack steht auf der Oberkante und ragt darüber
+   hinaus, darunter Titel, Satz und ein großer Knopf. Der Grund ist die Farbe
+   des Packs auf Butterbrotpapier; helle Packs bekommen Ink-Schrift. */
 .boost {
-  --boost-paper: var(--et-fg);
-
+  position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(140px, 280px) minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(22px, 4vw, 52px);
-  min-width: 0;
-  margin: 0;
-  padding: clamp(22px, 3.2vw, 40px);
-  overflow: hidden;
-  border-radius: 0;
-  background: var(--et-quiet);
-  color: var(--boost-paper);
+  /* Die Karten ragen ~104px über die Kante; darüber bleibt so viel Luft wie
+     unter dem Plakat bis zum nächsten Spot. */
+  margin: calc(104px + clamp(48px, 5vw, 72px)) 0 0;
+  padding: 0 clamp(20px, 4vw, 48px) clamp(28px, 4vw, 44px);
+  overflow-x: clip;
+  overflow-y: visible;
+  background: var(--boost-tile, var(--et-ink)) url('/pics/paper/butterbrot.webp') center / cover;
+  background-blend-mode: multiply;
+  color: var(--et-white);
+  --boost-soft: rgb(255 255 255 / 0.86);
+  --et-solid: var(--et-white);
+  --et-on-solid: var(--et-ink);
+  --et-btn-hover: var(--et-ink);
+  --et-btn-hover-fg: var(--et-white);
+}
+.boost[data-ink] {
+  color: var(--et-ink);
+  --boost-soft: rgb(21 18 14 / 0.82);
+  --et-solid: var(--et-ink);
+  --et-on-solid: var(--et-white);
+  --et-btn-hover: var(--et-white);
+  --et-btn-hover-fg: var(--et-ink);
 }
 
-.poster {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  padding: 0;
+.stage {
+  position: relative;
+  height: 232px;
+  margin: -96px 0 22px;
 }
-
-.posterImg {
-  display: block;
-  width: min(100%, 180px);
+/* Weicher Boden unter dem Pack — Verlauf statt drop-shadow, den iOS auf
+   Freistellern beim Scrollen als Kasten rastert. */
+.stage::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 220px;
+  height: 34px;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.38), transparent);
+}
+.card, .pack {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
   height: auto;
-  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.16));
-  transform: rotate(4deg);
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: 50% 100%;
+}
+.card {
+  width: 112px;
+  border-radius: 7px;
+  translate: calc(-50% + var(--fan) * 40px) -30px;
+  rotate: calc(var(--fan) * 14deg);
+}
+.pack {
+  width: 150px;
+  translate: -50% 0;
+  rotate: -3deg;
+}
+.packImg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-@media (hover: hover) {
-  .boost:hover .posterImg {
-    transform: translateY(-6px) rotate(2deg);
-  }
-}
-
-.body {
-  display: grid;
-  gap: 9px;
-  min-width: 0;
-}
-
-.kicker {
-  margin: 0;
-  color: var(--et-copy);
-  font-family: var(--et-font-display);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: var(--et-tracking-meta);
-  line-height: 1.3;
-  text-transform: none;
-}
-
-.title {
-  margin: 0;
-  color: var(--boost-paper);
-  font-family: var(--et-font-display);
-  font-size: var(--et-type-heading);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.12;
-  text-transform: none;
-}
-
-/* „Holzofen. Pinsa. NY-Slice." — die Editor-Zeile des Packs, gelb wie auf dem
-   Pack-Hero. */
-.spectrum {
-  max-width: 34ch;
-  margin: 2px 0 0;
-  color: var(--et-copy);
-  font-family: var(--et-font-display);
-  font-size: clamp(16px, 1.6vw, 22px);
-  font-weight: 700;
-  line-height: 1.2;
-  text-transform: none;
-}
-
-/* Gelb auf Ink — Ink auf Ink verschwände. Hover: Papier. */
-.cta {
-  justify-self: start;
-  margin-top: clamp(10px, 1.6vw, 18px);
-}
-
-@media (max-width: 839px) {
-  .boost {
-    grid-template-columns: minmax(120px, 0.7fr) minmax(0, 1fr);
-  }
-
-  .posterImg {
-    width: min(100%, 180px);
-  }
-}
-
-/* Telefon: Pack links, Text rechts — gestapelt nahm die Tafel mit dem großen
-   Pack fast einen ganzen Bildschirm ein. */
-@media (max-width: 540px) {
-  .boost {
-    grid-template-columns: 92px minmax(0, 1fr);
-    gap: 18px;
-    padding: 20px 18px;
-  }
-
-  .posterImg {
-    width: 100%;
-  }
-
-  .title {
-    font-size: 28px;
-  }
-
-  .spectrum {
-    font-size: 14px;
-  }
-}
-
-/* iOS rendert Filter-Schatten auf Ausschnitt-Bildern spürbar zäh. */
-@supports (-webkit-touch-callout: none) {
-  @media (pointer: coarse) {
-    .posterImg {
-      filter: none;
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .card {
+      animation: boostFan linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 42%;
     }
   }
 }
+/* Vom geschlossenen Stapel an den eigenen Platz. */
+@keyframes boostFan {
+  from {
+    translate: -50% 28px;
+    rotate: 0deg;
+  }
+}
 
-@media (prefers-reduced-motion: reduce) {
-  .posterImg { transition: none; }
-  .boost:hover .posterImg { transform: rotate(4deg); }
+.kicker {
+  margin: 0 0 10px;
+  color: var(--boost-soft);
+  font-family: var(--et-font-body);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.title {
+  margin: 0;
+  font-family: var(--et-font-display);
+  font-size: clamp(40px, 12vw, 64px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.spectrum {
+  max-width: 30ch;
+  margin: 14px 0 26px;
+  color: var(--boost-soft);
+  font-family: var(--et-font-body);
+  font-size: 17px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.cta {
+  width: 100%;
+}
+
+/* Breit: Text und Knopf bleiben eine lesbare Spalte unter dem Pack. */
+@media (min-width: 768px) {
+  .boost {
+    justify-items: center;
+    text-align: center;
+  }
+  /* Die Bühne hält nur absolute Bilder: zentriert fiele sie auf 0px. */
+  .stage { justify-self: stretch; }
+  .spectrum { margin-inline: auto; }
+  .cta { width: auto; min-width: 320px; }
 }

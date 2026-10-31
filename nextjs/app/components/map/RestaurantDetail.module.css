@@ -34,14 +34,6 @@
 .scroll::-webkit-scrollbar {
   width: 0;
 }
-.packPromoSingleCard {
-  aspect-ratio: 2 / 3;
-  object-fit: contain;
-  transition:
-    transform var(--map-motion),
-    filter var(--map-motion);
-}
-
 @keyframes rdSkelShimmer {
   to {
     background-position: -200% 0;
@@ -96,18 +88,6 @@
   background-image: none;
 }
 
-/* Restaurant detail actions — flatter, closer to the Home brand palette. */
-.packPromo {
-  column-gap: 15px;
-  filter: none;
-}
-@media (max-width: 380px) {
-  .packPromo {
-    column-gap: 11px;
-    padding-inline: 12px;
-  }
-}
-
 /* iOS Safari occasionally rasterizes alpha WebP + drop-shadow as a rectangular
    layer during scroll/3D transforms. Keep these cut-outs flat on touch WebKit. */
 @supports (-webkit-touch-callout: none) {
@@ -116,11 +96,6 @@
       filter: none;
     }
   }
-}
-
-.packPromo {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
 }
 
 .rdMustGrid li {
@@ -169,20 +144,6 @@
   background: transparent;
 }
 
-.packPromo::after {
-  position: absolute;
-  inset: auto -18px -22px auto;
-  width: 112px;
-  height: 112px;
-  transform: rotate(12deg);
-  pointer-events: none;
-  background: #d9382a;
-  opacity: 0.95;
-}
-/* Flat pack CTA */
-.btnPackPromo {
-  position: relative;
-}
 .rdHero,
 .medish {
   border-radius: var(--et-radius-photo);
@@ -216,8 +177,7 @@
   box-shadow: none;
 }
 
-.rdMustSection,
-.packPromo {
+.rdMustSection {
   margin-left: 14px;
   margin-right: 14px;
   border: 0;
@@ -255,96 +215,6 @@
      Fenstern, der Boden verhindert ein Briefmarken-Foto auf flachen. */
   .rdHero {
     min-height: clamp(220px, 41dvh, 430px);
-  }
-}
-
-.detail .packPromo {
-  display: grid;
-  grid-template-columns: 128px minmax(0, 1fr);
-  align-items: center;
-  gap: 20px;
-  color: #15120e;
-  box-shadow: none;
-}
-.packPromo::before,
-.packPromo::after {
-  content: none;
-}
-.packPromoCardWrap {
-  position: relative;
-  pointer-events: none;
-  z-index: 1;
-  align-self: center;
-  min-height: 0;
-  width: 128px;
-  height: 168px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.detail .packPromoSingleCard {
-  width: 116px;
-  height: auto;
-  display: block;
-  transform: rotate(-3deg);
-  filter: none;
-}
-.packPromoCopy {
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  display: grid;
-  gap: 10px;
-}
-.packPromoActions {
-  grid-column: 1 / -1;
-  display: flex;
-}
-
-/* Same button as the action row above, so the sheet has one CTA shape. */
-
-/* Der Knopf im Angebot war Ink auf hellem Angebot — auf Ink unsichtbar. */
-
-.detail .btnPackPromo {
-  width: 100%;
-  /* Same butterbrot paper as the offer around it (Ersan 26.10.2026). */
-  background-image: url('/pics/paper/butterbrot.webp');
-  background-size: cover;
-  background-position: center;
-  background-blend-mode: multiply;
-}
-/* Auf dem roten Angebot trägt die Fläche die kontrastreichen Hausknopf-Rollen. */
-.packPromo {
-  --et-solid: var(--et-red);
-  --et-on-solid: #fff;
-}
-
-.btnPackPromoLbl {
-  line-height: 1;
-  color: currentColor;
-  display: inline-flex;
-  align-items: center;
-  /* Keep the short action label on one line inside the narrow side panel. */
-  white-space: nowrap;
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 400;
-  font: inherit;
-  letter-spacing: 0;
-  text-transform: inherit;
-}
-
-@media (max-width: 380px) {
-  .detail .packPromo {
-    grid-template-columns: 106px minmax(0, 1fr);
-    gap: 14px;
-  }
-  .packPromoCardWrap {
-    width: 106px;
-    height: 148px;
-  }
-  .detail .packPromoSingleCard {
-    width: 98px;
   }
 }
 
@@ -488,60 +358,6 @@
   }
 }
 
-/* ============ Pack promo — the "extra" panel ============
-   Everything else in the sheet is about the spot you opened; this block is
-   not. It is set apart by SURFACE, not by an outline: the action row directly
-   above is a grid of ringed buttons, so another frame here just stacks
-   borders. Die Fläche ist die ruhige Tonfläche, auf der derselbe Starter Pack
-   schon auf der Startseite steht (StarterPackSignup): ein Produkt, ein
-   Untergrund. Das cremige Gelb davor war der einzige Ort der App, der es
-   trug — es las sich als drittes Beige neben Papier und Marke, und der
-   ink-Knopf darin verlor auf dem warmen Ton an Kante.
-   The copy speaks the sheet's own voice too — display face for the pitch and
-   the sign-in link, the action-row button treatment for the CTA. */
-
-.packPromo {
-  position: relative;
-  margin: 30px 14px 32px;
-  padding: clamp(22px, 5vw, 24px) clamp(14px, 4vw, 18px) clamp(20px, 4.5vw, 22px);
-  border: 0;
-  border-radius: var(--et-radius-photo);
-  overflow: visible;
-}
-
-/* 1.18 statt 0.94: bricht „Hunger auf mehr?" um, hing die Schlaufe vom g
-   sonst im r von „mehr". */
-
-.packPromoTitle {
-  margin-bottom: 8px;
-  display: block;
-  margin: 0;
-  font-family: var(--et-font-display);
-  font-weight: 800;
-  letter-spacing: 0;
-  text-transform: none;
-  font-size: clamp(26px, 6.6vw, 34px);
-  line-height: 1.18;
-}
-
-.packPromoBody {
-  max-width: 27ch;
-  font-family: var(--et-font-display);
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-/* The desktop detail is a phone-width column, so reading sizes stay the same
-   across breakpoints. Only the photo title and pack headline have their own cap. */
-
-@media (min-width: 1024px) {
-  
-  .packPromoTitle {
-    font-size: 30px;
-  }
-}
-
 /* ══════════════════════════════════════════════════════════════════════════
    Ink-Grund fuer das Restaurant-Detail (04.09.2026)
 
@@ -558,29 +374,6 @@
    Das Must-Eat-Sheet ist seit dem 02.09.2026 eigenstaendig ink und hat
    seine eigenen --me-*-Tokens (MustEatDetail.module.css).
    ══════════════════════════════════════════════════════════════════════════ */
-
-/* Das Pack-Angebot traegt die Farbe des Produkts, nicht die leise Stufe
-   (04.09.2026). Es zeigt dasselbe Starter Pack wie das Sheet eines verdeckten
-   Spots, also sieht es auch gleich aus — `--et-offer-red` steht in
-   MapLayout.module.css und gilt fuer beide. Vorher war es hier eine neutrale
-   leise Flaeche und dort rot; dasselbe Angebot sah an zwei Stellen
-   verschieden aus. */
-
-.packPromo {
-  background: var(--et-offer-red, #8b291f);
-}
-
-.detail .packPromoTitle {
-  color: var(--et-white);
-}
-
-.detail .packPromoBody {
-  display: block;
-  margin: 0;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--et-ink-soft);
-}
 
 /* Der Grund des Sheets selbst. Die hellen Fassungen davor sind entfernt;
    am schwersten wog der Phone-Block bei `[data-map-sheet][data-view='detail']`.
@@ -948,8 +741,7 @@
   line-height: 1.35;
   text-wrap: pretty;
 }
-.detail .rdMustSection,
-.detail .packPromo {
+.detail .rdMustSection {
   margin-inline: var(--rd-gut);
 }
 .detail .rdMustSection {
@@ -1081,16 +873,6 @@
   --et-label-bg: var(--et-ink);
 }
 
-/* Rotes Butterbrotpapier für das Pack-Angebot, wie die Instagram-Cover
-   (Figma › Instagram › Vol-I/01, Ebene „Butterbrotpapier · matte Knicke";
-   die 65 % Deckkraft dort sind ins Bild eingerechnet). */
-.detail .packPromo {
-  border-radius: 0;
-  background-image: url('/pics/paper/butterbrot.webp');
-  background-size: cover;
-  background-position: center;
-  background-blend-mode: multiply;
-}
 :global(html[data-theme='dark']) .rdFacts {
   background-color: #fff;
   background-blend-mode: difference;
@@ -1108,4 +890,124 @@
 }
 .detail .scroll > :last-child {
   margin-bottom: 0;
+}
+
+/* ── Pack promo: a poster at the end of the sheet ─────────────────────────
+   Full width, product first: the packs stand on the poster's top edge and
+   break out above it, then title, pitch and one large button. As the poster
+   scrolls in, the packs fan open from a closed stack (scroll timeline, no
+   JS); without scroll timelines or with reduced motion they simply stand
+   fanned. Starter: red butterbrot paper, the colour of the pack. Booster:
+   ink, so the coloured packs carry the colour. */
+.packPromo {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  margin: 112px 0 0;
+  padding: 0 var(--rd-gut) calc(32px + env(safe-area-inset-bottom, 0px));
+  /* The fan may reach past the sides; the breakout above stays visible. */
+  overflow-x: clip;
+  overflow-y: visible;
+  color: var(--et-white);
+}
+.packPromo[data-offer='starter'] {
+  background: var(--et-offer-red, #a82b2e) url('/pics/paper/butterbrot.webp') center / cover;
+  background-blend-mode: multiply;
+  --et-solid: var(--et-white);
+  --et-on-solid: var(--et-ink);
+  --et-btn-hover: var(--et-ink);
+  --et-btn-hover-fg: var(--et-white);
+}
+.packPromo[data-offer='booster'] {
+  background: var(--et-ink);
+  --et-solid: var(--et-red);
+  --et-on-solid: var(--et-white);
+  --et-btn-hover: var(--et-white);
+  --et-btn-hover-fg: var(--et-ink);
+}
+/* The poster runs to the end of the sheet instead of stopping above it. */
+.detail .scroll:has(> .packPromo:last-child) {
+  padding-bottom: 0;
+}
+
+.packPromoStage {
+  position: relative;
+  height: 232px;
+  margin: -96px 0 22px;
+}
+/* A soft floor under the packs — a gradient, not a drop-shadow filter, which
+   iOS rasterises as a box on cut-outs while scrolling. */
+.packPromoStage::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 260px;
+  height: 34px;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.38), transparent);
+}
+.packPromoItem {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 128px;
+  height: auto;
+  transform-origin: 50% 100%;
+  translate: calc(-50% + var(--fan) * 52px) calc(-1 * var(--lift));
+  rotate: calc(var(--fan) * 11deg);
+}
+.packPromoItem[data-pack] {
+  width: 150px;
+  rotate: -3deg;
+}
+.packPromo[data-offer='starter'] .packPromoItem:not([data-pack]) {
+  width: 112px;
+  border-radius: 7px;
+  translate: calc(-50% + var(--fan) * 40px) calc(-1 * var(--lift));
+  rotate: calc(var(--fan) * 14deg);
+}
+.packPromo[data-offer='booster'] .packPromoItem:not([data-pack]) {
+  width: 112px;
+  translate: calc(-50% + var(--fan) * 46px) calc(-1 * var(--lift));
+  rotate: calc(var(--fan) * 9deg);
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .packPromoItem {
+      animation: packPromoFan linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 42%;
+    }
+  }
+}
+/* From the closed stack to each item's own place (its translate/rotate). */
+@keyframes packPromoFan {
+  from {
+    translate: -50% 28px;
+    rotate: 0deg;
+  }
+}
+
+.packPromoTitle {
+  margin: 0;
+  font-family: var(--et-font-display);
+  font-size: clamp(40px, 12vw, 54px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.packPromoBody {
+  max-width: 30ch;
+  margin: 14px 0 26px;
+  font-family: var(--et-font-body);
+  font-size: 17px;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 0.86);
+  text-wrap: pretty;
+}
+.btnPackPromo {
+  width: 100%;
 }

@@ -212,7 +212,7 @@ function release(sheet: HTMLElement): void {
 }
 
 /** Leave the sheet held below the map stop. `data-sheet-lowered` hands
- *  every touch on it to the grip (MapSheet.module.css, useHandleScrollDrag). */
+ *  every touch on it to the grip (useHandleScrollDrag). */
 function hold(sheet: HTMLElement, offsetPx: number): void {
   release(sheet);
   if (offsetPx <= 0) return;

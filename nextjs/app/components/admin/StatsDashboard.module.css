@@ -1287,3 +1287,65 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ── Startseite ───────────────────────────────────────────────────────── */
+
+.homeToolbar {
+  grid-column: span 12;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.homeSince {
+  margin: 0;
+  font-size: 14px;
+  color: var(--faint);
+}
+
+.homeSection {
+  color: var(--faint);
+}
+
+.heatLegend {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--faint);
+}
+
+.heatRamp {
+  width: 96px;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, rgb(150 190 255 / 0.5), rgb(40 100 220), rgb(10 30 100));
+}
+
+/* Die Vorschau: die Startseite in Geräte-Breite, auf die Kartenbreite
+   verkleinert. Das iframe scrollt selbst. */
+.heatStage {
+  position: relative;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: var(--et-radius-photo);
+  background: var(--ground);
+}
+
+.heatFrame {
+  display: block;
+  border: 0;
+  transform-origin: 0 0;
+}
+
+.heatLoading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  background: var(--ground);
+  color: var(--faint);
+  font-size: 14px;
+}

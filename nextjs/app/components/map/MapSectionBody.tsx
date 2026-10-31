@@ -623,6 +623,9 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
               <form
                 role="search"
                 className={controlStyles.mapSearchToolbar}
+                /* Am Telefon zu, bis jemand sucht: nur Lupe und Standort
+                   (Ersan, 30.10.2026). */
+                data-collapsed={searchVisible || draft ? undefined : ''}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
                 onSubmit={(e) => {
@@ -631,7 +634,18 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
                   searchInputRef.current?.blur();
                 }}
               >
-                <SearchGlassIcon className={controlStyles.mapSearchIcon} />
+                {/* Focus inside the tap itself: iOS opens the keyboard only
+                    for a focus the finger caused. The field stays reachable
+                    by keyboard on its own, so the glass is not a tab stop. */}
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  className={controlStyles.mapSearchGlass}
+                  onClick={() => searchInputRef.current?.focus({ preventScroll: true })}
+                  aria-label={searchLabel}
+                >
+                  <SearchGlassIcon className={controlStyles.mapSearchIcon} />
+                </button>
                 <input
                   ref={searchInputRef}
                   type="search"

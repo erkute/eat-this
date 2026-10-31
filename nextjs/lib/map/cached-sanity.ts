@@ -4,6 +4,22 @@ import { mapRestaurantsQuery, mapMustEatsQuery } from './queries';
 import { allCategoriesQuery } from '@/lib/queries';
 import type { MapRestaurant, MapMustEat } from '@/lib/types';
 import type { CategoryDef } from '@/lib/categories';
+import searchTerms from './search-terms.json';
+
+/* Der Suchindex (scripts/build-search-terms.ts): je Spot, was es dort gibt.
+   Die Beschreibung selbst zu durchsuchen findet jede Erwähnung — „im
+   Eisladen" war ein Eis-Treffer, „Turkish Eggs" ein Döner. Ein Spot ohne
+   Eintrag (neu seit dem letzten Lauf) bleibt über seine Beschreibung
+   findbar. */
+const SEARCH_TERMS: Record<string, { t: string[] } | undefined> = searchTerms;
+
+function searchTextOf(r: MapRestaurant): string | undefined {
+  const indexed = SEARCH_TERMS[r._id];
+  /* „ | " trennt die Begriffe, damit kein Treffer über zwei hinweg entsteht. */
+  if (indexed) return indexed.t.join(' | ');
+  if (!r.searchText) return undefined;
+  return [...new Set(r.searchText.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean))].join(' ');
+}
 
 interface CachedMapData {
   restaurants: MapRestaurant[];
@@ -29,10 +45,10 @@ export async function getCachedMapData(): Promise<CachedMapData> {
     client.fetch<CategoryDef[]>(allCategoriesQuery, {}, MAP_CACHE_OPTIONS),
   ]);
   return {
-    restaurants: restaurants.map((r) => r.searchText ? {
-      ...r,
-      searchText: [...new Set(r.searchText.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean))].join(' '),
-    } : r),
+    restaurants: restaurants.map((r) => {
+      const searchText = searchTextOf(r);
+      return searchText ? { ...r, searchText } : r;
+    }),
     mustEats,
     categories,
   };

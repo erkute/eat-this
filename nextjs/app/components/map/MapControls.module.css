@@ -201,7 +201,7 @@
   width: min(392px, calc(100vw - 114px));
   min-height: 44px;
   height: 44px;
-  padding: 0 10px 0 13px;
+  padding: 0 10px 0 4px;
   overflow: hidden;
 
   background: none;
@@ -218,7 +218,10 @@
   touch-action: manipulation;
   transform: none;
   transform-origin: left center;
-  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    padding 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: transform, clip-path;
 }
 
@@ -234,14 +237,51 @@
 @media (max-width: 520px) {
   .mapSearchToolbar {
     width: calc(100vw - 110px);
-    padding-left: 12px;
   }
+}
+
+/* The glass opens the field. 36px wide, so its icon stands where the bare
+   icon stood, and the tap target stays at the toolbar's full height. */
+.mapSearchGlass {
+  flex: 0 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 100%;
+  margin-right: -8px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: currentColor;
+  cursor: text;
+  touch-action: manipulation;
 }
 
 .mapSearchToolbar .mapSearchIcon {
   flex: 0 0 20px;
   width: 20px;
   height: 20px;
+}
+
+/* Phone, nobody searching: the tape holds only the glass and the locate
+   button. The field stays in the box, out of sight, so a tap on the glass
+   can focus it in the same gesture (MapSectionBody). */
+@media (max-width: 767.98px) {
+  .mapSearchToolbar[data-collapsed] {
+    width: 88px;
+    padding-right: 4px;
+    gap: 0;
+  }
+  .mapSearchToolbar[data-collapsed] .mapSearchGlass {
+    margin-right: 0;
+    cursor: pointer;
+  }
+  .mapSearchToolbar[data-collapsed] .mapSearchInput {
+    flex: 0 0 0;
+    width: 0;
+    opacity: 0;
+  }
 }
 
 .mapSearchInput {

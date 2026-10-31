@@ -214,7 +214,14 @@ export function useHandleScrollDrag(
 
     const onDown = (e: PointerEvent) => {
       // Tablets/desktop still use the real transform sheet in useBottomSheet.
-      if (!isPhone() || busy || drag || pending) return;
+      if (!isPhone() || busy) return;
+      /* A new first finger while a gesture is still open: that gesture's
+         release never arrived (iOS Safari can drop it). Left open, it held
+         the sheet and swallowed every swipe until the view changed (user,
+         30.10.2026). Finish it where it was left, then take this one. */
+      if (e.isPrimary && drag && e.pointerId !== drag.pointerId) finishLost();
+      if (e.isPrimary && pending && e.pointerId !== pending.pointerId) pending = null;
+      if (busy || drag || pending) return;
       const onGrip = e.target instanceof Node && handle.contains(e.target);
       const inZone = e.target instanceof Node && zone.contains(e.target);
       if (!onGrip && !isLowered()) {
@@ -318,10 +325,11 @@ export function useHandleScrollDrag(
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      // A photo rail is its own native scroll container. On iPhone Safari
-      // it can take over a lowered-sheet swipe despite pointer capture and
-      // touch-action on the outer sheet. Keep native scrolling out only
-      // while this hook owns the gesture; ordinary content swipes stay native.
+      /* While the grip owns a gesture nothing scrolls natively — not the page
+         under a lowered sheet, not a photo rail in it. Done here and not with
+         `touch-action: none` on the lowered sheet: iOS Safari kept that block
+         after the sheet came back up, and the article no longer scrolled
+         until the view changed (user, 30.10.2026). Other swipes stay native. */
       if (drag && e.cancelable) e.preventDefault();
     };
 
@@ -437,6 +445,22 @@ export function useHandleScrollDrag(
       if (sheet && (d.startPos < mapY || d.pos < mapY)) restAt(sheet, mapY - d.pos);
     };
 
+    /* A gesture whose release went missing ends as if let go at the last
+       position the finger reported. */
+    const finishLost = () => {
+      if (!drag) return;
+      onUp({
+        type: 'pointerup',
+        pointerId: drag.pointerId,
+        clientY: drag.lastY,
+        timeStamp: performance.now(),
+      } as PointerEvent);
+    };
+    /* The last finger is up, but no pointerup or pointercancel came. */
+    const onTouchEnd = (e: TouchEvent) => {
+      if (drag && e.touches.length === 0) finishLost();
+    };
+
     /* Lowered sits at the map stop; anything that scrolls the page away from
        it (a filter, a returning detail) takes the sheet back up first. */
     const onScroll = () => {
@@ -458,6 +482,8 @@ export function useHandleScrollDrag(
     window.addEventListener('pointermove', onMove, true);
     window.addEventListener('pointerup', onUp, true);
     window.addEventListener('pointercancel', onUp, true);
+    window.addEventListener('touchend', onTouchEnd, true);
+    window.addEventListener('touchcancel', onTouchEnd, true);
     zone.addEventListener('lostpointercapture', onUp);
     press.addEventListener('click', onClick, true);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -473,6 +499,8 @@ export function useHandleScrollDrag(
       window.removeEventListener('pointermove', onMove, true);
       window.removeEventListener('pointerup', onUp, true);
       window.removeEventListener('pointercancel', onUp, true);
+      window.removeEventListener('touchend', onTouchEnd, true);
+      window.removeEventListener('touchcancel', onTouchEnd, true);
       zone.removeEventListener('lostpointercapture', onUp);
       press.removeEventListener('click', onClick, true);
       window.removeEventListener('scroll', onScroll);

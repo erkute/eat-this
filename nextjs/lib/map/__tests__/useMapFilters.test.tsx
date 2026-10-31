@@ -347,16 +347,17 @@ describe('useMapFilters list order', () => {
   });
 
   it('lässt bei einer Suche die Treffergüte vor offen/geschlossen', () => {
-    const nameHit = spot({ name: 'Pizzabar', openingHours: EVENING });
-    const midWord = spot({ name: 'Steinofenpizza', openingHours: MORNING });
+    const nameHit = spot({ name: 'Eisbar', openingHours: EVENING });
+    const textHit = spot({
+      name: 'Café',
+      searchText: 'zum schluss ein eis',
+      openingHours: MORNING,
+    });
     const { result } = renderHook(() =>
-      useMapFilters({ restaurants: [midWord, nameHit], location: null, orderedAt: MON_9AM })
+      useMapFilters({ restaurants: [textHit, nameHit], location: null, orderedAt: MON_9AM })
     );
-    act(() => result.current.setSearch('pizza'));
-    expect(result.current.listRestaurants.map((r) => r.name)).toEqual([
-      'Pizzabar',
-      'Steinofenpizza',
-    ]);
+    act(() => result.current.setSearch('eis'));
+    expect(result.current.listRestaurants.map((r) => r.name)).toEqual(['Eisbar', 'Café']);
   });
 
   it('lets the map centre outrank the visitor once the map has been moved', () => {
@@ -546,8 +547,8 @@ describe('useMapFilters Suche, zweite Runde', () => {
     expect(liste('p-berg')).toEqual(['Standard Serious Pizza']);
   });
 
-  it('findet ein kurzes Wort nur am Wortanfang, nicht mitten im Wort', () => {
-    /* Der Standort liegt am Speiselokal; nach Entfernung stuende es vorn. */
+  it('findet ein Wort nicht mitten in einem anderen', () => {
+    /* „eis" steckt in „Speiselokal" — bis 30.10.2026 ein Treffer. */
     const amSpeiselokal = { lat: 52.5, lng: 13.4 };
     expect(liste('eis', amSpeiselokal)).toEqual(['Natur Eis']);
   });
@@ -606,12 +607,13 @@ describe('useMapFilters Suche, dritte Runde', () => {
     expect(liste('nkln')).toEqual(['Gazzo']);
     expect(liste('gelato')).toEqual(['Jones Ice Cream']);
     expect(liste('wein')).toEqual(['Rutz']);
-    expect(liste('pasta')).toEqual(['Gazzo']);
+    /* Pasta meint Pasta, nicht jede italienische Küche (30.10.2026). */
+    expect(liste('pasta')).toEqual([]);
     expect(liste('brot')).toEqual(['Crapulix']);
   });
 
   it('verlangt auch mit Synonym jedes Wort', () => {
-    expect(liste('pasta nkln')).toEqual(['Gazzo']);
+    expect(liste('pizza nkln')).toEqual(['Gazzo']);
     expect(liste('kebab nkln')).toEqual([]);
   });
 

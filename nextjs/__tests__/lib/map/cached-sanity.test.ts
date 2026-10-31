@@ -11,6 +11,9 @@ vi.mock('@/lib/map/queries', () => ({
 vi.mock('@/lib/queries', () => ({
   allCategoriesQuery: 'CATEGORIES',
 }))
+vi.mock('@/lib/map/search-terms.json', () => ({
+  default: { indexed: { h: 'x', t: ['döner', 'kebab', 'wine bar'] } },
+}))
 
 import { client } from '@/lib/sanity'
 import { getCachedMapData } from '@/lib/map/cached-sanity'
@@ -42,6 +45,22 @@ describe('getCachedMapData', () => {
     const entry = buildSearchIndex(data.restaurants, []).get('r1')!
     for (const query of ['doener', 'soup', 'queue']) {
       expect(matchesSearch(entry, parseQuery(query)), query).toBe(true)
+    }
+  })
+  it('takes the search words from the index instead of the description', async () => {
+    mockFetchReturns(
+      [{ _id: 'indexed', name: 'Bar', searchText: 'Der Londoner Gründer, nebenan ein Eisladen' }],
+      [],
+      []
+    )
+    const data = await getCachedMapData()
+    expect(data.restaurants[0].searchText).toBe('döner | kebab | wine bar')
+    const entry = buildSearchIndex(data.restaurants, []).get('indexed')!
+    for (const query of ['döner', 'wine bar']) {
+      expect(matchesSearch(entry, parseQuery(query)), query).toBe(true)
+    }
+    for (const query of ['eis', 'londoner']) {
+      expect(matchesSearch(entry, parseQuery(query)), query).toBe(false)
     }
   })
   it('fetches all three queries through the tagged shared Next cache', async () => {

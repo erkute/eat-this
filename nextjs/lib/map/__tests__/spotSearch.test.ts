@@ -26,7 +26,7 @@ describe('Suche über den gesamten öffentlichen Spot-Inhalt', () => {
   it('findet Gerichte aus dem öffentlichen Suchtext, auch ohne offene Must-Eat-Karte', () => {
     const entry = entryFor({
       name: 'Lunchlokal',
-      searchText: 'hausgemachte tomatensuppe spaghetti',
+      searchText: 'hausgemachte tomatensuppe tagliatelle',
     });
     for (const query of ['Suppe', 'soup', 'Suppen', 'Nudeln']) {
       expect(matchesSearch(entry, parseQuery(query)), query).toBe(true);
@@ -193,9 +193,10 @@ describe('Alltagswörter, die so an keinem Spot stehen', () => {
     matchesSearch(entryFor(spot), parseQuery(query));
 
   it.each([
-    ['Nudeln', { cuisineType: 'Italian' }],
+    ['Nudeln', { searchText: 'hausgemachte pasta' }],
     ['nudel', { cuisineType: 'Japanese / Ramen' }],
-    ['noodles', { cuisineType: 'Italian' }],
+    ['noodles', { searchText: 'ravioli di carne' }],
+    ['Döner', { searchText: 'halloumi-döner' }],
     ['Pho', { cuisineType: 'Vietnamese' }],
     ['asiatisch', { cuisineType: 'Korean' }],
     ['asiatisch', { cuisineType: 'Thai' }],
@@ -218,6 +219,39 @@ describe('Alltagswörter, die so an keinem Spot stehen', () => {
     expect(finds('nudeln', { cuisineType: 'Bakery' })).toBe(false);
     expect(finds('nudeln', { cuisineType: 'Italian / Pizza' })).toBe(false);
     expect(finds('asiatisch', { cuisineType: 'Italian' })).toBe(false);
+  });
+
+  it('stellt das ganze Wort vor den Wortanfang und das Etikett vor den Text', () => {
+    const spots = [
+      { _id: 'barn', name: 'The Barn', cuisineType: 'Café', lat: 0, lng: 0 },
+      { _id: 'wax', name: 'Wax On Bar', cuisineType: 'Bar', lat: 0, lng: 0 },
+      { _id: 'pizza', name: 'Pizzeria', searchText: 'pizza | eis', lat: 0, lng: 0 },
+      { _id: 'duo', name: 'Duo', cuisineType: 'Ice Cream', lat: 0, lng: 0 },
+    ] as MapRestaurant[];
+    const index = buildSearchIndex(spots, []);
+    expect(suggestSpots(spots, index, 'bar').map((r) => r.name)).toEqual([
+      'Wax On Bar',
+      'The Barn',
+    ]);
+    expect(suggestSpots(spots, index, 'eis').map((r) => r.name)).toEqual(['Duo', 'Pizzeria']);
+  });
+
+  /* Betreiber, 30.10.2026: „Döner" und „Nudeln" holten Spots ohne beides. */
+  it('holt keine Spots, die das Wort nur zufällig enthalten', () => {
+    expect(finds('döner', { cuisineType: 'Turkish', searchText: 'meze und lahmacun' })).toBe(false);
+    expect(finds('döner', { cuisineType: 'Café', searchText: 'turkish eggs' })).toBe(false);
+    expect(finds('döner', { cuisineType: 'Bar', searchText: 'der londoner sam orrock' })).toBe(
+      false
+    );
+    expect(finds('nudeln', { cuisineType: 'Italian' })).toBe(false);
+    expect(finds('nudeln', { cuisineType: 'Ice Cream', searchText: 'italienisches eis' })).toBe(
+      false
+    );
+    expect(finds('nudeln', { cuisineType: 'Ice Cream', searchText: 'spaghetti-eis' })).toBe(false);
+    expect(finds('pho', { searchText: 'no photos' })).toBe(false);
+    expect(finds('eis', { name: 'Speiselokal', searchText: 'eiskaffee und eistee' })).toBe(false);
+    expect(finds('eis', { searchText: 'zum schluss ein eis' })).toBe(true);
+    expect(finds('piz', { name: 'Gazzo', cuisineType: 'Italian / Pizza' })).toBe(true);
   });
 });
 

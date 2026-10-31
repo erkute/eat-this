@@ -260,7 +260,7 @@ export function useMapFilters({
     const rank = new Map(
       ordered.map((r) => {
         const entry = searchIndex.get(r._id);
-        return [r._id, entry ? searchRank(entry, tokens) : 2] as const;
+        return [r._id, entry ? searchRank(entry, tokens) : 4] as const;
       })
     );
     return ordered.sort((a, b) => rank.get(a._id)! - rank.get(b._id)!);

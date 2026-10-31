@@ -17,8 +17,9 @@ export function transitionToDistrictMap(navigate: () => void) {
 
 export function districtMapReady() { finishNavigation?.(); }
 
-/** Carry the selected shape to its actual position in the district header. */
-export function transitionToDistrict(path: SVGPathElement, slug: string, navigate: () => void) {
+/** Carry the selected shape to its actual position in the district header.
+ *  `fill` is the colour the shape has at the moment of the click. */
+export function transitionToDistrict(path: SVGPathElement, slug: string, navigate: () => void, fill = '#000') {
   const bounds = path.getBBox();
   const screen = path.getBoundingClientRect();
   const pad = Math.max(bounds.width, bounds.height) * .08;
@@ -30,7 +31,7 @@ export function transitionToDistrict(path: SVGPathElement, slug: string, navigat
     position: 'fixed', left: `${screen.left - pad * scale}px`, top: `${screen.top - pad * scale}px`,
     width: `${(bounds.width + pad * 2) * scale}px`, height: `${(bounds.height + pad * 2) * scale}px`,
     pointerEvents: 'none', zIndex: '1000', viewTransitionName: 'district-opening',
-    fill: '#000', stroke: 'var(--et-white)', strokeWidth: '1.5',
+    fill, stroke: 'var(--et-white)', strokeWidth: '1.5',
   });
   snapshot.append(path.cloneNode(true));
   document.body.append(snapshot);

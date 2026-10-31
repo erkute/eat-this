@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useHubFilter, type HubFilter as HubFilterState } from '@/lib/useHubFilter';
 import styles from './HubIssue.module.css';
 
@@ -83,17 +83,19 @@ export function HubFilterUnfiltered({ children }: { children: ReactNode }) {
 }
 
 /**
- * Die Rubrikenzeile über der Liste (seit 03.10.2026 Wörter statt Knöpfe, das
- * aktive mit dem gelben Quadrat). Steht über der Liste im Fluss — am Telefon
- * als Wischzeile, ab Tablet umbrechend. Bis 25.10.2026 klebte sie am Telefon
- * unter der Navigation und nahm den Fotos Fläche weg. Die Zählzeile ist nur
- * für Vorleser da.
+ * Die Rubriken über der Liste: Stücke Gewebeband wie die Profil-Reiter, das
+ * gesetzte schwarz. Stehen im Fluss; ab Tablet bricht die Reihe um, am
+ * Telefon steht ein Raster mit `columns` Spalten. Ist die Leiste nach oben aus
+ * dem Bild gescrollt, solange die Liste noch zu sehen ist, liegt unten ein
+ * einzelnes Stück Band mit dem gesetzten Filter; es bringt zurück zur Leiste.
+ * Die Zählzeile ist nur für Vorleser da.
  */
 export function HubFilterBar({
   facets,
   allLabel,
   allStatus,
   groupLabel,
+  columns,
 }: {
   facets: HubFacet[];
   /** Beschriftung des Zurücksetzen-Chips („Alle" / „All"). */
@@ -101,17 +103,45 @@ export function HubFilterBar({
   allStatus: string;
   /** aria-label der Chip-Gruppe. */
   groupLabel: string;
+  /** Spalten am Telefon, damit die Reihen bündig aufgehen: die Bezirksseite
+   *  hat zehn Chips (2), die Kategorieseite neun (3, in normaler Schreibweise,
+   *  damit lange Bezirksnamen einzeilig bleiben). */
+  columns: 2 | 3;
 }) {
   const { active, select } = useContext(HubFilterContext);
   const current = facets.find((f) => f.slug === active) ?? null;
+  const bar = useRef<HTMLDivElement>(null);
+  const [away, setAway] = useState(false);
+
+  // Beobachtet statt Scroll-Events: ab Desktop scrollt .app-pages, nicht das
+  // Fenster. Weg ist die Leiste, wenn sie oberhalb des Bildes liegt und die
+  // Liste darunter noch hineinreicht.
+  useEffect(() => {
+    const element = bar.current;
+    const scope = element?.closest('[data-filtered]');
+    if (!element || !scope || typeof IntersectionObserver === 'undefined') return;
+    let above = false;
+    let inList = false;
+    const barSeen = new IntersectionObserver(([entry]) => {
+      above = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      setAway(above && inList);
+    });
+    const listSeen = new IntersectionObserver(([entry]) => {
+      inList = entry.isIntersecting;
+      setAway(above && inList);
+    }, { rootMargin: '0px 0px -40% 0px' });
+    barSeen.observe(element);
+    listSeen.observe(scope);
+    return () => { barSeen.disconnect(); listSeen.disconnect(); };
+  }, []);
 
   return (
     <>
       <p className={styles.filterStatus} role="status">
         {current ? current.status : allStatus}
       </p>
-      <div className={styles.filterBar}>
-        <div className={styles.filterRail} role="group" aria-label={groupLabel}>
+      <div className={styles.filterBar} ref={bar}>
+        <div className={styles.filterRail} role="group" aria-label={groupLabel} data-columns={columns}>
           <button
             type="button"
             className={styles.filterChip}
@@ -133,6 +163,14 @@ export function HubFilterBar({
           ))}
         </div>
       </div>
+      <button
+        type="button"
+        className={styles.filterReturn}
+        data-shown={away || undefined}
+        onClick={() => bar.current?.scrollIntoView({ block: 'center' })}
+      >
+        {current ? `Filter · ${current.label}` : 'Filter'}
+      </button>
     </>
   );
 }

@@ -276,6 +276,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               versprach „Frühstück in Mitte" und lieferte „alle Spots in Mitte". */}
           {districtFilters.length > 1 && (
             <HubFilterBar
+              columns={3}
               facets={districtFilters}
               allLabel={de ? 'Alle' : 'All'}
               allStatus={

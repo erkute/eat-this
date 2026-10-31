@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, cleanup, within } from '@testing-library/react';
 import {
   SPOT_LIST_ID,
   HubFilterBar,
@@ -34,6 +34,7 @@ function renderList(facets: HubFacet[] = CATEGORIES, queryKey = 'cat') {
   return render(
     <HubFilterProvider queryKey={queryKey} slugs={facets.map((f) => f.slug)}>
       <HubFilterBar
+        columns={2}
         facets={facets}
         allLabel="Alle"
         allStatus="Alle 4 Spots in Schöneberg"
@@ -62,8 +63,9 @@ function visibleSpots(container: HTMLElement): string[] {
     .map((a) => a.dataset.slug!);
 }
 
+/** Ein Chip der Leiste — das Band „Filter · …" unten trägt denselben Namen. */
 function chip(name: string): HTMLElement {
-  return screen.getByRole('button', { name: new RegExp(name, 'i') });
+  return within(screen.getByRole('group')).getByRole('button', { name: new RegExp(name, 'i') });
 }
 
 beforeEach(() => {
@@ -157,6 +159,15 @@ describe('HubFilter', () => {
   // Die Kategorieseite fährt dasselbe Modul mit der anderen Facette. Der
   // Query-Parameter muss dann `bezirk` heißen, nicht `cat` — sonst schriebe
   // eine Bezirkswahl einen Kategorie-Filter in die URL.
+  it('nennt auf dem Band zurück zur Leiste den gesetzten Filter', () => {
+    renderList();
+    const back = () => screen.getByRole('button', { name: /^Filter/ });
+
+    expect(back().textContent).toBe('Filter');
+    fireEvent.click(chip('Dinner'));
+    expect(back().textContent).toBe('Filter · Dinner');
+  });
+
   it('schreibt den Query-Parameter, den die Seite vorgibt', () => {
     const districts: HubFacet[] = [
       { slug: 'mitte', label: 'Mitte', status: 'Frühstück in Mitte · 15 Spots' },
@@ -165,6 +176,7 @@ describe('HubFilter', () => {
     render(
       <HubFilterProvider queryKey="bezirk" slugs={districts.map((d) => d.slug)}>
         <HubFilterBar
+          columns={3}
           facets={districts}
           allLabel="Alle"
           allStatus="Alle 55 Spots in Berlin"

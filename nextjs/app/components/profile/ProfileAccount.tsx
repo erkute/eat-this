@@ -24,7 +24,7 @@ export default function ProfileAccount({
   onSaveName: (name: string) => Promise<void>;
   onPickAvatar: () => void;
   onSignOut: () => Promise<void>;
-  /** Der Kasten „Zeig dein Deck“ samt Freunden, zwischen Name und Anmeldung. */
+  /** Der Kasten „Zeig dein Deck“ samt Freunden, am Desktop rechts neben den Einstellungen. */
   invite?: ReactNode;
 }) {
   const t = useTranslations('profile');
@@ -76,43 +76,55 @@ export default function ProfileAccount({
       ? sinceDate.toLocaleDateString(locale, { month: 'long', year: 'numeric' })
       : null;
 
+  const displayName = savedName || email?.split('@')[0] || t('accountYou');
+
+  /* Oben wer du bist (Figur und Name), darunter was sich einstellen lässt und
+     die Einladung samt Freunden: am Desktop nebeneinander, am Telefon
+     untereinander. */
   return (
     <div className={styles.account}>
-      <section className={styles.accountGroup} aria-labelledby="account-you">
+      <section className={styles.accountCard} aria-labelledby="account-you">
         {/* Der Charakter steht frei, ohne Karte und ohne Rahmen: er ist hier der
-          Absender der Seite. Ein Tipp auf die Figur wechselt ihn. */}
-        <div className={styles.accountWho}>
-          <button
-            type="button"
-            className={styles.accountFigure}
-            onClick={onPickAvatar}
-            aria-label={t('changeAvatar')}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/pics/avatar/${avatarIdx}.webp?v=4`} alt="" width={160} height={200} />
+            Absender der Seite. Ein Tipp auf die Figur wechselt ihn. */}
+        <button
+          type="button"
+          className={styles.accountFigure}
+          onClick={onPickAvatar}
+          aria-label={t('changeAvatar')}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`/pics/avatar/${avatarIdx}.webp?v=4`} alt="" width={160} height={200} />
+        </button>
+        <div className={styles.accountIntro}>
+          <h2 id="account-you" className={styles.accountName}>
+            {displayName}
+          </h2>
+          {since && (
+            <p className={`et-label ${styles.accountSince}`}>
+              {t('accountSince', { date: since })}
+            </p>
+          )}
+          <button type="button" className="et-btn et-btn-alt et-btn-sm" onClick={onPickAvatar}>
+            {t('changeAvatar')}
           </button>
-          <div className={styles.accountIntro}>
-            <h2 id="account-you" className={styles.accountName}>
-              {savedName || email?.split('@')[0] || t('accountYou')}
-            </h2>
-            {since && (
-              <p className={`et-label ${styles.accountSince}`}>
-                {t('accountSince', { date: since })}
-              </p>
-            )}
-            <button type="button" className="et-btn et-btn-alt et-btn-sm" onClick={onPickAvatar}>
-              {t('changeAvatar')}
-            </button>
-          </div>
         </div>
+      </section>
+      <section className={styles.accountSettings} aria-label={t('accountSettings')}>
         <form
-          className={styles.accountForm}
+          className={styles.accountField}
           onSubmit={(event) => {
             event.preventDefault();
             void save(value);
           }}
         >
-          <label htmlFor="profile-name">{t('fieldName')}</label>
+          <div className={styles.accountFieldHead}>
+            <label htmlFor="profile-name" className={styles.accountLabel}>
+              {t('fieldName')}
+            </label>
+            <p className={styles.accountSave} role="status">
+              {status === 'saving' ? t('nameSaving') : status === 'saved' ? t('nameSaved') : ''}
+            </p>
+          </div>
           <input
             id="profile-name"
             name="name"
@@ -129,56 +141,46 @@ export default function ProfileAccount({
               else void save(value);
             }}
           />
-          <p className={styles.accountSave} role="status">
-            {status === 'saving' ? t('nameSaving') : status === 'saved' ? t('nameSaved') : ''}
-          </p>
           {status === 'error' && (
             <p className={styles.formError} role="alert">
               {t('nameError')}
             </p>
           )}
         </form>
-      </section>
-      {invite}
-      <section className={styles.accountGroup} aria-labelledby="account-login">
-        <h2
-          id="account-login"
-          className={`et-label-title et-label-tape ${styles.accountGroupTitle}`}
-        >
-          {t('accountLogin')}
-        </h2>
-        {email && (
-          <div className={styles.accountRow}>
-            <h3>{t('fieldEmail')}</h3>
-            <p>{email}</p>
+        {/* Die E-Mail ist die Anmeldung, Abmelden steht deshalb in ihrer Zeile. */}
+        <div className={styles.accountField}>
+          <h3 className={styles.accountLabel}>{t('fieldEmail')}</h3>
+          <div className={styles.accountLogin}>
+            {email && <p className={styles.accountValue}>{email}</p>}
+            <button
+              type="button"
+              className="et-btn et-btn-alt et-btn-sm"
+              disabled={signingOut}
+              aria-busy={signingOut}
+              onClick={async () => {
+                if (signingOut) return;
+                setSigningOut(true);
+                setSignOutFailed(false);
+                try {
+                  await onSignOut();
+                } catch {
+                  setSignOutFailed(true);
+                } finally {
+                  setSigningOut(false);
+                }
+              }}
+            >
+              {t('signOut')}
+            </button>
           </div>
-        )}
-        <button
-          type="button"
-          className={`et-btn et-btn-alt ${styles.accountSignOut}`}
-          disabled={signingOut}
-          aria-busy={signingOut}
-          onClick={async () => {
-            if (signingOut) return;
-            setSigningOut(true);
-            setSignOutFailed(false);
-            try {
-              await onSignOut();
-            } catch {
-              setSignOutFailed(true);
-            } finally {
-              setSigningOut(false);
-            }
-          }}
-        >
-          {t('signOut')}
-        </button>
-        {signOutFailed && (
-          <p className={styles.formError} role="alert">
-            {tAuth('errGeneric')}
-          </p>
-        )}
+          {signOutFailed && (
+            <p className={styles.formError} role="alert">
+              {tAuth('errGeneric')}
+            </p>
+          )}
+        </div>
       </section>
+      {invite && <div className={styles.accountAside}>{invite}</div>}
     </div>
   );
 }

@@ -8,7 +8,6 @@ for (const theme of ['light', 'dark']) {
     await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
     await page.addInitScript(value => {
-      localStorage.setItem('mustEatsOnboardingSeen', '1');
       localStorage.setItem('et-theme', value);
     }, theme);
     await page.emulateMedia({ reducedMotion: english ? 'reduce' : 'no-preference' });

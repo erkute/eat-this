@@ -5,6 +5,7 @@ import MustEatsGallery from './MustEatsGallery';
 import { mustEatMapHref } from '@/lib/map/mustEatMapHref';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import MustEatsStarterButton from './MustEatsStarterButton';
+import PackPoster from './PackPoster';
 import SiteFooter from './SiteFooter';
 import styles from './MustEatsSection.module.css';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
@@ -28,7 +29,7 @@ const COPY = {
     howItWorks: 'So funktioniert’s',
     numberLabel: 'Nr.',
     openKicker: 'Schon aufgedeckt',
-    openTitle: 'Das solltest du bestellen.',
+    openTitle: 'Was wir bestellen.',
     openBody:
       'Hier bekommst du einen ersten Vorgeschmack. Jede Karte zeigt dir, was wir empfehlen und wo du es findest.',
     setKicker: 'Vor Ort entdecken',
@@ -60,7 +61,7 @@ const COPY = {
     howItWorks: 'How it works',
     numberLabel: 'No.',
     openKicker: 'Already face-up',
-    openTitle: 'This is what you should order.',
+    openTitle: 'What we order.',
     openBody:
       'Here is a first taste. Every card shows you what we recommend and where to find it.',
     setKicker: 'Discover on site',
@@ -84,14 +85,6 @@ const COPY = {
     headCta: 'To the map',
   },
 } as const;
-
-// One bag, not the full nine-pack fan. The page advertises the Must Eats; a
-// wall of pack art at the end made the last impression "shop" instead of
-// "these dishes", and the same offer is already on slide 3 of the onboarding
-// and in the burger menu. Which bag follows the closing copy: the Starter
-// Pack for guests, a Booster Pack once there is an account.
-const STARTER_ART = '/pics/home/starter-pack-front.webp?v=20261030';
-const BOOSTER_ART = '/pics/booster/booster_lunch.webp?v=20261030';
 
 export default function MustEatsSection({ initialMapData, locale }: Props) {
   const c = COPY[locale];
@@ -166,43 +159,46 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
         }}
       />
 
-      <section className={`${styles.wrap} ${styles.close}`}>
-        <div className={styles.closeCopy}>
-          {/* Beide Fassungen kommen vom Server; welche steht, entscheidet das
-              Auth-Flag vor dem ersten Paint (globals.css) — kein Flackern. */}
-          <div data-guest-only="">
-            <p className={`et-label ${styles.kicker}`}>{c.closeGuestKicker}</p>
-            <h2 className={styles.closeTitle}>{c.closeGuestTitle}</h2>
-            <p className={styles.closeBody}>{c.closeGuestBody}</p>
-            <div className={styles.actions}>
-              <MustEatsStarterButton label={c.closeGuestCta} />
-              <Link href={mapHref} className="et-btn">
-                {c.closeCta}
-              </Link>
-            </div>
-          </div>
-          <div data-auth-only="">
-            <p className={`et-label ${styles.kicker}`}>{c.closeKicker}</p>
-            <h2 className={styles.closeTitle}>{c.closeTitle}</h2>
-            <p className={styles.closeBody}>{c.closeBody}</p>
-            <div className={styles.actions}>
-              <Link href={mapHref} className="et-btn">
-                {c.closeCta}
-              </Link>
-              <Link href={packsHref} className="et-btn">
-                {c.closeSecondary}
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.packShot} aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={STARTER_ART} alt="" loading="lazy" width={945} height={1491} data-guest-only="" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={BOOSTER_ART} alt="" loading="lazy" width={945} height={1490} data-auth-only="" />
-        </div>
-      </section>
+      {/* Beide Fassungen kommen vom Server; welche steht, entscheidet das
+          Auth-Flag vor dem ersten Paint (globals.css) — kein Flackern. Gast:
+          das Starter Pack, die Map als zweite Antwort. Konto: die Map vorn,
+          Booster Packs dahinter. */}
+      <PackPoster
+        data-guest-only=""
+        className={styles.close}
+        offer="starter"
+        kicker={c.closeGuestKicker}
+        headline={c.closeGuestTitle}
+        heading="h2"
+        body={c.closeGuestBody}
+        actions={
+          <>
+            <MustEatsStarterButton label={c.closeGuestCta} />
+            <Link href={mapHref} className="et-btn et-btn-alt">
+              {c.closeCta}
+            </Link>
+          </>
+        }
+      />
+      <PackPoster
+        data-auth-only=""
+        className={styles.close}
+        offer="booster"
+        kicker={c.closeKicker}
+        headline={c.closeTitle}
+        heading="h2"
+        body={c.closeBody}
+        actions={
+          <>
+            <Link href={mapHref} className="et-btn">
+              {c.closeCta}
+            </Link>
+            <Link href={packsHref} className="et-btn et-btn-alt">
+              {c.closeSecondary}
+            </Link>
+          </>
+        }
+      />
 
       <SiteFooter />
     </main>

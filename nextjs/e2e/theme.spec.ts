@@ -53,8 +53,6 @@ for (const route of ['/', '/news', '/news/gazzo-pizza-neukoelln', '/map?r=gazzo'
 test('dark map guest login and cookie choice remain readable', async ({ page, context }) => {
   await page.addInitScript(() => {
     localStorage.setItem('et-theme', 'dark');
-    // Beim ersten Besuch öffnen sich die Erklärfolien von selbst und decken die Karte ab.
-    localStorage.setItem('mustEatsOnboardingSeen', '1');
   });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/map?r=gazzo');

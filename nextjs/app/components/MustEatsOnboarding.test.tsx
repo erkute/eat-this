@@ -12,7 +12,7 @@ vi.mock('@/lib/i18n', () => ({
 const openLogin = vi.fn();
 vi.mock('@/lib/auth', () => ({ useLoginModal: () => ({ open: openLogin }) }));
 
-import MustEatsOnboarding, { ONBOARDING_SEEN_KEY } from '@/app/components/MustEatsOnboarding';
+import MustEatsOnboarding from '@/app/components/MustEatsOnboarding';
 
 const DATA: InitialMapData = {
   restaurants: [],
@@ -36,44 +36,40 @@ beforeEach(() => {
 
 /** Only the current step is rendered. The last step has two blocks (guest /
  *  signed-in) and CSS picks one, hence a list. */
+/** Render the trigger and open the slides from it — they never open by themselves. */
+function openSlides(props: { starterMustEatId?: string } = {}) {
+  const result = render(<MustEatsOnboarding initialMapData={DATA} {...props} />);
+  fireEvent.click(screen.getByText('mustEats.howItWorks'));
+  return result;
+}
+
 const activeTitles = () =>
   [...screen.getByRole('dialog').querySelectorAll('h2')].map((h) => h.textContent);
 
 describe('MustEatsOnboarding', () => {
-  it('opens on first visit (no localStorage flag)', () => {
+  it('never opens by itself, only from the "how it works" trigger', () => {
     render(<MustEatsOnboarding initialMapData={DATA} />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    fireEvent.click(screen.getByText('mustEats.howItWorks'));
     expect(screen.getByRole('dialog')).toBeTruthy();
     expect(activeTitles()).toEqual(['mustEats.onb1Title']);
     expect(screen.getByText('mustEats.onb1Kicker')).toBeTruthy();
   });
 
-  it('stays closed when the seen flag is set', () => {
-    window.localStorage.setItem(ONBOARDING_SEEN_KEY, '1');
-    render(<MustEatsOnboarding initialMapData={DATA} />);
-    expect(screen.queryByRole('dialog')).toBeNull();
-  });
-
-  it('skip dismisses and sets the flag', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+  it('skip dismisses, and the trigger opens it again', () => {
+    openSlides();
     fireEvent.click(screen.getByRole('button', { name: 'Überspringen' }));
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1');
-  });
-
-  it('"how it works" trigger reopens despite the flag', () => {
-    window.localStorage.setItem(ONBOARDING_SEEN_KEY, '1');
-    render(<MustEatsOnboarding initialMapData={DATA} />);
     fireEvent.click(screen.getByText('mustEats.howItWorks'));
     expect(screen.getByRole('dialog')).toBeTruthy();
-    expect(activeTitles()).toEqual(['mustEats.onb1Title']);
   });
 
   /** The last slide renders both offers and CSS (html[data-auth]) picks one, so
    *  in jsdom both are present — scope queries to the row under test. */
   const row = (variant: 'guest' | 'auth') => screen.getByTestId(`onb-actions-${variant}`);
 
-  it('steps through all three slides; last button closes and sets flag', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+  it('steps through all three slides; last button closes it', () => {
+    openSlides();
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     expect(activeTitles()).toEqual(['mustEats.onb2Title']);
     fireEvent.click(screen.getByText('mustEats.onbNext'));
@@ -81,11 +77,10 @@ describe('MustEatsOnboarding', () => {
     expect(screen.getByText('mustEats.onbPacksCta').getAttribute('href')).toBe('/packs');
     fireEvent.click(screen.getByText('mustEats.onbStart', { selector: '[data-auth-only] button' }));
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1');
   });
 
   it('pitches the free Starter Pack to logged-out visitors on the last slide', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+    openSlides();
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     fireEvent.click(screen.getByText('mustEats.onbNext'));
 
@@ -108,7 +103,7 @@ describe('MustEatsOnboarding', () => {
 
   it('carries the covered card it was opened from into the Starter Pack', () => {
     openLogin.mockClear();
-    render(<MustEatsOnboarding initialMapData={DATA} starterMustEatId="me-covered" />);
+    openSlides({ starterMustEatId: 'me-covered' });
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     fireEvent.click(screen.getByText('mustEats.onbStarterCta'));
@@ -116,7 +111,7 @@ describe('MustEatsOnboarding', () => {
   });
 
   it('gives the guest offer the primary slot and dismissing the secondary one', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+    openSlides();
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     fireEvent.click(screen.getByText('mustEats.onbNext'));
 
@@ -131,7 +126,7 @@ describe('MustEatsOnboarding', () => {
   });
 
   it('steps back with Zurück', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+    openSlides();
     expect((screen.getByRole('button', { name: 'Zurück' }) as HTMLButtonElement).disabled).toBe(
       true
     );
@@ -142,21 +137,20 @@ describe('MustEatsOnboarding', () => {
   });
 
   it('names the current step', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+    openSlides();
     expect(screen.getByLabelText('Schritt 1 von 3')).toBeTruthy();
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     expect(screen.getByLabelText('Schritt 2 von 3')).toBeTruthy();
   });
 
-  it('Escape closes the overlay and sets the flag', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+  it('Escape closes the overlay', () => {
+    openSlides();
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(window.localStorage.getItem(ONBOARDING_SEEN_KEY)).toBe('1');
   });
 
   it('shows the flipping card on slide 2 and the booster pack art on slide 3', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+    openSlides();
     expect(screen.queryByTestId('onb-pack')).toBeNull();
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     expect(screen.getByTestId('onb-flipper')).toBeTruthy();
@@ -171,7 +165,7 @@ describe('MustEatsOnboarding', () => {
   it('lets the visitor flip the card themselves on step 2, cancelling the auto-flip', () => {
     vi.useFakeTimers();
     try {
-      render(<MustEatsOnboarding initialMapData={DATA} />);
+      openSlides();
       fireEvent.click(screen.getByText('mustEats.onbNext'));
       const flipper = screen.getByTestId('onb-flipper');
       expect(flipper.className).toContain('flipped');
@@ -199,7 +193,7 @@ describe('MustEatsOnboarding', () => {
   });
 
   it('offers no flip control outside step 2', () => {
-    render(<MustEatsOnboarding initialMapData={DATA} />);
+    openSlides();
     expect(screen.queryByLabelText('mustEats.onbFlipAria')).toBeNull();
     fireEvent.click(screen.getByText('mustEats.onbNext'));
     expect(screen.getByLabelText('mustEats.onbFlipAria')).toBeTruthy();
@@ -210,7 +204,7 @@ describe('MustEatsOnboarding', () => {
   it('step 2 shows the card back, then auto-flips open after the dwell', () => {
     vi.useFakeTimers();
     try {
-      render(<MustEatsOnboarding initialMapData={DATA} />);
+      openSlides();
       fireEvent.click(screen.getByText('mustEats.onbNext'));
       const flipper = screen.getByTestId('onb-flipper');
       expect(flipper.className).toContain('flipped');

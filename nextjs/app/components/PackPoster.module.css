@@ -1,0 +1,192 @@
+/* The pack poster (PackPoster.tsx). Narrow — the spot detail, a phone — it
+   stacks: packs, title, pitch, buttons. Wide (/must-eats on a desktop) the
+   copy stands left and the packs right, still breaking out above the top. */
+.poster {
+  /* A page passes --poster-top (the room above, which the packs breaking
+     out need), --poster-gut and --poster-max (its column). Only read here,
+     with fallbacks: declared on .poster they would race the page's module,
+     whose order against this one is not fixed. */
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+  margin: var(--poster-top, 112px) 0 0;
+  padding: 0 var(--poster-gut, 20px) calc(32px + env(safe-area-inset-bottom, 0px));
+  /* The fan may reach past the sides; the breakout above stays visible. */
+  overflow-x: clip;
+  overflow-y: visible;
+  color: var(--et-white);
+}
+.poster[data-offer='starter'] {
+  background: var(--et-offer-red, #a82b2e) url('/pics/paper/butterbrot.webp') center / cover;
+  background-blend-mode: multiply;
+  --et-solid: var(--et-white);
+  --et-on-solid: var(--et-ink);
+  --et-btn-hover: var(--et-ink);
+  --et-btn-hover-fg: var(--et-white);
+  --et-field: var(--et-ink);
+  --et-field-fg: var(--et-white);
+  --et-label-bg: var(--et-ink);
+}
+.poster[data-offer='booster'] {
+  background: var(--et-ink);
+  --et-solid: var(--et-red);
+  --et-on-solid: var(--et-white);
+  --et-btn-hover: var(--et-white);
+  --et-btn-hover-fg: var(--et-ink);
+  --et-field: var(--et-white);
+  --et-field-fg: var(--et-ink);
+  --et-label-bg: var(--et-red);
+}
+
+.inner {
+  display: grid;
+  max-width: var(--poster-max, none);
+  margin-inline: auto;
+}
+
+.stage {
+  position: relative;
+  height: 232px;
+  margin: -96px 0 22px;
+}
+/* A soft floor under the packs — a gradient, not a drop-shadow filter, which
+   iOS rasterises as a box on cut-outs while scrolling. */
+.stage::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 260px;
+  height: 34px;
+  translate: -50% 0;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.38), transparent);
+}
+.item {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 128px;
+  height: auto;
+  transform-origin: 50% 100%;
+  translate: calc(-50% + var(--fan) * 52px) calc(-1 * var(--lift));
+  rotate: calc(var(--fan) * 11deg);
+}
+.item[data-pack] {
+  width: 150px;
+  rotate: -3deg;
+}
+.poster[data-offer='starter'] .item:not([data-pack]) {
+  width: 112px;
+  border-radius: 7px;
+  translate: calc(-50% + var(--fan) * 40px) calc(-1 * var(--lift));
+  rotate: calc(var(--fan) * 14deg);
+}
+.poster[data-offer='booster'] .item:not([data-pack]) {
+  width: 112px;
+  translate: calc(-50% + var(--fan) * 46px) calc(-1 * var(--lift));
+  rotate: calc(var(--fan) * 9deg);
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .item {
+      animation: posterFan linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 42%;
+    }
+  }
+}
+/* From the closed stack to each item's own place (its translate/rotate). */
+@keyframes posterFan {
+  from {
+    translate: -50% 28px;
+    rotate: 0deg;
+  }
+}
+
+.copy {
+  min-width: 0;
+}
+.kicker {
+  margin: 0 0 16px;
+}
+.title {
+  margin: 0;
+  font-family: var(--et-font-display);
+  font-size: clamp(40px, 12vw, 54px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.body {
+  max-width: 30ch;
+  margin: 14px 0 26px;
+  font-family: var(--et-font-body);
+  font-size: 17px;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 0.86);
+  text-wrap: pretty;
+}
+/* One button fills the width; two share it. */
+.actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 12px;
+}
+
+@container (min-width: 720px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    align-items: end;
+    column-gap: 48px;
+  }
+  /* Wide, the packs stand beside the copy at its height, centred on the
+     poster: as much colour above the front pack as below it (Ersan,
+     31.10.2026). The stage takes the copy's height (64px padding above,
+     8px below, the poster's 32px under it); the packs are sized by that,
+     and the stage moves up by half the difference. */
+  .stage {
+    order: 1;
+    align-self: stretch;
+    height: auto;
+    margin: 0;
+    translate: 0 -12px;
+  }
+  .stage::before {
+    bottom: -6px;
+    width: 380px;
+  }
+  .item {
+    bottom: 8px;
+    width: auto;
+    height: calc((100% - 72px) * 0.86);
+    translate: calc(-50% + var(--fan) * 74px) 0;
+  }
+  .item[data-pack] {
+    width: auto;
+    height: calc(100% - 72px);
+  }
+  .poster[data-offer='starter'] .item:not([data-pack]) {
+    width: auto;
+    translate: calc(-50% + var(--fan) * 66px) 0;
+  }
+  .poster[data-offer='booster'] .item:not([data-pack]) {
+    width: auto;
+    translate: calc(-50% + var(--fan) * 46px) 0;
+  }
+  .copy {
+    padding-block: 64px 8px;
+  }
+  .title {
+    font-size: clamp(54px, 7cqi, 88px);
+  }
+  .body {
+    max-width: 40ch;
+    font-size: 20px;
+  }
+  .actions {
+    grid-auto-columns: max-content;
+  }
+}

@@ -239,7 +239,7 @@ export default function HubMustEatsTeaser() {
             <MapIntentLink href="/must-eats" className="et-btn">
               {t('mustEats.teaserCta')}
             </MapIntentLink>
-            <MustEatsOnboarding initialMapData={initialMapData} autoOpen={false} tone="ink" />
+            <MustEatsOnboarding initialMapData={initialMapData} tone="ink" />
           </div>
         </div>
       </div>

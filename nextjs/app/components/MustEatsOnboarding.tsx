@@ -13,7 +13,6 @@ import tour from './Tour.module.css';
 import StarterPack3D from './StarterPack3D';
 import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
 import { mustEatCardSrc, mustEatCardSrcSet } from '@/lib/must-eat/cardImage';
-import { afterEmailLink } from '@/lib/auth/emailLinkPending';
 
 const CARD_BACK = '/pics/card-back.webp?v=20261028';
 // Slide 3 replaces the demo card with the pack art — the thing that brings new
@@ -21,7 +20,6 @@ const CARD_BACK = '/pics/card-back.webp?v=20261028';
 // Starter Pack for guests, the paid Booster Packs once they're in.
 const BOOSTER_ART = '/pics/booster/booster.webp?v=20261030';
 const STARTER_ART = '/pics/home/starter-pack-front.webp?v=20261030';
-export const ONBOARDING_SEEN_KEY = 'mustEatsOnboardingSeen';
 
 // Dwell on the card back in slide 2 before it auto-flips open — the live
 // demo of the on-site reveal. Keep shorter than the user's reading time.
@@ -38,13 +36,6 @@ const SLIDES = [
 
 interface Props {
   initialMapData: InitialMustEatsData;
-  /** Open by itself on the visitor's first look (localStorage-flagged). True
-   *  for the Must-Eats page, whose whole job is the catalog. The home teaser
-   *  passes false and keeps the trigger only: a modal on the home page's first
-   *  paint interrupts a visitor who has not asked anything yet. Either way the
-   *  flag is shared, so explaining it here means the catalog page won't
-   *  explain it again. */
-  autoOpen?: boolean;
   /** `ink`: der Auslöser steht auf einer Ink-Tafel (Kopf der Must-Eats-Seite)
    *  und wird zur hellen Fläche — Ink auf Ink verschwände. `sheet`: dieselbe
    *  Fläche in Chip-Größe, für das Must-Eat-Detail der Karte, wo er im
@@ -60,14 +51,12 @@ interface Props {
   triggerLabel?: string;
 }
 
-// First-visit onboarding for the Must-Eats page: 3 steps around a demo card
-// that flips like the on-site reveal. Opens once (localStorage flag, set on
-// dismiss), re-openable any time via the "how does it work?" trigger link
-// this component renders inline. SSR renders only the trigger — `open` flips
-// in an effect, so there is no hydration mismatch and no portal on the server.
+// The Must Eats explainer: 3 steps around a demo card that flips like the
+// on-site reveal. It opens only from the "how does it work?" trigger this
+// component renders inline — never by itself (Ersan, 31.10.2026). SSR renders
+// only the trigger, so there is no portal on the server.
 export default function MustEatsOnboarding({
   initialMapData,
-  autoOpen = true,
   tone = 'paper',
   starterMustEatId,
   triggerLabel,
@@ -107,25 +96,7 @@ export default function MustEatsOnboarding({
     [initialMapData]
   );
 
-  useEffect(() => {
-    if (!autoOpen) return;
-    let seen: string | null = null;
-    try {
-      seen = window.localStorage.getItem(ONBOARDING_SEEN_KEY);
-    } catch {
-      /* storage blocked → show once per pageload */
-    }
-    if (seen) return;
-    /* Nie vor oder hinter der Bestaetigung eines Mail-Links (emailLinkPending). */
-    return afterEmailLink(() => setOpen(true));
-  }, [autoOpen]);
-
   const close = useCallback(() => {
-    try {
-      window.localStorage.setItem(ONBOARDING_SEEN_KEY, '1');
-    } catch {
-      /* ignore */
-    }
     setOpen(false);
     setStep(0);
   }, []);

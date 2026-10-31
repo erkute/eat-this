@@ -115,7 +115,7 @@ describe('MustEatsSection', () => {
 
     const copy = galleryCopy.mock.calls[0][0];
     expect(copy.openKicker).toBe('Schon aufgedeckt');
-    expect(copy.openTitle).toBe('Das solltest du bestellen.');
+    expect(copy.openTitle).toBe('Was wir bestellen.');
     expect(copy.openTitle).not.toMatch(/\d/);
     expect(copy.openBody).not.toMatch(/\d/);
   });
@@ -145,8 +145,10 @@ describe('MustEatsSection', () => {
       revealedMustEatIds: [],
     });
 
-    expect(html).not.toContain('<figure');
-    expect(html).not.toContain('/pics/card-back.webp');
+    // The closing pack poster has covered cards of its own; up top there are none.
+    const top = html.slice(0, html.indexOf('data-pack-poster'));
+    expect(top).not.toContain('<figure');
+    expect(top).not.toContain('/pics/card-back.webp');
   });
 
   it('keeps the empty catalog to the head and the close — no zero stats', () => {
@@ -159,8 +161,8 @@ describe('MustEatsSection', () => {
 
   it('closes with sign-up for guests and the map for accounts', () => {
     const html = render();
-    const closing = html.slice(html.lastIndexOf('<section'));
-    const guest = closing.slice(closing.indexOf('data-guest-only'), closing.indexOf('data-auth-only'));
+    const closing = html.slice(html.indexOf('data-guest-only'));
+    const guest = closing.slice(0, closing.indexOf('data-auth-only'));
     const auth = closing.slice(closing.indexOf('data-auth-only'));
 
     expect(closing).toContain('Hol sie dir.');
@@ -185,16 +187,16 @@ describe('MustEatsSection', () => {
     expect(html).toMatch(/href="\/en\/packs"/);
   });
 
-  it('closes with a single pack shot, not the nine-pack billboard', () => {
-    // The page advertises the Must Eats. A wall of pack art at the end made the
-    // last impression "shop" rather than "these dishes", and the same offer is
-    // already on onboarding slide 3 and in the burger menu.
+  it('closes with the pack poster: the Starter Pack for guests, Booster Packs for accounts', () => {
     const html = render();
-    const packArt = html.match(/src="\/pics\/home\/starter-pack-front\.webp\?v=20261030"/g) ?? [];
+    const guest = html.slice(html.indexOf('data-guest-only'), html.indexOf('data-auth-only'));
+    const auth = html.slice(html.indexOf('data-auth-only'));
 
-    expect(packArt).toEqual(['src="/pics/home/starter-pack-front.webp?v=20261030"']);
-    expect(html).not.toContain('/pics/booster/booster_free.webp');
-    expect(html).not.toContain('/pics/booster/booster.webp');
-    expect(html).toContain('/pics/booster/booster_lunch.webp?v=20261030');
+    expect(guest).toContain('data-offer="starter"');
+    expect(guest.match(/starter-pack-front\.webp/g)).toHaveLength(1);
+    expect(guest).not.toContain('/pics/booster/');
+    expect(auth).toContain('data-offer="booster"');
+    expect(auth).not.toContain('starter-pack-front.webp');
+    expect(auth.match(/\/pics\/booster\/booster_\w+\.webp/g)).toHaveLength(5);
   });
 });

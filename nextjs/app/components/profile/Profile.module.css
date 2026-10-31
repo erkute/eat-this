@@ -425,7 +425,9 @@ main.page .head {
 
 .trophies {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 190px);
+  /* Die Spalten teilen sich die volle Breite, jede Packung steht mittig in
+     ihrer: feste 190er-Spalten liessen rechts einen Rest leer. */
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   align-items: start;
   gap: 40px 32px;
   margin: 0;
@@ -821,6 +823,28 @@ main.page .tabPanel {
 }
 .deckInvite {
   margin-top: 32px;
+  /* Im Konto steht die Tafel in einer schmalen Spalte: dort richtet sie sich
+     nach ihrer eigenen Breite, nicht nach dem Fenster (siehe unten). */
+  container-type: inline-size;
+}
+/* Zu schmal für Fächer, Text und Knopf nebeneinander: dann untereinander
+   wie am Telefon, sonst bleibt dem Text eine Spalte von einem Wort. */
+@container (max-width: 640px) {
+  .invite {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'fan'
+      'copy'
+      'action';
+    gap: 18px;
+    align-items: start;
+  }
+  .inviteFan {
+    justify-self: start;
+  }
+  .inviteAction {
+    justify-self: start;
+  }
 }
 /* Nur für Screenreader: die Hauptüberschrift der Seite. */
 .srOnly {

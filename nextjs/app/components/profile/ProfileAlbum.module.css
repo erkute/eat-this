@@ -64,16 +64,19 @@
 /* Am Desktop eine Zeile über die volle Breite: die Zahl grösser, der Bestand
    auf ihrer Grundlinie daneben, die Hand grösser. */
 @media (min-width: 768px) {
+  /* Reicht die Breite nicht, bricht die Zeile unter die Zahl, statt unter
+     die Hand zu laufen. */
   .handCount {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.9em;
+    gap: 12px 0.9em;
   }
   .handCount strong {
-    font-size: clamp(120px, 15vw, 260px);
+    font-size: clamp(96px, 7.5vw, 140px);
   }
   .handTotal {
-    font-size: clamp(14px, 3.6vw - 14px, 40px);
+    font-size: clamp(14px, 1.6vw, 22px);
   }
 }
 /* Die Kartenbreite steht an einer Variablen: ein Prozent-Rand bezöge sich auf
@@ -121,7 +124,7 @@
 }
 @media (min-width: 768px) {
   .handFan {
-    --hand-card: clamp(96px, 11vw, 190px);
+    --hand-card: clamp(96px, 8vw, 150px);
   }
 }
 

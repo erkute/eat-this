@@ -27,11 +27,28 @@
    (Rückmeldung 27.10.2026). `svh` bleibt beim Scrollen stehen. */
 .hero {
   position: relative; overflow: hidden; box-sizing: border-box;
+  isolation: isolate;
   padding-top: var(--site-nav-h); height: 100svh;
   --et-solid: #1b1f1f; --et-on-solid: #f0f2f0;
   background: #f1f1ef url('/pics/home/silver-hero/hero-paper.webp') center / cover no-repeat;
   color: var(--et-ink);
 }
+:global(html[data-theme='dark']) .hero {
+  --et-solid: var(--et-white);
+  --et-on-solid: var(--et-ink);
+  color: var(--et-white);
+}
+:global(html[data-theme='dark']) .hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('/pics/home/silver-hero/hero-paper.webp') center / cover no-repeat;
+  filter: invert(1) brightness(0.65);
+  pointer-events: none;
+}
+:global(html[data-theme='dark']) .hero .heroMark,
+:global(html[data-theme='dark']) .hero .heroSloganMobile { filter: invert(1); }
 /* Die Papierblätter der Startseite (globals.css, `.homeV2 > section`)
    setzen Grösse, Wiederholung und Lage mit höherer Spezifität. Nur das Bild
    zu tauschen liess das 1536 × 1024 px grosse Papier in Originalgrösse oben
@@ -91,14 +108,13 @@
   .page { --hv-display: clamp(46px, 15vw, 72px); }
 }
 
-/* The red signup and pale footer share one uninterrupted paper sheet. */
+/* The signup uses the shared backdrop; the footer owns its themed paper. */
 .paperEnd {
   position: relative;
   isolation: isolate;
   background: #fff;
 }
-.page .paperEnd > :global([data-hub-starter]),
-.paperEnd > :global([data-site-footer]) {
+.page .paperEnd > :global([data-hub-starter]) {
   --et-sheet: none;
   position: relative;
   background: transparent;

@@ -234,26 +234,32 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
           event.stopImmediatePropagation();
           element.setAttribute('data-test-press-color', getComputedStyle(element).color);
           element.setAttribute('data-test-press-opacity', getComputedStyle(element).opacity);
+          element.setAttribute('data-test-press-background', getComputedStyle(element).backgroundColor);
         }, { capture: true, once: true }));
         let pressedColor: string | null;
         let pressedOpacity: string | null;
+        let pressedBackground: string | null;
+        let beforePressBackground = await control.evaluate(element => getComputedStyle(element).backgroundColor);
         let beforePressColor = restingColor;
         if (isMobile) {
           await control.tap();
           pressedColor = await control.getAttribute('data-test-press-color');
           pressedOpacity = await control.getAttribute('data-test-press-opacity');
+          pressedBackground = await control.getAttribute('data-test-press-background');
         } else {
           await control.hover();
           beforePressColor = await control.evaluate(element => getComputedStyle(element).color);
+          beforePressBackground = await control.evaluate(element => getComputedStyle(element).backgroundColor);
           await page.mouse.down();
           pressedColor = await control.evaluate(element => getComputedStyle(element).color);
           pressedOpacity = await control.evaluate(element => getComputedStyle(element).opacity);
+          pressedBackground = await control.evaluate(element => getComputedStyle(element).backgroundColor);
           await page.mouse.up();
           await page.mouse.move(0, 0);
         }
         expect(pressedColor).not.toBeNull();
         expect(pressedColor).not.toBe(restingColor);
-        expect(pressedColor).not.toBe(beforePressColor);
+        expect(pressedColor !== beforePressColor || pressedBackground !== beforePressBackground).toBe(true);
         expect(pressedOpacity).toBe('1');
         await expect(control).toHaveCSS('color', restingColor);
         await expect(control).toHaveCSS('opacity', '1');

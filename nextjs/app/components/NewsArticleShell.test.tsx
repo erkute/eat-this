@@ -2,7 +2,8 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import type { NewsArticle, PortableTextBlock } from '@/lib/types';
+import type { MapMustEat, NewsArticle, PortableTextBlock } from '@/lib/types';
+import { addArticleMustEats } from '@/lib/article-must-eats';
 
 vi.mock('@/i18n/navigation', () => ({
   Link: ({ href, children, ...rest }: { href: string; children: ReactNode }) => (
@@ -296,6 +297,22 @@ describe('NewsArticleShell', () => {
     expect(firstMap.compareDocumentPosition(secondHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const secondMap = reading.querySelector('a[href="/map?r=double-eye"]')!;
     expect(paragraphs[2].compareDocumentPosition(secondMap) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('keeps descriptions before spot photos when automatic must eats are attached', () => {
+    const blocks = addArticleMustEats([
+      h2('Bonvivant'), spot('Bonvivant', 'bonvivant'), para('Die Beschreibung des Spots.'),
+      h2('Double Eye'), spot('Double Eye', 'double-eye'), para('Die nächste Adresse.'),
+    ], [{ _id: 'bonvivant-card', restaurant: { name: 'Bonvivant', slug: 'bonvivant' } } as MapMustEat]);
+    const body = document.createElement('div');
+    body.innerHTML = render(blocks);
+    const reading = body.querySelector('[data-article-content]')!;
+    const description = [...reading.querySelectorAll('p')].find(p => p.textContent === 'Die Beschreibung des Spots.')!;
+    const map = reading.querySelector('a[href="/map?r=bonvivant"]')!;
+    const mustEat = reading.querySelector('[aria-label="Must Eat bei Bonvivant ansehen"]')!;
+    expect(description.compareDocumentPosition(map) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(map.compareDocumentPosition(mustEat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(body.querySelector('a[href="#bonvivant"]')).not.toBeNull();
   });
 
   it('keeps narrative cards in their authored position', () => {

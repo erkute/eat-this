@@ -11,14 +11,12 @@
   overflow-x: clip;
 }
 .inner { width: 100%; }
-.hero, .bridge, .section, .remy, .coda,
-.page > :global([data-site-footer]) {
+.hero, .bridge, .section, .remy, .coda {
   position: relative;
   background: transparent;
   color: var(--et-fg);
 }
-.hero::before, .bridge::before, .section::before, .remy::before, .coda::before,
-.page > :global([data-site-footer])::before {
+.hero::before, .bridge::before, .section::before, .remy::before, .coda::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -26,12 +24,6 @@
   background: var(--et-ground);
   mix-blend-mode: multiply;
   pointer-events: none;
-}
-.page > :global([data-site-footer]) {
-  --et-sheet: none;
-}
-.page > :global([data-site-footer])::before {
-  background: #fff;
 }
 .hero {
   display: grid;

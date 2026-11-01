@@ -456,58 +456,75 @@ div.page {
 
 /* --------------------------------------------------------- must-eat ----- */
 
-/* Dasselbe Knitterpapier wie die Katalog-Verweise; Etikett aus globals.css.
-   Die Kartenrückseite bleibt das Motiv, die Schrift folgt dem Seitenthema. */
+/* Ein eigener Kartenstapel im Lesetext, mit festem Artwork-Kontrast. */
 .mustEat {
+  --et-fg: var(--et-white);
   position: relative;
   font-family: var(--et-font-display);
   display: grid;
-  grid-template-columns: clamp(88px, 15%, 128px) minmax(0, 1fr);
+  grid-template-columns: clamp(120px, 26%, 190px) minmax(0, 1fr);
   align-items: center;
-  gap: clamp(16px, 2.2vw, 26px);
+  gap: clamp(28px, 5vw, 56px);
   margin: clamp(30px, 4.5vw, 56px) 0;
-  padding: clamp(16px, 2vw, 22px);
-  background: var(--et-ground) url('/pics/paper/folded-white.webp?v=20261028-hq') center / 100% 100%;
-  background-blend-mode: multiply;
+  padding: clamp(28px, 4vw, 44px);
+  background: var(--et-ink) url('/pics/vintage/section-wear-dark.webp?v=4') center / cover;
+  border: 1px solid color-mix(in srgb, var(--et-white) 18%, transparent);
   color: var(--et-fg);
   text-align: left;
   text-decoration: none;
 }
 
 .mustEatPh {
+  position: relative;
+  isolation: isolate;
   display: grid;
   place-items: center;
   margin: 0;
   padding: 0;
 }
 
+.mustEatPh::before,
+.mustEatPh::after {
+  content: '';
+  position: absolute;
+  inset: 4% 3%;
+  z-index: -1;
+  border-radius: 8px;
+  background: #d4d1cd;
+  transform: rotate(6deg);
+}
+.mustEatPh::after { background: var(--et-white); transform: rotate(1deg); }
+
 .mustEatPh img {
   display: block;
   width: 100%;
   height: auto;
   transform: rotate(-5deg);
+  filter: drop-shadow(0 8px 12px rgb(0 0 0 / 25%));
+  transition: transform 240ms var(--ease-standard);
 }
 
 .mustEatBody {
   display: grid;
+  min-width: 0;
   align-content: center;
   justify-items: start;
-  gap: 7px;
+  gap: 16px;
 }
 
 .mustEat .mustEatName {
+  overflow-wrap: anywhere;
   max-width: 18ch;
   margin: 0;
   color: var(--et-fg);
-  font-size: clamp(24px, 2.2vw, 30px);
+  font-size: clamp(32px, 4vw, 52px);
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.05;
   text-transform: none;
 }
 
-/* Der Satz trägt den Block jetzt allein — er ersetzt Meta-Zeile und
-   Knopf, steht deshalb etwas größer. */
+/* Die gesamte Fläche ist der Link; der Satz erklärt die Karte. */
 .mustEat .mustEatDesc {
   max-width: 34ch;
   margin: 0;
@@ -515,6 +532,14 @@ div.page {
   font-size: clamp(16px, 1.25vw, 18px);
   font-weight: 400;
   line-height: 1.35;
+}
+
+@media (hover: hover) {
+  .mustEat:hover .mustEatPh img { transform: translateY(-4px) rotate(-2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mustEatPh img { transition: none; }
+  .mustEat:hover .mustEatPh img { transform: rotate(-5deg); }
 }
 
 /* ------------------------------------------------------- inline spot ---- */
@@ -589,17 +614,26 @@ div.page {
   transition: scale 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Die ganze Karte führt auf die Map: eine Trefferfläche nur für Zeiger
-   (aria-hidden, nicht fokussierbar) — für Tastatur und Screenreader tragen
-   Name und Knopf dasselbe Ziel. */
+/* Foto und Name führen auf die Map. Die zusätzliche Trefferfläche ist nur
+   für Zeiger; Tastatur und Screenreader verwenden den Namenslink. */
 .inlineSpotHit {
   position: absolute;
   inset: 0;
   z-index: 2;
 }
 
-/* Text und Knopf über der Trefferfläche; dazwischen fällt der Klick auf die
-   Karte durch. */
+.inlineSpot a.inlineSpotHit:is(:active, [data-et-pressed]) {
+  opacity: 1;
+}
+
+/* Die sichtbare Rückmeldung liegt auf dem Foto statt auf dem leeren Link. */
+.inlineSpot:has(:is(.inlineSpotHit, .inlineSpotNameLink):is(:active, [data-et-pressed])) .inlineSpotPhoto {
+  opacity: 0.85;
+  transition-property: none;
+}
+
+/* Die Etiketten liegen über der Trefferfläche; dazwischen fällt der Klick
+   auf das Foto durch. */
 .inlineSpotBody {
   position: absolute;
   left: clamp(16px, 2.4vw, 28px);
@@ -993,13 +1027,13 @@ div.page {
   }
 
   .mustEat {
-    grid-template-columns: 84px minmax(0, 1fr);
-    gap: 16px;
-    padding: 14px;
+    grid-template-columns: minmax(76px, 30%) minmax(0, 1fr);
+    gap: 24px;
+    padding: 28px 22px;
   }
 
   .mustEat .mustEatName {
-    font-size: clamp(22px, 6vw, 26px);
+    font-size: clamp(26px, 7vw, 36px);
   }
 
   .mustEat .mustEatDesc {

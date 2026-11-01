@@ -4,14 +4,12 @@
   background: #fff;
 }
 .surface > main,
-.surface > nav,
-.surface > :global([data-site-footer]) {
+.surface > nav {
   position: relative;
   background: transparent;
 }
 .surface > main::before,
-.surface > nav::before,
-.surface > :global([data-site-footer])::before {
+.surface > nav::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -30,10 +28,4 @@
 }
 .surface :global([data-discovery='bezirk']) {
   background: transparent;
-}
-.surface > :global([data-site-footer]) {
-  --et-sheet: none;
-}
-.surface > :global([data-site-footer])::before {
-  background: #fff;
 }

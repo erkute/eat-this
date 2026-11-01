@@ -1,6 +1,6 @@
 /* The pack poster (PackPoster.tsx). Narrow — the spot detail, a phone — it
    stacks: packs, title, pitch, buttons. Wide (/must-eats on a desktop) the
-   copy stands left and the packs right, still breaking out above the top. */
+   copy stands left and the packs have a bounded stage on the right. */
 .poster {
   /* A page passes --poster-top (the room above, which the packs breaking
      out need), --poster-gut and --poster-max (its column). Only read here,
@@ -9,9 +9,10 @@
   position: relative;
   isolation: isolate;
   container-type: inline-size;
+  container-name: pack-poster;
   margin: var(--poster-top, 112px) 0 0;
   padding: 0 var(--poster-gut, 20px) calc(32px + env(safe-area-inset-bottom, 0px));
-  /* The fan may reach past the sides; the breakout above stays visible. */
+  /* Der Überstand über der mobilen Fläche bleibt sichtbar. */
   overflow-x: clip;
   overflow-y: visible;
   color: var(--et-white);
@@ -136,45 +137,44 @@
   gap: 12px;
 }
 
-@container (min-width: 720px) {
+@container pack-poster (min-width: 720px) {
   .inner {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
     align-items: end;
     column-gap: 48px;
   }
-  /* Wide, the packs stand beside the copy at its height, centred on the
-     poster: as much colour above the front pack as below it (Ersan,
-     31.10.2026). The stage takes the copy's height (64px padding above,
-     8px below, the poster's 32px under it); the packs are sized by that,
-     and the stage moves up by half the difference. */
+  /* Die Abbildung hat eine eigene Bühne. Ihre Größe hängt von der
+     verfügbaren Spaltenbreite ab, nicht von der Länge des Seitentexts. */
   .stage {
     order: 1;
-    align-self: stretch;
-    height: auto;
+    align-self: center;
+    justify-self: center;
+    container-type: size;
+    width: min(100%, 520px);
+    height: 400px;
     margin: 0;
-    translate: 0 -12px;
   }
   .stage::before {
     bottom: -6px;
-    width: 380px;
+    width: min(380px, 100%);
   }
   .item {
     bottom: 8px;
     width: auto;
-    height: calc((100% - 72px) * 0.86);
-    translate: calc(-50% + var(--fan) * 74px) 0;
+    height: min(320px, 70cqw);
+    translate: calc(-50% + var(--fan) * min(15cqw, 78px)) 0;
   }
   .item[data-pack] {
     width: auto;
-    height: calc(100% - 72px);
+    height: min(380px, 80cqw);
   }
   .poster[data-offer='starter'] .item:not([data-pack]) {
     width: auto;
-    translate: calc(-50% + var(--fan) * 66px) 0;
+    translate: calc(-50% + var(--fan) * min(15cqw, 78px)) 0;
   }
   .poster[data-offer='booster'] .item:not([data-pack]) {
     width: auto;
-    translate: calc(-50% + var(--fan) * 46px) 0;
+    translate: calc(-50% + var(--fan) * min(10cqw, 52px)) 0;
   }
   .copy {
     padding-block: 64px 8px;

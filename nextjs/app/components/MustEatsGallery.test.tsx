@@ -13,7 +13,6 @@ const COPY = {
   numberLabel: 'Nr.',
   openKicker: 'Must Eat?',
   openTitle: 'Open title',
-  openBody: 'Open body',
   setKicker: 'Das Set',
   coveredTitle: '2 warten vor Ort.',
   coveredBody: 'Covered body',

@@ -12,6 +12,8 @@ import styles from './MapSheetDetail.module.css';
 type CommonProps = {
   contentRef: Ref<HTMLDivElement | null>;
   uid: string | null;
+  /** Wechselt bei UID- oder privatem Auth-Statuswechsel; verwirft auch Zoom-Rückflüge. */
+  viewerKey: string;
   userTier: UserTier;
   userLocation: UserLocation | null;
   unlockedIds: Set<string>;
@@ -68,6 +70,7 @@ export default function MapSheetDetail(props: Props) {
     >
       {props.kind === 'mustEat' ? (
         <MustEatDetail
+          key={props.viewerKey}
           mustEat={props.mustEat}
           userLocation={props.userLocation}
           locationError={props.locationError}
@@ -89,6 +92,7 @@ export default function MapSheetDetail(props: Props) {
         />
       ) : (
         <RestaurantDetail
+          key={props.viewerKey}
           restaurant={props.restaurant}
           mustEats={props.mustEats}
           unlockedIds={props.unlockedIds}

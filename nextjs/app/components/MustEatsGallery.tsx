@@ -2,13 +2,12 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
-import { resolveUnlockedMustEatIds } from '@/lib/map';
+import { useVisibleMustEats } from '@/lib/must-eat/useVisibleMustEats';
 import { cardNumber, sortByCardNumber } from '@/lib/map/cardOrder';
-import { mustEatMapHref } from '@/lib/map/mustEatMapHref';
 import { useTranslation } from '@/lib/i18n';
 import { normalizeName } from '@/lib/normalizeName';
 import { spotNameWithoutDistrict } from '@/lib/home/spotNameWithoutDistrict';
-import MapIntentLink from './MapIntentLink';
+import { MustEatZoomCard } from './MustEatCardZoom';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import type { MapMustEat } from '@/lib/types';
 import styles from './MustEatsSection.module.css';
@@ -24,7 +23,7 @@ interface GalleryCopy {
   coveredTitle: string;
   coveredBody: string;
   spotAria: string;
-  mapAria: string;
+  zoomAria: string;
   setMore: string;
 }
 
@@ -47,26 +46,15 @@ const SET_ROW = { phone: 3, tablet: 5, desktop: 6 } as const;
 export default function MustEatsGallery({ initialMapData, copy, coverIds }: Props) {
   const { t } = useTranslation();
 
-  // Deterministic public catalog: every visitor — guest or signed-in — sees
-  // the same anon view (the 10 curated cards face-up, rest covered).
-  // The personal collection lives in the profile; this page never
-  // personalizes. Pure function of `initialMapData` → identical on server and
-  // client, no hydration risk.
-  const faceUp = useMemo(
-    () =>
-      resolveUnlockedMustEatIds({
-        uid: null,
-        storedUnlockedIds: new Set<string>(),
-        revealedMustEatIds: new Set<string>(initialMapData.revealedMustEatIds),
-      }),
-    [initialMapData]
-  );
+  const seed = useMemo(() => ({ ...initialMapData, restaurants: [], categories: [], totalCount: 0 }), [initialMapData]);
+  const visible = useVisibleMustEats(seed);
+  const faceUp = useMemo(() => new Set(visible.revealedMustEatIds), [visible.revealedMustEatIds]);
 
   // Beide Flächen liegen in Kartennummer-Reihenfolge — die Nummer steht unten
   // rechts auf jeder Karte. Oben die offenen, darunter nur die verdeckten:
   // bis zum 27.10.2026 lag hier das ganze Set gemischt, die offenen Karten
   // standen damit zweimal auf der Seite, unter „54 warten vor Ort“ lagen 62.
-  const all = useMemo(() => sortByCardNumber(initialMapData.mustEats), [initialMapData]);
+  const all = useMemo(() => sortByCardNumber(visible.mustEats), [visible.mustEats]);
   const open = useMemo(
     () => all.filter((m) => faceUp.has(m._id) && !coverIds.includes(m._id)),
     [all, faceUp, coverIds]
@@ -89,7 +77,7 @@ export default function MustEatsGallery({ initialMapData, copy, coverIds }: Prop
     if (!setOpen || focusAfterOpen.current === null) return;
     const item = setRef.current?.children[focusAfterOpen.current];
     focusAfterOpen.current = null;
-    item?.querySelector('a')?.focus();
+    item?.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]')?.focus();
   }, [setOpen]);
   const openSet = () => {
     const items = [...(setRef.current?.children ?? [])];
@@ -107,10 +95,12 @@ export default function MustEatsGallery({ initialMapData, copy, coverIds }: Prop
     const imageUrl = (isOpen && m.image) || CARD_BACK;
     const alt = (isOpen ? m.dish : undefined) ?? t('mustEats.covered');
     return (
-      <MapIntentLink
-        href={mustEatMapHref(m)}
+      <MustEatZoomCard
+        card={m}
+        imageUrl={imageUrl}
+        imageAlt={alt}
         className={styles.card}
-        aria-label={`${label}, ${copy.mapAria}`}
+        aria-label={`${label}, ${copy.zoomAria}`}
         // Both faces are the same object — a complete card artwork, drawn
         // freestanding — so the face is data, not a style hook.
         data-face={isOpen ? 'up' : 'down'}
@@ -130,7 +120,7 @@ export default function MustEatsGallery({ initialMapData, copy, coverIds }: Prop
           loading="lazy"
           decoding="async"
         />
-      </MapIntentLink>
+      </MustEatZoomCard>
     );
   };
 

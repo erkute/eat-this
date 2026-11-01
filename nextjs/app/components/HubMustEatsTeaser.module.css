@@ -8,11 +8,13 @@
 .deck { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; margin: 0; padding: 0; list-style: none; }
 .slide { min-width: 0; }
 .cardShell { margin: 0; }
-.cardLink { display: block; width: 100%; padding: 0; background: transparent; border: 0; cursor: pointer; color: inherit; }
+.cardLink {
+  --et-press-opacity: 1; display: block; width: 100%; padding: 0; background: transparent; border: 0; cursor: pointer; color: inherit; }
 .photo, .card { display: block; width: 100%; }
 .photo { aspect-ratio: 760 / 1044; }
 .card { height: auto; }
 .cardLink:focus-visible { outline: 3px solid #d9382a; outline-offset: 5px; }
+.cardLink:is(:active, [data-et-pressed]) { scale: 0.98; }
 .meta { display: none; }
 .foot { grid-column: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
 .foot button { color: var(--et-fg); }

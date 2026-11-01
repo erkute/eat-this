@@ -59,6 +59,18 @@ function render(locale: 'de' | 'en' = 'de', data: InitialMustEatsData = EMPTY) {
 }
 
 describe('MustEatsSection', () => {
+  it('counts the complete catalogue, including covered cards, in both languages', () => {
+    for (const locale of ['de', 'en'] as const) {
+      const html = render(locale, catalog());
+      expect(html).toMatch(/<dd>8<\/dd>/);
+      expect(html).toContain('Must Eats in Berlin.');
+      const head = html.slice(0, html.indexOf('</header>'));
+      expect(head).toContain(locale === 'de' ? '20 weitere bekommst du mit deinem Konto im Starter Pack.' : 'your account adds 20 more in your Starter Pack.');
+      expect(head).toContain(locale === 'de' ? 'Sammlung starten' : 'Start collecting');
+      expect(head).toContain(locale === 'de' ? 'Dein Start: 30 Must Eats.' : 'Start with 30 Must Eats.');
+    }
+  });
+
   it('renders the Must Eats H1', () => {
     const html = render();
     expect(html).toMatch(/<h1[^>]*>Must Eats<\/h1>/);
@@ -66,12 +78,12 @@ describe('MustEatsSection', () => {
 
   it('renders the explanatory sub copy (de)', () => {
     const html = render();
-    expect(html).toContain('Berlin hat viel auf der Karte. Wir sagen dir, was du bestellen solltest.');
+    expect(html).toContain('Gerichte, die man kennen sollte.');
   });
 
   it('renders the explanatory sub copy (en)', () => {
     const html = render('en');
-    expect(html).toContain('Berlin has a lot on the menu. We tell you what to order.');
+    expect(html).toContain('Dishes worth knowing.');
   });
 
   it('never states a Must Eat in the singular per spot', () => {
@@ -94,17 +106,15 @@ describe('MustEatsSection', () => {
     }
   });
 
-  it('hands the covered band its copy with the live count', () => {
-    // Text wörtlich vom Betreiber (28.10.2026). Die Band-Copy geht als Prop in
-    // die (gemockte) Gallery, nicht ins Markup.
+  it('explains discovering covered cards at the spot', () => {
     galleryCopy.mockClear();
     render('de', catalog());
 
     expect(galleryCopy).toHaveBeenCalledWith(
       expect.objectContaining({
-        coveredTitle: '5 gute Gründe, loszugehen.',
+        coveredTitle: 'Der Rest bleibt erstmal verdeckt.',
         coveredBody:
-          'Weitere 5 Karten sind noch verdeckt. Auf der Map findest du ihre Spots. Mit deinem Konto und freigegebenem Standort deckst du sie direkt vor Ort mit einem Tap auf und sammelst die Empfehlungen in deinem Deck.',
+          'Viele Must Eats zeigen wir dir erst, wenn du am richtigen Spot stehst. Auf der Map siehst du, wo es etwas zu entdecken gibt. Vor Ort deckst du die Karte auf und fügst sie deiner Sammlung hinzu.',
       })
     );
   });
@@ -114,28 +124,27 @@ describe('MustEatsSection', () => {
     render('de', catalog());
 
     const copy = galleryCopy.mock.calls[0][0];
-    expect(copy.openKicker).toBe('Schon aufgedeckt');
-    expect(copy.openTitle).toBe('Was wir bestellen.');
+    expect(copy.openKicker).toBe('Eine erste Auswahl');
+    expect(copy.openTitle).toBe('Was probierst du als Nächstes?');
     expect(copy.openTitle).not.toMatch(/\d/);
-    expect(copy.openBody).not.toMatch(/\d/);
   });
 
-  it('fans the two last face-up cards on the cover, the lowest of those in front', () => {
-    // The catalog may arrive in any order; cards 3 and 9 form the cover.
+  it('fans up to five face-up cards on the cover in card order', () => {
+    // Der Fächer bleibt auch bei ungeordnetem Katalog nach Kartennummer sortiert.
     const data = catalog();
     data.mustEats.push(mustEat('9', true));
     data.revealedMustEatIds.push('9');
     const html = render('de', { ...data, mustEats: [...data.mustEats].reverse() });
     const figure = html.slice(html.indexOf('<figure'), html.indexOf('</figure>'));
 
-    expect(figure).toContain('data-count="2"');
+    expect(figure).toContain('data-count="4"');
     expect(figure).not.toContain('aria-hidden');
     expect(figure).toContain('href="/map?r=3"');
     expect(figure).toContain('aria-label="Dish 3, auf der Map zeigen"');
-    expect(figure).not.toContain('https://cdn/1.png');
+    expect(figure).toContain('https://cdn/1.png');
     expect(figure).toContain('https://cdn/9.png');
     // Hinten → vorn im DOM: die vorderste Karte steht zuletzt.
-    expect(figure).not.toContain('https://cdn/2.png');
+    expect(figure).toContain('https://cdn/2.png');
     expect(figure.lastIndexOf('https://cdn/3.png')).toBeGreaterThan(figure.lastIndexOf('https://cdn/9.png'));
   });
 
@@ -161,13 +170,15 @@ describe('MustEatsSection', () => {
 
   it('closes with sign-up for guests and the map for accounts', () => {
     const html = render();
-    const closing = html.slice(html.indexOf('data-guest-only'));
+    const closing = html.slice(html.indexOf('<section data-guest-only'));
     const guest = closing.slice(0, closing.indexOf('data-auth-only'));
     const auth = closing.slice(closing.indexOf('data-auth-only'));
 
     expect(closing).toContain('Hol sie dir.');
     // Gast: das Starter Pack zuerst, die Map als zweite Antwort, keine Packs.
     expect(guest).toContain('Starter Pack');
+    expect(guest).toContain('20 Karten. Der Anfang deiner Sammlung.');
+    expect(guest).toContain('20 weitere Must Eats im Starter Pack.');
     expect(guest.indexOf('>Konto erstellen<')).toBeLessThan(guest.indexOf('href="/map"'));
     expect(guest).not.toContain('href="/packs"');
     // Konto: die Map vorn, Booster Packs dahinter.
@@ -175,8 +186,8 @@ describe('MustEatsSection', () => {
   });
 
   it('describes the growing catalogue without promising automatically opened cards', () => {
-    expect(render()).toContain('Nach und nach kommen neue Gerichte dazu, die du entdecken und als Karten sammeln kannst.');
-    expect(render('en')).toContain('More dishes will be added over time for you to discover and collect as cards.');
+    expect(render()).toContain('Neue Empfehlungen kommen regelmäßig dazu.');
+    expect(render('en')).toContain('New recommendations are added regularly.');
     expect(render()).not.toContain('Alle 20 Karten liegen sofort offen');
     expect(render('en')).not.toContain('All 20 cards go straight into your deck face up');
   });
@@ -189,8 +200,8 @@ describe('MustEatsSection', () => {
 
   it('closes with the pack poster: the Starter Pack for guests, Booster Packs for accounts', () => {
     const html = render();
-    const guest = html.slice(html.indexOf('data-guest-only'), html.indexOf('data-auth-only'));
-    const auth = html.slice(html.indexOf('data-auth-only'));
+    const guest = html.slice(html.indexOf('<section data-guest-only'), html.indexOf('<section data-auth-only'));
+    const auth = html.slice(html.indexOf('<section data-auth-only'));
 
     expect(guest).toContain('data-offer="starter"');
     expect(guest.match(/starter-pack-front\.webp/g)).toHaveLength(1);

@@ -1,39 +1,41 @@
-/* One editorial rhythm for the catalog, its open cards and the complete set. */
+/* Die Karten bilden den Einstieg; Layout und Text bleiben ohne Animation sichtbar. */
 .page {
   --must-pad: var(--et-wrap-pad-mobile);
   --must-soft: var(--et-copy);
-  --must-gap: clamp(32px, 4vw, 56px);
-  --must-card-shadow: drop-shadow(0 12px 16px rgb(0 0 0 / .15));
-  position: relative;
-  isolation: isolate;
-  display: flow-root;
-  min-height: 100%;
-  overflow-x: clip;
-  background: var(--et-ground);
-  color: var(--et-fg);
+  --must-gap: clamp(56px, 7vw, 104px);
+  --must-card-shadow: drop-shadow(0 10px 12px rgb(0 0 0 / .14));
+  position: relative; isolation: isolate; display: flow-root; min-height: 100%;
+  overflow-x: clip; background: var(--et-ground); color: var(--et-fg);
 }
 :global(.page).page { font-family: var(--et-font-body); }
-
 .wrap { width: min(100% - 2 * var(--must-pad), var(--et-wrap-max)); margin-inline: auto; }
 .kicker { margin: 0; justify-self: start; }
-.title, .sectionTitle { margin: 0; font-weight: 800; letter-spacing: -.055em; text-wrap: balance; }
-.title { grid-area: title; font-size: clamp(58px, 15vw, 88px); line-height: .88; align-self: start; }
-.sub, .sectionBody { margin: 0; color: var(--must-soft); font-size: 16px; line-height: 1.5; text-wrap: pretty; }
-.head { display: grid; grid-template-columns: minmax(0, 1fr) 38%; grid-template-areas: 'kicker cover' 'title cover' 'sub sub' 'actions actions'; gap: 0 16px; padding-top: 16px; }
-.head:not([data-cover]) { grid-template-columns: 1fr; grid-template-areas: 'kicker' 'title' 'sub' 'actions'; }
-.head > .kicker { grid-area: kicker; margin-bottom: 18px; align-self: end; }
-.cover { grid-area: cover; display: grid; justify-items: center; margin: 8px 0 0; align-self: center; transform: translateX(-20px); }
-/* Ein Fächer: alle Karten in derselben Zelle, die hinteren gedreht und zur
-   Seite geschoben. In DOM-Reihenfolge hinten → vorn. */
-.cover a { grid-area: 1 / 1; display: block; width: 70%; transform: rotate(3deg); }
-.cover a:focus-visible { outline: 3px solid var(--et-link); outline-offset: 6px; }
+.title, .sectionTitle { margin: 0; font-weight: 700; letter-spacing: -.055em; text-wrap: balance; }
+.head { padding-top: 18px; }
+.title { font-size: clamp(56px, 19.2vw, 256px); line-height: .82; white-space: nowrap; text-align: center; }
+.cover { position: relative; display: grid; place-items: end center; height: clamp(190px, 35vw, 370px); margin: 24px 0 64px; }
+.cover a {
+  --fan-position: calc(var(--fan-index) - (var(--fan-count) - 1) / 2);
+  grid-area: 1 / 1; width: clamp(108px, 29vw, 270px); position: relative;
+  transform-origin: 50% 90%;
+  transform: translateX(calc(var(--fan-position) * 47%)) translateY(calc(var(--fan-position) * var(--fan-position) * 5px)) rotate(calc(var(--fan-position) * 7deg));
+  transition: translate .25s ease;
+}
+.cover a:focus-visible { outline: 3px solid var(--et-link); outline-offset: 5px; z-index: 2; }
 .cover img { display: block; width: 100%; height: auto; aspect-ratio: 760 / 1044; object-fit: contain; filter: var(--must-card-shadow); }
-.cover[data-count='2'] a:nth-child(1) { transform: translateX(-34%) rotate(-15deg); }
-.cover[data-count='2'] a:nth-child(2) { transform: translateX(18%) rotate(8deg); }
-.cover[data-count='1'] a { width: 100%; }
-.sub { grid-area: sub; max-width: 43ch; margin-top: 26px; }
-.actions { grid-area: actions; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 24px; }
+.intro { display: grid; justify-items: center; gap: 20px; padding-block: 16px 40px; text-align: center; }
+.statement { margin: 0; font-size: clamp(32px, 4.4vw, 60px); font-weight: 700; letter-spacing: -.055em; line-height: 1; }
+.statement span { display: block; }
+.sub { max-width: 58ch; color: var(--must-soft); font-size: 16px; line-height: 1.5; }
+.sub > p { margin: 0; text-wrap: pretty; }
+.sub > .accountNote { max-width: 56ch; margin: 16px auto 0; font-size: 14px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; }
+.catalogCount { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; column-gap: .3em; margin: 0 0 6px; color: var(--et-fg); font-weight: 700; }
+.catalogCount dt { font-size: inherit; }
+.catalogCount dd { order: -1; margin: 0; font-variant-numeric: tabular-nums; }
+.sectionBody { margin: 0; color: var(--must-soft); font-size: 16px; line-height: 1.5; text-wrap: pretty; }
 .section { margin-top: var(--must-gap); }
+.section[data-band="open"] { margin-top: 0; padding-top: 28px; border-top: 1px solid color-mix(in srgb, var(--et-fg) 18%, transparent); }
 .sectionHead { display: grid; gap: 16px; margin-bottom: 20px; }
 .sectionTitle { font-size: clamp(34px, 5vw, 64px); line-height: 1.02; }
 .sectionBody { max-width: 48ch; }
@@ -41,7 +43,7 @@
 .card img { display: block; width: 100%; height: auto; aspect-ratio: 760 / 1044; object-fit: contain; filter: var(--must-card-shadow); }
 .card:focus-visible { outline: 3px solid var(--et-link); outline-offset: 6px; }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) { .card:hover { transform: translateY(-6px); } }
-.feature { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 16px; margin: 0; padding: 12px 0 0; list-style: none; }
+.feature { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 20px; margin: 0; padding: 12px 0 0; list-style: none; }
 .featureItem { min-width: 0; }
 .caption { display: grid; justify-items: start; gap: 6px; padding-top: 14px; }
 .dish { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.025em; line-height: 1.1; overflow-wrap: anywhere; }
@@ -57,37 +59,35 @@
 /* Zugeklappt eine Reihe: so viele Karten, wie das Raster Spalten hat. */
 .set[data-collapsed] > .setItem:nth-child(n + 4) { display: none; }
 .setMore { display: flex; justify-content: center; margin-top: 28px; }
-/* The closing pack poster (PackPoster) runs across the page; its copy keeps
-   to the page's column, and the packs breaking out above it need the room. */
+
 .close { --poster-max: var(--et-wrap-max); --poster-gut: var(--must-pad); --poster-top: calc(var(--must-gap) + 168px); }
-@media (min-width: 768px) { .close { --poster-top: var(--must-gap); } }
 @media (min-width: 768px) {
   .page { --must-pad: var(--et-wrap-pad); }
-  .head { align-content: start; grid-template-rows: auto auto auto 1fr; grid-template-columns: 1.2fr 1fr; grid-template-areas: 'kicker cover' 'title cover' 'sub cover' 'actions cover'; padding-top: 20px; column-gap: clamp(40px, 7vw, 100px); }
-  .title { font-size: clamp(80px, 9vw, 132px); }
-  .cover { width: min(100%, 220px); justify-self: center; margin: 24px 0 32px; transform: none; }
-  .sub { font-size: 20px; }
-  .feature { gap: 28px 24px; padding: 0; }
-  .caption { gap: 8px; padding-top: 20px; }
-  .dish { font-size: 24px; }
-  .set { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px 20px; }
+  .head { padding-top: 28px; }
+  .cover { margin-top: 32px; margin-bottom: 72px; }
+  .cover a { width: clamp(160px, 19vw, 270px); transform: translateX(calc(var(--fan-position) * 70%)) translateY(calc(var(--fan-position) * var(--fan-position) * 6px)) rotate(calc(var(--fan-position) * 6deg)); }
+  .intro { gap: 20px; padding-block: 10px 56px; }
+  .statement span { display: inline; }
+  .statement span + span::before { content: " "; }
+  .sub { font-size: 18px; }
+  .sectionHead { gap: 12px; margin-bottom: 32px; }
+  .sectionBody { max-width: 65ch; font-size: 18px; }
+  .feature { gap: 36px 28px; padding: 0; }
+  .dish { font-size: 22px; }
+  .set { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px 24px; }
   .set[data-collapsed] > .setItem:nth-child(n + 4) { display: block; }
   .set[data-collapsed] > .setItem:nth-child(n + 6) { display: none; }
   .setMore[data-fits='tablet'] { display: none; }
-  .sectionHead { grid-template-columns: 1fr; grid-template-areas: 'kicker' 'title' 'body'; align-items: start; gap: 10px; margin-bottom: 24px; }
-  .sectionHead > .kicker { grid-area: kicker; }
-  .sectionTitle { grid-area: title; }
-  .sectionBody { grid-area: body; max-width: 65ch; font-size: 18px; }
+  .close { --poster-top: var(--must-gap); }
 }
 @media (min-width: 1024px) {
-  .cover { width: min(100%, 22vw, 320px); }
-  .cover[data-count='2'] a:nth-child(1) { transform: translateX(-48%) rotate(-20deg); }
-  .cover[data-count='2'] a:nth-child(2) { transform: translateX(24%) rotate(10deg); }
-  .feature { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .feature { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .dish { font-size: 20px; }
   .set { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .set[data-collapsed] > .setItem:nth-child(n + 6) { display: block; }
   .set[data-collapsed] > .setItem:nth-child(n + 7) { display: none; }
   .setMore[data-fits='desktop'] { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) { .cover a:hover { translate: 0 -18px; z-index: 2; } }
+@media (prefers-reduced-motion: reduce) { .cover a, .card { transition: none; } }
 @supports (-webkit-touch-callout: none) { @media (pointer: coarse) { .cover img, .card img { filter: none; } } }

@@ -248,6 +248,7 @@ export default function MustEatsOnboarding({
               tabIndex={-1}
               className={tour.panel}
               data-must-eats-onboarding=""
+              data-red-sheet=""
               role="dialog"
               aria-modal="true"
               aria-label={t('mustEats.howItWorks')}
@@ -289,7 +290,7 @@ export default function MustEatsOnboarding({
 
                     </>
                   ) : (
-                    <div className={tour.cardBox}>
+                    <div className={`${tour.cardBox} ${styles.deck}`} data-deck={step === 0 ? '' : undefined}>
                       {step === 1 ? (
                         <button
                           type="button"
@@ -342,7 +343,7 @@ export default function MustEatsOnboarding({
                     ))}
                   </div>
                 </div>
-                {/* Der gelbe Knopf steht auf jeder Seite an derselben Stelle.
+                {/* Der Hauptknopf steht auf jeder Seite an derselben Stelle.
                     Am Ende nimmt die zweite Aktion den Platz von Zurück ein. */}
                 {!last ? (
                   <div className={tour.actions}>
@@ -373,7 +374,7 @@ export default function MustEatsOnboarding({
                       </button>
                     </div>
                     {/* Für einen Gast zählt das Gratis-Pack mehr als das
-                        Schließen — es nimmt den gelben Platz. */}
+                        Schließen — es nimmt den Hauptplatz. */}
                     <div
                       className={tour.actions}
                       data-testid="onb-actions-guest"

@@ -103,6 +103,10 @@ env:
     secret: COUNT_SALT_STAGING
     availability:
       - RUNTIME
+  - variable: STATS_EXCLUDE_IPS
+    secret: STATS_EXCLUDE_IPS_STAGING
+    availability:
+      - RUNTIME
   - variable: PREMIUM_ACCESS_SIGNING_KEY
     secret: PREMIUM_ACCESS_SIGNING_KEY_STAGING
     availability:

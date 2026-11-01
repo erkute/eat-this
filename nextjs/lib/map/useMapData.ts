@@ -1,5 +1,6 @@
 'use client';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { selectVisibleMustEats } from '@/lib/must-eat/visible-cards';
 import { auth, getDb } from '@/lib/firebase/config';
 import type { MapRestaurant, MapMustEat } from '../types';
 import type { CategoryDef } from '../categories';
@@ -223,13 +224,18 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     };
   }, [uid, refetch]);
 
+  const visible = useMemo(() => selectVisibleMustEats(initialMapData, {
+    uid, authLoading, live: { dataUid, mustEats, revealedMustEatIds },
+  }), [initialMapData, uid, authLoading, dataUid, mustEats, revealedMustEatIds]);
+  const visibleIds = useMemo(() => new Set(visible.revealedMustEatIds), [visible.revealedMustEatIds]);
+
   return {
     restaurants,
-    mustEats,
+    mustEats: visible.mustEats,
     categories,
     totalCount,
     fullCatalog,
-    revealedMustEatIds,
+    revealedMustEatIds: visibleIds,
     loading,
     dataUid,
     error,

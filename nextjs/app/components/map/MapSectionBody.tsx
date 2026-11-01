@@ -88,6 +88,7 @@ interface MapBodyState {
   location: UserLocation | null;
   locationError: UserLocationError | null;
   uid: string | null;
+  cardViewerKey: string;
   userTier: UserTier;
   mapDataLoading: boolean;
   mapDataError: string | null;
@@ -187,6 +188,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     location,
     locationError,
     uid,
+    cardViewerKey,
     userTier,
     mapDataLoading,
     mapDataError,
@@ -766,6 +768,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             {sheetView === 'detail' && selectedMustEat ? (
               <MapSheetDetail
                 kind="mustEat"
+                viewerKey={cardViewerKey}
                 contentRef={setContentRef}
                 uid={uid}
                 userTier={userTier}
@@ -788,6 +791,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
             ) : sheetView === 'detail' && selectedRestaurant ? (
               <MapSheetDetail
                 kind="restaurant"
+                viewerKey={cardViewerKey}
                 contentRef={setContentRef}
                 uid={uid}
                 userTier={userTier}

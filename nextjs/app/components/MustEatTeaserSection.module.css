@@ -1,11 +1,5 @@
-/* MustEatTeaserSection — die verdeckten Karten auf der Spot-Seite, seit
- * 03.10.2026 im Heftlook auf Weiss: ein eigener Abschnitt mit Satz, Karten
- * und Knopf. Den Abstand zu den Nachbarn setzt die Seite.
- */
+/* Antippbare Karten auf der Spot-Seite; den Abschnittsabstand setzt die Seite. */
 
-/* Der Satz zum Abschnitt — gesetzt wie der Lesetext der Spot-Seite
-   (Neue Haas Grotesk Text, wie bei 032c). Titel, Abschnitt und Knopf kommen
-   von der Seite (classNames), damit sie wie ihre übrigen Abschnitte aussehen. */
 .sentence {
   max-width: 46ch;
   margin: 0 0 clamp(18px, 2vw, 26px);
@@ -14,9 +8,6 @@
   line-height: 1.4;
 }
 
-.actions {
-  margin-top: clamp(22px, 2.6vw, 32px);
-}
 
 /* ── Card grid — trading-card scatter ────────────────────────────────── */
 
@@ -59,30 +50,20 @@
 /* Wrapper carries the tilt + breathing-room. The card-back is shown in
    full (cream border is part of the design) — no shadow, no frame, just
    the asset on its own. */
-/* Die Karten atmen leicht, damit man sieht, dass sie anfassbar sind: eine
-   Beschriftung („Aufdecken") war zu laut fürs Kartenbild, ein starres Bild
-   las sich als Deko. Die Bewegung läuft um den Ruhewinkel `--tilt` herum, ist
-   unter einem Grad und pro Karte um `--wobble-delay` versetzt, damit die
-   Reihe nicht im Gleichschritt pumpt. Nur Transform, kein Opacity-Fade. */
+/* Kurzes Wackeln mit Ruhepause kennzeichnet die Karten als antippbar.
+   Jede Karte startet versetzt; die Darstellung benötigt nur Transform. */
 .cardWrap {
   width: 100%;
   max-width: 220px;
   transform: rotate(var(--tilt, 0deg));
   transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  animation: mustEatWobble 3.2s ease-in-out var(--wobble-delay, 0s) infinite;
+  animation: mustEatWobble 4.8s ease-in-out var(--wobble-delay, 0s) infinite;
 }
 
 @keyframes mustEatWobble {
-  0%,
-  100% {
-    transform: rotate(var(--tilt, 0deg));
-  }
-  35% {
-    transform: rotate(calc(var(--tilt, 0deg) - 0.9deg)) translateY(-2px);
-  }
-  70% {
-    transform: rotate(calc(var(--tilt, 0deg) + 0.8deg)) translateY(1px);
-  }
+  0%, 16%, 100% { transform: rotate(var(--tilt, 0deg)); }
+  3%, 9% { transform: rotate(calc(var(--tilt, 0deg) - 2deg)) translateX(-1px); }
+  6%, 12% { transform: rotate(calc(var(--tilt, 0deg) + 2deg)) translateX(1px); }
 }
 
 /* Beim Zeigen und beim Klick-Shake hört das Wippen auf — sonst kämpfen zwei
@@ -119,6 +100,7 @@
    sich in einem neuen Tab öffnen lässt und im HTML steht. `text-decoration`
    und `color` setzt globals.css für jedes a bereits zurück. */
 .card {
+  --et-press-opacity: 1;
   position: relative;
   display: block;
   width: 100%;
@@ -128,7 +110,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.card:active {
+.card:is(:active, [data-et-pressed]) {
   transform: scale(0.97);
 }
 
@@ -165,6 +147,10 @@
 }
 
 .cardBack {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   /* Freigestellt card-back: show the whole asset, never crop (rule:
      feedback_musteat_cards_freigestellt). Box ratio matches the asset so
      contain fills cleanly without letterboxing. */

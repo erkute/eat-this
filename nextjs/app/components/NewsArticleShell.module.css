@@ -458,6 +458,7 @@ div.page {
 
 /* Ein eigener Kartenstapel im Lesetext, mit festem Artwork-Kontrast. */
 .mustEat {
+  --et-press-opacity: 1;
   --et-fg: var(--et-white);
   position: relative;
   font-family: var(--et-font-display);
@@ -473,6 +474,8 @@ div.page {
   text-align: left;
   text-decoration: none;
 }
+
+.mustEat:is(:active, [data-et-pressed]) { scale: 0.99; }
 
 .mustEatPh {
   position: relative;

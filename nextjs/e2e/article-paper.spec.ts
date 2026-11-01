@@ -37,7 +37,7 @@ for (const theme of ['light', 'dark'] as const) {
     // A neutral grey rather than the red accent, in either theme.
     expect(Math.max(...fill.slice(0, 3)) - Math.min(...fill.slice(0, 3))).toBeLessThan(10);
 
-    const name = page.locator('.et-label-title[href*="/map?r="]').first();
+    const name = page.locator('.et-label-title[href*="/restaurant/"]').first();
     await name.scrollIntoViewIfNeeded();
     await expect(name).toHaveCSS('background-color', 'rgb(255, 255, 255)');
     await expect(name).toHaveCSS('color', 'rgb(21, 18, 14)');

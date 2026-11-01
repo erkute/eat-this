@@ -92,7 +92,7 @@ export async function getStaticPage(
   );
 }
 
-// Card-back teaser data only — never add content fields (dish/photo/price)
+// Public teaser references only — never add content fields (dish/photo/price)
 // here; they would leak through the public restaurant page's RSC payload.
 export interface MustEatPreview {
   _id: string;

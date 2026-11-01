@@ -18,7 +18,6 @@ import NewsArticleShare from './NewsArticleShare';
 import ArticleMotion from './ArticleMotion';
 import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
-import MapIntentLink from './MapIntentLink';
 import { articleHubLink, articleHubLabel } from '@/lib/seo/articleHubLinks';
 import { chapterShortLabel } from '@/lib/headingDeck';
 import { coverImageScale, sanitySrcSet } from '@/lib/sanity-image-presets';
@@ -253,10 +252,11 @@ export default function NewsArticleShell({
       </>
     );
     // Ohne bekannten Spot führt der Teaser zur Must-Eat-Übersicht.
-    const href = block.restaurantSlug ? `/restaurant/${block.restaurantSlug}` : '/must-eats';
+    const href = block.restaurantSlug ? `/map?r=${block.restaurantSlug}` : '/must-eats';
     return (
       <Link
         href={href}
+        rel={block.restaurantSlug ? 'nofollow' : undefined}
         className={styles.mustEat}
         aria-label={
           de
@@ -269,8 +269,7 @@ export default function NewsArticleShell({
     );
   };
 
-  // Foto und Name öffnen die Map mit nofollow. Das Metadaten-Etikett führt
-  // als gefolgter Link auf die Spot-Seite und verbindet den Guide mit ihr.
+  // Foto, Name und Metadaten öffnen die ausführliche Spot-Seite.
   const renderSpotCard = (block: SpotCardBlock) => {
     if (!block.restaurantName || !block.restaurantSlug) return null;
     const restName = normalizeName(block.restaurantName);
@@ -281,12 +280,7 @@ export default function NewsArticleShell({
       .filter(Boolean)
       .join(' · ');
 
-    // Gebaut wie die Spot-Karten der Map-Liste (Ansage 21.10.2026: „das sind
-    // ja die Spot-Map-Labels"): das Foto, unten ein Ink-Verlauf, darauf der
-    // Name gross und Bezirk · Küche als kleine Etiketten. Die ganze Karte
-    // führt auf die Map; einen eigenen Knopf braucht sie nicht — der Name ist
-    // als dicker Aufkleber schon das Zeichen, und am Telefon stellte der
-    // Knopf die Karte zu (Ansage 22.10.2026).
+    // Foto und gerade Etiketten bilden eine gemeinsame Spot-Karte.
     return (
       <span className={styles.inlineSpot}>
         {block.restaurantPhoto && (
@@ -304,9 +298,8 @@ export default function NewsArticleShell({
             />
           </span>
         )}
-        <MapIntentLink
-          href={`/map?r=${block.restaurantSlug}`}
-          rel="nofollow"
+        <Link
+          href={`/restaurant/${block.restaurantSlug}`}
           className={styles.inlineSpotHit}
           tabIndex={-1}
           aria-hidden="true"
@@ -314,19 +307,13 @@ export default function NewsArticleShell({
         <span className={styles.inlineSpotBody}>
           <span className={styles.inlineSpotText}>
             <span className={styles.inlineSpotName}>
-              <MapIntentLink
-                href={`/map?r=${block.restaurantSlug}`}
-                rel="nofollow"
+              <Link
+                href={`/restaurant/${block.restaurantSlug}`}
                 className={`et-label-title ${styles.inlineSpotNameLink}`}
               >
                 {restName}
-              </MapIntentLink>
+              </Link>
             </span>
-            {/* Die Meta-Zeile trägt den gefolgten Link auf die Spot-Seite. Die
-                Karte selbst führt auf die Map — ohne diesen Link gäben die
-                Guides ihre Relevanz an keine einzige Restaurantseite weiter.
-                Kein Ausfallrisiko: alle 177 in Artikeln referenzierten Spots
-                haben einen Bezirk, `meta` ist also nie leer. */}
             {meta && (
               <span>
                 <Link

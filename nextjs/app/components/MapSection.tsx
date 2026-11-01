@@ -93,6 +93,10 @@ export default function MapSection({
 
   const { user, loading: authLoading } = useAuth();
   const uid = user?.uid ?? null;
+  const revealViewer = useRef({ uid, authLoading });
+  if (revealViewer.current.uid !== uid || revealViewer.current.authLoading !== authLoading) {
+    revealViewer.current = { uid, authLoading };
+  }
 
   // Die Karte ist offen: jeder Spot, für jeden. Ein Konto ändert nur, welche
   // Must-Eat-Karten offen liegen.
@@ -124,7 +128,7 @@ export default function MapSection({
     watch: watchLocation,
     permitted: locationPermitted,
   } = useUserLocation();
-  const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(uid);
+  const { unlockedIds: storedUnlockedIds, unlock } = useUnlockedMustEats(authLoading ? null : uid);
   // Free-and-open map: anon visitors see exactly the server-revealed set
   // face-up — the 10 curated cards.
   // Everything else stays card-back until revealed on site (50 m). Authed
@@ -146,8 +150,8 @@ export default function MapSection({
   );
   const unlockedIds = useMemo(
     () =>
-      resolveUnlockedMustEatIds({ uid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds }),
-    [uid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds]
+      resolveUnlockedMustEatIds({ uid, storedUnlockedIds: !authLoading && dataUid === uid ? storedUnlockedIds : new Set<string>(), revealedMustEatIds, publicFaceUpIds }),
+    [uid, authLoading, dataUid, storedUnlockedIds, revealedMustEatIds, publicFaceUpIds]
   );
   const { favoriteIds, toggle: toggleFavorite } = useFavorites(uid);
   /* Der Server entscheidet mit: `fullCatalog` kennt den Admin-Zugang, den der
@@ -1259,17 +1263,18 @@ export default function MapSection({
     if (!selectedMustEat) return false;
     // Anon taps never reach this handler — useMustEatDetailState routes
     // in-range guests to the login gate instead.
-    if (!uid) return false;
+    if (!uid || authLoading) return false;
+    const requestViewer = revealViewer.current;
     // The reveal response carries the full card data (covered cards ship
     // stripped) — merge it so the open detail and the list peek flip face-up.
     const full = await unlock(selectedMustEat._id);
-    if (full) {
+    if (full && revealViewer.current === requestViewer) {
       mergeMustEat(full);
       setSelectedMustEat(full);
       return true;
     }
     return false;
-  }, [selectedMustEat, setSelectedMustEat, uid, unlock, mergeMustEat]);
+  }, [selectedMustEat, setSelectedMustEat, uid, authLoading, unlock, mergeMustEat]);
 
   /* Follow the visitor for as long as the map is on screen. `location` used
      to be one fix, taken when the map came up — often on the way there,
@@ -1613,7 +1618,7 @@ export default function MapSection({
       selectedRestaurant={selectedRestaurant}
       listFocusId={listFocusId}
       detailOrigin={sheetView === 'detail' ? detailOriginRef.current : 'list'}
-      selectedMustEat={selectedMustEat}
+      selectedMustEat={selectedMustEat ? mustEats.find(card => card._id === selectedMustEat._id) ?? null : null}
       primaryMustEats={primaryMustEats}
       unlockedIds={unlockedIds}
       revealedMustEatIds={revealedMustEatIds}
@@ -1621,6 +1626,7 @@ export default function MapSection({
       location={location}
       locationError={locationError}
       uid={uid}
+      cardViewerKey={uid ? `${uid}:${authLoading ? 'pending' : 'ready'}` : 'guest'}
       userTier={userTier}
       mapDataLoading={mapDataLoading}
       mapDataError={mapDataError}

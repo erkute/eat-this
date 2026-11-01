@@ -53,7 +53,7 @@ export default function ProfileShell({ publicFaceUpIds }: Props) {
   // Map-page reveals write to users/{uid}/unlockedMustEats — unioned with the
   // public face-up set (the 10 curated cards) so anything publicly revealed
   // is open in the collection too, even right after first signup.
-  const { unlockedIds: storedUnlockedIds, unlockedAt } = useUnlockedMustEats(user?.uid ?? null);
+  const { unlockedIds: storedUnlockedIds, unlockedAt } = useUnlockedMustEats(authLoading ? null : user?.uid ?? null);
   const { profile, setAvatar } = useUserProfile(user?.uid ?? null);
   const { favorites } = useFavorites(user?.uid ?? null);
   // Owned spots (the user's map tier) → drives which must-eats appear in the

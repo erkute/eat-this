@@ -45,6 +45,8 @@ export interface MustEatImageLightboxProps {
   // the origin visible until this fires so a cold chunk load cannot leave an
   // empty slot.
   onOpenReady?: () => void;
+  /** Der Auslöser, wenn Touch beim Öffnen den aktiven Fokus verändert. */
+  restoreFocusTo?: HTMLElement | null;
   /* Blättern im geöffneten Zoom. Ohne diese Felder bleibt der Zoom, was er
      war: eine Karte, Tippen schließt. Der Aufrufer besitzt die Reihenfolge —
      er kennt seine Liste UND die Slots im Raster, aus denen die Karte
@@ -636,6 +638,7 @@ export default function MustEatImageLightbox({
   onClose,
   onExitComplete,
   onOpenReady,
+  restoreFocusTo,
   onPrev,
   onNext,
   hasPrev,
@@ -667,8 +670,8 @@ export default function MustEatImageLightbox({
 
     if (originRect && imageUrl) {
       if (!openingRef.current) {
-        restoreFocusRef.current =
-          document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        restoreFocusRef.current = restoreFocusTo ??
+          (document.activeElement instanceof HTMLElement ? document.activeElement : null);
         openingRef.current = true;
       }
       setRendered({
@@ -686,7 +689,7 @@ export default function MustEatImageLightbox({
     // map data refreshes. Never create an image clone without a real source.
     if (originRect) return;
     setRendered((current) => (current ? { ...current, open: false } : null));
-  }, [alt, imageUrl, placeholderUrl, mounted, onOpenReady, originRect, position?.index]);
+  }, [alt, imageUrl, placeholderUrl, mounted, onOpenReady, originRect, position?.index, restoreFocusTo]);
 
   if (!mounted) return null;
 

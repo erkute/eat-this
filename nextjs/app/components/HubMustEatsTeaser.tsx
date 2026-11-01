@@ -34,22 +34,22 @@ function cardSrcSet(url: string): string {
 const CARD_SIZES = '(min-width: 900px) 17vw, calc((100vw - 64px) / 2)';
 
 export default function HubMustEatsTeaser() {
-  const { initialMapData, uid } = useHomeMapData();
+  const { initialMapData, visibleMapData, uid } = useHomeMapData();
   const { open: openLoginModal } = useLoginModal();
-  const covered = initialMapData.mustEats.find(
-    (card) => !initialMapData.revealedMustEatIds.includes(card._id)
+  const covered = visibleMapData.mustEats.find(
+    (card) => !visibleMapData.revealedMustEatIds.includes(card._id)
   );
   const { lang, t } = useTranslation();
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
   const restaurantAria = lang === 'de' ? 'Restaurantseite öffnen' : 'open restaurant page';
 
-  // The teaser always shows the public selection, including for signed-in visitors.
+  // Die gezeigten Karten folgen den bestätigten Freigaben des aktuellen Kontos.
   const cards = useMemo(() => {
-    const publicIds = new Set(initialMapData.revealedMustEatIds);
-    return initialMapData.mustEats
+    const publicIds = new Set(visibleMapData.revealedMustEatIds);
+    return visibleMapData.mustEats
       .filter((card) => publicIds.has(card._id) && card.image)
       .slice(0, TEASER_COUNT);
-  }, [initialMapData]);
+  }, [visibleMapData]);
 
   const clickAnimation = useRef<gsap.core.Timeline | null>(null);
   useEffect(

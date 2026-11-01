@@ -1,10 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import type { MustEatPreview } from '@/lib/sanity.server';
 import { translations } from '@/lib/i18n/translations';
+
+const account = vi.hoisted(() => ({ uid: null as string | null, dataUid: null as string | null, loading: false, open: [] as string[] }));
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: account.uid ? { uid: account.uid } : null, loading: account.loading }) }));
+vi.mock('@/lib/map/useMapData', () => ({ useMapData: () => ({ dataUid: account.dataUid, mustEats: [{ _id: 'me-1', image: '/api/must-eat-image/me-1?v=owned' }], revealedMustEatIds: new Set(account.open) }) }));
 
 import MustEatTeaserSection from '@/app/components/MustEatTeaserSection';
 
@@ -20,7 +24,7 @@ const routerStub = {
 const mustEats = (...ids: string[]): MustEatPreview[] =>
   ids.map((_id, index) => ({ _id, order: index + 1 }) as MustEatPreview);
 
-function render(list: MustEatPreview[], locale: 'de' | 'en' = 'de') {
+function render(list: MustEatPreview[], locale: 'de' | 'en' = 'de', publicOpen = false) {
   return renderToStaticMarkup(
     <AppRouterContext.Provider value={routerStub}>
       <NextIntlClientProvider
@@ -30,9 +34,10 @@ function render(list: MustEatPreview[], locale: 'de' | 'en' = 'de') {
       >
         <MustEatTeaserSection
           mustEats={list}
+          initialData={{ restaurants: [], categories: [], mustEats: list.map(card => ({ ...card, restaurant: { _id: 'sofi', name: 'SOFI', slug: 'sofi', lat: 0, lng: 0 }, image: publicOpen ? '/api/must-eat-image/'+card._id+'?v=public' : undefined })), totalCount: 0, revealedMustEatIds: publicOpen ? list.map(card => card._id) : [] }}
           name="SOFI"
           locale={locale}
-          classNames={{ section: 'section', heading: 'heading', button: 'button' }}
+          classNames={{ section: 'section', heading: 'heading' }}
         />
       </NextIntlClientProvider>
     </AppRouterContext.Provider>
@@ -40,6 +45,33 @@ function render(list: MustEatPreview[], locale: 'de' | 'en' = 'de') {
 }
 
 describe('MustEatTeaserSection', () => {
+  beforeEach(() => { account.uid = null; account.dataUid = null; account.loading = false; account.open = []; });
+
+  it('shows an account-owned card and keeps other cards covered', () => {
+    account.uid = account.dataUid = 'owner'; account.open = ['me-1'];
+    const html = render(mustEats('me-1', 'me-2'));
+    expect(html).toContain('v=owned');
+    expect(html.match(/data-card-state="open"/g)).toHaveLength(1);
+    expect(html.match(/data-card-state="covered"/g)).toHaveLength(1);
+  });
+
+  it('shows public artwork before auth resolves and keeps it during cache loading', () => {
+    account.loading = true;
+    expect(render(mustEats('me-1'), 'de', true)).toContain('v=public');
+    account.loading = false; account.uid = account.dataUid = 'owner';
+    expect(render(mustEats('me-1'), 'de', true)).toContain('v=public');
+    expect(render(mustEats('me-1'), 'de', true)).toContain('data-card-state="open"');
+  });
+
+  it('hides stale private artwork after sign-out or account changes', () => {
+    account.dataUid = 'old-account'; account.open = ['me-1'];
+    expect(render(mustEats('me-1'))).not.toContain('v=owned');
+    account.uid = 'new-account';
+    expect(render(mustEats('me-1'))).not.toContain('v=owned');
+    account.uid = 'old-account'; account.loading = true;
+    expect(render(mustEats('me-1'))).not.toContain('v=owned');
+  });
+
   it('renders nothing when the restaurant has no must-eat', () => {
     expect(render([])).toBe('');
   });
@@ -74,12 +106,10 @@ describe('MustEatTeaserSection', () => {
     );
   });
 
-  // Keine Bedienhinweise im Text (Ansage 03.10.2026) — der Weg ist ein Knopf.
-  it('offers „Aufdecken" as a real link to the first card, without a how-to line', () => {
+  it('uses each card as the map link without an additional CTA', () => {
     const html = render(mustEats('me-1', 'me-2'));
-    expect(html).toMatch(
-      /<a[^>]*class="et-btn button"[^>]*href="\/map\?me=me-1"[^>]*>Aufdecken<\/a>|<a[^>]*href="\/map\?me=me-1"[^>]*class="et-btn button"[^>]*>Aufdecken<\/a>/
-    );
-    expect(html).not.toContain('Tipp eine Karte an');
+    expect(html.match(/<a\b[^>]*href="\/map\?me=[^"]+"/g)).toHaveLength(2);
+    expect(html).not.toContain('et-btn');
+    expect(html).not.toContain('>Aufdecken<');
   });
 });

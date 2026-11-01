@@ -303,3 +303,31 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
     }
   });
 }
+
+for (const { route, selector } of [
+  { route: '/', selector: '[data-hub-musteats] a:has([data-stack-photo="open"])' },
+  { route: '/news/essen-trinken-schoeneberg', selector: 'a:has([data-article-card-state])' },
+]) {
+  test(`must-eat press stays opaque and moves: ${route}`, async ({ page, isMobile }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(route);
+    if (route === '/') await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
+    const card = page.locator(selector).first();
+    await card.scrollIntoViewIfNeeded();
+    await card.evaluate(element => {
+      element.addEventListener('pointerdown', () => {
+        element.setAttribute('data-test-pressed-opacity', getComputedStyle(element).opacity);
+        element.setAttribute('data-test-pressed-scale', getComputedStyle(element).scale);
+      }, { once: true });
+      element.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }, { once: true, capture: true });
+    });
+    if (isMobile) await card.tap();
+    else await card.click();
+    await expect(card).toHaveAttribute('data-test-pressed-opacity', '1');
+    expect(Number(await card.getAttribute('data-test-pressed-scale'))).toBeLessThan(1);
+    await expect(card).toHaveCSS('opacity', '1');
+  });
+}

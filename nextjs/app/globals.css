@@ -1297,11 +1297,12 @@ html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie
   }
 }
 
-/* Beim Drücken werden Links, Karten und Bedienelemente sichtbar gedimmt.
+/* Beim Drücken werden Links und Bedienelemente sichtbar gedimmt.
+   Must-Eat-Motive bleiben über --et-press-opacity vollständig deckend.
    Der Zustand erscheint sofort und bleibt auch mit Reduced Motion erkennbar.
    Tastaturfokus hat seine eigene Markierung über :focus-visible. */
 :is(a[href], button, summary, [role='button']):not(:disabled, [aria-disabled='true']):is(:active, [data-et-pressed]) {
-  opacity: 0.85;
+  opacity: var(--et-press-opacity, 0.85);
   transition-property: none;
 }
 

@@ -355,6 +355,7 @@
   pointer-events: none;
 }
 .fdHero {
+  --et-press-opacity: 1;
   position: relative;
   z-index: 2;
   appearance: none;

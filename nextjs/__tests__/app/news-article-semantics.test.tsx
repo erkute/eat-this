@@ -16,8 +16,6 @@ vi.mock('@/i18n/navigation', () => ({
       {children}
     </a>
   ),
-  // The spot cards link through MapIntentLink, which prefetches the map route.
-  useRouter: () => ({ push: () => {}, prefetch: () => {} }),
 }));
 vi.mock('@/lib/PortableTextRenderer', () => ({
   extractHeadings: () => [],
@@ -67,12 +65,7 @@ describe('NewsArticleShell semantics', () => {
     expect(html.match(/<main\b/g)).toHaveLength(1);
     expect(html).toMatch(/<main\b[^>]*><article>/);
     expect(html).toContain('<h1');
-    // Die Karte führt auf die Map — Trefferfläche, Name und Knopf. Der
-    // gefolgte Link auf die Spot-Seite sitzt auf der Meta-Zeile, damit die
-    // Guides ihre Relevanz überhaupt an Restaurantseiten weitergeben. Das
-    // nofollow prüft der Shell-Test, der Link-Mock hier reicht nur href und
-    // className durch.
-    expect(html.match(/href="\/map\?r=sofi"/g)).toHaveLength(2);
-    expect(html).toContain('href="/restaurant/sofi"');
+    // Foto, Name und Metadaten führen zur Spot-Seite.
+    expect(html.match(/href="\/restaurant\/sofi"/g)).toHaveLength(3);
   });
 });

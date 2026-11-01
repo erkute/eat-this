@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { auth, getDb } from '@/lib/firebase/config';
 import type { MapMustEat } from '@/lib/types';
 
@@ -58,12 +58,16 @@ function toEpochMs(value: unknown): number {
 }
 
 export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResult {
+  const viewer = useRef({ uid });
+  if (viewer.current.uid !== uid) viewer.current = { uid };
+
   const [reveals, setReveals] = useState<Map<string, number>>(() => readCache(uid));
   // A warm cache means we can paint immediately; only "loading" when there's
   // nothing cached to show yet.
   const [loading, setLoading] = useState(() => !!uid && readCache(uid).size === 0);
 
   useEffect(() => {
+    const requestViewer = viewer.current;
     if (!uid) {
       setReveals(new Map());
       setLoading(false);
@@ -79,17 +83,17 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
         import('firebase/firestore'),
         getDb(),
       ]);
-      if (!active) return;
+      if (!active || viewer.current !== requestViewer) return;
       try {
         const snap = await getDocs(collection(db, 'users', uid, 'unlockedMustEats'));
-        if (!active) return;
+        if (!active || viewer.current !== requestViewer) return;
         const next = new Map(
           snap.docs.map((d) => [d.id, toEpochMs((d.data() as { unlockedAt?: unknown }).unlockedAt)])
         );
         setReveals(next);
         writeCache(uid, next);
       } finally {
-        if (active) setLoading(false);
+        if (active && viewer.current === requestViewer) setLoading(false);
       }
     })();
     return () => {
@@ -99,8 +103,12 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
 
   const unlock = useCallback(
     async (mustEatId: string): Promise<MapMustEat | null> => {
-      if (!uid || !auth.currentUser) return null;
-      const token = await auth.currentUser.getIdToken();
+      const user = auth.currentUser;
+      if (!uid || user?.uid !== uid) return null;
+      const requestViewer = viewer.current;
+      const isCurrent = () => viewer.current === requestViewer && requestViewer.uid === uid && auth.currentUser?.uid === uid;
+      const token = await user.getIdToken();
+      if (!isCurrent()) return null;
       const r = await fetch('/api/must-eat-reveal', {
         method: 'POST',
         headers: {
@@ -109,9 +117,11 @@ export function useUnlockedMustEats(uid: string | null): UseUnlockedMustEatsResu
         },
         body: JSON.stringify({ mustEatId }),
       });
-      if (!r.ok) return null;
+      if (!r.ok || !isCurrent()) return null;
       const { mustEat } = (await r.json()) as { mustEat: MapMustEat };
+      if (!isCurrent()) return null;
       setReveals((prev) => {
+        if (!isCurrent()) return prev;
         const next = new Map(prev).set(mustEatId, Date.now());
         writeCache(uid, next);
         return next;

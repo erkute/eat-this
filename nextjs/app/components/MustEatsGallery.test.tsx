@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
@@ -7,6 +7,12 @@ import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import type { MapMustEat } from '@/lib/types';
 import { translations } from '@/lib/i18n/translations';
 
+const account = vi.hoisted(() => ({ uid: null as string | null, dataUid: null as string | null, cards: [] as MapMustEat[], open: [] as string[] }));
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: account.uid ? { uid: account.uid } : null, loading: false }) }));
+vi.mock('@/lib/map/useMapData', () => ({ useMapData: () => ({ dataUid: account.dataUid, mustEats: account.cards, revealedMustEatIds: new Set(account.open) }) }));
+beforeEach(() => { account.uid = null; account.dataUid = null; account.cards = []; account.open = []; });
+
+import { MustEatCardZoomProvider } from './MustEatCardZoom';
 import MustEatsGallery from '@/app/components/MustEatsGallery';
 
 const COPY = {
@@ -17,7 +23,7 @@ const COPY = {
   coveredTitle: '2 warten vor Ort.',
   coveredBody: 'Covered body',
   spotAria: 'Spot-Seite öffnen',
-  mapAria: 'auf der Map zeigen',
+  zoomAria: 'Karte vergrößern',
   setMore: 'Alle Karten zeigen',
 };
 
@@ -58,7 +64,7 @@ function render(data: InitialMustEatsData = DATA, locale: 'de' | 'en' = 'de', co
   return renderToStaticMarkup(
     <AppRouterContext.Provider value={routerStub}>
       <NextIntlClientProvider locale={locale} messages={translations[locale]} timeZone="Europe/Berlin">
-        <MustEatsGallery coverIds={coverIds} initialMapData={data} copy={COPY} />
+        <MustEatCardZoomProvider><MustEatsGallery coverIds={coverIds} initialMapData={data} copy={COPY} /></MustEatCardZoomProvider>
       </NextIntlClientProvider>
     </AppRouterContext.Provider>
   );
@@ -71,11 +77,26 @@ function section(html: string, band: string): string {
 }
 
 describe('MustEatsGallery', () => {
+  it('moves a card revealed by the current account into the open band', () => {
+    account.uid = account.dataUid = 'owner'; account.cards = [open(1)]; account.open = ['m1'];
+    const html = render();
+    expect(section(html, 'open')).toContain('Dish 1');
+    expect(section(html, 'set')).not.toContain('hidden-1');
+    expect(section(html, 'open')).toContain('Dish 2');
+  });
+
+  it('keeps private account artwork hidden after sign-out or switching accounts', () => {
+    account.dataUid = 'old-owner'; account.cards = [open(1)]; account.open = ['m1'];
+    expect(section(render(), 'open')).not.toContain('Dish 1');
+    account.uid = 'new-owner';
+    expect(section(render(), 'open')).not.toContain('Dish 1');
+  });
+
   it('lays out only the covered cards below, by card number — face-up ones stay above', () => {
     const labels = [...section(render(), 'set').matchAll(/aria-label="([^"]+)"/g)].map((m) => m[1]);
     expect(labels).toEqual([
-      'Nr. 001, Verdeckt, Hidden 1, auf der Map zeigen',
-      'Nr. 003, Verdeckt, Hidden 3, auf der Map zeigen',
+      'Nr. 001, Verdeckt, Hidden 1, Karte vergrößern',
+      'Nr. 003, Verdeckt, Hidden 3, Karte vergrößern',
     ]);
   });
 
@@ -90,19 +111,18 @@ describe('MustEatsGallery', () => {
     expect(set).not.toMatch(/>Verdeckt</);
   });
 
-  it('links every card, face-up or covered, to its spot on the map', () => {
+  it('offers open and covered cards as zoom controls instead of navigating immediately', () => {
     const html = render();
-    const set = section(html, 'set');
-    expect(set).toContain('href="/map?r=hidden-1"');
-    expect(section(html, 'open')).toContain('href="/map?r=spot-2"');
-    expect(render(DATA, 'en')).toContain('href="/en/map?r=hidden-1"');
+    expect(section(html, 'set')).toContain('aria-haspopup="dialog"');
+    expect(section(html, 'open')).toContain('aria-haspopup="dialog"');
+    expect(html).not.toContain('href="/map?r=');
+    expect(render(DATA, 'en')).toContain('aria-haspopup="dialog"');
   });
 
-  it('falls back to the card itself on the map when the spot has no slug', () => {
+  it('keeps cards without a restaurant slug available for zoom', () => {
     const noSlug = covered(7);
     noSlug.restaurant.slug = '';
-    const html = render({ mustEats: [noSlug], revealedMustEatIds: [] });
-    expect(html).toContain('href="/map?me=m7"');
+    expect(render({ mustEats: [noSlug], revealedMustEatIds: [] })).toContain('aria-haspopup="dialog"');
   });
 
   it('starts the set collapsed to one row, with a button for the rest', () => {

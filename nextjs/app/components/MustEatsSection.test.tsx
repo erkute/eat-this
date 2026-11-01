@@ -8,6 +8,7 @@ import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 // browser-only context. This test targets the shell itself (H1, stats, band
 // copy, closing CTA), so stub the islands out — their behaviour is covered by
 // the pure-helper tests and the live app's providers.
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: null, loading: false }) }));
 const galleryCopy = vi.fn();
 vi.mock('@/app/components/MustEatsGallery', () => ({
   default: (props: { copy: Record<string, string> }) => {
@@ -139,8 +140,8 @@ describe('MustEatsSection', () => {
 
     expect(figure).toContain('data-count="4"');
     expect(figure).not.toContain('aria-hidden');
-    expect(figure).toContain('href="/map?r=3"');
-    expect(figure).toContain('aria-label="Dish 3, auf der Map zeigen"');
+    expect(figure).toContain('aria-haspopup="dialog"');
+    expect(figure).toContain('aria-label="Dish 3, Karte vergrößern"');
     expect(figure).toContain('https://cdn/1.png');
     expect(figure).toContain('https://cdn/9.png');
     // Hinten → vorn im DOM: die vorderste Karte steht zuletzt.

@@ -132,6 +132,7 @@
   max-width: 150px;
 }
 .medish {
+  --et-press-opacity: 1;
   position: relative;
   display: grid;
   grid-template-rows: 1fr auto;

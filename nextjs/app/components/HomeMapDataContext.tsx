@@ -1,12 +1,14 @@
 'use client';
 
 import { createContext, useContext, type ReactNode } from 'react';
+import { selectVisibleMustEats } from '@/lib/must-eat/visible-cards';
 import { useAuth } from '@/lib/auth';
 import { useMapData } from '@/lib/map';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 
 interface HomeMapDataValue {
   initialMapData: InitialMapData;
+  visibleMapData: InitialMapData;
   live: ReturnType<typeof useMapData>;
   uid: string | null;
 }
@@ -23,9 +25,10 @@ export function HomeMapDataProvider({
   const { user, loading: authLoading } = useAuth();
   const uid = user?.uid ?? null;
   const live = useMapData({ uid, authLoading, initialMapData });
+  const visibleMapData = selectVisibleMustEats(initialMapData, { uid, authLoading, live });
 
   return (
-    <HomeMapDataContext.Provider value={{ initialMapData, live, uid }}>
+    <HomeMapDataContext.Provider value={{ initialMapData, visibleMapData, live, uid }}>
       {children}
     </HomeMapDataContext.Provider>
   );

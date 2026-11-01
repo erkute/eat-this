@@ -3,7 +3,7 @@ import { Link } from '@/i18n/navigation';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import { sortByCardNumber } from '@/lib/map/cardOrder';
 import MustEatsGallery from './MustEatsGallery';
-import { mustEatMapHref } from '@/lib/map/mustEatMapHref';
+import { MustEatCardZoomProvider, MustEatZoomCard } from './MustEatCardZoom';
 import MustEatsOnboarding from './MustEatsOnboarding';
 import MustEatsStarterButton from './MustEatsStarterButton';
 import SiteFooter from './SiteFooter';
@@ -33,7 +33,7 @@ const COPY = {
     coveredTitle: 'Der Rest bleibt erstmal verdeckt.',
     coveredBody: 'Viele Must Eats zeigen wir dir erst, wenn du am richtigen Spot stehst. Auf der Map siehst du, wo es etwas zu entdecken gibt. Vor Ort deckst du die Karte auf und fügst sie deiner Sammlung hinzu.',
     spotAria: 'Spot-Seite öffnen',
-    mapAria: 'auf der Map zeigen',
+    zoomAria: 'Karte vergrößern',
     setMore: 'Alle Karten anzeigen',
     // Gast: das Konto ist der nächste Schritt, nicht die Map.
     closeGuestKicker: 'Dein Starter Pack',
@@ -65,7 +65,7 @@ const COPY = {
     coveredTitle: 'The rest stays hidden for now.',
     coveredBody: 'Many Must Eats stay hidden until you’re at the right spot. The map shows you where to explore. Once you’re there, reveal the card and add it to your collection.',
     spotAria: 'open the spot page',
-    mapAria: 'show on the map',
+    zoomAria: 'enlarge card',
     setMore: 'Show all cards',
     closeGuestKicker: 'Your Starter Pack',
     closeGuestTitle: '20 cards. The start of your collection.',
@@ -96,6 +96,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
   const cover = covers[0];
 
   return (
+    <MustEatCardZoomProvider>
     <main className={`page ${styles.page}`} data-page="must-eats" data-must-eats="">
       <header className={`${styles.wrap} ${styles.head}`} data-cover={cover ? '' : undefined}>
         <h1 className={styles.title}>
@@ -106,7 +107,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           <figure className={styles.cover} data-count={covers.length} style={{ '--fan-count': covers.length } as CSSProperties}>
             {/* Responsive Kartenbilder halten den großen Fächer leicht. */}
             {[...covers].reverse().map((m, i) => (
-              <Link key={m._id} href={mustEatMapHref(m)} aria-label={`${m.dish ?? 'Must Eat'}, ${c.mapAria}`} style={{ '--fan-index': i } as CSSProperties}>
+              <MustEatZoomCard key={m._id} card={m} imageUrl={m.image!} imageAlt={m.dish ?? 'Must Eat'} aria-label={`${m.dish ?? 'Must Eat'}, ${c.zoomAria}`} style={{ '--fan-index': i } as CSSProperties}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   sizes="(max-width: 767px) 34vw, 260px"
@@ -117,7 +118,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
                   height={1044}
                   fetchPriority={i === covers.length - 1 ? 'high' : undefined}
                 />
-              </Link>
+              </MustEatZoomCard>
             ))}
           </figure>
         )}
@@ -155,7 +156,7 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
           coveredTitle: c.coveredTitle,
           coveredBody: c.coveredBody,
           spotAria: c.spotAria,
-          mapAria: c.mapAria,
+          zoomAria: c.zoomAria,
           setMore: c.setMore,
         }}
       />
@@ -203,5 +204,6 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
 
       <SiteFooter />
     </main>
+    </MustEatCardZoomProvider>
   );
 }

@@ -97,6 +97,7 @@
   padding-right: 4px;
 }
 .handCard {
+  --et-press-opacity: 1;
   position: relative;
   display: block;
   padding: 0;
@@ -253,6 +254,7 @@ div.player {
   padding-block: 18px 12px;
 }
 .slot {
+  --et-press-opacity: 1;
   position: relative;
   min-width: 0;
   aspect-ratio: 1539 / 2115;

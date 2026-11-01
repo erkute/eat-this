@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
@@ -7,13 +7,11 @@ import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import type { MapMustEat } from '@/lib/types';
 import { translations } from '@/lib/i18n/translations';
 
-// The island pulls in Firebase/auth + browser-only map context. Stub the hooks
-// so the component renders in its pre-mount state (initialMapData, all
-// face-down) — the data partitioning is covered by the gallery helper tests
-// tests, this test targets the section shell (title + CTA href).
+const account = vi.hoisted(() => ({ uid: null as string | null, dataUid: null as string | null, cards: [] as MapMustEat[], open: [] as string[] }));
+beforeEach(() => { account.uid = null; account.dataUid = null; account.cards = []; account.open = []; });
 const openLoginModal = vi.fn();
 vi.mock('@/lib/auth', () => ({
-  useAuth: () => ({ user: null, loading: false }),
+  useAuth: () => ({ user: account.uid ? { uid: account.uid } : null, loading: false }),
   useLoginModal: () => ({ open: openLoginModal }),
 }));
 vi.mock('@/lib/analytics', () => ({ trackEvent: vi.fn() }));
@@ -22,7 +20,7 @@ vi.mock('@/lib/map', async () => {
     '@/lib/map/unlockedMustEats'
   );
   return {
-    useMapData: ({ initialMapData }: { initialMapData: InitialMapData }) => initialMapData,
+    useMapData: () => ({ dataUid: account.dataUid, mustEats: account.cards, revealedMustEatIds: new Set(account.open) }),
     useUnlockedMustEats: () => ({ unlockedIds: new Set<string>() }),
     // Real helper so the pre-mount face-up computation matches production.
     resolveUnlockedMustEatIds: actual.resolveUnlockedMustEatIds,
@@ -90,6 +88,19 @@ function render(initialMapData: InitialMapData, locale: 'de' | 'en' = 'de') {
 }
 
 describe('HubMustEatsTeaser', () => {
+  it('shows an owned card face up instead of leaving a mystery back', () => {
+    account.uid = account.dataUid = 'owner';
+    account.cards = [me({ _id: 'owned', dish: 'ACCOUNT_DISH' })]; account.open = ['owned'];
+    const html = render(data([covered('owned', 'Owned spot')]));
+    expect(html).toContain('ACCOUNT_DISH');
+    expect(html).not.toContain('data-stack-photo="covered"');
+  });
+  it('does not show a previous account’s private cards', () => {
+    account.uid = 'new-account'; account.dataUid = 'old-account';
+    account.cards = [me({ dish: 'PRIVATE_OLD' })]; account.open = ['m1'];
+    expect(render(dataRevealed([me()]))).not.toContain('PRIVATE_OLD');
+  });
+
   it('renders the "Must Eats" header', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toContain('Must Eats');

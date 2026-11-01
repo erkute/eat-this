@@ -230,52 +230,30 @@ describe('NewsArticleShell', () => {
     expect(html).toContain('Bursa Uludag Kebapcisi');
   });
 
-  // Das Band zeigt auf die Spot-Seite, nicht mehr auf ?me= — dorthin führt im
-  // selben Artikel bereits die Spot-Karte, beide landeten also am selben Ort.
-  // Von der Spot-Seite kommt man weiter zur Karte: ihr Must-Eat-Teaser
-  // deeplinkt auf genau dieses Gericht.
-  it('links a must-eat band to the spot page, and to the overview without a slug', () => {
-    expect(render([mustEat('Hasir', 'hasir')])).toContain('href="/restaurant/hasir"');
+  it('links a must-eat band to the map spot, and to the overview without a slug', () => {
+    expect(render([mustEat('Hasir', 'hasir')])).toContain('href="/map?r=hasir"');
     expect(render([mustEat('Hasir')])).toContain('href="/must-eats"');
   });
 
-  // Die Kartenfläche hat ein Ziel: die Map. Vorher führte der Name auf die
-  // Spot-Seite — auf einer Karte, deren sichtbarer Knopf „Zur Map“ heißt,
-  // ist das für niemanden vorhersehbar, zumal die Trefferfläche des Namens
-  // über die ganze Karte reicht.
-  // Name, Knopf und die kartenweite Trefferfläche (nur für Zeiger) führen auf
-  // die Map.
-  // Kein eigener „Zur Map"-Knopf mehr (22.10.2026): der Name ist als dicker
-  // Aufkleber das Zeichen, die ganze Karte die Fläche.
-  it('sends the spot name and the card to the map, without a separate button', () => {
+  it('sends the spot name, photo and metadata to the spot page', () => {
     const html = render([spot('Spumante', 'spumante')]);
-    expect(html.match(/href="\/map\?r=spumante"/g)).toHaveLength(2);
-    const hit = html.match(/<a[^>]*href="\/map\?r=spumante"[^>]*aria-hidden="true"[^>]*>|<a[^>]*aria-hidden="true"[^>]*href="\/map\?r=spumante"[^>]*>/)?.[0] ?? '';
-    expect(hit).toContain('tabindex="-1"');
-    expect(html).not.toContain('Zur Map');
+    expect(html.match(/href="\/restaurant\/spumante"/g)).toHaveLength(3);
+    expect(html).not.toContain('/map?r=spumante');
+    const body = document.createElement('div');
+    body.innerHTML = html;
+    const links = [...body.querySelectorAll('a[href="/restaurant/spumante"]')];
+    expect(links.some(link => link.getAttribute('aria-hidden') === 'true' && link.getAttribute('tabindex') === '-1')).toBe(true);
+    for (const link of links) expect(link.getAttribute('rel') ?? '').not.toContain('nofollow');
   });
 
-  // Der gefolgte Link auf die Spot-Seite sitzt jetzt auf der Meta-Zeile. Ohne
-  // ihn gäben die Guides ihre Relevanz an keine einzige Restaurantseite weiter
-  // — Google rankte dann den Guide für Marken-Queries einzelner Spots.
-  it('keeps a followed spot-page link on the meta line', () => {
-    const html = render([spot('Spumante', 'spumante')]);
-    const metaLink = html.match(/<a[^>]*href="\/restaurant\/spumante"[^>]*>/)?.[0] ?? '';
-    expect(metaLink).not.toBe('');
-    expect(metaLink).not.toContain('nofollow');
+  it('nofollows the must-eat map link with its restaurant query', () => {
+    const body = document.createElement('div');
+    body.innerHTML = render([mustEat('Hasir', 'hasir')]);
+    const link = body.querySelector('a[href="/map?r=hasir"]')!;
+    expect(link.getAttribute('rel')).toBe('nofollow');
   });
 
-  it('nofollows every map link — they carry a query', () => {
-    const html = render([spot('Spumante', 'spumante')]);
-    // Nicht mehr, weil die Map noindex wäre — sie ist seit dem 01.09.2026
-    // indexierbar. Beide Links tragen `?r=`, und jede Query-Variante zählt die
-    // Search Console sonst einzeln auf.
-    const mapLinks = html.match(/<a[^>]*href="\/map\?r=spumante"[^>]*>/g) ?? [];
-    expect(mapLinks).toHaveLength(2);
-    for (const link of mapLinks) expect(link).toContain('nofollow');
-  });
-
-  it('puts each spot description before its map card and before the next heading', () => {
+  it('puts each spot description before its spot card and before the next heading', () => {
     const html = render([
       h2('Bonvivant'),
       spot('Bonvivant', 'bonvivant'),
@@ -290,13 +268,13 @@ describe('NewsArticleShell', () => {
     const reading = body.querySelector('[data-article-content]')!;
     const text = reading.textContent!;
     expect(text.indexOf('Bonvivant erster Absatz.')).toBeLessThan(text.indexOf('Bonvivant zweiter Absatz.'));
-    const firstMap = reading.querySelector('a[href="/map?r=bonvivant"]')!;
+    const firstSpot = reading.querySelector('a[href="/restaurant/bonvivant"]')!;
     const secondHeading = reading.querySelectorAll('h2')[1];
     const paragraphs = reading.querySelectorAll('p');
-    expect(paragraphs[1].compareDocumentPosition(firstMap) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(firstMap.compareDocumentPosition(secondHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    const secondMap = reading.querySelector('a[href="/map?r=double-eye"]')!;
-    expect(paragraphs[2].compareDocumentPosition(secondMap) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(paragraphs[1].compareDocumentPosition(firstSpot) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstSpot.compareDocumentPosition(secondHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const secondSpot = reading.querySelector('a[href="/restaurant/double-eye"]')!;
+    expect(paragraphs[2].compareDocumentPosition(secondSpot) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('keeps descriptions before spot photos when automatic must eats are attached', () => {
@@ -308,10 +286,10 @@ describe('NewsArticleShell', () => {
     body.innerHTML = render(blocks);
     const reading = body.querySelector('[data-article-content]')!;
     const description = [...reading.querySelectorAll('p')].find(p => p.textContent === 'Die Beschreibung des Spots.')!;
-    const map = reading.querySelector('a[href="/map?r=bonvivant"]')!;
+    const spotLink = reading.querySelector('a[href="/restaurant/bonvivant"]')!;
     const mustEat = reading.querySelector('[aria-label="Must Eat bei Bonvivant ansehen"]')!;
-    expect(description.compareDocumentPosition(map) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(map.compareDocumentPosition(mustEat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(description.compareDocumentPosition(spotLink) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(spotLink.compareDocumentPosition(mustEat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(body.querySelector('a[href="#bonvivant"]')).not.toBeNull();
   });
 
@@ -323,8 +301,8 @@ describe('NewsArticleShell', () => {
       para('Nach dem Kaffee.'),
     ]);
     const text = html.slice(html.indexOf('data-article-content'));
-    expect(text.indexOf('Vor dem Kaffee.')).toBeLessThan(text.indexOf('/map?r=double-eye'));
-    expect(text.indexOf('/map?r=double-eye')).toBeLessThan(text.indexOf('Nach dem Kaffee.'));
+    expect(text.indexOf('Vor dem Kaffee.')).toBeLessThan(text.indexOf('/restaurant/double-eye'));
+    expect(text.indexOf('/restaurant/double-eye')).toBeLessThan(text.indexOf('Nach dem Kaffee.'));
   });
 
   it('lists the spots of a guide under the head, by name, each a jump', () => {

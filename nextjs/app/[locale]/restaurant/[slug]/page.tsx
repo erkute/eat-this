@@ -1,3 +1,4 @@
+import { getInitialSpotMustEatData } from '@/lib/must-eat/public-card-data.server';
 import type { CSSProperties } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -220,6 +221,7 @@ export default async function RestaurantPage({ params }: PageProps) {
     notFound();
   }
   const { restaurant: r, mustEats, articles, siblings } = page;
+  const initialMustEatData = await getInitialSpotMustEatData(mustEats.map(card => card._id));
 
   const loc = locale === 'de' ? 'de' : 'en';
   const de = loc === 'de';
@@ -377,12 +379,12 @@ export default async function RestaurantPage({ params }: PageProps) {
                   <MustEatTeaserSection
                     key={i}
                     mustEats={mustEats}
+                    initialData={initialMustEatData}
                     name={displayName}
                     locale={loc}
                     classNames={{
                       section: styles.section,
                       heading: styles.sub,
-                      button: styles.btn,
                     }}
                   />
                 );

@@ -1,11 +1,30 @@
-/* Helle, zerknitterte Folie aus der Menü-Referenz. Die Folie läuft ohne
-   weißen Außenrand bis an die Kanten; Schrift in beiden Themes Ink. */
+/* Die Menüfolie folgt der Farbwahl; nur das Papier wird invertiert. */
 .drawer { position: fixed; inset: 0; z-index: var(--et-z-drawer); display: flex; justify-content: flex-end; pointer-events: none; }
 .drawer[hidden] { display: none; pointer-events: none; }
 .drawer:global(.active) { pointer-events: auto; }
 .backdrop { position: absolute; inset: 0; border: 0; background: rgb(0 0 0 / .28); }
 .panel { position: relative; display: flex; flex-direction: column; width: min(100vw, 560px); height: 100dvh; --et-fg: #15120e; --et-muted: rgba(21, 18, 14, .64); --et-link: #15120e; --et-quiet: rgba(21, 18, 14, .08); --et-solid: #15120e; --et-on-solid: #fff; --et-wear: none; color: var(--et-fg); background: url('/pics/paper/menu-foil.webp') center / 110% 110% no-repeat, #e5e5e5; transform: translateX(24px); transition: transform 180ms cubic-bezier(.16,1,.3,1); }
 .drawer:global(.active) .panel { transform: none; }
+:global(html[data-theme='dark']) .panel {
+  isolation: isolate;
+  --et-fg: #fff;
+  --et-muted: #b7b3ae;
+  --et-link: #f29194;
+  --et-quiet: rgba(255, 255, 255, .08);
+  --et-solid: #fff;
+  --et-on-solid: #15120e;
+  background: var(--et-ground);
+}
+:global(html[data-theme='dark']) .panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('/pics/paper/menu-foil.webp') center / 110% 110% no-repeat;
+  filter: invert(1) brightness(0.65);
+  pointer-events: none;
+}
+:global(html[data-theme='dark']) .panel .logo img { filter: invert(1); }
 .topbar { display: flex; align-items: center; justify-content: space-between; flex: none; gap: 24px; padding: max(16px, env(safe-area-inset-top, 0px)) 40px 0; }
 .logo { display: flex; align-items: center; min-height: 44px; width: 120px; }
 .logo img { display: block; width: 100%; height: auto; }
@@ -15,9 +34,8 @@
 .nav { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-left: -12px; }
 /* Die Schrift steht fest auf dem Papier und bewegt sich nur mit dem Blatt. */
 .navItem { display: block; width: fit-content; max-width: 100%; padding: 4px 12px 6px; color: inherit; background: transparent; font-size: clamp(30px, calc((100dvh - 470px) / 8.2), 64px); font-weight: 700; line-height: 1.02; letter-spacing: -.035em; text-align: left; text-decoration: none; overflow-wrap: break-word; transition: background-color 120ms ease, color 120ms ease; }
-/* Die aktuelle Seite steht umgekehrt im knappen Ink-Kasten, gerade, kein
-   Gelb (Ansage 23.10.2026). */
-.navItem[aria-current='page'] { color: #fff; background: #15120e; }
+/* Die aktuelle Seite steht mit umgekehrtem Kontrast im geraden Kasten. */
+.navItem[aria-current='page'] { color: var(--et-on-solid); background: var(--et-solid); }
 .cta {
   align-self: flex-start;
   margin-top: 32px;
@@ -30,9 +48,9 @@
 .legal { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 8px; }
 .footLink { display: inline-flex; align-items: center; min-height: 32px; color: inherit; font-size: 12px; line-height: 1.4; text-decoration: none; }
 .panel :is(a,button):focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
-.panel .navItem:focus-visible { outline: 0; color: #fff; background: #15120e; }
-@media (hover:hover) { .panel .navItem:hover { color: #fff; background: #15120e; } :is(.close,.langBtn,.footLink):hover { color: var(--et-muted); } }
-/* Small labels keep full ink contrast during the shared press feedback. */
+.panel .navItem:focus-visible { outline: 0; color: var(--et-on-solid); background: var(--et-solid); }
+@media (hover:hover) { .panel .navItem:hover { color: var(--et-on-solid); background: var(--et-solid); } :is(.close,.langBtn,.footLink):hover { color: var(--et-muted); } }
+/* Small labels retain full foreground contrast during press feedback. */
 .panel :is(.close,.langBtn,.footLink):is(:active,[data-et-pressed]) { color: var(--et-fg); }
 @media (max-width:767.98px) {
   .panel { width: 100%; }

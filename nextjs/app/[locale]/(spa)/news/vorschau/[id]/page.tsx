@@ -4,6 +4,8 @@ import { setRequestLocale } from 'next-intl/server';
 import { loadNewsPreview } from '@/lib/admin/newsPreview.server';
 import { getAllNewsArticles } from '@/lib/sanity.server';
 import NewsArticleShell from '@/app/components/NewsArticleShell';
+import { ArticleMustEatProvider } from '@/app/components/ArticleMustEatArtwork';
+import { prepareArticleMustEats } from '@/lib/article-must-eats.server';
 import styles from './page.module.css';
 
 // Vorschau eines Artikels aus dem Studio, bevor er veröffentlicht ist. Der
@@ -30,18 +32,23 @@ export default async function NewsPreviewPage({ params }: PageProps) {
   setRequestLocale(locale);
   const [a, relatedArticles] = await Promise.all([loadNewsPreview(id), getAllNewsArticles()]);
   if (!a) notFound();
+  const { article: preparedArticle, initialData: mustEatData } = await prepareArticleMustEats(a, locale);
+
+  const article = (
+    <NewsArticleShell
+      article={preparedArticle}
+      relatedArticles={relatedArticles.filter((r) => r._id !== a._id)}
+      locale={locale}
+      isActive
+    />
+  );
 
   return (
     <>
       <p className={styles.banner} role="status">
         {locale === 'de' ? 'Vorschau · nicht veröffentlicht' : 'Preview · not published'}
       </p>
-      <NewsArticleShell
-        article={a}
-        relatedArticles={relatedArticles.filter((r) => r._id !== a._id)}
-        locale={locale}
-        isActive
-      />
+      {mustEatData ? <ArticleMustEatProvider initialData={mustEatData}>{article}</ArticleMustEatProvider> : article}
     </>
   );
 }

@@ -238,6 +238,7 @@ jobs:
         timeout-minutes: 20
         env:
           FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
+          COUNT_SALT: quality-browser-emulator-only
         run: npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npx playwright test --shard=${{ matrix.shard }}/3"
 
       - name: Browser evidence
@@ -297,6 +298,7 @@ jobs:
         timeout-minutes: 20
         env:
           FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
+          COUNT_SALT: quality-lighthouse-emulator-only
           LIGHTHOUSE_SHARD: ${{ matrix.shard }}/3
         run: |
           export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"

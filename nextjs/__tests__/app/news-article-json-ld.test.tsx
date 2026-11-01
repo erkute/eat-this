@@ -18,6 +18,9 @@ vi.mock('@/lib/sanity.server', () => ({
   getAllNewsArticles: mocks.getAllNewsArticles,
 }));
 vi.mock('@/app/components/NewsArticleShell', () => ({ default: () => null }));
+vi.mock('@/lib/article-must-eats.server', () => ({
+  prepareArticleMustEats: async (article: unknown) => ({ article, initialData: null }),
+}));
 
 import NewsArticlePage from '@/app/[locale]/(spa)/news/[slug]/page';
 import { articleBySlugQuery } from '@/lib/queries';

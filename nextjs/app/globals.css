@@ -260,22 +260,16 @@ html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
   background-size: var(--et-sheet-size);
   background-repeat: var(--et-sheet-repeat);
 }
-/* Unterseiten (Spots, Artikel …) sind nur leicht gealtert und bleiben weiß:
-   Korn plus die Gebrauchsspuren mit 40 % Deckkraft, in Kartenproportion
-   oben — gestreckt würden die Ringe zu Ellipsen. Das Blatt reicht bis an
-   den Rand: auf der vollen Seitenfläche — `.app-page` (Artikel; ihre <main>
-   ist eingerückt) oder die <main> direkt im body (Spots). Die Startseite hat
-   eigene Blätter. Die Magazin-Übersicht war erst ganz glatt, liegt jetzt
-   wie die übrigen Unterseiten auf Papier (Ansage 21.10.2026: „mit Kratzer
-   wie echte Magazine“). `:has()` darf nicht in `:has()` stehen, sonst fällt
-   die ganze Regel weg. */
-html[data-vintage]:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+/* Leicht gealtertes Papier auf den übrigen Unterseiten. Magazin und Artikel
+   behalten ruhige Flächen; die Startseite gestaltet ihre Blätter selbst.
+   `:has()` darf nicht in einem weiteren `:has()` stehen. */
+html[data-vintage]:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)):not([data-page='news'], [data-page='news-article']) {
   background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
   background-size: 192px, 100% auto;
   background-repeat: repeat, no-repeat;
   background-position: 0 0, top center;
 }
-html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)) {
+html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)):not([data-page='news'], [data-page='news-article']) {
   background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
 }
 /* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
@@ -1769,7 +1763,7 @@ html[data-theme='dark'] .et-btn-text {
   opacity: 0.55;
   cursor: not-allowed;
 }
-/* The footer stays on light paper in both themes. */
+/* Footer text buttons follow the selected paper and ink colors. */
 [data-site-footer] .et-btn.et-btn-text {
   --et-btn-fg: var(--et-fg);
   --et-btn-hover-fg: var(--et-muted);
@@ -1779,7 +1773,8 @@ html[data-theme='dark'] .et-btn-text {
   outline-offset: 4px;
 }
 [data-site-footer] .et-btn.et-btn-text:is(:active, [data-et-pressed]) {
-  color: var(--et-accent);
+  color: var(--et-fg);
+  background-color: color-mix(in srgb, var(--et-fg) 18%, transparent);
   opacity: 1;
 }
 /* ---------------------------------------------------------------------------

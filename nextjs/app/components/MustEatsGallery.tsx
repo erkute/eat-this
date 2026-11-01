@@ -20,7 +20,6 @@ interface GalleryCopy {
   numberLabel: string;
   openKicker: string;
   openTitle: string;
-  openBody: string;
   setKicker: string;
   coveredTitle: string;
   coveredBody: string;
@@ -32,13 +31,12 @@ interface GalleryCopy {
 interface Props {
   coverIds: string[];
   initialMapData: InitialMustEatsData;
-  /** Composed on the server: the set heading carries a live count, and the
-   *  shared t() cannot format ICU placeholders. See MustEatsSection. */
+  /** Seitentexte der gewählten Sprache vom Server. */
   copy: GalleryCopy;
 }
 
 // Daumennägel nach Spaltenbreite (MustEatsSection.module.css): das Feature
-// liegt am Telefon und Tablet in zwei Spalten, am Desktop in vier; das Set
+// liegt am Telefon und Tablet in zwei Spalten, am Desktop in fünf; das Set
 // am Telefon in drei, ab 768px in fünf, ab 1024px in sechs Spalten.
 const OPEN_SIZES = '(max-width: 1023px) 46vw, 300px';
 const SET_SIZES = '(max-width: 767px) 30vw, (max-width: 1023px) 18vw, 210px';
@@ -145,7 +143,6 @@ export default function MustEatsGallery({ initialMapData, copy, coverIds }: Prop
           <header className={styles.sectionHead}>
             <p className={`et-label ${styles.kicker}`}>{copy.openKicker}</p>
             <h2 className={styles.sectionTitle}>{copy.openTitle}</h2>
-            <p className={styles.sectionBody}>{copy.openBody}</p>
           </header>
           {/* Ein Raster, das nur nach unten läuft — am Telefon zwei Karten
               je Reihe (Betreiber, 27.10.2026; vorher ein Band zum Wischen).

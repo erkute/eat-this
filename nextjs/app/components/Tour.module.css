@@ -954,8 +954,8 @@ a.quiet {
   }
 }
 
-/* Der Mail-Link liegt wie die Anmeldung auf einer eigenen roten Papierfläche. */
-.panel[data-email-login][data-red-sheet] {
+/* Mail-Link und Must-Eats-Erklärung nutzen dieselbe rote Papierfläche wie die Anmeldung. */
+.panel:is([data-email-login], [data-must-eats-onboarding])[data-red-sheet] {
   background: #cf3f2f url('/pics/paper/folded-white.webp?v=20261028-hq') center / cover;
   background-blend-mode: multiply;
   border: 0;
@@ -978,40 +978,21 @@ a.quiet {
   outline: 0;
 }
 
-/* The explainer has fixed text/art slots so its illustrations and controls
-   do not move when a heading wraps differently on the next step. */
-.panel[data-must-eats-onboarding] .copy { align-self: start; height: 280px; overflow-y: auto; padding-top: 24px; }
-.panel[data-must-eats-onboarding] .footer { grid-column: 1 / -1; width: min(440px, 100%); margin-inline: auto; padding-top: 16px; }
+/* Der Erklärungstext bekommt seine volle Höhe; die Bildfläche gibt nach. */
+.panel[data-must-eats-onboarding] { --et-line: color-mix(in srgb, var(--et-fg) 30%, transparent); }
+.panel[data-must-eats-onboarding] .copy { height: auto; overflow: visible; padding-top: 0; }
 .panel[data-must-eats-onboarding] .progress { justify-content: center; }
 .panel[data-must-eats-onboarding] .segments { margin: 0; gap: 10px; }
-@media (min-width: 601px) {
- .panel[data-must-eats-onboarding] { grid-template-areas: 'header header' 'art copy' 'footer footer'; column-gap: 32px; width: min(900px, 100%); }
- .panel[data-must-eats-onboarding] .art { height: 100%; }
-}
 @media (max-width: 600px) {
- .panel[data-must-eats-onboarding] { max-height: 632px; }
- .panel[data-must-eats-onboarding] .content { grid-template-rows: minmax(0, 1fr) 144px; gap: 12px; }
- .panel[data-must-eats-onboarding] .copy { height: 144px; padding-top: 0; }
- .panel[data-must-eats-onboarding] .footer { padding-top: 0; }
-}
-@media (max-height: 620px) and (max-width: 600px) {
- .panel[data-must-eats-onboarding] .content { grid-template-rows: minmax(0, 1fr) 144px; }
- .panel[data-must-eats-onboarding] .copy { height: 144px; }
-}
-@media (min-width: 420px) and (max-width: 600px) {
- .panel[data-must-eats-onboarding] { max-height: 608px; }
- .panel[data-must-eats-onboarding] .content { grid-template-rows: minmax(0, 1fr) 120px; }
- .panel[data-must-eats-onboarding] .copy { height: 120px; }
+  .panel[data-must-eats-onboarding] { max-height: 632px; }
+  .panel[data-must-eats-onboarding] .content { grid-template-rows: minmax(0, 1fr) auto; gap: 12px; }
+  .panel[data-must-eats-onboarding] .footer { width: min(440px, 100%); margin-inline: auto; padding-top: 0; }
 }
 @media (min-width: 601px) {
- .panel[data-must-eats-onboarding] { width: min(820px, 100%); height: min(500px, calc(100dvh - 48px)); padding: 16px 32px 24px; }
- .panel[data-must-eats-onboarding] .copy { align-self: center; height: 220px; padding-top: 0; }
- .panel[data-must-eats-onboarding] .headline { font-size: 36px; }
- .panel[data-must-eats-onboarding] .body { font-size: 16px; margin-top: 12px; }
- .panel[data-must-eats-onboarding] .footer { padding-top: 12px; }
-}
-@media (min-width: 601px) {
- .panel[data-must-eats-onboarding] { height: min(440px, calc(100dvh - 48px)); grid-template-areas: 'header header' 'art copy' 'art footer'; }
- .panel[data-must-eats-onboarding] .copy { height: 180px; align-self: end; }
- .panel[data-must-eats-onboarding] .footer { grid-column: 2; width: 100%; padding-top: 12px; }
+  .panel[data-must-eats-onboarding] { width: min(820px, 100%); height: min(440px, calc(100dvh - 48px)); padding: 16px 32px 24px; column-gap: 32px; }
+  .panel[data-must-eats-onboarding] .art { height: 100%; }
+  .panel[data-must-eats-onboarding] .copy { align-self: end; }
+  .panel[data-must-eats-onboarding] .headline { font-size: 36px; }
+  .panel[data-must-eats-onboarding] .body { font-size: 16px; margin-top: 12px; }
+  .panel[data-must-eats-onboarding] .footer { width: 100%; padding-top: 12px; }
 }

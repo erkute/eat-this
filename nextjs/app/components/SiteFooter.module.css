@@ -49,7 +49,7 @@
 @media (hover:hover) {
   .footer :is(a,button):where(:not(:global(.et-btn))):hover { color: var(--et-link); }
 }
-.footer :is(.legalLink,.socialLink,.langBtn,.themeBtn):not(:disabled,[aria-disabled='true']):is(:active,[data-et-pressed]) { color: var(--et-link); background-color: var(--et-subtle); opacity: 1; }
+.footer :is(.legalLink,.socialLink,.langBtn,.themeBtn):not(:disabled,[aria-disabled='true']):is(:active,[data-et-pressed]) { color: var(--et-fg); background-color: color-mix(in srgb, var(--et-fg) 18%, transparent); opacity: 1; }
 @media (max-width: 900px) {
   .footer { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'brand' 'social' 'legal' 'prefs' 'meta'; gap: 24px; padding-block: 40px max(32px, env(safe-area-inset-bottom, 0px)); text-align: center; }
   .brand { justify-items: center; }

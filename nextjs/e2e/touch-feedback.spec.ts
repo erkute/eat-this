@@ -220,7 +220,10 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
     await page.goto('/about');
     const footer = page.locator('[data-site-footer]');
     for (const theme of ['light', 'dark']) {
-      await page.evaluate(theme => document.documentElement.setAttribute('data-theme', theme), theme);
+      await footer.getByRole('button', { name: theme === 'dark' ? 'Dunkel' : 'Hell', exact: true }).click();
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      await expect(footer.getByRole('link', { name: 'Kontakt', exact: true })).toHaveCSS('color',
+        theme === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(21, 18, 14)');
       for (const control of [
         footer.getByRole('link', { name: 'Kontakt', exact: true }),
         footer.getByRole('button', { name: 'Cookies verwalten', exact: true }),
@@ -229,6 +232,7 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
       ]) {
         await control.scrollIntoViewIfNeeded();
         const restingColor = await control.evaluate(element => getComputedStyle(element).color);
+        const restingBackground = await control.evaluate(element => getComputedStyle(element).backgroundColor);
         await control.evaluate(element => element.addEventListener('click', event => {
           event.preventDefault();
           event.stopImmediatePropagation();
@@ -239,7 +243,7 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
         let pressedColor: string | null;
         let pressedOpacity: string | null;
         let pressedBackground: string | null;
-        let beforePressBackground = await control.evaluate(element => getComputedStyle(element).backgroundColor);
+        let beforePressBackground = restingBackground;
         let beforePressColor = restingColor;
         if (isMobile) {
           await control.tap();
@@ -258,7 +262,7 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
           await page.mouse.move(0, 0);
         }
         expect(pressedColor).not.toBeNull();
-        expect(pressedColor).not.toBe(restingColor);
+        expect(pressedColor !== restingColor || pressedBackground !== restingBackground).toBe(true);
         expect(pressedColor !== beforePressColor || pressedBackground !== beforePressBackground).toBe(true);
         expect(pressedOpacity).toBe('1');
         await expect(control).toHaveCSS('color', restingColor);

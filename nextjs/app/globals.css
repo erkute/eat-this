@@ -1773,7 +1773,8 @@ html[data-theme='dark'] .et-btn-text {
   outline-offset: 4px;
 }
 [data-site-footer] .et-btn.et-btn-text:is(:active, [data-et-pressed]) {
-  color: var(--et-link);
+  color: var(--et-fg);
+  background-color: color-mix(in srgb, var(--et-fg) 18%, transparent);
   opacity: 1;
 }
 /* ---------------------------------------------------------------------------

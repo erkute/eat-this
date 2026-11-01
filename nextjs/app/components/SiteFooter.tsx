@@ -121,6 +121,7 @@ export default function SiteFooter() {
             className={`${styles.langBtn} ${lang === 'de' ? styles.langBtnActive : ''}`}
             onClick={() => setLang('de')}
             aria-label="DE — Deutsch"
+            aria-pressed={lang === 'de'}
           >
             DE
           </button>
@@ -130,6 +131,7 @@ export default function SiteFooter() {
             className={`${styles.langBtn} ${lang === 'en' ? styles.langBtnActive : ''}`}
             onClick={() => setLang('en')}
             aria-label="EN — English"
+            aria-pressed={lang === 'en'}
           >
             EN
           </button>

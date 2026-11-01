@@ -11,6 +11,8 @@ import { routing } from '@/i18n/routing';
 import { getLocalizedNewsMetadata } from '@/lib/news-metadata';
 import { buildBrandedTitle } from '@/lib/seo/metadata-text';
 import NewsArticleShell from '@/app/components/NewsArticleShell';
+import { ArticleMustEatProvider } from '@/app/components/ArticleMustEatArtwork';
+import { prepareArticleMustEats } from '@/lib/article-must-eats.server';
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -155,11 +157,14 @@ export default async function NewsArticlePage({ params }: PageProps) {
     ],
   });
 
+  const { article: preparedArticle, initialData: mustEatData } = await prepareArticleMustEats(a, locale);
+  const article = <NewsArticleShell article={preparedArticle} relatedArticles={relatedArticles} locale={locale} isActive />;
+
   return (
     <>
       {/* JSON-LD: serializeJsonLd escapes </ sequences — safe inline */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <NewsArticleShell article={a} relatedArticles={relatedArticles} locale={locale} isActive />
+      {mustEatData ? <ArticleMustEatProvider initialData={mustEatData}>{article}</ArticleMustEatProvider> : article}
     </>
   );
 }

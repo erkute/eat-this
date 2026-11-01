@@ -24,6 +24,7 @@ import { chapterShortLabel } from '@/lib/headingDeck';
 import { coverImageScale, sanitySrcSet } from '@/lib/sanity-image-presets';
 import { scaleSizes } from '@/lib/magazineCover';
 import styles from './NewsArticleShell.module.css';
+import ArticleMustEatArtwork from './ArticleMustEatArtwork';
 
 const SPOT_PHOTO_WIDTHS = [600, 900, 1200, 1600, 2080];
 
@@ -161,6 +162,11 @@ function articleReadingOrder(blocks: PortableTextBlock[]): PortableTextBlock[] {
       continue;
     }
     const card = blocks[++i];
+    const companions: PortableTextBlock[] = [];
+    while (blocks[i + 1]?._type === 'mustEatCard'
+      && blocks[i + 1]._key?.startsWith('auto-must-eat-')) {
+      companions.push(blocks[++i]);
+    }
     while (i + 1 < blocks.length) {
       const next = blocks[i + 1];
       if (next._type !== 'block' || (next.style && next.style !== 'normal' && next.style !== 'blockquote')) {
@@ -169,7 +175,7 @@ function articleReadingOrder(blocks: PortableTextBlock[]): PortableTextBlock[] {
       ordered.push(next);
       i++;
     }
-    ordered.push(card);
+    ordered.push(card, ...companions);
   }
   return ordered;
 }
@@ -223,16 +229,12 @@ export default function NewsArticleShell({
     return at < 0 ? null : relatedArticles.length - at;
   };
 
-  // Must-Eat-Verweis auf dem gemeinsamen Knitterpapier: Kartenrückseite,
-  // globales Etikett und Spot-Name. Der Lesetext und das Linkziel bleiben ruhig.
+  // Die Karte zeigt die Freigabe des Betrachters; der Teaser führt zum Spot.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.mustEatId && !block.restaurantName) return null;
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
     const heading = restName || (de ? 'Das Must Eat' : 'The Must Eat');
-    // Dieselbe Ansage wie auf der Spot-Seite („… hat es auf unsere Karten
-    // geschafft"), damit der Block wiedererkennbar ist. Bezirk und Küche
-    // standen hier vorher als Meta-Zeile — sie wiederholten, was der Artikel
-    // ringsum ohnehin erzählt, und machten aus dem Teaser eine Datenzeile.
+    // Derselbe erklärende Satz wie auf der Spot-Seite.
     const description = restName
       ? de
         ? `Ein Gericht hat es bei ${restName} auf unsere Karten geschafft.`
@@ -242,22 +244,15 @@ export default function NewsArticleShell({
         : 'One dish made it onto our cards.';
     const inner = (
       <>
-        <div className={styles.mustEatPh}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/pics/card-back.webp?v=20261028" alt="" />
-        </div>
+        <ArticleMustEatArtwork id={block.mustEatId} />
         <div className={styles.mustEatBody}>
-          <span className="et-label">Must Eat</span>
+          <span className="et-label et-label-paper">Must Eat</span>
           <h3 className={styles.mustEatName}>{heading}</h3>
           <p className={styles.mustEatDesc}>{description}</p>
         </div>
       </>
     );
-    // Ziel ist die Spot-Seite, nicht mehr der Map-Deeplink. Auf die Map führt
-    // im selben Artikel schon die Spot-Karte (?r=<slug>) — beide Blöcke landeten
-    // also am selben Ort. Über die Spot-Seite kommt man weiterhin zur Karte:
-    // ihr Must-Eat-Teaser deeplinkt auf genau dieses Gericht. Ohne bekannten
-    // Slug bleibt die Must-Eat-Übersicht.
+    // Ohne bekannten Spot führt der Teaser zur Must-Eat-Übersicht.
     const href = block.restaurantSlug ? `/restaurant/${block.restaurantSlug}` : '/must-eats';
     return (
       <Link
@@ -274,18 +269,8 @@ export default function NewsArticleShell({
     );
   };
 
-  // Die Spot-Karte trägt zwei Ziele, weil sie zwei Aufgaben hat. Der Name ist
-  // ein **gefolgter** Link auf die Spot-Seite: die Guides sammeln die
-  // thematische Relevanz für „beste X in Berlin" ein, und ohne diesen Link
-  // gaben sie nichts davon an die Restaurantseiten weiter — Google rankte
-  // deshalb den Guide für Marken-Queries einzelner Spots („taktil bakery",
-  // „hokey pokey mauerpark") statt der Seite, die dem Laden gehört. Sein
-  // ::after spannt sich über die ganze Karte, damit die Fläche tapbar bleibt;
-  // `overflow: hidden` auf .inlineSpot beschneidet den Überstand.
-  // Der Map-Deeplink (Fläche und Name) bleibt nofollow, weil er eine Query
-  // trägt (`?r=`) und die Search Console sonst jede Variante einzeln
-  // aufzählt. Die Map selbst ist seit dem 01.09.2026
-  // indexierbar; das blanke /map darf gefolgt werden (siehe isMapLink).
+  // Foto und Name öffnen die Map mit nofollow. Das Metadaten-Etikett führt
+  // als gefolgter Link auf die Spot-Seite und verbindet den Guide mit ihr.
   const renderSpotCard = (block: SpotCardBlock) => {
     if (!block.restaurantName || !block.restaurantSlug) return null;
     const restName = normalizeName(block.restaurantName);

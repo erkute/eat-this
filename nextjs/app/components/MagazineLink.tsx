@@ -43,7 +43,7 @@ type Props = Omit<ComponentProps<typeof Link>, 'href' | 'onClick'> & {
  * den dieser Handler durchlässt — so bleibt es Nexts eigene Navigation
  * (Prefetch, Scroll nach oben, Locale), ohne einen zweiten Weg daneben.
  */
-export default function MagazineLink({ href, coverFrom, children, ...rest }: Props) {
+export default function MagazineLink({ href, coverFrom, children, className, ...rest }: Props) {
   const passOn = useRef(false);
 
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -72,7 +72,7 @@ export default function MagazineLink({ href, coverFrom, children, ...rest }: Pro
   };
 
   return (
-    <Link href={href} onClick={onClick} {...rest}>
+    <Link href={href} onClick={onClick} className={[styles.link, className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </Link>
   );

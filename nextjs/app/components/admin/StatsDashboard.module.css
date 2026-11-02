@@ -324,6 +324,11 @@
   max-width: 100%;
 }
 
+.cardTools > label {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .select {
   max-width: 100%;
   min-height: 32px;
@@ -700,9 +705,8 @@
 
 .cellKey {
   max-width: 34ch;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .cellNum {
@@ -911,9 +915,8 @@
   margin-top: 2px;
   font-size: 12px;
   color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
 .subTitle {
@@ -1348,4 +1351,157 @@
   background: var(--ground);
   color: var(--faint);
   font-size: 14px;
+}
+
+/* Besucheraufteilung und Seitenliste dürfen auch lange Artikelpfade umbrechen. */
+.pageBreakdown {
+  min-width: 0;
+}
+.pageTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.pageTable caption {
+  text-align: left;
+  font-weight: 700;
+  margin: 12px 0;
+}
+.pageTable th,
+.pageTable td {
+  padding: 10px 6px;
+  border-bottom: 1px solid var(--hair);
+  text-align: right;
+  vertical-align: top;
+  font-variant-numeric: tabular-nums;
+}
+.pageTable th:first-child {
+  text-align: left;
+  width: 58%;
+  overflow-wrap: anywhere;
+}
+.pageTable tbody th {
+  font-weight: 400;
+}
+.pageTable thead th {
+  color: var(--muted);
+  font-size: 12px;
+}
+.pageTable tfoot {
+  font-weight: 700;
+}
+.pageTable small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.pagePath {
+  display: block;
+  margin-top: 4px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.countMatch,
+.countWarning {
+  margin: 12px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  border-left: 3px solid;
+  padding-left: 10px;
+}
+.countMatch {
+  color: var(--green);
+}
+.countWarning {
+  color: var(--red);
+}
+.pageFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pageFilters label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  flex: 1 1 140px;
+  min-width: 0;
+}
+.pageFilters label:first-child {
+  flex-basis: 220px;
+}
+.pageFilters input,
+.pageFilters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--hair);
+  border-radius: var(--et-radius-control);
+  background: var(--field);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.pageFilters input:focus-visible,
+.pageFilters select:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.pagePagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+  font-size: 13px;
+}
+.pageDetails {
+  margin-top: 16px;
+}
+.pageDetails > summary {
+  width: fit-content;
+}
+.pageDetails[open] > summary {
+  margin-bottom: 16px;
+}
+
+.reportTabs {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.findings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  gap: 24px;
+}
+.findings h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.findings p {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.table tbody th {
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+  border-top: 1px solid var(--hair);
+  vertical-align: top;
 }

@@ -56,6 +56,7 @@ describe('loadGa', () => {
     expect(result).toEqual({
       ok: true,
       users: 40,
+      engagement: null,
       days: [
         { day: '2026-09-26', users: 25 },
         { day: '2026-09-27', users: 28 },
@@ -66,6 +67,38 @@ describe('loadGa', () => {
       'https://analyticsdata.googleapis.com/v1beta/properties/529928450:runReport'
     );
     expect(call.data.dateRanges).toEqual([{ startDate: '2026-09-26', endDate: '2026-09-27' }]);
+  });
+
+  it('liest Sitzungen und GA-Absprungrate aus der dimensionslosen Abfrage', async () => {
+    mocks.request.mockImplementation(({ data }) =>
+      Promise.resolve(
+        data.dimensions
+          ? rows([])
+          : {
+              data: {
+                rows: [
+                  {
+                    metricValues: [
+                      { value: '5' },
+                      { value: '8' },
+                      { value: '6' },
+                      { value: '0.25' },
+                    ],
+                  },
+                ],
+              },
+            }
+      )
+    );
+    const result = await loadGa(RANGE);
+    expect(result).toMatchObject({
+      ok: true,
+      users: 5,
+      engagement: { sessions: 8, engagedSessions: 6, bounceRate: 0.25 },
+    });
+    expect(
+      mocks.request.mock.calls[0][0].data.metrics.map((metric: { name: string }) => metric.name)
+    ).toEqual(['activeUsers', 'sessions', 'engagedSessions', 'bounceRate']);
   });
 
   it('hält ein Ergebnis im Cache, einen Fehler nicht', async () => {

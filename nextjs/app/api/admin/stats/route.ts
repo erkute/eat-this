@@ -1,3 +1,5 @@
+import { surfaceForPath, summarizeInsightHeat, type InsightDoc } from '@/lib/analytics/engagement';
+import { insightHeatId } from '@/lib/analytics/engagement.server';
 import type { Auth } from 'firebase-admin/auth';
 import { FieldPath, Timestamp, type Firestore } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
@@ -255,20 +257,47 @@ export async function GET(request: Request) {
   const today = berlinDay();
   const range = parseRange(params, today);
 
+  if (params.get('only') === 'keywords') {
+    return NextResponse.json({ search: await loadSearch(range) }, { headers: NO_STORE });
+  }
+
   // Scrolltiefe und Klicks der Startseite — nur für ihren Reiter, und
-  // einschließlich des laufenden Tages: eine Heatmap braucht Klicks, keinen
-  // abgeschlossenen Tag.
+  // für genau denselben gewählten Zeitraum wie die übrigen Berichte.
   if (params.get('only') === 'home') {
     const home = await db
       .collection('analytics_home')
       .where(FieldPath.documentId(), '>=', range.start)
-      .where(FieldPath.documentId(), '<=', today)
+      .where(FieldPath.documentId(), '<=', range.end)
       .get();
     const docs: HomeDoc[] = home.docs.map((doc) => ({
       ...(doc.data() as Omit<HomeDoc, 'day'>),
       day: doc.id,
     }));
     return NextResponse.json({ home: summarizeHome(docs) }, { headers: NO_STORE });
+  }
+
+  if (params.get('only') === 'heat') {
+    const path = params.get('path');
+    const surface = surfaceForPath(path);
+    const device = params.get('device') === 'desktop' ? 'desktop' : 'phone';
+    if (!path || !surface || surface === 'map')
+      return NextResponse.json({ error: 'invalid page' }, { status: 400, headers: NO_STORE });
+    const snapshot = await db
+      .collection('analytics_heat')
+      .doc(insightHeatId(path))
+      .collection('days')
+      .where(FieldPath.documentId(), '>=', range.start)
+      .where(FieldPath.documentId(), '<=', range.end)
+      .get();
+    return NextResponse.json(
+      {
+        heat: summarizeInsightHeat(
+          snapshot.docs.map((doc) => doc.data()),
+          device
+        ),
+      },
+      { headers: NO_STORE }
+    );
   }
 
   // Doppelt so weit zurück wie angefragt: die zweite Hälfte ist der gewählte
@@ -283,7 +312,7 @@ export async function GET(request: Request) {
   //
   // Search Console und Katalog laufen nebenher und dürfen scheitern: ihre
   // Antwort ist entweder Zahlen oder der Grund, nie ein 500 fürs ganze Brett.
-  const [snapshot, accounts, search, deck, live, ga] = await Promise.all([
+  const [snapshot, accounts, search, deck, live, ga, engagement] = await Promise.all([
     db
       .collection('analytics_daily')
       .where(FieldPath.documentId(), '>=', sinceDay(range.days * 2, range.end))
@@ -294,6 +323,11 @@ export async function GET(request: Request) {
     loadDeck(),
     loadLive(db),
     loadGa(range),
+    db
+      .collection('analytics_engagement')
+      .where(FieldPath.documentId(), '>=', range.start)
+      .where(FieldPath.documentId(), '<=', range.end)
+      .get(),
   ]);
 
   const all: DailyDoc[] = snapshot.docs.map((doc) => ({
@@ -312,10 +346,11 @@ export async function GET(request: Request) {
       today,
       range: { start: range.start, end: range.end },
       accounts,
-      search,
+      search: search?.ok ? { ...search, data: { ...search.data, keywordHistory: [] } } : search,
       deck,
       live,
       ga,
+      insights: engagement.docs.map((doc) => ({ ...doc.data(), day: doc.id }) as InsightDoc),
     }),
     { headers: NO_STORE }
   );

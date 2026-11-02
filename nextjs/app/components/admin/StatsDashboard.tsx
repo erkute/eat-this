@@ -10,41 +10,24 @@ import { hasNoCountCookie, NO_COUNT_COOKIE } from '@/lib/analytics/noCount';
 import { dayBefore, sinceDay } from '@/lib/admin/stats.server';
 import { NUMBER, longDay, shortDay } from './stats/format';
 import Overview from './stats/reports/Overview';
-import Days from './stats/reports/Days';
-import FunnelReport from './stats/reports/FunnelReport';
-import Cards from './stats/reports/Cards';
-import Revenue from './stats/reports/Revenue';
 import Search from './stats/reports/Search';
 import Acquisition from './stats/reports/Acquisition';
-import Content from './stats/reports/Content';
-import HomeReport from './stats/reports/HomeReport';
-import EventsReport from './stats/reports/EventsReport';
-import ConsentReport from './stats/reports/ConsentReport';
+import Insights from './stats/reports/Insights';
+import { Visitors, AccountsReport, MeasurementReport } from './stats/reports/ReportGroups';
 import styles from './StatsDashboard.module.css';
 import { ThemeSwitch } from '../ThemeSwitch';
 
-/**
- * Die Leseseite des einwilligungsfreien Zählers — als Werkzeug mit Berichten
- * in der Seitenleiste, Zeitraum in der Kopfzeile und dem Trichter des
- * Produkts in der Mitte (frei → Konto → vor Ort → Pack).
- *
- * Bewusst nüchtern: das ist ein Werkzeug, keine Marketingfläche. Die Daten
- * kommen in einem Aufruf von /api/admin/stats; die Berichte schneiden sie nur
- * verschieden zu.
- */
+/** Besucher, Herkunft und Nutzung mit getrennten Quellen und Messgrenzen.
+ * Detailberichte für Keywords und Heatmaps werden erst bei Bedarf geladen. */
 
 export type ReportKey =
   | 'overview'
   | 'days'
-  | 'funnel'
   | 'cards'
-  | 'revenue'
   | 'search'
   | 'acquisition'
-  | 'content'
   | 'home'
-  | 'events'
-  | 'consent';
+  | 'measurement';
 
 interface Report {
   key: ReportKey;
@@ -58,77 +41,53 @@ const REPORTS: Report[] = [
   {
     key: 'overview',
     label: 'Übersicht',
-    group: 'Berichte',
-    sub: 'Besuche, neue Konten, Karten und Google-Suche',
+    sub: 'Besucher, Entwicklung und die wichtigsten Prüfhinweise',
   },
   {
     key: 'days',
-    label: 'Letzter Tag',
-    sub: 'Der letzte abgeschlossene Tag im Zeitraum und die jüngsten Suchdaten',
+    label: 'Besucher & Seiten',
+    sub: 'Alle Einstiege und Aufrufe; einzelne Tage im Detail',
   },
-  { key: 'funnel', label: 'Funnel', sub: 'Entdecken, anmelden, sammeln und Booster Packs kaufen' },
-  {
-    key: 'cards',
-    label: 'Karten & Konten',
-    sub: 'Der Stapel, wer ihn sammelt, und wer wiederkommt',
-  },
-  { key: 'revenue', label: 'Käufe', sub: 'Käufe, Katalogwerte und gespeicherte Checkouts' },
   {
     key: 'search',
     label: 'Google-Suche',
-    group: 'Akquisition',
-    sub: 'Search Console: Anfragen, Seiten, Geräte, Länder, Trends',
+    sub: 'Suchbegriffe nach Tagen und Wochen, Klicks und Zielseiten',
   },
-  { key: 'acquisition', label: 'Herkunft', sub: 'Woher die Besucher kommen und wo sie einsteigen' },
   {
-    key: 'content',
-    label: 'Inhalte',
-    group: 'Verhalten',
-    sub: 'Welche Seiten gesehen werden und wo Besuche enden',
+    key: 'acquisition',
+    label: 'Kanäle',
+    sub: 'Woher Tagesbesucher kommen und welche Herkunft noch fehlt',
   },
   {
     key: 'home',
-    label: 'Startseite',
-    sub: 'Wie weit gescrollt wird, was geklickt wird, und die Heatmap',
+    label: 'Nutzung & Heatmaps',
+    sub: 'Artikel, Magazin, Map und Startseite: Was wird gesehen und genutzt?',
   },
   {
-    key: 'events',
-    label: 'Ereignisse',
-    sub: 'Jede gezählte Handlung, je 100 Besucher, gegen die Vorperiode',
+    key: 'cards',
+    label: 'Konten & Käufe',
+    sub: 'Bestätigte Konten, Starter Packs, Aufdeckungen und Käufe',
   },
   {
-    key: 'consent',
-    label: 'Cookie-Dialog',
-    sub: 'Gezählte Zustimmungen, Ablehnungen und Einblendungen',
+    key: 'measurement',
+    label: 'Messung',
+    sub: 'Zahlenabgleich, Messgrenzen und technische Details',
   },
 ];
 
-const PRESETS = [7, 14, 30, 90, 365] as const;
+const PRESETS = [0, 1, 7, 28, 90, 365] as const;
 
-type RangeChoice = { kind: 'preset'; days: number } | { kind: 'custom'; from: string; to: string };
+type RangeChoice =
+  | { kind: 'today' }
+  | { kind: 'preset'; days: number }
+  | { kind: 'custom'; from: string; to: string };
 
 function queryOf(range: RangeChoice): string {
+  if (range.kind === 'today') return 'today=1';
   return range.kind === 'preset'
     ? `days=${range.days}`
     : `from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`;
 }
-
-/**
- * Der Tag, seit dem der Bot-Filter wirklich greift. Bis dahin ersetzte die
- * App-Hosting-Edge den User-Agent, und Bingbot, Baidu-Render und ein
- * Azure-Crawler mit Lighthouse-Kennung zaehlten als Besucher — am 01.09.2026
- * rund ein Drittel aller Beacons (Edge-Log). Seitdem schickt der Browser den
- * User-Agent im Beacon mit (lib/analytics.ts). Muss auf den Rollout-Tag
- * zeigen, sonst luegt die Fussnote.
- */
-export const BOT_FILTER_LIVE_SINCE = '02.09.2026';
-
-/**
- * Der zweite Schnitt: bis hierher zaehlte die EIGENE Lighthouse-CI mit
- * (lib/analytics/botFilter.ts, belegt 03.09.2026). Muss auf den Rollout-Tag
- * des Filters zeigen.
- */
-export const LIGHTHOUSE_FILTER_LIVE_SINCE = '04.09.2026';
 
 /** Wie oft „Gerade aktiv" nachgefragt wird. */
 const LIVE_REFRESH_MS = 60_000;
@@ -142,7 +101,7 @@ function readHash(): ReportKey {
 export default function StatsDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [report, setReport] = useState<ReportKey>('overview');
-  const [range, setRangeChoice] = useState<RangeChoice>({ kind: 'preset', days: 7 });
+  const [range, setRangeChoice] = useState<RangeChoice>({ kind: 'preset', days: 28 });
   const [draft, setDraft] = useState<{ from: string; to: string }>({ from: '', to: '' });
   const [data, setData] = useState<StatsSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -276,16 +235,27 @@ export default function StatsDashboard() {
           <div className={styles.controls}>
             <div className={styles.seg} role="group" aria-label="Zeitraum">
               {PRESETS.map((days) => {
-                const on = range.kind === 'preset' && range.days === days;
+                const on =
+                  days === 0
+                    ? range.kind === 'today'
+                    : range.kind === 'preset' && range.days === days;
                 return (
                   <button
                     key={days}
                     type="button"
                     className={on ? styles.segBtnOn : styles.segBtn}
                     aria-pressed={on}
-                    onClick={() => setRangeChoice({ kind: 'preset', days })}
+                    onClick={() =>
+                      setRangeChoice(days === 0 ? { kind: 'today' } : { kind: 'preset', days })
+                    }
                   >
-                    {days === 365 ? '1 Jahr' : `${days} Tage`}
+                    {days === 0
+                      ? 'Heute'
+                      : days === 1
+                        ? 'Gestern'
+                        : days === 365
+                          ? '1 Jahr'
+                          : `${days} Tage`}
                   </button>
                 );
               })}
@@ -332,7 +302,9 @@ export default function StatsDashboard() {
           {data && (
             <p className={styles.meta}>
               {longDay(data.range.start)} – {longDay(data.range.end)} ·{' '}
-              {NUMBER.format(data.range.days)} volle Tage · Vergleich:{' '}
+              {NUMBER.format(data.range.days)}{' '}
+              {data.range.days === 1 ? 'Kalendertag' : 'Kalendertage'}
+              {data.range.includesToday ? ' · heute unvollständig' : ''} · Vergleich:{' '}
               {shortDay(sinceDay(data.range.days * 2, data.range.end))}–
               {shortDay(dayBefore(data.range.start))}
               {loadedAt && (
@@ -358,7 +330,20 @@ export default function StatsDashboard() {
                 Wird geladen …
               </p>
             )}
-            {data && <ReportBody report={report} data={data} onOpen={open} />}
+            {data && (
+              <ReportBody
+                report={report}
+                data={data}
+                onOpen={open}
+                onDay={(day) =>
+                  setRangeChoice(
+                    day === data.range.today
+                      ? { kind: 'today' }
+                      : { kind: 'custom', from: day, to: day }
+                  )
+                }
+              />
+            )}
           </div>
         </div>
       </main>
@@ -370,60 +355,35 @@ function ReportBody({
   report,
   data,
   onOpen,
+  onDay,
 }: {
   report: ReportKey;
   data: StatsSummary;
   onOpen: (key: ReportKey) => void;
+  onDay: (day: string) => void;
 }) {
   switch (report) {
     case 'days':
-      return <Days data={data} />;
-    case 'funnel':
-      return <FunnelReport data={data} />;
+      return <Visitors data={data} onDay={onDay} />;
     case 'cards':
-      return <Cards data={data} />;
-    case 'revenue':
-      return <Revenue data={data} />;
+      return <AccountsReport data={data} />;
     case 'search':
       return <Search data={data} />;
     case 'acquisition':
       return <Acquisition data={data} />;
-    case 'content':
-      return <Content data={data} />;
     case 'home':
-      return <HomeReport data={data} />;
-    case 'events':
-      return <EventsReport data={data} />;
-    case 'consent':
-      return <ConsentReport data={data} />;
+      return <Insights data={data} />;
+    case 'measurement':
+      return <MeasurementReport data={data} />;
     default:
       return <Overview data={data} onOpen={onOpen} />;
   }
 }
-
-/** Die kleine Zahl rechts neben einem Bericht — das, was er beantwortet. */
 function navCount(key: ReportKey, data: StatsSummary | null): string | null {
   if (!data) return null;
-  switch (key) {
-    case 'overview':
-      return NUMBER.format(data.totals.visitors);
-    case 'days':
-      return data.latest.day ? NUMBER.format(data.latest.day.visitors) : null;
-    case 'funnel': {
-      const signed = data.funnel.stages.flatMap((s) => s.steps).find((s) => s.key === 'signed_in');
-      return signed ? NUMBER.format(signed.count) : null;
-    }
-    case 'cards':
-      return data.accounts ? NUMBER.format(data.accounts.reveals.inWindow) : null;
-    case 'revenue':
-      return data.accounts ? NUMBER.format(data.accounts.purchases.inWindow) : null;
-    case 'search':
-      return data.search?.ok ? NUMBER.format(data.search.data.totals.clicks) : null;
-    case 'events':
-      return NUMBER.format(data.events.reduce((t, e) => t + e.count, 0));
-    default:
-      return null;
-  }
+  if (key === 'overview' || key === 'days') return NUMBER.format(data.totals.visitors);
+  if (key === 'search' && data.search?.ok) return NUMBER.format(data.search.data.totals.clicks);
+  return null;
 }
 
 function NavEntry({

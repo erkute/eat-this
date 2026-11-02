@@ -28,7 +28,12 @@ interface GaDay {
 }
 
 export type GaResult =
-  | { ok: true; users: number; days: GaDay[] }
+  | {
+      ok: true;
+      users: number;
+      days: GaDay[];
+      engagement: { sessions: number; engagedSessions: number; bounceRate: number } | null;
+    }
   | {
       ok: false;
       /** `no-access`: das Dienstkonto fehlt in der GA-Property. */
@@ -95,7 +100,15 @@ export async function loadGa(range: Range): Promise<GaResult> {
   let result: GaResult;
   try {
     const [total, byDay] = await Promise.all([
-      report('runReport', { dateRanges, metrics }),
+      report('runReport', {
+        dateRanges,
+        metrics: [
+          ...metrics,
+          { name: 'sessions' },
+          { name: 'engagedSessions' },
+          { name: 'bounceRate' },
+        ],
+      }),
       report('runReport', {
         dateRanges,
         metrics,
@@ -107,6 +120,14 @@ export async function loadGa(range: Range): Promise<GaResult> {
     result = {
       ok: true,
       users: metric(total[0]),
+      engagement:
+        total[0]?.metricValues && total[0].metricValues.length >= 4
+          ? {
+              sessions: Number(total[0].metricValues[1].value ?? 0),
+              engagedSessions: Number(total[0].metricValues[2].value ?? 0),
+              bounceRate: Number(total[0].metricValues[3].value ?? 0),
+            }
+          : null,
       days: byDay.map((row) => ({
         day: isoDay(row.dimensionValues?.[0]?.value ?? ''),
         users: metric(row),

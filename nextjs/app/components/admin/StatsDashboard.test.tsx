@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { summarizeInsights } from '@/lib/analytics/engagement';
 import type { Accounts, StatsSummary } from '@/lib/admin/stats.server';
 import type { SearchSummary } from '@/lib/admin/searchConsole';
 
@@ -129,6 +130,9 @@ function search(): SearchSummary {
     },
     previousDay: null,
     fetchedAt: '2026-09-03T20:00:00.000Z',
+    keywordHistory: [],
+    keywordHistoryStart: '2026-08-06',
+    keywordHistoryTruncated: false,
   };
 }
 
@@ -267,6 +271,9 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
       { day: '2026-08-30', counts: { map_opened: 1000, sign_up: 3 } },
       { day: '2026-08-31', counts: { map_opened: 469, sign_up: 2 } },
     ],
+    measurement: [],
+    entryChannels: [],
+    engagement: summarizeInsights([]),
     totals: { pageviews: 8629, visitors: 1147, days: 11, closedDays: 10 },
     accounts: accounts(),
     deck: {
@@ -296,7 +303,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
     },
     search: { ok: true, data: search() },
     live: { activeNow: 4, ga: 1, minutes: 30, at: '2026-08-31T10:00:00.000Z' },
-    ga: { ok: true, users: 400, days: [{ day: '2026-08-31', users: 30 }] },
+    ga: { ok: true, engagement: null, users: 400, days: [{ day: '2026-08-31', users: 30 }] },
     latest: {
       day: { day: '2026-08-30', pageviews: 372, visitors: 91 },
       vsPrevDay: {
@@ -390,12 +397,9 @@ describe('StatsDashboard', () => {
     render(<StatsDashboard />);
 
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    expect(screen.getByText('8.629')).toBeTruthy();
-    expect(
-      screen.getByText('Katalogwert der Käufe', { selector: 'span[class*="kpiLabel"]' })
-        .nextElementSibling?.textContent
-    ).toBe('2,99\u00a0€');
-    expect(fetchMock).toHaveBeenCalledWith('/api/admin/stats?days=7', {
+    expect(screen.getByText('8.629', { selector: 'strong' })).toBeTruthy();
+    expect(screen.getByText(/4 neue Konten/)).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledWith('/api/admin/stats?days=28', {
       headers: { Authorization: `Bearer token-123` },
     });
   });
@@ -435,16 +439,13 @@ describe('StatsDashboard', () => {
     }
   });
 
-  it('stellt die GA-Nutzer neben die Besucher — als Anteil', async () => {
+  it('zeigt GA nur in den Messdetails mit seiner eigenen Bezugsgröße', async () => {
     vi.stubGlobal('fetch', respondWith(summary()));
-
     render(<StatsDashboard />);
-
-    const label = await screen.findByText('GA-Nutzer', { selector: 'span[class*="kpiLabel"]' });
-    expect(label.nextElementSibling?.textContent).toBe('400');
-    // 400 von 1.147 Besuchern.
-    expect(screen.queryByText(/% der Besucher/)).toBeNull();
-    expect(screen.getByText(/Aktive Nutzer mit Einwilligung/)).toBeTruthy();
+    await screen.findByText('Das solltest du prüfen');
+    expect(screen.queryByText(/aktive GA-Nutzer im Zeitraum/)).toBeNull();
+    openReport('Messung');
+    expect(await screen.findByText(/400 aktive GA-Nutzer/)).toBeTruthy();
   });
 
   it('führt über die Wortmarke zurück zur Startseite', async () => {
@@ -488,17 +489,14 @@ describe('StatsDashboard', () => {
     );
   });
 
-  it('stellt den letzten vollen Tag voran und markiert den laufenden getrennt', async () => {
-    vi.stubGlobal('fetch', respondWith(summary()));
-
+  it('bietet Heute getrennt von abgeschlossenen Zeiträumen an', async () => {
+    const fetchMock = respondWith(summary());
+    vi.stubGlobal('fetch', fetchMock);
     render(<StatsDashboard />);
-
-    await waitFor(() => expect(screen.getByText('Sonntag, 30.08.')).toBeTruthy());
-    const karte = screen.getByText('Sonntag, 30.08.').closest('section');
-    expect(karte?.querySelector('p[class*="big"]')?.textContent).toContain('91');
-    expect(screen.getByText(/Heute bisher 19 Besucher/)).toBeTruthy();
-    expect(screen.getByText(/zum Vortag/).closest('span')?.parentElement?.textContent).toContain(
-      '▼'
+    await screen.findByText('Das solltest du prüfen');
+    fireEvent.click(screen.getByRole('button', { name: 'Heute' }));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith('/api/admin/stats?today=1', expect.anything())
     );
   });
 
@@ -507,7 +505,8 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Letzter Tag');
+    openReport('Besucher & Seiten');
+    fireEvent.click(screen.getByRole('button', { name: 'Tagesbericht' }));
 
     const heute = await screen.findByRole('region', { name: 'Montag, 31.08.' });
     expect(within(heute).getByText('läuft noch')).toBeTruthy();
@@ -537,7 +536,8 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Letzter Tag');
+    openReport('Besucher & Seiten');
+    fireEvent.click(screen.getByRole('button', { name: 'Tagesbericht' }));
 
     expect(await screen.findByRole('region', { name: 'Freitag, 28.08.' })).toBeTruthy();
     expect(screen.getByText(/Für gestern liegen keine Zahlen vor/).textContent).toContain(
@@ -550,7 +550,8 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Funnel');
+    openReport('Messung');
+    fireEvent.click(screen.getByRole('button', { name: 'Produktaktionen' }));
 
     expect(await screen.findByText('Entdecken und sammeln')).toBeTruthy();
     expect(screen.getByText('Starter Pack mit bis zu 20 Karten')).toBeTruthy();
@@ -566,7 +567,7 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Karten & Konten');
+    openReport('Konten & Käufe');
 
     expect(await screen.findByText('Karten je Kategorie')).toBeTruthy();
     expect(screen.getByText('Fine Dining').closest('tr')?.textContent).toContain('leer');
@@ -579,7 +580,8 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Käufe');
+    openReport('Konten & Käufe');
+    fireEvent.click(screen.getByRole('button', { name: 'Käufe & Katalogwerte' }));
 
     expect(await screen.findByText('Katalogwert insgesamt')).toBeTruthy();
     expect(screen.getByText('Katalogwert insgesamt').nextElementSibling?.textContent).toBe(
@@ -625,7 +627,8 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Cookie-Dialog');
+    openReport('Messung');
+    fireEvent.click(screen.getByRole('button', { name: 'Cookie-Dialog' }));
 
     // Antworten und Einblendungen sind Ereignisse mit getrennten Nennern.
     expect(await screen.findByText(/Anteil an den gezählten Antworten/)).toBeTruthy();
@@ -641,19 +644,20 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Ereignisse');
+    openReport('Messung');
+    fireEvent.click(screen.getByRole('button', { name: 'Alle Ereignisse' }));
 
     const row = (await screen.findByText('Konto angelegt')).closest('tr');
     expect(row?.textContent).toContain('+3');
   });
 
   it('öffnet den Bericht aus dem Hash', async () => {
-    window.location.hash = '#content';
+    window.location.hash = '#days';
     vi.stubGlobal('fetch', respondWith(summary()));
 
     render(<StatsDashboard />);
 
-    expect(await screen.findByText('Wo Besuche enden')).toBeTruthy();
+    expect(await screen.findByText('Geschätzte Ausstiege')).toBeTruthy();
     expect(screen.getByText(/^Über 4 von 11 Tagen/)).toBeTruthy();
   });
 });

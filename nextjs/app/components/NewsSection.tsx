@@ -52,8 +52,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
   if (!articles.length) {
     return (
       <div className={`app-page active ${styles.page}`} data-page="news">
-        <main id="news" className={styles.shell}>
-          <header className={styles.intro}>
+        <main id="news" className={styles.shell} data-insight-content="">
+          <header className={styles.intro} data-insight-header="">
             <h1 className={styles.heroTitle}>{labels.title}</h1>
           </header>
           <p className={styles.empty}>{labels.empty}</p>
@@ -70,8 +70,8 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
 
   return (
     <div className={`app-page active ${styles.page}`} data-page="news">
-      <main id="news" className={styles.shell}>
-        <header className={styles.hero}>
+      <main id="news" className={styles.shell} data-insight-content="">
+        <header className={styles.hero} data-insight-header="">
           <div className={styles.intro}>
             <p className={styles.kicker}>{labels.kicker}</p>
             <h1 className={styles.heroTitle}>{labels.title}</h1>

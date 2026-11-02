@@ -91,11 +91,11 @@ describe('loadSearch', () => {
     // Vorperiode: die 7 Tage direkt davor, ohne Ueberlappung.
     expect(calls[2]).toMatchObject({ startDate: '2026-08-21', endDate: '2026-08-27' });
     expect(calls[4]).toMatchObject({ startDate: '2026-08-21', endDate: '2026-08-27' });
-    // Die frischen Tage: die letzten fuenf des Fensters, mit mehr Zeilen.
+    // Der Keyword-Verlauf umfasst den gesamten Zeitraum (höchstens 90 Tage).
     expect(calls[8]).toMatchObject({
-      startDate: '2026-08-30',
+      startDate: '2026-08-28',
       endDate: '2026-09-03',
-      rowLimit: 2000,
+      rowLimit: 25000,
     });
     expect(calls[0].dataState).toBe('all');
     expect(calls.slice(1).every((call) => call.dataState === 'final')).toBe(true);

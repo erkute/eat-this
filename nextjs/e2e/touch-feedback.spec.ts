@@ -231,6 +231,9 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
         footer.getByRole('button', { name: 'Dunkel', exact: true }),
       ]) {
         await control.scrollIntoViewIfNeeded();
+        if (!isMobile) await page.mouse.move(0, 0);
+        // Theme and hover transitions must finish before recording the resting color.
+        await control.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
         const restingColor = await control.evaluate(element => getComputedStyle(element).color);
         const restingBackground = await control.evaluate(element => getComputedStyle(element).backgroundColor);
         await control.evaluate(element => element.addEventListener('click', event => {
@@ -252,6 +255,7 @@ for (const reducedMotion of ['reduce', 'no-preference'] as const) {
           pressedBackground = await control.getAttribute('data-test-press-background');
         } else {
           await control.hover();
+          await control.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
           beforePressColor = await control.evaluate(element => getComputedStyle(element).color);
           beforePressBackground = await control.evaluate(element => getComputedStyle(element).backgroundColor);
           await page.mouse.down();

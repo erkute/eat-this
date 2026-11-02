@@ -871,3 +871,14 @@
 .detail .scroll:has(> [data-pack-poster]:last-child) {
   padding-bottom: 0;
 }
+
+/* Querformat nutzt denselben seitlichen Rahmen wie die Ergebnisliste. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  [data-map-sheet][data-view='detail'] .detail { display: flex; flex: 1; height: 100%; min-height: 0; overflow: hidden; }
+  [data-map-sheet][data-view='detail'] .scroll { display: block; flex: 1; height: 100%; min-height: 0; max-height: 100%; overflow-x: hidden; overflow-y: auto; }
+  .rdHero { min-height: 0; height: auto; aspect-ratio: 4 / 3; background-size: cover; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  .rdBar { display: none; }
+}

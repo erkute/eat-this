@@ -20,13 +20,11 @@
    das Wort („Starte / r", 21.10.2026). */
 .page :global(.hv-head) { container-type: inline-size; }
 .page :global(.hv-head) :global(.hv-title) { font-size: min(var(--hv-display), 26cqi); overflow-wrap: normal; }
-/* Silver poster paper: the same artwork and hero for guests and members.
-   Höhe in `svh`, nicht `dvh`: am Telefon wächst `dvh`, sobald die
-   Adressleiste beim Scrollen einklappt — der Aufmacher wurde höher, das
-   Raster verteilte sich neu, und Marke, Slogan und Karten rutschten mit
-   (Rückmeldung 27.10.2026). `svh` bleibt beim Scrollen stehen. */
+/* Shared hero artwork. Landscape fills the visible viewport; brand spacing
+   stays fixed while Safari expands or collapses its browser controls. */
 .hero {
   position: relative; overflow: hidden; box-sizing: border-box;
+  --hero-brand-gap: 28px;
   isolation: isolate;
   padding-top: var(--site-nav-h); height: 100svh;
   --et-solid: #1b1f1f; --et-on-solid: #f0f2f0;
@@ -66,9 +64,10 @@
   grid-template-rows: 1fr auto auto auto 1fr; column-gap: 40px;
   align-items: center; height: 100%; min-height: 0;
 }
+.heroBrandGroup { display: contents; }
 .heroBrand { grid-column: 1; grid-row: 2; width: 100%; min-height: 0; }
-.heroMark { display: block; width: 100%; aspect-ratio: 560 / 168; max-height: 24svh; object-fit: contain; }
-.heroHeadline { grid-column: 1; grid-row: 3; margin: 16px auto 0; width: 97%; }
+.heroMark { display: block; width: 100%; aspect-ratio: 2600 / 645; max-height: 24svh; object-fit: contain; }
+.heroHeadline { grid-column: 1; grid-row: 3; margin: var(--hero-brand-gap) auto 0; width: 97%; }
 .heroAccessible { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .heroSloganDesktop { display: block; width: 100%; }
 .heroSloganMobile { display: none; }
@@ -121,4 +120,29 @@
   background: var(--et-ground);
   mix-blend-mode: multiply;
   pointer-events: none;
+}
+
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+ .hero { --hero-brand-width: min(100%, 240px, 30vw); height: 100dvh; min-height: 0; }
+ .heroInner { padding: 8px max(32px, calc(var(--et-safe-right, 0px) + 20px)) max(8px, env(safe-area-inset-bottom, 0px)) max(32px, calc(var(--et-safe-left, 0px) + 20px)); }
+ .heroCopy { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 1fr auto auto 1fr; column-gap: 28px; row-gap: 0; justify-items: stretch; }
+ .heroBrandGroup { display: flex; flex-direction: column; gap: var(--hero-brand-gap); grid-column: 1; grid-row: 2; width: var(--hero-brand-width); }
+ .heroBrand { grid-column: 1; grid-row: 2; display: block; height: auto; width: 100%; max-width: none; justify-self: start; }
+ .heroMark { width: 100%; height: auto; max-height: none; aspect-ratio: 2600 / 645; object-position: left center; }
+ .heroHeadline { grid-column: 1; grid-row: 3; display: block; height: auto; width: 100%; max-width: none; margin: 0; text-align: center; }
+ .heroSloganDesktop { display: block; }
+ .heroSloganMobile { display: none; }
+ .heroActions { grid-column: 1; grid-row: 3; margin-top: 20px; justify-content: flex-start; }
+ .heroArt { grid-column: 2; grid-row: 1 / -1; height: 100%; }
+ .heroFan { width: min(100cqw, 124cqh); aspect-ratio: 728 / 470; top: 48%; }
+ .heroCard { width: 40%; }
+ .heroCardLeft { left: 0; top: 18%; }
+ .heroCardRight { left: 60%; top: 18%; }
+ .heroCardFront { left: 30%; top: 0; }
+}
+
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+ .page { --home-gutter: max(28px, calc(max(var(--et-safe-left, 0px), var(--et-safe-right, 0px)) + 16px)); }
 }

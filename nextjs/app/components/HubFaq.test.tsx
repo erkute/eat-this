@@ -11,6 +11,7 @@ describe('HubFaq', () => {
     const html = renderToStaticMarkup(await HubFaq({ locale: 'de' }));
     expect(html).toContain('Noch Fragen?');
     expect(html).toContain('<details');
+    expect(html).not.toMatch(/<details[^>]*\sopen/);
     expect(html).toContain('<summary');
     // first DE FAQ question
     expect(html).toContain('Was kostet Eat This?');

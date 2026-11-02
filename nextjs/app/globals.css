@@ -44,6 +44,8 @@
 
 /* Design tokens */
 :root {
+  --et-safe-left: env(safe-area-inset-left, 0px);
+  --et-safe-right: env(safe-area-inset-right, 0px);
   /* ── Farben ── Eine Farbe, ein Name. Bis 26.09.2026 hatte Ink zwölf Namen
      (darunter --gray-100 und --brand-muted), Weiss dreizehn (darunter
      --et-yellow), verbunden über bis zu fünf Alias-Ebenen. Home bleibt die
@@ -263,13 +265,13 @@ html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
 /* Leicht gealtertes Papier auf den übrigen Unterseiten. Magazin und Artikel
    behalten ruhige Flächen; die Startseite gestaltet ihre Blätter selbst.
    `:has()` darf nicht in einem weiteren `:has()` stehen. */
-html[data-vintage]:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)):not([data-page='news'], [data-page='news-article']) {
+html[data-vintage]:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)):not([data-page='news'], [data-page='news-article'], [data-page='restaurant']) {
   background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
   background-size: 192px, 100% auto;
   background-repeat: repeat, no-repeat;
   background-position: 0 0, top center;
 }
-html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)):not([data-page='news'], [data-page='news-article']) {
+html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)):not([data-page='news'], [data-page='news-article'], [data-page='restaurant']) {
   background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
 }
 /* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
@@ -706,8 +708,11 @@ html[data-auth='1'] [data-guest-only] {
 @media (max-width: 480px) {
   html[data-buddy-open],
   html[data-buddy-open] body {
-    background: var(--et-ink-raised);
+    background: #c0c0c0;
   }
+
+  html[data-theme='dark'][data-buddy-open],
+  html[data-theme='dark'][data-buddy-open] body { background: #292d35; }
 
   html[data-buddy-open] body {
     visibility: hidden;
@@ -951,7 +956,7 @@ html[data-auth='1'] [data-guest-only] {
      an auto track that percentage resolves back against the card's own content
      — so `.expanded` could never widen it. */
   grid-template-columns: minmax(0, 1fr);
-  place-items: center;
+  place-items: end;
   padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
     max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
 }
@@ -1140,7 +1145,7 @@ html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-consent {
      inset on every side, so the scrim frames it as a dialog and it can never
      be mistaken for the page's own footer. */
   .cookie-gate {
-    align-items: center;
+    align-items: end;
     padding: 16px max(10px, env(safe-area-inset-right, 0px))
       calc(10px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
   }

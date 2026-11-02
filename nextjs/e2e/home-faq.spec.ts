@@ -7,6 +7,7 @@ for (const reduced of [false, true]) {
     await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
     await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
     await page.goto('/');
+    await expect(page.locator('[data-hub-faq] details[open]')).toHaveCount(0);
     const questions = page.locator('[data-hub-faq] summary');
     const question = questions.nth(1);
     await question.scrollIntoViewIfNeeded();

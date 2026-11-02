@@ -952,19 +952,6 @@ export default function BuddyWidget() {
                 </svg>
               </button>
             </div>
-            {messages.length > 0 && (
-              <div className={styles.toolbar}>
-                <button
-                  className={styles.reset}
-                  type="button"
-                  aria-label={t.resetAria}
-                  title={t.resetAria}
-                  onClick={startOver}
-                >
-                  <span aria-hidden="true">{t.reset}</span>
-                </button>
-              </div>
-            )}
             {/* Kein `aria-live` auf dem ganzen Log: der Vorleser hätte bei
                 jedem Token die komplette Unterhaltung neu vorgelesen. Die
                 fertige Antwort steht einmal in der Statuszeile unter dem
@@ -1062,6 +1049,12 @@ export default function BuddyWidget() {
               >
                 <PinIcon />
               </button>
+              {messages.length > 0 && (
+                <button className={styles.reset} type="button" aria-label={t.resetAria}
+                  title={t.resetAria} onClick={startOver}>
+                  <span aria-hidden="true">{t.reset}</span>
+                </button>
+              )}
               {/* Das Feld bleibt schreibbar, solange Remy antwortet — vorher
                   war es gesperrt, der Fokus sprang heraus und die nächste
                   Frage musste warten, bis er fertig war. */}

@@ -318,6 +318,7 @@ export default function HubMotion() {
       {
         motion: '(prefers-reduced-motion: no-preference)',
         desk: '(min-width: 768px)',
+        landscape: '(orientation: landscape) and (max-height: 500px)',
       },
       (ctx) => {
         const { motion, desk } = ctx.conditions as Record<string, boolean>;

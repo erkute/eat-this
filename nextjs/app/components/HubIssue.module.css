@@ -844,3 +844,18 @@ html[data-theme='dark'] .filterReturn {
 /* Keep the sheet stable while mobile browser toolbars expand or collapse;
    the shared page's 100dvh would move the entire footer on every change. */
 .page.discoveryPage { min-height: 100svh; padding-inline: 0; padding-bottom: 0; }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+
+.spots.districtSpots { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 20px; margin-top: 24px; }
+.districtSpots .spotPhoto { margin-bottom: 12px; }
+.districtSpots .spotName { font-size: 22px; }
+.districtSpots .text { margin-top: 10px; font-size: 15px; line-height: 1.5; }
+.districtSpots .deck { margin-top: 8px; }
+.categoryMenu ul { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.categoryMenu a { font-size: 18px; }
+.categoryMenu .shelfPack { max-width: 110px; }
+.editorialSpots > .cardSlot:first-child .spot { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.editorialSpots > .cardSlot:first-child .spotPhoto { min-height: 0; height: auto; aspect-ratio: 4 / 3; }
+.editorialSpots > .cardSlot:first-child .spotName { font-size: 28px; padding-top: 0; }
+}

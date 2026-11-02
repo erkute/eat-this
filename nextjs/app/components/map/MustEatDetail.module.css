@@ -2128,18 +2128,33 @@
   }
 }
 
-/* The restaurant continues the open paper layout of the Must Eat catalog —
-   on the same folded paper as the map's filter chips (MapFilters.module.css,
-   Ansage 25.10.2026). Hover and focus only change the colour underneath. */
+/* The restaurant link uses the same silver paper as the home hero. */
 .detail .scroll > .fdRestInline:has(.fdRestPhoto),
 .detail .scroll > .fdRestInline {
+  border: 0;
   border-radius: 0;
   color: var(--et-fg);
   background-color: var(--et-ground);
-  background-image: var(--et-window-paper);
-  background-size: 400px 600px;
-  background-position: -100px -400px;
+  background-image: url('/pics/home/silver-hero/hero-paper.webp');
+  background-size: cover;
+  background-position: center;
   background-blend-mode: multiply;
+}
+/* Match the dark hero paper without filtering the photo or text. */
+:global(html[data-theme='dark']) .detail .scroll > .fdRestInline:has(.fdRestPhoto),
+:global(html[data-theme='dark']) .detail .scroll > .fdRestInline {
+  position: relative;
+  isolation: isolate;
+  background-image: none;
+}
+:global(html[data-theme='dark']) .detail .scroll > .fdRestInline::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url('/pics/home/silver-hero/hero-paper.webp') center / cover no-repeat;
+  filter: invert(1) brightness(0.65);
 }
 @media (hover: hover) {
   .detail .scroll > .fdRestInline:hover {
@@ -2171,4 +2186,61 @@
 .fdClose svg {
   width: 24px;
   height: 24px;
+}
+
+/* Flache Telefone nutzen die Breite: Karte links, Gericht und Spot rechts. */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .detail .scroll {
+    display: grid;
+    grid-template-columns: minmax(180px, 42%) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 12px 24px;
+    height: 100dvh;
+    min-height: 0;
+    max-height: 100dvh;
+    padding: 52px max(24px, env(safe-area-inset-right)) 16px max(24px, env(safe-area-inset-left));
+    overflow-y: auto;
+    --me-card-w: min(24vw, calc((100dvh - 115px) * .7));
+  }
+  .detail .scroll .fdHeroWrap {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
+    padding: 0 0 38px;
+    margin: 0;
+  }
+  .detail .scroll .fdMid {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .detail .scroll .fdHead { height: auto; min-height: 0; max-height: none; }
+  .detail .scroll .fdName { font-size: clamp(24px, 4vw, 34px); }
+  .detail .scroll .fdText { font-size: 14px; }
+  .detail .scroll .fdRestInline {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 64px;
+    height: auto;
+    max-height: none;
+    margin: 0;
+    padding: 8px;
+  }
+}
+
+/* Alpha-Artwork braucht keine rechteckigen Schattenplatten. */
+.fdHero,
+.fdStackCard { box-shadow: none; }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .detail .scroll .fdCardStack { width: min(24vw, calc((100dvh - 115px) * .7)); max-width: min(24vw, calc((100dvh - 115px) * .7)); height: auto; max-height: none; }
+  .fdPagerPrev, .fdPagerNext { display: grid; position: absolute; top: 0; bottom: 0; height: auto; width: 32px; z-index: 4; }
+  .fdPagerPrev { right: 100%; }
+  .fdPagerNext { left: calc(100% + 38px); }
 }

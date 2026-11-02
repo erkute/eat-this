@@ -28,3 +28,9 @@
   .small { gap: 12px 20px; }
   .small a { font-size: 14px; }
 }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+ .section { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); grid-template-areas: 'content map'; gap: 24px; }
+ .map { width: calc(100% + 16px); max-width: none; justify-self: end; }
+ .large a, .large a:first-child, .large a:nth-child(2) { max-width: 100%; overflow-wrap: normal; }
+}

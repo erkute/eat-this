@@ -1,7 +1,6 @@
 import gsap from 'gsap';
 import { appScroller } from '@/lib/dom/appScroller';
 
-const THRESHOLD = 0.2;
 
 /**
  * Einflüge der Startseite, wenn eine Section zum ersten Mal ins Bild kommt
@@ -18,11 +17,13 @@ export function onFirstView(
 ): () => void {
   if (typeof IntersectionObserver === 'undefined') return () => {};
   let armed = false;
+  const root = appScroller();
+  const bottomInset = Math.round((root?.clientHeight || window.innerHeight) * 0.2);
   const io = new IntersectionObserver(
     ([entry]) => {
-      // `isIntersecting` wäre schon bei einem Pixel wahr; erst ab dem
-      // Schwellwert gilt die Section als im Bild.
-      const inView = entry.isIntersecting && entry.intersectionRatio >= THRESHOLD;
+      // Der sichtbare Bereich endet 20% vor dem unteren Fensterrand.
+      // Ein Anteil der gesamten Section wäre bei kurzen Viewports unerreichbar.
+      const inView = entry.isIntersecting;
       if (!armed) {
         armed = true;
         if (inView) {
@@ -36,7 +37,7 @@ export function onFirstView(
       io.disconnect();
       play();
     },
-    { root: appScroller(), threshold: THRESHOLD },
+    { root, rootMargin: `0px 0px -${bottomInset}px 0px`, threshold: 0 },
   );
   io.observe(section);
   return () => io.disconnect();

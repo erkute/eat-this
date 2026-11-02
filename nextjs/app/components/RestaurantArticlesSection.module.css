@@ -67,3 +67,21 @@
     font-size: 20px;
   }
 }
+
+/* Auf schmalen Telefonen bekommt der Titel die volle Lesebreite. */
+@media (max-width: 479px) {
+  .issue {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .cover {
+    width: min(200px, 100%);
+    justify-self: center;
+  }
+
+  .title,
+  .meta {
+    hyphens: auto;
+  }
+}

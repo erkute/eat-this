@@ -41,7 +41,7 @@ const en = {
     onbStarterTitle: 'Your first pack.',
     onbStarterBody:
       'Of the {mustEatCount} Must Eats currently in Berlin, 10 are already revealed. Your Starter Pack reveals 20 more. Discover the rest at the spots themselves. More are added over time.',
-    onbStarterCta: 'Get your pack',
+    onbStarterCta: 'Sign in',
     onbNext: 'Next',
     onbStart: "Let's go",
     onbPacksCta: 'Packs',
@@ -405,7 +405,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbStarterTitle: 'Dein erstes Pack.',
     onbStarterBody:
       'Von aktuell {mustEatCount} Must Eats in Berlin sind 10 schon aufgedeckt. Dein Starter Pack deckt 20 weitere auf. Den Rest entdeckst du vor Ort. Neue kommen nach und nach dazu.',
-    onbStarterCta: 'Pack holen',
+    onbStarterCta: 'Anmelden',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
     onbPacksCta: 'Packs',

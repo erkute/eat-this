@@ -7,7 +7,7 @@ export type SheetSnap = 'peek' | 'mid' | 'full';
 // via SheetConfig so the name + action buttons stay visible when collapsed
 // (Google Maps style).
 const DEFAULT_PEEK_VISIBLE_PX = 40;
-// Mid: ~half the viewport on a typical phone (50% map / 50% list).
+// Die mittlere Position lässt auch im Querformat mindestens die halbe Map sichtbar.
 const MID_VISIBLE_PX = 420;
 // Sheet at 'full' stops 40 px below the top of the map body so a strip of
 // the actual map stays visible above it — same affordance Google Maps uses
@@ -27,7 +27,7 @@ function snapToPx(snap: SheetSnap, sheetH: number, peekPx: number): number {
     case 'full':
       return FULL_TOP_PX;
     case 'mid':
-      return Math.max(0, sheetH - MID_VISIBLE_PX);
+      return Math.max(0, sheetH - Math.min(MID_VISIBLE_PX, sheetH / 2));
     case 'peek':
       return Math.max(0, sheetH - peekPx);
   }

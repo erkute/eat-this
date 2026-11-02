@@ -140,3 +140,14 @@
 [data-map-sheet][data-view='detail'] .detailMount {
   background: var(--map-collage-paper, #fff);
 }
+
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  [data-map-sheet][data-view='detail'][data-detail-kind='restaurant'] .detailMount:not(.detailMountMustEat) {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+}

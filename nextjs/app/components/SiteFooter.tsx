@@ -103,18 +103,19 @@ export default function SiteFooter() {
         <Link href="/agb" className={styles.legalLink}>
           {t('footer.agb')}
         </Link>
-        <button
-          type="button"
-          className={`et-btn et-btn-sm et-btn-text ${styles.legalBtn}`}
-          onClick={() => window.dispatchEvent(new Event('eatthis:open-cookie-settings'))}
-        >
-          {t('footer.cookieSettings')}
-        </button>
+
       </nav>
 
       {/* Sprache und Hell/Dunkel in einer Zeile, wie im Menü (Ansage
           22.10.2026: den Schalter auch im Footer). */}
       <div className={styles.prefs}>
+        <button
+          type="button"
+          className={`et-btn et-btn-text et-btn-sm ${styles.cookieSettings}`}
+          onClick={() => window.dispatchEvent(new Event('eatthis:open-cookie-settings'))}
+        >
+          {t('footer.cookieSettings')}
+        </button>
         <div className={styles.lang} role="group" aria-label="Language / Sprache">
           <button
             type="button"

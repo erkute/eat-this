@@ -259,9 +259,9 @@ const Item = memo(
         )}
 
         <div className={styles.rcardBody}>
-          <h3 ref={nameRef} className={styles.rcardName}>
+          <h2 ref={nameRef} className={styles.rcardName}>
             <span className="et-label-title et-label-tape">{displayName}</span>
-          </h3>
+          </h2>
           {(district || cuisine) && (
             <p className={styles.rcardMeta}>
               <span className="et-label et-label-paper et-label-tape">

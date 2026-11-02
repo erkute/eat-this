@@ -177,6 +177,82 @@ describe('useFavorites — Speichern', () => {
     mocks.getDb.mockResolvedValue({});
   });
 
+
+  it.each(['add', 'remove'] as const)('keeps a %s made while the initial read is pending', async (action) => {
+    const uid = `read-race-${action}`;
+    const saved = { restaurantId: 'r-race', name: 'Race Spot' };
+    if (action === 'remove') {
+      window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify([saved]));
+    }
+    let resolveRead!: (snapshot: { docs: { id: string; data: () => typeof saved }[] }) => void;
+    mocks.getDocs.mockImplementation(() => new Promise((resolve) => { resolveRead = resolve; }));
+    const { result } = renderHook(() => useFavorites(uid));
+    await waitFor(() => expect(mocks.getDocs).toHaveBeenCalledOnce());
+    await act(async () => {
+      await expect(result.current.toggle({ _id: 'r-race', name: 'Race Spot' })).resolves.toBe(true);
+    });
+    await act(async () => {
+      resolveRead({ docs: action === 'remove' ? [{ id: 'r-race', data: () => saved }] : [] });
+    });
+    expect(result.current.favoriteIds.has('r-race')).toBe(action === 'add');
+    expect(JSON.parse(window.localStorage.getItem(`eatthis_favorites_${uid}`) ?? '[]'))
+      .toHaveLength(action === 'add' ? 1 : 0);
+  });
+
+
+  it.each(['before', 'after'] as const)('uses the authoritative read arriving %s a failed heart write', async (order) => {
+    const uid = `read-failure-${order}`;
+    const saved = { restaurantId: 'r-race', name: 'Saved Spot', note: 'Keep me' };
+    let resolveRead!: (snapshot: { docs: { id: string; data: () => typeof saved }[] }) => void;
+    let resolveWrite!: (response: { ok: boolean }) => void;
+    mocks.getDocs.mockImplementation(() => new Promise((resolve) => { resolveRead = resolve; }));
+    fetchMock.mockImplementation(() => new Promise((resolve) => { resolveWrite = resolve; }));
+    const { result } = renderHook(() => useFavorites(uid));
+    await waitFor(() => expect(mocks.getDocs).toHaveBeenCalledOnce());
+    let done!: Promise<boolean>;
+    act(() => { done = result.current.toggle({ _id: 'r-race', name: 'Race Spot' }); });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    if (order === 'before') {
+      await act(async () => { resolveRead({ docs: [{ id: 'r-race', data: () => saved }] }); });
+    }
+    await act(async () => {
+      resolveWrite({ ok: false });
+      await expect(done).resolves.toBe(false);
+    });
+    if (order === 'after') {
+      await act(async () => { resolveRead({ docs: [{ id: 'r-race', data: () => saved }] }); });
+    }
+    expect(result.current.favoriteIds.has('r-race')).toBe(true);
+    expect(result.current.favorites).toEqual([expect.objectContaining(saved)]);
+    expect(JSON.parse(window.localStorage.getItem(`eatthis_favorites_${uid}`) ?? '[]'))
+      .toEqual([expect.objectContaining(saved)]);
+  });
+
+  it.each(['add', 'remove'] as const)('preserves a successful %s when the next toggle fails before the initial read', async (action) => {
+    const uid = `sequential-race-${action}`;
+    const saved = { restaurantId: 'r-race', name: 'Race Spot' };
+    if (action === 'remove') {
+      window.localStorage.setItem(`eatthis_favorites_${uid}`, JSON.stringify([saved]));
+    }
+    let resolveRead!: (snapshot: { docs: { id: string; data: () => typeof saved }[] }) => void;
+    mocks.getDocs.mockImplementation(() => new Promise((resolve) => { resolveRead = resolve; }));
+    const { result } = renderHook(() => useFavorites(uid));
+    await waitFor(() => expect(mocks.getDocs).toHaveBeenCalledOnce());
+    await act(async () => {
+      await expect(result.current.toggle({ _id: 'r-race', name: 'Race Spot' })).resolves.toBe(true);
+    });
+    fetchMock.mockResolvedValueOnce({ ok: false });
+    await act(async () => {
+      await expect(result.current.toggle({ _id: 'r-race', name: 'Race Spot' })).resolves.toBe(false);
+    });
+    await act(async () => {
+      resolveRead({ docs: action === 'remove' ? [{ id: 'r-race', data: () => saved }] : [] });
+    });
+    expect(result.current.favoriteIds.has('r-race')).toBe(action === 'add');
+    expect(JSON.parse(window.localStorage.getItem(`eatthis_favorites_${uid}`) ?? '[]'))
+      .toHaveLength(action === 'add' ? 1 : 0);
+  });
+
   it('sagt beim allerersten Spot einmal, wo die Spots liegen', async () => {
     mocks.getDocs.mockResolvedValue({ docs: [] });
     const { result } = renderHook(() => useFavorites('user-first'));

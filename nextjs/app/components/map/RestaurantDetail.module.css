@@ -15,6 +15,7 @@
    ohne die Kaskade nachzumessen.
    ========================================================== */
 .detail {
+  --poster-top: 160px;
   font-family: var(--et-font-body);
   display: flex;
   flex-direction: column;
@@ -81,11 +82,6 @@
   .medishReady .medishPh img {
     animation: none;
   }
-}
-.detail,
-.scroll {
-  background-color: var(--map-collage-paper);
-  background-image: none;
 }
 
 /* iOS Safari occasionally rasterizes alpha WebP + drop-shadow as a rectangular
@@ -392,22 +388,6 @@
   background: var(--et-ground);
 }
 
-/* Die letzten drei roten Hover-Zustaende. Rot bleibt der Marke als Flaeche,
-   aber nicht dort, wo im selben Moment Schrift darauf steht. */
-
-/* Must-Eats-Block und Galerie. Beide Flaechen sind durchsichtig und standen
-   damit direkt auf dem Grund, ihre Schrift war aber noch Ink — unsichtbar.
-   Die Farbe steht am Abschnitt, nicht an jedem Kind: Titel, Karten und
-   Bildunterschriften erben sie. */
-
-.detail .rdMustSection,
-.detail .rdMustGrid,
-.detail .rdMustGrid li,
-.detail .medish,
-.detail .medishPh {
-  color: var(--et-white);
-}
-
 /* Full-size photo rail; title and restaurant controls stay in place.
    `pan-x pan-y`, nicht `pan-y`: der Streifen ist selbst der Scroll-Container
    für die x-Achse, der Browser sperrt die Achse beim ersten Zug (senkrecht
@@ -530,9 +510,6 @@
   }
 }
 
-/* The existing detail structure on the light map surface. Photo captions and
-   the red pack offer retain their dedicated contrast treatments. */
-.detail .scroll { background: var(--et-ground); color: var(--et-fg); }
 
 .detail .rdMustSection,
 .detail .rdMustGrid,
@@ -548,10 +525,6 @@
    ========================================================== */
 .detail {
   --rd-gut: 20px;
-}
-.detail .scroll {
-  background-color: var(--et-ground);
-  color: var(--et-fg);
 }
 
 /* ── Kopf: Name und Angaben im hellen Foto ─────────────────────────────── */

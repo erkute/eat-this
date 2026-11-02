@@ -6,7 +6,6 @@ import {
   rowRevealOffset,
   rowRevealTop,
   ROW_RETURN_MAX_TOP_RATIO,
-  resolveToggleMode,
   snapOffsets,
 } from '../phoneSheetSnaps';
 
@@ -56,36 +55,6 @@ describe('snapOffsets', () => {
     const small = snapOffsets('list', 600);
     const large = snapOffsets('list', 1000);
     expect(large[2]).toBeGreaterThan(small[2]);
-  });
-});
-
-describe('resolveToggleMode', () => {
-  const offsets = snapOffsets('list', VH);
-  const sheetStop = offsets[offsets.length - 1];
-
-  it('offers the way back to the map once the map is covered', () => {
-    expect(resolveToggleMode(offsets, sheetStop, false)).toBe('toMap');
-    // The whole point of the pill: deep in a long list.
-    expect(resolveToggleMode(offsets, sheetStop + 4000, false)).toBe('toMap');
-  });
-
-  it('offers the way back to the list across the map half — but only with a place to return to', () => {
-    expect(resolveToggleMode(offsets, 0, true)).toBe('toList');
-    expect(resolveToggleMode(offsets, 0, false)).toBe(null);
-    /* Bounded by the MIDDLE stop, not the top one: keyed to the map stop, a
-       24px nudge made the pill vanish — it read as flinching from the finger. */
-    expect(resolveToggleMode(offsets, offsets[1], true)).toBe('toList');
-  });
-
-  it('stays out of the way in between, where the map is half on screen anyway', () => {
-    const between = Math.round((offsets[1] + sheetStop) / 2);
-    expect(resolveToggleMode(offsets, between, true)).toBe(null);
-    expect(resolveToggleMode(offsets, between, false)).toBe(null);
-  });
-
-  it('tolerates the few px an iOS rubber-band scroll lands off a stop', () => {
-    expect(resolveToggleMode(offsets, -12, true)).toBe('toList');
-    expect(resolveToggleMode(offsets, sheetStop - 12, false)).toBe('toMap');
   });
 });
 

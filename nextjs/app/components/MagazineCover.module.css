@@ -422,13 +422,13 @@
   pointer-events: none;
 }
 
-/* Ausgefranste Papierkante als echte Transparenz statt heller Außenfläche. */
+/* The paper edge scales with the cover, including narrow map thumbnails. */
 :global(html[data-vintage]) .cover {
   mask:
-    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 256px 3px repeat-x,
-    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 256px 3px repeat-x,
-    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 3px 256px repeat-y,
-    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 3px 256px repeat-y,
-    linear-gradient(#000 0 0) center / calc(100% - 4px) calc(100% - 4px) no-repeat;
+    url('/pics/vintage/edge-top.webp?v=1') 0 0 / 85.333% 0.75% repeat-x,
+    url('/pics/vintage/edge-bottom.webp?v=1') 0 100% / 85.333% 0.75% repeat-x,
+    url('/pics/vintage/edge-left.webp?v=1') 0 0 / 1% 64% repeat-y,
+    url('/pics/vintage/edge-right.webp?v=1') 100% 0 / 1% 64% repeat-y,
+    linear-gradient(#000 0 0) center / 98.667% 99% no-repeat;
   box-shadow: none;
 }

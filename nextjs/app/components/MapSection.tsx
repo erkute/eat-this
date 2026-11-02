@@ -1573,6 +1573,14 @@ export default function MapSection({
     userInteractedRef,
     onRestaurantSlugMatch: handleRestaurantClick,
     onMustEatIdMatch: handleMustEatClick,
+    onRestaurantCameraReady: (target) => {
+      if (selectedRestaurant?._id !== target._id || sheetView !== 'detail') return;
+      flyToSpot(target, { duration: 500, padding: detailFlyPadding() });
+    },
+    onMustEatCameraReady: (target) => {
+      if (selectedMustEat?._id !== target._id || sheetView !== 'detail') return;
+      flyToSpot(target.restaurant, { duration: 500, padding: detailFlyPadding() });
+    },
     initialRestaurant,
     fitCameraToSpots,
   });

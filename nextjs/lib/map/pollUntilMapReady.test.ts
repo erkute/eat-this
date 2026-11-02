@@ -83,3 +83,27 @@ describe('pollUntilMapReady', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 });
+
+it('does not spend its readiness timeout while consent blocks map initialization', async () => {
+  vi.useFakeTimers();
+  const root = document.documentElement;
+  root.setAttribute('data-consent-pending', '');
+  const ref = mapRef();
+  const onReady = vi.fn();
+  const onTimeout = vi.fn();
+  const cancel = pollUntilMapReady({ mapRef: ref, onReady, onTimeout });
+  try {
+    vi.advanceTimersByTime(60_000);
+    expect(onTimeout).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+    root.removeAttribute('data-consent-pending');
+    await Promise.resolve();
+    ref.current = {} as MapRef;
+    vi.advanceTimersByTime(120);
+    expect(onReady).toHaveBeenCalledOnce();
+  } finally {
+    cancel();
+    root.removeAttribute('data-consent-pending');
+    vi.useRealTimers();
+  }
+});

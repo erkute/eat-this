@@ -1,63 +1,43 @@
-/* Papierabschluss mit derselben Farbwahl wie die Seite. */
-.footer {
-  --et-sheet: none;
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  grid-template-columns: minmax(240px, 1fr) minmax(380px, 1fr);
-  grid-template-areas: 'brand social' 'brand legal' 'meta prefs';
-  align-items: center;
-  gap: 24px 64px;
-  padding: 56px var(--et-gutter) max(32px, env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid color-mix(in srgb, var(--et-fg) 18%, transparent);
-  background: var(--et-ground);
-  color: var(--et-fg);
-}
-.footer::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: url('/pics/paper/folded-white.webp?v=20261028-hq') center / 640px 960px repeat;
-  pointer-events: none;
-}
-:global(html[data-theme='dark']) .footer::before { filter: invert(1) brightness(0.65); }
-.top { grid-area: brand; min-width: 0; }
-.brand { display: grid; justify-items: start; }
+/* Kompakter, zentrierter Abschluss auf gefaltetem Papier. */
+.footer { position: relative; isolation: isolate; padding: 40px var(--et-gutter) max(32px, env(safe-area-inset-bottom, 0px)); --et-sheet: none; --footer-paper-size: 100% 100%; --footer-paper-repeat: no-repeat; background: var(--et-ground); color: var(--et-fg); text-align: center; }
+.footer::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: url('/pics/paper/folded-white.webp?v=20261028-hq') center / var(--footer-paper-size) var(--footer-paper-repeat); }
+:global(html[data-theme='dark']) .footer::before { filter: invert(1); opacity: .65; }
+:global(html[data-theme='dark']) .megaImg { filter: invert(1); }
+.top { max-width: 1280px; margin: auto; }
+.brand { display: grid; justify-items: center; }
 .mega { width: min(100%, 420px); margin: 0; font-size: 0; line-height: 0; }
 .homeLink { display: block; }
+/* Reserve the lazy logo's space before its intrinsic size is available. */
 .megaImg { display: block; width: 100%; height: auto; aspect-ratio: 2600 / 645; }
-:global(html[data-theme='dark']) .footer .megaImg { filter: invert(1); }
-.tagline { width: min(100%, 420px); margin: 16px 0 0; }
-.links { grid-area: social; justify-self: end; }
-.socialLink { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; color: var(--et-fg); }
-.socialLink svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.9; }
-.legal { grid-area: legal; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 24px; }
-.legalLink { display: inline-flex; align-items: center; min-height: 44px; color: var(--et-fg); font-size: 14px; line-height: 1.4; text-decoration: none; }
-.legalBtn { justify-self: start; min-height: 44px; }
-.meta { grid-area: meta; font-size: 12px; line-height: 1.5; }
+.tagline { width: min(100%, 420px); margin: 12px 0 0; }
+.links { display: flex; justify-content: center; margin: 12px auto 0; }
+.socialLink { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 44px; color: var(--et-fg); }
+.socialLink svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.9; }
+.legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 24px; margin: 12px auto 0; }
+.legalLink { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0; color: var(--et-fg); font-size: 14px; line-height: 1.4; text-decoration: none; }
+.legalBtn { min-height: 44px; }
+.meta { margin: 12px auto 0; font-size: 12px; line-height: 1.5; }
 .copy { color: var(--et-muted); }
-.prefs { grid-area: prefs; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 12px 20px; }
-.prefsSep { width: 1px; height: 24px; background: color-mix(in srgb, var(--et-fg) 25%, transparent); }
+.prefs { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 24px; margin: 12px auto 0; }
+/* Ein kurzer Strich trennt Sprache und Hell/Dunkel — ohne ihn lasen sich
+   „DE · EN ☀ ☾" als vier gleiche Zeichen (22.10.2026). */
+.prefsSep { width: 1px; height: 18px; background: var(--et-muted); }
 .lang { display: flex; justify-content: center; align-items: center; gap: 4px; }
 .langBtn { min-width: 44px; min-height: 44px; color: var(--et-muted); font-size: 14px; }
-.langBtnActive { color: var(--et-fg); font-weight: 700; background: var(--et-subtle); }
+.langBtnActive { color: var(--et-fg); font-weight: 700; }
 .langSep { color: var(--et-muted); }
+/* Der gewählte Modus trägt die volle Textfarbe und ein gefülltes Zeichen. */
 .themeBtn { min-width: 44px; min-height: 44px; color: var(--et-muted); }
-.themeBtn[aria-pressed='true'] { color: var(--et-fg); background: var(--et-subtle); }
+.themeBtn[aria-pressed='true'] { color: var(--et-fg); }
 .footer :is(a,button):where(:not(:global(.et-btn))):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 4px; }
-@media (hover:hover) {
-  .footer :is(a,button):where(:not(:global(.et-btn))):hover { color: var(--et-link); }
+@media (hover:hover) { .footer :is(a,button):where(:not(:global(.et-btn))):hover { color: var(--et-muted); } }
+@media (max-width:767px) { .footer { padding-block: 32px max(28px, env(safe-area-inset-bottom, 0px)); } .mega, .tagline { width: min(100%, 238px); } .legal { gap: 4px 20px; } }
+
+/* Native 2:3 paper proportions: desktop width must not stretch the folds. */
+@media (min-width: 768px) {
+  .footer { --footer-paper-size: 640px 960px; --footer-paper-repeat: repeat; }
 }
-.footer :is(.legalLink,.socialLink,.langBtn,.themeBtn):not(:disabled,[aria-disabled='true']):is(:active,[data-et-pressed]) { color: var(--et-fg); background-color: color-mix(in srgb, var(--et-fg) 18%, transparent); opacity: 1; }
-@media (max-width: 900px) {
-  .footer { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'brand' 'social' 'legal' 'prefs' 'meta'; gap: 24px; padding-block: 40px max(32px, env(safe-area-inset-bottom, 0px)); text-align: center; }
-  .brand { justify-items: center; }
-  .mega, .tagline { width: min(100%, 280px); }
-  .links { justify-self: center; }
-  .legal { width: min(100%, 480px); margin-inline: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 20px; }
-  .legalLink { justify-content: center; }
-  .legalBtn { justify-self: center; }
-  .prefs { justify-content: center; padding-top: 24px; border-top: 1px solid color-mix(in srgb, var(--et-fg) 18%, transparent); }
-}
+
 .accessible { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.footer :is(.legalLink,.socialLink,.langBtn,.themeBtn):not(:disabled,[aria-disabled='true']):is(:active,[data-et-pressed]) { color: var(--et-fg); background-color: color-mix(in srgb, var(--et-fg) 18%, transparent); opacity: 1; }

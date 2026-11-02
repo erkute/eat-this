@@ -113,6 +113,8 @@
   position: relative;
   isolation: isolate;
   background: #fff;
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 1200px;
 }
 .page .paperEnd > :global([data-hub-starter]) {
   --et-sheet: none;

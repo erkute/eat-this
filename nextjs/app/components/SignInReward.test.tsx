@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, it, expect, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 /* Exercise the real arrival event and the user-controlled introduction. */
@@ -35,6 +35,9 @@ const identityStep = vi.hoisted(() => ({
 vi.mock('@/lib/auth/identityStep', () => identityStep);
 
 import SignInReward from './SignInReward';
+
+// These cases exercise the ready surface; loading-boundary behavior is checked separately.
+beforeAll(async () => { await import('./SignInRewardPanel'); });
 import { announceStarterPackGranted } from '@/lib/auth/signInArrival';
 
 /* Das Modul haelt seinen Zustand pro Seitenleben — zwischen zwei Faellen muss

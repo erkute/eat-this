@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StrictMode } from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
@@ -30,6 +30,9 @@ const arrival = vi.hoisted(() => ({ arrivalDecided: vi.fn() }));
 vi.mock('@/lib/auth/signInArrival', () => arrival);
 
 import EmailLinkSignIn from './EmailLinkSignIn';
+
+// These cases exercise the ready surface; loading-boundary behavior is checked separately.
+beforeAll(async () => { await import('./EmailLinkSignInPanel'); });
 
 /** Landing URL; fixtures may include an untrusted email parameter. */
 function arriveWith(query: string, path = '/map') {

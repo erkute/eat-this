@@ -4,8 +4,6 @@ import { cleanup, fireEvent, render } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage';
 
-const route = vi.hoisted(() => ({ pathname: '/kategorie/pizza' }));
-
 vi.mock('next/dynamic', () => ({
   default: () =>
     function MockBuddyWidget() {
@@ -14,7 +12,6 @@ vi.mock('next/dynamic', () => ({
 }));
 
 vi.mock('./BuddyWidget', () => ({ default: () => null }));
-vi.mock('@/i18n/navigation', () => ({ usePathname: () => route.pathname }));
 
 import RemyDock from './RemyDock';
 
@@ -28,7 +25,6 @@ function renderDock() {
 
 afterEach(() => {
   cleanup();
-  route.pathname = '/kategorie/pizza';
   window.sessionStorage.clear();
   document.documentElement.removeAttribute('data-hero-intro');
   vi.useRealTimers();
@@ -52,8 +48,7 @@ describe('RemyDock', () => {
 
   /* Remy hat keinen Knopf in der Ecke mehr (Ansage 21.10.2026), auf keiner
      Seite — gefragt wird über das Menü. */
-  it.each(['/', '/news', '/map', '/packs'])('shows no corner launcher on %s', (pathname) => {
-    route.pathname = pathname;
+  it('shows no corner launcher', () => {
     renderDock();
     expect(document.querySelector('[data-buddy-launcher]')).toBeNull();
   });

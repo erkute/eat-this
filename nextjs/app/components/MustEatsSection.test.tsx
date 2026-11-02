@@ -66,9 +66,9 @@ describe('MustEatsSection', () => {
       expect(html).toMatch(/<dd>8<\/dd>/);
       expect(html).toContain('Must Eats in Berlin.');
       const head = html.slice(0, html.indexOf('</header>'));
-      expect(head).toContain(locale === 'de' ? '20 weitere bekommst du mit deinem Konto im Starter Pack.' : 'your account adds 20 more in your Starter Pack.');
+      expect(head).toContain(locale === 'de' ? 'Dein Starter Pack zeigt dir die ersten Must Eats.' : 'Your Starter Pack shows you your first Must Eats.');
       expect(head).toContain(locale === 'de' ? 'Sammlung starten' : 'Start collecting');
-      expect(head).toContain(locale === 'de' ? 'Dein Start: 30 Must Eats.' : 'Start with 30 Must Eats.');
+      expect(head).toContain(locale === 'de' ? 'Den Rest entdeckst du vor Ort.' : 'Discover the rest at the spots themselves.');
     }
   });
 
@@ -179,7 +179,7 @@ describe('MustEatsSection', () => {
     // Gast: das Starter Pack zuerst, die Map als zweite Antwort, keine Packs.
     expect(guest).toContain('Starter Pack');
     expect(guest).toContain('20 Karten. Der Anfang deiner Sammlung.');
-    expect(guest).toContain('20 weitere Must Eats im Starter Pack.');
+    expect(guest).toContain('Dein Starter Pack zeigt dir die ersten Must Eats.');
     expect(guest.indexOf('>Konto erstellen<')).toBeLessThan(guest.indexOf('href="/map"'));
     expect(guest).not.toContain('href="/packs"');
     // Konto: die Map vorn, Booster Packs dahinter.
@@ -187,8 +187,8 @@ describe('MustEatsSection', () => {
   });
 
   it('describes the growing catalogue without promising automatically opened cards', () => {
-    expect(render()).toContain('Neue Empfehlungen kommen regelmäßig dazu.');
-    expect(render('en')).toContain('New recommendations are added regularly.');
+    expect(render()).toContain('Und es werden immer mehr.');
+    expect(render('en')).toContain('with more added over time.');
     expect(render()).not.toContain('Alle 20 Karten liegen sofort offen');
     expect(render('en')).not.toContain('All 20 cards go straight into your deck face up');
   });

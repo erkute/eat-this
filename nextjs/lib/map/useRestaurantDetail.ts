@@ -98,36 +98,34 @@ export function useRestaurantDetail(slug: string | undefined): {
   detail: RestaurantMapDetail | null;
   loading: boolean;
 } {
-  const [detail, setDetail] = useState<RestaurantMapDetail | null>(() =>
-    slug ? (cache.get(slug) ?? null) : null
-  );
-  const [loading, setLoading] = useState(() => !!slug && !cache.has(slug));
+  const [state, setState] = useState<{
+    slug: string | undefined;
+    detail: RestaurantMapDetail | null;
+    loading: boolean;
+  }>(() => ({ slug, detail: slug ? (cache.get(slug) ?? null) : null, loading: !!slug && !cache.has(slug) }));
 
   useEffect(() => {
     if (!slug) {
-      setDetail(null);
-      setLoading(false);
+      setState({ slug, detail: null, loading: false });
       return;
     }
     const cached = cache.get(slug);
     if (cached) {
-      setDetail(cached);
-      setLoading(false);
+      setState({ slug, detail: cached, loading: false });
       return;
     }
-    setDetail(null);
-    setLoading(true);
+    setState({ slug, detail: null, loading: true });
     let active = true;
-    void load(slug).then((d) => {
-      if (active) {
-        setDetail(d);
-        setLoading(false);
-      }
+    void load(slug).then((detail) => {
+      if (active) setState({ slug, detail, loading: false });
     });
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [slug]);
 
-  return { detail, loading };
+  // A reused sheet must never merge the previous spot's fields into a new spot,
+  // including the render before the slug-change effect runs.
+  if (state.slug !== slug) {
+    return { detail: slug ? (cache.get(slug) ?? null) : null, loading: !!slug && !cache.has(slug) };
+  }
+  return { detail: state.detail, loading: state.loading };
 }

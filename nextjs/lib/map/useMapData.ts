@@ -112,6 +112,9 @@ export function useMapData({ uid, authLoading, initialMapData }: UseMapDataArgs)
     seededCacheRef.current = true;
     const cached = readMapCache(uid ?? seedUidBeforeAuth());
     if (!cached) return;
+    // The cache replaces the SSR view. Even if auth resolves anonymous,
+    // reconcile it with the public payload instead of keeping stripped cards.
+    skipInitialAnonFetchRef.current = false;
     setRestaurants(cached.restaurants);
     setMustEats(sortByCardNumber(cached.mustEats));
     setCategories(cached.categories);

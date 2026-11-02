@@ -1,3 +1,4 @@
+import { afterConsentGate } from './afterConsentGate';
 import type { RefObject } from 'react';
 import type { MapRef } from 'react-map-gl/maplibre';
 
@@ -23,7 +24,7 @@ export function pollUntilMapReady({
 }: PollUntilMapReadyOptions): () => void {
   let cancelled = false;
   let timer: number | undefined;
-  const deadline = Date.now() + POLL_TIMEOUT_MS;
+  let deadline = 0;
 
   const poll = () => {
     timer = undefined;
@@ -43,10 +44,14 @@ export function pollUntilMapReady({
     timer = window.setTimeout(poll, POLL_INTERVAL_MS);
   };
 
-  poll();
+  const cancelGate = afterConsentGate(() => {
+    deadline = Date.now() + POLL_TIMEOUT_MS;
+    poll();
+  });
 
   return () => {
     cancelled = true;
+    cancelGate();
     if (timer !== undefined) window.clearTimeout(timer);
   };
 }

@@ -80,7 +80,7 @@ function list(props: Partial<React.ComponentProps<typeof RestaurantList>> = {}) 
   );
 }
 
-const rows = () => screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+const rows = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
 
 describe('RestaurantList windowing', () => {
   it('renders only the requested rows, not the whole filtered list', () => {

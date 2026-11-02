@@ -124,12 +124,15 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
      wuerde gegen den optimistischen Stand umschalten, nicht gegen den
      gespeicherten. */
   const inFlight = useRef(new Set<string>());
+  const pendingRead = useRef<{ uid: string; changed: Set<string>; entries?: FavoriteEntry[] } | null>(null);
 
   useEffect(() => {
     if (!uid) {
       setState(emptyState(null, false));
       return;
     }
+    const read: NonNullable<typeof pendingRead.current> = { uid, changed: new Set<string>() };
+    pendingRead.current = read;
     const key = `eatthis_favorites_${uid}`;
 
     // 1) Atomically replace the previous owner's state with this uid's cache
@@ -182,20 +185,28 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           const entry = parseFavoriteEntry(d.data() as unknown, d.id);
           return entry ? [{ ...entry, note: entry.note ?? '' }] : [];
         });
-        setState({
-          ownerUid: uid,
-          favoriteIds: new Set(entries.map((entry) => entry.restaurantId)),
-          favorites: entries,
-          loading: false,
+        read.entries = entries;
+        setState((current) => {
+          if (current.ownerUid !== uid) return current;
+          // A read started before a tap must not undo that tap when it arrives.
+          const next = [
+            ...entries.filter((entry) => !read.changed.has(entry.restaurantId)),
+            ...current.favorites.filter((entry) => read.changed.has(entry.restaurantId)),
+          ];
+          try {
+            window.localStorage.setItem(key, JSON.stringify(next));
+          } catch {
+            /* quota */
+          }
+          return {
+            ownerUid: uid,
+            favoriteIds: new Set(next.map((entry) => entry.restaurantId)),
+            favorites: next,
+            loading: false,
+          };
         });
-        /* Die Anmeldung endet im Profil, der Spot steht dort in der Liste:
-           wo gespeicherte Spots liegen, ist damit gezeigt. */
+        if (pendingRead.current === read) pendingRead.current = null;
         if (hearted) markProfileHintSeen();
-        try {
-          window.localStorage.setItem(key, JSON.stringify(entries));
-        } catch {
-          /* quota */
-        }
       } catch {
         if (active) {
           setState((current) =>
@@ -207,6 +218,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
     })();
     return () => {
       active = false;
+      if (pendingRead.current === read) pendingRead.current = null;
     };
   }, [uid]);
 
@@ -245,7 +257,7 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
          Scheitert der Aufruf, springt es zurueck. */
       if (inFlight.current.has(r._id)) return false;
       const adding = !favoriteIds.has(r._id);
-      const previous = favorites.find((favorite) => favorite.restaurantId === r._id);
+      let previous = favorites.find((favorite) => favorite.restaurantId === r._id);
       /* Leer heisst erst nach dem Laden „noch keiner": waehrend die Liste
          laedt, lieber kein Hinweis als ein falscher. */
       const firstSpot = !loading && favoriteIds.size === 0;
@@ -278,6 +290,9 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
           return { ...current, favoriteIds: nextIds, favorites: next };
         });
 
+      const read = pendingRead.current?.uid === uid ? pendingRead.current : null;
+      const previouslyChanged = read?.changed.has(r._id) ?? false;
+      read?.changed.add(r._id);
       inFlight.current.add(r._id);
       apply(adding);
       try {
@@ -292,7 +307,15 @@ export function useFavorites(uid: string | null): UseFavoritesResult {
         });
         if (!res.ok) throw new Error(`heart ${res.status}`);
       } catch {
-        apply(!adding);
+        // Failed writes give the authoritative read its vote back. It may
+        // already have arrived while the optimistic heart was on screen.
+        if (!previouslyChanged) read?.changed.delete(r._id);
+        if (!previouslyChanged && read?.entries) {
+          previous = read.entries.find((entry) => entry.restaurantId === r._id);
+          apply(Boolean(previous));
+        } else {
+          apply(!adding);
+        }
         notify('actionFailed', locale);
         return false;
       } finally {

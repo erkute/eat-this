@@ -11,6 +11,9 @@
   color: var(--et-fg);
 }
 .filterChipRow {
+  /* Same tape shape and inherited edge dimensions as the map menu. */
+  --et-tape-img: url('/pics/tape/gaffer-2-black.webp');
+  --et-tape-active-img: url('/pics/tape/gaffer-2-white.webp');
   --et-tape-fg: #fff;
   --et-tape-active-fg: #000;
   display: flex;
@@ -59,31 +62,6 @@
   cursor: pointer;
   appearance: none;
   transition: color 120ms ease;
-}
-/* Each filter is its own piece of tape from the stock sheet. */
-.filterChipRow > :nth-child(1) {
-  --et-tape-img: url('/pics/tape/gaffer-3-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-3-white.webp');
-  --et-tape-slice: 9 11 12 31 fill;
-  --et-tape-width: 2px 2px 3px 7px;
-}
-.filterChipRow > :nth-child(2) {
-  --et-tape-img: url('/pics/tape/gaffer-5-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-5-white.webp');
-  --et-tape-slice: 17 31 14 17 fill;
-  --et-tape-width: 4px 7px 3px 4px;
-}
-.filterChipRow > :nth-child(3) {
-  --et-tape-img: url('/pics/tape/gaffer-4-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-4-white.webp');
-  --et-tape-slice: 13 9 33 21 fill;
-  --et-tape-width: 3px 2px 7px 5px;
-}
-.filterChipRow > :nth-child(4) {
-  --et-tape-img: url('/pics/tape/gaffer-6-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-6-white.webp');
-  --et-tape-slice: 11 11 20 8 fill;
-  --et-tape-width: 2px 2px 4px 2px;
 }
 .filterChipRow .filterChipLabel {
   display: block;
@@ -168,10 +146,6 @@
   background: var(--et-scrim);
 }
 .pickerSheet {
-  /* Large sheets take the high-resolution cut of the same piece. */
-  --et-tape-img: url('/pics/tape/gaffer-2-white-hd.webp');
-  --et-tape-slice: 38 27 34 36 fill;
-  --et-tape-width: 6px 4px 6px 5px;
   position: fixed;
   left: 0;
   right: 0;
@@ -183,12 +157,12 @@
   width: min(360px, calc(100vw - 24px));
   max-height: 70vh;
   padding: 12px;
-  background: none;
-  border-style: solid;
-  border-width: 0;
-  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  /* Paper keeps its scale as the panel grows; tape is reserved for controls. */
+  background: var(--et-ground) url('/pics/home/silver-hero/hero-paper.webp') center / 768px auto repeat;
+  background-blend-mode: multiply;
+  border: 0;
   box-shadow: none;
-  color: var(--et-tape-fg);
+  color: var(--et-fg);
   border-radius: 0;
   animation: pickerSheetIn 180ms ease-out;
 }
@@ -333,7 +307,4 @@
   .pickerSheet { animation: none; }
   .filterChipRow .filterChip,
   .pickerItem { transition: none; }
-}
-:global(html[data-theme='dark']) .pickerSheet {
-  --et-tape-img: url('/pics/tape/gaffer-2-black-hd.webp');
 }

@@ -7,12 +7,12 @@
 .intro { padding-bottom: 4px; }
 .intro p { max-width: 530px; margin: 0 0 24px; font-size: 20px; line-height: 1.4; }
 .intro .kicker { font-size: 12px; font-weight: 700; letter-spacing: .01em; margin-bottom: 16px; }
-.covers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; max-width: 1400px; margin: 64px auto 0; padding: 0; list-style: none; }
+.covers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; max-width: 1400px; margin: 64px auto 0; padding: 0; list-style: none; }
 .covers li { min-width: 0; }
 .cover { display: block; width: 100%; color: inherit; }
 .cover:focus-visible { outline: 3px solid #d9382a; outline-offset: 5px; }
 .section.section .mobileLink { display: none; }
-@media(max-width:767.98px) {
+@media (max-width: 767.98px) and (orientation: portrait) {
   .section { padding-block: 48px; }
   .header { display: block; }
   .header h2 { font-size: min(var(--hv-display, 40px), 26cqi); }
@@ -31,4 +31,42 @@
 
 :global(html[data-vintage]) .cover {
   filter: drop-shadow(0 8px 12px rgb(0 0 0 / .25));
+}
+
+
+.articleTitle { margin: 18px 0 0; font-size: clamp(18px, 1.65vw, 24px); font-weight: 700; line-height: 1.22; letter-spacing: -.035em; text-wrap: pretty; }
+.articleTitle a, .selectedTitle a, .smallTitle a { color: inherit; text-decoration: none; }
+.articleTitle a:focus-visible, .selectedTitle a:focus-visible, .smallTitle a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.selectedTitle { display: none; }
+.moreCovers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 28px; max-width: 1400px; margin: 32px auto 0; padding: 0; list-style: none; }
+.moreCovers li { min-width: 0; }
+.smallTitle { margin: 16px 0 0; max-width: 34ch; font-size: clamp(18px, 1.6vw, 23px); font-weight: 700; line-height: 1.25; letter-spacing: -.03em; text-wrap: pretty; }
+@media (max-width: 767.98px) and (orientation: portrait) {
+ .articleTitle, .desktopMeta { display: none; }
+ /* All four titles size this shared cell; changing the cover cannot move the stories below. */
+ .selectedTitle { display: grid; margin: 0 16px; }
+ .selectedTitle > div { grid-area: 1 / 1; visibility: hidden; }
+ .selectedTitle h3 { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.25; letter-spacing: -.03em; text-wrap: pretty; }
+ .selectedTitle > div[data-active='true'] { visibility: visible; }
+ .moreCovers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 16px; margin: 24px 0 0; padding-top: 0; }
+ .smallTitle { max-width: none; margin-top: 12px; font-size: 17px; }
+}
+
+.metadata { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 10px 0 0; font-size: 12px; line-height: 1.4; font-weight: 400; font-variant-numeric: tabular-nums; }
+.metadata span { font-weight: 700; }
+@media (max-width: 767.98px) and (orientation: portrait) { .metadata { font-size: 11px; gap: 3px 10px; } }
+
+@media (min-width: 768px), (orientation: landscape) {
+  .covers li:nth-child(4), .moreCovers li[data-extra-index='4'] { display: none; }
+}
+
+@media (max-width: 767.98px) and (orientation: portrait) {
+  .moreCovers li[data-extra-index='0'] { display: none; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .covers { margin-top: 32px; gap: 20px; }
+  .moreCovers { margin-top: 24px; column-gap: 20px; }
+  .articleTitle, .smallTitle { font-size: 17px; line-height: 1.25; margin-top: 12px; }
+  .metadata { font-size: 11px; gap: 3px 8px; }
 }

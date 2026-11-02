@@ -38,8 +38,8 @@ export async function latestIssues(limit: number, locale: 'de' | 'en'): Promise<
 
 /** Server: assemble the Hub's initial data. */
 export async function getHomeData(locale: 'de' | 'en'): Promise<HomeData> {
-  // Der Magazin-Fächer zeigt vier Hefte.
-  const magazine = await latestIssues(4, locale);
+  // Vier aktuelle Hefte im Fächer, vier weitere in der kompakten Reihe.
+  const magazine = await latestIssues(8, locale);
   return {
     magazine,
   };

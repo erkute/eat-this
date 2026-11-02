@@ -72,3 +72,15 @@
 
 /* Small labels retain full foreground contrast during press feedback. */
 .panel :is(.close,.langBtn,.footLink):is(:active,[data-et-pressed]) { color: var(--et-fg); }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .panel { width: 100%; }
+  .topbar { padding: 8px max(24px, calc(var(--et-safe-right, 0px) + 16px)) 0 max(24px, calc(var(--et-safe-left, 0px) + 16px)); }
+  .scroller { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; align-content: start; gap: 18px 28px; padding: 18px max(24px, calc(var(--et-safe-right, 0px) + 16px)) max(16px, env(safe-area-inset-bottom)) max(24px, calc(var(--et-safe-left, 0px) + 16px)); }
+  .nav { grid-column: 1 / -1; grid-row: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: start; width: 100%; gap: 8px 12px; }
+  .panel .navItem { font-size: clamp(23px, 3.2vw, 28px); min-height: 44px; }
+  .cta { grid-column: 1; grid-row: 2; margin-top: 0; justify-self: start; }
+  .foot { display: grid; grid-column: 2; grid-row: 2; margin: 0; padding: 0; gap: 0; }
+  .prefs { justify-content: flex-end; margin: 0; gap: 0 16px; }
+  .legal { justify-content: flex-end; gap: 0 16px; margin: 0; }
+}

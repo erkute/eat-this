@@ -141,6 +141,7 @@ export default function LoginBoard({
               {lead && <p className={styles.lead}>{lead}</p>}
             </div>
 
+            <div className={styles.credentials}>
             <form
               className={styles.form}
               noValidate
@@ -215,6 +216,7 @@ export default function LoginBoard({
               </a>
               .
             </p>
+            </div>
           </>
         )}
       </div>

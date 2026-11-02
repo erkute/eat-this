@@ -15,3 +15,10 @@
   .description { font-size: 18px; }
   .outline { width: min(100%, calc(170px * var(--district-ratio))); max-width: 240px; }
 }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+
+.hero { grid-template-columns: 1.5fr 1fr; gap: 24px; }
+.title { font-size: min(48px, 12cqi, var(--title-fit)); }
+.description { font-size: 16px; }
+}

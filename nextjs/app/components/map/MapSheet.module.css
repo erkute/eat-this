@@ -306,3 +306,21 @@
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 }
+
+/* Im Telefon-Querformat bleibt links die Map und rechts eine scrollbare Liste. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  .list[data-view]:is([data-view='list'], [data-detail-kind='restaurant']) {
+    display: flex;
+    background: var(--et-ground);
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(42vw, 360px);
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    transform: none;
+    overflow: hidden;
+  }
+  .list[data-view]:is([data-view='list'], [data-detail-kind='restaurant']) .handle { display: none; }
+  .list[data-view]:is([data-view='list'], [data-detail-kind='restaurant']) .listScroll { overflow-y: auto; max-height: none; min-height: 0; }
+}

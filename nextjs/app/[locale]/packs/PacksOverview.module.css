@@ -229,3 +229,12 @@
 .flowNav a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 
 :global(html[data-vintage]) main.page.page.page { background: var(--et-ground); }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+
+.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tile { --pack-w: 88px; padding: 16px; gap: 16px; }
+.tileName { font-size: 24px; }
+.spectrum { font-size: 14px; }
+.sectionTitle { font-size: 36px; }
+}

@@ -19,8 +19,8 @@ export default async function HubFaq({ locale }: Props) {
           </h2>
         </div>
         <div>
-          {faqs.map((f, index) => (
-            <details key={f.q} className={styles.item} open={index === 0}>
+          {faqs.map((f) => (
+            <details key={f.q} className={styles.item}>
               <summary className={styles.question}>{f.q}</summary>
               <p className={styles.answer}>{f.a}</p>
             </details>

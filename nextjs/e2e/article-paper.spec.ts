@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { CONSENT_VERSION } from '../lib/consent';
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`article labels and catalogue use paper (${theme})`, async ({ page, context, baseURL }, info) => {
+  test(`article labels and clean catalogue surface (${theme})`, async ({ page, context, baseURL }, info) => {
     const english = theme === 'dark';
     const prefix = english ? '/en' : '';
     const errors: string[] = [];
@@ -71,7 +71,7 @@ for (const theme of ['light', 'dark'] as const) {
     const hub = page.locator('.et-paper-link');
     await expect(hub).toHaveAttribute('href', `${prefix}/bezirk/schoeneberg`);
     await hub.scrollIntoViewIfNeeded();
-    await expect(hub).toHaveCSS('background-image', /folded-white/);
+    await expect(hub).toHaveCSS('background-image', 'none');
     await hub.hover();
     await expect(hub).toHaveCSS('transform', 'none');
     await expect(hub).toHaveCSS('color', english ? 'rgb(255, 255, 255)' : 'rgb(21, 18, 14)');

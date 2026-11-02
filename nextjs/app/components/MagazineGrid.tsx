@@ -7,7 +7,7 @@ import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import styles from './MagazineGrid.module.css';
 
-const MOBILE = '(max-width: 767.98px)';
+const MOBILE = '(max-width: 767.98px) and (orientation: portrait)';
 
 /* Am Telefon liegen die Hefte als Stapel wie auf einem Couchtisch (Ansage
    22.10.2026: „neu designen im Wischen auf Mobile, so ne geile GSAP-
@@ -29,6 +29,15 @@ function pose(depth: number, count: number) {
   return { ...POSES[Math.min(depth, POSES.length - 1)], zIndex: count - depth };
 }
 
+function ArticleMeta({ article, locale }: { article: HubArticle; locale: 'de' | 'en' }) {
+  const date = article.date ? new Date(article.date) : null;
+  const validDate = date && !Number.isNaN(date.getTime());
+  return <p className={styles.metadata}>
+    <span>Issue {String(article.issue).padStart(2, '0')}</span>
+    {validDate && <time dateTime={article.date!}>{new Intl.DateTimeFormat(locale === 'de' ? 'de-DE' : 'en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }).format(date)}</time>}
+  </p>;
+}
+
 export default function MagazineGrid({ articles, locale }: { articles: HubArticle[]; locale: 'de' | 'en' }) {
   const [selected, setSelected] = useState(0);
   const coversRef = useRef<HTMLOListElement>(null);
@@ -37,6 +46,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
   // nahtlos übernimmt (px/ms).
   const flick = useRef<{ dir: number; speed: number } | null>(null);
   const list = articles.slice(0, 4);
+  const more = articles.slice(3, 8);
   const count = list.length;
 
   // Der Stapel selbst: Posen setzen, Ziehen anbinden. Nur am Telefon; am
@@ -266,11 +276,37 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
           <li key={a.slug} data-selected={index === selected} onFocus={() => setSelected(index)}>
             <MagazineLink href={`/news/${a.slug}`} className={styles.cover}>
               <MagazineCover title={a.title} image={a.image} issue={a.issue} date={a.date} locale={locale} cover={a.cover}
-                sizes="(max-width: 767px) 80vw, 23vw" widths={[480, 800, 1200]} />
+                sizes="(orientation: landscape) and (max-height: 500px) 31vw, (max-width: 767px) 80vw, 31vw" widths={[480, 800, 1200]} />
             </MagazineLink>
+            <h3 className={styles.articleTitle}><Link href={`/news/${a.slug}`}>{a.title}</Link></h3>
+            <div className={styles.desktopMeta}><ArticleMeta article={a} locale={locale} /></div>
           </li>
         ))}
       </ol>
+      <div className={styles.selectedTitle}>
+        {list.map((article, index) => (
+          <div key={article.slug} data-active={index === selected} aria-hidden={index !== selected}>
+          <h3>
+            <Link href={`/news/${article.slug}`} tabIndex={index === selected ? undefined : -1}>{article.title}</Link>
+          </h3>
+          <ArticleMeta article={article} locale={locale} />
+          </div>
+        ))}
+      </div>
+      {more.length > 0 && (
+        <ol className={styles.moreCovers} aria-label={en ? 'More magazine stories' : 'Weitere Magazin-Geschichten'}>
+          {more.map((a, index) => (
+            <li key={a.slug} data-extra-index={index}>
+              <MagazineLink href={`/news/${a.slug}`} className={styles.cover}>
+                <MagazineCover title={a.title} image={a.image} issue={a.issue} date={a.date} locale={locale} cover={a.cover}
+                  sizes="(orientation: landscape) and (max-height: 500px) 23vw, (max-width: 767px) 42vw, 23vw" widths={[240, 480, 800]} />
+              </MagazineLink>
+              <h3 className={styles.smallTitle}><Link href={`/news/${a.slug}`}>{a.title}</Link></h3>
+              <ArticleMeta article={a} locale={locale} />
+            </li>
+          ))}
+        </ol>
+      )}
       <Link href="/news" className={`et-btn ${styles.mobileLink}`}>{en ? 'More magazines' : 'Weitere Magazine'}</Link>
     </section>
   );

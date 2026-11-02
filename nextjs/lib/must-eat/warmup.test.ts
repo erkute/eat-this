@@ -15,7 +15,14 @@ vi.mock('@/lib/firebase/admin', () => ({
 }));
 
 const renderPrivateMustEatImage = vi.fn();
+const primePrivateMustEatImageContent = vi.fn();
+const readPrivateMustEatContent = vi.fn();
+vi.mock('./private-store', () => ({
+  PRIVATE_MUST_EATS_COLLECTION: 'privateMustEats',
+  readPrivateMustEatContent: (...args: unknown[]) => readPrivateMustEatContent(...args),
+}));
 vi.mock('./private-image', () => ({
+  primePrivateMustEatImageContent: (...args: unknown[]) => primePrivateMustEatImageContent(...args),
   renderPrivateMustEatImage: (...args: unknown[]) => renderPrivateMustEatImage(...args),
 }));
 
@@ -26,6 +33,7 @@ describe('warmMustEatImages', () => {
     vi.clearAllMocks();
     listIds.mockResolvedValue({ docs: [{ id: 'a' }, { id: 'b' }] });
     renderPrivateMustEatImage.mockResolvedValue({});
+    readPrivateMustEatContent.mockResolvedValue({ a: {}, b: {} });
   });
 
   // Prod 26.09.2026: auf zwei von drei frischen Instanzen lief die
@@ -39,6 +47,16 @@ describe('warmMustEatImages', () => {
       firstError: undefined,
     });
     expect(renderPrivateMustEatImage).toHaveBeenCalledTimes(2);
+  });
+
+  it('reads and primes 100 documents in one batch before rendering', async () => {
+    const ids = Array.from({ length: 100 }, (_, i) => `card-${i}`);
+    listIds.mockResolvedValue({ docs: ids.map(id => ({ id })) });
+    await warmMustEatImages();
+    expect(readPrivateMustEatContent).toHaveBeenCalledExactlyOnceWith(ids);
+    expect(primePrivateMustEatImageContent).toHaveBeenCalledOnce();
+    expect(renderPrivateMustEatImage).toHaveBeenCalledTimes(100);
+    expect(primePrivateMustEatImageContent.mock.invocationCallOrder[0]).toBeLessThan(renderPrivateMustEatImage.mock.invocationCallOrder[0]);
   });
 
   it('rechnet nur die 360er vor', async () => {

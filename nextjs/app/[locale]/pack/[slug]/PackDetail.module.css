@@ -211,3 +211,15 @@
  .hero .packArt { width: min(54vw, 250px); transform: none; filter: drop-shadow(0 8px 10px rgb(0 0 0 / .15)); }
  .hero > .actions { gap: 8px; width: 100%; }
 }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .hero { grid-template-columns: 1.2fr .8fr; grid-template-areas: 'copy art' 'actions art'; gap: 16px 24px; padding-block: 16px; }
+  .hero > .copy { grid-area: copy; text-align: left; }
+  .hero > .stage { grid-area: art; }
+  .hero > .actions { grid-area: actions; justify-items: start; text-align: left; }
+  .hero .name { font-size: 40px; }
+  .hero .spectrum, .hero .sub { margin: 12px 0 0; }
+  .hero .sub { font-size: 16px; }
+  .hero .packArt { width: min(24vw, 52svh); }
+  .paymentLogos { justify-content: flex-start; }
+}

@@ -48,3 +48,17 @@
 @media (min-width:1100px) { .shelf { grid-template-columns: repeat(4,minmax(0,1fr)); } }
 @media (min-width:1800px) { .shell { width: min(100%,1880px); } .shelf { grid-template-columns: repeat(5,minmax(0,1fr)); } }
 @media (max-width:767px) { .shell { padding-top: 28px; } .hero { gap: 24px; } .issueLabel { order: 1; } .pile { order: 0; } .issueText { order: 2; } .magTitle { font-size: 16px; } }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+
+.page { --issue-w: min(24vw, 48svh); }
+.shell { padding-top: 24px; }
+.hero { grid-template-columns: 1.35fr 1fr; gap: 16px 24px; }
+.heroTitle { font-size: 48px; }
+.issue { display: contents; }
+.pile { grid-column: 2; grid-row: 1 / span 3; margin: 12px; align-self: center; }
+.issueLabel, .issueText { grid-column: 1; }
+.currentTitle { font-size: 26px; }
+.issueExcerpt { font-size: 16px; }
+.shelf { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px 20px; }
+}

@@ -19,19 +19,21 @@ const TEASER_COUNT = 5;
 // Compact Figma artwork for these already-public examples. All other cards
 // keep the image supplied by the authorized data boundary.
 const HOME_CARD_ART: Readonly<Record<string, string>> = {
-  'mustead-main-14': '/pics/home/must-eat-007.webp?v=20261028',
-  'mustead-main-13': '/pics/home/must-eat-008.webp?v=20261028',
-  'mustead-main-11': '/pics/home/must-eat-010.webp?v=20261028',
-  'mustead-main-10': '/pics/home/must-eat-011.webp?v=20261028',
-  'mustead-main-9': '/pics/home/must-eat-012.webp?v=20261028',
+  'mustead-main-14': '/pics/home/must-eat-007.webp?v=20261102',
+  'mustead-main-13': '/pics/home/must-eat-008.webp?v=20261102',
+  'mustead-main-12': '/pics/home/must-eat-009.webp?v=20261102',
+  'mustead-main-11': '/pics/home/must-eat-010.webp?v=20261102',
+  'mustead-main-10': '/pics/home/must-eat-011.webp?v=20261102',
+  'mustead-main-9': '/pics/home/must-eat-012.webp?v=20261102',
 };
 const CARD_WIDTHS = [180, 360, 440, 720] as const;
 
 function cardSrcSet(url: string): string {
+  if (url.startsWith('/pics/home/')) return `${url.replace('.webp', '-360.webp')} 360w, ${url} 720w`;
   return CARD_WIDTHS.map((w) => `${mustEatCardSrc(url, w)} ${w}w`).join(', ');
 }
 
-const CARD_SIZES = '(min-width: 900px) 17vw, calc((100vw - 64px) / 2)';
+const CARD_SIZES = '(orientation: landscape) and (max-height: 500px) and (max-width: 1023px) 130px, (min-width: 900px) 17vw, calc((100vw - 64px) / 2)';
 
 export default function HubMustEatsTeaser() {
   const { initialMapData, visibleMapData, uid } = useHomeMapData();
@@ -198,14 +200,14 @@ export default function HubMustEatsTeaser() {
                             <img
                               className={styles.card}
                               src={mustEatCardSrc(image, 360)}
-                              srcSet={image.startsWith('/api/') ? cardSrcSet(image) : undefined}
+                              srcSet={cardSrcSet(image)}
                               sizes={CARD_SIZES}
                               alt={dish}
                               draggable={false}
                               width={760}
                               height={1044}
                               loading="lazy"
-                              fetchPriority="low"
+                              fetchPriority="auto"
                               decoding="async"
                             />
 

@@ -2,8 +2,8 @@ import 'server-only';
 
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
-import { renderPrivateMustEatImage } from './private-image';
-import { PRIVATE_MUST_EATS_COLLECTION } from './private-store';
+import { renderPrivateMustEatImage, primePrivateMustEatImageContent } from './private-image';
+import { PRIVATE_MUST_EATS_COLLECTION, readPrivateMustEatContent } from './private-store';
 
 // Nur die 360er: die nimmt das ganze Profil bei 2x und 3x (gemessen
 // 26.09.2026). Jede weitere Sprosse ist sharp-Arbeit, die auf einer frischen
@@ -32,6 +32,16 @@ export async function warmMustEatImages(): Promise<{
     .select()
     .get();
   const ids = snapshot.docs.map((doc) => doc.id);
+  // Eine gebündelte Abfrage statt einer Firestore-Runde pro Kartenbild.
+  // Bei einem defekten Dokument bleibt der Einzelpfad verfügbar, damit
+  // weiterhin alle übrigen Karten unabhängig aufgewärmt werden.
+  if (ids.length) {
+    try {
+      primePrivateMustEatImageContent(await readPrivateMustEatContent(ids));
+    } catch {
+      // renderPrivateMustEatImage erfasst Fehler unten pro Karte.
+    }
+  }
   let failedRenders = 0;
   let firstError: string | undefined;
   for (let i = 0; i < ids.length; i += PARALLEL) {

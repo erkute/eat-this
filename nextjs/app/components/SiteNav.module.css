@@ -230,3 +230,12 @@
 }
 
 :global(html[data-theme='dark']) .logoImg { filter: invert(1); }
+
+
+.nav {
+ padding-left: max(20px, calc(var(--et-safe-left, 0px) + 12px));
+ padding-right: max(20px, calc(var(--et-safe-right, 0px) + 12px));
+}
+@media (orientation: landscape) and (max-height: 500px) {
+ .logoImg { height: 26px; }
+}

@@ -104,6 +104,7 @@ describe('BuddyWidget compose row', () => {
       '#buddy-panel button[aria-label="Gespräch neu anfangen"]'
     );
     expect(button).not.toBeNull();
+    expect(button!.closest('form')).not.toBeNull();
     fireEvent.click(button!);
     expect(reset).toHaveBeenCalledTimes(1);
   });

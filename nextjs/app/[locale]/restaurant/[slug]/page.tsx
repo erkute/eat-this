@@ -326,7 +326,7 @@ export default async function RestaurantPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <main className={styles.page}>
+      <main className={styles.page} data-page="restaurant">
         <SpotArrival slug={slug} />
         {/* Unter dem Namen nur der Bezirk — keine Küche, kein Preis, kein
             Status, keine Knöpfe (Ansage 03.10.2026). */}

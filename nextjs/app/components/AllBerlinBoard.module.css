@@ -52,3 +52,15 @@
 @media (max-width: 420px) {
   .benefits h3 { font-size: 16px; }
 }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+
+.board { grid-template-columns: 1fr 1fr; grid-template-areas: 'copy art' 'benefits art' 'actions art'; gap: 18px 24px; padding-block: 20px; align-items: center; }
+.copy { grid-area: copy; text-align: left; }
+.title, .boardUpsell .title { font-size: 44px; }
+.lead { font-size: 16px; margin-inline: 0; }
+.stage { grid-area: art; padding: 0 12px; }
+.benefits { grid-area: benefits; gap: 10px; }
+.benefits h3 { font-size: 16px; }
+.actions { grid-area: actions; justify-items: start; }
+}

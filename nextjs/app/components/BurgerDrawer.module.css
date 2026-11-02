@@ -66,7 +66,7 @@
 }
 @media (max-height: 650px) {
   .panel:has(a[href$='/admin/stats']) .scroller { padding-top: 16px; padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
-  .panel:has(a[href$='/admin/stats']) .navItem { font-size: 20px; padding-block: 2px 3px; }
+  .panel:has(a[href$='/admin/stats']) .navItem { min-height: 0; font-size: 20px; padding-block: 2px 3px; }
   .panel:has(a[href$='/admin/stats']) .foot { padding-top: 12px; }
 }
 

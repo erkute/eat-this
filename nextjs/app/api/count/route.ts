@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { FieldValue, Timestamp, type DocumentReference } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { clientIpFromXff } from '@/lib/clientIp';
+import { isExcludedAnalyticsIp } from '@/lib/analytics/excludedIps.server';
 import { isAutomated } from '@/lib/analytics/botFilter';
 import {
   hasNoCountCookie,
@@ -225,6 +226,21 @@ function referrerHost(raw: unknown): string | null {
   return host.replace(/\./g, '_').slice(0, 80);
 }
 
+/** GA fragt vor dem Laden nach demselben Ausschluss. Keine IP, Kennung oder
+ * Messung im Ergebnis; der persönliche Wert darf nie aus einem Cache kommen. */
+export async function GET(request: Request) {
+  const ip = clientIpFromXff(
+    request.headers.get('x-forwarded-for'),
+    request.headers.get('x-real-ip')
+  );
+  const excluded =
+    hasNoCountCookie(request.headers.get('cookie')) ||
+    request.headers.get('sec-gpc') === '1' ||
+    request.headers.get('dnt') === '1' ||
+    !ip || isExcludedAnalyticsIp(ip);
+  return NextResponse.json({ excluded }, { headers: { 'Cache-Control': 'private, no-store' } });
+}
+
 export async function POST(request: Request) {
   const origin = request.headers.get('origin');
   if (origin) {
@@ -252,6 +268,9 @@ export async function POST(request: Request) {
     request.headers.get('x-real-ip')
   );
   if (!ip) return new NextResponse(null, { status: 204 });
+  // Der eigene Anschluss zählt auch ohne Cookie und mit frischen Browsern
+  // nicht: vor Rate-Limit, Tageswerten, Heatmap und „Jetzt aktiv" abbrechen.
+  if (isExcludedAnalyticsIp(ip)) return new NextResponse(null, { status: 204 });
 
   const raw = await request.text();
   if (raw.length > MAX_BODY) return new NextResponse(null, { status: 413 });

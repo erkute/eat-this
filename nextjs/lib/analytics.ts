@@ -13,6 +13,8 @@ type AnalyticsParams = Record<string, string | number | boolean | undefined>;
 
 interface AnalyticsWindow extends Window {
   __gaLoaded?: boolean;
+  __eatThisAnalyticsNetworkCheck?: Promise<boolean>;
+  __eatThisAnalyticsNetworkExcluded?: boolean;
   dataLayer?: unknown[];
   gtag?: (...args: unknown[]) => void;
   __eatThisAnalyticsQueue?: Array<{ name: string; params?: AnalyticsParams }>;
@@ -100,7 +102,7 @@ function isOwnOrAutomated(): boolean {
 function gaEnabled(): boolean {
   if (!hasConsent()) return false;
   if (typeof window === 'undefined' || !isAnalyticsHost(window.location.hostname)) return false;
-  return !isOwnOrAutomated();
+  return !isOwnOrAutomated() && !analyticsWindow()?.__eatThisAnalyticsNetworkExcluded;
 }
 
 /* ── Consent-free counting ───────────────────────────────────────────────────
@@ -322,9 +324,26 @@ export function flushAnalyticsQueue(): void {
  * das die Karte in die Adresse schreibt, zaehlte als eigener Aufruf — /map
  * hatte 378 Aufrufe von 26 Nutzern. `send_page_view: false` schaltet nur den
  * ersten Aufruf ab, nicht diesen Mechanismus. */
-export function loadAnalytics(): void {
+export async function loadAnalytics(): Promise<void> {
   const w = analyticsWindow();
   if (!w || !gaEnabled() || w.__gaLoaded) return;
+  // Einmal pro Dokument, auch wenn CookieConsent und AnalyticsPageViews
+  // gleichzeitig laden. Bis zur Antwort bleibt jede Nachricht lokal in der
+  // Warteschlange; bei Ausschluss oder Fehler wird nichts an Google gesendet.
+  w.__eatThisAnalyticsNetworkCheck ??= Promise.resolve().then(() => fetch(COUNT_ENDPOINT, {
+    cache: 'no-store',
+    credentials: 'same-origin',
+  })).then(async (response) => {
+    const result: unknown = response.ok ? await response.json() : null;
+    return typeof result === 'object' && result !== null &&
+      'excluded' in result && result.excluded === false;
+  }).catch(() => false);
+  const allowed = await w.__eatThisAnalyticsNetworkCheck;
+  w.__eatThisAnalyticsNetworkExcluded = !allowed;
+  if (!allowed) w.__eatThisAnalyticsQueue = [];
+  // Während der Anfrage kann die Einwilligung widerrufen oder der lokale
+  // Ausschluss gesetzt worden sein. Ein zweiter Aufrufer darf GA nicht duplizieren.
+  if (!gaEnabled() || w.__gaLoaded) return;
   w.__gaLoaded = true;
 
   const script = document.createElement('script');

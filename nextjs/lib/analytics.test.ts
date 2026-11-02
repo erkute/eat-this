@@ -500,3 +500,91 @@ it('sendet aus lokalen Vorschauen weder Zählereignisse noch GA', () => {
     delete (window as Window & { gtag?: unknown }).gtag;
   }
 });
+
+// GA darf auch bei frischer Zustimmung im Inkognito-Fenster erst nach der
+// serverseitigen IP-Prüfung laden oder Ereignisse verschicken.
+describe('GA waits for the private network exclusion', () => {
+  type TestWindow = Window & {
+    __gaLoaded?: boolean;
+    __eatThisAnalyticsNetworkCheck?: Promise<boolean>;
+    __eatThisAnalyticsNetworkExcluded?: boolean;
+    __eatThisAnalyticsQueue?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
+  };
+  const w = window as TestWindow;
+
+  beforeEach(() => {
+    document.cookie = 'eatthis_nocount=; Max-Age=0; Path=/';
+    document.cookie = `cookieConsent=accepted.${CONSENT_VERSION}; Path=/`;
+    delete w.gtag;
+    delete w.__gaLoaded;
+    delete w.__eatThisAnalyticsNetworkCheck;
+    delete w.__eatThisAnalyticsNetworkExcluded;
+    delete w.__eatThisAnalyticsQueue;
+    vi.stubGlobal('navigator', { userAgent: TEST_UA, sendBeacon: vi.fn(() => true) });
+  });
+
+  afterEach(() => {
+    document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
+    document.querySelectorAll('script[src*="googletagmanager.com"]').forEach((script) => script.remove());
+    delete w.gtag;
+    delete w.__gaLoaded;
+    delete w.__eatThisAnalyticsNetworkCheck;
+    delete w.__eatThisAnalyticsNetworkExcluded;
+    delete w.__eatThisAnalyticsQueue;
+    delete w.dataLayer;
+    vi.unstubAllGlobals();
+  });
+
+  it('drops queued and future events from the excluded connection without loading Google', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: true }) }));
+    const loading = loadAnalytics();
+    trackEvent('page_view');
+    expect(w.__eatThisAnalyticsQueue).toHaveLength(1);
+    expect(w.gtag).toBeUndefined();
+    await loading;
+    trackEvent('map_opened');
+    expect(w.__eatThisAnalyticsQueue).toEqual([]);
+    expect(w.gtag).toBeUndefined();
+    expect(document.querySelector('script[src*="googletagmanager.com"]')).toBeNull();
+  });
+
+  it('checks once for concurrent loaders and flushes the first pageview for ordinary visitors', async () => {
+    const fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: false }) });
+    vi.stubGlobal('fetch', fetch);
+    const first = loadAnalytics();
+    const second = loadAnalytics();
+    trackEvent('page_view', { page_path: '/' });
+    expect(w.gtag).toBeUndefined();
+    await Promise.all([first, second]);
+    expect(fetch).toHaveBeenCalledExactlyOnceWith('/api/count', { cache: 'no-store', credentials: 'same-origin' });
+    expect(document.querySelectorAll('script[src*="googletagmanager.com"]')).toHaveLength(1);
+    expect(w.dataLayer?.filter((args) => Array.from(args as ArrayLike<unknown>)[0] === 'event')).toHaveLength(1);
+    expect(w.__eatThisAnalyticsQueue).toEqual([]);
+  });
+
+  it.each([
+    { ok: false },
+    { ok: true, json: async () => ({}) },
+    { ok: true, json: async () => ({ excluded: 'false' }) },
+  ])('keeps GA off for an unsuccessful or invalid preference response: %j', async (response) => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
+    await loadAnalytics();
+    expect(w.gtag).toBeUndefined();
+  });
+
+  it('keeps GA off when the preference request fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    await loadAnalytics();
+    expect(w.gtag).toBeUndefined();
+  });
+
+  it('rechecks consent after the response arrives', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: false }) }));
+    const loading = loadAnalytics();
+    document.cookie = `cookieConsent=rejected.${CONSENT_VERSION}; Path=/`;
+    await loading;
+    expect(w.gtag).toBeUndefined();
+  });
+});

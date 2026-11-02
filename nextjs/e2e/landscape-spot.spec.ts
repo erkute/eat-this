@@ -6,7 +6,7 @@ for(const width of [667,844]) test(`spot return preserves landscape map controls
  await page.setViewportSize({width,height:390});
  await page.goto('/map',{waitUntil:'domcontentloaded'});
  await expect(page.locator('.maplibregl-marker').first()).toBeVisible({timeout:30000});
- await page.locator('#map-results-panel').getByRole('button').filter({hasText:'BEN RAHIM Berlin'}).first().click();
+ await page.locator('#map-results-panel [data-list-row] [role="button"]').first().click();
  const detail=page.locator('[data-detail-root="restaurant"]');
  await expect(detail).toBeVisible({timeout:45000});
  const hero=detail.locator('[data-detail-hero]');

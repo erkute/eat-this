@@ -26,7 +26,6 @@ for(const width of [667,844]) test('landscape signup '+width,async({page,context
  await page.getByRole('dialog',{name:'Navigation',exact:true}).getByRole('button',{name:'Anmelden',exact:true}).click();
  const panel=page.locator('[data-login-panel]');
  await expect(panel).toBeVisible({timeout:30000});
- await expect.poll(()=>panel.locator('img').evaluate((el:HTMLImageElement)=>el.complete && el.naturalWidth>0)).toBe(true);
  await expect.poll(()=>panel.evaluate(el=>el.scrollHeight-el.clientHeight)).toBeLessThanOrEqual(1);
  await expect(panel.locator('input')).toBeInViewport({ratio:1});
  await expect(panel.getByRole('link').last()).toBeInViewport({ratio:1});

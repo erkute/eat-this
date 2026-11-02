@@ -204,13 +204,13 @@ describe('Ankunft nach der Anmeldung', () => {
 
   /* Hinter der Tour wechselt die Seite ins Profil — das soll man erst
      danach sehen (Betreiber, 14.10.2026). */
-  it('deckt ganz: Ink-Grund schon waehrend der Namensabfrage, dann unter der Tour', async () => {
+  it('zeigt während der Namensabfrage einen lesbaren Wartezustand und verdeckt das Profil', async () => {
     let answer: (prefill: null) => void = () => {};
     identityStep.identityStepPrefill.mockReturnValue(new Promise((resolve) => (answer = resolve)));
     render(<SignInReward />);
     await arrive();
-    expect(screen.queryByRole('dialog')).toBeNull();
-    expect(document.querySelector('[class*="layerSolid"]')).toBeTruthy();
+    expect(screen.getByRole('dialog').getAttribute('aria-busy')).toBe('true');
+    expect(screen.getByRole('status').textContent).toBe('Wird geladen …');
 
     await act(async () => answer(null));
     expect(screen.getByRole('dialog').parentElement?.className).toContain('layerSolid');

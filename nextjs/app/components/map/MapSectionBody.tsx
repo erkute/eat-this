@@ -61,7 +61,6 @@ interface MapBodyRefs {
    data lists / selections / user context that drive markers and the sheet. */
 interface MapBodyState {
   isActive: boolean;
-  fontClassName?: string;
   sheetView: SheetView;
   snap: SheetSnap;
   dragging: boolean;
@@ -164,7 +163,6 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
   const searchLabel = locale === 'en' ? 'Search' : 'Suche';
   const {
     isActive,
-    fontClassName,
     mapRef,
     handleRef,
     setHeaderRef,
@@ -541,7 +539,7 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
 
   return (
     <main
-      className={`app-page${isActive ? ' active' : ''}${fontClassName ? ` ${fontClassName}` : ''}`}
+      className={`app-page${isActive ? ' active' : ''}`}
       data-page="map"
       data-map-view={sheetView}
       data-map-snap={snap}

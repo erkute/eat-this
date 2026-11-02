@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { loadBuddyWidget } from './buddy/loadBuddyWidget';
+import { appScroller } from '@/lib/dom/appScroller';
 import Image from '@/app/components/SiteImage';
 import { useLocale } from 'next-intl';
 import { dispatchBuddyAsk } from '@/lib/buddy/homeStage';
@@ -23,6 +25,17 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
   const questions = en
     ? ['Where can I get really good pizza?', 'Where should I go on a date?', 'Surprise me.']
     : ['Wo gibt’s richtig gute Pizza?', 'Was passt für ein Date?', 'Überrasch mich.'];
+
+  useEffect(() => {
+    if (!stage.current || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      void loadBuddyWidget().catch(() => undefined);
+    }, { root: appScroller(), rootMargin: '150% 0px' });
+    observer.observe(stage.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!stage.current || !figure.current || !window.matchMedia) return;

@@ -110,7 +110,6 @@ export default async function LocaleLayout({
         <link rel="preload" href="https://use.typekit.net/af/912d1e/00000000000000007735bb33/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&amp;fvd=n4&amp;v=3" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="https://use.typekit.net/af/2288cb/00000000000000007735bb39/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&amp;fvd=n7&amp;v=3" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdn.sanity.io" />
-        <link rel="preload" href="/pics/paper/folded-white.webp?v=20261028-hq" as="image" fetchPriority="high" />
         {/* Safe: hardcoded constants and the shared pure consent parser. */}
         <script dangerouslySetInnerHTML={{ __html: CRITICAL_BOOTSTRAP }} />
         <script dangerouslySetInnerHTML={{ __html: CONSENT_BOOTSTRAP }} />

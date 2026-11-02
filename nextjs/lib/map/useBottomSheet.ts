@@ -19,8 +19,9 @@ const MOBILE_MAX = 1023.98;
    bar (see the in-flow block in map.module.css). The sheet hook must be
    fully inert there: no --sheet-y writes, no maplibre-control offsets, no
    drag bindings (their touchmove preventDefault would swallow window scroll).
-   Tablets (768–1023.98) keep the drag-sheet for both views. */
-const PHONE_MAX = 767.98;
+   Tall tablets keep the drag-sheet; short landscape panels scroll natively. */
+const NATIVE_SCROLL_LAYOUT =
+  '(max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px)';
 
 function snapToPx(snap: SheetSnap, sheetH: number, peekPx: number): number {
   switch (snap) {
@@ -160,9 +161,9 @@ function isMobile(): boolean {
   return window.matchMedia(`(max-width: ${MOBILE_MAX}px)`).matches;
 }
 
-function isPhone(): boolean {
+function usesNativeScroll(): boolean {
   if (typeof window === 'undefined') return false;
-  return window.matchMedia(`(max-width: ${PHONE_MAX}px)`).matches;
+  return window.matchMedia(NATIVE_SCROLL_LAYOUT).matches;
 }
 
 /* Snap math anchors to the VISIBLE viewport height (the dvh line), not the
@@ -193,19 +194,18 @@ interface SheetConfig {
   // (instead of parking at peek) by calling this. The detail view wires it to
   // "close detail → back to list"; the list view leaves it undefined.
   onDismiss?: () => void;
-  // View is window-scrolled in-flow content on phones (≤767.98px): the hook
-  // skips ALL positioning + drag work there so the window owns the gesture
-  // and the sheet CSS owns the geometry. No effect on tablets/desktop.
+  // Phone documents and short landscape panels scroll natively: the hook
+  // leaves positioning and gestures to CSS and the native scroll container.
   inflow?: boolean;
 }
 
 export function useBottomSheet(initial: SheetSnap = 'peek') {
   const [snap, setSnap] = useState<SheetSnap>(initial);
   const [dragging, setDragging] = useState(false);
-  const [phoneLayout, setPhoneLayout] = useState(isPhone);
+  const [nativeScrollLayout, setNativeScrollLayout] = useState(usesNativeScroll);
   useEffect(() => {
-    const media = window.matchMedia(`(max-width: ${PHONE_MAX}px)`);
-    const sync = () => setPhoneLayout(media.matches);
+    const media = window.matchMedia(NATIVE_SCROLL_LAYOUT);
+    const sync = () => setNativeScrollLayout(media.matches);
     sync();
     media.addEventListener('change', sync);
     return () => media.removeEventListener('change', sync);
@@ -324,21 +324,20 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
   }, []);
 
   useEffect(() => {
-    if (!phoneLayout || !configRef.current.inflow) return;
+    if (!nativeScrollLayout || !configRef.current.inflow) return;
     cancelDragRaf();
     dragRef.current = null;
     sheetNode.current?.style.removeProperty('transform');
     setDragging(false);
-  }, [phoneLayout, cancelDragRaf]);
+  }, [nativeScrollLayout, cancelDragRaf]);
 
   const applyY = useCallback(
     (px: number) => {
       const el = sheetNode.current;
       if (!el) return;
-      /* Phone list view is window-scrolled in-flow — geometry belongs to the
-         CSS in-flow block, not the hook. Writing --sheet-y / control offsets
-         here would fight the static phone positioning. */
-      if (configRef.current.inflow && isPhone()) return;
+      /* Native scroll layouts own their geometry in CSS. Sheet offsets would
+         fight both the phone document and the landscape side panel. */
+      if (configRef.current.inflow && usesNativeScroll()) return;
       el.style.removeProperty('transform');
       el.style.setProperty('--sheet-y', `${px}px`);
       const h = visibleViewportH();
@@ -377,7 +376,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       // If applyY hasn't run yet, compute the current offset on the fly so
       // freshly-mounted controls don't sit at the default `bottom: 0`.
       let offset = lastControlOffsetRef.current;
-      if (!offset && el && isMobile() && !(configRef.current.inflow && isPhone())) {
+      if (!offset && el && isMobile() && !(configRef.current.inflow && usesNativeScroll())) {
         const h = visibleViewportH();
         const px = snapToPx(snapRef.current, h, configRef.current.peekVisiblePx);
         const overhang = Math.max(0, parent.getBoundingClientRect().height - h);
@@ -400,7 +399,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       if (el) {
         setSheetMounted(true); // triggers re-run of the handle effect after delayed mount
       }
-      if (el && isMobile() && !(configRef.current.inflow && isPhone())) {
+      if (el && isMobile() && !(configRef.current.inflow && usesNativeScroll())) {
         const h = visibleViewportH();
         const px = snapToPx(snapRef.current, h, configRef.current.peekVisiblePx);
         const visible = Math.max(0, h - px);
@@ -450,11 +449,11 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const handle = handleRef.current;
     const sheet = sheetNode.current;
     if (!handle || !sheet) return;
-    if (configRef.current.inflow && phoneLayout) return;
+    if (configRef.current.inflow && nativeScrollLayout) return;
 
     const onDown = (e: PointerEvent) => {
       if (!isMobile() || configRef.current.dragMode === 'none') return;
-      if (configRef.current.inflow && isPhone()) return;
+      if (configRef.current.inflow && usesNativeScroll()) return;
       // Cache the visible viewport height once at drag-start so the move
       // handler doesn't re-read it on every frame just to clamp the target px.
       const h = visibleViewportH();
@@ -540,7 +539,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       handle.removeEventListener('pointerup', onUp);
       handle.removeEventListener('pointercancel', onUp);
     };
-  }, [snap, applyYDrag, cancelDragRaf, sheetMounted, phoneLayout]);
+  }, [snap, applyYDrag, cancelDragRaf, sheetMounted, nativeScrollLayout]);
 
   // Content-area drag.
   //   - At 'peek': drag in any direction (sheet handle is small, this is the
@@ -555,7 +554,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     const sheet = sheetNode.current;
     if (!content || !sheet) return;
     if (!isMobile()) return;
-    if (configRef.current.inflow && phoneLayout) return;
+    if (configRef.current.inflow && nativeScrollLayout) return;
 
     let touchState: {
       startY: number;
@@ -569,7 +568,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     const onTouchStart = (e: TouchEvent) => {
       if (configRef.current.dragMode !== 'all') return;
-      if (configRef.current.inflow && isPhone()) return;
+      if (configRef.current.inflow && usesNativeScroll()) return;
       if (e.touches.length !== 1) return;
       const h = visibleViewportH();
       sheetHRef.current = h;
@@ -681,7 +680,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       content.removeEventListener('touchend', onTouchEnd);
       content.removeEventListener('touchcancel', onTouchEnd);
     };
-  }, [applyYDrag, cancelDragRaf, snap, contentTick, phoneLayout]);
+  }, [applyYDrag, cancelDragRaf, snap, contentTick, nativeScrollLayout]);
 
   // Header-area drag (count row + filter / search buttons + tabs).
   // Like Google Maps, lets the user drag the sheet from anywhere up there,
@@ -694,7 +693,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
     if (!header || !sheet) return;
     if (!isMobile()) return;
     if (configRef.current.dragMode !== 'all') return;
-    if (configRef.current.inflow && phoneLayout) return;
+    if (configRef.current.inflow && nativeScrollLayout) return;
 
     let touchState: {
       startY: number;
@@ -706,7 +705,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
 
     const onTouchStart = (e: TouchEvent) => {
       if (configRef.current.dragMode !== 'all') return;
-      if (configRef.current.inflow && isPhone()) return;
+      if (configRef.current.inflow && usesNativeScroll()) return;
       if (e.touches.length !== 1) return;
       const h = visibleViewportH();
       sheetHRef.current = h;
@@ -792,7 +791,7 @@ export function useBottomSheet(initial: SheetSnap = 'peek') {
       header.removeEventListener('touchend', onTouchEnd);
       header.removeEventListener('touchcancel', onTouchEnd);
     };
-  }, [applyYDrag, cancelDragRaf, snap, headerTick, phoneLayout]);
+  }, [applyYDrag, cancelDragRaf, snap, headerTick, nativeScrollLayout]);
 
   const collapse = useCallback(() => setSnap('peek'), []);
   const expand = useCallback(() => setSnap('mid'), []);

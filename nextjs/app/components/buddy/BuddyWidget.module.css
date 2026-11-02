@@ -67,13 +67,33 @@
 }
 
 :global(html[data-theme='dark']) .panel {
-  --buddy-surface: #292d35;
-  --buddy-accent-text: #a9caff;
-  --buddy-open: #6fcf8b;
-  --retro-edge: #68758b;
-  --retro-deep: #111;
-  --retro-control-top: #454d5b;
-  --retro-control-bottom: #292e37;
+  --buddy-ink: color-mix(in srgb, var(--et-ground) 22%, #202020);
+  --buddy-paper: var(--et-fg);
+  --buddy-surface: #383838;
+  --buddy-accent-text: #b8d1ff;
+  --buddy-open: #80d99a;
+  --buddy-soft: #dedede;
+  --buddy-dim: #b0b0b0;
+  --retro-edge: #181818;
+  --retro-deep: #080808;
+  --retro-control-top: #747474;
+  --retro-control-bottom: #454545;
+  border-color: #858585 #080808 #080808 #858585;
+  box-shadow: inset 1px 1px #626262, inset -1px -1px #181818, 4px 4px 0 rgb(0 0 0 / .45);
+}
+:global(html[data-theme='dark']) .screen {
+  border-color: #555;
+  box-shadow: 0 16px 64px rgb(0 0 0 / .5), inset 1px 1px #747474;
+}
+:global(html[data-theme='dark']) .close {
+  color: var(--buddy-paper);
+  background: var(--retro-control-bottom);
+  border-color: var(--retro-control-top) var(--retro-deep) var(--retro-deep) var(--retro-control-top);
+  box-shadow: inset 1px 1px #626262, inset -1px -1px var(--retro-edge);
+}
+:global(html[data-theme='dark']) .close:active {
+  border-color: var(--retro-deep) var(--retro-control-top) var(--retro-control-top) var(--retro-deep);
+  box-shadow: inset 1px 1px var(--retro-edge);
 }
 
 @keyframes buddyPanelIn {

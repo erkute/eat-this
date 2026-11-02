@@ -95,7 +95,11 @@
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
-  .frame { width: min(760px, calc(100vw - max(32px, calc(var(--et-safe-left, 0px) + 20px)) - max(32px, calc(var(--et-safe-right, 0px) + 20px)))); height: auto; max-height: calc(100dvh - 24px); padding: 28px 36px; background-image: none; }
+  .frame { width: min(760px, calc(100vw - max(32px, calc(var(--et-safe-left, 0px) + 20px)) - max(32px, calc(var(--et-safe-right, 0px) + 20px)))); height: auto; max-height: calc(100dvh - 36px); padding: 24px 36px; }
   .content { height: auto; }
   .close { top: 2px; right: 2px; }
+}
+
+@media (orientation: landscape) and (max-height: 340px) {
+  .frame { padding: 16px 30px; }
 }

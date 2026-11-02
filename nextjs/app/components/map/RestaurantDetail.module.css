@@ -606,7 +606,7 @@
    Sie klebt unter Kartenstreifen und Griff (26px, MapSheet.module.css) und
    nimmt keinen Platz ein; sichtbar erst, wenn der Pfeil im Foto verdeckt ist. */
 .rdBar { display: none; }
-@media (max-width: 767.98px) {
+@media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .rdBar {
     display: block;
     position: sticky;
@@ -658,7 +658,7 @@
     white-space: nowrap;
   }
 }
-@media (max-width: 767.98px) and (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
   .rdBarInner,
   .rdBar[data-shown] .rdBarInner { transition: none; }
 }
@@ -880,5 +880,5 @@
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
-  .rdBar { display: none; }
+  .rdBar { top: 0; }
 }

@@ -85,9 +85,9 @@
 }
 
 :global(html[data-theme='dark']) .taskbar {
-  --start-paper: #292d35;
+  --start-paper: #383838;
   --start-text: #fff;
-  --start-light: #68758b;
-  --start-shadow: #14171c;
-  --start-deep: #080a0e;
+  --start-light: #747474;
+  --start-shadow: #181818;
+  --start-deep: #080808;
 }

@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useIsPresent, useReducedMotion } from 'framer-motion';
 import { useLocale } from 'next-intl';
 import type { RestaurantGalleryImage } from '@/lib/map/useRestaurantDetail';
+import { restoreStyle, snapshotStyle } from '@/lib/dom/styleSnapshot';
 import { safeHttpUrl } from '@/lib/safeHttpUrl';
 import { sanityImageSize, sanitySrcSet } from '@/lib/sanity-image-presets';
 import styles from './RestaurantGalleryLightbox.module.css';
@@ -112,6 +113,39 @@ function Viewer({
       });
     }
   }, [page]);
+
+  // Safari's browser chrome follows the gallery ground, including rotation.
+  useLayoutEffect(() => {
+    const elements = [document.documentElement, document.body];
+    const snapshots = elements.map(element => ({
+      element,
+      background: snapshotStyle(element.style, 'background-color'),
+      scheme: snapshotStyle(element.style, 'color-scheme'),
+    }));
+    const existing = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')];
+    const metas = existing.length ? existing : [document.createElement('meta')];
+    const contents = metas.map(meta => meta.getAttribute('content'));
+    if (!existing.length) {
+      metas[0].name = 'theme-color';
+      document.head.appendChild(metas[0]);
+    }
+    for (const element of elements) {
+      element.style.setProperty('background-color', '#000', 'important');
+      element.style.setProperty('color-scheme', 'dark', 'important');
+    }
+    for (const meta of metas) meta.content = '#000000';
+    return () => {
+      for (const { element, background, scheme } of snapshots) {
+        restoreStyle(element.style, 'background-color', background);
+        restoreStyle(element.style, 'color-scheme', scheme);
+      }
+      metas.forEach((meta, index) => {
+        if (!existing.length) meta.remove();
+        else if (contents[index] === null) meta.removeAttribute('content');
+        else meta.setAttribute('content', contents[index]!);
+      });
+    };
+  }, []);
 
   // Lock body scroll while open.
   useEffect(() => {

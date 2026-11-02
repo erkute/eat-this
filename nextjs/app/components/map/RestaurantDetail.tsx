@@ -156,14 +156,15 @@ export default function RestaurantDetail({
     const back = backRef.current;
     const bar = barRef.current;
     if (!back || !bar || typeof IntersectionObserver === 'undefined') return;
-    const media = window.matchMedia?.('(max-width: 767.98px)');
+    const media = window.matchMedia?.('(max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px)');
     if (!media) return;
     let observer: IntersectionObserver | undefined;
     const observe = () => {
       observer?.disconnect();
       setBarShown(false);
       if (!media.matches) return;
-      const line = Math.round(parseFloat(getComputedStyle(bar).top));
+      const top = parseFloat(getComputedStyle(bar).top);
+      const line = Number.isFinite(top) ? Math.max(0, Math.round(top)) : 0;
       observer = new IntersectionObserver(
         ([entry]) => setBarShown(entry.intersectionRatio < 1 && entry.boundingClientRect.top < line),
         { rootMargin: `-${line}px 0px 0px 0px`, threshold: [0, 1] }
@@ -172,8 +173,10 @@ export default function RestaurantDetail({
     };
     observe();
     media.addEventListener('change', observe);
+    window.addEventListener('resize', observe);
     return () => {
       media.removeEventListener('change', observe);
+      window.removeEventListener('resize', observe);
       observer?.disconnect();
       setBarShown(false);
     };

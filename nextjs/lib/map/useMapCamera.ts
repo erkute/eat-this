@@ -10,7 +10,7 @@ import { pollUntilMapReady } from './pollUntilMapReady';
 import { DETAIL_PEEK_DVH, LIST_REST_VISIBLE_DVH, phoneListMidVisiblePx } from './phoneSheetSnaps';
 import { safeAreaInsetTop } from './safeArea';
 import { SHEET_SETTLED_EVENT } from './sheetSlide';
-import { isPhoneViewport, isSheetViewport, isTabletViewport } from './viewport';
+import { isPhoneViewport, isSheetViewport, isTabletViewport, isLandscapePanelViewport } from './viewport';
 import { SPOT_SET_MAX_ZOOM } from './cameraFit';
 import { BERLIN_VIEW, MAP_BEARING, MAP_PITCH } from './defaultView';
 import { medianPoint, pitchedCameraForPoints } from './pitchedFit';
@@ -34,6 +34,9 @@ const PIN_SAFE_SIDE = 34;
 const PIN_SAFE_TOP = 115;
 /* The pin card's height above its anchor (MapMarkers.module.css). */
 const PIN_HEIGHT_PX = 47;
+/* The landscape canvas already ends at the side panel. Balance the pin's
+   upward extent, without reserving space for a bottom sheet or sidebar. */
+const landscapePanelPadding = () => ({ top: PIN_HEIGHT_PX, bottom: 0, left: 20, right: 20 });
 export const getUserLocationZoom = () => typeof window === 'undefined' || isSheetViewport() ? 16 : 16.5;
 /* Phones keep the Kiez in view. Desktop has room to show the street and
    neighbours at a closer zoom, even beside the open detail panel. */
@@ -126,6 +129,7 @@ export function useMapCamera({
   /* One flight onto one point — every open, page, close and locate lands here. */
   const flyToSpot = useCallback(
     (spot: LngLat, { duration, padding, zoom = desktopSpotZoom(), eventData }: FlyOptions) => {
+      if (isLandscapePanelViewport()) mapRef.current?.resize();
       mapRef.current?.flyTo({ center: [spot.lng, spot.lat], zoom, duration, padding }, eventData);
     },
     [mapRef]
@@ -142,6 +146,7 @@ export function useMapCamera({
      sheet pushed halfway up the spot was centred in the whole strip — under
      the sheet (user, 23.09.2026). */
   const phoneDetailFlyPadding = useCallback(() => {
+    if (isLandscapePanelViewport()) return landscapePanelPadding();
     /* Mirrors --detail-map-peek in MapLayout.module.css. */
     const peek = (DETAIL_PEEK_DVH / 100) * window.innerHeight;
     const canvasH = mapRef.current?.getContainer().clientHeight || peek;
@@ -190,22 +195,33 @@ export function useMapCamera({
   useLayoutEffect(() => {
     if (!isActive || sheetView !== 'detail' || !selectedRestaurantId) return;
     if (selectedRestaurantLng == null || selectedRestaurantLat == null) return;
-    if (!isPhoneViewport()) return;
+    if (!isPhoneViewport() && !isLandscapePanelViewport()) return;
 
-    /* React has now committed the compact detail height. Force MapLibre to
-       measure that real canvas before flying; otherwise it keeps the former
-       100dvh transform and places the selected pin far below the visible
-       peek. Polling also covers a fast tap before the lazy map has mounted. */
-    return pollUntilMapReady({
-      mapRef,
-      onReady: (map) => {
-        map.resize();
-        flyToSpot(
-          { lng: selectedRestaurantLng, lat: selectedRestaurantLat },
-          { duration: 400, padding: phoneDetailFlyPadding() }
-        );
-      },
-    });
+    const centerDetail = () => {
+      const map = mapRef.current;
+      if (!map) return;
+      map.resize();
+      flyToSpot(
+        { lng: selectedRestaurantLng, lat: selectedRestaurantLat },
+        { duration: 400, padding: phoneDetailFlyPadding() }
+      );
+    };
+    const cancelReady = pollUntilMapReady({ mapRef, onReady: centerDetail });
+    // Recalculate only on layout changes, not every Safari toolbar resize.
+    const landscape = window.matchMedia(
+      '(orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px)'
+    );
+    let frame = 0;
+    const onLayoutChange = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(centerDetail);
+    };
+    landscape.addEventListener('change', onLayoutChange);
+    return () => {
+      cancelReady();
+      cancelAnimationFrame(frame);
+      landscape.removeEventListener('change', onLayoutChange);
+    };
   }, [
     isActive,
     sheetView,
@@ -276,6 +292,7 @@ export function useMapCamera({
   const getFlyPadding = useCallback(
     (targetSnap?: 'peek' | 'mid' | 'full', visiblePxOverride?: number, canvasHeightOverride?: number) => {
       if (typeof window === 'undefined') return { top: 60, bottom: 60, left: 40, right: 40 };
+      if (isLandscapePanelViewport()) return landscapePanelPadding();
       const isMobile = isSheetViewport();
       if (!isMobile) {
         // Desktop: the canvas runs under the results panel (MapLayout.module.css),

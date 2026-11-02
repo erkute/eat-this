@@ -438,15 +438,16 @@
 
 .credentials { display: contents; }
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
-  :global([data-login-panel]) .board { height: auto; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-rows: auto; gap: 32px; justify-items: stretch; align-items: center; }
+  :global([data-login-panel]) .board { height: auto; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-rows: auto auto; gap: 10px 28px; justify-items: stretch; align-items: center; }
   :global([data-login-panel]) .side { display: contents; }
-  :global([data-login-panel]) .copy { grid-column: 1; grid-row: 1; align-self: center; gap: 12px; margin: 0; text-align: left; justify-items: start; }
-  :global([data-login-panel]) .title { font-size: 32px; }
-  :global([data-login-panel]) .lead { max-width: none; font-size: 14px; line-height: 1.5; margin: 0; }
-  :global([data-login-panel]) .art { display: none; }
-  :global([data-login-panel]) .credentials { display: grid; grid-column: 2; grid-row: 1; gap: 10px; align-self: center; }
+  :global([data-login-panel]) .copy { grid-column: 1; grid-row: 2; align-self: start; gap: 6px; margin: 0; text-align: left; justify-items: start; }
+  :global([data-login-panel]) .title { font-size: 28px; }
+  :global([data-login-panel]) .lead { max-width: none; font-size: 13px; line-height: 1.4; margin: 0; }
+  :global([data-login-panel]) .art { display: flex; grid-column: 1; grid-row: 1; height: clamp(64px, 22dvh, 100px); justify-self: start; }
+  :global([data-login-panel]) .art img { height: 100%; width: auto; object-fit: contain; }
+  :global([data-login-panel]) .credentials { display: grid; grid-column: 2; grid-row: 1 / span 2; gap: 10px; align-self: center; }
   :global([data-login-panel]) .form { gap: 6px; }
-  :global([data-login-panel]) .sent { grid-column: 2; grid-row: 1; }
+  :global([data-login-panel]) .sent { grid-column: 2; grid-row: 1 / span 2; }
 
   :global([data-hub-starter]) .board.editorial { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-rows: auto; gap: 32px; align-items: center; justify-items: stretch; }
   :global([data-hub-starter]) .side { display: grid; grid-column: 2; grid-row: 1; gap: 8px; }
@@ -454,4 +455,12 @@
   :global([data-hub-starter]) .editorial .title { font-size: 32px; max-width: none; line-height: 1; }
   :global([data-hub-starter]) .editorial .lead { font-size: 14px; margin: 0; }
   :global([data-hub-starter]) .credentials { display: contents; }
+}
+
+@media (orientation: landscape) and (max-height: 340px) {
+  :global([data-login-panel]) .board { gap: 6px 24px; }
+  :global([data-login-panel]) .credentials { gap: 6px; }
+  :global([data-login-panel]) .form { gap: 4px; }
+  :global([data-login-panel]) .art { height: 52px; }
+  :global([data-login-panel]) .title { font-size: 24px; }
 }

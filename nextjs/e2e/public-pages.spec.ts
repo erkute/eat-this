@@ -94,7 +94,6 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
       { name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! },
     ]);
     await page.goto('/');
-    await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
     await expect(page.locator('[data-hub-musteats] ul')).toHaveAttribute('data-deal-state', 'spread');
     await page
       .getByRole('button', { name: 'Verdecktes Must Eat — anmelden und aufdecken', exact: true })

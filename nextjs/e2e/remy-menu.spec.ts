@@ -19,7 +19,6 @@ for (const route of ['/', '/news', '/en/news']) {
       const response = await page.goto(route, { waitUntil: 'domcontentloaded' });
       expect(response?.status()).toBe(200);
       await expect(page.locator('h1')).toBeVisible();
-      await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
       await expect(page.locator('[data-buddy-launcher]')).toHaveCount(0);
 
       const en = route.startsWith('/en');

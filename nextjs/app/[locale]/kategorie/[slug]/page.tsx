@@ -261,12 +261,10 @@ export default async function KategorieDetailPage({ params }: PageProps) {
       />
       <main className={styles.page}>
         <DiscoveryDetail
-          kind="kategorie"
           slug={slug}
           name={label}
           description={blurb || ''}
           updated={updated}
-          photos={[...top, ...rest]}
           locale={loc}
         />
 

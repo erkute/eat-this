@@ -3,18 +3,7 @@ import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 import { describe, expect, it } from 'vitest';
 
-/**
- * MapControls.module.css used to spread a single control over up to 15
- * grouped blocks, and two real bugs came out of not seeing, at any one place,
- * what a control ends up with:
- *   1. `.mapSearchBtn`'s `transition` shorthand listed only colour properties,
- *      so it JUMPED off-screen on the same trigger that made `.mapBurger`,
- *      which keeps its own `transition: transform`, glide.
- *   2. The icon halo was killed by a `filter: none` declared later in the
- *      file for an overlapping selector.
- * The file is one section per control now (27.09.2026), but these tests keep
- * pinning the *effective* values rather than any single block.
- */
+/** The active controls share movement, theme surfaces and visual-viewport offsets. */
 
 const CONTROLS = 'MapControls.module.css';
 const FILTERS = 'MapFilters.module.css';
@@ -64,10 +53,10 @@ function effective(
 
 describe('MapControls cascade', () => {
   it('animates transform on every control that retreats off the top edge', () => {
-    // The three leave together on the tablet (full list, open detail). If one of them loses
+    // The toolbar and menu leave together on the tablet (full list, open detail). If one of them loses
     // `transform` from its transition it snaps while the others glide — which
     // is exactly what shipped before.
-    for (const control of ['mapSearchBtn', 'mapBurger', 'mapSearchToolbar']) {
+    for (const control of ['mapBurger', 'mapSearchToolbar']) {
       const transition = effective(CONTROLS, control, 'transition');
       expect(transition, `${control} has no effective transition`).toBeDefined();
       expect(
@@ -82,7 +71,7 @@ describe('MapControls cascade', () => {
     cssRoot(CONTROLS).walkRules((rule) => {
       const sel = rule.selector;
       if (sel.includes(':')) return;
-      if (!['mapSearchBtn', 'fab', 'panelToggle'].every((c) => sel.includes(`.${c}`)))
+      if (!['fab', 'panelToggle'].every((c) => sel.includes(`.${c}`)))
         return;
       rule.walkDecls('background-color', (d) => {
         surface = d.value;
@@ -101,12 +90,12 @@ describe('MapControls cascade', () => {
      * top at -82 with no retreat in play — so the retreat animation was NOT what
      * hid it.
      *
-     * The three share one trigger and must share this too: if one of them loses
+     * Both controls share one trigger and must share this too: if one of them loses
      * the offset it stays behind while the others follow, which is the same
      * class of drift that made them `fixed` in the first place.
      */
     const phone = '(max-width: 767.98px)';
-    const tops = ['mapSearchBtn', 'mapBurger', 'mapSearchToolbar'].map((control) => {
+    const tops = ['mapBurger', 'mapSearchToolbar'].map((control) => {
       const position = effective(CONTROLS, control, 'position', phone);
       expect(position, `.${control} is no longer fixed on phones`).toBe('fixed');
       const top = effective(CONTROLS, control, 'top', phone);
@@ -120,7 +109,7 @@ describe('MapControls cascade', () => {
 
     expect(
       new Set(tops).size,
-      `the three top-corner controls must resolve to the SAME top or they drift apart: ${tops.join(' | ')}`
+      `the two top-corner controls must resolve to the SAME top or they drift apart: ${tops.join(' | ')}`
     ).toBe(1);
   });
 
@@ -169,14 +158,11 @@ describe('MapFilters cascade', () => {
 
 describe('MapControls press state', () => {
   it('gives the bare icon controls no surface while pressed', () => {
-    /* `.mapSearchBtn:active, .fab:active` still carried the paper-era
-     * `background: var(--brand-action-deep)` — #15120e on Ink. Both controls
-     * are plateless and square, so every tap flashed a black box around the
-     * icon. The press is the 1px shift, nothing else. */
+    // The locate icon retains its bare surface during press feedback.
     const offenders: string[] = [];
     cssRoot(CONTROLS).walkRules((rule) => {
       const pressed = rule.selectors.filter((sel) =>
-        /\.(fab|mapSearchBtn)(?![\w-])[^\s]*:active/.test(sel)
+        /\.fab(?![\w-])[^\s]*:active/.test(sel)
       );
       if (pressed.length === 0) return;
       rule.walkDecls(/^background/, (decl) => {

@@ -26,7 +26,6 @@ export function decimal(value: number, digits = 1): string {
 }
 
 const WEEKDAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-export const WEEKDAYS_SHORT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
 /** Tagesbeschriftung „28.08." — der Verlauf braucht kein Jahr. */
 export function shortDay(day: string): string {

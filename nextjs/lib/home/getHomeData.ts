@@ -1,5 +1,3 @@
-import { client } from '@/lib/sanity';
-import { SANITY_REVALIDATE_SECONDS } from '@/lib/constants';
 import { getLatestNewsArticles } from '@/lib/sanity.server';
 import type { CoverData } from '@/lib/magazineCover';
 export interface HubArticle {
@@ -16,13 +14,7 @@ export interface HubArticle {
 
 export interface HomeData {
   magazine: HubArticle[];
-  categoryNames: Record<string, string>;
 }
-
-const categoryNamesQuery = `*[_type == "category" && defined(slug.current)]{
-  "slug": slug.current,
-  "name": select($locale == "en" => nameEn, name)
-}`;
 
 /**
  * Die neuesten `limit` Hefte, die neueste zuerst. Auch der Schluss der
@@ -46,20 +38,9 @@ export async function latestIssues(limit: number, locale: 'de' | 'en'): Promise<
 
 /** Server: assemble the Hub's initial data. */
 export async function getHomeData(locale: 'de' | 'en'): Promise<HomeData> {
-  // Der Magazin-Fächer zeigt vier Hefte (MagazineGrid, CARD_COUNT).
-  const [magazine, catNameRows] = await Promise.all([
-    latestIssues(4, locale),
-    client.fetch<{ slug: string; name: string }[]>(
-      categoryNamesQuery,
-      { locale },
-      { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['category'] } }
-    ),
-  ]);
-  const categoryNames: Record<string, string> = Object.fromEntries(
-    (catNameRows ?? []).map((r) => [r.slug, r.name])
-  );
+  // Der Magazin-Fächer zeigt vier Hefte.
+  const magazine = await latestIssues(4, locale);
   return {
     magazine,
-    categoryNames,
   };
 }

@@ -111,9 +111,11 @@ test('category recommendations navigate without JavaScript', async ({ browser, b
   try {
     await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     const page = await context.newPage();
-    await page.goto(`${baseURL}/kategorie/sweets`);
-    await page.locator('[data-spot-card] h3 a').nth(1).click();
-    await expect(page).toHaveURL(/\/restaurant\/atelier-dough$/);
+    // Link navigation must remain usable while unrelated images are loading.
+    await page.goto(`${baseURL}/kategorie/sweets`, { waitUntil: 'domcontentloaded' });
+    await page.locator('[data-spot-card] h3 a').nth(1).click({ noWaitAfter: true });
+    await page.waitForURL(/\/restaurant\/atelier-dough$/, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { level: 1, name: 'Atelier Dough', exact: true })).toBeVisible();
   } finally { await context.close(); }
 });
 
@@ -224,14 +226,15 @@ test('category directory stays open and navigates without JavaScript', async ({ 
   try {
     await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     const page = await context.newPage();
-    await page.goto(`${baseURL}/en/kategorie/sweets`);
+    await page.goto(`${baseURL}/en/kategorie/sweets`, { waitUntil: 'domcontentloaded' });
     const directory = page.locator('section#alle');
     await expect(directory).toBeVisible();
     const link = directory.locator('a[href*="/restaurant/"]').first();
     const href = (await link.getAttribute('href'))!;
     expect(href).toMatch(/^\/en\/restaurant\//);
-    await link.click();
-    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await link.click({ noWaitAfter: true });
+    await page.waitForURL(new RegExp(`${href}$`), { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('main h1')).toBeVisible();
   } finally { await context.close(); }
 });
 

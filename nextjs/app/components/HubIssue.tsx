@@ -348,49 +348,6 @@ export function IssueMagazine({
   );
 }
 
-/**
- * Weitere Bezirke oder Kategorien als Foto-Karten. Echte Links bleiben auch
- * ohne Animation oder JavaScript zugänglich.
- */
-export function IssueSiblings({
-  items,
-  base,
-  heading,
-  label,
-}: {
-  /** `photo`: das erste Foto aus dem Regal dieses Hubs (siehe pickShelf). */
-  items: { slug: string; label: string; photo?: string | null; photoPosition?: string }[];
-  /** Pfad-Präfix ohne Sprache: `/bezirk` oder `/kategorie`. */
-  base: '/bezirk' | '/kategorie';
-  heading: string;
-  label: string;
-}) {
-  if (items.length === 0) return null;
-  return (
-    <nav aria-label={label}>
-      <h2 className={styles.secTitle}>{heading}</h2>
-      <ul className={styles.siblings}>
-        {items.map((item) => (
-          <li key={item.slug}>
-            <Link href={`${base}/${item.slug}`}>
-              <span className={styles.contentsPhoto}>
-                <Photo
-                  src={item.photo}
-                  name={item.label}
-                  position={item.photoPosition}
-                  sizes="(max-width: 767px) 44vw, (max-width: 1199px) 29vw, 280px"
-                  widths={[240, 400, 640]}
-                />
-              </span>
-              <span className={styles.contentsName}>{item.label}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-}
-
 /** Four illustrated packs offer another category at the end of a visit. */
 export function IssueCategories({ items, heading }: {
   items: { slug: string; label: string }[];

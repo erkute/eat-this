@@ -8,6 +8,35 @@ test.beforeEach(async ({ context, baseURL }) => {
   ]);
 });
 
+for (const locale of ['', '/en']) {
+  test(`desktop menu stays readable in a short window (${locale || 'de'})`, async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Desktop scaling only');
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto(`${locale}/news`, { waitUntil: 'domcontentloaded' });
+    const trigger = page.locator('#burgerBtn');
+    expect(await trigger.locator('span').evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(20);
+    await trigger.click();
+    const menu = page.getByRole('dialog', { name: 'Navigation' });
+    for (const item of await menu.locator('nav a, nav button').all()) {
+      expect(await item.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(44);
+    }
+    // Layout fixture: the ninth row is normally visible only to admins.
+    await menu.locator('nav').evaluate((nav) => {
+      const stats = nav.lastElementChild!.cloneNode(true) as HTMLAnchorElement;
+      stats.href = '/admin/stats';
+      stats.textContent = 'Stats';
+      nav.appendChild(stats);
+    });
+    expect(await menu.getByRole('link', { name: 'Stats', exact: true })
+      .evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(36);
+    const contact = menu.locator('a[href$="/contact"]');
+    await contact.scrollIntoViewIfNeeded();
+    await expect(contact).toBeInViewport();
+    await page.keyboard.press('Escape');
+    await expect(trigger).toBeFocused();
+  });
+}
+
 for (const motion of ['reduce', 'no-preference'] as const) {
   test(`editorial menu keeps all destinations reachable and restores focus (${motion})`, async ({
     page,

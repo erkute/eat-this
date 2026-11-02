@@ -299,24 +299,6 @@ export function BarRows({
   );
 }
 
-/** Säulen — für Wochentage. */
-export function Columns({ rows }: { rows: { label: string; value: number; title?: string }[] }) {
-  const peak = Math.max(1, ...rows.map((r) => r.value));
-  return (
-    <div className={styles.columns} role="list">
-      {rows.map((row) => (
-        <div key={row.label} className={styles.column} role="listitem" title={row.title}>
-          <span className={styles.columnValue}>{NUMBER.format(Math.round(row.value))}</span>
-          <span className={styles.columnBarWrap}>
-            <span className={styles.columnBar} style={{ height: `${(row.value / peak) * 100}%` }} />
-          </span>
-          <span className={styles.columnLabel}>{row.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /** Eine Kennziffer im Vergleich: „▲ 12 %" mit Bezug. */
 export function Change({ delta, label }: { delta: Delta; label: string }) {
   const dir = direction(delta);

@@ -229,41 +229,6 @@
   bottom: max(76px, calc(env(safe-area-inset-bottom, 0px) + 68px));
 }
 
-/* Gelb, nicht weiss wie die Pfeile daneben: das hier ist die einzige
-   Handlung im Zoom, die woanders hinfuehrt — die Pfeile bleiben in der
-   Karte. Gelb auf Ink ist dieselbe Umkehr wie jeder Knopf auf der
-   Profilseite darunter. */
-.actionBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 20px;
-  border-radius: 999px;
-  background: var(--et-accent);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  color: var(--et-on-accent);
-  font-family: var(--et-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 44px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.actionBtn:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 3px;
-}
-
-@media (hover: hover) {
-  .actionBtn:hover {
-    background: #fff;
-    color: var(--et-ink);
-  }
-}
-
 /* Beide Vollbildansichten nutzen ein freies weißes Schließen-Symbol. */
 :global(html[data-active-page='map']) .close {
   width: 40px;

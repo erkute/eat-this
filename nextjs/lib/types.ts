@@ -196,30 +196,13 @@ export interface BezirkDoc {
   description?: string;
   descriptionEn?: string;
   seo?: BezirkSeo;
-  // Optional: only projected by allBezirkeWithStatsQuery; bezirkBySlugQuery does NOT include it.
-  restaurantCount?: number;
-  exampleRestaurants?: Pick<
-    RestaurantCard,
-    | '_id'
-    | 'name'
-    | 'slug'
-    | 'cuisineType'
-    | 'priceRange'
-    | 'shortDescription'
-    | 'shortDescriptionEn'
-    | 'photo'
-  >[];
-  /**
-   * Curated best-of, in editorial order (`bezirk.topSpots` in the Studio).
-   * `allBezirkeWithStatsQuery` projects the resolved cards so the hub shelf can
-   * lead with them; `bezirkBySlugQuery` projects only the slugs, because the
-   * detail page already loads every restaurant of the district.
-   */
-  topSpotCards?: Pick<
-    RestaurantCard,
-    '_id' | 'name' | 'slug' | 'cuisineType' | 'priceRange' | 'photo'
-  >[];
+  /** Curated restaurant slugs in editorial order. */
   topSpots?: string[];
+}
+
+/** Names and counts used by the district overview and static route list. */
+export interface BezirkWithStats extends Pick<BezirkDoc, '_id' | 'name' | 'slug'> {
+  restaurantCount?: number;
 }
 
 export interface RestaurantCard {

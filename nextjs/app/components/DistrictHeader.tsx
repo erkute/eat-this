@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
 import { Link } from '@/i18n/navigation';
 import geography from '@/lib/berlin-discovery-map.json';
-import DiscoveryMotion from './DiscoveryMotion';
 import styles from './DistrictHeader.module.css';
 
 export default function DistrictHeader({ slug, name, description, locale }: {
@@ -23,7 +22,6 @@ export default function DistrictHeader({ slug, name, description, locale }: {
   const pad = Math.max(width, height) * .08;
 
   return <header className={styles.header} data-district-header>
-    <DiscoveryMotion />
     <Link className={styles.back} href="/bezirk" aria-label={de ? 'Zur Berlin-Karte' : 'Back to the Berlin map'}>Berlin</Link>
     <div className={styles.hero}>
       <div className={styles.heading}>

@@ -1,4 +1,4 @@
-import type { CategoryRef, RestaurantCard } from './types';
+import type { CategoryRef } from './types';
 
 /**
  * Category data is sourced from the `category` document type in Sanity.
@@ -30,22 +30,9 @@ export interface CategoryDef {
  * diese Felder — dieselbe Aufteilung wie bei `BezirkDoc`, wo die Detail-Query
  * die Statistik ebenfalls weglässt.
  */
-export interface CategoryWithStats extends CategoryDef {
+export interface CategoryWithStats extends Pick<CategoryDef, '_id' | 'slug' | 'name' | 'nameEn'> {
   /** Offene Spots dieser Kategorie. */
   restaurantCount?: number;
-  /** Alphabetische Auswahl mit publizierbarem Foto, Featured zuerst. */
-  exampleRestaurants?: Pick<
-    RestaurantCard,
-    '_id' | 'name' | 'slug' | 'cuisineType' | 'priceRange' | 'photo'
-  >[];
-  /**
-   * Kuratierte Bestenliste in redaktioneller Reihenfolge (`category.topSpots`
-   * im Studio), als aufgelöste Karten — das Regal soll damit anfangen dürfen.
-   */
-  topSpotCards?: Pick<
-    RestaurantCard,
-    '_id' | 'name' | 'slug' | 'cuisineType' | 'priceRange' | 'photo'
-  >[];
 }
 
 /** DE/EN display label for a category, falling back to the other locale when one is missing. */

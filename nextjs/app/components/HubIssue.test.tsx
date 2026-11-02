@@ -17,7 +17,6 @@ vi.mock('@/i18n/navigation', () => ({
 import {
   IssueMagazine,
   IssueRegister,
-  IssueSiblings,
   IssueSpots,
   spotAnchor,
 } from '@/app/components/HubIssue';
@@ -81,30 +80,6 @@ describe('IssueRegister', () => {
     const letters = [...html.matchAll(/aria-hidden="true">([A-Z#])<\/p>/g)].map((m) => m[1]);
     expect(letters).toEqual(['A', 'O']);
     expect(html).toContain('href="/restaurant/albatross"');
-  });
-});
-
-describe('IssueSiblings', () => {
-  const html = renderToStaticMarkup(
-    <IssueSiblings
-      items={[
-        { slug: 'mitte', label: 'Mitte', photo: 'https://cdn.sanity.io/images/p/d/sofi.jpg' },
-        { slug: 'wedding', label: 'Wedding' },
-      ]}
-      base="/bezirk"
-      heading="Andere Bezirke"
-      label="Weitere Bezirke"
-    />
-  );
-
-  // Seit 03.10.2026 eine Bildleiste wie im Kopf statt der Wortzeile.
-  it('shows each hub as a photo with its name, linked to its page', () => {
-    expect(html).toMatch(/<a href="\/bezirk\/mitte"><span[^>]*><img[^>]*sofi\.jpg/);
-    expect(html).toMatch(/>Mitte<\/span><\/a>/);
-  });
-
-  it('falls back to the initial without a photo', () => {
-    expect(html).toMatch(/<a href="\/bezirk\/wedding"><span[^>]*><span[^>]*>W<\/span>/);
   });
 });
 

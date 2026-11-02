@@ -2,7 +2,6 @@
    precise straight icons.
    Positioning preserves the phone visual viewport and sheet-edge dock;
    tablet controls retreat with transform, desktop controls follow the rail. */
-.mapSearchBtn,
 .fab,
 .panelToggle,
 .mapSearchClear {
@@ -51,27 +50,6 @@
   }
 }
 
-/* Search is tape like the filters and the menu (tokens in globals.css). */
-.mapSearchBtn {
-  color: var(--et-tape-fg);
-  background: none;
-  border-style: solid;
-  border-width: 0;
-  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
-  border-radius: 0;
-  box-shadow: none;
-}
-.mapSearchBtn:focus-visible {
-  background: none;
-  filter: brightness(0.95);
-}
-@media (hover: hover) {
-  .mapSearchBtn:hover {
-    background: none;
-    filter: brightness(0.95);
-  }
-}
-
 /* The desktop panel tab is a short piece of the same tape. */
 .panelToggle {
   color: var(--et-tape-fg);
@@ -92,17 +70,14 @@
   }
 }
 
-.mapSearchBtn .mapSearchIcon,
 .mapBurgerLines,
 .fabIcon {
   filter: none;
   text-shadow: none;
 }
-.mapSearchBtn:focus-visible .mapSearchIcon,
 .fab:focus-visible .fabIcon { stroke-width: 2.5; }
 .mapBurger:focus-visible .mapBurgerLines span { height: 3px; }
 
-.mapSearchBtn,
 .mapSearchToolbar,
 .mapBurger {
   top: calc(14px + env(safe-area-inset-top, 0px));
@@ -110,56 +85,13 @@
 }
 
 @media (min-width: 768px) and (max-width: 1023.98px) {
-  :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchBtn,
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapSearchToolbar,
   :global([data-map-body][data-map-view='list'][data-map-snap='full']) .mapBurger,
-  :global([data-map-body][data-map-view='detail']) .mapSearchBtn,
   :global([data-map-body][data-map-view='detail']) .mapSearchToolbar,
   :global([data-map-body][data-map-view='detail']) .mapBurger {
     transform: translateY(calc(-100% - 80px));
     pointer-events: none;
   }
-}
-
-.mapSearchBtn {
-  position: absolute;
-  left: 14px;
-  right: auto;
-  z-index: 55;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  padding: 2px;
-  filter: none;
-  clip-path: none;
-  font-family: var(--et-font-display);
-  font-size: clamp(24px, 6vw, 31px);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 0.84;
-  text-transform: uppercase;
-  touch-action: manipulation;
-  transform: none;
-  transition:
-    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    background-color 150ms var(--ease-standard),
-    border-color 150ms var(--ease-standard),
-    color 150ms var(--ease-standard);
-}
-
-@media (hover: hover) {
-  .mapSearchBtn:hover {
-    filter: none;
-    transform: translateY(-1px);
-  }
-}
-
-.mapSearchBtn:active {
-  transform: translateY(1px);
 }
 
 .mapSearchIcon {
@@ -175,18 +107,6 @@
   filter: none;
   text-shadow: none;
   transform: none;
-}
-
-.mapSearchBtn .mapSearchIcon {
-  flex: 0 0 20px;
-  width: 20px;
-  height: 20px;
-  stroke-width: 1.75;
-  transform-origin: 50% 50%;
-}
-
-.mapSearchBtn:active .mapSearchIcon {
-  transform: scale(0.96);
 }
 
 .mapSearchToolbar {
@@ -517,7 +437,6 @@
 }
 
 @media (max-width: 767.98px) {
-  .mapSearchBtn,
   .mapSearchToolbar,
   .mapBurger {
     position: fixed;
@@ -526,15 +445,10 @@
     z-index: 8;
   }
 
-  .mapSearchBtn {
-    left: 12px;
-  }
-
   .mapBurger {
     right: 12px;
   }
 
-  :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchBtn,
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapSearchToolbar,
   :global([data-map-body][data-map-view='detail'][data-detail-kind='must-eat']) .mapBurger {
     visibility: hidden;
@@ -663,7 +577,6 @@
 
 .mapSearchClear svg { width: 18px; height: 18px; }
 @media (prefers-reduced-motion: reduce) {
-  .mapSearchBtn,
   .mapSearchToolbar,
   .mapBurger,
   .fab,
@@ -673,7 +586,6 @@
 
 /* Compact paper surfaces keep a 44px touch target around the smaller glyphs. */
 @media (max-width: 767.98px) {
-  .mapSearchBtn { width: 44px; min-width: 44px; height: 44px; }
   .fab { flex-basis: 44px; width: 44px; height: 44px; }
   .mapSearchToolbar { height: 44px; }
 }

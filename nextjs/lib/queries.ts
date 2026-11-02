@@ -1,7 +1,6 @@
 import {
   groqImageUrl,
   presetQuery,
-  publishableRestaurantImageCondition,
   publishableRestaurantImageUrl,
   restaurantPhotoCredit,
   restaurantPhotoCreditUrl,
@@ -369,34 +368,13 @@ export const emailMustEatsQuery = `
   }
 `;
 
-// Bezirke for the /bezirk index — includes count and a few example restaurants.
+// District names and open-spot counts for overview and neighbouring-district links.
 export const allBezirkeWithStatsQuery = `
   *[_type == "bezirk"] | order(name asc) {
     _id,
     name,
     "slug": slug.current,
-    description,
-    descriptionEn,
-    "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]),
-    "exampleRestaurants": *[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()} && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
-      | order(coalesce(featured, false) desc, name asc)[0...4] {
-        _id,
-        name,
-        "slug": slug.current,
-        cuisineType,
-        priceRange,
-        shortDescription,
-        shortDescriptionEn,
-        "photo": ${publishableRestaurantImageUrl('image', 'card')}
-      },
-    "topSpotCards": topSpots[${liveRestaurant('@->')}]->{
-      _id,
-      name,
-      "slug": slug.current,
-      cuisineType,
-      priceRange,
-      "photo": ${publishableRestaurantImageUrl('image', 'card')}
-    }
+    "restaurantCount": count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}])
   }
 `;
 
@@ -447,26 +425,7 @@ export const allCategoriesWithStatsQuery = `
     name,
     nameEn,
     "slug": slug.current,
-    description,
-    descriptionEn,
-    "restaurantCount": count(*[_type == "restaurant" && ${liveRestaurant()} && ^._id in categories[]._ref]),
-    "exampleRestaurants": *[_type == "restaurant" && ${liveRestaurant()} && ^._id in categories[]._ref && defined(image.asset) && (${publishableRestaurantImageCondition('image')})]
-      | order(coalesce(featured, false) desc, name asc)[0...4] {
-        _id,
-        name,
-        "slug": slug.current,
-        cuisineType,
-        priceRange,
-        "photo": ${publishableRestaurantImageUrl('image', 'card')}
-      },
-    "topSpotCards": topSpots[${liveRestaurant('@->')}]->{
-      _id,
-      name,
-      "slug": slug.current,
-      cuisineType,
-      priceRange,
-      "photo": ${publishableRestaurantImageUrl('image', 'card')}
-    }
+    "restaurantCount": count(*[_type == "restaurant" && ${liveRestaurant()} && ^._id in categories[]._ref])
   }
 `;
 

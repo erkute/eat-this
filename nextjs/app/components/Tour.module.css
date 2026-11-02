@@ -88,10 +88,6 @@
   /* Motive rechnen aus der Flaeche, nicht aus dem Viewport (cqw/cqh). */
   container-type: size;
 }
-.image {
-  object-fit: contain;
-  filter: drop-shadow(0 14px 18px #0005);
-}
 .copy {
   min-width: 0;
 }

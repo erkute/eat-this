@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { CATALOG } from '@/lib/stripe-catalog';
 import { categoryArt, categoryTile } from '@/lib/categoryArt';
 import { getPackContents } from '@/lib/sanity.server';
+import DiscoveryMotion from './DiscoveryMotion';
 import styles from './KategorieBoost.module.css';
 
 interface Props {
@@ -39,6 +40,7 @@ export default async function KategorieBoost({ categorySlug, categoryName, local
       data-ink={tile?.ink || undefined}
       style={tile ? ({ '--boost-tile': tile.tile } as CSSProperties) : undefined}
     >
+      <DiscoveryMotion />
       {image && (
         <div className={styles.stage} aria-hidden="true">
           {[-1, 1].map((fan) => (

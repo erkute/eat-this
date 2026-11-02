@@ -48,8 +48,7 @@
 
 .spotName a:focus-visible,
 .entry:focus-visible,
-.guide:focus-visible,
-.siblings a:focus-visible {
+.guide:focus-visible {
   outline: 2px solid var(--et-fg);
   outline-offset: 4px;
 }
@@ -415,26 +414,6 @@ html[data-theme='dark'] .filterReturn {
   margin-top: 26px;
 }
 
-/* Die kuratierende Marke unter dem Abschnittstitel der Kategorieseite. */
-.secNote {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  max-width: var(--issue-wide);
-  margin: 18px auto 0;
-  font-family: var(--et-font-display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: none;
-}
-
-.inlineLogo {
-  width: auto;
-  height: 20px;
-}
-
 /* Das Booster-Pack folgt der gemeinsamen Breite von Kopf und Empfehlungen. */
 .boost {
   max-width: var(--issue-wide);
@@ -622,98 +601,6 @@ html[data-theme='dark'] .filterReturn {
   margin-top: clamp(32px, 4vw, 48px);
 }
 
-/* -------------------------------------------------------------- ausgang -- */
-
-/* Bezirke und Kategorien als bildfüllende Karten mit lesbaren Namen im Foto. */
-.siblings {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-  width: min(100%, var(--issue-wide));
-  margin: 28px auto 0;
-  padding: 0;
-  list-style: none;
-}
-
-.siblings li {
-  min-width: 0;
-}
-
-.siblings a {
-  position: relative;
-  display: block;
-  isolation: isolate;
-  container-type: inline-size;
-  color: inherit;
-  text-decoration: none;
-  transition: translate 240ms ease;
-}
-
-.contentsPhoto {
-  position: relative;
-  display: block;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: var(--et-ground);
-}
-
-.contentsPhoto::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 36%, rgb(0 0 0 / .2) 60%, rgb(0 0 0 / .84));
-  pointer-events: none;
-}
-
-.contentsPhoto img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 400ms cubic-bezier(.2, .8, .2, 1);
-}
-
-.contentsName {
-  position: absolute;
-  z-index: 1;
-  inset: auto 16px 16px;
-  color: var(--et-white);
-  font-size: clamp(17px, 8.3cqi, 28px);
-  font-weight: 700;
-  line-height: 1.1;
-  white-space: nowrap;
-  letter-spacing: -.025em;
-  text-transform: none;
-}
-
-.siblings a:focus-visible {
-  outline-color: var(--et-accent);
-}
-
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .siblings a:hover { translate: 0 -4px; }
-  .siblings a:hover img { transform: scale(1.055); }
-}
-
-@media (hover: hover) {
-  .siblings a:hover .contentsName { color: var(--et-white); }
-}
-
-@media (min-width: 768px) and (max-width: 1199px) {
-  .siblings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
-@media (max-width: 767px) {
-  .siblings { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .contentsPhoto { aspect-ratio: 1; }
-  .contentsName { inset: auto 10px 12px; font-size: clamp(12px, 8.3cqi, 20px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .siblings a, .contentsPhoto img { transition: none; }
-}
-
 /* ------------------------------------------------------------- telefon -- */
 
 @media (max-width: 767px) {
@@ -781,10 +668,6 @@ html[data-theme='dark'] .filterReturn {
   .secTitle {
     font-size: 26px;
     text-align: left;
-  }
-  .secNote {
-    justify-content: flex-start;
-    flex-wrap: wrap;
   }
 }
 

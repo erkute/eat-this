@@ -7,7 +7,7 @@
 // as 'the hover rule is dead' and invites deleting a live declaration.
 
 async (page) => {
-  const TARGETS = ['mapSearchBtn', 'mapBurger', 'fab', 'panelToggle', 'mapSearchClear'];
+  const TARGETS = ['mapSearchToolbar', 'mapBurger', 'fab', 'panelToggle', 'mapSearchClear'];
   const PROPS = ['color', 'transform', 'background-color', 'filter', 'box-shadow', 'border', 'outline', 'top', 'right', 'left', 'width', 'height'];
   const WIDTHS = [320, 400, 1024, 1440];
 
@@ -59,5 +59,5 @@ async (page) => {
     }
   }
   await page.evaluate((d) => { window.__hover = d; }, out);
-  return { keys: Object.keys(out).length, burgerHover: out['1440|hover|mapBurger'], fabHover: out['1440|hover|fab'], btnHover: out['1440|hover|mapSearchBtn'] };
+  return { keys: Object.keys(out).length, burgerHover: out['1440|hover|mapBurger'], fabHover: out['1440|hover|fab'], toolbarHover: out['1440|hover|mapSearchToolbar'] };
 }

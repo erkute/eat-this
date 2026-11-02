@@ -30,7 +30,7 @@ vi.mock('firebase-admin/firestore', () => ({
   Timestamp: { fromMillis: (ms: number) => ({ __ts: ms }) },
 }));
 
-import { POST } from './route';
+import { GET, POST } from './route';
 import { MAP_KEY_BUDGET, resetDayKeysCache } from '@/lib/analytics/dayKeyBudget';
 import { resetHomeTargetsCache } from '@/lib/analytics/homeHeat';
 
@@ -363,6 +363,63 @@ describe('POST /api/count', () => {
     expect(res.status).toBe(204);
     expect(mocks.set).not.toHaveBeenCalled();
     expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { path: '/' },
+    { path: '/en' },
+    { path: '/map', event: 'map_opened' },
+    { path: '/', home: 'click', device: 'desktop', section: 'hero', x: 0.5, y: 0.5 },
+    { path: '/', home: 'scroll', device: 'phone', depth: 0.5, reached: ['hero'] },
+  ])('schließt den eigenen Anschluss ohne Cookie aus: %j', async (body) => {
+    vi.stubEnv('STATS_EXCLUDE_IPS', '84.13.22.9,2001:db8:1234:5678::/64');
+
+    const res = await POST(request(body));
+
+    expect(res.status).toBe(204);
+    expect(mocks.set).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
+  it('schließt wechselnde IPv6-Geräteadressen im eigenen Netz aus', async () => {
+    vi.stubEnv('STATS_EXCLUDE_IPS', '2001:db8:1234:5678::/64');
+    const res = await POST(request({ path: '/' }, {
+      'x-forwarded-for': '2001:db8:1234:5678:abcd:1234:5678:9abc, 10.0.0.1, 10.0.0.2',
+    }));
+    expect(res.status).toBe(204);
+    expect(mocks.set).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+
+  it('verwendet die geprüfte Besucher-IP statt vorgeschobener Header oder Body-Felder', async () => {
+    vi.stubEnv('STATS_EXCLUDE_IPS', '192.0.2.4');
+    await POST(request({ path: '/', ip: '192.0.2.4' }, {
+      'x-forwarded-for': '192.0.2.4, 84.13.22.9, 10.0.0.1, 10.0.0.2',
+      'x-real-ip': '192.0.2.4',
+    }));
+    expect(dayWrite()?.pageviews).toEqual({ __inc: 1 });
+  });
+
+  it('liefert den Anschluss-Ausschluss vor dem GA-Laden ohne Messung oder Cache', async () => {
+    vi.stubEnv('STATS_EXCLUDE_IPS', '84.13.22.9');
+    const res = await GET(request({}));
+    expect(await res.json()).toEqual({ excluded: true });
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
+    expect(mocks.get).not.toHaveBeenCalled();
+    expect(mocks.set).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+  });
+
+  it('gibt GA für andere Anschlüsse frei und verrät nur den Ja/Nein-Wert', async () => {
+    vi.stubEnv('STATS_EXCLUDE_IPS', '192.0.2.4');
+    expect(await (await GET(request({}))).json()).toEqual({ excluded: false });
+    expect(await (await GET(request({}, { cookie: 'eatthis_nocount=1' }))).json())
+      .toEqual({ excluded: true });
   });
 
   /* Scanners send an ordinary browser UA, so only the path shape catches them

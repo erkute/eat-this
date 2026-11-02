@@ -11,15 +11,20 @@ import {
 } from './homeHeat';
 
 describe('parseHomeBeacon', () => {
-  it('rundet die Scrolltiefe auf Zehnerschritte ab und behaelt nur echte Abschnitte', () => {
+  it('behält nur feste Scroll-Meilensteine und echte Abschnitte', () => {
     expect(
       parseHomeBeacon({
-        home: 'scroll',
+        home: 'progress',
         device: 'phone',
-        depth: 0.47,
+        depths: [10, 20, 40, 40, 47, -10],
         reached: ['hero', 'map', 'map', 'nav', 'erfunden'],
       })
-    ).toEqual({ kind: 'scroll', device: 'phone', depth: 40, reached: ['hero', 'map'] });
+    ).toEqual({
+      kind: 'progress',
+      device: 'phone',
+      depths: [10, 20, 40],
+      reached: ['hero', 'map'],
+    });
   });
 
   it('legt einen Klick in seine Zelle', () => {
@@ -108,4 +113,17 @@ describe('summarizeHome', () => {
     expect(phone.clicks).toBe(7);
     expect(stats.devices.desktop.views).toBe(0);
   });
+});
+
+it('kombiniert historische Endstände und neue fortlaufende Scroll-Meilensteine', () => {
+  const result = summarizeHome([
+    { day: '2026-11-01', views: { phone: 2 }, depth: { phone: { '100': 1, '0': 1 } } },
+    {
+      day: '2026-11-02',
+      views: { phone: 2 },
+      cumulativeDepth: { phone: { '0': 2, '50': 1, '100': 1 } },
+    },
+  ]);
+  expect(result.devices.phone.depth.find((row) => row.depth === 0)?.share).toBe(1);
+  expect(result.devices.phone.depth.find((row) => row.depth === 50)?.share).toBe(0.5);
 });

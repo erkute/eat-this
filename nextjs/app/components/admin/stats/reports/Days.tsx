@@ -2,6 +2,7 @@ import { dayBefore, type DaySummary, type StatsSummary } from '@/lib/admin/stats
 import type { SearchDayDetail, SearchRow } from '@/lib/admin/searchConsole';
 import { BarRows, Card, Change, ExitTable, Tile } from '../charts';
 import { NUMBER, dayTitle, decimal, euro, labelFor, longDay, percent, position } from '../format';
+import { PageTable, VisitorBreakdown } from '../PageBreakdown';
 import styles from '../../StatsDashboard.module.css';
 
 /**
@@ -58,7 +59,7 @@ export default function Days({ data }: { data: StatsSummary }) {
   );
 }
 
-/** Die Kacheln unter „Der Weg" — eine Auswahl aus dem Trichter des Tages, in
+/** Die Aktionskacheln — eine Auswahl aus dem Trichter des Tages, in
  *  seiner Reihenfolge. Die Zahlen kommen aus `day.funnel`, nicht aus einer
  *  zweiten Rechnung; `signed_in` etwa gibt es nur dort. */
 const DAY_STEPS = [
@@ -110,7 +111,30 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
       </div>
 
       <div>
-        <h3 className={`et-label ${styles.subTitle}`}>Der Weg</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Besucher nach Einstiegsseite</h3>
+        <VisitorBreakdown
+          paths={day.paths}
+          entryPaths={day.entryPaths}
+          visitors={day.visitors}
+          pageviews={day.pageviews}
+        />
+        <details className={styles.pageDetails}>
+          <summary className="et-btn et-btn-sm et-btn-alt">Jede einzelne Seite ansehen</summary>
+          <PageTable
+            paths={day.paths}
+            entryPaths={day.entryPaths}
+            visitors={day.visitors}
+            pageviews={day.pageviews}
+          />
+        </details>
+      </div>
+
+      <div>
+        <h3 className={`et-label ${styles.subTitle}`}>Aktionen</h3>
+        <p className={styles.note}>
+          Anzahl der Handlungen, keine Besuchergruppen. Eine Person kann mehrere Aktionen auslösen;
+          diese Zahlen werden nicht zur Besucherzahl addiert.
+        </p>
         <div className={styles.dayTiles}>
           {DAY_STEPS.map((key) => (
             <Tile key={key} label={labelFor(key)} value={NUMBER.format(steps.get(key) ?? 0)} />
@@ -127,20 +151,10 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
             <Tile label="Karten aufgedeckt" value={NUMBER.format(day.people.reveals)} />
             <Tile label="Einladungen" value={NUMBER.format(day.people.referrals)} />
             <Tile label="Käufe" value={NUMBER.format(day.people.purchases)} />
-            <Tile label="Umsatz" value={euro(day.people.revenueCents)} />
+            <Tile label="Katalogwert der Käufe" value={euro(day.people.revenueCents)} />
           </div>
         </div>
       )}
-
-      <div>
-        <h3 className={`et-label ${styles.subTitle}`}>Einstiegsseiten</h3>
-        <BarRows rows={day.entryPaths} empty="Noch nicht erfasst." />
-      </div>
-
-      <div>
-        <h3 className={`et-label ${styles.subTitle}`}>Meistgesehen</h3>
-        <BarRows rows={day.paths} empty="Nichts gezählt." />
-      </div>
 
       <div>
         <h3 className={`et-label ${styles.subTitle}`}>Herkunft</h3>
@@ -148,7 +162,11 @@ function DayColumn({ day, open }: { day: DaySummary; open: boolean }) {
       </div>
 
       <div>
-        <h3 className={`et-label ${styles.subTitle}`}>Wo Besuche enden</h3>
+        <h3 className={`et-label ${styles.subTitle}`}>Geschätzte Ausstiege</h3>
+        <p className={styles.note}>
+          Aufrufe minus interne Fortsetzungen. Keine Anzahl von Personen, die nur diese Seite
+          gesehen haben. Gezeigt werden die häufigsten Ausstiegsseiten.
+        </p>
         {day.hasExits ? (
           <ExitTable rows={day.exits} compact />
         ) : (

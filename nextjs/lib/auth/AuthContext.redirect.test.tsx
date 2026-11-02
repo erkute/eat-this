@@ -8,12 +8,15 @@ const mocks = vi.hoisted(() => ({
   signInWithPopup: vi.fn(),
   signInWithRedirect: vi.fn(),
   getRedirectResult: vi.fn(),
+  getAdditionalUserInfo: vi.fn(),
+  trackEvent: vi.fn(),
   resolver: { marker: 'popup-redirect-resolver' },
 }));
 
 vi.mock('firebase/auth', () => ({
   browserPopupRedirectResolver: mocks.resolver,
   getRedirectResult: mocks.getRedirectResult,
+  getAdditionalUserInfo: mocks.getAdditionalUserInfo,
   onIdTokenChanged: (_auth: unknown, cb: (u: null) => void) => {
     cb(null);
     return () => {};
@@ -27,6 +30,7 @@ vi.mock('firebase/auth', () => ({
   updateProfile: vi.fn(),
   deleteUser: vi.fn(),
 }));
+vi.mock('@/lib/analytics', () => ({ trackEvent: mocks.trackEvent }));
 vi.mock('@/lib/firebase/config', () => ({
   auth: { app: { options: { authDomain: 'www.eatthisdot.com' }, name: '[DEFAULT]' } },
 }));
@@ -52,6 +56,7 @@ async function mountAuth() {
 describe('signInWithGoogle — wenn der Browser das Fenster blockt', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.getAdditionalUserInfo.mockReturnValue({ isNewUser: false });
     mocks.signInWithRedirect.mockResolvedValue(undefined);
     mocks.getRedirectResult.mockResolvedValue(null);
     global.fetch = vi.fn(() => Promise.resolve({ ok: true } as Response));
@@ -64,7 +69,9 @@ describe('signInWithGoogle — wenn der Browser das Fenster blockt', () => {
     try {
       mocks.signInWithPopup.mockResolvedValueOnce({ user: { uid: 'u1' } });
       const { result } = await mountAuth();
-      await act(async () => { await result.current.signInWithGoogle(); });
+      await act(async () => {
+        await result.current.signInWithGoogle();
+      });
       expect(arrived).toHaveBeenCalledOnce();
     } finally {
       window.removeEventListener('eatthis:signed-in', arrived);
@@ -140,3 +147,19 @@ describe('signInWithGoogle — wenn der Browser das Fenster blockt', () => {
     window.removeEventListener('eatthis:signed-in', arrived);
   });
 });
+
+it.each([true, false])(
+  'zählt den Google-Redirect anhand der Firebase-Neukonto-Angabe: %s',
+  async (isNewUser) => {
+    mocks.getAdditionalUserInfo.mockReturnValue({ isNewUser });
+    mocks.getRedirectResult.mockResolvedValueOnce({ user: { uid: 'u1' } });
+    mocks.trackEvent.mockClear();
+    await mountAuth();
+    await waitFor(() =>
+      expect(mocks.trackEvent).toHaveBeenCalledWith(isNewUser ? 'sign_up' : 'login', {
+        method: 'google',
+      })
+    );
+    expect(mocks.trackEvent).toHaveBeenCalledTimes(1);
+  }
+);

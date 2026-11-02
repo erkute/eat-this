@@ -9,12 +9,21 @@ const mocks = vi.hoisted(() => ({
   mapData: vi.fn(),
   activeCount: vi.fn(),
   activeSince: vi.fn(),
+  heatGet: vi.fn(),
 }));
 
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminAuth: () => ({ verifyIdToken: mocks.verifyIdToken, listUsers: mocks.listUsers }),
   getAdminFirestore: () => ({
     collection: (name: string) => {
+      if (name === 'analytics_heat') {
+        const query = { where: () => query, get: () => mocks.heatGet() };
+        return { doc: () => ({ collection: () => query }) };
+      }
+      if (name === 'analytics_engagement') {
+        const query = { where: () => query, get: async () => ({ docs: [] }) };
+        return query;
+      }
       if (name === 'analytics_seen') {
         // „Gerade aktiv": ein Filter auf lastSeenAt, dann eine Zaehl-Abfrage.
         return {
@@ -205,6 +214,36 @@ describe('GET /api/admin/stats', () => {
       'onsite',
       'packs',
     ]);
+  });
+
+  it('begrenzt Startseiten-Details auf den gewählten Zeitraum', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ admin: true });
+    mocks.get.mockResolvedValue({ docs: [] });
+    await GET(
+      request({ Authorization: 'Bearer valid' }, '?only=home&from=2026-08-20&to=2026-08-25')
+    );
+    expect(mocks.where).toHaveBeenCalledWith('<=', '2026-08-25');
+    expect(mocks.where).not.toHaveBeenCalledWith('<=', '2026-08-31');
+  });
+
+  it('liefert ausgewählte Heatmaps nur nach der Admin-Prüfung und akzeptiert keine privaten Seiten', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ admin: true });
+    mocks.heatGet.mockResolvedValue({
+      docs: [{ data: () => ({ heat: { phone: { content: { '1_2': 3 } } } }) }],
+    });
+    const response = await GET(
+      request({ Authorization: 'Bearer valid' }, '?only=heat&path=%2Fnews%2Ftest&device=phone')
+    );
+    expect(response.status).toBe(200);
+    expect((await response.json()).heat.heat.content['1_2']).toBe(3);
+    expect(
+      (await GET(request({ Authorization: 'Bearer valid' }, '?only=heat&path=%2Fprofile'))).status
+    ).toBe(400);
+    mocks.verifyIdToken.mockResolvedValue({ admin: false });
+    expect(
+      (await GET(request({ Authorization: 'Bearer invalid' }, '?only=heat&path=%2Fnews%2Ftest')))
+        .status
+    ).toBe(404);
   });
 
   it('nimmt den Tag aus der Dokument-ID, nicht aus dem Feld', async () => {

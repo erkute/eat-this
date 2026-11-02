@@ -124,11 +124,12 @@ export default function EmailLinkSignIn() {
 
   const signIn = async (email: string) => {
     const { starterId, heartId } = intentRef.current;
-    const [{ auth }, { signInWithEmailLink }, pendingHeart] = await Promise.all([
-      import('@/lib/firebase/config'),
-      import('firebase/auth'),
-      heartId ? import('@/lib/map/pendingHeart') : null,
-    ]);
+    const [{ auth }, { signInWithEmailLink, getAdditionalUserInfo }, pendingHeart] =
+      await Promise.all([
+        import('@/lib/firebase/config'),
+        import('firebase/auth'),
+        heartId ? import('@/lib/map/pendingHeart') : null,
+      ]);
     /* Vor der Anmeldung gemerkt: Pack-Vergabe und Spot-Liste lesen sie,
        sobald das Konto da ist — und die Frist (zehn Minuten) beginnt erst
        jetzt, nicht beim Öffnen des Links. */
@@ -139,7 +140,9 @@ export default function EmailLinkSignIn() {
     try {
       localStorage.removeItem('emailForSignIn');
     } catch {}
-    trackEvent(user.displayName ? 'login' : 'sign_up', { method: 'email_link' });
+    trackEvent(getAdditionalUserInfo(credential)?.isNewUser ? 'sign_up' : 'login', {
+      method: 'email_link',
+    });
     /* Die Tafel bleibt („Anmelden …"), bis feststeht, ob die Tour kommt.
        Kommt sie, liegt ihr Ink-Grund dann schon unter der Tafel, und das
        Profil wechselt verdeckt darunter — man sieht es nie vor der Tour. */
@@ -152,5 +155,13 @@ export default function EmailLinkSignIn() {
     router.push(PROFILE_PATH);
   };
 
-  return <EmailLinkSignInPanel state={state} setState={setState} claimingCard={claimingCard} signIn={signIn} close={close} />;
+  return (
+    <EmailLinkSignInPanel
+      state={state}
+      setState={setState}
+      claimingCard={claimingCard}
+      signIn={signIn}
+      close={close}
+    />
+  );
 }

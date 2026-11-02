@@ -27,12 +27,14 @@ const ENDPOINT = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComp
  *  Kontingent (1.200 Abfragen je Minute) soll nicht am Dashboard haengen. */
 const CACHE_MS = 60 * 60 * 1000;
 const ROW_LIMIT = 500;
+const MAX_CACHE_WINDOWS = 6;
 /** Für die Tages-Aufschlüsselung (`date` × `query`): mehr Zeilen, weil jede
  *  Anfrage je Tag eine eigene ist. */
-const DAY_ROW_LIMIT = 2000;
+const DAY_ROW_LIMIT = 25000;
 /** Wie viele Tage rückwärts nach dem frischesten Tag gesucht wird. Google
  *  liefert zwei bis drei Tage nach; fünf lassen ein Wochenende Luft. */
 const FRESH_DAYS = 5;
+const HISTORY_DAYS = 90;
 
 let authClient: GoogleAuth | null = null;
 
@@ -66,6 +68,7 @@ interface QueryBody {
   rowLimit: number;
   /** `final` schließt noch unvollständige Suchdaten aus. */
   dataState: 'all' | 'final';
+  startRow?: number;
 }
 
 interface QueryResult {
@@ -111,7 +114,11 @@ export async function loadSearch(range: SearchRange): Promise<SearchResult> {
   const result = await fetchSearch(range);
   // Fehler werden nicht gehalten: wer die Freigabe gerade erteilt hat, soll
   // sie beim naechsten Laden sehen, nicht in einer Stunde.
-  if (result.ok) cache.set(cacheKey, { at: Date.now(), result });
+  if (result.ok) {
+    for (const [key, value] of cache) if (value.at + CACHE_MS <= Date.now()) cache.delete(key);
+    if (cache.size >= MAX_CACHE_WINDOWS) cache.delete(cache.keys().next().value!);
+    cache.set(cacheKey, { at: Date.now(), result });
+  }
   return result;
 }
 
@@ -136,6 +143,7 @@ async function fetchSearch(range: SearchRange): Promise<SearchResult> {
     const beforeStart = sinceDay(days * 2, end);
     const beforeEnd = sinceDay(days + 1, end);
     const freshStart = sinceDay(FRESH_DAYS, end);
+    const historyStart = sinceDay(Math.min(HISTORY_DAYS, days), end);
     const base = { rowLimit: ROW_LIMIT, dataState: 'final' as const };
     const now = { ...base, startDate: start, endDate: end };
     const before = { ...base, startDate: beforeStart, endDate: beforeEnd };
@@ -164,7 +172,7 @@ async function fetchSearch(range: SearchRange): Promise<SearchResult> {
       query(auth, { ...now, dimensions: ['page'] }),
       query(auth, { ...now, dimensions: ['device'] }),
       query(auth, { ...now, dimensions: ['country'] }),
-      query(auth, { ...fresh, dimensions: ['date', 'query'] }),
+      query(auth, { ...fresh, startDate: historyStart, dimensions: ['date', 'query'] }),
       query(auth, { ...fresh, dimensions: ['date', 'page'] }),
     ]);
     return {
@@ -181,6 +189,8 @@ async function fetchSearch(range: SearchRange): Promise<SearchResult> {
         byCountry,
         byDateQuery,
         byDatePage,
+        keywordHistoryStart: historyStart,
+        keywordHistoryTruncated: byDateQuery.length >= DAY_ROW_LIMIT,
         fetchedAt: new Date().toISOString(),
       }),
     };

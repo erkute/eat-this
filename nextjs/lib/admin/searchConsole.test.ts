@@ -202,7 +202,7 @@ describe('summarizeSearch', () => {
 
     expect(result.pages[0].key).toBe('/en/kategorie/lunch');
     expect(result.queries.map((q) => q.key)).toEqual(['bari berlin menu', 'gemello']);
-    expect(result.opportunities.map((q) => q.key)).toEqual(['gemello', 'bari berlin menu']);
+    expect(result.opportunities.map((q) => q.key)).toEqual(['gemello']);
   });
 
   it('liefert Geraete, Laender, Bewegungen und den frischesten Tag', () => {

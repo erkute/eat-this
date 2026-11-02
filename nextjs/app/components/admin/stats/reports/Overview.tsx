@@ -13,6 +13,7 @@ import {
   percent,
   shortDay,
 } from '../format';
+import { VisitorBreakdown } from '../PageBreakdown';
 import styles from '../../StatsDashboard.module.css';
 
 type Metric =
@@ -142,7 +143,7 @@ export default function Overview({
           label="Tagesbesucher"
           value={NUMBER.format(totals.visitors)}
           delta={period?.visitors ?? null}
-          hint={`Summe · Ø ${NUMBER.format(perDay)} pro Tag`}
+          hint={`Summe der Tageswerte · Ø ${NUMBER.format(perDay)} je abgeschlossenem Tag`}
           spark={data.days.map((d) => d.visitors)}
         />
         <Kpi
@@ -188,14 +189,36 @@ export default function Overview({
       </div>
 
       <Card
+        title="Wo alle Besucher einsteigen"
+        span={3}
+        sub="Vollständige Aufteilung nach der ersten Seite am Tag. Wer nur die Startseite ansieht, ist hier ebenfalls enthalten."
+      >
+        <VisitorBreakdown
+          paths={data.paths}
+          entryPaths={data.entryPaths}
+          visitors={totals.visitors}
+          pageviews={totals.pageviews}
+        />
+        <p className={styles.note}>
+          <button
+            type="button"
+            className="et-btn et-btn-sm et-btn-alt"
+            onClick={() => onOpen('content')}
+          >
+            Jede einzelne Seite ansehen
+          </button>
+        </p>
+      </Card>
+
+      <Card
         title="Verlauf"
         span={2}
         sub={
           metric.startsWith('search_') && search
             ? `Google: ${shortDay(search.range.start)}–${shortDay(search.range.end)} Endgültige Daten; gestrichelt die gleich lange Vorperiode.`
             : chart.before.length > 0
-              ? 'Abgeschlossene Tage. Gestrichelt die gleich lange Vorperiode, nach Tagen überlagert.'
-              : 'Abgeschlossene Tage. Für diese Kennzahl liegt keine Vergleichsreihe vor.'
+              ? 'Tageswerte; der laufende Tag ist unvollständig und hohl markiert. Gestrichelt die gleich lange Vorperiode.'
+              : 'Tageswerte; heute ist gegebenenfalls unvollständig. Für diese Kennzahl liegt keine Vergleichsreihe vor.'
         }
         tools={
           <>
@@ -280,7 +303,7 @@ export default function Overview({
       </Card>
 
       <Card
-        title="Der Trichter in drei Zahlen"
+        title="Aktionen im Verhältnis"
         sub="Verhältnisse gezählter Ereignisse, keine Personen-Conversions."
       >
         <div className={styles.rates}>
@@ -294,7 +317,7 @@ export default function Overview({
             className={`et-btn et-btn-sm et-btn-alt ${styles.optOutButton}`}
             onClick={() => onOpen('funnel')}
           >
-            Ganzer Funnel
+            Alle Aktionen & Anmeldungen
           </button>
         </p>
       </Card>

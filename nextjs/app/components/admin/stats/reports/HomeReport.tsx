@@ -131,8 +131,8 @@ export default function HomeReport({ data }: { data: StatsSummary }) {
         {tools}
         <p className={styles.homeSince}>
           {stats.since
-            ? `Gemessen seit ${longDay(stats.since)}, bis einschließlich heute.`
-            : 'Noch keine Messung im Zeitraum — sie läuft ab dem nächsten Rollout.'}
+            ? `Messdaten ab ${longDay(stats.since)} · gewählter Zeitraum endet am ${longDay(data.range.end)}.`
+            : 'Für diesen Zeitraum liegen keine Scroll- oder Klickmessungen vor.'}
         </p>
       </div>
       <Numbers stats={current} />

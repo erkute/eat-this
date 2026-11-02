@@ -1,6 +1,7 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
-import { BarRows, Card, ExitTable, MoverList } from '../charts';
-import { NUMBER, percent } from '../format';
+import { Card, ExitTable, MoverList } from '../charts';
+import { NUMBER } from '../format';
+import { PageTable, VisitorBreakdown } from '../PageBreakdown';
 import styles from '../../StatsDashboard.module.css';
 
 /**
@@ -9,29 +10,39 @@ import styles from '../../StatsDashboard.module.css';
  * verknüpfen (lib/analytics.ts, previousInternalPath).
  */
 export default function Content({ data }: { data: StatsSummary }) {
-  const pageviews = data.totals.pageviews;
-  const share = (count: number): string => (pageviews > 0 ? percent(count / pageviews, 0) : '');
-
   return (
     <>
-      <Card title="Meistgesehen" span={2} sub="Aufrufe je Seite, Anteil an allen Aufrufen.">
-        <BarRows
-          rows={data.paths.map((p) => ({ ...p, share: share(p.count) }))}
-          empty="Nichts gezählt."
-          share="Anteil an den Aufrufen"
+      <Card
+        title="Alle Besucher und Aufrufe"
+        span={3}
+        sub="Die Besucher verteilen sich vollständig nach ihrer ersten Seite. Rechts stehen alle Aufrufe derselben Seitenarten."
+      >
+        <VisitorBreakdown
+          paths={data.paths}
+          entryPaths={data.entryPaths}
+          visitors={data.totals.visitors}
+          pageviews={data.totals.pageviews}
+        />
+      </Card>
+      <Card
+        title="Jede einzelne Seite"
+        span={3}
+        sub="Alle gespeicherten Seiten einschließlich Startseite und Artikel. Suche und Filter ändern nur die Auswahl; unter der Tabelle steht deren vollständige Summe."
+      >
+        <PageTable
+          paths={data.paths}
+          entryPaths={data.entryPaths}
+          visitors={data.totals.visitors}
+          pageviews={data.totals.pageviews}
         />
       </Card>
 
-      <Card title="Einstiegsseiten" sub="Der erste gezählte Aufruf eines Besuchers am Tag.">
-        <BarRows rows={data.entryPaths} empty="Noch nicht erfasst." />
-      </Card>
-
       <Card
-        title="Wo Besuche enden"
+        title="Geschätzte Ausstiege"
         span={2}
         sub={
           data.exits.length > 0
-            ? `Über ${NUMBER.format(data.exitDays)} von ${NUMBER.format(data.totals.days)} Tagen. Ein Reload zählt nicht als Fortsetzung — Ausstiege sind eher über- als unterschätzt.`
+            ? `Über ${NUMBER.format(data.exitDays)} von ${NUMBER.format(data.totals.days)} Tagen. Aufrufe minus interne Fortsetzungen; keine eindeutigen Personen. Reloads können Ausstiege überschätzen. Gezeigt werden die häufigsten Ausstiegsseiten.`
             : 'Ausstiege gibt es erst für Tage ab dem 29.08.2026.'
         }
       >

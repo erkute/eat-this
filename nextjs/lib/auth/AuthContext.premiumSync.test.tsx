@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('firebase/auth', () => ({
   browserPopupRedirectResolver: {},
   getRedirectResult: mocks.getRedirectResult,
+  getAdditionalUserInfo: vi.fn(() => ({ isNewUser: false })),
   onIdTokenChanged: (_auth: unknown, cb: (user: User | null) => void) => {
     mocks.emitIdToken = cb;
     return () => {};

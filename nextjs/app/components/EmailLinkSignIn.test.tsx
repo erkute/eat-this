@@ -9,6 +9,7 @@ const locale = vi.hoisted(() => ({ current: 'de' }));
 const fb = vi.hoisted(() => ({
   isSignInWithEmailLink: vi.fn(() => true),
   signInWithEmailLink: vi.fn(),
+  getAdditionalUserInfo: vi.fn(),
 }));
 vi.mock('firebase/auth', () => fb);
 vi.mock('@/lib/firebase/config', () => ({ auth: {} }));
@@ -32,7 +33,9 @@ vi.mock('@/lib/auth/signInArrival', () => arrival);
 import EmailLinkSignIn from './EmailLinkSignIn';
 
 // These cases exercise the ready surface; loading-boundary behavior is checked separately.
-beforeAll(async () => { await import('./EmailLinkSignInPanel'); });
+beforeAll(async () => {
+  await import('./EmailLinkSignInPanel');
+});
 
 /** Landing URL; fixtures may include an untrusted email parameter. */
 function arriveWith(query: string, path = '/map') {
@@ -51,6 +54,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   locale.current = 'de';
   fb.isSignInWithEmailLink.mockReturnValue(true);
+  fb.getAdditionalUserInfo.mockReturnValue({ isNewUser: true });
   fb.signInWithEmailLink.mockResolvedValue({ user: { uid: 'u1', displayName: null } });
   arrival.arrivalDecided.mockResolvedValue(true);
   nav.pathname = '/map';
@@ -102,7 +106,19 @@ describe('Link aus der Anmelde-Mail', () => {
     expect(analytics.trackEvent).toHaveBeenCalledWith('sign_up', { method: 'email_link' });
   });
 
+  it('zählt ein bestehendes E-Mail-Konto ohne Anzeigenamen nicht als neues Konto', async () => {
+    fb.getAdditionalUserInfo.mockReturnValue({ isNewUser: false });
+    fb.signInWithEmailLink.mockResolvedValue({ user: { uid: 'u1', displayName: null } });
+    await mount();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
+    });
+    expect(analytics.trackEvent).toHaveBeenCalledWith('login', { method: 'email_link' });
+    expect(analytics.trackEvent).not.toHaveBeenCalledWith('sign_up', expect.anything());
+  });
+
   it('zaehlt einen Wiederkehrer als login', async () => {
+    fb.getAdditionalUserInfo.mockReturnValue({ isNewUser: false });
     fb.signInWithEmailLink.mockResolvedValue({ user: { uid: 'u1', displayName: 'Lukas' } });
     await mount();
     await act(async () => {
@@ -216,7 +232,9 @@ describe('Link aus der Anmelde-Mail', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Anmelden' }));
     });
     expect(screen.getByText('Dieser Link geht nicht mehr')).toBeTruthy();
-    expect(screen.getByRole('img').querySelector('img')?.getAttribute('src')).toContain('starter-pack-front.webp');
+    expect(screen.getByRole('img').querySelector('img')?.getAttribute('src')).toContain(
+      'starter-pack-front.webp'
+    );
   });
 
   it('bleibt bei einem Netzfehler stehen und laesst nochmal druecken', async () => {

@@ -256,13 +256,12 @@ export async function GET(request: Request) {
   const range = parseRange(params, today);
 
   // Scrolltiefe und Klicks der Startseite — nur für ihren Reiter, und
-  // einschließlich des laufenden Tages: eine Heatmap braucht Klicks, keinen
-  // abgeschlossenen Tag.
+  // für genau denselben gewählten Zeitraum wie die übrigen Berichte.
   if (params.get('only') === 'home') {
     const home = await db
       .collection('analytics_home')
       .where(FieldPath.documentId(), '>=', range.start)
-      .where(FieldPath.documentId(), '<=', today)
+      .where(FieldPath.documentId(), '<=', range.end)
       .get();
     const docs: HomeDoc[] = home.docs.map((doc) => ({
       ...(doc.data() as Omit<HomeDoc, 'day'>),

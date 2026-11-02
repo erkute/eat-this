@@ -800,3 +800,19 @@ describe('Herkunft ohne abgeschnittene Summen', () => {
     expect(result.referrerPageviews).toBe(40);
   });
 });
+
+describe('vollständige Besucher- und Seitenaufteilung', () => {
+  it('behält jede Einstiegsseite und jeden Aufruf, auch unterhalb der bisherigen Top-Liste', () => {
+    const paths = Object.fromEntries(
+      Array.from({ length: 80 }, (_, i) => [`/news/artikel-${i}`, i + 1])
+    );
+    const entryPaths = Object.fromEntries(Object.keys(paths).map((path) => [path, 1]));
+    const result = summarize([
+      { day: '2026-11-01', visitors: 80, pageviews: 3240, paths, entryPaths },
+    ]);
+    expect(result.entryPaths.reduce((sum, row) => sum + row.count, 0)).toBe(80);
+    expect(result.paths.reduce((sum, row) => sum + row.count, 0)).toBe(3240);
+    expect(result.dayDetails.latest?.entryPaths).toHaveLength(80);
+    expect(result.dayDetails.latest?.paths).toHaveLength(80);
+  });
+});

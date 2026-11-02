@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   update: vi.fn(),
   set: vi.fn(),
   get: vi.fn(),
+  rollback: vi.fn(),
 }));
 
 vi.mock('@/lib/rateLimitWindow', () => ({
@@ -14,6 +15,36 @@ vi.mock('@/lib/rateLimitWindow', () => ({
 
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminFirestore: () => ({
+    batch: () => {
+      const jobs: (() => Promise<unknown>)[] = [];
+      const batch = {
+        create: (ref: { create: (data: unknown) => Promise<unknown> }, data: unknown) => {
+          jobs.push(() => ref.create(data));
+          return batch;
+        },
+        update: (ref: { update: (data: unknown) => Promise<unknown> }, data: unknown) => {
+          jobs.push(() => ref.update(data));
+          return batch;
+        },
+        set: (
+          ref: { set: (data: unknown, opts: unknown) => Promise<unknown> },
+          data: unknown,
+          opts: unknown
+        ) => {
+          jobs.push(() => ref.set(data, opts));
+          return batch;
+        },
+        commit: async () => {
+          try {
+            for (const job of jobs) await job();
+          } catch (error) {
+            mocks.rollback();
+            throw error;
+          }
+        },
+      };
+      return batch;
+    },
     collection: (name: string) => ({
       doc: (id: string) => ({
         create: (data: unknown) => mocks.create(name, id, data),
@@ -59,6 +90,7 @@ function dayWrite() {
 
 describe('POST /api/count', () => {
   beforeEach(() => {
+    mocks.rollback.mockReset();
     mocks.checkRateLimit.mockReset().mockResolvedValue({ allowed: true });
     mocks.create.mockReset().mockResolvedValue(undefined);
     mocks.update.mockReset().mockResolvedValue(undefined);
@@ -156,13 +188,41 @@ describe('POST /api/count', () => {
     });
   });
 
+  it.each(['not_a_real_event', '', null, 12])(
+    'zählt unbekannte Ereignisse nicht als Seitenaufruf: %s',
+    async (event) => {
+      await POST(request({ path: '/', event }));
+      expect(mocks.set).not.toHaveBeenCalled();
+      expect(mocks.create).not.toHaveBeenCalled();
+    }
+  );
+
+  it('verbraucht bei einem fehlgeschlagenen Tages-Schreibvorgang den Besucher nicht', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    let reserved = false;
+    // Der Datenbank-Doppelgänger verwirft bei einem Batch-Fehler alle Schreibvorgänge.
+    mocks.rollback.mockImplementation(() => {
+      reserved = false;
+    });
+    mocks.create.mockImplementation(async () => {
+      if (reserved) throw Object.assign(new Error('ALREADY_EXISTS'), { code: 6 });
+      reserved = true;
+    });
+    mocks.set.mockRejectedValueOnce(new Error('UNAVAILABLE'));
+    await POST(request({ path: '/' }));
+    mocks.set.mockClear();
+    await POST(request({ path: '/news/ein-artikel' }));
+    expect(dayWrite()?.visitors).toEqual({ __inc: 1 });
+    expect(dayWrite()?.entryPaths).toEqual({ '/news/ein-artikel': { __inc: 1 } });
+  });
+
   it('counts a first-of-day visitor once, and not on the second view', async () => {
     await POST(request({ path: '/' }));
     expect(dayWrite()?.visitors, 'first view of the day is a visitor').toEqual({ __inc: 1 });
 
     // `create` throwing IS the "already seen today" signal.
     mocks.set.mockClear();
-    mocks.create.mockRejectedValueOnce(new Error('ALREADY_EXISTS'));
+    mocks.create.mockRejectedValueOnce(Object.assign(new Error('ALREADY_EXISTS'), { code: 6 }));
     await POST(request({ path: '/map' }));
 
     const second = dayWrite();
@@ -185,7 +245,7 @@ describe('POST /api/count', () => {
     });
 
     it('frischt sie bei jedem weiteren Aufruf auf', async () => {
-      mocks.create.mockRejectedValueOnce(new Error('ALREADY_EXISTS'));
+      mocks.create.mockRejectedValueOnce(Object.assign(new Error('ALREADY_EXISTS'), { code: 6 }));
       await POST(request({ path: '/map' }));
 
       const [collection, , data] = mocks.update.mock.calls[0];
@@ -385,9 +445,14 @@ describe('POST /api/count', () => {
 
   it('schließt wechselnde IPv6-Geräteadressen im eigenen Netz aus', async () => {
     vi.stubEnv('STATS_EXCLUDE_IPS', '2001:db8:1234:5678::/64');
-    const res = await POST(request({ path: '/' }, {
-      'x-forwarded-for': '2001:db8:1234:5678:abcd:1234:5678:9abc, 10.0.0.1, 10.0.0.2',
-    }));
+    const res = await POST(
+      request(
+        { path: '/' },
+        {
+          'x-forwarded-for': '2001:db8:1234:5678:abcd:1234:5678:9abc, 10.0.0.1, 10.0.0.2',
+        }
+      )
+    );
     expect(res.status).toBe(204);
     expect(mocks.set).not.toHaveBeenCalled();
     expect(mocks.create).not.toHaveBeenCalled();
@@ -396,10 +461,15 @@ describe('POST /api/count', () => {
 
   it('verwendet die geprüfte Besucher-IP statt vorgeschobener Header oder Body-Felder', async () => {
     vi.stubEnv('STATS_EXCLUDE_IPS', '192.0.2.4');
-    await POST(request({ path: '/', ip: '192.0.2.4' }, {
-      'x-forwarded-for': '192.0.2.4, 84.13.22.9, 10.0.0.1, 10.0.0.2',
-      'x-real-ip': '192.0.2.4',
-    }));
+    await POST(
+      request(
+        { path: '/', ip: '192.0.2.4' },
+        {
+          'x-forwarded-for': '192.0.2.4, 84.13.22.9, 10.0.0.1, 10.0.0.2',
+          'x-real-ip': '192.0.2.4',
+        }
+      )
+    );
     expect(dayWrite()?.pageviews).toEqual({ __inc: 1 });
   });
 
@@ -418,8 +488,9 @@ describe('POST /api/count', () => {
   it('gibt GA für andere Anschlüsse frei und verrät nur den Ja/Nein-Wert', async () => {
     vi.stubEnv('STATS_EXCLUDE_IPS', '192.0.2.4');
     expect(await (await GET(request({}))).json()).toEqual({ excluded: false });
-    expect(await (await GET(request({}, { cookie: 'eatthis_nocount=1' }))).json())
-      .toEqual({ excluded: true });
+    expect(await (await GET(request({}, { cookie: 'eatthis_nocount=1' }))).json()).toEqual({
+      excluded: true,
+    });
   });
 
   /* Scanners send an ordinary browser UA, so only the path shape catches them
@@ -435,9 +506,9 @@ describe('POST /api/count', () => {
   it('drops an event name that is not on the allowlist', async () => {
     await POST(request({ path: '/', event: 'something_invented' }));
     const write = dayWrite();
-    // Falls through to a plain page view rather than creating a junk key.
+    // Ein unbekanntes Ereignis darf auch keinen Seitenaufruf erzeugen.
     expect(write?.events).toBeUndefined();
-    expect(write?.pageviews).toEqual({ __inc: 1 });
+    expect(write).toBeUndefined();
   });
 
   it('counts an allowlisted event without counting a second page view', async () => {
@@ -508,6 +579,17 @@ describe('POST /api/count', () => {
         Array.from({ length: MAP_KEY_BUDGET }, (_, i) => [`${prefix}${i}`, 1])
       );
     }
+
+    it('verbraucht durch Wiederholungsaufrufe kein Budget für echte neue Einstiege', async () => {
+      const entryPaths = fullMap('/restaurant/spot-');
+      delete entryPaths['/restaurant/spot-0'];
+      mocks.get.mockReturnValue({ entryPaths });
+      mocks.create.mockRejectedValueOnce(Object.assign(new Error('ALREADY_EXISTS'), { code: 6 }));
+      await POST(request({ path: '/news/nur-spaeter-gesehen' }));
+      mocks.set.mockClear();
+      await POST(request({ path: '/news/echter-neuer-einstieg' }));
+      expect(dayWrite()?.entryPaths).toEqual({ '/news/echter-neuer-einstieg': { __inc: 1 } });
+    });
 
     it('sammelt einen neuen Pfad ein, sobald das Budget voll ist', async () => {
       mocks.get.mockReturnValue({ paths: fullMap('/restaurant/spot-') });

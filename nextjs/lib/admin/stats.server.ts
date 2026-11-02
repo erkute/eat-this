@@ -14,6 +14,7 @@
  * Ereignisverhältnisse sind keine verknüpften Personen-Conversions.
  */
 
+import { measureDay, type MeasurementDay } from '@/lib/admin/pageStats';
 import type { GaResult } from '@/lib/admin/googleAnalytics.server';
 import type { SearchResult } from '@/lib/admin/searchConsole';
 import { REVEALED_TARGET } from '@/lib/map/revealed-must-eats';
@@ -329,6 +330,7 @@ export interface StatsSummary {
   /** Die Vorperiode, für die gestrichelte Linie dahinter. */
   previousDays: DayPoint[];
   eventsByDay: EventDay[];
+  measurement: MeasurementDay[];
   /**
    * Die Google-Suche, aus der Search Console — oder der Grund, warum sie
    * fehlt (lib/admin/searchConsole.ts). null, wenn die Route sie nicht
@@ -759,8 +761,8 @@ function summarizeDay(
     visitors: point.visitors,
     vsPrevDay: compare(lookup(dayBefore(doc.day))),
     vsSameWeekday: compare(lookup(dayBefore(doc.day, 7))),
-    paths: topEntries(paths, 10),
-    entryPaths: topEntries(entryPaths, 10),
+    paths: topEntries(paths, Number.MAX_SAFE_INTEGER),
+    entryPaths: topEntries(entryPaths, Number.MAX_SAFE_INTEGER),
     referrers: topEntries(referrers, 10).map((e) => ({ ...e, key: restoreHost(e.key) })),
     events: topEntries(events, Number.MAX_SAFE_INTEGER),
     exits: hasExits ? exitsOf(paths, continued).slice(0, 10) : [],
@@ -924,6 +926,7 @@ export function summarize(
     days,
     previousDays: sortedBefore.map(pointOf),
     eventsByDay,
+    measurement: sorted.map(measureDay),
     search,
     totals: { pageviews, visitors, days: sorted.length, closedDays: closed.length },
     accounts,
@@ -961,10 +964,10 @@ export function summarize(
         ...m,
         key: restoreHost(m.key),
       })),
-      events: movers(events, beforeEvents),
+      events: movers(events, beforeEvents, Number.MAX_SAFE_INTEGER),
     },
-    paths: topEntries(paths),
-    entryPaths: topEntries(entryPaths),
+    paths: topEntries(paths, Number.MAX_SAFE_INTEGER),
+    entryPaths: topEntries(entryPaths, Number.MAX_SAFE_INTEGER),
     referrerPageviews: [...referrers.values()].reduce((total, count) => total + count, 0),
     referrers: topEntries(referrers).map((entry) => ({
       key: restoreHost(entry.key),

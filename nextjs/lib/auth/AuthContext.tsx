@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import {
   browserPopupRedirectResolver,
   getRedirectResult,
+  getAdditionalUserInfo,
   onIdTokenChanged,
   signInWithPopup,
   signInWithRedirect,
@@ -18,6 +19,7 @@ import { describeGoogleSignInError } from './googleSignInError';
 import { warmGooglePopup } from './googlePopupWarmup';
 import { announceSignedIn } from './afterSignIn';
 import { auth } from '@/lib/firebase/config';
+import { trackEvent } from '@/lib/analytics';
 import { clearMapDataCaches, reconcileMapDataCacheIdentity } from '@/lib/map/map-data-cache';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -179,7 +181,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
        wie nach dem Popup (afterSignIn.ts). */
     void getRedirectResult(auth, browserPopupRedirectResolver).then(
       (result) => {
-        if (result?.user) announceSignedIn();
+        if (result?.user) {
+          trackEvent(getAdditionalUserInfo(result)?.isNewUser ? 'sign_up' : 'login', {
+            method: 'google',
+          });
+          announceSignedIn();
+        }
       },
       (error: unknown) => {
         const { code, benign } = describeGoogleSignInError(error);
@@ -201,7 +208,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // The resolver is passed here rather than baked into the auth instance:
       // it drags in Google's gapi iframe, which must not load for visitors who
       // never sign in (see lib/firebase/config.ts).
-      await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
+      const credential = await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
+      trackEvent(getAdditionalUserInfo(credential)?.isNewUser ? 'sign_up' : 'login', {
+        method: 'google',
+      });
       announceSignedIn();
       return;
     } catch (error) {

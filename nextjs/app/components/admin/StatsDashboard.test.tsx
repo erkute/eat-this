@@ -267,6 +267,7 @@ function summary(overrides: Partial<StatsSummary> = {}): StatsSummary {
       { day: '2026-08-30', counts: { map_opened: 1000, sign_up: 3 } },
       { day: '2026-08-31', counts: { map_opened: 469, sign_up: 2 } },
     ],
+    measurement: [],
     totals: { pageviews: 8629, visitors: 1147, days: 11, closedDays: 10 },
     accounts: accounts(),
     deck: {
@@ -390,7 +391,7 @@ describe('StatsDashboard', () => {
     render(<StatsDashboard />);
 
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    expect(screen.getByText('8.629')).toBeTruthy();
+    expect(screen.getByText('8.629', { selector: 'strong' })).toBeTruthy();
     expect(
       screen.getByText('Katalogwert der Käufe', { selector: 'span[class*="kpiLabel"]' })
         .nextElementSibling?.textContent
@@ -550,7 +551,7 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
     await waitFor(() => expect(screen.getAllByText('1.147').length).toBeGreaterThan(0));
-    openReport('Funnel');
+    openReport('Aktionen & Anmeldungen');
 
     expect(await screen.findByText('Entdecken und sammeln')).toBeTruthy();
     expect(screen.getByText('Starter Pack mit bis zu 20 Karten')).toBeTruthy();
@@ -653,7 +654,7 @@ describe('StatsDashboard', () => {
 
     render(<StatsDashboard />);
 
-    expect(await screen.findByText('Wo Besuche enden')).toBeTruthy();
+    expect(await screen.findByText('Geschätzte Ausstiege')).toBeTruthy();
     expect(screen.getByText(/^Über 4 von 11 Tagen/)).toBeTruthy();
   });
 });

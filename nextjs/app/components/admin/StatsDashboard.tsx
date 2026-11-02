@@ -9,6 +9,7 @@ import type { StatsSummary } from '@/lib/admin/stats.server';
 import { hasNoCountCookie, NO_COUNT_COOKIE } from '@/lib/analytics/noCount';
 import { dayBefore, sinceDay } from '@/lib/admin/stats.server';
 import { NUMBER, longDay, shortDay } from './stats/format';
+import Measurement from './stats/reports/Measurement';
 import Overview from './stats/reports/Overview';
 import Days from './stats/reports/Days';
 import FunnelReport from './stats/reports/FunnelReport';
@@ -44,7 +45,8 @@ export type ReportKey =
   | 'content'
   | 'home'
   | 'events'
-  | 'consent';
+  | 'consent'
+  | 'measurement';
 
 interface Report {
   key: ReportKey;
@@ -66,7 +68,11 @@ const REPORTS: Report[] = [
     label: 'Letzter Tag',
     sub: 'Der letzte abgeschlossene Tag im Zeitraum und die jüngsten Suchdaten',
   },
-  { key: 'funnel', label: 'Funnel', sub: 'Entdecken, anmelden, sammeln und Booster Packs kaufen' },
+  {
+    key: 'funnel',
+    label: 'Aktionen & Anmeldungen',
+    sub: 'Entdecken, anmelden, sammeln und Booster Packs kaufen',
+  },
   {
     key: 'cards',
     label: 'Karten & Konten',
@@ -82,9 +88,9 @@ const REPORTS: Report[] = [
   { key: 'acquisition', label: 'Herkunft', sub: 'Woher die Besucher kommen und wo sie einsteigen' },
   {
     key: 'content',
-    label: 'Inhalte',
+    label: 'Alle Seiten',
     group: 'Verhalten',
-    sub: 'Welche Seiten gesehen werden und wo Besuche enden',
+    sub: 'Alle Besucher nach Einstiegsseite, alle Seitenaufrufe und geschätzte Ausstiege',
   },
   {
     key: 'home',
@@ -95,6 +101,12 @@ const REPORTS: Report[] = [
     key: 'events',
     label: 'Ereignisse',
     sub: 'Jede gezählte Handlung, je 100 Besucher, gegen die Vorperiode',
+  },
+  {
+    key: 'measurement',
+    label: 'Zahlen prüfen',
+    group: 'Messung',
+    sub: 'Täglicher Summenabgleich, Erfassung und Grenzen der Zahlen',
   },
   {
     key: 'consent',
@@ -332,7 +344,9 @@ export default function StatsDashboard() {
           {data && (
             <p className={styles.meta}>
               {longDay(data.range.start)} – {longDay(data.range.end)} ·{' '}
-              {NUMBER.format(data.range.days)} volle Tage · Vergleich:{' '}
+              {NUMBER.format(data.range.days)}{' '}
+              {data.range.days === 1 ? 'Kalendertag' : 'Kalendertage'}
+              {data.range.includesToday ? ' · heute unvollständig' : ''} · Vergleich:{' '}
               {shortDay(sinceDay(data.range.days * 2, data.range.end))}–
               {shortDay(dayBefore(data.range.start))}
               {loadedAt && (
@@ -394,6 +408,8 @@ function ReportBody({
       return <HomeReport data={data} />;
     case 'events':
       return <EventsReport data={data} />;
+    case 'measurement':
+      return <Measurement data={data} />;
     case 'consent':
       return <ConsentReport data={data} />;
     default:

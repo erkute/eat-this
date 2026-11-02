@@ -58,11 +58,11 @@ export function direction(delta: Delta | null | undefined): 'up' | 'down' | 'fla
 
 const EVENT_LABELS: Record<string, string> = {
   visitors: 'Besucher',
-  map_opened: 'Karte geöffnet',
+  map_opened: 'Map geöffnet',
   map_view_toggle: 'Kartenansicht gewechselt',
   map_location_invite_shown: 'Standort gefragt',
   map_location_invite_accepted: 'Standort erlaubt',
-  restaurant_opened: 'Spot geöffnet',
+  restaurant_opened: 'Spot-Detail in Map geöffnet',
   restaurant_maps_clicked: 'Route geklickt',
   restaurant_menu_clicked: 'Speisekarte geklickt',
   restaurant_reservation_clicked: 'Reservierung geklickt',

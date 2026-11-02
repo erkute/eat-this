@@ -1,6 +1,6 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
 import { Card, DiffCell } from '../charts';
-import { NUMBER, decimal, labelFor, percent } from '../format';
+import { NUMBER, decimal, labelFor } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
 /**
@@ -11,13 +11,12 @@ import styles from '../../StatsDashboard.module.css';
 export default function EventsReport({ data }: { data: StatsSummary }) {
   const visitors = data.totals.visitors;
   const beforeByKey = new Map(data.movers.events.map((m) => [m.key, m]));
-  const total = data.events.reduce((t, e) => t + e.count, 0);
 
   return (
     <Card
       title="Ereignisse"
       span={3}
-      sub={`${NUMBER.format(total)} Ereignisse von ${NUMBER.format(visitors)} Besuchern. Differenz gegen die Vorperiode nur, wo sich etwas bewegt hat.`}
+      sub={`Aktionszähler bei ${NUMBER.format(visitors)} Tagesbesuchern. Wiederholungen zählen erneut. Ober- und Untergruppen überschneiden sich; die Zeilen dürfen nicht addiert werden. Differenz zur Vorperiode nur bei verändertem Zähler.`}
     >
       {data.events.length === 0 ? (
         <p className={styles.empty}>Keine Ereignisse gezählt.</p>
@@ -33,9 +32,8 @@ export default function EventsReport({ data }: { data: StatsSummary }) {
               <tr>
                 <th scope="col">Ereignis</th>
                 <th scope="col">Schlüssel</th>
-                <th scope="col">Anzahl</th>
+                <th scope="col">Auslösungen</th>
                 <th scope="col">je 100 Besucher</th>
-                <th scope="col">Anteil</th>
                 <th scope="col">Δ Vorperiode</th>
               </tr>
             </thead>
@@ -59,7 +57,6 @@ export default function EventsReport({ data }: { data: StatsSummary }) {
                           : NUMBER.format(Math.round(perHundred))
                         : '—'}
                     </td>
-                    <td className={styles.cellNum}>{total > 0 ? percent(e.count / total) : '—'}</td>
                     <DiffCell diff={mover ? mover.diff : null} />
                   </tr>
                 );

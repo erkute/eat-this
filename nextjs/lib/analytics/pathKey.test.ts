@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { pathKey } from './pathKey';
 
@@ -80,5 +82,46 @@ describe('pathKey', () => {
     it('nimmt nichts an, was tiefer liegt als die uid', () => {
       expect(pathKey(`/deck/${UID}/karte`)).toBeNull();
     });
+  });
+});
+
+describe('Abdeckung aller öffentlichen App-Seiten', () => {
+  const root = join(process.cwd(), 'app');
+  const files = (dir: string): string[] =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+      entry.isDirectory()
+        ? files(join(dir, entry.name))
+        : entry.name === 'page.tsx'
+          ? [join(dir, entry.name)]
+          : []
+    );
+  const routes = files(root).map((file) =>
+    file
+      .slice(root.length)
+      .replace(/\/page\.tsx$/, '')
+      .replace(/\/\([^/]+\)/g, '')
+      .replace('/[locale]', '')
+  );
+  it('erfasst jede Produkt-Route in beiden Sprachen und schließt interne Werkzeuge bewusst aus', () => {
+    for (const route of routes) {
+      if (route.includes('[...slug]')) {
+        for (const slug of ['news', 'about', 'contact', 'impressum', 'datenschutz', 'agb']) {
+          expect(pathKey(`/${slug}`)).not.toBeNull();
+          expect(pathKey(`/en/${slug}`)).not.toBeNull();
+        }
+        continue;
+      }
+      const path = route.replace('[slug]', 'beispiel').replace('[uid]', 'TestUid') || '/';
+      if (
+        path.startsWith('/admin') ||
+        path.startsWith('/no-count') ||
+        path.includes('/vorschau/')
+      ) {
+        expect(pathKey(path)).toBeNull();
+      } else {
+        expect(pathKey(path), path).not.toBeNull();
+        expect(pathKey(`/en${path === '/' ? '' : path}`), `EN ${path}`).not.toBeNull();
+      }
+    }
   });
 });

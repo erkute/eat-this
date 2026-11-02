@@ -237,7 +237,8 @@ export async function GET(request: Request) {
     hasNoCountCookie(request.headers.get('cookie')) ||
     request.headers.get('sec-gpc') === '1' ||
     request.headers.get('dnt') === '1' ||
-    !ip || isExcludedAnalyticsIp(ip);
+    !ip ||
+    isExcludedAnalyticsIp(ip);
   return NextResponse.json({ excluded }, { headers: { 'Cache-Control': 'private, no-store' } });
 }
 
@@ -281,6 +282,10 @@ export async function POST(request: Request) {
     return new NextResponse(null, { status: 400 });
   }
 
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return new NextResponse(null, { status: 400 });
+  }
+
   if (isLocalAnalyticsUrl(body.referrer)) return new NextResponse(null, { status: 204 });
 
   const userAgent = userAgentOf(body, request.headers.get('user-agent'));
@@ -289,6 +294,9 @@ export async function POST(request: Request) {
   const path = pathKey(body.path);
   if (!path) return new NextResponse(null, { status: 204 });
   const event = typeof body.event === 'string' && EVENTS.has(body.event) ? body.event : null;
+  // Ein unbekanntes Ereignis ist kein Seitenaufruf. Nur ohne Ereignisfeld
+  // darf der Beacon den Besucher- und Seitenzähler erreichen.
+  if ('event' in body && !event) return new NextResponse(null, { status: 204 });
 
   // Local dev talks to the PRODUCTION Firestore (FIREBASE_ADMIN_PROJECT_ID in
   // .env.local is eat-this-8a13b), so without this every `next dev` session
@@ -356,38 +364,8 @@ export async function POST(request: Request) {
     const budgeted = (map: 'paths' | 'entryPaths' | 'continuations', key: string) =>
       keyWithinBudget(known, map, key, OVERFLOW_PATH);
 
-    // `create` throws when the doc exists, which is exactly the question being
-    // asked: is this the first time today? Cheaper than a read plus a write, and
-    // atomic across instances.
-    //
-    // Steht bewusst NUR im Seitenaufruf-Zweig: wer den Platz beansprucht, muss
-    // ihn auch verbuchen koennen. Lag das davor, konnte ein Ereignis, das vor
-    // dem ersten Seitenaufruf eintrifft, `firstToday` aufbrauchen — gezaehlt
-    // wurde es dann nirgends, und der Besucher fehlte im Tagesstand.
-    let firstToday = false;
-    const now = Date.now();
-    try {
-      await seen.create({
-        expiresAt: Timestamp.fromMillis(now + SEEN_TTL_MS),
-        lastSeenAt: Timestamp.fromMillis(now),
-      });
-      firstToday = true;
-    } catch {
-      firstToday = false;
-      active = markActive(seen);
-    }
-
     update.pageviews = inc;
     update.paths = { [budgeted('paths', path)]: inc };
-    if (firstToday) {
-      update.visitors = inc;
-      // Die Einstiegsseite — der erste gezaehlte Aufruf eines Besuchers an
-      // diesem Tag. GA4 hat so einen Bericht, sieht aber genau die Seiten
-      // nicht, auf denen die Suche landet; `paths` allein kann Einstieg und
-      // Durchklick nicht trennen. Erst hiermit ist "wo kommen die Leute rein"
-      // fuer ALLE Besucher beantwortbar statt nur fuer die Zustimmenden.
-      update.entryPaths = { [budgeted('entryPaths', path)]: inc };
-    }
     // Die Seite, von der dieser Aufruf kam. Daraus ergibt sich die
     // Ausstiegsseite rein rechnerisch — Ausstiege(P) = paths[P] -
     // continuations[P] — ohne dass je ein Aufruf mit einer Person verknuepft
@@ -405,6 +383,54 @@ export async function POST(request: Request) {
     if (host) {
       update.referrers = { [keyWithinBudget(known, 'referrers', host, OVERFLOW_HOST)]: inc };
     }
+
+    // Prüfsumme und erster Tagesaufruf werden gemeinsam bestätigt. Scheitert
+    // der Tageszähler, darf keine verbrauchte Besucherkennung zurückbleiben.
+    const now = Date.now();
+    // Die Probe darf das echte Einstiegsbudget nicht reservieren: bei einem
+    // Wiederholungsaufruf scheitert create, und es gibt keinen neuen Einstieg.
+    const entryKeys = known ? { ...known, entryPaths: new Set(known.entryPaths) } : null;
+    const entryPath = keyWithinBudget(entryKeys, 'entryPaths', path, OVERFLOW_PATH);
+    const first = db.batch();
+    first.create(seen, {
+      expiresAt: Timestamp.fromMillis(now + SEEN_TTL_MS),
+      lastSeenAt: Timestamp.fromMillis(now),
+    });
+    first.set(
+      dayRef,
+      {
+        ...update,
+        visitors: inc,
+        entryPaths: { [entryPath]: inc },
+      },
+      { merge: true }
+    );
+    try {
+      await first.commit();
+      if (entryPath === path) known?.entryPaths.add(path);
+    } catch (error) {
+      // Nur ALREADY_EXISTS belegt einen Wiederholungsaufruf. Eine Störung
+      // darf niemals als „Besucher schon gezählt“ interpretiert werden.
+      if ((error as { code?: number }).code === 6) {
+        const repeat = db.batch();
+        repeat.update(seen, { lastSeenAt: Timestamp.fromMillis(now) });
+        repeat.set(dayRef, update, { merge: true });
+        try {
+          await repeat.commit();
+        } catch (cause) {
+          console.error(
+            '[count] repeat view write failed',
+            cause instanceof Error ? cause.name : 'UnknownError'
+          );
+        }
+      } else {
+        console.error(
+          '[count] first view write failed',
+          error instanceof Error ? error.name : 'UnknownError'
+        );
+      }
+    }
+    return new NextResponse(null, { status: 204 });
   }
 
   // Ein Beacon darf nicht 500 antworten. Ohne dieses Netz wurde aus jeder

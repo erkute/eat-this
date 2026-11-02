@@ -207,6 +207,16 @@ describe('GET /api/admin/stats', () => {
     ]);
   });
 
+  it('begrenzt Startseiten-Details auf den gewählten Zeitraum', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ admin: true });
+    mocks.get.mockResolvedValue({ docs: [] });
+    await GET(
+      request({ Authorization: 'Bearer valid' }, '?only=home&from=2026-08-20&to=2026-08-25')
+    );
+    expect(mocks.where).toHaveBeenCalledWith('<=', '2026-08-25');
+    expect(mocks.where).not.toHaveBeenCalledWith('<=', '2026-08-31');
+  });
+
   it('nimmt den Tag aus der Dokument-ID, nicht aus dem Feld', async () => {
     mocks.verifyIdToken.mockResolvedValue({ uid: 'u1', admin: true });
     mocks.get.mockResolvedValue(

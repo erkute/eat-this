@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ReactNode } from 'react';
-import { translations } from '@/lib/i18n/translations';
+import { getCatalogMessages } from '@/lib/i18n/translations';
 import { NextIntlClientProvider } from 'next-intl';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
@@ -73,7 +73,7 @@ const map = { restaurants: [], mustEats: [], revealedMustEatIds: [] } as unknown
 
 function renderHome(locale: 'de' | 'en' = 'de') {
   return renderToStaticMarkup(
-    <NextIntlClientProvider locale={locale} messages={translations[locale]} timeZone="Europe/Berlin">
+    <NextIntlClientProvider locale={locale} messages={getCatalogMessages(locale, 100)} timeZone="Europe/Berlin">
       <HubSection initialData={data} initialMapData={map} locale={locale} />
     </NextIntlClientProvider>
   );

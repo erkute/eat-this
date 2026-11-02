@@ -35,12 +35,12 @@ const en = {
       'Add more Must Eats to your deck with Booster Packs, without visiting each spot first. New cards, new dishes to try.',
     onbFlipAria: 'Flip the card',
     // Last slide, logged-out variant. Selling a paid Booster Pack to someone
-    // without an account skips a rung: the free Starter Pack is the offer that
+    // without an account skips a rung: the Starter Pack is the offer that
     // actually applies to them.
     onbStarterKicker: 'Your collection',
     onbStarterTitle: 'Your first pack.',
     onbStarterBody:
-      'Create your account and get a Starter Pack of 20 more Must Eats. Open your pack, discover dishes, find your favourites.',
+      'Of the {mustEatCount} Must Eats currently in Berlin, 10 are already revealed. Your Starter Pack reveals 20 more. Discover the rest at the spots themselves. More are added over time.',
     onbStarterCta: 'Get your pack',
     onbNext: 'Next',
     onbStart: "Let's go",
@@ -112,7 +112,7 @@ const en = {
     pagerNext: 'Next Must Eat',
     walkMinutes: 'on foot',
     starterPromoTitle: 'Starter Pack',
-    starterPromoBody: '20 Must Eats, spread all over Berlin. Waiting for you to discover them.',
+    starterPromoBody: 'Already {mustEatCount} Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.',
     /* Two states, two texts. The kicker names WHICH of them you are in, the
        heading is the same either way, and the button says what it clears —
        "Reset filters" was wrong for someone who had only typed something. */
@@ -319,15 +319,15 @@ const en = {
       packKicker: 'Start your collection',
       packTitle: 'Starter Pack',
       packLead:
-        '20 Must Eats from all over Berlin. Discover our picks and collect them in your deck.',
+        'Already {mustEatCount} Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.',
       cardKicker: 'Reveal your Must Eats',
       cardTitle: 'Look underneath',
       cardLead:
-        'Behind every card there’s a pick. Your Starter Pack brings you 20 Must Eats from all over Berlin.',
+        'Already {mustEatCount} Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.',
       heartKicker: 'Save your spots',
       heartTitle: 'For later',
       heartLead:
-        'All your saved spots in one place. Plus your Starter Pack with 20 Must Eats from all over Berlin.',
+        'Already {mustEatCount} Must Eats across Berlin. Your Starter Pack shows you the first ones. Discover the rest at the spots themselves.',
       emailLabel: 'Email',
       emptyEmail: 'Add your email first.',
       invalidEmail: 'That does not look like an email yet.',
@@ -404,7 +404,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     onbStarterKicker: 'Deine Sammlung',
     onbStarterTitle: 'Dein erstes Pack.',
     onbStarterBody:
-      'Hol dir mit deinem Konto das Starter Pack mit 20 weiteren Must Eats. Pack öffnen, Gerichte entdecken, Favoriten finden.',
+      'Von aktuell {mustEatCount} Must Eats in Berlin sind 10 schon aufgedeckt. Dein Starter Pack deckt 20 weitere auf. Den Rest entdeckst du vor Ort. Neue kommen nach und nach dazu.',
     onbStarterCta: 'Pack holen',
     onbNext: 'Weiter',
     onbStart: "Los geht's",
@@ -474,7 +474,7 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     walkMinutes: 'zu Fuß',
     starterPromoTitle: 'Starter Pack',
     starterPromoBody:
-      '20 Must Eats, überall in Berlin verteilt. Bereit, von dir entdeckt zu werden.',
+      'Schon {mustEatCount} Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.',
     /* Zwei Zustände, zwei Texte. Vorher sagten Kicker und Überschrift
        zweimal dasselbe („Nichts gefunden" / „Keine Spots."), und der Knopf
        bot „Filter zurücksetzen" auch dem an, der gar keinen Filter gesetzt,
@@ -695,15 +695,15 @@ const deOverrides: DeepPartial<TranslationsShape> = {
       packKicker: 'Starte deine Sammlung',
       packTitle: 'Starter Pack',
       packLead:
-        '20 Must Eats aus ganz Berlin. Entdecke unsere Empfehlungen und sammle sie in deinem Deck.',
+        'Schon {mustEatCount} Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.',
       cardKicker: 'Decke deine Must Eats auf',
       cardTitle: 'Schau drunter',
       cardLead:
-        'Hinter jeder Karte steckt eine Empfehlung. Dein Starter Pack bringt dir 20 Must Eats aus ganz Berlin.',
+        'Schon {mustEatCount} Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.',
       heartKicker: 'Speichere deine Spots',
       heartTitle: 'Für später',
       heartLead:
-        'Deine gespeicherten Spots an einem Ort. Dazu dein Starter Pack mit 20 Must Eats aus ganz Berlin.',
+        'Schon {mustEatCount} Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.',
       emailLabel: 'E-Mail',
       emptyEmail: 'Bitte gib deine E-Mail ein.',
       invalidEmail: 'Das sieht noch nicht nach einer E-Mail aus.',
@@ -723,6 +723,35 @@ const deOverrides: DeepPartial<TranslationsShape> = {
 const de = deepMerge(en, deOverrides) as TranslationsShape;
 
 export const translations: Record<Lang, TranslationsShape> = { en, de };
+
+/** Resolve the catalog size on the server so every signup surface has it at first paint. */
+export function getCatalogMessages(locale: Lang, mustEatCount: number): TranslationsShape {
+  const messages = translations[locale];
+  const count = new Intl.NumberFormat(locale).format(mustEatCount);
+  const fillCount = (message: string) => message.replaceAll('{mustEatCount}', count);
+
+  return {
+    ...messages,
+    mustEats: {
+      ...messages.mustEats,
+      onbStarterBody: fillCount(messages.mustEats.onbStarterBody),
+    },
+    map: {
+      ...messages.map,
+      starterPromoBody: fillCount(messages.map.starterPromoBody),
+    },
+    modals: {
+      ...messages.modals,
+      login: {
+        ...messages.modals.login,
+        packLead: fillCount(messages.modals.login.packLead),
+        cardLead: fillCount(messages.modals.login.cardLead),
+        heartLead: fillCount(messages.modals.login.heartLead),
+      },
+    },
+  };
+}
+
 
 /* ============================================
    Modal bodies — structured, React-rendered.

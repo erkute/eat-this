@@ -1,3 +1,4 @@
+import { getPackContents } from '@/lib/sanity.server';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
@@ -75,15 +76,16 @@ export default async function HomePage({ params }: PageProps) {
   // anon dataset — plus a few covered cards from the full deck, see
   // getHomeInitialMapData — so SSR both in parallel and hand initialMapData
   // down through HubSection.
-  const [initialData, initialMapData] = await Promise.all([
+  const [initialData, initialMapData, { allBerlin }] = await Promise.all([
     getHomeData(locale as 'de' | 'en'),
     getHomeInitialMapData(),
+    getPackContents(),
   ]);
 
   // WebPage (representative image) + FAQPage graph — the FAQ entries mirror what
   // the hub renders (HubFaq uses the same getLandingFaqs source). Organization/
   // WebSite come from the site-wide schema-org script in the locale layout.
-  const jsonLd = buildHomeJsonLd(getLandingFaqs(locale as 'de' | 'en'), locale as 'de' | 'en');
+  const jsonLd = buildHomeJsonLd(getLandingFaqs(locale as 'de' | 'en', allBerlin.mustEats), locale as 'de' | 'en');
 
   return (
     <>

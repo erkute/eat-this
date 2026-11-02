@@ -1,3 +1,4 @@
+import { getPackContents } from '@/lib/sanity.server';
 import { getLandingFaqs } from '@/lib/landing/faqs';
 import styles from './HubFaq.module.css';
 
@@ -5,8 +6,9 @@ interface Props {
   locale: 'de' | 'en';
 }
 
-export default function HubFaq({ locale }: Props) {
-  const faqs = getLandingFaqs(locale);
+export default async function HubFaq({ locale }: Props) {
+  const { allBerlin } = await getPackContents();
+  const faqs = getLandingFaqs(locale, allBerlin.mustEats);
   if (faqs.length === 0) return null;
   return (
     <section className={`homeV2 hv-section hv-wrap ${styles.section}`} data-hub-faq="">

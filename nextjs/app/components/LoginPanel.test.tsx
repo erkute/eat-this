@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
-import { translations } from '@/lib/i18n/translations';
+import { getCatalogMessages } from '@/lib/i18n/translations';
 import type { LoginReason } from '@/lib/auth/LoginModalContext';
 
 const modal = vi.hoisted(() => ({
@@ -32,7 +32,7 @@ const onBack = vi.fn();
 
 function panel() {
   return render(
-    <NextIntlClientProvider locale="de" messages={translations.de} timeZone="Europe/Berlin">
+    <NextIntlClientProvider locale="de" messages={getCatalogMessages('de', 100)} timeZone="Europe/Berlin">
       <LoginPanel onBack={onBack} />
     </NextIntlClientProvider>
   );
@@ -55,7 +55,7 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
       'Starte deine Sammlung'
     );
     expect(container.textContent).toContain(
-      '20 Must Eats aus ganz Berlin. Entdecke unsere Empfehlungen und sammle sie in deinem Deck.'
+      'Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.'
     );
   });
 
@@ -68,7 +68,7 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
       'Decke deine Must Eats auf'
     );
     expect(container.textContent).toContain(
-      'Hinter jeder Karte steckt eine Empfehlung. Dein Starter Pack bringt dir 20 Must Eats aus ganz Berlin.'
+      'Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.'
     );
     expect(container.innerHTML).not.toContain('card-back.webp');
     expect(container.querySelectorAll('img')).toHaveLength(1);
@@ -91,7 +91,7 @@ describe('LoginPanel — Starter Pack mit Texten zum Anlass', () => {
       'Speichere deine Spots'
     );
     expect(container.textContent).toContain(
-      'Deine gespeicherten Spots an einem Ort. Dazu dein Starter Pack mit 20 Must Eats aus ganz Berlin.'
+      'Schon 100 Must Eats in ganz Berlin. Dein Starter Pack zeigt dir die ersten. Den Rest entdeckst du vor Ort.'
     );
     expect(container.textContent).not.toMatch(/Deck|Profil/);
     expect(container.innerHTML).toContain('starter-pack-front.webp');

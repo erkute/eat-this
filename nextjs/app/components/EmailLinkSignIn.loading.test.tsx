@@ -33,6 +33,8 @@ it('keeps ordinary visits light and removes sensitive link parameters before a s
   expect(window.location.search).toBe('?r=spot');
   expect(document.querySelector('[data-auth-surface-loading="email"]')).not.toBeNull();
   expect(screen.getByRole('dialog').getAttribute('aria-busy')).toBe('true');
+  expect(screen.getByRole('heading', { name: 'Anmeldung bei Eat This' })).toBeTruthy();
+  expect(screen.getByRole('status').textContent).toBe('Wird geladen …');
   await act(async () => { download.finish(); await download.ready; });
   expect((await screen.findByRole('dialog')).textContent).toBe('needs-email');
   expect(document.querySelector('[data-auth-surface-loading]')).toBeNull();

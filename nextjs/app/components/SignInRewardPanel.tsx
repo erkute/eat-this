@@ -12,6 +12,7 @@ import { AVATAR_CHOICES, avatarSrc } from './avatarChoices';
 import styles from './Tour.module.css';
 import { BRAND_WORDMARK } from '@/lib/constants';
 import CardTapCue, { CARD_TAP_CUE_MS } from './CardTapCue';
+import AuthSurfaceLoading from './AuthSurfaceLoading';
 
 /** So lange sieht man die gelandeten Stapel, bevor die Erklaerung kommt. */
 const STACKS_PAUSE_MS = 700;
@@ -395,7 +396,7 @@ export default function SignInRewardPanel({ cards }: { cards: string[] | null })
 
   if (!open) {
     return covered
-      ? createPortal(<div className={`${styles.layer} ${styles.layerSolid}`} />, document.body)
+      ? createPortal(<AuthSurfaceLoading layer="tour" />, document.body)
       : null;
   }
 

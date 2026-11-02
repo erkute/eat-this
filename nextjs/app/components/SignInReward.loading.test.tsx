@@ -28,6 +28,8 @@ it('retains an early grant during a slow download, covers the page and starts a 
   await act(async () => { render(<SignInReward />); });
   expect(document.querySelector('[data-auth-surface-loading="tour"]')).not.toBeNull();
   expect(screen.getByRole('dialog').getAttribute('aria-busy')).toBe('true');
+  expect(screen.getByRole('heading', { name: 'Dein Einstieg in Eat This' })).toBeTruthy();
+  expect(screen.getByRole('status').textContent).toBe('Wird geladen …');
   await act(async () => { download.finish(); await download.ready; });
   expect((await screen.findByRole('dialog')).textContent).toBe('first-card,second-card');
   expect(document.querySelector('[data-auth-surface-loading]')).toBeNull();

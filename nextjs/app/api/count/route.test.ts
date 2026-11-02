@@ -7,8 +7,10 @@ const mocks = vi.hoisted(() => ({
   set: vi.fn(),
   get: vi.fn(),
   rollback: vi.fn(),
+  writeInsight: vi.fn(),
 }));
 
+vi.mock('@/lib/analytics/engagement.server', () => ({ writeInsight: mocks.writeInsight }));
 vi.mock('@/lib/rateLimitWindow', () => ({
   checkWindowedRateLimit: mocks.checkRateLimit,
 }));
@@ -91,6 +93,7 @@ function dayWrite() {
 describe('POST /api/count', () => {
   beforeEach(() => {
     mocks.rollback.mockReset();
+    mocks.writeInsight.mockReset().mockResolvedValue(undefined);
     mocks.checkRateLimit.mockReset().mockResolvedValue({ allowed: true });
     mocks.create.mockReset().mockResolvedValue(undefined);
     mocks.update.mockReset().mockResolvedValue(undefined);
@@ -214,6 +217,47 @@ describe('POST /api/count', () => {
     await POST(request({ path: '/news/ein-artikel' }));
     expect(dayWrite()?.visitors).toEqual({ __inc: 1 });
     expect(dayWrite()?.entryPaths).toEqual({ '/news/ein-artikel': { __inc: 1 } });
+  });
+
+  it('trennt Artikel-Meilensteine vom Besucher- und Seitenzähler', async () => {
+    await POST(
+      request({
+        path: '/news/test',
+        insight: 'signals',
+        device: 'phone',
+        signals: ['view', 'depth25'],
+      })
+    );
+    expect(mocks.writeInsight).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.any(String),
+      expect.objectContaining({
+        path: '/news/test',
+        surface: 'article',
+        signals: ['view', 'depth25'],
+      })
+    );
+    expect(dayWrite()).toBeUndefined();
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+  it('schließt Detailmessung bei DNT ebenfalls aus und verwirft ungültige Signale vollständig', async () => {
+    await POST(
+      request(
+        { path: '/news/test', insight: 'signals', device: 'phone', signals: ['view'] },
+        { DNT: '1' }
+      )
+    );
+    await POST(request({ path: '/news/test', insight: 'erfunden', device: 'phone' }));
+    expect(mocks.writeInsight).not.toHaveBeenCalled();
+    expect(dayWrite()).toBeUndefined();
+  });
+  it('ordnet nur den ersten Tagesaufruf einem Kanal zu', async () => {
+    await POST(request({ path: '/news/test', referrer: 'https://www.google.de' }));
+    expect(dayWrite()?.entryChannels).toEqual({ google: { __inc: 1 } });
+    mocks.create.mockRejectedValueOnce(Object.assign(new Error('ALREADY_EXISTS'), { code: 6 }));
+    mocks.set.mockClear();
+    await POST(request({ path: '/map', referrer: 'https://instagram.com' }));
+    expect(dayWrite()).not.toHaveProperty('entryChannels');
   });
 
   it('counts a first-of-day visitor once, and not on the second view', async () => {
@@ -652,15 +696,27 @@ describe('POST /api/count', () => {
       });
     });
 
-    it('zaehlt die Scrolltiefe eines Aufrufs auf /en', async () => {
-      await POST(
-        request({ path: '/en', home: 'scroll', device: 'desktop', depth: 0.93, reached: ['hero'] })
-      );
+    it('zählt einen Startseiten-Aufruf beim Öffnen und Fortschritt getrennt', async () => {
+      await POST(request({ path: '/en', home: 'view', device: 'desktop' }));
       expect(homeWrite()).toMatchObject({
         views: { desktop: { __inc: 1 } },
-        depth: { desktop: { '90': { __inc: 1 } } },
+        cumulativeDepth: { desktop: { '0': { __inc: 1 } } },
+      });
+      mocks.set.mockClear();
+      await POST(
+        request({
+          path: '/en',
+          home: 'progress',
+          device: 'desktop',
+          depths: [10, 20, 90],
+          reached: ['hero'],
+        })
+      );
+      expect(homeWrite()).toMatchObject({
+        cumulativeDepth: { desktop: { '90': { __inc: 1 } } },
         reached: { desktop: { hero: { __inc: 1 } } },
       });
+      expect(homeWrite()).not.toHaveProperty('views');
       expect(dayWrite()).toBeUndefined();
     });
 

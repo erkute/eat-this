@@ -58,7 +58,8 @@ export const OVERFLOW_TARGET = 'other';
 const TARGET_MAX = 60;
 
 export type HomeBeacon =
-  | { kind: 'scroll'; device: HomeDevice; depth: number; reached: HomeSection[] }
+  | { kind: 'view'; device: HomeDevice }
+  | { kind: 'progress'; device: HomeDevice; depths: number[]; reached: HomeSection[] }
   | {
       kind: 'click';
       device: HomeDevice;
@@ -98,17 +99,30 @@ export function targetKey(raw: unknown): string | null {
 /** Der Teil eines Zähl-Beacons, der die Startseite betrifft — oder `null`. */
 export function parseHomeBeacon(body: Record<string, unknown>): HomeBeacon | null {
   const home = body.home;
-  if (home !== 'scroll' && home !== 'click') return null;
+  if (home !== 'view' && home !== 'progress' && home !== 'click') return null;
   if (!isDevice(body.device)) return null;
 
-  if (home === 'scroll') {
-    const depth = unit(body.depth);
-    if (depth === null || !Array.isArray(body.reached)) return null;
+  if (home === 'view') return { kind: 'view', device: body.device };
+  if (home === 'progress') {
+    if (!Array.isArray(body.depths) || !Array.isArray(body.reached)) return null;
+    const depths = [
+      ...new Set(
+        body.depths.filter(
+          (n): n is number =>
+            typeof n === 'number' &&
+            Number.isInteger(n) &&
+            n >= 10 &&
+            n <= 100 &&
+            n % DEPTH_STEP === 0
+        )
+      ),
+    ];
     const reached = [...new Set(body.reached.filter(isSection))].filter((key) =>
       SCROLL_SECTIONS.includes(key)
     );
-    const bucket = Math.min(100, Math.floor((depth * 100) / DEPTH_STEP) * DEPTH_STEP);
-    return { kind: 'scroll', device: body.device, depth: bucket, reached };
+    return depths.length || reached.length
+      ? { kind: 'progress', device: body.device, depths, reached }
+      : null;
   }
 
   const x = unit(body.x);
@@ -186,13 +200,14 @@ export interface HomeDoc {
   day: string;
   views?: Partial<Record<HomeDevice, number>>;
   depth?: Partial<Record<HomeDevice, Record<string, number>>>;
+  cumulativeDepth?: Partial<Record<HomeDevice, Record<string, number>>>;
   reached?: Partial<Record<HomeDevice, Record<string, number>>>;
   clicks?: Partial<Record<HomeDevice, Record<string, Record<string, number>>>>;
   heat?: Partial<Record<HomeDevice, Record<string, Record<string, number>>>>;
 }
 
 export interface HomeDeviceStats {
-  /** Gemessene Aufrufe — jeder schickt beim Verlassen einen Scroll-Beacon. */
+  /** Gemessene Aufrufe; neue Aufrufe zählen bereits beim Öffnen. */
   views: number;
   /** Anteil der Aufrufe, die mindestens so tief kamen, je 10 %. */
   depth: { depth: number; share: number }[];
@@ -220,6 +235,7 @@ function add(map: Map<string, number>, key: string, value: unknown): void {
 function summarizeDevice(docs: HomeDoc[], device: HomeDevice): HomeDeviceStats {
   let views = 0;
   const depth = new Map<string, number>();
+  const cumulative = new Map<string, number>();
   const reached = new Map<string, number>();
   const targets = new Map<string, number>();
   const heat = new Map<string, Map<string, number>>();
@@ -228,6 +244,8 @@ function summarizeDevice(docs: HomeDoc[], device: HomeDevice): HomeDeviceStats {
     views += doc.views?.[device] ?? 0;
     for (const [bucket, count] of Object.entries(doc.depth?.[device] ?? {}))
       add(depth, bucket, count);
+    for (const [bucket, count] of Object.entries(doc.cumulativeDepth?.[device] ?? {}))
+      add(cumulative, bucket, count);
     for (const [section, count] of Object.entries(doc.reached?.[device] ?? {}))
       add(reached, section, count);
     for (const [section, byTarget] of Object.entries(doc.clicks?.[device] ?? {})) {
@@ -248,7 +266,10 @@ function summarizeDevice(docs: HomeDoc[], device: HomeDevice): HomeDeviceStats {
   let atLeast = 0;
   for (let step = 100; step >= 0; step -= DEPTH_STEP) {
     atLeast += depth.get(String(step)) ?? 0;
-    depthRows.unshift({ depth: step, share: views > 0 ? atLeast / views : 0 });
+    depthRows.unshift({
+      depth: step,
+      share: views > 0 ? (atLeast + (cumulative.get(String(step)) ?? 0)) / views : 0,
+    });
   }
 
   const heatOut: Partial<Record<HomeSection, Record<string, number>>> = {};

@@ -1,20 +1,14 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { isContentVisible } from '@/lib/analytics/contentVisibility';
+import { pathKey } from '@/lib/analytics/pathKey';
 import { countHome } from '@/lib/analytics';
 import { HOME_SECTIONS, PHONE_MAX_WIDTH, SCROLL_SECTIONS } from '@/lib/analytics/homeHeat';
 
-/**
- * Misst auf der Startseite, wie weit ein Aufruf scrollt und wohin geklickt
- * wird — für den Reiter „Startseite" in /admin/stats.
- *
- * Gemessen wird am Rechteck der Seite, nicht an der Scrollposition des
- * Fensters: ab Desktop scrollt `.app-pages`, am Telefon das Fenster. Die
- * Rechtecke stimmen in beiden Fällen.
- *
- * Kein Speicher, keine Kennung: ein Scroll-Beacon beim Verlassen, ein
- * Klick-Beacon je Klick, beide über den Zähler in lib/analytics.ts.
- */
+/** Ein Aufruf beim Öffnen; Scroll-Meilensteine einmalig beim Erreichen.
+ * Die Messung läuft nach Tabwechseln weiter. Keine Kennung und kein Speicher. */
 
 const INTERACTIVE =
   'a[href], button, [role="button"], input, textarea, select, summary, label, [data-heat]';
@@ -27,8 +21,8 @@ function sectionOf(element: Element): { key: string; box: Element } | null {
   return null;
 }
 
-/** Was angeklickt wurde, so lesbar wie möglich: ein Pfad, ein Host oder die
- *  Beschriftung. Kürzen und säubern übernimmt die Route (targetKey). */
+/** Was angeklickt wurde, so lesbar wie möglich: ein Pfad, ein Host oder ein
+ *  fester Bedienelementtyp. Kürzen und säubern übernimmt die Route (targetKey). */
 function targetOf(element: Element): string | null {
   const hit = element.closest(INTERACTIVE);
   if (!hit) return null;
@@ -38,35 +32,40 @@ function targetOf(element: Element): string | null {
     try {
       const url = new URL(hit.href, window.location.href);
       if (url.origin !== window.location.origin) return url.host;
-      return url.hash && url.pathname === window.location.pathname ? url.hash : url.pathname;
+      return pathKey(url.pathname);
     } catch {
       return null;
     }
   }
-  return (
-    hit.getAttribute('aria-label') ||
-    (hit instanceof HTMLElement ? hit.innerText : '') ||
-    hit.getAttribute('placeholder') ||
-    hit.tagName.toLowerCase()
-  );
+  return hit.tagName.toLowerCase();
 }
 
 export default function HomeHeatTracker() {
+  const pathname = usePathname();
   useEffect(() => {
+    if (pathname !== '/' && pathname !== '/en') return;
     const device = window.innerWidth <= PHONE_MAX_WIDTH ? 'phone' : 'desktop';
     const page = document.querySelector('[data-hub]');
     if (!page) return;
 
-    let depth = 0;
+    const depths = new Set<number>();
     const reached = new Set<string>();
     let frame = 0;
-    let sent = false;
+    countHome({ home: 'view', device });
 
     const measure = () => {
       frame = 0;
+      if (!isContentVisible() || !page.getClientRects().length) return;
+      const nextDepths: number[] = [];
+      const nextReached: string[] = [];
       const rect = page.getBoundingClientRect();
       if (rect.height > 0) {
-        depth = Math.max(depth, Math.min(1, (window.innerHeight - rect.top) / rect.height));
+        const depth = Math.min(1, Math.max(0, (window.innerHeight - rect.top) / rect.height));
+        for (let step = 10; step <= 100; step += 10)
+          if (depth >= step / 100 && !depths.has(step)) {
+            depths.add(step);
+            nextDepths.push(step);
+          }
       }
       for (const section of HOME_SECTIONS) {
         if (!SCROLL_SECTIONS.includes(section.key) || reached.has(section.key)) continue;
@@ -74,25 +73,25 @@ export default function HomeHeatTracker() {
         // Ausgeblendete Abschnitte (Starter Pack für Angemeldete) haben kein
         // Rechteck und stünden sonst bei top 0 als „erreicht" da.
         if (!box || box.getClientRects().length === 0) continue;
-        if (box.getBoundingClientRect().top < window.innerHeight) reached.add(section.key);
+        if (box.getBoundingClientRect().top < window.innerHeight) {
+          reached.add(section.key);
+          nextReached.push(section.key);
+        }
       }
+      if (nextDepths.length || nextReached.length)
+        countHome({ home: 'progress', device, depths: nextDepths, reached: nextReached });
     };
     const schedule = () => {
       if (!frame) frame = window.requestAnimationFrame(measure);
     };
 
-    const flush = () => {
-      if (sent) return;
-      sent = true;
-      measure();
-      countHome({ home: 'scroll', device, depth, reached: [...reached] });
-    };
     const onHide = () => {
-      if (document.visibilityState === 'hidden') flush();
+      if (document.visibilityState === 'visible') schedule();
     };
 
     const onClick = (event: MouseEvent) => {
-      if (!(event.target instanceof Element)) return;
+      if (!isContentVisible() || !(event.target instanceof Element)) return;
+      if (event.detail === 0 && event.clientX === 0 && event.clientY === 0) return;
       const section = sectionOf(event.target);
       if (!section) return;
       const box = section.box.getBoundingClientRect();
@@ -109,24 +108,25 @@ export default function HomeHeatTracker() {
       });
     };
 
+    const observer = new MutationObserver(schedule);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-consent-pending', 'data-consent-gate'],
+    });
     measure();
     document.addEventListener('scroll', schedule, { capture: true, passive: true });
     window.addEventListener('resize', schedule, { passive: true });
     document.addEventListener('click', onClick, { capture: true });
     document.addEventListener('visibilitychange', onHide);
-    window.addEventListener('pagehide', flush);
     return () => {
-      // Ein Wechsel in der App (Startseite → Map) ist kein pagehide: der
-      // Aufruf endet hier.
-      flush();
+      observer.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
       document.removeEventListener('scroll', schedule, { capture: true });
       window.removeEventListener('resize', schedule);
       document.removeEventListener('click', onClick, { capture: true });
       document.removeEventListener('visibilitychange', onHide);
-      window.removeEventListener('pagehide', flush);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

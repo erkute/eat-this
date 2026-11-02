@@ -1,4 +1,6 @@
 'use client';
+import { channelHint } from '@/lib/analytics/channels';
+import { publishInsightEvent } from '@/lib/analytics/eventSignals';
 
 import { readConsent } from '@/lib/consent';
 import { EMAIL_LINK_PARAMS } from '@/lib/auth/emailLinkParams';
@@ -142,7 +144,7 @@ function userAgent(): string | undefined {
   return ua ? ua.slice(0, UA_MAX) : undefined;
 }
 
-function sendCount(payload: Record<string, string | number | string[]>): void {
+function sendCount(payload: Record<string, string | number | string[] | number[]>): void {
   if (typeof window === 'undefined') return;
   if (isLocalAnalyticsHost(window.location.hostname) || isOwnOrAutomated()) return;
   const ua = userAgent();
@@ -218,6 +220,8 @@ export function countView(): void {
   if (typeof window === 'undefined') return;
   const path = window.location.pathname;
   const payload: Record<string, string> = { path };
+  const hint = channelHint(window.location.search);
+  if (hint) payload.channelHint = hint;
   const from = previousInternalPath();
   if (from) payload.from = from;
   if (!referrerSent) {
@@ -233,7 +237,11 @@ export function countView(): void {
 
 /** Scrolltiefe oder Klick auf der Startseite (lib/analytics/homeHeat.ts) —
  *  derselbe Beacon, dieselben Riegel wie ein Seitenaufruf. */
-export function countHome(payload: Record<string, string | number | string[]>): void {
+export function countInsight(payload: Record<string, string | number | string[] | number[]>): void {
+  if (typeof window !== 'undefined') sendCount({ ...payload, path: window.location.pathname });
+}
+
+export function countHome(payload: Record<string, string | number | string[] | number[]>): void {
   if (typeof window === 'undefined') return;
   sendCount({ ...payload, path: window.location.pathname });
 }
@@ -295,6 +303,7 @@ function countEventWithQualifier(name: string, params?: AnalyticsParams): void {
  * this function that must not depend on an answer. Everything below the fan-out
  * is GA and stays behind consent, unchanged. */
 export function trackEvent(name: string, params?: AnalyticsParams): void {
+  publishInsightEvent(name);
   countEventWithQualifier(name, params);
   const w = analyticsWindow();
   if (!w || !gaEnabled()) return;
@@ -330,14 +339,23 @@ export async function loadAnalytics(): Promise<void> {
   // Einmal pro Dokument, auch wenn CookieConsent und AnalyticsPageViews
   // gleichzeitig laden. Bis zur Antwort bleibt jede Nachricht lokal in der
   // Warteschlange; bei Ausschluss oder Fehler wird nichts an Google gesendet.
-  w.__eatThisAnalyticsNetworkCheck ??= Promise.resolve().then(() => fetch(COUNT_ENDPOINT, {
-    cache: 'no-store',
-    credentials: 'same-origin',
-  })).then(async (response) => {
-    const result: unknown = response.ok ? await response.json() : null;
-    return typeof result === 'object' && result !== null &&
-      'excluded' in result && result.excluded === false;
-  }).catch(() => false);
+  w.__eatThisAnalyticsNetworkCheck ??= Promise.resolve()
+    .then(() =>
+      fetch(COUNT_ENDPOINT, {
+        cache: 'no-store',
+        credentials: 'same-origin',
+      })
+    )
+    .then(async (response) => {
+      const result: unknown = response.ok ? await response.json() : null;
+      return (
+        typeof result === 'object' &&
+        result !== null &&
+        'excluded' in result &&
+        result.excluded === false
+      );
+    })
+    .catch(() => false);
   const allowed = await w.__eatThisAnalyticsNetworkCheck;
   w.__eatThisAnalyticsNetworkExcluded = !allowed;
   if (!allowed) w.__eatThisAnalyticsQueue = [];

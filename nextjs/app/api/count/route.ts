@@ -1,4 +1,7 @@
+import { channelOf } from '@/lib/analytics/channels';
 import { NextResponse } from 'next/server';
+import { parseInsight } from '@/lib/analytics/engagement';
+import { writeInsight } from '@/lib/analytics/engagement.server';
 import { FieldValue, Timestamp, type DocumentReference } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { clientIpFromXff } from '@/lib/clientIp';
@@ -174,16 +177,20 @@ async function homeUpdate(
 ): Promise<Record<string, unknown>> {
   const inc = FieldValue.increment(1);
   const { device } = beacon;
-  if (beacon.kind === 'scroll') {
+  if (beacon.kind === 'view')
+    return { day, views: { [device]: inc }, cumulativeDepth: { [device]: { '0': inc } } };
+  if (beacon.kind === 'progress')
     return {
       day,
-      views: { [device]: inc },
-      depth: { [device]: { [String(beacon.depth)]: inc } },
+      ...(beacon.depths.length > 0 && {
+        cumulativeDepth: {
+          [device]: Object.fromEntries(beacon.depths.map((depth) => [String(depth), inc])),
+        },
+      }),
       ...(beacon.reached.length > 0 && {
-        reached: { [device]: Object.fromEntries(beacon.reached.map((s) => [s, inc])) },
+        reached: { [device]: Object.fromEntries(beacon.reached.map((section) => [section, inc])) },
       }),
     };
-  }
   const update: Record<string, unknown> = {
     day,
     heat: { [device]: { [beacon.section]: { [beacon.cell]: inc } } },
@@ -326,6 +333,21 @@ export async function POST(request: Request) {
 
   const db = getAdminFirestore();
 
+  if ('insight' in body) {
+    const insight = parseInsight(body);
+    if (!insight) return new NextResponse(null, { status: 204 });
+    try {
+      await writeInsight(db, day, insight);
+    } catch (error) {
+      console.error(
+        '[count] insight write failed',
+        error instanceof Error ? error.name : 'UnknownError'
+      );
+    }
+    await markActive(db.collection('analytics_seen').doc(hash));
+    return new NextResponse(null, { status: 204 });
+  }
+
   // Scrolltiefe und Klicks der Startseite: ein eigenes Dokument, kein
   // Seitenaufruf. Steht vor dem Seitenaufruf-Zweig, sonst zaehlte jeder Klick
   // als Aufruf.
@@ -402,6 +424,7 @@ export async function POST(request: Request) {
         ...update,
         visitors: inc,
         entryPaths: { [entryPath]: inc },
+        entryChannels: { [channelOf(body.referrer, body.channelHint)]: inc },
       },
       { merge: true }
     );

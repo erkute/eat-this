@@ -8,6 +8,7 @@ import SignInReward from '@/app/components/SignInReward';
 import EmailLinkSignIn from '@/app/components/EmailLinkSignIn';
 import NotificationToast from '@/app/components/NotificationToast';
 import ScrollRestorer from '@/app/components/ScrollRestorer';
+import PageInsightTracker from '@/app/components/PageInsightTracker';
 import AnalyticsPageViews from '@/app/components/AnalyticsPageViews';
 import CookieConsent from '@/app/components/CookieConsent';
 import { CONSENT_BOOTSTRAP } from '@/lib/consentBootstrap';
@@ -137,6 +138,7 @@ export default async function LocaleLayout({
           <NotificationToast />
           <ScrollRestorer />
           <AnalyticsPageViews />
+          <PageInsightTracker />
           {/* Auf JEDER Locale-Route, nicht nur im SPA-Layout — dort hing der
               Dialog bis 28.08.2026, und /restaurant, /kategorie, /bezirk,
               /packs, /profile und /checkout liegen daneben. Auf 35 % der

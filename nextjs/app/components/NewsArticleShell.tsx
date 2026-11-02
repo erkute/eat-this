@@ -450,7 +450,7 @@ export default function NewsArticleShell({
               manifesto.kaleidoscope.media): mittig Rubrik, die Schlagzeile
               gross, klein die Credits; darunter das Foto
               randlos mit schmalem Rahmen, dann der Vorspann als Auftakt. */}
-          <header className={styles.header}>
+          <header className={styles.header} data-insight-header="">
             {/* Keine Brotkrume: der Artikeltitel ist zu lang für eine Zeile und
                 brach als dritte Krume um. Sie trug ohnehin keinen eigenen Link
                 — „/" und „/news" stehen im Burger, der auf jeder Seite
@@ -506,6 +506,7 @@ export default function NewsArticleShell({
               className={styles.content}
               data-reading-content
               data-article-content=""
+              data-insight-content=""
               data-lede={showLede ? '' : undefined}
             >
               <PortableTextRenderer

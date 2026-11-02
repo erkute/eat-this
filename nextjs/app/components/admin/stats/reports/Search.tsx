@@ -1,3 +1,4 @@
+import KeywordHistory from '../KeywordHistory';
 import { delta, eachDay, dayBefore, sinceDay, type StatsSummary } from '@/lib/admin/stats.server';
 import type { SearchMover } from '@/lib/admin/searchConsole';
 import { BarRows, Card, DiffCell, Kpi, LineChart } from '../charts';
@@ -94,16 +95,6 @@ export default function Search({ data }: { data: StatsSummary }) {
           invert
           hint={before ? `vorher ${position(before.position)}` : undefined}
         />
-        <Kpi
-          label="Anfragen mit Klick"
-          value={NUMBER.format(s.queries.filter((q) => q.clicks > 0).length)}
-          hint="in den Top 25"
-        />
-        <Kpi
-          label="Seiten mit Klick"
-          value={NUMBER.format(s.pages.filter((p) => p.clicks > 0).length)}
-          hint="in den Top 25"
-        />
       </div>
 
       <Card
@@ -152,6 +143,8 @@ export default function Search({ data }: { data: StatsSummary }) {
         />
       </Card>
 
+      <KeywordHistory data={s} range={data.range} />
+
       <Card
         title="Welche Suche funktioniert"
         span={2}
@@ -189,8 +182,8 @@ export default function Search({ data }: { data: StatsSummary }) {
       </Card>
 
       <Card
-        title="Fast oben"
-        sub="Oft gezeigt, selten geklickt: Position 4 bis 20, mindestens 30 Impressionen. Hier arbeiten Titel und Description."
+        title="Suchbegriffe zum Prüfen"
+        sub="Position 4 bis 20, mindestens 30 Impressionen und höchstens 5 % Klickrate. Prüfe Suchintention, passende Zielseite und Suchvorschau; die Position allein erklärt die Klickrate nicht."
       >
         <SearchRows
           rows={s.opportunities}

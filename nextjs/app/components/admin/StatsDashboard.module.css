@@ -324,6 +324,11 @@
   max-width: 100%;
 }
 
+.cardTools > label {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .select {
   max-width: 100%;
   min-height: 32px;
@@ -700,9 +705,8 @@
 
 .cellKey {
   max-width: 34ch;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .cellNum {
@@ -1464,4 +1468,40 @@
 }
 .pageDetails[open] > summary {
   margin-bottom: 16px;
+}
+
+.reportTabs {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.findings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  gap: 24px;
+}
+.findings h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.findings p {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.table tbody th {
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+  border-top: 1px solid var(--hair);
+  vertical-align: top;
 }

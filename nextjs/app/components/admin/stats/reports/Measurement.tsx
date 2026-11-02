@@ -1,6 +1,6 @@
 import type { StatsSummary } from '@/lib/admin/stats.server';
 import { Card, Kpi } from '../charts';
-import { NUMBER, longDay } from '../format';
+import { NUMBER, longDay, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
 
 export default function Measurement({ data }: { data: StatsSummary }) {
@@ -73,6 +73,39 @@ export default function Measurement({ data }: { data: StatsSummary }) {
           </table>
         </div>
       </Card>
+      <Card
+        title="GA: Sitzungen mit Einwilligung"
+        span={3}
+        sub="Zusätzliche Stichprobe aus Google Analytics. Diese Werte werden nicht als Quote aller Tagesbesucher verwendet."
+      >
+        {data.ga?.ok ? (
+          <>
+            <p className={styles.note}>
+              {NUMBER.format(data.ga.users)} aktive GA-Nutzer im Zeitraum, über Tage dedupliziert.
+            </p>
+            {data.ga.engagement ? (
+              <p className={styles.note}>
+                {NUMBER.format(data.ga.engagement.sessions)} Sitzungen ·{' '}
+                {NUMBER.format(data.ga.engagement.engagedSessions)} engagierte Sitzungen ·{' '}
+                {data.ga.engagement.sessions > 0 ? percent(data.ga.engagement.bounceRate) : '—'}{' '}
+                GA-Absprungrate.
+              </p>
+            ) : (
+              <p className={styles.note}>Keine verlässlichen Sitzungs-/Absprungwerte geliefert.</p>
+            )}
+            <p className={styles.note}>
+              GA zählt eine Sitzung als engagiert, wenn sie die konfigurierte Zeitgrenze
+              überschreitet, mindestens zwei Seiten-/Bildschirmaufrufe oder ein Schlüsselereignis
+              enthält. Die GA-Absprungrate bezieht sich auf die übrigen Sitzungen, nicht auf alle
+              Besucher der Website.
+            </p>
+          </>
+        ) : (
+          <p className={styles.empty}>
+            GA-Daten nicht verfügbar. Die eigenen Besucherzahlen bleiben davon unabhängig.
+          </p>
+        )}
+      </Card>
       <Card title="So werden Besucher gezählt" span={2}>
         <p className={styles.note}>
           Der erste gezählte Seitenaufruf erhöht Besucher und Einstiegsseite gemeinsam. Weitere
@@ -103,6 +136,10 @@ export default function Measurement({ data }: { data: StatsSummary }) {
         </p>
       </Card>
       <Card title="Grenzen der Zahlen" span={3}>
+        <p className={styles.note}>
+          Historische Zählerstände sind nicht durchgehend vergleichbar: bis 02.09.2026 wurden
+          bestimmte Bots, bis 04.09.2026 eigene Lighthouse-Tests mitgezählt.
+        </p>
         <p className={styles.note}>
           Wie viele Menschen ausschließlich die Startseite gesehen haben, lässt sich rückwirkend
           nicht exakt bestimmen. Sichtbar sind ihre Einstiege und sämtliche Aufrufe. Es gibt keine

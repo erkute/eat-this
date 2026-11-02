@@ -59,6 +59,64 @@ export interface SearchDayDetail {
   pages: SearchRow[];
 }
 
+export interface KeywordDay {
+  day: string;
+  query: string;
+  clicks: number;
+  impressions: number;
+  position: number;
+}
+export interface KeywordPeriod {
+  start: string;
+  end: string;
+  queries: SearchRow[];
+  clicks: number;
+}
+export function keywordPeriods(rows: KeywordDay[], unit: 'day' | 'week'): KeywordPeriod[] {
+  const groups = new Map<string, { end: string; rows: Map<string, SearchRow> }>();
+  for (const row of rows) {
+    const date = new Date(`${row.day}T12:00:00Z`);
+    const start =
+      unit === 'day'
+        ? row.day
+        : new Date(date.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7)))
+            .toISOString()
+            .slice(0, 10);
+    const period = groups.get(start) ?? { end: row.day, rows: new Map<string, SearchRow>() };
+    period.end = period.end > row.day ? period.end : row.day;
+    const previous = period.rows.get(row.query) ?? {
+      key: row.query,
+      clicks: 0,
+      impressions: 0,
+      ctr: 0,
+      position: 0,
+    };
+    const impressions = previous.impressions + row.impressions;
+    period.rows.set(row.query, {
+      key: row.query,
+      clicks: previous.clicks + row.clicks,
+      impressions,
+      ctr: impressions > 0 ? (previous.clicks + row.clicks) / impressions : 0,
+      position:
+        impressions > 0
+          ? (previous.position * previous.impressions + row.position * row.impressions) /
+            impressions
+          : 0,
+    });
+    groups.set(start, period);
+  }
+  return [...groups]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([start, period]) => ({
+      start,
+      end: period.end,
+      queries: [...period.rows.values()].sort(
+        (a, b) => b.clicks - a.clicks || b.impressions - a.impressions || a.key.localeCompare(b.key)
+      ),
+      clicks: [...period.rows.values()].reduce((s, row) => s + row.clicks, 0),
+    }));
+}
+
 export interface SearchSummary {
   /** Die GSC-Property, z. B. `sc-domain:eatthisdot.com`. */
   property: string;
@@ -93,6 +151,9 @@ export interface SearchSummary {
   previousDay: SearchDayDetail | null;
   /** Wann die Zahlen geholt wurden (ISO). Sie werden eine Stunde gehalten. */
   fetchedAt: string;
+  keywordHistory: KeywordDay[];
+  keywordHistoryStart: string;
+  keywordHistoryTruncated: boolean;
 }
 
 /** Die Antwort der Route: entweder Zahlen oder der Grund, warum nicht. */
@@ -170,7 +231,11 @@ export function pathOf(url: string): string {
 export function opportunitiesOf(queries: SearchRow[]): SearchRow[] {
   return queries
     .filter(
-      (q) => q.impressions >= OPPORTUNITY_MIN_IMPRESSIONS && q.position >= 4 && q.position <= 20
+      (q) =>
+        q.impressions >= OPPORTUNITY_MIN_IMPRESSIONS &&
+        q.position >= 4 &&
+        q.position <= 20 &&
+        q.ctr <= 0.05
     )
     .sort((a, b) => b.impressions - a.impressions || a.key.localeCompare(b.key))
     .slice(0, OPPORTUNITY_N);
@@ -282,6 +347,8 @@ export interface SearchInput {
   /** Die letzten Tage nach `date` + `page`. */
   byDatePage: ApiRow[];
   fetchedAt: string;
+  keywordHistoryStart?: string;
+  keywordHistoryTruncated?: boolean;
 }
 
 export function summarizeSearch(input: SearchInput): SearchSummary {
@@ -340,5 +407,16 @@ export function summarizeSearch(input: SearchInput): SearchSummary {
     movers: moversOf(queries, queriesBefore),
     ...dayDetailsOf(input.byDateQuery, input.byDatePage, dayTotals),
     fetchedAt: input.fetchedAt,
+    keywordHistory: input.byDateQuery
+      .filter((row) => row.keys?.[0] && row.keys?.[1])
+      .map((row) => ({
+        day: row.keys![0],
+        query: row.keys![1],
+        clicks: num(row.clicks),
+        impressions: num(row.impressions),
+        position: num(row.position),
+      })),
+    keywordHistoryStart: input.keywordHistoryStart ?? input.range.start,
+    keywordHistoryTruncated: input.keywordHistoryTruncated ?? false,
   };
 }

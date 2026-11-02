@@ -1,3 +1,8 @@
+import {
+  summarizeInsights,
+  type InsightDoc,
+  type InsightSummary,
+} from '@/lib/analytics/engagement';
 /**
  * Aggregation für /admin/stats — die Leseseite des einwilligungsfreien
  * Zählers aus app/api/count/route.ts, plus Konten, Karten und Umsatz aus
@@ -29,6 +34,7 @@ export interface DailyDoc {
   visitors?: number;
   paths?: Record<string, number>;
   entryPaths?: Record<string, number>;
+  entryChannels?: Record<string, number>;
   continuations?: Record<string, number>;
   referrers?: Record<string, number>;
   events?: Record<string, number>;
@@ -311,7 +317,7 @@ export interface DaySummary {
  * und jeden Besucher zum Nicht-Antworter — darum faellt er raus, obwohl er die
  * Felder traegt.
  */
-const FULL_DAY_FIELDS_SINCE = '2026-08-29';
+export const FULL_DAY_FIELDS_SINCE = '2026-08-29';
 
 /** Besucher mit einem Beacon in den letzten `minutes` Minuten, Stand `at`. */
 export interface Live {
@@ -331,6 +337,8 @@ export interface StatsSummary {
   previousDays: DayPoint[];
   eventsByDay: EventDay[];
   measurement: MeasurementDay[];
+  entryChannels: Entry[];
+  engagement: InsightSummary;
   /**
    * Die Google-Suche, aus der Search Console — oder der Grund, warum sie
    * fehlt (lib/admin/searchConsole.ts). null, wenn die Route sie nicht
@@ -435,6 +443,7 @@ function parseDays(raw: string | null): number {
  * Route-Datei nur die Handler exportiert sehen will.
  */
 export function parseRange(params: URLSearchParams, today: string): Range {
+  if (params.get('today') === '1') return { start: today, end: today, days: 1 };
   const lastClosedDay = dayBefore(today);
   const from = params.get('from');
   const to = params.get('to');
@@ -785,6 +794,7 @@ interface SummarizeOptions {
   deck?: Deck | null;
   live?: Live | null;
   ga?: GaResult | null;
+  insights?: InsightDoc[];
 }
 
 /**
@@ -825,6 +835,7 @@ export function summarize(
 
   const paths = new Map<string, number>();
   const entryPaths = new Map<string, number>();
+  const entryChannels = new Map<string, number>();
   const referrers = new Map<string, number>();
   const events = new Map<string, number>();
 
@@ -856,6 +867,7 @@ export function summarize(
 
     addInto(paths, doc.paths);
     addInto(entryPaths, doc.entryPaths);
+    addInto(entryChannels, doc.entryChannels);
     addInto(referrers, doc.referrers);
     addInto(events, doc.events);
 
@@ -927,6 +939,8 @@ export function summarize(
     previousDays: sortedBefore.map(pointOf),
     eventsByDay,
     measurement: sorted.map(measureDay),
+    entryChannels: topEntries(entryChannels, Number.MAX_SAFE_INTEGER),
+    engagement: summarizeInsights(options.insights ?? []),
     search,
     totals: { pageviews, visitors, days: sorted.length, closedDays: closed.length },
     accounts,

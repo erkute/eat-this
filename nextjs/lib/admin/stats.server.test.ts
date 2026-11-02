@@ -4,6 +4,7 @@ import {
   daysBetween,
   eachDay,
   packPriceCents,
+  parseRange,
   sinceDay,
   summarize,
   summarizeAccounts,
@@ -814,5 +815,13 @@ describe('vollständige Besucher- und Seitenaufteilung', () => {
     expect(result.paths.reduce((sum, row) => sum + row.count, 0)).toBe(3240);
     expect(result.dayDetails.latest?.entryPaths).toHaveLength(80);
     expect(result.dayDetails.latest?.paths).toHaveLength(80);
+  });
+});
+
+it('trennt Heute bewusst von abgeschlossenen Standardzeiträumen', () => {
+  expect(parseRange(new URLSearchParams('today=1'), '2026-11-02')).toEqual({
+    start: '2026-11-02',
+    end: '2026-11-02',
+    days: 1,
   });
 });

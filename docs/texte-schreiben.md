@@ -146,7 +146,7 @@ Regeln:
 - Sein Vokabular ist die Obergrenze. Kein Verkoster-Jargon („Noten von Bergamotte“, „vielschichtig“, „Mundgefühl“). Fruchtigkeit ist nicht Säure. Milch nimmt Säure zurück.
 - Gerichte heißen, wie sie auf der Karte heißen, beim ersten Mal kurz erklärt: „Nukazuke, Gemüse, das eigens für das Haus eingelegt wird“.
 - „Must Eat“ immer ohne Bindestrich, auch in Komposita („Must Eat Karte“).
-- **Nie Geschenk-Wording:** kostenlos, gratis, geht auf uns, free, on us. Sagen, was es ist. (Ausnahme von Ersan selbst: die Startseiten-FAQ „kostenloses Konto“.)
+- **Nie Geschenk-Wording:** kostenlos, gratis, geht auf uns, free, on us. Sagen, was es ist.
 
 ### Streichliste
 Diese Wörter und Wendungen fliegen raus, ohne Ersatz:

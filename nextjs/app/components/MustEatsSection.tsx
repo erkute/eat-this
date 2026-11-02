@@ -23,7 +23,7 @@ const COPY = {
     statement: ['Gerichte entdecken.', 'Karten sammeln.'],
     sub: 'Gerichte, die man kennen sollte. Probier neue Gerichte vor Ort und sammle deine Favoriten als Karten.',
     countLabel: 'Must Eats in Berlin.',
-    accountNote: 'Dein Start: 30 Must Eats. Zehn sind schon aufgedeckt, 20 weitere bekommst du mit deinem Konto im Starter Pack. Den Rest entdeckst du vor Ort.',
+    accountNote: 'Dein Starter Pack zeigt dir die ersten Must Eats. Den Rest entdeckst du vor Ort.',
     headGuestCta: 'Sammlung starten',
     howItWorks: 'So funktioniert’s',
     numberLabel: 'Nr.',
@@ -39,7 +39,7 @@ const COPY = {
     closeGuestKicker: 'Dein Starter Pack',
     closeGuestTitle: '20 Karten. Der Anfang deiner Sammlung.',
     closeGuestBody:
-      'Erstelle dein Konto und hol dir 20 weitere Must Eats im Starter Pack. Neue Empfehlungen kommen regelmäßig dazu. Was du noch nicht kennst, findest du auf der Map – und in Berlin.',
+      'Dein Starter Pack zeigt dir die ersten Must Eats. Den Rest entdeckst du vor Ort. Und es werden immer mehr.',
     closeGuestCta: 'Konto erstellen',
     // Mit Konto ist die Sammlung längst angefangen: Map und Booster Packs.
     closeKicker: 'Und jetzt',
@@ -55,7 +55,7 @@ const COPY = {
     statement: ['Discover dishes.', 'Collect cards.'],
     sub: 'Dishes worth knowing. Try new dishes at the spots and collect your favourites as cards.',
     countLabel: 'Must Eats in Berlin.',
-    accountNote: 'Start with 30 Must Eats. Ten are already face up, and your account adds 20 more in your Starter Pack. Discover the rest at the spots themselves.',
+    accountNote: 'Your Starter Pack shows you your first Must Eats. Discover the rest at the spots themselves.',
     headGuestCta: 'Start collecting',
     howItWorks: 'How it works',
     numberLabel: 'No.',
@@ -70,7 +70,7 @@ const COPY = {
     closeGuestKicker: 'Your Starter Pack',
     closeGuestTitle: '20 cards. The start of your collection.',
     closeGuestBody:
-      'Create your account and get 20 more Must Eats in your Starter Pack. New recommendations are added regularly. Find your next discovery on the map – and in Berlin.',
+      'Your Starter Pack shows you your first Must Eats. Discover the rest at the spots themselves, with more added over time.',
     closeGuestCta: 'Create account',
     closeKicker: 'Now go',
     closeTitle: 'Come and get them.',

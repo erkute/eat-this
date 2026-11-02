@@ -2,7 +2,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 import type { Metadata, Viewport } from 'next';
 import { preconnect } from 'react-dom';
-import { Saira_Condensed } from 'next/font/google';
 import { setRequestLocale } from 'next-intl/server';
 import { OG_CARD_VERSION, SITE_URL } from '@/lib/constants';
 import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo/metadata';
@@ -11,13 +10,6 @@ import { byMustEatsThenName, openFirst } from '@/lib/map/listOrder';
 import { berlinNow } from '@/lib/map/openingHours';
 import { buildMapJsonLd } from '@/lib/json-ld';
 import { INITIAL_LIST_ROWS } from '@/lib/map/listWindow';
-
-const sairaCondensed = Saira_Condensed({
-  weight: ['700', '800', '900'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-saira-condensed',
-});
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -150,7 +142,6 @@ export default async function MapPage({ params, searchParams }: PageProps) {
         initialMapData={initialMapData}
         renderedAt={renderedAt}
         initialRestaurantSlug={initialRestaurantSlug}
-        fontClassName={sairaCondensed.variable}
       />
     </>
   );

@@ -68,7 +68,6 @@ interface Props {
    *  rows do not reshuffle on hydration (openFirst). */
   renderedAt?: number;
   initialRestaurantSlug?: string | null;
-  fontClassName?: string;
 }
 
 export default function MapSection({
@@ -76,7 +75,6 @@ export default function MapSection({
   initialMapData,
   renderedAt,
   initialRestaurantSlug = null,
-  fontClassName,
 }: Props) {
   const orderedAt = useMemo(
     () => (renderedAt === undefined ? undefined : berlinNow(new Date(renderedAt))),
@@ -1602,7 +1600,6 @@ export default function MapSection({
   return (
     <MapSectionBody
       isActive={isActive}
-      fontClassName={fontClassName}
       mapRef={mapRef}
       handleRef={handleRef}
       setHeaderRef={setHeaderRef}

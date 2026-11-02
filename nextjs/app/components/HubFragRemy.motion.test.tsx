@@ -2,6 +2,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
+vi.mock('./buddy/loadBuddyWidget', () => ({ loadBuddyWidget: vi.fn().mockResolvedValue({}) }));
 const mocks = vi.hoisted(() => ({ timeline: vi.fn(), cleanups: [] as Array<() => void> }));
 vi.mock('gsap', () => ({ default: {
   matchMedia: () => ({

@@ -8,6 +8,7 @@ import { countEvent, getAnalyticsPageLocation, loadAnalytics, trackEvent } from 
 import { clearConsent, readConsent, recordConsent, writeConsent } from '@/lib/consent';
 import { afterHeroReveal } from '@/lib/home/heroIntro';
 import { CONSENT_FOCUSABLE, CONSENT_INTERACTIVE_EVENT } from '@/lib/consentBootstrap';
+import Image from './SiteImage';
 
 /* Remy öffnet den Hero, danach fächern sich die Karten auf und drehen sich.
    Falls eine der Phasen hängt, wartet die Frage höchstens 15 Sekunden. */
@@ -376,6 +377,11 @@ export default function CookieConsent() {
           }
         }}
       >
+        <Image src="/pics/paper/folded-white.webp?v=20261028-hq" alt="" aria-hidden="true"
+          fill priority quality={90} sizes={expanded
+            ? '(max-width: 640px) max(calc(100vw - 20px), calc(66.667dvh - 17.334px)), (max-width: 712px) calc(100vw - 32px), 680px'
+            : '(max-width: 640px) calc(100vw - 20px), 520px'}
+          className="cookie-paper" />
         <div className="cookie-content">
           {/* Text und Details scrollen zusammen; die zwei Antworten darunter
               bleiben beim Lesen fest im Bild. */}

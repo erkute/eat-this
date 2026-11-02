@@ -15,6 +15,9 @@ interface Args {
   userInteractedRef: RefObject<boolean>;
   onRestaurantSlugMatch: (r: MapRestaurant) => void;
   onMustEatIdMatch: (m: MapMustEat) => void;
+  /** Camera-only catchup: callers must ignore targets no longer selected. */
+  onRestaurantCameraReady: (r: MapRestaurant) => void;
+  onMustEatCameraReady: (m: MapMustEat) => void;
   /** Restaurant already selected in the server render for a hard-reloaded
    *  ?r= URL. MapSection owns its initial camera poll; this hook only marks
    *  the URL as consumed so it cannot reopen the detail after hydration. */
@@ -32,6 +35,8 @@ export function useMapDeepLinks({
   userInteractedRef,
   onRestaurantSlugMatch,
   onMustEatIdMatch,
+  onRestaurantCameraReady,
+  onMustEatCameraReady,
   initialRestaurant = null,
   fitCameraToSpots,
 }: Args) {
@@ -43,6 +48,10 @@ export function useMapDeepLinks({
   // — same reasoning as the ?me= effect below.
   const onRestaurantSlugMatchRef = useRef(onRestaurantSlugMatch);
   onRestaurantSlugMatchRef.current = onRestaurantSlugMatch;
+  const restaurantCameraRef = useRef(onRestaurantCameraReady);
+  restaurantCameraRef.current = onRestaurantCameraReady;
+  const mustEatCameraRef = useRef(onMustEatCameraReady);
+  mustEatCameraRef.current = onMustEatCameraReady;
   const restaurantConsumed = useRef(initialRestaurant !== null);
   const [restaurantPollTarget, setRestaurantPollTarget] = useState<MapRestaurant | null>(null);
   useEffect(() => {
@@ -66,7 +75,7 @@ export function useMapDeepLinks({
     // chaining, so it simply no-ops while mapRef is null.
     userInteractedRef.current = true;
     onRestaurantSlugMatchRef.current(target);
-    // Re-run once the canvas mounts so the camera flies to the spot. Keeping
+    // Move only the camera once the canvas mounts. Keeping
     // this target in state lets the bounded poll survive unrelated data
     // updates while still being cancelled on deactivation/unmount.
     setRestaurantPollTarget(target);
@@ -77,7 +86,7 @@ export function useMapDeepLinks({
     return pollUntilMapReady({
       mapRef,
       onReady: () => {
-        onRestaurantSlugMatchRef.current(restaurantPollTarget);
+        restaurantCameraRef.current(restaurantPollTarget);
         setRestaurantPollTarget(null);
       },
       onTimeout: () => setRestaurantPollTarget(null),
@@ -108,24 +117,22 @@ export function useMapDeepLinks({
     mustEatConsumed.current = true;
     // Param stays in the URL — see the ?r= effect above (URL sync lives in
     // MapSection; refresh should reopen the card, guard prevents re-trigger).
+    userInteractedRef.current = true;
+    onMustEatIdMatchRef.current(target);
     setMustEatPollTarget(target);
-  }, [isActive, mustEats]);
+  }, [isActive, mustEats, userInteractedRef]);
 
   useEffect(() => {
     if (!isActive || !mustEatPollTarget) return;
-    const openTarget = () => {
-      userInteractedRef.current = true;
-      onMustEatIdMatchRef.current(mustEatPollTarget);
-      setMustEatPollTarget(null);
-    };
     return pollUntilMapReady({
       mapRef,
-      onReady: openTarget,
-      // The detail handler already tolerates a null mapRef. If the MapLibre
-      // chunk never mounts, open the requested card once and stop polling.
-      onTimeout: openTarget,
+      onReady: () => {
+        mustEatCameraRef.current(mustEatPollTarget);
+        setMustEatPollTarget(null);
+      },
+      onTimeout: () => setMustEatPollTarget(null),
     });
-  }, [isActive, mapRef, mustEatPollTarget, userInteractedRef]);
+  }, [isActive, mapRef, mustEatPollTarget]);
 
   /* ?bezirk=<slug> also moves the camera to fit that district. The filter
      itself is applied by useMapFilterUrl — this hook owns only the camera, so

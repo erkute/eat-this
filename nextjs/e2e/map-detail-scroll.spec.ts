@@ -37,3 +37,18 @@ for (const viewport of [{ width: 375, height: 812 }, { width: 768, height: 768 }
     }
   });
 }
+
+test('restaurant header follows desktop-to-phone viewport changes', async ({ page, context, baseURL }, info) => {
+  test.skip(info.project.name !== 'desktop', 'This test changes viewport across the breakpoint.');
+  await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/map?r=engelbecken');
+  const detail = page.locator('[data-detail-root="restaurant"]');
+  await expect(detail).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 900 });
+  await detail.locator('[data-pack-poster]').scrollIntoViewIfNeeded();
+  const bar = detail.locator('[class*="rdBar_"]');
+  await expect(bar).toHaveAttribute('data-shown', '');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(bar).not.toHaveAttribute('data-shown', '');
+});

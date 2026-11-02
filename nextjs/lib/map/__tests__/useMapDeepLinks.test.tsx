@@ -32,6 +32,8 @@ const mustEat: MapMustEat = {
 function createHarness(mapRef: RefObject<MapRef | null>) {
   const onRestaurantSlugMatch = vi.fn();
   const onMustEatIdMatch = vi.fn();
+  const onRestaurantCameraReady = vi.fn();
+  const onMustEatCameraReady = vi.fn();
   const userInteractedRef = { current: false };
   const fitCameraToSpots = vi.fn();
   const stableArgs = {
@@ -41,6 +43,8 @@ function createHarness(mapRef: RefObject<MapRef | null>) {
     userInteractedRef,
     onRestaurantSlugMatch,
     onMustEatIdMatch,
+    onRestaurantCameraReady,
+    onMustEatCameraReady,
     fitCameraToSpots,
   };
 
@@ -79,7 +83,8 @@ describe('useMapDeepLinks bounded map polling', () => {
     expect(onRestaurantSlugMatch).toHaveBeenCalledOnce();
 
     rerender({ isActive: true });
-    expect(onRestaurantSlugMatch).toHaveBeenCalledTimes(2);
+    expect(onRestaurantSlugMatch).toHaveBeenCalledOnce();
+    expect(stableArgs.onRestaurantCameraReady).toHaveBeenCalledExactlyOnceWith(restaurant);
     expect(onRestaurantSlugMatch).toHaveBeenLastCalledWith(restaurant);
     expect(vi.getTimerCount()).toBe(0);
   });
@@ -106,14 +111,15 @@ describe('useMapDeepLinks bounded map polling', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
-  it('opens a Must-Eat once as a fallback if the map chunk never mounts', () => {
+  it('opens a Must-Eat immediately even if the map chunk never mounts', () => {
     window.history.replaceState({}, '', '/map?me=must-eat-1');
     const mapRef: RefObject<MapRef | null> = { current: null };
     const { stableArgs, onMustEatIdMatch, userInteractedRef } = createHarness(mapRef);
     renderHook(() => useMapDeepLinks({ ...stableArgs, isActive: true }));
 
+    expect(onMustEatIdMatch).toHaveBeenCalledExactlyOnceWith(mustEat);
     act(() => vi.advanceTimersByTime(14_999));
-    expect(onMustEatIdMatch).not.toHaveBeenCalled();
+    expect(onMustEatIdMatch).toHaveBeenCalledOnce();
 
     act(() => vi.advanceTimersByTime(1));
     expect(onMustEatIdMatch).toHaveBeenCalledOnce();
@@ -122,7 +128,7 @@ describe('useMapDeepLinks bounded map polling', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
-  it('does not open a pending Must-Eat after unmount', () => {
+  it('cancels pending camera catchup after unmount', () => {
     window.history.replaceState({}, '', '/map?me=must-eat-1');
     const mapRef: RefObject<MapRef | null> = { current: null };
     const { stableArgs, onMustEatIdMatch } = createHarness(mapRef);
@@ -133,7 +139,26 @@ describe('useMapDeepLinks bounded map polling', () => {
     expect(vi.getTimerCount()).toBe(0);
 
     act(() => vi.advanceTimersByTime(30_000));
-    expect(onMustEatIdMatch).not.toHaveBeenCalled();
+    expect(onMustEatIdMatch).toHaveBeenCalledOnce();
+    expect(stableArgs.onMustEatCameraReady).not.toHaveBeenCalled();
+  });
+
+  it('catches up the Must-Eat camera without replaying the selection handler', () => {
+    window.history.replaceState({}, '', '/map?me=must-eat-1');
+    const mapRef: RefObject<MapRef | null> = { current: null };
+    const { stableArgs, onMustEatIdMatch } = createHarness(mapRef);
+    const { rerender } = renderHook(
+      ({ isActive }) => useMapDeepLinks({ ...stableArgs, isActive }),
+      { initialProps: { isActive: true } }
+    );
+    expect(onMustEatIdMatch).toHaveBeenCalledExactlyOnceWith(mustEat);
+    rerender({ isActive: false });
+    expect(vi.getTimerCount()).toBe(0);
+    mapRef.current = {} as MapRef;
+    rerender({ isActive: true });
+    expect(stableArgs.onMustEatCameraReady).toHaveBeenCalledExactlyOnceWith(mustEat);
+    expect(onMustEatIdMatch).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
   });
 
   it('bounds district camera polling when the map chunk never mounts', () => {

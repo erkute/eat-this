@@ -156,17 +156,25 @@ export default function RestaurantDetail({
     const back = backRef.current;
     const bar = barRef.current;
     if (!back || !bar || typeof IntersectionObserver === 'undefined') return;
-    if (!window.matchMedia?.('(max-width: 767.98px)').matches) return;
-    /* Die Oberkante der Leiste ist die Linie, über der der Pfeil im Foto
-       verdeckt ist. */
-    const line = Math.round(parseFloat(getComputedStyle(bar).top));
-    const io = new IntersectionObserver(
-      ([entry]) => setBarShown(entry.intersectionRatio < 1 && entry.boundingClientRect.top < line),
-      { rootMargin: `-${line}px 0px 0px 0px`, threshold: [0, 1] }
-    );
-    io.observe(back);
+    const media = window.matchMedia?.('(max-width: 767.98px)');
+    if (!media) return;
+    let observer: IntersectionObserver | undefined;
+    const observe = () => {
+      observer?.disconnect();
+      setBarShown(false);
+      if (!media.matches) return;
+      const line = Math.round(parseFloat(getComputedStyle(bar).top));
+      observer = new IntersectionObserver(
+        ([entry]) => setBarShown(entry.intersectionRatio < 1 && entry.boundingClientRect.top < line),
+        { rootMargin: `-${line}px 0px 0px 0px`, threshold: [0, 1] }
+      );
+      observer.observe(back);
+    };
+    observe();
+    media.addEventListener('change', observe);
     return () => {
-      io.disconnect();
+      media.removeEventListener('change', observe);
+      observer?.disconnect();
       setBarShown(false);
     };
   }, [restaurant._id]);

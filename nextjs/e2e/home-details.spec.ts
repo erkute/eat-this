@@ -10,7 +10,6 @@ for (const reduced of [false, true]) {
   test(`homepage magazine opens its selected article (${reduced})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
     await page.goto('/');
-    await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
     const magazine = page.locator('[data-hub-magazine]');
     const cover = magazine.locator("ol > li[data-selected='true'] > a");
     if (page.viewportSize()!.width < 768) {
@@ -33,7 +32,6 @@ for (const reduced of [false, true]) {
   test(`Remy enters and settles on the red surface (${reduced})`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
     await page.goto('/');
-    await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
     const figure=page.locator('[data-hub-fragremy] [data-expression]');
     await page.locator('[data-hub-fragremy]').evaluate(el => el.scrollIntoView({ block: 'start', behavior: 'instant' }));
     await expect.poll(() => figure.locator('img').first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);

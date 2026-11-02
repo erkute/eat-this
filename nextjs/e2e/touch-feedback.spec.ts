@@ -104,7 +104,6 @@ for (const { route, location, selector } of [
       await page.goto(route);
       const link = page.locator(selector).first();
       if (route === '/') {
-        await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
         await link.focus();
       }
       const cover = link.locator('[data-magazine-cover]');
@@ -315,7 +314,6 @@ for (const { route, selector } of [
   test(`must-eat press stays opaque and moves: ${route}`, async ({ page, isMobile }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(route);
-    if (route === '/') await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
     const card = page.locator(selector).first();
     await card.scrollIntoViewIfNeeded();
     await card.evaluate(element => {

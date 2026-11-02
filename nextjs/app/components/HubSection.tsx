@@ -6,7 +6,6 @@ import HubHeroCopy from './HubHeroCopy';
 import HeroHeaderLogo from './HeroHeaderLogo';
 import HubHashScroll from './HubHashScroll';
 import HomeHeatTracker from './HomeHeatTracker';
-import HeroCurtain from './HeroCurtain';
 import HubMotion from './HubMotion';
 import HubMapIntro from './HubMapIntro';
 import HubMustEatsTeaser from './HubMustEatsTeaser';
@@ -30,7 +29,6 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
       <HubHashScroll />
       <HomeHeatTracker />
       <section className={styles.hero} aria-label={locale === 'de' ? 'Eat This — die Food-Map für Berlin' : 'Eat This — the food map for Berlin'} data-hub-hero="">
-        <HeroCurtain />
         <div className={styles.heroInner}>
           <HubHeroCopy locale={locale} />
         </div>

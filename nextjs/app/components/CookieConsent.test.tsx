@@ -200,20 +200,23 @@ describe('CookieConsent', () => {
     expect(readConsent(), 'the old answer should be cleared while re-asking').toBeNull();
   });
 
-  it.each(['Akzeptieren', 'Ablehnen'])('dismisses expanded details without showing the compact banner after %s', async (answer) => {
-    render(<CookieConsent />);
-    await openGate();
-    fireEvent.click(screen.getByRole('button', { name: 'Details anzeigen' }));
-    expect(document.getElementById('cookieInfoPanel')).not.toBeNull();
-    vi.useFakeTimers();
+  it.each(['Akzeptieren', 'Ablehnen'])(
+    'dismisses expanded details without showing the compact banner after %s',
+    async (answer) => {
+      render(<CookieConsent />);
+      await openGate();
+      fireEvent.click(screen.getByRole('button', { name: 'Details anzeigen' }));
+      expect(document.getElementById('cookieInfoPanel')).not.toBeNull();
+      vi.useFakeTimers();
 
-    fireEvent.click(screen.getByRole('button', { name: answer }));
+      fireEvent.click(screen.getByRole('button', { name: answer }));
 
-    const closingGate = document.getElementById('cookieConsent');
-    if (closingGate) expect(closingGate.classList.contains('expanded')).toBe(true);
-    act(() => vi.advanceTimersByTime(600));
-    expect(gate()).toBeNull();
-  });
+      const closingGate = document.getElementById('cookieConsent');
+      if (closingGate) expect(closingGate.classList.contains('expanded')).toBe(true);
+      act(() => vi.advanceTimersByTime(600));
+      expect(gate()).toBeNull();
+    }
+  );
 
   it('prerenders the initially hidden question without waiting for hydration', async () => {
     const { renderToStaticMarkup } = await import('react-dom/server');
@@ -258,47 +261,5 @@ describe('CookieConsent — die Detailzeilen sind mit der Tastatur erreichbar', 
     const rows = document.querySelectorAll('#cookieInfoPanel summary');
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) expect(row.matches(CONSENT_FOCUSABLE)).toBe(true);
-  });
-});
-
-/* Auf der Startseite wartet die Frage auf Remy und die aufgedeckten Karten. */
-describe('CookieConsent während des Startseiten-Auftritts', () => {
-  beforeEach(() => {
-    clearCookies();
-    document.documentElement.removeAttribute('data-consent-gate');
-  });
-  afterEach(() => {
-    document.documentElement.removeAttribute('data-hero-intro');
-    document.documentElement.removeAttribute('data-hero-cards');
-    cleanup();
-    vi.useRealTimers();
-  });
-
-  it('fragt erst, wenn der Auftritt vorbei ist', async () => {
-    document.documentElement.setAttribute('data-hero-intro', '');
-    document.documentElement.setAttribute('data-hero-cards', '');
-    render(<CookieConsent />);
-    expect(document.querySelector('.cookie-gate.show'), 'nicht über dem schiebenden Remy').toBeNull();
-
-    document.documentElement.removeAttribute('data-hero-intro');
-    await act(async () => {});
-    expect(document.querySelector('.cookie-gate.show'), 'nicht über den drehenden Karten').toBeNull();
-    expect(document.documentElement.hasAttribute('data-consent-gate')).toBe(false);
-
-    document.documentElement.removeAttribute('data-hero-cards');
-    await waitFor(() => expect(gate()).not.toBeNull());
-    await openGate();
-  });
-
-  it('fragt spätestens nach 15 s, falls der Auftritt hängt', async () => {
-    vi.useFakeTimers();
-    document.documentElement.setAttribute('data-hero-cards', '');
-    render(<CookieConsent />);
-    vi.advanceTimersByTime(14_999);
-    expect(document.querySelector('.cookie-gate.show')).toBeNull();
-    await act(async () => {
-      vi.advanceTimersByTime(1);
-    });
-    expect(gate()).not.toBeNull();
   });
 });

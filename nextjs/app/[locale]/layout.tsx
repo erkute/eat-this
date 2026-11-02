@@ -21,14 +21,7 @@ export function generateStaticParams() {
 // Hardcoded bootstrap constant (no user input) — safely inlined via script tag.
 // Runs synchronously in <head>: sets data-active-page (read by CSS selectors
 // like [data-active-page="map"] .app-pages), locks portrait orientation on mobile,
-// marks the home page for its elevator-door intro (data-hero-intro,
-// HeroCurtain.module.css), then its card reveal (data-hero-cards, HubMotion).
-// The cookie question waits for both phases; a 15 s fallback releases it
-// even if application JavaScript never loads.
-// A timeout clears the intro flag if hydration fails: after 6.5 s when Remy
-// has not started (data-remy-go), otherwise 6 s later — his 5.4 s run starts
-// only once hydrated, and a fixed 6.5 s from load cut it off mid-push on slow
-// loads (HeroCurtain clears the flag itself on animationend). Skipped when the address
+// When the address
 // carries a sign-in link from the mail: then the confirmation board
 // (EmailLinkSignIn) is the first thing on screen; data-email-link holds back
 // what opens by itself until the board closes, lib/auth/emailLinkPending.ts),
@@ -39,7 +32,7 @@ export function generateStaticParams() {
 // restores the shared theme before first paint on every route (lib/theme.ts),
 // starts the home page at the top on every load (scrollRestoration — Safari
 // restores the old position before hydration otherwise; Ansage 01.10.2026:
-// „bei einem Reload fängt die Seite wieder oben an", the intro plays there —
+// „bei einem Reload fängt die Seite wieder oben an" —
 // also with an anchor left in the address bar, e.g. #hub-starter from the
 // Must-Eats onboarding: a reload drops it before the browser can jump),
 // and applies the _authHint pre-hydration data-auth flag on <html> so
@@ -60,7 +53,6 @@ const CRITICAL_BOOTSTRAP = `(function(){
   document.documentElement.setAttribute('data-active-page',slug);
   var emailLink=/[?&]mode=signIn(&|$)/.test(location.search)&&/[?&]oobCode=[^&]/.test(location.search);
   if(emailLink)document.documentElement.setAttribute('data-email-link','');
-  try{if(slug==='start'&&!emailLink&&!matchMedia('(prefers-reduced-motion: reduce)').matches){var h=document.documentElement;h.setAttribute('data-hero-intro','');h.setAttribute('data-hero-cards','');var end=function(){h.removeAttribute('data-hero-intro');};setTimeout(function(){if(h.hasAttribute('data-remy-go'))setTimeout(end,6000);else end();},6500);setTimeout(function(){h.removeAttribute('data-hero-cards');},15000);}}catch(_){}
   try{if(slug==='news-article'&&document.visibilityState==='visible'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('data-article-intro','');}catch(_){}
   try{if(localStorage.getItem('et-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(_){}
   // CSS discovers the large paper background too late on textured pages.

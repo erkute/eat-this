@@ -14,7 +14,6 @@ for (const locale of ['de', 'en'] as const) {
     ]);
     await page.emulateMedia({ reducedMotion: locale === 'en' ? 'reduce' : 'no-preference' });
     await page.goto(locale === 'de' ? '/' : '/en');
-    await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
     const section = page.getByRole('region', { name: 'Must Eats.', exact: true });
     await expect(
       section.getByText(

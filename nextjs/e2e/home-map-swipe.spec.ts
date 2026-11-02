@@ -11,7 +11,6 @@ for (const locale of ['de', 'en'] as const) {
       page.on('pageerror', error => errors.push(error.message));
       const prefix = locale === 'en' ? '/en' : '';
       await page.goto(prefix || '/', { waitUntil: 'domcontentloaded' });
-      await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', '');
       const section = page.locator('[data-hub-map-intro]');
       const controls = section.getByRole('group');
       const first = controls.getByRole('button').nth(0);

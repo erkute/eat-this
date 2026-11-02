@@ -6,13 +6,8 @@ import { useTranslation } from '@/lib/i18n';
 import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translations';
 import { countEvent, getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
 import { clearConsent, readConsent, recordConsent, writeConsent } from '@/lib/consent';
-import { afterHeroReveal } from '@/lib/home/heroIntro';
 import { CONSENT_FOCUSABLE, CONSENT_INTERACTIVE_EVENT } from '@/lib/consentBootstrap';
 import Image from './SiteImage';
-
-/* Remy öffnet den Hero, danach fächern sich die Karten auf und drehen sich.
-   Falls eine der Phasen hängt, wartet die Frage höchstens 15 Sekunden. */
-const HERO_INTRO_MAX_WAIT_MS = 15_000;
 
 // Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
 // stays close to what's actually loaded by the site, and DE is properly
@@ -225,13 +220,10 @@ export default function CookieConsent() {
     setClosed(false);
     setBootstrap(false);
     // CSS starts the same entrance on insertion, including the server HTML.
-    // No animation-frame callbacks need to compete with WebGL initialization.
     setShow(true);
   }, []);
 
-  // Saved answers load GA only when accepted. Otherwise ask immediately,
-  // except on home: Remy and the card reveal both finish before the question.
-  // At most 15 s, should the entrance ever hang.
+  // Saved answers load GA only when accepted. Otherwise ask immediately.
   //
   // The answer lives in a cookie (lib/consent.ts); an answer given before that
   // shipped is migrated out of localStorage here, once.
@@ -243,7 +235,7 @@ export default function CookieConsent() {
       if (stored === 'accepted') loadAnalytics();
       return;
     }
-    return afterHeroReveal(open, HERO_INTRO_MAX_WAIT_MS);
+    open();
   }, [open]);
 
   useEffect(() => {
@@ -281,7 +273,9 @@ export default function CookieConsent() {
       // initially focused card out of the document after hydration.
       const index = items.indexOf(document.activeElement as HTMLElement);
       const next = e.shiftKey
-        ? (index <= 0 ? items.length - 1 : index - 1)
+        ? index <= 0
+          ? items.length - 1
+          : index - 1
         : (index + 1) % items.length;
       e.preventDefault();
       items[next].focus();
@@ -377,11 +371,21 @@ export default function CookieConsent() {
           }
         }}
       >
-        <Image src="/pics/paper/folded-white.webp?v=20261028-hq" alt="" aria-hidden="true"
-          fill priority fetchPriority="high" quality={80} sizes={expanded
-            ? '(max-width: 640px) max(calc(100vw - 20px), calc(66.667dvh - 17.334px)), (max-width: 712px) calc(100vw - 32px), 680px'
-            : '(max-width: 640px) calc(100vw - 20px), 520px'}
-          className="cookie-paper" />
+        <Image
+          src="/pics/paper/folded-white.webp?v=20261028-hq"
+          alt=""
+          aria-hidden="true"
+          fill
+          priority
+          fetchPriority="high"
+          quality={80}
+          sizes={
+            expanded
+              ? '(max-width: 640px) max(calc(100vw - 20px), calc(66.667dvh - 17.334px)), (max-width: 712px) calc(100vw - 32px), 680px'
+              : '(max-width: 640px) calc(100vw - 20px), 520px'
+          }
+          className="cookie-paper"
+        />
         <div className="cookie-content">
           {/* Text und Details scrollen zusammen; die zwei Antworten darunter
               bleiben beim Lesen fest im Bild. */}

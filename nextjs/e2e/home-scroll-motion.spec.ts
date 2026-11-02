@@ -30,7 +30,6 @@ for (const reduced of [false, true]) {
       if (request.url().includes('starter-pack-back.webp')) packRequests.push(request.url());
     });
     await page.goto('/');
-    await expect(page.locator('html')).not.toHaveAttribute('data-hero-intro', { timeout: 20_000 });
     expect(packRequests).toHaveLength(0);
     const pack = page.locator('#hub-starter img[src*="starter-pack-front"]');
     await pack.scrollIntoViewIfNeeded();

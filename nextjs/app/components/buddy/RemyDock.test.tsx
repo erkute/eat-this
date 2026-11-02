@@ -26,7 +26,6 @@ function renderDock() {
 afterEach(() => {
   cleanup();
   window.sessionStorage.clear();
-  document.documentElement.removeAttribute('data-hero-intro');
   vi.useRealTimers();
   vi.unstubAllGlobals();
 });

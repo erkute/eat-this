@@ -94,7 +94,7 @@
   --et-z-map-phone-active: 9995;
   --et-z-below-nav: 9998; /* Remy-Knopf, zurückfliegende Must-Eat-Karte */
   --et-z-nav: 9999;
-  --et-z-above-nav: 10000; /* Wortmarken-Flug, Remy-Vorhang, Info-Karte, Skip-Link */
+  --et-z-above-nav: 10000; /* Wortmarken-Flug, Info-Karte, Skip-Link */
   --et-z-remy: 10001; /* Remy-Fenster, über seinem Vorhang */
   --et-z-drawer: 10002; /* Burger-Menü */
   --et-z-consent: 10002; /* Cookie-Dialog; nie zugleich mit dem Menü offen */
@@ -915,8 +915,8 @@ html[data-auth='1'] [data-guest-only] {
    which ignores overflow:hidden on the scroll container. */
 :root[data-consent-gate='open'],
 :root[data-consent-gate='open'] body,
-:root[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]),
-:root[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) body {
+:root[data-consent-pending],
+:root[data-consent-pending] body {
   overflow: hidden;
 }
 
@@ -956,9 +956,9 @@ html[data-auth='1'] [data-guest-only] {
     max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
 }
 /* No initial flash for an existing answer, even with application JS delayed.
-   The head bootstrap only marks an unanswered visitor. Home keeps its intro. */
+   The head bootstrap only marks an unanswered visitor. */
 .cookie-gate.cookie-bootstrap { display: none; }
-html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie-gate.cookie-bootstrap { display: grid; }
+html[data-consent-pending] .cookie-gate.cookie-bootstrap { display: grid; }
 .cookie-scrim {
   position: absolute;
   inset: 0;
@@ -969,7 +969,7 @@ html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie
   transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cookie-gate.show .cookie-scrim,
-html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie-gate.cookie-bootstrap .cookie-scrim {
+html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-scrim {
   background-color: var(--et-scrim);
   animation: cookie-scrim-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1012,7 +1012,7 @@ html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie
   width: min(100%, var(--cookie-panel-w-wide));
 }
 .cookie-gate.show .cookie-consent,
-html[data-consent-pending]:not([data-hero-intro]):not([data-hero-cards]) .cookie-gate.cookie-bootstrap .cookie-consent {
+html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-consent {
   transform: translateY(0) scale(1);
   animation: cookie-window-enter 0.46s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1889,17 +1889,6 @@ html[data-theme='dark'] {
   }
 }
 
-/* Let the fixed opening curtain cover the navigation as well as the page.
-   No transforms or scroll locks: Safari keeps its native window scrolling. */
-@media (prefers-reduced-motion: no-preference) {
-  html[data-hero-intro][data-active-page='start'] .app-pages {
-    z-index: var(--et-z-above-nav);
-  }
-  html[data-hero-intro][data-active-page='start'],
-  html[data-hero-intro][data-active-page='start'] body {
-    background-color: #ffc600;
-  }
-}
 /* One continuous map between the district footer and Berlin overview. */
 [data-map-view] { view-transition-name: berlin-map; }
 ::view-transition-group(berlin-map) { animation-duration: 700ms; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }

@@ -3,7 +3,6 @@
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
-import { afterHeroIntro, HERO_CARDS_ATTR } from '@/lib/home/heroIntro';
 import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/lib/home/dealIn';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
@@ -17,8 +16,7 @@ import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/l
 gsap.registerPlugin(useGSAP);
 
 /**
- * The hero cards fan out and turn over after Remy opens the elevator doors.
- * Below the hero, Remy owns his entrance; this controller handles the
+ * The hero cards are immediately visible. This controller handles the
  * entrances of the magazine, the Must Eats and the districts map
  * (lib/home/dealIn.ts) and the signup demonstration (the FAQ opens in CSS,
  * HubFaq). Reduced motion always leaves the content in its resting state.
@@ -145,7 +143,7 @@ function armMagazineDeal(): () => void {
       gsap.set(list, { clearProps: CLEAR_DEAL });
       if (!list.length) return;
       timeline = dealFromPile(list, centreOf(list[0]), { lift, duration: 0.9, stagger: 0.1 });
-    },
+    }
   );
   return () => {
     stop();
@@ -202,7 +200,12 @@ function armMustEatsDeal(): () => void {
       gsap.set(list, { clearProps: CLEAR_DEAL });
       if (!list.length) return;
       const stagger = 0.09;
-      timeline = dealFromPile(list, pileOf(list), { lift: 40, scale: 0.9, duration: 0.85, stagger });
+      timeline = dealFromPile(list, pileOf(list), {
+        lift: 40,
+        scale: 0.9,
+        duration: 0.85,
+        stagger,
+      });
       list.forEach((slide, index) => {
         const photo = slide.querySelector<HTMLElement>('[data-stack-photo="open"]');
         const back = photo?.querySelector<HTMLElement>('[data-deal-back]');
@@ -211,12 +214,20 @@ function armMustEatsDeal(): () => void {
         timeline!
           .to(photo, { scaleX: 0, duration: 0.16, ease: 'power1.in' }, turn)
           .set(back, { visibility: 'hidden' }, turn + 0.16)
-          .to(photo, { scaleX: 1, duration: 0.22, ease: 'power2.out', clearProps: 'transform' }, turn + 0.16);
+          .to(
+            photo,
+            { scaleX: 1, duration: 0.22, ease: 'power2.out', clearProps: 'transform' },
+            turn + 0.16
+          );
       });
       timeline
-        .to(captions(), { autoAlpha: 1, duration: 0.3, stagger: 0.05, clearProps: 'opacity,visibility' }, 0.75)
+        .to(
+          captions(),
+          { autoAlpha: 1, duration: 0.3, stagger: 0.05, clearProps: 'opacity,visibility' },
+          0.75
+        )
         .call(removeBacks);
-    },
+    }
   );
   return () => {
     stop();
@@ -234,8 +245,10 @@ function armDistrictsDeal(): () => void {
   const section = document.querySelector<HTMLElement>('[data-hub-districts]');
   const map = section?.querySelector<HTMLElement>('[data-districts-map]');
   if (!section || !map) return () => {};
-  const large = () => Array.from(section.querySelectorAll<HTMLElement>('[data-districts-large] > a'));
-  const small = () => Array.from(section.querySelectorAll<HTMLElement>('[data-districts-small] > a'));
+  const large = () =>
+    Array.from(section.querySelectorAll<HTMLElement>('[data-districts-large] > a'));
+  const small = () =>
+    Array.from(section.querySelectorAll<HTMLElement>('[data-districts-small] > a'));
   let timeline: gsap.core.Timeline | null = null;
   const stop = onFirstView(
     section,
@@ -247,10 +260,25 @@ function armDistrictsDeal(): () => void {
     () => {
       timeline = gsap
         .timeline({ defaults: { ease: 'power3.out' } })
-        .to(map, { y: 0, rotation: 0, scale: 1, duration: 1.05, ease: 'back.out(1.3)', clearProps: 'transform' }, 0)
-        .to(large(), { yPercent: 0, rotation: 0, duration: 0.8, stagger: 0.08, clearProps: 'transform' }, 0.1)
+        .to(
+          map,
+          {
+            y: 0,
+            rotation: 0,
+            scale: 1,
+            duration: 1.05,
+            ease: 'back.out(1.3)',
+            clearProps: 'transform',
+          },
+          0
+        )
+        .to(
+          large(),
+          { yPercent: 0, rotation: 0, duration: 0.8, stagger: 0.08, clearProps: 'transform' },
+          0.1
+        )
         .to(small(), { y: 0, duration: 0.5, stagger: 0.04, clearProps: 'transform' }, 0.45);
-    },
+    }
   );
   return () => {
     stop();
@@ -268,12 +296,10 @@ function armPreload(): () => void {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
         io.unobserve(entry.target);
-        entry.target
-          .querySelectorAll<HTMLImageElement>('img[loading="lazy"]')
-          .forEach((img) => {
-            // Ausgeblendete Bilder bleiben lazy.
-            if (img.getClientRects().length > 0) img.loading = 'eager';
-          });
+        entry.target.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => {
+          // Ausgeblendete Bilder bleiben lazy.
+          if (img.getClientRects().length > 0) img.loading = 'eager';
+        });
       }
     },
     { root: appScroller(), rootMargin: '150% 0px' }
@@ -282,45 +308,6 @@ function armPreload(): () => void {
     .querySelectorAll('[data-hub-magazine], [data-hub-musteats], [data-hub-districts]')
     .forEach((section) => io.observe(section));
   return () => io.disconnect();
-}
-
-
-function armHeroReveal(): () => void {
-  const html = document.documentElement;
-  const completed = () => html.removeAttribute(HERO_CARDS_ATTR);
-  const fan = document.querySelector<HTMLElement>('[data-hero-fan]');
-  if (!fan) {
-    completed();
-    return () => {};
-  }
-  html.setAttribute(HERO_CARDS_ATTR, '');
-  const cards = Array.from(fan.querySelectorAll<HTMLElement>('[data-hero-card]'));
-  const flips = cards.map(card => card.firstElementChild as HTMLElement);
-  const poses = cards.map(card => ({
-    x: fan.clientWidth / 2 - card.offsetLeft - card.offsetWidth / 2,
-    y: fan.clientHeight * .55 - card.offsetTop - card.offsetHeight / 2,
-    rotation: parseFloat(getComputedStyle(card).getPropertyValue('--open-turn')) || 0,
-  }));
-  const timeline = gsap.timeline({ paused: true, onComplete: completed });
-  cards.forEach((card, index) => {
-    gsap.set(card, { x: poses[index].x, y: poses[index].y + index * 3, rotation: (index - 1) * 3, scale: .94 });
-    gsap.set(flips[index], { rotationY: index === 1 ? -180 : 180 });
-    timeline
-      .to(card, { y: poses[index].y - 22, scale: 1.02, duration: .24, ease: 'power2.out' }, index * .13)
-      .to(card, { x: 0, y: 0, rotation: poses[index].rotation, scale: 1, duration: .85, ease: 'power3.inOut' }, .22 + index * .13)
-      .to(flips[index], { rotationY: 0, duration: .8, ease: 'power2.inOut' }, .32 + index * .17);
-  });
-  timeline.set([...cards, ...flips], { clearProps: 'transform,willChange' });
-  const stopWaiting = afterHeroIntro(() => {
-    gsap.set([...cards, ...flips], { willChange: 'transform' });
-    timeline.play();
-  });
-  return () => {
-    stopWaiting();
-    timeline.kill();
-    gsap.set([...cards, ...flips], { clearProps: 'transform,willChange' });
-    completed();
-  };
 }
 
 export default function HubMotion() {
@@ -334,12 +321,8 @@ export default function HubMotion() {
       },
       (ctx) => {
         const { motion, desk } = ctx.conditions as Record<string, boolean>;
-        if (!motion) {
-          document.documentElement.removeAttribute(HERO_CARDS_ATTR);
-          return;
-        }
+        if (!motion) return;
         const stops: Array<() => void> = [];
-        stops.push(armHeroReveal());
         if (desk) stops.push(armMagazineDeal());
         stops.push(armMustEatsDeal());
         stops.push(armDistrictsDeal());

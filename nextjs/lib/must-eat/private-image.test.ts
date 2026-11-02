@@ -40,17 +40,27 @@ function setup(overrides: Partial<Parameters<typeof createPrivateMustEatImageRen
     etag: o.etag,
   }));
   const gate = vi.fn(async () => {});
-  const { render } = createPrivateMustEatImageRenderer({
+  const { render, primeContent } = createPrivateMustEatImageRenderer({
     readContent,
     download,
     resize,
     now: () => now,
     ...overrides,
   });
-  return { render, readContent, download, resize, gate, advance: (ms: number) => (now += ms) };
+  return { render, primeContent, readContent, download, resize, gate, advance: (ms: number) => (now += ms) };
 }
 
 describe('renderPrivateMustEatImage', () => {
+  it('uses batched documents without individual reads and refreshes them after expiry', async () => {
+    const { render, primeContent, readContent, gate, advance } = setup();
+    const ids = Array.from({ length: 100 }, (_, i) => `m${i}`);
+    primeContent(Object.fromEntries(ids.map(id => [id, content(id)])));
+    await Promise.all(ids.map(id => render(id, w360, gate)));
+    expect(readContent).not.toHaveBeenCalled();
+    advance(5 * 60_000);
+    await render('m0', w360, gate);
+    expect(readContent).toHaveBeenCalledExactlyOnceWith('m0');
+  });
   it('serves the original from memory after the first download and asks the gate only for paid work', async () => {
     const { render, download, readContent, gate } = setup();
     const first = await render('m1', null, gate);

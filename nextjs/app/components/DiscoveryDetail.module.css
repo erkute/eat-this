@@ -4,7 +4,7 @@
   gap: 28px 64px;
   max-width: 1180px;
   margin-inline: auto;
-  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 28px);
+  padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 8px);
   container-type: inline-size;
 }
 .head { grid-column: 1 / -1; }
@@ -20,7 +20,7 @@
 }
 @media (max-width: 1023px) { .header { column-gap: 28px; } }
 @media (max-width: 767px) {
-  .header { grid-template-columns: 1fr; gap: 24px; padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 20px); }
+  .header { grid-template-columns: 1fr; gap: 24px; padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px) + 8px); }
   .title { margin-top: 12px; font-size: min(44px, 13cqi, var(--title-fit)); }
   .title span { font-size: 12px; }
   .updated { margin-top: 12px; }
@@ -43,14 +43,14 @@
 /* Pack links, Titel rechts: eine gemeinsame Kopfzeile über dem Einstieg. */
 .withPack {
   grid-template-columns: 164px minmax(0, 1fr);
-  gap: 20px 32px;
+  gap: 8px 32px;
   align-items: center;
 }
 .withPack > .back { grid-column: 1 / -1; justify-self: start; }
 .withPack .head { grid-column: 2; grid-row: 2; min-width: 0; }
 .withPack .title { margin-top: 0; font-size: clamp(34px, 4.6vw, 66px); white-space: normal; text-wrap: balance; }
 .withPack .copy { grid-column: 1 / -1; grid-row: 3; padding-bottom: 0; }
-.categoryPack { grid-column: 1; grid-row: 2; display: grid; place-items: center; min-width: 0; padding-block: 8px; }
+.categoryPack { grid-column: 1; grid-row: 2; display: grid; place-items: center; min-width: 0; padding-block: 4px; }
 .categoryPack img {
   display: block;
   width: 140px;
@@ -61,7 +61,15 @@
   view-transition-name: category-pack;
 }
 @media (max-width: 767px) {
-  .withPack { grid-template-columns: 112px minmax(0, 1fr); gap: 16px 20px; }
+  .withPack { grid-template-columns: 112px minmax(0, 1fr); gap: 8px 20px; }
   .withPack .title { font-size: clamp(26px, 7.8vw, 36px); overflow-wrap: anywhere; }
   .categoryPack img { width: 96px; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+
+.withPack { grid-template-columns: 112px minmax(0, 1fr); gap: 8px 24px; }
+.withPack .title { font-size: 36px; }
+.categoryPack img { width: 96px; }
+.description { font-size: 16px; }
 }

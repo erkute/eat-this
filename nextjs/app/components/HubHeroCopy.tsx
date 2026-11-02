@@ -13,6 +13,7 @@ const ART = '/pics/home/silver-hero';
 export default function HubHeroCopy({ locale }: Props) {
   return (
     <div className={styles.heroCopy}>
+      <div className={styles.heroBrandGroup}>
       <div className={styles.heroBrand}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -41,6 +42,7 @@ export default function HubHeroCopy({ locale }: Props) {
           aria-hidden="true"
         />
       </h1>
+      </div>
       <MapIntentLink
         href="/must-eats"
         className={styles.heroArt}

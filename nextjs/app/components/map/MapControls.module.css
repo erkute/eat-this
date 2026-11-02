@@ -592,3 +592,19 @@
 :global(html[data-theme='dark']) .mapSearchSuggestions {
   --et-tape-img: url('/pics/tape/gaffer-2-black-hd.webp');
 }
+
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  .mapBurger { top: 12px; right: calc(min(42vw, 360px) + 12px); z-index: 55; }
+  .mapSearchToolbar { top: 12px; max-width: calc(58vw - 130px); }
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  :global([data-map-body][data-map-view='list'][data-map-snap]) .mapSearchToolbar,
+  :global([data-map-body][data-map-view='list'][data-map-snap]) .mapBurger,
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='restaurant']) .mapSearchToolbar,
+  :global([data-map-body][data-map-view='detail'][data-detail-kind='restaurant']) .mapBurger {
+    transform: none;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}

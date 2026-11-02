@@ -94,3 +94,25 @@
 @media (hover: hover) and (prefers-reduced-motion: no-preference) { .cover button:hover { translate: 0 -18px; z-index: 2; } }
 @media (prefers-reduced-motion: reduce) { .cover button, .card { transition: none; } }
 @supports (-webkit-touch-callout: none) { @media (pointer: coarse) { .cover img, .card img { filter: none; } } }
+
+/* Auf flachen Telefonen zählt die Höhe, nicht die breite Bildschirmkante. */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .page { --must-gap: 36px; }
+  .head { padding-top: 12px; }
+  .title { font-size: clamp(48px, 17svh, 80px); }
+  .cover { height: 45svh; margin: 16px 0 32px; }
+  .cover button { width: min(17vw, 29svh); }
+  .intro { gap: 12px; padding-block: 8px 24px; }
+  .statement { font-size: clamp(24px, 7svh, 32px); }
+  .sectionTitle { font-size: clamp(26px, 8svh, 36px); }
+  .sectionHead { gap: 10px; margin-bottom: 14px; }
+  .feature { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px 16px; }
+  .feature .card { max-width: 145px; margin-inline: auto; }
+  .dish { font-size: 16px; }
+  .caption { padding-top: 8px; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+
+.featureItem { width: min(100%, 145px); justify-self: center; }
+}

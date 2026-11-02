@@ -147,7 +147,7 @@ describe('HubMustEatsTeaser', () => {
     const html = render(dataRevealed([me()]));
     expect(html).toContain('Smash Burger');
     expect(html).toContain('loading="lazy"');
-    expect(html).toContain('fetchPriority="low"');
+    expect(html).toContain('fetchPriority="auto"');
     expect(html).toContain('width="760" height="1044"');
     expect(html).toContain('src="/api/must-eat-image/m1?v=0123456789ab&amp;w=360');
   });
@@ -161,7 +161,7 @@ describe('HubMustEatsTeaser', () => {
     expect(html).toContain('360w');
     expect(html).toContain('440w');
     expect(html).toContain('720w');
-    expect(html).toContain('sizes="(min-width: 900px) 17vw, calc((100vw - 64px) / 2)"');
+    expect(html).toContain('sizes="(orientation: landscape) and (max-height: 500px) and (max-width: 1023px) 130px, (min-width: 900px) 17vw, calc((100vw - 64px) / 2)"');
   });
 
   it('renders nothing when no card is face-up', () => {

@@ -57,3 +57,17 @@
 /* Die Startseite legt ihre Papiertextur zentral in globals.css auf.
    Hier keine zweite Ebenenliste: sie würde die drei Hintergrundpositionen
    der Startseite auf nur zwei Texturen verschieben. */
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .body, .compact .body { min-height: 0; padding: 24px var(--home-gutter, 24px); }
+  .content { width: 64%; }
+  .title { margin-bottom: 12px; }
+  .name, .compact .name { font-size: 64px; }
+  .hello { font-size: 18px; }
+  .intro { font-size: 16px; margin-bottom: 14px; }
+  .questions { gap: 8px; margin-bottom: 12px; }
+  .question { font-size: 14px; min-height: 44px; padding: 8px 12px; }
+  .portrait, .compact .portrait { width: 35%; height: 100%; right: 0; bottom: 0; }
+  .figure { inset: 0 0 -8%; }
+  .head { bottom: 0; top: auto; width: max(94cqw, 94cqh); }
+}

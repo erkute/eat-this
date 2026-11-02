@@ -196,7 +196,12 @@ export function createPrivateMustEatImageRenderer(deps: PrivateMustEatImageDeps)
     variants.clear();
   }
 
-  return { render, reset };
+  // Gebündelt gelesene Dokumente sparen Einzelabfragen beim Aufwärmen.
+  function primeContent(records: Record<string, PrivateMustEatContent>): void {
+    for (const [id, record] of Object.entries(records)) content.set(id, record);
+  }
+
+  return { render, reset, primeContent };
 }
 
 async function downloadFromBucket(objectPath: string): Promise<StoredImage> {
@@ -236,3 +241,5 @@ const renderer = createPrivateMustEatImageRenderer({
 });
 export const renderPrivateMustEatImage = renderer.render;
 export const resetPrivateMustEatImageCache = renderer.reset;
+
+export const primePrivateMustEatImageContent = renderer.primeContent;

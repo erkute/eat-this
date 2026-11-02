@@ -73,3 +73,11 @@
 @media (hover: none) {
   .region[data-selected='true']:not(:focus-visible) { fill: var(--et-fg); stroke: transparent; }
 }
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+
+.explorer { padding-top: calc(var(--site-nav-h) + var(--staging-banner-h, 0px)); }
+.mapSection { margin-top: 0; }
+.geography { width: min(100%, calc((100svh - var(--site-nav-h) - 88px) * 640 / 550)); height: auto; margin-inline: auto; }
+.mapHint { min-height: 56px; margin-top: 0; }
+}

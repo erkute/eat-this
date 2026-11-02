@@ -27,8 +27,8 @@ for (const locale of ['de', 'en'] as const) {
       const close = gallery.getByRole('button', { name: english ? 'Close gallery' : 'Galerie schließen' });
       const photoRegion = gallery.getByRole('region', { name: english ? 'Browse photos' : 'Fotos durchblättern' });
       await expect(close).toBeVisible();
-      expect(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(0, 0, 0)');
-      expect((await browserGround()).meta).toEqual(['#000000']);
+      await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(0, 0, 0)');
+      await expect.poll(async () => (await browserGround()).meta).toEqual(['#000000']);
       const next = gallery.getByRole('button', { name: english ? 'Next photo' : 'Nächstes Foto', exact: true });
       const previous = gallery.getByRole('button', { name: english ? 'Previous photo' : 'Vorheriges Foto', exact: true });
       const first = gallery.getByRole('button', { name: english ? 'Photo 1 of 2' : 'Foto 1 von 2', exact: true });

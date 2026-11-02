@@ -453,7 +453,7 @@
 
 
 @media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
-  .shell { position: fixed; inset: 0; height: 100dvh; min-height: 0; --map-bar-overhang: 0px; }
+  .shell { position: relative; height: 100dvh; min-height: 0; --map-bar-overhang: 0px; }
   .body[data-map-view]:is([data-map-view='list'], [data-detail-kind='restaurant']) { height: 100%; min-height: 0; overflow: hidden; }
   .body[data-map-view]:is([data-map-view='list'], [data-detail-kind='restaurant']) .mapFrame { display: block; position: absolute; inset: 0 min(42vw, 360px) 0 0; height: 100%; min-height: 0; z-index: 0; clip-path: none; }
   .body[data-map-view]:is([data-map-view='list'], [data-detail-kind='restaurant']) .mapWrap { position: absolute; inset: 0; height: 100%; min-height: 0; z-index: 0; clip-path: none; }

@@ -1543,7 +1543,8 @@ export default function MapSection({
       return;
     }
     const onScroll = () => {
-      if (window.scrollY !== 0) window.scrollTo(0, 0);
+      if (!isSheetViewport() || isPhoneViewport()) return;
+      if (window.scrollY !== 0) window.scrollTo({ top: 0, behavior: 'instant' });
     };
     onScroll(); // entering the map with a leftover scroll position
     window.addEventListener('scroll', onScroll, { passive: true });

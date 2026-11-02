@@ -17,3 +17,6 @@ const matches = (query: string) =>
 export const isPhoneViewport = (): boolean => matches(PHONE_QUERY);
 export const isSheetViewport = (): boolean => matches(SHEET_QUERY);
 export const isTabletViewport = (): boolean => matches(TABLET_QUERY);
+
+export const isLandscapePanelViewport = (): boolean =>
+  matches('(orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px)');

@@ -16,11 +16,19 @@ for (const locale of ['de', 'en'] as const) {
       await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
       await page.goto(`${english ? '/en' : ''}/map?r=gazzo`, { waitUntil: 'domcontentloaded' });
       const opener = page.getByRole('button', { name: `Gazzo: ${english ? 'Photos' : 'Fotos'} 1/2`, exact: true });
+      const browserGround = () => page.evaluate(() => ({
+        html: ['background-color', 'color-scheme'].map(prop => [document.documentElement.style.getPropertyValue(prop), document.documentElement.style.getPropertyPriority(prop)]),
+        body: ['background-color', 'color-scheme'].map(prop => [document.body.style.getPropertyValue(prop), document.body.style.getPropertyPriority(prop)]),
+        meta: [...document.querySelectorAll('meta[name="theme-color"]')].map(el => el.getAttribute('content')),
+      }));
+      const beforeGallery = await browserGround();
       await opener.click();
       const gallery = page.getByRole('dialog', { name: `Gazzo – ${english ? 'Photo gallery' : 'Fotogalerie'}`, exact: true });
       const close = gallery.getByRole('button', { name: english ? 'Close gallery' : 'Galerie schließen' });
       const photoRegion = gallery.getByRole('region', { name: english ? 'Browse photos' : 'Fotos durchblättern' });
       await expect(close).toBeVisible();
+      await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor)).toBe('rgb(0, 0, 0)');
+      await expect.poll(async () => (await browserGround()).meta).toEqual(['#000000']);
       const next = gallery.getByRole('button', { name: english ? 'Next photo' : 'Nächstes Foto', exact: true });
       const previous = gallery.getByRole('button', { name: english ? 'Previous photo' : 'Vorheriges Foto', exact: true });
       const first = gallery.getByRole('button', { name: english ? 'Photo 1 of 2' : 'Foto 1 von 2', exact: true });
@@ -44,7 +52,13 @@ for (const locale of ['de', 'en'] as const) {
         return Math.abs(bounds.x + bounds.width / 2 - page.viewportSize()!.width / 2);
       }).toBeLessThan(2);
       const photoBox = (await photo.boundingBox())!;
-      expect(Math.abs(photoBox.y + photoBox.height / 2 - page.viewportSize()!.height / 2)).toBeLessThan(2);
+      const availableCenter = await photo.evaluate(img => {
+        const slide = img.parentElement!.parentElement!;
+        const bounds = slide.getBoundingClientRect();
+        const style = getComputedStyle(slide);
+        return bounds.y + (bounds.height + parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)) / 2;
+      });
+      expect(Math.abs(photoBox.y + photoBox.height / 2 - availableCenter)).toBeLessThan(2);
       expect(creditBox.y).toBeGreaterThan(photoBox.y + photoBox.height);
       expect(creditBox.y + creditBox.height).toBeLessThan((await first.boundingBox())!.y);
       await page.screenshot({ path: `/tmp/eat-this-gallery/refinement/${info.project.name}-${locale}-${reduced}.png` });
@@ -113,6 +127,7 @@ for (const locale of ['de', 'en'] as const) {
       expect(a11y.violations).toEqual([]);
       await page.keyboard.press('Escape');
       await expect(gallery).toHaveCount(0);
+      await expect.poll(browserGround).toEqual(beforeGallery);
       await expect(opener).toBeFocused();
       const secondOpener = page.getByRole('button', {
         name: `Gazzo: ${english ? 'Photos' : 'Fotos'} 2/2`, exact: true,

@@ -91,3 +91,24 @@ it('toggles a tablet handle open and closed, but never on cancellation', () => {
   send('pointerdown'); send('pointerup');
   expect(sheet.dataset.snap).toBe('peek');
 });
+
+it('keeps list swipes native after rotating a phone into the landscape side panel', () => {
+  let landscape = false;
+  const listeners = new Set<() => void>();
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    get matches() { return query.includes('767.98') ? (!landscape || query.includes('orientation: landscape')) : true; },
+    addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+    removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
+  }));
+  const { container } = render(<Harness />);
+  act(() => { landscape = true; listeners.forEach(fn => fn()); });
+  const content = container.querySelector('[data-test-sheet]')!.lastElementChild!;
+  const touch = (type: string, y: number) => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { touches: [{ clientX: 700, clientY: y }] });
+    act(() => { content.dispatchEvent(event); });
+    return event;
+  };
+  touch('touchstart', 280);
+  expect(touch('touchmove', 160).defaultPrevented).toBe(false);
+});

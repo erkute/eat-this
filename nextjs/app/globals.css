@@ -712,7 +712,7 @@ html[data-auth='1'] [data-guest-only] {
   }
 
   html[data-theme='dark'][data-buddy-open],
-  html[data-theme='dark'][data-buddy-open] body { background: #292d35; }
+  html[data-theme='dark'][data-buddy-open] body { background: #383838; }
 
   html[data-buddy-open] body {
     visibility: hidden;
@@ -1923,3 +1923,19 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
 
 
 .cookie-consent :is(button,a):not(.et-btn):focus-visible { outline: 2px solid var(--et-fg); outline-offset: 3px; }
+
+/* Safari keeps sampling the map document across phone rotation. The short
+   landscape rail scrolls internally without locking the document root. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  html[data-active-page='map'],
+  html[data-active-page='map'] body {
+    height: auto;
+    overflow: visible;
+  }
+  html[data-active-page='map'] .app-pages,
+  html[data-active-page='map'] .app-page[data-page='map'] {
+    height: 100dvh;
+    min-height: 0;
+    overflow: visible;
+  }
+}

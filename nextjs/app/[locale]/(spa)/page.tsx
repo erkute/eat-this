@@ -72,10 +72,9 @@ export default async function HomePage({ params }: PageProps) {
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
-  // The hub's client islands (HubMapPreview, the Must-Eats teaser) reuse the map's
-  // anon dataset — plus a few covered cards from the full deck, see
-  // getHomeInitialMapData — so SSR both in parallel and hand initialMapData
-  // down through HubSection.
+  // Render the magazine and the public card teaser from Sanity in parallel.
+  // The teaser receives five open cards and one covered card, with their
+  // embedded spot details; map-only collections stay on the server.
   const [initialData, initialMapData, { allBerlin }] = await Promise.all([
     getHomeData(locale as 'de' | 'en'),
     getHomeInitialMapData(),

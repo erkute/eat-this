@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { MapMustEat } from '@/lib/types';
+import type { MapMustEat, MapRestaurant } from '@/lib/types';
 import type { InitialMapData } from './server-initial-map-data';
 import { selectHomeInitialMapData, selectMustEatsCatalog } from './initial-surface-data';
 
@@ -31,14 +31,16 @@ describe('initial surface data selectors', () => {
   it('provides five open Must Eats for the home teaser', () => {
     const data = mapData();
     data.categories = [{ slug: 'pizza', name: 'Pizza', topSpots: ['gazzo'] }];
+    data.restaurants = [{ _id: 'map-only-spot', name: 'Map only' }] as MapRestaurant[];
 
     const selected = selectHomeInitialMapData(data);
 
     expect(selected.mustEats.map(({ _id }) => _id)).toEqual([
       'must-eat-1', 'must-eat-2', 'must-eat-3', 'must-eat-4', 'must-eat-5', 'must-eat-7',
     ]);
-    expect(selected.categories).toEqual(data.categories);
-    expect(selected.restaurants).toBe(data.restaurants);
+    expect(selected.categories).toEqual([]);
+    expect(selected.restaurants).toEqual([]);
+    expect(selected.totalCount).toBe(data.totalCount);
     expect(selected.revealedMustEatIds).toBe(data.revealedMustEatIds);
     expect(data.mustEats).toHaveLength(9);
   });

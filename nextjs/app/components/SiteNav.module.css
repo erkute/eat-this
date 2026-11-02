@@ -102,11 +102,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Map und Menü sprechen wie das Logo: klein, fett, eng. */
+/* Map und Menü sprechen wie das Logo: fett und eng. */
 .word {
   font: 700 16px / 1 var(--et-font-body);
   letter-spacing: -0.04em;
   white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .control { min-width: 44px; }
+  .word { font-size: 20px; }
 }
 
 .control:active,

@@ -757,9 +757,6 @@ html[data-theme='dark'] .tab:nth-child(4) {
 .inviteAction {
   display: grid;
 }
-.inviteAction .et-btn {
-  width: 100%;
-}
 
 /* ── narrow ─────────────────────────────────────────────── */
 

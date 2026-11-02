@@ -7,8 +7,10 @@ import { useEffect, useRef } from 'react';
 export default function DiscoveryMotion() {
   const marker = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    const root = marker.current?.closest('main');
+    const root = marker.current?.parentElement;
     if (!root) return;
+    const targets = root.querySelectorAll('[data-discovery-pack]');
+    if (!targets.length) return;
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let cancelled = false;
     let cleanup = () => {};
@@ -27,7 +29,7 @@ export default function DiscoveryMotion() {
           });
         });
       }, { threshold: 0.12 });
-      root.querySelectorAll('[data-discovery-pack]').forEach((target) => observer.observe(target));
+      targets.forEach((target) => observer.observe(target));
       const stop = () => { observer.disconnect(); context.revert(); };
       motion.addEventListener('change', stop, { once: true });
       cleanup = () => { stop(); motion.removeEventListener('change', stop); };

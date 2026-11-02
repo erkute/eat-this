@@ -115,7 +115,7 @@ function composeMustEatsCatalog(anon: InitialMapData, catalog: MapMustEat[]): In
   };
 }
 
-/** Homepage payload: spots plus five cards from the public shop window. */
+/** Homepage payload: five public cards and one covered preview. */
 export async function getHomeInitialMapData(): Promise<InitialMapData> {
   const [anon, { mustEats: catalog }] = await Promise.all([
     getInitialAnonMapData(), getCachedMapData(),

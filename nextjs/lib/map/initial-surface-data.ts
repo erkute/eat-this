@@ -8,10 +8,8 @@ const HOME_FACE_UP_COUNT = 5;
 export type InitialMustEatsData = Pick<InitialMapData, 'mustEats' | 'revealedMustEatIds'>;
 
 /**
- * The home client islands share useMapData, but only need the visible
- * restaurants and a handful of Must Eats for their initial render. Dropping the
- * map-only collections keeps them out of the HTML/RSC payload. The supplied
- * homepage categories retain their editorial Top-Spots for the map preview.
+ * The home teaser shares useMapData but renders only its cards and their
+ * embedded spot details. Map-only collections stay out of the HTML/RSC payload.
  */
 export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
   const revealedIds = new Set(data.revealedMustEatIds);
@@ -31,6 +29,8 @@ export function selectHomeInitialMapData(data: InitialMapData): InitialMapData {
 
   return {
     ...data,
+    restaurants: [],
+    categories: [],
     mustEats: [...faceUp, ...data.mustEats.filter((card) => !revealedIds.has(card._id)).slice(0, 1)],
   };
 }

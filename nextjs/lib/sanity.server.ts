@@ -25,6 +25,7 @@ import type {
   NewsArticle,
   StaticPageDoc,
   BezirkDoc,
+  BezirkWithStats,
   RestaurantCard,
   RestaurantArticleCard,
 } from './types';
@@ -172,8 +173,8 @@ export async function getRestaurantPageData(slug: string): Promise<RestaurantPag
   };
 }
 
-export async function getAllBezirkeWithStats(): Promise<BezirkDoc[]> {
-  return client.fetch<BezirkDoc[]>(
+export async function getAllBezirkeWithStats(): Promise<BezirkWithStats[]> {
+  return client.fetch<BezirkWithStats[]>(
     allBezirkeWithStatsQuery,
     {},
     { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['bezirk', 'sitemap-bezirke'] } }
@@ -225,12 +226,12 @@ export async function getAllCategories(): Promise<CategoryDef[]> {
 }
 
 /**
- * Kategorien mit Spot-Zahl und Beispielkarten — nur für den /kategorie-Index.
+ * Kategorien mit Spot-Zahl für Übersichten und weitere Kategorien.
  *
  * `category-list` ist die Aggregations-Marke, die der Revalidate-Webhook auch
  * bei jeder *Restaurant*-Publikation feuert (siehe api/revalidate/route.ts,
- * case 'restaurant'). Genau das braucht diese Query: Anzahl und Beispielkarten
- * ändern sich, sobald ein Restaurant die Kategorie wechselt oder schließt.
+ * case 'restaurant'). Genau das braucht diese Query: Die Anzahl
+ * ändert sich, sobald ein Restaurant die Kategorie wechselt oder schließt.
  */
 export async function getAllCategoriesWithStats(): Promise<CategoryWithStats[]> {
   return client.fetch<CategoryWithStats[]>(

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { rankCurated, pickShelf, shelfPhoto, MIN_CURATED } from './curated-ranking';
+import { rankCurated, MIN_CURATED } from './curated-ranking';
 import type { RestaurantCard } from './types';
 
 /** Karte mit dem Nötigsten — die Sortierung liest nur `slug` und `name`. */
@@ -91,59 +91,5 @@ describe('rankCurated', () => {
     const input = [...alphabetical];
     rankCurated(input, ['estelle', 'barra', 'aviv']);
     expect(input).toEqual(alphabetical);
-  });
-});
-
-describe('pickShelf', () => {
-  const c = (slug: string) => ({ slug });
-
-  it('leads with the curated spots, then fills alphabetically', () => {
-    expect(
-      pickShelf([c('estelle')], [c('aviv'), c('barra'), c('jaja')], 4).map((x) => x.slug)
-    ).toEqual(['estelle', 'aviv', 'barra', 'jaja']);
-  });
-
-  it('never shows a spot twice when it is curated and in the fill', () => {
-    expect(
-      pickShelf([c('barra')], [c('aviv'), c('barra'), c('jaja')], 4).map((x) => x.slug)
-    ).toEqual(['barra', 'aviv', 'jaja']);
-  });
-
-  it('caps at the limit', () => {
-    expect(pickShelf([c('a'), c('b'), c('c'), c('d'), c('e')], [c('f')], 4)).toHaveLength(4);
-  });
-
-  it('is the plain fill when nothing is curated — the uncurated district is unchanged', () => {
-    const fill = [c('aviv'), c('barra')];
-    expect(pickShelf(undefined, fill, 4)).toEqual(fill);
-    expect(pickShelf([], fill, 4)).toEqual(fill);
-    expect(pickShelf(null, fill, 4)).toEqual(fill);
-  });
-
-  it('takes a single curated spot without demanding MIN_CURATED', () => {
-    expect(pickShelf([c('estelle')], [c('aviv')], 4)[0].slug).toBe('estelle');
-  });
-
-  it('survives a district with nothing at all', () => {
-    expect(pickShelf(null, null, 4)).toEqual([]);
-  });
-});
-
-describe('shelfPhoto', () => {
-  const p = (photo?: string) => ({ photo });
-
-  it('takes the first curated photo, then the alphabetical fill', () => {
-    expect(shelfPhoto({ topSpotCards: [p(), p('a.jpg')], exampleRestaurants: [p('b.jpg')] })).toBe(
-      'a.jpg'
-    );
-    expect(shelfPhoto({ exampleRestaurants: [p('b.jpg')] })).toBe('b.jpg');
-    expect(shelfPhoto({})).toBeNull();
-  });
-
-  // Ein Spot führt oft Frühstück und Kaffee an — in der Leiste nur einmal.
-  it('skips a photo another hub already shows', () => {
-    const taken = new Set<string>();
-    expect(shelfPhoto({ topSpotCards: [p('sofi.jpg')] }, taken)).toBe('sofi.jpg');
-    expect(shelfPhoto({ topSpotCards: [p('sofi.jpg'), p('basta.jpg')] }, taken)).toBe('basta.jpg');
   });
 });

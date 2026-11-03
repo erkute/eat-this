@@ -19,12 +19,12 @@ const TEASER_COUNT = 5;
 // Compact Figma artwork for these already-public examples. All other cards
 // keep the image supplied by the authorized data boundary.
 const HOME_CARD_ART: Readonly<Record<string, string>> = {
-  'mustead-main-14': '/pics/home/must-eat-007.webp?v=20261102',
-  'mustead-main-13': '/pics/home/must-eat-008.webp?v=20261102',
-  'mustead-main-12': '/pics/home/must-eat-009.webp?v=20261102',
-  'mustead-main-11': '/pics/home/must-eat-010.webp?v=20261102',
-  'mustead-main-10': '/pics/home/must-eat-011.webp?v=20261102',
-  'mustead-main-9': '/pics/home/must-eat-012.webp?v=20261102',
+  'mustead-main-14': '/pics/home/must-eat-007.webp?v=20261103',
+  'mustead-main-13': '/pics/home/must-eat-008.webp?v=20261103',
+  'mustead-main-12': '/pics/home/must-eat-009.webp?v=20261103',
+  'mustead-main-11': '/pics/home/must-eat-010.webp?v=20261103',
+  'mustead-main-10': '/pics/home/must-eat-011.webp?v=20261103',
+  'mustead-main-9': '/pics/home/must-eat-012.webp?v=20261103',
 };
 const CARD_WIDTHS = [180, 360, 440, 720] as const;
 

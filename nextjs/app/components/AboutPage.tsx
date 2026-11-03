@@ -72,7 +72,7 @@ const FIGURES: (Figure | null)[] = [
     src: '/pics/card-back.webp?v=20261028',
     width: 760,
     height: 1044,
-    cards: ['/pics/card-back.webp?v=20261028', '/pics/home/hero-must-eat.webp?v=20261028', '/pics/home/must-eat-008.webp?v=20261028', '/pics/home/must-eat-012.webp?v=20261028', '/pics/home/must-eat-011.webp?v=20261028'],
+    cards: ['/pics/card-back.webp?v=20261028', '/pics/home/hero-must-eat.webp?v=20261103', '/pics/home/must-eat-008.webp?v=20261103', '/pics/home/must-eat-012.webp?v=20261103', '/pics/home/must-eat-011.webp?v=20261103'],
     renderWidth: 1000,
     tilt: 0,
     remyAfter: true,

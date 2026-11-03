@@ -30,7 +30,7 @@ vi.mock('firebase/auth', () => ({
   deleteUser: vi.fn(),
 }));
 vi.mock('@/lib/firebase/config', () => ({ auth: {} }));
-vi.mock('@sentry/nextjs', () => ({
+vi.mock('@/lib/sentry/client-reporting', () => ({
   captureException: mocks.captureException,
   captureMessage: vi.fn(),
 }));

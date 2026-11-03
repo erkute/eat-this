@@ -1,4 +1,5 @@
 'use client';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { forwardRef, useEffect, useState, useSyncExternalStore } from 'react';
 import * as maplibre from 'maplibre-gl';
 import Map, {

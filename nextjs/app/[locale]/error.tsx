@@ -8,7 +8,7 @@
 //
 // Deliberately minimal dependencies: no providers, no nav, no i18n context.
 // Those can be part of the failure; the boundary must not crash itself.
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@/lib/sentry/client-reporting';
 import { useEffect } from 'react';
 import ServerErrorContent from '../components/ServerErrorContent';
 

@@ -34,7 +34,7 @@ vi.mock('@/lib/analytics', () => ({ trackEvent: mocks.trackEvent }));
 vi.mock('@/lib/firebase/config', () => ({
   auth: { app: { options: { authDomain: 'www.eatthisdot.com' }, name: '[DEFAULT]' } },
 }));
-vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock('@/lib/sentry/client-reporting', () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 vi.mock('@/lib/map/map-data-cache', () => ({
   clearMapDataCaches: vi.fn(),
   reconcileMapDataCacheIdentity: vi.fn(),

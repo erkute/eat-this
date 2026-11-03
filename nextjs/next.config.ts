@@ -19,6 +19,7 @@ const GUIDE_TO_CATEGORY = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  experimental: { cssChunking: 'strict', inlineCss: true },
   /**
    * Metadaten in den `<head>`, nicht in den Body.
    *

@@ -1,177 +1,116 @@
-import type { CSSProperties } from 'react';
 import SiteFooter from './SiteFooter';
-import MagazineCover from './MagazineCover';
+import MagazineCover, { formatMonth } from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import type { NewsArticle } from '@/lib/types';
 import styles from './NewsSection.module.css';
 
-/** How many older issues lie under the current one in the head. */
-const PILE = 2;
-
 interface NewsSectionProps {
-  /** All articles, newest first — the order the issue numbers count down in. */
+  /** Newest first; issue numbers count back from the length of this list. */
   articles: NewsArticle[];
   locale: 'de' | 'en';
 }
 
-/**
- * Der Magazin-Index als Heft-Archiv (02.10.2026), dasselbe Objekt wie „Auf dem
- * Teller" auf der Startseite: jeder Artikel ist die Titelseite einer Ausgabe
- * (MagazineCover), gezählt ab dem ältesten (Issue 1).
- *
- * Oben die aktuelle Ausgabe gross und leicht in den Raum gedreht, die zwei
- * davor liegen schräg darunter wie ein Stapel auf dem Tisch; daneben der
- * Vorspann der Ausgabe und „Lesen". Darunter alle früheren Ausgaben als
- * Auslage, jede leicht anders gedreht.
- *
- * Bewegung nur, wo der Leser sie anstösst: unter der Maus hebt sich ein Heft
- * und der Stapel oben fächert auf. Kein Scroll-Effekt, kein Werfen — anders als
- * auf der Startseite ist das hier eine Seite zum Stöbern.
- */
+function IssueMeta({ article, issue, locale }: { article: NewsArticle; issue: number; locale: 'de' | 'en' }) {
+  const month = formatMonth(article.date, locale);
+  return <p className={styles.meta}>
+    <span>Issue {issue}</span>
+    {month && <><span aria-hidden="true"> · </span><time dateTime={article.date}>{month}</time></>}
+  </p>;
+}
+
+/** A tangible, open issue fan leads into the two recent stories and the compact archive. */
 export default function NewsSection({ articles, locale }: NewsSectionProps) {
   const de = locale === 'de';
-
-  const labels = {
-    kicker: de ? 'Magazin' : 'Magazine',
-    title: de ? 'Auf dem Teller' : 'On the plate',
-    current: de ? 'Aktuelle Ausgabe' : 'Current issue',
-    read: de ? 'Lesen' : 'Read',
-    archive: de ? 'Frühere Ausgaben' : 'Back issues',
-    empty: de
-      ? 'Aktuell keine Artikel — schau bald wieder vorbei.'
-      : 'No articles right now — check back soon.',
-  };
-
-  const titleOf = (a: NewsArticle) => (de && a.titleDe ? a.titleDe : a.title);
-  const excerptOf = (a: NewsArticle) =>
-    (de ? a.previewExcerptDe || a.excerptDe || a.previewExcerpt || a.excerpt : a.previewExcerpt || a.excerpt) || '';
-  // Newest first, so the first is the highest issue and they count down —
-  // the same count as the covers on the home page (getHomeData).
-  const issueOf = (i: number) => articles.length - i;
-
-  if (!articles.length) {
-    return (
-      <div className={`app-page active ${styles.page}`} data-page="news">
-        <main id="news" className={styles.shell} data-insight-content="">
-          <header className={styles.intro} data-insight-header="">
-            <h1 className={styles.heroTitle}>{labels.title}</h1>
-          </header>
-          <p className={styles.empty}>{labels.empty}</p>
-        </main>
-        <SiteFooter />
-      </div>
-    );
-  }
-
-  const [current, ...older] = articles;
-  const pile = older.slice(0, PILE);
-  const currentTitle = titleOf(current);
-  const currentExcerpt = excerptOf(current);
+  const titleOf = (article: NewsArticle) => (de && article.titleDe ? article.titleDe : article.title);
+  const excerptOf = (article: NewsArticle) => (de
+    ? article.previewExcerptDe || article.excerptDe || article.previewExcerpt || article.excerpt
+    : article.previewExcerpt || article.excerpt) || '';
+  const issueOf = (index: number) => articles.length - index;
+  const [current] = articles;
+  const recent = articles.slice(1, 3);
+  const archive = articles.slice(3);
+  const read = de ? 'Lesen' : 'Read';
 
   return (
     <div className={`app-page active ${styles.page}`} data-page="news">
       <main id="news" className={styles.shell} data-insight-content="">
         <header className={styles.hero} data-insight-header="">
-          <div className={styles.intro}>
-            <p className={styles.kicker}>{labels.kicker}</p>
-            <h1 className={styles.heroTitle}>{labels.title}</h1>
-          </div>
-
-          {/* Die aktuelle Ausgabe: das Heft ist der Link, die älteren liegen
-              nur als Stapel darunter (ohne eigenes Ziel — sie stehen unten
-              in der Auslage). */}
-          <div className={styles.issue}>
-            <span className={styles.issueLabel}>
-              {labels.current}
-              <span className={styles.issueNo}>
-                {' · '}Issue {issueOf(0)}
-              </span>
-            </span>
-            <div className={styles.pile}>
-              {pile.map((a, i) => (
-                <span
-                  key={a.slug}
-                  className={styles.pileCover}
-                  style={{ '--d': i + 1 } as CSSProperties}
-                  aria-hidden="true"
-                >
+          <h1 className={styles.heroTitle}>{de ? 'Auf dem Teller' : 'On the plate'}</h1>
+          {current ? (
+            <section className={styles.lead} aria-labelledby="news-current">
+              <div className={styles.fan}>
+                {recent.map((article, index) => <span key={article.slug} className={`${styles.fanSide} ${index === 0 ? styles.fanLeft : styles.fanRight}`} aria-hidden="true">
+                  <MagazineCover title={titleOf(article)} image={article.imageUrl} issue={issueOf(index + 1)} date={article.date}
+                    locale={locale} cover={article.cover} priority
+                    sizes="(orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) 51svh, (max-width: 599.98px) 42vw, 320px"
+                    widths={[320, 480, 800, 1200]} />
+                </span>)}
+                <MagazineLink href={`/news/${current.slug}`} className={styles.leadCover} data-current-issue="" aria-label={titleOf(current)}>
                   <MagazineCover
-                    title={titleOf(a)}
-                    image={a.imageUrl}
-                    issue={issueOf(i + 1)}
-                    date={a.date}
-                    locale={locale}
-                    cover={a.cover}
-                    sizes="(max-width: 767.98px) 62vw, (min-width: 1600px) min(22vw, 520px), 360px"
-                    widths={[480, 800, 1200]}
-                    priority
+                    title={titleOf(current)} image={current.imageUrl} issue={issueOf(0)} date={current.date}
+                    locale={locale} cover={current.cover} priority
+                    sizes="(orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) 51svh, (max-width: 599.98px) 46vw, 320px"
+                    widths={[320, 480, 800, 1200]}
                   />
-                </span>
-              ))}
-              <MagazineLink
-                href={`/news/${current.slug}`}
-                className={styles.front}
-                data-current-issue=""
-              >
-                <MagazineCover
-                  title={currentTitle}
-                  image={current.imageUrl}
-                  issue={issueOf(0)}
-                  date={current.date}
-                  locale={locale}
-                  cover={current.cover}
-                  sizes="(max-width: 767.98px) 62vw, (min-width: 1600px) min(22vw, 520px), 360px"
-                  widths={[480, 800, 1200]}
-                  priority
-                />
-              </MagazineLink>
-            </div>
-
-            <div className={styles.issueText}>
-              <h2 className={styles.currentTitle}>{currentTitle}</h2>
-              {currentExcerpt && <p className={styles.issueExcerpt}>{currentExcerpt}</p>}
-              <MagazineLink
-                href={`/news/${current.slug}`}
-                className="et-btn"
-                coverFrom="[data-current-issue]"
-                aria-label={`${labels.read}: ${currentTitle}`}
-              >
-                {labels.read}
-              </MagazineLink>
-            </div>
-          </div>
+                </MagazineLink>
+              </div>
+              <div className={styles.leadCopy}>
+                <p className={styles.leadMeta}><span className="et-label">{de ? 'Aktuelle Ausgabe' : 'Current issue'} · Issue {issueOf(0)}</span></p>
+                <h2 id="news-current" className={styles.currentTitle}>{titleOf(current)}</h2>
+                {excerptOf(current) && <p className={styles.issueExcerpt}>{excerptOf(current)}</p>}
+                <MagazineLink href={`/news/${current.slug}`} className={`et-btn et-btn-lg ${styles.read}`} coverFrom="[data-current-issue]" aria-label={`${read}: ${titleOf(current)}`}>
+                  {read}
+                </MagazineLink>
+              </div>
+            </section>
+          ) : <p className={styles.empty}>{de ? 'Aktuell keine Artikel — schau bald wieder vorbei.' : 'No articles right now — check back soon.'}</p>}
         </header>
 
-        {older.length > 0 && (
-          <section className={styles.archive} aria-labelledby="news-archive">
-            <div className={styles.sectionHead}>
-              <h2 id="news-archive">{labels.archive}</h2>
-            </div>
-            <ul className={styles.shelf} role="list">
-              {older.map((a, i) => (
-                <li key={a.slug} className={styles.slot}>
-                  <MagazineLink
-                    href={`/news/${a.slug}`}
-                    className={styles.mag}
-                    aria-label={titleOf(a)}
-                  >
-                    <MagazineCover
-                      title={titleOf(a)}
-                      image={a.imageUrl}
-                      issue={issueOf(i + 1)}
-                      date={a.date}
-                      locale={locale}
-                      cover={a.cover}
-                      sizes="(max-width: 767.98px) 46vw, (max-width: 1099.98px) 30vw, (max-width: 1439.98px) 260px, (max-width: 1799.98px) calc(20vw - 35px), calc(16.7vw - 31px)"
-                      widths={[320, 480, 800, 1200]}
-                    />
-                    <h3 className={styles.magTitle}>{titleOf(a)}</h3>
-                  </MagazineLink>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        {recent.length > 0 && <section className={styles.recent} aria-labelledby="news-recent">
+          <h2 id="news-recent" className={styles.sectionTitle}>{de ? 'Zuletzt erschienen' : 'Recent issues'}</h2>
+          <ul className={styles.featureList} role="list">
+            {recent.map((article, index) => <li key={article.slug} className={styles.feature}>
+              <MagazineLink href={`/news/${article.slug}`} className={styles.featureLink} aria-label={titleOf(article)}>
+                <span className={styles.featureMedia}>
+                  <MagazineCover
+                    title={titleOf(article)} image={article.imageUrl} issue={issueOf(index + 1)} date={article.date}
+                    locale={locale} cover={article.cover}
+                    sizes="(orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) 50svh, (max-width: 599.98px) 80vw, (max-width: 1099.98px) 30vw, 380px"
+                    widths={[320, 480, 800, 1200]}
+                  />
+                </span>
+                <IssueMeta article={article} issue={issueOf(index + 1)} locale={locale} />
+                <h3 className={styles.featureTitle}>{titleOf(article)}</h3>
+                {excerptOf(article) && <p className={styles.featureExcerpt}>{excerptOf(article)}</p>}
+              </MagazineLink>
+            </li>)}
+          </ul>
+        </section>}
+
+        {archive.length > 0 && <section className={styles.archive} aria-labelledby="news-archive">
+          <div className={styles.archiveHead}>
+            <h2 id="news-archive" className={styles.sectionTitle}>{de ? 'Alle weiteren Ausgaben' : 'All other issues'}</h2>
+            <p className={styles.archiveIntro}>{de ? 'Geschichten und Guides aus Berlin.' : 'Stories and guides from Berlin.'}</p>
+          </div>
+          <ul className={styles.archiveList} role="list">
+            {archive.map((article, index) => <li key={article.slug} className={styles.archiveItem}>
+              <MagazineLink href={`/news/${article.slug}`} className={styles.archiveLink} aria-label={titleOf(article)}>
+                <span className={styles.archiveCover}>
+                  <MagazineCover
+                    title={titleOf(article)} image={article.imageUrl} issue={issueOf(index + 3)} date={article.date}
+                    locale={locale} cover={article.cover} sizes="(orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) 144px, (max-width: 1099.98px) 116px, 152px"
+                    widths={[160, 320, 480]}
+                  />
+                </span>
+                <div className={styles.archiveCopy}>
+                  <IssueMeta article={article} issue={issueOf(index + 3)} locale={locale} />
+                  <h3 className={styles.archiveTitle}>{titleOf(article)}</h3>
+                  {excerptOf(article) && <p className={styles.archiveExcerpt}>{excerptOf(article)}</p>}
+                </div>
+              </MagazineLink>
+            </li>)}
+          </ul>
+        </section>}
       </main>
       <SiteFooter />
     </div>

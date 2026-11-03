@@ -32,18 +32,28 @@ const TARGET_LABELS: Record<string, string> = {
   control: 'Bedienelement',
   other: 'Klick ohne Bedienelement',
 };
-export default function Insights({ data }: { data: StatsSummary }) {
+export default function Insights({
+  data,
+  refreshKey = 0,
+}: {
+  data: StatsSummary;
+  refreshKey?: number;
+}) {
   const [surface, setSurface] = useState<Surface | 'home'>('article');
-  const [device, setDevice] = useState<InsightDevice>('phone');
+  const [chosenDevice, setDevice] = useState<InsightDevice | null>(null);
   const [selected, setSelected] = useState('');
   const [showHeat, setShowHeat] = useState(false);
   const [heat, setHeat] = useState<InsightHeat | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const pages = data.paths.filter((row) => surfaceForPath(row.key) === surface);
+  const pages = data.paths
+    .filter((row) => surfaceForPath(row.key) === surface)
+    .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
   const path = pages.find((row) => row.key === selected)?.key ?? pages[0]?.key ?? '';
   const summary = surface === 'home' ? null : data.engagement.surfaces[surface];
   const row = data.engagement.pages.find((row) => row.path === path);
-  const counts = (row?.devices ?? emptyDeviceCounts())[device];
+  const devices = row?.devices ?? emptyDeviceCounts();
+  const device = chosenDevice ?? (devices.desktop.view > devices.phone.view ? 'desktop' : 'phone');
+  const counts = devices[device];
   const observed = surface === 'home' ? 0 : (summary ?? emptyDeviceCounts())[device].view;
   const baseline = pages.reduce((sum, row) => sum + row.count, 0);
   const allCounts = summary ? totalInsights(summary) : null;
@@ -60,7 +70,7 @@ export default function Insights({ data }: { data: StatsSummary }) {
     const load = async () => {
       try {
         const token = await auth.currentUser?.getIdToken();
-        if (!token) return;
+        if (!token) throw new Error('Bitte erneut anmelden.');
         const response = await fetch(
           `/api/admin/stats?only=heat&path=${encodeURIComponent(path)}&device=${device}&from=${data.range.start}&to=${data.range.end}`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -77,7 +87,7 @@ export default function Insights({ data }: { data: StatsSummary }) {
     return () => {
       cancelled = true;
     };
-  }, [showHeat, path, device, surface, data.range.start, data.range.end]);
+  }, [showHeat, path, device, surface, data.range.start, data.range.end, refreshKey]);
   return (
     <>
       <div className={styles.reportTabs} role="group" aria-label="Nutzungsbereich">
@@ -90,6 +100,7 @@ export default function Insights({ data }: { data: StatsSummary }) {
             onClick={() => {
               setSurface(key);
               setSelected('');
+              setDevice(null);
               setShowHeat(false);
             }}
           >
@@ -98,13 +109,13 @@ export default function Insights({ data }: { data: StatsSummary }) {
         ))}
       </div>
       {surface === 'home' ? (
-        <HomeReport data={data} />
+        <HomeReport data={data} refreshKey={refreshKey} />
       ) : (
         <>
           <Card
             title={`${SURFACE_LABELS[surface]}: Messabdeckung`}
             span={3}
-            sub="Aufrufe sind keine eindeutigen Personen. Neue Detailmessungen sind erst nach dem Rollout verfügbar."
+            sub="Seitenaufrufe über alle Geräte; Detailmessungen sind eine Teilmenge und werden separat gesendet. Aufrufe sind keine eindeutigen Personen."
           >
             <p className={styles.note}>
               {NUMBER.format(allCounts?.view ?? 0)} Aufrufe mit Detailmessung bei{' '}
@@ -117,6 +128,41 @@ export default function Insights({ data }: { data: StatsSummary }) {
               Telefon und Desktop bezeichnen hier die Breite beim Öffnen: unter 768 px
               beziehungsweise ab 768 px, keine Geräteerkennung.
             </p>
+            <p className={styles.note}>
+              Die fünf meistbesuchten Seiten zuerst. Alle weiteren findest du in der Seitenauswahl.
+              Detailaufrufe können aus einer kürzeren Messperiode stammen.
+            </p>
+            <ol className={styles.trafficPages} aria-label="Seiten nach Aufrufen">
+              {pages.slice(0, 5).map((page) => {
+                const detail = data.engagement.pages.find((item) => item.path === page.key);
+                return (
+                  <li key={page.key} className={styles.trafficPage}>
+                    <div>
+                      <strong className={styles.trafficPath}>{page.key}</strong>
+                      <p className={styles.note}>
+                        {NUMBER.format(page.count)}{' '}
+                        {page.count === 1 ? 'Seitenaufruf' : 'Seitenaufrufe'} · Detailmessung:
+                        Telefon {NUMBER.format(detail?.devices.phone.view ?? 0)} / Desktop{' '}
+                        {NUMBER.format(detail?.devices.desktop.view ?? 0)}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="et-btn et-btn-sm et-btn-alt"
+                      aria-pressed={page.key === path}
+                      aria-label={`Nutzung ansehen: ${page.key}`}
+                      onClick={() => {
+                        setSelected(page.key);
+                        setDevice(null);
+                        setShowHeat(surface !== 'map');
+                      }}
+                    >
+                      {page.key === path ? 'Ausgewählt' : 'Ansehen'}
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
             <div className={styles.cardTools}>
               <label>
                 Seite{' '}
@@ -126,12 +172,14 @@ export default function Insights({ data }: { data: StatsSummary }) {
                   value={path}
                   onChange={(e) => {
                     setSelected(e.target.value);
+                    setDevice(null);
                     setShowHeat(false);
                   }}
                 >
                   {pages.map((row) => (
                     <option key={row.key} value={row.key}>
-                      {row.key}
+                      {row.key} · {NUMBER.format(row.count)}{' '}
+                      {row.count === 1 ? 'Aufruf' : 'Aufrufe'}
                     </option>
                   ))}
                 </select>
@@ -144,8 +192,14 @@ export default function Insights({ data }: { data: StatsSummary }) {
                   value={device}
                   onChange={(e) => setDevice(e.target.value as InsightDevice)}
                 >
-                  <option value="phone">Telefon</option>
-                  <option value="desktop">Desktop</option>
+                  <option value="phone">
+                    Telefon · {devices.phone.view}{' '}
+                    {devices.phone.view === 1 ? 'Detailaufruf' : 'Detailaufrufe'}
+                  </option>
+                  <option value="desktop">
+                    Desktop · {devices.desktop.view}{' '}
+                    {devices.desktop.view === 1 ? 'Detailaufruf' : 'Detailaufrufe'}
+                  </option>
                 </select>
               </label>
             </div>
@@ -163,8 +217,19 @@ export default function Insights({ data }: { data: StatsSummary }) {
                   bis zum Abgleich nicht berechnet.
                 </p>
               )}
+              {counts.view < 20 && (
+                <p className={styles.notice}>
+                  Kleine Stichprobe: nur {counts.view} {counts.view === 1 ? 'Aufruf' : 'Aufrufe'}{' '}
+                  mit Detailmessung. Die Quoten beschreiben diese Auswahl, noch keinen stabilen
+                  Nutzungstrend.
+                </p>
+              )}
               <div className={styles.kpis}>
-                <Kpi label="Gemessene Aufrufe" value={NUMBER.format(counts.view)} />
+                <Kpi
+                  label="Aufrufe mit Detailmessung"
+                  value={NUMBER.format(counts.view)}
+                  hint={`${device === 'phone' ? 'Telefon' : 'Desktop'} · nur die ausgewählte Seite`}
+                />
                 <Kpi
                   label="Mit Vertiefung"
                   value={share(counts.engaged)}
@@ -287,8 +352,8 @@ export default function Insights({ data }: { data: StatsSummary }) {
           )}
           {observed === 0 && (
             <p className={styles.notice}>
-              Nach dem Rollout sammeln sich hier echte Nutzungsdaten. Historische Aufrufe werden
-              nicht mit erfundenen Scroll- oder Klickwerten ergänzt.
+              Für diese Auswahl fehlen Detaildaten. Historische Aufrufe werden nicht mit erfundenen
+              Scroll- oder Klickwerten ergänzt.
             </p>
           )}
         </>

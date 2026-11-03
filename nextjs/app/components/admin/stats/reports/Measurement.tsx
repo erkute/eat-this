@@ -2,6 +2,7 @@ import type { StatsSummary } from '@/lib/admin/stats.server';
 import { Card, Kpi } from '../charts';
 import { NUMBER, longDay, percent } from '../format';
 import styles from '../../StatsDashboard.module.css';
+import TrafficQuality from './TrafficQuality';
 
 export default function Measurement({ data }: { data: StatsSummary }) {
   const measured = data.measurement.filter((day) => day.recorded);
@@ -11,6 +12,7 @@ export default function Measurement({ data }: { data: StatsSummary }) {
   const overflow = measured.filter((day) => day.overflow > 0);
   return (
     <>
+      <TrafficQuality data={data} />
       <div className={styles.kpis}>
         <Kpi
           label="Tage mit Messdaten"

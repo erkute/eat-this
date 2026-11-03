@@ -17,7 +17,13 @@ vi.mock('@/lib/firebase/admin', () => ({
   getAdminFirestore: () => ({
     collection: (name: string) => {
       if (name === 'analytics_heat') {
-        const query = { where: () => query, get: () => mocks.heatGet() };
+        const query = {
+          where: (_field: unknown, op: string, value: string) => {
+            mocks.where(op, value);
+            return query;
+          },
+          get: () => mocks.heatGet(),
+        };
         return { doc: () => ({ collection: () => query }) };
       }
       if (name === 'analytics_engagement') {
@@ -130,6 +136,28 @@ describe('GET /api/admin/stats', () => {
   afterEach(() => {
     delete process.env.ADMIN_EMAILS;
     delete process.env.STATS_EXCLUDE_EMAILS;
+  });
+
+  it('loads today for an explicit home heatmap range', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ uid: 'admin', admin: true });
+    const response = await GET(
+      request({ Authorization: 'Bearer valid' }, '?only=home&from=2026-08-31&to=2026-08-31')
+    );
+    expect(response.status).toBe(200);
+    expect(bounds()).toEqual({ from: '2026-08-31', to: '2026-08-31' });
+  });
+
+  it('loads today for an explicit article heatmap range', async () => {
+    mocks.verifyIdToken.mockResolvedValue({ uid: 'admin', admin: true });
+    mocks.heatGet.mockResolvedValue({ docs: [] });
+    const response = await GET(
+      request(
+        { Authorization: 'Bearer valid' },
+        '?only=heat&path=%2Fnews%2Ftest&from=2026-08-31&to=2026-08-31'
+      )
+    );
+    expect(response.status).toBe(200);
+    expect(bounds()).toEqual({ from: '2026-08-31', to: '2026-08-31' });
   });
 
   it('weist Aufrufe ohne Token ab', async () => {
@@ -556,7 +584,7 @@ describe('parseRange', () => {
   const today = '2026-08-31';
   const params = (query: string) => new URLSearchParams(query);
 
-  it('nimmt from/to, kappt die Zukunft auf gestern und begrenzt auf ein Jahr', () => {
+  it('nimmt from/to, kappt die Zukunft auf heute und begrenzt auf ein Jahr', () => {
     expect(parseRange(params('from=2026-08-01&to=2026-08-10'), today)).toEqual({
       start: '2026-08-01',
       end: '2026-08-10',
@@ -564,8 +592,8 @@ describe('parseRange', () => {
     });
     expect(parseRange(params('from=2026-08-25&to=2026-09-30'), today)).toEqual({
       start: '2026-08-25',
-      end: '2026-08-30',
-      days: 6,
+      end: '2026-08-31',
+      days: 7,
     });
     expect(parseRange(params('from=2020-01-01&to=2026-08-31'), today).days).toBe(365);
   });

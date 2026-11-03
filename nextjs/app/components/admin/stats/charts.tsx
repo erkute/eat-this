@@ -274,10 +274,12 @@ export function BarRows({
   rows,
   empty,
   share,
+  wrapLabels = false,
 }: {
   rows: { key: string; label?: ReactNode; count: number; share?: string }[];
   empty: string;
   share?: string;
+  wrapLabels?: boolean;
 }) {
   if (rows.length === 0) return <p className={styles.empty}>{empty}</p>;
   const peak = Math.max(1, ...rows.map((row) => row.count));
@@ -285,7 +287,7 @@ export function BarRows({
     <ol className={styles.rank} aria-label={share}>
       {rows.map((row) => (
         <li key={row.key} className={styles.rankRow}>
-          <span className={styles.rankKey} title={row.key}>
+          <span className={wrapLabels ? styles.rankKeyWrap : styles.rankKey} title={row.key}>
             {row.label ?? row.key}
           </span>
           <span className={styles.rankBarWrap}>

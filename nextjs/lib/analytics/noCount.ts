@@ -15,7 +15,21 @@ export function hasNoCountCookie(raw: string | null | undefined): boolean {
 
 /** Lokale Vorschauen dürfen auch als Produktionsbuild keine Besuche zählen. */
 export function isLocalAnalyticsHost(hostname: string): boolean {
+  const parts = hostname.split('.');
+  const ipv4 =
+    parts.length === 4 && parts.every((part) => /^\d{1,3}$/.test(part) && Number(part) <= 255);
+  const [first, second] = parts.map(Number);
+  const privateIpv4 =
+    ipv4 &&
+    (first === 10 ||
+      first === 127 ||
+      (first === 192 && second === 168) ||
+      (first === 172 && second >= 16 && second <= 31) ||
+      (first === 169 && second === 254));
   return (
+    privateIpv4 ||
+    /^\[?(?:f[cd][0-9a-f]{2}|fe[89ab][0-9a-f]):/i.test(hostname) ||
+    hostname.endsWith('.local') ||
     hostname === 'localhost' ||
     hostname.endsWith('.localhost') ||
     hostname === '127.0.0.1' ||

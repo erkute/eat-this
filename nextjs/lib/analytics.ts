@@ -91,7 +91,7 @@ function isOwnOrAutomated(): boolean {
     (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl
   )
     return true;
-  if (isAutomated(navigator.userAgent)) return true;
+  if (navigator.webdriver || isAutomated(navigator.userAgent)) return true;
   // Eingebettet zählt nie: die Heatmap in /admin/stats zeigt die Startseite in
   // einem iframe, und jeder Blick darauf wäre sonst ein Besuch.
   if (window.self !== window.top) return true;

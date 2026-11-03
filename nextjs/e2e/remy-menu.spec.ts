@@ -22,6 +22,16 @@ for (const route of ['/', '/news', '/en/news']) {
       await expect(page.locator('[data-buddy-launcher]')).toHaveCount(0);
 
       const en = route.startsWith('/en');
+      const menu = page.getByRole('dialog', { name: 'Navigation' });
+      // Exercise the hydrated menu before checking scroll direction; SSR
+      // content can already be scrolled while its event handlers still load.
+      await expect(async () => {
+        if (!await menu.isVisible()) await page.locator('#burgerBtn').click();
+        await expect(menu).toBeVisible({ timeout: 1000 });
+      }).toPass({ timeout: 15_000 });
+      await menu.getByRole('button', { name: en ? 'Close' : 'Schließen', exact: true }).click();
+      await expect(menu).toBeHidden();
+      await page.evaluate(() => document.fonts.ready);
       await page.locator('[data-site-footer]').scrollIntoViewIfNeeded();
       if (page.viewportSize()!.width < 768) await expect(page.locator('#navbar')).toHaveAttribute('data-visibility', 'collapsed');
       // Am Telefon fährt der Kopf beim Herunterscrollen weg und kommt beim
@@ -35,7 +45,6 @@ for (const route of ['/', '/news', '/en/news']) {
       await expect(page.locator('#navbar')).toHaveAttribute('data-visibility', 'visible');
       await expect.poll(() => page.locator('#burgerBtn').evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(0);
       await page.locator('#burgerBtn').click();
-      const menu = page.getByRole('dialog', { name: 'Navigation' });
       await menu.getByRole('button', { name: en ? 'Ask Remy' : 'Frag Remy', exact: true }).click();
       await expect(menu).toBeHidden();
 

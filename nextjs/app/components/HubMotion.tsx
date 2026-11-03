@@ -228,7 +228,7 @@ export default function HubMotion() {
     mm.add(
       {
         motion: '(prefers-reduced-motion: no-preference)',
-        desk: '(min-width: 768px)',
+        desk: '(min-width: 600px)',
         landscape: '(orientation: landscape) and (max-height: 500px)',
       },
       (ctx) => {

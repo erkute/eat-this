@@ -1,8 +1,11 @@
 /* One offer, with a product spread on desktop and a compact stack on mobile. */
 .board { display: grid; gap: 24px; padding-block: 24px 32px; color: var(--et-fg); font-family: var(--et-font-body); }
 .copy { min-width: 0; text-align: center; }
+@media (max-width: 899.98px) {
+  .board:not(.boardUpsell) .stage { order: -1; }
+}
 .kicker { margin: 0 0 12px; }
-.title { margin: 0; font-size: clamp(60px, 9vw, 104px); font-weight: 800; letter-spacing: -.065em; line-height: .95; }
+.title { margin: 0; font-size: clamp(32px, 5.5vw, 64px); font-weight: 800; letter-spacing: -.055em; line-height: 1; }
 .lead { max-width: 32ch; margin: 14px auto 0; color: var(--et-copy); font-size: 18px; line-height: 1.4; }
 .stage { min-width: 0; padding: 0 28px; }
 .fanPack { position: relative; height: auto; transform-origin: 50% 90%; filter: drop-shadow(0 8px 8px rgb(0 0 0 / .16)); }
@@ -26,7 +29,6 @@
 }
 @media (max-width: 640px) {
  .board { gap: 16px; padding-top: 12px; }
- .title { font-size: clamp(56px, 15vw, 80px); }
  .lead { font-size: 17px; margin-top: 12px; }
  .benefits { gap: 12px; text-align: center; }
  .benefits h3 { font-size: 19px; }
@@ -57,7 +59,8 @@
 
 .board { grid-template-columns: 1fr 1fr; grid-template-areas: 'copy art' 'benefits art' 'actions art'; gap: 18px 24px; padding-block: 20px; align-items: center; }
 .copy { grid-area: copy; text-align: left; }
-.title, .boardUpsell .title { font-size: 44px; }
+.title { font-size: 36px; }
+.boardUpsell .title { font-size: 44px; }
 .lead { font-size: 16px; margin-inline: 0; }
 .stage { grid-area: art; padding: 0 12px; }
 .benefits { grid-area: benefits; gap: 10px; }

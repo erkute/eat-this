@@ -80,7 +80,7 @@
   --et-copy: #e1ded9;
   --et-link: #f29194;
 }
-.sectionCopy { min-width: 0; }
+.sectionCopy { min-width: 0; grid-column: 1; grid-row: 1; }
 .sectionTitle { margin: 0 0 28px; font: 700 var(--about-heading-size)/1.05 var(--et-font-body); letter-spacing: -.05em; text-wrap: balance; }
 .body { max-width: 60ch; color: var(--et-copy); font: 400 clamp(16px, 1.4vw, 19px)/1.65 var(--et-font-body); overflow-wrap: anywhere; }
 .body p { margin: 0 0 1.2em; }
@@ -91,7 +91,7 @@
 .body a { color: var(--et-link); text-decoration: none; }
 .body a:focus-visible { outline: 3px solid var(--et-fg); outline-offset: 5px; }
 .body blockquote { margin: 28px 0; padding: 0; color: var(--et-fg); font: 700 clamp(24px, 2.5vw, 34px)/1.2 var(--et-font-body); letter-spacing: -.03em; }
-.figure { width: min(100%, 440px); margin: 0; justify-self: center; }
+.figure { grid-column: 2; grid-row: 1; width: min(100%, 440px); margin: 0; justify-self: center; }
 .figureImg.phoneFigure { width: min(100%, 300px); }
 .figureImg { display: block; width: var(--fig-w, 290px); max-width: 100%; height: auto; margin-inline: auto; transform: rotate(var(--tilt, 0deg)); }
 .section.cardChapter { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
@@ -135,7 +135,8 @@
   .heroFigure { width: min(100%, 280px); }
   .bridge { gap: 32px; }
   .section { gap: 40px; padding-block: 56px; }
-  .flip .sectionCopy, .flip .figure { grid-column: auto; grid-row: auto; }
+  .sectionCopy, .flip .sectionCopy { grid-column: 1; grid-row: 1; }
+  .figure, .flip .figure { grid-column: 1; grid-row: 2; }
   .figure { width: min(100%, 340px); }
   .figureImg { width: min(var(--fig-w, 290px), 240px); }
   .figureImg.phoneFigure { width: min(100%, 260px); }
@@ -155,4 +156,25 @@
   .heroCopy { grid-column: 1; grid-row: 1; }
   .heroArt { grid-column: 2; grid-row: 1 / span 2; }
   .ledeQuote { grid-column: 1; grid-row: 2; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  .page { --about-gutter: max(28px, calc(max(env(safe-area-inset-left), env(safe-area-inset-right)) + 16px)); }
+  .hero, .bridge { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 32px; }
+  .hero, .bridge, .section { padding-block: 32px; }
+  .heroCopy { grid-column: 1; grid-row: 1; }
+  .heroArt { grid-column: 2; grid-row: 1 / span 2; }
+  .ledeQuote { grid-column: 1; grid-row: 2; }
+  .heroFigure, .figureImg { width: auto; max-width: 100%; max-height: calc(100svh - 140px); object-fit: contain; }
+  .figureImg.phoneFigure { width: min(100%, calc((100svh - 110px) / 2.18)); }
+  .figure, .heroArt { align-self: start; }
+  .caption { margin-top: 16px; }
+  .sectionTitle { margin-bottom: 20px; }
+  .section, .section.cardChapter { display: flow-root; }
+  .sectionCopy { display: contents; }
+  .section .body { max-width: none; }
+  .section .figure, .cardChapter .fanFigure { float: left; width: 38%; margin: 0 40px 24px 0; }
+  .section .figureImg.phoneFigure { max-height: none; width: min(100%, calc((100svh - 148px) / 2.25)); }
+  .section .caption { margin-top: 24px; font-size: 12px; }
+  .sectionTitle { font-size: 32px; }
 }

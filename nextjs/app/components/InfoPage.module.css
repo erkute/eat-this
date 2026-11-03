@@ -10,7 +10,7 @@
   width: 100%;
   /* Abstand zum fixen Kopf: Kopf und Seite sind beide weiß, ohne ihn
      klebt der Titel an der Kante und wirkt wie darunter geschoben. */
-  padding: clamp(40px, 5vw, 72px) 12px 80px;
+  padding: clamp(40px, 5vw, 72px) max(12px, var(--et-safe-right)) 80px max(12px, var(--et-safe-left));
 }
 
 .title {

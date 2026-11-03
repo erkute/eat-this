@@ -296,6 +296,16 @@
   /* On the rail the panel itself carries the paper. */
   .listHeader { background: transparent; }
 }
+/* The landscape rail scrolls its rows, so its header stays in normal flow.
+   The portrait map-strip offset must not push filters over the first cards. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px) {
+  .listHeader {
+    position: relative;
+    top: auto;
+  }
+  .pickerSheetInline { margin: 8px; padding: 0; }
+  .pickerSheetInline .pickerList { grid-template-columns: minmax(0, 1fr); max-height: calc(100dvh - 144px); }
+}
 /* Keep full labels on one rail; narrow panels scroll instead of truncating. */
 @container (max-width: 374px) {
   .filterChipRow { padding-inline: 4px; }

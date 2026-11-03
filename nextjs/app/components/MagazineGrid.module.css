@@ -12,7 +12,7 @@
 .cover { display: block; width: 100%; color: inherit; }
 .cover:focus-visible { outline: 3px solid #d9382a; outline-offset: 5px; }
 .section.section .mobileLink { display: none; }
-@media (max-width: 767.98px) and (orientation: portrait) {
+@media (max-width: 599.98px) and (orientation: portrait) {
   .section { padding-block: 48px; }
   .header { display: block; }
   .header h2 { font-size: min(var(--hv-display, 40px), 26cqi); }
@@ -33,6 +33,15 @@
   filter: drop-shadow(0 8px 12px rgb(0 0 0 / .25));
 }
 
+@media (min-width: 600px) and (max-width: 1023.98px) {
+  .section { padding-block: 48px; }
+  .header { gap: 28px; }
+  .header h2 { font-size: min(var(--hv-display), calc((100cqi - 28px) * .13)); }
+  .intro p { font-size: 17px; }
+  .covers { gap: 18px; margin-top: 36px; }
+  .section .moreCovers { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 18px; }
+}
+
 
 .articleTitle { margin: 18px 0 0; font-size: clamp(18px, 1.65vw, 24px); font-weight: 700; line-height: 1.22; letter-spacing: -.035em; text-wrap: pretty; }
 .articleTitle a, .selectedTitle a, .smallTitle a { color: inherit; text-decoration: none; }
@@ -41,7 +50,7 @@
 .moreCovers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 28px; max-width: 1400px; margin: 32px auto 0; padding: 0; list-style: none; }
 .moreCovers li { min-width: 0; }
 .smallTitle { margin: 16px 0 0; max-width: 34ch; font-size: clamp(18px, 1.6vw, 23px); font-weight: 700; line-height: 1.25; letter-spacing: -.03em; text-wrap: pretty; }
-@media (max-width: 767.98px) and (orientation: portrait) {
+@media (max-width: 599.98px) and (orientation: portrait) {
  .articleTitle, .desktopMeta { display: none; }
  /* All four titles size this shared cell; changing the cover cannot move the stories below. */
  .selectedTitle { display: grid; margin: 0 16px; }
@@ -54,19 +63,26 @@
 
 .metadata { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 10px 0 0; font-size: 12px; line-height: 1.4; font-weight: 400; font-variant-numeric: tabular-nums; }
 .metadata span { font-weight: 700; }
-@media (max-width: 767.98px) and (orientation: portrait) { .metadata { font-size: 11px; gap: 3px 10px; } }
+@media (max-width: 599.98px) and (orientation: portrait) { .metadata { font-size: 11px; gap: 3px 10px; } }
 
-@media (min-width: 768px), (orientation: landscape) {
+@media (min-width: 600px), (orientation: landscape) {
   .covers li:nth-child(4), .moreCovers li[data-extra-index='4'] { display: none; }
 }
 
-@media (max-width: 767.98px) and (orientation: portrait) {
+/* Tablets use two complete rows of three covers, in both orientations. */
+@media (min-width: 600px) and (max-width: 1199.98px) {
+  .section .moreCovers { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .moreCovers li[data-extra-index='3'] { display: none; }
+}
+
+@media (max-width: 599.98px) and (orientation: portrait) {
   .moreCovers li[data-extra-index='0'] { display: none; }
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .covers { margin-top: 32px; gap: 20px; }
-  .moreCovers { margin-top: 24px; column-gap: 20px; }
+  .section .moreCovers { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 24px; gap: 20px; }
+  .moreCovers li[data-extra-index="3"] { display: none; }
   .articleTitle, .smallTitle { font-size: 17px; line-height: 1.25; margin-top: 12px; }
   .metadata { font-size: 11px; gap: 3px 8px; }
 }

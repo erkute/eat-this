@@ -462,19 +462,18 @@ div.page {
 
 /* --------------------------------------------------------- must-eat ----- */
 
-/* Ein eigener Kartenstapel im Lesetext, mit festem Artwork-Kontrast. */
+/* Kompakter redaktioneller Verweis zwischen den Artikelabsätzen. */
 .mustEat {
   --et-press-opacity: 1;
   position: relative;
-  font-family: var(--et-font-display);
   display: grid;
-  grid-template-columns: clamp(120px, 26%, 190px) minmax(0, 1fr);
+  grid-template-columns: 132px minmax(0, 1fr);
   align-items: center;
-  gap: clamp(28px, 5vw, 56px);
-  margin: clamp(30px, 4.5vw, 56px) 0;
-  padding: clamp(28px, 4vw, 44px);
-  background: var(--et-ground);
-  border: 1px solid color-mix(in srgb, var(--et-white) 18%, transparent);
+  gap: 36px;
+  margin: 40px 0;
+  padding: 28px 32px;
+  background: var(--et-ground) url('/pics/paper/folded-white.webp?v=20261028-hq') center / cover;
+  background-blend-mode: multiply;
   color: var(--et-fg);
   text-align: left;
   text-decoration: none;
@@ -483,72 +482,41 @@ div.page {
 .mustEat:is(:active, [data-et-pressed]) { scale: 0.99; }
 
 .mustEatPh {
-  position: relative;
-  isolation: isolate;
   display: grid;
   place-items: center;
   margin: 0;
   padding: 0;
 }
 
-.mustEatPh::before,
-.mustEatPh::after {
-  content: '';
-  position: absolute;
-  inset: 4% 3%;
-  z-index: -1;
-  border-radius: 8px;
-  background: url('/pics/card-back.webp?v=20261028') center / cover;
-  transform: rotate(6deg);
-}
-.mustEatPh::after { transform: rotate(1deg); }
-
 .mustEatPh img {
   display: block;
   width: 100%;
   height: auto;
-  transform: rotate(-5deg);
-  filter: drop-shadow(0 8px 12px rgb(0 0 0 / 25%));
-  transition: transform 240ms var(--ease-standard);
 }
 
 .mustEatBody {
   display: grid;
   min-width: 0;
-  align-content: center;
   justify-items: start;
-  gap: 16px;
+  gap: 8px;
 }
 
 .mustEat .mustEatName {
-  hyphens: auto;
-  overflow-wrap: normal;
-  max-width: 18ch;
+  max-width: 24ch;
   margin: 0;
   color: var(--et-fg);
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: clamp(26px, 3vw, 36px);
   font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.05;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
   text-transform: none;
+  overflow-wrap: anywhere;
 }
 
-/* Die gesamte Fläche ist der Link; der Satz erklärt die Karte. */
-.mustEat .mustEatDesc {
-  max-width: 34ch;
-  margin: 0;
-  color: var(--et-fg);
-  font-size: clamp(16px, 1.25vw, 18px);
-  font-weight: 400;
-  line-height: 1.35;
-}
+.mustEat .mustEatDesc { margin-top: 12px; }
 
 @media (hover: hover) {
-  .mustEat:hover .mustEatPh img { transform: translateY(-4px) rotate(-2deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .mustEatPh img { transition: none; }
-  .mustEat:hover .mustEatPh img { transform: rotate(-5deg); }
+  .mustEat:hover { color: var(--et-fg); outline: 2px solid var(--et-fg); outline-offset: 4px; }
 }
 
 /* ------------------------------------------------------- inline spot ---- */
@@ -704,73 +672,35 @@ div.page {
 
 /* ---------------------------------------------------------- hub link ---- */
 
-/* Der Katalog-Ausgang liegt auf demselben Knitterpapier wie die Map.
-   Bezirks-Hubs kommen ohne Booster-Pack aus. */
+/* Katalog-Tafel: Pack links, Titel und Aktion als gemeinsame rechte Spalte. */
 .hubLink {
+  --et-ground: #bd352b;
+  --et-fg: var(--et-white);
+  --et-solid: var(--et-white);
+  --et-on-solid: var(--et-ink);
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 132px minmax(0, 1fr);
   align-items: center;
-  column-gap: clamp(16px, 2.6vw, 30px);
-  row-gap: 8px;
-  /* Luft nach oben für das Pack, das über die Kante ragt. */
-  margin: clamp(64px, 8vw, 96px) 0 0;
-  padding: clamp(20px, 2.6vw, 30px) clamp(18px, 2.6vw, 32px);
-  background: var(--et-ground);
+  gap: 12px 40px;
+  margin: 64px 0 0;
+  padding: 36px;
+  background: var(--et-ground) url('/pics/paper/folded-white.webp?v=20261028-hq') center / cover;
   background-blend-mode: multiply;
   color: var(--et-fg);
   text-decoration: none;
-  transition: background-color 160ms ease;
 }
-
-.hubLinkPack {
-  grid-row: 1 / span 3;
-  align-self: end;
-  width: clamp(88px, 11vw, 124px);
-  height: auto;
-  /* Ragt gut zur Hälfte über die Tafel. */
-  margin-top: calc(-1 * clamp(56px, 7vw, 84px));
-  rotate: -8deg;
-  filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.45));
-}
-
-.hubLinkKicker {
-  font-family: var(--et-font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  grid-column: 2;
-  font-size: 12px;
-  line-height: 1.2;
-  text-transform: none;
-}
-
-.hubLinkLabel {
-  grid-column: 2;
-  font-size: clamp(24px, 2.6vw, 34px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: var(--et-leading-title);
-  text-transform: none;
-  text-wrap: balance;
-}
-
-/* Das Aussehen des Knopfes kommt aus globals.css; hier nur sein Platz. */
-.hubLinkCta {
-  grid-column: 2;
-  justify-self: start;
-  margin-top: 6px;
-}
-
-.hubLink:focus-visible {
-  outline: 0;
-  background-color: color-mix(in srgb, var(--et-fg) 12%, var(--et-ground));
-}
-
-@media (hover: hover) {
-  .hubLink:hover {
-    background-color: color-mix(in srgb, var(--et-fg) 8%, var(--et-ground));
-  }
-
+.hubLinkPack { grid-column: 1; grid-row: 1 / span 3; width: 100%; height: auto; rotate: -4deg; filter: drop-shadow(0 10px 12px rgb(0 0 0 / .24)); }
+.hubLinkKicker { grid-column: 2; align-self: end; font: 700 12px/1.3 var(--et-font-display); }
+.hubLinkLabel { grid-column: 2; font-size: clamp(26px, 3.4vw, 38px); font-weight: 700; line-height: 1.1; text-wrap: balance; }
+.hubLinkCta { grid-column: 2; justify-self: start; align-self: start; margin-top: 12px; }
+.hubLink:not(:has(.hubLinkPack)) { grid-template-columns: minmax(0, 1fr); }
+.hubLink:not(:has(.hubLinkPack)) > span { grid-column: 1; }
+.hubLink:focus-visible { outline: 3px solid var(--et-ink); outline-offset: 4px; }
+@media (hover: hover) { .hubLink:hover { outline: 2px solid var(--et-ink); outline-offset: 4px; } }
+@media (max-width: 600px) {
+  .hubLink { grid-template-columns: 88px minmax(0, 1fr); padding: 28px 20px; gap: 12px 28px; }
+  .hubLinkLabel { font-size: 24px; }
 }
 
 /* ------------------------------------------------------------- share ---- */
@@ -948,22 +878,6 @@ div.page {
 
 /* ------------------------------------------------------------ layout ---- */
 
-@media (min-width: 1080px) {
-  /* Ab Desktop steht der Knopf rechts als Kante der Tafel (Betreiber,
-     07.09.2026: „sehr viel Leerfläche" rechts). */
-  .hubLink {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    padding: 28px 32px;
-  }
-
-  .hubLinkCta {
-    grid-column: 3;
-    grid-row: 1 / span 2;
-    align-self: center;
-    margin-top: 0;
-  }
-}
-
 /* Ab Tablet: das Foto nie höher als der sichtbare Teil der Seite —
    `.app-pages` beginnt ab 768px bei 74px (globals.css). Am Telefon hält das
    feste Seitenverhältnis still; dort ändert Chrome `vh` beim Scrollen. */
@@ -1036,18 +950,10 @@ div.page {
   }
 
   .mustEat {
-    grid-template-columns: minmax(76px, 30%) minmax(0, 1fr);
-    gap: 16px;
-    padding: 14px;
-  }
-
-  .mustEat .mustEatName {
-    font-size: clamp(22px, 6vw, 26px);
-  }
-
-  .mustEat .mustEatDesc {
-    max-width: none;
-    font-size: 15px;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 20px;
+    margin: 28px 0;
+    padding: 24px 18px;
   }
 
   /* Die Spot-Karte mit demselben Rahmen wie die Fotos im Text, im
@@ -1055,14 +961,6 @@ div.page {
   .inlineSpot {
     margin-inline: -6px;
     aspect-ratio: 16 / 11.6;
-  }
-
-  /* Am Telefon ist die Textspalte der Tafel höher als das Pack — am Fuss
-     ausgerichtet bliebe es ganz in der Tafel. Oben angeschlagen ragt es
-     hinaus wie auf dem Desktop. */
-  .hubLinkPack {
-    align-self: start;
-    width: 100px;
   }
 
   .content h2 [data-heading='deck'] {

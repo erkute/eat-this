@@ -35,9 +35,9 @@ interface Props {
 }
 
 // Daumennägel nach Spaltenbreite (MustEatsSection.module.css): das Feature
-// liegt am Telefon und Tablet in zwei Spalten, am Desktop in fünf; das Set
+// liegt am Telefon in zwei, am Tablet hochkant in drei und breit in sechs Spalten; das Set
 // am Telefon in drei, ab 768px in fünf, ab 1024px in sechs Spalten.
-const OPEN_SIZES = '(max-width: 1023px) 46vw, 300px';
+const OPEN_SIZES = '(max-width: 599px) 46vw, (orientation: portrait) and (max-width: 1023px) 30vw, 18vw';
 const SET_SIZES = '(max-width: 767px) 30vw, (max-width: 1023px) 18vw, 210px';
 
 /** Spalten des Sets je Breite — zugeklappt zeigt es genau eine Reihe davon. */
@@ -56,7 +56,7 @@ export default function MustEatsGallery({ initialMapData, copy, coverIds }: Prop
   // standen damit zweimal auf der Seite, unter „54 warten vor Ort“ lagen 62.
   const all = useMemo(() => sortByCardNumber(visible.mustEats), [visible.mustEats]);
   const open = useMemo(
-    () => all.filter((m) => faceUp.has(m._id) && !coverIds.includes(m._id)),
+    () => all.filter((m) => faceUp.has(m._id) && !coverIds.includes(m._id)).slice(0, 6),
     [all, faceUp, coverIds]
   );
   const covered = useMemo(() => all.filter((m) => !faceUp.has(m._id)), [all, faceUp]);

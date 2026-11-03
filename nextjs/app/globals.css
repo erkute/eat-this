@@ -46,6 +46,10 @@
 :root {
   --et-safe-left: env(safe-area-inset-left, 0px);
   --et-safe-right: env(safe-area-inset-right, 0px);
+  --et-pane-left: 0px;
+  --et-pane-top: 0px;
+  --et-pane-width: 100vw;
+  --et-pane-height: 100dvh;
   /* ── Farben ── Eine Farbe, ein Name. Bis 26.09.2026 hatte Ink zwölf Namen
      (darunter --gray-100 und --brand-muted), Weiss dreizehn (darunter
      --et-yellow), verbunden über bis zu fünf Alias-Ebenen. Home bleibt die
@@ -1178,6 +1182,28 @@ html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-consent {
   }
 }
 
+/* Dialogs use the right/lower display, with the scrim covering the whole page.
+   Browsers without viewport segments retain the ordinary responsive layout. */
+@media (horizontal-viewport-segments: 2) {
+  :root {
+    --et-pane-left: env(viewport-segment-left 1 0);
+    --et-pane-width: env(viewport-segment-width 1 0);
+  }
+}
+@media (vertical-viewport-segments: 2) {
+  :root {
+    --et-pane-top: env(viewport-segment-top 0 1);
+    --et-pane-height: env(viewport-segment-height 0 1);
+  }
+}
+@media (horizontal-viewport-segments: 2), (vertical-viewport-segments: 2) {
+  .cookie-consent,
+  .cookie-consent.expanded {
+    max-width: calc(var(--et-pane-width) - 32px);
+    max-height: calc(var(--et-pane-height) - 32px);
+  }
+}
+
 /* Details: ruhige Zeilen wie die FAQ der Startseite — Titel mit Plus, ein Tipp
    öffnet. Keine Kästen, kein zweiter Scrollbereich: die Karte scrollt als
    Ganzes, die Antworten kleben unten (.cookie-actions). */
@@ -1940,4 +1966,19 @@ html[data-category-entering]::view-transition-new(root) { animation-duration: 45
     min-height: 0;
     overflow: visible;
   }
+}
+
+/* Compact controls on short login windows use the shared button system. */
+@container login-modal (min-width: 480px) and (max-height: 504px) {
+  [data-login-panel] .et-btn { --et-btn-h: 44px; --et-btn-font: 14px; --et-btn-pad: 20px; }
+}
+/* Open cookie details start beside the summary, with decisions fixed below. */
+@media (orientation: landscape) and (min-width: 600px) and (max-height: 500px) {
+  .cookie-consent, .cookie-consent.expanded { padding: 20px 24px; width: min(780px, 100%); }
+  .cookie-content { gap: 14px; }
+  .cookie-consent.expanded .cookie-scroll { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 24px; }
+  .cookie-title { font-size: 28px; }
+  .cookie-text { font-size: 14px; }
+  .cookie-actions { gap: 10px; }
+  .cookie-legal { font-size: 12px; }
 }

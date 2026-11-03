@@ -64,14 +64,11 @@ export default async function PacksOverviewPage({ params }: PageProps) {
     <PackOwnershipProvider>
       <main className={styles.page}>
         <div className={styles.wrap}>
-          <nav className={styles.flowNav} aria-label={loc === 'de' ? 'Must Eats und Packs' : 'Must Eats and packs'}>
-            <Link href="/must-eats">Must Eats</Link>
-            <Link href="/packs" aria-current="page">Booster Packs</Link>
-          </nav>
+          <h1 className={styles.pageTitle}>Booster Packs</h1>
           <AllBerlinBoard
             locale={loc}
             variant="hero"
-            headingLevel="h1"
+            headingLevel="h2"
             priority
           />
 
@@ -98,41 +95,36 @@ export default async function PacksOverviewPage({ params }: PageProps) {
                   (pack.slug ? (packContents.byCategory[pack.slug]?.mustEats ?? 0) : 1) === 0;
 
                 return (
-                  <li key={pack.packId} className={styles.tile}>
-                    {/* Eine Zeile pro Pack: gross links, rechts Name, Zeile und
-                        „Ansehen“ auf einer Achse. Das Pack ist für die Maus
-                        mitverlinkt; Tastatur und Vorleser nehmen den Namen. */}
-                    <Link href={href} className={styles.packLink} tabIndex={-1} aria-hidden="true">
-                      {art && (
-                        <Image
-                          src={art}
-                          alt=""
-                          width={550}
-                          height={813}
-                          sizes="(max-width: 559px) 120px, 170px"
-                          className={styles.art}
-                        />
-                      )}
-                    </Link>
-                    <div className={styles.info}>
-                      <Link href={href} className={styles.tileName}>{pack.displayName}</Link>
-                      <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
+                  <li key={pack.packId}>
+                    <Link href={href} className={styles.tile} aria-label={`${pack.displayName} ${t.view.toLowerCase()}`}>
+                      <span className={styles.packLink} aria-hidden="true">
+                        {art && (
+                          <Image
+                            src={art}
+                            alt=""
+                            width={550}
+                            height={813}
+                            sizes="(max-width: 559px) 120px, 170px"
+                            className={styles.art}
+                          />
+                        )}
+                      </span>
+                      <div className={styles.info}>
+                        <span className={styles.tileName}>{pack.displayName}</span>
+                        <p className={styles.spectrum}>{pack.spectrum[loc]}</p>
 
-                      {/* Gekauft wird auf der Detailseite, nach dem Blick hinein
-                          (Ansage 22.10.2026) — hier nur der Weg dorthin; der
-                          Preis steht erst dort. */}
-                      {empty ? (
-                        <span className={styles.soon}>{t.soon}</span>
-                      ) : (
-                        <Link
-                          href={href}
-                          className={`et-btn et-btn-sm ${styles.view}`}
-                          aria-label={`${pack.displayName} ${t.view.toLowerCase()}`}
-                        >
-                          {t.view}
-                        </Link>
-                      )}
-                    </div>
+                        {/* Gekauft wird auf der Detailseite, nach dem Blick hinein
+                            (Ansage 22.10.2026) — hier nur der Weg dorthin; der
+                            Preis steht erst dort. */}
+                        {empty ? (
+                          <span className={styles.soon}>{t.soon}</span>
+                        ) : (
+                          <span className={`et-btn et-btn-sm ${styles.view}`} aria-hidden="true">
+                            {t.view}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
                   </li>
                 );
               })}

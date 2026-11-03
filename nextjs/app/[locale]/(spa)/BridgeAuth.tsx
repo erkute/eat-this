@@ -27,7 +27,8 @@
  *   text and class update with the verified Firebase auth state.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useDialogViewport } from '@/lib/useDialogViewport';
 import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import { useAuth, useLoginModal } from '@/lib/auth';
@@ -41,6 +42,8 @@ export default function BridgeAuth() {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
   const { isOpen: loginOpen, close: closeLogin } = useLoginModal();
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useDialogViewport(overlayRef, loginOpen);
 
   // Close as soon as Firebase confirms the account. AuthContext announces
   // successful Google sign-in independently of this modal's lifetime.
@@ -95,6 +98,7 @@ export default function BridgeAuth() {
   return loginOpen
     ? createPortal(
         <div
+          ref={overlayRef}
           className={modalStyles.overlay}
           onClick={(e) => {
             if (e.target === e.currentTarget) closeLogin();

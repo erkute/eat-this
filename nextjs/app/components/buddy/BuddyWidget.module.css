@@ -1,7 +1,8 @@
 /* Windows 95 window chrome over the user-selected desktop wallpaper. */
 .session {
   position: fixed;
-  inset: 0;
+  inset: var(--dialog-viewport-top, 0px) 0 auto;
+  height: var(--dialog-viewport-height, 100dvh);
   z-index: var(--et-z-above-nav);
   display: grid;
   place-items: center;
@@ -16,7 +17,7 @@
 .screen {
   position: relative;
   width: min(1180px, calc(100vw - 96px));
-  height: min(900px, calc(100dvh - 80px));
+  height: min(900px, calc(var(--dialog-viewport-height, 100dvh) - 80px));
   overflow: hidden;
   border: 2px solid #c0c0c0;
   box-shadow: 0 16px 64px rgb(0 0 0 / .4), inset 1px 1px #fff;
@@ -837,11 +838,11 @@
 
 @media (max-width: 600px) {
   .screen {
-    position: fixed;
-    top: calc(var(--buddy-vv-top, 0px) + 8px);
+    position: absolute;
+    top: 8px;
     left: 8px;
     width: calc(100vw - 16px);
-    height: calc(var(--buddy-vv-height, 100dvh) - 16px);
+    height: calc(var(--dialog-viewport-height, 100dvh) - 16px);
   }
   .panel {
     inset: 6px 6px 56px;
@@ -872,7 +873,7 @@
   .packName { font-size: 1.44rem; }
   .form { gap: 6px; margin: 0; padding: 10px 6px; }
   .statusBar { margin-bottom: calc(4px + env(safe-area-inset-bottom, 0px)); font-size: 11px; }
-  .panel[data-keyboard] .statusBar { display: none; }
+
   .geo { width: 36px; flex-basis: 36px; }
   .send { min-width: 72px; padding: 0 12px; }
 }
@@ -908,13 +909,71 @@
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
 
-.screen { position: fixed; top: var(--buddy-vv-top, 0px); left: 0; width: 100%; height: var(--buddy-vv-height, 100dvh); }
+.screen { position: absolute; top: 0; left: 0; width: 100%; height: var(--dialog-viewport-height, 100dvh); }
 .screen .panel { inset: 6px max(6px, env(safe-area-inset-right)) 48px max(6px, env(safe-area-inset-left)); width: auto; height: auto; max-height: none; margin: 0; }
-.conversation { flex-direction: row; }
-.log { min-width: 0; padding: 10px 14px; }
+.conversation { flex-direction: row; box-shadow: none; }
+.log { min-width: 0; padding: 6px 10px; }
 .portraitRail { width: 140px; height: auto; align-items: end; }
 .intro { justify-content: center; }
-.introSuggestions { margin-top: 4px; }
+.introTitle { font-size: 18px; margin-bottom: 4px; }
+.introSuggestions { margin-top: 0; gap: 6px; }
 .form { padding: 6px 8px; }
 .statusBar { margin-bottom: 0; }
+}
+
+@media (orientation: landscape) and (max-height: 350px) and (min-width: 600px) {
+  .log { padding-block: 2px; }
+  .portraitRail { width: 96px; }
+  .introPortrait { width: 96px; height: 96px; }
+  .introFigure { transform: scale(.32); }
+  .introSuggestions { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* The chat and its taskbar stay together on the right/lower display. */
+@media (horizontal-viewport-segments: 2), (vertical-viewport-segments: 2) {
+  .screen {
+    position: fixed;
+    left: calc(var(--et-pane-left) + 8px);
+    top: calc(var(--et-pane-top) + 8px);
+    width: calc(var(--et-pane-width) - 16px);
+    height: calc(var(--et-pane-height) - 16px);
+  }
+  .screen .panel {
+    inset: 6px 6px 56px;
+    width: auto;
+    height: auto;
+    max-height: none;
+    margin: 0;
+  }
+}
+
+/* Leave the visible space to the conversation while typing, on phones and tablets. */
+.session[data-keyboard] .screen {
+  position: absolute;
+  top: 0;
+  left: max(6px, env(safe-area-inset-left, 0px));
+  width: calc(100% - max(6px, env(safe-area-inset-left, 0px)) - max(6px, env(safe-area-inset-right, 0px)));
+  height: 100%;
+}
+.session[data-keyboard] .screen .panel { inset: 0; padding: 0; width: auto; height: auto; max-height: none; margin: 0; }
+.session[data-keyboard] .desktopBackdrop,
+.session[data-keyboard] .portraitRail,
+.session[data-keyboard] .statusBar,
+.session[data-keyboard] .screen > :last-child { display: none; }
+.session[data-keyboard] .header { height: 36px; padding: 2px 4px; }
+.session[data-keyboard] .form { padding-block: 4px; }
+
+@media (horizontal-viewport-segments: 2) {
+  .session[data-keyboard] .screen {
+    left: calc(var(--et-pane-left) + 8px);
+    width: calc(var(--et-pane-width) - 16px);
+  }
+}
+
+@container remy (max-height: 120px) {
+  .header { position: absolute; top: 2px; right: 2px; height: 36px; background: transparent; }
+  .headerTitle, .avatarFrame, .conversation { display: none; }
+  .form { padding: 2px 44px 2px 2px; }
+  .input { min-height: 36px; height: 36px; padding-block: 4px; }
+  .send, .geo { min-height: 36px; height: 36px; }
 }

@@ -28,7 +28,7 @@ describe('AboutPage styles', () => {
   it('never constrains a figure in both axes at once', () => {
     const width = effective('figureImg', 'width');
     expect(width).toBeTruthy();
-    expect(effective('figureImg', 'max-height')).toBeUndefined();
+    expect(effective('figureImg', 'max-height') ?? 'none').toBe('none');
     expect(effective('figureImg', 'height')).toBe('auto');
   });
 

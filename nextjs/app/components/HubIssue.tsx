@@ -247,21 +247,16 @@ export function IssueRegister({
 export function IssueGuides({
   guides,
   locale,
-  heading,
   interlude = false,
 }: {
   guides: (GuideTeaser | null)[];
   locale: Locale;
-  heading: string;
   interlude?: boolean;
 }) {
   const shown = guides.filter((g): g is GuideTeaser => Boolean(g) && !g!.noIndex);
   if (shown.length === 0) return null;
   return (
-    <section className={interlude ? styles.guideInterlude : undefined} aria-labelledby="guides-title">
-      <h2 id="guides-title" className={styles.secTitle}>
-        {heading}
-      </h2>
+    <section className={interlude ? styles.guideInterlude : undefined} aria-label={locale === 'de' ? 'Magazin' : 'Magazine'}>
       <div className={styles.guides}>
       {shown.map((g) => {
         const date = formatArticleDate(g.date, locale);

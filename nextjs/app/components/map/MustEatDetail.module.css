@@ -2206,7 +2206,7 @@
     grid-column: 1;
     grid-row: 1 / 3;
     align-self: center;
-    padding: 0 0 38px;
+    padding: 0 0 66px;
     margin: 0;
   }
   .detail .scroll .fdMid {
@@ -2239,8 +2239,8 @@
 .fdStackCard { box-shadow: none; }
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
-  .detail .scroll .fdCardStack { width: min(24vw, calc((100dvh - 115px) * .7)); max-width: min(24vw, calc((100dvh - 115px) * .7)); height: auto; max-height: none; }
-  .fdPagerPrev, .fdPagerNext { display: grid; position: absolute; top: 0; bottom: 0; height: auto; width: 32px; z-index: 4; }
-  .fdPagerPrev { right: 100%; }
-  .fdPagerNext { left: calc(100% + 38px); }
+  .detail .scroll .fdCardStack { width: min(calc(100% - 144px), calc((100dvh - 115px) * .7)); max-width: min(calc(100% - 144px), calc((100dvh - 115px) * .7)); height: auto; max-height: none; }
+  .fdPagerPrev, .fdPagerNext { display: grid; position: absolute; top: 0; bottom: 0; height: auto; width: 44px; padding: 0; justify-content: center; z-index: 4; }
+  .fdPagerPrev { right: calc(100% + 16px); }
+  .fdPagerNext { left: calc(100% + 58px); }
 }

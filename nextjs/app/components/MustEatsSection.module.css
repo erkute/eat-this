@@ -37,7 +37,7 @@
 .catalogCount dd { order: -1; margin: 0; font-variant-numeric: tabular-nums; }
 .sectionBody { margin: 0; color: var(--must-soft); font-size: 16px; line-height: 1.5; text-wrap: pretty; }
 .section { margin-top: var(--must-gap); }
-.section[data-band="open"] { margin-top: 0; padding-top: 28px; border-top: 1px solid color-mix(in srgb, var(--et-fg) 18%, transparent); }
+.section[data-band="open"] { margin-top: 0; padding-top: 28px; }
 .sectionHead { display: grid; gap: 16px; margin-bottom: 20px; }
 .sectionTitle { font-size: clamp(34px, 5vw, 64px); line-height: 1.02; }
 .sectionBody { max-width: 48ch; }
@@ -64,6 +64,12 @@
 .setMore { display: flex; justify-content: center; margin-top: 28px; }
 
 .close { --poster-max: var(--et-wrap-max); --poster-gut: var(--must-pad); --poster-top: calc(var(--must-gap) + 168px); }
+@media (min-width: 600px) and (max-width: 1023.98px) and (orientation: portrait) {
+  .feature { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 600px) and (max-width: 799.98px) {
+  .close { --poster-top: calc(var(--must-gap) + 100px); }
+}
 @media (min-width: 768px) {
   .page { --must-pad: var(--et-wrap-pad); }
   .head { padding-top: 28px; }
@@ -81,10 +87,14 @@
   .set[data-collapsed] > .setItem:nth-child(n + 4) { display: block; }
   .set[data-collapsed] > .setItem:nth-child(n + 6) { display: none; }
   .setMore[data-fits='tablet'] { display: none; }
+}
+/* Below 800px the poster's padded content is narrower than its 720px
+   two-column threshold: its raised pack still needs the full clearance. */
+@media (min-width: 800px) {
   .close { --poster-top: var(--must-gap); }
 }
 @media (min-width: 1024px) {
-  .feature { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .feature { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .dish { font-size: 20px; }
   .set { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .set[data-collapsed] > .setItem:nth-child(n + 6) { display: block; }
@@ -102,11 +112,11 @@
   .title { font-size: clamp(48px, 17svh, 80px); }
   .cover { height: 45svh; margin: 16px 0 32px; }
   .cover button { width: min(17vw, 29svh); }
-  .intro { gap: 12px; padding-block: 8px 24px; }
+  .intro { gap: 12px; padding-block: 40px 32px; }
   .statement { font-size: clamp(24px, 7svh, 32px); }
   .sectionTitle { font-size: clamp(26px, 8svh, 36px); }
   .sectionHead { gap: 10px; margin-bottom: 14px; }
-  .feature { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px 16px; }
+  .feature { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 20px 16px; }
   .feature .card { max-width: 145px; margin-inline: auto; }
   .dish { font-size: 16px; }
   .caption { padding-top: 8px; }

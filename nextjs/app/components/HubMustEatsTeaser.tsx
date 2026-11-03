@@ -41,7 +41,7 @@ export default function HubMustEatsTeaser() {
   const { open: openLoginModal } = useLoginModal();
   const covered = visibleMapData.mustEats.find(
     (card) => !visibleMapData.revealedMustEatIds.includes(card._id)
-  );
+  ) ?? visibleMapData.mustEats[TEASER_COUNT] ?? visibleMapData.mustEats.at(-1);
   const { lang, t } = useTranslation();
   const mustEatAria = lang === 'de' ? 'auf der Map anzeigen' : 'show on the map';
   const restaurantAria = lang === 'de' ? 'Restaurantseite öffnen' : 'open restaurant page';

@@ -1,10 +1,12 @@
 .overlay {
   position: fixed;
-  inset: 0;
+  inset: var(--dialog-viewport-top, 0px) 0 auto;
+  height: var(--dialog-viewport-height, 100dvh);
   z-index: var(--et-z-login);
   display: grid;
+  container: login-modal / size;
   place-items: center;
-  padding: 18px;
+  padding: max(18px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) max(18px, env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
   background: rgb(0 0 0 / 28%);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
@@ -17,14 +19,10 @@
 }
 
 :global(body[data-env='staging']) .overlay {
-  top: var(--staging-banner-h, 0px);
+  top: max(var(--dialog-viewport-top, 0px), var(--staging-banner-h, 0px));
 }
 
-@media (max-width: 1023.98px) {
-  .overlay {
-    padding: 18px;
-  }
-}
+.overlay[data-keyboard] { padding-block: 0; }
 
 @media (min-width: 1024px) {
   .overlay {
@@ -32,9 +30,9 @@
   }
 }
 
-@media (max-width: 820px) {
-  .overlay {
-    --login-panel-height: calc(100dvh - max(18px, env(safe-area-inset-top, 0px)) - max(18px, env(safe-area-inset-bottom, 0px)));
-    padding: max(18px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) max(18px, env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+/* Keep the backdrop across both displays; its content uses one intact pane. */
+@media (horizontal-viewport-segments: 2), (vertical-viewport-segments: 2) {
+  .overlay:has([data-login-panel]) {
+    padding: calc(var(--et-pane-top) + 18px) 18px 18px calc(var(--et-pane-left) + 18px);
   }
 }

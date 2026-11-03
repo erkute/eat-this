@@ -5,6 +5,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   countEvent,
+  countHome,
+  countInsight,
   countView,
   getAnalyticsPageLocation,
   isAnalyticsHost,
@@ -527,7 +529,9 @@ describe('GA waits for the private network exclusion', () => {
 
   afterEach(() => {
     document.cookie = 'cookieConsent=; Max-Age=0; Path=/';
-    document.querySelectorAll('script[src*="googletagmanager.com"]').forEach((script) => script.remove());
+    document
+      .querySelectorAll('script[src*="googletagmanager.com"]')
+      .forEach((script) => script.remove());
     delete w.gtag;
     delete w.__gaLoaded;
     delete w.__eatThisAnalyticsNetworkCheck;
@@ -538,7 +542,10 @@ describe('GA waits for the private network exclusion', () => {
   });
 
   it('drops queued and future events from the excluded connection without loading Google', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: true }) }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: true }) })
+    );
     const loading = loadAnalytics();
     trackEvent('page_view');
     expect(w.__eatThisAnalyticsQueue).toHaveLength(1);
@@ -558,9 +565,14 @@ describe('GA waits for the private network exclusion', () => {
     trackEvent('page_view', { page_path: '/' });
     expect(w.gtag).toBeUndefined();
     await Promise.all([first, second]);
-    expect(fetch).toHaveBeenCalledExactlyOnceWith('/api/count', { cache: 'no-store', credentials: 'same-origin' });
+    expect(fetch).toHaveBeenCalledExactlyOnceWith('/api/count', {
+      cache: 'no-store',
+      credentials: 'same-origin',
+    });
     expect(document.querySelectorAll('script[src*="googletagmanager.com"]')).toHaveLength(1);
-    expect(w.dataLayer?.filter((args) => Array.from(args as ArrayLike<unknown>)[0] === 'event')).toHaveLength(1);
+    expect(
+      w.dataLayer?.filter((args) => Array.from(args as ArrayLike<unknown>)[0] === 'event')
+    ).toHaveLength(1);
     expect(w.__eatThisAnalyticsQueue).toEqual([]);
   });
 
@@ -581,10 +593,36 @@ describe('GA waits for the private network exclusion', () => {
   });
 
   it('rechecks consent after the response arrives', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: false }) }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, json: async () => ({ excluded: false }) })
+    );
     const loading = loadAnalytics();
     document.cookie = `cookieConsent=rejected.${CONSENT_VERSION}; Path=/`;
     await loading;
     expect(w.gtag).toBeUndefined();
+  });
+});
+
+describe('preview and automation exclusion across every measurement', () => {
+  afterEach(() => vi.unstubAllGlobals());
+  it.each(['192.168.178.49', '10.0.0.5', '172.16.0.8'])('sends no beacons from %s', (hostname) => {
+    const sendBeacon = vi.fn();
+    vi.stubGlobal('navigator', { userAgent: TEST_UA, sendBeacon });
+    vi.stubGlobal('location', { ...window.location, hostname });
+    countView();
+    countEvent('map_opened');
+    countHome({ home: 'view', device: 'phone' });
+    countInsight({ insight: 'signals', device: 'phone', signals: ['view'] });
+    expect(sendBeacon).not.toHaveBeenCalled();
+  });
+  it('excludes WebDriver even with an ordinary browser user agent', () => {
+    const sendBeacon = vi.fn();
+    vi.stubGlobal('navigator', { userAgent: TEST_UA, webdriver: true, sendBeacon });
+    countView();
+    countEvent('map_opened');
+    countHome({ home: 'view', device: 'phone' });
+    countInsight({ insight: 'signals', device: 'phone', signals: ['view'] });
+    expect(sendBeacon).not.toHaveBeenCalled();
   });
 });

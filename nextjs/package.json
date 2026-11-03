@@ -15,6 +15,7 @@
     "build:email-art": "tsx scripts/build-email-art.mts",
     "build:email-spots": "tsx scripts/build-email-spots.mts",
     "build:cover-cutouts": "tsx scripts/build-cover-cutouts.mts",
+    "sync:analytics-bot-ips": "tsx scripts/sync-analytics-bot-ips.mts",
     "sync:brand-font": "tsx scripts/sync-brand-font.mts",
     "start": "next start",
     "import:restaurant": "tsx scripts/import-enriched.ts",

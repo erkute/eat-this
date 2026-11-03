@@ -35,7 +35,13 @@ const LABEL = Object.fromEntries(HOME_SECTIONS.map((s) => [s.key, s.label])) as 
   string
 >;
 
-export default function HomeReport({ data }: { data: StatsSummary }) {
+export default function HomeReport({
+  data,
+  refreshKey = 0,
+}: {
+  data: StatsSummary;
+  refreshKey?: number;
+}) {
   const [stats, setStats] = useState<HomeStats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [device, setDevice] = useState<HomeDevice>('phone');
@@ -43,9 +49,11 @@ export default function HomeReport({ data }: { data: StatsSummary }) {
 
   useEffect(() => {
     let cancelled = false;
+    setStats(null);
+    setError(null);
     const load = async () => {
-      if (!auth.currentUser) return;
       try {
+        if (!auth.currentUser) throw new Error('Bitte erneut anmelden.');
         const token = await auth.currentUser.getIdToken();
         const response = await fetch(
           `/api/admin/stats?only=home&from=${start}&to=${data.range.end}`,
@@ -66,7 +74,7 @@ export default function HomeReport({ data }: { data: StatsSummary }) {
     return () => {
       cancelled = true;
     };
-  }, [start, data.range.end]);
+  }, [start, data.range.end, refreshKey]);
 
   if (error)
     return (
@@ -82,6 +90,10 @@ export default function HomeReport({ data }: { data: StatsSummary }) {
     );
 
   const current = stats.devices[device];
+  const homeViews = data.paths
+    .filter((row) => row.key === '/' || row.key === '/en')
+    .reduce((sum, row) => sum + row.count, 0);
+  const detailViews = stats.devices.phone.views + stats.devices.desktop.views;
   const valid = validProgress(current);
   const tools = (
     <div className={styles.seg} role="group" aria-label="Gerät">
@@ -101,6 +113,25 @@ export default function HomeReport({ data }: { data: StatsSummary }) {
 
   return (
     <>
+      <Card
+        title="Startseite: Was wird hier gezählt?"
+        span={3}
+        sub={`${longDay(start)}–${longDay(data.range.end)} · deutsche und englische Startseite zusammen`}
+      >
+        <p className={styles.note}>
+          {NUMBER.format(data.totals.pageviews)} Seitenaufrufe auf der gesamten Website, davon{' '}
+          {NUMBER.format(homeViews)} auf der Startseite. Für {NUMBER.format(detailViews)}{' '}
+          Startseiten-Aufrufe liegen Detailmessungen vor: {NUMBER.format(stats.devices.phone.views)}{' '}
+          Telefon und {NUMBER.format(stats.devices.desktop.views)} Desktop.
+        </p>
+        <p className={styles.note}>
+          Die Heatmap unten zeigt nur{' '}
+          {device === 'phone' ? 'Telefonbreiten unter 768 px' : 'Desktopbreiten ab 768 px'}. Das
+          sind Aufrufe, keine eindeutigen Personen. Detailmessung und Seitenzähler senden getrennte
+          Anfragen; ältere Aufrufe und nicht angekommene Messungen lassen sich nicht nachträglich
+          ergänzen.
+        </p>
+      </Card>
       <div className={styles.homeToolbar}>
         {tools}
         <p className={styles.homeSince}>
@@ -109,7 +140,7 @@ export default function HomeReport({ data }: { data: StatsSummary }) {
             : 'Für diesen Zeitraum liegen keine Scroll- oder Klickmessungen vor.'}
         </p>
       </div>
-      <Numbers stats={current} />
+      <Numbers stats={current} device={device} />
       {!valid && (
         <p className={styles.notice}>
           Messlücke: Mehr Fortschritte als Aufrufe angekommen. Quoten und mittlere Scrolltiefe
@@ -201,17 +232,21 @@ function validProgress(stats: HomeDeviceStats) {
     stats.depth.every((row) => row.share <= 1)
   );
 }
-function Numbers({ stats }: { stats: HomeDeviceStats }) {
+function Numbers({ stats, device }: { stats: HomeDeviceStats; device: HomeDevice }) {
   const valid = validProgress(stats);
   const bottom = stats.reached.at(-1)?.count ?? 0;
   const median = stats.depth.filter((d) => d.share >= 0.5).at(-1)?.depth ?? 0;
   return (
     <div className={styles.kpis}>
-      <Kpi label="Gemessene Aufrufe" value={NUMBER.format(stats.views)} />
+      <Kpi
+        label="Startseite: Detailaufrufe"
+        value={NUMBER.format(stats.views)}
+        hint={`${device === 'phone' ? 'Telefon' : 'Desktop'} · DE + EN · gewählter Zeitraum`}
+      />
       <Kpi
         label="Bis zum Footer"
         value={valid && stats.views > 0 ? percent(bottom / stats.views, 0) : '–'}
-        hint={`${NUMBER.format(bottom)} Aufrufe`}
+        hint={`${NUMBER.format(bottom)} ${bottom === 1 ? 'Aufruf' : 'Aufrufe'}`}
       />
       <Kpi
         label="Halbe Aufrufe kommen bis"

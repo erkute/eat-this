@@ -5,6 +5,7 @@ import type { ReportKey } from '../../StatsDashboard';
 import { BarRows, Card, Kpi, LineChart } from '../charts';
 import { NUMBER, decimal, shortDay, longDay } from '../format';
 import styles from '../../StatsDashboard.module.css';
+import TrafficQuality from './TrafficQuality';
 export default function Overview({
   data,
   onOpen,
@@ -16,6 +17,8 @@ export default function Overview({
   const search = data.search?.ok ? data.search.data : null;
   const findings = dashboardFindings(data);
   const days = eachDay(data.range.start, data.range.end);
+  const singleDay = data.range.days === 1;
+  const previousDay = data.previousDays.at(-1);
   const perVisitor = data.totals.visitors > 0 ? data.totals.pageviews / data.totals.visitors : 0;
   return (
     <>
@@ -54,6 +57,79 @@ export default function Overview({
           />
         )}
       </div>
+      <TrafficQuality data={data} compact />
+      <Card
+        title={singleDay ? 'Tagesvergleich' : 'Wie entwickeln sich die Besuche?'}
+        span={2}
+        tools={
+          <select
+            className={styles.select}
+            aria-label="Kennzahl"
+            value={metric}
+            onChange={(e) => setMetric(e.target.value as 'visitors' | 'pageviews')}
+          >
+            <option value="visitors">Tagesbesucher</option>
+            <option value="pageviews">Seitenaufrufe</option>
+          </select>
+        }
+        sub={
+          singleDay
+            ? `Kein Stundenverlauf: Gespeichert werden Tageswerte. Für eine Entwicklung wähle 7 Tage oder länger.${data.range.includesToday ? ' Heute lässt sich erst nach Tagesende fair vergleichen.' : ''}`
+            : `Tageswerte im gewählten Zeitraum.${data.range.includesToday ? ' Heute ist unvollständig.' : ''} Die Veränderung oben vergleicht abgeschlossene Tagesdurchschnitte.`
+        }
+      >
+        {singleDay ? (
+          <>
+            <BarRows
+              wrapLabels
+              rows={[
+                ...(previousDay
+                  ? [
+                      {
+                        key: previousDay.day,
+                        label: `${longDay(previousDay.day)} · abgeschlossen`,
+                        count: previousDay[metric],
+                      },
+                    ]
+                  : []),
+                {
+                  key: data.range.start,
+                  label: `${longDay(data.range.start)}${data.range.includesToday ? ' · läuft noch' : ' · abgeschlossen'}`,
+                  count: data.totals[metric],
+                },
+              ]}
+              empty="Keine Tageswerte vorhanden."
+            />
+            {!previousDay && <p className={styles.note}>Für den Vortag fehlen Messdaten.</p>}
+          </>
+        ) : (
+          <LineChart
+            days={days}
+            series={[
+              {
+                label: metric === 'visitors' ? 'Tagesbesucher' : 'Seitenaufrufe',
+                values: days.map((day) => data.days.find((row) => row.day === day)?.[metric] ?? 0),
+              },
+            ]}
+            openIndex={data.range.includesToday ? days.indexOf(data.range.today) : null}
+          />
+        )}
+      </Card>
+      <Card
+        title="Wo kommen die Besucher rein?"
+        sub="Die häufigsten ersten Seiten am Tag. Die vollständige, auf die Besucherzahl abgestimmte Aufteilung steht im Seitenbericht."
+      >
+        <BarRows rows={data.entryPaths.slice(0, 6)} empty="Keine Einstiegsseiten gespeichert." />
+        <p className={styles.note}>
+          <button
+            type="button"
+            className="et-btn et-btn-sm et-btn-alt"
+            onClick={() => onOpen('days')}
+          >
+            Alle Besucher & Seiten
+          </button>
+        </p>
+      </Card>
       <Card
         title="Das solltest du prüfen"
         span={3}
@@ -83,48 +159,6 @@ export default function Overview({
         )}
       </Card>
       <Card
-        title="Wie entwickeln sich die Besuche?"
-        span={2}
-        tools={
-          <select
-            className={styles.select}
-            aria-label="Kennzahl"
-            value={metric}
-            onChange={(e) => setMetric(e.target.value as 'visitors' | 'pageviews')}
-          >
-            <option value="visitors">Tagesbesucher</option>
-            <option value="pageviews">Seitenaufrufe</option>
-          </select>
-        }
-        sub="Tageswerte im gewählten Zeitraum. Heute ist, falls ausgewählt, unvollständig; die Veränderung der Kennzahlen oben vergleicht abgeschlossene Tagesdurchschnitte."
-      >
-        <LineChart
-          days={days}
-          series={[
-            {
-              label: metric === 'visitors' ? 'Tagesbesucher' : 'Seitenaufrufe',
-              values: days.map((day) => data.days.find((row) => row.day === day)?.[metric] ?? 0),
-            },
-          ]}
-          openIndex={data.range.includesToday ? days.indexOf(data.range.today) : null}
-        />
-      </Card>
-      <Card
-        title="Wo kommen die Besucher rein?"
-        sub="Die häufigsten ersten Seiten am Tag. Die vollständige, auf die Besucherzahl abgestimmte Aufteilung steht im Seitenbericht."
-      >
-        <BarRows rows={data.entryPaths.slice(0, 6)} empty="Keine Einstiegsseiten gespeichert." />
-        <p className={styles.note}>
-          <button
-            type="button"
-            className="et-btn et-btn-sm et-btn-alt"
-            onClick={() => onOpen('days')}
-          >
-            Alle Besucher & Seiten
-          </button>
-        </p>
-      </Card>
-      <Card
         title="Welche Google-Suche bringt Klicks?"
         span={2}
         sub={
@@ -135,7 +169,10 @@ export default function Overview({
       >
         {search ? (
           <BarRows
-            rows={search.queries.slice(0, 8).map((row) => ({ key: row.key, count: row.clicks }))}
+            rows={search.queries
+              .filter((row) => row.clicks > 0)
+              .slice(0, 8)
+              .map((row) => ({ key: row.key, count: row.clicks }))}
             empty="Keine Suchbegriffe ausgewiesen."
           />
         ) : (
@@ -153,10 +190,10 @@ export default function Overview({
       </Card>
       <Card
         title="Wo geht es nicht weiter?"
-        sub="Für Artikel, Magazin und Map: Scrolltiefe, Vertiefung und Übergänge. Neue Messungen starten mit dem Rollout."
+        sub="Für Artikel, Magazin und Map: Scrolltiefe, Vertiefung und Übergänge. Detaildaten stehen nur für tatsächlich gemessene Aufrufe zur Verfügung."
       >
         <p className={styles.note}>
-          Artikel und Magazin bekommen eine Heatmap je Seite. Die Map wird über Suche, Ansicht und
+          Artikel und Magazin haben eine Heatmap je Seite. Die Map wird über Suche, Ansicht und
           Spot-Öffnungen ausgewertet, unabhängig vom Kartenausschnitt.
         </p>
         <button

@@ -277,7 +277,7 @@ export default function StatsDashboard() {
                   aria-label="Bis"
                   value={draft.to}
                   min={draft.from || undefined}
-                  max={data ? dayBefore(data.range.today) : undefined}
+                  max={data?.range.today}
                   onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value }))}
                 />
                 <button
@@ -304,8 +304,8 @@ export default function StatsDashboard() {
               {longDay(data.range.start)} – {longDay(data.range.end)} ·{' '}
               {NUMBER.format(data.range.days)}{' '}
               {data.range.days === 1 ? 'Kalendertag' : 'Kalendertage'}
-              {data.range.includesToday ? ' · heute unvollständig' : ''} · Vergleich:{' '}
-              {shortDay(sinceDay(data.range.days * 2, data.range.end))}–
+              {data.range.includesToday ? ' · heute unvollständig' : ' · nur abgeschlossene Tage'} ·
+              Vergleich: {shortDay(sinceDay(data.range.days * 2, data.range.end))}–
               {shortDay(dayBefore(data.range.start))}
               {loadedAt && (
                 <>
@@ -318,7 +318,12 @@ export default function StatsDashboard() {
           )}
         </header>
 
-        <div className={loading && data ? styles.stale : undefined}>
+        <div className={loading && data ? styles.stale : undefined} aria-busy={loading}>
+          {loading && data && (
+            <p className={styles.notice} role="status">
+              Der neue Zeitraum wird geladen. Bis dahin siehst du die bisherigen Zahlen.
+            </p>
+          )}
           <div className={styles.grid}>
             {error && (
               <p className={styles.error} role="alert">
@@ -334,6 +339,7 @@ export default function StatsDashboard() {
               <ReportBody
                 report={report}
                 data={data}
+                refreshKey={loadedAt?.getTime() ?? 0}
                 onOpen={open}
                 onDay={(day) =>
                   setRangeChoice(
@@ -356,7 +362,9 @@ function ReportBody({
   data,
   onOpen,
   onDay,
+  refreshKey,
 }: {
+  refreshKey: number;
   report: ReportKey;
   data: StatsSummary;
   onOpen: (key: ReportKey) => void;
@@ -372,7 +380,7 @@ function ReportBody({
     case 'acquisition':
       return <Acquisition data={data} />;
     case 'home':
-      return <Insights data={data} />;
+      return <Insights data={data} refreshKey={refreshKey} />;
     case 'measurement':
       return <MeasurementReport data={data} />;
     default:

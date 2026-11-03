@@ -32,7 +32,7 @@ import { describe, expect, it } from 'vitest';
 const read = (rel: string) => readFileSync(join(process.cwd(), rel), 'utf8');
 
 const SENTRY_CONFIGS = [
-  'instrumentation-client.ts',
+  'lib/sentry/client-sdk.ts',
   'sentry.server.config.ts',
   'sentry.edge.config.ts',
 ];
@@ -66,8 +66,8 @@ describe('Sentry tracing stays out of the bundle', () => {
     expect(active).not.toContain('captureRouterTransitionStart');
   });
 
-  it('still initialises Sentry, so error reporting is untouched', () => {
-    const source = read('instrumentation-client.ts');
+  it('still initialises the deferred SDK for error reporting', () => {
+    const source = read('lib/sentry/client-sdk.ts');
 
     expect(source).toContain('Sentry.init(');
     expect(source).toContain('dsn:');

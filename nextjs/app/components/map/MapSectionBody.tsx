@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
+import dynamic from 'next/dynamic';
 import type { Ref, RefObject } from 'react';
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { MapRestaurant, MapMustEat, MapCategory } from '@/lib/types';
@@ -29,7 +30,6 @@ import { trackEvent, trackEventOnce } from '@/lib/analytics';
 import MapCanvasLayer from './LazyMapCanvasLayer';
 import RestaurantList from './RestaurantList';
 import { INITIAL_LIST_ROWS, LIST_ROWS_PER_BATCH } from '@/lib/map/listWindow';
-import MapSheetDetail from './MapSheetDetail';
 import MapListHeader from './MapListHeader';
 import MapIntro from './MapIntro';
 import { CloseIcon, SearchGlassIcon } from './icons';
@@ -41,6 +41,9 @@ import type { InitialCamera } from '@/lib/map/useMapCamera';
 import styles from './MapLayout.module.css';
 import controlStyles from './MapControls.module.css';
 import sheetStyles from './MapSheet.module.css';
+
+// Deep links still render on the server; the initial list HTML does not preload detail-only CSS.
+const MapSheetDetail = dynamic(() => import('./MapSheetDetail'));
 
 /* Refs (mutable + callback) wired up by `useMapSheet` / `useBottomSheet`. */
 

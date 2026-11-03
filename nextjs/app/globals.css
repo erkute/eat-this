@@ -1008,8 +1008,10 @@ html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-scrim {
   outline: none;
 }
 .cookie-paper {
+  position: absolute;
+  inset: 0;
   z-index: -1;
-  object-fit: fill;
+  background-size: 100% 100%;
   mix-blend-mode: multiply;
   pointer-events: none;
 }

@@ -3,6 +3,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('./loadMapSheetDetail', () => ({ loadMapSheetDetail: vi.fn().mockResolvedValue({}) }));
 vi.mock('next-intl', () => ({ useLocale: () => 'de' }));
 vi.mock('@/lib/i18n', () => ({ useTranslation: () => ({ lang: 'de', t: (key: string) => key }) }));
 vi.mock('@/lib/map', () => ({
@@ -17,7 +18,8 @@ vi.mock('@/lib/map/useRestaurantDetail', () => ({
 }));
 
 import RestaurantList from './RestaurantList';
-import { useCachedRestaurantDetail } from '@/lib/map/useRestaurantDetail';
+import { loadMapSheetDetail } from './loadMapSheetDetail';
+import { prefetchRestaurantDetail, useCachedRestaurantDetail } from '@/lib/map/useRestaurantDetail';
 import type { MapRestaurant } from '@/lib/types';
 
 // jsdom hat keinen IntersectionObserver — den Callback festhalten, damit der
@@ -26,9 +28,11 @@ type IoCallback = (entries: Array<Partial<IntersectionObserverEntry>>) => void;
 let ioCallbacks: IoCallback[] = [];
 let ioOptions: Array<IntersectionObserverInit | undefined> = [];
 let phone = false;
+let observed: IoCallback[] = [];
 
 beforeEach(() => {
   ioCallbacks = [];
+  observed = [];
   ioOptions = [];
   phone = false;
   vi.stubGlobal('matchMedia', () => ({ matches: phone }));
@@ -36,11 +40,11 @@ beforeEach(() => {
   vi.stubGlobal(
     'IntersectionObserver',
     class {
-      constructor(cb: IoCallback, options?: IntersectionObserverInit) {
+      constructor(private cb: IoCallback, options?: IntersectionObserverInit) {
         ioCallbacks.push(cb);
         ioOptions.push(options);
       }
-      observe() {}
+      observe() { observed.push(this.cb); }
       disconnect() {}
     }
   );
@@ -48,6 +52,9 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  document.documentElement.removeAttribute('data-consent-pending');
+  vi.mocked(prefetchRestaurantDetail).mockClear();
+  vi.mocked(loadMapSheetDetail).mockClear();
   vi.unstubAllGlobals();
   vi.mocked(useCachedRestaurantDetail).mockImplementation(() => null);
 });
@@ -136,6 +143,25 @@ describe('RestaurantList card photos', () => {
     spots(3).map((s, i) => ({ ...s, photo: `photo-${i}` })) as unknown as MapRestaurant[];
   const photos = (container: HTMLElement) =>
     [...container.querySelectorAll('[class*=rcardImg] img')] as HTMLImageElement[];
+
+  it('waits for the blocking consent question before preloading list photos and details', async () => {
+    document.documentElement.setAttribute('data-consent-pending', '');
+    const { container } = render(list({ restaurants: photoSpots() }));
+    expect(observed).toHaveLength(0);
+    expect(loadMapSheetDetail).not.toHaveBeenCalled();
+    expect(photos(container)[0].getAttribute('loading')).toBe('eager');
+
+    const { act } = await import('@testing-library/react');
+    await act(async () => {
+      document.documentElement.removeAttribute('data-consent-pending');
+      await Promise.resolve();
+    });
+    expect(observed).toHaveLength(6);
+    act(() => observed.forEach((cb) => cb([{ isIntersecting: true }])));
+    expect(prefetchRestaurantDetail).toHaveBeenCalledWith('r-0');
+    expect(loadMapSheetDetail).toHaveBeenCalled();
+    expect(photos(container).every((img) => img.getAttribute('loading') === 'eager')).toBe(true);
+  });
 
   it('loads the first photo at once and leaves the others lazy until they come near', () => {
     const { container } = render(list({ restaurants: photoSpots() }));

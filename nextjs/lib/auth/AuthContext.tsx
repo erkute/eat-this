@@ -14,7 +14,7 @@ import {
   deleteUser,
   type User,
 } from 'firebase/auth';
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@/lib/sentry/client-reporting';
 import { describeGoogleSignInError } from './googleSignInError';
 import { warmGooglePopup } from './googlePopupWarmup';
 import { announceSignedIn } from './afterSignIn';

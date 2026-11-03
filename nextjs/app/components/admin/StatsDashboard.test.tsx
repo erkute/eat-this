@@ -379,6 +379,27 @@ describe('StatsDashboard', () => {
     vi.unstubAllGlobals();
   });
 
+  it('behält beim Zeitraumwechsel den gewählten Nutzungsbereich', async () => {
+    const initial = summary();
+    const updated = summary({
+      range: { ...initial.range, start: initial.range.end, days: 1 },
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => ({
+        ok: true,
+        json: async () => (url.includes('days=1') ? updated : initial),
+      }))
+    );
+    render(<StatsDashboard />);
+    await screen.findByText('8.629', { selector: 'strong' });
+    openReport('Nutzung & Heatmaps');
+    fireEvent.click(screen.getByRole('button', { name: 'Map' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Gestern' }));
+    await screen.findByText(/1 Kalendertag ·/);
+    expect(screen.getByRole('button', { name: 'Map' }).getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('fordert zur Anmeldung auf, solange niemand angemeldet ist', () => {
     state.user = null;
     const fetchMock = respondWith({});
@@ -439,13 +460,13 @@ describe('StatsDashboard', () => {
     }
   });
 
-  it('zeigt GA nur in den Messdetails mit seiner eigenen Bezugsgröße', async () => {
+  it('trennt GA-Nutzer und Tagesbesucher auch im Quellenvergleich', async () => {
     vi.stubGlobal('fetch', respondWith(summary()));
     render(<StatsDashboard />);
     await screen.findByText('Das solltest du prüfen');
     expect(screen.queryByText(/aktive GA-Nutzer im Zeitraum/)).toBeNull();
     openReport('Messung');
-    expect(await screen.findByText(/400 aktive GA-Nutzer/)).toBeTruthy();
+    expect(await screen.findByText(/400 aktive GA-Nutzer im Zeitraum/)).toBeTruthy();
   });
 
   it('führt über die Wortmarke zurück zur Startseite', async () => {

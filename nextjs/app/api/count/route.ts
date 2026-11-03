@@ -5,6 +5,7 @@ import { writeInsight } from '@/lib/analytics/engagement.server';
 import { FieldValue, Timestamp, type DocumentReference } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { clientIpFromXff } from '@/lib/clientIp';
+import { isKnownCrawlerIp } from '@/lib/analytics/crawlerIps.server';
 import { isExcludedAnalyticsIp } from '@/lib/analytics/excludedIps.server';
 import { isAutomated } from '@/lib/analytics/botFilter';
 import {
@@ -245,7 +246,8 @@ export async function GET(request: Request) {
     request.headers.get('sec-gpc') === '1' ||
     request.headers.get('dnt') === '1' ||
     !ip ||
-    isExcludedAnalyticsIp(ip);
+    isExcludedAnalyticsIp(ip) ||
+    isKnownCrawlerIp(ip);
   return NextResponse.json({ excluded }, { headers: { 'Cache-Control': 'private, no-store' } });
 }
 
@@ -276,9 +278,10 @@ export async function POST(request: Request) {
     request.headers.get('x-real-ip')
   );
   if (!ip) return new NextResponse(null, { status: 204 });
-  // Der eigene Anschluss zählt auch ohne Cookie und mit frischen Browsern
-  // nicht: vor Rate-Limit, Tageswerten, Heatmap und „Jetzt aktiv" abbrechen.
-  if (isExcludedAnalyticsIp(ip)) return new NextResponse(null, { status: 204 });
+  // Eigene Anschlüsse und bekannte Suchcrawler zählen weder als Besucher
+  // noch in Heatmaps: vor Ratenlimit und sämtlichen Schreibzugriffen abbrechen.
+  if (isExcludedAnalyticsIp(ip) || isKnownCrawlerIp(ip))
+    return new NextResponse(null, { status: 204 });
 
   const raw = await request.text();
   if (raw.length > MAX_BODY) return new NextResponse(null, { status: 413 });

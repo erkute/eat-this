@@ -438,7 +438,7 @@ function parseDays(raw: string | null): number {
 /**
  * Der Zeitraum aus der Anfrage: `?days=7` (endet gestern) oder
  * `?from=…&to=…`. `from`/`to` schlagen `days`; ein Fenster, das in der
- * Zukunft endet, wird auf gestern gekappt, eins, das länger als ein Jahr ist,
+ * Zukunft endet, wird auf heute gekappt, eins, das länger als ein Jahr ist,
  * am Anfang. Liegt hier und nicht in der Route, weil Next aus einer
  * Route-Datei nur die Handler exportiert sehen will.
  */
@@ -456,7 +456,7 @@ export function parseRange(params: URLSearchParams, today: string): Range {
     dayBefore(to, 0) === to &&
     from <= to
   ) {
-    const end = to > lastClosedDay ? lastClosedDay : to;
+    const end = to > today ? today : to;
     const spanned = daysBetween(from, end);
     const days = Math.min(Math.max(spanned, 1), MAX_DAYS);
     return { start: sinceDay(days, end), end, days };

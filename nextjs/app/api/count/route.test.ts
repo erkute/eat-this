@@ -345,6 +345,22 @@ describe('POST /api/count', () => {
     expect(mocks.set).not.toHaveBeenCalled();
   });
 
+  it('drops a verified search crawler even with ordinary browser UA in header and body', async () => {
+    const headers = { 'x-forwarded-for': '104.210.140.130, 10.0.0.1, 10.0.0.2' };
+    for (const body of [
+      { path: '/', ua: CHROME },
+      { path: '/', ua: CHROME, event: 'consent_gate_shown' },
+      { path: '/', ua: CHROME, home: 'view', device: 'phone' },
+    ]) {
+      expect((await POST(request(body, headers))).status).toBe(204);
+    }
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(mocks.set).not.toHaveBeenCalled();
+    expect(mocks.writeInsight).not.toHaveBeenCalled();
+    expect(await (await GET(request({}, headers))).json()).toEqual({ excluded: true });
+  });
+
   it('drops a declared crawler', async () => {
     await POST(request({ path: '/' }, { 'user-agent': 'Googlebot/2.1' }));
     expect(mocks.set).not.toHaveBeenCalled();
@@ -750,18 +766,22 @@ describe('POST /api/count', () => {
   });
 });
 
-it.each(['http://localhost:3100', 'http://127.0.0.1:3100', 'http://[::1]:3100'])(
-  'schreibt auch im Produktionsbuild nichts für Vorschau-Origin %s',
-  async (origin) => {
-    mocks.set.mockClear();
-    mocks.create.mockClear();
-    mocks.update.mockClear();
-    vi.stubEnv('NODE_ENV', 'production');
-    const response = await POST(request({ path: '/' }, { origin }));
-    expect(response.status).toBe(204);
-    expect(mocks.set).not.toHaveBeenCalled();
-    expect(mocks.create).not.toHaveBeenCalled();
-    expect(mocks.update).not.toHaveBeenCalled();
-    vi.unstubAllEnvs();
-  }
-);
+it.each([
+  'http://localhost:3100',
+  'http://127.0.0.1:3100',
+  'http://[::1]:3100',
+  'http://192.168.178.49:3100',
+  'http://10.0.0.5:3100',
+  'http://172.16.0.8:3100',
+])('schreibt auch im Produktionsbuild nichts für Vorschau-Origin %s', async (origin) => {
+  mocks.set.mockClear();
+  mocks.create.mockClear();
+  mocks.update.mockClear();
+  vi.stubEnv('NODE_ENV', 'production');
+  const response = await POST(request({ path: '/' }, { origin }));
+  expect(response.status).toBe(204);
+  expect(mocks.set).not.toHaveBeenCalled();
+  expect(mocks.create).not.toHaveBeenCalled();
+  expect(mocks.update).not.toHaveBeenCalled();
+  vi.unstubAllEnvs();
+});

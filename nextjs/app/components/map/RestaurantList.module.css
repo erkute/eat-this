@@ -19,6 +19,8 @@
   outline-offset: 2px;
 }
 .rcard {
+  /* Die ganze Karte bleibt beim Ansetzen einer Wischgeste deckend. */
+  --et-press-opacity: 1;
   position: relative;
   display: block;
   width: 100%;
@@ -47,10 +49,9 @@
   transition: transform 0.3s ease;
 }
 
-/* Der Foto-Streifen der Karte: dieselbe Mechanik wie im Detail
-   (`.rdHeroPhotos`, usePhotoRail) — nativer Scroll mit Snap, ein Wisch ein
-   Foto. `pan-x pan-y`: senkrecht scrollt weiter die Liste, der Browser sperrt
-   die Achse. Jedes Foto steckt in einem eigenen Rahmen mit `overflow:
+/* Die Liste scrollt senkrecht nativ; usePhotoRail steuert horizontale
+   Touch-Gesten und rastet beim Loslassen ein Foto weiter ein.
+   Jedes Foto steckt in einem eigenen Rahmen mit `overflow:
    hidden`, weil das Foto beim Hover vergrößert — sonst ragte es in den
    Nachbarn. */
 .rcardPhotos {
@@ -62,7 +63,7 @@
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
-  touch-action: pan-x pan-y;
+  touch-action: pan-y;
 }
 .rcardPhotos::-webkit-scrollbar {
   display: none;
@@ -193,14 +194,9 @@
   pointer-events: none;
 }
 
-/* Kein Druckzustand auf der Karte. Die globale Regel in globals.css
-   (`[role='button']:active { translate: 0 1px }`) verschob beim Aufsetzen des
-   Fingers die ganze Karte — und damit den Foto-Streifen, der in ihr liegt.
-   WebKit (Safari und jeder Browser auf dem iPhone) verliert dabei die
-   waagerechte Geste: der Streifen stand unter dem Finger still (25.09.2026,
-   im Simulator eingegrenzt). Auf das Tippen antwortet die Karte ohnehin
-   sofort mit dem Detail. Vier Selektor-Teile, damit die Regel gegen die
-   globale (0,3,0) gewinnt, egal in welcher Reihenfolge die Dateien laden. */
+/* Die wischbare Karte bleibt beim Drücken an ihrer Position. Ein Tippen
+   öffnet direkt das Detail; die globale Druckbewegung gilt hier nicht.
+   Die Spezifität übertrifft die globale Regel unabhängig der Ladereihenfolge. */
 .rcardSlot > .rcard[role='button']:active {
   translate: none;
 }

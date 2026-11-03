@@ -2,7 +2,7 @@
 .page > :global(footer[role='contentinfo']) { margin-inline: calc(50% - 50vw); }
 .shell { width: min(100%, 1440px); margin: 0 auto; padding: 28px var(--et-gutter) 112px; }
 .hero { position: relative; isolation: isolate; padding-bottom: 80px; }
-.hero::before { content: ''; position: absolute; z-index: -1; top: -28px; bottom: -30px; left: 50%; width: 100vw; transform: translateX(-50%); background: url('/pics/home/silver-hero/hero-paper.webp') center top / cover no-repeat; mask-image: linear-gradient(#000 80%, transparent); pointer-events: none; }
+.hero::before { content: ''; position: absolute; z-index: -1; top: -28px; bottom: -30px; left: 50%; width: 100vw; transform: translateX(-50%); background: url('/pics/magazine-paper.webp') center top / cover no-repeat; mask-image: linear-gradient(#000 80%, transparent); pointer-events: none; }
 :global(html[data-theme='dark']) .hero::before { filter: invert(1) brightness(.65); }
 .heroTitle { margin: 0; text-align: center; font-size: clamp(64px, 13.4vw, 192px); font-weight: 700; letter-spacing: -.06em; line-height: .88; }
 .lead { padding-top: 24px; }

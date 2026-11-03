@@ -1,17 +1,21 @@
 // @vitest-environment jsdom
 
-import type { ReactNode } from 'react';
+import { useLayoutEffect, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-/* Der Drawer hängt an Übersetzung, Auth und dem next-intl-Router — für diesen
-   Test zählt nur, was ein Klick auf einen Menü-Eintrag mit der Scrollposition
-   macht. Die Link-Attrappe ruft `preventDefault`, wie Nexts `Link` es tut:
+/* Der Drawer hängt an Übersetzung, Auth und dem next-intl-Router — hier zählen
+   der Menüzustand und die Scrollposition beim Öffnen, Schließen und Navigieren.
+   Die Link-Attrappe ruft `preventDefault`, wie Nexts `Link` es tut:
    sonst versucht jsdom zu navigieren und der Klick sagt nichts mehr aus. */
 vi.mock('@/lib/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key, lang: 'de', setLang: vi.fn() }),
 }));
 const authState = vi.hoisted(() => ({ isAdmin: false }));
+const navigationState = vi.hoisted(() => ({ pathname: '/kategorie' }));
+beforeEach(() => {
+  navigationState.pathname = '/kategorie';
+});
 vi.mock('@/lib/auth', () => ({
   useAuth: () => ({ user: null, isAdmin: authState.isAdmin }),
   useLoginModal: () => ({ open: vi.fn() }),
@@ -35,7 +39,7 @@ vi.mock('@/i18n/navigation', () => {
   };
   return {
     Link: Anchor,
-    usePathname: () => '/kategorie',
+    usePathname: () => navigationState.pathname,
     useRouter: () => ({ prefetch: vi.fn(), push: vi.fn() }),
   };
 });
@@ -53,6 +57,11 @@ import { openBurgerDrawer } from './burgerDrawerState';
 const frames: FrameRequestCallback[] = [];
 function paintFrame() {
   for (const callback of frames.splice(0)) callback(0);
+}
+
+function OpenDuringMount() {
+  useLayoutEffect(() => openBurgerDrawer(), []);
+  return null;
 }
 
 describe('BurgerDrawer scroll handover', () => {
@@ -74,6 +83,28 @@ describe('BurgerDrawer scroll handover', () => {
       }),
     });
     Object.defineProperty(window, 'scrollTo', { configurable: true, value: vi.fn() });
+  });
+
+  it('keeps an early menu tap open when the drawer finishes mounting', () => {
+    render(
+      <>
+        <OpenDuringMount />
+        <BurgerDrawer />
+      </>
+    );
+    expect(document.getElementById('burgerDrawer')?.hasAttribute('hidden')).toBe(false);
+    expect(document.getElementById('burgerDrawer')?.classList.contains('active')).toBe(true);
+  });
+
+  it('closes on a subsequent route change without restoring the old scroll position', () => {
+    const { rerender } = render(<BurgerDrawer />);
+    openBurgerDrawer();
+    paintFrame();
+    navigationState.pathname = '/news';
+    rerender(<BurgerDrawer />);
+    expect(document.getElementById('burgerDrawer')?.hasAttribute('hidden')).toBe(true);
+    expect(document.body.style.position).toBe('');
+    expect(window.scrollTo).not.toHaveBeenCalled();
   });
 
   /* Der Fehler, den das verhindert: unter 768px sperrt der Drawer den Body per

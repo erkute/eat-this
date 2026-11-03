@@ -62,6 +62,19 @@ describe('burger drawer mobile canvas state', () => {
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 240, behavior: 'instant' });
   });
 
+  it('does not lock the page if the menu closes before its deferred frame', () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
+      frames.push(callback);
+      return frames.length;
+    });
+    openBurgerDrawer();
+    closeBurgerDrawer(false);
+    frames.forEach(callback => callback(0));
+    expect(document.body.dataset.burgerLockMode).toBeUndefined();
+    expect(document.body.style.position).toBe('');
+  });
+
   it('restores the original inline colors across repeated open-close cycles', () => {
     document.documentElement.style.backgroundColor = 'white';
     document.body.style.backgroundColor = 'white';

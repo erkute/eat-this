@@ -98,6 +98,24 @@
 }
 
 /* The signup uses the shared backdrop; the footer owns its themed paper. */
+@media (min-width: 600px) and (max-width: 1023.98px) and (orientation: portrait) {
+  .hero { height: min(100svh, 820px); }
+  .heroInner { padding: 32px var(--home-gutter); }
+  .heroCopy { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 24px; justify-items: center; }
+  .heroBrand { grid-column: 1; grid-row: 1; width: 360px; max-width: 100%; height: auto; }
+  .heroMark { width: 100%; height: auto; max-height: none; aspect-ratio: 2600 / 645; }
+  .heroHeadline { grid-column: 1; grid-row: 2; width: 320px; max-width: 100%; height: auto; margin: 0; }
+  .heroSloganDesktop { display: block; }
+  .heroSloganMobile { display: none; }
+  .heroArt { grid-column: 1; grid-row: 3; }
+  .heroFan { width: min(100cqw, 148cqh, 540px); aspect-ratio: 728 / 470; top: 46%; }
+  .heroCard { width: 35%; }
+  .heroCardLeft { left: 5%; top: 35%; }
+  .heroCardRight { left: 60%; top: 35%; }
+  .heroCardFront { left: 32.5%; top: 4%; }
+  .heroActions { grid-column: 1; grid-row: 4; margin-top: 0; }
+}
+
 .paperEnd {
   position: relative;
   isolation: isolate;

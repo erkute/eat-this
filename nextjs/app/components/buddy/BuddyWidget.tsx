@@ -18,6 +18,7 @@ import {
   type BuddyAskDetail,
 } from '@/lib/buddy/homeStage';
 import { useAuth } from '@/lib/auth';
+import { useDialogViewport } from '@/lib/useDialogViewport';
 import { useFavorites } from '@/lib/map/useFavorites';
 import { useUserLocationContext } from '@/lib/map/UserLocationContext';
 import { notify } from '@/lib/notice';
@@ -458,6 +459,14 @@ export default function BuddyWidget() {
   const t = T[locale];
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
+  const [compactKeyboard, setCompactKeyboard] = useState(false);
+  useEffect(() => {
+    const update = () => setCompactKeyboard(typeof window.matchMedia === 'function'
+      && window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 500px)').matches);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
   // Capture the old position before React removes the greeting portrait.
   // Only the newly mounted header portrait moves; there is never a duplicate.
   const previousPortrait = useRef<{ rect: DOMRect; position: string | undefined } | null>(null);
@@ -787,55 +796,44 @@ export default function BuddyWidget() {
     const ap = document.querySelector('.app-pages') as HTMLElement | null;
     const prevAp = ap?.style.overflow ?? '';
     const prevBody = document.body.style.overflow;
+    const previousPosition = document.body.style.position;
+    const previousTop = document.body.style.top;
+    const previousWidth = document.body.style.width;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const pageY = window.scrollY;
     if (ap) ap.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${pageY}px`;
+    document.body.style.width = '100%';
     document.documentElement.dataset.buddyOpen = '';
     return () => {
       if (ap) ap.style.overflow = prevAp;
       document.body.style.overflow = prevBody;
+      document.body.style.position = previousPosition;
+      document.body.style.top = previousTop;
+      document.body.style.width = previousWidth;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      window.scrollTo({ top: pageY, behavior: 'instant' });
       delete document.documentElement.dataset.buddyOpen;
     };
   }, [open]);
 
-  /* Telefon: das Panel deckt genau den SICHTBAREN Ausschnitt. iOS verkleinert
-     beim Öffnen der Tastatur nicht das Layout-Viewport, sondern schiebt das
-     visuelle darin nach oben — ein `fixed` Panel mit `inset` ritt mit, und
-     darüber und darunter stand die Startseite (Betreiber, 23.09.2026). Jetzt
-     folgt es `visualViewport`: Kopf oben, das Feld direkt auf der Tastatur,
-     der Verlauf dazwischen schrumpft. Wer am Ende des Verlaufs stand, bleibt
-     dort. `data-keyboard` nimmt den Home-Indikator-Abstand unter dem Feld
-     weg, der über der Tastatur nur eine Lücke wäre. */
+  useDialogViewport(dialogRef, open);
+
+  // Keep a conversation at its end while the keyboard resizes the log.
   useEffect(() => {
-    if (!open) return;
-    const vv = window.visualViewport;
-    const panel = panelRef.current;
-    if (!vv || !panel) return;
-    const viewportRoot = dialogRef.current ?? panel;
-    const phone = window.matchMedia('(max-width: 600px)');
-    const apply = () => {
-      if (!phone.matches) {
-        viewportRoot.style.removeProperty('--buddy-vv-top');
-        viewportRoot.style.removeProperty('--buddy-vv-height');
-        delete panel.dataset.keyboard;
-        return;
-      }
-      const log = logRef.current;
-      const atEnd = log ? log.scrollHeight - log.clientHeight - log.scrollTop < 4 : false;
-      viewportRoot.style.setProperty('--buddy-vv-top', `${vv.offsetTop}px`);
-      viewportRoot.style.setProperty('--buddy-vv-height', `${vv.height}px`);
-      if (window.innerHeight - vv.height > 120) panel.dataset.keyboard = '';
-      else delete panel.dataset.keyboard;
-      if (log && atEnd) log.scrollTop = log.scrollHeight;
-    };
-    apply();
-    vv.addEventListener('resize', apply);
-    vv.addEventListener('scroll', apply);
-    phone.addEventListener('change', apply);
-    return () => {
-      vv.removeEventListener('resize', apply);
-      vv.removeEventListener('scroll', apply);
-      phone.removeEventListener('change', apply);
-    };
+    const log = logRef.current;
+    if (!open || !log || !window.visualViewport) return;
+    let atEnd = log.scrollHeight - log.clientHeight - log.scrollTop < 4;
+    const remember = () => { atEnd = log.scrollHeight - log.clientHeight - log.scrollTop < 4; };
+    const observer = new ResizeObserver(() => {
+      if (atEnd) log.scrollTop = log.scrollHeight;
+    });
+    observer.observe(log);
+    log.addEventListener('scroll', remember);
+    return () => { observer.disconnect(); log.removeEventListener('scroll', remember); };
   }, [open]);
 
   // Escape closes the panel.
@@ -1065,6 +1063,12 @@ export default function BuddyWidget() {
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder={t.placeholder}
                 aria-label={t.placeholder}
+                // Safari's prediction row can leave only 13px above the
+                // landscape keyboard and tab bar. Keep this editor usable.
+                autoCorrect={compactKeyboard ? 'off' : undefined}
+                autoComplete="off"
+                autoCapitalize={compactKeyboard ? 'none' : undefined}
+                spellCheck={compactKeyboard ? false : undefined}
               />
               {/* Derselbe Knopf ist der Abbruch, solange er schreibt. */}
               {isStreaming ? (

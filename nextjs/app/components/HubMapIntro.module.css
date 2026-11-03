@@ -14,21 +14,27 @@
 .dot[aria-pressed='true']::after { width: 22px; opacity: 1; }
 .dot:focus-visible, .pause:focus-visible { outline: 3px solid var(--et-fg); outline-offset: 5px; }
 /* Wie der Hero: eine Bildschirmhöhe, mit vollständig sichtbarem Telefon und CTA. */
-@media (min-width: 768px) {
+@media (min-width: 600px) {
   .section { box-sizing: border-box; min-height: 570px; height: 100svh; padding-block: clamp(24px, 5svh, 56px); }
   .showcase { width: clamp(180px, calc((100svh - 160px) / 2.18), 340px); }
   .controls { margin-top: 12px; }
   .showcase .cta { display: none; }
 }
-@media (max-width: 767.98px) {
+@media (max-width: 599.98px) {
   .section { grid-template-columns: 1fr; padding-block: 56px 40px; gap: 40px; }
-  .title { font-size: clamp(48px, 13.5vw, 76px); margin-bottom: 16px; }
+  .title { font-size: var(--hv-display); margin-bottom: 16px; }
   .copy p { font-size: 20px; }
-  .showcase { width: min(68vw, 280px); }
+  .showcase { width: min(56vw, 220px); }
   .desktopCta { display: none; }
 }
 
 .cta { display: flex; justify-content: center; margin-top: 12px; }
+
+@media (min-width: 600px) and (max-width: 1023.98px) {
+  .section { height: auto; min-height: 570px; gap: 28px; padding-block: 48px; }
+  .title { font-size: clamp(44px, 7.8vw, 76px); }
+  .showcase { width: min(100%, 240px); }
+}
 
 /* Leicht abgeriebene Druckfarbe, ohne die Kontur der Buchstaben aufzulösen. */
 @supports (background-clip: text) {

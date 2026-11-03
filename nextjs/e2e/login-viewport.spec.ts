@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en']) {
-  test(`signup fits mobile without scrolling (${locale})`, async ({ page, context, baseURL }) => {
+  test(`signup fits phones, tablets and rotation without scrolling (${locale})`, async ({ page, context, baseURL }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
     await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
@@ -12,11 +12,14 @@ for (const locale of ['de', 'en']) {
     const dialog = page.getByRole('dialog').filter({ has: page.getByRole('textbox') });
     await expect(dialog).toBeVisible();
     await expect.poll(() => dialog.locator('img').evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-    for (const [width, height] of [[390, 844], [390, 740], [390, 710], [375, 667], [320, 568]]) {
+    for (const [width, height] of [[390, 844], [390, 740], [390, 710], [375, 667], [320, 568], [540, 720], [768, 1024], [820, 1180], [1180, 820], [1024, 768], [667, 375], [844, 390], [390, 844]]) {
       await page.setViewportSize({ width, height });
       await expect.poll(() => dialog.evaluate(el => el.scrollHeight - el.clientHeight), { message: `${width}×${height} must not need scrolling` }).toBeLessThanOrEqual(1);
       await expect(dialog.locator('button[type="submit"]')).toBeInViewport({ ratio: 1 });
       await expect(dialog.getByRole('link').last()).toBeInViewport({ ratio: 1 });
+      if (width <= 820 && height >= 1024) {
+        expect((await dialog.boundingBox())!.height).toBeLessThanOrEqual(760);
+      }
       await page.screenshot({ path: `/tmp/eat-this-signup-fit-${locale}-${width}-${height}.png` });
     }
   });

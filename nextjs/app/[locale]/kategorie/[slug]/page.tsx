@@ -317,7 +317,7 @@ export default async function KategorieDetailPage({ params }: PageProps) {
               <IssueGuides
                 guides={guides}
                 locale={loc}
-                heading={de ? 'Ausführlich im Magazin' : 'In depth in the magazine'}
+
                 interlude
               />
             </HubFilterUnfiltered>

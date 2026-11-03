@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type ComponentProps, type MouseEvent } from 'react';
+import { useRef, useState, type ComponentProps, type MouseEvent } from 'react';
 import { Link } from '@/i18n/navigation';
 import { openMagazine } from '@/lib/magazineOpen';
 import styles from './MagazineOpen.module.css';
@@ -24,7 +24,7 @@ const CLASSES = {
   capBottom: styles.capBottom,
 };
 
-type Props = Omit<ComponentProps<typeof Link>, 'href' | 'onClick'> & {
+type Props = Omit<ComponentProps<typeof Link>, 'href' | 'onClick' | 'prefetch'> & {
   /** `/news/<slug>` — the article the magazine opens on. */
   href: string;
   /** For a link without its own cover („Lesen"): selector of the link that
@@ -39,12 +39,16 @@ type Props = Omit<ComponentProps<typeof Link>, 'href' | 'onClick'> & {
  * abgefangen hat — der Fächer der Startseite blättert damit zu einem hinteren
  * Heft, statt es zu öffnen. Ohne Bewegung navigiert der Link wie jeder andere.
  *
+ * Article data starts loading on pointer or keyboard intent, while the opening
+ * animation runs. Merely displaying a shelf must not fetch all its articles.
+ *
  * Navigiert wird am Ende vom Link selbst: ein zweiter, programmatischer Klick,
  * den dieser Handler durchlässt — so bleibt es Nexts eigene Navigation
  * (Prefetch, Scroll nach oben, Locale), ohne einen zweiten Weg daneben.
  */
-export default function MagazineLink({ href, coverFrom, children, className, ...rest }: Props) {
+export default function MagazineLink({ href, coverFrom, children, className, onPointerEnter, onPointerDown, onFocus, ...rest }: Props) {
   const passOn = useRef(false);
+  const [prefetch, setPrefetch] = useState(false);
 
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (passOn.current) {
@@ -53,6 +57,7 @@ export default function MagazineLink({ href, coverFrom, children, className, ...
     }
     if (event.defaultPrevented || event.button !== 0) return;
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    setPrefetch(true);
     const anchor = event.currentTarget;
     const link = coverFrom ? document.querySelector<HTMLElement>(coverFrom) : anchor;
     const cover = link?.querySelector<HTMLElement>('[data-magazine-cover]');
@@ -72,7 +77,16 @@ export default function MagazineLink({ href, coverFrom, children, className, ...
   };
 
   return (
-    <Link href={href} onClick={onClick} className={[styles.link, className].filter(Boolean).join(' ')} {...rest}>
+    <Link
+      {...rest}
+      href={href}
+      prefetch={prefetch ? null : false}
+      onPointerEnter={(event) => { setPrefetch(true); onPointerEnter?.(event); }}
+      onPointerDown={(event) => { setPrefetch(true); onPointerDown?.(event); }}
+      onFocus={(event) => { setPrefetch(true); onFocus?.(event); }}
+      onClick={onClick}
+      className={[styles.link, className].filter(Boolean).join(' ')}
+    >
       {children}
     </Link>
   );

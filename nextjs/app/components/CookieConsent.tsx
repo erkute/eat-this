@@ -7,7 +7,6 @@ import { MODAL_CONTACT_EMAIL, type ModalBodySection } from '@/lib/i18n/translati
 import { countEvent, getAnalyticsPageLocation, loadAnalytics, trackEvent } from '@/lib/analytics';
 import { clearConsent, readConsent, recordConsent, writeConsent } from '@/lib/consent';
 import { CONSENT_FOCUSABLE, CONSENT_INTERACTIVE_EVENT } from '@/lib/consentBootstrap';
-import paperStyles from './CookiePaper.generated.module.css';
 
 // Cookie info sections — kept here (not in MODAL_BODIES) so the banner copy
 // stays close to what's actually loaded by the site, and DE is properly
@@ -219,7 +218,7 @@ export default function CookieConsent() {
     window.clearTimeout(closeTimer.current);
     setClosed(false);
     setBootstrap(false);
-    // CSS starts the same entrance on insertion, including the server HTML.
+    // The initial question is already in its final position before hydration.
     setShow(true);
   }, []);
 
@@ -371,7 +370,7 @@ export default function CookieConsent() {
           }
         }}
       >
-        <div aria-hidden="true" className={`cookie-paper ${paperStyles.paper}`} />
+        <div aria-hidden="true" className="cookie-paper" />
         <div className="cookie-content">
           {/* Text und Details scrollen zusammen; die zwei Antworten darunter
               bleiben beim Lesen fest im Bild. */}

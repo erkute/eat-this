@@ -4,7 +4,8 @@ import { CONSENT_VERSION } from '../lib/consent';
 
 for (const locale of ['de', 'en'] as const) {
   for (const [width, height, reduced] of [[375, 812, false], [568, 320, true], [667, 375, true], [1440, 1000, false]] as const) {
-    test(`magazine archive ${locale} ${width}x${height}`, async ({ page, context, baseURL }) => {
+    test(`magazine archive ${locale} ${width}x${height}`, async ({ page, context, baseURL, isMobile }) => {
+      test.skip(isMobile ? width === 1440 : width !== 1440, 'Phone projects use phone viewports; the desktop project uses the desktop viewport.');
       await context.addCookies([{ name: 'cookieConsent', value: `declined.${CONSENT_VERSION}`, url: baseURL! }]);
       await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
       await page.setViewportSize({ width, height });

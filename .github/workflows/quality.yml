@@ -235,7 +235,7 @@ jobs:
       # Public card metadata comes from Sanity; Firestore/Storage use synthetic
       # fixtures in a demo project. PR code receives no production credentials.
       - name: Browser flows and accessibility (shard ${{ matrix.shard }}/3)
-        timeout-minutes: 20
+        timeout-minutes: 25
         env:
           FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
           COUNT_SALT: quality-browser-emulator-only

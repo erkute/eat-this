@@ -152,6 +152,7 @@ const Item = memo(
       [restaurant.photo, detail?.gallery]
     );
     const { railRef, page, handlers } = usePhotoRail(photos.length, {
+      touchDrag: true,
       // Zurück aus dem Detail steht die Karte auf dem Foto, das dort zuletzt
       // zu sehen war — und das Detail öffnet auf dem aus der Liste.
       startPage: rememberedSpotPhotoIndex(restaurant.slug, photos),

@@ -19,6 +19,27 @@ test.beforeEach(async ({ page, context, baseURL }) => {
   await page.route('**/api/consent', route => route.fulfill({ status: 204 }));
 });
 
+test('map list photos stay opaque when a swipe starts', async ({ page }) => {
+  await page.goto('/map');
+  const card = page.locator('[data-list-row] [role="button"]').first();
+  await card.scrollIntoViewIfNeeded();
+  const photo = card.locator('img').first();
+  for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+    await page.emulateMedia({ reducedMotion });
+    // Inspect the first painted state synchronously: a later document scroll
+    // clears feedback and must not hide an initial dimming regression.
+    await expect.poll(() => photo.evaluate(element => {
+      const card = element.closest('[role="button"]')!;
+      const init = { bubbles: true, pointerId: 1, pointerType: 'touch', isPrimary: true, button: 0, clientY: 300 };
+      element.dispatchEvent(new PointerEvent('pointerdown', { ...init, clientX: 250 }));
+      const pressed = card.hasAttribute('data-et-pressed');
+      const during = getComputedStyle(card).opacity;
+      element.dispatchEvent(new PointerEvent('pointermove', { ...init, clientX: 220 }));
+      return { pressed, during, released: !card.hasAttribute('data-et-pressed'), after: getComputedStyle(card).opacity };
+    })).toEqual({ pressed: true, during: '1', released: true, after: '1' });
+  }
+});
+
 for (const route of ['/', '/en/news', '/news/gazzo-pizza-neukoelln', '/map?r=gazzo', '/must-eats', '/packs', '/kategorie/pizza', '/bezirk/neukoelln', '/about', '/contact']) {
   test(`controls use app touch feedback: ${route}`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });

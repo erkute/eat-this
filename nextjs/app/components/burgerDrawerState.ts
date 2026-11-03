@@ -89,6 +89,7 @@ export function openBurgerDrawer() {
   // Position ohnehin identisch (top: -scrollY).
   drawer.classList.add('active');
   window.requestAnimationFrame(() => {
+    if (!drawer.isConnected || !drawer.classList.contains('active')) return;
     lockBody();
     document.getElementById('burgerClose')?.focus({ preventScroll: true });
   });

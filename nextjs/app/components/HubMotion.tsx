@@ -17,7 +17,7 @@ gsap.registerPlugin(useGSAP);
 
 /**
  * The hero cards are immediately visible. This controller handles the
- * entrances of the magazine, the Must Eats and the districts map
+ * entrances of the magazine and the districts map
  * (lib/home/dealIn.ts) and the signup demonstration (the FAQ opens in CSS,
  * HubFaq). Reduced motion always leaves the content in its resting state.
  */
@@ -114,8 +114,6 @@ function armSignupDemo(): () => void {
   };
 }
 
-const CARD_BACK_SRC = '/pics/card-back.webp?v=20261028';
-
 function centreOf(el: Element) {
   const box = el.getBoundingClientRect();
   return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
@@ -149,93 +147,6 @@ function armMagazineDeal(): () => void {
     stop();
     timeline?.kill();
     gsap.set(section.querySelectorAll('ol > li'), { clearProps: CLEAR_DEAL });
-  };
-}
-
-/** Must Eats: die Karten liegen verdeckt auf einem Stapel und werden
- *  ausgeteilt; unterwegs drehen sich die offenen um (wie live). */
-function armMustEatsDeal(): () => void {
-  const section = document.querySelector<HTMLElement>('[data-hub-musteats]');
-  const deck = section?.querySelector<HTMLElement>('ul');
-  if (!section || !deck) return () => {};
-  const slides = () => visible(deck.querySelectorAll<HTMLElement>(':scope > li'));
-  const captions = () => Array.from(deck.querySelectorAll<HTMLElement>('[data-stack-caption]'));
-  const pileOf = (list: HTMLElement[]) => {
-    const box = deck.getBoundingClientRect();
-    return { x: box.left + box.width / 2, y: box.top + list[0].offsetHeight / 2 };
-  };
-  const backs: HTMLImageElement[] = [];
-  const addBacks = () => {
-    deck.querySelectorAll<HTMLElement>('[data-stack-photo="open"]').forEach((photo) => {
-      const back = document.createElement('img');
-      back.src = CARD_BACK_SRC;
-      back.alt = '';
-      back.setAttribute('aria-hidden', 'true');
-      back.setAttribute('data-deal-back', '');
-      back.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;';
-      photo.style.position = 'relative';
-      photo.appendChild(back);
-      backs.push(back);
-    });
-  };
-  const removeBacks = () => {
-    backs.splice(0).forEach((back) => {
-      const photo = back.parentElement;
-      back.remove();
-      if (photo) photo.style.position = '';
-    });
-  };
-  let timeline: gsap.core.Timeline | null = null;
-  const stop = onFirstView(
-    section,
-    () => {
-      const list = slides();
-      if (!list.length) return;
-      addBacks();
-      stackOnPile(list, pileOf(list), 40, 0.9);
-      gsap.set(captions(), { autoAlpha: 0 });
-    },
-    () => {
-      const list = slides();
-      gsap.set(list, { clearProps: CLEAR_DEAL });
-      if (!list.length) return;
-      const stagger = 0.09;
-      timeline = dealFromPile(list, pileOf(list), {
-        lift: 40,
-        scale: 0.9,
-        duration: 0.85,
-        stagger,
-      });
-      list.forEach((slide, index) => {
-        const photo = slide.querySelector<HTMLElement>('[data-stack-photo="open"]');
-        const back = photo?.querySelector<HTMLElement>('[data-deal-back]');
-        if (!photo || !back) return;
-        const turn = index * stagger + 0.3;
-        timeline!
-          .to(photo, { scaleX: 0, duration: 0.16, ease: 'power1.in' }, turn)
-          .set(back, { visibility: 'hidden' }, turn + 0.16)
-          .to(
-            photo,
-            { scaleX: 1, duration: 0.22, ease: 'power2.out', clearProps: 'transform' },
-            turn + 0.16
-          );
-      });
-      timeline
-        .to(
-          captions(),
-          { autoAlpha: 1, duration: 0.3, stagger: 0.05, clearProps: 'opacity,visibility' },
-          0.75
-        )
-        .call(removeBacks);
-    }
-  );
-  return () => {
-    stop();
-    timeline?.kill();
-    removeBacks();
-    gsap.set(deck.querySelectorAll(':scope > li'), { clearProps: CLEAR_DEAL });
-    gsap.set(deck.querySelectorAll('[data-stack-photo]'), { clearProps: 'transform' });
-    gsap.set(captions(), { clearProps: 'opacity,visibility' });
   };
 }
 
@@ -325,7 +236,6 @@ export default function HubMotion() {
         if (!motion) return;
         const stops: Array<() => void> = [];
         if (desk) stops.push(armMagazineDeal());
-        stops.push(armMustEatsDeal());
         stops.push(armDistrictsDeal());
         stops.push(armSignupDemo());
         return () => stops.forEach((stop) => stop());

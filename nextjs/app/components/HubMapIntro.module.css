@@ -34,7 +34,7 @@
 @supports (background-clip: text) {
   :global(html[data-vintage]) :is(.title, .copy p) {
     background-color: var(--et-fg);
-    background-image: linear-gradient(color-mix(in srgb, var(--et-fg) 45%, transparent), color-mix(in srgb, var(--et-fg) 45%, transparent)), url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+    background-image: linear-gradient(color-mix(in srgb, var(--et-fg) 45%, transparent), color-mix(in srgb, var(--et-fg) 45%, transparent)), url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=5');
     background-size: auto, 192px auto, 320px auto;
     background-clip: text;
     -webkit-background-clip: text;

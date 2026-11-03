@@ -28,7 +28,7 @@
   isolation: isolate;
   padding-top: var(--site-nav-h); height: 100svh;
   --et-solid: #1b1f1f; --et-on-solid: #f0f2f0;
-  background: #f1f1ef url('/pics/home/silver-hero/hero-paper.webp') center / cover no-repeat;
+  background: #f1f1ef url('/pics/home/silver-hero/hero-paper.webp?v=20261103') center / cover no-repeat;
   color: var(--et-ink);
 }
 :global(html[data-theme='dark']) .hero {
@@ -41,7 +41,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: url('/pics/home/silver-hero/hero-paper.webp') center / cover no-repeat;
+  background: url('/pics/home/silver-hero/hero-paper.webp?v=20261103') center / cover no-repeat;
   filter: invert(1) brightness(0.65);
   pointer-events: none;
 }
@@ -53,7 +53,7 @@
    links liegen: ab 1537 px Breite oder 1025 px Höhe blieb rechts bzw. unten
    ein Streifen ohne Papier (Rückmeldung 27.10.2026). */
 :global(html[data-vintage] .homeV2) > .hero {
-  background-image: url('/pics/home/silver-hero/hero-paper.webp');
+  background-image: url('/pics/home/silver-hero/hero-paper.webp?v=20261103');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useMemo, useRef, type MouseEvent } from 'react';
 import gsap from 'gsap';
 import { useLoginModal } from '@/lib/auth';
+import { armMustEatsDeal } from '@/lib/home/mustEatsDeal';
 import { guardSwipeClick } from '@/lib/home/guardSwipeClick';
 import { Link } from '@/i18n/navigation';
 import MapIntentLink from './MapIntentLink';
@@ -88,6 +89,25 @@ export default function HubMustEatsTeaser() {
       .to(photo, { xPercent: 0, rotation: 0, duration: GUEST_SHAKE_MS / 1000 / 8 });
   };
 
+  const sectionRef = useRef<HTMLElement>(null);
+  // Only the component that owns these cards starts their DOM animation.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const media = gsap.matchMedia();
+    media.add(
+      {
+        motion: '(prefers-reduced-motion: no-preference)',
+        desk: '(min-width: 768px)',
+        landscape: '(orientation: landscape) and (max-height: 500px)',
+      },
+      (context) => {
+        if (context.conditions?.motion) return armMustEatsDeal(section);
+      }
+    );
+    return () => media.revert();
+  }, [cards]);
+
   const deckRef = useRef<HTMLUListElement>(null);
   useEffect(() => {
     const deck = deckRef.current;
@@ -115,6 +135,8 @@ export default function HubMustEatsTeaser() {
               <img
                 className={styles.card}
                 src="/pics/card-back.webp?v=20261028"
+                loading="lazy"
+                decoding="async"
                 alt=""
                 width={760}
                 height={1044}
@@ -138,6 +160,8 @@ export default function HubMustEatsTeaser() {
               <img
                 className={styles.card}
                 src="/pics/card-back.webp?v=20261028"
+                loading="lazy"
+                decoding="async"
                 alt=""
                 width={760}
                 height={1044}
@@ -156,6 +180,7 @@ export default function HubMustEatsTeaser() {
 
   return (
     <section
+      ref={sectionRef}
       className={styles.section}
       data-hub-musteats=""
       aria-labelledby="home-musteats-title"
@@ -211,6 +236,18 @@ export default function HubMustEatsTeaser() {
                               decoding="async"
                             />
 
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              className={styles.dealBack}
+                              data-deal-back=""
+                              src="/pics/card-back.webp?v=20261028"
+                              alt=""
+                              aria-hidden="true"
+                              width={760}
+                              height={1044}
+                              loading="lazy"
+                              decoding="async"
+                            />
                           </span>
                         </MapIntentLink>
                         <span className={styles.meta} data-stack-caption="">

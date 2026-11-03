@@ -226,8 +226,8 @@
 
 .pageTitle { font-size: clamp(42px, 17svh, 80px); }
 .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.tile { --pack-w: 88px; padding: 16px; gap: 16px; }
-.tileName { font-size: 24px; }
+.tile { --pack-w: clamp(88px, 12.8vw, 120px); padding: clamp(16px, 2.15vw, 22px); gap: clamp(16px, 2.15vw, 22px); }
+.tileName { font-size: clamp(24px, 3.2vw, 30px); }
 .spectrum { font-size: 14px; }
 .sectionTitle { font-size: 36px; }
 }

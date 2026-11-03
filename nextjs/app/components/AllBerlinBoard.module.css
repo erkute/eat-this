@@ -66,4 +66,17 @@
 .benefits { grid-area: benefits; gap: 10px; }
 .benefits h3 { font-size: 16px; }
 .actions { grid-area: actions; justify-items: start; }
+
+.board:not(.boardUpsell) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'art' 'copy' 'benefits' 'actions';
+  justify-items: center;
+}
+.board:not(.boardUpsell) .stage { width: min(100%, 520px); }
+.board:not(.boardUpsell) .copy,
+.board:not(.boardUpsell) .actions { text-align: center; }
+.board:not(.boardUpsell) .lead { margin-inline: auto; }
+.board:not(.boardUpsell) .benefits { width: min(100%, 640px); }
+.board:not(.boardUpsell) .actions { width: 100%; justify-items: center; }
+.board:not(.boardUpsell) .pay { justify-content: center; }
 }

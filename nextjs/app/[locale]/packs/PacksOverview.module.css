@@ -1,11 +1,4 @@
-/* /packs — der Laden. Die Seite beginnt direkt mit der All-Berlin-Tafel
-   (AllBerlinBoard, dort sitzt die H1); darunter die neun Kategorie-Packs
-   frei auf dem Papier (Ansage 22.10.2026: ohne Rahmen). Kein Aufmacher, der
-   die Tafel nur wiederholt.
-   Seit 03.09.2026 auf durchgehendem Ink wie Startseite und Spot-Seite:
-   `--packs-ink` bleibt die dunkle Farbe und ist der GRUND, `--packs-fg` die
-   Schrift darauf; Muted und Linien sind Weiss-Stufen. Die All-Berlin-Tafel
-   ist das eine Objekt der Seite und traegt die leise Stufe (AllBerlinBoard). */
+/* Booster Packs: große Hauptüberschrift, All-Berlin-Angebot und Kategorie-Packs. */
 
 .page {
   --packs-ink: var(--et-ground);
@@ -22,7 +15,7 @@
 .wrap {
   width: min(100% - clamp(28px, 5vw, 72px), var(--et-wrap-max));
   margin: 0 auto;
-  padding-top: 12px;
+  padding-top: 28px;
 }
 
 /* ── Kategorie-Packs ───────────────────────────────────────────────────── */
@@ -78,6 +71,8 @@
    Spectrum-Zeile und Kaufknopf linksbündig auf einer Achse, mittig zum Pack.
    Am Desktop zwei Zeilen nebeneinander, sonst bliebe rechts eine leere Bahn. */
 .tile {
+  color: var(--packs-fg);
+  text-decoration: none;
   --pack-w: 150px;
   padding: 24px;
   background: color-mix(in srgb, var(--et-ground) 96%, var(--et-fg));
@@ -106,7 +101,7 @@
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .tile:has(a:hover) .art { rotate: 0deg; translate: 0 -8px; }
+  .tile:hover .art { rotate: 0deg; translate: 0 -8px; }
 }
 
 .info {
@@ -127,7 +122,7 @@
   text-transform: none;
 }
 
-.tileName:focus-visible {
+.tile:focus-visible {
   outline: 3px solid var(--packs-fg);
   outline-offset: 4px;
 }
@@ -143,7 +138,7 @@
 }
 
 @media (hover: hover) {
-  .tileName:hover { color: var(--et-link); }
+  .tile:hover .tileName { color: var(--et-link); }
 }
 
 /* Der Platz des Kaufknopfes bei einem Pack, das noch keine Karte hat. Keine
@@ -222,19 +217,17 @@
   .art { transition: none; }
 }
 
-.flowNav { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; padding-block: 4px 12px; font-size: 14px; font-weight: 700; }
-.flowNav a, .flowNav span { display: inline-flex; align-items: center; min-height: 44px; color: var(--et-copy); text-decoration: none; }
-.flowNav a[aria-current], .flowNav span { color: var(--et-link); }
-@media (hover: hover) { .flowNav a:hover { color: var(--et-link); } }
-.flowNav a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.pageTitle { margin: 0 0 clamp(32px, 5vw, 64px); font: 700 clamp(40px, 13vw, 184px)/.88 var(--et-font-display); letter-spacing: -.055em; text-align: center; white-space: nowrap; }
 
 :global(html[data-vintage]) main.page.page.page { background: var(--et-ground); }
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .wrap { width: min(calc(100% - 2 * max(28px, calc(max(env(safe-area-inset-left), env(safe-area-inset-right)) + 16px))), var(--et-wrap-max)); }
 
+.pageTitle { font-size: clamp(42px, 17svh, 80px); }
 .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.tile { --pack-w: 88px; padding: 16px; gap: 16px; }
-.tileName { font-size: 24px; }
+.tile { --pack-w: clamp(88px, 12.8vw, 120px); padding: clamp(16px, 2.15vw, 22px); gap: clamp(16px, 2.15vw, 22px); }
+.tileName { font-size: clamp(24px, 3.2vw, 30px); }
 .spectrum { font-size: 14px; }
 .sectionTitle { font-size: 36px; }
 }

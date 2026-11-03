@@ -73,13 +73,10 @@ export default function MapListHeader({
   const bezirkBtnRef = useRef<HTMLButtonElement>(null);
   const priceBtnRef = useRef<HTMLButtonElement>(null);
 
-  /* Ab Desktop klappt die Auswahl in der Leiste auf, statt über der Liste zu
-     schweben (User, 2026-08-27). Der Zustand startet auf false und wird erst
-     im Effekt gesetzt — das ist unkritisch, weil ein Picker ohnehin nie im
-     ersten Rendern offen ist. */
+  /* Desktop und flache Telefone öffnen Filter in der rechten Ergebnisleiste. */
   const [inlinePicker, setInlinePicker] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
+    const mq = window.matchMedia('(min-width: 1024px), (orientation: landscape) and (max-height: 500px) and (min-width: 600px)');
     const apply = () => setInlinePicker(mq.matches);
     apply();
     mq.addEventListener('change', apply);

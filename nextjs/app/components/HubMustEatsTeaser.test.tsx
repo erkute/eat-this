@@ -88,12 +88,12 @@ function render(initialMapData: InitialMapData, locale: 'de' | 'en' = 'de') {
 }
 
 describe('HubMustEatsTeaser', () => {
-  it('shows an owned card face up instead of leaving a mystery back', () => {
+  it('keeps a covered preview even when the account owns every card', () => {
     account.uid = account.dataUid = 'owner';
     account.cards = [me({ _id: 'owned', dish: 'ACCOUNT_DISH' })]; account.open = ['owned'];
     const html = render(data([covered('owned', 'Owned spot')]));
     expect(html).toContain('ACCOUNT_DISH');
-    expect(html).not.toContain('data-stack-photo="covered"');
+    expect(html).toContain('data-stack-photo="covered"');
   });
   it('does not show a previous account’s private cards', () => {
     account.uid = 'new-account'; account.dataUid = 'old-account';

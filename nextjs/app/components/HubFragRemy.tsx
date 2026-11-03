@@ -41,7 +41,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
     if (!stage.current || !figure.current || !window.matchMedia) return;
     const avatarElement = figure.current;
     const media = gsap.matchMedia();
-    media.add({ motion: '(prefers-reduced-motion: no-preference)', mobile: '(max-width: 767.98px)' }, (context) => {
+    media.add({ motion: '(prefers-reduced-motion: no-preference)', mobile: '(max-width: 599.98px)' }, (context) => {
       if (!context.conditions?.motion) return;
       const avatar = figure.current!;
       const mobile = Boolean(context.conditions.mobile);
@@ -196,7 +196,7 @@ export default function HubFragRemy({ compact = false }: { compact?: boolean }) 
           <div className={styles.figure} ref={figure} data-expression={expression}>
             {/* One body; only the mouth changes with the expression. */}
             <div className={styles.head}>
-              <Image className={styles.face} src="/buddy/buddy.webp?v=feinripp" alt="" fill unoptimized sizes={compact ? '(max-width: 767px) 320px, 38vw' : '(max-width: 767px) 340px, 44vw'} loading="lazy" />
+              <Image className={styles.face} src="/buddy/buddy.webp?v=feinripp" alt="" fill unoptimized sizes={compact ? '(max-width: 599px) 300px, 38vw' : '(max-width: 599px) 300px, 44vw'} loading="lazy" />
               <BuddyMouth shape={expression === 'laugh' ? 'wide' : expression === 'open' ? 'open' : 'closed'} />
             </div>
           </div>

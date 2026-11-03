@@ -170,8 +170,7 @@ export default function LoginBoard({
                 aria-invalid={Boolean(feedback) && !quiet}
                 aria-describedby={feedback ? feedbackId : undefined}
               />
-              {/* Die Zeile ist immer da und reserviert ihre Hoehe: eine
-                  Meldung schiebt den Knopf nicht nach unten. */}
+              {/* Kompakte Querformate reservieren nur bei einer Meldung Platz. */}
               <p
                 id={feedbackId}
                 className={[styles.feedback, quiet ? styles.feedbackQuiet : '']

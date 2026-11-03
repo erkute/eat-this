@@ -60,20 +60,15 @@
   .header { gap: 14px; }
   .header h1 { font-size: clamp(46px, 14vw, 68px); }
   .header p:not(.kicker) { font-size: 18px; }
-  .packs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 28px; }
-  .packs li:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc(50% - 4px); justify-self: center; }
-  /* Zwei Spalten: abwechselnd links und rechts geneigt. */
-  .packs li:nth-child(n) img { --tilt: -5deg; }
-  .packs li:nth-child(even) img { --tilt: 4deg; }
+  .packs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 28px; }
   .stage img { filter: drop-shadow(0 10px 12px rgb(0 0 0 / .3)); }
-  .label { font-size: clamp(19px, 5.6vw, 24px); }
+  .label { font-size: clamp(14px, 4vw, 24px); }
 }
 @media (prefers-reduced-motion: reduce) { .stage img { transition: none; } }
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
 
 .header h1 { font-size: 48px; }
-.packs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
-.packs li:last-child:nth-child(odd) { grid-column: auto; width: auto; justify-self: stretch; }
+.packs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
 .label { font-size: 22px; }
 }

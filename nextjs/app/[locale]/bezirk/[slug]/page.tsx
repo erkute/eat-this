@@ -223,7 +223,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
 
             <HubFilterUnfiltered>
               <IssueGuides guides={guides} locale={loc} interlude
-                heading={de ? 'Ausführlich im Magazin' : 'In depth in the magazine'} />
+                 />
             </HubFilterUnfiltered>
 
             {directory.length > 0 && (

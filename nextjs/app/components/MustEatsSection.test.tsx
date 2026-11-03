@@ -130,7 +130,7 @@ describe('MustEatsSection', () => {
     expect(copy.openTitle).not.toMatch(/\d/);
   });
 
-  it('fans up to five face-up cards on the cover in card order', () => {
+  it('fans up to four face-up cards on the cover in card order', () => {
     // Der Fächer bleibt auch bei ungeordnetem Katalog nach Kartennummer sortiert.
     const data = catalog();
     data.mustEats.push(mustEat('9', true));

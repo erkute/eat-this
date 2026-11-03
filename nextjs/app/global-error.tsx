@@ -8,7 +8,7 @@
 // Ersetzt das Root-Layout samt <html>/<body>, also ist hier nichts von dort
 // garantiert: globals.css (Tokens, @font-face) wird darum selbst
 // importiert, und der Seitengrund steht zusätzlich inline am <body>.
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@/lib/sentry/client-reporting';
 import { useEffect } from 'react';
 import ServerErrorContent from './components/ServerErrorContent';
 import './globals.css';

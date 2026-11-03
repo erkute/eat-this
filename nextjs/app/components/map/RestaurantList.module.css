@@ -69,6 +69,7 @@
   display: none;
 }
 .rcardPhoto {
+  position: relative;
   display: block;
   flex: 0 0 100%;
   height: 100%;
@@ -76,6 +77,11 @@
   overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+}
+
+.rcardPhoto noscript img {
+  position: absolute;
+  inset: 0;
 }
 
 /* Striche wie im Detail (`.rdHeroPhotoDots`): oben mittig, frei auf dem

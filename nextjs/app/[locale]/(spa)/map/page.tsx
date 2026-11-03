@@ -1,5 +1,3 @@
-import 'maplibre-gl/dist/maplibre-gl.css';
-
 import type { Metadata, Viewport } from 'next';
 import { preconnect } from 'react-dom';
 import { setRequestLocale } from 'next-intl/server';

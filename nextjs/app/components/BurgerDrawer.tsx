@@ -1,7 +1,7 @@
 'use client';
 
 import { BRAND_WORDMARK } from '@/lib/constants';
-import { useCallback, useEffect, type ComponentProps } from 'react';
+import { useCallback, useEffect, useRef, type ComponentProps } from 'react';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth, useLoginModal } from '@/lib/auth';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
@@ -68,9 +68,11 @@ export default function BurgerDrawer() {
     closeBurgerDrawer(restoreScroll);
   }, []);
 
-  // Close on navigation — destination page starts at top (suppress scroll restore).
+  // Close on a route change; an early tap during initial hydration stays open.
+  const previousPath = useRef(pathname);
   useEffect(() => {
-    closeBurger(false);
+    if (previousPath.current !== pathname) closeBurger(false);
+    previousPath.current = pathname;
   }, [pathname, closeBurger]);
 
   // Escape is global; visible controls below use React handlers.

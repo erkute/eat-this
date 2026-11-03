@@ -88,6 +88,12 @@ export default async function HomePage({ params }: PageProps) {
 
   return (
     <>
+      <link
+        rel="preload"
+        as="image"
+        href="/pics/home/silver-hero/hero-paper.webp?v=20261103"
+        fetchPriority="high"
+      />
       {jsonLd && (
         <script
           id={`schema-home-${locale}`}

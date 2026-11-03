@@ -249,13 +249,13 @@ html[data-vintage] {
   --et-wear: url('/pics/vintage/button-wear.webp?v=2');
   /* Ein Blatt: Korn und Fasern gekachelt, darüber die Gebrauchsspuren der
      Karte einmal über die ganze Fläche. */
-  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=7');
   --et-sheet-size: 192px, 100% 100%;
   --et-sheet-repeat: repeat, no-repeat;
 }
 
 html[data-vintage][data-theme='dark'] {
-  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=5');
 }
 html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
   background-image: var(--et-sheet);
@@ -294,7 +294,7 @@ html[data-vintage] .homeV2 > [data-hub-musteats] {
   --et-link: #f29194;
   --et-solid: #fff;
   --et-on-solid: #15120e;
-  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=5');
 }
 /* Im Dunkelmodus ist das Papier selbst Ink — Must Eats eine Stufe heller. */
 html[data-vintage][data-theme='dark'] .homeV2 > [data-hub-musteats] {
@@ -311,7 +311,7 @@ html[data-vintage] .homeV2 > [data-hub-map-intro] {
   --et-on-solid: #15120e;
   --et-focus: #fff;
   --et-link: #fff;
-  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=4');
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark.webp?v=5');
 }
 /* Starter Pack im Rot des Packs selbst (Ansage 21.10.2026: „soll rot sein,
    ähnlich wie das Starter Pack"): Schrift weiss, Feld und Google-Knopf weiss
@@ -333,7 +333,7 @@ html[data-vintage] :is(.homeV2 > [data-hub-starter], [data-red-sheet]) {
   --et-field-muted: rgba(21, 18, 14, .6);
   --et-focus: #fff;
   --et-btn-hover: #2b2722;
-  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=6');
+  --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=7');
 }
 /* Nachbarblätter mit versetztem Korn, damit sich das Muster nicht wiederholt. */
 html[data-vintage] .homeV2 > :nth-child(even) {

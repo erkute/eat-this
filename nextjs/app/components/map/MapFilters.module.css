@@ -158,7 +158,7 @@
   max-height: 70vh;
   padding: 12px;
   /* Paper keeps its scale as the panel grows; tape is reserved for controls. */
-  background: var(--et-ground) url('/pics/home/silver-hero/hero-paper.webp') center / 768px auto repeat;
+  background: var(--et-ground) url('/pics/home/silver-hero/hero-paper.webp?v=20261103') center / 768px auto repeat;
   background-blend-mode: multiply;
   border: 0;
   box-shadow: none;

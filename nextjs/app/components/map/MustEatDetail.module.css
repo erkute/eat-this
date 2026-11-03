@@ -2135,7 +2135,7 @@
   border-radius: 0;
   color: var(--et-fg);
   background-color: var(--et-ground);
-  background-image: url('/pics/home/silver-hero/hero-paper.webp');
+  background-image: url('/pics/home/silver-hero/hero-paper.webp?v=20261103');
   background-size: cover;
   background-position: center;
   background-blend-mode: multiply;
@@ -2153,7 +2153,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: url('/pics/home/silver-hero/hero-paper.webp') center / cover no-repeat;
+  background: url('/pics/home/silver-hero/hero-paper.webp?v=20261103') center / cover no-repeat;
   filter: invert(1) brightness(0.65);
 }
 @media (hover: hover) {

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { HomeData } from '@/lib/home/getHomeData';
 import type { InitialMapData } from '@/lib/map/server-initial-map-data';
 import HubFaq from './HubFaq';
@@ -26,28 +27,39 @@ interface Props {
 export default function HubSection({ initialData, initialMapData, locale }: Props) {
   return (
     <main className={`homeV2 ${styles.page}`} data-hub="" data-cassette-home="">
-      <HubHashScroll />
-      <HomeHeatTracker />
-      <section className={styles.hero} aria-label={locale === 'de' ? 'Eat This — die Food-Map für Berlin' : 'Eat This — the food map for Berlin'} data-hub-hero="">
-        <div className={styles.heroInner}>
-          <HubHeroCopy locale={locale} />
+      {/* Keep the server-rendered page in place while its client chunks hydrate. */}
+      <Suspense fallback={null}>
+        <HubHashScroll />
+        <HomeHeatTracker />
+        <section
+          className={styles.hero}
+          aria-label={
+            locale === 'de'
+              ? 'Eat This — die Food-Map für Berlin'
+              : 'Eat This — the food map for Berlin'
+          }
+          data-hub-hero=""
+        >
+          <div className={styles.heroInner}>
+            <HubHeroCopy locale={locale} />
+          </div>
+        </section>
+        <HeroHeaderLogo />
+        <HubMotion />
+        <HubMapIntro locale={locale} />
+        <HomeMapDataProvider initialMapData={initialMapData}>
+          <MagazineGrid articles={initialData.magazine} locale={locale} />
+          <HubMustEatsTeaser />
+          <HomeDistricts locale={locale} />
+        </HomeMapDataProvider>
+        <HubFragRemy />
+        <HubFaq locale={locale} />
+        <div className={styles.paperEnd}>
+          <FoldedPaperBackdrop id="home-starter-footer-paper" />
+          <StarterPackSignup />
+          <SiteFooter />
         </div>
-      </section>
-      <HeroHeaderLogo />
-      <HubMotion />
-      <HubMapIntro locale={locale} />
-      <HomeMapDataProvider initialMapData={initialMapData}>
-        <MagazineGrid articles={initialData.magazine} locale={locale} />
-        <HubMustEatsTeaser />
-        <HomeDistricts locale={locale} />
-      </HomeMapDataProvider>
-      <HubFragRemy />
-      <HubFaq locale={locale} />
-      <div className={styles.paperEnd}>
-        <FoldedPaperBackdrop id="home-starter-footer-paper" />
-        <StarterPackSignup />
-        <SiteFooter />
-      </div>
+      </Suspense>
     </main>
   );
 }

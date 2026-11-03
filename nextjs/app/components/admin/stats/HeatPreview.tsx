@@ -40,6 +40,22 @@ export default function HeatPreview({
 }: Props) {
   const stage = useRef<HTMLDivElement>(null),
     frame = useRef<HTMLIFrameElement>(null);
+  const overlay = useRef<HTMLDivElement>(null);
+  const plotted = useRef<{ box: HTMLElement; layer: HTMLDivElement }[]>([]);
+  const position = useCallback(() => {
+    const positions = plotted.current.map(({ box, layer }) => ({
+      layer,
+      rect: box.getBoundingClientRect(),
+    }));
+    for (const { layer, rect } of positions) {
+      Object.assign(layer.style, {
+        left: `${rect.left}px`,
+        top: `${rect.top}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+      });
+    }
+  }, []);
   const unlock = useRef<(() => void) | undefined>(undefined);
   const [scale, setScale] = useState(1);
   const [ready, setReady] = useState(false);
@@ -55,35 +71,31 @@ export default function HeatPreview({
   }, [width]);
   const paint = useCallback(() => {
     const doc = frame.current?.contentDocument;
-    if (!doc || doc.location.pathname !== new URL(path, location.href).pathname) return false;
+    const surface = overlay.current;
+    if (!doc || !surface || doc.location.pathname !== new URL(path, location.href).pathname)
+      return false;
+    const host = surface.ownerDocument;
     const boxes = sections.flatMap((section) => {
       const box = doc.querySelector<HTMLElement>(section.selector);
-      if (
-        !box ||
-        !box.getClientRects().length ||
-        !Object.keys(box).some((key) => key.startsWith('__reactFiber'))
-      )
-        return [];
+      if (!box || !box.getClientRects().length) return [];
       return [{ section, box }];
     });
     if (!boxes.length) return false;
-    doc.querySelectorAll(`[${OVERLAY}]`).forEach((node) => node.remove());
+    surface.replaceChildren();
+    plotted.current = [];
     const max = Math.max(1, ...Object.values(heat).flatMap((cells) => Object.values(cells ?? {})));
     for (const { section, box } of boxes) {
-      if (doc.defaultView?.getComputedStyle(box).position === 'static')
-        box.style.position = 'relative';
-      const layer = doc.createElement('div');
+      const layer = host.createElement('div');
       layer.setAttribute(OVERLAY, '');
       layer.setAttribute('aria-hidden', 'true');
       Object.assign(layer.style, {
         position: 'absolute',
-        inset: '0',
         pointerEvents: 'none',
         zIndex: '2147483000',
       });
       const cells = heat[section.key];
       if (cells && Object.keys(cells).length) {
-        const canvas = doc.createElement('canvas');
+        const canvas = host.createElement('canvas');
         canvas.width = Math.min(1024, Math.round(box.clientWidth));
         canvas.height = Math.min(4096, Math.round(box.clientHeight));
         Object.assign(canvas.style, { width: '100%', height: '100%', display: 'block' });
@@ -115,7 +127,7 @@ export default function HeatPreview({
       if (reach) lines.push({ at: 0, count: reach.count });
       if (views > 0)
         for (const lineData of lines.filter((line) => line.count <= views)) {
-          const line = doc.createElement('div');
+          const line = host.createElement('div');
           Object.assign(line.style, {
             position: 'absolute',
             top: `${lineData.at}%`,
@@ -123,17 +135,19 @@ export default function HeatPreview({
             right: '0',
             borderTop: '2px dashed #1f4fb8',
           });
-          const label = doc.createElement('span');
+          const label = host.createElement('span');
           label.className = 'et-label';
           label.textContent = `${percent(lineData.count / views, 0)} · ${lineData.at ? `${lineData.at} % Scrolltiefe` : section.label}`;
           Object.assign(label.style, { position: 'absolute', top: '5px', left: '8px' });
           line.appendChild(label);
           layer.appendChild(line);
         }
-      box.appendChild(layer);
+      surface.appendChild(layer);
+      plotted.current.push({ box, layer });
     }
+    position();
     return true;
-  }, [path, sections, heat, views, reached, depth]);
+  }, [path, sections, heat, views, reached, depth, position]);
   const onLoad = useCallback(() => {
     unlock.current?.();
     const doc = frame.current?.contentDocument;
@@ -145,14 +159,18 @@ export default function HeatPreview({
       doc.addEventListener('click', prevent, true);
       doc.addEventListener('submit', prevent, true);
       doc.addEventListener('keydown', preventNavigation, true);
+      doc.addEventListener('scroll', position, true);
+      doc.defaultView?.addEventListener('resize', position);
       unlock.current = () => {
         doc.removeEventListener('click', prevent, true);
         doc.removeEventListener('submit', prevent, true);
         doc.removeEventListener('keydown', preventNavigation, true);
+        doc.removeEventListener('scroll', position, true);
+        doc.defaultView?.removeEventListener('resize', position);
       };
     }
     setReady(paint());
-  }, [paint]);
+  }, [paint, position]);
   useEffect(() => () => unlock.current?.(), []);
   useEffect(() => {
     setReady(false);
@@ -163,9 +181,10 @@ export default function HeatPreview({
       attempts += 1;
       if (attempts >= 20) setFailed(true);
       const doc = frame.current?.contentDocument;
-      if (!doc) return;
+      if (!doc || doc.URL === 'about:blank') return;
       if (doc.location.pathname !== new URL(path, location.href).pathname) {
-        doc.querySelectorAll(`[${OVERLAY}]`).forEach((node) => node.remove());
+        overlay.current?.replaceChildren();
+        plotted.current = [];
         setReady(false);
         setFailed(true);
         return;
@@ -176,7 +195,7 @@ export default function HeatPreview({
           return rect ? `${rect.width}x${rect.height}` : '-';
         })
         .join(',');
-      const missing = doc.querySelectorAll(`[${OVERLAY}]`).length === 0;
+      const missing = !overlay.current?.childElementCount;
       if (next !== signature || missing) {
         signature = next;
         if (paint()) {
@@ -202,6 +221,12 @@ export default function HeatPreview({
         className={styles.heatFrame}
         style={{ width, height: HEIGHT, transform: `scale(${scale})` }}
         onLoad={onLoad}
+      />
+      <div
+        ref={overlay}
+        aria-hidden="true"
+        className={styles.heatOverlay}
+        style={{ width, height: HEIGHT, transform: `scale(${scale})` }}
       />
       {!ready && (
         <p className={styles.heatLoading}>

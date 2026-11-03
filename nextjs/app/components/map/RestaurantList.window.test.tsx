@@ -32,6 +32,7 @@ beforeEach(() => {
   ioOptions = [];
   phone = false;
   vi.stubGlobal('matchMedia', () => ({ matches: phone }));
+  vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
   vi.stubGlobal(
     'IntersectionObserver',
     class {

@@ -4,6 +4,7 @@ import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocale } from 'next-intl';
 import { useDialogFocus } from '@/lib/useDialogFocus';
+import { useDialogViewport } from '@/lib/useDialogViewport';
 import type { EmailLinkState } from './EmailLinkSignIn';
 import styles from './Tour.module.css';
 import modalStyles from './LoginModalOverlay.module.css';
@@ -72,6 +73,8 @@ export default function EmailLinkSignInPanel({ state, setState, claimingCard, si
   const locale = useLocale();
   const t = copy[locale === 'en' ? 'en' : 'de'];
   const panelRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useDialogViewport(overlayRef);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   useDialogFocus(true, panelRef, triggerRef);
@@ -225,7 +228,7 @@ export default function EmailLinkSignInPanel({ state, setState, claimingCard, si
   }
 
   return createPortal(
-    <div className={modalStyles.overlay} style={{ zIndex: 'var(--et-z-email-link)' }}>
+    <div ref={overlayRef} className={modalStyles.overlay} style={{ zIndex: 'var(--et-z-email-link)' }}>
       <LoginModalBarLock />
       <div
         ref={panelRef}

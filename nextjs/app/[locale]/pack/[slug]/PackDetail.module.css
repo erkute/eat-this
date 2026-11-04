@@ -213,6 +213,7 @@
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
+  .page { padding-inline: max(28px, calc(max(env(safe-area-inset-left), env(safe-area-inset-right)) + 16px)); }
   .hero { grid-template-columns: 1.2fr .8fr; grid-template-areas: 'copy art' 'actions art'; gap: 16px 24px; padding-block: 16px; }
   .hero > .copy { grid-area: copy; text-align: left; }
   .hero > .stage { grid-area: art; }

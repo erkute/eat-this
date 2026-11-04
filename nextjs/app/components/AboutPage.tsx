@@ -270,13 +270,6 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
           return (
             <Fragment key={section.title || index}>
               <section className={`${styles.section}${flipped ? ` ${styles.flip}` : ''}${index === 1 ? ` ${styles.selection}` : ''}${figure?.cards ? ` ${styles.cardChapter}` : ''}`} data-about-chapter="">
-                <div className={styles.sectionCopy}>
-                  <h2 className={styles.sectionTitle}>{section.title}</h2>
-                  <div className={styles.body}>
-                    <PortableTextRenderer blocks={section.blocks} />
-                  </div>
-                </div>
-
                 {figure && (
                   <figure
                     className={`${styles.figure}${figure.cards ? ` ${styles.fanFigure}` : ''}`}
@@ -327,6 +320,13 @@ export default function AboutPage({ doc, locale }: { doc: StaticPageDoc; locale:
                     )}
                   </figure>
                 )}
+                <div className={styles.sectionCopy}>
+                  <h2 className={styles.sectionTitle}>{section.title}</h2>
+                  <div className={styles.body}>
+                    <PortableTextRenderer blocks={section.blocks} />
+                  </div>
+                </div>
+
               </section>
               {figure?.remyAfter && (
                 <div className={styles.remy}>

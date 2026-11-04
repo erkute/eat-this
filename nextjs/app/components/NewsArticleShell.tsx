@@ -233,21 +233,16 @@ export default function NewsArticleShell({
     if (!block.mustEatId && !block.restaurantName) return null;
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
     const heading = restName || (de ? 'Das Must Eat' : 'The Must Eat');
-    // Derselbe erklärende Satz wie auf der Spot-Seite.
-    const description = restName
-      ? de
-        ? `Ein Gericht hat es bei ${restName} auf unsere Karten geschafft.`
-        : `One dish here made it onto our cards.`
-      : de
-        ? 'Ein Gericht hat es auf unsere Karten geschafft.'
-        : 'One dish made it onto our cards.';
+    const description = block.restaurantSlug
+      ? de ? 'Auf der Map ansehen' : 'View on the map'
+      : de ? 'Must Eats ansehen' : 'View Must Eats';
     const inner = (
       <>
         <ArticleMustEatArtwork id={block.mustEatId} />
         <div className={styles.mustEatBody}>
           <span className="et-label et-label-paper">Must Eat</span>
           <h3 className={styles.mustEatName}>{heading}</h3>
-          <p className={styles.mustEatDesc}>{description}</p>
+          <span className={`et-btn et-btn-sm ${styles.mustEatDesc}`}>{description}</span>
         </div>
       </>
     );
@@ -535,11 +530,6 @@ export default function NewsArticleShell({
 
             {hubLink && (
               <Link href={hubLink.href} className={`et-paper-link ${styles.hubLink}`} data-motion="toss">
-                {/* Zeigt der Hub auf eine Kategorie, steht ihr Booster-Pack
-                    davor — dieselbe Art wie auf /packs und in der
-                    „Mehr davon"-Zeile der Spot-Seiten. Bezirks-Hubs haben
-                    keine Art; dort trägt die Zeile allein. Der Pfeil, der
-                    hier stand, ist weg: die Fläche ist der Knopf. */}
                 {hubPack && (
                   <Image
                     src={hubPack}
@@ -556,10 +546,6 @@ export default function NewsArticleShell({
                 <span className={styles.hubLinkLabel}>
                   {articleHubLabel(hubLink, de ? 'de' : 'en')}
                 </span>
-                {/* Die sichtbare Kante der Tafel: auf dem Telefon unter dem
-                    Ziel, ab Desktop rechts (Betreiber, 07.09.2026: „sehr viel
-                    Leerfläche"). Für Screenreader trägt der Link seinen
-                    Namen schon in Kicker und Label. */}
                 <span className={`et-btn ${styles.hubLinkCta}`} aria-hidden="true">
                   {de ? 'Ansehen' : 'View'}
                 </span>

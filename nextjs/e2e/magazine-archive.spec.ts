@@ -15,10 +15,10 @@ for (const locale of ['de', 'en'] as const) {
       await expect(page.getByRole('searchbox')).toHaveCount(0);
       await expect(page.getByRole('combobox')).toHaveCount(0);
       await expect(page.getByRole('link', { name: locale === 'de' ? 'Im Archiv stöbern' : 'Browse the archive', exact: true })).toHaveCount(0);
-      const recent = page.getByRole('region', { name: locale === 'de' ? 'Zuletzt erschienen' : 'Recent issues', exact: true });
+      const recent = page.locator('[data-recent-issues]');
       await expect(recent.getByRole('link')).toHaveCount(2);
       if (width > height) {
-        await recent.getByRole('heading', { level: 2 }).scrollIntoViewIfNeeded();
+        await recent.getByRole('heading', { level: 2 }).first().scrollIntoViewIfNeeded();
         await page.screenshot({ path: `/tmp/eat-this-magazine-recent-${locale}-${width}.png` });
       }
       const archive = page.getByRole('region', { name: locale === 'de' ? 'Alle weiteren Ausgaben' : 'All other issues', exact: true });

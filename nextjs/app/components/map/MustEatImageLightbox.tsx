@@ -84,8 +84,6 @@ interface InnerProps {
   action?: React.ReactNode;
 }
 
-/** Platz für den Ausgang unten: Knopf 44 + 20 Rand + 12 Luft zur Karte. */
-const ACTION_RESERVE_PX = 76;
 const SWIPE_PX = 60;
 /** Neigung der Karte unter dem Finger, Grad je Pixel. */
 const DRAG_TILT = 0.04;
@@ -114,16 +112,18 @@ const Inner = memo(function Inner({
   const english = useLocale() === 'en';
   const canPage = Boolean(onPrev || onNext);
   const cardAspect = originRect.width / originRect.height;
-  const maxW = Math.min(420, window.innerWidth * 0.88);
-  /* Der Slot sitzt unten am Rand (20 px Abstand, 12 px Luft zur Karte); die
-     Karte steht mittig, also braucht oben dasselbe. So bleibt alles im Bild,
-     auch auf einem kleinen Telefon. */
-  const maxH = action
-    ? Math.min(window.innerHeight * 0.78, window.innerHeight - 2 * ACTION_RESERVE_PX)
-    : window.innerHeight * 0.78;
+  const [viewport, setViewport] = useState(() => ({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    reserve: 96,
+    side: 24,
+    sideControls: false,
+  }));
+  const maxW = Math.min(420, viewport.width - 2 * viewport.side);
+  const maxH = Math.max(40, Math.min(viewport.height * (viewport.sideControls ? 1 : .78), viewport.height - 2 * viewport.reserve));
   const overlayW = Math.min(maxW, maxH * cardAspect);
-  const screenCx = window.innerWidth / 2;
-  const screenCy = window.innerHeight / 2;
+  const screenCx = viewport.width / 2;
+  const screenCy = viewport.height / 2;
   const slotCx = originRect.left + originRect.width / 2;
   const slotCy = originRect.top + originRect.height / 2;
   const fromX = slotCx - screenCx;
@@ -133,6 +133,30 @@ const Inner = memo(function Inner({
 
   const cardRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  // Measure the actual controls and safe area again after rotation or a
+  // browser-toolbar resize. Controls stay beside or below the centred card.
+  useLayoutEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const measure = () => {
+      const rect = dialog.getBoundingClientRect();
+      const css = getComputedStyle(dialog);
+      const controls = dialog.querySelectorAll<HTMLElement>(`.${styles.action}, .${styles.nav}`);
+      const sideControls = css.getPropertyValue('--zoom-side-controls').trim() === '1';
+      const reserve = sideControls
+        ? Math.max(parseFloat(css.paddingTop), parseFloat(css.paddingBottom))
+        : Math.max(24, ...Array.from(controls, el => rect.bottom - el.getBoundingClientRect().top + 16));
+      const next = { width: rect.width, height: rect.height, reserve, sideControls, side: Math.max(parseFloat(css.paddingLeft), parseFloat(css.paddingRight)) };
+      setViewport(current => current.width === next.width && current.height === next.height &&
+        current.reserve === next.reserve && current.sideControls === next.sideControls && current.side === next.side ? current : next);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(dialog);
+    dialog.querySelectorAll(`.${styles.action}, .${styles.nav}`).forEach(el => observer.observe(el));
+    window.visualViewport?.addEventListener('resize', measure);
+    return () => { observer.disconnect(); window.visualViewport?.removeEventListener('resize', measure); };
+  }, [action, canPage]);
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const rotateXSpring = useSpring(useTransform(pointerY, [-0.5, 0.5], [12, -12]), {

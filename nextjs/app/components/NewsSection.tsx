@@ -67,8 +67,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
           ) : <p className={styles.empty}>{de ? 'Aktuell keine Artikel — schau bald wieder vorbei.' : 'No articles right now — check back soon.'}</p>}
         </header>
 
-        {recent.length > 0 && <section className={styles.recent} aria-labelledby="news-recent">
-          <h2 id="news-recent" className={styles.sectionTitle}>{de ? 'Zuletzt erschienen' : 'Recent issues'}</h2>
+        {recent.length > 0 && <section className={styles.recent} data-recent-issues>
           <ul className={styles.featureList} role="list">
             {recent.map((article, index) => <li key={article.slug} className={styles.feature}>
               <MagazineLink href={`/news/${article.slug}`} className={styles.featureLink} aria-label={titleOf(article)}>
@@ -81,7 +80,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
                   />
                 </span>
                 <IssueMeta article={article} issue={issueOf(index + 1)} locale={locale} />
-                <h3 className={styles.featureTitle}>{titleOf(article)}</h3>
+                <h2 className={styles.featureTitle}>{titleOf(article)}</h2>
                 {excerptOf(article) && <p className={styles.featureExcerpt}>{excerptOf(article)}</p>}
               </MagazineLink>
             </li>)}

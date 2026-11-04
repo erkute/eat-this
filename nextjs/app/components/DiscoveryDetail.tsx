@@ -1,4 +1,3 @@
-import { Link } from '@/i18n/navigation';
 import type { CSSProperties } from 'react';
 import { categoryArt } from '@/lib/categoryArt';
 import Image from './SiteImage';
@@ -22,9 +21,6 @@ export default function DiscoveryDetail({
   const packArt = categoryArt(slug);
   return (
     <header className={`${styles.header} ${styles.category} ${packArt ? styles.withPack : ''}`}>
-      <Link className={styles.back} href="/kategorie">
-        {de ? 'Alle Kategorien' : 'All categories'}
-      </Link>
       <div className={styles.head}>
         <h1 className={styles.title} style={{ '--title-fit': `${100 / (name.length * 0.85)}cqi` } as CSSProperties}>
           {name}

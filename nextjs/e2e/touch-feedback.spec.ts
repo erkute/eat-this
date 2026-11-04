@@ -217,21 +217,20 @@ test('article link separates touch, mouse hover and keyboard focus', async ({ pa
   await page.goto('/news/essen-trinken-schoeneberg');
   const link = page.locator('.et-paper-link');
   await expect(link).toBeVisible();
-  const restingColor = await link.evaluate(element => getComputedStyle(element).backgroundColor);
   if (isMobile) {
     // Stay on this page to inspect the synthetic hover left behind by a tap.
     await link.evaluate(element => element.addEventListener('click', event => event.preventDefault(), { once: true }));
     await link.tap();
-    await expect(link).toHaveCSS('background-color', restingColor);
+    await expect(link).toHaveCSS('outline-style', 'none');
   } else {
     await link.hover();
-    await expect(link).not.toHaveCSS('background-color', restingColor);
+    await expect(link).toHaveCSS('outline-style', 'solid');
     await page.mouse.move(0, 0);
-    await expect(link).toHaveCSS('background-color', restingColor);
+    await expect(link).toHaveCSS('outline-style', 'none');
   }
   await page.keyboard.press('Tab');
   await link.focus();
-  await expect(link).not.toHaveCSS('background-color', restingColor);
+  await expect(link).toHaveCSS('outline-style', 'solid');
 });
 
 for (const reducedMotion of ['reduce', 'no-preference'] as const) {

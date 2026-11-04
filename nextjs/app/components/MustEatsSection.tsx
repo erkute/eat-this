@@ -90,9 +90,9 @@ export default function MustEatsSection({ initialMapData, locale }: Props) {
   const faceUp = new Set(initialMapData.revealedMustEatIds);
   const total = initialMapData.mustEats.length;
 
-  // Die letzten fünf offenen Karten bilden den Fächer. Die Galerie zeigt
+  // Die letzten vier offenen Karten bilden den Fächer. Die Galerie zeigt
   // die übrigen Motive, damit keine Karte doppelt vorkommt.
-  const covers = sortByCardNumber(initialMapData.mustEats.filter((m) => faceUp.has(m._id) && m.image)).slice(-5);
+  const covers = sortByCardNumber(initialMapData.mustEats.filter((m) => faceUp.has(m._id) && m.image)).slice(-4);
   const cover = covers[0];
 
   return (

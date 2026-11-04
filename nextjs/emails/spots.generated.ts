@@ -12,9 +12,6 @@ export interface EmailSpot {
   version: string;
 }
 
-/** Anzeigebreite in CSS-Pixeln; die JPEGs sind 1072×804 (2x). */
-export const SPOT_DISPLAY_WIDTH = 536;
-
 export const EMAIL_SPOTS: readonly EmailSpot[] = [
   {
     "slug": "bursa-uludag-kebapcisi",

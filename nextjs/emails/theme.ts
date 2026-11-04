@@ -18,17 +18,6 @@ export const COLOR = {
 export const BODY_FONT =
   '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
-export const LAYOUT = {
-  /** Card width — the email equivalent of --et-wrap-max. */
-  width: 600,
-  padX: 32,
-  padXMobile: 20,
-  /** --et-radius-photo */
-  radiusPhoto: 0,
-  /** --et-radius-control */
-  radiusControl: 999,
-} as const;
-
 /**
  * Haengt als ?v= an den Bildern unter public/pics/email, die KEIN Generator
  * erzeugt (Logo, Starter-Pack-Artwork) und die daher keinen Inhalts-Hash im

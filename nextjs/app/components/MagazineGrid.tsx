@@ -7,7 +7,7 @@ import MagazineCover from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import styles from './MagazineGrid.module.css';
 
-const MOBILE = '(max-width: 767.98px) and (orientation: portrait)';
+const MOBILE = '(max-width: 599.98px) and (orientation: portrait)';
 
 /* Am Telefon liegen die Hefte als Stapel wie auf einem Couchtisch (Ansage
    22.10.2026: „neu designen im Wischen auf Mobile, so ne geile GSAP-
@@ -157,7 +157,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
     // dem Zeiger (Ansage 22.10.2026: „auf Desktop ne passende Hover-
     // Animation"). Animiert wird der Link im Heft, nicht das <li> — das
     // gehört dem Austeilen in HubMotion.
-    mm.add('(min-width: 768px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
+    mm.add('(min-width: 600px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
       const covers = Array.from(ol.querySelectorAll<HTMLElement>(':scope > li > a'));
       const tilts = [-1.6, 1.3, -1.1, 1.5];
       const rest = 'drop-shadow(0px 0px 0px rgba(21, 18, 14, 0))';
@@ -276,7 +276,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
           <li key={a.slug} data-selected={index === selected} onFocus={() => setSelected(index)}>
             <MagazineLink href={`/news/${a.slug}`} className={styles.cover}>
               <MagazineCover title={a.title} image={a.image} issue={a.issue} date={a.date} locale={locale} cover={a.cover}
-                sizes="(orientation: landscape) and (max-height: 500px) 31vw, (max-width: 767px) 80vw, 31vw" widths={[480, 800, 1200]} />
+                sizes="(orientation: landscape) and (max-height: 500px) 31vw, (max-width: 599px) 80vw, 31vw" widths={[480, 800, 1200]} />
             </MagazineLink>
             <h3 className={styles.articleTitle}><Link href={`/news/${a.slug}`}>{a.title}</Link></h3>
             <div className={styles.desktopMeta}><ArticleMeta article={a} locale={locale} /></div>
@@ -299,7 +299,7 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
             <li key={a.slug} data-extra-index={index}>
               <MagazineLink href={`/news/${a.slug}`} className={styles.cover}>
                 <MagazineCover title={a.title} image={a.image} issue={a.issue} date={a.date} locale={locale} cover={a.cover}
-                  sizes="(orientation: landscape) and (max-height: 500px) 23vw, (max-width: 767px) 42vw, 23vw" widths={[240, 480, 800]} />
+                  sizes="(orientation: landscape) and (max-height: 500px) 23vw, (max-width: 1023px) 42vw, 23vw" widths={[240, 480, 800]} />
               </MagazineLink>
               <h3 className={styles.smallTitle}><Link href={`/news/${a.slug}`}>{a.title}</Link></h3>
               <ArticleMeta article={a} locale={locale} />

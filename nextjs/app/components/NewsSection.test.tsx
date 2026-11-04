@@ -86,7 +86,7 @@ describe('NewsSection — issue numbers', () => {
 describe('NewsSection — back issues', () => {
   it('splits the two recent issues from the archive without duplicating links or renumbering covers', () => {
     const html = render();
-    const recent = html.slice(html.indexOf('aria-labelledby="news-recent"'), html.indexOf('aria-labelledby="news-archive"'));
+    const recent = html.slice(html.indexOf('data-recent-issues'), html.indexOf('aria-labelledby="news-archive"'));
     const archive = html.slice(html.indexOf('aria-labelledby="news-archive"'));
     expect(recent).toContain('href="/news/story-2"');
     expect(recent).toContain('href="/news/story-3"');
@@ -100,7 +100,7 @@ describe('NewsSection — back issues', () => {
 
   it('lists every older article once as a cover on the shelf', () => {
     const html = render();
-    const shelf = html.slice(html.indexOf('aria-labelledby="news-recent"'));
+    const shelf = html.slice(html.indexOf('data-recent-issues'));
     for (const n of [2, 3, 4, 5]) {
       expect(shelf.match(new RegExp(`href="/news/story-${n}"`, 'g'))).toHaveLength(1);
     }
@@ -116,7 +116,7 @@ describe('NewsSection — back issues', () => {
       box: { x: 0.2, y: 0.3, w: 0.5, h: 0.4 },
     };
     const html = render([story(1), story(2, { cover }), story(3)]);
-    const shelf = html.slice(html.indexOf('aria-labelledby="news-recent"'));
+    const shelf = html.slice(html.indexOf('data-recent-issues'));
     // Issue 2 of 3: a dish gets a cut-out look (Fussband), issue 1 without
     // one a photo look (System).
     expect(shelf.match(/data-cover-look="band"/g)).toHaveLength(1);
@@ -130,7 +130,7 @@ describe('NewsSection — back issues', () => {
   });
 
   it('drops the shelf when there is only the current issue', () => {
-    expect(render([story(1)])).not.toContain('news-recent');
+    expect(render([story(1)])).not.toContain('data-recent-issues');
     expect(render([story(1)])).not.toContain('news-archive');
   });
 });

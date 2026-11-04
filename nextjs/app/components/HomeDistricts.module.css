@@ -19,7 +19,7 @@
 .large a[data-active], .small a[data-active] { color: #d9382a; }
 @media (hover: hover) { .large a:hover, .small a:hover { color: #d9382a; } }
 @media (prefers-reduced-motion: reduce) { .marks path, .large a, .small a { transition: none; } }
-@media(max-width:767.98px) {
+@media(max-width:599.98px) {
   .section { grid-template-columns: 1fr; grid-template-areas: 'map' 'content'; padding-block: 40px; gap: 32px; }
   .map { width: 90%; justify-self: center; }
   .large a { font-size: 62px; }
@@ -29,8 +29,17 @@
   .small a { font-size: 14px; }
 }
 
+@media (min-width: 600px) and (max-width: 1023.98px) {
+ .section { gap: 24px; padding-block: 48px; }
+ .large a { font-size: clamp(42px, 7vw, 64px); }
+ .large a:first-child { font-size: clamp(52px, 8.6vw, 80px); }
+ .large a:nth-child(2) { font-size: clamp(38px, 6.2vw, 56px); }
+ .small { gap: 12px; }
+ .small a { font-size: 14px; }
+}
+
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
- .section { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); grid-template-areas: 'content map'; gap: 24px; }
+ .section { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); grid-template-areas: 'content map'; gap: 24px; }
  .map { width: calc(100% + 16px); max-width: none; justify-self: end; }
  .large a, .large a:first-child, .large a:nth-child(2) { max-width: 100%; overflow-wrap: normal; }
 }

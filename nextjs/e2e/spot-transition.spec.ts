@@ -173,7 +173,7 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     if (motion === 'reduce') {
       expect(await booster.locator('img').evaluate(node => parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(0.001);
     }
-    const guides = page.getByRole('region', { name: 'Ausführlich im Magazin' });
+    const guides = page.getByRole('region', { name: 'Magazin', exact: true });
     await guides.scrollIntoViewIfNeeded();
     await expect(guides.getByRole('link')).toHaveCount(3);
     if (!isMobile) {
@@ -209,12 +209,14 @@ test('category gallery enters directly and the open directory filters its result
   await filters.getByRole('button', { name: 'Mitte', exact: true }).click();
   await expect(directory).toBeVisible();
   expect(await directory.locator('a:visible').count()).toBeGreaterThan(0);
-  await expect(page.getByRole('region', { name: 'Ausführlich im Magazin' })).toBeHidden();
-  await filters.getByRole('button', { name: 'Alle', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Magazin', exact: true })).toBeHidden();
+  const allDistricts = filters.getByRole('button', { name: 'Alle', exact: true });
+  await allDistricts.click();
+  await expect(allDistricts).toHaveAttribute('aria-pressed', 'true');
   await expect(directory).toBeVisible();
-  const guides = page.getByRole('region', { name: 'Ausführlich im Magazin' });
+  const guides = page.getByRole('region', { name: 'Magazin', exact: true });
   const beforeGuides = await page.locator('[data-spot-card]').evaluateAll(cards => {
-    const guides = document.querySelector('#guides-title')!;
+    const guides = document.querySelector('section[aria-label="Magazin"]')!;
     return cards.filter(card => Boolean(card.compareDocumentPosition(guides) & Node.DOCUMENT_POSITION_FOLLOWING)).length;
   });
   expect(beforeGuides).toBe(3);

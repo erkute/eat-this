@@ -60,6 +60,7 @@ for (const locale of ['de', 'en'] as const) {
       });
       expect(Math.abs(photoBox.y + photoBox.height / 2 - availableCenter)).toBeLessThan(2);
       expect(creditBox.y).toBeGreaterThan(photoBox.y + photoBox.height);
+      expect(Math.abs(creditBox.x + creditBox.width - photoBox.x - photoBox.width)).toBeLessThan(2);
       expect(creditBox.y + creditBox.height).toBeLessThan((await first.boundingBox())!.y);
       await page.screenshot({ path: `/tmp/eat-this-gallery/refinement/${info.project.name}-${locale}-${reduced}.png` });
 

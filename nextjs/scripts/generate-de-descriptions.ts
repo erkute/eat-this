@@ -1,7 +1,7 @@
 /**
  * Generates DE descriptions for restaurants and bezirke that lack them.
  * Uses Sanity-stored facts + Google Places (place details, NO user reviews) +
- * Claude Sonnet 4.6 with brand-voice prompt. Writes drafts only — editorial
+ * Claude Sonnet with brand-voice prompt. Writes drafts only — editorial
  * publishes manually.
  *
  * Run from `nextjs/`:

@@ -16,7 +16,7 @@ Der npm-Befehl lädt REA 6.4.0 und eine separate Node-22.22.2-Laufzeit in den np
 
 Die Projektkonfigurationen `.codex/config.toml` und `.mcp.json` registrieren denselben Startbefehl für Codex beziehungsweise Claude Code. Nach dem Neuladen der MCP-Server bzw. einem Client-Neustart stehen die Werkzeuge im Agenten zur Verfügung. Die CLI funktioniert sofort. Versionen bei einem Update in diesen beiden Konfigurationen und im Root-`package.json` gemeinsam ändern.
 
-Verifiziert am 13.10.2026: CLI meldet 6.4.0; Codex liest den aktivierten Projekteingang; ein echter MCP-Handshake liefert Serverversion 6.4.0, 170 Tools und einen erfolgreichen `list_browser_targets`-Aufruf. Eine Registrierung allein ist kein Nachweis, dass ein bereits laufender Chat seine Tool-Liste neu geladen hat.
+Eine Registrierung allein ist kein Nachweis, dass ein bereits laufender Chat seine Tool-Liste neu geladen hat.
 
 ## Browseranalyse
 

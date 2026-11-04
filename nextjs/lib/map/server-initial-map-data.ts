@@ -6,7 +6,7 @@
 // — so anything the anon map needs has to be in this payload. Signed-in users
 // still refetch on mount for their own face-up cards.
 
-import { getCachedMapData } from './cached-sanity';
+import { getCachedMapData, getCachedMustEats } from './cached-sanity';
 import { composeRevealedMustEats } from './revealed-must-eats';
 import { stripCoveredMustEats } from './stripCoveredMustEats';
 import {
@@ -72,9 +72,25 @@ const readPublicMustEatContent = unstable_cache(
   { tags: ['mustEat'], revalidate: 300 }
 );
 
-export async function getPublicMustEatIds(): Promise<Set<string>> {
-  const data = await composeInitialAnonMapMetadata();
-  return new Set(data.revealedMustEatIds);
+let publicMustEatIdsInFlight: Promise<Set<string>> | null = null;
+
+/**
+ * Welche Karten offen liegen, für die Bild-Route vor jedem einzelnen Bild.
+ *
+ * Liest nur die Karten (45 kB) statt des ganzen Spot-Katalogs (680 kB), und
+ * gleichzeitige Aufrufe teilen sich eine Anfrage: Nexts Data Cache fasst nichts
+ * über Anfragen hinweg zusammen, solange sein Eintrag noch leer ist. Schlugen
+ * ~80 Bilder auf einer frischen Instanz auf, holte jedes selbst den Katalog; am
+ * 03.11.2026 lief das 10-s-Limit des Clients dabei reihenweise ab, und 146 von
+ * 876 Bildern des Tages endeten als 500 (Sentry JAVASCRIPT-AH).
+ */
+export function getPublicMustEatIds(): Promise<Set<string>> {
+  publicMustEatIdsInFlight ??= getCachedMustEats()
+    .then(composeRevealedMustEats)
+    .finally(() => {
+      publicMustEatIdsInFlight = null;
+    });
+  return publicMustEatIdsInFlight;
 }
 
 /**

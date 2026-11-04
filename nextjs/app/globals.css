@@ -250,7 +250,7 @@ html[data-theme='dark'] {
    Etiketten (aktiver
    Menüpunkt, Spot-Name im Artikel). Ansage 21.10.2026. */
 html[data-vintage] {
-  --et-wear: url('/pics/vintage/button-wear.webp?v=2');
+  --et-wear: url('/pics/vintage/button-wear.webp?v=3');
   /* Ein Blatt: Korn und Fasern gekachelt, darüber die Gebrauchsspuren der
      Karte einmal über die ganze Fläche. */
   --et-sheet: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear.webp?v=7');
@@ -1015,6 +1015,7 @@ html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-scrim {
   position: absolute;
   inset: 0;
   z-index: -1;
+  background-image: url('/pics/paper/consent-paper.webp?v=20261103');
   background-size: 100% 100%;
   mix-blend-mode: multiply;
   pointer-events: none;
@@ -1025,11 +1026,6 @@ html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-scrim {
 .cookie-gate.show .cookie-consent,
 html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-consent {
   transform: translateY(0) scale(1);
-  animation: cookie-window-enter 0.46s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes cookie-window-enter {
-  from { transform: translateY(22px) scale(0.97); }
-  to { transform: translateY(0) scale(1); }
 }
 .cookie-consent:focus,
 .cookie-consent:focus-visible {

@@ -43,10 +43,19 @@ describe('warmMustEatImages', () => {
 
     await expect(warmMustEatImages()).resolves.toEqual({
       cards: 2,
-      failedRenders: 0,
+      failedLoads: 0,
       firstError: undefined,
     });
     expect(renderPrivateMustEatImage).toHaveBeenCalledTimes(2);
+  });
+
+  // Variante null heisst: nur das Original, kein sharp auf der frischen Instanz.
+  it('laedt die Originale und rechnet keine Variante vor', async () => {
+    await warmMustEatImages();
+    expect(renderPrivateMustEatImage.mock.calls.map(([id, variant]) => [id, variant])).toEqual([
+      ['a', null],
+      ['b', null],
+    ]);
   });
 
   it('reads and primes 100 documents in one batch before rendering', async () => {
@@ -57,14 +66,5 @@ describe('warmMustEatImages', () => {
     expect(primePrivateMustEatImageContent).toHaveBeenCalledOnce();
     expect(renderPrivateMustEatImage).toHaveBeenCalledTimes(100);
     expect(primePrivateMustEatImageContent.mock.invocationCallOrder[0]).toBeLessThan(renderPrivateMustEatImage.mock.invocationCallOrder[0]);
-  });
-
-  it('rechnet nur die 360er vor', async () => {
-    getPublicMustEatIds.mockResolvedValue(new Set());
-
-    await warmMustEatImages();
-
-    const widths = renderPrivateMustEatImage.mock.calls.map(([, variant]) => variant.width);
-    expect(widths).toEqual([360, 360]);
   });
 });

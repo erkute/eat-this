@@ -11,14 +11,17 @@ vi.mock('@/i18n/navigation', () => ({
     href,
     onClick,
     children,
+    prefetch,
     ...rest
   }: {
     href: string;
     onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
     children: ReactNode;
+    prefetch?: boolean | null;
   }) => (
     <a
       href={href}
+      data-prefetch={String(prefetch)}
       {...rest}
       onClick={(e) => {
         onClick?.(e);
@@ -61,6 +64,15 @@ afterEach(() => {
 });
 
 describe('MagazineLink', () => {
+  it.each(['pointerEnter', 'pointerDown', 'focus'] as const)('prefetches an article only after %s intent', (intent) => {
+    const { getByRole } = render(<MagazineLink href="/news/doener">{cover}</MagazineLink>);
+    const link = getByRole('link');
+    expect(link.getAttribute('data-prefetch')).toBe('false');
+    fireEvent[intent](link);
+    expect(link.getAttribute('data-prefetch')).toBe('null');
+    expect(navigations).toEqual([]);
+  });
+
   it('opens the magazine first and lets the link navigate itself afterwards', async () => {
     const { getByRole } = render(<MagazineLink href="/news/doener">{cover}</MagazineLink>);
     fireEvent.click(getByRole('link'));

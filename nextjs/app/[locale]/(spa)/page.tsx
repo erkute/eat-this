@@ -92,6 +92,14 @@ export default async function HomePage({ params }: PageProps) {
         rel="preload"
         as="image"
         href="/pics/home/silver-hero/hero-paper.webp?v=20261103"
+        media="not all and (max-width: 767px) and (orientation: portrait)"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        href="/pics/home/silver-hero/hero-paper-phone.webp?v=20261104"
+        media="(max-width: 767px) and (orientation: portrait)"
         fetchPriority="high"
       />
       {jsonLd && (

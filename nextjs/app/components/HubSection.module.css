@@ -58,6 +58,15 @@
   background-repeat: no-repeat;
   background-position: center;
 }
+/* Hochformat-Telefone zeigen wegen `cover` nur die Mitte des Papiers. Diese
+   Datei ist genau diese Mitte, in denselben Pixeln wie das Original. */
+@media (max-width: 767px) and (orientation: portrait) {
+  .hero,
+  :global(html[data-theme='dark']) .hero::before,
+  :global(html[data-vintage] .homeV2) > .hero {
+    background-image: url('/pics/home/silver-hero/hero-paper-phone.webp?v=20261104');
+  }
+}
 .heroInner { position: relative; padding: clamp(20px, 4svh, 48px) 56px; height: 100%; max-width: 1440px; margin: auto; box-sizing: border-box; }
 .heroCopy {
   display: grid; grid-template-columns: minmax(0, 560fr) minmax(0, 728fr);

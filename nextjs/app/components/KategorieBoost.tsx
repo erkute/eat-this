@@ -13,7 +13,7 @@ interface Props {
   locale: 'de' | 'en';
 }
 
-const CARD_BACK = '/pics/card-back.webp?v=20261028';
+const CARD_BACK = '/pics/card-back-360.webp?v=20261104';
 
 /**
  * Das Pack der Kategorie als Plakat, gebaut wie die Pack-Werbung am Ende des

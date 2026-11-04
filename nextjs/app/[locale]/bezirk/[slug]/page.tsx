@@ -188,7 +188,6 @@ export default async function BezirkDetailPage({ params }: PageProps) {
               „Kaffee in Schöneberg" und lieferte „Kaffee in ganz Berlin". */}
           {categoryFilters.length > 1 && (
             <HubFilterBar
-              columns={2}
               facets={categoryFilters}
               allLabel={de ? 'Alle' : 'All'}
               allStatus={

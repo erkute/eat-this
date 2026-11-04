@@ -83,19 +83,18 @@ export function HubFilterUnfiltered({ children }: { children: ReactNode }) {
 }
 
 /**
- * Die Rubriken über der Liste: Stücke Gewebeband wie die Profil-Reiter, das
- * gesetzte schwarz. Stehen im Fluss; ab Tablet bricht die Reihe um, am
- * Telefon steht ein Raster mit `columns` Spalten. Ist die Leiste nach oben aus
- * dem Bild gescrollt, solange die Liste noch zu sehen ist, liegt unten ein
- * einzelnes Stück Band mit dem gesetzten Filter; es bringt zurück zur Leiste.
- * Die Zählzeile ist nur für Vorleser da.
+ * Die Rubriken über der Liste: eine Wortleiste, das gesetzte Wort liegt auf
+ * einem Stück Gewebeband. Steht im Fluss; am Telefon eine Zeile zum Wischen, ab
+ * Tablet bricht sie um. Ist die Leiste nach oben aus dem Bild gescrollt, solange
+ * die Liste noch zu sehen ist, liegt unten ein einzelnes Stück Band mit dem
+ * gesetzten Filter; es bringt zurück zur Leiste. Die Zählzeile ist nur für
+ * Vorleser da.
  */
 export function HubFilterBar({
   facets,
   allLabel,
   allStatus,
   groupLabel,
-  columns,
 }: {
   facets: HubFacet[];
   /** Beschriftung des Zurücksetzen-Chips („Alle" / „All"). */
@@ -103,14 +102,11 @@ export function HubFilterBar({
   allStatus: string;
   /** aria-label der Chip-Gruppe. */
   groupLabel: string;
-  /** Spalten am Telefon, damit die Reihen bündig aufgehen: die Bezirksseite
-   *  hat zehn Chips (2), die Kategorieseite neun (3, in normaler Schreibweise,
-   *  damit lange Bezirksnamen einzeilig bleiben). */
-  columns: 2 | 3;
 }) {
   const { active, select } = useContext(HubFilterContext);
   const current = facets.find((f) => f.slug === active) ?? null;
   const bar = useRef<HTMLDivElement>(null);
+  const rail = useRef<HTMLDivElement>(null);
   const [away, setAway] = useState(false);
 
   // Beobachtet statt Scroll-Events: ab Desktop scrollt .app-pages, nicht das
@@ -135,13 +131,23 @@ export function HubFilterBar({
     return () => { barSeen.disconnect(); listSeen.disconnect(); };
   }, []);
 
+  // Das gesetzte Wort bleibt in der wischbaren Zeile zu sehen, auch bei einem
+  // geteilten Link wie ?bezirk=friedrichshain. Nur die Zeile selbst scrollt:
+  // scrollIntoView zöge die ganze Seite mit.
+  useEffect(() => {
+    const line = rail.current;
+    const chip = line?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!line || !chip || line.scrollWidth <= line.clientWidth) return;
+    line.scrollTo({ left: chip.offsetLeft - (line.clientWidth - chip.offsetWidth) / 2 });
+  }, [active]);
+
   return (
     <>
       <p className={styles.filterStatus} role="status">
         {current ? current.status : allStatus}
       </p>
       <div className={styles.filterBar} ref={bar}>
-        <div className={styles.filterRail} role="group" aria-label={groupLabel} data-columns={columns}>
+        <div className={styles.filterRail} ref={rail} role="group" aria-label={groupLabel}>
           <button
             type="button"
             className={styles.filterChip}

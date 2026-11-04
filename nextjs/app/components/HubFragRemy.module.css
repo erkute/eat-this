@@ -29,9 +29,10 @@
    (.body, overflow: hidden) — auch gekippt beim Auftritt und beim Hüpfer auf
    eine Frage bleibt die Kante darunter. */
 .figure { position: absolute; inset: 0 0 -18%; transform-origin: 50% 85%; container-type: size; }
-/* The square drawing, as large as fits and standing on the lower edge, so
-   the mouth window (BuddyMouth) lands on the face. */
-.head { position: absolute; bottom: 0; left: 50%; width: min(100cqw, 100cqh); aspect-ratio: 1; translate: -50% 0; }
+/* The square drawing, standing on the lower edge, so the mouth window
+   (BuddyMouth) lands on the face. It may outgrow its narrow box: the shoulders
+   pass behind the text and over the stage edge, the face stays clear. */
+.head { position: absolute; bottom: 0; left: 50%; width: min(125cqw, 100cqh); aspect-ratio: 1; translate: -50% 0; }
 .face { object-fit: cover; }
 @media(max-width:599.98px) {
   /* Wie live: Fragen und Eingabefeld oben untereinander, Remy steht darunter
@@ -45,6 +46,7 @@
   .question { min-height: 44px; padding: 10px 16px; font-size: 16px; }
   .portrait { width: 300px; height: 300px; right: calc(50% - 150px); bottom: 0; }
   .figure { inset: 0 0 -8%; }
+  .head { width: 100cqw; }
 }
 .compact .body { min-height: 560px; padding-block: 56px; }
 .compact .name { font-size: clamp(80px, 10vw, 136px); }
@@ -71,17 +73,19 @@
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .body, .compact .body { min-height: 400px; padding: 36px var(--home-gutter, 24px); }
+  /* Endet, wo Remys Bild beginnt: Figur und Spalte wachsen beide mit der Breite. */
   .content { width: 64%; }
   .title { margin-bottom: 12px; }
   .name, .compact .name { font-size: 64px; }
   .hello { font-size: 18px; }
-  .intro { font-size: 18px; margin-bottom: 24px; }
+  .intro { font-size: 18px; margin-bottom: 16px; }
   .prompt { font-size: 11px; margin-bottom: 8px; }
-  .questions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .questions { gap: 8px; margin-bottom: 16px; }
   .form { padding: 4px; }
   .input { min-height: 44px; padding-block: 8px; }
-  .question { font-size: 14px; min-height: 52px; padding: 8px 12px; }
+  /* Einzeilig und so breit wie ihr Text, wie im Hochformat. */
+  .question { font-size: 14px; min-height: 40px; padding: 6px 12px; white-space: nowrap; }
   .portrait, .compact .portrait { width: 32%; height: 100%; right: 0; bottom: 0; }
   .figure { inset: 0 0 -8%; }
-  .head { bottom: 0; top: auto; width: min(100cqw, 100cqh); }
+  .head { bottom: 0; top: auto; width: min(125cqw, 100cqh); }
 }

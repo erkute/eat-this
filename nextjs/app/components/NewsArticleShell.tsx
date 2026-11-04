@@ -228,30 +228,37 @@ export default function NewsArticleShell({
     return at < 0 ? null : relatedArticles.length - at;
   };
 
-  // Die Karte zeigt die Freigabe des Betrachters; der Teaser führt zum Spot.
+  // Die Karte zeigt die Freigabe des Betrachters; der Teaser führt zu ihrem
+  // Must-Eat-Detail auf der Map, ohne bekannte Karte zum Spot.
   const renderMustEatCard = (block: MustEatCardBlock) => {
     if (!block.mustEatId && !block.restaurantName) return null;
     const restName = block.restaurantName ? normalizeName(block.restaurantName) : '';
     const heading = restName || (de ? 'Das Must Eat' : 'The Must Eat');
-    const description = block.restaurantSlug
-      ? de ? 'Auf der Map ansehen' : 'View on the map'
-      : de ? 'Must Eats ansehen' : 'View Must Eats';
+    const description = block.mustEatId
+      ? de ? 'Zum Must Eat' : 'See the Must Eat'
+      : block.restaurantSlug
+        ? de ? 'Zum Spot' : 'See the spot'
+        : de ? 'Must Eats ansehen' : 'View Must Eats';
     const inner = (
       <>
         <ArticleMustEatArtwork id={block.mustEatId} />
         <div className={styles.mustEatBody}>
-          <span className="et-label et-label-paper">Must Eat</span>
+          <span className="et-label">Must Eat</span>
           <h3 className={styles.mustEatName}>{heading}</h3>
-          <span className={`et-btn et-btn-sm ${styles.mustEatDesc}`}>{description}</span>
+          <span className={`et-btn et-btn-tape et-btn-sm ${styles.mustEatDesc}`}>{description}</span>
         </div>
       </>
     );
-    // Ohne bekannten Spot führt der Teaser zur Must-Eat-Übersicht.
-    const href = block.restaurantSlug ? `/map?r=${block.restaurantSlug}` : '/must-eats';
+    // Ohne Karte und Spot führt der Teaser zur Must-Eat-Übersicht.
+    const href = block.mustEatId
+      ? `/map?me=${encodeURIComponent(block.mustEatId)}`
+      : block.restaurantSlug
+        ? `/map?r=${block.restaurantSlug}`
+        : '/must-eats';
     return (
       <Link
         href={href}
-        rel={block.restaurantSlug ? 'nofollow' : undefined}
+        rel={href === '/must-eats' ? undefined : 'nofollow'}
         className={styles.mustEat}
         aria-label={
           de
@@ -524,7 +531,7 @@ export default function NewsArticleShell({
                 excerpt={excerpt}
                 label={shareLabel}
                 copiedLabel={copiedLabel}
-                className={`et-btn et-btn-paper et-btn-sm ${styles.shareBtn}`}
+                className={`et-btn et-btn-tape et-btn-sm ${styles.shareBtn}`}
               />
             </div>
 

@@ -1,6 +1,6 @@
 /* Die Karten bilden den Einstieg; Layout und Text bleiben ohne Animation sichtbar. */
 .page {
-  --must-pad: var(--et-wrap-pad-mobile);
+  --must-pad: max(var(--et-wrap-pad-mobile), calc(max(var(--et-safe-left), var(--et-safe-right)) + 16px));
   --must-soft: var(--et-copy);
   --must-gap: clamp(56px, 7vw, 104px);
   --must-card-shadow: drop-shadow(0 10px 12px rgb(0 0 0 / .14));
@@ -71,7 +71,7 @@
   .close { --poster-top: calc(var(--must-gap) + 100px); }
 }
 @media (min-width: 768px) {
-  .page { --must-pad: var(--et-wrap-pad); }
+  .page { --must-pad: max(var(--et-wrap-pad), calc(max(var(--et-safe-left), var(--et-safe-right)) + 16px)); }
   .head { padding-top: 28px; }
   .cover { margin-top: 32px; margin-bottom: 72px; }
   .cover button { width: clamp(160px, 19vw, 270px); transform: translateX(calc(var(--fan-position) * 70%)) translateY(calc(var(--fan-position) * var(--fan-position) * 6px)) rotate(calc(var(--fan-position) * 6deg)); }
@@ -89,9 +89,11 @@
   .setMore[data-fits='tablet'] { display: none; }
 }
 /* Below 800px the poster's padded content is narrower than its 720px
-   two-column threshold: its raised pack still needs the full clearance. */
+   two-column threshold: its raised pack still needs the full clearance. From
+   800px on it keeps two columns, so the phone's cutout gutter may not push the
+   content back under the threshold (844–874px wide phones held sideways). */
 @media (min-width: 800px) {
-  .close { --poster-top: var(--must-gap); }
+  .close { --poster-top: var(--must-gap); --poster-gut: min(var(--must-pad), (100vw - 720px) / 2); }
 }
 @media (min-width: 1024px) {
   .feature { grid-template-columns: repeat(6, minmax(0, 1fr)); }

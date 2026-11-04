@@ -165,16 +165,40 @@
   .heroCopy { grid-column: 1; grid-row: 1; }
   .heroArt { grid-column: 2; grid-row: 1 / span 2; }
   .ledeQuote { grid-column: 1; grid-row: 2; }
-  .heroFigure, .figureImg { width: auto; max-width: 100%; max-height: calc(100svh - 140px); object-fit: contain; }
-  .figureImg.phoneFigure { width: min(100%, calc((100svh - 110px) / 2.18)); }
+  /* Feste Breiten statt an der Bildschirmhöhe gemessen: daran werden die Bilder
+     im Querformat zu klein, erst recht mit Safaris Leiste. Figur und Karte wie
+     im Hochformat; das Telefon so breit, dass es so hoch steht wie die Figur. */
+  .heroFigure { width: min(100%, 280px); }
+  .figureImg { width: min(100%, 240px); }
+  .figureImg.phoneFigure { width: min(100%, 156px); }
   .figure, .heroArt { align-self: start; }
   .caption { margin-top: 16px; }
   .sectionTitle { margin-bottom: 20px; }
-  .section, .section.cardChapter { display: flow-root; }
-  .sectionCopy { display: contents; }
+  /* Zwei feste Spalten: der Text läuft nie unter das Bild. */
+  .section { grid-template-columns: minmax(0, 38fr) minmax(0, 62fr); align-items: start; gap: 0 32px; }
+  .section.cardChapter { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .section .sectionCopy { grid-column: 2; grid-row: 1; }
   .section .body { max-width: none; }
-  .section .figure, .cardChapter .fanFigure { float: left; width: 38%; margin: 0 40px 24px 0; }
-  .section .figureImg.phoneFigure { max-height: none; width: min(100%, calc((100svh - 148px) / 2.25)); }
+  .section .figure { grid-column: 1; grid-row: 1; width: 100%; }
   .section .caption { margin-top: 24px; font-size: 12px; }
   .sectionTitle { font-size: 32px; }
+  /* Unter dem Fächer bliebe neben dem langen Text nur Leere: die Karten liegen
+     als schiefer Stapel untereinander. Der Abstand folgt der Textlänge, die mit
+     der Breite abnimmt. Ohne Scroll-Fächer (AboutStoryMotion). */
+  .fan { display: flex; flex-direction: column; align-items: center; aspect-ratio: auto; --stack-step: clamp(46px, calc(240px - 20vw), 110px); }
+  .fanCard {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 140px;
+    margin: calc(var(--stack-step) - 192px) 0 0;
+    transform-origin: 50% 50%;
+    transform: translateX(var(--stack-x)) rotate(var(--stack-angle));
+  }
+  .fanCard:first-child { margin-top: 0; }
+  .fanCard:nth-child(1) { --stack-x: -26%; --stack-angle: -9deg; }
+  .fanCard:nth-child(2) { --stack-x: 30%; --stack-angle: 8deg; }
+  .fanCard:nth-child(3) { --stack-x: -36%; --stack-angle: 4deg; }
+  .fanCard:nth-child(4) { --stack-x: 22%; --stack-angle: -11deg; }
+  .fanCard:nth-child(5) { --stack-x: -6%; --stack-angle: 6deg; }
 }

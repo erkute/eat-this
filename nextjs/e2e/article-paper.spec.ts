@@ -57,14 +57,12 @@ for (const theme of ['light', 'dark'] as const) {
     await meta.focus();
     await expect(meta).toHaveCSS('outline-style', 'none');
 
-    const share = page.locator('button.et-btn-paper');
+    const share = page.locator('button.et-btn-tape');
     await expect(share).toHaveAccessibleName(english ? 'Share' : 'Teilen');
     await share.scrollIntoViewIfNeeded();
-    await expect(share).toHaveCSS('background-image', /folded-white/);
+    await expect(share).toHaveCSS('border-image-source', /gaffer-2-(black|white)/);
     await expect(share).toHaveCSS('border-radius', '0px');
-    await share.focus();
-    await expect(share).toHaveCSS('outline-style', 'none');
-    await expect(share).toHaveCSS('color', english ? 'rgb(255, 255, 255)' : 'rgb(21, 18, 14)');
+    await expect(share).toHaveCSS('color', english ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)');
     await share.click();
     await expect(share).toHaveText(english ? 'Copied' : 'Kopiert');
     await expect(page.locator('html')).toHaveAttribute('data-copied-url', page.url());

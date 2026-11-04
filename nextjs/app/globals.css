@@ -74,7 +74,9 @@
   --et-line: #d6d4d1;
   --et-type-page: clamp(40px, 5.2vw, 72px);
   --et-type-heading: clamp(28px, 3vw, 40px);
-  --et-gutter: clamp(20px, 3.4vw, 48px);
+  /* Hält im Querformat Abstand zu Dynamic Island und Notch; sonst sind die
+     seitlichen Insets 0. */
+  --et-gutter: max(clamp(20px, 3.4vw, 48px), calc(max(var(--et-safe-left), var(--et-safe-right)) + 16px));
 
   /* ── Schriften ── */
   --et-font-display: var(--et-font-body);
@@ -1729,6 +1731,18 @@ html[data-theme='dark'] {
 @media (max-width: 767.98px) {
   .et-btn.et-btn-map-control { min-height: 44px; }
 }
+/* Ein Stück Band in der Farbe des gesetzten Filters, in normaler Knopfschrift.
+   Die Fläche hinter dem Wort trägt die Schrift, solange das Bandbild fehlt;
+   sie endet vor den Rissen. */
+.et-btn.et-btn-tape {
+  background: var(--et-tape-active-bg) content-box;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--et-tape-active-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  border-radius: 0;
+  filter: var(--et-tape-lift);
+  color: var(--et-tape-active-fg);
+}
 
 .et-btn-text {
   --et-btn-bg: transparent;
@@ -1765,10 +1779,15 @@ html[data-theme='dark'] .et-btn-text {
     filter: brightness(0.95) var(--et-tape-lift);
     color: var(--et-tape-fg);
   }
+  .et-btn.et-btn-tape:not(:disabled):hover {
+    background: var(--et-tape-active-bg) content-box;
+    filter: brightness(1.5) var(--et-tape-lift);
+    color: var(--et-tape-active-fg);
+  }
 }
 /* Textknöpfe antworten zusätzlich mit ihrer Flächenfarbe. Die Map-Bedienung
    behält ihre freigestellte Bandform und nutzt das gemeinsame Dimm-Feedback. */
-.et-btn:not(:disabled, [aria-disabled='true'], .et-btn-map-control):is(:active, [data-et-pressed]) {
+.et-btn:not(:disabled, [aria-disabled='true'], .et-btn-map-control, .et-btn-tape):is(:active, [data-et-pressed]) {
   background-color: var(--et-btn-hover, var(--et-accent));
   color: var(--et-btn-hover-fg, #fff);
 }

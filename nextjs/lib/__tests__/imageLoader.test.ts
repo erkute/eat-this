@@ -48,7 +48,7 @@ describe('sanityNextImageLoader', () => {
 describe('isSanityImage', () => {
   it('erkennt nur die Sanity-CDN', () => {
     expect(isSanityImage(ASSET)).toBe(true);
-    expect(isSanityImage('/pics/eat-this-logo.webp?v=6')).toBe(false);
+    expect(isSanityImage('/pics/eat-this-crumpled-wordmark.webp?v=6')).toBe(false);
     expect(isSanityImage('https://example.com/cdn.sanity.io/x.jpg')).toBe(false);
   });
 });

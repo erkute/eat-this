@@ -95,7 +95,7 @@ const CATEGORY_LABELS: Record<NewsCategory, { de: string; en: string }> = {
 const WORD_TARGETS: Record<NewsArticleLength, string> = {
   short: '450–650 Wörter je Sprache',
   standard: '750–1.000 Wörter je Sprache',
-  long: '1.100–1.400 Wörter je Sprache',
+  long: '1.000–1.400 Wörter je Sprache',
 };
 const RESEARCH_DOMAINS = [
   'eatthisdot.com',

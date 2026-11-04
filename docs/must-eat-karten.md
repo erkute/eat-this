@@ -1,6 +1,6 @@
 # Must-Eat-Karten: von Figma in die App
 
-Stand 15.10.2026. Gilt für neue Karten und für Änderungen am Kartendesign.
+Gilt für neue Karten und für Änderungen am Kartendesign.
 
 ## Wo die Karten liegen
 
@@ -27,11 +27,9 @@ Auf einer einzelnen Karte ändert man nur ihren Inhalt:
 
 Alles andere auf einer Karte zu ändern, bricht die Vererbung für genau diese Eigenschaft. Das gilt auch für scheinbar harmlose Dinge: eine kleinere Titelgröße für einen langen Namen oder eine andere Schrift beim Eintippen. Danach zieht diese Karte bei einer Änderung an Main nicht mehr mit. Passt ein Titel nicht, wird Main angepasst (für alle) oder der Titel gekürzt.
 
-Am 15.10.2026 hatten deshalb 14 von 38 Karten eine eigene Titelschrift oder -größe und mussten zurückgesetzt werden.
-
 ## Neue Karte anlegen
 
-1. **Foto freistellen.** Das macht Ersan selbst in Figma mit „Hintergrund entfernen“. Das ist besser als automatische Freisteller wie `Cards/cutout.swift` (Apple Vision) und lässt sich über die Schnittstelle nicht auslösen. Ablauf: Originalfotos in eine Section legen, Ersan stellt sie frei, danach übernimmt Claude das freigestellte Rohbild in voller Auflösung (`download_assets` → `rawImages`). Es wird die Bildfüllung des Fotorahmens.
+1. **Foto freistellen.** Das macht Ersan selbst in Figma mit „Hintergrund entfernen“. Das ist besser als automatische Freisteller wie `nextjs/scripts/cover-cutout/cutout.swift` (Apple Vision) und lässt sich über die Schnittstelle nicht auslösen. Ablauf: Originalfotos in eine Section legen, Ersan stellt sie frei, danach übernimmt Claude das freigestellte Rohbild in voller Auflösung (`download_assets` → `rawImages`). Es wird die Bildfüllung des Fotorahmens.
 2. **Karte als Instanz von Main anlegen.** Eine bestehende Karte duplizieren (⌘D) oder eine Instanz aus Main ziehen. **Nie „Detach instance“.** Neue Karten kommen ans Ende der untersten Reihe.
 3. **Inhalt setzen:** die fünf Texte, das Foto, beide Farben. Keine Schrift, keine Größe, keine Position.
 4. **Texte tippt Ersan in Figma Desktop.** Claude kann über die Figma-Schnittstelle Karten duplizieren, Fotos und Farben setzen, aber keine Texte: Dort fehlen die Adobe-Markenschriften. Texte, die Claude setzen soll, gehen nur über ein lokales Entwickler-Plugin, das Ersan in Figma startet.
@@ -68,8 +66,4 @@ Alle drei Skripte arbeiten mit `.env.local`, also auf **prod**.
 
 ## Nach dem Publizieren
 
-Der Sanity-Webhook wartet, bis das CDN die Spot-Seite der Karte frisch liefert, und erneuert sie dann (seit 15.10.2026). Trotzdem `/restaurant/<slug>` und `/en/restaurant/<slug>` abrufen, bevor „live“ gemeldet wird. Kartenbilder sieht nur, wer angemeldet ist; als Gast bleibt die Karte verdeckt. Bilder können wegen Caching bis zu eine Stunde brauchen, bis sie überall neu sind.
-
-## Schreibweise
-
-„Must Eat“ immer ohne Bindestrich, auch in „Must Eat Karte“. Ein Spot kann mehrere Must Eats haben.
+`/restaurant/<slug>` und `/en/restaurant/<slug>` abrufen, bevor „live“ gemeldet wird. Kartenbilder sieht nur, wer angemeldet ist; als Gast bleibt die Karte verdeckt. Bilder können wegen Caching bis zu eine Stunde brauchen, bis sie überall neu sind.

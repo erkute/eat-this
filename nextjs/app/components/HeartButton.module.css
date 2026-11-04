@@ -1,8 +1,7 @@
 /* Das Herz der Spot-Seite als Satz: „Ich ♥ <Name>" (Wahl 07.10.2026 im
    Herz-Labor, Variante E). Im Grad des Vorspanns, zentriert, nach dem
    Steckbrief und über „Im Magazin"; darunter klein, wie viele es geherzt
-   haben. Geschichte der Plätze und warum: HeartButton.tsx.
-   See docs/specs/2026-06-09-hearts-design.md. */
+   haben. Geschichte der Plätze und warum: HeartButton.tsx. */
 .love {
   margin-top: clamp(48px, 5vw, 72px);
   text-align: center;

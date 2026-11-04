@@ -135,8 +135,7 @@ function slugifyHeading(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-// Mirrors the shape of the legacy renderPortableText helper in app.min.js:
-// handles block-level style (h2/h3/blockquote/normal), listItem (number/bullet),
+// Handles block-level style (h2/h3/blockquote/normal), listItem (number/bullet),
 // and inline marks (strong/em + link). Inline `mustEatCard` / `spotCard` blocks
 // are delegated to the optional `renderMustEatCard` / `renderSpotCard` render-
 // props (so this stays presentation-agnostic); callers that don't pass them

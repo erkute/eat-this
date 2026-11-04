@@ -31,7 +31,7 @@ const imageObjectPath = 'premium/must-eats/ci-fixture.webp';
 await getStorage(app)
   .bucket()
   .file(imageObjectPath)
-  .save(await readFile('public/pics/cover/logo.webp'), { contentType: 'image/webp' });
+  .save(await readFile('public/pics/eat-this-crumpled-wordmark.webp'), { contentType: 'image/webp' });
 const db = getFirestore(app);
 for (let offset = 0; offset < cards.length; offset += 400) {
   const batch = db.batch();

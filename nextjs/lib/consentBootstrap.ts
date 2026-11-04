@@ -1,6 +1,6 @@
 import { CONSENT_VERSION, parseConsentCookie } from './consent';
 
-export const CONSENT_PAPER_SRC = '/pics/paper/consent-paper.webp?v=20261103';
+const CONSENT_PAPER_SRC = '/pics/paper/consent-paper.webp?v=20261103';
 
 export const CONSENT_INTERACTIVE_EVENT = 'eatthis:consent-interactive';
 export const CONSENT_FOCUSABLE =

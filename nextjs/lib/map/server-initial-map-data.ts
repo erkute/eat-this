@@ -61,10 +61,9 @@ async function composeInitialAnonMapMetadata(): Promise<InitialMapData> {
  * roughly 95% of the server time on the four surfaces that call this, with
  * Sanity already served from the Data Cache in single-digit milliseconds.
  *
- * `privateMustEats` has no runtime writer: scripts/migrate-must-eats-private.ts
- * is the only thing that touches it, and a Firestore write fires no webhook.
- * The `mustEat` tag covers edits to the public metadata in Sanity; after a
- * backfill run the TTL is what bounds the staleness.
+ * `privateMustEats` is written by the card scripts and the Studio's card route,
+ * and a Firestore write fires no webhook. The `mustEat` tag covers edits to the
+ * public metadata in Sanity; for card changes the TTL bounds the staleness.
  */
 const readPublicMustEatContent = unstable_cache(
   readPrivateMustEatContent,

@@ -1,15 +1,15 @@
 /**
  * Generates SEO meta fields (DE + EN) for restaurants and bezirke that lack them.
  * Reads name + description + descriptionEn (+ cuisine/district context for restaurants)
- * from Sanity, then asks Claude Sonnet 4.6 for compact, click-driver metaTitle /
- * metaDescription. Writes drafts only — publish-all-drafts.ts publishes after review.
+ * from Sanity, then asks Claude Sonnet for compact, click-driver metaTitle /
+ * metaDescription. Writes drafts only — editorial publishes after review.
  *
  * Run from `nextjs/`:
  *   npx tsx scripts/generate-seo-fields.ts --type restaurant --limit 3 --dry-run
  *   npx tsx scripts/generate-seo-fields.ts --type bezirk
  *   npx tsx scripts/generate-seo-fields.ts --type all
  *
- * Default --type is "restaurant" for backwards compat.
+ * Default --type is "restaurant".
  *
  * Required env (in nextjs/.env.local):
  *   ANTHROPIC_API_KEY

@@ -89,9 +89,11 @@
   .setMore[data-fits='tablet'] { display: none; }
 }
 /* Below 800px the poster's padded content is narrower than its 720px
-   two-column threshold: its raised pack still needs the full clearance. */
+   two-column threshold: its raised pack still needs the full clearance. From
+   800px on it keeps two columns, so the phone's cutout gutter may not push the
+   content back under the threshold (844–874px wide phones held sideways). */
 @media (min-width: 800px) {
-  .close { --poster-top: var(--must-gap); }
+  .close { --poster-top: var(--must-gap); --poster-gut: min(var(--must-pad), (100vw - 720px) / 2); }
 }
 @media (min-width: 1024px) {
   .feature { grid-template-columns: repeat(6, minmax(0, 1fr)); }

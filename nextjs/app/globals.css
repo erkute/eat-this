@@ -1731,9 +1731,11 @@ html[data-theme='dark'] {
 @media (max-width: 767.98px) {
   .et-btn.et-btn-map-control { min-height: 44px; }
 }
-/* Ein Stück Band in der Farbe des gesetzten Filters, in normaler Knopfschrift. */
+/* Ein Stück Band in der Farbe des gesetzten Filters, in normaler Knopfschrift.
+   Die Fläche hinter dem Wort trägt die Schrift, solange das Bandbild fehlt;
+   sie endet vor den Rissen. */
 .et-btn.et-btn-tape {
-  background: none;
+  background: var(--et-tape-active-bg) content-box;
   border-style: solid;
   border-width: 0;
   border-image: var(--et-tape-active-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
@@ -1778,7 +1780,7 @@ html[data-theme='dark'] .et-btn-text {
     color: var(--et-tape-fg);
   }
   .et-btn.et-btn-tape:not(:disabled):hover {
-    background: none;
+    background: var(--et-tape-active-bg) content-box;
     filter: brightness(1.5) var(--et-tape-lift);
     color: var(--et-tape-active-fg);
   }

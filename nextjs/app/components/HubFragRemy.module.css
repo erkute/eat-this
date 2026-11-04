@@ -73,7 +73,8 @@
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .body, .compact .body { min-height: 400px; padding: 36px var(--home-gutter, 24px); }
-  .content { width: 68%; }
+  /* Endet, wo Remys Bild beginnt: Figur und Spalte wachsen beide mit der Breite. */
+  .content { width: 64%; }
   .title { margin-bottom: 12px; }
   .name, .compact .name { font-size: 64px; }
   .hello { font-size: 18px; }

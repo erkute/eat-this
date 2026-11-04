@@ -1,5 +1,7 @@
 import { CONSENT_VERSION, parseConsentCookie } from './consent';
 
+export const CONSENT_PAPER_SRC = '/pics/paper/consent-paper.webp?v=20261103';
+
 export const CONSENT_INTERACTIVE_EVENT = 'eatthis:consent-interactive';
 export const CONSENT_FOCUSABLE =
   'button, summary, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -17,6 +19,9 @@ function createConsentBootstrap() {
     }catch(_){}
     if(!pending)return;
     html.setAttribute('data-consent-pending','');
+    var paper=document.createElement('link');
+    paper.rel='preload';paper.as='image';paper.fetchPriority='high';paper.href=${JSON.stringify(CONSENT_PAPER_SRC)};
+    document.head.appendChild(paper);
     var actions=[],chosen=false,focused=false;
     function gate(){return document.getElementById('cookieConsent');}
     function focusGate(){var card=gate();if(card&&!focused){focused=true;card.focus({preventScroll:true});}}

@@ -7,14 +7,16 @@ vi.mock('@/i18n/navigation', () => ({
   Link: ({
     href,
     children,
+    prefetch,
     className,
     ...rest
   }: {
     href: string;
     children: ReactNode;
+    prefetch?: boolean | null;
     className?: string;
   }) => (
-    <a href={href} className={className} {...rest}>
+    <a href={href} className={className} data-prefetch={String(prefetch)} {...rest}>
       {children}
     </a>
   ),

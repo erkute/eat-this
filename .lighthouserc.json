@@ -10,7 +10,8 @@
       ],
       "numberOfRuns": 3,
       "settings": {
-        "chromeFlags": "--no-sandbox"
+        "chromeFlags": "--no-sandbox",
+        "extraHeaders": "{\"DNT\":\"1\"}"
       }
     },
     "assert": {

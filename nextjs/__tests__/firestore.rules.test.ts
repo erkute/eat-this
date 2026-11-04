@@ -11,7 +11,7 @@ import {afterAll, beforeAll, beforeEach, describe, expect, it} from 'vitest';
 
 const describeRules = process.env.FIRESTORE_EMULATOR_HOST ? describe : describe.skip;
 
-describeRules('firestore.rules favorites', () => {
+describeRules('firestore.rules', () => {
   let testEnv: RulesTestEnvironment;
 
   beforeAll(async () => {
@@ -131,5 +131,74 @@ describeRules('firestore.rules favorites', () => {
       await assertFails(getDoc(premiumRef));
       await assertFails(setDoc(premiumRef, {dish: 'overwrite'}));
     }
+  });
+
+  /* Kartenfreigaben, Käufe und Einladungs-Boni schreibt nur der Server. Dürfte
+     der Browser hier schreiben, könnte sich jedes Konto Karten selbst geben. */
+  it.each([
+    'users/owner/unlockedMustEats/m1',
+    'users/owner/referralBonuses/b1',
+    'users/owner/entitlements/all-berlin',
+  ])('lets only the owner read %s and nobody write it', async (path) => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), path), {seeded: true});
+    });
+    const owner = doc(testEnv.authenticatedContext('owner').firestore(), path);
+    const other = doc(testEnv.authenticatedContext('other').firestore(), path);
+
+    await assertSucceeds(getDoc(owner));
+    await assertFails(getDoc(other));
+    await assertFails(setDoc(owner, {seeded: false}));
+    await assertFails(deleteDoc(owner));
+  });
+
+  it.each([
+    'users/owner/referralStats/inviter',
+    '_rateLimits/r1',
+    '_newsPreviews/p1',
+    'analytics_daily/2026-11-04',
+    'analytics_seen/hash',
+    'unknownCollection/doc',
+  ])('denies %s to every browser identity', async (path) => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), path), {seeded: true});
+    });
+
+    for (const db of [
+      testEnv.unauthenticatedContext().firestore(),
+      testEnv.authenticatedContext('owner').firestore(),
+    ]) {
+      await assertFails(getDoc(doc(db, path)));
+      await assertFails(setDoc(doc(db, path), {seeded: false}));
+    }
+  });
+
+  it('lets everyone read a heart count and nobody write it', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'restaurants/r1'), {heartCount: 3});
+    });
+    const anon = doc(testEnv.unauthenticatedContext().firestore(), 'restaurants/r1');
+    const owner = doc(testEnv.authenticatedContext('owner').firestore(), 'restaurants/r1');
+
+    await assertSucceeds(getDoc(anon));
+    await assertFails(setDoc(anon, {heartCount: 99}));
+    await assertFails(setDoc(owner, {heartCount: 99}));
+  });
+
+  it('limits the user profile to its owner, a valid avatar and onboardedAt', async () => {
+    const owner = doc(testEnv.authenticatedContext('owner').firestore(), 'users/owner');
+    const other = doc(testEnv.authenticatedContext('other').firestore(), 'users/owner');
+    const anon = doc(testEnv.unauthenticatedContext().firestore(), 'users/owner');
+
+    await assertSucceeds(setDoc(owner, {avatar: 2}));
+    await assertSucceeds(getDoc(owner));
+    await assertSucceeds(setDoc(owner, {avatar: null, onboardedAt: new Date()}));
+    await assertFails(setDoc(owner, {avatar: 9}));
+    await assertFails(setDoc(owner, {onboardedAt: 'gestern'}));
+    await assertFails(setDoc(owner, {avatar: 1, isAdmin: true}));
+    await assertFails(getDoc(other));
+    await assertFails(setDoc(other, {avatar: 1}));
+    await assertFails(getDoc(anon));
+    await assertFails(setDoc(anon, {avatar: 1}));
   });
 });

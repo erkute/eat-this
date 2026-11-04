@@ -256,6 +256,31 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  # Die Firestore- und Storage-Regeln gegen echte Emulatoren. Ohne Emulator
+  # überspringt `npm test` diese Tests, deshalb ein eigener Lauf.
+  rules:
+    needs: nextjs
+    if: needs.nextjs.outputs.browser == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: nextjs
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: nextjs/package-lock.json
+      - run: npm ci
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm run test:rules
+
   # Lighthouse gegen diesen Build: fünf Seiten, je drei Läufe, zusammen ~15
   # Minuten. Die Läufe einer Seite bleiben auf einem Rechner und nacheinander –
   # parallel auf derselben Maschine verfälschten sie sich gegenseitig die

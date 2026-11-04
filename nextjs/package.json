@@ -31,7 +31,7 @@
     "audit:css-modules": "tsx scripts/audit-css-modules.ts",
     "check:embeddings": "tsx scripts/check-embeddings.ts",
     "test": "vitest run",
-    "test:rules": "firebase emulators:exec --only firestore,storage --project eat-this-rules-test \"vitest run __tests__/firestore.rules.test.ts __tests__/storage.rules.test.ts\"",
+    "test:rules": "npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project eat-this-rules-test \"vitest run __tests__/firestore.rules.test.ts __tests__/storage.rules.test.ts\"",
     "test:watch": "vitest",
     "start:verify": "NEXT_DIST_DIR=.next-verify next start --hostname 127.0.0.1 --port 3100",
     "test:e2e": "playwright test",

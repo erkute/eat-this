@@ -55,7 +55,7 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         <HubFragRemy />
         <HubFaq locale={locale} />
         <div className={styles.paperEnd}>
-          <FoldedPaperBackdrop id="home-starter-footer-paper" />
+          <FoldedPaperBackdrop id="home-starter-footer-paper" lazy />
           <StarterPackSignup />
           <SiteFooter />
         </div>

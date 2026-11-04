@@ -6,7 +6,7 @@ import styles from './DistrictPaperFooter.module.css';
 export default function DistrictPaperFooter({ children, paperId }: { children: ReactNode; paperId: string }) {
   return (
     <div className={styles.surface} data-district-paper="">
-      <FoldedPaperBackdrop id={paperId} />
+      <FoldedPaperBackdrop id={paperId} lazy />
       {children}
       <SiteFooter />
     </div>

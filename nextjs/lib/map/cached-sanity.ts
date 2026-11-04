@@ -36,12 +36,18 @@ const MAP_CACHE_OPTIONS = {
   next: { revalidate: SANITY_LIVE_SURFACE_SECONDS, tags: ['map-data'] },
 };
 
+/** Nur die Karten, ohne den Spot-Katalog. Dieselbe Abfrage mit denselben
+ *  Optionen wie in `getCachedMapData`, also derselbe Eintrag im Data Cache. */
+export function getCachedMustEats(): Promise<MapMustEat[]> {
+  return client.fetch<MapMustEat[]>(mapMustEatsQuery, {}, MAP_CACHE_OPTIONS);
+}
+
 export async function getCachedMapData(): Promise<CachedMapData> {
   // Cache each Sanity request in Next's shared Data Cache. Unlike a module
   // variable, these tagged entries can be invalidated across warm instances.
   const [restaurants, mustEats, categories] = await Promise.all([
     client.fetch<MapRestaurant[]>(mapRestaurantsQuery, {}, MAP_CACHE_OPTIONS),
-    client.fetch<MapMustEat[]>(mapMustEatsQuery, {}, MAP_CACHE_OPTIONS),
+    getCachedMustEats(),
     client.fetch<CategoryDef[]>(allCategoriesQuery, {}, MAP_CACHE_OPTIONS),
   ]);
   return {

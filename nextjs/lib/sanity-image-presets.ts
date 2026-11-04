@@ -89,7 +89,7 @@ function groqStringList(values: readonly string[]): string {
   return `[${values.map((value) => JSON.stringify(value)).join(', ')}]`;
 }
 
-export function publishableRestaurantImageCondition(
+function publishableRestaurantImageCondition(
   path = 'image',
   slugPath = 'slug.current',
   instagramPath = 'instagramHandle'

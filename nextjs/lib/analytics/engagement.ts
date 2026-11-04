@@ -7,7 +7,7 @@ export const SURFACE_LABELS: Record<Surface, string> = {
   magazine: 'Magazin',
   map: 'Map',
 };
-export const INSIGHT_SIGNALS = [
+const INSIGHT_SIGNALS = [
   'view',
   'engaged',
   'read30',
@@ -24,9 +24,9 @@ export const INSIGHT_SIGNALS = [
 ] as const;
 export type InsightSignal = (typeof INSIGHT_SIGNALS)[number];
 export type InsightDevice = 'phone' | 'desktop';
-export const INSIGHT_SECTIONS = ['header', 'content', 'footer'] as const;
+const INSIGHT_SECTIONS = ['header', 'content', 'footer'] as const;
 export type InsightSection = (typeof INSIGHT_SECTIONS)[number];
-export const INSIGHT_TARGETS = [
+const INSIGHT_TARGETS = [
   'article',
   'spot',
   'map',
@@ -102,15 +102,15 @@ export function parseInsight(body: Record<string, unknown>): InsightBeacon | nul
 }
 
 export type InsightCounts = Record<InsightSignal, number>;
-export const emptyInsightCounts = (): InsightCounts =>
+const emptyInsightCounts = (): InsightCounts =>
   Object.fromEntries(INSIGHT_SIGNALS.map((key) => [key, 0])) as InsightCounts;
 export type DeviceCounts = Record<InsightDevice, InsightCounts>;
-export type PartialDeviceCounts = Partial<Record<InsightDevice, Partial<InsightCounts>>>;
+type PartialDeviceCounts = Partial<Record<InsightDevice, Partial<InsightCounts>>>;
 export const emptyDeviceCounts = (): DeviceCounts => ({
   phone: emptyInsightCounts(),
   desktop: emptyInsightCounts(),
 });
-export interface InsightPage {
+interface InsightPage {
   path: string;
   surface: Surface;
   devices: DeviceCounts;

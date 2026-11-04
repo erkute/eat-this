@@ -13,7 +13,7 @@ import styles from '../StatsDashboard.module.css';
  * „Differenz" überall gleich aussieht und gleich gerechnet wird.
  */
 
-export interface Series {
+interface Series {
   label: string;
   values: number[];
   /** Eigene Datumswerte, besonders für die Vorperiode. */

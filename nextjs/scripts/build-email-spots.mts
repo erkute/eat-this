@@ -43,9 +43,6 @@ import { composeRevealedMustEats } from '../lib/map/revealed-must-eats.ts';
 /** Muss zu MAX_SPOTS in emails/SignupEmail.tsx passen. */
 const DEFAULT_LIMIT = 3;
 
-/** Anzeigebreite in der Mail; das JPEG selbst ist 2x. */
-const DISPLAY_WIDTH = 536;
-
 const OUT_DIR = join(process.cwd(), 'public', 'pics', 'email', 'spots');
 const MANIFEST = join(process.cwd(), 'emails', 'spots.generated.ts');
 
@@ -189,9 +186,6 @@ await writeFile(
     '  /** Inhalts-Hash; haengt als ?v= an der Bild-URL, sonst cacht Gmail ewig. */',
     '  version: string;',
     '}',
-    '',
-    `/** Anzeigebreite in CSS-Pixeln; die JPEGs sind ${SPOT_CARD_WIDTH}×${SPOT_CARD_HEIGHT} (2x). */`,
-    `export const SPOT_DISPLAY_WIDTH = ${DISPLAY_WIDTH};`,
     '',
     `export const EMAIL_SPOTS: readonly EmailSpot[] = ${JSON.stringify(rendered, null, 2)};`,
     '',

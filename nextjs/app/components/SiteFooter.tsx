@@ -8,6 +8,7 @@ import styles from './SiteFooter.module.css';
 import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '@/lib/guestCardShake';
 import BrandSlogan from './BrandSlogan';
+import PaperPhoto from './PaperPhoto';
 import { ThemeSwitch } from './ThemeSwitch';
 
 export default function SiteFooter() {
@@ -22,6 +23,7 @@ export default function SiteFooter() {
       role="contentinfo"
       aria-label="Site footer"
     >
+      <PaperPhoto className={styles.sheet} />
       <div className={styles.top}>
         <div className={styles.brand}>
           <h2 className={styles.mega} aria-label="Eat This">

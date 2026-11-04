@@ -239,7 +239,7 @@ export default async function BezirkDetailPage({ params }: PageProps) {
         </HubFilterProvider>
 
       </main>
-      <DistrictPaperFooter paperId={`district-paper-${loc}-${slug}`}>
+      <DistrictPaperFooter>
         <DistrictMapReturn locale={loc} />
       </DistrictPaperFooter>
     </>

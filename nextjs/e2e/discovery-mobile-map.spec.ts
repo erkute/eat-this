@@ -11,7 +11,7 @@ async function expectPaperFooter(page: Page, screenshot: string) {
   const footer = page.locator('[data-site-footer]');
   await expect(footer).toHaveCount(1);
   const surface = page.locator('[data-district-paper]');
-  await expect(surface.locator('[data-folded-paper]')).toHaveCount(1);
+  await expect(surface.locator(':scope > [data-paper-photo]')).toHaveCount(1);
   const preceding = footer.locator('xpath=preceding-sibling::*[1]');
   expect(await preceding.evaluate(element => {
     const next = element.nextElementSibling!;

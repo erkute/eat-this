@@ -68,9 +68,9 @@
 
 /* ------------------------------------------------- rubrikenzeile -------- */
 
-/* Auswahlflächen wie in der Map-Vorschau der Startseite. Am Telefon wischen
-   sie, ab Tablet brechen sie um. Seit 25.10.2026 stehen sie auch am Telefon
-   im Fluss: klebend unter der Navigation nahmen sie den Fotos Fläche weg. */
+/* Die Rubriken sind eine Wortleiste im Fluss: am Telefon eine Zeile zum
+   Wischen, ab Tablet bricht sie um. Klebend unter der Navigation nahm sie den
+   Fotos Fläche weg. */
 .filterStatus {
   position: absolute;
   width: 1px;
@@ -82,93 +82,51 @@
 }
 
 .filterBar {
-  margin: 36px auto 0;
+  margin: 24px auto 0;
   max-width: var(--issue-wide);
-  padding-block: 10px;
 }
 
-/* Die Filter brechen um statt seitwärts zu wischen. Jeder Chip ist ein Stück
-   Gewebeband wie die Reiter im Profil, der gesetzte in der umgekehrten Farbe
-   (Tokens --et-tape-* in globals.css). */
+/* `position`: Bezug für offsetLeft beim Einmitten des gesetzten Worts. */
 .filterRail {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding-block: 5px;
+  gap: 0 2px;
 }
 
+/* Reine Wörter; nur das gesetzte liegt auf einem Stück Gewebeband, beim Zeigen
+   liegt das helle darunter (Tokens --et-tape-* in globals.css). Das Band ändert
+   die Maße nicht: border-image zeichnet in die Box, die Breite bleibt 0. */
 .filterChip {
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  padding: 8px 14px;
-  border: 0;
+  padding: 8px 12px;
+  border: 0 solid;
   border-radius: 0;
-  border-style: solid;
   background: none;
-  border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
-  filter: var(--et-tape-lift);
-  color: var(--et-tape-fg);
+  color: var(--et-fg);
   cursor: pointer;
-  font: 800 12px / 1.2 var(--et-font-body);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font: 700 15px / 1.2 var(--et-font-body);
   white-space: nowrap;
   appearance: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-.filterChip:nth-child(4n + 1) {
-  --et-tape-img: url('/pics/tape/gaffer-3-white.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-3-black.webp');
-  --et-tape-slice: 9 11 12 31 fill;
-  --et-tape-width: 2px 2px 3px 7px;
-}
-.filterChip:nth-child(4n + 2) {
-  --et-tape-img: url('/pics/tape/gaffer-5-white.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-5-black.webp');
-  --et-tape-slice: 17 31 14 17 fill;
-  --et-tape-width: 4px 7px 3px 4px;
-}
-.filterChip:nth-child(4n + 3) {
-  --et-tape-img: url('/pics/tape/gaffer-4-white.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-4-black.webp');
-  --et-tape-slice: 13 9 33 21 fill;
-  --et-tape-width: 3px 2px 7px 5px;
-}
-.filterChip:nth-child(4n) {
-  --et-tape-img: url('/pics/tape/gaffer-6-white.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-6-black.webp');
-  --et-tape-slice: 11 11 20 8 fill;
-  --et-tape-width: 2px 2px 4px 2px;
-}
-html[data-theme='dark'] .filterChip:nth-child(4n + 1) {
-  --et-tape-img: url('/pics/tape/gaffer-3-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-3-white.webp');
-}
-html[data-theme='dark'] .filterChip:nth-child(4n + 2) {
-  --et-tape-img: url('/pics/tape/gaffer-5-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-5-white.webp');
-}
-html[data-theme='dark'] .filterChip:nth-child(4n + 3) {
-  --et-tape-img: url('/pics/tape/gaffer-4-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-4-white.webp');
-}
-html[data-theme='dark'] .filterChip:nth-child(4n) {
-  --et-tape-img: url('/pics/tape/gaffer-6-black.webp');
-  --et-tape-active-img: url('/pics/tape/gaffer-6-white.webp');
-}
 
 .filterChip[aria-pressed='true'] {
-  border-image-source: var(--et-tape-active-img);
+  border-image: var(--et-tape-active-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+  filter: var(--et-tape-lift);
   color: var(--et-tape-active-fg);
 }
 
 @media (hover: hover) {
   .filterChip:not([aria-pressed='true']):hover {
-    filter: brightness(0.95) var(--et-tape-lift);
+    border-image: var(--et-tape-img) var(--et-tape-slice) / var(--et-tape-width) / 0 stretch;
+    filter: var(--et-tape-lift);
+    color: var(--et-tape-fg);
   }
 }
 
@@ -224,21 +182,20 @@ html[data-theme='dark'] .filterReturn {
   .filterReturn, .filterReturn[data-shown] { transition: none; }
 }
 
-/* Am Telefon ein Raster: gleich breite Stücke, jede Reihe geht bündig auf,
-   kein Wort bricht um. In drei Spalten passt „Prenzlauer Berg" nur in normaler
-   Schreibweise (Versalien bräuchten ~117px bei ~107px Spalte); die Schrift
-   schrumpft unter 375px mit. */
+/* Am Telefon eine Zeile bis an den Rand: das angeschnittene Wort zeigt, dass
+   es weitergeht. Oben und unten Luft, sonst schneidet der Querscroller den
+   Schatten des Bands ab. */
 @media (max-width: 767px) {
-  .filterRail { display: grid; gap: 6px; }
-  .filterRail[data-columns='2'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .filterRail[data-columns='3'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .filterChip { font-size: 13px; }
-  .filterRail[data-columns='3'] .filterChip {
-    padding-inline: 6px;
-    font-size: min(12px, 3.2vw);
-    letter-spacing: 0;
-    text-transform: none;
+  .filterRail {
+    flex-wrap: nowrap;
+    margin-inline: calc(-1 * var(--issue-gutter));
+    padding: 4px var(--issue-gutter);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
   }
+  .filterRail::-webkit-scrollbar { display: none; }
+  .filterRail .filterChip:active { translate: none; }
 }
 
 .filterScope {

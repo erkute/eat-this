@@ -40,15 +40,14 @@ const SECTION_KEYS = new Set<string>(HOME_SECTIONS.map((s) => s.key));
 
 /** Dieselbe Grenze wie die SiteNav (< 768 px klappt sie weg). */
 export const PHONE_MAX_WIDTH = 767;
-export const HOME_DEVICES = ['phone', 'desktop'] as const;
-export type HomeDevice = (typeof HOME_DEVICES)[number];
+export type HomeDevice = 'phone' | 'desktop';
 
 /** 20 × 20 Felder je Abschnitt: fein genug für einen Knopf, grob genug, dass
  *  ein Tagesdokument höchstens 2 × 10 × 400 Zellen trägt. */
-export const HEAT_GRID = 20;
+const HEAT_GRID = 20;
 
 /** Scrolltiefe in Zehnerschritten, 0–100 % der Startseite. */
-export const DEPTH_STEP = 10;
+const DEPTH_STEP = 10;
 
 /** Wie viele verschiedene Klickziele ein Tag je Gerät aufnimmt. Die Startseite
  *  hat rund 120 klickbare Elemente; der Rest fällt in OVERFLOW_TARGET. */

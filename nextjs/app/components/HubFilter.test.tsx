@@ -34,7 +34,6 @@ function renderList(facets: HubFacet[] = CATEGORIES, queryKey = 'cat') {
   return render(
     <HubFilterProvider queryKey={queryKey} slugs={facets.map((f) => f.slug)}>
       <HubFilterBar
-        columns={2}
         facets={facets}
         allLabel="Alle"
         allStatus="Alle 4 Spots in Schöneberg"
@@ -176,7 +175,6 @@ describe('HubFilter', () => {
     render(
       <HubFilterProvider queryKey="bezirk" slugs={districts.map((d) => d.slug)}>
         <HubFilterBar
-          columns={3}
           facets={districts}
           allLabel="Alle"
           allStatus="Alle 55 Spots in Berlin"

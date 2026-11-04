@@ -45,19 +45,18 @@ function validSession(overrides: Record<string, unknown> = {}): Stripe.Checkout.
 }
 
 beforeEach(() => {
-  vi.stubEnv('STRIPE_SECRET_KEY', 'sk_live_test')
   mocks.retrieve.mockReset()
 })
 
 describe('Stripe Checkout session integrity', () => {
-  it('accepts a payment session bound to the catalog amount and Price', async () => {
-    const verified = await verifyCheckoutSession(validSession())
+  it('accepts a payment session bound to the catalog amount and Price', () => {
+    const verified = verifyCheckoutSession(validSession())
     expect(verified.pack.packId).toBe('category-pizza')
     expect(verified.uid).toBe('u1')
     expect(verified.mode).toBe('auth')
   })
 
-  it('accepts an immutable checkout snapshot after a later catalog rotation', async () => {
+  it('accepts an immutable checkout snapshot after a later catalog rotation', () => {
     const session = validSession({
       amount_total: 249,
       line_items: {
@@ -73,9 +72,26 @@ describe('Stripe Checkout session integrity', () => {
       checkoutAmountCents: '249',
     }
 
-    await expect(verifyCheckoutSession(session)).resolves.toMatchObject({
+    expect(verifyCheckoutSession(session)).toMatchObject({
       pack: { packId: 'category-pizza' },
     })
+  })
+
+  it.each([
+    ['no snapshot', {}],
+    ['no Price', { checkoutAmountCents: '299' }],
+    ['no amount', { checkoutPriceId: 'price_x' }],
+    ['a non-numeric amount', { checkoutPriceId: 'price_x', checkoutAmountCents: 'abc' }],
+    ['a zero amount', { checkoutPriceId: 'price_x', checkoutAmountCents: '0' }],
+  ])('rejects a session with %s, even if it matches the catalog', (_label, snapshot) => {
+    const session = validSession()
+    const metadata: Stripe.Metadata = { ...session.metadata }
+    delete metadata.checkoutPriceId
+    delete metadata.checkoutAmountCents
+    session.metadata = { ...metadata, ...snapshot }
+    expect(() => verifyCheckoutSession(session)).toThrow(
+      expect.objectContaining({ reason: 'missing_checkout_snapshot' }),
+    )
   })
 
   it.each([
@@ -92,19 +108,16 @@ describe('Stripe Checkout session integrity', () => {
       },
       'wrong_price',
     ],
-  ])('rejects %s', async (_label, override, reason) => {
-    await expect(verifyCheckoutSession(validSession(override))).rejects.toMatchObject({
-      name: 'CheckoutSessionIntegrityError',
-      reason,
-    })
+  ])('rejects %s', (_label, override, reason) => {
+    expect(() => verifyCheckoutSession(validSession(override))).toThrow(
+      expect.objectContaining({ name: 'CheckoutSessionIntegrityError', reason }),
+    )
   })
 
-  it('rejects an auth session without a uid', async () => {
+  it('rejects an auth session without a uid', () => {
     const session = validSession()
     session.metadata = { ...session.metadata, uid: '' }
-    await expect(verifyCheckoutSession(session)).rejects.toBeInstanceOf(
-      CheckoutSessionIntegrityError,
-    )
+    expect(() => verifyCheckoutSession(session)).toThrow(CheckoutSessionIntegrityError)
   })
 
   it('retrieves expanded line items before validating', async () => {

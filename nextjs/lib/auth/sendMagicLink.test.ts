@@ -108,9 +108,7 @@ describe('sendMagicLinkEmail idempotency', () => {
 
 describe('sendMagicLinkEmail Sprache', () => {
   /* Die Sprache der Mail kommt aus der Seite, auf der angefordert wurde. Die
-     Seite, auf der der Link landet, traegt ihre Sprache im Pfad — ein
-     `lang`-Traeger ist nicht mehr noetig (und die Middleware beantwortete
-     ?lang= mit einem 308). */
+     Seite, auf der der Link landet, traegt ihre Sprache im Pfad. */
   it('waehlt den EN-Betreff und haengt keinen lang-Traeger an', async () => {
     await sendMagicLinkEmail({
       email: 'guest@example.com',

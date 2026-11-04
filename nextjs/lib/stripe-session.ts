@@ -1,7 +1,6 @@
 import type Stripe from 'stripe';
 import { getStripe } from './stripe';
 import { getPack, type PackDef } from './stripe-catalog';
-import { resolvePriceId } from './stripe-price';
 
 export type CheckoutMode = 'auth' | 'guest';
 type CheckoutLocale = 'de' | 'en';
@@ -28,12 +27,9 @@ function fail(reason: string): never {
 /**
  * Validate every value that controls fulfillment against the server catalog.
  * The expanded line item must match the immutable Price/amount snapshot that
- * our checkout route stores on the session (or the current catalog for legacy
- * sessions created before snapshots existed).
+ * our checkout route stores on the session.
  */
-export async function verifyCheckoutSession(
-  session: Stripe.Checkout.Session
-): Promise<VerifiedCheckoutSession> {
+export function verifyCheckoutSession(session: Stripe.Checkout.Session): VerifiedCheckoutSession {
   const metadata = session.metadata ?? {};
   const packId = metadata.packId;
   if (!packId) fail('missing_packId');
@@ -56,17 +52,13 @@ export async function verifyCheckoutSession(
     fail('wrong_line_items');
   }
   const lineItem = lineItems.data[0];
-  // New sessions carry their immutable checkout-time catalog snapshot. This
-  // keeps an async payment valid after a legitimate Price/amount rotation.
-  // Sessions created before these fields existed fall back to the current
-  // catalog during the transition window.
-  const metadataAmount = Number(metadata.checkoutAmountCents);
-  const hasCheckoutSnapshot =
-    Boolean(metadata.checkoutPriceId) && Number.isSafeInteger(metadataAmount) && metadataAmount > 0;
-  const expectedPriceId = hasCheckoutSnapshot
-    ? metadata.checkoutPriceId!
-    : await resolvePriceId(pack);
-  const expectedAmount = hasCheckoutSnapshot ? metadataAmount : pack.amountCents;
+  // The immutable checkout-time catalog snapshot keeps an async payment valid
+  // after a legitimate Price/amount rotation.
+  const expectedPriceId = metadata.checkoutPriceId;
+  const expectedAmount = Number(metadata.checkoutAmountCents);
+  if (!expectedPriceId || !Number.isSafeInteger(expectedAmount) || expectedAmount <= 0) {
+    fail('missing_checkout_snapshot');
+  }
 
   if (session.amount_total !== expectedAmount) fail('wrong_amount');
   if (lineItem.quantity !== 1) fail('wrong_quantity');

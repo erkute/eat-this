@@ -19,12 +19,12 @@ export interface CachedMapData {
    `restaurants` war das Tier DIESES Kontos, jetzt ist es der ganze Katalog.
    Ein v3-Cache besteht die Formpruefung muehelos und wuerde vor dem ersten
    Fetch 150 Spots malen statt 465 — ein halber Stadtplan, der wie das
-   Endergebnis aussieht. Die Versionsnummer ist der Riegel: v3-Schluessel
-   fallen unter LEGACY_CACHE_PREFIX und werden beim naechsten Abgleich
-   geloescht. */
+   Endergebnis aussieht. Die Versionsnummer ist der Riegel: fremde Versionen
+   werden beim naechsten Abgleich geloescht. */
 const CURRENT_CACHE_PREFIX = 'eatthis_mapdata_v4_';
 const CURRENT_LAST_UID_KEY = 'eatthis_last_uid_v4';
-const LEGACY_CACHE_PREFIX = 'eatthis_mapdata_';
+/** Trifft jede Cache-Version, auch die aktuelle: der Logout braucht das. */
+const ANY_VERSION_CACHE_PREFIX = 'eatthis_mapdata_';
 const LEGACY_LAST_UID_KEYS = [
   'eatthis_last_uid',
   'eatthis_last_uid_v2',
@@ -127,7 +127,7 @@ export function seedUidBeforeAuth(): string | null {
 
 export function clearMapDataCaches(): void {
   if (typeof window === 'undefined') return;
-  removeKeys(LEGACY_CACHE_PREFIX);
+  removeKeys(ANY_VERSION_CACHE_PREFIX);
   for (const key of LEGACY_LAST_UID_KEYS) window.localStorage.removeItem(key);
   window.localStorage.removeItem(CURRENT_LAST_UID_KEY);
 }
@@ -135,12 +135,13 @@ export function clearMapDataCaches(): void {
 export function reconcileMapDataCacheIdentity(uid: string | null): void {
   if (typeof window === 'undefined') return;
 
-  // v1 stored hydrated Premium Must-Eats. It must be deleted for every user,
-  // including the currently signed-in user, immediately after this rollout.
+  // v1 stored hydrated Premium Must-Eats. A browser keeps it until someone
+  // deletes it, and no server can tell whether one still does, so this sweep
+  // runs on every auth state change, signed in or not.
   const legacyKeys: string[] = [];
   for (let index = 0; index < window.localStorage.length; index += 1) {
     const key = window.localStorage.key(index);
-    if (key?.startsWith(LEGACY_CACHE_PREFIX) && !key.startsWith(CURRENT_CACHE_PREFIX)) {
+    if (key?.startsWith(ANY_VERSION_CACHE_PREFIX) && !key.startsWith(CURRENT_CACHE_PREFIX)) {
       legacyKeys.push(key);
     }
   }

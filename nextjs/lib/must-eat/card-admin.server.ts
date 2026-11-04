@@ -60,25 +60,8 @@ function cardRef(id: string) {
   return getAdminFirestore().collection(PRIVATE_MUST_EATS_COLLECTION).doc(id);
 }
 
-function sha256(value: Buffer | string): string {
+function sha256(value: Buffer): string {
   return createHash('sha256').update(value).digest('hex');
-}
-
-/** Gleiche Feldfolge wie migrate-must-eats-private.ts, sonst passt verify nicht. */
-function recordSha256(data: Record<string, unknown>): string {
-  return sha256(
-    JSON.stringify({
-      schemaVersion: data.schemaVersion,
-      dish: data.dish,
-      description: data.description,
-      descriptionEn: data.descriptionEn,
-      price: data.price,
-      restaurantId: data.restaurantId,
-      imageObjectPath: data.imageObjectPath,
-      imageContentType: data.imageContentType,
-      imageSha256: data.imageSha256,
-    })
-  );
 }
 
 const text = (value: unknown) => (typeof value === 'string' ? value : '');
@@ -182,7 +165,7 @@ export async function writeMustEatCard(input: {
     schemaVersion: 1,
   };
   await cardRef(id).set(
-    { ...next, recordSha256: recordSha256(next), updatedAt: FieldValue.serverTimestamp() },
+    { ...next, updatedAt: FieldValue.serverTimestamp() },
     { merge: true }
   );
   return readMustEatCard(id);

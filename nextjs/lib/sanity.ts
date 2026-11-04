@@ -39,20 +39,22 @@ export const client = createClient({
   // Without these two the client waits FIVE MINUTES for a socket that has gone
   // quiet (@sanity/client's default) — far past anything a render can use, and
   // the request occupies the instance the whole time. Real queries against the
-  // CDN measure 0,12–0,46 s (16.09. and 04.11.2026), so 10 s is far above any
+  // CDN measure 0,12–0,46 s (16.09. and 04.11.2026), so 30 s is far above any
   // response Sanity itself needs.
   //
   // The timer runs on this process, though, so it also fires when the process
   // has no CPU to read the answer: 92 % of the ESOCKETTIMEDOUT logged between
-  // 25.10. and 04.11.2026 fell on instances still in their warmup, which Cloud
-  // Run throttles (`cpuIdle: true`) (Sentry JAVASCRIPT-AH).
+  // 25.10. and 04.11.2026 fell on instances still in their warmup, with one vCPU
+  // that Cloud Run throttles outside requests (Sentry JAVASCRIPT-AH). In a local
+  // build with its CPU throttled to 5 %, 36 of 36 pages failed at 10 s and none
+  // at 30 s, and they finished about when the failures had (04.11.2026).
   //
   // Retries cover 429/502/503 and network errors such as a dead TLS handshake
   // or a closed kept-alive socket (Sentry JAVASCRIPT-5/2E/6J). A timeout is NOT
   // one of them: in the react-server build of get-it it carries no
   // `isNetworkError`, so it surfaces after the first attempt, whatever
   // `maxRetries` says (measured against a silent socket, 04.11.2026).
-  timeout: 10_000,
+  timeout: 30_000,
   maxRetries: 3,
   perspective: 'published',
   token: process.env.SANITY_API_READ_TOKEN,

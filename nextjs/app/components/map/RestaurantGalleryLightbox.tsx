@@ -134,7 +134,9 @@ function Viewer({
       element.style.setProperty('color-scheme', 'dark', 'important');
     }
     for (const meta of metas) meta.content = '#000000';
+    document.documentElement.setAttribute('data-photo-gallery', '');
     return () => {
+      document.documentElement.removeAttribute('data-photo-gallery');
       for (const { element, background, scheme } of snapshots) {
         restoreStyle(element.style, 'background-color', background);
         restoreStyle(element.style, 'color-scheme', scheme);

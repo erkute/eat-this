@@ -602,61 +602,61 @@
 .rdHeartToggle:focus-visible,
 .rdBack:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 
-/* Feste Leiste für das gescrollte Detail am Telefon (RestaurantDetail.tsx).
-   Sie klebt unter Kartenstreifen und Griff (26px, MapSheet.module.css) und
-   nimmt keinen Platz ein; sichtbar erst, wenn der Pfeil im Foto verdeckt ist. */
-.rdBar { display: none; }
+/* Feste Leiste für das gescrollte Detail (RestaurantDetail.tsx). Sie nimmt
+   keinen Platz ein und ist sichtbar, sobald der Pfeil im Foto verdeckt ist. Am
+   Telefon klebt sie unter Kartenstreifen und Griff (26px, MapSheet.module.css). */
+.rdBar {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 0;
+}
+.rdBarInner {
+  position: absolute;
+  inset: 0 0 auto;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 8px;
+  background: var(--et-ground);
+  color: var(--et-fg);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--et-fg) 10%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 160ms ease-out,
+    visibility 0s linear 160ms;
+}
+.rdBar[data-shown] .rdBarInner {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 160ms ease-out;
+}
+.rdBarBtn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.rdBarBtn svg { width: 22px; height: 22px; }
+.rdBarBtn[aria-pressed='true'] svg { color: var(--et-heart); }
+.rdBarName {
+  overflow: hidden;
+  font: 700 16px / 1.2 var(--et-font-body);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 @media (max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
-  .rdBar {
-    display: block;
-    position: sticky;
-    top: calc(var(--map-strip, env(safe-area-inset-top, 0px)) + 26px);
-    z-index: 40;
-    height: 0;
-  }
-  .rdBarInner {
-    position: absolute;
-    inset: 0 0 auto;
-    display: grid;
-    grid-template-columns: 44px 1fr 44px;
-    align-items: center;
-    gap: 8px;
-    height: 48px;
-    padding: 0 8px;
-    background: var(--et-ground);
-    color: var(--et-fg);
-    box-shadow: 0 1px 0 color-mix(in srgb, var(--et-fg) 10%, transparent);
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 160ms ease-out,
-      visibility 0s linear 160ms;
-  }
-  .rdBar[data-shown] .rdBarInner {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 160ms ease-out;
-  }
-  .rdBarBtn {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-  .rdBarBtn svg { width: 22px; height: 22px; }
-  .rdBarBtn[aria-pressed='true'] svg { color: var(--et-heart); }
-  .rdBarName {
-    overflow: hidden;
-    font: 700 16px / 1.2 var(--et-font-body);
-    text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  .rdBar { top: calc(var(--map-strip, env(safe-area-inset-top, 0px)) + 26px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .rdBarInner,

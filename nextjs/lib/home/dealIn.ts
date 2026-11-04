@@ -4,8 +4,8 @@ import { appScroller } from '@/lib/dom/appScroller';
 
 /**
  * Einflüge der Startseite, wenn eine Section zum ersten Mal ins Bild kommt
- * (Ansage 21.10.2026: „GSAP-Animationen wie auf der Live-Seite" — der
- * Kartenstapel des Magazins, das Austeilen der Must Eats). Ausgelöst per
+ * (Ansage 21.10.2026: „GSAP-Animationen wie auf der Live-Seite" — das Austeilen
+ * der Must Eats, die Bezirkskarte). Ausgelöst per
  * IntersectionObserver, nie über die Scrollposition. Steht die Section beim
  * Laden schon im Bild (Neuladen mitten auf der Seite, Sprung per Anker),
  * bleibt sie, wie sie ist: sichtbarer Inhalt wartet nie auf eine Animation.

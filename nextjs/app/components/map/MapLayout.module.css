@@ -458,3 +458,11 @@
   .body[data-map-view]:is([data-map-view='list'], [data-detail-kind='restaurant']) .mapFrame { display: block; position: absolute; inset: 0 min(42vw, 360px) 0 0; height: 100%; min-height: 0; z-index: 0; clip-path: none; }
   .body[data-map-view]:is([data-map-view='list'], [data-detail-kind='restaurant']) .mapWrap { position: absolute; inset: 0; height: 100%; min-height: 0; z-index: 0; clip-path: none; }
 }
+
+/* Die sticky Karte beruehrt am Telefon die Oberkante; solange die Foto-Galerie
+   offen ist, faerbte Safari die Statusleiste danach grau. Der Platz bleibt. */
+@media (max-width: 767.98px) {
+  :global(html[data-photo-gallery]) .mapFrame {
+    visibility: hidden;
+  }
+}

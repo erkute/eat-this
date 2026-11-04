@@ -43,27 +43,36 @@
 }
 
 
-.articleTitle { margin: 18px 0 0; font-size: clamp(18px, 1.65vw, 24px); font-weight: 700; line-height: 1.22; letter-spacing: -.035em; text-wrap: pretty; }
+.articleTitle { margin: 6px 0 0; font-size: clamp(18px, 1.65vw, 24px); font-weight: 700; line-height: 1.22; letter-spacing: -.035em; text-wrap: pretty; }
 .articleTitle a, .selectedTitle a, .smallTitle a { color: inherit; text-decoration: none; }
 .articleTitle a:focus-visible, .selectedTitle a:focus-visible, .smallTitle a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 .selectedTitle { display: none; }
 .moreCovers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 28px; max-width: 1400px; margin: 32px auto 0; padding: 0; list-style: none; }
 .moreCovers li { min-width: 0; }
-.smallTitle { margin: 16px 0 0; max-width: 34ch; font-size: clamp(18px, 1.6vw, 23px); font-weight: 700; line-height: 1.25; letter-spacing: -.03em; text-wrap: pretty; }
+.smallTitle { margin: 6px 0 0; max-width: 34ch; font-size: clamp(18px, 1.6vw, 23px); font-weight: 700; line-height: 1.25; letter-spacing: -.03em; text-wrap: pretty; }
 @media (max-width: 599.98px) and (orientation: portrait) {
  .articleTitle, .desktopMeta { display: none; }
  /* All four titles size this shared cell; changing the cover cannot move the stories below. */
  .selectedTitle { display: grid; margin: 0 16px; }
  .selectedTitle > div { grid-area: 1 / 1; visibility: hidden; }
- .selectedTitle h3 { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.25; letter-spacing: -.03em; text-wrap: pretty; }
+ .selectedTitle h3 { margin: 6px 0 0; font-size: 22px; font-weight: 700; line-height: 1.25; letter-spacing: -.03em; text-wrap: pretty; }
  .selectedTitle > div[data-active='true'] { visibility: visible; }
  .moreCovers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 16px; margin: 24px 0 0; padding-top: 0; }
- .smallTitle { max-width: none; margin-top: 12px; font-size: 17px; }
+ .smallTitle { max-width: none; font-size: 17px; }
 }
 
-.metadata { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 10px 0 0; font-size: 12px; line-height: 1.4; font-weight: 400; font-variant-numeric: tabular-nums; }
-.metadata span { font-weight: 700; }
-@media (max-width: 599.98px) and (orientation: portrait) { .metadata { font-size: 11px; gap: 3px 10px; } }
+/* Über dem Titel, wie in der Magazin-Rubrik (.meta in NewsSection.module.css). */
+.metadata { margin: 16px 0 0; color: var(--et-muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; line-height: 1.5; text-transform: uppercase; }
+@media (max-width: 599.98px) and (orientation: portrait) {
+  .metadata { margin-top: 12px; font-size: 11px; }
+  .selectedTitle .metadata { margin-top: 0; }
+}
+/* In schmalen Spalten bleibt die Zeile einzeilig: in Versalien fiele die
+   Jahreszahl allein in eine zweite Zeile. */
+.moreCovers li, .desktopMeta { container-type: inline-size; }
+@container (max-width: 219.98px) {
+  .metadata { font-size: min(11px, 7.4cqi); letter-spacing: 0; text-transform: none; }
+}
 
 @media (min-width: 600px), (orientation: landscape) {
   .covers li:nth-child(4), .moreCovers li[data-extra-index='4'] { display: none; }
@@ -83,6 +92,6 @@
   .covers { margin-top: 32px; gap: 20px; }
   .section .moreCovers { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 24px; gap: 20px; }
   .moreCovers li[data-extra-index="3"] { display: none; }
-  .articleTitle, .smallTitle { font-size: 17px; line-height: 1.25; margin-top: 12px; }
-  .metadata { font-size: 11px; gap: 3px 8px; }
+  .articleTitle, .smallTitle { font-size: 17px; line-height: 1.25; }
+  .metadata { margin-top: 12px; font-size: 11px; }
 }

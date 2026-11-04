@@ -42,14 +42,38 @@ export function getCachedMustEats(): Promise<MapMustEat[]> {
   return client.fetch<MapMustEat[]>(mapMustEatsQuery, {}, MAP_CACHE_OPTIONS);
 }
 
-export async function getCachedMapData(): Promise<CachedMapData> {
+/* Nexts Data Cache fasst gleichzeitige Anfragen nicht zusammen, solange sein
+   Eintrag leer ist: 20 Aufrufe von /map auf einer frischen Instanz waren 20-mal
+   der ganze Katalog (680 kB). Ein geteiltes Promise ginge nicht, denn Next hängt
+   die Tags an den Render, der den `fetch` selbst aufruft; eine ISR-Seite ohne
+   `map-data` bliebe nach einer Änderung bis zu 24 Stunden alt. Deshalb warten
+   die übrigen Aufrufer nur, bis die laufende Runde durch ist, und lesen dann
+   selbst aus dem gefüllten Cache. Scheitert die Runde, versucht es jeder von
+   ihnen einmal selbst, statt dass sich Zeitlimits aneinanderreihen. */
+let catalogRead: Promise<void> | null = null;
+
+function readCatalog() {
   // Cache each Sanity request in Next's shared Data Cache. Unlike a module
   // variable, these tagged entries can be invalidated across warm instances.
-  const [restaurants, mustEats, categories] = await Promise.all([
+  return Promise.all([
     client.fetch<MapRestaurant[]>(mapRestaurantsQuery, {}, MAP_CACHE_OPTIONS),
     getCachedMustEats(),
     client.fetch<CategoryDef[]>(allCategoriesQuery, {}, MAP_CACHE_OPTIONS),
   ]);
+}
+
+export async function getCachedMapData(): Promise<CachedMapData> {
+  if (catalogRead) await catalogRead;
+  const read = readCatalog();
+  catalogRead ??= read.then(
+    () => {
+      catalogRead = null;
+    },
+    () => {
+      catalogRead = null;
+    }
+  );
+  const [restaurants, mustEats, categories] = await read;
   return {
     restaurants: restaurants.map((r) => {
       const searchText = searchTextOf(r);

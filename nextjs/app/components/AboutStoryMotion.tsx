@@ -3,6 +3,9 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { appScroller } from '@/lib/dom/appScroller';
 
+/** Phones held sideways stack the cards instead of fanning them (AboutPage.module.css). */
+const STACKED_CARDS = '(orientation: landscape) and (max-height: 500px) and (min-width: 600px) and (max-width: 1023.98px)';
+
 /** Only the cards fan out. All other artwork stays still; CSS supplies the
  * open fan before hydration and for reduced motion. */
 export default function AboutStoryMotion({ children, className }: { children: ReactNode; className: string }) {
@@ -18,8 +21,8 @@ export default function AboutStoryMotion({ children, className }: { children: Re
       const media = gsap.matchMedia();
       // Rebuild when the breakpoint changes: desktop uses the app scroller,
       // mobile the document. The animation itself is the same in both.
-      media.add({ motion: '(prefers-reduced-motion: no-preference)', desktop: '(min-width: 768px)' }, (context) => {
-        if (!context.conditions?.motion) return;
+      media.add({ motion: '(prefers-reduced-motion: no-preference)', desktop: '(min-width: 768px)', stacked: STACKED_CARDS }, (context) => {
+        if (!context.conditions?.motion || context.conditions.stacked) return;
         const scroller = appScroller() ?? undefined;
         element.querySelectorAll<HTMLElement>('[data-about-fan]').forEach((fan) => {
           const cards = Array.from(fan.querySelectorAll<HTMLElement>('[data-about-card]'));

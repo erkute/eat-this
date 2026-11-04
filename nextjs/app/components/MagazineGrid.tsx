@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Link } from '@/i18n/navigation';
 import type { HubArticle } from '@/lib/home/getHomeData';
-import MagazineCover from './MagazineCover';
+import MagazineCover, { formatMonth } from './MagazineCover';
 import MagazineLink from './MagazineLink';
 import styles from './MagazineGrid.module.css';
 
@@ -30,11 +30,10 @@ function pose(depth: number, count: number) {
 }
 
 function ArticleMeta({ article, locale }: { article: HubArticle; locale: 'de' | 'en' }) {
-  const date = article.date ? new Date(article.date) : null;
-  const validDate = date && !Number.isNaN(date.getTime());
+  const month = formatMonth(article.date, locale);
   return <p className={styles.metadata}>
     <span>Issue {String(article.issue).padStart(2, '0')}</span>
-    {validDate && <time dateTime={article.date!}>{new Intl.DateTimeFormat(locale === 'de' ? 'de-DE' : 'en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }).format(date)}</time>}
+    {month && <><span aria-hidden="true"> · </span><time dateTime={article.date!}>{month}</time></>}
   </p>;
 }
 
@@ -155,8 +154,8 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
     // Am Desktop hebt sich das Heft unter der Maus vom Tisch ab: es steigt,
     // kippt leicht schief, wirft einen tieferen Schatten und neigt sich mit
     // dem Zeiger (Ansage 22.10.2026: „auf Desktop ne passende Hover-
-    // Animation"). Animiert wird der Link im Heft, nicht das <li> — das
-    // gehört dem Austeilen in HubMotion.
+    // Animation"). Animiert wird nur der Link im Heft: Titel und Datum darunter
+    // bleiben stehen.
     mm.add('(min-width: 600px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)', () => {
       const covers = Array.from(ol.querySelectorAll<HTMLElement>(':scope > li > a'));
       const tilts = [-1.6, 1.3, -1.1, 1.5];
@@ -278,18 +277,18 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
               <MagazineCover title={a.title} image={a.image} issue={a.issue} date={a.date} locale={locale} cover={a.cover}
                 sizes="(orientation: landscape) and (max-height: 500px) 31vw, (max-width: 599px) 80vw, 31vw" widths={[480, 800, 1200]} />
             </MagazineLink>
-            <h3 className={styles.articleTitle}><Link href={`/news/${a.slug}`}>{a.title}</Link></h3>
             <div className={styles.desktopMeta}><ArticleMeta article={a} locale={locale} /></div>
+            <h3 className={styles.articleTitle}><Link href={`/news/${a.slug}`}>{a.title}</Link></h3>
           </li>
         ))}
       </ol>
       <div className={styles.selectedTitle}>
         {list.map((article, index) => (
           <div key={article.slug} data-active={index === selected} aria-hidden={index !== selected}>
+          <ArticleMeta article={article} locale={locale} />
           <h3>
             <Link href={`/news/${article.slug}`} tabIndex={index === selected ? undefined : -1}>{article.title}</Link>
           </h3>
-          <ArticleMeta article={article} locale={locale} />
           </div>
         ))}
       </div>
@@ -301,8 +300,8 @@ export default function MagazineGrid({ articles, locale }: { articles: HubArticl
                 <MagazineCover title={a.title} image={a.image} issue={a.issue} date={a.date} locale={locale} cover={a.cover}
                   sizes="(orientation: landscape) and (max-height: 500px) 23vw, (max-width: 1023px) 42vw, 23vw" widths={[240, 480, 800]} />
               </MagazineLink>
-              <h3 className={styles.smallTitle}><Link href={`/news/${a.slug}`}>{a.title}</Link></h3>
               <ArticleMeta article={a} locale={locale} />
+              <h3 className={styles.smallTitle}><Link href={`/news/${a.slug}`}>{a.title}</Link></h3>
             </li>
           ))}
         </ol>

@@ -50,5 +50,8 @@ test('restaurant header follows desktop-to-phone viewport changes', async ({ pag
   const bar = detail.locator('[class*="rdBar_"]');
   await expect(bar).toHaveAttribute('data-shown', '');
   await page.setViewportSize({ width: 1440, height: 900 });
+  await detail.locator('[data-pack-poster]').scrollIntoViewIfNeeded();
+  await expect(bar).toHaveAttribute('data-shown', '');
+  await detail.locator('[data-detail-scroll]').evaluate((scroll) => scroll.scrollTo({ top: 0, behavior: 'instant' }));
   await expect(bar).not.toHaveAttribute('data-shown', '');
 });

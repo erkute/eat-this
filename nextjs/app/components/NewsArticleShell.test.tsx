@@ -230,9 +230,12 @@ describe('NewsArticleShell', () => {
     expect(html).toContain('Bursa Uludag Kebapcisi');
   });
 
-  it('links a must-eat band to the map spot, and to the overview without a slug', () => {
-    expect(render([mustEat('Hasir', 'hasir')])).toContain('href="/map?r=hasir"');
-    expect(render([mustEat('Hasir')])).toContain('href="/must-eats"');
+  it('links a must-eat band to its detail, then the spot, then the overview', () => {
+    const withoutCard = (slug?: string) =>
+      ({ ...mustEat('Hasir', slug), mustEatId: undefined }) as unknown as PortableTextBlock;
+    expect(render([mustEat('Hasir', 'hasir')])).toContain('href="/map?me=id-Hasir"');
+    expect(render([withoutCard('hasir')])).toContain('href="/map?r=hasir"');
+    expect(render([withoutCard()])).toContain('href="/must-eats"');
   });
 
   it('sends the spot name, photo and metadata to the spot page', () => {
@@ -246,10 +249,10 @@ describe('NewsArticleShell', () => {
     for (const link of links) expect(link.getAttribute('rel') ?? '').not.toContain('nofollow');
   });
 
-  it('nofollows the must-eat map link with its restaurant query', () => {
+  it('nofollows the must-eat map link with its card query', () => {
     const body = document.createElement('div');
     body.innerHTML = render([mustEat('Hasir', 'hasir')]);
-    const link = body.querySelector('a[href="/map?r=hasir"]')!;
+    const link = body.querySelector('a[href="/map?me=id-Hasir"]')!;
     expect(link.getAttribute('rel')).toBe('nofollow');
   });
 

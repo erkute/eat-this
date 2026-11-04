@@ -23,8 +23,7 @@
   --article-quiet: var(--et-quiet);
   /* Text keeps a reading measure; headlines and photo spreads use the desktop width independently. */
   --article-measure: 660px;
-  /* Ohne safe-area-inset — `.app-pages` hat den Notch schon reserviert. */
-  padding: 0 clamp(18px, 4vw, 54px) 0;
+  padding: 0 max(clamp(18px, 4vw, 54px), calc(max(var(--et-safe-left), var(--et-safe-right)) + 16px)) 0;
   /* Der Grund selbst liegt an html/body/.app-pages (globals.css): `.app-page`
      ist dort sitewide transparent und schlägt diese Klasse. */
   color: var(--article-fg);
@@ -465,60 +464,78 @@ div.page {
 /* Kompakter redaktioneller Verweis zwischen den Artikelabsätzen. */
 .mustEat {
   --et-press-opacity: 1;
-  position: relative;
-  display: grid;
-  grid-template-columns: 132px minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 36px;
-  margin: 40px 0;
-  padding: 28px 32px;
-  background: var(--et-ground) url('/pics/paper/folded-white.webp?v=20261028-hq') center / cover;
-  background-blend-mode: multiply;
-  color: var(--et-fg);
-  text-align: left;
+  margin: 56px 0;
+  color: var(--article-fg);
+  text-align: center;
   text-decoration: none;
 }
 
 .mustEat:is(:active, [data-et-pressed]) { scale: 0.99; }
 
+/* Die Karte liegt auf zwei Rückseiten; der Fächer trägt den Block allein. */
 .mustEatPh {
-  display: grid;
-  place-items: center;
-  margin: 0;
+  position: relative;
+  isolation: isolate;
+  width: clamp(170px, 52%, 240px);
+  margin: 0 0 32px;
   padding: 0;
 }
+.mustEatPh::before,
+.mustEatPh::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('/pics/card-back.webp?v=20261028') center / 100% 100% no-repeat;
+  filter: drop-shadow(0 6px 10px rgb(21 18 14 / .22));
+  transition: transform 320ms cubic-bezier(.22, 1, .36, 1);
+}
+.mustEatPh::before { transform: translate(-22%, 3%) rotate(-13deg); }
+.mustEatPh::after { transform: translate(22%, 4%) rotate(14deg); }
 
 .mustEatPh img {
   display: block;
   width: 100%;
   height: auto;
+  filter: drop-shadow(0 10px 16px rgb(21 18 14 / .3));
+  transform: rotate(2deg);
+  transition: transform 320ms cubic-bezier(.22, 1, .36, 1);
 }
 
 .mustEatBody {
   display: grid;
+  justify-items: center;
   min-width: 0;
-  justify-items: start;
-  gap: 8px;
 }
 
 .mustEat .mustEatName {
-  max-width: 24ch;
-  margin: 0;
-  color: var(--et-fg);
-  font-size: clamp(26px, 3vw, 36px);
+  max-width: 22ch;
+  margin: 12px 0 0;
+  color: var(--article-fg);
+  font-size: clamp(26px, 3.4vw, 34px);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  text-align: left;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  text-align: center;
   text-transform: none;
-  text-wrap: pretty;
-  overflow-wrap: anywhere;
+  text-wrap: balance;
+  hyphens: manual;
 }
 
-.mustEat .mustEatDesc { margin-top: 12px; }
+.mustEat .mustEatDesc { margin-top: 18px; }
 
 @media (hover: hover) {
-  .mustEat:hover { color: var(--et-fg); outline: 2px solid var(--et-fg); outline-offset: 4px; }
+  .mustEat:hover .mustEatPh::before { transform: translate(-30%, 0) rotate(-19deg); }
+  .mustEat:hover .mustEatPh::after { transform: translate(30%, 1%) rotate(20deg); }
+  .mustEat:hover .mustEatPh img { transform: translateY(-10px) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mustEatPh::before,
+  .mustEatPh::after,
+  .mustEatPh img { transition: none; }
 }
 
 /* ------------------------------------------------------- inline spot ---- */
@@ -951,12 +968,7 @@ div.page {
     font-size: clamp(24px, 7vw, 30px);
   }
 
-  .mustEat {
-    grid-template-columns: 88px minmax(0, 1fr);
-    gap: 20px;
-    margin: 28px 0;
-    padding: 24px 18px;
-  }
+  .mustEat { margin: 44px 0; }
 
   /* Die Spot-Karte mit demselben Rahmen wie die Fotos im Text, im
      Seitenverhältnis der Map-Karten. */

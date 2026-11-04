@@ -21,7 +21,8 @@
 @media (prefers-reduced-motion: reduce) { .marks path, .large a, .small a { transition: none; } }
 @media(max-width:599.98px) {
   .section { grid-template-columns: 1fr; grid-template-areas: 'map' 'content'; padding-block: 40px; gap: 32px; }
-  .map { width: 90%; justify-self: center; }
+  /* Geht zur Hälfte in den Seitenrand: die Karte trägt die Sektion. */
+  .map { width: calc(100% + var(--home-gutter)); justify-self: center; }
   .large a { font-size: 62px; }
   .large a:first-child { font-size: 82px; }
   .large a:nth-child(2) { font-size: 55px; }
@@ -30,7 +31,7 @@
 }
 
 @media (min-width: 600px) and (max-width: 1023.98px) {
- .section { gap: 24px; padding-block: 48px; }
+ .section { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 24px; padding-block: 48px; }
  .large a { font-size: clamp(42px, 7vw, 64px); }
  .large a:first-child { font-size: clamp(52px, 8.6vw, 80px); }
  .large a:nth-child(2) { font-size: clamp(38px, 6.2vw, 56px); }

@@ -3,7 +3,7 @@
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { appScroller } from '@/lib/dom/appScroller';
-import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/lib/home/dealIn';
+import { onFirstView } from '@/lib/home/dealIn';
 
 /* Bewusst ohne ScrollTrigger: das Plugin hält ab dem Registrieren eine
    leere requestAnimationFrame-Schleife am Laufen, für die ganze Sitzung und
@@ -16,9 +16,9 @@ import { CLEAR_DEAL, dealFromPile, onFirstView, stackOnPile, visible } from '@/l
 gsap.registerPlugin(useGSAP);
 
 /**
- * The hero cards are immediately visible. This controller handles the
- * entrances of the magazine and the districts map
- * (lib/home/dealIn.ts) and the signup demonstration (the FAQ opens in CSS,
+ * The hero cards and the magazine are immediately visible. This controller
+ * handles the entrance of the districts map (lib/home/dealIn.ts) and the signup
+ * demonstration (the FAQ opens in CSS,
  * HubFaq). Reduced motion always leaves the content in its resting state.
  */
 
@@ -114,42 +114,6 @@ function armSignupDemo(): () => void {
   };
 }
 
-function centreOf(el: Element) {
-  const box = el.getBoundingClientRect();
-  return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
-}
-
-/** Auf dem Teller: die Hefte liegen als Stapel auf dem ersten Platz und
- *  werden auf ihre Plätze ausgeteilt. Nur am Desktop — am Telefon bleiben
- *  sie ein Stapel, dessen Posen MagazineGrid selbst setzt; das Austeilen und
- *  sein Aufräumen dürfen die Hefte dort nicht anfassen. */
-function armMagazineDeal(): () => void {
-  const section = document.querySelector<HTMLElement>('[data-hub-magazine]');
-  if (!section) return () => {};
-  const covers = () => visible(section.querySelectorAll<HTMLElement>('ol > li'));
-  const lift = 70;
-  let timeline: gsap.core.Timeline | null = null;
-  const stop = onFirstView(
-    section,
-    () => {
-      const list = covers();
-      if (!list.length) return;
-      stackOnPile(list, centreOf(list[0]), lift);
-    },
-    () => {
-      const list = covers();
-      gsap.set(list, { clearProps: CLEAR_DEAL });
-      if (!list.length) return;
-      timeline = dealFromPile(list, centreOf(list[0]), { lift, duration: 0.9, stagger: 0.1 });
-    }
-  );
-  return () => {
-    stop();
-    timeline?.kill();
-    gsap.set(section.querySelectorAll('ol > li'), { clearProps: CLEAR_DEAL });
-  };
-}
-
 /** Die Bezirke: die Berlin-Karte landet wie eine hingeworfene Karte, die
  *  Namen rutschen nacheinander auf ihre Zeilen. */
 function armDistrictsDeal(): () => void {
@@ -225,22 +189,10 @@ export default function HubMotion() {
   useGSAP(() => {
     const stopPreload = armPreload();
     const mm = gsap.matchMedia();
-    mm.add(
-      {
-        motion: '(prefers-reduced-motion: no-preference)',
-        desk: '(min-width: 600px)',
-        landscape: '(orientation: landscape) and (max-height: 500px)',
-      },
-      (ctx) => {
-        const { motion, desk } = ctx.conditions as Record<string, boolean>;
-        if (!motion) return;
-        const stops: Array<() => void> = [];
-        if (desk) stops.push(armMagazineDeal());
-        stops.push(armDistrictsDeal());
-        stops.push(armSignupDemo());
-        return () => stops.forEach((stop) => stop());
-      }
-    );
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const stops = [armDistrictsDeal(), armSignupDemo()];
+      return () => stops.forEach((stop) => stop());
+    });
     return () => {
       stopPreload();
       mm.revert();

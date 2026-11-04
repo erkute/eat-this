@@ -146,8 +146,8 @@ export default function RestaurantDetail({
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [restaurant._id]);
 
-  /* Am Telefon scrollt das Foto mit seinen Knöpfen weg. Sobald der Pfeil
-     darin unter Kartenstreifen und Griff verschwindet, übernimmt die feste
+  /* Das Foto scrollt mit seinen Knöpfen weg. Sobald der Pfeil darin verdeckt
+     ist (am Telefon unter Kartenstreifen und Griff), übernimmt die feste
      Leiste Zurück, Name und Herz, wie bei Airbnb (Ersan, 28.10.2026). */
   const backRef = useRef<HTMLButtonElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
@@ -156,13 +156,10 @@ export default function RestaurantDetail({
     const back = backRef.current;
     const bar = barRef.current;
     if (!back || !bar || typeof IntersectionObserver === 'undefined') return;
-    const media = window.matchMedia?.('(max-width: 767.98px), (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px)');
-    if (!media) return;
     let observer: IntersectionObserver | undefined;
     const observe = () => {
       observer?.disconnect();
       setBarShown(false);
-      if (!media.matches) return;
       const top = parseFloat(getComputedStyle(bar).top);
       const line = Number.isFinite(top) ? Math.max(0, Math.round(top)) : 0;
       observer = new IntersectionObserver(
@@ -172,10 +169,8 @@ export default function RestaurantDetail({
       observer.observe(back);
     };
     observe();
-    media.addEventListener('change', observe);
     window.addEventListener('resize', observe);
     return () => {
-      media.removeEventListener('change', observe);
       window.removeEventListener('resize', observe);
       observer?.disconnect();
       setBarShown(false);
@@ -319,8 +314,8 @@ export default function RestaurantDetail({
   return (
     <div className={styles.detail} data-detail-root="restaurant" role="dialog" aria-label={r.name}>
       <div ref={scrollRef} className={styles.scroll} data-detail-scroll>
-        {/* Nur am Telefon. Sie doppelt die Knöpfe im Foto für den Daumen und
-            bleibt deshalb aus Vorlesern und Tab-Folge heraus. */}
+        {/* Sie doppelt die Knöpfe im Foto und bleibt deshalb aus Vorlesern und
+            Tab-Folge heraus. */}
         <div
           ref={barRef}
           className={styles.rdBar}

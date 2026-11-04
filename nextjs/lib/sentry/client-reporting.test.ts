@@ -88,8 +88,9 @@ it('shares initialization and preserves explicit auth/error-boundary context', a
 });
 
 it('retries reporting after a failed SDK download without rejecting into the app', async () => {
-  vi.doMock('./client-sdk', () => { throw new Error('offline'); });
+  // Resolve the default mock registration before replacing it for this import.
   const reporter = await import('./client-reporting');
+  vi.doMock('./client-sdk', () => { throw new Error('offline'); });
   reporter.captureException(new Error('while offline'));
   await vi.dynamicImportSettled();
   expect(sdk.captureException).not.toHaveBeenCalled();

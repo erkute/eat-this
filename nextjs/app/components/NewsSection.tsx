@@ -33,6 +33,7 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
 
   return (
     <div className={`app-page active ${styles.page}`} data-page="news">
+      <link rel="preload" as="image" href="/pics/magazine-paper.webp" fetchPriority="high" />
       <main id="news" className={styles.shell} data-insight-content="">
         <header className={styles.hero} data-insight-header="">
           <h1 className={styles.heroTitle}>{de ? 'Auf dem Teller' : 'On the plate'}</h1>

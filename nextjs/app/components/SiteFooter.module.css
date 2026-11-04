@@ -1,5 +1,5 @@
 /* Kompakter, zentrierter Abschluss auf gefaltetem Papier. */
-.footer { content-visibility: auto; contain-intrinsic-block-size: auto 460px; position: relative; isolation: isolate; padding: 40px var(--et-gutter) max(32px, env(safe-area-inset-bottom, 0px)); --et-sheet: none; --footer-paper-size: 100% 100%; --footer-paper-repeat: no-repeat; background: var(--et-ground); color: var(--et-fg); text-align: center; }
+.footer { position: relative; isolation: isolate; padding: 40px var(--et-gutter) max(32px, env(safe-area-inset-bottom, 0px)); --et-sheet: none; --footer-paper-size: 100% 100%; --footer-paper-repeat: no-repeat; background: var(--et-ground); color: var(--et-fg); text-align: center; }
 .footer::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: url('/pics/paper/consent-paper.webp?v=20261103') center / var(--footer-paper-size) var(--footer-paper-repeat); }
 :global(html[data-theme='dark']) .footer::before { filter: invert(1); opacity: .65; }
 :global(html[data-theme='dark']) .megaImg { filter: invert(1); }

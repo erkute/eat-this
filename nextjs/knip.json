@@ -7,6 +7,5 @@
     "scripts/*.{ts,mts}",
     "lib/sanityImageLoader.ts"
   ],
-  "ignoreBinaries": ["firebase"],
   "ignoreDependencies": ["eslint-config-next"]
 }

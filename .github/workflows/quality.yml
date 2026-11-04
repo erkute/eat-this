@@ -176,10 +176,13 @@ jobs:
 
   # Browser-Abläufe und Barrierefreiheit. Liefen bis 14.10.2026 mit einem
   # Worker hinter dem Build und vor Lighthouse im selben Job – 14 von ~35
-  # Minuten je PR. Drei Rechner teilen sich die Specs (`--shard`); jeder hat
-  # eigenen Server und eigene Emulatoren, sie kommen sich also nicht in die
-  # Quere. Innerhalb eines Rechners bleibt es bei einem Worker
-  # (playwright.config.ts): die Tests teilen Server und Emulator-Daten.
+  # Minuten je PR. Jedes Playwright-Projekt bekommt einen eigenen Rechner mit
+  # eigenem Server und eigenen Emulatoren. Nicht `--shard`: das teilt nach
+  # Testanzahl und schnitt das langsame `mobile-safari` komplett auf einen
+  # Rechner, zusammen mit Resten der beiden anderen (bis 25 min gegen 10 min,
+  # 03./04.11.2026). Je Projekt sind es 11–20 min. Innerhalb eines Rechners
+  # bleibt es bei einem Worker (playwright.config.ts): die Tests teilen Server
+  # und Emulator-Daten.
   e2e:
     needs: nextjs
     if: needs.nextjs.outputs.browser == 'true'
@@ -189,7 +192,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        project: [mobile, mobile-safari, desktop]
     defaults:
       run:
         working-directory: nextjs
@@ -234,18 +237,18 @@ jobs:
 
       # Public card metadata comes from Sanity; Firestore/Storage use synthetic
       # fixtures in a demo project. PR code receives no production credentials.
-      - name: Browser flows and accessibility (shard ${{ matrix.shard }}/3)
+      - name: Browser flows and accessibility (${{ matrix.project }})
         timeout-minutes: 25
         env:
           FIREBASE_ADMIN_PROJECT_ID: demo-eat-this-quality
           COUNT_SALT: quality-browser-emulator-only
-        run: npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npx playwright test --shard=${{ matrix.shard }}/3"
+        run: npx --yes firebase-tools@14.22.0 emulators:exec --only firestore,storage --project demo-eat-this-quality --config e2e/firebase.json "npx tsx e2e/seed-firebase.mts && npx playwright test --project=${{ matrix.project }}"
 
       - name: Browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: browser-${{ github.run_id }}-${{ matrix.shard }}
+          name: browser-${{ github.run_id }}-${{ matrix.project }}
           path: |
             /tmp/eat-this-playwright-results
             /tmp/eat-this-mobile-*.png

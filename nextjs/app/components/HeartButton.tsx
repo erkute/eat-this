@@ -45,7 +45,6 @@ const SETTLE_MS = 4000;
 // /api/heart; schlägt der Aufruf fehl, springen sie zurück. Solange einer
 // läuft, zählt kein zweiter Tipp.
 // Anon tap opens the shared login modal (handled inside useFavorites).
-// See docs/specs/2026-06-09-hearts-design.md.
 export default function HeartButton({
   restaurantId,
   name,

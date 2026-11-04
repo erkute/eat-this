@@ -7,7 +7,5 @@
     "scripts/*.{ts,mts}",
     "lib/sanityImageLoader.ts"
   ],
-  "ignore": ["scripts/audit-css-cascade.mjs", "scripts/cascade/**"],
-  "ignoreBinaries": ["firebase"],
   "ignoreDependencies": ["eslint-config-next"]
 }

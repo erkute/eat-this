@@ -19,7 +19,9 @@ const GUIDE_TO_CATEGORY = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  experimental: { cssChunking: 'strict', inlineCss: true },
+  // `inlineCss` bleibt aus: Es schreibt das ganze CSS in jede Seite und noch
+  // einmal in deren RSC-Daten, und nichts davon kommt aus dem Browser-Cache.
+  experimental: { cssChunking: 'strict' },
   /**
    * Metadaten in den `<head>`, nicht in den Body.
    *

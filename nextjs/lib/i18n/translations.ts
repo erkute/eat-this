@@ -8,19 +8,8 @@ const en = {
   a11y: {
     skip: 'Skip to content',
   },
-  hub: {
-    fragRemy: {
-      // Remys erster Satz auf seiner Tafel, solange die Tageszeit noch nicht
-      // feststeht (Server-Render); danach greeting.ts `stageLeadFor`.
-      sub: 'I know the best spots in Berlin.',
-      inputPlaceholder: '…or just ask Remy',
-      sendAria: 'Send',
-    },
-  },
   mustEats: {
-    // "Covered" wie auf der Pack-Seite — dieselbe Sache hieß dort schon so.
-    // Nur noch als Alt-Text der verdeckten Karte; die drei Filter-Chips
-    // (Alle/Offen/Verdeckt) sind mit dem Zwei-Band-Layout weggefallen.
+    // Alt-Text der verdeckten Karte, gleiches Wort wie auf der Pack-Seite.
     covered: 'Covered',
     howItWorks: 'How does it work?',
     onb1Kicker: 'Must Eats',
@@ -226,7 +215,6 @@ const en = {
     spotsFilterLabel: 'Filter saved spots',
     spotsFilterEmpty: 'No spots in this selection yet.',
     starterPack: 'Starter Pack',
-    heroTitle: 'Your Berlin HQ',
     avatarChoice1: 'Spot Scout',
     avatarChoice2: 'Spice Diva',
     avatarChoice3: 'Chef Slice',
@@ -378,13 +366,6 @@ function deepMerge(base: unknown, overrides: unknown): unknown {
 const deOverrides: DeepPartial<TranslationsShape> = {
   a11y: {
     skip: 'Zum Inhalt springen',
-  },
-  hub: {
-    fragRemy: {
-      sub: 'Ich kenne die besten Spots in Berlin.',
-      inputPlaceholder: '…oder frag Remy direkt',
-      sendAria: 'Senden',
-    },
   },
   mustEats: {
     covered: 'Verdeckt',
@@ -600,7 +581,6 @@ const deOverrides: DeepPartial<TranslationsShape> = {
     spotsFilterLabel: 'Gespeicherte Spots filtern',
     spotsFilterEmpty: 'Noch keine Spots in dieser Auswahl.',
     starterPack: 'Starter Pack',
-    heroTitle: 'Deine Berlin-Zentrale',
     avatarChoice1: 'Spot Scout',
     avatarChoice2: 'Spice Diva',
     avatarChoice3: 'Chef Slice',

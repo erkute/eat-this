@@ -6,10 +6,8 @@ import {
   restaurantPhotoCreditUrl,
 } from './sanity-image-presets';
 import { liveRestaurant } from './sanity-filters';
-// Category projection. The string→ref migration finished in 2026-06 (verified
-// 2026-07: 0 of 343 restaurants carry legacy string entries), so all entries
-// are references. The `defined(@->_id)` filter stays as a guard against
-// dangling refs (category doc deleted while restaurants still point at it) —
+// Category projection. All entries are references. The `defined(@->_id)` filter
+// guards against dangling refs (category doc deleted while restaurants still point at it) —
 // without it those would surface as null rows in the projected array.
 const CATEGORY_PROJECTION = `categories[defined(@->_id)]->{
   "slug": slug.current,

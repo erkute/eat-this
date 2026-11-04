@@ -57,23 +57,13 @@ const eslintConfig = [
     rules: { '@next/next/no-img-element': 'off' },
   },
   {
-    // The cascade sweep scripts are not modules — each file IS a bare
-    // `async (page) => {…}` expression, handed to the Playwright MCP as a
-    // file to evaluate in the page (see scripts/cascade/README.md). A
-    // top-level expression is the whole point of the format.
-    files: ['scripts/cascade/sweep-*.js', 'scripts/cascade/hover*.js'],
-    rules: { '@typescript-eslint/no-unused-expressions': 'off' },
-  },
-  {
     // Next lädt den Cache-Handler selbst, ohne Bundler, als CommonJS – und er
     // erweitert Nexts eigenen FileSystemCache, den es nur per require gibt.
     files: ['cache-handler.cjs'],
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
-    // `for (const _ of …)` is the counting idiom in the cascade tooling: the
-    // match itself is irrelevant, only how many there are. Underscore is the
-    // conventional "deliberately unused" name.
+    // Underscore is the conventional "deliberately unused" name.
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'warn',

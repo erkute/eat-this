@@ -1,10 +1,8 @@
 'use client';
 
 /**
- * Wrapper that keeps the legacy `useTranslation()` API (`{ lang, t, setLang }`)
- * so existing components don't need to be rewritten. Internally backed by next-intl.
- *
- * Provider is no longer needed — next-intl's NextIntlClientProvider lives in app/[locale]/layout.tsx.
+ * `useTranslation()` (`{ lang, t, setLang }`) on top of next-intl, whose
+ * NextIntlClientProvider lives in app/[locale]/layout.tsx.
  */
 
 import { useCallback } from 'react';

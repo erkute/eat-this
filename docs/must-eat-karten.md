@@ -66,8 +66,4 @@ Alle drei Skripte arbeiten mit `.env.local`, also auf **prod**.
 
 ## Nach dem Publizieren
 
-Der Sanity-Webhook wartet, bis das CDN die Spot-Seite der Karte frisch liefert, und erneuert sie dann. Trotzdem `/restaurant/<slug>` und `/en/restaurant/<slug>` abrufen, bevor „live“ gemeldet wird. Kartenbilder sieht nur, wer angemeldet ist; als Gast bleibt die Karte verdeckt. Bilder können wegen Caching bis zu eine Stunde brauchen, bis sie überall neu sind.
-
-## Schreibweise
-
-„Must Eat“ immer ohne Bindestrich, auch in „Must Eat Karte“. Ein Spot kann mehrere Must Eats haben.
+`/restaurant/<slug>` und `/en/restaurant/<slug>` abrufen, bevor „live“ gemeldet wird. Kartenbilder sieht nur, wer angemeldet ist; als Gast bleibt die Karte verdeckt. Bilder können wegen Caching bis zu eine Stunde brauchen, bis sie überall neu sind.

@@ -284,7 +284,7 @@ const RESTAURANT_PROMPT = `Du schreibst Restaurant-Beschreibungen auf Deutsch f�
 STIL — Gastrojournalismus, keine Werbung (hart):
 - Erzähl pro Spot eine kleine Geschichte in drei Schritten: erst der Ort (Straße, Haus, Raum), dann die Menschen dahinter, dann das Essen konkret (Gerichte mit Zutaten, Zubereitung, Herkunft). Menschen nur, wenn die Quellen sie namentlich nennen.
 - Neutral, ohne Ich. Kurze Hauptsätze, einfache Wörter, keine Fachsprache und kein Szene-Englisch ("Line-up", "Signature", "Outpost", "Flagship", "Pick", "Drop").
-- Über das Essen schreiben, nicht über die Bedienung. Keine Preise, keine Pointe am Absatzende, keine "Der Pick:"-Formel, kein Fazit-Satz.
+- Über das Essen schreiben, nicht über die Bedienung. Keine Pointe am Absatzende, keine "Der Pick:"-Formel, kein Fazit-Satz.
 - "Eat This" empfiehlt; Lob anderer (Reviews, Stammgäste, Besucher) wird NIE zitiert.
 - "Must Eat" immer ohne Bindestrich.
 

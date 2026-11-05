@@ -1017,8 +1017,8 @@ html[data-consent-pending] .cookie-gate.cookie-bootstrap .cookie-scrim {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: url('/pics/paper/consent-paper.webp?v=20261103');
-  background-size: 100% 100%;
+  width: 100%;
+  height: 100%;
   mix-blend-mode: multiply;
   pointer-events: none;
 }

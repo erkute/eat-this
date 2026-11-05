@@ -1,6 +1,7 @@
 import styles from '../not-found.module.css';
 import ErrorNumeral from './ErrorNumeral';
 import ErrorTheme from './ErrorTheme';
+import PaperPhoto from './PaperPhoto';
 
 // Plain <a> with a hand-built prefix instead of next-intl's `Link`.
 //
@@ -49,6 +50,7 @@ export default function NotFoundContent({ locale = 'de' }: { locale?: Locale }) 
       aria-labelledby="not-found-title"
     >
       <ErrorTheme />
+      <PaperPhoto className={styles.sheet} />
       <section className={styles.hero} aria-labelledby="not-found-title">
         <p className={styles.edition} aria-hidden="true">404<br />Eat This</p>
         <ErrorNumeral value="404" />

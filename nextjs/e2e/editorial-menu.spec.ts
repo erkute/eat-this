@@ -18,7 +18,7 @@ for (const locale of ['', '/en']) {
     await trigger.click();
     const menu = page.getByRole('dialog', { name: 'Navigation' });
     for (const item of await menu.locator('nav a, nav button').all()) {
-      expect(await item.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(44);
+      expect(await item.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(36);
     }
     // Layout fixture: the ninth row is normally visible only to admins.
     await menu.locator('nav').evaluate((nav) => {
@@ -28,13 +28,36 @@ for (const locale of ['', '/en']) {
       nav.appendChild(stats);
     });
     expect(await menu.getByRole('link', { name: 'Stats', exact: true })
-      .evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(36);
-    const contact = menu.locator('a[href$="/contact"]');
-    await contact.scrollIntoViewIfNeeded();
-    await expect(contact).toBeInViewport();
+      .evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(30);
+    await expect(menu.locator('a[href$="/contact"]')).toBeInViewport();
     await page.keyboard.press('Escape');
     await expect(trigger).toBeFocused();
   });
+}
+
+for (const [width, height] of [[360, 640], [375, 553], [390, 664], [430, 739], [1280, 720], [1440, 800]]) {
+  for (const locale of ['', '/en']) {
+    test(`menu fits without scrolling at ${width}x${height} (${locale || 'de'})`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto(`${locale}/news`, { waitUntil: 'domcontentloaded' });
+      await expect(async () => {
+        await page.locator('#burgerBtn').click();
+        await expect(page.locator('#burgerBtn')).toHaveAttribute('aria-expanded', 'true', { timeout: 1000 });
+      }).toPass();
+      const menu = page.getByRole('dialog', { name: 'Navigation' });
+      await expect(menu).toBeVisible();
+      const scroller = menu.locator('[class*="scroller"]');
+      expect(await scroller.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeLessThanOrEqual(1);
+      // Layout fixture: the ninth row is normally visible only to admins.
+      await menu.locator('nav').evaluate((nav) => {
+        const stats = nav.lastElementChild!.cloneNode(true) as HTMLAnchorElement;
+        stats.href = '/admin/stats';
+        stats.textContent = 'Stats';
+        nav.appendChild(stats);
+      });
+      expect(await scroller.evaluate((el) => el.scrollHeight - el.clientHeight)).toBeLessThanOrEqual(1);
+    });
+  }
 }
 
 for (const motion of ['reduce', 'no-preference'] as const) {

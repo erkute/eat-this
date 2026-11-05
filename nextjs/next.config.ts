@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 import path from 'path';
 import createNextIntlPlugin from 'next-intl/plugin';
-import { withSentryConfig } from '@sentry/nextjs';
+import { withSentryConfig } from '@sentry/nextjs/config';
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 const firebaseAuthProjectId =
@@ -284,6 +284,10 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   // Tunneling routes errors through our own /monitoring endpoint, dodging
   // ad-blockers that strip Sentry calls. Cheap insurance for prod traffic.
   tunnelRoute: '/monitoring',
+  // Der Hook misst Seitenwechsel, und das Messen fliegt unten mit `removeTracing`
+  // aus dem Bundle. Ihn zu exportieren holte nur das SDK in den ersten Ladevorgang
+  // (lib/sentry/client-reporting.ts lädt es bewusst erst nach dem ersten Bild).
+  suppressOnRouterTransitionStartWarning: true,
   // Tree-shake code we never run.
   //
   // These are the `webpack.treeshake` keys, NOT `bundleSizeOptimizations`.

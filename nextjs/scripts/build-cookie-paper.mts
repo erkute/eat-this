@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
-// A small, cacheable paper texture, preloaded only when the consent question is pending.
+// A small, cacheable paper texture for the consent dialog.
 const paper = await sharp('public/pics/paper/folded-white.webp')
   .resize({ width: 1080 })
   .webp({ quality: 80 })

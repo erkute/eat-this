@@ -5,10 +5,12 @@ import styles from './DistrictPaperFooter.module.css';
 
 export default function DistrictPaperFooter({ children }: { children: ReactNode }) {
   return (
-    <div className={styles.surface} data-district-paper="" data-paper-surface="">
-      <PaperPhoto />
-      {children}
+    <>
+      <div className={styles.surface} data-district-paper="">
+        <PaperPhoto mirrored />
+        {children}
+      </div>
       <SiteFooter />
-    </div>
+    </>
   );
 }

@@ -73,7 +73,6 @@ describe('Must-Eat-Karte aus dem Studio', () => {
 
     const [written] = mocks.set.mock.calls[0];
     expect(written).toMatchObject({ ...TEXT, restaurantId: 'spot-1', imageObjectPath: path, schemaVersion: 1 });
-    expect(written.recordSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(state).toMatchObject({ exists: true, restaurantId: 'spot-1' });
     expect(state.preview).toMatch(/^data:image\/webp;base64,/);
   });

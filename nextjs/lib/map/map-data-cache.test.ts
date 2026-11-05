@@ -99,7 +99,10 @@ describe('map data cache premium boundary', () => {
 
   it('clears every map cache on logout', () => {
     writeMapCache('user-1', data);
+    window.localStorage.setItem('eatthis_mapdata_old-user', 'legacy-private');
     clearMapDataCaches();
     expect(readMapCache('user-1')).toBeNull();
+    expect(window.localStorage.getItem('eatthis_mapdata_v4_user-1')).toBeNull();
+    expect(window.localStorage.getItem('eatthis_mapdata_old-user')).toBeNull();
   });
 });

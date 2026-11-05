@@ -47,9 +47,8 @@ type SendMagicLinkError = 'link-generation-failed' | 'email-misconfigured' | 'se
  *
  * Firebase erzeugt `<Action-Handler>?mode=…&oobCode=…&apiKey=…&continueUrl=…`.
  * Übernommen werden nur die drei Parameter, die `signInWithEmailLink` liest;
- * `continueUrl` ist die Zielseite selbst, und Firebases `lang` würde die
- * Middleware als alten Sprachschalter lesen und mit 308 beantworten. Die
- * Adresse stammt beim Einlösen ausschließlich aus lokalem Speicher oder
+ * `continueUrl` ist die Zielseite selbst, und Firebases `lang` braucht sie
+ * nicht: ihre Sprache steht im Pfad. Die Adresse stammt beim Einlösen ausschließlich aus lokalem Speicher oder
  * einer Eingabe. Eine Adresse aus der URL ermöglicht Session-Injection.
  *
  * Der Host kommt aus der Continue-URL, nie aus der Projekt-Einstellung:

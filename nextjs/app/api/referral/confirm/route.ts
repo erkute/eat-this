@@ -89,15 +89,6 @@ export async function POST(req: NextRequest) {
   const db = getAdminFirestore();
 
   try {
-    // Seed for the shared inviter counter introduced after the first referral
-    // implementation. The cap decision itself happens inside the transaction
-    // below; this aggregate is used only if the counter does not exist yet.
-    // Concurrent first writes all contend on the same counter document, so a
-    // retry observes the value installed by the winning transaction.
-    const inviterBonuses = db.collection('users').doc(inviterUid).collection('referralBonuses');
-    const awarded = await inviterBonuses.where('source', '==', 'invited').count().get();
-    const legacyAwardedCount = awarded.data().count;
-
     const [{ restaurants: all, mustEats: allMustEats }, inviterEnt, inviterUnlocked, friendEnt] =
       await Promise.all([
         getCachedMapData(),
@@ -154,12 +145,7 @@ export async function POST(req: NextRequest) {
       ]);
       if (existing.exists) return;
 
-      const storedCount = counter.exists ? counter.data()?.awardedCount : undefined;
-      const awardedCount =
-        typeof storedCount === 'number' && Number.isInteger(storedCount) && storedCount >= 0
-          ? storedCount
-          : legacyAwardedCount;
-      const awardInviter = inviterPicks.length > 0 && awardedCount < MAX_REFERRALS_PER_INVITER;
+      const awardedCount: number = counter.data()?.awardedCount ?? 0;
 
       tx.set(friendDocRef, {
         mustEatIds: friendPicks,
@@ -167,19 +153,17 @@ export async function POST(req: NextRequest) {
         partnerUid: inviterUid,
         createdAt: FieldValue.serverTimestamp(),
       });
-      if (awardInviter) {
+      if (inviterPicks.length > 0 && awardedCount < MAX_REFERRALS_PER_INVITER) {
         tx.set(inviterDocRef, {
           mustEatIds: inviterPicks,
           source: 'invited',
           partnerUid: friendUid,
           createdAt: FieldValue.serverTimestamp(),
         });
-      }
-      if (inviterPicks.length > 0 && (!counter.exists || awardInviter)) {
         tx.set(
           inviterCounterRef,
           {
-            awardedCount: awardedCount + (awardInviter ? 1 : 0),
+            awardedCount: awardedCount + 1,
             updatedAt: FieldValue.serverTimestamp(),
           },
           { merge: true }

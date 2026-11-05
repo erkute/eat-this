@@ -59,25 +59,8 @@ function hasFlag(name: string): boolean {
   return process.argv.includes(name);
 }
 
-function sha256(value: Buffer | string): string {
+function sha256(value: Buffer): string {
   return crypto.createHash('sha256').update(value).digest('hex');
-}
-
-/** Feldreihenfolge wie in migrate-must-eats-private.ts. */
-function recordSha256(data: Record<string, unknown>): string {
-  return sha256(
-    JSON.stringify({
-      schemaVersion: data.schemaVersion,
-      dish: data.dish,
-      description: data.description,
-      descriptionEn: data.descriptionEn,
-      price: data.price,
-      restaurantId: data.restaurantId,
-      imageObjectPath: data.imageObjectPath,
-      imageContentType: data.imageContentType,
-      imageSha256: data.imageSha256,
-    })
-  );
 }
 
 function initializeTarget(projectId: string, bucket: string) {
@@ -215,7 +198,6 @@ async function main() {
       .doc(entry.id)
       .set({
         ...record,
-        recordSha256: recordSha256(record),
         updatedAt: FieldValue.serverTimestamp(),
       });
 

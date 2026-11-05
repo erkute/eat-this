@@ -11,7 +11,7 @@
  *
  * Zwei Parameter werden dabei abgeraeumt, bevor die Adresse in eine Mail geht:
  *   e      — der Adress-Traeger des vorigen Links; hat seine Arbeit getan.
- *   lang   — ebenso der Sprach-Traeger; die Route setzt ihn neu.
+ *   lang   — Firebases Sprach-Parameter; die Seite traegt ihre Sprache im Pfad.
  *   heart  — wird hier neu gesetzt (oder eben nicht), nie geerbt.
  */
 

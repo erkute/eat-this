@@ -43,8 +43,7 @@ export function useTranslation(): I18nContextValue {
   );
 
   // Soft-nav locale switch — next-intl's router rewrites the /en prefix and
-  // swaps messages in place; the cookie keeps middleware/legacy ?lang redirects
-  // consistent with the chosen locale.
+  // swaps messages in place; the cookie records the chosen locale.
   const setLang = useCallback(
     (newLang: Lang) => {
       if (newLang === lang) return;

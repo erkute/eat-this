@@ -93,6 +93,12 @@
  .archiveTitle { font-size: 20px; }
  .meta { font-size: 11px; }
 }
+/* Mitte der Textur, 640 x 800: `cover` richtet sich hier nach der Höhe und zeigt
+   (gemessen 05.11.2026) höchstens 576 der 1200 Pixel Breite. Muss zum Preload in
+   NewsSection.tsx passen. */
+@media (max-width: 599.98px) and (orientation: portrait) {
+ .hero::before { background-image: url('/pics/magazine-paper-phone.webp'); }
+}
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 1023.98px) {
   .shell { padding-inline: max(28px, calc(max(env(safe-area-inset-left), env(safe-area-inset-right)) + 16px)); }
  .shell { padding-top: 24px; }

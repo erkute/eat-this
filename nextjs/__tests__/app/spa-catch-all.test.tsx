@@ -20,25 +20,13 @@ vi.mock('@/app/components/NewsSection', () => ({
 }))
 
 import SPACatchAllPage, {
-  dynamicParams,
   generateMetadata,
-  generateStaticParams,
 } from '@/app/[locale]/(spa)/[...slug]/page'
 
 beforeEach(() => {
   mocks.notFound.mockClear()
   mocks.getAllNewsArticles.mockReset()
   mocks.getStaticPage.mockReset()
-})
-
-describe('SPA catch-all static generation', () => {
-  it('prerenders every whitelisted page in both locales and nothing else', () => {
-    const params = generateStaticParams()
-    expect(params).toHaveLength(12)
-    expect(params).toContainEqual({ locale: 'de', slug: ['news'] })
-    expect(params).toContainEqual({ locale: 'en', slug: ['impressum'] })
-    expect(dynamicParams).toBe(false)
-  })
 })
 
 describe('SPA catch-all exact path matching', () => {

@@ -6,7 +6,6 @@ import { INDEXABLE_ROBOTS, buildHreflangAlternates, toOgLocale } from '@/lib/seo
 import { getAllNewsArticles, getStaticPage } from '@/lib/sanity.server';
 import { serializeJsonLd } from '@/lib/json-ld';
 import { localeUrl } from '@/lib/locale-url';
-import { routing } from '@/i18n/routing';
 
 // 24 Stunden. Die Frist ist nicht der Weg, auf dem Inhalte live gehen — das ist
 // der Sanity-Webhook auf /api/revalidate. Hintergrund und Bedingung an dieser
@@ -24,20 +23,6 @@ interface PageProps {
 const VALID_SLUGS = new Set(['news', 'about', 'contact', 'impressum', 'datenschutz', 'agb']);
 
 const STATIC_SLUGS = new Set(['about', 'contact', 'impressum', 'datenschutz', 'agb']);
-
-// Die Liste macht die Route statisch: Ohne sie rendert Next einen Catch-all
-// bei jedem Aufruf neu, `revalidate` hin oder her. So liegen /news und die
-// Infoseiten wie die Spot-Seiten fertig im ISR-Cache, der Webhook macht sie
-// über die Tags `news` und `staticPage` frisch. Jede andere Adresse unter dem
-// Catch-all ist eine 404 ohne Rendern (`dynamicParams = false`) und legt
-// keine eigene Cache-Datei an.
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return routing.locales.flatMap((locale) =>
-    [...VALID_SLUGS].map((slug) => ({ locale, slug: [slug] }))
-  );
-}
 
 function exactTopSlug(slug: string[]): string | undefined {
   return slug.length === 1 ? slug[0] : undefined;

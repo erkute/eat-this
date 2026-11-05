@@ -8,6 +8,7 @@ interface Props {
   locale: 'de' | 'en';
 }
 const ART = '/pics/home/silver-hero';
+const EMPTY_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
 /** One server-rendered hero for guests and members, independent of auth hydration. */
 export default function HubHeroCopy({ locale }: Props) {
@@ -32,15 +33,18 @@ export default function HubHeroCopy({ locale }: Props) {
         <span className={styles.heroSloganDesktop} aria-hidden="true">
           <BrandSlogan />
         </span>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className={styles.heroSloganMobile}
-          src={`${ART}/slogan-mobile.webp?v=20261028`}
-          width={1200}
-          height={468}
-          alt=""
-          aria-hidden="true"
-        />
+        {/* Ab 768 px ist dieses Bild immer ausgeblendet; die leere Quelle spart den Download. */}
+        <picture className={styles.heroSloganPicture}>
+          <source media="(min-width: 768px)" srcSet={EMPTY_IMAGE} />
+          <img
+            className={styles.heroSloganMobile}
+            src={`${ART}/slogan-mobile.webp?v=20261028`}
+            width={1200}
+            height={468}
+            alt=""
+            aria-hidden="true"
+          />
+        </picture>
       </h1>
       </div>
       <MapIntentLink

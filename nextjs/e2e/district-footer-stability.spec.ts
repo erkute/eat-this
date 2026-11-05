@@ -18,7 +18,7 @@ test('footer reserves its logo space before the lazy image loads', async ({ page
     const footer = page.locator('[data-site-footer]');
     await footer.scrollIntoViewIfNeeded();
     const before = await footer.boundingBox();
-    const logo = footer.locator('img');
+    const logo = footer.getByRole('img', { name: 'Eat This' });
     expect((await logo.boundingBox())!.height).toBeGreaterThan(50);
     releaseLogo();
     await expect.poll(() => logo.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);

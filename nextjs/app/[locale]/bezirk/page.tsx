@@ -98,7 +98,7 @@ export default async function BezirkIndexPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd }}
       />
-      <DistrictPaperFooter paperId={`district-index-paper-${loc}`}>
+      <DistrictPaperFooter>
         <main className={`${styles.page} ${styles.discoveryPage}`}>
           <DiscoveryExplorer
             locale={loc}

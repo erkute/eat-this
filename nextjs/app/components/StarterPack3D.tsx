@@ -168,7 +168,7 @@ export default function StarterPack3D({ fit = false }: { fit?: boolean }) {
 
   return (
     <div ref={stageRef} className={fit ? `${styles.art} ${styles.fitted}` : styles.art} aria-hidden="true">
-      <span ref={shadowRef} className={styles.shadow} />
+      {fit && <span ref={shadowRef} className={styles.shadow} />}
       <div ref={rigRef} className={styles.packRig}>
         {/* The flat picture until WebGL is up. */}
         <div className={styles.packFlat}>

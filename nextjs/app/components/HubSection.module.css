@@ -130,10 +130,6 @@
   isolation: isolate;
   background: #fff;
 }
-/* The decorative paper paints near the viewport; content keeps its normal layout. */
-.paperEnd > :global([data-folded-paper]) {
-  content-visibility: auto;
-}
 .page .paperEnd > :global([data-hub-starter]) {
   --et-sheet: none;
   position: relative;

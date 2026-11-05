@@ -14,7 +14,7 @@ import HomeDistricts from './HomeDistricts';
 import MagazineGrid from './MagazineGrid';
 import StarterPackSignup from './StarterPackSignup';
 import SiteFooter from './SiteFooter';
-import FoldedPaperBackdrop from './FoldedPaperBackdrop';
+import PaperPhoto from './PaperPhoto';
 import { HomeMapDataProvider } from './HomeMapDataContext';
 import styles from './HubSection.module.css';
 
@@ -54,8 +54,8 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </HomeMapDataProvider>
         <HubFragRemy />
         <HubFaq locale={locale} />
-        <div className={styles.paperEnd}>
-          <FoldedPaperBackdrop id="home-starter-footer-paper" lazy />
+        <div className={styles.paperEnd} data-paper-surface="">
+          <PaperPhoto />
           <StarterPackSignup />
           <SiteFooter />
         </div>

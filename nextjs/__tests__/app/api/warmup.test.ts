@@ -46,7 +46,7 @@ describe('/api/warmup', () => {
       expect.objectContaining({ headers: { 'x-warmup-token': token } })
     )
 
-    warmMustEatImages.mockResolvedValue({ cards: 26, failedLoads: 0 })
+    warmMustEatImages.mockResolvedValue({ cards: 26 })
     expect((await POST(request(token))).status).toBe(204)
     expect(warmMustEatImages).toHaveBeenCalledTimes(1)
   })

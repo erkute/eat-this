@@ -6,7 +6,8 @@
    0,1–1 s. Das Profil feuert 26 Karten auf einmal und trifft fast immer beide.
 
    Deshalb ruft sich jede Instanz beim Start einmal selbst auf, und die Route
-   `/api/warmup` legt die Karten in den Prozess-Cache (lib/must-eat/warmup).
+   `/api/warmup` oeffnet diese Verbindungen und legt die Kartendokumente in den
+   Prozess-Cache (lib/must-eat/warmup).
    Ueber HTTP und nicht direkt aus register(): die Route laeuft in der
    Server-Schicht, in der `server-only` und der Renderer mit seinem Gedaechtnis
    leben — instrumentation.ts wird ohne sie gebaut.

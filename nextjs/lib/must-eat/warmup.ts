@@ -5,21 +5,20 @@ import { getPublicMustEatIds } from '@/lib/map/server-initial-map-data';
 import { renderPrivateMustEatImage, primePrivateMustEatImageContent } from './private-image';
 import { PRIVATE_MUST_EATS_COLLECTION, readPrivateMustEatContent } from './private-store';
 
-// Nur Dokumente und Originale, kein sharp. Cloud Run gibt außerhalb von Anfragen
-// kaum CPU; der Lauf kommt also vor allem voran, während jemand wartet, und auf
-// einer vCPU nimmt er den ersten Besuchern die Rechenzeit (prod 25.10.–03.11.2026:
-// Median 495 s). Eine fertige Variante nutzt dafür selten jemandem: die Route
-// liefert vor allem 720 und 180, von 29.313 vorgerechneten 360ern wurden 379
-// abgerufen, und sharp machte drei Viertel der CPU des Laufs aus. Varianten
-// rechnet die Route bei Bedarf.
-const PARALLEL = 6;
-
-/** Legt jedes Firestore-Dokument und jedes Original in den Prozess-Cache und
- *  oeffnet dabei die Verbindungen zu Firestore, Bucket und Sanity. Kein Riegel:
- *  die Arbeit ist einmal je Instanz und gedeckelt. */
+// Öffnet die Verbindungen zu Firestore, Bucket und Sanity und legt die
+// Firestore-Dokumente in den Prozess-Cache. Ein einziges Original reicht, um
+// den Bucket aufzuwecken; die übrigen holt die Bild-Route, wenn jemand sie
+// anfragt. Sie braucht für ihre Varianten ohnehin sharp, und mit offener
+// Verbindung kommt ein Original von 47–159 kB schnell nach.
+//
+// Alle Originale vorzuladen hat den neuen Instanzen mehr genommen als gegeben.
+// Cloud Run gibt außerhalb von Anfragen kaum CPU, darum lief der Lauf nur,
+// während Besucher warteten: im Median 5,6 min je Instanz, jede zehnte über
+// 23 min (prod 29.10.–05.11.2026, 320 Starts). Solange er lief, brauchten
+// Seiten im Median 2,0 s statt 0,4 s und Kartenbilder 4,7 s statt 0,2 s
+// (jeweils in den ersten 90 s einer Instanz, prod 03.–05.11.2026).
 export async function warmMustEatImages(): Promise<{
   cards: number;
-  failedLoads: number;
   firstError?: string;
 }> {
   // Die Sanity-Abfrage ist Beiwerk: sie waermt nur den Cache, den die Route
@@ -32,30 +31,22 @@ export async function warmMustEatImages(): Promise<{
     .select()
     .get();
   const ids = snapshot.docs.map((doc) => doc.id);
+  if (!ids.length) return { cards: 0 };
   // Eine gebündelte Abfrage statt einer Firestore-Runde pro Kartenbild.
-  // Bei einem defekten Dokument bleibt der Einzelpfad verfügbar, damit
-  // weiterhin alle übrigen Karten unabhängig aufgewärmt werden.
-  if (ids.length) {
-    try {
-      primePrivateMustEatImageContent(await readPrivateMustEatContent(ids));
-    } catch {
-      // renderPrivateMustEatImage erfasst Fehler unten pro Karte.
-    }
+  // Scheitert sie, liest die Route jedes Dokument einzeln nach.
+  try {
+    primePrivateMustEatImageContent(await readPrivateMustEatContent(ids));
+  } catch {
+    // Der Bucket-Abruf unten meldet, ob die Verbindung steht.
   }
-  let failedLoads = 0;
-  let firstError: string | undefined;
-  for (let i = 0; i < ids.length; i += PARALLEL) {
-    const results = await Promise.allSettled(
-      ids.slice(i, i + PARALLEL).map((id) => renderPrivateMustEatImage(id, null, async () => {}))
-    );
-    for (const result of results) {
-      if (result.status === 'fulfilled') continue;
-      failedLoads += 1;
-      firstError ??=
-        result.reason instanceof Error
-          ? `${result.reason.name}: ${result.reason.message}`
-          : String(result.reason);
-    }
+  try {
+    // Variante null heisst: nur das Original, kein sharp.
+    await renderPrivateMustEatImage(ids[0], null, async () => {});
+    return { cards: ids.length };
+  } catch (error) {
+    return {
+      cards: ids.length,
+      firstError: error instanceof Error ? `${error.name}: ${error.message}` : String(error),
+    };
   }
-  return { cards: ids.length, failedLoads, firstError };
 }

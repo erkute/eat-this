@@ -33,7 +33,10 @@ export default function NewsSection({ articles, locale }: NewsSectionProps) {
 
   return (
     <div className={`app-page active ${styles.page}`} data-page="news">
-      <link rel="preload" as="image" href="/pics/magazine-paper.webp" fetchPriority="high" />
+      {/* Die Textur ist das LCP-Element. Am Telefon zeigt sie nur ihre Mitte, also
+          lädt es nur diesen Zuschnitt; die Media Queries gleichen denen im Modul. */}
+      <link rel="preload" as="image" href="/pics/magazine-paper-phone.webp" media="(max-width: 599.98px) and (orientation: portrait)" fetchPriority="high" />
+      <link rel="preload" as="image" href="/pics/magazine-paper.webp" media="(min-width: 600px), (orientation: landscape)" fetchPriority="high" />
       <main id="news" className={styles.shell} data-insight-content="">
         <header className={styles.hero} data-insight-header="">
           <h1 className={styles.heroTitle}>{de ? 'Auf dem Teller' : 'On the plate'}</h1>

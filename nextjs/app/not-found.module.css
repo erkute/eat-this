@@ -11,15 +11,10 @@
   font-weight: 700;
 }
 
-/* Same asset and desktop paper proportions as SiteFooter. */
-.page::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background: var(--et-ground) var(--et-window-paper) center / 640px 960px repeat;
-  background-blend-mode: multiply;
-  pointer-events: none;
+/* Dasselbe Blatt wie im Footer, dunkel genauso umgekehrt. */
+:global(html[data-theme='dark']) .sheet {
+  filter: invert(1);
+  opacity: .65;
 }
 
 .page,
@@ -135,11 +130,6 @@
     font-weight: 700;
     pointer-events: none;
     user-select: none;
-  }
-
-  .page::before {
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
   }
 
   .title {

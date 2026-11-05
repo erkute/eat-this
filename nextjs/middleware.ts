@@ -152,22 +152,6 @@ export default async function middleware(req: NextRequest) {
     return finalizeResponse(NextResponse.next());
   }
 
-  const legacyLang = searchParams.get('lang');
-
-  // Legacy ?lang=en / ?lang=de — honor explicit intent, overriding any cookie.
-  if (legacyLang === 'en' || legacyLang === 'de') {
-    const url = req.nextUrl.clone();
-    url.searchParams.delete('lang');
-    if (legacyLang === 'en' && !pathname.startsWith('/en')) {
-      url.pathname = `/en${pathname === '/' ? '' : pathname}`;
-    } else if (legacyLang === 'de' && pathname.startsWith('/en')) {
-      url.pathname = pathname.slice(3) || '/';
-    }
-    const res = NextResponse.redirect(url, 308);
-    res.cookies.set('NEXT_LOCALE', legacyLang, { path: '/', maxAge: 60 * 60 * 24 * 365 });
-    return finalizeResponse(res);
-  }
-
   // Standalone opt-out: no locale layout, consent dialog or analytics. Keep
   // both public languages on the same server-rendered tool, outside /admin.
   if (pathname === '/no-count' || pathname === '/en/no-count') {
@@ -183,9 +167,9 @@ export default async function middleware(req: NextRequest) {
     return finalizeResponse(NextResponse.rewrite(url, { request: { headers } }));
   }
 
-  // Referral capture — ?ref=<inviterUid>. Strip the param (clean URL, 308
-  // like ?lang) and, if it's a plausible uid, set a 30-day HttpOnly cookie
-  // that /api/referral/confirm consumes after the friend signs up.
+  // Referral capture — ?ref=<inviterUid>. Strip the param (clean URL, 308) and,
+  // if it's a plausible uid, set a 30-day HttpOnly cookie that
+  // /api/referral/confirm consumes after the friend signs up.
   const ref = searchParams.get('ref');
   if (ref !== null) {
     const url = req.nextUrl.clone();
@@ -262,8 +246,8 @@ export default async function middleware(req: NextRequest) {
   // App Hosting CDN refuses to store — every page, including the ~690
   // prerendered ones, was a `cdn-cache-status: miss`. The cookie also had no
   // reader on this path: `localeDetection` is off, so next-intl never consults
-  // it. The two branches that DO set it above (`?lang=`, `/de/…`)
-  // record an explicit choice on a redirect, which was never cacheable anyway.
+  // it. The `/de/…` branch above DOES set it: it records an explicit choice on
+  // a redirect, which was never cacheable anyway.
   if (!pathname.startsWith('/en')) {
     const url = req.nextUrl.clone();
     url.pathname = `/${routing.defaultLocale}${pathname === '/' ? '' : pathname}`;

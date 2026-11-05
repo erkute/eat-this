@@ -161,6 +161,24 @@ describe('middleware: referral ?ref capture', () => {
   })
 })
 
+describe('middleware: Sprache', () => {
+  const ORIGINAL_ENV = process.env.NEXT_PUBLIC_ENV
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_ENV = ORIGINAL_ENV
+    vi.resetModules()
+  })
+
+  it('liest die Sprache aus dem Pfad, ?lang= leitet nicht um', async () => {
+    process.env.NEXT_PUBLIC_ENV = 'production'
+    vi.resetModules()
+    const { default: middleware } = await import('@/middleware')
+    const res = await middleware(makeReq('/?lang=en'))
+    expect(res.status).toBe(200)
+    expect(res.headers.get('location')).toBeNull()
+    expect(res.headers.get('x-middleware-rewrite')).toContain('/de')
+  })
+})
+
 describe('middleware: legacy 404 cleanup (post-rebuild re-slug)', () => {
   const ORIGINAL_ENV = process.env.NEXT_PUBLIC_ENV
   afterEach(() => {

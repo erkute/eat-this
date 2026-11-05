@@ -6,9 +6,7 @@
  *   npx tsx scripts/replace-must-eat-cards.ts --cards ../CARDS --apply
  *
  * --images-only bewahrt alle bestehenden Texte.
- * Optional: --map <json> (Standard: scripts/data/must-eat-cards.json),
- * --manifest <json> (schreibt die getauschten Einträge im Migrations-Manifest
- * fort, damit migrate-must-eats-private.ts verify weiter durchläuft).
+ * Optional: --map <json> (Standard: scripts/data/must-eat-cards.json).
  *
  * Die Karte ist die Quelle: `dish`, `description` und `descriptionEn` aus der
  * Mapping-Datei landen so in Firestore, wie sie dort stehen. Der Preis steht
@@ -23,16 +21,15 @@ import { applicationDefault, cert, getApps, initializeApp } from 'firebase-admin
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import crypto from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 
 const COLLECTION = 'privateMustEats';
 const OBJECT_PREFIX = 'premium/must-eats/';
 const DEFAULT_MAP = 'scripts/data/must-eat-cards.json';
-// Gleiche Kante wie in migrate-must-eats-private.ts: breiter als die oberste
-// Sprosse von /api/must-eat-image (1200) muss nichts liegen, kleiner wird
-// nichts hochgerechnet.
+// Breiter als die oberste Sprosse von /api/must-eat-image (1200) muss nichts
+// liegen, kleiner wird nichts hochgerechnet.
 const MAX_WIDTH = 1200;
 const WEBP_QUALITY = 80;
 
@@ -62,26 +59,8 @@ function hasFlag(name: string): boolean {
   return process.argv.includes(name);
 }
 
-function sha256(value: Buffer | string): string {
+function sha256(value: Buffer): string {
   return crypto.createHash('sha256').update(value).digest('hex');
-}
-
-/** Feldreihenfolge wie in migrate-must-eats-private.ts — sonst passt der
- *  nachgerechnete Hash nicht zu dem, was verify erwartet. */
-function recordSha256(data: FirebaseFirestore.DocumentData): string {
-  return sha256(
-    JSON.stringify({
-      schemaVersion: data.schemaVersion,
-      dish: data.dish,
-      description: data.description,
-      descriptionEn: data.descriptionEn,
-      price: data.price,
-      restaurantId: data.restaurantId,
-      imageObjectPath: data.imageObjectPath,
-      imageContentType: data.imageContentType,
-      imageSha256: data.imageSha256,
-    })
-  );
 }
 
 function initializeTarget(projectId: string, bucket: string) {
@@ -180,8 +159,7 @@ async function main() {
   const db = getFirestore(app);
   const bucket = getStorage(app).bucket(bucketName);
 
-  const swapped: { id: string; objectPath: string; imageSha256: string; recordSha256: string }[] =
-    [];
+  let changed = 0;
   for (const { mustEat, card } of planned) {
     const source = path.join(cardsDir, card.file);
     const image = await sharp(source)
@@ -206,14 +184,6 @@ async function main() {
     }
 
     const text = Object.fromEntries((imagesOnly ? [] : TEXT_FIELDS).map((field) => [field, card[field]]));
-    const next = {
-      ...data,
-      ...text,
-      imageObjectPath: objectPath,
-      imageContentType: 'image/webp',
-      imageSha256,
-    };
-    const nextRecordSha256 = recordSha256(next);
     const what = [imageChanged && 'Bild', ...textChanges].filter(Boolean).join(', ');
     console.log(`${apply ? 'tausche     ' : 'wuerde tauschen'} ${label} (${mustEat._id}): ${what}`);
     for (const field of textChanges) {
@@ -221,7 +191,7 @@ async function main() {
         `      ${field}: ${JSON.stringify(data[field])} -> ${JSON.stringify(card[field])}`
       );
     }
-    swapped.push({ id: mustEat._id, objectPath, imageSha256, recordSha256: nextRecordSha256 });
+    changed += 1;
     if (!apply) continue;
 
     const file = bucket.file(objectPath);
@@ -247,36 +217,15 @@ async function main() {
         imageObjectPath: objectPath,
         imageContentType: 'image/webp',
         imageSha256,
-        recordSha256: nextRecordSha256,
         updatedAt: FieldValue.serverTimestamp(),
       });
-  }
-
-  const manifestPath = arg('--manifest');
-  if (apply && manifestPath && swapped.length > 0) {
-    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-    const bySwapped = new Map(swapped.map((entry) => [entry.id, entry]));
-    for (const entry of manifest.entries as { id: string }[]) {
-      const swap = bySwapped.get(entry.id);
-      if (!swap) continue;
-      Object.assign(entry, {
-        privateObjectPath: swap.objectPath,
-        imageSha256: swap.imageSha256,
-        recordSha256: swap.recordSha256,
-      });
-    }
-    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, {
-      encoding: 'utf8',
-      mode: 0o600,
-    });
-    console.log(`Manifest fortgeschrieben: ${manifestPath}`);
   }
 
   console.log(
     JSON.stringify({
       status: apply ? 'applied' : 'dry-run',
       project: projectId,
-      changed: swapped.length,
+      changed,
       cardsWithoutMustEat: cardsWithoutMustEat.map((card) => card.order),
       mustEatsWithoutCard: mustEatsWithoutCard.map((mustEat) => mustEat._id),
     })

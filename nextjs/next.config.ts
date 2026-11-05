@@ -21,7 +21,12 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   // `inlineCss` bleibt aus: Es schreibt das ganze CSS in jede Seite und noch
   // einmal in deren RSC-Daten, und nichts davon kommt aus dem Browser-Cache.
-  experimental: { cssChunking: 'strict' },
+  // `cssChunking` bleibt aus: Es legt kleine Module seitenübergreifend zusammen,
+  // sodass eine Seite auch die Stile fremder Seiten lädt. So lädt jede Seite nur
+  // ihre eigenen Module (gemessen 05.11.2026, Startseite: 5 statt 12 Dateien,
+  // 30 statt 47 kB). Ein Modul kann dadurch in mehreren Dateien stehen; zwischen
+  // Modulen bleibt das Überschreiben mit gleicher Spezifität also tabu.
+  experimental: { cssChunking: false },
   /**
    * Metadaten in den `<head>`, nicht in den Body.
    *

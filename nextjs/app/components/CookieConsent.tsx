@@ -370,7 +370,18 @@ export default function CookieConsent() {
           }
         }}
       >
-        <div aria-hidden="true" className="cookie-paper" />
+        {/* Ein echtes Bild, kein CSS-Hintergrund: der Browser findet es schon beim
+            ersten Lesen der Seite. Ein Skript im Kopf käme erst nach allen
+            Stylesheets dran und liesse das Papier hinter der übrigen Seite anstehen. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          aria-hidden="true"
+          className="cookie-paper"
+          src="/pics/paper/consent-paper.webp?v=20261103"
+          alt=""
+          fetchPriority="high"
+          decoding="sync"
+        />
         <div className="cookie-content">
           {/* Text und Details scrollen zusammen; die zwei Antworten darunter
               bleiben beim Lesen fest im Bild. */}

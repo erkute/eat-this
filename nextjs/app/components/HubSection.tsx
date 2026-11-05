@@ -54,11 +54,11 @@ export default function HubSection({ initialData, initialMapData, locale }: Prop
         </HomeMapDataProvider>
         <HubFragRemy />
         <HubFaq locale={locale} />
-        <div className={styles.paperEnd} data-paper-surface="">
-          <PaperPhoto />
+        <div className={styles.paperEnd}>
+          <PaperPhoto mirrored />
           <StarterPackSignup />
-          <SiteFooter />
         </div>
+        <SiteFooter />
       </Suspense>
     </main>
   );

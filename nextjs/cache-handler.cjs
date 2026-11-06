@@ -33,6 +33,18 @@ const path = require('path');
 // MISS`, 0,4–0,6 s Serverzeit, auf frischen Instanzen mehrere Sekunden), obwohl
 // sie seit dem Build unverändert war. Ältere Tags beschreiben Änderungen, die
 // der Build schon enthält. Den Zeitpunkt trägt die BUILD_ID (next.config.ts).
+//
+// Viertens wirkt jede Invalidierung nach FOLLOW_UP_MS noch zweimal nach. Die
+// Seiten lesen Sanity über das API-CDN, und das liefert nach einer Änderung
+// noch Minuten lang auf einem Teil seiner Knoten den alten Stand, auch für
+// eine Abfrage, die eben schon frisch kam (staging, 06.11.2026: bis +50 s rund
+// jede zweite Antwort alt, bei +180 s noch zwei von sieben, nach gut vier
+// Minuten noch einzelne). Eine Seite, die direkt nach dem Webhook neu gebaut
+// wird, hielt diesen Stand bis zur 24-Stunden-Frist fest — so am 06.11.2026
+// /kategorie/coffee nach dem Umbenennen eines Spots. Nach jedem Nachlauf gilt
+// alles, was vor ihm geschrieben wurde, wieder als veraltet und wird beim
+// nächsten Abruf neu gebaut. Die Nachläufe rechnet jede Instanz selbst aus
+// dem geteilten Zeitpunkt; es läuft dafür kein Timer im Hintergrund.
 
 const FileSystemCache =
   require('next/dist/server/lib/incremental-cache/file-system-cache').default;
@@ -61,6 +73,49 @@ function readBuildTime(serverDistDir) {
   }
 }
 
+// Abstand der Nachläufe zur Invalidierung.
+const FOLLOW_UP_MS = [2 * 60 * 1000, 10 * 60 * 1000];
+
+/**
+ * Trägt Invalidierungen in Nexts Tag-Tabelle ein, samt ihren Nachläufen.
+ * Next hält eine Seite für veraltet, wenn einer ihrer Tags einen Zeitpunkt
+ * >= ihrer Entstehung trägt. Eingetragen wird darum der letzte Nachlauf, der
+ * schon erreicht ist; `tick` rückt nach, solange einer aussteht.
+ */
+function createTagClock({ now = () => Date.now(), manifest = tagsManifest, followUps = FOLLOW_UP_MS } = {}) {
+  const lastFollowUp = Math.max(0, ...followUps);
+  // Tag → Zeitpunkt der Invalidierung, solange ein Nachlauf aussteht.
+  const pending = new Map();
+
+  function reached(ts, t) {
+    let at = ts;
+    for (const delay of followUps) if (ts + delay <= t && ts + delay > at) at = ts + delay;
+    return at;
+  }
+
+  function raise(tag, at) {
+    const local = manifest.get(tag);
+    if (local === undefined || at > local) manifest.set(tag, at);
+  }
+
+  function record(tag, ts) {
+    const t = now();
+    raise(tag, reached(ts, t));
+    if (ts + lastFollowUp > t && !(pending.get(tag) >= ts)) pending.set(tag, ts);
+  }
+
+  function tick() {
+    if (pending.size === 0) return;
+    const t = now();
+    for (const [tag, ts] of pending) {
+      raise(tag, reached(ts, t));
+      if (ts + lastFollowUp <= t) pending.delete(tag);
+    }
+  }
+
+  return { record, tick, pending };
+}
+
 // Firestore-Feldnamen dürfen keine Punkte tragen und `__…__` ist reserviert;
 // Tags wie `_N_T_/de/restaurant/comedor` laufen deshalb kodiert.
 const encodeTag = (tag) => encodeURIComponent(tag).replace(/\./g, '%2E').replace(/_/g, '%5F');
@@ -72,16 +127,21 @@ const decodeTag = (key) => decodeURIComponent(key);
  *   write: (entries: Record<string, number>, cutoff: number) => Promise<void>,
  * }} store
  */
-function createSharedTags(store, { now = Date.now, manifest = tagsManifest, notBefore = 0 } = {}) {
+function createSharedTags(
+  store,
+  {
+    now = Date.now,
+    manifest = tagsManifest,
+    clock = createTagClock({ now, manifest }),
+    notBefore = 0,
+  } = {}
+) {
   let lastSync = 0;
   let inFlight = null;
 
   function apply(entries) {
     for (const [key, ts] of Object.entries(entries || {})) {
-      if (typeof ts !== 'number' || ts < notBefore) continue;
-      const tag = decodeTag(key);
-      const local = manifest.get(tag);
-      if (local === undefined || ts > local) manifest.set(tag, ts);
+      if (typeof ts === 'number' && ts >= notBefore) clock.record(decodeTag(key), ts);
     }
   }
 
@@ -177,13 +237,15 @@ function sharedEnabled() {
   );
 }
 
-// Next erzeugt den Handler pro Anfrage neu; der Abgleich lebt pro Prozess.
+// Next erzeugt den Handler pro Anfrage neu; Uhr und Abgleich leben pro Prozess.
+const clock = createTagClock();
 let shared;
 function getShared(serverDistDir) {
   if (shared === undefined) {
     const builtAt = readBuildTime(serverDistDir);
     shared = sharedEnabled()
       ? createSharedTags(createFirestoreStore(), {
+          clock,
           notBefore: builtAt ? builtAt - BUILD_MARGIN_MS : 0,
         })
       : null;
@@ -197,7 +259,7 @@ class CacheHandler extends FileSystemCache {
     tags = typeof tags === 'string' ? [tags] : tags || [];
     if (tags.length === 0) return;
     const ts = Date.now();
-    for (const tag of tags) tagsManifest.set(tag, ts);
+    for (const tag of tags) clock.record(tag, ts);
     const s = getShared(this.serverDistDir);
     if (s) await s.publish(tags, ts);
   }
@@ -205,12 +267,15 @@ class CacheHandler extends FileSystemCache {
   async get(...args) {
     const s = getShared(this.serverDistDir);
     if (s) await s.sync();
+    clock.tick();
     return super.get(...args);
   }
 }
 
 module.exports = CacheHandler;
 module.exports.createSharedTags = createSharedTags;
+module.exports.createTagClock = createTagClock;
+module.exports.FOLLOW_UP_MS = FOLLOW_UP_MS;
 module.exports.mergeTags = mergeTags;
 module.exports.encodeTag = encodeTag;
 module.exports.decodeTag = decodeTag;

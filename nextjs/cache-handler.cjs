@@ -1,5 +1,8 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+
 // ISR-Cache für mehrere Cloud-Run-Instanzen.
 //
 // Nexts eingebauter FileSystemCache hält, welcher Tag wann invalidiert wurde,
@@ -19,6 +22,17 @@
 //
 // Seiten und Daten liegen weiter im FileSystemCache der Instanz; geteilt wird
 // nur die kleine Tabelle Tag → Zeitpunkt.
+//
+// Drittens: Tags aus der Zeit vor dem Build zählen nicht. Die Buildpacks von
+// App Hosting setzen das Dateidatum jeder Datei im Image auf 1980-01-01
+// (geprüft am Image build-2026-11-06-001), und Next nimmt dieses Datum als
+// Alter einer vorgebauten Seite. Jeder Tag in der Tabelle war damit jünger als
+// jede vorgebaute Seite: Spot-, Bezirks-, Kategorie- und Artikelseiten tragen
+// Sammel-Tags wie `restaurant` und `news`, also rechnete jede Instanz jede
+// dieser Seiten beim ersten Aufruf blockierend neu (live `x-nextjs-cache:
+// MISS`, 0,4–0,6 s Serverzeit, auf frischen Instanzen mehrere Sekunden), obwohl
+// sie seit dem Build unverändert war. Ältere Tags beschreiben Änderungen, die
+// der Build schon enthält. Den Zeitpunkt trägt die BUILD_ID (next.config.ts).
 
 const FileSystemCache =
   require('next/dist/server/lib/incremental-cache/file-system-cache').default;
@@ -31,6 +45,21 @@ const SYNC_TIMEOUT_MS = 1_000;
 // Ältere Einträge braucht niemand mehr: nach 24 Stunden ist jede Seite über
 // die ISR-Frist ohnehin abgelaufen (SANITY_REVALIDATE_SECONDS).
 const KEEP_MS = 2 * 24 * 60 * 60 * 1000;
+// Der Build liest Sanity erst Minuten nach seinem Start und über das API-CDN;
+// eine Änderung aus den letzten zwei Minuten davor zählt sicherheitshalber.
+const BUILD_MARGIN_MS = 2 * 60 * 1000;
+const BUILD_ID_TIME = /^et-(\d{13})-/;
+
+/** Build-Zeitpunkt aus `<distDir>/BUILD_ID`, 0 wenn unbekannt. */
+function readBuildTime(serverDistDir) {
+  try {
+    const id = fs.readFileSync(path.join(serverDistDir, '..', 'BUILD_ID'), 'utf8').trim();
+    const match = BUILD_ID_TIME.exec(id);
+    return match ? Number(match[1]) : 0;
+  } catch {
+    return 0;
+  }
+}
 
 // Firestore-Feldnamen dürfen keine Punkte tragen und `__…__` ist reserviert;
 // Tags wie `_N_T_/de/restaurant/comedor` laufen deshalb kodiert.
@@ -43,13 +72,13 @@ const decodeTag = (key) => decodeURIComponent(key);
  *   write: (entries: Record<string, number>, cutoff: number) => Promise<void>,
  * }} store
  */
-function createSharedTags(store, { now = Date.now, manifest = tagsManifest } = {}) {
+function createSharedTags(store, { now = Date.now, manifest = tagsManifest, notBefore = 0 } = {}) {
   let lastSync = 0;
   let inFlight = null;
 
   function apply(entries) {
     for (const [key, ts] of Object.entries(entries || {})) {
-      if (typeof ts !== 'number') continue;
+      if (typeof ts !== 'number' || ts < notBefore) continue;
       const tag = decodeTag(key);
       const local = manifest.get(tag);
       if (local === undefined || ts > local) manifest.set(tag, ts);
@@ -150,8 +179,15 @@ function sharedEnabled() {
 
 // Next erzeugt den Handler pro Anfrage neu; der Abgleich lebt pro Prozess.
 let shared;
-function getShared() {
-  if (shared === undefined) shared = sharedEnabled() ? createSharedTags(createFirestoreStore()) : null;
+function getShared(serverDistDir) {
+  if (shared === undefined) {
+    const builtAt = readBuildTime(serverDistDir);
+    shared = sharedEnabled()
+      ? createSharedTags(createFirestoreStore(), {
+          notBefore: builtAt ? builtAt - BUILD_MARGIN_MS : 0,
+        })
+      : null;
+  }
   return shared;
 }
 
@@ -162,12 +198,12 @@ class CacheHandler extends FileSystemCache {
     if (tags.length === 0) return;
     const ts = Date.now();
     for (const tag of tags) tagsManifest.set(tag, ts);
-    const s = getShared();
+    const s = getShared(this.serverDistDir);
     if (s) await s.publish(tags, ts);
   }
 
   async get(...args) {
-    const s = getShared();
+    const s = getShared(this.serverDistDir);
     if (s) await s.sync();
     return super.get(...args);
   }
@@ -178,4 +214,5 @@ module.exports.createSharedTags = createSharedTags;
 module.exports.mergeTags = mergeTags;
 module.exports.encodeTag = encodeTag;
 module.exports.decodeTag = decodeTag;
+module.exports.readBuildTime = readBuildTime;
 module.exports.SYNC_INTERVAL_MS = SYNC_INTERVAL_MS;

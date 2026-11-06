@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { randomUUID } from 'crypto';
 import path from 'path';
 import createNextIntlPlugin from 'next-intl/plugin';
 import { withSentryConfig } from '@sentry/nextjs/config';
@@ -19,6 +20,9 @@ const GUIDE_TO_CATEGORY = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // Trägt den Build-Zeitpunkt, weil die Dateien im App-Hosting-Image keinen
+  // haben (alle 1980-01-01). cache-handler.cjs liest ihn hier heraus.
+  generateBuildId: async () => `et-${Date.now()}-${randomUUID().slice(0, 8)}`,
   // `inlineCss` bleibt aus: Es schreibt das ganze CSS in jede Seite und noch
   // einmal in deren RSC-Daten, und nichts davon kommt aus dem Browser-Cache.
   // `cssChunking` bleibt aus: Es legt kleine Module seitenübergreifend zusammen,

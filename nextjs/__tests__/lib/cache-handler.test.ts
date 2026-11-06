@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createRequire } from 'node:module'
 import path from 'node:path'
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 
 const require = createRequire(import.meta.url)
 const handlerModule = require(path.resolve(__dirname, '../../cache-handler.cjs'))
 const { tagsManifest, isStale } = require('next/dist/server/lib/incremental-cache/tags-manifest.external')
 
-const { createSharedTags, mergeTags, encodeTag, decodeTag, SYNC_INTERVAL_MS } = handlerModule
+const { createSharedTags, mergeTags, encodeTag, decodeTag, readBuildTime, SYNC_INTERVAL_MS } = handlerModule
 
 function newHandler() {
   return new handlerModule({ fs: {}, flushToDisk: false, serverDistDir: '/tmp', revalidatedTags: [] })
@@ -134,5 +136,38 @@ describe('cache-handler: geteilter Tag-Stand', () => {
       expect(key).not.toMatch(/[._]/)
       expect(decodeTag(key)).toBe(tag)
     }
+  })
+})
+
+describe('cache-handler: Tags aus der Zeit vor dem Build', () => {
+  // Im App-Hosting-Image tragen alle vorgebauten Seiten das Dateidatum
+  // 1980-01-01. Ein Tag von vor dem Build machte sie trotzdem ungültig.
+  const SEED_MTIME = Date.parse('1980-01-01T00:00:01.000Z')
+
+  it('übernimmt nur Invalidierungen ab dem Build', async () => {
+    const builtAt = Date.parse('2026-10-10T08:00:00.000Z')
+    const store = {
+      async read() {
+        return { restaurant: builtAt - 60_000, news: builtAt + 60_000 }
+      },
+      async write() {},
+    }
+    const shared = createSharedTags(store, { notBefore: builtAt })
+    await shared.sync()
+
+    expect(tagsManifest.has('restaurant')).toBe(false)
+    expect(isStale(['restaurant'], SEED_MTIME)).toBe(false)
+    expect(isStale(['news'], SEED_MTIME)).toBe(true)
+  })
+
+  it('liest den Build-Zeitpunkt aus der BUILD_ID', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'et-build-'))
+    mkdirSync(path.join(dir, 'server'))
+    writeFileSync(path.join(dir, 'BUILD_ID'), 'et-1791360000000-1a2b3c4d')
+    expect(readBuildTime(path.join(dir, 'server'))).toBe(1791360000000)
+
+    writeFileSync(path.join(dir, 'BUILD_ID'), 'Zt0aR7xY')
+    expect(readBuildTime(path.join(dir, 'server'))).toBe(0)
+    expect(readBuildTime(path.join(dir, 'fehlt'))).toBe(0)
   })
 })

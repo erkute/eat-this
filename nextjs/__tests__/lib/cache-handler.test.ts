@@ -8,7 +8,16 @@ const require = createRequire(import.meta.url)
 const handlerModule = require(path.resolve(__dirname, '../../cache-handler.cjs'))
 const { tagsManifest, isStale } = require('next/dist/server/lib/incremental-cache/tags-manifest.external')
 
-const { createSharedTags, mergeTags, encodeTag, decodeTag, readBuildTime, SYNC_INTERVAL_MS } = handlerModule
+const {
+  createSharedTags,
+  createTagClock,
+  mergeTags,
+  encodeTag,
+  decodeTag,
+  readBuildTime,
+  SYNC_INTERVAL_MS,
+  FOLLOW_UP_MS,
+} = handlerModule
 
 function newHandler() {
   return new handlerModule({ fs: {}, flushToDisk: false, serverDistDir: '/tmp', revalidatedTags: [] })
@@ -78,10 +87,23 @@ describe('cache-handler: geteilter Tag-Stand', () => {
   })
 
   it('überschreibt keinen neueren lokalen Stand mit einem älteren', () => {
-    const manifest = new Map<string, number>([['news', 2000]])
-    createSharedTags(fakeStore(), { manifest }).apply({ news: 1000, bezirk: 1500 })
-    expect(manifest.get('news')).toBe(2000)
-    expect(manifest.get('bezirk')).toBe(1500)
+    const t = Date.now()
+    const manifest = new Map<string, number>([['news', t]])
+    createSharedTags(fakeStore(), { manifest }).apply({ news: t - 1000, bezirk: t - 500 })
+    expect(manifest.get('news')).toBe(t)
+    expect(manifest.get('bezirk')).toBe(t - 500)
+  })
+
+  it('übernimmt auch die Nachläufe einer fremden Invalidierung', async () => {
+    const store = fakeStore()
+    const ts = Date.now()
+    await createSharedTags(store).publish(['category-list'], ts)
+
+    // Instanz B gleicht erst ab, als der erste Nachlauf schon vorbei ist.
+    vi.setSystemTime(ts + FOLLOW_UP_MS[0] + 5_000)
+    const manifestB = new Map<string, number>()
+    await createSharedTags(store, { manifest: manifestB }).sync()
+    expect(manifestB.get('category-list')).toBe(ts + FOLLOW_UP_MS[0])
   })
 
   it('liest höchstens einmal pro Intervall', async () => {
@@ -169,5 +191,73 @@ describe('cache-handler: Tags aus der Zeit vor dem Build', () => {
     writeFileSync(path.join(dir, 'BUILD_ID'), 'Zt0aR7xY')
     expect(readBuildTime(path.join(dir, 'server'))).toBe(0)
     expect(readBuildTime(path.join(dir, 'fehlt'))).toBe(0)
+  })
+})
+
+describe('cache-handler: Nachläufe', () => {
+  // Das Sanity-API-CDN liefert nach einer Änderung noch Minuten lang einzelne
+  // alte Antworten. Eine Seite, die in dieser Zeit neu gebaut wurde, muss nach
+  // jedem Nachlauf wieder als veraltet gelten.
+  it('macht eine kurz nach der Invalidierung gebaute Seite nach jedem Nachlauf wieder veraltet', () => {
+    const manifest = new Map<string, number>()
+    const clock = createTagClock({ manifest })
+    const ts = Date.now()
+    clock.record('category-list', ts)
+
+    const builtAt = ts + 1_000
+    vi.setSystemTime(builtAt + 1)
+    clock.tick()
+    expect(manifest.get('category-list')).toBeLessThan(builtAt)
+
+    vi.setSystemTime(ts + FOLLOW_UP_MS[0])
+    clock.tick()
+    expect(manifest.get('category-list')).toBeGreaterThanOrEqual(builtAt)
+
+    const rebuiltAt = ts + FOLLOW_UP_MS[0] + 1_000
+    vi.setSystemTime(ts + FOLLOW_UP_MS[1])
+    clock.tick()
+    expect(manifest.get('category-list')).toBeGreaterThanOrEqual(rebuiltAt)
+  })
+
+  it('lässt eine nach dem letzten Nachlauf gebaute Seite stehen und vergisst den Tag', () => {
+    const manifest = new Map<string, number>()
+    const clock = createTagClock({ manifest })
+    const ts = Date.now()
+    clock.record('restaurant', ts)
+    expect(clock.pending.size).toBe(1)
+
+    vi.setSystemTime(ts + FOLLOW_UP_MS[1] + 1_000)
+    clock.tick()
+    const builtAt = Date.now()
+    vi.setSystemTime(builtAt + 60 * 60 * 1000)
+    clock.tick()
+    expect(manifest.get('restaurant')).toBeLessThan(builtAt)
+    expect(clock.pending.size).toBe(0)
+  })
+
+  it('rechnet die Nachläufe ab der jüngsten Invalidierung', () => {
+    const manifest = new Map<string, number>()
+    const clock = createTagClock({ manifest })
+    const first = Date.now()
+    clock.record('news', first)
+    const second = first + 30_000
+    vi.setSystemTime(second)
+    clock.record('news', second)
+
+    vi.setSystemTime(second + FOLLOW_UP_MS[0])
+    clock.tick()
+    expect(manifest.get('news')).toBe(second + FOLLOW_UP_MS[0])
+  })
+
+  it('rückt die Nachläufe beim Cache-Zugriff des Handlers nach', async () => {
+    const handler = newHandler()
+    await handler.revalidateTag('bezirk')
+    const ts = tagsManifest.get('bezirk')
+    const builtAt = ts + 1_000
+    expect(isStale(['bezirk'], builtAt)).toBe(false)
+
+    vi.setSystemTime(ts + FOLLOW_UP_MS[0])
+    await handler.get('kein-eintrag', { kind: 'FETCH', tags: [], softTags: [] }).catch(() => null)
+    expect(isStale(['bezirk'], builtAt)).toBe(true)
   })
 })

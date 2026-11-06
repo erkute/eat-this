@@ -118,6 +118,11 @@ export async function POST(req: NextRequest) {
   // beantwortet — bei einer Must-Eat-Karte die Seite ihres Spots (14.10.2026
   // Boii Boii); sonst eine feste Pause. `SANITY_WEBHOOK_SETTLE_MS=0` schaltet
   // das Warten ab (Tests).
+  //
+  // Eine frische Antwort heißt nicht, dass alle Knoten des CDN frisch sind:
+  // andere Abfragen, auch dieselbe, kommen danach noch Minuten lang teils alt
+  // (Kategorie- und Bezirksseiten, 06.11.2026). Dafür wirkt jede Invalidierung
+  // im cache-handler.cjs nach 2 und 10 Minuten noch einmal nach (FOLLOW_UP_MS).
   const settleMs = Number(process.env.SANITY_WEBHOOK_SETTLE_MS ?? 5000);
   const slugForSettle = typeof doc.slug === 'string' ? doc.slug : doc.slug?.current;
   let settled = 'off';

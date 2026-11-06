@@ -26,8 +26,9 @@ const TITLE = {
   // EN trägt denselben Head-Term ganz vorn, sagt danach aber etwas anderes:
   // wortgleiche Titles auf zwei hreflang-Varianten melden sich in der Search
   // Console als Duplikat, und Englisch ist bei Berlin-Suchen die Nische mit
-  // weniger Konkurrenz — die Zeile darf dort ruhig eigenständig sein.
-  en: 'Berlin Food Map – Curated Restaurants, Cafés & Bars',
+  // weniger Konkurrenz — die Zeile darf dort ruhig eigenständig sein. Mit der
+  // Marke bleibt sie bei 59 Zeichen, unter Googles Grenze von rund 60.
+  en: 'Berlin Food Map – Best Restaurants, Cafés & Bars',
 };
 const DESCRIPTION = {
   de: 'Entdecke handverlesene Restaurants, Cafés und Bars auf der Eat This Berlin Food Map. Filtere nach Bezirk, Kategorie, Preis und was gerade geöffnet hat.',

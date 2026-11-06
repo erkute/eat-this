@@ -7,8 +7,8 @@ for (const theme of ['light', 'dark']) {
     const links = page.locator('link[rel="preload"][as="image"][href*="section-wear"]');
     await expect(links).toHaveCount(1);
     await expect(links).toHaveAttribute('href', theme === 'dark'
-      ? '/pics/vintage/section-wear-dark-light.webp?v=3'
-      : '/pics/vintage/section-wear-light.webp?v=3');
+      ? '/pics/vintage/section-wear-dark-light.webp?v=4'
+      : '/pics/vintage/section-wear-light.webp?v=4');
     await expect(page.locator('main').first()).toHaveCSS('background-image', theme === 'dark'
       ? /section-wear-dark-light/
       : /section-wear-light/);

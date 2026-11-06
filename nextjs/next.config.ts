@@ -58,15 +58,18 @@ const nextConfig: NextConfig = {
   // validation/pre-push build sets NEXT_DIST_DIR=.next-verify so it can run
   // alongside a live `next dev` without clobbering the dev server's `.next`.
   distDir: process.env.NEXT_DIST_DIR || '.next',
-  // `intl-messageformat` (unter next-intl, auf jeder Seite) liefert Klassen mit
-  // `static {}`-Blöcken aus, die Safari erst ab 16.4 versteht; Next übersetzt
-  // `node_modules` sonst nicht. Unübersetzt bricht das Skript auf iOS 15 bis
-  // 16.3 (auch im Instagram-Browser) beim Laden ab: Die Seite wird nie
-  // interaktiv, der Cookie-Dialog lässt sich nicht schließen (Sentry
-  // JAVASCRIPT-AV). Kostet gepackt rund 0,1 kB. `maplibre-gl` hat dieselben
-  // Blöcke und steht bewusst nicht hier: Übersetzt wöge die Map rund 5,6 kB
-  // mehr, also läuft /map auf diesen Geräten nicht.
-  transpilePackages: ['intl-messageformat'],
+  // Beide Pakete liefern Klassen mit `static {}`-Blöcken aus, die Safari erst
+  // ab 16.4 versteht; Next übersetzt `node_modules` sonst nicht. Unübersetzt
+  // bricht das Skript auf iOS 15 bis 16.3 (auch im Instagram-Browser) beim
+  // Laden ab (Sentry JAVASCRIPT-AV):
+  // - `intl-messageformat` (unter next-intl, auf jeder Seite): Die Seite wird
+  //   nie interaktiv, der Cookie-Dialog lässt sich nicht schließen. Kostet
+  //   gepackt rund 0,1 kB.
+  // - `maplibre-gl` (nur /map, samt Worker aus MapCanvas): Die Map zeigt die
+  //   Fehlerseite. Kostet gepackt rund 8 kB (Bundle 5,6, Worker 2,4), weil
+  //   SWC dabei auch `?.` und `??` für Nexts Standardziel (Chrome 64)
+  //   umschreibt.
+  transpilePackages: ['intl-messageformat', 'maplibre-gl'],
   // Each build type-checks against its OWN dist dir's generated route types.
   // Next appends `<distDir>/types/**/*.ts` to whichever tsconfig it is handed,
   // so a single config accumulated both `.next/types` and `.next-verify/types`

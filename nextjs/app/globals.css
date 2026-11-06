@@ -270,15 +270,19 @@ html[data-vintage] :is(.homeV2 > section, [data-site-footer]) {
 }
 /* Leicht gealtertes Papier auf den übrigen Unterseiten. Magazin und Artikel
    behalten ruhige Flächen; die Startseite gestaltet ihre Blätter selbst.
-   `:has()` darf nicht in einem weiteren `:has()` stehen. */
+   `:has()` darf nicht in einem weiteren `:has()` stehen.
+   Die Spuren-Datei ist nur 128 px breit (9 kB). Sie deckt die ganze Fläche ab,
+   darum wartet das LCP am Telefon auf sie, solange sie nach dem Text fertig
+   wird. Gestreckt sieht sie aus wie eine große Fassung, ist aber vor dem Text
+   da. */
 html[data-vintage]:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)):not([data-page='news'], [data-page='news-article'], [data-page='restaurant']) {
-  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=3');
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-light.webp?v=4');
   background-size: 192px, 100% auto;
   background-repeat: repeat, no-repeat;
   background-position: 0 0, top center;
 }
 html[data-vintage][data-theme='dark']:not(:has(main:is([data-page='not-found'], [data-page='error']))) :is(.app-page:has(> main), body > main):not(:has(.homeV2)):not([data-page='news'], [data-page='news-article'], [data-page='restaurant']) {
-  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=3');
+  background-image: url('/pics/vintage/paper-grain.webp?v=4'), url('/pics/vintage/section-wear-dark-light.webp?v=4');
 }
 /* Getrennt wird über die Farbe der Blätter, ohne weisse Fuge (Ansage
    21.10.2026: „mit verschiedenen Farben für die Sections, damit man diese

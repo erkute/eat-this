@@ -11,12 +11,12 @@ import { PRIVATE_MUST_EATS_COLLECTION, readPrivateMustEatContent } from './priva
 // anfragt. Sie braucht für ihre Varianten ohnehin sharp, und mit offener
 // Verbindung kommt ein Original von 47–159 kB schnell nach.
 //
-// Alle Originale vorzuladen hat den neuen Instanzen mehr genommen als gegeben.
-// Cloud Run gibt außerhalb von Anfragen kaum CPU, darum lief der Lauf nur,
-// während Besucher warteten: im Median 5,6 min je Instanz, jede zehnte über
-// 23 min (prod 29.10.–05.11.2026, 320 Starts). Solange er lief, brauchten
-// Seiten im Median 2,0 s statt 0,4 s und Kartenbilder 4,7 s statt 0,2 s
-// (jeweils in den ersten 90 s einer Instanz, prod 03.–05.11.2026).
+// Alle Originale vorzuladen dauerte auf prod im Median 5,6 min je Instanz,
+// jede zehnte über 23 min (29.10.–05.11.2026, 320 Starts): Cloud Run gibt
+// außerhalb von Anfragen kaum CPU, der Lauf kam nur voran, während Besucher
+// warteten. Mit nur einem Original ist das Warmup nach 3–5 s fertig (staging
+// 06.11.2026); die Antwortzeiten in den ersten 90 s einer Instanz hat das
+// nicht messbar verändert.
 export async function warmMustEatImages(): Promise<{
   cards: number;
   firstError?: string;

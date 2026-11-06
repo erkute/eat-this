@@ -12,9 +12,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'not found' }, { status: 404 });
   }
   const started = Date.now();
-  const { cards, failedLoads, firstError } = await warmMustEatImages();
+  const { cards, firstError } = await warmMustEatImages();
   console.log(
-    `[warmup] must-eat images: ${cards} cards, ${failedLoads} failed, ${Date.now() - started} ms` +
+    `[warmup] must-eat: ${cards} cards, ${Date.now() - started} ms` +
       (firstError ? ` — ${firstError}` : '')
   );
   return new NextResponse(null, { status: 204 });

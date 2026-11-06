@@ -38,33 +38,36 @@ describe('warmMustEatImages', () => {
 
   // Prod 26.09.2026: auf zwei von drei frischen Instanzen lief die
   // Sanity-Abfrage ins Zeitlimit und riss den ganzen Lauf mit.
-  it('waermt die Karten auch, wenn Sanity scheitert', async () => {
+  it('waermt Firestore und Bucket auch, wenn Sanity scheitert', async () => {
     getPublicMustEatIds.mockRejectedValue(new Error('Socket timed out'));
 
-    await expect(warmMustEatImages()).resolves.toEqual({
-      cards: 2,
-      failedLoads: 0,
-      firstError: undefined,
-    });
-    expect(renderPrivateMustEatImage).toHaveBeenCalledTimes(2);
+    await expect(warmMustEatImages()).resolves.toEqual({ cards: 2 });
+    expect(renderPrivateMustEatImage).toHaveBeenCalledOnce();
   });
 
-  // Variante null heisst: nur das Original, kein sharp auf der frischen Instanz.
-  it('laedt die Originale und rechnet keine Variante vor', async () => {
-    await warmMustEatImages();
-    expect(renderPrivateMustEatImage.mock.calls.map(([id, variant]) => [id, variant])).toEqual([
-      ['a', null],
-      ['b', null],
-    ]);
-  });
-
-  it('reads and primes 100 documents in one batch before rendering', async () => {
+  // Ein Original weckt den Bucket; die uebrigen holt die Route bei Bedarf.
+  // Variante null heisst: kein sharp auf der frischen Instanz.
+  it('laedt alle Dokumente in einem Rutsch, aber nur ein Original', async () => {
     const ids = Array.from({ length: 100 }, (_, i) => `card-${i}`);
     listIds.mockResolvedValue({ docs: ids.map(id => ({ id })) });
     await warmMustEatImages();
     expect(readPrivateMustEatContent).toHaveBeenCalledExactlyOnceWith(ids);
     expect(primePrivateMustEatImageContent).toHaveBeenCalledOnce();
-    expect(renderPrivateMustEatImage).toHaveBeenCalledTimes(100);
+    expect(renderPrivateMustEatImage.mock.calls.map(([id, variant]) => [id, variant])).toEqual([
+      ['card-0', null],
+    ]);
     expect(primePrivateMustEatImageContent.mock.invocationCallOrder[0]).toBeLessThan(renderPrivateMustEatImage.mock.invocationCallOrder[0]);
+  });
+
+  it('meldet einen gescheiterten Bucket-Abruf, statt zu werfen', async () => {
+    renderPrivateMustEatImage.mockRejectedValue(new Error('bucket down'));
+    await expect(warmMustEatImages()).resolves.toEqual({ cards: 2, firstError: 'Error: bucket down' });
+  });
+
+  it('tut ohne Karten nichts weiter', async () => {
+    listIds.mockResolvedValue({ docs: [] });
+    await expect(warmMustEatImages()).resolves.toEqual({ cards: 0 });
+    expect(readPrivateMustEatContent).not.toHaveBeenCalled();
+    expect(renderPrivateMustEatImage).not.toHaveBeenCalled();
   });
 });

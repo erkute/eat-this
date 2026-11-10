@@ -10,22 +10,8 @@ import type { SheetView, SheetSnap, UserLocation, UserTier, MapOptionCounts } fr
 import type { DetailOrigin } from '@/lib/map/phoneSheetSnaps';
 import type { InitialMustEatsData } from '@/lib/map/initial-surface-data';
 import type { UserLocationError } from '@/lib/map/useUserLocation';
-import {
-  getLocatingCopy,
-  getLocationStatus,
-  LOCATING_MIN_VISIBLE_MS,
-  LOCATING_SHOW_DELAY_MS,
-  LOCATION_ERROR_VISIBLE_MS,
-  type LocationStatus,
-} from '@/lib/map/locationStatus';
-import { useLocationInvite } from '@/lib/map/useLocationInvite';
-import { useLocationWelcome } from '@/lib/map/useLocationWelcome';
-import { useExplorationSettled } from '@/lib/map/useExplorationSettled';
-import { notify, type NoticeKind } from '@/lib/notice';
-import { locationBlockedOptions } from '@/lib/map/locationHelp';
-import { useDeferredStatus } from '@/lib/map/useDeferredStatus';
+import { useMapLocationFeedback } from '@/lib/map/useMapLocationFeedback';
 import { openBurgerDrawer } from '../burgerDrawerState';
-import { trackEvent, trackEventOnce } from '@/lib/analytics';
 
 import MapCanvasLayer from './LazyMapCanvasLayer';
 import RestaurantList from './RestaurantList';
@@ -36,8 +22,6 @@ import { CloseIcon, SearchGlassIcon } from './icons';
 import MapDataNotice from './MapDataNotice';
 import MapSearchSuggestions from './MapSearchSuggestions';
 import type { InitialCamera } from '@/lib/map/useMapCamera';
-/* BezirkFilterPill removed — redundant now that the bezirk filter shows
-   as a chip in the list header. The chip also has reset built in. */
 import styles from './MapLayout.module.css';
 import controlStyles from './MapControls.module.css';
 import sheetStyles from './MapSheet.module.css';
@@ -304,146 +288,10 @@ export default function MapSectionBody(props: MapSectionBodyProps) {
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [restaurantDetailOpen, onRestaurantClose]);
-  const rawLocationStatus = getLocationStatus({
-    locale,
-    location,
-    locationError,
-    locateLoading,
-    whileLocated: true,
+  const handleLocateMe = useMapLocationFeedback({
+    locale, isActive, sheetView, location, locationError, locateLoading,
+    mapDataLoading, mapDataError, onLocateMe,
   });
-  /* The only non-error copy is the "searching" one, so this is exactly the
-     transient state that used to flash. Errors stay immediate — they are the
-     messages the user actually needs to read. */
-  const isLocating = Boolean(rawLocationStatus.copy) && !rawLocationStatus.isError;
-  const locatingVisible =
-    useDeferredStatus(isLocating, LOCATING_SHOW_DELAY_MS, LOCATING_MIN_VISIBLE_MS) &&
-    !rawLocationStatus.isError;
-  /* An error arriving mid-hold wins immediately (the && above), so the stale
-     "searching" copy can't sit on top of it for a frame. */
-  const locationStatus: LocationStatus = locatingVisible
-    ? { copy: getLocatingCopy(locale), isError: false, canRetry: false }
-    : isLocating
-      ? { copy: null, isError: false, canRetry: false }
-      : rawLocationStatus;
-
-  /* A first visit with the location question still open: the map asks once,
-     through the info card (useLocationWelcome), never over a detail. That is
-     also the funnel step — a visitor who already answered has nothing to
-     decide, and counting them would pad the denominator; neither would one
-     who never touched the map and so was never asked. */
-  const invited = useLocationInvite(location !== null);
-  /* Not straight after the cookie answer: only once the visitor has moved the
-     map or the list and let go (useExplorationSettled). Before that the map
-     had not even been looked at, and the question came as a second dialog. */
-  const explored = useExplorationSettled();
-  const isRealInvite =
-    invited && explored && isActive && !locationError && !locateLoading && sheetView !== 'detail';
-  const locationStatusKey = locationStatus.copy
-    ? `${locationStatus.copy}:${locationStatus.isError ? 'error' : 'ok'}:${locatingVisible ? 'loading' : 'idle'}`
-    : null;
-  const [dismissedLocationStatusKey, setDismissedLocationStatusKey] = useState<string | null>(null);
-  const showLocationStatus = Boolean(
-    sheetView !== 'detail' &&
-    locationStatus.copy &&
-    locationStatusKey !== dismissedLocationStatusKey
-  );
-  /* The denominator for map_location_invite_accepted. Consent-free: trackEvent
-     counts the NAME through /api/count for everyone and only the params need a
-     consent grant, so "labelled vs. pressed" stays readable even though most
-     visitors never accept cookies. Once per session — a re-render would
-     inflate it past any use. */
-  useEffect(() => {
-    if (!isRealInvite) return;
-    trackEventOnce('map_location_invite', 'map_location_invite_shown');
-  }, [isRealInvite]);
-
-  /* Errors used to sit there until tapped away — and since the dismissal is
-     component state, a denied permission put the bar back on every reload,
-     permanently parked over the locate button. It is a notice, not a dialog:
-     let it retire on its own. The "searching" copy is excluded — it clears
-     itself the moment the request settles. */
-  useEffect(() => {
-    /* Blockiert bleibt stehen: die Meldung traegt „So geht's", und wer die
-       Schritte sucht, braucht laenger als eine Frist (locationHelp). */
-    if (!showLocationStatus || !locationStatus.isError || !locationStatusKey) return;
-    if (locationError === 'denied') return;
-    const id = window.setTimeout(
-      () => setDismissedLocationStatusKey(locationStatusKey),
-      LOCATION_ERROR_VISIBLE_MS
-    );
-    return () => window.clearTimeout(id);
-  }, [showLocationStatus, locationStatus.isError, locationStatusKey, locationError]);
-  const handleLocationRetry = useCallback(() => {
-    setDismissedLocationStatusKey(null);
-    onLocateMe();
-  }, [onLocateMe]);
-  /* One control, one path into geolocation — the label only changes what it
-     says, never what it does.
-
-     Jeder Tipp ist eine neue Frage und bekommt eine neue Antwort: der Merker
-     fuer eine weggeklickte (oder abgelaufene) Meldung faellt hier, wie bei
-     „Nochmal". Bis 25.09.2026 blieb er stehen — der zweite Tipp endete im
-     selben Fehler, der galt als schon gesehen, und der Knopf tat sichtbar
-     nichts (Betreiber: „wenn ich wieder auf Icon klicke kommt keine
-     Meldung"). */
-  const handleLocateMe = useCallback(() => {
-    if (isRealInvite) trackEvent('map_location_invite_accepted');
-    setDismissedLocationStatusKey(null);
-    onLocateMe();
-  }, [isRealInvite, onLocateMe]);
-  useLocationWelcome(isRealInvite && !mapDataLoading && !mapDataError, locale, handleLocateMe);
-
-  const handleDismissLocationStatus = useCallback(() => {
-    if (locationStatusKey) setDismissedLocationStatusKey(locationStatusKey);
-  }, [locationStatusKey]);
-
-  /* Die Standort-Meldung geht durch die zentrale Info-Karte, nicht mehr durch
-     eine eigene Leiste am unteren Rand. Zwei Infoflaechen auf einem Schirm
-     waren eine zu viel: die Leiste sass unter dem Sheet-Griff, die Toasts
-     daneben, und welche der beiden gerade sprach, war Zufall. Der
-     Zustandsautomat bleibt hier — er kennt die Nachfrist, den Selbstabgang
-     und das Weggeklickte; die Karte zeigt nur.
-     `duration: 0`, weil genau dieser Automat das Abraeumen besitzt. */
-  const noticeKind: NoticeKind | null =
-    showLocationStatus && !mapDataLoading && !mapDataError
-      ? locatingVisible
-        ? 'locating'
-        : locationError === 'denied'
-          ? 'locationBlocked'
-          : locationError
-            ? 'locationNotFound'
-            : null
-      : null;
-  const noticeIsError = locationStatus.isError;
-  const noticeCanRetry = locationStatus.canRetry;
-  useEffect(() => {
-    if (!noticeKind) return;
-    /* Der Rueckgabewert raeumt genau diese Meldung ab und laesst eine
-       inzwischen nachgerueckte stehen. Nur die Fehler tragen Knoepfe und
-       liegen damit als Layer ueber der Karte; das Suchen geht von allein,
-       sobald der Standort da ist. */
-    if (noticeKind === 'locationBlocked') {
-      return notify(
-        noticeKind,
-        locale,
-        locationBlockedOptions(locale, handleDismissLocationStatus)
-      );
-    }
-    return notify(noticeKind, locale, {
-      action: noticeCanRetry
-        ? { label: locale === 'en' ? 'Retry' : 'Nochmal', onClick: handleLocationRetry }
-        : undefined,
-      onDismiss: noticeIsError ? handleDismissLocationStatus : undefined,
-      duration: 0,
-    });
-  }, [
-    noticeKind,
-    noticeIsError,
-    noticeCanRetry,
-    locale,
-    handleLocationRetry,
-    handleDismissLocationStatus,
-  ]);
 
   /* What is typed but not sent yet. The suggestions follow it; the list and
      the pins wait for Enter — a list that changed with every letter was

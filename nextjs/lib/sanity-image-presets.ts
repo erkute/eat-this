@@ -159,6 +159,21 @@ export function sanitySrcSet(
   return candidates.map((w) => `${base}?w=${w}&auto=format&q=${q} ${w}w`).join(', ');
 }
 
+/** Match centered CSS object-fit: cover at the CDN, without downloading the
+ * pixels outside a fixed-ratio slot or upscaling small originals. */
+export function sanityCroppedSources(url: string, widths: number[], ratio: number) {
+  const size = sanityImageSize(url);
+  if (!url.startsWith('https://cdn.sanity.io/images/') || !size) return undefined;
+  const base = url.split('?')[0];
+  const maximum = Math.max(1, Math.floor(Math.min(size.width, size.height * ratio)));
+  const candidates = [...new Set(widths.map(w => Math.max(1, Math.min(Math.round(w), maximum))))];
+  const source = (w: number) => `${base}?w=${w}&h=${Math.max(1, Math.round(w / ratio))}&fit=crop&crop=center&auto=format&q=80`;
+  return {
+    src: source(candidates[1] ?? candidates[0]),
+    srcSet: candidates.map(w => `${source(w)} ${w}w`).join(', '),
+  };
+}
+
 /** A landscape photo cropped into a portrait slot needs more source pixels
  * than the slot's width. Include the pixels hidden by object-fit: cover. */
 export function coverImageScale(url: string | null | undefined, slotRatio: number): number {

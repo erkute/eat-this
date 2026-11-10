@@ -23,6 +23,7 @@ import {
 import { sanitySrcSet, coverImageScale, sanityCroppedSources } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import styles from './MagazineCover.module.css';
+import PreviewImage from './PreviewImage';
 
 const LOGO = BRAND_WORDMARK.src;
 const TONES: Record<CoverTone, string> = {
@@ -95,6 +96,7 @@ export default function MagazineCover({
   widths = [480, 800, 1200],
   priority = false,
 }: Props) {
+  const PhotoImage = priority ? 'img' : PreviewImage;
   const look = coverLook(issue, cover);
   const month = formatMonth(date, locale);
   const issueLine = [issue ? `Issue ${issue}` : '', month].filter(Boolean).join(' · ');
@@ -110,7 +112,7 @@ export default function MagazineCover({
     </>
   );
   const loading = priority ? 'eager' : 'lazy';
-  const fetchPriority = priority ? ('high' as const) : undefined;
+  const fetchPriority = priority ? ('high' as const) : ('low' as const);
   const [lead, rest] = splitHeadline(title);
   const cut = hasCutout(cover) ? cover : null;
 
@@ -127,8 +129,7 @@ export default function MagazineCover({
     return image ? (
       // Sanity serves the responsive variants itself; the App Hosting image
       // proxy would re-optimise them.
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <PhotoImage
         className={className}
         style={style}
         src={cropped?.src ?? sanityImageLoader({ src: image, width: widths[1] ?? widths[0] })}
@@ -150,8 +151,7 @@ export default function MagazineCover({
     const ws = [...new Set(widths.map((w) => Math.min(cropWidth, Math.round((w * rect.width) / 100))))];
     const url = (w: number) => `${base}?rect=${crop}&w=${w}&auto=format&q=80`;
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <PhotoImage
         className={className}
         style={{ ...place(rect), ...style }}
         src={url(ws[1] ?? ws[0])}
@@ -287,8 +287,7 @@ export default function MagazineCover({
       body = (
         <>
           {onPhoto && image && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <PhotoImage
               className={styles.layer}
               style={place(g.rect)}
               src={sanityImageLoader({ src: image, width: ws[1] ?? ws[0] })}
@@ -308,8 +307,7 @@ export default function MagazineCover({
           )}
           {logo({ top: q(FRONT_LOGO.top), width: q(FRONT_LOGO.width) })}
           {onPhoto ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <PhotoImage
               className={`${styles.layer} ${styles.cutoutShadow}`}
               style={place(g.rect)}
               src={sanityImageLoader({ src: c.cutout, width: ws[1] ?? ws[0] })}

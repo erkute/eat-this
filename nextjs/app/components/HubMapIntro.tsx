@@ -7,6 +7,7 @@ import MapIntentLink from './MapIntentLink';
 import styles from './HubMapIntro.module.css';
 import phoneStyles from './PhoneDisplay.module.css';
 import PhoneDisplay from './PhoneDisplay';
+import { appScroller } from '@/lib/dom/appScroller';
 
 const SCREEN_ORDER = [4, 1, 3, 2] as const;
 
@@ -17,10 +18,12 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
   const touchStart = useRef<{ x: number; y: number; index: number; dx: number; axis: 'x' | 'y' | null } | null>(null);
   const suppressClick = useRef(false);
   const activeRef = useRef(0);
+  const loadedScreens = useRef(new Set<number>());
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [interacting, setInteracting] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [prepared, setPrepared] = useState(false);
   const [reduced, setReduced] = useState(true);
 
   useEffect(() => {
@@ -29,13 +32,24 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
     update();
     preference.addEventListener('change', update);
     const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: .35 });
-    if (showcase.current) observer.observe(showcase.current);
-    return () => { observer.disconnect(); preference.removeEventListener('change', update); };
+    // Native lazy loading also fetches clipped carousel slides far below the fold.
+    // Keep the first screen in HTML; prepare the hidden screens near the section.
+    const prepare = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setPrepared(true);
+      prepare.disconnect();
+    }, { root: appScroller(), rootMargin: '300px 0px' });
+    if (showcase.current) {
+      observer.observe(showcase.current);
+      prepare.observe(showcase.current);
+    }
+    return () => { observer.disconnect(); prepare.disconnect(); preference.removeEventListener('change', update); };
   }, []);
 
   const showScreen = useCallback((index: number) => {
     const rail = track.current;
     if (!rail) return;
+    setPrepared(true);
     activeRef.current = index;
     gsap.to(rail, { xPercent: -index * 25, x: 0, duration: reduced ? 0 : .35, ease: 'power3.out', overwrite: true });
     setActive(index);
@@ -44,7 +58,8 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
   useEffect(() => {
     if (!visible || paused || interacting || reduced) return;
     const timer = window.setInterval(() => {
-      showScreen((activeRef.current + 1) % SCREEN_ORDER.length);
+      const next = (activeRef.current + 1) % SCREEN_ORDER.length;
+      if (loadedScreens.current.has(next)) showScreen(next);
     }, 2500);
     return () => window.clearInterval(timer);
   }, [visible, paused, interacting, reduced, showScreen]);
@@ -126,7 +141,7 @@ export default function HubMapIntro({ locale }: { locale: 'de' | 'en' }) {
               <div ref={track} className={styles.track}>
                 {screens.map(({ id, description }, index) => (
                   <div key={description} className={styles.slide} aria-hidden={index !== active}>
-                    <Image src={`/pics/home-map/iphone-screen-${id}.webp`} alt={description} width={440} height={894} unoptimized loading={visible ? 'eager' : 'lazy'} sizes="(max-width: 411px) 68vw, (max-width: 767px) 280px, 360px" className={styles.screen} />
+                    {(index === 0 || prepared) && <Image src={`/pics/home-map/iphone-screen-${id}.webp`} alt={description} width={440} height={894} unoptimized loading={prepared ? 'eager' : 'lazy'} fetchPriority={visible ? 'auto' : 'low'} onLoad={() => { loadedScreens.current.add(index); }} sizes="(max-width: 411px) 68vw, (max-width: 767px) 280px, 360px" className={styles.screen} />}
                   </div>
                 ))}
               </div>

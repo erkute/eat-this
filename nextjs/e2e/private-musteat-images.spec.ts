@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
 
 test('publicly revealed cards load real private-storage images', async ({ page, request }) => {
-  // Read the server-rendered card before map hydration changes the visible set.
+  // The catalog includes the public cards regardless of the initial map list ordering.
   await page.route('**/_next/static/**/*.js', route => route.abort());
-  await page.goto('/map', { waitUntil: 'domcontentloaded' });
+  await page.goto('/must-eats', { waitUntil: 'domcontentloaded' });
   const urls = await page.locator('img[src*="/api/must-eat-image/"]').evaluateAll(images =>
     [...new Set(images.map(image => (image as HTMLImageElement).currentSrc || (image as HTMLImageElement).src))]
   );

@@ -19,6 +19,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  studio:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: studio
+    env:
+      SANITY_STUDIO_ENV: staging
+      SANITY_STUDIO_PROJECT_ID: tqgkp8uc
+      SANITY_STUDIO_DATASET: staging
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: studio/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
   nextjs:
     runs-on: ubuntu-latest
     permissions:

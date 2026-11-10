@@ -99,6 +99,7 @@ export const restaurantMapDetailQuery = `
 export const mapMustEatsQuery = `
   *[_type == "mustEat" && ${liveRestaurant('restaurantRef->')}] | order(order asc, _id asc) {
     _id,
+    cardVersion,
     revealedForAnon,
     "previewCategory": *[_type == "category" && packPreview._ref == ^._id][0].slug.current,
     order,

@@ -2,13 +2,13 @@ import 'server-only';
 import type { SanityClient } from '@sanity/client';
 import type { GeneratedNewsArticle, NewsCategory } from './generate-news-article.server';
 
-// Setzt einen AI-Entwurf in den Artikel, auf dem Server. So kommt der Text
-// auch an, wenn im Studio inzwischen der Tab zu ist — das Schreiben dauert
-// ein paar Minuten. Ohne `replace` wird nur gefüllt, was noch leer ist.
+// Schreibt gegen den aktuellen Entwurf und dessen Revision. Parallele
+// Bearbeitungen bleiben bei replace=false erhalten, auch während der Generierung.
 
 export interface ArticleDraft {
   _id: string;
   _type: string;
+  _rev?: string;
   category?: NewsCategory;
   slug?: { current?: string };
   image?: { alt?: string; asset?: { _ref?: string } };
@@ -43,7 +43,10 @@ function valueAt(doc: ArticleDraft | null, path: string): unknown {
   if (path === 'slug') return doc?.slug?.current;
   return path
     .split('.')
-    .reduce<unknown>((parent, key) => (parent as Record<string, unknown> | undefined)?.[key], doc ?? undefined);
+    .reduce<unknown>(
+      (parent, key) => (parent as Record<string, unknown> | undefined)?.[key],
+      doc ?? undefined
+    );
 }
 
 const isEmpty = (value: unknown) =>
@@ -52,39 +55,64 @@ const isEmpty = (value: unknown) =>
 export async function applyGeneratedArticle(
   sanity: SanityClient,
   id: string,
-  current: ArticleDraft | null,
   article: GeneratedNewsArticle,
   replace: boolean
 ): Promise<void> {
-  const fields: Record<string, unknown> = {
-    titleDe: article.titleDe,
-    excerptDe: article.excerptDe,
-    contentDe: article.contentDe,
-    'seo.metaTitle': article.seo.metaTitle,
-    'seo.metaDescription': article.seo.metaDescription,
-    slug: { _type: 'slug', current: await freeSlug(sanity, article.slug, id) },
-    ...(article.title ? { title: article.title } : {}),
-    ...(article.excerpt ? { excerpt: article.excerpt } : {}),
-    ...(article.content ? { content: article.content } : {}),
-    ...(article.seo.metaTitleEn ? { 'seo.metaTitleEn': article.seo.metaTitleEn } : {}),
-    ...(article.seo.metaDescriptionEn ? { 'seo.metaDescriptionEn': article.seo.metaDescriptionEn } : {}),
-    ...(article.heroAlt && current?.image ? { 'image.alt': article.heroAlt } : {}),
-  };
-  const sets = Object.fromEntries(
-    Object.entries(fields).filter(([path]) => replace || isEmpty(valueAt(current, path)))
-  );
-
-  const draftId = `drafts.${id}`;
-  const seed = Object.fromEntries(
-    Object.entries(current ?? {}).filter(([key]) => !SYSTEM_FIELDS.has(key))
-  );
-  await sanity.createIfNotExists({ ...seed, _id: draftId, _type: 'newsArticle' });
-
-  let patch = sanity.patch(draftId).setIfMissing({
-    seo: {},
-    date: new Date().toISOString().slice(0, 10),
-    category: article.category,
-  });
-  if (Object.keys(sets).length > 0) patch = patch.set(sets);
-  await patch.commit({ autoGenerateArrayKeys: true });
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const latest = await readArticle(sanity, id);
+    if (latest && latest._type !== 'newsArticle') throw new Error('Das ist kein Artikel.');
+    const seed = Object.fromEntries(
+      Object.entries(latest ?? {}).filter(([key]) => !SYSTEM_FIELDS.has(key))
+    );
+    const draftId = `drafts.${id}`;
+    const current = (await sanity.createIfNotExists({
+      ...seed,
+      _id: draftId,
+      _type: 'newsArticle',
+    })) as ArticleDraft;
+    if (!current._rev) throw new Error('Der Entwurf hat keine gültige Revision.');
+    const fields: Record<string, unknown> = {
+      titleDe: article.titleDe,
+      excerptDe: article.excerptDe,
+      contentDe: article.contentDe,
+      'seo.metaTitle': article.seo.metaTitle,
+      'seo.metaDescription': article.seo.metaDescription,
+      ...(replace || isEmpty(current.slug?.current)
+        ? { slug: { _type: 'slug', current: await freeSlug(sanity, article.slug, id) } }
+        : {}),
+      ...(article.title ? { title: article.title } : {}),
+      ...(article.excerpt ? { excerpt: article.excerpt } : {}),
+      ...(article.content ? { content: article.content } : {}),
+      ...(article.seo.metaTitleEn ? { 'seo.metaTitleEn': article.seo.metaTitleEn } : {}),
+      ...(article.seo.metaDescriptionEn
+        ? { 'seo.metaDescriptionEn': article.seo.metaDescriptionEn }
+        : {}),
+      ...(article.heroAlt && current.image ? { 'image.alt': article.heroAlt } : {}),
+    };
+    const sets = Object.fromEntries(
+      Object.entries(fields).filter(([path]) => replace || isEmpty(valueAt(current, path)))
+    );
+    let patch = sanity
+      .patch(draftId)
+      .ifRevisionId(current._rev)
+      .setIfMissing({
+        seo: {},
+        date: new Date().toISOString().slice(0, 10),
+        category: article.category,
+      });
+    if (Object.keys(sets).length > 0) patch = patch.set(sets);
+    try {
+      await patch.commit({ autoGenerateArrayKeys: true });
+      return;
+    } catch (error) {
+      if (
+        attempt === 2 ||
+        !error ||
+        typeof error !== 'object' ||
+        !('statusCode' in error) ||
+        error.statusCode !== 409
+      )
+        throw error;
+    }
+  }
 }

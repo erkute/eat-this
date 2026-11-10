@@ -17,7 +17,7 @@
 # Trade-off: ~30–60s per push. Fix once, push without surprise rollback.
 #
 # Skipped automatically when no nextjs/ files changed in the push.
-# Override in an emergency: `git push --no-verify`. Use sparingly.
+# Ein fehlgeschlagener Build muss vor dem Push behoben werden.
 #
 # Inspect the skip/build decision without paying for a build. Run THIS file,
 # not `.git/hooks/pre-push` — `core.hooksPath` points here, so a copy left in
@@ -113,7 +113,7 @@ if ! npm run build:isolated --silent >/tmp/eat-this-prepush-build.log 2>&1; then
   echo "  ---"
   echo "  Full log: /tmp/eat-this-prepush-build.log"
   echo ""
-  echo "  Override (only if you really mean it): git push --no-verify"
+  echo "  Fix the build before pushing again."
   exit 1
 fi
 

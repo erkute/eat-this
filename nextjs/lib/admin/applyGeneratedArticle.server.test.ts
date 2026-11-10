@@ -8,17 +8,23 @@ const calls = {
   setIfMissing: [] as Record<string, unknown>[],
   set: [] as Record<string, unknown>[],
   takenSlugs: new Set<string>(),
+  document: null as ArticleDraft | null,
 };
 
 const patch = {
+  ifRevisionId: vi.fn(() => patch),
   setIfMissing: (value: Record<string, unknown>) => (calls.setIfMissing.push(value), patch),
   set: (value: Record<string, unknown>) => (calls.set.push(value), patch),
   commit: vi.fn(async () => ({})),
 };
 
 const sanity = {
-  fetch: vi.fn(async (_query: string, params: { slug: string }) => (calls.takenSlugs.has(params.slug) ? 1 : 0)),
-  createIfNotExists: vi.fn(async (doc: Record<string, unknown>) => calls.created.push(doc)),
+  fetch: vi.fn(async (_query: string, params: { slug?: string }) => params.slug ? (calls.takenSlugs.has(params.slug) ? 1 : 0) : (calls.document ? [calls.document] : [])),
+  createIfNotExists: vi.fn(async (doc: Record<string, unknown>) => {
+    calls.created.push(doc);
+    if (!calls.document?._id.startsWith('drafts.')) calls.document = { ...doc, _rev: 'draft-rev' } as ArticleDraft;
+    return calls.document;
+  }),
   patch: vi.fn(() => patch),
 } as unknown as SanityClient;
 
@@ -42,11 +48,13 @@ describe('applyGeneratedArticle', () => {
     calls.setIfMissing = [];
     calls.set = [];
     calls.takenSlugs = new Set();
+    calls.document = null;
+    patch.commit.mockReset().mockResolvedValue({});
     vi.clearAllMocks();
   });
 
   it('fills a new article and seeds date, category and seo', async () => {
-    await applyGeneratedArticle(sanity, 'a1', null, article, false);
+    await applyGeneratedArticle(sanity, 'a1', article, false);
 
     expect(calls.created[0]).toEqual({ _id: 'drafts.a1', _type: 'newsArticle' });
     expect(calls.setIfMissing[0]).toMatchObject({ seo: {}, category: 'guides' });
@@ -70,7 +78,8 @@ describe('applyGeneratedArticle', () => {
       image: { asset: { _ref: 'image-x' } },
     };
 
-    await applyGeneratedArticle(sanity, 'a1', current, article, false);
+    calls.document = current;
+    await applyGeneratedArticle(sanity, 'a1', article, false);
     expect(calls.created[0]).toEqual({
       _id: 'drafts.a1',
       _type: 'newsArticle',
@@ -82,14 +91,28 @@ describe('applyGeneratedArticle', () => {
     expect(calls.set[0]).not.toHaveProperty('slug');
     expect(calls.set[0]).toMatchObject({ 'image.alt': 'Croissant auf Teller', excerptDe: 'Teaser' });
 
-    await applyGeneratedArticle(sanity, 'a1', current, article, true);
+    await applyGeneratedArticle(sanity, 'a1', article, true);
     expect(calls.set[1]).toMatchObject({ titleDe: 'Die besten Croissants' });
   });
 
   it('picks a free page address', async () => {
     calls.takenSlugs = new Set(['die-besten-croissants', 'die-besten-croissants-2']);
 
-    await applyGeneratedArticle(sanity, 'a1', null, article, false);
+    await applyGeneratedArticle(sanity, 'a1', article, false);
     expect(calls.set[0]).toMatchObject({ slug: { current: 'die-besten-croissants-3' } });
   });
+  it('preserves text saved during generation and retries a concurrent edit before commit', async () => {
+    calls.document = { _id: 'drafts.a1', _type: 'newsArticle', _rev: 'r1', titleDe: 'Manuell gespeichert' };
+    patch.commit.mockImplementationOnce(async () => {
+      calls.document = { ...calls.document!, _rev: 'r2', excerptDe: 'Inzwischen ergänzt' };
+      throw Object.assign(new Error('revision conflict'), { statusCode: 409 });
+    });
+    await applyGeneratedArticle(sanity, 'a1', article, false);
+    expect(calls.set).toHaveLength(2);
+    expect(calls.set[0]).not.toHaveProperty('titleDe');
+    expect(calls.set[1]).not.toHaveProperty('titleDe');
+    expect(calls.set[1]).not.toHaveProperty('excerptDe');
+    expect(patch.ifRevisionId.mock.calls).toEqual([['r1'], ['r2']]);
+  });
+
 });

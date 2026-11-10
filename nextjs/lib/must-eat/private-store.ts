@@ -4,6 +4,7 @@ import { getAdminFirestore } from '@/lib/firebase/admin';
 import type { MapMustEat } from '@/lib/types';
 
 import { mustEatImageUrl } from './cardImage';
+import { mustEatContentKey } from './contentKey';
 
 // Exportiert fuer lib/must-eat/warmup, das die Karten-IDs beim Instanzstart listet.
 export const PRIVATE_MUST_EATS_COLLECTION = 'privateMustEats';
@@ -104,14 +105,16 @@ export async function getPrivateMustEatContent(id: string): Promise<PrivateMustE
  * Returns a plain record rather than a Map so the result survives being
  * serialized into a cache.
  */
-type PrivateMustEatReader = (
-  ids: string[]
-) => Promise<Record<string, PrivateMustEatContent>>;
+type PrivateMustEatReader = (ids: string[]) => Promise<Record<string, PrivateMustEatContent>>;
 
 export const readPrivateMustEatContent: PrivateMustEatReader = async (ids) => {
+  if (!ids.length) return {};
   const snapshots = await getAdminFirestore().getAll(...ids.map(documentRef));
   return Object.fromEntries(
-    snapshots.map((snapshot) => [snapshot.id, parsePrivateMustEat(snapshot.id, snapshot.data())])
+    snapshots.map((snapshot, index) => [
+      ids[index],
+      parsePrivateMustEat(ids[index], snapshot.data()),
+    ])
   );
 };
 
@@ -134,11 +137,13 @@ export async function hydrateAuthorizedMustEats(
 
   // Sorted: a cached `read` keys on its arguments, and the same set of cards
   // must not miss the cache because Sanity returned them in another order.
-  const contentById = await read(authorized.map((mustEat) => mustEat._id).sort());
+  const contentById = await read(
+    authorized.map((mustEat) => mustEatContentKey(mustEat._id, mustEat.cardVersion)).sort()
+  );
 
   return mustEats.map((mustEat) => {
     if (!authorizedIds.has(mustEat._id)) return mustEat;
-    const content = contentById[mustEat._id];
+    const content = contentById[mustEatContentKey(mustEat._id, mustEat.cardVersion)];
     if (!content) {
       throw new PrivateMustEatContentError(`Private Must-Eat ${mustEat._id} is missing`);
     }

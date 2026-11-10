@@ -175,7 +175,6 @@ describe('POST /api/admin/generate-news-article', () => {
     expect(mocks.applyGeneratedArticle).toHaveBeenCalledWith(
       targetClient,
       'article-1',
-      expect.objectContaining({ category: 'culture' }),
       generated,
       false
     );

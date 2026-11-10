@@ -7,6 +7,9 @@ vi.mock('@/lib/map/server-initial-map-data', () => ({
   getPublicMustEatIds: () => getPublicMustEatIds(),
 }));
 
+const getCachedMustEats = vi.fn();
+vi.mock('@/lib/map/cached-sanity', () => ({ getCachedMustEats: () => getCachedMustEats() }));
+
 const listIds = vi.fn();
 vi.mock('@/lib/firebase/admin', () => ({
   getAdminFirestore: () => ({
@@ -31,6 +34,7 @@ import { warmMustEatImages } from './warmup';
 describe('warmMustEatImages', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getCachedMustEats.mockRejectedValue(new Error('Sanity unavailable'));
     listIds.mockResolvedValue({ docs: [{ id: 'a' }, { id: 'b' }] });
     renderPrivateMustEatImage.mockResolvedValue({});
     readPrivateMustEatContent.mockResolvedValue({ a: {}, b: {} });
@@ -70,4 +74,17 @@ describe('warmMustEatImages', () => {
     expect(readPrivateMustEatContent).not.toHaveBeenCalled();
     expect(renderPrivateMustEatImage).not.toHaveBeenCalled();
   });
+});
+
+
+it('warms a newly published version even without a parent Firestore document', async () => {
+  vi.clearAllMocks();
+  const version = 'a'.repeat(64);
+  getCachedMustEats.mockResolvedValue([{ _id: 'new-card', cardVersion: version }]);
+  renderPrivateMustEatImage.mockResolvedValue({});
+  const result = await warmMustEatImages();
+  expect(result.cards).toBe(1);
+  expect(readPrivateMustEatContent).toHaveBeenCalledWith([`new-card/versions/${version}`]);
+  expect(renderPrivateMustEatImage).toHaveBeenCalledWith(`new-card/versions/${version}`, null, expect.any(Function));
+  expect(listIds).not.toHaveBeenCalled();
 });

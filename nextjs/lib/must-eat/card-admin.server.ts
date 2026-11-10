@@ -6,6 +6,7 @@ import sharp from 'sharp';
 
 import { getAdminFirestore, getAdminProjectId, getAdminStorage } from '@/lib/firebase/admin';
 import { PRIVATE_MUST_EATS_COLLECTION } from './private-store';
+import { mustEatContentKey } from './contentKey';
 
 // Die Karte einer Must Eat aus dem Studio pflegen: Bild, Gericht,
 // Beschreibungen, Preis. Das alles liegt geschützt in Firestore und Storage —
@@ -48,6 +49,7 @@ interface MustEatCardText {
 }
 
 interface MustEatCardState extends MustEatCardText {
+  version?: string;
   exists: boolean;
   restaurantId: string | null;
   /** Kleines Vorschaubild als data:-URL; die Karte selbst bleibt privat. */
@@ -56,8 +58,10 @@ interface MustEatCardState extends MustEatCardText {
 
 const EMPTY_TEXT: MustEatCardText = { dish: '', description: '', descriptionEn: '', price: '' };
 
-function cardRef(id: string) {
-  return getAdminFirestore().collection(PRIVATE_MUST_EATS_COLLECTION).doc(id);
+function cardRef(id: string, version?: string) {
+  return getAdminFirestore()
+    .collection(PRIVATE_MUST_EATS_COLLECTION)
+    .doc(mustEatContentKey(id, version));
 }
 
 function sha256(value: Buffer): string {
@@ -69,18 +73,25 @@ const text = (value: unknown) => (typeof value === 'string' ? value : '');
 async function previewOf(objectPath: string): Promise<string | null> {
   try {
     const [original] = await getAdminStorage().bucket().file(objectPath).download();
-    const small = await sharp(original).resize({ width: PREVIEW_WIDTH }).webp({ quality: 70 }).toBuffer();
+    const small = await sharp(original)
+      .resize({ width: PREVIEW_WIDTH })
+      .webp({ quality: 70 })
+      .toBuffer();
     return `data:image/webp;base64,${small.toString('base64')}`;
   } catch {
     return null;
   }
 }
 
-export async function readMustEatCard(id: string, options: { preview?: boolean } = {}): Promise<MustEatCardState> {
-  const data = (await cardRef(id).get()).data();
+export async function readMustEatCard(
+  id: string,
+  options: { preview?: boolean; version?: string } = {}
+): Promise<MustEatCardState> {
+  const data = (await cardRef(id, options.version).get()).data();
   if (!data) return { ...EMPTY_TEXT, exists: false, restaurantId: null, preview: null };
   const imageObjectPath = text(data.imageObjectPath);
   return {
+    version: options.version,
     dish: text(data.dish),
     description: text(data.description),
     descriptionEn: text(data.descriptionEn),
@@ -94,7 +105,10 @@ export async function readMustEatCard(id: string, options: { preview?: boolean }
   };
 }
 
-async function storeImage(id: string, upload: Buffer): Promise<{ objectPath: string; imageSha256: string }> {
+async function storeImage(
+  id: string,
+  upload: Buffer
+): Promise<{ objectPath: string; imageSha256: string }> {
   let image: Buffer;
   try {
     const source = sharp(upload).rotate();
@@ -131,11 +145,12 @@ async function storeImage(id: string, upload: Buffer): Promise<{ objectPath: str
 }
 
 /**
- * Speichert Text und, falls mitgeschickt, ein neues Bild. Ohne neues Bild
- * bleibt das bisherige; eine ganz neue Karte braucht eins.
+ * Speichert eine unveränderliche Fassung. Erst der veröffentlichte Sanity-
+ * Verweis macht sie aktiv; ohne neues Bild übernimmt sie das gewählte Motiv.
  */
 export async function writeMustEatCard(input: {
   id: string;
+  currentVersion?: string;
   restaurantId: string;
   text: MustEatCardText;
   image: Buffer | null;
@@ -151,10 +166,11 @@ export async function writeMustEatCard(input: {
     throw new MustEatCardError('Gericht und beide Beschreibungen ausfüllen.');
   }
 
-  const current = (await cardRef(id).get()).data() ?? {};
+  const current = (await cardRef(id, input.currentVersion).get()).data() ?? {};
   const stored = image ? await storeImage(id, image) : null;
   const imageObjectPath = stored?.objectPath ?? text(current.imageObjectPath);
-  if (!imageObjectPath) throw new MustEatCardError('Die Karte fehlt noch — bitte das Bild hinzufügen.');
+  if (!imageObjectPath)
+    throw new MustEatCardError('Die Karte fehlt noch — bitte das Bild hinzufügen.');
 
   const next = {
     ...cardText,
@@ -164,9 +180,7 @@ export async function writeMustEatCard(input: {
     imageSha256: stored?.imageSha256 ?? text(current.imageSha256),
     schemaVersion: 1,
   };
-  await cardRef(id).set(
-    { ...next, updatedAt: FieldValue.serverTimestamp() },
-    { merge: true }
-  );
-  return readMustEatCard(id);
+  const version = sha256(Buffer.from(JSON.stringify(next)));
+  await cardRef(id, version).set({ ...next, updatedAt: FieldValue.serverTimestamp() });
+  return readMustEatCard(id, { version });
 }

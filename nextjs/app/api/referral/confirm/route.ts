@@ -16,29 +16,13 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-/**
- * Was eine Einladung einbringt: eine Must-Eat-Karte, für beide Seiten.
- *
- * Bis zum 06.09.2026 waren es zehn Spots — die Währung, die es gab, solange
- * zwei Drittel der Karte gesperrt waren. Sie ist ersatzlos weg: die Map ist
- * frei, und das einzige, was ein Konto noch reicher macht, sind die Karten.
- *
- * Verschenkt wird nur, was der Beschenkte noch gar nicht im Deck hat — offen
- * wie verdeckt. Die öffentlichen Schaufensterkarten sind kein Geschenk, die
- * eigenen erst recht nicht, und eine verdeckte Starter-Karte umzudrehen macht
- * das Album nicht größer (siehe `computeReferralPools`). Was offen liegt,
- * entscheidet `composeAccountSurface`, dieselbe Ableitung wie auf der Map; was
- * verdeckt im Deck liegt, steht im Entitlement.
- *
- * Auf dem heutigen Stapel bleibt danach oft nichts übrig. Dann wird auch
- * nichts vergeben: der Einladende bekommt kein Bonus-Dokument, also auch
- * keinen Toast, der eine Karte verspricht, die es nicht gibt.
- */
+/** Einladungen verbinden beide Konten auch dann, wenn keine Bonuskarte frei ist.
+ * Die Vergabe wird je Einladendem in derselben Transaktion ausgewählt und gezählt. */
 export async function POST(req: NextRequest) {
   const inviterUid = req.cookies.get(REFERRER_COOKIE)?.value ?? null;
 
   const respond = (clear: boolean) => {
-    const res = NextResponse.json({ ok: true });
+    const res = NextResponse.json({ ok: clear, completed: clear }, { status: clear ? 200 : 503 });
     if (clear) res.cookies.set(REFERRER_COOKIE, '', { path: '/', maxAge: 0 });
     return res;
   };
@@ -81,8 +65,9 @@ export async function POST(req: NextRequest) {
       emailVerified: inviter.emailVerified === true,
       admin: inviter.customClaims?.admin === true,
     };
-  } catch {
-    return respond(true);
+  } catch (error) {
+    const deleted = (error as { code?: string }).code === 'auth/user-not-found';
+    return respond(deleted);
   }
   if (friendEmail && inviterEmail && friendEmail === inviterEmail) return respond(true);
 
@@ -119,18 +104,14 @@ export async function POST(req: NextRequest) {
       friend: { faceUpIds: friendSurface.faceUpIds },
     });
     const friendPicks = sampleN(friendPool, REFERRAL_BONUS_CARDS);
-    const inviterPicks = sampleN(inviterPool, REFERRAL_BONUS_CARDS);
 
     const friendDocRef = db
       .collection('users')
       .doc(friendUid)
       .collection('referralBonuses')
       .doc('invited-by');
-    const inviterDocRef = db
-      .collection('users')
-      .doc(inviterUid)
-      .collection('referralBonuses')
-      .doc(`invited-${friendUid}`);
+    const inviterBonusesRef = db.collection('users').doc(inviterUid).collection('referralBonuses');
+    const inviterDocRef = inviterBonusesRef.doc(`invited-${friendUid}`);
     const inviterCounterRef = db.doc(`users/${inviterUid}/referralStats/inviter`);
 
     // The deterministic friend document is the idempotency lock. Reading and
@@ -139,13 +120,24 @@ export async function POST(req: NextRequest) {
     // also reads and updates one shared counter document, which serializes
     // different friends racing for the final available slots.
     await db.runTransaction(async (tx) => {
-      const [existing, counter] = await Promise.all([
+      const [existing, counter, bonuses] = await Promise.all([
         tx.get(friendDocRef),
         tx.get(inviterCounterRef),
+        tx.get(inviterBonusesRef),
       ]);
       if (existing.exists) return;
 
       const awardedCount: number = counter.data()?.awardedCount ?? 0;
+      const alreadyAwarded = new Set<string>(
+        bonuses.docs.flatMap((doc) => doc.data().mustEatIds ?? [])
+      );
+      const inviterPicks =
+        awardedCount < MAX_REFERRALS_PER_INVITER
+          ? sampleN(
+              inviterPool.filter((id) => !alreadyAwarded.has(id)),
+              REFERRAL_BONUS_CARDS
+            )
+          : [];
 
       tx.set(friendDocRef, {
         mustEatIds: friendPicks,
@@ -153,13 +145,13 @@ export async function POST(req: NextRequest) {
         partnerUid: inviterUid,
         createdAt: FieldValue.serverTimestamp(),
       });
-      if (inviterPicks.length > 0 && awardedCount < MAX_REFERRALS_PER_INVITER) {
-        tx.set(inviterDocRef, {
-          mustEatIds: inviterPicks,
-          source: 'invited',
-          partnerUid: friendUid,
-          createdAt: FieldValue.serverTimestamp(),
-        });
+      tx.set(inviterDocRef, {
+        mustEatIds: inviterPicks,
+        source: 'invited',
+        partnerUid: friendUid,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+      if (inviterPicks.length > 0) {
         tx.set(
           inviterCounterRef,
           {

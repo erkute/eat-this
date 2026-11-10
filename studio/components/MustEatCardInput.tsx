@@ -19,7 +19,7 @@ type Load = {kind: 'idle'} | {kind: 'loading'} | {kind: 'ready'; card: MustEatCa
 /**
  * Das Must Eat Formular plus die Karte: Bild zum Reinziehen, Gericht,
  * Beschreibungen, Preis. Gespeichert wird bei der App, nicht in Sanity —
- * deshalb ein eigener Knopf, der sofort wirkt.
+ * der Entwurf wählt die gespeicherte Fassung bis zum Veröffentlichen.
  */
 export function MustEatCardInput(props: ObjectInputProps) {
   const client = useClient({apiVersion: '2024-01-01'})
@@ -131,8 +131,7 @@ export function MustEatCardInput(props: ObjectInputProps) {
             Karte
           </Text>
           <Text size={1} muted>
-            Bild und Gericht liegen geschützt bei der App, nicht in Sanity. „Karte speichern“ wirkt sofort —
-            sichtbar wird die Karte erst, wenn die Must Eat veröffentlicht ist.
+            „Karte speichern“ sichert den Entwurf. Bild, Texte und Spot wechseln auf der Website erst mit „Veröffentlichen“.
           </Text>
         </Stack>
 

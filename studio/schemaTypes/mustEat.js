@@ -2,7 +2,7 @@ import {StarIcon} from '@sanity/icons'
 import {MustEatCardInput} from '../components/MustEatCardInput'
 
 // Nur die öffentliche Hülle der Karte: Gericht und Bild liegen privat in
-// Firestore (`privateMustEats/<id>`) und Storage, nicht hier. Gepflegt
+// Firestore (Basiskarte oder durch cardVersion gewählte Fassung) und Storage. Gepflegt
 // werden sie im Formular darunter (MustEatCardInput), über die App.
 export default {
   name: 'mustEat',
@@ -16,6 +16,7 @@ export default {
     return {order: (highest ?? 0) + 1, revealedForAnon: false}
   },
   fields: [
+    {name: 'cardVersion', type: 'string', hidden: true, readOnly: true},
     {
       name: 'restaurantRef',
       title: 'Spot',

@@ -3,8 +3,10 @@ import sharp from 'sharp'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const getPublicMustEatIds = vi.fn()
+const getPublishedMustEatContentKey = vi.fn(async (id: string) => id)
 vi.mock('@/lib/map/server-initial-map-data', () => ({
   getPublicMustEatIds: () => getPublicMustEatIds(),
+  getPublishedMustEatContentKey: (id: string) => getPublishedMustEatContentKey(id),
 }))
 
 const getPrivateMustEatContent = vi.fn()
@@ -304,4 +306,13 @@ describe('/api/must-eat-image/[id]', () => {
     expect(Buffer.from(await response.arrayBuffer()).toString()).toBe('private-image')
     expect(response.headers.get('content-type')).toBe('image/webp')
   })
+})
+
+it('serves only the published revision even if a request supplies another version', async () => {
+  getPublicMustEatIds.mockResolvedValueOnce(new Set(['m1']))
+  const publishedKey = `m1/versions/${'a'.repeat(64)}`
+  getPublishedMustEatContentKey.mockResolvedValueOnce(publishedKey)
+  const response = await GET(request(undefined, `?version=${'b'.repeat(64)}`), { params: Promise.resolve({ id: 'm1' }) })
+  expect(response.status).toBe(200)
+  expect(getPrivateMustEatContent).toHaveBeenCalledWith(publishedKey)
 })

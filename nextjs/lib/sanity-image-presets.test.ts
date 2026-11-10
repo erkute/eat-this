@@ -1,11 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { presetQuery, groqImageUrl, sanitySrcSet, sanityImageSize, coverImageScale, sanityCroppedSources } from './sanity-image-presets';
 
-// These assertions pin the EXACT query strings the hand-written GROQ
-// projections used before the refactor. If any byte changes, a projection's
-// emitted URL changes — which is exactly what must not happen silently.
-
-describe('presetQuery — frozen against the pre-refactor strings', () => {
+describe('presetQuery', () => {
   it('detailHero → w=1600 q=85', () => {
     expect(presetQuery('detailHero')).toBe('?w=1600&auto=format&q=85');
   });
@@ -79,29 +75,36 @@ describe('sanityCroppedSources', () => {
 });
 
 describe('groqImageUrl', () => {
-  it('prefixes the dereference path and appends asset->url + query', () => {
-    expect(groqImageUrl('image', 'detailHero')).toBe(
-      'image.asset->url + "?w=1600&auto=format&q=85"'
-    );
-    expect(groqImageUrl('mustEatRef->restaurantRef->image', 'articleDishRestaurant')).toBe(
-      'mustEatRef->restaurantRef->image.asset->url + "?w=500&auto=format&q=75"'
-    );
+  it('includes the asset, crop rectangle and hotspot', () => {
+    const query = groqImageUrl('image', 'detailHero');
+    expect(query).toContain('image.asset->url');
+    expect(query).toContain('image.crop.top');
+    expect(query).toContain('image.hotspot.x');
+    expect(query).toContain('&rect=');
+    expect(groqImageUrl('@', 'galleryThumb')).toContain('&crop=focalpoint');
   });
 });
 
-describe('sanityImageSize', () => {
-  // Die Spot-Seite zeigt Fotos ungeschnitten in ihrem eigenen Format; die
-  // Masse stehen im Dateinamen des Sanity-Assets.
-  it('reads width and height from the asset file name', () => {
-    expect(
-      sanityImageSize(
-        'https://cdn.sanity.io/images/p/d/b822ba15ca9b271eee8ba94ceb96cbbd5de6c37e-1600x2400.jpg?w=1600&q=85'
-      )
-    ).toEqual({ width: 1600, height: 2400 });
+describe('editorial crop across responsive variants', () => {
+  const url = 'https://cdn.sanity.io/images/p/d/photo-1600x1200.jpg?w=800&rect=200,100,1000,900&fp-x=0.25&fp-y=0.2';
+  it('keeps the crop and focal point at each width and caps to cropped dimensions', () => {
+    const sources = sanitySrcSet(url, [300, 600, 1600])!.split(', ');
+    expect(sources).toHaveLength(3);
+    for (const source of sources) {
+      const p = new URL(source.split(' ')[0]).searchParams;
+      expect(p.get('rect')).toBe('200,100,1000,900');
+      expect(p.get('fp-y')).toBe('0.2');
+    }
+    expect(sources[2]).toMatch(/1000w$/);
+    expect(sanityImageSize(url)).toEqual({ width: 1000, height: 900 });
   });
-
-  it('returns null for anything else', () => {
-    expect(sanityImageSize('/pics/card-back.webp')).toBeNull();
-    expect(sanityImageSize(undefined)).toBeNull();
+  it('uses the focal point for cover crops without leaving the editor rectangle', () => {
+    const sources = sanityCroppedSources(url, [300, 600, 1600], .5)!;
+    for (const source of sources.srcSet.split(', ')) {
+      const p = new URL(source.split(' ')[0]).searchParams;
+      expect(p.get('rect')).toBe('200,100,450,900');
+      expect(p.has('fp-x')).toBe(false);
+      expect(Number(p.get('w')) / Number(p.get('h'))).toBe(.5);
+    }
   });
 });

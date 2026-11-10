@@ -115,7 +115,7 @@ const nextConfig: NextConfig = {
     // at 90. Next's default 75 remains available for existing callers.
     qualities: [75, 80, 90],
     // Sanity-Bilder gehen direkt an die Sanity-CDN (app/components/SiteImage.tsx
-    // setzt für sie `sanityNextImageLoader`), nur eigene Bilder laufen über den
+    // setzt für sie `sanityImageLoader`), nur eigene Bilder laufen über den
     // Optimierer. Gemessen am 25.09.2026 (Standalone-Build, lokal): 510
     // Sanity-Varianten über den Optimierer kosteten +95 MiB Prozessspeicher,
     // die auch im Leerlauf blieben, und 30 MiB Bild-Cache — auf Cloud Run

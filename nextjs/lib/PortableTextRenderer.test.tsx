@@ -1,10 +1,11 @@
+import { NextIntlClientProvider } from 'next-intl';
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { PortableTextRenderer, extractHeadings } from './PortableTextRenderer';
 import type { PortableTextBlock, SpotCardBlock } from './types';
 
 function render(blocks: PortableTextBlock[]): string {
-  return renderToStaticMarkup(<PortableTextRenderer blocks={blocks} />);
+  return renderToStaticMarkup(<NextIntlClientProvider locale="de" messages={{}}><PortableTextRenderer blocks={blocks} /></NextIntlClientProvider>);
 }
 
 const spotCard = (over: Partial<SpotCardBlock> = {}): PortableTextBlock =>
@@ -264,4 +265,17 @@ describe('chapter headings with a deck', () => {
   it('leaves a heading without a dash whole', () => {
     expect(render([h2([span('Fazit')])])).not.toContain('data-heading');
   });
+});
+
+it('keeps relative CMS navigation in English', () => {
+  const html = renderToStaticMarkup(<NextIntlClientProvider locale="en" messages={{}}>
+    <PortableTextRenderer blocks={[para([span('Map', ['l'])], [link('l', '/map?r=sofi')])]} />
+  </NextIntlClientProvider>);
+  expect(html).toContain('href="/en/map?r=sofi"');
+});
+
+ it('keeps nested mixed lists inside their parent item', () => {
+  const item = (text: string, level: number, listItem = 'bullet') => ({...para([span(text)]), _key: text, level, listItem});
+  const html = render([item('Pizza', 1), item('Margherita', 2, 'number'), item('Pasta', 1)]);
+  expect(html.replace(/<\/?span>/g, '')).toContain('<ul><li>Pizza<ol><li>Margherita</li></ol></li><li>Pasta</li></ul>');
 });

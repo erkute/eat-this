@@ -726,6 +726,9 @@ div.page {
 
 .shareRow {
   display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
   justify-content: flex-start;
   margin-top: clamp(24px, 4vw, 44px);
 }

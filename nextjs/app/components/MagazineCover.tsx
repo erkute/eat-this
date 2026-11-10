@@ -20,7 +20,7 @@ import {
   type CoverTone,
   type CutoutCover,
 } from '@/lib/magazineCover';
-import { sanitySrcSet, coverImageScale, sanityCroppedSources } from '@/lib/sanity-image-presets';
+import { sanityImagePosition, sanitySrcSet, coverImageScale, sanityCroppedSources } from '@/lib/sanity-image-presets';
 import sanityImageLoader from '@/lib/sanityImageLoader';
 import styles from './MagazineCover.module.css';
 import PreviewImage from './PreviewImage';
@@ -131,7 +131,7 @@ export default function MagazineCover({
       // proxy would re-optimise them.
       <PhotoImage
         className={className}
-        style={style}
+        style={{ objectPosition: cropped ? undefined : sanityImagePosition(image), ...style }}
         src={cropped?.src ?? sanityImageLoader({ src: image, width: widths[1] ?? widths[0] })}
         srcSet={cropped?.srcSet ?? sanitySrcSet(image, widths.map((w) => Math.round(w * sourceScale)))}
         sizes={sourceScale === 1 ? sizes : scaleSizes(sizes, sourceScale)}
@@ -281,6 +281,8 @@ export default function MagazineCover({
       const c = cut as CutoutCover;
       const g = frontGeometry(c);
       const onPhoto = g.mode === 'photo' && Boolean(image);
+      // Photo and cutout share the original asset's pixel coordinates.
+      const registeredPhoto = image?.split('?')[0];
       tone = onPhoto ? null : 'ink';
       const ws = widths.map((w) => Math.min(2000, Math.round((w * g.rect.width) / 100)));
       const layerSizes = scaleSizes(sizes, g.rect.width / 100);
@@ -290,8 +292,8 @@ export default function MagazineCover({
             <PhotoImage
               className={styles.layer}
               style={place(g.rect)}
-              src={sanityImageLoader({ src: image, width: ws[1] ?? ws[0] })}
-              srcSet={sanitySrcSet(image, ws)}
+              src={sanityImageLoader({ src: registeredPhoto!, width: ws[1] ?? ws[0] })}
+              srcSet={sanitySrcSet(registeredPhoto, ws)}
               sizes={layerSizes}
               alt=""
               loading={loading}

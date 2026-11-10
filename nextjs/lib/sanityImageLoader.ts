@@ -1,31 +1,6 @@
-// Custom next/image loader for Sanity CDN URLs.
-//
-// Sanity's CDN already does WebP conversion (`?auto=format`) and resizing
-// (`?w=`), so we pass the raw CDN URL through with a width-modulated query
-// string. This skips Next's `/_next/image` proxy — one hop instead of two —
-// and lets next/image build a real responsive `srcset` against the same
-// CDN that other images already hit.
-//
-// Direkt benutzt von den rohen Sanity-<img>-Stellen. next/image kommt über
-// lib/imageLoader.ts hierher, der eigene Bilder weiter an den Optimierer gibt.
+import { resizeSanityImage } from './sanity-image-presets';
 
-import { sanityImageSize } from './sanity-image-presets';
-
-const DEFAULT_QUALITY = 80;
-
-export default function sanityImageLoader({
-  src,
-  width,
-  quality,
-}: {
-  src: string;
-  width: number;
-  quality?: number;
-}): string {
-  // Strip any pre-existing query string the GROQ projection may have added,
-  // so we don't end up with duplicated `?w=`/`?q=` params.
-  const base = src.split('?')[0];
-  const q = quality ?? DEFAULT_QUALITY;
-  const nativeWidth = sanityImageSize(base)?.width;
-  return `${base}?w=${nativeWidth ? Math.min(width, nativeWidth) : width}&auto=format&q=${q}`;
+/** Sanity handles resizing directly, retaining the editor's crop and focus. */
+export default function sanityImageLoader({ src, width, quality }: { src: string; width: number; quality?: number }): string {
+  return resizeSanityImage(src, width, quality ?? 80);
 }

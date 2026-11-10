@@ -498,8 +498,6 @@ main.page .head {
   opacity: 0.55;
 }
 .trophyName {
-  --et-tape-img: var(--et-tape-active-img);
-  --et-tape-fg: var(--et-tape-active-fg);
   font-size: clamp(14px, 1.2vw, 16px);
   line-height: 1.2;
 }

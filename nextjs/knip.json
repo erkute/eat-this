@@ -5,7 +5,8 @@
     "e2e/seed-firebase.mts",
     "i18n/**/*.{ts,tsx}",
     "scripts/*.{ts,mts}",
-    "lib/sanityImageLoader.ts"
+    "lib/sanityImageLoader.ts",
+    "lib/sentry/client-sdk.ts"
   ],
   "ignoreDependencies": ["eslint-config-next"]
 }

@@ -3,7 +3,7 @@
 // Booster-Pack teaser card: rendered once per conversation under the first
 // matching answer. Ob das Konto das Pack schon hat, entscheidet die Route am
 // verifizierten Token — was hier ankommt, wird gezeigt.
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage';
@@ -47,8 +47,14 @@ vi.mock('@/i18n/navigation', () => ({
 
 import BuddyWidget from './BuddyWidget';
 
+// jsdom does not implement window scrolling.
+beforeEach(() => {
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+});
+
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   auth.user = null;
 });
 

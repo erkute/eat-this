@@ -175,6 +175,36 @@ describe('/api/heart', () => {
     );
   });
 
+  it('removes a favorite whose restaurant is no longer in Sanity', async () => {
+    vi.mocked(getCachedMapData).mockResolvedValue({ restaurants: [], mustEats: [], categories: [] });
+    mocks.transactionGet.mockResolvedValueOnce({ exists: true });
+    const res = await POST(mkReq({ restaurantId: 'removed-spot', action: 'remove' }));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ hearted: false });
+    expect(mocks.transactionDelete).toHaveBeenCalledWith({ path: 'users/test-uid/favorites/removed-spot' });
+    expect(mocks.transactionSet).toHaveBeenCalledWith(
+      { path: 'restaurants/removed-spot' },
+      { heartCount: { increment: -1 }, heartCountUpdatedAt: 'server-timestamp' },
+      { merge: true }
+    );
+    expect(getCachedMapData).not.toHaveBeenCalled();
+  });
+
+  it('does not decrement again when the removed favorite is already absent', async () => {
+    const res = await POST(mkReq({ restaurantId: 'removed-spot', action: 'remove' }));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ hearted: false });
+    expect(mocks.transactionDelete).not.toHaveBeenCalled();
+    expect(mocks.transactionSet).not.toHaveBeenCalled();
+    expect(getCachedMapData).not.toHaveBeenCalled();
+  });
+
+  it.each(['x/y/z', '.', '..'])('rejects invalid document ID %s', async (restaurantId) => {
+    const res = await POST(mkReq({ restaurantId, action: 'remove' }));
+    expect(res.status).toBe(400);
+    expect(mocks.runTransaction).not.toHaveBeenCalled();
+  });
+
   it('rate-limits before loading map data or writing', async () => {
     mocks.checkRateLimit.mockResolvedValueOnce({
       allowed: false,

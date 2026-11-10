@@ -25,7 +25,7 @@ interface PremiumAccessPayload {
   h: string;
 }
 
-export interface PremiumAccess {
+interface PremiumAccess {
   has(id: string): boolean;
 }
 

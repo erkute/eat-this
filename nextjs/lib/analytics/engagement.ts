@@ -101,7 +101,7 @@ export function parseInsight(body: Record<string, unknown>): InsightBeacon | nul
   };
 }
 
-export type InsightCounts = Record<InsightSignal, number>;
+type InsightCounts = Record<InsightSignal, number>;
 const emptyInsightCounts = (): InsightCounts =>
   Object.fromEntries(INSIGHT_SIGNALS.map((key) => [key, 0])) as InsightCounts;
 export type DeviceCounts = Record<InsightDevice, InsightCounts>;

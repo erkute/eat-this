@@ -23,13 +23,6 @@ interface HeartBody {
 // on whether the user already hearts the spot, so the count tracks exactly the
 // distinct (user, restaurant) hearts: one account contributes at most +1, and a
 // retried or duplicate toggle can't drift the counter.
-//
-// This replaces the removed onHeartCreated/onHeartDeleted Cloud Functions — the
-// whole functions/ layer was dropped in the clean-architecture reset, so the
-// counter is now maintained server-side via the Admin SDK, exactly like
-// /api/must-eat-reveal and /api/referral/confirm. firestore.rules keep
-// restaurants/{id} server-only writable, so the client can't touch the count
-// directly. See AGENTS.md (Gewollte Produktlogik).
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
@@ -62,15 +55,20 @@ export async function POST(req: Request) {
 
   const body = (await req.json().catch(() => null)) as HeartBody | null;
   const restaurantId =
-    typeof body?.restaurantId === 'string' && body.restaurantId ? body.restaurantId : null;
+    typeof body?.restaurantId === 'string' &&
+    /^[A-Za-z0-9_-][A-Za-z0-9_.-]*$/.test(body.restaurantId)
+      ? body.restaurantId
+      : null;
   const action = body?.action === 'add' || body?.action === 'remove' ? body.action : null;
   if (!restaurantId || !action) {
     return NextResponse.json({ error: 'restaurantId and action required' }, { status: 400 });
   }
 
-  const { restaurants } = await getCachedMapData();
-  const restaurant = restaurants.find((r) => r._id === restaurantId);
-  if (!restaurant) {
+  // Removing an existing favorite must also work after its spot is delisted.
+  const restaurant = action === 'add'
+    ? (await getCachedMapData()).restaurants.find((r) => r._id === restaurantId)
+    : undefined;
+  if (action === 'add' && !restaurant) {
     return NextResponse.json({ error: 'unknown_restaurant' }, { status: 404 });
   }
 
@@ -80,7 +78,7 @@ export async function POST(req: Request) {
 
   const hearted = await db.runTransaction(async (tx) => {
     const exists = (await tx.get(favRef)).exists;
-    if (action === 'add') {
+    if (restaurant) {
       if (exists) return true; // idempotent — already hearted, count untouched
       tx.set(favRef, {
         name: restaurant.name,

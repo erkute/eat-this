@@ -1,6 +1,6 @@
 import { FULL_DAY_FIELDS_SINCE, type StatsSummary } from './stats.server';
 import { totalInsights } from '@/lib/analytics/engagement';
-export interface DashboardFinding {
+interface DashboardFinding {
   key: string;
   title: string;
   detail: string;

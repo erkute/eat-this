@@ -4,7 +4,7 @@ import { ResponsiveArt, CtaButton, LinkNote } from './components/Pieces';
 import { ART } from './art.generated';
 import { EMAIL_SPOTS } from './spots.generated';
 import type { MailLocale } from './locale';
-export interface SignupEmailProps {magicLink:string;appUrl:string;locale:MailLocale}
+interface SignupEmailProps {magicLink:string;appUrl:string;locale:MailLocale}
 export const SIGNUP_SUBJECT:Record<MailLocale,string>={de:'Dein Anmeldelink für Eat This',en:'Your Eat This sign-in link'};
 export default function SignupEmail({magicLink,appUrl,locale}:SignupEmailProps){
  const en=locale==='en';

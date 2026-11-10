@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { CachedMapData } from './map-data-cache';
 import {
@@ -105,4 +105,16 @@ describe('map data cache premium boundary', () => {
     expect(window.localStorage.getItem('eatthis_mapdata_v4_user-1')).toBeNull();
     expect(window.localStorage.getItem('eatthis_mapdata_old-user')).toBeNull();
   });
+});
+
+
+afterEach(() => vi.restoreAllMocks());
+it('keeps auth and logout usable when the browser denies storage access', () => {
+  vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+    throw new DOMException('Access is denied for this document.', 'SecurityError');
+  });
+  expect(() => reconcileMapDataCacheIdentity(null)).not.toThrow();
+  expect(() => reconcileMapDataCacheIdentity('user-1')).not.toThrow();
+  expect(() => clearMapDataCaches()).not.toThrow();
+  expect(readMapCache('user-1')).toBeNull();
 });

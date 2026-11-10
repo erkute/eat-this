@@ -1,4 +1,4 @@
-import { client } from '@/lib/sanity';
+import { readSanity } from '@/lib/sanity-read';
 import { localeUrl } from '@/lib/locale-url';
 import { routing } from '@/i18n/routing';
 import { hasEnContent } from '@/lib/i18n/pickLocale';
@@ -84,7 +84,7 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
   if (isStaging) return [];
 
   const [restaurants, articles, bezirke, categorySlugs] = await Promise.all([
-    client.fetch<{ slug: string; descriptionEn?: string; createdAt?: string }[]>(
+    readSanity<{ slug: string; descriptionEn?: string; createdAt?: string }[]>(
       // `seo.noIndex` ist der Schalter, mit dem die Redaktion eine Seite aus
       // dem Index nimmt (restaurantRobots setzt daraufhin `noindex,nofollow`).
       // Stünde sie trotzdem in der Sitemap, widersprächen sich zwei Signale —
@@ -94,7 +94,7 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-restaurants'] } }
     ),
-    client.fetch<
+    readSanity<
       {
         slug: string;
         updatedAt: string;
@@ -108,14 +108,14 @@ export async function sitemapEntries(): Promise<SitemapEntry[]> {
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-articles'] } }
     ),
-    client.fetch<{ slug: string; descriptionEn?: string }[]>(
+    readSanity<{ slug: string; descriptionEn?: string }[]>(
       // Districts without open spots redirect to /bezirk (bezirk/[slug]/page.tsx) — keep them
       // out of the sitemap too.
       `*[_type == "bezirk" && defined(slug.current) && !(_id in path("drafts.**")) && seo.noIndex != true && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]) > 0] { "slug": slug.current, descriptionEn }`,
       {},
       { next: { revalidate: SANITY_REVALIDATE_SECONDS, tags: ['sitemap-bezirke'] } }
     ),
-    client.fetch<{ slug: string }[]>(
+    readSanity<{ slug: string }[]>(
       // Kein `seo.noIndex` wie oben: das Kategorie-Schema (studio/schemaTypes/
       // category.js) hat kein seo-Objekt. Kommt eins dazu, gehört der Filter
       // auch hierher.

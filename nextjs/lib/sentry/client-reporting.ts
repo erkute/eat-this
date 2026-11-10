@@ -32,6 +32,9 @@ export function startClientErrorReporting(): void {
     if (!event.error && !event.message) return;
     captureException(event.error ?? new Error(event.message), {
       mechanism: { handled: false, type: 'onerror' },
+      ...(event.filename ? {
+        captureContext: { extra: { source: { filename: event.filename, line: event.lineno, column: event.colno } } },
+      } : {}),
     });
   };
   const onRejection = (event: PromiseRejectionEvent) => {

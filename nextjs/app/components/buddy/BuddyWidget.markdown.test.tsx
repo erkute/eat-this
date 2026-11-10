@@ -3,7 +3,7 @@
 // Inline-Markdown im Antworttext. Kursiv fehlte: Claude betont damit gern ein
 // einzelnes Wort („eigentlich *die* Pizza-Referenz"), und die Sternchen
 // standen roh in Remys Antwort.
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { BUDDY_ASK_EVENT } from '@/lib/buddy/homeStage';
@@ -30,8 +30,14 @@ vi.mock('./useBuddyChat', () => ({
 
 import BuddyWidget from './BuddyWidget';
 
+// jsdom does not implement window scrolling.
+beforeEach(() => {
+  vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+});
+
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   chat.messages = [];
 });
 

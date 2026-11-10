@@ -1,4 +1,4 @@
-import { client } from '@/lib/sanity';
+import { readSanity } from '@/lib/sanity-read';
 import { localeUrl } from '@/lib/locale-url';
 import { isStaging } from '@/lib/env';
 import { liveRestaurant } from '@/lib/sanity-filters';
@@ -42,17 +42,17 @@ export async function GET(): Promise<Response> {
   }
 
   const [categories, bezirke, articles] = await Promise.all([
-    client.fetch<Category[]>(
+    readSanity<Category[]>(
       `*[_type == "category" && defined(slug.current)] | order(name asc) { "slug": slug.current, name, "nameEn": coalesce(nameEn, name) }`,
       {},
       { next: { revalidate: 86400, tags: ['category-list'] } }
     ),
-    client.fetch<NamedSlug[]>(
+    readSanity<NamedSlug[]>(
       `*[_type == "bezirk" && defined(slug.current) && count(*[_type == "restaurant" && bezirkRef._ref == ^._id && ${liveRestaurant()}]) > 0] | order(name asc) { "slug": slug.current, name }`,
       {},
       { next: { revalidate: 86400, tags: ['sitemap-bezirke'] } }
     ),
-    client.fetch<Article[]>(
+    readSanity<Article[]>(
       `*[_type == "newsArticle" && defined(slug.current) && !(_id in path("drafts.**"))] | order(date desc)[0...${ARTICLE_LIMIT}] { "slug": slug.current, "nameDe": coalesce(titleDe, title), "nameEn": coalesce(titleEn, title, titleDe) }`,
       {},
       { next: { revalidate: 86400, tags: ['sitemap-articles'] } }
